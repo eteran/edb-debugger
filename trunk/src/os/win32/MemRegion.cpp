@@ -62,11 +62,14 @@ void MemRegion::set_permissions(bool read, bool write, bool execute) {
 		case 0x7: prot = PAGE_EXECUTE_READWRITE; break;
 		}
 
+		prot |= permissions_ & ~KNOWN_PERMISSIONS; // keep modifiers
+
 		DWORD prev_prot;
-		VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start), size(), prot, &prev_prot);
+		if(VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start), size(), prot, &prev_prot)) {
+			permissions_ = prot;
+		}
 		CloseHandle(ph);
 	}
-
 }
 
 //------------------------------------------------------------------------------
@@ -82,11 +85,15 @@ bool MemRegion::accessible() const {
 // Desc:
 //------------------------------------------------------------------------------
 bool MemRegion::readable() const {
-	return
-		permissions_ == PAGE_EXECUTE_READ ||
-		permissions_ == PAGE_EXECUTE_READWRITE ||
-		permissions_ == PAGE_READONLY ||
-		permissions_ == PAGE_READWRITE;
+	switch(permissions_ & KNOWN_PERMISSIONS) { // ignore modifiers
+		case PAGE_EXECUTE_READ:
+		case PAGE_EXECUTE_READWRITE:
+		case PAGE_READONLY:
+		case PAGE_READWRITE:
+			return true;
+		default:
+			return false;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -94,11 +101,15 @@ bool MemRegion::readable() const {
 // Desc:
 //------------------------------------------------------------------------------
 bool MemRegion::writable() const {
-	return
-		permissions_ == PAGE_EXECUTE_READWRITE ||
-		permissions_ == PAGE_EXECUTE_WRITECOPY ||
-		permissions_ == PAGE_READWRITE ||
-		permissions_ == PAGE_WRITECOPY;
+	switch(permissions_ & KNOWN_PERMISSIONS) { // ignore modifiers
+		case PAGE_EXECUTE_READWRITE:
+		case PAGE_EXECUTE_WRITECOPY:
+		case PAGE_READWRITE:
+		case PAGE_WRITECOPY:
+			return true;
+		default:
+			return false;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -106,11 +117,15 @@ bool MemRegion::writable() const {
 // Desc:
 //------------------------------------------------------------------------------
 bool MemRegion::executable() const {
-	return
-		permissions_ == PAGE_EXECUTE ||
-		permissions_ == PAGE_EXECUTE_READ ||
-		permissions_ == PAGE_EXECUTE_READWRITE ||
-		permissions_ == PAGE_EXECUTE_WRITECOPY;
+	switch(permissions_ & KNOWN_PERMISSIONS) { // ignore modifiers
+		case PAGE_EXECUTE:
+		case PAGE_EXECUTE_READ:
+		case PAGE_EXECUTE_READWRITE:
+		case PAGE_EXECUTE_WRITECOPY:
+			return true;
+		default:
+			return false;
+	}
 }
 
 //------------------------------------------------------------------------------

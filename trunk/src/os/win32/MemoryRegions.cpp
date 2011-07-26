@@ -82,19 +82,15 @@ void MemoryRegions::sync() {
 
 				last_base = info.BaseAddress;
 
-				#ifndef PAGE_WRITECOMBINE
-				#define PAGE_WRITECOMBINE 0
-				#endif
-
-				// for now we ignore modifiers
-				info.Protect &= ~(PAGE_GUARD | PAGE_NOCACHE | PAGE_WRITECOMBINE);
-
-				if(info.Protect != 0) {
+				if(info.State == MEM_COMMIT) {
 					MemRegion region;
 					region.start        = reinterpret_cast<edb::address_t>(info.BaseAddress);
 					region.end          = reinterpret_cast<edb::address_t>(info.BaseAddress) + info.RegionSize;
 					region.base         = reinterpret_cast<edb::address_t>(info.AllocationBase);
-					region.permissions_ = info.Protect;
+					region.permissions_ = info.Protect; // let MemRegion handle permissions and modifiers
+					if(info.Type == MEM_IMAGE) {
+						region.name = "some_module";
+					}
 
 					regions.push_back(region);
 				}

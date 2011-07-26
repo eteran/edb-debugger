@@ -17,13 +17,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerCore.h"
+#include "Debugger.h"
 #include "DebugEvent.h"
 #include "State.h"
 #include "PlatformState.h"
+#include "MemoryRegions.h"
+#include "MemRegion.h"
+
 #include <QDebug>
 #include <QStringList>
-#include <windows.h>
+#include <QFileInfo>
 
+#include <windows.h>
+#include <algorithm>
 
 class Win32Handle {
 public:
@@ -33,19 +39,24 @@ public:
 private:
 	Win32Handle(const Win32Handle&);
 	Win32Handle &operator=(const Win32Handle&);
-	bool valid() const { return (handle != 0 && handle != INVALID_HANDLE_VALUE); }
+	bool valid() const { return (handle != NULL && handle != INVALID_HANDLE_VALUE); }
 
 public:
 	HANDLE get() const { return handle; }
 
 public:
-	//operator void*() const { return reinterpret_cast<void*>(handle != 0); }
 	operator bool() const { return valid(); }
 	operator HANDLE() const { return handle; }
 
 private:
 	HANDLE handle;
 };
+
+// Checks if an addition would cause overflow (wraparound)
+template<typename T> bool overflows(const T& v1, const T& v2, const T& max = std::numeric_limits<T>::max())
+{
+	return (v1 > 0) && (v2 > 0) && (v1 > (max - v2));
+}
 
 //------------------------------------------------------------------------------
 // Name: DebuggerCore()
@@ -57,6 +68,8 @@ DebuggerCore::DebuggerCore() : page_size_(0), process_handle_(0), start_address(
 	SYSTEM_INFO sys_info;
 	GetSystemInfo(&sys_info);
 	page_size_ = sys_info.dwPageSize;
+
+	set_debug_privilege(true); // gogo magic powers
 }
 
 //------------------------------------------------------------------------------
@@ -65,6 +78,7 @@ DebuggerCore::DebuggerCore() : page_size_(0), process_handle_(0), start_address(
 //------------------------------------------------------------------------------
 DebuggerCore::~DebuggerCore() {
 	detach();
+	set_debug_privilege(false);
 }
 
 //------------------------------------------------------------------------------
@@ -140,6 +154,9 @@ bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
 // Note: address should be page aligned.
 //------------------------------------------------------------------------------
 bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
+
+	Q_ASSERT(address % page_size() == 0);
+
 	return read_bytes(address, buf, page_size() * count);
 }
 
@@ -151,51 +168,107 @@ bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t cou
 //------------------------------------------------------------------------------
 bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len) {
 
-	Q_ASSERT(buf != 0);
+	Q_CHECK_PTR(buf);
 
 	bool ok = false;
 
 	if(attached()) {
-		const edb::address_t orig_address	= address;
-		const edb::address_t end_address	= orig_address + len;
 
-		// easier to use VirtualQueryEx, memory_regions() doesnt contain unallocated regions etc.
+		if(len == 0) {
+			return true;
+		}
+
+		memset(buf, 0xff, len);
+
+		// might wanna make this more platform specific (e.g. Windows x86 user mode memory <= 0x7FFFFFFF)
+		const edb::address_t max_address = std::numeric_limits<edb::address_t>::max();
+
 		/*
-		MemoryRegions mem = edb::v1::memory_regions();
-
-		edb::address_t cur_address = address
-		while(cur_address < end_address)
-		{
-			MemRegion region;
-			if(mem.find_region(cur_address, region))
-			{
-				cur_address += region.size();
-			}
-			else
-				return false; // This shouldn't happen
+		// I think we can safely assume this won't happen as long as
+		// max_address is the biggest representable number ;)
+		if(address > max_address || len > max_address) {
+			return false;
 		}
 		*/
 
-		if(process_handle_ != 0) {
-			SIZE_T bytes_read;
-			ok = ReadProcessMemory(
-				process_handle_,
-				reinterpret_cast<LPVOID>(address),
-				buf,
-				len,
-				&bytes_read);
-		}
-		// TODO: do the documented 0xff fill
+		edb::address_t cur_address = address;
+		edb::address_t end_address;
 
-		if(ok) {
-			quint8 *const orig_ptr = reinterpret_cast<quint8 *>(buf);
-			// TODO: handle if breakponts have a size more than 1!
-			Q_FOREACH(const QSharedPointer<Breakpoint> &bp, breakpoints_) {
-				if(bp->address() >= orig_address && bp->address() < end_address) {
-					// show the original bytes in the buffer..
-					orig_ptr[bp->address() - orig_address] = bp->original_bytes()[0];
+		// check for max possible address (and overflow :s)
+		// took a few hours to find that bug
+		if(overflows<edb::address_t>(address, len, max_address)) {
+			end_address = max_address;
+		} else {
+			end_address = address + len - 1;
+		}
+
+		len = end_address - address + 1;
+
+		const MemoryRegions& regions = edb::v1::memory_regions();
+
+		while(cur_address <= end_address) {
+			bool part_ok = false;
+
+			void* cur_dest = reinterpret_cast<quint8 *>(buf) + (cur_address - address);
+			edb::address_t cur_end;
+			std::size_t cur_len;
+
+			MemRegion mem;
+			if(regions.find_region(cur_address, mem)) {
+				bool changed = false;
+				if(!mem.readable()) {
+					mem.set_permissions(true, mem.writable(), mem.executable());
+					changed = true;
 				}
+
+				// special cases: first and last region (with unaligned address or end_address)
+				if(overflows<edb::address_t>(mem.start, mem.size(), end_address)) {
+					cur_end = end_address;
+				} else {
+					cur_end = mem.start + mem.size() - 1;
+				}
+				cur_len = cur_end - cur_address + 1;		
+
+				SIZE_T bytes_read;
+				part_ok = ReadProcessMemory(process_handle_, reinterpret_cast<void*>(cur_address), cur_dest, cur_len, &bytes_read);
+
+				Q_ASSERT(bytes_read == cur_len);
+
+				if(part_ok) {
+					ok = true;
+					Q_FOREACH(const QSharedPointer<Breakpoint> &bp, breakpoints_) {
+						if((bp->address() + breakpoint_size()) > cur_address && bp->address() <= cur_end) {
+							// show the original bytes in the buffer..
+							const QByteArray& bytes = bp->original_bytes();
+							Q_ASSERT(bytes.size() == breakpoint_size());
+							size_t offset = std::max(bp->address(), cur_address) - bp->address();
+							const size_t bp_size = std::min<size_t>(breakpoint_size(), (end_address - bp->address() + 1)) - offset;
+							const void* bp_src = bytes.data() + offset;
+							void* bp_dest = reinterpret_cast<quint8 *>(buf) + (bp->address() + offset - address);
+							memcpy(bp_dest, bp_src, bp_size);
+						}
+					}
+				}
+
+				if(changed) {
+					mem.set_permissions(false, mem.writable(), mem.executable());
+				}
+			} else {
+				// check next possible page
+				const edb::address_t cur_base = cur_address - (cur_address % page_size());
+				if(overflows<edb::address_t>(cur_base, page_size(), end_address)) {
+					cur_end = end_address;
+				} else {
+					cur_end = cur_base + page_size() - 1;
+				}
+				cur_len = cur_end - cur_address + 1;
 			}
+
+			if(overflows<edb::address_t>(cur_address, cur_len, end_address)) {
+				break;
+			}
+
+			cur_address += cur_len;
 		}
 	}
 	return ok;
@@ -207,22 +280,60 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 //------------------------------------------------------------------------------
 bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
 
-	Q_ASSERT(buf != 0);
+	Q_CHECK_PTR(buf);
 
 	bool ok = false;
-	if(attached()) {
-		if(process_handle_ != 0) {
-			SIZE_T bytes_written;
-			ok = WriteProcessMemory(
-				process_handle_,
-				reinterpret_cast<LPVOID>(address),
-				buf,
-				len,
-				&bytes_written);
 
-			if(ok) {
-				FlushInstructionCache(process_handle_, reinterpret_cast<LPVOID>(address), bytes_written);
+	if(attached()) {
+
+		if(len == 0) {
+			return true;
+		}
+
+		const edb::address_t max_address = std::numeric_limits<edb::address_t>::max();
+
+		edb::address_t cur_address = address;
+		edb::address_t end_address;
+
+		if(overflows<edb::address_t>(address, len, max_address)) {
+			end_address = max_address;
+		} else {
+			end_address = address + len - 1;
+		}
+		len = end_address - address + 1;
+
+		const MemoryRegions& regions = edb::v1::memory_regions();
+		QList<MemRegion> to_change;
+
+		while(cur_address <= end_address) {
+			MemRegion mem;
+			if(!regions.find_region(cur_address, mem)) {
+				return false; // can't write to unallocated memory
 			}
+			if(!mem.writable()) {
+				to_change << mem;
+			}
+			if(overflows<edb::address_t>(mem.start, mem.size(), end_address)) {
+				break;
+			}
+			cur_address = mem.start + mem.size();
+		}
+
+		Q_FOREACH(MemRegion i, to_change) {
+			i.set_permissions(i.readable(), true, i.executable());
+		}
+
+		SIZE_T bytes_written;
+		ok = WriteProcessMemory(process_handle_, reinterpret_cast<LPVOID>(address), buf, len, &bytes_written);
+
+		Q_ASSERT(bytes_written == len);
+
+		if(ok) {
+			FlushInstructionCache(process_handle_, reinterpret_cast<LPVOID>(address), bytes_written);
+		}
+
+		Q_FOREACH(MemRegion i, to_change) {
+			i.set_permissions(i.readable(), false, i.executable());
 		}
 	}
 	return ok;
@@ -233,19 +344,24 @@ bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::siz
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::attach(edb::pid_t pid) {
+
 	detach();
-
-	// TODO: Call SeDebugPrivilege to be able to attach to system processes
-
-	if(DebugActiveProcess(pid)) {
-		// These should be all the permissions we need
-		const DWORD ACCESS = PROCESS_TERMINATE | PROCESS_CREATE_THREAD | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME;
-		process_handle_ = OpenProcess(ACCESS, false, pid);
-		pid_ = pid;
-
-		return true;
+	
+	// These should be all the permissions we need
+	const DWORD ACCESS = PROCESS_TERMINATE | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME;
+	HANDLE ph = OpenProcess(ACCESS, false, pid);
+	
+	if(ph) {
+		if(DebugActiveProcess(pid)) {
+			process_handle_ = ph;
+			pid_ = pid;
+			return true;
+		}
+		else {
+			CloseHandle(ph);
+		}
 	}
-
+	
 	return false;
 }
 
@@ -256,16 +372,15 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 void DebuggerCore::detach() {
 	if(attached()) {
 		clear_breakpoints();
-		threads_.clear();
-
 		// Make sure exceptions etc. are passed
-		resume(edb::DEBUG_CONTINUE);
-
+		ContinueDebugEvent(pid(), active_thread(), DBG_CONTINUE);		
+		DebugActiveProcessStop(pid());
 		CloseHandle(process_handle_);
 		process_handle_ = 0;
-
-		DebugActiveProcessStop(pid());
-		pid_ = 0;
+		pid_			= 0;
+		start_address	= 0;
+		image_base		= 0;
+		threads_.clear();
 	}
 }
 
@@ -275,27 +390,8 @@ void DebuggerCore::detach() {
 //------------------------------------------------------------------------------
 void DebuggerCore::kill() {
 	if(attached()) {
-		if(process_handle_ != 0) {
-			TerminateProcess(process_handle_, -1);
-		}
+		TerminateProcess(process_handle_, -1);
 		detach();
-		/*
-		clear_breakpoints();
-		if(process_handle_ != 0) {
-			TerminateProcess(process_handle_, -1);
-			// loop until we reach EXIT_PROCESS_DEBUG_EVENT so all handles are closed
-			DEBUG_EVENT ev;
-			BOOL success;
-			resume(edb::DEBUG_CONTINUE);
-			do {
-				if(success = WaitForDebugEvent(&ev, INFINITE));
-					ContinueDebugEvent(ev.dwProcessId, ev.dwThreadId, DBG_CONTINUE);
-			} while (success && ev.dwDebugEventCode != EXIT_PROCESS_DEBUG_EVENT);
-			CloseHandle(process_handle_);
-			process_handle_ = 0;
-		}
-		pid_ = 0;
-		*/
 	}
 }
 
@@ -305,9 +401,7 @@ void DebuggerCore::kill() {
 //------------------------------------------------------------------------------
 void DebuggerCore::pause() {
 	if(attached()) {
-		if(process_handle_ != 0) {
-			DebugBreakProcess(process_handle_);
-		}
+		DebugBreakProcess(process_handle_);
 	}
 }
 
@@ -321,6 +415,7 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 	if(attached()) {
 		if(status != edb::DEBUG_STOP) {
 			// TODO: does this resume *all* threads?
+			// it does! (unless you manually paused one using SuspendThread)
 			ContinueDebugEvent(
 				pid(),
 				active_thread(),
@@ -343,7 +438,7 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 				context.ContextFlags = CONTEXT_CONTROL;
 				GetThreadContext(th.get(), &context);
 
-				context.EFlags |= (1 << 8); // set the TF bit
+				context.EFlags |= (1 << 8); // set the trap flag
 				SetThreadContext(th.get(), &context);
 
 				resume(status);
@@ -373,6 +468,7 @@ void DebuggerCore::get_state(State &state) {
 			state_impl->gs_base_ = 0;
 			state_impl->fs_base_ = 0;
 			// GetThreadSelectorEntry always returns false on x64
+			// on x64 gs_base == TEB, maybe we can use that somehow
 #if !defined(EDB_X86_64)
 			LDT_ENTRY ldt_entry;
 			if(GetThreadSelectorEntry(th.get(), state_impl->context_.SegGs, &ldt_entry)) {
@@ -416,55 +512,61 @@ void DebuggerCore::set_state(const State &state) {
 bool DebuggerCore::open(const QString &path, const QString &cwd, const QStringList &args, const QString &tty) {
 
 	Q_UNUSED(tty);
-
-	bool result = false;
-
+	
+	Q_ASSERT(!path.isEmpty());
+	
+	bool ok = false;
+	
 	detach();
-
-	STARTUPINFO         startup_info = {};
-	PROCESS_INFORMATION process_info = {};
-
-	const wchar_t *env_block = GetEnvironmentStringsW();
-
-	QString command_str = "\"" + path + "\" ";
-
-	QStringList::const_iterator it;
-	for(it = args.constBegin(); it != args.constEnd(); ++it) {
-		command_str += *it;
+	
+	// default to process's directory
+	QString tcwd;
+	if(cwd.isEmpty()) {
+		tcwd = QFileInfo(path).canonicalPath();
+	} else {
+		tcwd = cwd;
 	}
-
-	// CreateProcess seems to require a writable copy :0
+	
+	STARTUPINFO         startup_info = { 0 };
+	PROCESS_INFORMATION process_info = { 0 };
+	
+	const DWORD CREATE_FLAGS = DEBUG_PROCESS | DEBUG_ONLY_THIS_PROCESS | CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE;
+	
+	wchar_t *env_block = GetEnvironmentStringsW();
+	
+	// Set up command line
+	QString command_str = '\"' + QFileInfo(path).canonicalPath() + '\"'; // argv[0] = full path (explorer style)
+	if(!args.isEmpty()) {
+		command_str += " " + args.join(" ");
+	}
+	
+	// CreateProcessW wants a writable copy of the command line :<
 	wchar_t* command_path = new wchar_t[command_str.length() + sizeof(wchar_t)];
 	wcscpy(command_path, command_str.utf16());
-
-	const DWORD create_flags = /*CREATE_SUSPENDED | */DEBUG_PROCESS | DEBUG_ONLY_THIS_PROCESS | CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE;
-
+	
 	if(CreateProcessW(
-			NULL,			// exe
+			path.utf16(),	// exe
 			command_path,	// commandline
 			NULL,			// default security attributes
 			NULL,			// default thread security too
 			FALSE,			// inherit handles
-			create_flags,
-			env_block,		// environment
-			cwd.utf16(),	// cwd
+			CREATE_FLAGS,
+			env_block,		// environment data
+			tcwd.utf16(),	// working directory
 			&startup_info,
 			&process_info)) {
 
-		pid_           = process_info.dwProcessId;
-		//active_thread_ = process_info.dwThreadId;
-
-		//ResumeThread(process_info.hThread);
-
-		process_handle_ = process_info.hProcess;
-		CloseHandle(process_info.hThread);
-		result = true;
+		pid_ = process_info.dwProcessId;
+		active_thread_ = process_info.dwThreadId;
+		process_handle_ = process_info.hProcess; // has PROCESS_ALL_ACCESS
+		CloseHandle(process_info.hThread); // We don't need the thread handle
+		ok = true;
 	}
-
+	
 	delete[] command_path;
 	FreeEnvironmentStringsW(env_block);
 
-	return result;
+	return ok;
 }
 
 //------------------------------------------------------------------------------
@@ -481,6 +583,41 @@ StateInterface *DebuggerCore::create_state() const {
 //------------------------------------------------------------------------------
 int DebuggerCore::pointer_size() const {
 	return sizeof(void *);
+}
+
+/*
+ * Required to debug and adjust the memory of a process owned by another account.
+ * OpenProcess quote (MSDN):
+ *   "If the caller has enabled the SeDebugPrivilege privilege, the requested access
+ *    is granted regardless of the contents of the security descriptor."
+ * Needed to open system processes (user SYSTEM)
+ *
+ * NOTE: You need to be admin to enable this privilege
+ * NOTE: You need to have the 'Debug programs' privilege set for the current user,
+ *       if the privilege is not present it can't be enabled!
+ * NOTE: Detectable by antidebug code (changes debuggee privileges too)
+ */
+bool DebuggerCore::set_debug_privilege(bool set)
+{
+HANDLE token;
+bool ok = false;
+
+	if(OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &token))
+	{
+		LUID luid;
+		if(LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid))
+		{
+			TOKEN_PRIVILEGES tp;
+			tp.PrivilegeCount = 1;
+			tp.Privileges[0].Luid = luid;
+			tp.Privileges[0].Attributes = set ? SE_PRIVILEGE_ENABLED : 0;
+
+			ok = AdjustTokenPrivileges(token, false, &tp, NULL, NULL, NULL);
+		}
+		CloseHandle(token);
+	}
+
+	return ok;
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

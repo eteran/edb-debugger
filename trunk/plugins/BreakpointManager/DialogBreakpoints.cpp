@@ -159,11 +159,49 @@ void DialogBreakpoints::on_btnAddFunction_clicked() {
 void DialogBreakpoints::on_btnRemove_clicked() {
 	QList<QTableWidgetItem *> sel = ui->tableWidget->selectedItems();
 	Q_FOREACH(QTableWidgetItem *it, sel) {
-		bool ok;
-		const edb::address_t address = edb::v1::string_to_address(it->text(), ok);
-		if(ok) {
-			edb::v1::remove_breakpoint(address);
+		if(it->column() == 0) { // address column
+			bool ok;
+			const edb::address_t address = edb::v1::string_to_address(it->text(), ok);
+			if(ok) {
+				edb::v1::remove_breakpoint(address);
+			}
 		}
 	}
 	updateList();
+}
+
+//------------------------------------------------------------------------------
+// Name: on_tableWidget_cellDoubleClicked(int row, int col)
+// Desc:
+//------------------------------------------------------------------------------
+void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {
+	switch(col) {
+		case 0: // address
+		{
+			if(QTableWidgetItem *const address_item = ui->tableWidget->item(row, 0)) {
+				bool ok;
+				const edb::address_t address = edb::v1::string_to_address(address_item->text(), ok);
+				if(ok) {
+					edb::v1::jump_to_address(address);
+				}
+			}
+			break;
+		}
+		case 1: // condition
+		{
+			if(QTableWidgetItem *const address_item = ui->tableWidget->item(row, 0)) {
+				bool ok;
+				const edb::address_t address = edb::v1::string_to_address(address_item->text(), ok);
+				if(ok) {
+					const QString condition = edb::v1::get_breakpoint_condition(address);
+					const QString text = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, condition, &ok);
+					if(ok) {
+						edb::v1::set_breakpoint_condition(address, text);
+						updateList();
+					}
+				}
+			}
+			break;
+		}
+	}
 }

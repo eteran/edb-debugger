@@ -518,7 +518,7 @@ Configuration &edb::v1::config() {
 
 //------------------------------------------------------------------------------
 // Name: get_ascii_string_at_address(edb::address_t address, QString &s, int min_length, int max_length, int &found_length)
-// Desc: attempts to get a string at a given address whose length os >= min_length
+// Desc: attempts to get a string at a given address whose length is >= min_length
 //       and < max_length
 // Note: strings are comprised of printable characters and whitespace.
 // Note: found_length is needed because we replace characters which need an
@@ -701,8 +701,8 @@ bool edb::v1::get_instruction_bytes(edb::address_t address, quint8 *buf, int &si
 
 	bool ok = debugger_core->read_bytes(address, buf, size);
 
-	while(!ok && size) {
-		ok = debugger_core->read_bytes(address, buf, --size);
+	while(!ok && --size) {
+		ok = debugger_core->read_bytes(address, buf, size);
 	}
 
 	return ok;

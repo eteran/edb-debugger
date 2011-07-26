@@ -46,13 +46,30 @@ BookmarkWidget::~BookmarkWidget() {
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::on_tableWidget_cellDoubleClicked(int row, int col) {
-	Q_UNUSED(col);
-	if(QTableWidgetItem *const item = ui->tableWidget->item(row, 0)) {
-		const QString s = item->text();
-		bool ok;
-		const edb::address_t addr = edb::v1::string_to_address(s, ok);
-		if(ok) {
-			edb::v1::jump_to_address(addr);
+	switch(col) {
+		case 0: //address
+		{
+			if(QTableWidgetItem *const address_item = ui->tableWidget->item(row, 0)) {
+				bool ok;
+				const edb::address_t addr = edb::v1::string_to_address(address_item->text(), ok);
+				if(ok) {
+					edb::v1::jump_to_address(addr);
+				}
+			}
+			break;
+		}
+		case 1: //comment
+		{
+			QString old_comment;
+			if(QTableWidgetItem *const comment_item = ui->tableWidget->item(row, 1)) {
+				 old_comment = comment_item->text();
+			}
+			bool ok;
+			const QString new_comment = QInputDialog::getText(ui->tableWidget, tr("Comment"), tr("Set Comment:"), QLineEdit::Normal, old_comment, &ok);
+			if(ok) {
+				ui->tableWidget->setItem(row, 1, new QTableWidgetItem(new_comment));
+			}
+			break;
 		}
 	}
 }

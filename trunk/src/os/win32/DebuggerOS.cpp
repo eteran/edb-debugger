@@ -73,58 +73,47 @@ QString edb::v1::get_process_exe() {
 	QString ret;
 	edb::pid_t pid = edb::v1::debugger_core->pid();
 
-	/*
-	HANDLE hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, pid);
-	if(hProcessSnap != INVALID_HANDLE_VALUE) {
-		PROCESSENTRY32W pe32;
-		pe32.dwSize = sizeof(pe32);
+	// These functions don't work immediately after CreateProcess but only
+	// after basic initialization, usually after the system breakpoint
+	// The same applies to psapi/toolhelp, maybe using NtQueryXxxxxx is the way to go
+	
+	typedef BOOL (WINAPI *QueryFullProcessImageNameWPtr)(
+	  HANDLE hProcess,
+	  DWORD dwFlags,
+	  LPWSTR lpExeName,
+	  PDWORD lpdwSize
+	);
+	
+	QueryFullProcessImageNameWPtr QueryFullProcessImageNameWFunc = 0;
+	HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
+	QueryFullProcessImageNameWFunc = (QueryFullProcessImageNameWPtr)GetProcAddress(kernel32, "QueryFullProcessImageNameW");
+	
+	wchar_t name[MAX_PATH] = L"";
+	
+	if(QueryFullProcessImageNameWFunc/* && LOBYTE(GetVersion()) >= 6*/) { // Vista and up
+		const DWORD ACCESS = PROCESS_QUERY_LIMITED_INFORMATION;
+		HANDLE ph = OpenProcess(ACCESS, false, pid);
 
-		if(Process32FirstW(hProcessSnap, &pe32)) {
-			do {
-				if(pid == pe32.th32ProcessID) {
-					ret = QString::fromWCharArray(pe32.szExeFile);
-					break;
-				}
-			} while(Process32NextW(hProcessSnap, &pe32));
-		}
-		CloseHandle(hProcessSnap);
-	}
-	*/
-
-	HANDLE ph = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
-	if(ph != 0) {
-		wchar_t name[MAX_PATH] = L"";
-
-		// fails right here
-		/*
-		if(GetModuleFileNameExW(ph, NULL, name, _countof(name))) {
-			ret = QString::fromWCharArray(name);
-		}
-		*/
-
-		static HMODULE kernel32 = LoadLibrary(L"kernel32.dll");
-
-		typedef BOOL (WINAPI *QueryFullProcessImageNamePtr)(
-		  HANDLE hProcess,
-		  DWORD dwFlags,
-		  LPTSTR lpExeName,
-		  PDWORD lpdwSize
-		);
-
-		static QueryFullProcessImageNamePtr QueryFullProcessImageNameFunc = 0;
-
-		if(kernel32 != 0 && QueryFullProcessImageNameFunc == 0) {
-			QueryFullProcessImageNameFunc = (QueryFullProcessImageNamePtr)GetProcAddress(kernel32, "QueryFullProcessImageNameW");
-		}
-
-		if(QueryFullProcessImageNameFunc) {
-			DWORD size = MAX_PATH;
-			if(QueryFullProcessImageNameFunc(ph, 0, name, &size)) {
+		if(ph != 0) {
+			DWORD size = _countof(name);
+			if(QueryFullProcessImageNameWFunc(ph, 0, name, &size)) {
 				ret = QString::fromWCharArray(name);
 			}
+			CloseHandle(ph);
 		}
-
-		CloseHandle(ph);
+	} else {
+		// Attempting to get an unknown privilege will fail unless we have
+		// debug privilege set, so 2 calls to OpenProcess
+		// (PROCESS_QUERY_LIMITED_INFORMATION is Vista and up)
+		const DWORD ACCESS = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ;
+		HANDLE ph = OpenProcess(ACCESS, false, pid);
+		
+		if(ph != 0) {
+			if(GetModuleFileNameExW(ph, NULL, name, _countof(name))) {
+				ret = QString::fromWCharArray(name);
+			}
+			CloseHandle(ph);
+		}
 	}
 
 	return ret;
