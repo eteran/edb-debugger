@@ -31,6 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <windows.h>
 #include <algorithm>
 
+#pragma comment(lib, "Advapi32.lib")
+
 class Win32Handle {
 public:
 	Win32Handle() : handle(NULL) {}
