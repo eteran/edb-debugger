@@ -35,6 +35,7 @@ public Q_SLOTS:
 	void on_btnAdd_clicked();
 	void on_btnRemove_clicked();
 	void on_btnCondition_clicked();
+	void on_tableWidget_cellDoubleClicked(int row, int col);
 
 private:
 	virtual void showEvent(QShowEvent *event);

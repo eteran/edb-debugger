@@ -71,11 +71,11 @@ win32-msvc*:LIBS += $$EDB_ROOT/edb.lib
 win64-msvc*:LIBS += $$EDB_ROOT/edb.lib
 
 win32 {
-        INCLUDEPATH += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/i386 "c:/Program Files/boost/boost_1_47/"
+	INCLUDEPATH += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/i386 $$(BOOST)
 	DEPENDPATH  += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/i386
 }
 
 win64 {
-        INCLUDEPATH += $$EDB_ROOT/include/os/win64 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64 "c:/Program Files/boost/boost_1_47/"
+	INCLUDEPATH += $$EDB_ROOT/include/os/win64 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64 $$(BOOST)
 	DEPENDPATH  += $$EDB_ROOT/include/os/win64 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64
 }

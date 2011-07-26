@@ -87,6 +87,7 @@ public:
 
 private:
 	permissions_t  permissions_;
+	static const permissions_t KNOWN_PERMISSIONS = (PAGE_NOACCESS | PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY);
 };
 
 #endif

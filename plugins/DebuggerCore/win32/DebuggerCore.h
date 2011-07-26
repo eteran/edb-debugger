@@ -46,7 +46,7 @@ public:
 	virtual bool read_pages(edb::address_t address, void *buf, std::size_t count);
 	virtual bool read_bytes(edb::address_t address, void *buf, std::size_t len);
 	virtual bool write_bytes(edb::address_t address, const void *buf, std::size_t len);
-        virtual int pointer_size() const;
+	virtual int pointer_size() const;
 
 public:
 	// thread support stuff (optional)
@@ -63,9 +63,15 @@ public:
 	edb::address_t image_base;
 
 private:
+	bool attached() { return DebuggerCoreBase::attached() && process_handle_ != 0; }
+
+private:
 	edb::address_t   page_size_;
 	HANDLE           process_handle_;
 	QSet<edb::tid_t> threads_;
+
+private:
+	bool set_debug_privilege(bool set);
 };
 
 #endif

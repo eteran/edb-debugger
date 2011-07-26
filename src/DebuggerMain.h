@@ -24,6 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebugEvent.h"
 #include "ScopedPointer.h"
 #include "QHexView"
+#include <QDragEnterEvent>
+#include <QDropEvent>
 
 class BinaryInfo;
 class Breakpoint;
@@ -49,6 +51,9 @@ public:
 protected:
 	virtual void closeEvent(QCloseEvent *event);
 	virtual void showEvent(QShowEvent *event);
+
+	void dragEnterEvent(QDragEnterEvent* event);
+	void dropEvent(QDropEvent* event);
 
 public:
 	bool dump_data(edb::address_t address, bool new_tab);
