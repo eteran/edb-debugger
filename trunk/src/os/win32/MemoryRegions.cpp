@@ -89,8 +89,9 @@ void MemoryRegions::sync() {
 					region.base         = reinterpret_cast<edb::address_t>(info.AllocationBase);
 					region.permissions_ = info.Protect; // let MemRegion handle permissions and modifiers
 					if(info.Type == MEM_IMAGE) {
-						region.name = "some_module";
+						// set region.name to the module name
 					}
+					// get stack addresses, PEB, TEB, etc. and set name accordingly
 
 					regions.push_back(region);
 				}

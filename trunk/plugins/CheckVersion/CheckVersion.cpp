@@ -20,17 +20,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Debugger.h"
 #include "CheckVersionOptionsPage.h"
 #include <QDebug>
-#include <QHttp>
+#include <QNetworkAccessManager>
+#include <QNetworkProxyFactory>
+#include <QNetworkProxy>
+#include <QNetworkRequest>
+#include <QNetworkReply>
+#include <QUrl>
 #include <QMenu>
 #include <QMessageBox>
 #include <QSettings>
-#include <QUrl>
 
 //------------------------------------------------------------------------------
 // Name: CheckVersion()
 // Desc:
 //------------------------------------------------------------------------------
-CheckVersion::CheckVersion() : menu_(0), http_(0), initial_check_(true) {
+CheckVersion::CheckVersion() : menu_(0), network_(0), initial_check_(true) {
 
 	QSettings settings;
 	if(settings.value("CheckVersion/check_on_start.enabled", true).toBool()) {
@@ -73,27 +77,48 @@ QMenu *CheckVersion::menu(QWidget *parent) {
 //------------------------------------------------------------------------------
 void CheckVersion::do_check() {
 
-	if(http_ == 0) {
-		http_ = new QHttp(this);
-		connect(http_, SIGNAL(done(bool)), this, SLOT(requestDone(bool)));
+	if(network_ == 0) {
+		network_ = new QNetworkAccessManager(this);
+		connect(network_, SIGNAL(finished(QNetworkReply*)), this, SLOT(requestFinished(QNetworkReply*)));
 	}
 
-	http_->abort();
+	//network_->abort(); //?
 
-#ifndef Q_OS_WIN32
-	QByteArray proxy = qgetenv("HTTP_PROXY");
-	if(proxy.isEmpty()) {
-		proxy = qgetenv("http_proxy");
+	const QUrl update_url("http://codef00.com/projects/debugger-latest");
+	const QNetworkRequest request(update_url);
+
+	set_proxy(update_url);
+
+	network_->get(request);
+}
+
+//------------------------------------------------------------------------------
+// Name: set_proxy()
+// Desc:
+//------------------------------------------------------------------------------
+bool CheckVersion::set_proxy(const QUrl &url) {
+QNetworkProxy proxy;
+bool set = false;
+#ifdef Q_OS_LINUX
+	Q_UNUSED(url);
+	QString proxy_str = QString::fromUtf8(qgetenv("HTTP_PROXY"));
+	if(proxy_str.isEmpty()) {
+		proxy_str = QString::fromUtf8(qgetenv("http_proxy"));
 	}
-
-	if(!proxy.isEmpty()) {
-		const QUrl url(proxy);
-		http_->setProxy(url.host(), url.port(80), url.userName(), url.password());
+	if(!proxy_str.isEmpty()) {
+		const QUrl proxy_url = QUrl::fromUserInput(proxy_str);
+		proxy = QNetworkProxy(QNetworkProxy::HttpProxy, proxy_url.host(), proxy_url.port(80), proxy_url.userName(), proxy_url.password());
+		set = true;
+	}
+#else
+	QList<QNetworkProxy> proxies = QNetworkProxyFactory::systemProxyForQuery(QNetworkProxyQuery(url));
+	if(proxies.size() >= 1) {
+		proxy = proxies.first();
+		set = (proxy.type() != QNetworkProxy::NoProxy);
 	}
 #endif
-
-    http_->setHost("codef00.com");
-    http_->get("/projects/debugger-latest");
+	network_->setProxy(proxy);
+	return set;
 }
 
 //------------------------------------------------------------------------------
@@ -106,19 +131,19 @@ void CheckVersion::show_menu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: requestDone()
+// Name: requestFinished()
 // Desc:
 //------------------------------------------------------------------------------
-void CheckVersion::requestDone(bool error) {
-	if(error) {
+void CheckVersion::requestFinished(QNetworkReply *reply) {
+	if(QNetworkReply::NoError != reply->error()) {
 		if(!initial_check_) {
 			QMessageBox::information(
 				0,
 				tr("An Error Occured"),
-				http_->errorString());
+				reply->errorString());
 		}
 	} else {
-		const QByteArray result = http_->readAll();
+		const QByteArray result = reply->readAll();
 		const QString s = result;
 
 		qDebug("comparing versions: [%d] [%d]", edb::v1::int_version(s), edb::v1::edb_version());

@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHash>
 
 class QMenu;
+class AnalyzerWidget;
 
 class Analyzer : public QObject, public AnalyzerInterface, public DebuggerPluginInterface {
 	Q_OBJECT
@@ -104,6 +105,7 @@ private:
 	QMenu *                      menu_;
 	QHash<MemRegion, RegionInfo> analysis_info_;
 	QSet<edb::address_t>         specified_functions_;
+	AnalyzerWidget *             analyzer_widget_;
 };
 
 #endif

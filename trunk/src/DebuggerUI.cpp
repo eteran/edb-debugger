@@ -256,9 +256,7 @@ void DebuggerUI::create_data_tab() {
 	const int current = current_tab();
 
 	// duplicate the current region
-	DataViewInfo *const new_data_view = new DataViewInfo(
-			(current != -1) ? data_regions_[current]->region : MemRegion()
-			);
+	DataViewInfo *const new_data_view = new DataViewInfo((current != -1) ? data_regions_[current]->region : MemRegion());
 
 	QHexView *const hexview = new QHexView(this);
 
@@ -291,8 +289,8 @@ void DebuggerUI::create_data_tab() {
 
 	// create the tab!
 	ui->tabWidget->addTab(hexview, tr("%1-%2").arg(
-				edb::v1::format_pointer(new_data_view->region.start),
-				edb::v1::format_pointer(new_data_view->region.end)));
+		edb::v1::format_pointer(new_data_view->region.start),
+		edb::v1::format_pointer(new_data_view->region.end)));
 
 
 	ui->tabWidget->setCurrentIndex(ui->tabWidget->count() - 1);

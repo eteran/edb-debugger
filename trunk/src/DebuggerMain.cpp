@@ -214,6 +214,8 @@ DebuggerMain::DebuggerMain(QWidget *parent) : DebuggerUI(parent),
 
 	connect(new QShortcut(QKeySequence(tr("Ctrl+G")), this), SIGNAL(activated()), this, SLOT(goto_triggered()));
 
+	setAcceptDrops(true);
+
 	// setup the list model for instruction details list
 	list_model_ = new QStringListModel(this);
 	ui->listView->setModel(list_model_);

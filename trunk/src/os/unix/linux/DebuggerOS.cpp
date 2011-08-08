@@ -134,8 +134,8 @@ QStringList edb::v1::get_process_args() {
 	QStringList ret;
 	if(debugger_core != 0) {
 		if(const edb::pid_t pid = debugger_core->pid()) {
-			const QString cmdlineFile(QString("/proc/%1/cmdline").arg(pid));
-			QFile file(cmdlineFile);
+			const QString command_line_file(QString("/proc/%1/cmdline").arg(pid));
+			QFile file(command_line_file);
 
 			if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 				QTextStream in(&file);

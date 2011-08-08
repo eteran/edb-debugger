@@ -40,6 +40,8 @@ public:
 			FUNCTION_STANDARD,
 			FUNCTION_THUNK
 		} type;
+		
+		int size() const { return end_address - entry_address; }
 	};
 
 	// TODO: can this be a QHash?
