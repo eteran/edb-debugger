@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Analyzer.h"
 #include "AnalyzerOptionsPage.h"
+#include "AnalyzerWidget.h"
 #include "ArchProcessorInterface.h"
 #include "Debugger.h"
 #include "DebuggerCoreInterface.h"
@@ -29,6 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Util.h"
 #include "BinaryInfo.h"
 
+#include <QMainWindow>
+#include <QDockWidget>
 #include <QCoreApplication>
 #include <QHash>
 #include <QMenu>
@@ -88,6 +91,28 @@ QMenu *Analyzer::menu(QWidget *parent) {
 		menu_->addAction(tr("&Analyze RIP's Region"), this, SLOT(do_ip_analysis()), QKeySequence(tr("Ctrl+A")));
 #endif
 		menu_->addAction(tr("&Analyze Viewed Region"), this, SLOT(do_view_analysis()), QKeySequence(tr("Ctrl+Shift+A")));
+		
+		
+		
+		// if we are dealing with a main window (and we are...)
+		// add the dock object
+		if(QMainWindow *const main_window = qobject_cast<QMainWindow *>(parent)) {
+			analyzer_widget_ = new AnalyzerWidget;
+
+			// make the dock widget and _name_ it, it is important to name it so
+			// that it's state is saved in the GUI info
+			QDockWidget *const dock_widget = new QDockWidget(tr("Region Analysis"), parent);
+			dock_widget->setAllowedAreas(Qt::TopDockWidgetArea);
+			dock_widget->setFeatures(QDockWidget::DockWidgetClosable);
+			dock_widget->setObjectName(QString::fromUtf8("Region Analysis"));
+			dock_widget->setWidget(analyzer_widget_);
+
+			// add it to the dock
+			main_window->addDockWidget(Qt::TopDockWidgetArea, dock_widget);
+
+			// make the menu and add the show/hide toggle for the widget
+			menu_->addAction(dock_widget->toggleViewAction());
+		}
 	}
 
 	return menu_;
@@ -824,6 +849,10 @@ void Analyzer::analyze(const MemRegion &region_ref) {
 
 		qDebug("[Analyzer] complete");
 		emit update_progress(100);
+		
+		if(analyzer_widget_) {
+			analyzer_widget_->repaint();
+		}
 
 		region_info.md5   = md5;
 		region_info.fuzzy = fuzzy;

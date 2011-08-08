@@ -37,6 +37,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Desc:
 //------------------------------------------------------------------------------
 ArchProcessor::ArchProcessor() : split_flags_(0) {
+#ifdef Q_OS_WIN
+	has_mmx = IsProcessorFeaturePresent(PF_MMX_INSTRUCTIONS_AVAILABLE);
+	has_xmm = IsProcessorFeaturePresent(PF_XMMI_INSTRUCTIONS_AVAILABLE);
+#else
+	// can we assume GCC? (cpuid via inline asm)
+	has_mmx = false;
+	has_xmm = false;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -123,6 +131,46 @@ void ArchProcessor::setup_register_view(QCategoryList *category_list) {
 	setup_register_item(category_list, dbg, "dr6");
 	setup_register_item(category_list, dbg, "dr7");
 
+	if(has_mmx) {
+		QTreeWidgetItem *const mmx = category_list->addCategory(tr("MMX"));
+
+		Q_CHECK_PTR(mmx);
+
+		setup_register_item(category_list, mmx, "mm0");
+		setup_register_item(category_list, mmx, "mm1");
+		setup_register_item(category_list, mmx, "mm2");
+		setup_register_item(category_list, mmx, "mm3");
+		setup_register_item(category_list, mmx, "mm4");
+		setup_register_item(category_list, mmx, "mm5");
+		setup_register_item(category_list, mmx, "mm6");
+		setup_register_item(category_list, mmx, "mm7");
+	}
+
+	if(has_xmm) {
+		QTreeWidgetItem *const xmm = category_list->addCategory(tr("XMM"));
+
+		Q_CHECK_PTR(xmm);
+
+		setup_register_item(category_list, xmm, "xmm0");
+		setup_register_item(category_list, xmm, "xmm1");
+		setup_register_item(category_list, xmm, "xmm2");
+		setup_register_item(category_list, xmm, "xmm3");
+		setup_register_item(category_list, xmm, "xmm4");
+		setup_register_item(category_list, xmm, "xmm5");
+		setup_register_item(category_list, xmm, "xmm6");
+		setup_register_item(category_list, xmm, "xmm7");
+#if defined(EDB_X86_64)
+		setup_register_item(category_list, xmm, "xmm8");
+		setup_register_item(category_list, xmm, "xmm9");
+		setup_register_item(category_list, xmm, "xmm10");
+		setup_register_item(category_list, xmm, "xmm11");
+		setup_register_item(category_list, xmm, "xmm12");
+		setup_register_item(category_list, xmm, "xmm13");
+		setup_register_item(category_list, xmm, "xmm14");
+		setup_register_item(category_list, xmm, "xmm15");
+#endif
+	}
+
 	update_register_view(QString());
 }
 
@@ -202,7 +250,11 @@ void ArchProcessor::update_register_view(const QString &default_region_name) {
 
 	const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
 
-	get_register_item(8)->setText(0, QString("EIP: %1 <%2>").arg(edb::v1::format_pointer(state.instruction_pointer())).arg(symname));
+	if(!symname.isEmpty()) {
+		get_register_item(8)->setText(0, QString("EIP: %1 <%2>").arg(edb::v1::format_pointer(state.instruction_pointer())).arg(symname));
+	} else {
+		get_register_item(8)->setText(0, QString("EIP: %1").arg(edb::v1::format_pointer(state.instruction_pointer())));
+	}
 	get_register_item(9)->setText(0, QString("EFLAGS: %1").arg(edb::v1::format_pointer(state.flags())));
 
 	get_register_item(10)->setText(0, QString("CS: %1").arg(*state["cs"] & 0xffff, 4, 16, QChar('0')));
@@ -222,6 +274,24 @@ void ArchProcessor::update_register_view(const QString &default_region_name) {
 	for(int i = 0; i < 8; ++i) {
 		get_register_item(24 + i)->setText(0, QString("DR%1: %2").arg(i).arg(state.debug_register(i), 0, 16));
 		get_register_item(24 + i)->setForeground(0, QBrush((state.debug_register(i) != last_state_.debug_register(i)) ? Qt::red : palette.text()));
+	}
+
+	if(has_mmx) {
+		for(int i = 0; i < 8; ++i) {
+			const quint64 current = state.mmx_register(i);
+			const quint64 prev    = last_state_.mmx_register(i);
+			get_register_item(32 + i)->setText(0, QString("MM%1: %2").arg(i).arg(current, sizeof(quint64)*2, 16, QChar('0')));
+			get_register_item(32 + i)->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
+		}
+	}
+
+	if(has_xmm) {
+		for(int i = 0; i < 8; ++i) {
+			const QByteArray current = state.xmm_register(i);
+			const QByteArray prev    = last_state_.xmm_register(i);
+			get_register_item(40 + i)->setText(0, QString("XMM%1: %2").arg(i).arg(current.toHex().constData()));
+			get_register_item(40 + i)->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
+		}
 	}
 
 	const bool flags_changed = state.flags() != last_state_.flags();
@@ -1718,4 +1788,15 @@ bool ArchProcessor::is_filling(const edb::Instruction &insn) const {
 	}
 
 	return ret;
+}
+
+bool ArchProcessor::has_extension(eProcessorExtension extension) const {
+	switch(extension) {
+		case EXT_MMX:
+			return has_mmx;
+		case EXT_XMM:
+			return has_xmm;
+		default:
+			return false;
+	}
 }

@@ -50,6 +50,8 @@ public:
 	edb::reg_t debug_register(int n) const;
 	edb::reg_t flags() const;
 	long double fpu_register(int n) const;
+	quint64 mmx_register(int n) const;
+	QByteArray xmm_register(int n) const;
 	void adjust_stack(int bytes);
 	void clear();
 	void set_debug_register(int n, edb::reg_t value);

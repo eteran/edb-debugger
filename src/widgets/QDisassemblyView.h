@@ -71,6 +71,7 @@ private Q_SLOTS:
 
 signals:
 	void breakPointToggled(edb::address_t address);
+	void regionChanged();
 
 private:
 	QString formatAddress(edb::address_t address) const;
@@ -78,6 +79,8 @@ private:
 	QString format_instruction_bytes(const edb::Instruction &insn, int maxStringPx, const QFontMetrics &metrics) const;
 	QString format_invalid_instruction_bytes(const edb::Instruction &insn, QPainter &painter) const;
 	edb::address_t address_from_coord(int x, int y) const;
+	size_t length_disasm_back(const quint8 *buf, int size) const;
+	edb::address_t previous_instructions(edb::address_t current_address, int count);
 	edb::address_t following_instructions(edb::address_t current_address, int count);
 	int address_length() const;
 	int auto_line1() const;

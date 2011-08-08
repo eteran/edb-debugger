@@ -54,11 +54,6 @@ private:
 	HANDLE handle;
 };
 
-// Checks if an addition would cause overflow (wraparound)
-template<typename T> bool overflows(const T& v1, const T& v2, const T& max = std::numeric_limits<T>::max())
-{
-	return (v1 > 0) && (v2 > 0) && (v1 > (max - v2));
-}
 
 //------------------------------------------------------------------------------
 // Name: DebuggerCore()
@@ -71,7 +66,7 @@ DebuggerCore::DebuggerCore() : page_size_(0), process_handle_(0), start_address(
 	GetSystemInfo(&sys_info);
 	page_size_ = sys_info.dwPageSize;
 
-	set_debug_privilege(true); // gogo magic powers
+	set_debug_privilege(GetCurrentProcess(), true); // gogo magic powers
 }
 
 //------------------------------------------------------------------------------
@@ -80,7 +75,7 @@ DebuggerCore::DebuggerCore() : page_size_(0), process_handle_(0), start_address(
 //------------------------------------------------------------------------------
 DebuggerCore::~DebuggerCore() {
 	detach();
-	set_debug_privilege(false);
+	set_debug_privilege(GetCurrentProcess(), false);
 }
 
 //------------------------------------------------------------------------------
@@ -243,8 +238,8 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 							// show the original bytes in the buffer..
 							const QByteArray& bytes = bp->original_bytes();
 							Q_ASSERT(bytes.size() == breakpoint_size());
-							size_t offset = std::max(bp->address(), cur_address) - bp->address();
-							const size_t bp_size = std::min<size_t>(breakpoint_size(), (end_address - bp->address() + 1)) - offset;
+							size_t offset = qMax(bp->address(), cur_address) - bp->address();
+							const size_t bp_size = qMin<size_t>(breakpoint_size(), (end_address - bp->address() + 1)) - offset;
 							const void* bp_src = bytes.data() + offset;
 							void* bp_dest = reinterpret_cast<quint8 *>(buf) + (bp->address() + offset - address);
 							memcpy(bp_dest, bp_src, bp_size);
@@ -348,11 +343,11 @@ bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::siz
 bool DebuggerCore::attach(edb::pid_t pid) {
 
 	detach();
-	
+
 	// These should be all the permissions we need
 	const DWORD ACCESS = PROCESS_TERMINATE | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME;
 	HANDLE ph = OpenProcess(ACCESS, false, pid);
-	
+
 	if(ph) {
 		if(DebugActiveProcess(pid)) {
 			process_handle_ = ph;
@@ -363,7 +358,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 			CloseHandle(ph);
 		}
 	}
-	
+
 	return false;
 }
 
@@ -464,7 +459,7 @@ void DebuggerCore::get_state(State &state) {
 
 	if(attached() && state_impl) {
 		if(const Win32Handle th = OpenThread(THREAD_QUERY_INFORMATION | THREAD_GET_CONTEXT, FALSE, active_thread())) {
-			state_impl->context_.ContextFlags = CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
+			state_impl->context_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
 			GetThreadContext(th.get(), &state_impl->context_);
 
 			state_impl->gs_base_ = 0;
@@ -499,9 +494,9 @@ void DebuggerCore::set_state(const State &state) {
 	PlatformState *state_impl = static_cast<PlatformState *>(state.impl_);
 
 	if(attached()) {
-		state_impl->context_.ContextFlags = CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
+		state_impl->context_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
 
-		if(const Win32Handle th = OpenThread(/*THREAD_QUERY_INFORMATION | */THREAD_SET_CONTEXT, FALSE, active_thread())) {
+		if(const Win32Handle th = OpenThread(THREAD_SET_CONTEXT, FALSE, active_thread())) {
 			SetThreadContext(th.get(), &state_impl->context_);
 		}
 	}
@@ -510,17 +505,19 @@ void DebuggerCore::set_state(const State &state) {
 //------------------------------------------------------------------------------
 // Name: open(const QString &path, const QString &cwd, const QStringList &args, const QString &tty)
 // Desc:
+// TODO: Don't inherit security descriptors from this process (default values)
+//       Is this even possible?
 //------------------------------------------------------------------------------
 bool DebuggerCore::open(const QString &path, const QString &cwd, const QStringList &args, const QString &tty) {
 
 	Q_UNUSED(tty);
-	
+
 	Q_ASSERT(!path.isEmpty());
-	
+
 	bool ok = false;
-	
+
 	detach();
-	
+
 	// default to process's directory
 	QString tcwd;
 	if(cwd.isEmpty()) {
@@ -528,24 +525,24 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QStringLi
 	} else {
 		tcwd = cwd;
 	}
-	
+
 	STARTUPINFO         startup_info = { 0 };
 	PROCESS_INFORMATION process_info = { 0 };
-	
+
 	const DWORD CREATE_FLAGS = DEBUG_PROCESS | DEBUG_ONLY_THIS_PROCESS | CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE;
-	
+
 	wchar_t *env_block = GetEnvironmentStringsW();
-	
+
 	// Set up command line
 	QString command_str = '\"' + QFileInfo(path).canonicalPath() + '\"'; // argv[0] = full path (explorer style)
 	if(!args.isEmpty()) {
 		command_str += " " + args.join(" ");
 	}
-	
+
 	// CreateProcessW wants a writable copy of the command line :<
 	wchar_t* command_path = new wchar_t[command_str.length() + sizeof(wchar_t)];
 	wcscpy(command_path, command_str.utf16());
-	
+
 	if(CreateProcessW(
 			path.utf16(),	// exe
 			command_path,	// commandline
@@ -562,9 +559,10 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QStringLi
 		active_thread_ = process_info.dwThreadId;
 		process_handle_ = process_info.hProcess; // has PROCESS_ALL_ACCESS
 		CloseHandle(process_info.hThread); // We don't need the thread handle
+		set_debug_privilege(process_handle_, false);
 		ok = true;
 	}
-	
+
 	delete[] command_path;
 	FreeEnvironmentStringsW(env_block);
 
@@ -599,12 +597,13 @@ int DebuggerCore::pointer_size() const {
  *       if the privilege is not present it can't be enabled!
  * NOTE: Detectable by antidebug code (changes debuggee privileges too)
  */
-bool DebuggerCore::set_debug_privilege(bool set)
+bool DebuggerCore::set_debug_privilege(HANDLE process, bool set)
 {
 HANDLE token;
 bool ok = false;
 
-	if(OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES, &token))
+	//process must have PROCESS_QUERY_INFORMATION
+	if(OpenProcessToken(process, TOKEN_ADJUST_PRIVILEGES, &token))
 	{
 		LUID luid;
 		if(LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid))

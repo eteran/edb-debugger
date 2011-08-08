@@ -144,6 +144,66 @@ QDisassemblyView::~QDisassemblyView() {
 }
 
 //------------------------------------------------------------------------------
+// Name: length_disasm_back(const quint8 *buf, int size) const
+// Desc:
+//------------------------------------------------------------------------------
+size_t QDisassemblyView::length_disasm_back(const quint8 *buf, int size) const {
+
+
+	quint8 tmp[edb::Instruction::MAX_SIZE * 2];
+
+	Q_ASSERT(size <= sizeof(tmp));
+
+	
+	int offs = 0;
+
+	memcpy(tmp, buf, size);
+
+	while(offs < edb::Instruction::MAX_SIZE) {
+	
+		const edb::Instruction insn(tmp + offs, edb::Instruction::MAX_SIZE, 0, std::nothrow);
+		if(!insn.valid()) {
+			return 0;
+		}
+		const size_t cmdsize = insn.size();
+		offs += cmdsize;
+
+		if(offs == edb::Instruction::MAX_SIZE) {
+			return cmdsize;
+		}
+	}
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+// Name: previous_instructions(edb::address_t current_address, int count)
+// Desc:
+//------------------------------------------------------------------------------
+edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_address, int count) {
+
+	for(int i = 0; i < count; ++i) {
+
+		quint8 buf[edb::Instruction::MAX_SIZE];
+
+		int buf_size = qMin<edb::address_t>((current_address - region_.base), sizeof(buf));
+
+		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address - buf_size, buf, buf_size)) {
+			current_address -= 1;
+			break;
+		}
+
+		const size_t size = length_disasm_back(buf, buf_size);
+		if(!size) {
+			current_address -= 1;
+			break;
+		}
+
+		current_address -= size;
+	}
+	return current_address;
+}
+
+//------------------------------------------------------------------------------
 // Name: following_instructions(edb::address_t current_address, int count)
 // Desc:
 //------------------------------------------------------------------------------
@@ -187,7 +247,9 @@ void QDisassemblyView::wheelEvent(QWheelEvent *e) {
 
 	if(e->delta() > 0) {
 		// scroll up
-		verticalScrollBar()->setValue(verticalScrollBar()->value() - scroll_count);
+		edb::address_t address = verticalScrollBar()->value();
+		address = previous_instructions(address, scroll_count);
+		verticalScrollBar()->setValue(address);
 	} else {
 		// scroll down
 		edb::address_t address = verticalScrollBar()->value();
@@ -207,6 +269,20 @@ void QDisassemblyView::scrollbar_action_triggered(int action) {
 	}
 
 	switch(action) {
+	case QAbstractSlider::SliderSingleStepSub:
+		{
+			edb::address_t address = verticalScrollBar()->value();
+			address = previous_instructions(address, 1);
+			verticalScrollBar()->setSliderPosition(address);
+		}
+		break;
+	case QAbstractSlider::SliderPageStepSub:
+		{
+			edb::address_t address = verticalScrollBar()->value();
+			address = previous_instructions(address, verticalScrollBar()->pageStep());
+			verticalScrollBar()->setSliderPosition(address);
+		}
+		break;
 	case QAbstractSlider::SliderSingleStepAdd:
 		{
 			edb::address_t address = verticalScrollBar()->value();
@@ -221,8 +297,7 @@ void QDisassemblyView::scrollbar_action_triggered(int action) {
 			verticalScrollBar()->setSliderPosition(address);
 		}
 		break;
-	case QAbstractSlider::SliderSingleStepSub:
-	case QAbstractSlider::SliderPageStepSub:
+	
 	case QAbstractSlider::SliderToMinimum:
 	case QAbstractSlider::SliderToMaximum:
 	case QAbstractSlider::SliderMove:
@@ -279,7 +354,8 @@ void QDisassemblyView::setCurrentAddress(edb::address_t address) {
 void QDisassemblyView::setRegion(const MemRegion &r) {
 	if(region_ != r) {
 		region_ = r;
-		updateScrollbars();
+		updateScrollbars();		
+		emit regionChanged();
 	}
 	repaint();
 }

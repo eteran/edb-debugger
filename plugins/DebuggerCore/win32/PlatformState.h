@@ -42,6 +42,8 @@ public:
 	virtual edb::reg_t debug_register(int n) const;
 	virtual edb::reg_t flags() const;
 	virtual long double fpu_register(int n) const;
+	virtual quint64 mmx_register(int n) const;
+	virtual QByteArray xmm_register(int n) const;
 	virtual void adjust_stack(int bytes);
 	virtual void clear();
 	virtual void set_debug_register(int n, edb::reg_t value);
@@ -53,6 +55,8 @@ private:
 	CONTEXT        context_;
 	edb::address_t fs_base_;
 	edb::address_t gs_base_;
+
+	static double readFloat80(const uint8_t buffer[10]);
 };
 
 #endif

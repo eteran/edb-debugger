@@ -17,6 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PlatformState.h"
+#include "Debugger.h"
+#include "ArchProcessorInterface.h" //?
+#include <limits>
+#include <cmath>
 
 //------------------------------------------------------------------------------
 // Name: PlatformState()
@@ -258,29 +262,65 @@ edb::reg_t PlatformState::flags() const {
 // Desc:
 //------------------------------------------------------------------------------
 long double PlatformState::fpu_register(int n) const {
-	Q_UNUSED(n);
+double ret = 0.0;
+
+	if(n >= 0 && n <= 7) {
 #if defined(EDB_X86)
-	//const long double *const p = reinterpret_cast<const long double *>(context_.FloatSave.RegisterArea);
-	//return p[n];
+		const uint8_t* p = reinterpret_cast<const uint8_t*>(&context_.FloatSave.RegisterArea[n*10]);
+		if(sizeof(long double) == 10) { // can we check this at compile time?
+			ret = *(reinterpret_cast<const long double*>(p));
+		} else {
+			ret = readFloat80(p);
+		}
 #elif defined(EDB_X86_64)
-	//__m128d md = (__m128d)context_.FltSave.FloatRegisters[n];
-	//const long double *const p = reinterpret_cast<const long double *>(context_.FltSave.FloatRegisters);
-	//return p[n];
-	//reinterpret_cast<long double>(context_.FltSave.FloatRegisters[n]);
-
-	const __m128d *const p = reinterpret_cast<const __m128d *>(&context_.FltSave.FloatRegisters[0]);
-	double ret;
-	_mm_storel_pd (&ret, *p);
-	return ret;
-
+		const uint8_t* p = reinterpret_cast<const uint8_t*>(&context_.FltSave.FloatRegisters[n]);
+		if(sizeof(long double) == 10) {
+			ret = *(reinterpret_cast<const long double*>(p));
+		} else {
+			ret = readFloat80(p);
+		}
 #endif
-	/*
-	if(sizeof(long double) >= 10) {
-		// st_space is an array of 128 bytes, 16 bytes for each of 8 FPU registers
-		const long double *const p = reinterpret_cast<const long double *>(fpregs_.st_space);
-		return p[n];
-	}*/
-	return 0.0;
+	}
+	return ret;
+}
+
+quint64 PlatformState::mmx_register(int n) const {
+quint64 ret = 0;
+
+	if(edb::v1::arch_processor().has_extension(ArchProcessorInterface::EXT_MMX)) {
+		if(n >= 0 && n <= 7) {
+#if defined(EDB_X86)
+			// MMX registers are an alias to the lower 64-bits of the FPU regs
+			const quint64* p = reinterpret_cast<const quint64*>(&context_.FloatSave.RegisterArea[n*10]);
+			ret = *p; // little endian!
+#elif defined(EDB_X86_64)
+			const quint64* p = reinterpret_cast<const quint64*>(&context_.FltSave.FloatRegisters[n]);
+			ret = *p;
+#endif
+		}
+	}
+	return ret;
+}
+
+QByteArray PlatformState::xmm_register(int n) const {
+QByteArray ret(16, 0);
+
+	if(edb::v1::arch_processor().has_extension(ArchProcessorInterface::EXT_XMM)) {
+#if defined(EDB_X86)
+		if(n >= 0 && n <= 7) {
+			const char* p = reinterpret_cast<const char*>(&context_.ExtendedRegisters[(10+n)*16]);
+			ret = QByteArray(p, 16);
+			std::reverse(ret.begin(), ret.end()); //little endian!
+		}
+#elif defined(EDB_X86_64)
+		if(n >= 0 && n <= 15) {
+			const char* p = reinterpret_cast<const char*>(&context_.FltSave.XmmRegisters[n]);
+			ret = QByteArray(p, sizeof(M128A));
+			std::reverse(ret.begin(), ret.end());
+		}
+#endif
+	}
+	return ret;
 }
 
 //------------------------------------------------------------------------------
@@ -398,4 +438,50 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 #endif
 }
 
+// little-endian!
+double PlatformState::readFloat80(const uint8_t buffer[10])
+{
+	//80 bit floating point value according to IEEE-754:
+	//1 bit sign, 15 bit exponent, 64 bit mantissa
 
+	const uint16_t SIGNBIT    = 1 << 15;
+	const uint16_t EXP_BIAS   = (1 << 14) - 1; // 2^(n-1) - 1 = 16383
+	const uint16_t SPECIALEXP = (1 << 15) - 1; // all bits set
+	const uint64_t HIGHBIT    = (uint64_t)1 << 63;
+	const uint64_t QUIETBIT   = (uint64_t)1 << 62;
+
+	// Extract sign, exponent and mantissa
+	uint16_t exponent = *((uint16_t*)&buffer[8]);
+	uint64_t mantissa = *((uint64_t*)&buffer[0]);
+
+	double sign = (exponent & SIGNBIT) ? -1.0 : 1.0;
+	exponent   &= ~SIGNBIT;
+
+	// Check for undefined values
+	if((!exponent && (mantissa & HIGHBIT)) || (exponent && !(mantissa & HIGHBIT))) {
+		return std::numeric_limits<double>::quiet_NaN();
+	}
+
+	// Check for special values (infinity, NaN)
+	if(exponent == 0) {
+		if(mantissa == 0) {
+			return sign * 0.0;
+		} else {
+			// denormalized
+		}
+	} else if(exponent == SPECIALEXP) {
+		if(!(mantissa & ~HIGHBIT)) {
+			return sign * std::numeric_limits<double>::infinity();
+		} else {
+			if(mantissa & QUIETBIT) {
+				return std::numeric_limits<double>::quiet_NaN();
+			} else {
+				return std::numeric_limits<double>::signaling_NaN();
+			}
+		}
+	}
+
+	//value = (-1)^s * (m / 2^63) * 2^(e - 16383)
+	double significand = ((double)mantissa / ((uint64_t)1 << 63));
+	return sign * ldexp(significand, exponent - EXP_BIAS);
+}

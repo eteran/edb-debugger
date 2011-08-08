@@ -68,6 +68,10 @@ namespace edb {
 		// the current arch processor
 		EDB_EXPORT ArchProcessorInterface &arch_processor();
 
+		// widgets
+		EDB_EXPORT QWidget *disassembly_widget();
+
+
 		// breakpoint managment
 		EDB_EXPORT QSharedPointer<Breakpoint> find_breakpoint(edb::address_t address);
 		EDB_EXPORT void remove_breakpoint(edb::address_t address);

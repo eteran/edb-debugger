@@ -22,7 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerPluginInterface.h"
 
 class QMenu;
-class QHttp;
+class QNetworkReply;
+class QNetworkAccessManager;
+class QUrl;
 
 class CheckVersion : public QObject, public DebuggerPluginInterface {
 	Q_OBJECT
@@ -40,15 +42,16 @@ public:
 
 public Q_SLOTS:
 	void show_menu();
-	void requestDone(bool error);
+	void requestFinished(QNetworkReply *reply);
 
 private:
 	void do_check();
+	bool set_proxy(const QUrl &url);
 
 private:
 	QMenu * menu_;
-	QHttp * http_;
-	bool    initial_check_;
+	QNetworkAccessManager * network_;
+	bool initial_check_;
 };
 
 #endif
