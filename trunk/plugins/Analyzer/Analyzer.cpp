@@ -42,6 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTime>
 #include <QtDebug>
 
+#include <boost/function.hpp>
 #include <boost/bind.hpp>
 
 #ifdef USE_QT_CONCURRENT
@@ -726,6 +727,43 @@ void Analyzer::find_calls_from_known(const MemRegion &region, FunctionMap &resul
 }
 
 //------------------------------------------------------------------------------
+// Name: collect_high_ref_results(FunctionMap &function_map, FunctionMap &found_functions) const
+// Desc:
+//------------------------------------------------------------------------------
+void Analyzer::collect_high_ref_results(FunctionMap &function_map, FunctionMap &found_functions) const {
+	for(FunctionMap::iterator it = found_functions.begin(); it != found_functions.end(); ) {
+		if(it->reference_count >= MIN_REFCOUNT) {
+			function_map[it->entry_address] = *it;
+			found_functions.erase(it++);
+		} else {
+			++it;
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+void Analyzer::collect_low_ref_results(const MemRegion &region, FunctionMap &function_map, FunctionMap &found_functions) {
+	// promote weak symbols...
+	SymbolManagerInterface &syms = edb::v1::symbol_manager();
+	Q_FOREACH(const Function &func, found_functions) {
+		if(!is_inside_known(region, func.entry_address)) {
+			if(!function_map.contains(func.entry_address)) {
+				function_map[func.entry_address] = func;
+
+				const Symbol::pointer s = syms.find(func.entry_address);
+				if(s && s->is_weak()) {
+					function_map[func.entry_address].reference_count++;
+				}
+
+			}
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
 // Name: analyze(const MemRegion &region)
 // Desc:
 //------------------------------------------------------------------------------
@@ -749,36 +787,49 @@ void Analyzer::analyze(const MemRegion &region_ref) {
 	const bool fuzzy          = settings.value("Analyzer/fuzzy_logic_functions.enabled", true).toBool();
 	const QByteArray md5      = md5_region(region);
 	const QByteArray prev_md5 = region_info.md5;
-
+	
 	if(md5 != prev_md5 || fuzzy != region_info.fuzzy) {
 		FunctionMap &function_map = region_info.analysis;
-
 		function_map.clear();
-
+		
 		QSet<edb::address_t> walked_functions;
-
-		// start with some obvious functions...
-		emit update_progress(util::percentage(0, 13));
-		qDebug("[Analyzer] adding entry points to the list...");
-		bonus_entry_point(region, function_map);
-		emit update_progress(util::percentage(1, 13));
-
-		qDebug("[Analyzer] attempting to add 'main' to the list...");
-		bonus_main(region, function_map);
-		emit update_progress(util::percentage(2, 13));
-
-		qDebug("[Analyzer] attempting to add marked functions to the list...");
-		bonus_marked_functions(region, function_map);
-		emit update_progress(util::percentage(3, 13));
-
-		qDebug("[Analyzer] attempting to add functions with symbols to the list...");
-		bonus_symbols(region, function_map);
-		emit update_progress(util::percentage(4, 13));
-
-		qDebug("[Analyzer] calculating function bounds... (pass 1)");
-		find_calls_from_known(region, function_map, walked_functions);
-		emit update_progress(util::percentage(5, 13));
-
+		FunctionMap          found_functions;
+		
+		const struct {
+			const char             *message;
+			boost::function<void()> function;
+		} analysis_steps[] = {
+			{ "adding entry points to the list...", 					 boost::bind(&Analyzer::bonus_entry_point,      this, boost::cref(region), boost::ref(function_map)) },
+			{ "attempting to add 'main' to the list...",				 boost::bind(&Analyzer::bonus_main,             this, boost::cref(region), boost::ref(function_map)) },
+			{ "attempting to add marked functions to the list...",  	 boost::bind(&Analyzer::bonus_marked_functions, this, boost::cref(region), boost::ref(function_map)) },
+			{ "attempting to add functions with symbols to the list...", boost::bind(&Analyzer::bonus_symbols,          this, boost::cref(region), boost::ref(function_map)) },
+			{ "calculating function bounds... (pass 1)",                 boost::bind(&Analyzer::find_calls_from_known,  this, boost::cref(region), boost::ref(function_map), boost::ref(walked_functions)) },
+		};		
+		
+		const struct {
+			const char             *message;
+			boost::function<void()> function;
+		} fuzzy_analysis_steps[] = {
+			{ "finding possible function calls...",      boost::bind(&Analyzer::find_function_calls,      this, boost::cref(region), boost::ref(found_functions)) },
+			{ "bonusing stack frames...",                boost::bind(&Analyzer::bonus_stack_frames,       this, boost::ref(found_functions)) },
+			{ "collecting high reference answers...",    boost::bind(&Analyzer::collect_high_ref_results, this, boost::ref(function_map), boost::ref(found_functions)) },
+			{ "calculating function bounds... (pass 2)", boost::bind(&Analyzer::find_calls_from_known,    this, boost::cref(region), boost::ref(function_map), boost::ref(walked_functions)) },
+			{ "collecting low reference answers...",     boost::bind(&Analyzer::collect_low_ref_results,  this, boost::cref(region), boost::ref(function_map), boost::ref(found_functions)) },
+			{ "calculating function bounds... (pass 3)", boost::bind(&Analyzer::find_calls_from_known,    this, boost::cref(region), boost::ref(function_map), boost::ref(walked_functions)) },
+		};
+		
+		const int analysis_steps_count       = sizeof(analysis_steps) / sizeof(analysis_steps[0]);
+		const int fuzzy_analysis_steps_count = sizeof(fuzzy_analysis_steps) / sizeof(fuzzy_analysis_steps[0]);
+		const int total_steps = analysis_steps_count + fuzzy_analysis_steps_count + 1;
+		
+		emit update_progress(util::percentage(0, total_steps));
+		for(int i = 0; i < analysis_steps_count; ++i) {
+			
+			qDebug("[Analyzer] %s", analysis_steps[i].message);
+			analysis_steps[i].function();
+			emit update_progress(util::percentage(i + 1, total_steps));
+		}
+		
 		fix_overlaps(function_map);
 
 		// ok, at this point, we've done the best we can with knowns
@@ -786,66 +837,15 @@ void Analyzer::analyze(const MemRegion &region_ref) {
 		// reachable from known entry points in the code
 		// let's start looking for unknowns
 		if(fuzzy) {
-			qDebug("[Analyzer] finding possible function calls...");
-
-			// put these into a temporary bin
-			FunctionMap found_functions;
-			find_function_calls(region, found_functions);
-			emit update_progress(util::percentage(7, 13));
-
-			qDebug("[Analyzer] bonusing stack frames...");
-			bonus_stack_frames(found_functions);
-			emit update_progress(util::percentage(8, 13));
-
-			// collect the ones which have enough references
-			qDebug("[Analyzer] collecting high reference answers ...");
-			for(FunctionMap::iterator it = found_functions.begin(); it != found_functions.end(); ) {
-				if(it->reference_count >= MIN_REFCOUNT) {
-					function_map[it->entry_address] = *it;
-					found_functions.erase(it++);
-				} else {
-					++it;
-				}
+			for(int i = 0; i < fuzzy_analysis_steps_count; ++i) {
+				qDebug("[Analyzer] %s", fuzzy_analysis_steps[i].message);
+				fuzzy_analysis_steps[i].function();
+				emit update_progress(util::percentage(analysis_steps_count + i + 1, total_steps));
 			}
-			emit update_progress(util::percentage(9, 13));
-
-			// walk the newly found functions!
-			qDebug("[Analyzer] calculating function bounds... (pass 2)");
-			find_calls_from_known(region, function_map, walked_functions);
-			emit update_progress(util::percentage(10, 13));
-
-			// ok, after this the only ones left should be low reference
-			// count ones...
-			// but by now we can gaurantee they won't overlap with
-			// known good functions at all
-			qDebug("[Analyzer] collecting low reference answers...");
-
-			// promote weak symbols...
-			SymbolManagerInterface &syms = edb::v1::symbol_manager();
-			Q_FOREACH(const Function &func, found_functions) {
-				if(!is_inside_known(region, func.entry_address)) {
-					if(!function_map.contains(func.entry_address)) {
-						function_map[func.entry_address] = func;
-
-						const Symbol::pointer s = syms.find(func.entry_address);
-						if(s && s->is_weak()) {
-							function_map[func.entry_address].reference_count++;
-						}
-
-					}
-				}
-			}
-			emit update_progress(util::percentage(11, 13));
-
-			// walk the newly found functions!
-			qDebug("[Analyzer] calculating function bounds... (pass 3)");
-			find_calls_from_known(region, function_map, walked_functions);
-			emit update_progress(util::percentage(12, 13));
 		}
 
 		qDebug("[Analyzer] determining function types...");
 		set_function_types(function_map);
-		emit update_progress(util::percentage(13, 13));
 
 		qDebug("[Analyzer] complete");
 		emit update_progress(100);
@@ -957,13 +957,13 @@ void Analyzer::bonus_entry_point(const MemRegion &region, FunctionMap &results) 
 
 	if(edb::address_t entry = module_entry_point(region)) {
 
-		qDebug("[Analyzer] found: %p", reinterpret_cast<void*>(entry));
-
 		// if the entry seems like a relative one (like for a library)
 		// then add the base of its image
 		if(entry < region.start) {
 			entry += region.start;
 		}
+		
+		qDebug("[Analyzer] found entry point: %p", reinterpret_cast<void*>(entry));
 
 		// make sure we have an entry for this function
 		if(region.contains(entry)) {

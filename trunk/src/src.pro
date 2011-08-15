@@ -217,6 +217,11 @@ unix {
 	freebsd-g++*:	QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic
 	macx-g++*:		QMAKE_LFLAGS += -rdynamic
 
+
+	debug {
+		linux-g++*:		QMAKE_CXXFLAGS += -ggdb
+	}
+
 	debug:   OBJECTS_DIR = $${OUT_PWD}/.obj/debug-shared
 	release: OBJECTS_DIR = $${OUT_PWD}/.obj/release-shared
 

@@ -14,7 +14,7 @@
 //------------------------------------------------------------------------------
 // Name: 
 //------------------------------------------------------------------------------
-AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f) {
+AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), mouse_pressed_(false) {
 	setMinimumHeight(20);
 	setMaximumHeight(20);
 	
@@ -38,9 +38,10 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 
 	QPainter painter(this);
 	painter.fillRect(0, 0, width(), height(), QBrush(Qt::black));
+	QFontMetrics fm(font());
 	
 	const MemRegion region = edb::v1::current_cpu_view_region();
-	if(region.size() != 0) {	
+	if(region.size() != 0) {
 		const float byte_width = static_cast<float>(width()) / region.size();
 		
 		const QSet<edb::address_t> specified_functions = edb::v1::analyzer()->specified_functions();
@@ -58,17 +59,27 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 				painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkRed));
 			}
 		}
-		
-		if(QAbstractScrollArea *scroll_area = qobject_cast<QAbstractScrollArea*>(edb::v1::disassembly_widget())) {
-			if(QScrollBar *scrollbar = scroll_area->verticalScrollBar()) {
-				const int offset = (scrollbar->value()) * byte_width;
 				
-				const QString triangle(QChar(0x25b4));
-				QFontMetrics fm(font());
-				painter.setPen(QPen(Qt::yellow));
-				painter.drawText(offset - fm.width(QChar(0x25b4)) / 2, height(), triangle);
+		if(functions.isEmpty()) {
+			const QString s(tr("No Analysis Found For This Region"));
+			painter.setPen(QPen(Qt::white));
+			painter.drawText((width() - fm.width(s)) / 2, height() - 4, s);
+		} else {
+			if(QAbstractScrollArea *scroll_area = qobject_cast<QAbstractScrollArea*>(edb::v1::disassembly_widget())) {
+				if(QScrollBar *scrollbar = scroll_area->verticalScrollBar()) {
+					const int offset = (scrollbar->value()) * byte_width;
+					
+					const QString triangle(QChar(0x25b4));
+					
+					painter.setPen(QPen(Qt::yellow));
+					painter.drawText(offset - fm.width(QChar(0x25b4)) / 2, height(), triangle);
+				}
 			}
 		}
+	} else {
+		const QString s(tr("No Analysis Found For This Region"));
+		painter.setPen(QPen(Qt::white));
+		painter.drawText((width() - fm.width(s)) / 2, height() - 4, s);
 	}
 }
 
@@ -77,11 +88,29 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 //------------------------------------------------------------------------------
 void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
 	
+	mouse_pressed_ = true;
+	
 	const MemRegion region = edb::v1::current_cpu_view_region();
 	if(region.size() != 0) {
-		
 		const float byte_width = static_cast<float>(width()) / region.size();
 		const edb::address_t address = region.start + static_cast<edb::address_t>(event->x() / byte_width);		
 		edb::v1::jump_to_address(address);
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+//------------------------------------------------------------------------------
+void AnalyzerWidget::mouseReleaseEvent(QMouseEvent *event) {
+	Q_UNUSED(event);
+	mouse_pressed_ = false;
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+//------------------------------------------------------------------------------
+void AnalyzerWidget::mouseMoveEvent(QMouseEvent *event) {
+	if(mouse_pressed_) {
+		mousePressEvent(event);
 	}
 }

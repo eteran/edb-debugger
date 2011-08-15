@@ -144,10 +144,10 @@ QDisassemblyView::~QDisassemblyView() {
 }
 
 //------------------------------------------------------------------------------
-// Name: length_disasm_back(const quint8 *buf, int size) const
+// Name: length_disasm_back(const quint8 *buf, size_t size) const
 // Desc:
 //------------------------------------------------------------------------------
-size_t QDisassemblyView::length_disasm_back(const quint8 *buf, int size) const {
+size_t QDisassemblyView::length_disasm_back(const quint8 *buf, size_t size) const {
 
 
 	quint8 tmp[edb::Instruction::MAX_SIZE * 2];
@@ -628,28 +628,26 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			*buf = 0xff;
 		}
 
-		// disassemble the instruction, we also create a disassembly
-		// forcing 1 byte size so we can easily deal with truncated
-		// instructions
-		const edb::Instruction insn1(buf, buf_size, address, std::nothrow);
-		const edb::Instruction insn2(buf,        1, address, std::nothrow);
-
-		// has the analyzer decided that the next byte is a block start? if
-		// so, then cut this one short so that it doesn't overlap with the block
-		// anymore
-		const edb::Instruction &insn(
-			(analyzer != 0) && (analyzer->category(address + 1) == AnalyzerInterface::ADDRESS_FUNC_START) ?
-			insn2 :
-			insn1);
+		// disassemble the instruction, if it happens that the next byte is the start of a known function
+		// then we should treat this like a one byte instruction
+		edb::Instruction insn(buf, buf_size, address, std::nothrow);
+		if((analyzer != 0) && (analyzer->category(address + 1) == AnalyzerInterface::ADDRESS_FUNC_START)) {
+			edb::Instruction(buf, 1, address, std::nothrow).swap(insn);
+		}
 
 		const int insn_size = insn.size();
 
 		if(insn_size == 0) {
 			return;
 		}
-
-		// draw alternating line backgrounds
+		
+		/*
+		if(selectedAddress() == address) {
+			painter.fillRect(0, y, width(), line_height, palette().highlight());
+		} else 
+		*/
 		if(row_index & 1) {
+			// draw alternating line backgrounds
 			painter.fillRect(0, y, width(), line_height, alternated_base_color);
 		}
 
@@ -918,13 +916,15 @@ edb::address_t QDisassemblyView::address_from_coord(int x, int y) const {
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
-	if(event->button() == Qt::LeftButton) {
-		if(event->x() < line1()) {
-			const edb::address_t address = addressFromPoint(event->pos());
+	if(region_ != MemRegion()) {
+		if(event->button() == Qt::LeftButton) {
+			if(event->x() < line1()) {
+				const edb::address_t address = addressFromPoint(event->pos());
 
-			if(region_.contains(address)) {
-				emit breakPointToggled(address);
-				repaint();
+				if(region_.contains(address)) {
+					emit breakPointToggled(address);
+					repaint();
+				}
 			}
 		}
 	}
@@ -936,32 +936,34 @@ void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 bool QDisassemblyView::event(QEvent *event) {
 
-	if(event->type() == QEvent::ToolTip) {
-		bool show = false;
+	if(region_ != MemRegion()) {
+		if(event->type() == QEvent::ToolTip) {
+			bool show = false;
 
-		const QHelpEvent *const helpEvent = static_cast<QHelpEvent *>(event);
+			const QHelpEvent *const helpEvent = static_cast<QHelpEvent *>(event);
 
-		if(helpEvent->x() >= line1() && helpEvent->x() < line2()) {
+			if(helpEvent->x() >= line1() && helpEvent->x() < line2()) {
 
-			const edb::address_t address = addressFromPoint(helpEvent->pos());
+				const edb::address_t address = addressFromPoint(helpEvent->pos());
 
-			quint8 buf[edb::Instruction::MAX_SIZE];
+				quint8 buf[edb::Instruction::MAX_SIZE];
 
-			// do the longest read we can while still not passing the region end
-			int buf_size = qMin<edb::address_t>((region_.end - address), sizeof(buf));
-			if(edb::v1::get_instruction_bytes(address, buf, buf_size)) {
-				const edb::Instruction insn(buf, buf_size, address, std::nothrow);
+				// do the longest read we can while still not passing the region end
+				int buf_size = qMin<edb::address_t>((region_.end - address), sizeof(buf));
+				if(edb::v1::get_instruction_bytes(address, buf, buf_size)) {
+					const edb::Instruction insn(buf, buf_size, address, std::nothrow);
 
-				if((line1() + (static_cast<int>(insn.size()) * 3) * font_width_) > line2()) {
-					const QString byte_buffer = format_instruction_bytes(insn);
-					QToolTip::showText(helpEvent->globalPos(), byte_buffer);
-					show = true;
+					if((line1() + (static_cast<int>(insn.size()) * 3) * font_width_) > line2()) {
+						const QString byte_buffer = format_instruction_bytes(insn);
+						QToolTip::showText(helpEvent->globalPos(), byte_buffer);
+						show = true;
+					}
 				}
 			}
-		}
 
-		if(!show) {
-			QToolTip::showText(helpEvent->globalPos(), QString());
+			if(!show) {
+				QToolTip::showText(helpEvent->globalPos(), QString());
+			}
 		}
 	}
 
@@ -988,16 +990,19 @@ void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
-	bool ok;
-	const edb::address_t address = addressFromPoint(event->pos());
-	const int size               = get_instruction_size(address, ok);
-
-	if(ok) {
-		selected_instruction_address_ = address;
-		selected_instruction_size_    = size;
-	} else {
-		selected_instruction_address_ = 0;
-		selected_instruction_size_    = 0;
+	
+	if(region_ != MemRegion()) {
+		bool ok;
+		const edb::address_t address = addressFromPoint(event->pos());
+		const int size               = get_instruction_size(address, ok);
+	
+		if(ok) {
+			selected_instruction_address_ = address;
+			selected_instruction_size_    = size;
+		} else {
+			selected_instruction_address_ = 0;
+			selected_instruction_size_    = 0;
+		}
 	}
 }
 
@@ -1007,16 +1012,18 @@ void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 
-	if(event->button() == Qt::LeftButton) {
-		if(near_line(event->x(), line1())) {
-			moving_line1_ = true;
-		} else if(near_line(event->x(), line2())) {
-			moving_line2_ = true;
+	if(region_ != MemRegion()) {
+		if(event->button() == Qt::LeftButton) {
+			if(near_line(event->x(), line1())) {
+				moving_line1_ = true;
+			} else if(near_line(event->x(), line2())) {
+				moving_line2_ = true;
+			} else {
+				updateSelectedAddress(event);
+			}
 		} else {
 			updateSelectedAddress(event);
 		}
-	} else {
-		updateSelectedAddress(event);
 	}
 }
 
@@ -1026,26 +1033,28 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 
-	const int x_pos = event->x();
+	if(region_ != MemRegion()) {
+		const int x_pos = event->x();
 
-	if(moving_line1_) {
-		if(x_pos >= auto_line1() && x_pos + font_width_ < line2()) {
-			if(line2_ == 0) {
-				line2_ = line2();
+		if(moving_line1_) {
+			if(x_pos >= auto_line1() && x_pos + font_width_ < line2()) {
+				if(line2_ == 0) {
+					line2_ = line2();
+				}
+				line1_ = x_pos;
 			}
-			line1_ = x_pos;
-		}
-		repaint();
-	} else if(moving_line2_) {
-		if(x_pos > line1() + font_width_ && x_pos + 1 < width() - (verticalScrollBar()->width() + 3)) {
-			line2_ = x_pos;
-		}
-		repaint();
-	} else {
-		if(near_line(x_pos, line1()) || near_line(x_pos, line2())) {
-			setCursor(Qt::SplitHCursor);
+			repaint();
+		} else if(moving_line2_) {
+			if(x_pos > line1() + font_width_ && x_pos + 1 < width() - (verticalScrollBar()->width() + 3)) {
+				line2_ = x_pos;
+			}
+			repaint();
 		} else {
-			setCursor(Qt::ArrowCursor);
+			if(near_line(x_pos, line1()) || near_line(x_pos, line2())) {
+				setCursor(Qt::SplitHCursor);
+			} else {
+				setCursor(Qt::ArrowCursor);
+			}
 		}
 	}
 }
