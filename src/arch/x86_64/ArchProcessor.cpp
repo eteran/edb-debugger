@@ -297,7 +297,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name) {
 		for(int i = 0; i < 16; ++i) {
 			const QByteArray current = state.xmm_register(i);
 			const QByteArray prev    = last_state_.xmm_register(i);
-			Q_ASSERT(current.size() == 16);
+			Q_ASSERT(current.size() == 16 || current.size() == 0);
 			get_register_item(48 + i)->setText(0, QString("XMM%1: %2").arg(i, -2).arg(current.toHex().constData()));
 			get_register_item(48 + i)->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}

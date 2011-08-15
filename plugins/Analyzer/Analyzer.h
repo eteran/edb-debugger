@@ -81,6 +81,8 @@ private:
 	void set_function_types(FunctionMap &results);
 	void set_function_types_helper(Function &info) const;
 	void update_results_entry(FunctionMap &results, edb::address_t address) const;
+	void collect_high_ref_results(FunctionMap &function_map, FunctionMap &found_functions) const;
+	void collect_low_ref_results(const MemRegion &region, FunctionMap &function_map, FunctionMap &found_functions);
 
 Q_SIGNALS:
 	void update_progress(int);
