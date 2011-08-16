@@ -55,8 +55,6 @@ private:
 	CONTEXT        context_;
 	edb::address_t fs_base_;
 	edb::address_t gs_base_;
-
-	static double readFloat80(const uint8_t buffer[10]);
 };
 
 #endif

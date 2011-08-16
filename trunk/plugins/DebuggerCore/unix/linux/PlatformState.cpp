@@ -374,4 +374,20 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 #endif
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+quint64 PlatformState::mmx_register(int n) const {
+	Q_UNUSED(n);
+	return 0;
+}
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QByteArray PlatformState::xmm_register(int n) const {
+	Q_UNUSED(n);
+	return QByteArray();
+}

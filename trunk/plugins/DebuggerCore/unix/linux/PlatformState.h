@@ -48,14 +48,16 @@ public:
 	virtual void set_flags(edb::reg_t flags);
 	virtual void set_instruction_pointer(edb::address_t value);
 	virtual void set_register(const QString &name, edb::reg_t value);
+	virtual quint64 mmx_register(int n) const;
+	virtual QByteArray xmm_register(int n) const;
 
 private:
 	struct user_regs_struct   regs_;
 	struct user_fpregs_struct fpregs_;
 	edb::reg_t                dr_[8];
 #if defined(EDB_X86)
-	edb::address_t             fs_base;
-	edb::address_t             gs_base;
+	edb::address_t            fs_base;
+	edb::address_t            gs_base;
 #endif
 };
 

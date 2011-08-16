@@ -890,28 +890,31 @@ void DebuggerMain::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	const edb::address_t address = ui->cpuView->selectedAddress();
 	int size                     = ui->cpuView->selectedSize();
 
-	quint8 buffer[edb::Instruction::MAX_SIZE + 1];
-	if(edb::v1::get_instruction_bytes(address, buffer, size)) {
-		edb::Instruction insn(buffer, size, address, std::nothrow);
-		if(insn.valid()) {
 
-			switch(insn.type()) {
-			case edb::Instruction::OP_JMP:
-			case edb::Instruction::OP_CALL:
-			case edb::Instruction::OP_JCC:
-				if(insn.operand(0).general_type() == edb::Operand::TYPE_REL) {
-					QAction *const action = menu.addAction(tr("&Follow"), this, SLOT(mnuCPUFollow()));
-					action->setData(static_cast<qlonglong>(insn.operand(0).relative_target()));
-				}
-				break;
-			default:
-				for(std::size_t i = 0; i < insn.operand_count(); ++i) {
-					if(insn.operand(i).general_type() == edb::Operand::TYPE_IMMEDIATE) {
-						QAction *const action = menu.addAction(tr("Follow Constant In &Dump"), this, SLOT(mnuCPUFollowInDump()));
-						action->setData(static_cast<qlonglong>(insn.operand(i).immediate()));
+	if(edb::v1::debugger_core->pid() != 0) {
+		quint8 buffer[edb::Instruction::MAX_SIZE + 1];
+		if(edb::v1::get_instruction_bytes(address, buffer, size)) {
+			edb::Instruction insn(buffer, size, address, std::nothrow);
+			if(insn.valid()) {
 
-						QAction *const action2 = menu.addAction(tr("Follow Constant In &Stack"), this, SLOT(mnuCPUFollowInStack()));
-						action2->setData(static_cast<qlonglong>(insn.operand(i).immediate()));
+				switch(insn.type()) {
+				case edb::Instruction::OP_JMP:
+				case edb::Instruction::OP_CALL:
+				case edb::Instruction::OP_JCC:
+					if(insn.operand(0).general_type() == edb::Operand::TYPE_REL) {
+						QAction *const action = menu.addAction(tr("&Follow"), this, SLOT(mnuCPUFollow()));
+						action->setData(static_cast<qlonglong>(insn.operand(0).relative_target()));
+					}
+					break;
+				default:
+					for(std::size_t i = 0; i < insn.operand_count(); ++i) {
+						if(insn.operand(i).general_type() == edb::Operand::TYPE_IMMEDIATE) {
+							QAction *const action = menu.addAction(tr("Follow Constant In &Dump"), this, SLOT(mnuCPUFollowInDump()));
+							action->setData(static_cast<qlonglong>(insn.operand(i).immediate()));
+
+							QAction *const action2 = menu.addAction(tr("Follow Constant In &Stack"), this, SLOT(mnuCPUFollowInStack()));
+							action2->setData(static_cast<qlonglong>(insn.operand(i).immediate()));
+						}
 					}
 				}
 			}

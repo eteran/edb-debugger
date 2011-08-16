@@ -49,6 +49,8 @@ public:
 	virtual void set_flags(edb::reg_t flags);
 	virtual void set_instruction_pointer(edb::address_t value);
 	virtual void set_register(const QString &name, edb::reg_t value);
+	virtual quint64 mmx_register(int n) const;
+	virtual QByteArray xmm_register(int n) const;
 
 private:
 #if defined(EDB_X86)

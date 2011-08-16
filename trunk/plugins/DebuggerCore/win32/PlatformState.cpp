@@ -22,6 +22,57 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <limits>
 #include <cmath>
 
+namespace {
+
+// little-endian!
+double read_float80(const uint8_t buffer[10]) {
+	//80 bit floating point value according to IEEE-754:
+	//1 bit sign, 15 bit exponent, 64 bit mantissa
+
+	const uint16_t SIGNBIT    = 1 << 15;
+	const uint16_t EXP_BIAS   = (1 << 14) - 1; // 2^(n-1) - 1 = 16383
+	const uint16_t SPECIALEXP = (1 << 15) - 1; // all bits set
+	const uint64_t HIGHBIT    = (uint64_t)1 << 63;
+	const uint64_t QUIETBIT   = (uint64_t)1 << 62;
+
+	// Extract sign, exponent and mantissa
+	uint16_t exponent = *((uint16_t*)&buffer[8]);
+	uint64_t mantissa = *((uint64_t*)&buffer[0]);
+
+	double sign = (exponent & SIGNBIT) ? -1.0 : 1.0;
+	exponent   &= ~SIGNBIT;
+
+	// Check for undefined values
+	if((!exponent && (mantissa & HIGHBIT)) || (exponent && !(mantissa & HIGHBIT))) {
+		return std::numeric_limits<double>::quiet_NaN();
+	}
+
+	// Check for special values (infinity, NaN)
+	if(exponent == 0) {
+		if(mantissa == 0) {
+			return sign * 0.0;
+		} else {
+			// denormalized
+		}
+	} else if(exponent == SPECIALEXP) {
+		if(!(mantissa & ~HIGHBIT)) {
+			return sign * std::numeric_limits<double>::infinity();
+		} else {
+			if(mantissa & QUIETBIT) {
+				return std::numeric_limits<double>::quiet_NaN();
+			} else {
+				return std::numeric_limits<double>::signaling_NaN();
+			}
+		}
+	}
+
+	//value = (-1)^s * (m / 2^63) * 2^(e - 16383)
+	double significand = ((double)mantissa / ((uint64_t)1 << 63));
+	return sign * ldexp(significand, exponent - EXP_BIAS);
+}
+}
+
+
 //------------------------------------------------------------------------------
 // Name: PlatformState()
 // Desc:
@@ -270,14 +321,14 @@ double ret = 0.0;
 		if(sizeof(long double) == 10) { // can we check this at compile time?
 			ret = *(reinterpret_cast<const long double*>(p));
 		} else {
-			ret = readFloat80(p);
+			ret = read_float80(p);
 		}
 #elif defined(EDB_X86_64)
 		const uint8_t* p = reinterpret_cast<const uint8_t*>(&context_.FltSave.FloatRegisters[n]);
 		if(sizeof(long double) == 10) {
 			ret = *(reinterpret_cast<const long double*>(p));
 		} else {
-			ret = readFloat80(p);
+			ret = read_float80(p);
 		}
 #endif
 	}
@@ -285,7 +336,7 @@ double ret = 0.0;
 }
 
 quint64 PlatformState::mmx_register(int n) const {
-quint64 ret = 0;
+	quint64 ret = 0;
 
 	if(edb::v1::arch_processor().has_extension(ArchProcessorInterface::EXT_MMX)) {
 		if(n >= 0 && n <= 7) {
@@ -303,7 +354,7 @@ quint64 ret = 0;
 }
 
 QByteArray PlatformState::xmm_register(int n) const {
-QByteArray ret(16, 0);
+	QByteArray ret(16, 0);
 
 	if(edb::v1::arch_processor().has_extension(ArchProcessorInterface::EXT_XMM)) {
 #if defined(EDB_X86)
@@ -436,52 +487,4 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 	else if(lreg == "ss") { context_.SegSs = value; }
 	else if(lreg == "rflags") { context_.EFlags = value; }
 #endif
-}
-
-// little-endian!
-double PlatformState::readFloat80(const uint8_t buffer[10])
-{
-	//80 bit floating point value according to IEEE-754:
-	//1 bit sign, 15 bit exponent, 64 bit mantissa
-
-	const uint16_t SIGNBIT    = 1 << 15;
-	const uint16_t EXP_BIAS   = (1 << 14) - 1; // 2^(n-1) - 1 = 16383
-	const uint16_t SPECIALEXP = (1 << 15) - 1; // all bits set
-	const uint64_t HIGHBIT    = (uint64_t)1 << 63;
-	const uint64_t QUIETBIT   = (uint64_t)1 << 62;
-
-	// Extract sign, exponent and mantissa
-	uint16_t exponent = *((uint16_t*)&buffer[8]);
-	uint64_t mantissa = *((uint64_t*)&buffer[0]);
-
-	double sign = (exponent & SIGNBIT) ? -1.0 : 1.0;
-	exponent   &= ~SIGNBIT;
-
-	// Check for undefined values
-	if((!exponent && (mantissa & HIGHBIT)) || (exponent && !(mantissa & HIGHBIT))) {
-		return std::numeric_limits<double>::quiet_NaN();
-	}
-
-	// Check for special values (infinity, NaN)
-	if(exponent == 0) {
-		if(mantissa == 0) {
-			return sign * 0.0;
-		} else {
-			// denormalized
-		}
-	} else if(exponent == SPECIALEXP) {
-		if(!(mantissa & ~HIGHBIT)) {
-			return sign * std::numeric_limits<double>::infinity();
-		} else {
-			if(mantissa & QUIETBIT) {
-				return std::numeric_limits<double>::quiet_NaN();
-			} else {
-				return std::numeric_limits<double>::signaling_NaN();
-			}
-		}
-	}
-
-	//value = (-1)^s * (m / 2^63) * 2^(e - 16383)
-	double significand = ((double)mantissa / ((uint64_t)1 << 63));
-	return sign * ldexp(significand, exponent - EXP_BIAS);
 }
