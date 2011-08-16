@@ -93,8 +93,11 @@ void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
 	const MemRegion region = edb::v1::current_cpu_view_region();
 	if(region.size() != 0) {
 		const float byte_width = static_cast<float>(width()) / region.size();
-		const edb::address_t address = region.start + static_cast<edb::address_t>(event->x() / byte_width);		
-		edb::v1::jump_to_address(address);
+		const edb::address_t address = region.start + static_cast<edb::address_t>(event->x() / byte_width);
+		
+		if(address >= region.start && address <= region.end) {			
+			edb::v1::jump_to_address(address);
+		}
 	}
 }
 

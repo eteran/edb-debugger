@@ -92,9 +92,7 @@ QMenu *Analyzer::menu(QWidget *parent) {
 		menu_->addAction(tr("&Analyze RIP's Region"), this, SLOT(do_ip_analysis()), QKeySequence(tr("Ctrl+A")));
 #endif
 		menu_->addAction(tr("&Analyze Viewed Region"), this, SLOT(do_view_analysis()), QKeySequence(tr("Ctrl+Shift+A")));
-		
-		
-		
+
 		// if we are dealing with a main window (and we are...)
 		// add the dock object
 		if(QMainWindow *const main_window = qobject_cast<QMainWindow *>(parent)) {
@@ -195,6 +193,26 @@ void Analyzer::goto_function_start() {
 }
 
 //------------------------------------------------------------------------------
+// Name: goto_function_end()
+// Desc:
+//------------------------------------------------------------------------------
+void Analyzer::goto_function_end() {
+
+	const edb::address_t address = edb::v1::cpu_selected_address();
+
+	Function function;
+	if(find_containing_function(address, function)) {
+		edb::v1::jump_to_address(function.last_instruction);
+		return;
+	}
+
+	QMessageBox::information(
+		0,
+		tr("Goto Function End"),
+		tr("The selected instruction is not inside of a known function. Have you run an analysis of this region?"));
+}
+
+//------------------------------------------------------------------------------
 // Name: cpu_context_menu()
 // Desc:
 //------------------------------------------------------------------------------
@@ -204,12 +222,14 @@ QList<QAction *> Analyzer::cpu_context_menu() {
 
 	QAction *const action_find                = new QAction(tr("Analyze Here"), this);
 	QAction *const action_goto_function_start = new QAction(tr("Goto Function Start"), this);
+	QAction *const action_goto_function_end   = new QAction(tr("Goto Function End"), this);
 	QAction *const action_mark_function_start = new QAction(tr("Mark As Function Start"), this);
 
 	connect(action_find, SIGNAL(triggered()), this, SLOT(do_view_analysis()));
 	connect(action_goto_function_start, SIGNAL(triggered()), this, SLOT(goto_function_start()));
+	connect(action_goto_function_end, SIGNAL(triggered()),   this, SLOT(goto_function_end()));
 	connect(action_mark_function_start, SIGNAL(triggered()), this, SLOT(mark_function_start()));
-	ret << action_find << action_goto_function_start << action_mark_function_start;
+	ret << action_find << action_goto_function_start << action_goto_function_end << action_mark_function_start;
 
 	return ret;
 }
@@ -542,6 +562,7 @@ void Analyzer::fix_overlaps(FunctionMap &function_map) {
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::find_function_end(Function &function, edb::address_t end_address, QSet<edb::address_t> &found_functions, const FunctionMap &results) {
+
 	QStack<edb::address_t>		jump_targets;
 	QHash<edb::address_t, int>	visited_addresses;
 
@@ -550,6 +571,7 @@ void Analyzer::find_function_end(Function &function, edb::address_t end_address,
 
 	// while no more jump targets... (includes entry point)
 	while(!jump_targets.empty()) {
+	
 		edb::address_t addr = jump_targets.pop();
 
 		// for certain forward jump scenarioes this is possible.
@@ -566,6 +588,7 @@ void Analyzer::find_function_end(Function &function, edb::address_t end_address,
 				break;
 			}
 
+			// an invalid instruction ends this "block"
 			const edb::Instruction insn(buf, buf_size, addr, std::nothrow);
 			if(!insn.valid()) {
 				break;
@@ -578,9 +601,13 @@ void Analyzer::find_function_end(Function &function, edb::address_t end_address,
 			const edb::Instruction::Type type = insn.type();
 
 			if(type == edb::Instruction::OP_RET || type == edb::Instruction::OP_HLT) {
+				// instructions that clearly terminate the current block...
 				break;
+				
 			} else if(type == edb::Instruction::OP_JCC) {
 
+				// note if neccessary the Jcc target and move on, yes this can be fooled by "conditional"
+				// jumps which are always true or false, not much we can do about it at this level.
 				const edb::Operand &op = insn.operand(0);
 				if(op.general_type() == edb::Operand::TYPE_REL) {
 					const edb::address_t ea = op.relative_target();
@@ -588,6 +615,24 @@ void Analyzer::find_function_end(Function &function, edb::address_t end_address,
 					if(!visited_addresses.contains(ea) && !jump_targets.contains(ea)) {
 						jump_targets.push(ea);
 					}
+				}
+			} else if(type == edb::Instruction::OP_CALL) {
+
+
+				// similar to above, note the destination and move on
+				// we special case simple things for speed.
+				// also this is an opportunity to find call tables.
+				const edb::Operand &op = insn.operand(0);
+				if(op.general_type() == edb::Operand::TYPE_REL) {
+					const edb::address_t ea = op.relative_target();
+
+					// skip over ones which are: "call <label>; label:"
+					if(ea != addr + insn.size()) {
+						found_functions.insert(ea);
+					}
+				} else if(op.general_type() == edb::Operand::TYPE_EXPRESSION) {
+					// looks like: "call [...]", if it is of the form, call [C + REG]
+					// then it may be a jump table using REG as an offset
 				}
 			} else if(type == edb::Instruction::OP_JMP) {
 
@@ -612,6 +657,7 @@ void Analyzer::find_function_end(Function &function, edb::address_t end_address,
 						break;
 					}
 
+#if 0
 					// ok, it is a jmp to an address we haven't seen yet
 					// so just continue processing from there
 					if(!visited_addresses.contains(ea)) {
@@ -620,20 +666,9 @@ void Analyzer::find_function_end(Function &function, edb::address_t end_address,
 					} else {
 						break;
 					}
-				}
-			} else if(type == edb::Instruction::OP_CALL) {
-
-				const edb::Operand &op = insn.operand(0);
-				if(op.general_type() == edb::Operand::TYPE_REL) {
-					const edb::address_t ea = op.relative_target();
-
-					// skip over ones which are: "call <label>; label:"
-					if(ea != addr + insn.size()) {
-						found_functions.insert(ea);
-					}
-				} else if(op.general_type() == edb::Operand::TYPE_EXPRESSION) {
-					// looks like: "call [...]", if it is of the form, call [C + REG]
-					// then it may be a jump table using REG as an offset
+#else
+					break;
+#endif
 				}
 			}
 

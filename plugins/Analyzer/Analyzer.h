@@ -91,6 +91,7 @@ public Q_SLOTS:
 	void do_ip_analysis();
 	void do_view_analysis();
 	void goto_function_start();
+	void goto_function_end();
 	void mark_function_start();
 	void show_specified();
 

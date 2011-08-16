@@ -525,17 +525,17 @@ edb::address_t ArchProcessor::get_effective_address(const edb::Operand &op, cons
 	if(op.valid()) {
 		switch(op.general_type()) {
 		case edb::Operand::TYPE_REGISTER:
-			ret = *state[QString::fromStdString(op.register_name(op.reg()))];
+			ret = *state[QString::fromStdString(edisassm::register_name<edisassm::x86_64>(op.reg()))];
 			break;
 		case edb::Operand::TYPE_EXPRESSION:
 			do {
 
-				edb::reg_t base = *state[QString::fromStdString(op.register_name(op.expression().base))];
+				edb::reg_t base = *state[QString::fromStdString(edisassm::register_name<edisassm::x86_64>(op.expression().base))];
 				if(op.expression().base == edb::Operand::REG_RIP) {
 					base += op.owner()->size();
 				}
 
-				const edb::reg_t index = *state[QString::fromStdString(op.register_name(op.expression().index))];
+				const edb::reg_t index = *state[QString::fromStdString(edisassm::register_name<edisassm::x86_64>(op.expression().index))];
 				ret                    = base + index * op.expression().scale + op.displacement();
 
 				if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
