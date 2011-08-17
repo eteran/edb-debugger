@@ -412,7 +412,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 	const int ret         = insn.size();
 
 	if(insn.valid()) {
-		QString opcode = QString::fromStdString(edisassm::to_string(insn, upper));
+		QString opcode = QString::fromStdString(upper ? edisassm::to_string(insn, edisassm::syntax_intel_ucase()) : edisassm::to_string(insn, edisassm::syntax_intel_lcase()));
 
 		if(is_filling) {
 			painter.setPen(filling_dis_color);
