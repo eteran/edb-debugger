@@ -60,7 +60,7 @@ DebuggerCore::~DebuggerCore() {
 // Name: 
 // Desc: 
 //------------------------------------------------------------------------------
-bool DebuggerCore::has_extension(const QString &name) const {
+bool DebuggerCore::has_extension(quint64 ext) const {
 	return false;
 }
 

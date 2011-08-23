@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "FunctionInfo.h"
 #include "Instruction.h"
 #include "QCategoryList.h"
+#include "string_hash.h"
 #include "State.h"
 #include "Util.h"
 #include <QApplication>
@@ -37,8 +38,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Desc:
 //------------------------------------------------------------------------------
 ArchProcessor::ArchProcessor() : split_flags_(0) {
-	has_mmx_ = edb::v1::debugger_core->has_extension("mmx");
-	has_xmm_ = edb::v1::debugger_core->has_extension("xmm");
+	has_mmx_ = edb::v1::debugger_core->has_extension(edb::string_hash<'M', 'M', 'X'>::value);
+	has_xmm_ = edb::v1::debugger_core->has_extension(edb::string_hash<'X', 'M', 'M'>::value);
 }
 
 //------------------------------------------------------------------------------

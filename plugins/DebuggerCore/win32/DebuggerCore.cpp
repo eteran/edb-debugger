@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformState.h"
 #include "MemoryRegions.h"
 #include "MemRegion.h"
+#include "string_hash.h"
 
 #include <QDebug>
 #include <QStringList>
@@ -87,23 +88,27 @@ edb::address_t DebuggerCore::page_size() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: has_extension(const QString &name) const
+// Name: has_extension(quint64 ext) const
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerCore::has_extension(const QString &name) const {
+bool DebuggerCore::has_extension(quint64 ext) const {
 #if !defined(EDB_X86_64)
-	if(name == "mmx") {
+	switch(ext) {
+	case edb::string_hash<'M', 'M', 'X'>::value:
 		return IsProcessorFeaturePresent(PF_MMX_INSTRUCTIONS_AVAILABLE);
-	} else if(name == "xmm") {
+	case edb::string_hash<'X', 'M', 'M'>::value:
 		return IsProcessorFeaturePresent(PF_XMMI_INSTRUCTIONS_AVAILABLE);
+	default:
+		return false;
 	}
-	
-	return false;
 #else
-	if(name == "mmx" || name == "xmm") {
+	switch(ext) {
+	case edb::string_hash<'M', 'M', 'X'>::value:
+	case edb::string_hash<'X', 'M', 'M'>::value:
 		return true;
+	default:
+		return false;
 	}
-	return false;
 #endif
 }
 
