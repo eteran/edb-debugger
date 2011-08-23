@@ -17,7 +17,7 @@
 AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), mouse_pressed_(false) {
 	setMinimumHeight(20);
 	setMaximumHeight(20);
-	
+
 	connect(edb::v1::disassembly_widget(), SIGNAL(regionChanged()), this, SLOT(repaint()));
 
 
@@ -71,8 +71,15 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 					
 					const QString triangle(QChar(0x25b4));
 					
+#ifdef Q_OS_WIN32
+					const QFont f = painter.font();
+					painter.setFont(QFont("Lucida Sans Unicode", 16));
+#endif
 					painter.setPen(QPen(Qt::yellow));
 					painter.drawText(offset - fm.width(QChar(0x25b4)) / 2, height(), triangle);
+#ifdef Q_OS_WIN32
+					painter.setFont(f);
+#endif
 				}
 			}
 		}

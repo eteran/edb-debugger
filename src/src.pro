@@ -129,7 +129,7 @@ HEADERS     += qhexview.h QHexView
 	
 win32 {
 	DEPENDPATH  += os/win32 ../include/os/win32 arch/i386 ../include/arch/i386 edisassm
-	INCLUDEPATH += os/win32 ../include/os/win32 arch/i386 ../include/arch/i386 edisassm $$(BOOST)
+	INCLUDEPATH += os/win32 ../include/os/win32 arch/i386 ../include/arch/i386 edisassm "C:\\Program Files\\boost\\boost_1_47"
 	DEFINES     += _CRT_SECURE_NO_WARNINGS
 	LIBS			+= -lAdvapi32
 	
