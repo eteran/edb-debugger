@@ -43,6 +43,9 @@ public:
 	typedef QHash<edb::address_t, QSharedPointer<Breakpoint> > BreakpointState;
 
 public:
+	virtual bool has_extension(const QString &name) const = 0;
+
+public:
 	// returns true on success, false on failure, all bytes must be successfully
 	// read/written in order for a success. The debugged application should be stopped
 	// or this will return false immediately.

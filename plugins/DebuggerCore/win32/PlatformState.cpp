@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PlatformState.h"
 #include "Debugger.h"
-#include "ArchProcessorInterface.h" //?
 #include <limits>
 #include <cmath>
 
@@ -338,7 +337,8 @@ double ret = 0.0;
 quint64 PlatformState::mmx_register(int n) const {
 	quint64 ret = 0;
 
-	if(edb::v1::arch_processor().has_extension(ArchProcessorInterface::EXT_MMX)) {
+	// TODO: actually check again for this again
+	if(true) {
 		if(n >= 0 && n <= 7) {
 #if defined(EDB_X86)
 			// MMX registers are an alias to the lower 64-bits of the FPU regs
@@ -356,7 +356,8 @@ quint64 PlatformState::mmx_register(int n) const {
 QByteArray PlatformState::xmm_register(int n) const {
 	QByteArray ret(16, 0);
 
-	if(edb::v1::arch_processor().has_extension(ArchProcessorInterface::EXT_XMM)) {
+	// TODO: actually check again for this again
+	if(true) {
 #if defined(EDB_X86)
 		if(n >= 0 && n <= 7) {
 			const char* p = reinterpret_cast<const char*>(&context_.ExtendedRegisters[(10+n)*16]);

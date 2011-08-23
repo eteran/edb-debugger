@@ -37,14 +37,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Desc:
 //------------------------------------------------------------------------------
 ArchProcessor::ArchProcessor() : split_flags_(0) {
-#ifdef Q_OS_WIN
-	has_mmx = IsProcessorFeaturePresent(PF_MMX_INSTRUCTIONS_AVAILABLE);
-	has_xmm = IsProcessorFeaturePresent(PF_XMMI_INSTRUCTIONS_AVAILABLE);
-#else
-	// can we assume GCC? (cpuid via inline asm)
-	has_mmx = false;
-	has_xmm = false;
-#endif
+	has_mmx_ = edb::v1::debugger_core->has_extension("mmx");
+	has_xmm_ = edb::v1::debugger_core->has_extension("xmm");
 }
 
 //------------------------------------------------------------------------------
@@ -131,7 +125,7 @@ void ArchProcessor::setup_register_view(QCategoryList *category_list) {
 	setup_register_item(category_list, dbg, "dr6");
 	setup_register_item(category_list, dbg, "dr7");
 
-	if(has_mmx) {
+	if(has_mmx_) {
 		QTreeWidgetItem *const mmx = category_list->addCategory(tr("MMX"));
 
 		Q_CHECK_PTR(mmx);
@@ -146,7 +140,7 @@ void ArchProcessor::setup_register_view(QCategoryList *category_list) {
 		setup_register_item(category_list, mmx, "mm7");
 	}
 
-	if(has_xmm) {
+	if(has_xmm_) {
 		QTreeWidgetItem *const xmm = category_list->addCategory(tr("XMM"));
 
 		Q_CHECK_PTR(xmm);
@@ -276,7 +270,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name) {
 		get_register_item(24 + i)->setForeground(0, QBrush((state.debug_register(i) != last_state_.debug_register(i)) ? Qt::red : palette.text()));
 	}
 
-	if(has_mmx) {
+	if(has_mmx_) {
 		for(int i = 0; i < 8; ++i) {
 			const quint64 current = state.mmx_register(i);
 			const quint64 prev    = last_state_.mmx_register(i);
@@ -285,7 +279,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name) {
 		}
 	}
 
-	if(has_xmm) {
+	if(has_xmm_) {
 		for(int i = 0; i < 8; ++i) {
 			const QByteArray current = state.xmm_register(i);
 			const QByteArray prev    = last_state_.xmm_register(i);
@@ -742,6 +736,7 @@ QString ArchProcessor::format_argument(QChar ch, edb::reg_t arg) const {
 void ArchProcessor::analyze_syscall(const State &state, const edb::Instruction &insn, QStringList &ret) const {
 	Q_UNUSED(insn);
 	Q_UNUSED(ret);
+	Q_UNUSED(state);
 	
 #ifdef Q_OS_LINUX
 
@@ -1789,15 +1784,4 @@ bool ArchProcessor::is_filling(const edb::Instruction &insn) const {
 	}
 
 	return ret;
-}
-
-bool ArchProcessor::has_extension(eProcessorExtension extension) const {
-	switch(extension) {
-		case EXT_MMX:
-			return has_mmx;
-		case EXT_XMM:
-			return has_xmm;
-		default:
-			return false;
-	}
 }
