@@ -95,6 +95,8 @@ namespace {
 		if(QDir().absolutePath() != plugin_path) {
 			load_plugins(plugin_path);
 		}
+		
+		edb::internal::load_function_db();
 
 		// create the main window object
 		DebuggerMain debugger;

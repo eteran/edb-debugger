@@ -10,7 +10,6 @@ SUBDIRS += \
 	DebuggerCore \
 	DumpState \
 	Environment \
-	FunctionDB \
 	FunctionFinder \
 	HardwareBreakpoints \
 	OpcodeSearcher \

@@ -35,7 +35,6 @@ class Configuration;
 class DebugEventHandlerInterface;
 class DebuggerCoreInterface;
 class DebuggerPluginInterface;
-class FunctionDB;
 class FunctionInfo;
 class MemoryRegions;
 class SessionFileInterface;
@@ -153,7 +152,7 @@ namespace edb {
 		EDB_EXPORT bool get_instruction_bytes(edb::address_t address, quint8 *buf, int &size);
 
 		EDB_EXPORT BinaryInfo *get_binary_info(const MemRegion &region);
-		EDB_EXPORT const FunctionInfo *get_function_info(const QString &functionName);
+		EDB_EXPORT const FunctionInfo *get_function_info(const QString &function);
 
 		EDB_EXPORT edb::address_t locate_main_function();
 
@@ -170,7 +169,6 @@ namespace edb {
 		EDB_EXPORT void push_value(State &state, edb::reg_t value);
 
 		EDB_EXPORT void register_binary_info(BinaryInfo::create_func_ptr_t fptr);
-		EDB_EXPORT FunctionDB *set_function_db(FunctionDB *p);
 
 		EDB_EXPORT bool overwrite_check(edb::address_t address, unsigned int size);
 		EDB_EXPORT void modify_bytes(edb::address_t address, unsigned int size, QByteArray &bytes, quint8 fill);

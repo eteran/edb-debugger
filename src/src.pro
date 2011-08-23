@@ -7,6 +7,7 @@ RESOURCES   = debugger.qrc
 DESTDIR     = ../
 target.path = /bin/
 INSTALLS    += target 
+QT          += xml
 
 TRANSLATIONS += \
 	edb_en.ts
