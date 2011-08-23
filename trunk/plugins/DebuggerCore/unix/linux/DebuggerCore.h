@@ -35,7 +35,7 @@ public:
 
 public:
 	virtual edb::address_t page_size() const;
-	virtual bool has_extension(const QString &name) const;
+	virtual bool has_extension(quint64 ext) const;
 	virtual bool wait_debug_event(DebugEvent &event, int msecs);
 	virtual bool attach(edb::pid_t pid);
 	virtual void detach();

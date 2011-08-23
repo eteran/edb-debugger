@@ -43,7 +43,7 @@ public:
 	typedef QHash<edb::address_t, QSharedPointer<Breakpoint> > BreakpointState;
 
 public:
-	virtual bool has_extension(const QString &name) const = 0;
+	virtual bool has_extension(quint64 ext) const = 0;
 
 public:
 	// returns true on success, false on failure, all bytes must be successfully
