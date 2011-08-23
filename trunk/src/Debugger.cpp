@@ -41,14 +41,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SymbolManager.h"
 #include "version.h"
 
-#include <QMessageBox>
-#include <QString>
-#include <QByteArray>
-#include <QFileInfo>
-#include <QFile>
 #include <QAction>
 #include <QAtomicPointer>
+#include <QByteArray>
+#include <QFile>
+#include <QFileInfo>
 #include <QInputDialog>
+#include <QMessageBox>
+#include <QString>
+#include <QDomDocument>
 
 #include <cctype>
 
@@ -62,11 +63,15 @@ namespace {
 	typedef QList<BinaryInfo::create_func_ptr_t> BinaryInfoList;
 
 	QAtomicPointer<DebugEventHandlerInterface> g_DebugEventHandler = 0;
-	QAtomicPointer<FunctionDB>                 g_FunctionDB        = 0;
 	QAtomicPointer<AnalyzerInterface>          g_Analyzer          = 0;
 	QAtomicPointer<SessionFileInterface>       g_SessionHandler    = 0;
 	QHash<QString, QObject *>                  g_GeneralPlugins;
 	BinaryInfoList                             g_BinaryInfoList;
+	
+	QHash<QString, FunctionInfo>               g_FunctionDB;
+	
+	
+	
 
 	DebuggerMain *ui() {
 		return qobject_cast<DebuggerMain *>(edb::v1::debugger_ui);
@@ -102,6 +107,39 @@ bool register_plugin(const QString &filename, QObject *plugin) {
 
 	return false;
 }
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+void load_function_db() {
+	QFile file(":/debugger/xml/functions.xml");
+	QDomDocument doc;
+		
+	if(file.open(QIODevice::ReadOnly)) {	
+		if(doc.setContent(&file)) {
+		
+			QDomElement root = doc.firstChildElement("functions");
+			QDomElement function = root.firstChildElement("function");
+			for (; !function.isNull(); function = function.nextSiblingElement("function")) {
+			
+			
+				const QString function_name = function.attribute("name");
+				
+				FunctionInfo info;
+						
+				QDomElement argument = function.firstChildElement("argument");
+				for (; !argument.isNull(); argument = argument.nextSiblingElement("argument")) {
+					const QString argument_type = argument.attribute("type");
+					info.params_.push_back(argument_type[0]);
+				}
+				
+				g_FunctionDB[function_name] = info;	
+			}
+		}
+	}
+}
+
 }
 }
 
@@ -780,12 +818,14 @@ void edb::v1::reload_symbols() {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_function_info(const QString &functionName)
+// Name: get_function_info(const QString &function)
 // Desc:
 //------------------------------------------------------------------------------
-const FunctionInfo *edb::v1::get_function_info(const QString &functionName) {
-	if(FunctionDB *const p = g_FunctionDB) {
-		return p->find(functionName);
+const FunctionInfo *edb::v1::get_function_info(const QString &function) {
+
+	QHash<QString, FunctionInfo>::const_iterator it = g_FunctionDB.find(function);
+	if(it != g_FunctionDB.end()) {
+		return &(it.value());	
 	}
 
 	return 0;
@@ -832,15 +872,6 @@ void edb::v1::register_binary_info(BinaryInfo::create_func_ptr_t fptr) {
 	if(!g_BinaryInfoList.contains(fptr)) {
 		g_BinaryInfoList.push_back(fptr);
 	}
-}
-
-//------------------------------------------------------------------------------
-// Name: set_function_db(FunctionDB *p)
-// Desc:
-//------------------------------------------------------------------------------
-FunctionDB *edb::v1::set_function_db(FunctionDB *p) {
-	Q_CHECK_PTR(p);
-	return g_FunctionDB.fetchAndStoreAcquire(p);
 }
 
 //------------------------------------------------------------------------------
@@ -1136,3 +1167,5 @@ int edb::v1::pointer_size() {
 QWidget *edb::v1::disassembly_widget() {
 	return ui()->ui->cpuView;
 }
+
+

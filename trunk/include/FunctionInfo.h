@@ -23,7 +23,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QChar>
 #include <QVector>
 
+namespace edb {
+namespace internal {
+	void load_function_db();
+}
+}
+
 class EDB_EXPORT FunctionInfo {
+	friend void edb::internal::load_function_db();
 public:
 	FunctionInfo(const FunctionInfo &other) : params_(other.params_) {
 	}
@@ -36,54 +43,6 @@ public:
 	FunctionInfo() {
 	}
 
-	explicit FunctionInfo(QChar param1) {
-		params_.push_back(param1);
-	}
-
-	FunctionInfo(QChar param1, QChar param2) {
-		params_.push_back(param1);
-		params_.push_back(param2);
-	}
-
-	FunctionInfo(QChar param1, QChar param2, QChar param3) {
-		params_.push_back(param1);
-		params_.push_back(param2);
-		params_.push_back(param3);
-	}
-
-	FunctionInfo(QChar param1, QChar param2, QChar param3, QChar param4) {
-		params_.push_back(param1);
-		params_.push_back(param2);
-		params_.push_back(param3);
-		params_.push_back(param4);
-	}
-
-	FunctionInfo(QChar param1, QChar param2, QChar param3, QChar param4, QChar param5) {
-		params_.push_back(param1);
-		params_.push_back(param2);
-		params_.push_back(param3);
-		params_.push_back(param4);
-		params_.push_back(param5);
-	}
-
-	FunctionInfo(QChar param1, QChar param2, QChar param3, QChar param4, QChar param5, QChar param6) {
-		params_.push_back(param1);
-		params_.push_back(param2);
-		params_.push_back(param3);
-		params_.push_back(param4);
-		params_.push_back(param5);
-		params_.push_back(param6);
-	}
-
-	FunctionInfo(QChar param1, QChar param2, QChar param3, QChar param4, QChar param5, QChar param6, QChar param7) {
-		params_.push_back(param1);
-		params_.push_back(param2);
-		params_.push_back(param3);
-		params_.push_back(param4);
-		params_.push_back(param5);
-		params_.push_back(param6);
-		params_.push_back(param7);
-	}
 
 	~FunctionInfo() {}
 
