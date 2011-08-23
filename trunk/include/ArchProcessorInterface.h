@@ -41,13 +41,6 @@ public:
 	// instruction inspection
 	virtual bool is_filling(const edb::Instruction &insn) const = 0;
 	virtual bool can_step_over(const edb::Instruction &insn) const = 0;
-
-public:
-	// we only really need these 2 for now
-	// - 3DNow! is obsolete
-	// - SSE version is irrelevant (same registers)
-	enum eProcessorExtension { EXT_MMX, EXT_XMM };
-	virtual bool has_extension(eProcessorExtension extension) const = 0;
 };
 
 #endif

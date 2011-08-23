@@ -905,6 +905,15 @@ void DebuggerMain::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 						QAction *const action = menu.addAction(tr("&Follow"), this, SLOT(mnuCPUFollow()));
 						action->setData(static_cast<qlonglong>(insn.operand(0).relative_target()));
 					}
+					
+					/*
+					if(insn.operand(0).general_type() == edb::Operand::TYPE_EXPRESSION) {
+						if(insn.operand(0).expression().base == edb::Operand::REG_RIP && insn.operand(0).expression().index == edb::Operand::REG_NULL && insn.operand(0).expression().scale == 1) {
+							QAction *const action = menu.addAction(tr("&Follow"), this, SLOT(mnuCPUFollow()));
+							action->setData(static_cast<qlonglong>(address + insn.operand(0).displacement()));
+						}
+					}
+					*/
 					break;
 				default:
 					for(std::size_t i = 0; i < insn.operand_count(); ++i) {

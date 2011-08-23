@@ -87,6 +87,27 @@ edb::address_t DebuggerCore::page_size() const {
 }
 
 //------------------------------------------------------------------------------
+// Name: has_extension(const QString &name) const
+// Desc:
+//------------------------------------------------------------------------------
+bool DebuggerCore::has_extension(const QString &name) const {
+#if !defined(EDB_X86_64)
+	if(name == "mmx") {
+		return IsProcessorFeaturePresent(PF_MMX_INSTRUCTIONS_AVAILABLE);
+	} else if(name == "xmm") {
+		return IsProcessorFeaturePresent(PF_XMMI_INSTRUCTIONS_AVAILABLE);
+	}
+	
+	return false;
+#else
+	if(name == "mmx" || name == "xmm") {
+		return true;
+	}
+	return false;
+#endif
+}
+
+//------------------------------------------------------------------------------
 // Name: wait_debug_event(DebugEvent &event, bool &ok, int secs)
 // Desc: waits for a debug event, secs is a timeout (but is not yet respected)
 //       ok will be set to false if the timeout expires

@@ -48,9 +48,6 @@ public:
 public:
 	virtual bool is_filling(const edb::Instruction &insn) const;
 	virtual bool can_step_over(const edb::Instruction &insn) const;
-
-public:
-	virtual bool has_extension(eProcessorExtension extension) const;
 	
 private:
 	edb::address_t get_effective_address(const edb::Operand &op, const State &state) const;
@@ -81,8 +78,8 @@ private:
 	State                      last_state_;
 
 private:
-	bool has_mmx;
-	bool has_xmm;
+	bool has_mmx_;
+	bool has_xmm_;
 };
 
 #endif
