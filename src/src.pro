@@ -42,7 +42,6 @@ HEADERS += \
 	DialogPlugins.h \
 	DialogThreads.h \
 	Expression.h \
-	FunctionDB.h \
 	FunctionInfo.h \
 	LineEdit.h \
 	MD5.h \
