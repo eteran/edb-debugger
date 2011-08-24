@@ -771,6 +771,9 @@ QString ArchProcessor::format_argument(QChar ch, edb::reg_t arg) const {
 	case 'i':
 		param_text.sprintf("%ld", static_cast<long>(arg));
 		break;
+	case 'v':
+		// for variadic, we don't quite handle that yet...
+		break;
 	}
 
 	return param_text;
