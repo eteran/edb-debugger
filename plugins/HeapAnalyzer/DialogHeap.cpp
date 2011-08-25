@@ -24,14 +24,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SymbolManagerInterface.h"
 #include "Util.h"
 
-#include <QtDebug>
+#include <QFileInfo>
 #include <QHeaderView>
 #include <QMessageBox>
-#include <QVector>
-#include <QString>
-#include <QFileInfo>
 #include <QSortFilterProxyModel>
 #include <QStack>
+#include <QString>
+#include <QVector>
 #include <QtDebug>
 
 #include <boost/bind.hpp>
@@ -54,7 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define NON_MAIN_ARENA 0x4
 #define SIZE_BITS (PREV_INUSE|IS_MMAPPED|NON_MAIN_ARENA)
 
-#define next_chunk(p, c) ((p) + ((c).chunksize()))
+#define next_chunk(p, c) ((p) + ((c).chunk_size()))
 #define prev_chunk(p, c) ((p) - ((c).prev_size))
 
 namespace {
@@ -66,8 +65,8 @@ namespace {
 		struct malloc_chunk* fd; /* double links -- used only if free. */
 		struct malloc_chunk* bk;
 
-		ulong chunksize() const { return size & ~(SIZE_BITS); }
-		bool prev_inuse() const { return size & PREV_INUSE; }
+		ulong chunk_size() const { return size & ~(SIZE_BITS); }
+		bool prev_inuse() const  { return size & PREV_INUSE; }
 	};
 
 	//------------------------------------------------------------------------------
@@ -91,6 +90,7 @@ namespace {
 	// Desc:
 	//------------------------------------------------------------------------------
 	edb::address_t block_start(const Result *result) {
+		Q_ASSERT(result != 0);
 		return block_start(*result);
 	}
 }
@@ -205,8 +205,10 @@ void DialogHeap::process_potential_pointer(const QHash<edb::address_t, edb::addr
 				result.points_to.push_back(it.value());
 				}
 			}
+			
 			block_ptr += sizeof(edb::address_t);
 		}
+		
 		result.data.truncate(result.data.size() - 2);
 	}
 }
@@ -272,7 +274,7 @@ void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end
 
 				const Result r(
 					currentChunkAddress,
-					currentChunk.chunksize(),
+					currentChunk.chunk_size(),
 					tr("Top"));
 
 				model_->addResult(r);
@@ -299,7 +301,7 @@ void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end
 						block_start(currentChunkAddress),
 						asciiData,
 						min_string_length,
-						currentChunk.chunksize(),
+						currentChunk.chunk_size(),
 						asciisz)) {
 
 					data = QString("ASCII \"%1\"").arg(asciiData);
@@ -307,14 +309,33 @@ void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end
 						block_start(currentChunkAddress),
 						utf16Data,
 						min_string_length,
-						currentChunk.chunksize(),
+						currentChunk.chunk_size(),
 						utf16sz)) {
 					data = QString("UTF-16 \"%1\"").arg(utf16Data);
+				} else {
+				
+					using std::memcmp;
+					
+					quint8 bytes[16];
+					edb::v1::debugger_core->read_bytes(block_start(currentChunkAddress), bytes, sizeof(bytes));
+					
+					if(memcmp(bytes, "\x89\x50\x4e\x47", 4) == 0) {
+						data = "PNG IMAGE";
+					} else if(memcmp(bytes, "\x2f\x2a\x20\x58\x50\x4d\x20\x2a\x2f", 9) == 0) {
+						data = "XPM IMAGE";
+					} else if(memcmp(bytes, "\x42\x5a", 2) == 0) {
+						data = "BZIP FILE";
+					} else if(memcmp(bytes, "\x1f\x9d", 2) == 0) {
+						data = "COMPRESS FILE";
+					} else if(memcmp(bytes, "\x1f\x8b", 2) == 0) {
+						data = "GZIP FILE";
+					}
+					
 				}
 
 				const Result r(
 					currentChunkAddress,
-					currentChunk.chunksize() + sizeof(unsigned int),
+					currentChunk.chunk_size() + sizeof(unsigned int),
 					nextChunk.prev_inuse() ? tr("Busy") : tr("Free"),
 					data);
 

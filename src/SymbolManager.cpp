@@ -138,7 +138,6 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 	if(file) {
 		edb::address_t sym_start;
 		edb::address_t sym_end;
-		char           sym_type;
 		std::string    sym_name;
 		std::string    date;
 		std::string    md5;
@@ -155,6 +154,7 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 				}
 
 				const QString prefix = edb::v1::basename(QString::fromStdString(filename));
+				char sym_type;
 
 				while(file >> std::hex >> sym_start >> std::hex >> sym_end >> sym_type >> sym_name) {
 					Symbol::pointer sym(new Symbol);

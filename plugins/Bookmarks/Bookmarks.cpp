@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: Bookmarks(
 // Desc:
 //------------------------------------------------------------------------------
-Bookmarks::Bookmarks() : menu_(0), bookmark_widget_(0) {
+Bookmarks::Bookmarks() : menu_(0), signal_mapper_(0), bookmark_widget_(0) {
 }
 
 //------------------------------------------------------------------------------

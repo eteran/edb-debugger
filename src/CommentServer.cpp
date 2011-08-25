@@ -115,7 +115,7 @@ QString CommentServer::resolve_string(QHexView::address_t address, bool &ok) con
 QString CommentServer::comment(QHexView::address_t address, int size) const {
 
 	QString ret;
-	bool ok;
+	
 
 	// if the view is currently looking at words which are a pointer in size
 	// then see if it points to anything...
@@ -123,10 +123,11 @@ QString CommentServer::comment(QHexView::address_t address, int size) const {
 		edb::address_t value;
 		if(edb::v1::debugger_core->read_bytes(address, &value, sizeof(value))) {
 
-                        QHash<quint64, QString>::const_iterator it = custom_comments_.find(value);
+			QHash<quint64, QString>::const_iterator it = custom_comments_.find(value);
 			if(it != custom_comments_.end()) {
 				ret = it.value();
 			} else {
+				bool ok;
 				ret = resolve_function_call(value, ok);
 				if(!ok) {
 					ret = resolve_string(value, ok);
