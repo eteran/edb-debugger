@@ -182,6 +182,7 @@ size_t QDisassemblyView::length_disasm_back(const quint8 *buf, size_t size) cons
 edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_address, int count) {
 
 	for(int i = 0; i < count; ++i) {
+		
 
 		quint8 buf[edb::Instruction::MAX_SIZE];
 
@@ -210,6 +211,7 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 edb::address_t QDisassemblyView::following_instructions(edb::address_t current_address, int count) {
 
 	for(int i = 0; i < count; ++i) {
+		
 		quint8 buf[edb::Instruction::MAX_SIZE + 1];
 
 		// do the longest read we can while still not passing the region end
@@ -218,9 +220,10 @@ edb::address_t QDisassemblyView::following_instructions(edb::address_t current_a
 		// read in the bytes...
 		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address, buf, buf_size)) {
 			current_address += 1;
+			break;
 		} else {
 			const edb::Instruction insn(buf, buf_size, current_address, std::nothrow);
-			if(insn.valid()) {
+			if(insn) {
 				current_address += insn.size();
 			} else {
 				current_address += 1;
@@ -228,6 +231,7 @@ edb::address_t QDisassemblyView::following_instructions(edb::address_t current_a
 			}
 		}
 	}
+		
 	return current_address;
 }
 

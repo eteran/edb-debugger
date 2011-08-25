@@ -165,40 +165,27 @@ void ResultViewModel::sort(int column, Qt::SortOrder order) {
 
 	if(order == Qt::AscendingOrder) {
 		switch(column) {
-		case 0:
-			qSort(results_.begin(), results_.end(), BlockLess);
-			break;
-		case 1:
-			qSort(results_.begin(), results_.end(), SizeLess);
-			break;
-		case 2:
-			qSort(results_.begin(), results_.end(), TypeLess);
-			break;
-		case 3:
-			qSort(results_.begin(), results_.end(), DataLess);
-			break;
+		case 0: qSort(results_.begin(), results_.end(), BlockLess); break;
+		case 1: qSort(results_.begin(), results_.end(), SizeLess);  break;
+		case 2: qSort(results_.begin(), results_.end(), TypeLess);  break;
+		case 3: qSort(results_.begin(), results_.end(), DataLess);  break;
 		}
 	} else {
 		switch(column) {
-		case 0:
-			qSort(results_.begin(), results_.end(), BlockGreater);
-			break;
-		case 1:
-			qSort(results_.begin(), results_.end(), SizeGreater);
-			break;
-		case 2:
-			qSort(results_.begin(), results_.end(), TypeGreater);
-			break;
-		case 3:
-			qSort(results_.begin(), results_.end(), DataGreater);
-			break;
+		case 0: qSort(results_.begin(), results_.end(), BlockGreater); break;
+		case 1: qSort(results_.begin(), results_.end(), SizeGreater);  break;
+		case 2: qSort(results_.begin(), results_.end(), TypeGreater);  break;
+		case 3: qSort(results_.begin(), results_.end(), DataGreater);  break;
 		}
 	}
 
 	emit dataChanged(createIndex(0, 0, 0), createIndex(-1, -1, 0));
 }
 
-
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 void ResultViewModel::setUpdatesEnabled(bool value) {
 	updates_enabled_ = value;
 	if(updates_enabled_) {
@@ -206,6 +193,10 @@ void ResultViewModel::setUpdatesEnabled(bool value) {
 	}
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 bool ResultViewModel::updatesEnabled() const {
 	return updates_enabled_;
 }
