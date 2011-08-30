@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 #include <climits>
 #include <cmath>
+#include <boost/math/special_functions/fpclassify.hpp>
 #ifdef Q_OS_LINUX
 #include <asm/unistd.h>
 #endif
@@ -264,7 +265,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name) {
 		const long double current = state.fpu_register(i);
 		const long double prev    = last_state_.fpu_register(i);
 		get_register_item(16 + i)->setText(0, QString("ST%1: %2").arg(i).arg(current, 0, 'g', 16));
-		get_register_item(16 + i)->setForeground(0, QBrush((current != prev && !(std::isnan(prev) && std::isnan(current))) ? Qt::red : palette.text()));
+		get_register_item(16 + i)->setForeground(0, QBrush((current != prev && !(boost::math::isnan(prev) && boost::math::isnan(current))) ? Qt::red : palette.text()));
 	}
 
 	for(int i = 0; i < 8; ++i) {
