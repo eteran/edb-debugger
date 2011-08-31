@@ -17,6 +17,11 @@
 AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), mouse_pressed_(false) {
 	setMinimumHeight(20);
 	setMaximumHeight(20);
+	QSizePolicy policy;
+	
+	policy.setHorizontalPolicy(QSizePolicy::Expanding);
+	
+	setSizePolicy(policy);
 
 	connect(edb::v1::disassembly_widget(), SIGNAL(regionChanged()), this, SLOT(repaint()));
 
@@ -35,7 +40,7 @@ AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(par
 void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 
 	Q_UNUSED(event);
-
+	
 	QPainter painter(this);
 	painter.fillRect(0, 0, width(), height(), QBrush(Qt::black));
 	QFontMetrics fm(font());

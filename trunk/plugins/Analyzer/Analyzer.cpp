@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "BinaryInfo.h"
 
 #include <QMainWindow>
-#include <QDockWidget>
+#include <QToolBar>
 #include <QCoreApplication>
 #include <QHash>
 #include <QMenu>
@@ -98,19 +98,18 @@ QMenu *Analyzer::menu(QWidget *parent) {
 		if(QMainWindow *const main_window = qobject_cast<QMainWindow *>(parent)) {
 			analyzer_widget_ = new AnalyzerWidget;
 
-			// make the dock widget and _name_ it, it is important to name it so
+			// make the toolbar widget and _name_ it, it is important to name it so
 			// that it's state is saved in the GUI info
-			QDockWidget *const dock_widget = new QDockWidget(tr("Region Analysis"), parent);
-			dock_widget->setAllowedAreas(Qt::TopDockWidgetArea);
-			dock_widget->setFeatures(QDockWidget::DockWidgetClosable);
-			dock_widget->setObjectName(QString::fromUtf8("Region Analysis"));
-			dock_widget->setWidget(analyzer_widget_);
+			QToolBar *const toolbar = new QToolBar(tr("Region Analysis"), parent);
+			toolbar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
+			toolbar->setObjectName(QString::fromUtf8("Region Analysis"));
+			toolbar->addWidget(analyzer_widget_);
 
 			// add it to the dock
-			main_window->addDockWidget(Qt::TopDockWidgetArea, dock_widget);
+			main_window->addToolBar(Qt::TopToolBarArea, toolbar);
 
 			// make the menu and add the show/hide toggle for the widget
-			menu_->addAction(dock_widget->toggleViewAction());
+			menu_->addAction(toolbar->toggleViewAction());
 		}
 	}
 
