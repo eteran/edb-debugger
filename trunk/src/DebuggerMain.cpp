@@ -34,6 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogOptions.h"
 #include "DialogPlugins.h"
 #include "Expression.h"
+#include "MemoryRegions.h"
 #include "Instruction.h"
 #include "QHexView"
 #include "RecentFileManager.h"

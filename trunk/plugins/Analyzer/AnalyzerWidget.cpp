@@ -20,11 +20,9 @@ AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(par
 	QSizePolicy policy;
 	
 	policy.setHorizontalPolicy(QSizePolicy::Expanding);
-	
 	setSizePolicy(policy);
 
 	connect(edb::v1::disassembly_widget(), SIGNAL(regionChanged()), this, SLOT(repaint()));
-
 
 	if(QAbstractScrollArea *scroll_area = qobject_cast<QAbstractScrollArea*>(edb::v1::disassembly_widget())) {
 		if(QScrollBar *scrollbar = scroll_area->verticalScrollBar()) {

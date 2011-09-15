@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPixmap>
 #include <QSet>
 
-#include "MemoryRegions.h"
+#include "MemRegion.h"
 #include "Types.h"
 
 class AnalyzerInterface;
@@ -84,11 +84,12 @@ private:
 	edb::address_t following_instructions(edb::address_t current_address, int count);
 	int address_length() const;
 	int auto_line1() const;
-	int draw_instruction(QPainter &painter, const edb::Instruction &insn, bool upper, int y, int line_height, int l2) const;
+	int draw_instruction(QPainter &painter, const edb::Instruction &insn, bool upper, int y, int line_height, int l2, int l3) const;
 	int get_instruction_size(edb::address_t address, bool &ok) const;
 	int get_instruction_size(edb::address_t address, bool &ok, quint8 *buf, int &size) const;
 	int line1() const;
 	int line2() const;
+	int line3() const;
 	int line_height() const;
 	void draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int insn_size, AnalyzerInterface *analyzer);
 	void updateScrollbars();
@@ -107,9 +108,11 @@ private:
 	int                      font_width_;  // width of a character in this font
 	int                      line1_;
 	int                      line2_;
+	int                      line3_;
 	int                      selected_instruction_size_;
 	bool                     moving_line1_;
 	bool                     moving_line2_;
+	bool                     moving_line3_;
 	bool                     show_address_separator_;
 };
 
