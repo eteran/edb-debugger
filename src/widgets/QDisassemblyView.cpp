@@ -122,9 +122,11 @@ QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(paren
 		current_address_(0),
 		line1_(0),
 		line2_(0),
+		line3_(0),
 		selected_instruction_size_(0),
 		moving_line1_(false),
-		moving_line2_(false) {
+		moving_line2_(false),
+		moving_line3_(false) {
 
 
 	setShowAddressSeparator(true);
@@ -406,10 +408,10 @@ QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &insn)
 }
 
 //------------------------------------------------------------------------------
-// Name: draw_instruction(QPainter &painter, const edb::Instruction &insn, bool upper, int y, int line_height, int l2) const
+// Name: draw_instruction(QPainter &painter, const edb::Instruction &insn, bool upper, int y, int line_height, int l2, int l3) const
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction &insn, bool upper, int y, int line_height, int l2) const {
+int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction &insn, bool upper, int y, int line_height, int l2, int l3) const {
 
 	const bool is_filling = edb::v1::arch_processor().is_filling(insn);
 	int x                 = font_width_ + font_width_ + l2 + (font_width_ / 2);
@@ -417,6 +419,12 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 
 	if(insn.valid()) {
 		QString opcode = QString::fromStdString(upper ? edisassm::to_string(insn, edisassm::syntax_intel_ucase()) : edisassm::to_string(insn, edisassm::syntax_intel_lcase()));
+		
+		opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
+
+
+		//return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
+
 
 		if(is_filling) {
 			painter.setPen(filling_dis_color);
@@ -591,6 +599,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	int y                 = 0;
 	const int l1          = line1();
 	const int l2          = line2();
+	const int l3          = line3();
 	const int line_height = this->line_height();
 
 	// TODO: reimplement me
@@ -604,7 +613,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	show_addresses_.clear();
 	show_addresses_.insert(address_offset_ + current_line);
 
-	const int bytesWidth = l2 - l1;
+	const int bytes_width = l2 - l1;
 
 	const QBrush alternated_base_color = palette().alternateBase();
 	const QBrush bytes_color           = palette().text();
@@ -667,7 +676,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		}
 
 		// format the different components
-		const QString byte_buffer    = format_instruction_bytes(insn, bytesWidth, painter.fontMetrics());
+		const QString byte_buffer    = format_instruction_bytes(insn, bytes_width, painter.fontMetrics());
 		const QString address_buffer = formatAddress(address);
 
 		// draw the address
@@ -735,7 +744,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		}
 
 		// draw the disassembly
-		current_line += draw_instruction(painter, insn, uppercase, y, line_height, l2);
+		current_line += draw_instruction(painter, insn, uppercase, y, line_height, l2, l3);
 		show_addresses_.insert(address);
 		last_address = address;
 
@@ -749,6 +758,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	painter.setPen(divider_pen);
 	painter.drawLine(l1, 0, l1, height());
 	painter.drawLine(l2, 0, l2, height());
+	painter.drawLine(l3, 0, l3, height());
 }
 
 //------------------------------------------------------------------------------
@@ -826,6 +836,18 @@ int QDisassemblyView::line2() const {
 		return line1() + (default_byte_width * 3) * font_width_;
 	} else {
 		return line2_;
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: line3() const
+// Desc:
+//------------------------------------------------------------------------------
+int QDisassemblyView::line3() const {
+	if(line3_ == 0) {
+		return line2() + 50 * font_width_;
+	} else {
+		return line3_;
 	}
 }
 
@@ -984,6 +1006,7 @@ void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
 
 	moving_line1_ = false;
 	moving_line2_ = false;
+	moving_line3_ = false;
 
 	setCursor(Qt::ArrowCursor);
 	repaint();
@@ -1022,6 +1045,8 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 				moving_line1_ = true;
 			} else if(near_line(event->x(), line2())) {
 				moving_line2_ = true;
+			} else if(near_line(event->x(), line3())) {
+				moving_line3_ = true;
 			} else {
 				updateSelectedAddress(event);
 			}
@@ -1049,12 +1074,20 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 			}
 			repaint();
 		} else if(moving_line2_) {
-			if(x_pos > line1() + font_width_ && x_pos + 1 < width() - (verticalScrollBar()->width() + 3)) {
+			if(x_pos > line1() + font_width_ && x_pos + 1 < line3()) {
+				if(line3_ == 0) {
+					line3_ = line3();
+				}
 				line2_ = x_pos;
 			}
 			repaint();
+		} else if(moving_line3_) {
+			if(x_pos > line2() + font_width_ && x_pos + 1 < width() - (verticalScrollBar()->width() + 3)) {
+				line3_ = x_pos;
+			}
+			repaint();
 		} else {
-			if(near_line(x_pos, line1()) || near_line(x_pos, line2())) {
+			if(near_line(x_pos, line1()) || near_line(x_pos, line2()) || near_line(x_pos, line3())) {
 				setCursor(Qt::SplitHCursor);
 			} else {
 				setCursor(Qt::ArrowCursor);

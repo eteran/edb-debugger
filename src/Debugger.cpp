@@ -24,8 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Debugger.h"
 #include "ArchProcessor.h"
-#include "ByteShiftArray.h"
 #include "BinaryString.h"
+#include "ByteShiftArray.h"
 #include "Configuration.h"
 #include "DebuggerCoreInterface.h"
 #include "DebuggerMain.h"
@@ -34,12 +34,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogInputValue.h"
 #include "DialogOptions.h"
 #include "Expression.h"
+#include "FunctionInfo.h"
 #include "MD5.h"
+#include "MemoryRegions.h"
 #include "QHexView"
 #include "State.h"
 #include "SymbolManager.h"
-#include "FunctionInfo.h"
 #include "version.h"
+
 
 #include <QAction>
 #include <QAtomicPointer>
