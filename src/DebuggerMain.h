@@ -93,7 +93,7 @@ public Q_SLOTS:
 	void on_registerList_customContextMenuRequested(const QPoint &);
 	void on_registerList_itemDoubleClicked(QTreeWidgetItem *);
 
-public Q_SLOTS:
+private Q_SLOTS:
 	// the manually connected CPU slots
 	void mnuCPUAddBreakpoint();
 	void mnuCPUAddConditionalBreakpoint();
@@ -108,13 +108,13 @@ public Q_SLOTS:
 	void mnuCPURemoveBreakpoint();
 	void mnuCPUSetEIP();
 
-public Q_SLOTS:
+private Q_SLOTS:
 	// the manually connected Register slots
 	void mnuRegisterFollowInDump()       { follow_register_in_dump(false); }
 	void mnuRegisterFollowInDumpNewTab() { follow_register_in_dump(true); }
 	void mnuRegisterFollowInStack();
 
-public Q_SLOTS:
+private Q_SLOTS:
 	// the manually connected Dump slots
 	void mnuDumpContextMenu(const QPoint &pos);
 	void mnuDumpCreateTab();
@@ -126,7 +126,7 @@ public Q_SLOTS:
 	void mnuDumpModify();
 	void mnuDumpSaveToFile();
 
-public Q_SLOTS:
+private Q_SLOTS:
 	// the manually connected Stack slots
 	void mnuStackContextMenu(const QPoint &);
 	void mnuStackFollowInCPU();
