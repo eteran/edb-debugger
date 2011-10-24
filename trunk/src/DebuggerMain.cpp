@@ -394,32 +394,28 @@ void DebuggerMain::showEvent(QShowEvent *) {
 // Name: dragEnterEvent(QDragEnterEvent* event)
 // Desc: triggered when dragging data onto the main window
 //------------------------------------------------------------------------------
-void DebuggerMain::dragEnterEvent(QDragEnterEvent* event)
-{
-    const QMimeData* mimeData = event->mimeData();
- 
-    // check for our needed mime type (file)
+void DebuggerMain::dragEnterEvent(QDragEnterEvent* event) {
+	const QMimeData* mimeData = event->mimeData();
+
+	// check for our needed mime type (file)
 	// make sure it's only one file
-    if(mimeData->hasUrls() && mimeData->urls().size() == 1)
-    {
+	if(mimeData->hasUrls() && mimeData->urls().size() == 1) {
 		// extract the local path of the file
 		QUrl url = mimeData->urls()[0].toLocalFile();
 		if(!url.isEmpty()) {
 			event->accept();
 		}
-    }
+	}
 }
 
 //------------------------------------------------------------------------------
 // Name: dropEvent(QDropEvent* event)
 // Desc: triggered when data was dropped onto the main window
 //------------------------------------------------------------------------------
-void DebuggerMain::dropEvent(QDropEvent* event)
-{
-    const QMimeData* mimeData = event->mimeData();
-	
-    if(mimeData->hasUrls() && mimeData->urls().size() == 1)
-    {
+void DebuggerMain::dropEvent(QDropEvent* event) {
+	const QMimeData* mimeData = event->mimeData();
+
+	if(mimeData->hasUrls() && mimeData->urls().size() == 1) {
 		const QString s = mimeData->urls()[0].toLocalFile();
 		if(!s.isEmpty()) {
 			Q_CHECK_PTR(edb::v1::debugger_core);
@@ -427,7 +423,7 @@ void DebuggerMain::dropEvent(QDropEvent* event)
 			detach_from_process(KILL_ON_DETACH);
 			common_open(s, QStringList());
 		}
-    }
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -435,7 +431,7 @@ void DebuggerMain::dropEvent(QDropEvent* event)
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_actionAbout_QT_triggered() {
-	QMessageBox::aboutQt(this, tr("About QT"));
+	QMessageBox::aboutQt(this, tr("About Qt"));
 }
 
 //------------------------------------------------------------------------------
