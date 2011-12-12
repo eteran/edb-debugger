@@ -40,7 +40,7 @@ public:
 	virtual int pointer_size() const = 0;
 
 public:
-	typedef QHash<edb::address_t, QSharedPointer<Breakpoint> > BreakpointState;
+	typedef QHash<edb::address_t, Breakpoint::pointer > BreakpointState;
 
 public:
 	virtual bool has_extension(quint64 ext) const = 0;
@@ -75,8 +75,8 @@ public:
 public:
 	// basic breakpoint managment
 	virtual BreakpointState backup_breakpoints() const = 0;
-	virtual QSharedPointer<Breakpoint> add_breakpoint(edb::address_t address) = 0;
-	virtual QSharedPointer<Breakpoint> find_breakpoint(edb::address_t address) = 0;
+	virtual Breakpoint::pointer add_breakpoint(edb::address_t address) = 0;
+	virtual Breakpoint::pointer find_breakpoint(edb::address_t address) = 0;
 	virtual int breakpoint_size() const = 0;
 	virtual void clear_breakpoints() = 0;
 	virtual void remove_breakpoint(edb::address_t address) = 0;

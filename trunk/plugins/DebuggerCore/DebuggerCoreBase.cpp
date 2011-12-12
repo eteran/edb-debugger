@@ -48,31 +48,31 @@ void DebuggerCoreBase::clear_breakpoints() {
 // Desc: creates a new breakpoint
 //       (only if there isn't already one at the given address)
 //------------------------------------------------------------------------------
-QSharedPointer<Breakpoint> DebuggerCoreBase::add_breakpoint(edb::address_t address) {
+Breakpoint::pointer DebuggerCoreBase::add_breakpoint(edb::address_t address) {
 
 	if(attached()) {
 		if(!find_breakpoint(address)) {
-			QSharedPointer<Breakpoint> bp(new X86Breakpoint(address));
+			Breakpoint::pointer bp(new X86Breakpoint(address));
 			breakpoints_[address] = bp;
 			return bp;
 		}
 	}
 
-	return QSharedPointer<Breakpoint>();
+	return Breakpoint::pointer();
 }
 
 //------------------------------------------------------------------------------
 // Name: find_breakpoint(edb::address_t address) const
-// Desc: returns the breakpoint at the given address or QSharedPointer<Breakpoint>()
+// Desc: returns the breakpoint at the given address or Breakpoint::pointer()
 //------------------------------------------------------------------------------
-QSharedPointer<Breakpoint> DebuggerCoreBase::find_breakpoint(edb::address_t address) {
+Breakpoint::pointer DebuggerCoreBase::find_breakpoint(edb::address_t address) {
 	if(attached()) {
 		const BreakpointState::const_iterator it = breakpoints_.find(address);
 		if(it != breakpoints_.end()) {
 			return it.value();
 		}
 	}
-	return QSharedPointer<Breakpoint>();
+	return Breakpoint::pointer();
 }
 
 

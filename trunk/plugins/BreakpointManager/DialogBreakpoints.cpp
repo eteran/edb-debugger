@@ -65,7 +65,7 @@ void DialogBreakpoints::updateList() {
 
 	const DebuggerCoreInterface::BreakpointState breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
 
-	Q_FOREACH(const QSharedPointer<Breakpoint> &bp, breakpoint_state) {
+	Q_FOREACH(const Breakpoint::pointer &bp, breakpoint_state) {
 		const int row = ui->tableWidget->rowCount();
 		ui->tableWidget->insertRow(row);
 

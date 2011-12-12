@@ -47,7 +47,7 @@ namespace edb {
 
 					// add a temporary breakpoint at the instruction just
 					// after the call
-					QSharedPointer<Breakpoint> bp = edb::v1::debugger_core->add_breakpoint(ip + insn.size());
+					Breakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(ip + insn.size());
 					bp->set_internal(true);
 					bp->set_one_time(true);
 

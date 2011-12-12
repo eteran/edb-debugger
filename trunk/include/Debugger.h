@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 #include "API.h"
+#include "Breakpoint.h"
 
 #include <QString>
 #include <QStringList>
@@ -30,7 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class AnalyzerInterface;
 class ArchProcessorInterface;
 class BinaryInfo;
-class Breakpoint;
 class Configuration;
 class DebugEventHandlerInterface;
 class DebuggerCoreInterface;
@@ -72,7 +72,7 @@ namespace edb {
 
 
 		// breakpoint managment
-		EDB_EXPORT QSharedPointer<Breakpoint> find_breakpoint(edb::address_t address);
+		EDB_EXPORT Breakpoint::pointer find_breakpoint(edb::address_t address);
 		EDB_EXPORT void remove_breakpoint(edb::address_t address);
 		EDB_EXPORT void create_breakpoint(edb::address_t address);
 		EDB_EXPORT void toggle_breakpoint(edb::address_t address);
