@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerPluginInterface.h"
 #include "Types.h"
 #include <QSet>
+#include <QVariantList>
 
 class QSignalMapper;
 class BookmarkWidget;
@@ -31,6 +32,9 @@ class Bookmarks : public QObject, public DebuggerPluginInterface {
 	Q_INTERFACES(DebuggerPluginInterface)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
+	
+	Q_PROPERTY(QVariantList addresses READ addresses)
+
 
 public:
 	Bookmarks();
@@ -38,11 +42,12 @@ public:
 public:
 	virtual QMenu *menu(QWidget *parent = 0);
 	virtual QList<QAction *> cpu_context_menu();
-	virtual QString save_session() const;
-	virtual void load_session(const QString &session);
 
 public Q_SLOTS:
 	void add_bookmark_menu();
+
+public:
+	QVariantList addresses() const;
 
 private:
 	QMenu *              menu_;

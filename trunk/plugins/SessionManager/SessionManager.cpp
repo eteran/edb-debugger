@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SessionManager.h"
 #include "Debugger.h"
 #include <QtDebug>
+#include <QMetaProperty>
 
 //------------------------------------------------------------------------------
 // Name: private_init()
@@ -37,11 +38,9 @@ void SessionManager::save_session(const QString &filename, const QString &execut
 	
 	QHash<QString, QObject *> plugins = edb::v1::plugin_list();
 	for(QHash<QString, QObject *>::iterator it = plugins.begin(); it != plugins.end(); ++it) {
-		if(DebuggerPluginInterface *const p = qobject_cast<DebuggerPluginInterface *>(it.value())) {
-			const QString session_json = p->save_session();
-			if(!session_json.isEmpty()) {
-			
-			}
+		QObject *const o = it.value();
+		if(DebuggerPluginInterface *const p = qobject_cast<DebuggerPluginInterface *>(o)) {
+			//qDebug() << edb::v1::serialize_object(o);
 		}
 	}
 }
@@ -56,7 +55,7 @@ void SessionManager::load_session(const QString &filename, const QString &execut
 	QHash<QString, QObject *> plugins = edb::v1::plugin_list();
 	for(QHash<QString, QObject *>::iterator it = plugins.begin(); it != plugins.end(); ++it) {
 		if(DebuggerPluginInterface *const p = qobject_cast<DebuggerPluginInterface *>(it.value())) {
-			//p->load_session();
+
 		}
 	}
 }

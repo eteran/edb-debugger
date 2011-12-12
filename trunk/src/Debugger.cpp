@@ -41,6 +41,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "State.h"
 #include "SymbolManager.h"
 #include "version.h"
+#include "serializer.h"
+#include "qobjecthelper.h"
 
 
 #include <QAction>
@@ -1167,4 +1169,12 @@ QWidget *edb::v1::disassembly_widget() {
 	return ui()->ui->cpuView;
 }
 
-
+//------------------------------------------------------------------------------
+// Name: serialize_object(const QObject *object)
+// Desc:
+//------------------------------------------------------------------------------
+QByteArray edb::v1::serialize_object(const QObject *object) {
+	QVariantMap variant = QJson::QObjectHelper::qobject2qvariant(object);
+	QJson::Serializer serializer;
+	return serializer.serialize(variant);
+}

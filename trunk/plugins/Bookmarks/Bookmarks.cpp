@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Bookmarks.h"
 #include "Debugger.h"
-#include "Debugger.h"
 #include "BookmarkWidget.h"
 
 #include <QDockWidget>
@@ -31,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: Bookmarks(
 // Desc:
 //------------------------------------------------------------------------------
-Bookmarks::Bookmarks() : menu_(0), signal_mapper_(0), bookmark_widget_(0) {
+Bookmarks::Bookmarks() : QObject(0), menu_(0), signal_mapper_(0), bookmark_widget_(0) {
 }
 
 //------------------------------------------------------------------------------
@@ -92,33 +91,16 @@ QList<QAction *> Bookmarks::cpu_context_menu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: save_session()
+// Name: addresses() const
 // Desc:
 //------------------------------------------------------------------------------
-QString Bookmarks::save_session() const {
-	QString session;
-	
-	session += "addresses:[";
-	bool first = true;
-	Q_FOREACH(edb::address_t address, bookmark_widget_->entries()) {	
-		if(first) {
-			session += QString("\"%1\"").arg(edb::v1::format_pointer(address));
-			first = false;
-		} else {
-			session += QString(",\"%1\"").arg(edb::v1::format_pointer(address));
-		}
+QVariantList Bookmarks::addresses() const {
+	QVariantList r;
+	QList<edb::address_t> a = bookmark_widget_->entries();
+	Q_FOREACH(edb::address_t x, a) {
+		r.push_back(x);
 	}
-	session += "]";
-	return session;
-	
-}
-
-//------------------------------------------------------------------------------
-// Name: load_session()
-// Desc:
-//------------------------------------------------------------------------------
-void Bookmarks::load_session(const QString &session) {
-	Q_UNUSED(session);
+	return r;
 }
 
 //------------------------------------------------------------------------------

@@ -47,10 +47,6 @@ public:
 	// optional, overload this to add a page to the options dialog
 	virtual QWidget *options_page() { return 0; }
 
-	// optional, overload these to save/load session data for this plugin
-	virtual QString save_session() const       { return QString(); }
-	virtual void load_session(const QString &) { }
-
 private:
 	// optional init, overload this to have edb run it after loading the plugin
 	virtual void private_init() {
