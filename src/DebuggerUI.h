@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMainWindow>
 #include <QMessageBox>
 #include <QProcess>
-#include <QSharedPointer>
 #include <QVector>
 
 #include <cstring>

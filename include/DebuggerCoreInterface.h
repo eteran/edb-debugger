@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtPlugin>
 #include <QByteArray>
 #include <QHash>
-#include <QSharedPointer>
 #include <QStringList>
 #include "Breakpoint.h"
 #include "State.h"
