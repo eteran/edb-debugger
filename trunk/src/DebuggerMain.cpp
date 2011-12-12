@@ -303,7 +303,7 @@ void DebuggerMain::setup_ui() {
 //------------------------------------------------------------------------------
 void DebuggerMain::setup_stack_view() {
 
-	stack_view_ = QSharedPointer<QHexView>(new QHexView(this));
+	stack_view_ = QSharedPointer<QHexView>(new QHexView);
 	ui->stackDock->setWidget(stack_view_.data());
 
 	// setup the context menu
