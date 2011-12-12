@@ -126,6 +126,33 @@ DEPENDPATH  += ./qhexview
 INCLUDEPATH += ./qhexview
 SOURCES     += qhexview.cpp
 HEADERS     += qhexview.h QHexView
+
+# qjson stuff
+
+DEPENDPATH  += ./qjson 
+INCLUDEPATH  += ./qjson 
+
+HEADERS += json_parser.hh \
+           json_scanner.h \
+           location.hh \
+           parser.h \
+           parser_p.h \
+           parserrunnable.h \
+           position.hh \
+           qjson_debug.h \
+           qjson_export.h \
+           qobjecthelper.h \
+           serializer.h \
+           serializerrunnable.h \
+           stack.hh
+		   
+SOURCES += json_parser.cc \
+           json_scanner.cpp \
+           parser.cpp \
+           parserrunnable.cpp \
+           qobjecthelper.cpp \
+           serializer.cpp \
+           serializerrunnable.cpp
 	
 win32 {
 	DEPENDPATH  += os/win32 ../include/os/win32 arch/i386 ../include/arch/i386 edisassm

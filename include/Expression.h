@@ -44,10 +44,10 @@ public:
 	explicit ExpressionError(ERROR_MSG type) : error_(type) {
 	}
 
-	virtual ~ExpressionError() throw() {
+	~ExpressionError() throw() {
 	}
 
-	virtual const char *what() const throw() {
+	const char *what() const throw() {
 		switch(error_) {
 		case SYNTAX:
 			return "Syntax Error";

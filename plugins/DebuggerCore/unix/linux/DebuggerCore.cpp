@@ -109,6 +109,7 @@ DebuggerCore::DebuggerCore() {
 // Desc: 
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
+	Q_UNUSED(ext);
 	return false;
 }
 

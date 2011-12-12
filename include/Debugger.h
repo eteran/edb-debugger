@@ -190,6 +190,8 @@ namespace edb {
 		EDB_EXPORT void set_status(const QString &message);
 
 		EDB_EXPORT int pointer_size();
+		
+		EDB_EXPORT QByteArray serialize_object(const QObject *object);
 	}
 }
 #endif
