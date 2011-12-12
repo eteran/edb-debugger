@@ -258,7 +258,7 @@ void DebuggerUI::create_data_tab() {
 	// duplicate the current region
 	DataViewInfo *const new_data_view = new DataViewInfo((current != -1) ? data_regions_[current]->region : MemRegion());
 
-	QHexView *const hexview = new QHexView(this);
+	QHexView *const hexview = new QHexView;
 
 	new_data_view->view = QSharedPointer<QHexView>(hexview);
 
