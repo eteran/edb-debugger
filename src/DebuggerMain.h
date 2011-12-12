@@ -167,8 +167,8 @@ private:
 	};
 
 public:
-	void update_data(const QSharedPointer<DataViewInfo> &v);
-	void clear_data(const QSharedPointer<DataViewInfo> &v);
+	void update_data(const DataViewInfo::pointer &v);
+	void clear_data(const DataViewInfo::pointer &v);
 
 private:
 	QString session_filename() const;
