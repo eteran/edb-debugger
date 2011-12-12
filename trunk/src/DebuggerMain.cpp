@@ -457,7 +457,7 @@ void DebuggerMain::apply_default_fonts() {
 	}
 
 	if(font.fromString(config.data_font)) {
-		Q_FOREACH(const QSharedPointer<DataViewInfo> &data_view, data_regions_) {
+		Q_FOREACH(const DataViewInfo::pointer &data_view, data_regions_) {
 			data_view->view->setFont(font);
 		}
 	}
@@ -564,7 +564,7 @@ void DebuggerMain::apply_default_show_separator() {
 
 	ui->cpuView->setShowAddressSeparator(show);
 	stack_view_->setShowAddressSeparator(show);
-	Q_FOREACH(const QSharedPointer<DataViewInfo> &data_view, data_regions_) {
+	Q_FOREACH(const DataViewInfo::pointer &data_view, data_regions_) {
 		data_view->view->setShowAddressSeparator(show);
 	}
 }
@@ -1427,10 +1427,10 @@ void DebuggerMain::update_tab_caption(const QSharedPointer<QHexView> &view, edb:
 }
 
 //------------------------------------------------------------------------------
-// Name: update_data(const QSharedPointer<DataViewInfo> &v)
+// Name: update_data(const DataViewInfo::pointer &v)
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::update_data(const QSharedPointer<DataViewInfo> &v) {
+void DebuggerMain::update_data(const DataViewInfo::pointer &v) {
 
 	Q_CHECK_PTR(v);
 
@@ -1444,10 +1444,10 @@ void DebuggerMain::update_data(const QSharedPointer<DataViewInfo> &v) {
 }
 
 //------------------------------------------------------------------------------
-// Name: clear_data(const QSharedPointer<DataViewInfo> &v)
+// Name: clear_data(const DataViewInfo::pointer &v)
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::clear_data(const QSharedPointer<DataViewInfo> &v) {
+void DebuggerMain::clear_data(const DataViewInfo::pointer &v) {
 
 	Q_CHECK_PTR(v);
 
@@ -1518,7 +1518,7 @@ void DebuggerMain::update_cpu_view(const State &state, MemRegion &region) {
 void DebuggerMain::update_data_views() {
 
 	// update all data views with the current region data
-	Q_FOREACH(const QSharedPointer<DataViewInfo> &info, data_regions_) {
+	Q_FOREACH(const DataViewInfo::pointer &info, data_regions_) {
 
 		// make sure the regions are still valid..
 		if(edb::v1::memory_regions().find_region(info->region.start)) {
@@ -1537,7 +1537,7 @@ void DebuggerMain::refresh_gui() {
 	ui->cpuView->repaint();
 	stack_view_->repaint();
 
-	Q_FOREACH(const QSharedPointer<DataViewInfo> &info, data_regions_) {
+	Q_FOREACH(const DataViewInfo::pointer &info, data_regions_) {
 		info->view->repaint();
 	}
 
@@ -2143,7 +2143,7 @@ bool DebuggerMain::dump_data_range(edb::address_t address, edb::address_t end_ad
 			mnuDumpCreateTab();
 		}
 
-		QSharedPointer<DataViewInfo> info = current_data_view_info();
+		DataViewInfo::pointer info = current_data_view_info();
 
 		if(info) {
 			info->region = region;
@@ -2175,7 +2175,7 @@ bool DebuggerMain::dump_data(edb::address_t address, bool new_tab) {
 			mnuDumpCreateTab();
 		}
 
-		QSharedPointer<DataViewInfo> info = current_data_view_info();
+		DataViewInfo::pointer info = current_data_view_info();
 
 		if(info) {
 			info->region = region;
