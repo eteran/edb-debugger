@@ -23,8 +23,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QByteArray>
 #include <QString>
+#include <QSharedPointer>
 
 class Breakpoint {
+public:
+	typedef QSharedPointer<Breakpoint> pointer;
+	
 public:
 	virtual ~Breakpoint() {}
 

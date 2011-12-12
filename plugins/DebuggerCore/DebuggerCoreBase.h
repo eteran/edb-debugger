@@ -38,8 +38,8 @@ public:
 
 public:
 	virtual BreakpointState backup_breakpoints() const;
-	virtual QSharedPointer<Breakpoint> add_breakpoint(edb::address_t address);
-	virtual QSharedPointer<Breakpoint> find_breakpoint(edb::address_t address);
+	virtual Breakpoint::pointer add_breakpoint(edb::address_t address);
+	virtual Breakpoint::pointer find_breakpoint(edb::address_t address);
 	virtual int breakpoint_size() const;
 	virtual void clear_breakpoints();
 	virtual void remove_breakpoint(edb::address_t address);

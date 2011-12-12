@@ -1233,7 +1233,7 @@ edb::EVENT_STATUS DebuggerMain::handle_trap() {
 
 	// look it up in our breakpoint list, make sure it is one of OUR int3s!
 	// if it is, we need to backup EIP and pause ourselves
-	QSharedPointer<Breakpoint> bp = edb::v1::find_breakpoint(previous_ip);
+	Breakpoint::pointer bp = edb::v1::find_breakpoint(previous_ip);
 	if(bp && bp->enabled()) {
 
 		// TODO: check if the breakpoint was corrupted
@@ -1856,7 +1856,7 @@ void DebuggerMain::set_initial_breakpoint(const QString &s) {
 	}
 
 	if(entryPoint != 0) {
-		if(QSharedPointer<Breakpoint> bp = edb::v1::debugger_core->add_breakpoint(entryPoint)) {
+		if(Breakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(entryPoint)) {
 			bp->set_one_time(true);
 		}
 	}

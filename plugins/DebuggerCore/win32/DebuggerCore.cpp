@@ -259,7 +259,7 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 
 				if(part_ok) {
 					ok = true;
-					Q_FOREACH(const QSharedPointer<Breakpoint> &bp, breakpoints_) {
+					Q_FOREACH(const Breakpoint::pointer &bp, breakpoints_) {
 						if((bp->address() + breakpoint_size()) > cur_address && bp->address() <= cur_end) {
 							// show the original bytes in the buffer..
 							const QByteArray& bytes = bp->original_bytes();

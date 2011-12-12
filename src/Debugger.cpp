@@ -319,7 +319,7 @@ bool edb::v1::dump_data(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 void edb::v1::set_breakpoint_condition(edb::address_t address, const QString &condition) {
-	QSharedPointer<Breakpoint> bp = find_breakpoint(address);
+	Breakpoint::pointer bp = find_breakpoint(address);
 	if(bp) {
 		bp->condition = condition;
 	}
@@ -331,7 +331,7 @@ void edb::v1::set_breakpoint_condition(edb::address_t address, const QString &co
 //------------------------------------------------------------------------------
 QString edb::v1::get_breakpoint_condition(edb::address_t address) {
 	QString ret;
-	QSharedPointer<Breakpoint> bp = find_breakpoint(address);
+	Breakpoint::pointer bp = find_breakpoint(address);
 	if(bp) {
 		ret = bp->condition;
 	}
@@ -399,7 +399,7 @@ void edb::v1::create_breakpoint(edb::address_t address) {
 //------------------------------------------------------------------------------
 edb::address_t edb::v1::enable_breakpoint(edb::address_t address) {
 	if(address != 0) {
-		QSharedPointer<Breakpoint> bp = find_breakpoint(address);
+		Breakpoint::pointer bp = find_breakpoint(address);
 		if(bp && bp->enable()) {
 			return address;
 		}
@@ -413,7 +413,7 @@ edb::address_t edb::v1::enable_breakpoint(edb::address_t address) {
 //------------------------------------------------------------------------------
 edb::address_t edb::v1::disable_breakpoint(edb::address_t address) {
 	if(address != 0) {
-		QSharedPointer<Breakpoint> bp = find_breakpoint(address);
+		Breakpoint::pointer bp = find_breakpoint(address);
 		if(bp && bp->disable()) {
 			return address;
 		}
@@ -890,7 +890,7 @@ quint32 edb::v1::edb_version() {
 bool edb::v1::overwrite_check(edb::address_t address, unsigned int size) {
 	bool firstConflict = true;
 	for(edb::address_t addr = address; addr != (address + size); ++addr) {
-		QSharedPointer<Breakpoint> bp = find_breakpoint(addr);
+		Breakpoint::pointer bp = find_breakpoint(addr);
 
 		if(bp && bp->enabled()) {
 			if(firstConflict) {
@@ -1141,11 +1141,11 @@ void edb::v1::set_status(const QString &message) {
 // Name: find_breakpoint(edb::address_t address)
 // Desc:
 //------------------------------------------------------------------------------
-QSharedPointer<Breakpoint> edb::v1::find_breakpoint(edb::address_t address) {
+Breakpoint::pointer edb::v1::find_breakpoint(edb::address_t address) {
 	if(edb::v1::debugger_core != 0) {
 		return debugger_core->find_breakpoint(address);
 	}
-	return QSharedPointer<Breakpoint>();
+	return Breakpoint::pointer();
 }
 
 //------------------------------------------------------------------------------
