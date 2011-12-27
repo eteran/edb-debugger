@@ -49,10 +49,10 @@ public:
 
 public:
 	enum AddressCategory {
-		ADDRESS_FUNC_UNKNOWN = 0x00,
-		ADDRESS_FUNC_START   = 0x01,
-		ADDRESS_FUNC_BODY    = 0x02,
-		ADDRESS_FUNC_END     = 0x04
+		ADDRESS_FUNC_UNKNOWN     = 0x00,
+		ADDRESS_FUNC_START       = 0x01,
+		ADDRESS_FUNC_BODY        = 0x02,
+		ADDRESS_FUNC_END         = 0x04
 	};
 
 public:
