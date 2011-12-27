@@ -798,6 +798,14 @@ void Analyzer::collect_low_ref_results(const MemRegion &region, FunctionMap &fun
 }
 
 //------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+void Analyzer::indent_header() {
+
+}
+
+//------------------------------------------------------------------------------
 // Name: analyze(const MemRegion &region)
 // Desc:
 //------------------------------------------------------------------------------
@@ -833,6 +841,7 @@ void Analyzer::analyze(const MemRegion &region_ref) {
 			const char             *message;
 			boost::function<void()> function;
 		} analysis_steps[] = {
+			{ "identifying executable headers...",                       boost::bind(&Analyzer::indent_header,          this) },
 			{ "adding entry points to the list...", 					 boost::bind(&Analyzer::bonus_entry_point,      this, boost::cref(region), boost::ref(function_map)) },
 			{ "attempting to add 'main' to the list...",				 boost::bind(&Analyzer::bonus_main,             this, boost::cref(region), boost::ref(function_map)) },
 			{ "attempting to add marked functions to the list...",  	 boost::bind(&Analyzer::bonus_marked_functions, this, boost::cref(region), boost::ref(function_map)) },
@@ -858,7 +867,6 @@ void Analyzer::analyze(const MemRegion &region_ref) {
 		
 		emit update_progress(util::percentage(0, total_steps));
 		for(int i = 0; i < analysis_steps_count; ++i) {
-			
 			qDebug("[Analyzer] %s", analysis_steps[i].message);
 			analysis_steps[i].function();
 			emit update_progress(util::percentage(i + 1, total_steps));

@@ -57,6 +57,7 @@ public:
 	virtual QSet<edb::address_t> specified_functions() const { return specified_functions_; }
 
 private:
+	void indent_header();
 	void bonus_stack_frames_helper(Function &info) const;
 	void bonus_stack_frames(FunctionMap &results);
 	void bonus_marked_functions(const MemRegion &region, FunctionMap &results);

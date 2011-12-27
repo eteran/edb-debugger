@@ -35,8 +35,9 @@ public:
 	virtual bool validate_header();
 	virtual edb::address_t entry_point();
 	virtual edb::address_t calculate_main();
-	virtual bool native();
+	virtual bool native() const;
 	virtual edb::address_t debug_pointer();
+	virtual size_t header_size() const;
 
 private:
 	void read_header();

@@ -390,7 +390,7 @@ bool MD5::operator==(const MD5 &rhs) const {
 // Name:
 //------------------------------------------------------------------------------
 MD5 MD5::from_raw(const quint32 *value) {
-	MD5 md5((internal_tag()));;
+	MD5 md5((internal_tag()));
 
 	md5.length_              = 0;
 	md5.corrupted_           = false;

@@ -59,7 +59,7 @@ bool ELF32::validate_header() {
 // Name: native
 // Desc: returns true if this binary is native to the arch edb was built for
 //------------------------------------------------------------------------------
-bool ELF32::native() {
+bool ELF32::native() const {
 #ifdef EDB_X86
 	return true;
 #else
@@ -88,6 +88,14 @@ void ELF32::read_header() {
 			std::memset(header_, 0, sizeof(Elf32_Ehdr));
 		}
 	}
+}
+
+//------------------------------------------------------------------------------
+// Name: header_size()
+// Desc: returns the number of bytes in this executable's header
+//------------------------------------------------------------------------------
+size_t ELF32::header_size() const {
+	return sizeof(Elf32_Ehdr);
 }
 
 //------------------------------------------------------------------------------
