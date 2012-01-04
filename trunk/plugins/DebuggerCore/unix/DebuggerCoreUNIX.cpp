@@ -217,7 +217,7 @@ quint8 DebuggerCoreUNIX::read_byte(edb::address_t address, bool &ok) {
 	const quint8 ret = read_byte_base(address, ok);
 
 	if(ok) {
-		if(const Breakpoint::pointer bp = find_breakpoint(address)) {
+		if(const IBreakpoint::pointer bp = find_breakpoint(address)) {
 			return bp->original_bytes()[0];
 		}
 	}
@@ -348,7 +348,7 @@ bool DebuggerCoreUNIX::read_pages(edb::address_t address, void *buf, std::size_t
 		}
 
 		// TODO: handle if breakponts have a size more than 1!
-		Q_FOREACH(const Breakpoint::pointer &bp, breakpoints_) {
+		Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
 			if(bp->address() >= orig_address && bp->address() < end_address) {
 				// show the original bytes in the buffer..
 				orig_ptr[bp->address() - orig_address] = bp->original_bytes()[0];

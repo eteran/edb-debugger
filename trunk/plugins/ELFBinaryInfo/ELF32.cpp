@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ELF32.h"
 #include "Util.h"
 #include "Debugger.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 #include "ByteShiftArray.h"
 
 #include <QVector>
@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: ELF32(const MemRegion &region)
 // Desc: constructor
 //------------------------------------------------------------------------------
-ELF32::ELF32(const MemRegion &region) : BinaryInfo(region), header_(0) {
+ELF32::ELF32(const MemRegion &region) : IBinary(region), header_(0) {
 }
 
 //------------------------------------------------------------------------------

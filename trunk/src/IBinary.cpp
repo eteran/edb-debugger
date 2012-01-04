@@ -16,11 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "BinaryInfo.h"
+#include "IBinary.h"
 
 //------------------------------------------------------------------------------
-// Name: BinaryInfo(const MemRegion &region)
+// Name: IBinary(const MemRegion &region)
 // Desc:
 //------------------------------------------------------------------------------
-BinaryInfo::BinaryInfo(const MemRegion &region) : region_(region) {
+IBinary::IBinary(const MemRegion &region) : region_(region) {
 }

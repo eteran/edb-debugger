@@ -19,14 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELFBINARYINFO_20061122_H_
 #define ELFBINARYINFO_20061122_H_
 
-#include "DebuggerPluginInterface.h"
+#include "IDebuggerPlugin.h"
 #include "Types.h"
 
 class QMenu;
 
-class ELFBinaryInfo : public QObject, public DebuggerPluginInterface {
+class ELFBinaryInfo : public QObject, public IDebuggerPlugin {
 	Q_OBJECT
-	Q_INTERFACES(DebuggerPluginInterface)
+	Q_INTERFACES(IDebuggerPlugin)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 

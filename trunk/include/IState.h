@@ -16,19 +16,19 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef STATE_INTERFACE_20110315_H_
-#define STATE_INTERFACE_20110315_H_
+#ifndef ISTATE_20110315_H_
+#define ISTATE_20110315_H_
 
 #include "Types.h"
 #include "API.h"
 #include "Register.h"
 
-class EDB_EXPORT StateInterface {
+class EDB_EXPORT IState {
 public:
-	virtual ~StateInterface() {}
+	virtual ~IState() {}
 
 public:
-	virtual StateInterface *copy() const = 0;
+	virtual IState *copy() const = 0;
 
 public:
 	virtual QString flags_to_string() const = 0;

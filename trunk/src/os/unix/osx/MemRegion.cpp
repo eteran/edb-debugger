@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 #include "Util.h"
 #include "State.h"
-#include "DebuggerCoreInterface.h"
-#include "DebugEventHandlerInterface.h"
+#include "IDebuggerCore.h"
+#include "IDebugEventHandler.h"
 #include "MemoryRegions.h"
 #include "Debugger.h"
 
@@ -38,12 +38,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Desc:
 //------------------------------------------------------------------------------
 void MemRegion::swap(MemRegion &other) {
-	using std::swap;
-	swap(start, other.start);
-	swap(end, other.end);
-	swap(base, other.base);
-	swap(name, other.name);
-	swap(permissions_, other.permissions_);
+	qSwap(start, other.start);
+	qSwap(end, other.end);
+	qSwap(base, other.base);
+	qSwap(name, other.name);
+	qSwap(permissions_, other.permissions_);
 }
 
 //------------------------------------------------------------------------------

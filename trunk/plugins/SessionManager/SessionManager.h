@@ -19,14 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SESSIONMANAGER_20090212_H_
 #define SESSIONMANAGER_20090212_H_
 
-#include "DebuggerPluginInterface.h"
-#include "SessionFileInterface.h"
+#include "IDebuggerPlugin.h"
+#include "ISessionFile.h"
 
 class QMenu;
 
-class SessionManager : public QObject, public DebuggerPluginInterface, public SessionFileInterface {
+class SessionManager : public QObject, public IDebuggerPlugin, public ISessionFile {
 	Q_OBJECT
-	Q_INTERFACES(DebuggerPluginInterface)
+	Q_INTERFACES(IDebuggerPlugin)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 

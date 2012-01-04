@@ -27,9 +27,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "BinaryString.h"
 #include "ByteShiftArray.h"
 #include "Configuration.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 #include "DebuggerMain.h"
-#include "DebuggerPluginInterface.h"
+#include "IDebuggerPlugin.h"
 #include "DialogInputBinaryString.h"
 #include "DialogInputValue.h"
 #include "DialogOptions.h"
@@ -59,20 +59,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_debuggerui.h"
 
-DebuggerCoreInterface *edb::v1::debugger_core = 0;
+IDebuggerCore *edb::v1::debugger_core = 0;
 QWidget               *edb::v1::debugger_ui   = 0;
 
 namespace {
 
-	typedef QList<BinaryInfo::create_func_ptr_t> BinaryInfoList;
+	typedef QList<IBinary::create_func_ptr_t> BinaryInfoList;
 
-	QAtomicPointer<DebugEventHandlerInterface> g_DebugEventHandler = 0;
-	QAtomicPointer<AnalyzerInterface>          g_Analyzer          = 0;
-	QAtomicPointer<SessionFileInterface>       g_SessionHandler    = 0;
-	QHash<QString, QObject *>                  g_GeneralPlugins;
-	BinaryInfoList                             g_BinaryInfoList;
+	QAtomicPointer<IDebugEventHandler> g_DebugEventHandler = 0;
+	QAtomicPointer<IAnalyzer>          g_Analyzer          = 0;
+	QAtomicPointer<ISessionFile>       g_SessionHandler    = 0;
+	QHash<QString, QObject *>          g_GeneralPlugins;
+	BinaryInfoList                     g_BinaryInfoList;
 	
-	QHash<QString, FunctionInfo>               g_FunctionDB;
+	QHash<QString, FunctionInfo>       g_FunctionDB;
 	
 	DebuggerMain *ui() {
 		return qobject_cast<DebuggerMain *>(edb::v1::debugger_ui);
@@ -174,7 +174,7 @@ void edb::v1::repaint_cpu_view() {
 // Name: symbol_manager()
 // Desc:
 //------------------------------------------------------------------------------
-SymbolManagerInterface &edb::v1::symbol_manager() {
+ISymbolManager &edb::v1::symbol_manager() {
 	static SymbolManager g_SymbolManager;
 	return g_SymbolManager;
 }
@@ -192,16 +192,16 @@ MemoryRegions &edb::v1::memory_regions() {
 // Name: arch_processor()
 // Desc:
 //------------------------------------------------------------------------------
-ArchProcessorInterface &edb::v1::arch_processor() {
+IArchProcessor &edb::v1::arch_processor() {
 	static ArchProcessor g_ArchProcessor;
 	return g_ArchProcessor;
 }
 
 //------------------------------------------------------------------------------
-// Name: set_analyzer(AnalyzerInterface *p)
+// Name: set_analyzer(IAnalyzer *p)
 // Desc:
 //------------------------------------------------------------------------------
-AnalyzerInterface *edb::v1::set_analyzer(AnalyzerInterface *p) {
+IAnalyzer *edb::v1::set_analyzer(IAnalyzer *p) {
 	Q_CHECK_PTR(p);
 	return g_Analyzer.fetchAndStoreAcquire(p);
 }
@@ -210,15 +210,15 @@ AnalyzerInterface *edb::v1::set_analyzer(AnalyzerInterface *p) {
 // Name: analyzer()
 // Desc:
 //------------------------------------------------------------------------------
-AnalyzerInterface *edb::v1::analyzer() {
+IAnalyzer *edb::v1::analyzer() {
 	return g_Analyzer;
 }
 
 //------------------------------------------------------------------------------
-// Name: set_session_file_handler(SessionFileInterface *p)
+// Name: set_session_file_handler(ISessionFile *p)
 // Desc:
 //------------------------------------------------------------------------------
-SessionFileInterface *edb::v1::set_session_file_handler(SessionFileInterface *p) {
+ISessionFile *edb::v1::set_session_file_handler(ISessionFile *p) {
 	Q_CHECK_PTR(p);
 	return g_SessionHandler.fetchAndStoreAcquire(p);
 }
@@ -227,15 +227,15 @@ SessionFileInterface *edb::v1::set_session_file_handler(SessionFileInterface *p)
 // Name: session_file_handler()
 // Desc:
 //------------------------------------------------------------------------------
-SessionFileInterface *edb::v1::session_file_handler() {
+ISessionFile *edb::v1::session_file_handler() {
 	return g_SessionHandler;;
 }
 
 //------------------------------------------------------------------------------
-// Name: set_debug_event_handler(DebugEventHandlerInterface *p)
+// Name: set_debug_event_handler(IDebugEventHandler *p)
 // Desc:
 //------------------------------------------------------------------------------
-DebugEventHandlerInterface *edb::v1::set_debug_event_handler(DebugEventHandlerInterface *p) {
+IDebugEventHandler *edb::v1::set_debug_event_handler(IDebugEventHandler *p) {
 	Q_CHECK_PTR(p);
 	return g_DebugEventHandler.fetchAndStoreAcquire(p);
 }
@@ -244,7 +244,7 @@ DebugEventHandlerInterface *edb::v1::set_debug_event_handler(DebugEventHandlerIn
 // Name: debug_event_handler();
 // Desc:
 //------------------------------------------------------------------------------
-DebugEventHandlerInterface *edb::v1::debug_event_handler() {
+IDebugEventHandler *edb::v1::debug_event_handler() {
 	return g_DebugEventHandler;
 }
 
@@ -319,7 +319,7 @@ bool edb::v1::dump_data(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 void edb::v1::set_breakpoint_condition(edb::address_t address, const QString &condition) {
-	Breakpoint::pointer bp = find_breakpoint(address);
+	IBreakpoint::pointer bp = find_breakpoint(address);
 	if(bp) {
 		bp->condition = condition;
 	}
@@ -331,7 +331,7 @@ void edb::v1::set_breakpoint_condition(edb::address_t address, const QString &co
 //------------------------------------------------------------------------------
 QString edb::v1::get_breakpoint_condition(edb::address_t address) {
 	QString ret;
-	Breakpoint::pointer bp = find_breakpoint(address);
+	IBreakpoint::pointer bp = find_breakpoint(address);
 	if(bp) {
 		ret = bp->condition;
 	}
@@ -399,7 +399,7 @@ void edb::v1::create_breakpoint(edb::address_t address) {
 //------------------------------------------------------------------------------
 edb::address_t edb::v1::enable_breakpoint(edb::address_t address) {
 	if(address != 0) {
-		Breakpoint::pointer bp = find_breakpoint(address);
+		IBreakpoint::pointer bp = find_breakpoint(address);
 		if(bp && bp->enable()) {
 			return address;
 		}
@@ -413,7 +413,7 @@ edb::address_t edb::v1::enable_breakpoint(edb::address_t address) {
 //------------------------------------------------------------------------------
 edb::address_t edb::v1::disable_breakpoint(edb::address_t address) {
 	if(address != 0) {
-		Breakpoint::pointer bp = find_breakpoint(address);
+		IBreakpoint::pointer bp = find_breakpoint(address);
 		if(bp && bp->disable()) {
 			return address;
 		}
@@ -752,9 +752,9 @@ bool edb::v1::get_instruction_bytes(edb::address_t address, quint8 *buf, int &si
 // Desc: gets an object which knows how to analyze the binary file provided
 //       or NULL if none-found
 //------------------------------------------------------------------------------
-BinaryInfo *edb::v1::get_binary_info(const MemRegion &region) {
-	Q_FOREACH(BinaryInfo::create_func_ptr_t f, g_BinaryInfoList) {
-		BinaryInfo *const p = (*f)(region);
+IBinary *edb::v1::get_binary_info(const MemRegion &region) {
+	Q_FOREACH(IBinary::create_func_ptr_t f, g_BinaryInfoList) {
+		IBinary *const p = (*f)(region);
 
 		if(p->validate_header()) {
 			return p;
@@ -775,7 +775,7 @@ edb::address_t edb::v1::locate_main_function() {
 
 	const MemRegion region = primary_code_region();
 
-	SCOPED_POINTER<BinaryInfo> binfo(get_binary_info(region));
+	SCOPED_POINTER<IBinary> binfo(get_binary_info(region));
 	
 	if(binfo) {
 		const edb::address_t main_func = binfo->calculate_main();
@@ -801,10 +801,10 @@ const QHash<QString, QObject *> &edb::v1::plugin_list() {
 // Name: find_plugin_by_name(const QString &name)
 // Desc: gets a pointer to a plugin based on it's classname
 //------------------------------------------------------------------------------
-DebuggerPluginInterface *edb::v1::find_plugin_by_name(const QString &name) {
+IDebuggerPlugin *edb::v1::find_plugin_by_name(const QString &name) {
 	Q_FOREACH(QObject *p, g_GeneralPlugins) {
 		if(name == p->metaObject()->className()) {
-			return qobject_cast<DebuggerPluginInterface *>(p);
+			return qobject_cast<IDebuggerPlugin *>(p);
 		}
 	}
 	return 0;
@@ -869,7 +869,7 @@ void edb::v1::push_value(State &state, edb::reg_t value) {
 // Name: register_binary_info(createFuncPtr fptr)
 // Desc:
 //------------------------------------------------------------------------------
-void edb::v1::register_binary_info(BinaryInfo::create_func_ptr_t fptr) {
+void edb::v1::register_binary_info(IBinary::create_func_ptr_t fptr) {
 	if(!g_BinaryInfoList.contains(fptr)) {
 		g_BinaryInfoList.push_back(fptr);
 	}
@@ -890,7 +890,7 @@ quint32 edb::v1::edb_version() {
 bool edb::v1::overwrite_check(edb::address_t address, unsigned int size) {
 	bool firstConflict = true;
 	for(edb::address_t addr = address; addr != (address + size); ++addr) {
-		Breakpoint::pointer bp = find_breakpoint(addr);
+		IBreakpoint::pointer bp = find_breakpoint(addr);
 
 		if(bp && bp->enabled()) {
 			if(firstConflict) {
@@ -1103,6 +1103,9 @@ QString edb::v1::format_bytes(const QByteArray &x) {
 	if(x.size() != 0) {
 		QString temp;
 		temp.reserve(4);
+		
+		bytes.reserve(x.size() * 4);
+		
 		QByteArray::const_iterator it = x.begin();
 		bytes += temp.sprintf("%02x", *it++ & 0xff);
 		while(it != x.end()) {
@@ -1141,11 +1144,11 @@ void edb::v1::set_status(const QString &message) {
 // Name: find_breakpoint(edb::address_t address)
 // Desc:
 //------------------------------------------------------------------------------
-Breakpoint::pointer edb::v1::find_breakpoint(edb::address_t address) {
+IBreakpoint::pointer edb::v1::find_breakpoint(edb::address_t address) {
 	if(edb::v1::debugger_core != 0) {
 		return debugger_core->find_breakpoint(address);
 	}
-	return Breakpoint::pointer();
+	return IBreakpoint::pointer();
 }
 
 //------------------------------------------------------------------------------

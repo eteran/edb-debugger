@@ -86,7 +86,7 @@ PlatformState::PlatformState() {
 // Name: PlatformState::copy() const
 // Desc: makes a copy of the state object
 //------------------------------------------------------------------------------
-StateInterface *PlatformState::copy() const {
+IState *PlatformState::copy() const {
 	return new PlatformState(*this);
 }
 

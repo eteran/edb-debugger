@@ -18,14 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef OPENFILES_20070423_H_
 #define OPENFILES_20070423_H_
 
-#include "DebuggerPluginInterface.h"
+#include "IDebuggerPlugin.h"
 
 class QMenu;
 class QDialog;
 
-class OpenFiles : public QObject, public DebuggerPluginInterface {
+class OpenFiles : public QObject, public IDebuggerPlugin {
 	Q_OBJECT
-	Q_INTERFACES(DebuggerPluginInterface)
+	Q_INTERFACES(IDebuggerPlugin)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 

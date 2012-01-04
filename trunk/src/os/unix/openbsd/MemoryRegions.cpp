@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "MemoryRegions.h"
 #include "SymbolManager.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 #include "Util.h"
 #include "State.h"
 #include "Debugger.h"

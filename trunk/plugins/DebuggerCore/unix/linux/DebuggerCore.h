@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class DebuggerCore : public DebuggerCoreUNIX {
 	Q_OBJECT
-	Q_INTERFACES(DebuggerCoreInterface)
+	Q_INTERFACES(IDebuggerCore)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
@@ -54,7 +54,7 @@ public:
 	virtual void set_active_thread(edb::tid_t);
 
 public:
-	virtual StateInterface *create_state() const;
+	virtual IState *create_state() const;
 
 private:
 	virtual long read_data(edb::address_t address, bool &ok);

@@ -16,29 +16,31 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SYMBOLMANAGERINTERFACE_20110307_H_
-#define SYMBOLMANAGERINTERFACE_20110307_H_
+#ifndef IARCHPROCESSOR_20070717_H_
+#define IARCHPROCESSOR_20070717_H_
 
-#include "API.h"
 #include "Types.h"
-#include "Symbol.h"
-#include <QList>
+#include "Register.h"
+#include <QStringList>
 
-class QString;
+class QCategoryList;
+class QTreeWidgetItem;
+class QByteArray;
 
-class EDB_EXPORT SymbolManagerInterface {
+class IArchProcessor {
 public:
-	virtual ~SymbolManagerInterface() {}
+	virtual ~IArchProcessor() {}
+public:
+	virtual void setup_register_view(QCategoryList *categoryList) = 0;
+	virtual void reset() = 0;
+	virtual void update_register_view(const QString &default_region_name) = 0;
+	virtual QStringList update_instruction_info(edb::address_t address) = 0;
+	virtual Register value_from_item(const QTreeWidgetItem &item) = 0;
 
 public:
-	virtual const QList<Symbol::pointer> symbols() const = 0;
-	virtual const Symbol::pointer find(const QString &name) const = 0;
-	virtual const Symbol::pointer find(edb::address_t address) const = 0;
-	virtual const Symbol::pointer find_near_symbol(edb::address_t address) const = 0;
-	virtual void clear() = 0;
-	virtual void load_symbol_file(const QString &filename, edb::address_t base) = 0;
-	virtual void load_symbols(const QString &symbol_directory) = 0;
-	virtual void add_symbol(const Symbol::pointer &symbol) = 0;
+	// instruction inspection
+	virtual bool is_filling(const edb::Instruction &insn) const = 0;
+	virtual bool can_step_over(const edb::Instruction &insn) const = 0;
 };
 
 #endif

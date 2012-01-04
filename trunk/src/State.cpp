@@ -18,8 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "State.h"
 #include "Debugger.h"
-#include "DebuggerCoreInterface.h"
-#include "StateInterface.h"
+#include "IDebuggerCore.h"
+#include "IState.h"
 
 #include <QtAlgorithms>
 

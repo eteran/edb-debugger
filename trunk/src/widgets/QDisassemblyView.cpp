@@ -17,11 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "QDisassemblyView.h"
-#include "AnalyzerInterface.h"
-#include "ArchProcessorInterface.h"
+#include "IAnalyzer.h"
+#include "IArchProcessor.h"
 #include "Configuration.h"
 #include "Debugger.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 #include "Instruction.h"
 #include "SymbolManager.h"
 #include "SyntaxHighlighter.h"
@@ -516,19 +516,19 @@ QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instructio
 }
 
 //------------------------------------------------------------------------------
-// Name: draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int insn_size, AnalyzerInterface *analyzer)
+// Name: draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int insn_size, IAnalyzer *analyzer)
 // Desc:
 //------------------------------------------------------------------------------
-void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int insn_size, AnalyzerInterface *analyzer) {
+void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int insn_size, IAnalyzer *analyzer) {
 	Q_CHECK_PTR(analyzer);
 	painter.setPen(QPen(palette().shadow().color(), 2));
 
-	const AnalyzerInterface::AddressCategory cat = analyzer->category(address);
+	const IAnalyzer::AddressCategory cat = analyzer->category(address);
 	const int line_height = this->line_height();
 	const int x = l2 + font_width_;
 
 	switch(cat) {
-	case AnalyzerInterface::ADDRESS_FUNC_START:
+	case IAnalyzer::ADDRESS_FUNC_START:
 
 		// half of a horizontal
 		painter.drawLine(
@@ -547,8 +547,8 @@ void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t a
 			);
 
 		break;
-	case AnalyzerInterface::ADDRESS_FUNC_BODY:
-		if(analyzer->category(address + insn_size - 1) == AnalyzerInterface::ADDRESS_FUNC_END) {
+	case IAnalyzer::ADDRESS_FUNC_BODY:
+		if(analyzer->category(address + insn_size - 1) == IAnalyzer::ADDRESS_FUNC_END) {
 			goto do_end;
 		} else {
 
@@ -561,7 +561,7 @@ void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t a
 
 		}
 		break;
-	case AnalyzerInterface::ADDRESS_FUNC_END:
+	case IAnalyzer::ADDRESS_FUNC_END:
 	do_end:
 
 		// half of a vertical
@@ -621,7 +621,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	const QPen bytes_pen               = bytes_color.color();
 	const QPen divider_pen             = divider_color.color();
 
-	AnalyzerInterface *const analyzer = edb::v1::analyzer();
+	IAnalyzer *const analyzer = edb::v1::analyzer();
 
 	edb::address_t last_address = 0;
 
@@ -644,7 +644,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		// disassemble the instruction, if it happens that the next byte is the start of a known function
 		// then we should treat this like a one byte instruction
 		edb::Instruction insn(buf, buf_size, address, std::nothrow);
-		if((analyzer != 0) && (analyzer->category(address + 1) == AnalyzerInterface::ADDRESS_FUNC_START)) {
+		if((analyzer != 0) && (analyzer->category(address + 1) == IAnalyzer::ADDRESS_FUNC_START)) {
 			edb::Instruction(buf, 1, address, std::nothrow).swap(insn);
 		}
 

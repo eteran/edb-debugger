@@ -16,22 +16,22 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DEBUGGERCOREINTERFACE_20061101_H_
-#define DEBUGGERCOREINTERFACE_20061101_H_
+#ifndef IDEBUGGER_CORE_20061101_H_
+#define IDEBUGGER_CORE_20061101_H_
 
 #include <QtPlugin>
 #include <QByteArray>
 #include <QHash>
 #include <QStringList>
-#include "Breakpoint.h"
+#include "IBreakpoint.h"
 #include "State.h"
 
 class QString;
 class DebugEvent;
 
-class DebuggerCoreInterface {
+class IDebuggerCore {
 public:
-	virtual ~DebuggerCoreInterface() {}
+	virtual ~IDebuggerCore() {}
 
 public:
 	// system information
@@ -39,7 +39,7 @@ public:
 	virtual int pointer_size() const = 0;
 
 public:
-	typedef QHash<edb::address_t, Breakpoint::pointer > BreakpointState;
+	typedef QHash<edb::address_t, IBreakpoint::pointer > BreakpointState;
 
 public:
 	virtual bool has_extension(quint64 ext) const = 0;
@@ -74,14 +74,14 @@ public:
 public:
 	// basic breakpoint managment
 	virtual BreakpointState backup_breakpoints() const = 0;
-	virtual Breakpoint::pointer add_breakpoint(edb::address_t address) = 0;
-	virtual Breakpoint::pointer find_breakpoint(edb::address_t address) = 0;
+	virtual IBreakpoint::pointer add_breakpoint(edb::address_t address) = 0;
+	virtual IBreakpoint::pointer find_breakpoint(edb::address_t address) = 0;
 	virtual int breakpoint_size() const = 0;
 	virtual void clear_breakpoints() = 0;
 	virtual void remove_breakpoint(edb::address_t address) = 0;
 
 public:
-	virtual StateInterface *create_state() const = 0;
+	virtual IState *create_state() const = 0;
 
 public:
 	// what is the PID of the process we are currently debugging
@@ -89,6 +89,6 @@ public:
 	virtual edb::pid_t pid() const = 0;
 };
 
-Q_DECLARE_INTERFACE(DebuggerCoreInterface, "EDB.DebuggerCoreInterface/1.0")
+Q_DECLARE_INTERFACE(IDebuggerCore, "EDB.IDebuggerCore/1.0")
 
 #endif

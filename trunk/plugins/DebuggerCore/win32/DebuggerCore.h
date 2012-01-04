@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class DebuggerCore : public DebuggerCoreBase {
 	Q_OBJECT
-	Q_INTERFACES(DebuggerCoreInterface)
+	Q_INTERFACES(IDebuggerCore)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 public:
@@ -56,7 +56,7 @@ public:
 	virtual void set_active_thread(edb::tid_t tid) { Q_ASSERT(threads_.contains(tid)); active_thread_ = tid; }
 
 public:
-	virtual StateInterface *create_state() const;
+	virtual IState *create_state() const;
 
 public:
 	// NOTE: win32 only stuff here!

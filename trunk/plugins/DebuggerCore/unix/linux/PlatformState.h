@@ -19,18 +19,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PLATFORMSTATE_20110330_H_
 #define PLATFORMSTATE_20110330_H_
 
-#include "StateInterface.h"
+#include "IState.h"
 #include "Types.h"
 #include <sys/user.h>
 
-class PlatformState : public StateInterface {
+class PlatformState : public IState {
 	friend class DebuggerCore;
 
 public:
 	PlatformState();
 
 public:
-	virtual StateInterface *copy() const;
+	virtual IState *copy() const;
 
 public:
 	virtual QString flags_to_string() const;

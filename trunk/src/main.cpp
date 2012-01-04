@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Configuration.h"
-#include "DebuggerCoreInterface.h"
-#include "DebuggerPluginInterface.h"
+#include "IDebuggerCore.h"
+#include "IDebuggerPlugin.h"
 #include "DebuggerMain.h"
 #include "Debugger.h"
 #include "DebuggerInternal.h"
@@ -59,14 +59,14 @@ namespace {
 				if(QObject *const plugin = loader.instance()) {
 
 					// TODO: handle the case where we find more than one core plugin...
-					if(DebuggerCoreInterface *const core_plugin = qobject_cast<DebuggerCoreInterface *>(plugin)) {
+					if(IDebuggerCore *const core_plugin = qobject_cast<IDebuggerCore *>(plugin)) {
 						if(edb::v1::debugger_core == 0) {
 							qDebug("[load_plugins] Loading Core Plugin: %-25s : %p", qPrintable(file_name), static_cast<void *>(plugin));
 							edb::v1::debugger_core = core_plugin;
 						}
 					}
 
-					if(DebuggerPluginInterface *const generic_plugin = qobject_cast<DebuggerPluginInterface *>(plugin)) {
+					if(IDebuggerPlugin *const generic_plugin = qobject_cast<IDebuggerPlugin *>(plugin)) {
 						if(edb::internal::register_plugin(full_path, plugin)) {
 							// we have a general purpose plugin
 							qDebug("[load_plugins] Loading Plugin: %-30s : %p", qPrintable(file_name), static_cast<void *>(plugin));
@@ -190,8 +190,11 @@ int main(int argc, char *argv[]) {
 		} else if(args.size() == 2 && args[1] == "--version") {
 			std::cout << "edb version: " << edb::version << std::endl;
 			return 0;
+		} else if(args.size() == 2 && args[1] == "--dump-version") {
+			std::cout << edb::version << std::endl;
+			return 0;
 		} else {
-			std::cerr << "usage: " << qPrintable(args[0]) << " [--symbols <filename>] [ --attach <pid> ] [ --run <program> (args...) ] [ --version ]" << std::endl;
+			std::cerr << "usage: " << qPrintable(args[0]) << " [--symbols <filename>] [ --attach <pid> ] [ --run <program> (args...) ] [ --version ] [ --dump-version ]" << std::endl;
 			return -1;
 		}
 	}

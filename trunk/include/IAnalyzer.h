@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ANALYZERINTERFACE_20080630_H_
-#define ANALYZERINTERFACE_20080630_H_
+#ifndef IANALYZER_20080630_H_
+#define IANALYZER_20080630_H_
 
 #include <QMap>
 #include <QSet>
@@ -25,9 +25,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class MemRegion;
 
-class AnalyzerInterface {
+class IAnalyzer {
 public:
-	virtual ~AnalyzerInterface() {}
+	virtual ~IAnalyzer() {}
 
 public:
 	struct Function {

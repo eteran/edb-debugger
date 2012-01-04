@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ANALYZER_20080630_H_
 #define ANALYZER_20080630_H_
 
-#include "AnalyzerInterface.h"
-#include "DebuggerPluginInterface.h"
+#include "IAnalyzer.h"
+#include "IDebuggerPlugin.h"
 #include "MemRegion.h"
 #include "Symbol.h"
 #include "Types.h"
@@ -31,9 +31,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QMenu;
 class AnalyzerWidget;
 
-class Analyzer : public QObject, public AnalyzerInterface, public DebuggerPluginInterface {
+class Analyzer : public QObject, public IAnalyzer, public IDebuggerPlugin {
 	Q_OBJECT
-	Q_INTERFACES(DebuggerPluginInterface)
+	Q_INTERFACES(IDebuggerPlugin)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 

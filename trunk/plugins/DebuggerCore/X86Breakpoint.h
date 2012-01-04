@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef X86BREAKPOINT_20060720_H_
 #define X86BREAKPOINT_20060720_H_
 
-#include "Breakpoint.h"
+#include "IBreakpoint.h"
 
-class X86Breakpoint : public Breakpoint {
+class X86Breakpoint : public IBreakpoint {
 public:
 	X86Breakpoint(edb::address_t address);
 	~X86Breakpoint();

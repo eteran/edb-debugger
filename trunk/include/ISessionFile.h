@@ -16,14 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SESSIONFILEINTERFACE_20090212_H_
-#define SESSIONFILEINTERFACE_20090212_H_
+#ifndef ISESSION_FILE_20090212_H_
+#define ISESSION_FILE_20090212_H_
 
 class QString;
 
-class SessionFileInterface {
+class ISessionFile {
 public:
-	virtual ~SessionFileInterface() {}
+	virtual ~ISessionFile() {}
 
 public:
 	virtual void save_session(const QString &filename, const QString &executable) = 0;

@@ -39,7 +39,8 @@
 	<function name="toupper">
 		<argument type="i" />
 	</function>
-	<function name="__errno_location"></function>
+	<function name="__errno_location">
+	</function>
 	<function name="setjmp">
 		<argument type="p" />
 	</function>
@@ -102,7 +103,8 @@
 	<function name="gets">
 		<argument type="p" />
 	</function>
-	<function name="getchar"></function>
+	<function name="getchar">
+	</function>
 	<function name="putc">
 		<argument type="i" />
 		<argument type="p" />
@@ -139,7 +141,8 @@
 	<function name="system">
 		<argument type="s" />
 	</function>
-	<function name="abort"></function>
+	<function name="abort">
+	</function>
 	<function name="abs">
 		<argument type="i" />
 	</function>
@@ -162,7 +165,8 @@
 	<function name="srand">
 		<argument type="u" />
 	</function>
-	<function name="rand"></function>
+	<function name="rand">
+	</function>
 	<function name="div">
 		<argument type="i" />
 		<argument type="i" />
@@ -309,7 +313,8 @@
 	<function name="sbrk">
 		<argument type="p" />
 	</function>
-	<function name="getpagesize"></function>
+	<function name="getpagesize">
+	</function>
 	<function name="ioctl">
 		<argument type="i" />
 		<argument type="i" />

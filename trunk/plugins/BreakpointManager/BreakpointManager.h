@@ -19,14 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BREAKPOINTMANAGER_20060430_H_
 #define BREAKPOINTMANAGER_20060430_H_
 
-#include "DebuggerPluginInterface.h"
+#include "IDebuggerPlugin.h"
 
 class QMenu;
 class QDialog;
 
-class BreakpointManager : public QObject, public DebuggerPluginInterface {
+class BreakpointManager : public QObject, public IDebuggerPlugin {
 	Q_OBJECT
-	Q_INTERFACES(DebuggerPluginInterface)
+	Q_INTERFACES(IDebuggerPlugin)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 

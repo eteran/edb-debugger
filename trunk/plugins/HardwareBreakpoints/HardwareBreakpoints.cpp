@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "HardwareBreakpoints.h"
 #include "Debugger.h"
 #include "DebugEvent.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 #include "DialogHWBreakpoints.h"
 #include "State.h"
 

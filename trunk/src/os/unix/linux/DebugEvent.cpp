@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/types.h>
 #include <sys/wait.h>
 #include <sys/ptrace.h>
-#include <cstdio>
 
 // doesn't always seem to be defined in the headers
 #ifndef PTRACE_GETSIGINFO

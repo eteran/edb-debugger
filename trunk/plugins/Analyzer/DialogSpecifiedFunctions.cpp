@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogSpecifiedFunctions.h"
 #include "Debugger.h"
-#include "AnalyzerInterface.h"
+#include "IAnalyzer.h"
 
 #include <QStringListModel>
 #include <QSortFilterProxyModel>
@@ -71,7 +71,7 @@ void DialogSpecifiedFunctions::on_function_list_doubleClicked(const QModelIndex 
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSpecifiedFunctions::do_find() {
-	AnalyzerInterface *const analyzer = edb::v1::analyzer();
+	IAnalyzer *const analyzer = edb::v1::analyzer();
 	QSet<edb::address_t> functions = analyzer->specified_functions();
 	QStringList results;
 	Q_FOREACH(edb::address_t address, functions) {

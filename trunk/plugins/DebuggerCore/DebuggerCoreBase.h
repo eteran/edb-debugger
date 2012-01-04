@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DEBUGGERCOREBASE_20090529_H_
 #define DEBUGGERCOREBASE_20090529_H_
 
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 
-class DebuggerCoreBase : public QObject, public DebuggerCoreInterface {
+class DebuggerCoreBase : public QObject, public IDebuggerCore {
 public:
 	DebuggerCoreBase();
 	virtual ~DebuggerCoreBase();
@@ -38,8 +38,8 @@ public:
 
 public:
 	virtual BreakpointState backup_breakpoints() const;
-	virtual Breakpoint::pointer add_breakpoint(edb::address_t address);
-	virtual Breakpoint::pointer find_breakpoint(edb::address_t address);
+	virtual IBreakpoint::pointer add_breakpoint(edb::address_t address);
+	virtual IBreakpoint::pointer find_breakpoint(edb::address_t address);
 	virtual int breakpoint_size() const;
 	virtual void clear_breakpoints();
 	virtual void remove_breakpoint(edb::address_t address);

@@ -17,9 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "MemRegion.h"
-#include "DebugEventHandlerInterface.h"
+#include "IDebugEventHandler.h"
 #include "Debugger.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 #include "MemoryRegions.h"
 #include "State.h"
 #include "Types.h"
@@ -50,7 +50,7 @@ namespace {
 
 
 template <size_t N>
-class BackupInfo : public DebugEventHandlerInterface {
+class BackupInfo : public IDebugEventHandler {
 public:
 	BackupInfo(edb::address_t address, quint8 perms, MemRegion &region);
 
@@ -77,7 +77,7 @@ public:
 	MemRegion&     region_;
 
 public:
-	DebugEventHandlerInterface *event_handler_;
+	IDebugEventHandler *event_handler_;
 };
 
 //------------------------------------------------------------------------------

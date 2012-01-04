@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogEnvironment.h"
-#include "DebuggerCoreInterface.h"
-#include "SymbolManagerInterface.h"
+#include "IDebuggerCore.h"
+#include "ISymbolManager.h"
 #include "Debugger.h"
 #include "Configuration.h"
 

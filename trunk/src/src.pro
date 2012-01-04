@@ -14,24 +14,17 @@ TRANSLATIONS += \
 
 HEADERS += \
 	API.h \
-	AnalyzerInterface.h \
 	ArchProcessor.h \
-	ArchProcessorInterface.h \
 	ArchTypes.h \
-	BinaryInfo.h \
 	BinaryString.h \
-	Breakpoint.h \
 	ByteShiftArray.h \
 	CommentServer.h \
 	Configuration.h \
 	DataViewInfo.h \
 	DebugEvent.h \
-	DebugEventHandlerInterface.h \
 	Debugger.h \
-	DebuggerCoreInterface.h \
 	DebuggerMain.h \
 	DebuggerOps.h \
-	DebuggerPluginInterface.h \
 	DebuggerUI.h \
 	DialogArguments.h \
 	DialogAttach.h \
@@ -43,6 +36,14 @@ HEADERS += \
 	DialogThreads.h \
 	Expression.h \
 	FunctionInfo.h \
+	IAnalyzer.h \
+	IArchProcessor.h \
+	IBinary.h \
+	IBreakpoint.h \
+	IDebugEventHandler.h \
+	IDebuggerCore.h \
+	IDebuggerPlugin.h \
+	ISessionFile.h \
 	LineEdit.h \
 	MD5.h \
 	MemRegion.h \
@@ -57,16 +58,14 @@ HEADERS += \
 	Register.h \
 	RegisterViewDelegate.h \
 	ScopedPointer.h \
-	SessionFileInterface.h \
 	State.h \
-	symbols.h \
 	SymbolManager.h \
 	SyntaxHighlighter.h \
 	TabWidget.h \
 	Types.h \
 	Util.h \
+	symbols.h \
 	version.h
-
 
 FORMS += \
 	binarystring.ui \
@@ -82,7 +81,7 @@ FORMS += \
 	
 SOURCES += \
 	ArchProcessor.cpp \
-	BinaryInfo.cpp \
+	IBinary.cpp \
 	BinaryString.cpp \
 	ByteShiftArray.cpp \
 	CommentServer.cpp \

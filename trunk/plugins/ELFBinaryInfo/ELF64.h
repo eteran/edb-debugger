@@ -19,14 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELF64_20070718_H_
 #define ELF64_20070718_H_
 
-#include "BinaryInfo.h"
+#include "IBinary.h"
 #if defined(Q_OS_OPENBSD)
 #include <sys/exec_elf.h>
 #else
 #include <elf.h>
 #endif
 
-class ELF64 : public BinaryInfo {
+class ELF64 : public IBinary {
 public:
 	ELF64(const MemRegion &region);
 	virtual ~ELF64();
