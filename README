@@ -11,17 +11,17 @@ Compiling edb is generally quite simple. edb currently depends on the
 following packages:
 
 Qt >= 4.5
-boost >= 1.35
+boost >= 1.35 (headers only)
 
 Many distributions already have packages that satisify these.
 
-Once you have QT installed, it is as simple as
+Once you have QT and boost installed, it is as simple as
 
 $ qmake
 $ make
 
 This will build the debugger along with all plugins I have written. On certain 
-systems your qmake make be named slightly differently, I've noticed that the 
+systems your qmake may be named slightly differently, I've noticed that the 
 Fedora Core rpms name it qmake-qt4.
 
 If you are planning on doing a make install, you likely want to specify the 

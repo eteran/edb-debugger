@@ -16,39 +16,19 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BREAKPOINT_20060720_H_
-#define BREAKPOINT_20060720_H_
+#ifndef IDEBUG_EVENT_HANDLER_20061101_H_
+#define IDEBUG_EVENT_HANDLER_20061101_H_
 
 #include "Types.h"
 
-#include <QByteArray>
-#include <QString>
-#include <QSharedPointer>
+class DebugEvent;
 
-class Breakpoint {
+class IDebugEventHandler {
 public:
-	typedef QSharedPointer<Breakpoint> pointer;
-	
-public:
-	virtual ~Breakpoint() {}
+	virtual ~IDebugEventHandler() {}
 
 public:
-	virtual edb::address_t address() const = 0;
-	virtual unsigned int hit_count() const = 0;
-	virtual bool enabled() const = 0;
-	virtual bool one_time() const = 0;
-	virtual bool internal() const = 0;
-	virtual QByteArray original_bytes() const = 0;
-
-public:
-	virtual bool enable() = 0;
-	virtual bool disable() = 0;
-	virtual void hit() = 0;
-	virtual void set_one_time(bool value) = 0;
-	virtual void set_internal(bool value) = 0;
-
-public:
-	QString condition;
+	virtual edb::EVENT_STATUS handle_event(const DebugEvent &event) = 0;
 };
 
 #endif

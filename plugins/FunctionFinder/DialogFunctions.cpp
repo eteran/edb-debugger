@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogFunctions.h"
 #include "Debugger.h"
 #include "MemoryRegions.h"
-#include "AnalyzerInterface.h"
+#include "IAnalyzer.h"
 
 #include <QDialog>
 #include <QHeaderView>
@@ -82,7 +82,7 @@ void DialogFunctions::showEvent(QShowEvent *) {
 //------------------------------------------------------------------------------
 void DialogFunctions::do_find() {
 
-	if(AnalyzerInterface *const analyzer = edb::v1::analyzer()) {
+	if(IAnalyzer *const analyzer = edb::v1::analyzer()) {
 		const QItemSelectionModel *const selModel = ui->tableView->selectionModel();
 		const QModelIndexList sel = selModel->selectedRows();
 
@@ -112,9 +112,9 @@ void DialogFunctions::do_find() {
 
 				analyzer->analyze(region);
 
-				const AnalyzerInterface::FunctionMap &results = analyzer->functions(region);
+				const IAnalyzer::FunctionMap &results = analyzer->functions(region);
 
-				Q_FOREACH(const AnalyzerInterface::Function &info, results) {
+				Q_FOREACH(const IAnalyzer::Function &info, results) {
 
 					const int row = ui->tableWidget->rowCount();
 					ui->tableWidget->insertRow(row);
@@ -140,7 +140,7 @@ void DialogFunctions::do_find() {
 					ui->tableWidget->setItem(row, 3, itemCount);
 
 					// type
-					if(info.type == AnalyzerInterface::Function::FUNCTION_THUNK) {
+					if(info.type == IAnalyzer::Function::FUNCTION_THUNK) {
 						ui->tableWidget->setItem(row, 4, new QTableWidgetItem(tr("Thunk")));
 					} else {
 						ui->tableWidget->setItem(row, 4, new QTableWidgetItem(tr("Standard Function")));

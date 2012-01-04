@@ -19,14 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef FUNCTIONFINDER_20060430_H_
 #define FUNCTIONFINDER_20060430_H_
 
-#include "DebuggerPluginInterface.h"
+#include "IDebuggerPlugin.h"
 
 class QMenu;
 class QDialog;
 
-class FunctionFinder : public QObject, public DebuggerPluginInterface {
+class FunctionFinder : public QObject, public IDebuggerPlugin {
 	Q_OBJECT
-	Q_INTERFACES(DebuggerPluginInterface)
+	Q_INTERFACES(IDebuggerPlugin)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 

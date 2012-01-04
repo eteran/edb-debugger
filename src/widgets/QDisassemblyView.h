@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "MemRegion.h"
 #include "Types.h"
 
-class AnalyzerInterface;
+class IAnalyzer;
 class QPainter;
 class QTextDocument;
 class SyntaxHighlighter;
@@ -91,7 +91,7 @@ private:
 	int line2() const;
 	int line3() const;
 	int line_height() const;
-	void draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int insn_size, AnalyzerInterface *analyzer);
+	void draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int insn_size, IAnalyzer *analyzer);
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);
 

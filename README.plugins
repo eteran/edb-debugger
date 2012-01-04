@@ -18,7 +18,7 @@ general purpose plugin and "DebuggerCore" which is uses to implement the core
 debugging functionality. Most likley you will want to create a "DebuggerPlugin".
 
 To create a "DebuggerPlugin" plugin, you must inherit from 
-DebuggerPluginInterface found in include/DebuggerPluginInterface.h. It requires 
+IDebuggerPlugin found in include/IDebuggerPlugin.h. It requires 
 that you implement the following virtual function(s):
 
 virtual QMenu *menu(QWidget *parent = 0) = 0;

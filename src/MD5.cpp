@@ -162,19 +162,18 @@ bool MD5::result(quint32 *message_digest_array) const {
 // Desc:
 //------------------------------------------------------------------------------
 void MD5::swap(MD5 &other) {
-	using std::swap;
 
 	for(int i = 0; i < 4; ++i) {
-		swap(h_[i], other.h_[i]);
+		qSwap(h_[i], other.h_[i]);
 	}
 
 	for(std::size_t i = 0; i < sizeof(message_block_); ++i) {
-		swap(message_block_[i], other.message_block_[i]);
+		qSwap(message_block_[i], other.message_block_[i]);
 	}
 
-	swap(length_, other.length_);
-	swap(message_block_index_, other.message_block_index_);
-	swap(corrupted_, other.corrupted_);
+	qSwap(length_, other.length_);
+	qSwap(message_block_index_, other.message_block_index_);
+	qSwap(corrupted_, other.corrupted_);
 }
 
 //------------------------------------------------------------------------------

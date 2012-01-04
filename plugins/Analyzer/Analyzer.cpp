@@ -19,16 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Analyzer.h"
 #include "AnalyzerOptionsPage.h"
 #include "AnalyzerWidget.h"
-#include "ArchProcessorInterface.h"
+#include "IArchProcessor.h"
 #include "Debugger.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 #include "DialogSpecifiedFunctions.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"
 #include "State.h"
-#include "SymbolManagerInterface.h"
+#include "ISymbolManager.h"
 #include "Util.h"
-#include "BinaryInfo.h"
+#include "IBinary.h"
 
 #include <QMainWindow>
 #include <QToolBar>
@@ -781,7 +781,7 @@ void Analyzer::collect_high_ref_results(FunctionMap &function_map, FunctionMap &
 //------------------------------------------------------------------------------
 void Analyzer::collect_low_ref_results(const MemRegion &region, FunctionMap &function_map, FunctionMap &found_functions) {
 	// promote weak symbols...
-	SymbolManagerInterface &syms = edb::v1::symbol_manager();
+	ISymbolManager &syms = edb::v1::symbol_manager();
 	Q_FOREACH(const Function &func, found_functions) {
 		if(!is_inside_known(region, func.entry_address)) {
 			if(!function_map.contains(func.entry_address)) {
@@ -909,7 +909,7 @@ void Analyzer::analyze(const MemRegion &region_ref) {
 // Name: category(edb::address_t address) const
 // Desc:
 //------------------------------------------------------------------------------
-AnalyzerInterface::AddressCategory Analyzer::category(edb::address_t address) const {
+IAnalyzer::AddressCategory Analyzer::category(edb::address_t address) const {
 
 	Function func;
 	if(find_containing_function(address, func)) {
@@ -928,15 +928,15 @@ AnalyzerInterface::AddressCategory Analyzer::category(edb::address_t address) co
 // Name: functions(const MemRegion &region) const
 // Desc:
 //------------------------------------------------------------------------------
-AnalyzerInterface::FunctionMap Analyzer::functions(const MemRegion &region) const {
+IAnalyzer::FunctionMap Analyzer::functions(const MemRegion &region) const {
 	return analysis_info_[region].analysis;
 }
 
 //------------------------------------------------------------------------------
-// Name: find_containing_function(edb::address_t address, AnalyzerInterface::Function &function) const
+// Name: find_containing_function(edb::address_t address, IAnalyzer::Function &function) const
 // Desc:
 //------------------------------------------------------------------------------
-bool Analyzer::find_containing_function(edb::address_t address, AnalyzerInterface::Function &function) const {
+bool Analyzer::find_containing_function(edb::address_t address, IAnalyzer::Function &function) const {
 
 	MemRegion region;
 	if(edb::v1::memory_regions().find_region(address, region)) {
@@ -982,7 +982,7 @@ QByteArray Analyzer::md5_region(const MemRegion &region) const{
 edb::address_t Analyzer::module_entry_point(const MemRegion &region) const {
 
 	edb::address_t entry = 0;
-	if(BinaryInfo *const binary_info = edb::v1::get_binary_info(region)) {
+	if(IBinary *const binary_info = edb::v1::get_binary_info(region)) {
 		entry = binary_info->entry_point();
 		delete binary_info;
 	}

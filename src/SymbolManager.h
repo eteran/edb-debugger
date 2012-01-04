@@ -19,13 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SYMBOLMANAGER_20060814_H_
 #define SYMBOLMANAGER_20060814_H_
 
-#include "SymbolManagerInterface.h"
+#include "ISymbolManager.h"
 #include <QHash>
 #include <QMap>
 #include <QSet>
 #include <QString>
 
-class SymbolManager : public SymbolManagerInterface {
+class SymbolManager : public ISymbolManager {
 public:
 	SymbolManager() {}
 

@@ -654,7 +654,7 @@ void DebuggerCore::reset() {
 // Name: create_state() const
 // Desc:
 //------------------------------------------------------------------------------
-StateInterface *DebuggerCore::create_state() const {
+IState *DebuggerCore::create_state() const {
 	return new PlatformState;
 }
 

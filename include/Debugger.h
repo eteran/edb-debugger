@@ -21,24 +21,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 #include "API.h"
-#include "Breakpoint.h"
+#include "IBreakpoint.h"
 
 #include <QString>
 #include <QStringList>
 #include <QHash>
 
-class AnalyzerInterface;
-class ArchProcessorInterface;
-class BinaryInfo;
+class IAnalyzer;
+class IArchProcessor;
+class IBinary;
 class Configuration;
-class DebugEventHandlerInterface;
-class DebuggerCoreInterface;
-class DebuggerPluginInterface;
+class IDebugEventHandler;
+class IDebuggerCore;
+class IDebuggerPlugin;
 class FunctionInfo;
 class MemoryRegions;
-class SessionFileInterface;
+class ISessionFile;
 class State;
-class SymbolManagerInterface;
+class ISymbolManager;
 
 class QByteArray;
 class QDialog;
@@ -48,30 +48,30 @@ class QWidget;
 struct ExpressionError;
 
 #include "MemRegion.h"
-#include "BinaryInfo.h"
+#include "IBinary.h"
 
 namespace edb {
 	namespace v1 {
 
 		// some useful objects
-		EDB_EXPORT extern DebuggerCoreInterface *debugger_core;
+		EDB_EXPORT extern IDebuggerCore *debugger_core;
 		EDB_EXPORT extern QWidget *              debugger_ui;
 
 		// the symbol mananger
-		EDB_EXPORT SymbolManagerInterface &symbol_manager();
+		EDB_EXPORT ISymbolManager &symbol_manager();
 
 		// the memory region manager
 		EDB_EXPORT MemoryRegions &memory_regions();
 
 		// the current arch processor
-		EDB_EXPORT ArchProcessorInterface &arch_processor();
+		EDB_EXPORT IArchProcessor &arch_processor();
 
 		// widgets
 		EDB_EXPORT QWidget *disassembly_widget();
 
 
 		// breakpoint managment
-		EDB_EXPORT Breakpoint::pointer find_breakpoint(edb::address_t address);
+		EDB_EXPORT IBreakpoint::pointer find_breakpoint(edb::address_t address);
 		EDB_EXPORT void remove_breakpoint(edb::address_t address);
 		EDB_EXPORT void create_breakpoint(edb::address_t address);
 		EDB_EXPORT void toggle_breakpoint(edb::address_t address);
@@ -138,25 +138,25 @@ namespace edb {
 		EDB_EXPORT edb::address_t get_variable(const QString &s, bool &ok, ExpressionError &err);
 
 		// hook the debug event system
-		EDB_EXPORT DebugEventHandlerInterface *set_debug_event_handler(DebugEventHandlerInterface *p);
-		EDB_EXPORT DebugEventHandlerInterface *debug_event_handler();
+		EDB_EXPORT IDebugEventHandler *set_debug_event_handler(IDebugEventHandler *p);
+		EDB_EXPORT IDebugEventHandler *debug_event_handler();
 
-		EDB_EXPORT AnalyzerInterface *set_analyzer(AnalyzerInterface *p);
-		EDB_EXPORT AnalyzerInterface *analyzer();
+		EDB_EXPORT IAnalyzer *set_analyzer(IAnalyzer *p);
+		EDB_EXPORT IAnalyzer *analyzer();
 
-		EDB_EXPORT SessionFileInterface *set_session_file_handler(SessionFileInterface *p);
-		EDB_EXPORT SessionFileInterface *session_file_handler();
+		EDB_EXPORT ISessionFile *set_session_file_handler(ISessionFile *p);
+		EDB_EXPORT ISessionFile *session_file_handler();
 
 		// reads up to size bytes from address (stores how many it could read in size)
 		EDB_EXPORT bool get_instruction_bytes(edb::address_t address, quint8 *buf, int &size);
 
-		EDB_EXPORT BinaryInfo *get_binary_info(const MemRegion &region);
+		EDB_EXPORT IBinary *get_binary_info(const MemRegion &region);
 		EDB_EXPORT const FunctionInfo *get_function_info(const QString &function);
 
 		EDB_EXPORT edb::address_t locate_main_function();
 
 		EDB_EXPORT const QHash<QString, QObject *> &plugin_list();
-		EDB_EXPORT DebuggerPluginInterface *find_plugin_by_name(const QString &name);
+		EDB_EXPORT IDebuggerPlugin *find_plugin_by_name(const QString &name);
 
 		EDB_EXPORT void reload_symbols();
 		EDB_EXPORT void repaint_cpu_view();
@@ -167,7 +167,7 @@ namespace edb {
 		EDB_EXPORT void pop_value(State &state);
 		EDB_EXPORT void push_value(State &state, edb::reg_t value);
 
-		EDB_EXPORT void register_binary_info(BinaryInfo::create_func_ptr_t fptr);
+		EDB_EXPORT void register_binary_info(IBinary::create_func_ptr_t fptr);
 
 		EDB_EXPORT bool overwrite_check(edb::address_t address, unsigned int size);
 		EDB_EXPORT void modify_bytes(edb::address_t address, unsigned int size, QByteArray &bytes, quint8 fill);

@@ -1,9 +1,9 @@
 
 #include "AnalyzerWidget.h"
-#include "AnalyzerInterface.h"
+#include "IAnalyzer.h"
 #include "MemoryRegions.h"
 #include "Debugger.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 #include "State.h"
 #include <QPainter>
 #include <QMouseEvent>
@@ -49,9 +49,9 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 		
 		const QSet<edb::address_t> specified_functions = edb::v1::analyzer()->specified_functions();
 		
-		const AnalyzerInterface::FunctionMap functions = edb::v1::analyzer()->functions(region);
-		for(AnalyzerInterface::FunctionMap::const_iterator it = functions.begin(); it != functions.end(); ++it) {
-			const AnalyzerInterface::Function &f = it.value();
+		const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
+		for(IAnalyzer::FunctionMap::const_iterator it = functions.begin(); it != functions.end(); ++it) {
+			const IAnalyzer::Function &f = it.value();
 			
 			const int first_offset = (f.entry_address - region.start) * byte_width;
 			const int last_offset  = (f.end_address - region.start) * byte_width;
@@ -101,7 +101,7 @@ void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
 	mouse_pressed_ = true;
 	
 	const MemRegion region = edb::v1::current_cpu_view_region();
-	const AnalyzerInterface::FunctionMap functions = edb::v1::analyzer()->functions(region);
+	const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
 	if(region.size() != 0 && !functions.empty()) {
 		const float byte_width = static_cast<float>(width()) / region.size();
 		const edb::address_t address = qBound(region.start, region.start + static_cast<edb::address_t>(event->x() / byte_width), region.end - 1);

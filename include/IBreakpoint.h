@@ -16,31 +16,39 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ARCHPROCESSORINTERFACE_20070717_H_
-#define ARCHPROCESSORINTERFACE_20070717_H_
+#ifndef IBREAKPOINT_20060720_H_
+#define IBREAKPOINT_20060720_H_
 
 #include "Types.h"
-#include "Register.h"
-#include <QStringList>
 
-class QCategoryList;
-class QTreeWidgetItem;
-class QByteArray;
+#include <QByteArray>
+#include <QString>
+#include <QSharedPointer>
 
-class ArchProcessorInterface {
+class IBreakpoint {
 public:
-	virtual ~ArchProcessorInterface() {}
+	typedef QSharedPointer<IBreakpoint> pointer;
+	
 public:
-	virtual void setup_register_view(QCategoryList *categoryList) = 0;
-	virtual void reset() = 0;
-	virtual void update_register_view(const QString &default_region_name) = 0;
-	virtual QStringList update_instruction_info(edb::address_t address) = 0;
-	virtual Register value_from_item(const QTreeWidgetItem &item) = 0;
+	virtual ~IBreakpoint() {}
 
 public:
-	// instruction inspection
-	virtual bool is_filling(const edb::Instruction &insn) const = 0;
-	virtual bool can_step_over(const edb::Instruction &insn) const = 0;
+	virtual edb::address_t address() const = 0;
+	virtual unsigned int hit_count() const = 0;
+	virtual bool enabled() const = 0;
+	virtual bool one_time() const = 0;
+	virtual bool internal() const = 0;
+	virtual QByteArray original_bytes() const = 0;
+
+public:
+	virtual bool enable() = 0;
+	virtual bool disable() = 0;
+	virtual void hit() = 0;
+	virtual void set_one_time(bool value) = 0;
+	virtual void set_internal(bool value) = 0;
+
+public:
+	QString condition;
 };
 
 #endif

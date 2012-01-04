@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DEBUGGERPLUGININTERFACE_20061101_H_
-#define DEBUGGERPLUGININTERFACE_20061101_H_
+#ifndef IDEBUGGER_PLUGIN_20061101_H_
+#define IDEBUGGER_PLUGIN_20061101_H_
 
 #include <QtPlugin>
 #include <QList>
@@ -25,9 +25,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QMenu;
 class QAction;
 
-class DebuggerPluginInterface {
+class IDebuggerPlugin {
 public:
-	virtual ~DebuggerPluginInterface() {}
+	virtual ~IDebuggerPlugin() {}
 
 public:
 	void init() {
@@ -53,6 +53,6 @@ private:
 	}
 };
 
-Q_DECLARE_INTERFACE(DebuggerPluginInterface, "EDB.DebuggerPluginInterface/1.0")
+Q_DECLARE_INTERFACE(IDebuggerPlugin, "EDB.IDebuggerPlugin/1.0")
 
 #endif

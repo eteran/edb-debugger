@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogROPTool.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 #include "Debugger.h"
 #include "MemoryRegions.h"
 #include "ByteShiftArray.h"

@@ -19,15 +19,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ELFBinaryInfo.h"
 #include "ELF32.h"
 #include "ELF64.h"
-#include "BinaryInfo.h"
+#include "IBinary.h"
 #include "Debugger.h"
 
 namespace {
-	BinaryInfo *create_binary_info32(const MemRegion &region) {
+	IBinary *create_binary_info32(const MemRegion &region) {
 		return new ELF32(region);
 	}
 
-	BinaryInfo *create_binary_info64(const MemRegion &region) {
+	IBinary *create_binary_info64(const MemRegion &region) {
 		return new ELF64(region);
 	}
 }

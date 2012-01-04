@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Register.h"
 #include <QString>
 
-class StateInterface;
+class IState;
 
 class EDB_EXPORT State {
 	friend class DebuggerCore;
@@ -63,7 +63,7 @@ public:
 	Register operator[](const QString &reg) const;
 
 private:
-	StateInterface *impl_;
+	IState *impl_;
 };
 
 #endif

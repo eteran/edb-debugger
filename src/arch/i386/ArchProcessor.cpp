@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ArchProcessor.h"
 #include "Configuration.h"
 #include "Debugger.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 #include "FunctionInfo.h"
 #include "Instruction.h"
 #include "QCategoryList.h"
@@ -40,8 +40,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Desc:
 //------------------------------------------------------------------------------
 ArchProcessor::ArchProcessor() : split_flags_(0) {
-	has_mmx_ = edb::v1::debugger_core->has_extension(edb::string_hash<'M', 'M', 'X'>::value);
-	has_xmm_ = edb::v1::debugger_core->has_extension(edb::string_hash<'X', 'M', 'M'>::value);
+	if(edb::v1::debugger_core) {
+		has_mmx_ = edb::v1::debugger_core->has_extension(edb::string_hash<'M', 'M', 'X'>::value);
+		has_xmm_ = edb::v1::debugger_core->has_extension(edb::string_hash<'X', 'M', 'M'>::value);
+	} else {
+		has_mmx_ = false;
+		has_xmm_ = false;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -66,109 +71,111 @@ void ArchProcessor::setup_register_item(QCategoryList *category_list, QTreeWidge
 //------------------------------------------------------------------------------
 void ArchProcessor::setup_register_view(QCategoryList *category_list) {
 
-	State state;
-	edb::v1::debugger_core->get_state(state);
+	if(edb::v1::debugger_core) {
+		State state;
+		edb::v1::debugger_core->get_state(state);
 
-	Q_CHECK_PTR(category_list);
+		Q_CHECK_PTR(category_list);
 
-	// setup the register view
-	QTreeWidgetItem *const gpr = category_list->addCategory(tr("General Purpose"));
+		// setup the register view
+		QTreeWidgetItem *const gpr = category_list->addCategory(tr("General Purpose"));
 
-	Q_CHECK_PTR(gpr);
+		Q_CHECK_PTR(gpr);
 
-	setup_register_item(category_list, gpr, "eax");
-	setup_register_item(category_list, gpr, "ebx");
-	setup_register_item(category_list, gpr, "ecx");
-	setup_register_item(category_list, gpr, "edx");
-	setup_register_item(category_list, gpr, "ebp");
-	setup_register_item(category_list, gpr, "esp");
-	setup_register_item(category_list, gpr, "esi");
-	setup_register_item(category_list, gpr, "edi");
-	setup_register_item(category_list, gpr, "eip");
-	setup_register_item(category_list, gpr, "eflags");
+		setup_register_item(category_list, gpr, "eax");
+		setup_register_item(category_list, gpr, "ebx");
+		setup_register_item(category_list, gpr, "ecx");
+		setup_register_item(category_list, gpr, "edx");
+		setup_register_item(category_list, gpr, "ebp");
+		setup_register_item(category_list, gpr, "esp");
+		setup_register_item(category_list, gpr, "esi");
+		setup_register_item(category_list, gpr, "edi");
+		setup_register_item(category_list, gpr, "eip");
+		setup_register_item(category_list, gpr, "eflags");
 
-	// split eflags view
-	split_flags_ = new QTreeWidgetItem(register_view_items_[9]);
-	split_flags_->setText(0, state.flags_to_string(0));
+		// split eflags view
+		split_flags_ = new QTreeWidgetItem(register_view_items_[9]);
+		split_flags_->setText(0, state.flags_to_string(0));
 
-	QTreeWidgetItem *const segs = category_list->addCategory(tr("Segments"));
+		QTreeWidgetItem *const segs = category_list->addCategory(tr("Segments"));
 
-	Q_CHECK_PTR(segs);
+		Q_CHECK_PTR(segs);
 
-	setup_register_item(category_list, segs, "cs");
-	setup_register_item(category_list, segs, "ds");
-	setup_register_item(category_list, segs, "es");
-	setup_register_item(category_list, segs, "fs");
-	setup_register_item(category_list, segs, "gs");
-	setup_register_item(category_list, segs, "ss");
+		setup_register_item(category_list, segs, "cs");
+		setup_register_item(category_list, segs, "ds");
+		setup_register_item(category_list, segs, "es");
+		setup_register_item(category_list, segs, "fs");
+		setup_register_item(category_list, segs, "gs");
+		setup_register_item(category_list, segs, "ss");
 
-	QTreeWidgetItem *const fpu = category_list->addCategory(tr("FPU"));
+		QTreeWidgetItem *const fpu = category_list->addCategory(tr("FPU"));
 
-	Q_CHECK_PTR(fpu);
+		Q_CHECK_PTR(fpu);
 
-	setup_register_item(category_list, fpu, "st0");
-	setup_register_item(category_list, fpu, "st1");
-	setup_register_item(category_list, fpu, "st2");
-	setup_register_item(category_list, fpu, "st3");
-	setup_register_item(category_list, fpu, "st4");
-	setup_register_item(category_list, fpu, "st5");
-	setup_register_item(category_list, fpu, "st6");
-	setup_register_item(category_list, fpu, "st7");
+		setup_register_item(category_list, fpu, "st0");
+		setup_register_item(category_list, fpu, "st1");
+		setup_register_item(category_list, fpu, "st2");
+		setup_register_item(category_list, fpu, "st3");
+		setup_register_item(category_list, fpu, "st4");
+		setup_register_item(category_list, fpu, "st5");
+		setup_register_item(category_list, fpu, "st6");
+		setup_register_item(category_list, fpu, "st7");
 
-	QTreeWidgetItem *const dbg = category_list->addCategory(tr("Debug"));
+		QTreeWidgetItem *const dbg = category_list->addCategory(tr("Debug"));
 
-	Q_CHECK_PTR(dbg);
+		Q_CHECK_PTR(dbg);
 
-	setup_register_item(category_list, dbg, "dr0");
-	setup_register_item(category_list, dbg, "dr1");
-	setup_register_item(category_list, dbg, "dr2");
-	setup_register_item(category_list, dbg, "dr3");
-	setup_register_item(category_list, dbg, "dr4");
-	setup_register_item(category_list, dbg, "dr5");
-	setup_register_item(category_list, dbg, "dr6");
-	setup_register_item(category_list, dbg, "dr7");
+		setup_register_item(category_list, dbg, "dr0");
+		setup_register_item(category_list, dbg, "dr1");
+		setup_register_item(category_list, dbg, "dr2");
+		setup_register_item(category_list, dbg, "dr3");
+		setup_register_item(category_list, dbg, "dr4");
+		setup_register_item(category_list, dbg, "dr5");
+		setup_register_item(category_list, dbg, "dr6");
+		setup_register_item(category_list, dbg, "dr7");
 
-	if(has_mmx_) {
-		QTreeWidgetItem *const mmx = category_list->addCategory(tr("MMX"));
+		if(has_mmx_) {
+			QTreeWidgetItem *const mmx = category_list->addCategory(tr("MMX"));
 
-		Q_CHECK_PTR(mmx);
+			Q_CHECK_PTR(mmx);
 
-		setup_register_item(category_list, mmx, "mm0");
-		setup_register_item(category_list, mmx, "mm1");
-		setup_register_item(category_list, mmx, "mm2");
-		setup_register_item(category_list, mmx, "mm3");
-		setup_register_item(category_list, mmx, "mm4");
-		setup_register_item(category_list, mmx, "mm5");
-		setup_register_item(category_list, mmx, "mm6");
-		setup_register_item(category_list, mmx, "mm7");
+			setup_register_item(category_list, mmx, "mm0");
+			setup_register_item(category_list, mmx, "mm1");
+			setup_register_item(category_list, mmx, "mm2");
+			setup_register_item(category_list, mmx, "mm3");
+			setup_register_item(category_list, mmx, "mm4");
+			setup_register_item(category_list, mmx, "mm5");
+			setup_register_item(category_list, mmx, "mm6");
+			setup_register_item(category_list, mmx, "mm7");
+		}
+
+		if(has_xmm_) {
+			QTreeWidgetItem *const xmm = category_list->addCategory(tr("XMM"));
+
+			Q_CHECK_PTR(xmm);
+
+			setup_register_item(category_list, xmm, "xmm0");
+			setup_register_item(category_list, xmm, "xmm1");
+			setup_register_item(category_list, xmm, "xmm2");
+			setup_register_item(category_list, xmm, "xmm3");
+			setup_register_item(category_list, xmm, "xmm4");
+			setup_register_item(category_list, xmm, "xmm5");
+			setup_register_item(category_list, xmm, "xmm6");
+			setup_register_item(category_list, xmm, "xmm7");
+	#if defined(EDB_X86_64)
+			setup_register_item(category_list, xmm, "xmm8");
+			setup_register_item(category_list, xmm, "xmm9");
+			setup_register_item(category_list, xmm, "xmm10");
+			setup_register_item(category_list, xmm, "xmm11");
+			setup_register_item(category_list, xmm, "xmm12");
+			setup_register_item(category_list, xmm, "xmm13");
+			setup_register_item(category_list, xmm, "xmm14");
+			setup_register_item(category_list, xmm, "xmm15");
+	#endif
+		}
+
+		update_register_view(QString());
 	}
-
-	if(has_xmm_) {
-		QTreeWidgetItem *const xmm = category_list->addCategory(tr("XMM"));
-
-		Q_CHECK_PTR(xmm);
-
-		setup_register_item(category_list, xmm, "xmm0");
-		setup_register_item(category_list, xmm, "xmm1");
-		setup_register_item(category_list, xmm, "xmm2");
-		setup_register_item(category_list, xmm, "xmm3");
-		setup_register_item(category_list, xmm, "xmm4");
-		setup_register_item(category_list, xmm, "xmm5");
-		setup_register_item(category_list, xmm, "xmm6");
-		setup_register_item(category_list, xmm, "xmm7");
-#if defined(EDB_X86_64)
-		setup_register_item(category_list, xmm, "xmm8");
-		setup_register_item(category_list, xmm, "xmm9");
-		setup_register_item(category_list, xmm, "xmm10");
-		setup_register_item(category_list, xmm, "xmm11");
-		setup_register_item(category_list, xmm, "xmm12");
-		setup_register_item(category_list, xmm, "xmm13");
-		setup_register_item(category_list, xmm, "xmm14");
-		setup_register_item(category_list, xmm, "xmm15");
-#endif
-	}
-
-	update_register_view(QString());
 }
 
 //------------------------------------------------------------------------------
@@ -217,12 +224,15 @@ void ArchProcessor::update_register(QTreeWidgetItem *item, const QString &name, 
 // Desc:
 //------------------------------------------------------------------------------
 void ArchProcessor::reset() {
-	last_state_.clear();
-	
-	State state;
-	edb::v1::debugger_core->get_state(state);
-	
-	split_flags_->setText(0, state.flags_to_string(0));
+
+	if(edb::v1::debugger_core) {
+		last_state_.clear();
+
+		State state;
+		edb::v1::debugger_core->get_state(state);
+
+		split_flags_->setText(0, state.flags_to_string(0));
+	}
 }
 
 //------------------------------------------------------------------------------

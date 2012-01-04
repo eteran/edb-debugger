@@ -25,11 +25,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCoreApplication>
 #include "Types.h"
 #include "State.h"
-#include "ArchProcessorInterface.h"
+#include "IArchProcessor.h"
 
 class QTreeWidgetItem;
 
-class ArchProcessor : public ArchProcessorInterface {
+class ArchProcessor : public IArchProcessor {
 public:
 	ArchProcessor();
 	virtual ~ArchProcessor() {}

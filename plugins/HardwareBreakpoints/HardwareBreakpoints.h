@@ -19,16 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef HARDWAREBREAKPOINTS_20080228_H_
 #define HARDWAREBREAKPOINTS_20080228_H_
 
-#include "DebuggerPluginInterface.h"
-#include "DebugEventHandlerInterface.h"
+#include "IDebuggerPlugin.h"
+#include "IDebugEventHandler.h"
 
 class QDialog;
 class QMenu;
 class State;
 
-class HardwareBreakpoints : public QObject, public DebuggerPluginInterface, public DebugEventHandlerInterface {
+class HardwareBreakpoints : public QObject, public IDebuggerPlugin, public IDebugEventHandler {
 	Q_OBJECT
-	Q_INTERFACES(DebuggerPluginInterface)
+	Q_INTERFACES(IDebuggerPlugin)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
@@ -49,7 +49,7 @@ private:
 private:
 	QMenu *                      menu_;
 	QDialog *                    dialog_;
-	DebugEventHandlerInterface * old_event_handler_;
+	IDebugEventHandler * old_event_handler_;
 };
 
 #endif

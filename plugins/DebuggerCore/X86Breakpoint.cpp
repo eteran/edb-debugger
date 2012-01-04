@@ -17,14 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "X86Breakpoint.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 #include "Debugger.h"
 namespace {
 const quint8 BreakpointInstruction[X86Breakpoint::size] = {0xcc};
 }
 
 //------------------------------------------------------------------------------
-// Name: Breakpoint(edb::address_t address, bool onetime)
+// Name: X86Breakpoint(edb::address_t address, bool onetime)
 // Desc: constructor
 //------------------------------------------------------------------------------
 X86Breakpoint::X86Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false) {

@@ -18,14 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ROPTOOL_20100817_H_
 #define ROPTOOL_20100817_H_
 
-#include "DebuggerPluginInterface.h"
+#include "IDebuggerPlugin.h"
 
 class QMenu;
 class QDialog;
 
-class ROPTool : public QObject, public DebuggerPluginInterface {
+class ROPTool : public QObject, public IDebuggerPlugin {
 	Q_OBJECT
-	Q_INTERFACES(DebuggerPluginInterface)
+	Q_INTERFACES(IDebuggerPlugin)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 

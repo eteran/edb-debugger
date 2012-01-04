@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DEBUGGERMAIN_20060508_H_
 #define DEBUGGERMAIN_20060508_H_
 
-#include "DebugEventHandlerInterface.h"
+#include "IDebugEventHandler.h"
 #include "DebuggerUI.h"
 #include "DebugEvent.h"
 #include "ScopedPointer.h"
@@ -27,9 +27,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDragEnterEvent>
 #include <QDropEvent>
 
-class BinaryInfo;
-class Breakpoint;
-class DebuggerPluginInterface;
+class IBinary;
+class IBreakpoint;
+class IDebuggerPlugin;
 class DialogArguments;
 class RecentFileManager;
 
@@ -38,7 +38,7 @@ class QTimer;
 class QToolButton;
 class QTreeWidgetItem;
 
-class DebuggerMain : public DebuggerUI, public DebugEventHandlerInterface {
+class DebuggerMain : public DebuggerUI, public IDebugEventHandler {
 	Q_OBJECT
 
 private:
@@ -232,8 +232,8 @@ private:
 	RecentFileManager *                              recent_file_manager_;
 
 	QSharedPointer<QHexView::CommentServerInterface> stack_comment_server_;
-	Breakpoint::pointer                              reenable_breakpoint_;
-	SCOPED_POINTER<BinaryInfo>                       binary_info_;
+	IBreakpoint::pointer                              reenable_breakpoint_;
+	SCOPED_POINTER<IBinary>                       binary_info_;
 
 	QString                                          last_open_directory_;
 	QString                                          working_directory_;

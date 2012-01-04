@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DumpState.h"
 #include "Debugger.h"
 #include "State.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 #include "DumpStateOptionsPage.h"
 #include "Util.h"
 #include "Instruction.h"

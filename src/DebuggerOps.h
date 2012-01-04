@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "State.h"
 #include "Debugger.h"
 #include "Instruction.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 
 namespace edb {
 	namespace detail {
@@ -47,7 +47,7 @@ namespace edb {
 
 					// add a temporary breakpoint at the instruction just
 					// after the call
-					Breakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(ip + insn.size());
+					IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(ip + insn.size());
 					bp->set_internal(true);
 					bp->set_one_time(true);
 

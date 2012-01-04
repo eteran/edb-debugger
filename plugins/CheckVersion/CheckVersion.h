@@ -19,16 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CHECKVERSION_20061122_H_
 #define CHECKVERSION_20061122_H_
 
-#include "DebuggerPluginInterface.h"
+#include "IDebuggerPlugin.h"
 
 class QMenu;
 class QNetworkReply;
 class QNetworkAccessManager;
 class QUrl;
 
-class CheckVersion : public QObject, public DebuggerPluginInterface {
+class CheckVersion : public QObject, public IDebuggerPlugin {
 	Q_OBJECT
-	Q_INTERFACES(DebuggerPluginInterface)
+	Q_INTERFACES(IDebuggerPlugin)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 

@@ -17,16 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerMain.h"
-#include "AnalyzerInterface.h"
-#include "ArchProcessorInterface.h"
-#include "BinaryInfo.h"
+#include "IAnalyzer.h"
+#include "IArchProcessor.h"
+#include "IBinary.h"
 #include "CommentServer.h"
 #include "Configuration.h"
 #include "Debugger.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 #include "DebuggerInternal.h"
 #include "DebuggerOps.h"
-#include "DebuggerPluginInterface.h"
+#include "IDebuggerPlugin.h"
 #include "DialogArguments.h"
 #include "DialogAttach.h"
 #include "DialogMemoryRegions.h"
@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Instruction.h"
 #include "QHexView"
 #include "RecentFileManager.h"
-#include "SessionFileInterface.h"
+#include "ISessionFile.h"
 #include "State.h"
 #include "SymbolManager.h"
 #include "version.h"
@@ -110,7 +110,7 @@ namespace {
 	}
 }
 
-class RunUntilRet : public DebugEventHandlerInterface {
+class RunUntilRet : public IDebugEventHandler {
 public:
 	//--------------------------------------------------------------------------
 	// Name: RunUntilRet(DebuggerMain *ui)
@@ -183,7 +183,7 @@ public:
 
 private:
 	DebuggerMain *const          ui_;
-	DebugEventHandlerInterface * previous_handler_;
+	IDebugEventHandler * previous_handler_;
 	edb::address_t               last_call_return_;
 };
 
@@ -503,7 +503,7 @@ void DebuggerMain::on_registerList_customContextMenuRequested(const QPoint &pos)
 				menu.addAction(tr("&Follow In Dump (New Tab)"), this, SLOT(mnuRegisterFollowInDumpNewTab()));
 				menu.addAction(tr("&Follow In Stack"), this,          SLOT(mnuRegisterFollowInStack()));
 
-				add_plugin_context_menu(&menu, &DebuggerPluginInterface::register_context_menu);
+				add_plugin_context_menu(&menu, &IDebuggerPlugin::register_context_menu);
 
 				menu.exec(ui->registerList->mapToGlobal(pos));
 			}
@@ -938,7 +938,7 @@ void DebuggerMain::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	menu.addAction(tr("Add &Conditional Breakpoint"), this, SLOT(mnuCPUAddConditionalBreakpoint()));
 	menu.addAction(tr("&Remove Breakpoint"), this, SLOT(mnuCPURemoveBreakpoint()));
 
-	add_plugin_context_menu(&menu, &DebuggerPluginInterface::cpu_context_menu);
+	add_plugin_context_menu(&menu, &IDebuggerPlugin::cpu_context_menu);
 
 	menu.exec(ui->cpuView->viewport()->mapToGlobal(pos));
 }
@@ -1013,7 +1013,7 @@ void DebuggerMain::mnuStackContextMenu(const QPoint &pos) {
 	menu->addAction(action);
 	connect(action, SIGNAL(toggled(bool)), SLOT(mnuStackToggleLock(bool)));
 
-	add_plugin_context_menu(menu, &DebuggerPluginInterface::stack_context_menu);
+	add_plugin_context_menu(menu, &IDebuggerPlugin::stack_context_menu);
 
 	menu->exec(stack_view_->mapToGlobal(pos));
 	delete menu;
@@ -1039,7 +1039,7 @@ void DebuggerMain::mnuDumpContextMenu(const QPoint &pos) {
 	menu->addSeparator();
 	menu->addAction(tr("&Save To File"), this, SLOT(mnuDumpSaveToFile()));
 
-	add_plugin_context_menu(menu, &DebuggerPluginInterface::data_context_menu);
+	add_plugin_context_menu(menu, &IDebuggerPlugin::data_context_menu);
 
 	menu->exec(s->mapToGlobal(pos));
 	delete menu;
@@ -1233,7 +1233,7 @@ edb::EVENT_STATUS DebuggerMain::handle_trap() {
 
 	// look it up in our breakpoint list, make sure it is one of OUR int3s!
 	// if it is, we need to backup EIP and pause ourselves
-	Breakpoint::pointer bp = edb::v1::find_breakpoint(previous_ip);
+	IBreakpoint::pointer bp = edb::v1::find_breakpoint(previous_ip);
 	if(bp && bp->enabled()) {
 
 		// TODO: check if the breakpoint was corrupted
@@ -1406,7 +1406,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event(const DebugEvent &event) {
 // Desc:
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::debug_event_handler(const DebugEvent &event) {
-	DebugEventHandlerInterface *const handler = edb::v1::debug_event_handler();
+	IDebugEventHandler *const handler = edb::v1::debug_event_handler();
 	Q_CHECK_PTR(handler);
 	return handler->handle_event(event);
 }
@@ -1551,14 +1551,17 @@ void DebuggerMain::refresh_gui() {
 // Desc: updates all the different displays
 //------------------------------------------------------------------------------
 void DebuggerMain::update_gui() {
-	State state;
-	edb::v1::debugger_core->get_state(state);
 	
-	MemRegion region;
-	update_cpu_view(state, region);
-	update_data_views();
-	update_stack_view(state);
-	edb::v1::arch_processor().update_register_view(region.name);
+	if(edb::v1::debugger_core) {
+		State state;
+		edb::v1::debugger_core->get_state(state);
+		
+		MemRegion region;
+		update_cpu_view(state, region);
+		update_data_views();
+		update_stack_view(state);
+		edb::v1::arch_processor().update_register_view(region.name);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -1745,7 +1748,7 @@ QString DebuggerMain::session_filename() const {
 //------------------------------------------------------------------------------
 void DebuggerMain::detach_from_process(DETACH_ACTION kill) {
 
-	if(SessionFileInterface *const session_file = edb::v1::session_file_handler()) {
+	if(ISessionFile *const session_file = edb::v1::session_file_handler()) {
 		const QString filename = session_filename();
 		if(!filename.isEmpty()) {
 			session_file->save_session(filename, program_executable_);
@@ -1780,7 +1783,7 @@ void DebuggerMain::set_initial_debugger_state() {
 
 	data_regions_.first()->region = edb::v1::primary_data_region();
 
-	if(AnalyzerInterface *const analyzer = edb::v1::analyzer()) {
+	if(IAnalyzer *const analyzer = edb::v1::analyzer()) {
 		analyzer->invalidate_analysis();
 	}
 
@@ -1797,7 +1800,7 @@ void DebuggerMain::set_initial_debugger_state() {
 		program_executable_ = executable;
 	}
 
-	if(SessionFileInterface *const session_file = edb::v1::session_file_handler()) {
+	if(ISessionFile *const session_file = edb::v1::session_file_handler()) {
 		const QString filename = session_filename();
 		if(!filename.isEmpty()) {
 			session_file->load_session(filename, program_executable_);
@@ -1856,7 +1859,7 @@ void DebuggerMain::set_initial_breakpoint(const QString &s) {
 	}
 
 	if(entryPoint != 0) {
-		if(Breakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(entryPoint)) {
+		if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(entryPoint)) {
 			bp->set_one_time(true);
 		}
 	}
@@ -2099,7 +2102,7 @@ void DebuggerMain::mnuDumpDeleteTab() {
 template <class F, class T>
 void DebuggerMain::add_plugin_context_menu(const T &menu, const F &f) {
 	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
-		if(DebuggerPluginInterface *const p = qobject_cast<DebuggerPluginInterface *>(plugin)) {
+		if(IDebuggerPlugin *const p = qobject_cast<IDebuggerPlugin *>(plugin)) {
 			const QList<QAction *> acts = (p->*f)();
 			if(!acts.isEmpty()) {
 				menu->addSeparator();

@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogBreakpoints.h"
-#include "DebuggerCoreInterface.h"
+#include "IDebuggerCore.h"
 #include "Debugger.h"
 #include "Expression.h"
 #include "Debugger.h"
@@ -63,9 +63,9 @@ void DialogBreakpoints::updateList() {
 	ui->tableWidget->setSortingEnabled(false);
 	ui->tableWidget->setRowCount(0);
 
-	const DebuggerCoreInterface::BreakpointState breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
+	const IDebuggerCore::BreakpointState breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
 
-	Q_FOREACH(const Breakpoint::pointer &bp, breakpoint_state) {
+	Q_FOREACH(const IBreakpoint::pointer &bp, breakpoint_state) {
 		const int row = ui->tableWidget->rowCount();
 		ui->tableWidget->insertRow(row);
 

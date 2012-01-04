@@ -16,37 +16,29 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef BINARYINFO_20070718_H_
-#define BINARYINFO_20070718_H_
+#ifndef ISYMBOL_MANAGER_20110307_H_
+#define ISYMBOL_MANAGER_20110307_H_
 
-#include "Types.h"
 #include "API.h"
-#include "MemRegion.h"
+#include "Types.h"
+#include "Symbol.h"
+#include <QList>
 
-class EDB_EXPORT BinaryInfo {
-public:
-	explicit BinaryInfo(const MemRegion &region);
-	virtual ~BinaryInfo() {}
+class QString;
 
+class EDB_EXPORT ISymbolManager {
 public:
-	virtual bool validate_header() = 0;
-	virtual edb::address_t entry_point() = 0;
-	virtual edb::address_t calculate_main() = 0;
-	virtual bool native() const = 0;
-	virtual size_t header_size() const = 0;
+	virtual ~ISymbolManager() {}
 
 public:
-	// optional, and platform specific:
-	// if there is a structure in the target process which has debug data
-	// this should return a pointer to it
-	virtual edb::address_t debug_pointer() { return 0; }
-
-protected:
-	MemRegion region_;
-
-public:
-	typedef BinaryInfo *(*create_func_ptr_t)(const MemRegion &);
+	virtual const QList<Symbol::pointer> symbols() const = 0;
+	virtual const Symbol::pointer find(const QString &name) const = 0;
+	virtual const Symbol::pointer find(edb::address_t address) const = 0;
+	virtual const Symbol::pointer find_near_symbol(edb::address_t address) const = 0;
+	virtual void clear() = 0;
+	virtual void load_symbol_file(const QString &filename, edb::address_t base) = 0;
+	virtual void load_symbols(const QString &symbol_directory) = 0;
+	virtual void add_symbol(const Symbol::pointer &symbol) = 0;
 };
 
 #endif
-
