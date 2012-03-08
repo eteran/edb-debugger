@@ -44,7 +44,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "serializer.h"
 #include "qobjecthelper.h"
 
-
 #include <QAction>
 #include <QAtomicPointer>
 #include <QByteArray>
@@ -541,8 +540,8 @@ bool edb::v1::get_binary_string_from_user(QByteArray &value, const QString &titl
 // Name: dialog_options()
 // Desc: returns a pointer to the options dialog
 //------------------------------------------------------------------------------
-QDialog *edb::v1::dialog_options() {
-	static QDialog *const dialog = new DialogOptions(debugger_ui);
+QPointer<QDialog> edb::v1::dialog_options() {
+	QPointer<QDialog> dialog = new DialogOptions(debugger_ui);
 	return dialog;
 }
 

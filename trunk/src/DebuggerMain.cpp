@@ -2024,16 +2024,19 @@ void DebuggerMain::on_action_Attach_triggered() {
 	// TODO: we need a core concept of debugger capabilities which
 	// may restrict some actions
 
-	static DialogAttach *const dlg = new DialogAttach(this);
-	const int ret = dlg->exec();
+	QPointer<DialogAttach> dlg = new DialogAttach(this);
 
-	if(ret == QDialog::Accepted) {
-		bool ok;
-		const edb::pid_t pid = dlg->selected_pid(ok);
-		if(ok) {
-			attach(pid);
+	if(dlg->exec() == QDialog::Accepted) {
+		if(dlg) {
+			bool ok;
+			const edb::pid_t pid = dlg->selected_pid(ok);
+			if(ok) {
+				attach(pid);
+			}
 		}
 	}
+	
+	delete dlg;
 }
 
 //------------------------------------------------------------------------------
@@ -2045,14 +2048,17 @@ void DebuggerMain::on_action_Memory_Regions_triggered() {
 	// TODO: we need a core concept of debugger capabilities which
 	// may restrict some actions
 
-	static DialogMemoryRegions *const dlg = new DialogMemoryRegions(this);
-	const int ret = dlg->exec();
+	QPointer<DialogMemoryRegions> dlg = new DialogMemoryRegions(this);
 
-	if(ret == QDialog::Accepted) {
-		if(const MemRegion *const region = dlg->selected_region()) {
-			edb::v1::dump_data(region->start);
+	if(dlg->exec() == QDialog::Accepted) {
+		if(dlg) {
+			if(const MemRegion *const region = dlg->selected_region()) {
+				edb::v1::dump_data(region->start);
+			}
 		}
 	}
+	
+	delete dlg;
 }
 
 
@@ -2065,16 +2071,19 @@ void DebuggerMain::on_action_Threads_triggered() {
 	// TODO: we need a core concept of debugger capabilities which
 	// may restrict some actions
 
-	static DialogThreads *const dlg = new DialogThreads(this);
-	const int ret = dlg->exec();
+	QPointer<DialogThreads> dlg = new DialogThreads(this);
 
-	if(ret == QDialog::Accepted) {
-		edb::tid_t tid = dlg->selected_thread();
-		if(tid != 0) {
-			edb::v1::debugger_core->set_active_thread(tid);
-			update_gui();
+	if(dlg->exec() == QDialog::Accepted) {
+		if(dlg) {
+			edb::tid_t tid = dlg->selected_thread();
+			if(tid != 0) {
+				edb::v1::debugger_core->set_active_thread(tid);
+				update_gui();
+			}
 		}
 	}
+	
+	delete dlg;
 }
 
 //------------------------------------------------------------------------------

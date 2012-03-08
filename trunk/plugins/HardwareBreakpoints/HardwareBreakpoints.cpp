@@ -187,7 +187,7 @@ void HardwareBreakpoints::setup_breakpoints() {
 //------------------------------------------------------------------------------
 void HardwareBreakpoints::show_menu() {
 
-	if(dialog_ == 0) {
+	if(!dialog_) {
 		dialog_ = new DialogHWBreakpoints(edb::v1::debugger_ui);
 	}
 

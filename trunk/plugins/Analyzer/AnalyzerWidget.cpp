@@ -10,6 +10,7 @@
 #include <QFontMetrics>
 #include <QAbstractScrollArea>
 #include <QScrollBar>
+#include <QDebug>
 
 //------------------------------------------------------------------------------
 // Name: 
@@ -61,6 +62,12 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 			} else {
 				painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkRed));
 			}
+		}
+		
+		// highlight header of binary (probably not going to be too noticeable but just in case)
+		if(IBinary *const binary_info = edb::v1::get_binary_info(region)) {
+			painter.fillRect(0, 0, binary_info->header_size() * byte_width, height(), QBrush(Qt::darkBlue));
+			delete binary_info;
 		}
 				
 		if(functions.isEmpty()) {

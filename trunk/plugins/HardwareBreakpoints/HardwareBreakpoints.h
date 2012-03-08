@@ -47,8 +47,8 @@ private:
 	void setup_bp(State &state, int num, bool enabled, edb::address_t addr, int type, int size);
 
 private:
-	QMenu *                      menu_;
-	QDialog *                    dialog_;
+	QMenu *              menu_;
+	QDialog *            dialog_;
 	IDebugEventHandler * old_event_handler_;
 };
 

@@ -381,6 +381,9 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 //------------------------------------------------------------------------------
 void DebuggerCore::detach() {
 	if(attached()) {
+	
+		stop_threads();
+	
 		clear_breakpoints();
 #ifdef DEBUG_THREADS
 		Q_FOREACH(edb::tid_t thread, thread_ids()) {

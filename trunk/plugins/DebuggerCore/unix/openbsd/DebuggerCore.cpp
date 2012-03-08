@@ -157,6 +157,9 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 //------------------------------------------------------------------------------
 void DebuggerCore::detach() {
 	if(attached()) {
+	
+		// TODO: do i need to stop each thread first, and wait for them?
+	
 		clear_breakpoints();
 		ptrace(PT_DETACH, pid(), 0, 0);
 		pid_ = 0;

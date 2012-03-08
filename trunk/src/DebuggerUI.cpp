@@ -311,7 +311,7 @@ void DebuggerUI::finish_plugin_setup(const QHash<QString, QObject *> &plugins) {
 	}
 
 	// setup the menu for all plugins that which to do so
-	DialogOptions *const options = qobject_cast<DialogOptions *>(edb::v1::dialog_options());
+	QPointer<DialogOptions> options = qobject_cast<DialogOptions *>(edb::v1::dialog_options());
 	Q_FOREACH(QObject *plugin, plugins) {
 		if(IDebuggerPlugin *const p = qobject_cast<IDebuggerPlugin *>(plugin)) {
 			if(QMenu *const menu = p->menu(this)) {
