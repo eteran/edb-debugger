@@ -26,19 +26,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <QStringList>
 #include <QHash>
+#include <QPointer>
 
+class Configuration;
+class FunctionInfo;
 class IAnalyzer;
 class IArchProcessor;
 class IBinary;
-class Configuration;
 class IDebugEventHandler;
 class IDebuggerCore;
 class IDebuggerPlugin;
-class FunctionInfo;
-class MemoryRegions;
 class ISessionFile;
-class State;
 class ISymbolManager;
+class MemoryRegions;
+class State;
 
 class QByteArray;
 class QDialog;
@@ -55,7 +56,7 @@ namespace edb {
 
 		// some useful objects
 		EDB_EXPORT extern IDebuggerCore *debugger_core;
-		EDB_EXPORT extern QWidget *              debugger_ui;
+		EDB_EXPORT extern QWidget       *debugger_ui;
 
 		// the symbol mananger
 		EDB_EXPORT ISymbolManager &symbol_manager();
@@ -72,13 +73,13 @@ namespace edb {
 
 		// breakpoint managment
 		EDB_EXPORT IBreakpoint::pointer find_breakpoint(edb::address_t address);
-		EDB_EXPORT void remove_breakpoint(edb::address_t address);
-		EDB_EXPORT void create_breakpoint(edb::address_t address);
-		EDB_EXPORT void toggle_breakpoint(edb::address_t address);
-		EDB_EXPORT edb::address_t enable_breakpoint(edb::address_t address);
-		EDB_EXPORT edb::address_t disable_breakpoint(edb::address_t address);
-		EDB_EXPORT void set_breakpoint_condition(edb::address_t address, const QString &condition);
 		EDB_EXPORT QString get_breakpoint_condition(edb::address_t address);
+		EDB_EXPORT edb::address_t disable_breakpoint(edb::address_t address);
+		EDB_EXPORT edb::address_t enable_breakpoint(edb::address_t address);
+		EDB_EXPORT void create_breakpoint(edb::address_t address);
+		EDB_EXPORT void remove_breakpoint(edb::address_t address);
+		EDB_EXPORT void set_breakpoint_condition(edb::address_t address, const QString &condition);
+		EDB_EXPORT void toggle_breakpoint(edb::address_t address);
 
 		EDB_EXPORT edb::address_t current_data_view_address();
 
@@ -116,7 +117,7 @@ namespace edb {
 		EDB_EXPORT MemRegion primary_data_region();
 
 		// configuration
-		EDB_EXPORT QDialog *dialog_options();
+		EDB_EXPORT QPointer<QDialog> dialog_options();
 		EDB_EXPORT Configuration &config();
 
 		// a numeric version of the current version suitable for integer comparison

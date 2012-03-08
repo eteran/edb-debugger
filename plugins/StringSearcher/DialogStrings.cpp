@@ -108,11 +108,22 @@ void DialogStrings::do_find() {
 			while(start_address < end_address) {
 
 				int string_length = 0;
-				const bool ok = edb::v1::get_ascii_string_at_address(start_address, str, min_string_length, 256, string_length);
+				bool ok = edb::v1::get_ascii_string_at_address(start_address, str, min_string_length, 256, string_length);
 				if(ok) {
-					QListWidgetItem *const item = new QListWidgetItem(QString("%1: %2").arg(edb::v1::format_pointer(start_address)).arg(str));
+					QListWidgetItem *const item = new QListWidgetItem(QString("%1: [ASCII] %2").arg(edb::v1::format_pointer(start_address)).arg(str));
 					item->setData(Qt::UserRole, start_address);
 					ui->listWidget->addItem(item);
+				} else {
+				
+					if(ui->search_unicode->isChecked()) {
+						string_length = 0;
+						ok = edb::v1::get_utf16_string_at_address(start_address, str, min_string_length, 256, string_length);
+						if(ok) {
+							QListWidgetItem *const item = new QListWidgetItem(QString("%1: [UTF16] %2").arg(edb::v1::format_pointer(start_address)).arg(str));
+							item->setData(Qt::UserRole, start_address);
+							ui->listWidget->addItem(item);
+						}
+					}
 				}
 
 				ui->progressBar->setValue(util::percentage((start_address - orig_start), region->size()));
