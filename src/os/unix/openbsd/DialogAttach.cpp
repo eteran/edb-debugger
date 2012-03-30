@@ -57,13 +57,13 @@ QMap<edb::pid_t, DialogAttachUNIX::ProcessInfo> DialogAttach::find_processes() {
 
 	kvm_t *const kaccess = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, ebuffer);
 	if(kaccess != 0) {
-		struct kinfo_proc *const kprocaccess = kvm_getprocs(kaccess, KERN_PROC_ALL, 0, &numprocs);
+		struct kinfo_proc *const kprocaccess = kvm_getprocs(kaccess, KERN_PROC_ALL, 0, sizeof *kprocaccess, &numprocs);
 		if(kprocaccess != 0) {
 			for(int i = 0; i < numprocs; ++i) {
 				ProcessInfo procInfo;
-				procInfo.pid  = kprocaccess[i].kp_proc.p_pid;
-				procInfo.uid  = kprocaccess[i].kp_eproc.e_ucred.cr_uid;
-				procInfo.name = kprocaccess[i].kp_proc.p_comm;
+				procInfo.pid  = kprocaccess[i].p_pid;
+				procInfo.uid  = kprocaccess[i].p_uid;
+				procInfo.name = kprocaccess[i].p_comm;
 
 				procs.insert(procInfo.pid, procInfo);
 			}

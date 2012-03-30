@@ -86,7 +86,7 @@ edb::pid_t edb::v1::get_parent_pid(edb::pid_t pid) {
 	char errbuf[_POSIX2_LINE_MAX];
 	if(kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
 		int rc;
-		struct kinfo_proc2 *const proc = kvm_getproc2(kd, KERN_PROC_PID, pid, sizeof(struct kinfo_proc2), &rc);
+		struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid, sizeof *proc, &rc);
 		ret = proc->p_ppid;
 		kvm_close(kd);
 	}
@@ -108,7 +108,7 @@ QString edb::v1::get_process_exe() {
 		if(kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
 
 			int rc;
-			struct kinfo_proc2 *const proc = kvm_getproc2(kd, KERN_PROC_PID, pid, sizeof(struct kinfo_proc2), &rc);
+			struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid, sizeof(struct kinfo_proc), &rc);
 
 			char p_comm[KI_MAXCOMLEN] = "";
 			memcpy(p_comm, proc->p_comm, sizeof(p_comm));
@@ -151,7 +151,7 @@ QStringList edb::v1::get_process_args() {
 		char errbuf[_POSIX2_LINE_MAX];
 		if(kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
 			int rc;
-			if(struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid, &rc)) {
+			if(struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, sizeof *proc, pid, &rc)) {
 				char **argv = kvm_getargv(kd, proc, 0);
 				char **p = argv;
 				while(*p != 0) {

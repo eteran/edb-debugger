@@ -184,7 +184,7 @@ Register PlatformState::value(const QString &reg) const {
 	else if(lreg == "fs")		return Register("fs", regs_.r_fs, Register::TYPE_SEG, fs_base);
 	else if(lreg == "gs")		return Register("gs", regs_.r_gs, Register::TYPE_SEG, gs_base);
 	else if(lreg == "ss") 		return Register("ss", regs_.r_ss, Register::TYPE_SEG, 0);
-	else if(lreg == "rflags") 	return Register("rflags", regs_.r_eflags, Register::TYPE_COND);
+	else if(lreg == "rflags") 	return Register("rflags", regs_.r_rflags, Register::TYPE_COND);
 #endif
 
 	return Register();
@@ -242,7 +242,7 @@ edb::reg_t PlatformState::flags() const {
 #if defined(EDB_X86)
 	return regs_.r_eflags;
 #elif defined(EDB_X86_64)
-	return regs_.r_eflags;
+	return regs_.r_rflags;
 #endif
 }
 
@@ -296,7 +296,7 @@ void PlatformState::set_flags(edb::reg_t flags) {
 #if defined(EDB_X86)
 	regs_.r_eflags = flags;
 #elif defined(EDB_X86_64)
-	regs_.r_eflags = flags;
+	regs_.r_rflags = flags;
 #endif
 }
 
@@ -361,7 +361,7 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 	else if(lreg == "fs") { regs_.r_fs = value; }
 	else if(lreg == "gs") { regs_.r_gs = value; }
 	else if(lreg == "ss") { regs_.r_ss = value; }
-	else if(lreg == "rflags") { regs_.r_eflags = value; }
+	else if(lreg == "rflags") { regs_.r_rflags = value; }
 #endif
 }
 
