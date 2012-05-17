@@ -295,7 +295,7 @@ void DialogROPTool::do_find() {
 					size = qMin(size + 1, bsa.size());
 
 					const quint8 *const p = bsa.data();
-					edb::Instruction insn1(p, size, start_address - size + 1, std::nothrow);
+					edb::Instruction insn1(p, p + size, start_address - size + 1, std::nothrow);
 
 					if(insn1.valid()) {
 					
@@ -307,13 +307,13 @@ void DialogROPTool::do_find() {
 							add_gadget(start_address, (QList<edb::Instruction>() << insn1), size);
 						} else {
 					
-							edb::Instruction insn2(p + insn1.size(), size - insn1.size(), 0, std::nothrow);
+							edb::Instruction insn2(p + insn1.size(), p + size - insn1.size(), 0, std::nothrow);
 
 							if(insn2.valid() && insn2.type() == edb::Instruction::OP_RET) {
 								add_gadget(start_address, (QList<edb::Instruction>() << insn1 << insn2), size);
 							} else if(insn2.valid() && insn2.type() == edb::Instruction::OP_POP) {
 
-								edb::Instruction insn3(p + insn1.size() + insn2.size(), size - insn1.size() - insn2.size(), 0, std::nothrow);
+								edb::Instruction insn3(p + insn1.size() + insn2.size(), p + size - insn1.size() - insn2.size(), 0, std::nothrow);
 								if(insn3.valid() && insn3.type() == edb::Instruction::OP_JMP) {
 
 									if(insn2.operand_count() == 1 && insn2.operand(0).general_type() == edb::Operand::TYPE_REGISTER) {

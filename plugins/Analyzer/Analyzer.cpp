@@ -263,7 +263,7 @@ void Analyzer::find_function_calls(const MemRegion &region, FunctionMap &found_f
 		if(edb::v1::debugger_core->read_pages(region.start, &pages[0], size_in_pages)) {
 			for(edb::address_t i = 0; i < size_in_pages * page_size; ++i) {
 
-				const edb::Instruction insn(&pages[i], region.size() - i, region.start + i, std::nothrow);
+				const edb::Instruction insn(&pages[i], &pages[i] + region.size(), region.start + i, std::nothrow);
 
 				if(insn.valid() && insn.type() == edb::Instruction::OP_CALL) {
 
@@ -315,7 +315,7 @@ bool Analyzer::is_stack_frame(edb::address_t addr) const {
 		}
 
 		// decode it
-		const edb::Instruction insn(buf, buf_size, addr, std::nothrow);
+		const edb::Instruction insn(buf, buf + buf_size, addr, std::nothrow);
 		if(!insn.valid()) {
 			break;;
 		}
@@ -505,7 +505,7 @@ int Analyzer::walk_all_functions(FunctionMap &results, const MemRegion &region, 
 				quint8 buf[edb::Instruction::MAX_SIZE];
 				int buf_size = sizeof(buf);
 				if(edb::v1::get_instruction_bytes(function.last_instruction, buf, buf_size)) {
-					const edb::Instruction insn(buf, buf_size, function.last_instruction, std::nothrow);
+					const edb::Instruction insn(buf, buf + buf_size, function.last_instruction, std::nothrow);
 					if(insn.valid() && insn.type() == edb::Instruction::OP_JMP) {
 
 						Q_ASSERT(insn.operand_count() == 1);
@@ -588,7 +588,7 @@ void Analyzer::find_function_end(Function &function, edb::address_t end_address,
 			}
 
 			// an invalid instruction ends this "block"
-			const edb::Instruction insn(buf, buf_size, addr, std::nothrow);
+			const edb::Instruction insn(buf, buf + buf_size, addr, std::nothrow);
 			if(!insn.valid()) {
 				break;
 			}
@@ -694,7 +694,7 @@ bool Analyzer::is_thunk(edb::address_t address) const {
 	quint8 buf[edb::Instruction::MAX_SIZE];
 	int buf_size = sizeof(buf);
 	if(edb::v1::get_instruction_bytes(address, buf, buf_size)) {
-		const edb::Instruction insn(buf, buf_size, address, std::nothrow);
+		const edb::Instruction insn(buf, buf + buf_size, address, std::nothrow);
 		return insn.valid() && insn.type() == edb::Instruction::OP_JMP;
 	}
 

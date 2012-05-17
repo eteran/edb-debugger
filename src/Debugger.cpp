@@ -364,7 +364,7 @@ void edb::v1::create_breakpoint(edb::address_t address) {
 			int size = sizeof(buffer);
 
 			if(edb::v1::get_instruction_bytes(address, buffer, size)) {
-				edb::Instruction insn(buffer, size, address, std::nothrow);
+				edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
 				if(!insn.valid()) {
 					ret = QMessageBox::question(
 						0,

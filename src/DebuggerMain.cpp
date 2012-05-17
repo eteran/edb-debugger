@@ -103,7 +103,7 @@ namespace {
 		int size = sizeof(buffer);
 
 		if(edb::v1::get_instruction_bytes(address, buffer, size)) {
-			edb::Instruction insn(buffer, size, address, std::nothrow);
+			edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
 			return insn.valid() && insn.type() == edb::Instruction::OP_RET;
 		}
 		return false;
@@ -147,7 +147,7 @@ public:
 					// if this some variant of a call, then we should
 					// record where we think it'll return to
 					if(edb::v1::get_instruction_bytes(address, buffer, sz)) {
-						edb::Instruction insn(buffer, sz, 0, std::nothrow);
+						edb::Instruction insn(buffer, buffer + sz, 0, std::nothrow);
 						if(insn.valid() && edb::v1::arch_processor().can_step_over(insn)) {
 
 							last_call_return_ = address + insn.size();
@@ -891,7 +891,7 @@ void DebuggerMain::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	if(edb::v1::debugger_core->pid() != 0) {
 		quint8 buffer[edb::Instruction::MAX_SIZE + 1];
 		if(edb::v1::get_instruction_bytes(address, buffer, size)) {
-			edb::Instruction insn(buffer, size, address, std::nothrow);
+			edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
 			if(insn.valid()) {
 
 				switch(insn.type()) {
@@ -1353,7 +1353,7 @@ bool DebuggerMain::current_instruction_is_return() const {
 	int size = sizeof(buffer);
 
 	if(edb::v1::get_instruction_bytes(address, buffer, size)) {
-		edb::Instruction insn(buffer, size, address, std::nothrow);
+		edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
 		if(insn.valid() && insn.type() == edb::Instruction::OP_RET) {
 			return true;
 		}
