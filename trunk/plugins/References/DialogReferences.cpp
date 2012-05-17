@@ -99,7 +99,7 @@ void DialogReferences::do_find() {
 								ui->listWidget->addItem(item);
 							}
 
-							edb::Instruction insn(p, pages_end - p, addr, std::nothrow);
+							edb::Instruction insn(p, pages_end, addr, std::nothrow);
 							if(insn.valid()) {
 								switch(insn.type()) {
 								case edb::Instruction::OP_JMP:

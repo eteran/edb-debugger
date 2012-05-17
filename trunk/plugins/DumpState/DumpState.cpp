@@ -89,7 +89,7 @@ void DumpState::dump_code(const State &state) {
 		int size = sizeof(buf);
 
 		if(edb::v1::get_instruction_bytes(address, buf, size)) {
-			edb::Instruction insn(buf, size, address, std::nothrow);
+			edb::Instruction insn(buf, buf + size, address, std::nothrow);
 			if(insn.valid()) {
 				std::cout << ((address == ip) ? "> " : "  ") << hex_string(address) << ": " << edisassm::to_string(insn) << "\n";
 			} else {

@@ -727,7 +727,7 @@ void ArchProcessor::analyze_jump_targets(const edb::Instruction &insn, QStringLi
 	for(edb::address_t addr = start_address; addr < end_address; ++addr) {
 		int sz = sizeof(buffer);
 		if(edb::v1::get_instruction_bytes(addr, buffer, sz)) {
-			edb::Instruction insn(buffer, sz, addr, std::nothrow);
+			edb::Instruction insn(buffer, buffer + sz, addr, std::nothrow);
 			if(insn.valid() && (insn.type() == edb::Instruction::OP_JCC || insn.type() == edb::Instruction::OP_JMP)) {
 				const edb::Operand &operand = insn.operand(0);
 
@@ -1721,7 +1721,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 
 	const bool ok = edb::v1::debugger_core->read_bytes(address, buffer, sizeof(buffer));
 	if(ok) {
-		edb::Instruction insn(buffer, sizeof(buffer), address, std::nothrow);
+		edb::Instruction insn(buffer, buffer + sizeof(buffer), address, std::nothrow);
 		if(insn.valid()) {
 		
 			State state;

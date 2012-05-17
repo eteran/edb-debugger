@@ -42,7 +42,7 @@ namespace edb {
 			int sz = sizeof(buffer);
 
 			if(edb::v1::get_instruction_bytes(ip, buffer, sz)) {
-				edb::Instruction insn(buffer, sz, 0, std::nothrow);
+				edb::Instruction insn(buffer, buffer + sz, 0, std::nothrow);
 				if(insn.valid() && edb::v1::arch_processor().can_step_over(insn)) {
 
 					// add a temporary breakpoint at the instruction just

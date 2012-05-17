@@ -104,7 +104,7 @@ namespace {
 	}
 	
 	int instruction_size(quint8 *buffer, std::size_t size) {
-		edb::Instruction insn(buffer, size, 0, std::nothrow);
+		edb::Instruction insn(buffer, buffer + size, 0, std::nothrow);
 		return insn.size();
 	}
 }
@@ -163,7 +163,7 @@ size_t QDisassemblyView::length_disasm_back(const quint8 *buf, size_t size) cons
 
 	while(offs < edb::Instruction::MAX_SIZE) {
 	
-		const edb::Instruction insn(tmp + offs, edb::Instruction::MAX_SIZE, 0, std::nothrow);
+		const edb::Instruction insn(tmp + offs, tmp + sizeof(tmp), 0, std::nothrow);
 		if(!insn.valid()) {
 			return 0;
 		}
@@ -224,7 +224,7 @@ edb::address_t QDisassemblyView::following_instructions(edb::address_t current_a
 			current_address += 1;
 			break;
 		} else {
-			const edb::Instruction insn(buf, buf_size, current_address, std::nothrow);
+			const edb::Instruction insn(buf, buf + buf_size, current_address, std::nothrow);
 			if(insn) {
 				current_address += insn.size();
 			} else {
@@ -643,9 +643,9 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 		// disassemble the instruction, if it happens that the next byte is the start of a known function
 		// then we should treat this like a one byte instruction
-		edb::Instruction insn(buf, buf_size, address, std::nothrow);
+		edb::Instruction insn(buf, buf + buf_size, address, std::nothrow);
 		if((analyzer != 0) && (analyzer->category(address + 1) == IAnalyzer::ADDRESS_FUNC_START)) {
-			edb::Instruction(buf, 1, address, std::nothrow).swap(insn);
+			edb::Instruction(buf, buf + 1, address, std::nothrow).swap(insn);
 		}
 
 		const int insn_size = insn.size();
@@ -977,7 +977,7 @@ bool QDisassemblyView::event(QEvent *event) {
 				// do the longest read we can while still not passing the region end
 				int buf_size = qMin<edb::address_t>((region_.end - address), sizeof(buf));
 				if(edb::v1::get_instruction_bytes(address, buf, buf_size)) {
-					const edb::Instruction insn(buf, buf_size, address, std::nothrow);
+					const edb::Instruction insn(buf, buf + buf_size, address, std::nothrow);
 
 					if((line1() + (static_cast<int>(insn.size()) * 3) * font_width_) > line2()) {
 						const QString byte_buffer = format_instruction_bytes(insn);
