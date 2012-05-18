@@ -154,9 +154,9 @@ template <edb::Operand::Register REG>
 void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::address_t start_address) {
 
 	const quint8 *p = data.data;
-	int len = sizeof(data);
+	const quint8 *last = p + sizeof(data);
 
-	edb::Instruction insn(p, p + len, 0, std::nothrow);
+	edb::Instruction insn(p, last, 0, std::nothrow);
 
 	if(insn.valid()) {
 		const edb::Operand &op1 = insn.operand(0);
@@ -176,9 +176,7 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 				if(op1.reg() == REG) {
 
 					p += insn.size();
-					len -= insn.size();
-
-					edb::Instruction insn2(p, p + len, 0, std::nothrow);
+					edb::Instruction insn2(p, last, 0, std::nothrow);
 					if(insn2.valid()) {
 						const edb::Operand &op2 = insn2.operand(0);
 						switch(insn2.type()) {
@@ -224,9 +222,9 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_address) {
 
 	const quint8 *p = data.data;
-	int len = sizeof(data);
+	const quint8 *last = p + sizeof(data);
 
-	edb::Instruction insn(p, p + len, 0, std::nothrow);
+	edb::Instruction insn(p, last, 0, std::nothrow);
 
 	if(insn.valid()) {
 		const edb::Operand &op1 = insn.operand(0);
@@ -257,9 +255,7 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 			if(op1.general_type() == edb::Operand::TYPE_REGISTER) {
 
 				p += insn.size();
-				len -= insn.size();
-
-				edb::Instruction insn2(p, p + len, 0, std::nothrow);
+				edb::Instruction insn2(p, last, 0, std::nothrow);
 				if(insn2.valid()) {
 					const edb::Operand &op2 = insn2.operand(0);
 					switch(insn2.type()) {
@@ -293,9 +289,9 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t start_address) {
 
 	const quint8 *p = data.data;
-	int len = sizeof(data);
+	const quint8 *last = p + sizeof(data);
 
-	edb::Instruction insn(p, p + len, 0, std::nothrow);
+	edb::Instruction insn(p, last, 0, std::nothrow);
 
 	if(insn.valid()) {
 		const edb::Operand &op1 = insn.operand(0);
@@ -304,9 +300,7 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 
 			if(op1.general_type() != edb::Operand::TYPE_REGISTER || op1.reg() != STACK_REG) {
 				p += insn.size();
-				len -= insn.size();
-
-				edb::Instruction insn2(p, p + len, 0, std::nothrow);
+				edb::Instruction insn2(p, last, 0, std::nothrow);
 				if(insn2.valid()) {
 					if(insn2.type() == edb::Instruction::OP_RET) {
 						add_result((QList<edb::Instruction>() << insn << insn2), start_address);
@@ -337,9 +331,7 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 
 					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t))) {
 						p += insn.size();
-						len -= insn.size();
-
-						edb::Instruction insn2(p, p + len, 0, std::nothrow);
+						edb::Instruction insn2(p, last, 0, std::nothrow);
 						if(insn2.valid()) {
 							if(insn2.type() == edb::Instruction::OP_RET) {
 								add_result((QList<edb::Instruction>() << insn << insn2), start_address);
@@ -358,9 +350,7 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 
 					if(op2.immediate() == sizeof(edb::reg_t)) {
 						p += insn.size();
-						len -= insn.size();
-
-						edb::Instruction insn2(p, p + len, 0, std::nothrow);
+						edb::Instruction insn2(p, last, 0, std::nothrow);
 						if(insn2.valid()) {
 							if(insn2.type() == edb::Instruction::OP_RET) {
 								add_result((QList<edb::Instruction>() << insn << insn2), start_address);
@@ -385,9 +375,9 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 
 
 	const quint8 *p = data.data;
-	int len = sizeof(data);
+	const quint8 *last = p + sizeof(data);
 
-	edb::Instruction insn(p, p + len, 0, std::nothrow);
+	edb::Instruction insn(p, last, 0, std::nothrow);
 
 	if(insn.valid()) {
 		const edb::Operand &op1 = insn.operand(0);
@@ -396,9 +386,7 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 
 			if(op1.general_type() != edb::Operand::TYPE_REGISTER || op1.reg() != STACK_REG) {
 				p += insn.size();
-				len -= insn.size();
-
-				edb::Instruction insn2(p, p + len, 0, std::nothrow);
+				edb::Instruction insn2(p, last, 0, std::nothrow);
 				if(insn2.valid()) {
 					const edb::Operand &op2 = insn2.operand(0);
 					switch(insn2.type()) {
@@ -406,9 +394,7 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 
 						if(op2.general_type() != edb::Operand::TYPE_REGISTER || op2.reg() != STACK_REG) {
 							p += insn2.size();
-							len -= insn2.size();
-
-							edb::Instruction insn3(p, p + len, 0, std::nothrow);
+							edb::Instruction insn3(p, last, 0, std::nothrow);
 							if(insn3.valid()) {
 								if(insn3.type() == edb::Instruction::OP_RET) {
 									add_result((QList<edb::Instruction>() << insn << insn2 << insn3), start_address);
@@ -446,9 +432,7 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 
 					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t) * 2)) {
 						p += insn.size();
-						len -= insn.size();
-
-						edb::Instruction insn2(p, p + len, 0, std::nothrow);
+						edb::Instruction insn2(p, last, 0, std::nothrow);
 						if(insn2.valid()) {
 							if(insn2.type() == edb::Instruction::OP_RET) {
 								add_result((QList<edb::Instruction>() << insn << insn2), start_address);
@@ -467,9 +451,7 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 
 					if(op2.immediate() == (sizeof(edb::reg_t) * 2)) {
 						p += insn.size();
-						len -= insn.size();
-
-						edb::Instruction insn2(p, p + len, 0, std::nothrow);
+						edb::Instruction insn2(p, last, 0, std::nothrow);
 						if(insn2.valid()) {
 							if(insn2.type() == edb::Instruction::OP_RET) {
 								add_result((QList<edb::Instruction>() << insn << insn2), start_address);
@@ -493,9 +475,9 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t start_address) {
 
 	const quint8 *p = data.data;
-	int len = sizeof(data);
+	const quint8 *last = p + sizeof(data);
 
-	edb::Instruction insn(p, p + len, 0, std::nothrow);
+	edb::Instruction insn(p, last, 0, std::nothrow);
 
 	if(insn.valid()) {
 		const edb::Operand &op1 = insn.operand(0);
@@ -523,9 +505,7 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 
 					if(op2.immediate() == static_cast<int>(sizeof(edb::reg_t))) {
 						p += insn.size();
-						len -= insn.size();
-
-						edb::Instruction insn2(p, p + len, 0, std::nothrow);
+						edb::Instruction insn2(p, last, 0, std::nothrow);
 						if(insn2.valid()) {
 							if(insn2.type() == edb::Instruction::OP_RET) {
 								add_result((QList<edb::Instruction>() << insn << insn2), start_address);
@@ -544,9 +524,7 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 
 					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t))) {
 						p += insn.size();
-						len -= insn.size();
-
-						edb::Instruction insn2(p, p + len, 0, std::nothrow);
+						edb::Instruction insn2(p, last, 0, std::nothrow);
 						if(insn2.valid()) {
 							if(insn2.type() == edb::Instruction::OP_RET) {
 								add_result((QList<edb::Instruction>() << insn << insn2), start_address);
