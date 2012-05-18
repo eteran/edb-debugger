@@ -284,8 +284,9 @@ void DialogROPTool::do_find() {
 			ByteShiftArray bsa(64);
 
 			while(start_address < end_address) {
+				
+				
 
-				// TODO: allow NOPs or effective nops in the streams
 
 				// read in the next byte
 				quint8 byte;
@@ -294,32 +295,64 @@ void DialogROPTool::do_find() {
 
 					size = qMin(size + 1, bsa.size());
 
-					const quint8 *const p = bsa.data();
-					edb::Instruction insn1(p, p + size, start_address - size + 1, std::nothrow);
+					const quint8       *p = bsa.data();
+					const quint8 *const l = p + bsa.size();
+					
+					QList<edb::Instruction> instruction_list;
+					
+					// eat up any NOPs in front...
+					for(;;) {
+						edb::Instruction nop_insn(p, l, start_address + (p - bsa.data()), std::nothrow);
+						if(!nop_insn.valid() || nop_insn.type() != edb::Instruction::OP_NOP) {
+							break;
+						}
 
+						instruction_list << nop_insn;
+						p += nop_insn.size();
+					}
+					
+					edb::Instruction insn1(p, l, start_address + (p - bsa.data()), std::nothrow);
 					if(insn1.valid()) {
 					
-						if(insn1.type() == edb::Instruction::OP_INT && insn1.operand(0).general_type() == edb::Operand::TYPE_IMMEDIATE && (insn1.operand(0).immediate() & 0xff) == 0x80) {
-							add_gadget(start_address, (QList<edb::Instruction>() << insn1), size);
-						} else if(insn1.type() == edb::Instruction::OP_SYSENTER) {
-							add_gadget(start_address, (QList<edb::Instruction>() << insn1), size);
-						} else if(insn1.type() == edb::Instruction::OP_SYSCALL) {
-							add_gadget(start_address, (QList<edb::Instruction>() << insn1), size);
-						} else {
+						instruction_list << insn1;
 					
-							edb::Instruction insn2(p + insn1.size(), p + size - insn1.size(), 0, std::nothrow);
-
+						if(insn1.type() == edb::Instruction::OP_INT && insn1.operand(0).general_type() == edb::Operand::TYPE_IMMEDIATE && (insn1.operand(0).immediate() & 0xff) == 0x80) {
+							add_gadget(start_address, instruction_list, size);
+						} else if(insn1.type() == edb::Instruction::OP_SYSENTER) {
+							add_gadget(start_address, instruction_list, size);
+						} else if(insn1.type() == edb::Instruction::OP_SYSCALL) {
+							add_gadget(start_address, instruction_list, size);
+						} else {
+						
+							p += insn1.size();
+							
+							// eat up any NOPs in between...
+							for(;;) {
+								edb::Instruction nop_insn(p, l, start_address + (p - bsa.data()), std::nothrow);
+								if(!nop_insn.valid() || nop_insn.type() != edb::Instruction::OP_NOP) {
+									break;
+								}
+								
+								instruction_list << nop_insn;
+								p += nop_insn.size();
+							}
+							
+							edb::Instruction insn2(p, l, start_address + (p - bsa.data()), std::nothrow);
 							if(insn2.valid() && insn2.type() == edb::Instruction::OP_RET) {
-								add_gadget(start_address, (QList<edb::Instruction>() << insn1 << insn2), size);
+								instruction_list << insn2;
+								add_gadget(start_address, instruction_list, size);
 							} else if(insn2.valid() && insn2.type() == edb::Instruction::OP_POP) {
-
-								edb::Instruction insn3(p + insn1.size() + insn2.size(), p + size - insn1.size() - insn2.size(), 0, std::nothrow);
+								instruction_list << insn2;
+								p += insn2.size();
+								edb::Instruction insn3(p, l, start_address + (p - bsa.data()), std::nothrow);
 								if(insn3.valid() && insn3.type() == edb::Instruction::OP_JMP) {
+								
+									instruction_list << insn3;
 
 									if(insn2.operand_count() == 1 && insn2.operand(0).general_type() == edb::Operand::TYPE_REGISTER) {
 										if(insn3.operand_count() == 1 && insn3.operand(0).general_type() == edb::Operand::TYPE_REGISTER) {
 											if(insn2.operand(0).reg() == insn3.operand(0).reg()) {
-												add_gadget(start_address, (QList<edb::Instruction>() << insn1 << insn2 << insn3), size);
+												add_gadget(start_address, instruction_list, size);
 											}
 										}
 									}

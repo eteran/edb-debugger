@@ -77,7 +77,7 @@ void DialogReferences::do_find() {
 				try {
 
 					QVector<quint8> pages(size_in_pages * page_size);
-					const quint8 *const pages_end = &pages[0] + size_in_pages * page_size;
+					const quint8 *const pages_end = &pages[0] + region.size();
 
 					if(edb::v1::debugger_core->read_pages(region.start, &pages[0], size_in_pages)) {
 						const quint8 *p = &pages[0];

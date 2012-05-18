@@ -261,7 +261,7 @@ void Analyzer::find_function_calls(const MemRegion &region, FunctionMap &found_f
 		QVector<quint8> pages(size_in_pages * page_size);
 
 		if(edb::v1::debugger_core->read_pages(region.start, &pages[0], size_in_pages)) {
-			for(edb::address_t i = 0; i < size_in_pages * page_size; ++i) {
+			for(edb::address_t i = 0; i < region.size(); ++i) {
 
 				const edb::Instruction insn(&pages[i], &pages[i] + region.size(), region.start + i, std::nothrow);
 

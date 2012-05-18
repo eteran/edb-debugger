@@ -151,12 +151,9 @@ QDisassemblyView::~QDisassemblyView() {
 //------------------------------------------------------------------------------
 size_t QDisassemblyView::length_disasm_back(const quint8 *buf, size_t size) const {
 
-
 	quint8 tmp[edb::Instruction::MAX_SIZE * 2];
-
 	Q_ASSERT(size <= sizeof(tmp));
 
-	
 	int offs = 0;
 
 	memcpy(tmp, buf, size);

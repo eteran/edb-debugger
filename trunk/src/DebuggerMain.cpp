@@ -149,7 +149,6 @@ public:
 					if(edb::v1::get_instruction_bytes(address, buffer, sz)) {
 						edb::Instruction insn(buffer, buffer + sz, 0, std::nothrow);
 						if(insn.valid() && edb::v1::arch_processor().can_step_over(insn)) {
-
 							last_call_return_ = address + insn.size();
 						}
 					}
