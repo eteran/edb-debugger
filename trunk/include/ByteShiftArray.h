@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class EDB_EXPORT ByteShiftArray {
 public:
-	explicit ByteShiftArray(std::size_t size);
+	explicit ByteShiftArray(int size);
 	ByteShiftArray(const ByteShiftArray& other);
 	ByteShiftArray &operator=(const ByteShiftArray &other);
 
@@ -40,7 +40,7 @@ public:
 	ByteShiftArray &operator<<(quint8 x);
 
 public:
-	std::size_t size() const;
+	int size() const;
 
 public:
 	quint8 &operator[](std::size_t i);
@@ -49,6 +49,7 @@ public:
 
 private:
 	QVector<quint8> data_;
+	int max_size_;
 };
 
 #endif
