@@ -19,21 +19,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ByteShiftArray.h"
 
 //------------------------------------------------------------------------------
-// Name: ByteShiftArray(std::size_t size)
+// Name: ByteShiftArray(int size)
 // Desc: constructor
 //------------------------------------------------------------------------------
-ByteShiftArray::ByteShiftArray(std::size_t size) : data_(size) {
+ByteShiftArray::ByteShiftArray(int size) : max_size_(size) {
 }
 
 //------------------------------------------------------------------------------
 // Name: ByteShiftArray(const ByteShiftArray& other)
 // Desc: copy constructor
 //------------------------------------------------------------------------------
-ByteShiftArray::ByteShiftArray(const ByteShiftArray& other) : data_(other.data_) {
+ByteShiftArray::ByteShiftArray(const ByteShiftArray& other) : data_(other.data_), max_size_(other.max_size_) {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator=(const ByteShiftArray &other
+// Name: operator=(const ByteShiftArray &other)
 // Desc: assignment operator
 //------------------------------------------------------------------------------
 ByteShiftArray &ByteShiftArray::operator=(const ByteShiftArray &other) {
@@ -48,7 +48,8 @@ ByteShiftArray &ByteShiftArray::operator=(const ByteShiftArray &other) {
 // Desc:
 //------------------------------------------------------------------------------
 void ByteShiftArray::swap(ByteShiftArray &other) {
-	qSwap(data_, other.data_);
+	qSwap(data_,     other.data_);
+	qSwap(max_size_, other.max_size_);
 }
 
 //------------------------------------------------------------------------------
@@ -56,10 +57,15 @@ void ByteShiftArray::swap(ByteShiftArray &other) {
 // Desc: shifts data left one byte and shifts in a 0
 //------------------------------------------------------------------------------
 ByteShiftArray &ByteShiftArray::shl() {
-	for(int i = 1; i < data_.size(); ++i) {
-		data_[i - 1] = data_[i];
+	
+	if(data_.size() == max_size_) {
+		for(int i = 1; i < data_.size(); ++i) {
+			data_[i - 1] = data_[i];
+		}
+		data_.back() = 0;
+	} else {
+		data_.push_back(0);
 	}
-	data_.back() = 0;
 	return *this;
 }
 
@@ -68,10 +74,14 @@ ByteShiftArray &ByteShiftArray::shl() {
 // Desc: shifts data right one byte and shifts in a 0
 //------------------------------------------------------------------------------
 ByteShiftArray &ByteShiftArray::shr() {
-	for(int i = 0; i < data_.size() - 1; ++i) {
-		data_[i + 1] = data_[i];
+	if(data_.size() == max_size_) {
+		for(int i = 0; i < data_.size() - 1; ++i) {
+			data_[i + 1] = data_[i];
+		}
+		data_.first() = 0;
+	} else {
+		data_.push_front(0);
 	}
-	data_.first() = 0;
 	return *this;
 }
 
@@ -79,7 +89,7 @@ ByteShiftArray &ByteShiftArray::shr() {
 // Name: size() const
 // Desc: returns size of this byte array
 //------------------------------------------------------------------------------
-std::size_t ByteShiftArray::size() const {
+int ByteShiftArray::size() const {
 	return data_.size();
 }
 
