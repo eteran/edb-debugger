@@ -83,7 +83,7 @@ public Q_SLOTS:
 
 private:
 	void do_find();
-	void add_gadget(edb::address_t start_address, QList<edb::Instruction> instructions, size_t size);
+	void add_gadget(QList<edb::Instruction> instructions);
 	void set_gadget_role(QStandardItem *item, const edb::Instruction &insn1);
 
 private:
