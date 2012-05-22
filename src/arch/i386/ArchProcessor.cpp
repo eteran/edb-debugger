@@ -419,7 +419,7 @@ bool ArchProcessor::is_jcc_taken(const State &state, quint8 instruction_byte) co
 //------------------------------------------------------------------------------
 void ArchProcessor::analyze_cmov(const State &state, const edb::Instruction &insn, QStringList &ret) const {
 
-	const quint8 *const insn_buf = insn.buffer();
+	const quint8 *const insn_buf = insn.bytes();
 
 	const bool taken = is_jcc_taken(state, insn_buf[1 + insn.prefix_size()]);
 
@@ -438,7 +438,7 @@ void ArchProcessor::analyze_jump(const State &state, const edb::Instruction &ins
 
 	bool taken = false;
 
-	const quint8 *const insn_buf = insn.buffer();
+	const quint8 *const insn_buf = insn.bytes();
 
 	if(insn.type() == edb::Instruction::OP_JCC) {
 
@@ -1792,11 +1792,11 @@ bool ArchProcessor::is_filling(const edb::Instruction &insn) const {
 
 		if(!ret) {
 			if(edb::v1::config().zeros_are_filling) {
-				ret = (QByteArray::fromRawData(reinterpret_cast<const char *>(insn.buffer()), insn.size()) == QByteArray::fromRawData("\x00\x00", 2));
+				ret = (QByteArray::fromRawData(reinterpret_cast<const char *>(insn.bytes()), insn.size()) == QByteArray::fromRawData("\x00\x00", 2));
 			}
 		}
 	} else {
-		ret = (insn.size() == 1 && insn.buffer()[0] == 0x00);
+		ret = (insn.size() == 1 && insn.bytes()[0] == 0x00);
 	}
 
 	return ret;
