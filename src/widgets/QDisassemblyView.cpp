@@ -392,7 +392,8 @@ void QDisassemblyView::scrollTo(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &insn, int maxStringPx, const QFontMetrics &metrics) const {
-	const QString byte_buffer = edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(insn.buffer()), insn.size()));
+	const QString byte_buffer =
+	edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(insn.bytes()), insn.size()));
 	return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
 }
 
@@ -401,7 +402,7 @@ QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &insn,
 // Desc:
 //------------------------------------------------------------------------------
 QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &insn) const {
-	return edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(insn.buffer()), insn.size()));
+	return edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(insn.bytes()), insn.size()));
 }
 
 //------------------------------------------------------------------------------
@@ -485,7 +486,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 //------------------------------------------------------------------------------
 QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instruction &insn, QPainter &painter) const {
 	char byte_buffer[32];
-	const quint8 *const buf = insn.buffer();
+	const quint8 *const buf = insn.bytes();
 
 	switch(insn.size()) {
 	case 1:

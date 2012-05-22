@@ -44,11 +44,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <kvm.h>
 #include <uvm/uvm.h>
-#include <uvm/uvm_amap.h>
 
 #include <fcntl.h>
 #include <unistd.h>
 
+#if 0
 /*
  * Download vmmap_entries from the kernel into our address space.
  * We fix up the addr tree while downloading.
@@ -57,12 +57,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
  * On failure, *rptr needs to be passed to unload_vmmap_entries to free
  * the lot.
  */
-ssize_t
-load_vmmap_entries(kvm_t *kd, u_long kptr, struct vm_map_entry **rptr,
-    struct vm_map_entry *parent)
-{
+ssize_t load_vmmap_entries(kvm_t *kd, u_long kptr, struct vm_map_entry **rptr, struct vm_map_entry *parent) {
 	struct vm_map_entry *entry;
-	u_long left_kptr, right_kptr;
+	u_long left_kptr;
+	u_long right_kptr;
 	ssize_t left_sz;
 	ssize_t right_sz;
 
@@ -102,12 +100,10 @@ load_vmmap_entries(kvm_t *kd, u_long kptr, struct vm_map_entry **rptr,
 	 * On failure, our map is in a state that can be handled by
 	 * unload_vmmap_entries.
 	 */
-	left_sz = load_vmmap_entries(kd, left_kptr,
-	    &RB_LEFT(entry, daddrs.addr_entry), entry);
+	left_sz = load_vmmap_entries(kd, left_kptr, &RB_LEFT(entry, daddrs.addr_entry), entry);
 	if (left_sz == -1)
 		return -1;
-	right_sz = load_vmmap_entries(kd, right_kptr,
-	    &RB_RIGHT(entry, daddrs.addr_entry), entry);
+	right_sz = load_vmmap_entries(kd, right_kptr, &RB_RIGHT(entry, daddrs.addr_entry), entry);
 	if (right_sz == -1)
 		return -1;
 
@@ -139,6 +135,7 @@ no_impl(void *p, void *q)
 }
 
 RB_GENERATE(uvm_map_addr, vm_map_entry, daddrs.addr_entry, no_impl)
+#endif
 
 //------------------------------------------------------------------------------
 // Name: MemoryRegions()
@@ -185,16 +182,37 @@ void MemoryRegions::sync() {
 	if(pid_ != 0) {
 
 		char err_buf[_POSIX2_LINE_MAX];
-		kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, 
-		    err_buf);
+		kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, err_buf);
 		if(kd != 0) {
 			int rc;
-			struct kinfo_proc *const proc = kvm_getprocs(kd,
-			    KERN_PROC_PID, pid_, sizeof *proc, &rc);
+			struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid_, sizeof *proc, &rc);
 			Q_ASSERT(proc != 0);
 
 			struct vmspace vmsp;
-			struct vm_map_entry *e;
+			struct vm_map_entry e;
+			
+			kvm_read(kd, proc->p_vmspace, &vmsp, sizeof(vmsp));
+			if(vmsp.vm_map.header.next != 0) {
+				kvm_read(kd, (u_long)vmsp.vm_map.header.next, &e, sizeof(e));
+				while(e.next != vmsp.vm_map.header.next) {
+					MemRegion region;
+					region.start        = e.start;
+					region.end          = e.end;
+					region.base         = e.offset;
+					region.name         = QString();
+					region.permissions_ =
+						((e.protection & VM_PROT_READ)    ? PROT_READ  : 0) |
+						((e.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
+						((e.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
+
+					regions.push_back(region);
+					kvm_read(kd, (u_long)e.next, &e, sizeof(e));
+				}
+			}
+			
+			
+			
+#if 0
 			uvm_map_addr root;
 
 			kvm_read(kd, proc->p_vmspace, &vmsp, sizeof vmsp);
@@ -221,7 +239,7 @@ void MemoryRegions::sync() {
 			
 do_unload:
 			unload_vmmap_entries(RB_ROOT(&root));
-
+#endif
 			kvm_close(kd);
 		} else {
 			fprintf(stderr, "sync: %s\n", err_buf);

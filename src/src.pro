@@ -245,7 +245,10 @@ unix {
 
 
 	debug {
-		linux-g++*:		QMAKE_CXXFLAGS += -ggdb
+		linux-g++*:		QMAKE_CXXFLAGS += -ggdb3
+		openbsd-g++*:	QMAKE_CXXFLAGS += -ggdb3
+		freebsd-g++*:	QMAKE_CXXFLAGS += -ggdb3
+		macx-g++*:		QMAKE_CXXFLAGS += -ggdb3
 	}
 
 	debug:   OBJECTS_DIR = $${OUT_PWD}/.obj/debug-shared
