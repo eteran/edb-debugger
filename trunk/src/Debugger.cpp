@@ -1160,7 +1160,8 @@ int edb::v1::pointer_size() {
 		return edb::v1::debugger_core->pointer_size();
 	}
 	
-	return 0;
+	// default to sizeof the native pointer for sanity!
+	return sizeof(void*);
 }
 
 //------------------------------------------------------------------------------
