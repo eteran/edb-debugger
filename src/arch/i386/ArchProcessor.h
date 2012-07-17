@@ -50,27 +50,22 @@ public:
 	virtual bool can_step_over(const edb::Instruction &insn) const;
 	
 private:
-	edb::address_t get_effective_address(const edb::Operand &op, const State &state) const;
-
-private:
 	QTreeWidgetItem *get_register_item(unsigned int index);
 	void update_register(QTreeWidgetItem *item, const QString &name, const Register &reg) const;
 	void setup_register_item(QCategoryList *category_list, QTreeWidgetItem *parent, const QString &name);
 
 private:
-	void resolve_function_parameters(const State &state, const QString &symname, int offset, QStringList &ret) const;
-	void analyze_call(const State &state, const edb::Instruction &insn, QStringList &ret) const;
-	void analyze_jump(const State &state, const edb::Instruction &insn, QStringList &ret) const;
-	void analyze_return(const State &state, const edb::Instruction &insn, QStringList &ret) const;
-	void analyze_operands(const State &state, const edb::Instruction &insn, QStringList &ret) const;
-	void analyze_cmov(const State &state, const edb::Instruction &insn, QStringList &ret) const;
-	void analyze_syscall(const State &state, const edb::Instruction &insn, QStringList &ret) const;
-
-	QString format_argument(QChar ch, edb::reg_t arg) const;
-
-	void analyze_jump_targets(const edb::Instruction &insn, QStringList &ret) const;
-
-	bool is_jcc_taken(const State &state, quint8 instruction_byte) const;
+	static QString format_argument(QChar ch, edb::reg_t arg);
+	static bool is_jcc_taken(const State &state, quint8 instruction_byte);
+	static edb::address_t get_effective_address(const edb::Operand &op, const State &state);
+	static void analyze_call(const State &state, const edb::Instruction &insn, QStringList &ret);
+	static void analyze_cmov(const State &state, const edb::Instruction &insn, QStringList &ret);
+	static void analyze_jump(const State &state, const edb::Instruction &insn, QStringList &ret);
+	static void analyze_jump_targets(const edb::Instruction &insn, QStringList &ret);
+	static void analyze_operands(const State &state, const edb::Instruction &insn, QStringList &ret);
+	static void analyze_return(const State &state, const edb::Instruction &insn, QStringList &ret);
+	static void analyze_syscall(const State &state, const edb::Instruction &insn, QStringList &ret);
+	static void resolve_function_parameters(const State &state, const QString &symname, int offset, QStringList &ret);
 
 private:
 	QVector<QTreeWidgetItem *> register_view_items_;

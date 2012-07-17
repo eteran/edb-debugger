@@ -51,7 +51,7 @@ void RecentFileManager::save_file_list() {
 		if(i < file_list_.size()) {
 			s = file_list_[i];
 		}
-		settings.setValue(QString("File%1").arg(i), s);
+		settings.setValue(tr("File%1").arg(i), s);
 	}
 	settings.endGroup();
 }
@@ -66,7 +66,7 @@ void RecentFileManager::load_file_list() {
 
 	file_list_.clear();
 	for(int i = 0; i < max_recent_files; ++i) {
-		const QString s = settings.value(QString("File%1").arg(i)).value<QString>();
+		const QString s = settings.value(tr("File%1").arg(i)).value<QString>();
 		if(!s.isEmpty()) {
 			file_list_.push_back(s);
 		}

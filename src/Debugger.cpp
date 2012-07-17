@@ -59,7 +59,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_debuggerui.h"
 
 IDebuggerCore *edb::v1::debugger_core = 0;
-QWidget               *edb::v1::debugger_ui   = 0;
+QWidget       *edb::v1::debugger_ui   = 0;
 
 namespace {
 
@@ -702,8 +702,10 @@ edb::address_t edb::v1::get_variable(const QString &s, bool &ok, ExpressionError
 		err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
 	}
 
-	if(reg.type() == Register::TYPE_SEG) {
-		return reg.segment_base();
+	if(reg.name() == "fs") {
+		return *state["fs_base"];
+	} else if(reg.name() == "gs") {
+		return *state["gs_base"];
 	}
 
 	return *reg;
