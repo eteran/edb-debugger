@@ -22,21 +22,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: Register()
 // Desc:
 //------------------------------------------------------------------------------
-Register::Register() : value_(0), type_(TYPE_INVALID), segment_base_(0) {
+Register::Register() : value_(0), type_(TYPE_INVALID) {
 }
 
 //------------------------------------------------------------------------------
-// Name: Register(const QString &name, edb::reg_t value, Type type, edb::address_t segment_base)
+// Name: Register(const QString &name, edb::reg_t value, Type type)
 // Desc:
 //------------------------------------------------------------------------------
-Register::Register(const QString &name, edb::reg_t value, Type type, edb::address_t segment_base) : name_(name), value_(value), type_(type), segment_base_(segment_base) {
+Register::Register(const QString &name, edb::reg_t value, Type type) : name_(name), value_(value), type_(type) {
 }
 
 //------------------------------------------------------------------------------
 // Name: Register(const Register &other)
 // Desc:
 //------------------------------------------------------------------------------
-Register::Register(const Register &other) : name_(other.name_), value_(other.value_), type_(other.type_), segment_base_(other.segment_base_) {
+Register::Register(const Register &other) : name_(other.name_), value_(other.value_), type_(other.type_) {
 }
 
 //------------------------------------------------------------------------------
@@ -48,7 +48,6 @@ Register &Register::operator=(const Register &rhs) {
 		name_         = rhs.name_;
 		value_        = rhs.value_;
 		type_         = rhs.type_;
-		segment_base_ = rhs.segment_base_;
 	}
 	return *this;
 }
@@ -61,11 +60,7 @@ bool Register::operator==(const Register &rhs) const {
 	if(!valid() && !rhs.valid()) {
 		return true;
 	} else {
-		return
-			name_         == rhs.name_ &&
-			value_        == rhs.value_ &&
-			type_         == rhs.type_ &&
-			segment_base_ == rhs.segment_base_;
+		return name_ == rhs.name_ && value_ == rhs.value_ && type_ == rhs.type_;
 	}
 }
 

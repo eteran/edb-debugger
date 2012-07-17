@@ -267,8 +267,8 @@ void ArchProcessor::update_register_view(const QString &default_region_name) {
 	get_register_item(10)->setText(0, QString("CS: %1").arg(*state["cs"] & 0xffff, 4, 16, QChar('0')));
 	get_register_item(11)->setText(0, QString("DS: %1").arg(*state["ds"] & 0xffff, 4, 16, QChar('0')));
 	get_register_item(12)->setText(0, QString("ES: %1").arg(*state["es"] & 0xffff, 4, 16, QChar('0')));
-	get_register_item(13)->setText(0, QString("FS: %1 (%2)").arg(*state["fs"] & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["fs"].segment_base())));
-	get_register_item(14)->setText(0, QString("GS: %1 (%2)").arg(*state["gs"] & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["gs"].segment_base())));
+	get_register_item(13)->setText(0, QString("FS: %1 (%2)").arg(*state["fs"] & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(*state["fs_base"])));
+	get_register_item(14)->setText(0, QString("GS: %1 (%2)").arg(*state["gs"] & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(*state["gs_base"])));
 	get_register_item(15)->setText(0, QString("SS: %1").arg(*state["ss"] & 0xffff, 4, 16, QChar('0')));
 
 	for(int i = 0; i < 8; ++i) {
@@ -368,7 +368,7 @@ void ArchProcessor::resolve_function_parameters(const State &state, const QStrin
 // Name: is_jcc_taken(const State &state, quint8 instruction_byte) const
 // Desc:
 //------------------------------------------------------------------------------
-bool ArchProcessor::is_jcc_taken(const State &state, quint8 instruction_byte) const {
+bool ArchProcessor::is_jcc_taken(const State &state, quint8 instruction_byte) {
 
 	const edb::reg_t efl = state.flags();
 	const bool cf = (efl & 0x0001) != 0;
@@ -417,7 +417,7 @@ bool ArchProcessor::is_jcc_taken(const State &state, quint8 instruction_byte) co
 // Name: analyze_cmov(const State &state, const edb::Instruction &insn, QStringList &ret) const
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::analyze_cmov(const State &state, const edb::Instruction &insn, QStringList &ret) const {
+void ArchProcessor::analyze_cmov(const State &state, const edb::Instruction &insn, QStringList &ret) {
 
 	const quint8 *const insn_buf = insn.bytes();
 
@@ -434,7 +434,7 @@ void ArchProcessor::analyze_cmov(const State &state, const edb::Instruction &ins
 // Name: analyze_jump(const State &state, const edb::Instruction &insn, QStringList &ret) const
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::analyze_jump(const State &state, const edb::Instruction &insn, QStringList &ret) const {
+void ArchProcessor::analyze_jump(const State &state, const edb::Instruction &insn, QStringList &ret) {
 
 	bool taken = false;
 
@@ -470,7 +470,7 @@ void ArchProcessor::analyze_jump(const State &state, const edb::Instruction &ins
 // Name: analyze_return(const State &state, const edb::Instruction &insn, QStringList &ret) const
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::analyze_return(const State &state, const edb::Instruction &insn, QStringList &ret) const {
+void ArchProcessor::analyze_return(const State &state, const edb::Instruction &insn, QStringList &ret) {
 	Q_UNUSED(insn);
 
 	edb::address_t return_address;
@@ -488,7 +488,7 @@ void ArchProcessor::analyze_return(const State &state, const edb::Instruction &i
 // Name: get_effective_address(const edb::Operand &op, const State &state) const
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t ArchProcessor::get_effective_address(const edb::Operand &op, const State &state) const {
+edb::address_t ArchProcessor::get_effective_address(const edb::Operand &op, const State &state) {
 	edb::address_t ret = 0;
 
 	// TODO: get registers by index, not string! too slow
@@ -505,22 +505,22 @@ edb::address_t ArchProcessor::get_effective_address(const edb::Operand &op, cons
 				ret                    = base + index * op.expression().scale + op.displacement();
 
 				if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
-					ret += state["gs"].segment_base();
+					ret += *state["gs_base"];
 				}
 
 				if(op.owner()->prefix() & edb::Instruction::PREFIX_FS) {
-					ret += state["fs"].segment_base();
+					ret += *state["fs_base"];
 				}
 			} while(0);
 			break;
 		case edb::Operand::TYPE_ABSOLUTE:
 			ret = op.absolute().offset;
 			if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
-				ret += state["gs"].segment_base();
+				ret += *state["gs_base"];
 			}
 
 			if(op.owner()->prefix() & edb::Instruction::PREFIX_FS) {
-				ret += state["fs"].segment_base();
+				ret += *state["fs_base"];
 			}
 			break;
 		case edb::Operand::TYPE_IMMEDIATE:
@@ -539,7 +539,7 @@ edb::address_t ArchProcessor::get_effective_address(const edb::Operand &op, cons
 // Name: analyze_call(const State &state, const edb::Instruction &insn, QStringList &ret) const
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::analyze_call(const State &state, const edb::Instruction &insn, QStringList &ret) const {
+void ArchProcessor::analyze_call(const State &state, const edb::Instruction &insn, QStringList &ret) {
 
 	const edb::Operand &operand = insn.operand(0);
 
@@ -609,7 +609,7 @@ void ArchProcessor::analyze_call(const State &state, const edb::Instruction &ins
 // Name: analyze_operands(const State &state, const edb::Instruction &insn, QStringList &ret)
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::analyze_operands(const State &state, const edb::Instruction &insn, QStringList &ret) const {
+void ArchProcessor::analyze_operands(const State &state, const edb::Instruction &insn, QStringList &ret) {
 
 	Q_UNUSED(insn);
 
@@ -665,7 +665,7 @@ void ArchProcessor::analyze_operands(const State &state, const edb::Instruction 
 // Name: analyze_jump_targets(const edb::Instruction &insn, QStringList &ret) const
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::analyze_jump_targets(const edb::Instruction &insn, QStringList &ret) const {
+void ArchProcessor::analyze_jump_targets(const edb::Instruction &insn, QStringList &ret) {
 	const edb::address_t address       = insn.rva();
 	const edb::address_t start_address = address - 128;
 	const edb::address_t end_address   = address + 127;
@@ -697,7 +697,7 @@ void ArchProcessor::analyze_jump_targets(const edb::Instruction &insn, QStringLi
 // Name: format_argument(QChar ch, edb::reg_t arg) const
 // Desc:
 //------------------------------------------------------------------------------
-QString ArchProcessor::format_argument(QChar ch, edb::reg_t arg) const {
+QString ArchProcessor::format_argument(QChar ch, edb::reg_t arg) {
 	QString param_text;
 
 	switch(ch.toAscii()) {
@@ -749,7 +749,7 @@ QString ArchProcessor::format_argument(QChar ch, edb::reg_t arg) const {
 // Name: analyze_syscall(const State &state, const edb::Instruction &insn, QStringList &ret) const
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::analyze_syscall(const State &state, const edb::Instruction &insn, QStringList &ret) const {
+void ArchProcessor::analyze_syscall(const State &state, const edb::Instruction &insn, QStringList &ret) {
 	Q_UNUSED(insn);
 	Q_UNUSED(ret);
 	Q_UNUSED(state);

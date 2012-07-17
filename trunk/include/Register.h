@@ -38,7 +38,7 @@ public:
 
 public:
 	Register();
-	Register(const QString &name, edb::reg_t value, Type type, edb::address_t segment_base = 0);
+	Register(const QString &name, edb::reg_t value, Type type);
 	Register(const Register &other);
 	Register &operator=(const Register &rhs);
 
@@ -52,18 +52,13 @@ public:
 	Type type() const            { return type_; }
 	QString name() const         { return name_; }
 
-public:
-	// this only makes sense for TYPE_SEG
-	edb::address_t segment_base() const { return segment_base_; }
-
 private:
 	bool valid() const { return type_ != TYPE_INVALID; }
 
 private:
-	QString        name_;
-	edb::reg_t     value_;
-	Type           type_;
-	edb::address_t segment_base_;
+	QString    name_;
+	edb::reg_t value_;
+	Type       type_;
 };
 
 #endif

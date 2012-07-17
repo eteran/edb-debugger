@@ -103,12 +103,14 @@ Register PlatformState::value(const QString &reg) const {
 	else if(lreg == "bh")		return Register("bh", (regs_.ebx >> 8) & 0xff, Register::TYPE_GPR);
 	else if(lreg == "ch")		return Register("ch", (regs_.ecx >> 8) & 0xff, Register::TYPE_GPR);
 	else if(lreg == "dh")		return Register("dh", (regs_.edx >> 8) & 0xff, Register::TYPE_GPR);
-	else if(lreg == "cs")		return Register("cs", regs_.xcs, Register::TYPE_SEG, 0);
-	else if(lreg == "ds")		return Register("ds", regs_.xds, Register::TYPE_SEG, 0);
-	else if(lreg == "es")		return Register("es", regs_.xes, Register::TYPE_SEG, 0);
-	else if(lreg == "fs")		return Register("fs", regs_.xfs, Register::TYPE_SEG, fs_base);
-	else if(lreg == "gs")		return Register("gs", regs_.xgs, Register::TYPE_SEG, gs_base);
-	else if(lreg == "ss") 		return Register("ss", regs_.xss, Register::TYPE_SEG, 0);
+	else if(lreg == "cs")		return Register("cs", regs_.xcs, Register::TYPE_SEG);
+	else if(lreg == "ds")		return Register("ds", regs_.xds, Register::TYPE_SEG);
+	else if(lreg == "es")		return Register("es", regs_.xes, Register::TYPE_SEG);
+	else if(lreg == "fs")		return Register("fs", regs_.xfs, Register::TYPE_SEG);
+	else if(lreg == "gs")		return Register("gs", regs_.xgs, Register::TYPE_SEG);
+	else if(lreg == "ss") 		return Register("ss", regs_.xss, Register::TYPE_SEG);
+	else if(lreg == "fs_base")  return Register("fs_base", fs_base, Register::TYPE_SEG, fs_base);
+	else if(lreg == "gs_base")  return Register("gs_base", gs_base, Register::TYPE_SEG, gs_base);
 	else if(lreg == "eflags") 	return Register("eflags", regs_.eflags, Register::TYPE_COND);
 #elif defined(EDB_X86_64)
 	if(lreg == "rax")			return Register("rax", regs_.rax, Register::TYPE_GPR);
@@ -180,12 +182,14 @@ Register PlatformState::value(const QString &reg) const {
 	else if(lreg == "r13b")		return Register("r13b", regs_.r13 & 0xff, Register::TYPE_GPR);
 	else if(lreg == "r14b")		return Register("r14b", regs_.r14 & 0xff, Register::TYPE_GPR);
 	else if(lreg == "r15b")		return Register("r15b", regs_.r15 & 0xff, Register::TYPE_GPR);
-	else if(lreg == "cs")		return Register("cs", regs_.cs, Register::TYPE_SEG, 0);
-	else if(lreg == "ds")		return Register("ds", regs_.ds, Register::TYPE_SEG, 0);
-	else if(lreg == "es")		return Register("es", regs_.es, Register::TYPE_SEG, 0);
-	else if(lreg == "fs")		return Register("fs", regs_.fs, Register::TYPE_SEG, regs_.fs_base);
-	else if(lreg == "gs")		return Register("gs", regs_.gs, Register::TYPE_SEG, regs_.gs_base);
-	else if(lreg == "ss") 		return Register("ss", regs_.ss, Register::TYPE_SEG, 0);
+	else if(lreg == "cs")		return Register("cs", regs_.cs, Register::TYPE_SEG);
+	else if(lreg == "ds")		return Register("ds", regs_.ds, Register::TYPE_SEG);
+	else if(lreg == "es")		return Register("es", regs_.es, Register::TYPE_SEG);
+	else if(lreg == "fs")		return Register("fs", regs_.fs, Register::TYPE_SEG);
+	else if(lreg == "gs")		return Register("gs", regs_.gs, Register::TYPE_SEG);
+	else if(lreg == "ss") 		return Register("ss", regs_.ss, Register::TYPE_SEG);
+	else if(lreg == "fs_base")  return Register("fs_base", regs_.fs_base, Register::TYPE_SEG);
+	else if(lreg == "gs_base")  return Register("gs_base", regs_.gs_base, Register::TYPE_SEG);
 	else if(lreg == "rflags") 	return Register("rflags", regs_.eflags, Register::TYPE_COND);
 #endif
 

@@ -420,8 +420,11 @@ void symbols::generate_symbols(const QString &filename) {
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MACX)
 	QFile file(filename);
 	if(file.open(QIODevice::ReadOnly)) {
+#if QT_VERSION >= 0x040700
 		std::cout << qPrintable(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)) << " +0000" << '\n';
-
+#else
+		std::cout << qPrintable(QDateTime::currentDateTime().toUTC().toString(Qt::ISODate)) << "+0000" << '\n';
+#endif
 		const QByteArray md5 = edb::v1::get_file_md5(filename);
 		std::cout << md5.toHex().data() << ' ' << qPrintable(QFileInfo(filename).absoluteFilePath()) << '\n';
 
