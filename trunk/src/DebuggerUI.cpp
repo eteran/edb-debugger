@@ -256,7 +256,7 @@ void DebuggerUI::create_data_tab() {
 	const int current = current_tab();
 
 	// duplicate the current region
-	DataViewInfo *const new_data_view = new DataViewInfo((current != -1) ? data_regions_[current]->region : MemRegion());
+	DataViewInfo *const new_data_view = new DataViewInfo((current != -1) ? data_regions_[current]->region : MemoryRegion());
 
 	QHexView *const hexview = new QHexView;
 
@@ -267,7 +267,7 @@ void DebuggerUI::create_data_tab() {
 	connect(hexview, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(mnuDumpContextMenu(const QPoint &)));
 
 	// show the initial data for this new view
-	hexview->setAddressOffset(new_data_view->region.start);
+	hexview->setAddressOffset(new_data_view->region.start());
 	hexview->setData(new_data_view->stream);
 
 	const Configuration &config = edb::v1::config();
@@ -289,8 +289,8 @@ void DebuggerUI::create_data_tab() {
 
 	// create the tab!
 	ui->tabWidget->addTab(hexview, tr("%1-%2").arg(
-		edb::v1::format_pointer(new_data_view->region.start),
-		edb::v1::format_pointer(new_data_view->region.end)));
+		edb::v1::format_pointer(new_data_view->region.start()),
+		edb::v1::format_pointer(new_data_view->region.end())));
 
 
 	ui->tabWidget->setCurrentIndex(ui->tabWidget->count() - 1);

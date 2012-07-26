@@ -28,19 +28,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: primary_code_region()
 // Desc:
 //------------------------------------------------------------------------------
-EDB_EXPORT MemRegion edb::v1::primary_code_region() {
+EDB_EXPORT MemoryRegion edb::v1::primary_code_region() {
 
 	const QString process_executable = get_process_exe();
 
 	memory_regions().sync();
 
-	const QList<MemRegion> r = memory_regions().regions();
-	Q_FOREACH(const MemRegion &region, r) {
-		if(region.executable() && region.name == process_executable) {
+	const QList<MemoryRegion> r = memory_regions().regions();
+	Q_FOREACH(const MemoryRegion &region, r) {
+		if(region.executable() && region.name() == process_executable) {
 			return region;
 		}
 	}
-	return MemRegion();
+	return MemoryRegion();
 }
 
 //------------------------------------------------------------------------------
@@ -52,8 +52,8 @@ QStringList edb::v1::loaded_libraries() {
 
 	memory_regions().sync();
 
-	const QList<MemRegion> r = memory_regions().regions();
-	Q_FOREACH(const MemRegion &region, r) {
+	const QList<MemoryRegion> r = memory_regions().regions();
+	Q_FOREACH(const MemoryRegion &region, r) {
 		Q_UNUSED(region);
 	}
 

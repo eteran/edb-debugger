@@ -21,26 +21,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebuggerCore.h"
 
 //------------------------------------------------------------------------------
-// Name: RegionBuffer(const MemRegion &region)
+// Name: RegionBuffer(const MemoryRegion &region)
 // Desc:
 //------------------------------------------------------------------------------
-RegionBuffer::RegionBuffer(const MemRegion &region) : QIODevice(), region_(region) {
+RegionBuffer::RegionBuffer(const MemoryRegion &region) : QIODevice(), region_(region) {
 	setOpenMode(QIODevice::ReadOnly);
 }
 
 //------------------------------------------------------------------------------
-// Name: RegionBuffer(const MemRegion &region, QObject *parent)
+// Name: RegionBuffer(const MemoryRegion &region, QObject *parent)
 // Desc:
 //------------------------------------------------------------------------------
-RegionBuffer::RegionBuffer(const MemRegion &region, QObject *parent) : QIODevice(parent), region_(region) {
+RegionBuffer::RegionBuffer(const MemoryRegion &region, QObject *parent) : QIODevice(parent), region_(region) {
 	setOpenMode(QIODevice::ReadOnly);
 }
 
 //------------------------------------------------------------------------------
-// Name: set_region(const MemRegion &region)
+// Name: set_region(const MemoryRegion &region)
 // Desc:
 //------------------------------------------------------------------------------
-void RegionBuffer::set_region(const MemRegion &region) {
+void RegionBuffer::set_region(const MemoryRegion &region) {
 	region_ = region;
 	reset();
 }
@@ -51,8 +51,8 @@ void RegionBuffer::set_region(const MemRegion &region) {
 //------------------------------------------------------------------------------
 qint64 RegionBuffer::readData(char *data, qint64 maxSize) {
 
-	const edb::address_t start = region_.start + pos();
-	const edb::address_t end   = region_.start + region_.size();
+	const edb::address_t start = region_.start() + pos();
+	const edb::address_t end   = region_.start() + region_.size();
 
 	if(start + maxSize > end) {
 		maxSize = end - start;

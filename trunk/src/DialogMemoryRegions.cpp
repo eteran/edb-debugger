@@ -91,13 +91,13 @@ void DialogMemoryRegions::on_regions_table_customContextMenuRequested(const QPoi
 // Name: selected_region() const
 // Desc:
 //------------------------------------------------------------------------------
-MemRegion *DialogMemoryRegions::selected_region() const {
+MemoryRegion *DialogMemoryRegions::selected_region() const {
 	const QItemSelectionModel *const selModel = ui->regions_table->selectionModel();
 	const QModelIndexList sel = selModel->selectedRows();
-	MemRegion *ret = 0;
+	MemoryRegion *ret = 0;
 	if(sel.size() == 1) {
 		const QModelIndex index = filter_model_->mapToSource(sel[0]);
-		ret = reinterpret_cast<MemRegion *>(index.internalPointer());
+		ret = reinterpret_cast<MemoryRegion *>(index.internalPointer());
 	}
 	return ret;
 }
@@ -107,7 +107,7 @@ MemRegion *DialogMemoryRegions::selected_region() const {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::set_permissions(bool read, bool write, bool execute) {
-	if(MemRegion *const region = selected_region()) {
+	if(MemoryRegion *const region = selected_region()) {
 		region->set_permissions(read, write, execute);
 		edb::v1::memory_regions().sync();
 	}
@@ -182,8 +182,8 @@ void DialogMemoryRegions::set_access_rwx() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::view_in_cpu() {
-	if(MemRegion *const region = selected_region()) {
-		edb::v1::jump_to_address(region->start);
+	if(MemoryRegion *const region = selected_region()) {
+		edb::v1::jump_to_address(region->start());
 	}
 }
 
@@ -192,8 +192,8 @@ void DialogMemoryRegions::view_in_cpu() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::view_in_stack() {
-	if(MemRegion *const region = selected_region()) {
-		edb::v1::dump_stack(region->start, true);
+	if(MemoryRegion *const region = selected_region()) {
+		edb::v1::dump_stack(region->start(), true);
 	}
 }
 
@@ -202,8 +202,8 @@ void DialogMemoryRegions::view_in_stack() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::view_in_dump() {
-	if(MemRegion *const region = selected_region()) {
-		edb::v1::dump_data(region->start, true);
+	if(MemoryRegion *const region = selected_region()) {
+		edb::v1::dump_data(region->start(), true);
 	}
 }
 

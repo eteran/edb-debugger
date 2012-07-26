@@ -10,7 +10,7 @@ INSTALLS    += target
 QT          += xml
 
 TRANSLATIONS += \
-	edb_en.ts
+	lang/edb_en.ts
 
 HEADERS += \
 	API.h \
@@ -19,6 +19,8 @@ HEADERS += \
 	BinaryString.h \
 	ByteShiftArray.h \
 	CommentServer.h \
+	IState.h \
+	IRegion.h \
 	Configuration.h \
 	DataViewInfo.h \
 	DebugEvent.h \
@@ -46,7 +48,7 @@ HEADERS += \
 	ISessionFile.h \
 	LineEdit.h \
 	MD5.h \
-	MemRegion.h \
+	MemoryRegion.h \
 	MemoryRegions.h \
 	OSTypes.h \
 	QCategoryList.h \
@@ -78,10 +80,9 @@ FORMS += \
 	dialog_options.ui \
 	dialog_plugins.ui \
 	dialog_threads.ui 
-	
+
 SOURCES += \
 	ArchProcessor.cpp \
-	IBinary.cpp \
 	BinaryString.cpp \
 	ByteShiftArray.cpp \
 	CommentServer.cpp \
@@ -100,10 +101,11 @@ SOURCES += \
 	DialogOptions.cpp \
 	DialogPlugins.cpp \
 	DialogThreads.cpp \
+	IBinary.cpp \
 	Instruction.cpp \
 	LineEdit.cpp \
 	MD5.cpp \
-	MemRegion.cpp \
+	MemoryRegion.cpp \
 	MemoryRegions.cpp \
 	QCategoryList.cpp \
 	QDisassemblyView.cpp \
@@ -114,12 +116,11 @@ SOURCES += \
 	Register.cpp \
 	RegisterViewDelegate.cpp \
 	State.cpp \
-	symbols.cpp \
 	SymbolManager.cpp \
 	SyntaxHighlighter.cpp \
 	TabWidget.cpp \
+	symbols.cpp \
 	main.cpp
-
 
 DEPENDPATH  += ./qhexview
 INCLUDEPATH += ./qhexview
@@ -128,7 +129,7 @@ HEADERS     += qhexview.h QHexView
 
 # qjson stuff
 
-DEPENDPATH  += ./qjson 
+DEPENDPATH   += ./qjson 
 INCLUDEPATH  += ./qjson 
 
 HEADERS += json_parser.hh \

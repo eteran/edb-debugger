@@ -185,7 +185,7 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 
 		quint8 buf[edb::Instruction::MAX_SIZE];
 
-		int buf_size = qMin<edb::address_t>((current_address - region_.base), sizeof(buf));
+		int buf_size = qMin<edb::address_t>((current_address - region_.base()), sizeof(buf));
 
 		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address - buf_size, buf, buf_size)) {
 			current_address -= 1;
@@ -214,7 +214,7 @@ edb::address_t QDisassemblyView::following_instructions(edb::address_t current_a
 		quint8 buf[edb::Instruction::MAX_SIZE + 1];
 
 		// do the longest read we can while still not passing the region end
-		int buf_size = qMin<edb::address_t>((region_.end - current_address), sizeof(buf));
+		int buf_size = qMin<edb::address_t>((region_.end() - current_address), sizeof(buf));
 
 		// read in the bytes...
 		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address, buf, buf_size)) {
@@ -351,10 +351,10 @@ void QDisassemblyView::setCurrentAddress(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setRegion(const MemRegion &r)
+// Name: setRegion(const MemoryRegion &r)
 // Desc: sets the memory region we are viewing
 //------------------------------------------------------------------------------
-void QDisassemblyView::setRegion(const MemRegion &r) {
+void QDisassemblyView::setRegion(const MemoryRegion &r) {
 	if(region_ != r) {
 		region_ = r;
 		updateScrollbars();		
@@ -368,7 +368,7 @@ void QDisassemblyView::setRegion(const MemRegion &r) {
 // Desc: clears the display
 //------------------------------------------------------------------------------
 void QDisassemblyView::clear() {
-	setRegion(MemRegion());
+	setRegion(MemoryRegion());
 }
 
 //------------------------------------------------------------------------------
@@ -629,7 +629,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		quint8 buf[edb::Instruction::MAX_SIZE + 1];
 
 		// do the longest read we can while still not passing the region end
-		int buf_size = qMin<edb::address_t>((region_.end - address), sizeof(buf));
+		int buf_size = qMin<edb::address_t>((region_.end() - address), sizeof(buf));
 
 		// read in the bytes...
 		if(!edb::v1::get_instruction_bytes(address, buf, buf_size)) {
@@ -864,7 +864,7 @@ int QDisassemblyView::address_length() const {
 //------------------------------------------------------------------------------
 edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
 	const edb::address_t address = address_from_coord(pos.x(), pos.y()) + address_offset_;
-	if(address >= region_.end) {
+	if(address >= region_.end()) {
 		return 0;
 	}
 	return address;
@@ -898,10 +898,10 @@ int QDisassemblyView::get_instruction_size(edb::address_t address, bool &ok) con
 
 	// do the longest read we can while still not crossing region end
 	int buf_size = sizeof(buf);
-	if(region_.end != 0 && address + buf_size > region_.end) {
+	if(region_.end() != 0 && address + buf_size > region_.end()) {
 
-		if(address <= region_.end) {
-			buf_size = region_.end - address;
+		if(address <= region_.end()) {
+			buf_size = region_.end() - address;
 		} else {
 			buf_size = 0;
 		}
@@ -940,7 +940,7 @@ edb::address_t QDisassemblyView::address_from_coord(int x, int y) const {
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
-	if(region_ != MemRegion()) {
+	if(region_ != MemoryRegion()) {
 		if(event->button() == Qt::LeftButton) {
 			if(event->x() < line1()) {
 				const edb::address_t address = addressFromPoint(event->pos());
@@ -960,7 +960,7 @@ void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 bool QDisassemblyView::event(QEvent *event) {
 
-	if(region_ != MemRegion()) {
+	if(region_ != MemoryRegion()) {
 		if(event->type() == QEvent::ToolTip) {
 			bool show = false;
 
@@ -973,7 +973,7 @@ bool QDisassemblyView::event(QEvent *event) {
 				quint8 buf[edb::Instruction::MAX_SIZE];
 
 				// do the longest read we can while still not passing the region end
-				int buf_size = qMin<edb::address_t>((region_.end - address), sizeof(buf));
+				int buf_size = qMin<edb::address_t>((region_.end() - address), sizeof(buf));
 				if(edb::v1::get_instruction_bytes(address, buf, buf_size)) {
 					const edb::Instruction insn(buf, buf + buf_size, address, std::nothrow);
 
@@ -1016,7 +1016,7 @@ void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 	
-	if(region_ != MemRegion()) {
+	if(region_ != MemoryRegion()) {
 		bool ok;
 		const edb::address_t address = addressFromPoint(event->pos());
 		const int size               = get_instruction_size(address, ok);
@@ -1037,7 +1037,7 @@ void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 
-	if(region_ != MemRegion()) {
+	if(region_ != MemoryRegion()) {
 		if(event->button() == Qt::LeftButton) {
 			if(near_line(event->x(), line1())) {
 				moving_line1_ = true;
@@ -1060,7 +1060,7 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 
-	if(region_ != MemRegion()) {
+	if(region_ != MemoryRegion()) {
 		const int x_pos = event->x();
 
 		if(moving_line1_) {
@@ -1114,6 +1114,6 @@ int QDisassemblyView::selectedSize() const {
 // Name: region() const
 // Desc:
 //------------------------------------------------------------------------------
-MemRegion QDisassemblyView::region() const {
+MemoryRegion QDisassemblyView::region() const {
 	return region_;
 }

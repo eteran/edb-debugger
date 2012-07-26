@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IBinary.h"
 
 //------------------------------------------------------------------------------
-// Name: IBinary(const MemRegion &region)
+// Name: IBinary(const MemoryRegion &region)
 // Desc:
 //------------------------------------------------------------------------------
-IBinary::IBinary(const MemRegion &region) : region_(region) {
+IBinary::IBinary(const MemoryRegion &region) : region_(region) {
 }

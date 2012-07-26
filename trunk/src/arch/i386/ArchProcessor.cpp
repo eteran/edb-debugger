@@ -326,7 +326,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name) {
 // Name: resolve_function_parameters(const State &state, const QString &symname, int offset, QStringList &ret) const
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::resolve_function_parameters(const State &state, const QString &symname, int offset, QStringList &ret) const {
+void ArchProcessor::resolve_function_parameters(const State &state, const QString &symname, int offset, QStringList &ret) {
 
 	// we will always be removing the last 2 chars '+0' from the string as well
 	// as chopping the region prefix we like to prepend to symbols
