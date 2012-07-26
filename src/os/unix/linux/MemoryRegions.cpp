@@ -36,6 +36,66 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <sys/mman.h>
 
+namespace {
+//------------------------------------------------------------------------------
+// Name: process_map_line(const QString &line, MemoryRegion &region)
+// Desc: parses the data from a line of a memory map file
+//------------------------------------------------------------------------------
+bool process_map_line(const QString &line, MemoryRegion &region) {
+
+
+	edb::address_t start;
+	edb::address_t end;
+	edb::address_t base;
+	IRegion::permissions_t permissions;
+	QString name;
+
+	bool ret = false;
+	const QStringList items = line.split(" ", QString::SkipEmptyParts);
+	if(items.size() >= 3) {
+		bool ok;
+		const QStringList bounds = items[0].split("-");
+		if(bounds.size() == 2) {
+			start = bounds[0].toULongLong(&ok, 16);
+			if(ok) {
+				end = bounds[1].toULongLong(&ok, 16);
+				if(ok) {
+					base = items[2].toULongLong(&ok, 16);
+					if(ok) {
+						const QString perms = items[1];
+						permissions = 0;
+						if(perms[0] == 'r') permissions |= PROT_READ;
+						if(perms[1] == 'w') permissions |= PROT_WRITE;
+						if(perms[2] == 'x') permissions |= PROT_EXEC;
+
+						if(items.size() >= 6) {
+							name = items[5];
+						}
+						
+						region = MemoryRegion(start, end, base, name, permissions);
+						
+
+						// if the region has a name, is mapped starting
+						// at the beginning of the file, and is executable, sounds
+						// like a module mapping!
+						if(!region.name().isEmpty()) {
+							if(region.base() == 0) {
+								if(region.executable()) {
+									edb::v1::symbol_manager().load_symbol_file(region.name(), region.start());
+								}
+							}
+						}
+
+						ret = true;
+					}
+				}
+			}
+		}
+	}
+	return ret;
+}
+}
+
 //------------------------------------------------------------------------------
 // Name: MemoryRegions()
 // Desc: constructor
@@ -69,64 +129,13 @@ void MemoryRegions::clear() {
 	regions_.clear();
 }
 
-namespace {
-	//------------------------------------------------------------------------------
-	// Name: process_map_line(const QString &line, MemRegion &region)
-	// Desc: parses the data from a line of a memory map file
-	//------------------------------------------------------------------------------
-	bool process_map_line(const QString &line, MemRegion &region) {
-
-		bool ret = false;
-		const QStringList items = line.split(" ", QString::SkipEmptyParts);
-		if(items.size() >= 3) {
-			bool ok;
-			const QStringList bounds = items[0].split("-");
-			if(bounds.size() == 2) {
-				region.start = bounds[0].toULongLong(&ok, 16);
-				if(ok) {
-					region.end = bounds[1].toULongLong(&ok, 16);
-					if(ok) {
-						region.base = items[2].toULongLong(&ok, 16);
-						if(ok) {
-							const QString perms = items[1];
-							MemRegion::permissions_t permissions = 0;
-							if(perms[0] == 'r') permissions |= PROT_READ;
-							if(perms[1] == 'w') permissions |= PROT_WRITE;
-							if(perms[2] == 'x') permissions |= PROT_EXEC;
-							region.permissions_ = permissions;
-
-							if(items.size() >= 6) {
-								region.name = items[5];
-							}
-
-							// if the region has a name, is mapped starting
-							// at the beginning of the file, and is executable, sounds
-							// like a module mapping!
-							if(!region.name.isEmpty()) {
-								if(region.base == 0) {
-									if(region.executable()) {
-										edb::v1::symbol_manager().load_symbol_file(region.name, region.start);
-									}
-								}
-							}
-
-							ret = true;
-						}
-					}
-				}
-			}
-		}
-		return ret;
-	}
-}
-
 //------------------------------------------------------------------------------
 // Name: sync()
 // Desc: reads a memory map file line by line
 //------------------------------------------------------------------------------
 void MemoryRegions::sync() {
 
-	QList<MemRegion> regions;
+	QList<MemoryRegion> regions;
 
 	if(pid_ != 0) {
 		const QString mapFile(QString("/proc/%1/maps").arg(pid_));
@@ -138,7 +147,7 @@ void MemoryRegions::sync() {
 			QString line = in.readLine();
 
 			while(!line.isNull()) {
-				MemRegion region;
+				MemoryRegion region;
 				if(process_map_line(line, region)) {
 					regions.push_back(region);
 				}
@@ -162,7 +171,7 @@ void MemoryRegions::sync() {
 // Desc:
 //------------------------------------------------------------------------------
 bool MemoryRegions::find_region(edb::address_t address) const {
-	Q_FOREACH(const MemRegion &i, regions_) {
+	Q_FOREACH(const MemoryRegion &i, regions_) {
 		if(i.contains(address)) {
 			return true;
 		}
@@ -171,11 +180,11 @@ bool MemoryRegions::find_region(edb::address_t address) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: find_region(edb::address_t address, MemRegion &region) const
+// Name: find_region(edb::address_t address, MemoryRegion &region) const
 // Desc:
 //------------------------------------------------------------------------------
-bool MemoryRegions::find_region(edb::address_t address, MemRegion &region) const {
-	Q_FOREACH(const MemRegion &i, regions_) {
+bool MemoryRegions::find_region(edb::address_t address, MemoryRegion &region) const {
+	Q_FOREACH(const MemoryRegion &i, regions_) {
 		if(i.contains(address)) {
 			region = i;
 			return true;
@@ -192,13 +201,13 @@ QVariant MemoryRegions::data(const QModelIndex &index, int role) const {
 
 	if(index.isValid() && role == Qt::DisplayRole) {
 
-		const MemRegion &region = regions_[index.row()];
+		const MemoryRegion &region = regions_[index.row()];
 
 		switch(index.column()) {
-		case 0: return edb::v1::format_pointer(region.start);
-		case 1: return edb::v1::format_pointer(region.end);
+		case 0: return edb::v1::format_pointer(region.start());
+		case 1: return edb::v1::format_pointer(region.end());
 		case 2: return QString("%1%2%3").arg(region.readable() ? 'r' : '-').arg(region.writable() ? 'w' : '-').arg(region.executable() ? 'x' : '-' );
-		case 3: return region.name;
+		case 3: return region.name();
 		}
 	}
 
@@ -216,7 +225,7 @@ QModelIndex MemoryRegions::index(int row, int column, const QModelIndex &parent)
 		return QModelIndex();
 	}
 
-	return createIndex(row, column, const_cast<MemRegion *>(&regions_[row]));
+	return createIndex(row, column, const_cast<MemoryRegion *>(&regions_[row]));
 }
 
 //------------------------------------------------------------------------------

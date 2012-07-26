@@ -1439,7 +1439,7 @@ void DebuggerMain::update_data(const DataViewInfo::pointer &v) {
 
 	v->update();
 
-	update_tab_caption(view, v->region.start, v->region.end);
+	update_tab_caption(view, v->region.start(), v->region.end());
 }
 
 //------------------------------------------------------------------------------
@@ -1461,11 +1461,11 @@ void DebuggerMain::clear_data(const DataViewInfo::pointer &v) {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_jump_to_address(edb::address_t address, const MemRegion &r, bool scrollTo)
+// Name: do_jump_to_address(edb::address_t address, const MemoryRegion &r, bool scrollTo)
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::do_jump_to_address(edb::address_t address, const MemRegion &r, bool scrollTo) {
-	ui->cpuView->setAddressOffset(r.start);
+void DebuggerMain::do_jump_to_address(edb::address_t address, const MemoryRegion &r, bool scrollTo) {
+	ui->cpuView->setAddressOffset(r.start());
 	ui->cpuView->setRegion(r);
 	if(scrollTo && !ui->cpuView->addressShown(address)) {
 		ui->cpuView->scrollTo(address);
@@ -1473,10 +1473,10 @@ void DebuggerMain::do_jump_to_address(edb::address_t address, const MemRegion &r
 }
 
 //------------------------------------------------------------------------------
-// Name: update_disassembly(edb::address_t address, const MemRegion &r)
+// Name: update_disassembly(edb::address_t address, const MemoryRegion &r)
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::update_disassembly(edb::address_t address, const MemRegion &r) {
+void DebuggerMain::update_disassembly(edb::address_t address, const MemoryRegion &r) {
 	ui->cpuView->setCurrentAddress(address);
 	do_jump_to_address(address, r, true);
 	list_model_->setStringList(edb::v1::arch_processor().update_instruction_info(address));
@@ -1494,10 +1494,10 @@ void DebuggerMain::update_stack_view(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_cpu_view(const State &state, MemRegion &region)
+// Name: update_cpu_view(const State &state, MemoryRegion &region)
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::update_cpu_view(const State &state, MemRegion &region) {
+void DebuggerMain::update_cpu_view(const State &state, MemoryRegion &region) {
 
 	const edb::address_t address = state.instruction_pointer();
 
@@ -1520,7 +1520,7 @@ void DebuggerMain::update_data_views() {
 	Q_FOREACH(const DataViewInfo::pointer &info, data_regions_) {
 
 		// make sure the regions are still valid..
-		if(edb::v1::memory_regions().find_region(info->region.start)) {
+		if(edb::v1::memory_regions().find_region(info->region.start())) {
 			update_data(info);
 		} else {
 			clear_data(info);
@@ -1555,11 +1555,11 @@ void DebuggerMain::update_gui() {
 		State state;
 		edb::v1::debugger_core->get_state(state);
 		
-		MemRegion region;
+		MemoryRegion region;
 		update_cpu_view(state, region);
 		update_data_views();
 		update_stack_view(state);
-		edb::v1::arch_processor().update_register_view(region.name);
+		edb::v1::arch_processor().update_register_view(region.name());
 	}
 }
 
@@ -1722,7 +1722,7 @@ void DebuggerMain::cleanup_debugger() {
 	ui->tabWidget->setData(0, QString());
 
 	Q_ASSERT(!data_regions_.isEmpty());
-	data_regions_.first()->region = MemRegion();
+	data_regions_.first()->region = MemoryRegion();
 
 	setWindowTitle(tr("edb"));
 
@@ -2051,8 +2051,8 @@ void DebuggerMain::on_action_Memory_Regions_triggered() {
 
 	if(dlg->exec() == QDialog::Accepted) {
 		if(dlg) {
-			if(const MemRegion *const region = dlg->selected_region()) {
-				edb::v1::dump_data(region->start);
+			if(const MemoryRegion *const region = dlg->selected_region()) {
+				edb::v1::dump_data(region->start());
 			}
 		}
 	}
@@ -2134,7 +2134,7 @@ void DebuggerMain::on_action_Plugins_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerMain::jump_to_address(edb::address_t address) {
-	MemRegion region;
+	MemoryRegion region;
 	if(edb::v1::memory_regions().find_region(address, region)) {
 		do_jump_to_address(address, region, true);
 		return true;
@@ -2148,7 +2148,7 @@ bool DebuggerMain::jump_to_address(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerMain::dump_data_range(edb::address_t address, edb::address_t end_address, bool new_tab) {
-	MemRegion region;
+	MemoryRegion region;
 	if(edb::v1::memory_regions().find_region(address, region)) {
 		if(new_tab) {
 			mnuDumpCreateTab();
@@ -2160,11 +2160,11 @@ bool DebuggerMain::dump_data_range(edb::address_t address, edb::address_t end_ad
 			info->region = region;
 
 			if(info->region.contains(end_address)) {
-				info->region.end = end_address;
+				info->region = MemoryRegion(region.start(), end_address, region.base(), region.name(), region.permissions());
 			}
 
 			if(info->region.contains(address)) {
-				info->region.start = address;
+				info->region = MemoryRegion(address, region.end(), region.base(), region.name(), region.permissions());
 			}
 
 			update_data(info);
@@ -2180,7 +2180,7 @@ bool DebuggerMain::dump_data_range(edb::address_t address, edb::address_t end_ad
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerMain::dump_data(edb::address_t address, bool new_tab) {
-	MemRegion region;
+	MemoryRegion region;
 	if(edb::v1::memory_regions().find_region(address, region)) {
 		if(new_tab) {
 			mnuDumpCreateTab();
@@ -2191,7 +2191,7 @@ bool DebuggerMain::dump_data(edb::address_t address, bool new_tab) {
 		if(info) {
 			info->region = region;
 			update_data(info);
-			info->view->scrollTo(address - info->region.start);
+			info->view->scrollTo(address - info->region.start());
 			return true;
 		}
 	}
@@ -2204,12 +2204,12 @@ bool DebuggerMain::dump_data(edb::address_t address, bool new_tab) {
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerMain::dump_stack(edb::address_t address, bool scroll_to) {
-	const MemRegion last_region = stack_view_info_.region;
+	const MemoryRegion last_region = stack_view_info_.region;
 
 	if(edb::v1::memory_regions().find_region(address, stack_view_info_.region)) {
 		stack_view_info_.update();
 		if(scroll_to || stack_view_info_.region != last_region) {
-			stack_view_->scrollTo(address - stack_view_info_.region.start);
+			stack_view_->scrollTo(address - stack_view_info_.region.start());
 		}
 		return true;
 	}

@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DATAVIEWINFO_20100101_H_
 #define DATAVIEWINFO_20100101_H_
 
-#include "MemRegion.h"
+#include "MemoryRegion.h"
 #include "RegionBuffer.h"
 #include <QSharedPointer>
 #include "QHexView"
@@ -28,14 +28,14 @@ class DataViewInfo {
 public:
 	typedef QSharedPointer<DataViewInfo> pointer;
 public:
-	DataViewInfo(const MemRegion &r = MemRegion());
+	DataViewInfo(const MemoryRegion &r = MemoryRegion());
 	~DataViewInfo();
 
 private:
 	Q_DISABLE_COPY(DataViewInfo)
 
 public:
-	MemRegion                    region;
+	MemoryRegion                    region;
 	QSharedPointer<RegionBuffer> stream;
 	QSharedPointer<QHexView>     view;
 

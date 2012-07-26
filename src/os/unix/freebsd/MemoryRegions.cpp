@@ -88,7 +88,7 @@ void MemoryRegions::clear() {
 //------------------------------------------------------------------------------
 void MemoryRegions::sync() {
 
-	QList<MemRegion> regions;
+	QList<MemoryRegion> regions;
 
 	if(pid_ != 0) {
 		char buffer[PATH_MAX] = {};
@@ -100,13 +100,13 @@ void MemoryRegions::sync() {
 			vm_entry.pve_path    = buffer;
 			vm_entry.pve_pathlen = sizeof(buffer);
 
-			MemRegion region;
-			region.start        = vm_entry.pve_start;
-			region.end          = vm_entry.pve_end;
-			region.base         = vm_entry.pve_start - vm_entry.pve_offset;
-			region.name         = vm_entry.pve_path;
-			region.permissions_ = vm_entry.pve_prot;
-			regions.push_back(region);
+			const edb::address_t start               = vm_entry.pve_start;
+			const edb::address_t end                 = vm_entry.pve_end;
+			const edb::address_t base                = vm_entry.pve_start - vm_entry.pve_offset;
+			const QString name                       = vm_entry.pve_path;
+			const IRegion::permissions_t permissions = vm_entry.pve_prot;
+
+			regions.push_back(MemoryRegion(start, end, base, name, permissions));
 			memset(buffer, 0, sizeof(buffer));
 		}
 	}
@@ -120,7 +120,7 @@ void MemoryRegions::sync() {
 // Desc:
 //------------------------------------------------------------------------------
 bool MemoryRegions::find_region(edb::address_t address) const {
-	Q_FOREACH(const MemRegion &i, regions_) {
+	Q_FOREACH(const MemoryRegion &i, regions_) {
 		if(i.contains(address)) {
 			return true;
 		}
@@ -129,11 +129,11 @@ bool MemoryRegions::find_region(edb::address_t address) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: find_region(edb::address_t address, MemRegion &region) const
+// Name: find_region(edb::address_t address, MemoryRegion &region) const
 // Desc:
 //------------------------------------------------------------------------------
-bool MemoryRegions::find_region(edb::address_t address, MemRegion &region) const {
-	Q_FOREACH(const MemRegion &i, regions_) {
+bool MemoryRegions::find_region(edb::address_t address, MemoryRegion &region) const {
+	Q_FOREACH(const MemoryRegion &i, regions_) {
 		if(i.contains(address)) {
 			region = i;
 			return true;
@@ -150,17 +150,17 @@ QVariant MemoryRegions::data(const QModelIndex &index, int role) const {
 
 	if(index.isValid() && role == Qt::DisplayRole) {
 
-		const MemRegion &region = regions_[index.row()];
+		const MemoryRegion &region = regions_[index.row()];
 
 		switch(index.column()) {
 		case 0:
-			return edb::v1::format_pointer(region.start);
+			return edb::v1::format_pointer(region.start());
 		case 1:
-			return edb::v1::format_pointer(region.end);
+			return edb::v1::format_pointer(region.end());
 		case 2:
 			return QString("%1%2%3").arg(region.readable() ? 'r' : '-').arg(region.writable() ? 'w' : '-').arg(region.executable() ? 'x' : '-' );
 		case 3:
-			return region.name;
+			return region.name();
 		}
 	}
 
@@ -178,7 +178,7 @@ QModelIndex MemoryRegions::index(int row, int column, const QModelIndex &parent)
 		return QModelIndex();
 	}
 
-	return createIndex(row, column, const_cast<MemRegion *>(&regions_[row]));
+	return createIndex(row, column, const_cast<MemoryRegion *>(&regions_[row]));
 }
 
 //------------------------------------------------------------------------------

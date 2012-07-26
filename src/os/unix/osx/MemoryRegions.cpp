@@ -17,16 +17,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "MemoryRegions.h"
-#include "SymbolManager.h"
-#include "IDebuggerCore.h"
-#include "Util.h"
-#include "State.h"
 #include "Debugger.h"
-#include <QtGlobal>
+#include "IDebuggerCore.h"
+#include "State.h"
+#include "SymbolManager.h"
+#include "Util.h"
 #include <QApplication>
 #include <QDebug>
 #include <QStringList>
-
+#include <QtGlobal>
 
 #include <mach/mach.h>
 #include <mach/mach_vm.h>
@@ -83,7 +82,7 @@ void MemoryRegions::sync() {
 	};
 #endif
 
-	QList<MemRegion> regions;
+	QList<MemoryRegion> regions;
 	if(pid_ != 0) {
 		task_t the_task;
 		kern_return_t kr = task_for_pid(mach_task_self(), pid_, &the_task);
@@ -108,17 +107,16 @@ void MemoryRegions::sync() {
 			kr = vm_region_64(the_task, &address, &vmsize, flavor, (vm_region_info_64_t)&info, &info_count, &object);
 			if(kr == KERN_SUCCESS) {
 
-				MemRegion region;
-				region.start        = address;
-				region.end          = address + vmsize;
-				region.base         = address;
-				region.name         = QString();
-				region.permissions_ =
+				const edb::address_t start               = address;
+				const edb::address_t end                 = address + vmsize;
+				const edb::address_t base                = address;
+				const QString name                       = QString();
+				const IRegion::permissions_t permissions = 
 					((info.protection & VM_PROT_READ)    ? PROT_READ  : 0) |
 					((info.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
 					((info.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
 
-				regions.push_back(region);
+				regions.push_back(MemoryRegion(start, end, base, name, permissions));
 
 				/*
 				printf("%016llx-%016llx %8uK %c%c%c/%c%c%c %11s %6s %10s uwir=%hu sub=%u\n",
@@ -159,7 +157,7 @@ void MemoryRegions::sync() {
 // Desc:
 //------------------------------------------------------------------------------
 bool MemoryRegions::find_region(edb::address_t address) const {
-	Q_FOREACH(const MemRegion &i, regions_) {
+	Q_FOREACH(const MemoryRegion &i, regions_) {
 		if(i.contains(address)) {
 			return true;
 		}
@@ -168,11 +166,11 @@ bool MemoryRegions::find_region(edb::address_t address) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: find_region(edb::address_t address, MemRegion &region) const
+// Name: find_region(edb::address_t address, MemoryRegion &region) const
 // Desc:
 //------------------------------------------------------------------------------
-bool MemoryRegions::find_region(edb::address_t address, MemRegion &region) const {
-	Q_FOREACH(const MemRegion &i, regions_) {
+bool MemoryRegions::find_region(edb::address_t address, MemoryRegion &region) const {
+	Q_FOREACH(const MemoryRegion &i, regions_) {
 		if(i.contains(address)) {
 			region = i;
 			return true;
@@ -189,7 +187,7 @@ QVariant MemoryRegions::data(const QModelIndex &index, int role) const {
 
 	if(index.isValid() && role == Qt::DisplayRole) {
 
-		const MemRegion &region = regions_[index.row()];
+		const MemoryRegion &region = regions_[index.row()];
 
 		switch(index.column()) {
 		case 0:
@@ -217,7 +215,7 @@ QModelIndex MemoryRegions::index(int row, int column, const QModelIndex &parent)
 		return QModelIndex();
 	}
 
-	return createIndex(row, column, const_cast<MemRegion *>(&regions_[row]));
+	return createIndex(row, column, const_cast<MemoryRegion *>(&regions_[row]));
 }
 
 //------------------------------------------------------------------------------

@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDialog>
 
 class QSortFilterProxyModel;
-class MemRegion;
+class MemoryRegion;
 
 namespace Ui { class DialogMemoryRegions; }
 
@@ -50,7 +50,7 @@ private Q_SLOTS:
 	void view_in_dump();
 
 public:
-	MemRegion *selected_region() const;
+	MemoryRegion *selected_region() const;
 
 private:
 	void set_permissions(bool read, bool write, bool execute);

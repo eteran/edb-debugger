@@ -155,7 +155,7 @@ edb::address_t edb::v1::cpu_selected_address() {
 // Name: current_cpu_view_region()
 // Desc:
 //------------------------------------------------------------------------------
-MemRegion edb::v1::current_cpu_view_region() {
+MemoryRegion edb::v1::current_cpu_view_region() {
 	return ui()->ui->cpuView->region();
 }
 
@@ -345,7 +345,7 @@ QString edb::v1::get_breakpoint_condition(edb::address_t address) {
 //------------------------------------------------------------------------------
 void edb::v1::create_breakpoint(edb::address_t address) {
 
-	MemRegion region;
+	MemoryRegion region;
 	memory_regions().sync();
 	if(memory_regions().find_region(address, region)) {
 		int ret = QMessageBox::Yes;
@@ -749,11 +749,11 @@ bool edb::v1::get_instruction_bytes(edb::address_t address, quint8 *buf, int &si
 }
 
 //------------------------------------------------------------------------------
-// Name: get_binary_info(const MemRegion &region)
+// Name: get_binary_info(const MemoryRegion &region)
 // Desc: gets an object which knows how to analyze the binary file provided
 //       or NULL if none-found
 //------------------------------------------------------------------------------
-IBinary *edb::v1::get_binary_info(const MemRegion &region) {
+IBinary *edb::v1::get_binary_info(const MemoryRegion &region) {
 	Q_FOREACH(IBinary::create_func_ptr_t f, g_BinaryInfoList) {
 		IBinary *const p = (*f)(region);
 
@@ -774,7 +774,7 @@ IBinary *edb::v1::get_binary_info(const MemRegion &region) {
 //------------------------------------------------------------------------------
 edb::address_t edb::v1::locate_main_function() {
 
-	const MemRegion region = primary_code_region();
+	const MemoryRegion region = primary_code_region();
 
 	SCOPED_POINTER<IBinary> binfo(get_binary_info(region));
 	
@@ -839,13 +839,13 @@ const FunctionInfo *edb::v1::get_function_info(const QString &function) {
 // Note: make sure that memory regions has been sync'd first or you will like
 //       get a null-region result
 //------------------------------------------------------------------------------
-MemRegion edb::v1::primary_data_region() {
-	const QList<MemRegion> &l = edb::v1::memory_regions().regions();
+MemoryRegion edb::v1::primary_data_region() {
+	const QList<MemoryRegion> &l = edb::v1::memory_regions().regions();
 
 	if(l.size() >= 2) {
 		return l[1];
 	} else {
-		return MemRegion();
+		return MemoryRegion();
 	}
 }
 
