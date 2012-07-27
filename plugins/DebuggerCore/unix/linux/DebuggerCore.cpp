@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "State.h"
 #include "DebugEvent.h"
 #include "PlatformState.h"
+#include "PlatformRegion.h"
 
 #include <QDebug>
 #include <QDir>
@@ -659,6 +660,14 @@ void DebuggerCore::reset() {
 //------------------------------------------------------------------------------
 IState *DebuggerCore::create_state() const {
 	return new PlatformState;
+}
+
+//------------------------------------------------------------------------------
+// Name: create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions)
+// Desc:
+//------------------------------------------------------------------------------
+IRegion *DebuggerCore::create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const {
+	return new PlatformRegion(start, end, base, name, permissions);
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

@@ -21,11 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 #include "API.h"
-#include "MemRegion.h"
+#include "MemoryRegion.h"
 
 class EDB_EXPORT IBinary {
 public:
-	explicit IBinary(const MemRegion &region);
+	explicit IBinary(const MemoryRegion &region);
 	virtual ~IBinary() {}
 
 public:
@@ -42,10 +42,10 @@ public:
 	virtual edb::address_t debug_pointer() { return 0; }
 
 protected:
-	MemRegion region_;
+	MemoryRegion region_;
 
 public:
-	typedef IBinary *(*create_func_ptr_t)(const MemRegion &);
+	typedef IBinary *(*create_func_ptr_t)(const MemoryRegion &);
 };
 
 #endif

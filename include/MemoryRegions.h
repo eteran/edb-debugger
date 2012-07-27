@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 #include "API.h"
-#include "MemRegion.h"
+#include "MemoryRegion.h"
 
 #include <QAbstractItemModel>
 #include <QList>
@@ -44,21 +44,21 @@ public:
 	void set_pid(edb::pid_t pid);
 	void clear();
 
-	const QList<MemRegion> &regions() const { return regions_; }
+	const QList<MemoryRegion> &regions() const { return regions_; }
 
 	void sync();
 
-	bool find_region(edb::address_t address, MemRegion &region) const;
+	bool find_region(edb::address_t address, MemoryRegion &region) const;
 	bool find_region(edb::address_t address) const;
 
 private:
 	edb::pid_t       pid_;
-	QList<MemRegion> regions_;
+	QList<MemoryRegion> regions_;
 };
 
 // provide a reasonable hash function for the region
-inline uint qHash(const MemRegion &region) {
-	return qHash(region.start);
+inline uint qHash(const MemoryRegion &region) {
+	return qHash(region.start());
 }
 
 #endif

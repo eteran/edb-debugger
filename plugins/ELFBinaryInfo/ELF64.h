@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class ELF64 : public IBinary {
 public:
-	ELF64(const MemRegion &region);
+	ELF64(const MemoryRegion &region);
 	virtual ~ELF64();
 
 public:

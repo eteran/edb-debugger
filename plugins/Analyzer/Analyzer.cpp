@@ -138,7 +138,7 @@ void Analyzer::show_specified() {
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::do_ip_analysis() {
-	MemRegion region;
+	MemoryRegion region;
 	
 	State state;
 	edb::v1::debugger_core->get_state(state);
@@ -163,7 +163,7 @@ void Analyzer::do_view_analysis() {
 //------------------------------------------------------------------------------
 void Analyzer::mark_function_start() {
 	const edb::address_t address = edb::v1::cpu_selected_address();
-	MemRegion region;
+	MemoryRegion region;
 	if(edb::v1::memory_regions().find_region(address, region)) {
 		qDebug("Added %p to the list of known functions", reinterpret_cast<void *>(address));
 		specified_functions_.insert(address);
@@ -234,10 +234,10 @@ QList<QAction *> Analyzer::cpu_context_menu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_analysis(const MemRegion &region)
+// Name: do_analysis(const MemoryRegion &region)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::do_analysis(const MemRegion &region) {
+void Analyzer::do_analysis(const MemoryRegion &region) {
 	if(region.size() != 0) {
 		QProgressDialog progress(tr("Performing Analysis"), 0, 0, 100, edb::v1::debugger_ui);
 		connect(this, SIGNAL(update_progress(int)), &progress, SLOT(setValue(int)));
@@ -249,10 +249,10 @@ void Analyzer::do_analysis(const MemRegion &region) {
 }
 
 //------------------------------------------------------------------------------
-// Name: find_function_calls(const MemRegion &region, FunctionMap &found_functions)
+// Name: find_function_calls(const MemoryRegion &region, FunctionMap &found_functions)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::find_function_calls(const MemRegion &region, FunctionMap &found_functions) {
+void Analyzer::find_function_calls(const MemoryRegion &region, FunctionMap &found_functions) {
 	static const edb::address_t page_size = edb::v1::debugger_core->page_size();
 
 	const edb::address_t size_in_pages = region.size() / page_size;
@@ -260,14 +260,14 @@ void Analyzer::find_function_calls(const MemRegion &region, FunctionMap &found_f
 	try {
 		QVector<quint8> pages(size_in_pages * page_size);
 
-		if(edb::v1::debugger_core->read_pages(region.start, &pages[0], size_in_pages)) {
-			for(edb::address_t i = 0; i < region.size(); ++i) {
+		if(edb::v1::debugger_core->read_pages(region.start(), &pages[0], size_in_pages)) {
+			for(edb::address_t i = 0; i < static_cast<edb::address_t>(region.size()); ++i) {
 
-				const edb::Instruction insn(&pages[i], &pages[i] + region.size(), region.start + i, std::nothrow);
+				const edb::Instruction insn(&pages[i], &pages[i] + region.size(), region.start() + i, std::nothrow);
 
 				if(insn.valid() && insn.type() == edb::Instruction::OP_CALL) {
 
-					const edb::address_t ip = region.start + i;
+					const edb::address_t ip = region.start() + i;
 					const edb::Operand &op = insn.operand(0);
 
 					if(op.general_type() == edb::Operand::TYPE_REL) {
@@ -409,10 +409,10 @@ void Analyzer::update_results_entry(FunctionMap &results, edb::address_t address
 }
 
 //------------------------------------------------------------------------------
-// Name: bonus_main(const MemRegion &region, FunctionMap &results)
+// Name: bonus_main(const MemoryRegion &region, FunctionMap &results)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_main(const MemRegion &region, FunctionMap &results) const {
+void Analyzer::bonus_main(const MemoryRegion &region, FunctionMap &results) const {
 	const QString s = edb::v1::get_process_exe();
 	if(!s.isEmpty()) {
 		const edb::address_t main = edb::v1::locate_main_function();
@@ -425,10 +425,10 @@ void Analyzer::bonus_main(const MemRegion &region, FunctionMap &results) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: bonus_symbols_helper(const MemRegion &region, FunctionMap &results, const Symbol::pointer &sym)
+// Name: bonus_symbols_helper(const MemoryRegion &region, FunctionMap &results, const Symbol::pointer &sym)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_symbols_helper(const MemRegion &region, FunctionMap &results, const Symbol::pointer &sym) {
+void Analyzer::bonus_symbols_helper(const MemoryRegion &region, FunctionMap &results, const Symbol::pointer &sym) {
 	const edb::address_t addr = sym->address;
 
 	if(region.contains(addr) && sym->is_code()) {
@@ -441,10 +441,10 @@ void Analyzer::bonus_symbols_helper(const MemRegion &region, FunctionMap &result
 
 
 //------------------------------------------------------------------------------
-// Name: bonus_symbols(const MemRegion &region, FunctionMap &results)
+// Name: bonus_symbols(const MemoryRegion &region, FunctionMap &results)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_symbols(const MemRegion &region, FunctionMap &results) {
+void Analyzer::bonus_symbols(const MemoryRegion &region, FunctionMap &results) {
 
 	// give bonus if we have a symbol for the address
 	const QList<Symbol::pointer> symbols = edb::v1::symbol_manager().symbols();
@@ -456,10 +456,10 @@ void Analyzer::bonus_symbols(const MemRegion &region, FunctionMap &results) {
 }
 
 //------------------------------------------------------------------------------
-// Name: bonus_marked_functions(const MemRegion &region, FunctionMap &results)
+// Name: bonus_marked_functions(const MemoryRegion &region, FunctionMap &results)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_marked_functions(const MemRegion &region, FunctionMap &results) {
+void Analyzer::bonus_marked_functions(const MemoryRegion &region, FunctionMap &results) {
 
 	Q_FOREACH(edb::address_t addr, specified_functions_) {
 		if(region.contains(addr)) {
@@ -473,10 +473,10 @@ void Analyzer::bonus_marked_functions(const MemRegion &region, FunctionMap &resu
 }
 
 //------------------------------------------------------------------------------
-// Name: walk_all_functions(FunctionMap &results, const MemRegion &region, QSet<edb::address_t> &walked_functions)
+// Name: walk_all_functions(FunctionMap &results, const MemoryRegion &region, QSet<edb::address_t> &walked_functions)
 // Desc:
 //------------------------------------------------------------------------------
-int Analyzer::walk_all_functions(FunctionMap &results, const MemRegion &region, QSet<edb::address_t> &walked_functions) {
+int Analyzer::walk_all_functions(FunctionMap &results, const MemoryRegion &region, QSet<edb::address_t> &walked_functions) {
 	int updates = 0;
 
 	QSet<edb::address_t> found_functions;
@@ -492,7 +492,7 @@ int Analyzer::walk_all_functions(FunctionMap &results, const MemRegion &region, 
 
 				// the function's upper bound is either the entry point of the next function
 				// or the region's end which is the absolute max end this function can have
-				const edb::address_t next_entry = (next != results.end()) ? next.value().entry_address : region.end;
+				const edb::address_t next_entry = (next != results.end()) ? next.value().entry_address : region.end();
 
 				// walk the function and collect some results
 
@@ -733,10 +733,10 @@ void Analyzer::set_function_types(FunctionMap &results) {
 }
 
 //------------------------------------------------------------------------------
-// Name: is_inside_known(const MemRegion &region, edb::address_t address)
+// Name: is_inside_known(const MemoryRegion &region, edb::address_t address)
 // Desc:
 //------------------------------------------------------------------------------
-bool Analyzer::is_inside_known(const MemRegion &region, edb::address_t address) {
+bool Analyzer::is_inside_known(const MemoryRegion &region, edb::address_t address) {
 
 	const FunctionMap &funcs = functions(region);
 	Q_FOREACH(const Function &func, funcs) {
@@ -749,10 +749,10 @@ bool Analyzer::is_inside_known(const MemRegion &region, edb::address_t address) 
 }
 
 //------------------------------------------------------------------------------
-// Name: find_calls_from_known(const MemRegion &region, FunctionMap &results, QSet<edb::address_t> &walked_functions)
+// Name: find_calls_from_known(const MemoryRegion &region, FunctionMap &results, QSet<edb::address_t> &walked_functions)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::find_calls_from_known(const MemRegion &region, FunctionMap &results, QSet<edb::address_t> &walked_functions) {
+void Analyzer::find_calls_from_known(const MemoryRegion &region, FunctionMap &results, QSet<edb::address_t> &walked_functions) {
 	int updates;
 	do {
 		updates = walk_all_functions(results, region, walked_functions);
@@ -779,7 +779,7 @@ void Analyzer::collect_high_ref_results(FunctionMap &function_map, FunctionMap &
 // Name: 
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::collect_low_ref_results(const MemRegion &region, FunctionMap &function_map, FunctionMap &found_functions) {
+void Analyzer::collect_low_ref_results(const MemoryRegion &region, FunctionMap &function_map, FunctionMap &found_functions) {
 	// promote weak symbols...
 	ISymbolManager &syms = edb::v1::symbol_manager();
 	Q_FOREACH(const Function &func, found_functions) {
@@ -806,10 +806,10 @@ void Analyzer::indent_header() {
 }
 
 //------------------------------------------------------------------------------
-// Name: analyze(const MemRegion &region)
+// Name: analyze(const MemoryRegion &region)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::analyze(const MemRegion &region_ref) {
+void Analyzer::analyze(const MemoryRegion &region_ref) {
 
 	QTime t;
 	t.start();
@@ -821,7 +821,7 @@ void Analyzer::analyze(const MemRegion &region_ref) {
 	// MemoryRegions::sync()
 	// which happens to invalidate the references to regions we are potentially passed..
 	// so just to be sure, we make a copy! wow, that was an annoying bug!
-	MemRegion region(region_ref);
+	MemoryRegion region(region_ref);
 
 	RegionInfo &region_info = analysis_info_[region];
 
@@ -925,10 +925,10 @@ IAnalyzer::AddressCategory Analyzer::category(edb::address_t address) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: functions(const MemRegion &region) const
+// Name: functions(const MemoryRegion &region) const
 // Desc:
 //------------------------------------------------------------------------------
-IAnalyzer::FunctionMap Analyzer::functions(const MemRegion &region) const {
+IAnalyzer::FunctionMap Analyzer::functions(const MemoryRegion &region) const {
 	return analysis_info_[region].analysis;
 }
 
@@ -938,7 +938,7 @@ IAnalyzer::FunctionMap Analyzer::functions(const MemRegion &region) const {
 //------------------------------------------------------------------------------
 bool Analyzer::find_containing_function(edb::address_t address, IAnalyzer::Function &function) const {
 
-	MemRegion region;
+	MemoryRegion region;
 	if(edb::v1::memory_regions().find_region(address, region)) {
 		const FunctionMap &funcs = functions(region);
 		Q_FOREACH(const Function &f, funcs) {
@@ -952,10 +952,10 @@ bool Analyzer::find_containing_function(edb::address_t address, IAnalyzer::Funct
 }
 
 //------------------------------------------------------------------------------
-// Name: md5_region(const MemRegion &region) const
+// Name: md5_region(const MemoryRegion &region) const
 // Desc: returns a byte array representing the MD5 of a region
 //------------------------------------------------------------------------------
-QByteArray Analyzer::md5_region(const MemRegion &region) const{
+QByteArray Analyzer::md5_region(const MemoryRegion &region) const{
 
 	static const edb::address_t page_size = edb::v1::debugger_core->page_size();
 
@@ -963,7 +963,7 @@ QByteArray Analyzer::md5_region(const MemRegion &region) const{
 	try {
 		QVector<quint8> pages(size_in_pages * page_size);
 
-		if(edb::v1::debugger_core->read_pages(region.start, &pages[0], size_in_pages)) {
+		if(edb::v1::debugger_core->read_pages(region.start(), &pages[0], size_in_pages)) {
 			return edb::v1::get_md5(&pages[0], size_in_pages * page_size);
 		}
 
@@ -976,10 +976,10 @@ QByteArray Analyzer::md5_region(const MemRegion &region) const{
 }
 
 //------------------------------------------------------------------------------
-// Name: module_entry_point(const MemRegion &region) const
+// Name: module_entry_point(const MemoryRegion &region) const
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t Analyzer::module_entry_point(const MemRegion &region) const {
+edb::address_t Analyzer::module_entry_point(const MemoryRegion &region) const {
 
 	edb::address_t entry = 0;
 	if(IBinary *const binary_info = edb::v1::get_binary_info(region)) {
@@ -992,17 +992,17 @@ edb::address_t Analyzer::module_entry_point(const MemRegion &region) const {
 
 
 //------------------------------------------------------------------------------
-// Name: bonus_entry_point(const MemRegion &region, FunctionMap &results) const
+// Name: bonus_entry_point(const MemoryRegion &region, FunctionMap &results) const
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_entry_point(const MemRegion &region, FunctionMap &results) const {
+void Analyzer::bonus_entry_point(const MemoryRegion &region, FunctionMap &results) const {
 
 	if(edb::address_t entry = module_entry_point(region)) {
 
 		// if the entry seems like a relative one (like for a library)
 		// then add the base of its image
-		if(entry < region.start) {
-			entry += region.start;
+		if(entry < region.start()) {
+			entry += region.start();
 		}
 		
 		qDebug("[Analyzer] found entry point: %p", reinterpret_cast<void*>(entry));
@@ -1015,23 +1015,23 @@ void Analyzer::bonus_entry_point(const MemRegion &region, FunctionMap &results) 
 }
 
 //------------------------------------------------------------------------------
-// Name: invalidate_analysis(const MemRegion &region)
+// Name: invalidate_analysis(const MemoryRegion &region)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::invalidate_analysis(const MemRegion &region) {
+void Analyzer::invalidate_analysis(const MemoryRegion &region) {
 	invalidate_dynamic_analysis(region);
 	Q_FOREACH(edb::address_t addr, specified_functions_) {
-		if(addr >= region.start && addr < region.end) {
+		if(addr >= region.start() && addr < region.end()) {
 			specified_functions_.remove(addr);
 		}
 	}
 }
 
 //------------------------------------------------------------------------------
-// Name: invalidate_dynamic_analysis(const MemRegion &region)
+// Name: invalidate_dynamic_analysis(const MemoryRegion &region)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::invalidate_dynamic_analysis(const MemRegion &region) {
+void Analyzer::invalidate_dynamic_analysis(const MemoryRegion &region) {
 	analysis_info_[region] = RegionInfo();
 }
 

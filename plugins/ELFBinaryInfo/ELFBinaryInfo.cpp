@@ -23,11 +23,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Debugger.h"
 
 namespace {
-	IBinary *create_binary_info32(const MemRegion &region) {
+	IBinary *create_binary_info32(const MemoryRegion &region) {
 		return new ELF32(region);
 	}
 
-	IBinary *create_binary_info64(const MemRegion &region) {
+	IBinary *create_binary_info64(const MemoryRegion &region) {
 		return new ELF64(region);
 	}
 }
