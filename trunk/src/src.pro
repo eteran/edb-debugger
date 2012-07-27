@@ -153,7 +153,7 @@ SOURCES += json_parser.cc \
            qobjecthelper.cpp \
            serializer.cpp \
            serializerrunnable.cpp
-	
+
 win32 {
 
 	win32-msvc*:contains(QMAKE_HOST.arch, x86_64):{
