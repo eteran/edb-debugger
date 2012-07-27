@@ -65,10 +65,10 @@ void DialogReferences::do_find() {
 
 	if(ok) {
 		edb::v1::memory_regions().sync();
-		const QList<MemRegion> regions = edb::v1::memory_regions().regions();
+		const QList<MemoryRegion> regions = edb::v1::memory_regions().regions();
 
 		int i = 0;
-		Q_FOREACH(const MemRegion &region, regions) {
+		Q_FOREACH(const MemoryRegion &region, regions) {
 			// a short circut for speading things up
 			if(region.accessible() || !ui->chkSkipNoAccess->isChecked()) {
 
@@ -79,7 +79,7 @@ void DialogReferences::do_find() {
 					QVector<quint8> pages(size_in_pages * page_size);
 					const quint8 *const pages_end = &pages[0] + region.size();
 
-					if(edb::v1::debugger_core->read_pages(region.start, &pages[0], size_in_pages)) {
+					if(edb::v1::debugger_core->read_pages(region.start(), &pages[0], size_in_pages)) {
 						const quint8 *p = &pages[0];
 						while(p != pages_end) {
 
@@ -87,7 +87,7 @@ void DialogReferences::do_find() {
 								break;
 							}
 
-							const edb::address_t addr = p - &pages[0] + region.start;
+							const edb::address_t addr = p - &pages[0] + region.start();
 
 							edb::address_t test_address;
 							memcpy(&test_address, p, sizeof(edb::address_t));

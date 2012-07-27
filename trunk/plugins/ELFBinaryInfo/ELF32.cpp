@@ -29,10 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <link.h>
 
 //------------------------------------------------------------------------------
-// Name: ELF32(const MemRegion &region)
+// Name: ELF32(const MemoryRegion &region)
 // Desc: constructor
 //------------------------------------------------------------------------------
-ELF32::ELF32(const MemRegion &region) : IBinary(region), header_(0) {
+ELF32::ELF32(const MemoryRegion &region) : IBinary(region), header_(0) {
 }
 
 //------------------------------------------------------------------------------
@@ -84,7 +84,7 @@ void ELF32::read_header() {
 	if(header_ == 0) {
 		header_ = new Elf32_Ehdr;
 
-		if(!edb::v1::debugger_core->read_bytes(region_.start, header_, sizeof(Elf32_Ehdr))) {
+		if(!edb::v1::debugger_core->read_bytes(region_.start(), header_, sizeof(Elf32_Ehdr))) {
 			std::memset(header_, 0, sizeof(Elf32_Ehdr));
 		}
 	}
@@ -110,7 +110,7 @@ edb::address_t ELF32::debug_pointer() {
 
 	Elf32_Phdr section_header;
 	for(std::size_t i = 0; i < count; ++i) {
-		if(edb::v1::debugger_core->read_bytes(region_.start + (section_offset + i * sizeof(Elf32_Phdr)), &section_header, sizeof(Elf32_Phdr))) {
+		if(edb::v1::debugger_core->read_bytes(region_.start() + (section_offset + i * sizeof(Elf32_Phdr)), &section_header, sizeof(Elf32_Phdr))) {
 			if(section_header.p_type == PT_DYNAMIC) {
 				try {
 					QVector<quint8> buf(section_header.p_memsz);

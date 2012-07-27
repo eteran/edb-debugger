@@ -16,35 +16,38 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ELF32_20070718_H_
-#define ELF32_20070718_H_
+#ifndef IREGION_20120709_H_
+#define IREGION_20120709_H_
 
-#include "IBinary.h"
-#if defined(Q_OS_OPENBSD)
-#include <sys/exec_elf.h>
-#else
-#include <elf.h>
-#endif
+#include "Types.h"
+#include "API.h"
 
-class ELF32 : public IBinary {
+class MemoryRegions;
+
+class EDB_EXPORT IRegion {
 public:
-	ELF32(const MemoryRegion &region);
-	virtual ~ELF32();
+	typedef quint32 permissions_t;
 
 public:
-	virtual bool validate_header();
-	virtual edb::address_t entry_point();
-	virtual edb::address_t calculate_main();
-	virtual bool native() const;
-	virtual edb::address_t debug_pointer();
-	virtual size_t header_size() const;
+	virtual ~IRegion() {}
 
-private:
-	void read_header();
+public:
+	virtual IRegion *clone() const = 0;
 
-private:
-	Elf32_Ehdr * header_;
+public:
+	virtual bool accessible() const = 0;
+	virtual bool readable() const = 0;
+	virtual bool writable() const = 0;
+	virtual bool executable() const = 0;
+	virtual edb::address_t size() const = 0;
+	virtual void set_permissions(bool read, bool write, bool execute) = 0;
+	
+public:
+	virtual edb::address_t start() const = 0;
+	virtual edb::address_t end() const = 0;
+	virtual edb::address_t base() const = 0;
+	virtual QString name() const = 0;
+	virtual permissions_t permissions() const = 0;
 };
 
 #endif
-

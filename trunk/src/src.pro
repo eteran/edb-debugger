@@ -155,25 +155,22 @@ SOURCES += json_parser.cc \
            serializerrunnable.cpp
 	
 win32 {
-	DEPENDPATH  += os/win32 ../include/os/win32 arch/i386 ../include/arch/i386 edisassm
-	INCLUDEPATH += os/win32 ../include/os/win32 arch/i386 ../include/arch/i386 edisassm "C:\\Program Files\\boost\\boost_1_47"
-	DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
-	LIBS			+= -lAdvapi32
+
+	win32-msvc*:contains(QMAKE_HOST.arch, x86_64):{
+		DEPENDPATH  += os/win64 ../include/os/win64 arch/x86_64 ../include/arch/x86_64 edisassm
+		INCLUDEPATH += os/win64 ../include/os/win64 arch/x86_64 ../include/arch/x86_64 edisassm "C:\\Program Files\\boost\\boost_1_47"
+		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
+		LIBS			+= -lAdvapi32
+	} else {
+		DEPENDPATH  += os/win32 ../include/os/win32 arch/i386 ../include/arch/i386 edisassm
+		INCLUDEPATH += os/win32 ../include/os/win32 arch/i386 ../include/arch/i386 edisassm "C:\\Program Files\\boost\\boost_1_47"
+		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
+		LIBS			+= -lAdvapi32
+	}
 	
 	win32-g++*:	QMAKE_LFLAGS += ""
 	RC_FILE = edb.rc
 }
-
-win64 {
-	DEPENDPATH  += os/win64 ../include/os/win64 arch/x86_64 ../include/arch/x86_64 edisassm
-	INCLUDEPATH += os/win64 ../include/os/win64 arch/x86_64 ../include/arch/x86_64 edisassm $$(BOOST)
-	DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
-	LIBS			+= -lAdvapi32
-	
-	win64-g++*:	QMAKE_LFLAGS += ""
-	RC_FILE = edb.rc
-}
-
 
 unix {
 	graph {

@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDialog>
 #include "Types.h"
 
-class MemRegion;
+class MemoryRegion;
 class QListWidgetItem;
 
 namespace Ui { class DialogReferences; }

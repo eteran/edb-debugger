@@ -24,10 +24,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHash>
 #include <QStringList>
 #include "IBreakpoint.h"
-#include "State.h"
+#include "IRegion.h"
 
 class QString;
 class DebugEvent;
+class IState;
+class State;
 
 class IDebuggerCore {
 public:
@@ -82,6 +84,7 @@ public:
 
 public:
 	virtual IState *create_state() const = 0;
+	virtual IRegion *create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const = 0;
 
 public:
 	// what is the PID of the process we are currently debugging

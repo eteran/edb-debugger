@@ -562,10 +562,10 @@ void DialogOpcodes::do_find() {
 		Q_FOREACH(const QModelIndex &selected_item, sel) {
 
 			const QModelIndex index = filter_model_->mapToSource(selected_item);
-			const MemRegion *const region = reinterpret_cast<const MemRegion *>(index.internalPointer());
+			const MemoryRegion *const region = reinterpret_cast<const MemoryRegion *>(index.internalPointer());
 
-			edb::address_t start_address     = region->start;
-			const edb::address_t end_address = region->end;
+			edb::address_t start_address     = region->start();
+			const edb::address_t end_address = region->end();
 			const edb::address_t orig_start  = start_address;
 			ByteShiftArray bsa(sizeof(OpcodeData));
 

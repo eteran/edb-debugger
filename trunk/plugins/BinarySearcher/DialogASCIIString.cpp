@@ -62,20 +62,20 @@ void DialogASCIIString::do_find() {
 
 		edb::v1::memory_regions().sync();
 
-		MemRegion region;
+		MemoryRegion region;
 		
 		State state;
 		edb::v1::debugger_core->get_state(state);
 		edb::address_t stack_ptr = state.stack_pointer();
 
 		if(edb::v1::memory_regions().find_region(stack_ptr, region)) {
-			std::size_t count = (region.end - stack_ptr) / sizeof(edb::address_t);
+			std::size_t count = (region.end() - stack_ptr) / sizeof(edb::address_t);
 
 			try {
 				QVector<quint8> chars(sz);
 
 				int i = 0;
-				while(stack_ptr < region.end) {
+				while(stack_ptr < region.end()) {
 					// get the value from the stack
 					edb::address_t value;
 					if(edb::v1::debugger_core->read_bytes(stack_ptr, &value, sizeof(edb::address_t))) {

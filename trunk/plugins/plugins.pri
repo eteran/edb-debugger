@@ -67,15 +67,13 @@ unix {
     UI_DIR  = $${OUT_PWD}/.uic
 }
 
-win32-msvc*:LIBS += $$EDB_ROOT/edb.lib
-win64-msvc*:LIBS += $$EDB_ROOT/edb.lib
-
 win32 {
-	INCLUDEPATH += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/i386 "C:\Program Files\boost\boost_1_47"
-	DEPENDPATH  += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/i386
-}
-
-win64 {
-	INCLUDEPATH += $$EDB_ROOT/include/os/win64 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64 $$(BOOST)
-	DEPENDPATH  += $$EDB_ROOT/include/os/win64 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64
+	win32-msvc*:contains(QMAKE_HOST.arch, x86_64):{
+		INCLUDEPATH += $$EDB_ROOT/include/os/win64 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64 "C:\\Program Files\\boost\\boost_1_47"
+		DEPENDPATH  += $$EDB_ROOT/include/os/win64 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64	
+	} else {
+		INCLUDEPATH += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/i386 "C:\\Program Files\\boost\\boost_1_47"
+		DEPENDPATH  += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/i386
+	}
+	win32-msvc*:LIBS += $$EDB_ROOT/edb.lib
 }

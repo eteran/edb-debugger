@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "State.h"
 #include "PlatformState.h"
 #include "MemoryRegions.h"
-#include "MemRegion.h"
+#include "MemoryRegion.h"
 #include "string_hash.h"
 
 #include <QDebug>
@@ -236,7 +236,7 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 			edb::address_t cur_end;
 			std::size_t cur_len;
 
-			MemRegion mem;
+			MemoryRegion mem;
 			if(regions.find_region(cur_address, mem)) {
 				bool changed = false;
 				if(!mem.readable()) {
@@ -326,10 +326,10 @@ bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::siz
 		len = end_address - address + 1;
 
 		const MemoryRegions& regions = edb::v1::memory_regions();
-		QList<MemRegion> to_change;
+		QList<MemoryRegion> to_change;
 
 		while(cur_address <= end_address) {
-			MemRegion mem;
+			MemoryRegion mem;
 			if(!regions.find_region(cur_address, mem)) {
 				return false; // can't write to unallocated memory
 			}
@@ -342,7 +342,7 @@ bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::siz
 			cur_address = mem.start + mem.size();
 		}
 
-		Q_FOREACH(MemRegion i, to_change) {
+		Q_FOREACH(MemoryRegion i, to_change) {
 			i.set_permissions(i.readable(), true, i.executable());
 		}
 
@@ -355,7 +355,7 @@ bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::siz
 			FlushInstructionCache(process_handle_, reinterpret_cast<LPVOID>(address), bytes_written);
 		}
 
-		Q_FOREACH(MemRegion i, to_change) {
+		Q_FOREACH(MemoryRegion i, to_change) {
 			i.set_permissions(i.readable(), false, i.executable());
 		}
 	}
@@ -601,6 +601,14 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QStringLi
 //------------------------------------------------------------------------------
 IState *DebuggerCore::create_state() const {
 	return new PlatformState;
+}
+
+//------------------------------------------------------------------------------
+// Name: create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions)
+// Desc:
+//------------------------------------------------------------------------------
+IRegion *DebuggerCore::create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions) const {
+	return new PlatformRegion(start, end, base, name, permissions);
 }
 
 //------------------------------------------------------------------------------

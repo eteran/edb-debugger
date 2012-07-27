@@ -48,7 +48,7 @@ class QWidget;
 
 struct ExpressionError;
 
-#include "MemRegion.h"
+#include "MemoryRegion.h"
 #include "IBinary.h"
 
 namespace edb {
@@ -112,9 +112,9 @@ namespace edb {
 		// list of loaded librarys
 		EDB_EXPORT QStringList loaded_libraries();
 
-		EDB_EXPORT MemRegion current_cpu_view_region();
-		EDB_EXPORT MemRegion primary_code_region();
-		EDB_EXPORT MemRegion primary_data_region();
+		EDB_EXPORT MemoryRegion current_cpu_view_region();
+		EDB_EXPORT MemoryRegion primary_code_region();
+		EDB_EXPORT MemoryRegion primary_data_region();
 
 		// configuration
 		EDB_EXPORT QPointer<QDialog> dialog_options();
@@ -151,7 +151,7 @@ namespace edb {
 		// reads up to size bytes from address (stores how many it could read in size)
 		EDB_EXPORT bool get_instruction_bytes(edb::address_t address, quint8 *buf, int &size);
 
-		EDB_EXPORT IBinary *get_binary_info(const MemRegion &region);
+		EDB_EXPORT IBinary *get_binary_info(const MemoryRegion &region);
 		EDB_EXPORT const FunctionInfo *get_function_info(const QString &function);
 
 		EDB_EXPORT edb::address_t locate_main_function();

@@ -44,7 +44,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 	painter.fillRect(0, 0, width(), height(), QBrush(Qt::black));
 	QFontMetrics fm(font());
 	
-	const MemRegion region = edb::v1::current_cpu_view_region();
+	const MemoryRegion region = edb::v1::current_cpu_view_region();
 	if(region.size() != 0) {
 		const float byte_width = static_cast<float>(width()) / region.size();
 		
@@ -54,8 +54,8 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 		for(IAnalyzer::FunctionMap::const_iterator it = functions.begin(); it != functions.end(); ++it) {
 			const IAnalyzer::Function &f = it.value();
 			
-			const int first_offset = (f.entry_address - region.start) * byte_width;
-			const int last_offset  = (f.end_address - region.start) * byte_width;
+			const int first_offset = (f.entry_address - region.start()) * byte_width;
+			const int last_offset  = (f.end_address - region.start()) * byte_width;
 			
 			if(!specified_functions.contains(f.entry_address)) {
 				painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkGreen));
@@ -107,11 +107,11 @@ void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
 	
 	mouse_pressed_ = true;
 	
-	const MemRegion region = edb::v1::current_cpu_view_region();
+	const MemoryRegion region = edb::v1::current_cpu_view_region();
 	const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
 	if(region.size() != 0 && !functions.empty()) {
 		const float byte_width = static_cast<float>(width()) / region.size();
-		const edb::address_t address = qBound(region.start, region.start + static_cast<edb::address_t>(event->x() / byte_width), region.end - 1);
+		const edb::address_t address = qBound(region.start(), region.start() + static_cast<edb::address_t>(event->x() / byte_width), region.end() - 1);
 		edb::v1::jump_to_address(address);
 	}
 }
