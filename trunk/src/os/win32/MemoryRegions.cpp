@@ -83,17 +83,19 @@ void MemoryRegions::sync() {
 				last_base = info.BaseAddress;
 
 				if(info.State == MEM_COMMIT) {
-					MemoryRegion region;
-					region.start        = reinterpret_cast<edb::address_t>(info.BaseAddress);
-					region.end          = reinterpret_cast<edb::address_t>(info.BaseAddress) + info.RegionSize;
-					region.base         = reinterpret_cast<edb::address_t>(info.AllocationBase);
-					region.permissions_ = info.Protect; // let MemoryRegion handle permissions and modifiers
+
+					const edb::address_t start = reinterpret_cast<edb::address_t>(info.BaseAddress);
+					const edb::address_t end   = reinterpret_cast<edb::address_t>(info.BaseAddress) + info.RegionSize;
+					const edb::address_t base  = reinterpret_cast<edb::address_t>(info.AllocationBase);
+					const QString name         = QString();
+					const IRegion::permissions_t permissions = info.Protect; // let MemoryRegion handle permissions and modifiers
+					
 					if(info.Type == MEM_IMAGE) {
 						// set region.name to the module name
 					}
 					// get stack addresses, PEB, TEB, etc. and set name accordingly
 
-					regions.push_back(region);
+					regions.push_back(MemoryRegion(start, end, base, name, permissions));
 				}
 
 				addr += info.RegionSize;
@@ -146,13 +148,13 @@ QVariant MemoryRegions::data(const QModelIndex &index, int role) const {
 
 		switch(index.column()) {
 		case 0:
-			return edb::v1::format_pointer(region.start);
+			return edb::v1::format_pointer(region.start());
 		case 1:
-			return edb::v1::format_pointer(region.end);
+			return edb::v1::format_pointer(region.end());
 		case 2:
 			return QString("%1%2%3").arg(region.readable() ? 'r' : '-').arg(region.writable() ? 'w' : '-').arg(region.executable() ? 'x' : '-' );
 		case 3:
-			return region.name;
+			return region.name();
 		}
 	}
 
