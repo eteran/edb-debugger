@@ -155,21 +155,19 @@ SOURCES += json_parser.cc \
            serializerrunnable.cpp
 
 win32 {
-
-	win32-msvc*:contains(QMAKE_HOST.arch, x86_64):{
+	win32-msvc*:contains(QMAKE_TARGET.arch, x86_64):{
 		DEPENDPATH  += os/win64 ../include/os/win64 arch/x86_64 ../include/arch/x86_64 edisassm
 		INCLUDEPATH += os/win64 ../include/os/win64 arch/x86_64 ../include/arch/x86_64 edisassm "C:\\Program Files\\boost\\boost_1_47"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
-		LIBS			+= -lAdvapi32
-	} else {
+		RC_FILE     = edb.rc
+	}
+	
+	win32-msvc*:contains(QMAKE_TARGET.arch, x86):{
 		DEPENDPATH  += os/win32 ../include/os/win32 arch/i386 ../include/arch/i386 edisassm
 		INCLUDEPATH += os/win32 ../include/os/win32 arch/i386 ../include/arch/i386 edisassm "C:\\Program Files\\boost\\boost_1_47"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
-		LIBS			+= -lAdvapi32
+		RC_FILE     = edb.rc
 	}
-	
-	win32-g++*:	QMAKE_LFLAGS += ""
-	RC_FILE = edb.rc
 }
 
 unix {
@@ -243,10 +241,10 @@ unix {
 
 
 	debug {
-		linux-g++*:		QMAKE_CXXFLAGS += -ggdb3
-		openbsd-g++*:	QMAKE_CXXFLAGS += -ggdb3
-		freebsd-g++*:	QMAKE_CXXFLAGS += -ggdb3
-		macx-g++*:		QMAKE_CXXFLAGS += -ggdb3
+		linux-g++*:		QMAKE_CXXFLAGS += -g3
+		openbsd-g++*:	QMAKE_CXXFLAGS += -g3
+		freebsd-g++*:	QMAKE_CXXFLAGS += -g3
+		macx-g++*:		QMAKE_CXXFLAGS += -g3
 	}
 
 	debug:   OBJECTS_DIR = $${OUT_PWD}/.obj/debug-shared

@@ -14,8 +14,6 @@ linux-g++*:QMAKE_LFLAGS -= $$QMAKE_LFLAGS_NOUNDEF
 linux-g++*:QMAKE_LFLAGS -= "-Wl,--no-undefined"
 macx-g++*:QMAKE_LFLAGS += "-undefined dynamic_lookup"
 
-win32-g++*:QMAKE_LFLAGS += ""
-
 unix {
 
 	# generic unix include paths
@@ -68,12 +66,14 @@ unix {
 }
 
 win32 {
-	win32-msvc*:contains(QMAKE_HOST.arch, x86_64):{
+	win32-msvc*:contains(QMAKE_TARGET.arch, x86_64):{
 		INCLUDEPATH += $$EDB_ROOT/include/os/win64 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64 "C:\\Program Files\\boost\\boost_1_47"
 		DEPENDPATH  += $$EDB_ROOT/include/os/win64 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64	
-	} else {
+		LIBS        += $$EDB_ROOT/edb.lib
+	}
+
+	win32-msvc*:contains(QMAKE_TARGET.arch, x86):{
 		INCLUDEPATH += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/i386 "C:\\Program Files\\boost\\boost_1_47"
 		DEPENDPATH  += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/i386
 	}
-	win32-msvc*:LIBS += $$EDB_ROOT/edb.lib
 }
