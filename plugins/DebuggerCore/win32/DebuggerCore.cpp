@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebugEvent.h"
 #include "State.h"
 #include "PlatformState.h"
+#include "PlatformRegion.h"
 #include "MemoryRegions.h"
 #include "MemoryRegion.h"
 #include "string_hash.h"
@@ -245,10 +246,10 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 				}
 
 				// special cases: first and last region (with unaligned address or end_address)
-				if(overflows<edb::address_t>(mem.start, mem.size(), end_address)) {
+				if(overflows<edb::address_t>(mem.start(), mem.size(), end_address)) {
 					cur_end = end_address;
 				} else {
-					cur_end = mem.start + mem.size() - 1;
+					cur_end = mem.start() + mem.size() - 1;
 				}
 				cur_len = cur_end - cur_address + 1;		
 
@@ -336,10 +337,10 @@ bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::siz
 			if(!mem.writable()) {
 				to_change << mem;
 			}
-			if(overflows<edb::address_t>(mem.start, mem.size(), end_address)) {
+			if(overflows<edb::address_t>(mem.start(), mem.size(), end_address)) {
 				break;
 			}
-			cur_address = mem.start + mem.size();
+			cur_address = mem.start() + mem.size();
 		}
 
 		Q_FOREACH(MemoryRegion i, to_change) {
@@ -604,10 +605,10 @@ IState *DebuggerCore::create_state() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions)
+// Name: create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions)
 // Desc:
 //------------------------------------------------------------------------------
-IRegion *DebuggerCore::create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions) const {
+IRegion *DebuggerCore::create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const {
 	return new PlatformRegion(start, end, base, name, permissions);
 }
 

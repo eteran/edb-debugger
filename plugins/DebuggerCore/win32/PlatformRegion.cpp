@@ -7,11 +7,9 @@
 #include "State.h"
 #include "IDebugEventHandler.h"
 #include <QMessageBox>
-#include <sys/syscall.h>
-#include <sys/mman.h>
 
 namespace {
-	const permissions_t KNOWN_PERMISSIONS = (PAGE_NOACCESS | PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY);
+	const IRegion::permissions_t KNOWN_PERMISSIONS = (PAGE_NOACCESS | PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY);
 }
 
 PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions) : start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
@@ -87,7 +85,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 		prot |= permissions_ & ~KNOWN_PERMISSIONS; // keep modifiers
 
 		DWORD prev_prot;
-		if(VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start), size(), prot, &prev_prot)) {
+		if(VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start()), size(), prot, &prev_prot)) {
 			permissions_ = prot;
 		}
 		CloseHandle(ph);
