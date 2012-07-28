@@ -57,7 +57,7 @@ public:
 
 public:
 	virtual IState *create_state() const;
-	virtual IRegion *create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions) const;
+	virtual IRegion *create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const;
 
 public:
 	// NOTE: win32 only stuff here!
