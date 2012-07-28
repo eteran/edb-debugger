@@ -55,14 +55,19 @@ unix {
 		include(plugins-$${QT_ARCH}.pri)
 	}
 
-    debug:OBJECTS_DIR   = $${OUT_PWD}/.obj/debug-shared
-    release:OBJECTS_DIR = $${OUT_PWD}/.obj/release-shared
-
-    debug:MOC_DIR   = $${OUT_PWD}/.moc/debug-shared
-    release:MOC_DIR = $${OUT_PWD}/.moc/release-shared
-
-    RCC_DIR = $${OUT_PWD}/.rcc
-    UI_DIR  = $${OUT_PWD}/.uic
+	debug {
+		OBJECTS_DIR = $${OUT_PWD}/.debug-shared/obj
+		MOC_DIR     = $${OUT_PWD}/.debug-shared/moc
+		RCC_DIR     = $${OUT_PWD}/.debug-shared/rcc
+		UI_DIR      = $${OUT_PWD}/.debug-shared/uic
+	}
+	
+	release {
+		OBJECTS_DIR = $${OUT_PWD}/.release-shared/obj
+		MOC_DIR     = $${OUT_PWD}/.release-shared/moc
+		RCC_DIR     = $${OUT_PWD}/.release-shared/rcc
+		UI_DIR      = $${OUT_PWD}/.release-shared/uic
+	}
 }
 
 win32 {
