@@ -48,7 +48,7 @@ DialogAttach::DialogAttach(QWidget *parent) : DialogAttachUNIX(parent) {
 // Name: find_processes()
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, DialogAttachUNIX::ProcessInfo> DialogAttach::find_processes() {
+QMap<edb::pid_t, ProcessInfo> DialogAttach::find_processes() {
 
 	QMap<edb::pid_t, ProcessInfo> procs;
 

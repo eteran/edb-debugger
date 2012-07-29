@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIALOGATTACHUNIX_20091218_H_
 
 #include "Types.h"
+#include "ProcessInfo.h"
 #include <QString>
 #include <QDialog>
 
@@ -27,14 +28,6 @@ namespace Ui { class DialogAttach; }
 
 class DialogAttachUNIX : public QDialog {
 	Q_OBJECT
-
-protected:
-	struct ProcessInfo {
-		edb::pid_t pid;
-		edb::uid_t uid;
-		QString    user;
-		QString    name;
-	};
 
 public:
 	DialogAttachUNIX(QWidget *parent = 0);

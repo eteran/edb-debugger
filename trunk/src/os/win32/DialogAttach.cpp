@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogAttach.h"
 #include "Types.h"
+#include "ProcessInfo.h"
 
 #include <QMap>
 #include <QHeaderView>
@@ -30,13 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <tlhelp32.h>
 
 #include "ui_dialog_attach.h"
-
-struct ProcessInfo {
-	edb::pid_t pid;
-	edb::uid_t uid;
-	QString    user;
-	QString    name;
-};
 
 namespace {
 	typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
