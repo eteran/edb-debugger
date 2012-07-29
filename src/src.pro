@@ -229,7 +229,8 @@ unix {
 	}
 
 	*-g++* {
-		QMAKE_CXXFLAGS += -ansi -pedantic -W -Wall -Wno-long-long -Wnon-virtual-dtor
+		QMAKE_CXXFLAGS       += -ansi -pedantic -W -Wall -Wno-long-long -Wnon-virtual-dtor
+		QMAKE_CXXFLAGS_DEBUG += -g3
 	}
 
 	linux-g++*:		QMAKE_CXXFLAGS += -fvisibility=hidden -Wstrict-null-sentinel
@@ -238,13 +239,6 @@ unix {
 	openbsd-g++*:	QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic
 	freebsd-g++*:	QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic
 	macx-g++*:		QMAKE_LFLAGS += -rdynamic
-
-	debug {
-		freebsd-g++*:	QMAKE_CXXFLAGS += -g3
-		linux-g++*:		QMAKE_CXXFLAGS += -g3
-		macx-g++*:		QMAKE_CXXFLAGS += -g3
-		openbsd-g++*:	QMAKE_CXXFLAGS += -g3
-	}
 	
 	debug {
 		OBJECTS_DIR = $${OUT_PWD}/.debug-shared/obj

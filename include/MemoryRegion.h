@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IRegion.h"
 
 #include <QString>
+#include <QHash>
 
 class MemoryRegions;
 
@@ -61,5 +62,10 @@ public:
 private:
 	IRegion *impl_;
 };
+
+// provide a reasonable hash function for the region
+inline uint qHash(const MemoryRegion &region) {
+	return qHash(region.start());
+}
 
 #endif

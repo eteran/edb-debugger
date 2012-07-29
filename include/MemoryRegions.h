@@ -52,13 +52,8 @@ public:
 	bool find_region(edb::address_t address) const;
 
 private:
-	edb::pid_t       pid_;
+	edb::pid_t          pid_;
 	QList<MemoryRegion> regions_;
 };
-
-// provide a reasonable hash function for the region
-inline uint qHash(const MemoryRegion &region) {
-	return qHash(region.start());
-}
 
 #endif
