@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PlatformState.h"
 #if __DARWIN_UNIX03
-#define REG(x) __x
+#define REG(x) __ ## x
 #else
 #define REG(x) x
 #endif
