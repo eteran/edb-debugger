@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Debugger.h"
 #include "Instruction.h"
 #include "IDebuggerCore.h"
+#include "IArchProcessor.h"
 
 namespace edb {
 	namespace detail {
