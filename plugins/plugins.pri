@@ -13,7 +13,7 @@ DEFINES += EDB_PLUGIN
 linux-g++*:QMAKE_LFLAGS -= $$QMAKE_LFLAGS_NOUNDEF
 linux-g++*:QMAKE_LFLAGS -= "-Wl,--no-undefined"
 macx-g++*:QMAKE_LFLAGS += "-undefined dynamic_lookup"
-
+macx*:QMAKE_LFLAGS += "-undefined dynamic_lookup"
 unix {
 
 	# generic unix include paths
