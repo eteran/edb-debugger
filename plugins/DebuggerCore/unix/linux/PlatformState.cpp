@@ -109,8 +109,8 @@ Register PlatformState::value(const QString &reg) const {
 	else if(lreg == "fs")		return Register("fs", regs_.xfs, Register::TYPE_SEG);
 	else if(lreg == "gs")		return Register("gs", regs_.xgs, Register::TYPE_SEG);
 	else if(lreg == "ss") 		return Register("ss", regs_.xss, Register::TYPE_SEG);
-	else if(lreg == "fs_base")  return Register("fs_base", fs_base, Register::TYPE_SEG, fs_base);
-	else if(lreg == "gs_base")  return Register("gs_base", gs_base, Register::TYPE_SEG, gs_base);
+	else if(lreg == "fs_base")  return Register("fs_base", fs_base, Register::TYPE_SEG);
+	else if(lreg == "gs_base")  return Register("gs_base", gs_base, Register::TYPE_SEG);
 	else if(lreg == "eflags") 	return Register("eflags", regs_.eflags, Register::TYPE_COND);
 #elif defined(EDB_X86_64)
 	if(lreg == "rax")			return Register("rax", regs_.rax, Register::TYPE_GPR);
