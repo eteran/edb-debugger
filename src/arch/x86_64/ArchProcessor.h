@@ -55,19 +55,6 @@ private:
 	void setup_register_item(QCategoryList *category_list, QTreeWidgetItem *parent, const QString &name);
 
 private:
-	static QString format_argument(QChar ch, edb::reg_t arg);
-	static bool is_jcc_taken(const State &state, quint8 instruction_byte);
-	static edb::address_t get_effective_address(const edb::Operand &op, const State &state);
-	static void analyze_call(const State &state, const edb::Instruction &insn, QStringList &ret);
-	static void analyze_cmov(const State &state, const edb::Instruction &insn, QStringList &ret);
-	static void analyze_jump(const State &state, const edb::Instruction &insn, QStringList &ret);
-	static void analyze_jump_targets(const edb::Instruction &insn, QStringList &ret);
-	static void analyze_operands(const State &state, const edb::Instruction &insn, QStringList &ret);
-	static void analyze_return(const State &state, const edb::Instruction &insn, QStringList &ret);
-	static void analyze_syscall(const State &state, const edb::Instruction &insn, QStringList &ret);
-	static void resolve_function_parameters(const State &state, const QString &symname, int offset, QStringList &ret);
-
-private:
 	QVector<QTreeWidgetItem *> register_view_items_;
 	QTreeWidgetItem *          split_flags_;
 	State                      last_state_;
