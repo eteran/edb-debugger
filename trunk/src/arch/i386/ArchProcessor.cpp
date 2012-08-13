@@ -1,6 +1,6 @@
 /*
 Copyright (C) 2006 - 2011 Evan Teran
-                          eteran@alum.rit.edu
+	                  eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -469,7 +469,7 @@ void analyze_syscall(const State &state, const edb::Instruction &insn, QStringLi
 	Q_UNUSED(insn);
 	Q_UNUSED(ret);
 	Q_UNUSED(state);
-	
+
 #ifdef Q_OS_LINUX
 
 	const edb::reg_t arg1 = *state["ebx"];
@@ -1343,7 +1343,7 @@ void analyze_syscall(const State &state, const edb::Instruction &insn, QStringLi
 	#endif
 	#ifdef __NR_timerfd_gettime
 	case __NR_timerfd_gettime:	ret << ArchProcessor::tr("SYSCALL: timerfd_gettime()"); break;
-        #endif
+	#endif
 	#ifdef __NR_accept4
 	case __NR_accept4:			ret << ArchProcessor::tr("SYSCALL: accept4()"); break;
 	#endif
@@ -1587,7 +1587,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name) {
 
 	State state;
 	edb::v1::debugger_core->get_state(state);
-	
+
 	const QPalette palette = QApplication::palette();
 
 	update_register(get_register_item(0), "EAX", state["eax"]);
@@ -1682,10 +1682,10 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 	if(ok) {
 		edb::Instruction insn(buffer, buffer + sizeof(buffer), address, std::nothrow);
 		if(insn.valid()) {
-		
+
 			State state;
 			edb::v1::debugger_core->get_state(state);
-		
+
 			// figure out the instruction type and display some information about it
 			switch(insn.type()) {
 			case edb::Instruction::OP_CMOVCC:
