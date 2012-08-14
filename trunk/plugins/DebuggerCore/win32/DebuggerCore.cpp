@@ -204,95 +204,16 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 
 		memset(buf, 0xff, len);
 
-		// might wanna make this more platform specific (e.g. Windows x86 user mode memory <= 0x7FFFFFFF)
-		const edb::address_t max_address = std::numeric_limits<edb::address_t>::max();
+		SIZE_T bytes_read = 0;
+		ok = ReadProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_read);
 
-		/*
-		// I think we can safely assume this won't happen as long as
-		// max_address is the biggest representable number ;)
-		if(address > max_address || len > max_address) {
-			return false;
-		}
-		*/
-
-		edb::address_t cur_address = address;
-		edb::address_t end_address;
-
-		// check for max possible address (and overflow :s)
-		// took a few hours to find that bug
-		if(overflows<edb::address_t>(address, len, max_address)) {
-			end_address = max_address;
-		} else {
-			end_address = address + len - 1;
-		}
-
-		len = end_address - address + 1;
-
-		const MemoryRegions& regions = edb::v1::memory_regions();
-
-		while(cur_address <= end_address) {
-			bool part_ok = false;
-
-			void* cur_dest = reinterpret_cast<quint8 *>(buf) + (cur_address - address);
-			edb::address_t cur_end;
-			std::size_t cur_len;
-
-			MemoryRegion mem;
-			if(regions.find_region(cur_address, mem)) {
-				bool changed = false;
-				if(!mem.readable()) {
-					mem.set_permissions(true, mem.writable(), mem.executable());
-					changed = true;
+		if(ok) {
+			Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
+				// TODO: handle if breakponts have a size more than 1!
+				if(bp->address() >= address && bp->address() < address + bytes_read) {
+					reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_bytes()[0];
 				}
-
-				// special cases: first and last region (with unaligned address or end_address)
-				if(overflows<edb::address_t>(mem.start(), mem.size(), end_address)) {
-					cur_end = end_address;
-				} else {
-					cur_end = mem.start() + mem.size() - 1;
-				}
-				cur_len = cur_end - cur_address + 1;		
-
-				SIZE_T bytes_read;
-				part_ok = ReadProcessMemory(process_handle_, reinterpret_cast<void*>(cur_address), cur_dest, cur_len, &bytes_read);
-
-				Q_ASSERT(bytes_read == cur_len);
-
-				if(part_ok) {
-					ok = true;
-					Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
-						if((bp->address() + breakpoint_size()) > cur_address && bp->address() <= cur_end) {
-							// show the original bytes in the buffer..
-							const QByteArray& bytes = bp->original_bytes();
-							Q_ASSERT(bytes.size() == breakpoint_size());
-							size_t offset = qMax(bp->address(), cur_address) - bp->address();
-							const size_t bp_size = qMin<size_t>(breakpoint_size(), (end_address - bp->address() + 1)) - offset;
-							const void* bp_src = bytes.data() + offset;
-							void* bp_dest = reinterpret_cast<quint8 *>(buf) + (bp->address() + offset - address);
-							memcpy(bp_dest, bp_src, bp_size);
-						}
-					}
-				}
-
-				if(changed) {
-					mem.set_permissions(false, mem.writable(), mem.executable());
-				}
-			} else {
-				// check next possible page
-				const edb::address_t cur_base = cur_address - (cur_address % page_size());
-				if(overflows<edb::address_t>(cur_base, page_size(), end_address)) {
-					cur_end = end_address;
-				} else {
-					cur_end = cur_base + page_size() - 1;
-				}
-				cur_len = cur_end - cur_address + 1;
 			}
-
-			if(overflows<edb::address_t>(cur_address, cur_len, end_address)) {
-				break;
-			}
-
-			cur_address += cur_len;
 		}
 	}
 	return ok;
@@ -314,51 +235,8 @@ bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::siz
 			return true;
 		}
 
-		const edb::address_t max_address = std::numeric_limits<edb::address_t>::max();
-
-		edb::address_t cur_address = address;
-		edb::address_t end_address;
-
-		if(overflows<edb::address_t>(address, len, max_address)) {
-			end_address = max_address;
-		} else {
-			end_address = address + len - 1;
-		}
-		len = end_address - address + 1;
-
-		const MemoryRegions& regions = edb::v1::memory_regions();
-		QList<MemoryRegion> to_change;
-
-		while(cur_address <= end_address) {
-			MemoryRegion mem;
-			if(!regions.find_region(cur_address, mem)) {
-				return false; // can't write to unallocated memory
-			}
-			if(!mem.writable()) {
-				to_change << mem;
-			}
-			if(overflows<edb::address_t>(mem.start(), mem.size(), end_address)) {
-				break;
-			}
-			cur_address = mem.start() + mem.size();
-		}
-
-		Q_FOREACH(MemoryRegion i, to_change) {
-			i.set_permissions(i.readable(), true, i.executable());
-		}
-
-		SIZE_T bytes_written;
-		ok = WriteProcessMemory(process_handle_, reinterpret_cast<LPVOID>(address), buf, len, &bytes_written);
-
-		Q_ASSERT(bytes_written == len);
-
-		if(ok) {
-			FlushInstructionCache(process_handle_, reinterpret_cast<LPVOID>(address), bytes_written);
-		}
-
-		Q_FOREACH(MemoryRegion i, to_change) {
-			i.set_permissions(i.readable(), false, i.executable());
-		}
+		SIZE_T bytes_written = 0;
+		ok = ReadProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_written);
 	}
 	return ok;
 }
@@ -660,6 +538,9 @@ bool DebuggerCore::set_debug_privilege(HANDLE process, bool set) {
 // Desc:
 //------------------------------------------------------------------------------
 QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, Process> ret;
+
+	return ret;
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
