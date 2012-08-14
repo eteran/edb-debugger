@@ -27,6 +27,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_dialog_attach.h"
 
+#ifdef Q_OS_WIN32
+namespace {
+	int getuid() {
+		return 0;
+	}
+}
+#endif
+
 //------------------------------------------------------------------------------
 // Name: DialogAttach(QWidget *parent)
 // Desc: constructor
@@ -76,14 +84,14 @@ void DialogAttach::update_list(const QString &filter) {
 					ui->processes_table->insertRow(row);
 
 					QTableWidgetItem *const item_pid = new QTableWidgetItem;
-					item_pid->setData(Qt::DisplayRole, process_info.pid);
+					item_pid->setData(Qt::DisplayRole, static_cast<quint64>(process_info.pid));
 
 					QTableWidgetItem *item_uid;
 					if(!process_info.user.isEmpty()) {
 						item_uid = new QTableWidgetItem(process_info.user);
 					} else {
 						item_uid = new QTableWidgetItem;
-						item_uid->setData(Qt::DisplayRole, process_info.uid);
+						item_uid->setData(Qt::DisplayRole, static_cast<quint64>(process_info.uid));
 					}
 
 					ui->processes_table->setItem(row, 0, item_pid);
