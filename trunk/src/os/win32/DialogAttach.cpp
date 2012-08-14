@@ -27,6 +27,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_dialog_attach.h"
 
+#ifdef Q_OS_WIN32
+namespace {
+	int getuid() {
+		return 0;
+	}
+}
+#endif
+
 //------------------------------------------------------------------------------
 // Name: DialogAttach(QWidget *parent)
 // Desc: constructor
@@ -60,7 +68,7 @@ void DialogAttach::update_list(const QString &filter) {
 	if(edb::v1::debugger_core) {
 		QMap<edb::pid_t, Process> procs = edb::v1::debugger_core->enumerate_processes();
 
-		const edb::uid_t user_id = 0;
+		const edb::uid_t user_id = getuid();
 		const bool filterUID = ui->filter_uid->isChecked();
 		const QString lowerFilter = filter.toLower();
 		ui->processes_table->setSortingEnabled(false);
