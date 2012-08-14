@@ -31,30 +31,69 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 
 #include <windows.h>
+#include <tlhelp32.h>
+
 #include <algorithm>
 
+#ifdef _MSC_VER
 #pragma comment(lib, "Advapi32.lib")
+#endif
 
-class Win32Handle {
-public:
-	Win32Handle() : handle(NULL) {}
-	Win32Handle(HANDLE handle) : handle(handle) {}
-	~Win32Handle() { if(valid()) { CloseHandle(handle); } }
-private:
-	Win32Handle(const Win32Handle&);
-	Win32Handle &operator=(const Win32Handle&);
-	bool valid() const { return (handle != NULL && handle != INVALID_HANDLE_VALUE); }
+namespace {
+	typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+	LPFN_ISWOW64PROCESS fnIsWow64Process;
 
-public:
-	HANDLE get() const { return handle; }
+	class Win32Handle {
+	public:
+		Win32Handle() : handle(NULL) {}
+		Win32Handle(HANDLE handle) : handle(handle) {}
+		~Win32Handle() { if(valid()) { CloseHandle(handle); } }
+	private:
+		Win32Handle(const Win32Handle&);
+		Win32Handle &operator=(const Win32Handle&);
+		bool valid() const { return (handle != NULL && handle != INVALID_HANDLE_VALUE); }
 
-public:
-	operator bool() const { return valid(); }
-	operator HANDLE() const { return handle; }
+	public:
+		HANDLE get() const { return handle; }
 
-private:
-	HANDLE handle;
-};
+	public:
+		operator bool() const { return valid(); }
+		operator HANDLE() const { return handle; }
+
+	private:
+		HANDLE handle;
+	};
+
+	QString get_user_token(HANDLE hProcess) {
+		QString ret;
+		HANDLE hToken;
+		
+		if(!OpenProcessToken(hProcess, TOKEN_QUERY, &hToken)) {
+			return ret;
+		}
+
+		DWORD needed;
+		GetTokenInformation(hToken, TokenOwner, NULL, 0, &needed);
+		
+		if(TOKEN_OWNER *owner = static_cast<TOKEN_OWNER *>(malloc(needed))) {
+			if(GetTokenInformation(hToken, TokenOwner, owner, needed, &needed)) {
+				WCHAR user[MAX_PATH];
+				WCHAR domain[MAX_PATH];
+				DWORD user_sz   = MAX_PATH;
+				DWORD domain_sz = MAX_PATH;
+				SID_NAME_USE snu;
+
+				if(LookupAccountSid(NULL, owner->Owner, user, &user_sz, domain, &domain_sz, &snu) && snu == SidTypeUser) {
+					ret = QString::fromWCharArray(user);
+				}
+			}
+			free(owner);
+		}
+
+		CloseHandle(hToken);
+		return ret;
+	}
+}
 
 
 //------------------------------------------------------------------------------
@@ -236,7 +275,7 @@ bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::siz
 		}
 
 		SIZE_T bytes_written = 0;
-		ok = ReadProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_written);
+		ok = WriteProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_written);
 	}
 	return ok;
 }
@@ -539,7 +578,46 @@ bool DebuggerCore::set_debug_privilege(HANDLE process, bool set) {
 //------------------------------------------------------------------------------
 QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	QMap<edb::pid_t, Process> ret;
+	
+	HANDLE handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+	if(handle != INVALID_HANDLE_VALUE) {
 
+		// resolve the "IsWow64Process" function since it may or may not exist
+		fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
+
+		PROCESSENTRY32 lppe;
+
+		std::memset(&lppe, 0, sizeof(lppe));
+		lppe.dwSize = sizeof(lppe);
+
+		if(Process32First(handle, &lppe)) {
+			do {
+				Process pi;
+				pi.pid = lppe.th32ProcessID;
+				pi.uid = 0; // TODO
+				pi.name = QString::fromWCharArray(lppe.szExeFile);
+
+				HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, lppe.th32ProcessID);
+				if(hProc != 0) {
+					BOOL wow64 = FALSE;
+					if(fnIsWow64Process && fnIsWow64Process(hProc, &wow64) && wow64) {
+						pi.name += " *32";
+					}
+
+					pi.user = get_user_token(hProc);
+
+					CloseHandle(hProc);
+				}
+
+				ret.insert(pi.pid, pi);
+
+				std::memset(&lppe, 0, sizeof(lppe));
+				lppe.dwSize = sizeof(lppe);
+			} while(Process32Next(handle, &lppe));
+		}
+
+		CloseHandle(handle);
+	}
 	return ret;
 }
 
