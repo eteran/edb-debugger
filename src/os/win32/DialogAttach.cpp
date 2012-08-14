@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogAttach.h"
 #include "Types.h"
-#include "ProcessInfo.h"
+#include "Process.h"
 
 #include <QMap>
 #include <QHeaderView>
@@ -105,7 +105,7 @@ QString dumpToken(HANDLE hProcess) {
 //------------------------------------------------------------------------------
 void DialogAttach::update_list(const QString &filter) {
 
-	QMap<edb::pid_t, ProcessInfo> procs;
+	QMap<edb::pid_t, Process> procs;
 	edb::uid_t myUID = 0;
 
 	// FILL up procs
@@ -118,7 +118,7 @@ void DialogAttach::update_list(const QString &filter) {
 
 		if(Process32First(handle, &lppe)) {
 			do {
-				ProcessInfo pi;
+				Process pi;
 				pi.pid = lppe.th32ProcessID;
 				pi.uid = 0; // TODO
 				pi.name = QString::fromWCharArray(lppe.szExeFile);
@@ -150,7 +150,7 @@ void DialogAttach::update_list(const QString &filter) {
 	ui->processes_table->setSortingEnabled(false);
 	ui->processes_table->setRowCount(0);
 
-	Q_FOREACH(const ProcessInfo &procInfo, procs) {
+	Q_FOREACH(const Process &procInfo, procs) {
 
 		const QString procName = procInfo.name;
 

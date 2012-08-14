@@ -632,17 +632,16 @@ int DebuggerCore::pointer_size() const {
  *       if the privilege is not present it can't be enabled!
  * NOTE: Detectable by antidebug code (changes debuggee privileges too)
  */
-bool DebuggerCore::set_debug_privilege(HANDLE process, bool set)
-{
-HANDLE token;
-bool ok = false;
+bool DebuggerCore::set_debug_privilege(HANDLE process, bool set) {
+
+	HANDLE token;
+	bool ok = false;
 
 	//process must have PROCESS_QUERY_INFORMATION
-	if(OpenProcessToken(process, TOKEN_ADJUST_PRIVILEGES, &token))
-	{
+	if(OpenProcessToken(process, TOKEN_ADJUST_PRIVILEGES, &token)) {
+	
 		LUID luid;
-		if(LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid))
-		{
+		if(LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid)) {
 			TOKEN_PRIVILEGES tp;
 			tp.PrivilegeCount = 1;
 			tp.Privileges[0].Luid = luid;
@@ -654,6 +653,13 @@ bool ok = false;
 	}
 
 	return ok;
+}
+
+//------------------------------------------------------------------------------
+// Name: enumerate_processes() const
+// Desc:
+//------------------------------------------------------------------------------
+QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

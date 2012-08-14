@@ -25,18 +25,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/bind.hpp>
 
 #include <QDebug>
+#include <QMessageBox>
 
 #include <cerrno>
 #include <cstring>
 
+#include <fcntl.h>
+#include <kvm.h>
+#include <machine/reg.h>
+#include <paths.h>
 #include <signal.h>
-#include <sys/param.h>
 #include <sys/mman.h>
+#include <sys/param.h>
 #include <sys/ptrace.h>
+#include <sys/types.h>
 #include <sys/user.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <machine/reg.h>
+
+#define __need_process
+#include <sys/sysctl.h>
+#include <sys/proc.h>
 
 namespace {
 inline int resume_code(int status) {
@@ -354,6 +363,37 @@ IState *DebuggerCore::create_state() const {
 //------------------------------------------------------------------------------
 IRegion *DebuggerCore::create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const {
 	return new PlatformRegion(start, end, base, name, permissions);
+}
+
+//------------------------------------------------------------------------------
+// Name: enumerate_processes() const
+// Desc:
+//------------------------------------------------------------------------------
+QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, Process> ret;
+	
+	char ebuffer[_POSIX2_LINE_MAX];
+	int numprocs;
+
+	kvm_t *const kaccess = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, ebuffer);
+	if(kaccess != 0) {
+		struct kinfo_proc *const kprocaccess = kvm_getprocs(kaccess, KERN_PROC_ALL, 0, sizeof *kprocaccess, &numprocs);
+		if(kprocaccess != 0) {
+			for(int i = 0; i < numprocs; ++i) {
+				Process procInfo;
+				procInfo.pid  = kprocaccess[i].p_pid;
+				procInfo.uid  = kprocaccess[i].p_uid;
+				procInfo.name = kprocaccess[i].p_comm;
+
+				ret.insert(procInfo.pid, procInfo);
+			}
+		}
+		kvm_close(kaccess);
+	} else {
+		QMessageBox::warning(0, "Error Listing Processes", ebuffer);
+	}
+	
+	return ret;
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

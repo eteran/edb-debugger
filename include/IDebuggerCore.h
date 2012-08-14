@@ -22,9 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtPlugin>
 #include <QByteArray>
 #include <QHash>
+#include <QMap>
 #include <QStringList>
 #include "IBreakpoint.h"
 #include "IRegion.h"
+#include "Process.h"
 
 class QString;
 class DebugEvent;
@@ -90,6 +92,7 @@ public:
 	// what is the PID of the process we are currently debugging
 	// equal to "(edb::pid_t)0" if we are not attached
 	virtual edb::pid_t pid() const = 0;
+	virtual QMap<edb::pid_t, Process> enumerate_processes() const = 0;
 };
 
 Q_DECLARE_INTERFACE(IDebuggerCore, "EDB.IDebuggerCore/1.0")

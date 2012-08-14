@@ -40,6 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/user.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <pwd.h>
 
 #define tgkill(tgid, tid, sig) syscall(SYS_tgkill, (tgid), (tid), (sig));
 
@@ -56,6 +57,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DEBUG_THREADS
 
 namespace {
+
+//------------------------------------------------------------------------------
+// Name: is_numeric(const QString &s)
+// Desc: returns true if the string only contains decimal digits
+//------------------------------------------------------------------------------
+bool is_numeric(const QString &s) {
+	Q_FOREACH(QChar ch, s) {
+		if(!ch.isDigit()) {
+			return false;
+		}
+	}
+
+	return true;
+}
 
 //------------------------------------------------------------------------------
 // Name: resume_code(int status)
@@ -668,6 +683,52 @@ IState *DebuggerCore::create_state() const {
 //------------------------------------------------------------------------------
 IRegion *DebuggerCore::create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const {
 	return new PlatformRegion(start, end, base, name, permissions);
+}
+
+//------------------------------------------------------------------------------
+// Name: enumerate_processes() const
+// Desc:
+//------------------------------------------------------------------------------
+QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, Process> ret;
+	
+	QDir proc_directory("/proc/");
+	QFileInfoList entries = proc_directory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
+
+	Q_FOREACH(const QFileInfo &info, entries) {
+		if(is_numeric(info.fileName())) {
+
+			const QDir proc(info.absoluteFilePath());
+			const QString status = proc.absolutePath() + "/stat";
+
+			Process process_info;
+			process_info.pid = info.fileName().toUInt();
+			process_info.uid = info.ownerId();
+
+			if(struct passwd *const pwd = ::getpwuid(process_info.uid)) {
+				process_info.user = pwd->pw_name;
+			}
+
+			QFile file(status);
+	        if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+				QTextStream in(&file);
+
+				int pid;
+				QString name;
+				// we already know the pid, so this'll just get read and ignored
+				in >> pid;
+				// get the name
+				in >> name;
+				// chop off the silly ( and )
+				process_info.name = name.mid(1);
+				process_info.name.chop(1);
+
+			}
+			ret.insert(process_info.pid, process_info);
+		}
+	}
+	
+	return ret;
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
