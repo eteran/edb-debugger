@@ -16,20 +16,39 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGATTACH_20061101_H_
-#define DIALOGATTACH_20061101_H_
+#ifndef DIALOGATTACHUNIX_20091218_H_
+#define DIALOGATTACHUNIX_20091218_H_
 
-#include "DialogAttachUNIX.h"
+#include "Types.h"
+#include "Process.h"
+#include <QString>
+#include <QDialog>
 
-class DialogAttach : public DialogAttachUNIX {
+namespace Ui { class DialogAttach; }
+
+class DialogAttach : public QDialog {
 	Q_OBJECT
 
 public:
 	DialogAttach(QWidget *parent = 0);
-	virtual ~DialogAttach() {}
+	virtual ~DialogAttach();
 
-protected:
-	virtual QMap<edb::pid_t, ProcessInfo> find_processes();
+private:
+	virtual void showEvent(QShowEvent *event);
+
+private:
+	void update_list(const QString &filter);
+
+public Q_SLOTS:
+	void on_filter_textChanged(const QString &text);
+	void on_filter_uid_clicked(bool checked);
+
+public:
+	edb::pid_t selected_pid(bool &ok) const;
+
+private:
+	 Ui::DialogAttach *const ui;
 };
 
 #endif
+

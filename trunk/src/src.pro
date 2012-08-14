@@ -179,9 +179,6 @@ unix {
 		LIBS        += -lgvc
 	}
 
-	SOURCES += DialogAttachUNIX.cpp
-	HEADERS += DialogAttachUNIX.h
-
 	!isEmpty(DEFAULT_PLUGIN_PATH) {
 		DEFINES += DEFAULT_PLUGIN_PATH=$$DEFAULT_PLUGIN_PATH
 	}

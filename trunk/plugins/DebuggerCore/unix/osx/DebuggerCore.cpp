@@ -22,13 +22,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformState.h"
 #include "PlatformRegion.h"
 
+#include <fcntl.h>
+#include <mach/mach.h>
+#include <paths.h>
+#include <signal.h>
+#include <sys/mman.h>
+#include <sys/param.h>
+#include <sys/proc.h>
 #include <sys/ptrace.h>
+#include <sys/sysctl.h>
+#include <sys/types.h>
 #include <sys/user.h>
 #include <sys/wait.h>
-#include <sys/mman.h>
-#include <signal.h>
 #include <unistd.h>
-#include <mach/mach.h>
+
 
 namespace {
 inline int resume_code(int status) {
@@ -523,6 +530,35 @@ IState *DebuggerCore::create_state() const {
 //------------------------------------------------------------------------------
 IRegion *DebuggerCore::create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const {
 	return new PlatformRegion(start, end, base, name, permissions);
+}
+
+//------------------------------------------------------------------------------
+// Name: enumerate_processes() const
+// Desc:
+//------------------------------------------------------------------------------
+QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, Process> ret;
+	
+	static const int name[] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
+	size_t length = 0;
+
+	sysctl(const_cast<int*>(name), (sizeof(name) / sizeof(*name)) - 1, 0, &length, 0, 0);
+	struct kinfo_proc *proc_info = static_cast<struct kinfo_proc*>(malloc(length));
+	sysctl(const_cast<int*>(name), (sizeof(name) / sizeof(*name)) - 1, proc_info, &length, 0, 0);
+
+	size_t count = length / sizeof(struct kinfo_proc);
+	for(size_t i = 0; i < count; ++i) {
+		Process procInfo;
+		procInfo.pid  = proc_info[i].kp_proc.p_pid;
+		procInfo.uid  = proc_info[i].kp_eproc.e_ucred.cr_uid;
+		procInfo.name = proc_info[i].kp_proc.p_comm;
+
+		ret.insert(procInfo.pid, procInfo);
+	}
+
+	free(proc_info);
+	
+	return ret;
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

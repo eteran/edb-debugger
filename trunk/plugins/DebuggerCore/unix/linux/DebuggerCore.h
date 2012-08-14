@@ -58,6 +58,9 @@ public:
 	virtual IRegion *create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const;
 
 private:
+	virtual QMap<edb::pid_t, Process> enumerate_processes() const;
+
+private:
 	virtual long read_data(edb::address_t address, bool &ok);
 	virtual bool write_data(edb::address_t address, long value);
 
