@@ -413,7 +413,7 @@ void Analyzer::update_results_entry(FunctionMap &results, edb::address_t address
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::bonus_main(const MemoryRegion &region, FunctionMap &results) const {
-	const QString s = edb::v1::get_process_exe();
+	const QString s = edb::v1::debugger_core->process_exe(edb::v1::debugger_core->pid());
 	if(!s.isEmpty()) {
 		const edb::address_t main = edb::v1::locate_main_function();
 

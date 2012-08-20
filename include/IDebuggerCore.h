@@ -83,6 +83,12 @@ public:
 	virtual int breakpoint_size() const = 0;
 	virtual void clear_breakpoints() = 0;
 	virtual void remove_breakpoint(edb::address_t address) = 0;
+	
+public:
+	// process properties
+	virtual QString process_exe(edb::pid_t pid) const = 0;
+	virtual QString process_cwd(edb::pid_t pid) const = 0;
+	virtual edb::pid_t parent_pid(edb::pid_t pid) const = 0;
 
 public:
 	virtual IState *create_state() const = 0;

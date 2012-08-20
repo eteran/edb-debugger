@@ -561,4 +561,31 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	return ret;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QString DebuggerCore::process_exe(edb::pid_t pid) const {
+	// TODO: implement this
+	return QString();
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QString DebuggerCore::process_cwd(edb::pid_t pid) const {
+	// TODO: implement this
+	return QString();
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
+	// TODO: implement this
+	return -1;
+}
+
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

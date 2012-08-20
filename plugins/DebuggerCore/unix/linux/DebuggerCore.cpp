@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerCore.h"
+#include "Debugger.h"
 #include "State.h"
 #include "DebugEvent.h"
 #include "PlatformState.h"
@@ -729,6 +730,52 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	}
 	
 	return ret;
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QString DebuggerCore::process_exe(edb::pid_t pid) const {
+	return edb::v1::symlink_target(QString("/proc/%1/exe").arg(pid));
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QString DebuggerCore::process_cwd(edb::pid_t pid) const {
+	return edb::v1::symlink_target(QString("/proc/%1/cwd").arg(pid));
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
+	QFile file(QString("/proc/%1/status").arg(pid));
+	if(!file.open(QIODevice::ReadOnly)) {
+		return 0;
+	}
+
+	QTextStream in(&file);
+
+	QString line = in.readLine();
+	while(!line.isNull()) {
+		if(line.startsWith("PPid:")) {
+			bool ok;
+			ulong ppid = line.right(5).trimmed().toULong(&ok);
+			if(ok) {
+				return ppid;
+			}
+			break;
+		}
+		line = in.readLine();
+	}
+
+
+	file.close();
+	return 0;
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

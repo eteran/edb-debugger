@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 #include <QSortFilterProxyModel>
 #include <QItemSelectionModel>
+#include <QDebug>
 
 #include "ui_dialog_memoryregions.h"
 
@@ -202,6 +203,17 @@ void DialogMemoryRegions::view_in_stack() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::view_in_dump() {
+	if(MemoryRegion *const region = selected_region()) {
+		edb::v1::dump_data(region->start(), true);
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: on_regions_table_doubleClicked(const QModelIndex &index)
+// Desc:
+//------------------------------------------------------------------------------
+void DialogMemoryRegions::on_regions_table_doubleClicked(const QModelIndex &index) {
+	Q_UNUSED(index);
 	if(MemoryRegion *const region = selected_region()) {
 		edb::v1::dump_data(region->start(), true);
 	}

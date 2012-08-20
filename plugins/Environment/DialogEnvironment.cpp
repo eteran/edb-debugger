@@ -77,14 +77,14 @@ QString DialogEnvironment::libc_name() const {
 
 	QString libc;
 
-	const QStringList libs = edb::v1::loaded_libraries();
+	const QList<Module> libs = edb::v1::loaded_libraries();
 
-	Q_FOREACH(const QString &s, libs) {
+	Q_FOREACH(const Module &module, libs) {
 		if(!libc.isEmpty()) {
 			break;
 		}
 
-		const QFileInfo fileinfo(s);
+		const QFileInfo fileinfo(module.name);
 
 		// this tries its best to cover all possible libc library versioning possibilities
 		// we need to find out if this is 100% accurate, so far seems correct based on my system

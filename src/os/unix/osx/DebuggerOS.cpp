@@ -28,9 +28,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: primary_code_region()
 // Desc:
 //------------------------------------------------------------------------------
-EDB_EXPORT MemoryRegion edb::v1::primary_code_region() {
+MemoryRegion edb::v1::primary_code_region() {
 
-	const QString process_executable = get_process_exe();
+	const QString process_executable = debugger_core->process_exe(debugger_core->pid());
 
 	memory_regions().sync();
 
@@ -47,46 +47,9 @@ EDB_EXPORT MemoryRegion edb::v1::primary_code_region() {
 // Name: loaded_libraries()
 // Desc:
 //------------------------------------------------------------------------------
-QStringList edb::v1::loaded_libraries() {
-	QStringList ret;
-
-	memory_regions().sync();
-
-	const QList<MemoryRegion> r = memory_regions().regions();
-	Q_FOREACH(const MemoryRegion &region, r) {
-		Q_UNUSED(region);
-	}
-
-	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name: get_process_exe()
-// Desc:
-//------------------------------------------------------------------------------
-QString edb::v1::get_process_exe() {
-	QString ret;
-
-	if(debugger_core != 0) {
-		// TODO: assert attached!
-		const edb::pid_t pid = debugger_core->pid();
-		Q_UNUSED(pid);
-	}
-
-	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name: get_process_cwd()
-// Desc:
-//------------------------------------------------------------------------------
-QString edb::v1::get_process_cwd() {
-	QString ret;
-	if(debugger_core != 0) {
-		// TODO: assert attached!
-		const edb::pid_t pid = debugger_core->pid();
-		Q_UNUSED(pid);
-	}
+QList<Module> edb::v1::loaded_libraries() {
+	QList<Module> ret;
+	qDebug() << "TODO: implement edb::v1::loaded_libraries";
 	return ret;
 }
 
@@ -102,13 +65,4 @@ QStringList edb::v1::get_process_args() {
 		Q_UNUSED(pid);
 	}
 	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name: get_parent_pid(edb::pid_t pid)
-// Desc:
-//------------------------------------------------------------------------------
-edb::pid_t edb::v1::get_parent_pid(edb::pid_t pid) {
-    Q_UNUSED(pid);
-    return 0;
 }

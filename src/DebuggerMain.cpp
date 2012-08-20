@@ -1790,7 +1790,7 @@ void DebuggerMain::set_initial_debugger_state() {
 #ifdef Q_OS_UNIX
 	debug_pointer_ = 0;
 #endif
-	const QString executable = edb::v1::get_process_exe();
+	const QString executable = edb::v1::debugger_core->process_exe(edb::v1::debugger_core->pid());
 
 	set_debugger_caption(executable);
 
@@ -1872,9 +1872,9 @@ void DebuggerMain::on_action_Restart_triggered() {
 
 	Q_CHECK_PTR(edb::v1::debugger_core);
 
-	working_directory_ = edb::v1::get_process_cwd();
+	working_directory_ = edb::v1::debugger_core->process_cwd(edb::v1::debugger_core->pid());
 	QStringList args   = edb::v1::get_process_args();
-	const QString s    = edb::v1::get_process_exe();
+	const QString s    = edb::v1::debugger_core->process_exe(edb::v1::debugger_core->pid());
 
 	if(!args.empty()) {
 		args.removeFirst();
@@ -1963,7 +1963,7 @@ void DebuggerMain::attach(edb::pid_t pid) {
 				tr("You may not debug a process which is a parent of the edb process."));
 			return;
 		}
-		current_pid = edb::v1::get_parent_pid(current_pid);
+		current_pid = edb::v1::debugger_core->parent_pid(current_pid);
 	}
 #endif
 
@@ -1979,7 +1979,7 @@ void DebuggerMain::attach(edb::pid_t pid) {
 
 		if(edb::v1::debugger_core->attach(pid)) {
 
-			working_directory_ = edb::v1::get_process_cwd();
+			working_directory_ = edb::v1::debugger_core->process_cwd(edb::v1::debugger_core->pid());
 
 			set_initial_debugger_state();
 
@@ -2048,15 +2048,7 @@ void DebuggerMain::on_action_Memory_Regions_triggered() {
 	// may restrict some actions
 
 	QPointer<DialogMemoryRegions> dlg = new DialogMemoryRegions(this);
-
-	if(dlg->exec() == QDialog::Accepted) {
-		if(dlg) {
-			if(const MemoryRegion *const region = dlg->selected_region()) {
-				edb::v1::dump_data(region->start());
-			}
-		}
-	}
-	
+	dlg->exec();	
 	delete dlg;
 }
 

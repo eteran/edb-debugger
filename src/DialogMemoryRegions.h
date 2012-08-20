@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDialog>
 
 class QSortFilterProxyModel;
+class QModelIndex;
 class MemoryRegion;
 
 namespace Ui { class DialogMemoryRegions; }
@@ -37,6 +38,7 @@ private:
 
 private Q_SLOTS:
 	void on_regions_table_customContextMenuRequested(const QPoint &pos);
+	void on_regions_table_doubleClicked(const QModelIndex &index);
 	void set_access_none();
 	void set_access_r();
 	void set_access_w();
@@ -49,10 +51,8 @@ private Q_SLOTS:
 	void view_in_stack();
 	void view_in_dump();
 
-public:
-	MemoryRegion *selected_region() const;
-
 private:
+	MemoryRegion *selected_region() const;
 	void set_permissions(bool read, bool write, bool execute);
 
 private:
