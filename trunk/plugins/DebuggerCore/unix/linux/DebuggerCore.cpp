@@ -753,29 +753,30 @@ QString DebuggerCore::process_cwd(edb::pid_t pid) const {
 // Desc:
 //------------------------------------------------------------------------------
 edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
-	QFile file(QString("/proc/%1/status").arg(pid));
+
+	QFile file(QString("/proc/%1/stat").arg(pid));
 	if(!file.open(QIODevice::ReadOnly)) {
 		return 0;
 	}
 
+	edb::pid_t ret = 0;
+
 	QTextStream in(&file);
 
-	QString line = in.readLine();
-	while(!line.isNull()) {
-		if(line.startsWith("PPid:")) {
-			bool ok;
-			ulong ppid = line.right(5).trimmed().toULong(&ok);
-			if(ok) {
-				return ppid;
-			}
-			break;
+	const QString line = in.readLine();
+	if(!line.isNull()) {
+		int process_id;
+		char comm[256];
+		char state;
+		int ppid;
+		
+		if(sscanf(qPrintable(line), "%d %255s %c %d", &process_id, comm, &state, &ppid) == 4) {
+			ret = ppid;
 		}
-		line = in.readLine();
 	}
 
-
 	file.close();
-	return 0;
+	return ret;
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

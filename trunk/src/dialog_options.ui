@@ -12,7 +12,7 @@
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Configure Debugger</string>
+   <string>Preferences</string>
   </property>
   <layout class="QVBoxLayout">
    <item>
@@ -674,7 +674,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Close</set>
      </property>
     </widget>
    </item>
@@ -742,8 +742,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>472</x>
-     <y>415</y>
+     <x>476</x>
+     <y>382</y>
     </hint>
     <hint type="destinationlabel">
      <x>401</x>
@@ -758,8 +758,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>559</x>
-     <y>411</y>
+     <x>563</x>
+     <y>382</y>
     </hint>
     <hint type="destinationlabel">
      <x>539</x>
@@ -774,12 +774,12 @@
    <slot>setEnabled(bool)</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>300</x>
-     <y>241</y>
+     <x>111</x>
+     <y>80</y>
     </hint>
     <hint type="destinationlabel">
-     <x>567</x>
-     <y>267</y>
+     <x>111</x>
+     <y>80</y>
     </hint>
    </hints>
   </connection>
