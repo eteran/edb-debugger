@@ -17,7 +17,8 @@ SUBDIRS += \
 	ROPTool \
 	SessionManager \
 	StringSearcher \
-	SymbolViewer
+	SymbolViewer \
+	ProcessProperties
 
 unix {
 	!macx {

@@ -22,11 +22,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 #include "API.h"
 #include "IBreakpoint.h"
+#include "Module.h"
 
 #include <QString>
 #include <QStringList>
 #include <QHash>
 #include <QPointer>
+#include <QList>
 
 class Configuration;
 class FunctionInfo;
@@ -110,7 +112,7 @@ namespace edb {
 		EDB_EXPORT bool get_utf16_string_at_address(edb::address_t address, QString &s, int min_length, int max_length, int &found_length);
 
 		// list of loaded librarys
-		EDB_EXPORT QStringList loaded_libraries();
+		EDB_EXPORT QList<Module> loaded_libraries();
 
 		EDB_EXPORT MemoryRegion current_cpu_view_region();
 		EDB_EXPORT MemoryRegion primary_code_region();
@@ -130,8 +132,6 @@ namespace edb {
 		EDB_EXPORT QString find_function_symbol(edb::address_t address, const QString &default_value, int *offset);
 
 		// basic process stats
-		EDB_EXPORT QString get_process_cwd();
-		EDB_EXPORT QString get_process_exe();
 		EDB_EXPORT QStringList get_process_args();
 
 		// ask the user for either a value or a variable (register name and such)
@@ -184,8 +184,6 @@ namespace edb {
 		EDB_EXPORT QString format_pointer(edb::address_t p);
 
 		EDB_EXPORT edb::address_t cpu_selected_address();
-
-		EDB_EXPORT edb::pid_t get_parent_pid(edb::pid_t pid);
 
 		EDB_EXPORT void set_status(const QString &message);
 

@@ -206,7 +206,7 @@ QVariant MemoryRegions::data(const QModelIndex &index, int role) const {
 		switch(index.column()) {
 		case 0: return edb::v1::format_pointer(region.start());
 		case 1: return edb::v1::format_pointer(region.end());
-		case 2: return QString("%1%2%3").arg(region.readable() ? 'r' : '-').arg(region.writable() ? 'w' : '-').arg(region.executable() ? 'x' : '-' );
+		case 2: return QString("%1%2%3").arg(region.readable() ? 'r' : '-').arg(region.writable() ? 'w' : '-').arg(region.executable() ? 'x' : '-');
 		case 3: return region.name();
 		}
 	}

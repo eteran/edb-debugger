@@ -396,4 +396,52 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	return ret;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QString DebuggerCore::process_exe(edb::pid_t pid) const {
+	QString ret;
+
+	char errbuf[_POSIX2_LINE_MAX];
+	if(kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
+
+		int rc;
+		if(struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid, sizeof(struct kinfo_proc), &rc)) {
+			char p_comm[KI_MAXCOMLEN] = "";
+			memcpy(p_comm, proc->p_comm, sizeof(p_comm));
+		}
+
+		kvm_close(kd);
+		return p_comm;
+	}
+
+	return ret;
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QString DebuggerCore::process_cwd(edb::pid_t pid) const {
+	// TODO: implement this
+	return QString();
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
+	edb::pid_t ret = 0;
+	char errbuf[_POSIX2_LINE_MAX];
+	if(kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
+		int rc;
+		struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid, sizeof *proc, &rc);
+		ret = proc->p_ppid;
+		kvm_close(kd);
+	}
+	return ret;
+}
+
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

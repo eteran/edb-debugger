@@ -64,7 +64,7 @@
       <enum>Qt::Horizontal</enum>
      </property>
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Close</set>
      </property>
     </widget>
    </item>
@@ -85,49 +85,17 @@
  <connections>
   <connection>
    <sender>button_box</sender>
-   <signal>accepted()</signal>
-   <receiver>DialogMemoryRegions</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>502</x>
-     <y>299</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>436</x>
-     <y>279</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>button_box</sender>
    <signal>rejected()</signal>
    <receiver>DialogMemoryRegions</receiver>
-   <slot>reject()</slot>
+   <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>581</x>
-     <y>300</y>
+     <x>457</x>
+     <y>307</y>
     </hint>
     <hint type="destinationlabel">
-     <x>546</x>
-     <y>280</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>regions_table</sender>
-   <signal>doubleClicked(QModelIndex)</signal>
-   <receiver>DialogMemoryRegions</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>171</x>
-     <y>211</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>15</x>
-     <y>279</y>
+     <x>481</x>
+     <y>289</y>
     </hint>
    </hints>
   </connection>

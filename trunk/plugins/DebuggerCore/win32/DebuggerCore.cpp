@@ -621,4 +621,90 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	return ret;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QString DebuggerCore::process_exe(edb::pid_t pid) const {
+	QString ret;
+
+	// These functions don't work immediately after CreateProcess but only
+	// after basic initialization, usually after the system breakpoint
+	// The same applies to psapi/toolhelp, maybe using NtQueryXxxxxx is the way to go
+	
+	typedef BOOL (WINAPI *QueryFullProcessImageNameWPtr)(
+	  HANDLE hProcess,
+	  DWORD dwFlags,
+	  LPWSTR lpExeName,
+	  PDWORD lpdwSize
+	);
+	
+	QueryFullProcessImageNameWPtr QueryFullProcessImageNameWFunc = 0;
+	HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
+	QueryFullProcessImageNameWFunc = (QueryFullProcessImageNameWPtr)GetProcAddress(kernel32, "QueryFullProcessImageNameW");
+	
+	wchar_t name[MAX_PATH] = L"";
+	
+	if(QueryFullProcessImageNameWFunc/* && LOBYTE(GetVersion()) >= 6*/) { // Vista and up
+		const DWORD ACCESS = PROCESS_QUERY_LIMITED_INFORMATION;
+		HANDLE ph = OpenProcess(ACCESS, false, pid);
+
+		if(ph != 0) {
+			DWORD size = _countof(name);
+			if(QueryFullProcessImageNameWFunc(ph, 0, name, &size)) {
+				ret = QString::fromWCharArray(name);
+			}
+			CloseHandle(ph);
+		}
+	} else {
+		// Attempting to get an unknown privilege will fail unless we have
+		// debug privilege set, so 2 calls to OpenProcess
+		// (PROCESS_QUERY_LIMITED_INFORMATION is Vista and up)
+		const DWORD ACCESS = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ;
+		HANDLE ph = OpenProcess(ACCESS, false, pid);
+		
+		if(ph != 0) {
+			if(GetModuleFileNameExW(ph, NULL, name, _countof(name))) {
+				ret = QString::fromWCharArray(name);
+			}
+			CloseHandle(ph);
+		}
+	}
+
+	return ret;
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QString DebuggerCore::process_cwd(edb::pid_t pid) const {
+	// TODO: implement this
+	return QString();
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
+	edb::pid_t parent = 1; // 1??
+	HANDLE hProcessSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, pid);
+	if(hProcessSnap != INVALID_HANDLE_VALUE) {
+		PROCESSENTRY32W pe32;
+		pe32.dwSize = sizeof(pe32);
+
+		if(Process32FirstW(hProcessSnap, &pe32)) {
+			do {
+				if(pid == pe32.th32ProcessID) {
+					parent = pe32.th32ParentProcessID;
+					break;
+				}
+			} while(Process32NextW(hProcessSnap, &pe32));
+		}
+		CloseHandle(hProcessSnap);
+	}
+	return parent;
+}
+
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

@@ -232,8 +232,8 @@ private:
 	RecentFileManager *                              recent_file_manager_;
 
 	QSharedPointer<QHexView::CommentServerInterface> stack_comment_server_;
-	IBreakpoint::pointer                              reenable_breakpoint_;
-	SCOPED_POINTER<IBinary>                       binary_info_;
+	IBreakpoint::pointer                             reenable_breakpoint_;
+	SCOPED_POINTER<IBinary>                          binary_info_;
 
 	QString                                          last_open_directory_;
 	QString                                          working_directory_;

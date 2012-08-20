@@ -24,14 +24,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTextStream>
 #include <QFile>
 
+#include <link.h>
+
 //------------------------------------------------------------------------------
 // Name: primary_code_region()
 // Desc:
 //------------------------------------------------------------------------------
 EDB_EXPORT MemoryRegion edb::v1::primary_code_region() {
 
-	const QString process_executable = get_process_exe();
-
+	const QString process_executable = debugger_core->process_exe(debugger_core->pid());
+	
 	memory_regions().sync();
 
 	const QList<MemoryRegion> r = memory_regions().regions();
@@ -47,83 +49,68 @@ EDB_EXPORT MemoryRegion edb::v1::primary_code_region() {
 // Name: loaded_libraries()
 // Desc:
 //------------------------------------------------------------------------------
-QStringList edb::v1::loaded_libraries() {
-	QStringList ret;
+QList<Module> edb::v1::loaded_libraries() {
+	QList<Module> ret;
 
-	memory_regions().sync();
+	if(IBinary *const binary_info = edb::v1::get_binary_info(edb::v1::primary_code_region())) {
+		
+		struct r_debug dynamic_info;			
+		if(binary_info->debug_pointer()) {
+			if(edb::v1::debugger_core->read_bytes(binary_info->debug_pointer(), &dynamic_info, sizeof(dynamic_info))) {
+				if(dynamic_info.r_map) {
 
-	const QList<MemoryRegion> r = memory_regions().regions();
-	Q_FOREACH(const MemoryRegion &region, r) {
-		// modules seem to have full paths
-		if(region.name().startsWith("/")) {
-			if(!ret.contains(region.name())) {
-				ret << region.name();
+					edb::address_t link_address = (edb::address_t)dynamic_info.r_map;
+
+					while(link_address) {
+
+						struct link_map map;
+
+						if(edb::v1::debugger_core->read_bytes(link_address, &map, sizeof(map))) {
+							char path[PATH_MAX];
+							if(!edb::v1::debugger_core->read_bytes(reinterpret_cast<edb::address_t>(map.l_name), &path, sizeof(path))) {
+								path[0] = '\0';
+							}
+							
+							if(map.l_addr) {
+								Module module;
+								module.name         = path;
+								module.base_address = map.l_addr;							
+								ret.push_back(module);
+							}
+
+							link_address = (edb::address_t)map.l_next;
+						} else {
+							break;
+						}
+					}
+				}
 			}
 		}
+		delete binary_info;
 	}
-
-	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name: get_process_exe()
-// Desc:
-//------------------------------------------------------------------------------
-QString edb::v1::get_process_exe() {
-	QString ret;
-
-	if(debugger_core != 0) {
-		if(const edb::pid_t pid = debugger_core->pid()) {
-			ret = edb::v1::symlink_target(QString("/proc/%1/exe").arg(pid));
-		}
-	}
-
-	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name: get_process_cwd()
-// Desc:
-//------------------------------------------------------------------------------
-QString edb::v1::get_process_cwd() {
-	QString ret;
-	if(debugger_core != 0) {
-		if(const edb::pid_t pid = debugger_core->pid()) {
-			ret = edb::v1::symlink_target(QString("/proc/%1/cwd").arg(pid));
-		}
-	}
-	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name: get_process_cwd()
-// Desc:
-//------------------------------------------------------------------------------
-edb::pid_t edb::v1::get_parent_pid(edb::pid_t pid) {
-
-	QFile file(QString("/proc/%1/status").arg(pid));
-	if(!file.open(QIODevice::ReadOnly)) {
-		return 0;
-	}
-
-	QTextStream in(&file);
-
-	QString line = in.readLine();
-	while(!line.isNull()) {
-		if(line.startsWith("PPid:")) {
-			bool ok;
-			ulong ppid = line.right(5).trimmed().toULong(&ok);
-			if(ok) {
-				return ppid;
+	
+	// fallback
+	if(ret.isEmpty()) {
+		const QList<MemoryRegion> r = memory_regions().regions();
+		QMap<QString, Module> modules_temp;
+		Q_FOREACH(const MemoryRegion &region, r) {
+			// modules seem to have full paths
+			if(region.name().startsWith("/")) {
+				if(!modules_temp.contains(region.name())) {
+					Module module;
+					module.name         = region.name();
+					module.base_address = region.start();
+					modules_temp.insert(region.name(), module);
+				}
 			}
-			break;
 		}
-		line = in.readLine();
+		
+		for(QMap<QString, Module>::const_iterator it = modules_temp.begin(); it != modules_temp.end(); ++it) {
+			ret.push_back(it.value());
+		}
 	}
 
-
-	file.close();
-	return 0;
+	return ret;
 }
 
 //------------------------------------------------------------------------------
