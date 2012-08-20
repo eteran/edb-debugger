@@ -541,7 +541,7 @@ bool edb::v1::get_binary_string_from_user(QByteArray &value, const QString &titl
 // Desc: returns a pointer to the options dialog
 //------------------------------------------------------------------------------
 QPointer<QDialog> edb::v1::dialog_options() {
-	QPointer<QDialog> dialog = new DialogOptions(debugger_ui);
+	static QPointer<QDialog> dialog = new DialogOptions(debugger_ui);
 	return dialog;
 }
 

@@ -319,7 +319,9 @@ void DebuggerUI::finish_plugin_setup(const QHash<QString, QObject *> &plugins) {
 			}
 
 			if(QWidget *const options_page = p->options_page()) {
-				options->addOptionsPage(options_page);
+				if(options) {
+					options->addOptionsPage(options_page);
+				}
 			}
 		}
 	}
