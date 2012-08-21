@@ -137,7 +137,7 @@ QString DebuggerUI::create_tty() {
 			// first try to get a 'unique' filename, i would love to use a system
 			// temp file API... but there doesn't seem to be one which will create
 			// a pipe...only ordinary files!
-			const QString temp_pipe = QString("%1/edb_temp_file_%2_%3").arg(QDir::tempPath()).arg(rand()).arg(getpid());
+			const QString temp_pipe = QString("%1/edb_temp_file_%2_%3").arg(QDir::tempPath()).arg(qrand()).arg(getpid());
 
 			// make sure it isn't already there, and then make the pipe
 			::unlink(qPrintable(temp_pipe));
