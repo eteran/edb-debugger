@@ -89,12 +89,7 @@ namespace {
 		qDebug("Please Report Bugs & Requests At: http://bugs.codef00.com/");
 
 		// look for some plugins..
-		load_plugins(QDir().absolutePath());
-
-		const QString plugin_path = edb::v1::config().plugin_path;
-		if(QDir().absolutePath() != plugin_path) {
-			load_plugins(plugin_path);
-		}
+		load_plugins(edb::v1::config().plugin_path);
 		
 		edb::internal::load_function_db();
 
