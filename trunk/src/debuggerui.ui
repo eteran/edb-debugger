@@ -336,7 +336,7 @@
   </action>
   <action name="action_Configure_Debugger">
    <property name="text">
-    <string>&amp;Configure Debugger</string>
+    <string>&amp;Preferences</string>
    </property>
   </action>
   <action name="actionAbout_QT">

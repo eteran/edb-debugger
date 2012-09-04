@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogArguments.h"
 #include "DialogAttach.h"
 #include "DialogMemoryRegions.h"
-#include "DialogOptions.h"
 #include "DialogPlugins.h"
 #include "DialogThreads.h"
 #include "Expression.h"

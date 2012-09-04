@@ -88,8 +88,6 @@ namespace {
 		}
 		return ret;
 	}
-
-
 }
 
 namespace edb {
