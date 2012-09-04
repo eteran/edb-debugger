@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFont>
 #include <QCloseEvent>
 #include <QToolBox>
+#include <QDebug>
 
 #include "ui_dialog_options.h"
 
@@ -185,6 +186,7 @@ void DialogOptions::on_btnPluginDir_clicked() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::showEvent(QShowEvent *event) {
+
 	QDialog::showEvent(event);
 	
 	const Configuration &config = edb::v1::config();

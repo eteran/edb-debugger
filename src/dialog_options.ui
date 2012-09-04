@@ -736,38 +736,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>DialogOptions</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>476</x>
-     <y>382</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>401</x>
-     <y>394</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>rejected()</signal>
-   <receiver>DialogOptions</receiver>
-   <slot>reject()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>563</x>
-     <y>382</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>539</x>
-     <y>397</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>chkTTY</sender>
    <signal>toggled(bool)</signal>
    <receiver>btnTTY</receiver>
@@ -780,6 +748,22 @@
     <hint type="destinationlabel">
      <x>111</x>
      <y>80</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>DialogOptions</receiver>
+   <slot>close()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>300</x>
+     <y>370</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>300</x>
+     <y>193</y>
     </hint>
    </hints>
   </connection>

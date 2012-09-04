@@ -55,8 +55,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PTRACE_SET_THREAD_AREA static_cast<__ptrace_request>(26)
 #endif
 
-#define DEBUG_THREADS
-
 namespace {
 
 //------------------------------------------------------------------------------
@@ -205,7 +203,6 @@ bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
 	// note that we have waited on this thread
 	waited_threads_.insert(tid);
 
-#ifdef DEBUG_THREADS
 	// was it a thread exit event?
 	if(WIFEXITED(status)) {
 		threads_.remove(tid);
@@ -245,7 +242,6 @@ bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
 		ptrace_continue(tid, 0);
 		return false;
 	}
-#endif
 
 	// normal event
 	event                = DebugEvent(status, pid(), tid);
@@ -262,7 +258,6 @@ bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::stop_threads() {
-#ifdef DEBUG_THREADS
 	for(threadmap_t::iterator it = threads_.begin(); it != threads_.end(); ++it) {
 		if(!waited_threads_.contains(it.key())) {
 			const edb::tid_t tid = it.key();
@@ -280,7 +275,6 @@ void DebuggerCore::stop_threads() {
 			}
 		}
 	}
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -292,7 +286,6 @@ bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
 
 	if(attached()) {
 		if(!native::wait_for_sigchld(msecs)) {
-#ifdef DEBUG_THREADS
 			Q_FOREACH(edb::tid_t thread, thread_ids()) {
 				int status;
 				const edb::tid_t tid = native::waitpid(thread, &status, __WALL | WNOHANG);
@@ -300,13 +293,6 @@ bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
 					return true;
 				}
 			}
-#else
-			int status;
-			const edb::tid_t tid = native::waitpid(pid(), &status, __WALL | WNOHANG);
-			if(tid > 0 && handle_event(event, tid, status)) {
-				return true;
-			}
-#endif
 		}
 	}
 	return false;
@@ -345,11 +331,9 @@ bool DebuggerCore::attach_thread(edb::tid_t tid) {
 		if(native::waitpid(tid, &status, __WALL) > 0) {
 			threads_[tid] = thread_info(status);
 			waited_threads_.insert(tid);
-	#ifdef DEBUG_THREADS
 			if(ptrace_set_options(tid, PTRACE_O_TRACECLONE) == -1) {
 				qDebug("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: [%d] %s", tid, strerror(errno));
 			}
-	#endif
 		}
 		return true;
 	}
@@ -363,7 +347,6 @@ bool DebuggerCore::attach_thread(edb::tid_t tid) {
 bool DebuggerCore::attach(edb::pid_t pid) {
 	detach();
 
-#ifdef DEBUG_THREADS
 	bool attached;
 	do {
 		attached = false;
@@ -378,9 +361,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 			}
 		}
 	} while(attached);
-#else
-	attach_thread(pid)
-#endif
+
 
 	if(!threads_.empty()) {
 		pid_            = pid;
@@ -402,17 +383,12 @@ void DebuggerCore::detach() {
 		stop_threads();
 	
 		clear_breakpoints();
-#ifdef DEBUG_THREADS
+		
 		Q_FOREACH(edb::tid_t thread, thread_ids()) {
 			if(ptrace(PTRACE_DETACH, thread, 0, 0) == 0) {
 				native::waitpid(thread, 0, __WALL);
 			}
 		}
-#else
-		if(ptrace(PTRACE_DETACH, pid(), 0, 0) == 0) {
-			native::waitpid(pid(), 0, __WALL);
-		}
-#endif
 
 		reset();
 	}
@@ -463,15 +439,12 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 			const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(threads_[tid].status) : 0;
 			ptrace_continue(tid, code);
 
-
-#ifdef DEBUG_THREADS
 			// resume the other threads passing the signal they originally reported had
 			for(threadmap_t::const_iterator it = threads_.begin(); it != threads_.end(); ++it) {
 				if(waited_threads_.contains(it.key())) {
 					ptrace_continue(it.key(), resume_code(it->status));
 				}
 			}
-#endif
 		}
 	}
 }
@@ -620,14 +593,12 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QStringLi
 
 			waited_threads_.insert(pid);
 
-#ifdef DEBUG_THREADS
 			// enable following clones (threads)
 			if(ptrace_set_options(pid, PTRACE_O_TRACECLONE) == -1) {
 				qDebug("[DebuggerCore] failed to set PTRACE_SETOPTIONS: %s", strerror(errno));
 				detach();
 				return false;
 			}
-#endif
 
 			// setup the first event data for the primary thread
 			waited_threads_.insert(pid);
