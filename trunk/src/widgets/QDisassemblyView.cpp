@@ -466,7 +466,8 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 		}
 
 	} else {
-		const QString asm_buffer = format_invalid_instruction_bytes(insn, painter);
+		QString asm_buffer = format_invalid_instruction_bytes(insn, painter);
+		asm_buffer = painter.fontMetrics().elidedText(asm_buffer, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
 
 		painter.drawText(
 			x,
