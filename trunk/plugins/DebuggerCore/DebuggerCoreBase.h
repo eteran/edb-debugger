@@ -33,8 +33,8 @@ public:
 	virtual void set_active_thread(edb::tid_t);
 
 public:
-	virtual bool open(const QString &path, const QString &cwd, const QStringList &args);
-	virtual bool open(const QString &path, const QString &cwd, const QStringList &args, const QString &tty) = 0;
+	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args);
+	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
 
 public:
 	virtual BreakpointState backup_breakpoints() const;

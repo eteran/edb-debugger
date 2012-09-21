@@ -45,7 +45,7 @@ public:
 	virtual void step(edb::EVENT_STATUS status);
 	virtual void get_state(State &state);
 	virtual void set_state(const State &state);
-	virtual bool open(const QString &path, const QString &cwd, const QStringList &args, const QString &tty);
+	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty);
 
 public:
 	// thread support stuff (optional)

@@ -64,8 +64,8 @@ public:
 
 public:
 	virtual bool attach(edb::pid_t pid) = 0;
-	virtual bool open(const QString &path, const QString &cwd, const QStringList &args) = 0;
-	virtual bool open(const QString &path, const QString &cwd, const QStringList &args, const QString &tty) = 0;
+	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args) = 0;
+	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
 	virtual bool wait_debug_event(DebugEvent &event, int msecs) = 0;
 	virtual void detach() = 0;
 	virtual void get_state(State &state) = 0;

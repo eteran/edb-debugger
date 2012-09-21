@@ -419,12 +419,12 @@ bool DebuggerCoreUNIX::write_bytes(edb::address_t address, const void *buf, std:
 }
 
 //------------------------------------------------------------------------------
-// Name: execute_process(const QString &path, const QString &cwd, const QStringList &args)
+// Name: execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args)
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, const QStringList &args) {
+void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
 	// change to the desired working directory
-	if(::chdir(qPrintable(cwd)) == 0) {
+	if(::chdir(qPrintable(cwd)) == 0) {	
 
 		// allocate space for all the arguments
 		char **const argv_pointers = new char *[args.count() + 2];
@@ -436,9 +436,9 @@ void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, 
 		++p;
 
 		for(int i = 0; i < args.count(); ++i) {
-			const QString s(args[i]);
+			const QByteArray s(args[i]);
 			*p = new char[s.length() + 1];
-			std::strcpy(*p, qPrintable(s));
+			std::strcpy(*p, s.constData());
 			++p;
 		}
 

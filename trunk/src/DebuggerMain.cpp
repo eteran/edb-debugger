@@ -419,7 +419,7 @@ void DebuggerMain::dropEvent(QDropEvent* event) {
 			Q_CHECK_PTR(edb::v1::debugger_core);
 
 			detach_from_process(KILL_ON_DETACH);
-			common_open(s, QStringList());
+			common_open(s, QList<QByteArray>());
 		}
 	}
 }
@@ -1871,9 +1871,9 @@ void DebuggerMain::on_action_Restart_triggered() {
 
 	Q_CHECK_PTR(edb::v1::debugger_core);
 
-	working_directory_ = edb::v1::debugger_core->process_cwd(edb::v1::debugger_core->pid());
-	QStringList args   = edb::v1::get_process_args();
-	const QString s    = edb::v1::debugger_core->process_exe(edb::v1::debugger_core->pid());
+	working_directory_     = edb::v1::debugger_core->process_cwd(edb::v1::debugger_core->pid());
+	QList<QByteArray> args = edb::v1::get_process_args();
+	const QString s        = edb::v1::debugger_core->process_exe(edb::v1::debugger_core->pid());
 
 	if(!args.empty()) {
 		args.removeFirst();
@@ -1889,7 +1889,7 @@ void DebuggerMain::on_action_Restart_triggered() {
 // Name: common_open(const QString &s, const QStringList &args)
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerMain::common_open(const QString &s, const QStringList &args) {
+bool DebuggerMain::common_open(const QString &s, const QList<QByteArray> &args) {
 
 	bool ret = false;
 	if(!QFile(s).exists()) {
@@ -1920,10 +1920,10 @@ bool DebuggerMain::common_open(const QString &s, const QStringList &args) {
 }
 
 //------------------------------------------------------------------------------
-// Name: execute(const QString &program, const QStringList &args)
+// Name: execute(const QString &program, const QList<QByteArray> &args)
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::execute(const QString &program, const QStringList &args) {
+void DebuggerMain::execute(const QString &program, const QList<QByteArray> &args) {
 	if(common_open(program, args)) {
 		recent_file_manager_->add_file(program);
 	}
@@ -1982,7 +1982,7 @@ void DebuggerMain::attach(edb::pid_t pid) {
 
 			set_initial_debugger_state();
 
-			QStringList args = edb::v1::get_process_args();
+			QList<QByteArray> args = edb::v1::get_process_args();
 			if(!args.empty()) {
 				args.removeFirst();
 			}

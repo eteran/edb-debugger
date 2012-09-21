@@ -37,8 +37,8 @@ public Q_SLOTS:
 	void on_btnDown_clicked();
 
 public:
-	QStringList arguments() const;
-	void set_arguments(const QStringList &args);
+	QList<QByteArray> arguments() const;
+	void set_arguments(const QList<QByteArray> &args);
 
 private:
 	 Ui::DialogArguments *const ui;
