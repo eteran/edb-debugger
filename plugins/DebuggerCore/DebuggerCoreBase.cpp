@@ -104,10 +104,10 @@ DebuggerCoreBase::BreakpointState DebuggerCoreBase::backup_breakpoints() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: open(const QString &path, const QString &cwd, const QStringList &args)
+// Name: open(const QString &path, const QString &cwd, const QList<QByteArray> &args)
 // Desc: executes the given program
 //------------------------------------------------------------------------------
-bool DebuggerCoreBase::open(const QString &path, const QString &cwd, const QStringList &args) {
+bool DebuggerCoreBase::open(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
 	return open(path, cwd, args, QString());
 }
 

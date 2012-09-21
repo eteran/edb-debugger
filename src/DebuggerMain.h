@@ -61,7 +61,7 @@ public:
 	bool dump_stack(edb::address_t address, bool scroll_to);
 	bool jump_to_address(edb::address_t address);
 	void attach(edb::pid_t pid);
-	void execute(const QString &s, const QStringList &args);
+	void execute(const QString &s, const QList<QByteArray> &args);
 	void refresh_gui();
 	void update_gui();
 
@@ -173,7 +173,7 @@ public:
 private:
 	QString session_filename() const;
 	bool breakpoint_condition_true(const QString &condition);
-	bool common_open(const QString &s, const QStringList &args);
+	bool common_open(const QString &s, const QList<QByteArray> &args);
 	bool current_instruction_is_return() const;
 	edb::EVENT_STATUS debug_event_handler(const DebugEvent &event);
 	edb::EVENT_STATUS handle_event_exited(const DebugEvent &event);

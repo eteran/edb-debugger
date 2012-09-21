@@ -58,21 +58,27 @@ void DialogArguments::on_btnDel_clicked() {
 // Name: arguments() const
 // Desc:
 //------------------------------------------------------------------------------
-QStringList DialogArguments::arguments() const {
-	QStringList ret;
+QList<QByteArray> DialogArguments::arguments() const {
+	QList<QByteArray> ret;
 	for(int i = 0; i < ui->listWidget->count(); ++i) {
-		ret << ui->listWidget->item(i)->text();
+		ret << ui->listWidget->item(i)->text().toUtf8();
 	}
 	return ret;
 }
 
 //------------------------------------------------------------------------------
-// Name: set_arguments(const QStringList &args)
+// Name: set_arguments(const QList<QByteArray> &args)
 // Desc:
 //------------------------------------------------------------------------------
-void DialogArguments::set_arguments(const QStringList &args) {
+void DialogArguments::set_arguments(const QList<QByteArray> &args) {
 	ui->listWidget->clear();
-	ui->listWidget->addItems(args);
+	
+	QStringList l;
+	Q_FOREACH(const QByteArray &ba, args) {
+		l << QString::fromUtf8(ba);
+	}
+	
+	ui->listWidget->addItems(l);
 }
 
 //------------------------------------------------------------------------------

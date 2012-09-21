@@ -44,7 +44,7 @@ public:
 protected:
 	quint8 read_byte(edb::address_t address, bool &ok);
 	quint8 read_byte_base(edb::address_t address, bool &ok);
-	void execute_process(const QString &path, const QString &cwd, const QStringList &args);
+	void execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args);
 	void write_byte(edb::address_t address, quint8 value, bool &ok);
 	void write_byte_base(edb::address_t address, quint8 value, bool &ok);
 

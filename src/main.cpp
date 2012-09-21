@@ -83,7 +83,7 @@ namespace {
 	// Name: start_debugger(edb::pid_t attach_pid)
 	// Desc: starts the main debugger code
 	//--------------------------------------------------------------------------
-	int start_debugger(edb::pid_t attach_pid, const QString &program, const QStringList &programArgs) {
+	int start_debugger(edb::pid_t attach_pid, const QString &program, const QList<QByteArray> &programArgs) {
 
 		qDebug() << "Starting edb version:" << edb::version;
 		qDebug("Please Report Bugs & Requests At: http://bugs.codef00.com/");
@@ -166,9 +166,9 @@ int main(int argc, char *argv[]) {
 	load_translations();
 
 	const QStringList args = app.arguments();
-	edb::pid_t  attach_pid = 0;
-	QStringList run_args;
-	QString     run_app;
+	edb::pid_t        attach_pid = 0;
+	QList<QByteArray> run_args;
+	QString           run_app;
 
 	if(args.size() > 1) {
 		if(args.size() == 3 && args[1] == "--attach") {
@@ -177,7 +177,7 @@ int main(int argc, char *argv[]) {
 			run_app = args[2];
 
 			for(int i = 3; i < args.size(); ++i) {
-				run_args.push_back(args[i]);
+				run_args.push_back(argv[i]);
 			}
 		} else if(args.size() == 3 && args[1] == "--symbols") {
 			symbols::generate_symbols(args[2]);
