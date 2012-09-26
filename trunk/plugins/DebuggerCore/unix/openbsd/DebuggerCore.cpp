@@ -278,10 +278,10 @@ void DebuggerCore::set_state(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: open(const QString &path, const QString &cwd, const QStringList &args, const QString &tty)
+// Name: open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty)
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerCore::open(const QString &path, const QString &cwd, const QStringList &args, const QString &tty) {
+bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 	detach();
 	pid_t pid;
 
@@ -405,10 +405,9 @@ QString DebuggerCore::process_exe(edb::pid_t pid) const {
 
 	char errbuf[_POSIX2_LINE_MAX];
 	if(kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
-
+		char p_comm[KI_MAXCOMLEN] = "";
 		int rc;
 		if(struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid, sizeof(struct kinfo_proc), &rc)) {
-			char p_comm[KI_MAXCOMLEN] = "";
 			memcpy(p_comm, proc->p_comm, sizeof(p_comm));
 		}
 
