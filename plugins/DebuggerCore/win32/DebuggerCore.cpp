@@ -32,11 +32,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <windows.h>
 #include <tlhelp32.h>
+#include <Psapi.h>
 
 #include <algorithm>
 
 #ifdef _MSC_VER
 #pragma comment(lib, "Advapi32.lib")
+#pragma comment(lib, "Psapi.lib")
 #endif
 
 namespace {
@@ -447,12 +449,12 @@ void DebuggerCore::set_state(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: open(const QString &path, const QString &cwd, const QStringList &args, const QString &tty)
+// Name: open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty)
 // Desc:
 // TODO: Don't inherit security descriptors from this process (default values)
 //       Is this even possible?
 //------------------------------------------------------------------------------
-bool DebuggerCore::open(const QString &path, const QString &cwd, const QStringList &args, const QString &tty) {
+bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 
 	Q_UNUSED(tty);
 
@@ -480,7 +482,10 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QStringLi
 	// Set up command line
 	QString command_str = '\"' + QFileInfo(path).canonicalPath() + '\"'; // argv[0] = full path (explorer style)
 	if(!args.isEmpty()) {
-		command_str += " " + args.join(" ");
+		Q_FOREACH(QByteArray arg, args) {
+			command_str += " ";
+			command_str += arg;
+		}
 	}
 
 	// CreateProcessW wants a writable copy of the command line :<
