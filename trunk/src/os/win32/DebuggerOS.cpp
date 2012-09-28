@@ -73,8 +73,8 @@ QList<Module> edb::v1::loaded_libraries() {
 // Name: get_process_args()
 // Desc:
 //------------------------------------------------------------------------------
-QStringList edb::v1::get_process_args() {
+QList<QByteArray> edb::v1::get_process_args() {
 	// TODO: http://wj32.wordpress.com/2009/01/24/howto-get-the-command-line-of-processes/
-	QStringList ret;
+	QList<QByteArray> ret;
 	return ret;
 }
