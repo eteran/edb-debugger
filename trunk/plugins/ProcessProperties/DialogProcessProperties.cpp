@@ -26,7 +26,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QDir>
 #include <QUrl>
+
+#ifdef Q_OS_LINUX || Q_OS_FREEBSD || Q_OS_OPENBSD
 #include <link.h>
+#endif
 
 #include "ui_dialogprocess.h"
 
@@ -94,7 +97,7 @@ void DialogProcessProperties::updateGeneralPage() {
 // Name: 
 // Desc:
 //------------------------------------------------------------------------------
-void DialogProcessProperties::updateMemoryPage() {
+void DialogProcessProperties::updateModulePage() {
 
 	ui->tableModules->clearContents();
 	ui->tableModules->setRowCount(0);
@@ -116,7 +119,7 @@ void DialogProcessProperties::updateMemoryPage() {
 // Name: 
 // Desc:
 //------------------------------------------------------------------------------
-void DialogProcessProperties::updateModulePage() {
+void DialogProcessProperties::updateMemoryPage() {
 
 		ui->tableMemory->clearContents();
 		ui->tableMemory->setRowCount(0);
