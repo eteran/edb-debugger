@@ -67,8 +67,7 @@ edb::address_t PlatformRegion::size() const {
 }
 
 void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
-	HANDLE ph = OpenProcess(PROCESS_VM_OPERATION, FALSE, edb::v1::debugger_core->pid());
-	if(ph != 0) {
+	if(HANDLE ph = OpenProcess(PROCESS_VM_OPERATION, FALSE, edb::v1::debugger_core->pid())) {
 		DWORD prot = PAGE_NOACCESS;
 
 		switch((static_cast<int>(read) << 2) | (static_cast<int>(write) << 1) | static_cast<int>(execute)) {
@@ -88,6 +87,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 		if(VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start()), size(), prot, &prev_prot)) {
 			permissions_ = prot;
 		}
+		
 		CloseHandle(ph);
 	}
 }
