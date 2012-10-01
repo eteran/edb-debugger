@@ -65,44 +65,27 @@ void MemoryRegions::clear() {
 void MemoryRegions::sync() {
 
 	QList<MemoryRegion> regions;
-
-	if(pid_ != 0) {
-		if(HANDLE ph = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid_)) {
-			edb::address_t addr = 0;
-			LPVOID last_base    = reinterpret_cast<LPVOID>(-1);
-
-			Q_FOREVER {
-				MEMORY_BASIC_INFORMATION info;
-				VirtualQueryEx(ph, reinterpret_cast<LPVOID>(addr), &info, sizeof(info));
-
-				if(last_base == info.BaseAddress) {
-					break;
-				}
-
-				last_base = info.BaseAddress;
-
-				if(info.State == MEM_COMMIT) {
-
-					const edb::address_t start = reinterpret_cast<edb::address_t>(info.BaseAddress);
-					const edb::address_t end   = reinterpret_cast<edb::address_t>(info.BaseAddress) + info.RegionSize;
-					const edb::address_t base  = reinterpret_cast<edb::address_t>(info.AllocationBase);
-					const QString name         = QString();
-					const IRegion::permissions_t permissions = info.Protect; // let MemoryRegion handle permissions and modifiers
-					
-					if(info.Type == MEM_IMAGE) {
-						// set region.name to the module name
+	
+	if(edb::v1::debugger_core) {
+		regions = edb::v1::debugger_core->memory_regions();
+		Q_FOREACH(const MemoryRegion &region, regions) {
+			// if the region has a name, is mapped starting
+			// at the beginning of the file, and is executable, sounds
+			// like a module mapping!
+			if(!region.name().isEmpty()) {
+				if(region.base() == 0) {
+					if(region.executable()) {
+						edb::v1::symbol_manager().load_symbol_file(region.name(), region.start());
 					}
-					// get stack addresses, PEB, TEB, etc. and set name accordingly
-
-					regions.push_back(MemoryRegion(start, end, base, name, permissions));
 				}
-
-				addr += info.RegionSize;
 			}
-
-			CloseHandle(ph);
+		}
+		
+		if(regions.isEmpty()) {
+			qDebug() << "[MemoryRegions] warning: empty memory map";
 		}
 	}
+
 
 	qSwap(regions_, regions);
 	reset();

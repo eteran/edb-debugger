@@ -712,4 +712,52 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 	return parent;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QList<MemoryRegion> DebuggerCore::memory_regions() const {
+	QList<MemoryRegion> regions;
+
+	if(pid_ != 0) {
+		if(HANDLE ph = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid_)) {
+			edb::address_t addr = 0;
+			LPVOID last_base    = reinterpret_cast<LPVOID>(-1);
+
+			Q_FOREVER {
+				MEMORY_BASIC_INFORMATION info;
+				VirtualQueryEx(ph, reinterpret_cast<LPVOID>(addr), &info, sizeof(info));
+
+				if(last_base == info.BaseAddress) {
+					break;
+				}
+
+				last_base = info.BaseAddress;
+
+				if(info.State == MEM_COMMIT) {
+
+					const edb::address_t start = reinterpret_cast<edb::address_t>(info.BaseAddress);
+					const edb::address_t end   = reinterpret_cast<edb::address_t>(info.BaseAddress) + info.RegionSize;
+					const edb::address_t base  = reinterpret_cast<edb::address_t>(info.AllocationBase);
+					const QString name         = QString();
+					const IRegion::permissions_t permissions = info.Protect; // let MemoryRegion handle permissions and modifiers
+					
+					if(info.Type == MEM_IMAGE) {
+						// set region.name to the module name
+					}
+					// get stack addresses, PEB, TEB, etc. and set name accordingly
+
+					regions.push_back(MemoryRegion(start, end, base, name, permissions));
+				}
+
+				addr += info.RegionSize;
+			}
+
+			CloseHandle(ph);
+		}
+	}
+
+	return regions;
+}
+
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
