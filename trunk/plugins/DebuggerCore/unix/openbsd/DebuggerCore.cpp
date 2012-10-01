@@ -59,6 +59,92 @@ inline int resume_code(int status) {
 	}
 	return 0;
 }
+
+#if 0
+//------------------------------------------------------------------------------
+// Name: load_vmmap_entries(kvm_t *kd, u_long kptr, struct vm_map_entry **rptr, struct vm_map_entry *parent)
+// Desc: Download vmmap_entries from the kernel into our address space.
+//       We fix up the addr tree while downloading.
+//       Returns the size of the tree on success, or -1 on failure.
+//       On failure, *rptr needs to be passed to unload_vmmap_entries to free
+//       the lot.
+//------------------------------------------------------------------------------
+ssize_t load_vmmap_entries(kvm_t *kd, u_long kptr, struct vm_map_entry **rptr, struct vm_map_entry *parent) {
+	struct vm_map_entry *entry;
+	u_long left_kptr;
+	u_long right_kptr;
+	ssize_t left_sz;
+	ssize_t right_sz;
+
+	if (kptr == 0)
+		return 0;
+
+	/* Need space. */
+	entry = (struct vm_map_entry *)malloc(sizeof(*entry));
+	if (entry == NULL)
+		return -1;
+
+	/* Download entry at kptr. */
+	if (!kvm_read(kd, kptr, (char *)entry, sizeof(*entry))) {
+		free(entry);
+		return -1;
+	}
+
+	/*
+	 * Update addr pointers to have sane values in this address space.
+	 * We save the kernel pointers in {left,right}_kptr, so we have them
+	 * available to download children.
+	 */
+	left_kptr = (u_long) RB_LEFT(entry, daddrs.addr_entry);
+	right_kptr = (u_long) RB_RIGHT(entry, daddrs.addr_entry);
+	RB_LEFT(entry, daddrs.addr_entry) = RB_RIGHT(entry, daddrs.addr_entry) = NULL;
+	/* Fill in parent pointer. */
+	RB_PARENT(entry, daddrs.addr_entry) = parent;
+
+	/*
+	 * Consistent state reached, fill in *rptr.
+	 */
+	*rptr = entry;
+
+	/*
+	 * Download left, right.
+	 * On failure, our map is in a state that can be handled by
+	 * unload_vmmap_entries.
+	 */
+	left_sz = load_vmmap_entries(kd, left_kptr, &RB_LEFT(entry, daddrs.addr_entry), entry);
+	if (left_sz == -1)
+		return -1;
+	right_sz = load_vmmap_entries(kd, right_kptr, &RB_RIGHT(entry, daddrs.addr_entry), entry);
+	if (right_sz == -1)
+		return -1;
+
+	return 1 + left_sz + right_sz;
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: Free the vmmap entries in the given tree.
+//------------------------------------------------------------------------------
+void unload_vmmap_entries(struct vm_map_entry *entry) {
+	if (entry == NULL)
+		return;
+
+	unload_vmmap_entries(RB_LEFT(entry, daddrs.addr_entry));
+	unload_vmmap_entries(RB_RIGHT(entry, daddrs.addr_entry));
+	free(entry);
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: Don't implement address comparison.
+//------------------------------------------------------------------------------
+int no_impl(void *p, void *q) {
+	abort(); /* Should not be called. */
+	return 0;
+}
+
+RB_GENERATE(uvm_map_addr, vm_map_entry, daddrs.addr_entry, no_impl)
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -518,7 +604,7 @@ do_unload:
 			kvm_close(kd);
 		} else {
 			fprintf(stderr, "sync: %s\n", err_buf);
-			return;
+			return QList<MemoryRegion>();
 		}
 	}
 
