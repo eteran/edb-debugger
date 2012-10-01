@@ -19,18 +19,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ArchProcessor.h"
 #include "Configuration.h"
 #include "Debugger.h"
-#include "IDebuggerCore.h"
 #include "FunctionInfo.h"
+#include "IDebuggerCore.h"
 #include "Instruction.h"
 #include "QCategoryList.h"
-#include "string_hash.h"
 #include "State.h"
 #include "Util.h"
+#include "string_hash.h"
 #include <QApplication>
 #include <QVector>
+#include <boost/math/special_functions/fpclassify.hpp>
 #include <climits>
 #include <cmath>
-#include <boost/math/special_functions/fpclassify.hpp>
+
 #ifdef Q_OS_LINUX
 #include <asm/unistd.h>
 #endif

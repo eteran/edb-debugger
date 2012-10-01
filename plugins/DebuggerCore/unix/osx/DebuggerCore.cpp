@@ -445,10 +445,10 @@ void DebuggerCore::set_state(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: open(const QString &path, const QString &cwd, const QStringList &args, const QString &tty)
+// Name: open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty)
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerCore::open(const QString &path, const QString &cwd, const QStringList &args, const QString &tty) {
+bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 	detach();
 	pid_t pid;
 
