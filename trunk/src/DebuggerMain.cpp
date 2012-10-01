@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IArchProcessor.h"
 #include "IBinary.h"
 #include "IDebuggerCore.h"
-#include "IDebuggerPlugin.h"
+#include "IPlugin.h"
 #include "ISessionFile.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"
@@ -501,7 +501,7 @@ void DebuggerMain::on_registerList_customContextMenuRequested(const QPoint &pos)
 				menu.addAction(tr("&Follow In Dump (New Tab)"), this, SLOT(mnuRegisterFollowInDumpNewTab()));
 				menu.addAction(tr("&Follow In Stack"), this,          SLOT(mnuRegisterFollowInStack()));
 
-				add_plugin_context_menu(&menu, &IDebuggerPlugin::register_context_menu);
+				add_plugin_context_menu(&menu, &IPlugin::register_context_menu);
 
 				menu.exec(ui->registerList->mapToGlobal(pos));
 			}
@@ -936,7 +936,7 @@ void DebuggerMain::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	menu.addAction(tr("Add &Conditional Breakpoint"), this, SLOT(mnuCPUAddConditionalBreakpoint()));
 	menu.addAction(tr("&Remove Breakpoint"), this, SLOT(mnuCPURemoveBreakpoint()));
 
-	add_plugin_context_menu(&menu, &IDebuggerPlugin::cpu_context_menu);
+	add_plugin_context_menu(&menu, &IPlugin::cpu_context_menu);
 
 	menu.exec(ui->cpuView->viewport()->mapToGlobal(pos));
 }
@@ -1011,7 +1011,7 @@ void DebuggerMain::mnuStackContextMenu(const QPoint &pos) {
 	menu->addAction(action);
 	connect(action, SIGNAL(toggled(bool)), SLOT(mnuStackToggleLock(bool)));
 
-	add_plugin_context_menu(menu, &IDebuggerPlugin::stack_context_menu);
+	add_plugin_context_menu(menu, &IPlugin::stack_context_menu);
 
 	menu->exec(stack_view_->mapToGlobal(pos));
 	delete menu;
@@ -1037,7 +1037,7 @@ void DebuggerMain::mnuDumpContextMenu(const QPoint &pos) {
 	menu->addSeparator();
 	menu->addAction(tr("&Save To File"), this, SLOT(mnuDumpSaveToFile()));
 
-	add_plugin_context_menu(menu, &IDebuggerPlugin::data_context_menu);
+	add_plugin_context_menu(menu, &IPlugin::data_context_menu);
 
 	menu->exec(s->mapToGlobal(pos));
 	delete menu;
@@ -2099,7 +2099,7 @@ void DebuggerMain::mnuDumpDeleteTab() {
 template <class F, class T>
 void DebuggerMain::add_plugin_context_menu(const T &menu, const F &f) {
 	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
-		if(IDebuggerPlugin *const p = qobject_cast<IDebuggerPlugin *>(plugin)) {
+		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
 			const QList<QAction *> acts = (p->*f)();
 			if(!acts.isEmpty()) {
 				menu->addSeparator();

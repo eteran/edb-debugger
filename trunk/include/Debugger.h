@@ -37,7 +37,7 @@ class IArchProcessor;
 class IBinary;
 class IDebugEventHandler;
 class IDebuggerCore;
-class IDebuggerPlugin;
+class IPlugin;
 class ISessionFile;
 class ISymbolManager;
 class MemoryRegions;
@@ -157,7 +157,7 @@ namespace edb {
 		EDB_EXPORT edb::address_t locate_main_function();
 
 		EDB_EXPORT const QHash<QString, QObject *> &plugin_list();
-		EDB_EXPORT IDebuggerPlugin *find_plugin_by_name(const QString &name);
+		EDB_EXPORT IPlugin *find_plugin_by_name(const QString &name);
 
 		EDB_EXPORT void reload_symbols();
 		EDB_EXPORT void repaint_cpu_view();

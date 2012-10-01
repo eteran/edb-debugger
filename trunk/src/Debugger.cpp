@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "IDebuggerCore.h"
 #include "DebuggerMain.h"
-#include "IDebuggerPlugin.h"
+#include "IPlugin.h"
 #include "DialogInputBinaryString.h"
 #include "DialogInputValue.h"
 #include "DialogOptions.h"
@@ -800,10 +800,10 @@ const QHash<QString, QObject *> &edb::v1::plugin_list() {
 // Name: find_plugin_by_name(const QString &name)
 // Desc: gets a pointer to a plugin based on it's classname
 //------------------------------------------------------------------------------
-IDebuggerPlugin *edb::v1::find_plugin_by_name(const QString &name) {
+IPlugin *edb::v1::find_plugin_by_name(const QString &name) {
 	Q_FOREACH(QObject *p, g_GeneralPlugins) {
 		if(name == p->metaObject()->className()) {
-			return qobject_cast<IDebuggerPlugin *>(p);
+			return qobject_cast<IPlugin *>(p);
 		}
 	}
 	return 0;

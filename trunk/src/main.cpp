@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Configuration.h"
 #include "IDebuggerCore.h"
-#include "IDebuggerPlugin.h"
+#include "IPlugin.h"
 #include "DebuggerMain.h"
 #include "Debugger.h"
 #include "DebuggerInternal.h"
@@ -66,7 +66,7 @@ namespace {
 						}
 					}
 
-					if(IDebuggerPlugin *const generic_plugin = qobject_cast<IDebuggerPlugin *>(plugin)) {
+					if(IPlugin *const generic_plugin = qobject_cast<IPlugin *>(plugin)) {
 						if(edb::internal::register_plugin(full_path, plugin)) {
 							// we have a general purpose plugin
 							qDebug("[load_plugins] Loading Plugin: %-30s : %p", qPrintable(file_name), static_cast<void *>(plugin));

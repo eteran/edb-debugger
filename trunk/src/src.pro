@@ -42,7 +42,7 @@ HEADERS += \
 	IBreakpoint.h \
 	IDebugEventHandler.h \
 	IDebuggerCore.h \
-	IDebuggerPlugin.h \
+	IPlugin.h \
 	IRegion.h \
 	ISessionFile.h \
 	IState.h \
