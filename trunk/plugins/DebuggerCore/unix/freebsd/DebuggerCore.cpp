@@ -417,4 +417,35 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 	return -1;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QList<MemoryRegion> DebuggerCore::memory_regions() const {
+	QList<MemoryRegion> regions;
+
+	if(pid_ != 0) {
+		char buffer[PATH_MAX] = {};
+		struct ptrace_vm_entry vm_entry;
+		memset(&vm_entry, 0, sizeof(vm_entry));
+		vm_entry.pve_entry = 0;
+
+		while(ptrace(PT_VM_ENTRY, pid_, reinterpret_cast<char*>(&vm_entry), NULL) == 0) {
+			vm_entry.pve_path    = buffer;
+			vm_entry.pve_pathlen = sizeof(buffer);
+
+			const edb::address_t start               = vm_entry.pve_start;
+			const edb::address_t end                 = vm_entry.pve_end;
+			const edb::address_t base                = vm_entry.pve_start - vm_entry.pve_offset;
+			const QString name                       = vm_entry.pve_path;
+			const IRegion::permissions_t permissions = vm_entry.pve_prot;
+
+			regions.push_back(MemoryRegion(start, end, base, name, permissions));
+			memset(buffer, 0, sizeof(buffer));
+		}
+	}
+	
+	return regions;
+}
+
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

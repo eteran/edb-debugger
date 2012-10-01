@@ -19,18 +19,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IDEBUGGER_CORE_20061101_H_
 #define IDEBUGGER_CORE_20061101_H_
 
-#include <QtPlugin>
+#include "IBreakpoint.h"
+#include "IRegion.h"
+#include "MemoryRegion.h"
+#include "Process.h"
 #include <QByteArray>
 #include <QHash>
 #include <QMap>
 #include <QStringList>
-#include "IBreakpoint.h"
-#include "IRegion.h"
-#include "Process.h"
+#include <QtPlugin>
 
-class QString;
 class DebugEvent;
 class IState;
+class QString;
 class State;
 
 class IDebuggerCore {
@@ -83,7 +84,10 @@ public:
 	virtual int breakpoint_size() const = 0;
 	virtual void clear_breakpoints() = 0;
 	virtual void remove_breakpoint(edb::address_t address) = 0;
-	
+
+public:
+	virtual QList<MemoryRegion> memory_regions() const = 0;
+
 public:
 	// process properties
 	virtual QString process_exe(edb::pid_t pid) const = 0;

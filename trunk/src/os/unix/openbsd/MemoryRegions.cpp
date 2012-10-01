@@ -141,7 +141,7 @@ RB_GENERATE(uvm_map_addr, vm_map_entry, daddrs.addr_entry, no_impl)
 // Name: MemoryRegions()
 // Desc: constructor
 //------------------------------------------------------------------------------
-MemoryRegions::MemoryRegions() : QAbstractItemModel(0), pid_(0) {
+MemoryRegions::MemoryRegions() : QAbstractItemModel(0) {
 
 }
 
@@ -152,22 +152,13 @@ MemoryRegions::MemoryRegions() : QAbstractItemModel(0), pid_(0) {
 MemoryRegions::~MemoryRegions() {
 }
 
-//------------------------------------------------------------------------------
-// Name: set_pid(edb::pid_t pid)
-// Desc:
-//------------------------------------------------------------------------------
-void MemoryRegions::set_pid(edb::pid_t pid) {
-	pid_ = pid;
-	regions_.clear();
-	sync();
-}
+
 
 //------------------------------------------------------------------------------
 // Name: clear()
 // Desc:
 //------------------------------------------------------------------------------
 void MemoryRegions::clear() {
-	pid_ = 0;
 	regions_.clear();
 }
 
@@ -178,74 +169,27 @@ void MemoryRegions::clear() {
 void MemoryRegions::sync() {
 
 	QList<MemoryRegion> regions;
-
-	if(pid_ != 0) {
-
-		char err_buf[_POSIX2_LINE_MAX];
-		kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, err_buf);
-		if(kd != 0) {
-			int rc;
-			struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid_, sizeof *proc, &rc);
-			Q_ASSERT(proc != 0);
-
-			struct vmspace vmsp;
-			struct vm_map_entry e;
-			
-			kvm_read(kd, proc->p_vmspace, &vmsp, sizeof(vmsp));
-			if(vmsp.vm_map.header.next != 0) {
-				kvm_read(kd, (u_long)vmsp.vm_map.header.next, &e, sizeof(e));
-				while(e.next != vmsp.vm_map.header.next) {
-				
-					const edb::address_t start               = e.start;
-					const edb::address_t end                 = e.end;
-					const edb::address_t base                = e.offset;
-					const QString name                       = QString();
-					const IRegion::permissions_t permissions = 
-						((e.protection & VM_PROT_READ)    ? PROT_READ  : 0) |
-						((e.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
-						((e.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
-
-					regions.push_back(MemoryRegion(start, end, base, name, permissions));
-					kvm_read(kd, (u_long)e.next, &e, sizeof(e));
+	
+	if(edb::v1::debugger_core) {
+		regions = edb::v1::debugger_core->memory_regions();
+		Q_FOREACH(const MemoryRegion &region, regions) {
+			// if the region has a name, is mapped starting
+			// at the beginning of the file, and is executable, sounds
+			// like a module mapping!
+			if(!region.name().isEmpty()) {
+				if(region.base() == 0) {
+					if(region.executable()) {
+						edb::v1::symbol_manager().load_symbol_file(region.name(), region.start());
+					}
 				}
 			}
-			
-			
-			
-#if 0
-			uvm_map_addr root;
-
-			kvm_read(kd, proc->p_vmspace, &vmsp, sizeof vmsp);
-
-			RB_INIT(&root);
-			if (load_vmmap_entries(kd, 
-			    (u_long)RB_ROOT(&vmsp.vm_map.addr),
-			    &RB_ROOT(&root), NULL) == -1)
-				goto do_unload;
-
-			RB_FOREACH(e, uvm_map_addr, &root) {
-				MemoryRegion region;
-				region.start        = e->start;
-				region.end          = e->end;
-				region.base         = e->offset;
-				region.name         = QString();
-				region.permissions_ =
-					((e->protection & VM_PROT_READ)    ? PROT_READ  : 0) |
-					((e->protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
-					((e->protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
-
-				regions.push_back(region);
-			}
-			
-do_unload:
-			unload_vmmap_entries(RB_ROOT(&root));
-#endif
-			kvm_close(kd);
-		} else {
-			fprintf(stderr, "sync: %s\n", err_buf);
-			return;
+		}
+		
+		if(regions.isEmpty()) {
+			qDebug() << "[MemoryRegions] warning: empty memory map";
 		}
 	}
+
 
 	qSwap(regions_, regions);
 	reset();

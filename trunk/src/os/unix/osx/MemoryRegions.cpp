@@ -27,18 +27,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QtGlobal>
 
-#include <mach/mach.h>
-#include <mach/mach_vm.h>
-#include <mach/vm_region.h>
-#include <mach/vm_statistics.h>
-#include <sys/mman.h>
-
-
 //------------------------------------------------------------------------------
 // Name: MemoryRegions()
 // Desc: constructor
 //------------------------------------------------------------------------------
-MemoryRegions::MemoryRegions() : QAbstractItemModel(0), pid_(0) {
+MemoryRegions::MemoryRegions() : QAbstractItemModel(0) {
 }
 
 //------------------------------------------------------------------------------
@@ -49,21 +42,10 @@ MemoryRegions::~MemoryRegions() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_pid(edb::pid_t pid)
-// Desc:
-//------------------------------------------------------------------------------
-void MemoryRegions::set_pid(edb::pid_t pid) {
-	pid_ = pid;
-	regions_.clear();
-	sync();
-}
-
-//------------------------------------------------------------------------------
 // Name: clear()
 // Desc:
 //------------------------------------------------------------------------------
 void MemoryRegions::clear() {
-	pid_ = 0;
 	regions_.clear();
 }
 
@@ -72,81 +54,29 @@ void MemoryRegions::clear() {
 // Desc: reads a memory map file line by line
 //------------------------------------------------------------------------------
 void MemoryRegions::sync() {
-#if 0
-    static const char * inheritance_strings[] = {
-		"SHARE", "COPY", "NONE", "DONATE_COPY",
-	};
-
-	static const char * behavior_strings[] = {
-		"DEFAULT", "RANDOM", "SEQUENTIAL", "RESQNTL", "WILLNEED", "DONTNEED",
-	};
-#endif
 
 	QList<MemoryRegion> regions;
-	if(pid_ != 0) {
-		task_t the_task;
-		kern_return_t kr = task_for_pid(mach_task_self(), pid_, &the_task);
-		if(kr != KERN_SUCCESS) {
-			qDebug("task_for_pid failed");
-			return;
-		}
-
-		vm_size_t vmsize;
-		vm_address_t address;
-		vm_region_basic_info_data_64_t info;
-		mach_msg_type_number_t info_count;
-		vm_region_flavor_t flavor;
-		memory_object_name_t object;
-
-		kr = KERN_SUCCESS;
-		address = 0;
-
-		do {
-			flavor     = VM_REGION_BASIC_INFO_64;
-			info_count = VM_REGION_BASIC_INFO_COUNT_64;
-			kr = vm_region_64(the_task, &address, &vmsize, flavor, (vm_region_info_64_t)&info, &info_count, &object);
-			if(kr == KERN_SUCCESS) {
-
-				const edb::address_t start               = address;
-				const edb::address_t end                 = address + vmsize;
-				const edb::address_t base                = address;
-				const QString name                       = QString();
-				const IRegion::permissions_t permissions = 
-					((info.protection & VM_PROT_READ)    ? PROT_READ  : 0) |
-					((info.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
-					((info.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
-
-				regions.push_back(MemoryRegion(start, end, base, name, permissions));
-
-				/*
-				printf("%016llx-%016llx %8uK %c%c%c/%c%c%c %11s %6s %10s uwir=%hu sub=%u\n",
-				address, (address + vmsize), (vmsize >> 10),
-				(info.protection & VM_PROT_READ)        ? 'r' : '-',
-				(info.protection & VM_PROT_WRITE)       ? 'w' : '-',
-				(info.protection & VM_PROT_EXECUTE)     ? 'x' : '-',
-				(info.max_protection & VM_PROT_READ)    ? 'r' : '-',
-				(info.max_protection & VM_PROT_WRITE)   ? 'w' : '-',
-				(info.max_protection & VM_PROT_EXECUTE) ? 'x' : '-',
-				inheritance_strings[info.inheritance],
-				(info.shared) ? "shared" : "-",
-				behavior_strings[info.behavior],
-				info.user_wired_count,
-				info.reserved);
-				*/
-
-				address += vmsize;
-			} else if(kr != KERN_INVALID_ADDRESS) {
-				if(the_task != MACH_PORT_NULL) {
-					mach_port_deallocate(mach_task_self(), the_task);
+	
+	if(edb::v1::debugger_core) {
+		regions = edb::v1::debugger_core->memory_regions();
+		Q_FOREACH(const MemoryRegion &region, regions) {
+			// if the region has a name, is mapped starting
+			// at the beginning of the file, and is executable, sounds
+			// like a module mapping!
+			if(!region.name().isEmpty()) {
+				if(region.base() == 0) {
+					if(region.executable()) {
+						edb::v1::symbol_manager().load_symbol_file(region.name(), region.start());
+					}
 				}
-				return;
 			}
-		} while(kr != KERN_INVALID_ADDRESS);
-
-		if(the_task != MACH_PORT_NULL) {
-			mach_port_deallocate(mach_task_self(), the_task);
+		}
+		
+		if(regions.isEmpty()) {
+			qDebug() << "[MemoryRegions] warning: empty memory map";
 		}
 	}
+
 
 	qSwap(regions_, regions);
 	reset();

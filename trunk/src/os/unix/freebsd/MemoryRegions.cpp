@@ -52,7 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: MemoryRegions()
 // Desc: constructor
 //------------------------------------------------------------------------------
-MemoryRegions::MemoryRegions() : QAbstractItemModel(0), pid_(0) {
+MemoryRegions::MemoryRegions() : QAbstractItemModel(0) {
 
 }
 
@@ -64,21 +64,10 @@ MemoryRegions::~MemoryRegions() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_pid(edb::pid_t pid)
-// Desc:
-//------------------------------------------------------------------------------
-void MemoryRegions::set_pid(edb::pid_t pid) {
-	pid_ = pid;
-	regions_.clear();
-	sync();
-}
-
-//------------------------------------------------------------------------------
 // Name: clear()
 // Desc:
 //------------------------------------------------------------------------------
 void MemoryRegions::clear() {
-	pid_ = 0;
 	regions_.clear();
 }
 
@@ -89,27 +78,27 @@ void MemoryRegions::clear() {
 void MemoryRegions::sync() {
 
 	QList<MemoryRegion> regions;
-
-	if(pid_ != 0) {
-		char buffer[PATH_MAX] = {};
-		struct ptrace_vm_entry vm_entry;
-		memset(&vm_entry, 0, sizeof(vm_entry));
-		vm_entry.pve_entry = 0;
-
-		while(ptrace(PT_VM_ENTRY, pid_, reinterpret_cast<char*>(&vm_entry), NULL) == 0) {
-			vm_entry.pve_path    = buffer;
-			vm_entry.pve_pathlen = sizeof(buffer);
-
-			const edb::address_t start               = vm_entry.pve_start;
-			const edb::address_t end                 = vm_entry.pve_end;
-			const edb::address_t base                = vm_entry.pve_start - vm_entry.pve_offset;
-			const QString name                       = vm_entry.pve_path;
-			const IRegion::permissions_t permissions = vm_entry.pve_prot;
-
-			regions.push_back(MemoryRegion(start, end, base, name, permissions));
-			memset(buffer, 0, sizeof(buffer));
+	
+	if(edb::v1::debugger_core) {
+		regions = edb::v1::debugger_core->memory_regions();
+		Q_FOREACH(const MemoryRegion &region, regions) {
+			// if the region has a name, is mapped starting
+			// at the beginning of the file, and is executable, sounds
+			// like a module mapping!
+			if(!region.name().isEmpty()) {
+				if(region.base() == 0) {
+					if(region.executable()) {
+						edb::v1::symbol_manager().load_symbol_file(region.name(), region.start());
+					}
+				}
+			}
+		}
+		
+		if(regions.isEmpty()) {
+			qDebug() << "[MemoryRegions] warning: empty memory map";
 		}
 	}
+
 
 	qSwap(regions_, regions);
 	reset();

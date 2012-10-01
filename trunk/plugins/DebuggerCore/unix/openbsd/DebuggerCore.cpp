@@ -35,6 +35,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <machine/reg.h>
 #include <paths.h>
 #include <signal.h>
+#include <sys/exec.h>
+#include <sys/lock.h>
 #include <sys/mman.h>
 #include <sys/param.h>
 #include <sys/ptrace.h>
@@ -42,6 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/user.h>
 #include <sys/wait.h>
 #include <unistd.h>
+#include <uvm/uvm.h>
 
 #define __need_process
 #include <sys/sysctl.h>
@@ -441,6 +444,85 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 		kvm_close(kd);
 	}
 	return ret;
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QList<MemoryRegion> DebuggerCore::memory_regions() const {
+
+	QList<MemoryRegion> regions;
+
+	if(pid_ != 0) {
+
+		char err_buf[_POSIX2_LINE_MAX];
+		kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, err_buf);
+		if(kd != 0) {
+			int rc;
+			struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid_, sizeof *proc, &rc);
+			Q_ASSERT(proc != 0);
+
+			struct vmspace vmsp;
+			struct vm_map_entry e;
+			
+			kvm_read(kd, proc->p_vmspace, &vmsp, sizeof(vmsp));
+			if(vmsp.vm_map.header.next != 0) {
+				kvm_read(kd, (u_long)vmsp.vm_map.header.next, &e, sizeof(e));
+				while(e.next != vmsp.vm_map.header.next) {
+				
+					const edb::address_t start               = e.start;
+					const edb::address_t end                 = e.end;
+					const edb::address_t base                = e.offset;
+					const QString name                       = QString();
+					const IRegion::permissions_t permissions = 
+						((e.protection & VM_PROT_READ)    ? PROT_READ  : 0) |
+						((e.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
+						((e.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
+
+					regions.push_back(MemoryRegion(start, end, base, name, permissions));
+					kvm_read(kd, (u_long)e.next, &e, sizeof(e));
+				}
+			}
+			
+			
+			
+#if 0
+			uvm_map_addr root;
+
+			kvm_read(kd, proc->p_vmspace, &vmsp, sizeof vmsp);
+
+			RB_INIT(&root);
+			if (load_vmmap_entries(kd, 
+			    (u_long)RB_ROOT(&vmsp.vm_map.addr),
+			    &RB_ROOT(&root), NULL) == -1)
+				goto do_unload;
+
+			RB_FOREACH(e, uvm_map_addr, &root) {
+				MemoryRegion region;
+				region.start        = e->start;
+				region.end          = e->end;
+				region.base         = e->offset;
+				region.name         = QString();
+				region.permissions_ =
+					((e->protection & VM_PROT_READ)    ? PROT_READ  : 0) |
+					((e->protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
+					((e->protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
+
+				regions.push_back(region);
+			}
+			
+do_unload:
+			unload_vmmap_entries(RB_ROOT(&root));
+#endif
+			kvm_close(kd);
+		} else {
+			fprintf(stderr, "sync: %s\n", err_buf);
+			return;
+		}
+	}
+
+	return regions;
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
