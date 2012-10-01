@@ -80,7 +80,7 @@ void RecentFileManager::load_file_list() {
 //------------------------------------------------------------------------------
 void RecentFileManager::clear_file_list() {
 	file_list_.clear();
-	if(menu_ != 0) {
+	if(menu_) {
 		menu_->clear();
 		menu_->addSeparator();
 		menu_->addAction(tr("Clear &Menu"), this, SLOT(clear_file_list()));
@@ -106,7 +106,7 @@ QMenu *RecentFileManager::create_menu() {
 // Desc:
 //------------------------------------------------------------------------------
 void RecentFileManager::update() {
-	if(menu_ != 0) {
+	if(menu_) {
 		menu_->clear();
 
 		Q_FOREACH(const QString &s, file_list_) {

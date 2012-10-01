@@ -83,10 +83,10 @@ PlatformState::PlatformState() {
 }
 
 //------------------------------------------------------------------------------
-// Name: PlatformState::copy() const
+// Name: PlatformState::clone() const
 // Desc: makes a copy of the state object
 //------------------------------------------------------------------------------
-IState *PlatformState::copy() const {
+IState *PlatformState::clone() const {
 	return new PlatformState(*this);
 }
 

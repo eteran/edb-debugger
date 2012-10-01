@@ -321,7 +321,7 @@ quint8 DebuggerCoreUNIX::read_byte_base(edb::address_t address, bool &ok) {
 //------------------------------------------------------------------------------
 bool DebuggerCoreUNIX::read_pages(edb::address_t address, void *buf, std::size_t count) {
 
-	Q_ASSERT(buf != 0);
+	Q_ASSERT(buf);
 
 	if(!attached()) {
 		return false;
@@ -367,7 +367,7 @@ bool DebuggerCoreUNIX::read_pages(edb::address_t address, void *buf, std::size_t
 //------------------------------------------------------------------------------
 bool DebuggerCoreUNIX::read_bytes(edb::address_t address, void *buf, std::size_t len) {
 
-	Q_ASSERT(buf != 0);
+	Q_ASSERT(buf);
 
 	if(!attached()) {
 		return false;
@@ -402,7 +402,7 @@ bool DebuggerCoreUNIX::read_bytes(edb::address_t address, void *buf, std::size_t
 //------------------------------------------------------------------------------
 bool DebuggerCoreUNIX::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
 
-	Q_ASSERT(buf != 0);
+	Q_ASSERT(buf);
 
 	bool ok = false;
 	if(attached()) {
@@ -451,7 +451,7 @@ void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, 
 		// if we get here...execvp failed!
 		if(ret == -1) {
 			p = argv_pointers;
-			while(*p != 0) {
+			while(*p) {
 				delete [] *p++;
 			}
 			delete [] argv_pointers;

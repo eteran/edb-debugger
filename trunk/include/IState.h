@@ -28,7 +28,7 @@ public:
 	virtual ~IState() {}
 
 public:
-	virtual IState *copy() const = 0;
+	virtual IState *clone() const = 0;
 
 public:
 	virtual QString flags_to_string() const = 0;

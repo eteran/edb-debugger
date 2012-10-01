@@ -42,7 +42,7 @@ State::~State() {
 // Name: State(const State &other)
 // Desc:
 //------------------------------------------------------------------------------
-State::State(const State &other) : impl_(other.impl_ ? other.impl_->copy() : 0) {
+State::State(const State &other) : impl_(other.impl_ ? other.impl_->clone() : 0) {
 }
 
 //------------------------------------------------------------------------------

@@ -565,7 +565,7 @@ bool edb::v1::get_ascii_string_at_address(edb::address_t address, QString &s, in
 
 	bool is_string = false;
 
-	if(debugger_core != 0) {
+	if(debugger_core) {
 		s.clear();
 
 		if(min_length <= max_length) {
@@ -610,7 +610,7 @@ bool edb::v1::get_ascii_string_at_address(edb::address_t address, QString &s, in
 //------------------------------------------------------------------------------
 bool edb::v1::get_utf16_string_at_address(edb::address_t address, QString &s, int min_length, int max_length, int &found_length) {
 	bool is_string = false;
-	if(debugger_core != 0) {
+	if(debugger_core) {
 		s.clear();
 
 		if(min_length <= max_length) {
@@ -659,7 +659,7 @@ QString edb::v1::find_function_symbol(edb::address_t address, const QString &def
 
 	if(function_symbol_base(address, symname, off)) {
 		symname = QString("%1+%2").arg(symname).arg(off, 0, 16);
-		if(offset != 0) {
+		if(offset) {
 			*offset = off;
 		}
 	}
@@ -1144,7 +1144,7 @@ void edb::v1::set_status(const QString &message) {
 // Desc:
 //------------------------------------------------------------------------------
 IBreakpoint::pointer edb::v1::find_breakpoint(edb::address_t address) {
-	if(edb::v1::debugger_core != 0) {
+	if(edb::v1::debugger_core) {
 		return debugger_core->find_breakpoint(address);
 	}
 	return IBreakpoint::pointer();
@@ -1156,7 +1156,7 @@ IBreakpoint::pointer edb::v1::find_breakpoint(edb::address_t address) {
 //------------------------------------------------------------------------------
 int edb::v1::pointer_size() {
 	
-	if(edb::v1::debugger_core != 0) {
+	if(edb::v1::debugger_core) {
 		return edb::v1::debugger_core->pointer_size();
 	}
 	

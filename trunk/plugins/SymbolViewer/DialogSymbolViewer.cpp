@@ -68,10 +68,9 @@ void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
 	const edb::address_t addr = edb::v1::string_to_address(s, ok);
 
 	if(ok) {
-
 		const Symbol::pointer sym = edb::v1::symbol_manager().find(addr);
 
-		if(sym != 0 && sym->is_code()) {
+		if(sym && sym->is_code()) {
 			edb::v1::jump_to_address(addr);
 		} else {
 			edb::v1::dump_data(addr, false);

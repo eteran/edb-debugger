@@ -30,7 +30,7 @@ public:
 	PlatformState();
 
 public:
-	virtual IState *copy() const;
+	virtual IState *clone() const;
 
 public:
 	virtual QString flags_to_string() const;

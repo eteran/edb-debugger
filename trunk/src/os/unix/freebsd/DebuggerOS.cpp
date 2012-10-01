@@ -60,7 +60,7 @@ QList<Module> edb::v1::loaded_libraries() {
 //------------------------------------------------------------------------------
 QList<QByteArray> edb::v1::get_process_args() {
 	QList<QByteArray> ret;
-	if(debugger_core != 0) {
+	if(debugger_core) {
 
 		// TODO: assert attached!
 

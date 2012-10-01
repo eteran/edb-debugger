@@ -492,7 +492,7 @@ void DebuggerMain::setup_tab_buttons() {
 //------------------------------------------------------------------------------
 void DebuggerMain::on_registerList_customContextMenuRequested(const QPoint &pos) {
 	QTreeWidgetItem *const item = ui->registerList->itemAt(pos);
-	if(item != 0 && !ui->registerList->isCategory(item)) {
+	if(item && !ui->registerList->isCategory(item)) {
 		// a little bit cheesy of a solution, but should work nicely
 		if(const Register reg = edb::v1::arch_processor().value_from_item(*item)) {
 			if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP | Register::TYPE_COND)) {
@@ -1754,7 +1754,7 @@ void DebuggerMain::detach_from_process(DETACH_ACTION kill) {
 		}
 	}
 
-	if(edb::v1::debugger_core != 0) {
+	if(edb::v1::debugger_core) {
 		if(kill == KILL_ON_DETACH) edb::v1::debugger_core->kill();
 		else                       edb::v1::debugger_core->detach();
 	}

@@ -119,7 +119,7 @@ QList<Module> edb::v1::loaded_libraries() {
 //------------------------------------------------------------------------------
 QList<QByteArray> edb::v1::get_process_args() {
 	QList<QByteArray> ret;
-	if(debugger_core != 0) {
+	if(debugger_core) {
 		if(const edb::pid_t pid = debugger_core->pid()) {
 			const QString command_line_file(QString("/proc/%1/cmdline").arg(pid));
 			QFile file(command_line_file);

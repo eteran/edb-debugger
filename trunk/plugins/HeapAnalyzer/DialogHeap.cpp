@@ -90,7 +90,7 @@ namespace {
 	// Desc:
 	//------------------------------------------------------------------------------
 	edb::address_t block_start(const Result *result) {
-		Q_ASSERT(result != 0);
+		Q_ASSERT(result);
 		return block_start(*result);
 	}
 }

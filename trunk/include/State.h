@@ -41,6 +41,7 @@ public:
 	void swap(State &other);
 
 public:
+	QByteArray xmm_register(int n) const;
 	QString flags_to_string() const;
 	QString flags_to_string(edb::reg_t flags) const;
 	Register value(const QString &reg) const;
@@ -51,9 +52,10 @@ public:
 	edb::reg_t flags() const;
 	long double fpu_register(int n) const;
 	quint64 mmx_register(int n) const;
-	QByteArray xmm_register(int n) const;
 	void adjust_stack(int bytes);
 	void clear();
+
+public:
 	void set_debug_register(int n, edb::reg_t value);
 	void set_flags(edb::reg_t flags);
 	void set_instruction_pointer(edb::address_t value);
