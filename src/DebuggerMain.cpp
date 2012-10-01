@@ -1773,8 +1773,6 @@ void DebuggerMain::set_initial_debugger_state() {
 	timer_->start(0);
 
 	edb::v1::symbol_manager().load_symbols(edb::v1::config().symbol_path);
-
-	edb::v1::memory_regions().set_pid(edb::v1::debugger_core->pid());
 	edb::v1::memory_regions().sync();
 
 	Q_ASSERT(data_regions_.size() > 0);

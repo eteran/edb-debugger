@@ -24,6 +24,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <fcntl.h>
 #include <mach/mach.h>
+#include <mach/mach_vm.h>
+#include <mach/vm_region.h>
+#include <mach/vm_statistics.h>
 #include <paths.h>
 #include <signal.h>
 #include <sys/mman.h>
@@ -35,7 +38,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/user.h>
 #include <sys/wait.h>
 #include <unistd.h>
-
 
 namespace {
 inline int resume_code(int status) {
@@ -586,6 +588,91 @@ QString DebuggerCore::process_cwd(edb::pid_t pid) const {
 edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 	// TODO: implement this
 	return -1;
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QList<MemoryRegion> DebuggerCore::memory_regions() const {
+
+#if 0
+    static const char * inheritance_strings[] = {
+		"SHARE", "COPY", "NONE", "DONATE_COPY",
+	};
+
+	static const char * behavior_strings[] = {
+		"DEFAULT", "RANDOM", "SEQUENTIAL", "RESQNTL", "WILLNEED", "DONTNEED",
+	};
+#endif
+
+	QList<MemoryRegion> regions;
+	if(pid_ != 0) {
+		task_t the_task;
+		kern_return_t kr = task_for_pid(mach_task_self(), pid_, &the_task);
+		if(kr != KERN_SUCCESS) {
+			qDebug("task_for_pid failed");
+			return;
+		}
+
+		vm_size_t vmsize;
+		vm_address_t address;
+		vm_region_basic_info_data_64_t info;
+		mach_msg_type_number_t info_count;
+		vm_region_flavor_t flavor;
+		memory_object_name_t object;
+
+		kr = KERN_SUCCESS;
+		address = 0;
+
+		do {
+			flavor     = VM_REGION_BASIC_INFO_64;
+			info_count = VM_REGION_BASIC_INFO_COUNT_64;
+			kr = vm_region_64(the_task, &address, &vmsize, flavor, (vm_region_info_64_t)&info, &info_count, &object);
+			if(kr == KERN_SUCCESS) {
+
+				const edb::address_t start               = address;
+				const edb::address_t end                 = address + vmsize;
+				const edb::address_t base                = address;
+				const QString name                       = QString();
+				const IRegion::permissions_t permissions = 
+					((info.protection & VM_PROT_READ)    ? PROT_READ  : 0) |
+					((info.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
+					((info.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
+
+				regions.push_back(MemoryRegion(start, end, base, name, permissions));
+
+				/*
+				printf("%016llx-%016llx %8uK %c%c%c/%c%c%c %11s %6s %10s uwir=%hu sub=%u\n",
+				address, (address + vmsize), (vmsize >> 10),
+				(info.protection & VM_PROT_READ)        ? 'r' : '-',
+				(info.protection & VM_PROT_WRITE)       ? 'w' : '-',
+				(info.protection & VM_PROT_EXECUTE)     ? 'x' : '-',
+				(info.max_protection & VM_PROT_READ)    ? 'r' : '-',
+				(info.max_protection & VM_PROT_WRITE)   ? 'w' : '-',
+				(info.max_protection & VM_PROT_EXECUTE) ? 'x' : '-',
+				inheritance_strings[info.inheritance],
+				(info.shared) ? "shared" : "-",
+				behavior_strings[info.behavior],
+				info.user_wired_count,
+				info.reserved);
+				*/
+
+				address += vmsize;
+			} else if(kr != KERN_INVALID_ADDRESS) {
+				if(the_task != MACH_PORT_NULL) {
+					mach_port_deallocate(mach_task_self(), the_task);
+				}
+				return;
+			}
+		} while(kr != KERN_INVALID_ADDRESS);
+
+		if(the_task != MACH_PORT_NULL) {
+			mach_port_deallocate(mach_task_self(), the_task);
+		}
+	}
+	
+	return regions;
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

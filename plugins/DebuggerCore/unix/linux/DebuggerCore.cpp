@@ -103,6 +103,52 @@ bool is_clone_event(int status) {
 
 	return false;
 }
+
+//------------------------------------------------------------------------------
+// Name: process_map_line(const QString &line, MemoryRegion &region)
+// Desc: parses the data from a line of a memory map file
+//------------------------------------------------------------------------------
+bool process_map_line(const QString &line, MemoryRegion &region) {
+
+
+	edb::address_t start;
+	edb::address_t end;
+	edb::address_t base;
+	IRegion::permissions_t permissions;
+	QString name;
+
+	const QStringList items = line.split(" ", QString::SkipEmptyParts);
+	if(items.size() >= 3) {
+		bool ok;
+		const QStringList bounds = items[0].split("-");
+		if(bounds.size() == 2) {
+			start = bounds[0].toULongLong(&ok, 16);
+			if(ok) {
+				end = bounds[1].toULongLong(&ok, 16);
+				if(ok) {
+					base = items[2].toULongLong(&ok, 16);
+					if(ok) {
+						const QString perms = items[1];
+						permissions = 0;
+						if(perms[0] == 'r') permissions |= PROT_READ;
+						if(perms[1] == 'w') permissions |= PROT_WRITE;
+						if(perms[2] == 'x') permissions |= PROT_EXEC;
+
+						if(items.size() >= 6) {
+							name = items[5];
+						}
+						
+						region = MemoryRegion(start, end, base, name, permissions);
+						return true;
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
+
 }
 
 //------------------------------------------------------------------------------
@@ -748,6 +794,35 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 
 	file.close();
 	return ret;
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QList<MemoryRegion> DebuggerCore::memory_regions() const {
+	QList<MemoryRegion> regions;
+	
+	if(pid_ != 0) {
+		const QString mapFile(QString("/proc/%1/maps").arg(pid_));
+
+		QFile file(mapFile);
+        if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+
+			QTextStream in(&file);
+			QString line = in.readLine();
+
+			while(!line.isNull()) {
+				MemoryRegion region;
+				if(process_map_line(line, region)) {
+					regions.push_back(region);
+				}
+				line = in.readLine();
+			}
+		}
+	}
+	
+	return regions;
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

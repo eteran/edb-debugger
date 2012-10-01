@@ -34,73 +34,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTextStream>
 #include <QtGlobal>
 
-#include <sys/mman.h>
-
-namespace {
-//------------------------------------------------------------------------------
-// Name: process_map_line(const QString &line, MemoryRegion &region)
-// Desc: parses the data from a line of a memory map file
-//------------------------------------------------------------------------------
-bool process_map_line(const QString &line, MemoryRegion &region) {
-
-
-	edb::address_t start;
-	edb::address_t end;
-	edb::address_t base;
-	IRegion::permissions_t permissions;
-	QString name;
-
-	bool ret = false;
-	const QStringList items = line.split(" ", QString::SkipEmptyParts);
-	if(items.size() >= 3) {
-		bool ok;
-		const QStringList bounds = items[0].split("-");
-		if(bounds.size() == 2) {
-			start = bounds[0].toULongLong(&ok, 16);
-			if(ok) {
-				end = bounds[1].toULongLong(&ok, 16);
-				if(ok) {
-					base = items[2].toULongLong(&ok, 16);
-					if(ok) {
-						const QString perms = items[1];
-						permissions = 0;
-						if(perms[0] == 'r') permissions |= PROT_READ;
-						if(perms[1] == 'w') permissions |= PROT_WRITE;
-						if(perms[2] == 'x') permissions |= PROT_EXEC;
-
-						if(items.size() >= 6) {
-							name = items[5];
-						}
-						
-						region = MemoryRegion(start, end, base, name, permissions);
-						
-
-						// if the region has a name, is mapped starting
-						// at the beginning of the file, and is executable, sounds
-						// like a module mapping!
-						if(!region.name().isEmpty()) {
-							if(region.base() == 0) {
-								if(region.executable()) {
-									edb::v1::symbol_manager().load_symbol_file(region.name(), region.start());
-								}
-							}
-						}
-
-						ret = true;
-					}
-				}
-			}
-		}
-	}
-	return ret;
-}
-}
-
 //------------------------------------------------------------------------------
 // Name: MemoryRegions()
 // Desc: constructor
 //------------------------------------------------------------------------------
-MemoryRegions::MemoryRegions() : QAbstractItemModel(0), pid_(0) {
+MemoryRegions::MemoryRegions() : QAbstractItemModel(0) {
 }
 
 //------------------------------------------------------------------------------
@@ -111,21 +49,10 @@ MemoryRegions::~MemoryRegions() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_pid(edb::pid_t pid)
-// Desc:
-//------------------------------------------------------------------------------
-void MemoryRegions::set_pid(edb::pid_t pid) {
-	pid_ = pid;
-	regions_.clear();
-	sync();
-}
-
-//------------------------------------------------------------------------------
 // Name: clear()
 // Desc:
 //------------------------------------------------------------------------------
 void MemoryRegions::clear() {
-	pid_ = 0;
 	regions_.clear();
 }
 
@@ -136,25 +63,22 @@ void MemoryRegions::clear() {
 void MemoryRegions::sync() {
 
 	QList<MemoryRegion> regions;
-
-	if(pid_ != 0) {
-		const QString mapFile(QString("/proc/%1/maps").arg(pid_));
-
-		QFile file(mapFile);
-        if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-
-			QTextStream in(&file);
-			QString line = in.readLine();
-
-			while(!line.isNull()) {
-				MemoryRegion region;
-				if(process_map_line(line, region)) {
-					regions.push_back(region);
+	
+	if(edb::v1::debugger_core) {
+		regions = edb::v1::debugger_core->memory_regions();
+		Q_FOREACH(const MemoryRegion &region, regions) {
+			// if the region has a name, is mapped starting
+			// at the beginning of the file, and is executable, sounds
+			// like a module mapping!
+			if(!region.name().isEmpty()) {
+				if(region.base() == 0) {
+					if(region.executable()) {
+						edb::v1::symbol_manager().load_symbol_file(region.name(), region.start());
+					}
 				}
-				line = in.readLine();
 			}
 		}
-
+		
 		if(regions.isEmpty()) {
 			qDebug() << "[MemoryRegions] warning: empty memory map";
 		}
@@ -162,7 +86,6 @@ void MemoryRegions::sync() {
 
 
 	qSwap(regions_, regions);
-
 	reset();
 }
 

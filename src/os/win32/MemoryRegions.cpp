@@ -67,8 +67,7 @@ void MemoryRegions::sync() {
 	QList<MemoryRegion> regions;
 
 	if(pid_ != 0) {
-		HANDLE ph = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid_);
-		if(ph != 0) {
+		if(HANDLE ph = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid_)) {
 			edb::address_t addr = 0;
 			LPVOID last_base    = reinterpret_cast<LPVOID>(-1);
 

@@ -41,18 +41,14 @@ public:
 	MemoryRegions();
 	virtual ~MemoryRegions();
 
-	void set_pid(edb::pid_t pid);
-	void clear();
-
+public:
+	bool find_region(edb::address_t address) const;
+	bool find_region(edb::address_t address, MemoryRegion &region) const;
 	const QList<MemoryRegion> &regions() const { return regions_; }
-
+	void clear();
 	void sync();
 
-	bool find_region(edb::address_t address, MemoryRegion &region) const;
-	bool find_region(edb::address_t address) const;
-
 private:
-	edb::pid_t          pid_;
 	QList<MemoryRegion> regions_;
 };
 

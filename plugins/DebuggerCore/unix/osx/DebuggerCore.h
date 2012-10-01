@@ -53,6 +53,9 @@ public:
 	virtual void set_active_thread(edb::tid_t);
 
 public:
+	virtual QList<MemoryRegion> memory_regions() const;
+
+public:
 	// process properties
 	virtual QString process_exe(edb::pid_t pid) const;
 	virtual QString process_cwd(edb::pid_t pid) const;
