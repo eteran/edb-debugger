@@ -3,6 +3,7 @@ TEMPLATE = subdirs
 # Directories
 SUBDIRS += \
 	Analyzer \
+	BinaryInfo \
 	BinarySearcher \
 	Bookmarks \
 	BreakpointManager \
@@ -13,16 +14,17 @@ SUBDIRS += \
 	FunctionFinder \
 	HardwareBreakpoints \
 	OpcodeSearcher \
-	References \
+	ProcessProperties \
 	ROPTool \
+	References \
 	SessionManager \
 	StringSearcher \
-	SymbolViewer \
-	ProcessProperties
+	SymbolViewer
+
+
 
 unix {
 	!macx {
-		SUBDIRS += ELFBinaryInfo
 		SUBDIRS += HeapAnalyzer
 	}
 
