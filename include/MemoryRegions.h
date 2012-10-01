@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef MEMORY_REGIONS_20060501_H_
 #define MEMORY_REGIONS_20060501_H_
 
-#include "Types.h"
 #include "API.h"
 #include "MemoryRegion.h"
 
@@ -30,12 +29,12 @@ class EDB_EXPORT MemoryRegions : public QAbstractItemModel {
 	Q_OBJECT
 
 public:
-	virtual QVariant data(const QModelIndex &index, int role) const;
 	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const;
 	virtual QModelIndex parent(const QModelIndex &index) const;
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
-	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual QVariant data(const QModelIndex &index, int role) const;
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
+	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const;
+	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
 public:
 	MemoryRegions();

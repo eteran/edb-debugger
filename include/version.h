@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef VERSION_20061109_H_
 #define VERSION_20061109_H_
 
-#define EDB_VERSION 0x00000913
+#define EDB_VERSION 0x00000919
 
 namespace edb {
 	static const char version[] = "0.9.19";

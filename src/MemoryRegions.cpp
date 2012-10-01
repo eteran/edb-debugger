@@ -17,22 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "MemoryRegions.h"
-#include "SymbolManager.h"
-#include "IDebuggerCore.h"
-#include "Util.h"
-#include "State.h"
 #include "Debugger.h"
-
-#include <sstream>
-#include <string>
-#include <cstring>
-
-#include <QApplication>
+#include "IDebuggerCore.h"
+#include "ISymbolManager.h"
 #include <QDebug>
-#include <QFile>
-#include <QStringList>
-#include <QTextStream>
-#include <QtGlobal>
 
 //------------------------------------------------------------------------------
 // Name: MemoryRegions()
@@ -185,10 +173,14 @@ int MemoryRegions::columnCount(const QModelIndex &parent) const {
 QVariant MemoryRegions::headerData(int section, Qt::Orientation orientation, int role) const {
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
 		switch(section) {
-		case 0: return tr("Start Address");
-		case 1: return tr("End Address");
-		case 2: return tr("Permissions");
-		case 3: return tr("Name");
+		case 0:
+			return tr("Start Address");
+		case 1:
+			return tr("End Address");
+		case 2:
+			return tr("Permissions");
+		case 3:
+			return tr("Name");
 		}
 	}
 
