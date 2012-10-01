@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDir>
 #include <QUrl>
 
-#ifdef Q_OS_LINUX || Q_OS_FREEBSD || Q_OS_OPENBSD
+#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
 #include <link.h>
 #endif
 
