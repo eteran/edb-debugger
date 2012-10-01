@@ -48,9 +48,9 @@ private:
 	QByteArray     original_bytes_;
 	edb::address_t address_;
 	unsigned int   hit_count_;
-	unsigned int   enabled_  : 1;
-	unsigned int   one_time_ : 1;
-	unsigned int   internal_ : 1;
+	bool           enabled_ ;
+	bool           one_time_;
+	bool           internal_;
 };
 
 #endif

@@ -189,7 +189,7 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 	std::memset(&old_action, 0, sizeof(old_action));
 
 	new_action.sa_sigaction = sigchld_handler;
-	new_action.sa_flags = SA_RESTART | SA_SIGINFO;
+	new_action.sa_flags     = SA_RESTART | SA_SIGINFO;
 
 	sigaction(SIGCHLD, &new_action, &old_action);
 

@@ -19,10 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DEBUGGER_20061101_H_
 #define DEBUGGER_20061101_H_
 
-#include "Types.h"
 #include "API.h"
+#include "IBinary.h"
 #include "IBreakpoint.h"
+#include "MemoryRegion.h"
 #include "Module.h"
+#include "Types.h"
 
 #include <QString>
 #include <QStringList>
@@ -49,9 +51,6 @@ class QFileInfo;
 class QWidget;
 
 struct ExpressionError;
-
-#include "MemoryRegion.h"
-#include "IBinary.h"
 
 namespace edb {
 	namespace v1 {
