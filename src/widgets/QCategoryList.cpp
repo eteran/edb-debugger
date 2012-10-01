@@ -95,5 +95,5 @@ QTreeWidgetItem *QCategoryList::addItem(QTreeWidgetItem *category, const QString
 // Desc:
 //------------------------------------------------------------------------------
 bool QCategoryList::isCategory(QTreeWidgetItem *item) const {
-	return item != 0 && item->parent() == 0;
+	return item && item->parent() == 0;
 }

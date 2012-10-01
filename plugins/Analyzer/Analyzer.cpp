@@ -417,7 +417,7 @@ void Analyzer::bonus_main(const MemoryRegion &region, FunctionMap &results) cons
 	if(!s.isEmpty()) {
 		const edb::address_t main = edb::v1::locate_main_function();
 
-		if(main != 0 && region.contains(main)) {
+		if(main && region.contains(main)) {
 			// make sure we have an entry for this function
 			update_results_entry(results, main);
 		}

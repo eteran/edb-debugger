@@ -86,10 +86,11 @@ private:
 
 private:
 	// Checks if an addition would cause overflow (wraparound)
-	template<typename T> bool overflows(const T& v1, const T& v2, const T& max = std::numeric_limits<T>::max())
-	{
+	template<typename T>
+	bool overflows(const T& v1, const T& v2, const T& max = std::numeric_limits<T>::max()) {
 		return (v1 > 0) && (v2 > 0) && (v1 > (max - v2));
 	}
+	
 	bool set_debug_privilege(HANDLE process, bool set);
 };
 

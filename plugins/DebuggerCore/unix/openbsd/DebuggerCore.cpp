@@ -464,10 +464,8 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	char ebuffer[_POSIX2_LINE_MAX];
 	int numprocs;
 
-	kvm_t *const kaccess = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, ebuffer);
-	if(kaccess != 0) {
-		struct kinfo_proc *const kprocaccess = kvm_getprocs(kaccess, KERN_PROC_ALL, 0, sizeof *kprocaccess, &numprocs);
-		if(kprocaccess != 0) {
+	if(kvm_t *const kaccess = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, ebuffer)) {
+		if(struct kinfo_proc *const kprocaccess = kvm_getprocs(kaccess, KERN_PROC_ALL, 0, sizeof *kprocaccess, &numprocs)) {
 			for(int i = 0; i < numprocs; ++i) {
 				Process procInfo;
 				procInfo.pid  = kprocaccess[i].p_pid;
@@ -543,11 +541,10 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 	if(pid_ != 0) {
 
 		char err_buf[_POSIX2_LINE_MAX];
-		kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, err_buf);
-		if(kd != 0) {
+		if(kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, err_buf)) {
 			int rc;
 			struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid_, sizeof *proc, &rc);
-			Q_ASSERT(proc != 0);
+			Q_ASSERT(proc);
 
 			struct vmspace vmsp;
 			struct vm_map_entry e;
@@ -570,9 +567,7 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 					kvm_read(kd, (u_long)e.next, &e, sizeof(e));
 				}
 			}
-			
-			
-			
+
 #if 0
 			uvm_map_addr root;
 

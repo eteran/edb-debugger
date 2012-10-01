@@ -301,7 +301,7 @@ void GraphWidget::render_node(graph_t *graph, node_t *node) {
 
 		scene_->addItem(item);
 
-		for(edge_t *e = agfstout(graph, node); e != 0; e = agnxtout(graph, e)) {
+		for(edge_t *e = agfstout(graph, node); e; e = agnxtout(graph, e)) {
 			render_edge(e);
 		}
 	}
@@ -315,7 +315,7 @@ void GraphWidget::render_graph(GVC_t *gvc, graph_t *graph, const QString& layout
 
 	if(gvLayout(gvc, graph, const_cast<char *>(qPrintable(layout))) == 0) {
 		clear_graph();
-		if(GD_charset(graph) != 0) {
+		if(GD_charset(graph)) {
 			qWarning("unsupported charset");
 		}
 
@@ -331,7 +331,7 @@ void GraphWidget::render_graph(GVC_t *gvc, graph_t *graph, const QString& layout
 
 		render_sub_graph(gvc, graph);
 
-		for(node_t *n = agfstnode(graph); n != 0; n = agnxtnode(graph, n)) {
+		for(node_t *n = agfstnode(graph); n; n = agnxtnode(graph, n)) {
 			render_node(graph, n);
 		}
 	} else {

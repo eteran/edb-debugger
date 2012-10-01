@@ -73,7 +73,7 @@ QList<Module> edb::v1::loaded_libraries() {
 //------------------------------------------------------------------------------
 QList<QByteArray> edb::v1::get_process_args() {
 	QList<QByteArray> ret;
-	if(debugger_core != 0) {
+	if(debugger_core) {
 
 		// TODO: assert attached!
 		const edb::pid_t pid = debugger_core->pid();
@@ -83,7 +83,7 @@ QList<QByteArray> edb::v1::get_process_args() {
 			if(struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, sizeof *proc, pid, &rc)) {
 				char **argv = kvm_getargv(kd, proc, 0);
 				char **p = argv;
-				while(*p != 0) {
+				while(*p) {
 					ret << *p++;
 				}
 			}

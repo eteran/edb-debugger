@@ -602,8 +602,7 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 				pi.uid = 0; // TODO
 				pi.name = QString::fromWCharArray(lppe.szExeFile);
 
-				HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, lppe.th32ProcessID);
-				if(hProc != 0) {
+				if(HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, lppe.th32ProcessID)) {
 					BOOL wow64 = FALSE;
 					if(fnIsWow64Process && fnIsWow64Process(hProc, &wow64) && wow64) {
 						pi.name += " *32";
@@ -652,9 +651,8 @@ QString DebuggerCore::process_exe(edb::pid_t pid) const {
 	
 	if(QueryFullProcessImageNameWFunc/* && LOBYTE(GetVersion()) >= 6*/) { // Vista and up
 		const DWORD ACCESS = PROCESS_QUERY_LIMITED_INFORMATION;
-		HANDLE ph = OpenProcess(ACCESS, false, pid);
 
-		if(ph != 0) {
+		if(HANDLE ph = OpenProcess(ACCESS, false, pid)) {
 			DWORD size = _countof(name);
 			if(QueryFullProcessImageNameWFunc(ph, 0, name, &size)) {
 				ret = QString::fromWCharArray(name);
@@ -666,9 +664,8 @@ QString DebuggerCore::process_exe(edb::pid_t pid) const {
 		// debug privilege set, so 2 calls to OpenProcess
 		// (PROCESS_QUERY_LIMITED_INFORMATION is Vista and up)
 		const DWORD ACCESS = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ;
-		HANDLE ph = OpenProcess(ACCESS, false, pid);
 		
-		if(ph != 0) {
+		if(HANDLE ph = OpenProcess(ACCESS, false, pid)) {
 			if(GetModuleFileNameExW(ph, NULL, name, _countof(name))) {
 				ret = QString::fromWCharArray(name);
 			}

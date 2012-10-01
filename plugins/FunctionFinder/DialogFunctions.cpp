@@ -93,7 +93,7 @@ void DialogFunctions::do_find() {
 
 		QObject *const analyzer_object = dynamic_cast<QObject *>(analyzer);
 
-		if(analyzer_object != 0) {
+		if(analyzer_object) {
 			connect(analyzer_object, SIGNAL(update_progress(int)), ui->progressBar, SLOT(setValue(int)));
 		}
 
@@ -150,7 +150,7 @@ void DialogFunctions::do_find() {
 		}
 		ui->tableWidget->setSortingEnabled(true);
 
-		if(analyzer_object != 0) {
+		if(analyzer_object) {
 			disconnect(analyzer_object, SIGNAL(update_progress(int)), ui->progressBar, SLOT(setValue(int)));
 		}
 	}

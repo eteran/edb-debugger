@@ -173,7 +173,7 @@ void HardwareBreakpoints::setup_breakpoints() {
 			edb::v1::debugger_core->set_state(state);
 
 			// we want to be disabled and we have hooked, so unhook
-			if(old_event_handler_ != 0) {
+			if(old_event_handler_) {
 				edb::v1::set_debug_event_handler(old_event_handler_);
 				old_event_handler_ = 0;
 			}
