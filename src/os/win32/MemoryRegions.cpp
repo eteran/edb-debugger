@@ -24,12 +24,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Debugger.h"
 
 #include <QMessageBox>
+#include <QDebug>
 
 //------------------------------------------------------------------------------
 // Name: MemoryRegions()
 // Desc: constructor
 //------------------------------------------------------------------------------
-MemoryRegions::MemoryRegions() : QAbstractItemModel(0), pid_(0) {
+MemoryRegions::MemoryRegions() : QAbstractItemModel(0) {
 }
 
 //------------------------------------------------------------------------------
@@ -40,21 +41,10 @@ MemoryRegions::~MemoryRegions() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_pid(edb::pid_t pid)
-// Desc:
-//------------------------------------------------------------------------------
-void MemoryRegions::set_pid(edb::pid_t pid) {
-	pid_ = pid;
-	regions_.clear();
-	sync();
-}
-
-//------------------------------------------------------------------------------
 // Name: clear()
 // Desc:
 //------------------------------------------------------------------------------
 void MemoryRegions::clear() {
-	pid_ = 0;
 	regions_.clear();
 }
 
