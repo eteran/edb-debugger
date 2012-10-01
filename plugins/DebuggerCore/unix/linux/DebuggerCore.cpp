@@ -17,11 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerCore.h"
-#include "Debugger.h"
-#include "State.h"
 #include "DebugEvent.h"
-#include "PlatformState.h"
+#include "Debugger.h"
 #include "PlatformRegion.h"
+#include "PlatformState.h"
+#include "State.h"
 
 #include <QDebug>
 #include <QDir>
@@ -35,13 +35,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include <asm/ldt.h>
+#include <pwd.h>
 #include <sys/mman.h>
 #include <sys/ptrace.h>
 #include <sys/syscall.h>   /* For SYS_xxx definitions */
 #include <sys/user.h>
 #include <sys/wait.h>
 #include <unistd.h>
-#include <pwd.h>
 
 #define tgkill(tgid, tid, sig) syscall(SYS_tgkill, (tgid), (tid), (sig));
 
@@ -105,11 +105,12 @@ bool is_clone_event(int status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: process_map_line(const QString &line, MemoryRegion &region)
+// Name: process_map_line(const QString &line, MemoryRegion *region)
 // Desc: parses the data from a line of a memory map file
 //------------------------------------------------------------------------------
-bool process_map_line(const QString &line, MemoryRegion &region) {
+bool process_map_line(const QString &line, MemoryRegion *region) {
 
+	Q_ASSERT(region);
 
 	edb::address_t start;
 	edb::address_t end;
@@ -138,7 +139,7 @@ bool process_map_line(const QString &line, MemoryRegion &region) {
 							name = items[5];
 						}
 						
-						region = MemoryRegion(start, end, base, name, permissions);
+						*region = MemoryRegion(start, end, base, name, permissions);
 						return true;
 					}
 				}
@@ -814,7 +815,7 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 
 			while(!line.isNull()) {
 				MemoryRegion region;
-				if(process_map_line(line, region)) {
+				if(process_map_line(line, &region)) {
 					regions.push_back(region);
 				}
 				line = in.readLine();

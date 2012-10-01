@@ -26,7 +26,6 @@ IRegion::permissions_t permissions_value(bool read, bool write, bool execute) {
 	
 }
 
-
 template <size_t N>
 class BackupInfo : public IDebugEventHandler {
 public:
@@ -112,37 +111,72 @@ edb::EVENT_STATUS BackupInfo<N>::handle_event(const DebugEvent &event) {
 	return edb::DEBUG_STOP;
 }
 
-
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions) : start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 PlatformRegion::~PlatformRegion() {
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 IRegion *PlatformRegion::clone() const {
 	return new PlatformRegion(start_, end_, base_, name_, permissions_);
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 bool PlatformRegion::accessible() const {
 	return readable() || writable() || executable();
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 bool PlatformRegion::readable() const {
 	return (permissions_ & PROT_READ) != 0;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 bool PlatformRegion::writable() const {
 	return (permissions_ & PROT_WRITE) != 0;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 bool PlatformRegion::executable() const {
 	return (permissions_ & PROT_EXEC) != 0;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 edb::address_t PlatformRegion::size() const {
 	return end_ - start_;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 	edb::address_t temp_address        = 0;
 	int count                          = 0;
@@ -185,26 +219,50 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 	}
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 edb::address_t PlatformRegion::start() const {
 	return start_;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 edb::address_t PlatformRegion::end() const {
 	return end_;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 edb::address_t PlatformRegion::base() const {
 	return base_;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 QString PlatformRegion::name() const {
 	return name_;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 IRegion::permissions_t PlatformRegion::permissions() const {
 	return permissions_;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
 void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::address_t temp_address) {
 	const permissions_t perms              = permissions_value(read, write, execute);
 	const edb::address_t len               = size();
@@ -269,7 +327,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 	} catch(const std::bad_alloc &) {
 		QMessageBox::information(
 			0,
-			tr("Memroy Allocation Error"),
+			tr("Memory Allocation Error"),
 			tr("Unable to satisfy memory allocation request for backup code."));
 	}
 }
