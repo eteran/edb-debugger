@@ -39,7 +39,7 @@ void SessionManager::save_session(const QString &filename, const QString &execut
 	QHash<QString, QObject *> plugins = edb::v1::plugin_list();
 	for(QHash<QString, QObject *>::iterator it = plugins.begin(); it != plugins.end(); ++it) {
 		QObject *const o = it.value();
-		if(IDebuggerPlugin *const p = qobject_cast<IDebuggerPlugin *>(o)) {
+		if(IPlugin *const p = qobject_cast<IPlugin *>(o)) {
 			//qDebug() << edb::v1::serialize_object(o);
 		}
 	}
@@ -54,7 +54,7 @@ void SessionManager::load_session(const QString &filename, const QString &execut
 	
 	QHash<QString, QObject *> plugins = edb::v1::plugin_list();
 	for(QHash<QString, QObject *>::iterator it = plugins.begin(); it != plugins.end(); ++it) {
-		if(IDebuggerPlugin *const p = qobject_cast<IDebuggerPlugin *>(it.value())) {
+		if(IPlugin *const p = qobject_cast<IPlugin *>(it.value())) {
 
 		}
 	}

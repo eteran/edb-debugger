@@ -19,15 +19,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef CHECKVERSION_20061122_H_
 #define CHECKVERSION_20061122_H_
 
-#include "IDebuggerPlugin.h"
+#include "IPlugin.h"
 #include "Types.h"
 
 class QMenu;
 class State;
 
-class DumpState : public QObject, public IDebuggerPlugin {
+class DumpState : public QObject, public IPlugin {
 	Q_OBJECT
-	Q_INTERFACES(IDebuggerPlugin)
+	Q_INTERFACES(IPlugin)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 

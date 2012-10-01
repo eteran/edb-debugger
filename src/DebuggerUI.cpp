@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "Debugger.h"
 #include "IDebuggerCore.h"
-#include "IDebuggerPlugin.h"
+#include "IPlugin.h"
 #include "DialogOptions.h"
 #include "Expression.h"
 #include "QHexView"
@@ -305,7 +305,7 @@ void DebuggerUI::finish_plugin_setup(const QHash<QString, QObject *> &plugins) {
 
 	// call the init function for each plugin
 	Q_FOREACH(QObject *plugin, plugins) {
-		if(IDebuggerPlugin *const p = qobject_cast<IDebuggerPlugin *>(plugin)) {
+		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
 			p->init();
 		}
 	}
@@ -313,7 +313,7 @@ void DebuggerUI::finish_plugin_setup(const QHash<QString, QObject *> &plugins) {
 	// setup the menu for all plugins that which to do so
 	QPointer<DialogOptions> options = qobject_cast<DialogOptions *>(edb::v1::dialog_options());
 	Q_FOREACH(QObject *plugin, plugins) {
-		if(IDebuggerPlugin *const p = qobject_cast<IDebuggerPlugin *>(plugin)) {
+		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
 			if(QMenu *const menu = p->menu(this)) {
 				ui->menu_Plugins->addMenu(menu);
 			}
