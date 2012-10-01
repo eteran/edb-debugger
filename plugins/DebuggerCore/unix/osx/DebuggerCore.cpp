@@ -612,7 +612,7 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 		kern_return_t kr = task_for_pid(mach_task_self(), pid_, &the_task);
 		if(kr != KERN_SUCCESS) {
 			qDebug("task_for_pid failed");
-			return;
+            return QList<MemoryRegion>();
 		}
 
 		vm_size_t vmsize;
@@ -663,7 +663,7 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 				if(the_task != MACH_PORT_NULL) {
 					mach_port_deallocate(mach_task_self(), the_task);
 				}
-				return;
+                return QList<MemoryRegion>();
 			}
 		} while(kr != KERN_INVALID_ADDRESS);
 
