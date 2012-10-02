@@ -66,30 +66,3 @@ QList<Module> edb::v1::loaded_libraries() {
 	qDebug() << "TODO: implement edb::v1::loaded_libraries";
 	return ret;
 }
-
-//------------------------------------------------------------------------------
-// Name: get_process_args()
-// Desc:
-//------------------------------------------------------------------------------
-QList<QByteArray> edb::v1::get_process_args() {
-	QList<QByteArray> ret;
-	if(debugger_core) {
-
-		// TODO: assert attached!
-		const edb::pid_t pid = debugger_core->pid();
-		char errbuf[_POSIX2_LINE_MAX];
-		if(kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
-			int rc;
-			if(struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, sizeof *proc, pid, &rc)) {
-				char **argv = kvm_getargv(kd, proc, 0);
-				char **p = argv;
-				while(*p) {
-					ret << *p++;
-				}
-			}
-			kvm_close(kd);
-		}
-
-	}
-	return ret;
-}

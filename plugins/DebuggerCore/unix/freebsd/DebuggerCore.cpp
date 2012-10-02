@@ -448,4 +448,17 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 	return regions;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
+	QList<QByteArray> ret;
+	if(pid != 0) {
+		// TODO: assert attached!
+	}
+	return ret;
+
+}
+
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

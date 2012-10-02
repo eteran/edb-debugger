@@ -52,18 +52,3 @@ QList<Module> edb::v1::loaded_libraries() {
 	qDebug() << "TODO: implement edb::v1::loaded_libraries";
 	return ret;
 }
-
-//------------------------------------------------------------------------------
-// Name: get_process_args()
-// Desc:
-//------------------------------------------------------------------------------
-QList<QByteArray> edb::v1::get_process_args() {
-	QList<QByteArray> ret;
-	if(debugger_core) {
-		// TODO: assert attached!
-		const edb::pid_t pid = debugger_core->pid();
-		Q_UNUSED(pid);
-		qDebug() << "TODO: implement edb::v1::get_process_args";
-	}
-	return ret;
-}
