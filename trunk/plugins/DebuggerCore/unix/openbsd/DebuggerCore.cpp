@@ -606,4 +606,30 @@ do_unload:
 	return regions;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
+	QList<QByteArray> ret;
+	if(pid != 0) {
+
+		// TODO: assert attached!
+		char errbuf[_POSIX2_LINE_MAX];
+		if(kvm_t *kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
+			int rc;
+			if(struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, sizeof *proc, pid, &rc)) {
+				char **argv = kvm_getargv(kd, proc, 0);
+				char **p = argv;
+				while(*p) {
+					ret << *p++;
+				}
+			}
+			kvm_close(kd);
+		}
+
+	}
+	return ret;
+}
+
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

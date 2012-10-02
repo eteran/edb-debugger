@@ -826,4 +826,42 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 	return regions;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
+
+	QList<QByteArray> ret;
+
+	if(pid != 0) {
+		const QString command_line_file(QString("/proc/%1/cmdline").arg(pid));
+		QFile file(command_line_file);
+
+		if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+			QTextStream in(&file);
+
+			QByteArray s;
+			QChar ch;
+
+			while(in.status() == QTextStream::Ok) {
+				in >> ch;
+				if(ch == '\0') {
+					if(!s.isEmpty()) {
+						ret << s;
+					}
+					s.clear();
+				} else {
+					s += ch;
+				}
+			}
+
+			if(!s.isEmpty()) {
+				ret << s;
+			}
+		}
+	}
+	return ret;
+}
+
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

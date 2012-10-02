@@ -130,9 +130,6 @@ namespace edb {
 		EDB_EXPORT QString find_function_symbol(edb::address_t address, const QString &default_value);
 		EDB_EXPORT QString find_function_symbol(edb::address_t address, const QString &default_value, int *offset);
 
-		// basic process stats
-		EDB_EXPORT QList<QByteArray> get_process_args();
-
 		// ask the user for either a value or a variable (register name and such)
 		EDB_EXPORT edb::address_t get_value(edb::address_t address, bool &ok, ExpressionError &err);
 		EDB_EXPORT edb::address_t get_variable(const QString &s, bool &ok, ExpressionError &err);

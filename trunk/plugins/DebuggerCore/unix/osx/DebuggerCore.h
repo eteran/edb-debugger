@@ -57,6 +57,7 @@ public:
 
 public:
 	// process properties
+	virtual QList<QByteArray> process_args(edb::pid_t pid) const;
 	virtual QString process_exe(edb::pid_t pid) const;
 	virtual QString process_cwd(edb::pid_t pid) const;
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const;

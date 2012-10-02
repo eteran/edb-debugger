@@ -1869,9 +1869,11 @@ void DebuggerMain::on_action_Restart_triggered() {
 
 	Q_CHECK_PTR(edb::v1::debugger_core);
 
-	working_directory_     = edb::v1::debugger_core->process_cwd(edb::v1::debugger_core->pid());
-	QList<QByteArray> args = edb::v1::get_process_args();
-	const QString s        = edb::v1::debugger_core->process_exe(edb::v1::debugger_core->pid());
+	const pid_t pid = edb::v1::debugger_core->pid();
+
+	working_directory_     = edb::v1::debugger_core->process_cwd(pid);
+	QList<QByteArray> args = edb::v1::debugger_core->process_args(pid);
+	const QString s        = edb::v1::debugger_core->process_exe(pid);
 
 	if(!args.empty()) {
 		args.removeFirst();
@@ -1980,7 +1982,8 @@ void DebuggerMain::attach(edb::pid_t pid) {
 
 			set_initial_debugger_state();
 
-			QList<QByteArray> args = edb::v1::get_process_args();
+			QList<QByteArray> args = edb::v1::debugger_core->process_args(edb::v1::debugger_core->pid());
+			
 			if(!args.empty()) {
 				args.removeFirst();
 			}

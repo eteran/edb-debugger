@@ -68,13 +68,3 @@ QList<Module> edb::v1::loaded_libraries() {
 	CloseHandle(hModuleSnap);
 	return ret;
 }
-
-//------------------------------------------------------------------------------
-// Name: get_process_args()
-// Desc:
-//------------------------------------------------------------------------------
-QList<QByteArray> edb::v1::get_process_args() {
-	// TODO: http://wj32.wordpress.com/2009/01/24/howto-get-the-command-line-of-processes/
-	QList<QByteArray> ret;
-	return ret;
-}
