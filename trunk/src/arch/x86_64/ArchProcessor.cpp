@@ -161,7 +161,7 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 	 * calling convention, additional arguments are pushed onto the stack and
 	 * the return value is stored in RAX.
 	 */
-	const char *paramter_registers[6] = {
+	static const char *paramter_registers[6] = {
 		"rdi",
 		"rsi",
 		"rdx",

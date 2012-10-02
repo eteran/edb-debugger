@@ -102,7 +102,7 @@ namespace {
 // Name: DebuggerCore()
 // Desc: constructor
 //------------------------------------------------------------------------------
-DebuggerCore::DebuggerCore() : page_size_(0), process_handle_(0), start_address(0), image_base(0) {
+DebuggerCore::DebuggerCore() : start_address(0), image_base(0), page_size_(0), process_handle_(0) {
 	DebugSetProcessKillOnExit(false);
 
 	SYSTEM_INFO sys_info;

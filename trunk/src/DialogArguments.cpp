@@ -87,7 +87,7 @@ void DialogArguments::set_arguments(const QList<QByteArray> &args) {
 //------------------------------------------------------------------------------
 void DialogArguments::on_btnUp_clicked() {
 	const int x = ui->listWidget->currentRow();
-	if(x > 0 && x != -1) {
+	if(x > 0) {
 		ui->listWidget->insertItem(x - 1, ui->listWidget->takeItem(x));
 		ui->listWidget->setCurrentRow(x - 1);
 	}
