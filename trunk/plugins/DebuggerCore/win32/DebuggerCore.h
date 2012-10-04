@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DEBUGGERCORE_20090529_H_
 #define DEBUGGERCORE_20090529_H_
 
-#include "DebuggerCoreBase.h"
+#include "../DebuggerCoreBase.h"
 #include <QSet>
 
 class DebuggerCore : public DebuggerCoreBase {

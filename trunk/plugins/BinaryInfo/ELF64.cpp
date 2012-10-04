@@ -26,7 +26,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QDebug>
 #include <cstring>
+#if defined(Q_OS_UNIX)
 #include <link.h>
+#endif
 
 //------------------------------------------------------------------------------
 // Name: ELF64(const MemoryRegion &region)
@@ -49,9 +51,11 @@ ELF64::~ELF64() {
 //------------------------------------------------------------------------------
 bool ELF64::validate_header() {
 	read_header();
+#if defined(Q_OS_UNIX)
 	if(std::memcmp(header_->e_ident, ELFMAG, SELFMAG) == 0) {
 		return header_->e_ident[EI_CLASS] == ELFCLASS64;
 	}
+#endif
 	return false;
 }
 
@@ -73,7 +77,11 @@ bool ELF64::native() const {
 //------------------------------------------------------------------------------
 edb::address_t ELF64::entry_point() {
 	read_header();
+#if defined(Q_OS_UNIX)
 	return header_->e_entry;
+#else
+	return 0;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -81,6 +89,7 @@ edb::address_t ELF64::entry_point() {
 // Desc: reads in enough of the file to get the header
 //------------------------------------------------------------------------------
 void ELF64::read_header() {
+#if defined(Q_OS_UNIX)
 	if(header_ == 0) {
 		header_ = new Elf64_Ehdr;
 
@@ -88,6 +97,7 @@ void ELF64::read_header() {
 			std::memset(header_, 0, sizeof(Elf64_Ehdr));
 		}
 	}
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -95,7 +105,11 @@ void ELF64::read_header() {
 // Desc: returns the number of bytes in this executable's header
 //------------------------------------------------------------------------------
 size_t ELF64::header_size() const {
+#if defined(Q_OS_UNIX)
 	return sizeof(Elf64_Ehdr);
+#else
+	return 0;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -105,6 +119,7 @@ size_t ELF64::header_size() const {
 //------------------------------------------------------------------------------
 edb::address_t ELF64::debug_pointer() {
 	read_header();
+#if defined(Q_OS_UNIX)
 	const edb::address_t section_offset = header_->e_phoff;
 	const std::size_t count             = header_->e_phnum;
 
@@ -130,7 +145,7 @@ edb::address_t ELF64::debug_pointer() {
 			}
 		}
 	}
-
+#endif
 	return 0;
 }
 

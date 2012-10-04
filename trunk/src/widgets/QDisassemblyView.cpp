@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Debugger.h"
 #include "IDebuggerCore.h"
 #include "Instruction.h"
-#include "SymbolManager.h"
+#include "ISymbolManager.h"
 #include "SyntaxHighlighter.h"
 #include "Util.h"
 
