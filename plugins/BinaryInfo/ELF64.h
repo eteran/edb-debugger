@@ -20,10 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ELF64_20070718_H_
 
 #include "IBinary.h"
+
+#if defined(Q_OS_UNIX)
 #if defined(Q_OS_OPENBSD)
 #include <sys/exec_elf.h>
 #else
 #include <elf.h>
+#endif
 #endif
 
 class ELF64 : public IBinary {
@@ -43,7 +46,11 @@ private:
 	void read_header();
 
 private:
+#if defined(Q_OS_UNIX)
 	Elf64_Ehdr * header_;
+#else
+	void *header_;
+#endif
 };
 
 #endif

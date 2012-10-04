@@ -26,7 +26,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QDebug>
 #include <cstring>
+
+#if defined(Q_OS_UNIX)
 #include <link.h>
+#endif
 
 //------------------------------------------------------------------------------
 // Name: ELF32(const MemoryRegion &region)
@@ -49,9 +52,11 @@ ELF32::~ELF32() {
 //------------------------------------------------------------------------------
 bool ELF32::validate_header() {
 	read_header();
+#if defined(Q_OS_UNIX)
 	if(std::memcmp(header_->e_ident, ELFMAG, SELFMAG) == 0) {
 		return header_->e_ident[EI_CLASS] == ELFCLASS32;
 	}
+#endif
 	return false;
 }
 
@@ -73,7 +78,11 @@ bool ELF32::native() const {
 //------------------------------------------------------------------------------
 edb::address_t ELF32::entry_point() {
 	read_header();
+#if defined(Q_OS_UNIX)
 	return header_->e_entry;
+#else
+	return 0;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -81,6 +90,7 @@ edb::address_t ELF32::entry_point() {
 // Desc: reads in enough of the file to get the header
 //------------------------------------------------------------------------------
 void ELF32::read_header() {
+#if defined(Q_OS_UNIX)
 	if(header_ == 0) {
 		header_ = new Elf32_Ehdr;
 
@@ -88,6 +98,7 @@ void ELF32::read_header() {
 			std::memset(header_, 0, sizeof(Elf32_Ehdr));
 		}
 	}
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -95,7 +106,11 @@ void ELF32::read_header() {
 // Desc: returns the number of bytes in this executable's header
 //------------------------------------------------------------------------------
 size_t ELF32::header_size() const {
+#if defined(Q_OS_UNIX)
 	return sizeof(Elf32_Ehdr);
+#else
+	return 0;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -105,6 +120,7 @@ size_t ELF32::header_size() const {
 //------------------------------------------------------------------------------
 edb::address_t ELF32::debug_pointer() {
 	read_header();
+#if defined(Q_OS_UNIX)
 	const edb::address_t section_offset = header_->e_phoff;
 	const std::size_t count             = header_->e_phnum;
 
@@ -130,7 +146,7 @@ edb::address_t ELF32::debug_pointer() {
 			}
 		}
 	}
-
+#endif
 	return 0;
 }
 

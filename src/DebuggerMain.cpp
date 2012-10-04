@@ -1869,7 +1869,7 @@ void DebuggerMain::on_action_Restart_triggered() {
 
 	Q_CHECK_PTR(edb::v1::debugger_core);
 
-	const pid_t pid = edb::v1::debugger_core->pid();
+	const edb::pid_t pid = edb::v1::debugger_core->pid();
 
 	working_directory_     = edb::v1::debugger_core->process_cwd(pid);
 	QList<QByteArray> args = edb::v1::debugger_core->process_args(pid);
