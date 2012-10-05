@@ -203,8 +203,8 @@ void HardwareBreakpoints::show_menu() {
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS HardwareBreakpoints::handle_event(const DebugEvent &event) {
 
-	if(event.reason() == DebugEvent::EVENT_STOPPED) {
-		if(event.stop_code() == DebugEvent::sigtrap) {
+	if(event.stopped()) {
+		if(event.is_trap()) {
 			// check DR6 to see if it was a HW BP event
 			// if so, set the resume flag
 			State state;

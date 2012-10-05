@@ -85,14 +85,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 namespace {
-	//------------------------------------------------------------------------------
-	// Name: is_trap(const DebugEvent &event)
-	// Desc:
-	//------------------------------------------------------------------------------
-	bool is_trap(const DebugEvent &event) {
-		return event.stopped() && event.stop_code() == DebugEvent::sigtrap;
-	}
-
 	//--------------------------------------------------------------------------
 	// Name: is_instruction_ret()
 	//--------------------------------------------------------------------------
@@ -1278,21 +1270,22 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const DebugEvent &event) {
 		QMessageBox::information(this, message.caption, message.message);
 		return edb::DEBUG_STOP;
 	}
-
-	switch(event.stop_code()) {
-	case DebugEvent::sigstop:
+	
+	if(event.is_trap()) {
+		return handle_trap();
+	}
+	
+	if(event.is_stop()) {
 		// user asked to pause the debugged process
 		return edb::DEBUG_STOP;
+	}
 
+	switch(event.stop_code()) {
 #ifdef Q_OS_UNIX
 	case SIGCHLD:
 	case SIGPROF:
 		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
-#endif
-
-	case DebugEvent::sigtrap:
-		return handle_trap();
-
+#endif		
 	default:
 		QMessageBox::information(this, tr("Stop Event"),
 			tr(
@@ -1323,15 +1316,11 @@ edb::EVENT_STATUS DebuggerMain::handle_event_exited(const DebugEvent &event) {
 // Desc:
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::handle_event_signaled(const DebugEvent &event) {
-	switch(event.signal_code()) {
-	case DebugEvent::sigkill:
+	
+	if(event.is_kill()) {
 		QMessageBox::information(this, tr("Application Killed"), tr("The debugged application was killed."));
-		break;
-
-
-	default:
+	} else {
 		qDebug() << "Unknown Signal Received! " << event.signal_code();
-		break;
 	}
 
 	on_action_Detach_triggered();
@@ -1567,7 +1556,7 @@ void DebuggerMain::update_gui() {
 // Desc:
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::resume_status(bool pass_exception) {
-	if(pass_exception && last_event_.stopped() && !is_trap(last_event_)) {
+	if(pass_exception && last_event_.stopped() && !last_event_.is_trap()) {
 		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
 	} else {
 		return edb::DEBUG_CONTINUE;
