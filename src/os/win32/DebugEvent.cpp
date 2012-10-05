@@ -131,13 +131,7 @@ int DebugEvent::signal_code() const {
 // Desc: if it was a stop, what was the status
 //------------------------------------------------------------------------------
 int DebugEvent::stop_code() const {
-	switch(event.u.Exception.ExceptionRecord.ExceptionCode) {
-	case EXCEPTION_SINGLE_STEP:
-	case EXCEPTION_BREAKPOINT:
-			return sigtrap;
-	default:
-			return event.u.Exception.ExceptionRecord.ExceptionCode;
-	}
+	return event.u.Exception.ExceptionRecord.ExceptionCode;
 }
 
 //------------------------------------------------------------------------------
