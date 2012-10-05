@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QDebug>
 #include <cstring>
+
 #if defined(Q_OS_UNIX)
 #include <link.h>
 #endif

@@ -76,6 +76,41 @@ bool DebugEvent::stopped() const {
 }
 
 //------------------------------------------------------------------------------
+// Name: is_trap() const
+// Desc: 
+//------------------------------------------------------------------------------
+bool DebugEvent::is_trap() const {
+	
+	if(stopped()) {
+		switch(event.u.Exception.ExceptionRecord.ExceptionCode) {
+		case EXCEPTION_SINGLE_STEP:
+		case EXCEPTION_BREAKPOINT:
+				return true;
+		default:
+				return false;
+		}
+	}
+	
+	return false;
+}
+
+//------------------------------------------------------------------------------
+// Name: is_kill() const
+// Desc: 
+//------------------------------------------------------------------------------
+bool DebugEvent::is_kill() const {
+	return false;
+}
+
+//------------------------------------------------------------------------------
+// Name: is_stop() const
+// Desc: 
+//------------------------------------------------------------------------------
+bool DebugEvent::is_stop() const {
+	return false;	
+}
+
+//------------------------------------------------------------------------------
 // Name: exit_code() const
 // Desc: if it was an exit event, what was the status
 //------------------------------------------------------------------------------

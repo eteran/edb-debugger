@@ -59,26 +59,22 @@ public:
 	DebugEvent(const DebugEvent &other);
 	DebugEvent &operator=(const DebugEvent &rhs);
 
+public:
+	Message error_description() const;
+	REASON reason() const;
+	TRAP_REASON trap_reason() const;
+	bool exited() const;
+	bool is_error() const;
+	bool is_kill() const;
+	bool is_stop() const;
+	bool is_trap() const;
+	bool signaled() const;
+	bool stopped() const;
+	edb::pid_t process() const;
+	edb::tid_t thread() const;
 	int exit_code() const;
 	int signal_code() const;
 	int stop_code() const;
-	REASON reason() const;
-	edb::tid_t thread() const;
-	edb::pid_t process() const;
-
-	bool exited() const;
-	bool signaled() const;
-	bool stopped() const;
-
-	TRAP_REASON trap_reason() const;
-
-	// stops
-	static const int sigtrap = 1;
-	static const int sigkill = -1;
-	static const int sigstop = -3;
-
-	bool is_error() const;
-	Message error_description() const;
 };
 
 #endif
