@@ -18,11 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DebugEvent.h"
 #include "Debugger.h"
+#include <cstdio>
 #include <cstring>
+#include <sys/ptrace.h>
 #include <sys/types.h>
 #include <sys/wait.h>
-#include <sys/ptrace.h>
-#include <cstdio>
 
 //------------------------------------------------------------------------------
 // Name: DebugEvent()
@@ -85,7 +85,7 @@ bool DebugEvent::stopped() const {
 // Desc: 
 //------------------------------------------------------------------------------
 bool DebugEvent::is_trap() const {
-	return stopped() && stop_code() == SIGTRAP;
+	return stopped() && code() == SIGTRAP;
 }
 
 //------------------------------------------------------------------------------
@@ -93,7 +93,7 @@ bool DebugEvent::is_trap() const {
 // Desc: 
 //------------------------------------------------------------------------------
 bool DebugEvent::is_stop() const {
-	return stopped() && stop_code() == SIGSTOP;
+	return stopped() && code() == SIGSTOP;
 }
 
 //------------------------------------------------------------------------------
@@ -101,31 +101,25 @@ bool DebugEvent::is_stop() const {
 // Desc: 
 //------------------------------------------------------------------------------
 bool DebugEvent::is_kill() const {
-	return signaled() && signal_code() == SIGKILL;
+	return signaled() && code() == SIGKILL;
 }
 
 //------------------------------------------------------------------------------
-// Name: exit_code() const
-// Desc: if it was an exit event, what was the status
+// Name: code() const
+// Desc: what is the status code of this event
 //------------------------------------------------------------------------------
-int DebugEvent::exit_code() const {
-	return WEXITSTATUS(status);
-}
-
-//------------------------------------------------------------------------------
-// Name: signal_code() const
-// Desc: if it was a signal, what was the signal number
-//------------------------------------------------------------------------------
-int DebugEvent::signal_code() const {
-	return WTERMSIG(status);
-}
-
-//------------------------------------------------------------------------------
-// Name: stop_code() const
-// Desc: if it was a stop, what was the status
-//------------------------------------------------------------------------------
-int DebugEvent::stop_code() const {
-	return WSTOPSIG(status);
+int DebugEvent::code() const {
+	if(stopped()) {
+		return WSTOPSIG(status);
+	}
+	
+	if(signaled()) {
+		return WTERMSIG(status);
+	}
+	
+	if(exited()) {
+		return WEXITSTATUS(status);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -178,7 +172,7 @@ DebugEvent::TRAP_REASON DebugEvent::trap_reason() const {
 //------------------------------------------------------------------------------
 bool DebugEvent::is_error() const {
 	if(stopped()) {
-		switch(stop_code()) {
+		switch(code()) {
 		case SIGTRAP:
 		case SIGSTOP:
 			return false;
@@ -210,7 +204,7 @@ DebugEvent::Message DebugEvent::error_description() const {
 	// TODO: figure out the fault address
 	const edb::address_t fault_address = 0;
 
-	switch(stop_code()) {
+	switch(code()) {
 	case SIGSEGV:
 		return Message(
 			tr("Illegal Access Fault"),

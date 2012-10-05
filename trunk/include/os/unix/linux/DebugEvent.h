@@ -77,9 +77,7 @@ public:
 	bool stopped() const;
 	edb::pid_t process() const;
 	edb::tid_t thread() const;
-	int exit_code() const;
-	int signal_code() const;
-	int stop_code() const;
+	int code() const;
 };
 
 #endif
