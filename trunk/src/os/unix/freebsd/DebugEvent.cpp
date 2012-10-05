@@ -155,6 +155,8 @@ int DebugEvent::code() const {
 	if(exited()) {
 		return WEXITSTATUS(status);
 	}
+	
+	return 0;
 }
 
 //------------------------------------------------------------------------------
