@@ -126,6 +126,8 @@ int DebugEvent::code() const {
 	if(exited()) {
 		return event.u.ExitProcess.dwExitCode;
 	}
+	
+	return 0;
 }
 
 //------------------------------------------------------------------------------
