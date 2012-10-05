@@ -111,27 +111,21 @@ bool DebugEvent::is_stop() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: exit_code() const
-// Desc: if it was an exit event, what was the status
+// Name: code() const
+// Desc: what is the status code of this event
 //------------------------------------------------------------------------------
-int DebugEvent::exit_code() const {
-	return event.u.ExitProcess.dwExitCode;
-}
-
-//------------------------------------------------------------------------------
-// Name: signal_code() const
-// Desc: if it was a signal, what was the signal number
-//------------------------------------------------------------------------------
-int DebugEvent::signal_code() const {
-	return event.u.Exception.ExceptionRecord.ExceptionCode;
-}
-
-//------------------------------------------------------------------------------
-// Name: stop_code() const
-// Desc: if it was a stop, what was the status
-//------------------------------------------------------------------------------
-int DebugEvent::stop_code() const {
-	return event.u.Exception.ExceptionRecord.ExceptionCode;
+int DebugEvent::code() const {
+	if(stopped()) {
+		return event.u.Exception.ExceptionRecord.ExceptionCode;
+	}
+	
+	if(signaled()) {
+		return event.u.Exception.ExceptionRecord.ExceptionCode;
+	}
+	
+	if(exited()) {
+		return event.u.ExitProcess.dwExitCode;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -281,7 +275,7 @@ DebugEvent::Message DebugEvent::error_description() const {
 		fault_address = (edb::address_t)(event.u.Exception.ExceptionRecord.ExceptionInformation[1]);
 	}
 
-	switch(stop_code()) {
+	switch(code()) {
 	case EXCEPTION_ACCESS_VIOLATION:
 		return Message(
 			tr("Illegal Access Fault"),

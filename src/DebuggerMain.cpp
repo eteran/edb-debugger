@@ -1280,7 +1280,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const DebugEvent &event) {
 		return edb::DEBUG_STOP;
 	}
 
-	switch(event.stop_code()) {
+	switch(event.code()) {
 #ifdef Q_OS_UNIX
 	case SIGCHLD:
 	case SIGPROF:
@@ -1291,7 +1291,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const DebugEvent &event) {
 			tr(
 			"<p>The debugged has received a stop event. <strong>%1</strong></p>"
 			"<p>If you would like to pass this event to the application press Shift+[F7/F8/F9]</p>"
-			"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event.stop_code()));
+			"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event.code()));
 		return edb::DEBUG_STOP;
 	}
 }
@@ -1304,7 +1304,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_exited(const DebugEvent &event) {
 	QMessageBox::information(
 		this,
 		tr("Application Exited"),
-		tr("The debugged application exited normally with exit code %1.").arg(event.exit_code())
+		tr("The debugged application exited normally with exit code %1.").arg(event.code())
 		);
 
 	on_action_Detach_triggered();
@@ -1320,7 +1320,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_signaled(const DebugEvent &event) {
 	if(event.is_kill()) {
 		QMessageBox::information(this, tr("Application Killed"), tr("The debugged application was killed."));
 	} else {
-		qDebug() << "Unknown Signal Received! " << event.signal_code();
+		qDebug() << "Unknown Signal Received! " << event.code();
 	}
 
 	on_action_Detach_triggered();
