@@ -1267,7 +1267,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const DebugEvent &event) {
 	// to step first in case were were on a breakpoint already...
 
 	if(event.is_error()) {
-		const DebugEvent::Message message = event.error_description();
+		const IDebugEvent::Message message = event.error_description();
 		QMessageBox::information(this, message.caption, message.message);
 		return edb::DEBUG_STOP;
 	}
