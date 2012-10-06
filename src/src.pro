@@ -40,6 +40,7 @@ HEADERS += \
 	IArchProcessor.h \
 	IBinary.h \
 	IBreakpoint.h \
+	IDebugEvent.h \
 	IDebugEventHandler.h \
 	IDebuggerCore.h \
 	IPlugin.h \
@@ -119,8 +120,8 @@ SOURCES += \
 	SymbolManager.cpp \
 	SyntaxHighlighter.cpp \
 	TabWidget.cpp \
-	symbols.cpp \
-	main.cpp
+	main.cpp \
+	symbols.cpp
 
 DEPENDPATH  += ./qhexview
 INCLUDEPATH += ./qhexview

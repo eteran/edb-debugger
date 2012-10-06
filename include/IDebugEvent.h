@@ -16,17 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DEBUGEVENT_20070116_H_
-#define DEBUGEVENT_20070116_H_
+#ifndef IDEBUGEVENT_20121005_H_
+#define IDEBUGEVENT_20121005_H_
 
+#include "API.h"
 #include "Types.h"
 #include <QString>
-#include <QCoreApplication>
-#include "API.h"
 
-class EDB_EXPORT DebugEvent {
-	Q_DECLARE_TR_FUNCTIONS(DebugEvent)
-
+class EDB_EXPORT IDebugEvent {
 public:
 	enum REASON {
 		EVENT_EXITED,   // exited normally
@@ -50,30 +47,27 @@ public:
 		QString caption;
 		QString message;
 	};
+	
+public:
+	virtual ~IDebugEvent() {}
+	
+public:
+	virtual IDebugEvent *clone() const = 0;
 
 public:
-	DEBUG_EVENT event;
-
-	DebugEvent();
-	explicit DebugEvent(DEBUG_EVENT &e);
-	DebugEvent(const DebugEvent &other);
-	DebugEvent &operator=(const DebugEvent &rhs);
-
-public:
-	Message error_description() const;
-	REASON reason() const;
-	TRAP_REASON trap_reason() const;
-	bool exited() const;
-	bool is_error() const;
-	bool is_kill() const;
-	bool is_stop() const;
-	bool is_trap() const;
-	bool signaled() const;
-	bool stopped() const;
-	edb::pid_t process() const;
-	edb::tid_t thread() const;
-	int code() const;
+	virtual Message error_description() const = 0;
+	virtual REASON reason() const = 0;
+	virtual TRAP_REASON trap_reason() const = 0;
+	virtual bool exited() const = 0;
+	virtual bool is_error() const = 0;
+	virtual bool is_kill() const = 0;
+	virtual bool is_stop() const = 0;
+	virtual bool is_trap() const = 0;
+	virtual bool signaled() const = 0;
+	virtual bool stopped() const = 0;
+	virtual edb::pid_t process() const = 0;
+	virtual edb::tid_t thread() const = 0;
+	virtual int code() const = 0;
 };
 
 #endif
-

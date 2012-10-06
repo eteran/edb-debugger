@@ -17,10 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerCore.h"
-#include "State.h"
 #include "DebugEvent.h"
-#include "PlatformState.h"
+#include "PlatformEvent.h"
 #include "PlatformRegion.h"
+#include "PlatformState.h"
+#include "State.h"
 
 #include <QDebug>
 #include <QMessageBox>
@@ -103,8 +104,40 @@ bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
 		const edb::tid_t tid = native::waitpid_timeout(pid(), &status, 0, msecs, timeout);
 		if(!timeout) {
 			if(tid > 0) {
+				
+				// normal event
+				if(PlatformEvent *const e = static_cast<PlatformEvent *>(event.impl_)) {
+					e->pid    = pid();
+					e->tid    = tid;
+					e->status = status;
+					
+					char errbuf[_POSIX2_LINE_MAX];
+					if(kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
+						int rc;
+						struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid, &rc);
 
-				event = DebugEvent(status, pid(), tid);
+						struct proc p;
+						kvm_read(kd, (unsigned long)proc->ki_paddr, &p, sizeof(p));
+
+						struct ksiginfo siginfo;
+						kvm_read(kd, (unsigned long)p.p_ksi, &siginfo, sizeof(siginfo));
+
+						// TODO: why doesn't this get the fault address correctly?
+						// perhaps I need to target the tid instead?
+						e->fault_code_    = siginfo.ksi_code;
+						e->fault_address_ = siginfo.ksi_addr;
+
+						//printf("ps_sig   : %d\n", siginfo.ksi_signo);
+						//printf("ps_type  : %d\n", p.p_stype);
+						kvm_close(kd);
+					} else {
+						e->fault_code_    = 0;
+						e->fault_address_ = 0;
+					}
+					
+				}
+				
+				
 				active_thread_       = event.thread();
 				threads_[tid].status = status;
 				return true;
@@ -344,6 +377,14 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 void DebuggerCore::set_active_thread(edb::tid_t tid) {
 	Q_ASSERT(threads_.contains(tid));
 	active_thread_ = tid;
+}
+
+//------------------------------------------------------------------------------
+// Name: create_event()
+// Desc:
+//------------------------------------------------------------------------------
+IDebugEvent *DebuggerCore::create_event() const {
+	return new PlatformEvent;
 }
 
 //------------------------------------------------------------------------------

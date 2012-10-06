@@ -17,10 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerCore.h"
-#include "State.h"
 #include "DebugEvent.h"
-#include "PlatformState.h"
+#include "PlatformEvent.h"
 #include "PlatformRegion.h"
+#include "PlatformState.h"
+#include "State.h"
 
 #include <fcntl.h>
 #include <mach/mach.h>
@@ -95,7 +96,13 @@ bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
 		const edb::tid_t tid = native::waitpid_timeout(pid(), &status, 0, msecs, timeout);
 		if(!timeout) {
 			if(tid > 0) {
-				event = DebugEvent(status, pid(), tid);
+				// normal event
+				if(PlatformEvent *const e = static_cast<PlatformEvent *>(event.impl_)) {
+					e->pid    = pid();
+					e->tid    = tid;
+					e->status = status;					
+				}
+				
 				active_thread_       = event.thread();
 				threads_[tid].status = status;
 				return true;
@@ -516,6 +523,14 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 void DebuggerCore::set_active_thread(edb::tid_t tid) {
 	Q_ASSERT(threads_.contains(tid));
 	active_thread_ = tid;
+}
+
+//------------------------------------------------------------------------------
+// Name: create_event()
+// Desc:
+//------------------------------------------------------------------------------
+IDebugEvent *DebuggerCore::create_event() const {
+	return new PlatformEvent;
 }
 
 //------------------------------------------------------------------------------
