@@ -37,7 +37,7 @@ public:
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
 
 public:
-	virtual BreakpointState backup_breakpoints() const;
+	virtual BreakpointList backup_breakpoints() const;
 	virtual IBreakpoint::pointer add_breakpoint(edb::address_t address);
 	virtual IBreakpoint::pointer find_breakpoint(edb::address_t address);
 	virtual int breakpoint_size() const;
@@ -53,7 +53,7 @@ protected:
 protected:
 	edb::tid_t      active_thread_;
 	edb::pid_t      pid_;
-	BreakpointState breakpoints_;
+	BreakpointList  breakpoints_;
 };
 
 #endif

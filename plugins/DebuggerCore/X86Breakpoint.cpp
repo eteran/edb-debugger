@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "X86Breakpoint.h"
 #include "IDebuggerCore.h"
 #include "Debugger.h"
+
 namespace {
 const quint8 BreakpointInstruction[X86Breakpoint::size] = {0xcc};
 }
