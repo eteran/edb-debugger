@@ -114,7 +114,7 @@ bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
 					char errbuf[_POSIX2_LINE_MAX];
 					if(kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
 						int rc;
-						struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid, &rc);
+						struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid(), &rc);
 
 						struct proc p;
 						kvm_read(kd, (unsigned long)proc->ki_paddr, &p, sizeof(p));
