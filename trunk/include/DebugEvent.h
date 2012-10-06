@@ -26,11 +26,6 @@ class EDB_EXPORT DebugEvent {
 	friend class DebuggerCore;
 	
 public:
-	typedef IDebugEvent::Message     Message;
-	typedef IDebugEvent::REASON      REASON;
-	typedef IDebugEvent::TRAP_REASON TRAP_REASON;
-	
-public:
 	DebugEvent();
 	~DebugEvent();
 	
@@ -42,9 +37,9 @@ public:
 	void swap(DebugEvent &other);
 	
 public:
-	Message error_description() const;
-	REASON reason() const;
-	TRAP_REASON trap_reason() const;
+	IDebugEvent::Message error_description() const;
+	IDebugEvent::REASON reason() const;
+	IDebugEvent::TRAP_REASON trap_reason() const;
 	bool exited() const;
 	bool is_error() const;
 	bool is_kill() const;

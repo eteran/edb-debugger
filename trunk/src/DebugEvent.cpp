@@ -65,11 +65,11 @@ DebugEvent &DebugEvent::operator=(const DebugEvent &other) {
 // Name: 
 // Desc:
 //------------------------------------------------------------------------------
-DebugEvent::Message DebugEvent::error_description() const {
+IDebugEvent::Message DebugEvent::error_description() const {
 	if(impl_) {
 		return impl_->error_description();
 	}
-	return Message();
+	return IDebugEvent::Message();
 	
 }
 
@@ -77,7 +77,7 @@ DebugEvent::Message DebugEvent::error_description() const {
 // Name: 
 // Desc:
 //------------------------------------------------------------------------------
-DebugEvent::REASON DebugEvent::reason() const {
+IDebugEvent::REASON DebugEvent::reason() const {
 	if(impl_) {
 		return impl_->reason();
 	}
@@ -88,7 +88,7 @@ DebugEvent::REASON DebugEvent::reason() const {
 // Name: 
 // Desc:
 //------------------------------------------------------------------------------
-DebugEvent::TRAP_REASON DebugEvent::trap_reason() const {
+IDebugEvent::TRAP_REASON DebugEvent::trap_reason() const {
 	if(impl_) {
 		return impl_->trap_reason();
 	}
