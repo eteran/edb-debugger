@@ -17,13 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerCore.h"
-#include "Debugger.h"
 #include "DebugEvent.h"
-#include "State.h"
-#include "PlatformState.h"
-#include "PlatformRegion.h"
-#include "MemoryRegions.h"
+#include "Debugger.h"
 #include "MemoryRegion.h"
+#include "MemoryRegions.h"
+#include "PlatformEvent.h"
+#include "PlatformRegion.h"
+#include "PlatformState.h"
+#include "State.h"
 #include "string_hash.h"
 
 #include <QDebug>
@@ -203,7 +204,10 @@ bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
 				break;
 			}
 			if(propagate) {
-				event = DebugEvent(de);
+				// normal event
+				if(PlatformEvent *const e = static_cast<PlatformEvent *>(event.impl_)) {
+					e->event = de;
+				}
 				return true;
 			}
 			resume(edb::DEBUG_EXCEPTION_NOT_HANDLED);
@@ -516,6 +520,14 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 	FreeEnvironmentStringsW(env_block);
 
 	return ok;
+}
+
+//------------------------------------------------------------------------------
+// Name: create_event()
+// Desc:
+//------------------------------------------------------------------------------
+IDebugEvent *DebuggerCore::create_event() const {
+	return new PlatformEvent;
 }
 
 //------------------------------------------------------------------------------

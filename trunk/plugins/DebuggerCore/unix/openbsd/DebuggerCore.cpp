@@ -17,12 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerCore.h"
-#include "State.h"
 #include "DebugEvent.h"
-#include "PlatformState.h"
+#include "PlatformEvent.h"
 #include "PlatformRegion.h"
-
-#include <boost/bind.hpp>
+#include "PlatformState.h"
+#include "State.h"
 
 #include <QDebug>
 #include <QMessageBox>
@@ -199,7 +198,34 @@ bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
 		if(!timeout) {
 			if(tid > 0) {
 
-				event = DebugEvent(status, pid(), tid);
+				// normal event
+				if(PlatformEvent *const e = static_cast<PlatformEvent *>(event.impl_)) {
+					e->pid    = pid();
+					e->tid    = tid;
+					e->status = status;
+					
+					char errbuf[_POSIX2_LINE_MAX];
+					if(kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
+						int rc;
+						struct kinfo_proc *const kiproc = kvm_getprocs(kd, KERN_PROC_PID, pid, sizeof(struct kinfo_proc), &rc);
+
+						struct proc proc;
+						kvm_read(kd, kiproc->p_paddr, &proc, sizeof(proc));
+
+						fault_code_    = proc.p_sicode;
+						fault_address_ = proc.p_sigval.sival_ptr;
+
+						//printf("ps_sig   : %d\n", sigacts.ps_sig);
+						//printf("ps_type  : %d\n", sigacts.ps_type);
+
+						kvm_close(kd);
+					} else {
+						fault_code_    = 0;
+						fault_address_ = 0;
+					}
+					
+				}
+				
 				active_thread_       = event.thread();
 				threads_[tid].status = status;
 				return true;
@@ -436,6 +462,14 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 void DebuggerCore::set_active_thread(edb::tid_t tid) {
 	Q_ASSERT(threads_.contains(tid));
 	active_thread_ = tid;
+}
+
+//------------------------------------------------------------------------------
+// Name: create_event()
+// Desc:
+//------------------------------------------------------------------------------
+IDebugEvent *DebuggerCore::create_event() const {
+	return new PlatformEvent;
 }
 
 //------------------------------------------------------------------------------

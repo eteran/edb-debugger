@@ -70,6 +70,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #if defined(Q_OS_UNIX)
 #include <sys/types.h>
 #include <unistd.h>
+#include <signal.h>
 #endif
 
 #if defined(EDB_X86)
@@ -115,7 +116,7 @@ public:
 	//--------------------------------------------------------------------------
 	virtual edb::EVENT_STATUS handle_event(const DebugEvent &event) {
 
-		if(event.trap_reason() == DebugEvent::TRAP_STEPPING) {
+		if(event.trap_reason() == IDebugEvent::TRAP_STEPPING) {
 
 			State state;
 			edb::v1::debugger_core->get_state(state);
@@ -1360,17 +1361,17 @@ edb::EVENT_STATUS DebuggerMain::handle_event(const DebugEvent &event) {
 	edb::EVENT_STATUS status;
 	switch(event.reason()) {
 	// most events
-	case DebugEvent::EVENT_STOPPED:
+	case IDebugEvent::EVENT_STOPPED:
 		status = handle_event_stopped(event);
 		break;
 
 	// usually an abnormal exit event (unhandled signal/etc)
-	case DebugEvent::EVENT_SIGNALED:
+	case IDebugEvent::EVENT_SIGNALED:
 		status = handle_event_signaled(event);
 		break;
 
 	// normal exit
-	case DebugEvent::EVENT_EXITED:
+	case IDebugEvent::EVENT_EXITED:
 		status = handle_event_exited(event);
 		break;
 

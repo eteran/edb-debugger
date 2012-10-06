@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtPlugin>
 
 class DebugEvent;
+class IDebugEvent;
 class IState;
 class QString;
 class State;
@@ -96,6 +97,7 @@ public:
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const = 0;
 
 public:
+	virtual IDebugEvent *create_event() const = 0;
 	virtual IState *create_state() const = 0;
 	virtual IRegion *create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const = 0;
 

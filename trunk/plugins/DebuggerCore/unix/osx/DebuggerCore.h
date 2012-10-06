@@ -63,6 +63,7 @@ public:
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const;
 
 public:
+	virtual IDebugEvent *create_event() const;
 	virtual IState *create_state() const;
 	virtual IRegion *create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const;
 

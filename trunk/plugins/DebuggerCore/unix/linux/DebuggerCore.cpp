@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCore.h"
 #include "DebugEvent.h"
 #include "Debugger.h"
+#include "PlatformEvent.h"
 #include "PlatformRegion.h"
 #include "PlatformState.h"
 #include "State.h"
@@ -53,6 +54,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef PTRACE_SET_THREAD_AREA
 #define PTRACE_SET_THREAD_AREA static_cast<__ptrace_request>(26)
+#endif
+
+#ifndef PTRACE_GETSIGINFO
+#define PTRACE_GETSIGINFO static_cast<__ptrace_request>(0x4202)
 #endif
 
 namespace {
@@ -291,7 +296,15 @@ bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
 	}
 
 	// normal event
-	event                = DebugEvent(status, pid(), tid);
+	if(PlatformEvent *const e = static_cast<PlatformEvent *>(event.impl_)) {
+		e->pid    = pid();
+		e->tid    = tid;
+		e->status = status;
+		if(ptrace(PTRACE_GETSIGINFO, tid, 0, &e->siginfo) == -1) {
+			
+		}
+	}	
+	
 	active_thread_       = tid;
 	event_thread_        = tid;
 	threads_[tid].status = status;
@@ -686,6 +699,14 @@ void DebuggerCore::reset() {
 	active_thread_ = 0;
 	pid_           = 0;
 	event_thread_  = 0;
+}
+
+//------------------------------------------------------------------------------
+// Name: create_event()
+// Desc:
+//------------------------------------------------------------------------------
+IDebugEvent *DebuggerCore::create_event() const {
+	return new PlatformEvent;
 }
 
 //------------------------------------------------------------------------------
