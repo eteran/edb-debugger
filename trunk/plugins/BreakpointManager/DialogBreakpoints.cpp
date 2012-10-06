@@ -63,7 +63,7 @@ void DialogBreakpoints::updateList() {
 	ui->tableWidget->setSortingEnabled(false);
 	ui->tableWidget->setRowCount(0);
 
-	const IDebuggerCore::BreakpointState breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
+	const IDebuggerCore::BreakpointList breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
 
 	Q_FOREACH(const IBreakpoint::pointer &bp, breakpoint_state) {
 		const int row = ui->tableWidget->rowCount();
