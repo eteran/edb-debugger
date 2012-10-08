@@ -26,9 +26,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class EDB_EXPORT IDebugEvent {
 public:
 	enum REASON {
-		EVENT_EXITED,   // exited normally
-		EVENT_SIGNALED, // application received a signal
-		EVENT_STOPPED,  // we received an event
+		EVENT_EXITED,     // exited normally
+		EVENT_TERMINATED, // terminated by event
+		EVENT_STOPPED,    // normal event
 		EVENT_UNKNOWN
 	};
 
@@ -63,7 +63,7 @@ public:
 	virtual bool is_kill() const = 0;
 	virtual bool is_stop() const = 0;
 	virtual bool is_trap() const = 0;
-	virtual bool signaled() const = 0;
+	virtual bool terminated() const = 0;
 	virtual bool stopped() const = 0;
 	virtual edb::pid_t process() const = 0;
 	virtual edb::tid_t thread() const = 0;

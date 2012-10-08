@@ -154,9 +154,9 @@ bool DebugEvent::is_trap() const {
 // Name: 
 // Desc:
 //------------------------------------------------------------------------------
-bool DebugEvent::signaled() const {
+bool DebugEvent::terminated() const {
 	if(impl_) {
-		return impl_->signaled();
+		return impl_->terminated();
 	}
 	return false;
 }
