@@ -311,11 +311,6 @@ bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
 
 	stop_threads();
 	
-	// in the unix world, 'signaled' means terminated
-	if(WIFSIGNALED(status) != 0) {
-		detach();
-	}
-	
 	return true;
 }
 
