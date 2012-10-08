@@ -21,6 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 
+class QStringListModel;
+class QSortFilterProxyModel;
+
 namespace Ui { class DialogProcessProperties; }
 
 class DialogProcessProperties : public QDialog {
@@ -33,17 +36,22 @@ public:
 public Q_SLOTS:
 	void on_btnParent_clicked();
 	void on_btnImage_clicked();
+	void on_btnRefreshEnvironment_clicked();
+	void on_txtSearchEnvironment_textChanged(const QString &text);
 	
 private:
 	void updateGeneralPage();
 	void updateMemoryPage();
 	void updateModulePage();
+	void updateEnvironmentPage(const QString &filter);
 	
 private:
 	virtual void showEvent(QShowEvent *event);
 
 private:
 	Ui::DialogProcessProperties *const ui;
+	QStringListModel *                 model_;
+	QSortFilterProxyModel *            filter_model_;
 };
 
 #endif
