@@ -155,7 +155,7 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 			);
 	case EXCEPTION_NONCONTINUABLE_EXCEPTION:
 		return Message(
-			tr("Invalid Disposition"),
+			tr("Non-Continuable Exception"),
 			tr(
 				"<p>The debugged application tried to continue execution after a non-continuable exception occurred.</p>"
 				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
@@ -187,39 +187,12 @@ IDebugEvent::REASON PlatformEvent::reason() const {
 	switch(event.dwDebugEventCode) {
 	case EXCEPTION_DEBUG_EVENT:
 		return EVENT_STOPPED;
-		/*
-		switch(event.u.Exception.ExceptionRecord.ExceptionCode) {
-		case EXCEPTION_BREAKPOINT:
-		case EXCEPTION_SINGLE_STEP:
-		case EXCEPTION_ACCESS_VIOLATION:
-		case EXCEPTION_IN_PAGE_ERROR:
-		case EXCEPTION_INVALID_DISPOSITION:
-		case EXCEPTION_NONCONTINUABLE_EXCEPTION:
-		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
-		case EXCEPTION_ILLEGAL_INSTRUCTION:
-		case EXCEPTION_INT_DIVIDE_BY_ZERO:
-		case EXCEPTION_INT_OVERFLOW:
-		case EXCEPTION_PRIV_INSTRUCTION:
-		case EXCEPTION_STACK_OVERFLOW:
-		case EXCEPTION_FLT_DENORMAL_OPERAND:
-		case EXCEPTION_FLT_DIVIDE_BY_ZERO:
-		case EXCEPTION_FLT_INEXACT_RESULT:
-		case EXCEPTION_FLT_INVALID_OPERATION:
-		case EXCEPTION_FLT_OVERFLOW:
-		case EXCEPTION_FLT_STACK_CHECK:
-		case EXCEPTION_FLT_UNDERFLOW:
-		case EXCEPTION_DATATYPE_MISALIGNMENT:
-		default:
-			return EVENT_STOPPED;
-		}
-		*/
 	case EXIT_PROCESS_DEBUG_EVENT:
 		return EVENT_EXITED;
-		/*
+	/*
 	case CREATE_THREAD_DEBUG_EVENT:
 	case CREATE_PROCESS_DEBUG_EVENT:
 	case EXIT_THREAD_DEBUG_EVENT:
-
 	case LOAD_DLL_DEBUG_EVENT:
 	case UNLOAD_DLL_DEBUG_EVENT:
 	case OUTPUT_DEBUG_STRING_EVENT:
@@ -262,36 +235,8 @@ bool PlatformEvent::exited() const {
 bool PlatformEvent::is_error() const {
 	switch(event.dwDebugEventCode) {
 	case EXCEPTION_DEBUG_EVENT:
-
-		switch(event.u.Exception.ExceptionRecord.ExceptionCode) {
-		/*
-		case EXCEPTION_BREAKPOINT:
-		case EXCEPTION_SINGLE_STEP:
-			return false;*/
-			/*
-		case EXCEPTION_ACCESS_VIOLATION:
-		case EXCEPTION_IN_PAGE_ERROR:
-		case EXCEPTION_INVALID_DISPOSITION:
-		case EXCEPTION_NONCONTINUABLE_EXCEPTION:
-		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
-		case EXCEPTION_ILLEGAL_INSTRUCTION:
-		case EXCEPTION_INT_DIVIDE_BY_ZERO:
-		case EXCEPTION_INT_OVERFLOW:
-		case EXCEPTION_PRIV_INSTRUCTION:
-		case EXCEPTION_STACK_OVERFLOW:
-		case EXCEPTION_FLT_DENORMAL_OPERAND:
-		case EXCEPTION_FLT_DIVIDE_BY_ZERO:
-		case EXCEPTION_FLT_INEXACT_RESULT:
-		case EXCEPTION_FLT_INVALID_OPERATION:
-		case EXCEPTION_FLT_OVERFLOW:
-		case EXCEPTION_FLT_STACK_CHECK:
-		case EXCEPTION_FLT_UNDERFLOW:
-		case EXCEPTION_DATATYPE_MISALIGNMENT:
-		*/
-		default:
-			return (event.u.Exception.dwFirstChance == 0); //true;
-		}
-		/*
+		return (event.u.Exception.dwFirstChance == 0); //true;
+	/*
 	case CREATE_THREAD_DEBUG_EVENT:
 	case CREATE_PROCESS_DEBUG_EVENT:
 	case EXIT_THREAD_DEBUG_EVENT:
@@ -344,8 +289,8 @@ bool PlatformEvent::is_trap() const {
 // Name: 
 // Desc: 
 //------------------------------------------------------------------------------
-bool PlatformEvent::signaled() const {
-	return reason() == EVENT_SIGNALED;
+bool PlatformEvent::terminated() const {
+	return reason() == EVENT_TERMINATED;
 }
 
 //------------------------------------------------------------------------------
@@ -381,7 +326,7 @@ int PlatformEvent::code() const {
 		return event.u.Exception.ExceptionRecord.ExceptionCode;
 	}
 	
-	if(signaled()) {
+	if(terminated()) {
 		return event.u.Exception.ExceptionRecord.ExceptionCode;
 	}
 	

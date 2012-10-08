@@ -112,13 +112,13 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 //------------------------------------------------------------------------------
 // Name: 
 //------------------------------------------------------------------------------
-IDebugEvent::REASON PlatformEvent:: reason() const {
+IDebugEvent::REASON PlatformEvent::reason() const {
 	// this basically converts our value into a 'switchable' value for convenience
 
 	if(stopped()) {
 		return EVENT_STOPPED;
-	} else if(signaled()) {
-		return EVENT_SIGNALED;
+	} else if(terminated()) {
+		return EVENT_TERMINATED;
 	} else if(exited()) {
 		return EVENT_EXITED;
 	} else {
@@ -174,7 +174,7 @@ bool PlatformEvent::is_error() const {
 // Name: 
 //------------------------------------------------------------------------------
 bool PlatformEvent::is_kill() const {
-	return signaled() && code() == SIGKILL;
+	return stopped() && code() == SIGKILL;
 }
 
 //------------------------------------------------------------------------------
@@ -194,7 +194,7 @@ bool PlatformEvent::is_trap() const {
 //------------------------------------------------------------------------------
 // Name: 
 //------------------------------------------------------------------------------
-bool PlatformEvent::signaled() const {
+bool PlatformEvent::terminated() const {
 	return WIFSIGNALED(status) != 0;
 }
 
@@ -227,7 +227,7 @@ int PlatformEvent::code() const {
 		return WSTOPSIG(status);
 	}
 	
-	if(signaled()) {
+	if(terminated()) {
 		return WTERMSIG(status);
 	}
 	

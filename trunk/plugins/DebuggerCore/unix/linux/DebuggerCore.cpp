@@ -286,7 +286,6 @@ bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
 				qDebug("[warning] new thread [%d] received an event besides SIGSTOP", static_cast<int>(new_tid));
 			}
 
-
 			// TODO: what the heck do we do if this isn't a SIGSTOP?
 			ptrace_continue(new_tid, resume_code(thread_status));
 		}
@@ -297,11 +296,12 @@ bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
 
 	// normal event
 	if(PlatformEvent *const e = static_cast<PlatformEvent *>(event.impl_)) {
+
 		e->pid    = pid();
 		e->tid    = tid;
 		e->status = status;
 		if(ptrace(PTRACE_GETSIGINFO, tid, 0, &e->siginfo) == -1) {
-			
+			// TODO: handle no info?
 		}
 	}	
 	
@@ -310,6 +310,12 @@ bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
 	threads_[tid].status = status;
 
 	stop_threads();
+	
+	// in the unix world, 'signaled' means terminated
+	if(WIFSIGNALED(status) != 0) {
+		detach();
+	}
+	
 	return true;
 }
 
