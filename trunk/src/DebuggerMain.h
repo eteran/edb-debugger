@@ -177,6 +177,7 @@ private:
 	bool current_instruction_is_return() const;
 	edb::EVENT_STATUS debug_event_handler(const DebugEvent &event);
 	edb::EVENT_STATUS handle_event_exited(const DebugEvent &event);
+	edb::EVENT_STATUS handle_event_terminated(const DebugEvent &event);
 	edb::EVENT_STATUS handle_event_stopped(const DebugEvent &event);
 	edb::EVENT_STATUS handle_trap();
 	edb::EVENT_STATUS resume_status(bool pass_exception);
@@ -188,6 +189,7 @@ private:
 	void do_jump_to_address(edb::address_t address, const MemoryRegion &r, bool scroll_to);
 	void follow_register_in_dump(bool tabbed);
 	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode);
+	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced);
 	void set_initial_breakpoint(const QString &s);
 	void set_initial_debugger_state();
 	void setup_stack_view();
@@ -231,14 +233,14 @@ private:
 	RecentFileManager *                              recent_file_manager_;
 
 	QSharedPointer<QHexView::CommentServerInterface> stack_comment_server_;
-	IBreakpoint::pointer                             reenable_breakpoint_;
+	IBreakpoint::pointer                             reenable_breakpoint_run_;
+	IBreakpoint::pointer                             reenable_breakpoint_step_;
 	SCOPED_POINTER<IBinary>                          binary_info_;
 
 	QString                                          last_open_directory_;
 	QString                                          working_directory_;
 	QString                                          program_executable_;
 	bool                                             stack_view_locked_;
-	bool                                             step_run_;
 	DebugEvent                                       last_event_;
 #ifdef Q_OS_UNIX
 	edb::address_t                                   debug_pointer_;

@@ -189,8 +189,7 @@ DebuggerMain::DebuggerMain(QWidget *parent) : DebuggerUI(parent),
 		timer_(new QTimer(this)),
 		recent_file_manager_(new RecentFileManager(this)),
 		stack_comment_server_(new CommentServer),
-		stack_view_locked_(false),
-		step_run_(false)
+		stack_view_locked_(false)
 #ifdef Q_OS_UNIX
 		,debug_pointer_(0)
 #endif
@@ -1252,7 +1251,7 @@ edb::EVENT_STATUS DebuggerMain::handle_trap() {
 		}
 	}
 
-	return step_run_ ? edb::DEBUG_CONTINUE : edb::DEBUG_STOP;
+	return edb::DEBUG_STOP;
 }
 
 //------------------------------------------------------------------------------
@@ -1265,6 +1264,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const DebugEvent &event) {
 	// generally, we will want to check if it was a step, if it was, was it
 	// because we just hit a break point or because we wanted to run, but had
 	// to step first in case were were on a breakpoint already...
+
 
 	if(event.is_kill()) {
 		QMessageBox::information(
@@ -1306,6 +1306,20 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const DebugEvent &event) {
 
 		return edb::DEBUG_STOP;
 	}
+}
+
+//------------------------------------------------------------------------------
+// Name: handle_event_terminated(const DebugEvent &event)
+// Desc:
+//------------------------------------------------------------------------------
+edb::EVENT_STATUS DebuggerMain::handle_event_terminated(const DebugEvent &event) {
+	QMessageBox::information(
+		this,
+		tr("Application Terminated"),
+		tr("The debugged application was terminated with exit code %1.").arg(event.code()));
+
+	on_action_Detach_triggered();
+	return edb::DEBUG_STOP;
 }
 
 //------------------------------------------------------------------------------
@@ -1357,8 +1371,11 @@ edb::EVENT_STATUS DebuggerMain::handle_event(const DebugEvent &event) {
 	// either a syncronous event (STOPPED)
 	// or an asyncronous event (SIGNALED)
 	case IDebugEvent::EVENT_STOPPED:
-	case IDebugEvent::EVENT_SIGNALED:
 		status = handle_event_stopped(event);
+		break;
+		
+	case IDebugEvent::EVENT_TERMINATED:
+		status = handle_event_terminated(event);
 		break;
 		
 	// normal exit
@@ -1370,11 +1387,17 @@ edb::EVENT_STATUS DebuggerMain::handle_event(const DebugEvent &event) {
 		Q_ASSERT(false);
 		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
 	}
+	
+	Q_ASSERT(!(reenable_breakpoint_step_ && reenable_breakpoint_run_));
 
 	// re-enable any breakpoints we previously disabled
-	if(reenable_breakpoint_) {
-		reenable_breakpoint_->enable();
-		reenable_breakpoint_.clear();
+	if(reenable_breakpoint_step_) {
+		reenable_breakpoint_step_->enable();
+		reenable_breakpoint_step_.clear();
+	} else if(reenable_breakpoint_run_) {
+		reenable_breakpoint_run_->enable();
+		reenable_breakpoint_run_.clear();
+		status = edb::DEBUG_CONTINUE;
 	}
 
 	return status;
@@ -1560,35 +1583,39 @@ edb::EVENT_STATUS DebuggerMain::resume_status(bool pass_exception) {
 // Desc: resumes execution, handles the situation of being on a breakpoint as well
 //------------------------------------------------------------------------------
 void DebuggerMain::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode) {
+	resume_execution(pass_exception, mode, false);
+}
 
-	if(step_run_) {
-		step_run_ = false;
-		edb::v1::debugger_core->resume(edb::DEBUG_CONTINUE);
-	} else {
+//------------------------------------------------------------------------------
+// Name: resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced)
+// Desc: resumes execution, handles the situation of being on a breakpoint as well
+//------------------------------------------------------------------------------
+void DebuggerMain::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced) {
 
-		// if necessary pass the trap to the application, otherwise just resume
-		// as normal
-		const edb::EVENT_STATUS status = resume_status(pass_exception == PASS_EXCEPTION);
+	// if necessary pass the trap to the application, otherwise just resume
+	// as normal
+	const edb::EVENT_STATUS status = resume_status(pass_exception == PASS_EXCEPTION);
 
-		// if we are on a breakpoint, disable it
-		State state;
-		edb::v1::debugger_core->get_state(state);
-		reenable_breakpoint_ = edb::v1::find_breakpoint(state.instruction_pointer());
-		if(reenable_breakpoint_) {
-			reenable_breakpoint_->disable();
+	// if we are on a breakpoint, disable it
+	State state;
+	edb::v1::debugger_core->get_state(state);
+	IBreakpoint::pointer bp;
+	if(!forced) {
+		bp = edb::v1::find_breakpoint(state.instruction_pointer());
+		if(bp) {
+			bp->disable();
+		}
+	}
 
-			step_run_ = (mode == MODE_RUN);
-
+	if(mode == MODE_STEP) {
+		reenable_breakpoint_step_ = bp;
+		edb::v1::debugger_core->step(status);
+	} else if(mode == MODE_RUN) {
+		reenable_breakpoint_run_ = bp;
+		if(bp) {
 			edb::v1::debugger_core->step(status);
 		} else {
-			// we get here, we are not sitting on a BP, we can just directly do what we wanted
-			step_run_ = false;
-
-			if(mode == MODE_RUN) {
-				edb::v1::debugger_core->resume(status);
-			} else {
-				edb::v1::debugger_core->step(status);
-			}
+			edb::v1::debugger_core->resume(status);
 		}
 	}
 
@@ -1764,7 +1791,9 @@ void DebuggerMain::set_initial_debugger_state() {
 		analyzer->invalidate_analysis();
 	}
 
-	step_run_ = false;
+	reenable_breakpoint_run_.clear();
+	reenable_breakpoint_step_.clear();
+	
 #ifdef Q_OS_UNIX
 	debug_pointer_ = 0;
 #endif
@@ -2268,18 +2297,17 @@ void DebuggerMain::next_debug_event() {
 		const edb::EVENT_STATUS status = debug_event_handler(e);
 		switch(status) {
 		case edb::DEBUG_STOP:
-			step_run_ = false;
 			update_gui();
 			update_menu_state((edb::v1::debugger_core->pid() != 0) ? PAUSED : TERMINATED);
 			break;
 		case edb::DEBUG_CONTINUE:
-			resume_execution(IGNORE_EXCEPTION, MODE_RUN);
+			resume_execution(IGNORE_EXCEPTION, MODE_RUN, true);
 			break;
 		case edb::DEBUG_CONTINUE_STEP:
-			resume_execution(IGNORE_EXCEPTION, MODE_STEP);
+			resume_execution(IGNORE_EXCEPTION, MODE_STEP, true);
 			break;
 		case edb::DEBUG_EXCEPTION_NOT_HANDLED:
-			resume_execution(PASS_EXCEPTION, MODE_RUN);
+			resume_execution(PASS_EXCEPTION, MODE_RUN, true);
 			break;
 		}
 	}

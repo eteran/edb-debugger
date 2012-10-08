@@ -45,7 +45,7 @@ public:
 	bool is_kill() const;
 	bool is_stop() const;
 	bool is_trap() const;
-	bool signaled() const;
+	bool terminated() const;
 	bool stopped() const;
 	edb::pid_t process() const;
 	edb::tid_t thread() const;
