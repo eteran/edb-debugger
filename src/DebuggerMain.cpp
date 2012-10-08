@@ -1266,6 +1266,16 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const DebugEvent &event) {
 	// because we just hit a break point or because we wanted to run, but had
 	// to step first in case were were on a breakpoint already...
 
+	if(event.is_kill()) {
+		QMessageBox::information(
+			this,
+			tr("Application Killed"),
+			tr("The debugged application was killed."));
+			
+		on_action_Detach_triggered();
+		return edb::DEBUG_STOP;
+	}
+
 	if(event.is_error()) {
 		const IDebugEvent::Message message = event.error_description();
 		QMessageBox::information(this, message.caption, message.message);
@@ -1288,11 +1298,12 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const DebugEvent &event) {
 		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
 #endif		
 	default:
-		QMessageBox::information(this, tr("Stop Event"),
+		QMessageBox::information(this, tr("Debug Event"),
 			tr(
-			"<p>The debugged has received a stop event. <strong>%1</strong></p>"
+			"<p>The debugged application has received a debug event. <strong>%1</strong></p>"
 			"<p>If you would like to pass this event to the application press Shift+[F7/F8/F9]</p>"
 			"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event.code()));
+
 		return edb::DEBUG_STOP;
 	}
 }
@@ -1305,24 +1316,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_exited(const DebugEvent &event) {
 	QMessageBox::information(
 		this,
 		tr("Application Exited"),
-		tr("The debugged application exited normally with exit code %1.").arg(event.code())
-		);
-
-	on_action_Detach_triggered();
-	return edb::DEBUG_STOP;
-}
-
-//------------------------------------------------------------------------------
-// Name: handle_event_signaled(const DebugEvent &event)
-// Desc:
-//------------------------------------------------------------------------------
-edb::EVENT_STATUS DebuggerMain::handle_event_signaled(const DebugEvent &event) {
-	
-	if(event.is_kill()) {
-		QMessageBox::information(this, tr("Application Killed"), tr("The debugged application was killed."));
-	} else {
-		qDebug() << "Unknown Signal Received! " << event.code();
-	}
+		tr("The debugged application exited normally with exit code %1.").arg(event.code()));
 
 	on_action_Detach_triggered();
 	return edb::DEBUG_STOP;
@@ -1360,16 +1354,13 @@ edb::EVENT_STATUS DebuggerMain::handle_event(const DebugEvent &event) {
 
 	edb::EVENT_STATUS status;
 	switch(event.reason()) {
-	// most events
+	// either a syncronous event (STOPPED)
+	// or an asyncronous event (SIGNALED)
 	case IDebugEvent::EVENT_STOPPED:
+	case IDebugEvent::EVENT_SIGNALED:
 		status = handle_event_stopped(event);
 		break;
-
-	// usually an abnormal exit event (unhandled signal/etc)
-	case IDebugEvent::EVENT_SIGNALED:
-		status = handle_event_signaled(event);
-		break;
-
+		
 	// normal exit
 	case IDebugEvent::EVENT_EXITED:
 		status = handle_event_exited(event);

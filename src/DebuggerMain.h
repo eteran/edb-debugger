@@ -177,7 +177,6 @@ private:
 	bool current_instruction_is_return() const;
 	edb::EVENT_STATUS debug_event_handler(const DebugEvent &event);
 	edb::EVENT_STATUS handle_event_exited(const DebugEvent &event);
-	edb::EVENT_STATUS handle_event_signaled(const DebugEvent &event);
 	edb::EVENT_STATUS handle_event_stopped(const DebugEvent &event);
 	edb::EVENT_STATUS handle_trap();
 	edb::EVENT_STATUS resume_status(bool pass_exception);
