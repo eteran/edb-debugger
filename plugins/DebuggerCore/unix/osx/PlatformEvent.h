@@ -41,7 +41,7 @@ public:
 	virtual bool is_kill() const;
 	virtual bool is_stop() const;
 	virtual bool is_trap() const;
-	virtual bool signaled() const;
+	virtual bool terminated() const;
 	virtual bool stopped() const;
 	virtual edb::pid_t process() const;
 	virtual edb::tid_t thread() const;
