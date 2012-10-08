@@ -10,7 +10,6 @@ SUBDIRS += \
 	CheckVersion \
 	DebuggerCore \
 	DumpState \
-	Environment \
 	FunctionFinder \
 	HardwareBreakpoints \
 	OpcodeSearcher \
@@ -20,8 +19,6 @@ SUBDIRS += \
 	SessionManager \
 	StringSearcher \
 	SymbolViewer
-
-
 
 unix {
 	!macx {
