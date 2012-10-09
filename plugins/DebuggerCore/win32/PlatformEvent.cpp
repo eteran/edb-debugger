@@ -186,7 +186,11 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 IDebugEvent::REASON PlatformEvent::reason() const {
 	switch(event.dwDebugEventCode) {
 	case EXCEPTION_DEBUG_EVENT:
-		return EVENT_STOPPED;
+		if(event.u.Exception.ExceptionRecord.ExceptionFlags == EXCEPTION_NONCONTINUABLE) {
+			return EVENT_TERMINATED;
+		} else {
+			return EVENT_STOPPED;
+		}
 	case EXIT_PROCESS_DEBUG_EVENT:
 		return EVENT_EXITED;
 	/*
@@ -235,7 +239,30 @@ bool PlatformEvent::exited() const {
 bool PlatformEvent::is_error() const {
 	switch(event.dwDebugEventCode) {
 	case EXCEPTION_DEBUG_EVENT:
-		return (event.u.Exception.dwFirstChance == 0); //true;
+		switch(event.u.Exception.ExceptionRecord.ExceptionCode) {
+		case EXCEPTION_ACCESS_VIOLATION:
+		case EXCEPTION_ARRAY_BOUNDS_EXCEEDED:
+		case EXCEPTION_DATATYPE_MISALIGNMENT:
+		case EXCEPTION_FLT_DENORMAL_OPERAND:
+		case EXCEPTION_FLT_DIVIDE_BY_ZERO:
+		case EXCEPTION_FLT_INEXACT_RESULT:
+		case EXCEPTION_FLT_INVALID_OPERATION:
+		case EXCEPTION_FLT_OVERFLOW:
+		case EXCEPTION_FLT_STACK_CHECK:
+		case EXCEPTION_FLT_UNDERFLOW:
+		case EXCEPTION_ILLEGAL_INSTRUCTION:
+		case EXCEPTION_INT_DIVIDE_BY_ZERO:
+		case EXCEPTION_INT_OVERFLOW:
+		case EXCEPTION_INVALID_DISPOSITION:
+		case EXCEPTION_IN_PAGE_ERROR:
+		case EXCEPTION_NONCONTINUABLE_EXCEPTION:
+		case EXCEPTION_PRIV_INSTRUCTION:
+		case EXCEPTION_STACK_OVERFLOW:
+			return true;
+		case EXCEPTION_BREAKPOINT:
+		case EXCEPTION_SINGLE_STEP:
+			return false;
+		}
 	/*
 	case CREATE_THREAD_DEBUG_EVENT:
 	case CREATE_PROCESS_DEBUG_EVENT:
@@ -264,7 +291,7 @@ bool PlatformEvent::is_kill() const {
 // Desc: 
 //------------------------------------------------------------------------------
 bool PlatformEvent::is_stop() const {
-	return false;
+	return !is_trap();
 }
 
 //------------------------------------------------------------------------------
@@ -281,7 +308,6 @@ bool PlatformEvent::is_trap() const {
 				return false;
 		}
 	}
-	
 	return false;
 }
 
