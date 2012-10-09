@@ -92,10 +92,10 @@ edb::address_t ELF64::entry_point() {
 void ELF64::read_header() {
 #if defined(Q_OS_UNIX)
 	if(header_ == 0) {
-		header_ = new Elf64_Ehdr;
+		header_ = new elf64_header;
 
-		if(!edb::v1::debugger_core->read_bytes(region_.start(), header_, sizeof(Elf64_Ehdr))) {
-			std::memset(header_, 0, sizeof(Elf64_Ehdr));
+		if(!edb::v1::debugger_core->read_bytes(region_.start(), header_, sizeof(elf64_header))) {
+			std::memset(header_, 0, sizeof(elf64_header));
 		}
 	}
 #endif
@@ -107,7 +107,7 @@ void ELF64::read_header() {
 //------------------------------------------------------------------------------
 size_t ELF64::header_size() const {
 #if defined(Q_OS_UNIX)
-	return sizeof(Elf64_Ehdr);
+	return sizeof(elf64_header);
 #else
 	return 0;
 #endif
@@ -124,14 +124,14 @@ edb::address_t ELF64::debug_pointer() {
 	const edb::address_t section_offset = header_->e_phoff;
 	const std::size_t count             = header_->e_phnum;
 
-	Elf64_Phdr section_header;
+	elf64_phdr section_header;
 	for(std::size_t i = 0; i < count; ++i) {
-		if(edb::v1::debugger_core->read_bytes(region_.start() + (section_offset + i * sizeof(Elf64_Phdr)), &section_header, sizeof(Elf64_Phdr))) {
+		if(edb::v1::debugger_core->read_bytes(region_.start() + (section_offset + i * sizeof(elf64_phdr)), &section_header, sizeof(elf64_phdr))) {
 			if(section_header.p_type == PT_DYNAMIC) {
 				try {
 					QVector<quint8> buf(section_header.p_memsz);
 					if(edb::v1::debugger_core->read_bytes(section_header.p_vaddr, &buf[0], section_header.p_memsz)) {
-						const Elf64_Dyn *dynamic = reinterpret_cast<Elf64_Dyn *>(&buf[0]);
+						const elf64_dyn *dynamic = reinterpret_cast<elf64_dyn *>(&buf[0]);
 						while(dynamic->d_tag != DT_NULL) {
 							if(dynamic->d_tag == DT_DEBUG) {
 								return dynamic->d_un.d_val;
