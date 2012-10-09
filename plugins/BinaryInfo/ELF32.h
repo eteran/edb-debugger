@@ -20,14 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ELF32_20070718_H_
 
 #include "IBinary.h"
-
-#if defined(Q_OS_UNIX)
-#if defined(Q_OS_OPENBSD)
-#include <sys/exec_elf.h>
-#else
-#include <elf.h>
-#endif
-#endif
+#include "elf_binary.h"
 
 class ELF32 : public IBinary {
 public:
@@ -46,11 +39,7 @@ private:
 	void read_header();
 
 private:
-#if defined(Q_OS_UNIX)
-	Elf32_Ehdr * header_;
-#else
-	void *header_;
-#endif
+	elf32_header *header_;
 };
 
 #endif
