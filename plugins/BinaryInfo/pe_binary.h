@@ -22,10 +22,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <stdint.h>
 
 typedef uint8_t  BYTE;
+typedef uint8_t  BOOLEAN;
+typedef int16_t  SHORT;
 typedef uint16_t WORD;
-typedef uint32_t DWORD;
-typedef uint64_t ULONGLONG;
+typedef uint16_t USHORT;
+typedef int32_t  INT;
 typedef int32_t  LONG;
+typedef uint32_t DWORD;
+typedef uint32_t ULONG;
+typedef uint32_t UINT;
+typedef uint64_t ULONGLONG;
+typedef int64_t  LONGLONG;
+
 
 #define IMAGE_NUMBEROF_DIRECTORY_ENTRIES    16
 
