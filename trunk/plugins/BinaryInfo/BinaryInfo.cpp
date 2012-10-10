@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Debugger.h"
 #include "ELF32.h"
 #include "ELF64.h"
+#include "PE32.h"
 #include "IBinary.h"
 
 namespace {
@@ -29,6 +30,10 @@ namespace {
 
 	IBinary *create_binary_info_elf64(const MemoryRegion &region) {
 		return new ELF64(region);
+	}
+	
+	IBinary *create_binary_info_pe32(const MemoryRegion &region) {
+		return new PE32(region);
 	}
 }
 
@@ -46,6 +51,7 @@ BinaryInfo::BinaryInfo() {
 void BinaryInfo::private_init() {
 	edb::v1::register_binary_info(create_binary_info_elf32);
 	edb::v1::register_binary_info(create_binary_info_elf64);
+	edb::v1::register_binary_info(create_binary_info_pe32);
 }
 
 //------------------------------------------------------------------------------
