@@ -22,18 +22,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "MemoryRegions.h"
 #include "Configuration.h"
 #include "ISymbolManager.h"
+#include "DialogStrings.h"
 #include "Symbol.h"
+
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
 #include <QFileInfo>
-#include <QSortFilterProxyModel>
+#include <QHostAddress>
 #include <QStringList>
 #include <QStringListModel>
 #include <QUrl>
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
 #include <link.h>
+#include <arpa/inet.h>
 #endif
 
 #include "ui_dialogprocess.h"
@@ -53,7 +56,194 @@ QString size_to_string(size_t n) {
 	}
 }
 
+#if defined(Q_OS_LINUX)
+//------------------------------------------------------------------------------
+// Name: tcp_socket_prcoessor(QString &symlink, int sock, const QStringList &lst)
+// Desc:
+//------------------------------------------------------------------------------
+bool tcp_socket_prcoessor(QString &symlink, int sock, const QStringList &lst) {
+	if(lst.size() >= 13) {
+
+		bool ok;
+		const quint32 local_address = ntohl(lst[1].toUInt(&ok, 16));
+		if(ok) {
+			const quint16 local_port = lst[2].toUInt(&ok, 16);
+			if(ok) {
+				const quint32 remote_address = ntohl(lst[3].toUInt(&ok, 16));
+				if(ok) {
+					const quint16 remote_port = lst[4].toUInt(&ok, 16);
+					if(ok) {
+						const quint8 state = lst[5].toUInt(&ok, 16);
+						Q_UNUSED(state);
+						if(ok) {
+							const int inode = lst[13].toUInt(&ok, 10);
+							if(ok) {
+								if(inode == sock) {
+									symlink = QString("TCP: %1:%2 -> %3:%4")
+										.arg(QHostAddress(local_address).toString())
+										.arg(local_port)
+										.arg(QHostAddress(remote_address).toString())
+										.arg(remote_port);
+										return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
 }
+
+//------------------------------------------------------------------------------
+// Name: udp_socket_processor(QString &symlink, int sock, const QStringList &lst)
+// Desc:
+//------------------------------------------------------------------------------
+bool udp_socket_processor(QString &symlink, int sock, const QStringList &lst) {
+	if(lst.size() >= 13) {
+
+		bool ok;
+		const quint32 local_address = ntohl(lst[1].toUInt(&ok, 16));
+		if(ok) {
+			const quint16 local_port = lst[2].toUInt(&ok, 16);
+			if(ok) {
+				const quint32 remote_address = ntohl(lst[3].toUInt(&ok, 16));
+				if(ok) {
+					const quint16 remote_port = lst[4].toUInt(&ok, 16);
+					if(ok) {
+						const quint8 state = lst[5].toUInt(&ok, 16);
+						Q_UNUSED(state);
+						if(ok) {
+							const int inode = lst[13].toUInt(&ok, 10);
+							if(ok) {
+								if(inode == sock) {
+									symlink = QString("UDP: %1:%2 -> %3:%4")
+										.arg(QHostAddress(local_address).toString())
+										.arg(local_port)
+										.arg(QHostAddress(remote_address).toString())
+										.arg(remote_port);
+										return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+	return false;
+}
+
+//------------------------------------------------------------------------------
+// Name: unix_socket_processor(QString &symlink, int sock, const QStringList &lst)
+// Desc:
+//------------------------------------------------------------------------------
+bool unix_socket_processor(QString &symlink, int sock, const QStringList &lst) {
+	if(lst.size() >= 6) {
+		bool ok;
+		const int inode = lst[6].toUInt(&ok, 10);
+		if(ok) {
+			if(inode == sock) {
+				symlink = QString("UNIX [%1]").arg(lst[0]);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+//------------------------------------------------------------------------------
+// Name: process_socket_file(const QString &filename, QString &symlink, int sock, F fp)
+// Desc:
+//------------------------------------------------------------------------------
+template <class F>
+QString process_socket_file(const QString &filename, QString &symlink, int sock, F fp) {
+	QFile net(filename);
+	net.open(QIODevice::ReadOnly | QIODevice::Text);
+	if(net.isOpen()) {
+		QTextStream in(&net);
+		QString line;
+
+		// ditch first line, it is just table headings
+		line = in.readLine();
+
+		// read in the first line we care about
+		line = in.readLine();
+
+		// a null string means end of file (but not an empty string!)
+		while(!line.isNull()) {
+
+			QString lline(line);
+			const QStringList lst = lline.replace(":", " ").split(" ", QString::SkipEmptyParts);
+
+			if(fp(symlink, sock, lst)) {
+				break;
+			}
+
+			line = in.readLine();
+		}
+	}
+	return symlink;
+}
+
+//------------------------------------------------------------------------------
+// Name: process_socket_tcp(QString &symlink)
+// Desc:
+//------------------------------------------------------------------------------
+QString process_socket_tcp(QString &symlink) {
+	const QString socket_info(symlink.mid(symlink.indexOf("socket:[")));
+	const int socket_number = socket_info.mid(8).remove("]").toUInt();
+
+	return process_socket_file("/proc/net/tcp", symlink, socket_number, tcp_socket_prcoessor);
+}
+
+//------------------------------------------------------------------------------
+// Name: process_socket_unix(QString &symlink)
+// Desc:
+//------------------------------------------------------------------------------
+QString process_socket_unix(QString &symlink) {
+	const QString socket_info(symlink.mid(symlink.indexOf("socket:[")));
+	const int socket_number = socket_info.mid(8).remove("]").toUInt();
+
+	return process_socket_file("/proc/net/unix", symlink, socket_number, unix_socket_processor);
+}
+
+//------------------------------------------------------------------------------
+// Name: process_socket_udp(QString &symlink)
+// Desc:
+//------------------------------------------------------------------------------
+QString process_socket_udp(QString &symlink) {
+	const QString socket_info(symlink.mid(symlink.indexOf("socket:[")));
+	const int socket_number = socket_info.mid(8).remove("]").toUInt();
+
+	return process_socket_file("/proc/net/udp", symlink, socket_number, udp_socket_processor);
+}
+
+//------------------------------------------------------------------------------
+// Name: file_type(const QString &filename)
+// Desc:
+//------------------------------------------------------------------------------
+QString file_type(const QString &filename) {
+	QFileInfo info(filename);
+	QString basename(info.completeBaseName());
+
+	if(basename.startsWith("socket:")) {
+		return QT_TRANSLATE_NOOP("DialogProcessProperties", "Socket");
+	}
+
+	if(basename.startsWith("pipe:")) {
+		return QT_TRANSLATE_NOOP("DialogProcessProperties", "Pipe");
+	}
+
+	return QT_TRANSLATE_NOOP("DialogProcessProperties", "File");
+}
+#endif
+
+}
+
+
+
 
 //------------------------------------------------------------------------------
 // Name: DialogProcessProperties(QWidget *parent)
@@ -63,15 +253,6 @@ DialogProcessProperties::DialogProcessProperties(QWidget *parent) : QDialog(pare
 	ui->setupUi(this);
 	ui->tableModules->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 	ui->tableMemory->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-	
-	model_        = new QStringListModel(this);
-	filter_model_ = new QSortFilterProxyModel(this);
-	
-	/*
-	filter_model_->setFilterKeyColumn(0);
-	filter_model_->setSourceModel(model_);
-	ui->tableEnvironment->setModel(filter_model_);
-	*/
 }
 
 //------------------------------------------------------------------------------
@@ -208,6 +389,54 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 }
 
 //------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+void DialogProcessProperties::updateHandles() {
+	
+	ui->tableHandles->setSortingEnabled(false);
+	ui->tableHandles->setRowCount(0);
+
+#ifdef Q_OS_LINUX
+	const edb::pid_t pid = edb::v1::debugger_core->pid();
+	if(pid != -1) {
+		QDir dir(QString("/proc/%1/fd/").arg(pid));
+		const QFileInfoList entries = dir.entryInfoList(QStringList() << "[0-9]*");
+		Q_FOREACH(const QFileInfo &info, entries) {
+			if(info.isSymLink()) {
+				QString symlink(info.symLinkTarget());
+				const QString type(file_type(symlink));
+
+				if(type == tr("Socket")) {
+					symlink = process_socket_tcp(symlink);
+					symlink = process_socket_udp(symlink);
+					symlink = process_socket_unix(symlink);
+				}
+
+				if(type == tr("Pipe")) {
+					symlink = tr("FIFO");
+				}
+
+				const int row = ui->tableHandles->rowCount();
+				ui->tableHandles->insertRow(row);
+
+
+				QTableWidgetItem *const itemFD = new QTableWidgetItem;
+				itemFD->setData(Qt::DisplayRole, info.fileName().toUInt());
+
+	        	ui->tableHandles->setItem(row, 0, new QTableWidgetItem(type));
+				ui->tableHandles->setItem(row, 1, itemFD);
+				ui->tableHandles->setItem(row, 2, new QTableWidgetItem(symlink));
+			}
+		}
+	}
+#endif
+
+	ui->tableHandles->setSortingEnabled(true);
+	
+}
+
+//------------------------------------------------------------------------------
 // Name: showEvent(QShowEvent *)
 // Desc:
 //------------------------------------------------------------------------------
@@ -215,6 +444,7 @@ void DialogProcessProperties::showEvent(QShowEvent *) {
 	updateGeneralPage();
 	updateMemoryPage();
 	updateModulePage();
+	updateHandles();
 	updateEnvironmentPage(ui->txtSearchEnvironment->text());
 }
 
@@ -252,4 +482,22 @@ void DialogProcessProperties::on_btnImage_clicked() {
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnRefreshEnvironment_clicked() {
 	updateEnvironmentPage(ui->txtSearchEnvironment->text());
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+void DialogProcessProperties::on_btnRefreshHandles_clicked() {
+	updateHandles();
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+void DialogProcessProperties::on_btnStrings_clicked() {
+	
+	static QDialog *dialog = new DialogStrings(edb::v1::debugger_ui);
+	dialog->show();
 }
