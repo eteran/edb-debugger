@@ -16,40 +16,36 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_PROCESS_PROPERTIES_20120817_H_
-#define DIALOG_PROCESS_PROPERTIES_20120817_H_
+#ifndef DIALOGSTRINGS_20061101_H_
+#define DIALOGSTRINGS_20061101_H_
 
 #include <QDialog>
+#include "Types.h"
+class QSortFilterProxyModel;
+class QListWidgetItem;
 
-namespace Ui { class DialogProcessProperties; }
+namespace Ui { class DialogStrings; }
 
-class DialogProcessProperties : public QDialog {
+class DialogStrings : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogProcessProperties(QWidget *parent = 0);
-	virtual ~DialogProcessProperties();
+	DialogStrings(QWidget *parent = 0);
+	virtual ~DialogStrings();
 
 public Q_SLOTS:
-	void on_btnParent_clicked();
-	void on_btnImage_clicked();
-	void on_btnRefreshEnvironment_clicked();
-	void on_btnRefreshHandles_clicked();
-	void on_btnStrings_clicked();
-	void on_txtSearchEnvironment_textChanged(const QString &text);
-	
-private:
-	void updateGeneralPage();
-	void updateMemoryPage();
-	void updateModulePage();
-	void updateHandles();
-	void updateEnvironmentPage(const QString &filter);
-	
+	void on_btnFind_clicked();
+	void on_listWidget_itemDoubleClicked(QListWidgetItem *);
+
 private:
 	virtual void showEvent(QShowEvent *event);
 
 private:
-	Ui::DialogProcessProperties *const ui;
+	void do_find();
+
+private:
+	 Ui::DialogStrings *const ui;
+	 QSortFilterProxyModel *  filter_model_;
 };
 
 #endif
