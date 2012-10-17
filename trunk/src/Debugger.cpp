@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Debugger.h"
 #include "ArchProcessor.h"
 #include "BinaryString.h"
-#include "ByteShiftArray.h"
 #include "Configuration.h"
 #include "IDebuggerCore.h"
 #include "DebuggerMain.h"
@@ -772,19 +771,25 @@ IBinary *edb::v1::get_binary_info(const MemoryRegion &region) {
 //------------------------------------------------------------------------------
 edb::address_t edb::v1::locate_main_function() {
 
-	const MemoryRegion region = primary_code_region();
-
-	SCOPED_POINTER<IBinary> binfo(get_binary_info(region));
+	if(edb::v1::debugger_core) {
 	
-	if(binfo) {
-		const edb::address_t main_func = binfo->calculate_main();
-		if(main_func != 0) {
-			return main_func;
-		} else {
-			return binfo->entry_point();
+		const edb::address_t address = edb::v1::debugger_core->application_code_address();
+		memory_regions().sync();
+		MemoryRegion region;
+		if(memory_regions().find_region(address, region)) {
+			SCOPED_POINTER<IBinary> binfo(get_binary_info(region));
+
+			if(binfo) {
+				const edb::address_t main_func = binfo->calculate_main();
+				if(main_func != 0) {
+					return main_func;
+				} else {
+					return binfo->entry_point();
+				}
+			}
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -834,17 +839,56 @@ const FunctionInfo *edb::v1::get_function_info(const QString &function) {
 //------------------------------------------------------------------------------
 // Name: primary_data_region()
 // Desc: returns the main .data section of the main executable module
-// Note: make sure that memory regions has been sync'd first or you will like
+// Note: make sure that memory regions has been sync'd first or you will likely
 //       get a null-region result
 //------------------------------------------------------------------------------
 MemoryRegion edb::v1::primary_data_region() {
-	const QList<MemoryRegion> &l = edb::v1::memory_regions().regions();
 
-	if(l.size() >= 2) {
-		return l[1];
-	} else {
-		return MemoryRegion();
+	if(edb::v1::debugger_core) {
+	
+		const edb::address_t address = edb::v1::debugger_core->application_data_address();
+		memory_regions().sync();
+		MemoryRegion region;
+		if(memory_regions().find_region(address, region)) {
+			return region;
+		}
 	}
+
+	return MemoryRegion();
+}
+
+//------------------------------------------------------------------------------
+// Name: primary_code_region()
+// Desc: returns the main .text section of the main executable module
+// Note: make sure that memory regions has been sync'd first or you will likely
+//       get a null-region result
+//------------------------------------------------------------------------------
+MemoryRegion edb::v1::primary_code_region() {
+
+#ifdef Q_OS_LINUX
+	if(edb::v1::debugger_core) {
+	
+		const edb::address_t address = edb::v1::debugger_core->application_code_address();
+		memory_regions().sync();
+		MemoryRegion region;
+		if(memory_regions().find_region(address, region)) {
+			return region;
+		}
+	}
+
+	return MemoryRegion();
+#else
+	const QString process_executable = edb::v1::debugger_core->process_exe(debugger_core->pid());
+
+	memory_regions().sync();
+	const QList<MemoryRegion> r = memory_regions().regions();
+	Q_FOREACH(const MemoryRegion &region, r) {
+		if(region.executable() && region.name() == process_executable) {
+			return region;
+		}
+	}
+	return MemoryRegion();
+#endif
 }
 
 //------------------------------------------------------------------------------

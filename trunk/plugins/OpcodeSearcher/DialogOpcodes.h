@@ -55,9 +55,13 @@ private:
 	void test_esp_sub_regx1(const OpcodeData &data, edb::address_t start_address);
 	void do_find();
 	void add_result(QList<edb::Instruction> instructions, edb::address_t rva);
+	void run_tests(int classtype, const OpcodeData &opcode, edb::address_t address);
 
 	template <edb::Operand::Register REG>
 	void test_reg_to_ip(const OpcodeData &data, edb::address_t start_address);
+	
+	template <edb::Operand::Register REG>
+	void test_deref_reg_to_ip(const OpcodeData &data, edb::address_t start_address);
 
 private:
 	virtual void showEvent(QShowEvent *event);

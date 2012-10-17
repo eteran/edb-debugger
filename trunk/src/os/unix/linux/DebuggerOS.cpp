@@ -26,24 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <link.h>
 
-//------------------------------------------------------------------------------
-// Name: primary_code_region()
-// Desc:
-//------------------------------------------------------------------------------
-EDB_EXPORT MemoryRegion edb::v1::primary_code_region() {
-
-	const QString process_executable = debugger_core->process_exe(debugger_core->pid());
-	
-	memory_regions().sync();
-
-	const QList<MemoryRegion> r = memory_regions().regions();
-	Q_FOREACH(const MemoryRegion &region, r) {
-		if(region.executable() && region.name() == process_executable) {
-			return region;
-		}
-	}
-	return MemoryRegion();
-}
 
 //------------------------------------------------------------------------------
 // Name: loaded_libraries()
@@ -59,12 +41,11 @@ QList<Module> edb::v1::loaded_libraries() {
 			if(edb::v1::debugger_core->read_bytes(binary_info->debug_pointer(), &dynamic_info, sizeof(dynamic_info))) {
 				if(dynamic_info.r_map) {
 
-					edb::address_t link_address = (edb::address_t)dynamic_info.r_map;
+					edb::address_t link_address = reinterpret_cast<edb::address_t>(dynamic_info.r_map);
 
 					while(link_address) {
 
 						struct link_map map;
-
 						if(edb::v1::debugger_core->read_bytes(link_address, &map, sizeof(map))) {
 							char path[PATH_MAX];
 							if(!edb::v1::debugger_core->read_bytes(reinterpret_cast<edb::address_t>(map.l_name), &path, sizeof(path))) {
@@ -78,7 +59,7 @@ QList<Module> edb::v1::loaded_libraries() {
 								ret.push_back(module);
 							}
 
-							link_address = (edb::address_t)map.l_next;
+							link_address = reinterpret_cast<edb::address_t>(map.l_next);
 						} else {
 							break;
 						}

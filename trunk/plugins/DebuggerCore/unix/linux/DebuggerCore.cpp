@@ -143,7 +143,7 @@ bool process_map_line(const QString &line, MemoryRegion *region) {
 						if(items.size() >= 6) {
 							name = items[5];
 						}
-						
+
 						*region = MemoryRegion(start, end, base, name, permissions);
 						return true;
 					}
@@ -152,6 +152,120 @@ bool process_map_line(const QString &line, MemoryRegion *region) {
 		}
 	}
 	return false;
+}
+
+struct user_stat {
+/* 01 */	int pid;
+/* 02 */	char comm[256];
+/* 03 */	char state;
+/* 04 */	int ppid;
+/* 05 */	int pgrp;
+/* 06 */	int session;
+/* 07 */	int tty_nr;
+/* 08 */	int tpgid;
+/* 09 */	unsigned flags;
+/* 10 */	unsigned long minflt;
+/* 11 */	unsigned long cminflt;
+/* 12 */	unsigned long majflt;
+/* 13 */	unsigned long cmajflt;
+/* 14 */	unsigned long utime;
+/* 15 */	unsigned long stime;
+/* 16 */	long cutime;
+/* 17 */	long cstime;
+/* 18 */	long priority;
+/* 19 */	long nice;
+/* 20 */	long num_threads;
+/* 21 */	long itrealvalue;
+/* 22 */	unsigned long long starttime;
+/* 23 */	unsigned long vsize;
+/* 24 */	long rss;
+/* 25 */	unsigned long rsslim;
+/* 26 */	unsigned long startcode;
+/* 27 */	unsigned long endcode;
+/* 28 */	unsigned long startstack;
+/* 29 */	unsigned long kstkesp;
+/* 30 */	unsigned long kstkeip;
+/* 31 */	unsigned long signal;
+/* 32 */	unsigned long blocked;
+/* 33 */	unsigned long sigignore;
+/* 34 */	unsigned long sigcatch;
+/* 35 */	unsigned long wchan;
+/* 36 */	unsigned long nswap;
+/* 37 */	unsigned long cnswap;
+/* 38 */	int exit_signal;
+/* 39 */	int processor;
+/* 40 */	unsigned rt_priority;
+/* 41 */	unsigned policy;
+/* 42 */	unsigned long long delayacct_blkio_ticks;
+/* 43 */	unsigned long guest_time;
+/* 44 */	long cguest_time;
+};
+
+//------------------------------------------------------------------------------
+// Name: get_user_stat(edb::pid_t pid, struct user_stat *user_stat)
+// Desc: gets the contents of /proc/<pid>/stat and returns the number of elements
+//       successfully parsed
+//------------------------------------------------------------------------------
+int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
+
+	Q_ASSERT(user_stat);
+
+	int r = -1;
+	QFile file(QString("/proc/%1/stat").arg(pid));
+	if(file.open(QIODevice::ReadOnly)) {
+		QTextStream in(&file);
+		const QString line = in.readLine();
+		if(!line.isNull()) {
+			r = sscanf(qPrintable(line), "%d %255s %c %d %d %d %d %d %u %lu %lu %lu %lu %lu %lu %ld %ld %ld %ld %ld %ld %llu %lu %ld %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %d %d %u %u %llu %lu %ld",
+					&user_stat->pid,
+					user_stat->comm,
+					&user_stat->state,
+					&user_stat->ppid,
+					&user_stat->pgrp,
+					&user_stat->session,
+					&user_stat->tty_nr,
+					&user_stat->tpgid,
+					&user_stat->flags,
+					&user_stat->minflt,
+					&user_stat->cminflt,
+					&user_stat->majflt,
+					&user_stat->cmajflt,
+					&user_stat->utime,
+					&user_stat->stime,
+					&user_stat->cutime,
+					&user_stat->cstime,
+					&user_stat->priority,
+					&user_stat->nice,
+					&user_stat->num_threads,
+					&user_stat->itrealvalue,
+					&user_stat->starttime,
+					&user_stat->vsize,
+					&user_stat->rss,
+					&user_stat->rsslim,
+					&user_stat->startcode,
+					&user_stat->endcode,
+					&user_stat->startstack,
+					&user_stat->kstkesp,
+					&user_stat->kstkeip,
+					&user_stat->signal,
+					&user_stat->blocked,
+					&user_stat->sigignore,
+					&user_stat->sigcatch,
+					&user_stat->wchan,
+					&user_stat->nswap,
+					&user_stat->cnswap,
+					&user_stat->exit_signal,
+					&user_stat->processor,
+					&user_stat->rt_priority,
+					&user_stat->policy,
+					&user_stat->delayacct_blkio_ticks,
+					&user_stat->guest_time,
+					&user_stat->cguest_time);
+		}
+		file.close();
+	}
+	
+	return r;
 }
 
 
@@ -172,8 +286,8 @@ DebuggerCore::DebuggerCore() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
 	Q_UNUSED(ext);
@@ -303,14 +417,14 @@ bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
 		if(ptrace(PTRACE_GETSIGINFO, tid, 0, &e->siginfo) == -1) {
 			// TODO: handle no info?
 		}
-	}	
-	
+	}
+
 	active_thread_       = tid;
 	event_thread_        = tid;
 	threads_[tid].status = status;
 
 	stop_threads();
-	
+
 	return true;
 }
 
@@ -440,11 +554,11 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 //------------------------------------------------------------------------------
 void DebuggerCore::detach() {
 	if(attached()) {
-	
+
 		stop_threads();
-	
+
 		clear_breakpoints();
-		
+
 		Q_FOREACH(edb::tid_t thread, thread_ids()) {
 			if(ptrace(PTRACE_DETACH, thread, 0, 0) == 0) {
 				native::waitpid(thread, 0, __WALL);
@@ -561,14 +675,14 @@ void DebuggerCore::get_state(State &state) {
 		}
 
 		// debug registers
-		state_impl->dr_[0] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(user, u_debugreg[0]), 0);
-		state_impl->dr_[1] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(user, u_debugreg[1]), 0);
-		state_impl->dr_[2] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(user, u_debugreg[2]), 0);
-		state_impl->dr_[3] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(user, u_debugreg[3]), 0);
+		state_impl->dr_[0] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[0]), 0);
+		state_impl->dr_[1] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[1]), 0);
+		state_impl->dr_[2] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[2]), 0);
+		state_impl->dr_[3] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[3]), 0);
 		state_impl->dr_[4] = 0;
 		state_impl->dr_[5] = 0;
-		state_impl->dr_[6] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(user, u_debugreg[6]), 0);
-		state_impl->dr_[7] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(user, u_debugreg[7]), 0);
+		state_impl->dr_[6] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[6]), 0);
+		state_impl->dr_[7] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[7]), 0);
 
 	} else {
 		state_impl->clear();
@@ -589,14 +703,14 @@ void DebuggerCore::set_state(const State &state) {
 		ptrace(PTRACE_SETREGS, active_thread(), 0, &state_impl->regs_);
 
 		// debug registers
-		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(user, u_debugreg[0]), state_impl->dr_[0]);
-		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(user, u_debugreg[1]), state_impl->dr_[1]);
-		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(user, u_debugreg[2]), state_impl->dr_[2]);
-		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(user, u_debugreg[3]), state_impl->dr_[3]);
-		//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(user, u_debugreg[4]), state_impl->dr_[4]);
-		//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(user, u_debugreg[5]), state_impl->dr_[5]);
-		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(user, u_debugreg[6]), state_impl->dr_[6]);
-		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(user, u_debugreg[7]), state_impl->dr_[7]);
+		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[0]), state_impl->dr_[0]);
+		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[1]), state_impl->dr_[1]);
+		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[2]), state_impl->dr_[2]);
+		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[3]), state_impl->dr_[3]);
+		//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[4]), state_impl->dr_[4]);
+		//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[5]), state_impl->dr_[5]);
+		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[6]), state_impl->dr_[6]);
+		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[7]), state_impl->dr_[7]);
 	}
 }
 
@@ -607,7 +721,7 @@ void DebuggerCore::set_state(const State &state) {
 bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 	detach();
 	pid_t pid;
-	
+
 	switch(pid = fork()) {
 	case 0:
 		// we are in the child now...
@@ -732,48 +846,43 @@ IRegion *DebuggerCore::create_region(edb::address_t start, edb::address_t end, e
 //------------------------------------------------------------------------------
 QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	QMap<edb::pid_t, Process> ret;
-	
+
 	QDir proc_directory("/proc/");
 	QFileInfoList entries = proc_directory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
 
 	Q_FOREACH(const QFileInfo &info, entries) {
-		if(is_numeric(info.fileName())) {
-
-			const QDir proc(info.absoluteFilePath());
-			const QString status = proc.absolutePath() + "/stat";
-
+		const QString filename = info.fileName();
+		if(is_numeric(filename)) {
+		
+			const edb::pid_t pid = filename.toULong();
 			Process process_info;
-			process_info.pid = info.fileName().toUInt();
-			process_info.uid = info.ownerId();
+					
+			struct user_stat user_stat;
+			const int n = get_user_stat(pid, &user_stat);
+			if(n >= 2) {
+				process_info.name = user_stat.comm;
 
-			if(struct passwd *const pwd = ::getpwuid(process_info.uid)) {
+				// remove silly '(' and ')'
+				process_info.name = process_info.name.mid(1);
+				process_info.name.chop(1);
+			}
+
+			process_info.pid = pid;
+			process_info.uid = info.ownerId();
+			
+			if(const struct passwd *const pwd = ::getpwuid(process_info.uid)) {
 				process_info.user = pwd->pw_name;
 			}
 
-			QFile file(status);
-	        if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-				QTextStream in(&file);
-
-				int pid;
-				QString name;
-				// we already know the pid, so this'll just get read and ignored
-				in >> pid;
-				// get the name
-				in >> name;
-				// chop off the silly ( and )
-				process_info.name = name.mid(1);
-				process_info.name.chop(1);
-
-			}
 			ret.insert(process_info.pid, process_info);
 		}
 	}
-	
+
 	return ret;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::process_exe(edb::pid_t pid) const {
@@ -781,7 +890,7 @@ QString DebuggerCore::process_exe(edb::pid_t pid) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::process_cwd(edb::pid_t pid) const {
@@ -789,43 +898,27 @@ QString DebuggerCore::process_cwd(edb::pid_t pid) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 
-	QFile file(QString("/proc/%1/stat").arg(pid));
-	if(!file.open(QIODevice::ReadOnly)) {
-		return 0;
+	struct user_stat user_stat;
+	int n = get_user_stat(pid, &user_stat);
+	if(n >= 4) {
+		return user_stat.ppid;
 	}
-
-	edb::pid_t ret = 0;
-
-	QTextStream in(&file);
-
-	const QString line = in.readLine();
-	if(!line.isNull()) {
-		int process_id;
-		char comm[256];
-		char state;
-		int ppid;
-		
-		if(sscanf(qPrintable(line), "%d %255s %c %d", &process_id, comm, &state, &ppid) == 4) {
-			ret = ppid;
-		}
-	}
-
-	file.close();
-	return ret;
+	
+	return 0;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QList<MemoryRegion> DebuggerCore::memory_regions() const {
 	QList<MemoryRegion> regions;
-	
+
 	if(pid_ != 0) {
 		const QString mapFile(QString("/proc/%1/maps").arg(pid_));
 
@@ -844,12 +937,12 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 			}
 		}
 	}
-	
+
 	return regions;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
@@ -884,6 +977,32 @@ QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
 		}
 	}
 	return ret;
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+edb::address_t DebuggerCore::application_code_address() const {
+	struct user_stat user_stat;
+	int n = get_user_stat(pid(), &user_stat);
+	if(n >= 26) {
+		return user_stat.startcode;
+	}
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+edb::address_t DebuggerCore::application_data_address() const {
+	struct user_stat user_stat;
+	int n = get_user_stat(pid(), &user_stat);
+	if(n >= 27) {
+		return user_stat.endcode + 1; // endcode == startdata..
+	}
+	return 0;
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

@@ -18,30 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Debugger.h"
 #include "IDebuggerCore.h"
-#include "MemoryRegions.h"
-
-#include <QtDebug>
-#include <QTextStream>
-#include <QFile>
-
-//------------------------------------------------------------------------------
-// Name: primary_code_region()
-// Desc:
-//------------------------------------------------------------------------------
-MemoryRegion edb::v1::primary_code_region() {
-
-	const QString process_executable = debugger_core->process_exe(debugger_core->pid());
-
-	memory_regions().sync();
-
-	const QList<MemoryRegion> r = memory_regions().regions();
-	Q_FOREACH(const MemoryRegion &region, r) {
-		if(region.executable() && region.name() == process_executable) {
-			return region;
-		}
-	}
-	return MemoryRegion();
-}
+#include <QDebug>
 
 //------------------------------------------------------------------------------
 // Name: loaded_libraries()

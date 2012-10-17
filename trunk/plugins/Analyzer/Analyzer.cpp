@@ -816,8 +816,7 @@ void Analyzer::analyze(const MemoryRegion &region_ref) {
 
 	// NOTE: through a series of craziness,
 	// bonus_main, calls
-	// edb::v1::locate_main_function, which calls
-	// edb::v1::primary_code_region, which calls
+	// edb::v1::locate_main_function, which calls at some point
 	// MemoryRegions::sync()
 	// which happens to invalidate the references to regions we are potentially passed..
 	// so just to be sure, we make a copy! wow, that was an annoying bug!

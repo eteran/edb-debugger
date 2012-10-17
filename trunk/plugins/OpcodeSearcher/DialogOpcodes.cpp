@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Debugger.h"
 #include "MemoryRegions.h"
 #include "ByteShiftArray.h"
+#include "ShiftBuffer.h"
 #include "Util.h"
 
 #include <QHeaderView>
@@ -65,6 +66,15 @@ DialogOpcodes::DialogOpcodes(QWidget *parent) : QDialog(parent), ui(new Ui::Dial
 	ui->comboBox->addItem("[ESP + 4] -> EIP", 19);
 	ui->comboBox->addItem("[ESP + 8] -> EIP", 20);
 	ui->comboBox->addItem("[ESP - 4] -> EIP", 21);
+	
+	ui->comboBox->addItem("[EAX] -> EIP", 22);
+	ui->comboBox->addItem("[EBX] -> EIP", 23;
+	ui->comboBox->addItem("[ECX] -> EIP", 24);
+	ui->comboBox->addItem("[EDX] -> EIP", 25);
+	ui->comboBox->addItem("[EBP] -> EIP", 26);
+	ui->comboBox->addItem("[ESI] -> EIP", 28);
+	ui->comboBox->addItem("[EDI] -> EIP", 29);
+	
 #elif defined(EDB_X86_64)
 	ui->comboBox->addItem("RAX -> RIP", 1);
 	ui->comboBox->addItem("RBX -> RIP", 2);
@@ -86,7 +96,22 @@ DialogOpcodes::DialogOpcodes(QWidget *parent) : QDialog(parent), ui(new Ui::Dial
 	ui->comboBox->addItem("[RSP] -> RIP", 18);
 	ui->comboBox->addItem("[RSP + 8] -> RIP", 19);
 	ui->comboBox->addItem("[RSP + 16] -> RIP", 20);
-	ui->comboBox->addItem("[RSP - 8] -> RIP", 21);
+	ui->comboBox->addItem("[RSP - 8] -> RIP", 21);	
+	ui->comboBox->addItem("[RAX] -> RIP", 22);
+	ui->comboBox->addItem("[RBX] -> RIP", 23);
+	ui->comboBox->addItem("[RCX] -> RIP", 24);
+	ui->comboBox->addItem("[RDX] -> RIP", 25);
+	ui->comboBox->addItem("[RBP] -> RIP", 26);
+	ui->comboBox->addItem("[RSI] -> RIP", 28);
+	ui->comboBox->addItem("[RDI] -> RIP", 29);
+	ui->comboBox->addItem("[R8] -> RIP", 30);
+	ui->comboBox->addItem("[R9] -> RIP", 31);
+	ui->comboBox->addItem("[R10] -> RIP", 32);
+	ui->comboBox->addItem("[R11] -> RIP", 33);
+	ui->comboBox->addItem("[R12] -> RIP", 34);
+	ui->comboBox->addItem("[R13] -> RIP", 35);
+	ui->comboBox->addItem("[R14] -> RIP", 36);
+	ui->comboBox->addItem("[R15] -> RIP", 37);
 #endif
 }
 
@@ -143,6 +168,45 @@ void DialogOpcodes::add_result(QList<edb::Instruction> instructions, edb::addres
 
 		item->setData(Qt::UserRole, rva);
 		ui->listWidget->addItem(item);
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: test_deref_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::address_t start_address)
+// Desc:
+//------------------------------------------------------------------------------
+template <edb::Operand::Register REG>
+void DialogOpcodes::test_deref_reg_to_ip(const OpcodeData &data, edb::address_t start_address) {
+	const quint8 *p = data.data;
+	const quint8 *last = p + sizeof(data);
+
+	edb::Instruction insn(p, last, 0, std::nothrow);
+
+	if(insn.valid()) {
+		const edb::Operand &op1 = insn.operand(0);
+		switch(insn.type()) {
+		case edb::Instruction::OP_JMP:
+		case edb::Instruction::OP_CALL:
+			if(op1.general_type() == edb::Operand::TYPE_EXPRESSION) {
+			
+			
+				if(op1.expression().displacement_type == edb::Operand::DISP_NONE) {
+
+					if(op1.expression().base == REG && op1.expression().index == edb::Operand::REG_NULL && op1.expression().scale == 1) {
+						add_result((QList<edb::Instruction>() << insn), start_address);
+						return;
+					}
+
+					if(op1.expression().index == REG && op1.expression().base == edb::Operand::REG_NULL && op1.expression().scale == 1) {
+						add_result((QList<edb::Instruction>() << insn), start_address);
+						return;
+					}
+				}
+			}
+			break;
+		default:
+			break;
+		}
 	}
 }
 
@@ -373,7 +437,6 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 //------------------------------------------------------------------------------
 void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t start_address) {
 
-
 	const quint8 *p = data.data;
 	const quint8 *last = p + sizeof(data);
 
@@ -542,6 +605,106 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 }
 
 //------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+void DialogOpcodes::run_tests(int classtype, const OpcodeData &opcode, edb::address_t address) {
+
+	switch(classtype) {
+#if defined(EDB_X86)
+	case 1: test_reg_to_ip<edb::Operand::REG_EAX>(opcode, address); break;
+	case 2: test_reg_to_ip<edb::Operand::REG_EBX>(opcode, address); break;
+	case 3: test_reg_to_ip<edb::Operand::REG_ECX>(opcode, address); break;
+	case 4: test_reg_to_ip<edb::Operand::REG_EDX>(opcode, address); break;
+	case 5: test_reg_to_ip<edb::Operand::REG_EBP>(opcode, address); break;
+	case 6: test_reg_to_ip<edb::Operand::REG_ESP>(opcode, address); break;
+	case 7: test_reg_to_ip<edb::Operand::REG_ESI>(opcode, address); break;
+	case 8: test_reg_to_ip<edb::Operand::REG_EDI>(opcode, address); break;
+#elif defined(EDB_X86_64)
+	case 1: test_reg_to_ip<edb::Operand::REG_RAX>(opcode, address); break;
+	case 2: test_reg_to_ip<edb::Operand::REG_RBX>(opcode, address); break;
+	case 3: test_reg_to_ip<edb::Operand::REG_RCX>(opcode, address); break;
+	case 4: test_reg_to_ip<edb::Operand::REG_RDX>(opcode, address); break;
+	case 5: test_reg_to_ip<edb::Operand::REG_RBP>(opcode, address); break;
+	case 6: test_reg_to_ip<edb::Operand::REG_RSP>(opcode, address); break;
+	case 7: test_reg_to_ip<edb::Operand::REG_RSI>(opcode, address); break;
+	case 8: test_reg_to_ip<edb::Operand::REG_RDI>(opcode, address); break;
+	case 9: test_reg_to_ip<edb::Operand::REG_R8>(opcode, address); break;
+	case 10: test_reg_to_ip<edb::Operand::REG_R9>(opcode, address); break;
+	case 11: test_reg_to_ip<edb::Operand::REG_R10>(opcode, address); break;
+	case 12: test_reg_to_ip<edb::Operand::REG_R11>(opcode, address); break;
+	case 13: test_reg_to_ip<edb::Operand::REG_R12>(opcode, address); break;
+	case 14: test_reg_to_ip<edb::Operand::REG_R13>(opcode, address); break;
+	case 15: test_reg_to_ip<edb::Operand::REG_R14>(opcode, address); break;
+	case 16: test_reg_to_ip<edb::Operand::REG_R15>(opcode, address); break;
+#endif
+
+	case 17:
+	#if defined(EDB_X86)
+		test_reg_to_ip<edb::Operand::REG_EAX>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_EBX>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_ECX>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_EDX>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_EBP>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_ESP>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_ESI>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_EDI>(opcode, address);
+	#elif defined(EDB_X86_64)
+		test_reg_to_ip<edb::Operand::REG_RAX>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_RBX>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_RCX>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_RDX>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_RBP>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_RSP>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_RSI>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_RDI>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_R8>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_R9>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_R10>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_R11>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_R12>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_R13>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_R14>(opcode, address);
+		test_reg_to_ip<edb::Operand::REG_R15>(opcode, address);
+	#endif
+		break;
+	case 18:
+		// [ESP] -> EIP
+		test_esp_add_0(opcode, address);
+		break;
+	case 19:
+		// [ESP + 4] -> EIP
+		test_esp_add_regx1(opcode, address);
+		break;
+	case 20:
+		// [ESP + 8] -> EIP
+		test_esp_add_regx2(opcode, address);
+		break;
+	case 21:
+		// [ESP - 4] -> EIP
+		test_esp_sub_regx1(opcode, address);
+		break;
+		
+		
+	case 22: test_deref_reg_to_ip<edb::Operand::REG_RAX>(opcode, address); break;
+	case 23: test_deref_reg_to_ip<edb::Operand::REG_RBX>(opcode, address); break;
+	case 24: test_deref_reg_to_ip<edb::Operand::REG_RCX>(opcode, address); break;
+	case 25: test_deref_reg_to_ip<edb::Operand::REG_RDX>(opcode, address); break;
+	case 26: test_deref_reg_to_ip<edb::Operand::REG_RBP>(opcode, address); break;
+	case 28: test_deref_reg_to_ip<edb::Operand::REG_RSI>(opcode, address); break;
+	case 29: test_deref_reg_to_ip<edb::Operand::REG_RDI>(opcode, address); break;
+	case 30: test_deref_reg_to_ip<edb::Operand::REG_R8>(opcode, address); break;
+	case 31: test_deref_reg_to_ip<edb::Operand::REG_R9>(opcode, address); break;
+	case 32: test_deref_reg_to_ip<edb::Operand::REG_R10>(opcode, address); break;
+	case 33: test_deref_reg_to_ip<edb::Operand::REG_R11>(opcode, address); break;
+	case 34: test_deref_reg_to_ip<edb::Operand::REG_R12>(opcode, address); break;
+	case 35: test_deref_reg_to_ip<edb::Operand::REG_R13>(opcode, address); break;
+	case 36: test_deref_reg_to_ip<edb::Operand::REG_R14>(opcode, address); break;
+	case 37: test_deref_reg_to_ip<edb::Operand::REG_R15>(opcode, address); break;
+	}
+}
+
+//------------------------------------------------------------------------------
 // Name: do_find()
 // Desc:
 //------------------------------------------------------------------------------
@@ -565,106 +728,54 @@ void DialogOpcodes::do_find() {
 			const MemoryRegion *const region = reinterpret_cast<const MemoryRegion *>(index.internalPointer());
 
 			edb::address_t start_address     = region->start();
+			edb::address_t address           = region->start();
 			const edb::address_t end_address = region->end();
-			const edb::address_t orig_start  = start_address;
-			ByteShiftArray bsa(sizeof(OpcodeData));
+			const edb::address_t orig_start  = region->start();
 
-			// create a reference to the bsa's data so we can pass it to the testXXXX functions
-			const OpcodeData &opcode = *reinterpret_cast<const OpcodeData *>(bsa.data());
+			ShiftBuffer<sizeof(OpcodeData)> shift_buffer;
 
-			// do the search for this region!
-			// we intentionally look slightly past the end of the region
-			// but we are at that point, we just shift in 0x00's.
-			// this will let us find edge case opcodes
-			while(start_address < end_address + sizeof(OpcodeData)) {
-
-				// read in the next byte
+			// prime the buffer by filling it up with the minimum block size
+			for(size_t i = 0; i < shift_buffer.size(); ++i) {
+				
 				quint8 byte;
-				if(start_address >= end_address) {
-					byte = 0x00;
-				} else {
-					edb::v1::debugger_core->read_bytes(start_address, &byte, 1);
-				}
-				bsa <<  byte;
-
-				switch(classtype) {
-			#if defined(EDB_X86)
-				case 1: test_reg_to_ip<edb::Operand::REG_EAX>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 2: test_reg_to_ip<edb::Operand::REG_EBX>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 3: test_reg_to_ip<edb::Operand::REG_ECX>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 4: test_reg_to_ip<edb::Operand::REG_EDX>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 5: test_reg_to_ip<edb::Operand::REG_EBP>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 6: test_reg_to_ip<edb::Operand::REG_ESP>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 7: test_reg_to_ip<edb::Operand::REG_ESI>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 8: test_reg_to_ip<edb::Operand::REG_EDI>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-			#elif defined(EDB_X86_64)
-				case 1: test_reg_to_ip<edb::Operand::REG_RAX>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 2: test_reg_to_ip<edb::Operand::REG_RBX>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 3: test_reg_to_ip<edb::Operand::REG_RCX>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 4: test_reg_to_ip<edb::Operand::REG_RDX>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 5: test_reg_to_ip<edb::Operand::REG_RBP>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 6: test_reg_to_ip<edb::Operand::REG_RSP>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 7: test_reg_to_ip<edb::Operand::REG_RSI>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 8: test_reg_to_ip<edb::Operand::REG_RDI>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 9: test_reg_to_ip<edb::Operand::REG_R8>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 10: test_reg_to_ip<edb::Operand::REG_R9>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 11: test_reg_to_ip<edb::Operand::REG_R10>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 12: test_reg_to_ip<edb::Operand::REG_R11>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 13: test_reg_to_ip<edb::Operand::REG_R12>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 14: test_reg_to_ip<edb::Operand::REG_R13>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 15: test_reg_to_ip<edb::Operand::REG_R14>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-				case 16: test_reg_to_ip<edb::Operand::REG_R15>(opcode, start_address - (sizeof(OpcodeData) - 1)); break;
-			#endif
-
-				case 17:
-				#if defined(EDB_X86)
-					test_reg_to_ip<edb::Operand::REG_EAX>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_EBX>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_ECX>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_EDX>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_EBP>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_ESP>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_ESI>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_EDI>(opcode, start_address - (sizeof(OpcodeData) - 1));
-				#elif defined(EDB_X86_64)
-					test_reg_to_ip<edb::Operand::REG_RAX>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_RBX>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_RCX>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_RDX>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_RBP>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_RSP>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_RSI>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_RDI>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_R8>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_R9>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_R10>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_R11>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_R12>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_R13>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_R14>(opcode, start_address - (sizeof(OpcodeData) - 1));
-					test_reg_to_ip<edb::Operand::REG_R15>(opcode, start_address - (sizeof(OpcodeData) - 1));
-				#endif
-					break;
-				case 18:
-					// [ESP] -> EIP
-					test_esp_add_0(opcode, start_address - (sizeof(OpcodeData) - 1));
-					break;
-				case 19:
-					// [ESP + 4] -> EIP
-					test_esp_add_regx1(opcode, start_address - (sizeof(OpcodeData) - 1));
-					break;
-				case 20:
-					// [ESP + 8] -> EIP
-					test_esp_add_regx2(opcode, start_address - (sizeof(OpcodeData) - 1));
-					break;
-				case 21:
-					// [ESP - 4] -> EIP
-					test_esp_sub_regx1(opcode, start_address - (sizeof(OpcodeData) - 1));
-					break;
-				}
-
-				ui->progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
+				edb::v1::debugger_core->read_bytes(start_address, &byte, 1);
+				shift_buffer.shl();
+				shift_buffer[shift_buffer.size() - 1] = byte;
+				
 				++start_address;
+			}
+			
+			// this will read the rest of the region
+			while(start_address < end_address) {		
+			
+				// create a reference to the bsa's data so we can pass it to the testXXXX functions
+				const OpcodeData &opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
+				run_tests(classtype, opcode, address);
+
+				quint8 byte;
+				edb::v1::debugger_core->read_bytes(start_address, &byte, 1);
+				shift_buffer.shl();
+				shift_buffer[shift_buffer.size() - 1] = byte;
+				
+				++start_address;
+				
+				ui->progressBar->setValue(util::percentage(address - orig_start, region->size()));
+				++address;
+			}
+			
+			// test the stuff at the regions edge
+			for(size_t i = 0; i < shift_buffer.size(); ++i) {
+			
+				// create a reference to the bsa's data so we can pass it to the testXXXX functions
+				const OpcodeData &opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
+				run_tests(classtype, opcode, address);
+
+				// we just shift in 0's and hope it doesn't give false positives
+				shift_buffer.shl();
+				shift_buffer[shift_buffer.size() - 1] = 0x00;
+				
+				ui->progressBar->setValue(util::percentage(address - orig_start, region->size()));
+				++address;
 			}
 		}
 	}

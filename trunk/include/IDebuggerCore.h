@@ -88,6 +88,8 @@ public:
 
 public:
 	virtual QList<MemoryRegion> memory_regions() const = 0;
+	virtual edb::address_t application_code_address() const = 0;
+	virtual edb::address_t application_data_address() const = 0;
 
 public:
 	// process properties

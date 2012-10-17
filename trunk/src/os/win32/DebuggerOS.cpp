@@ -29,20 +29,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 //------------------------------------------------------------------------------
-// Name: primary_code_region()
-// Desc:
-//------------------------------------------------------------------------------
-MemoryRegion edb::v1::primary_code_region() {
-	MemoryRegion region;
-	memory_regions().sync();
-	if(memory_regions().find_region(0, region)) {
-		return region;
-	}
-
-	return MemoryRegion();
-}
-
-//------------------------------------------------------------------------------
 // Name: loaded_libraries()
 // Desc:
 //------------------------------------------------------------------------------
