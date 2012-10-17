@@ -666,4 +666,20 @@ QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
 	return ret;
 }
 
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+edb::address_t DebuggerCore::application_code_address() const {
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+edb::address_t DebuggerCore::application_data_address() const {
+	return 0;
+}
+
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
