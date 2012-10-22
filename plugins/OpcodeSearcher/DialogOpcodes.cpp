@@ -68,7 +68,7 @@ DialogOpcodes::DialogOpcodes(QWidget *parent) : QDialog(parent), ui(new Ui::Dial
 	ui->comboBox->addItem("[ESP - 4] -> EIP", 21);
 	
 	ui->comboBox->addItem("[EAX] -> EIP", 22);
-	ui->comboBox->addItem("[EBX] -> EIP", 23;
+	ui->comboBox->addItem("[EBX] -> EIP", 23);
 	ui->comboBox->addItem("[ECX] -> EIP", 24);
 	ui->comboBox->addItem("[EDX] -> EIP", 25);
 	ui->comboBox->addItem("[EBP] -> EIP", 26);
