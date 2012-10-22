@@ -76,7 +76,7 @@ signals:
 private:
 	QString formatAddress(edb::address_t address) const;
 	QString format_instruction_bytes(const edb::Instruction &insn) const;
-	QString format_instruction_bytes(const edb::Instruction &insn, int maxStringPx, const QFontMetrics &metrics) const;
+	QString format_instruction_bytes(const edb::Instruction &insn, int maxStringPx, const QFontMetricsF &metrics) const;
 	QString format_invalid_instruction_bytes(const edb::Instruction &insn, QPainter &painter) const;
 	edb::address_t address_from_coord(int x, int y) const;
 	size_t length_disasm_back(const quint8 *buf, size_t size) const;
@@ -96,7 +96,7 @@ private:
 	void updateSelectedAddress(QMouseEvent *event);
 
 private:
-	MemoryRegion                region_;
+	MemoryRegion             region_;
 	QPixmap                  breakpoint_icon_;
 	QPixmap                  current_address_icon_;
 	QSet<edb::address_t>     show_addresses_;
@@ -105,7 +105,7 @@ private:
 	edb::address_t           selected_instruction_address_;
 	edb::address_t           current_address_;
 	int                      font_height_; // height of a character in this font
-	int                      font_width_;  // width of a character in this font
+	qreal                    font_width_;  // width of a character in this font
 	int                      line1_;
 	int                      line2_;
 	int                      line3_;

@@ -388,10 +388,10 @@ void QDisassemblyView::scrollTo(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: format_instruction_bytes(const edb::Instruction &insn, int maxStringPx, const QFontMetrics &metrics) const
+// Name: format_instruction_bytes(const edb::Instruction &insn, int maxStringPx, const QFontMetricsF &metrics) const
 // Desc:
 //------------------------------------------------------------------------------
-QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &insn, int maxStringPx, const QFontMetrics &metrics) const {
+QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &insn, int maxStringPx, const QFontMetricsF &metrics) const {
 	const QString byte_buffer =
 	edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(insn.bytes()), insn.size()));
 	return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
@@ -418,14 +418,13 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 	if(insn.valid()) {
 		QString opcode = QString::fromStdString(upper ? edisassm::to_string(insn, edisassm::syntax_intel_ucase()) : edisassm::to_string(insn, edisassm::syntax_intel_lcase()));
 		
-		opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
-
-
 		//return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
 
 
 		if(is_filling) {
 			painter.setPen(filling_dis_color);
+			opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
+			
 			painter.drawText(
 				x,
 				y,
@@ -455,6 +454,8 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 			default:
 				break;
 			}
+			
+			opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
 
 			painter.setPen(default_dis_color);
 			QTextDocument doc;
@@ -699,9 +700,8 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			byte_buffer);
 
 
-		//optionally draw the symbol name
-		const Symbol::pointer sym = edb::v1::symbol_manager().find(address);
-		if(sym) {
+		// optionally draw the symbol name
+		if(const Symbol::pointer sym = edb::v1::symbol_manager().find(address)) {
 
 			const int maxStringPx = l1 - (breakpoint_icon_.width() + 1 + ((address_buffer.length() + 1) * font_width_));
 
@@ -770,7 +770,7 @@ void QDisassemblyView::setFont(const QFont &f) {
 	QAbstractScrollArea::setFont(f);
 
 	// recalculate all of our metrics/offsets
-	const QFontMetrics metrics(f);
+	const QFontMetricsF metrics(f);
 	font_width_  = metrics.width('X');
 	font_height_ = metrics.height();
 
