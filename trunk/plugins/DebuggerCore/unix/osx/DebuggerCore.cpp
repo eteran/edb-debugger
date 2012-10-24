@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformRegion.h"
 #include "PlatformState.h"
 #include "State.h"
+#include <QDebug>
 
 #include <fcntl.h>
 #include <mach/mach.h>
