@@ -63,8 +63,8 @@ public:
 	virtual bool is_kill() const = 0;
 	virtual bool is_stop() const = 0;
 	virtual bool is_trap() const = 0;
-	virtual bool terminated() const = 0;
 	virtual bool stopped() const = 0;
+	virtual bool terminated() const = 0;
 	virtual edb::pid_t process() const = 0;
 	virtual edb::tid_t thread() const = 0;
 	virtual int code() const = 0;

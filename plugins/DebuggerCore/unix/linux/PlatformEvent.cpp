@@ -22,8 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 // Name: 
 //------------------------------------------------------------------------------
-PlatformEvent::PlatformEvent() : status(0), pid(0), tid(0) {
-	std::memset(&siginfo, 0, sizeof(siginfo));
+PlatformEvent::PlatformEvent() : pid_(0), tid_(0), status_(0) {
+	std::memset(&siginfo_, 0, sizeof(siginfo));
 }
 
 //------------------------------------------------------------------------------
@@ -39,7 +39,7 @@ PlatformEvent *PlatformEvent::clone() const {
 IDebugEvent::Message PlatformEvent::error_description() const {
 	Q_ASSERT(is_error());
 
-	const edb::address_t fault_address = reinterpret_cast<edb::address_t>(siginfo.si_addr);
+	const edb::address_t fault_address = reinterpret_cast<edb::address_t>(siginfo_.si_addr);
 
 	switch(code()) {
 	case SIGSEGV:
@@ -57,7 +57,7 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
 			);
 	case SIGFPE:
-		switch(siginfo.si_code) {
+		switch(siginfo_.si_code) {
 		case FPE_INTDIV:
 		return Message(
 			tr("Divide By Zero"),
@@ -130,7 +130,7 @@ IDebugEvent::REASON PlatformEvent::reason() const {
 // Name: 
 //------------------------------------------------------------------------------
 IDebugEvent::TRAP_REASON PlatformEvent::trap_reason() const {
-	switch(siginfo.si_code) {
+	switch(siginfo_.si_code) {
 	case TRAP_TRACE: return TRAP_STEPPING;
 	default:         return TRAP_BREAKPOINT;
 	}
@@ -140,7 +140,7 @@ IDebugEvent::TRAP_REASON PlatformEvent::trap_reason() const {
 // Name: 
 //------------------------------------------------------------------------------
 bool PlatformEvent::exited() const {
-	return WIFEXITED(status) != 0;
+	return WIFEXITED(status_) != 0;
 }
 
 //------------------------------------------------------------------------------
@@ -195,28 +195,28 @@ bool PlatformEvent::is_trap() const {
 // Name: 
 //------------------------------------------------------------------------------
 bool PlatformEvent::terminated() const {
-	return WIFSIGNALED(status) != 0;
+	return WIFSIGNALED(status_) != 0;
 }
 
 //------------------------------------------------------------------------------
 // Name: 
 //------------------------------------------------------------------------------
 bool PlatformEvent::stopped() const {
-	return WIFSTOPPED(status) != 0;
+	return WIFSTOPPED(status_) != 0;
 }
 
 //------------------------------------------------------------------------------
 // Name: 
 //------------------------------------------------------------------------------
 edb::pid_t PlatformEvent::process() const {
-	return pid;
+	return pid_;
 }
 
 //------------------------------------------------------------------------------
 // Name: 
 //------------------------------------------------------------------------------
 edb::tid_t PlatformEvent::thread() const {
-	return tid;
+	return tid_;
 }
 
 //------------------------------------------------------------------------------
@@ -224,15 +224,15 @@ edb::tid_t PlatformEvent::thread() const {
 //------------------------------------------------------------------------------
 int PlatformEvent::code() const {
 	if(stopped()) {
-		return WSTOPSIG(status);
+		return WSTOPSIG(status_);
 	}
 	
 	if(terminated()) {
-		return WTERMSIG(status);
+		return WTERMSIG(status_);
 	}
 	
 	if(exited()) {
-		return WEXITSTATUS(status);
+		return WEXITSTATUS(status_);
 	}
 	
 	return 0;

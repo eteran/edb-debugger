@@ -17,18 +17,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "CheckVersion.h"
-#include "Debugger.h"
 #include "CheckVersionOptionsPage.h"
+#include "Debugger.h"
 #include <QDebug>
-#include <QNetworkAccessManager>
-#include <QNetworkProxyFactory>
-#include <QNetworkProxy>
-#include <QNetworkRequest>
-#include <QNetworkReply>
-#include <QUrl>
 #include <QMenu>
 #include <QMessageBox>
+#include <QNetworkAccessManager>
+#include <QNetworkProxy>
+#include <QNetworkProxyFactory>
+#include <QNetworkReply>
+#include <QNetworkRequest>
 #include <QSettings>
+#include <QUrl>
 
 //------------------------------------------------------------------------------
 // Name: CheckVersion()
@@ -105,11 +105,15 @@ bool set = false;
 	if(proxy_str.isEmpty()) {
 		proxy_str = QString::fromUtf8(qgetenv("http_proxy"));
 	}
+
+#if QT_VERSION >= 0x040600
 	if(!proxy_str.isEmpty()) {
 		const QUrl proxy_url = QUrl::fromUserInput(proxy_str);
 		proxy = QNetworkProxy(QNetworkProxy::HttpProxy, proxy_url.host(), proxy_url.port(80), proxy_url.userName(), proxy_url.password());
 		set = true;
 	}
+#endif
+
 #else
 	QList<QNetworkProxy> proxies = QNetworkProxyFactory::systemProxyForQuery(QNetworkProxyQuery(url));
 	if(proxies.size() >= 1) {
