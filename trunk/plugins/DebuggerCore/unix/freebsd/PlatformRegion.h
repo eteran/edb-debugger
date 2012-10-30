@@ -26,9 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class PlatformRegion : public IRegion {
 	Q_DECLARE_TR_FUNCTIONS(PlatformRegion)
 	
-	template <size_t N>
-	friend class BackupInfo;
-	
 public:
 	PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions);
 	virtual ~PlatformRegion();
