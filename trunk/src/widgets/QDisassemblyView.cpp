@@ -520,7 +520,7 @@ QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instructio
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int insn_size, IAnalyzer *analyzer) {
-	Q_CHECK_PTR(analyzer);
+	Q_ASSERT(analyzer);
 	painter.setPen(QPen(palette().shadow().color(), 2));
 
 	const IAnalyzer::AddressCategory cat = analyzer->category(address);

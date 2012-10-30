@@ -35,6 +35,7 @@ public:
 	
 public:
 	void swap(DebugEvent &other);
+	operator void *() const { return reinterpret_cast<void *>(impl_ != 0); }
 	
 public:
 	IDebugEvent::Message error_description() const;

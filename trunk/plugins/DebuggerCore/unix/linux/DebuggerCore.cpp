@@ -314,6 +314,7 @@ DebuggerCore::~DebuggerCore() {
 // Desc:
 //------------------------------------------------------------------------------
 long DebuggerCore::ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo) {
+	Q_ASSERT(siginfo != 0);
 	return ptrace(PTRACE_GETSIGINFO, tid, 0, siginfo);
 }
 
@@ -364,6 +365,7 @@ long DebuggerCore::ptrace_set_options(edb::tid_t tid, long options) {
 long DebuggerCore::ptrace_get_event_message(edb::tid_t tid, unsigned long *message) {
 	Q_ASSERT(waited_threads_.contains(tid));
 	Q_ASSERT(tid != 0);
+	Q_ASSERT(message != 0);
 	return ptrace(PTRACE_GETEVENTMSG, tid, 0, message);
 }
 
@@ -471,8 +473,8 @@ bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
 			Q_FOREACH(edb::tid_t thread, thread_ids()) {
 				int status;
 				const edb::tid_t tid = native::waitpid(thread, &status, __WALL | WNOHANG);
-				if(tid > 0 && handle_event(event, tid, status)) {
-					return true;
+				if(tid > 0) {
+					return handle_event(event, tid, status);
 				}
 			}
 		}
@@ -654,45 +656,45 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 void DebuggerCore::get_state(State &state) {
 	// TODO: assert that we are paused
 
-	PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_);
+	if(PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_)) {
+		if(attached()) {
+			if(ptrace(PTRACE_GETREGS, active_thread(), 0, &state_impl->regs_) != -1) {
+			#if defined(EDB_X86)
+				struct user_desc desc;
+				std::memset(&desc, 0, sizeof(desc));
 
-	if(attached()) {
-		if(ptrace(PTRACE_GETREGS, active_thread(), 0, &state_impl->regs_) != -1) {
-		#if defined(EDB_X86)
-			struct user_desc desc;
-			std::memset(&desc, 0, sizeof(desc));
+				if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->regs_.xgs / LDT_ENTRY_SIZE), &desc) != -1) {
+					state_impl->gs_base = desc.base_addr;
+				} else {
+					state_impl->gs_base = 0;
+				}
 
-			if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->regs_.xgs / LDT_ENTRY_SIZE), &desc) != -1) {
-				state_impl->gs_base = desc.base_addr;
-			} else {
-				state_impl->gs_base = 0;
+				if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->regs_.xfs / LDT_ENTRY_SIZE), &desc) != -1) {
+					state_impl->fs_base = desc.base_addr;
+				} else {
+					state_impl->fs_base = 0;
+				}
+			#elif defined(EDB_X86_64)
+			#endif
 			}
 
-			if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->regs_.xfs / LDT_ENTRY_SIZE), &desc) != -1) {
-				state_impl->fs_base = desc.base_addr;
-			} else {
-				state_impl->fs_base = 0;
+			// floating point registers
+			if(ptrace(PTRACE_GETFPREGS, active_thread(), 0, &state_impl->fpregs_) != -1) {
 			}
-		#elif defined(EDB_X86_64)
-		#endif
+
+			// debug registers
+			state_impl->dr_[0] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[0]), 0);
+			state_impl->dr_[1] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[1]), 0);
+			state_impl->dr_[2] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[2]), 0);
+			state_impl->dr_[3] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[3]), 0);
+			state_impl->dr_[4] = 0;
+			state_impl->dr_[5] = 0;
+			state_impl->dr_[6] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[6]), 0);
+			state_impl->dr_[7] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[7]), 0);
+
+		} else {
+			state_impl->clear();
 		}
-
-		// floating point registers
-		if(ptrace(PTRACE_GETFPREGS, active_thread(), 0, &state_impl->fpregs_) != -1) {
-		}
-
-		// debug registers
-		state_impl->dr_[0] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[0]), 0);
-		state_impl->dr_[1] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[1]), 0);
-		state_impl->dr_[2] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[2]), 0);
-		state_impl->dr_[3] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[3]), 0);
-		state_impl->dr_[4] = 0;
-		state_impl->dr_[5] = 0;
-		state_impl->dr_[6] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[6]), 0);
-		state_impl->dr_[7] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[7]), 0);
-
-	} else {
-		state_impl->clear();
 	}
 }
 
@@ -703,21 +705,23 @@ void DebuggerCore::get_state(State &state) {
 void DebuggerCore::set_state(const State &state) {
 
 	// TODO: assert that we are paused
-	PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_);
+	
 
 	if(attached()) {
 
-		ptrace(PTRACE_SETREGS, active_thread(), 0, &state_impl->regs_);
+		if(PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_)) {
+			ptrace(PTRACE_SETREGS, active_thread(), 0, &state_impl->regs_);
 
-		// debug registers
-		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[0]), state_impl->dr_[0]);
-		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[1]), state_impl->dr_[1]);
-		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[2]), state_impl->dr_[2]);
-		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[3]), state_impl->dr_[3]);
-		//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[4]), state_impl->dr_[4]);
-		//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[5]), state_impl->dr_[5]);
-		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[6]), state_impl->dr_[6]);
-		ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[7]), state_impl->dr_[7]);
+			// debug registers
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[0]), state_impl->dr_[0]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[1]), state_impl->dr_[1]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[2]), state_impl->dr_[2]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[3]), state_impl->dr_[3]);
+			//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[4]), state_impl->dr_[4]);
+			//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[5]), state_impl->dr_[5]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[6]), state_impl->dr_[6]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[7]), state_impl->dr_[7]);
+		}
 	}
 }
 

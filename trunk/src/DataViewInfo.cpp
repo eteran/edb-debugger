@@ -39,8 +39,8 @@ DataViewInfo::~DataViewInfo() {
 //------------------------------------------------------------------------------
 void DataViewInfo::update() {
 
-	Q_CHECK_PTR(stream);
-	Q_CHECK_PTR(view);
+	Q_ASSERT(stream);
+	Q_ASSERT(view);
 
 	stream->set_region(region);
 	view->setAddressOffset(region.start());
