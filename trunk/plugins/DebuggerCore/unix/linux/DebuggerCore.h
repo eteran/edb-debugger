@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCoreUNIX.h"
 #include <QHash>
 #include <QSet>
+#include <csignal>
 
 class DebuggerCore : public DebuggerCoreUNIX {
 	Q_OBJECT
@@ -78,6 +79,7 @@ private:
 	virtual bool write_data(edb::address_t address, long value);
 
 private:
+	long ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo);
 	long ptrace_continue(edb::tid_t tid, long status);
 	long ptrace_step(edb::tid_t tid, long status);
 	long ptrace_set_options(edb::tid_t tid, long options);

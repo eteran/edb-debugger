@@ -29,7 +29,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cerrno>
 #include <cstring>
-#include <csignal>
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
@@ -311,6 +310,14 @@ DebuggerCore::~DebuggerCore() {
 }
 
 //------------------------------------------------------------------------------
+// Name: ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo)
+// Desc:
+//------------------------------------------------------------------------------
+long DebuggerCore::ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo) {
+	return ptrace(PTRACE_GETSIGINFO, tid, 0, siginfo);
+}
+
+//------------------------------------------------------------------------------
 // Name: ptrace_traceme()
 // Desc:
 //------------------------------------------------------------------------------
@@ -414,7 +421,7 @@ bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
 		e->pid    = pid();
 		e->tid    = tid;
 		e->status = status;
-		if(ptrace(PTRACE_GETSIGINFO, tid, 0, &e->siginfo) == -1) {
+		if(ptrace_getsiginfo(tid, &e->siginfo) == -1) {
 			// TODO: handle no info?
 		}
 	}
