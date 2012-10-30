@@ -19,15 +19,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ARCHPROCESSOR_20070312_H_
 #define ARCHPROCESSOR_20070312_H_
 
-#include <QVector>
-#include <QStringList>
-#include <QString>
-#include <QCoreApplication>
-#include "Types.h"
-#include "State.h"
 #include "IArchProcessor.h"
+#include "State.h"
+#include "Types.h"
+#include <QCoreApplication>
+#include <QStringList>
+#include <QVector>
 
 class QTreeWidgetItem;
+class QString;
 
 class ArchProcessor : public IArchProcessor {
 public:

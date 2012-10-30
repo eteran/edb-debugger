@@ -237,7 +237,7 @@ bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t cou
 //------------------------------------------------------------------------------
 bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len) {
 
-	Q_CHECK_PTR(buf);
+	Q_ASSERT(buf);
 
 	bool ok = false;
 
@@ -270,7 +270,7 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 //------------------------------------------------------------------------------
 bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
 
-	Q_CHECK_PTR(buf);
+	Q_ASSERT(buf);
 
 	bool ok = false;
 

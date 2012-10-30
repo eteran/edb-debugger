@@ -408,7 +408,7 @@ void DebuggerMain::dropEvent(QDropEvent* event) {
 	if(mimeData->hasUrls() && mimeData->urls().size() == 1) {
 		const QString s = mimeData->urls()[0].toLocalFile();
 		if(!s.isEmpty()) {
-			Q_CHECK_PTR(edb::v1::debugger_core);
+			Q_ASSERT(edb::v1::debugger_core);
 
 			detach_from_process(KILL_ON_DETACH);
 			common_open(s, QList<QByteArray>());
@@ -514,7 +514,7 @@ void DebuggerMain::on_cpuView_breakPointToggled(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_registerList_itemDoubleClicked(QTreeWidgetItem *item) {
-	Q_CHECK_PTR(item);
+	Q_ASSERT(item);
 
 	if(const Register reg = edb::v1::arch_processor().value_from_item(*item)) {
 		edb::reg_t r = *reg;
@@ -697,7 +697,7 @@ template <class T>
 edb::address_t DebuggerMain::get_follow_address(const T &hv, bool &ok) {
 	ok = false;
 
-	Q_CHECK_PTR(hv);
+	Q_ASSERT(hv);
 
 	if(hv->hasSelectedText()) {
 		const QByteArray data = hv->selectedBytes();
@@ -1016,7 +1016,7 @@ void DebuggerMain::mnuStackContextMenu(const QPoint &pos) {
 void DebuggerMain::mnuDumpContextMenu(const QPoint &pos) {
 	QHexView *const s = qobject_cast<QHexView *>(sender());
 
-	Q_CHECK_PTR(s);
+	Q_ASSERT(s);
 
 	QMenu *const menu = s->createStandardContextMenu();
 	menu->addSeparator();
@@ -1042,7 +1042,7 @@ void DebuggerMain::mnuDumpContextMenu(const QPoint &pos) {
 void DebuggerMain::mnuDumpSaveToFile() {
 	QHexView *const s = qobject_cast<QHexView *>(ui->tabWidget->currentWidget());
 
-	Q_CHECK_PTR(s);
+	Q_ASSERT(s);
 
 	const QString filename = QFileDialog::getSaveFileName(
 		this,
@@ -1364,7 +1364,7 @@ bool DebuggerMain::current_instruction_is_return() const {
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::handle_event(const DebugEvent &event) {
 
-	Q_CHECK_PTR(edb::v1::debugger_core);
+	Q_ASSERT(edb::v1::debugger_core);
 
 	edb::EVENT_STATUS status;
 	switch(event.reason()) {
@@ -1409,7 +1409,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event(const DebugEvent &event) {
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::debug_event_handler(const DebugEvent &event) {
 	IDebugEventHandler *const handler = edb::v1::debug_event_handler();
-	Q_CHECK_PTR(handler);
+	Q_ASSERT(handler);
 	return handler->handle_event(event);
 }
 
@@ -1434,11 +1434,11 @@ void DebuggerMain::update_tab_caption(const QSharedPointer<QHexView> &view, edb:
 //------------------------------------------------------------------------------
 void DebuggerMain::update_data(const DataViewInfo::pointer &v) {
 
-	Q_CHECK_PTR(v);
+	Q_ASSERT(v);
 
 	const QSharedPointer<QHexView> &view = v->view;
 
-	Q_CHECK_PTR(view);
+	Q_ASSERT(view);
 
 	v->update();
 
@@ -1451,11 +1451,11 @@ void DebuggerMain::update_data(const DataViewInfo::pointer &v) {
 //------------------------------------------------------------------------------
 void DebuggerMain::clear_data(const DataViewInfo::pointer &v) {
 
-	Q_CHECK_PTR(v);
+	Q_ASSERT(v);
 
 	const QSharedPointer<QHexView> &view = v->view;
 
-	Q_CHECK_PTR(view);
+	Q_ASSERT(view);
 
 	view->clear();
 	view->scrollTo(0);
@@ -1705,7 +1705,7 @@ void DebuggerMain::on_actionRun_Until_Return_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Pause_triggered() {
-	Q_CHECK_PTR(edb::v1::debugger_core);
+	Q_ASSERT(edb::v1::debugger_core);
 	edb::v1::debugger_core->pause();
 }
 
@@ -1877,7 +1877,7 @@ void DebuggerMain::set_initial_breakpoint(const QString &s) {
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Restart_triggered() {
 
-	Q_CHECK_PTR(edb::v1::debugger_core);
+	Q_ASSERT(edb::v1::debugger_core);
 
 	const edb::pid_t pid = edb::v1::debugger_core->pid();
 
@@ -2263,7 +2263,7 @@ void DebuggerMain::next_debug_event() {
 	//       a fake one before every event so it is always up to
 	//       date.
 
-	Q_CHECK_PTR(edb::v1::debugger_core);
+	Q_ASSERT(edb::v1::debugger_core);
 
 	DebugEvent e;
 	if(edb::v1::debugger_core->wait_debug_event(e, 10)) {

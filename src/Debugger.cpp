@@ -162,7 +162,7 @@ MemoryRegion edb::v1::current_cpu_view_region() {
 //------------------------------------------------------------------------------
 void edb::v1::repaint_cpu_view() {
 	DebuggerMain *const gui = ui();
-	Q_CHECK_PTR(gui);
+	Q_ASSERT(gui);
 	gui->ui->cpuView->viewport()->repaint();
 }
 
@@ -198,7 +198,7 @@ IArchProcessor &edb::v1::arch_processor() {
 // Desc:
 //------------------------------------------------------------------------------
 IAnalyzer *edb::v1::set_analyzer(IAnalyzer *p) {
-	Q_CHECK_PTR(p);
+	Q_ASSERT(p);
 	return g_Analyzer.fetchAndStoreAcquire(p);
 }
 
@@ -215,7 +215,7 @@ IAnalyzer *edb::v1::analyzer() {
 // Desc:
 //------------------------------------------------------------------------------
 ISessionFile *edb::v1::set_session_file_handler(ISessionFile *p) {
-	Q_CHECK_PTR(p);
+	Q_ASSERT(p);
 	return g_SessionHandler.fetchAndStoreAcquire(p);
 }
 
@@ -232,7 +232,7 @@ ISessionFile *edb::v1::session_file_handler() {
 // Desc:
 //------------------------------------------------------------------------------
 IDebugEventHandler *edb::v1::set_debug_event_handler(IDebugEventHandler *p) {
-	Q_CHECK_PTR(p);
+	Q_ASSERT(p);
 	return g_DebugEventHandler.fetchAndStoreAcquire(p);
 }
 
@@ -251,7 +251,7 @@ IDebugEventHandler *edb::v1::debug_event_handler() {
 //------------------------------------------------------------------------------
 bool edb::v1::jump_to_address(edb::address_t address) {
 	DebuggerMain *const gui = ui();
-	Q_CHECK_PTR(gui);
+	Q_ASSERT(gui);
 	return gui->jump_to_address(address);
 }
 
@@ -262,7 +262,7 @@ bool edb::v1::jump_to_address(edb::address_t address) {
 //------------------------------------------------------------------------------
 bool edb::v1::dump_data_range(edb::address_t address, edb::address_t end_address, bool new_tab) {
 	DebuggerMain *const gui = ui();
-	Q_CHECK_PTR(gui);
+	Q_ASSERT(gui);
 	return gui->dump_data_range(address, end_address, new_tab);
 }
 
@@ -288,7 +288,7 @@ bool edb::v1::dump_stack(edb::address_t address) {
 //------------------------------------------------------------------------------
 bool edb::v1::dump_stack(edb::address_t address, bool scroll_to) {
 	DebuggerMain *const gui = ui();
-	Q_CHECK_PTR(gui);
+	Q_ASSERT(gui);
 	return gui->dump_stack(address, scroll_to);
 }
 
@@ -298,7 +298,7 @@ bool edb::v1::dump_stack(edb::address_t address, bool scroll_to) {
 //------------------------------------------------------------------------------
 bool edb::v1::dump_data(edb::address_t address, bool new_tab) {
 	DebuggerMain *const gui = ui();
-	Q_CHECK_PTR(gui);
+	Q_ASSERT(gui);
 	return gui->dump_data(address, new_tab);
 }
 
@@ -688,7 +688,7 @@ QString edb::v1::find_function_symbol(edb::address_t address) {
 //------------------------------------------------------------------------------
 edb::address_t edb::v1::get_variable(const QString &s, bool &ok, ExpressionError &err) {
 
-	Q_CHECK_PTR(debugger_core);
+	Q_ASSERT(debugger_core);
 
 
 	State state;
@@ -714,7 +714,7 @@ edb::address_t edb::v1::get_variable(const QString &s, bool &ok, ExpressionError
 //------------------------------------------------------------------------------
 edb::address_t edb::v1::get_value(edb::address_t address, bool &ok, ExpressionError &err) {
 
-	Q_CHECK_PTR(debugger_core);
+	Q_ASSERT(debugger_core);
 
 	edb::address_t ret = 0;
 
@@ -733,7 +733,7 @@ edb::address_t edb::v1::get_value(edb::address_t address, bool &ok, ExpressionEr
 //------------------------------------------------------------------------------
 bool edb::v1::get_instruction_bytes(edb::address_t address, quint8 *buf, int &size) {
 
-	Q_CHECK_PTR(debugger_core);
+	Q_ASSERT(debugger_core);
 	Q_ASSERT(size >= 0);
 
 	bool ok = debugger_core->read_bytes(address, buf, size);
@@ -975,7 +975,7 @@ void edb::v1::modify_bytes(edb::address_t address, unsigned int size, QByteArray
 
 				// do a refresh, not full update
 				DebuggerMain *const gui = ui();
-				Q_CHECK_PTR(gui);
+				Q_ASSERT(gui);
 				gui->refresh_gui();
 			}
 		}

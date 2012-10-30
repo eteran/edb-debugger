@@ -1400,11 +1400,11 @@ ArchProcessor::ArchProcessor() : split_flags_(0) {
 //------------------------------------------------------------------------------
 void ArchProcessor::setup_register_item(QCategoryList *category_list, QTreeWidgetItem *parent, const QString &name) {
 
-	Q_CHECK_PTR(category_list);
+	Q_ASSERT(category_list);
 
 	QTreeWidgetItem *const p = category_list->addItem(parent, QString());
 
-	Q_CHECK_PTR(p);
+	Q_ASSERT(p);
 
 	p->setData(0, 1, name);
 	register_view_items_.push_back(p);
@@ -1420,12 +1420,12 @@ void ArchProcessor::setup_register_view(QCategoryList *category_list) {
 		State state;
 		edb::v1::debugger_core->get_state(state);
 
-		Q_CHECK_PTR(category_list);
+		Q_ASSERT(category_list);
 
 		// setup the register view
 		QTreeWidgetItem *const gpr = category_list->addCategory(tr("General Purpose"));
 
-		Q_CHECK_PTR(gpr);
+		Q_ASSERT(gpr);
 
 		setup_register_item(category_list, gpr, "eax");
 		setup_register_item(category_list, gpr, "ebx");
@@ -1444,7 +1444,7 @@ void ArchProcessor::setup_register_view(QCategoryList *category_list) {
 
 		QTreeWidgetItem *const segs = category_list->addCategory(tr("Segments"));
 
-		Q_CHECK_PTR(segs);
+		Q_ASSERT(segs);
 
 		setup_register_item(category_list, segs, "cs");
 		setup_register_item(category_list, segs, "ds");
@@ -1455,7 +1455,7 @@ void ArchProcessor::setup_register_view(QCategoryList *category_list) {
 
 		QTreeWidgetItem *const fpu = category_list->addCategory(tr("FPU"));
 
-		Q_CHECK_PTR(fpu);
+		Q_ASSERT(fpu);
 
 		setup_register_item(category_list, fpu, "st0");
 		setup_register_item(category_list, fpu, "st1");
@@ -1468,7 +1468,7 @@ void ArchProcessor::setup_register_view(QCategoryList *category_list) {
 
 		QTreeWidgetItem *const dbg = category_list->addCategory(tr("Debug"));
 
-		Q_CHECK_PTR(dbg);
+		Q_ASSERT(dbg);
 
 		setup_register_item(category_list, dbg, "dr0");
 		setup_register_item(category_list, dbg, "dr1");
@@ -1482,7 +1482,7 @@ void ArchProcessor::setup_register_view(QCategoryList *category_list) {
 		if(has_mmx_) {
 			QTreeWidgetItem *const mmx = category_list->addCategory(tr("MMX"));
 
-			Q_CHECK_PTR(mmx);
+			Q_ASSERT(mmx);
 
 			setup_register_item(category_list, mmx, "mm0");
 			setup_register_item(category_list, mmx, "mm1");
@@ -1497,7 +1497,7 @@ void ArchProcessor::setup_register_view(QCategoryList *category_list) {
 		if(has_xmm_) {
 			QTreeWidgetItem *const xmm = category_list->addCategory(tr("XMM"));
 
-			Q_CHECK_PTR(xmm);
+			Q_ASSERT(xmm);
 
 			setup_register_item(category_list, xmm, "xmm0");
 			setup_register_item(category_list, xmm, "xmm1");
@@ -1549,7 +1549,7 @@ QTreeWidgetItem *ArchProcessor::get_register_item(unsigned int index) {
 //------------------------------------------------------------------------------
 void ArchProcessor::update_register(QTreeWidgetItem *item, const QString &name, const Register &reg) const {
 
-	Q_CHECK_PTR(item);
+	Q_ASSERT(item);
 
 	QString reg_string;
 	int string_length;
@@ -1675,7 +1675,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 
 	QStringList ret;
 
-	Q_CHECK_PTR(edb::v1::debugger_core);
+	Q_ASSERT(edb::v1::debugger_core);
 
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 

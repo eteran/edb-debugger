@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IDEBUGGER_CORE_20061101_H_
 #define IDEBUGGER_CORE_20061101_H_
 
+#include "DebugEvent.h"
 #include "IBreakpoint.h"
 #include "IRegion.h"
 #include "MemoryRegion.h"
@@ -29,7 +30,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QtPlugin>
 
-class DebugEvent;
 class IDebugEvent;
 class IState;
 class QString;
@@ -45,7 +45,7 @@ public:
 	virtual int pointer_size() const = 0;
 
 public:
-	typedef QHash<edb::address_t, IBreakpoint::pointer > BreakpointList;
+	typedef QHash<edb::address_t, IBreakpoint::pointer> BreakpointList;
 
 public:
 	virtual bool has_extension(quint64 ext) const = 0;
