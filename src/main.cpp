@@ -128,7 +128,7 @@ namespace {
 			// TODO: detect if they corrected the issue and try again
 			return -1;
 		} else {
-	    	return qApp->exec();
+			return qApp->exec();
 		}
 	}
 
