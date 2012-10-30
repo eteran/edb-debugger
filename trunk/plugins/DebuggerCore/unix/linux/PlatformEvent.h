@@ -42,17 +42,17 @@ public:
 	virtual bool is_kill() const;
 	virtual bool is_stop() const;
 	virtual bool is_trap() const;
-	virtual bool terminated() const;
 	virtual bool stopped() const;
+	virtual bool terminated() const;
 	virtual edb::pid_t process() const;
 	virtual edb::tid_t thread() const;
 	virtual int code() const;
-	
+
 private:
-	int        status;
-	edb::pid_t pid;
-	edb::tid_t tid;
-	siginfo_t  siginfo;
+	siginfo_t  siginfo_;
+	edb::pid_t pid_;
+	edb::tid_t tid_;
+	int        status_;
 };
 
 #endif

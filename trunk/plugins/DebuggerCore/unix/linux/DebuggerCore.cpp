@@ -420,10 +420,10 @@ bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
 	// normal event
 	if(PlatformEvent *const e = static_cast<PlatformEvent *>(event.impl_)) {
 
-		e->pid    = pid();
-		e->tid    = tid;
-		e->status = status;
-		if(ptrace_getsiginfo(tid, &e->siginfo) == -1) {
+		e->pid_    = pid();
+		e->tid_    = tid;
+		e->status_ = status;
+		if(ptrace_getsiginfo(tid, &e->siginfo_) == -1) {
 			// TODO: handle no info?
 		}
 	}

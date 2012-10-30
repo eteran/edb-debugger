@@ -46,12 +46,12 @@ public:
 	bool is_kill() const;
 	bool is_stop() const;
 	bool is_trap() const;
-	bool terminated() const;
 	bool stopped() const;
+	bool terminated() const;
 	edb::pid_t process() const;
 	edb::tid_t thread() const;
 	int code() const;
-	
+
 private:
 	IDebugEvent *impl_;
 };
