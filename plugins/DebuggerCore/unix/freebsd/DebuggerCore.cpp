@@ -105,41 +105,38 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 			if(tid > 0) {
 				
 				// normal event
-				if(PlatformEvent *const e = static_cast<PlatformEvent *>(event.impl_)) {
-					e->pid    = pid();
-					e->tid    = tid;
-					e->status = status;
-					
-					char errbuf[_POSIX2_LINE_MAX];
-					if(kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
-						int rc;
-						struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid(), &rc);
+				PlatformEvent *const e = new PlatformEvent;
+				e->pid    = pid();
+				e->tid    = tid;
+				e->status = status;
 
-						struct proc p;
-						kvm_read(kd, (unsigned long)proc->ki_paddr, &p, sizeof(p));
+				char errbuf[_POSIX2_LINE_MAX];
+				if(kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
+					int rc;
+					struct kinfo_proc *const proc = kvm_getprocs(kd, KERN_PROC_PID, pid(), &rc);
 
-						struct ksiginfo siginfo;
-						kvm_read(kd, (unsigned long)p.p_ksi, &siginfo, sizeof(siginfo));
+					struct proc p;
+					kvm_read(kd, (unsigned long)proc->ki_paddr, &p, sizeof(p));
 
-						// TODO: why doesn't this get the fault address correctly?
-						// perhaps I need to target the tid instead?
-						e->fault_code_    = siginfo.ksi_code;
-						e->fault_address_ = siginfo.ksi_addr;
+					struct ksiginfo siginfo;
+					kvm_read(kd, (unsigned long)p.p_ksi, &siginfo, sizeof(siginfo));
 
-						//printf("ps_sig   : %d\n", siginfo.ksi_signo);
-						//printf("ps_type  : %d\n", p.p_stype);
-						kvm_close(kd);
-					} else {
-						e->fault_code_    = 0;
-						e->fault_address_ = 0;
-					}
-					
-								
-					active_thread_       = event.thread();
-					threads_[tid].status = status;
-					return IDebugEvent::const_pointer(e);
-				
+					// TODO: why doesn't this get the fault address correctly?
+					// perhaps I need to target the tid instead?
+					e->fault_code_    = siginfo.ksi_code;
+					e->fault_address_ = siginfo.ksi_addr;
+
+					//printf("ps_sig   : %d\n", siginfo.ksi_signo);
+					//printf("ps_type  : %d\n", p.p_stype);
+					kvm_close(kd);
+				} else {
+					e->fault_code_    = 0;
+					e->fault_address_ = 0;
 				}
+													
+				active_thread_       = e->tid;
+				threads_[tid].status = status;
+				return IDebugEvent::const_pointer(e);
 			}
 		}
 	}
