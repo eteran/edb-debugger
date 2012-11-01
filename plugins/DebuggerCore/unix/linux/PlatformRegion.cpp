@@ -43,7 +43,7 @@ public:
 	bool restore();
 
 public:
-	virtual edb::EVENT_STATUS handle_event(const DebugEvent &event);
+	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event);
 
 public:
 	QAtomicInt             lock_;
@@ -87,11 +87,11 @@ bool BackupInfo<N>::restore() {
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_event(const DebugEvent &event)
+// Name: handle_event(const IDebugEvent::const_pointer &event)
 // Desc:
 //------------------------------------------------------------------------------
 template <size_t N>
-edb::EVENT_STATUS BackupInfo<N>::handle_event(const DebugEvent &event) {
+edb::EVENT_STATUS BackupInfo<N>::handle_event(const IDebugEvent::const_pointer &event) {
 	Q_UNUSED(event);
 
 	// TODO: check that the event was caused by a hlt in our shellcode

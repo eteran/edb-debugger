@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerCore.h"
-#include "DebugEvent.h"
 #include "PlatformEvent.h"
 #include "PlatformRegion.h"
 #include "PlatformState.h"
@@ -185,11 +184,11 @@ DebuggerCore::~DebuggerCore() {
 }
 
 //------------------------------------------------------------------------------
-// Name: wait_debug_event(DebugEvent &event, int msecs)
+// Name: wait_debug_event(int msecs)
 // Desc: waits for a debug event, msecs is a timeout
 //      it will return false if an error or timeout occurs
 //------------------------------------------------------------------------------
-bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
+IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 	if(attached()) {
 		int status;
 		bool timeout;
@@ -224,15 +223,15 @@ bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
 						e->fault_address_ = 0;
 					}
 					
-				}
 				
-				active_thread_       = event.thread();
-				threads_[tid].status = status;
-				return true;
+					active_thread_       = event.thread();
+					threads_[tid].status = status;
+					return IDebugEvent::const_pointer(e);
+				}
 			}
 		}
 	}
-	return false;
+	return IDebugEvent::const_pointer();
 }
 
 //------------------------------------------------------------------------------
@@ -464,13 +463,6 @@ void DebuggerCore::set_active_thread(edb::tid_t tid) {
 	active_thread_ = tid;
 }
 
-//------------------------------------------------------------------------------
-// Name: create_event()
-// Desc:
-//------------------------------------------------------------------------------
-IDebugEvent *DebuggerCore::create_event() const {
-	return new PlatformEvent;
-}
 
 //------------------------------------------------------------------------------
 // Name: create_state() const

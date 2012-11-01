@@ -20,15 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define IDEBUG_EVENT_HANDLER_20061101_H_
 
 #include "Types.h"
-
-class DebugEvent;
+#include "IDebugEvent.h"
 
 class IDebugEventHandler {
 public:
 	virtual ~IDebugEventHandler() {}
 
 public:
-	virtual edb::EVENT_STATUS handle_event(const DebugEvent &event) = 0;
+	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event) = 0;
 };
 
 #endif

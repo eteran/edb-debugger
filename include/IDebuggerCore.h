@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IDEBUGGER_CORE_20061101_H_
 #define IDEBUGGER_CORE_20061101_H_
 
-#include "DebugEvent.h"
 #include "IBreakpoint.h"
 #include "IRegion.h"
+#include "IDebugEvent.h"
 #include "MemoryRegion.h"
 #include "Process.h"
 #include <QByteArray>
@@ -30,7 +30,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QtPlugin>
 
-class IDebugEvent;
 class IState;
 class QString;
 class State;
@@ -68,7 +67,7 @@ public:
 	virtual bool attach(edb::pid_t pid) = 0;
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args) = 0;
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
-	virtual bool wait_debug_event(DebugEvent &event, int msecs) = 0;
+	virtual IDebugEvent::const_pointer wait_debug_event(int msecs) = 0;
 	virtual void detach() = 0;
 	virtual void get_state(State &state) = 0;
 	virtual void kill() = 0;
@@ -99,7 +98,6 @@ public:
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const = 0;
 
 public:
-	virtual IDebugEvent *create_event() const = 0;
 	virtual IState *create_state() const = 0;
 	virtual IRegion *create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const = 0;
 

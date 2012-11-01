@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerCore.h"
-#include "DebugEvent.h"
 #include "Debugger.h"
 #include "MemoryRegion.h"
 #include "MemoryRegions.h"
@@ -156,11 +155,11 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: wait_debug_event(DebugEvent &event, bool &ok, int secs)
+// Name: wait_debug_event(int msecs)
 // Desc: waits for a debug event, secs is a timeout (but is not yet respected)
 //       ok will be set to false if the timeout expires
 //------------------------------------------------------------------------------
-bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
+IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 	if(attached()) {
 		DEBUG_EVENT de;
 		while(WaitForDebugEvent(&de, msecs == 0 ? INFINITE : msecs)) {
@@ -203,24 +202,25 @@ bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
 			default:
 				break;
 			}
+			
 			if(propagate) {
 				// normal event
 				if(PlatformEvent *const e = static_cast<PlatformEvent *>(event.impl_)) {
 					e->event = de;
+					return IDebugEvent::const_pointer(e);
 				}
-				return true;
 			}
 			resume(edb::DEBUG_EXCEPTION_NOT_HANDLED);
 		}
 	}
-	return false;
+	return IDebugEvent::const_pointer();
 }
 
 //------------------------------------------------------------------------------
 // Name: read_pages(edb::address_t address, void *buf, std::size_t count)
 // Desc: reads <count> pages from the process starting at <address>
 // Note: buf's size must be >= count * page_size()
-// Note: address should be page aligned.
+// Note: address MUST be page aligned.
 //------------------------------------------------------------------------------
 bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
 

@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IAnalyzer.h"
 #include "IArchProcessor.h"
 #include "IBinary.h"
+#include "IDebugEvent.h"
 #include "IDebuggerCore.h"
 #include "IPlugin.h"
 #include "ISessionFile.h"
@@ -112,11 +113,11 @@ public:
 	}
 
 	//--------------------------------------------------------------------------
-	// Name: handle_event(const DebugEvent &event)
+	// Name: handle_event(const IDebugEvent::const_pointer &event)
 	//--------------------------------------------------------------------------
-	virtual edb::EVENT_STATUS handle_event(const DebugEvent &event) {
+	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event) {
 
-		if(event.trap_reason() == IDebugEvent::TRAP_STEPPING) {
+		if(event->trap_reason() == IDebugEvent::TRAP_STEPPING) {
 
 			State state;
 			edb::v1::debugger_core->get_state(state);
@@ -1255,10 +1256,10 @@ edb::EVENT_STATUS DebuggerMain::handle_trap() {
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_event_stopped(const DebugEvent &event)
+// Name: handle_event_stopped(const IDebugEvent::const_pointer &event)
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const DebugEvent &event) {
+edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const IDebugEvent::const_pointer &event) {
 
 	// ok we just came in from a stop, we need to test some things,
 	// generally, we will want to check if it was a step, if it was, was it
@@ -1266,7 +1267,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const DebugEvent &event) {
 	// to step first in case were were on a breakpoint already...
 
 
-	if(event.is_kill()) {
+	if(event->is_kill()) {
 		QMessageBox::information(
 			this,
 			tr("Application Killed"),
@@ -1276,22 +1277,22 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const DebugEvent &event) {
 		return edb::DEBUG_STOP;
 	}
 
-	if(event.is_error()) {
-		const IDebugEvent::Message message = event.error_description();
+	if(event->is_error()) {
+		const IDebugEvent::Message message = event->error_description();
 		QMessageBox::information(this, message.caption, message.message);
 		return edb::DEBUG_STOP;
 	}
 	
-	if(event.is_trap()) {
+	if(event->is_trap()) {
 		return handle_trap();
 	}
 	
-	if(event.is_stop()) {
+	if(event->is_stop()) {
 		// user asked to pause the debugged process
 		return edb::DEBUG_STOP;
 	}
 
-	switch(event.code()) {
+	switch(event->code()) {
 #ifdef Q_OS_UNIX
 	case SIGCHLD:
 	case SIGPROF:
@@ -1300,37 +1301,37 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const DebugEvent &event) {
 	default:
 		QMessageBox::information(this, tr("Debug Event"),
 			tr(
-			"<p>The debugged application has received a debug event. <strong>%1</strong></p>"
+			"<p>The debugged application has received a debug event-> <strong>%1</strong></p>"
 			"<p>If you would like to pass this event to the application press Shift+[F7/F8/F9]</p>"
-			"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event.code()));
+			"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event->code()));
 
 		return edb::DEBUG_STOP;
 	}
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_event_terminated(const DebugEvent &event)
+// Name: handle_event_terminated(const IDebugEvent::const_pointer &event)
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS DebuggerMain::handle_event_terminated(const DebugEvent &event) {
+edb::EVENT_STATUS DebuggerMain::handle_event_terminated(const IDebugEvent::const_pointer &event) {
 	QMessageBox::information(
 		this,
 		tr("Application Terminated"),
-		tr("The debugged application was terminated with exit code %1.").arg(event.code()));
+		tr("The debugged application was terminated with exit code %1.").arg(event->code()));
 
 	on_action_Detach_triggered();
 	return edb::DEBUG_STOP;
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_event_exited(const DebugEvent &event)
+// Name: handle_event_exited(const IDebugEvent::const_pointer &event)
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS DebuggerMain::handle_event_exited(const DebugEvent &event) {
+edb::EVENT_STATUS DebuggerMain::handle_event_exited(const IDebugEvent::const_pointer &event) {
 	QMessageBox::information(
 		this,
 		tr("Application Exited"),
-		tr("The debugged application exited normally with exit code %1.").arg(event.code()));
+		tr("The debugged application exited normally with exit code %1.").arg(event->code()));
 
 	on_action_Detach_triggered();
 	return edb::DEBUG_STOP;
@@ -1359,15 +1360,15 @@ bool DebuggerMain::current_instruction_is_return() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_event(const DebugEvent &event)
+// Name: handle_event(const IDebugEvent::const_pointer &event)
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS DebuggerMain::handle_event(const DebugEvent &event) {
+edb::EVENT_STATUS DebuggerMain::handle_event(const IDebugEvent::const_pointer &event) {
 
 	Q_ASSERT(edb::v1::debugger_core);
 
 	edb::EVENT_STATUS status;
-	switch(event.reason()) {
+	switch(event->reason()) {
 	// either a syncronous event (STOPPED)
 	// or an asyncronous event (SIGNALED)
 	case IDebugEvent::EVENT_STOPPED:
@@ -1404,10 +1405,10 @@ edb::EVENT_STATUS DebuggerMain::handle_event(const DebugEvent &event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: debug_event_handler(const DebugEvent &event)
+// Name: debug_event_handler(const IDebugEvent::const_pointer &event)
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS DebuggerMain::debug_event_handler(const DebugEvent &event) {
+edb::EVENT_STATUS DebuggerMain::debug_event_handler(const IDebugEvent::const_pointer &event) {
 	IDebugEventHandler *const handler = edb::v1::debug_event_handler();
 	Q_ASSERT(handler);
 	return handler->handle_event(event);
@@ -1571,7 +1572,7 @@ void DebuggerMain::update_gui() {
 // Desc:
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::resume_status(bool pass_exception) {
-	if(pass_exception && last_event_.stopped() && !last_event_.is_trap()) {
+	if(pass_exception && last_event_->stopped() && !last_event_->is_trap()) {
 		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
 	} else {
 		return edb::DEBUG_CONTINUE;
@@ -1766,6 +1767,9 @@ void DebuggerMain::detach_from_process(DETACH_ACTION kill) {
 		if(kill == KILL_ON_DETACH) edb::v1::debugger_core->kill();
 		else                       edb::v1::debugger_core->detach();
 	}
+	
+	last_event_.clear();
+
 
 	cleanup_debugger();
 	update_menu_state(TERMINATED);
@@ -1790,7 +1794,7 @@ void DebuggerMain::set_initial_debugger_state() {
 	if(IAnalyzer *const analyzer = edb::v1::analyzer()) {
 		analyzer->invalidate_analysis();
 	}
-
+	
 	reenable_breakpoint_run_.clear();
 	reenable_breakpoint_step_.clear();
 	
@@ -2265,8 +2269,7 @@ void DebuggerMain::next_debug_event() {
 
 	Q_ASSERT(edb::v1::debugger_core);
 
-	DebugEvent e;
-	if(edb::v1::debugger_core->wait_debug_event(e, 10)) {
+	if(IDebugEvent::const_pointer e = edb::v1::debugger_core->wait_debug_event(10)) {
 	
 		last_event_ = e;
 

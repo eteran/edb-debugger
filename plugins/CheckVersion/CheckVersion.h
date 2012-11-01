@@ -49,9 +49,9 @@ private:
 	bool set_proxy(const QUrl &url);
 
 private:
-	QMenu * menu_;
-	QNetworkAccessManager * network_;
-	bool initial_check_;
+	QMenu                 *menu_;
+	QNetworkAccessManager *network_;
+	bool                   initial_check_;
 };
 
 #endif
