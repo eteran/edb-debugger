@@ -134,7 +134,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 					e->fault_address_ = 0;
 				}
 													
-				active_thread_       = e->tid;
+				active_thread_       = tid;
 				threads_[tid].status = status;
 				return IDebugEvent::const_pointer(e);
 			}
