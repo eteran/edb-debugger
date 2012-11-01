@@ -21,7 +21,6 @@ HEADERS += \
 	CommentServer.h \
 	Configuration.h \
 	DataViewInfo.h \
-	DebugEvent.h \
 	Debugger.h \
 	DebuggerMain.h \
 	DebuggerOps.h \
@@ -89,7 +88,6 @@ SOURCES += \
 	CommentServer.cpp \
 	Configuration.cpp \
 	DataViewInfo.cpp \
-	DebugEvent.cpp \
 	Debugger.cpp \
 	DebuggerMain.cpp \
 	DebuggerOS.cpp \

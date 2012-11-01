@@ -31,6 +31,7 @@ namespace internal {
 
 class EDB_EXPORT FunctionInfo {
 	friend void edb::internal::load_function_db();
+	
 public:
 	FunctionInfo(const FunctionInfo &other) : params_(other.params_) {
 	}
@@ -43,8 +44,8 @@ public:
 	FunctionInfo() {
 	}
 
-
-	~FunctionInfo() {}
+	~FunctionInfo() {
+	}
 
 public:
 	const QVector<QChar> &params() const { return params_; }

@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerCore.h"
-#include "DebugEvent.h"
 #include "Debugger.h"
 #include "PlatformEvent.h"
 #include "PlatformRegion.h"
@@ -370,10 +369,10 @@ long DebuggerCore::ptrace_get_event_message(edb::tid_t tid, unsigned long *messa
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_event(DebugEvent &event, edb::tid_t tid, int status)
+// Name: handle_event(edb::tid_t tid, int status)
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
+IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status) {
 
 	// note that we have waited on this thread
 	waited_threads_.insert(tid);
@@ -387,7 +386,9 @@ bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
 		// so we report it to the user.
 		// if this wasn't, then we should silently
 		// procceed.
-		return threads_.empty();
+		if(!threads_.empty()) {
+			return IDebugEvent::const_pointer();
+		}
 	}
 
 	// was it a thread create event?
@@ -414,18 +415,19 @@ bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
 		}
 
 		ptrace_continue(tid, 0);
-		return false;
+		return IDebugEvent::const_pointer();
 	}
-
+	
 	// normal event
-	if(PlatformEvent *const e = static_cast<PlatformEvent *>(event.impl_)) {
+	
+	
+	PlatformEvent *const e = new PlatformEvent;
 
-		e->pid_    = pid();
-		e->tid_    = tid;
-		e->status_ = status;
-		if(ptrace_getsiginfo(tid, &e->siginfo_) == -1) {
-			// TODO: handle no info?
-		}
+	e->pid_    = pid();
+	e->tid_    = tid;
+	e->status_ = status;
+	if(ptrace_getsiginfo(tid, &e->siginfo_) == -1) {
+		// TODO: handle no info?
 	}
 
 	active_thread_       = tid;
@@ -433,8 +435,7 @@ bool DebuggerCore::handle_event(DebugEvent &event, edb::tid_t tid, int status) {
 	threads_[tid].status = status;
 
 	stop_threads();
-
-	return true;
+	return IDebugEvent::const_pointer(e);
 }
 
 //------------------------------------------------------------------------------
@@ -462,11 +463,11 @@ void DebuggerCore::stop_threads() {
 }
 
 //------------------------------------------------------------------------------
-// Name: wait_debug_event(DebugEvent &event, int msecs)
+// Name: wait_debug_event(int msecs)
 // Desc: waits for a debug event, msecs is a timeout
 //      it will return false if an error or timeout occurs
 //------------------------------------------------------------------------------
-bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
+IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 
 	if(attached()) {
 		if(!native::wait_for_sigchld(msecs)) {
@@ -474,12 +475,12 @@ bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
 				int status;
 				const edb::tid_t tid = native::waitpid(thread, &status, __WALL | WNOHANG);
 				if(tid > 0) {
-					return handle_event(event, tid, status);
+					return handle_event(tid, status);
 				}
 			}
 		}
 	}
-	return false;
+	return IDebugEvent::const_pointer();
 }
 
 //------------------------------------------------------------------------------
@@ -825,14 +826,6 @@ void DebuggerCore::reset() {
 	active_thread_ = 0;
 	pid_           = 0;
 	event_thread_  = 0;
-}
-
-//------------------------------------------------------------------------------
-// Name: create_event()
-// Desc:
-//------------------------------------------------------------------------------
-IDebugEvent *DebuggerCore::create_event() const {
-	return new PlatformEvent;
 }
 
 //------------------------------------------------------------------------------

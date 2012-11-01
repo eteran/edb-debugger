@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "HardwareBreakpoints.h"
 #include "Debugger.h"
-#include "DebugEvent.h"
 #include "IDebuggerCore.h"
 #include "DialogHWBreakpoints.h"
 #include "State.h"
@@ -197,24 +196,22 @@ void HardwareBreakpoints::show_menu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_event(const DebugEvent &event)
+// Name: handle_event(const IDebugEvent::const_pointer &event)
 // Desc: this hooks the debug event handler so we can make the breakpoints
 //       able to be resumed
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS HardwareBreakpoints::handle_event(const DebugEvent &event) {
+edb::EVENT_STATUS HardwareBreakpoints::handle_event(const IDebugEvent::const_pointer &event) {
 
-	if(event.stopped()) {
-		if(event.is_trap()) {
-			// check DR6 to see if it was a HW BP event
-			// if so, set the resume flag
-			State state;
-			edb::v1::debugger_core->get_state(state);
-			if((state.debug_register(6) & 0x0f) != 0x00) {
-				state.set_flags(state.flags() | (1 << 16));
-				edb::v1::debugger_core->set_state(state);
-			}
-
+	if(event->stopped() && event->is_trap()) {
+		// check DR6 to see if it was a HW BP event
+		// if so, set the resume flag
+		State state;
+		edb::v1::debugger_core->get_state(state);
+		if((state.debug_register(6) & 0x0f) != 0x00) {
+			state.set_flags(state.flags() | (1 << 16));
+			edb::v1::debugger_core->set_state(state);
 		}
+
 	}
 
 	// pass the event down the stack

@@ -37,7 +37,7 @@ public:
 public:
 	virtual edb::address_t page_size() const;
 	virtual bool has_extension(quint64 ext) const;
-	virtual bool wait_debug_event(DebugEvent &event, int msecs);
+	virtual IDebugEvent::const_pointer wait_debug_event(int msecs);
 	virtual bool attach(edb::pid_t pid);
 	virtual void detach();
 	virtual void kill();
@@ -60,7 +60,6 @@ public:
 	virtual edb::address_t application_data_address() const;
 
 public:
-	virtual IDebugEvent *create_event() const;
 	virtual IState *create_state() const;
 	virtual IRegion *create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const;
 
@@ -89,7 +88,7 @@ private:
 private:
 	void reset();
 	void stop_threads();
-	bool handle_event(DebugEvent &event, edb::tid_t tid, int status);
+	IDebugEvent::const_pointer handle_event(edb::tid_t tid, int status);
 	bool attach_thread(edb::tid_t tid);
 
 private:

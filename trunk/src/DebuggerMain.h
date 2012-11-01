@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IDebugEventHandler.h"
 #include "DebuggerUI.h"
-#include "DebugEvent.h"
 #include "ScopedPointer.h"
 #include "QHexView"
 #include <QDragEnterEvent>
@@ -30,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class IBinary;
 class IBreakpoint;
 class IPlugin;
+class IDebugEvent;
 class DialogArguments;
 class RecentFileManager;
 
@@ -147,7 +147,7 @@ private Q_SLOTS:
 	void tab_context_menu(int index, const QPoint &pos);
 
 public:
-	virtual edb::EVENT_STATUS handle_event(const DebugEvent &event);
+	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event);
 
 private:
 	enum DEBUG_MODE {
@@ -175,10 +175,10 @@ private:
 	bool breakpoint_condition_true(const QString &condition);
 	bool common_open(const QString &s, const QList<QByteArray> &args);
 	bool current_instruction_is_return() const;
-	edb::EVENT_STATUS debug_event_handler(const DebugEvent &event);
-	edb::EVENT_STATUS handle_event_exited(const DebugEvent &event);
-	edb::EVENT_STATUS handle_event_terminated(const DebugEvent &event);
-	edb::EVENT_STATUS handle_event_stopped(const DebugEvent &event);
+	edb::EVENT_STATUS debug_event_handler(const IDebugEvent::const_pointer &event);
+	edb::EVENT_STATUS handle_event_exited(const IDebugEvent::const_pointer &event);
+	edb::EVENT_STATUS handle_event_terminated(const IDebugEvent::const_pointer &event);
+	edb::EVENT_STATUS handle_event_stopped(const IDebugEvent::const_pointer &event);
 	edb::EVENT_STATUS handle_trap();
 	edb::EVENT_STATUS resume_status(bool pass_exception);
 	void apply_default_fonts();
@@ -241,7 +241,7 @@ private:
 	QString                                          working_directory_;
 	QString                                          program_executable_;
 	bool                                             stack_view_locked_;
-	DebugEvent                                       last_event_;
+	IDebugEvent::const_pointer                       last_event_;
 #ifdef Q_OS_UNIX
 	edb::address_t                                   debug_pointer_;
 #endif

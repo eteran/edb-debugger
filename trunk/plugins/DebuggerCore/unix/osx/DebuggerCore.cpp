@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerCore.h"
-#include "DebugEvent.h"
 #include "PlatformEvent.h"
 #include "PlatformRegion.h"
 #include "PlatformState.h"
@@ -85,11 +84,11 @@ edb::address_t DebuggerCore::page_size() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: wait_debug_event(DebugEvent &event, bool &ok, int secs)
+// Name: wait_debug_event(int secs)
 // Desc: waits for a debug event, secs is a timeout (but is not yet respected)
 //       ok will be set to false if the timeout expires
 //------------------------------------------------------------------------------
-bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
+IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 	if(attached()) {
 		int status;
 		bool timeout;
@@ -102,15 +101,15 @@ bool DebuggerCore::wait_debug_event(DebugEvent &event, int msecs) {
 					e->pid    = pid();
 					e->tid    = tid;
 					e->status = status;					
-				}
 				
-				active_thread_       = event.thread();
-				threads_[tid].status = status;
-				return true;
+					active_thread_       = event.thread();
+					threads_[tid].status = status;
+					return IDebugEvent::const_pointer(e);
+				}
 			}
 		}
 	}
-	return false;
+	return IDebugEvent::const_pointer();
 }
 
 //------------------------------------------------------------------------------
@@ -524,14 +523,6 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 void DebuggerCore::set_active_thread(edb::tid_t tid) {
 	Q_ASSERT(threads_.contains(tid));
 	active_thread_ = tid;
-}
-
-//------------------------------------------------------------------------------
-// Name: create_event()
-// Desc:
-//------------------------------------------------------------------------------
-IDebugEvent *DebuggerCore::create_event() const {
-	return new PlatformEvent;
 }
 
 //------------------------------------------------------------------------------

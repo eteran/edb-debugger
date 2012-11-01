@@ -37,7 +37,7 @@ public:
 
 public:
 	virtual QMenu *menu(QWidget *parent = 0);
-	virtual edb::EVENT_STATUS handle_event(const DebugEvent &event);
+	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event);
 
 public Q_SLOTS:
 	void show_menu();
