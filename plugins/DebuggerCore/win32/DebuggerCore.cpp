@@ -205,10 +205,9 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 			
 			if(propagate) {
 				// normal event
-				if(PlatformEvent *const e = static_cast<PlatformEvent *>(event.impl_)) {
-					e->event = de;
-					return IDebugEvent::const_pointer(e);
-				}
+				PlatformEvent *const e = new PlatformEvent;
+				e->event = de;
+				return IDebugEvent::const_pointer(e);
 			}
 			resume(edb::DEBUG_EXCEPTION_NOT_HANDLED);
 		}
@@ -520,14 +519,6 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 	FreeEnvironmentStringsW(env_block);
 
 	return ok;
-}
-
-//------------------------------------------------------------------------------
-// Name: create_event()
-// Desc:
-//------------------------------------------------------------------------------
-IDebugEvent *DebuggerCore::create_event() const {
-	return new PlatformEvent;
 }
 
 //------------------------------------------------------------------------------
