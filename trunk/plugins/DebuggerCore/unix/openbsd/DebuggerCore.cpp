@@ -198,36 +198,36 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 			if(tid > 0) {
 
 				// normal event
-				if(PlatformEvent *const e = static_cast<PlatformEvent *>(event.impl_)) {
-					e->pid    = pid();
-					e->tid    = tid;
-					e->status = status;
-					
-					char errbuf[_POSIX2_LINE_MAX];
-					if(kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
-						int rc;
-						struct kinfo_proc *const kiproc = kvm_getprocs(kd, KERN_PROC_PID, pid(), sizeof(struct kinfo_proc), &rc);
+				PlatformEvent *const e = new PlatformEvent;
 
-						struct proc proc;
-						kvm_read(kd, kiproc->p_paddr, &proc, sizeof(proc));
+				e->pid    = pid();
+				e->tid    = tid;
+				e->status = status;
 
-						e->fault_code_    = proc.p_sicode;
-						e->fault_address_ = proc.p_sigval.sival_ptr;
+				char errbuf[_POSIX2_LINE_MAX];
+				if(kvm_t *const kd = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, errbuf)) {
+					int rc;
+					struct kinfo_proc *const kiproc = kvm_getprocs(kd, KERN_PROC_PID, pid(), sizeof(struct kinfo_proc), &rc);
 
-						//printf("ps_sig   : %d\n", sigacts.ps_sig);
-						//printf("ps_type  : %d\n", sigacts.ps_type);
+					struct proc proc;
+					kvm_read(kd, kiproc->p_paddr, &proc, sizeof(proc));
 
-						kvm_close(kd);
-					} else {
-						e->fault_code_    = 0;
-						e->fault_address_ = 0;
-					}
-					
-				
-					active_thread_       = event.thread();
-					threads_[tid].status = status;
-					return IDebugEvent::const_pointer(e);
+					e->fault_code_    = proc.p_sicode;
+					e->fault_address_ = proc.p_sigval.sival_ptr;
+
+					//printf("ps_sig   : %d\n", sigacts.ps_sig);
+					//printf("ps_type  : %d\n", sigacts.ps_type);
+
+					kvm_close(kd);
+				} else {
+					e->fault_code_    = 0;
+					e->fault_address_ = 0;
 				}
+
+
+				active_thread_       = tid;
+				threads_[tid].status = status;
+				return IDebugEvent::const_pointer(e);
 			}
 		}
 	}
