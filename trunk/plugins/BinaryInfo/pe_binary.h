@@ -20,7 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PE_BINARY_20121007_H_
 
 #include <stdint.h>
-
+#ifdef WIN32
+#include <Windows.h>
+#else
 typedef uint8_t  BYTE;
 typedef uint8_t  BOOLEAN;
 typedef int16_t  SHORT;
@@ -33,11 +35,12 @@ typedef uint32_t ULONG;
 typedef uint32_t UINT;
 typedef uint64_t ULONGLONG;
 typedef int64_t  LONGLONG;
+#define IMAGE_NUMBEROF_DIRECTORY_ENTRIES 16
+#endif
 
+namespace edb {
 
-#define IMAGE_NUMBEROF_DIRECTORY_ENTRIES    16
-
-typedef struct _IMAGE_DOS_HEADER {
+struct IMAGE_DOS_HEADER {
 	WORD e_magic; // "MZ"
 	WORD e_cblp;
 	WORD e_cp;
@@ -57,14 +60,14 @@ typedef struct _IMAGE_DOS_HEADER {
 	WORD e_oeminfo;
 	WORD e_res2[10];
 	LONG e_lfanew;
-} IMAGE_DOS_HEADER, *PIMAGE_DOS_HEADER;
+};
 
-typedef struct _IMAGE_DATA_DIRECTORY {
+struct IMAGE_DATA_DIRECTORY {
 	DWORD VirtualAddress;
 	DWORD Size;
-} IMAGE_DATA_DIRECTORY, *PIMAGE_DATA_DIRECTORY;
+};
 
-typedef struct _IMAGE_OPTIONAL_HEADER64 {
+struct IMAGE_OPTIONAL_HEADER64 {
 	WORD        Magic;
 	BYTE        MajorLinkerVersion;
 	BYTE        MinorLinkerVersion;
@@ -95,9 +98,9 @@ typedef struct _IMAGE_OPTIONAL_HEADER64 {
 	DWORD       LoaderFlags;
 	DWORD       NumberOfRvaAndSizes;
 	IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
-} IMAGE_OPTIONAL_HEADER64, *PIMAGE_OPTIONAL_HEADER64;
+};
 
-typedef struct _IMAGE_OPTIONAL_HEADER32 {
+struct IMAGE_OPTIONAL_HEADER32 {
 	WORD                 Magic;
 	BYTE                 MajorLinkerVersion;
 	BYTE                 MinorLinkerVersion;
@@ -129,9 +132,9 @@ typedef struct _IMAGE_OPTIONAL_HEADER32 {
 	DWORD                LoaderFlags;
 	DWORD                NumberOfRvaAndSizes;
 	IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
-} IMAGE_OPTIONAL_HEADER32, *PIMAGE_OPTIONAL_HEADER32;
+};
 
-typedef struct _IMAGE_FILE_HEADER {
+struct IMAGE_FILE_HEADER {
 	WORD  Machine;
 	WORD  NumberOfSections;
 	DWORD TimeDateStamp;
@@ -139,17 +142,20 @@ typedef struct _IMAGE_FILE_HEADER {
 	DWORD NumberOfSymbols;
 	WORD  SizeOfOptionalHeader;
 	WORD  Characteristics;
-} IMAGE_FILE_HEADER, *PIMAGE_FILE_HEADER;
+};
 
-typedef struct _IMAGE_NT_HEADERS32 {
+struct IMAGE_NT_HEADERS32 {
 	DWORD                 Signature;
 	IMAGE_FILE_HEADER     FileHeader;
 	IMAGE_OPTIONAL_HEADER32 OptionalHeader;
-} IMAGE_NT_HEADERS32, *PIMAGE_NT_HEADERS32;
+};
 
-typedef struct _IMAGE_NT_HEADERS64 {
+struct IMAGE_NT_HEADERS64 {
 	DWORD Signature;
 	IMAGE_FILE_HEADER FileHeader;
 	IMAGE_OPTIONAL_HEADER64 OptionalHeader;
-} IMAGE_NT_HEADERS64, *PIMAGE_NT_HEADERS64;
+};
+
+}
+
 #endif
