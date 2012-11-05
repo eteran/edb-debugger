@@ -229,7 +229,7 @@ unix {
 		QMAKE_CXXFLAGS_DEBUG += -g3
 	}
 
-	linux-g++*:		QMAKE_CXXFLAGS += -fvisibility=hidden -Wstrict-null-sentinel
+	linux-g++*:		QMAKE_CXXFLAGS += -Wstrict-null-sentinel
 
 	linux-g++*:		QMAKE_LFLAGS += -rdynamic
 	openbsd-g++*:	QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic
