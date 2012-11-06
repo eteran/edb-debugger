@@ -152,16 +152,17 @@ bool native::wait_for_sigchld(int msecs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: waitpid_timeout(pid_t pid, int *status, int options, int msecs, bool &timeout)
+// Name: waitpid_timeout(pid_t pid, int *status, int options, int msecs, bool *timeout)
 // Desc:
 //------------------------------------------------------------------------------
-pid_t native::waitpid_timeout(pid_t pid, int *status, int options, int msecs, bool &timeout) {
+pid_t native::waitpid_timeout(pid_t pid, int *status, int options, int msecs, bool *timeout) {
 
 	Q_ASSERT(pid > 0);
+	Q_ASSERT(timeout);
 
-	timeout = wait_for_sigchld(msecs);
+	*timeout = wait_for_sigchld(msecs);
 
-	if(!timeout) {
+	if(!*timeout) {
 		return native::waitpid(pid, status, options | WNOHANG);
 	}
 
@@ -198,20 +199,20 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 
 
 //------------------------------------------------------------------------------
-// Name: write_byte(edb::address_t address, quint8 value, bool &ok)
+// Name: write_byte(edb::address_t address, quint8 value, bool *ok)
 // Desc: writes a single byte at a given address
 // Note: assumes the this will not trample any breakpoints, must be handled
 //       in calling code!
 //------------------------------------------------------------------------------
-void DebuggerCoreUNIX::write_byte(edb::address_t address, quint8 value, bool &ok) {
+void DebuggerCoreUNIX::write_byte(edb::address_t address, quint8 value, bool *ok) {
 	write_byte_base(address, value, ok);
 }
 
 //------------------------------------------------------------------------------
-// Name: read_byte(edb::address_t address, bool &ok)
+// Name: read_byte(edb::address_t address, bool *ok)
 // Desc: reads a single bytes at a given address
 //------------------------------------------------------------------------------
-quint8 DebuggerCoreUNIX::read_byte(edb::address_t address, bool &ok) {
+quint8 DebuggerCoreUNIX::read_byte(edb::address_t address, bool *ok) {
 
 	// TODO: handle if breakponts have a size more than 1!
 	const quint8 ret = read_byte_base(address, ok);
@@ -226,13 +227,15 @@ quint8 DebuggerCoreUNIX::read_byte(edb::address_t address, bool &ok) {
 }
 
 //------------------------------------------------------------------------------
-// Name: write_byte_base(edb::address_t address, quint8 value, bool &ok)
+// Name: write_byte_base(edb::address_t address, quint8 value, bool *ok)
 // Desc: the base implementation of writing a byte
 //------------------------------------------------------------------------------
-void DebuggerCoreUNIX::write_byte_base(edb::address_t address, quint8 value, bool &ok) {
+void DebuggerCoreUNIX::write_byte_base(edb::address_t address, quint8 value, bool *ok) {
 	// TODO: assert that we are paused
 
-	ok = false;
+	Q_ASSERT(ok);
+
+	*ok = false;
 	if(attached()) {
 		long v;
 		long mask;
@@ -263,20 +266,22 @@ void DebuggerCoreUNIX::write_byte_base(edb::address_t address, quint8 value, boo
 #endif
 
 		v |= (read_data(address, ok) & mask);
-		if(ok) {
-			ok = write_data(address, v);
+		if(*ok) {
+			*ok = write_data(address, v);
 		}
 	}
 }
 
 //------------------------------------------------------------------------------
-// Name: read_byte_base(edb::address_t address, bool &ok)
+// Name: read_byte_base(edb::address_t address, bool *ok)
 // Desc: the base implementation of reading a byte
 //------------------------------------------------------------------------------
-quint8 DebuggerCoreUNIX::read_byte_base(edb::address_t address, bool &ok) {
+quint8 DebuggerCoreUNIX::read_byte_base(edb::address_t address, bool *ok) {
 	// TODO: assert that we are paused
 
-	ok = false;
+	Q_ASSERT(ok);
+
+	*ok = false;
 	errno = -1;
 	if(attached()) {
 		// if this spot is unreadable, then just return 0xff, otherwise
@@ -294,7 +299,7 @@ quint8 DebuggerCoreUNIX::read_byte_base(edb::address_t address, bool &ok) {
 
 		long value = read_data(address, ok);
 
-		if(ok) {
+		if(*ok) {
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
 			if(a < EDB_WORDSIZE) {
 				value >>= CHAR_BIT * (EDB_WORDSIZE - a); // LE
@@ -337,7 +342,7 @@ bool DebuggerCoreUNIX::read_pages(edb::address_t address, void *buf, std::size_t
 		for(std::size_t c = 0; c < count; ++c) {
 			for(edb::address_t i = 0; i < page_size(); i += EDB_WORDSIZE) {
 				bool ok;
-				const long v = read_data(address, ok);
+				const long v = read_data(address, &ok);
 				if(!ok) {
 					return false;
 				}
@@ -376,13 +381,13 @@ bool DebuggerCoreUNIX::read_bytes(edb::address_t address, void *buf, std::size_t
 	if(len != 0) {
 		bool ok;
 		quint8 *p = reinterpret_cast<quint8 *>(buf);
-		quint8 ch = read_byte(address, ok);
+		quint8 ch = read_byte(address, &ok);
 
 		while(ok && len) {
 			*p++ = ch;
 			if(--len) {
 				++address;
-				ch = read_byte(address, ok);
+				ch = read_byte(address, &ok);
 			}
 		}
 
@@ -409,7 +414,7 @@ bool DebuggerCoreUNIX::write_bytes(edb::address_t address, const void *buf, std:
 		const quint8 *p = reinterpret_cast<const quint8 *>(buf);
 
 		while(len--) {
-			write_byte(address++, *p++, ok);
+			write_byte(address++, *p++, &ok);
 			if(!ok) {
 				break;
 			}

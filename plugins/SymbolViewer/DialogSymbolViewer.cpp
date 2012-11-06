@@ -65,7 +65,7 @@ void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
 
 	bool ok;
 	const QString s = index.data().toString();
-	const edb::address_t addr = edb::v1::string_to_address(s, ok);
+	const edb::address_t addr = edb::v1::string_to_address(s, &ok);
 
 	if(ok) {
 		const Symbol::pointer sym = edb::v1::symbol_manager().find(addr);
@@ -89,7 +89,7 @@ void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &po
 
 		bool ok;
 		const QString s = index.data().toString();
-		const edb::address_t addr = edb::v1::string_to_address(s, ok);
+		const edb::address_t addr = edb::v1::string_to_address(s, &ok);
 
 		QMenu menu;
 		QAction *const action1 = menu.addAction(tr("&Follow In Disassembly"), this, SLOT(mnuFollowInCPU()));

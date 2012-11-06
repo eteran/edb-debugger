@@ -58,10 +58,13 @@ QString size_to_string(size_t n) {
 
 #if defined(Q_OS_LINUX)
 //------------------------------------------------------------------------------
-// Name: tcp_socket_prcoessor(QString &symlink, int sock, const QStringList &lst)
+// Name: tcp_socket_prcoessor(QString *symlink, int sock, const QStringList &lst)
 // Desc:
 //------------------------------------------------------------------------------
-bool tcp_socket_prcoessor(QString &symlink, int sock, const QStringList &lst) {
+bool tcp_socket_prcoessor(QString *symlink, int sock, const QStringList &lst) {
+	
+	Q_ASSERT(symlink);
+	
 	if(lst.size() >= 13) {
 
 		bool ok;
@@ -79,7 +82,7 @@ bool tcp_socket_prcoessor(QString &symlink, int sock, const QStringList &lst) {
 							const int inode = lst[13].toUInt(&ok, 10);
 							if(ok) {
 								if(inode == sock) {
-									symlink = QString("TCP: %1:%2 -> %3:%4")
+									*symlink = QString("TCP: %1:%2 -> %3:%4")
 										.arg(QHostAddress(local_address).toString())
 										.arg(local_port)
 										.arg(QHostAddress(remote_address).toString())
@@ -97,10 +100,13 @@ bool tcp_socket_prcoessor(QString &symlink, int sock, const QStringList &lst) {
 }
 
 //------------------------------------------------------------------------------
-// Name: udp_socket_processor(QString &symlink, int sock, const QStringList &lst)
+// Name: udp_socket_processor(QString *symlink, int sock, const QStringList &lst)
 // Desc:
 //------------------------------------------------------------------------------
-bool udp_socket_processor(QString &symlink, int sock, const QStringList &lst) {
+bool udp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
+	
+	Q_ASSERT(symlink);
+	
 	if(lst.size() >= 13) {
 
 		bool ok;
@@ -118,7 +124,7 @@ bool udp_socket_processor(QString &symlink, int sock, const QStringList &lst) {
 							const int inode = lst[13].toUInt(&ok, 10);
 							if(ok) {
 								if(inode == sock) {
-									symlink = QString("UDP: %1:%2 -> %3:%4")
+									*symlink = QString("UDP: %1:%2 -> %3:%4")
 										.arg(QHostAddress(local_address).toString())
 										.arg(local_port)
 										.arg(QHostAddress(remote_address).toString())
@@ -136,16 +142,19 @@ bool udp_socket_processor(QString &symlink, int sock, const QStringList &lst) {
 }
 
 //------------------------------------------------------------------------------
-// Name: unix_socket_processor(QString &symlink, int sock, const QStringList &lst)
+// Name: unix_socket_processor(QString *symlink, int sock, const QStringList &lst)
 // Desc:
 //------------------------------------------------------------------------------
-bool unix_socket_processor(QString &symlink, int sock, const QStringList &lst) {
+bool unix_socket_processor(QString *symlink, int sock, const QStringList &lst) {
+
+	Q_ASSERT(symlink);
+
 	if(lst.size() >= 6) {
 		bool ok;
 		const int inode = lst[6].toUInt(&ok, 10);
 		if(ok) {
 			if(inode == sock) {
-				symlink = QString("UNIX [%1]").arg(lst[0]);
+				*symlink = QString("UNIX [%1]").arg(lst[0]);
 				return true;
 			}
 		}
@@ -154,11 +163,11 @@ bool unix_socket_processor(QString &symlink, int sock, const QStringList &lst) {
 }
 
 //------------------------------------------------------------------------------
-// Name: process_socket_file(const QString &filename, QString &symlink, int sock, F fp)
+// Name: process_socket_file(const QString &filename, QString *symlink, int sock, F fp)
 // Desc:
 //------------------------------------------------------------------------------
 template <class F>
-QString process_socket_file(const QString &filename, QString &symlink, int sock, F fp) {
+QString process_socket_file(const QString &filename, QString *symlink, int sock, F fp) {
 	QFile net(filename);
 	net.open(QIODevice::ReadOnly | QIODevice::Text);
 	if(net.isOpen()) {
@@ -184,37 +193,46 @@ QString process_socket_file(const QString &filename, QString &symlink, int sock,
 			line = in.readLine();
 		}
 	}
-	return symlink;
+	return *symlink;
 }
 
 //------------------------------------------------------------------------------
-// Name: process_socket_tcp(QString &symlink)
+// Name: process_socket_tcp(QString *symlink)
 // Desc:
 //------------------------------------------------------------------------------
-QString process_socket_tcp(QString &symlink) {
-	const QString socket_info(symlink.mid(symlink.indexOf("socket:[")));
+QString process_socket_tcp(QString *symlink) {
+
+	Q_ASSERT(symlink);
+
+	const QString socket_info(symlink->mid(symlink->indexOf("socket:[")));
 	const int socket_number = socket_info.mid(8).remove("]").toUInt();
 
 	return process_socket_file("/proc/net/tcp", symlink, socket_number, tcp_socket_prcoessor);
 }
 
 //------------------------------------------------------------------------------
-// Name: process_socket_unix(QString &symlink)
+// Name: process_socket_unix(QString *symlink)
 // Desc:
 //------------------------------------------------------------------------------
-QString process_socket_unix(QString &symlink) {
-	const QString socket_info(symlink.mid(symlink.indexOf("socket:[")));
+QString process_socket_unix(QString *symlink) {
+
+	Q_ASSERT(symlink);
+
+	const QString socket_info(symlink->mid(symlink->indexOf("socket:[")));
 	const int socket_number = socket_info.mid(8).remove("]").toUInt();
 
 	return process_socket_file("/proc/net/unix", symlink, socket_number, unix_socket_processor);
 }
 
 //------------------------------------------------------------------------------
-// Name: process_socket_udp(QString &symlink)
+// Name: process_socket_udp(QString *symlink)
 // Desc:
 //------------------------------------------------------------------------------
-QString process_socket_udp(QString &symlink) {
-	const QString socket_info(symlink.mid(symlink.indexOf("socket:[")));
+QString process_socket_udp(QString *symlink) {
+
+	Q_ASSERT(symlink);
+
+	const QString socket_info(symlink->mid(symlink->indexOf("socket:[")));
 	const int socket_number = socket_info.mid(8).remove("]").toUInt();
 
 	return process_socket_file("/proc/net/udp", symlink, socket_number, udp_socket_processor);
@@ -408,9 +426,9 @@ void DialogProcessProperties::updateHandles() {
 				const QString type(file_type(symlink));
 
 				if(type == tr("Socket")) {
-					symlink = process_socket_tcp(symlink);
-					symlink = process_socket_udp(symlink);
-					symlink = process_socket_unix(symlink);
+					symlink = process_socket_tcp(&symlink);
+					symlink = process_socket_udp(&symlink);
+					symlink = process_socket_unix(&symlink);
 				}
 
 				if(type == tr("Pipe")) {

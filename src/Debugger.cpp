@@ -76,13 +76,17 @@ namespace {
 		return qobject_cast<DebuggerMain *>(edb::v1::debugger_ui);
 	}
 
-	bool function_symbol_base(edb::address_t address, QString &value, int &offset) {
+	bool function_symbol_base(edb::address_t address, QString *value, int *offset) {
+	
+		Q_ASSERT(value);
+		Q_ASSERT(offset);
+	
 		bool ret = false;
-		offset = 0;
+		*offset = 0;
 		const Symbol::pointer s = edb::v1::symbol_manager().find_near_symbol(address);
 		if(s) {
-			value = s->name;
-			offset = address - s->address;
+			*value = s->name;
+			*offset = address - s->address;
 			ret = true;
 		}
 		return ret;
@@ -344,7 +348,7 @@ void edb::v1::create_breakpoint(edb::address_t address) {
 
 	MemoryRegion region;
 	memory_regions().sync();
-	if(memory_regions().find_region(address, region)) {
+	if(memory_regions().find_region(address, &region)) {
 		int ret = QMessageBox::Yes;
 
 		if(!region.executable() && config().warn_on_no_exec_bp) {
@@ -360,7 +364,7 @@ void edb::v1::create_breakpoint(edb::address_t address) {
 			quint8 buffer[edb::Instruction::MAX_SIZE + 1];
 			int size = sizeof(buffer);
 
-			if(edb::v1::get_instruction_bytes(address, buffer, size)) {
+			if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
 				edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
 				if(!insn.valid()) {
 					ret = QMessageBox::question(
@@ -439,17 +443,20 @@ void edb::v1::remove_breakpoint(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: eval_expression(const QString &expression, edb::address_t &value
+// Name: eval_expression(const QString &expression, edb::address_t *value
 // Desc:
 //------------------------------------------------------------------------------
-bool edb::v1::eval_expression(const QString &expression, edb::address_t &value) {
+bool edb::v1::eval_expression(const QString &expression, edb::address_t *value) {
+	
+	Q_ASSERT(value);
+	
 	Expression<edb::address_t> expr(expression, get_variable, get_value);
 	ExpressionError err;
 
 	bool ok;
-	const edb::address_t address = expr.evaluate_expression(ok, err);
+	const edb::address_t address = expr.evaluate_expression(&ok, &err);
 	if(ok) {
-		value = address;
+		*value = address;
 		return true;
 	} else {
 		QMessageBox::information(debugger_ui, QT_TRANSLATE_NOOP("edb", "Error In Expression!"), err.what());
@@ -458,10 +465,10 @@ bool edb::v1::eval_expression(const QString &expression, edb::address_t &value) 
 }
 
 //------------------------------------------------------------------------------
-// Name: get_expression_from_user(const QString &title, const QString prompt, edb::address_t &value)
+// Name: get_expression_from_user(const QString &title, const QString prompt, edb::address_t *value)
 // Desc:
 //------------------------------------------------------------------------------
-bool edb::v1::get_expression_from_user(const QString &title, const QString prompt, edb::address_t &value) {
+bool edb::v1::get_expression_from_user(const QString &title, const QString prompt, edb::address_t *value) {
 	bool ok;
     const QString text = QInputDialog::getText(debugger_ui, title, prompt, QLineEdit::Normal, QString(), &ok);
 
@@ -653,10 +660,13 @@ bool edb::v1::get_utf16_string_at_address(edb::address_t address, QString &s, in
 // Desc:
 //------------------------------------------------------------------------------
 QString edb::v1::find_function_symbol(edb::address_t address, const QString &default_value, int *offset) {
+	
+	Q_ASSERT(offset);
+	
 	QString symname(default_value);
 	int off;
 
-	if(function_symbol_base(address, symname, off)) {
+	if(function_symbol_base(address, &symname, &off)) {
 		symname = QString("%1+%2").arg(symname).arg(off, 0, 16);
 		if(offset) {
 			*offset = off;
@@ -683,19 +693,19 @@ QString edb::v1::find_function_symbol(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_variable(QString &s, bool &ok, ExpressionError &err)
+// Name: get_variable(QString &s, bool *ok, ExpressionError &err)
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t edb::v1::get_variable(const QString &s, bool &ok, ExpressionError &err) {
+edb::address_t edb::v1::get_variable(const QString &s, bool *ok, ExpressionError &err) {
 
 	Q_ASSERT(debugger_core);
-
+	Q_ASSERT(ok);
 
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 	const Register reg = state.value(s);
-	ok = reg;
-	if(!ok) {
+	*ok = reg;
+	if(!*ok) {
 		err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
 	}
 
@@ -709,16 +719,17 @@ edb::address_t edb::v1::get_variable(const QString &s, bool &ok, ExpressionError
 }
 
 //------------------------------------------------------------------------------
-// Name: get_value(edb::address_t address, bool &ok, ExpressionError &err)
+// Name: get_value(edb::address_t address, bool *ok, ExpressionError &err)
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t edb::v1::get_value(edb::address_t address, bool &ok, ExpressionError &err) {
+edb::address_t edb::v1::get_value(edb::address_t address, bool *ok, ExpressionError &err) {
 
 	Q_ASSERT(debugger_core);
+	Q_ASSERT(ok);
 
 	edb::address_t ret = 0;
 
-	ok = debugger_core->read_bytes(address, &ret, sizeof(ret));
+	*ok = debugger_core->read_bytes(address, &ret, sizeof(ret));
 
 	if(!ok) {
 		err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
@@ -728,18 +739,19 @@ edb::address_t edb::v1::get_value(edb::address_t address, bool &ok, ExpressionEr
 }
 
 //------------------------------------------------------------------------------
-// Name: get_instruction_bytes(edb::address_t address, quint8 *buf, int &size)
+// Name: get_instruction_bytes(edb::address_t address, quint8 *buf, int *size)
 // Desc: attempts to read at most size bytes, but will retry using smaller sizes as needed
 //------------------------------------------------------------------------------
-bool edb::v1::get_instruction_bytes(edb::address_t address, quint8 *buf, int &size) {
+bool edb::v1::get_instruction_bytes(edb::address_t address, quint8 *buf, int *size) {
 
 	Q_ASSERT(debugger_core);
-	Q_ASSERT(size >= 0);
+	Q_ASSERT(size);
+	Q_ASSERT(*size >= 0);
 
-	bool ok = debugger_core->read_bytes(address, buf, size);
+	bool ok = debugger_core->read_bytes(address, buf, *size);
 
-	while(!ok && size) {
-		ok = debugger_core->read_bytes(address, buf, --size);
+	while(!ok && *size) {
+		ok = debugger_core->read_bytes(address, buf, *--size);
 	}
 
 	return ok;
@@ -776,7 +788,7 @@ edb::address_t edb::v1::locate_main_function() {
 		const edb::address_t address = edb::v1::debugger_core->application_code_address();
 		memory_regions().sync();
 		MemoryRegion region;
-		if(memory_regions().find_region(address, region)) {
+		if(memory_regions().find_region(address, &region)) {
 			SCOPED_POINTER<IBinary> binfo(get_binary_info(region));
 
 			if(binfo) {
@@ -849,7 +861,7 @@ MemoryRegion edb::v1::primary_data_region() {
 		const edb::address_t address = edb::v1::debugger_core->application_data_address();
 		memory_regions().sync();
 		MemoryRegion region;
-		if(memory_regions().find_region(address, region)) {
+		if(memory_regions().find_region(address, &region)) {
 			return region;
 		}
 	}
@@ -871,7 +883,7 @@ MemoryRegion edb::v1::primary_code_region() {
 		const edb::address_t address = edb::v1::debugger_core->application_code_address();
 		memory_regions().sync();
 		MemoryRegion region;
-		if(memory_regions().find_region(address, region)) {
+		if(memory_regions().find_region(address, &region)) {
 			return region;
 		}
 	}
@@ -1125,14 +1137,14 @@ QStringList edb::v1::parse_command_line(const QString &cmdline) {
 }
 
 //------------------------------------------------------------------------------
-// Name: string_to_address(const QString &s, bool &ok)
+// Name: string_to_address(const QString &s, bool *ok)
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t edb::v1::string_to_address(const QString &s, bool &ok) {
+edb::address_t edb::v1::string_to_address(const QString &s, bool *ok) {
 #if defined(EDB_X86)
-	return s.left(8).toULongLong(&ok, 16);
+	return s.left(8).toULongLong(ok, 16);
 #elif defined(EDB_X86_64)
-	return s.left(16).toULongLong(&ok, 16);
+	return s.left(16).toULongLong(ok, 16);
 #endif
 }
 

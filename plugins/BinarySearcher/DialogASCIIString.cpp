@@ -65,10 +65,10 @@ void DialogASCIIString::do_find() {
 		MemoryRegion region;
 		
 		State state;
-		edb::v1::debugger_core->get_state(state);
+		edb::v1::debugger_core->get_state(&state);
 		edb::address_t stack_ptr = state.stack_pointer();
 
-		if(edb::v1::memory_regions().find_region(stack_ptr, region)) {
+		if(edb::v1::memory_regions().find_region(stack_ptr, &region)) {
 			std::size_t count = (region.end() - stack_ptr) / sizeof(edb::address_t);
 
 			try {
@@ -115,7 +115,7 @@ void DialogASCIIString::on_btnFind_clicked() {
 //------------------------------------------------------------------------------
 void DialogASCIIString::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 	bool ok;
-	const edb::address_t addr = edb::v1::string_to_address(item->text(), ok);
+	const edb::address_t addr = edb::v1::string_to_address(item->text(), &ok);
 	if(ok) {
 		edb::v1::dump_stack(addr, true);
 	}

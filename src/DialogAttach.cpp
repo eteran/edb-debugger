@@ -125,16 +125,19 @@ void DialogAttach::on_filter_uid_clicked(bool checked) {
 }
 
 //------------------------------------------------------------------------------
-// Name: selected_pid(bool &ok) const
+// Name: selected_pid(bool *ok) const
 // Desc:
 //------------------------------------------------------------------------------
-edb::pid_t DialogAttach::selected_pid(bool &ok) const {
+edb::pid_t DialogAttach::selected_pid(bool *ok) const {
+
+	Q_ASSERT(ok);
+
 	const QList<QTableWidgetItem *> sel = ui->processes_table->selectedItems();
 	if(sel.size() != 0) {
-		ok = true;
+		*ok = true;
 		return sel.first()->text().toUInt();
 	} else {
-		ok = false;
+		*ok = false;
 		return edb::pid_t();
 	}
 }

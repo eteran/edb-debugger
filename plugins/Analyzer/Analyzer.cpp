@@ -141,10 +141,10 @@ void Analyzer::do_ip_analysis() {
 	MemoryRegion region;
 	
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 	
 	const edb::address_t eip = state.instruction_pointer();
-	if(edb::v1::memory_regions().find_region(eip, region)) {
+	if(edb::v1::memory_regions().find_region(eip, &region)) {
 		do_analysis(region);
 	}
 }
@@ -164,7 +164,7 @@ void Analyzer::do_view_analysis() {
 void Analyzer::mark_function_start() {
 	const edb::address_t address = edb::v1::cpu_selected_address();
 	MemoryRegion region;
-	if(edb::v1::memory_regions().find_region(address, region)) {
+	if(edb::v1::memory_regions().find_region(address, &region)) {
 		qDebug("Added %p to the list of known functions", reinterpret_cast<void *>(address));
 		specified_functions_.insert(address);
 		invalidate_dynamic_analysis(region);
@@ -180,7 +180,7 @@ void Analyzer::goto_function_start() {
 	const edb::address_t address = edb::v1::cpu_selected_address();
 
 	Function function;
-	if(find_containing_function(address, function)) {
+	if(find_containing_function(address, &function)) {
 		edb::v1::jump_to_address(function.entry_address);
 		return;
 	}
@@ -200,7 +200,7 @@ void Analyzer::goto_function_end() {
 	const edb::address_t address = edb::v1::cpu_selected_address();
 
 	Function function;
-	if(find_containing_function(address, function)) {
+	if(find_containing_function(address, &function)) {
 		edb::v1::jump_to_address(function.last_instruction);
 		return;
 	}
@@ -249,10 +249,13 @@ void Analyzer::do_analysis(const MemoryRegion &region) {
 }
 
 //------------------------------------------------------------------------------
-// Name: find_function_calls(const MemoryRegion &region, FunctionMap &found_functions)
+// Name: find_function_calls(const MemoryRegion &region, FunctionMap *found_functions)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::find_function_calls(const MemoryRegion &region, FunctionMap &found_functions) {
+void Analyzer::find_function_calls(const MemoryRegion &region, FunctionMap *found_functions) {
+	
+	Q_ASSERT(found_functions);
+	
 	static const edb::address_t page_size = edb::v1::debugger_core->page_size();
 
 	const edb::address_t size_in_pages = region.size() / page_size;
@@ -279,9 +282,9 @@ void Analyzer::find_function_calls(const MemoryRegion &region, FunctionMap &foun
 								// avoid calls which land in the middle of a function...
 								// this may or may not be the best approach
 								if(!is_inside_known(region, ea)) {
-									found_functions[ea].entry_address = ea;
-									found_functions[ea].end_address   = ea;
-									found_functions[ea].reference_count++;
+									(*found_functions)[ea].entry_address = ea;
+									(*found_functions)[ea].end_address   = ea;
+									(*found_functions)[ea].reference_count++;
 								}
 							}
 						}
@@ -310,7 +313,7 @@ bool Analyzer::is_stack_frame(edb::address_t addr) const {
 	while(i < 2) {
 		// gets the bytes for the instruction
 		int buf_size = sizeof(buf);
-		if(!edb::v1::get_instruction_bytes(addr, buf, buf_size)) {
+		if(!edb::v1::get_instruction_bytes(addr, buf, &buf_size)) {
 			break;
 		}
 
@@ -371,48 +374,58 @@ bool Analyzer::is_stack_frame(edb::address_t addr) const {
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::bonus_stack_frames_helper(Function &info) const {
+
 	if(is_stack_frame(info.entry_address)) {
 		info.reference_count++;
 	}
 }
 
 //------------------------------------------------------------------------------
-// Name: bonus_stack_frames(FunctionMap &results)
+// Name: bonus_stack_frames(FunctionMap *results)
 // Desc: give bonus if we see a "push ebp; mov ebp, esp;"
 //------------------------------------------------------------------------------
-void Analyzer::bonus_stack_frames(FunctionMap &results) {
+void Analyzer::bonus_stack_frames(FunctionMap *results) {
+
+	Q_ASSERT(results);
+
 #ifdef USE_QT_CONCURRENT
 	QtConcurrent::blockingMap(
-		results,
+		*results,
 		boost::bind(&Analyzer::bonus_stack_frames_helper, this, _1));
 #else
 	std::for_each(
-		results.begin(),
-		results.end(),
+		results->begin(),
+		results->end(),
 		boost::bind(&Analyzer::bonus_stack_frames_helper, this, _1));
 #endif
 }
 
 //------------------------------------------------------------------------------
-// Name: update_results_entry(FunctionMap &results, edb::address_t address) const
+// Name: update_results_entry(FunctionMap *results, edb::address_t address) const
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::update_results_entry(FunctionMap &results, edb::address_t address) const {
-	results[address].entry_address = address;
-	results[address].end_address   = address;
+void Analyzer::update_results_entry(FunctionMap *results, edb::address_t address) const {
+
+	Q_ASSERT(results);
+
+	(*results)[address].entry_address = address;
+	(*results)[address].end_address   = address;
 	
-	if(results[address].reference_count == 0) {
-		results[address].reference_count = MIN_REFCOUNT;
+	if((*results)[address].reference_count == 0) {
+		(*results)[address].reference_count = MIN_REFCOUNT;
 	} else {
-		results[address].reference_count++;
+		(*results)[address].reference_count++;
 	}
 }
 
 //------------------------------------------------------------------------------
-// Name: bonus_main(const MemoryRegion &region, FunctionMap &results)
+// Name: bonus_main(const MemoryRegion &region, FunctionMap *results)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_main(const MemoryRegion &region, FunctionMap &results) const {
+void Analyzer::bonus_main(const MemoryRegion &region, FunctionMap *results) const {
+
+	Q_ASSERT(results);
+
 	const QString s = edb::v1::debugger_core->process_exe(edb::v1::debugger_core->pid());
 	if(!s.isEmpty()) {
 		const edb::address_t main = edb::v1::locate_main_function();
@@ -425,10 +438,13 @@ void Analyzer::bonus_main(const MemoryRegion &region, FunctionMap &results) cons
 }
 
 //------------------------------------------------------------------------------
-// Name: bonus_symbols_helper(const MemoryRegion &region, FunctionMap &results, const Symbol::pointer &sym)
+// Name: bonus_symbols_helper(const MemoryRegion &region, FunctionMap *results, const Symbol::pointer &sym)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_symbols_helper(const MemoryRegion &region, FunctionMap &results, const Symbol::pointer &sym) {
+void Analyzer::bonus_symbols_helper(const MemoryRegion &region, FunctionMap *results, const Symbol::pointer &sym) {
+	
+	Q_ASSERT(results);
+	
 	const edb::address_t addr = sym->address;
 
 	if(region.contains(addr) && sym->is_code()) {
@@ -441,10 +457,12 @@ void Analyzer::bonus_symbols_helper(const MemoryRegion &region, FunctionMap &res
 
 
 //------------------------------------------------------------------------------
-// Name: bonus_symbols(const MemoryRegion &region, FunctionMap &results)
+// Name: bonus_symbols(const MemoryRegion &region, FunctionMap *results)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_symbols(const MemoryRegion &region, FunctionMap &results) {
+void Analyzer::bonus_symbols(const MemoryRegion &region, FunctionMap *results) {
+
+	Q_ASSERT(results);
 
 	// give bonus if we have a symbol for the address
 	const QList<Symbol::pointer> symbols = edb::v1::symbol_manager().symbols();
@@ -456,10 +474,12 @@ void Analyzer::bonus_symbols(const MemoryRegion &region, FunctionMap &results) {
 }
 
 //------------------------------------------------------------------------------
-// Name: bonus_marked_functions(const MemoryRegion &region, FunctionMap &results)
+// Name: bonus_marked_functions(const MemoryRegion &region, FunctionMap *results)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_marked_functions(const MemoryRegion &region, FunctionMap &results) {
+void Analyzer::bonus_marked_functions(const MemoryRegion &region, FunctionMap *results) {
+
+	Q_ASSERT(results);
 
 	Q_FOREACH(edb::address_t addr, specified_functions_) {
 		if(region.contains(addr)) {
@@ -473,38 +493,42 @@ void Analyzer::bonus_marked_functions(const MemoryRegion &region, FunctionMap &r
 }
 
 //------------------------------------------------------------------------------
-// Name: walk_all_functions(FunctionMap &results, const MemoryRegion &region, QSet<edb::address_t> &walked_functions)
+// Name: walk_all_functions(FunctionMap *results, const MemoryRegion &region, QSet<edb::address_t> *walked_functions)
 // Desc:
 //------------------------------------------------------------------------------
-int Analyzer::walk_all_functions(FunctionMap &results, const MemoryRegion &region, QSet<edb::address_t> &walked_functions) {
+int Analyzer::walk_all_functions(FunctionMap *results, const MemoryRegion &region, QSet<edb::address_t> *walked_functions) {
+	
+	Q_ASSERT(results);
+	Q_ASSERT(walked_functions);
+	
 	int updates = 0;
 
 	QSet<edb::address_t> found_functions;
 
-	FunctionMap::iterator it = results.begin();
-	while(it != results.end()) {
+	FunctionMap::iterator it = results->begin();
+	while(it != results->end()) {
 		Function &function = it.value();
 
 		const FunctionMap::iterator next = ++it;
 
 		if(function.reference_count >= MIN_REFCOUNT) {
-			if(!walked_functions.contains(function.entry_address)) {
+			if(!walked_functions->contains(function.entry_address)) {
 
 				// the function's upper bound is either the entry point of the next function
 				// or the region's end which is the absolute max end this function can have
-				const edb::address_t next_entry = (next != results.end()) ? next.value().entry_address : region.end();
+				const edb::address_t next_entry = (next != results->end()) ? next.value().entry_address : region.end();
 
 				// walk the function and collect some results
 
-				find_function_end(function, next_entry, found_functions, results);
-				walked_functions.insert(function.entry_address);
+				find_function_end(&function, next_entry, &found_functions, *results);
+				walked_functions->insert(function.entry_address);
 
 				// if the very last instruction happens to be a jmp, then this may
 				// be a call/ret -> jmp optimization. This isn't always the case
 				// but often enough that it's probably right
 				quint8 buf[edb::Instruction::MAX_SIZE];
 				int buf_size = sizeof(buf);
-				if(edb::v1::get_instruction_bytes(function.last_instruction, buf, buf_size)) {
+				if(edb::v1::get_instruction_bytes(function.last_instruction, buf, &buf_size)) {
 					const edb::Instruction insn(buf, buf + buf_size, function.last_instruction, std::nothrow);
 					if(insn.valid() && insn.type() == edb::Instruction::OP_JMP) {
 
@@ -515,7 +539,7 @@ int Analyzer::walk_all_functions(FunctionMap &results, const MemoryRegion &regio
 							const edb::address_t target = op.relative_target();
 
 							Function func;
-							if(!find_containing_function(target, func)) {
+							if(!find_containing_function(target, &func)) {
 								found_functions.insert(target);
 							}
 						}
@@ -529,10 +553,10 @@ int Analyzer::walk_all_functions(FunctionMap &results, const MemoryRegion &regio
 
 	// add the newly found functions to the list and report the number of "updates"
 	Q_FOREACH(edb::address_t func, found_functions) {
-		if(!results.contains(func)) {
-			results[func].entry_address   = func;
-			results[func].end_address     = func;
-			results[func].reference_count = MIN_REFCOUNT;
+		if(!results->contains(func)) {
+			(*results)[func].entry_address   = func;
+			(*results)[func].end_address     = func;
+			(*results)[func].reference_count = MIN_REFCOUNT;
 			++updates;
 		}
 	}
@@ -541,13 +565,16 @@ int Analyzer::walk_all_functions(FunctionMap &results, const MemoryRegion &regio
 }
 
 //------------------------------------------------------------------------------
-// Name: fix_overlaps(FunctionMap &function_map)
+// Name: fix_overlaps(FunctionMap *function_map)
 // Desc: ensures that no function overlaps another
 //------------------------------------------------------------------------------
-void Analyzer::fix_overlaps(FunctionMap &function_map) {
-	for(FunctionMap::iterator it = function_map.begin(); it != function_map.end(); ) {
+void Analyzer::fix_overlaps(FunctionMap *function_map) {
+
+	Q_ASSERT(function_map);
+
+	for(FunctionMap::iterator it = function_map->begin(); it != function_map->end(); ) {
 		Function &func = *it++;
-		if(it != function_map.end()) {
+		if(it != function_map->end()) {
 			const Function &next_func = *it;
 			if(next_func.entry_address <= func.end_address) {
 				func.end_address = next_func.entry_address - 1;
@@ -557,16 +584,20 @@ void Analyzer::fix_overlaps(FunctionMap &function_map) {
 }
 
 //------------------------------------------------------------------------------
-// Name: find_function_end(Function &function, edb::address_t end_address, QSet<edb::address_t> &found_functions, const FunctionMap &results)
+// Name: find_function_end(Function *function, edb::address_t end_address, QSet<edb::address_t> *found_functions, const FunctionMap &results)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::find_function_end(Function &function, edb::address_t end_address, QSet<edb::address_t> &found_functions, const FunctionMap &results) {
+void Analyzer::find_function_end(Function *function, edb::address_t end_address, QSet<edb::address_t> *found_functions, const FunctionMap &results) {
+
+	Q_ASSERT(function);
+	Q_ASSERT(found_functions);
+	
 
 	QStack<edb::address_t>		jump_targets;
 	QHash<edb::address_t, int>	visited_addresses;
 
 	// we start with the entry point of the function
-	jump_targets.push(function.entry_address);
+	jump_targets.push(function->entry_address);
 
 	// while no more jump targets... (includes entry point)
 	while(!jump_targets.empty()) {
@@ -579,11 +610,11 @@ void Analyzer::find_function_end(Function &function, edb::address_t end_address,
 		}
 
 		// keep going until we go out of bounds
-		while(addr >= function.entry_address && addr < end_address) {
+		while(addr >= function->entry_address && addr < end_address) {
 
 			quint8 buf[edb::Instruction::MAX_SIZE];
 			int buf_size = sizeof(buf);
-			if(!edb::v1::get_instruction_bytes(addr, buf, buf_size)) {
+			if(!edb::v1::get_instruction_bytes(addr, buf, &buf_size)) {
 				break;
 			}
 
@@ -627,7 +658,7 @@ void Analyzer::find_function_end(Function &function, edb::address_t end_address,
 
 					// skip over ones which are: "call <label>; label:"
 					if(ea != addr + insn.size()) {
-						found_functions.insert(ea);
+						found_functions->insert(ea);
 					}
 				} else if(op.general_type() == edb::Operand::TYPE_EXPRESSION) {
 					// looks like: "call [...]", if it is of the form, call [C + REG]
@@ -641,7 +672,7 @@ void Analyzer::find_function_end(Function &function, edb::address_t end_address,
 
 
 					// an absolute jump within this function
-					if(ea >= function.entry_address && ea < addr) {
+					if(ea >= function->entry_address && ea < addr) {
 						addr += insn.size();
 						continue;
 					}
@@ -652,7 +683,7 @@ void Analyzer::find_function_end(Function &function, edb::address_t end_address,
 					// but give the target a bonus reference
 					FunctionMap::const_iterator it = results.find(ea);
 					if(it != results.end()) {
-						found_functions.insert(ea);
+						found_functions->insert(ea);
 						break;
 					}
 
@@ -675,13 +706,13 @@ void Analyzer::find_function_end(Function &function, edb::address_t end_address,
 		}
 	}
 
-	function.last_instruction = function.entry_address;
-	function.end_address      = function.entry_address;
+	function->last_instruction = function->entry_address;
+	function->end_address      = function->entry_address;
 
 	// get the last instruction and the last byte of the function
 	for(QHash<edb::address_t, int>::const_iterator it = visited_addresses.begin(); it != visited_addresses.end(); ++it) {
-		function.end_address      = qMax(function.end_address,      it.key() + it.value() - 1);
-		function.last_instruction = qMax(function.last_instruction, it.key());
+		function->end_address      = qMax(function->end_address,      it.key() + it.value() - 1);
+		function->last_instruction = qMax(function->last_instruction, it.key());
 	}
 }
 
@@ -693,7 +724,7 @@ void Analyzer::find_function_end(Function &function, edb::address_t end_address,
 bool Analyzer::is_thunk(edb::address_t address) const {
 	quint8 buf[edb::Instruction::MAX_SIZE];
 	int buf_size = sizeof(buf);
-	if(edb::v1::get_instruction_bytes(address, buf, buf_size)) {
+	if(edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
 		const edb::Instruction insn(buf, buf + buf_size, address, std::nothrow);
 		return insn.valid() && insn.type() == edb::Instruction::OP_JMP;
 	}
@@ -715,19 +746,22 @@ void Analyzer::set_function_types_helper(Function &info) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_function_types(FunctionMap &results)
+// Name: set_function_types(FunctionMap *results)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::set_function_types(FunctionMap &results) {
+void Analyzer::set_function_types(FunctionMap *results) {
+	
+	Q_ASSERT(results);
+	
 	// give bonus if we have a symbol for the address
 #ifdef USE_QT_CONCURRENT
 	QtConcurrent::blockingMap(
-		results,
+		*results,
 		boost::bind(&Analyzer::set_function_types_helper, this, _1));
 #else
 	std::for_each(
-		results.begin(),
-		results.end(),
+		results->begin(),
+		results->end(),
 		boost::bind(&Analyzer::set_function_types_helper, this, _1));
 #endif
 }
@@ -749,10 +783,14 @@ bool Analyzer::is_inside_known(const MemoryRegion &region, edb::address_t addres
 }
 
 //------------------------------------------------------------------------------
-// Name: find_calls_from_known(const MemoryRegion &region, FunctionMap &results, QSet<edb::address_t> &walked_functions)
+// Name: find_calls_from_known(const MemoryRegion &region, FunctionMap *results, QSet<edb::address_t> *walked_functions)
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::find_calls_from_known(const MemoryRegion &region, FunctionMap &results, QSet<edb::address_t> &walked_functions) {
+void Analyzer::find_calls_from_known(const MemoryRegion &region, FunctionMap *results, QSet<edb::address_t> *walked_functions) {
+	
+	Q_ASSERT(results);
+	Q_ASSERT(walked_functions);
+	
 	int updates;
 	do {
 		updates = walk_all_functions(results, region, walked_functions);
@@ -761,14 +799,18 @@ void Analyzer::find_calls_from_known(const MemoryRegion &region, FunctionMap &re
 }
 
 //------------------------------------------------------------------------------
-// Name: collect_high_ref_results(FunctionMap &function_map, FunctionMap &found_functions) const
+// Name: collect_high_ref_results(FunctionMap *function_map, FunctionMap *found_functions) const
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::collect_high_ref_results(FunctionMap &function_map, FunctionMap &found_functions) const {
-	for(FunctionMap::iterator it = found_functions.begin(); it != found_functions.end(); ) {
+void Analyzer::collect_high_ref_results(FunctionMap *function_map, FunctionMap *found_functions) const {
+	
+	Q_ASSERT(function_map);
+	Q_ASSERT(found_functions);
+	
+	for(FunctionMap::iterator it = found_functions->begin(); it != found_functions->end(); ) {
 		if(it->reference_count >= MIN_REFCOUNT) {
-			function_map[it->entry_address] = *it;
-			found_functions.erase(it++);
+			(*function_map)[it->entry_address] = *it;
+			found_functions->erase(it++);
 		} else {
 			++it;
 		}
@@ -779,17 +821,21 @@ void Analyzer::collect_high_ref_results(FunctionMap &function_map, FunctionMap &
 // Name: 
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::collect_low_ref_results(const MemoryRegion &region, FunctionMap &function_map, FunctionMap &found_functions) {
+void Analyzer::collect_low_ref_results(const MemoryRegion &region, FunctionMap *function_map, FunctionMap *found_functions) {
+	
+	Q_ASSERT(function_map);
+	Q_ASSERT(found_functions);
+	
 	// promote weak symbols...
 	ISymbolManager &syms = edb::v1::symbol_manager();
-	Q_FOREACH(const Function &func, found_functions) {
+	Q_FOREACH(const Function &func, *found_functions) {
 		if(!is_inside_known(region, func.entry_address)) {
-			if(!function_map.contains(func.entry_address)) {
-				function_map[func.entry_address] = func;
+			if(!function_map->contains(func.entry_address)) {
+				(*function_map)[func.entry_address] = func;
 
 				const Symbol::pointer s = syms.find(func.entry_address);
 				if(s && s->is_weak()) {
-					function_map[func.entry_address].reference_count++;
+					(*function_map)[func.entry_address].reference_count++;
 				}
 
 			}
@@ -841,23 +887,23 @@ void Analyzer::analyze(const MemoryRegion &region_ref) {
 			boost::function<void()> function;
 		} analysis_steps[] = {
 			{ "identifying executable headers...",                       boost::bind(&Analyzer::indent_header,          this) },
-			{ "adding entry points to the list...", 					 boost::bind(&Analyzer::bonus_entry_point,      this, boost::cref(region), boost::ref(function_map)) },
-			{ "attempting to add 'main' to the list...",				 boost::bind(&Analyzer::bonus_main,             this, boost::cref(region), boost::ref(function_map)) },
-			{ "attempting to add marked functions to the list...",  	 boost::bind(&Analyzer::bonus_marked_functions, this, boost::cref(region), boost::ref(function_map)) },
-			{ "attempting to add functions with symbols to the list...", boost::bind(&Analyzer::bonus_symbols,          this, boost::cref(region), boost::ref(function_map)) },
-			{ "calculating function bounds... (pass 1)",                 boost::bind(&Analyzer::find_calls_from_known,  this, boost::cref(region), boost::ref(function_map), boost::ref(walked_functions)) },
+			{ "adding entry points to the list...", 					 boost::bind(&Analyzer::bonus_entry_point,      this, boost::cref(region), &function_map) },
+			{ "attempting to add 'main' to the list...",				 boost::bind(&Analyzer::bonus_main,             this, boost::cref(region), &function_map) },
+			{ "attempting to add marked functions to the list...",  	 boost::bind(&Analyzer::bonus_marked_functions, this, boost::cref(region), &function_map) },
+			{ "attempting to add functions with symbols to the list...", boost::bind(&Analyzer::bonus_symbols,          this, boost::cref(region), &function_map) },
+			{ "calculating function bounds... (pass 1)",                 boost::bind(&Analyzer::find_calls_from_known,  this, boost::cref(region), &function_map, &walked_functions) },
 		};		
 		
 		const struct {
 			const char             *message;
 			boost::function<void()> function;
 		} fuzzy_analysis_steps[] = {
-			{ "finding possible function calls...",      boost::bind(&Analyzer::find_function_calls,      this, boost::cref(region), boost::ref(found_functions)) },
-			{ "bonusing stack frames...",                boost::bind(&Analyzer::bonus_stack_frames,       this, boost::ref(found_functions)) },
-			{ "collecting high reference answers...",    boost::bind(&Analyzer::collect_high_ref_results, this, boost::ref(function_map), boost::ref(found_functions)) },
-			{ "calculating function bounds... (pass 2)", boost::bind(&Analyzer::find_calls_from_known,    this, boost::cref(region), boost::ref(function_map), boost::ref(walked_functions)) },
-			{ "collecting low reference answers...",     boost::bind(&Analyzer::collect_low_ref_results,  this, boost::cref(region), boost::ref(function_map), boost::ref(found_functions)) },
-			{ "calculating function bounds... (pass 3)", boost::bind(&Analyzer::find_calls_from_known,    this, boost::cref(region), boost::ref(function_map), boost::ref(walked_functions)) },
+			{ "finding possible function calls...",      boost::bind(&Analyzer::find_function_calls,      this, boost::cref(region), &found_functions) },
+			{ "bonusing stack frames...",                boost::bind(&Analyzer::bonus_stack_frames,       this, &found_functions) },
+			{ "collecting high reference answers...",    boost::bind(&Analyzer::collect_high_ref_results, this, &function_map, &found_functions) },
+			{ "calculating function bounds... (pass 2)", boost::bind(&Analyzer::find_calls_from_known,    this, boost::cref(region), &function_map, &walked_functions) },
+			{ "collecting low reference answers...",     boost::bind(&Analyzer::collect_low_ref_results,  this, boost::cref(region), &function_map, &found_functions) },
+			{ "calculating function bounds... (pass 3)", boost::bind(&Analyzer::find_calls_from_known,    this, boost::cref(region), &function_map, &walked_functions) },
 		};
 		
 		const int analysis_steps_count       = sizeof(analysis_steps) / sizeof(analysis_steps[0]);
@@ -871,7 +917,7 @@ void Analyzer::analyze(const MemoryRegion &region_ref) {
 			emit update_progress(util::percentage(i + 1, total_steps));
 		}
 		
-		fix_overlaps(function_map);
+		fix_overlaps(&function_map);
 
 		// ok, at this point, we've done the best we can with knowns
 		// we should have a full analysis of all functions which are
@@ -886,7 +932,7 @@ void Analyzer::analyze(const MemoryRegion &region_ref) {
 		}
 
 		qDebug("[Analyzer] determining function types...");
-		set_function_types(function_map);
+		set_function_types(&function_map);
 
 		qDebug("[Analyzer] complete");
 		emit update_progress(100);
@@ -911,7 +957,7 @@ void Analyzer::analyze(const MemoryRegion &region_ref) {
 IAnalyzer::AddressCategory Analyzer::category(edb::address_t address) const {
 
 	Function func;
-	if(find_containing_function(address, func)) {
+	if(find_containing_function(address, &func)) {
 		if(address == func.entry_address) {
 			return ADDRESS_FUNC_START;
 		} else if(address == func.end_address) {
@@ -932,17 +978,19 @@ IAnalyzer::FunctionMap Analyzer::functions(const MemoryRegion &region) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: find_containing_function(edb::address_t address, IAnalyzer::Function &function) const
+// Name: find_containing_function(edb::address_t address, IAnalyzer::Function *function) const
 // Desc:
 //------------------------------------------------------------------------------
-bool Analyzer::find_containing_function(edb::address_t address, IAnalyzer::Function &function) const {
+bool Analyzer::find_containing_function(edb::address_t address, IAnalyzer::Function *function) const {
+
+	Q_ASSERT(function);
 
 	MemoryRegion region;
-	if(edb::v1::memory_regions().find_region(address, region)) {
+	if(edb::v1::memory_regions().find_region(address, &region)) {
 		const FunctionMap &funcs = functions(region);
 		Q_FOREACH(const Function &f, funcs) {
 			if(address >= f.entry_address && address <= f.end_address) {
-				function = f;
+				*function = f;
 				return true;
 			}
 		}
@@ -991,10 +1039,12 @@ edb::address_t Analyzer::module_entry_point(const MemoryRegion &region) const {
 
 
 //------------------------------------------------------------------------------
-// Name: bonus_entry_point(const MemoryRegion &region, FunctionMap &results) const
+// Name: bonus_entry_point(const MemoryRegion &region, FunctionMap *results) const
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_entry_point(const MemoryRegion &region, FunctionMap &results) const {
+void Analyzer::bonus_entry_point(const MemoryRegion &region, FunctionMap *results) const {
+
+	Q_ASSERT(results);
 
 	if(edb::address_t entry = module_entry_point(region)) {
 

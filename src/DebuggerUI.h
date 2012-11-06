@@ -58,8 +58,8 @@ protected:
 	void set_debugger_caption(const QString &appname);
 	void delete_data_tab();
 	void create_data_tab();
-	edb::reg_t get_follow_register(bool &ok) const;
-	edb::address_t get_goto_expression(bool &ok);
+	edb::reg_t get_follow_register(bool *ok) const;
+	edb::address_t get_goto_expression(bool *ok);
 
 private Q_SLOTS:
 	void tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status);

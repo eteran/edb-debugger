@@ -208,7 +208,7 @@ private:
 	void follow_memory(edb::address_t address, F follow_func);
 
 	template <class T>
-	edb::address_t get_follow_address(const T &hv, bool &ok);
+	edb::address_t get_follow_address(const T &hv, bool *ok);
 	
 	template <class F, class T>
 	void add_plugin_context_menu(const T &menu, const F &f);

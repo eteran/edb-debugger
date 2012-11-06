@@ -56,37 +56,37 @@ QMenu *HardwareBreakpoints::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setup_bp(State &state, int num, bool enabled, edb::address_t addr, int type, int size)
+// Name: setup_bp(State *state, int num, bool enabled, edb::address_t addr, int type, int size)
 // Desc:
 //------------------------------------------------------------------------------
-void HardwareBreakpoints::setup_bp(State &state, int num, bool enabled, edb::address_t addr, int type, int size) {
+void HardwareBreakpoints::setup_bp(State *state, int num, bool enabled, edb::address_t addr, int type, int size) {
 
 	const int N1 = 16 + (num * 4);
 	const int N2 = 18 + (num * 4);
 
 	// default to disabled
-	state.set_debug_register(7, (state.debug_register(7) & ~(0x01 << (num * 2))));
+	state->set_debug_register(7, (state->debug_register(7) & ~(0x01 << (num * 2))));
 
 	if(enabled) {
 		// set the address
-		state.set_debug_register(num, addr);
+		state->set_debug_register(num, addr);
 
 		// enable this breakpoint
-		state.set_debug_register(7, state.debug_register(7) | (0x01 << (num * 2)));
+		state->set_debug_register(7, state->debug_register(7) | (0x01 << (num * 2)));
 
 		// setup the type
 		switch(type) {
 		case 2:
 			// read/write
-			state.set_debug_register(7, (state.debug_register(7) & ~(0x03 << N1)) | (0x03 << N1));
+			state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N1)) | (0x03 << N1));
 			break;
 		case 1:
 			// write
-			state.set_debug_register(7, (state.debug_register(7) & ~(0x03 << N1)) | (0x01 << N1));
+			state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N1)) | (0x01 << N1));
 			break;
 		case 0:
 			// execute
-			state.set_debug_register(7, (state.debug_register(7) & ~(0x03 << N1)));
+			state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N1)));
 			break;
 		}
 
@@ -95,19 +95,19 @@ void HardwareBreakpoints::setup_bp(State &state, int num, bool enabled, edb::add
 			switch(size) {
 			case 2:
 				// 4 bytes
-				state.set_debug_register(7, (state.debug_register(7) & ~(0x03 << N2)) | (0x03 << N2));
+				state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N2)) | (0x03 << N2));
 				break;
 			case 1:
 				// 2 bytes
-				state.set_debug_register(7, (state.debug_register(7) & ~(0x03 << N2)) | (0x01 << N2));
+				state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N2)) | (0x01 << N2));
 				break;
 			case 0:
 				// 1 byte
-				state.set_debug_register(7, (state.debug_register(7) & ~(0x03 << N2)));
+				state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N2)));
 				break;
 			}
 		} else {
-			state.set_debug_register(7, (state.debug_register(7) & ~(0x03 << N2)));
+			state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N2)));
 		}
 	}
 }
@@ -138,28 +138,28 @@ void HardwareBreakpoints::setup_breakpoints() {
 
 			State state;
 			bool ok;
-			edb::v1::debugger_core->get_state(state);
+			edb::v1::debugger_core->get_state(&state);
 
 			edb::address_t addr;
 
-			addr = edb::v1::string_to_address(p->ui->txtBP1->text(), ok);
+			addr = edb::v1::string_to_address(p->ui->txtBP1->text(), &ok);
 			if(ok) {
-				setup_bp(state, 0, p->ui->chkBP1->isChecked(), addr, p->ui->cmbType1->currentIndex(), p->ui->cmbSize1->currentIndex());
+				setup_bp(&state, 0, p->ui->chkBP1->isChecked(), addr, p->ui->cmbType1->currentIndex(), p->ui->cmbSize1->currentIndex());
 			}
 
-			addr = edb::v1::string_to_address(p->ui->txtBP2->text(), ok);
+			addr = edb::v1::string_to_address(p->ui->txtBP2->text(), &ok);
 			if(ok) {
-				setup_bp(state, 1, p->ui->chkBP2->isChecked(), addr, p->ui->cmbType2->currentIndex(), p->ui->cmbSize2->currentIndex());
+				setup_bp(&state, 1, p->ui->chkBP2->isChecked(), addr, p->ui->cmbType2->currentIndex(), p->ui->cmbSize2->currentIndex());
 			}
 
-			addr = edb::v1::string_to_address(p->ui->txtBP3->text(), ok);
+			addr = edb::v1::string_to_address(p->ui->txtBP3->text(), &ok);
 			if(ok) {
-				setup_bp(state, 2, p->ui->chkBP3->isChecked(), addr, p->ui->cmbType3->currentIndex(), p->ui->cmbSize3->currentIndex());
+				setup_bp(&state, 2, p->ui->chkBP3->isChecked(), addr, p->ui->cmbType3->currentIndex(), p->ui->cmbSize3->currentIndex());
 			}
 
-			addr = edb::v1::string_to_address(p->ui->txtBP4->text(), ok);
+			addr = edb::v1::string_to_address(p->ui->txtBP4->text(), &ok);
 			if(ok) {
-				setup_bp(state, 3, p->ui->chkBP4->isChecked(), addr, p->ui->cmbType4->currentIndex(), p->ui->cmbSize4->currentIndex());
+				setup_bp(&state, 3, p->ui->chkBP4->isChecked(), addr, p->ui->cmbType4->currentIndex(), p->ui->cmbSize4->currentIndex());
 			}
 
 			edb::v1::debugger_core->set_state(state);
@@ -167,7 +167,7 @@ void HardwareBreakpoints::setup_breakpoints() {
 		} else {
 
 			State state;
-			edb::v1::debugger_core->get_state(state);
+			edb::v1::debugger_core->get_state(&state);
 			state.set_debug_register(7, 0);
 			edb::v1::debugger_core->set_state(state);
 
@@ -206,7 +206,7 @@ edb::EVENT_STATUS HardwareBreakpoints::handle_event(const IDebugEvent::const_poi
 		// check DR6 to see if it was a HW BP event
 		// if so, set the resume flag
 		State state;
-		edb::v1::debugger_core->get_state(state);
+		edb::v1::debugger_core->get_state(&state);
 		if((state.debug_register(6) & 0x0f) != 0x00) {
 			state.set_flags(state.flags() | (1 << 16));
 			edb::v1::debugger_core->set_state(state);

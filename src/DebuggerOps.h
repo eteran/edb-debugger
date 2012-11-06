@@ -35,14 +35,14 @@ namespace edb {
 		void step_over(F1 run_func, F2 step_func) {
 			
 			State state;
-			edb::v1::debugger_core->get_state(state);
+			edb::v1::debugger_core->get_state(&state);
 			
 			const edb::address_t ip = state.instruction_pointer();
 
 			quint8 buffer[edb::Instruction::MAX_SIZE];
 			int sz = sizeof(buffer);
 
-			if(edb::v1::get_instruction_bytes(ip, buffer, sz)) {
+			if(edb::v1::get_instruction_bytes(ip, buffer, &sz)) {
 				edb::Instruction insn(buffer, buffer + sz, 0, std::nothrow);
 				if(insn.valid() && edb::v1::arch_processor().can_step_over(insn)) {
 

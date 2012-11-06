@@ -60,7 +60,7 @@ void DialogSpecifiedFunctions::on_function_list_doubleClicked(const QModelIndex 
 
 	bool ok;
 	const QString s = index.data().toString();
-	const edb::address_t addr = edb::v1::string_to_address(s, ok);
+	const edb::address_t addr = edb::v1::string_to_address(s, &ok);
 	if(ok) {
 		edb::v1::jump_to_address(addr);
 	}

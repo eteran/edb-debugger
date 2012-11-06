@@ -398,10 +398,10 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_state(State &state)
+// Name: get_state(State *state)
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerCore::get_state(State &state) {
+void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
 
 	PlatformState *state_impl = static_cast<PlatformState *>(state.impl_);

@@ -470,7 +470,7 @@ void analyze_jump_targets(const edb::Instruction &insn, QStringList &ret)  {
 
 	for(edb::address_t addr = start_address; addr < end_address; ++addr) {
 		int sz = sizeof(buffer);
-		if(edb::v1::get_instruction_bytes(addr, buffer, sz)) {
+		if(edb::v1::get_instruction_bytes(addr, buffer, &sz)) {
 			edb::Instruction insn(buffer, buffer + sz, addr, std::nothrow);
 			if(insn.valid() && (insn.type() == edb::Instruction::OP_JCC || insn.type() == edb::Instruction::OP_JMP)) {
 				const edb::Operand &operand = insn.operand(0);
@@ -1443,7 +1443,7 @@ void ArchProcessor::setup_register_view(QCategoryList *category_list) {
 
 	if(edb::v1::debugger_core) {
 		State state;
-		edb::v1::debugger_core->get_state(state);
+		edb::v1::debugger_core->get_state(&state);
 
 		Q_ASSERT(category_list);
 
@@ -1561,7 +1561,7 @@ void ArchProcessor::setup_register_view(QCategoryList *category_list) {
 Register ArchProcessor::value_from_item(const QTreeWidgetItem &item) {
 	const QString &name = item.data(0, 1).toString();
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 	return state[name];
 }
 
@@ -1605,7 +1605,7 @@ void ArchProcessor::reset() {
 		last_state_.clear();
 		
 		State state;
-		edb::v1::debugger_core->get_state(state);
+		edb::v1::debugger_core->get_state(&state);
 		
 		split_flags_->setText(0, state.flags_to_string(0));
 	}
@@ -1618,7 +1618,7 @@ void ArchProcessor::reset() {
 void ArchProcessor::update_register_view(const QString &default_region_name) {
 
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 	
 	const QPalette palette = QApplication::palette();
 
@@ -1732,7 +1732,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 		if(insn.valid()) {
 		
 			State state;
-			edb::v1::debugger_core->get_state(state);
+			edb::v1::debugger_core->get_state(&state);
 		
 			// figure out the instruction type and display some information about it
 			switch(insn.type()) {

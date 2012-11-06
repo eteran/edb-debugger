@@ -44,7 +44,7 @@ private:
 	virtual void showEvent(QShowEvent *event);
 
 private:
-	void get_library_names(QString &libcName, QString &ldName) const;
+	void get_library_names(QString *libcName, QString *ldName) const;
 	void collect_blocks(edb::address_t start_address, edb::address_t end_address);
 	void detect_pointers();
 	void do_find();

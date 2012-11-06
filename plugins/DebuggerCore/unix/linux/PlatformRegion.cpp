@@ -72,7 +72,7 @@ BackupInfo<N>::BackupInfo(edb::address_t address, IRegion::permissions_t perms, 
 //------------------------------------------------------------------------------
 template <size_t N>
 bool BackupInfo<N>::backup() {
-	edb::v1::debugger_core->get_state(state_);
+	edb::v1::debugger_core->get_state(&state_);
 	return edb::v1::debugger_core->read_bytes(address_, buffer_, N);
 }
 

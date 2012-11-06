@@ -328,26 +328,31 @@ void DebuggerUI::finish_plugin_setup(const QHash<QString, QObject *> &plugins) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_goto_expression(bool &ok)
+// Name: get_goto_expression(bool *ok)
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t DebuggerUI::get_goto_expression(bool &ok) {
+edb::address_t DebuggerUI::get_goto_expression(bool *ok) {
+
+	Q_ASSERT(ok);
 
 	edb::address_t address;
-	ok = edb::v1::get_expression_from_user(tr("Goto Address"), tr("Address:"), address);
+	*ok = edb::v1::get_expression_from_user(tr("Goto Address"), tr("Address:"), &address);
 	return ok ? address : 0;
 }
 
 //------------------------------------------------------------------------------
-// Name: get_follow_register(bool &ok) const
+// Name: get_follow_register(bool *ok) const
 // Desc:
 //------------------------------------------------------------------------------
-edb::reg_t DebuggerUI::get_follow_register(bool &ok) const {
-	ok = false;
+edb::reg_t DebuggerUI::get_follow_register(bool *ok) const {
+
+	Q_ASSERT(ok);
+
+	*ok = false;
 	if(const QTreeWidgetItem *const i = ui->registerList->currentItem()) {
 		if(const Register reg = edb::v1::arch_processor().value_from_item(*i)) {
 			if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP)) {
-				ok = true;
+				*ok = true;
 				return *reg;
 			}
 		}

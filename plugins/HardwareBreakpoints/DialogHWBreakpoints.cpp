@@ -97,7 +97,7 @@ void DialogHWBreakpoints::showEvent(QShowEvent *event) {
 	Q_UNUSED(event);
 
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 
 	const bool bp1_enabled = (state.debug_register(7) & 0x00000001) != 0;
 	const bool bp2_enabled = (state.debug_register(7) & 0x00000004) != 0;

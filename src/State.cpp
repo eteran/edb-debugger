@@ -234,6 +234,10 @@ long double State::fpu_register(int n) const {
 	return 0.0;
 }
 
+//------------------------------------------------------------------------------
+// Name: mmx_register(int n) const
+// Desc:
+//------------------------------------------------------------------------------
 quint64 State::mmx_register(int n) const {
 	if(impl_) {
 		return impl_->mmx_register(n);
@@ -241,6 +245,10 @@ quint64 State::mmx_register(int n) const {
 	return 0;
 }
 
+//------------------------------------------------------------------------------
+// Name: xmm_register(int n) const
+// Desc:
+//------------------------------------------------------------------------------
 QByteArray State::xmm_register(int n) const {
 	if(impl_) {
 		return impl_->xmm_register(n);

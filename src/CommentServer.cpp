@@ -58,10 +58,12 @@ void CommentServer::clear() {
 // Name: resolve_function_call(QHexView::address_t address) const
 // Desc:
 //------------------------------------------------------------------------------
-QString CommentServer::resolve_function_call(QHexView::address_t address, bool &ok) const {
+QString CommentServer::resolve_function_call(QHexView::address_t address, bool *ok) const {
+	
+	Q_ASSERT(ok);
 	QString ret;
 
-	ok = false;
+	*ok = false;
 
 	// ok, we now want to locate the instruction before this one
 	// so we need to look back a few bytes
@@ -78,7 +80,7 @@ QString CommentServer::resolve_function_call(QHexView::address_t address, bool &
 				} else {
 					ret = tr("return to %1").arg(edb::v1::format_pointer(address));
 				}
-				ok = true;
+				*ok = true;
 				break;
 			}
 		}
@@ -91,17 +93,19 @@ QString CommentServer::resolve_function_call(QHexView::address_t address, bool &
 // Name: resolve_string(QHexView::address_t address) const
 // Desc:
 //------------------------------------------------------------------------------
-QString CommentServer::resolve_string(QHexView::address_t address, bool &ok) const {
+QString CommentServer::resolve_string(QHexView::address_t address, bool *ok) const {
+
+	Q_ASSERT(ok);
 
 	const int min_string_length = edb::v1::config().min_string_length;
 	QString ret;
-	ok = false;
+	*ok = false;
 
 	int stringLen;
 	QString temp;
-	if((ok = edb::v1::get_ascii_string_at_address(address, temp, min_string_length, 256, stringLen))) {
+	if((*ok = edb::v1::get_ascii_string_at_address(address, temp, min_string_length, 256, stringLen))) {
 		ret = tr("ASCII \"%1\"").arg(temp);
-	} else if((ok = edb::v1::get_utf16_string_at_address(address, temp, min_string_length, 256, stringLen))) {
+	} else if((*ok = edb::v1::get_utf16_string_at_address(address, temp, min_string_length, 256, stringLen))) {
 		ret = tr("UTF16 \"%1\"").arg(temp);
 	}
 
@@ -128,9 +132,9 @@ QString CommentServer::comment(QHexView::address_t address, int size) const {
 				ret = it.value();
 			} else {
 				bool ok;
-				ret = resolve_function_call(value, ok);
+				ret = resolve_function_call(value, &ok);
 				if(!ok) {
-					ret = resolve_string(value, ok);
+					ret = resolve_string(value, &ok);
 				}
 			}
 		}

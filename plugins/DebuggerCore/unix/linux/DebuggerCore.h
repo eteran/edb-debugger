@@ -44,7 +44,7 @@ public:
 	virtual void pause();
 	virtual void resume(edb::EVENT_STATUS status);
 	virtual void step(edb::EVENT_STATUS status);
-	virtual void get_state(State &state);
+	virtual void get_state(State *state);
 	virtual void set_state(const State &state);
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty);
 
@@ -74,7 +74,7 @@ private:
 	virtual QMap<edb::pid_t, Process> enumerate_processes() const;
 
 private:
-	virtual long read_data(edb::address_t address, bool &ok);
+	virtual long read_data(edb::address_t address, bool *ok);
 	virtual bool write_data(edb::address_t address, long value);
 
 private:

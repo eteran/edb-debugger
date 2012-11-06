@@ -30,7 +30,7 @@ namespace native {
 	int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
 	int select_ex(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, quint64 msecs);
 	pid_t waitpid(pid_t pid, int *status, int options);
-	pid_t waitpid_timeout(pid_t pid, int *status, int options, int msecs, bool &timeout);
+	pid_t waitpid_timeout(pid_t pid, int *status, int options, int msecs, bool *timeout);
 	ssize_t read(int fd, void *buf, size_t count);
 	ssize_t write(int fd, const void *buf, size_t count);
 	bool wait_for_sigchld(int msecs);
@@ -42,11 +42,11 @@ public:
 	virtual ~DebuggerCoreUNIX() {}
 
 protected:
-	quint8 read_byte(edb::address_t address, bool &ok);
-	quint8 read_byte_base(edb::address_t address, bool &ok);
+	quint8 read_byte(edb::address_t address, bool *ok);
+	quint8 read_byte_base(edb::address_t address, bool *ok);
 	void execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args);
-	void write_byte(edb::address_t address, quint8 value, bool &ok);
-	void write_byte_base(edb::address_t address, quint8 value, bool &ok);
+	void write_byte(edb::address_t address, quint8 value, bool *ok);
+	void write_byte_base(edb::address_t address, quint8 value, bool *ok);
 
 public:
 	virtual bool read_pages(edb::address_t address, void *buf, std::size_t count);
@@ -55,7 +55,7 @@ public:
 	virtual int pointer_size() const;
 
 protected:
-	virtual long read_data(edb::address_t address, bool &ok) = 0;
+	virtual long read_data(edb::address_t address, bool *ok) = 0;
 	virtual bool write_data(edb::address_t address, long value) = 0;
 };
 
