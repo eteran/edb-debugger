@@ -661,8 +661,6 @@ bool edb::v1::get_utf16_string_at_address(edb::address_t address, QString &s, in
 //------------------------------------------------------------------------------
 QString edb::v1::find_function_symbol(edb::address_t address, const QString &default_value, int *offset) {
 	
-	Q_ASSERT(offset);
-	
 	QString symname(default_value);
 	int off;
 
