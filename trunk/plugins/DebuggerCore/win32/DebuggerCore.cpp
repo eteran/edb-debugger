@@ -403,8 +403,9 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 //------------------------------------------------------------------------------
 void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
+	Q_ASSERT(state);
 
-	PlatformState *state_impl = static_cast<PlatformState *>(state.impl_);
+	PlatformState *state_impl = static_cast<PlatformState *>(state->impl_);
 
 	if(attached() && state_impl) {
 		if(const Win32Handle th = OpenThread(THREAD_QUERY_INFORMATION | THREAD_GET_CONTEXT, FALSE, active_thread())) {
@@ -428,7 +429,7 @@ void DebuggerCore::get_state(State *state) {
 
 		}
 	} else {
-		state.clear();
+		state->clear();
 	}
 }
 
