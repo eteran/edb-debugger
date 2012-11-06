@@ -193,7 +193,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 		int status;
 		bool timeout;
 
-		const edb::tid_t tid = native::waitpid_timeout(pid(), &status, 0, msecs, timeout);
+		const edb::tid_t tid = native::waitpid_timeout(pid(), &status, 0, msecs, &timeout);
 		if(!timeout) {
 			if(tid > 0) {
 
@@ -239,11 +239,14 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 // Desc:
 //------------------------------------------------------------------------------
 long DebuggerCore::read_data(edb::address_t address, bool *ok) {
+
+	Q_ASSERT(ok);
+
 	// NOTE: this will fail on newer versions of linux if called from a
 	// different thread than the one which attached to process
 	errno = 0;
 	const long v = ptrace(PT_READ_D, pid(), reinterpret_cast<char*>(address), 0);
-	SET_OK(ok, v);
+	SET_OK(*ok, v);
 	return v;
 }
 
@@ -354,8 +357,11 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::get_state(State *state) {
+	
+	Q_ASSERT(state);
+	
 	// TODO: assert that we are paused
-	PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_);
+	PlatformState *const state_impl = static_cast<PlatformState *>(state->impl_);
 
 	if(attached()) {
 		if(ptrace(PT_GETREGS, active_thread(), reinterpret_cast<char*>(&state_impl->regs_), 0) != -1) {
@@ -370,7 +376,7 @@ void DebuggerCore::get_state(State *state) {
 		// TODO: Debug Registers
 
 	} else {
-		state.clear();
+		state->clear();
 	}
 }
 

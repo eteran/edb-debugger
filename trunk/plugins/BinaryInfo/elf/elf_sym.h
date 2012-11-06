@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Symbol table entry.  */
 
-struct elf32_sym {
+struct elf32_symX {
   elf32_word	st_name;		/* Symbol name (string tbl index) */
   elf32_addr	st_value;		/* Symbol value */
   elf32_word	st_size;		/* Symbol size */
