@@ -85,8 +85,8 @@ private:
 	int address_length() const;
 	int auto_line1() const;
 	int draw_instruction(QPainter &painter, const edb::Instruction &insn, bool upper, int y, int line_height, int l2, int l3) const;
-	int get_instruction_size(edb::address_t address, bool &ok) const;
-	int get_instruction_size(edb::address_t address, bool &ok, quint8 *buf, int &size) const;
+	int get_instruction_size(edb::address_t address, bool *ok) const;
+	int get_instruction_size(edb::address_t address, bool *ok, quint8 *buf, int *size) const;
 	int line1() const;
 	int line2() const;
 	int line3() const;

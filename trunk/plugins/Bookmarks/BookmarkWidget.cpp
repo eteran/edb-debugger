@@ -51,7 +51,7 @@ void BookmarkWidget::on_tableWidget_cellDoubleClicked(int row, int col) {
 		{
 			if(QTableWidgetItem *const address_item = ui->tableWidget->item(row, 0)) {
 				bool ok;
-				const edb::address_t addr = edb::v1::string_to_address(address_item->text(), ok);
+				const edb::address_t addr = edb::v1::string_to_address(address_item->text(), &ok);
 				if(ok) {
 					edb::v1::jump_to_address(addr);
 				}
@@ -81,7 +81,7 @@ void BookmarkWidget::on_tableWidget_cellDoubleClicked(int row, int col) {
 void BookmarkWidget::on_btnAdd_clicked() {
 
 	edb::address_t address;
-	if(edb::v1::get_expression_from_user(tr("Bookmark Address"), tr("Address:"), address)) {
+	if(edb::v1::get_expression_from_user(tr("Bookmark Address"), tr("Address:"), &address)) {
 		add_address(address);
 	}
 }
@@ -96,7 +96,7 @@ void BookmarkWidget::on_btnDel_clicked() {
 	if(item.get()) {
 		bool ok;
 		const QString s = item->text();
-		const edb::address_t address = edb::v1::string_to_address(s, ok);
+		const edb::address_t address = edb::v1::string_to_address(s, &ok);
 		entries_.remove(address);
 	}
 }

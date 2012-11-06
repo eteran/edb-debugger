@@ -60,7 +60,7 @@ void DialogReferences::showEvent(QShowEvent *) {
 //------------------------------------------------------------------------------
 void DialogReferences::do_find() {
 	bool ok;
-	const edb::address_t address   = edb::v1::string_to_address(ui->txtAddress->text(), ok);
+	const edb::address_t address   = edb::v1::string_to_address(ui->txtAddress->text(), &ok);
 	const edb::address_t page_size = edb::v1::debugger_core->page_size();
 
 	if(ok) {
@@ -155,7 +155,7 @@ void DialogReferences::on_btnFind_clicked() {
 //------------------------------------------------------------------------------
 void DialogReferences::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 	bool ok;
-	const edb::address_t addr = edb::v1::string_to_address(item->text(), ok);
+	const edb::address_t addr = edb::v1::string_to_address(item->text(), &ok);
 	if(ok) {
 		if(item->data(Qt::UserRole).toChar() == 'D') {
 			edb::v1::dump_data(addr, false);

@@ -133,7 +133,7 @@ void DialogBinaryString::on_btnFind_clicked() {
 //------------------------------------------------------------------------------
 void DialogBinaryString::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 	bool ok;
-	const edb::address_t addr = edb::v1::string_to_address(item->text(), ok);
+	const edb::address_t addr = edb::v1::string_to_address(item->text(), &ok);
 	if(ok) {
 		edb::v1::dump_data(addr, false);
 	}

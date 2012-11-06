@@ -94,8 +94,8 @@ namespace edb {
 		EDB_EXPORT bool jump_to_address(edb::address_t address);
 
 		// ask the user for a value in an expression form
-		EDB_EXPORT bool get_expression_from_user(const QString &title, const QString prompt, edb::address_t &value);
-		EDB_EXPORT bool eval_expression(const QString &expression, edb::address_t &value);
+		EDB_EXPORT bool get_expression_from_user(const QString &title, const QString prompt, edb::address_t *value);
+		EDB_EXPORT bool eval_expression(const QString &expression, edb::address_t *value);
 
 		// ask the user for a value suitable for a register via an input box
 		EDB_EXPORT bool get_value_from_user(edb::reg_t &value, const QString &title);
@@ -131,8 +131,8 @@ namespace edb {
 		EDB_EXPORT QString find_function_symbol(edb::address_t address, const QString &default_value, int *offset);
 
 		// ask the user for either a value or a variable (register name and such)
-		EDB_EXPORT edb::address_t get_value(edb::address_t address, bool &ok, ExpressionError &err);
-		EDB_EXPORT edb::address_t get_variable(const QString &s, bool &ok, ExpressionError &err);
+		EDB_EXPORT edb::address_t get_value(edb::address_t address, bool *ok, ExpressionError &err);
+		EDB_EXPORT edb::address_t get_variable(const QString &s, bool *ok, ExpressionError &err);
 
 		// hook the debug event system
 		EDB_EXPORT IDebugEventHandler *set_debug_event_handler(IDebugEventHandler *p);
@@ -145,7 +145,7 @@ namespace edb {
 		EDB_EXPORT ISessionFile *session_file_handler();
 
 		// reads up to size bytes from address (stores how many it could read in size)
-		EDB_EXPORT bool get_instruction_bytes(edb::address_t address, quint8 *buf, int &size);
+		EDB_EXPORT bool get_instruction_bytes(edb::address_t address, quint8 *buf, int *size);
 
 		EDB_EXPORT IBinary *get_binary_info(const MemoryRegion &region);
 		EDB_EXPORT const FunctionInfo *get_function_info(const QString &function);
@@ -175,7 +175,7 @@ namespace edb {
 		EDB_EXPORT QString basename(const QString &s);
 		EDB_EXPORT QString symlink_target(const QString &s);
 		EDB_EXPORT QStringList parse_command_line(const QString &cmdline);
-		EDB_EXPORT edb::address_t string_to_address(const QString &s, bool &ok);
+		EDB_EXPORT edb::address_t string_to_address(const QString &s, bool *ok);
 		EDB_EXPORT QString format_bytes(const QByteArray &x);
 		EDB_EXPORT QString format_pointer(edb::address_t p);
 

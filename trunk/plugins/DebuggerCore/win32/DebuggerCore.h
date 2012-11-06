@@ -42,7 +42,7 @@ public:
 	virtual void pause();
 	virtual void resume(edb::EVENT_STATUS status);
 	virtual void step(edb::EVENT_STATUS status);
-	virtual void get_state(State &state);
+	virtual void get_state(State *state);
 	virtual void set_state(const State &state);
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty);
 	virtual bool read_pages(edb::address_t address, void *buf, std::size_t count);

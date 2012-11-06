@@ -338,7 +338,7 @@ void Expression<T>::eval_exp7(T &result) {
 				bool ok;
 				ExpressionError error;
 								
-				result = memory_reader_(effective_address, ok, error);
+				result = memory_reader_(effective_address, &ok, error);
 				if(!ok) {
 					throw error;
 				}
@@ -375,7 +375,7 @@ void Expression<T>::eval_atom(T &result) {
 		if(variable_reader_) {
 			bool ok;
 			ExpressionError error;
-			result = variable_reader_(token_.data_, ok, error);
+			result = variable_reader_(token_.data_, &ok, error);
 			if(!ok) {
 				throw error;
 			}			

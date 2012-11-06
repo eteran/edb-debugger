@@ -235,10 +235,10 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: read_data(edb::address_t address, bool &ok)
+// Name: read_data(edb::address_t address, bool *ok)
 // Desc:
 //------------------------------------------------------------------------------
-long DebuggerCore::read_data(edb::address_t address, bool &ok) {
+long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 	// NOTE: this will fail on newer versions of linux if called from a
 	// different thread than the one which attached to process
 	errno = 0;
@@ -350,10 +350,10 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_state(State &state)
+// Name: get_state(State *state)
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerCore::get_state(State &state) {
+void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
 	PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_);
 

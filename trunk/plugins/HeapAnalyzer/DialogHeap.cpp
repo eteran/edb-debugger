@@ -145,14 +145,18 @@ void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_library_names(QString &libcName, QString &ldName) const
+// Name: get_library_names(QString *libcName, QString *ldName) const
 // Desc:
 //------------------------------------------------------------------------------
-void DialogHeap::get_library_names(QString &libcName, QString &ldName) const {
+void DialogHeap::get_library_names(QString *libcName, QString *ldName) const {
+	
+	Q_ASSERT(libcName);
+	Q_ASSERT(ldName);
+	
 	const QList<Module> libs = edb::v1::loaded_libraries();
 
 	Q_FOREACH(const Module &module, libs) {
-		if(!ldName.isEmpty() && !libcName.isEmpty()) {
+		if(!ldName->isEmpty() && !libcName->isEmpty()) {
 			break;
 		}
 
@@ -163,20 +167,20 @@ void DialogHeap::get_library_names(QString &libcName, QString &ldName) const {
 		// seems correct based on my system
 
 		if(fileinfo.completeBaseName().startsWith("libc-")) {
-			libcName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
-			qDebug() << "[Heap Analyzer] libc library appears to be:" << libcName;
+			*libcName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
+			qDebug() << "[Heap Analyzer] libc library appears to be:" << *libcName;
 			continue;
 		}
 
 		if(fileinfo.completeBaseName().startsWith("libc.so")) {
-			libcName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
-			qDebug() << "[Heap Analyzer] libc library appears to be:" << libcName;
+			*libcName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
+			qDebug() << "[Heap Analyzer] libc library appears to be:" << *libcName;
 			continue;
 		}
 
 		if(fileinfo.completeBaseName().startsWith("ld-")) {
-			ldName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
-			qDebug() << "[Heap Analyzer] ld library appears to be:" << ldName;
+			*ldName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
+			qDebug() << "[Heap Analyzer] ld library appears to be:" << *ldName;
 			continue;
 		}
 	}
@@ -187,6 +191,7 @@ void DialogHeap::get_library_names(QString &libcName, QString &ldName) const {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeap::process_potential_pointer(const QHash<edb::address_t, edb::address_t> &targets, Result &result) {
+	
 	if(result.data.isEmpty()) {
 		edb::address_t pointer;
 		edb::address_t block_ptr = block_start(result);
@@ -402,7 +407,7 @@ void DialogHeap::do_find() {
 	QString libcName;
 	QString ldName;
 
-	get_library_names(libcName, ldName);
+	get_library_names(&libcName, &ldName);
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
 	s = edb::v1::symbol_manager().find(libcName + "::__curbrk");
 	if(s) {

@@ -187,7 +187,7 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 
 		int buf_size = qMin<edb::address_t>((current_address - region_.base()), sizeof(buf));
 
-		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address - buf_size, buf, buf_size)) {
+		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address - buf_size, buf, &buf_size)) {
 			current_address -= 1;
 			break;
 		}
@@ -217,7 +217,7 @@ edb::address_t QDisassemblyView::following_instructions(edb::address_t current_a
 		int buf_size = qMin<edb::address_t>((region_.end() - current_address), sizeof(buf));
 
 		// read in the bytes...
-		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address, buf, buf_size)) {
+		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address, buf, &buf_size)) {
 			current_address += 1;
 			break;
 		} else {
@@ -634,7 +634,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		int buf_size = qMin<edb::address_t>((region_.end() - address), sizeof(buf));
 
 		// read in the bytes...
-		if(!edb::v1::get_instruction_bytes(address, buf, buf_size)) {
+		if(!edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
 			// if the read failed, let's pretend that we were able to read a
 			// single 0xff byte so that we have _something_ to display.
 			buf_size = 1;
@@ -872,29 +872,34 @@ edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_instruction_size(edb::address_t address, bool &ok, quint8 *buf, int &size) const
+// Name: get_instruction_size(edb::address_t address, bool *ok, quint8 *buf, int *size) const
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::get_instruction_size(edb::address_t address, bool &ok, quint8 *buf, int &size) const {
+int QDisassemblyView::get_instruction_size(edb::address_t address, bool *ok, quint8 *buf, int *size) const {
+	
+	Q_ASSERT(ok);
+	Q_ASSERT(buf);
+	Q_ASSERT(size);
+	
 	int ret = 0;
 
 	if(size < 0) {
-		ok = false;
+		*ok = false;
 	} else {
-		ok = edb::v1::get_instruction_bytes(address, buf, size);
+		*ok = edb::v1::get_instruction_bytes(address, buf, size);
 
-		if(ok) {
-			ret = instruction_size(buf, size);
+		if(*ok) {
+			ret = instruction_size(buf, *size);
 		}
 	}
 	return ret;
 }
 
 //------------------------------------------------------------------------------
-// Name: get_instruction_size(edb::address_t address, bool &ok) const
+// Name: get_instruction_size(edb::address_t address, bool *ok) const
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::get_instruction_size(edb::address_t address, bool &ok) const {
+int QDisassemblyView::get_instruction_size(edb::address_t address, bool *ok) const {
 	quint8 buf[edb::Instruction::MAX_SIZE];
 
 	// do the longest read we can while still not crossing region end
@@ -908,7 +913,7 @@ int QDisassemblyView::get_instruction_size(edb::address_t address, bool &ok) con
 		}
 	}
 
-	return get_instruction_size(address, ok, buf, buf_size);
+	return get_instruction_size(address, ok, buf, &buf_size);
 }
 
 //------------------------------------------------------------------------------
@@ -925,7 +930,7 @@ edb::address_t QDisassemblyView::address_from_coord(int x, int y) const {
 	for(int i = 0; i < line; ++i) {
 		bool ok;
 
-		int size = get_instruction_size(address_offset_ + address, ok);
+		int size = get_instruction_size(address_offset_ + address, &ok);
 		if(ok) {
 			address += (size != 0) ? size : 1;
 		} else {
@@ -975,7 +980,7 @@ bool QDisassemblyView::event(QEvent *event) {
 
 				// do the longest read we can while still not passing the region end
 				int buf_size = qMin<edb::address_t>((region_.end() - address), sizeof(buf));
-				if(edb::v1::get_instruction_bytes(address, buf, buf_size)) {
+				if(edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
 					const edb::Instruction insn(buf, buf + buf_size, address, std::nothrow);
 
 					if((line1() + (static_cast<int>(insn.size()) * 3) * font_width_) > line2()) {
@@ -1020,7 +1025,7 @@ void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 	if(region_ != MemoryRegion()) {
 		bool ok;
 		const edb::address_t address = addressFromPoint(event->pos());
-		const int size               = get_instruction_size(address, ok);
+		const int size               = get_instruction_size(address, &ok);
 	
 		if(ok) {
 			selected_instruction_address_ = address;

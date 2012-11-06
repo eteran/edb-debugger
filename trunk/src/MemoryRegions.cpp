@@ -91,13 +91,14 @@ bool MemoryRegions::find_region(edb::address_t address) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: find_region(edb::address_t address, MemoryRegion &region) const
+// Name: find_region(edb::address_t address, MemoryRegion *region) const
 // Desc:
 //------------------------------------------------------------------------------
-bool MemoryRegions::find_region(edb::address_t address, MemoryRegion &region) const {
+bool MemoryRegions::find_region(edb::address_t address, MemoryRegion *region) const {
+	Q_ASSERT(region);
 	Q_FOREACH(const MemoryRegion &i, regions_) {
 		if(i.contains(address)) {
-			region = i;
+			*region = i;
 			return true;
 		}
 	}

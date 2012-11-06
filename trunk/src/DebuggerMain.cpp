@@ -95,7 +95,7 @@ namespace {
 		quint8 buffer[edb::Instruction::MAX_SIZE];
 		int size = sizeof(buffer);
 
-		if(edb::v1::get_instruction_bytes(address, buffer, size)) {
+		if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
 			edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
 			return insn.valid() && insn.type() == edb::Instruction::OP_RET;
 		}
@@ -120,7 +120,7 @@ public:
 		if(event->trap_reason() == IDebugEvent::TRAP_STEPPING) {
 
 			State state;
-			edb::v1::debugger_core->get_state(state);
+			edb::v1::debugger_core->get_state(&state);
 			const edb::address_t address = state.instruction_pointer();
 
 			if(last_call_return_ == address) {
@@ -139,7 +139,7 @@ public:
 
 					// if this some variant of a call, then we should
 					// record where we think it'll return to
-					if(edb::v1::get_instruction_bytes(address, buffer, sz)) {
+					if(edb::v1::get_instruction_bytes(address, buffer, &sz)) {
 						edb::Instruction insn(buffer, buffer + sz, 0, std::nothrow);
 						if(insn.valid() && edb::v1::arch_processor().can_step_over(insn)) {
 							last_call_return_ = address + insn.size();
@@ -522,7 +522,7 @@ void DebuggerMain::on_registerList_itemDoubleClicked(QTreeWidgetItem *item) {
 		if(edb::v1::get_value_from_user(r, tr("Register Value"))) {
 
 			State state;
-			edb::v1::debugger_core->get_state(state);
+			edb::v1::debugger_core->get_state(&state);
 			state.set_register(reg.name(), r);
 			edb::v1::debugger_core->set_state(state);
 			update_gui();
@@ -603,7 +603,7 @@ void DebuggerMain::follow_memory(edb::address_t address, F follow_func) {
 //------------------------------------------------------------------------------
 void DebuggerMain::follow_register_in_dump(bool tabbed) {
 	bool ok;
-	const edb::address_t address = get_follow_register(ok);
+	const edb::address_t address = get_follow_register(&ok);
 	if(ok && !edb::v1::dump_data(address, tabbed)) {
 		QMessageBox::information(this,
 			tr("No Memory Found"),
@@ -617,7 +617,7 @@ void DebuggerMain::follow_register_in_dump(bool tabbed) {
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackGotoESP() {
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 	follow_memory(state.stack_pointer(), boost::bind(edb::v1::dump_stack, _1));
 }
 
@@ -627,7 +627,7 @@ void DebuggerMain::mnuStackGotoESP() {
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackGotoEBP() {
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 	follow_memory(state.frame_pointer(), boost::bind(edb::v1::dump_stack, _1));
 }
 
@@ -637,7 +637,7 @@ void DebuggerMain::mnuStackGotoEBP() {
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUJumpToEIP() {
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 	follow_memory(state.instruction_pointer(), boost::bind(edb::v1::jump_to_address, _1));
 }
 
@@ -647,7 +647,7 @@ void DebuggerMain::mnuCPUJumpToEIP() {
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUJumpToAddress() {
 	bool ok;
-	const edb::address_t address = get_goto_expression(ok);
+	const edb::address_t address = get_goto_expression(&ok);
 	if(ok) {
 		follow_memory(address, boost::bind(edb::v1::jump_to_address, _1));
 	}
@@ -659,7 +659,7 @@ void DebuggerMain::mnuCPUJumpToAddress() {
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpGotoAddress() {
     bool ok;
-	const edb::address_t address = get_goto_expression(ok);
+	const edb::address_t address = get_goto_expression(&ok);
 	if(ok) {
 		follow_memory(address, boost::bind(edb::v1::dump_data, _1));
 	}
@@ -671,7 +671,7 @@ void DebuggerMain::mnuDumpGotoAddress() {
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackGotoAddress() {
     bool ok;
-	const edb::address_t address = get_goto_expression(ok);
+	const edb::address_t address = get_goto_expression(&ok);
 	if(ok) {
 		follow_memory(address, boost::bind(edb::v1::dump_stack, _1));
 	}
@@ -683,7 +683,7 @@ void DebuggerMain::mnuStackGotoAddress() {
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuRegisterFollowInStack() {
 	bool ok;
-	const edb::address_t address = get_follow_register(ok);
+	const edb::address_t address = get_follow_register(&ok);
 	if(ok) {
 		follow_memory(address, boost::bind(edb::v1::dump_stack, _1));
 	}
@@ -691,14 +691,16 @@ void DebuggerMain::mnuRegisterFollowInStack() {
 
 
 //------------------------------------------------------------------------------
-// Name: get_follow_address(const T &hv, bool &ok)
+// Name: get_follow_address(const T &hv, bool *ok)
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-edb::address_t DebuggerMain::get_follow_address(const T &hv, bool &ok) {
-	ok = false;
-
+edb::address_t DebuggerMain::get_follow_address(const T &hv, bool *ok) {
+	
 	Q_ASSERT(hv);
+	Q_ASSERT(ok);
+	
+	*ok = false;
 
 	if(hv->hasSelectedText()) {
 		const QByteArray data = hv->selectedBytes();
@@ -707,7 +709,7 @@ edb::address_t DebuggerMain::get_follow_address(const T &hv, bool &ok) {
 			edb::address_t d;
 			std::memcpy(&d, data.data(), edb::v1::pointer_size());
 
-			ok = true;
+			*ok = true;
 			return d;
 		}
 	}
@@ -726,7 +728,7 @@ edb::address_t DebuggerMain::get_follow_address(const T &hv, bool &ok) {
 template <class T>
 void DebuggerMain::follow_in_stack(const T &hv) {
 	bool ok;
-	const edb::address_t address = get_follow_address(hv, ok);
+	const edb::address_t address = get_follow_address(hv, &ok);
 	if(ok) {
 		follow_memory(address, boost::bind(edb::v1::dump_stack, _1));
 	}
@@ -739,7 +741,7 @@ void DebuggerMain::follow_in_stack(const T &hv) {
 template <class T>
 void DebuggerMain::follow_in_dump(const T &hv) {
 	bool ok;
-	const edb::address_t address = get_follow_address(hv, ok);
+	const edb::address_t address = get_follow_address(hv, &ok);
 	if(ok) {
 		follow_memory(address, boost::bind(edb::v1::dump_data, _1));
 	}
@@ -752,7 +754,7 @@ void DebuggerMain::follow_in_dump(const T &hv) {
 template <class T>
 void DebuggerMain::follow_in_cpu(const T &hv) {
 	bool ok;
-	const edb::address_t address = get_follow_address(hv, ok);
+	const edb::address_t address = get_follow_address(hv, &ok);
 	if(ok) {
 		follow_memory(address, boost::bind(edb::v1::jump_to_address, _1));
 	}
@@ -837,7 +839,7 @@ void DebuggerMain::on_actionApplication_Working_Directory_triggered() {
 void DebuggerMain::mnuStackPush() {
 	edb::reg_t value = 0;
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 
 	// ask for a replacement
 	if(edb::v1::get_value_from_user(value, tr("Enter value to push"))) {
@@ -857,7 +859,7 @@ void DebuggerMain::mnuStackPush() {
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackPop() {
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 	edb::v1::pop_value(state);
 	edb::v1::debugger_core->set_state(state);
 	update_gui();
@@ -881,7 +883,7 @@ void DebuggerMain::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 	if(edb::v1::debugger_core->pid() != 0) {
 		quint8 buffer[edb::Instruction::MAX_SIZE + 1];
-		if(edb::v1::get_instruction_bytes(address, buffer, size)) {
+		if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
 			edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
 			if(insn.valid()) {
 
@@ -1137,7 +1139,7 @@ void DebuggerMain::mnuCPUFillNop() {
 void DebuggerMain::mnuCPUSetEIP() {
 	const edb::address_t address = ui->cpuView->selectedAddress();
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 	state.set_instruction_pointer(address);
 	edb::v1::debugger_core->set_state(state);
 	update_gui();
@@ -1200,7 +1202,7 @@ void DebuggerMain::mnuStackModify() {
 bool DebuggerMain::breakpoint_condition_true(const QString &condition) {
 
 	edb::address_t condition_value;
-	if(!edb::v1::eval_expression(condition, condition_value)) {
+	if(!edb::v1::eval_expression(condition, &condition_value)) {
 		return true;
 	}
 	return condition_value;
@@ -1218,7 +1220,7 @@ edb::EVENT_STATUS DebuggerMain::handle_trap() {
 	// #3: we hit a 0xcc naturally in the program
 	// #4: we hit a hardware breakpoint!
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 
 	const edb::address_t previous_ip = state.instruction_pointer() - edb::v1::debugger_core->breakpoint_size();
 
@@ -1343,13 +1345,13 @@ edb::EVENT_STATUS DebuggerMain::handle_event_exited(const IDebugEvent::const_poi
 //------------------------------------------------------------------------------
 bool DebuggerMain::current_instruction_is_return() const {
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 	const edb::address_t address = state.instruction_pointer();
 
 	quint8 buffer[edb::Instruction::MAX_SIZE + 1];
 	int size = sizeof(buffer);
 
-	if(edb::v1::get_instruction_bytes(address, buffer, size)) {
+	if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
 		edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
 		if(insn.valid() && insn.type() == edb::Instruction::OP_RET) {
 			return true;
@@ -1505,7 +1507,7 @@ void DebuggerMain::update_cpu_view(const State &state, MemoryRegion &region) {
 
 	const edb::address_t address = state.instruction_pointer();
 
-	if(!edb::v1::memory_regions().find_region(address, region)) {
+	if(!edb::v1::memory_regions().find_region(address, &region)) {
 		ui->cpuView->clear();
 		ui->cpuView->scrollTo(0);
 		list_model_->setStringList(QStringList());
@@ -1545,7 +1547,7 @@ void DebuggerMain::refresh_gui() {
 	}
 
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 	list_model_->setStringList(edb::v1::arch_processor().update_instruction_info(state.instruction_pointer()));
 }
 
@@ -1557,7 +1559,7 @@ void DebuggerMain::update_gui() {
 	
 	if(edb::v1::debugger_core) {
 		State state;
-		edb::v1::debugger_core->get_state(state);
+		edb::v1::debugger_core->get_state(&state);
 		
 		MemoryRegion region;
 		update_cpu_view(state, region);
@@ -1599,7 +1601,7 @@ void DebuggerMain::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE 
 
 	// if we are on a breakpoint, disable it
 	State state;
-	edb::v1::debugger_core->get_state(state);
+	edb::v1::debugger_core->get_state(&state);
 	IBreakpoint::pointer bp;
 	if(!forced) {
 		bp = edb::v1::find_breakpoint(state.instruction_pointer());
@@ -2042,7 +2044,7 @@ void DebuggerMain::on_action_Attach_triggered() {
 	if(dlg->exec() == QDialog::Accepted) {
 		if(dlg) {
 			bool ok;
-			const edb::pid_t pid = dlg->selected_pid(ok);
+			const edb::pid_t pid = dlg->selected_pid(&ok);
 			if(ok) {
 				attach(pid);
 			}
@@ -2141,7 +2143,7 @@ void DebuggerMain::on_action_Plugins_triggered() {
 //------------------------------------------------------------------------------
 bool DebuggerMain::jump_to_address(edb::address_t address) {
 	MemoryRegion region;
-	if(edb::v1::memory_regions().find_region(address, region)) {
+	if(edb::v1::memory_regions().find_region(address, &region)) {
 		do_jump_to_address(address, region, true);
 		return true;
 	}
@@ -2155,7 +2157,7 @@ bool DebuggerMain::jump_to_address(edb::address_t address) {
 //------------------------------------------------------------------------------
 bool DebuggerMain::dump_data_range(edb::address_t address, edb::address_t end_address, bool new_tab) {
 	MemoryRegion region;
-	if(edb::v1::memory_regions().find_region(address, region)) {
+	if(edb::v1::memory_regions().find_region(address, &region)) {
 		if(new_tab) {
 			mnuDumpCreateTab();
 		}
@@ -2187,7 +2189,7 @@ bool DebuggerMain::dump_data_range(edb::address_t address, edb::address_t end_ad
 //------------------------------------------------------------------------------
 bool DebuggerMain::dump_data(edb::address_t address, bool new_tab) {
 	MemoryRegion region;
-	if(edb::v1::memory_regions().find_region(address, region)) {
+	if(edb::v1::memory_regions().find_region(address, &region)) {
 		if(new_tab) {
 			mnuDumpCreateTab();
 		}
@@ -2212,7 +2214,7 @@ bool DebuggerMain::dump_data(edb::address_t address, bool new_tab) {
 bool DebuggerMain::dump_stack(edb::address_t address, bool scroll_to) {
 	const MemoryRegion last_region = stack_view_info_.region;
 
-	if(edb::v1::memory_regions().find_region(address, stack_view_info_.region)) {
+	if(edb::v1::memory_regions().find_region(address, &stack_view_info_.region)) {
 		stack_view_info_.update();
 		if(scroll_to || stack_view_info_.region != last_region) {
 			stack_view_->scrollTo(address - stack_view_info_.region.start());

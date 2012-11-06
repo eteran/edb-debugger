@@ -69,7 +69,7 @@ public:
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
 	virtual IDebugEvent::const_pointer wait_debug_event(int msecs) = 0;
 	virtual void detach() = 0;
-	virtual void get_state(State &state) = 0;
+	virtual void get_state(State *state) = 0;
 	virtual void kill() = 0;
 	virtual void pause() = 0;
 	virtual void resume(edb::EVENT_STATUS status) = 0;

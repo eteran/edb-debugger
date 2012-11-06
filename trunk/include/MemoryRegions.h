@@ -42,7 +42,7 @@ public:
 
 public:
 	bool find_region(edb::address_t address) const;
-	bool find_region(edb::address_t address, MemoryRegion &region) const;
+	bool find_region(edb::address_t address, MemoryRegion *region) const;
 	const QList<MemoryRegion> &regions() const { return regions_; }
 	void clear();
 	void sync();

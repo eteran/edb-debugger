@@ -101,7 +101,7 @@ void DialogBreakpoints::on_btnAdd_clicked() {
 	if(ok && !text.isEmpty()) {
 		Expression<edb::address_t> expr(text, edb::v1::get_variable, edb::v1::get_value);
 		ExpressionError err;
-		const edb::address_t address = expr.evaluate_expression(ok, err);
+		const edb::address_t address = expr.evaluate_expression(&ok, &err);
 		if(ok) {
 			edb::v1::create_breakpoint(address);
 			updateList();
@@ -120,7 +120,7 @@ void DialogBreakpoints::on_btnCondition_clicked() {
 	QList<QTableWidgetItem *> sel = ui->tableWidget->selectedItems();
 	if(sel.size() != 0) {
 		bool ok;
-		const edb::address_t address = edb::v1::string_to_address(sel.begin()[0]->text(), ok);
+		const edb::address_t address = edb::v1::string_to_address(sel.begin()[0]->text(), &ok);
 		if(ok) {
 			const QString condition = edb::v1::get_breakpoint_condition(address);
 			const QString text = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, condition, &ok);
@@ -161,7 +161,7 @@ void DialogBreakpoints::on_btnRemove_clicked() {
 	Q_FOREACH(QTableWidgetItem *it, sel) {
 		if(it->column() == 0) { // address column
 			bool ok;
-			const edb::address_t address = edb::v1::string_to_address(it->text(), ok);
+			const edb::address_t address = edb::v1::string_to_address(it->text(), &ok);
 			if(ok) {
 				edb::v1::remove_breakpoint(address);
 			}
@@ -180,7 +180,7 @@ void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {
 		{
 			if(QTableWidgetItem *const address_item = ui->tableWidget->item(row, 0)) {
 				bool ok;
-				const edb::address_t address = edb::v1::string_to_address(address_item->text(), ok);
+				const edb::address_t address = edb::v1::string_to_address(address_item->text(), &ok);
 				if(ok) {
 					edb::v1::jump_to_address(address);
 				}
@@ -191,7 +191,7 @@ void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {
 		{
 			if(QTableWidgetItem *const address_item = ui->tableWidget->item(row, 0)) {
 				bool ok;
-				const edb::address_t address = edb::v1::string_to_address(address_item->text(), ok);
+				const edb::address_t address = edb::v1::string_to_address(address_item->text(), &ok);
 				if(ok) {
 					const QString condition = edb::v1::get_breakpoint_condition(address);
 					const QString text = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, condition, &ok);

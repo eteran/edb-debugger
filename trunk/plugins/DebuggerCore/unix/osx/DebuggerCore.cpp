@@ -112,10 +112,10 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: read_data(edb::address_t address, bool &ok)
+// Name: read_data(edb::address_t address, bool *ok)
 // Desc:
 //------------------------------------------------------------------------------
-long DebuggerCore::read_data(edb::address_t address, bool &ok) {
+long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 
         mach_port_t task;
         kern_return_t err = task_for_pid(mach_task_self(), pid(), &task);
@@ -248,10 +248,10 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_state(State &state)
+// Name: get_state(State *state)
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerCore::get_state(State &state) {
+void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
 	PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_);
 

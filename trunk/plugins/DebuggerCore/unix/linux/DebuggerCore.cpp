@@ -484,15 +484,18 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: read_data(edb::address_t address, bool &ok)
+// Name: read_data(edb::address_t address, bool *ok)
 // Desc:
 // Note: this will fail on newer versions of linux if called from a
 //       different thread than the one which attached to process
 //------------------------------------------------------------------------------
-long DebuggerCore::read_data(edb::address_t address, bool &ok) {
+long DebuggerCore::read_data(edb::address_t address, bool *ok) {
+	
+	Q_ASSERT(ok);
+
 	errno = 0;
 	const long v = ptrace(PTRACE_PEEKTEXT, pid(), address, 0);
-	SET_OK(ok, v);
+	SET_OK(*ok, v);
 	return v;
 }
 
@@ -651,13 +654,13 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_state(State &state)
+// Name: get_state(State *state)
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerCore::get_state(State &state) {
+void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
 
-	if(PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_)) {
+	if(PlatformState *const state_impl = static_cast<PlatformState *>(state->impl_)) {
 		if(attached()) {
 			if(ptrace(PTRACE_GETREGS, active_thread(), 0, &state_impl->regs_) != -1) {
 			#if defined(EDB_X86)
