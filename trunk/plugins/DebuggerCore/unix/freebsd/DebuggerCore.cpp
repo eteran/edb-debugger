@@ -390,14 +390,6 @@ IState *DebuggerCore::create_state() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions)
-// Desc:
-//------------------------------------------------------------------------------
-IRegion *DebuggerCore::create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const {
-	return new PlatformRegion(start, end, base, name, permissions);
-}
-
-//------------------------------------------------------------------------------
 // Name: enumerate_processes() const
 // Desc:
 //------------------------------------------------------------------------------
@@ -456,8 +448,8 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 // Name: 
 // Desc:
 //------------------------------------------------------------------------------
-QList<MemoryRegion> DebuggerCore::memory_regions() const {
-	QList<MemoryRegion> regions;
+QList<IRegion::pointer> DebuggerCore::memory_regions() const {
+	QList<IRegion::pointer> regions;
 
 	if(pid_ != 0) {
 		char buffer[PATH_MAX] = {};
@@ -475,7 +467,7 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 			const QString name                       = vm_entry.pve_path;
 			const IRegion::permissions_t permissions = vm_entry.pve_prot;
 
-			regions.push_back(MemoryRegion(start, end, base, name, permissions));
+			regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
 			memset(buffer, 0, sizeof(buffer));
 		}
 	}

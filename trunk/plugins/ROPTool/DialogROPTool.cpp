@@ -309,103 +309,104 @@ void DialogROPTool::do_find() {
 		Q_FOREACH(const QModelIndex &selected_item, sel) {
 
 			const QModelIndex index = filter_model_->mapToSource(selected_item);
-			const MemoryRegion *const region = reinterpret_cast<const MemoryRegion *>(index.internalPointer());
+			if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
-			edb::address_t start_address     = region->start();
-			const edb::address_t end_address = region->end();
-			const edb::address_t orig_start  = start_address;
+				edb::address_t start_address     = region->start();
+				const edb::address_t end_address = region->end();
+				const edb::address_t orig_start  = start_address;
 
-			ByteShiftArray bsa(32);
+				ByteShiftArray bsa(32);
 
-			while(start_address < end_address) {
-				
-				// read in the next byte
-				quint8 byte;
-				if(edb::v1::debugger_core->read_bytes(start_address, &byte, 1)) {
-					bsa << byte;
+				while(start_address < end_address) {
 
-					const quint8       *p = bsa.data();
-					const quint8 *const l = p + bsa.size();
-					edb::address_t    rva = start_address - bsa.size() + 1;
-																			
-					QList<edb::Instruction> instruction_list;
-					
-					// eat up any NOPs in front...
-					Q_FOREVER {
-						edb::Instruction insn(p, l, rva, std::nothrow);
-						if(!is_nop(insn)) {
-							break;
+					// read in the next byte
+					quint8 byte;
+					if(edb::v1::debugger_core->read_bytes(start_address, &byte, 1)) {
+						bsa << byte;
+
+						const quint8       *p = bsa.data();
+						const quint8 *const l = p + bsa.size();
+						edb::address_t    rva = start_address - bsa.size() + 1;
+
+						QList<edb::Instruction> instruction_list;
+
+						// eat up any NOPs in front...
+						Q_FOREVER {
+							edb::Instruction insn(p, l, rva, std::nothrow);
+							if(!is_nop(insn)) {
+								break;
+							}
+
+							instruction_list << insn;
+							p += insn.size();
+							rva += insn.size();
 						}
 
-						instruction_list << insn;
-						p += insn.size();
-						rva += insn.size();
-					}
-					
-					
-					edb::Instruction insn1(p, l, rva, std::nothrow);
-					if(insn1.valid()) {
-						instruction_list << insn1;
-					
-						if(insn1.type() == edb::Instruction::OP_INT && insn1.operand(0).general_type() == edb::Operand::TYPE_IMMEDIATE && (insn1.operand(0).immediate() & 0xff) == 0x80) {
-							add_gadget(instruction_list);
-						} else if(insn1.type() == edb::Instruction::OP_SYSENTER) {
-							add_gadget(instruction_list);
-						} else if(insn1.type() == edb::Instruction::OP_SYSCALL) {
-							add_gadget(instruction_list);
-						} else if(insn1.type() == edb::Instruction::OP_RET) {
-							ui->progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
-							++start_address;
-							continue;
-						} else {
-						
-							p += insn1.size();
-							rva += insn1.size();
-							
-							// eat up any NOPs in between...
-							Q_FOREVER {
-								edb::Instruction insn(p, l, rva, std::nothrow);
-								if(!is_nop(insn)) {
-									break;
+
+						edb::Instruction insn1(p, l, rva, std::nothrow);
+						if(insn1.valid()) {
+							instruction_list << insn1;
+
+							if(insn1.type() == edb::Instruction::OP_INT && insn1.operand(0).general_type() == edb::Operand::TYPE_IMMEDIATE && (insn1.operand(0).immediate() & 0xff) == 0x80) {
+								add_gadget(instruction_list);
+							} else if(insn1.type() == edb::Instruction::OP_SYSENTER) {
+								add_gadget(instruction_list);
+							} else if(insn1.type() == edb::Instruction::OP_SYSCALL) {
+								add_gadget(instruction_list);
+							} else if(insn1.type() == edb::Instruction::OP_RET) {
+								ui->progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
+								++start_address;
+								continue;
+							} else {
+
+								p += insn1.size();
+								rva += insn1.size();
+
+								// eat up any NOPs in between...
+								Q_FOREVER {
+									edb::Instruction insn(p, l, rva, std::nothrow);
+									if(!is_nop(insn)) {
+										break;
+									}
+
+									instruction_list << insn;
+									p += insn.size();
+									rva += insn.size();
 								}
 
-								instruction_list << insn;
-								p += insn.size();
-								rva += insn.size();
-							}
-							
-							edb::Instruction insn2(p, l, rva, std::nothrow);
-							if(insn2.valid() && insn2.type() == edb::Instruction::OP_RET) {
-								instruction_list << insn2;
-								add_gadget(instruction_list);
-							} else if(insn2.valid() && insn2.type() == edb::Instruction::OP_POP) {
-								instruction_list << insn2;
-								p += insn2.size();
-								rva += insn2.size();
-								
-								edb::Instruction insn3(p, l, rva, std::nothrow);
-								if(insn3.valid() && insn3.type() == edb::Instruction::OP_JMP) {
-								
-									instruction_list << insn3;
+								edb::Instruction insn2(p, l, rva, std::nothrow);
+								if(insn2.valid() && insn2.type() == edb::Instruction::OP_RET) {
+									instruction_list << insn2;
+									add_gadget(instruction_list);
+								} else if(insn2.valid() && insn2.type() == edb::Instruction::OP_POP) {
+									instruction_list << insn2;
+									p += insn2.size();
+									rva += insn2.size();
 
-									if(insn2.operand_count() == 1 && insn2.operand(0).general_type() == edb::Operand::TYPE_REGISTER) {
-										if(insn3.operand_count() == 1 && insn3.operand(0).general_type() == edb::Operand::TYPE_REGISTER) {
-											if(insn2.operand(0).reg() == insn3.operand(0).reg()) {
-												add_gadget(instruction_list);
+									edb::Instruction insn3(p, l, rva, std::nothrow);
+									if(insn3.valid() && insn3.type() == edb::Instruction::OP_JMP) {
+
+										instruction_list << insn3;
+
+										if(insn2.operand_count() == 1 && insn2.operand(0).general_type() == edb::Operand::TYPE_REGISTER) {
+											if(insn3.operand_count() == 1 && insn3.operand(0).general_type() == edb::Operand::TYPE_REGISTER) {
+												if(insn2.operand(0).reg() == insn3.operand(0).reg()) {
+													add_gadget(instruction_list);
+												}
 											}
 										}
 									}
 								}
 							}
+
+							// TODO: catch things like "add rsp, 8; jmp [rsp - 8]" and similar, it's rare,
+							// but could happen
 						}
-
-						// TODO: catch things like "add rsp, 8; jmp [rsp - 8]" and similar, it's rare,
-						// but could happen
 					}
-				}
 
-				ui->progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
-				++start_address;
+					ui->progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
+					++start_address;
+				}
 			}
 		}
 	}

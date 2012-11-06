@@ -48,7 +48,6 @@ HEADERS += \
 	IState.h \
 	LineEdit.h \
 	MD5.h \
-	MemoryRegion.h \
 	MemoryRegions.h \
 	OSTypes.h \
 	QCategoryList.h \
@@ -104,7 +103,6 @@ SOURCES += \
 	Instruction.cpp \
 	LineEdit.cpp \
 	MD5.cpp \
-	MemoryRegion.cpp \
 	MemoryRegions.cpp \
 	QCategoryList.cpp \
 	QDisassemblyView.cpp \

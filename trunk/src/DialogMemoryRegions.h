@@ -20,10 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIALOGMEMORYREGIONS_20061101_H_
 
 #include <QDialog>
+#include "IRegion.h"
 
 class QSortFilterProxyModel;
 class QModelIndex;
-class MemoryRegion;
 
 namespace Ui { class DialogMemoryRegions; }
 
@@ -52,7 +52,7 @@ private Q_SLOTS:
 	void view_in_dump();
 
 private:
-	MemoryRegion *selected_region() const;
+	IRegion::pointer selected_region() const;
 	void set_permissions(bool read, bool write, bool execute);
 
 private:

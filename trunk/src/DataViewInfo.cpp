@@ -20,10 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "QHexView"
 
 //------------------------------------------------------------------------------
-// Name: DataViewInfo(const MemoryRegion &r)
+// Name: DataViewInfo(const IRegion::pointer &r)
 // Desc:
 //------------------------------------------------------------------------------
-DataViewInfo::DataViewInfo(const MemoryRegion &r) : region(r), stream(new RegionBuffer(r)) {
+DataViewInfo::DataViewInfo(const IRegion::pointer &r) : region(r), stream(new RegionBuffer(r)) {
 }
 
 //------------------------------------------------------------------------------
@@ -43,7 +43,7 @@ void DataViewInfo::update() {
 	Q_ASSERT(view);
 
 	stream->set_region(region);
-	view->setAddressOffset(region.start());
+	view->setAddressOffset(region->start());
 	view->setData(stream);
 }
 

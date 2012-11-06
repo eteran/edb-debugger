@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class ELF32 : public IBinary {
 public:
-	ELF32(const MemoryRegion &region);
+	ELF32(const IRegion::pointer &region);
 	virtual ~ELF32();
 
 public:

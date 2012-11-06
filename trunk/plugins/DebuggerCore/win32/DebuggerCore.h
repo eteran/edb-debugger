@@ -57,7 +57,7 @@ public:
 	virtual void set_active_thread(edb::tid_t tid) { Q_ASSERT(threads_.contains(tid)); active_thread_ = tid; }
 
 public:
-	virtual QList<MemoryRegion> memory_regions() const;
+	virtual QList<IRegion::pointer> memory_regions() const;
 	virtual edb::address_t application_code_address() const;
 	virtual edb::address_t application_data_address() const;
 
@@ -70,7 +70,6 @@ public:
 
 public:
 	virtual IState *create_state() const;
-	virtual IRegion *create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const;
 
 private:
 	virtual QMap<edb::pid_t, Process> enumerate_processes() const;

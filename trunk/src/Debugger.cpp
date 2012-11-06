@@ -156,7 +156,7 @@ edb::address_t edb::v1::cpu_selected_address() {
 // Name: current_cpu_view_region()
 // Desc:
 //------------------------------------------------------------------------------
-MemoryRegion edb::v1::current_cpu_view_region() {
+IRegion::pointer edb::v1::current_cpu_view_region() {
 	return ui()->ui->cpuView->region();
 }
 
@@ -346,12 +346,11 @@ QString edb::v1::get_breakpoint_condition(edb::address_t address) {
 //------------------------------------------------------------------------------
 void edb::v1::create_breakpoint(edb::address_t address) {
 
-	MemoryRegion region;
 	memory_regions().sync();
-	if(memory_regions().find_region(address, &region)) {
+	if(IRegion::pointer region = memory_regions().find_region(address)) {
 		int ret = QMessageBox::Yes;
 
-		if(!region.executable() && config().warn_on_no_exec_bp) {
+		if(!region->executable() && config().warn_on_no_exec_bp) {
 			ret = QMessageBox::question(
 				0,
 				QT_TRANSLATE_NOOP("edb", "Suspicious breakpoint"),
@@ -691,20 +690,21 @@ QString edb::v1::find_function_symbol(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_variable(QString &s, bool *ok, ExpressionError &err)
+// Name: get_variable(QString &s, bool *ok, ExpressionError *err)
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t edb::v1::get_variable(const QString &s, bool *ok, ExpressionError &err) {
+edb::address_t edb::v1::get_variable(const QString &s, bool *ok, ExpressionError *err) {
 
 	Q_ASSERT(debugger_core);
 	Q_ASSERT(ok);
+	Q_ASSERT(err);
 
 	State state;
 	edb::v1::debugger_core->get_state(&state);
 	const Register reg = state.value(s);
 	*ok = reg;
 	if(!*ok) {
-		err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
+		*err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
 	}
 
 	if(reg.name() == "fs") {
@@ -717,20 +717,21 @@ edb::address_t edb::v1::get_variable(const QString &s, bool *ok, ExpressionError
 }
 
 //------------------------------------------------------------------------------
-// Name: get_value(edb::address_t address, bool *ok, ExpressionError &err)
+// Name: get_value(edb::address_t address, bool *ok, ExpressionError *err)
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t edb::v1::get_value(edb::address_t address, bool *ok, ExpressionError &err) {
+edb::address_t edb::v1::get_value(edb::address_t address, bool *ok, ExpressionError *err) {
 
 	Q_ASSERT(debugger_core);
 	Q_ASSERT(ok);
+	Q_ASSERT(err);
 
 	edb::address_t ret = 0;
 
 	*ok = debugger_core->read_bytes(address, &ret, sizeof(ret));
 
 	if(!ok) {
-		err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
+		*err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
 	}
 
 	return ret;
@@ -756,11 +757,11 @@ bool edb::v1::get_instruction_bytes(edb::address_t address, quint8 *buf, int *si
 }
 
 //------------------------------------------------------------------------------
-// Name: get_binary_info(const MemoryRegion &region)
+// Name: get_binary_info(const IRegion::pointer &region)
 // Desc: gets an object which knows how to analyze the binary file provided
 //       or NULL if none-found
 //------------------------------------------------------------------------------
-IBinary *edb::v1::get_binary_info(const MemoryRegion &region) {
+IBinary *edb::v1::get_binary_info(const IRegion::pointer &region) {
 	Q_FOREACH(IBinary::create_func_ptr_t f, g_BinaryInfoList) {
 		IBinary *const p = (*f)(region);
 
@@ -785,10 +786,9 @@ edb::address_t edb::v1::locate_main_function() {
 	
 		const edb::address_t address = edb::v1::debugger_core->application_code_address();
 		memory_regions().sync();
-		MemoryRegion region;
-		if(memory_regions().find_region(address, &region)) {
+		if(IRegion::pointer region = memory_regions().find_region(address)) {
+		
 			SCOPED_POINTER<IBinary> binfo(get_binary_info(region));
-
 			if(binfo) {
 				const edb::address_t main_func = binfo->calculate_main();
 				if(main_func != 0) {
@@ -852,19 +852,18 @@ const FunctionInfo *edb::v1::get_function_info(const QString &function) {
 // Note: make sure that memory regions has been sync'd first or you will likely
 //       get a null-region result
 //------------------------------------------------------------------------------
-MemoryRegion edb::v1::primary_data_region() {
+IRegion::pointer edb::v1::primary_data_region() {
 
 	if(edb::v1::debugger_core) {
 	
 		const edb::address_t address = edb::v1::debugger_core->application_data_address();
 		memory_regions().sync();
-		MemoryRegion region;
-		if(memory_regions().find_region(address, &region)) {
+		if(IRegion::pointer region = memory_regions().find_region(address)) {
 			return region;
 		}
 	}
 
-	return MemoryRegion();
+	return IRegion::pointer();
 }
 
 //------------------------------------------------------------------------------
@@ -873,49 +872,50 @@ MemoryRegion edb::v1::primary_data_region() {
 // Note: make sure that memory regions has been sync'd first or you will likely
 //       get a null-region result
 //------------------------------------------------------------------------------
-MemoryRegion edb::v1::primary_code_region() {
+IRegion::pointer edb::v1::primary_code_region() {
 
 #ifdef Q_OS_LINUX
 	if(edb::v1::debugger_core) {
 	
 		const edb::address_t address = edb::v1::debugger_core->application_code_address();
 		memory_regions().sync();
-		MemoryRegion region;
-		if(memory_regions().find_region(address, &region)) {
+		if(IRegion::pointer region = memory_regions().find_region(address)) {
 			return region;
 		}
 	}
 
-	return MemoryRegion();
+	return IRegion::pointer();
 #else
 	const QString process_executable = edb::v1::debugger_core->process_exe(debugger_core->pid());
 
 	memory_regions().sync();
-	const QList<MemoryRegion> r = memory_regions().regions();
-	Q_FOREACH(const MemoryRegion &region, r) {
+	const QList<IRegion::pointer> r = memory_regions().regions();
+	Q_FOREACH(const IRegion::pointer &region, r) {
 		if(region.executable() && region.name() == process_executable) {
 			return region;
 		}
 	}
-	return MemoryRegion();
+	return IRegion::pointer();
 #endif
 }
 
 //------------------------------------------------------------------------------
-// Name: pop_value(State &state)
+// Name: pop_value(State *state)
 // Desc:
 //------------------------------------------------------------------------------
-void edb::v1::pop_value(State &state) {
-	state.adjust_stack(sizeof(edb::reg_t));
+void edb::v1::pop_value(State *state) {
+	Q_ASSERT(state);
+	state->adjust_stack(sizeof(edb::reg_t));
 }
 
 //------------------------------------------------------------------------------
-// Name: push_value(State &state, edb::reg_t value)
+// Name: push_value(State *state, edb::reg_t value)
 // Desc:
 //------------------------------------------------------------------------------
-void edb::v1::push_value(State &state, edb::reg_t value) {
-	state.adjust_stack(- static_cast<int>(sizeof(edb::reg_t)));
-	edb::v1::debugger_core->write_bytes(state.stack_pointer(), &value, sizeof(edb::reg_t));
+void edb::v1::push_value(State *state, edb::reg_t value) {
+	Q_ASSERT(state);
+	state->adjust_stack(- static_cast<int>(sizeof(edb::reg_t)));
+	edb::v1::debugger_core->write_bytes(state->stack_pointer(), &value, sizeof(edb::reg_t));
 }
 
 //------------------------------------------------------------------------------

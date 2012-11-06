@@ -1,6 +1,6 @@
 
 #include "PlatformRegion.h"
-#include "MemoryRegion.h"
+
 #include "MemoryRegions.h"
 #include "Debugger.h"
 #include "IDebuggerCore.h"
@@ -67,3 +67,10 @@ IRegion::permissions_t PlatformRegion::permissions() const {
 	return permissions_;
 }
 
+void PlatformRegion::set_start(edb::address_t address) {
+	start_ = address;
+}
+
+void PlatformRegion::set_end(edb::address_t address) {
+	end_ = address;
+}

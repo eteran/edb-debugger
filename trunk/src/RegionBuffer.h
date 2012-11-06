@@ -20,25 +20,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define REGIONBUFFER_20101111_H_
 
 #include <QIODevice>
-#include "MemoryRegion.h"
+#include "IRegion.h"
 
 class RegionBuffer : public QIODevice {
 	Q_OBJECT
 public:
-	RegionBuffer(const MemoryRegion &region);
-	RegionBuffer(const MemoryRegion &region, QObject *parent);
+	RegionBuffer(const IRegion::pointer &region);
+	RegionBuffer(const IRegion::pointer &region, QObject *parent);
 
 public:
-	void set_region(const MemoryRegion &region);
+	void set_region(const IRegion::pointer &region);
 
 public:
 	virtual qint64 readData(char * data, qint64 maxSize);
 	virtual qint64 writeData(const char*, qint64);
-	virtual qint64 size() const       { return region_.size(); }
+	virtual qint64 size() const       { return region_ ? region_->size() : 0; }
 	virtual bool isSequential() const { return false; }
 
 private:
-	MemoryRegion region_;
+	IRegion::pointer region_;
 };
 
 #endif

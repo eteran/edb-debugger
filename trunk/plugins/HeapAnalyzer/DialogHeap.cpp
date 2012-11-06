@@ -241,9 +241,14 @@ void DialogHeap::detect_pointers() {
 	}
 
 #ifdef USE_QT_CONCURRENT
-	QtConcurrent::blockingMap(results, boost::bind(&DialogHeap::process_potential_pointer, this, targets, _1));
+	QtConcurrent::blockingMap(
+		results,
+		boost::bind(&DialogHeap::process_potential_pointer, this, targets, _1));
 #else
-	std::for_each(results.begin(), results.end(), boost::bind(&DialogHeap::process_potential_pointer, this, targets, _1));
+	std::for_each(
+		results.begin(),
+		results.end(),
+		boost::bind(&DialogHeap::process_potential_pointer, this, targets, _1));
 #endif
 
 	model_->update();

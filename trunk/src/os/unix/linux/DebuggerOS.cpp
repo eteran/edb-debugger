@@ -72,16 +72,16 @@ QList<Module> edb::v1::loaded_libraries() {
 	
 	// fallback
 	if(ret.isEmpty()) {
-		const QList<MemoryRegion> r = memory_regions().regions();
+		const QList<IRegion::pointer> r = memory_regions().regions();
 		QMap<QString, Module> modules_temp;
-		Q_FOREACH(const MemoryRegion &region, r) {
+		Q_FOREACH(const IRegion::pointer &region, r) {
 			// modules seem to have full paths
-			if(region.name().startsWith("/")) {
-				if(!modules_temp.contains(region.name())) {
+			if(region->name().startsWith("/")) {
+				if(!modules_temp.contains(region->name())) {
 					Module module;
-					module.name         = region.name();
-					module.base_address = region.start();
-					modules_temp.insert(region.name(), module);
+					module.name         = region->name();
+					module.base_address = region->start();
+					modules_temp.insert(region->name(), module);
 				}
 			}
 		}

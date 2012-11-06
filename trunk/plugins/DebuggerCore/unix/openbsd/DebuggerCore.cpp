@@ -479,14 +479,6 @@ IState *DebuggerCore::create_state() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions)
-// Desc:
-//------------------------------------------------------------------------------
-IRegion *DebuggerCore::create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const {
-	return new PlatformRegion(start, end, base, name, permissions);
-}
-
-//------------------------------------------------------------------------------
 // Name: enumerate_processes() const
 // Desc:
 //------------------------------------------------------------------------------
@@ -566,9 +558,9 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 // Name: 
 // Desc:
 //------------------------------------------------------------------------------
-QList<MemoryRegion> DebuggerCore::memory_regions() const {
+QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 
-	QList<MemoryRegion> regions;
+	QList<IRegion::pointer> regions;
 
 	if(pid_ != 0) {
 
@@ -595,7 +587,7 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 						((e.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
 						((e.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
 
-					regions.push_back(MemoryRegion(start, end, base, name, permissions));
+					regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
 					kvm_read(kd, (u_long)e.next, &e, sizeof(e));
 				}
 			}
@@ -612,7 +604,7 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 				goto do_unload;
 
 			RB_FOREACH(e, uvm_map_addr, &root) {
-				MemoryRegion region;
+				IRegion::pointer region;
 				region.start        = e->start;
 				region.end          = e->end;
 				region.base         = e->offset;
@@ -631,7 +623,7 @@ do_unload:
 			kvm_close(kd);
 		} else {
 			fprintf(stderr, "sync: %s\n", err_buf);
-			return QList<MemoryRegion>();
+			return QList<IRegion::pointer>();
 		}
 	}
 

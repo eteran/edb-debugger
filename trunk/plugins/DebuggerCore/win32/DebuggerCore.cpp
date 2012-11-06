@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DebuggerCore.h"
 #include "Debugger.h"
-#include "MemoryRegion.h"
+
 #include "MemoryRegions.h"
 #include "PlatformEvent.h"
 #include "PlatformRegion.h"
@@ -531,14 +531,6 @@ IState *DebuggerCore::create_state() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions)
-// Desc:
-//------------------------------------------------------------------------------
-IRegion *DebuggerCore::create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const {
-	return new PlatformRegion(start, end, base, name, permissions);
-}
-
-//------------------------------------------------------------------------------
 // Name: pointer_size() const
 // Desc: returns the size of a pointer on this arch
 //------------------------------------------------------------------------------
@@ -717,8 +709,8 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 // Name: 
 // Desc:
 //------------------------------------------------------------------------------
-QList<MemoryRegion> DebuggerCore::memory_regions() const {
-	QList<MemoryRegion> regions;
+QList<IRegion::pointer> DebuggerCore::memory_regions() const {
+	QList<IRegion::pointer> regions;
 
 	if(pid_ != 0) {
 		if(HANDLE ph = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid_)) {
@@ -741,14 +733,14 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 					const edb::address_t end   = reinterpret_cast<edb::address_t>(info.BaseAddress) + info.RegionSize;
 					const edb::address_t base  = reinterpret_cast<edb::address_t>(info.AllocationBase);
 					const QString name         = QString();
-					const IRegion::permissions_t permissions = info.Protect; // let MemoryRegion handle permissions and modifiers
+					const IRegion::permissions_t permissions = info.Protect; // let IRegion::pointer handle permissions and modifiers
 					
 					if(info.Type == MEM_IMAGE) {
 						// set region.name to the module name
 					}
 					// get stack addresses, PEB, TEB, etc. and set name accordingly
 
-					regions.push_back(MemoryRegion(start, end, base, name, permissions));
+					regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
 				}
 
 				addr += info.RegionSize;

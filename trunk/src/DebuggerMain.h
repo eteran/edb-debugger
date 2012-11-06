@@ -186,7 +186,7 @@ private:
 	void cleanup_debugger();
 	void cpu_fill(quint8 byte);
 	void detach_from_process(DETACH_ACTION kill);
-	void do_jump_to_address(edb::address_t address, const MemoryRegion &r, bool scroll_to);
+	void do_jump_to_address(edb::address_t address, const IRegion::pointer &r, bool scroll_to);
 	void follow_register_in_dump(bool tabbed);
 	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode);
 	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced);
@@ -196,9 +196,9 @@ private:
 	void setup_tab_buttons();
 	void setup_ui();
 	void test_native_binary();
-	void update_cpu_view(const State &state, MemoryRegion &region);
+	void update_cpu_view(const State &state, IRegion::pointer &region);
 	void update_data_views();
-	void update_disassembly(edb::address_t address, const MemoryRegion &r);
+	void update_disassembly(edb::address_t address, const IRegion::pointer &r);
 	void update_stack_view(const State &state);
 	void update_tab_caption(const QSharedPointer<QHexView> &view, edb::address_t start, edb::address_t end);
 

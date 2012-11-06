@@ -105,10 +105,7 @@ void DialogFunctions::do_find() {
 			const QModelIndex index = filter_model_->mapToSource(selected_item);
 
 			// do the search for this region!
-			if(const MemoryRegion *const region_ptr = reinterpret_cast<const MemoryRegion *>(index.internalPointer())) {
-
-				// NOTE: see Analyzer::analyze for an explanation for this copy...
-				MemoryRegion region(*region_ptr);
+			if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
 				analyzer->analyze(region);
 

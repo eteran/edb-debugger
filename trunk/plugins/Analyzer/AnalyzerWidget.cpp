@@ -1,3 +1,20 @@
+/*
+Copyright (C) 2006 - 2011 Evan Teran
+                          eteran@alum.rit.edu
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
 
 #include "AnalyzerWidget.h"
 #include "IAnalyzer.h"
@@ -44,59 +61,64 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 	painter.fillRect(0, 0, width(), height(), QBrush(Qt::black));
 	QFontMetrics fm(font());
 	
-	const MemoryRegion region = edb::v1::current_cpu_view_region();
-	if(region.size() != 0) {
-		const float byte_width = static_cast<float>(width()) / region.size();
-		
-		const QSet<edb::address_t> specified_functions = edb::v1::analyzer()->specified_functions();
-		
-		const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
-		for(IAnalyzer::FunctionMap::const_iterator it = functions.begin(); it != functions.end(); ++it) {
-			const IAnalyzer::Function &f = it.value();
-			
-			const int first_offset = (f.entry_address - region.start()) * byte_width;
-			const int last_offset  = (f.end_address - region.start()) * byte_width;
-			
-			if(!specified_functions.contains(f.entry_address)) {
-				painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkGreen));
-			} else {
-				painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkRed));
+	if(const IRegion::pointer region = edb::v1::current_cpu_view_region()) {
+		if(region->size() != 0) {
+			const float byte_width = static_cast<float>(width()) / region->size();
+
+			const QSet<edb::address_t> specified_functions = edb::v1::analyzer()->specified_functions();
+
+			const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
+			for(IAnalyzer::FunctionMap::const_iterator it = functions.begin(); it != functions.end(); ++it) {
+				const IAnalyzer::Function &f = it.value();
+
+				const int first_offset = (f.entry_address - region->start()) * byte_width;
+				const int last_offset  = (f.end_address - region->start()) * byte_width;
+
+				if(!specified_functions.contains(f.entry_address)) {
+					painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkGreen));
+				} else {
+					painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkRed));
+				}
 			}
-		}
-		
-		// highlight header of binary (probably not going to be too noticeable but just in case)
-		if(IBinary *const binary_info = edb::v1::get_binary_info(region)) {
-			painter.fillRect(0, 0, binary_info->header_size() * byte_width, height(), QBrush(Qt::darkBlue));
-			delete binary_info;
-		}
-				
-		if(functions.isEmpty()) {
+
+			// highlight header of binary (probably not going to be too noticeable but just in case)
+			if(IBinary *const binary_info = edb::v1::get_binary_info(region)) {
+				painter.fillRect(0, 0, binary_info->header_size() * byte_width, height(), QBrush(Qt::darkBlue));
+				delete binary_info;
+			}
+
+			if(functions.isEmpty()) {
+				const QString s(tr("No Analysis Found For This Region"));
+				painter.setPen(QPen(Qt::white));
+				painter.drawText((width() - fm.width(s)) / 2, height() - 4, s);
+			} else {
+				if(QAbstractScrollArea *scroll_area = qobject_cast<QAbstractScrollArea*>(edb::v1::disassembly_widget())) {
+					if(QScrollBar *scrollbar = scroll_area->verticalScrollBar()) {
+						const int offset = (scrollbar->value()) * byte_width;
+
+						const QString triangle(QChar(0x25b4));
+
+	#ifdef Q_OS_WIN32
+						const QFont f = painter.font();
+						painter.setFont(QFont("Lucida Sans Unicode", 16));
+	#endif
+						painter.setPen(QPen(Qt::yellow));
+						painter.drawText(offset - fm.width(QChar(0x25b4)) / 2, height(), triangle);
+	#ifdef Q_OS_WIN32
+						painter.setFont(f);
+	#endif
+					}
+				}
+			}
+		} else {
 			const QString s(tr("No Analysis Found For This Region"));
 			painter.setPen(QPen(Qt::white));
 			painter.drawText((width() - fm.width(s)) / 2, height() - 4, s);
-		} else {
-			if(QAbstractScrollArea *scroll_area = qobject_cast<QAbstractScrollArea*>(edb::v1::disassembly_widget())) {
-				if(QScrollBar *scrollbar = scroll_area->verticalScrollBar()) {
-					const int offset = (scrollbar->value()) * byte_width;
-					
-					const QString triangle(QChar(0x25b4));
-					
-#ifdef Q_OS_WIN32
-					const QFont f = painter.font();
-					painter.setFont(QFont("Lucida Sans Unicode", 16));
-#endif
-					painter.setPen(QPen(Qt::yellow));
-					painter.drawText(offset - fm.width(QChar(0x25b4)) / 2, height(), triangle);
-#ifdef Q_OS_WIN32
-					painter.setFont(f);
-#endif
-				}
-			}
 		}
 	} else {
-		const QString s(tr("No Analysis Found For This Region"));
-		painter.setPen(QPen(Qt::white));
-		painter.drawText((width() - fm.width(s)) / 2, height() - 4, s);
+			const QString s(tr("No Analysis Found For This Region"));
+			painter.setPen(QPen(Qt::white));
+			painter.drawText((width() - fm.width(s)) / 2, height() - 4, s);
 	}
 }
 
@@ -107,11 +129,11 @@ void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
 	
 	mouse_pressed_ = true;
 	
-	const MemoryRegion region = edb::v1::current_cpu_view_region();
+	const IRegion::pointer region = edb::v1::current_cpu_view_region();
 	const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
-	if(region.size() != 0 && !functions.empty()) {
-		const float byte_width = static_cast<float>(width()) / region.size();
-		const edb::address_t address = qBound(region.start(), region.start() + static_cast<edb::address_t>(event->x() / byte_width), region.end() - 1);
+	if(region->size() != 0 && !functions.empty()) {
+		const float byte_width = static_cast<float>(width()) / region->size();
+		const edb::address_t address = qBound(region->start(), region->start() + static_cast<edb::address_t>(event->x() / byte_width), region->end() - 1);
 		edb::v1::jump_to_address(address);
 	}
 }

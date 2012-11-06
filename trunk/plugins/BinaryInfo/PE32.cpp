@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: 
 // Desc: 
 //------------------------------------------------------------------------------
-PE32::PE32(const MemoryRegion &region) : IBinary(region) {
+PE32::PE32(const IRegion::pointer &region) : IBinary(region) {
 
 }
 

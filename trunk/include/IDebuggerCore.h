@@ -20,9 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define IDEBUGGER_CORE_20061101_H_
 
 #include "IBreakpoint.h"
-#include "IRegion.h"
 #include "IDebugEvent.h"
-#include "MemoryRegion.h"
+#include "IRegion.h"
 #include "Process.h"
 #include <QByteArray>
 #include <QHash>
@@ -86,7 +85,7 @@ public:
 	virtual void remove_breakpoint(edb::address_t address) = 0;
 
 public:
-	virtual QList<MemoryRegion> memory_regions() const = 0;
+	virtual QList<IRegion::pointer> memory_regions() const = 0;
 	virtual edb::address_t application_code_address() const = 0;
 	virtual edb::address_t application_data_address() const = 0;
 
@@ -99,7 +98,6 @@ public:
 
 public:
 	virtual IState *create_state() const = 0;
-	virtual IRegion *create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const = 0;
 
 public:
 	// what is the PID of the process we are currently debugging

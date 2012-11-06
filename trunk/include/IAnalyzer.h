@@ -22,8 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMap>
 #include <QSet>
 #include "Types.h"
-
-class MemoryRegion;
+#include "IRegion.h"
 
 class IAnalyzer {
 public:
@@ -56,10 +55,10 @@ public:
 	};
 
 public:
-	virtual void analyze(const MemoryRegion &region) = 0;
-	virtual FunctionMap functions(const MemoryRegion &region) const = 0;
+	virtual void analyze(const IRegion::pointer &region) = 0;
+	virtual FunctionMap functions(const IRegion::pointer &region) const = 0;
 	virtual AddressCategory category(edb::address_t address) const = 0;
-	virtual void invalidate_analysis(const MemoryRegion &region) = 0;
+	virtual void invalidate_analysis(const IRegion::pointer &region) = 0;
 	virtual void invalidate_analysis() = 0;
 	virtual QSet<edb::address_t> specified_functions() const { return QSet<edb::address_t>(); }
 };

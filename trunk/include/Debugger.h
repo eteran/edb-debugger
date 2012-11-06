@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "API.h"
 #include "IBinary.h"
+#include "IRegion.h"
 #include "IBreakpoint.h"
-#include "MemoryRegion.h"
 #include "Module.h"
 #include "Types.h"
 
@@ -113,9 +113,9 @@ namespace edb {
 		// list of loaded librarys
 		EDB_EXPORT QList<Module> loaded_libraries();
 
-		EDB_EXPORT MemoryRegion current_cpu_view_region();
-		EDB_EXPORT MemoryRegion primary_code_region();
-		EDB_EXPORT MemoryRegion primary_data_region();
+		EDB_EXPORT IRegion::pointer current_cpu_view_region();
+		EDB_EXPORT IRegion::pointer primary_code_region();
+		EDB_EXPORT IRegion::pointer primary_data_region();
 
 		// configuration
 		EDB_EXPORT QPointer<QDialog> dialog_options();
@@ -131,8 +131,8 @@ namespace edb {
 		EDB_EXPORT QString find_function_symbol(edb::address_t address, const QString &default_value, int *offset);
 
 		// ask the user for either a value or a variable (register name and such)
-		EDB_EXPORT edb::address_t get_value(edb::address_t address, bool *ok, ExpressionError &err);
-		EDB_EXPORT edb::address_t get_variable(const QString &s, bool *ok, ExpressionError &err);
+		EDB_EXPORT edb::address_t get_value(edb::address_t address, bool *ok, ExpressionError *err);
+		EDB_EXPORT edb::address_t get_variable(const QString &s, bool *ok, ExpressionError *err);
 
 		// hook the debug event system
 		EDB_EXPORT IDebugEventHandler *set_debug_event_handler(IDebugEventHandler *p);
@@ -147,7 +147,7 @@ namespace edb {
 		// reads up to size bytes from address (stores how many it could read in size)
 		EDB_EXPORT bool get_instruction_bytes(edb::address_t address, quint8 *buf, int *size);
 
-		EDB_EXPORT IBinary *get_binary_info(const MemoryRegion &region);
+		EDB_EXPORT IBinary *get_binary_info(const IRegion::pointer &region);
 		EDB_EXPORT const FunctionInfo *get_function_info(const QString &function);
 
 		EDB_EXPORT edb::address_t locate_main_function();
@@ -161,8 +161,8 @@ namespace edb {
 		// these are here and not members of state because
 		// they may require using the debugger core plugin and
 		// we don't want to force a dependancy between the two
-		EDB_EXPORT void pop_value(State &state);
-		EDB_EXPORT void push_value(State &state, edb::reg_t value);
+		EDB_EXPORT void pop_value(State *state);
+		EDB_EXPORT void push_value(State *state, edb::reg_t value);
 
 		EDB_EXPORT void register_binary_info(IBinary::create_func_ptr_t fptr);
 
