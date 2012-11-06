@@ -93,7 +93,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 		int status;
 		bool timeout;
 
-		const edb::tid_t tid = native::waitpid_timeout(pid(), &status, 0, msecs, timeout);
+		const edb::tid_t tid = native::waitpid_timeout(pid(), &status, 0, msecs, &timeout);
 		if(!timeout) {
 			if(tid > 0) {
 				// normal event
@@ -117,26 +117,29 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 //------------------------------------------------------------------------------
 long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 
-        mach_port_t task;
-        kern_return_t err = task_for_pid(mach_task_self(), pid(), &task);
-        if(err != KERN_SUCCESS) {
-            qDebug("task_for_pid() failed with %x [%d]", err, pid());
-            ok = false;
-            return -1;
-        }
+	Q_ASSERT(ok);
 
-        long x;
-        vm_size_t size;
-        ok =  vm_read_overwrite(task, address, sizeof(long), (vm_address_t)&x, &size) == 0;
-        return x;
+	mach_port_t task;
+	kern_return_t err = task_for_pid(mach_task_self(), pid(), &task);
+	if(err != KERN_SUCCESS) {
+		qDebug("task_for_pid() failed with %x [%d]", err, pid());
+		*ok = false;
+		*return -1;
+	}
+
+	long x;
+	vm_size_t size;
+	*ok =  vm_read_overwrite(task, address, sizeof(long), (vm_address_t)&x, &size) == 0;
+	return x;
+
 #if 0
 	errno = 0;
-        const long v = ptrace(PT_READ_D, pid(), (char *)address, 0);
-	SET_OK(ok, v);
+	const long v = ptrace(PT_READ_D, pid(), (char *)address, 0);
+	SET_OK(*ok, v);
 
-        if(!ok) {
-            qDebug("read_data: %d", errno);
-        }
+	if(!*ok) {
+		qDebug("read_data: %d", errno);
+	}
 
 	return v;
 #endif
@@ -252,8 +255,11 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::get_state(State *state) {
+
+	Q_ASSERT(state);
+
 	// TODO: assert that we are paused
-	PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_);
+	PlatformState *const state_impl = static_cast<PlatformState *>(state->impl_);
 
 	if(attached()) {
 
@@ -361,7 +367,7 @@ void DebuggerCore::get_state(State *state) {
                         return;
                 }
 	} else {
-		state.clear();
+		state->clear();
 	}
 }
 
