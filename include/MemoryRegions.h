@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MEMORY_REGIONS_20060501_H_
 
 #include "API.h"
-#include "MemoryRegion.h"
-
+#include "Types.h"
+#include "IRegion.h"
 #include <QAbstractItemModel>
 #include <QList>
 
@@ -41,14 +41,13 @@ public:
 	virtual ~MemoryRegions();
 
 public:
-	bool find_region(edb::address_t address) const;
-	bool find_region(edb::address_t address, MemoryRegion *region) const;
-	const QList<MemoryRegion> &regions() const { return regions_; }
+	IRegion::pointer find_region(edb::address_t address) const;
+	const QList<IRegion::pointer> &regions() const { return regions_; }
 	void clear();
 	void sync();
 
 private:
-	QList<MemoryRegion> regions_;
+	QList<IRegion::pointer> regions_;
 };
 
 #endif

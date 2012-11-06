@@ -39,7 +39,11 @@ public:
 	virtual bool writable() const;
 	virtual bool executable() const;
 	virtual edb::address_t size() const;
+
+public:
 	virtual void set_permissions(bool read, bool write, bool execute);
+	virtual void set_start(edb::address_t address);
+	virtual void set_end(edb::address_t address);
 	
 public:
 	virtual edb::address_t start() const;

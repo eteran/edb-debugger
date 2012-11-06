@@ -30,12 +30,10 @@ class EDB_EXPORT State {
 	friend class DebuggerCore;
 
 public:
-	State();
-	~State();
-
-public:
-	State(const State &other);
 	State &operator=(const State &other);
+	State();
+	State(const State &other);
+	~State();
 
 public:
 	void swap(State &other);

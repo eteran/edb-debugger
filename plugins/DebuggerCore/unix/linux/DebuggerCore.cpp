@@ -108,10 +108,10 @@ bool is_clone_event(int status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: process_map_line(const QString &line, MemoryRegion *region)
+// Name: process_map_line(const QString &line, IRegion::pointer *region)
 // Desc: parses the data from a line of a memory map file
 //------------------------------------------------------------------------------
-bool process_map_line(const QString &line, MemoryRegion *region) {
+bool process_map_line(const QString &line, IRegion::pointer *region) {
 
 	Q_ASSERT(region);
 
@@ -142,7 +142,7 @@ bool process_map_line(const QString &line, MemoryRegion *region) {
 							name = items[5];
 						}
 
-						*region = MemoryRegion(start, end, base, name, permissions);
+						*region = IRegion::pointer(new PlatformRegion(start, end, base, name, permissions));
 						return true;
 					}
 				}
@@ -840,14 +840,6 @@ IState *DebuggerCore::create_state() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions)
-// Desc:
-//------------------------------------------------------------------------------
-IRegion *DebuggerCore::create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const {
-	return new PlatformRegion(start, end, base, name, permissions);
-}
-
-//------------------------------------------------------------------------------
 // Name: enumerate_processes() const
 // Desc:
 //------------------------------------------------------------------------------
@@ -923,8 +915,8 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QList<MemoryRegion> DebuggerCore::memory_regions() const {
-	QList<MemoryRegion> regions;
+QList<IRegion::pointer> DebuggerCore::memory_regions() const {
+	QList<IRegion::pointer> regions;
 
 	if(pid_ != 0) {
 		const QString mapFile(QString("/proc/%1/maps").arg(pid_));
@@ -936,7 +928,7 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 			QString line = in.readLine();
 
 			while(!line.isNull()) {
-				MemoryRegion region;
+				IRegion::pointer region;
 				if(process_map_line(line, &region)) {
 					regions.push_back(region);
 				}

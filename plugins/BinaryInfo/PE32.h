@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class PE32 : public IBinary {
 public:
-	PE32(const MemoryRegion &region);
+	PE32(const IRegion::pointer &region);
 	virtual ~PE32();
 
 public:

@@ -79,8 +79,8 @@ private:
 template <class T>
 class Expression {
 public:
-	typedef boost::function<T(const QString&, bool*, ExpressionError&)> variable_getter_t;
-	typedef boost::function<T(T, bool*, ExpressionError&)>              memory_reader_t;
+	typedef boost::function<T(const QString&, bool*, ExpressionError*)> variable_getter_t;
+	typedef boost::function<T(T, bool*, ExpressionError*)>              memory_reader_t;
 
 public:
 	Expression(const QString &s, variable_getter_t vg, memory_reader_t mr);

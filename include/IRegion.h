@@ -21,12 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 #include "API.h"
-
-class MemoryRegions;
+#include <QSharedPointer>
 
 class EDB_EXPORT IRegion {
 public:
-	typedef quint32 permissions_t;
+	typedef QSharedPointer<IRegion> pointer;
+	typedef quint32                 permissions_t;
 
 public:
 	virtual ~IRegion() {}
@@ -40,7 +40,12 @@ public:
 	virtual bool writable() const = 0;
 	virtual bool executable() const = 0;
 	virtual edb::address_t size() const = 0;
+	
+public:
 	virtual void set_permissions(bool read, bool write, bool execute) = 0;
+	virtual void set_start(edb::address_t address) = 0;
+	virtual void set_end(edb::address_t address) = 0;
+	
 	
 public:
 	virtual edb::address_t start() const = 0;
@@ -48,6 +53,29 @@ public:
 	virtual edb::address_t base() const = 0;
 	virtual QString name() const = 0;
 	virtual permissions_t permissions() const = 0;
+	
+public:
+	bool contains(edb::address_t address) const {
+		return address >= start() && address <= end();
+	}
+	
+	int compare(const IRegion::pointer &other) const {
+	
+		if(!other) {
+			return -1;
+		}
+		
+		if(start() 	      == other->start() &&
+			end()		  == other->end() &&
+			base()  	  == other->base() &&
+			name()  	  == other->name() &&
+			permissions() == other->permissions()) {
+		
+			return 0;
+		}
+		
+		return 1;		
+	}
 };
 
 #endif

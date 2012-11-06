@@ -725,57 +725,59 @@ void DialogOpcodes::do_find() {
 		Q_FOREACH(const QModelIndex &selected_item, sel) {
 
 			const QModelIndex index = filter_model_->mapToSource(selected_item);
-			const MemoryRegion *const region = reinterpret_cast<const MemoryRegion *>(index.internalPointer());
-
-			edb::address_t start_address     = region->start();
-			edb::address_t address           = region->start();
-			const edb::address_t end_address = region->end();
-			const edb::address_t orig_start  = region->start();
-
-			ShiftBuffer<sizeof(OpcodeData)> shift_buffer;
-
-			// prime the buffer by filling it up with the minimum block size
-			for(size_t i = 0; i < shift_buffer.size(); ++i) {
-				
-				quint8 byte;
-				edb::v1::debugger_core->read_bytes(start_address, &byte, 1);
-				shift_buffer.shl();
-				shift_buffer[shift_buffer.size() - 1] = byte;
-				
-				++start_address;
-			}
 			
-			// this will read the rest of the region
-			while(start_address < end_address) {		
-			
-				// create a reference to the bsa's data so we can pass it to the testXXXX functions
-				const OpcodeData &opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
-				run_tests(classtype, opcode, address);
+			if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
-				quint8 byte;
-				edb::v1::debugger_core->read_bytes(start_address, &byte, 1);
-				shift_buffer.shl();
-				shift_buffer[shift_buffer.size() - 1] = byte;
-				
-				++start_address;
-				
-				ui->progressBar->setValue(util::percentage(address - orig_start, region->size()));
-				++address;
-			}
-			
-			// test the stuff at the regions edge
-			for(size_t i = 0; i < shift_buffer.size(); ++i) {
-			
-				// create a reference to the bsa's data so we can pass it to the testXXXX functions
-				const OpcodeData &opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
-				run_tests(classtype, opcode, address);
+				edb::address_t start_address     = region->start();
+				edb::address_t address           = region->start();
+				const edb::address_t end_address = region->end();
+				const edb::address_t orig_start  = region->start();
 
-				// we just shift in 0's and hope it doesn't give false positives
-				shift_buffer.shl();
-				shift_buffer[shift_buffer.size() - 1] = 0x00;
-				
-				ui->progressBar->setValue(util::percentage(address - orig_start, region->size()));
-				++address;
+				ShiftBuffer<sizeof(OpcodeData)> shift_buffer;
+
+				// prime the buffer by filling it up with the minimum block size
+				for(size_t i = 0; i < shift_buffer.size(); ++i) {
+
+					quint8 byte;
+					edb::v1::debugger_core->read_bytes(start_address, &byte, 1);
+					shift_buffer.shl();
+					shift_buffer[shift_buffer.size() - 1] = byte;
+
+					++start_address;
+				}
+
+				// this will read the rest of the region
+				while(start_address < end_address) {		
+
+					// create a reference to the bsa's data so we can pass it to the testXXXX functions
+					const OpcodeData &opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
+					run_tests(classtype, opcode, address);
+
+					quint8 byte;
+					edb::v1::debugger_core->read_bytes(start_address, &byte, 1);
+					shift_buffer.shl();
+					shift_buffer[shift_buffer.size() - 1] = byte;
+
+					++start_address;
+
+					ui->progressBar->setValue(util::percentage(address - orig_start, region->size()));
+					++address;
+				}
+
+				// test the stuff at the regions edge
+				for(size_t i = 0; i < shift_buffer.size(); ++i) {
+
+					// create a reference to the bsa's data so we can pass it to the testXXXX functions
+					const OpcodeData &opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
+					run_tests(classtype, opcode, address);
+
+					// we just shift in 0's and hope it doesn't give false positives
+					shift_buffer.shl();
+					shift_buffer[shift_buffer.size() - 1] = 0x00;
+
+					ui->progressBar->setValue(util::percentage(address - orig_start, region->size()));
+					++address;
+				}
 			}
 		}
 	}

@@ -21,8 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 #include "Types.h"
+#include "IRegion.h"
 
-class MemoryRegion;
 class QListWidgetItem;
 
 namespace Ui { class DialogReferences; }

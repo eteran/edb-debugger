@@ -23,8 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAbstractSlider>
 #include <QPixmap>
 #include <QSet>
-
-#include "MemoryRegion.h"
+#include "IRegion.h"
 #include "Types.h"
 
 class IAnalyzer;
@@ -49,7 +48,7 @@ protected:
 	virtual void wheelEvent(QWheelEvent *e);
 
 public:
-	MemoryRegion region() const;
+	IRegion::pointer region() const;
 	bool addressShown(edb::address_t address) const;
 	edb::address_t addressFromPoint(const QPoint &pos) const;
 	edb::address_t selectedAddress() const;
@@ -60,7 +59,7 @@ public Q_SLOTS:
 	void resizeEvent(QResizeEvent *event);
 	void scrollTo(edb::address_t address);
 	void setAddressOffset(edb::address_t address);
-	void setRegion(const MemoryRegion &r);
+	void setRegion(const IRegion::pointer &r);
 	void setCurrentAddress(edb::address_t address);
 	void clear();
 	void repaint();
@@ -96,7 +95,7 @@ private:
 	void updateSelectedAddress(QMouseEvent *event);
 
 private:
-	MemoryRegion             region_;
+	IRegion::pointer         region_;
 	QPixmap                  breakpoint_icon_;
 	QPixmap                  current_address_icon_;
 	QSet<edb::address_t>     show_addresses_;

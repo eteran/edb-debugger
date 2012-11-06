@@ -24,15 +24,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IBinary.h"
 
 namespace {
-	IBinary *create_binary_info_elf32(const MemoryRegion &region) {
+	IBinary *create_binary_info_elf32(const IRegion::pointer &region) {
 		return new ELF32(region);
 	}
 
-	IBinary *create_binary_info_elf64(const MemoryRegion &region) {
+	IBinary *create_binary_info_elf64(const IRegion::pointer &region) {
 		return new ELF64(region);
 	}
 	
-	IBinary *create_binary_info_pe32(const MemoryRegion &region) {
+	IBinary *create_binary_info_pe32(const IRegion::pointer &region) {
 		return new PE32(region);
 	}
 }

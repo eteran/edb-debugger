@@ -21,26 +21,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebuggerCore.h"
 
 //------------------------------------------------------------------------------
-// Name: RegionBuffer(const MemoryRegion &region)
+// Name: RegionBuffer(const IRegion::pointer &region)
 // Desc:
 //------------------------------------------------------------------------------
-RegionBuffer::RegionBuffer(const MemoryRegion &region) : QIODevice(), region_(region) {
+RegionBuffer::RegionBuffer(const IRegion::pointer &region) : QIODevice(), region_(region) {
 	setOpenMode(QIODevice::ReadOnly);
 }
 
 //------------------------------------------------------------------------------
-// Name: RegionBuffer(const MemoryRegion &region, QObject *parent)
+// Name: RegionBuffer(const IRegion::pointer &region, QObject *parent)
 // Desc:
 //------------------------------------------------------------------------------
-RegionBuffer::RegionBuffer(const MemoryRegion &region, QObject *parent) : QIODevice(parent), region_(region) {
+RegionBuffer::RegionBuffer(const IRegion::pointer &region, QObject *parent) : QIODevice(parent), region_(region) {
 	setOpenMode(QIODevice::ReadOnly);
 }
 
 //------------------------------------------------------------------------------
-// Name: set_region(const MemoryRegion &region)
+// Name: set_region(const IRegion::pointer &region)
 // Desc:
 //------------------------------------------------------------------------------
-void RegionBuffer::set_region(const MemoryRegion &region) {
+void RegionBuffer::set_region(const IRegion::pointer &region) {
 	region_ = region;
 	reset();
 }
@@ -51,22 +51,26 @@ void RegionBuffer::set_region(const MemoryRegion &region) {
 //------------------------------------------------------------------------------
 qint64 RegionBuffer::readData(char *data, qint64 maxSize) {
 
-	const edb::address_t start = region_.start() + pos();
-	const edb::address_t end   = region_.start() + region_.size();
+	if(region_) {
+		const edb::address_t start = region_->start() + pos();
+		const edb::address_t end   = region_->start() + region_->size();
 
-	if(start + maxSize > end) {
-		maxSize = end - start;
+		if(start + maxSize > end) {
+			maxSize = end - start;
+		}
+
+    	if(maxSize == 0) {
+        	return 0;
+    	}
+
+		if(edb::v1::debugger_core->read_bytes(start, data, maxSize)) {
+			return maxSize;
+		} else {
+			return -1;
+		}
 	}
-
-    if(maxSize == 0) {
-        return 0;
-    }
-
-	if(edb::v1::debugger_core->read_bytes(start, data, maxSize)) {
-		return maxSize;
-	} else {
-		return -1;
-	}
+	
+	return -1;
 
 }
 

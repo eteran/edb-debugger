@@ -55,13 +55,12 @@ public:
 	virtual void set_active_thread(edb::tid_t);
 
 public:
-	virtual QList<MemoryRegion> memory_regions() const;
+	virtual QList<IRegion::pointer> memory_regions() const;
 	virtual edb::address_t application_code_address() const;
 	virtual edb::address_t application_data_address() const;
 
 public:
 	virtual IState *create_state() const;
-	virtual IRegion *create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const;
 
 public:
 	// process properties

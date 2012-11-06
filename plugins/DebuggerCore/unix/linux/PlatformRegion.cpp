@@ -1,6 +1,6 @@
 
 #include "PlatformRegion.h"
-#include "MemoryRegion.h"
+
 #include "MemoryRegions.h"
 #include "Debugger.h"
 #include "IDebuggerCore.h"
@@ -181,13 +181,13 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 	edb::address_t temp_address        = 0;
 	int count                          = 0;
 	int ret                            = QMessageBox::Yes;
-	const QList<MemoryRegion> &regions = edb::v1::memory_regions().regions();
+	const QList<IRegion::pointer> &regions = edb::v1::memory_regions().regions();
 
 	// search for an executable region to run our shell code
-	Q_FOREACH(const MemoryRegion &region, regions) {
-		if(region.executable()) {
+	Q_FOREACH(const IRegion::pointer &region, regions) {
+		if(region->executable()) {
 			if(temp_address == 0) {
-				temp_address = region.start();
+				temp_address = region->start();
 			}
 
 			if(++count > 1) {
@@ -198,7 +198,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 
 	if(executable() && count == 1 && !execute) {
 		ret = QMessageBox::question(0,
-			tr("Removing Execute Permissions On Last Executable MemoryRegion"),
+			tr("Removing Execute Permissions On Last Executable IRegion::pointer"),
 			tr("You are about to remove execute permissions from the last executable region. Because of the need "
 			"to run code in the process to change permissions, there will be no way to undo this. In addition, "
 			"the process will no longer be able to run as it will have no execute permissions in any regions. "
@@ -330,4 +330,12 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 			tr("Memory Allocation Error"),
 			tr("Unable to satisfy memory allocation request for backup code."));
 	}
+}
+
+void PlatformRegion::set_start(edb::address_t address) {
+	start_ = address;
+}
+
+void PlatformRegion::set_end(edb::address_t address) {
+	end_ = address;
 }

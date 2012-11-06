@@ -98,7 +98,7 @@ void DialogStrings::do_find() {
 
 		const QModelIndex index = filter_model_->mapToSource(selected_item);
 
-		if(const MemoryRegion *const region = reinterpret_cast<const MemoryRegion *>(index.internalPointer())) {
+		if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
 			edb::address_t start_address     = region->start();
 			const edb::address_t end_address = region->end();

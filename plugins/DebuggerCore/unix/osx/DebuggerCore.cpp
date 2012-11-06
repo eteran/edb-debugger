@@ -537,15 +537,6 @@ void DebuggerCore::set_active_thread(edb::tid_t tid) {
 IState *DebuggerCore::create_state() const {
 	return new PlatformState;
 }
-
-//------------------------------------------------------------------------------
-// Name: create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions)
-// Desc:
-//------------------------------------------------------------------------------
-IRegion *DebuggerCore::create_region(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, IRegion::permissions_t permissions) const {
-	return new PlatformRegion(start, end, base, name, permissions);
-}
-
 //------------------------------------------------------------------------------
 // Name: enumerate_processes() const
 // Desc:
@@ -606,7 +597,7 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 // Name: 
 // Desc:
 //------------------------------------------------------------------------------
-QList<MemoryRegion> DebuggerCore::memory_regions() const {
+QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 
 #if 0
     static const char * inheritance_strings[] = {
@@ -618,13 +609,13 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 	};
 #endif
 
-	QList<MemoryRegion> regions;
+	QList<IRegion::pointer> regions;
 	if(pid_ != 0) {
 		task_t the_task;
 		kern_return_t kr = task_for_pid(mach_task_self(), pid_, &the_task);
 		if(kr != KERN_SUCCESS) {
 			qDebug("task_for_pid failed");
-            return QList<MemoryRegion>();
+            return QList<IRegion::pointer>();
 		}
 
 		vm_size_t vmsize;
@@ -652,7 +643,7 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 					((info.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
 					((info.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
 
-				regions.push_back(MemoryRegion(start, end, base, name, permissions));
+				regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
 
 				/*
 				printf("%016llx-%016llx %8uK %c%c%c/%c%c%c %11s %6s %10s uwir=%hu sub=%u\n",
@@ -675,7 +666,7 @@ QList<MemoryRegion> DebuggerCore::memory_regions() const {
 				if(the_task != MACH_PORT_NULL) {
 					mach_port_deallocate(mach_task_self(), the_task);
 				}
-                return QList<MemoryRegion>();
+                return QList<IRegion::pointer>();
 			}
 		} while(kr != KERN_INVALID_ADDRESS);
 

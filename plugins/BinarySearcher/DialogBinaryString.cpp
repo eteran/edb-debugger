@@ -62,26 +62,26 @@ void DialogBinaryString::do_find() {
 		ByteShiftArray bsa(sz);
 
 		edb::v1::memory_regions().sync();
-		const QList<MemoryRegion> regions = edb::v1::memory_regions().regions();
+		const QList<IRegion::pointer> regions = edb::v1::memory_regions().regions();
 		const edb::address_t page_size = edb::v1::debugger_core->page_size();
 
 		int i = 0;
-		Q_FOREACH(const MemoryRegion &region, regions) {
+		Q_FOREACH(const IRegion::pointer &region, regions) {
 
 			bsa.clear();
 
 			// a short circut for speading things up
-			if(ui->chkSkipNoAccess->isChecked() && !region.accessible()) {
+			if(ui->chkSkipNoAccess->isChecked() && !region->accessible()) {
 				ui->progressBar->setValue(util::percentage(++i, regions.size()));
 				continue;
 			}
 
-			const edb::address_t size_in_pages = region.size() / page_size;
+			const edb::address_t size_in_pages = region->size() / page_size;
 			try {
 				QVector<quint8> pages(size_in_pages * page_size);
-				const quint8 *const pages_end = &pages[0] + region.size();
+				const quint8 *const pages_end = &pages[0] + region->size();
 
-				if(edb::v1::debugger_core->read_pages(region.start(), &pages[0], size_in_pages)) {
+				if(edb::v1::debugger_core->read_pages(region->start(), &pages[0], size_in_pages)) {
 					const quint8 *p = &pages[0];
 					QString temp;
 					while(p != pages_end) {
@@ -90,7 +90,7 @@ void DialogBinaryString::do_find() {
 
 						// compare values..
 						if(std::memcmp(bsa.data(), b.constData(), sz) == 0) {
-							const edb::address_t addr = (p - &pages[0] + region.start()) - sz + 1;
+							const edb::address_t addr = (p - &pages[0] + region->start()) - sz + 1;
 							const edb::address_t align = 1 << (ui->cmbAlignment->currentIndex() + 1);
 
 							if(!ui->chkAlignment->isChecked() || (addr % align) == 0) {
@@ -98,7 +98,7 @@ void DialogBinaryString::do_find() {
 							}
 						}
 
-						ui->progressBar->setValue(util::percentage(i, regions.size(), p - &pages[0], region.size()));
+						ui->progressBar->setValue(util::percentage(i, regions.size(), p - &pages[0], region->size()));
 
 						++p;
 					}
@@ -108,7 +108,7 @@ void DialogBinaryString::do_find() {
 				QMessageBox::information(
 					0,
 					tr("Memroy Allocation Error"),
-					tr("Unable to satisfy memory allocation request for requested region."));
+					tr("Unable to satisfy memory allocation request for requested region->"));
 			}
 		}
 	}

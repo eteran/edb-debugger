@@ -339,20 +339,20 @@ void DialogProcessProperties::updateMemoryPage() {
 
 	if(edb::v1::debugger_core) {
 		edb::v1::memory_regions().sync();
-		const QList<MemoryRegion> regions = edb::v1::memory_regions().regions();
+		const QList<IRegion::pointer> regions = edb::v1::memory_regions().regions();
 		ui->tableMemory->setSortingEnabled(false);
 
 
-		Q_FOREACH(const MemoryRegion &r, regions) {
+		Q_FOREACH(const IRegion::pointer &r, regions) {
 			const int row = ui->tableMemory->rowCount();
 			ui->tableMemory->insertRow(row);
-			ui->tableMemory->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(r.start()))); // address
-			ui->tableMemory->setItem(row, 1, new QTableWidgetItem(size_to_string(r.size())));           // size
+			ui->tableMemory->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(r->start()))); // address
+			ui->tableMemory->setItem(row, 1, new QTableWidgetItem(size_to_string(r->size())));           // size
 			ui->tableMemory->setItem(row, 2, new QTableWidgetItem(QString("%1%2%3")                     // protection
-				.arg(r.readable() ? 'r' : '-')
-				.arg(r.writable() ? 'w' : '-')
-				.arg(r.executable() ? 'x' : '-'))); 
-			ui->tableMemory->setItem(row, 3, new QTableWidgetItem(r.name()));                           // name
+				.arg(r->readable() ? 'r' : '-')
+				.arg(r->writable() ? 'w' : '-')
+				.arg(r->executable() ? 'x' : '-'))); 
+			ui->tableMemory->setItem(row, 3, new QTableWidgetItem(r->name()));                           // name
 		}
 		ui->tableMemory->setSortingEnabled(true);
 	}
