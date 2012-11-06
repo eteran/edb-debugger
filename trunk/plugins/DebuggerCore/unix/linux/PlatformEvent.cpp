@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: 
 //------------------------------------------------------------------------------
 PlatformEvent::PlatformEvent() : pid_(0), tid_(0), status_(0) {
-	std::memset(&siginfo_, 0, sizeof(siginfo));
+	std::memset(&siginfo_, 0, sizeof(siginfo_t));
 }
 
 //------------------------------------------------------------------------------
