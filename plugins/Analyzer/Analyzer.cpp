@@ -252,6 +252,7 @@ void Analyzer::do_analysis(const IRegion::pointer &region) {
 //------------------------------------------------------------------------------
 void Analyzer::find_function_calls(const IRegion::pointer &region, FunctionMap *found_functions) {
 	
+#if 0
 	Q_ASSERT(found_functions);
 	
 	static const edb::address_t page_size = edb::v1::debugger_core->page_size();
@@ -296,6 +297,7 @@ void Analyzer::find_function_calls(const IRegion::pointer &region, FunctionMap *
 		QMessageBox::information(0, tr("Memroy Allocation Error"),
 			tr("Unable to satisfy memory allocation request for requested region->"));
 	}
+#endif
 }
 
 //------------------------------------------------------------------------------
