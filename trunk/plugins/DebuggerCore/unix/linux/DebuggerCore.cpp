@@ -108,12 +108,10 @@ bool is_clone_event(int status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: process_map_line(const QString &line, IRegion::pointer *region)
+// Name: process_map_line(const QString &line)
 // Desc: parses the data from a line of a memory map file
 //------------------------------------------------------------------------------
-bool process_map_line(const QString &line, IRegion::pointer *region) {
-
-	Q_ASSERT(region);
+IRegion::pointer process_map_line(const QString &line) {
 
 	edb::address_t start;
 	edb::address_t end;
@@ -142,14 +140,13 @@ bool process_map_line(const QString &line, IRegion::pointer *region) {
 							name = items[5];
 						}
 
-						*region = IRegion::pointer(new PlatformRegion(start, end, base, name, permissions));
-						return true;
+						return IRegion::pointer(new PlatformRegion(start, end, base, name, permissions));
 					}
 				}
 			}
 		}
 	}
-	return false;
+	return IRegion::pointer();
 }
 
 struct user_stat {
@@ -928,8 +925,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 			QString line = in.readLine();
 
 			while(!line.isNull()) {
-				IRegion::pointer region;
-				if(process_map_line(line, &region)) {
+				if(IRegion::pointer region = process_map_line(line)) {
 					regions.push_back(region);
 				}
 				line = in.readLine();
