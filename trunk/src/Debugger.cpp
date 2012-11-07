@@ -891,7 +891,7 @@ IRegion::pointer edb::v1::primary_code_region() {
 	memory_regions().sync();
 	const QList<IRegion::pointer> r = memory_regions().regions();
 	Q_FOREACH(const IRegion::pointer &region, r) {
-		if(region.executable() && region.name() == process_executable) {
+		if(region->executable() && region->name() == process_executable) {
 			return region;
 		}
 	}
