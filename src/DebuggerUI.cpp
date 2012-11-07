@@ -348,7 +348,7 @@ edb::address_t DebuggerUI::get_goto_expression(bool *ok) {
 
 	edb::address_t address;
 	*ok = edb::v1::get_expression_from_user(tr("Goto Address"), tr("Address:"), &address);
-	return ok ? address : 0;
+	return *ok ? address : 0;
 }
 
 //------------------------------------------------------------------------------
