@@ -52,11 +52,13 @@ ELF64::~ELF64() {
 //------------------------------------------------------------------------------
 bool ELF64::validate_header() {
 	read_header();
-#if defined(Q_OS_UNIX)
-	if(std::memcmp(header_->e_ident, ELFMAG, SELFMAG) == 0) {
-		return header_->e_ident[EI_CLASS] == ELFCLASS64;
+	if(header_) {
+	#if defined(Q_OS_UNIX)
+		if(std::memcmp(header_->e_ident, ELFMAG, SELFMAG) == 0) {
+			return header_->e_ident[EI_CLASS] == ELFCLASS64;
+		}
+	#endif
 	}
-#endif
 	return false;
 }
 
@@ -78,11 +80,14 @@ bool ELF64::native() const {
 //------------------------------------------------------------------------------
 edb::address_t ELF64::entry_point() {
 	read_header();
-#if defined(Q_OS_UNIX)
-	return header_->e_entry;
-#else
+	if(header_) {
+	#if defined(Q_OS_UNIX)
+		return header_->e_entry;
+	#else
+		return 0;
+	#endif
+	}
 	return 0;
-#endif
 }
 
 //------------------------------------------------------------------------------

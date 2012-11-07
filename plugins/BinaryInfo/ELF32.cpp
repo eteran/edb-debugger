@@ -52,11 +52,13 @@ ELF32::~ELF32() {
 //------------------------------------------------------------------------------
 bool ELF32::validate_header() {
 	read_header();
-#if defined(Q_OS_UNIX)
-	if(std::memcmp(header_->e_ident, ELFMAG, SELFMAG) == 0) {
-		return header_->e_ident[EI_CLASS] == ELFCLASS32;
+	if(header_) {
+	#if defined(Q_OS_UNIX)
+		if(std::memcmp(header_->e_ident, ELFMAG, SELFMAG) == 0) {
+			return header_->e_ident[EI_CLASS] == ELFCLASS32;
+		}
+	#endif
 	}
-#endif
 	return false;
 }
 
@@ -78,11 +80,14 @@ bool ELF32::native() const {
 //------------------------------------------------------------------------------
 edb::address_t ELF32::entry_point() {
 	read_header();
-#if defined(Q_OS_UNIX)
-	return header_->e_entry;
-#else
+	if(header_) {
+	#if defined(Q_OS_UNIX)
+		return header_->e_entry;
+	#else
+		return 0;
+	#endif
+	}
 	return 0;
-#endif
 }
 
 //------------------------------------------------------------------------------
