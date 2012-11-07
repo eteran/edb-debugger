@@ -653,7 +653,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		// disassemble the instruction, if it happens that the next byte is the start of a known function
 		// then we should treat this like a one byte instruction
 		edb::Instruction insn(buf, buf + buf_size, address, std::nothrow);
-		if((analyzer) && (analyzer->category(address + 1) == IAnalyzer::ADDRESS_FUNC_START)) {
+		if(analyzer && (analyzer->category(address + 1) == IAnalyzer::ADDRESS_FUNC_START)) {
 			edb::Instruction(buf, buf + 1, address, std::nothrow).swap(insn);
 		}
 
