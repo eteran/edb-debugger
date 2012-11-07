@@ -71,6 +71,11 @@ namespace {
 			return GetThreadSelectorEntry(handle_, dwSelector, lpSelectorEntry);
 		}
 		
+	public:
+		operator void*() const {
+			return reinterpret_cast<void *>(handle_ != 0);
+		}
+		
 	private:
 		HANDLE handle_;
 	};
@@ -387,19 +392,22 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 
 	if(attached()) {
 		if(status != edb::DEBUG_STOP) {
-			if(const Win32Handle th = OpenThread(THREAD_QUERY_INFORMATION | THREAD_GET_CONTEXT | THREAD_SET_CONTEXT, FALSE, active_thread())) {
+		
+			Win32Thread thread(THREAD_QUERY_INFORMATION | THREAD_GET_CONTEXT | THREAD_SET_CONTEXT, FALSE, active_thread());
+			if(thread) {
 				CONTEXT	context;
 				context.ContextFlags = CONTEXT_CONTROL;
-				GetThreadContext(th.get(), &context);
-
+				thread.GetThreadContext(&context);
 				context.EFlags |= (1 << 8); // set the trap flag
-				SetThreadContext(th.get(), &context);
-
+				thread.SetThreadContext(&context);
+				
 				resume(status);
-				/*ContinueDebugEvent(
-					pid(),
-					active_thread(),
-					(status == edb::DEBUG_CONTINUE) ? (DBG_CONTINUE) : (DBG_EXCEPTION_NOT_HANDLED));*/
+				/*
+				ContinueDebugEvent(
+				pid(),
+				active_thread(),
+				(status == edb::DEBUG_CONTINUE) ? (DBG_CONTINUE) : (DBG_EXCEPTION_NOT_HANDLED));
+				*/
 			}
 		}
 	}
@@ -416,9 +424,13 @@ void DebuggerCore::get_state(State *state) {
 	PlatformState *state_impl = static_cast<PlatformState *>(state->impl_);
 
 	if(attached() && state_impl) {
-		if(const Win32Handle th = OpenThread(THREAD_QUERY_INFORMATION | THREAD_GET_CONTEXT, FALSE, active_thread())) {
+	
+		
+		Win32Thread thread(THREAD_QUERY_INFORMATION | THREAD_GET_CONTEXT, FALSE, active_thread());
+	
+		if(thread) {
 			state_impl->context_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
-			GetThreadContext(th.get(), &state_impl->context_);
+			thread.GetThreadContext(&state_impl->context_);
 
 			state_impl->gs_base_ = 0;
 			state_impl->fs_base_ = 0;
@@ -426,11 +438,11 @@ void DebuggerCore::get_state(State *state) {
 			// on x64 gs_base == TEB, maybe we can use that somehow
 #if !defined(EDB_X86_64)
 			LDT_ENTRY ldt_entry;
-			if(GetThreadSelectorEntry(th.get(), state_impl->context_.SegGs, &ldt_entry)) {
+			if(thread.GetThreadSelectorEntry(state_impl->context_.SegGs, &ldt_entry)) {
 				state_impl->gs_base_ = ldt_entry.BaseLow | (ldt_entry.HighWord.Bits.BaseMid << 16) | (ldt_entry.HighWord.Bits.BaseHi << 24);
 			}
 
-			if(GetThreadSelectorEntry(th.get(), state_impl->context_.SegFs, &ldt_entry)) {
+			if(thread.GetThreadSelectorEntry(state_impl->context_.SegFs, &ldt_entry)) {
 				state_impl->fs_base_ = ldt_entry.BaseLow | (ldt_entry.HighWord.Bits.BaseMid << 16) | (ldt_entry.HighWord.Bits.BaseHi << 24);
 			}
 #endif
@@ -454,8 +466,10 @@ void DebuggerCore::set_state(const State &state) {
 	if(attached()) {
 		state_impl->context_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
 
-		if(const Win32Handle th = OpenThread(THREAD_SET_CONTEXT, FALSE, active_thread())) {
-			SetThreadContext(th.get(), &state_impl->context_);
+		Win32Thread thread(THREAD_SET_CONTEXT, FALSE, active_thread());
+
+		if(thread) {
+			thread.SetThreadContext(&state_impl->context_);
 		}
 	}
 }
