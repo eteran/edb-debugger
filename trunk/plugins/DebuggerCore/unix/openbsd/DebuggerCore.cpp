@@ -58,7 +58,7 @@ inline int resume_code(int status) {
 	return 0;
 }
 
-#if 0
+#if defined(OpenBSD) && (OpenBSD > 201205)
 //------------------------------------------------------------------------------
 // Name: load_vmmap_entries(kvm_t *kd, u_long kptr, struct vm_map_entry **rptr, struct vm_map_entry *parent)
 // Desc: Download vmmap_entries from the kernel into our address space.
@@ -137,13 +137,17 @@ void unload_vmmap_entries(struct vm_map_entry *entry) {
 // Desc: Don't implement address comparison.
 //------------------------------------------------------------------------------
 int no_impl(void *p, void *q) {
-	abort(); /* Should not be called. */
+	Q_UNUSED(p);
+	Q_UNUSED(q);
+	Q_ASSERT(0); /* Should not be called. */
 	return 0;
 }
-
-RB_GENERATE(uvm_map_addr, vm_map_entry, daddrs.addr_entry, no_impl)
 #endif
 }
+
+#if defined(OpenBSD) && (OpenBSD > 201205)
+RB_GENERATE(uvm_map_addr, vm_map_entry, daddrs.addr_entry, no_impl)
+#endif
 
 //------------------------------------------------------------------------------
 // Name: DebuggerCore()
@@ -571,9 +575,34 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 			Q_ASSERT(proc);
 
 			struct vmspace vmsp;
-			struct vm_map_entry e;
 			
-			kvm_read(kd, proc->p_vmspace, &vmsp, sizeof(vmsp));
+
+			kvm_read(kd, proc->p_vmspace, &vmsp, sizeof vmsp);
+
+#if defined(OpenBSD) && (OpenBSD > 201205)
+			uvm_map_addr root;
+			RB_INIT(&root);
+			if (load_vmmap_entries(kd, (u_long)RB_ROOT(&vmsp.vm_map.addr), &RB_ROOT(&root), NULL) == -1)
+				goto do_unload;
+
+			struct vm_map_entry *e;
+			RB_FOREACH(e, uvm_map_addr, &root) {
+				const edb::address_t start               = e->start;
+				const edb::address_t end                 = e->end;
+				const edb::address_t base                = e->offset;
+				const QString name                       = QString();
+				const IRegion::permissions_t permissions = 
+					((e->protection & VM_PROT_READ)    ? PROT_READ  : 0) |
+					((e->protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
+					((e->protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
+
+				regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
+			}
+			
+do_unload:
+			unload_vmmap_entries(RB_ROOT(&root));
+#else
+			struct vm_map_entry e;
 			if(vmsp.vm_map.header.next != 0) {
 				kvm_read(kd, (u_long)vmsp.vm_map.header.next, &e, sizeof(e));
 				while(e.next != vmsp.vm_map.header.next) {
@@ -591,34 +620,6 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 					kvm_read(kd, (u_long)e.next, &e, sizeof(e));
 				}
 			}
-
-#if 0
-			uvm_map_addr root;
-
-			kvm_read(kd, proc->p_vmspace, &vmsp, sizeof vmsp);
-
-			RB_INIT(&root);
-			if (load_vmmap_entries(kd, 
-			    (u_long)RB_ROOT(&vmsp.vm_map.addr),
-			    &RB_ROOT(&root), NULL) == -1)
-				goto do_unload;
-
-			RB_FOREACH(e, uvm_map_addr, &root) {
-				IRegion::pointer region;
-				region.start        = e->start;
-				region.end          = e->end;
-				region.base         = e->offset;
-				region.name         = QString();
-				region.permissions_ =
-					((e->protection & VM_PROT_READ)    ? PROT_READ  : 0) |
-					((e->protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
-					((e->protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
-
-				regions.push_back(region);
-			}
-			
-do_unload:
-			unload_vmmap_entries(RB_ROOT(&root));
 #endif
 			kvm_close(kd);
 		} else {
