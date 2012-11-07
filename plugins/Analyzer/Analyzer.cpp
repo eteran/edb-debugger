@@ -141,8 +141,8 @@ void Analyzer::do_ip_analysis() {
 	State state;
 	edb::v1::debugger_core->get_state(&state);
 	
-	const edb::address_t eip = state.instruction_pointer();
-	if(IRegion::pointer region = edb::v1::memory_regions().find_region(eip)) {
+	const edb::address_t address = state.instruction_pointer();
+	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
 		do_analysis(region);
 	}
 }
@@ -160,6 +160,7 @@ void Analyzer::do_view_analysis() {
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::mark_function_start() {
+
 	const edb::address_t address = edb::v1::cpu_selected_address();
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
 		qDebug("Added %p to the list of known functions", reinterpret_cast<void *>(address));

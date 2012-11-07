@@ -36,7 +36,7 @@ private:
 	Q_DISABLE_COPY(DataViewInfo)
 
 public:
-	IRegion::pointer                    region;
+	IRegion::pointer             region;
 	QSharedPointer<RegionBuffer> stream;
 	QSharedPointer<QHexView>     view;
 

@@ -1500,21 +1500,21 @@ void DebuggerMain::update_stack_view(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_cpu_view(const State &state, IRegion::pointer &region)
+// Name: update_cpu_view(const State &state)
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::update_cpu_view(const State &state, IRegion::pointer &region) {
+IRegion::pointer DebuggerMain::update_cpu_view(const State &state) {
 
 	const edb::address_t address = state.instruction_pointer();
 	
-	region = edb::v1::memory_regions().find_region(address);
-
-	if(!region) {
+	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
+		update_disassembly(address, region);
+		return region;
+	} else {
 		ui->cpuView->clear();
 		ui->cpuView->scrollTo(0);
 		list_model_->setStringList(QStringList());
-	} else {
-		update_disassembly(address, region);
+		return IRegion::pointer();
 	}
 }
 
@@ -1563,10 +1563,11 @@ void DebuggerMain::update_gui() {
 		State state;
 		edb::v1::debugger_core->get_state(&state);
 		
-		IRegion::pointer region;
-		update_cpu_view(state, region);
+		IRegion::pointer region = update_cpu_view(state);
+		
 		update_data_views();
 		update_stack_view(state);
+		
 		if(region) {
 			edb::v1::arch_processor().update_register_view(region->name());
 		}

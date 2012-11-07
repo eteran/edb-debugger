@@ -896,7 +896,7 @@ int QDisassemblyView::get_instruction_size(edb::address_t address, bool *ok, qui
 	
 	int ret = 0;
 
-	if(size < 0) {
+	if(*size < 0) {
 		*ok = false;
 	} else {
 		*ok = edb::v1::get_instruction_bytes(address, buf, size);
@@ -959,7 +959,7 @@ edb::address_t QDisassemblyView::address_from_coord(int x, int y) const {
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
-	if(region_ != IRegion::pointer()) {
+	if(region_) {
 		if(event->button() == Qt::LeftButton) {
 			if(event->x() < line1()) {
 				const edb::address_t address = addressFromPoint(event->pos());
@@ -979,7 +979,7 @@ void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 bool QDisassemblyView::event(QEvent *event) {
 
-	if(region_ != IRegion::pointer()) {
+	if(region_) {
 		if(event->type() == QEvent::ToolTip) {
 			bool show = false;
 
@@ -1035,7 +1035,7 @@ void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 	
-	if(region_ != IRegion::pointer()) {
+	if(region_) {
 		bool ok;
 		const edb::address_t address = addressFromPoint(event->pos());
 		const int size               = get_instruction_size(address, &ok);
@@ -1056,7 +1056,7 @@ void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 
-	if(region_ != IRegion::pointer()) {
+	if(region_) {
 		if(event->button() == Qt::LeftButton) {
 			if(near_line(event->x(), line1())) {
 				moving_line1_ = true;
@@ -1079,7 +1079,7 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 
-	if(region_ != IRegion::pointer()) {
+	if(region_) {
 		const int x_pos = event->x();
 
 		if(moving_line1_) {

@@ -348,7 +348,7 @@ void DialogProcessProperties::updateMemoryPage() {
 			ui->tableMemory->insertRow(row);
 			ui->tableMemory->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(r->start()))); // address
 			ui->tableMemory->setItem(row, 1, new QTableWidgetItem(size_to_string(r->size())));           // size
-			ui->tableMemory->setItem(row, 2, new QTableWidgetItem(QString("%1%2%3")                     // protection
+			ui->tableMemory->setItem(row, 2, new QTableWidgetItem(QString("%1%2%3")                      // protection
 				.arg(r->readable() ? 'r' : '-')
 				.arg(r->writable() ? 'w' : '-')
 				.arg(r->executable() ? 'x' : '-'))); 
