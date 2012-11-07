@@ -264,7 +264,7 @@ void Analyzer::find_function_calls(const IRegion::pointer &region, FunctionMap *
 		if(edb::v1::debugger_core->read_pages(region->start(), &pages[0], size_in_pages)) {
 			for(edb::address_t i = 0; i < static_cast<edb::address_t>(region->size()); ++i) {
 
-				const edb::Instruction insn(&pages[i], &pages[i] + region->size(), region->start() + i, std::nothrow);
+				const edb::Instruction insn(&pages[i], &pages[0] + region->size(), region->start() + i, std::nothrow);
 
 				if(insn.valid() && insn.type() == edb::Instruction::OP_CALL) {
 
