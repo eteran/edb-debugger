@@ -44,26 +44,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace {
 	typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 	LPFN_ISWOW64PROCESS fnIsWow64Process;
-
-	class Win32Handle {
+	
+	
+	class Win32Thread {
 	public:
-		Win32Handle() : handle(NULL) {}
-		Win32Handle(HANDLE handle) : handle(handle) {}
-		~Win32Handle() { if(valid()) { CloseHandle(handle); } }
+		Win32Thread(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwThreadId) {
+			handle_ = OpenThread(dwDesiredAccess, bInheritHandle, dwThreadId);
+		}
+		
+		~Win32Thread() {
+			if(handle_) {
+				CloseHandle(handle_);
+			}
+		}
+		
+	public:
+		BOOL GetThreadContext(LPCONTEXT lpContext) {
+			return GetThreadContext(handle_, lpContext);
+		}
+		
+		BOOL SetThreadContext(const CONTEXT *lpContext) {
+			return SetThreadContext(handle_, lpContext);
+		}
+		
+		BOOL GetThreadSelectorEntry(DWORD dwSelector, LPLDT_ENTRY lpSelectorEntry) {
+			return GetThreadSelectorEntry(handle_, dwSelector, lpSelectorEntry);
+		}
+		
 	private:
-		Win32Handle(const Win32Handle&);
-		Win32Handle &operator=(const Win32Handle&);
-		bool valid() const { return (handle != NULL && handle != INVALID_HANDLE_VALUE); }
-
-	public:
-		HANDLE get() const { return handle; }
-
-	public:
-		operator bool() const { return valid(); }
-		operator HANDLE() const { return handle; }
-
-	private:
-		HANDLE handle;
+		HANDLE handle_;
 	};
 
 	QString get_user_token(HANDLE hProcess) {
@@ -295,12 +304,11 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 
 	// These should be all the permissions we need
 	const DWORD ACCESS = PROCESS_TERMINATE | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME;
-	HANDLE ph = OpenProcess(ACCESS, false, pid);
 
-	if(ph) {
+	if(HANDLE ph = OpenProcess(ACCESS, false, pid)) {
 		if(DebugActiveProcess(pid)) {
 			process_handle_ = ph;
-			pid_ = pid;
+			pid_            = pid;
 			return true;
 		}
 		else {

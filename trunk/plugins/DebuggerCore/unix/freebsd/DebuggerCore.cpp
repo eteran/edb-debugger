@@ -150,9 +150,6 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 
 	Q_ASSERT(ok);
-
-	// NOTE: this will fail on newer versions of linux if called from a
-	// different thread than the one which attached to process
 	errno = 0;
 	const long v = ptrace(PT_READ_D, pid(), reinterpret_cast<char*>(address), 0);
 	SET_OK(*ok, v);
@@ -283,10 +280,7 @@ void DebuggerCore::get_state(State *state) {
 			state_impl->fs_base = 0;
 		}
 	#endif
-
-		// TODO: FPU
-		// TODO: Debug Registers
-
+		// TODO implement this
 	} else {
 		state->clear();
 	}
