@@ -60,15 +60,15 @@ namespace {
 		
 	public:
 		BOOL GetThreadContext(LPCONTEXT lpContext) {
-			return GetThreadContext(handle_, lpContext);
+			return ::GetThreadContext(handle_, lpContext);
 		}
 		
 		BOOL SetThreadContext(const CONTEXT *lpContext) {
-			return SetThreadContext(handle_, lpContext);
+			return ::SetThreadContext(handle_, lpContext);
 		}
 		
 		BOOL GetThreadSelectorEntry(DWORD dwSelector, LPLDT_ENTRY lpSelectorEntry) {
-			return GetThreadSelectorEntry(handle_, dwSelector, lpSelectorEntry);
+			return ::GetThreadSelectorEntry(handle_, dwSelector, lpSelectorEntry);
 		}
 		
 	public:
