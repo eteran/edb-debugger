@@ -92,10 +92,12 @@ edb::address_t ELF64::entry_point() {
 void ELF64::read_header() {
 #if defined(Q_OS_UNIX)
 	if(header_ == 0) {
-		header_ = new elf64_header;
-
-		if(!edb::v1::debugger_core->read_bytes(region_->start(), header_, sizeof(elf64_header))) {
-			std::memset(header_, 0, sizeof(elf64_header));
+		if(region_) {
+			header_ = new elf64_header;
+	
+			if(!edb::v1::debugger_core->read_bytes(region_->start(), header_, sizeof(elf64_header))) {
+				std::memset(header_, 0, sizeof(elf64_header));
+			}
 		}
 	}
 #endif
@@ -120,33 +122,35 @@ size_t ELF64::header_size() const {
 //------------------------------------------------------------------------------
 edb::address_t ELF64::debug_pointer() {
 	read_header();
-#if defined(Q_OS_UNIX)
-	const edb::address_t section_offset = header_->e_phoff;
-	const std::size_t count             = header_->e_phnum;
+	if(region_) {
+	#if defined(Q_OS_UNIX)
+		const edb::address_t section_offset = header_->e_phoff;
+		const std::size_t count             = header_->e_phnum;
 
-	elf64_phdr section_header;
-	for(std::size_t i = 0; i < count; ++i) {
-		if(edb::v1::debugger_core->read_bytes(region_->start() + (section_offset + i * sizeof(elf64_phdr)), &section_header, sizeof(elf64_phdr))) {
-			if(section_header.p_type == PT_DYNAMIC) {
-				try {
-					QVector<quint8> buf(section_header.p_memsz);
-					if(edb::v1::debugger_core->read_bytes(section_header.p_vaddr, &buf[0], section_header.p_memsz)) {
-						const elf64_dyn *dynamic = reinterpret_cast<elf64_dyn *>(&buf[0]);
-						while(dynamic->d_tag != DT_NULL) {
-							if(dynamic->d_tag == DT_DEBUG) {
-								return dynamic->d_un.d_val;
+		elf64_phdr section_header;
+		for(std::size_t i = 0; i < count; ++i) {
+			if(edb::v1::debugger_core->read_bytes(region_->start() + (section_offset + i * sizeof(elf64_phdr)), &section_header, sizeof(elf64_phdr))) {
+				if(section_header.p_type == PT_DYNAMIC) {
+					try {
+						QVector<quint8> buf(section_header.p_memsz);
+						if(edb::v1::debugger_core->read_bytes(section_header.p_vaddr, &buf[0], section_header.p_memsz)) {
+							const elf64_dyn *dynamic = reinterpret_cast<elf64_dyn *>(&buf[0]);
+							while(dynamic->d_tag != DT_NULL) {
+								if(dynamic->d_tag == DT_DEBUG) {
+									return dynamic->d_un.d_val;
+								}
+								++dynamic;
 							}
-							++dynamic;
 						}
+					} catch(const std::bad_alloc &) {
+						qDebug() << "[Elf64::debug_pointer] no more memory";
+						return 0;
 					}
-				} catch(const std::bad_alloc &) {
-					qDebug() << "[Elf64::debug_pointer] no more memory";
-					return 0;
 				}
 			}
 		}
+	#endif
 	}
-#endif
 	return 0;
 }
 
