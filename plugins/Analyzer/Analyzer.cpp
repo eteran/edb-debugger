@@ -252,7 +252,8 @@ void Analyzer::do_analysis(const IRegion::pointer &region) {
 //------------------------------------------------------------------------------
 void Analyzer::find_function_calls(const IRegion::pointer &region, FunctionMap *found_functions) {
 	
-#if 0
+	// TODO: why does this seem to infinitely recurse on win32?!
+#ifndef Q_OS_WIN32
 	Q_ASSERT(found_functions);
 	
 	static const edb::address_t page_size = edb::v1::debugger_core->page_size();
@@ -263,6 +264,8 @@ void Analyzer::find_function_calls(const IRegion::pointer &region, FunctionMap *
 		QVector<quint8> pages(size_in_pages * page_size);
 
 		if(edb::v1::debugger_core->read_pages(region->start(), &pages[0], size_in_pages)) {
+		
+		
 			for(edb::address_t i = 0; i < static_cast<edb::address_t>(region->size()); ++i) {
 
 				const edb::Instruction insn(&pages[i], &pages[0] + region->size(), region->start() + i, std::nothrow);

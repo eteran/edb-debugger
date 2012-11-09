@@ -91,9 +91,32 @@ private:
 	bool attach_thread(edb::tid_t tid);
 
 private:
-	struct thread_info {
-		thread_info() : status(0) {}
-		explicit thread_info(int s) : status(s) {}
+	class thread_info {
+	public:
+		thread_info() : status(0) {
+		}
+		
+		explicit thread_info(int s) : status(s) {
+		}
+		
+		thread_info(const thread_info &other) : status(other.status) {
+		
+		}
+		
+		thread_info &operator=(const thread_info &rhs) {
+			thread_info(rhs).swap(*this);
+			return *this;
+		}
+		
+		~thread_info() {
+		}
+		
+	public:
+		void swap(thread_info &other) {
+			qSwap(status, other.status);
+		}
+		
+	public:
 		int status;
 	};
 
