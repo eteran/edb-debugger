@@ -80,24 +80,6 @@ Register PlatformState::value(const QString &reg) const {
 	const QString lreg = reg.toLower();
 
 #if defined(EDB_X86)
-		state.eax = thread_state.REG(eax);
-		state.ebx = thread_state.REG(ebx);
-		state.ecx = thread_state.REG(ecx);
-		state.edx = thread_state.REG(edx);
-		state.esp = thread_state.REG(esp);
-		state.ebp = thread_state.REG(ebp);
-		state.edi = thread_state.REG(edi);
-		state.esi = thread_state.REG(esi);
-		state.eip = thread_state.REG(eip);
-		state.eflags = thread_state.REG(eflags);
-		state.cs = thread_state.REG(cs);
-		state.ds = thread_state.REG(ds);
-		state.es = thread_state.REG(es);
-		state.fs = thread_state.REG(fs);
-		state.gs = thread_state.REG(gs);
-		state.ss = thread_state.REG(ss);
-
-
 	if(lreg == "eax")			return Register("eax", thread_state_.REG(eax), Register::TYPE_GPR);
 	else if(lreg == "ebx")		return Register("ebx", thread_state_.REG(ebx), Register::TYPE_GPR);
 	else if(lreg == "ecx")		return Register("ecx", thread_state_.REG(ecx), Register::TYPE_GPR);
