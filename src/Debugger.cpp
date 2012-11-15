@@ -708,12 +708,12 @@ edb::address_t edb::v1::get_variable(const QString &s, bool *ok, ExpressionError
 	}
 
 	if(reg.name() == "fs") {
-		return *state["fs_base"];
+		return state["fs_base"].value<edb::reg_t>();
 	} else if(reg.name() == "gs") {
-		return *state["gs_base"];
+		return state["gs_base"].value<edb::reg_t>();
 	}
 
-	return *reg;
+	return reg.value<edb::reg_t>();
 }
 
 //------------------------------------------------------------------------------

@@ -229,10 +229,12 @@ unix {
 
 	linux-g++*:		QMAKE_CXXFLAGS += -Wstrict-null-sentinel
 
+	linux-clang*:	QMAKE_LFLAGS += -rdynamic
 	linux-g++*:		QMAKE_LFLAGS += -rdynamic
 	openbsd-g++*:	QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic
 	freebsd-g++*:	QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic
 	macx-g++*:		QMAKE_LFLAGS += -rdynamic
+	macx-cleang*:	QMAKE_LFLAGS += -rdynamic
 	
 	debug {
 		OBJECTS_DIR = $${OUT_PWD}/.debug-shared/obj
