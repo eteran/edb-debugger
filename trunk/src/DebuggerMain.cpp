@@ -2216,8 +2216,9 @@ bool DebuggerMain::dump_data(edb::address_t address, bool new_tab) {
 //------------------------------------------------------------------------------
 bool DebuggerMain::dump_stack(edb::address_t address, bool scroll_to) {
 	const IRegion::pointer last_region = stack_view_info_.region;
+	stack_view_info_.region = edb::v1::memory_regions().find_region(address);
 
-	if(stack_view_info_.region = edb::v1::memory_regions().find_region(address)) {
+	if(stack_view_info_.region) {
 		stack_view_info_.update();
 		if(scroll_to || stack_view_info_.region != last_region) {
 			stack_view_->scrollTo(address - stack_view_info_.region->start());

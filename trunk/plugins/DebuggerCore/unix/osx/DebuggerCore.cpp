@@ -124,7 +124,7 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 	if(err != KERN_SUCCESS) {
 		qDebug("task_for_pid() failed with %x [%d]", err, pid());
 		*ok = false;
-		*return -1;
+		return -1;
 	}
 
 	long x;
