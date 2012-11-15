@@ -51,6 +51,10 @@ public:
 	edb::reg_t operator*() const { return value_; }
 	Type type() const            { return type_; }
 	QString name() const         { return name_; }
+	
+	template <class T>
+	T value() const              { return value_; }
+	
 
 private:
 	bool valid() const { return type_ != TYPE_INVALID; }

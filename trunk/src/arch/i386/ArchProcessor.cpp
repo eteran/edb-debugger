@@ -50,31 +50,31 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 	if(op.valid()) {
 		switch(op.general_type()) {
 		case edb::Operand::TYPE_REGISTER:
-			ret = *state[QString::fromStdString(edisassm::register_name<edisassm::x86>(op.reg()))];
+			ret = state[QString::fromStdString(edisassm::register_name<edisassm::x86>(op.reg()))].value<edb::reg_t>();
 			break;
 		case edb::Operand::TYPE_EXPRESSION:
 			do {
-				const edb::reg_t base  = *state[QString::fromStdString(edisassm::register_name<edisassm::x86>(op.expression().base))];
-				const edb::reg_t index = *state[QString::fromStdString(edisassm::register_name<edisassm::x86>(op.expression().index))];
+				const edb::reg_t base  = state[QString::fromStdString(edisassm::register_name<edisassm::x86>(op.expression().base))].value<edb::reg_t>();
+				const edb::reg_t index = state[QString::fromStdString(edisassm::register_name<edisassm::x86>(op.expression().index))].value<edb::reg_t>();
 				ret                    = base + index * op.expression().scale + op.displacement();
 
 				if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
-					ret += *state["gs_base"];
+					ret += state["gs_base"].value<edb::reg_t>();
 				}
 
 				if(op.owner()->prefix() & edb::Instruction::PREFIX_FS) {
-					ret += *state["fs_base"];
+					ret += state["fs_base"].value<edb::reg_t>();
 				}
 			} while(0);
 			break;
 		case edb::Operand::TYPE_ABSOLUTE:
 			ret = op.absolute().offset;
 			if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
-				ret += *state["gs_base"];
+				ret += state["gs_base"].value<edb::reg_t>();
 			}
 
 			if(op.owner()->prefix() & edb::Instruction::PREFIX_FS) {
-				ret += *state["fs_base"];
+				ret += state["fs_base"].value<edb::reg_t>();
 			}
 			break;
 		case edb::Operand::TYPE_IMMEDIATE:
@@ -272,9 +272,9 @@ void analyze_jump(const State &state, const edb::Instruction &insn, QStringList 
 	// TODO: this is not correct! 0xe3 IS an OP_JCC
 	} else if(insn_buf[0] == 0xe3) {
 		if(insn.prefix() & edb::Instruction::PREFIX_ADDRESS) {
-			taken = (*state["ecx"] & 0xffff) == 0;
+			taken = (state["ecx"].value<edb::reg_t>() & 0xffff) == 0;
 		} else {
-			taken = *state["ecx"] == 0;
+			taken = state["ecx"].value<edb::reg_t>() == 0;
 		}
 	}
 
@@ -473,14 +473,14 @@ void analyze_syscall(const State &state, const edb::Instruction &insn, QStringLi
 
 #ifdef Q_OS_LINUX
 
-	const edb::reg_t arg1 = *state["ebx"];
-	const edb::reg_t arg2 = *state["ecx"];
-	const edb::reg_t arg3 = *state["edx"];
-	const edb::reg_t arg4 = *state["esi"];
-	const edb::reg_t arg5 = *state["edi"];
-	const edb::reg_t arg6 = *state["ebp"];
+	const edb::reg_t arg1 = state["ebx"].value<edb::reg_t>();
+	const edb::reg_t arg2 = state["ecx"].value<edb::reg_t>();
+	const edb::reg_t arg3 = state["edx"].value<edb::reg_t>();
+	const edb::reg_t arg4 = state["esi"].value<edb::reg_t>();
+	const edb::reg_t arg5 = state["edi"].value<edb::reg_t>();
+	const edb::reg_t arg6 = state["ebp"].value<edb::reg_t>();
 
-	switch(*state["eax"]) {
+	switch(state["eax"].value<edb::reg_t>()) {
 	#ifdef __NR_read
 	case __NR_read:						ret << ArchProcessor::tr("SYSCALL: read(%1,%2,%3)").arg(format_argument('i', arg1)).arg(format_argument('p', arg2)).arg(format_argument('u', arg3)); break;
 	#endif
@@ -1609,12 +1609,12 @@ void ArchProcessor::update_register_view(const QString &default_region_name) {
 	}
 	get_register_item(9)->setText(0, QString("EFLAGS: %1").arg(edb::v1::format_pointer(state.flags())));
 
-	get_register_item(10)->setText(0, QString("CS: %1").arg(*state["cs"] & 0xffff, 4, 16, QChar('0')));
-	get_register_item(11)->setText(0, QString("DS: %1").arg(*state["ds"] & 0xffff, 4, 16, QChar('0')));
-	get_register_item(12)->setText(0, QString("ES: %1").arg(*state["es"] & 0xffff, 4, 16, QChar('0')));
-	get_register_item(13)->setText(0, QString("FS: %1 (%2)").arg(*state["fs"] & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(*state["fs_base"])));
-	get_register_item(14)->setText(0, QString("GS: %1 (%2)").arg(*state["gs"] & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(*state["gs_base"])));
-	get_register_item(15)->setText(0, QString("SS: %1").arg(*state["ss"] & 0xffff, 4, 16, QChar('0')));
+	get_register_item(10)->setText(0, QString("CS: %1").arg(state["cs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	get_register_item(11)->setText(0, QString("DS: %1").arg(state["ds"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	get_register_item(12)->setText(0, QString("ES: %1").arg(state["es"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	get_register_item(13)->setText(0, QString("FS: %1 (%2)").arg(state["fs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["fs_base"].value<edb::reg_t>())));
+	get_register_item(14)->setText(0, QString("GS: %1 (%2)").arg(state["gs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["gs_base"].value<edb::reg_t>())));
+	get_register_item(15)->setText(0, QString("SS: %1").arg(state["ss"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
 
 	for(int i = 0; i < 8; ++i) {
 		const long double current = state.fpu_register(i);

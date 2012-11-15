@@ -518,7 +518,7 @@ void DebuggerMain::on_registerList_itemDoubleClicked(QTreeWidgetItem *item) {
 	Q_ASSERT(item);
 
 	if(const Register reg = edb::v1::arch_processor().value_from_item(*item)) {
-		edb::reg_t r = *reg;
+		edb::reg_t r = reg.value<edb::reg_t>();
 		if(edb::v1::get_value_from_user(r, tr("Register Value"))) {
 
 			State state;
