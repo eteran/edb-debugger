@@ -750,7 +750,7 @@ bool edb::v1::get_instruction_bytes(edb::address_t address, quint8 *buf, int *si
 	bool ok = debugger_core->read_bytes(address, buf, *size);
 
 	while(!ok && *size) {
-		ok = debugger_core->read_bytes(address, buf, *--size);
+		ok = debugger_core->read_bytes(address, buf, --(*size));
 	}
 
 	return ok;
