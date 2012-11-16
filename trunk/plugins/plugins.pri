@@ -72,13 +72,13 @@ unix {
 
 win32 {
 	win32-msvc*:contains(QMAKE_HOST.arch, x86_64):{
-		INCLUDEPATH += $$EDB_ROOT/include/os/win64 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64 "C:\\Program Files\\boost\\boost_1_47"
+		INCLUDEPATH += $$EDB_ROOT/include/os/win64 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64 "C:\\Program Files\\boost\\boost_1_51"
 		DEPENDPATH  += $$EDB_ROOT/include/os/win64 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64	
 		LIBS        += $$EDB_ROOT/edb.lib
 	}
 
 	win32-msvc*:contains(QMAKE_HOST.arch, x86):{
-		INCLUDEPATH += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/i386 "C:\\Program Files\\boost\\boost_1_47"
+		INCLUDEPATH += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/i386 "C:\\Program Files\\boost\\boost_1_51"
 		DEPENDPATH  += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/i386
 		LIBS        += $$EDB_ROOT/edb.lib
 	}
