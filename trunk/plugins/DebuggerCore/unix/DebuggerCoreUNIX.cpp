@@ -471,3 +471,105 @@ void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, 
 int DebuggerCoreUNIX::pointer_size() const {
 	return sizeof(void *);
 }
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: 
+//------------------------------------------------------------------------------
+QMap<long, QString> DebuggerCoreUNIX::exceptions() const {
+	QMap<long, QString> exceptions;
+	
+	
+	#ifdef SIGABRT
+		exceptions[SIGABRT] = "SIGABRT";
+	#endif
+	#ifdef SIGALRM
+		exceptions[SIGALRM] = "SIGALRM";
+	#endif
+	#ifdef SIGVTALRM
+		exceptions[SIGVTALRM] = "SIGVTALRM";
+	#endif
+	#ifdef SIGPROF
+		exceptions[SIGPROF] = "SIGPROF";
+	#endif
+	#ifdef SIGBUS
+		exceptions[SIGBUS] = "SIGBUS";
+	#endif
+	#ifdef SIGCHLD
+		exceptions[SIGCHLD] = "SIGCHLD";
+	#endif
+	#ifdef SIGCONT
+		exceptions[SIGCONT] = "SIGCONT";
+	#endif
+	#ifdef SIGFPE
+		exceptions[SIGFPE] = "SIGFPE";
+	#endif
+	#ifdef SIGHUP
+		exceptions[SIGHUP] = "SIGHUP";
+	#endif
+	#ifdef SIGILL
+		exceptions[SIGILL] = "SIGILL";
+	#endif
+	#ifdef SIGINT
+		exceptions[SIGINT] = "SIGINT";
+	#endif
+	#ifdef SIGKILL
+		exceptions[SIGKILL] = "SIGKILL";
+	#endif
+	#ifdef SIGPIPE
+		exceptions[SIGPIPE] = "SIGPIPE";
+	#endif
+	#ifdef SIGQUIT
+		exceptions[SIGQUIT] = "SIGQUIT";
+	#endif
+	#ifdef SIGSEGV
+		exceptions[SIGSEGV] = "SIGSEGV";
+	#endif
+	#ifdef SIGSTOP
+		exceptions[SIGSTOP] = "SIGSTOP";
+	#endif
+	#ifdef SIGTERM
+		exceptions[SIGTERM] = "SIGTERM";
+	#endif
+	#ifdef SIGTSTP
+		exceptions[SIGTSTP] = "SIGTSTP";
+	#endif
+	#ifdef SIGTTIN
+		exceptions[SIGTTIN] = "SIGTTIN";
+	#endif
+	#ifdef SIGTTOU
+		exceptions[SIGTTOU] = "SIGTTOU";
+	#endif
+	#ifdef SIGUSR1
+		exceptions[SIGUSR1] = "SIGUSR1";
+	#endif
+	#ifdef SIGUSR2
+		exceptions[SIGUSR2] = "SIGUSR2";
+	#endif
+	#ifdef SIGPOLL
+		exceptions[SIGPOLL] = "SIGPOLL";
+	#endif
+	#ifdef SIGSYS
+		exceptions[SIGSYS] = "SIGSYS";
+	#endif
+	#ifdef SIGTRAP
+		exceptions[SIGTRAP] = "SIGTRAP";
+	#endif
+	#ifdef SIGURG
+		exceptions[SIGURG] = "SIGURG";
+	#endif
+	#ifdef SIGXCPU
+		exceptions[SIGXCPU] = "SIGXCPU";
+	#endif
+	#ifdef SIGXFSZ
+		exceptions[SIGXFSZ] = "SIGXFSZ";
+	#endif
+	#ifdef SIGRTMIN
+		exceptions[SIGRTMIN] = "SIGRTMIN";
+	#endif
+	#ifdef SIGRTMAX
+		exceptions[SIGRTMAX] = "SIGRTMAX";
+	#endif
+	
+	return exceptions;
+}
