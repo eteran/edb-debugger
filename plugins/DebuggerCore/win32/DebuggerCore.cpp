@@ -503,7 +503,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 
 	const DWORD CREATE_FLAGS = DEBUG_PROCESS | DEBUG_ONLY_THIS_PROCESS | CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE;
 
-	wchar_t *env_block = GetEnvironmentStringsW();
+    wchar_t *const env_block = GetEnvironmentStringsW();
 
 	// Set up command line
 	QString command_str = '\"' + QFileInfo(path).canonicalPath() + '\"'; // argv[0] = full path (explorer style)
@@ -516,7 +516,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 
 	// CreateProcessW wants a writable copy of the command line :<
 	wchar_t* command_path = new wchar_t[command_str.length() + sizeof(wchar_t)];
-	wcscpy(command_path, command_str.utf16());
+    wcscpy_s(command_path, command_str.length() + 1, command_str.utf16());
 
 	if(CreateProcessW(
 			path.utf16(),	// exe
@@ -699,6 +699,7 @@ QString DebuggerCore::process_exe(edb::pid_t pid) const {
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::process_cwd(edb::pid_t pid) const {
+    Q_UNUSED(pid);
 	// TODO: implement this
 	return QString();
 }
