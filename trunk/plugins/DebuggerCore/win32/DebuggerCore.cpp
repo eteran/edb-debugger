@@ -803,4 +803,10 @@ edb::address_t DebuggerCore::application_data_address() const {
 	return 0;
 }
 
+QMap<long, QString> DebuggerCore::exceptions() const {
+	QMap<long, QString> exceptions;
+
+	return exceptions;
+}
+
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

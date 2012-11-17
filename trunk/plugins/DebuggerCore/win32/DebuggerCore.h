@@ -49,6 +49,7 @@ public:
 	virtual bool read_bytes(edb::address_t address, void *buf, std::size_t len);
 	virtual bool write_bytes(edb::address_t address, const void *buf, std::size_t len);
 	virtual int pointer_size() const;
+	virtual QMap<long, QString> exceptions() const;
 
 public:
 	// thread support stuff (optional)
