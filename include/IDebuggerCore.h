@@ -47,6 +47,7 @@ public:
 
 public:
 	virtual bool has_extension(quint64 ext) const = 0;
+	virtual QMap<long, QString> exceptions() const = 0;
 
 public:
 	// returns true on success, false on failure, all bytes must be successfully
