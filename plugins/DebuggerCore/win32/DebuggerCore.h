@@ -74,7 +74,7 @@ public:
 
 private:
 	virtual QMap<edb::pid_t, Process> enumerate_processes() const;
-    virtual QList<Module> loaded_modules() const;
+	virtual QList<Module> loaded_modules() const;
 	
 public:
 	// NOTE: win32 only stuff here!

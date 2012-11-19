@@ -71,6 +71,7 @@ public:
 
 private:
 	virtual QMap<edb::pid_t, Process> enumerate_processes() const;
+	virtual QList<Module> loaded_modules() const;
 
 private:
 	virtual long read_data(edb::address_t address, bool *ok);
