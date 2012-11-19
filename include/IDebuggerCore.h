@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugEvent.h"
 #include "IRegion.h"
 #include "Process.h"
+#include "Module.h"
 #include <QByteArray>
 #include <QHash>
 #include <QMap>
@@ -87,6 +88,7 @@ public:
 
 public:
 	virtual QList<IRegion::pointer> memory_regions() const = 0;
+    virtual QList<Module> loaded_modules() const = 0;
 	virtual edb::address_t application_code_address() const = 0;
 	virtual edb::address_t application_data_address() const = 0;
 
