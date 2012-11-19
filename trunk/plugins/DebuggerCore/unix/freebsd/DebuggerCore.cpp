@@ -498,4 +498,13 @@ edb::address_t DebuggerCore::application_data_address() const {
 	return 0;
 }
 
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+QList<Module> DebuggerCore::loaded_modules() const {
+    QList<Module> modules;
+    return modules;
+}
+
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
