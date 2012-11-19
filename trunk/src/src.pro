@@ -64,7 +64,7 @@ HEADERS += \
 	SyntaxHighlighter.h \
 	TabWidget.h \
 	Types.h \
-	Util.h \
+        Util.h \
 	symbols.h \
 	version.h
 

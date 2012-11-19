@@ -804,10 +804,23 @@ edb::address_t DebuggerCore::application_data_address() const {
 	return 0;
 }
 
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
 QMap<long, QString> DebuggerCore::exceptions() const {
 	QMap<long, QString> exceptions;
 
 	return exceptions;
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+QList<Module> DebuggerCore::loaded_modules() const {
+    QList<Module> modules;
+    return modules;
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
