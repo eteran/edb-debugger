@@ -94,7 +94,7 @@ void Configuration::read_settings() {
 	settings.endGroup();
 
 	settings.beginGroup("Debugging");
-	initial_breakpoint = static_cast<InitialBreakpoint>(settings.value("debugger.initial_breakpoint.enabled", MainSymbol).value<uint>());
+	initial_breakpoint = static_cast<InitialBreakpoint>(settings.value("debugger.initial_breakpoint", MainSymbol).value<uint>());
 	warn_on_no_exec_bp = settings.value("debugger.BP_NX_warn.enabled", true).value<bool>();
 	find_main          = settings.value("debugger.find_main.enabled", true).value<bool>();
 	min_string_length  = settings.value("debugger.string_min", 4).value<uint>();
@@ -153,7 +153,7 @@ void Configuration::write_settings() {
 	settings.beginGroup("Debugging");
 	settings.setValue("debugger.BP_NX_warn.enabled", warn_on_no_exec_bp);
 	settings.setValue("debugger.string_min", min_string_length);
-	settings.setValue("debugger.initial_breakpoint.enabled", initial_breakpoint);
+	settings.setValue("debugger.initial_breakpoint", initial_breakpoint);
 	settings.setValue("debugger.find_main.enabled", find_main);
 	settings.setValue("debugger.terminal.enabled", tty_enabled);
 	settings.setValue("debugger.terminal.command", tty_command);
