@@ -153,7 +153,7 @@ void DialogHeap::get_library_names(QString *libcName, QString *ldName) const {
 	Q_ASSERT(libcName);
 	Q_ASSERT(ldName);
 	
-	const QList<Module> libs = edb::v1::loaded_libraries();
+	const QList<Module> libs = edb::v1::debugger_core->loaded_modules();
 
 	Q_FOREACH(const Module &module, libs) {
 		if(!ldName->isEmpty() && !libcName->isEmpty()) {
