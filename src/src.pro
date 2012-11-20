@@ -22,6 +22,7 @@ HEADERS += \
 	Configuration.h \
 	DataViewInfo.h \
 	Debugger.h \
+	DebuggerInternal.h \
 	DebuggerMain.h \
 	DebuggerOps.h \
 	DebuggerUI.h \
@@ -46,10 +47,14 @@ HEADERS += \
 	IRegion.h \
 	ISessionFile.h \
 	IState.h \
+	ISymbolManager.h \
+	Instruction.h \
 	LineEdit.h \
 	MD5.h \
 	MemoryRegions.h \
+	Module.h \
 	OSTypes.h \
+	Process.h \
 	QCategoryList.h \
 	QDisassemblyView.h \
 	QLongValidator.h \
@@ -59,12 +64,15 @@ HEADERS += \
 	Register.h \
 	RegisterViewDelegate.h \
 	ScopedPointer.h \
+	ShiftBuffer.h \
 	State.h \
+	Symbol.h \
 	SymbolManager.h \
 	SyntaxHighlighter.h \
 	TabWidget.h \
 	Types.h \
-        Util.h \
+	Util.h \
+	string_hash.h \
 	symbols.h \
 	version.h
 

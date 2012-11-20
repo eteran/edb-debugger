@@ -679,6 +679,7 @@ edb::address_t DebuggerCore::application_data_address() const {
 //------------------------------------------------------------------------------
 QList<Module> DebuggerCore::loaded_modules() const {
     QList<Module> modules;
+	qDebug() << "TODO: implement DebuggerCore::loaded_modules";
     return modules;
 }
 

@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebuggerCore.h"
 #include "MemoryRegions.h"
 #include <QTextStream>
+
 #include <tlhelp32.h>
 #include <windows.h>
 #include <psapi.h>
