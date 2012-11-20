@@ -41,6 +41,72 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma comment(lib, "Psapi.lib")
 #endif
 
+typedef struct _LSA_UNICODE_STRING {
+  USHORT Length;
+  USHORT MaximumLength;
+  PWSTR  Buffer;
+} LSA_UNICODE_STRING, *PLSA_UNICODE_STRING, UNICODE_STRING, *PUNICODE_STRING;
+
+typedef struct _PEB_LDR_DATA {
+  BYTE       Reserved1[8];
+  PVOID      Reserved2[3];
+  LIST_ENTRY InMemoryOrderModuleList;
+} PEB_LDR_DATA, *PPEB_LDR_DATA;
+
+typedef struct _RTL_USER_PROCESS_PARAMETERS {
+  BYTE           Reserved1[16];
+  PVOID          Reserved2[10];
+  UNICODE_STRING ImagePathName;
+  UNICODE_STRING CommandLine;
+} RTL_USER_PROCESS_PARAMETERS, *PRTL_USER_PROCESS_PARAMETERS;
+
+#ifdef Q_OS_WIN64
+typedef struct _PEB {
+    BYTE Reserved1[2];
+    BYTE BeingDebugged;
+    BYTE Reserved2[21];
+    PPEB_LDR_DATA LoaderData;
+    PRTL_USER_PROCESS_PARAMETERS ProcessParameters;
+    BYTE Reserved3[520];
+    PPS_POST_PROCESS_INIT_ROUTINE PostProcessInitRoutine;
+    BYTE Reserved4[136];
+    ULONG SessionId;
+} PEB, *PPEB;
+#else
+typedef VOID (NTAPI *PPS_POST_PROCESS_INIT_ROUTINE)(VOID);
+
+typedef struct _PEB {
+  BYTE                          Reserved1[2];
+  BYTE                          BeingDebugged;
+  BYTE                          Reserved2[1];
+  PVOID                         Reserved3[2];
+  PPEB_LDR_DATA                 Ldr;
+  PRTL_USER_PROCESS_PARAMETERS  ProcessParameters;
+  BYTE                          Reserved4[104];
+  PVOID                         Reserved5[52];
+  PPS_POST_PROCESS_INIT_ROUTINE PostProcessInitRoutine;
+  BYTE                          Reserved6[128];
+  PVOID                         Reserved7[1];
+  ULONG                         SessionId;
+} PEB, *PPEB;
+#endif
+
+typedef struct _PROCESS_BASIC_INFORMATION {
+    PVOID Reserved1;
+    PPEB PebBaseAddress;
+    PVOID Reserved2[2];
+    ULONG_PTR UniqueProcessId;
+    PVOID Reserved3;
+} PROCESS_BASIC_INFORMATION;
+
+typedef enum _PROCESSINFOCLASS {
+    ProcessBasicInformation = 0,
+    ProcessDebugPort = 7,
+    ProcessWow64Information = 26,
+    ProcessImageFileName = 27
+
+} PROCESSINFOCLASS;
+
 namespace {
 	typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 	LPFN_ISWOW64PROCESS fnIsWow64Process;
@@ -109,6 +175,41 @@ namespace {
 		CloseHandle(hToken);
 		return ret;
 	}
+
+    /*
+     * Required to debug and adjust the memory of a process owned by another account.
+     * OpenProcess quote (MSDN):
+     *   "If the caller has enabled the SeDebugPrivilege privilege, the requested access
+     *    is granted regardless of the contents of the security descriptor."
+     * Needed to open system processes (user SYSTEM)
+     *
+     * NOTE: You need to be admin to enable this privilege
+     * NOTE: You need to have the 'Debug programs' privilege set for the current user,
+     *       if the privilege is not present it can't be enabled!
+     * NOTE: Detectable by antidebug code (changes debuggee privileges too)
+     */
+    bool set_debug_privilege(HANDLE process, bool set) {
+
+        HANDLE token;
+        bool ok = false;
+
+        //process must have PROCESS_QUERY_INFORMATION
+        if(OpenProcessToken(process, TOKEN_ADJUST_PRIVILEGES, &token)) {
+
+            LUID luid;
+            if(LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid)) {
+                TOKEN_PRIVILEGES tp;
+                tp.PrivilegeCount = 1;
+                tp.Privileges[0].Luid = luid;
+                tp.Privileges[0].Attributes = set ? SE_PRIVILEGE_ENABLED : 0;
+
+                ok = AdjustTokenPrivileges(token, false, &tp, NULL, NULL, NULL);
+            }
+            CloseHandle(token);
+        }
+
+        return ok;
+    }
 }
 
 
@@ -252,29 +353,24 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 
 	Q_ASSERT(buf);
 
-	bool ok = false;
-
 	if(attached()) {
-
 		if(len == 0) {
 			return true;
 		}
 
 		memset(buf, 0xff, len);
-
 		SIZE_T bytes_read = 0;
-		ok = ReadProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_read);
-
-		if(ok) {
+        if(ReadProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_read)) {
 			Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
 				// TODO: handle if breakponts have a size more than 1!
 				if(bp->address() >= address && bp->address() < address + bytes_read) {
 					reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_bytes()[0];
 				}
 			}
+            return true;
 		}
 	}
-	return ok;
+    return false;
 }
 
 //------------------------------------------------------------------------------
@@ -285,18 +381,15 @@ bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::siz
 
 	Q_ASSERT(buf);
 
-	bool ok = false;
-
 	if(attached()) {
-
 		if(len == 0) {
 			return true;
 		}
 
 		SIZE_T bytes_written = 0;
-		ok = WriteProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_written);
+        return WriteProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_written);
 	}
-	return ok;
+    return false;
 }
 
 //------------------------------------------------------------------------------
@@ -560,41 +653,6 @@ int DebuggerCore::pointer_size() const {
 	return sizeof(void *);
 }
 
-/*
- * Required to debug and adjust the memory of a process owned by another account.
- * OpenProcess quote (MSDN):
- *   "If the caller has enabled the SeDebugPrivilege privilege, the requested access
- *    is granted regardless of the contents of the security descriptor."
- * Needed to open system processes (user SYSTEM)
- *
- * NOTE: You need to be admin to enable this privilege
- * NOTE: You need to have the 'Debug programs' privilege set for the current user,
- *       if the privilege is not present it can't be enabled!
- * NOTE: Detectable by antidebug code (changes debuggee privileges too)
- */
-bool DebuggerCore::set_debug_privilege(HANDLE process, bool set) {
-
-	HANDLE token;
-	bool ok = false;
-
-	//process must have PROCESS_QUERY_INFORMATION
-	if(OpenProcessToken(process, TOKEN_ADJUST_PRIVILEGES, &token)) {
-	
-		LUID luid;
-		if(LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid)) {
-			TOKEN_PRIVILEGES tp;
-			tp.PrivilegeCount = 1;
-			tp.Privileges[0].Luid = luid;
-			tp.Privileges[0].Attributes = set ? SE_PRIVILEGE_ENABLED : 0;
-
-			ok = AdjustTokenPrivileges(token, false, &tp, NULL, NULL, NULL);
-		}
-		CloseHandle(token);
-	}
-
-	return ok;
-}
-
 //------------------------------------------------------------------------------
 // Name: enumerate_processes() const
 // Desc:
@@ -783,7 +841,30 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
 	QList<QByteArray> ret;
 	if(pid != 0) {
-		// TODO: assert attached!
+
+       typedef NTSTATUS (*WINAPI ZwQueryInformationProcessPtr)(
+          HANDLE ProcessHandle,
+          PROCESSINFOCLASS ProcessInformationClass,
+          PVOID ProcessInformation,
+          ULONG ProcessInformationLength,
+          PULONG ReturnLength
+        );
+
+        ZwQueryInformationProcessPtr ZwQueryInformationProcessFunc = 0;
+
+        HMODULE ntdll = GetModuleHandleW(L"ntdll.dll");
+        ZwQueryInformationProcessFunc = (ZwQueryInformationProcessPtr)GetProcAddress(ntdll, "NtQueryInformationProcess");
+        PROCESS_BASIC_INFORMATION ProcessInfo;
+
+        if(ZwQueryInformationProcessFunc) {
+            if(HANDLE ph = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid_)) {
+                ULONG l;
+                NTSTATUS r = ZwQueryInformationProcessFunc(ph, ProcessBasicInformation, &ProcessInfo, sizeof(PROCESS_BASIC_INFORMATION), &l);
+
+                CloseHandle(ph);
+            }
+
+        }
 	}
 	return ret;
 }
