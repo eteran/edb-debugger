@@ -821,14 +821,12 @@ QMap<long, QString> DebuggerCore::exceptions() const {
 QList<Module> DebuggerCore::loaded_modules() const {
 
 	QList<Module> ret;
-	edb::pid_t pid = pid();
-	HANDLE hModuleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
+    HANDLE hModuleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid());
 	if(hModuleSnap != INVALID_HANDLE_VALUE) {
 		MODULEENTRY32 me32;
-
 		me32.dwSize = sizeof(me32);
 
-		if(!Module32First(hModuleSnap, &me32)) {
+        if(Module32First(hModuleSnap, &me32)) {
 			do {
 				Module module;
 				module.base_address = reinterpret_cast<edb::address_t>(me32.modBaseAddr);
