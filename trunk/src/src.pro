@@ -97,7 +97,6 @@ SOURCES += \
 	DataViewInfo.cpp \
 	Debugger.cpp \
 	DebuggerMain.cpp \
-	DebuggerOS.cpp \
 	DebuggerUI.cpp \
 	DialogArguments.cpp \
 	DialogAttach.cpp \
@@ -161,15 +160,15 @@ SOURCES += json_parser.cc \
 
 win32 {
 	win32-msvc*:contains(QMAKE_HOST.arch, x86_64):{
-		DEPENDPATH  += os/win64 ../include/os/win64 arch/x86_64 ../include/arch/x86_64 edisassm
-		INCLUDEPATH += os/win64 ../include/os/win64 arch/x86_64 ../include/arch/x86_64 edisassm "C:\\Program Files\\boost\\boost_1_51"
+		DEPENDPATH  += ../include/os/win64 arch/x86_64 ../include/arch/x86_64 edisassm
+		INCLUDEPATH += ../include/os/win64 arch/x86_64 ../include/arch/x86_64 edisassm "C:\\Program Files\\boost\\boost_1_51"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
 		RC_FILE     = edb.rc
 	}
 	
 	win32-msvc*:contains(QMAKE_HOST.arch, x86):{
-		DEPENDPATH  += os/win32 ../include/os/win32 arch/i386 ../include/arch/i386 edisassm
-		INCLUDEPATH += os/win32 ../include/os/win32 arch/i386 ../include/arch/i386 edisassm "C:\\Program Files\\boost\\boost_1_51"
+		DEPENDPATH  += ../include/os/win32 arch/i386 ../include/arch/i386 edisassm
+		INCLUDEPATH += ../include/os/win32 arch/i386 ../include/arch/i386 edisassm "C:\\Program Files\\boost\\boost_1_51"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
 		RC_FILE     = edb.rc
 	}
@@ -197,27 +196,27 @@ unix {
 	}
 
 
-	DEPENDPATH  += os/unix ../include/os/unix edisassm
-	INCLUDEPATH += os/unix ../include/os/unix edisassm
+	DEPENDPATH  += ../include/os/unix edisassm
+	INCLUDEPATH += ../include/os/unix edisassm
 
 	linux-* {
-		DEPENDPATH  += os/unix/linux ../include/os/unix/linux
-		INCLUDEPATH += os/unix/linux ../include/os/unix/linux
+		DEPENDPATH  += ../include/os/unix/linux
+		INCLUDEPATH += ../include/os/unix/linux
 	}
 
 	openbsd-* {
-		DEPENDPATH  += os/unix/openbsd ../include/os/unix/openbsd
-		INCLUDEPATH += os/unix/openbsd ../include/os/unix/openbsd /usr/local/include
+		DEPENDPATH  += ../include/os/unix/openbsd
+		INCLUDEPATH += ../include/os/unix/openbsd /usr/local/include
 	}
 
 	freebsd-* {
-		DEPENDPATH  += os/unix/freebsd ../include/os/unix/freebsd
-		INCLUDEPATH += os/unix/freebsd ../include/os/unix/freebsd
+		DEPENDPATH  += ../include/os/unix/freebsd
+		INCLUDEPATH += ../include/os/unix/freebsd
 	}
 
 	macx-* {
-		DEPENDPATH  += os/unix/osx ../include/os/unix/osx
-		INCLUDEPATH += os/unix/osx ../include/os/unix/osx /opt/local/include
+		DEPENDPATH  += ../include/os/unix/osx
+		INCLUDEPATH += ../include/os/unix/osx /opt/local/include
 	}
 
 	macx {
