@@ -110,9 +110,6 @@ namespace edb {
 		EDB_EXPORT bool get_ascii_string_at_address(edb::address_t address, QString &s, int min_length, int max_length, int &found_length);
 		EDB_EXPORT bool get_utf16_string_at_address(edb::address_t address, QString &s, int min_length, int max_length, int &found_length);
 
-		// list of loaded librarys
-		EDB_EXPORT QList<Module> loaded_libraries();
-
 		EDB_EXPORT IRegion::pointer current_cpu_view_region();
 		EDB_EXPORT IRegion::pointer primary_code_region();
 		EDB_EXPORT IRegion::pointer primary_data_region();
