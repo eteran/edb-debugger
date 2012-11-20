@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DebuggerCore.h"
 #include "Debugger.h"
+#include "MemoryRegions.h"
 #include "PlatformEvent.h"
 #include "PlatformRegion.h"
 #include "PlatformState.h"
@@ -35,6 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <asm/ldt.h>
 #include <pwd.h>
+#include <link.h>
 #include <sys/mman.h>
 #include <sys/ptrace.h>
 #include <sys/syscall.h>   /* For SYS_xxx definitions */
@@ -1005,8 +1007,66 @@ edb::address_t DebuggerCore::application_data_address() const {
 // Desc:
 //------------------------------------------------------------------------------
 QList<Module> DebuggerCore::loaded_modules() const {
-    QList<Module> modules;
-    return modules;
+	QList<Module> ret;
+
+	if(IBinary *const binary_info = edb::v1::get_binary_info(edb::v1::primary_code_region())) {
+		
+		struct r_debug dynamic_info;			
+		if(binary_info->debug_pointer()) {
+			if(edb::v1::debugger_core->read_bytes(binary_info->debug_pointer(), &dynamic_info, sizeof(dynamic_info))) {
+				if(dynamic_info.r_map) {
+
+					edb::address_t link_address = reinterpret_cast<edb::address_t>(dynamic_info.r_map);
+
+					while(link_address) {
+
+						struct link_map map;
+						if(edb::v1::debugger_core->read_bytes(link_address, &map, sizeof(map))) {
+							char path[PATH_MAX];
+							if(!edb::v1::debugger_core->read_bytes(reinterpret_cast<edb::address_t>(map.l_name), &path, sizeof(path))) {
+								path[0] = '\0';
+							}
+							
+							if(map.l_addr) {
+								Module module;
+								module.name         = path;
+								module.base_address = map.l_addr;							
+								ret.push_back(module);
+							}
+
+							link_address = reinterpret_cast<edb::address_t>(map.l_next);
+						} else {
+							break;
+						}
+					}
+				}
+			}
+		}
+		delete binary_info;
+	}
+	
+	// fallback
+	if(ret.isEmpty()) {
+		const QList<IRegion::pointer> r = edb::v1::memory_regions().regions();
+		QMap<QString, Module> modules_temp;
+		Q_FOREACH(const IRegion::pointer &region, r) {
+			// modules seem to have full paths
+			if(region->name().startsWith("/")) {
+				if(!modules_temp.contains(region->name())) {
+					Module module;
+					module.name         = region->name();
+					module.base_address = region->start();
+					modules_temp.insert(region->name(), module);
+				}
+			}
+		}
+		
+		for(QMap<QString, Module>::const_iterator it = modules_temp.begin(); it != modules_temp.end(); ++it) {
+			ret.push_back(it.value());
+		}
+	}
+
+	return ret;
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

@@ -315,7 +315,7 @@ void DialogProcessProperties::updateModulePage() {
 	ui->tableModules->clearContents();
 	ui->tableModules->setRowCount(0);
 	if(edb::v1::debugger_core) {
-		const QList<Module> modules = edb::v1::loaded_libraries();
+		const QList<Module> modules = edb::v1::debugger_core->loaded_modules();
 		ui->tableModules->setSortingEnabled(false);
 		Q_FOREACH(const Module &m, modules) {
 			const int row = ui->tableModules->rowCount();

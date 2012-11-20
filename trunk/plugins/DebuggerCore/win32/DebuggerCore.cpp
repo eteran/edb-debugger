@@ -819,8 +819,26 @@ QMap<long, QString> DebuggerCore::exceptions() const {
 // Desc:
 //------------------------------------------------------------------------------
 QList<Module> DebuggerCore::loaded_modules() const {
-    QList<Module> modules;
-    return modules;
+
+	QList<Module> ret;
+	edb::pid_t pid = pid();
+	HANDLE hModuleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid);
+	if(hModuleSnap != INVALID_HANDLE_VALUE) {
+		MODULEENTRY32 me32;
+
+		me32.dwSize = sizeof(me32);
+
+		if(!Module32First(hModuleSnap, &me32)) {
+			do {
+				Module module;
+				module.base_address = reinterpret_cast<edb::address_t>(me32.modBaseAddr);
+				module.name         = QString::fromWCharArray(me32.szModule);
+				ret.push_back(module);
+			} while(Module32Next(hModuleSnap, &me32));
+		}
+	}
+	CloseHandle(hModuleSnap);
+	return ret;
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
