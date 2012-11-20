@@ -14,8 +14,8 @@ linux-g++*:QMAKE_LFLAGS -= $$QMAKE_LFLAGS_NOUNDEF
 linux-g++*:QMAKE_LFLAGS -= "-Wl,--no-undefined"
 macx-g++*:QMAKE_LFLAGS += "-undefined dynamic_lookup"
 macx*:QMAKE_LFLAGS += "-undefined dynamic_lookup"
-unix {
 
+unix {
 	# generic unix include paths
 	DEPENDPATH  += $$EDB_ROOT/include $$EDB_ROOT/include/os/unix
 	INCLUDEPATH += $$EDB_ROOT/include $$EDB_ROOT/include/os/unix
@@ -42,7 +42,7 @@ unix {
 	}
 
 
-	# arch includes paths
+	# arch include paths
 	macx {
 		INCLUDEPATH += $$EDB_ROOT/include/arch/x86_64
 		DEPENDPATH  += $$EDB_ROOT/include/arch/x86_64
