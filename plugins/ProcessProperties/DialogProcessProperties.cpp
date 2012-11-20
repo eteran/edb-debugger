@@ -288,11 +288,12 @@ DialogProcessProperties::~DialogProcessProperties() {
 void DialogProcessProperties::updateGeneralPage() {
 	if(edb::v1::debugger_core) {
 	
-		const edb::pid_t pid        = edb::v1::debugger_core->pid();
-		const QString exe           = edb::v1::debugger_core->process_exe(pid);
-		const QString cwd           = edb::v1::debugger_core->process_cwd(pid);
-		const edb::pid_t parent_pid = edb::v1::debugger_core->parent_pid(pid);
-		const QString parent_exe    = edb::v1::debugger_core->process_exe(parent_pid);
+        const edb::pid_t pid         = edb::v1::debugger_core->pid();
+        const QString exe            = edb::v1::debugger_core->process_exe(pid);
+        const QString cwd            = edb::v1::debugger_core->process_cwd(pid);
+        const edb::pid_t parent_pid  = edb::v1::debugger_core->parent_pid(pid);
+        const QString parent_exe     = edb::v1::debugger_core->process_exe(parent_pid);
+        const QList<QByteArray> args = edb::v1::debugger_core->process_args(pid);
 	
 		ui->editImage->setText(exe);
 		ui->editCommand->setText(QString());
