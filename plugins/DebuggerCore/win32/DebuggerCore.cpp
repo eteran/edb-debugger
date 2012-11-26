@@ -719,9 +719,8 @@ QString DebuggerCore::process_exe(edb::pid_t pid) const {
 	  PDWORD lpdwSize
 	);
 	
-	QueryFullProcessImageNameWPtr QueryFullProcessImageNameWFunc = 0;
 	HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
-	QueryFullProcessImageNameWFunc = (QueryFullProcessImageNameWPtr)GetProcAddress(kernel32, "QueryFullProcessImageNameW");
+	QueryFullProcessImageNameWPtr QueryFullProcessImageNameWFunc = (QueryFullProcessImageNameWPtr)GetProcAddress(kernel32, "QueryFullProcessImageNameW");
 	
 	wchar_t name[MAX_PATH] = L"";
 	
@@ -850,10 +849,9 @@ QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
           PULONG ReturnLength
         );
 
-        ZwQueryInformationProcessPtr ZwQueryInformationProcessFunc = 0;
 
         HMODULE ntdll = GetModuleHandleW(L"ntdll.dll");
-        ZwQueryInformationProcessFunc = (ZwQueryInformationProcessPtr)GetProcAddress(ntdll, "NtQueryInformationProcess");
+        ZwQueryInformationProcessPtr ZwQueryInformationProcessFunc = (ZwQueryInformationProcessPtr)GetProcAddress(ntdll, "NtQueryInformationProcess");
         PROCESS_BASIC_INFORMATION ProcessInfo;
 
         if(ZwQueryInformationProcessFunc) {
