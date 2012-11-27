@@ -77,6 +77,36 @@ void SyntaxHighlighter::create_rules() {
 	QSettings settings;
 	settings.beginGroup("Theme");
 
+	// comma
+	rules_.append(HighlightingRule(
+		"(,)",
+		QColor(settings.value("theme.brackets.foreground", "blue").value<QString>()),
+		QColor(settings.value("theme.brackets.background", "transparent").value<QString>()),
+		settings.value("theme.brackets.weight", QFont::Normal).value<int>(),
+		settings.value("theme.brackets.italic", false).value<bool>(),
+		settings.value("theme.brackets.underline", false).value<bool>()
+		));
+
+	// expression brackets
+	rules_.append(HighlightingRule(
+		"([\\[\\]])",
+		QColor(settings.value("theme.brackets.foreground", "blue").value<QString>()),
+		QColor(settings.value("theme.brackets.background", "transparent").value<QString>()),
+		settings.value("theme.brackets.weight", QFont::Normal).value<int>(),
+		settings.value("theme.brackets.italic", false).value<bool>(),
+		settings.value("theme.brackets.underline", false).value<bool>()
+		));
+
+	// math operators
+	rules_.append(HighlightingRule(
+		"\\b([\\+\\-\\*])\\b",
+		QColor(settings.value("theme.operator.foreground", "blue").value<QString>()),
+		QColor(settings.value("theme.operator.background", "transparent").value<QString>()),
+		settings.value("theme.operator.weight", QFont::Normal).value<int>(),
+		settings.value("theme.operator.italic", false).value<bool>(),
+		settings.value("theme.operator.underline", false).value<bool>()
+		));
+
 	// registers
 	rules_.append(HighlightingRule(
 		"\\b(((e|r)?(ax|bx|cx|dx|bp|sp|si|di|ip))|([abcd](l|h))|(sp|bp|si|di)l|([cdefgs]s)|(x?mm[0-7])|r(8|9|(1[0-5]))[dwb]?)\\b",
@@ -201,7 +231,7 @@ void SyntaxHighlighter::create_rules() {
 
 	// system
 	rules_.append(HighlightingRule(
-		"\\b(sti|cli|hlt|in|out|sysenter|sysexit|syscall|sysret)\\b",
+		"\\b(sti|cli|hlt|in|out|sysenter|sysexit|syscall|sysret|int)\\b",
 		QColor(settings.value("theme.system.foreground", "blue").value<QString>()),
 		QColor(settings.value("theme.system.background", "transparent").value<QString>()),
 		settings.value("theme.system.weight", QFont::Bold).value<int>(),
