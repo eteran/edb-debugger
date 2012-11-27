@@ -182,9 +182,7 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 
 	for(int i = 0; i < count; ++i) {
 		
-
 		quint8 buf[edb::Instruction::MAX_SIZE];
-
 		int buf_size = qMin<edb::address_t>((current_address - region_->base()), sizeof(buf));
 
 		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address - buf_size, buf, &buf_size)) {
@@ -629,6 +627,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	const QBrush divider_color         = palette().shadow();
 	const QPen bytes_pen               = bytes_color.color();
 	const QPen divider_pen             = divider_color.color();
+	const QPen address_pen(Qt::red);
 
 	IAnalyzer *const analyzer = edb::v1::analyzer();
 
@@ -689,7 +688,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		const QString address_buffer = formatAddress(address);
 
 		// draw the address
-		painter.setPen(QPen(Qt::red));
+		painter.setPen(address_pen);
 		painter.drawText(
 			breakpoint_icon_.width() + 1,
 			y,
