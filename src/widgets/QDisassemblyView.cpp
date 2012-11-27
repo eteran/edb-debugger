@@ -358,7 +358,8 @@ void QDisassemblyView::setRegion(const IRegion::pointer &r) {
 	// well, the compare function will test if the parameter is NULL
 	// so if we it this way, region_ can be NULL and this code is still
 	// correct :-)
-	if(r && r->compare(region_) != 0) {
+	if((r && r->compare(region_) != 0) || (!r)) {
+
 		region_ = r;
 		updateScrollbars();		
 		emit regionChanged();

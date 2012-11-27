@@ -41,6 +41,7 @@ private:
 public:
 	virtual void setup_register_view(QCategoryList *category_list);
 	virtual void update_register_view(const QString &default_region_name);
+	virtual void update_register_view(const QString &default_region_name, const State &state);
 	virtual QStringList update_instruction_info(edb::address_t address);
 	virtual Register value_from_item(const QTreeWidgetItem &item);
 	virtual void reset();

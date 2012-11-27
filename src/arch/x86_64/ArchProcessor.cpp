@@ -1603,23 +1603,15 @@ void ArchProcessor::reset() {
 
 	if(edb::v1::debugger_core) {
 		last_state_.clear();
-		
-		State state;
-		edb::v1::debugger_core->get_state(&state);
-		
-		split_flags_->setText(0, state.flags_to_string(0));
+		update_register_view("", State());
 	}
 }
 
 //------------------------------------------------------------------------------
-// Name: update_register_view(const QString &default_region_name)
+// Name: update_register_view(const QString &default_region_name, const State &state)
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::update_register_view(const QString &default_region_name) {
-
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-	
+void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
 	const QPalette palette = QApplication::palette();
 
 	update_register(get_register_item(0), "RAX", state["rax"]);
@@ -1712,6 +1704,17 @@ void ArchProcessor::update_register_view(const QString &default_region_name) {
 	get_register_item(17)->setForeground(0, QBrush(flags_changed ? Qt::red : palette.text()));
 
 	last_state_ = state;
+}
+
+//------------------------------------------------------------------------------
+// Name: update_register_view(const QString &default_region_name)
+// Desc:
+//------------------------------------------------------------------------------
+void ArchProcessor::update_register_view(const QString &default_region_name) {
+
+	State state;
+	edb::v1::debugger_core->get_state(&state);
+	update_register_view(default_region_name, state);
 }
 
 //------------------------------------------------------------------------------

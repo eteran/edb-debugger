@@ -23,9 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Register.h"
 #include <QStringList>
 
+class QByteArray;
 class QCategoryList;
 class QTreeWidgetItem;
-class QByteArray;
+class State;
 
 class IArchProcessor {
 public:
@@ -34,6 +35,7 @@ public:
 	virtual void setup_register_view(QCategoryList *categoryList) = 0;
 	virtual void reset() = 0;
 	virtual void update_register_view(const QString &default_region_name) = 0;
+	virtual void update_register_view(const QString &default_region_name, const State &state) = 0;
 	virtual QStringList update_instruction_info(edb::address_t address) = 0;
 	virtual Register value_from_item(const QTreeWidgetItem &item) = 0;
 
