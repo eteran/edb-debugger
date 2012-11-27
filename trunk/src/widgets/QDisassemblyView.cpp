@@ -358,6 +358,9 @@ void QDisassemblyView::setRegion(const IRegion::pointer &r) {
 	// well, the compare function will test if the parameter is NULL
 	// so if we it this way, region_ can be NULL and this code is still
 	// correct :-)
+	// We also check for !r here because we want to be able to reset the
+	// the region to nothing. It's fairly harmless to reset an already
+	// reset region, so we don't bother check that condition
 	if((r && r->compare(region_) != 0) || (!r)) {
 
 		region_ = r;
