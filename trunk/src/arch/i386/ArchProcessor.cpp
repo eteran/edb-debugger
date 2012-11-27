@@ -1553,7 +1553,7 @@ void ArchProcessor::update_register(QTreeWidgetItem *item, const QString &name, 
 
 	QString reg_string;
 	int string_length;
-	const edb::reg_t value = *reg;
+	const edb::reg_t value = reg.value<edb::reg_t>();
 
 	if(edb::v1::get_ascii_string_at_address(value, reg_string, edb::v1::config().min_string_length, 256, string_length)) {
 		item->setText(0, QString("%1: %2 ASCII \"%3\"").arg(name, edb::v1::format_pointer(value), reg_string));
@@ -1572,23 +1572,15 @@ void ArchProcessor::reset() {
 
 	if(edb::v1::debugger_core) {
 		last_state_.clear();
-
-		State state;
-		edb::v1::debugger_core->get_state(&state);
-
-		split_flags_->setText(0, state.flags_to_string(0));
+		update_register_view("", State());
 	}
 }
 
 //------------------------------------------------------------------------------
-// Name: update_register_view(const QString &default_region_name)
+// Name: update_register_view(const QString &default_region_name, const State &state)
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::update_register_view(const QString &default_region_name) {
-
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-
+void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
 	const QPalette palette = QApplication::palette();
 
 	update_register(get_register_item(0), "EAX", state["eax"]);
@@ -1665,6 +1657,17 @@ void ArchProcessor::update_register_view(const QString &default_region_name) {
 	get_register_item(9)->setForeground(0, flags_changed ? Qt::red : palette.text());
 
 	last_state_ = state;
+}
+
+//------------------------------------------------------------------------------
+// Name: update_register_view(const QString &default_region_name)
+// Desc:
+//------------------------------------------------------------------------------
+void ArchProcessor::update_register_view(const QString &default_region_name) {
+
+	State state;
+	edb::v1::debugger_core->get_state(&state);
+	update_register_view(default_region_name, state);
 }
 
 //------------------------------------------------------------------------------

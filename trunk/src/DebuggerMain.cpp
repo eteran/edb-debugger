@@ -1510,7 +1510,7 @@ IRegion::pointer DebuggerMain::update_cpu_view(const State &state) {
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
 		update_disassembly(address, region);
 		return region;
-	} else {
+	} else {	
 		ui->cpuView->clear();
 		ui->cpuView->scrollTo(0);
 		list_model_->setStringList(QStringList());
@@ -1541,6 +1541,7 @@ void DebuggerMain::update_data_views() {
 // Desc: refreshes all the different displays
 //------------------------------------------------------------------------------
 void DebuggerMain::refresh_gui() {
+
 	ui->cpuView->repaint();
 	stack_view_->repaint();
 
@@ -1548,9 +1549,11 @@ void DebuggerMain::refresh_gui() {
 		info->view->repaint();
 	}
 
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-	list_model_->setStringList(edb::v1::arch_processor().update_instruction_info(state.instruction_pointer()));
+	if(edb::v1::debugger_core) {
+		State state;
+		edb::v1::debugger_core->get_state(&state);
+		list_model_->setStringList(edb::v1::arch_processor().update_instruction_info(state.instruction_pointer()));
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -1562,13 +1565,11 @@ void DebuggerMain::update_gui() {
 	if(edb::v1::debugger_core) {
 		State state;
 		edb::v1::debugger_core->get_state(&state);
-		
-		IRegion::pointer region = update_cpu_view(state);
-		
+				
 		update_data_views();
 		update_stack_view(state);
 		
-		if(region) {
+		if(const IRegion::pointer region = update_cpu_view(state)) {
 			edb::v1::arch_processor().update_register_view(region->name());
 		}
 	}
@@ -1579,6 +1580,7 @@ void DebuggerMain::update_gui() {
 // Desc:
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::resume_status(bool pass_exception) {
+
 	if(pass_exception && last_event_->stopped() && !last_event_->is_trap()) {
 		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
 	} else {
@@ -1728,7 +1730,7 @@ void DebuggerMain::cleanup_debugger() {
 	edb::v1::memory_regions().clear();
 	edb::v1::symbol_manager().clear();
 	edb::v1::arch_processor().reset();
-
+	
 	// clear up the data view
 	while(ui->tabWidget->count() > 1) {
 		mnuDumpDeleteTab();
@@ -1776,7 +1778,6 @@ void DebuggerMain::detach_from_process(DETACH_ACTION kill) {
 	}
 	
 	last_event_.clear();
-
 
 	cleanup_debugger();
 	update_menu_state(TERMINATED);
