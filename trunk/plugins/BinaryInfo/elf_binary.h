@@ -22,6 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELF_BINARY_20121007_H_
 #define ELF_BINARY_20121007_H_
 
+namespace plugin {
+namespace binary_info {
+
 #include "elf/elf_types.h"
 #include "elf/elf_header.h"
 #include "elf/elf_shdr.h"
@@ -38,6 +41,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "elf/elf_auxv.h"
 #include "elf/elf_nhdr.h"
 #include "elf/elf_move.h"
+
+}
+}
 
 /* Motorola 68k specific definitions.  */
 
@@ -81,12 +87,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define R_68K_TLS_IE32      34          /* 32 bit GOT offset for IE */
 #define R_68K_TLS_IE16      35          /* 16 bit GOT offset for IE */
 #define R_68K_TLS_IE8       36          /* 8 bit GOT offset for IE */
-#define R_68K_TLS_LE32      37          /* 32 bit offset relative to
-					   static TLS block */
-#define R_68K_TLS_LE16      38          /* 16 bit offset relative to
-					   static TLS block */
-#define R_68K_TLS_LE8       39          /* 8 bit offset relative to
-					   static TLS block */
+#define R_68K_TLS_LE32      37          /* 32 bit offset relative to static TLS block */
+#define R_68K_TLS_LE16      38          /* 16 bit offset relative to static TLS block */
+#define R_68K_TLS_LE8       39          /* 8 bit offset relative to static TLS block */
 #define R_68K_TLS_DTPMOD32  40          /* 32 bit module number */
 #define R_68K_TLS_DTPREL32  41          /* 32 bit module-relative offset */
 #define R_68K_TLS_TPREL32   42          /* 32 bit TP-relative offset */
@@ -110,50 +113,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define R_386_GOTPC	   10		/* 32 bit PC relative offset to GOT */
 #define R_386_32PLT	   11
 #define R_386_TLS_TPOFF	   14		/* Offset in static TLS block */
-#define R_386_TLS_IE	   15		/* Address of GOT entry for static TLS
-					   block offset */
-#define R_386_TLS_GOTIE	   16		/* GOT entry for static TLS block
-					   offset */
-#define R_386_TLS_LE	   17		/* Offset relative to static TLS
-					   block */
-#define R_386_TLS_GD	   18		/* Direct 32 bit for GNU version of
-					   general dynamic thread local data */
-#define R_386_TLS_LDM	   19		/* Direct 32 bit for GNU version of
-					   local dynamic thread local data
-					   in LE code */
+#define R_386_TLS_IE	   15		/* Address of GOT entry for static TLS block offset */
+#define R_386_TLS_GOTIE	   16		/* GOT entry for static TLS block offset */
+#define R_386_TLS_LE	   17		/* Offset relative to static TLS block */
+#define R_386_TLS_GD	   18		/* Direct 32 bit for GNU version of general dynamic thread local data */
+#define R_386_TLS_LDM	   19		/* Direct 32 bit for GNU version of local dynamic thread local data in LE code */
 #define R_386_16	   20
 #define R_386_PC16	   21
 #define R_386_8		   22
 #define R_386_PC8	   23
-#define R_386_TLS_GD_32	   24		/* Direct 32 bit for general dynamic
-					   thread local data */
+#define R_386_TLS_GD_32	   24		/* Direct 32 bit for general dynamic thread local data */
 #define R_386_TLS_GD_PUSH  25		/* Tag for pushl in GD TLS code */
-#define R_386_TLS_GD_CALL  26		/* Relocation for call to
-					   __tls_get_addr() */
+#define R_386_TLS_GD_CALL  26		/* Relocation for call to __tls_get_addr() */
 #define R_386_TLS_GD_POP   27		/* Tag for popl in GD TLS code */
-#define R_386_TLS_LDM_32   28		/* Direct 32 bit for local dynamic
-					   thread local data in LE code */
+#define R_386_TLS_LDM_32   28		/* Direct 32 bit for local dynamic thread local data in LE code */
 #define R_386_TLS_LDM_PUSH 29		/* Tag for pushl in LDM TLS code */
-#define R_386_TLS_LDM_CALL 30		/* Relocation for call to
-					   __tls_get_addr() in LDM code */
+#define R_386_TLS_LDM_CALL 30		/* Relocation for call to __tls_get_addr() in LDM code */
 #define R_386_TLS_LDM_POP  31		/* Tag for popl in LDM TLS code */
 #define R_386_TLS_LDO_32   32		/* Offset relative to TLS block */
-#define R_386_TLS_IE_32	   33		/* GOT entry for negated static TLS
-					   block offset */
-#define R_386_TLS_LE_32	   34		/* Negated offset relative to static
-					   TLS block */
+#define R_386_TLS_IE_32	   33		/* GOT entry for negated static TLS block offset */
+#define R_386_TLS_LE_32	   34		/* Negated offset relative to static TLS block */
 #define R_386_TLS_DTPMOD32 35		/* ID of module containing symbol */
 #define R_386_TLS_DTPOFF32 36		/* Offset in TLS block */
 #define R_386_TLS_TPOFF32  37		/* Negated offset in static TLS block */
 /* 38? */
 #define R_386_TLS_GOTDESC  39		/* GOT offset for TLS descriptor.  */
-#define R_386_TLS_DESC_CALL 40		/* Marker of call through TLS
-					   descriptor for
-					   relaxation.  */
-#define R_386_TLS_DESC     41		/* TLS descriptor containing
-					   pointer to code and to
-					   argument, returning the TLS
-					   offset for the symbol.  */
+#define R_386_TLS_DESC_CALL 40		/* Marker of call through TLS descriptor for relaxation.  */
+#define R_386_TLS_DESC     41		/* TLS descriptor containing pointer to code and to argument, returning the TLS offset for the symbol.  */
 #define R_386_IRELATIVE	   42		/* Adjust indirectly by program base */
 /* Keep this the last entry.  */
 #define R_386_NUM	   43
@@ -396,35 +382,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 union elf32_gptab{
   struct
     {
-      elf32_word gt_current_g_value;	/* -G value used for compilation */
-      elf32_word gt_unused;		/* Not used */
+      plugin::binary_info::elf32_word gt_current_g_value;	/* -G value used for compilation */
+      plugin::binary_info::elf32_word gt_unused;		/* Not used */
     } gt_header;			/* First entry in section */
   struct
     {
-      elf32_word gt_g_value;		/* If this value were used for -G */
-      elf32_word gt_bytes;		/* This many bytes would be used */
+      plugin::binary_info::elf32_word gt_g_value;		/* If this value were used for -G */
+      plugin::binary_info::elf32_word gt_bytes;		/* This many bytes would be used */
     } gt_entry;				/* Subsequent entries in section */
 };
 
 /* Entry found in sections of type SHT_MIPS_REGINFO.  */
 
-struct elf32_reginfo
-{
-  elf32_word	ri_gprmask;		/* General registers used */
-  elf32_word	ri_cprmask[4];		/* Coprocessor registers used */
-  elf32_sword	ri_gp_value;		/* $gp register value */
+struct elf32_reginfo {
+	plugin::binary_info::elf32_word	ri_gprmask;		/* General registers used */
+	plugin::binary_info::elf32_word	ri_cprmask[4];		/* Coprocessor registers used */
+	plugin::binary_info::elf32_sword	ri_gp_value;		/* $gp register value */
 };
+
+
+
+
 
 /* Entries found in sections of type SHT_MIPS_OPTIONS.  */
 
-struct elf_options
-{
-  unsigned char kind;		/* Determines interpretation of the
-				   variable part of descriptor.  */
-  unsigned char size;		/* Size of descriptor, including header.  */
-  elf32_section section;	/* Section header index of section affected,
-				   0 for global options.  */
-  elf32_word info;		/* Kind-specific information.  */
+struct elf_options {
+	unsigned char kind;		/* Determines interpretation of the variable part of descriptor.  */
+	unsigned char size;		/* Size of descriptor, including header.  */
+	plugin::binary_info::elf32_section section;	/* Section header index of section affected, 0 for global options.  */
+	plugin::binary_info::elf32_word info;		/* Kind-specific information.  */
 };
 
 /* Values for `kind' field in Elf_Options.  */
@@ -468,10 +454,9 @@ struct elf_options
 
 /* Entry found in `.options' section.  */
 
-struct elf_options_hw
-{
-  elf32_word hwp_flags1;	/* Extra flags.  */
-  elf32_word hwp_flags2;	/* Extra flags.  */
+struct elf_options_hw {
+	plugin::binary_info::elf32_word hwp_flags1; /* Extra flags.  */
+	plugin::binary_info::elf32_word hwp_flags2; /* Extra flags.  */
 };
 
 /* Masks for `info' in ElfOptions for ODK_HWAND and ODK_HWOR entries.  */
@@ -631,20 +616,20 @@ struct elf_options_hw
 
 struct elf32_lib
 {
-  elf32_word l_name;		/* Name (string table index) */
-  elf32_word l_time_stamp;	/* Timestamp */
-  elf32_word l_checksum;	/* Checksum */
-  elf32_word l_version;		/* Interface version */
-  elf32_word l_flags;		/* Flags */
+  plugin::binary_info::elf32_word l_name;		/* Name (string table index) */
+  plugin::binary_info::elf32_word l_time_stamp;	/* Timestamp */
+  plugin::binary_info::elf32_word l_checksum;	/* Checksum */
+  plugin::binary_info::elf32_word l_version;		/* Interface version */
+  plugin::binary_info::elf32_word l_flags;		/* Flags */
 };
 
 struct elf64_lib
 {
-  elf64_word l_name;		/* Name (string table index) */
-  elf64_word l_time_stamp;	/* Timestamp */
-  elf64_word l_checksum;	/* Checksum */
-  elf64_word l_version;		/* Interface version */
-  elf64_word l_flags;		/* Flags */
+  plugin::binary_info::elf64_word l_name;		/* Name (string table index) */
+  plugin::binary_info::elf64_word l_time_stamp;	/* Timestamp */
+  plugin::binary_info::elf64_word l_checksum;	/* Checksum */
+  plugin::binary_info::elf64_word l_version;		/* Interface version */
+  plugin::binary_info::elf64_word l_flags;		/* Flags */
 };
 
 
@@ -660,7 +645,7 @@ struct elf64_lib
 
 /* Entries found in sections of type SHT_MIPS_CONFLICT.  */
 
-typedef elf32_addr elf32_conflict;
+typedef plugin::binary_info::elf32_addr elf32_conflict;
 
 
 #if 0

@@ -38,6 +38,12 @@ private:
 
 public:
 	virtual QMenu *menu(QWidget *parent = 0);
+
+public Q_SLOTS:
+	void explore_header();
+	
+private:
+	QMenu *menu_;
 };
 
 #endif

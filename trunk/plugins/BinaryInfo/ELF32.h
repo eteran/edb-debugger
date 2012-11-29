@@ -28,18 +28,19 @@ public:
 	virtual ~ELF32();
 
 public:
-	virtual bool validate_header();
-	virtual edb::address_t entry_point();
-	virtual edb::address_t calculate_main();
 	virtual bool native() const;
+	virtual bool validate_header();
+	virtual edb::address_t calculate_main();
 	virtual edb::address_t debug_pointer();
+	virtual edb::address_t entry_point();
 	virtual size_t header_size() const;
+	virtual const void *header() const;
 
 private:
 	void read_header();
 
 private:
-	elf32_header *header_;
+	plugin::binary_info::elf32_header *header_;
 };
 
 #endif
