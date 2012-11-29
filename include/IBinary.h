@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IBINARY_20070718_H_
 #define IBINARY_20070718_H_
 
-#include "Types.h"
 #include "API.h"
 #include "IRegion.h"
+#include "Types.h"
 
 class EDB_EXPORT IBinary {
 public:
@@ -29,11 +29,12 @@ public:
 	virtual ~IBinary() {}
 
 public:
-	virtual bool validate_header() = 0;
-	virtual edb::address_t entry_point() = 0;
-	virtual edb::address_t calculate_main() = 0;
 	virtual bool native() const = 0;
+	virtual bool validate_header() = 0;
+	virtual edb::address_t calculate_main() = 0;
+	virtual edb::address_t entry_point() = 0;
 	virtual size_t header_size() const = 0;
+	virtual const void *header() const = 0;
 
 public:
 	// optional, and platform specific:

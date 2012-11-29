@@ -20,8 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Debugger.h"
 #include "ELF32.h"
 #include "ELF64.h"
-#include "PE32.h"
 #include "IBinary.h"
+#include "PE32.h"
+#include "DialogHeader.h"
+#include <QMenu>
+#include <QDebug>
 
 namespace {
 	IBinary *create_binary_info_elf32(const IRegion::pointer &region) {
@@ -41,7 +44,7 @@ namespace {
 // Name: BinaryInfo()
 // Desc:
 //------------------------------------------------------------------------------
-BinaryInfo::BinaryInfo() {
+BinaryInfo::BinaryInfo() : menu_(0) {
 }
 
 //------------------------------------------------------------------------------
@@ -59,8 +62,21 @@ void BinaryInfo::private_init() {
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *BinaryInfo::menu(QWidget *parent) {
-	Q_UNUSED(parent);
-	return 0;
+	if(menu_ == 0) {
+		menu_ = new QMenu(tr("Binary Info"), parent);
+		menu_->addAction(tr("&Explore Binary Header"), this, SLOT(explore_header()));
+	}
+
+	return menu_;
+}
+
+//------------------------------------------------------------------------------
+// Name: menu(QWidget *parent)
+// Desc:
+//------------------------------------------------------------------------------
+void BinaryInfo::explore_header() {
+	static QDialog *dialog = new DialogHeader(edb::v1::debugger_ui);
+	dialog->show();
 }
 
 Q_EXPORT_PLUGIN2(BinaryInfo, BinaryInfo)

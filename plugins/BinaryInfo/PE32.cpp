@@ -82,3 +82,12 @@ edb::address_t PE32::debug_pointer() {
 size_t PE32::header_size() const {
 	return 0;
 }
+
+//------------------------------------------------------------------------------
+// Name: header() const
+// Desc: returns a copy of the file header or NULL if the region wasn't a valid,
+//       known binary type
+//------------------------------------------------------------------------------
+const void *PE32::header() const {
+	return 0;
+}

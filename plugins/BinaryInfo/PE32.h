@@ -27,12 +27,13 @@ public:
 	virtual ~PE32();
 
 public:
-	virtual bool validate_header();
-	virtual edb::address_t entry_point();
-	virtual edb::address_t calculate_main();
 	virtual bool native() const;
+	virtual bool validate_header();
+	virtual edb::address_t calculate_main();
 	virtual edb::address_t debug_pointer();
+	virtual edb::address_t entry_point();
 	virtual size_t header_size() const;
+	virtual const void *header() const;
 };
 
 #endif

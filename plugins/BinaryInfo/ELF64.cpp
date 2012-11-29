@@ -53,11 +53,9 @@ ELF64::~ELF64() {
 bool ELF64::validate_header() {
 	read_header();
 	if(header_) {
-	#if defined(Q_OS_UNIX)
 		if(std::memcmp(header_->e_ident, ELFMAG, SELFMAG) == 0) {
 			return header_->e_ident[EI_CLASS] == ELFCLASS64;
 		}
-	#endif
 	}
 	return false;
 }
@@ -67,6 +65,7 @@ bool ELF64::validate_header() {
 // Desc: returns true if this binary is native to the arch edb was built for
 //------------------------------------------------------------------------------
 bool ELF64::native() const {
+	// TODO: test against what debugger_core thinks is native...
 #ifdef EDB_X86_64
 	return true;
 #else
@@ -81,11 +80,7 @@ bool ELF64::native() const {
 edb::address_t ELF64::entry_point() {
 	read_header();
 	if(header_) {
-	#if defined(Q_OS_UNIX)
 		return header_->e_entry;
-	#else
-		return 0;
-	#endif
 	}
 	return 0;
 }
@@ -95,17 +90,15 @@ edb::address_t ELF64::entry_point() {
 // Desc: reads in enough of the file to get the header
 //------------------------------------------------------------------------------
 void ELF64::read_header() {
-#if defined(Q_OS_UNIX)
 	if(header_ == 0) {
 		if(region_) {
-			header_ = new elf64_header;
+			header_ = new plugin::binary_info::elf64_header;
 	
-			if(!edb::v1::debugger_core->read_bytes(region_->start(), header_, sizeof(elf64_header))) {
-				std::memset(header_, 0, sizeof(elf64_header));
+			if(!edb::v1::debugger_core->read_bytes(region_->start(), header_, sizeof(plugin::binary_info::elf64_header))) {
+				std::memset(header_, 0, sizeof(plugin::binary_info::elf64_header));
 			}
 		}
 	}
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -113,11 +106,7 @@ void ELF64::read_header() {
 // Desc: returns the number of bytes in this executable's header
 //------------------------------------------------------------------------------
 size_t ELF64::header_size() const {
-#if defined(Q_OS_UNIX)
-	return sizeof(elf64_header);
-#else
-	return 0;
-#endif
+	return sizeof(plugin::binary_info::elf64_header);
 }
 
 //------------------------------------------------------------------------------
@@ -128,18 +117,17 @@ size_t ELF64::header_size() const {
 edb::address_t ELF64::debug_pointer() {
 	read_header();
 	if(region_) {
-	#if defined(Q_OS_UNIX)
 		const edb::address_t section_offset = header_->e_phoff;
 		const std::size_t count             = header_->e_phnum;
 
-		elf64_phdr section_header;
+		plugin::binary_info::elf64_phdr section_header;
 		for(std::size_t i = 0; i < count; ++i) {
-			if(edb::v1::debugger_core->read_bytes(region_->start() + (section_offset + i * sizeof(elf64_phdr)), &section_header, sizeof(elf64_phdr))) {
+			if(edb::v1::debugger_core->read_bytes(region_->start() + (section_offset + i * sizeof(plugin::binary_info::elf64_phdr)), &section_header, sizeof(plugin::binary_info::elf64_phdr))) {
 				if(section_header.p_type == PT_DYNAMIC) {
 					try {
 						QVector<quint8> buf(section_header.p_memsz);
 						if(edb::v1::debugger_core->read_bytes(section_header.p_vaddr, &buf[0], section_header.p_memsz)) {
-							const elf64_dyn *dynamic = reinterpret_cast<elf64_dyn *>(&buf[0]);
+							const plugin::binary_info::elf64_dyn *dynamic = reinterpret_cast<plugin::binary_info::elf64_dyn *>(&buf[0]);
 							while(dynamic->d_tag != DT_NULL) {
 								if(dynamic->d_tag == DT_DEBUG) {
 									return dynamic->d_un.d_val;
@@ -154,7 +142,6 @@ edb::address_t ELF64::debug_pointer() {
 				}
 			}
 		}
-	#endif
 	}
 	return 0;
 }
@@ -187,4 +174,13 @@ edb::address_t ELF64::calculate_main() {
 	}
 	
 	return 0;
+}
+
+//------------------------------------------------------------------------------
+// Name: header() const
+// Desc: returns a copy of the file header or NULL if the region wasn't a valid,
+//       known binary type
+//------------------------------------------------------------------------------
+const void *ELF64::header() const {
+	return header_;
 }

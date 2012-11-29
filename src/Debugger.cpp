@@ -16,12 +16,6 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-/*
- * NOTE: system specific functions may be implemented in
- * src/os/[*]/Debugger*.cpp this is to isolate the system specific code away
- * from the general code.
- */
-
 #include "Debugger.h"
 #include "ArchProcessor.h"
 #include "BinaryString.h"
@@ -759,7 +753,8 @@ bool edb::v1::get_instruction_bytes(edb::address_t address, quint8 *buf, int *si
 //------------------------------------------------------------------------------
 // Name: get_binary_info(const IRegion::pointer &region)
 // Desc: gets an object which knows how to analyze the binary file provided
-//       or NULL if none-found
+//       or NULL if none-found.
+// Note: the caller is responsible for deleting the object!
 //------------------------------------------------------------------------------
 IBinary *edb::v1::get_binary_info(const IRegion::pointer &region) {
 	Q_FOREACH(IBinary::create_func_ptr_t f, g_BinaryInfoList) {
