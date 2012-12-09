@@ -60,6 +60,8 @@ typedef struct _RTL_USER_PROCESS_PARAMETERS {
   UNICODE_STRING CommandLine;
 } RTL_USER_PROCESS_PARAMETERS, *PRTL_USER_PROCESS_PARAMETERS;
 
+typedef VOID (NTAPI *PPS_POST_PROCESS_INIT_ROUTINE)(VOID);
+
 #ifdef Q_OS_WIN64
 typedef struct _PEB {
     BYTE Reserved1[2];
@@ -73,8 +75,6 @@ typedef struct _PEB {
     ULONG SessionId;
 } PEB, *PPEB;
 #else
-typedef VOID (NTAPI *PPS_POST_PROCESS_INIT_ROUTINE)(VOID);
-
 typedef struct _PEB {
   BYTE                          Reserved1[2];
   BYTE                          BeingDebugged;
