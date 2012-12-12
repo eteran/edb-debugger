@@ -19,16 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Analyzer.h"
 #include "AnalyzerOptionsPage.h"
 #include "AnalyzerWidget.h"
-#include "IArchProcessor.h"
 #include "Debugger.h"
-#include "IDebuggerCore.h"
 #include "DialogSpecifiedFunctions.h"
+#include "IArchProcessor.h"
+#include "IBinary.h"
+#include "IDebuggerCore.h"
+#include "ISymbolManager.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"
 #include "State.h"
-#include "ISymbolManager.h"
 #include "Util.h"
-#include "IBinary.h"
 
 #include <QMainWindow>
 #include <QToolBar>
@@ -45,7 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/function.hpp>
 #include <boost/bind.hpp>
 
-#ifdef USE_QT_CONCURRENT
+#if QT_VERSION >= 0x040800
 #include <QtConcurrentMap>
 #endif
 
@@ -384,7 +384,7 @@ void Analyzer::bonus_stack_frames(FunctionMap *results) {
 
 	Q_ASSERT(results);
 
-#ifdef USE_QT_CONCURRENT
+#if QT_VERSION >= 0x040800
 	QtConcurrent::blockingMap(
 		*results,
 		boost::bind(&Analyzer::bonus_stack_frames_helper, this, _1));
@@ -403,14 +403,16 @@ void Analyzer::bonus_stack_frames(FunctionMap *results) {
 void Analyzer::update_results_entry(FunctionMap *results, edb::address_t address) const {
 
 	Q_ASSERT(results);
-
-	(*results)[address].entry_address = address;
-	(*results)[address].end_address   = address;
 	
-	if((*results)[address].reference_count == 0) {
-		(*results)[address].reference_count = MIN_REFCOUNT;
+	Function &func = (*results)[address];
+
+	func.entry_address = address;
+	func.end_address   = address;
+	
+	if(func.reference_count == 0) {
+		func.reference_count = MIN_REFCOUNT;
 	} else {
-		(*results)[address].reference_count++;
+		func.reference_count++;
 	}
 }
 
@@ -750,7 +752,7 @@ void Analyzer::set_function_types(FunctionMap *results) {
 	Q_ASSERT(results);
 	
 	// give bonus if we have a symbol for the address
-#ifdef USE_QT_CONCURRENT
+#if QT_VERSION >= 0x040800
 	QtConcurrent::blockingMap(
 		*results,
 		boost::bind(&Analyzer::set_function_types_helper, this, _1));
