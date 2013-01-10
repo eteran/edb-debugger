@@ -272,7 +272,7 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 // Name: DebuggerCore()
 // Desc: constructor
 //------------------------------------------------------------------------------
-DebuggerCore::DebuggerCore() {
+DebuggerCore::DebuggerCore() : binary_info_(0) {
 #if defined(_SC_PAGESIZE)
 	page_size_ = sysconf(_SC_PAGESIZE);
 #elif defined(_SC_PAGE_SIZE)
@@ -554,6 +554,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 		pid_            = pid;
 		active_thread_  = pid;
 		event_thread_   = pid;
+		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 		return true;
 	}
 
@@ -795,6 +796,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			pid_            = pid;
 			active_thread_  = pid;
 			event_thread_   = pid;
+			binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
 			return true;
 		} while(0);
@@ -828,6 +830,8 @@ void DebuggerCore::reset() {
 	active_thread_ = 0;
 	pid_           = 0;
 	event_thread_  = 0;
+	delete binary_info_;
+	binary_info_   = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -997,7 +1001,7 @@ edb::address_t DebuggerCore::application_data_address() const {
 	struct user_stat user_stat;
 	int n = get_user_stat(pid(), &user_stat);
 	if(n >= 27) {
-		return user_stat.endcode + 1; // endcode == startdata..
+		return user_stat.endcode + 1; // endcode == startdata ?
 	}
 	return 0;
 }
@@ -1009,11 +1013,10 @@ edb::address_t DebuggerCore::application_data_address() const {
 QList<Module> DebuggerCore::loaded_modules() const {
 	QList<Module> ret;
 
-	if(IBinary *const binary_info = edb::v1::get_binary_info(edb::v1::primary_code_region())) {
-		
+	if(binary_info_) {		
 		struct r_debug dynamic_info;			
-		if(binary_info->debug_pointer()) {
-			if(edb::v1::debugger_core->read_bytes(binary_info->debug_pointer(), &dynamic_info, sizeof(dynamic_info))) {
+		if(const edb::address_t debug_pointer = binary_info_->debug_pointer()) {
+			if(edb::v1::debugger_core->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
 				if(dynamic_info.r_map) {
 
 					edb::address_t link_address = reinterpret_cast<edb::address_t>(dynamic_info.r_map);
@@ -1042,27 +1045,25 @@ QList<Module> DebuggerCore::loaded_modules() const {
 				}
 			}
 		}
-		delete binary_info;
 	}
 	
 	// fallback
 	if(ret.isEmpty()) {
 		const QList<IRegion::pointer> r = edb::v1::memory_regions().regions();
-		QMap<QString, Module> modules_temp;
+		QSet<QString> found_modules;
+		
 		Q_FOREACH(const IRegion::pointer &region, r) {
-			// modules seem to have full paths
+			
+			// we assume that modules will be listed by absolute path
 			if(region->name().startsWith("/")) {
-				if(!modules_temp.contains(region->name())) {
+				if(!found_modules.contains(region->name())) {
 					Module module;
 					module.name         = region->name();
 					module.base_address = region->start();
-					modules_temp.insert(region->name(), module);
+					found_modules.insert(region->name());
+					ret.push_back(module);
 				}
 			}
-		}
-		
-		for(QMap<QString, Module>::const_iterator it = modules_temp.begin(); it != modules_temp.end(); ++it) {
-			ret.push_back(it.value());
 		}
 	}
 

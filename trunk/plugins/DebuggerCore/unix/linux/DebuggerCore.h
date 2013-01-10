@@ -24,6 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include <csignal>
 
+class IBinary;
+
 class DebuggerCore : public DebuggerCoreUNIX {
 	Q_OBJECT
 	Q_INTERFACES(IDebuggerCore)
@@ -127,6 +129,7 @@ private:
 	threadmap_t      threads_;
 	QSet<edb::tid_t> waited_threads_;
 	edb::tid_t       event_thread_;
+	IBinary          *binary_info_;
 };
 
 #endif

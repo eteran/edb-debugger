@@ -17,24 +17,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "QDisassemblyView.h"
-#include "IAnalyzer.h"
-#include "IArchProcessor.h"
 #include "Configuration.h"
 #include "Debugger.h"
+#include "IAnalyzer.h"
+#include "IArchProcessor.h"
 #include "IDebuggerCore.h"
-#include "Instruction.h"
 #include "ISymbolManager.h"
+#include "Instruction.h"
 #include "SyntaxHighlighter.h"
 #include "Util.h"
 
-#include <QApplication>
 #include <QAbstractItemDelegate>
 #include <QAbstractTextDocumentLayout>
+#include <QApplication>
+#include <QDebug>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPixmap>
 #include <QScrollBar>
-#include <QTextDocument>
 #include <QTextDocument>
 #include <QTextLayout>
 #include <QToolTip>
@@ -437,7 +437,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 				y,
 				opcode.length() * font_width_,
 				line_height,
-				Qt::AlignTop,
+				Qt::AlignVCenter,
 				opcode);
 		} else {
 
@@ -482,7 +482,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 			y,
 			asm_buffer.length() * font_width_,
 			line_height,
-			Qt::AlignTop,
+			Qt::AlignVCenter,
 			asm_buffer);
 	}
 
@@ -598,16 +598,17 @@ void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t a
 void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	QPainter painter(viewport());
-
+	
 	const bool uppercase  = edb::v1::config().uppercase_disassembly;
-	int viewable_lines    = viewport()->height() / line_height();
+	const int line_height = qMax(this->line_height(), breakpoint_icon_.height());
+	int viewable_lines    = viewport()->height() / line_height;
 	int current_line      = verticalScrollBar()->value();
 	int row_index         = 0;
 	int y                 = 0;
 	const int l1          = line1();
 	const int l2          = line2();
 	const int l3          = line3();
-	const int line_height = this->line_height();
+	
 
 	if(!region_) {
 		return;
@@ -685,6 +686,17 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			painter.drawPixmap(1, y + 1, current_address_icon_);
 		} else if(edb::v1::find_breakpoint(address) != 0) {
 			painter.drawPixmap(1, y + 1, breakpoint_icon_);
+
+			// TODO:
+			/*
+			painter.setPen(Qt::red);
+			painter.drawText(
+				QRect(1, y, font_width_, font_height_), 
+				Qt::AlignVCenter, 
+				//QString(QChar(0x2b24)));
+				//QString(QChar(0x25c9)));
+				QString(QChar(0x25cf)));
+			*/
 		}
 
 		// format the different components
@@ -698,7 +710,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			y,
 			address_buffer.length() * font_width_,
 			line_height,
-			Qt::AlignTop,
+			Qt::AlignVCenter,
 			address_buffer);
 
 		// draw the data bytes
@@ -708,7 +720,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			y,
 			byte_buffer.length() * font_width_,
 			line_height,
-			Qt::AlignTop,
+			Qt::AlignVCenter,
 			byte_buffer);
 
 
@@ -725,7 +737,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 					y,
 					symbol_buffer.length() * font_width_,
 					line_height,
-					Qt::AlignTop,
+					Qt::AlignVCenter,
 					symbol_buffer);
 			}
 		}
@@ -745,7 +757,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 					y,
 					font_width_,
 					line_height,
-					Qt::AlignTop,
+					Qt::AlignVCenter,
 					QString((target > address) ? QChar(0x02C7) : QChar(0x02C6))
 					);
 			}
