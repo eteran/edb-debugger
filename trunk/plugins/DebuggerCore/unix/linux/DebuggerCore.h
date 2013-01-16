@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2011 Evan Teran
+Copyright (C) 2006 - 2013 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -49,6 +49,7 @@ public:
 	virtual void get_state(State *state);
 	virtual void set_state(const State &state);
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty);
+	virtual bool read_pages(edb::address_t address, void *buf, std::size_t count);
 
 public:
 	// thread support stuff (optional)
@@ -70,6 +71,7 @@ public:
 	virtual QString process_cwd(edb::pid_t pid) const;
 	virtual QString process_exe(edb::pid_t pid) const;
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const;
+	virtual QDateTime process_start(edb::pid_t pid) const;
 
 private:
 	virtual QMap<edb::pid_t, Process> enumerate_processes() const;
@@ -94,33 +96,12 @@ private:
 	bool attach_thread(edb::tid_t tid);
 
 private:
-	class thread_info {
-	public:
-		thread_info() : status(0) {
-		}
-		
-		explicit thread_info(int s) : status(s) {
-		}
-		
-		thread_info(const thread_info &other) : status(other.status) {
-		
-		}
-		
-		thread_info &operator=(const thread_info &rhs) {
-			thread_info(rhs).swap(*this);
-			return *this;
-		}
-		
-		~thread_info() {
-		}
-		
-	public:
-		void swap(thread_info &other) {
-			qSwap(status, other.status);
-		}
-		
-	public:
+	struct thread_info {
 		int status;
+		enum {
+			THREAD_STOPPED,
+			THREAD_SIGNALED
+		} state;
 	};
 
 	typedef QHash<edb::tid_t, thread_info> threadmap_t;

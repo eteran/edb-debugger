@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2011 Evan Teran
+Copyright (C) 2006 - 2013 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -56,15 +56,23 @@ quint32 I(quint32 x, quint32 y, quint32 z) {
 	return y ^ (x | ~z);
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: 
+//------------------------------------------------------------------------------
 template <typename T>
-static T circular_shift(T v, int n) {
+T circular_shift(T v, int n) {
 	static const std::size_t bits(CHAR_BIT * sizeof(T));
 	const T mask(~(T(-1) << n));
 	return (v << n) | ((v >> (bits - n)) & mask);
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: 
+//------------------------------------------------------------------------------
 template <quint32 (*Fun)(quint32, quint32, quint32)>
-static void do_transform(quint32& a, quint32 b, quint32 c, quint32 d, quint32 x, quint32 s, quint32 ac) {
+void do_transform(quint32& a, quint32 b, quint32 c, quint32 d, quint32 x, quint32 s, quint32 ac) {
 	a += Fun(b, c, d) + x + ac;
 	a = circular_shift(a, s) + b;
 }

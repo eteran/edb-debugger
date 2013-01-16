@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2011 Evan Teran
+Copyright (C) 2006 - 2013 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -245,9 +245,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 
 	Q_ASSERT(ok);
-
-	// NOTE: this will fail on newer versions of linux if called from a
-	// different thread than the one which attached to process
+	
 	errno = 0;
 	const long v = ptrace(PT_READ_D, pid(), reinterpret_cast<char*>(address), 0);
 	SET_OK(*ok, v);
@@ -662,6 +660,7 @@ QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t DebuggerCore::application_code_address() const {
+	qDebug() << "TODO: implement DebuggerCore::application_code_address";
 	return 0;
 }
 
@@ -670,6 +669,7 @@ edb::address_t DebuggerCore::application_code_address() const {
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t DebuggerCore::application_data_address() const {
+	qDebug() << "TODO: implement DebuggerCore::application_data_address";
 	return 0;
 }
 
@@ -681,6 +681,15 @@ QList<Module> DebuggerCore::loaded_modules() const {
     QList<Module> modules;
 	qDebug() << "TODO: implement DebuggerCore::loaded_modules";
     return modules;
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
+	qDebug() << "TODO: implement DebuggerCore::process_start";
+	return QDateTime();
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

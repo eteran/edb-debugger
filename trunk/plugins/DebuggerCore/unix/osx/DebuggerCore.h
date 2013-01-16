@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2011 Evan Teran
+Copyright (C) 2006 - 2013 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -63,6 +63,7 @@ public:
 	virtual QString process_exe(edb::pid_t pid) const;
 	virtual QString process_cwd(edb::pid_t pid) const;
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const;
+	virtual QDateTime process_start(edb::pid_t pid) const;
 
 public:
 	virtual IState *create_state() const;

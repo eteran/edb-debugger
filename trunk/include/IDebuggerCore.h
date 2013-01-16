@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2011 Evan Teran
+Copyright (C) 2006 - 2013 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHash>
 #include <QMap>
 #include <QStringList>
+#include <QDateTime>
 #include <QtPlugin>
 
 class IState;
@@ -98,6 +99,7 @@ public:
 	virtual QString process_cwd(edb::pid_t pid) const = 0;
 	virtual QString process_exe(edb::pid_t pid) const = 0;
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const = 0;
+	virtual QDateTime process_start(edb::pid_t pid) const = 0;
 
 public:
 	virtual IState *create_state() const = 0;

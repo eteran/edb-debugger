@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2011 Evan Teran
+Copyright (C) 2006 - 2013 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef REGISTERVIEWDELEGATE_20070519_H_
-#define REGISTERVIEWDELEGATE_20070519_H_
+#ifndef REGISTER_VIEW_DELEGATE_20070519_H_
+#define REGISTER_VIEW_DELEGATE_20070519_H_
 
 #include <QItemDelegate>
 
