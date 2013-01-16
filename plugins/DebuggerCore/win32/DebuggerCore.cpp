@@ -214,7 +214,7 @@ namespace {
 
 
 //------------------------------------------------------------------------------
-// Name: DebuggerCore()
+// Name: DebuggerCore
 // Desc: constructor
 //------------------------------------------------------------------------------
 DebuggerCore::DebuggerCore() : start_address(0), image_base(0), page_size_(0), process_handle_(0) {
@@ -228,7 +228,7 @@ DebuggerCore::DebuggerCore() : start_address(0), image_base(0), page_size_(0), p
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DebuggerCore()
+// Name: ~DebuggerCore
 // Desc:
 //------------------------------------------------------------------------------
 DebuggerCore::~DebuggerCore() {
@@ -237,7 +237,7 @@ DebuggerCore::~DebuggerCore() {
 }
 
 //------------------------------------------------------------------------------
-// Name: page_size() const
+// Name: page_size
 // Desc: returns the size of a page on this system
 //------------------------------------------------------------------------------
 edb::address_t DebuggerCore::page_size() const {
@@ -245,7 +245,7 @@ edb::address_t DebuggerCore::page_size() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: has_extension(quint64 ext) const
+// Name: has_extension
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
@@ -270,7 +270,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: wait_debug_event(int msecs)
+// Name: wait_debug_event
 // Desc: waits for a debug event, secs is a timeout (but is not yet respected)
 //       ok will be set to false if the timeout expires
 //------------------------------------------------------------------------------
@@ -331,7 +331,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: read_pages(edb::address_t address, void *buf, std::size_t count)
+// Name: read_pages
 // Desc: reads <count> pages from the process starting at <address>
 // Note: buf's size must be >= count * page_size()
 // Note: address MUST be page aligned.
@@ -344,7 +344,7 @@ bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t cou
 }
 
 //------------------------------------------------------------------------------
-// Name: read_bytes(edb::address_t address, void *buf, std::size_t len)
+// Name: read_bytes
 // Desc: reads <len> bytes into <buf> starting at <address>
 // Note: if the read failed, the part of the buffer that could not be read will
 //       be filled with 0xff bytes
@@ -374,7 +374,7 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 }
 
 //------------------------------------------------------------------------------
-// Name: write_bytes(edb::address_t address, const void *buf, std::size_t len)
+// Name: write_bytes
 // Desc: writes <len> bytes from <buf> starting at <address>
 //------------------------------------------------------------------------------
 bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
@@ -393,7 +393,7 @@ bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::siz
 }
 
 //------------------------------------------------------------------------------
-// Name: attach(edb::pid_t pid)
+// Name: attach
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::attach(edb::pid_t pid) {
@@ -418,7 +418,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 }
 
 //------------------------------------------------------------------------------
-// Name: detach()
+// Name: detach
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::detach() {
@@ -437,7 +437,7 @@ void DebuggerCore::detach() {
 }
 
 //------------------------------------------------------------------------------
-// Name: kill()
+// Name: kill
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::kill() {
@@ -448,7 +448,7 @@ void DebuggerCore::kill() {
 }
 
 //------------------------------------------------------------------------------
-// Name: pause()
+// Name: pause
 // Desc: stops *all* threads of a process
 //------------------------------------------------------------------------------
 void DebuggerCore::pause() {
@@ -458,7 +458,7 @@ void DebuggerCore::pause() {
 }
 
 //------------------------------------------------------------------------------
-// Name: resume(edb::EVENT_STATUS status)
+// Name: resume
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::resume(edb::EVENT_STATUS status) {
@@ -477,7 +477,7 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: step(edb::EVENT_STATUS status)
+// Name: step
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::step(edb::EVENT_STATUS status) {
@@ -507,7 +507,7 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_state(State *state)
+// Name: get_state
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::get_state(State *state) {
@@ -547,7 +547,7 @@ void DebuggerCore::get_state(State *state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_state(const State &state)
+// Name: set_state
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::set_state(const State &state) {
@@ -568,7 +568,7 @@ void DebuggerCore::set_state(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty)
+// Name: open
 // Desc:
 // TODO: Don't inherit security descriptors from this process (default values)
 //       Is this even possible?
@@ -638,7 +638,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 }
 
 //------------------------------------------------------------------------------
-// Name: create_state()
+// Name: create_state
 // Desc:
 //------------------------------------------------------------------------------
 IState *DebuggerCore::create_state() const {
@@ -646,7 +646,7 @@ IState *DebuggerCore::create_state() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: pointer_size() const
+// Name: pointer_size
 // Desc: returns the size of a pointer on this arch
 //------------------------------------------------------------------------------
 int DebuggerCore::pointer_size() const {
@@ -654,7 +654,7 @@ int DebuggerCore::pointer_size() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: enumerate_processes() const
+// Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
 QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {

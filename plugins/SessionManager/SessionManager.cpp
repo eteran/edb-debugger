@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMetaProperty>
 
 //------------------------------------------------------------------------------
-// Name: private_init()
+// Name: private_init
 // Desc:
 //------------------------------------------------------------------------------
 void SessionManager::private_init() {
@@ -30,7 +30,7 @@ void SessionManager::private_init() {
 }
 
 //------------------------------------------------------------------------------
-// Name: save_session(const QString &filename, const QString &executable)
+// Name: save_session
 // Desc:
 //------------------------------------------------------------------------------
 void SessionManager::save_session(const QString &filename, const QString &executable) {
@@ -46,7 +46,7 @@ void SessionManager::save_session(const QString &filename, const QString &execut
 }
 
 //------------------------------------------------------------------------------
-// Name: load_session(const QString &filename)
+// Name: load_session
 // Desc:
 //------------------------------------------------------------------------------
 void SessionManager::load_session(const QString &filename, const QString &executable) {
@@ -61,7 +61,7 @@ void SessionManager::load_session(const QString &filename, const QString &execut
 }
 
 //------------------------------------------------------------------------------
-// Name: menu(QWidget *parent)
+// Name: menu
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *SessionManager::menu(QWidget *parent) {

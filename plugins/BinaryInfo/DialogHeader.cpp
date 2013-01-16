@@ -477,7 +477,7 @@ QTreeWidgetItem *create_elf_entry_point(const T *header) {
 
 
 //------------------------------------------------------------------------------
-// Name: DialogHeader(QWidget *parent)
+// Name: DialogHeader
 // Desc:
 //------------------------------------------------------------------------------
 DialogHeader::DialogHeader(QWidget *parent) : QDialog(parent), ui(new Ui::DialogHeader) {
@@ -490,7 +490,7 @@ DialogHeader::DialogHeader(QWidget *parent) : QDialog(parent), ui(new Ui::Dialog
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogHeader()
+// Name: ~DialogHeader
 // Desc:
 //------------------------------------------------------------------------------
 DialogHeader::~DialogHeader() {
@@ -498,7 +498,7 @@ DialogHeader::~DialogHeader() {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeader::showEvent(QShowEvent *) {
@@ -509,7 +509,7 @@ void DialogHeader::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnExplore_clicked()
+// Name: on_btnExplore_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeader::on_btnExplore_clicked() {

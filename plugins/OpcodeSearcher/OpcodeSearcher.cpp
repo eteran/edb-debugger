@@ -22,14 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 
 //------------------------------------------------------------------------------
-// Name: OpcodeSearcher()
+// Name: OpcodeSearcher
 // Desc:
 //------------------------------------------------------------------------------
 OpcodeSearcher::OpcodeSearcher() : menu_(0), dialog_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~OpcodeSearcher()
+// Name: ~OpcodeSearcher
 // Desc:
 //------------------------------------------------------------------------------
 OpcodeSearcher::~OpcodeSearcher() {
@@ -37,7 +37,7 @@ OpcodeSearcher::~OpcodeSearcher() {
 }
 
 //------------------------------------------------------------------------------
-// Name: menu(QWidget *parent)
+// Name: menu
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *OpcodeSearcher::menu(QWidget *parent) {
@@ -51,7 +51,7 @@ QMenu *OpcodeSearcher::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu()
+// Name: show_menu
 // Desc:
 //------------------------------------------------------------------------------
 void OpcodeSearcher::show_menu() {

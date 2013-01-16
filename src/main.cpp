@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 	//--------------------------------------------------------------------------
-	// Name: load_plugins(const QString &directory)
+	// Name: load_plugins
 	// Desc: attempts to load all plugins in a given directory
 	//--------------------------------------------------------------------------
 	void load_plugins(const QString &directory) {
@@ -80,7 +80,7 @@ namespace {
 	}
 
 	//--------------------------------------------------------------------------
-	// Name: start_debugger(edb::pid_t attach_pid)
+	// Name: start_debugger
 	// Desc: starts the main debugger code
 	//--------------------------------------------------------------------------
 	int start_debugger(edb::pid_t attach_pid, const QString &program, const QList<QByteArray> &programArgs) {
@@ -146,7 +146,7 @@ namespace {
 
 
 //------------------------------------------------------------------------------
-// Name: main(int argc, char *argv[])
+// Name: main
 // Desc: entry point
 //------------------------------------------------------------------------------
 int main(int argc, char *argv[]) {

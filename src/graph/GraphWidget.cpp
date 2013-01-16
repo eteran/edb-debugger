@@ -36,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <graphviz/gvc.h>
 
 //------------------------------------------------------------------------------
-// Name: GraphWidget(const QString& filename, const QString& layout, QWidget* parent)
+// Name: GraphWidget
 // Desc:
 //------------------------------------------------------------------------------
 GraphWidget::GraphWidget(const QString& filename, const QString& layout, QWidget* parent) : GraphWidgetBase(parent) {
@@ -44,7 +44,7 @@ GraphWidget::GraphWidget(const QString& filename, const QString& layout, QWidget
 }
 
 //------------------------------------------------------------------------------
-// Name: GraphWidget(GVC_t *gvc, graph_t *graph, const QString& layout, QWidget* parent)
+// Name: GraphWidget
 // Desc:
 //------------------------------------------------------------------------------
 GraphWidget::GraphWidget(GVC_t *gvc, graph_t *graph, const QString& layout, QWidget* parent) : GraphWidgetBase(parent) {
@@ -52,14 +52,14 @@ GraphWidget::GraphWidget(GVC_t *gvc, graph_t *graph, const QString& layout, QWid
 }
 
 //------------------------------------------------------------------------------
-// Name: ~GraphWidget()
+// Name: ~GraphWidget
 // Desc:
 //------------------------------------------------------------------------------
 GraphWidget::~GraphWidget() {
 }
 
 //------------------------------------------------------------------------------
-// Name: keyPressEvent(QKeyEvent* event)
+// Name: keyPressEvent
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::keyPressEvent(QKeyEvent* event) {
@@ -82,7 +82,7 @@ void GraphWidget::keyPressEvent(QKeyEvent* event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: wheelEvent(QWheelEvent* event)
+// Name: wheelEvent
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::wheelEvent(QWheelEvent* event) {
@@ -90,7 +90,7 @@ void GraphWidget::wheelEvent(QWheelEvent* event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: scale_view(qreal scaleFactor)
+// Name: scale_view
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::scale_view(qreal scaleFactor) {
@@ -102,7 +102,7 @@ void GraphWidget::scale_view(qreal scaleFactor) {
 }
 
 //------------------------------------------------------------------------------
-// Name: contextMenuEvent(QContextMenuEvent* event)
+// Name: contextMenuEvent
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::contextMenuEvent(QContextMenuEvent* event) {
@@ -117,7 +117,7 @@ void GraphWidget::contextMenuEvent(QContextMenuEvent* event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mouseDoubleClickEvent(QMouseEvent* event)
+// Name: mouseDoubleClickEvent
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::mouseDoubleClickEvent(QMouseEvent* event) {
@@ -129,7 +129,7 @@ void GraphWidget::mouseDoubleClickEvent(QMouseEvent* event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: gToQ(const pointf& p, bool upside_down) const
+// Name: gToQ
 // Desc:
 //------------------------------------------------------------------------------
 QPointF GraphWidget::gToQ(const pointf& p, bool upside_down) const {
@@ -137,7 +137,7 @@ QPointF GraphWidget::gToQ(const pointf& p, bool upside_down) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: gToQ(const point& p, bool upside_down) const
+// Name: gToQ
 // Desc:
 //------------------------------------------------------------------------------
 QPointF GraphWidget::gToQ(const point& p, bool upside_down) const {
@@ -145,7 +145,7 @@ QPointF GraphWidget::gToQ(const point& p, bool upside_down) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: aggetToQColor(void *obj, const char *name, const QColor& fallback) const
+// Name: aggetToQColor
 // Desc:
 //------------------------------------------------------------------------------
 QColor GraphWidget::aggetToQColor(void *obj, const char *name, const QColor& fallback) const {
@@ -157,7 +157,7 @@ QColor GraphWidget::aggetToQColor(void *obj, const char *name, const QColor& fal
 }
 
 //------------------------------------------------------------------------------
-// Name: aggetToQPenStyle(void *obj, const char *name, const Qt::PenStyle fallback) const
+// Name: aggetToQPenStyle
 // Desc:
 //------------------------------------------------------------------------------
 Qt::PenStyle GraphWidget::aggetToQPenStyle(void *obj, const char *name, const Qt::PenStyle fallback) const {
@@ -178,7 +178,7 @@ Qt::PenStyle GraphWidget::aggetToQPenStyle(void *obj, const char *name, const Qt
 }
 
 //------------------------------------------------------------------------------
-// Name: render_graph(const QString& filename, const QString& layout)
+// Name: render_graph
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::render_graph(const QString& filename, const QString& layout) {
@@ -201,7 +201,7 @@ void GraphWidget::render_graph(const QString& filename, const QString& layout) {
 }
 
 //------------------------------------------------------------------------------
-// Name: render_sub_graph(GVC_t *gvc, graph_t *graph)
+// Name: render_sub_graph
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::render_sub_graph(GVC_t *gvc, graph_t *graph) {
@@ -232,7 +232,7 @@ void GraphWidget::render_sub_graph(GVC_t *gvc, graph_t *graph) {
 }
 
 //------------------------------------------------------------------------------
-// Name: render_edge(edge_t *edge)
+// Name: render_edge
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::render_edge(edge_t *edge) {
@@ -258,7 +258,7 @@ void GraphWidget::render_edge(edge_t *edge) {
 }
 
 //------------------------------------------------------------------------------
-// Name: render_node(graph_t *graph, node_t *node)
+// Name: render_node
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::render_node(graph_t *graph, node_t *node) {
@@ -308,7 +308,7 @@ void GraphWidget::render_node(graph_t *graph, node_t *node) {
 }
 
 //------------------------------------------------------------------------------
-// Name: render_graph(GVC_t *gvc, graph_t *graph, const QString& layout)
+// Name: render_graph
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::render_graph(GVC_t *gvc, graph_t *graph, const QString& layout) {
@@ -340,7 +340,7 @@ void GraphWidget::render_graph(GVC_t *gvc, graph_t *graph, const QString& layout
 }
 
 //------------------------------------------------------------------------------
-// Name: drawGraphLabel(graph_t *graph)
+// Name: drawGraphLabel
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::drawGraphLabel(graph_t *graph) {
@@ -372,7 +372,7 @@ void GraphWidget::drawGraphLabel(graph_t *graph) {
 }
 
 //------------------------------------------------------------------------------
-// Name: clear_graph()
+// Name: clear_graph
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::clear_graph() {

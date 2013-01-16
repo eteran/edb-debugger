@@ -25,7 +25,7 @@ const quint8 BreakpointInstruction[X86Breakpoint::size] = {0xcc};
 }
 
 //------------------------------------------------------------------------------
-// Name: X86Breakpoint(edb::address_t address, bool onetime)
+// Name: X86Breakpoint
 // Desc: constructor
 //------------------------------------------------------------------------------
 X86Breakpoint::X86Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false) {
@@ -33,7 +33,7 @@ X86Breakpoint::X86Breakpoint(edb::address_t address) : address_(address), hit_co
 }
 
 //------------------------------------------------------------------------------
-// Name: ~X86Breakpoint()
+// Name: ~X86Breakpoint
 // Desc:
 //------------------------------------------------------------------------------
 X86Breakpoint::~X86Breakpoint() {
@@ -41,7 +41,7 @@ X86Breakpoint::~X86Breakpoint() {
 }
 
 //------------------------------------------------------------------------------
-// Name: enable()
+// Name: enable
 // Desc:
 //------------------------------------------------------------------------------
 bool X86Breakpoint::enable() {
@@ -59,7 +59,7 @@ bool X86Breakpoint::enable() {
 }
 
 //------------------------------------------------------------------------------
-// Name: disable()
+// Name: disable
 // Desc:
 //------------------------------------------------------------------------------
 bool X86Breakpoint::disable() {

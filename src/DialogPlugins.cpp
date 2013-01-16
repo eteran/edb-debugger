@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dialog_plugins.h"
 
 //------------------------------------------------------------------------------
-// Name: DialogPlugins(QWidget *parent, Qt::WindowFlags f)
+// Name: DialogPlugins
 // Desc:
 //------------------------------------------------------------------------------
 DialogPlugins::DialogPlugins(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogPlugins) {
@@ -34,7 +34,7 @@ DialogPlugins::DialogPlugins(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogPlugins()
+// Name: ~DialogPlugins
 // Desc:
 //------------------------------------------------------------------------------
 DialogPlugins::~DialogPlugins() {
@@ -42,7 +42,7 @@ DialogPlugins::~DialogPlugins() {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogPlugins::showEvent(QShowEvent *) {

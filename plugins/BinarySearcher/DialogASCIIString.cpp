@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dialogasciistring.h"
 
 //------------------------------------------------------------------------------
-// Name: DialogASCIIString(QWidget *parent)
+// Name: DialogASCIIString
 // Desc: constructor
 //------------------------------------------------------------------------------
 DialogASCIIString::DialogASCIIString(QWidget *parent) : QDialog(parent), ui(new Ui::DialogASCIIString) {
@@ -41,7 +41,7 @@ DialogASCIIString::DialogASCIIString(QWidget *parent) : QDialog(parent), ui(new 
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogASCIIString()
+// Name: ~DialogASCIIString
 // Desc:
 //------------------------------------------------------------------------------
 DialogASCIIString::~DialogASCIIString() {
@@ -49,7 +49,7 @@ DialogASCIIString::~DialogASCIIString() {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find()
+// Name: do_find
 // Desc:
 //------------------------------------------------------------------------------
 void DialogASCIIString::do_find() {
@@ -95,7 +95,7 @@ void DialogASCIIString::do_find() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnFind_clicked()
+// Name: on_btnFind_clicked
 // Desc: find button event handler
 //------------------------------------------------------------------------------
 void DialogASCIIString::on_btnFind_clicked() {
@@ -108,7 +108,7 @@ void DialogASCIIString::on_btnFind_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_listWidget_itemDoubleClicked(QListWidgetItem *item)
+// Name: on_listWidget_itemDoubleClicked
 // Desc: follows the found item in the data view
 //------------------------------------------------------------------------------
 void DialogASCIIString::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {

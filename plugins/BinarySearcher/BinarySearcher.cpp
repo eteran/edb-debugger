@@ -23,21 +23,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 
 //------------------------------------------------------------------------------
-// Name: BinarySearcher()
+// Name: BinarySearcher
 // Desc:
 //------------------------------------------------------------------------------
 BinarySearcher::BinarySearcher() : menu_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~BinarySearcher()
+// Name: ~BinarySearcher
 // Desc:
 //------------------------------------------------------------------------------
 BinarySearcher::~BinarySearcher() {
 }
 
 //------------------------------------------------------------------------------
-// Name: menu(QWidget *parent)
+// Name: menu
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *BinarySearcher::menu(QWidget *parent) {
@@ -50,7 +50,7 @@ QMenu *BinarySearcher::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: stack_context_menu()
+// Name: stack_context_menu
 // Desc:
 //------------------------------------------------------------------------------
 QList<QAction *> BinarySearcher::stack_context_menu() {
@@ -65,7 +65,7 @@ QList<QAction *> BinarySearcher::stack_context_menu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu()
+// Name: show_menu
 // Desc:
 //------------------------------------------------------------------------------
 void BinarySearcher::show_menu() {
@@ -74,7 +74,7 @@ void BinarySearcher::show_menu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuStackFindASCII()
+// Name: mnuStackFindASCII
 // Desc:
 //------------------------------------------------------------------------------
 void BinarySearcher::mnuStackFindASCII() {

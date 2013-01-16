@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IBinary.h"
 
 //------------------------------------------------------------------------------
-// Name: IBinary(const IRegion::pointer &region)
+// Name: IBinary
 // Desc:
 //------------------------------------------------------------------------------
 IBinary::IBinary(const IRegion::pointer &region) : region_(region) {

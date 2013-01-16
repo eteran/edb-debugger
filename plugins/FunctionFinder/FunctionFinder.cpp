@@ -22,14 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 
 //------------------------------------------------------------------------------
-// Name: FunctionFinder()
+// Name: FunctionFinder
 // Desc:
 //------------------------------------------------------------------------------
 FunctionFinder::FunctionFinder() : menu_(0), dialog_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~FunctionFinder()
+// Name: ~FunctionFinder
 // Desc:
 //------------------------------------------------------------------------------
 FunctionFinder::~FunctionFinder() {
@@ -37,7 +37,7 @@ FunctionFinder::~FunctionFinder() {
 }
 
 //------------------------------------------------------------------------------
-// Name: menu(QWidget *parent)
+// Name: menu
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *FunctionFinder::menu(QWidget *parent) {
@@ -51,7 +51,7 @@ QMenu *FunctionFinder::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu()
+// Name: show_menu
 // Desc:
 //------------------------------------------------------------------------------
 void FunctionFinder::show_menu() {

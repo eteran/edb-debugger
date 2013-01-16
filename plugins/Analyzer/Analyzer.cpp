@@ -64,14 +64,14 @@ namespace {
 }
 
 //------------------------------------------------------------------------------
-// Name: Analyzer(
+// Name: Analyzer
 // Desc:
 //------------------------------------------------------------------------------
 Analyzer::Analyzer() : menu_(0), analyzer_widget_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: options_page()
+// Name: options_page
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *Analyzer::options_page() {
@@ -79,7 +79,7 @@ QWidget *Analyzer::options_page() {
 }
 
 //------------------------------------------------------------------------------
-// Name: menu(QWidget *parent)
+// Name: menu
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *Analyzer::menu(QWidget *parent) {
@@ -117,7 +117,7 @@ QMenu *Analyzer::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: private_init()
+// Name: private_init
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::private_init() {
@@ -125,7 +125,7 @@ void Analyzer::private_init() {
 }
 
 //------------------------------------------------------------------------------
-// Name: show_specified()
+// Name: show_specified
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::show_specified() {
@@ -134,7 +134,7 @@ void Analyzer::show_specified() {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_ip_analysis()
+// Name: do_ip_analysis
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::do_ip_analysis() {	
@@ -148,7 +148,7 @@ void Analyzer::do_ip_analysis() {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_view_analysis()
+// Name: do_view_analysis
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::do_view_analysis() {
@@ -156,7 +156,7 @@ void Analyzer::do_view_analysis() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mark_function_start()
+// Name: mark_function_start
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::mark_function_start() {
@@ -170,7 +170,7 @@ void Analyzer::mark_function_start() {
 }
 
 //------------------------------------------------------------------------------
-// Name: goto_function_start()
+// Name: goto_function_start
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::goto_function_start() {
@@ -190,7 +190,7 @@ void Analyzer::goto_function_start() {
 }
 
 //------------------------------------------------------------------------------
-// Name: goto_function_end()
+// Name: goto_function_end
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::goto_function_end() {
@@ -210,7 +210,7 @@ void Analyzer::goto_function_end() {
 }
 
 //------------------------------------------------------------------------------
-// Name: cpu_context_menu()
+// Name: cpu_context_menu
 // Desc:
 //------------------------------------------------------------------------------
 QList<QAction *> Analyzer::cpu_context_menu() {
@@ -232,7 +232,7 @@ QList<QAction *> Analyzer::cpu_context_menu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_analysis(const IRegion::pointer &region)
+// Name: do_analysis
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::do_analysis(const IRegion::pointer &region) {
@@ -247,7 +247,7 @@ void Analyzer::do_analysis(const IRegion::pointer &region) {
 }
 
 //------------------------------------------------------------------------------
-// Name: find_function_calls(const IRegion::pointer &region, FunctionMap *found_functions)
+// Name: find_function_calls
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::find_function_calls(const IRegion::pointer &region, FunctionMap *found_functions) {
@@ -297,7 +297,7 @@ void Analyzer::find_function_calls(const IRegion::pointer &region, FunctionMap *
 }
 
 //------------------------------------------------------------------------------
-// Name: is_stack_frame(edb::address_t addr)
+// Name: is_stack_frame
 // Desc:
 //------------------------------------------------------------------------------
 bool Analyzer::is_stack_frame(edb::address_t addr) const {
@@ -366,7 +366,7 @@ bool Analyzer::is_stack_frame(edb::address_t addr) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: bonus_stack_frames_helper(Function &info) const
+// Name: bonus_stack_frames_helper
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::bonus_stack_frames_helper(Function &info) const {
@@ -377,7 +377,7 @@ void Analyzer::bonus_stack_frames_helper(Function &info) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: bonus_stack_frames(FunctionMap *results)
+// Name: bonus_stack_frames
 // Desc: give bonus if we see a "push ebp; mov ebp, esp;"
 //------------------------------------------------------------------------------
 void Analyzer::bonus_stack_frames(FunctionMap *results) {
@@ -397,7 +397,7 @@ void Analyzer::bonus_stack_frames(FunctionMap *results) {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_results_entry(FunctionMap *results, edb::address_t address) const
+// Name: update_results_entry
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::update_results_entry(FunctionMap *results, edb::address_t address) const {
@@ -417,7 +417,7 @@ void Analyzer::update_results_entry(FunctionMap *results, edb::address_t address
 }
 
 //------------------------------------------------------------------------------
-// Name: bonus_main(const IRegion::pointer &region, FunctionMap *results)
+// Name: bonus_main
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::bonus_main(const IRegion::pointer &region, FunctionMap *results) const {
@@ -436,7 +436,7 @@ void Analyzer::bonus_main(const IRegion::pointer &region, FunctionMap *results) 
 }
 
 //------------------------------------------------------------------------------
-// Name: bonus_symbols_helper(const IRegion::pointer &region, FunctionMap *results, const Symbol::pointer &sym)
+// Name: bonus_symbols_helper
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::bonus_symbols_helper(const IRegion::pointer &region, FunctionMap *results, const Symbol::pointer &sym) {
@@ -455,7 +455,7 @@ void Analyzer::bonus_symbols_helper(const IRegion::pointer &region, FunctionMap 
 
 
 //------------------------------------------------------------------------------
-// Name: bonus_symbols(const IRegion::pointer &region, FunctionMap *results)
+// Name: bonus_symbols
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::bonus_symbols(const IRegion::pointer &region, FunctionMap *results) {
@@ -472,7 +472,7 @@ void Analyzer::bonus_symbols(const IRegion::pointer &region, FunctionMap *result
 }
 
 //------------------------------------------------------------------------------
-// Name: bonus_marked_functions(const IRegion::pointer &region, FunctionMap *results)
+// Name: bonus_marked_functions
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::bonus_marked_functions(const IRegion::pointer &region, FunctionMap *results) {
@@ -491,7 +491,7 @@ void Analyzer::bonus_marked_functions(const IRegion::pointer &region, FunctionMa
 }
 
 //------------------------------------------------------------------------------
-// Name: walk_all_functions(FunctionMap *results, const IRegion::pointer &region, QSet<edb::address_t> *walked_functions)
+// Name: walk_all_functions
 // Desc:
 //------------------------------------------------------------------------------
 int Analyzer::walk_all_functions(FunctionMap *results, const IRegion::pointer &region, QSet<edb::address_t> *walked_functions) {
@@ -563,7 +563,7 @@ int Analyzer::walk_all_functions(FunctionMap *results, const IRegion::pointer &r
 }
 
 //------------------------------------------------------------------------------
-// Name: fix_overlaps(FunctionMap *function_map)
+// Name: fix_overlaps
 // Desc: ensures that no function overlaps another
 //------------------------------------------------------------------------------
 void Analyzer::fix_overlaps(FunctionMap *function_map) {
@@ -582,7 +582,7 @@ void Analyzer::fix_overlaps(FunctionMap *function_map) {
 }
 
 //------------------------------------------------------------------------------
-// Name: find_function_end(Function *function, edb::address_t end_address, QSet<edb::address_t> *found_functions, const FunctionMap &results)
+// Name: find_function_end
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::find_function_end(Function *function, edb::address_t end_address, QSet<edb::address_t> *found_functions, const FunctionMap &results) {
@@ -715,7 +715,7 @@ void Analyzer::find_function_end(Function *function, edb::address_t end_address,
 }
 
 //------------------------------------------------------------------------------
-// Name: is_thunk(edb::address_t address)
+// Name: is_thunk
 // Desc: basically returns true if the first instruction of the function is a
 //       jmp
 //------------------------------------------------------------------------------
@@ -731,7 +731,7 @@ bool Analyzer::is_thunk(edb::address_t address) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_function_types_helper(Function &info) const
+// Name: set_function_types_helper
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::set_function_types_helper(Function &info) const {
@@ -744,7 +744,7 @@ void Analyzer::set_function_types_helper(Function &info) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_function_types(FunctionMap *results)
+// Name: set_function_types
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::set_function_types(FunctionMap *results) {
@@ -765,7 +765,7 @@ void Analyzer::set_function_types(FunctionMap *results) {
 }
 
 //------------------------------------------------------------------------------
-// Name: is_inside_known(const IRegion::pointer &region, edb::address_t address)
+// Name: is_inside_known
 // Desc:
 //------------------------------------------------------------------------------
 bool Analyzer::is_inside_known(const IRegion::pointer &region, edb::address_t address) {
@@ -781,7 +781,7 @@ bool Analyzer::is_inside_known(const IRegion::pointer &region, edb::address_t ad
 }
 
 //------------------------------------------------------------------------------
-// Name: find_calls_from_known(const IRegion::pointer &region, FunctionMap *results, QSet<edb::address_t> *walked_functions)
+// Name: find_calls_from_known
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::find_calls_from_known(const IRegion::pointer &region, FunctionMap *results, QSet<edb::address_t> *walked_functions) {
@@ -797,7 +797,7 @@ void Analyzer::find_calls_from_known(const IRegion::pointer &region, FunctionMap
 }
 
 //------------------------------------------------------------------------------
-// Name: collect_high_ref_results(FunctionMap *function_map, FunctionMap *found_functions) const
+// Name: collect_high_ref_results
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::collect_high_ref_results(FunctionMap *function_map, FunctionMap *found_functions) const {
@@ -850,7 +850,7 @@ void Analyzer::indent_header() {
 }
 
 //------------------------------------------------------------------------------
-// Name: analyze(const IRegion::pointer &region)
+// Name: analyze
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::analyze(const IRegion::pointer &region) {
@@ -941,7 +941,7 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 }
 
 //------------------------------------------------------------------------------
-// Name: category(edb::address_t address) const
+// Name: category
 // Desc:
 //------------------------------------------------------------------------------
 IAnalyzer::AddressCategory Analyzer::category(edb::address_t address) const {
@@ -960,7 +960,7 @@ IAnalyzer::AddressCategory Analyzer::category(edb::address_t address) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: functions(const IRegion::pointer &region) const
+// Name: functions
 // Desc:
 //------------------------------------------------------------------------------
 IAnalyzer::FunctionMap Analyzer::functions(const IRegion::pointer &region) const {
@@ -968,7 +968,7 @@ IAnalyzer::FunctionMap Analyzer::functions(const IRegion::pointer &region) const
 }
 
 //------------------------------------------------------------------------------
-// Name: find_containing_function(edb::address_t address, IAnalyzer::Function *function) const
+// Name: find_containing_function
 // Desc:
 //------------------------------------------------------------------------------
 bool Analyzer::find_containing_function(edb::address_t address, IAnalyzer::Function *function) const {
@@ -988,7 +988,7 @@ bool Analyzer::find_containing_function(edb::address_t address, IAnalyzer::Funct
 }
 
 //------------------------------------------------------------------------------
-// Name: md5_region(const IRegion::pointer &region) const
+// Name: md5_region
 // Desc: returns a byte array representing the MD5 of a region
 //------------------------------------------------------------------------------
 QByteArray Analyzer::md5_region(const IRegion::pointer &region) const{
@@ -1012,7 +1012,7 @@ QByteArray Analyzer::md5_region(const IRegion::pointer &region) const{
 }
 
 //------------------------------------------------------------------------------
-// Name: module_entry_point(const IRegion::pointer &region) const
+// Name: module_entry_point
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t Analyzer::module_entry_point(const IRegion::pointer &region) const {
@@ -1028,7 +1028,7 @@ edb::address_t Analyzer::module_entry_point(const IRegion::pointer &region) cons
 
 
 //------------------------------------------------------------------------------
-// Name: bonus_entry_point(const IRegion::pointer &region, FunctionMap *results) const
+// Name: bonus_entry_point
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::bonus_entry_point(const IRegion::pointer &region, FunctionMap *results) const {
@@ -1053,7 +1053,7 @@ void Analyzer::bonus_entry_point(const IRegion::pointer &region, FunctionMap *re
 }
 
 //------------------------------------------------------------------------------
-// Name: invalidate_analysis(const IRegion::pointer &region)
+// Name: invalidate_analysis
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::invalidate_analysis(const IRegion::pointer &region) {
@@ -1066,7 +1066,7 @@ void Analyzer::invalidate_analysis(const IRegion::pointer &region) {
 }
 
 //------------------------------------------------------------------------------
-// Name: invalidate_dynamic_analysis(const IRegion::pointer &region)
+// Name: invalidate_dynamic_analysis
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::invalidate_dynamic_analysis(const IRegion::pointer &region) {
@@ -1078,7 +1078,7 @@ void Analyzer::invalidate_dynamic_analysis(const IRegion::pointer &region) {
 }
 
 //------------------------------------------------------------------------------
-// Name: invalidate_analysis()
+// Name: invalidate_analysis
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::invalidate_analysis() {

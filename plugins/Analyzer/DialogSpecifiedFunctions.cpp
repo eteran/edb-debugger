@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dialogspecified.h"
 
 //------------------------------------------------------------------------------
-// Name: DialogSpecifiedFunctions(QWidget *parent)
+// Name: DialogSpecifiedFunctions
 // Desc:
 //------------------------------------------------------------------------------
 DialogSpecifiedFunctions::DialogSpecifiedFunctions(QWidget *parent) : QDialog(parent), ui(new Ui::DialogSpecified) {
@@ -45,7 +45,7 @@ DialogSpecifiedFunctions::DialogSpecifiedFunctions(QWidget *parent) : QDialog(pa
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogSpecifiedFunctions()
+// Name: ~DialogSpecifiedFunctions
 // Desc:
 //------------------------------------------------------------------------------
 DialogSpecifiedFunctions::~DialogSpecifiedFunctions() {
@@ -53,7 +53,7 @@ DialogSpecifiedFunctions::~DialogSpecifiedFunctions() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_function_list_doubleClicked(const QModelIndex &index)
+// Name: on_function_list_doubleClicked
 // Desc: follows the found item in the data view
 //------------------------------------------------------------------------------
 void DialogSpecifiedFunctions::on_function_list_doubleClicked(const QModelIndex &index) {
@@ -67,7 +67,7 @@ void DialogSpecifiedFunctions::on_function_list_doubleClicked(const QModelIndex 
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find()
+// Name: do_find
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSpecifiedFunctions::do_find() {
@@ -81,7 +81,7 @@ void DialogSpecifiedFunctions::do_find() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_refresh_button_clicked()
+// Name: on_refresh_button_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSpecifiedFunctions::on_refresh_button_clicked() {
@@ -92,7 +92,7 @@ void DialogSpecifiedFunctions::on_refresh_button_clicked() {
 
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSpecifiedFunctions::showEvent(QShowEvent *) {

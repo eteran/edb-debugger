@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "GraphWidgetBase.h"
 
 //------------------------------------------------------------------------------
-// Name: GraphWidgetBase(QWidget *parent)
+// Name: GraphWidgetBase
 //------------------------------------------------------------------------------
 GraphWidgetBase::GraphWidgetBase(QWidget *parent) : QGraphicsView(parent) {
 

@@ -70,7 +70,7 @@ namespace {
 	};
 
 	//------------------------------------------------------------------------------
-	// Name: block_start(edb::address_t pointer)
+	// Name: block_start
 	// Desc:
 	//------------------------------------------------------------------------------
 	edb::address_t block_start(edb::address_t pointer) {
@@ -78,7 +78,7 @@ namespace {
 	}
 
 	//------------------------------------------------------------------------------
-	// Name: block_start(const Result &result)
+	// Name: block_start
 	// Desc:
 	//------------------------------------------------------------------------------
 	edb::address_t block_start(const Result &result) {
@@ -86,7 +86,7 @@ namespace {
 	}
 
 	//------------------------------------------------------------------------------
-	// Name: block_start(const Result *result)
+	// Name: block_start
 	// Desc:
 	//------------------------------------------------------------------------------
 	edb::address_t block_start(const Result *result) {
@@ -96,7 +96,7 @@ namespace {
 }
 
 //------------------------------------------------------------------------------
-// Name: DialogHeap(QWidget *parent
+// Name: DialogHeap
 // Desc:
 //------------------------------------------------------------------------------
 DialogHeap::DialogHeap(QWidget *parent) : QDialog(parent), ui(new Ui::DialogHeap) {
@@ -114,7 +114,7 @@ DialogHeap::DialogHeap(QWidget *parent) : QDialog(parent), ui(new Ui::DialogHeap
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogHeap()
+// Name: ~DialogHeap
 // Desc:
 //------------------------------------------------------------------------------
 DialogHeap::~DialogHeap() {
@@ -122,7 +122,7 @@ DialogHeap::~DialogHeap() {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeap::showEvent(QShowEvent *) {
@@ -131,7 +131,7 @@ void DialogHeap::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_resultTable_cellDoubleClicked(int, int)
+// Name: on_resultTable_cellDoubleClicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
@@ -145,7 +145,7 @@ void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_library_names(QString *libcName, QString *ldName) const
+// Name: get_library_names
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeap::get_library_names(QString *libcName, QString *ldName) const {
@@ -187,7 +187,7 @@ void DialogHeap::get_library_names(QString *libcName, QString *ldName) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: process_potential_pointer(const QHash<edb::address_t, edb::address_t> &targets, Result &result)
+// Name: process_potential_pointer
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeap::process_potential_pointer(const QHash<edb::address_t, edb::address_t> &targets, Result &result) {
@@ -219,7 +219,7 @@ void DialogHeap::process_potential_pointer(const QHash<edb::address_t, edb::addr
 }
 
 //------------------------------------------------------------------------------
-// Name: detect_pointers()
+// Name: detect_pointers
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeap::detect_pointers() {
@@ -255,7 +255,7 @@ void DialogHeap::detect_pointers() {
 }
 
 //------------------------------------------------------------------------------
-// Name: collect_blocks(edb::address_t start_address, edb::address_t end_address)
+// Name: collect_blocks
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end_address) {
@@ -373,7 +373,7 @@ void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end
 }
 
 //------------------------------------------------------------------------------
-// Name: find_heap_start_heuristic(edb::address_t end_address, size_t offset) const
+// Name: find_heap_start_heuristic
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t DialogHeap::find_heap_start_heuristic(edb::address_t end_address, size_t offset) const {
@@ -396,7 +396,7 @@ edb::address_t DialogHeap::find_heap_start_heuristic(edb::address_t end_address,
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find()
+// Name: do_find
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeap::do_find() {
@@ -461,7 +461,7 @@ void DialogHeap::do_find() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnFind_clicked()
+// Name: on_btnFind_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeap::on_btnFind_clicked() {
@@ -473,7 +473,7 @@ void DialogHeap::on_btnFind_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnGraph_clicked()
+// Name: on_btnGraph_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeap::on_btnGraph_clicked() {

@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebuggerCore.h"
 
 //------------------------------------------------------------------------------
-// Name: RegionBuffer(const IRegion::pointer &region)
+// Name: RegionBuffer
 // Desc:
 //------------------------------------------------------------------------------
 RegionBuffer::RegionBuffer(const IRegion::pointer &region) : QIODevice(), region_(region) {
@@ -29,7 +29,7 @@ RegionBuffer::RegionBuffer(const IRegion::pointer &region) : QIODevice(), region
 }
 
 //------------------------------------------------------------------------------
-// Name: RegionBuffer(const IRegion::pointer &region, QObject *parent)
+// Name: RegionBuffer
 // Desc:
 //------------------------------------------------------------------------------
 RegionBuffer::RegionBuffer(const IRegion::pointer &region, QObject *parent) : QIODevice(parent), region_(region) {
@@ -37,7 +37,7 @@ RegionBuffer::RegionBuffer(const IRegion::pointer &region, QObject *parent) : QI
 }
 
 //------------------------------------------------------------------------------
-// Name: set_region(const IRegion::pointer &region)
+// Name: set_region
 // Desc:
 //------------------------------------------------------------------------------
 void RegionBuffer::set_region(const IRegion::pointer &region) {
@@ -46,7 +46,7 @@ void RegionBuffer::set_region(const IRegion::pointer &region) {
 }
 
 //------------------------------------------------------------------------------
-// Name: readData(char *data, qint64 maxSize)
+// Name: readData
 // Desc:
 //------------------------------------------------------------------------------
 qint64 RegionBuffer::readData(char *data, qint64 maxSize) {
@@ -75,7 +75,7 @@ qint64 RegionBuffer::readData(char *data, qint64 maxSize) {
 }
 
 //------------------------------------------------------------------------------
-// Name: writeData(const char*, qint64)
+// Name: writeData
 // Desc:
 //------------------------------------------------------------------------------
 qint64 RegionBuffer::writeData(const char*, qint64) {

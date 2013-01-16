@@ -19,21 +19,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "QLongValidator.h"
 
 //------------------------------------------------------------------------------
-// Name: QLongValidator(QObject *parent)
+// Name: QLongValidator
 // Desc:
 //------------------------------------------------------------------------------
 QLongValidator::QLongValidator(QObject *parent) : QValidator(parent), minimum_(0), maximum_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: QLongValidator(QLongValidator::value_type minimum, QLongValidator::value_type maximum, QObject *parent)
+// Name: QLongValidator
 // Desc:
 //------------------------------------------------------------------------------
 QLongValidator::QLongValidator(QLongValidator::value_type minimum, QLongValidator::value_type maximum, QObject *parent) : QValidator(parent), minimum_(minimum), maximum_(maximum) {
 }
 
 //------------------------------------------------------------------------------
-// Name: bottom() const
+// Name: bottom
 // Desc:
 //------------------------------------------------------------------------------
 QLongValidator::value_type QLongValidator::bottom() const {
@@ -41,7 +41,7 @@ QLongValidator::value_type QLongValidator::bottom() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: setBottom(QLongValidator::value_type bottom)
+// Name: setBottom
 // Desc:
 //------------------------------------------------------------------------------
 void QLongValidator::setBottom(QLongValidator::value_type bottom) {
@@ -49,7 +49,7 @@ void QLongValidator::setBottom(QLongValidator::value_type bottom) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setRange(QLongValidator::value_type bottom, QLongValidator::value_type top)
+// Name: setRange
 // Desc:
 //------------------------------------------------------------------------------
 void QLongValidator::setRange(QLongValidator::value_type bottom, QLongValidator::value_type top) {
@@ -58,7 +58,7 @@ void QLongValidator::setRange(QLongValidator::value_type bottom, QLongValidator:
 }
 
 //------------------------------------------------------------------------------
-// Name: setTop(QLongValidator::value_type top)
+// Name: setTop
 // Desc:
 //------------------------------------------------------------------------------
 void QLongValidator::setTop(QLongValidator::value_type top) {
@@ -66,7 +66,7 @@ void QLongValidator::setTop(QLongValidator::value_type top) {
 }
 
 //------------------------------------------------------------------------------
-// Name: top() const
+// Name: top
 // Desc:
 //------------------------------------------------------------------------------
 QLongValidator::value_type QLongValidator::top() const {
@@ -74,7 +74,7 @@ QLongValidator::value_type QLongValidator::top() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: validate(QString &input, int &pos) const
+// Name: validate
 // Desc:
 //------------------------------------------------------------------------------
 QValidator::State QLongValidator::validate(QString &input, int &pos) const {

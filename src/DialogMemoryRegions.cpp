@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dialog_memoryregions.h"
 
 //------------------------------------------------------------------------------
-// Name: DialogMemoryRegions(QWidget *parent)
+// Name: DialogMemoryRegions
 // Desc:
 //------------------------------------------------------------------------------
 DialogMemoryRegions::DialogMemoryRegions(QWidget *parent) : QDialog(parent), ui(new Ui::DialogMemoryRegions) {
@@ -45,7 +45,7 @@ DialogMemoryRegions::DialogMemoryRegions(QWidget *parent) : QDialog(parent), ui(
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogMemoryRegions()
+// Name: ~DialogMemoryRegions
 // Desc:
 //------------------------------------------------------------------------------
 DialogMemoryRegions::~DialogMemoryRegions() {
@@ -53,7 +53,7 @@ DialogMemoryRegions::~DialogMemoryRegions() {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::showEvent(QShowEvent *) {
@@ -64,7 +64,7 @@ void DialogMemoryRegions::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_regions_table_customContextMenuRequested(const QPoint &pos)
+// Name: on_regions_table_customContextMenuRequested
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::on_regions_table_customContextMenuRequested(const QPoint &pos) {
@@ -89,7 +89,7 @@ void DialogMemoryRegions::on_regions_table_customContextMenuRequested(const QPoi
 }
 
 //------------------------------------------------------------------------------
-// Name: selected_region() const
+// Name: selected_region
 // Desc:
 //------------------------------------------------------------------------------
 IRegion::pointer DialogMemoryRegions::selected_region() const {
@@ -104,7 +104,7 @@ IRegion::pointer DialogMemoryRegions::selected_region() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_permissions(bool read, bool write, bool execute)
+// Name: set_permissions
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::set_permissions(bool read, bool write, bool execute) {
@@ -115,7 +115,7 @@ void DialogMemoryRegions::set_permissions(bool read, bool write, bool execute) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_access_none()
+// Name: set_access_none
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::set_access_none() {
@@ -123,7 +123,7 @@ void DialogMemoryRegions::set_access_none() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_access_r()
+// Name: set_access_r
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::set_access_r() {
@@ -131,7 +131,7 @@ void DialogMemoryRegions::set_access_r() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_access_w()
+// Name: set_access_w
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::set_access_w() {
@@ -139,7 +139,7 @@ void DialogMemoryRegions::set_access_w() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_access_x()
+// Name: set_access_x
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::set_access_x() {
@@ -147,7 +147,7 @@ void DialogMemoryRegions::set_access_x() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_access_rw()
+// Name: set_access_rw
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::set_access_rw() {
@@ -155,7 +155,7 @@ void DialogMemoryRegions::set_access_rw() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_access_rx()
+// Name: set_access_rx
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::set_access_rx() {
@@ -163,7 +163,7 @@ void DialogMemoryRegions::set_access_rx() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_access_wx()
+// Name: set_access_wx
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::set_access_wx() {
@@ -171,7 +171,7 @@ void DialogMemoryRegions::set_access_wx() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_access_rwx()
+// Name: set_access_rwx
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::set_access_rwx() {
@@ -179,7 +179,7 @@ void DialogMemoryRegions::set_access_rwx() {
 }
 
 //------------------------------------------------------------------------------
-// Name: view_in_cpu()
+// Name: view_in_cpu
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::view_in_cpu() {
@@ -189,7 +189,7 @@ void DialogMemoryRegions::view_in_cpu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: view_in_stack()
+// Name: view_in_stack
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::view_in_stack() {
@@ -199,7 +199,7 @@ void DialogMemoryRegions::view_in_stack() {
 }
 
 //------------------------------------------------------------------------------
-// Name: view_in_dump()
+// Name: view_in_dump
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::view_in_dump() {
@@ -209,7 +209,7 @@ void DialogMemoryRegions::view_in_dump() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_regions_table_doubleClicked(const QModelIndex &index)
+// Name: on_regions_table_doubleClicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::on_regions_table_doubleClicked(const QModelIndex &index) {

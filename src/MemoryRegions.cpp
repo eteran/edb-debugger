@@ -23,21 +23,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 
 //------------------------------------------------------------------------------
-// Name: MemoryRegions()
+// Name: MemoryRegions
 // Desc: constructor
 //------------------------------------------------------------------------------
 MemoryRegions::MemoryRegions() : QAbstractItemModel(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~MemoryRegions()
+// Name: ~MemoryRegions
 // Desc: destructor
 //------------------------------------------------------------------------------
 MemoryRegions::~MemoryRegions() {
 }
 
 //------------------------------------------------------------------------------
-// Name: clear()
+// Name: clear
 // Desc:
 //------------------------------------------------------------------------------
 void MemoryRegions::clear() {
@@ -45,7 +45,7 @@ void MemoryRegions::clear() {
 }
 
 //------------------------------------------------------------------------------
-// Name: sync()
+// Name: sync
 // Desc: reads a memory map file line by line
 //------------------------------------------------------------------------------
 void MemoryRegions::sync() {
@@ -78,7 +78,7 @@ void MemoryRegions::sync() {
 }
 
 //------------------------------------------------------------------------------
-// Name: find_region(edb::address_t address) const
+// Name: find_region
 // Desc:
 //------------------------------------------------------------------------------
 IRegion::pointer MemoryRegions::find_region(edb::address_t address) const {
@@ -92,7 +92,7 @@ IRegion::pointer MemoryRegions::find_region(edb::address_t address) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: data(const QModelIndex &index, int role) const
+// Name: data
 // Desc:
 //------------------------------------------------------------------------------
 QVariant MemoryRegions::data(const QModelIndex &index, int role) const {
@@ -113,7 +113,7 @@ QVariant MemoryRegions::data(const QModelIndex &index, int role) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: index(int row, int column, const QModelIndex &parent) const
+// Name: index
 // Desc:
 //------------------------------------------------------------------------------
 QModelIndex MemoryRegions::index(int row, int column, const QModelIndex &parent) const {
@@ -127,7 +127,7 @@ QModelIndex MemoryRegions::index(int row, int column, const QModelIndex &parent)
 }
 
 //------------------------------------------------------------------------------
-// Name: parent(const QModelIndex &index) const
+// Name: parent
 // Desc:
 //------------------------------------------------------------------------------
 QModelIndex MemoryRegions::parent(const QModelIndex &index) const {
@@ -136,7 +136,7 @@ QModelIndex MemoryRegions::parent(const QModelIndex &index) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: rowCount(const QModelIndex &parent) const
+// Name: rowCount
 // Desc:
 //------------------------------------------------------------------------------
 int MemoryRegions::rowCount(const QModelIndex &parent) const {
@@ -145,7 +145,7 @@ int MemoryRegions::rowCount(const QModelIndex &parent) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: columnCount(const QModelIndex &parent) const
+// Name: columnCount
 // Desc:
 //------------------------------------------------------------------------------
 int MemoryRegions::columnCount(const QModelIndex &parent) const {
@@ -154,7 +154,7 @@ int MemoryRegions::columnCount(const QModelIndex &parent) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: headerData(int section, Qt::Orientation orientation, int role) const
+// Name: headerData
 // Desc:
 //------------------------------------------------------------------------------
 QVariant MemoryRegions::headerData(int section, Qt::Orientation orientation, int role) const {

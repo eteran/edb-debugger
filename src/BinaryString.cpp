@@ -81,7 +81,7 @@ public:
 
 
 //------------------------------------------------------------------------------
-// Name: setMaxLength(int n)
+// Name: setMaxLength
 // Desc:
 //------------------------------------------------------------------------------
 void BinaryString::setMaxLength(int n) {
@@ -91,7 +91,7 @@ void BinaryString::setMaxLength(int n) {
 }
 
 //------------------------------------------------------------------------------
-// Name: BinaryString(QWidget *parent)
+// Name: BinaryString
 // Desc: constructor
 //------------------------------------------------------------------------------
 BinaryString::BinaryString(QWidget *parent) : QWidget(parent), ui(new Ui::BinaryStringWidget) {
@@ -100,7 +100,7 @@ BinaryString::BinaryString(QWidget *parent) : QWidget(parent), ui(new Ui::Binary
 }
 
 //------------------------------------------------------------------------------
-// Name: ~BinaryString()
+// Name: ~BinaryString
 // Desc: destructor
 //------------------------------------------------------------------------------
 BinaryString::~BinaryString() {
@@ -108,7 +108,7 @@ BinaryString::~BinaryString() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_txtAscii_textEdited(const QString &text)
+// Name: on_txtAscii_textEdited
 // Desc:
 //------------------------------------------------------------------------------
 void BinaryString::on_txtAscii_textEdited(const QString &text) {
@@ -140,7 +140,7 @@ void BinaryString::on_txtAscii_textEdited(const QString &text) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_txtUTF16_textEdited(const QString &text)
+// Name: on_txtUTF16_textEdited
 // Desc:
 //------------------------------------------------------------------------------
 void BinaryString::on_txtUTF16_textEdited(const QString &text) {
@@ -168,7 +168,7 @@ void BinaryString::on_txtUTF16_textEdited(const QString &text) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_txtHex_textEdited(const QString &text)
+// Name: on_txtHex_textEdited
 // Desc:
 //------------------------------------------------------------------------------
 void BinaryString::on_txtHex_textEdited(const QString &text) {
@@ -203,7 +203,7 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 }
 
 //------------------------------------------------------------------------------
-// Name: value() const
+// Name: value
 // Desc:
 //------------------------------------------------------------------------------
 QByteArray BinaryString::value() const {
@@ -219,7 +219,7 @@ QByteArray BinaryString::value() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: setValue(const QByteArray &value)
+// Name: setValue
 // Desc:
 //------------------------------------------------------------------------------
 void BinaryString::setValue(const QByteArray &data) {

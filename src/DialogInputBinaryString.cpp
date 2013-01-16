@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dialog_inputbinarystring.h"
 
 //------------------------------------------------------------------------------
-// Name: DialogInputBinaryString(QWidget *parent)
+// Name: DialogInputBinaryString
 // Desc: constructor
 //------------------------------------------------------------------------------
 DialogInputBinaryString::DialogInputBinaryString(QWidget *parent) : QDialog(parent), ui(new Ui::DialogInputBinaryString) {
@@ -28,7 +28,7 @@ DialogInputBinaryString::DialogInputBinaryString(QWidget *parent) : QDialog(pare
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogInputBinaryString()
+// Name: ~DialogInputBinaryString
 // Desc:
 //------------------------------------------------------------------------------
 DialogInputBinaryString::~DialogInputBinaryString() {
@@ -36,7 +36,7 @@ DialogInputBinaryString::~DialogInputBinaryString() {
 }
 
 //------------------------------------------------------------------------------
-// Name: binary_string() const
+// Name: binary_string
 // Desc: returns the binary string we wrap around
 //------------------------------------------------------------------------------
 BinaryString *DialogInputBinaryString::binary_string() const {

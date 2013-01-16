@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dialog_arguments.h"
 
 //------------------------------------------------------------------------------
-// Name: DialogArguments(QWidget *parent)
+// Name: DialogArguments
 // Desc:
 //------------------------------------------------------------------------------
 DialogArguments::DialogArguments(QWidget *parent) : QDialog(parent), ui(new Ui::DialogArguments) {
@@ -30,7 +30,7 @@ DialogArguments::DialogArguments(QWidget *parent) : QDialog(parent), ui(new Ui::
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogArguments()
+// Name: ~DialogArguments
 // Desc:
 //------------------------------------------------------------------------------
 DialogArguments::~DialogArguments() {
@@ -38,7 +38,7 @@ DialogArguments::~DialogArguments() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnAdd_clicked()
+// Name: on_btnAdd_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogArguments::on_btnAdd_clicked() {
@@ -47,7 +47,7 @@ void DialogArguments::on_btnAdd_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnDel_clicked()
+// Name: on_btnDel_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogArguments::on_btnDel_clicked() {
@@ -55,7 +55,7 @@ void DialogArguments::on_btnDel_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: arguments() const
+// Name: arguments
 // Desc:
 //------------------------------------------------------------------------------
 QList<QByteArray> DialogArguments::arguments() const {
@@ -67,7 +67,7 @@ QList<QByteArray> DialogArguments::arguments() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_arguments(const QList<QByteArray> &args)
+// Name: set_arguments
 // Desc:
 //------------------------------------------------------------------------------
 void DialogArguments::set_arguments(const QList<QByteArray> &args) {
@@ -82,7 +82,7 @@ void DialogArguments::set_arguments(const QList<QByteArray> &args) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnUp_clicked()
+// Name: on_btnUp_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogArguments::on_btnUp_clicked() {
@@ -94,7 +94,7 @@ void DialogArguments::on_btnUp_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnDown_clicked()
+// Name: on_btnDown_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogArguments::on_btnDown_clicked() {

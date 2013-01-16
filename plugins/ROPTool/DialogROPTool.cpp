@@ -67,7 +67,7 @@ namespace {
 }
 
 //------------------------------------------------------------------------------
-// Name: DialogROPTool(QWidget *parent)
+// Name: DialogROPTool
 // Desc:
 //------------------------------------------------------------------------------
 DialogROPTool::DialogROPTool(QWidget *parent) : QDialog(parent), ui(new Ui::DialogROPTool) {
@@ -86,7 +86,7 @@ DialogROPTool::DialogROPTool(QWidget *parent) : QDialog(parent), ui(new Ui::Dial
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogROPTool()
+// Name: ~DialogROPTool
 // Desc:
 //------------------------------------------------------------------------------
 DialogROPTool::~DialogROPTool() {
@@ -94,7 +94,7 @@ DialogROPTool::~DialogROPTool() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_listView_itemDoubleClicked(QListViewItem *item)
+// Name: on_listView_itemDoubleClicked
 // Desc: follows the found item in the data view
 //------------------------------------------------------------------------------
 void DialogROPTool::on_listView_doubleClicked(const QModelIndex &index) {
@@ -106,7 +106,7 @@ void DialogROPTool::on_listView_doubleClicked(const QModelIndex &index) {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogROPTool::showEvent(QShowEvent *) {
@@ -125,7 +125,7 @@ void DialogROPTool::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_chkShowALU_stateChanged(int state)
+// Name: on_chkShowALU_stateChanged
 // Desc:
 //------------------------------------------------------------------------------
 void DialogROPTool::on_chkShowALU_stateChanged(int state) {
@@ -133,7 +133,7 @@ void DialogROPTool::on_chkShowALU_stateChanged(int state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_chkShowStack_stateChanged(int state)
+// Name: on_chkShowStack_stateChanged
 // Desc:
 //------------------------------------------------------------------------------
 void DialogROPTool::on_chkShowStack_stateChanged(int state) {
@@ -141,7 +141,7 @@ void DialogROPTool::on_chkShowStack_stateChanged(int state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_chkShowLogic_stateChanged(int state)
+// Name: on_chkShowLogic_stateChanged
 // Desc:
 //------------------------------------------------------------------------------
 void DialogROPTool::on_chkShowLogic_stateChanged(int state) {
@@ -149,7 +149,7 @@ void DialogROPTool::on_chkShowLogic_stateChanged(int state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_chkShowData_stateChanged(int state)
+// Name: on_chkShowData_stateChanged
 // Desc:
 //------------------------------------------------------------------------------
 void DialogROPTool::on_chkShowData_stateChanged(int state) {
@@ -157,7 +157,7 @@ void DialogROPTool::on_chkShowData_stateChanged(int state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_chkShowOther_stateChanged(int state)
+// Name: on_chkShowOther_stateChanged
 // Desc:
 //------------------------------------------------------------------------------
 void DialogROPTool::on_chkShowOther_stateChanged(int state) {
@@ -165,7 +165,7 @@ void DialogROPTool::on_chkShowOther_stateChanged(int state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_gadget_role(QStandardItem *item, const edb::Instruction &insn1)
+// Name: set_gadget_role
 // Desc:
 //------------------------------------------------------------------------------
 void DialogROPTool::set_gadget_role(QStandardItem *item, const edb::Instruction &insn1) {
@@ -258,7 +258,7 @@ void DialogROPTool::set_gadget_role(QStandardItem *item, const edb::Instruction 
 }
 
 //------------------------------------------------------------------------------
-// Name: add_gadget(QList<edb::Instruction> instructions)
+// Name: add_gadget
 // Desc:
 //------------------------------------------------------------------------------
 void DialogROPTool::add_gadget(QList<edb::Instruction> instructions) {
@@ -289,7 +289,7 @@ void DialogROPTool::add_gadget(QList<edb::Instruction> instructions) {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find()
+// Name: do_find
 // Desc:
 //------------------------------------------------------------------------------
 void DialogROPTool::do_find() {
@@ -413,7 +413,7 @@ void DialogROPTool::do_find() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnFind_clicked()
+// Name: on_btnFind_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogROPTool::on_btnFind_clicked() {

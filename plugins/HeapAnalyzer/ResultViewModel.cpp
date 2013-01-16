@@ -32,14 +32,14 @@ namespace {
 }
 
 //------------------------------------------------------------------------------
-// Name: ResultViewModel(QObject *parent)
+// Name: ResultViewModel
 // Desc:
 //------------------------------------------------------------------------------
 ResultViewModel::ResultViewModel(QObject *parent) : QAbstractItemModel(parent), updates_enabled_(false) {
 }
 
 //------------------------------------------------------------------------------
-// Name: headerData(int section, Qt::Orientation orientation, int role) const
+// Name: headerData
 // Desc:
 //------------------------------------------------------------------------------
 QVariant ResultViewModel::headerData(int section, Qt::Orientation orientation, int role) const {
@@ -57,7 +57,7 @@ QVariant ResultViewModel::headerData(int section, Qt::Orientation orientation, i
 }
 
 //------------------------------------------------------------------------------
-// Name: data(const QModelIndex &index, int role) const
+// Name: data
 // Desc:
 //------------------------------------------------------------------------------
 QVariant ResultViewModel::data(const QModelIndex &index, int role) const {
@@ -80,7 +80,7 @@ QVariant ResultViewModel::data(const QModelIndex &index, int role) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: addResult(const Result &r)
+// Name: addResult
 // Desc:
 //------------------------------------------------------------------------------
 void ResultViewModel::addResult(const Result &r) {
@@ -89,7 +89,7 @@ void ResultViewModel::addResult(const Result &r) {
 }
 
 //------------------------------------------------------------------------------
-// Name: clearResults()
+// Name: clearResults
 // Desc:
 //------------------------------------------------------------------------------
 void ResultViewModel::clearResults() {
@@ -98,7 +98,7 @@ void ResultViewModel::clearResults() {
 }
 
 //------------------------------------------------------------------------------
-// Name: update()
+// Name: update
 // Desc:
 //------------------------------------------------------------------------------
 void ResultViewModel::update() {
@@ -108,7 +108,7 @@ void ResultViewModel::update() {
 }
 
 //------------------------------------------------------------------------------
-// Name: index(int row, int column, const QModelIndex &parent) const
+// Name: index
 // Desc:
 //------------------------------------------------------------------------------
 QModelIndex ResultViewModel::index(int row, int column, const QModelIndex &parent) const {
@@ -131,7 +131,7 @@ QModelIndex ResultViewModel::index(int row, int column, const QModelIndex &paren
 }
 
 //------------------------------------------------------------------------------
-// Name: parent(const QModelIndex &index) const
+// Name: parent
 // Desc:
 //------------------------------------------------------------------------------
 QModelIndex ResultViewModel::parent(const QModelIndex &index) const {
@@ -140,7 +140,7 @@ QModelIndex ResultViewModel::parent(const QModelIndex &index) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: rowCount(const QModelIndex &parent) const
+// Name: rowCount
 // Desc:
 //------------------------------------------------------------------------------
 int ResultViewModel::rowCount(const QModelIndex &parent) const {
@@ -149,7 +149,7 @@ int ResultViewModel::rowCount(const QModelIndex &parent) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: columnCount(const QModelIndex &parent) const
+// Name: columnCount
 // Desc:
 //------------------------------------------------------------------------------
 int ResultViewModel::columnCount(const QModelIndex &parent) const {
@@ -158,7 +158,7 @@ int ResultViewModel::columnCount(const QModelIndex &parent) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: sort(int column, Qt::SortOrder order)
+// Name: sort
 // Desc:
 //------------------------------------------------------------------------------
 void ResultViewModel::sort(int column, Qt::SortOrder order) {

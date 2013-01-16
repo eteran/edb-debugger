@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSettings>
 
 //------------------------------------------------------------------------------
-// Name: SyntaxHighlighter(QObject *parent)
+// Name: SyntaxHighlighter
 // Desc:
 //------------------------------------------------------------------------------
 SyntaxHighlighter::SyntaxHighlighter(QObject *parent) : QSyntaxHighlighter(parent) {
@@ -28,7 +28,7 @@ SyntaxHighlighter::SyntaxHighlighter(QObject *parent) : QSyntaxHighlighter(paren
 }
 
 //------------------------------------------------------------------------------
-// Name: SyntaxHighlighter(QTextDocument *parent)
+// Name: SyntaxHighlighter
 // Desc:
 //------------------------------------------------------------------------------
 SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent) : QSyntaxHighlighter(parent) {
@@ -36,7 +36,7 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent) : QSyntaxHighlighter
 }
 
 //------------------------------------------------------------------------------
-// Name: SyntaxHighlighter(QTextEdit *parent)
+// Name: SyntaxHighlighter
 // Desc:
 //------------------------------------------------------------------------------
 SyntaxHighlighter::SyntaxHighlighter(QTextEdit *parent) : QSyntaxHighlighter(parent) {
@@ -44,7 +44,7 @@ SyntaxHighlighter::SyntaxHighlighter(QTextEdit *parent) : QSyntaxHighlighter(par
 }
 
 //------------------------------------------------------------------------------
-// Name: HighlightingRule::HighlightingRule()
+// Name: HighlightingRule::HighlightingRule
 // Desc:
 //------------------------------------------------------------------------------
 SyntaxHighlighter::HighlightingRule::HighlightingRule() {
@@ -52,7 +52,7 @@ SyntaxHighlighter::HighlightingRule::HighlightingRule() {
 }
 
 //------------------------------------------------------------------------------
-// Name: HighlightingRule::HighlightingRule(const QString &regex, const QBrush &foreground, const QBrush &background, int weight, bool italic, bool underline)
+// Name: HighlightingRule::HighlightingRule
 // Desc:
 //------------------------------------------------------------------------------
 SyntaxHighlighter::HighlightingRule::HighlightingRule(const QString &regex, const QBrush &foreground, const QBrush &background, int weight, bool italic, bool underline) : pattern(regex) {
@@ -66,7 +66,7 @@ SyntaxHighlighter::HighlightingRule::HighlightingRule(const QString &regex, cons
 }
 
 //------------------------------------------------------------------------------
-// Name: create_rules()
+// Name: create_rules
 // Desc:
 //------------------------------------------------------------------------------
 void SyntaxHighlighter::create_rules() {
@@ -241,7 +241,7 @@ void SyntaxHighlighter::create_rules() {
 }
 
 //------------------------------------------------------------------------------
-// Name: highlightBlock(const QString &text)
+// Name: highlightBlock
 // Desc:
 //------------------------------------------------------------------------------
 void SyntaxHighlighter::highlightBlock(const QString &text) {

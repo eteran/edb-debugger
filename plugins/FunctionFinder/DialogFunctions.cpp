@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MIN_REFCOUNT 2
 
 //------------------------------------------------------------------------------
-// Name: DialogFunctions(QWidget *parent)
+// Name: DialogFunctions
 // Desc:
 //------------------------------------------------------------------------------
 DialogFunctions::DialogFunctions(QWidget *parent) : QDialog(parent), ui(new Ui::DialogFunctions) {
@@ -44,7 +44,7 @@ DialogFunctions::DialogFunctions(QWidget *parent) : QDialog(parent), ui(new Ui::
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogFunctions()
+// Name: ~DialogFunctions
 // Desc:
 //------------------------------------------------------------------------------
 DialogFunctions::~DialogFunctions() {
@@ -52,7 +52,7 @@ DialogFunctions::~DialogFunctions() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_tableWidget_cellDoubleClicked(int row, int column)
+// Name: on_tableWidget_cellDoubleClicked
 // Desc: follows the found item in the data view
 //------------------------------------------------------------------------------
 void DialogFunctions::on_tableWidget_cellDoubleClicked(int row, int column) {
@@ -64,7 +64,7 @@ void DialogFunctions::on_tableWidget_cellDoubleClicked(int row, int column) {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogFunctions::showEvent(QShowEvent *) {
@@ -77,7 +77,7 @@ void DialogFunctions::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find()
+// Name: do_find
 // Desc:
 //------------------------------------------------------------------------------
 void DialogFunctions::do_find() {
@@ -154,7 +154,7 @@ void DialogFunctions::do_find() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnFind_clicked()
+// Name: on_btnFind_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogFunctions::on_btnFind_clicked() {

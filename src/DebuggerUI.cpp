@@ -42,7 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_debuggerui.h"
 
 //------------------------------------------------------------------------------
-// Name: DebuggerUI(QWidget *parent)
+// Name: DebuggerUI
 // Desc:
 //------------------------------------------------------------------------------
 DebuggerUI::DebuggerUI(QWidget *parent) : QMainWindow(parent),
@@ -54,7 +54,7 @@ DebuggerUI::DebuggerUI(QWidget *parent) : QMainWindow(parent),
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DebuggerUI()
+// Name: ~DebuggerUI
 // Desc:
 //------------------------------------------------------------------------------
 DebuggerUI::~DebuggerUI() {
@@ -65,7 +65,7 @@ DebuggerUI::~DebuggerUI() {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_menu_state(GUI_STATE state)
+// Name: update_menu_state
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerUI::update_menu_state(GUI_STATE state) {
@@ -122,7 +122,7 @@ void DebuggerUI::update_menu_state(GUI_STATE state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: create_tty()
+// Name: create_tty
 // Desc: creates a TTY object for our command line I/O
 //------------------------------------------------------------------------------
 QString DebuggerUI::create_tty() {
@@ -195,7 +195,7 @@ QString DebuggerUI::create_tty() {
 }
 
 //------------------------------------------------------------------------------
-// Name: tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status)
+// Name: tty_proc_finished
 // Desc: cleans up the data associated with a TTY when the terminal dies
 //------------------------------------------------------------------------------
 void DebuggerUI::tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status) {
@@ -206,7 +206,7 @@ void DebuggerUI::tty_proc_finished(int exit_code, QProcess::ExitStatus exit_stat
 }
 
 //------------------------------------------------------------------------------
-// Name: current_tab() const
+// Name: current_tab
 // Desc:
 //------------------------------------------------------------------------------
 int DebuggerUI::current_tab() const {
@@ -214,7 +214,7 @@ int DebuggerUI::current_tab() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: current_data_view_info() const
+// Name: current_data_view_info
 // Desc:
 //------------------------------------------------------------------------------
 DataViewInfo::pointer DebuggerUI::current_data_view_info() const {
@@ -222,7 +222,7 @@ DataViewInfo::pointer DebuggerUI::current_data_view_info() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_debugger_caption(const QString &appname)
+// Name: set_debugger_caption
 // Desc: sets the caption part to also show the application name and pid
 //------------------------------------------------------------------------------
 void DebuggerUI::set_debugger_caption(const QString &appname) {
@@ -230,7 +230,7 @@ void DebuggerUI::set_debugger_caption(const QString &appname) {
 }
 
 //------------------------------------------------------------------------------
-// Name: delete_data_tab()
+// Name: delete_data_tab
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerUI::delete_data_tab() {
@@ -249,7 +249,7 @@ void DebuggerUI::delete_data_tab() {
 }
 
 //------------------------------------------------------------------------------
-// Name: create_data_tab()
+// Name: create_data_tab
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerUI::create_data_tab() {
@@ -308,7 +308,7 @@ void DebuggerUI::create_data_tab() {
 }
 
 //------------------------------------------------------------------------------
-// Name: finish_plugin_setup(const QHash<QString, QObject *> &plugins)
+// Name: finish_plugin_setup
 // Desc: finalizes plugin setup by adding each to the menu, we can do this now
 //       that we have a GUI widget to attach it to
 //------------------------------------------------------------------------------
@@ -339,7 +339,7 @@ void DebuggerUI::finish_plugin_setup(const QHash<QString, QObject *> &plugins) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_goto_expression(bool *ok)
+// Name: get_goto_expression
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t DebuggerUI::get_goto_expression(bool *ok) {
@@ -352,7 +352,7 @@ edb::address_t DebuggerUI::get_goto_expression(bool *ok) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_follow_register(bool *ok) const
+// Name: get_follow_register
 // Desc:
 //------------------------------------------------------------------------------
 edb::reg_t DebuggerUI::get_follow_register(bool *ok) const {

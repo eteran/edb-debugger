@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPainter>
 
 //------------------------------------------------------------------------------
-// Name: GraphNode(const GraphWidget *graph, node_t *node)
+// Name: GraphNode
 // Desc:
 //------------------------------------------------------------------------------
 GraphNode::GraphNode(const GraphWidget *graph, node_t *node) :
@@ -37,7 +37,7 @@ GraphNode::GraphNode(const GraphWidget *graph, node_t *node) :
 }
 
 //------------------------------------------------------------------------------
-// Name: paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+// Name: paint
 // Desc:
 //------------------------------------------------------------------------------
 void GraphNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
@@ -48,7 +48,7 @@ void GraphNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 }
 
 //------------------------------------------------------------------------------
-// Name: draw_label(const textlabel_t *textlabel)
+// Name: draw_label
 // Desc:
 //------------------------------------------------------------------------------
 void GraphNode::draw_label(const textlabel_t *textlabel) {
@@ -81,7 +81,7 @@ void GraphNode::draw_label(const textlabel_t *textlabel) {
 }
 
 //------------------------------------------------------------------------------
-// Name: make_polygon_helper(node_t *node, QPainterPath &path) const
+// Name: make_polygon_helper
 // Desc:
 //------------------------------------------------------------------------------
 void GraphNode::make_polygon_helper(node_t *node, QPainterPath &path) const {
@@ -104,7 +104,7 @@ void GraphNode::make_polygon_helper(node_t *node, QPainterPath &path) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: make_ellipse_helper(node_t *node, QPainterPath &path) const
+// Name: make_ellipse_helper
 // Desc:
 //------------------------------------------------------------------------------
 void GraphNode::make_ellipse_helper(node_t *node, QPainterPath &path) const {
@@ -130,7 +130,7 @@ void GraphNode::make_ellipse_helper(node_t *node, QPainterPath &path) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: make_shape(node_t *node) const
+// Name: make_shape
 // Desc:
 //------------------------------------------------------------------------------
 QPainterPath GraphNode::make_shape(node_t *node) const {

@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dialog_threads.h"
 
 //------------------------------------------------------------------------------
-// Name: DialogThreads(QWidget *parent, Qt::WindowFlags f)
+// Name: DialogThreads
 // Desc:
 //------------------------------------------------------------------------------
 DialogThreads::DialogThreads(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogThreads) {
@@ -34,7 +34,7 @@ DialogThreads::DialogThreads(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogThreads()
+// Name: ~DialogThreads
 // Desc:
 //------------------------------------------------------------------------------
 DialogThreads::~DialogThreads() {
@@ -42,7 +42,7 @@ DialogThreads::~DialogThreads() {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogThreads::showEvent(QShowEvent *) {
@@ -76,7 +76,7 @@ void DialogThreads::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: selected_thread()
+// Name: selected_thread
 // Desc:
 //------------------------------------------------------------------------------
 edb::tid_t DialogThreads::selected_thread() {

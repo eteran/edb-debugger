@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dialogbinarystring.h"
 
 //------------------------------------------------------------------------------
-// Name: DialogBinaryString(QWidget *parent)
+// Name: DialogBinaryString
 // Desc: constructor
 //------------------------------------------------------------------------------
 DialogBinaryString::DialogBinaryString(QWidget *parent) : QDialog(parent), ui(new Ui::DialogBinaryString) {
@@ -41,7 +41,7 @@ DialogBinaryString::DialogBinaryString(QWidget *parent) : QDialog(parent), ui(ne
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogBinaryString()
+// Name: ~DialogBinaryString
 // Desc:
 //------------------------------------------------------------------------------
 DialogBinaryString::~DialogBinaryString() {
@@ -49,7 +49,7 @@ DialogBinaryString::~DialogBinaryString() {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find()
+// Name: do_find
 // Desc:
 //------------------------------------------------------------------------------
 void DialogBinaryString::do_find() {
@@ -115,7 +115,7 @@ void DialogBinaryString::do_find() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnFind_clicked()
+// Name: on_btnFind_clicked
 // Desc: find button event handler
 //------------------------------------------------------------------------------
 void DialogBinaryString::on_btnFind_clicked() {
@@ -128,7 +128,7 @@ void DialogBinaryString::on_btnFind_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_listWidget_itemDoubleClicked(QListWidgetItem *item)
+// Name: on_listWidget_itemDoubleClicked
 // Desc: follows the found item in the data view
 //------------------------------------------------------------------------------
 void DialogBinaryString::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {

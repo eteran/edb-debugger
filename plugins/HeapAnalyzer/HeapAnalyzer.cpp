@@ -22,14 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 
 //------------------------------------------------------------------------------
-// Name: HeapAnalyzer()
+// Name: HeapAnalyzer
 // Desc:
 //------------------------------------------------------------------------------
 HeapAnalyzer::HeapAnalyzer() : menu_(0), dialog_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~HeapAnalyzer()
+// Name: ~HeapAnalyzer
 // Desc:
 //------------------------------------------------------------------------------
 HeapAnalyzer::~HeapAnalyzer() {
@@ -37,7 +37,7 @@ HeapAnalyzer::~HeapAnalyzer() {
 }
 
 //------------------------------------------------------------------------------
-// Name: menu(QWidget *parent)
+// Name: menu
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *HeapAnalyzer::menu(QWidget *parent) {
@@ -51,7 +51,7 @@ QMenu *HeapAnalyzer::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuHeapAnalyzer()
+// Name: mnuHeapAnalyzer
 // Desc:
 //------------------------------------------------------------------------------
 void HeapAnalyzer::show_menu() {

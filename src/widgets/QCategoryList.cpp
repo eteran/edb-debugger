@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMouseEvent>
 
 //------------------------------------------------------------------------------
-// Name: QCategoryList(QWidget *parent)
+// Name: QCategoryList
 // Desc:
 //------------------------------------------------------------------------------
 QCategoryList::QCategoryList(QWidget *parent) : QTreeWidget(parent) {
@@ -42,7 +42,7 @@ QCategoryList::QCategoryList(QWidget *parent) : QTreeWidget(parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~QCategoryList()
+// Name: ~QCategoryList
 // Desc:
 //------------------------------------------------------------------------------
 QCategoryList::~QCategoryList() {
@@ -50,7 +50,7 @@ QCategoryList::~QCategoryList() {
 }
 
 //------------------------------------------------------------------------------
-// Name: handleMousePress(QTreeWidgetItem *item)
+// Name: handleMousePress
 // Desc:
 //------------------------------------------------------------------------------
 void QCategoryList::handleMousePress(QTreeWidgetItem *item) {
@@ -60,7 +60,7 @@ void QCategoryList::handleMousePress(QTreeWidgetItem *item) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mouseDoubleClickEvent(QMouseEvent * event)
+// Name: mouseDoubleClickEvent
 // Desc:
 //------------------------------------------------------------------------------
 void QCategoryList::mouseDoubleClickEvent(QMouseEvent * event) {
@@ -70,7 +70,7 @@ void QCategoryList::mouseDoubleClickEvent(QMouseEvent * event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: addCategory(const QString &name)
+// Name: addCategory
 // Desc:
 //------------------------------------------------------------------------------
 QTreeWidgetItem *QCategoryList::addCategory(const QString &name) {
@@ -81,7 +81,7 @@ QTreeWidgetItem *QCategoryList::addCategory(const QString &name) {
 }
 
 //------------------------------------------------------------------------------
-// Name: addItem(QTreeWidgetItem *category, const QString &value)
+// Name: addItem
 // Desc:
 //------------------------------------------------------------------------------
 QTreeWidgetItem *QCategoryList::addItem(QTreeWidgetItem *category, const QString &value) {
@@ -91,7 +91,7 @@ QTreeWidgetItem *QCategoryList::addItem(QTreeWidgetItem *category, const QString
 }
 
 //------------------------------------------------------------------------------
-// Name: isCategory(QTreeWidgetItem *item) const
+// Name: isCategory
 // Desc:
 //------------------------------------------------------------------------------
 bool QCategoryList::isCategory(QTreeWidgetItem *item) const {

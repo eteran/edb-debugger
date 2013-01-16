@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dumpstate_options_page.h"
 
 //------------------------------------------------------------------------------
-// Name: DumpStateOptionsPage(QWidget *parent)
+// Name: DumpStateOptionsPage
 // Desc:
 //------------------------------------------------------------------------------
 DumpStateOptionsPage::DumpStateOptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::DumpStateOptionsPage) {
@@ -29,7 +29,7 @@ DumpStateOptionsPage::DumpStateOptionsPage(QWidget *parent) : QWidget(parent), u
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DumpStateOptionsPage()
+// Name: ~DumpStateOptionsPage
 // Desc:
 //------------------------------------------------------------------------------
 DumpStateOptionsPage::~DumpStateOptionsPage() {
@@ -37,7 +37,7 @@ DumpStateOptionsPage::~DumpStateOptionsPage() {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *event)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DumpStateOptionsPage::showEvent(QShowEvent *event) {
@@ -49,7 +49,7 @@ void DumpStateOptionsPage::showEvent(QShowEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_instructionsBeforeIP_valueChanged(int i)
+// Name: on_instructionsBeforeIP_valueChanged
 // Desc:
 //------------------------------------------------------------------------------
 void DumpStateOptionsPage::on_instructionsBeforeIP_valueChanged(int i) {
@@ -58,7 +58,7 @@ void DumpStateOptionsPage::on_instructionsBeforeIP_valueChanged(int i) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_instructionsAfterIP_valueChanged(int i)
+// Name: on_instructionsAfterIP_valueChanged
 // Desc:
 //------------------------------------------------------------------------------
 void DumpStateOptionsPage::on_instructionsAfterIP_valueChanged(int i) {

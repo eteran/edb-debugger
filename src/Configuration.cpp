@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define TOSTRING(x) STRINGIFY(x)
 
 //------------------------------------------------------------------------------
-// Name: Configuration()
+// Name: Configuration
 // Desc: constructor
 //------------------------------------------------------------------------------
 Configuration::Configuration() {
@@ -34,7 +34,7 @@ Configuration::Configuration() {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~Configuration()
+// Name: ~Configuration
 // Desc: destructor
 //------------------------------------------------------------------------------
 Configuration::~Configuration() {
@@ -42,7 +42,7 @@ Configuration::~Configuration() {
 }
 
 //------------------------------------------------------------------------------
-// Name: read_settings()
+// Name: read_settings
 // Desc: read in the options from the file
 //------------------------------------------------------------------------------
 void Configuration::read_settings() {
@@ -125,7 +125,7 @@ void Configuration::read_settings() {
 }
 
 //------------------------------------------------------------------------------
-// Name: write_settings()
+// Name: write_settings
 // Desc: writes the options to the file
 //------------------------------------------------------------------------------
 void Configuration::write_settings() {

@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dialogstrings.h"
 
 //------------------------------------------------------------------------------
-// Name: DialogStrings(QWidget *parent)
+// Name: DialogStrings
 // Desc:
 //------------------------------------------------------------------------------
 DialogStrings::DialogStrings(QWidget *parent) : QDialog(parent), ui(new Ui::DialogStrings) {
@@ -42,7 +42,7 @@ DialogStrings::DialogStrings(QWidget *parent) : QDialog(parent), ui(new Ui::Dial
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogStrings()
+// Name: ~DialogStrings
 // Desc:
 //------------------------------------------------------------------------------
 DialogStrings::~DialogStrings() {
@@ -50,7 +50,7 @@ DialogStrings::~DialogStrings() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_listWidget_itemDoubleClicked(QListWidgetItem *item)
+// Name: on_listWidget_itemDoubleClicked
 // Desc: follows the found item in the data view
 //------------------------------------------------------------------------------
 void DialogStrings::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
@@ -62,7 +62,7 @@ void DialogStrings::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogStrings::showEvent(QShowEvent *) {
@@ -75,7 +75,7 @@ void DialogStrings::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find()
+// Name: do_find
 // Desc:
 //------------------------------------------------------------------------------
 void DialogStrings::do_find() {
@@ -139,7 +139,7 @@ void DialogStrings::do_find() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnFind_clicked()
+// Name: on_btnFind_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogStrings::on_btnFind_clicked() {

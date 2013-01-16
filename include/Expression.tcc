@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define EXPRESSION_20070402_TCC_
 
 //------------------------------------------------------------------------------
-// Name: Expression(const QString &s, variable_getter_t vg, memory_reader_t mr)
+// Name: Expression
 // Desc: 
 //------------------------------------------------------------------------------
 template <class T>
@@ -30,7 +30,7 @@ Expression<T>::Expression(const QString &s, variable_getter_t vg, memory_reader_
 }
 
 //------------------------------------------------------------------------------
-// Name: eval_exp(T &result)
+// Name: eval_exp
 // Desc: private entry point with sanity check
 //------------------------------------------------------------------------------
 template <class T>
@@ -63,7 +63,7 @@ void Expression<T>::eval_exp(T &result) {
 }
 
 //------------------------------------------------------------------------------
-// Name: eval_exp0(T &result)
+// Name: eval_exp0
 // Desc: logic
 //------------------------------------------------------------------------------
 template <class T>
@@ -91,7 +91,7 @@ void Expression<T>::eval_exp0(T &result) {
 }
 
 //------------------------------------------------------------------------------
-// Name: eval_exp1(T &result)
+// Name: eval_exp1
 // Desc: binary logic
 //------------------------------------------------------------------------------
 template <class T>
@@ -122,7 +122,7 @@ void Expression<T>::eval_exp1(T &result) {
 }
 
 //------------------------------------------------------------------------------
-// Name: eval_exp2(T &result)
+// Name: eval_exp2
 // Desc: comparisons
 //------------------------------------------------------------------------------
 template <class T>
@@ -162,7 +162,7 @@ void Expression<T>::eval_exp2(T &result) {
 }
 
 //------------------------------------------------------------------------------
-// Name: eval_exp3(T &result)
+// Name: eval_exp3
 // Desc: shifts
 //------------------------------------------------------------------------------
 template <class T>
@@ -190,7 +190,7 @@ void Expression<T>::eval_exp3(T &result) {
 }
 
 //------------------------------------------------------------------------------
-// Name: eval_exp4(T &result)
+// Name: eval_exp4
 // Desc: addition/subtraction
 //------------------------------------------------------------------------------
 template <class T>
@@ -226,7 +226,7 @@ void Expression<T>::eval_exp4(T &result) {
 }
 
 //------------------------------------------------------------------------------
-// Name: eval_exp5(T &result)
+// Name: eval_exp5
 // Desc: multiplication/division
 //------------------------------------------------------------------------------
 template <class T>
@@ -263,7 +263,7 @@ void Expression<T>::eval_exp5(T &result) {
 }
 
 //------------------------------------------------------------------------------
-// Name: eval_exp6(T &result)
+// Name: eval_exp6
 // Desc: unary expressions
 //------------------------------------------------------------------------------
 template <class T>
@@ -304,7 +304,7 @@ void Expression<T>::eval_exp6(T &result) {
 }
 
 //------------------------------------------------------------------------------
-// Name: eval_exp7(T &result)
+// Name: eval_exp7
 // Desc: sub-expressions
 //------------------------------------------------------------------------------
 template <class T>
@@ -364,7 +364,7 @@ void Expression<T>::eval_exp7(T &result) {
 }
 
 //------------------------------------------------------------------------------
-// Name: eval_atom(T &result)
+// Name: eval_atom
 // Desc: atoms (variables/constants)
 //------------------------------------------------------------------------------
 template <class T>
@@ -399,7 +399,7 @@ void Expression<T>::eval_atom(T &result) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_token()
+// Name: get_token
 // Desc: 
 //------------------------------------------------------------------------------
 template <class T>

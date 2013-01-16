@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 
 //------------------------------------------------------------------------------
-// Name: RecentFileManager()
+// Name: RecentFileManager
 // Desc: constructor
 //------------------------------------------------------------------------------
 RecentFileManager::RecentFileManager(QWidget * parent, Qt::WindowFlags f) : QWidget(parent, f), menu_(0) {
@@ -31,7 +31,7 @@ RecentFileManager::RecentFileManager(QWidget * parent, Qt::WindowFlags f) : QWid
 }
 
 //------------------------------------------------------------------------------
-// Name: ~RecentFileManager()
+// Name: ~RecentFileManager
 // Desc: destructor
 //------------------------------------------------------------------------------
 RecentFileManager::~RecentFileManager() {
@@ -39,7 +39,7 @@ RecentFileManager::~RecentFileManager() {
 }
 
 //------------------------------------------------------------------------------
-// Name: save_file_list()
+// Name: save_file_list
 // Desc:
 //------------------------------------------------------------------------------
 void RecentFileManager::save_file_list() {
@@ -57,7 +57,7 @@ void RecentFileManager::save_file_list() {
 }
 
 //------------------------------------------------------------------------------
-// Name: load_file_list()
+// Name: load_file_list
 // Desc:
 //------------------------------------------------------------------------------
 void RecentFileManager::load_file_list() {
@@ -75,7 +75,7 @@ void RecentFileManager::load_file_list() {
 }
 
 //------------------------------------------------------------------------------
-// Name: clear_file_list()
+// Name: clear_file_list
 // Desc:
 //------------------------------------------------------------------------------
 void RecentFileManager::clear_file_list() {
@@ -88,7 +88,7 @@ void RecentFileManager::clear_file_list() {
 }
 
 //------------------------------------------------------------------------------
-// Name: create_menu()
+// Name: create_menu
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *RecentFileManager::create_menu() {
@@ -102,7 +102,7 @@ QMenu *RecentFileManager::create_menu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: create_menu()
+// Name: create_menu
 // Desc:
 //------------------------------------------------------------------------------
 void RecentFileManager::update() {
@@ -121,7 +121,7 @@ void RecentFileManager::update() {
 }
 
 //------------------------------------------------------------------------------
-// Name: item_selected()
+// Name: item_selected
 // Desc:
 //------------------------------------------------------------------------------
 void RecentFileManager::item_selected() {
@@ -132,7 +132,7 @@ void RecentFileManager::item_selected() {
 }
 
 //------------------------------------------------------------------------------
-// Name: add_file(const QString &file)
+// Name: add_file
 // Desc:
 //------------------------------------------------------------------------------
 void RecentFileManager::add_file(const QString &file) {

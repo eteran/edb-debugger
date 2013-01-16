@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPainter>
 
 //------------------------------------------------------------------------------
-// Name: GraphEdge(const GraphWidget *graph, const bezier &bz, const QColor &color)
+// Name: GraphEdge
 // Desc:
 //------------------------------------------------------------------------------
 GraphEdge::GraphEdge(const GraphWidget *graph, const bezier &bz, const QColor &color) : QGraphicsPathItem(make_bezier(bz, graph)) {
@@ -40,7 +40,7 @@ GraphEdge::GraphEdge(const GraphWidget *graph, const bezier &bz, const QColor &c
 }
 
 //------------------------------------------------------------------------------
-// Name: boundingRect() const
+// Name: boundingRect
 // Desc:
 //------------------------------------------------------------------------------
 QRectF GraphEdge::boundingRect() const {
@@ -48,7 +48,7 @@ QRectF GraphEdge::boundingRect() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget)
+// Name: paint
 // Desc:
 //------------------------------------------------------------------------------
 void GraphEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
@@ -59,7 +59,7 @@ void GraphEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 }
 
 //------------------------------------------------------------------------------
-// Name: make_bezier(const bezier &bezier, const GraphWidget *graph) const
+// Name: make_bezier
 // Desc:
 //------------------------------------------------------------------------------
 QPainterPath GraphEdge::make_bezier(const bezier &bezier, const GraphWidget *graph) const {
@@ -75,7 +75,7 @@ QPainterPath GraphEdge::make_bezier(const bezier &bezier, const GraphWidget *gra
 }
 
 //------------------------------------------------------------------------------
-// Name: draw_arrow(const QLineF &line, const QColor &color, QPainter *painter) const
+// Name: draw_arrow
 // Desc:
 //------------------------------------------------------------------------------
 void GraphEdge::draw_arrow(const QLineF &line, const QColor &color, QPainter *painter) const {

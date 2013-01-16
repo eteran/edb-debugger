@@ -19,21 +19,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ByteShiftArray.h"
 
 //------------------------------------------------------------------------------
-// Name: ByteShiftArray(int size)
+// Name: ByteShiftArray
 // Desc: constructor
 //------------------------------------------------------------------------------
 ByteShiftArray::ByteShiftArray(int size) : max_size_(size) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ByteShiftArray(const ByteShiftArray& other)
+// Name: ByteShiftArray
 // Desc: copy constructor
 //------------------------------------------------------------------------------
 ByteShiftArray::ByteShiftArray(const ByteShiftArray& other) : data_(other.data_), max_size_(other.max_size_) {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator=(const ByteShiftArray &other)
+// Name: operator=
 // Desc: assignment operator
 //------------------------------------------------------------------------------
 ByteShiftArray &ByteShiftArray::operator=(const ByteShiftArray &other) {
@@ -44,7 +44,7 @@ ByteShiftArray &ByteShiftArray::operator=(const ByteShiftArray &other) {
 }
 
 //------------------------------------------------------------------------------
-// Name: swap(ByteShiftArray &other)
+// Name: swap
 // Desc:
 //------------------------------------------------------------------------------
 void ByteShiftArray::swap(ByteShiftArray &other) {
@@ -53,7 +53,7 @@ void ByteShiftArray::swap(ByteShiftArray &other) {
 }
 
 //------------------------------------------------------------------------------
-// Name: shl()
+// Name: shl
 // Desc: shifts data left one byte and shifts in a 0
 //------------------------------------------------------------------------------
 ByteShiftArray &ByteShiftArray::shl() {
@@ -70,7 +70,7 @@ ByteShiftArray &ByteShiftArray::shl() {
 }
 
 //------------------------------------------------------------------------------
-// Name: shr()
+// Name: shr
 // Desc: shifts data right one byte and shifts in a 0
 //------------------------------------------------------------------------------
 ByteShiftArray &ByteShiftArray::shr() {
@@ -86,7 +86,7 @@ ByteShiftArray &ByteShiftArray::shr() {
 }
 
 //------------------------------------------------------------------------------
-// Name: size() const
+// Name: size
 // Desc: returns size of this byte array
 //------------------------------------------------------------------------------
 int ByteShiftArray::size() const {
@@ -94,7 +94,7 @@ int ByteShiftArray::size() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator[](std::size_t i)
+// Name: operator[]
 // Desc: returns and l-value version of an element in the byte array
 //------------------------------------------------------------------------------
 quint8 &ByteShiftArray::operator[](std::size_t i) {
@@ -102,7 +102,7 @@ quint8 &ByteShiftArray::operator[](std::size_t i) {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator[](std::size_t i)
+// Name: operator[]
 // Desc: returns and r-value version of an element in the byte array
 //------------------------------------------------------------------------------
 quint8 ByteShiftArray::operator[](std::size_t i) const {
@@ -110,7 +110,7 @@ quint8 ByteShiftArray::operator[](std::size_t i) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: data() const
+// Name: data
 // Desc: returns a read only pointer to the data this byte array holds
 //------------------------------------------------------------------------------
 const quint8 *ByteShiftArray::data() const {
@@ -118,7 +118,7 @@ const quint8 *ByteShiftArray::data() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: clear()
+// Name: clear
 // Desc: zeros out the byte array
 //------------------------------------------------------------------------------
 void ByteShiftArray::clear() {
@@ -126,7 +126,7 @@ void ByteShiftArray::clear() {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator<<(quint8 x)
+// Name: operator<<
 // Desc:
 //------------------------------------------------------------------------------
 ByteShiftArray &ByteShiftArray::operator<<(quint8 x) {

@@ -34,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 //------------------------------------------------------------------------------
-// Name: DialogInputValue(QWidget *parent)
+// Name: DialogInputValue
 // Desc:
 //------------------------------------------------------------------------------
 DialogInputValue::DialogInputValue(QWidget *parent) : QDialog(parent), ui(new Ui::DialogInputValue) {
@@ -48,7 +48,7 @@ DialogInputValue::DialogInputValue(QWidget *parent) : QDialog(parent), ui(new Ui
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogInputValue()
+// Name: ~DialogInputValue
 // Desc:
 //------------------------------------------------------------------------------
 DialogInputValue::~DialogInputValue() {
@@ -56,7 +56,7 @@ DialogInputValue::~DialogInputValue() {
 }
 
 //------------------------------------------------------------------------------
-// Name: value() const
+// Name: value
 // Desc:
 //------------------------------------------------------------------------------
 edb::reg_t DialogInputValue::value() const {
@@ -65,7 +65,7 @@ edb::reg_t DialogInputValue::value() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_value(edb::reg_t value)
+// Name: set_value
 // Desc:
 //------------------------------------------------------------------------------
 void DialogInputValue::set_value(edb::reg_t value) {
@@ -76,7 +76,7 @@ void DialogInputValue::set_value(edb::reg_t value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_hexInput_textEdited(const QString &s)
+// Name: on_hexInput_textEdited
 // Desc:
 //------------------------------------------------------------------------------
 void DialogInputValue::on_hexInput_textEdited(const QString &s) {
@@ -94,7 +94,7 @@ void DialogInputValue::on_hexInput_textEdited(const QString &s) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_signedInput_textEdited(const QString &s)
+// Name: on_signedInput_textEdited
 // Desc:
 //------------------------------------------------------------------------------
 void DialogInputValue::on_signedInput_textEdited(const QString &s) {
@@ -111,7 +111,7 @@ void DialogInputValue::on_signedInput_textEdited(const QString &s) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_unsignedInput_textEdited(const QString &s)
+// Name: on_unsignedInput_textEdited
 // Desc:
 //------------------------------------------------------------------------------
 void DialogInputValue::on_unsignedInput_textEdited(const QString &s) {

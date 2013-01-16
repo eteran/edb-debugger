@@ -39,7 +39,7 @@ namespace {
 	void (*old_sigchld_handler)(int sig, siginfo_t *, void *);
 
 	//------------------------------------------------------------------------------
-	// Name: sigchld_handler(int sig, siginfo_t *info, void *p)
+	// Name: sigchld_handler
 	// Desc:
 	//------------------------------------------------------------------------------
 	void sigchld_handler(int sig, siginfo_t *info, void *p) {
@@ -54,7 +54,7 @@ namespace {
 }
 
 //------------------------------------------------------------------------------
-// Name: execvp(const char *file, char *const argv[])
+// Name: execvp
 // Desc: execvp, but handles being interrupted
 //------------------------------------------------------------------------------
 int native::execvp(const char *file, char *const argv[]) {
@@ -66,7 +66,7 @@ int native::execvp(const char *file, char *const argv[]) {
 }
 
 //------------------------------------------------------------------------------
-// Name: read(int fd, void *buf, size_t count)
+// Name: read
 // Desc: read, but handles being interrupted
 //------------------------------------------------------------------------------
 ssize_t native::read(int fd, void *buf, size_t count) {
@@ -78,7 +78,7 @@ ssize_t native::read(int fd, void *buf, size_t count) {
 }
 
 //------------------------------------------------------------------------------
-// Name: write(int fd, const void *buf, size_t count)
+// Name: write
 // Desc: write, but handles being interrupted
 //------------------------------------------------------------------------------
 ssize_t native::write(int fd, const void *buf, size_t count) {
@@ -90,7 +90,7 @@ ssize_t native::write(int fd, const void *buf, size_t count) {
 }
 
 //------------------------------------------------------------------------------
-// Name: select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout)
+// Name: select
 // Desc: select but handles being interrupted
 //------------------------------------------------------------------------------
 int native::select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout) {
@@ -102,7 +102,7 @@ int native::select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfd
 }
 
 //------------------------------------------------------------------------------
-// Name: waitpid(pid_t pid, int *status, int options)
+// Name: waitpid
 // Desc: waitpid, but handles being interrupted
 //------------------------------------------------------------------------------
 pid_t native::waitpid(pid_t pid, int *status, int options) {
@@ -114,7 +114,7 @@ pid_t native::waitpid(pid_t pid, int *status, int options) {
 }
 
 //------------------------------------------------------------------------------
-// Name: select_ex(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, quint64 msecs)
+// Name: select_ex
 // Desc: similar to select but has the timeout specified as an unsigned quantity of msecs
 // Note: msecs == 0 means wait forever.
 //------------------------------------------------------------------------------
@@ -132,7 +132,7 @@ int native::select_ex(int nfds, fd_set *readfds, fd_set *writefds, fd_set *excep
 }
 
 //------------------------------------------------------------------------------
-// Name: wait_for_sigchld(int msecs)
+// Name: wait_for_sigchld
 // Desc:
 //------------------------------------------------------------------------------
 bool native::wait_for_sigchld(int msecs) {
@@ -154,7 +154,7 @@ bool native::wait_for_sigchld(int msecs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: waitpid_timeout(pid_t pid, int *status, int options, int msecs, bool *timeout)
+// Name: waitpid_timeout
 // Desc:
 //------------------------------------------------------------------------------
 pid_t native::waitpid_timeout(pid_t pid, int *status, int options, int msecs, bool *timeout) {
@@ -172,7 +172,7 @@ pid_t native::waitpid_timeout(pid_t pid, int *status, int options, int msecs, bo
 }
 
 //------------------------------------------------------------------------------
-// Name: DebuggerCoreUNIX()
+// Name: DebuggerCoreUNIX
 // Desc:
 //------------------------------------------------------------------------------
 DebuggerCoreUNIX::DebuggerCoreUNIX() {
@@ -201,7 +201,7 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 
 
 //------------------------------------------------------------------------------
-// Name: write_byte(edb::address_t address, quint8 value, bool *ok)
+// Name: write_byte
 // Desc: writes a single byte at a given address
 // Note: assumes the this will not trample any breakpoints, must be handled
 //       in calling code!
@@ -211,7 +211,7 @@ void DebuggerCoreUNIX::write_byte(edb::address_t address, quint8 value, bool *ok
 }
 
 //------------------------------------------------------------------------------
-// Name: read_byte(edb::address_t address, bool *ok)
+// Name: read_byte
 // Desc: reads a single bytes at a given address
 //------------------------------------------------------------------------------
 quint8 DebuggerCoreUNIX::read_byte(edb::address_t address, bool *ok) {
@@ -229,7 +229,7 @@ quint8 DebuggerCoreUNIX::read_byte(edb::address_t address, bool *ok) {
 }
 
 //------------------------------------------------------------------------------
-// Name: write_byte_base(edb::address_t address, quint8 value, bool *ok)
+// Name: write_byte_base
 // Desc: the base implementation of writing a byte
 //------------------------------------------------------------------------------
 void DebuggerCoreUNIX::write_byte_base(edb::address_t address, quint8 value, bool *ok) {
@@ -275,7 +275,7 @@ void DebuggerCoreUNIX::write_byte_base(edb::address_t address, quint8 value, boo
 }
 
 //------------------------------------------------------------------------------
-// Name: read_byte_base(edb::address_t address, bool *ok)
+// Name: read_byte_base
 // Desc: the base implementation of reading a byte
 //------------------------------------------------------------------------------
 quint8 DebuggerCoreUNIX::read_byte_base(edb::address_t address, bool *ok) {
@@ -321,7 +321,7 @@ quint8 DebuggerCoreUNIX::read_byte_base(edb::address_t address, bool *ok) {
 }
 
 //------------------------------------------------------------------------------
-// Name: read_pages(edb::address_t address, void *buf, std::size_t count)
+// Name: read_pages
 // Desc: reads <count> pages from the process starting at <address>
 // Note: buf's size must be >= count * page_size()
 // Note: address should be page aligned.
@@ -367,7 +367,7 @@ bool DebuggerCoreUNIX::read_pages(edb::address_t address, void *buf, std::size_t
 }
 
 //------------------------------------------------------------------------------
-// Name: read_bytes(edb::address_t address, void *buf, std::size_t len)
+// Name: read_bytes
 // Desc: reads <len> bytes into <buf> starting at <address>
 // Note: if the read failed, the part of the buffer that could not be read will
 //       be filled with 0xff bytes
@@ -404,7 +404,7 @@ bool DebuggerCoreUNIX::read_bytes(edb::address_t address, void *buf, std::size_t
 }
 
 //------------------------------------------------------------------------------
-// Name: write_bytes(edb::address_t address, const void *buf, std::size_t len)
+// Name: write_bytes
 // Desc: writes <len> bytes from <buf> starting at <address>
 //------------------------------------------------------------------------------
 bool DebuggerCoreUNIX::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
@@ -426,7 +426,7 @@ bool DebuggerCoreUNIX::write_bytes(edb::address_t address, const void *buf, std:
 }
 
 //------------------------------------------------------------------------------
-// Name: execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args)
+// Name: execute_process
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
@@ -467,7 +467,7 @@ void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, 
 }
 
 //------------------------------------------------------------------------------
-// Name: pointer_size() const
+// Name: pointer_size
 // Desc: returns the size of a pointer on this arch
 //------------------------------------------------------------------------------
 int DebuggerCoreUNIX::pointer_size() const {

@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_analyzer_options_page.h"
 
 //------------------------------------------------------------------------------
-// Name: AnalyzerOptionsPage(QWidget *parent)
+// Name: AnalyzerOptionsPage
 // Desc:
 //------------------------------------------------------------------------------
 AnalyzerOptionsPage::AnalyzerOptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::AnalyzerOptionsPage) {
@@ -30,7 +30,7 @@ AnalyzerOptionsPage::AnalyzerOptionsPage(QWidget *parent) : QWidget(parent), ui(
 }
 
 //------------------------------------------------------------------------------
-// Name: ~AnalyzerOptionsPage()
+// Name: ~AnalyzerOptionsPage
 // Desc:
 //------------------------------------------------------------------------------
 AnalyzerOptionsPage::~AnalyzerOptionsPage() {
@@ -38,7 +38,7 @@ AnalyzerOptionsPage::~AnalyzerOptionsPage() {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *event)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void AnalyzerOptionsPage::showEvent(QShowEvent *event) {
@@ -49,7 +49,7 @@ void AnalyzerOptionsPage::showEvent(QShowEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_checkBox_toggled(bool checked)
+// Name: on_checkBox_toggled
 // Desc:
 //------------------------------------------------------------------------------
 void AnalyzerOptionsPage::on_checkBox_toggled(bool checked) {

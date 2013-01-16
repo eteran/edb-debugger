@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QUrl>
 
 //------------------------------------------------------------------------------
-// Name: CheckVersion()
+// Name: CheckVersion
 // Desc:
 //------------------------------------------------------------------------------
 CheckVersion::CheckVersion() : menu_(0), network_(0), initial_check_(true) {
@@ -43,14 +43,14 @@ CheckVersion::CheckVersion() : menu_(0), network_(0), initial_check_(true) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~CheckVersion()
+// Name: ~CheckVersion
 // Desc:
 //------------------------------------------------------------------------------
 CheckVersion::~CheckVersion() {
 }
 
 //------------------------------------------------------------------------------
-// Name: options_page()
+// Name: options_page
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *CheckVersion::options_page() {
@@ -58,7 +58,7 @@ QWidget *CheckVersion::options_page() {
 }
 
 //------------------------------------------------------------------------------
-// Name: menu(QWidget *parent)
+// Name: menu
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *CheckVersion::menu(QWidget *parent) {
@@ -72,7 +72,7 @@ QMenu *CheckVersion::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_check()
+// Name: do_check
 // Desc:
 //------------------------------------------------------------------------------
 void CheckVersion::do_check() {
@@ -93,7 +93,7 @@ void CheckVersion::do_check() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_proxy()
+// Name: set_proxy
 // Desc:
 //------------------------------------------------------------------------------
 bool CheckVersion::set_proxy(const QUrl &url) {
@@ -126,7 +126,7 @@ bool set = false;
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu()
+// Name: show_menu
 // Desc:
 //------------------------------------------------------------------------------
 void CheckVersion::show_menu() {
@@ -135,7 +135,7 @@ void CheckVersion::show_menu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: requestFinished()
+// Name: requestFinished
 // Desc:
 //------------------------------------------------------------------------------
 void CheckVersion::requestFinished(QNetworkReply *reply) {

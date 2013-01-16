@@ -413,7 +413,7 @@ namespace {
 }
 
 //--------------------------------------------------------------------------
-// Name: generate_symbols(const QString &filename)
+// Name: generate_symbols
 // Desc:
 //--------------------------------------------------------------------------
 void symbols::generate_symbols(const QString &filename) {

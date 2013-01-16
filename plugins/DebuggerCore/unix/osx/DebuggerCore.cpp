@@ -52,7 +52,7 @@ inline int resume_code(int status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: DebuggerCore()
+// Name: DebuggerCore
 // Desc: constructor
 //------------------------------------------------------------------------------
 DebuggerCore::DebuggerCore() {
@@ -60,7 +60,7 @@ DebuggerCore::DebuggerCore() {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DebuggerCore()
+// Name: ~DebuggerCore
 // Desc:
 //------------------------------------------------------------------------------
 DebuggerCore::~DebuggerCore() {
@@ -76,7 +76,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: page_size() const
+// Name: page_size
 // Desc: returns the size of a page on this system
 //------------------------------------------------------------------------------
 edb::address_t DebuggerCore::page_size() const {
@@ -84,7 +84,7 @@ edb::address_t DebuggerCore::page_size() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: wait_debug_event(int secs)
+// Name: wait_debug_event
 // Desc: waits for a debug event, secs is a timeout (but is not yet respected)
 //       ok will be set to false if the timeout expires
 //------------------------------------------------------------------------------
@@ -112,7 +112,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: read_data(edb::address_t address, bool *ok)
+// Name: read_data
 // Desc:
 //------------------------------------------------------------------------------
 long DebuggerCore::read_data(edb::address_t address, bool *ok) {
@@ -134,7 +134,7 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 }
 
 //------------------------------------------------------------------------------
-// Name: write_data(edb::address_t address, long value)
+// Name: write_data
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::write_data(edb::address_t address, long value) {
@@ -142,7 +142,7 @@ bool DebuggerCore::write_data(edb::address_t address, long value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: attach(edb::pid_t pid)
+// Name: attach
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::attach(edb::pid_t pid) {
@@ -162,7 +162,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 }
 
 //------------------------------------------------------------------------------
-// Name: detach()
+// Name: detach
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::detach() {
@@ -181,7 +181,7 @@ void DebuggerCore::detach() {
 }
 
 //------------------------------------------------------------------------------
-// Name: kill()
+// Name: kill
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::kill() {
@@ -195,7 +195,7 @@ void DebuggerCore::kill() {
 }
 
 //------------------------------------------------------------------------------
-// Name: pause()
+// Name: pause
 // Desc: stops *all* threads of a process
 //------------------------------------------------------------------------------
 void DebuggerCore::pause() {
@@ -207,7 +207,7 @@ void DebuggerCore::pause() {
 }
 
 //------------------------------------------------------------------------------
-// Name: resume(edb::EVENT_STATUS status)
+// Name: resume
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::resume(edb::EVENT_STATUS status) {
@@ -223,7 +223,7 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: step(edb::EVENT_STATUS status)
+// Name: step
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::step(edb::EVENT_STATUS status) {
@@ -239,7 +239,7 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_state(State *state)
+// Name: get_state
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::get_state(State *state) {
@@ -360,7 +360,7 @@ void DebuggerCore::get_state(State *state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_state(const State &state)
+// Name: set_state
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::set_state(const State &state) {
@@ -447,7 +447,7 @@ void DebuggerCore::set_state(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty)
+// Name: open
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
@@ -510,7 +510,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 }
 
 //------------------------------------------------------------------------------
-// Name: set_active_thread(edb::tid_t tid)
+// Name: set_active_thread
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::set_active_thread(edb::tid_t tid) {
@@ -519,14 +519,14 @@ void DebuggerCore::set_active_thread(edb::tid_t tid) {
 }
 
 //------------------------------------------------------------------------------
-// Name: create_state() const
+// Name: create_state
 // Desc:
 //------------------------------------------------------------------------------
 IState *DebuggerCore::create_state() const {
 	return new PlatformState;
 }
 //------------------------------------------------------------------------------
-// Name: enumerate_processes() const
+// Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
 QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {

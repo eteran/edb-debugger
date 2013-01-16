@@ -19,28 +19,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Register.h"
 
 //------------------------------------------------------------------------------
-// Name: Register()
+// Name: Register
 // Desc:
 //------------------------------------------------------------------------------
 Register::Register() : value_(0), type_(TYPE_INVALID) {
 }
 
 //------------------------------------------------------------------------------
-// Name: Register(const QString &name, edb::reg_t value, Type type)
+// Name: Register
 // Desc:
 //------------------------------------------------------------------------------
 Register::Register(const QString &name, edb::reg_t value, Type type) : name_(name), value_(value), type_(type) {
 }
 
 //------------------------------------------------------------------------------
-// Name: Register(const Register &other)
+// Name: Register
 // Desc:
 //------------------------------------------------------------------------------
 Register::Register(const Register &other) : name_(other.name_), value_(other.value_), type_(other.type_) {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator=(const Register &rhs)
+// Name: operator=
 // Desc:
 //------------------------------------------------------------------------------
 Register &Register::operator=(const Register &rhs) {
@@ -53,7 +53,7 @@ Register &Register::operator=(const Register &rhs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator==(const Register &rhs) const
+// Name: operator==
 // Desc:
 //------------------------------------------------------------------------------
 bool Register::operator==(const Register &rhs) const {
@@ -65,7 +65,7 @@ bool Register::operator==(const Register &rhs) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator!=(const Register &rhs) const
+// Name: operator!=
 // Desc:
 //------------------------------------------------------------------------------
 bool Register::operator!=(const Register &rhs) const {

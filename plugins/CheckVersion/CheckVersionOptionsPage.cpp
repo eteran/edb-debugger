@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_checkversion_options_page.h"
 
 //------------------------------------------------------------------------------
-// Name: CheckVersionOptionsPage(QWidget *parent)
+// Name: CheckVersionOptionsPage
 // Desc:
 //------------------------------------------------------------------------------
 CheckVersionOptionsPage::CheckVersionOptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::CheckVersionOptionsPage) {
@@ -30,7 +30,7 @@ CheckVersionOptionsPage::CheckVersionOptionsPage(QWidget *parent) : QWidget(pare
 }
 
 //------------------------------------------------------------------------------
-// Name: ~CheckVersionOptionsPage()
+// Name: ~CheckVersionOptionsPage
 // Desc:
 //------------------------------------------------------------------------------
 CheckVersionOptionsPage::~CheckVersionOptionsPage() {
@@ -38,7 +38,7 @@ CheckVersionOptionsPage::~CheckVersionOptionsPage() {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *event)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void CheckVersionOptionsPage::showEvent(QShowEvent *event) {
@@ -49,7 +49,7 @@ void CheckVersionOptionsPage::showEvent(QShowEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_checkBox_toggled(bool checked)
+// Name: on_checkBox_toggled
 // Desc:
 //------------------------------------------------------------------------------
 void CheckVersionOptionsPage::on_checkBox_toggled(bool checked) {

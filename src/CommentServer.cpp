@@ -25,14 +25,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 
 //------------------------------------------------------------------------------
-// Name: ~CommentServer()
+// Name: ~CommentServer
 // Desc:
 //------------------------------------------------------------------------------
 CommentServer::~CommentServer() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_comment(QHexView::address_t address,  const QString &comment)
+// Name: set_comment
 // Desc:
 //------------------------------------------------------------------------------
 void CommentServer::set_comment(QHexView::address_t address, const QString &comment) {
@@ -40,7 +40,7 @@ void CommentServer::set_comment(QHexView::address_t address, const QString &comm
 }
 
 //------------------------------------------------------------------------------
-// Name: clear()
+// Name: clear
 // Desc:
 //------------------------------------------------------------------------------
 void CommentServer::clear() {
@@ -55,7 +55,7 @@ void CommentServer::clear() {
 #define CALL_MIN_SIZE 2
 
 //------------------------------------------------------------------------------
-// Name: resolve_function_call(QHexView::address_t address) const
+// Name: resolve_function_call
 // Desc:
 //------------------------------------------------------------------------------
 QString CommentServer::resolve_function_call(QHexView::address_t address, bool *ok) const {
@@ -90,7 +90,7 @@ QString CommentServer::resolve_function_call(QHexView::address_t address, bool *
 }
 
 //------------------------------------------------------------------------------
-// Name: resolve_string(QHexView::address_t address) const
+// Name: resolve_string
 // Desc:
 //------------------------------------------------------------------------------
 QString CommentServer::resolve_string(QHexView::address_t address, bool *ok) const {
@@ -113,7 +113,7 @@ QString CommentServer::resolve_string(QHexView::address_t address, bool *ok) con
 }
 
 //------------------------------------------------------------------------------
-// Name: comment(QHexView::address_t address, int size) const
+// Name: comment
 // Desc:
 //------------------------------------------------------------------------------
 QString CommentServer::comment(QHexView::address_t address, int size) const {

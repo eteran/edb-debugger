@@ -13,7 +13,7 @@
 namespace {
 
 //------------------------------------------------------------------------------
-// Name: permissions_value(bool read, bool write, bool execute)
+// Name: permissions_value
 // Desc:
 //------------------------------------------------------------------------------
 IRegion::permissions_t permissions_value(bool read, bool write, bool execute) {
@@ -58,7 +58,7 @@ public:
 };
 
 //------------------------------------------------------------------------------
-// Name: BackupInfo(td::size_t size, edb::address_t address, IRegion::permissions_t perms, PlatformRegion *region)
+// Name: BackupInfo
 // Desc:
 //------------------------------------------------------------------------------
 template <size_t N>
@@ -67,7 +67,7 @@ BackupInfo<N>::BackupInfo(edb::address_t address, IRegion::permissions_t perms, 
 }
 
 //------------------------------------------------------------------------------
-// Name: backup()
+// Name: backup
 // Desc:
 //------------------------------------------------------------------------------
 template <size_t N>
@@ -77,7 +77,7 @@ bool BackupInfo<N>::backup() {
 }
 
 //------------------------------------------------------------------------------
-// Name: restore()
+// Name: restore
 // Desc:
 //------------------------------------------------------------------------------
 template <size_t N>
@@ -87,7 +87,7 @@ bool BackupInfo<N>::restore() {
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_event(const IDebugEvent::const_pointer &event)
+// Name: handle_event
 // Desc:
 //------------------------------------------------------------------------------
 template <size_t N>

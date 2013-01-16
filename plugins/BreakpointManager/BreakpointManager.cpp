@@ -23,14 +23,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QKeySequence>
 
 //------------------------------------------------------------------------------
-// Name: BreakpointManager()
+// Name: BreakpointManager
 // Desc:
 //------------------------------------------------------------------------------
 BreakpointManager::BreakpointManager() : menu_(0), dialog_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~BreakpointManager()
+// Name: ~BreakpointManager
 // Desc:
 //------------------------------------------------------------------------------
 BreakpointManager::~BreakpointManager() {
@@ -38,7 +38,7 @@ BreakpointManager::~BreakpointManager() {
 }
 
 //------------------------------------------------------------------------------
-// Name: menu(QWidget *parent)
+// Name: menu
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *BreakpointManager::menu(QWidget *parent) {
@@ -52,7 +52,7 @@ QMenu *BreakpointManager::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu()
+// Name: show_menu
 // Desc:
 //------------------------------------------------------------------------------
 void BreakpointManager::show_menu() {

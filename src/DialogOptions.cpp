@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 //------------------------------------------------------------------------------
-// Name: width_to_index(int n)
+// Name: width_to_index
 // Desc:
 //------------------------------------------------------------------------------
 int width_to_index(int n) {
@@ -47,7 +47,7 @@ int width_to_index(int n) {
 }
 
 //------------------------------------------------------------------------------
-// Name: DialogOptions(QWidget *parent)
+// Name: DialogOptions
 // Desc:
 //------------------------------------------------------------------------------
 DialogOptions::DialogOptions(QWidget *parent) : QDialog(parent), ui(new Ui::DialogOptions), toolbox_(0) {
@@ -55,7 +55,7 @@ DialogOptions::DialogOptions(QWidget *parent) : QDialog(parent), ui(new Ui::Dial
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogOptions()
+// Name: ~DialogOptions
 // Desc:
 //------------------------------------------------------------------------------
 DialogOptions::~DialogOptions() {
@@ -63,7 +63,7 @@ DialogOptions::~DialogOptions() {
 }
 
 //------------------------------------------------------------------------------
-// Name: font_from_dialog(const QString &default_font)
+// Name: font_from_dialog
 // Desc:
 //------------------------------------------------------------------------------
 QString DialogOptions::font_from_dialog(const QString &default_font) {
@@ -73,7 +73,7 @@ QString DialogOptions::font_from_dialog(const QString &default_font) {
 }
 
 //------------------------------------------------------------------------------
-// Name: addOptionsPage(QWidget *page)
+// Name: addOptionsPage
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::addOptionsPage(QWidget *page) {
@@ -90,7 +90,7 @@ void DialogOptions::addOptionsPage(QWidget *page) {
 }
 
 //------------------------------------------------------------------------------
-// Name: directory_from_dialog()
+// Name: directory_from_dialog
 // Desc:
 //------------------------------------------------------------------------------
 QString DialogOptions::directory_from_dialog() {
@@ -102,7 +102,7 @@ QString DialogOptions::directory_from_dialog() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnTTY_clicked()
+// Name: on_btnTTY_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::on_btnTTY_clicked() {
@@ -114,7 +114,7 @@ void DialogOptions::on_btnTTY_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnStackFont_clicked()
+// Name: on_btnStackFont_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::on_btnStackFont_clicked() {
@@ -122,7 +122,7 @@ void DialogOptions::on_btnStackFont_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnMemoryFont_clicked()
+// Name: on_btnMemoryFont_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::on_btnMemoryFont_clicked() {
@@ -130,7 +130,7 @@ void DialogOptions::on_btnMemoryFont_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnRegisterFont_clicked()
+// Name: on_btnRegisterFont_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::on_btnRegisterFont_clicked() {
@@ -138,7 +138,7 @@ void DialogOptions::on_btnRegisterFont_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnDisFont_clicked()
+// Name: on_btnDisFont_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::on_btnDisFont_clicked() {
@@ -146,7 +146,7 @@ void DialogOptions::on_btnDisFont_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnSymbolDir_clicked()
+// Name: on_btnSymbolDir_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::on_btnSymbolDir_clicked() {
@@ -158,7 +158,7 @@ void DialogOptions::on_btnSymbolDir_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnSessionDir_clicked()
+// Name: on_btnSessionDir_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::on_btnSessionDir_clicked() {
@@ -170,7 +170,7 @@ void DialogOptions::on_btnSessionDir_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnPluginDir_clicked()
+// Name: on_btnPluginDir_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::on_btnPluginDir_clicked() {
@@ -182,7 +182,7 @@ void DialogOptions::on_btnPluginDir_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *event)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::showEvent(QShowEvent *event) {
@@ -231,7 +231,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: closeEvent(QCloseEvent *event)
+// Name: closeEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::closeEvent(QCloseEvent *event) {
@@ -287,7 +287,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: accept()
+// Name: accept
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOptions::accept() {
