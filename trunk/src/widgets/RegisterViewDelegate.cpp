@@ -21,21 +21,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTreeView>
 
 //------------------------------------------------------------------------------
-// Name: RegisterViewDelegate(QTreeView *view, QWidget *parent)
+// Name: RegisterViewDelegate
 // Desc:
 //------------------------------------------------------------------------------
 RegisterViewDelegate::RegisterViewDelegate(QTreeView *view, QWidget *parent) : QItemDelegate(parent), view_(view) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~RegisterViewDelegate()
+// Name: ~RegisterViewDelegate
 // Desc:
 //------------------------------------------------------------------------------
 RegisterViewDelegate::~RegisterViewDelegate() {
 }
 
 //------------------------------------------------------------------------------
-// Name: paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const
+// Name: paint
 // Desc:
 //------------------------------------------------------------------------------
 void RegisterViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const {
@@ -83,7 +83,7 @@ void RegisterViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 }
 
 //------------------------------------------------------------------------------
-// Name: sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const
+// Name: sizeHint
 // Desc:
 //------------------------------------------------------------------------------
 QSize RegisterViewDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const {

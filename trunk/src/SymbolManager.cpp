@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 //------------------------------------------------------------------------------
-// Name: load_symbols(const QString &symbol_directory)
+// Name: load_symbols
 // Desc:
 //------------------------------------------------------------------------------
 void SymbolManager::load_symbols(const QString &symbol_directory) {
@@ -38,7 +38,7 @@ void SymbolManager::load_symbols(const QString &symbol_directory) {
 }
 
 //------------------------------------------------------------------------------
-// Name: clear()
+// Name: clear
 // Desc:
 //------------------------------------------------------------------------------
 void SymbolManager::clear() {
@@ -49,7 +49,7 @@ void SymbolManager::clear() {
 }
 
 //------------------------------------------------------------------------------
-// Name: load_symbol_file(const QString &filename, edb::address_t base)
+// Name: load_symbol_file
 // Desc:
 //------------------------------------------------------------------------------
 void SymbolManager::load_symbol_file(const QString &filename, edb::address_t base) {
@@ -66,7 +66,7 @@ void SymbolManager::load_symbol_file(const QString &filename, edb::address_t bas
 }
 
 //------------------------------------------------------------------------------
-// Name: find(const QString &name) const
+// Name: find
 // Desc:
 //------------------------------------------------------------------------------
 const Symbol::pointer SymbolManager::find(const QString &name) const {
@@ -78,7 +78,7 @@ const Symbol::pointer SymbolManager::find(const QString &name) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: find(edb::address_t address) const
+// Name: find
 // Desc:
 //------------------------------------------------------------------------------
 const Symbol::pointer SymbolManager::find(edb::address_t address) const {
@@ -87,7 +87,7 @@ const Symbol::pointer SymbolManager::find(edb::address_t address) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: find_near_symbol(edb::address_t address) const
+// Name: find_near_symbol
 // Desc:
 //------------------------------------------------------------------------------
 const Symbol::pointer SymbolManager::find_near_symbol(edb::address_t address) const {
@@ -115,7 +115,7 @@ const Symbol::pointer SymbolManager::find_near_symbol(edb::address_t address) co
 }
 
 //------------------------------------------------------------------------------
-// Name: add_symbol(const Symbol::pointer &symbol)
+// Name: add_symbol
 // Desc:
 //------------------------------------------------------------------------------
 void SymbolManager::add_symbol(const Symbol::pointer &symbol) {
@@ -126,7 +126,7 @@ void SymbolManager::add_symbol(const Symbol::pointer &symbol) {
 }
 
 //------------------------------------------------------------------------------
-// Name: process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename)
+// Name: process_symbol_file
 // Desc:
 //------------------------------------------------------------------------------
 bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename) {
@@ -183,7 +183,7 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 }
 
 //------------------------------------------------------------------------------
-// Name: symbols() const
+// Name: symbols
 // Desc:
 //------------------------------------------------------------------------------
 const QList<Symbol::pointer> SymbolManager::symbols() const {

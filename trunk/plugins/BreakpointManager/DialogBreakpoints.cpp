@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dialogbreakpoints.h"
 
 //------------------------------------------------------------------------------
-// Name: DialogBreakpoints(QWidget *parent)
+// Name: DialogBreakpoints
 // Desc:
 //------------------------------------------------------------------------------
 DialogBreakpoints::DialogBreakpoints(QWidget *parent) : QDialog(parent), ui(new Ui::DialogBreakpoints) {
@@ -38,7 +38,7 @@ DialogBreakpoints::DialogBreakpoints(QWidget *parent) : QDialog(parent), ui(new 
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogBreakpoints()
+// Name: ~DialogBreakpoints
 // Desc:
 //------------------------------------------------------------------------------
 DialogBreakpoints::~DialogBreakpoints() {
@@ -46,7 +46,7 @@ DialogBreakpoints::~DialogBreakpoints() {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogBreakpoints::showEvent(QShowEvent *) {
@@ -54,7 +54,7 @@ void DialogBreakpoints::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: updateList()
+// Name: updateList
 // Desc:
 //------------------------------------------------------------------------------
 void DialogBreakpoints::updateList() {
@@ -90,7 +90,7 @@ void DialogBreakpoints::updateList() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnAdd_clicked()
+// Name: on_btnAdd_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogBreakpoints::on_btnAdd_clicked() {
@@ -113,7 +113,7 @@ void DialogBreakpoints::on_btnAdd_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnCondition_clicked()
+// Name: on_btnCondition_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogBreakpoints::on_btnCondition_clicked() {
@@ -134,7 +134,7 @@ void DialogBreakpoints::on_btnCondition_clicked() {
 
 #if 0
 //------------------------------------------------------------------------------
-// Name: on_btnAddFunction_clicked()
+// Name: on_btnAddFunction_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogBreakpoints::on_btnAddFunction_clicked() {
@@ -153,7 +153,7 @@ void DialogBreakpoints::on_btnAddFunction_clicked() {
 #endif
 
 //------------------------------------------------------------------------------
-// Name: on_btnRemove_clicked()
+// Name: on_btnRemove_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogBreakpoints::on_btnRemove_clicked() {
@@ -171,7 +171,7 @@ void DialogBreakpoints::on_btnRemove_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_tableWidget_cellDoubleClicked(int row, int col)
+// Name: on_tableWidget_cellDoubleClicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {

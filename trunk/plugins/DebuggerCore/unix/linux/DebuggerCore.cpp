@@ -63,7 +63,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace {
 
 //------------------------------------------------------------------------------
-// Name: is_numeric(const QString &s)
+// Name: is_numeric
 // Desc: returns true if the string only contains decimal digits
 //------------------------------------------------------------------------------
 bool is_numeric(const QString &s) {
@@ -77,7 +77,7 @@ bool is_numeric(const QString &s) {
 }
 
 //------------------------------------------------------------------------------
-// Name: resume_code(int status)
+// Name: resume_code
 // Desc:
 //------------------------------------------------------------------------------
 int resume_code(int status) {
@@ -98,7 +98,7 @@ int resume_code(int status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: is_clone_event(int status)
+// Name: is_clone_event
 // Desc:
 //------------------------------------------------------------------------------
 bool is_clone_event(int status) {
@@ -110,7 +110,7 @@ bool is_clone_event(int status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: process_map_line(const QString &line)
+// Name: process_map_line
 // Desc: parses the data from a line of a memory map file
 //------------------------------------------------------------------------------
 IRegion::pointer process_map_line(const QString &line) {
@@ -199,7 +199,7 @@ struct user_stat {
 };
 
 //------------------------------------------------------------------------------
-// Name: get_user_stat(edb::pid_t pid, struct user_stat *user_stat)
+// Name: get_user_stat
 // Desc: gets the contents of /proc/<pid>/stat and returns the number of elements
 //       successfully parsed
 //------------------------------------------------------------------------------
@@ -269,7 +269,7 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 }
 
 //------------------------------------------------------------------------------
-// Name: DebuggerCore()
+// Name: DebuggerCore
 // Desc: constructor
 //------------------------------------------------------------------------------
 DebuggerCore::DebuggerCore() : binary_info_(0) {
@@ -292,7 +292,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: page_size() const
+// Name: page_size
 // Desc: returns the size of a page on this system
 //------------------------------------------------------------------------------
 edb::address_t DebuggerCore::page_size() const {
@@ -300,7 +300,7 @@ edb::address_t DebuggerCore::page_size() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DebuggerCore()
+// Name: ~DebuggerCore
 // Desc: destructor
 //------------------------------------------------------------------------------
 DebuggerCore::~DebuggerCore() {
@@ -308,7 +308,7 @@ DebuggerCore::~DebuggerCore() {
 }
 
 //------------------------------------------------------------------------------
-// Name: ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo)
+// Name: ptrace_getsiginfo
 // Desc:
 //------------------------------------------------------------------------------
 long DebuggerCore::ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo) {
@@ -317,7 +317,7 @@ long DebuggerCore::ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ptrace_traceme()
+// Name: ptrace_traceme
 // Desc:
 //------------------------------------------------------------------------------
 long DebuggerCore::ptrace_traceme() {
@@ -325,7 +325,7 @@ long DebuggerCore::ptrace_traceme() {
 }
 
 //------------------------------------------------------------------------------
-// Name: ptrace_continue(edb::tid_t tid, long status)
+// Name: ptrace_continue
 // Desc:
 //------------------------------------------------------------------------------
 long DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
@@ -336,7 +336,7 @@ long DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ptrace_step(edb::tid_t tid, long status)
+// Name: ptrace_step
 // Desc:
 //------------------------------------------------------------------------------
 long DebuggerCore::ptrace_step(edb::tid_t tid, long status) {
@@ -347,7 +347,7 @@ long DebuggerCore::ptrace_step(edb::tid_t tid, long status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ptrace_set_options(edb::tid_t tid, long options)
+// Name: ptrace_set_options
 // Desc:
 //------------------------------------------------------------------------------
 long DebuggerCore::ptrace_set_options(edb::tid_t tid, long options) {
@@ -357,7 +357,7 @@ long DebuggerCore::ptrace_set_options(edb::tid_t tid, long options) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ptrace_get_event_message(edb::tid_t tid, unsigned long *message)
+// Name: ptrace_get_event_message
 // Desc:
 //------------------------------------------------------------------------------
 long DebuggerCore::ptrace_get_event_message(edb::tid_t tid, unsigned long *message) {
@@ -368,7 +368,7 @@ long DebuggerCore::ptrace_get_event_message(edb::tid_t tid, unsigned long *messa
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_event(edb::tid_t tid, int status)
+// Name: handle_event
 // Desc:
 //------------------------------------------------------------------------------
 IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status) {
@@ -439,7 +439,7 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 }
 
 //------------------------------------------------------------------------------
-// Name: stop_threads()
+// Name: stop_threads
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::stop_threads() {
@@ -463,7 +463,7 @@ void DebuggerCore::stop_threads() {
 }
 
 //------------------------------------------------------------------------------
-// Name: wait_debug_event(int msecs)
+// Name: wait_debug_event
 // Desc: waits for a debug event, msecs is a timeout
 //      it will return false if an error or timeout occurs
 //------------------------------------------------------------------------------
@@ -484,7 +484,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: read_data(edb::address_t address, bool *ok)
+// Name: read_data
 // Desc:
 // Note: this will fail on newer versions of linux if called from a
 //       different thread than the one which attached to process
@@ -500,7 +500,7 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 }
 
 //------------------------------------------------------------------------------
-// Name: read_pages
+// Name: read_page
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
@@ -531,7 +531,7 @@ bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t cou
 
 
 //------------------------------------------------------------------------------
-// Name: write_data(edb::address_t address, long value)
+// Name: write_data
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::write_data(edb::address_t address, long value) {
@@ -539,7 +539,7 @@ bool DebuggerCore::write_data(edb::address_t address, long value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: attach_thread(edb::tid_t tid)
+// Name: attach_thread
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::attach_thread(edb::tid_t tid) {
@@ -563,7 +563,7 @@ bool DebuggerCore::attach_thread(edb::tid_t tid) {
 }
 
 //------------------------------------------------------------------------------
-// Name: attach(edb::pid_t pid)
+// Name: attach
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::attach(edb::pid_t pid) {
@@ -597,7 +597,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 }
 
 //------------------------------------------------------------------------------
-// Name: detach()
+// Name: detach
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::detach() {
@@ -618,7 +618,7 @@ void DebuggerCore::detach() {
 }
 
 //------------------------------------------------------------------------------
-// Name: kill()
+// Name: kill
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::kill() {
@@ -635,7 +635,7 @@ void DebuggerCore::kill() {
 }
 
 //------------------------------------------------------------------------------
-// Name: pause()
+// Name: pause
 // Desc: stops *all* threads of a process
 //------------------------------------------------------------------------------
 void DebuggerCore::pause() {
@@ -650,7 +650,7 @@ void DebuggerCore::pause() {
 }
 
 //------------------------------------------------------------------------------
-// Name: resume(edb::EVENT_STATUS status)
+// Name: resume
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::resume(edb::EVENT_STATUS status) {
@@ -673,7 +673,7 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: step(edb::EVENT_STATUS status)
+// Name: step
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::step(edb::EVENT_STATUS status) {
@@ -689,7 +689,7 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_state(State *state)
+// Name: get_state
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::get_state(State *state) {
@@ -738,7 +738,7 @@ void DebuggerCore::get_state(State *state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_state(const State &state)
+// Name: set_state
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::set_state(const State &state) {
@@ -765,7 +765,7 @@ void DebuggerCore::set_state(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty)
+// Name: open
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
@@ -843,7 +843,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 }
 
 //------------------------------------------------------------------------------
-// Name: set_active_thread(edb::tid_t tid)
+// Name: set_active_thread
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::set_active_thread(edb::tid_t tid) {
@@ -859,7 +859,7 @@ void DebuggerCore::set_active_thread(edb::tid_t tid) {
 }
 
 //------------------------------------------------------------------------------
-// Name: reset()
+// Name: reset
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::reset() {
@@ -873,7 +873,7 @@ void DebuggerCore::reset() {
 }
 
 //------------------------------------------------------------------------------
-// Name: create_state() const
+// Name: create_state
 // Desc:
 //------------------------------------------------------------------------------
 IState *DebuggerCore::create_state() const {
@@ -881,7 +881,7 @@ IState *DebuggerCore::create_state() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: enumerate_processes() const
+// Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
 QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {

@@ -84,7 +84,7 @@ size_t PE32::header_size() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: header() const
+// Name: header
 // Desc: returns a copy of the file header or NULL if the region wasn't a valid,
 //       known binary type
 //------------------------------------------------------------------------------

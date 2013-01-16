@@ -20,21 +20,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "X86Breakpoint.h"
 
 //------------------------------------------------------------------------------
-// Name: DebuggerCoreBase()
+// Name: DebuggerCoreBase
 // Desc: constructor
 //------------------------------------------------------------------------------
 DebuggerCoreBase::DebuggerCoreBase() : active_thread_(0), pid_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DebuggerCoreBase()
+// Name: ~DebuggerCoreBase
 // Desc: destructor
 //------------------------------------------------------------------------------
 DebuggerCoreBase::~DebuggerCoreBase() {
 }
 
 //------------------------------------------------------------------------------
-// Name: clear_breakpoints()
+// Name: clear_breakpoints
 // Desc: removes all breakpoints
 //------------------------------------------------------------------------------
 void DebuggerCoreBase::clear_breakpoints() {
@@ -44,7 +44,7 @@ void DebuggerCoreBase::clear_breakpoints() {
 }
 
 //------------------------------------------------------------------------------
-// Name: add_breakpoint(edb::address_t address)
+// Name: add_breakpoint
 // Desc: creates a new breakpoint
 //       (only if there isn't already one at the given address)
 //------------------------------------------------------------------------------
@@ -62,7 +62,7 @@ IBreakpoint::pointer DebuggerCoreBase::add_breakpoint(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: find_breakpoint(edb::address_t address) const
+// Name: find_breakpoint
 // Desc: returns the breakpoint at the given address or IBreakpoint::pointer()
 //------------------------------------------------------------------------------
 IBreakpoint::pointer DebuggerCoreBase::find_breakpoint(edb::address_t address) {
@@ -77,7 +77,7 @@ IBreakpoint::pointer DebuggerCoreBase::find_breakpoint(edb::address_t address) {
 
 
 //------------------------------------------------------------------------------
-// Name: remove_breakpoint(edb::address_t address)
+// Name: remove_breakpoint
 // Desc: removes the breakpoint at the given address, this is a no-op if there
 //       is no breakpoint present.
 // Note: if another part of the code has a reference to the BP, it will not
@@ -95,7 +95,7 @@ void DebuggerCoreBase::remove_breakpoint(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: backup_breakpoints() const
+// Name: backup_breakpoints
 // Desc: returns a copy of the BP list, these count as references to the BPs
 //       preventing full removal until this list is destructed.
 //------------------------------------------------------------------------------
@@ -104,7 +104,7 @@ DebuggerCoreBase::BreakpointList DebuggerCoreBase::backup_breakpoints() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: open(const QString &path, const QString &cwd, const QList<QByteArray> &args)
+// Name: open
 // Desc: executes the given program
 //------------------------------------------------------------------------------
 bool DebuggerCoreBase::open(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
@@ -112,7 +112,7 @@ bool DebuggerCoreBase::open(const QString &path, const QString &cwd, const QList
 }
 
 //------------------------------------------------------------------------------
-// Name: pid() const
+// Name: pid
 // Desc: returns the pid of the currently debugged process (0 if not attached)
 //------------------------------------------------------------------------------
 edb::pid_t DebuggerCoreBase::pid() const {
@@ -120,7 +120,7 @@ edb::pid_t DebuggerCoreBase::pid() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: attached() const
+// Name: attached
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCoreBase::attached() const {
@@ -128,7 +128,7 @@ bool DebuggerCoreBase::attached() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: thread_ids() const
+// Name: thread_ids
 // Desc:
 //------------------------------------------------------------------------------
 QList<edb::tid_t> DebuggerCoreBase::thread_ids() const {
@@ -136,7 +136,7 @@ QList<edb::tid_t> DebuggerCoreBase::thread_ids() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: active_thread() const
+// Name: active_thread
 // Desc:
 //------------------------------------------------------------------------------
 edb::tid_t DebuggerCoreBase::active_thread() const {
@@ -144,14 +144,14 @@ edb::tid_t DebuggerCoreBase::active_thread() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_active_thread(edb::tid_t)
+// Name: set_active_thread
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCoreBase::set_active_thread(edb::tid_t) {
 }
 
 //------------------------------------------------------------------------------
-// Name: breakpoint_size() const
+// Name: breakpoint_size
 // Desc:
 //------------------------------------------------------------------------------
 int DebuggerCoreBase::breakpoint_size() const {

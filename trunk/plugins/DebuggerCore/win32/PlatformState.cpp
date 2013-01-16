@@ -73,7 +73,7 @@ double read_float80(const uint8_t buffer[10]) {
 
 
 //------------------------------------------------------------------------------
-// Name: PlatformState()
+// Name: PlatformState
 // Desc:
 //------------------------------------------------------------------------------
 PlatformState::PlatformState() {
@@ -83,7 +83,7 @@ PlatformState::PlatformState() {
 }
 
 //------------------------------------------------------------------------------
-// Name: PlatformState::clone() const
+// Name: PlatformState::clone
 // Desc: makes a copy of the state object
 //------------------------------------------------------------------------------
 IState *PlatformState::clone() const {
@@ -91,7 +91,7 @@ IState *PlatformState::clone() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: flags_to_string(edb::reg_t flags) const
+// Name: flags_to_string
 // Desc: returns the flags in a string form appropriate for this platform
 //------------------------------------------------------------------------------
 QString PlatformState::flags_to_string(edb::reg_t flags) const {
@@ -112,7 +112,7 @@ QString PlatformState::flags_to_string(edb::reg_t flags) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: flags_to_string() const
+// Name: flags_to_string
 // Desc: returns the flags in a string form appropriate for this platform
 //------------------------------------------------------------------------------
 QString PlatformState::flags_to_string() const {
@@ -120,7 +120,7 @@ QString PlatformState::flags_to_string() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: value(const QString &reg) const
+// Name: value
 // Desc: returns a Register object which represents the register with the name
 //       supplied
 //------------------------------------------------------------------------------
@@ -247,7 +247,7 @@ Register PlatformState::value(const QString &reg) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: frame_pointer() const
+// Name: frame_pointer
 // Desc: returns what is conceptually the frame pointer for this platform
 //------------------------------------------------------------------------------
 edb::address_t PlatformState::frame_pointer() const {
@@ -259,7 +259,7 @@ edb::address_t PlatformState::frame_pointer() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: instruction_pointer() const
+// Name: instruction_pointer
 // Desc: returns the instruction pointer for this platform
 //------------------------------------------------------------------------------
 edb::address_t PlatformState::instruction_pointer() const {
@@ -271,7 +271,7 @@ edb::address_t PlatformState::instruction_pointer() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: stack_pointer() const
+// Name: stack_pointer
 // Desc: returns the stack pointer for this platform
 //------------------------------------------------------------------------------
 edb::address_t PlatformState::stack_pointer() const {
@@ -283,7 +283,7 @@ edb::address_t PlatformState::stack_pointer() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: debug_register(int n) const
+// Name: debug_register
 // Desc:
 //------------------------------------------------------------------------------
 edb::reg_t PlatformState::debug_register(int n) const {
@@ -300,7 +300,7 @@ edb::reg_t PlatformState::debug_register(int n) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: flags() const
+// Name: flags
 // Desc:
 //------------------------------------------------------------------------------
 edb::reg_t PlatformState::flags() const {
@@ -312,7 +312,7 @@ edb::reg_t PlatformState::flags() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: fpu_register(int n) const
+// Name: fpu_register
 // Desc:
 //------------------------------------------------------------------------------
 long double PlatformState::fpu_register(int n) const {
@@ -380,7 +380,7 @@ QByteArray PlatformState::xmm_register(int n) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: adjust_stack(int bytes)
+// Name: adjust_stack
 // Desc:
 //------------------------------------------------------------------------------
 void PlatformState::adjust_stack(int bytes) {
@@ -392,7 +392,7 @@ void PlatformState::adjust_stack(int bytes) {
 }
 
 //------------------------------------------------------------------------------
-// Name: clear()
+// Name: clear
 // Desc:
 //------------------------------------------------------------------------------
 void PlatformState::clear() {
@@ -402,7 +402,7 @@ void PlatformState::clear() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_debug_register(int n, edb::reg_t value)
+// Name: set_debug_register
 // Desc:
 //------------------------------------------------------------------------------
 void PlatformState::set_debug_register(int n, edb::reg_t value) {
@@ -419,7 +419,7 @@ void PlatformState::set_debug_register(int n, edb::reg_t value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_flags(edb::reg_t flags)
+// Name: set_flags
 // Desc:
 //------------------------------------------------------------------------------
 void PlatformState::set_flags(edb::reg_t flags) {
@@ -431,7 +431,7 @@ void PlatformState::set_flags(edb::reg_t flags) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_instruction_pointer(edb::address_t value)
+// Name: set_instruction_pointer
 // Desc:
 //------------------------------------------------------------------------------
 void PlatformState::set_instruction_pointer(edb::address_t value) {
@@ -443,7 +443,7 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_register(const QString &name, edb::reg_t value)
+// Name: set_register
 // Desc:
 //------------------------------------------------------------------------------
 void PlatformState::set_register(const QString &name, edb::reg_t value) {

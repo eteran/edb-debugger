@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 //------------------------------------------------------------------------------
-// Name: DialogHWBreakpoints(QWidget *parent)
+// Name: DialogHWBreakpoints
 // Desc:
 //------------------------------------------------------------------------------
 DialogHWBreakpoints::DialogHWBreakpoints(QWidget *parent) : QDialog(parent), ui(new Ui::DialogHWBreakpoints) {
@@ -50,7 +50,7 @@ DialogHWBreakpoints::DialogHWBreakpoints(QWidget *parent) : QDialog(parent), ui(
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogHWBreakpoints()
+// Name: ~DialogHWBreakpoints
 // Desc:
 //------------------------------------------------------------------------------
 DialogHWBreakpoints::~DialogHWBreakpoints() {
@@ -58,7 +58,7 @@ DialogHWBreakpoints::~DialogHWBreakpoints() {
 }
 
 //------------------------------------------------------------------------------
-// Name: type1IndexChanged(int index)
+// Name: type1IndexChanged
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHWBreakpoints::type1IndexChanged(int index) {
@@ -66,7 +66,7 @@ void DialogHWBreakpoints::type1IndexChanged(int index) {
 }
 
 //------------------------------------------------------------------------------
-// Name: type2IndexChanged(int index)
+// Name: type2IndexChanged
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHWBreakpoints::type2IndexChanged(int index) {
@@ -74,7 +74,7 @@ void DialogHWBreakpoints::type2IndexChanged(int index) {
 }
 
 //------------------------------------------------------------------------------
-// Name: type3IndexChanged(int index)
+// Name: type3IndexChanged
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHWBreakpoints::type3IndexChanged(int index) {
@@ -82,7 +82,7 @@ void DialogHWBreakpoints::type3IndexChanged(int index) {
 }
 
 //------------------------------------------------------------------------------
-// Name: type4IndexChanged(int index)
+// Name: type4IndexChanged
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHWBreakpoints::type4IndexChanged(int index) {
@@ -90,7 +90,7 @@ void DialogHWBreakpoints::type4IndexChanged(int index) {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *event)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHWBreakpoints::showEvent(QShowEvent *event) {

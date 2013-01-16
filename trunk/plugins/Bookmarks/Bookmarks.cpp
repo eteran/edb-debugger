@@ -27,14 +27,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSignalMapper>
 
 //------------------------------------------------------------------------------
-// Name: Bookmarks(
+// Name: Bookmarks
 // Desc:
 //------------------------------------------------------------------------------
 Bookmarks::Bookmarks() : QObject(0), menu_(0), signal_mapper_(0), bookmark_widget_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: menu(QWidget *parent)
+// Name: menu
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *Bookmarks::menu(QWidget *parent) {
@@ -76,7 +76,7 @@ QMenu *Bookmarks::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: cpu_context_menu()
+// Name: cpu_context_menu
 // Desc:
 //------------------------------------------------------------------------------
 QList<QAction *> Bookmarks::cpu_context_menu() {
@@ -91,7 +91,7 @@ QList<QAction *> Bookmarks::cpu_context_menu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: addresses() const
+// Name: addresses
 // Desc:
 //------------------------------------------------------------------------------
 QVariantList Bookmarks::addresses() const {
@@ -104,7 +104,7 @@ QVariantList Bookmarks::addresses() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: add_bookmark_menu()
+// Name: add_bookmark_menu
 // Desc:
 //------------------------------------------------------------------------------
 void Bookmarks::add_bookmark_menu() {

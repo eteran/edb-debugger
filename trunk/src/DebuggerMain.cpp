@@ -88,7 +88,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 	//--------------------------------------------------------------------------
-	// Name: is_instruction_ret()
+	// Name: is_instruction_ret
 	//--------------------------------------------------------------------------
 	bool is_instruction_ret(edb::address_t address) {
 
@@ -106,14 +106,14 @@ namespace {
 class RunUntilRet : public IDebugEventHandler {
 public:
 	//--------------------------------------------------------------------------
-	// Name: RunUntilRet(DebuggerMain *ui)
+	// Name: RunUntilRet
 	//--------------------------------------------------------------------------
 	RunUntilRet(DebuggerMain *ui) : ui_(ui), previous_handler_(0), last_call_return_(0) {
 		previous_handler_ = edb::v1::set_debug_event_handler(this);
 	}
 
 	//--------------------------------------------------------------------------
-	// Name: handle_event(const IDebugEvent::const_pointer &event)
+	// Name: handle_event
 	//--------------------------------------------------------------------------
 	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event) {
 
@@ -182,7 +182,7 @@ private:
 
 
 //------------------------------------------------------------------------------
-// Name: DebuggerMain(QWidget *parent)
+// Name: DebuggerMain
 // Desc: constructor
 //------------------------------------------------------------------------------
 DebuggerMain::DebuggerMain(QWidget *parent) : DebuggerUI(parent),
@@ -227,7 +227,7 @@ DebuggerMain::DebuggerMain(QWidget *parent) : DebuggerUI(parent),
 }
 
 //------------------------------------------------------------------------------
-// Name: goto_triggered()
+// Name: goto_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::goto_triggered() {
@@ -244,7 +244,7 @@ void DebuggerMain::goto_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: setup_ui()
+// Name: setup_ui
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::setup_ui() {
@@ -289,7 +289,7 @@ void DebuggerMain::setup_ui() {
 }
 
 //------------------------------------------------------------------------------
-// Name: setup_stack_view()
+// Name: setup_stack_view
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::setup_stack_view() {
@@ -310,7 +310,7 @@ void DebuggerMain::setup_stack_view() {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DebuggerMain()
+// Name: ~DebuggerMain
 // Desc: destructor
 //------------------------------------------------------------------------------
 DebuggerMain::~DebuggerMain() {
@@ -318,7 +318,7 @@ DebuggerMain::~DebuggerMain() {
 }
 
 //------------------------------------------------------------------------------
-// Name: closeEvent(QCloseEvent *)
+// Name: closeEvent
 // Desc: triggered on main window close, saves window state
 //------------------------------------------------------------------------------
 void DebuggerMain::closeEvent(QCloseEvent *event) {
@@ -339,7 +339,7 @@ void DebuggerMain::closeEvent(QCloseEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc: triggered on show, restores window state
 //------------------------------------------------------------------------------
 void DebuggerMain::showEvent(QShowEvent *) {
@@ -382,7 +382,7 @@ void DebuggerMain::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: dragEnterEvent(QDragEnterEvent* event)
+// Name: dragEnterEvent
 // Desc: triggered when dragging data onto the main window
 //------------------------------------------------------------------------------
 void DebuggerMain::dragEnterEvent(QDragEnterEvent* event) {
@@ -400,7 +400,7 @@ void DebuggerMain::dragEnterEvent(QDragEnterEvent* event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: dropEvent(QDropEvent* event)
+// Name: dropEvent
 // Desc: triggered when data was dropped onto the main window
 //------------------------------------------------------------------------------
 void DebuggerMain::dropEvent(QDropEvent* event) {
@@ -418,7 +418,7 @@ void DebuggerMain::dropEvent(QDropEvent* event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_actionAbout_QT_triggered()
+// Name: on_actionAbout_QT_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_actionAbout_QT_triggered() {
@@ -426,7 +426,7 @@ void DebuggerMain::on_actionAbout_QT_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: apply_default_fonts()
+// Name: apply_default_fonts
 // Desc: applies the configuration's fonts to all necessary widgets
 //------------------------------------------------------------------------------
 void DebuggerMain::apply_default_fonts() {
@@ -455,7 +455,7 @@ void DebuggerMain::apply_default_fonts() {
 }
 
 //------------------------------------------------------------------------------
-// Name: setup_tab_buttons()
+// Name: setup_tab_buttons
 // Desc: creates the add/remove tab buttons in the data view
 //------------------------------------------------------------------------------
 void DebuggerMain::setup_tab_buttons() {
@@ -480,7 +480,7 @@ void DebuggerMain::setup_tab_buttons() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_registerList_customContextMenuRequested(const QPoint &pos)
+// Name: on_registerList_customContextMenuRequested
 // Desc: context menu handler for register view
 //------------------------------------------------------------------------------
 void DebuggerMain::on_registerList_customContextMenuRequested(const QPoint &pos) {
@@ -503,7 +503,7 @@ void DebuggerMain::on_registerList_customContextMenuRequested(const QPoint &pos)
 }
 
 //------------------------------------------------------------------------------
-// Name: on_cpuView_breakPointToggled(edb::address_t address)
+// Name: on_cpuView_breakPointToggled
 // Desc: handler for toggling the breakpoints
 //------------------------------------------------------------------------------
 void DebuggerMain::on_cpuView_breakPointToggled(edb::address_t address) {
@@ -511,7 +511,7 @@ void DebuggerMain::on_cpuView_breakPointToggled(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_registerList_itemDoubleClicked(QTreeWidgetItem *item)
+// Name: on_registerList_itemDoubleClicked
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_registerList_itemDoubleClicked(QTreeWidgetItem *item) {
@@ -532,7 +532,7 @@ void DebuggerMain::on_registerList_itemDoubleClicked(QTreeWidgetItem *item) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_About_triggered()
+// Name: on_action_About_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_About_triggered() {
@@ -547,7 +547,7 @@ void DebuggerMain::on_action_About_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: apply_default_show_separator()
+// Name: apply_default_show_separator
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::apply_default_show_separator() {
@@ -561,7 +561,7 @@ void DebuggerMain::apply_default_show_separator() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Configure_Debugger_triggered()
+// Name: on_action_Configure_Debugger_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Configure_Debugger_triggered() {
@@ -585,7 +585,7 @@ void DebuggerMain::on_action_Configure_Debugger_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: follow_memory(edb::address_t address, F follow_func)
+// Name: follow_memory
 // Desc:
 //------------------------------------------------------------------------------
 template <class F>
@@ -598,7 +598,7 @@ void DebuggerMain::follow_memory(edb::address_t address, F follow_func) {
 }
 
 //------------------------------------------------------------------------------
-// Name: follow_register_in_dump(bool tabbed)
+// Name: follow_register_in_dump
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::follow_register_in_dump(bool tabbed) {
@@ -612,7 +612,7 @@ void DebuggerMain::follow_register_in_dump(bool tabbed) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuStackGotoESP()
+// Name: mnuStackGotoESP
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackGotoESP() {
@@ -622,7 +622,7 @@ void DebuggerMain::mnuStackGotoESP() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuStackGotoEBP()
+// Name: mnuStackGotoEBP
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackGotoEBP() {
@@ -632,7 +632,7 @@ void DebuggerMain::mnuStackGotoEBP() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCPUJumpToEIP()
+// Name: mnuCPUJumpToEIP
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUJumpToEIP() {
@@ -642,7 +642,7 @@ void DebuggerMain::mnuCPUJumpToEIP() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCPUJumpToAddress()
+// Name: mnuCPUJumpToAddress
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUJumpToAddress() {
@@ -654,7 +654,7 @@ void DebuggerMain::mnuCPUJumpToAddress() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuDumpGotoAddress()
+// Name: mnuDumpGotoAddress
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpGotoAddress() {
@@ -666,7 +666,7 @@ void DebuggerMain::mnuDumpGotoAddress() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuStackGotoAddress()
+// Name: mnuStackGotoAddress
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackGotoAddress() {
@@ -678,7 +678,7 @@ void DebuggerMain::mnuStackGotoAddress() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuRegisterFollowInStack()
+// Name: mnuRegisterFollowInStack
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuRegisterFollowInStack() {
@@ -691,7 +691,7 @@ void DebuggerMain::mnuRegisterFollowInStack() {
 
 
 //------------------------------------------------------------------------------
-// Name: get_follow_address(const T &hv, bool *ok)
+// Name: get_follow_address
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
@@ -722,7 +722,7 @@ edb::address_t DebuggerMain::get_follow_address(const T &hv, bool *ok) {
 }
 
 //------------------------------------------------------------------------------
-// Name: follow_in_stack(const T &hv)
+// Name: follow_in_stack
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
@@ -735,7 +735,7 @@ void DebuggerMain::follow_in_stack(const T &hv) {
 }
 
 //------------------------------------------------------------------------------
-// Name: follow_in_dump(const T &hv)
+// Name: follow_in_dump
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
@@ -748,7 +748,7 @@ void DebuggerMain::follow_in_dump(const T &hv) {
 }
 
 //------------------------------------------------------------------------------
-// Name: follow_in_cpu(const T &hv)
+// Name: follow_in_cpu
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
@@ -761,7 +761,7 @@ void DebuggerMain::follow_in_cpu(const T &hv) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuDumpFollowInCPU()
+// Name: mnuDumpFollowInCPU
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpFollowInCPU() {
@@ -769,7 +769,7 @@ void DebuggerMain::mnuDumpFollowInCPU() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuDumpFollowInDump()
+// Name: mnuDumpFollowInDump
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpFollowInDump() {
@@ -777,7 +777,7 @@ void DebuggerMain::mnuDumpFollowInDump() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuDumpFollowInStack()
+// Name: mnuDumpFollowInStack
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpFollowInStack() {
@@ -785,7 +785,7 @@ void DebuggerMain::mnuDumpFollowInStack() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuStackFollowInDump()
+// Name: mnuStackFollowInDump
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackFollowInDump() {
@@ -793,7 +793,7 @@ void DebuggerMain::mnuStackFollowInDump() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuStackFollowInCPU()
+// Name: mnuStackFollowInCPU
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackFollowInCPU() {
@@ -801,7 +801,7 @@ void DebuggerMain::mnuStackFollowInCPU() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuStackFollowInStack()
+// Name: mnuStackFollowInStack
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackFollowInStack() {
@@ -809,7 +809,7 @@ void DebuggerMain::mnuStackFollowInStack() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_actionApplication_Arguments_triggered()
+// Name: on_actionApplication_Arguments_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_actionApplication_Arguments_triggered() {
@@ -817,7 +817,7 @@ void DebuggerMain::on_actionApplication_Arguments_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_actionApplication_Working_Directory_triggered()
+// Name: on_actionApplication_Working_Directory_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_actionApplication_Working_Directory_triggered() {
@@ -833,7 +833,7 @@ void DebuggerMain::on_actionApplication_Working_Directory_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuStackPush()
+// Name: mnuStackPush
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackPush() {
@@ -854,7 +854,7 @@ void DebuggerMain::mnuStackPush() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuStackPop()
+// Name: mnuStackPop
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackPop() {
@@ -866,7 +866,7 @@ void DebuggerMain::mnuStackPop() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_cpuView_customContextMenuRequested(const QPoint &pos)
+// Name: on_cpuView_customContextMenuRequested
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_cpuView_customContextMenuRequested(const QPoint &pos) {
@@ -937,7 +937,7 @@ void DebuggerMain::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCPUFollow()
+// Name: mnuCPUFollow
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUFollow() {
@@ -948,7 +948,7 @@ void DebuggerMain::mnuCPUFollow() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCPUFollowInDump()
+// Name: mnuCPUFollowInDump
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUFollowInDump() {
@@ -959,7 +959,7 @@ void DebuggerMain::mnuCPUFollowInDump() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCPUFollowInStack()
+// Name: mnuCPUFollowInStack
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUFollowInStack() {
@@ -970,7 +970,7 @@ void DebuggerMain::mnuCPUFollowInStack() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuStackToggleLock(bool locked)
+// Name: mnuStackToggleLock
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackToggleLock(bool locked) {
@@ -978,7 +978,7 @@ void DebuggerMain::mnuStackToggleLock(bool locked) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuStackContextMenu(const QPoint &pos)
+// Name: mnuStackContextMenu
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackContextMenu(const QPoint &pos) {
@@ -1013,7 +1013,7 @@ void DebuggerMain::mnuStackContextMenu(const QPoint &pos) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuDumpContextMenu(const QPoint &pos)
+// Name: mnuDumpContextMenu
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpContextMenu(const QPoint &pos) {
@@ -1039,7 +1039,7 @@ void DebuggerMain::mnuDumpContextMenu(const QPoint &pos) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuDumpSaveToFile()
+// Name: mnuDumpSaveToFile
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpSaveToFile() {
@@ -1062,7 +1062,7 @@ void DebuggerMain::mnuDumpSaveToFile() {
 }
 
 //------------------------------------------------------------------------------
-// Name: cpu_fill(quint8 byte)
+// Name: cpu_fill
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::cpu_fill(quint8 byte) {
@@ -1082,7 +1082,7 @@ void DebuggerMain::cpu_fill(quint8 byte) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCPUAddBreakpoint()
+// Name: mnuCPUAddBreakpoint
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUAddBreakpoint() {
@@ -1091,7 +1091,7 @@ void DebuggerMain::mnuCPUAddBreakpoint() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCPUAddConditionalBreakpoint()
+// Name: mnuCPUAddConditionalBreakpoint
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUAddConditionalBreakpoint() {
@@ -1107,7 +1107,7 @@ void DebuggerMain::mnuCPUAddConditionalBreakpoint() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCPURemoveBreakpoint()
+// Name: mnuCPURemoveBreakpoint
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPURemoveBreakpoint() {
@@ -1116,7 +1116,7 @@ void DebuggerMain::mnuCPURemoveBreakpoint() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCPUFillZero()
+// Name: mnuCPUFillZero
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUFillZero() {
@@ -1124,7 +1124,7 @@ void DebuggerMain::mnuCPUFillZero() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCPUFillNop()
+// Name: mnuCPUFillNop
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUFillNop() {
@@ -1133,7 +1133,7 @@ void DebuggerMain::mnuCPUFillNop() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCPUSetEIP()
+// Name: mnuCPUSetEIP
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUSetEIP() {
@@ -1146,7 +1146,7 @@ void DebuggerMain::mnuCPUSetEIP() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCPUModify()
+// Name: mnuCPUModify
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUModify() {
@@ -1165,7 +1165,7 @@ void DebuggerMain::mnuCPUModify() {
 }
 
 //------------------------------------------------------------------------------
-// Name: modify_bytes(const T &hv)
+// Name: modify_bytes
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
@@ -1180,7 +1180,7 @@ void DebuggerMain::modify_bytes(const T &hv) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuDumpModify()
+// Name: mnuDumpModify
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpModify() {
@@ -1188,7 +1188,7 @@ void DebuggerMain::mnuDumpModify() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuStackModify()
+// Name: mnuStackModify
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuStackModify() {
@@ -1196,7 +1196,7 @@ void DebuggerMain::mnuStackModify() {
 }
 
 //------------------------------------------------------------------------------
-// Name: breakpoint_condition_true(const QString &condition) const
+// Name: breakpoint_condition_true
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerMain::breakpoint_condition_true(const QString &condition) {
@@ -1209,7 +1209,7 @@ bool DebuggerMain::breakpoint_condition_true(const QString &condition) {
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_trap()
+// Name: handle_trap
 // Desc: returns true if we should resume as if this trap never happened
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::handle_trap() {
@@ -1258,7 +1258,7 @@ edb::EVENT_STATUS DebuggerMain::handle_trap() {
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_event_stopped(const IDebugEvent::const_pointer &event)
+// Name: handle_event_stopped
 // Desc:
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const IDebugEvent::const_pointer &event) {
@@ -1312,7 +1312,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const IDebugEvent::const_po
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_event_terminated(const IDebugEvent::const_pointer &event)
+// Name: handle_event_terminated
 // Desc:
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::handle_event_terminated(const IDebugEvent::const_pointer &event) {
@@ -1326,7 +1326,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_terminated(const IDebugEvent::const
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_event_exited(const IDebugEvent::const_pointer &event)
+// Name: handle_event_exited
 // Desc:
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::handle_event_exited(const IDebugEvent::const_pointer &event) {
@@ -1340,7 +1340,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_exited(const IDebugEvent::const_poi
 }
 
 //------------------------------------------------------------------------------
-// Name: current_instruction_is_return() const
+// Name: current_instruction_is_return
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerMain::current_instruction_is_return() const {
@@ -1362,7 +1362,7 @@ bool DebuggerMain::current_instruction_is_return() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_event(const IDebugEvent::const_pointer &event)
+// Name: handle_event
 // Desc:
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::handle_event(const IDebugEvent::const_pointer &event) {
@@ -1407,7 +1407,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event(const IDebugEvent::const_pointer &e
 }
 
 //------------------------------------------------------------------------------
-// Name: debug_event_handler(const IDebugEvent::const_pointer &event)
+// Name: debug_event_handler
 // Desc:
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::debug_event_handler(const IDebugEvent::const_pointer &event) {
@@ -1417,7 +1417,7 @@ edb::EVENT_STATUS DebuggerMain::debug_event_handler(const IDebugEvent::const_poi
 }
 
 //------------------------------------------------------------------------------
-// Name: update_tab_caption(const QSharedPointer<QHexView> &view, edb::address_t start, edb::address_t end)
+// Name: update_tab_caption
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::update_tab_caption(const QSharedPointer<QHexView> &view, edb::address_t start, edb::address_t end) {
@@ -1432,7 +1432,7 @@ void DebuggerMain::update_tab_caption(const QSharedPointer<QHexView> &view, edb:
 }
 
 //------------------------------------------------------------------------------
-// Name: update_data(const DataViewInfo::pointer &v)
+// Name: update_data
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::update_data(const DataViewInfo::pointer &v) {
@@ -1449,7 +1449,7 @@ void DebuggerMain::update_data(const DataViewInfo::pointer &v) {
 }
 
 //------------------------------------------------------------------------------
-// Name: clear_data(const DataViewInfo::pointer &v)
+// Name: clear_data
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::clear_data(const DataViewInfo::pointer &v) {
@@ -1467,7 +1467,7 @@ void DebuggerMain::clear_data(const DataViewInfo::pointer &v) {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_jump_to_address(edb::address_t address, const IRegion::pointer &r, bool scrollTo)
+// Name: do_jump_to_address
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::do_jump_to_address(edb::address_t address, const IRegion::pointer &r, bool scrollTo) {
@@ -1479,7 +1479,7 @@ void DebuggerMain::do_jump_to_address(edb::address_t address, const IRegion::poi
 }
 
 //------------------------------------------------------------------------------
-// Name: update_disassembly(edb::address_t address, const IRegion::pointer &r)
+// Name: update_disassembly
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::update_disassembly(edb::address_t address, const IRegion::pointer &r) {
@@ -1489,7 +1489,7 @@ void DebuggerMain::update_disassembly(edb::address_t address, const IRegion::poi
 }
 
 //------------------------------------------------------------------------------
-// Name: update_stack_view(const State &state)
+// Name: update_stack_view
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::update_stack_view(const State &state) {	
@@ -1500,7 +1500,7 @@ void DebuggerMain::update_stack_view(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_cpu_view(const State &state)
+// Name: update_cpu_view
 // Desc:
 //------------------------------------------------------------------------------
 IRegion::pointer DebuggerMain::update_cpu_view(const State &state) {
@@ -1519,7 +1519,7 @@ IRegion::pointer DebuggerMain::update_cpu_view(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_data_views()
+// Name: update_data_views
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::update_data_views() {
@@ -1537,7 +1537,7 @@ void DebuggerMain::update_data_views() {
 }
 
 //------------------------------------------------------------------------------
-// Name: refresh_gui()
+// Name: refresh_gui
 // Desc: refreshes all the different displays
 //------------------------------------------------------------------------------
 void DebuggerMain::refresh_gui() {
@@ -1557,7 +1557,7 @@ void DebuggerMain::refresh_gui() {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_gui()
+// Name: update_gui
 // Desc: updates all the different displays
 //------------------------------------------------------------------------------
 void DebuggerMain::update_gui() {
@@ -1576,7 +1576,7 @@ void DebuggerMain::update_gui() {
 }
 
 //------------------------------------------------------------------------------
-// Name: resume_status(bool pass_exception)
+// Name: resume_status
 // Desc:
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::resume_status(bool pass_exception) {
@@ -1589,7 +1589,7 @@ edb::EVENT_STATUS DebuggerMain::resume_status(bool pass_exception) {
 }
 
 //------------------------------------------------------------------------------
-// Name: resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode)
+// Name: resume_execution
 // Desc: resumes execution, handles the situation of being on a breakpoint as well
 //------------------------------------------------------------------------------
 void DebuggerMain::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode) {
@@ -1597,7 +1597,7 @@ void DebuggerMain::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE 
 }
 
 //------------------------------------------------------------------------------
-// Name: resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced)
+// Name: resume_execution
 // Desc: resumes execution, handles the situation of being on a breakpoint as well
 //------------------------------------------------------------------------------
 void DebuggerMain::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced) {
@@ -1634,7 +1634,7 @@ void DebuggerMain::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE 
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Run_Pass_Signal_To_Application_triggered()
+// Name: on_action_Run_Pass_Signal_To_Application_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Run_Pass_Signal_To_Application_triggered() {
@@ -1642,7 +1642,7 @@ void DebuggerMain::on_action_Run_Pass_Signal_To_Application_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Step_Into_Pass_Signal_To_Application_triggered()
+// Name: on_action_Step_Into_Pass_Signal_To_Application_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Step_Into_Pass_Signal_To_Application_triggered() {
@@ -1650,7 +1650,7 @@ void DebuggerMain::on_action_Step_Into_Pass_Signal_To_Application_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Run_triggered()
+// Name: on_action_Run_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Run_triggered() {
@@ -1658,7 +1658,7 @@ void DebuggerMain::on_action_Run_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Step_Into_triggered(0
+// Name: on_action_Step_Into_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Step_Into_triggered() {
@@ -1666,7 +1666,7 @@ void DebuggerMain::on_action_Step_Into_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Detach_triggered()
+// Name: on_action_Detach_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Detach_triggered() {
@@ -1674,7 +1674,7 @@ void DebuggerMain::on_action_Detach_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Kill_triggered()
+// Name: on_action_Kill_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Kill_triggered() {
@@ -1682,7 +1682,7 @@ void DebuggerMain::on_action_Kill_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Step_Over_Pass_Signal_To_Application_triggered()
+// Name: on_action_Step_Over_Pass_Signal_To_Application_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Step_Over_Pass_Signal_To_Application_triggered() {
@@ -1692,7 +1692,7 @@ void DebuggerMain::on_action_Step_Over_Pass_Signal_To_Application_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Step_Over_triggered()
+// Name: on_action_Step_Over_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Step_Over_triggered() {
@@ -1702,7 +1702,7 @@ void DebuggerMain::on_action_Step_Over_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_actionRun_Until_Return_triggered()
+// Name: on_actionRun_Until_Return_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_actionRun_Until_Return_triggered() {
@@ -1711,7 +1711,7 @@ void DebuggerMain::on_actionRun_Until_Return_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Pause_triggered()
+// Name: on_action_Pause_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Pause_triggered() {
@@ -1720,7 +1720,7 @@ void DebuggerMain::on_action_Pause_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: cleanup_debugger()
+// Name: cleanup_debugger
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::cleanup_debugger() {
@@ -1747,7 +1747,7 @@ void DebuggerMain::cleanup_debugger() {
 }
 
 //------------------------------------------------------------------------------
-// Name: session_filename() const
+// Name: session_filename
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerMain::session_filename() const {
@@ -1759,7 +1759,7 @@ QString DebuggerMain::session_filename() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: detach_from_process(DETACH_ACTION kill)
+// Name: detach_from_process
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::detach_from_process(DETACH_ACTION kill) {
@@ -1784,7 +1784,7 @@ void DebuggerMain::detach_from_process(DETACH_ACTION kill) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_initial_debugger_state()
+// Name: set_initial_debugger_state
 // Desc: resets all of the basic data to sane defaults
 //------------------------------------------------------------------------------
 void DebuggerMain::set_initial_debugger_state() {
@@ -1835,7 +1835,7 @@ void DebuggerMain::set_initial_debugger_state() {
 }
 
 //------------------------------------------------------------------------------
-// Name: test_native_binary()
+// Name: test_native_binary
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::test_native_binary() {
@@ -1851,7 +1851,7 @@ void DebuggerMain::test_native_binary() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_initial_breakpoint(const QString &s)
+// Name: set_initial_breakpoint
 // Desc: sets the initial breakpoint so we can stop at the entry point of the
 //       application
 //------------------------------------------------------------------------------
@@ -1884,7 +1884,7 @@ void DebuggerMain::set_initial_breakpoint(const QString &s) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Restart_triggered()
+// Name: on_action_Restart_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Restart_triggered() {
@@ -1908,7 +1908,7 @@ void DebuggerMain::on_action_Restart_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: common_open(const QString &s, const QStringList &args)
+// Name: common_open
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerMain::common_open(const QString &s, const QList<QByteArray> &args) {
@@ -1942,7 +1942,7 @@ bool DebuggerMain::common_open(const QString &s, const QList<QByteArray> &args) 
 }
 
 //------------------------------------------------------------------------------
-// Name: execute(const QString &program, const QList<QByteArray> &args)
+// Name: execute
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::execute(const QString &program, const QList<QByteArray> &args) {
@@ -1952,7 +1952,7 @@ void DebuggerMain::execute(const QString &program, const QList<QByteArray> &args
 }
 
 //------------------------------------------------------------------------------
-// Name: open_file(const QString &s)
+// Name: open_file
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::open_file(const QString &s) {
@@ -1966,7 +1966,7 @@ void DebuggerMain::open_file(const QString &s) {
 }
 
 //------------------------------------------------------------------------------
-// Name: attach(edb::pid_t pid)
+// Name: attach
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::attach(edb::pid_t pid) {
@@ -2020,7 +2020,7 @@ void DebuggerMain::attach(edb::pid_t pid) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Open_triggered()
+// Name: on_action_Open_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Open_triggered() {
@@ -2037,7 +2037,7 @@ void DebuggerMain::on_action_Open_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Attach_triggered()
+// Name: on_action_Attach_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Attach_triggered() {
@@ -2061,7 +2061,7 @@ void DebuggerMain::on_action_Attach_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Memory_Regions_triggered()
+// Name: on_action_Memory_Regions_triggered
 // Desc: displays the memory regions dialog, and optionally dumps some data
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Memory_Regions_triggered() {
@@ -2076,7 +2076,7 @@ void DebuggerMain::on_action_Memory_Regions_triggered() {
 
 
 //------------------------------------------------------------------------------
-// Name: on_action_Threads_triggered()
+// Name: on_action_Threads_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Threads_triggered() {
@@ -2100,7 +2100,7 @@ void DebuggerMain::on_action_Threads_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuDumpCreateTab()
+// Name: mnuDumpCreateTab
 // Desc: duplicates the current tab creating a new one
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpCreateTab() {
@@ -2109,7 +2109,7 @@ void DebuggerMain::mnuDumpCreateTab() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuDumpDeleteTab()
+// Name: mnuDumpDeleteTab
 // Desc: handles removing of a memory view tab
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpDeleteTab() {
@@ -2118,7 +2118,7 @@ void DebuggerMain::mnuDumpDeleteTab() {
 }
 
 //------------------------------------------------------------------------------
-// Name: add_plugin_context_menu(const T &menu, const F &f)
+// Name: add_plugin_context_menu
 // Desc:
 //------------------------------------------------------------------------------
 template <class F, class T>
@@ -2135,7 +2135,7 @@ void DebuggerMain::add_plugin_context_menu(const T &menu, const F &f) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_action_Plugins_triggered()
+// Name: on_action_Plugins_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_action_Plugins_triggered() {
@@ -2144,7 +2144,7 @@ void DebuggerMain::on_action_Plugins_triggered() {
 }
 
 //------------------------------------------------------------------------------
-// Name: jump_to_address(edb::address_t address)
+// Name: jump_to_address
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerMain::jump_to_address(edb::address_t address) {
@@ -2158,7 +2158,7 @@ bool DebuggerMain::jump_to_address(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: dump_data_range(edb::address_t address, edb::address_t end_address, bool new_tab)
+// Name: dump_data_range
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerMain::dump_data_range(edb::address_t address, edb::address_t end_address, bool new_tab) {
@@ -2188,7 +2188,7 @@ bool DebuggerMain::dump_data_range(edb::address_t address, edb::address_t end_ad
 }
 
 //------------------------------------------------------------------------------
-// Name: dump_data(edb::address_t address, bool new_tab)
+// Name: dump_data
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerMain::dump_data(edb::address_t address, bool new_tab) {
@@ -2212,7 +2212,7 @@ bool DebuggerMain::dump_data(edb::address_t address, bool new_tab) {
 }
 
 //------------------------------------------------------------------------------
-// Name: dump_stack(edb::address_t address, bool scroll_to)
+// Name: dump_stack
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerMain::dump_stack(edb::address_t address, bool scroll_to) {
@@ -2231,7 +2231,7 @@ bool DebuggerMain::dump_stack(edb::address_t address, bool scroll_to) {
 }
 
 //------------------------------------------------------------------------------
-// Name: tab_context_menu(int index, const QPoint &pos)
+// Name: tab_context_menu
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::tab_context_menu(int index, const QPoint &pos) {
@@ -2261,7 +2261,7 @@ void DebuggerMain::tab_context_menu(int index, const QPoint &pos) {
 }
 
 //------------------------------------------------------------------------------
-// Name: next_debug_event()
+// Name: next_debug_event
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::next_debug_event() {

@@ -29,7 +29,7 @@ namespace edb {
 	namespace detail {
 
 		//----------------------------------------------------------------------
-		// Name: step_over(F1 run_func, F2 step_func)
+		// Name: step_over
 		//----------------------------------------------------------------------
 		template <class F1, class F2>
 		void step_over(F1 run_func, F2 step_func) {

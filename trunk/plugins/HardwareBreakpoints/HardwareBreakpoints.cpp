@@ -36,14 +36,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 //------------------------------------------------------------------------------
-// Name: HardwareBreakpoints()
+// Name: HardwareBreakpoints
 // Desc:
 //------------------------------------------------------------------------------
 HardwareBreakpoints::HardwareBreakpoints() : menu_(0), dialog_(0), old_event_handler_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: menu(QWidget *parent)
+// Name: menu
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *HardwareBreakpoints::menu(QWidget *parent) {
@@ -56,7 +56,7 @@ QMenu *HardwareBreakpoints::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setup_bp(State *state, int num, bool enabled, edb::address_t addr, int type, int size)
+// Name: setup_bp
 // Desc:
 //------------------------------------------------------------------------------
 void HardwareBreakpoints::setup_bp(State *state, int num, bool enabled, edb::address_t addr, int type, int size) {
@@ -113,7 +113,7 @@ void HardwareBreakpoints::setup_bp(State *state, int num, bool enabled, edb::add
 }
 
 //------------------------------------------------------------------------------
-// Name: setup_breakpoints()
+// Name: setup_breakpoints
 // Desc:
 //------------------------------------------------------------------------------
 void HardwareBreakpoints::setup_breakpoints() {
@@ -181,7 +181,7 @@ void HardwareBreakpoints::setup_breakpoints() {
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu()
+// Name: show_menu
 // Desc:
 //------------------------------------------------------------------------------
 void HardwareBreakpoints::show_menu() {
@@ -196,7 +196,7 @@ void HardwareBreakpoints::show_menu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: handle_event(const IDebugEvent::const_pointer &event)
+// Name: handle_event
 // Desc: this hooks the debug event handler so we can make the breakpoints
 //       able to be resumed
 //------------------------------------------------------------------------------

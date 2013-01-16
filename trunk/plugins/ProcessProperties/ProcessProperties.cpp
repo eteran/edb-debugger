@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 
 //------------------------------------------------------------------------------
-// Name: ProcessProperties()
+// Name: ProcessProperties
 // Desc:
 //------------------------------------------------------------------------------
 ProcessProperties::ProcessProperties() : menu_(0), dialog_(0) {
@@ -30,7 +30,7 @@ ProcessProperties::ProcessProperties() : menu_(0), dialog_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~ProcessProperties()
+// Name: ~ProcessProperties
 // Desc:
 //------------------------------------------------------------------------------
 ProcessProperties::~ProcessProperties() {
@@ -38,7 +38,7 @@ ProcessProperties::~ProcessProperties() {
 }
 
 //------------------------------------------------------------------------------
-// Name: menu(QWidget *parent)
+// Name: menu
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *ProcessProperties::menu(QWidget *parent) {
@@ -53,7 +53,7 @@ QMenu *ProcessProperties::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu()
+// Name: show_menu
 // Desc:
 //------------------------------------------------------------------------------
 void ProcessProperties::show_menu() {

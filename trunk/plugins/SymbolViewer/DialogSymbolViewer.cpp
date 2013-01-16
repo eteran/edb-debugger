@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dialogsymbols.h"
 
 //------------------------------------------------------------------------------
-// Name: DialogSymbolViewer(QWidget *parent)
+// Name: DialogSymbolViewer
 // Desc:
 //------------------------------------------------------------------------------
 DialogSymbolViewer::DialogSymbolViewer(QWidget *parent) : QDialog(parent), ui(new Ui::DialogSymbolViewer) {
@@ -50,7 +50,7 @@ DialogSymbolViewer::DialogSymbolViewer(QWidget *parent) : QDialog(parent), ui(ne
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogSymbolViewer()
+// Name: ~DialogSymbolViewer
 // Desc:
 //------------------------------------------------------------------------------
 DialogSymbolViewer::~DialogSymbolViewer() {
@@ -58,7 +58,7 @@ DialogSymbolViewer::~DialogSymbolViewer() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_listView_doubleClicked(const QModelIndex &index)
+// Name: on_listView_doubleClicked
 // Desc: follows the found item in the data view
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
@@ -79,7 +79,7 @@ void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_listView_customContextMenuRequested(const QPoint &pos)
+// Name: on_listView_customContextMenuRequested
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &pos) {
@@ -107,7 +107,7 @@ void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &po
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuFollowInDump()
+// Name: mnuFollowInDump
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::mnuFollowInDump() {
@@ -118,7 +118,7 @@ void DialogSymbolViewer::mnuFollowInDump() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuFollowInDumpNewTab()
+// Name: mnuFollowInDumpNewTab
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::mnuFollowInDumpNewTab() {
@@ -129,7 +129,7 @@ void DialogSymbolViewer::mnuFollowInDumpNewTab() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuFollowInStack()
+// Name: mnuFollowInStack
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::mnuFollowInStack() {
@@ -140,7 +140,7 @@ void DialogSymbolViewer::mnuFollowInStack() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuFollowInCPU()
+// Name: mnuFollowInCPU
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::mnuFollowInCPU() {
@@ -151,7 +151,7 @@ void DialogSymbolViewer::mnuFollowInCPU() {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find()
+// Name: do_find
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::do_find() {
@@ -167,7 +167,7 @@ void DialogSymbolViewer::do_find() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnRefresh_clicked()
+// Name: on_btnRefresh_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::on_btnRefresh_clicked() {
@@ -177,7 +177,7 @@ void DialogSymbolViewer::on_btnRefresh_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::showEvent(QShowEvent *) {

@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_dialogreferences.h"
 
 //------------------------------------------------------------------------------
-// Name: DialogReferences(QWidget *parent)
+// Name: DialogReferences
 // Desc: constructor
 //------------------------------------------------------------------------------
 DialogReferences::DialogReferences(QWidget *parent) : QDialog(parent), ui(new Ui::DialogReferences) {
@@ -38,7 +38,7 @@ DialogReferences::DialogReferences(QWidget *parent) : QDialog(parent), ui(new Ui
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogReferences()
+// Name: ~DialogReferences
 // Desc:
 //------------------------------------------------------------------------------
 DialogReferences::~DialogReferences() {
@@ -46,7 +46,7 @@ DialogReferences::~DialogReferences() {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogReferences::showEvent(QShowEvent *) {
@@ -55,7 +55,7 @@ void DialogReferences::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find()
+// Name: do_find
 // Desc:
 //------------------------------------------------------------------------------
 void DialogReferences::do_find() {
@@ -137,7 +137,7 @@ void DialogReferences::do_find() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnFind_clicked()
+// Name: on_btnFind_clicked
 // Desc: find button event handler
 //------------------------------------------------------------------------------
 void DialogReferences::on_btnFind_clicked() {
@@ -150,7 +150,7 @@ void DialogReferences::on_btnFind_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_listWidget_itemDoubleClicked(QListWidgetItem *item)
+// Name: on_listWidget_itemDoubleClicked
 // Desc: follows the foudn item in the data view
 //------------------------------------------------------------------------------
 void DialogReferences::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {

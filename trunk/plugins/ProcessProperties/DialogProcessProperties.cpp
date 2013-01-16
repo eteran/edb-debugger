@@ -58,7 +58,7 @@ QString size_to_string(size_t n) {
 
 #if defined(Q_OS_LINUX)
 //------------------------------------------------------------------------------
-// Name: tcp_socket_prcoessor(QString *symlink, int sock, const QStringList &lst)
+// Name: tcp_socket_prcoessor
 // Desc:
 //------------------------------------------------------------------------------
 bool tcp_socket_prcoessor(QString *symlink, int sock, const QStringList &lst) {
@@ -100,7 +100,7 @@ bool tcp_socket_prcoessor(QString *symlink, int sock, const QStringList &lst) {
 }
 
 //------------------------------------------------------------------------------
-// Name: udp_socket_processor(QString *symlink, int sock, const QStringList &lst)
+// Name: udp_socket_processor
 // Desc:
 //------------------------------------------------------------------------------
 bool udp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
@@ -142,7 +142,7 @@ bool udp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 }
 
 //------------------------------------------------------------------------------
-// Name: unix_socket_processor(QString *symlink, int sock, const QStringList &lst)
+// Name: unix_socket_processor
 // Desc:
 //------------------------------------------------------------------------------
 bool unix_socket_processor(QString *symlink, int sock, const QStringList &lst) {
@@ -163,7 +163,7 @@ bool unix_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 }
 
 //------------------------------------------------------------------------------
-// Name: process_socket_file(const QString &filename, QString *symlink, int sock, F fp)
+// Name: process_socket_file
 // Desc:
 //------------------------------------------------------------------------------
 template <class F>
@@ -197,7 +197,7 @@ QString process_socket_file(const QString &filename, QString *symlink, int sock,
 }
 
 //------------------------------------------------------------------------------
-// Name: process_socket_tcp(QString *symlink)
+// Name: process_socket_tcp
 // Desc:
 //------------------------------------------------------------------------------
 QString process_socket_tcp(QString *symlink) {
@@ -211,7 +211,7 @@ QString process_socket_tcp(QString *symlink) {
 }
 
 //------------------------------------------------------------------------------
-// Name: process_socket_unix(QString *symlink)
+// Name: process_socket_unix
 // Desc:
 //------------------------------------------------------------------------------
 QString process_socket_unix(QString *symlink) {
@@ -225,7 +225,7 @@ QString process_socket_unix(QString *symlink) {
 }
 
 //------------------------------------------------------------------------------
-// Name: process_socket_udp(QString *symlink)
+// Name: process_socket_udp
 // Desc:
 //------------------------------------------------------------------------------
 QString process_socket_udp(QString *symlink) {
@@ -239,7 +239,7 @@ QString process_socket_udp(QString *symlink) {
 }
 
 //------------------------------------------------------------------------------
-// Name: file_type(const QString &filename)
+// Name: file_type
 // Desc:
 //------------------------------------------------------------------------------
 QString file_type(const QString &filename) {
@@ -264,7 +264,7 @@ QString file_type(const QString &filename) {
 
 
 //------------------------------------------------------------------------------
-// Name: DialogProcessProperties(QWidget *parent)
+// Name: DialogProcessProperties
 // Desc:
 //------------------------------------------------------------------------------
 DialogProcessProperties::DialogProcessProperties(QWidget *parent) : QDialog(parent), ui(new Ui::DialogProcessProperties) {
@@ -274,7 +274,7 @@ DialogProcessProperties::DialogProcessProperties(QWidget *parent) : QDialog(pare
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogProcessProperties()
+// Name: ~DialogProcessProperties
 // Desc:
 //------------------------------------------------------------------------------
 DialogProcessProperties::~DialogProcessProperties() {
@@ -462,7 +462,7 @@ void DialogProcessProperties::updateHandles() {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::showEvent(QShowEvent *) {

@@ -32,14 +32,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 //------------------------------------------------------------------------------
-// Name: ELF64(const IRegion::pointer &region)
+// Name: ELF64
 // Desc: constructor
 //------------------------------------------------------------------------------
 ELF64::ELF64(const IRegion::pointer &region) : IBinary(region), header_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~ELF64()
+// Name: ~ELF64
 // Desc: deconstructor
 //------------------------------------------------------------------------------
 ELF64::~ELF64() {
@@ -47,7 +47,7 @@ ELF64::~ELF64() {
 }
 
 //------------------------------------------------------------------------------
-// Name: validate_header()
+// Name: validate_header
 // Desc: returns true if this file matches this particular info class
 //------------------------------------------------------------------------------
 bool ELF64::validate_header() {
@@ -61,7 +61,7 @@ bool ELF64::validate_header() {
 }
 
 //------------------------------------------------------------------------------
-// Name: native
+// Name: nativ
 // Desc: returns true if this binary is native to the arch edb was built for
 //------------------------------------------------------------------------------
 bool ELF64::native() const {
@@ -74,7 +74,7 @@ bool ELF64::native() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: entry_point()
+// Name: entry_point
 // Desc: returns the entry point if any of the binary
 //------------------------------------------------------------------------------
 edb::address_t ELF64::entry_point() {
@@ -86,7 +86,7 @@ edb::address_t ELF64::entry_point() {
 }
 
 //------------------------------------------------------------------------------
-// Name: read_header()
+// Name: read_header
 // Desc: reads in enough of the file to get the header
 //------------------------------------------------------------------------------
 void ELF64::read_header() {
@@ -102,7 +102,7 @@ void ELF64::read_header() {
 }
 
 //------------------------------------------------------------------------------
-// Name: header_size()
+// Name: header_size
 // Desc: returns the number of bytes in this executable's header
 //------------------------------------------------------------------------------
 size_t ELF64::header_size() const {
@@ -110,7 +110,7 @@ size_t ELF64::header_size() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: debug_pointer()
+// Name: debug_pointer
 // Desc: attempts to locate the ELF debug pointer in the target process and
 //       returns it, 0 of not found
 //------------------------------------------------------------------------------
@@ -147,7 +147,7 @@ edb::address_t ELF64::debug_pointer() {
 }
 
 //------------------------------------------------------------------------------
-// Name: calculate_main
+// Name: calculate_mai
 // Desc: uses a heuristic to locate "main"
 //------------------------------------------------------------------------------
 edb::address_t ELF64::calculate_main() {
@@ -177,7 +177,7 @@ edb::address_t ELF64::calculate_main() {
 }
 
 //------------------------------------------------------------------------------
-// Name: header() const
+// Name: header
 // Desc: returns a copy of the file header or NULL if the region wasn't a valid,
 //       known binary type
 //------------------------------------------------------------------------------

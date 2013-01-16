@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace util {
 
 //------------------------------------------------------------------------------
-// Name: percentage(int regions_finished, int regions_total, int bytes_done, int bytes_total)
+// Name: percentage
 // Desc: calculates how much of a multi-region byte search we have completed
 //------------------------------------------------------------------------------
 inline int percentage(int regions_finished, int regions_total, int bytes_done, int bytes_total) {
@@ -40,7 +40,7 @@ inline int percentage(int regions_finished, int regions_total, int bytes_done, i
 }
 
 //------------------------------------------------------------------------------
-// Name: percentage(int bytes_done, int bytes_total)
+// Name: percentage
 // Desc: calculates how much of a single-region byte search we have completed
 //------------------------------------------------------------------------------
 inline int percentage(int bytes_done, int bytes_total) {

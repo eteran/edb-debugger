@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace {
 
 //------------------------------------------------------------------------------
-// Name: get_effective_address(const edb::Operand &op, const State &state) const
+// Name: get_effective_address
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t get_effective_address(const edb::Operand &op, const State &state) {
@@ -90,7 +90,7 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 }
 
 //------------------------------------------------------------------------------
-// Name: format_argument(QChar ch, edb::reg_t arg) const
+// Name: format_argument
 // Desc:
 //------------------------------------------------------------------------------
 QString format_argument(QChar ch, edb::reg_t arg) {
@@ -142,7 +142,7 @@ QString format_argument(QChar ch, edb::reg_t arg) {
 }
 
 //------------------------------------------------------------------------------
-// Name: resolve_function_parameters(const State &state, const QString &symname, int offset, QStringList &ret) const
+// Name: resolve_function_parameters
 // Desc:
 //------------------------------------------------------------------------------
 void resolve_function_parameters(const State &state, const QString &symname, int offset, QStringList &ret) {
@@ -184,7 +184,7 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 }
 
 //------------------------------------------------------------------------------
-// Name: is_jcc_taken(const State &state, quint8 instruction_byte) const
+// Name: is_jcc_taken
 // Desc:
 //------------------------------------------------------------------------------
 bool is_jcc_taken(const State &state, quint8 instruction_byte) {
@@ -233,7 +233,7 @@ bool is_jcc_taken(const State &state, quint8 instruction_byte) {
 }
 
 //------------------------------------------------------------------------------
-// Name: analyze_cmov(const State &state, const edb::Instruction &insn, QStringList &ret) const
+// Name: analyze_cmov
 // Desc:
 //------------------------------------------------------------------------------
 void analyze_cmov(const State &state, const edb::Instruction &insn, QStringList &ret) {
@@ -250,7 +250,7 @@ void analyze_cmov(const State &state, const edb::Instruction &insn, QStringList 
 }
 
 //------------------------------------------------------------------------------
-// Name: analyze_jump(const State &state, const edb::Instruction &insn, QStringList &ret) const
+// Name: analyze_jump
 // Desc:
 //------------------------------------------------------------------------------
 void analyze_jump(const State &state, const edb::Instruction &insn, QStringList &ret) {
@@ -286,7 +286,7 @@ void analyze_jump(const State &state, const edb::Instruction &insn, QStringList 
 }
 
 //------------------------------------------------------------------------------
-// Name: analyze_return(const State &state, const edb::Instruction &insn, QStringList &ret) const
+// Name: analyze_return
 // Desc:
 //------------------------------------------------------------------------------
 void analyze_return(const State &state, const edb::Instruction &insn, QStringList &ret) {
@@ -305,7 +305,7 @@ void analyze_return(const State &state, const edb::Instruction &insn, QStringLis
 }
 
 //------------------------------------------------------------------------------
-// Name: analyze_call(const State &state, const edb::Instruction &insn, QStringList &ret) const
+// Name: analyze_call
 // Desc:
 //------------------------------------------------------------------------------
 void analyze_call(const State &state, const edb::Instruction &insn, QStringList &ret) {
@@ -375,7 +375,7 @@ void analyze_call(const State &state, const edb::Instruction &insn, QStringList 
 }
 
 //------------------------------------------------------------------------------
-// Name: analyze_operands(const State &state, const edb::Instruction &insn, QStringList &ret)
+// Name: analyze_operands
 // Desc:
 //------------------------------------------------------------------------------
 void analyze_operands(const State &state, const edb::Instruction &insn, QStringList &ret) {
@@ -431,7 +431,7 @@ void analyze_operands(const State &state, const edb::Instruction &insn, QStringL
 }
 
 //------------------------------------------------------------------------------
-// Name: analyze_jump_targets(const edb::Instruction &insn, QStringList &ret) const
+// Name: analyze_jump_targets
 // Desc:
 //------------------------------------------------------------------------------
 void analyze_jump_targets(const edb::Instruction &insn, QStringList &ret) {
@@ -461,7 +461,7 @@ void analyze_jump_targets(const edb::Instruction &insn, QStringList &ret) {
 }
 
 //------------------------------------------------------------------------------
-// Name: analyze_syscall(const State &state, const edb::Instruction &insn, QStringList &ret) const
+// Name: analyze_syscall
 // Desc:
 //------------------------------------------------------------------------------
 void analyze_syscall(const State &state, const edb::Instruction &insn, QStringList &ret) {
@@ -1379,7 +1379,7 @@ void analyze_syscall(const State &state, const edb::Instruction &insn, QStringLi
 }
 
 //------------------------------------------------------------------------------
-// Name: ArchProcessor()
+// Name: ArchProcessor
 // Desc:
 //------------------------------------------------------------------------------
 ArchProcessor::ArchProcessor() : split_flags_(0) {
@@ -1393,7 +1393,7 @@ ArchProcessor::ArchProcessor() : split_flags_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setup_register_item(QCategoryList *category_list, QTreeWidgetItem *parent, const QString &name)
+// Name: setup_register_item
 // Desc:
 //------------------------------------------------------------------------------
 void ArchProcessor::setup_register_item(QCategoryList *category_list, QTreeWidgetItem *parent, const QString &name) {
@@ -1409,7 +1409,7 @@ void ArchProcessor::setup_register_item(QCategoryList *category_list, QTreeWidge
 }
 
 //------------------------------------------------------------------------------
-// Name: setup_register_view(QCategoryList *category_list)
+// Name: setup_register_view
 // Desc:
 //------------------------------------------------------------------------------
 void ArchProcessor::setup_register_view(QCategoryList *category_list) {
@@ -1522,7 +1522,7 @@ void ArchProcessor::setup_register_view(QCategoryList *category_list) {
 }
 
 //------------------------------------------------------------------------------
-// Name: value_from_item(const QTreeWidgetItem &item)
+// Name: value_from_item
 // Desc:
 //------------------------------------------------------------------------------
 Register ArchProcessor::value_from_item(const QTreeWidgetItem &item) {
@@ -1533,7 +1533,7 @@ Register ArchProcessor::value_from_item(const QTreeWidgetItem &item) {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_register_item(unsigned int index)
+// Name: get_register_item
 // Desc:
 //------------------------------------------------------------------------------
 QTreeWidgetItem *ArchProcessor::get_register_item(unsigned int index) {
@@ -1542,7 +1542,7 @@ QTreeWidgetItem *ArchProcessor::get_register_item(unsigned int index) {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_register(QTreeWidgetItem *item, const QString &name, const Register &reg) const
+// Name: update_register
 // Desc:
 //------------------------------------------------------------------------------
 void ArchProcessor::update_register(QTreeWidgetItem *item, const QString &name, const Register &reg) const {
@@ -1563,7 +1563,7 @@ void ArchProcessor::update_register(QTreeWidgetItem *item, const QString &name, 
 }
 
 //------------------------------------------------------------------------------
-// Name: reset()
+// Name: reset
 // Desc:
 //------------------------------------------------------------------------------
 void ArchProcessor::reset() {
@@ -1575,7 +1575,7 @@ void ArchProcessor::reset() {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_register_view(const QString &default_region_name, const State &state)
+// Name: update_register_view
 // Desc:
 //------------------------------------------------------------------------------
 void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
@@ -1658,7 +1658,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 }
 
 //------------------------------------------------------------------------------
-// Name: update_register_view(const QString &default_region_name)
+// Name: update_register_view
 // Desc:
 //------------------------------------------------------------------------------
 void ArchProcessor::update_register_view(const QString &default_region_name) {
@@ -1669,7 +1669,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name) {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_instruction_info(edb::address_t address)
+// Name: update_instruction_info
 // Desc:
 //------------------------------------------------------------------------------
 QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
@@ -1732,7 +1732,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: can_step_over(const edb::Instruction &insn) const
+// Name: can_step_over
 // Desc:
 //------------------------------------------------------------------------------
 bool ArchProcessor::can_step_over(const edb::Instruction &insn) const {
@@ -1740,7 +1740,7 @@ bool ArchProcessor::can_step_over(const edb::Instruction &insn) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: is_filling(const edb::Instruction &insn) const
+// Name: is_filling
 // Desc:
 //------------------------------------------------------------------------------
 bool ArchProcessor::is_filling(const edb::Instruction &insn) const {

@@ -110,7 +110,7 @@ namespace {
 }
 
 //------------------------------------------------------------------------------
-// Name: QDisassemblyView(QWidget * parent)
+// Name: QDisassemblyView
 // Desc: constructor
 //------------------------------------------------------------------------------
 QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(parent),
@@ -139,14 +139,14 @@ QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(paren
 }
 
 //------------------------------------------------------------------------------
-// Name: ~QDisassemblyView()
+// Name: ~QDisassemblyView
 // Desc:
 //------------------------------------------------------------------------------
 QDisassemblyView::~QDisassemblyView() {
 }
 
 //------------------------------------------------------------------------------
-// Name: length_disasm_back(const quint8 *buf, size_t size) const
+// Name: length_disasm_back
 // Desc:
 //------------------------------------------------------------------------------
 size_t QDisassemblyView::length_disasm_back(const quint8 *buf, size_t size) const {
@@ -175,7 +175,7 @@ size_t QDisassemblyView::length_disasm_back(const quint8 *buf, size_t size) cons
 }
 
 //------------------------------------------------------------------------------
-// Name: previous_instructions(edb::address_t current_address, int count)
+// Name: previous_instructions
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_address, int count) {
@@ -202,7 +202,7 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 }
 
 //------------------------------------------------------------------------------
-// Name: following_instructions(edb::address_t current_address, int count)
+// Name: following_instructions
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t QDisassemblyView::following_instructions(edb::address_t current_address, int count) {
@@ -233,7 +233,7 @@ edb::address_t QDisassemblyView::following_instructions(edb::address_t current_a
 }
 
 //------------------------------------------------------------------------------
-// Name: wheelEvent(QWheelEvent *e)
+// Name: wheelEvent
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::wheelEvent(QWheelEvent *e) {
@@ -260,7 +260,7 @@ void QDisassemblyView::wheelEvent(QWheelEvent *e) {
 }
 
 //------------------------------------------------------------------------------
-// Name: scrollbar_action_triggered(int action)
+// Name: scrollbar_action_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::scrollbar_action_triggered(int action) {
@@ -309,7 +309,7 @@ void QDisassemblyView::scrollbar_action_triggered(int action) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setShowAddressSeparator(bool value)
+// Name: setShowAddressSeparator
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::setShowAddressSeparator(bool value) {
@@ -317,7 +317,7 @@ void QDisassemblyView::setShowAddressSeparator(bool value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: formatAddress(edb::address_t address)
+// Name: formatAddress
 // Desc:
 //------------------------------------------------------------------------------
 QString QDisassemblyView::formatAddress(edb::address_t address) const {
@@ -325,7 +325,7 @@ QString QDisassemblyView::formatAddress(edb::address_t address) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: repaint()
+// Name: repaint
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::repaint() {
@@ -333,7 +333,7 @@ void QDisassemblyView::repaint() {
 }
 
 //------------------------------------------------------------------------------
-// Name: addressShown(edb::address_t address) const
+// Name: addressShown
 // Desc: returns true if a given address is in the visible range
 //------------------------------------------------------------------------------
 bool QDisassemblyView::addressShown(edb::address_t address) const {
@@ -341,7 +341,7 @@ bool QDisassemblyView::addressShown(edb::address_t address) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: setCurrentAddress(edb::address_t address)
+// Name: setCurrentAddress
 // Desc: sets the 'current address' (where EIP is usually)
 //------------------------------------------------------------------------------
 void QDisassemblyView::setCurrentAddress(edb::address_t address) {
@@ -349,7 +349,7 @@ void QDisassemblyView::setCurrentAddress(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setRegion(const IRegion::pointer &r)
+// Name: setRegion
 // Desc: sets the memory region we are viewing
 //------------------------------------------------------------------------------
 void QDisassemblyView::setRegion(const IRegion::pointer &r) {
@@ -371,7 +371,7 @@ void QDisassemblyView::setRegion(const IRegion::pointer &r) {
 }
 
 //------------------------------------------------------------------------------
-// Name: clear()
+// Name: clear
 // Desc: clears the display
 //------------------------------------------------------------------------------
 void QDisassemblyView::clear() {
@@ -379,7 +379,7 @@ void QDisassemblyView::clear() {
 }
 
 //------------------------------------------------------------------------------
-// Name: setAddressOffset(edb::address_t address)
+// Name: setAddressOffset
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::setAddressOffset(edb::address_t address) {
@@ -387,7 +387,7 @@ void QDisassemblyView::setAddressOffset(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: scrollTo(edb::address_t address)
+// Name: scrollTo
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::scrollTo(edb::address_t address) {
@@ -395,7 +395,7 @@ void QDisassemblyView::scrollTo(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: format_instruction_bytes(const edb::Instruction &insn, int maxStringPx, const QFontMetricsF &metrics) const
+// Name: format_instruction_bytes
 // Desc:
 //------------------------------------------------------------------------------
 QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &insn, int maxStringPx, const QFontMetricsF &metrics) const {
@@ -405,7 +405,7 @@ QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &insn,
 }
 
 //------------------------------------------------------------------------------
-// Name: format_instruction_bytes(const edb::Instruction &insn) const
+// Name: format_instruction_bytes
 // Desc:
 //------------------------------------------------------------------------------
 QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &insn) const {
@@ -413,7 +413,7 @@ QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &insn)
 }
 
 //------------------------------------------------------------------------------
-// Name: draw_instruction(QPainter &painter, const edb::Instruction &insn, bool upper, int y, int line_height, int l2, int l3) const
+// Name: draw_instruction
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction &insn, bool upper, int y, int line_height, int l2, int l3) const {
@@ -490,7 +490,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 }
 
 //------------------------------------------------------------------------------
-// Name: format_invalid_instruction_bytes(const edb::Instruction &insn, QPainter &painter) const
+// Name: format_invalid_instruction_bytes
 // Desc:
 //------------------------------------------------------------------------------
 QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instruction &insn, QPainter &painter) const {
@@ -523,7 +523,7 @@ QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instructio
 }
 
 //------------------------------------------------------------------------------
-// Name: draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int insn_size, IAnalyzer *analyzer)
+// Name: draw_function_markers
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int insn_size, IAnalyzer *analyzer) {
@@ -592,7 +592,7 @@ void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t a
 }
 
 //------------------------------------------------------------------------------
-// Name: paintEvent(QPaintEvent *)
+// Name: paintEvent
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::paintEvent(QPaintEvent *) {
@@ -785,7 +785,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: setFont(const QFont &f)
+// Name: setFont
 // Desc: overloaded version of setFont, calculates font metrics for later
 //------------------------------------------------------------------------------
 void QDisassemblyView::setFont(const QFont &f) {
@@ -802,7 +802,7 @@ void QDisassemblyView::setFont(const QFont &f) {
 }
 
 //------------------------------------------------------------------------------
-// Name: resizeEvent(QResizeEvent *)
+// Name: resizeEvent
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::resizeEvent(QResizeEvent *) {
@@ -810,7 +810,7 @@ void QDisassemblyView::resizeEvent(QResizeEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: line_height() const
+// Name: line_height
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::line_height() const {
@@ -818,7 +818,7 @@ int QDisassemblyView::line_height() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: updateScrollbars()
+// Name: updateScrollbars
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::updateScrollbars() {
@@ -834,7 +834,7 @@ void QDisassemblyView::updateScrollbars() {
 }
 
 //------------------------------------------------------------------------------
-// Name: auto_line1() const
+// Name: auto_line1
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::auto_line1() const {
@@ -843,7 +843,7 @@ int QDisassemblyView::auto_line1() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: line1() const
+// Name: line1
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::line1() const {
@@ -855,7 +855,7 @@ int QDisassemblyView::line1() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: line2() const
+// Name: line2
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::line2() const {
@@ -867,7 +867,7 @@ int QDisassemblyView::line2() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: line3() const
+// Name: line3
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::line3() const {
@@ -879,7 +879,7 @@ int QDisassemblyView::line3() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: address_length() const
+// Name: address_length
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::address_length() const {
@@ -888,7 +888,7 @@ int QDisassemblyView::address_length() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: addressFromPoint(const QPoint &pos) const
+// Name: addressFromPoint
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
@@ -900,7 +900,7 @@ edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_instruction_size(edb::address_t address, bool *ok, quint8 *buf, int *size) const
+// Name: get_instruction_size
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::get_instruction_size(edb::address_t address, bool *ok, quint8 *buf, int *size) const {
@@ -924,7 +924,7 @@ int QDisassemblyView::get_instruction_size(edb::address_t address, bool *ok, qui
 }
 
 //------------------------------------------------------------------------------
-// Name: get_instruction_size(edb::address_t address, bool *ok) const
+// Name: get_instruction_size
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::get_instruction_size(edb::address_t address, bool *ok) const {
@@ -945,7 +945,7 @@ int QDisassemblyView::get_instruction_size(edb::address_t address, bool *ok) con
 }
 
 //------------------------------------------------------------------------------
-// Name: address_from_coord(int x, int y) const
+// Name: address_from_coord
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t QDisassemblyView::address_from_coord(int x, int y) const {
@@ -970,7 +970,7 @@ edb::address_t QDisassemblyView::address_from_coord(int x, int y) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: mouseDoubleClickEvent(QMouseEvent *event)
+// Name: mouseDoubleClickEvent
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
@@ -989,7 +989,7 @@ void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: event(QEvent *event)
+// Name: event
 // Desc:
 //------------------------------------------------------------------------------
 bool QDisassemblyView::event(QEvent *event) {
@@ -1029,7 +1029,7 @@ bool QDisassemblyView::event(QEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mouseReleaseEvent(QMouseEvent *event)
+// Name: mouseReleaseEvent
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
@@ -1045,7 +1045,7 @@ void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: updateSelectedAddress(QMouseEvent *event)
+// Name: updateSelectedAddress
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
@@ -1066,7 +1066,7 @@ void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mousePressEvent(QMouseEvent *event)
+// Name: mousePressEvent
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
@@ -1089,7 +1089,7 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: mouseMoveEvent(QMouseEvent *event)
+// Name: mouseMoveEvent
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
@@ -1129,7 +1129,7 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: selectedAddress() const
+// Name: selectedAddress
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t QDisassemblyView::selectedAddress() const {
@@ -1137,7 +1137,7 @@ edb::address_t QDisassemblyView::selectedAddress() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: selectedSize() const
+// Name: selectedSize
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::selectedSize() const {
@@ -1145,7 +1145,7 @@ int QDisassemblyView::selectedSize() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: region() const
+// Name: region
 // Desc:
 //------------------------------------------------------------------------------
 IRegion::pointer QDisassemblyView::region() const {

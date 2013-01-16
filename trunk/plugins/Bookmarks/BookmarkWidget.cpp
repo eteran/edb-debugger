@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Debugger.h"
 
 //------------------------------------------------------------------------------
-// Name: BookmarkWidget(QWidget *parent, Qt::WindowFlags f)
+// Name: BookmarkWidget
 // Desc:
 //------------------------------------------------------------------------------
 BookmarkWidget::BookmarkWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), ui(new Ui::Bookmarks) {
@@ -34,7 +34,7 @@ BookmarkWidget::BookmarkWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(par
 }
 
 //------------------------------------------------------------------------------
-// Name: ~BookmarkWidget()
+// Name: ~BookmarkWidget
 // Desc:
 //------------------------------------------------------------------------------
 BookmarkWidget::~BookmarkWidget() {
@@ -42,7 +42,7 @@ BookmarkWidget::~BookmarkWidget() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_tableWidget_cellDoubleClicked(int row, int col)
+// Name: on_tableWidget_cellDoubleClicked
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::on_tableWidget_cellDoubleClicked(int row, int col) {
@@ -75,7 +75,7 @@ void BookmarkWidget::on_tableWidget_cellDoubleClicked(int row, int col) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnAdd_clicked()
+// Name: on_btnAdd_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::on_btnAdd_clicked() {
@@ -87,7 +87,7 @@ void BookmarkWidget::on_btnAdd_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnDel_clicked()
+// Name: on_btnDel_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::on_btnDel_clicked() {
@@ -102,7 +102,7 @@ void BookmarkWidget::on_btnDel_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnClear_clicked()
+// Name: on_btnClear_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::on_btnClear_clicked() {
@@ -112,7 +112,7 @@ void BookmarkWidget::on_btnClear_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: add_address(edb::address_t address)
+// Name: add_address
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::add_address(edb::address_t address) {
@@ -127,7 +127,7 @@ void BookmarkWidget::add_address(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: shortcut(int index)
+// Name: shortcut
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::shortcut(int index) {
@@ -137,7 +137,7 @@ void BookmarkWidget::shortcut(int index) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_tableWidget_customContextMenuRequested(const QPoint &pos)
+// Name: on_tableWidget_customContextMenuRequested
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::on_tableWidget_customContextMenuRequested(const QPoint &pos) {

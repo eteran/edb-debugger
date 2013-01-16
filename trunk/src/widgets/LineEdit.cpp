@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStyle>
 
 //------------------------------------------------------------------------------
-// Name: LineEdit(QWidget *parent)
+// Name: LineEdit
 // Desc:
 //------------------------------------------------------------------------------
 LineEdit::LineEdit(QWidget *parent) : QLineEdit(parent), clear_button_(new QToolButton(this)) {
@@ -45,7 +45,7 @@ LineEdit::LineEdit(QWidget *parent) : QLineEdit(parent), clear_button_(new QTool
 }
 
 //------------------------------------------------------------------------------
-// Name: resizeEvent(QResizeEvent *)
+// Name: resizeEvent
 // Desc:
 //------------------------------------------------------------------------------
 void LineEdit::resizeEvent(QResizeEvent *) {
@@ -55,7 +55,7 @@ void LineEdit::resizeEvent(QResizeEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: updateCloseButton(const QString &text)
+// Name: updateCloseButton
 // Desc:
 //------------------------------------------------------------------------------
 void LineEdit::updateCloseButton(const QString &text) {

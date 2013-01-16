@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace {
 
 //------------------------------------------------------------------------------
-// Name: F(quint32 x, quint32 y, quint32 z)
+// Name: F
 // Desc:
 //------------------------------------------------------------------------------
 quint32 F(quint32 x, quint32 y, quint32 z) {
@@ -33,7 +33,7 @@ quint32 F(quint32 x, quint32 y, quint32 z) {
 }
 
 //------------------------------------------------------------------------------
-// Name: G(quint32 x, quint32 y, quint32 z)
+// Name: G
 // Desc:
 //------------------------------------------------------------------------------
 quint32 G(quint32 x, quint32 y, quint32 z) {
@@ -41,7 +41,7 @@ quint32 G(quint32 x, quint32 y, quint32 z) {
 }
 
 //------------------------------------------------------------------------------
-// Name: H(quint32 x, quint32 y, quint32 z)
+// Name: H
 // Desc:
 //------------------------------------------------------------------------------
 quint32 H(quint32 x, quint32 y, quint32 z) {
@@ -49,7 +49,7 @@ quint32 H(quint32 x, quint32 y, quint32 z) {
 }
 
 //------------------------------------------------------------------------------
-// Name: I(quint32 x, quint32 y, quint32 z)
+// Name: I
 // Desc:
 //------------------------------------------------------------------------------
 quint32 I(quint32 x, quint32 y, quint32 z) {
@@ -80,7 +80,7 @@ void do_transform(quint32& a, quint32 b, quint32 c, quint32 d, quint32 x, quint3
 }
 
 //------------------------------------------------------------------------------
-// Name: MD5()
+// Name: MD5
 // Desc: constructor
 //------------------------------------------------------------------------------
 MD5::MD5() : length_(0), message_block_index_(0), corrupted_(false) {
@@ -94,7 +94,7 @@ MD5::MD5() : length_(0), message_block_index_(0), corrupted_(false) {
 }
 
 //------------------------------------------------------------------------------
-// Name: MD5(const void *message, std::size_t n)
+// Name: MD5
 // Desc:
 //------------------------------------------------------------------------------
 MD5::MD5(const void *message, std::size_t n) : length_(0), message_block_index_(0), corrupted_(false) {
@@ -124,7 +124,7 @@ MD5::MD5(const void *message, std::size_t n) : length_(0), message_block_index_(
 }
 
 //------------------------------------------------------------------------------
-// Name: MD5(const MD5 &other)
+// Name: MD5
 // Desc:
 //------------------------------------------------------------------------------
 MD5::MD5(const MD5 &other) : length_(other.length_), message_block_index_(other.message_block_index_), corrupted_(other.corrupted_) {
@@ -138,7 +138,7 @@ MD5::MD5(const MD5 &other) : length_(other.length_), message_block_index_(other.
 }
 
 //------------------------------------------------------------------------------
-// Name: operator=(const MD5 &rhs)
+// Name: operator=
 // Desc:
 //------------------------------------------------------------------------------
 MD5 &MD5::operator=(const MD5 &rhs) {
@@ -150,7 +150,7 @@ MD5 &MD5::operator=(const MD5 &rhs) {
 
 
 //------------------------------------------------------------------------------
-// Name: result(quint32 *message_digest_array) const
+// Name: result
 // Desc:
 //------------------------------------------------------------------------------
 bool MD5::result(quint32 *message_digest_array) const {
@@ -166,7 +166,7 @@ bool MD5::result(quint32 *message_digest_array) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: swap(MD5 &other)
+// Name: swap
 // Desc:
 //------------------------------------------------------------------------------
 void MD5::swap(MD5 &other) {
@@ -185,7 +185,7 @@ void MD5::swap(MD5 &other) {
 }
 
 //------------------------------------------------------------------------------
-// Name: to_string() const
+// Name: to_string
 // Desc:
 //------------------------------------------------------------------------------
 QString MD5::to_string() const {
@@ -210,7 +210,7 @@ QString MD5::to_string() const {
 
 
 //------------------------------------------------------------------------------
-// Name: pad_message()
+// Name: pad_message
 // Desc: finalizes the state, making digest valid
 //------------------------------------------------------------------------------
 void MD5::pad_message() {
@@ -249,7 +249,7 @@ void MD5::pad_message() {
 }
 
 //------------------------------------------------------------------------------
-// Name: process_message_block()
+// Name: process_message_block
 // Desc: MD5 basic transformation. Transforms state based on block.
 //------------------------------------------------------------------------------
 void MD5::process_message_block() {
@@ -370,7 +370,7 @@ void MD5::process_message_block() {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: operator<
 // Desc:
 //------------------------------------------------------------------------------
 bool MD5::operator<(const MD5 &rhs) const {
@@ -382,7 +382,7 @@ bool MD5::operator<(const MD5 &rhs) const {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: operator==
 // Desc:
 //------------------------------------------------------------------------------
 bool MD5::operator==(const MD5 &rhs) const {
@@ -394,7 +394,7 @@ bool MD5::operator==(const MD5 &rhs) const {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: from_raw
 //------------------------------------------------------------------------------
 MD5 MD5::from_raw(const quint32 *value) {
 	MD5 md5((internal_tag()));

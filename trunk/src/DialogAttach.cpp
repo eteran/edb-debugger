@@ -38,7 +38,7 @@ namespace {
 #endif
 
 //------------------------------------------------------------------------------
-// Name: DialogAttach(QWidget *parent)
+// Name: DialogAttach
 // Desc: constructor
 //------------------------------------------------------------------------------
 DialogAttach::DialogAttach(QWidget *parent) : QDialog(parent), ui(new Ui::DialogAttach) {
@@ -46,7 +46,7 @@ DialogAttach::DialogAttach(QWidget *parent) : QDialog(parent), ui(new Ui::Dialog
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogAttach()
+// Name: ~DialogAttach
 // Desc:
 //------------------------------------------------------------------------------
 DialogAttach::~DialogAttach() {
@@ -54,7 +54,7 @@ DialogAttach::~DialogAttach() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_filter_textChanged(const QString &text)
+// Name: on_filter_textChanged
 // Desc:
 //------------------------------------------------------------------------------
 void DialogAttach::on_filter_textChanged(const QString &text) {
@@ -62,7 +62,7 @@ void DialogAttach::on_filter_textChanged(const QString &text) {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_list(const QString &filter)
+// Name: update_list
 // Desc:
 //------------------------------------------------------------------------------
 void DialogAttach::update_list(const QString &filter) {
@@ -107,7 +107,7 @@ void DialogAttach::update_list(const QString &filter) {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *event)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogAttach::showEvent(QShowEvent *event) {
@@ -116,7 +116,7 @@ void DialogAttach::showEvent(QShowEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_filter_uid_clicked(bool checked)
+// Name: on_filter_uid_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogAttach::on_filter_uid_clicked(bool checked) {
@@ -125,7 +125,7 @@ void DialogAttach::on_filter_uid_clicked(bool checked) {
 }
 
 //------------------------------------------------------------------------------
-// Name: selected_pid(bool *ok) const
+// Name: selected_pid
 // Desc:
 //------------------------------------------------------------------------------
 edb::pid_t DialogAttach::selected_pid(bool *ok) const {

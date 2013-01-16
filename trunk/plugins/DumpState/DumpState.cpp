@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 	//------------------------------------------------------------------------------
-	// Name: hex_string(T value)
+	// Name: hex_string
 	// Desc:
 	//------------------------------------------------------------------------------
 	template <class T>
@@ -45,21 +45,21 @@ namespace {
 }
 
 //------------------------------------------------------------------------------
-// Name: DumpState()
+// Name: DumpState
 // Desc:
 //------------------------------------------------------------------------------
 DumpState::DumpState() : menu_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DumpState()
+// Name: ~DumpState
 // Desc:
 //------------------------------------------------------------------------------
 DumpState::~DumpState() {
 }
 
 //------------------------------------------------------------------------------
-// Name: menu(QWidget *parent)
+// Name: menu
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *DumpState::menu(QWidget *parent) {
@@ -73,7 +73,7 @@ QMenu *DumpState::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: dump_code(const State &state)
+// Name: dump_code
 // Desc:
 //------------------------------------------------------------------------------
 void DumpState::dump_code(const State &state) {
@@ -103,7 +103,7 @@ void DumpState::dump_code(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: dump_registers(const State &state)
+// Name: dump_registers
 // Desc:
 //------------------------------------------------------------------------------
 void DumpState::dump_registers(const State &state) {
@@ -182,7 +182,7 @@ void DumpState::dump_registers(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: dump_lines(edb::address_t address, int lines)
+// Name: dump_lines
 // Desc:
 //------------------------------------------------------------------------------
 void DumpState::dump_lines(edb::address_t address, int lines) {
@@ -217,7 +217,7 @@ void DumpState::dump_lines(edb::address_t address, int lines) {
 }
 
 //------------------------------------------------------------------------------
-// Name: dump_stack(const State &state)
+// Name: dump_stack
 // Desc:
 //------------------------------------------------------------------------------
 void DumpState::dump_stack(const State &state) {
@@ -225,7 +225,7 @@ void DumpState::dump_stack(const State &state) {
 }
 
 //------------------------------------------------------------------------------
-// Name: dump_data(edb::address_t address)
+// Name: dump_data
 // Desc:
 //------------------------------------------------------------------------------
 void DumpState::dump_data(edb::address_t address) {
@@ -233,7 +233,7 @@ void DumpState::dump_data(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu()
+// Name: show_menu
 // Desc:
 //------------------------------------------------------------------------------
 void DumpState::show_menu() {
@@ -255,7 +255,7 @@ void DumpState::show_menu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: options_page()
+// Name: options_page
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *DumpState::options_page() {

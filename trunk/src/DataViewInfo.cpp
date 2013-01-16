@@ -20,21 +20,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "QHexView"
 
 //------------------------------------------------------------------------------
-// Name: DataViewInfo(const IRegion::pointer &r)
+// Name: DataViewInfo
 // Desc:
 //------------------------------------------------------------------------------
 DataViewInfo::DataViewInfo(const IRegion::pointer &r) : region(r), stream(new RegionBuffer(r)) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DataViewInfo()
+// Name: ~DataViewInfo
 // Desc:
 //------------------------------------------------------------------------------
 DataViewInfo::~DataViewInfo() {
 }
 
 //------------------------------------------------------------------------------
-// Name: update()
+// Name: update
 // Desc:
 //------------------------------------------------------------------------------
 void DataViewInfo::update() {

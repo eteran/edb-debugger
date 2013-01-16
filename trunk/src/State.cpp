@@ -24,14 +24,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtAlgorithms>
 
 //------------------------------------------------------------------------------
-// Name: State()
+// Name: State
 // Desc: constructor
 //------------------------------------------------------------------------------
 State::State() : impl_(edb::v1::debugger_core ? edb::v1::debugger_core->create_state() : 0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~State()
+// Name: ~State
 // Desc:
 //------------------------------------------------------------------------------
 State::~State() {
@@ -39,14 +39,14 @@ State::~State() {
 }
 
 //------------------------------------------------------------------------------
-// Name: State(const State &other)
+// Name: State
 // Desc:
 //------------------------------------------------------------------------------
 State::State(const State &other) : impl_(other.impl_ ? other.impl_->clone() : 0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: swap(State &other)
+// Name: swap
 // Desc:
 //------------------------------------------------------------------------------
 void State::swap(State &other) {
@@ -54,7 +54,7 @@ void State::swap(State &other) {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator=(const State &other)
+// Name: operator=
 // Desc:
 //------------------------------------------------------------------------------
 State &State::operator=(const State &other) {
@@ -65,7 +65,7 @@ State &State::operator=(const State &other) {
 }
 
 //------------------------------------------------------------------------------
-// Name: clear()
+// Name: clear
 // Desc:
 //------------------------------------------------------------------------------
 void State::clear() {
@@ -75,7 +75,7 @@ void State::clear() {
 }
 
 //------------------------------------------------------------------------------
-// Name: instruction_pointer() const
+// Name: instruction_pointer
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t State::instruction_pointer() const {
@@ -86,7 +86,7 @@ edb::address_t State::instruction_pointer() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: stack_pointer() const
+// Name: stack_pointer
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t State::stack_pointer() const {
@@ -97,7 +97,7 @@ edb::address_t State::stack_pointer() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: frame_pointer() const
+// Name: frame_pointer
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t State::frame_pointer() const {
@@ -108,7 +108,7 @@ edb::address_t State::frame_pointer() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: flags() const
+// Name: flags
 // Desc:
 //------------------------------------------------------------------------------
 edb::reg_t State::flags() const {
@@ -119,7 +119,7 @@ edb::reg_t State::flags() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: value(const QString &reg)
+// Name: value
 // Desc: a function to return the value of a register based on it's name
 //------------------------------------------------------------------------------
 Register State::value(const QString &reg) const {
@@ -130,7 +130,7 @@ Register State::value(const QString &reg) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: operator[](const QString &reg) const
+// Name: operator[]
 // Desc:
 //------------------------------------------------------------------------------
 Register State::operator[](const QString &reg) const {
@@ -141,7 +141,7 @@ Register State::operator[](const QString &reg) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_register(const QString &name, edb::reg_t value)
+// Name: set_register
 // Desc:
 //------------------------------------------------------------------------------
 void State::set_register(const QString &name, edb::reg_t value) {
@@ -151,7 +151,7 @@ void State::set_register(const QString &name, edb::reg_t value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: adjust_stack(int bytes)
+// Name: adjust_stack
 // Desc:
 //------------------------------------------------------------------------------
 void State::adjust_stack(int bytes) {
@@ -161,7 +161,7 @@ void State::adjust_stack(int bytes) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_instruction_pointer(edb::address_t value)
+// Name: set_instruction_pointer
 // Desc:
 //------------------------------------------------------------------------------
 void State::set_instruction_pointer(edb::address_t value) {
@@ -171,7 +171,7 @@ void State::set_instruction_pointer(edb::address_t value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: flags_to_string() const
+// Name: flags_to_string
 // Desc:
 //------------------------------------------------------------------------------
 QString State::flags_to_string() const {
@@ -182,7 +182,7 @@ QString State::flags_to_string() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: flags_to_string(edb::reg_t flags) const
+// Name: flags_to_string
 // Desc:
 //------------------------------------------------------------------------------
 QString State::flags_to_string(edb::reg_t flags) const {
@@ -193,7 +193,7 @@ QString State::flags_to_string(edb::reg_t flags) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_flags(edb::reg_t flags)
+// Name: set_flags
 // Desc:
 //------------------------------------------------------------------------------
 void State::set_flags(edb::reg_t flags) {
@@ -203,7 +203,7 @@ void State::set_flags(edb::reg_t flags) {
 }
 
 //------------------------------------------------------------------------------
-// Name: debug_register(int n) const
+// Name: debug_register
 // Desc:
 //------------------------------------------------------------------------------
 edb::reg_t State::debug_register(int n) const {
@@ -214,7 +214,7 @@ edb::reg_t State::debug_register(int n) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_debug_register(int n, edb::reg_t value)
+// Name: set_debug_register
 // Desc:
 //------------------------------------------------------------------------------
 void State::set_debug_register(int n, edb::reg_t value) {
@@ -224,7 +224,7 @@ void State::set_debug_register(int n, edb::reg_t value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: fpu_register(int n) const
+// Name: fpu_register
 // Desc:
 //------------------------------------------------------------------------------
 long double State::fpu_register(int n) const {
@@ -235,7 +235,7 @@ long double State::fpu_register(int n) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: mmx_register(int n) const
+// Name: mmx_register
 // Desc:
 //------------------------------------------------------------------------------
 quint64 State::mmx_register(int n) const {
@@ -246,7 +246,7 @@ quint64 State::mmx_register(int n) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: xmm_register(int n) const
+// Name: xmm_register
 // Desc:
 //------------------------------------------------------------------------------
 QByteArray State::xmm_register(int n) const {

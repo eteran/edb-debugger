@@ -41,7 +41,7 @@ namespace {
 }
 
 //------------------------------------------------------------------------------
-// Name: DialogOpcodes(QWidget *parent)
+// Name: DialogOpcodes
 // Desc:
 //------------------------------------------------------------------------------
 DialogOpcodes::DialogOpcodes(QWidget *parent) : QDialog(parent), ui(new Ui::DialogOpcodes) {
@@ -116,7 +116,7 @@ DialogOpcodes::DialogOpcodes(QWidget *parent) : QDialog(parent), ui(new Ui::Dial
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogOpcodes()
+// Name: ~DialogOpcodes
 // Desc:
 //------------------------------------------------------------------------------
 DialogOpcodes::~DialogOpcodes() {
@@ -124,7 +124,7 @@ DialogOpcodes::~DialogOpcodes() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_listWidget_itemDoubleClicked(QListWidgetItem *item)
+// Name: on_listWidget_itemDoubleClicked
 // Desc: follows the found item in the data view
 //------------------------------------------------------------------------------
 void DialogOpcodes::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
@@ -136,7 +136,7 @@ void DialogOpcodes::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 }
 
 //------------------------------------------------------------------------------
-// Name: showEvent(QShowEvent *)
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOpcodes::showEvent(QShowEvent *) {
@@ -148,7 +148,7 @@ void DialogOpcodes::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: add_result(QList<edb::Instruction> instructions, edb::address_t rva)
+// Name: add_result
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOpcodes::add_result(QList<edb::Instruction> instructions, edb::address_t rva) {
@@ -172,7 +172,7 @@ void DialogOpcodes::add_result(QList<edb::Instruction> instructions, edb::addres
 }
 
 //------------------------------------------------------------------------------
-// Name: test_deref_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::address_t start_address)
+// Name: test_deref_reg_to_ip
 // Desc:
 //------------------------------------------------------------------------------
 template <edb::Operand::Register REG>
@@ -211,7 +211,7 @@ void DialogOpcodes::test_deref_reg_to_ip(const OpcodeData &data, edb::address_t 
 }
 
 //------------------------------------------------------------------------------
-// Name: test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::address_t start_address)
+// Name: test_reg_to_ip
 // Desc:
 //------------------------------------------------------------------------------
 template <edb::Operand::Register REG>
@@ -280,7 +280,7 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 }
 
 //------------------------------------------------------------------------------
-// Name: test_esp_add_0(const OpcodeData &data, edb::address_t start_address)
+// Name: test_esp_add_0
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_address) {
@@ -347,7 +347,7 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 }
 
 //------------------------------------------------------------------------------
-// Name: test_esp_add_regx1(const OpcodeData &data, edb::address_t start_address)
+// Name: test_esp_add_regx1
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t start_address) {
@@ -432,7 +432,7 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 }
 
 //------------------------------------------------------------------------------
-// Name: test_esp_add_regx2(const OpcodeData &data, edb::address_t start_address)
+// Name: test_esp_add_regx2
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t start_address) {
@@ -532,7 +532,7 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 }
 
 //------------------------------------------------------------------------------
-// Name: test_esp_sub_regx1(const OpcodeData &data, edb::address_t start_address)
+// Name: test_esp_sub_regx1
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t start_address) {
@@ -705,7 +705,7 @@ void DialogOpcodes::run_tests(int classtype, const OpcodeData &opcode, edb::addr
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find()
+// Name: do_find
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOpcodes::do_find() {
@@ -784,7 +784,7 @@ void DialogOpcodes::do_find() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnFind_clicked()
+// Name: on_btnFind_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOpcodes::on_btnFind_clicked() {

@@ -22,14 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTabBar>
 
 //------------------------------------------------------------------------------
-// Name: TabWidget(QWidget *parent)
+// Name: TabWidget
 // Desc:
 //------------------------------------------------------------------------------
 TabWidget::TabWidget(QWidget *parent) : QTabWidget(parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~TabWidget()
+// Name: ~TabWidget
 // Desc:
 //------------------------------------------------------------------------------
 TabWidget::~TabWidget() {
@@ -37,7 +37,7 @@ TabWidget::~TabWidget() {
 }
 
 //------------------------------------------------------------------------------
-// Name: setData(int index, const QVariant &data)
+// Name: setData
 // Desc:
 //------------------------------------------------------------------------------
 void TabWidget::setData(int index, const QVariant &data) {
@@ -45,7 +45,7 @@ void TabWidget::setData(int index, const QVariant &data) {
 }
 
 //------------------------------------------------------------------------------
-// Name: data(int index) const
+// Name: data
 // Desc:
 //------------------------------------------------------------------------------
 QVariant TabWidget::data(int index) const {
@@ -53,7 +53,7 @@ QVariant TabWidget::data(int index) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: mousePressEvent(QMouseEvent *event)
+// Name: mousePressEvent
 // Desc:
 //------------------------------------------------------------------------------
 void TabWidget::mousePressEvent(QMouseEvent *event) {

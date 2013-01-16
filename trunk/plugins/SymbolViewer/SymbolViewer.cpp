@@ -22,14 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 
 //------------------------------------------------------------------------------
-// Name: SymbolViewer()
+// Name: SymbolViewer
 // Desc:
 //------------------------------------------------------------------------------
 SymbolViewer::SymbolViewer() : menu_(0), dialog_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~SymbolViewer()
+// Name: ~SymbolViewer
 // Desc:
 //------------------------------------------------------------------------------
 SymbolViewer::~SymbolViewer() {
@@ -37,7 +37,7 @@ SymbolViewer::~SymbolViewer() {
 }
 
 //------------------------------------------------------------------------------
-// Name: menu(QWidget *parent)
+// Name: menu
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *SymbolViewer::menu(QWidget *parent) {
@@ -51,7 +51,7 @@ QMenu *SymbolViewer::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu()
+// Name: show_menu
 // Desc:
 //------------------------------------------------------------------------------
 void SymbolViewer::show_menu() {
