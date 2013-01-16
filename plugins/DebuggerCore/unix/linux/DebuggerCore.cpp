@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2011 Evan Teran
+Copyright (C) 2006 - 2013 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -396,7 +396,8 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 		unsigned long new_tid;
 		if(ptrace_get_event_message(tid, &new_tid) != -1) {
 
-			threads_.insert(new_tid, thread_info(0));
+			const thread_info info = { 0, thread_info::THREAD_STOPPED };
+			threads_.insert(new_tid, info);
 
 			int thread_status = 0;
 			if(!waited_threads_.contains(new_tid)) {
@@ -499,6 +500,37 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 }
 
 //------------------------------------------------------------------------------
+// Name: read_pages
+// Desc:
+//------------------------------------------------------------------------------
+bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
+
+	const std::size_t len = count * page_size();
+
+	QFile memory_file(QString("/proc/%1/mem").arg(pid_));
+	if(memory_file.open(QIODevice::ReadOnly)) {
+		if(quint8 *const memory_map = memory_file.map(address, len, QFile::NoOptions)) {
+		
+			memcpy(buf, memory_map, len);
+			
+			// TODO: handle if breakponts have a size more than 1!
+			Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
+				if(bp->address() >= address && bp->address() < (address + len)) {
+					// show the original bytes in the buffer..
+					memory_map[bp->address() - address] = bp->original_bytes()[0];
+				}
+			}
+		
+			memory_file.unmap(memory_map);
+			memory_file.close();
+		}
+	}
+	
+	return true;
+}
+
+
+//------------------------------------------------------------------------------
 // Name: write_data(edb::address_t address, long value)
 // Desc:
 //------------------------------------------------------------------------------
@@ -516,7 +548,10 @@ bool DebuggerCore::attach_thread(edb::tid_t tid) {
 		// on stopped threads
 		int status;
 		if(native::waitpid(tid, &status, __WALL) > 0) {
-			threads_[tid] = thread_info(status);
+		
+			const thread_info info = { status, thread_info::THREAD_STOPPED };
+			threads_[tid] = info;
+			
 			waited_threads_.insert(tid);
 			if(ptrace_set_options(tid, PTRACE_O_TRACECLONE) == -1) {
 				qDebug("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: [%d] %s", tid, strerror(errno));
@@ -792,7 +827,10 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 
 			// setup the first event data for the primary thread
 			waited_threads_.insert(pid);
-			threads_[pid]   = thread_info(status);
+			
+			const thread_info info = { status, thread_info::THREAD_STOPPED };
+			threads_[pid]   = info;
+			
 			pid_            = pid;
 			active_thread_  = pid;
 			event_thread_   = pid;
@@ -922,9 +960,9 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 	QList<IRegion::pointer> regions;
 
 	if(pid_ != 0) {
-		const QString mapFile(QString("/proc/%1/maps").arg(pid_));
+		const QString map_file(QString("/proc/%1/maps").arg(pid_));
 
-		QFile file(mapFile);
+		QFile file(map_file);
         if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 
 			QTextStream in(&file);
@@ -1068,6 +1106,15 @@ QList<Module> DebuggerCore::loaded_modules() const {
 	}
 
 	return ret;
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
+	QFileInfo info(QString("/proc/%1/stat").arg(pid));
+	return info.created();
 }
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

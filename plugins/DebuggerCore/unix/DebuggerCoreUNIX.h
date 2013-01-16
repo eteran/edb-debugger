@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2011 Evan Teran
+Copyright (C) 2006 - 2013 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 
 #define SET_OK(ok, v) do { (ok) = ((v) != -1) || (errno == 0); } while(0)
-#define EDB_WORDSIZE  sizeof(long)
+
 
 namespace native {
 	int execvp(const char *file, char *const argv[]);

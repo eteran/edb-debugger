@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2011 Evan Teran
+Copyright (C) 2006 - 2013 Evan Teran
 	                  eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -440,8 +440,6 @@ void analyze_jump_targets(const edb::Instruction &insn, QStringList &ret) {
 	const edb::address_t end_address   = address + 127;
 
 	quint8 buffer[edb::Instruction::MAX_SIZE];
-
-	QString temp;
 
 	for(edb::address_t addr = start_address; addr < end_address; ++addr) {
 		int sz = sizeof(buffer);

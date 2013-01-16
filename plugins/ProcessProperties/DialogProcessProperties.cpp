@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2011 Evan Teran
+Copyright (C) 2006 - 2013 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -287,21 +287,27 @@ DialogProcessProperties::~DialogProcessProperties() {
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateGeneralPage() {
 	if(edb::v1::debugger_core) {
-	
-        const edb::pid_t pid         = edb::v1::debugger_core->pid();
-        const QString exe            = edb::v1::debugger_core->process_exe(pid);
-        const QString cwd            = edb::v1::debugger_core->process_cwd(pid);
-        const edb::pid_t parent_pid  = edb::v1::debugger_core->parent_pid(pid);
-        const QString parent_exe     = edb::v1::debugger_core->process_exe(parent_pid);
-        const QList<QByteArray> args = edb::v1::debugger_core->process_args(pid);
-	
-		ui->editImage->setText(exe);
-		ui->editCommand->setText(QString());
-		ui->editCurrentDirectory->setText(cwd);
-		ui->editStarted->setText(QString());
-		if(parent_pid) {
-			ui->editParent->setText(QString("%1 (%2)").arg(parent_exe).arg(parent_pid));
+	    if(const edb::pid_t pid = edb::v1::debugger_core->pid()) {
+	        const QString exe            = edb::v1::debugger_core->process_exe(pid);
+	        const QString cwd            = edb::v1::debugger_core->process_cwd(pid);
+	        const edb::pid_t parent_pid  = edb::v1::debugger_core->parent_pid(pid);
+	        const QString parent_exe     = edb::v1::debugger_core->process_exe(parent_pid);
+	        const QList<QByteArray> args = edb::v1::debugger_core->process_args(pid);
+
+			ui->editImage->setText(exe);
+			ui->editCommand->setText(QString());
+			ui->editCurrentDirectory->setText(cwd);
+			ui->editStarted->setText(edb::v1::debugger_core->process_start(pid).toString("yyyy-MM-dd hh:mm:ss.z"));
+			if(parent_pid) {
+				ui->editParent->setText(QString("%1 (%2)").arg(parent_exe).arg(parent_pid));
+			} else {
+				ui->editParent->setText(QString());
+			}
 		} else {
+			ui->editImage->setText(QString());
+			ui->editCommand->setText(QString());
+			ui->editCurrentDirectory->setText(QString());
+			ui->editStarted->setText(QString());
 			ui->editParent->setText(QString());
 		}
 	}
