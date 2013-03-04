@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#summary edb is a cross platform x86/x86-64 debugger.
 
 = Introduction =
 
