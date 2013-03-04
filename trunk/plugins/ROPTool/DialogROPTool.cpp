@@ -17,18 +17,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogROPTool.h"
-#include "IDebuggerCore.h"
-#include "Debugger.h"
-#include "MemoryRegions.h"
 #include "ByteShiftArray.h"
+#include "Debugger.h"
+#include "IDebuggerCore.h"
+#include "MemoryRegions.h"
 #include "Util.h"
-
 #include <QDebug>
 #include <QHeaderView>
 #include <QMessageBox>
+#include <QModelIndex>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
-#include <QModelIndex>
 
 #include "ui_dialogrop.h"
 

@@ -17,14 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ELF64.h"
-#include "Util.h"
+#include "ByteShiftArray.h"
 #include "Debugger.h"
 #include "IDebuggerCore.h"
-#include "ByteShiftArray.h"
-
-#include <QVector>
-#include <QFile>
+#include "Util.h"
 #include <QDebug>
+#include <QFile>
+#include <QVector>
 #include <cstring>
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)

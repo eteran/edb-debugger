@@ -236,22 +236,23 @@ unix {
 
 	linux-g++*:		QMAKE_CXXFLAGS += -Wstrict-null-sentinel
 
-	linux-clang*:	QMAKE_LFLAGS += -rdynamic
-	linux-g++*:		QMAKE_LFLAGS += -rdynamic
-	openbsd-g++*:	QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic
-	freebsd-g++*:	QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic
-	macx-g++*:		QMAKE_LFLAGS += -rdynamic
-	macx-cleang*:	QMAKE_LFLAGS += -rdynamic
-	
-	debug {
+	# linker flags
+	freebsd-g++*:	QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic $$(LDFLAGS)
+	linux-clang*:	QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
+	linux-g++*:		QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
+	macx-cleang*:	QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
+	macx-g++*:		QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
+	openbsd-g++*:	QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic $$(LDFLAGS)
+
+	CONFIG(debug, debug|release) {
 		OBJECTS_DIR = $${OUT_PWD}/.debug-shared/obj
 		MOC_DIR     = $${OUT_PWD}/.debug-shared/moc
 		RCC_DIR     = $${OUT_PWD}/.debug-shared/rcc
 		UI_DIR      = $${OUT_PWD}/.debug-shared/uic
-		DEFINES += QT_SHAREDPOINTER_TRACK_POINTERS
+		DEFINES    += QT_SHAREDPOINTER_TRACK_POINTERS
 	}
 	
-	release {
+	CONFIG(release, debug|release) {
 		OBJECTS_DIR = $${OUT_PWD}/.release-shared/obj
 		MOC_DIR     = $${OUT_PWD}/.release-shared/moc
 		RCC_DIR     = $${OUT_PWD}/.release-shared/rcc

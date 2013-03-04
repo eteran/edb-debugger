@@ -17,17 +17,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AnalyzerWidget.h"
-#include "IAnalyzer.h"
-#include "MemoryRegions.h"
 #include "Debugger.h"
+#include "IAnalyzer.h"
 #include "IDebuggerCore.h"
+#include "MemoryRegions.h"
 #include "State.h"
-#include <QPainter>
-#include <QMouseEvent>
-#include <QFontMetrics>
 #include <QAbstractScrollArea>
-#include <QScrollBar>
 #include <QDebug>
+#include <QFontMetrics>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QScrollBar>
 
 //------------------------------------------------------------------------------
 // Name: 

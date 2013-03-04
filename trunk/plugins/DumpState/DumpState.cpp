@@ -18,30 +18,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DumpState.h"
 #include "Debugger.h"
-#include "State.h"
-#include "IDebuggerCore.h"
 #include "DumpStateOptionsPage.h"
-#include "Util.h"
+#include "IDebuggerCore.h"
 #include "Instruction.h"
-
+#include "State.h"
+#include "Util.h"
 #include <QMenu>
 #include <QSettings>
-#include <iostream>
 #include <iomanip>
-#include <string>
+#include <iostream>
 #include <sstream>
+#include <string>
+
 
 namespace {
-	//------------------------------------------------------------------------------
-	// Name: hex_string
-	// Desc:
-	//------------------------------------------------------------------------------
-	template <class T>
-	std::string hex_string(T value) {
-		std::stringstream ss;
-		ss << std::hex << std::setw(sizeof(T) * 2) << std::setfill('0') <<  static_cast<edb::reg_t>(value);
-		return ss.str();
-	}
+
+//------------------------------------------------------------------------------
+// Name: hex_string
+// Desc:
+//------------------------------------------------------------------------------
+template <class T>
+std::string hex_string(T value) {
+	std::stringstream ss;
+	ss << std::hex << std::setw(sizeof(T) * 2) << std::setfill('0') <<  static_cast<edb::reg_t>(value);
+	return ss.str();
+}
+
 }
 
 //------------------------------------------------------------------------------

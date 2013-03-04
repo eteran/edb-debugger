@@ -17,15 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogASCIIString.h"
+#include "Debugger.h"
 #include "IDebuggerCore.h"
 #include "MemoryRegions.h"
-#include "Debugger.h"
-#include "Util.h"
 #include "State.h"
-#include "Debugger.h"
-
-#include <QVector>
+#include "Util.h"
 #include <QMessageBox>
+#include <QVector>
 #include <cstring>
 
 #include "ui_dialogasciistring.h"

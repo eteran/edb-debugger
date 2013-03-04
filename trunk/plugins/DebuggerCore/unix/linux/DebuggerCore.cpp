@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+
+// TODO: research usage of process_vm_readv, process_vm_writev
+
 #include "DebuggerCore.h"
 #include "Debugger.h"
 #include "MemoryRegions.h"

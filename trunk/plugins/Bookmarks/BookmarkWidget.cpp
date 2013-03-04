@@ -17,13 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "BookmarkWidget.h"
-#include "ui_bookmarks.h"
+#include "Debugger.h"
 #include "Expression.h"
 #include <QInputDialog>
+#include <QMenu>
 #include <QMessageBox>
 #include <QTableWidgetItem>
-#include <QMenu>
-#include "Debugger.h"
+
+#include "ui_bookmarks.h"
 
 //------------------------------------------------------------------------------
 // Name: BookmarkWidget

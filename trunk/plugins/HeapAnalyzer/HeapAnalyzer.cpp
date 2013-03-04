@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "HeapAnalyzer.h"
-#include "DialogHeap.h"
 #include "Debugger.h"
+#include "DialogHeap.h"
 #include <QMenu>
 
 //------------------------------------------------------------------------------

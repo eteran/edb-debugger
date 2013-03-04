@@ -29,27 +29,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "MemoryRegions.h"
 #include "State.h"
 #include "Util.h"
-
-#include <QMainWindow>
-#include <QToolBar>
 #include <QCoreApplication>
 #include <QHash>
+#include <QMainWindow>
 #include <QMenu>
 #include <QMessageBox>
 #include <QProgressDialog>
 #include <QSettings>
 #include <QStack>
 #include <QTime>
+#include <QToolBar>
 #include <QtDebug>
-
-#include <boost/function.hpp>
 #include <boost/bind.hpp>
+#include <boost/function.hpp>
+#include <cstring>
 
 #if QT_VERSION >= 0x040800
 #include <QtConcurrentMap>
 #endif
-
-#include <cstring>
 
 #define MIN_REFCOUNT 2
 

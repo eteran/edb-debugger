@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ROPTool.h"
-#include "DialogROPTool.h"
 #include "Debugger.h"
+#include "DialogROPTool.h"
 #include <QMenu>
 
 //------------------------------------------------------------------------------
