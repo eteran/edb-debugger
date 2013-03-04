@@ -16,9 +16,9 @@ $ qmake
 $ make
 }}}
 
-This will build the debugger along with all plugins I have written. On certain systems your qmake make be named slightly differently, I've noticed that the Fedora Core rpms name it qmake-qt4.
+This will build the debugger along with all plugins I have written. On certain systems your `qmake` make be named slightly differently, I've noticed that the Fedora Core rpms name it `qmake-qt4`.
 
-If you are planning on doing a make install, you likely want to specify the default plugin path, here's how you would do that.
+If you are planning on doing a `make install`, you likely want to specify the default plugin path, here's how you would do that.
 
 {{{
 $ qmake -makefile DEFAULT_PLUGIN_PATH="/usr/lib/edb/"
