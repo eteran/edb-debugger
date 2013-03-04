@@ -1,0 +1,14 @@
+#summary Overview of the UI
+
+= Interface =
+
+[http://codef00.com/ http://codef00.com/img/debugger.png]
+
+The interface is broken down into 4 primary regions.
+
+  * The [Disassembly Disassembly View]
+  * The [Register Register View]
+  * The [Stack Stack View]
+  * The [Data Data Dump View]
+
+Each of these can be dragged, docked, undocked, hidden and shown according to the users preferences and needs.
