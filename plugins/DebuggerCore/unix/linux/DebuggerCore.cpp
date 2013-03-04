@@ -503,30 +503,28 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 }
 
 //------------------------------------------------------------------------------
-// Name: read_page
+// Name: read_pages
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
 
 	const std::size_t len = count * page_size();
-
-	QFile memory_file(QString("/proc/%1/mem").arg(pid_));
+	
+	QFile memory_file(QString("/proc/%1/mem").arg(pid_));	
 	if(memory_file.open(QIODevice::ReadOnly)) {
-		if(quint8 *const memory_map = memory_file.map(address, len, QFile::NoOptions)) {
-		
-			memcpy(buf, memory_map, len);
-			
-			// TODO: handle if breakponts have a size more than 1!
-			Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
-				if(bp->address() >= address && bp->address() < (address + len)) {
-					// show the original bytes in the buffer..
-					memory_map[bp->address() - address] = bp->original_bytes()[0];
-				}
+	
+		memory_file.seek(address);
+		const qint64 n = memory_file.read(reinterpret_cast<char *>(buf), len);
+
+		// TODO: handle if breakponts have a size more than 1!
+		Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
+			if(bp->address() >= address && bp->address() < (address + n)) {
+				// show the original bytes in the buffer..
+				reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_bytes()[0];
 			}
-		
-			memory_file.unmap(memory_map);
-			memory_file.close();
 		}
+
+		memory_file.close();
 	}
 	
 	return true;
