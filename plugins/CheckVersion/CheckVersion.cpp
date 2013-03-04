@@ -97,8 +97,10 @@ void CheckVersion::do_check() {
 // Desc:
 //------------------------------------------------------------------------------
 bool CheckVersion::set_proxy(const QUrl &url) {
-QNetworkProxy proxy;
-bool set = false;
+	
+	QNetworkProxy proxy;
+	bool set = false;
+	
 #ifdef Q_OS_LINUX
 	Q_UNUSED(url);
 	QString proxy_str = QString::fromUtf8(qgetenv("HTTP_PROXY"));
@@ -139,6 +141,7 @@ void CheckVersion::show_menu() {
 // Desc:
 //------------------------------------------------------------------------------
 void CheckVersion::requestFinished(QNetworkReply *reply) {
+	
 	if(QNetworkReply::NoError != reply->error()) {
 		if(!initial_check_) {
 			QMessageBox::information(

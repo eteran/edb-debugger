@@ -18,26 +18,40 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BinaryInfo.h"
 #include "Debugger.h"
+#include "DialogHeader.h"
 #include "ELF32.h"
 #include "ELF64.h"
 #include "IBinary.h"
 #include "PE32.h"
-#include "DialogHeader.h"
-#include <QMenu>
 #include <QDebug>
+#include <QMenu>
 
 namespace {
-	IBinary *create_binary_info_elf32(const IRegion::pointer &region) {
-		return new ELF32(region);
-	}
 
-	IBinary *create_binary_info_elf64(const IRegion::pointer &region) {
-		return new ELF64(region);
-	}
-	
-	IBinary *create_binary_info_pe32(const IRegion::pointer &region) {
-		return new PE32(region);
-	}
+//------------------------------------------------------------------------------
+// Name: create_binary_info_elf32
+// Desc:
+//------------------------------------------------------------------------------
+IBinary *create_binary_info_elf32(const IRegion::pointer &region) {
+	return new ELF32(region);
+}
+
+//------------------------------------------------------------------------------
+// Name: create_binary_info_elf64
+// Desc:
+//------------------------------------------------------------------------------
+IBinary *create_binary_info_elf64(const IRegion::pointer &region) {
+	return new ELF64(region);
+}
+
+//------------------------------------------------------------------------------
+// Name: create_binary_info_pe32
+// Desc:
+//------------------------------------------------------------------------------
+IBinary *create_binary_info_pe32(const IRegion::pointer &region) {
+	return new PE32(region);
+}
+
 }
 
 //------------------------------------------------------------------------------
@@ -48,7 +62,7 @@ BinaryInfo::BinaryInfo() : menu_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: BinaryInfo
+// Name: private_init
 // Desc:
 //------------------------------------------------------------------------------
 void BinaryInfo::private_init() {
@@ -71,7 +85,7 @@ QMenu *BinaryInfo::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: menu
+// Name: explore_header
 // Desc:
 //------------------------------------------------------------------------------
 void BinaryInfo::explore_header() {

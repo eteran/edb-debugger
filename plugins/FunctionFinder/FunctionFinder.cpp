@@ -17,8 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "FunctionFinder.h"
-#include "DialogFunctions.h"
 #include "Debugger.h"
+#include "DialogFunctions.h"
 #include <QMenu>
 
 //------------------------------------------------------------------------------

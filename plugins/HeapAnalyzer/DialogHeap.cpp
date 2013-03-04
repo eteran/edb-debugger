@@ -18,12 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogHeap.h"
 #include "Configuration.h"
-#include "IDebuggerCore.h"
 #include "Debugger.h"
-#include "MemoryRegions.h"
+#include "IDebuggerCore.h"
 #include "ISymbolManager.h"
+#include "MemoryRegions.h"
 #include "Util.h"
-
 #include <QFileInfo>
 #include <QHeaderView>
 #include <QMessageBox>
@@ -32,10 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <QVector>
 #include <QtDebug>
-
-#include <boost/bind.hpp>
-
 #include <algorithm>
+#include <boost/bind.hpp>
 
 #ifdef ENABLE_GRAPH
 #include "GraphWidget.h"

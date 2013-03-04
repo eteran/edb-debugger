@@ -17,9 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "BinarySearcher.h"
-#include "DialogBinaryString.h"
-#include "DialogASCIIString.h"
 #include "Debugger.h"
+#include "DialogASCIIString.h"
+#include "DialogBinaryString.h"
 #include <QMenu>
 
 //------------------------------------------------------------------------------

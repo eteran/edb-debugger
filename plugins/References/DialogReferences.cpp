@@ -17,14 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogReferences.h"
+#include "Debugger.h"
 #include "IDebuggerCore.h"
-#include "Debugger.h"
-#include "Util.h"
 #include "MemoryRegions.h"
-#include "Debugger.h"
-
-#include <QVector>
+#include "Util.h"
 #include <QMessageBox>
+#include <QVector>
 
 #include "ui_dialogreferences.h"
 
@@ -151,7 +149,7 @@ void DialogReferences::on_btnFind_clicked() {
 
 //------------------------------------------------------------------------------
 // Name: on_listWidget_itemDoubleClicked
-// Desc: follows the foudn item in the data view
+// Desc: follows the found item in the data view
 //------------------------------------------------------------------------------
 void DialogReferences::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 	bool ok;

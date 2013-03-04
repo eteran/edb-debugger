@@ -10,10 +10,12 @@ INSTALLS += target
 DEFINES += EDB_PLUGIN
 
 # ignore missing symbols, they'll be found when linked into edb
-linux-g++*:QMAKE_LFLAGS -= $$QMAKE_LFLAGS_NOUNDEF
-linux-g++*:QMAKE_LFLAGS -= "-Wl,--no-undefined"
-macx-g++*:QMAKE_LFLAGS += "-undefined dynamic_lookup"
-macx*:QMAKE_LFLAGS += "-undefined dynamic_lookup"
+linux-g++*: QMAKE_LFLAGS -= $$QMAKE_LFLAGS_NOUNDEF
+linux-g++*: QMAKE_LFLAGS -= "-Wl,--no-undefined"
+macx-g++*:  QMAKE_LFLAGS += "-undefined dynamic_lookup"
+macx*:      QMAKE_LFLAGS += "-undefined dynamic_lookup"
+
+linux-g++*:QMAKE_LFLAGS += $$(LDFLAGS)
 
 unix {
 	# generic unix include paths
@@ -55,14 +57,14 @@ unix {
 		include(plugins-$${QT_ARCH}.pri)
 	}
 
-	debug {
+	CONFIG(debug, debug|release) {
 		OBJECTS_DIR = $${OUT_PWD}/.debug-shared/obj
 		MOC_DIR     = $${OUT_PWD}/.debug-shared/moc
 		RCC_DIR     = $${OUT_PWD}/.debug-shared/rcc
 		UI_DIR      = $${OUT_PWD}/.debug-shared/uic
 	}
 	
-	release {
+	CONFIG(release, debug|release) {
 		OBJECTS_DIR = $${OUT_PWD}/.release-shared/obj
 		MOC_DIR     = $${OUT_PWD}/.release-shared/moc
 		RCC_DIR     = $${OUT_PWD}/.release-shared/rcc

@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SessionManager.h"
 #include "Debugger.h"
 #include <QtDebug>
-#include <QMetaProperty>
 
 //------------------------------------------------------------------------------
 // Name: private_init
