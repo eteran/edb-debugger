@@ -25,4 +25,4 @@ $ qmake -makefile DEFAULT_PLUGIN_PATH="/usr/lib/edb/"
 $ make
 }}}
 
-For installation information, see [installing]
+For installation information, see [Installing]
