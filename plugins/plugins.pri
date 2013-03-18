@@ -58,6 +58,7 @@ unix {
 	}
 
 	CONFIG(debug, debug|release) {
+		DEFINES    += QT_SHAREDPOINTER_TRACK_POINTERS
 		OBJECTS_DIR = $${OUT_PWD}/.debug-shared/obj
 		MOC_DIR     = $${OUT_PWD}/.debug-shared/moc
 		RCC_DIR     = $${OUT_PWD}/.debug-shared/rcc

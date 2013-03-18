@@ -64,7 +64,7 @@ bool X86Breakpoint::enable() {
 //------------------------------------------------------------------------------
 bool X86Breakpoint::disable() {
 	if(enabled()) {
-		if(edb::v1::debugger_core->write_bytes(address(), original_bytes_, size)) {
+		if(edb::v1::debugger_core->write_bytes(address(), original_bytes_.constData(), size)) {
 			enabled_ = false;
 			return true;
 		}
