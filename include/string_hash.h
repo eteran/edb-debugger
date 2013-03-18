@@ -22,18 +22,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtGlobal>
 
 namespace edb {
-	template <char Ch1, char Ch2 = '\0', char Ch3 = '\0', char Ch4 = '\0', char Ch5 = '\0', char Ch6 = '\0', char Ch7 = '\0', char Ch8 = '\0'>
-	struct string_hash {
-		static const quint64 value = 
-			(static_cast<quint64>(Ch1) << 56) | 
-			(static_cast<quint64>(Ch2) << 48) | 
-			(static_cast<quint64>(Ch3) << 40) | 
-			(static_cast<quint64>(Ch4) << 32) | 
-			(static_cast<quint64>(Ch5) << 24) | 
-			(static_cast<quint64>(Ch6) << 16) | 
-			(static_cast<quint64>(Ch7) << 8)  | 
-			(Ch8);
-	};
+
+template <char Ch1, char Ch2 = '\0', char Ch3 = '\0', char Ch4 = '\0', char Ch5 = '\0', char Ch6 = '\0', char Ch7 = '\0', char Ch8 = '\0'>
+struct string_hash {
+	static const quint64 value = 
+		(static_cast<quint64>(Ch1) << 56) | 
+		(static_cast<quint64>(Ch2) << 48) | 
+		(static_cast<quint64>(Ch3) << 40) | 
+		(static_cast<quint64>(Ch4) << 32) | 
+		(static_cast<quint64>(Ch5) << 24) | 
+		(static_cast<quint64>(Ch6) << 16) | 
+		(static_cast<quint64>(Ch7) << 8)  | 
+		(Ch8);
+};
+
 }
 
 #endif

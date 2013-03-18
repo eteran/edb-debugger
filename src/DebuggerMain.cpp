@@ -69,8 +69,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #if defined(Q_OS_UNIX)
-#include <sys/types.h>
-#include <unistd.h>
 #include <signal.h>
 #endif
 
@@ -87,20 +85,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 namespace {
-	//--------------------------------------------------------------------------
-	// Name: is_instruction_ret
-	//--------------------------------------------------------------------------
-	bool is_instruction_ret(edb::address_t address) {
 
-		quint8 buffer[edb::Instruction::MAX_SIZE];
-		int size = sizeof(buffer);
+//--------------------------------------------------------------------------
+// Name: is_instruction_ret
+//--------------------------------------------------------------------------
+bool is_instruction_ret(edb::address_t address) {
 
-		if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
-			edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
-			return insn.valid() && insn.type() == edb::Instruction::OP_RET;
-		}
-		return false;
+	quint8 buffer[edb::Instruction::MAX_SIZE];
+	int size = sizeof(buffer);
+
+	if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
+		edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
+		return insn.valid() && insn.type() == edb::Instruction::OP_RET;
 	}
+	return false;
+}
+
 }
 
 class RunUntilRet : public IDebugEventHandler {
@@ -174,9 +174,9 @@ public:
 	}
 
 private:
-	DebuggerMain *const          ui_;
-	IDebugEventHandler * previous_handler_;
-	edb::address_t               last_call_return_;
+	DebuggerMain *const ui_;
+	IDebugEventHandler *previous_handler_;
+	edb::address_t      last_call_return_;
 };
 
 
@@ -245,7 +245,7 @@ void DebuggerMain::goto_triggered() {
 
 //------------------------------------------------------------------------------
 // Name: setup_ui
-// Desc:
+// Desc: creates the UI
 //------------------------------------------------------------------------------
 void DebuggerMain::setup_ui() {
 	// setup the global pointers as early as possible.
@@ -258,14 +258,14 @@ void DebuggerMain::setup_ui() {
 	ui->setupUi(this);
 
 	// add toggles for the dock windows
-	ui->menu_View->addAction(ui->registersDock ->toggleViewAction());
-	ui->menu_View->addAction(ui->dataDock      ->toggleViewAction());
-	ui->menu_View->addAction(ui->stackDock     ->toggleViewAction());
-	ui->menu_View->addAction(ui->toolBar       ->toggleViewAction());
+	ui->menu_View->addAction(ui->registersDock->toggleViewAction());
+	ui->menu_View->addAction(ui->dataDock     ->toggleViewAction());
+	ui->menu_View->addAction(ui->stackDock    ->toggleViewAction());
+	ui->menu_View->addAction(ui->toolBar      ->toggleViewAction());
 
 	// make sure our widgets use custom context menus
 	ui->registerList->setContextMenuPolicy(Qt::CustomContextMenu);
-	ui->cpuView->setContextMenuPolicy(Qt::CustomContextMenu);
+	ui->cpuView     ->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// set the listbox to about 4 lines
 	const QFontMetrics &fm = ui->listView->fontMetrics();
@@ -419,7 +419,7 @@ void DebuggerMain::dropEvent(QDropEvent* event) {
 
 //------------------------------------------------------------------------------
 // Name: on_actionAbout_QT_triggered
-// Desc:
+// Desc: shows an About Qt dialog box
 //------------------------------------------------------------------------------
 void DebuggerMain::on_actionAbout_QT_triggered() {
 	QMessageBox::aboutQt(this, tr("About Qt"));
@@ -695,15 +695,15 @@ void DebuggerMain::mnuRegisterFollowInStack() {
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-edb::address_t DebuggerMain::get_follow_address(const T &hv, bool *ok) {
+edb::address_t DebuggerMain::get_follow_address(const T &hexview, bool *ok) {
 	
 	Q_ASSERT(hv);
 	Q_ASSERT(ok);
 	
 	*ok = false;
 
-	if(hv->hasSelectedText()) {
-		const QByteArray data = hv->selectedBytes();
+	if(hexview->hasSelectedText()) {
+		const QByteArray data = hexview->selectedBytes();
 
 		if(data.size() == edb::v1::pointer_size()) {
 			edb::address_t d;
@@ -726,9 +726,9 @@ edb::address_t DebuggerMain::get_follow_address(const T &hv, bool *ok) {
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-void DebuggerMain::follow_in_stack(const T &hv) {
+void DebuggerMain::follow_in_stack(const T &hexview) {
 	bool ok;
-	const edb::address_t address = get_follow_address(hv, &ok);
+	const edb::address_t address = get_follow_address(hexview, &ok);
 	if(ok) {
 		follow_memory(address, boost::bind(edb::v1::dump_stack, _1));
 	}
@@ -739,9 +739,9 @@ void DebuggerMain::follow_in_stack(const T &hv) {
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-void DebuggerMain::follow_in_dump(const T &hv) {
+void DebuggerMain::follow_in_dump(const T &hexview) {
 	bool ok;
-	const edb::address_t address = get_follow_address(hv, &ok);
+	const edb::address_t address = get_follow_address(hexview, &ok);
 	if(ok) {
 		follow_memory(address, boost::bind(edb::v1::dump_data, _1));
 	}
@@ -752,9 +752,9 @@ void DebuggerMain::follow_in_dump(const T &hv) {
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-void DebuggerMain::follow_in_cpu(const T &hv) {
+void DebuggerMain::follow_in_cpu(const T &hexview) {
 	bool ok;
-	const edb::address_t address = get_follow_address(hv, &ok);
+	const edb::address_t address = get_follow_address(hexview, &ok);
 	if(ok) {
 		follow_memory(address, boost::bind(edb::v1::jump_to_address, _1));
 	}
@@ -1169,11 +1169,11 @@ void DebuggerMain::mnuCPUModify() {
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-void DebuggerMain::modify_bytes(const T &hv) {
-	if(hv) {
-		const edb::address_t address = hv->selectedBytesAddress();
-		const unsigned int size      = hv->selectedBytesSize();
-		QByteArray bytes             = hv->selectedBytes();
+void DebuggerMain::modify_bytes(const T &hexview) {
+	if(hexview) {
+		const edb::address_t address = hexview->selectedBytesAddress();
+		const unsigned int size      = hexview->selectedBytesSize();
+		QByteArray bytes             = hexview->selectedBytes();
 
 		edb::v1::modify_bytes(address, size, bytes, 0x00);
 	}
