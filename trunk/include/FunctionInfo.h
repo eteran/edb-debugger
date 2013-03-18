@@ -25,7 +25,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace edb {
 namespace internal {
-	void load_function_db();
+
+void load_function_db();
+
 }
 }
 

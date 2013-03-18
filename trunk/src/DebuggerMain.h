@@ -171,14 +171,15 @@ public:
 	void clear_data(const DataViewInfo::pointer &v);
 
 private:
+	IRegion::pointer update_cpu_view(const State &state);
 	QString session_filename() const;
 	bool breakpoint_condition_true(const QString &condition);
 	bool common_open(const QString &s, const QList<QByteArray> &args);
 	bool current_instruction_is_return() const;
 	edb::EVENT_STATUS debug_event_handler(const IDebugEvent::const_pointer &event);
 	edb::EVENT_STATUS handle_event_exited(const IDebugEvent::const_pointer &event);
-	edb::EVENT_STATUS handle_event_terminated(const IDebugEvent::const_pointer &event);
 	edb::EVENT_STATUS handle_event_stopped(const IDebugEvent::const_pointer &event);
+	edb::EVENT_STATUS handle_event_terminated(const IDebugEvent::const_pointer &event);
 	edb::EVENT_STATUS handle_trap();
 	edb::EVENT_STATUS resume_status(bool pass_exception);
 	void apply_default_fonts();
@@ -196,34 +197,32 @@ private:
 	void setup_tab_buttons();
 	void setup_ui();
 	void test_native_binary();
-	IRegion::pointer update_cpu_view(const State &state);
 	void update_data_views();
 	void update_disassembly(edb::address_t address, const IRegion::pointer &r);
 	void update_stack_view(const State &state);
 	void update_tab_caption(const QSharedPointer<QHexView> &view, edb::address_t start, edb::address_t end);
 
 private:
-
 	template <class F>
 	void follow_memory(edb::address_t address, F follow_func);
 
 	template <class T>
-	edb::address_t get_follow_address(const T &hv, bool *ok);
+	edb::address_t get_follow_address(const T &hexview, bool *ok);
 	
 	template <class F, class T>
 	void add_plugin_context_menu(const T &menu, const F &f);
 
 	template <class T>
-	void follow_in_cpu(const T &hv);
+	void follow_in_cpu(const T &hexview);
 
 	template <class T>
-	void follow_in_dump(const T &hv);
+	void follow_in_dump(const T &hexview);
 
 	template <class T>
-	void follow_in_stack(const T &hv);
+	void follow_in_stack(const T &hexview);
 
 	template <class T>
-	void modify_bytes(const T &hv);
+	void modify_bytes(const T &hexview);
 
 private:
 	QSharedPointer<QHexView>                         stack_view_;
