@@ -249,7 +249,7 @@ unix {
 		MOC_DIR     = $${OUT_PWD}/.debug-shared/moc
 		RCC_DIR     = $${OUT_PWD}/.debug-shared/rcc
 		UI_DIR      = $${OUT_PWD}/.debug-shared/uic
-		DEFINES    += QT_SHAREDPOINTER_TRACK_POINTERS
+		DEFINES    += QT_SHAREDPOINTER_TRACK_POINTERS 
 	}
 	
 	CONFIG(release, debug|release) {

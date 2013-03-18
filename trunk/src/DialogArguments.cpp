@@ -75,7 +75,7 @@ void DialogArguments::set_arguments(const QList<QByteArray> &args) {
 	
 	QStringList l;
 	Q_FOREACH(const QByteArray &ba, args) {
-		l << QString::fromUtf8(ba);
+		l << QString::fromUtf8(ba.constData());
 	}
 	
 	ui->listWidget->addItems(l);

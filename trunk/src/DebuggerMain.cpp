@@ -697,7 +697,7 @@ void DebuggerMain::mnuRegisterFollowInStack() {
 template <class T>
 edb::address_t DebuggerMain::get_follow_address(const T &hexview, bool *ok) {
 	
-	Q_ASSERT(hv);
+	Q_ASSERT(hexview);
 	Q_ASSERT(ok);
 	
 	*ok = false;
