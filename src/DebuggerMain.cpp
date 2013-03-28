@@ -1581,7 +1581,7 @@ void DebuggerMain::update_gui() {
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS DebuggerMain::resume_status(bool pass_exception) {
 
-	if(pass_exception && last_event_->stopped() && !last_event_->is_trap()) {
+	if(pass_exception && last_event_ && last_event_->stopped() && !last_event_->is_trap()) {
 		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
 	} else {
 		return edb::DEBUG_CONTINUE;
