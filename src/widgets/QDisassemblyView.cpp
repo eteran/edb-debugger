@@ -176,11 +176,63 @@ size_t QDisassemblyView::length_disasm_back(const quint8 *buf, size_t size) cons
 
 //------------------------------------------------------------------------------
 // Name: previous_instructions
-// Desc:
+// Desc: attempts to find the address of the instruction <count> instructions
+//       before <current_address>
+// Note: <current_address> is a 0 based value relative to the begining of the
+//       current region, not an absolute address within the program
 //------------------------------------------------------------------------------
 edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_address, int count) {
 
+	IAnalyzer *const analyzer = edb::v1::analyzer();
+
 	for(int i = 0; i < count; ++i) {
+	
+		// If we have an analyzer, and the current address is within a function
+		// then first we find the begining of that function.
+		// Then, we attempt to disassemble from there until we run into
+		// the address we were on (stopping one instruction early).
+		// this allows us to identify with good accuracy where the
+		// previous instruction was making upward scrolling more functional.
+		//
+		// If all else fails, fall back on the old heuristic which works "ok"
+		if(analyzer) {
+			edb::address_t address = address_offset_ + current_address;
+		
+			IAnalyzer::AddressCategory cat = analyzer->category(address);
+			
+			if(cat == IAnalyzer::ADDRESS_FUNC_BODY || cat == IAnalyzer::ADDRESS_FUNC_END) {
+				
+				// find the containing function
+				do {
+					--address;
+				} while(analyzer->category(address) != IAnalyzer::ADDRESS_FUNC_START);
+
+				
+				// disassemble from function start until the NEXT address is where we started
+				while(true) {
+					quint8 buf[edb::Instruction::MAX_SIZE];
+					int buf_size = qMin<edb::address_t>((address - region_->base()), sizeof(buf));
+					if(edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
+						const edb::Instruction insn(buf, buf + buf_size, address, std::nothrow);
+						if(insn) {
+						
+						
+							// if the NEXT address would be our target, then
+							// we are at the previous instruction!
+							if(address + insn.size() >= current_address + address_offset_) {
+								break;
+							}
+							
+							address += insn.size();
+						}
+					}
+				}
+
+				current_address = (address - address_offset_);
+				continue;
+			}
+		}
+	
 		
 		quint8 buf[edb::Instruction::MAX_SIZE];
 		int buf_size = qMin<edb::address_t>((current_address - region_->base()), sizeof(buf));
@@ -198,6 +250,7 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 
 		current_address -= size;
 	}
+	
 	return current_address;
 }
 
