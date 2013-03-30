@@ -211,7 +211,12 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 				// disassemble from function start until the NEXT address is where we started
 				while(true) {
 					quint8 buf[edb::Instruction::MAX_SIZE];
-					int buf_size = qMin<edb::address_t>((address - region_->base()), sizeof(buf));
+					
+					int buf_size = sizeof(buf);
+					if(region_) {
+						buf_size = qMin<edb::address_t>((address - region_->base()), sizeof(buf));
+					}
+					
 					if(edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
 						const edb::Instruction insn(buf, buf + buf_size, address, std::nothrow);
 						if(insn) {
@@ -235,7 +240,11 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 	
 		
 		quint8 buf[edb::Instruction::MAX_SIZE];
-		int buf_size = qMin<edb::address_t>((current_address - region_->base()), sizeof(buf));
+		
+		int buf_size = sizeof(buf);
+		if(region_) {
+			buf_size = qMin<edb::address_t>((current_address - region_->base()), sizeof(buf));
+		}
 
 		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address - buf_size, buf, &buf_size)) {
 			current_address -= 1;
@@ -265,7 +274,10 @@ edb::address_t QDisassemblyView::following_instructions(edb::address_t current_a
 		quint8 buf[edb::Instruction::MAX_SIZE + 1];
 
 		// do the longest read we can while still not passing the region end
-		int buf_size = qMin<edb::address_t>((region_->end() - current_address), sizeof(buf));
+		int buf_size = sizeof(buf);
+		if(region_) {
+			buf_size = qMin<edb::address_t>((region_->end() - current_address), sizeof(buf));
+		}
 
 		// read in the bytes...
 		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address, buf, &buf_size)) {
@@ -415,7 +427,6 @@ void QDisassemblyView::setRegion(const IRegion::pointer &r) {
 	// the region to nothing. It's fairly harmless to reset an already
 	// reset region, so we don't bother check that condition
 	if((r && r->compare(region_) != 0) || (!r)) {
-
 		region_ = r;
 		updateScrollbars();		
 		emit regionChanged();
@@ -698,7 +709,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 		// do the longest read we can while still not passing the region end
 		int buf_size = qMin<edb::address_t>((region_->end() - address), sizeof(buf));
-
+		
 		// read in the bytes...
 		if(!edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
 			// if the read failed, let's pretend that we were able to read a
@@ -945,6 +956,9 @@ int QDisassemblyView::address_length() const {
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
+
+	Q_ASSERT(region_);
+
 	const edb::address_t address = address_from_coord(pos.x(), pos.y()) + address_offset_;
 	if(address >= region_->end()) {
 		return 0;
@@ -981,6 +995,9 @@ int QDisassemblyView::get_instruction_size(edb::address_t address, bool *ok, qui
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::get_instruction_size(edb::address_t address, bool *ok) const {
+
+	Q_ASSERT(region_);
+
 	quint8 buf[edb::Instruction::MAX_SIZE];
 
 	// do the longest read we can while still not crossing region end
