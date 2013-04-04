@@ -43,70 +43,87 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
-	const int default_byte_width   = 8;
-	const QColor filling_dis_color = Qt::gray;
-	const QColor default_dis_color = Qt::blue;
-	const QColor invalid_dis_color = Qt::blue;
-	const QColor data_dis_color    = Qt::blue;
+const int default_byte_width   = 8;
+const QColor filling_dis_color = Qt::gray;
+const QColor default_dis_color = Qt::blue;
+const QColor invalid_dis_color = Qt::blue;
+const QColor data_dis_color    = Qt::blue;
 
-	void draw_rich_text(QPainter *painter, int x, int y, const QTextDocument &text) {
-		painter->save();
-		painter->translate(x, y);
-		QAbstractTextDocumentLayout::PaintContext context;
-		context.palette.setColor(QPalette::Text, painter->pen().color());
-		text.documentLayout()->draw(painter, context);
-		painter->restore();
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: 
+//------------------------------------------------------------------------------
+void draw_rich_text(QPainter *painter, int x, int y, const QTextDocument &text) {
+	painter->save();
+	painter->translate(x, y);
+	QAbstractTextDocumentLayout::PaintContext context;
+	context.palette.setColor(QPalette::Text, painter->pen().color());
+	text.documentLayout()->draw(painter, context);
+	painter->restore();
+}
+
+struct show_separator_tag {};
+
+template <class T, size_t N>
+struct address_format {};
+
+template <class T>
+struct address_format<T, 4> {
+	static QString format_address(T address, const show_separator_tag&) {
+		static char buffer[10];
+		qsnprintf(buffer, sizeof(buffer), "%04x:%04x", (address >> 16) & 0xffff, address & 0xffff);
+		return QString::fromLatin1(buffer, sizeof(buffer) - 1);
 	}
 
-	struct show_separator_tag {};
-
-	template <class T, size_t N>
-	struct address_format {};
-
-	template <class T>
-	struct address_format<T, 4> {
-		static QString format_address(T address, const show_separator_tag&) {
-			static char buffer[10];
-			qsnprintf(buffer, sizeof(buffer), "%04x:%04x", (address >> 16) & 0xffff, address & 0xffff);
-			return QString::fromLatin1(buffer, sizeof(buffer) - 1);
-		}
-
-		static QString format_address(T address) {
-			static char buffer[9];
-			qsnprintf(buffer, sizeof(buffer), "%04x%04x", (address >> 16) & 0xffff, address & 0xffff);
-			return QString::fromLatin1(buffer, sizeof(buffer) - 1);
-		}
-	};
-
-	template <class T>
-	struct address_format<T, 8> {
-		static QString format_address(T address, const show_separator_tag&) {
-			static char buffer[18];
-			qsnprintf(buffer, sizeof(buffer), "%08x:%08x", (address >> 32) & 0xffffffff, address & 0xffffffff);			
-			return QString::fromLatin1(buffer, sizeof(buffer) - 1);
-		}
-
-		static QString format_address(T address) {
-			static char buffer[17];
-			qsnprintf(buffer, sizeof(buffer), "%08x%08x", (address >> 32) & 0xffffffff, address & 0xffffffff);
-			return QString::fromLatin1(buffer, sizeof(buffer) - 1);
-		}
-	};
-
-	template <class T>
-	QString format_address(T address, bool show_separator) {
-		if(show_separator) return address_format<T, sizeof(T)>::format_address(address, show_separator_tag());
-		else               return address_format<T, sizeof(T)>::format_address(address);
+	static QString format_address(T address) {
+		static char buffer[9];
+		qsnprintf(buffer, sizeof(buffer), "%04x%04x", (address >> 16) & 0xffff, address & 0xffff);
+		return QString::fromLatin1(buffer, sizeof(buffer) - 1);
 	}
-	
-	bool near_line(int x, int linex) {
-		return qAbs(x - linex) < 3;
+};
+
+template <class T>
+struct address_format<T, 8> {
+	static QString format_address(T address, const show_separator_tag&) {
+		static char buffer[18];
+		qsnprintf(buffer, sizeof(buffer), "%08x:%08x", (address >> 32) & 0xffffffff, address & 0xffffffff);			
+		return QString::fromLatin1(buffer, sizeof(buffer) - 1);
 	}
-	
-	int instruction_size(quint8 *buffer, std::size_t size) {
-		edb::Instruction insn(buffer, buffer + size, 0, std::nothrow);
-		return insn.size();
+
+	static QString format_address(T address) {
+		static char buffer[17];
+		qsnprintf(buffer, sizeof(buffer), "%08x%08x", (address >> 32) & 0xffffffff, address & 0xffffffff);
+		return QString::fromLatin1(buffer, sizeof(buffer) - 1);
 	}
+};
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: 
+//------------------------------------------------------------------------------
+template <class T>
+QString format_address(T address, bool show_separator) {
+	if(show_separator) return address_format<T, sizeof(T)>::format_address(address, show_separator_tag());
+	else               return address_format<T, sizeof(T)>::format_address(address);
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: 
+//------------------------------------------------------------------------------
+bool near_line(int x, int linex) {
+	return qAbs(x - linex) < 3;
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: 
+//------------------------------------------------------------------------------
+int instruction_size(quint8 *buffer, std::size_t size) {
+	edb::Instruction insn(buffer, buffer + size, 0, std::nothrow);
+	return insn.size();
+}
+
 }
 
 //------------------------------------------------------------------------------
@@ -164,6 +181,7 @@ size_t QDisassemblyView::length_disasm_back(const quint8 *buf, size_t size) cons
 		if(!insn.valid()) {
 			return 0;
 		}
+		
 		const size_t cmdsize = insn.size();
 		offs += cmdsize;
 
@@ -198,16 +216,14 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 		if(analyzer) {
 			edb::address_t address = address_offset_ + current_address;
 		
-			IAnalyzer::AddressCategory cat = analyzer->category(address);
-			
-			if(cat == IAnalyzer::ADDRESS_FUNC_BODY || cat == IAnalyzer::ADDRESS_FUNC_END) {
+			const IAnalyzer::AddressCategory cat = analyzer->category(address);
 				
-				// find the containing function
-				do {
-					--address;
-				} while(analyzer->category(address) != IAnalyzer::ADDRESS_FUNC_START);
+			// find the containing function
+			bool ok;
+			address = analyzer->find_containing_function(address, &ok);
+				
+			if(ok && cat != IAnalyzer::ADDRESS_FUNC_START) {
 
-				
 				// disassemble from function start until the NEXT address is where we started
 				while(true) {
 					quint8 buf[edb::Instruction::MAX_SIZE];
@@ -239,6 +255,7 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 		}
 	
 		
+		// fall back on the old heuristic
 		quint8 buf[edb::Instruction::MAX_SIZE];
 		
 		int buf_size = sizeof(buf);

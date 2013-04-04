@@ -839,7 +839,7 @@ void Analyzer::collect_low_ref_results(const IRegion::pointer &region, FunctionM
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: indent_header
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::indent_header() {
@@ -1081,6 +1081,22 @@ void Analyzer::invalidate_dynamic_analysis(const IRegion::pointer &region) {
 void Analyzer::invalidate_analysis() {
 	analysis_info_.clear();
 	specified_functions_.clear();
+}
+
+//------------------------------------------------------------------------------
+// Name: find_containing_function
+// Desc: returns the entry point of the function which contains <address>
+//------------------------------------------------------------------------------
+edb::address_t Analyzer::find_containing_function(edb::address_t address, bool *ok) const {
+	Q_ASSERT(ok);
+	
+	Function function;
+	*ok = find_containing_function(address, &function);
+	if(*ok) {
+		return function.entry_address;
+	} else {
+		return 0;
+	}
 }
 
 Q_EXPORT_PLUGIN2(Analyzer, Analyzer)
