@@ -160,8 +160,8 @@ SOURCES += json_parser.cc \
 
 win32 {
 	win32-msvc*:contains(QMAKE_HOST.arch, x86_64):{
-                DEPENDPATH  += ../include/os/win32 arch/x86_64 ../include/arch/x86_64 edisassm
-                INCLUDEPATH += ../include/os/win32 arch/x86_64 ../include/arch/x86_64 edisassm "C:\\Program Files\\boost\\boost_1_51"
+		DEPENDPATH  += ../include/os/win32 arch/x86_64 ../include/arch/x86_64 edisassm
+		INCLUDEPATH += ../include/os/win32 arch/x86_64 ../include/arch/x86_64 edisassm "C:\\Program Files\\boost\\boost_1_51"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
 		RC_FILE     = edb.rc
 	}
