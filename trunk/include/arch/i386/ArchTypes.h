@@ -27,10 +27,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define EDB_FMT_PTR "%08x"
 
 namespace edb {
-	typedef quint32                    reg_t;
-	typedef quint32                    address_t;
-	typedef Instruction<edisassm::x86> Instruction;
-	typedef Instruction::operand_t     Operand;
+	typedef quint32                              reg_t;
+	typedef quint32                              address_t;
+	typedef edisassm::instruction<edisassm::x86> Instruction;
+	typedef Instruction::operand_type            Operand;
 }
 
 #endif

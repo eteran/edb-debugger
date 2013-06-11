@@ -49,7 +49,7 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 
 	if(op.valid()) {
 		switch(op.general_type()) {
-		case edb::Operand::TYPE_REGISTER:
+		case edb::Operand::TYPE_REGISTER:		
 			ret = state[QString::fromStdString(edisassm::register_name<edisassm::x86_64>(op.reg()))].value<edb::reg_t>();
 			break;
 		case edb::Operand::TYPE_EXPRESSION:
@@ -334,12 +334,12 @@ void analyze_return(const State &state, const edb::Instruction &insn, QStringLis
 //------------------------------------------------------------------------------
 void analyze_call(const State &state, const edb::Instruction &insn, QStringList &ret) {
 
-	const edb::Operand &operand = insn.operand(0);
+	const edb::Operand &operand = insn.operands()[0];
 
 	if(operand.valid()) {
 
 		const edb::address_t effective_address = get_effective_address(operand, state);
-		const QString temp_operand             = QString::fromStdString(edisassm::to_string(operand));
+		const QString temp_operand             = QString::fromStdString(to_string(operand));
 		QString temp;
 
 		switch(operand.general_type()) {
@@ -352,7 +352,7 @@ void analyze_call(const State &state, const edb::Instruction &insn, QStringList 
 					ret << temp.sprintf("%s = " EDB_FMT_PTR " <%s>", qPrintable(temp_operand), effective_address, qPrintable(symname));
 
 					if(offset == 0) {
-						if(insn.type() == edb::Instruction::OP_CALL) {
+						if(is_call(insn)) {
 							resolve_function_parameters(state, symname, 0, ret);
 						} else {
 							resolve_function_parameters(state, symname, 4, ret);
@@ -378,7 +378,7 @@ void analyze_call(const State &state, const edb::Instruction &insn, QStringList 
 						ret << temp.sprintf("%s = [" EDB_FMT_PTR "] = " EDB_FMT_PTR " <%s>", qPrintable(temp_operand), effective_address, target, qPrintable(symname));
 
 						if(offset == 0) {
-							if(insn.type() == edb::Instruction::OP_CALL) {
+							if(is_call(insn)) {
 								resolve_function_parameters(state, symname, 0, ret);
 							} else {
 								resolve_function_parameters(state, symname, 4, ret);
@@ -408,11 +408,11 @@ void analyze_operands(const State &state, const edb::Instruction &insn, QStringL
 
 	for(int j = 0; j < edb::Instruction::MAX_OPERANDS; ++j) {
 
-		const edb::Operand &operand = insn.operand(j);
+		const edb::Operand &operand = insn.operands()[j];
 
 		if(operand.valid()) {
 
-			const QString temp_operand = QString::fromStdString(edisassm::to_string(operand));
+			const QString temp_operand = QString::fromStdString(to_string(operand));
 
 			switch(operand.general_type()) {
 			case edb::Operand::TYPE_REL:
@@ -473,7 +473,7 @@ void analyze_jump_targets(const edb::Instruction &insn, QStringList &ret)  {
 		if(edb::v1::get_instruction_bytes(addr, buffer, &sz)) {
 			edb::Instruction insn(buffer, buffer + sz, addr, std::nothrow);
 			if(insn.valid() && (insn.type() == edb::Instruction::OP_JCC || insn.type() == edb::Instruction::OP_JMP)) {
-				const edb::Operand &operand = insn.operand(0);
+				const edb::Operand &operand = insn.operands()[0];
 
 				if(operand.general_type() == edb::Operand::TYPE_REL) {
 					const edb::address_t target = operand.relative_target();
@@ -1754,7 +1754,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 				break;
 			#ifdef Q_OS_LINUX
 			case edb::Instruction::OP_INT:
-				if(insn.operand(0).complete_type() == edb::Operand::TYPE_IMMEDIATE8 && (insn.operand(0).immediate() & 0xff) == 0x80) {
+				if(insn.operands()[0].complete_type() == edb::Operand::TYPE_IMMEDIATE8 && (insn.operands()[0].immediate() & 0xff) == 0x80) {
 					analyze_syscall(state, insn, ret);
 				} else {
 					analyze_operands(state, insn, ret);
@@ -1798,9 +1798,9 @@ bool ArchProcessor::is_filling(const edb::Instruction &insn) const {
 	// fetch the operands
 	if(insn.valid()) {
 		const edb::Operand operands[edb::Instruction::MAX_OPERANDS] = {
-			insn.operand(0),
-			insn.operand(1),
-			insn.operand(2)
+			insn.operands()[0],
+			insn.operands()[1],
+			insn.operands()[2]
 		};
 
 		switch(insn.type()) {

@@ -891,28 +891,28 @@ void DebuggerMain::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 				case edb::Instruction::OP_JMP:
 				case edb::Instruction::OP_CALL:
 				case edb::Instruction::OP_JCC:
-					if(insn.operand(0).general_type() == edb::Operand::TYPE_REL) {
+					if(insn.operands()[0].general_type() == edb::Operand::TYPE_REL) {
 						QAction *const action = menu.addAction(tr("&Follow"), this, SLOT(mnuCPUFollow()));
-						action->setData(static_cast<qlonglong>(insn.operand(0).relative_target()));
+						action->setData(static_cast<qlonglong>(insn.operands()[0].relative_target()));
 					}
 					
 					/*
-					if(insn.operand(0).general_type() == edb::Operand::TYPE_EXPRESSION) {
-						if(insn.operand(0).expression().base == edb::Operand::REG_RIP && insn.operand(0).expression().index == edb::Operand::REG_NULL && insn.operand(0).expression().scale == 1) {
+					if(insn.operands()[0].general_type() == edb::Operand::TYPE_EXPRESSION) {
+						if(insn.operands()[0].expression().base == edb::Operand::REG_RIP && insn.operands()[0].expression().index == edb::Operand::REG_NULL && insn.operands()[0].expression().scale == 1) {
 							QAction *const action = menu.addAction(tr("&Follow"), this, SLOT(mnuCPUFollow()));
-							action->setData(static_cast<qlonglong>(address + insn.operand(0).displacement()));
+							action->setData(static_cast<qlonglong>(address + insn.operands()[0].displacement()));
 						}
 					}
 					*/
 					break;
 				default:
 					for(std::size_t i = 0; i < insn.operand_count(); ++i) {
-						if(insn.operand(i).general_type() == edb::Operand::TYPE_IMMEDIATE) {
+						if(insn.operands()[i].general_type() == edb::Operand::TYPE_IMMEDIATE) {
 							QAction *const action = menu.addAction(tr("Follow Constant In &Dump"), this, SLOT(mnuCPUFollowInDump()));
-							action->setData(static_cast<qlonglong>(insn.operand(i).immediate()));
+							action->setData(static_cast<qlonglong>(insn.operands()[i].immediate()));
 
 							QAction *const action2 = menu.addAction(tr("Follow Constant In &Stack"), this, SLOT(mnuCPUFollowInStack()));
-							action2->setData(static_cast<qlonglong>(insn.operand(i).immediate()));
+							action2->setData(static_cast<qlonglong>(insn.operands()[i].immediate()));
 						}
 					}
 				}

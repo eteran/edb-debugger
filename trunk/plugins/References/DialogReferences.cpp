@@ -103,8 +103,8 @@ void DialogReferences::do_find() {
 								case edb::Instruction::OP_JMP:
 								case edb::Instruction::OP_CALL:
 								case edb::Instruction::OP_JCC:
-									if(insn.operand(0).general_type() == edb::Operand::TYPE_REL) {
-										if(insn.operand(0).relative_target() == address) {
+									if(insn.operands()[0].general_type() == edb::Operand::TYPE_REL) {
+										if(insn.operands()[0].relative_target() == address) {
 											QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
 											item->setData(Qt::UserRole, 'C');
 											ui->listWidget->addItem(item);

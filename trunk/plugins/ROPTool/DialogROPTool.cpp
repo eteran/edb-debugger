@@ -40,8 +40,8 @@ namespace {
 			
 			// TODO: does this effect flags?
 			if(insn.type() == edb::Instruction::OP_MOV && insn.operand_count() == 2) {
-				if(insn.operand(0).general_type() == edb::Operand::TYPE_REGISTER && insn.operand(1).general_type() == edb::Operand::TYPE_REGISTER) {
-					if(insn.operand(0).reg() == insn.operand(1).reg()) {
+				if(insn.operands()[0].general_type() == edb::Operand::TYPE_REGISTER && insn.operands()[1].general_type() == edb::Operand::TYPE_REGISTER) {
+					if(insn.operands()[0].reg() == insn.operands()[1].reg()) {
 						return true;
 					}
 				}
@@ -50,8 +50,8 @@ namespace {
 			
 			// TODO: does this effect flags?
 			if(insn.type() == edb::Instruction::OP_XCHG && insn.operand_count() == 2) {
-				if(insn.operand(0).general_type() == edb::Operand::TYPE_REGISTER && insn.operand(1).general_type() == edb::Operand::TYPE_REGISTER) {
-					if(insn.operand(0).reg() == insn.operand(1).reg()) {
+				if(insn.operands()[0].general_type() == edb::Operand::TYPE_REGISTER && insn.operands()[1].general_type() == edb::Operand::TYPE_REGISTER) {
+					if(insn.operands()[0].reg() == insn.operands()[1].reg()) {
 						return true;
 					}
 				}
@@ -265,9 +265,9 @@ void DialogROPTool::add_gadget(QList<edb::Instruction> instructions) {
 	if(!instructions.isEmpty()) {
 		const edb::Instruction insn1 = instructions.takeFirst();
 
-		QString instruction_string = QString("%1").arg(QString::fromStdString(edisassm::to_string(insn1)));
+		QString instruction_string = QString("%1").arg(QString::fromStdString(to_string(insn1)));
 		Q_FOREACH(const edb::Instruction &instruction, instructions) {
-			instruction_string.append(QString("; %1").arg(QString::fromStdString(edisassm::to_string(instruction))));
+			instruction_string.append(QString("; %1").arg(QString::fromStdString(to_string(instruction))));
 		}
 
 		if(!ui->checkUnique->isChecked() || !unique_results_.contains(instruction_string)) {
@@ -346,7 +346,7 @@ void DialogROPTool::do_find() {
 						if(insn1.valid()) {
 							instruction_list << insn1;
 
-							if(insn1.type() == edb::Instruction::OP_INT && insn1.operand(0).general_type() == edb::Operand::TYPE_IMMEDIATE && (insn1.operand(0).immediate() & 0xff) == 0x80) {
+							if(insn1.type() == edb::Instruction::OP_INT && insn1.operands()[0].general_type() == edb::Operand::TYPE_IMMEDIATE && (insn1.operands()[0].immediate() & 0xff) == 0x80) {
 								add_gadget(instruction_list);
 							} else if(insn1.type() == edb::Instruction::OP_SYSENTER) {
 								add_gadget(instruction_list);
@@ -387,9 +387,9 @@ void DialogROPTool::do_find() {
 
 										instruction_list << insn3;
 
-										if(insn2.operand_count() == 1 && insn2.operand(0).general_type() == edb::Operand::TYPE_REGISTER) {
-											if(insn3.operand_count() == 1 && insn3.operand(0).general_type() == edb::Operand::TYPE_REGISTER) {
-												if(insn2.operand(0).reg() == insn3.operand(0).reg()) {
+										if(insn2.operand_count() == 1 && insn2.operands()[0].general_type() == edb::Operand::TYPE_REGISTER) {
+											if(insn3.operand_count() == 1 && insn3.operands()[0].general_type() == edb::Operand::TYPE_REGISTER) {
+												if(insn2.operands()[0].reg() == insn3.operands()[0].reg()) {
 													add_gadget(instruction_list);
 												}
 											}

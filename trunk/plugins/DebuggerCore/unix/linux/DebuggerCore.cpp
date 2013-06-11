@@ -39,16 +39,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <asm/ldt.h>
 #include <pwd.h>
+
 #include <link.h>
 #include <sys/mman.h>
 #include <sys/ptrace.h>
-#include <sys/syscall.h>   /* For SYS_xxx definitions */
 #include <sys/user.h>
 #include <sys/wait.h>
-#include <unistd.h>
 
-#define tgkill(tgid, tid, sig) syscall(SYS_tgkill, (tgid), (tid), (sig));
-
+#if defined(__NR_process_vm_readv) || defined(__NR_process_vm_writev)
+#include <sys/uio.h>
+#endif
 
 // doesn't always seem to be defined in the headers
 #ifndef PTRACE_GET_THREAD_AREA
@@ -458,7 +458,7 @@ void DebuggerCore::stop_threads() {
 		if(!waited_threads_.contains(it.key())) {
 			const edb::tid_t tid = it.key();
 
-			tgkill(pid(), tid, SIGSTOP);
+			syscall(SYS_tgkill, pid(), tid, SIGSTOP);
 
 			int thread_status;
 			if(native::waitpid(tid, &thread_status, __WALL) > 0) {
@@ -1125,5 +1125,59 @@ QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 	QFileInfo info(QString("/proc/%1/stat").arg(pid));
 	return info.created();
 }
+
+#if 0
+#ifdef __NR_process_vm_readv
+	bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len) {
+	
+		if(pid_ != 0) {
+			struct iovec local[1];
+			struct iovec remote[1];
+	
+			local[0].iov_base  = buf;
+			local[0].iov_len   = len;
+			remote[0].iov_base = reinterpret_cast<void *>(address);
+			remote[0].iov_len  = len;
+	
+			const ssize_t n = syscall(__NR_process_vm_readv, (long)pid_, local, 1, remote, 1, 0);
+			
+			if(n > 0) {
+				// TODO: handle if breakponts have a size more than 1!
+				Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
+					if(bp->address() >= address && bp->address() < (address + n)) {
+						// show the original bytes in the buffer..
+						reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_bytes()[0];
+					}
+				}
+				return true;
+			}
+		}
+		
+		return false;
+	}
+#endif
+
+#ifdef __NR_process_vm_writev
+	bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
+		if(pid_ != 0) {
+			struct iovec local[1];
+			struct iovec remote[1];
+	
+			local[0].iov_base  = const_cast<void *>(buf);
+			local[0].iov_len   = len;
+			remote[0].iov_base = reinterpret_cast<void *>(address);
+			remote[0].iov_len  = len;
+	
+			const ssize_t n = syscall(__NR_process_vm_writev, (long)pid_, local, 1, remote, 1, 0);
+
+			if(n > 0) {
+				return true;
+			}
+		}
+		
+		return false;
+	}
+#endif
+#endif
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
