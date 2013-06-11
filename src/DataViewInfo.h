@@ -29,16 +29,16 @@ class DataViewInfo {
 public:
 	typedef QSharedPointer<DataViewInfo> pointer;
 public:
-	DataViewInfo(const IRegion::pointer &r = IRegion::pointer());
+	explicit DataViewInfo(const IRegion::pointer &r = IRegion::pointer());
 	~DataViewInfo();
 
 private:
 	Q_DISABLE_COPY(DataViewInfo)
 
 public:
-	IRegion::pointer             region;
-	QSharedPointer<RegionBuffer> stream;
-	QSharedPointer<QHexView>     view;
+	IRegion::pointer         region;
+	RegionBuffer *const      stream;
+	QSharedPointer<QHexView> view;
 
 public:
 	void update();

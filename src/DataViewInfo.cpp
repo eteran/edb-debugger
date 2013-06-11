@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DataViewInfo.h"
-#include "QHexView"
 
 //------------------------------------------------------------------------------
 // Name: DataViewInfo
@@ -31,6 +30,7 @@ DataViewInfo::DataViewInfo(const IRegion::pointer &r) : region(r), stream(new Re
 // Desc:
 //------------------------------------------------------------------------------
 DataViewInfo::~DataViewInfo() {
+	delete stream;
 }
 
 //------------------------------------------------------------------------------
