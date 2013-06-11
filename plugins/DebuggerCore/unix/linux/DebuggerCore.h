@@ -23,6 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHash>
 #include <QSet>
 #include <csignal>
+#include <sys/syscall.h>   /* For SYS_xxx definitions */
+#include <unistd.h>
+
+// These system calls were added in Linux 3.2. Support is provided in glibc since version 2.15.
 
 class IBinary;
 
@@ -72,6 +76,18 @@ public:
 	virtual QString process_exe(edb::pid_t pid) const;
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const;
 	virtual QDateTime process_start(edb::pid_t pid) const;
+
+
+public:
+#if 0
+#ifdef __NR_process_vm_readv
+	virtual bool read_bytes(edb::address_t address, void *buf, std::size_t len);        // TODO: remind me why these aren't const...
+#endif
+
+#ifdef __NR_process_vm_writev
+	virtual bool write_bytes(edb::address_t address, const void *buf, std::size_t len); // TODO: remind me why these aren't const...
+#endif
+#endif
 
 private:
 	virtual QMap<edb::pid_t, Process> enumerate_processes() const;

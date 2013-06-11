@@ -264,7 +264,7 @@ void Analyzer::find_function_calls(const IRegion::pointer &region, FunctionMap *
 				if(insn.valid() && insn.type() == edb::Instruction::OP_CALL) {
 
 					const edb::address_t ip = region->start() + i;
-					const edb::Operand &op = insn.operand(0);
+					const edb::Operand &op = insn.operands()[0];
 
 					if(op.general_type() == edb::Operand::TYPE_REL) {
 						const edb::address_t ea = op.relative_target();
@@ -322,7 +322,7 @@ bool Analyzer::is_stack_frame(edb::address_t addr) const {
 			// are we looking at a 'push rBP' ?
 			if(insn.type() == edb::Instruction::OP_PUSH) {
 				Q_ASSERT(insn.operand_count() == 1);
-				const edb::Operand &op = insn.operand(0);
+				const edb::Operand &op = insn.operands()[0];
 				if(op.complete_type() == edb::Operand::TYPE_REGISTER) {
 					if(op.reg() == FRAME_REG) {
 						break;
@@ -331,8 +331,8 @@ bool Analyzer::is_stack_frame(edb::address_t addr) const {
 			// if it is an 'enter 0,0' instruction, then it's a stack frame right away
 			} else if(insn.type() == edb::Instruction::OP_ENTER) {
 				Q_ASSERT(insn.operand_count() == 2);
-				const edb::Operand &op0 = insn.operand(0);
-				const edb::Operand &op1 = insn.operand(1);
+				const edb::Operand &op0 = insn.operands()[0];
+				const edb::Operand &op1 = insn.operands()[1];
 				if(op0.immediate() == 0 && op1.immediate() == 0) {
 					return true;
 				}
@@ -343,8 +343,8 @@ bool Analyzer::is_stack_frame(edb::address_t addr) const {
 			// are we looking at a 'mov rBP, rSP' ?
 			if(insn.type() == edb::Instruction::OP_MOV) {
 				Q_ASSERT(insn.operand_count() == 2);
-				const edb::Operand &op0 = insn.operand(0);
-				const edb::Operand &op1 = insn.operand(1);
+				const edb::Operand &op0 = insn.operands()[0];
+				const edb::Operand &op1 = insn.operands()[1];
 				if(op0.complete_type() == edb::Operand::TYPE_REGISTER && op1.complete_type() == edb::Operand::TYPE_REGISTER) {
 					if(op0.reg() == FRAME_REG && op1.reg() == STACK_REG) {
 						return true;
@@ -528,7 +528,7 @@ int Analyzer::walk_all_functions(FunctionMap *results, const IRegion::pointer &r
 					if(insn.valid() && insn.type() == edb::Instruction::OP_JMP) {
 
 						Q_ASSERT(insn.operand_count() == 1);
-						const edb::Operand &op = insn.operand(0);
+						const edb::Operand &op = insn.operands()[0];
 
 						if(op.general_type() == edb::Operand::TYPE_REL) {
 							const edb::address_t target = op.relative_target();
@@ -633,7 +633,7 @@ void Analyzer::find_function_end(Function *function, edb::address_t end_address,
 
 				// note if neccessary the Jcc target and move on, yes this can be fooled by "conditional"
 				// jumps which are always true or false, not much we can do about it at this level.
-				const edb::Operand &op = insn.operand(0);
+				const edb::Operand &op = insn.operands()[0];
 				if(op.general_type() == edb::Operand::TYPE_REL) {
 					const edb::address_t ea = op.relative_target();
 
@@ -647,7 +647,7 @@ void Analyzer::find_function_end(Function *function, edb::address_t end_address,
 				// similar to above, note the destination and move on
 				// we special case simple things for speed.
 				// also this is an opportunity to find call tables.
-				const edb::Operand &op = insn.operand(0);
+				const edb::Operand &op = insn.operands()[0];
 				if(op.general_type() == edb::Operand::TYPE_REL) {
 					const edb::address_t ea = op.relative_target();
 
@@ -661,7 +661,7 @@ void Analyzer::find_function_end(Function *function, edb::address_t end_address,
 				}
 			} else if(type == edb::Instruction::OP_JMP) {
 
-				const edb::Operand &op = insn.operand(0);
+				const edb::Operand &op = insn.operands()[0];
 				if(op.general_type() == edb::Operand::TYPE_REL) {
 					const edb::address_t ea = op.relative_target();
 

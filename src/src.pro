@@ -107,7 +107,7 @@ SOURCES += \
 	DialogPlugins.cpp \
 	DialogThreads.cpp \
 	IBinary.cpp \
-	Instruction.cpp \
+	instruction.cpp \
 	LineEdit.cpp \
 	MD5.cpp \
 	MemoryRegions.cpp \

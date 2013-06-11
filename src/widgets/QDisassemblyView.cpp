@@ -504,7 +504,11 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 	const int ret         = insn.size();
 
 	if(insn.valid()) {
-		QString opcode = QString::fromStdString(upper ? edisassm::to_string(insn, edisassm::syntax_intel_ucase()) : edisassm::to_string(insn, edisassm::syntax_intel_lcase()));
+		QString opcode = QString::fromStdString(
+			upper ? 
+				to_string(insn, edisassm::syntax_intel(), edisassm::upper_case()) : 
+				to_string(insn, edisassm::syntax_intel(), edisassm::lower_case())
+		);
 		
 		//return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
 
@@ -530,9 +534,9 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 			case edb::Instruction::OP_LOOPNE:
 			case edb::Instruction::OP_CALL:
 				if(insn.operand_count() != 0) {
-					const edb::Operand &oper = insn.operand(0);
+					const edb::Operand &oper = insn.operands()[0];
 					if(oper.general_type() == edb::Operand::TYPE_REL) {
-						const edb::Instruction::address_t target = oper.relative_target();
+						const edb::address_t target = oper.relative_target();
 						if(const Symbol::pointer sym = edb::v1::symbol_manager().find(target)) {
 							opcode.append(QString(" <%2>").arg(sym->name));
 						}
@@ -830,8 +834,8 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		case edb::Instruction::OP_LOOP:
 		case edb::Instruction::OP_LOOPE:
 		case edb::Instruction::OP_LOOPNE:
-			if(insn.operand(0).general_type() == edb::Operand::TYPE_REL) {
-				const edb::Instruction::address_t target = insn.operand(0).relative_target();
+			if(insn.operands()[0].general_type() == edb::Operand::TYPE_REL) {
+				const edb::address_t target = insn.operands()[0].relative_target();
 
 				painter.drawText(
 					l2 + font_width_ + (font_width_ / 2),
