@@ -3,6 +3,7 @@ TEMPLATE = subdirs
 # Directories
 SUBDIRS += \
 	Analyzer \
+	Assembler \
 	BinaryInfo \
 	BinarySearcher \
 	Bookmarks \

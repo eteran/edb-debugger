@@ -96,7 +96,7 @@ bool is_instruction_ret(edb::address_t address) {
 
 	if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
 		edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
-		return insn.valid() && insn.type() == edb::Instruction::OP_RET;
+		return is_ret(insn);
 	}
 	return false;
 }

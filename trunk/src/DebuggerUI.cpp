@@ -17,13 +17,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerUI.h"
-#include "IArchProcessor.h"
 #include "Configuration.h"
 #include "Debugger.h"
-#include "IDebuggerCore.h"
-#include "IPlugin.h"
 #include "DialogOptions.h"
 #include "Expression.h"
+#include "IArchProcessor.h"
+#include "IDebuggerCore.h"
+#include "IPlugin.h"
 #include "QHexView"
 
 #include <QDir>
