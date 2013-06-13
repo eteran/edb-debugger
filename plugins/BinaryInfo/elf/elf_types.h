@@ -1,7 +1,7 @@
 /*
 Copyright (C) 2012 Evan Teran
                    eteran@alum.rit.edu
-						  
+
 Copyright (C) 1995-2003,2004,2005,2006,2007,2008,2009,2010,2011
                    Free Software Foundation, Inc.
 
@@ -30,15 +30,15 @@ typedef uint16_t elf64_half;
 
 /* Types for signed and unsigned 32-bit quantities.  */
 typedef uint32_t elf32_word;
-typedef	int32_t  elf32_sword;
+typedef int32_t  elf32_sword;
 typedef uint32_t elf64_word;
-typedef	int32_t  elf64_sword;
+typedef int32_t  elf64_sword;
 
 /* Types for signed and unsigned 64-bit quantities.  */
 typedef uint64_t elf32_xword;
-typedef	int64_t  elf32_sxword;
+typedef int64_t  elf32_sxword;
 typedef uint64_t elf64_xword;
-typedef	int64_t  elf64_sxword;
+typedef int64_t  elf64_sxword;
 
 /* Type of addresses.  */
 typedef uint32_t elf32_addr;

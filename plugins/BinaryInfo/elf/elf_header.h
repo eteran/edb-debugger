@@ -1,7 +1,7 @@
 /*
 Copyright (C) 2012 Evan Teran
                    eteran@alum.rit.edu
-						  
+
 Copyright (C) 1995-2003,2004,2005,2006,2007,2008,2009,2010,2011
                    Free Software Foundation, Inc.
 
@@ -97,13 +97,13 @@ struct elf64_header {
 
 #define EI_VERSION	6		/* File version byte index */
 					/* Value must be EV_CURRENT */
-					
+
 /* Legal values for e_version (version).  */
 
 #define EV_NONE		0		/* Invalid ELF version */
 #define EV_CURRENT	1		/* Current version */
 #define EV_NUM		2
-					
+
 
 #define EI_OSABI	7		/* OS ABI identification */
 #define ELFOSABI_NONE		0	/* UNIX System V ABI */

@@ -1,7 +1,7 @@
 /*
 Copyright (C) 2012 Evan Teran
                    eteran@alum.rit.edu
-						  
+
 Copyright (C) 1995-2003,2004,2005,2006,2007,2008,2009,2010,2011
                    Free Software Foundation, Inc.
 
@@ -25,27 +25,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "elf/elf_types.h"
 
 /* Version dependency section.  */
-
 struct elf32_verneed {
-  elf32_half	vn_version;		/* Version of structure */
-  elf32_half	vn_cnt;			/* Number of associated aux entries */
-  elf32_word	vn_file;		/* Offset of filename for this dependency */
-  elf32_word	vn_aux;			/* Offset in bytes to vernaux array */
-  elf32_word	vn_next;		/* Offset in bytes to next verneed entry */
+	elf32_half vn_version; /* Version of structure */
+	elf32_half vn_cnt;     /* Number of associated aux entries */
+	elf32_word vn_file;    /* Offset of filename for this dependency */
+	elf32_word vn_aux;     /* Offset in bytes to vernaux array */
+	elf32_word vn_next;    /* Offset in bytes to next verneed entry */
 };
 
 struct elf64_verneed {
-  elf64_half	vn_version;		/* Version of structure */
-  elf64_half	vn_cnt;			/* Number of associated aux entries */
-  elf64_word	vn_file;		/* Offset of filename for this dependency */
-  elf64_word	vn_aux;			/* Offset in bytes to vernaux array */
-  elf64_word	vn_next;		/* Offset in bytes to next verneed entry */
+	elf64_half vn_version; /* Version of structure */
+	elf64_half vn_cnt;     /* Number of associated aux entries */
+	elf64_word vn_file;    /* Offset of filename for this dependency */
+	elf64_word vn_aux;     /* Offset in bytes to vernaux array */
+	elf64_word vn_next;    /* Offset in bytes to next verneed entry */
 };
 
 
 /* Legal values for vn_version (version revision).  */
-#define VER_NEED_NONE	 0		/* No version */
-#define VER_NEED_CURRENT 1		/* Current version */
-#define VER_NEED_NUM	 2		/* Given version number */
+#define VER_NEED_NONE    0 /* No version */
+#define VER_NEED_CURRENT 1 /* Current version */
+#define VER_NEED_NUM     2 /* Given version number */
 
 #endif

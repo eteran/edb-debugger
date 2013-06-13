@@ -24,11 +24,11 @@ namespace {
 	bool BlockGreater(const Result &s1, const Result &s2) { return s1.block > s2.block; }
 	bool BlockLess(const Result &s1, const Result &s2)    { return s1.block < s2.block; }
 	bool DataGreater(const Result &s1, const Result &s2)  { return s1.data > s2.data; }
-	bool DataLess(const Result &s1, const Result &s2)	  { return s1.data < s2.data; }
+	bool DataLess(const Result &s1, const Result &s2)     { return s1.data < s2.data; }
 	bool SizeGreater(const Result &s1, const Result &s2)  { return s1.size > s2.size; }
-	bool SizeLess(const Result &s1, const Result &s2)	  { return s1.size < s2.size; }
+	bool SizeLess(const Result &s1, const Result &s2)     { return s1.size < s2.size; }
 	bool TypeGreater(const Result &s1, const Result &s2)  { return s1.type > s2.type; }
-	bool TypeLess(const Result &s1, const Result &s2)	  { return s1.type < s2.type; }
+	bool TypeLess(const Result &s1, const Result &s2)     { return s1.type < s2.type; }
 }
 
 //------------------------------------------------------------------------------
@@ -183,7 +183,7 @@ void ResultViewModel::sort(int column, Qt::SortOrder order) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void ResultViewModel::setUpdatesEnabled(bool value) {
@@ -194,7 +194,7 @@ void ResultViewModel::setUpdatesEnabled(bool value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 bool ResultViewModel::updatesEnabled() const {

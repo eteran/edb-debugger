@@ -49,7 +49,7 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 
 	if(op.valid()) {
 		switch(op.general_type()) {
-		case edb::Operand::TYPE_REGISTER:		
+		case edb::Operand::TYPE_REGISTER:
 			ret = state[QString::fromStdString(edisassm::register_name<edisassm::x86_64>(op.reg()))].value<edb::reg_t>();
 			break;
 		case edb::Operand::TYPE_EXPRESSION:
@@ -1733,10 +1733,10 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 	if(ok) {
 		edb::Instruction insn(buffer, buffer + sizeof(buffer), address, std::nothrow);
 		if(insn.valid()) {
-		
+
 			State state;
 			edb::v1::debugger_core->get_state(&state);
-		
+
 			// figure out the instruction type and display some information about it
 			switch(insn.type()) {
 			case edb::Instruction::OP_CMOVCC:

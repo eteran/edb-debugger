@@ -66,7 +66,7 @@ DialogOpcodes::DialogOpcodes(QWidget *parent) : QDialog(parent), ui(new Ui::Dial
 	ui->comboBox->addItem("[ESP + 4] -> EIP", 19);
 	ui->comboBox->addItem("[ESP + 8] -> EIP", 20);
 	ui->comboBox->addItem("[ESP - 4] -> EIP", 21);
-	
+
 	ui->comboBox->addItem("[EAX] -> EIP", 22);
 	ui->comboBox->addItem("[EBX] -> EIP", 23);
 	ui->comboBox->addItem("[ECX] -> EIP", 24);
@@ -74,7 +74,7 @@ DialogOpcodes::DialogOpcodes(QWidget *parent) : QDialog(parent), ui(new Ui::Dial
 	ui->comboBox->addItem("[EBP] -> EIP", 26);
 	ui->comboBox->addItem("[ESI] -> EIP", 28);
 	ui->comboBox->addItem("[EDI] -> EIP", 29);
-	
+
 #elif defined(EDB_X86_64)
 	ui->comboBox->addItem("RAX -> RIP", 1);
 	ui->comboBox->addItem("RBX -> RIP", 2);
@@ -96,7 +96,7 @@ DialogOpcodes::DialogOpcodes(QWidget *parent) : QDialog(parent), ui(new Ui::Dial
 	ui->comboBox->addItem("[RSP] -> RIP", 18);
 	ui->comboBox->addItem("[RSP + 8] -> RIP", 19);
 	ui->comboBox->addItem("[RSP + 16] -> RIP", 20);
-	ui->comboBox->addItem("[RSP - 8] -> RIP", 21);	
+	ui->comboBox->addItem("[RSP - 8] -> RIP", 21);
 	ui->comboBox->addItem("[RAX] -> RIP", 22);
 	ui->comboBox->addItem("[RBX] -> RIP", 23);
 	ui->comboBox->addItem("[RCX] -> RIP", 24);
@@ -188,8 +188,8 @@ void DialogOpcodes::test_deref_reg_to_ip(const OpcodeData &data, edb::address_t 
 		case edb::Instruction::OP_JMP:
 		case edb::Instruction::OP_CALL:
 			if(op1.general_type() == edb::Operand::TYPE_EXPRESSION) {
-			
-			
+
+
 				if(op1.expression().displacement_type == edb::Operand::DISP_NONE) {
 
 					if(op1.expression().base == REG && op1.expression().index == edb::Operand::REG_NULL && op1.expression().scale == 1) {
@@ -605,7 +605,7 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOpcodes::run_tests(int classtype, const OpcodeData &opcode, edb::address_t address) {
@@ -684,8 +684,8 @@ void DialogOpcodes::run_tests(int classtype, const OpcodeData &opcode, edb::addr
 		// [ESP - 4] -> EIP
 		test_esp_sub_regx1(opcode, address);
 		break;
-		
-		
+
+
 	case 22: test_deref_reg_to_ip<edb::Operand::REG_RAX>(opcode, address); break;
 	case 23: test_deref_reg_to_ip<edb::Operand::REG_RBX>(opcode, address); break;
 	case 24: test_deref_reg_to_ip<edb::Operand::REG_RCX>(opcode, address); break;
@@ -725,7 +725,7 @@ void DialogOpcodes::do_find() {
 		Q_FOREACH(const QModelIndex &selected_item, sel) {
 
 			const QModelIndex index = filter_model_->mapToSource(selected_item);
-			
+
 			if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
 				edb::address_t start_address     = region->start();
@@ -747,7 +747,7 @@ void DialogOpcodes::do_find() {
 				}
 
 				// this will read the rest of the region
-				while(start_address < end_address) {		
+				while(start_address < end_address) {
 
 					// create a reference to the bsa's data so we can pass it to the testXXXX functions
 					const OpcodeData &opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);

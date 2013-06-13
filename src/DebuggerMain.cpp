@@ -696,10 +696,10 @@ void DebuggerMain::mnuRegisterFollowInStack() {
 //------------------------------------------------------------------------------
 template <class T>
 edb::address_t DebuggerMain::get_follow_address(const T &hexview, bool *ok) {
-	
+
 	Q_ASSERT(hexview);
 	Q_ASSERT(ok);
-	
+
 	*ok = false;
 
 	if(hexview->hasSelectedText()) {
@@ -895,7 +895,7 @@ void DebuggerMain::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 						QAction *const action = menu.addAction(tr("&Follow"), this, SLOT(mnuCPUFollow()));
 						action->setData(static_cast<qlonglong>(insn.operands()[0].relative_target()));
 					}
-					
+
 					/*
 					if(insn.operands()[0].general_type() == edb::Operand::TYPE_EXPRESSION) {
 						if(insn.operands()[0].expression().base == edb::Operand::REG_RIP && insn.operands()[0].expression().index == edb::Operand::REG_NULL && insn.operands()[0].expression().scale == 1) {
@@ -1274,7 +1274,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const IDebugEvent::const_po
 			this,
 			tr("Application Killed"),
 			tr("The debugged application was killed."));
-			
+
 		on_action_Detach_triggered();
 		return edb::DEBUG_STOP;
 	}
@@ -1284,11 +1284,11 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const IDebugEvent::const_po
 		QMessageBox::information(this, message.caption, message.message);
 		return edb::DEBUG_STOP;
 	}
-	
+
 	if(event->is_trap()) {
 		return handle_trap();
 	}
-	
+
 	if(event->is_stop()) {
 		// user asked to pause the debugged process
 		return edb::DEBUG_STOP;
@@ -1299,7 +1299,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const IDebugEvent::const_po
 	case SIGCHLD:
 	case SIGPROF:
 		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
-#endif		
+#endif
 	default:
 		QMessageBox::information(this, tr("Debug Event"),
 			tr(
@@ -1376,11 +1376,11 @@ edb::EVENT_STATUS DebuggerMain::handle_event(const IDebugEvent::const_pointer &e
 	case IDebugEvent::EVENT_STOPPED:
 		status = handle_event_stopped(event);
 		break;
-		
+
 	case IDebugEvent::EVENT_TERMINATED:
 		status = handle_event_terminated(event);
 		break;
-		
+
 	// normal exit
 	case IDebugEvent::EVENT_EXITED:
 		status = handle_event_exited(event);
@@ -1390,7 +1390,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event(const IDebugEvent::const_pointer &e
 		Q_ASSERT(false);
 		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
 	}
-	
+
 	Q_ASSERT(!(reenable_breakpoint_step_ && reenable_breakpoint_run_));
 
 	// re-enable any breakpoints we previously disabled
@@ -1492,7 +1492,7 @@ void DebuggerMain::update_disassembly(edb::address_t address, const IRegion::poi
 // Name: update_stack_view
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::update_stack_view(const State &state) {	
+void DebuggerMain::update_stack_view(const State &state) {
 	if(!edb::v1::dump_stack(state.stack_pointer(), !stack_view_locked_)) {
 		stack_view_->clear();
 		stack_view_->scrollTo(0);
@@ -1506,11 +1506,11 @@ void DebuggerMain::update_stack_view(const State &state) {
 IRegion::pointer DebuggerMain::update_cpu_view(const State &state) {
 
 	const edb::address_t address = state.instruction_pointer();
-	
+
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
 		update_disassembly(address, region);
 		return region;
-	} else {	
+	} else {
 		ui->cpuView->clear();
 		ui->cpuView->scrollTo(0);
 		list_model_->setStringList(QStringList());
@@ -1561,14 +1561,14 @@ void DebuggerMain::refresh_gui() {
 // Desc: updates all the different displays
 //------------------------------------------------------------------------------
 void DebuggerMain::update_gui() {
-	
+
 	if(edb::v1::debugger_core) {
 		State state;
 		edb::v1::debugger_core->get_state(&state);
-				
+
 		update_data_views();
 		update_stack_view(state);
-		
+
 		if(const IRegion::pointer region = update_cpu_view(state)) {
 			edb::v1::arch_processor().update_register_view(region->name());
 		}
@@ -1730,7 +1730,7 @@ void DebuggerMain::cleanup_debugger() {
 	edb::v1::memory_regions().clear();
 	edb::v1::symbol_manager().clear();
 	edb::v1::arch_processor().reset();
-	
+
 	// clear up the data view
 	while(ui->tabWidget->count() > 1) {
 		mnuDumpDeleteTab();
@@ -1776,7 +1776,7 @@ void DebuggerMain::detach_from_process(DETACH_ACTION kill) {
 		if(kill == KILL_ON_DETACH) edb::v1::debugger_core->kill();
 		else                       edb::v1::debugger_core->detach();
 	}
-	
+
 	last_event_.clear();
 
 	cleanup_debugger();
@@ -1802,10 +1802,10 @@ void DebuggerMain::set_initial_debugger_state() {
 	if(IAnalyzer *const analyzer = edb::v1::analyzer()) {
 		analyzer->invalidate_analysis();
 	}
-	
+
 	reenable_breakpoint_run_.clear();
 	reenable_breakpoint_step_.clear();
-	
+
 #ifdef Q_OS_UNIX
 	debug_pointer_ = 0;
 #endif
@@ -2005,7 +2005,7 @@ void DebuggerMain::attach(edb::pid_t pid) {
 			set_initial_debugger_state();
 
 			QList<QByteArray> args = edb::v1::debugger_core->process_args(edb::v1::debugger_core->pid());
-			
+
 			if(!args.empty()) {
 				args.removeFirst();
 			}
@@ -2056,7 +2056,7 @@ void DebuggerMain::on_action_Attach_triggered() {
 			}
 		}
 	}
-	
+
 	delete dlg;
 }
 
@@ -2070,7 +2070,7 @@ void DebuggerMain::on_action_Memory_Regions_triggered() {
 	// may restrict some actions
 
 	QPointer<DialogMemoryRegions> dlg = new DialogMemoryRegions(this);
-	dlg->exec();	
+	dlg->exec();
 	delete dlg;
 }
 
@@ -2095,7 +2095,7 @@ void DebuggerMain::on_action_Threads_triggered() {
 			}
 		}
 	}
-	
+
 	delete dlg;
 }
 
@@ -2269,7 +2269,7 @@ void DebuggerMain::next_debug_event() {
 
 	// TODO: come up with a nice system to inject a debug event
 	//       into the system, for example on windows, we want
-	//       to deliver real "memory map updated" events, but 
+	//       to deliver real "memory map updated" events, but
 	//       on linux, (at least for now), I would want to send
 	//       a fake one before every event so it is always up to
 	//       date.
@@ -2277,14 +2277,14 @@ void DebuggerMain::next_debug_event() {
 	Q_ASSERT(edb::v1::debugger_core);
 
 	if(IDebugEvent::const_pointer e = edb::v1::debugger_core->wait_debug_event(10)) {
-	
+
 		last_event_ = e;
 
-		// TODO: figure out a way to do this less often, if they map an obscene 
+		// TODO: figure out a way to do this less often, if they map an obscene
 		// number of regions, this really slows things down
 		edb::v1::memory_regions().sync();
 
-		// TODO: make the system use this information, this is huge! it will 
+		// TODO: make the system use this information, this is huge! it will
 		// allow us to have restorable breakpoints...even in libraries!
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
 		if(debug_pointer_ == 0 && binary_info_) {

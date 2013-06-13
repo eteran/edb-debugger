@@ -50,15 +50,15 @@ DialogAssembler::~DialogAssembler() {
 void DialogAssembler::set_address(edb::address_t address) {
 	address_ = address;
 	ui->label->setText(edb::v1::format_pointer(address_));
-	
-	
+
+
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 	int size = sizeof(buffer);
 
 	if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
 		edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
 		if(insn) {
-			ui->comboBox->setEditText(QString::fromStdString(to_string(insn)));	
+			ui->comboBox->setEditText(QString::fromStdString(to_string(insn)));
 		}
 	}
 }
@@ -72,7 +72,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 	static const QString mnemonic_regex   = "([a-z][a-z0-9]*)";
 	static const QString register_regex   = "((?:(?:e|r)?(?:ax|bx|cx|dx|bp|sp|si|di|ip))|(?:[abcd](?:l|h))|(?:sp|bp|si|di)l|(?:[cdefgs]s)|(?:x?mm[0-7])|r(?:8|9|(?:1[0-5]))[dwb]?)";
 	static const QString constant_regex   = "((?:0[0-7]*)|(?:0x[0-9a-f]+)|(?:[1-9][0-9]*))";
-	
+
 	static const QString pointer_regex    = "(?:(t?byte|(?:xmm|[qdf]?)word)(?:\\s+ptr)?)?";
 	static const QString segment_regex    = "([csdefg]s)";
 	static const QString expression_regex = QString("(%1\\s*(?:\\s+%2\\s*:\\s*)?\\[(\\s*(?:(?:%3(?:\\s*\\+\\s*%3(?:\\s*\\*\\s*%4)?)?(?:\\s*\\+\\s*%4)?)|(?:(?:%3(?:\\s*\\*\\s*%4)?)(?:\\s*\\+\\s*%4)?)|(?:%4)\\s*))\\])").arg(pointer_regex, segment_regex, register_regex, constant_regex);
@@ -98,7 +98,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 
 	const QString assembly = ui->comboBox->currentText().trimmed();
 	QRegExp regex(assembly_regex, Qt::CaseInsensitive, QRegExp::RegExp2);
-	
+
 	if(regex.exactMatch(assembly)) {
 		const QStringList list = regex.capturedTexts();
 
@@ -112,12 +112,12 @@ void DialogAssembler::on_buttonBox_accepted() {
 [4]  -> operand 1 (IMMEDIATE)
 [5]  -> operand 1 (EXPRESSION)
 [6]  -> operand 1 pointer (EXPRESSION)
-[7]  -> operand 1 segment (EXPRESSION) 
-[8]  -> operand 1 internal expression (EXPRESSION) 
-[9]  -> operand 1 base (EXPRESSION)  
-[10] -> operand 1 index (EXPRESSION) 
-[11] -> operand 1 scale (EXPRESSION) 
-[12] -> operand 1 displacement (EXPRESSION) 
+[7]  -> operand 1 segment (EXPRESSION)
+[8]  -> operand 1 internal expression (EXPRESSION)
+[9]  -> operand 1 base (EXPRESSION)
+[10] -> operand 1 index (EXPRESSION)
+[11] -> operand 1 scale (EXPRESSION)
+[12] -> operand 1 displacement (EXPRESSION)
 [13] -> operand 1 index (EXPRESSION) (version 2)
 [14] -> operand 1 scale (EXPRESSION) (version 2)
 [15] -> operand 1 displacement (EXPRESSION) (version 2)
@@ -128,12 +128,12 @@ void DialogAssembler::on_buttonBox_accepted() {
 [19] -> operand 2 (IMMEDIATE)
 [20] -> operand 2 (EXPRESSION)
 [21] -> operand 2 pointer (EXPRESSION)
-[22] -> operand 2 segment (EXPRESSION) 
-[23] -> operand 2 internal expression (EXPRESSION) 
-[24] -> operand 2 base (EXPRESSION)  
-[25] -> operand 2 index (EXPRESSION) 
-[26] -> operand 2 scale (EXPRESSION) 
-[27] -> operand 2 displacement (EXPRESSION) 
+[22] -> operand 2 segment (EXPRESSION)
+[23] -> operand 2 internal expression (EXPRESSION)
+[24] -> operand 2 base (EXPRESSION)
+[25] -> operand 2 index (EXPRESSION)
+[26] -> operand 2 scale (EXPRESSION)
+[27] -> operand 2 displacement (EXPRESSION)
 [28] -> operand 2 index (EXPRESSION) (version 2)
 [29] -> operand 2 scale (EXPRESSION) (version 2)
 [30] -> operand 2 displacement (EXPRESSION) (version 2)
@@ -144,11 +144,11 @@ void DialogAssembler::on_buttonBox_accepted() {
 [34] -> operand 3 (IMMEDIATE)
 [35] -> operand 3 (EXPRESSION)
 [36] -> operand 3 pointer (EXPRESSION)
-[37] -> operand 3 segment (EXPRESSION) 
-[38] -> operand 3 internal expression (EXPRESSION) 
-[39] -> operand 3 base (EXPRESSION)  
-[40] -> operand 3 index (EXPRESSION) 
-[41] -> operand 3 scale (EXPRESSION) 
+[37] -> operand 3 segment (EXPRESSION)
+[38] -> operand 3 internal expression (EXPRESSION)
+[39] -> operand 3 base (EXPRESSION)
+[40] -> operand 3 index (EXPRESSION)
+[41] -> operand 3 scale (EXPRESSION)
 [42] -> operand 3 displacement (EXPRESSION)
 [43] -> operand 3 index (EXPRESSION) (version 2)
 [44] -> operand 3 scale (EXPRESSION) (version 2)
@@ -189,14 +189,14 @@ void DialogAssembler::on_buttonBox_accepted() {
 			}
 		}
 
-		const QString nasm_syntax = list[1] + ' ' + operands.join(",");		
-		
-		QTemporaryFile source_file(QString("%1/edb_asm_temp_%2_XXXXXX.asm").arg(QDir::tempPath()).arg(getpid()));		
+		const QString nasm_syntax = list[1] + ' ' + operands.join(",");
+
+		QTemporaryFile source_file(QString("%1/edb_asm_temp_%2_XXXXXX.asm").arg(QDir::tempPath()).arg(getpid()));
 		if(!source_file.open()) {
 			QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary source file."));
 		}
 
-		QTemporaryFile output_file(QString("%1/edb_asm_temp_%2_XXXXXX.bin").arg(QDir::tempPath()).arg(getpid()));		
+		QTemporaryFile output_file(QString("%1/edb_asm_temp_%2_XXXXXX.bin").arg(QDir::tempPath()).arg(getpid()));
 		if(!output_file.open()) {
 			QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary object file."));
 		}
@@ -239,7 +239,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 			const int exit_code = process.exitCode();
 
 			if(exit_code != 0) {
-				QMessageBox::warning(this, tr("Error In Code"), process.readAllStandardError());			
+				QMessageBox::warning(this, tr("Error In Code"), process.readAllStandardError());
 			} else {
 				const QByteArray bytes = output_file.readAll();
 				edb::Instruction insn(bytes.data(), bytes.data() + bytes.size(), address_, std::nothrow);

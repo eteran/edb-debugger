@@ -1,7 +1,7 @@
 /*
 Copyright (C) 2012 Evan Teran
                    eteran@alum.rit.edu
-						  
+
 Copyright (C) 1995-2003,2004,2005,2006,2007,2008,2009,2010,2011
                    Free Software Foundation, Inc.
 
@@ -48,7 +48,7 @@ namespace binary_info {
 /* Motorola 68k specific definitions.  */
 
 /* Values for Elf32_Ehdr.e_flags.  */
-#define EF_CPU32	0x00810000
+#define EF_CPU32 0x00810000
 
 /* m68k relocs.  */
 

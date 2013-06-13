@@ -63,18 +63,18 @@ namespace {
 	QAtomicPointer<ISessionFile>       g_SessionHandler    = 0;
 	QHash<QString, QObject *>          g_GeneralPlugins;
 	BinaryInfoList                     g_BinaryInfoList;
-	
+
 	QHash<QString, FunctionInfo>       g_FunctionDB;
-	
+
 	DebuggerMain *ui() {
 		return qobject_cast<DebuggerMain *>(edb::v1::debugger_ui);
 	}
 
 	bool function_symbol_base(edb::address_t address, QString *value, int *offset) {
-	
+
 		Q_ASSERT(value);
 		Q_ASSERT(offset);
-	
+
 		bool ret = false;
 		*offset = 0;
 		const Symbol::pointer s = edb::v1::symbol_manager().find_near_symbol(address);
@@ -104,32 +104,32 @@ bool register_plugin(const QString &filename, QObject *plugin) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void load_function_db() {
 	QFile file(":/debugger/xml/functions.xml");
 	QDomDocument doc;
-		
-	if(file.open(QIODevice::ReadOnly)) {	
+
+	if(file.open(QIODevice::ReadOnly)) {
 		if(doc.setContent(&file)) {
-		
+
 			QDomElement root = doc.firstChildElement("functions");
 			QDomElement function = root.firstChildElement("function");
 			for (; !function.isNull(); function = function.nextSiblingElement("function")) {
-			
-			
+
+
 				const QString function_name = function.attribute("name");
-				
+
 				FunctionInfo info;
-						
+
 				QDomElement argument = function.firstChildElement("argument");
 				for (; !argument.isNull(); argument = argument.nextSiblingElement("argument")) {
 					const QString argument_type = argument.attribute("type");
 					info.params_.push_back(argument_type[0]);
 				}
-				
-				g_FunctionDB[function_name] = info;	
+
+				g_FunctionDB[function_name] = info;
 			}
 		}
 	}
@@ -440,9 +440,9 @@ void edb::v1::remove_breakpoint(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 bool edb::v1::eval_expression(const QString &expression, edb::address_t *value) {
-	
+
 	Q_ASSERT(value);
-	
+
 	Expression<edb::address_t> expr(expression, get_variable, get_value);
 	ExpressionError err;
 
@@ -653,7 +653,7 @@ bool edb::v1::get_utf16_string_at_address(edb::address_t address, QString &s, in
 // Desc:
 //------------------------------------------------------------------------------
 QString edb::v1::find_function_symbol(edb::address_t address, const QString &default_value, int *offset) {
-	
+
 	QString symname(default_value);
 	int off;
 
@@ -778,11 +778,11 @@ IBinary *edb::v1::get_binary_info(const IRegion::pointer &region) {
 edb::address_t edb::v1::locate_main_function() {
 
 	if(edb::v1::debugger_core) {
-	
+
 		const edb::address_t address = edb::v1::debugger_core->application_code_address();
 		memory_regions().sync();
 		if(IRegion::pointer region = memory_regions().find_region(address)) {
-		
+
 			SCOPED_POINTER<IBinary> binfo(get_binary_info(region));
 			if(binfo) {
 				const edb::address_t main_func = binfo->calculate_main();
@@ -835,7 +835,7 @@ const FunctionInfo *edb::v1::get_function_info(const QString &function) {
 
 	QHash<QString, FunctionInfo>::const_iterator it = g_FunctionDB.find(function);
 	if(it != g_FunctionDB.end()) {
-		return &(it.value());	
+		return &(it.value());
 	}
 
 	return 0;
@@ -850,7 +850,7 @@ const FunctionInfo *edb::v1::get_function_info(const QString &function) {
 IRegion::pointer edb::v1::primary_data_region() {
 
 	if(edb::v1::debugger_core) {
-	
+
 		const edb::address_t address = edb::v1::debugger_core->application_data_address();
 		memory_regions().sync();
 		if(IRegion::pointer region = memory_regions().find_region(address)) {
@@ -871,7 +871,7 @@ IRegion::pointer edb::v1::primary_code_region() {
 
 #ifdef Q_OS_LINUX
 	if(edb::v1::debugger_core) {
-	
+
 		const edb::address_t address = edb::v1::debugger_core->application_code_address();
 		memory_regions().sync();
 		if(IRegion::pointer region = memory_regions().find_region(address)) {
@@ -1151,9 +1151,9 @@ QString edb::v1::format_bytes(const QByteArray &x) {
 	if(x.size() != 0) {
 		QString temp;
 		temp.reserve(4);
-		
+
 		bytes.reserve(x.size() * 4);
-		
+
 		QByteArray::const_iterator it = x.begin();
 		bytes += temp.sprintf("%02x", *it++ & 0xff);
 		while(it != x.end()) {
@@ -1204,11 +1204,11 @@ IBreakpoint::pointer edb::v1::find_breakpoint(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 int edb::v1::pointer_size() {
-	
+
 	if(edb::v1::debugger_core) {
 		return edb::v1::debugger_core->pointer_size();
 	}
-	
+
 	// default to sizeof the native pointer for sanity!
 	return sizeof(void*);
 }

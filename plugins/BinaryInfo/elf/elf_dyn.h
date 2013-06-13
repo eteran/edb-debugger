@@ -1,7 +1,7 @@
 /*
 Copyright (C) 2012 Evan Teran
                    eteran@alum.rit.edu
-						  
+
 Copyright (C) 1995-2003,2004,2005,2006,2007,2008,2009,2010,2011
                    Free Software Foundation, Inc.
 
@@ -26,24 +26,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Dynamic section entry.  */
 
-struct elf32_dyn
-{
-  elf32_sword	d_tag;			/* Dynamic entry type */
-  union
-    {
-      elf32_word d_val;			/* Integer value */
-      elf32_addr d_ptr;			/* Address value */
-    } d_un;
+struct elf32_dyn {
+	elf32_sword d_tag;    /* Dynamic entry type */
+	union {
+		elf32_word d_val; /* Integer value */
+		elf32_addr d_ptr; /* Address value */
+	} d_un;
 };
 
-struct elf64_dyn
-{
-  elf64_sxword	d_tag;			/* Dynamic entry type */
-  union
-    {
-      elf64_xword d_val;		/* Integer value */
-      elf64_addr d_ptr;			/* Address value */
-    } d_un;
+struct elf64_dyn {
+	elf64_sxword d_tag;    /* Dynamic entry type */
+	union {
+		elf64_xword d_val; /* Integer value */
+		elf64_addr  d_ptr; /* Address value */
+	} d_un;
 };
 
 /* Legal values for d_tag (dynamic entry type).  */
