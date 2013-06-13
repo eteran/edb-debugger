@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>310</width>
+    <width>451</width>
     <height>87</height>
    </rect>
   </property>
@@ -18,7 +18,7 @@
    <item row="0" column="0" colspan="2">
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QLabel" name="label">
+      <widget class="QLabel" name="address">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
          <horstretch>0</horstretch>
@@ -31,7 +31,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="comboBox">
+      <widget class="QComboBox" name="assembly">
        <property name="editable">
         <bool>true</bool>
        </property>
@@ -40,7 +40,10 @@
     </layout>
    </item>
    <item row="1" column="0">
-    <widget class="QCheckBox" name="checkBox">
+    <widget class="QCheckBox" name="keepSize">
+     <property name="enabled">
+      <bool>false</bool>
+     </property>
      <property name="text">
       <string>Keep Size</string>
      </property>
@@ -50,7 +53,7 @@
     </widget>
    </item>
    <item row="2" column="0">
-    <widget class="QCheckBox" name="checkBox_2">
+    <widget class="QCheckBox" name="fillWithNOPs">
      <property name="text">
       <string>Fill rest with NOPs</string>
      </property>

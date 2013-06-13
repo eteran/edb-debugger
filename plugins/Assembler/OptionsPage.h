@@ -16,34 +16,30 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_ASSEMBLER_20130611_H_
-#define DIALOG_ASSEMBLER_20130611_H_
+#ifndef OPTIONS_PAGE_20130611_H_
+#define OPTIONS_PAGE_20130611_H_
 
-#include <QDialog>
-#include "Types.h"
-#include "IRegion.h"
+#include <QWidget>
 
-class QListWidgetItem;
+namespace Ui { class OptionsPage; }
 
-namespace Ui { class DialogAssembler; }
-
-class DialogAssembler : public QDialog {
-	Q_OBJECT
+class OptionsPage : public QWidget {
+	Q_OBJECT;
 
 public:
-	DialogAssembler(QWidget *parent = 0);
-	virtual ~DialogAssembler();
-	
+	OptionsPage(QWidget *parent = 0);
+	virtual ~OptionsPage();
+
+public:
+	virtual void showEvent(QShowEvent *event);
+
 public Q_SLOTS:
-	void on_buttonBox_accepted();
-	
-public:
-	void set_address(edb::address_t address);
+	virtual void on_assemblerPath_editTextChanged(const QString &text);
+	virtual void on_toolButton_clicked();
 	
 private:
-	 Ui::DialogAssembler *const ui;
-	 edb::address_t             address_;
-	 int                        instruction_size_;
+	Ui::OptionsPage *const ui;
 };
 
 #endif
+

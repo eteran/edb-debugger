@@ -16,81 +16,56 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "Assembler.h"
-#include "Debugger.h"
-#include "DialogAssembler.h"
-#include "MemoryRegions.h"
 #include "OptionsPage.h"
+#include <QSettings>
+#include <QDebug>
+#include <QFileDialog>
 
-#include <QMenu>
-#include <QList>
-#include <QAction>
+#include "ui_OptionsPage.h"
 
 //------------------------------------------------------------------------------
-// Name: Assembler
+// Name: OptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-Assembler::Assembler() : dialog_(0) {
+OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsPage) {
+	ui->setupUi(this);
 }
 
 //------------------------------------------------------------------------------
-// Name: ~Assembler
+// Name: ~OptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-Assembler::~Assembler() {
-	delete dialog_;
+OptionsPage::~OptionsPage() {
+	delete ui;
 }
 
 //------------------------------------------------------------------------------
-// Name: cpu_context_menu
+// Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
-QList<QAction *> Assembler::cpu_context_menu() {
+void OptionsPage::showEvent(QShowEvent *event) {
+	Q_UNUSED(event);
 
-	QList<QAction *> ret;
-
-	QAction *const action_assemble = new QAction(tr("Assemble"), this);
-
-	connect(action_assemble, SIGNAL(triggered()), this, SLOT(show_dialog()));
-	ret << action_assemble;
-
-	return ret;
+	QSettings settings;
+	ui->assemblerPath->setEditText(settings.value("Assembler/helper_application", "/usr/bin/yasm").toString());
 }
 
 //------------------------------------------------------------------------------
-// Name: menu
+// Name: on_assemblerPath_editTextChanged
 // Desc:
 //------------------------------------------------------------------------------
-QMenu *Assembler::menu(QWidget *parent) {
-	Q_UNUSED(parent);
-	return 0;
+void OptionsPage::on_assemblerPath_editTextChanged(const QString &text) {
+	QSettings settings;
+	settings.setValue("Assembler/helper_application", text);
 }
 
 //------------------------------------------------------------------------------
-// Name: show_dialog
+// Name: on_toolButton_clicked
 // Desc:
 //------------------------------------------------------------------------------
-void Assembler::show_dialog() {
-
-	if(dialog_ == 0) {
-		dialog_ = new DialogAssembler(edb::v1::debugger_ui);
-	}
-	
-	const edb::address_t address = edb::v1::cpu_selected_address();
-	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
-		if(DialogAssembler *const d = qobject_cast<DialogAssembler *>(dialog_)) {
-			d->set_address(address);
-		}
-		dialog_->show();
+void OptionsPage::on_toolButton_clicked() {
+	const QString filename = QFileDialog::getOpenFileName(this, "Choose Your Preferred Assembler");
+	if(!filename.isEmpty()) {
+		ui->assemblerPath->setEditText(filename);
 	}
 }
-
-//------------------------------------------------------------------------------
-// Name: options_page
-// Desc:
-//------------------------------------------------------------------------------
-QWidget *Assembler::options_page() {
-	return new OptionsPage;
-}
-
-Q_EXPORT_PLUGIN2(Assembler, Assembler)

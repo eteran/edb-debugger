@@ -968,23 +968,19 @@ bool edb::v1::overwrite_check(edb::address_t address, unsigned int size) {
 void edb::v1::modify_bytes(edb::address_t address, unsigned int size, QByteArray &bytes, quint8 fill) {
 
 	if(size != 0) {
-		if(get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"), size)) {
-			if(overwrite_check(address, size)) {
-
-				// fill bytes
-				while(bytes.size() < static_cast<int>(size)) {
-					bytes.push_back(fill);
-				}
-
-				debugger_core->write_bytes(address, bytes.data(), size);
-
-				// do a refresh, not full update
-				DebuggerMain *const gui = ui();
-				Q_ASSERT(gui);
-				gui->refresh_gui();
-			}
+		// fill bytes
+		while(bytes.size() < static_cast<int>(size)) {
+			bytes.push_back(fill);
 		}
+
+		debugger_core->write_bytes(address, bytes.data(), size);
+
+		// do a refresh, not full update
+		DebuggerMain *const gui = ui();
+		Q_ASSERT(gui);
+		gui->refresh_gui();
 	}
+
 }
 
 //------------------------------------------------------------------------------

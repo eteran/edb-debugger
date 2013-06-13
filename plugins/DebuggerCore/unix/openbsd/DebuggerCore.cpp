@@ -692,4 +692,16 @@ QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 	return QDateTime();
 }
 
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+QString DebuggerCore::process_arch() const {
+#ifdef EDB_X86
+	return "x86";
+#elif defined(EDB_X86_64)
+	return "x86-64";
+#endif
+}
+
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
