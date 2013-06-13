@@ -98,7 +98,7 @@ void DialogAttach::update_list(const QString &filter) {
 
 					ui->processes_table->setItem(row, 0, item_pid);
 					ui->processes_table->setItem(row, 1, item_uid);
-		        	ui->processes_table->setItem(row, 2, new QTableWidgetItem(process_info.name));
+					ui->processes_table->setItem(row, 2, new QTableWidgetItem(process_info.name));
 				}
 			}
 		}

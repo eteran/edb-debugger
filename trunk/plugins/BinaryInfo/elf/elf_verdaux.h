@@ -1,7 +1,7 @@
 /*
 Copyright (C) 2012 Evan Teran
                    eteran@alum.rit.edu
-						  
+
 Copyright (C) 1995-2003,2004,2005,2006,2007,2008,2009,2010,2011
                    Free Software Foundation, Inc.
 
@@ -26,16 +26,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 /* Auxialiary version information.  */
 
-struct elf32_verdaux
-{
-  elf32_word	vda_name;		/* Version or dependency names */
-  elf32_word	vda_next;		/* Offset in bytes to next verdaux entry */
+struct elf32_verdaux {
+	elf32_word vda_name; /* Version or dependency names */
+	elf32_word vda_next; /* Offset in bytes to next verdaux entry */
 };
 
-struct elf64_verdaux
-{
-  elf64_word	vda_name;		/* Version or dependency names */
-  elf64_word	vda_next;		/* Offset in bytes to next verdaux entry */
+struct elf64_verdaux {
+	elf64_word vda_name; /* Version or dependency names */
+	elf64_word vda_next; /* Offset in bytes to next verdaux entry */
 };
 
 #endif

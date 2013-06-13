@@ -6,7 +6,7 @@ INCLUDEPATH += ./widgets ../include
 RESOURCES   = debugger.qrc
 DESTDIR     = ../
 target.path = /bin/
-INSTALLS    += target 
+INSTALLS    += target
 QT          += xml
 
 TRANSLATIONS += \
@@ -86,7 +86,7 @@ FORMS += \
 	dialog_memoryregions.ui \
 	dialog_options.ui \
 	dialog_plugins.ui \
-	dialog_threads.ui 
+	dialog_threads.ui
 
 SOURCES += \
 	ArchProcessor.cpp \
@@ -133,8 +133,8 @@ HEADERS     += qhexview.h QHexView
 
 # qjson stuff
 
-DEPENDPATH   += ./qjson 
-INCLUDEPATH  += ./qjson 
+DEPENDPATH   += ./qjson
+INCLUDEPATH  += ./qjson
 
 HEADERS += json_parser.hh \
            json_scanner.h \
@@ -149,7 +149,7 @@ HEADERS += json_parser.hh \
            serializer.h \
            serializerrunnable.h \
            stack.hh
-		   
+
 SOURCES += json_parser.cc \
            json_scanner.cpp \
            parser.cpp \
@@ -165,7 +165,7 @@ win32 {
 		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
 		RC_FILE     = edb.rc
 	}
-	
+
 	win32-msvc*:contains(QMAKE_HOST.arch, x86):{
 		DEPENDPATH  += ../include/os/win32 arch/i386 ../include/arch/i386 edisassm
 		INCLUDEPATH += ../include/os/win32 arch/i386 ../include/arch/i386 edisassm "C:\\Program Files\\boost\\boost_1_51"
@@ -234,24 +234,24 @@ unix {
 		QMAKE_CXXFLAGS_DEBUG += -g3
 	}
 
-	linux-g++*:		QMAKE_CXXFLAGS += -Wstrict-null-sentinel
+	linux-g++*:     QMAKE_CXXFLAGS += -Wstrict-null-sentinel
 
 	# linker flags
-	freebsd-g++*:	QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic $$(LDFLAGS)
-	linux-clang*:	QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
-	linux-g++*:		QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
-	macx-cleang*:	QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
-	macx-g++*:		QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
-	openbsd-g++*:	QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic $$(LDFLAGS)
+	freebsd-g++*: QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic $$(LDFLAGS)
+	linux-clang*: QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
+	linux-g++*:   QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
+	macx-clang*:  QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
+	macx-g++*:    QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
+	openbsd-g++*: QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic $$(LDFLAGS)
 
 	CONFIG(debug, debug|release) {
 		OBJECTS_DIR = $${OUT_PWD}/.debug-shared/obj
 		MOC_DIR     = $${OUT_PWD}/.debug-shared/moc
 		RCC_DIR     = $${OUT_PWD}/.debug-shared/rcc
 		UI_DIR      = $${OUT_PWD}/.debug-shared/uic
-		DEFINES    += QT_SHAREDPOINTER_TRACK_POINTERS 
+		DEFINES    += QT_SHAREDPOINTER_TRACK_POINTERS
 	}
-	
+
 	CONFIG(release, debug|release) {
 		OBJECTS_DIR = $${OUT_PWD}/.release-shared/obj
 		MOC_DIR     = $${OUT_PWD}/.release-shared/moc

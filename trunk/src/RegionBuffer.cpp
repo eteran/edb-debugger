@@ -59,9 +59,9 @@ qint64 RegionBuffer::readData(char *data, qint64 maxSize) {
 			maxSize = end - start;
 		}
 
-    	if(maxSize == 0) {
-        	return 0;
-    	}
+		if(maxSize == 0) {
+			return 0;
+		}
 
 		if(edb::v1::debugger_core->read_bytes(start, data, maxSize)) {
 			return maxSize;
@@ -69,7 +69,7 @@ qint64 RegionBuffer::readData(char *data, qint64 maxSize) {
 			return -1;
 		}
 	}
-	
+
 	return -1;
 
 }

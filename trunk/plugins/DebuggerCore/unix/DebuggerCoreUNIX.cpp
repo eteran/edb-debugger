@@ -431,7 +431,7 @@ bool DebuggerCoreUNIX::write_bytes(edb::address_t address, const void *buf, std:
 //------------------------------------------------------------------------------
 void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
 	// change to the desired working directory
-	if(::chdir(qPrintable(cwd)) == 0) {	
+	if(::chdir(qPrintable(cwd)) == 0) {
 
 		// allocate space for all the arguments
 		char **const argv_pointers = new char *[args.count() + 2];
@@ -475,13 +475,13 @@ int DebuggerCoreUNIX::pointer_size() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 QMap<long, QString> DebuggerCoreUNIX::exceptions() const {
 	QMap<long, QString> exceptions;
-	
-	
+
+
 	#ifdef SIGABRT
 		exceptions[SIGABRT] = "SIGABRT";
 	#endif
@@ -572,6 +572,6 @@ QMap<long, QString> DebuggerCoreUNIX::exceptions() const {
 	#ifdef SIGRTMAX
 		exceptions[SIGRTMAX] = "SIGRTMAX";
 	#endif
-	
+
 	return exceptions;
 }

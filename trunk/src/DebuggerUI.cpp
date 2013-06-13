@@ -146,7 +146,7 @@ QString DebuggerUI::create_tty() {
 			// this is a basic shell script which will output the tty to a file (the pipe),
 			// ignore kill sigs, close all standard IO, and then just hang
 			const QString shell_script = QString(
-		    	"tty > %1;"
+				"tty > %1;"
 				"trap \"\" INT QUIT TSTP;"
 				"exec<&-; exec>&-;"
 				"while :; do sleep 3600; done"
@@ -272,7 +272,7 @@ void DebuggerUI::create_data_tab() {
 	} else {
 		hexview->setAddressOffset(0);
 	}
-	
+
 	hexview->setData(new_data_view->stream);
 
 	const Configuration &config = edb::v1::config();

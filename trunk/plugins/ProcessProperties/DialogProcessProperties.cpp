@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace {
 
 QString size_to_string(size_t n) {
-	
+
 	if(n < 1000) {
 		return QString::number(n);
 	} else if(n < 1000000) {
@@ -62,9 +62,9 @@ QString size_to_string(size_t n) {
 // Desc:
 //------------------------------------------------------------------------------
 bool tcp_socket_prcoessor(QString *symlink, int sock, const QStringList &lst) {
-	
+
 	Q_ASSERT(symlink);
-	
+
 	if(lst.size() >= 13) {
 
 		bool ok;
@@ -104,9 +104,9 @@ bool tcp_socket_prcoessor(QString *symlink, int sock, const QStringList &lst) {
 // Desc:
 //------------------------------------------------------------------------------
 bool udp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
-	
+
 	Q_ASSERT(symlink);
-	
+
 	if(lst.size() >= 13) {
 
 		bool ok;
@@ -282,7 +282,7 @@ DialogProcessProperties::~DialogProcessProperties() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateGeneralPage() {
@@ -314,7 +314,7 @@ void DialogProcessProperties::updateGeneralPage() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateModulePage() {
@@ -332,11 +332,11 @@ void DialogProcessProperties::updateModulePage() {
 		}
 		ui->tableModules->setSortingEnabled(true);
 	}
-	
+
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateMemoryPage() {
@@ -358,7 +358,7 @@ void DialogProcessProperties::updateMemoryPage() {
 			ui->tableMemory->setItem(row, 2, new QTableWidgetItem(QString("%1%2%3")                      // protection
 				.arg(r->readable() ? 'r' : '-')
 				.arg(r->writable() ? 'w' : '-')
-				.arg(r->executable() ? 'x' : '-'))); 
+				.arg(r->executable() ? 'x' : '-')));
 			ui->tableMemory->setItem(row, 3, new QTableWidgetItem(r->name()));                           // name
 		}
 		ui->tableMemory->setSortingEnabled(true);
@@ -366,7 +366,7 @@ void DialogProcessProperties::updateMemoryPage() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_txtSearchEnvironment_textChanged(const QString &text) {
@@ -374,18 +374,18 @@ void DialogProcessProperties::on_txtSearchEnvironment_textChanged(const QString 
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 	// tableEnvironment
-	
+
 	ui->tableEnvironment->clearContents();
 	ui->tableEnvironment->setSortingEnabled(false);
 	ui->tableEnvironment->setRowCount(0);
-	
+
 	const QString lower_filter = filter.toLower();
-	
+
 #ifdef Q_OS_LINUX
 	QFile proc_environ(QString("/proc/%1/environ").arg(edb::v1::debugger_core->pid()));
 	if(proc_environ.open(QIODevice::ReadOnly)) {
@@ -403,7 +403,7 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 				ui->tableEnvironment->setItem(row, 0, new QTableWidgetItem(env_name));
 			    ui->tableEnvironment->setItem(row, 1, new QTableWidgetItem(env_value));
 			}
-			
+
 			ptr += qstrlen(ptr) + 1;
 		}
 
@@ -414,11 +414,11 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateHandles() {
-	
+
 	ui->tableHandles->setSortingEnabled(false);
 	ui->tableHandles->setRowCount(0);
 
@@ -449,7 +449,7 @@ void DialogProcessProperties::updateHandles() {
 				QTableWidgetItem *const itemFD = new QTableWidgetItem;
 				itemFD->setData(Qt::DisplayRole, info.fileName().toUInt());
 
-	        	ui->tableHandles->setItem(row, 0, new QTableWidgetItem(type));
+				ui->tableHandles->setItem(row, 0, new QTableWidgetItem(type));
 				ui->tableHandles->setItem(row, 1, itemFD);
 				ui->tableHandles->setItem(row, 2, new QTableWidgetItem(symlink));
 			}
@@ -458,7 +458,7 @@ void DialogProcessProperties::updateHandles() {
 #endif
 
 	ui->tableHandles->setSortingEnabled(true);
-	
+
 }
 
 //------------------------------------------------------------------------------
@@ -474,7 +474,7 @@ void DialogProcessProperties::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnParent_clicked() {
@@ -490,7 +490,7 @@ void DialogProcessProperties::on_btnParent_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnImage_clicked() {
@@ -502,7 +502,7 @@ void DialogProcessProperties::on_btnImage_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnRefreshEnvironment_clicked() {
@@ -510,7 +510,7 @@ void DialogProcessProperties::on_btnRefreshEnvironment_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnRefreshHandles_clicked() {
@@ -518,11 +518,11 @@ void DialogProcessProperties::on_btnRefreshHandles_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnStrings_clicked() {
-	
+
 	static QDialog *dialog = new DialogStrings(edb::v1::debugger_ui);
 	dialog->show();
 }

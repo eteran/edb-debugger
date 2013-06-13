@@ -1,7 +1,7 @@
 /*
 Copyright (C) 2012 Evan Teran
                    eteran@alum.rit.edu
-						  
+
 Copyright (C) 1995-2003,2004,2005,2006,2007,2008,2009,2010,2011
                    Free Software Foundation, Inc.
 
@@ -29,14 +29,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 struct elf32_syminfo
 {
-  elf32_half si_boundto;		/* Direct bindings, symbol bound to */
-  elf32_half si_flags;			/* Per symbol flags */
+  elf32_half si_boundto; /* Direct bindings, symbol bound to */
+  elf32_half si_flags;   /* Per symbol flags */
 };
 
 struct elf64_syminfo
 {
-  elf64_half si_boundto;		/* Direct bindings, symbol bound to */
-  elf64_half si_flags;			/* Per symbol flags */
+  elf64_half si_boundto; /* Direct bindings, symbol bound to */
+  elf64_half si_flags;   /* Per symbol flags */
 };
 
 /* Possible values for si_boundto.  */

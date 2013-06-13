@@ -1,7 +1,7 @@
 /*
 Copyright (C) 2006 - 2013 Evan Teran
                           eteran@alum.rit.edu
-				   
+
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 2 of the License, or
@@ -21,11 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 //------------------------------------------------------------------------------
 // Name: Expression
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 template <class T>
-Expression<T>::Expression(const QString &s, variable_getter_t vg, memory_reader_t mr) : 
-		expression_(s), expression_ptr_(expression_.begin()), 
+Expression<T>::Expression(const QString &s, variable_getter_t vg, memory_reader_t mr) :
+		expression_(s), expression_ptr_(expression_.begin()),
 		variable_reader_(vg), memory_reader_(mr) {
 }
 
@@ -38,9 +38,9 @@ void Expression<T>::eval_exp(T &result) {
 	if(token_.type_ == Token::UNKNOWN) {
 		throw ExpressionError(ExpressionError::SYNTAX);
 	}
-	
+
 	eval_exp0(result);
-	
+
 	switch(token_.type_) {
 	case Token::OPERATOR:
 		switch(token_.operator_) {
@@ -186,7 +186,7 @@ void Expression<T>::eval_exp3(T &result) {
 		default:
 			break;
 		}
-	}	
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -337,7 +337,7 @@ void Expression<T>::eval_exp7(T &result) {
 			if(memory_reader_) {
 				bool ok;
 				ExpressionError error;
-								
+
 				result = memory_reader_(effective_address, &ok, &error);
 				if(!ok) {
 					throw error;
@@ -359,7 +359,7 @@ void Expression<T>::eval_exp7(T &result) {
 	default:
 		eval_atom(result);
 		break;
-	
+
 	}
 }
 
@@ -370,7 +370,7 @@ void Expression<T>::eval_exp7(T &result) {
 template <class T>
 void Expression<T>::eval_atom(T &result) {
 
-	switch(token_.type_) {	
+	switch(token_.type_) {
 	case Token::VARIABLE:
 		if(variable_reader_) {
 			bool ok;
@@ -378,11 +378,11 @@ void Expression<T>::eval_atom(T &result) {
 			result = variable_reader_(token_.data_, &ok, &error);
 			if(!ok) {
 				throw error;
-			}			
+			}
 		} else {
 			throw ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
 		}
-		get_token();	
+		get_token();
 		break;
 	case Token::NUMBER:
 		bool ok;
@@ -390,7 +390,7 @@ void Expression<T>::eval_atom(T &result) {
 		if(!ok) {
 			throw ExpressionError(ExpressionError::INVALID_NUMBER);
 		}
-		get_token();	
+		get_token();
 		break;
 	default:
 		throw ExpressionError(ExpressionError::SYNTAX);
@@ -400,11 +400,11 @@ void Expression<T>::eval_atom(T &result) {
 
 //------------------------------------------------------------------------------
 // Name: get_token
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 template <class T>
 void Expression<T>::get_token() {
-	
+
 	// clear previous token
 	token_ = Token();
 
@@ -543,7 +543,7 @@ void Expression<T>::get_token() {
 			}
 			break;
 		}
-	}		
+	}
 }
 
 #endif

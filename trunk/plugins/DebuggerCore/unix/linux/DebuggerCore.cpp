@@ -68,7 +68,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #ifndef PTRACE_O_TRACECLONE
-#define PTRACE_O_TRACECLONE	(1 << PTRACE_EVENT_CLONE)
+#define PTRACE_O_TRACECLONE (1 << PTRACE_EVENT_CLONE)
 #endif
 
 namespace {
@@ -163,50 +163,50 @@ IRegion::pointer process_map_line(const QString &line) {
 }
 
 struct user_stat {
-/* 01 */	int pid;
-/* 02 */	char comm[256];
-/* 03 */	char state;
-/* 04 */	int ppid;
-/* 05 */	int pgrp;
-/* 06 */	int session;
-/* 07 */	int tty_nr;
-/* 08 */	int tpgid;
-/* 09 */	unsigned flags;
-/* 10 */	unsigned long minflt;
-/* 11 */	unsigned long cminflt;
-/* 12 */	unsigned long majflt;
-/* 13 */	unsigned long cmajflt;
-/* 14 */	unsigned long utime;
-/* 15 */	unsigned long stime;
-/* 16 */	long cutime;
-/* 17 */	long cstime;
-/* 18 */	long priority;
-/* 19 */	long nice;
-/* 20 */	long num_threads;
-/* 21 */	long itrealvalue;
-/* 22 */	unsigned long long starttime;
-/* 23 */	unsigned long vsize;
-/* 24 */	long rss;
-/* 25 */	unsigned long rsslim;
-/* 26 */	unsigned long startcode;
-/* 27 */	unsigned long endcode;
-/* 28 */	unsigned long startstack;
-/* 29 */	unsigned long kstkesp;
-/* 30 */	unsigned long kstkeip;
-/* 31 */	unsigned long signal;
-/* 32 */	unsigned long blocked;
-/* 33 */	unsigned long sigignore;
-/* 34 */	unsigned long sigcatch;
-/* 35 */	unsigned long wchan;
-/* 36 */	unsigned long nswap;
-/* 37 */	unsigned long cnswap;
-/* 38 */	int exit_signal;
-/* 39 */	int processor;
-/* 40 */	unsigned rt_priority;
-/* 41 */	unsigned policy;
-/* 42 */	unsigned long long delayacct_blkio_ticks;
-/* 43 */	unsigned long guest_time;
-/* 44 */	long cguest_time;
+/* 01 */ int pid;
+/* 02 */ char comm[256];
+/* 03 */ char state;
+/* 04 */ int ppid;
+/* 05 */ int pgrp;
+/* 06 */ int session;
+/* 07 */ int tty_nr;
+/* 08 */ int tpgid;
+/* 09 */ unsigned flags;
+/* 10 */ unsigned long minflt;
+/* 11 */ unsigned long cminflt;
+/* 12 */ unsigned long majflt;
+/* 13 */ unsigned long cmajflt;
+/* 14 */ unsigned long utime;
+/* 15 */ unsigned long stime;
+/* 16 */ long cutime;
+/* 17 */ long cstime;
+/* 18 */ long priority;
+/* 19 */ long nice;
+/* 20 */ long num_threads;
+/* 21 */ long itrealvalue;
+/* 22 */ unsigned long long starttime;
+/* 23 */ unsigned long vsize;
+/* 24 */ long rss;
+/* 25 */ unsigned long rsslim;
+/* 26 */ unsigned long startcode;
+/* 27 */ unsigned long endcode;
+/* 28 */ unsigned long startstack;
+/* 29 */ unsigned long kstkesp;
+/* 30 */ unsigned long kstkeip;
+/* 31 */ unsigned long signal;
+/* 32 */ unsigned long blocked;
+/* 33 */ unsigned long sigignore;
+/* 34 */ unsigned long sigcatch;
+/* 35 */ unsigned long wchan;
+/* 36 */ unsigned long nswap;
+/* 37 */ unsigned long cnswap;
+/* 38 */ int exit_signal;
+/* 39 */ int processor;
+/* 40 */ unsigned rt_priority;
+/* 41 */ unsigned policy;
+/* 42 */ unsigned long long delayacct_blkio_ticks;
+/* 43 */ unsigned long guest_time;
+/* 44 */ long cguest_time;
 };
 
 //------------------------------------------------------------------------------
@@ -272,7 +272,7 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 		}
 		file.close();
 	}
-	
+
 	return r;
 }
 
@@ -428,10 +428,10 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 		ptrace_continue(tid, 0);
 		return IDebugEvent::const_pointer();
 	}
-	
+
 	// normal event
-	
-	
+
+
 	PlatformEvent *const e = new PlatformEvent;
 
 	e->pid_    = pid();
@@ -501,7 +501,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 //       different thread than the one which attached to process
 //------------------------------------------------------------------------------
 long DebuggerCore::read_data(edb::address_t address, bool *ok) {
-	
+
 	Q_ASSERT(ok);
 
 	errno = 0;
@@ -517,10 +517,10 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
 
 	const std::size_t len = count * page_size();
-	
-	QFile memory_file(QString("/proc/%1/mem").arg(pid_));	
+
+	QFile memory_file(QString("/proc/%1/mem").arg(pid_));
 	if(memory_file.open(QIODevice::ReadOnly)) {
-	
+
 		memory_file.seek(address);
 		const qint64 n = memory_file.read(reinterpret_cast<char *>(buf), len);
 
@@ -534,7 +534,7 @@ bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t cou
 
 		memory_file.close();
 	}
-	
+
 	return true;
 }
 
@@ -557,10 +557,10 @@ bool DebuggerCore::attach_thread(edb::tid_t tid) {
 		// on stopped threads
 		int status;
 		if(native::waitpid(tid, &status, __WALL) > 0) {
-		
+
 			const thread_info info = { status, thread_info::THREAD_STOPPED };
 			threads_[tid] = info;
-			
+
 			waited_threads_.insert(tid);
 			if(ptrace_set_options(tid, PTRACE_O_TRACECLONE) == -1) {
 				qDebug("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: [%d] %s", tid, strerror(errno));
@@ -753,7 +753,7 @@ void DebuggerCore::get_state(State *state) {
 void DebuggerCore::set_state(const State &state) {
 
 	// TODO: assert that we are paused
-	
+
 
 	if(attached()) {
 
@@ -836,10 +836,10 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 
 			// setup the first event data for the primary thread
 			waited_threads_.insert(pid);
-			
+
 			const thread_info info = { status, thread_info::THREAD_STOPPED };
 			threads_[pid]   = info;
-			
+
 			pid_            = pid;
 			active_thread_  = pid;
 			event_thread_   = pid;
@@ -902,10 +902,10 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	Q_FOREACH(const QFileInfo &info, entries) {
 		const QString filename = info.fileName();
 		if(is_numeric(filename)) {
-		
+
 			const edb::pid_t pid = filename.toULong();
 			Process process_info;
-					
+
 			struct user_stat user_stat;
 			const int n = get_user_stat(pid, &user_stat);
 			if(n >= 2) {
@@ -918,7 +918,7 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 
 			process_info.pid = pid;
 			process_info.uid = info.ownerId();
-			
+
 			if(const struct passwd *const pwd = ::getpwuid(process_info.uid)) {
 				process_info.user = pwd->pw_name;
 			}
@@ -957,7 +957,7 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 	if(n >= 4) {
 		return user_stat.ppid;
 	}
-	
+
 	return 0;
 }
 
@@ -1060,8 +1060,8 @@ edb::address_t DebuggerCore::application_data_address() const {
 QList<Module> DebuggerCore::loaded_modules() const {
 	QList<Module> ret;
 
-	if(binary_info_) {		
-		struct r_debug dynamic_info;			
+	if(binary_info_) {
+		struct r_debug dynamic_info;
 		if(const edb::address_t debug_pointer = binary_info_->debug_pointer()) {
 			if(edb::v1::debugger_core->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
 				if(dynamic_info.r_map) {
@@ -1076,11 +1076,11 @@ QList<Module> DebuggerCore::loaded_modules() const {
 							if(!edb::v1::debugger_core->read_bytes(reinterpret_cast<edb::address_t>(map.l_name), &path, sizeof(path))) {
 								path[0] = '\0';
 							}
-							
+
 							if(map.l_addr) {
 								Module module;
 								module.name         = path;
-								module.base_address = map.l_addr;							
+								module.base_address = map.l_addr;
 								ret.push_back(module);
 							}
 
@@ -1093,14 +1093,14 @@ QList<Module> DebuggerCore::loaded_modules() const {
 			}
 		}
 	}
-	
+
 	// fallback
 	if(ret.isEmpty()) {
 		const QList<IRegion::pointer> r = edb::v1::memory_regions().regions();
 		QSet<QString> found_modules;
-		
+
 		Q_FOREACH(const IRegion::pointer &region, r) {
-			
+
 			// we assume that modules will be listed by absolute path
 			if(region->name().startsWith("/")) {
 				if(!found_modules.contains(region->name())) {
@@ -1129,18 +1129,18 @@ QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 #if 0
 #ifdef __NR_process_vm_readv
 	bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len) {
-	
+
 		if(pid_ != 0) {
 			struct iovec local[1];
 			struct iovec remote[1];
-	
+
 			local[0].iov_base  = buf;
 			local[0].iov_len   = len;
 			remote[0].iov_base = reinterpret_cast<void *>(address);
 			remote[0].iov_len  = len;
-	
+
 			const ssize_t n = syscall(__NR_process_vm_readv, (long)pid_, local, 1, remote, 1, 0);
-			
+
 			if(n > 0) {
 				// TODO: handle if breakponts have a size more than 1!
 				Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
@@ -1152,7 +1152,7 @@ QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 #endif
@@ -1162,19 +1162,19 @@ QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 		if(pid_ != 0) {
 			struct iovec local[1];
 			struct iovec remote[1];
-	
+
 			local[0].iov_base  = const_cast<void *>(buf);
 			local[0].iov_len   = len;
 			remote[0].iov_base = reinterpret_cast<void *>(address);
 			remote[0].iov_len  = len;
-	
+
 			const ssize_t n = syscall(__NR_process_vm_writev, (long)pid_, local, 1, remote, 1, 0);
 
 			if(n > 0) {
 				return true;
 			}
 		}
-		
+
 		return false;
 	}
 #endif

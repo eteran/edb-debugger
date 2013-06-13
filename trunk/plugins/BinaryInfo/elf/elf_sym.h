@@ -1,7 +1,7 @@
 /*
 Copyright (C) 2012 Evan Teran
                    eteran@alum.rit.edu
-						  
+
 Copyright (C) 1995-2003,2004,2005,2006,2007,2008,2009,2010,2011
                    Free Software Foundation, Inc.
 
@@ -27,21 +27,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* Symbol table entry.  */
 
 struct elf32_sym {
-  elf32_word	st_name;		/* Symbol name (string tbl index) */
-  elf32_addr	st_value;		/* Symbol value */
-  elf32_word	st_size;		/* Symbol size */
-  unsigned char	st_info;		/* Symbol type and binding */
-  unsigned char	st_other;		/* Symbol visibility */
-  elf32_section	st_shndx;		/* Section index */
+  elf32_word    st_name;  /* Symbol name (string tbl index) */
+  elf32_addr    st_value; /* Symbol value */
+  elf32_word    st_size;  /* Symbol size */
+  unsigned char st_info;  /* Symbol type and binding */
+  unsigned char st_other; /* Symbol visibility */
+  elf32_section st_shndx; /* Section index */
 };
 
 struct elf64_sym {
-  elf64_word	st_name;		/* Symbol name (string tbl index) */
-  unsigned char	st_info;		/* Symbol type and binding */
-  unsigned char st_other;		/* Symbol visibility */
-  elf64_section	st_shndx;		/* Section index */
-  elf64_addr	st_value;		/* Symbol value */
-  elf64_xword	st_size;		/* Symbol size */
+  elf64_word    st_name;  /* Symbol name (string tbl index) */
+  unsigned char st_info;  /* Symbol type and binding */
+  unsigned char st_other; /* Symbol visibility */
+  elf64_section st_shndx; /* Section index */
+  elf64_addr    st_value; /* Symbol value */
+  elf64_xword   st_size;  /* Symbol size */
 };
 
 #endif

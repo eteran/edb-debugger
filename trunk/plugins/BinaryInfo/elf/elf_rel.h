@@ -1,7 +1,7 @@
 /*
 Copyright (C) 2012 Evan Teran
                    eteran@alum.rit.edu
-						  
+
 Copyright (C) 1995-2003,2004,2005,2006,2007,2008,2009,2010,2011
                    Free Software Foundation, Inc.
 
@@ -27,8 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* Relocation table entry without addend (in section of type SHT_REL).  */
 
 struct elf32_rel {
-	elf32_addr r_offset;		/* Address */
-	elf32_word r_info;			/* Relocation type and symbol index */
+	elf32_addr r_offset; /* Address */
+	elf32_word r_info;   /* Relocation type and symbol index */
 };
 
 /* I have seen two different definitions of the Elf64_Rel and
@@ -37,8 +37,8 @@ struct elf32_rel {
 /* The following, at least, is used on Sparc v9, MIPS, and Alpha.  */
 
 struct elf64_rel {
-	elf64_addr  r_offset;		/* Address */
-	elf64_xword r_info;			/* Relocation type and symbol index */
+	elf64_addr  r_offset; /* Address */
+	elf64_xword r_info;   /* Relocation type and symbol index */
 };
 
 #endif

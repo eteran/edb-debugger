@@ -110,38 +110,38 @@ typedef enum _PROCESSINFOCLASS {
 namespace {
 	typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
 	LPFN_ISWOW64PROCESS fnIsWow64Process;
-	
-	
+
+
 	class Win32Thread {
 	public:
 		Win32Thread(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwThreadId) {
 			handle_ = OpenThread(dwDesiredAccess, bInheritHandle, dwThreadId);
 		}
-		
+
 		~Win32Thread() {
 			if(handle_) {
 				CloseHandle(handle_);
 			}
 		}
-		
+
 	public:
 		BOOL GetThreadContext(LPCONTEXT lpContext) {
 			return ::GetThreadContext(handle_, lpContext);
 		}
-		
+
 		BOOL SetThreadContext(const CONTEXT *lpContext) {
 			return ::SetThreadContext(handle_, lpContext);
 		}
-		
+
 		BOOL GetThreadSelectorEntry(DWORD dwSelector, LPLDT_ENTRY lpSelectorEntry) {
 			return ::GetThreadSelectorEntry(handle_, dwSelector, lpSelectorEntry);
 		}
-		
+
 	public:
 		operator void*() const {
 			return reinterpret_cast<void *>(handle_ != 0);
 		}
-		
+
 	private:
 		HANDLE handle_;
 	};
@@ -149,14 +149,14 @@ namespace {
 	QString get_user_token(HANDLE hProcess) {
 		QString ret;
 		HANDLE hToken;
-		
+
 		if(!OpenProcessToken(hProcess, TOKEN_QUERY, &hToken)) {
 			return ret;
 		}
 
 		DWORD needed;
 		GetTokenInformation(hToken, TokenOwner, NULL, 0, &needed);
-		
+
 		if(TOKEN_OWNER *owner = static_cast<TOKEN_OWNER *>(malloc(needed))) {
 			if(GetTokenInformation(hToken, TokenOwner, owner, needed, &needed)) {
 				WCHAR user[MAX_PATH];
@@ -293,8 +293,8 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 				break;
 			case CREATE_PROCESS_DEBUG_EVENT:
 				CloseHandle(de.u.CreateProcessInfo.hFile);
-				start_address	= reinterpret_cast<edb::address_t>(de.u.CreateProcessInfo.lpStartAddress);
-				image_base		= reinterpret_cast<edb::address_t>(de.u.CreateProcessInfo.lpBaseOfImage);
+				start_address = reinterpret_cast<edb::address_t>(de.u.CreateProcessInfo.lpStartAddress);
+				image_base    = reinterpret_cast<edb::address_t>(de.u.CreateProcessInfo.lpBaseOfImage);
 				break;
 			case LOAD_DLL_DEBUG_EVENT:
 				CloseHandle(de.u.LoadDll.hFile);
@@ -302,9 +302,9 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 			case EXIT_PROCESS_DEBUG_EVENT:
 				CloseHandle(process_handle_);
 				process_handle_ = 0;
-				pid_			= 0;
-				start_address	= 0;
-				image_base		= 0;
+				pid_            = 0;
+				start_address   = 0;
+				image_base      = 0;
 				// handle_event_exited returns DEBUG_STOP, which in turn keeps the debugger from resuming the process
 				// However, this is needed to close all internal handles etc. and finish the debugging session
 				// So we do it manually here
@@ -317,7 +317,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 			default:
 				break;
 			}
-			
+
 			if(propagate) {
 				// normal event
 				PlatformEvent *const e = new PlatformEvent;
@@ -425,13 +425,13 @@ void DebuggerCore::detach() {
 	if(attached()) {
 		clear_breakpoints();
 		// Make sure exceptions etc. are passed
-		ContinueDebugEvent(pid(), active_thread(), DBG_CONTINUE);		
+		ContinueDebugEvent(pid(), active_thread(), DBG_CONTINUE);
 		DebugActiveProcessStop(pid());
 		CloseHandle(process_handle_);
 		process_handle_ = 0;
-		pid_			= 0;
-		start_address	= 0;
-		image_base		= 0;
+		pid_            = 0;
+		start_address   = 0;
+		image_base      = 0;
 		threads_.clear();
 	}
 }
@@ -485,15 +485,15 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 
 	if(attached()) {
 		if(status != edb::DEBUG_STOP) {
-		
+
 			Win32Thread thread(THREAD_QUERY_INFORMATION | THREAD_GET_CONTEXT | THREAD_SET_CONTEXT, FALSE, active_thread());
 			if(thread) {
-				CONTEXT	context;
+				CONTEXT context;
 				context.ContextFlags = CONTEXT_CONTROL;
 				thread.GetThreadContext(&context);
 				context.EFlags |= (1 << 8); // set the trap flag
 				thread.SetThreadContext(&context);
-				
+
 				resume(status);
 				/*
 				ContinueDebugEvent(
@@ -517,10 +517,10 @@ void DebuggerCore::get_state(State *state) {
 	PlatformState *state_impl = static_cast<PlatformState *>(state->impl_);
 
 	if(attached() && state_impl) {
-	
-		
+
+
 		Win32Thread thread(THREAD_QUERY_INFORMATION | THREAD_GET_CONTEXT, FALSE, active_thread());
-	
+
 		if(thread) {
 			state_impl->context_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
 			thread.GetThreadContext(&state_impl->context_);
@@ -612,14 +612,14 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
     wcscpy_s(command_path, command_str.length() + 1, command_str.utf16());
 
 	if(CreateProcessW(
-			path.utf16(),	// exe
-			command_path,	// commandline
-			NULL,			// default security attributes
-			NULL,			// default thread security too
-			FALSE,			// inherit handles
+			path.utf16(), // exe
+			command_path, // commandline
+			NULL,         // default security attributes
+			NULL,         // default thread security too
+			FALSE,        // inherit handles
 			CREATE_FLAGS,
-			env_block,		// environment data
-			tcwd.utf16(),	// working directory
+			env_block,    // environment data
+			tcwd.utf16(), // working directory
 			&startup_info,
 			&process_info)) {
 
@@ -659,7 +659,7 @@ int DebuggerCore::pointer_size() const {
 //------------------------------------------------------------------------------
 QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	QMap<edb::pid_t, Process> ret;
-	
+
 	HANDLE handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if(handle != INVALID_HANDLE_VALUE) {
 
@@ -702,7 +702,7 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::process_exe(edb::pid_t pid) const {
@@ -711,19 +711,19 @@ QString DebuggerCore::process_exe(edb::pid_t pid) const {
 	// These functions don't work immediately after CreateProcess but only
 	// after basic initialization, usually after the system breakpoint
 	// The same applies to psapi/toolhelp, maybe using NtQueryXxxxxx is the way to go
-	
+
 	typedef BOOL (WINAPI *QueryFullProcessImageNameWPtr)(
 	  HANDLE hProcess,
 	  DWORD dwFlags,
 	  LPWSTR lpExeName,
 	  PDWORD lpdwSize
 	);
-	
+
 	HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
 	QueryFullProcessImageNameWPtr QueryFullProcessImageNameWFunc = (QueryFullProcessImageNameWPtr)GetProcAddress(kernel32, "QueryFullProcessImageNameW");
-	
+
 	wchar_t name[MAX_PATH] = L"";
-	
+
 	if(QueryFullProcessImageNameWFunc/* && LOBYTE(GetVersion()) >= 6*/) { // Vista and up
 		const DWORD ACCESS = PROCESS_QUERY_LIMITED_INFORMATION;
 
@@ -739,7 +739,7 @@ QString DebuggerCore::process_exe(edb::pid_t pid) const {
 		// debug privilege set, so 2 calls to OpenProcess
 		// (PROCESS_QUERY_LIMITED_INFORMATION is Vista and up)
 		const DWORD ACCESS = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ;
-		
+
 		if(HANDLE ph = OpenProcess(ACCESS, false, pid)) {
 			if(GetModuleFileNameExW(ph, NULL, name, _countof(name))) {
 				ret = QString::fromWCharArray(name);
@@ -752,7 +752,7 @@ QString DebuggerCore::process_exe(edb::pid_t pid) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::process_cwd(edb::pid_t pid) const {
@@ -762,7 +762,7 @@ QString DebuggerCore::process_cwd(edb::pid_t pid) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
@@ -786,7 +786,7 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QList<IRegion::pointer> DebuggerCore::memory_regions() const {
@@ -814,7 +814,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 					const edb::address_t base  = reinterpret_cast<edb::address_t>(info.AllocationBase);
 					const QString name         = QString();
 					const IRegion::permissions_t permissions = info.Protect; // let IRegion::pointer handle permissions and modifiers
-					
+
 					if(info.Type == MEM_IMAGE) {
 						// set region.name to the module name
 					}
@@ -834,7 +834,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {

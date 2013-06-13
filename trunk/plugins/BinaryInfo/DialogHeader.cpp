@@ -33,7 +33,7 @@ template <class T>
 QTreeWidgetItem *create_elf_magic(const T *header) {
 
 	QTreeWidgetItem *const item = new QTreeWidgetItem;
-	
+
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Magic"));
 	item->setText(1, QString("0x%1, %2, %3, %4")
 		.arg(header->e_ident[EI_MAG0], 0, 16)
@@ -41,7 +41,7 @@ QTreeWidgetItem *create_elf_magic(const T *header) {
 		.arg(static_cast<char>(header->e_ident[EI_MAG2]))
 		.arg(static_cast<char>(header->e_ident[EI_MAG3]))
 	);
-	
+
 	return item;
 }
 
@@ -49,7 +49,7 @@ template <class T>
 QTreeWidgetItem *create_elf_class(const T *header) {
 
 	QTreeWidgetItem *const item = new QTreeWidgetItem;
-	
+
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Class"));
 	switch(header->e_ident[EI_CLASS]) {
 	case ELFCLASS32:
@@ -69,7 +69,7 @@ template <class T>
 QTreeWidgetItem *create_elf_data(const T *header) {
 
 	QTreeWidgetItem *const item = new QTreeWidgetItem;
-	
+
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Data"));
 	switch(header->e_ident[EI_DATA]) {
 	case ELFDATA2LSB:
@@ -82,14 +82,14 @@ QTreeWidgetItem *create_elf_data(const T *header) {
 		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Invalid"));
 		break;
 	}
-	return item;	
+	return item;
 }
 
 template <class T>
 QTreeWidgetItem *create_elf_version(const T *header) {
 
 	QTreeWidgetItem *const item = new QTreeWidgetItem;
-	
+
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Version"));
 	switch(header->e_ident[EI_VERSION]) {
 	case EV_CURRENT:
@@ -106,7 +106,7 @@ template <class T>
 QTreeWidgetItem *create_elf_abi(const T *header) {
 
 	QTreeWidgetItem *const item = new QTreeWidgetItem;
-	
+
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "ABI"));
 	switch(header->e_ident[EI_OSABI]) {
 	case ELFOSABI_SYSV:
@@ -164,7 +164,7 @@ template <class T>
 QTreeWidgetItem *create_elf_abi_version(const T *header) {
 
 	QTreeWidgetItem *const item = new QTreeWidgetItem;
-	
+
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "ABI Version"));
 	item->setText(1, QString("%1").arg(header->e_ident[EI_MAG0], 0, 10));
 
@@ -175,9 +175,9 @@ template <class T>
 QTreeWidgetItem *create_elf_type(const T *header) {
 
 	QTreeWidgetItem *const item = new QTreeWidgetItem;
-	
+
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Type"));
-		
+
 	switch(header->e_type) {
 	case ET_NONE:
 		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "No file type"));
@@ -205,10 +205,10 @@ template <class T>
 QTreeWidgetItem *create_elf_machine(const T *header) {
 
 	QTreeWidgetItem *const item = new QTreeWidgetItem;
-	
+
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Machine"));
-		
-	switch(header->e_machine) {	
+
+	switch(header->e_machine) {
 	case EM_NONE:
 		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "No machine"));
 		break;
@@ -442,7 +442,7 @@ template <class T>
 QTreeWidgetItem *create_elf_object_version(const T *header) {
 
 	QTreeWidgetItem *const item = new QTreeWidgetItem;
-	
+
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Object File Version"));
 	item->setText(1, QString("%1").arg(header->e_version, 0, 10));
 
@@ -453,7 +453,7 @@ template <class T>
 QTreeWidgetItem *create_elf_entry_point(const T *header) {
 
 	QTreeWidgetItem *const item = new QTreeWidgetItem;
-	
+
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Entry Point"));
 	item->setText(1, QString("%1").arg(header->e_entry, 0, 16));
 
@@ -462,15 +462,15 @@ QTreeWidgetItem *create_elf_entry_point(const T *header) {
 
 
 #if 0
-	elf32_off	e_phoff;		/* Program header table file offset */
-	elf32_off	e_shoff;		/* Section header table file offset */
-	elf32_word	e_flags;		/* Processor-specific flags */
-	elf32_half	e_ehsize;		/* ELF header size in bytes */
-	elf32_half	e_phentsize;		/* Program header table entry size */
-	elf32_half	e_phnum;		/* Program header table entry count */
-	elf32_half	e_shentsize;		/* Section header table entry size */
-	elf32_half	e_shnum;		/* Section header table entry count */
-	elf32_half	e_shstrndx;		/* Section header string table index */
+	elf32_off  e_phoff;     /* Program header table file offset */
+	elf32_off  e_shoff;     /* Section header table file offset */
+	elf32_word e_flags;     /* Processor-specific flags */
+	elf32_half e_ehsize;    /* ELF header size in bytes */
+	elf32_half e_phentsize; /* Program header table entry size */
+	elf32_half e_phnum;     /* Program header table entry count */
+	elf32_half e_shentsize; /* Section header table entry size */
+	elf32_half e_shnum;     /* Section header table entry count */
+	elf32_half e_shstrndx;  /* Section header string table index */
 #endif
 
 }
@@ -531,14 +531,14 @@ void DialogHeader::on_btnExplore_clicked() {
 			if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
 				if(IBinary *binary_info = edb::v1::get_binary_info(region)) {
-				
+
 					if(ELF32 *const elf32 = dynamic_cast<ELF32 *>(binary_info)) {
-					
+
 						const plugin::binary_info::elf32_header *const header = reinterpret_cast<const plugin::binary_info::elf32_header *>(elf32->header());
-					
+
 						QTreeWidgetItem *root = new QTreeWidgetItem;
 						root->setText(0, tr("ELF32"));
-						
+
 						root->addChild(create_elf_magic(header));
 						root->addChild(create_elf_class(header));
 						root->addChild(create_elf_data(header));
@@ -552,14 +552,14 @@ void DialogHeader::on_btnExplore_clicked() {
 
 						ui->treeWidget->insertTopLevelItem(0, root);
 					}
-					
+
 					if(ELF64 *const elf64 = dynamic_cast<ELF64 *>(binary_info)) {
-					
+
 						const plugin::binary_info::elf64_header *const header = reinterpret_cast<const plugin::binary_info::elf64_header *>(elf64->header());
-					
+
 						QTreeWidgetItem *root = new QTreeWidgetItem;
 						root->setText(0, tr("ELF64"));
-						
+
 						root->addChild(create_elf_magic(header));
 						root->addChild(create_elf_class(header));
 						root->addChild(create_elf_data(header));
@@ -570,12 +570,12 @@ void DialogHeader::on_btnExplore_clicked() {
 						root->addChild(create_elf_machine(header));
 						root->addChild(create_elf_object_version(header));
 						root->addChild(create_elf_entry_point(header));
-						
+
 						ui->treeWidget->insertTopLevelItem(0, root);
 					}
-					
+
 					if(PE32 *const pe32 = dynamic_cast<PE32 *>(binary_info)) {
-					
+
 					#if 0
 						const plugin::binary_info::pe32_header *const header = reinterpret_cast<const plugin::binary_info::pe32_header *>(pe32->header());
 					#endif
@@ -583,7 +583,7 @@ void DialogHeader::on_btnExplore_clicked() {
 						root->setText(0, tr("PE32"));
 						ui->treeWidget->insertTopLevelItem(0, root);
 					}
-				
+
 					delete binary_info;
 				}
 			}

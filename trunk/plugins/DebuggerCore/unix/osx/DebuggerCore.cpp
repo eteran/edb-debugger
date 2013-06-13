@@ -68,8 +68,8 @@ DebuggerCore::~DebuggerCore() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
 	return false;
@@ -100,7 +100,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 				PlatformEvent *const e = new PlatformEvent;
 				e->pid    = pid();
 				e->tid    = tid;
-				e->status = status;					
+				e->status = status;
 
 				active_thread_       = tid;
 				threads_[tid].status = status;
@@ -167,9 +167,9 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 //------------------------------------------------------------------------------
 void DebuggerCore::detach() {
 	if(attached()) {
-	
+
 		// TODO: do i need to stop each thread first, and wait for them?
-	
+
 		clear_breakpoints();
 		for(threadmap_t::const_iterator it = threads_.begin(); it != threads_.end(); ++it) {
 			ptrace(PT_DETACH, it.key(), 0, 0);
@@ -531,7 +531,7 @@ IState *DebuggerCore::create_state() const {
 //------------------------------------------------------------------------------
 QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	QMap<edb::pid_t, Process> ret;
-	
+
 	static const int name[] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
 	size_t length = 0;
 
@@ -550,12 +550,12 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	}
 
 	free(proc_info);
-	
+
 	return ret;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::process_exe(edb::pid_t pid) const {
@@ -564,7 +564,7 @@ QString DebuggerCore::process_exe(edb::pid_t pid) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::process_cwd(edb::pid_t pid) const {
@@ -573,7 +573,7 @@ QString DebuggerCore::process_cwd(edb::pid_t pid) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
@@ -582,7 +582,7 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QList<IRegion::pointer> DebuggerCore::memory_regions() const {
@@ -626,7 +626,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 				const edb::address_t end                 = address + vmsize;
 				const edb::address_t base                = address;
 				const QString name                       = QString();
-				const IRegion::permissions_t permissions = 
+				const IRegion::permissions_t permissions =
 					((info.protection & VM_PROT_READ)    ? PROT_READ  : 0) |
 					((info.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
 					((info.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
@@ -662,12 +662,12 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 			mach_port_deallocate(mach_task_self(), the_task);
 		}
 	}
-	
+
 	return regions;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
