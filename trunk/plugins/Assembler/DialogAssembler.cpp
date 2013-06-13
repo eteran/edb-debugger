@@ -18,12 +18,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogAssembler.h"
 #include "Debugger.h"
+#include "IDebuggerCore.h"
+
 #include <QMessageBox>
 #include <QDebug>
 #include <QProcess>
 #include <QRegExp>
 #include <QTemporaryFile>
 #include <QDir>
+#include <QFile>
+#include <QFileInfo>
+#include <QSettings>
 
 #include "ui_dialog_assembler.h"
 
@@ -31,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DialogAssembler
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogAssembler::DialogAssembler(QWidget *parent) : QDialog(parent), ui(new Ui::DialogAssembler), address_(0) {
+DialogAssembler::DialogAssembler(QWidget *parent) : QDialog(parent), ui(new Ui::DialogAssembler), address_(0), instruction_size_(0) {
 	ui->setupUi(this);
 }
 
@@ -49,7 +54,7 @@ DialogAssembler::~DialogAssembler() {
 //------------------------------------------------------------------------------
 void DialogAssembler::set_address(edb::address_t address) {
 	address_ = address;
-	ui->label->setText(edb::v1::format_pointer(address_));
+	ui->address->setText(edb::v1::format_pointer(address_));
 
 
 	quint8 buffer[edb::Instruction::MAX_SIZE];
@@ -58,7 +63,8 @@ void DialogAssembler::set_address(edb::address_t address) {
 	if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
 		edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
 		if(insn) {
-			ui->comboBox->setEditText(QString::fromStdString(to_string(insn)));
+			ui->assembly->setEditText(QString::fromStdString(to_string(insn)));
+			instruction_size_ = insn.size();
 		}
 	}
 }
@@ -96,7 +102,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 // [((BASE(\+INDEX(\*SCALE)?)?(\+OFFSET)?)|((INDEX(\*SCALE)?)(\+OFFSET)?)|(OFFSET))]
 
 
-	const QString assembly = ui->comboBox->currentText().trimmed();
+	const QString assembly = ui->assembly->currentText().trimmed();
 	QRegExp regex(assembly_regex, Qt::CaseInsensitive, QRegExp::RegExp2);
 
 	if(regex.exactMatch(assembly)) {
@@ -169,7 +175,6 @@ void DialogAssembler::on_buttonBox_accepted() {
 			++operand_count;
 		}
 
-
 		QStringList operands;
 
 		for(int i = 0; i < operand_count; ++i) {
@@ -194,43 +199,60 @@ void DialogAssembler::on_buttonBox_accepted() {
 		QTemporaryFile source_file(QString("%1/edb_asm_temp_%2_XXXXXX.asm").arg(QDir::tempPath()).arg(getpid()));
 		if(!source_file.open()) {
 			QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary source file."));
+			return;
 		}
 
 		QTemporaryFile output_file(QString("%1/edb_asm_temp_%2_XXXXXX.bin").arg(QDir::tempPath()).arg(getpid()));
 		if(!output_file.open()) {
 			QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary object file."));
+			return;
 		}
 
-#if 0
-		source_file.write("[BITS 64]\n");
-		source_file.write(QString("[SECTION .text vstart=0x%1 valign=1]\n\n").arg(edb::v1::format_pointer(address_)).toAscii());
-		source_file.write(nasm_syntax.toAscii());
-		source_file.write("\n");
-		source_file.close();
+
+		QSettings settings;
+		const QString assembler = settings.value("Assembler/helper_application", "/usr/bin/yasm").toString();
+		const QFile file(assembler);
+		if(assembler.isEmpty() || !file.exists()) {
+			QMessageBox::warning(this, tr("Couldn't Find Assembler"), tr("Failed to locate your assembler, please specify one in the options."));
+			return;
+		}
+		
+		const QFileInfo info(assembler);
 
 		QProcess process;
-		QString program("/usr/bin/yasm");
-
 		QStringList arguments;
-		arguments << "-o" << output_file.fileName();
-		arguments << "-f" << "bin";
-		arguments << source_file.fileName();
-#else
+		QString program(assembler);
 
-		source_file.write("[BITS 64]\n");
-		source_file.write(QString("ORG 0x%1\n\n").arg(edb::v1::format_pointer(address_)).toAscii());
-		source_file.write(nasm_syntax.toAscii());
-		source_file.write("\n");
-		source_file.close();
+		if(info.fileName() == "yasm") {
+			if(edb::v1::debugger_core->process_arch() == "x86") {
+				source_file.write("[BITS 32]\n");
+			} else if(edb::v1::debugger_core->process_arch() == "x86-64") {
+				source_file.write("[BITS 64]\n");
+			}
+			source_file.write(QString("[SECTION .text vstart=0x%1 valign=1]\n\n").arg(edb::v1::format_pointer(address_)).toAscii());
+			source_file.write(nasm_syntax.toAscii());
+			source_file.write("\n");
+			source_file.close();
 
-		QProcess process;
-		QString program("/usr/bin/nasm");
+			arguments << "-o" << output_file.fileName();
+			arguments << "-f" << "bin";
+			arguments << source_file.fileName();
+		} else if(info.fileName() == "nasm") {
+			if(edb::v1::debugger_core->process_arch() == "x86") {
+				source_file.write("[BITS 32]\n");
+			} else if(edb::v1::debugger_core->process_arch() == "x86-64") {
+				source_file.write("[BITS 64]\n");
+			}
+			source_file.write(QString("ORG 0x%1\n\n").arg(edb::v1::format_pointer(address_)).toAscii());
+			source_file.write(nasm_syntax.toAscii());
+			source_file.write("\n");
+			source_file.close();
 
-		QStringList arguments;
-		arguments << "-o" << output_file.fileName();
-		arguments << "-f" << "bin";
-		arguments << source_file.fileName();
-#endif
+			
+			arguments << "-o" << output_file.fileName();
+			arguments << "-f" << "bin";
+			arguments << source_file.fileName();
+		}
 
 		process.start(program, arguments);
 
@@ -241,14 +263,22 @@ void DialogAssembler::on_buttonBox_accepted() {
 			if(exit_code != 0) {
 				QMessageBox::warning(this, tr("Error In Code"), process.readAllStandardError());
 			} else {
-				const QByteArray bytes = output_file.readAll();
-				edb::Instruction insn(bytes.data(), bytes.data() + bytes.size(), address_, std::nothrow);
-				qDebug() << to_string(insn).c_str();
+				QByteArray bytes = output_file.readAll();
+				
+				if(bytes.size() <= instruction_size_) {
+					if(ui->fillWithNOPs->isChecked()) {
+						// TODO: get system independent nop-code
+						edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x90);
+					} else {
+						edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x00);
+					}
+				} else {
+					edb::v1::modify_bytes(address_, bytes.size(), bytes, 0x00);
+				}
 			}
 		}
-
 	} else {
-		QMessageBox::warning(this, tr("Error In Code"), tr("Failed to assembly the given assembly code."));
+		QMessageBox::warning(this, tr("Error In Code"), tr("Failed to assembly the given assemble code."));
 	}
 
 }

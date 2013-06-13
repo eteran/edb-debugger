@@ -37,12 +37,12 @@ public:
 public:
 	virtual QMenu *menu(QWidget *parent = 0);
 	virtual QList<QAction *> cpu_context_menu();
+	virtual QWidget *options_page();
 
 public Q_SLOTS:
-	void show_menu();
+	void show_dialog();
 
 private:
-	QMenu   *menu_;
 	QDialog *dialog_;
 };
 
