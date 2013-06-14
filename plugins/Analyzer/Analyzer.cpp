@@ -588,7 +588,6 @@ void Analyzer::find_function_end(Function *function, edb::address_t end_address,
 	Q_ASSERT(function);
 	Q_ASSERT(found_functions);
 
-
 	QStack<edb::address_t>     jump_targets;
 	QHash<edb::address_t, int> visited_addresses;
 
@@ -624,13 +623,11 @@ void Analyzer::find_function_end(Function *function, edb::address_t end_address,
 			// list of possible 'code addresses'
 			visited_addresses.insert(addr, insn.size());
 
-			const edb::Instruction::Type type = insn.type();
-
-			if(type == edb::Instruction::OP_RET || type == edb::Instruction::OP_HLT) {
+			if(is_ret(insn) || insn.type() == edb::Instruction::OP_HLT) {
 				// instructions that clearly terminate the current block...
 				break;
 
-			} else if(type == edb::Instruction::OP_JCC) {
+			} else if(is_conditional_jump(insn)) {
 
 				// note if neccessary the Jcc target and move on, yes this can be fooled by "conditional"
 				// jumps which are always true or false, not much we can do about it at this level.
@@ -642,8 +639,7 @@ void Analyzer::find_function_end(Function *function, edb::address_t end_address,
 						jump_targets.push(ea);
 					}
 				}
-			} else if(type == edb::Instruction::OP_CALL) {
-
+			} else if(is_call(insn)) {
 
 				// similar to above, note the destination and move on
 				// we special case simple things for speed.
@@ -660,7 +656,7 @@ void Analyzer::find_function_end(Function *function, edb::address_t end_address,
 					// looks like: "call [...]", if it is of the form, call [C + REG]
 					// then it may be a jump table using REG as an offset
 				}
-			} else if(type == edb::Instruction::OP_JMP) {
+			} else if(is_unconditional_jump(insn)) {
 
 				const edb::Operand &op = insn.operands()[0];
 				if(op.general_type() == edb::Operand::TYPE_REL) {
@@ -669,6 +665,11 @@ void Analyzer::find_function_end(Function *function, edb::address_t end_address,
 
 					// an absolute jump within this function
 					if(ea >= function->entry_address && ea < addr) {
+					
+						if(ea <= addr) {
+							break;
+						}
+					
 						addr += insn.size();
 						continue;
 					}
@@ -722,7 +723,7 @@ bool Analyzer::is_thunk(edb::address_t address) const {
 	int buf_size = sizeof(buf);
 	if(edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
 		const edb::Instruction insn(buf, buf + buf_size, address, std::nothrow);
-		return insn.valid() && insn.type() == edb::Instruction::OP_JMP;
+		return is_unconditional_jump(insn);
 	}
 
 	return false;
