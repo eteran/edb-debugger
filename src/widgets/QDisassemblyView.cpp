@@ -493,6 +493,16 @@ QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &insn)
 	return edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(insn.bytes()), insn.size()));
 }
 
+struct intel_lower {
+	typedef edisassm::lower_case   case_type;
+	typedef edisassm::syntax_intel syntax_type;
+};
+
+struct intel_upper {
+	typedef edisassm::upper_case   case_type;
+	typedef edisassm::syntax_intel syntax_type;
+};
+
 //------------------------------------------------------------------------------
 // Name: draw_instruction
 // Desc:
@@ -502,12 +512,12 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 	const bool is_filling = edb::v1::arch_processor().is_filling(insn);
 	int x                 = font_width_ + font_width_ + l2 + (font_width_ / 2);
 	const int ret         = insn.size();
-
-	if(insn.valid()) {
+	
+	if(insn) {
 		QString opcode = QString::fromStdString(
 			upper ?
-				to_string(insn, edisassm::syntax_intel(), edisassm::upper_case()) :
-				to_string(insn, edisassm::syntax_intel(), edisassm::lower_case())
+				edisassm::to_string(insn, intel_upper()) :
+				edisassm::to_string(insn, intel_lower())
 		);
 
 		//return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
