@@ -42,13 +42,13 @@
    <item row="1" column="0">
     <widget class="QCheckBox" name="keepSize">
      <property name="enabled">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
      <property name="text">
       <string>Keep Size</string>
      </property>
      <property name="checked">
-      <bool>false</bool>
+      <bool>true</bool>
      </property>
     </widget>
    </item>
