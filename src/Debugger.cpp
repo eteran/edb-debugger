@@ -16,11 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "DebuggerMain.h"
+#include "Debugger.h"
 #include "CommentServer.h"
 #include "Configuration.h"
 #include "DebuggerInternal.h"
-#include "DebuggerMain.h"
+#include "Debugger.h"
 #include "DebuggerOps.h"
 #include "DialogArguments.h"
 #include "DialogAttach.h"
@@ -49,6 +49,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QCloseEvent>
 #include <QDir>
+#include <QDragEnterEvent>
+#include <QDropEvent>
 #include <QFileDialog>
 #include <QFileInfo>
 #include <QHBoxLayout>
@@ -188,10 +190,10 @@ private:
 };
 
 //------------------------------------------------------------------------------
-// Name: DebuggerMain
+// Name: Debugger
 // Desc:
 //------------------------------------------------------------------------------
-DebuggerMain::DebuggerMain(QWidget *parent) : QMainWindow(parent),
+Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 		add_tab_(0),
 		del_tab_(0),
 		tty_proc_(new QProcess(this)),
@@ -236,10 +238,10 @@ DebuggerMain::DebuggerMain(QWidget *parent) : QMainWindow(parent),
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DebuggerMain
+// Name: ~Debugger
 // Desc:
 //------------------------------------------------------------------------------
-DebuggerMain::~DebuggerMain() {
+Debugger::~Debugger() {
 
 	detach_from_process((edb::v1::config().close_behavior == Configuration::Terminate) ? KILL_ON_DETACH : NO_KILL_ON_DETACH);
 
@@ -252,7 +254,7 @@ DebuggerMain::~DebuggerMain() {
 // Name: update_menu_state
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::update_menu_state(GUI_STATE state) {
+void Debugger::update_menu_state(GUI_STATE state) {
 
 	switch(state) {
 	case PAUSED:
@@ -309,7 +311,7 @@ void DebuggerMain::update_menu_state(GUI_STATE state) {
 // Name: create_tty
 // Desc: creates a TTY object for our command line I/O
 //------------------------------------------------------------------------------
-QString DebuggerMain::create_tty() {
+QString Debugger::create_tty() {
 #if defined(Q_OS_LINUX) || defined(Q_OS_OPENBSD) || defined(Q_OS_FREEBSD)
 	// we attempt to reuse an open output window
 	if(edb::v1::config().tty_enabled && tty_proc_->state() != QProcess::Running) {
@@ -382,7 +384,7 @@ QString DebuggerMain::create_tty() {
 // Name: tty_proc_finished
 // Desc: cleans up the data associated with a TTY when the terminal dies
 //------------------------------------------------------------------------------
-void DebuggerMain::tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status) {
+void Debugger::tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status) {
 	Q_UNUSED(exit_code);
 	Q_UNUSED(exit_status);
 
@@ -393,7 +395,7 @@ void DebuggerMain::tty_proc_finished(int exit_code, QProcess::ExitStatus exit_st
 // Name: current_tab
 // Desc:
 //------------------------------------------------------------------------------
-int DebuggerMain::current_tab() const {
+int Debugger::current_tab() const {
 	return ui.tabWidget->currentIndex();
 }
 
@@ -401,7 +403,7 @@ int DebuggerMain::current_tab() const {
 // Name: current_data_view_info
 // Desc:
 //------------------------------------------------------------------------------
-DataViewInfo::pointer DebuggerMain::current_data_view_info() const {
+DataViewInfo::pointer Debugger::current_data_view_info() const {
 	return data_regions_[current_tab()];
 }
 
@@ -409,7 +411,7 @@ DataViewInfo::pointer DebuggerMain::current_data_view_info() const {
 // Name: set_debugger_caption
 // Desc: sets the caption part to also show the application name and pid
 //------------------------------------------------------------------------------
-void DebuggerMain::set_debugger_caption(const QString &appname) {
+void Debugger::set_debugger_caption(const QString &appname) {
 	setWindowTitle(tr("edb - %1 [%2]").arg(appname).arg(edb::v1::debugger_core->pid()));
 }
 
@@ -417,7 +419,7 @@ void DebuggerMain::set_debugger_caption(const QString &appname) {
 // Name: delete_data_tab
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::delete_data_tab() {
+void Debugger::delete_data_tab() {
 	const int current = current_tab();
 
 	// get a pointer to the info we need (before removing it from the list!)
@@ -436,7 +438,7 @@ void DebuggerMain::delete_data_tab() {
 // Name: create_data_tab
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::create_data_tab() {
+void Debugger::create_data_tab() {
 	const int current = current_tab();
 
 	// duplicate the current region
@@ -496,7 +498,7 @@ void DebuggerMain::create_data_tab() {
 // Desc: finalizes plugin setup by adding each to the menu, we can do this now
 //       that we have a GUI widget to attach it to
 //------------------------------------------------------------------------------
-void DebuggerMain::finish_plugin_setup(const QHash<QString, QObject *> &plugins) {
+void Debugger::finish_plugin_setup(const QHash<QString, QObject *> &plugins) {
 
 	// call the init function for each plugin
 	Q_FOREACH(QObject *plugin, plugins) {
@@ -526,7 +528,7 @@ void DebuggerMain::finish_plugin_setup(const QHash<QString, QObject *> &plugins)
 // Name: get_goto_expression
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t DebuggerMain::get_goto_expression(bool *ok) {
+edb::address_t Debugger::get_goto_expression(bool *ok) {
 
 	Q_ASSERT(ok);
 
@@ -539,7 +541,7 @@ edb::address_t DebuggerMain::get_goto_expression(bool *ok) {
 // Name: get_follow_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::reg_t DebuggerMain::get_follow_register(bool *ok) const {
+edb::reg_t Debugger::get_follow_register(bool *ok) const {
 
 	Q_ASSERT(ok);
 
@@ -561,7 +563,7 @@ edb::reg_t DebuggerMain::get_follow_register(bool *ok) const {
 // Name: goto_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::goto_triggered() {
+void Debugger::goto_triggered() {
 	QWidget *const widget = QApplication::focusWidget();
 	if(QHexView *const hexview = qobject_cast<QHexView*>(widget)) {
 		if(hexview == stack_view_) {
@@ -578,7 +580,7 @@ void DebuggerMain::goto_triggered() {
 // Name: setup_ui
 // Desc: creates the UI
 //------------------------------------------------------------------------------
-void DebuggerMain::setup_ui() {
+void Debugger::setup_ui() {
 	// setup the global pointers as early as possible.
 	// NOTE:  this should never be changed after this point
 	// NOTE:  this is important that this happens BEFORE any components which
@@ -623,7 +625,7 @@ void DebuggerMain::setup_ui() {
 // Name: setup_stack_view
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::setup_stack_view() {
+void Debugger::setup_stack_view() {
 
 	stack_view_ = QSharedPointer<QHexView>(new QHexView);
 	ui.stackDock->setWidget(stack_view_.data());
@@ -644,7 +646,7 @@ void DebuggerMain::setup_stack_view() {
 // Name: closeEvent
 // Desc: triggered on main window close, saves window state
 //------------------------------------------------------------------------------
-void DebuggerMain::closeEvent(QCloseEvent *event) {
+void Debugger::closeEvent(QCloseEvent *event) {
 	QSettings settings;
 	const QByteArray state = saveState();
 	settings.beginGroup("Window");
@@ -665,7 +667,7 @@ void DebuggerMain::closeEvent(QCloseEvent *event) {
 // Name: showEvent
 // Desc: triggered on show, restores window state
 //------------------------------------------------------------------------------
-void DebuggerMain::showEvent(QShowEvent *) {
+void Debugger::showEvent(QShowEvent *) {
 	QSettings settings;
 	settings.beginGroup("Window");
 	const QByteArray state = settings.value("window.state").value<QByteArray>();
@@ -708,7 +710,7 @@ void DebuggerMain::showEvent(QShowEvent *) {
 // Name: dragEnterEvent
 // Desc: triggered when dragging data onto the main window
 //------------------------------------------------------------------------------
-void DebuggerMain::dragEnterEvent(QDragEnterEvent* event) {
+void Debugger::dragEnterEvent(QDragEnterEvent* event) {
 	const QMimeData* mimeData = event->mimeData();
 
 	// check for our needed mime type (file)
@@ -726,7 +728,7 @@ void DebuggerMain::dragEnterEvent(QDragEnterEvent* event) {
 // Name: dropEvent
 // Desc: triggered when data was dropped onto the main window
 //------------------------------------------------------------------------------
-void DebuggerMain::dropEvent(QDropEvent* event) {
+void Debugger::dropEvent(QDropEvent* event) {
 	const QMimeData* mimeData = event->mimeData();
 
 	if(mimeData->hasUrls() && mimeData->urls().size() == 1) {
@@ -744,7 +746,7 @@ void DebuggerMain::dropEvent(QDropEvent* event) {
 // Name: on_actionAbout_QT_triggered
 // Desc: shows an About Qt dialog box
 //------------------------------------------------------------------------------
-void DebuggerMain::on_actionAbout_QT_triggered() {
+void Debugger::on_actionAbout_QT_triggered() {
 	QMessageBox::aboutQt(this, tr("About Qt"));
 }
 
@@ -752,7 +754,7 @@ void DebuggerMain::on_actionAbout_QT_triggered() {
 // Name: apply_default_fonts
 // Desc: applies the configuration's fonts to all necessary widgets
 //------------------------------------------------------------------------------
-void DebuggerMain::apply_default_fonts() {
+void Debugger::apply_default_fonts() {
 
 	QFont font;
 	const Configuration &config = edb::v1::config();
@@ -781,7 +783,7 @@ void DebuggerMain::apply_default_fonts() {
 // Name: setup_tab_buttons
 // Desc: creates the add/remove tab buttons in the data view
 //------------------------------------------------------------------------------
-void DebuggerMain::setup_tab_buttons() {
+void Debugger::setup_tab_buttons() {
 	// add the corner widgets to the data view
 	add_tab_ = new QToolButton(ui.tabWidget);
 	del_tab_ = new QToolButton(ui.tabWidget);
@@ -806,7 +808,7 @@ void DebuggerMain::setup_tab_buttons() {
 // Name: on_registerList_customContextMenuRequested
 // Desc: context menu handler for register view
 //------------------------------------------------------------------------------
-void DebuggerMain::on_registerList_customContextMenuRequested(const QPoint &pos) {
+void Debugger::on_registerList_customContextMenuRequested(const QPoint &pos) {
 	QTreeWidgetItem *const item = ui.registerList->itemAt(pos);
 	if(item && !ui.registerList->isCategory(item)) {
 		// a little bit cheesy of a solution, but should work nicely
@@ -829,7 +831,7 @@ void DebuggerMain::on_registerList_customContextMenuRequested(const QPoint &pos)
 // Name: on_cpuView_breakPointToggled
 // Desc: handler for toggling the breakpoints
 //------------------------------------------------------------------------------
-void DebuggerMain::on_cpuView_breakPointToggled(edb::address_t address) {
+void Debugger::on_cpuView_breakPointToggled(edb::address_t address) {
 	edb::v1::toggle_breakpoint(address);
 }
 
@@ -837,7 +839,7 @@ void DebuggerMain::on_cpuView_breakPointToggled(edb::address_t address) {
 // Name: on_registerList_itemDoubleClicked
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_registerList_itemDoubleClicked(QTreeWidgetItem *item) {
+void Debugger::on_registerList_itemDoubleClicked(QTreeWidgetItem *item) {
 	Q_ASSERT(item);
 
 	if(const Register reg = edb::v1::arch_processor().value_from_item(*item)) {
@@ -858,7 +860,7 @@ void DebuggerMain::on_registerList_itemDoubleClicked(QTreeWidgetItem *item) {
 // Name: on_action_About_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_About_triggered() {
+void Debugger::on_action_About_triggered() {
 	QMessageBox::about(this, tr("About edb"),
 		tr(
 		"<p>edb (Evan's Debugger) is designed to be an easy to use, modular, and cross platform debugger.</p>"
@@ -873,7 +875,7 @@ void DebuggerMain::on_action_About_triggered() {
 // Name: apply_default_show_separator
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::apply_default_show_separator() {
+void Debugger::apply_default_show_separator() {
 	const bool show = edb::v1::config().show_address_separator;
 
 	ui.cpuView->setShowAddressSeparator(show);
@@ -887,7 +889,7 @@ void DebuggerMain::apply_default_show_separator() {
 // Name: on_action_Configure_Debugger_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Configure_Debugger_triggered() {
+void Debugger::on_action_Configure_Debugger_triggered() {
 
 	edb::v1::dialog_options()->exec();
 
@@ -912,7 +914,7 @@ void DebuggerMain::on_action_Configure_Debugger_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 template <class F>
-void DebuggerMain::follow_memory(edb::address_t address, F follow_func) {
+void Debugger::follow_memory(edb::address_t address, F follow_func) {
 	if(!follow_func(address)) {
 		QMessageBox::information(this,
 			tr("No Memory Found"),
@@ -924,7 +926,7 @@ void DebuggerMain::follow_memory(edb::address_t address, F follow_func) {
 // Name: follow_register_in_dump
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::follow_register_in_dump(bool tabbed) {
+void Debugger::follow_register_in_dump(bool tabbed) {
 	bool ok;
 	const edb::address_t address = get_follow_register(&ok);
 	if(ok && !edb::v1::dump_data(address, tabbed)) {
@@ -938,7 +940,7 @@ void DebuggerMain::follow_register_in_dump(bool tabbed) {
 // Name: mnuStackGotoESP
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuStackGotoESP() {
+void Debugger::mnuStackGotoESP() {
 	State state;
 	edb::v1::debugger_core->get_state(&state);
 	follow_memory(state.stack_pointer(), boost::bind(edb::v1::dump_stack, _1));
@@ -948,7 +950,7 @@ void DebuggerMain::mnuStackGotoESP() {
 // Name: mnuStackGotoEBP
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuStackGotoEBP() {
+void Debugger::mnuStackGotoEBP() {
 	State state;
 	edb::v1::debugger_core->get_state(&state);
 	follow_memory(state.frame_pointer(), boost::bind(edb::v1::dump_stack, _1));
@@ -958,7 +960,7 @@ void DebuggerMain::mnuStackGotoEBP() {
 // Name: mnuCPUJumpToEIP
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuCPUJumpToEIP() {
+void Debugger::mnuCPUJumpToEIP() {
 	State state;
 	edb::v1::debugger_core->get_state(&state);
 	follow_memory(state.instruction_pointer(), boost::bind(edb::v1::jump_to_address, _1));
@@ -968,7 +970,7 @@ void DebuggerMain::mnuCPUJumpToEIP() {
 // Name: mnuCPUJumpToAddress
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuCPUJumpToAddress() {
+void Debugger::mnuCPUJumpToAddress() {
 	bool ok;
 	const edb::address_t address = get_goto_expression(&ok);
 	if(ok) {
@@ -980,7 +982,7 @@ void DebuggerMain::mnuCPUJumpToAddress() {
 // Name: mnuDumpGotoAddress
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuDumpGotoAddress() {
+void Debugger::mnuDumpGotoAddress() {
     bool ok;
 	const edb::address_t address = get_goto_expression(&ok);
 	if(ok) {
@@ -992,7 +994,7 @@ void DebuggerMain::mnuDumpGotoAddress() {
 // Name: mnuStackGotoAddress
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuStackGotoAddress() {
+void Debugger::mnuStackGotoAddress() {
     bool ok;
 	const edb::address_t address = get_goto_expression(&ok);
 	if(ok) {
@@ -1004,7 +1006,7 @@ void DebuggerMain::mnuStackGotoAddress() {
 // Name: mnuRegisterFollowInStack
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuRegisterFollowInStack() {
+void Debugger::mnuRegisterFollowInStack() {
 	bool ok;
 	const edb::address_t address = get_follow_register(&ok);
 	if(ok) {
@@ -1018,7 +1020,7 @@ void DebuggerMain::mnuRegisterFollowInStack() {
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-edb::address_t DebuggerMain::get_follow_address(const T &hexview, bool *ok) {
+edb::address_t Debugger::get_follow_address(const T &hexview, bool *ok) {
 
 	Q_ASSERT(hexview);
 	Q_ASSERT(ok);
@@ -1049,7 +1051,7 @@ edb::address_t DebuggerMain::get_follow_address(const T &hexview, bool *ok) {
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-void DebuggerMain::follow_in_stack(const T &hexview) {
+void Debugger::follow_in_stack(const T &hexview) {
 	bool ok;
 	const edb::address_t address = get_follow_address(hexview, &ok);
 	if(ok) {
@@ -1062,7 +1064,7 @@ void DebuggerMain::follow_in_stack(const T &hexview) {
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-void DebuggerMain::follow_in_dump(const T &hexview) {
+void Debugger::follow_in_dump(const T &hexview) {
 	bool ok;
 	const edb::address_t address = get_follow_address(hexview, &ok);
 	if(ok) {
@@ -1075,7 +1077,7 @@ void DebuggerMain::follow_in_dump(const T &hexview) {
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-void DebuggerMain::follow_in_cpu(const T &hexview) {
+void Debugger::follow_in_cpu(const T &hexview) {
 	bool ok;
 	const edb::address_t address = get_follow_address(hexview, &ok);
 	if(ok) {
@@ -1087,7 +1089,7 @@ void DebuggerMain::follow_in_cpu(const T &hexview) {
 // Name: mnuDumpFollowInCPU
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuDumpFollowInCPU() {
+void Debugger::mnuDumpFollowInCPU() {
 	follow_in_cpu(qobject_cast<QHexView *>(ui.tabWidget->currentWidget()));
 }
 
@@ -1095,7 +1097,7 @@ void DebuggerMain::mnuDumpFollowInCPU() {
 // Name: mnuDumpFollowInDump
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuDumpFollowInDump() {
+void Debugger::mnuDumpFollowInDump() {
 	follow_in_dump(qobject_cast<QHexView *>(ui.tabWidget->currentWidget()));
 }
 
@@ -1103,7 +1105,7 @@ void DebuggerMain::mnuDumpFollowInDump() {
 // Name: mnuDumpFollowInStack
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuDumpFollowInStack() {
+void Debugger::mnuDumpFollowInStack() {
 	follow_in_stack(qobject_cast<QHexView *>(ui.tabWidget->currentWidget()));
 }
 
@@ -1111,7 +1113,7 @@ void DebuggerMain::mnuDumpFollowInStack() {
 // Name: mnuStackFollowInDump
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuStackFollowInDump() {
+void Debugger::mnuStackFollowInDump() {
 	follow_in_dump(stack_view_);
 }
 
@@ -1119,7 +1121,7 @@ void DebuggerMain::mnuStackFollowInDump() {
 // Name: mnuStackFollowInCPU
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuStackFollowInCPU() {
+void Debugger::mnuStackFollowInCPU() {
 	follow_in_cpu(stack_view_);
 }
 
@@ -1127,7 +1129,7 @@ void DebuggerMain::mnuStackFollowInCPU() {
 // Name: mnuStackFollowInStack
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuStackFollowInStack() {
+void Debugger::mnuStackFollowInStack() {
 	follow_in_stack(stack_view_);
 }
 
@@ -1135,7 +1137,7 @@ void DebuggerMain::mnuStackFollowInStack() {
 // Name: on_actionApplication_Arguments_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_actionApplication_Arguments_triggered() {
+void Debugger::on_actionApplication_Arguments_triggered() {
 	arguments_dialog_->exec();
 }
 
@@ -1143,7 +1145,7 @@ void DebuggerMain::on_actionApplication_Arguments_triggered() {
 // Name: on_actionApplication_Working_Directory_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_actionApplication_Working_Directory_triggered() {
+void Debugger::on_actionApplication_Working_Directory_triggered() {
 	const QString new_dir = QFileDialog::getExistingDirectory(
 		this,
 		tr("Application Working Directory"),
@@ -1159,7 +1161,7 @@ void DebuggerMain::on_actionApplication_Working_Directory_triggered() {
 // Name: mnuStackPush
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuStackPush() {
+void Debugger::mnuStackPush() {
 	edb::reg_t value = 0;
 	State state;
 	edb::v1::debugger_core->get_state(&state);
@@ -1180,7 +1182,7 @@ void DebuggerMain::mnuStackPush() {
 // Name: mnuStackPop
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuStackPop() {
+void Debugger::mnuStackPop() {
 	State state;
 	edb::v1::debugger_core->get_state(&state);
 	edb::v1::pop_value(&state);
@@ -1192,7 +1194,7 @@ void DebuggerMain::mnuStackPop() {
 // Name: on_cpuView_customContextMenuRequested
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_cpuView_customContextMenuRequested(const QPoint &pos) {
+void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	QMenu menu;
 	// TODO: add comment
 	//menu.addAction(tr("Add &Comment"), this, SLOT(""));
@@ -1263,7 +1265,7 @@ void DebuggerMain::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 // Name: mnuCPUFollow
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuCPUFollow() {
+void Debugger::mnuCPUFollow() {
 	if(QAction *const action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
 		follow_memory(address, edb::v1::jump_to_address);
@@ -1274,7 +1276,7 @@ void DebuggerMain::mnuCPUFollow() {
 // Name: mnuCPUFollowInDump
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuCPUFollowInDump() {
+void Debugger::mnuCPUFollowInDump() {
 	if(QAction *const action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
 		follow_memory(address, boost::bind(edb::v1::dump_data, _1));
@@ -1285,7 +1287,7 @@ void DebuggerMain::mnuCPUFollowInDump() {
 // Name: mnuCPUFollowInStack
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuCPUFollowInStack() {
+void Debugger::mnuCPUFollowInStack() {
 	if(QAction *const action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
 		follow_memory(address, boost::bind(edb::v1::dump_stack, _1));
@@ -1296,7 +1298,7 @@ void DebuggerMain::mnuCPUFollowInStack() {
 // Name: mnuStackToggleLock
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuStackToggleLock(bool locked) {
+void Debugger::mnuStackToggleLock(bool locked) {
 	stack_view_locked_ = locked;
 }
 
@@ -1304,7 +1306,7 @@ void DebuggerMain::mnuStackToggleLock(bool locked) {
 // Name: mnuStackContextMenu
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuStackContextMenu(const QPoint &pos) {
+void Debugger::mnuStackContextMenu(const QPoint &pos) {
 
 	QMenu *const menu = stack_view_->createStandardContextMenu();
 	menu->addSeparator();
@@ -1339,7 +1341,7 @@ void DebuggerMain::mnuStackContextMenu(const QPoint &pos) {
 // Name: mnuDumpContextMenu
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuDumpContextMenu(const QPoint &pos) {
+void Debugger::mnuDumpContextMenu(const QPoint &pos) {
 	QHexView *const s = qobject_cast<QHexView *>(sender());
 
 	Q_ASSERT(s);
@@ -1365,7 +1367,7 @@ void DebuggerMain::mnuDumpContextMenu(const QPoint &pos) {
 // Name: mnuDumpSaveToFile
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuDumpSaveToFile() {
+void Debugger::mnuDumpSaveToFile() {
 	QHexView *const s = qobject_cast<QHexView *>(ui.tabWidget->currentWidget());
 
 	Q_ASSERT(s);
@@ -1388,7 +1390,7 @@ void DebuggerMain::mnuDumpSaveToFile() {
 // Name: cpu_fill
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::cpu_fill(quint8 byte) {
+void Debugger::cpu_fill(quint8 byte) {
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	const unsigned int size      = ui.cpuView->selectedSize();
 
@@ -1408,7 +1410,7 @@ void DebuggerMain::cpu_fill(quint8 byte) {
 // Name: mnuCPUAddBreakpoint
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuCPUAddBreakpoint() {
+void Debugger::mnuCPUAddBreakpoint() {
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	edb::v1::create_breakpoint(address);
 }
@@ -1417,7 +1419,7 @@ void DebuggerMain::mnuCPUAddBreakpoint() {
 // Name: mnuCPUAddConditionalBreakpoint
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuCPUAddConditionalBreakpoint() {
+void Debugger::mnuCPUAddConditionalBreakpoint() {
 	bool ok;
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	const QString condition = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, QString(), &ok);
@@ -1433,7 +1435,7 @@ void DebuggerMain::mnuCPUAddConditionalBreakpoint() {
 // Name: mnuCPURemoveBreakpoint
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuCPURemoveBreakpoint() {
+void Debugger::mnuCPURemoveBreakpoint() {
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	edb::v1::remove_breakpoint(address);
 }
@@ -1442,7 +1444,7 @@ void DebuggerMain::mnuCPURemoveBreakpoint() {
 // Name: mnuCPUFillZero
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuCPUFillZero() {
+void Debugger::mnuCPUFillZero() {
 	cpu_fill(0x00);
 }
 
@@ -1450,7 +1452,7 @@ void DebuggerMain::mnuCPUFillZero() {
 // Name: mnuCPUFillNop
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuCPUFillNop() {
+void Debugger::mnuCPUFillNop() {
 	// TODO: get system independent nop-code
 	cpu_fill(0x90);
 }
@@ -1459,7 +1461,7 @@ void DebuggerMain::mnuCPUFillNop() {
 // Name: mnuCPUSetEIP
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuCPUSetEIP() {
+void Debugger::mnuCPUSetEIP() {
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	State state;
 	edb::v1::debugger_core->get_state(&state);
@@ -1472,7 +1474,7 @@ void DebuggerMain::mnuCPUSetEIP() {
 // Name: mnuCPUModify
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuCPUModify() {
+void Debugger::mnuCPUModify() {
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	const unsigned int size      = ui.cpuView->selectedSize();
 
@@ -1496,7 +1498,7 @@ void DebuggerMain::mnuCPUModify() {
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-void DebuggerMain::modify_bytes(const T &hexview) {
+void Debugger::modify_bytes(const T &hexview) {
 	if(hexview) {
 		const edb::address_t address = hexview->selectedBytesAddress();
 		const unsigned int size      = hexview->selectedBytesSize();
@@ -1514,7 +1516,7 @@ void DebuggerMain::modify_bytes(const T &hexview) {
 // Name: mnuDumpModify
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuDumpModify() {
+void Debugger::mnuDumpModify() {
 	modify_bytes(qobject_cast<QHexView *>(ui.tabWidget->currentWidget()));
 }
 
@@ -1522,7 +1524,7 @@ void DebuggerMain::mnuDumpModify() {
 // Name: mnuStackModify
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuStackModify() {
+void Debugger::mnuStackModify() {
 	modify_bytes(stack_view_);
 }
 
@@ -1530,7 +1532,7 @@ void DebuggerMain::mnuStackModify() {
 // Name: breakpoint_condition_true
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerMain::breakpoint_condition_true(const QString &condition) {
+bool Debugger::breakpoint_condition_true(const QString &condition) {
 
 	edb::address_t condition_value;
 	if(!edb::v1::eval_expression(condition, &condition_value)) {
@@ -1543,7 +1545,7 @@ bool DebuggerMain::breakpoint_condition_true(const QString &condition) {
 // Name: handle_trap
 // Desc: returns true if we should resume as if this trap never happened
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS DebuggerMain::handle_trap() {
+edb::EVENT_STATUS Debugger::handle_trap() {
 
 	// we just got a trap event, there are a few possible causes
 	// #1: we hit a 0xcc breakpoint, if so, then we want to stop
@@ -1592,7 +1594,7 @@ edb::EVENT_STATUS DebuggerMain::handle_trap() {
 // Name: handle_event_stopped
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const IDebugEvent::const_pointer &event) {
+edb::EVENT_STATUS Debugger::handle_event_stopped(const IDebugEvent::const_pointer &event) {
 
 	// ok we just came in from a stop, we need to test some things,
 	// generally, we will want to check if it was a step, if it was, was it
@@ -1646,7 +1648,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_stopped(const IDebugEvent::const_po
 // Name: handle_event_terminated
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS DebuggerMain::handle_event_terminated(const IDebugEvent::const_pointer &event) {
+edb::EVENT_STATUS Debugger::handle_event_terminated(const IDebugEvent::const_pointer &event) {
 	QMessageBox::information(
 		this,
 		tr("Application Terminated"),
@@ -1660,7 +1662,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_terminated(const IDebugEvent::const
 // Name: handle_event_exited
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS DebuggerMain::handle_event_exited(const IDebugEvent::const_pointer &event) {
+edb::EVENT_STATUS Debugger::handle_event_exited(const IDebugEvent::const_pointer &event) {
 	QMessageBox::information(
 		this,
 		tr("Application Exited"),
@@ -1674,7 +1676,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event_exited(const IDebugEvent::const_poi
 // Name: current_instruction_is_return
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerMain::current_instruction_is_return() const {
+bool Debugger::current_instruction_is_return() const {
 	State state;
 	edb::v1::debugger_core->get_state(&state);
 	const edb::address_t address = state.instruction_pointer();
@@ -1696,7 +1698,7 @@ bool DebuggerMain::current_instruction_is_return() const {
 // Name: handle_event
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS DebuggerMain::handle_event(const IDebugEvent::const_pointer &event) {
+edb::EVENT_STATUS Debugger::handle_event(const IDebugEvent::const_pointer &event) {
 
 	Q_ASSERT(edb::v1::debugger_core);
 
@@ -1741,7 +1743,7 @@ edb::EVENT_STATUS DebuggerMain::handle_event(const IDebugEvent::const_pointer &e
 // Name: debug_event_handler
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS DebuggerMain::debug_event_handler(const IDebugEvent::const_pointer &event) {
+edb::EVENT_STATUS Debugger::debug_event_handler(const IDebugEvent::const_pointer &event) {
 	IDebugEventHandler *const handler = edb::v1::debug_event_handler();
 	Q_ASSERT(handler);
 	return handler->handle_event(event);
@@ -1751,7 +1753,7 @@ edb::EVENT_STATUS DebuggerMain::debug_event_handler(const IDebugEvent::const_poi
 // Name: update_tab_caption
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::update_tab_caption(const QSharedPointer<QHexView> &view, edb::address_t start, edb::address_t end) {
+void Debugger::update_tab_caption(const QSharedPointer<QHexView> &view, edb::address_t start, edb::address_t end) {
 	const int index = ui.tabWidget->indexOf(view.data());
 	const QString caption = ui.tabWidget->data(index).toString();
 
@@ -1766,7 +1768,7 @@ void DebuggerMain::update_tab_caption(const QSharedPointer<QHexView> &view, edb:
 // Name: update_data
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::update_data(const DataViewInfo::pointer &v) {
+void Debugger::update_data(const DataViewInfo::pointer &v) {
 
 	Q_ASSERT(v);
 
@@ -1783,7 +1785,7 @@ void DebuggerMain::update_data(const DataViewInfo::pointer &v) {
 // Name: clear_data
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::clear_data(const DataViewInfo::pointer &v) {
+void Debugger::clear_data(const DataViewInfo::pointer &v) {
 
 	Q_ASSERT(v);
 
@@ -1801,7 +1803,7 @@ void DebuggerMain::clear_data(const DataViewInfo::pointer &v) {
 // Name: do_jump_to_address
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::do_jump_to_address(edb::address_t address, const IRegion::pointer &r, bool scrollTo) {
+void Debugger::do_jump_to_address(edb::address_t address, const IRegion::pointer &r, bool scrollTo) {
 	ui.cpuView->setAddressOffset(r->start());
 	ui.cpuView->setRegion(r);
 	if(scrollTo && !ui.cpuView->addressShown(address)) {
@@ -1813,7 +1815,7 @@ void DebuggerMain::do_jump_to_address(edb::address_t address, const IRegion::poi
 // Name: update_disassembly
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::update_disassembly(edb::address_t address, const IRegion::pointer &r) {
+void Debugger::update_disassembly(edb::address_t address, const IRegion::pointer &r) {
 	ui.cpuView->setCurrentAddress(address);
 	do_jump_to_address(address, r, true);
 	list_model_->setStringList(edb::v1::arch_processor().update_instruction_info(address));
@@ -1823,7 +1825,7 @@ void DebuggerMain::update_disassembly(edb::address_t address, const IRegion::poi
 // Name: update_stack_view
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::update_stack_view(const State &state) {
+void Debugger::update_stack_view(const State &state) {
 	if(!edb::v1::dump_stack(state.stack_pointer(), !stack_view_locked_)) {
 		stack_view_->clear();
 		stack_view_->scrollTo(0);
@@ -1834,7 +1836,7 @@ void DebuggerMain::update_stack_view(const State &state) {
 // Name: update_cpu_view
 // Desc:
 //------------------------------------------------------------------------------
-IRegion::pointer DebuggerMain::update_cpu_view(const State &state) {
+IRegion::pointer Debugger::update_cpu_view(const State &state) {
 
 	const edb::address_t address = state.instruction_pointer();
 
@@ -1853,7 +1855,7 @@ IRegion::pointer DebuggerMain::update_cpu_view(const State &state) {
 // Name: update_data_views
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::update_data_views() {
+void Debugger::update_data_views() {
 
 	// update all data views with the current region data
 	Q_FOREACH(const DataViewInfo::pointer &info, data_regions_) {
@@ -1871,7 +1873,7 @@ void DebuggerMain::update_data_views() {
 // Name: refresh_gui
 // Desc: refreshes all the different displays
 //------------------------------------------------------------------------------
-void DebuggerMain::refresh_gui() {
+void Debugger::refresh_gui() {
 
 	ui.cpuView->repaint();
 	stack_view_->repaint();
@@ -1891,7 +1893,7 @@ void DebuggerMain::refresh_gui() {
 // Name: update_gui
 // Desc: updates all the different displays
 //------------------------------------------------------------------------------
-void DebuggerMain::update_gui() {
+void Debugger::update_gui() {
 
 	if(edb::v1::debugger_core) {
 		State state;
@@ -1910,7 +1912,7 @@ void DebuggerMain::update_gui() {
 // Name: resume_status
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS DebuggerMain::resume_status(bool pass_exception) {
+edb::EVENT_STATUS Debugger::resume_status(bool pass_exception) {
 
 	if(pass_exception && last_event_ && last_event_->stopped() && !last_event_->is_trap()) {
 		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
@@ -1923,7 +1925,7 @@ edb::EVENT_STATUS DebuggerMain::resume_status(bool pass_exception) {
 // Name: resume_execution
 // Desc: resumes execution, handles the situation of being on a breakpoint as well
 //------------------------------------------------------------------------------
-void DebuggerMain::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode) {
+void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode) {
 	resume_execution(pass_exception, mode, false);
 }
 
@@ -1931,7 +1933,7 @@ void DebuggerMain::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE 
 // Name: resume_execution
 // Desc: resumes execution, handles the situation of being on a breakpoint as well
 //------------------------------------------------------------------------------
-void DebuggerMain::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced) {
+void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced) {
 
 	// if necessary pass the trap to the application, otherwise just resume
 	// as normal
@@ -1968,7 +1970,7 @@ void DebuggerMain::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE 
 // Name: on_action_Run_Pass_Signal_To_Application_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Run_Pass_Signal_To_Application_triggered() {
+void Debugger::on_action_Run_Pass_Signal_To_Application_triggered() {
 	resume_execution(PASS_EXCEPTION, MODE_RUN);
 }
 
@@ -1976,7 +1978,7 @@ void DebuggerMain::on_action_Run_Pass_Signal_To_Application_triggered() {
 // Name: on_action_Step_Into_Pass_Signal_To_Application_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Step_Into_Pass_Signal_To_Application_triggered() {
+void Debugger::on_action_Step_Into_Pass_Signal_To_Application_triggered() {
 	resume_execution(PASS_EXCEPTION, MODE_STEP);
 }
 
@@ -1984,7 +1986,7 @@ void DebuggerMain::on_action_Step_Into_Pass_Signal_To_Application_triggered() {
 // Name: on_action_Run_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Run_triggered() {
+void Debugger::on_action_Run_triggered() {
 	resume_execution(IGNORE_EXCEPTION, MODE_RUN);
 }
 
@@ -1992,7 +1994,7 @@ void DebuggerMain::on_action_Run_triggered() {
 // Name: on_action_Step_Into_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Step_Into_triggered() {
+void Debugger::on_action_Step_Into_triggered() {
 	resume_execution(IGNORE_EXCEPTION, MODE_STEP);
 }
 
@@ -2000,7 +2002,7 @@ void DebuggerMain::on_action_Step_Into_triggered() {
 // Name: on_action_Detach_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Detach_triggered() {
+void Debugger::on_action_Detach_triggered() {
 	detach_from_process(NO_KILL_ON_DETACH);
 }
 
@@ -2008,7 +2010,7 @@ void DebuggerMain::on_action_Detach_triggered() {
 // Name: on_action_Kill_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Kill_triggered() {
+void Debugger::on_action_Kill_triggered() {
 	detach_from_process(KILL_ON_DETACH);
 }
 
@@ -2016,27 +2018,27 @@ void DebuggerMain::on_action_Kill_triggered() {
 // Name: on_action_Step_Over_Pass_Signal_To_Application_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Step_Over_Pass_Signal_To_Application_triggered() {
+void Debugger::on_action_Step_Over_Pass_Signal_To_Application_triggered() {
 	edb::detail::step_over(
-		boost::bind(&DebuggerMain::on_action_Run_Pass_Signal_To_Application_triggered, this),
-		boost::bind(&DebuggerMain::on_action_Step_Into_Pass_Signal_To_Application_triggered, this));
+		boost::bind(&Debugger::on_action_Run_Pass_Signal_To_Application_triggered, this),
+		boost::bind(&Debugger::on_action_Step_Into_Pass_Signal_To_Application_triggered, this));
 }
 
 //------------------------------------------------------------------------------
 // Name: on_action_Step_Over_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Step_Over_triggered() {
+void Debugger::on_action_Step_Over_triggered() {
 	edb::detail::step_over(
-		boost::bind(&DebuggerMain::on_action_Run_triggered, this),
-		boost::bind(&DebuggerMain::on_action_Step_Into_triggered, this));
+		boost::bind(&Debugger::on_action_Run_triggered, this),
+		boost::bind(&Debugger::on_action_Step_Into_triggered, this));
 }
 
 //------------------------------------------------------------------------------
 // Name: on_actionRun_Until_Return_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_actionRun_Until_Return_triggered() {
+void Debugger::on_actionRun_Until_Return_triggered() {
 	new RunUntilRet();
 	resume_execution(PASS_EXCEPTION, MODE_STEP);
 }
@@ -2045,7 +2047,7 @@ void DebuggerMain::on_actionRun_Until_Return_triggered() {
 // Name: on_action_Pause_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Pause_triggered() {
+void Debugger::on_action_Pause_triggered() {
 	Q_ASSERT(edb::v1::debugger_core);
 	edb::v1::debugger_core->pause();
 }
@@ -2054,7 +2056,7 @@ void DebuggerMain::on_action_Pause_triggered() {
 // Name: cleanup_debugger
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::cleanup_debugger() {
+void Debugger::cleanup_debugger() {
 
 	timer_->stop();
 
@@ -2081,7 +2083,7 @@ void DebuggerMain::cleanup_debugger() {
 // Name: session_filename
 // Desc:
 //------------------------------------------------------------------------------
-QString DebuggerMain::session_filename() const {
+QString Debugger::session_filename() const {
 	if(!program_executable_.isEmpty()) {
 		const QString basename = edb::v1::basename(program_executable_);
 		return QString("%1/%2.edb").arg(edb::v1::config().session_path, basename);
@@ -2093,7 +2095,7 @@ QString DebuggerMain::session_filename() const {
 // Name: detach_from_process
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::detach_from_process(DETACH_ACTION kill) {
+void Debugger::detach_from_process(DETACH_ACTION kill) {
 
 	if(ISessionFile *const session_file = edb::v1::session_file_handler()) {
 		const QString filename = session_filename();
@@ -2118,7 +2120,7 @@ void DebuggerMain::detach_from_process(DETACH_ACTION kill) {
 // Name: set_initial_debugger_state
 // Desc: resets all of the basic data to sane defaults
 //------------------------------------------------------------------------------
-void DebuggerMain::set_initial_debugger_state() {
+void Debugger::set_initial_debugger_state() {
 
 	update_menu_state(PAUSED);
 	timer_->start(0);
@@ -2169,7 +2171,7 @@ void DebuggerMain::set_initial_debugger_state() {
 // Name: test_native_binary
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::test_native_binary() {
+void Debugger::test_native_binary() {
 	if(binary_info_ && !binary_info_->native()) {
 		QMessageBox::warning(
 			this,
@@ -2186,7 +2188,7 @@ void DebuggerMain::test_native_binary() {
 // Desc: sets the initial breakpoint so we can stop at the entry point of the
 //       application
 //------------------------------------------------------------------------------
-void DebuggerMain::set_initial_breakpoint(const QString &s) {
+void Debugger::set_initial_breakpoint(const QString &s) {
 
 	edb::address_t entryPoint = 0;
 
@@ -2218,7 +2220,7 @@ void DebuggerMain::set_initial_breakpoint(const QString &s) {
 // Name: on_action_Restart_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Restart_triggered() {
+void Debugger::on_action_Restart_triggered() {
 
 	Q_ASSERT(edb::v1::debugger_core);
 
@@ -2242,7 +2244,7 @@ void DebuggerMain::on_action_Restart_triggered() {
 // Name: common_open
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerMain::common_open(const QString &s, const QList<QByteArray> &args) {
+bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 
 	bool ret = false;
 	if(!QFile(s).exists()) {
@@ -2276,7 +2278,7 @@ bool DebuggerMain::common_open(const QString &s, const QList<QByteArray> &args) 
 // Name: execute
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::execute(const QString &program, const QList<QByteArray> &args) {
+void Debugger::execute(const QString &program, const QList<QByteArray> &args) {
 	if(common_open(program, args)) {
 		recent_file_manager_->add_file(program);
 	}
@@ -2286,7 +2288,7 @@ void DebuggerMain::execute(const QString &program, const QList<QByteArray> &args
 // Name: open_file
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::open_file(const QString &s) {
+void Debugger::open_file(const QString &s) {
 	if(!s.isEmpty()) {
 		last_open_directory_ = QFileInfo(s).canonicalFilePath();
 
@@ -2300,7 +2302,7 @@ void DebuggerMain::open_file(const QString &s) {
 // Name: attach
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::attach(edb::pid_t pid) {
+void Debugger::attach(edb::pid_t pid) {
 
 	// TODO: we need a core concept of debugger capabilities which
 	// may restrict some actions
@@ -2354,7 +2356,7 @@ void DebuggerMain::attach(edb::pid_t pid) {
 // Name: on_action_Open_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Open_triggered() {
+void Debugger::on_action_Open_triggered() {
 
 	// TODO: we need a core concept of debugger capabilities which
 	// may restrict some actions
@@ -2371,7 +2373,7 @@ void DebuggerMain::on_action_Open_triggered() {
 // Name: on_action_Attach_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Attach_triggered() {
+void Debugger::on_action_Attach_triggered() {
 
 	// TODO: we need a core concept of debugger capabilities which
 	// may restrict some actions
@@ -2395,7 +2397,7 @@ void DebuggerMain::on_action_Attach_triggered() {
 // Name: on_action_Memory_Regions_triggered
 // Desc: displays the memory regions dialog, and optionally dumps some data
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Memory_Regions_triggered() {
+void Debugger::on_action_Memory_Regions_triggered() {
 
 	// TODO: we need a core concept of debugger capabilities which
 	// may restrict some actions
@@ -2410,7 +2412,7 @@ void DebuggerMain::on_action_Memory_Regions_triggered() {
 // Name: on_action_Threads_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Threads_triggered() {
+void Debugger::on_action_Threads_triggered() {
 
 	// TODO: we need a core concept of debugger capabilities which
 	// may restrict some actions
@@ -2434,7 +2436,7 @@ void DebuggerMain::on_action_Threads_triggered() {
 // Name: mnuDumpCreateTab
 // Desc: duplicates the current tab creating a new one
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuDumpCreateTab() {
+void Debugger::mnuDumpCreateTab() {
 	create_data_tab();
 	del_tab_->setEnabled(ui.tabWidget->count() > 1);
 }
@@ -2443,7 +2445,7 @@ void DebuggerMain::mnuDumpCreateTab() {
 // Name: mnuDumpDeleteTab
 // Desc: handles removing of a memory view tab
 //------------------------------------------------------------------------------
-void DebuggerMain::mnuDumpDeleteTab() {
+void Debugger::mnuDumpDeleteTab() {
 	delete_data_tab();
 	del_tab_->setEnabled(ui.tabWidget->count() > 1);
 }
@@ -2453,7 +2455,7 @@ void DebuggerMain::mnuDumpDeleteTab() {
 // Desc:
 //------------------------------------------------------------------------------
 template <class F, class T>
-void DebuggerMain::add_plugin_context_menu(const T &menu, const F &f) {
+void Debugger::add_plugin_context_menu(const T &menu, const F &f) {
 	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
 		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
 			const QList<QAction *> acts = (p->*f)();
@@ -2469,7 +2471,7 @@ void DebuggerMain::add_plugin_context_menu(const T &menu, const F &f) {
 // Name: on_action_Plugins_triggered
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::on_action_Plugins_triggered() {
+void Debugger::on_action_Plugins_triggered() {
 	static QDialog *const dlg = new DialogPlugins(this);
 	dlg->show();
 }
@@ -2478,7 +2480,7 @@ void DebuggerMain::on_action_Plugins_triggered() {
 // Name: jump_to_address
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerMain::jump_to_address(edb::address_t address) {
+bool Debugger::jump_to_address(edb::address_t address) {
 
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
 		do_jump_to_address(address, region, true);
@@ -2492,7 +2494,7 @@ bool DebuggerMain::jump_to_address(edb::address_t address) {
 // Name: dump_data_range
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerMain::dump_data_range(edb::address_t address, edb::address_t end_address, bool new_tab) {
+bool Debugger::dump_data_range(edb::address_t address, edb::address_t end_address, bool new_tab) {
 
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
 		if(new_tab) {
@@ -2522,7 +2524,7 @@ bool DebuggerMain::dump_data_range(edb::address_t address, edb::address_t end_ad
 // Name: dump_data
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerMain::dump_data(edb::address_t address, bool new_tab) {
+bool Debugger::dump_data(edb::address_t address, bool new_tab) {
 
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
 		if(new_tab) {
@@ -2546,7 +2548,7 @@ bool DebuggerMain::dump_data(edb::address_t address, bool new_tab) {
 // Name: dump_stack
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerMain::dump_stack(edb::address_t address, bool scroll_to) {
+bool Debugger::dump_stack(edb::address_t address, bool scroll_to) {
 	const IRegion::pointer last_region = stack_view_info_.region;
 	stack_view_info_.region = edb::v1::memory_regions().find_region(address);
 
@@ -2565,7 +2567,7 @@ bool DebuggerMain::dump_stack(edb::address_t address, bool scroll_to) {
 // Name: tab_context_menu
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::tab_context_menu(int index, const QPoint &pos) {
+void Debugger::tab_context_menu(int index, const QPoint &pos) {
 	QMenu menu;
 	QAction *const actionAdd   = menu.addAction(tr("&Set Label"));
 	QAction *const actionClear = menu.addAction(tr("&Clear Label"));
@@ -2595,7 +2597,7 @@ void DebuggerMain::tab_context_menu(int index, const QPoint &pos) {
 // Name: next_debug_event
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerMain::next_debug_event() {
+void Debugger::next_debug_event() {
 
 
 	// TODO: come up with a nice system to inject a debug event

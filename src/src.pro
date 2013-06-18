@@ -21,9 +21,8 @@ HEADERS += \
 	CommentServer.h \
 	Configuration.h \
 	DataViewInfo.h \
-	edb.h \
+	Debugger.h \
 	DebuggerInternal.h \
-	DebuggerMain.h \
 	DebuggerOps.h \
 	DialogArguments.h \
 	DialogAttach.h \
@@ -71,6 +70,7 @@ HEADERS += \
 	TabWidget.h \
 	Types.h \
 	Util.h \
+	edb.h \
 	string_hash.h \
 	symbols.h \
 	version.h
@@ -94,8 +94,7 @@ SOURCES += \
 	CommentServer.cpp \
 	Configuration.cpp \
 	DataViewInfo.cpp \
-	edb.cpp \
-	DebuggerMain.cpp \
+	Debugger.cpp \
 	DialogArguments.cpp \
 	DialogAttach.cpp \
 	DialogInputBinaryString.cpp \
@@ -105,7 +104,6 @@ SOURCES += \
 	DialogPlugins.cpp \
 	DialogThreads.cpp \
 	IBinary.cpp \
-	instruction.cpp \
 	LineEdit.cpp \
 	MD5.cpp \
 	MemoryRegions.cpp \
@@ -121,6 +119,8 @@ SOURCES += \
 	SymbolManager.cpp \
 	SyntaxHighlighter.cpp \
 	TabWidget.cpp \
+	edb.cpp \
+	instruction.cpp \
 	main.cpp \
 	symbols.cpp
 

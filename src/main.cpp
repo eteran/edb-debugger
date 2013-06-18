@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "IDebuggerCore.h"
 #include "IPlugin.h"
-#include "DebuggerMain.h"
+#include "Debugger.h"
 #include "edb.h"
 #include "DebuggerInternal.h"
 #include "symbols.h"
@@ -94,7 +94,7 @@ namespace {
 		edb::internal::load_function_db();
 
 		// create the main window object
-		DebuggerMain debugger;
+		Debugger debugger;
 
 		// let the plugins setup their menus
 		debugger.finish_plugin_setup(edb::v1::plugin_list());
