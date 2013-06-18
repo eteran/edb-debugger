@@ -17,8 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogAssembler.h"
-#include "edb.h"
 #include "IDebuggerCore.h"
+#include "edb.h"
+#include "string_hash.h"
 
 #include <QMessageBox>
 #include <QDebug>
