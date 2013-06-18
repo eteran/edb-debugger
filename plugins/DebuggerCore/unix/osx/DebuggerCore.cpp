@@ -720,11 +720,11 @@ QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QString DebuggerCore::process_arch() const {
+quint64 DebuggerCore::process_arch() const {
 #ifdef EDB_X86
-	return "x86";
+	return edb::string_hash<'x', '8', '6'>::value
 #elif defined(EDB_X86_64)
-	return "x86-64";
+	return edb::string_hash<'x', '8', '6', '-', '6', '4'>::value;
 #endif
 }
 
