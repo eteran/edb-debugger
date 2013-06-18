@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <author>Evan Teran</author>
- <class>DebuggerUI</class>
- <widget class="QMainWindow" name="DebuggerUI">
+ <class>Debugger</class>
+ <widget class="QMainWindow" name="Debugger">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -355,11 +355,11 @@
    </property>
   </action>
   <action name="actionRun_Until_Return">
-   <property name="text">
-    <string>Run &amp;Until Return</string>
-   </property>
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="text">
+    <string>Run &amp;Until Return</string>
    </property>
   </action>
   <action name="action_Step_Into_Pass_Signal_To_Application">
@@ -464,7 +464,7 @@
   <connection>
    <sender>actionE_xit</sender>
    <signal>triggered()</signal>
-   <receiver>DebuggerUI</receiver>
+   <receiver>Debugger</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">

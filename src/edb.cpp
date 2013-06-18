@@ -20,22 +20,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ArchProcessor.h"
 #include "BinaryString.h"
 #include "Configuration.h"
-#include "IDebuggerCore.h"
 #include "DebuggerMain.h"
-#include "IPlugin.h"
 #include "DialogInputBinaryString.h"
 #include "DialogInputValue.h"
 #include "DialogOptions.h"
+#include "DebuggerMain.h"
 #include "Expression.h"
 #include "FunctionInfo.h"
+#include "IDebuggerCore.h"
+#include "IPlugin.h"
 #include "MD5.h"
 #include "MemoryRegions.h"
 #include "QHexView"
 #include "State.h"
 #include "SymbolManager.h"
-#include "version.h"
-#include "serializer.h"
 #include "qobjecthelper.h"
+#include "serializer.h"
+#include "version.h"
 
 #include <QAction>
 #include <QAtomicPointer>
@@ -48,8 +49,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDomDocument>
 
 #include <cctype>
-
-#include "ui_debuggerui.h"
 
 IDebuggerCore *edb::v1::debugger_core = 0;
 QWidget       *edb::v1::debugger_ui   = 0;
@@ -143,7 +142,7 @@ void load_function_db() {
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t edb::v1::cpu_selected_address() {
-	return ui()->ui->cpuView->selectedAddress();
+	return ui()->ui.cpuView->selectedAddress();
 }
 
 //------------------------------------------------------------------------------
@@ -151,7 +150,7 @@ edb::address_t edb::v1::cpu_selected_address() {
 // Desc:
 //------------------------------------------------------------------------------
 IRegion::pointer edb::v1::current_cpu_view_region() {
-	return ui()->ui->cpuView->region();
+	return ui()->ui.cpuView->region();
 }
 
 //------------------------------------------------------------------------------
@@ -161,7 +160,7 @@ IRegion::pointer edb::v1::current_cpu_view_region() {
 void edb::v1::repaint_cpu_view() {
 	DebuggerMain *const gui = ui();
 	Q_ASSERT(gui);
-	gui->ui->cpuView->viewport()->repaint();
+	gui->ui.cpuView->viewport()->repaint();
 }
 
 //------------------------------------------------------------------------------
@@ -1173,7 +1172,7 @@ QString edb::v1::format_pointer(edb::address_t p) {
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t edb::v1::current_data_view_address() {
-	return qobject_cast<QHexView *>(ui()->ui->tabWidget->currentWidget())->firstVisibleAddress();
+	return qobject_cast<QHexView *>(ui()->ui.tabWidget->currentWidget())->firstVisibleAddress();
 }
 
 //------------------------------------------------------------------------------
@@ -1181,7 +1180,7 @@ edb::address_t edb::v1::current_data_view_address() {
 // Desc:
 //------------------------------------------------------------------------------
 void edb::v1::set_status(const QString &message) {
-	ui()->ui->statusbar->showMessage(message, 0);
+	ui()->ui.statusbar->showMessage(message, 0);
 }
 
 //------------------------------------------------------------------------------
@@ -1214,7 +1213,7 @@ int edb::v1::pointer_size() {
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *edb::v1::disassembly_widget() {
-	return ui()->ui->cpuView;
+	return ui()->ui.cpuView;
 }
 
 //------------------------------------------------------------------------------

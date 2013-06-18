@@ -25,7 +25,6 @@ HEADERS += \
 	DebuggerInternal.h \
 	DebuggerMain.h \
 	DebuggerOps.h \
-	DebuggerUI.h \
 	DialogArguments.h \
 	DialogAttach.h \
 	DialogInputBinaryString.h \
@@ -77,8 +76,8 @@ HEADERS += \
 	version.h
 
 FORMS += \
+	Debugger.ui \
 	binarystring.ui \
-	debuggerui.ui \
 	dialog_arguments.ui \
 	dialog_attach.ui \
 	dialog_inputbinarystring.ui \
@@ -97,7 +96,6 @@ SOURCES += \
 	DataViewInfo.cpp \
 	edb.cpp \
 	DebuggerMain.cpp \
-	DebuggerUI.cpp \
 	DialogArguments.cpp \
 	DialogAttach.cpp \
 	DialogInputBinaryString.cpp \

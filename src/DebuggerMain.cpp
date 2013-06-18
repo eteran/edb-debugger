@@ -19,20 +19,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerMain.h"
 #include "CommentServer.h"
 #include "Configuration.h"
-#include "edb.h"
 #include "DebuggerInternal.h"
+#include "DebuggerMain.h"
 #include "DebuggerOps.h"
 #include "DialogArguments.h"
 #include "DialogAttach.h"
 #include "DialogMemoryRegions.h"
+#include "DialogOptions.h"
 #include "DialogPlugins.h"
 #include "DialogThreads.h"
+#include "Expression.h"
 #include "Expression.h"
 #include "IAnalyzer.h"
 #include "IArchProcessor.h"
 #include "IBinary.h"
 #include "IDebugEvent.h"
 #include "IDebuggerCore.h"
+#include "IPlugin.h"
 #include "IPlugin.h"
 #include "ISessionFile.h"
 #include "Instruction.h"
@@ -41,6 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RecentFileManager.h"
 #include "State.h"
 #include "SymbolManager.h"
+#include "edb.h"
 #include "version.h"
 
 #include <QCloseEvent>
@@ -61,8 +65,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/bind.hpp>
 #include <memory>
-
-#include "ui_debuggerui.h"
+#include <cstring>
 
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
 #include <link.h>
@@ -70,6 +73,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #if defined(Q_OS_UNIX)
 #include <signal.h>
+#endif
+
+#include <sys/types.h>
+#include <sys/stat.h>
+#if defined(Q_OS_LINUX) || defined(Q_OS_OPENBSD)
+#include <unistd.h>
 #endif
 
 #if defined(EDB_X86)
@@ -108,7 +117,7 @@ public:
 	//--------------------------------------------------------------------------
 	// Name: RunUntilRet
 	//--------------------------------------------------------------------------
-	RunUntilRet(DebuggerMain *ui) : ui_(ui), previous_handler_(0), last_call_return_(0) {
+	RunUntilRet() :previous_handler_(0), last_call_return_(0) {
 		previous_handler_ = edb::v1::set_debug_event_handler(this);
 	}
 
@@ -174,18 +183,19 @@ public:
 	}
 
 private:
-	DebuggerMain *const ui_;
 	IDebugEventHandler *previous_handler_;
 	edb::address_t      last_call_return_;
 };
 
-
-
 //------------------------------------------------------------------------------
 // Name: DebuggerMain
-// Desc: constructor
+// Desc:
 //------------------------------------------------------------------------------
-DebuggerMain::DebuggerMain(QWidget *parent) : DebuggerUI(parent),
+DebuggerMain::DebuggerMain(QWidget *parent) : QMainWindow(parent),
+		add_tab_(0),
+		del_tab_(0),
+		tty_proc_(new QProcess(this)),
+		gui_state_(TERMINATED),
 		arguments_dialog_(new DialogArguments),
 		timer_(new QTimer(this)),
 		recent_file_manager_(new RecentFileManager(this)),
@@ -194,15 +204,14 @@ DebuggerMain::DebuggerMain(QWidget *parent) : DebuggerUI(parent),
 #ifdef Q_OS_UNIX
 		,debug_pointer_(0)
 #endif
-	{
-
+{
 	setup_ui();
 
 	// connect the timer to the debug event
 	connect(timer_, SIGNAL(timeout()), this, SLOT(next_debug_event()));
 
 	// create a context menu for the tab bar as well
-	connect(ui->tabWidget, SIGNAL(customContextMenuRequested(int, const QPoint &)), this, SLOT(tab_context_menu(int, const QPoint &)));
+	connect(ui.tabWidget, SIGNAL(customContextMenuRequested(int, const QPoint &)), this, SLOT(tab_context_menu(int, const QPoint &)));
 
 	connect(new QShortcut(QKeySequence(tr("Ctrl+G")), this), SIGNAL(activated()), this, SLOT(goto_triggered()));
 
@@ -210,21 +219,343 @@ DebuggerMain::DebuggerMain(QWidget *parent) : DebuggerUI(parent),
 
 	// setup the list model for instruction details list
 	list_model_ = new QStringListModel(this);
-	ui->listView->setModel(list_model_);
+	ui.listView->setModel(list_model_);
 
 	// setup the recent file manager
-	ui->action_Recent_Files->setMenu(recent_file_manager_->create_menu());
+	ui.action_Recent_Files->setMenu(recent_file_manager_->create_menu());
 	connect(recent_file_manager_, SIGNAL(file_selected(const QString &)), SLOT(open_file(const QString &)));
 
 	// make us the default event handler
 	edb::v1::set_debug_event_handler(this);
 
 	// enable the arch processor
-	edb::v1::arch_processor().setup_register_view(ui->registerList);
+	edb::v1::arch_processor().setup_register_view(ui.registerList);
 
 	// default the working directory to ours
 	working_directory_ = QDir().absolutePath();
 }
+
+//------------------------------------------------------------------------------
+// Name: ~DebuggerMain
+// Desc:
+//------------------------------------------------------------------------------
+DebuggerMain::~DebuggerMain() {
+
+	detach_from_process((edb::v1::config().close_behavior == Configuration::Terminate) ? KILL_ON_DETACH : NO_KILL_ON_DETACH);
+
+	// kill our xterm and wait for it to die
+	tty_proc_->kill();
+	tty_proc_->waitForFinished(3000);
+}
+
+//------------------------------------------------------------------------------
+// Name: update_menu_state
+// Desc:
+//------------------------------------------------------------------------------
+void DebuggerMain::update_menu_state(GUI_STATE state) {
+
+	switch(state) {
+	case PAUSED:
+		ui.actionRun_Until_Return->setEnabled(true);
+		ui.action_Restart->setEnabled(true);
+		ui.action_Run->setEnabled(true);
+		ui.action_Pause->setEnabled(false);
+		ui.action_Step_Into->setEnabled(true);
+		ui.action_Step_Over->setEnabled(true);
+		ui.action_Step_Into_Pass_Signal_To_Application->setEnabled(true);
+		ui.action_Step_Over_Pass_Signal_To_Application->setEnabled(true);
+		ui.action_Run_Pass_Signal_To_Application->setEnabled(true);
+		ui.action_Detach->setEnabled(true);
+		ui.action_Kill->setEnabled(true);
+		add_tab_->setEnabled(true);
+		edb::v1::set_status(tr("paused"));
+		break;
+	case RUNNING:
+		ui.actionRun_Until_Return->setEnabled(false);
+		ui.action_Restart->setEnabled(false);
+		ui.action_Run->setEnabled(false);
+		ui.action_Pause->setEnabled(true);
+		ui.action_Step_Into->setEnabled(false);
+		ui.action_Step_Over->setEnabled(false);
+		ui.action_Step_Into_Pass_Signal_To_Application->setEnabled(false);
+		ui.action_Step_Over_Pass_Signal_To_Application->setEnabled(false);
+		ui.action_Run_Pass_Signal_To_Application->setEnabled(false);
+		ui.action_Detach->setEnabled(true);
+		ui.action_Kill->setEnabled(true);
+		add_tab_->setEnabled(true);
+		edb::v1::set_status(tr("running"));
+		break;
+	case TERMINATED:
+		ui.actionRun_Until_Return->setEnabled(false);
+		ui.action_Restart->setEnabled(false);
+		ui.action_Run->setEnabled(false);
+		ui.action_Pause->setEnabled(false);
+		ui.action_Step_Into->setEnabled(false);
+		ui.action_Step_Over->setEnabled(false);
+		ui.action_Step_Into_Pass_Signal_To_Application->setEnabled(false);
+		ui.action_Step_Over_Pass_Signal_To_Application->setEnabled(false);
+		ui.action_Run_Pass_Signal_To_Application->setEnabled(false);
+		ui.action_Detach->setEnabled(false);
+		ui.action_Kill->setEnabled(false);
+		add_tab_->setEnabled(false);
+		edb::v1::set_status(tr("terminated"));
+		break;
+	}
+
+	gui_state_ = state;
+}
+
+//------------------------------------------------------------------------------
+// Name: create_tty
+// Desc: creates a TTY object for our command line I/O
+//------------------------------------------------------------------------------
+QString DebuggerMain::create_tty() {
+#if defined(Q_OS_LINUX) || defined(Q_OS_OPENBSD) || defined(Q_OS_FREEBSD)
+	// we attempt to reuse an open output window
+	if(edb::v1::config().tty_enabled && tty_proc_->state() != QProcess::Running) {
+		const QString command = edb::v1::config().tty_command;
+
+		if(!command.isEmpty()) {
+
+			// ok, creating a new one...
+			// first try to get a 'unique' filename, i would love to use a system
+			// temp file API... but there doesn't seem to be one which will create
+			// a pipe...only ordinary files!
+			const QString temp_pipe = QString("%1/edb_temp_file_%2_%3").arg(QDir::tempPath()).arg(qrand()).arg(getpid());
+
+			// make sure it isn't already there, and then make the pipe
+			::unlink(qPrintable(temp_pipe));
+			::mkfifo(qPrintable(temp_pipe), S_IRUSR | S_IWUSR);
+
+			// this is a basic shell script which will output the tty to a file (the pipe),
+			// ignore kill sigs, close all standard IO, and then just hang
+			const QString shell_script = QString(
+				"tty > %1;"
+				"trap \"\" INT QUIT TSTP;"
+				"exec<&-; exec>&-;"
+				"while :; do sleep 3600; done"
+				).arg(temp_pipe);
+
+			// parse up the command from the options, white space delimited
+			QStringList proc_args = edb::v1::parse_command_line(command);
+			const QString tty_command = proc_args.takeFirst().trimmed();
+
+			// start constructing the arguments for the term
+
+			if(tty_command.endsWith("/gnome-terminal")) {
+				proc_args << "--hide-menubar" << "--title" << tr("edb output") << "-e" << QString("sh -c '%1'").arg(shell_script);
+			} else if(tty_command.endsWith("/konsole")) {
+				proc_args << "--nofork" << "--title" << tr("edb output") << "-e" << QString("sh -c '%1'").arg(shell_script);
+			} else {
+				proc_args << "-title" << tr("edb output") << "-e" << QString("sh -c '%1'").arg(shell_script);
+			}
+
+			// make the tty process object and connect it's death signal to our cleanup
+			connect(tty_proc_, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(tty_proc_finished(int, QProcess::ExitStatus)));
+
+			tty_proc_->start(tty_command, proc_args);
+
+			if(tty_proc_->waitForStarted(3000)) {
+
+				const Q_PID tty_pid = tty_proc_->pid();
+				Q_UNUSED(tty_pid);
+
+				// get the output, this should block until the xterm actually gets a chance to write it
+				QFile file(temp_pipe);
+				if(file.open(QIODevice::ReadOnly)) {
+					tty_file_ = file.readLine().trimmed();
+				}
+			} else {
+				qDebug().nospace() << "Could not launch the desired terminal [" << tty_command << "], please check that it exists and you have proper permissions.";
+				tty_file_.clear();
+			}
+
+			// cleanup, god i wish there was an easier way than this!
+			::unlink(qPrintable(temp_pipe));
+		}
+	}
+#endif
+	return tty_file_;
+}
+
+//------------------------------------------------------------------------------
+// Name: tty_proc_finished
+// Desc: cleans up the data associated with a TTY when the terminal dies
+//------------------------------------------------------------------------------
+void DebuggerMain::tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status) {
+	Q_UNUSED(exit_code);
+	Q_UNUSED(exit_status);
+
+	tty_file_.clear();
+}
+
+//------------------------------------------------------------------------------
+// Name: current_tab
+// Desc:
+//------------------------------------------------------------------------------
+int DebuggerMain::current_tab() const {
+	return ui.tabWidget->currentIndex();
+}
+
+//------------------------------------------------------------------------------
+// Name: current_data_view_info
+// Desc:
+//------------------------------------------------------------------------------
+DataViewInfo::pointer DebuggerMain::current_data_view_info() const {
+	return data_regions_[current_tab()];
+}
+
+//------------------------------------------------------------------------------
+// Name: set_debugger_caption
+// Desc: sets the caption part to also show the application name and pid
+//------------------------------------------------------------------------------
+void DebuggerMain::set_debugger_caption(const QString &appname) {
+	setWindowTitle(tr("edb - %1 [%2]").arg(appname).arg(edb::v1::debugger_core->pid()));
+}
+
+//------------------------------------------------------------------------------
+// Name: delete_data_tab
+// Desc:
+//------------------------------------------------------------------------------
+void DebuggerMain::delete_data_tab() {
+	const int current = current_tab();
+
+	// get a pointer to the info we need (before removing it from the list!)
+	// this seems redundant to current_data_view_info(), but we need the
+	// index too, so may as well waste one line to avoid duplicate work
+	DataViewInfo::pointer info = data_regions_[current];
+
+	// remove it from the list
+	data_regions_.remove(current);
+
+	// remove the tab associated with it
+	ui.tabWidget->removeTab(current);
+}
+
+//------------------------------------------------------------------------------
+// Name: create_data_tab
+// Desc:
+//------------------------------------------------------------------------------
+void DebuggerMain::create_data_tab() {
+	const int current = current_tab();
+
+	// duplicate the current region
+	DataViewInfo *const new_data_view = new DataViewInfo((current != -1) ? data_regions_[current]->region : IRegion::pointer());
+
+	QHexView *const hexview = new QHexView;
+
+	new_data_view->view = QSharedPointer<QHexView>(hexview);
+
+	// setup the context menu
+	hexview->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(hexview, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(mnuDumpContextMenu(const QPoint &)));
+
+	// show the initial data for this new view
+	if(new_data_view->region) {
+		hexview->setAddressOffset(new_data_view->region->start());
+	} else {
+		hexview->setAddressOffset(0);
+	}
+
+	hexview->setData(new_data_view->stream);
+
+	const Configuration &config = edb::v1::config();
+
+	// set the default view options
+	hexview->setShowAddress(config.data_show_address);
+	hexview->setShowHexDump(config.data_show_hex);
+	hexview->setShowAsciiDump(config.data_show_ascii);
+	hexview->setShowComments(config.data_show_comments);
+	hexview->setRowWidth(config.data_row_width);
+	hexview->setWordWidth(config.data_word_width);
+
+	// set the default font
+	QFont dump_font;
+	dump_font.fromString(config.data_font);
+	hexview->setFont(dump_font);
+
+	data_regions_.push_back(DataViewInfo::pointer(new_data_view));
+
+	// create the tab!
+	if(new_data_view->region) {
+		ui.tabWidget->addTab(hexview, tr("%1-%2").arg(
+			edb::v1::format_pointer(new_data_view->region->start()),
+			edb::v1::format_pointer(new_data_view->region->end())));
+	} else {
+		ui.tabWidget->addTab(hexview, tr("%1-%2").arg(
+			edb::v1::format_pointer(0),
+			edb::v1::format_pointer(0)));
+	}
+
+
+	ui.tabWidget->setCurrentIndex(ui.tabWidget->count() - 1);
+}
+
+//------------------------------------------------------------------------------
+// Name: finish_plugin_setup
+// Desc: finalizes plugin setup by adding each to the menu, we can do this now
+//       that we have a GUI widget to attach it to
+//------------------------------------------------------------------------------
+void DebuggerMain::finish_plugin_setup(const QHash<QString, QObject *> &plugins) {
+
+	// call the init function for each plugin
+	Q_FOREACH(QObject *plugin, plugins) {
+		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
+			p->init();
+		}
+	}
+
+	// setup the menu for all plugins that which to do so
+	QPointer<DialogOptions> options = qobject_cast<DialogOptions *>(edb::v1::dialog_options());
+	Q_FOREACH(QObject *plugin, plugins) {
+		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
+			if(QMenu *const menu = p->menu(this)) {
+				ui.menu_Plugins->addMenu(menu);
+			}
+
+			if(QWidget *const options_page = p->options_page()) {
+				if(options) {
+					options->addOptionsPage(options_page);
+				}
+			}
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: get_goto_expression
+// Desc:
+//------------------------------------------------------------------------------
+edb::address_t DebuggerMain::get_goto_expression(bool *ok) {
+
+	Q_ASSERT(ok);
+
+	edb::address_t address;
+	*ok = edb::v1::get_expression_from_user(tr("Goto Address"), tr("Address:"), &address);
+	return *ok ? address : 0;
+}
+
+//------------------------------------------------------------------------------
+// Name: get_follow_register
+// Desc:
+//------------------------------------------------------------------------------
+edb::reg_t DebuggerMain::get_follow_register(bool *ok) const {
+
+	Q_ASSERT(ok);
+
+	*ok = false;
+	if(const QTreeWidgetItem *const i = ui.registerList->currentItem()) {
+		if(const Register reg = edb::v1::arch_processor().value_from_item(*i)) {
+			if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP)) {
+				*ok = true;
+				return reg.value<edb::reg_t>();
+			}
+		}
+	}
+
+	return 0;
+}
+
 
 //------------------------------------------------------------------------------
 // Name: goto_triggered
@@ -255,21 +586,21 @@ void DebuggerMain::setup_ui() {
 	// calling it's destructor which writes the settings to disk!).
 	edb::v1::debugger_ui = this;
 
-	ui->setupUi(this);
+	ui.setupUi(this);
 
 	// add toggles for the dock windows
-	ui->menu_View->addAction(ui->registersDock->toggleViewAction());
-	ui->menu_View->addAction(ui->dataDock     ->toggleViewAction());
-	ui->menu_View->addAction(ui->stackDock    ->toggleViewAction());
-	ui->menu_View->addAction(ui->toolBar      ->toggleViewAction());
+	ui.menu_View->addAction(ui.registersDock->toggleViewAction());
+	ui.menu_View->addAction(ui.dataDock     ->toggleViewAction());
+	ui.menu_View->addAction(ui.stackDock    ->toggleViewAction());
+	ui.menu_View->addAction(ui.toolBar      ->toggleViewAction());
 
 	// make sure our widgets use custom context menus
-	ui->registerList->setContextMenuPolicy(Qt::CustomContextMenu);
-	ui->cpuView     ->setContextMenuPolicy(Qt::CustomContextMenu);
+	ui.registerList->setContextMenuPolicy(Qt::CustomContextMenu);
+	ui.cpuView     ->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// set the listbox to about 4 lines
-	const QFontMetrics &fm = ui->listView->fontMetrics();
-	ui->listView->setFixedHeight(fm.height() * 4);
+	const QFontMetrics &fm = ui.listView->fontMetrics();
+	ui.listView->setFixedHeight(fm.height() * 4);
 
 	setup_stack_view();
 	setup_tab_buttons();
@@ -278,7 +609,7 @@ void DebuggerMain::setup_ui() {
 	// it's a bit ugly to do it this way, but the designer wont let me
 	// make a tabless entry..and the ones i create look slightly diff
 	// (probably lack of layout manager in mine...
-	ui->tabWidget->clear();
+	ui.tabWidget->clear();
 	mnuDumpCreateTab();
 
 	// apply any fonts we may have stored
@@ -295,7 +626,7 @@ void DebuggerMain::setup_ui() {
 void DebuggerMain::setup_stack_view() {
 
 	stack_view_ = QSharedPointer<QHexView>(new QHexView);
-	ui->stackDock->setWidget(stack_view_.data());
+	ui.stackDock->setWidget(stack_view_.data());
 
 	// setup the context menu
 	stack_view_->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -307,14 +638,6 @@ void DebuggerMain::setup_stack_view() {
 
 	// setup the comment server for the stack viewer
 	stack_view_->setCommentServer(stack_comment_server_);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DebuggerMain
-// Desc: destructor
-//------------------------------------------------------------------------------
-DebuggerMain::~DebuggerMain() {
-	detach_from_process((edb::v1::config().close_behavior == Configuration::Terminate) ? KILL_ON_DETACH : NO_KILL_ON_DETACH);
 }
 
 //------------------------------------------------------------------------------
@@ -440,11 +763,11 @@ void DebuggerMain::apply_default_fonts() {
 	}
 
 	if(font.fromString(config.registers_font)) {
-		ui->registerList->setFont(font);
+		ui.registerList->setFont(font);
 	}
 
 	if(font.fromString(config.disassembly_font)) {
-		ui->cpuView->setFont(font);
+		ui.cpuView->setFont(font);
 	}
 
 	if(font.fromString(config.data_font)) {
@@ -460,8 +783,8 @@ void DebuggerMain::apply_default_fonts() {
 //------------------------------------------------------------------------------
 void DebuggerMain::setup_tab_buttons() {
 	// add the corner widgets to the data view
-	add_tab_ = new QToolButton(ui->tabWidget);
-	del_tab_ = new QToolButton(ui->tabWidget);
+	add_tab_ = new QToolButton(ui.tabWidget);
+	del_tab_ = new QToolButton(ui.tabWidget);
 
 	add_tab_->setToolButtonStyle(Qt::ToolButtonIconOnly);
 	del_tab_->setToolButtonStyle(Qt::ToolButtonIconOnly);
@@ -472,8 +795,8 @@ void DebuggerMain::setup_tab_buttons() {
 	add_tab_->setEnabled(false);
 	del_tab_->setEnabled(false);
 
-	ui->tabWidget->setCornerWidget(add_tab_, Qt::TopLeftCorner);
-	ui->tabWidget->setCornerWidget(del_tab_, Qt::TopRightCorner);
+	ui.tabWidget->setCornerWidget(add_tab_, Qt::TopLeftCorner);
+	ui.tabWidget->setCornerWidget(del_tab_, Qt::TopRightCorner);
 
 	connect(add_tab_, SIGNAL(clicked()), SLOT(mnuDumpCreateTab()));
 	connect(del_tab_, SIGNAL(clicked()), SLOT(mnuDumpDeleteTab()));
@@ -484,8 +807,8 @@ void DebuggerMain::setup_tab_buttons() {
 // Desc: context menu handler for register view
 //------------------------------------------------------------------------------
 void DebuggerMain::on_registerList_customContextMenuRequested(const QPoint &pos) {
-	QTreeWidgetItem *const item = ui->registerList->itemAt(pos);
-	if(item && !ui->registerList->isCategory(item)) {
+	QTreeWidgetItem *const item = ui.registerList->itemAt(pos);
+	if(item && !ui.registerList->isCategory(item)) {
 		// a little bit cheesy of a solution, but should work nicely
 		if(const Register reg = edb::v1::arch_processor().value_from_item(*item)) {
 			if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP | Register::TYPE_COND)) {
@@ -496,7 +819,7 @@ void DebuggerMain::on_registerList_customContextMenuRequested(const QPoint &pos)
 
 				add_plugin_context_menu(&menu, &IPlugin::register_context_menu);
 
-				menu.exec(ui->registerList->mapToGlobal(pos));
+				menu.exec(ui.registerList->mapToGlobal(pos));
 			}
 		}
 	}
@@ -553,7 +876,7 @@ void DebuggerMain::on_action_About_triggered() {
 void DebuggerMain::apply_default_show_separator() {
 	const bool show = edb::v1::config().show_address_separator;
 
-	ui->cpuView->setShowAddressSeparator(show);
+	ui.cpuView->setShowAddressSeparator(show);
 	stack_view_->setShowAddressSeparator(show);
 	Q_FOREACH(const DataViewInfo::pointer &data_view, data_regions_) {
 		data_view->view->setShowAddressSeparator(show);
@@ -765,7 +1088,7 @@ void DebuggerMain::follow_in_cpu(const T &hexview) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpFollowInCPU() {
-	follow_in_cpu(qobject_cast<QHexView *>(ui->tabWidget->currentWidget()));
+	follow_in_cpu(qobject_cast<QHexView *>(ui.tabWidget->currentWidget()));
 }
 
 //------------------------------------------------------------------------------
@@ -773,7 +1096,7 @@ void DebuggerMain::mnuDumpFollowInCPU() {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpFollowInDump() {
-	follow_in_dump(qobject_cast<QHexView *>(ui->tabWidget->currentWidget()));
+	follow_in_dump(qobject_cast<QHexView *>(ui.tabWidget->currentWidget()));
 }
 
 //------------------------------------------------------------------------------
@@ -781,7 +1104,7 @@ void DebuggerMain::mnuDumpFollowInDump() {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpFollowInStack() {
-	follow_in_stack(qobject_cast<QHexView *>(ui->tabWidget->currentWidget()));
+	follow_in_stack(qobject_cast<QHexView *>(ui.tabWidget->currentWidget()));
 }
 
 //------------------------------------------------------------------------------
@@ -877,8 +1200,8 @@ void DebuggerMain::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	menu.addAction(tr("&Goto Address"), this, SLOT(mnuCPUJumpToAddress()));
 	menu.addAction(tr("&Goto %1").arg(instruction_pointer_name), this, SLOT(mnuCPUJumpToEIP()));
 
-	const edb::address_t address = ui->cpuView->selectedAddress();
-	int size                     = ui->cpuView->selectedSize();
+	const edb::address_t address = ui.cpuView->selectedAddress();
+	int size                     = ui.cpuView->selectedSize();
 
 
 	if(edb::v1::debugger_core->pid() != 0) {
@@ -933,7 +1256,7 @@ void DebuggerMain::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 	add_plugin_context_menu(&menu, &IPlugin::cpu_context_menu);
 
-	menu.exec(ui->cpuView->viewport()->mapToGlobal(pos));
+	menu.exec(ui.cpuView->viewport()->mapToGlobal(pos));
 }
 
 //------------------------------------------------------------------------------
@@ -1043,7 +1366,7 @@ void DebuggerMain::mnuDumpContextMenu(const QPoint &pos) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpSaveToFile() {
-	QHexView *const s = qobject_cast<QHexView *>(ui->tabWidget->currentWidget());
+	QHexView *const s = qobject_cast<QHexView *>(ui.tabWidget->currentWidget());
 
 	Q_ASSERT(s);
 
@@ -1066,8 +1389,8 @@ void DebuggerMain::mnuDumpSaveToFile() {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::cpu_fill(quint8 byte) {
-	const edb::address_t address = ui->cpuView->selectedAddress();
-	const unsigned int size      = ui->cpuView->selectedSize();
+	const edb::address_t address = ui.cpuView->selectedAddress();
+	const unsigned int size      = ui.cpuView->selectedSize();
 
 	if(size != 0) {
 		if(edb::v1::overwrite_check(address, size)) {
@@ -1086,7 +1409,7 @@ void DebuggerMain::cpu_fill(quint8 byte) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUAddBreakpoint() {
-	const edb::address_t address = ui->cpuView->selectedAddress();
+	const edb::address_t address = ui.cpuView->selectedAddress();
 	edb::v1::create_breakpoint(address);
 }
 
@@ -1096,7 +1419,7 @@ void DebuggerMain::mnuCPUAddBreakpoint() {
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUAddConditionalBreakpoint() {
 	bool ok;
-	const edb::address_t address = ui->cpuView->selectedAddress();
+	const edb::address_t address = ui.cpuView->selectedAddress();
 	const QString condition = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, QString(), &ok);
 	if(ok) {
 		edb::v1::create_breakpoint(address);
@@ -1111,7 +1434,7 @@ void DebuggerMain::mnuCPUAddConditionalBreakpoint() {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPURemoveBreakpoint() {
-	const edb::address_t address = ui->cpuView->selectedAddress();
+	const edb::address_t address = ui.cpuView->selectedAddress();
 	edb::v1::remove_breakpoint(address);
 }
 
@@ -1137,7 +1460,7 @@ void DebuggerMain::mnuCPUFillNop() {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUSetEIP() {
-	const edb::address_t address = ui->cpuView->selectedAddress();
+	const edb::address_t address = ui.cpuView->selectedAddress();
 	State state;
 	edb::v1::debugger_core->get_state(&state);
 	state.set_instruction_pointer(address);
@@ -1150,8 +1473,8 @@ void DebuggerMain::mnuCPUSetEIP() {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuCPUModify() {
-	const edb::address_t address = ui->cpuView->selectedAddress();
-	const unsigned int size      = ui->cpuView->selectedSize();
+	const edb::address_t address = ui.cpuView->selectedAddress();
+	const unsigned int size      = ui.cpuView->selectedSize();
 
 	quint8 buf[edb::Instruction::MAX_SIZE];
 
@@ -1192,7 +1515,7 @@ void DebuggerMain::modify_bytes(const T &hexview) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpModify() {
-	modify_bytes(qobject_cast<QHexView *>(ui->tabWidget->currentWidget()));
+	modify_bytes(qobject_cast<QHexView *>(ui.tabWidget->currentWidget()));
 }
 
 //------------------------------------------------------------------------------
@@ -1429,13 +1752,13 @@ edb::EVENT_STATUS DebuggerMain::debug_event_handler(const IDebugEvent::const_poi
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::update_tab_caption(const QSharedPointer<QHexView> &view, edb::address_t start, edb::address_t end) {
-	const int index = ui->tabWidget->indexOf(view.data());
-	const QString caption = ui->tabWidget->data(index).toString();
+	const int index = ui.tabWidget->indexOf(view.data());
+	const QString caption = ui.tabWidget->data(index).toString();
 
 	if(caption.isEmpty()) {
-		ui->tabWidget->setTabText(index, tr("%1-%2").arg(edb::v1::format_pointer(start), edb::v1::format_pointer(end)));
+		ui.tabWidget->setTabText(index, tr("%1-%2").arg(edb::v1::format_pointer(start), edb::v1::format_pointer(end)));
 	} else {
-		ui->tabWidget->setTabText(index, tr("[%1] %2-%3").arg(caption, edb::v1::format_pointer(start), edb::v1::format_pointer(end)));
+		ui.tabWidget->setTabText(index, tr("[%1] %2-%3").arg(caption, edb::v1::format_pointer(start), edb::v1::format_pointer(end)));
 	}
 }
 
@@ -1479,10 +1802,10 @@ void DebuggerMain::clear_data(const DataViewInfo::pointer &v) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::do_jump_to_address(edb::address_t address, const IRegion::pointer &r, bool scrollTo) {
-	ui->cpuView->setAddressOffset(r->start());
-	ui->cpuView->setRegion(r);
-	if(scrollTo && !ui->cpuView->addressShown(address)) {
-		ui->cpuView->scrollTo(address);
+	ui.cpuView->setAddressOffset(r->start());
+	ui.cpuView->setRegion(r);
+	if(scrollTo && !ui.cpuView->addressShown(address)) {
+		ui.cpuView->scrollTo(address);
 	}
 }
 
@@ -1491,7 +1814,7 @@ void DebuggerMain::do_jump_to_address(edb::address_t address, const IRegion::poi
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::update_disassembly(edb::address_t address, const IRegion::pointer &r) {
-	ui->cpuView->setCurrentAddress(address);
+	ui.cpuView->setCurrentAddress(address);
 	do_jump_to_address(address, r, true);
 	list_model_->setStringList(edb::v1::arch_processor().update_instruction_info(address));
 }
@@ -1519,8 +1842,8 @@ IRegion::pointer DebuggerMain::update_cpu_view(const State &state) {
 		update_disassembly(address, region);
 		return region;
 	} else {
-		ui->cpuView->clear();
-		ui->cpuView->scrollTo(0);
+		ui.cpuView->clear();
+		ui.cpuView->scrollTo(0);
 		list_model_->setStringList(QStringList());
 		return IRegion::pointer();
 	}
@@ -1550,7 +1873,7 @@ void DebuggerMain::update_data_views() {
 //------------------------------------------------------------------------------
 void DebuggerMain::refresh_gui() {
 
-	ui->cpuView->repaint();
+	ui.cpuView->repaint();
 	stack_view_->repaint();
 
 	Q_FOREACH(const DataViewInfo::pointer &info, data_regions_) {
@@ -1714,7 +2037,7 @@ void DebuggerMain::on_action_Step_Over_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerMain::on_actionRun_Until_Return_triggered() {
-	new RunUntilRet(this);
+	new RunUntilRet();
 	resume_execution(PASS_EXCEPTION, MODE_STEP);
 }
 
@@ -1740,11 +2063,11 @@ void DebuggerMain::cleanup_debugger() {
 	edb::v1::arch_processor().reset();
 
 	// clear up the data view
-	while(ui->tabWidget->count() > 1) {
+	while(ui.tabWidget->count() > 1) {
 		mnuDumpDeleteTab();
 	}
 
-	ui->tabWidget->setData(0, QString());
+	ui.tabWidget->setData(0, QString());
 
 	Q_ASSERT(!data_regions_.isEmpty());
 	data_regions_.first()->region = IRegion::pointer();
@@ -2113,7 +2436,7 @@ void DebuggerMain::on_action_Threads_triggered() {
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpCreateTab() {
 	create_data_tab();
-	del_tab_->setEnabled(ui->tabWidget->count() > 1);
+	del_tab_->setEnabled(ui.tabWidget->count() > 1);
 }
 
 //------------------------------------------------------------------------------
@@ -2122,7 +2445,7 @@ void DebuggerMain::mnuDumpCreateTab() {
 //------------------------------------------------------------------------------
 void DebuggerMain::mnuDumpDeleteTab() {
 	delete_data_tab();
-	del_tab_->setEnabled(ui->tabWidget->count() > 1);
+	del_tab_->setEnabled(ui.tabWidget->count() > 1);
 }
 
 //------------------------------------------------------------------------------
@@ -2246,7 +2569,7 @@ void DebuggerMain::tab_context_menu(int index, const QPoint &pos) {
 	QMenu menu;
 	QAction *const actionAdd   = menu.addAction(tr("&Set Label"));
 	QAction *const actionClear = menu.addAction(tr("&Clear Label"));
-	QAction *const chosen      = menu.exec(ui->tabWidget->mapToGlobal(pos));
+	QAction *const chosen      = menu.exec(ui.tabWidget->mapToGlobal(pos));
 
 	if(chosen == actionAdd) {
 		bool ok;
@@ -2255,14 +2578,14 @@ void DebuggerMain::tab_context_menu(int index, const QPoint &pos) {
 			tr("Set Caption"),
 			tr("Caption:"),
 			QLineEdit::Normal,
-			ui->tabWidget->data(index).toString(),
+			ui.tabWidget->data(index).toString(),
 			&ok);
 
 		if(ok && !text.isEmpty()) {
-			ui->tabWidget->setData(index, text);
+			ui.tabWidget->setData(index, text);
 		}
 	} else if(chosen == actionClear) {
-		ui->tabWidget->setData(index, QString());
+		ui.tabWidget->setData(index, QString());
 	}
 
 	update_gui();
