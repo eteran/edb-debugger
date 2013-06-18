@@ -16,37 +16,85 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DEBUGGERMAIN_20060508_H_
-#define DEBUGGERMAIN_20060508_H_
+#ifndef DEBUGGERMAIN_20090811_H_
+#define DEBUGGERMAIN_20090811_H_
 
+#include "DataViewInfo.h"
+#include "DebuggerMain.h"
 #include "IDebugEventHandler.h"
-#include "DebuggerUI.h"
-#include "ScopedPointer.h"
 #include "QHexView"
-#include <QDragEnterEvent>
-#include <QDropEvent>
+#include "ScopedPointer.h"
+#include "edb.h"
 
+class DialogArguments;
 class IBinary;
 class IBreakpoint;
-class IPlugin;
 class IDebugEvent;
-class DialogArguments;
+class IPlugin;
 class RecentFileManager;
 
 class QStringListModel;
 class QTimer;
 class QToolButton;
 class QTreeWidgetItem;
+class QToolButton;
 
-class DebuggerMain : public DebuggerUI, public IDebugEventHandler {
+#include <QDragEnterEvent>
+#include <QDropEvent>
+#include <QMainWindow>
+#include <QMessageBox>
+#include <QProcess>
+#include <QVector>
+
+#include <cstring>
+
+#include "ui_Debugger.h"
+
+class DebuggerMain : public QMainWindow, public IDebugEventHandler {
 	Q_OBJECT
-
-private:
-	friend class RunUntilRet;
 
 public:
 	DebuggerMain(QWidget *parent = 0);
 	virtual ~DebuggerMain();
+
+protected:
+	enum GUI_STATE {
+		PAUSED,
+		RUNNING,
+		TERMINATED
+	};
+
+public:
+	int current_tab() const;
+	DataViewInfo::pointer current_data_view_info() const;
+	void finish_plugin_setup(const QHash<QString, QObject *> &plugins);
+
+protected:
+	void update_menu_state(GUI_STATE state);
+	QString create_tty();
+	void set_debugger_caption(const QString &appname);
+	void delete_data_tab();
+	void create_data_tab();
+	edb::reg_t get_follow_register(bool *ok) const;
+	edb::address_t get_goto_expression(bool *ok);
+
+private Q_SLOTS:
+	void tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status);
+
+public:
+	Ui::Debugger ui;
+
+protected:
+	QToolButton *                  add_tab_;
+	QToolButton *                  del_tab_;
+	QProcess *                     tty_proc_;
+	GUI_STATE                      gui_state_;
+	QString                        tty_file_;
+	QVector<DataViewInfo::pointer> data_regions_;
+	DataViewInfo                   stack_view_info_;
+	
+private:
+	friend class RunUntilRet;
 
 protected:
 	virtual void closeEvent(QCloseEvent *event);
@@ -247,3 +295,4 @@ private:
 };
 
 #endif
+
