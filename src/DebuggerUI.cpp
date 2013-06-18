@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DebuggerUI.h"
 #include "Configuration.h"
-#include "Debugger.h"
+#include "edb.h"
 #include "DialogOptions.h"
 #include "Expression.h"
 #include "IArchProcessor.h"

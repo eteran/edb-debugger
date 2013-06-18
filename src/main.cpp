@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebuggerCore.h"
 #include "IPlugin.h"
 #include "DebuggerMain.h"
-#include "Debugger.h"
+#include "edb.h"
 #include "DebuggerInternal.h"
 #include "symbols.h"
 #include "version.h"

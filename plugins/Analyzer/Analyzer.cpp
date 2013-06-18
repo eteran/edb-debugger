@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Analyzer.h"
 #include "AnalyzerOptionsPage.h"
 #include "AnalyzerWidget.h"
-#include "Debugger.h"
+#include "edb.h"
 #include "DialogSpecifiedFunctions.h"
 #include "IArchProcessor.h"
 #include "IBinary.h"

@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerMain.h"
 #include "CommentServer.h"
 #include "Configuration.h"
-#include "Debugger.h"
+#include "edb.h"
 #include "DebuggerInternal.h"
 #include "DebuggerOps.h"
 #include "DialogArguments.h"

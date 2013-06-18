@@ -17,10 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogBreakpoints.h"
-#include "IDebuggerCore.h"
-#include "Debugger.h"
 #include "Expression.h"
-#include "Debugger.h"
+#include "IDebuggerCore.h"
+#include "edb.h"
 
 #include <QHeaderView>
 #include <QInputDialog>

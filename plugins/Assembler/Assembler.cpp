@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Assembler.h"
-#include "Debugger.h"
+#include "edb.h"
 #include "DialogAssembler.h"
 #include "MemoryRegions.h"
 #include "OptionsPage.h"

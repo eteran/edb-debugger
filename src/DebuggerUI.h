@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DEBUGGERUI_20090811_H_
 
 #include "DataViewInfo.h"
-#include "Debugger.h"
+#include "edb.h"
 
 #include <QMainWindow>
 #include <QMessageBox>

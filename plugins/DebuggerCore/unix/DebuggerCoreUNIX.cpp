@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // this code is common to all unix variants (linux/bsd/osx)
 
 #include "DebuggerCoreUNIX.h"
-#include "Debugger.h"
+#include "edb.h"
 
 #include <QStringList>
 #include <cerrno>

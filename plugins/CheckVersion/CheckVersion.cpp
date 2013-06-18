@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "CheckVersion.h"
 #include "CheckVersionOptionsPage.h"
-#include "Debugger.h"
+#include "edb.h"
 #include <QDebug>
 #include <QMenu>
 #include <QMessageBox>

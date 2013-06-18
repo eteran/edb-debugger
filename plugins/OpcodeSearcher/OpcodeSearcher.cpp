@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "OpcodeSearcher.h"
 #include "DialogOpcodes.h"
-#include "Debugger.h"
+#include "edb.h"
 #include <QMenu>
 
 //------------------------------------------------------------------------------

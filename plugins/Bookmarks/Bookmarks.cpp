@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Bookmarks.h"
 #include "BookmarkWidget.h"
-#include "Debugger.h"
+#include "edb.h"
 #include <QDockWidget>
 #include <QMainWindow>
 #include <QMenu>
