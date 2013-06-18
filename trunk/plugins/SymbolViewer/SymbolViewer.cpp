@@ -42,7 +42,9 @@ SymbolViewer::~SymbolViewer() {
 //------------------------------------------------------------------------------
 QMenu *SymbolViewer::menu(QWidget *parent) {
 
-	if(menu_ == 0) {
+	Q_ASSERT(parent);
+
+	if(!menu_) {
 		menu_ = new QMenu(tr("SymbolViewer"), parent);
 		menu_->addAction(tr("&Symbol Viewer"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+Alt+S")));
 	}
@@ -56,7 +58,7 @@ QMenu *SymbolViewer::menu(QWidget *parent) {
 //------------------------------------------------------------------------------
 void SymbolViewer::show_menu() {
 
-	if(dialog_ == 0) {
+	if(!dialog_) {
 		dialog_ = new DialogSymbolViewer(edb::v1::debugger_ui);
 	}
 

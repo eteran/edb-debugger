@@ -41,7 +41,10 @@ BinarySearcher::~BinarySearcher() {
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *BinarySearcher::menu(QWidget *parent) {
-	if(menu_ == 0) {
+
+	Q_ASSERT(parent);
+
+	if(!menu_) {
 		menu_ = new QMenu(tr("BinarySearcher"), parent);
 		menu_->addAction(tr("&Binary String Search"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+F")));
 	}

@@ -47,7 +47,10 @@ HardwareBreakpoints::HardwareBreakpoints() : menu_(0), dialog_(0), old_event_han
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *HardwareBreakpoints::menu(QWidget *parent) {
-	if(menu_ == 0) {
+
+	Q_ASSERT(parent);
+
+	if(!menu_) {
 		menu_ = new QMenu(tr("Hardware BreakpointManager"), parent);
 		menu_->addAction(tr("&Hardware Breakpoints"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+Shift+H")));
 	}

@@ -81,7 +81,10 @@ QWidget *Analyzer::options_page() {
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *Analyzer::menu(QWidget *parent) {
-	if(menu_ == 0) {
+
+	Q_ASSERT(parent);
+
+	if(!menu_) {
 		menu_ = new QMenu(tr("Analyzer"), parent);
 		menu_->addAction(tr("Show &Specified Functions"), this, SLOT(show_specified()));
 #if defined(EDB_X86)

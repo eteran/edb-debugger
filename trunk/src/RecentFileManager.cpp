@@ -93,7 +93,7 @@ void RecentFileManager::clear_file_list() {
 //------------------------------------------------------------------------------
 QMenu *RecentFileManager::create_menu() {
 
-	if(menu_ == 0) {
+	if(!menu_) {
 		menu_ = new QMenu(this);
 		update();
 	}
