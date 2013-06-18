@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "DebuggerInternal.h"
 #include "Debugger.h"
-#include "DebuggerOps.h"
 #include "DialogArguments.h"
 #include "DialogAttach.h"
 #include "DialogMemoryRegions.h"
@@ -343,11 +342,12 @@ QString Debugger::create_tty() {
 			const QString tty_command = proc_args.takeFirst().trimmed();
 
 			// start constructing the arguments for the term
+			QFileInfo command_info(tty_command);
 
-			if(tty_command.endsWith("/gnome-terminal")) {
+			if(command_info.fileName() == "gnome-terminal") {
 				proc_args << "--hide-menubar" << "--title" << tr("edb output") << "-e" << QString("sh -c '%1'").arg(shell_script);
-			} else if(tty_command.endsWith("/konsole")) {
-				proc_args << "--nofork" << "--title" << tr("edb output") << "-e" << QString("sh -c '%1'").arg(shell_script);
+			} else if(command_info.fileName() == "konsole") {
+				proc_args << "--hide-menubar" << "--title" << "--nofork" << tr("edb output") << "-e" << QString("sh -c '%1'").arg(shell_script);
 			} else {
 				proc_args << "-title" << tr("edb output") << "-e" << QString("sh -c '%1'").arg(shell_script);
 			}
@@ -907,6 +907,39 @@ void Debugger::on_action_Configure_Debugger_triggered() {
 
 	// show changes
 	refresh_gui();
+}
+
+//----------------------------------------------------------------------
+// Name: step_over
+//----------------------------------------------------------------------
+template <class F1, class F2>
+void Debugger::step_over(F1 run_func, F2 step_func) {
+
+	State state;
+	edb::v1::debugger_core->get_state(&state);
+
+	const edb::address_t ip = state.instruction_pointer();
+
+	quint8 buffer[edb::Instruction::MAX_SIZE];
+	int sz = sizeof(buffer);
+
+	if(edb::v1::get_instruction_bytes(ip, buffer, &sz)) {
+		edb::Instruction insn(buffer, buffer + sz, 0, std::nothrow);
+		if(insn && edb::v1::arch_processor().can_step_over(insn)) {
+
+			// add a temporary breakpoint at the instruction just
+			// after the call
+			if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(ip + insn.size())) {
+				bp->set_internal(true);
+				bp->set_one_time(true);
+				run_func();
+				return;
+			}
+		}
+	}
+
+	// if all else fails, it's a step into
+	step_func();
 }
 
 //------------------------------------------------------------------------------
@@ -1673,28 +1706,6 @@ edb::EVENT_STATUS Debugger::handle_event_exited(const IDebugEvent::const_pointer
 }
 
 //------------------------------------------------------------------------------
-// Name: current_instruction_is_return
-// Desc:
-//------------------------------------------------------------------------------
-bool Debugger::current_instruction_is_return() const {
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-	const edb::address_t address = state.instruction_pointer();
-
-	quint8 buffer[edb::Instruction::MAX_SIZE + 1];
-	int size = sizeof(buffer);
-
-	if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
-		edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
-		if(is_ret(insn)) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-//------------------------------------------------------------------------------
 // Name: handle_event
 // Desc:
 //------------------------------------------------------------------------------
@@ -2019,7 +2030,7 @@ void Debugger::on_action_Kill_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_Step_Over_Pass_Signal_To_Application_triggered() {
-	edb::detail::step_over(
+	step_over(
 		boost::bind(&Debugger::on_action_Run_Pass_Signal_To_Application_triggered, this),
 		boost::bind(&Debugger::on_action_Step_Into_Pass_Signal_To_Application_triggered, this));
 }
@@ -2029,7 +2040,7 @@ void Debugger::on_action_Step_Over_Pass_Signal_To_Application_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_Step_Over_triggered() {
-	edb::detail::step_over(
+	step_over(
 		boost::bind(&Debugger::on_action_Run_triggered, this),
 		boost::bind(&Debugger::on_action_Step_Into_triggered, this));
 }
