@@ -100,7 +100,7 @@ public:
 	virtual QString process_exe(edb::pid_t pid) const = 0;
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const = 0;
 	virtual QDateTime process_start(edb::pid_t pid) const = 0;
-	virtual QString process_arch() const = 0;
+	virtual quint64 process_arch() const = 0;
 
 public:
 	virtual IState *create_state() const = 0;

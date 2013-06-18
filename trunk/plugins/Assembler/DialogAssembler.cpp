@@ -224,11 +224,18 @@ void DialogAssembler::on_buttonBox_accepted() {
 		QString program(assembler);
 
 		if(info.fileName() == "yasm") {
-			if(edb::v1::debugger_core->process_arch() == "x86") {
+		
+			switch(edb::v1::debugger_core->process_arch()) {
+			case edb::string_hash<'x', '8', '6'>::value:
 				source_file.write("[BITS 32]\n");
-			} else if(edb::v1::debugger_core->process_arch() == "x86-64") {
+				break;
+			case edb::string_hash<'x', '8', '6', '-', '6', '4'>::value:
 				source_file.write("[BITS 64]\n");
+				break;
+			default:
+				Q_ASSERT(0);
 			}
+			
 			source_file.write(QString("[SECTION .text vstart=0x%1 valign=1]\n\n").arg(edb::v1::format_pointer(address_)).toAscii());
 			source_file.write(nasm_syntax.toAscii());
 			source_file.write("\n");
@@ -238,11 +245,18 @@ void DialogAssembler::on_buttonBox_accepted() {
 			arguments << "-f" << "bin";
 			arguments << source_file.fileName();
 		} else if(info.fileName() == "nasm") {
-			if(edb::v1::debugger_core->process_arch() == "x86") {
+			
+			switch(edb::v1::debugger_core->process_arch()) {
+			case edb::string_hash<'x', '8', '6'>::value:
 				source_file.write("[BITS 32]\n");
-			} else if(edb::v1::debugger_core->process_arch() == "x86-64") {
+				break;
+			case edb::string_hash<'x', '8', '6', '-', '6', '4'>::value:
 				source_file.write("[BITS 64]\n");
+				break;
+			default:
+				Q_ASSERT(0);
 			}
+			
 			source_file.write(QString("ORG 0x%1\n\n").arg(edb::v1::format_pointer(address_)).toAscii());
 			source_file.write(nasm_syntax.toAscii());
 			source_file.write("\n");

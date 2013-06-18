@@ -67,7 +67,7 @@ public:
 	virtual QString process_cwd(edb::pid_t pid) const;
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const;
 	virtual QDateTime process_start(edb::pid_t pid) const;
-	virtual QString process_arch() const;
+	virtual quint64 process_arch() const;
 
 private:
 	virtual QMap<edb::pid_t, Process> enumerate_processes() const;
