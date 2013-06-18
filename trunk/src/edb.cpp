@@ -20,11 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ArchProcessor.h"
 #include "BinaryString.h"
 #include "Configuration.h"
-#include "DebuggerMain.h"
+#include "Debugger.h"
 #include "DialogInputBinaryString.h"
 #include "DialogInputValue.h"
 #include "DialogOptions.h"
-#include "DebuggerMain.h"
+#include "Debugger.h"
 #include "Expression.h"
 #include "FunctionInfo.h"
 #include "IDebuggerCore.h"
@@ -65,8 +65,8 @@ namespace {
 
 	QHash<QString, FunctionInfo>       g_FunctionDB;
 
-	DebuggerMain *ui() {
-		return qobject_cast<DebuggerMain *>(edb::v1::debugger_ui);
+	Debugger *ui() {
+		return qobject_cast<Debugger *>(edb::v1::debugger_ui);
 	}
 
 	bool function_symbol_base(edb::address_t address, QString *value, int *offset) {
@@ -158,7 +158,7 @@ IRegion::pointer edb::v1::current_cpu_view_region() {
 // Desc:
 //------------------------------------------------------------------------------
 void edb::v1::repaint_cpu_view() {
-	DebuggerMain *const gui = ui();
+	Debugger *const gui = ui();
 	Q_ASSERT(gui);
 	gui->ui.cpuView->viewport()->repaint();
 }
@@ -247,7 +247,7 @@ IDebugEventHandler *edb::v1::debug_event_handler() {
 //       status
 //------------------------------------------------------------------------------
 bool edb::v1::jump_to_address(edb::address_t address) {
-	DebuggerMain *const gui = ui();
+	Debugger *const gui = ui();
 	Q_ASSERT(gui);
 	return gui->jump_to_address(address);
 }
@@ -258,7 +258,7 @@ bool edb::v1::jump_to_address(edb::address_t address) {
 //       optionally in a new tab
 //------------------------------------------------------------------------------
 bool edb::v1::dump_data_range(edb::address_t address, edb::address_t end_address, bool new_tab) {
-	DebuggerMain *const gui = ui();
+	Debugger *const gui = ui();
 	Q_ASSERT(gui);
 	return gui->dump_data_range(address, end_address, new_tab);
 }
@@ -284,7 +284,7 @@ bool edb::v1::dump_stack(edb::address_t address) {
 // Desc: shows a given address in the stack view
 //------------------------------------------------------------------------------
 bool edb::v1::dump_stack(edb::address_t address, bool scroll_to) {
-	DebuggerMain *const gui = ui();
+	Debugger *const gui = ui();
 	Q_ASSERT(gui);
 	return gui->dump_stack(address, scroll_to);
 }
@@ -294,7 +294,7 @@ bool edb::v1::dump_stack(edb::address_t address, bool scroll_to) {
 // Desc: shows a given address in the data view, optionally in a new tab
 //------------------------------------------------------------------------------
 bool edb::v1::dump_data(edb::address_t address, bool new_tab) {
-	DebuggerMain *const gui = ui();
+	Debugger *const gui = ui();
 	Q_ASSERT(gui);
 	return gui->dump_data(address, new_tab);
 }
@@ -975,7 +975,7 @@ void edb::v1::modify_bytes(edb::address_t address, unsigned int size, QByteArray
 		debugger_core->write_bytes(address, bytes.data(), size);
 
 		// do a refresh, not full update
-		DebuggerMain *const gui = ui();
+		Debugger *const gui = ui();
 		Q_ASSERT(gui);
 		gui->refresh_gui();
 	}

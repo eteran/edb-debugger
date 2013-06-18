@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DEBUGGERMAIN_20090811_H_
 
 #include "DataViewInfo.h"
-#include "DebuggerMain.h"
+#include "Debugger.h"
 #include "IDebugEventHandler.h"
 #include "QHexView"
 #include "ScopedPointer.h"
@@ -38,11 +38,10 @@ class QTimer;
 class QToolButton;
 class QTreeWidgetItem;
 class QToolButton;
+class QDragEnterEvent;
+class QDropEvent;
 
-#include <QDragEnterEvent>
-#include <QDropEvent>
 #include <QMainWindow>
-#include <QMessageBox>
 #include <QProcess>
 #include <QVector>
 
@@ -50,14 +49,33 @@ class QToolButton;
 
 #include "ui_Debugger.h"
 
-class DebuggerMain : public QMainWindow, public IDebugEventHandler {
+class Debugger : public QMainWindow, public IDebugEventHandler {
 	Q_OBJECT
 
-public:
-	DebuggerMain(QWidget *parent = 0);
-	virtual ~DebuggerMain();
+private:
+	friend class RunUntilRet;
 
-protected:
+public:
+	Debugger(QWidget *parent = 0);
+	virtual ~Debugger();
+
+private:
+	enum DEBUG_MODE {
+		MODE_STEP,
+		MODE_TRACE,
+		MODE_RUN
+	};
+
+	enum EXCEPTION_RESUME {
+		IGNORE_EXCEPTION,
+		PASS_EXCEPTION
+	};
+
+	enum DETACH_ACTION {
+		NO_KILL_ON_DETACH,
+		KILL_ON_DETACH
+	};
+	
 	enum GUI_STATE {
 		PAUSED,
 		RUNNING,
@@ -65,52 +83,18 @@ protected:
 	};
 
 public:
-	int current_tab() const;
 	DataViewInfo::pointer current_data_view_info() const;
-	void finish_plugin_setup(const QHash<QString, QObject *> &plugins);
-
-protected:
-	void update_menu_state(GUI_STATE state);
-	QString create_tty();
-	void set_debugger_caption(const QString &appname);
-	void delete_data_tab();
-	void create_data_tab();
-	edb::reg_t get_follow_register(bool *ok) const;
-	edb::address_t get_goto_expression(bool *ok);
-
-private Q_SLOTS:
-	void tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status);
-
-public:
-	Ui::Debugger ui;
-
-protected:
-	QToolButton *                  add_tab_;
-	QToolButton *                  del_tab_;
-	QProcess *                     tty_proc_;
-	GUI_STATE                      gui_state_;
-	QString                        tty_file_;
-	QVector<DataViewInfo::pointer> data_regions_;
-	DataViewInfo                   stack_view_info_;
-	
-private:
-	friend class RunUntilRet;
-
-protected:
-	virtual void closeEvent(QCloseEvent *event);
-	virtual void showEvent(QShowEvent *event);
-
-	void dragEnterEvent(QDragEnterEvent* event);
-	void dropEvent(QDropEvent* event);
-
-public:
 	bool dump_data(edb::address_t address, bool new_tab);
 	bool dump_data_range(edb::address_t address, edb::address_t end_address, bool new_tab);
 	bool dump_stack(edb::address_t address, bool scroll_to);
 	bool jump_to_address(edb::address_t address);
+	int current_tab() const;
 	void attach(edb::pid_t pid);
+	void clear_data(const DataViewInfo::pointer &v);
 	void execute(const QString &s, const QList<QByteArray> &args);
+	void finish_plugin_setup(const QHash<QString, QObject *> &plugins);
 	void refresh_gui();
+	void update_data(const DataViewInfo::pointer &v);
 	void update_gui();
 
 public Q_SLOTS:
@@ -193,33 +177,20 @@ private Q_SLOTS:
 	void next_debug_event();
 	void open_file(const QString &s);
 	void tab_context_menu(int index, const QPoint &pos);
+	void tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status);
+
+private:
+	virtual void closeEvent(QCloseEvent *event);
+	virtual void showEvent(QShowEvent *event);
+	virtual void dragEnterEvent(QDragEnterEvent* event);
+	virtual void dropEvent(QDropEvent* event);
 
 public:
 	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event);
 
 private:
-	enum DEBUG_MODE {
-		MODE_STEP,
-		MODE_TRACE,
-		MODE_RUN
-	};
-
-	enum EXCEPTION_RESUME {
-		IGNORE_EXCEPTION,
-		PASS_EXCEPTION
-	};
-
-	enum DETACH_ACTION {
-		NO_KILL_ON_DETACH,
-		KILL_ON_DETACH
-	};
-
-public:
-	void update_data(const DataViewInfo::pointer &v);
-	void clear_data(const DataViewInfo::pointer &v);
-
-private:
 	IRegion::pointer update_cpu_view(const State &state);
+	QString create_tty();
 	QString session_filename() const;
 	bool breakpoint_condition_true(const QString &condition);
 	bool common_open(const QString &s, const QList<QByteArray> &args);
@@ -230,15 +201,20 @@ private:
 	edb::EVENT_STATUS handle_event_terminated(const IDebugEvent::const_pointer &event);
 	edb::EVENT_STATUS handle_trap();
 	edb::EVENT_STATUS resume_status(bool pass_exception);
+	edb::address_t get_goto_expression(bool *ok);
+	edb::reg_t get_follow_register(bool *ok) const;
 	void apply_default_fonts();
 	void apply_default_show_separator();
 	void cleanup_debugger();
 	void cpu_fill(quint8 byte);
+	void create_data_tab();
+	void delete_data_tab();
 	void detach_from_process(DETACH_ACTION kill);
 	void do_jump_to_address(edb::address_t address, const IRegion::pointer &r, bool scroll_to);
 	void follow_register_in_dump(bool tabbed);
 	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode);
 	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced);
+	void set_debugger_caption(const QString &appname);
 	void set_initial_breakpoint(const QString &s);
 	void set_initial_debugger_state();
 	void setup_stack_view();
@@ -247,6 +223,7 @@ private:
 	void test_native_binary();
 	void update_data_views();
 	void update_disassembly(edb::address_t address, const IRegion::pointer &r);
+	void update_menu_state(GUI_STATE state);
 	void update_stack_view(const State &state);
 	void update_tab_caption(const QSharedPointer<QHexView> &view, edb::address_t start, edb::address_t end);
 
@@ -272,7 +249,17 @@ private:
 	template <class T>
 	void modify_bytes(const T &hexview);
 
+public:
+	Ui::Debugger ui;
+
 private:
+	QToolButton *                                    add_tab_;
+	QToolButton *                                    del_tab_;
+	QProcess *                                       tty_proc_;
+	GUI_STATE                                        gui_state_;
+	QString                                          tty_file_;
+	QVector<DataViewInfo::pointer>                   data_regions_;
+	DataViewInfo                                     stack_view_info_;
 	QSharedPointer<QHexView>                         stack_view_;
 	QStringListModel *                               list_model_;
 	DialogArguments *                                arguments_dialog_;
