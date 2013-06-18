@@ -178,7 +178,7 @@ size_t QDisassemblyView::length_disasm_back(const quint8 *buf, size_t size) cons
 	while(offs < edb::Instruction::MAX_SIZE) {
 
 		const edb::Instruction insn(tmp + offs, tmp + sizeof(tmp), 0, std::nothrow);
-		if(!insn.valid()) {
+		if(!insn) {
 			return 0;
 		}
 

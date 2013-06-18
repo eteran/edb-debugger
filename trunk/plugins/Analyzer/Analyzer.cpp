@@ -262,7 +262,7 @@ void Analyzer::find_function_calls(const IRegion::pointer &region, FunctionMap *
 			for(edb::address_t i = 0; i < static_cast<edb::address_t>(region->size()); ++i) {
 				const edb::Instruction insn(&pages[i], &pages[0] + region->size(), region->start() + i, std::nothrow);
 
-				if(insn.valid() && insn.type() == edb::Instruction::OP_CALL) {
+				if(is_call(insn)) {
 
 					const edb::address_t ip = region->start() + i;
 					const edb::Operand &op = insn.operands()[0];
@@ -313,7 +313,7 @@ bool Analyzer::is_stack_frame(edb::address_t addr) const {
 
 		// decode it
 		const edb::Instruction insn(buf, buf + buf_size, addr, std::nothrow);
-		if(!insn.valid()) {
+		if(!insn) {
 			break;;
 		}
 
@@ -526,7 +526,7 @@ int Analyzer::walk_all_functions(FunctionMap *results, const IRegion::pointer &r
 				int buf_size = sizeof(buf);
 				if(edb::v1::get_instruction_bytes(function.last_instruction, buf, &buf_size)) {
 					const edb::Instruction insn(buf, buf + buf_size, function.last_instruction, std::nothrow);
-					if(insn.valid() && insn.type() == edb::Instruction::OP_JMP) {
+					if(is_unconditional_jump(insn)) {
 
 						Q_ASSERT(insn.operand_count() == 1);
 						const edb::Operand &op = insn.operands()[0];
@@ -615,7 +615,7 @@ void Analyzer::find_function_end(Function *function, edb::address_t end_address,
 
 			// an invalid instruction ends this "block"
 			const edb::Instruction insn(buf, buf + buf_size, addr, std::nothrow);
-			if(!insn.valid()) {
+			if(!insn) {
 				break;
 			}
 

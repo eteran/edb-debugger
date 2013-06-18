@@ -44,7 +44,7 @@ namespace edb {
 
 			if(edb::v1::get_instruction_bytes(ip, buffer, &sz)) {
 				edb::Instruction insn(buffer, buffer + sz, 0, std::nothrow);
-				if(insn.valid() && edb::v1::arch_processor().can_step_over(insn)) {
+				if(insn && edb::v1::arch_processor().can_step_over(insn)) {
 
 					// add a temporary breakpoint at the instruction just
 					// after the call

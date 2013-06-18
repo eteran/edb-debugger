@@ -359,7 +359,7 @@ void edb::v1::create_breakpoint(edb::address_t address) {
 
 			if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
 				edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
-				if(!insn.valid()) {
+				if(!insn) {
 					ret = QMessageBox::question(
 						0,
 						QT_TRANSLATE_NOOP("edb", "Suspicious breakpoint"),
