@@ -98,7 +98,7 @@ void DialogReferences::do_find() {
 							}
 
 							edb::Instruction insn(p, pages_end, addr, std::nothrow);
-							if(insn.valid()) {
+							if(insn) {
 								switch(insn.type()) {
 								case edb::Instruction::OP_JMP:
 								case edb::Instruction::OP_CALL:

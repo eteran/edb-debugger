@@ -259,7 +259,7 @@ void analyze_jump(const State &state, const edb::Instruction &insn, QStringList 
 
 	const quint8 *const insn_buf = insn.bytes();
 
-	if(insn.type() == edb::Instruction::OP_JCC) {
+	if(is_conditional_jump(insn)) {
 
 		if(insn.size() - insn.prefix_size() == 2) {
 			taken = is_jcc_taken(state, insn_buf[0 + insn.prefix_size()]);
@@ -445,7 +445,7 @@ void analyze_jump_targets(const edb::Instruction &insn, QStringList &ret) {
 		int sz = sizeof(buffer);
 		if(edb::v1::get_instruction_bytes(addr, buffer, &sz)) {
 			edb::Instruction insn(buffer, buffer + sz, addr, std::nothrow);
-			if(insn.valid() && (insn.type() == edb::Instruction::OP_JCC || insn.type() == edb::Instruction::OP_JMP)) {
+			if(is_jump(insn)) {
 				const edb::Operand &operand = insn.operands()[0];
 
 				if(operand.general_type() == edb::Operand::TYPE_REL) {
@@ -1683,7 +1683,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 	const bool ok = edb::v1::debugger_core->read_bytes(address, buffer, sizeof(buffer));
 	if(ok) {
 		edb::Instruction insn(buffer, buffer + sizeof(buffer), address, std::nothrow);
-		if(insn.valid()) {
+		if(insn) {
 
 			State state;
 			edb::v1::debugger_core->get_state(&state);
@@ -1736,7 +1736,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 bool ArchProcessor::can_step_over(const edb::Instruction &insn) const {
-	return insn.valid() && (insn.type() == edb::Instruction::OP_CALL || (insn.prefix() & (edb::Instruction::PREFIX_REPNE | edb::Instruction::PREFIX_REP)));
+	return insn && (is_call(insn) || (insn.prefix() & (edb::Instruction::PREFIX_REPNE | edb::Instruction::PREFIX_REP)));
 }
 
 //------------------------------------------------------------------------------
@@ -1747,7 +1747,7 @@ bool ArchProcessor::is_filling(const edb::Instruction &insn) const {
 	bool ret = false;
 
 	// fetch the operands
-	if(insn.valid()) {
+	if(insn) {
 		const edb::Operand operands[edb::Instruction::MAX_OPERANDS] = {
 			insn.operands()[0],
 			insn.operands()[1],

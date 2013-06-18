@@ -33,8 +33,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 	bool is_nop(const edb::Instruction &insn) {
-		if(insn.valid()) {
-			if(insn.type() == edb::Instruction::OP_NOP) {
+		if(insn) {
+			if(is_nop(insn)) {
 				return true;
 			}
 			
@@ -343,7 +343,7 @@ void DialogROPTool::do_find() {
 
 
 						edb::Instruction insn1(p, l, rva, std::nothrow);
-						if(insn1.valid()) {
+						if(insn1) {
 							instruction_list << insn1;
 
 							if(insn1.type() == edb::Instruction::OP_INT && insn1.operands()[0].general_type() == edb::Operand::TYPE_IMMEDIATE && (insn1.operands()[0].immediate() & 0xff) == 0x80) {
@@ -352,7 +352,7 @@ void DialogROPTool::do_find() {
 								add_gadget(instruction_list);
 							} else if(insn1.type() == edb::Instruction::OP_SYSCALL) {
 								add_gadget(instruction_list);
-							} else if(insn1.type() == edb::Instruction::OP_RET) {
+							} else if(is_ret(insn1)) {
 								ui->progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
 								++start_address;
 								continue;
@@ -374,16 +374,16 @@ void DialogROPTool::do_find() {
 								}
 
 								edb::Instruction insn2(p, l, rva, std::nothrow);
-								if(insn2.valid() && insn2.type() == edb::Instruction::OP_RET) {
+								if(is_ret(insn2)) {
 									instruction_list << insn2;
 									add_gadget(instruction_list);
-								} else if(insn2.valid() && insn2.type() == edb::Instruction::OP_POP) {
+								} else if(insn2 && insn2.type() == edb::Instruction::OP_POP) {
 									instruction_list << insn2;
 									p += insn2.size();
 									rva += insn2.size();
 
 									edb::Instruction insn3(p, l, rva, std::nothrow);
-									if(insn3.valid() && insn3.type() == edb::Instruction::OP_JMP) {
+									if(insn3 && insn3.type() == edb::Instruction::OP_JMP) {
 
 										instruction_list << insn3;
 
