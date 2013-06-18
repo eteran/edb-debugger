@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "AnalyzerWidget.h"
-#include "Debugger.h"
+#include "edb.h"
 #include "IAnalyzer.h"
 #include "IDebuggerCore.h"
 #include "MemoryRegions.h"

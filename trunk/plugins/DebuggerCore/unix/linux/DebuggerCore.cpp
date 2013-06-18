@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // TODO: research usage of process_vm_readv, process_vm_writev
 
 #include "DebuggerCore.h"
-#include "Debugger.h"
+#include "edb.h"
 #include "MemoryRegions.h"
 #include "PlatformEvent.h"
 #include "PlatformRegion.h"

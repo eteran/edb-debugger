@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DumpState.h"
-#include "Debugger.h"
+#include "edb.h"
 #include "DumpStateOptionsPage.h"
 #include "IDebuggerCore.h"
 #include "Instruction.h"

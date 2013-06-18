@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogOpcodes.h"
 #include "IDebuggerCore.h"
-#include "Debugger.h"
+#include "edb.h"
 #include "MemoryRegions.h"
 #include "ByteShiftArray.h"
 #include "ShiftBuffer.h"

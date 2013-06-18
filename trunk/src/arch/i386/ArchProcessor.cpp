@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ArchProcessor.h"
 #include "Configuration.h"
-#include "Debugger.h"
+#include "edb.h"
 #include "FunctionInfo.h"
 #include "IDebuggerCore.h"
 #include "Instruction.h"

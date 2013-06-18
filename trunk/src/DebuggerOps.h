@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DEBUGGEROPS_20090424_H_
 
 #include "State.h"
-#include "Debugger.h"
+#include "edb.h"
 #include "Instruction.h"
 #include "IDebuggerCore.h"
 #include "IArchProcessor.h"

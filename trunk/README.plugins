@@ -27,4 +27,4 @@ This will return a menu object which will be added to the "plugins" in edb.
 When this menu item is activated, you may do whatever you wish.
 
 Basic operations for implementing the plugin functionality can be found in 
-include/Debugger.h which defines the "edb" namespace.
+include/edb.h which defines the "edb" namespace.

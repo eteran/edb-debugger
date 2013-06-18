@@ -2,7 +2,7 @@
 #include "PlatformRegion.h"
 
 #include "MemoryRegions.h"
-#include "Debugger.h"
+#include "edb.h"
 #include "IDebuggerCore.h"
 #include "State.h"
 #include "IDebugEventHandler.h"
