@@ -43,7 +43,9 @@ ProcessProperties::~ProcessProperties() {
 //------------------------------------------------------------------------------
 QMenu *ProcessProperties::menu(QWidget *parent) {
 
-	if(menu_ == 0) {
+	Q_ASSERT(parent);
+
+	if(!menu_) {
 		menu_ = new QMenu(tr("Process Properties"), parent);
 		menu_->addAction(tr("&Process Properties"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+P")));
 		menu_->addAction(tr("Process &Strings"), dialog_, SLOT(on_btnStrings_clicked()), QKeySequence(tr("Ctrl+S")));

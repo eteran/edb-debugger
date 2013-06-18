@@ -76,7 +76,10 @@ void BinaryInfo::private_init() {
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *BinaryInfo::menu(QWidget *parent) {
-	if(menu_ == 0) {
+
+	Q_ASSERT(parent);
+
+	if(!menu_) {
 		menu_ = new QMenu(tr("Binary Info"), parent);
 		menu_->addAction(tr("&Explore Binary Header"), this, SLOT(explore_header()));
 	}

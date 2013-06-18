@@ -37,7 +37,10 @@ Bookmarks::Bookmarks() : QObject(0), menu_(0), signal_mapper_(0), bookmark_widge
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *Bookmarks::menu(QWidget *parent) {
-	if(menu_ == 0) {
+	
+	Q_ASSERT(parent);
+	
+	if(!menu_) {
 
 		// if we are dealing with a main window (and we are...)
 		// add the dock object

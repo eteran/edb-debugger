@@ -42,7 +42,9 @@ HeapAnalyzer::~HeapAnalyzer() {
 //------------------------------------------------------------------------------
 QMenu *HeapAnalyzer::menu(QWidget *parent) {
 
-	if(menu_ == 0) {
+	Q_ASSERT(parent);
+
+	if(!menu_) {
 		menu_ = new QMenu(tr("HeapAnalyzer"), parent);
 		menu_->addAction (tr("&Heap Analyzer"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+H")));
 	}
@@ -56,7 +58,7 @@ QMenu *HeapAnalyzer::menu(QWidget *parent) {
 //------------------------------------------------------------------------------
 void HeapAnalyzer::show_menu() {
 
-	if(dialog_ == 0) {
+	if(!dialog_) {
 		dialog_ = new DialogHeap(edb::v1::debugger_ui);
 	}
 

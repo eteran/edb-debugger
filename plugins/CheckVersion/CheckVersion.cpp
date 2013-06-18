@@ -63,7 +63,9 @@ QWidget *CheckVersion::options_page() {
 //------------------------------------------------------------------------------
 QMenu *CheckVersion::menu(QWidget *parent) {
 
-	if(menu_ == 0) {
+	Q_ASSERT(parent);
+
+	if(!menu_) {
 		menu_ = new QMenu(tr("CheckVersion"), parent);
 		menu_->addAction(tr("&Check For Latest Version"), this, SLOT(show_menu()));
 	}

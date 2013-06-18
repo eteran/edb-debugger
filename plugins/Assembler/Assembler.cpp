@@ -72,7 +72,7 @@ QMenu *Assembler::menu(QWidget *parent) {
 //------------------------------------------------------------------------------
 void Assembler::show_dialog() {
 
-	if(dialog_ == 0) {
+	if(!dialog_) {
 		dialog_ = new DialogAssembler(edb::v1::debugger_ui);
 	}
 	
