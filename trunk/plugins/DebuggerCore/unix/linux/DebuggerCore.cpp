@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformRegion.h"
 #include "PlatformState.h"
 #include "State.h"
+#include "string_hash.h"
 
 #include <QDebug>
 #include <QDir>
