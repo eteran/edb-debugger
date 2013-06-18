@@ -23,7 +23,6 @@ HEADERS += \
 	DataViewInfo.h \
 	Debugger.h \
 	DebuggerInternal.h \
-	DebuggerOps.h \
 	DialogArguments.h \
 	DialogAttach.h \
 	DialogInputBinaryString.h \

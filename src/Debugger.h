@@ -194,7 +194,6 @@ private:
 	QString session_filename() const;
 	bool breakpoint_condition_true(const QString &condition);
 	bool common_open(const QString &s, const QList<QByteArray> &args);
-	bool current_instruction_is_return() const;
 	edb::EVENT_STATUS debug_event_handler(const IDebugEvent::const_pointer &event);
 	edb::EVENT_STATUS handle_event_exited(const IDebugEvent::const_pointer &event);
 	edb::EVENT_STATUS handle_event_stopped(const IDebugEvent::const_pointer &event);
@@ -248,6 +247,9 @@ private:
 
 	template <class T>
 	void modify_bytes(const T &hexview);
+	
+	template <class F1, class F2>
+	void step_over(F1 run_func, F2 step_func);
 
 public:
 	Ui::Debugger ui;
