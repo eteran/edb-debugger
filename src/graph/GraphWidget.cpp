@@ -33,13 +33,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "GraphNode.h"
 #include "GraphEdge.h"
 
-#include <graphviz/gvc.h>
-
 //------------------------------------------------------------------------------
 // Name: GraphWidget
 // Desc:
 //------------------------------------------------------------------------------
-GraphWidget::GraphWidget(const QString& filename, const QString& layout, QWidget* parent) : GraphWidgetBase(parent) {
+GraphWidget::GraphWidget(const QString& filename, const QString& layout, QWidget* parent) : QGraphicsView(parent) {
+
+	setRenderHint(QPainter::Antialiasing);
+	setRenderHint(QPainter::TextAntialiasing);
+	setTransformationAnchor(AnchorUnderMouse);
+	setResizeAnchor(AnchorUnderMouse);
+
+	scene_ = new QGraphicsScene(this);
+	scene_->setItemIndexMethod(QGraphicsScene::BspTreeIndex);
+	setScene(scene_);
+
 	render_graph(filename, layout);
 }
 
@@ -47,7 +55,17 @@ GraphWidget::GraphWidget(const QString& filename, const QString& layout, QWidget
 // Name: GraphWidget
 // Desc:
 //------------------------------------------------------------------------------
-GraphWidget::GraphWidget(GVC_t *gvc, graph_t *graph, const QString& layout, QWidget* parent) : GraphWidgetBase(parent) {
+GraphWidget::GraphWidget(GVC_t *gvc, graph_t *graph, const QString& layout, QWidget* parent) : QGraphicsView(parent) {
+
+	setRenderHint(QPainter::Antialiasing);
+	setRenderHint(QPainter::TextAntialiasing);
+	setTransformationAnchor(AnchorUnderMouse);
+	setResizeAnchor(AnchorUnderMouse);
+
+	scene_ = new QGraphicsScene(this);
+	scene_->setItemIndexMethod(QGraphicsScene::BspTreeIndex);
+	setScene(scene_);
+
 	render_graph(gvc, graph, layout);
 }
 
@@ -94,7 +112,7 @@ void GraphWidget::wheelEvent(QWheelEvent* event) {
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::scale_view(qreal scaleFactor) {
-	const qreal f = ::sqrt(matrix().det());
+	const qreal f = std::sqrt(matrix().det());
 
 	scaleFactor = qBound(0.1 / f, scaleFactor, 8.0 / f);
 
@@ -150,7 +168,7 @@ QPointF GraphWidget::gToQ(const point& p, bool upside_down) const {
 //------------------------------------------------------------------------------
 QColor GraphWidget::aggetToQColor(void *obj, const char *name, const QColor& fallback) const {
 	const char *tmp = agget(obj, const_cast<char*>(name));
-	if(tmp == 0 || strlen(tmp) == 0)
+	if(!tmp|| strlen(tmp) == 0)
 		return fallback;
 
 	return QColor(tmp);
@@ -162,17 +180,20 @@ QColor GraphWidget::aggetToQColor(void *obj, const char *name, const QColor& fal
 //------------------------------------------------------------------------------
 Qt::PenStyle GraphWidget::aggetToQPenStyle(void *obj, const char *name, const Qt::PenStyle fallback) const {
 	const char *tmp = agget(obj, const_cast<char*>(name));
-	if(tmp == 0 || strlen(tmp) == 0)
+	if(!tmp || strlen(tmp) == 0)
 		return fallback;
 
-	if(strcmp(tmp, "dashed") == 0)
+	if(strcmp(tmp, "dashed") == 0) {
 		return Qt::DashLine;
+	}
 
-	if(strcmp(tmp, "dotted") == 0)
+	if(strcmp(tmp, "dotted") == 0) {
 		return Qt::DotLine;
+	}
 
-	if(strcmp(tmp, "solid") == 0)
+	if(strcmp(tmp, "solid") == 0) {
 		return Qt::SolidLine;
+	}
 
 	return fallback;
 }
@@ -184,7 +205,7 @@ Qt::PenStyle GraphWidget::aggetToQPenStyle(void *obj, const char *name, const Qt
 void GraphWidget::render_graph(const QString& filename, const QString& layout) {
 	if(FILE *const fp = fopen(qPrintable(filename), "r")) {
 		if(GVC_t *gvc = gvContext()) {
-			if(graph_t *graph = agread(fp)) {
+			if(graph_t *const graph = agread(fp)) {
 				render_graph(gvc, graph, layout);
 				agclose(graph);
 			} else {
@@ -208,7 +229,7 @@ void GraphWidget::render_sub_graph(GVC_t *gvc, graph_t *graph) {
 
 	if(graph) {
 		for(int i = 1; i <= graph->u.n_cluster; ++i) {
-			graph_t * sub_graph = graph->u.clust[i];
+			graph_t *const sub_graph = graph->u.clust[i];
 			render_sub_graph(gvc, sub_graph);
 		}
 
@@ -227,7 +248,7 @@ void GraphWidget::render_sub_graph(GVC_t *gvc, graph_t *graph) {
 		style.contains("filled") ? aggetToQColor(graph, "color", Qt::white) : QBrush()
 		);
 
-	QGraphicsRectItem *item = scene_->addRect(subGraphRect, graphPen, graphBrush);
+	QGraphicsRectItem *const item = scene_->addRect(subGraphRect, graphPen, graphBrush);
 	item->setZValue(INT_MIN);
 }
 
@@ -238,8 +259,9 @@ void GraphWidget::render_sub_graph(GVC_t *gvc, graph_t *graph) {
 void GraphWidget::render_edge(edge_t *edge) {
 	const splines* spl = ED_spl(edge);
 
-	if(spl == 0)
+	if(!spl) {
 		return;
+	}
 
 	for (int i = 0; i < spl->size; ++i) {
 		const bezier& bz = spl->list[i];

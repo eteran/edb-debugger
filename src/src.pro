@@ -175,8 +175,8 @@ unix {
 	graph {
 		DEPENDPATH  += ./graph
 		INCLUDEPATH += ./graph
-		HEADERS     += GraphEdge.h   GraphWidgetBase.h   GraphWidget.h   GraphNode.h
-		SOURCES     += GraphEdge.cpp GraphWidgetBase.cpp GraphWidget.cpp GraphNode.cpp
+		HEADERS     += GraphEdge.h   GraphWidget.h   GraphNode.h
+		SOURCES     += GraphEdge.cpp GraphWidget.cpp GraphNode.cpp
 		LIBS        += -lgvc
 	}
 
