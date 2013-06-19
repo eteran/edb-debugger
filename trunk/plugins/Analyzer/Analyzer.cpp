@@ -96,12 +96,12 @@ QMenu *Analyzer::menu(QWidget *parent) {
 
 		// if we are dealing with a main window (and we are...)
 		// add the dock object
-		if(QMainWindow *const main_window = qobject_cast<QMainWindow *>(parent)) {
+		if(QMainWindow *const main_window = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
 			analyzer_widget_ = new AnalyzerWidget;
 
 			// make the toolbar widget and _name_ it, it is important to name it so
 			// that it's state is saved in the GUI info
-			QToolBar *const toolbar = new QToolBar(tr("Region Analysis"), parent);
+			QToolBar *const toolbar = new QToolBar(tr("Region Analysis"), main_window);
 			toolbar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
 			toolbar->setObjectName(QString::fromUtf8("Region Analysis"));
 			toolbar->addWidget(analyzer_widget_);

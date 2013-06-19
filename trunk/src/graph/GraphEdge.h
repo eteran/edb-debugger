@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-#ifndef QY2EDGE_20090903_H_
-#define QY2EDGE_20090903_H_
+#ifndef GRAPH_EDGE_20090903_H_
+#define GRAPH_EDGE_20090903_H_
 
 #include <QGraphicsPathItem>
 #include <QPicture>

@@ -22,16 +22,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef GRAPHWIDGET_20090903_H_
 #define GRAPHWIDGET_20090903_H_
 
-#include "GraphWidgetBase.h"
 #include "API.h"
 #include <QRectF>
+#include <QGraphicsView>
 
+class QGraphicsScene;
 class QContextMenuEvent;
 class QMouseEvent;
 
 #include <graphviz/gvc.h>
 
-class EDB_EXPORT GraphWidget : public GraphWidgetBase {
+class EDB_EXPORT GraphWidget : public QGraphicsView {
 	Q_OBJECT
 
 private:
@@ -78,7 +79,8 @@ private:
 	Qt::PenStyle aggetToQPenStyle(void *obj, const char *name, const Qt::PenStyle fallback) const;
 
 private:
-	QRectF graph_rect_;
+	QRectF          graph_rect_;
+	QGraphicsScene *scene_;
 };
 
 #endif

@@ -65,11 +65,13 @@ void GraphEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 QPainterPath GraphEdge::make_bezier(const bezier &bezier, const GraphWidget *graph) const {
 	QPainterPath path;
 	path.moveTo(graph->gToQ(bezier.list[0]));
-	for (int i = 1; i < bezier.size - 1; i += 3)
+	
+	for(int i = 1; i < bezier.size - 1; i += 3) {
 		path.cubicTo(
 			graph->gToQ(bezier.list[i+0]),
 			graph->gToQ(bezier.list[i+1]),
 			graph->gToQ(bezier.list[i+2]));
+	}
 
 	return path;
 }
