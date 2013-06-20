@@ -28,10 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: GraphNode
 // Desc:
 //------------------------------------------------------------------------------
-GraphNode::GraphNode(const GraphWidget *graph, node_t *node) :
-	QGraphicsPathItem(make_shape(node)),
-	name(node->name),
-	graph_(graph) {
+GraphNode::GraphNode(const GraphWidget *graph, node_t *node) : QGraphicsPathItem(make_shape(node)), name(QString::fromUtf8(agnameof(node))), graph_(graph) {
 
 	draw_label(ND_label(node));
 }
@@ -136,37 +133,37 @@ void GraphNode::make_ellipse_helper(node_t *node, QPainterPath &path) const {
 QPainterPath GraphNode::make_shape(node_t *node) const {
 	QPainterPath path;
 
-	const QString name = ND_shape(node)->name;
+	const QString name = QString::fromUtf8(agnameof(ND_shape(node)));
 
 	// TODO: point, egg, doublecircle, doubleoctagon, tripleoctagon,
-	// Mdiamond, MSquare, Mcircle, note, tab, folder, box3d, component
+	// note, tab, folder, box3d, component, record, plaintext
 
 	// handle all of the "regular" polygons
-	if(name == "invhouse" ||
-			name == "invtrapezium" ||
-			name == "invtriangle" ||
-			name == "box" ||
-			name == "polygon" ||
-			name == "triangle" ||
-			name == "diamond" ||
-			name == "trapezium" ||
+	if(     name == "invhouse"      ||
+			name == "invtrapezium"  ||
+			name == "invtriangle"   ||
+			name == "box"           ||
+			name == "polygon"       ||
+			name == "triangle"      ||
+			name == "diamond"       ||
+			name == "trapezium"     ||
 			name == "parallelogram" ||
-			name == "house" ||
-			name == "pentagon" ||
-			name == "hexagon" ||
-			name == "septagon" ||
-			name == "octagon" ||
-			name == "rect" ||
-			name == "rectangle"
+			name == "house"         ||
+			name == "pentagon"      ||
+			name == "hexagon"       ||
+			name == "septagon"      ||
+			name == "octagon"       ||
+			name == "rect"          ||
+			name == "rectangle"     ||
+			name == "Msquare"       || // incomplete
+			name == "Mdiamond"         // incomplete
 			) {
 
 		make_polygon_helper(node, path);
-	} else if(name == "ellipse" || name == "circle" || name == "point") {
+	} else if(name == "ellipse" || name == "circle" || name == "point" || name == "Mcircle") {
 		make_ellipse_helper(node, path);
-	} else if(name == "plaintext" || name == "none") {
+	} else if(name == "none") {
 		// NO-OP
-	} else if(name == "record") {
-
 	} else {
 		qWarning("unsupported shape %s", qPrintable(name));
 	}
