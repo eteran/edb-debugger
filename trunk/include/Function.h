@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef FUNCTIONINFO_20070320_H_
-#define FUNCTIONINFO_20070320_H_
+#ifndef FUNCTION_20070320_H_
+#define FUNCTION_20070320_H_
 
 #include "API.h"
 #include <QVector>
@@ -29,8 +29,6 @@ namespace internal {
 void load_function_db();
 
 }
-}
-
 
 struct Argument {
 	QString name;
@@ -42,6 +40,11 @@ struct Function {
 	QString           type;
 	QVector<Argument> arguments;
 };
+
+}
+
+
+
 
 #endif
 

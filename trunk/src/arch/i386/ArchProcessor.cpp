@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ArchProcessor.h"
 #include "Configuration.h"
-#include "FunctionInfo.h"
+#include "Function.h"
 #include "IDebuggerCore.h"
 #include "Instruction.h"
 #include "QCategoryList.h"
@@ -246,12 +246,12 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 	// safe not to check for -1, it means 'rest of string' for the mid function
 	func_name = func_name.mid(0, func_name.indexOf("@"));
 
-	if(const Function *const info = edb::v1::get_function_info(func_name)) {
+	if(const edb::Function *const info = edb::v1::get_function_info(func_name)) {
 
 		QString function_call = func_name + "(";
 
 		int i = 0;
-		Q_FOREACH(Argument argument, info->arguments) {
+		Q_FOREACH(edb::Argument argument, info->arguments) {
 
 			edb::reg_t arg;
 			edb::v1::debugger_core->read_bytes(state.stack_pointer() + i * sizeof(edb::reg_t) + offset, &arg, sizeof(arg));
@@ -717,16 +717,6 @@ void ArchProcessor::setup_register_view(QCategoryList *category_list) {
 			setup_register_item(category_list, xmm, "xmm5");
 			setup_register_item(category_list, xmm, "xmm6");
 			setup_register_item(category_list, xmm, "xmm7");
-	#if defined(EDB_X86_64)
-			setup_register_item(category_list, xmm, "xmm8");
-			setup_register_item(category_list, xmm, "xmm9");
-			setup_register_item(category_list, xmm, "xmm10");
-			setup_register_item(category_list, xmm, "xmm11");
-			setup_register_item(category_list, xmm, "xmm12");
-			setup_register_item(category_list, xmm, "xmm13");
-			setup_register_item(category_list, xmm, "xmm14");
-			setup_register_item(category_list, xmm, "xmm15");
-	#endif
 		}
 
 		update_register_view(QString());

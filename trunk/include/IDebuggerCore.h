@@ -24,11 +24,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IRegion.h"
 #include "Process.h"
 #include "Module.h"
+
 #include <QByteArray>
+#include <QDateTime>
 #include <QHash>
 #include <QMap>
+#include <QString>
 #include <QStringList>
-#include <QDateTime>
+#include <QVector>
 #include <QtPlugin>
 
 class IState;
@@ -37,18 +40,19 @@ class State;
 
 class IDebuggerCore {
 public:
+	typedef QHash<edb::address_t, IBreakpoint::pointer> BreakpointList;
+	
+public:
 	virtual ~IDebuggerCore() {}
 
 public:
 	// system information
 	virtual edb::address_t page_size() const = 0;
-	virtual int pointer_size() const = 0;
+	virtual int            pointer_size() const = 0;
+	virtual quint64        cpu_type() const = 0;
+	virtual bool           has_extension(quint64 ext) const = 0;
 
 public:
-	typedef QHash<edb::address_t, IBreakpoint::pointer> BreakpointList;
-
-public:
-	virtual bool has_extension(quint64 ext) const = 0;
 	virtual QMap<long, QString> exceptions() const = 0;
 
 public:
@@ -61,11 +65,12 @@ public:
 
 public:
 	// thread support stuff (optional)
-	virtual QList<edb::tid_t> thread_ids() const { return QList<edb::tid_t>(); }
-	virtual edb::tid_t active_thread() const     { return static_cast<edb::tid_t>(-1); }
-	virtual void set_active_thread(edb::tid_t)   {}
+	virtual QList<edb::tid_t> thread_ids() const            { return QList<edb::tid_t>(); }
+	virtual edb::tid_t        active_thread() const         { return static_cast<edb::tid_t>(-1); }
+	virtual void              set_active_thread(edb::tid_t) {}
 
 public:
+	// basic process management
 	virtual bool attach(edb::pid_t pid) = 0;
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args) = 0;
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
@@ -80,27 +85,25 @@ public:
 
 public:
 	// basic breakpoint managment
-	virtual BreakpointList backup_breakpoints() const = 0;
+	virtual BreakpointList       backup_breakpoints() const = 0;
 	virtual IBreakpoint::pointer add_breakpoint(edb::address_t address) = 0;
 	virtual IBreakpoint::pointer find_breakpoint(edb::address_t address) = 0;
-	virtual int breakpoint_size() const = 0;
-	virtual void clear_breakpoints() = 0;
-	virtual void remove_breakpoint(edb::address_t address) = 0;
-
-public:
-	virtual QList<IRegion::pointer> memory_regions() const = 0;
-    virtual QList<Module> loaded_modules() const = 0;
-	virtual edb::address_t application_code_address() const = 0;
-	virtual edb::address_t application_data_address() const = 0;
+	virtual int                  breakpoint_size() const = 0;
+	virtual void                 clear_breakpoints() = 0;
+	virtual void                 remove_breakpoint(edb::address_t address) = 0;
 
 public:
 	// process properties
+	virtual QDateTime         process_start(edb::pid_t pid) const = 0;
 	virtual QList<QByteArray> process_args(edb::pid_t pid) const = 0;
-	virtual QString process_cwd(edb::pid_t pid) const = 0;
-	virtual QString process_exe(edb::pid_t pid) const = 0;
-	virtual edb::pid_t parent_pid(edb::pid_t pid) const = 0;
-	virtual QDateTime process_start(edb::pid_t pid) const = 0;
-	virtual quint64 process_arch() const = 0;
+	virtual QString           process_cwd(edb::pid_t pid) const = 0;
+	virtual QString           process_exe(edb::pid_t pid) const = 0;
+	virtual edb::address_t    process_code_address() const = 0;
+	virtual edb::address_t    process_data_address() const = 0;
+	virtual edb::pid_t        parent_pid(edb::pid_t pid) const = 0;
+	virtual QList<IRegion::pointer> memory_regions() const = 0;
+    virtual QList<Module>           loaded_modules() const = 0;
+
 
 public:
 	virtual IState *create_state() const = 0;

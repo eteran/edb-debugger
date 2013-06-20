@@ -33,7 +33,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 
 class Configuration;
-class Function;
 class IAnalyzer;
 class IArchProcessor;
 class IBinary;
@@ -53,6 +52,9 @@ class QWidget;
 struct ExpressionError;
 
 namespace edb {
+
+class Function;
+
 namespace v1 {
 
 // some useful objects
@@ -145,7 +147,7 @@ EDB_EXPORT ISessionFile *session_file_handler();
 EDB_EXPORT bool get_instruction_bytes(edb::address_t address, quint8 *buf, int *size);
 
 EDB_EXPORT IBinary *get_binary_info(const IRegion::pointer &region);
-EDB_EXPORT const Function *get_function_info(const QString &function);
+EDB_EXPORT const edb::Function *get_function_info(const QString &function);
 
 EDB_EXPORT edb::address_t locate_main_function();
 

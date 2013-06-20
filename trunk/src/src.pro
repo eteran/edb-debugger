@@ -32,7 +32,7 @@ HEADERS += \
 	DialogPlugins.h \
 	DialogThreads.h \
 	Expression.h \
-	FunctionInfo.h \
+	Function.h \
 	IAnalyzer.h \
 	IArchProcessor.h \
 	IBinary.h \

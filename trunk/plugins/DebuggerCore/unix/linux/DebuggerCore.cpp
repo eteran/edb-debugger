@@ -295,7 +295,7 @@ DebuggerCore::DebuggerCore() : binary_info_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: has_extension
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
@@ -1032,7 +1032,7 @@ QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t DebuggerCore::application_code_address() const {
+edb::address_t DebuggerCore::process_code_address() const {
 	struct user_stat user_stat;
 	int n = get_user_stat(pid(), &user_stat);
 	if(n >= 26) {
@@ -1045,7 +1045,7 @@ edb::address_t DebuggerCore::application_code_address() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t DebuggerCore::application_data_address() const {
+edb::address_t DebuggerCore::process_data_address() const {
 	struct user_stat user_stat;
 	int n = get_user_stat(pid(), &user_stat);
 	if(n >= 27) {
@@ -1185,7 +1185,7 @@ QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-quint64 DebuggerCore::process_arch() const {
+quint64 DebuggerCore::cpu_type() const {
 #ifdef EDB_X86
 	return edb::string_hash<'x', '8', '6'>::value
 #elif defined(EDB_X86_64)
