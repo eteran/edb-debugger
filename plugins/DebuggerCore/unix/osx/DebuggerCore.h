@@ -54,8 +54,8 @@ public:
 
 public:
 	virtual QList<IRegion::pointer> memory_regions() const;
-	virtual edb::address_t application_code_address() const;
-	virtual edb::address_t application_data_address() const;
+	virtual edb::address_t process_code_address() const;
+	virtual edb::address_t process_data_address() const;
 
 public:
 	// process properties
@@ -64,7 +64,7 @@ public:
 	virtual QString process_cwd(edb::pid_t pid) const;
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const;
 	virtual QDateTime process_start(edb::pid_t pid) const;
-	virtual quint64 process_arch() const;
+	virtual quint64 cpu_type() const;
 
 public:
 	virtual IState *create_state() const;

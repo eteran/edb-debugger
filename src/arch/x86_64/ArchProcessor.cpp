@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ArchProcessor.h"
 #include "Configuration.h"
-#include "FunctionInfo.h"
+#include "Function.h"
 #include "IDebuggerCore.h"
 #include "Instruction.h"
 #include "QCategoryList.h"
@@ -269,12 +269,12 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 	// safe not to check for -1, it means 'rest of string' for the mid function
 	func_name = func_name.mid(0, func_name.indexOf("@"));
 
-	if(const Function *const info = edb::v1::get_function_info(func_name)) {
+	if(const edb::Function *const info = edb::v1::get_function_info(func_name)) {
 
 		QString function_call = func_name + "(";
 
 		int i = 0;
-		Q_FOREACH(Argument argument, info->arguments) {
+		Q_FOREACH(edb::Argument argument, info->arguments) {
 
 			edb::reg_t arg;
 

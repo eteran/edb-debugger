@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogOptions.h"
 #include "Debugger.h"
 #include "Expression.h"
-#include "FunctionInfo.h"
+#include "Function.h"
 #include "IDebuggerCore.h"
 #include "IPlugin.h"
 #include "MD5.h"
@@ -47,7 +47,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QString>
 #include <QDomDocument>
-#include <QDebug>
 
 #include <cctype>
 
@@ -64,7 +63,7 @@ namespace {
 	QHash<QString, QObject *>          g_GeneralPlugins;
 	BinaryInfoList                     g_BinaryInfoList;
 
-	QHash<QString, Function>           g_FunctionDB;
+	QHash<QString, edb::Function>      g_FunctionDB;
 
 	Debugger *ui() {
 		return qobject_cast<Debugger *>(edb::v1::debugger_ui);
@@ -111,16 +110,8 @@ void load_function_db() {
 	QFile file(":/debugger/xml/functions.xml");
 	QDomDocument doc;
 
-	qDebug() << "HERE1";
-
 	if(file.open(QIODevice::ReadOnly)) {
-	
-		qDebug() << "HERE2";
-	
 		if(doc.setContent(&file)) {
-
-			qDebug() << "HERE3";
-
 			QDomElement root = doc.firstChildElement("functions");
 			QDomElement function = root.firstChildElement("function");
 			for (; !function.isNull(); function = function.nextSiblingElement("function")) {
@@ -139,7 +130,6 @@ void load_function_db() {
 					func.arguments.push_back(arg);
 				}
 
-				qDebug() << "Loaded Definition For: " << func.name;
 				g_FunctionDB[func.name] = func;
 			}
 		}
@@ -790,7 +780,7 @@ edb::address_t edb::v1::locate_main_function() {
 
 	if(edb::v1::debugger_core) {
 
-		const edb::address_t address = edb::v1::debugger_core->application_code_address();
+		const edb::address_t address = edb::v1::debugger_core->process_code_address();
 		memory_regions().sync();
 		if(IRegion::pointer region = memory_regions().find_region(address)) {
 
@@ -842,9 +832,9 @@ void edb::v1::reload_symbols() {
 // Name: get_function_info
 // Desc:
 //------------------------------------------------------------------------------
-const Function *edb::v1::get_function_info(const QString &function) {
+const edb::Function *edb::v1::get_function_info(const QString &function) {
 
-	QHash<QString, Function>::const_iterator it = g_FunctionDB.find(function);
+	QHash<QString, edb::Function>::const_iterator it = g_FunctionDB.find(function);
 	if(it != g_FunctionDB.end()) {
 		return &(it.value());
 	}
@@ -862,7 +852,7 @@ IRegion::pointer edb::v1::primary_data_region() {
 
 	if(edb::v1::debugger_core) {
 
-		const edb::address_t address = edb::v1::debugger_core->application_data_address();
+		const edb::address_t address = edb::v1::debugger_core->process_data_address();
 		memory_regions().sync();
 		if(IRegion::pointer region = memory_regions().find_region(address)) {
 			return region;
@@ -883,7 +873,7 @@ IRegion::pointer edb::v1::primary_code_region() {
 #ifdef Q_OS_LINUX
 	if(edb::v1::debugger_core) {
 
-		const edb::address_t address = edb::v1::debugger_core->application_code_address();
+		const edb::address_t address = edb::v1::debugger_core->process_code_address();
 		memory_regions().sync();
 		if(IRegion::pointer region = memory_regions().find_region(address)) {
 			return region;
