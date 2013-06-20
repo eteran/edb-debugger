@@ -104,13 +104,13 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 // Name: format_argument
 // Desc:
 //------------------------------------------------------------------------------
-QString format_argument(QChar ch, edb::reg_t arg) {
+QString format_argument(const QString &type, edb::reg_t arg) {
 	QString param_text;
 
-	switch(ch.toAscii()) {
-	case 's':
-	case 'f':
-		do {
+	if(type == "PKc" || type == "Pc") {
+		if(arg == 0) {
+			param_text = "NULL";
+		} else {
 			QString string_param;
 			int string_length;
 
@@ -125,28 +125,33 @@ QString format_argument(QChar ch, edb::reg_t arg) {
 					param_text = QString("<0x%1>").arg(edb::v1::format_pointer(arg));
 				}
 			}
-		} while(0);
-		break;
+		}
+	
 
-	case 'p':
-		param_text = QString("0x%1").arg(edb::v1::format_pointer(arg));
-		break;
-	case 'c':
+	} else if(type == "Pv" || type == "P" || type == "PKv" || type == "PPc" || type == "Pd" || type == "Pf" || type == "Pi") {
+		if(arg == 0) {
+			param_text = "NULL";
+		} else {
+			param_text = QString("0x%1").arg(edb::v1::format_pointer(arg));
+		}
+		
+	} else if(type == "c" || type == "Kc") {
 		if(arg < 0x80 && (std::isprint(arg) || std::isspace(arg))) {
 			param_text.sprintf("'%c'", static_cast<char>(arg));
 		} else {
 			param_text.sprintf("'\\x%02x'", static_cast<quint16>(arg));
 		}
-		break;
-	case 'u':
+	} else if(type == "u" || type == "m") {
 		param_text.sprintf("%lu", static_cast<unsigned long>(arg));
-		break;
-	case 'i':
+	} else if(type == "i") {
+		param_text.sprintf("%d", static_cast<int>(arg));
+	} else if(type == "l") {
 		param_text.sprintf("%ld", static_cast<long>(arg));
-		break;
-	case 'v':
-		// for variadic, we don't quite handle that yet...
-		break;
+	} else if(type == "x") {
+		param_text.sprintf("%lld", static_cast<long long>(arg));
+	} else if(type == "d" || type == "f" || type == "e") {
+		// floats aren't really supported well yet
+		param_text = QString("0x%1").arg(edb::v1::format_pointer(arg));
 	}
 
 	return param_text;
@@ -188,13 +193,12 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 	// safe not to check for -1, it means 'rest of string' for the mid function
 	func_name = func_name.mid(0, func_name.indexOf("@"));
 
-	if(const FunctionInfo *const info = edb::v1::get_function_info(func_name)) {
+	if(const Function *const info = edb::v1::get_function_info(func_name)) {
 
 		QString function_call = func_name + "(";
 
-		const QVector<QChar> params(info->params());
 		int i = 0;
-		Q_FOREACH(QChar ch, params) {
+		Q_FOREACH(Argument argument, info->arguments) {
 
 			edb::reg_t arg;
 
@@ -204,9 +208,9 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 				arg = state[paramter_registers[i]].value<edb::reg_t>();
 			}
 
-			function_call += format_argument(ch, arg);
+			function_call += format_argument(argument.type, arg);
 
-			if(i + 1 < params.size()) {
+			if(i + 1 < info->arguments.size()) {
 				function_call += ", ";
 			}
 			++i;
@@ -527,7 +531,7 @@ void analyze_syscall(const State &state, const edb::Instruction &insn, QStringLi
 		for (QDomElement argument = root.firstChildElement("argument"); !argument.isNull(); argument = argument.nextSiblingElement("argument")) {
 			const QString argument_type = argument.attribute("type");
 			const QString argument_register = argument.attribute("register");
-			arguments << format_argument(argument_type[0], state[argument_register].value<edb::reg_t>());
+			arguments << format_argument(argument_type, state[argument_register].value<edb::reg_t>());
 		}
 		
 		ret << ArchProcessor::tr("SYSCALL: %1(%2)").arg(root.attribute("name"), arguments.join(","));

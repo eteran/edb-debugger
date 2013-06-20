@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define FUNCTIONINFO_20070320_H_
 
 #include "API.h"
-#include <QChar>
 #include <QVector>
+#include <QString>
 
 namespace edb {
 namespace internal {
@@ -31,29 +31,16 @@ void load_function_db();
 }
 }
 
-class EDB_EXPORT FunctionInfo {
-	friend void edb::internal::load_function_db();
-	
-public:
-	FunctionInfo(const FunctionInfo &other) : params_(other.params_) {
-	}
 
-	FunctionInfo &operator=(const FunctionInfo &rhs) {
-		params_ = rhs.params_;
-		return *this;
-	}
+struct Argument {
+	QString name;
+	QString type;
+};
 
-	FunctionInfo() {
-	}
-
-	~FunctionInfo() {
-	}
-
-public:
-	const QVector<QChar> &params() const { return params_; }
-
-private:
-	QVector<QChar> params_;
+struct Function {
+	QString           name;
+	QString           type;
+	QVector<Argument> arguments;
 };
 
 #endif

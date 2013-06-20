@@ -47,6 +47,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QString>
 #include <QDomDocument>
+#include <QDebug>
 
 #include <cctype>
 
@@ -63,7 +64,7 @@ namespace {
 	QHash<QString, QObject *>          g_GeneralPlugins;
 	BinaryInfoList                     g_BinaryInfoList;
 
-	QHash<QString, FunctionInfo>       g_FunctionDB;
+	QHash<QString, Function>           g_FunctionDB;
 
 	Debugger *ui() {
 		return qobject_cast<Debugger *>(edb::v1::debugger_ui);
@@ -110,25 +111,36 @@ void load_function_db() {
 	QFile file(":/debugger/xml/functions.xml");
 	QDomDocument doc;
 
+	qDebug() << "HERE1";
+
 	if(file.open(QIODevice::ReadOnly)) {
+	
+		qDebug() << "HERE2";
+	
 		if(doc.setContent(&file)) {
+
+			qDebug() << "HERE3";
 
 			QDomElement root = doc.firstChildElement("functions");
 			QDomElement function = root.firstChildElement("function");
 			for (; !function.isNull(); function = function.nextSiblingElement("function")) {
 
 
-				const QString function_name = function.attribute("name");
-
-				FunctionInfo info;
+				Function func;
+				func.name = function.attribute("name");
+				func.type = function.attribute("type");
 
 				QDomElement argument = function.firstChildElement("argument");
 				for (; !argument.isNull(); argument = argument.nextSiblingElement("argument")) {
-					const QString argument_type = argument.attribute("type");
-					info.params_.push_back(argument_type[0]);
+					
+					Argument arg;
+					arg.name = argument.attribute("name");
+					arg.type = argument.attribute("type");
+					func.arguments.push_back(arg);
 				}
 
-				g_FunctionDB[function_name] = info;
+				qDebug() << "Loaded Definition For: " << func.name;
+				g_FunctionDB[func.name] = func;
 			}
 		}
 	}
@@ -830,9 +842,9 @@ void edb::v1::reload_symbols() {
 // Name: get_function_info
 // Desc:
 //------------------------------------------------------------------------------
-const FunctionInfo *edb::v1::get_function_info(const QString &function) {
+const Function *edb::v1::get_function_info(const QString &function) {
 
-	QHash<QString, FunctionInfo>::const_iterator it = g_FunctionDB.find(function);
+	QHash<QString, Function>::const_iterator it = g_FunctionDB.find(function);
 	if(it != g_FunctionDB.end()) {
 		return &(it.value());
 	}
