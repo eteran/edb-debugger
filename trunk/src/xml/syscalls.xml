@@ -12,31 +12,31 @@
 		</syscall>
 		<syscall name="read">
         		<index>3</index>
-				<argument type="i" register="ebx" />
-				<argument type="p" register="ecx" />
-				<argument type="u" register="edx" />
+				<argument type="i" register="ebx"/>
+				<argument type="p" register="ecx"/>
+				<argument type="u" register="edx"/>
 		</syscall>
 		<syscall name="write">
         		<index>4</index>
-				<argument type="i" register="ebx" />
-				<argument type="p" register="ecx" />
-				<argument type="u" register="edx" />
+				<argument type="i" register="ebx"/>
+				<argument type="p" register="ecx"/>
+				<argument type="u" register="edx"/>
 		</syscall>
 		<syscall name="open">
         		<index>5</index>
-				<argument type="s" register="ebx" />
-				<argument type="i" register="ecx" />
-				<argument type="u" register="edx" />
+				<argument type="s" register="ebx"/>
+				<argument type="i" register="ecx"/>
+				<argument type="u" register="edx"/>
 		</syscall>
 		<syscall name="close">
         		<index>6</index>
-				<argument type="i" register="ebx" />
+				<argument type="i" register="ebx"/>
 		</syscall>
 		<syscall name="waitpid">
         		<index>7</index>
-				<argument type="i" register="ebx" />
-				<argument type="p" register="ecx" />
-				<argument type="i" register="edx" />
+				<argument type="i" register="ebx"/>
+				<argument type="p" register="ecx"/>
+				<argument type="i" register="edx"/>
 		</syscall>
 		<syscall name="creat">
         		<index>8</index>
@@ -151,7 +151,7 @@
 		</syscall>
 		<syscall name="brk">
         		<index>45</index>
-				<argument type="p" register="ebx" />
+				<argument type="p" register="ebx"/>
 		</syscall>
 		<syscall name="setgid">
         		<index>46</index>
@@ -272,9 +272,9 @@
 		</syscall>
 		<syscall name="readlink">
         		<index>85</index>
-				<argument type="s" register="ebx" />
-				<argument type="p" register="ecx" />
-				<argument type="u" register="edx" />
+				<argument type="s" register="ebx"/>
+				<argument type="p" register="ecx"/>
+				<argument type="u" register="edx"/>
 		</syscall>
 		<syscall name="uselib">
         		<index>86</index>
@@ -290,17 +290,17 @@
 		</syscall>
 		<syscall name="mmap">
         		<index>90</index>
-				<argument type="p" register="ebx" />
-				<argument type="u" register="ecx" />
-				<argument type="i" register="edx" />
-				<argument type="i" register="esi" />
-				<argument type="i" register="edi" />
-				<argument type="u" register="ebp" />
+				<argument type="p" register="ebx"/>
+				<argument type="u" register="ecx"/>
+				<argument type="i" register="edx"/>
+				<argument type="i" register="esi"/>
+				<argument type="i" register="edi"/>
+				<argument type="u" register="ebp"/>
 		</syscall>
 		<syscall name="munmap">
         		<index>91</index>
-				<argument type="p" register="ebx" />
-				<argument type="u" register="ecx" />
+				<argument type="p" register="ebx"/>
+				<argument type="u" register="ecx"/>
 		</syscall>
 		<syscall name="truncate">
         		<index>92</index>
@@ -352,8 +352,8 @@
 		</syscall>
 		<syscall name="fstat">
         		<index>108</index>
-				<argument type="i" register="ebx" />
-				<argument type="p" register="ecx" />
+				<argument type="i" register="ebx"/>
+				<argument type="p" register="ecx"/>
 		</syscall>
 		<syscall name="olduname">
         		<index>109</index>
@@ -405,9 +405,9 @@
 		</syscall>
 		<syscall name="mprotect">
         		<index>125</index>
-				<argument type="p" register="ebx" />
-				<argument type="u" register="ecx" />
-				<argument type="i" register="edx" />
+				<argument type="p" register="ebx"/>
+				<argument type="u" register="ecx"/>
+				<argument type="i" register="edx"/>
 		</syscall>
 		<syscall name="sigprocmask">
         		<index>126</index>
@@ -537,9 +537,9 @@
 		</syscall>
 		<syscall name="poll">
         		<index>168</index>
-				<argument type="p" register="ebx" />
-				<argument type="i" register="ecx" />
-				<argument type="i" register="edx" />
+				<argument type="p" register="ebx"/>
+				<argument type="i" register="ecx"/>
+				<argument type="i" register="edx"/>
 		</syscall>
 		<syscall name="nfsservctl">
         		<index>169</index>
@@ -1080,69 +1080,69 @@
 	<linux arch="x86-64">
 		<syscall name="read">
         		<index>0</index>
-				<argument type="i" register="rdi" />
-				<argument type="p" register="rsi" />
-				<argument type="u" register="rdx" />
+				<argument type="i" register="rdi"/>
+				<argument type="p" register="rsi"/>
+				<argument type="u" register="rdx"/>
 		</syscall>
 		<syscall name="write">
         		<index>1</index>
-				<argument type="i" register="rdi" />
-				<argument type="p" register="rsi" />
-				<argument type="u" register="rdx" />
+				<argument type="i" register="rdi"/>
+				<argument type="p" register="rsi"/>
+				<argument type="u" register="rdx"/>
 		</syscall>
 		<syscall name="open">
         		<index>2</index>
-				<argument type="s" register="rdi" />
-				<argument type="i" register="rsi" />
-				<argument type="u" register="rdx" />
+				<argument type="s" register="rdi"/>
+				<argument type="i" register="rsi"/>
+				<argument type="u" register="rdx"/>
 		</syscall>
 		<syscall name="close">
         		<index>3</index>
-				<argument type="i" register="rdi" />
+				<argument type="i" register="rdi"/>
 		</syscall>
 		<syscall name="stat">
         		<index>4</index>
 		</syscall>
 		<syscall name="fstat">
         		<index>5</index>
-				<argument type="i" register="rdi" />
-				<argument type="p" register="rsi" />
+				<argument type="i" register="rdi"/>
+				<argument type="p" register="rsi"/>
 		</syscall>
 		<syscall name="lstat">
         		<index>6</index>
 		</syscall>
 		<syscall name="poll">
         		<index>7</index>
-				<argument type="p" register="rdi" />
-				<argument type="i" register="rsi" />
-				<argument type="i" register="rdx" />
+				<argument type="p" register="rdi"/>
+				<argument type="i" register="rsi"/>
+				<argument type="i" register="rdx"/>
 		</syscall>
 		<syscall name="lseek">
         		<index>8</index>
 		</syscall>
 		<syscall name="mmap">
         		<index>9</index>
-				<argument type="p" register="rdi" />
-				<argument type="u" register="rsi" />
-				<argument type="i" register="rdx" />
-				<argument type="i" register="rcx" />
-				<argument type="i" register="r8" />
-				<argument type="u" register="r9" />
+				<argument type="p" register="rdi"/>
+				<argument type="u" register="rsi"/>
+				<argument type="i" register="rdx"/>
+				<argument type="i" register="rcx"/>
+				<argument type="i" register="r8"/>
+				<argument type="u" register="r9"/>
 		</syscall>
 		<syscall name="mprotect">
         		<index>10</index>
-				<argument type="p" register="rdi" />
-				<argument type="u" register="rsi" />
-				<argument type="i" register="rdx" />
+				<argument type="p" register="rdi"/>
+				<argument type="u" register="rsi"/>
+				<argument type="i" register="rdx"/>
 		</syscall>
 		<syscall name="munmap">
         		<index>11</index>
-				<argument type="p" register="rdi" />
-				<argument type="u" register="rsi" />
+				<argument type="p" register="rdi"/>
+				<argument type="u" register="rsi"/>
 		</syscall>
 		<syscall name="brk">
         		<index>12</index>
-				<argument type="p" register="rdi" />
+				<argument type="p" register="rdi"/>
 		</syscall>
 		<syscall name="rt_sigaction">
         		<index>13</index>
@@ -1374,9 +1374,9 @@
 		</syscall>
 		<syscall name="readlink">
         		<index>89</index>
-				<argument type="s" register="rdi" />
-				<argument type="p" register="rsi" />
-				<argument type="u" register="rdx" />
+				<argument type="s" register="rdi"/>
+				<argument type="p" register="rsi"/>
+				<argument type="u" register="rdx"/>
 		</syscall>
 		<syscall name="chmod">
         		<index>90</index>
