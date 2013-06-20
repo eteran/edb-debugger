@@ -43,7 +43,7 @@ public:
 	GraphWidget(const QString& filename, const QString& layout, QWidget* parent = 0);
 	GraphWidget(GVC_t *gvc, graph_t *graph, const QString& layout, QWidget* parent = 0);
 
-	virtual ~GraphWidget();
+	~GraphWidget();
 
 public:
 	void render_graph(const QString& filename, const QString& layout);
@@ -64,12 +64,10 @@ protected:
 private:
 	void render_node(graph_t *graph, node_t *node);
 	void render_edge(edge_t *edge);
-	void render_sub_graph(GVC_t *gvc, graph_t *graph);
+	void render_sub_graph(graph_t *graph);
 
 private:
-	void drawGraphLabel(graph_t *graph);
-
-private:
+	void render_label(const graph_t *graph);
 	void scale_view(qreal scaleFactor);
 
 	QPointF gToQ(const pointf& p, bool upside_down = true) const;

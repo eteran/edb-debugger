@@ -125,9 +125,7 @@ void GraphWidget::scale_view(qreal scaleFactor) {
 //------------------------------------------------------------------------------
 void GraphWidget::contextMenuEvent(QContextMenuEvent* event) {
 
-	GraphNode *node = qgraphicsitem_cast<GraphNode*>(itemAt(event->pos()));
-
-	if(node) {
+	if(GraphNode *const node = qgraphicsitem_cast<GraphNode*>(itemAt(event->pos()))) {
 		emit nodeContextMenuEvent(event, node->name);
 	} else {
 		emit backgroundContextMenuEvent(event);
@@ -139,9 +137,8 @@ void GraphWidget::contextMenuEvent(QContextMenuEvent* event) {
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::mouseDoubleClickEvent(QMouseEvent* event) {
-	GraphNode *node = qgraphicsitem_cast<GraphNode*>(itemAt(event->pos()));
 
-	if(node) {
+	if(GraphNode *const node = qgraphicsitem_cast<GraphNode*>(itemAt(event->pos()))) {
 		emit nodeDoubleClickEvent(event, node->name);
 	}
 }
@@ -166,10 +163,11 @@ QPointF GraphWidget::gToQ(const point& p, bool upside_down) const {
 // Name: aggetToQColor
 // Desc:
 //------------------------------------------------------------------------------
-QColor GraphWidget::aggetToQColor(void *obj, const char *name, const QColor& fallback) const {
-	const char *tmp = agget(obj, const_cast<char*>(name));
-	if(!tmp|| strlen(tmp) == 0)
+QColor GraphWidget::aggetToQColor(void *obj, const char *name, const QColor &fallback) const {
+	const char *const tmp = agget(obj, const_cast<char*>(name));
+	if(!tmp|| strlen(tmp) == 0) {
 		return fallback;
+	}
 
 	return QColor(tmp);
 }
@@ -180,8 +178,9 @@ QColor GraphWidget::aggetToQColor(void *obj, const char *name, const QColor& fal
 //------------------------------------------------------------------------------
 Qt::PenStyle GraphWidget::aggetToQPenStyle(void *obj, const char *name, const Qt::PenStyle fallback) const {
 	const char *tmp = agget(obj, const_cast<char*>(name));
-	if(!tmp || strlen(tmp) == 0)
+	if(!tmp || strlen(tmp) == 0) {
 		return fallback;
+	}
 
 	if(strcmp(tmp, "dashed") == 0) {
 		return Qt::DashLine;
@@ -204,7 +203,7 @@ Qt::PenStyle GraphWidget::aggetToQPenStyle(void *obj, const char *name, const Qt
 //------------------------------------------------------------------------------
 void GraphWidget::render_graph(const QString& filename, const QString& layout) {
 	if(FILE *const fp = fopen(qPrintable(filename), "r")) {
-		if(GVC_t *gvc = gvContext()) {
+		if(GVC_t *const gvc = gvContext()) {
 			if(graph_t *const graph = agread(fp)) {
 				render_graph(gvc, graph, layout);
 				agclose(graph);
@@ -225,31 +224,32 @@ void GraphWidget::render_graph(const QString& filename, const QString& layout) {
 // Name: render_sub_graph
 // Desc:
 //------------------------------------------------------------------------------
-void GraphWidget::render_sub_graph(GVC_t *gvc, graph_t *graph) {
+void GraphWidget::render_sub_graph(graph_t *graph) {
 
 	if(graph) {
-		for(int i = 1; i <= graph->u.n_cluster; ++i) {
-			graph_t *const sub_graph = graph->u.clust[i];
-			render_sub_graph(gvc, sub_graph);
+		for(int i = 1; i <= GD_n_cluster(graph); ++i) {
+			if(graph_t *const sub_graph = GD_clust(graph)[i]) {
+				render_sub_graph(sub_graph);
+			}
 		}
 
-		drawGraphLabel(graph);
+		render_label(graph);
+
+		const QRectF sub_graph_rect(
+			gToQ(GD_bb(graph).LL),
+			gToQ(GD_bb(graph).UR)
+			);
+
+		QPen graphPen(aggetToQColor(graph, "color", Qt::white));
+
+		const QString style = QString::fromUtf8(agget(graph, const_cast<char *>("style")));
+		const QBrush graphBrush(
+			style.contains("filled") ? aggetToQColor(graph, "color", Qt::white) : QBrush()
+			);
+
+		QGraphicsRectItem *const item = scene_->addRect(sub_graph_rect, graphPen, graphBrush);
+		item->setZValue(INT_MIN);
 	}
-
-	const QRectF subGraphRect(
-		gToQ(GD_bb(graph).LL),
-		gToQ(GD_bb(graph).UR)
-		);
-
-	QPen graphPen(aggetToQColor(graph, "color", Qt::white));
-
-	const QString style = QString::fromUtf8(agget(graph, const_cast<char *>("style")));
-	const QBrush graphBrush(
-		style.contains("filled") ? aggetToQColor(graph, "color", Qt::white) : QBrush()
-		);
-
-	QGraphicsRectItem *const item = scene_->addRect(subGraphRect, graphPen, graphBrush);
-	item->setZValue(INT_MIN);
 }
 
 //------------------------------------------------------------------------------
@@ -257,25 +257,22 @@ void GraphWidget::render_sub_graph(GVC_t *gvc, graph_t *graph) {
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::render_edge(edge_t *edge) {
-	const splines* spl = ED_spl(edge);
 
-	if(!spl) {
-		return;
-	}
+	if(const splines *const spl = ED_spl(edge)) {
+		for (int i = 0; i < spl->size; ++i) {
+			const bezier &bz = spl->list[i];
+			const QColor color(aggetToQColor(edge, "color", Qt::black));
 
-	for (int i = 0; i < spl->size; ++i) {
-		const bezier& bz = spl->list[i];
-		const QColor color(aggetToQColor(edge, "color", Qt::black));
+			GraphEdge *const item = new GraphEdge(this, bz, color);
 
-		GraphEdge *const item = new GraphEdge(this, bz, color);
+			QPen pen(color);
+			pen.setStyle(aggetToQPenStyle(edge, "style", Qt::SolidLine));
+			pen.setWidthF(1.0);
+			item->setPen(pen);
 
-		QPen pen(color);
-		pen.setStyle(aggetToQPenStyle(edge, "style", Qt::SolidLine));
-		pen.setWidthF(1.0);
-		item->setPen(pen);
-
-		item->setZValue(-1.0);
-		scene_->addItem(item);
+			item->setZValue(-1.0);
+			scene_->addItem(item);
+		}
 	}
 }
 
@@ -284,12 +281,13 @@ void GraphWidget::render_edge(edge_t *edge) {
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::render_node(graph_t *graph, node_t *node) {
+
 	const QString node_style = QString::fromUtf8(agget(node, const_cast<char *>("style")));
 	const QStringList node_styles = node_style.split(",");
 
 	if(!node_styles.contains("invisible")) {
 
-		GraphNode* item = new GraphNode(this, node);
+		GraphNode *const item = new GraphNode(this, node);
 		item->setZValue(1.0);
 #ifdef ND_coord_i
 		item->setPos(gToQ(ND_coord_i(node)));
@@ -351,8 +349,9 @@ void GraphWidget::render_graph(GVC_t *gvc, graph_t *graph, const QString& layout
 		scene_->setSceneRect(graph_rect_.adjusted(-5, -5, +5, +5));
 		scene_->setBackgroundBrush(aggetToQColor(graph, "bgcolor", Qt::white));
 
-		render_sub_graph(gvc, graph);
+		render_sub_graph(graph);
 
+		// the list of nodes includes sub-graphs
 		for(node_t *n = agfstnode(graph); n; n = agnxtnode(graph, n)) {
 			render_node(graph, n);
 		}
@@ -362,13 +361,12 @@ void GraphWidget::render_graph(GVC_t *gvc, graph_t *graph, const QString& layout
 }
 
 //------------------------------------------------------------------------------
-// Name: drawGraphLabel
+// Name: render_label
 // Desc:
 //------------------------------------------------------------------------------
-void GraphWidget::drawGraphLabel(graph_t *graph) {
-	const textlabel_t *const textlabel = GD_label(graph);
-	if(textlabel) {
-#if 0
+void GraphWidget::render_label(const graph_t *graph) {
+
+	if(const textlabel_t *const textlabel = GD_label(graph)) {
 		// Since I always just take the points from graph and pass them to Qt
 		// as pixel I also have to set the pixel size of the font.
 		QFont font(textlabel->fontname, textlabel->fontsize);
@@ -379,17 +377,20 @@ void GraphWidget::drawGraphLabel(graph_t *graph) {
 			qWarning("replacing font \"%s\" by font \"%s\"", qPrintable(font.family()), qPrintable(fontinfo.family()));
 		}
 
-		QGraphicsTextItem *item = scene_->addText(QString::fromUtf8(textlabel->text), font);
+		QGraphicsTextItem *const item = scene_->addText(QString::fromUtf8(textlabel->text), font);
 
-		const QRectF subGraphRect(
-			gToQ(GD_bb(graph).LL),
-			gToQ(GD_bb(graph).UR)
+		const QRectF sub_graph_rect(
+			gToQ(GD_bb(graph).LL, true),
+			gToQ(GD_bb(graph).UR, true)
 			);
 
-		const pointf p = textlabel->pos;
-		QPointF pos = true ? QPointF(p.x, subGraphRect.height() - p.y) : QPointF(p.x, -p.y);
-		item->setPos(pos);
-#endif
+		QPointF p = gToQ(textlabel->pos, true);
+		
+		// I don't know why this adjustment is necessary :-/
+		p -= QPointF(40.0, 10.0);
+				
+		item->setPos(p);
+		item->setZValue(INT_MAX);
 	}
 }
 
