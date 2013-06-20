@@ -1,2040 +1,2053 @@
 <?xml version="1.0" encoding="utf-8"?>
 <syscalls version="1.0">
 	<linux arch="x86">
-		<syscall name="SYS_restart_syscall">
+		<syscall name="restart_syscall">
         		<index>0</index>
 		</syscall>
-		<syscall name="SYS_exit">
+		<syscall name="exit">
         		<index>1</index>
 		</syscall>
-		<syscall name="SYS_fork">
+		<syscall name="fork">
         		<index>2</index>
 		</syscall>
-		<syscall name="SYS_read">
+		<syscall name="read">
         		<index>3</index>
-				<argument type="i" />
-				<argument type="p" />
-				<argument type="u" />
+				<argument type="i" register="ebx" />
+				<argument type="p" register="ecx" />
+				<argument type="u" register="edx" />
 		</syscall>
-		<syscall name="SYS_write">
+		<syscall name="write">
         		<index>4</index>
-				<argument type="i" />
-				<argument type="p" />
-				<argument type="u" />
+				<argument type="i" register="ebx" />
+				<argument type="p" register="ecx" />
+				<argument type="u" register="edx" />
 		</syscall>
-		<syscall name="SYS_open">
+		<syscall name="open">
         		<index>5</index>
-				<argument type="s" />
-				<argument type="i" />
-				<argument type="u" />
+				<argument type="s" register="ebx" />
+				<argument type="i" register="ecx" />
+				<argument type="u" register="edx" />
 		</syscall>
-		<syscall name="SYS_close">
+		<syscall name="close">
         		<index>6</index>
-				<argument type="i" />
+				<argument type="i" register="ebx" />
 		</syscall>
-		<syscall name="SYS_waitpid">
+		<syscall name="waitpid">
         		<index>7</index>
+				<argument type="i" register="ebx" />
+				<argument type="p" register="ecx" />
+				<argument type="i" register="edx" />
 		</syscall>
-		<syscall name="SYS_creat">
+		<syscall name="creat">
         		<index>8</index>
 		</syscall>
-		<syscall name="SYS_link">
+		<syscall name="link">
         		<index>9</index>
 		</syscall>
-		<syscall name="SYS_unlink">
+		<syscall name="unlink">
         		<index>10</index>
 		</syscall>
-		<syscall name="SYS_execve">
+		<syscall name="execve">
         		<index>11</index>
 		</syscall>
-		<syscall name="SYS_chdir">
+		<syscall name="chdir">
         		<index>12</index>
 		</syscall>
-		<syscall name="SYS_time">
+		<syscall name="time">
         		<index>13</index>
 		</syscall>
-		<syscall name="SYS_mknod">
+		<syscall name="mknod">
         		<index>14</index>
 		</syscall>
-		<syscall name="SYS_chmod">
+		<syscall name="chmod">
         		<index>15</index>
 		</syscall>
-		<syscall name="SYS_lchown">
+		<syscall name="lchown">
         		<index>16</index>
 		</syscall>
-		<syscall name="SYS_break">
+		<syscall name="break">
         		<index>17</index>
 		</syscall>
-		<syscall name="SYS_oldstat">
+		<syscall name="oldstat">
         		<index>18</index>
 		</syscall>
-		<syscall name="SYS_lseek">
+		<syscall name="lseek">
         		<index>19</index>
 		</syscall>
-		<syscall name="SYS_getpid">
+		<syscall name="getpid">
         		<index>20</index>
 		</syscall>
-		<syscall name="SYS_mount">
+		<syscall name="mount">
         		<index>21</index>
 		</syscall>
-		<syscall name="SYS_umount">
+		<syscall name="umount">
         		<index>22</index>
 		</syscall>
-		<syscall name="SYS_setuid">
+		<syscall name="setuid">
         		<index>23</index>
 		</syscall>
-		<syscall name="SYS_getuid">
+		<syscall name="getuid">
         		<index>24</index>
 		</syscall>
-		<syscall name="SYS_stime">
+		<syscall name="stime">
         		<index>25</index>
 		</syscall>
-		<syscall name="SYS_ptrace">
+		<syscall name="ptrace">
         		<index>26</index>
 		</syscall>
-		<syscall name="SYS_alarm">
+		<syscall name="alarm">
         		<index>27</index>
 		</syscall>
-		<syscall name="SYS_oldfstat">
+		<syscall name="oldfstat">
         		<index>28</index>
 		</syscall>
-		<syscall name="SYS_pause">
+		<syscall name="pause">
         		<index>29</index>
 		</syscall>
-		<syscall name="SYS_utime">
+		<syscall name="utime">
         		<index>30</index>
 		</syscall>
-		<syscall name="SYS_stty">
+		<syscall name="stty">
         		<index>31</index>
 		</syscall>
-		<syscall name="SYS_gtty">
+		<syscall name="gtty">
         		<index>32</index>
 		</syscall>
-		<syscall name="SYS_access">
+		<syscall name="access">
         		<index>33</index>
 		</syscall>
-		<syscall name="SYS_nice">
+		<syscall name="nice">
         		<index>34</index>
 		</syscall>
-		<syscall name="SYS_ftime">
+		<syscall name="ftime">
         		<index>35</index>
 		</syscall>
-		<syscall name="SYS_sync">
+		<syscall name="sync">
         		<index>36</index>
 		</syscall>
-		<syscall name="SYS_kill">
+		<syscall name="kill">
         		<index>37</index>
 		</syscall>
-		<syscall name="SYS_rename">
+		<syscall name="rename">
         		<index>38</index>
 		</syscall>
-		<syscall name="SYS_mkdir">
+		<syscall name="mkdir">
         		<index>39</index>
 		</syscall>
-		<syscall name="SYS_rmdir">
+		<syscall name="rmdir">
         		<index>40</index>
 		</syscall>
-		<syscall name="SYS_dup">
+		<syscall name="dup">
         		<index>41</index>
 		</syscall>
-		<syscall name="SYS_pipe">
+		<syscall name="pipe">
         		<index>42</index>
 		</syscall>
-		<syscall name="SYS_times">
+		<syscall name="times">
         		<index>43</index>
 		</syscall>
-		<syscall name="SYS_prof">
+		<syscall name="prof">
         		<index>44</index>
 		</syscall>
-		<syscall name="SYS_brk">
+		<syscall name="brk">
         		<index>45</index>
-				<argument type="p" />
+				<argument type="p" register="ebx" />
 		</syscall>
-		<syscall name="SYS_setgid">
+		<syscall name="setgid">
         		<index>46</index>
 		</syscall>
-		<syscall name="SYS_getgid">
+		<syscall name="getgid">
         		<index>47</index>
 		</syscall>
-		<syscall name="SYS_signal">
+		<syscall name="signal">
         		<index>48</index>
 		</syscall>
-		<syscall name="SYS_geteuid">
+		<syscall name="geteuid">
         		<index>49</index>
 		</syscall>
-		<syscall name="SYS_getegid">
+		<syscall name="getegid">
         		<index>50</index>
 		</syscall>
-		<syscall name="SYS_acct">
+		<syscall name="acct">
         		<index>51</index>
 		</syscall>
-		<syscall name="SYS_umount2">
+		<syscall name="umount2">
         		<index>52</index>
 		</syscall>
-		<syscall name="SYS_lock">
+		<syscall name="lock">
         		<index>53</index>
 		</syscall>
-		<syscall name="SYS_ioctl">
+		<syscall name="ioctl">
         		<index>54</index>
 		</syscall>
-		<syscall name="SYS_fcntl">
+		<syscall name="fcntl">
         		<index>55</index>
 		</syscall>
-		<syscall name="SYS_mpx">
+		<syscall name="mpx">
         		<index>56</index>
 		</syscall>
-		<syscall name="SYS_setpgid">
+		<syscall name="setpgid">
         		<index>57</index>
 		</syscall>
-		<syscall name="SYS_ulimit">
+		<syscall name="ulimit">
         		<index>58</index>
 		</syscall>
-		<syscall name="SYS_oldolduname">
+		<syscall name="oldolduname">
         		<index>59</index>
 		</syscall>
-		<syscall name="SYS_umask">
+		<syscall name="umask">
         		<index>60</index>
 		</syscall>
-		<syscall name="SYS_chroot">
+		<syscall name="chroot">
         		<index>61</index>
 		</syscall>
-		<syscall name="SYS_ustat">
+		<syscall name="ustat">
         		<index>62</index>
 		</syscall>
-		<syscall name="SYS_dup2">
+		<syscall name="dup2">
         		<index>63</index>
 		</syscall>
-		<syscall name="SYS_getppid">
+		<syscall name="getppid">
         		<index>64</index>
 		</syscall>
-		<syscall name="SYS_getpgrp">
+		<syscall name="getpgrp">
         		<index>65</index>
 		</syscall>
-		<syscall name="SYS_setsid">
+		<syscall name="setsid">
         		<index>66</index>
 		</syscall>
-		<syscall name="SYS_sigaction">
+		<syscall name="sigaction">
         		<index>67</index>
 		</syscall>
-		<syscall name="SYS_sgetmask">
+		<syscall name="sgetmask">
         		<index>68</index>
 		</syscall>
-		<syscall name="SYS_ssetmask">
+		<syscall name="ssetmask">
         		<index>69</index>
 		</syscall>
-		<syscall name="SYS_setreuid">
+		<syscall name="setreuid">
         		<index>70</index>
 		</syscall>
-		<syscall name="SYS_setregid">
+		<syscall name="setregid">
         		<index>71</index>
 		</syscall>
-		<syscall name="SYS_sigsuspend">
+		<syscall name="sigsuspend">
         		<index>72</index>
 		</syscall>
-		<syscall name="SYS_sigpending">
+		<syscall name="sigpending">
         		<index>73</index>
 		</syscall>
-		<syscall name="SYS_sethostname">
+		<syscall name="sethostname">
         		<index>74</index>
 		</syscall>
-		<syscall name="SYS_setrlimit">
+		<syscall name="setrlimit">
         		<index>75</index>
 		</syscall>
-		<syscall name="SYS_getrlimit">
+		<syscall name="getrlimit">
         		<index>76</index>
 		</syscall>
-		<syscall name="SYS_getrusage">
+		<syscall name="getrusage">
         		<index>77</index>
 		</syscall>
-		<syscall name="SYS_gettimeofday">
+		<syscall name="gettimeofday">
         		<index>78</index>
 		</syscall>
-		<syscall name="SYS_settimeofday">
+		<syscall name="settimeofday">
         		<index>79</index>
 		</syscall>
-		<syscall name="SYS_getgroups">
+		<syscall name="getgroups">
         		<index>80</index>
 		</syscall>
-		<syscall name="SYS_setgroups">
+		<syscall name="setgroups">
         		<index>81</index>
 		</syscall>
-		<syscall name="SYS_select">
+		<syscall name="select">
         		<index>82</index>
 		</syscall>
-		<syscall name="SYS_symlink">
+		<syscall name="symlink">
         		<index>83</index>
 		</syscall>
-		<syscall name="SYS_oldlstat">
+		<syscall name="oldlstat">
         		<index>84</index>
 		</syscall>
-		<syscall name="SYS_readlink">
+		<syscall name="readlink">
         		<index>85</index>
-				<argument type="s" />
-				<argument type="p" />
-				<argument type="u" />
+				<argument type="s" register="ebx" />
+				<argument type="p" register="ecx" />
+				<argument type="u" register="edx" />
 		</syscall>
-		<syscall name="SYS_uselib">
+		<syscall name="uselib">
         		<index>86</index>
 		</syscall>
-		<syscall name="SYS_swapon">
+		<syscall name="swapon">
         		<index>87</index>
 		</syscall>
-		<syscall name="SYS_reboot">
+		<syscall name="reboot">
         		<index>88</index>
 		</syscall>
-		<syscall name="SYS_readdir">
+		<syscall name="readdir">
         		<index>89</index>
 		</syscall>
-		<syscall name="SYS_mmap">
+		<syscall name="mmap">
         		<index>90</index>
-				<argument type="p" />
-				<argument type="u" />
-				<argument type="i" />
-				<argument type="i" />
-				<argument type="i" />
-				<argument type="u" />
+				<argument type="p" register="ebx" />
+				<argument type="u" register="ecx" />
+				<argument type="i" register="edx" />
+				<argument type="i" register="esi" />
+				<argument type="i" register="edi" />
+				<argument type="u" register="ebp" />
 		</syscall>
-		<syscall name="SYS_munmap">
+		<syscall name="munmap">
         		<index>91</index>
-				<argument type="p" />
-				<argument type="u" />
+				<argument type="p" register="ebx" />
+				<argument type="u" register="ecx" />
 		</syscall>
-		<syscall name="SYS_truncate">
+		<syscall name="truncate">
         		<index>92</index>
 		</syscall>
-		<syscall name="SYS_ftruncate">
+		<syscall name="ftruncate">
         		<index>93</index>
 		</syscall>
-		<syscall name="SYS_fchmod">
+		<syscall name="fchmod">
         		<index>94</index>
 		</syscall>
-		<syscall name="SYS_fchown">
+		<syscall name="fchown">
         		<index>95</index>
 		</syscall>
-		<syscall name="SYS_getpriority">
+		<syscall name="getpriority">
         		<index>96</index>
 		</syscall>
-		<syscall name="SYS_setpriority">
+		<syscall name="setpriority">
         		<index>97</index>
 		</syscall>
-		<syscall name="SYS_profil">
+		<syscall name="profil">
         		<index>98</index>
 		</syscall>
-		<syscall name="SYS_statfs">
+		<syscall name="statfs">
         		<index>99</index>
 		</syscall>
-		<syscall name="SYS_fstatfs">
+		<syscall name="fstatfs">
         		<index>100</index>
 		</syscall>
-		<syscall name="SYS_ioperm">
+		<syscall name="ioperm">
         		<index>101</index>
 		</syscall>
-		<syscall name="SYS_socketcall">
+		<syscall name="socketcall">
         		<index>102</index>
 		</syscall>
-		<syscall name="SYS_syslog">
+		<syscall name="syslog">
         		<index>103</index>
 		</syscall>
-		<syscall name="SYS_setitimer">
+		<syscall name="setitimer">
         		<index>104</index>
 		</syscall>
-		<syscall name="SYS_getitimer">
+		<syscall name="getitimer">
         		<index>105</index>
 		</syscall>
-		<syscall name="SYS_stat">
+		<syscall name="stat">
         		<index>106</index>
 		</syscall>
-		<syscall name="SYS_lstat">
+		<syscall name="lstat">
         		<index>107</index>
 		</syscall>
-		<syscall name="SYS_fstat">
+		<syscall name="fstat">
         		<index>108</index>
+				<argument type="i" register="ebx" />
+				<argument type="p" register="ecx" />
 		</syscall>
-		<syscall name="SYS_olduname">
+		<syscall name="olduname">
         		<index>109</index>
 		</syscall>
-		<syscall name="SYS_iopl">
+		<syscall name="iopl">
         		<index>110</index>
 		</syscall>
-		<syscall name="SYS_vhangup">
+		<syscall name="vhangup">
         		<index>111</index>
 		</syscall>
-		<syscall name="SYS_idle">
+		<syscall name="idle">
         		<index>112</index>
 		</syscall>
-		<syscall name="SYS_vm86old">
+		<syscall name="vm86old">
         		<index>113</index>
 		</syscall>
-		<syscall name="SYS_wait4">
+		<syscall name="wait4">
         		<index>114</index>
 		</syscall>
-		<syscall name="SYS_swapoff">
+		<syscall name="swapoff">
         		<index>115</index>
 		</syscall>
-		<syscall name="SYS_sysinfo">
+		<syscall name="sysinfo">
         		<index>116</index>
 		</syscall>
-		<syscall name="SYS_ipc">
+		<syscall name="ipc">
         		<index>117</index>
 		</syscall>
-		<syscall name="SYS_fsync">
+		<syscall name="fsync">
         		<index>118</index>
 		</syscall>
-		<syscall name="SYS_sigreturn">
+		<syscall name="sigreturn">
         		<index>119</index>
 		</syscall>
-		<syscall name="SYS_clone">
+		<syscall name="clone">
         		<index>120</index>
 		</syscall>
-		<syscall name="SYS_setdomainname">
+		<syscall name="setdomainname">
         		<index>121</index>
 		</syscall>
-		<syscall name="SYS_uname">
+		<syscall name="uname">
         		<index>122</index>
 		</syscall>
-		<syscall name="SYS_modify_ldt">
+		<syscall name="modify_ldt">
         		<index>123</index>
 		</syscall>
-		<syscall name="SYS_adjtimex">
+		<syscall name="adjtimex">
         		<index>124</index>
 		</syscall>
-		<syscall name="SYS_mprotect">
+		<syscall name="mprotect">
         		<index>125</index>
-				<argument type="p" />
-				<argument type="u" />
-				<argument type="i" />
+				<argument type="p" register="ebx" />
+				<argument type="u" register="ecx" />
+				<argument type="i" register="edx" />
 		</syscall>
-		<syscall name="SYS_sigprocmask">
+		<syscall name="sigprocmask">
         		<index>126</index>
 		</syscall>
-		<syscall name="SYS_create_module">
+		<syscall name="create_module">
         		<index>127</index>
 		</syscall>
-		<syscall name="SYS_init_module">
+		<syscall name="init_module">
         		<index>128</index>
 		</syscall>
-		<syscall name="SYS_delete_module">
+		<syscall name="delete_module">
         		<index>129</index>
 		</syscall>
-		<syscall name="SYS_get_kernel_syms">
+		<syscall name="get_kernel_syms">
         		<index>130</index>
 		</syscall>
-		<syscall name="SYS_quotactl">
+		<syscall name="quotactl">
         		<index>131</index>
 		</syscall>
-		<syscall name="SYS_getpgid">
+		<syscall name="getpgid">
         		<index>132</index>
 		</syscall>
-		<syscall name="SYS_fchdir">
+		<syscall name="fchdir">
         		<index>133</index>
 		</syscall>
-		<syscall name="SYS_bdflush">
+		<syscall name="bdflush">
         		<index>134</index>
 		</syscall>
-		<syscall name="SYS_sysfs">
+		<syscall name="sysfs">
         		<index>135</index>
 		</syscall>
-		<syscall name="SYS_personality">
+		<syscall name="personality">
         		<index>136</index>
 		</syscall>
-		<syscall name="SYS_afs_syscall">
+		<syscall name="afs_syscall">
         		<index>137</index>
 		</syscall>
-		<syscall name="SYS_setfsuid">
+		<syscall name="setfsuid">
         		<index>138</index>
 		</syscall>
-		<syscall name="SYS_setfsgid">
+		<syscall name="setfsgid">
         		<index>139</index>
 		</syscall>
-		<syscall name="SYS__llseek">
+		<syscall name="_llseek">
         		<index>140</index>
 		</syscall>
-		<syscall name="SYS_getdents">
+		<syscall name="getdents">
         		<index>141</index>
 		</syscall>
-		<syscall name="SYS__newselect">
+		<syscall name="_newselect">
         		<index>142</index>
 		</syscall>
-		<syscall name="SYS_flock">
+		<syscall name="flock">
         		<index>143</index>
 		</syscall>
-		<syscall name="SYS_msync">
+		<syscall name="msync">
         		<index>144</index>
 		</syscall>
-		<syscall name="SYS_readv">
+		<syscall name="readv">
         		<index>145</index>
 		</syscall>
-		<syscall name="SYS_writev">
+		<syscall name="writev">
         		<index>146</index>
 		</syscall>
-		<syscall name="SYS_getsid">
+		<syscall name="getsid">
         		<index>147</index>
 		</syscall>
-		<syscall name="SYS_fdatasync">
+		<syscall name="fdatasync">
         		<index>148</index>
 		</syscall>
-		<syscall name="SYS__sysctl">
+		<syscall name="_sysctl">
         		<index>149</index>
 		</syscall>
-		<syscall name="SYS_mlock">
+		<syscall name="mlock">
         		<index>150</index>
 		</syscall>
-		<syscall name="SYS_munlock">
+		<syscall name="munlock">
         		<index>151</index>
 		</syscall>
-		<syscall name="SYS_mlockall">
+		<syscall name="mlockall">
         		<index>152</index>
 		</syscall>
-		<syscall name="SYS_munlockall">
+		<syscall name="munlockall">
         		<index>153</index>
 		</syscall>
-		<syscall name="SYS_sched_setparam">
+		<syscall name="sched_setparam">
         		<index>154</index>
 		</syscall>
-		<syscall name="SYS_sched_getparam">
+		<syscall name="sched_getparam">
         		<index>155</index>
 		</syscall>
-		<syscall name="SYS_sched_setscheduler">
+		<syscall name="sched_setscheduler">
         		<index>156</index>
 		</syscall>
-		<syscall name="SYS_sched_getscheduler">
+		<syscall name="sched_getscheduler">
         		<index>157</index>
 		</syscall>
-		<syscall name="SYS_sched_yield">
+		<syscall name="sched_yield">
         		<index>158</index>
 		</syscall>
-		<syscall name="SYS_sched_get_priority_max">
+		<syscall name="sched_get_priority_max">
         		<index>159</index>
 		</syscall>
-		<syscall name="SYS_sched_get_priority_min">
+		<syscall name="sched_get_priority_min">
         		<index>160</index>
 		</syscall>
-		<syscall name="SYS_sched_rr_get_interval">
+		<syscall name="sched_rr_get_interval">
         		<index>161</index>
 		</syscall>
-		<syscall name="SYS_nanosleep">
+		<syscall name="nanosleep">
         		<index>162</index>
 		</syscall>
-		<syscall name="SYS_mremap">
+		<syscall name="mremap">
         		<index>163</index>
 		</syscall>
-		<syscall name="SYS_setresuid">
+		<syscall name="setresuid">
         		<index>164</index>
 		</syscall>
-		<syscall name="SYS_getresuid">
+		<syscall name="getresuid">
         		<index>165</index>
 		</syscall>
-		<syscall name="SYS_vm86">
+		<syscall name="vm86">
         		<index>166</index>
 		</syscall>
-		<syscall name="SYS_query_module">
+		<syscall name="query_module">
         		<index>167</index>
 		</syscall>
-		<syscall name="SYS_poll">
+		<syscall name="poll">
         		<index>168</index>
+				<argument type="p" register="ebx" />
+				<argument type="i" register="ecx" />
+				<argument type="i" register="edx" />
 		</syscall>
-		<syscall name="SYS_nfsservctl">
+		<syscall name="nfsservctl">
         		<index>169</index>
 		</syscall>
-		<syscall name="SYS_setresgid">
+		<syscall name="setresgid">
         		<index>170</index>
 		</syscall>
-		<syscall name="SYS_getresgid">
+		<syscall name="getresgid">
         		<index>171</index>
 		</syscall>
-		<syscall name="SYS_prctl">
+		<syscall name="prctl">
         		<index>172</index>
 		</syscall>
-		<syscall name="SYS_rt_sigreturn">
+		<syscall name="rt_sigreturn">
         		<index>173</index>
 		</syscall>
-		<syscall name="SYS_rt_sigaction">
+		<syscall name="rt_sigaction">
         		<index>174</index>
 		</syscall>
-		<syscall name="SYS_rt_sigprocmask">
+		<syscall name="rt_sigprocmask">
         		<index>175</index>
 		</syscall>
-		<syscall name="SYS_rt_sigpending">
+		<syscall name="rt_sigpending">
         		<index>176</index>
 		</syscall>
-		<syscall name="SYS_rt_sigtimedwait">
+		<syscall name="rt_sigtimedwait">
         		<index>177</index>
 		</syscall>
-		<syscall name="SYS_rt_sigqueueinfo">
+		<syscall name="rt_sigqueueinfo">
         		<index>178</index>
 		</syscall>
-		<syscall name="SYS_rt_sigsuspend">
+		<syscall name="rt_sigsuspend">
         		<index>179</index>
 		</syscall>
-		<syscall name="SYS_pread64">
+		<syscall name="pread64">
         		<index>180</index>
 		</syscall>
-		<syscall name="SYS_pwrite64">
+		<syscall name="pwrite64">
         		<index>181</index>
 		</syscall>
-		<syscall name="SYS_chown">
+		<syscall name="chown">
         		<index>182</index>
 		</syscall>
-		<syscall name="SYS_getcwd">
+		<syscall name="getcwd">
         		<index>183</index>
 		</syscall>
-		<syscall name="SYS_capget">
+		<syscall name="capget">
         		<index>184</index>
 		</syscall>
-		<syscall name="SYS_capset">
+		<syscall name="capset">
         		<index>185</index>
 		</syscall>
-		<syscall name="SYS_sigaltstack">
+		<syscall name="sigaltstack">
         		<index>186</index>
 		</syscall>
-		<syscall name="SYS_sendfile">
+		<syscall name="sendfile">
         		<index>187</index>
 		</syscall>
-		<syscall name="SYS_getpmsg">
+		<syscall name="getpmsg">
         		<index>188</index>
 		</syscall>
-		<syscall name="SYS_putpmsg">
+		<syscall name="putpmsg">
         		<index>189</index>
 		</syscall>
-		<syscall name="SYS_vfork">
+		<syscall name="vfork">
         		<index>190</index>
 		</syscall>
-		<syscall name="SYS_ugetrlimit">
+		<syscall name="ugetrlimit">
         		<index>191</index>
 		</syscall>
-		<syscall name="SYS_mmap2">
+		<syscall name="mmap2">
         		<index>192</index>
 		</syscall>
-		<syscall name="SYS_truncate64">
+		<syscall name="truncate64">
         		<index>193</index>
 		</syscall>
-		<syscall name="SYS_ftruncate64">
+		<syscall name="ftruncate64">
         		<index>194</index>
 		</syscall>
-		<syscall name="SYS_stat64">
+		<syscall name="stat64">
         		<index>195</index>
 		</syscall>
-		<syscall name="SYS_lstat64">
+		<syscall name="lstat64">
         		<index>196</index>
 		</syscall>
-		<syscall name="SYS_fstat64">
+		<syscall name="fstat64">
         		<index>197</index>
 		</syscall>
-		<syscall name="SYS_lchown32">
+		<syscall name="lchown32">
         		<index>198</index>
 		</syscall>
-		<syscall name="SYS_getuid32">
+		<syscall name="getuid32">
         		<index>199</index>
 		</syscall>
-		<syscall name="SYS_getgid32">
+		<syscall name="getgid32">
         		<index>200</index>
 		</syscall>
-		<syscall name="SYS_geteuid32">
+		<syscall name="geteuid32">
         		<index>201</index>
 		</syscall>
-		<syscall name="SYS_getegid32">
+		<syscall name="getegid32">
         		<index>202</index>
 		</syscall>
-		<syscall name="SYS_setreuid32">
+		<syscall name="setreuid32">
         		<index>203</index>
 		</syscall>
-		<syscall name="SYS_setregid32">
+		<syscall name="setregid32">
         		<index>204</index>
 		</syscall>
-		<syscall name="SYS_getgroups32">
+		<syscall name="getgroups32">
         		<index>205</index>
 		</syscall>
-		<syscall name="SYS_setgroups32">
+		<syscall name="setgroups32">
         		<index>206</index>
 		</syscall>
-		<syscall name="SYS_fchown32">
+		<syscall name="fchown32">
         		<index>207</index>
 		</syscall>
-		<syscall name="SYS_setresuid32">
+		<syscall name="setresuid32">
         		<index>208</index>
 		</syscall>
-		<syscall name="SYS_getresuid32">
+		<syscall name="getresuid32">
         		<index>209</index>
 		</syscall>
-		<syscall name="SYS_setresgid32">
+		<syscall name="setresgid32">
         		<index>210</index>
 		</syscall>
-		<syscall name="SYS_getresgid32">
+		<syscall name="getresgid32">
         		<index>211</index>
 		</syscall>
-		<syscall name="SYS_chown32">
+		<syscall name="chown32">
         		<index>212</index>
 		</syscall>
-		<syscall name="SYS_setuid32">
+		<syscall name="setuid32">
         		<index>213</index>
 		</syscall>
-		<syscall name="SYS_setgid32">
+		<syscall name="setgid32">
         		<index>214</index>
 		</syscall>
-		<syscall name="SYS_setfsuid32">
+		<syscall name="setfsuid32">
         		<index>215</index>
 		</syscall>
-		<syscall name="SYS_setfsgid32">
+		<syscall name="setfsgid32">
         		<index>216</index>
 		</syscall>
-		<syscall name="SYS_pivot_root">
+		<syscall name="pivot_root">
         		<index>217</index>
 		</syscall>
-		<syscall name="SYS_mincore">
+		<syscall name="mincore">
         		<index>218</index>
 		</syscall>
-		<syscall name="SYS_madvise">
+		<syscall name="madvise">
         		<index>219</index>
 		</syscall>
-		<syscall name="SYS_getdents64">
+		<syscall name="getdents64">
         		<index>220</index>
 		</syscall>
-		<syscall name="SYS_fcntl64">
+		<syscall name="fcntl64">
         		<index>221</index>
 		</syscall>
-		<syscall name="SYS_gettid">
+		<syscall name="gettid">
         		<index>224</index>
 		</syscall>
-		<syscall name="SYS_readahead">
+		<syscall name="readahead">
         		<index>225</index>
 		</syscall>
-		<syscall name="SYS_setxattr">
+		<syscall name="setxattr">
         		<index>226</index>
 		</syscall>
-		<syscall name="SYS_lsetxattr">
+		<syscall name="lsetxattr">
         		<index>227</index>
 		</syscall>
-		<syscall name="SYS_fsetxattr">
+		<syscall name="fsetxattr">
         		<index>228</index>
 		</syscall>
-		<syscall name="SYS_getxattr">
+		<syscall name="getxattr">
         		<index>229</index>
 		</syscall>
-		<syscall name="SYS_lgetxattr">
+		<syscall name="lgetxattr">
         		<index>230</index>
 		</syscall>
-		<syscall name="SYS_fgetxattr">
+		<syscall name="fgetxattr">
         		<index>231</index>
 		</syscall>
-		<syscall name="SYS_listxattr">
+		<syscall name="listxattr">
         		<index>232</index>
 		</syscall>
-		<syscall name="SYS_llistxattr">
+		<syscall name="llistxattr">
         		<index>233</index>
 		</syscall>
-		<syscall name="SYS_flistxattr">
+		<syscall name="flistxattr">
         		<index>234</index>
 		</syscall>
-		<syscall name="SYS_removexattr">
+		<syscall name="removexattr">
         		<index>235</index>
 		</syscall>
-		<syscall name="SYS_lremovexattr">
+		<syscall name="lremovexattr">
         		<index>236</index>
 		</syscall>
-		<syscall name="SYS_fremovexattr">
+		<syscall name="fremovexattr">
         		<index>237</index>
 		</syscall>
-		<syscall name="SYS_tkill">
+		<syscall name="tkill">
         		<index>238</index>
 		</syscall>
-		<syscall name="SYS_sendfile64">
+		<syscall name="sendfile64">
         		<index>239</index>
 		</syscall>
-		<syscall name="SYS_futex">
+		<syscall name="futex">
         		<index>240</index>
 		</syscall>
-		<syscall name="SYS_sched_setaffinity">
+		<syscall name="sched_setaffinity">
         		<index>241</index>
 		</syscall>
-		<syscall name="SYS_sched_getaffinity">
+		<syscall name="sched_getaffinity">
         		<index>242</index>
 		</syscall>
-		<syscall name="SYS_set_thread_area">
+		<syscall name="set_thread_area">
         		<index>243</index>
 		</syscall>
-		<syscall name="SYS_get_thread_area">
+		<syscall name="get_thread_area">
         		<index>244</index>
 		</syscall>
-		<syscall name="SYS_io_setup">
+		<syscall name="io_setup">
         		<index>245</index>
 		</syscall>
-		<syscall name="SYS_io_destroy">
+		<syscall name="io_destroy">
         		<index>246</index>
 		</syscall>
-		<syscall name="SYS_io_getevents">
+		<syscall name="io_getevents">
         		<index>247</index>
 		</syscall>
-		<syscall name="SYS_io_submit">
+		<syscall name="io_submit">
         		<index>248</index>
 		</syscall>
-		<syscall name="SYS_io_cancel">
+		<syscall name="io_cancel">
         		<index>249</index>
 		</syscall>
-		<syscall name="SYS_fadvise64">
+		<syscall name="fadvise64">
         		<index>250</index>
 		</syscall>
-		<syscall name="SYS_exit_group">
+		<syscall name="exit_group">
         		<index>252</index>
 		</syscall>
-		<syscall name="SYS_lookup_dcookie">
+		<syscall name="lookup_dcookie">
         		<index>253</index>
 		</syscall>
-		<syscall name="SYS_epoll_create">
+		<syscall name="epoll_create">
         		<index>254</index>
 		</syscall>
-		<syscall name="SYS_epoll_ctl">
+		<syscall name="epoll_ctl">
         		<index>255</index>
 		</syscall>
-		<syscall name="SYS_epoll_wait">
+		<syscall name="epoll_wait">
         		<index>256</index>
 		</syscall>
-		<syscall name="SYS_remap_file_pages">
+		<syscall name="remap_file_pages">
         		<index>257</index>
 		</syscall>
-		<syscall name="SYS_set_tid_address">
+		<syscall name="set_tid_address">
         		<index>258</index>
 		</syscall>
-		<syscall name="SYS_timer_create">
+		<syscall name="timer_create">
         		<index>259</index>
 		</syscall>
-		<syscall name="SYS_timer_settime">
+		<syscall name="timer_settime">
         		<index>260</index>
 		</syscall>
-		<syscall name="SYS_timer_gettime">
+		<syscall name="timer_gettime">
         		<index>261</index>
 		</syscall>
-		<syscall name="SYS_timer_getoverrun">
+		<syscall name="timer_getoverrun">
         		<index>262</index>
 		</syscall>
-		<syscall name="SYS_timer_delete">
+		<syscall name="timer_delete">
         		<index>263</index>
 		</syscall>
-		<syscall name="SYS_clock_settime">
+		<syscall name="clock_settime">
         		<index>264</index>
 		</syscall>
-		<syscall name="SYS_clock_gettime">
+		<syscall name="clock_gettime">
         		<index>265</index>
 		</syscall>
-		<syscall name="SYS_clock_getres">
+		<syscall name="clock_getres">
         		<index>266</index>
 		</syscall>
-		<syscall name="SYS_clock_nanosleep">
+		<syscall name="clock_nanosleep">
         		<index>267</index>
 		</syscall>
-		<syscall name="SYS_statfs64">
+		<syscall name="statfs64">
         		<index>268</index>
 		</syscall>
-		<syscall name="SYS_fstatfs64">
+		<syscall name="fstatfs64">
         		<index>269</index>
 		</syscall>
-		<syscall name="SYS_tgkill">
+		<syscall name="tgkill">
         		<index>270</index>
 		</syscall>
-		<syscall name="SYS_utimes">
+		<syscall name="utimes">
         		<index>271</index>
 		</syscall>
-		<syscall name="SYS_fadvise64_64">
+		<syscall name="fadvise64_64">
         		<index>272</index>
 		</syscall>
-		<syscall name="SYS_vserver">
+		<syscall name="vserver">
         		<index>273</index>
 		</syscall>
-		<syscall name="SYS_mbind">
+		<syscall name="mbind">
         		<index>274</index>
 		</syscall>
-		<syscall name="SYS_get_mempolicy">
+		<syscall name="get_mempolicy">
         		<index>275</index>
 		</syscall>
-		<syscall name="SYS_set_mempolicy">
+		<syscall name="set_mempolicy">
         		<index>276</index>
 		</syscall>
-		<syscall name="SYS_mq_open">
+		<syscall name="mq_open">
         		<index>277</index>
 		</syscall>
-		<syscall name="SYS_mq_unlink">
+		<syscall name="mq_unlink">
         		<index>278</index>
 		</syscall>
-		<syscall name="SYS_mq_timedsend">
+		<syscall name="mq_timedsend">
         		<index>279</index>
 		</syscall>
-		<syscall name="SYS_mq_timedreceive">
+		<syscall name="mq_timedreceive">
         		<index>280</index>
 		</syscall>
-		<syscall name="SYS_mq_notify">
+		<syscall name="mq_notify">
         		<index>281</index>
 		</syscall>
-		<syscall name="SYS_mq_getsetattr">
+		<syscall name="mq_getsetattr">
         		<index>282</index>
 		</syscall>
-		<syscall name="SYS_kexec_load">
+		<syscall name="kexec_load">
         		<index>283</index>
 		</syscall>
-		<syscall name="SYS_waitid">
+		<syscall name="waitid">
         		<index>284</index>
 		</syscall>
-		<syscall name="SYS_add_key">
+		<syscall name="add_key">
         		<index>286</index>
 		</syscall>
-		<syscall name="SYS_request_key">
+		<syscall name="request_key">
         		<index>287</index>
 		</syscall>
-		<syscall name="SYS_keyctl">
+		<syscall name="keyctl">
         		<index>288</index>
 		</syscall>
-		<syscall name="SYS_ioprio_set">
+		<syscall name="ioprio_set">
         		<index>289</index>
 		</syscall>
-		<syscall name="SYS_ioprio_get">
+		<syscall name="ioprio_get">
         		<index>290</index>
 		</syscall>
-		<syscall name="SYS_inotify_init">
+		<syscall name="inotify_init">
         		<index>291</index>
 		</syscall>
-		<syscall name="SYS_inotify_add_watch">
+		<syscall name="inotify_add_watch">
         		<index>292</index>
 		</syscall>
-		<syscall name="SYS_inotify_rm_watch">
+		<syscall name="inotify_rm_watch">
         		<index>293</index>
 		</syscall>
-		<syscall name="SYS_migrate_pages">
+		<syscall name="migrate_pages">
         		<index>294</index>
 		</syscall>
-		<syscall name="SYS_openat">
+		<syscall name="openat">
         		<index>295</index>
 		</syscall>
-		<syscall name="SYS_mkdirat">
+		<syscall name="mkdirat">
         		<index>296</index>
 		</syscall>
-		<syscall name="SYS_mknodat">
+		<syscall name="mknodat">
         		<index>297</index>
 		</syscall>
-		<syscall name="SYS_fchownat">
+		<syscall name="fchownat">
         		<index>298</index>
 		</syscall>
-		<syscall name="SYS_futimesat">
+		<syscall name="futimesat">
         		<index>299</index>
 		</syscall>
-		<syscall name="SYS_fstatat64">
+		<syscall name="fstatat64">
         		<index>300</index>
 		</syscall>
-		<syscall name="SYS_unlinkat">
+		<syscall name="unlinkat">
         		<index>301</index>
 		</syscall>
-		<syscall name="SYS_renameat">
+		<syscall name="renameat">
         		<index>302</index>
 		</syscall>
-		<syscall name="SYS_linkat">
+		<syscall name="linkat">
         		<index>303</index>
 		</syscall>
-		<syscall name="SYS_symlinkat">
+		<syscall name="symlinkat">
         		<index>304</index>
 		</syscall>
-		<syscall name="SYS_readlinkat">
+		<syscall name="readlinkat">
         		<index>305</index>
 		</syscall>
-		<syscall name="SYS_fchmodat">
+		<syscall name="fchmodat">
         		<index>306</index>
 		</syscall>
-		<syscall name="SYS_faccessat">
+		<syscall name="faccessat">
         		<index>307</index>
 		</syscall>
-		<syscall name="SYS_pselect6">
+		<syscall name="pselect6">
         		<index>308</index>
 		</syscall>
-		<syscall name="SYS_ppoll">
+		<syscall name="ppoll">
         		<index>309</index>
 		</syscall>
-		<syscall name="SYS_unshare">
+		<syscall name="unshare">
         		<index>310</index>
 		</syscall>
-		<syscall name="SYS_set_robust_list">
+		<syscall name="set_robust_list">
         		<index>311</index>
 		</syscall>
-		<syscall name="SYS_get_robust_list">
+		<syscall name="get_robust_list">
         		<index>312</index>
 		</syscall>
-		<syscall name="SYS_splice">
+		<syscall name="splice">
         		<index>313</index>
 		</syscall>
-		<syscall name="SYS_sync_file_range">
+		<syscall name="sync_file_range">
         		<index>314</index>
 		</syscall>
-		<syscall name="SYS_tee">
+		<syscall name="tee">
         		<index>315</index>
 		</syscall>
-		<syscall name="SYS_vmsplice">
+		<syscall name="vmsplice">
         		<index>316</index>
 		</syscall>
-		<syscall name="SYS_move_pages">
+		<syscall name="move_pages">
         		<index>317</index>
 		</syscall>
-		<syscall name="SYS_getcpu">
+		<syscall name="getcpu">
         		<index>318</index>
 		</syscall>
-		<syscall name="SYS_epoll_pwait">
+		<syscall name="epoll_pwait">
         		<index>319</index>
 		</syscall>
-		<syscall name="SYS_utimensat">
+		<syscall name="utimensat">
         		<index>320</index>
 		</syscall>
-		<syscall name="SYS_signalfd">
+		<syscall name="signalfd">
         		<index>321</index>
 		</syscall>
-		<syscall name="SYS_timerfd_create">
+		<syscall name="timerfd_create">
         		<index>322</index>
 		</syscall>
-		<syscall name="SYS_eventfd">
+		<syscall name="eventfd">
         		<index>323</index>
 		</syscall>
-		<syscall name="SYS_fallocate">
+		<syscall name="fallocate">
         		<index>324</index>
 		</syscall>
-		<syscall name="SYS_timerfd_settime">
+		<syscall name="timerfd_settime">
         		<index>325</index>
 		</syscall>
-		<syscall name="SYS_timerfd_gettime">
+		<syscall name="timerfd_gettime">
         		<index>326</index>
 		</syscall>
-		<syscall name="SYS_signalfd4">
+		<syscall name="signalfd4">
         		<index>327</index>
 		</syscall>
-		<syscall name="SYS_eventfd2">
+		<syscall name="eventfd2">
         		<index>328</index>
 		</syscall>
-		<syscall name="SYS_epoll_create1">
+		<syscall name="epoll_create1">
         		<index>329</index>
 		</syscall>
-		<syscall name="SYS_dup3">
+		<syscall name="dup3">
         		<index>330</index>
 		</syscall>
-		<syscall name="SYS_pipe2">
+		<syscall name="pipe2">
         		<index>331</index>
 		</syscall>
-		<syscall name="SYS_inotify_init1">
+		<syscall name="inotify_init1">
         		<index>332</index>
 		</syscall>
-		<syscall name="SYS_preadv">
+		<syscall name="preadv">
         		<index>333</index>
 		</syscall>
-		<syscall name="SYS_pwritev">
+		<syscall name="pwritev">
         		<index>334</index>
 		</syscall>
-		<syscall name="SYS_rt_tgsigqueueinfo">
+		<syscall name="rt_tgsigqueueinfo">
         		<index>335</index>
 		</syscall>
-		<syscall name="SYS_perf_event_open">
+		<syscall name="perf_event_open">
         		<index>336</index>
 		</syscall>
-		<syscall name="SYS_recvmmsg">
+		<syscall name="recvmmsg">
         		<index>337</index>
 		</syscall>
-		<syscall name="SYS_fanotify_init">
+		<syscall name="fanotify_init">
         		<index>338</index>
 		</syscall>
-		<syscall name="SYS_fanotify_mark">
+		<syscall name="fanotify_mark">
         		<index>339</index>
 		</syscall>
-		<syscall name="SYS_prlimit64">
+		<syscall name="prlimit64">
         		<index>340</index>
 		</syscall>
-		<syscall name="SYS_name_to_handle_at">
+		<syscall name="name_to_handle_at">
         		<index>341</index>
 		</syscall>
-		<syscall name="SYS_open_by_handle_at">
+		<syscall name="open_by_handle_at">
         		<index>342</index>
 		</syscall>
-		<syscall name="SYS_clock_adjtime">
+		<syscall name="clock_adjtime">
         		<index>343</index>
 		</syscall>
-		<syscall name="SYS_syncfs">
+		<syscall name="syncfs">
         		<index>344</index>
 		</syscall>
-		<syscall name="SYS_sendmmsg">
+		<syscall name="sendmmsg">
         		<index>345</index>
 		</syscall>
-		<syscall name="SYS_setns">
+		<syscall name="setns">
         		<index>346</index>
 		</syscall>
-		<syscall name="SYS_process_vm_readv">
+		<syscall name="process_vm_readv">
         		<index>347</index>
 		</syscall>
-		<syscall name="SYS_process_vm_writev">
+		<syscall name="process_vm_writev">
         		<index>348</index>
 		</syscall>
-		<syscall name="SYS_kcmp">
+		<syscall name="kcmp">
         		<index>349</index>
 		</syscall>
-		<syscall name="SYS_finit_module">
+		<syscall name="finit_module">
         		<index>350</index>
 		</syscall>
 
 	</linux>
 	<linux arch="x86-64">
-		<syscall name="SYS_read">
+		<syscall name="read">
         		<index>0</index>
-				<argument type="i" />
-				<argument type="p" />
-				<argument type="u" />
+				<argument type="i" register="rdi" />
+				<argument type="p" register="rsi" />
+				<argument type="u" register="rdx" />
 		</syscall>
-		<syscall name="SYS_write">
+		<syscall name="write">
         		<index>1</index>
-				<argument type="i" />
-				<argument type="p" />
-				<argument type="u" />
+				<argument type="i" register="rdi" />
+				<argument type="p" register="rsi" />
+				<argument type="u" register="rdx" />
 		</syscall>
-		<syscall name="SYS_open">
+		<syscall name="open">
         		<index>2</index>
-				<argument type="s" />
-				<argument type="i" />
-				<argument type="u" />
+				<argument type="s" register="rdi" />
+				<argument type="i" register="rsi" />
+				<argument type="u" register="rdx" />
 		</syscall>
-		<syscall name="SYS_close">
+		<syscall name="close">
         		<index>3</index>
-				<argument type="i" />
+				<argument type="i" register="rdi" />
 		</syscall>
-		<syscall name="SYS_stat">
+		<syscall name="stat">
         		<index>4</index>
 		</syscall>
-		<syscall name="SYS_fstat">
+		<syscall name="fstat">
         		<index>5</index>
+				<argument type="i" register="rdi" />
+				<argument type="p" register="rsi" />
 		</syscall>
-		<syscall name="SYS_lstat">
+		<syscall name="lstat">
         		<index>6</index>
 		</syscall>
-		<syscall name="SYS_poll">
+		<syscall name="poll">
         		<index>7</index>
+				<argument type="p" register="rdi" />
+				<argument type="i" register="rsi" />
+				<argument type="i" register="rdx" />
 		</syscall>
-		<syscall name="SYS_lseek">
+		<syscall name="lseek">
         		<index>8</index>
 		</syscall>
-		<syscall name="SYS_mmap">
+		<syscall name="mmap">
         		<index>9</index>
-				<argument type="p" />
-				<argument type="u" />
-				<argument type="i" />
-				<argument type="i" />
-				<argument type="i" />
-				<argument type="u" />
+				<argument type="p" register="rdi" />
+				<argument type="u" register="rsi" />
+				<argument type="i" register="rdx" />
+				<argument type="i" register="rcx" />
+				<argument type="i" register="r8" />
+				<argument type="u" register="r9" />
 		</syscall>
-		<syscall name="SYS_mprotect">
+		<syscall name="mprotect">
         		<index>10</index>
-				<argument type="p" />
-				<argument type="u" />
-				<argument type="i" />
+				<argument type="p" register="rdi" />
+				<argument type="u" register="rsi" />
+				<argument type="i" register="rdx" />
 		</syscall>
-		<syscall name="SYS_munmap">
+		<syscall name="munmap">
         		<index>11</index>
-				<argument type="p" />
-				<argument type="u" />
+				<argument type="p" register="rdi" />
+				<argument type="u" register="rsi" />
 		</syscall>
-		<syscall name="SYS_brk">
+		<syscall name="brk">
         		<index>12</index>
-				<argument type="p" />
+				<argument type="p" register="rdi" />
 		</syscall>
-		<syscall name="SYS_rt_sigaction">
+		<syscall name="rt_sigaction">
         		<index>13</index>
 		</syscall>
-		<syscall name="SYS_rt_sigprocmask">
+		<syscall name="rt_sigprocmask">
         		<index>14</index>
 		</syscall>
-		<syscall name="SYS_rt_sigreturn">
+		<syscall name="rt_sigreturn">
         		<index>15</index>
 		</syscall>
-		<syscall name="SYS_ioctl">
+		<syscall name="ioctl">
         		<index>16</index>
 		</syscall>
-		<syscall name="SYS_pread64">
+		<syscall name="pread64">
         		<index>17</index>
 		</syscall>
-		<syscall name="SYS_pwrite64">
+		<syscall name="pwrite64">
         		<index>18</index>
 		</syscall>
-		<syscall name="SYS_readv">
+		<syscall name="readv">
         		<index>19</index>
 		</syscall>
-		<syscall name="SYS_writev">
+		<syscall name="writev">
         		<index>20</index>
 		</syscall>
-		<syscall name="SYS_access">
+		<syscall name="access">
         		<index>21</index>
 		</syscall>
-		<syscall name="SYS_pipe">
+		<syscall name="pipe">
         		<index>22</index>
 		</syscall>
-		<syscall name="SYS_select">
+		<syscall name="select">
         		<index>23</index>
 		</syscall>
-		<syscall name="SYS_sched_yield">
+		<syscall name="sched_yield">
         		<index>24</index>
 		</syscall>
-		<syscall name="SYS_mremap">
+		<syscall name="mremap">
         		<index>25</index>
 		</syscall>
-		<syscall name="SYS_msync">
+		<syscall name="msync">
         		<index>26</index>
 		</syscall>
-		<syscall name="SYS_mincore">
+		<syscall name="mincore">
         		<index>27</index>
 		</syscall>
-		<syscall name="SYS_madvise">
+		<syscall name="madvise">
         		<index>28</index>
 		</syscall>
-		<syscall name="SYS_shmget">
+		<syscall name="shmget">
         		<index>29</index>
 		</syscall>
-		<syscall name="SYS_shmat">
+		<syscall name="shmat">
         		<index>30</index>
 		</syscall>
-		<syscall name="SYS_shmctl">
+		<syscall name="shmctl">
         		<index>31</index>
 		</syscall>
-		<syscall name="SYS_dup">
+		<syscall name="dup">
         		<index>32</index>
 		</syscall>
-		<syscall name="SYS_dup2">
+		<syscall name="dup2">
         		<index>33</index>
 		</syscall>
-		<syscall name="SYS_pause">
+		<syscall name="pause">
         		<index>34</index>
 		</syscall>
-		<syscall name="SYS_nanosleep">
+		<syscall name="nanosleep">
         		<index>35</index>
 		</syscall>
-		<syscall name="SYS_getitimer">
+		<syscall name="getitimer">
         		<index>36</index>
 		</syscall>
-		<syscall name="SYS_alarm">
+		<syscall name="alarm">
         		<index>37</index>
 		</syscall>
-		<syscall name="SYS_setitimer">
+		<syscall name="setitimer">
         		<index>38</index>
 		</syscall>
-		<syscall name="SYS_getpid">
+		<syscall name="getpid">
         		<index>39</index>
 		</syscall>
-		<syscall name="SYS_sendfile">
+		<syscall name="sendfile">
         		<index>40</index>
 		</syscall>
-		<syscall name="SYS_socket">
+		<syscall name="socket">
         		<index>41</index>
 		</syscall>
-		<syscall name="SYS_connect">
+		<syscall name="connect">
         		<index>42</index>
 		</syscall>
-		<syscall name="SYS_accept">
+		<syscall name="accept">
         		<index>43</index>
 		</syscall>
-		<syscall name="SYS_sendto">
+		<syscall name="sendto">
         		<index>44</index>
 		</syscall>
-		<syscall name="SYS_recvfrom">
+		<syscall name="recvfrom">
         		<index>45</index>
 		</syscall>
-		<syscall name="SYS_sendmsg">
+		<syscall name="sendmsg">
         		<index>46</index>
 		</syscall>
-		<syscall name="SYS_recvmsg">
+		<syscall name="recvmsg">
         		<index>47</index>
 		</syscall>
-		<syscall name="SYS_shutdown">
+		<syscall name="shutdown">
         		<index>48</index>
 		</syscall>
-		<syscall name="SYS_bind">
+		<syscall name="bind">
         		<index>49</index>
 		</syscall>
-		<syscall name="SYS_listen">
+		<syscall name="listen">
         		<index>50</index>
 		</syscall>
-		<syscall name="SYS_getsockname">
+		<syscall name="getsockname">
         		<index>51</index>
 		</syscall>
-		<syscall name="SYS_getpeername">
+		<syscall name="getpeername">
         		<index>52</index>
 		</syscall>
-		<syscall name="SYS_socketpair">
+		<syscall name="socketpair">
         		<index>53</index>
 		</syscall>
-		<syscall name="SYS_setsockopt">
+		<syscall name="setsockopt">
         		<index>54</index>
 		</syscall>
-		<syscall name="SYS_getsockopt">
+		<syscall name="getsockopt">
         		<index>55</index>
 		</syscall>
-		<syscall name="SYS_clone">
+		<syscall name="clone">
         		<index>56</index>
 		</syscall>
-		<syscall name="SYS_fork">
+		<syscall name="fork">
         		<index>57</index>
 		</syscall>
-		<syscall name="SYS_vfork">
+		<syscall name="vfork">
         		<index>58</index>
 		</syscall>
-		<syscall name="SYS_execve">
+		<syscall name="execve">
         		<index>59</index>
 		</syscall>
-		<syscall name="SYS_exit">
+		<syscall name="exit">
         		<index>60</index>
 		</syscall>
-		<syscall name="SYS_wait4">
+		<syscall name="wait4">
         		<index>61</index>
 		</syscall>
-		<syscall name="SYS_kill">
+		<syscall name="kill">
         		<index>62</index>
 		</syscall>
-		<syscall name="SYS_uname">
+		<syscall name="uname">
         		<index>63</index>
 		</syscall>
-		<syscall name="SYS_semget">
+		<syscall name="semget">
         		<index>64</index>
 		</syscall>
-		<syscall name="SYS_semop">
+		<syscall name="semop">
         		<index>65</index>
 		</syscall>
-		<syscall name="SYS_semctl">
+		<syscall name="semctl">
         		<index>66</index>
 		</syscall>
-		<syscall name="SYS_shmdt">
+		<syscall name="shmdt">
         		<index>67</index>
 		</syscall>
-		<syscall name="SYS_msgget">
+		<syscall name="msgget">
         		<index>68</index>
 		</syscall>
-		<syscall name="SYS_msgsnd">
+		<syscall name="msgsnd">
         		<index>69</index>
 		</syscall>
-		<syscall name="SYS_msgrcv">
+		<syscall name="msgrcv">
         		<index>70</index>
 		</syscall>
-		<syscall name="SYS_msgctl">
+		<syscall name="msgctl">
         		<index>71</index>
 		</syscall>
-		<syscall name="SYS_fcntl">
+		<syscall name="fcntl">
         		<index>72</index>
 		</syscall>
-		<syscall name="SYS_flock">
+		<syscall name="flock">
         		<index>73</index>
 		</syscall>
-		<syscall name="SYS_fsync">
+		<syscall name="fsync">
         		<index>74</index>
 		</syscall>
-		<syscall name="SYS_fdatasync">
+		<syscall name="fdatasync">
         		<index>75</index>
 		</syscall>
-		<syscall name="SYS_truncate">
+		<syscall name="truncate">
         		<index>76</index>
 		</syscall>
-		<syscall name="SYS_ftruncate">
+		<syscall name="ftruncate">
         		<index>77</index>
 		</syscall>
-		<syscall name="SYS_getdents">
+		<syscall name="getdents">
         		<index>78</index>
 		</syscall>
-		<syscall name="SYS_getcwd">
+		<syscall name="getcwd">
         		<index>79</index>
 		</syscall>
-		<syscall name="SYS_chdir">
+		<syscall name="chdir">
         		<index>80</index>
 		</syscall>
-		<syscall name="SYS_fchdir">
+		<syscall name="fchdir">
         		<index>81</index>
 		</syscall>
-		<syscall name="SYS_rename">
+		<syscall name="rename">
         		<index>82</index>
 		</syscall>
-		<syscall name="SYS_mkdir">
+		<syscall name="mkdir">
         		<index>83</index>
 		</syscall>
-		<syscall name="SYS_rmdir">
+		<syscall name="rmdir">
         		<index>84</index>
 		</syscall>
-		<syscall name="SYS_creat">
+		<syscall name="creat">
         		<index>85</index>
 		</syscall>
-		<syscall name="SYS_link">
+		<syscall name="link">
         		<index>86</index>
 		</syscall>
-		<syscall name="SYS_unlink">
+		<syscall name="unlink">
         		<index>87</index>
 		</syscall>
-		<syscall name="SYS_symlink">
+		<syscall name="symlink">
         		<index>88</index>
 		</syscall>
-		<syscall name="SYS_readlink">
+		<syscall name="readlink">
         		<index>89</index>
-				<argument type="s" />
-				<argument type="p" />
-				<argument type="u" />
+				<argument type="s" register="rdi" />
+				<argument type="p" register="rsi" />
+				<argument type="u" register="rdx" />
 		</syscall>
-		<syscall name="SYS_chmod">
+		<syscall name="chmod">
         		<index>90</index>
 		</syscall>
-		<syscall name="SYS_fchmod">
+		<syscall name="fchmod">
         		<index>91</index>
 		</syscall>
-		<syscall name="SYS_chown">
+		<syscall name="chown">
         		<index>92</index>
 		</syscall>
-		<syscall name="SYS_fchown">
+		<syscall name="fchown">
         		<index>93</index>
 		</syscall>
-		<syscall name="SYS_lchown">
+		<syscall name="lchown">
         		<index>94</index>
 		</syscall>
-		<syscall name="SYS_umask">
+		<syscall name="umask">
         		<index>95</index>
 		</syscall>
-		<syscall name="SYS_gettimeofday">
+		<syscall name="gettimeofday">
         		<index>96</index>
 		</syscall>
-		<syscall name="SYS_getrlimit">
+		<syscall name="getrlimit">
         		<index>97</index>
 		</syscall>
-		<syscall name="SYS_getrusage">
+		<syscall name="getrusage">
         		<index>98</index>
 		</syscall>
-		<syscall name="SYS_sysinfo">
+		<syscall name="sysinfo">
         		<index>99</index>
 		</syscall>
-		<syscall name="SYS_times">
+		<syscall name="times">
         		<index>100</index>
 		</syscall>
-		<syscall name="SYS_ptrace">
+		<syscall name="ptrace">
         		<index>101</index>
 		</syscall>
-		<syscall name="SYS_getuid">
+		<syscall name="getuid">
         		<index>102</index>
 		</syscall>
-		<syscall name="SYS_syslog">
+		<syscall name="syslog">
         		<index>103</index>
 		</syscall>
-		<syscall name="SYS_getgid">
+		<syscall name="getgid">
         		<index>104</index>
 		</syscall>
-		<syscall name="SYS_setuid">
+		<syscall name="setuid">
         		<index>105</index>
 		</syscall>
-		<syscall name="SYS_setgid">
+		<syscall name="setgid">
         		<index>106</index>
 		</syscall>
-		<syscall name="SYS_geteuid">
+		<syscall name="geteuid">
         		<index>107</index>
 		</syscall>
-		<syscall name="SYS_getegid">
+		<syscall name="getegid">
         		<index>108</index>
 		</syscall>
-		<syscall name="SYS_setpgid">
+		<syscall name="setpgid">
         		<index>109</index>
 		</syscall>
-		<syscall name="SYS_getppid">
+		<syscall name="getppid">
         		<index>110</index>
 		</syscall>
-		<syscall name="SYS_getpgrp">
+		<syscall name="getpgrp">
         		<index>111</index>
 		</syscall>
-		<syscall name="SYS_setsid">
+		<syscall name="setsid">
         		<index>112</index>
 		</syscall>
-		<syscall name="SYS_setreuid">
+		<syscall name="setreuid">
         		<index>113</index>
 		</syscall>
-		<syscall name="SYS_setregid">
+		<syscall name="setregid">
         		<index>114</index>
 		</syscall>
-		<syscall name="SYS_getgroups">
+		<syscall name="getgroups">
         		<index>115</index>
 		</syscall>
-		<syscall name="SYS_setgroups">
+		<syscall name="setgroups">
         		<index>116</index>
 		</syscall>
-		<syscall name="SYS_setresuid">
+		<syscall name="setresuid">
         		<index>117</index>
 		</syscall>
-		<syscall name="SYS_getresuid">
+		<syscall name="getresuid">
         		<index>118</index>
 		</syscall>
-		<syscall name="SYS_setresgid">
+		<syscall name="setresgid">
         		<index>119</index>
 		</syscall>
-		<syscall name="SYS_getresgid">
+		<syscall name="getresgid">
         		<index>120</index>
 		</syscall>
-		<syscall name="SYS_getpgid">
+		<syscall name="getpgid">
         		<index>121</index>
 		</syscall>
-		<syscall name="SYS_setfsuid">
+		<syscall name="setfsuid">
         		<index>122</index>
 		</syscall>
-		<syscall name="SYS_setfsgid">
+		<syscall name="setfsgid">
         		<index>123</index>
 		</syscall>
-		<syscall name="SYS_getsid">
+		<syscall name="getsid">
         		<index>124</index>
 		</syscall>
-		<syscall name="SYS_capget">
+		<syscall name="capget">
         		<index>125</index>
 		</syscall>
-		<syscall name="SYS_capset">
+		<syscall name="capset">
         		<index>126</index>
 		</syscall>
-		<syscall name="SYS_rt_sigpending">
+		<syscall name="rt_sigpending">
         		<index>127</index>
 		</syscall>
-		<syscall name="SYS_rt_sigtimedwait">
+		<syscall name="rt_sigtimedwait">
         		<index>128</index>
 		</syscall>
-		<syscall name="SYS_rt_sigqueueinfo">
+		<syscall name="rt_sigqueueinfo">
         		<index>129</index>
 		</syscall>
-		<syscall name="SYS_rt_sigsuspend">
+		<syscall name="rt_sigsuspend">
         		<index>130</index>
 		</syscall>
-		<syscall name="SYS_sigaltstack">
+		<syscall name="sigaltstack">
         		<index>131</index>
 		</syscall>
-		<syscall name="SYS_utime">
+		<syscall name="utime">
         		<index>132</index>
 		</syscall>
-		<syscall name="SYS_mknod">
+		<syscall name="mknod">
         		<index>133</index>
 		</syscall>
-		<syscall name="SYS_uselib">
+		<syscall name="uselib">
         		<index>134</index>
 		</syscall>
-		<syscall name="SYS_personality">
+		<syscall name="personality">
         		<index>135</index>
 		</syscall>
-		<syscall name="SYS_ustat">
+		<syscall name="ustat">
         		<index>136</index>
 		</syscall>
-		<syscall name="SYS_statfs">
+		<syscall name="statfs">
         		<index>137</index>
 		</syscall>
-		<syscall name="SYS_fstatfs">
+		<syscall name="fstatfs">
         		<index>138</index>
 		</syscall>
-		<syscall name="SYS_sysfs">
+		<syscall name="sysfs">
         		<index>139</index>
 		</syscall>
-		<syscall name="SYS_getpriority">
+		<syscall name="getpriority">
         		<index>140</index>
 		</syscall>
-		<syscall name="SYS_setpriority">
+		<syscall name="setpriority">
         		<index>141</index>
 		</syscall>
-		<syscall name="SYS_sched_setparam">
+		<syscall name="sched_setparam">
         		<index>142</index>
 		</syscall>
-		<syscall name="SYS_sched_getparam">
+		<syscall name="sched_getparam">
         		<index>143</index>
 		</syscall>
-		<syscall name="SYS_sched_setscheduler">
+		<syscall name="sched_setscheduler">
         		<index>144</index>
 		</syscall>
-		<syscall name="SYS_sched_getscheduler">
+		<syscall name="sched_getscheduler">
         		<index>145</index>
 		</syscall>
-		<syscall name="SYS_sched_get_priority_max">
+		<syscall name="sched_get_priority_max">
         		<index>146</index>
 		</syscall>
-		<syscall name="SYS_sched_get_priority_min">
+		<syscall name="sched_get_priority_min">
         		<index>147</index>
 		</syscall>
-		<syscall name="SYS_sched_rr_get_interval">
+		<syscall name="sched_rr_get_interval">
         		<index>148</index>
 		</syscall>
-		<syscall name="SYS_mlock">
+		<syscall name="mlock">
         		<index>149</index>
 		</syscall>
-		<syscall name="SYS_munlock">
+		<syscall name="munlock">
         		<index>150</index>
 		</syscall>
-		<syscall name="SYS_mlockall">
+		<syscall name="mlockall">
         		<index>151</index>
 		</syscall>
-		<syscall name="SYS_munlockall">
+		<syscall name="munlockall">
         		<index>152</index>
 		</syscall>
-		<syscall name="SYS_vhangup">
+		<syscall name="vhangup">
         		<index>153</index>
 		</syscall>
-		<syscall name="SYS_modify_ldt">
+		<syscall name="modify_ldt">
         		<index>154</index>
 		</syscall>
-		<syscall name="SYS_pivot_root">
+		<syscall name="pivot_root">
         		<index>155</index>
 		</syscall>
-		<syscall name="SYS__sysctl">
+		<syscall name="_sysctl">
         		<index>156</index>
 		</syscall>
-		<syscall name="SYS_prctl">
+		<syscall name="prctl">
         		<index>157</index>
 		</syscall>
-		<syscall name="SYS_arch_prctl">
+		<syscall name="arch_prctl">
         		<index>158</index>
 		</syscall>
-		<syscall name="SYS_adjtimex">
+		<syscall name="adjtimex">
         		<index>159</index>
 		</syscall>
-		<syscall name="SYS_setrlimit">
+		<syscall name="setrlimit">
         		<index>160</index>
 		</syscall>
-		<syscall name="SYS_chroot">
+		<syscall name="chroot">
         		<index>161</index>
 		</syscall>
-		<syscall name="SYS_sync">
+		<syscall name="sync">
         		<index>162</index>
 		</syscall>
-		<syscall name="SYS_acct">
+		<syscall name="acct">
         		<index>163</index>
 		</syscall>
-		<syscall name="SYS_settimeofday">
+		<syscall name="settimeofday">
         		<index>164</index>
 		</syscall>
-		<syscall name="SYS_mount">
+		<syscall name="mount">
         		<index>165</index>
 		</syscall>
-		<syscall name="SYS_umount2">
+		<syscall name="umount2">
         		<index>166</index>
 		</syscall>
-		<syscall name="SYS_swapon">
+		<syscall name="swapon">
         		<index>167</index>
 		</syscall>
-		<syscall name="SYS_swapoff">
+		<syscall name="swapoff">
         		<index>168</index>
 		</syscall>
-		<syscall name="SYS_reboot">
+		<syscall name="reboot">
         		<index>169</index>
 		</syscall>
-		<syscall name="SYS_sethostname">
+		<syscall name="sethostname">
         		<index>170</index>
 		</syscall>
-		<syscall name="SYS_setdomainname">
+		<syscall name="setdomainname">
         		<index>171</index>
 		</syscall>
-		<syscall name="SYS_iopl">
+		<syscall name="iopl">
         		<index>172</index>
 		</syscall>
-		<syscall name="SYS_ioperm">
+		<syscall name="ioperm">
         		<index>173</index>
 		</syscall>
-		<syscall name="SYS_create_module">
+		<syscall name="create_module">
         		<index>174</index>
 		</syscall>
-		<syscall name="SYS_init_module">
+		<syscall name="init_module">
         		<index>175</index>
 		</syscall>
-		<syscall name="SYS_delete_module">
+		<syscall name="delete_module">
         		<index>176</index>
 		</syscall>
-		<syscall name="SYS_get_kernel_syms">
+		<syscall name="get_kernel_syms">
         		<index>177</index>
 		</syscall>
-		<syscall name="SYS_query_module">
+		<syscall name="query_module">
         		<index>178</index>
 		</syscall>
-		<syscall name="SYS_quotactl">
+		<syscall name="quotactl">
         		<index>179</index>
 		</syscall>
-		<syscall name="SYS_nfsservctl">
+		<syscall name="nfsservctl">
         		<index>180</index>
 		</syscall>
-		<syscall name="SYS_getpmsg">
+		<syscall name="getpmsg">
         		<index>181</index>
 		</syscall>
-		<syscall name="SYS_putpmsg">
+		<syscall name="putpmsg">
         		<index>182</index>
 		</syscall>
-		<syscall name="SYS_afs_syscall">
+		<syscall name="afs_syscall">
         		<index>183</index>
 		</syscall>
-		<syscall name="SYS_tuxcall">
+		<syscall name="tuxcall">
         		<index>184</index>
 		</syscall>
-		<syscall name="SYS_security">
+		<syscall name="security">
         		<index>185</index>
 		</syscall>
-		<syscall name="SYS_gettid">
+		<syscall name="gettid">
         		<index>186</index>
 		</syscall>
-		<syscall name="SYS_readahead">
+		<syscall name="readahead">
         		<index>187</index>
 		</syscall>
-		<syscall name="SYS_setxattr">
+		<syscall name="setxattr">
         		<index>188</index>
 		</syscall>
-		<syscall name="SYS_lsetxattr">
+		<syscall name="lsetxattr">
         		<index>189</index>
 		</syscall>
-		<syscall name="SYS_fsetxattr">
+		<syscall name="fsetxattr">
         		<index>190</index>
 		</syscall>
-		<syscall name="SYS_getxattr">
+		<syscall name="getxattr">
         		<index>191</index>
 		</syscall>
-		<syscall name="SYS_lgetxattr">
+		<syscall name="lgetxattr">
         		<index>192</index>
 		</syscall>
-		<syscall name="SYS_fgetxattr">
+		<syscall name="fgetxattr">
         		<index>193</index>
 		</syscall>
-		<syscall name="SYS_listxattr">
+		<syscall name="listxattr">
         		<index>194</index>
 		</syscall>
-		<syscall name="SYS_llistxattr">
+		<syscall name="llistxattr">
         		<index>195</index>
 		</syscall>
-		<syscall name="SYS_flistxattr">
+		<syscall name="flistxattr">
         		<index>196</index>
 		</syscall>
-		<syscall name="SYS_removexattr">
+		<syscall name="removexattr">
         		<index>197</index>
 		</syscall>
-		<syscall name="SYS_lremovexattr">
+		<syscall name="lremovexattr">
         		<index>198</index>
 		</syscall>
-		<syscall name="SYS_fremovexattr">
+		<syscall name="fremovexattr">
         		<index>199</index>
 		</syscall>
-		<syscall name="SYS_tkill">
+		<syscall name="tkill">
         		<index>200</index>
 		</syscall>
-		<syscall name="SYS_time">
+		<syscall name="time">
         		<index>201</index>
 		</syscall>
-		<syscall name="SYS_futex">
+		<syscall name="futex">
         		<index>202</index>
 		</syscall>
-		<syscall name="SYS_sched_setaffinity">
+		<syscall name="sched_setaffinity">
         		<index>203</index>
 		</syscall>
-		<syscall name="SYS_sched_getaffinity">
+		<syscall name="sched_getaffinity">
         		<index>204</index>
 		</syscall>
-		<syscall name="SYS_set_thread_area">
+		<syscall name="set_thread_area">
         		<index>205</index>
 		</syscall>
-		<syscall name="SYS_io_setup">
+		<syscall name="io_setup">
         		<index>206</index>
 		</syscall>
-		<syscall name="SYS_io_destroy">
+		<syscall name="io_destroy">
         		<index>207</index>
 		</syscall>
-		<syscall name="SYS_io_getevents">
+		<syscall name="io_getevents">
         		<index>208</index>
 		</syscall>
-		<syscall name="SYS_io_submit">
+		<syscall name="io_submit">
         		<index>209</index>
 		</syscall>
-		<syscall name="SYS_io_cancel">
+		<syscall name="io_cancel">
         		<index>210</index>
 		</syscall>
-		<syscall name="SYS_get_thread_area">
+		<syscall name="get_thread_area">
         		<index>211</index>
 		</syscall>
-		<syscall name="SYS_lookup_dcookie">
+		<syscall name="lookup_dcookie">
         		<index>212</index>
 		</syscall>
-		<syscall name="SYS_epoll_create">
+		<syscall name="epoll_create">
         		<index>213</index>
 		</syscall>
-		<syscall name="SYS_epoll_ctl_old">
+		<syscall name="epoll_ctl_old">
         		<index>214</index>
 		</syscall>
-		<syscall name="SYS_epoll_wait_old">
+		<syscall name="epoll_wait_old">
         		<index>215</index>
 		</syscall>
-		<syscall name="SYS_remap_file_pages">
+		<syscall name="remap_file_pages">
         		<index>216</index>
 		</syscall>
-		<syscall name="SYS_getdents64">
+		<syscall name="getdents64">
         		<index>217</index>
 		</syscall>
-		<syscall name="SYS_set_tid_address">
+		<syscall name="set_tid_address">
         		<index>218</index>
 		</syscall>
-		<syscall name="SYS_restart_syscall">
+		<syscall name="restart_syscall">
         		<index>219</index>
 		</syscall>
-		<syscall name="SYS_semtimedop">
+		<syscall name="semtimedop">
         		<index>220</index>
 		</syscall>
-		<syscall name="SYS_fadvise64">
+		<syscall name="fadvise64">
         		<index>221</index>
 		</syscall>
-		<syscall name="SYS_timer_create">
+		<syscall name="timer_create">
         		<index>222</index>
 		</syscall>
-		<syscall name="SYS_timer_settime">
+		<syscall name="timer_settime">
         		<index>223</index>
 		</syscall>
-		<syscall name="SYS_timer_gettime">
+		<syscall name="timer_gettime">
         		<index>224</index>
 		</syscall>
-		<syscall name="SYS_timer_getoverrun">
+		<syscall name="timer_getoverrun">
         		<index>225</index>
 		</syscall>
-		<syscall name="SYS_timer_delete">
+		<syscall name="timer_delete">
         		<index>226</index>
 		</syscall>
-		<syscall name="SYS_clock_settime">
+		<syscall name="clock_settime">
         		<index>227</index>
 		</syscall>
-		<syscall name="SYS_clock_gettime">
+		<syscall name="clock_gettime">
         		<index>228</index>
 		</syscall>
-		<syscall name="SYS_clock_getres">
+		<syscall name="clock_getres">
         		<index>229</index>
 		</syscall>
-		<syscall name="SYS_clock_nanosleep">
+		<syscall name="clock_nanosleep">
         		<index>230</index>
 		</syscall>
-		<syscall name="SYS_exit_group">
+		<syscall name="exit_group">
         		<index>231</index>
 		</syscall>
-		<syscall name="SYS_epoll_wait">
+		<syscall name="epoll_wait">
         		<index>232</index>
 		</syscall>
-		<syscall name="SYS_epoll_ctl">
+		<syscall name="epoll_ctl">
         		<index>233</index>
 		</syscall>
-		<syscall name="SYS_tgkill">
+		<syscall name="tgkill">
         		<index>234</index>
 		</syscall>
-		<syscall name="SYS_utimes">
+		<syscall name="utimes">
         		<index>235</index>
 		</syscall>
-		<syscall name="SYS_vserver">
+		<syscall name="vserver">
         		<index>236</index>
 		</syscall>
-		<syscall name="SYS_mbind">
+		<syscall name="mbind">
         		<index>237</index>
 		</syscall>
-		<syscall name="SYS_set_mempolicy">
+		<syscall name="set_mempolicy">
         		<index>238</index>
 		</syscall>
-		<syscall name="SYS_get_mempolicy">
+		<syscall name="get_mempolicy">
         		<index>239</index>
 		</syscall>
-		<syscall name="SYS_mq_open">
+		<syscall name="mq_open">
         		<index>240</index>
 		</syscall>
-		<syscall name="SYS_mq_unlink">
+		<syscall name="mq_unlink">
         		<index>241</index>
 		</syscall>
-		<syscall name="SYS_mq_timedsend">
+		<syscall name="mq_timedsend">
         		<index>242</index>
 		</syscall>
-		<syscall name="SYS_mq_timedreceive">
+		<syscall name="mq_timedreceive">
         		<index>243</index>
 		</syscall>
-		<syscall name="SYS_mq_notify">
+		<syscall name="mq_notify">
         		<index>244</index>
 		</syscall>
-		<syscall name="SYS_mq_getsetattr">
+		<syscall name="mq_getsetattr">
         		<index>245</index>
 		</syscall>
-		<syscall name="SYS_kexec_load">
+		<syscall name="kexec_load">
         		<index>246</index>
 		</syscall>
-		<syscall name="SYS_waitid">
+		<syscall name="waitid">
         		<index>247</index>
 		</syscall>
-		<syscall name="SYS_add_key">
+		<syscall name="add_key">
         		<index>248</index>
 		</syscall>
-		<syscall name="SYS_request_key">
+		<syscall name="request_key">
         		<index>249</index>
 		</syscall>
-		<syscall name="SYS_keyctl">
+		<syscall name="keyctl">
         		<index>250</index>
 		</syscall>
-		<syscall name="SYS_ioprio_set">
+		<syscall name="ioprio_set">
         		<index>251</index>
 		</syscall>
-		<syscall name="SYS_ioprio_get">
+		<syscall name="ioprio_get">
         		<index>252</index>
 		</syscall>
-		<syscall name="SYS_inotify_init">
+		<syscall name="inotify_init">
         		<index>253</index>
 		</syscall>
-		<syscall name="SYS_inotify_add_watch">
+		<syscall name="inotify_add_watch">
         		<index>254</index>
 		</syscall>
-		<syscall name="SYS_inotify_rm_watch">
+		<syscall name="inotify_rm_watch">
         		<index>255</index>
 		</syscall>
-		<syscall name="SYS_migrate_pages">
+		<syscall name="migrate_pages">
         		<index>256</index>
 		</syscall>
-		<syscall name="SYS_openat">
+		<syscall name="openat">
         		<index>257</index>
 		</syscall>
-		<syscall name="SYS_mkdirat">
+		<syscall name="mkdirat">
         		<index>258</index>
 		</syscall>
-		<syscall name="SYS_mknodat">
+		<syscall name="mknodat">
         		<index>259</index>
 		</syscall>
-		<syscall name="SYS_fchownat">
+		<syscall name="fchownat">
         		<index>260</index>
 		</syscall>
-		<syscall name="SYS_futimesat">
+		<syscall name="futimesat">
         		<index>261</index>
 		</syscall>
-		<syscall name="SYS_newfstatat">
+		<syscall name="newfstatat">
         		<index>262</index>
 		</syscall>
-		<syscall name="SYS_unlinkat">
+		<syscall name="unlinkat">
         		<index>263</index>
 		</syscall>
-		<syscall name="SYS_renameat">
+		<syscall name="renameat">
         		<index>264</index>
 		</syscall>
-		<syscall name="SYS_linkat">
+		<syscall name="linkat">
         		<index>265</index>
 		</syscall>
-		<syscall name="SYS_symlinkat">
+		<syscall name="symlinkat">
         		<index>266</index>
 		</syscall>
-		<syscall name="SYS_readlinkat">
+		<syscall name="readlinkat">
         		<index>267</index>
 		</syscall>
-		<syscall name="SYS_fchmodat">
+		<syscall name="fchmodat">
         		<index>268</index>
 		</syscall>
-		<syscall name="SYS_faccessat">
+		<syscall name="faccessat">
         		<index>269</index>
 		</syscall>
-		<syscall name="SYS_pselect6">
+		<syscall name="pselect6">
         		<index>270</index>
 		</syscall>
-		<syscall name="SYS_ppoll">
+		<syscall name="ppoll">
         		<index>271</index>
 		</syscall>
-		<syscall name="SYS_unshare">
+		<syscall name="unshare">
         		<index>272</index>
 		</syscall>
-		<syscall name="SYS_set_robust_list">
+		<syscall name="set_robust_list">
         		<index>273</index>
 		</syscall>
-		<syscall name="SYS_get_robust_list">
+		<syscall name="get_robust_list">
         		<index>274</index>
 		</syscall>
-		<syscall name="SYS_splice">
+		<syscall name="splice">
         		<index>275</index>
 		</syscall>
-		<syscall name="SYS_tee">
+		<syscall name="tee">
         		<index>276</index>
 		</syscall>
-		<syscall name="SYS_sync_file_range">
+		<syscall name="sync_file_range">
         		<index>277</index>
 		</syscall>
-		<syscall name="SYS_vmsplice">
+		<syscall name="vmsplice">
         		<index>278</index>
 		</syscall>
-		<syscall name="SYS_move_pages">
+		<syscall name="move_pages">
         		<index>279</index>
 		</syscall>
-		<syscall name="SYS_utimensat">
+		<syscall name="utimensat">
         		<index>280</index>
 		</syscall>
-		<syscall name="SYS_epoll_pwait">
+		<syscall name="epoll_pwait">
         		<index>281</index>
 		</syscall>
-		<syscall name="SYS_signalfd">
+		<syscall name="signalfd">
         		<index>282</index>
 		</syscall>
-		<syscall name="SYS_timerfd_create">
+		<syscall name="timerfd_create">
         		<index>283</index>
 		</syscall>
-		<syscall name="SYS_eventfd">
+		<syscall name="eventfd">
         		<index>284</index>
 		</syscall>
-		<syscall name="SYS_fallocate">
+		<syscall name="fallocate">
         		<index>285</index>
 		</syscall>
-		<syscall name="SYS_timerfd_settime">
+		<syscall name="timerfd_settime">
         		<index>286</index>
 		</syscall>
-		<syscall name="SYS_timerfd_gettime">
+		<syscall name="timerfd_gettime">
         		<index>287</index>
 		</syscall>
-		<syscall name="SYS_accept4">
+		<syscall name="accept4">
         		<index>288</index>
 		</syscall>
-		<syscall name="SYS_signalfd4">
+		<syscall name="signalfd4">
         		<index>289</index>
 		</syscall>
-		<syscall name="SYS_eventfd2">
+		<syscall name="eventfd2">
         		<index>290</index>
 		</syscall>
-		<syscall name="SYS_epoll_create1">
+		<syscall name="epoll_create1">
         		<index>291</index>
 		</syscall>
-		<syscall name="SYS_dup3">
+		<syscall name="dup3">
         		<index>292</index>
 		</syscall>
-		<syscall name="SYS_pipe2">
+		<syscall name="pipe2">
         		<index>293</index>
 		</syscall>
-		<syscall name="SYS_inotify_init1">
+		<syscall name="inotify_init1">
         		<index>294</index>
 		</syscall>
-		<syscall name="SYS_preadv">
+		<syscall name="preadv">
         		<index>295</index>
 		</syscall>
-		<syscall name="SYS_pwritev">
+		<syscall name="pwritev">
         		<index>296</index>
 		</syscall>
-		<syscall name="SYS_rt_tgsigqueueinfo">
+		<syscall name="rt_tgsigqueueinfo">
         		<index>297</index>
 		</syscall>
-		<syscall name="SYS_perf_event_open">
+		<syscall name="perf_event_open">
         		<index>298</index>
 		</syscall>
-		<syscall name="SYS_recvmmsg">
+		<syscall name="recvmmsg">
         		<index>299</index>
 		</syscall>
-		<syscall name="SYS_fanotify_init">
+		<syscall name="fanotify_init">
         		<index>300</index>
 		</syscall>
-		<syscall name="SYS_fanotify_mark">
+		<syscall name="fanotify_mark">
         		<index>301</index>
 		</syscall>
-		<syscall name="SYS_prlimit64">
+		<syscall name="prlimit64">
         		<index>302</index>
 		</syscall>
-		<syscall name="SYS_name_to_handle_at">
+		<syscall name="name_to_handle_at">
         		<index>303</index>
 		</syscall>
-		<syscall name="SYS_open_by_handle_at">
+		<syscall name="open_by_handle_at">
         		<index>304</index>
 		</syscall>
-		<syscall name="SYS_clock_adjtime">
+		<syscall name="clock_adjtime">
         		<index>305</index>
 		</syscall>
-		<syscall name="SYS_syncfs">
+		<syscall name="syncfs">
         		<index>306</index>
 		</syscall>
-		<syscall name="SYS_sendmmsg">
+		<syscall name="sendmmsg">
         		<index>307</index>
 		</syscall>
-		<syscall name="SYS_setns">
+		<syscall name="setns">
         		<index>308</index>
 		</syscall>
-		<syscall name="SYS_getcpu">
+		<syscall name="getcpu">
         		<index>309</index>
 		</syscall>
-		<syscall name="SYS_process_vm_readv">
+		<syscall name="process_vm_readv">
         		<index>310</index>
 		</syscall>
-		<syscall name="SYS_process_vm_writev">
+		<syscall name="process_vm_writev">
         		<index>311</index>
 		</syscall>
-		<syscall name="SYS_kcmp">
+		<syscall name="kcmp">
         		<index>312</index>
 		</syscall>
-		<syscall name="SYS_finit_module">
+		<syscall name="finit_module">
         		<index>313</index>
 		</syscall>
 	</linux>

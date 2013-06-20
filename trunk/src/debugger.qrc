@@ -21,5 +21,6 @@
 	<file>images/edb16-edit-clean.png</file>
 	<file>images/edb32-preferences-plugin.png</file>
 	<file>xml/functions.xml</file>
+	<file>xml/syscalls.xml</file>
   </qresource>
 </RCC>
