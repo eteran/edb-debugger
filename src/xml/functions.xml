@@ -2,7 +2,8 @@
 <!--
 we attempt to do something similar to the IA-64 name mangling system:
 
-	<type> ::= <CV-qualifiers> <type>
+	<type>
+		::= <CV-qualifiers> <type>
 		::= P <type>	# pointer-to
 		::= R <type>	# reference-to
 		::= O <type>	# rvalue reference-to (C++0x)
@@ -14,7 +15,8 @@ we attempt to do something similar to the IA-64 name mangling system:
 	<ref-qualifier> ::= R           # & ref-qualifier
 	<ref-qualifier> ::= O           # && ref-qualifier
 
-	<builtin-type> ::= v	# void
+	<builtin-type> 
+		::= v	# void
 		::= w	# wchar_t
 		::= b	# bool
 		::= c	# char
@@ -48,15 +50,14 @@ we attempt to do something similar to the IA-64 name mangling system:
 		
 
 Generically:
-we support "P" for "T *" where T is unsupported right now.
 we support "u" for "size_t" for now
             
-
 For example:
 
 PKc = "const char *"
 Pc  = "char *"
-		
+P4FILE = "FILE *"
+
 -->
 <functions version="1.0">
 	<!-- assert.h -->
@@ -84,7 +85,8 @@ Pc  = "char *"
 	<!-- limits.h -->
 	<!-- locale.h -->
 	<function name="setlocale" type="Pc"><argument type="i" name="category"/><argument type="PKc" name="locale"/></function>
-	<function name="localeconv" type="P"></function>
+	<function name="localeconv" type="P5lconv"></function>
+	
 	<!-- math.h -->
 	<function name="abs" type="i"><argument type="i" name="n"/></function>
 	<function name="acos" type="d"><argument type="d" name="x"/></function>
@@ -284,26 +286,26 @@ Pc  = "char *"
 	<!-- stdint.h -->
 	<!-- stdio.h -->	
 	<function name="ctermid" type="Pc"><argument type="Pc" name="s" /></function>
-	<function name="fclose" type="i"><argument type="P" name="stream" /></function>
-	<function name="feof" type="i"><argument type="P" name="stream" /></function>
-	<function name="ferror" type="i"><argument type="P" name="stream" /></function>
-	<function name="fflush" type="i"><argument type="P" name="stream" /></function>
-	<function name="fgetc" type="i"><argument type="P" name="stream" /></function>
-	<function name="fileno" type="i"><argument type="P" name="stream" /></function>
-	<function name="ftrylockfile" type="i"><argument type="P" name="stream" /></function>
-	<function name="getc" type="i"><argument type="P" name="stream" /></function>
-	<function name="getc_unlocked" type="i"><argument type="P" name="stream" /></function>
+	<function name="fclose" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="feof" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="ferror" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="fflush" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="fgetc" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="fileno" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="ftrylockfile" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="getc" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="getc_unlocked" type="i"><argument type="P4FILE" name="stream" /></function>
 	<function name="gets" type="Pc"><argument type="Pc" name="s" /></function>
-	<function name="pclose" type="i"><argument type="P" name="stream" /></function>
+	<function name="pclose" type="i"><argument type="P4FILE" name="stream" /></function>
 	<function name="putchar" type="i"><argument type="i" name="ch" /></function>
 	<function name="putchar_unlocked" type="i"><argument type="i" name="ch" /></function>
 	<function name="puts" type="i"><argument type="PKc" name="s" /></function>
 	<function name="remove" type="i"><argument type="PKc" name="s" /></function>
 	<function name="tmpnam" type="Pc"><argument type="Pc" name="s" /></function>
-	<function name="fputc" type="i"><argument type="i" name="ch" /><argument type="P" name="stream" /></function>
-	<function name="putc" type="i"><argument type="i" name="ch" /><argument type="P" name="stream" /></function>
-	<function name="putc_unlocked" type="i"><argument type="i" name="ch" /><argument type="P" name="stream" /></function>
-	<function name="ungetc" type="i"><argument type="i" name="ch" /><argument type="P" name="stream" /></function>
+	<function name="fputc" type="i"><argument type="i" name="ch" /><argument type="P4FILE" name="stream" /></function>
+	<function name="putc" type="i"><argument type="i" name="ch" /><argument type="P4FILE" name="stream" /></function>
+	<function name="putc_unlocked" type="i"><argument type="i" name="ch" /><argument type="P4FILE" name="stream" /></function>
+	<function name="ungetc" type="i"><argument type="i" name="ch" /><argument type="P4FILE" name="stream" /></function>
 	<function name="getchar" type="i"></function>
 	<function name="getchar_unlocked" type="i"></function>
 

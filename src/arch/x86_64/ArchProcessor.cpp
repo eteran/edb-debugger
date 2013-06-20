@@ -101,60 +101,136 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 }
 
 //------------------------------------------------------------------------------
-// Name: format_argument
+// Name: format_pointer
 // Desc:
 //------------------------------------------------------------------------------
-QString format_argument(const QString &type, edb::reg_t arg) {
-	QString param_text;
+QString format_pointer(int pointer_level, edb::reg_t arg, QChar type) {
+	
+	Q_UNUSED(type);
+	Q_UNUSED(pointer_level);
+	Q_ASSERT(pointer_level >= 1);
+	
+	if(arg == 0) {
+		return "NULL";
+	} else {
+		return QString("0x%1").arg(edb::v1::format_pointer(arg));
+	}
+}
 
-	if(type == "PKc" || type == "Pc") {
+//------------------------------------------------------------------------------
+// Name: format_integer
+// Desc:
+//------------------------------------------------------------------------------
+QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
+	if(pointer_level > 0) {
+		return format_pointer(pointer_level, arg, type);
+	}
+	
+	QString s;
+	
+	switch(type.toAscii()) {
+	case 'w': return s.sprintf("%u", static_cast<wchar_t>(arg));
+	case 'b': return s.sprintf("%d", static_cast<bool>(arg));
+	case 'c':
+		if(arg < 0x80 && (std::isprint(arg) || std::isspace(arg))) {
+			return s.sprintf("'%c'", static_cast<char>(arg));
+		} else {
+			return s.sprintf("'\\x%02x'", static_cast<quint16>(arg));
+		}
+	
+	
+	case 'a': return s.sprintf("%d", static_cast<signed char>(arg));
+	case 'h': return s.sprintf("%u", static_cast<unsigned char>(arg));
+	case 's': return s.sprintf("%d", static_cast<short>(arg));
+	case 't': return s.sprintf("%u", static_cast<unsigned short>(arg));
+	case 'i': return s.sprintf("%d", static_cast<int>(arg));
+	case 'j': return s.sprintf("%u", static_cast<unsigned int>(arg));
+	case 'l': return s.sprintf("%ld", static_cast<long>(arg));
+	case 'm': return s.sprintf("%lu", static_cast<unsigned long>(arg));
+	case 'x': return s.sprintf("%lld", static_cast<long long>(arg));
+	case 'y': return s.sprintf("%llu", static_cast<long unsigned long>(arg));
+	case 'n':
+	case 'o':
+	default:
+		return format_pointer(pointer_level, arg, type);
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: format_integer
+// Desc:
+//------------------------------------------------------------------------------
+QString format_char(int pointer_level, edb::reg_t arg, QChar type) {
+	if(pointer_level == 1) {
 		if(arg == 0) {
-			param_text = "NULL";
+			return "NULL";
 		} else {
 			QString string_param;
 			int string_length;
 
 			if(edb::v1::get_ascii_string_at_address(arg, string_param, edb::v1::config().min_string_length, 256, string_length)) {
-				param_text = QString("<0x%1> \"%2\"").arg(edb::v1::format_pointer(arg)).arg(string_param);
+				return QString("<0x%1> \"%2\"").arg(edb::v1::format_pointer(arg)).arg(string_param);
 			} else {
 				char character;
 				edb::v1::debugger_core->read_bytes(arg, &character, sizeof(character));
 				if(character == '\0') {
-					param_text = QString("<0x%1> \"\"").arg(edb::v1::format_pointer(arg));
+					return QString("<0x%1> \"\"").arg(edb::v1::format_pointer(arg));
 				} else {
-					param_text = QString("<0x%1>").arg(edb::v1::format_pointer(arg));
+					return QString("<0x%1>").arg(edb::v1::format_pointer(arg));
 				}
 			}
 		}
-	
-
-	} else if(type == "Pv" || type == "P" || type == "PKv" || type == "PPc" || type == "Pd" || type == "Pf" || type == "Pi") {
-		if(arg == 0) {
-			param_text = "NULL";
-		} else {
-			param_text = QString("0x%1").arg(edb::v1::format_pointer(arg));
-		}
-		
-	} else if(type == "c" || type == "Kc") {
-		if(arg < 0x80 && (std::isprint(arg) || std::isspace(arg))) {
-			param_text.sprintf("'%c'", static_cast<char>(arg));
-		} else {
-			param_text.sprintf("'\\x%02x'", static_cast<quint16>(arg));
-		}
-	} else if(type == "u" || type == "m") {
-		param_text.sprintf("%lu", static_cast<unsigned long>(arg));
-	} else if(type == "i") {
-		param_text.sprintf("%d", static_cast<int>(arg));
-	} else if(type == "l") {
-		param_text.sprintf("%ld", static_cast<long>(arg));
-	} else if(type == "x") {
-		param_text.sprintf("%lld", static_cast<long long>(arg));
-	} else if(type == "d" || type == "f" || type == "e") {
-		// floats aren't really supported well yet
-		param_text = QString("0x%1").arg(edb::v1::format_pointer(arg));
+	} else {
+		return format_integer(pointer_level, arg, type);
 	}
+}
 
-	return param_text;
+//------------------------------------------------------------------------------
+// Name: format_argument
+// Desc:
+//------------------------------------------------------------------------------
+QString format_argument(const QString &type, edb::reg_t arg) {
+	QString param_text;
+	
+	int pointer_level = 0;
+	Q_FOREACH(QChar ch, type) {
+	
+		if(ch == 'P') {
+			++pointer_level;
+		} else if(ch == 'r' || ch == 'V' || ch == 'K') {
+			// skip things like const, volatile, restrict, they don't effect
+			// display for us
+			continue;
+		} else {
+			switch(ch.toAscii()) {
+			case 'v': return format_pointer(pointer_level, arg, ch);
+			case 'w': return format_integer(pointer_level, arg, ch);
+			case 'b': return format_integer(pointer_level, arg, ch);
+			case 'c': return format_char(pointer_level, arg, ch);
+			case 'a': return format_integer(pointer_level, arg, ch);
+			case 'h': return format_integer(pointer_level, arg, ch);
+			case 's': return format_integer(pointer_level, arg, ch);
+			case 't': return format_integer(pointer_level, arg, ch);
+			case 'i': return format_integer(pointer_level, arg, ch);
+			case 'j': return format_integer(pointer_level, arg, ch);
+			case 'l': return format_integer(pointer_level, arg, ch);
+			case 'm': return format_integer(pointer_level, arg, ch);
+			case 'x': return format_integer(pointer_level, arg, ch);
+			case 'y': return format_integer(pointer_level, arg, ch);
+			case 'n': return format_integer(pointer_level, arg, ch);
+			case 'o': return format_integer(pointer_level, arg, ch);
+			case 'f':
+			case 'd':
+			case 'e':
+			case 'g':
+			case 'z':
+			default:
+				break;		
+			}
+		}
+	}
+	
+	return format_pointer(pointer_level, arg, 'x');
 }
 
 //------------------------------------------------------------------------------
