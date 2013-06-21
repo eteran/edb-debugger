@@ -31,13 +31,14 @@ class State;
 class IArchProcessor {
 public:
 	virtual ~IArchProcessor() {}
+	
 public:
-	virtual void setup_register_view(QCategoryList *categoryList) = 0;
-	virtual void reset() = 0;
-	virtual void update_register_view(const QString &default_region_name) = 0;
-	virtual void update_register_view(const QString &default_region_name, const State &state) = 0;
 	virtual QStringList update_instruction_info(edb::address_t address) = 0;
 	virtual Register value_from_item(const QTreeWidgetItem &item) = 0;
+	virtual void reset() = 0;
+	virtual void setup_register_view(QCategoryList *categoryList) = 0;
+	virtual void update_register_view(const QString &default_region_name) = 0;
+	virtual void update_register_view(const QString &default_region_name, const State &state) = 0;
 
 public:
 	// instruction inspection
