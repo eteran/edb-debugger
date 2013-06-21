@@ -81,16 +81,6 @@ QTreeWidgetItem *QCategoryList::addCategory(const QString &name) {
 }
 
 //------------------------------------------------------------------------------
-// Name: addItem
-// Desc:
-//------------------------------------------------------------------------------
-QTreeWidgetItem *QCategoryList::addItem(QTreeWidgetItem *category, const QString &value) {
-	QTreeWidgetItem *const item = new QTreeWidgetItem(category);
-	item->setText(0, value);
-	return item;
-}
-
-//------------------------------------------------------------------------------
 // Name: isCategory
 // Desc:
 //------------------------------------------------------------------------------

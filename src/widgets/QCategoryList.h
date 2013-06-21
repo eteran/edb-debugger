@@ -39,7 +39,6 @@ public:
 
 public:
 	QTreeWidgetItem *addCategory(const QString &name);
-	QTreeWidgetItem *addItem(QTreeWidgetItem *category, const QString &value);
 	bool isCategory(QTreeWidgetItem *item) const;
 };
 
