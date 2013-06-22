@@ -819,12 +819,12 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	}
 	register_view_items_[17]->setText(0, QString("RFLAGS: %1").arg(edb::v1::format_pointer(state.flags())));
 
-	register_view_items_[18]->setText(0, QString("CS: %1").arg(state["cs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
-	register_view_items_[19]->setText(0, QString("DS: %1").arg(state["ds"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
-	register_view_items_[20]->setText(0, QString("ES: %1").arg(state["es"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	register_view_items_[18]->setText(0, QString("CS: %1")     .arg(state["cs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	register_view_items_[19]->setText(0, QString("DS: %1")     .arg(state["ds"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	register_view_items_[20]->setText(0, QString("ES: %1")     .arg(state["es"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
 	register_view_items_[21]->setText(0, QString("FS: %1 (%2)").arg(state["fs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["fs_base"].value<edb::reg_t>())));
 	register_view_items_[22]->setText(0, QString("GS: %1 (%2)").arg(state["gs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["gs_base"].value<edb::reg_t>())));
-	register_view_items_[23]->setText(0, QString("SS: %1").arg(state["ss"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	register_view_items_[23]->setText(0, QString("SS: %1")     .arg(state["ss"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
 
 	for(int i = 0; i < 8; ++i) {
 		const long double current = state.fpu_register(i);
@@ -863,24 +863,24 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	}
 
 	// highlight any changed registers
-	register_view_items_[0]->setForeground(0, QBrush((state["rax"] != last_state_["rax"]) ? Qt::red : palette.text()));
-	register_view_items_[1]->setForeground(0, QBrush((state["rbx"] != last_state_["rbx"]) ? Qt::red : palette.text()));
-	register_view_items_[2]->setForeground(0, QBrush((state["rcx"] != last_state_["rcx"]) ? Qt::red : palette.text()));
-	register_view_items_[3]->setForeground(0, QBrush((state["rdx"] != last_state_["rdx"]) ? Qt::red : palette.text()));
-	register_view_items_[4]->setForeground(0, QBrush((state["rbp"] != last_state_["rbp"]) ? Qt::red : palette.text()));
-	register_view_items_[5]->setForeground(0, QBrush((state["rsp"] != last_state_["rsp"]) ? Qt::red : palette.text()));
-	register_view_items_[6]->setForeground(0, QBrush((state["rsi"] != last_state_["rsi"]) ? Qt::red : palette.text()));
-	register_view_items_[7]->setForeground(0, QBrush((state["rdi"] != last_state_["rdi"]) ? Qt::red : palette.text()));
-	register_view_items_[8]->setForeground(0, QBrush((state["r8"] != last_state_["r8"]) ? Qt::red : palette.text()));
-	register_view_items_[9]->setForeground(0, QBrush((state["r9"] != last_state_["r9"]) ? Qt::red : palette.text()));
-	register_view_items_[10]->setForeground(0, QBrush((state["r10"] != last_state_["r10"]) ? Qt::red : palette.text()));
-	register_view_items_[11]->setForeground(0, QBrush((state["r11"] != last_state_["r11"]) ? Qt::red : palette.text()));
-	register_view_items_[12]->setForeground(0, QBrush((state["r12"] != last_state_["r12"]) ? Qt::red : palette.text()));
-	register_view_items_[13]->setForeground(0, QBrush((state["r13"] != last_state_["r13"]) ? Qt::red : palette.text()));
-	register_view_items_[14]->setForeground(0, QBrush((state["r14"] != last_state_["r14"]) ? Qt::red : palette.text()));
-	register_view_items_[15]->setForeground(0, QBrush((state["r15"] != last_state_["r15"]) ? Qt::red : palette.text()));
-	register_view_items_[16]->setForeground(0, QBrush((state.instruction_pointer() != last_state_.instruction_pointer()) ? Qt::red : palette.text()));
-	register_view_items_[17]->setForeground(0, QBrush(flags_changed ? Qt::red : palette.text()));
+	register_view_items_[0x00]->setForeground(0, QBrush((state["rax"] != last_state_["rax"]) ? Qt::red : palette.text()));
+	register_view_items_[0x01]->setForeground(0, QBrush((state["rbx"] != last_state_["rbx"]) ? Qt::red : palette.text()));
+	register_view_items_[0x02]->setForeground(0, QBrush((state["rcx"] != last_state_["rcx"]) ? Qt::red : palette.text()));
+	register_view_items_[0x03]->setForeground(0, QBrush((state["rdx"] != last_state_["rdx"]) ? Qt::red : palette.text()));
+	register_view_items_[0x04]->setForeground(0, QBrush((state["rbp"] != last_state_["rbp"]) ? Qt::red : palette.text()));
+	register_view_items_[0x05]->setForeground(0, QBrush((state["rsp"] != last_state_["rsp"]) ? Qt::red : palette.text()));
+	register_view_items_[0x06]->setForeground(0, QBrush((state["rsi"] != last_state_["rsi"]) ? Qt::red : palette.text()));
+	register_view_items_[0x07]->setForeground(0, QBrush((state["rdi"] != last_state_["rdi"]) ? Qt::red : palette.text()));
+	register_view_items_[0x08]->setForeground(0, QBrush((state["r8"] != last_state_["r8"]) ? Qt::red : palette.text()));
+	register_view_items_[0x09]->setForeground(0, QBrush((state["r9"] != last_state_["r9"]) ? Qt::red : palette.text()));
+	register_view_items_[0x0a]->setForeground(0, QBrush((state["r10"] != last_state_["r10"]) ? Qt::red : palette.text()));
+	register_view_items_[0x0b]->setForeground(0, QBrush((state["r11"] != last_state_["r11"]) ? Qt::red : palette.text()));
+	register_view_items_[0x0c]->setForeground(0, QBrush((state["r12"] != last_state_["r12"]) ? Qt::red : palette.text()));
+	register_view_items_[0x0d]->setForeground(0, QBrush((state["r13"] != last_state_["r13"]) ? Qt::red : palette.text()));
+	register_view_items_[0x0e]->setForeground(0, QBrush((state["r14"] != last_state_["r14"]) ? Qt::red : palette.text()));
+	register_view_items_[0x0f]->setForeground(0, QBrush((state["r15"] != last_state_["r15"]) ? Qt::red : palette.text()));
+	register_view_items_[0x10]->setForeground(0, QBrush((state.instruction_pointer() != last_state_.instruction_pointer()) ? Qt::red : palette.text()));
+	register_view_items_[0x11]->setForeground(0, QBrush(flags_changed ? Qt::red : palette.text()));
 
 	last_state_ = state;
 }

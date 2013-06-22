@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Analyzer.h"
 #include "AnalyzerOptionsPage.h"
 #include "AnalyzerWidget.h"
-#include "edb.h"
 #include "DialogSpecifiedFunctions.h"
 #include "IArchProcessor.h"
 #include "IBinary.h"
@@ -29,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "MemoryRegions.h"
 #include "State.h"
 #include "Util.h"
+#include "edb.h"
 
 #include <QCoreApplication>
 #include <QHash>
@@ -41,6 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTime>
 #include <QToolBar>
 #include <QtDebug>
+
 #include <boost/bind.hpp>
 #include <boost/function.hpp>
 #include <cstring>
@@ -381,18 +382,18 @@ void Analyzer::bonus_stack_frames_helper(Function &info) const {
 // Name: bonus_stack_frames
 // Desc: give bonus if we see a "push ebp; mov ebp, esp;"
 //------------------------------------------------------------------------------
-void Analyzer::bonus_stack_frames(FunctionMap *results) {
+void Analyzer::bonus_stack_frames(RegionData *data) {
 
-	Q_ASSERT(results);
+	Q_ASSERT(data);
 
 #if QT_VERSION >= 0x040800
 	QtConcurrent::blockingMap(
-		*results,
+		data->analysis,
 		boost::bind(&Analyzer::bonus_stack_frames_helper, this, _1));
 #else
 	std::for_each(
-		results->begin(),
-		results->end(),
+		data->analysis.begin(),
+		data->analysis.end(),
 		boost::bind(&Analyzer::bonus_stack_frames_helper, this, _1));
 #endif
 }
@@ -421,17 +422,18 @@ void Analyzer::update_results_entry(FunctionMap *results, edb::address_t address
 // Name: bonus_main
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_main(const IRegion::pointer &region, FunctionMap *results) const {
+void Analyzer::bonus_main(RegionData *data) const {
 
-	Q_ASSERT(results);
+	Q_ASSERT(data);
 
 	const QString s = edb::v1::debugger_core->process_exe(edb::v1::debugger_core->pid());
 	if(!s.isEmpty()) {
 		const edb::address_t main = edb::v1::locate_main_function();
 
-		if(main && region->contains(main)) {
+		if(main && data->region->contains(main)) {
 			// make sure we have an entry for this function
-			update_results_entry(results, main);
+			update_results_entry(&data->analysis, main);
+			data->known_functions.insert(main);
 		}
 	}
 }
@@ -440,17 +442,18 @@ void Analyzer::bonus_main(const IRegion::pointer &region, FunctionMap *results) 
 // Name: bonus_symbols_helper
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_symbols_helper(const IRegion::pointer &region, FunctionMap *results, const Symbol::pointer &sym) {
+void Analyzer::bonus_symbols_helper(RegionData *data, const Symbol::pointer &sym) {
 
-	Q_ASSERT(results);
+	Q_ASSERT(data);
 
 	const edb::address_t addr = sym->address;
 
-	if(region->contains(addr) && sym->is_code()) {
+	if(data->region->contains(addr) && sym->is_code()) {
 		qDebug("[Analyzer] adding: %s <%p>", qPrintable(sym->name), reinterpret_cast<void *>(addr));
 
 		// make sure we have an entry for this function
-		update_results_entry(results, addr);
+		update_results_entry(&data->analysis, addr);
+		data->known_functions.insert(addr);
 	}
 }
 
@@ -459,9 +462,9 @@ void Analyzer::bonus_symbols_helper(const IRegion::pointer &region, FunctionMap 
 // Name: bonus_symbols
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_symbols(const IRegion::pointer &region, FunctionMap *results) {
+void Analyzer::bonus_symbols(RegionData *data) {
 
-	Q_ASSERT(results);
+	Q_ASSERT(data);
 
 	// give bonus if we have a symbol for the address
 	const QList<Symbol::pointer> symbols = edb::v1::symbol_manager().symbols();
@@ -469,24 +472,24 @@ void Analyzer::bonus_symbols(const IRegion::pointer &region, FunctionMap *result
 	std::for_each(
 		symbols.begin(),
 		symbols.end(),
-		boost::bind(&Analyzer::bonus_symbols_helper, this, region, boost::ref(results), _1));
+		boost::bind(&Analyzer::bonus_symbols_helper, this, data, _1));
 }
 
 //------------------------------------------------------------------------------
 // Name: bonus_marked_functions
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_marked_functions(const IRegion::pointer &region, FunctionMap *results) {
+void Analyzer::bonus_marked_functions(RegionData *data) {
 
-	Q_ASSERT(results);
+	Q_ASSERT(data);
 
 	Q_FOREACH(edb::address_t addr, specified_functions_) {
-		if(region->contains(addr)) {
+		if(data->region->contains(addr)) {
 
 			qDebug("[Analyzer] adding: <%p>", reinterpret_cast<void *>(addr));
 
 			// make sure we have an entry for this function
-			update_results_entry(results, addr);
+			update_results_entry(&data->analysis, addr);
 		}
 	}
 }
@@ -844,11 +847,112 @@ void Analyzer::collect_low_ref_results(const IRegion::pointer &region, FunctionM
 }
 
 //------------------------------------------------------------------------------
-// Name: indent_header
+// Name: ident_header
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::indent_header() {
+void Analyzer::ident_header() {
 
+}
+
+//------------------------------------------------------------------------------
+// Name: analyze
+// Desc:
+//------------------------------------------------------------------------------
+void Analyzer::collect_basic_blocks(Analyzer::RegionData *data) {
+	Q_ASSERT(data);
+	
+	QHash<edb::address_t, BasicBlock> &basic_blocks = data->basic_blocks;
+	QStack<edb::address_t> jump_targets;
+	
+	Q_FOREACH(edb::address_t function, data->known_functions) {	
+		jump_targets.push(function);
+	}
+	
+	while(!jump_targets.empty()) {
+		edb::address_t block_start = jump_targets.pop();
+		edb::address_t address     = block_start;
+		BasicBlock     block;
+		
+		if(!basic_blocks.contains(block_start)) {
+			while(data->region->contains(address)) {
+
+				quint8 buffer[edb::Instruction::MAX_SIZE];
+				int buf_size = sizeof(buffer);
+				if(!edb::v1::get_instruction_bytes(address, buffer, &buf_size)) {
+					break;
+				}
+
+				const edb::Instruction insn(buffer, buffer + buf_size, address, std::nothrow);
+				if(!insn) {
+					break;
+				}
+				
+				block.instructions.push_back(QSharedPointer<edb::Instruction>(new edb::Instruction(insn)));
+
+				if(is_call(insn)) {
+				
+					// note the destination and move on
+					// we special case simple things for speed.
+					// also this is an opportunity to find call tables.
+					const edb::Operand &op = insn.operands()[0];
+					if(op.general_type() == edb::Operand::TYPE_REL) {
+						const edb::address_t ea = op.relative_target();
+
+						// skip over ones which are: "call <label>; label:"
+						if(ea != address + insn.size()) {
+							data->known_functions.insert(ea);
+							jump_targets.push(ea);
+						}
+					} else if(op.general_type() == edb::Operand::TYPE_EXPRESSION) {
+						// looks like: "call [...]", if it is of the form, call [C + REG]
+						// then it may be a jump table using REG as an offset
+					}
+				}
+
+
+				if(is_unconditional_jump(insn)) {
+
+					Q_ASSERT(insn.operand_count() == 1);
+					const edb::Operand &op = insn.operands()[0];
+
+					if(op.general_type() == edb::Operand::TYPE_REL) {
+						jump_targets.push(op.relative_target());
+					}
+					break;
+				}
+				
+				if(is_conditional_jump(insn)) {
+
+					Q_ASSERT(insn.operand_count() == 1);
+					const edb::Operand &op = insn.operands()[0];
+
+					if(op.general_type() == edb::Operand::TYPE_REL) {
+						jump_targets.push(op.relative_target());
+						jump_targets.push(address + insn.size());
+					}
+					break;
+				}
+				
+				if(is_ret(insn) || insn.type() == edb::Instruction::OP_HLT) {
+					break;
+				}
+
+				address += insn.size();
+			}
+
+			basic_blocks[block_start] = block;
+		}
+	}
+	
+	qDebug() << "----------Basic Blocks----------";
+	for(QHash<edb::address_t, BasicBlock>::iterator it = basic_blocks.begin(); it != basic_blocks.end(); ++it) {
+		qDebug("%p:", it.key());
+		Q_FOREACH(const QSharedPointer<edb::Instruction> &insn, it.value().instructions) {
+			qDebug("\t%p: %s", insn->rva(), to_string(*insn).c_str());
+		}
+	}
+	qDebug() << "----------Basic Blocks----------";
+	
 }
 
 //------------------------------------------------------------------------------
@@ -860,16 +964,22 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 	QTime t;
 	t.start();
 
-	RegionInfo &region_info = analysis_info_[region->start()];
+	RegionData &region_data = analysis_info_[region->start()];
 
 	QSettings settings;
 	const bool fuzzy          = settings.value("Analyzer/fuzzy_logic_functions.enabled", true).toBool();
 	const QByteArray md5      = md5_region(region);
-	const QByteArray prev_md5 = region_info.md5;
+	const QByteArray prev_md5 = region_data.md5;
 
-	if(md5 != prev_md5 || fuzzy != region_info.fuzzy) {
-		FunctionMap &function_map = region_info.analysis;
-		function_map.clear();
+	if(md5 != prev_md5 || fuzzy != region_data.fuzzy) {
+		
+		region_data.analysis.clear();
+		region_data.basic_blocks.clear();
+		region_data.known_functions.clear();
+		
+		region_data.region = region;
+		region_data.md5    = md5;
+		region_data.fuzzy  = fuzzy;
 
 		QSet<edb::address_t> walked_functions;
 		FunctionMap          found_functions;
@@ -878,12 +988,13 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			const char             *message;
 			boost::function<void()> function;
 		} analysis_steps[] = {
-			{ "identifying executable headers...",                       boost::bind(&Analyzer::indent_header,          this) },
-			{ "adding entry points to the list...",                      boost::bind(&Analyzer::bonus_entry_point,      this, boost::cref(region), &function_map) },
-			{ "attempting to add 'main' to the list...",                 boost::bind(&Analyzer::bonus_main,             this, boost::cref(region), &function_map) },
-			{ "attempting to add marked functions to the list...",       boost::bind(&Analyzer::bonus_marked_functions, this, boost::cref(region), &function_map) },
-			{ "attempting to add functions with symbols to the list...", boost::bind(&Analyzer::bonus_symbols,          this, boost::cref(region), &function_map) },
-			{ "calculating function bounds... (pass 1)",                 boost::bind(&Analyzer::find_calls_from_known,  this, boost::cref(region), &function_map, &walked_functions) },
+			{ "identifying executable headers...",                       boost::bind(&Analyzer::ident_header,           this) },
+			{ "adding entry points to the list...",                      boost::bind(&Analyzer::bonus_entry_point,      this, &region_data) },
+			{ "attempting to add 'main' to the list...",                 boost::bind(&Analyzer::bonus_main,             this, &region_data) },
+			{ "attempting to add functions with symbols to the list...", boost::bind(&Analyzer::bonus_symbols,          this, &region_data) },
+			{ "attempting to add marked functions to the list...",       boost::bind(&Analyzer::bonus_marked_functions, this, &region_data) },			
+			{ "collecting basic blocks...",                              boost::bind(&Analyzer::collect_basic_blocks, this, &region_data) },			
+			{ "calculating function bounds... (pass 1)",                 boost::bind(&Analyzer::find_calls_from_known,  this, boost::cref(region), &region_data.analysis, &walked_functions) },
 		};
 
 		const struct {
@@ -891,11 +1002,11 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			boost::function<void()> function;
 		} fuzzy_analysis_steps[] = {
 			{ "finding possible function calls...",      boost::bind(&Analyzer::find_function_calls,      this, boost::cref(region), &found_functions) },
-			{ "bonusing stack frames...",                boost::bind(&Analyzer::bonus_stack_frames,       this, &found_functions) },
-			{ "collecting high reference answers...",    boost::bind(&Analyzer::collect_high_ref_results, this, &function_map, &found_functions) },
-			{ "calculating function bounds... (pass 2)", boost::bind(&Analyzer::find_calls_from_known,    this, boost::cref(region), &function_map, &walked_functions) },
-			{ "collecting low reference answers...",     boost::bind(&Analyzer::collect_low_ref_results,  this, boost::cref(region), &function_map, &found_functions) },
-			{ "calculating function bounds... (pass 3)", boost::bind(&Analyzer::find_calls_from_known,    this, boost::cref(region), &function_map, &walked_functions) },
+			{ "bonusing stack frames...",                boost::bind(&Analyzer::bonus_stack_frames,       this, &region_data) },
+			{ "collecting high reference answers...",    boost::bind(&Analyzer::collect_high_ref_results, this, &region_data.analysis, &found_functions) },
+			{ "calculating function bounds... (pass 2)", boost::bind(&Analyzer::find_calls_from_known,    this, boost::cref(region), &region_data.analysis, &walked_functions) },
+			{ "collecting low reference answers...",     boost::bind(&Analyzer::collect_low_ref_results,  this, boost::cref(region), &region_data.analysis, &found_functions) },
+			{ "calculating function bounds... (pass 3)", boost::bind(&Analyzer::find_calls_from_known,    this, boost::cref(region), &region_data.analysis, &walked_functions) },
 		};
 
 		const int analysis_steps_count       = sizeof(analysis_steps) / sizeof(analysis_steps[0]);
@@ -909,7 +1020,7 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			emit update_progress(util::percentage(i + 1, total_steps));
 		}
 
-		fix_overlaps(&function_map);
+		fix_overlaps(&region_data.analysis);
 
 		// ok, at this point, we've done the best we can with knowns
 		// we should have a full analysis of all functions which are
@@ -924,7 +1035,7 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 		}
 
 		qDebug("[Analyzer] determining function types...");
-		set_function_types(&function_map);
+		set_function_types(&region_data.analysis);
 
 		qDebug("[Analyzer] complete");
 		emit update_progress(100);
@@ -933,8 +1044,7 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			analyzer_widget_->repaint();
 		}
 
-		region_info.md5   = md5;
-		region_info.fuzzy = fuzzy;
+
 	} else {
 		qDebug("[Analyzer] region unchanged, using previous analysis");
 	}
@@ -1033,23 +1143,24 @@ edb::address_t Analyzer::module_entry_point(const IRegion::pointer &region) cons
 // Name: bonus_entry_point
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::bonus_entry_point(const IRegion::pointer &region, FunctionMap *results) const {
+void Analyzer::bonus_entry_point(RegionData *data) const {
 
-	Q_ASSERT(results);
+	Q_ASSERT(data);
 
-	if(edb::address_t entry = module_entry_point(region)) {
+	if(edb::address_t entry = module_entry_point(data->region)) {
 
 		// if the entry seems like a relative one (like for a library)
 		// then add the base of its image
-		if(entry < region->start()) {
-			entry += region->start();
+		if(entry < data->region->start()) {
+			entry += data->region->start();
 		}
 
 		qDebug("[Analyzer] found entry point: %p", reinterpret_cast<void*>(entry));
 
 		// make sure we have an entry for this function
-		if(region->contains(entry)) {
-			update_results_entry(results, entry);
+		if(data->region->contains(entry)) {
+			update_results_entry(&data->analysis, entry);
+			data->known_functions.insert(entry);
 		}
 	}
 }
@@ -1073,7 +1184,7 @@ void Analyzer::invalidate_analysis(const IRegion::pointer &region) {
 //------------------------------------------------------------------------------
 void Analyzer::invalidate_dynamic_analysis(const IRegion::pointer &region) {
 
-	RegionInfo info;
+	RegionData info;
 	info.region = region;
 
 	analysis_info_[region->start()] = info;
