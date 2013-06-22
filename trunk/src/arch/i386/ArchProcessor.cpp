@@ -769,12 +769,12 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	}
 	register_view_items_[9]->setText(0, QString("EFLAGS: %1").arg(edb::v1::format_pointer(state.flags())));
 
-	register_view_items_[10]->setText(0, QString("CS: %1").arg(state["cs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
-	register_view_items_[11]->setText(0, QString("DS: %1").arg(state["ds"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
-	register_view_items_[12]->setText(0, QString("ES: %1").arg(state["es"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	register_view_items_[10]->setText(0, QString("CS: %1")     .arg(state["cs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	register_view_items_[11]->setText(0, QString("DS: %1")     .arg(state["ds"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	register_view_items_[12]->setText(0, QString("ES: %1")     .arg(state["es"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
 	register_view_items_[13]->setText(0, QString("FS: %1 (%2)").arg(state["fs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["fs_base"].value<edb::reg_t>())));
 	register_view_items_[14]->setText(0, QString("GS: %1 (%2)").arg(state["gs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["gs_base"].value<edb::reg_t>())));
-	register_view_items_[15]->setText(0, QString("SS: %1").arg(state["ss"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	register_view_items_[15]->setText(0, QString("SS: %1")     .arg(state["ss"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
 
 	for(int i = 0; i < 8; ++i) {
 		const long double current = state.fpu_register(i);
@@ -813,16 +813,16 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	}
 
 	// highlight any changed registers
-	register_view_items_[0]->setForeground(0, (state["eax"] != last_state_["eax"]) ? Qt::red : palette.text());
-	register_view_items_[1]->setForeground(0, (state["ebx"] != last_state_["ebx"]) ? Qt::red : palette.text());
-	register_view_items_[2]->setForeground(0, (state["ecx"] != last_state_["ecx"]) ? Qt::red : palette.text());
-	register_view_items_[3]->setForeground(0, (state["edx"] != last_state_["edx"]) ? Qt::red : palette.text());
-	register_view_items_[4]->setForeground(0, (state["ebp"] != last_state_["ebp"]) ? Qt::red : palette.text());
-	register_view_items_[5]->setForeground(0, (state["esp"] != last_state_["esp"]) ? Qt::red : palette.text());
-	register_view_items_[6]->setForeground(0, (state["esi"] != last_state_["esi"]) ? Qt::red : palette.text());
-	register_view_items_[7]->setForeground(0, (state["edi"] != last_state_["edi"]) ? Qt::red : palette.text());
-	register_view_items_[8]->setForeground(0, (state.instruction_pointer() != last_state_.instruction_pointer()) ? Qt::red : palette.text());
-	register_view_items_[9]->setForeground(0, flags_changed ? Qt::red : palette.text());
+	register_view_items_[0x00]->setForeground(0, (state["eax"] != last_state_["eax"]) ? Qt::red : palette.text());
+	register_view_items_[0x01]->setForeground(0, (state["ebx"] != last_state_["ebx"]) ? Qt::red : palette.text());
+	register_view_items_[0x02]->setForeground(0, (state["ecx"] != last_state_["ecx"]) ? Qt::red : palette.text());
+	register_view_items_[0x03]->setForeground(0, (state["edx"] != last_state_["edx"]) ? Qt::red : palette.text());
+	register_view_items_[0x04]->setForeground(0, (state["ebp"] != last_state_["ebp"]) ? Qt::red : palette.text());
+	register_view_items_[0x05]->setForeground(0, (state["esp"] != last_state_["esp"]) ? Qt::red : palette.text());
+	register_view_items_[0x06]->setForeground(0, (state["esi"] != last_state_["esi"]) ? Qt::red : palette.text());
+	register_view_items_[0x07]->setForeground(0, (state["edi"] != last_state_["edi"]) ? Qt::red : palette.text());
+	register_view_items_[0x08]->setForeground(0, (state.instruction_pointer() != last_state_.instruction_pointer()) ? Qt::red : palette.text());
+	register_view_items_[0x09]->setForeground(0, flags_changed ? Qt::red : palette.text());
 
 	last_state_ = state;
 }

@@ -511,7 +511,7 @@ void Debugger::finish_plugin_setup(const QHash<QString, QObject *> &plugins) {
 	QPointer<DialogOptions> options = qobject_cast<DialogOptions *>(edb::v1::dialog_options());
 	Q_FOREACH(QObject *plugin, plugins) {
 		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
-			if(QMenu *const menu = p->menu()) {
+			if(QMenu *const menu = p->menu(this)) {
 				ui.menu_Plugins->addMenu(menu);
 			}
 

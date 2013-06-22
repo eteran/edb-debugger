@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include <QMap>
 #include <QHash>
+#include <QVector>
 
 class QMenu;
 class AnalyzerWidget;
@@ -37,6 +38,10 @@ class Analyzer : public QObject, public IAnalyzer, public IPlugin {
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
+private:
+	struct RegionData;
+	struct BasicBlock;
+	
 public:
 	Analyzer();
 
@@ -58,14 +63,14 @@ public:
 	virtual void invalidate_analysis(const IRegion::pointer &region);
 
 private:
-	void indent_header();
+	void ident_header();
 	void bonus_stack_frames_helper(Function &info) const;
-	void bonus_stack_frames(FunctionMap *results);
-	void bonus_marked_functions(const IRegion::pointer &region, FunctionMap *results);
-	void bonus_symbols(const IRegion::pointer &region, FunctionMap *results);
-	void bonus_symbols_helper(const IRegion::pointer &region, FunctionMap *results, const Symbol::pointer &sym);
-	void bonus_entry_point(const IRegion::pointer &region, FunctionMap *results) const;
-	void bonus_main(const IRegion::pointer &region, FunctionMap *results) const;
+	void bonus_stack_frames(RegionData *data);
+	void bonus_marked_functions(RegionData *data);
+	void bonus_symbols(RegionData *data);
+	void bonus_symbols_helper(RegionData *data, const Symbol::pointer &sym);
+	void bonus_entry_point(RegionData *data) const;
+	void bonus_main(RegionData *data) const;
 
 private:
 	QByteArray md5_region(const IRegion::pointer &region) const;
@@ -85,6 +90,7 @@ private:
 	void set_function_types(FunctionMap *results);
 	void set_function_types_helper(Function &info) const;
 	void update_results_entry(FunctionMap *results, edb::address_t address) const;
+	void collect_basic_blocks(RegionData *data);
 
 Q_SIGNALS:
 	void update_progress(int);
@@ -101,15 +107,21 @@ private:
 	void do_analysis(const IRegion::pointer &region);
 
 private:
-	struct RegionInfo {
-		FunctionMap      analysis;
-		QByteArray       md5;
-		bool             fuzzy;
-		IRegion::pointer region;
+	struct BasicBlock {
+		QVector<QSharedPointer<edb::Instruction> > instructions;
+	};
+
+	struct RegionData {
+		QHash<edb::address_t, BasicBlock> basic_blocks;
+		QSet<edb::address_t>              known_functions;
+		FunctionMap                       analysis;
+		QByteArray                        md5;
+		bool                              fuzzy;
+		IRegion::pointer                  region;
 	};
 
 	QMenu                              *menu_;
-	QHash<edb::address_t, RegionInfo>   analysis_info_;
+	QHash<edb::address_t, RegionData>   analysis_info_;
 	QSet<edb::address_t>                specified_functions_;
 	AnalyzerWidget                     *analyzer_widget_;
 };
