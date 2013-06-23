@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolBox>
 #include <QDebug>
 
-#include "ui_dialog_options.h"
+#include "ui_DialogOptions.h"
 
 namespace {
 //------------------------------------------------------------------------------

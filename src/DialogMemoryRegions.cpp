@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QItemSelectionModel>
 #include <QDebug>
 
-#include "ui_dialog_memoryregions.h"
+#include "ui_DialogMemoryRegions.h"
 
 //------------------------------------------------------------------------------
 // Name: DialogMemoryRegions

@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cctype> // for std::isxdigit
 
-#include "ui_binarystring.h"
+#include "ui_BinaryString.h"
 
 class HexStringValidator : public QValidator {
 public:

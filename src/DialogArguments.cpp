@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogArguments.h"
 #include <QListWidgetItem>
 
-#include "ui_dialog_arguments.h"
+#include "ui_DialogArguments.h"
 
 //------------------------------------------------------------------------------
 // Name: DialogArguments

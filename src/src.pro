@@ -75,16 +75,16 @@ HEADERS += \
 	version.h
 
 FORMS += \
+	BinaryString.ui \
 	Debugger.ui \
-	binarystring.ui \
-	dialog_arguments.ui \
-	dialog_attach.ui \
-	dialog_inputbinarystring.ui \
-	dialog_inputvalue.ui \
-	dialog_memoryregions.ui \
-	dialog_options.ui \
-	dialog_plugins.ui \
-	dialog_threads.ui
+	DialogArguments.ui \
+	DialogAttach.ui \
+	DialogInputBinaryString.ui \
+	DialogInputValue.ui \
+	DialogMemoryRegions.ui \
+	DialogOptions.ui \
+	DialogPlugins.ui \
+	DialogThreads.ui
 
 SOURCES += \
 	ArchProcessor.cpp \
