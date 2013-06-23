@@ -91,6 +91,7 @@ private:
 	void set_function_types_helper(Function &info) const;
 	void update_results_entry(FunctionMap *results, edb::address_t address) const;
 	void collect_basic_blocks(RegionData *data);
+	void collect_known_functions(RegionData *data);
 
 Q_SIGNALS:
 	void update_progress(int);
@@ -105,6 +106,9 @@ public Q_SLOTS:
 
 private:
 	void do_analysis(const IRegion::pointer &region);
+
+private:
+	static int block_size(const BasicBlock &basic_block);
 
 private:
 	struct BasicBlock {

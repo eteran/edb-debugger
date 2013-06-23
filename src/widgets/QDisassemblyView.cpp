@@ -235,17 +235,17 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 
 					if(edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
 						const edb::Instruction insn(buf, buf + buf_size, address, std::nothrow);
-						if(insn) {
-
-
-							// if the NEXT address would be our target, then
-							// we are at the previous instruction!
-							if(address + insn.size() >= current_address + address_offset_) {
-								break;
-							}
-
-							address += insn.size();
+						if(!insn) {
+							break;
 						}
+
+						// if the NEXT address would be our target, then
+						// we are at the previous instruction!
+						if(address + insn.size() >= current_address + address_offset_) {
+							break;
+						}
+
+						address += insn.size();
 					}
 				}
 
