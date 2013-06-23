@@ -17,15 +17,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogAttach.h"
+#include "IDebuggerCore.h"
 #include "Types.h"
 #include "edb.h"
-#include "IDebuggerCore.h"
 
 #include <QtDebug>
 #include <QMap>
 #include <QHeaderView>
 
-#include "ui_dialog_attach.h"
+#include "ui_DialogAttach.h"
 
 #ifdef Q_OS_WIN32
 namespace {

@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHeaderView>
 #include <QMetaClassInfo>
 
-#include "ui_dialog_plugins.h"
+#include "ui_DialogPlugins.h"
 
 //------------------------------------------------------------------------------
 // Name: DialogPlugins

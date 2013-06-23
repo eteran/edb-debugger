@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogInputBinaryString.h"
-#include "ui_dialog_inputbinarystring.h"
+#include "ui_DialogInputBinaryString.h"
 
 //------------------------------------------------------------------------------
 // Name: DialogInputBinaryString

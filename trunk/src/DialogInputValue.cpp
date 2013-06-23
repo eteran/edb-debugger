@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QRegExpValidator>
 
-#include "ui_dialog_inputvalue.h"
+#include "ui_DialogInputValue.h"
 
 #if defined(EDB_X86)
 	#define SNUM_FMT "%d"
