@@ -49,14 +49,14 @@ public:
 
 public:
 	virtual edb::address_t start() const = 0;
-	virtual edb::address_t end() const = 0;
+	virtual edb::address_t end() const = 0; // NOTE: is the address of one past the last byte of the region
 	virtual edb::address_t base() const = 0;
 	virtual QString name() const = 0;
 	virtual permissions_t permissions() const = 0;
 
 public:
 	bool contains(edb::address_t address) const {
-		return address >= start() && address <= end();
+		return address >= start() && address < end();
 	}
 
 	int compare(const IRegion::pointer &other) const {
