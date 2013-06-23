@@ -972,7 +972,6 @@ void Analyzer::collect_known_functions(RegionData *data) {
 	
 		qDebug("Analyzing basic blocks of: %p", address);
 		QHash<edb::address_t, BasicBlock>::const_iterator it = data->basic_blocks.find(address);		
-		QList<edb::address_t> jump_targets;
 		
 		if(it != data->basic_blocks.end()) {
 
@@ -980,60 +979,58 @@ void Analyzer::collect_known_functions(RegionData *data) {
 			func.entry_address   = address;
 			func.reference_count = MIN_REFCOUNT;
 			
-			do {
-				while(it != data->basic_blocks.end()) {
-				
-					qDebug("Processing Block @ %p", it.key());
-				
-					const BasicBlock &basic_block = it.value();
-					if(basic_block.instructions.empty()) {
-						break;
+			while(it != data->basic_blocks.end()) {
+
+				qDebug("Processing Block @ %p", it.key());
+
+				const BasicBlock &basic_block = it.value();
+				if(basic_block.instructions.empty()) {
+					break;
+				}
+
+				const QSharedPointer<edb::Instruction> &last_instruction = basic_block.instructions.last();
+				func.end_address      = basic_block.instructions.first()->rva() + block_size(basic_block) - 1;
+				func.last_instruction = last_instruction->rva();
+
+				if(!last_instruction || is_ret(*last_instruction) || last_instruction->type() == edb::Instruction::OP_HLT) {
+					break;
+				} else if(is_conditional_jump(*last_instruction)) {
+					// continue process the next adjacent block
+					it = data->basic_blocks.find(func.end_address + 1);
+
+					// but note where the jump would take us if true
+					const edb::Operand &op = last_instruction->operands()[0];
+					if(op.general_type() == edb::Operand::TYPE_REL) {
+						const edb::address_t target = op.relative_target();
 					}
+				} else if(is_unconditional_jump(*last_instruction)) {
+					const edb::Operand &op = last_instruction->operands()[0];
+					if(op.general_type() == edb::Operand::TYPE_REL) {
+						const edb::address_t target = op.relative_target();
 
-					const QSharedPointer<edb::Instruction> &last_instruction = basic_block.instructions.last();
-					func.end_address      = basic_block.instructions.first()->rva() + block_size(basic_block) - 1;
-					func.last_instruction = last_instruction->rva();
-
-					if(!last_instruction || is_ret(*last_instruction) || last_instruction->type() == edb::Instruction::OP_HLT) {
-						break;
-					} else if(is_conditional_jump(*last_instruction)) {
-						// continue process the next adjacent block
-						it = data->basic_blocks.find(func.end_address + 1);
-
-						// but note where the jump would take us if true
-						const edb::Operand &op = last_instruction->operands()[0];
-						if(op.general_type() == edb::Operand::TYPE_REL) {
-							const edb::address_t target = op.relative_target();
+						// a JMP <func> is simply an optimization for "CALL <func>; RET"
+						if(data->known_functions.contains(target)) {
+							break;						
 						}
-					} else if(is_call(*last_instruction)) {
-						break;
-					} else if(is_unconditional_jump(*last_instruction)) {
-						const edb::Operand &op = last_instruction->operands()[0];
-						if(op.general_type() == edb::Operand::TYPE_REL) {
-							const edb::address_t target = op.relative_target();
 
-							// a JMP <func> is simply an optimization for "CALL <func>; RET"
-							if(data->known_functions.contains(target)) {
-								break;						
-							}
-
-							if(target <= address) {
-								break;
-							}
-
-							if(target <= func.end_address) {
-								break;
-							}
-							
-							it = data->basic_blocks.find(target);
+						if(target <= address) {
+							break;
 						}
-						break;
-					} else {
-						break;
+
+						if(target <= func.end_address) {
+							break;
+						}
+
+						it = data->basic_blocks.find(target);
 					}
+					break;
+				} else {
+					it = data->basic_blocks.find(func.end_address + 1);
+					break;
 				}
 				
-			} while(!jump_targets.empty());
+			}
+
 			
 			data->analysis[address] = func;
 		}
