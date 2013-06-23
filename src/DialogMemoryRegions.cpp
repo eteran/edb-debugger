@@ -100,6 +100,7 @@ IRegion::pointer DialogMemoryRegions::selected_region() const {
 		const QModelIndex index = filter_model_->mapToSource(sel[0]);
 		ret = *reinterpret_cast<IRegion::pointer *>(index.internalPointer());
 	}
+	
 	return ret;
 }
 

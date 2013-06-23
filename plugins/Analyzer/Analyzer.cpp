@@ -51,6 +51,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #define MIN_REFCOUNT 2
+#define OLD_ANALYSIS
 
 namespace {
 #if defined(EDB_X86)
@@ -432,7 +433,7 @@ void Analyzer::bonus_main(RegionData *data) const {
 
 		if(main && data->region->contains(main)) {
 			// make sure we have an entry for this function
-		#if 1
+		#if defined(OLD_ANALYSIS)
 			update_results_entry(&data->analysis, main);
 		#endif
 			data->known_functions.insert(main);
@@ -454,7 +455,7 @@ void Analyzer::bonus_symbols_helper(RegionData *data, const Symbol::pointer &sym
 		qDebug("[Analyzer] adding: %s <%p>", qPrintable(sym->name), reinterpret_cast<void *>(addr));
 
 		// make sure we have an entry for this function
-	#if 1
+	#if defined(OLD_ANALYSIS)
 		update_results_entry(&data->analysis, addr);
 	#endif
 		data->known_functions.insert(addr);
@@ -492,7 +493,7 @@ void Analyzer::bonus_marked_functions(RegionData *data) {
 
 			qDebug("[Analyzer] adding: <%p>", reinterpret_cast<void *>(addr));
 
-		#if 1
+		#if defined(OLD_ANALYSIS)
 			// make sure we have an entry for this function
 			update_results_entry(&data->analysis, addr);
 		#endif
@@ -1078,9 +1079,10 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			{ "attempting to add functions with symbols to the list...", boost::bind(&Analyzer::bonus_symbols,           this, &region_data) },
 			{ "attempting to add marked functions to the list...",       boost::bind(&Analyzer::bonus_marked_functions,  this, &region_data) },			
 			{ "collecting basic blocks...",                              boost::bind(&Analyzer::collect_basic_blocks,    this, &region_data) },
-			{ "collecting known functions...",                           boost::bind(&Analyzer::collect_known_functions, this, &region_data) },
-#if 1
+#if defined(OLD_ANALYSIS)
 			{ "calculating function bounds... (pass 1)",                 boost::bind(&Analyzer::find_calls_from_known,  this, boost::cref(region), &region_data.analysis, &walked_functions) },
+#else
+			{ "collecting known functions...",                           boost::bind(&Analyzer::collect_known_functions, this, &region_data) },
 #endif
 		};
 
@@ -1088,7 +1090,7 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			const char             *message;
 			boost::function<void()> function;
 		} fuzzy_analysis_steps[] = {
-#if 1
+#if defined(OLD_ANALYSIS)
 			{ "finding possible function calls...",      boost::bind(&Analyzer::find_function_calls,      this, boost::cref(region), &found_functions) },
 			{ "bonusing stack frames...",                boost::bind(&Analyzer::bonus_stack_frames,       this, &region_data) },
 			{ "collecting high reference answers...",    boost::bind(&Analyzer::collect_high_ref_results, this, &region_data.analysis, &found_functions) },
@@ -1109,7 +1111,7 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			emit update_progress(util::percentage(i + 1, total_steps));
 		}
 
-#if 1
+#if defined(OLD_ANALYSIS)
 		fix_overlaps(&region_data.analysis);
 #endif
 		// ok, at this point, we've done the best we can with knowns
@@ -1124,7 +1126,7 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			}
 		}
 
-#if 1
+#if defined(OLD_ANALYSIS)
 		qDebug("[Analyzer] determining function types...");
 		set_function_types(&region_data.analysis);
 #endif
@@ -1251,7 +1253,7 @@ void Analyzer::bonus_entry_point(RegionData *data) const {
 
 		// make sure we have an entry for this function
 		if(data->region->contains(entry)) {
-		#if 1
+		#if defined(OLD_ANALYSIS)
 			update_results_entry(&data->analysis, entry);
 		#endif
 			data->known_functions.insert(entry);
