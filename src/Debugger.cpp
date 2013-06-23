@@ -2494,13 +2494,7 @@ void Debugger::on_action_Plugins_triggered() {
 //------------------------------------------------------------------------------
 bool Debugger::jump_to_address(edb::address_t address) {
 
-
-	qDebug("[Debugger::jump_to_address] %p", address);
-
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
-	
-		qDebug("[Debugger::jump_to_address] %p [%p]", address, region->start());
-	
 		do_jump_to_address(address, region, true);
 		return true;
 	}
