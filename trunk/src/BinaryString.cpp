@@ -17,68 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "BinaryString.h"
-#include "Util.h"
-#include <QValidator>
+#include "HexStringValidator.h"
 #include <QStringList>
-#include <QString>
-
-#include <cctype> // for std::isxdigit
 
 #include "ui_BinaryString.h"
-
-class HexStringValidator : public QValidator {
-public:
-	HexStringValidator(QObject * parent) : QValidator(parent) {}
-
-public:
-	virtual void fixup(QString &input) const {
-		QString temp;
-		int index = 0;
-
-		Q_FOREACH(QChar ch, input) {
-			const int c = ch.toAscii();
-			if(c < 0x80 && std::isxdigit(c)) {
-
-				if(index != 0 && (index & 1) == 0) {
-					temp += ' ';
-				}
-
-				temp += ch.toUpper();
-				++index;
-			}
-		}
-
-		input = temp;
-	}
-
-	virtual State validate(QString &input, int &pos) const {
-		if(!input.isEmpty()) {
-			// TODO: can we detect if the char which was JUST deleted
-			// (if any was deleted) was a space? and special case this?
-			// as to not have the minor bug in this case?
-
-			const int char_pos = pos - input.left(pos).count(' ');
-			int chars          = 0;
-			fixup(input);
-
-			pos = 0;
-
-			while(chars != char_pos) {
-				if(input[pos] != ' ') {
-					++chars;
-				}
-				++pos;
-			}
-
-			// favor the right side of a space
-			if(input[pos] == ' ') {
-				++pos;
-			}
-		}
-		return QValidator::Acceptable;
-	}
-};
-
 
 //------------------------------------------------------------------------------
 // Name: setMaxLength

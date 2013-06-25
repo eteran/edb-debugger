@@ -33,6 +33,7 @@ HEADERS += \
 	DialogThreads.h \
 	Expression.h \
 	Function.h \
+	HexStringValidator.h \
 	IAnalyzer.h \
 	IArchProcessor.h \
 	IBinary.h \
@@ -74,6 +75,7 @@ HEADERS += \
 	symbols.h \
 	version.h
 
+
 FORMS += \
 	BinaryString.ui \
 	Debugger.ui \
@@ -102,6 +104,7 @@ SOURCES += \
 	DialogOptions.cpp \
 	DialogPlugins.cpp \
 	DialogThreads.cpp \
+	HexStringValidator.cpp \
 	IBinary.cpp \
 	LineEdit.cpp \
 	MD5.cpp \
