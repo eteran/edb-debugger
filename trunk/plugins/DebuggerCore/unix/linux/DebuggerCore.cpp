@@ -1187,7 +1187,7 @@ QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 //------------------------------------------------------------------------------
 quint64 DebuggerCore::cpu_type() const {
 #ifdef EDB_X86
-	return edb::string_hash<'x', '8', '6'>::value
+	return edb::string_hash<'x', '8', '6'>::value;
 #elif defined(EDB_X86_64)
 	return edb::string_hash<'x', '8', '6', '-', '6', '4'>::value;
 #endif
