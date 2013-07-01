@@ -102,13 +102,6 @@ namespace {
 		// ok things are initialized to a reasonable degree, let's show the main window
 		debugger.show();
 
-		// have we been asked to attach to a given program?
-		if(attach_pid != 0) {
-			debugger.attach(attach_pid);
-		} else if(!program.isEmpty()) {
-			debugger.execute(program, programArgs);
-		}
-
 		if(edb::v1::debugger_core == 0) {
 			QMessageBox::warning(
 				0,
@@ -128,6 +121,14 @@ namespace {
 			// TODO: detect if they corrected the issue and try again
 			return -1;
 		} else {
+		
+			// have we been asked to attach to a given program?
+			if(attach_pid != 0) {
+				debugger.attach(attach_pid);
+			} else if(!program.isEmpty()) {
+				debugger.execute(program, programArgs);
+			}
+		
 			return qApp->exec();
 		}
 	}
