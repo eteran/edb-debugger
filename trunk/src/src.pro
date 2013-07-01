@@ -8,6 +8,9 @@ DESTDIR     = ../
 target.path = /bin/
 INSTALLS    += target
 QT          += xml xmlpatterns
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
 
 TRANSLATIONS += \
 	lang/edb_en.ts
@@ -75,7 +78,6 @@ HEADERS += \
 	symbols.h \
 	version.h
 
-
 FORMS += \
 	BinaryString.ui \
 	Debugger.ui \
@@ -126,6 +128,7 @@ SOURCES += \
 	main.cpp \
 	symbols.cpp
 
+# QHexView stuff
 DEPENDPATH  += ./qhexview
 INCLUDEPATH += ./qhexview
 SOURCES     += qhexview.cpp
@@ -159,14 +162,14 @@ SOURCES += json_parser.cc \
            serializerrunnable.cpp
 
 win32 {
-	win32-msvc*:contains(QMAKE_HOST.arch, x86_64):{
+	win32-msvc*:contains(QMAKE_TARGET.arch, x86_64):{
 		DEPENDPATH  += ../include/os/win32 arch/x86_64 ../include/arch/x86_64 edisassm
 		INCLUDEPATH += ../include/os/win32 arch/x86_64 ../include/arch/x86_64 edisassm "C:\\Program Files\\boost\\boost_1_51"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
 		RC_FILE     = edb.rc
 	}
 
-	win32-msvc*:contains(QMAKE_HOST.arch, x86):{
+	win32-msvc*:contains(QMAKE_TARGET.arch, x86):{
 		DEPENDPATH  += ../include/os/win32 arch/i386 ../include/arch/i386 edisassm
 		INCLUDEPATH += ../include/os/win32 arch/i386 ../include/arch/i386 edisassm "C:\\Program Files\\boost\\boost_1_51"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
@@ -194,10 +197,15 @@ unix {
 	!isEmpty(DEFAULT_SESSION_PATH) {
 		DEFINES += DEFAULT_SESSION_PATH=DEFAULT_SESSION_PATH
 	}
-
-
+	
 	DEPENDPATH  += ../include/os/unix edisassm
 	INCLUDEPATH += ../include/os/unix edisassm
+
+	QMAKE_TARGET.arch = $$QMAKE_HOST.arch
+	*-g++-32  :QMAKE_TARGET.arch = x86
+	*-g++-64  :QMAKE_TARGET.arch = x86_64
+	*-clang-32:QMAKE_TARGET.arch = x86
+	*-clang-64:QMAKE_TARGET.arch = x86_64
 
 	linux-* {
 		DEPENDPATH  += ../include/os/unix/linux
@@ -224,9 +232,14 @@ unix {
 		INCLUDEPATH += arch/x86_64 ../include/arch/x86_64
 	}
 
-	!macx {
-		DEPENDPATH  += arch/$$QT_ARCH ../include/arch/$$QT_ARCH
-		INCLUDEPATH += arch/$$QT_ARCH ../include/arch/$$QT_ARCH
+	!macx:contains(QMAKE_TARGET.arch, x86_64):{
+		DEPENDPATH  += arch/x86_64 ../include/arch/x86_64
+		INCLUDEPATH += arch/x86_64 ../include/arch/x86_64
+	}
+	
+	!macx:contains(QMAKE_TARGET.arch, x86):{
+		DEPENDPATH  += arch/i386 ../include/arch/i386
+		INCLUDEPATH += arch/i386 ../include/arch/i386
 	}
 
 	*-g++* {

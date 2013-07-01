@@ -6,6 +6,9 @@ CONFIG   += plugin
 #CONFIG  += silent
 DESTDIR  = $$EDB_ROOT
 INSTALLS += target
+greaterThan(QT_MAJOR_VERSION, 4) {
+    QT += widgets
+}
 
 DEFINES += EDB_PLUGIN
 
