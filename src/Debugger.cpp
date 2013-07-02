@@ -228,7 +228,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 
 	// make us the default event handler
 	edb::v1::set_debug_event_handler(this);
-
+	
 	// enable the arch processor
 	edb::v1::arch_processor().setup_register_view(ui.registerList);
 
@@ -613,6 +613,13 @@ void Debugger::setup_ui() {
 	// (probably lack of layout manager in mine...
 	ui.tabWidget->clear();
 	mnuDumpCreateTab();
+
+	// replace the register view with one created by the debugger core	
+	if(edb::v1::debugger_core) {
+		delete ui.registerList;
+		ui.registerList = qobject_cast<RegisterListWidget *>(edb::v1::debugger_core->create_register_view());
+		ui.registersDock->setWidget(ui.registerList);
+	}
 
 	// apply any fonts we may have stored
 	apply_default_fonts();

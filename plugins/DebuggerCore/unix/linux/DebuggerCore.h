@@ -68,7 +68,7 @@ public:
 
 public:
 	virtual IState *create_state() const;
-
+	virtual QWidget *create_register_view() const;
 
 public:
 	// process properties

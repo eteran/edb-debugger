@@ -107,6 +107,7 @@ public:
 
 public:
 	virtual IState *create_state() const = 0;
+	virtual QWidget *create_register_view() const = 0;
 
 public:
 	// what is the PID of the process we are currently debugging
