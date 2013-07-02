@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Function.h"
 #include "IDebuggerCore.h"
 #include "Instruction.h"
-#include "QCategoryList.h"
+#include "RegisterListWidget.h"
 #include "State.h"
 #include "Util.h"
 #include "edb.h"
@@ -639,7 +639,7 @@ ArchProcessor::ArchProcessor() : split_flags_(0) {
 // Name: setup_register_view
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::setup_register_view(QCategoryList *category_list) {
+void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 
 	if(edb::v1::debugger_core) {
 		State state;

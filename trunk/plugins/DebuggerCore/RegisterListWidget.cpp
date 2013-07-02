@@ -16,17 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "QCategoryList.h"
+#include "RegisterListWidget.h"
 #include "RegisterViewDelegate.h"
 #include <QHeaderView>
 #include <QTreeView>
 #include <QMouseEvent>
 
 //------------------------------------------------------------------------------
-// Name: QCategoryList
+// Name: RegisterListWidget
 // Desc:
 //------------------------------------------------------------------------------
-QCategoryList::QCategoryList(QWidget *parent) : QTreeWidget(parent) {
+RegisterListWidget::RegisterListWidget(QWidget *parent) : QTreeWidget(parent) {
 
 	// set the delegate
 	setItemDelegate(new RegisterViewDelegate(this, this));
@@ -38,14 +38,14 @@ QCategoryList::QCategoryList(QWidget *parent) : QTreeWidget(parent) {
 	header()->hide();
 	header()->setResizeMode(QHeaderView::Stretch);
 
-	connect(this, SIGNAL(itemPressed(QTreeWidgetItem *, int)), SLOT(handleMousePress(QTreeWidgetItem*)));
+	connect(this, SIGNAL(itemPressed(QTreeWidgetItem *, int)), SLOT(handleMousePress(QTreeWidgetItem *)));
 }
 
 //------------------------------------------------------------------------------
-// Name: ~QCategoryList
+// Name: ~RegisterListWidget
 // Desc:
 //------------------------------------------------------------------------------
-QCategoryList::~QCategoryList() {
+RegisterListWidget::~RegisterListWidget() {
 
 }
 
@@ -53,7 +53,7 @@ QCategoryList::~QCategoryList() {
 // Name: handleMousePress
 // Desc:
 //------------------------------------------------------------------------------
-void QCategoryList::handleMousePress(QTreeWidgetItem *item) {
+void RegisterListWidget::handleMousePress(QTreeWidgetItem *item) {
 	if(isCategory(item)) {
 	    setItemExpanded(item, !isItemExpanded(item));
 	}
@@ -63,7 +63,7 @@ void QCategoryList::handleMousePress(QTreeWidgetItem *item) {
 // Name: mouseDoubleClickEvent
 // Desc:
 //------------------------------------------------------------------------------
-void QCategoryList::mouseDoubleClickEvent(QMouseEvent * event) {
+void RegisterListWidget::mouseDoubleClickEvent(QMouseEvent *event) {
 	if(QTreeWidgetItem *const p = itemAt(event->pos())) {
 		emit itemDoubleClicked(p, 0);
 	}
@@ -73,7 +73,7 @@ void QCategoryList::mouseDoubleClickEvent(QMouseEvent * event) {
 // Name: addCategory
 // Desc:
 //------------------------------------------------------------------------------
-QTreeWidgetItem *QCategoryList::addCategory(const QString &name) {
+QTreeWidgetItem *RegisterListWidget::addCategory(const QString &name) {
 	QTreeWidgetItem *const cat = new QTreeWidgetItem(this);
 	cat->setText(0, name);
 	setItemExpanded(cat, true);
@@ -84,6 +84,6 @@ QTreeWidgetItem *QCategoryList::addCategory(const QString &name) {
 // Name: isCategory
 // Desc:
 //------------------------------------------------------------------------------
-bool QCategoryList::isCategory(QTreeWidgetItem *item) const {
+bool RegisterListWidget::isCategory(QTreeWidgetItem *item) const {
 	return item && item->parent() == 0;
 }

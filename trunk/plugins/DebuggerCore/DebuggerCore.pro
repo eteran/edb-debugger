@@ -34,5 +34,5 @@ win32 {
 	INCLUDEPATH += win32 .
 }
 
-HEADERS += PlatformEvent.h   PlatformState.h   PlatformRegion.h   DebuggerCoreBase.h   DebuggerCore.h   X86Breakpoint.h
-SOURCES += PlatformEvent.cpp PlatformState.cpp PlatformRegion.cpp DebuggerCoreBase.cpp DebuggerCore.cpp X86Breakpoint.cpp
+HEADERS += RegisterViewDelegate.h   RegisterListWidget.h   PlatformEvent.h   PlatformState.h   PlatformRegion.h   DebuggerCoreBase.h   DebuggerCore.h   X86Breakpoint.h
+SOURCES += RegisterViewDelegate.cpp RegisterListWidget.cpp PlatformEvent.cpp PlatformState.cpp PlatformRegion.cpp DebuggerCoreBase.cpp DebuggerCore.cpp X86Breakpoint.cpp

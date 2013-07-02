@@ -122,7 +122,7 @@
    <widget class="QWidget" name="dockWidgetContents_3">
     <layout class="QGridLayout">
      <item row="0" column="0">
-      <widget class="QCategoryList" name="registerList">
+      <widget class="RegisterListWidget" name="registerList">
        <property name="font">
         <font>
          <family>Monospace</family>
@@ -441,9 +441,9 @@
  </widget>
  <customwidgets>
   <customwidget>
-   <class>QCategoryList</class>
+   <class>RegisterListWidget</class>
    <extends>QTreeWidget</extends>
-   <header>QCategoryList.h</header>
+   <header>RegisterListWidget.h</header>
   </customwidget>
   <customwidget>
    <class>QDisassemblyView</class>

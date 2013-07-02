@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformEvent.h"
 #include "PlatformRegion.h"
 #include "PlatformState.h"
+#include "RegisterListWidget.h"
 #include "State.h"
 #include "string_hash.h"
 
@@ -705,5 +706,12 @@ quint64 DebuggerCore::cpu_type() const {
 #endif
 }
 
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+QWidget *DebuggerCore::create_register_view() const {
+	return new RegisterListWidget;
+}
 
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)

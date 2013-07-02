@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define EDB_WORDSIZE  sizeof(long)
+#define EDB_WORDSIZE sizeof(long)
 
 namespace {
 	int selfpipe[2];
@@ -480,7 +480,6 @@ int DebuggerCoreUNIX::pointer_size() const {
 //------------------------------------------------------------------------------
 QMap<long, QString> DebuggerCoreUNIX::exceptions() const {
 	QMap<long, QString> exceptions;
-
 
 	#ifdef SIGABRT
 		exceptions[SIGABRT] = "SIGABRT";

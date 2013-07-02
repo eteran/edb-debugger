@@ -16,20 +16,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef QCATEGORYLIST_20061222_H_
-#define QCATEGORYLIST_20061222_H_
+#ifndef REGISTER_LIST_WIDGET_20061222_H_
+#define REGISTER_LIST_WIDGET_20061222_H_
 
 #include <QTreeWidget>
 
 class QTreeWidgetItem;
 class QString;
 
-class QCategoryList : public QTreeWidget {
+class RegisterListWidget : public QTreeWidget {
 	Q_OBJECT
 
 public:
-	QCategoryList(QWidget *parent = 0);
-	virtual ~QCategoryList();
+	RegisterListWidget(QWidget *parent = 0);
+	virtual ~RegisterListWidget();
 
 private Q_SLOTS:
     void handleMousePress(QTreeWidgetItem *item);

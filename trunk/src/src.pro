@@ -56,7 +56,7 @@ HEADERS += \
 	Module.h \
 	OSTypes.h \
 	Process.h \
-	QCategoryList.h \
+	RegisterListWidget.h \
 	QDisassemblyView.h \
 	QLongValidator.h \
 	QULongValidator.h \
@@ -111,7 +111,7 @@ SOURCES += \
 	LineEdit.cpp \
 	MD5.cpp \
 	MemoryRegions.cpp \
-	QCategoryList.cpp \
+	RegisterListWidget.cpp \
 	QDisassemblyView.cpp \
 	QLongValidator.cpp \
 	QULongValidator.cpp \
