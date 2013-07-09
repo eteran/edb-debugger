@@ -113,4 +113,6 @@ void Bookmarks::add_bookmark_menu() {
 	bookmark_widget_->add_address(edb::v1::cpu_selected_address());
 }
 
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(Bookmarks, Bookmarks)
+#endif

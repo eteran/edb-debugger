@@ -183,8 +183,6 @@ EDB_EXPORT edb::address_t cpu_selected_address();
 EDB_EXPORT void set_status(const QString &message);
 
 EDB_EXPORT int pointer_size();
-
-EDB_EXPORT QByteArray serialize_object(const QObject *object);
 }
 }
 #endif

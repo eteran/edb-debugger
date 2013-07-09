@@ -78,7 +78,7 @@ QString DialogOptions::font_from_dialog(const QString &default_font) {
 //------------------------------------------------------------------------------
 void DialogOptions::addOptionsPage(QWidget *page) {
 
-	if(toolbox_ == 0) {
+	if(!toolbox_) {
 		delete ui->tabWidget->findChild<QLabel *>("label_plugins");
 		QWidget *const tab        = ui->tabWidget->findChild<QLabel *>("tab_plugins");
 		QGridLayout *const layout = ui->tabWidget->findChild<QGridLayout *>("tab_plugins_layout");

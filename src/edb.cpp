@@ -34,8 +34,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "QHexView"
 #include "State.h"
 #include "SymbolManager.h"
-#include "qobjecthelper.h"
-#include "serializer.h"
 #include "version.h"
 
 #include <QAction>
@@ -206,7 +204,11 @@ IAnalyzer *edb::v1::set_analyzer(IAnalyzer *p) {
 // Desc:
 //------------------------------------------------------------------------------
 IAnalyzer *edb::v1::analyzer() {
+#if QT_VERSION >= 0x050000
+	return g_Analyzer.load();
+#else
 	return g_Analyzer;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -223,7 +225,11 @@ ISessionFile *edb::v1::set_session_file_handler(ISessionFile *p) {
 // Desc:
 //------------------------------------------------------------------------------
 ISessionFile *edb::v1::session_file_handler() {
-	return g_SessionHandler;;
+#if QT_VERSION >= 0x050000
+	return g_SessionHandler.load();
+#else
+	return g_SessionHandler;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -240,7 +246,11 @@ IDebugEventHandler *edb::v1::set_debug_event_handler(IDebugEventHandler *p) {
 // Desc:
 //------------------------------------------------------------------------------
 IDebugEventHandler *edb::v1::debug_event_handler() {
+#if QT_VERSION >= 0x050000
+	return g_DebugEventHandler.load();
+#else
 	return g_DebugEventHandler;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -626,7 +636,7 @@ bool edb::v1::get_utf16_string_at_address(edb::address_t address, QString &s, in
 				QChar ch(val);
 
 				// for now, we only acknowledge ASCII chars encoded as unicode
-				const int ascii_char = ch.toAscii();
+				const int ascii_char = ch.toLatin1();
 				if(ascii_char >= 0x20 && ascii_char < 0x80) {
 					s += ch;
 				} else {
@@ -1218,12 +1228,3 @@ QWidget *edb::v1::disassembly_widget() {
 	return ui()->ui.cpuView;
 }
 
-//------------------------------------------------------------------------------
-// Name: serialize_object
-// Desc:
-//------------------------------------------------------------------------------
-QByteArray edb::v1::serialize_object(const QObject *object) {
-	QVariantMap variant = QJson::QObjectHelper::qobject2qvariant(object);
-	QJson::Serializer serializer;
-	return serializer.serialize(variant);
-}

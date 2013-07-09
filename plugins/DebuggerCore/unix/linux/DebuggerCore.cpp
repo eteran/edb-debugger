@@ -1202,4 +1202,6 @@ QWidget *DebuggerCore::create_register_view() const {
 	return new RegisterListWidget;
 }
 
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
+#endif

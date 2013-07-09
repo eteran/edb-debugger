@@ -139,7 +139,7 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 	
 	QString s;
 	
-	switch(type.toAscii()) {
+	switch(type.toLatin1()) {
 	case 'w': return s.sprintf("%u", static_cast<wchar_t>(arg));
 	case 'b': return s.sprintf("%d", static_cast<bool>(arg));
 	case 'c':
@@ -213,7 +213,7 @@ QString format_argument(const QString &type, edb::reg_t arg) {
 			// display for us
 			continue;
 		} else {
-			switch(ch.toAscii()) {
+			switch(ch.toLatin1()) {
 			case 'v': return format_pointer(pointer_level, arg, ch);
 			case 'w': return format_integer(pointer_level, arg, ch);
 			case 'b': return format_integer(pointer_level, arg, ch);

@@ -55,6 +55,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHBoxLayout>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QMimeData>
 #include <QSettings>
 #include <QShortcut>
 #include <QStringListModel>
@@ -234,6 +235,9 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 
 	// default the working directory to ours
 	working_directory_ = QDir().absolutePath();
+	
+	// let the plugins setup their menus
+	finish_plugin_setup();
 }
 
 //------------------------------------------------------------------------------
@@ -498,10 +502,12 @@ void Debugger::create_data_tab() {
 // Desc: finalizes plugin setup by adding each to the menu, we can do this now
 //       that we have a GUI widget to attach it to
 //------------------------------------------------------------------------------
-void Debugger::finish_plugin_setup(const QHash<QString, QObject *> &plugins) {
+void Debugger::finish_plugin_setup() {
 
-	// call the init function for each plugin
-	Q_FOREACH(QObject *plugin, plugins) {
+
+	// call the init function for each plugin, this is done after
+	// ALL plugins are loaded in case there are inter-plugin dependencies
+	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
 		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
 			p->init();
 		}
@@ -509,7 +515,7 @@ void Debugger::finish_plugin_setup(const QHash<QString, QObject *> &plugins) {
 
 	// setup the menu for all plugins that which to do so
 	QPointer<DialogOptions> options = qobject_cast<DialogOptions *>(edb::v1::dialog_options());
-	Q_FOREACH(QObject *plugin, plugins) {
+	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
 		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
 			if(QMenu *const menu = p->menu(this)) {
 				ui.menu_Plugins->addMenu(menu);

@@ -35,6 +35,7 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent) : QSyntaxHighlighter
 	create_rules();
 }
 
+#if QT_VERSION < 0x050000
 //------------------------------------------------------------------------------
 // Name: SyntaxHighlighter
 // Desc:
@@ -42,6 +43,7 @@ SyntaxHighlighter::SyntaxHighlighter(QTextDocument *parent) : QSyntaxHighlighter
 SyntaxHighlighter::SyntaxHighlighter(QTextEdit *parent) : QSyntaxHighlighter(parent) {
 	create_rules();
 }
+#endif
 
 //------------------------------------------------------------------------------
 // Name: HighlightingRule::HighlightingRule

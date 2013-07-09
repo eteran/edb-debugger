@@ -135,7 +135,7 @@ void HardwareBreakpoints::setup_breakpoints() {
 		if(enabled) {
 			// we want to be enabled, if we aren't already hooked,
 			// hook it
-			if(old_event_handler_ == 0) {
+			if(!old_event_handler_) {
 				old_event_handler_ = edb::v1::set_debug_event_handler(this);
 			}
 
@@ -221,5 +221,6 @@ edb::EVENT_STATUS HardwareBreakpoints::handle_event(const IDebugEvent::const_poi
 	return old_event_handler_->handle_event(event);
 }
 
-
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(HardwareBreakpoints, HardwareBreakpoints)
+#endif

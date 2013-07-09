@@ -19,7 +19,7 @@ void HexStringValidator::fixup(QString &input) const {
 	int index = 0;
 
 	Q_FOREACH(QChar ch, input) {
-		const int c = ch.toAscii();
+		const int c = ch.toLatin1();
 		if(c < 0x80 && std::isxdigit(c)) {
 
 			if(index != 0 && (index & 1) == 0) {

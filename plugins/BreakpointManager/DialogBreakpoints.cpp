@@ -33,7 +33,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 DialogBreakpoints::DialogBreakpoints(QWidget *parent) : QDialog(parent), ui(new Ui::DialogBreakpoints) {
 	ui->setupUi(this);
+#if QT_VERSION >= 0x050000
+	ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+#else
 	ui->tableWidget->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+#endif
 }
 
 //------------------------------------------------------------------------------

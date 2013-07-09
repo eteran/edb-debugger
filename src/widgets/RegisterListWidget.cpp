@@ -36,7 +36,12 @@ RegisterListWidget::RegisterListWidget(QWidget *parent) : QTreeWidget(parent) {
 
 	setColumnCount(1);
 	header()->hide();
+#if QT_VERSION >= 0x050000
+	header()->setSectionResizeMode(QHeaderView::Stretch);
+#else
 	header()->setResizeMode(QHeaderView::Stretch);
+#endif
+	
 
 	connect(this, SIGNAL(itemPressed(QTreeWidgetItem *, int)), SLOT(handleMousePress(QTreeWidgetItem *)));
 }
@@ -85,5 +90,5 @@ QTreeWidgetItem *RegisterListWidget::addCategory(const QString &name) {
 // Desc:
 //------------------------------------------------------------------------------
 bool RegisterListWidget::isCategory(QTreeWidgetItem *item) const {
-	return item && item->parent() == 0;
+	return item && !item->parent();
 }

@@ -269,8 +269,14 @@ QString file_type(const QString &filename) {
 //------------------------------------------------------------------------------
 DialogProcessProperties::DialogProcessProperties(QWidget *parent) : QDialog(parent), ui(new Ui::DialogProcessProperties) {
 	ui->setupUi(this);
+#if QT_VERSION >= 0x050000
+	ui->tableModules->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	ui->tableMemory->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+#else
 	ui->tableModules->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 	ui->tableMemory->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+#endif
+
 }
 
 //------------------------------------------------------------------------------

@@ -416,7 +416,7 @@ void Expression<T>::get_token() {
 	if(expression_ptr_ != expression_.end()) {
 
 		// get the token
-		switch(expression_ptr_->toAscii()) {
+		switch(expression_ptr_->toLatin1()) {
 		case '(':
 			++expression_ptr_;
 			token_.set("(", Token::LPAREN, Token::OPERATOR);

@@ -21,6 +21,13 @@ macx*:      QMAKE_LFLAGS += "-undefined dynamic_lookup"
 linux-g++*:QMAKE_LFLAGS += $$(LDFLAGS)
 
 unix {
+
+	QMAKE_TARGET.arch = $$QMAKE_HOST.arch
+	*-g++-32  :QMAKE_TARGET.arch = x86
+	*-g++-64  :QMAKE_TARGET.arch = x86_64
+	*-clang-32:QMAKE_TARGET.arch = x86
+	*-clang-64:QMAKE_TARGET.arch = x86_64
+
 	# generic unix include paths
 	DEPENDPATH  += $$EDB_ROOT/include $$EDB_ROOT/include/os/unix
 	INCLUDEPATH += $$EDB_ROOT/include $$EDB_ROOT/include/os/unix
@@ -53,11 +60,11 @@ unix {
 		DEPENDPATH  += $$EDB_ROOT/include/arch/x86_64
 		include(plugins-x86_64.pri)
 	}
-
+	
 	!macx {
-		INCLUDEPATH += $$EDB_ROOT/include/arch/$$QT_ARCH
-		DEPENDPATH  += $$EDB_ROOT/include/arch/$$QT_ARCH
-		include(plugins-$${QT_ARCH}.pri)
+		INCLUDEPATH += $$EDB_ROOT/include/arch/$${QMAKE_TARGET.arch}
+		DEPENDPATH  += $$EDB_ROOT/include/arch/$${QMAKE_TARGET.arch}
+		include(plugins-$${QMAKE_TARGET.arch}.pri)
 	}
 
 	CONFIG(debug, debug|release) {
@@ -78,14 +85,14 @@ unix {
 
 win32 {
 	win32-msvc*:contains(QMAKE_HOST.arch, x86_64):{
-                INCLUDEPATH += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64 "C:\\Program Files\\boost\\boost_1_51"
-                DEPENDPATH  += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64
+		INCLUDEPATH += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64 "C:\\Program Files\\boost\\boost_1_51"
+		DEPENDPATH  += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86_64
 		LIBS        += $$EDB_ROOT/edb.lib
 	}
 
 	win32-msvc*:contains(QMAKE_HOST.arch, x86):{
-		INCLUDEPATH += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/i386 "C:\\Program Files\\boost\\boost_1_51"
-		DEPENDPATH  += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/i386
+		INCLUDEPATH += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86 "C:\\Program Files\\boost\\boost_1_51"
+		DEPENDPATH  += $$EDB_ROOT/include/os/win32 $$EDB_ROOT/include $$EDB_ROOT/include/arch/x86
 		LIBS        += $$EDB_ROOT/edb.lib
 	}
 }

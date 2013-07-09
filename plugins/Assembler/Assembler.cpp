@@ -93,4 +93,6 @@ QWidget *Assembler::options_page() {
 	return new OptionsPage;
 }
 
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(Assembler, Assembler)
+#endif

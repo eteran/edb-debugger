@@ -242,8 +242,8 @@ void DialogAssembler::on_buttonBox_accepted() {
 				Q_ASSERT(0);
 			}
 			
-			source_file.write(QString("[SECTION .text vstart=0x%1 valign=1]\n\n").arg(edb::v1::format_pointer(address_)).toAscii());
-			source_file.write(nasm_syntax.toAscii());
+			source_file.write(QString("[SECTION .text vstart=0x%1 valign=1]\n\n").arg(edb::v1::format_pointer(address_)).toLatin1());
+			source_file.write(nasm_syntax.toLatin1());
 			source_file.write("\n");
 			source_file.close();
 
@@ -263,8 +263,8 @@ void DialogAssembler::on_buttonBox_accepted() {
 				Q_ASSERT(0);
 			}
 			
-			source_file.write(QString("ORG 0x%1\n\n").arg(edb::v1::format_pointer(address_)).toAscii());
-			source_file.write(nasm_syntax.toAscii());
+			source_file.write(QString("ORG 0x%1\n\n").arg(edb::v1::format_pointer(address_)).toLatin1());
+			source_file.write(nasm_syntax.toLatin1());
 			source_file.write("\n");
 			source_file.close();
 

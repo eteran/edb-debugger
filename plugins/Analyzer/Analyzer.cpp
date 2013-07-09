@@ -46,7 +46,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <boost/function.hpp>
 #include <cstring>
 
-#if QT_VERSION >= 0x040800
+#if QT_VERSION >= 0x050000
+#include <QtConcurrent>
+#elif QT_VERSION >= 0x040800
 #include <QtConcurrentMap>
 #endif
 
@@ -1322,4 +1324,6 @@ int Analyzer::block_size(const BasicBlock &basic_block) {
 }
 
 
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(Analyzer, Analyzer)
+#endif

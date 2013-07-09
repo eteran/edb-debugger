@@ -1,13 +1,15 @@
 TEMPLATE    = app
-#CONFIG     += silent
 TARGET      = edb
-DEPENDPATH  += ./widgets ../include
-INCLUDEPATH += ./widgets ../include
+DEPENDPATH  += $$PWD/widgets $$PWD/../include
+INCLUDEPATH += $$PWD/widgets $$PWD/../include
+VPATH       += $$PWD/widgets $$PWD/../include
+
 RESOURCES   = debugger.qrc
 DESTDIR     = ../
 target.path = /bin/
 INSTALLS    += target
 QT          += xml xmlpatterns
+
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
 }
@@ -129,49 +131,26 @@ SOURCES += \
 	symbols.cpp
 
 # QHexView stuff
-DEPENDPATH  += ./qhexview
-INCLUDEPATH += ./qhexview
+DEPENDPATH  += $$PWD/qhexview
+INCLUDEPATH += $$PWD/qhexview
+VPATH       += $$PWD/qhexview
+
 SOURCES     += qhexview.cpp
 HEADERS     += qhexview.h QHexView
 
-# qjson stuff
-
-DEPENDPATH   += ./qjson
-INCLUDEPATH  += ./qjson
-
-HEADERS += json_parser.hh \
-           json_scanner.h \
-           location.hh \
-           parser.h \
-           parser_p.h \
-           parserrunnable.h \
-           position.hh \
-           qjson_debug.h \
-           qjson_export.h \
-           qobjecthelper.h \
-           serializer.h \
-           serializerrunnable.h \
-           stack.hh
-
-SOURCES += json_parser.cc \
-           json_scanner.cpp \
-           parser.cpp \
-           parserrunnable.cpp \
-           qobjecthelper.cpp \
-           serializer.cpp \
-           serializerrunnable.cpp
-
 win32 {
 	win32-msvc*:contains(QMAKE_TARGET.arch, x86_64):{
-		DEPENDPATH  += ../include/os/win32 arch/x86_64 ../include/arch/x86_64 edisassm
-		INCLUDEPATH += ../include/os/win32 arch/x86_64 ../include/arch/x86_64 edisassm "C:\\Program Files\\boost\\boost_1_51"
+		VPATH       += $$PWD/../include/os/win32 $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64 $$PWD/edisassm
+		DEPENDPATH  += $$PWD/../include/os/win32 $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64 $$PWD/edisassm
+		INCLUDEPATH += $$PWD/../include/os/win32 $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64 $$PWD/edisassm "C:\\Program Files\\boost\\boost_1_51"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
 		RC_FILE     = edb.rc
 	}
 
 	win32-msvc*:contains(QMAKE_TARGET.arch, x86):{
-		DEPENDPATH  += ../include/os/win32 arch/i386 ../include/arch/i386 edisassm
-		INCLUDEPATH += ../include/os/win32 arch/i386 ../include/arch/i386 edisassm "C:\\Program Files\\boost\\boost_1_51"
+		VPATH       += $$PWD/../include/os/win32 $$PWD/arch/x86 $$PWD/../include/arch/x86 $$PWD/edisassm
+		DEPENDPATH  += $$PWD/../include/os/win32 $$PWD/arch/x86 $$PWD/../include/arch/x86 $$PWD/edisassm
+		INCLUDEPATH += $$PWD/../include/os/win32 $$PWD/arch/x86 $$PWD/../include/arch/x86 $$PWD/edisassm "C:\\Program Files\\boost\\boost_1_51"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
 		RC_FILE     = edb.rc
 	}
@@ -179,8 +158,9 @@ win32 {
 
 unix {
 	graph {
-		DEPENDPATH  += ./graph
-		INCLUDEPATH += ./graph
+		VPATH       += $$PWD/graph
+		DEPENDPATH  += $$PWD/graph
+		INCLUDEPATH += $$PWD/graph
 		HEADERS     += GraphEdge.h   GraphWidget.h   GraphNode.h
 		SOURCES     += GraphEdge.cpp GraphWidget.cpp GraphNode.cpp
 		LIBS        += -lgvc
@@ -198,8 +178,9 @@ unix {
 		DEFINES += DEFAULT_SESSION_PATH=DEFAULT_SESSION_PATH
 	}
 	
-	DEPENDPATH  += ../include/os/unix edisassm
-	INCLUDEPATH += ../include/os/unix edisassm
+	VPATH       += $$PWD/../include/os/unix $$PWD/edisassm
+	DEPENDPATH  += $$PWD/../include/os/unix $$PWD/edisassm
+	INCLUDEPATH += $$PWD/../include/os/unix $$PWD/edisassm
 
 	QMAKE_TARGET.arch = $$QMAKE_HOST.arch
 	*-g++-32  :QMAKE_TARGET.arch = x86
@@ -208,38 +189,45 @@ unix {
 	*-clang-64:QMAKE_TARGET.arch = x86_64
 
 	linux-* {
-		DEPENDPATH  += ../include/os/unix/linux
-		INCLUDEPATH += ../include/os/unix/linux
+		VPATH       += $$PWD/../include/os/unix/linux
+		DEPENDPATH  += $$PWD/../include/os/unix/linux
+		INCLUDEPATH += $$PWD/../include/os/unix/linux
 	}
 
 	openbsd-* {
-		DEPENDPATH  += ../include/os/unix/openbsd
-		INCLUDEPATH += ../include/os/unix/openbsd /usr/local/include
+		VPATH       += $$PWD/../include/os/unix/openbsd
+		DEPENDPATH  += $$PWD/../include/os/unix/openbsd
+		INCLUDEPATH += $$PWD/../include/os/unix/openbsd /usr/local/include
 	}
 
 	freebsd-* {
-		DEPENDPATH  += ../include/os/unix/freebsd
-		INCLUDEPATH += ../include/os/unix/freebsd
+		VPATH       += $$PWD/../include/os/unix/freebsd
+		DEPENDPATH  += $$PWD/../include/os/unix/freebsd
+		INCLUDEPATH += $$PWD/../include/os/unix/freebsd
 	}
 
 	macx-* {
-		DEPENDPATH  += ../include/os/unix/osx
-		INCLUDEPATH += ../include/os/unix/osx /opt/local/include
+		VPATH       += $$PWD/../include/os/unix/osx
+		DEPENDPATH  += $$PWD/../include/os/unix/osx
+		INCLUDEPATH += $$PWD/../include/os/unix/osx /opt/local/include
 	}
 
 	macx {
-		DEPENDPATH  += arch/x86_64 ../include/arch/x86_64
-		INCLUDEPATH += arch/x86_64 ../include/arch/x86_64
+		VPATH       += $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64
+		DEPENDPATH  += $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64
+		INCLUDEPATH += $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64
 	}
 
 	!macx:contains(QMAKE_TARGET.arch, x86_64):{
-		DEPENDPATH  += arch/x86_64 ../include/arch/x86_64
-		INCLUDEPATH += arch/x86_64 ../include/arch/x86_64
+		VPATH       += $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64
+		DEPENDPATH  += $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64
+		INCLUDEPATH += $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64
 	}
 	
 	!macx:contains(QMAKE_TARGET.arch, x86):{
-		DEPENDPATH  += arch/i386 ../include/arch/i386
-		INCLUDEPATH += arch/i386 ../include/arch/i386
+		VPATH       += $$PWD/arch/x86 $$PWD/../include/arch/x86
+		DEPENDPATH  += $$PWD/arch/x86 $$PWD/../include/arch/x86
+		INCLUDEPATH += $$PWD/arch/x86 $$PWD/../include/arch/x86
 	}
 
 	*-g++* {

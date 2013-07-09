@@ -89,7 +89,7 @@ edb::address_t ELF32::entry_point() {
 // Desc: reads in enough of the file to get the header
 //------------------------------------------------------------------------------
 void ELF32::read_header() {
-	if(header_ == 0) {
+	if(!header_) {
 		if(region_) {
 			header_ = new plugin::binary_info::elf32_header;
 	

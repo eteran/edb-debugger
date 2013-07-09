@@ -35,8 +35,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 DialogFunctions::DialogFunctions(QWidget *parent) : QDialog(parent), ui(new Ui::DialogFunctions) {
 	ui->setupUi(this);
+	
+#if QT_VERSION >= 0x050000
+	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+#else
 	ui->tableView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 	ui->tableWidget->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+#endif
 
 	filter_model_ = new QSortFilterProxyModel(this);
 	connect(ui->txtSearch, SIGNAL(textChanged(const QString &)), filter_model_, SLOT(setFilterFixedString(const QString &)));

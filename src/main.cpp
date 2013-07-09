@@ -38,111 +38,110 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 namespace {
-	//--------------------------------------------------------------------------
-	// Name: load_plugins
-	// Desc: attempts to load all plugins in a given directory
-	//--------------------------------------------------------------------------
-	void load_plugins(const QString &directory) {
 
-		QDir plugins_dir(qApp->applicationDirPath());
+//------------------------------------------------------------------------------
+// Name: load_plugins
+// Desc: attempts to load all plugins in a given directory
+//------------------------------------------------------------------------------
+void load_plugins(const QString &directory) {
 
-		// TODO: attempt to detect the same plugin being loaded twice
+	QDir plugins_dir(qApp->applicationDirPath());
 
-		plugins_dir.cd(directory);
+	// TODO: attempt to detect the same plugin being loaded twice
+	plugins_dir.cd(directory);
 
-		Q_FOREACH(const QString &file_name, plugins_dir.entryList(QDir::Files)) {
-			if(QLibrary::isLibrary(file_name)) {
-				const QString full_path = plugins_dir.absoluteFilePath(file_name);
-				QPluginLoader loader(full_path);
-				loader.setLoadHints(QLibrary::ExportExternalSymbolsHint);
+	Q_FOREACH(const QString &file_name, plugins_dir.entryList(QDir::Files)) {
+		if(QLibrary::isLibrary(file_name)) {
+			const QString full_path = plugins_dir.absoluteFilePath(file_name);
+			QPluginLoader loader(full_path);
+			loader.setLoadHints(QLibrary::ExportExternalSymbolsHint);
 
-				if(QObject *const plugin = loader.instance()) {
+			if(QObject *const plugin = loader.instance()) {
 
-					// TODO: handle the case where we find more than one core plugin...
-					if(IDebuggerCore *const core_plugin = qobject_cast<IDebuggerCore *>(plugin)) {
-						if(edb::v1::debugger_core == 0) {
-							qDebug("[load_plugins] Loading Core Plugin: %-25s : %p", qPrintable(file_name), static_cast<void *>(plugin));
-							edb::v1::debugger_core = core_plugin;
-						}
+				// TODO: handle the case where we find more than one core plugin...
+				if(IDebuggerCore *const core_plugin = qobject_cast<IDebuggerCore *>(plugin)) {
+					if(!edb::v1::debugger_core) {
+						edb::v1::debugger_core = core_plugin;
 					}
-
-					if(IPlugin *const generic_plugin = qobject_cast<IPlugin *>(plugin)) {
-						if(edb::internal::register_plugin(full_path, plugin)) {
-							// we have a general purpose plugin
-							qDebug("[load_plugins] Loading Plugin: %-30s : %p", qPrintable(file_name), static_cast<void *>(plugin));
-						}
+				} else if(IPlugin *const generic_plugin = qobject_cast<IPlugin *>(plugin)) {
+					if(edb::internal::register_plugin(full_path, plugin)) {
 					}
-				} else {
-					qDebug() << "[load_plugins]" << qPrintable(loader.errorString());
 				}
+			} else {
+				qDebug() << "[load_plugins]" << qPrintable(loader.errorString());
 			}
 		}
 	}
+}
 
-	//--------------------------------------------------------------------------
-	// Name: start_debugger
-	// Desc: starts the main debugger code
-	//--------------------------------------------------------------------------
-	int start_debugger(edb::pid_t attach_pid, const QString &program, const QList<QByteArray> &programArgs) {
+//------------------------------------------------------------------------------
+// Name: start_debugger
+// Desc: starts the main debugger code
+//------------------------------------------------------------------------------
+int start_debugger(edb::pid_t attach_pid, const QString &program, const QList<QByteArray> &programArgs) {
 
-		qDebug() << "Starting edb version:" << edb::version;
-		qDebug("Please Report Bugs & Requests At: http://bugs.codef00.com/");
+	qDebug() << "Starting edb version:" << edb::version;
+	qDebug("Please Report Bugs & Requests At: http://bugs.codef00.com/");
 
-		// look for some plugins..
-		load_plugins(edb::v1::config().plugin_path);
-		
-		edb::internal::load_function_db();
+	edb::internal::load_function_db();
 
-		// create the main window object
-		Debugger debugger;
+	// create the main window object
+	Debugger debugger;
 
-		// let the plugins setup their menus
-		debugger.finish_plugin_setup(edb::v1::plugin_list());
+	// ok things are initialized to a reasonable degree, let's show the main window
+	debugger.show();
 
-		// ok things are initialized to a reasonable degree, let's show the main window
-		debugger.show();
+	if(!edb::v1::debugger_core) {
+		QMessageBox::warning(
+			0,
+			QT_TRANSLATE_NOOP("edb", "edb Failed To Load A Necessary Plugin"),
+			QT_TRANSLATE_NOOP("edb",
+				"Failed to successfully load the debugger core plugin. Please make sure it exists and that the plugin path is correctly configured.\n"
+				"This is normal if edb has not been previously run or the configuration file has been removed."));
 
-		if(edb::v1::debugger_core == 0) {
-			QMessageBox::warning(
-				0,
-				QT_TRANSLATE_NOOP("edb", "edb Failed To Load A Necessary Plugin"),
-				QT_TRANSLATE_NOOP("edb",
-					"Failed to successfully load the debugger core plugin. Please make sure it exists and that the plugin path is correctly configured.\n"
-					"This is normal if edb has not been previously run or the configuration file has been removed."));
+		edb::v1::dialog_options()->exec();
 
-			edb::v1::dialog_options()->exec();
+		QMessageBox::warning(
+			0,
+			QT_TRANSLATE_NOOP("edb", "edb"),
+			QT_TRANSLATE_NOOP("edb", "edb will now close. If you were successful in specifying the location of the debugger core plugin, please run edb again.")
+			);
 
-			QMessageBox::warning(
-				0,
-				QT_TRANSLATE_NOOP("edb", "edb"),
-				QT_TRANSLATE_NOOP("edb", "edb will now close. If you were successful in specifying the location of the debugger core plugin, please run edb again.")
-				);
-
-			// TODO: detect if they corrected the issue and try again
-			return -1;
-		} else {
-		
-			// have we been asked to attach to a given program?
-			if(attach_pid != 0) {
-				debugger.attach(attach_pid);
-			} else if(!program.isEmpty()) {
-				debugger.execute(program, programArgs);
-			}
-		
-			return qApp->exec();
+		// TODO: detect if they corrected the issue and try again
+		return -1;
+	} else {
+		// have we been asked to attach to a given program?
+		if(attach_pid != 0) {
+			debugger.attach(attach_pid);
+		} else if(!program.isEmpty()) {
+			debugger.execute(program, programArgs);
 		}
-	}
 
-	void load_translations() {
-		// load some translations
-		QTranslator qtTranslator;
-		qtTranslator.load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
-		qApp->installTranslator(&qtTranslator);
-
-		QTranslator myappTranslator;
-		myappTranslator.load("edb_" + QLocale::system().name());
-		qApp->installTranslator(&myappTranslator);
+		return qApp->exec();
 	}
+}
+
+//------------------------------------------------------------------------------
+// Name: load_translations
+// Desc: 
+//------------------------------------------------------------------------------
+void load_translations() {
+	// load some translations
+	QTranslator qtTranslator;
+	qtTranslator.load("qt_" + QLocale::system().name(), QLibraryInfo::location(QLibraryInfo::TranslationsPath));
+	qApp->installTranslator(&qtTranslator);
+
+	QTranslator myappTranslator;
+	myappTranslator.load("edb_" + QLocale::system().name());
+	qApp->installTranslator(&myappTranslator);
+}
+
+void usage() {
+	QStringList args = qApp->arguments();
+	std::cerr << "usage: " << qPrintable(args[0]) << " [--symbols <filename>] [ --attach <pid> ] [ --run <program> (args...) ] [ --version ] [ --dump-version ]" << std::endl;
+	std::exit(-1);
+}
+	
 }
 
 
@@ -165,11 +164,32 @@ int main(int argc, char *argv[]) {
 	QApplication::setApplicationName("edb");
 
 	load_translations();
-
-	const QStringList args = app.arguments();
+	
+	// look for some plugins..
+	load_plugins(edb::v1::config().plugin_path);
+	
+	QStringList args = app.arguments();
 	edb::pid_t        attach_pid = 0;
 	QList<QByteArray> run_args;
 	QString           run_app;
+	
+	// call the init function for each plugin, this is done after
+	// ALL plugins are loaded in case there are inter-plugin dependencies
+	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
+		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
+			IPlugin::ArgumentStatus r = p->parse_argments(args);
+			switch(r) {
+			case IPlugin::ARG_ERROR:
+				usage();
+				break;
+			case IPlugin::ARG_EXIT:
+				std::exit(0);
+				break;
+			default:
+				break;
+			}
+		}
+	}
 
 	if(args.size() > 1) {
 		if(args.size() == 3 && args[1] == "--attach") {
@@ -190,8 +210,7 @@ int main(int argc, char *argv[]) {
 			std::cout << edb::version << std::endl;
 			return 0;
 		} else {
-			std::cerr << "usage: " << qPrintable(args[0]) << " [--symbols <filename>] [ --attach <pid> ] [ --run <program> (args...) ] [ --version ] [ --dump-version ]" << std::endl;
-			return -1;
+			usage();
 		}
 	}
 
