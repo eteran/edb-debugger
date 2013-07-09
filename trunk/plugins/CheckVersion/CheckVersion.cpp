@@ -35,11 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Desc:
 //------------------------------------------------------------------------------
 CheckVersion::CheckVersion() : menu_(0), network_(0), initial_check_(true) {
-
-	QSettings settings;
-	if(settings.value("CheckVersion/check_on_start.enabled", true).toBool()) {
-		do_check();
-	}
 }
 
 //------------------------------------------------------------------------------
@@ -47,6 +42,17 @@ CheckVersion::CheckVersion() : menu_(0), network_(0), initial_check_(true) {
 // Desc:
 //------------------------------------------------------------------------------
 CheckVersion::~CheckVersion() {
+}
+
+//------------------------------------------------------------------------------
+// Name: private_init
+// Desc:
+//------------------------------------------------------------------------------
+void CheckVersion::private_init() {
+	QSettings settings;
+	if(settings.value("CheckVersion/check_on_start.enabled", true).toBool()) {
+		do_check();
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -79,7 +85,7 @@ QMenu *CheckVersion::menu(QWidget *parent) {
 //------------------------------------------------------------------------------
 void CheckVersion::do_check() {
 
-	if(network_ == 0) {
+	if(!network_) {
 		network_ = new QNetworkAccessManager(this);
 		connect(network_, SIGNAL(finished(QNetworkReply*)), this, SLOT(requestFinished(QNetworkReply*)));
 	}
@@ -174,4 +180,6 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 	initial_check_ = false;
 }
 
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(CheckVersion, CheckVersion)
+#endif

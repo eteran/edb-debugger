@@ -65,4 +65,6 @@ void FunctionFinder::show_menu() {
 	dialog_->show();
 }
 
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(FunctionFinder, FunctionFinder)
+#endif

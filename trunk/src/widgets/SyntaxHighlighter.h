@@ -26,13 +26,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QTextDocument;
 
+#if QT_VERSION < 0x050000
+class QTextEdit;
+#endif
+
 class SyntaxHighlighter : public QSyntaxHighlighter {
 	Q_OBJECT
 
 public:
 	SyntaxHighlighter(QObject *parent);
 	SyntaxHighlighter(QTextDocument *parent);
+#if QT_VERSION < 0x050000
 	SyntaxHighlighter(QTextEdit *parent);
+#endif
 
 private:
 	void create_rules();

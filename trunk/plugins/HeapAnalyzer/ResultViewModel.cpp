@@ -103,7 +103,12 @@ void ResultViewModel::clearResults() {
 //------------------------------------------------------------------------------
 void ResultViewModel::update() {
 	if(updates_enabled_) {
+#if QT_VERSION >= 0x050000
+		beginResetModel();
+		endResetModel();
+#else
 		reset();
+#endif
 	}
 }
 
@@ -179,7 +184,7 @@ void ResultViewModel::sort(int column, Qt::SortOrder order) {
 		}
 	}
 
-	emit dataChanged(createIndex(0, 0, 0), createIndex(-1, -1, 0));
+	emit dataChanged(createIndex(0, 0, static_cast<void *>(0)), createIndex(-1, -1, static_cast<void *>(0)));
 }
 
 //------------------------------------------------------------------------------

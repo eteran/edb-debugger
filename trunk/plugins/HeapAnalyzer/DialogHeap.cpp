@@ -39,7 +39,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <graphviz/gvc.h>
 #endif
 
-#ifdef USE_QT_CONCURRENT
+#if QT_VERSION >= 0x050000
+#include <QtConcurrent>
+#elif QT_VERSION >= 0x040800
 #include <QtConcurrentMap>
 #endif
 
@@ -103,7 +105,11 @@ DialogHeap::DialogHeap(QWidget *parent) : QDialog(parent), ui(new Ui::DialogHeap
 	ui->tableView->setModel(model_);
 
 	ui->tableView->verticalHeader()->hide();
+#if QT_VERSION >= 0x050000
+	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+#else
 	ui->tableView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+#endif
 
 #ifndef ENABLE_GRAPH
 	ui->btnGraph->setEnabled(false);
@@ -237,7 +243,7 @@ void DialogHeap::detect_pointers() {
 		}
 	}
 
-#ifdef USE_QT_CONCURRENT
+#if QT_VERSION >= 0x040800
 	QtConcurrent::blockingMap(
 		results,
 		boost::bind(&DialogHeap::process_potential_pointer, this, targets, _1));

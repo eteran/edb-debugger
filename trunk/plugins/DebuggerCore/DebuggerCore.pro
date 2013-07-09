@@ -2,6 +2,7 @@
 include(../plugins.pri)
 
 unix {
+	VPATH       += unix
 	DEPENDPATH  += unix
 	INCLUDEPATH += unix
 	
@@ -9,27 +10,32 @@ unix {
 	HEADERS += DebuggerCoreUNIX.h
 
 	linux-* {
+		VPATH       += unix/linux
 		DEPENDPATH  += unix/linux
 		INCLUDEPATH += unix/linux
 	}
 
 	openbsd-* {
+		VPATH       += unix/openbsd
 		DEPENDPATH  += unix/openbsd
 		INCLUDEPATH += unix/openbsd
 	}
 
 	freebsd-*{
+		VPATH       += unix/freebsd
 		DEPENDPATH  += unix/freebsd
 		INCLUDEPATH += unix/freebsd
 	}
 
 	macx {
+		VPATH       += unix/osx
 		DEPENDPATH  += unix/osx
 		INCLUDEPATH += unix/osx
 	}
 }
 
 win32 {
+	VPATH       += win32 .
 	DEPENDPATH  += win32 .
 	INCLUDEPATH += win32 .
 }

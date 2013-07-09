@@ -35,7 +35,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 DialogStrings::DialogStrings(QWidget *parent) : QDialog(parent), ui(new Ui::DialogStrings) {
 	ui->setupUi(this);
 	ui->tableView->verticalHeader()->hide();
+#if QT_VERSION >= 0x050000
+	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+#else
 	ui->tableView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+#endif
 
 	filter_model_ = new QSortFilterProxyModel(this);
 	connect(ui->txtSearch, SIGNAL(textChanged(const QString &)), filter_model_, SLOT(setFilterFixedString(const QString &)));

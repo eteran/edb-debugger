@@ -92,7 +92,6 @@ public:
 	void attach(edb::pid_t pid);
 	void clear_data(const DataViewInfo::pointer &v);
 	void execute(const QString &s, const QList<QByteArray> &args);
-	void finish_plugin_setup(const QHash<QString, QObject *> &plugins);
 	void refresh_gui();
 	void update_data(const DataViewInfo::pointer &v);
 	void update_gui();
@@ -210,6 +209,7 @@ private:
 	void delete_data_tab();
 	void detach_from_process(DETACH_ACTION kill);
 	void do_jump_to_address(edb::address_t address, const IRegion::pointer &r, bool scroll_to);
+	void finish_plugin_setup();
 	void follow_register_in_dump(bool tabbed);
 	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode);
 	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced);

@@ -426,14 +426,14 @@ MD5 MD5::from_string(const QString &hash) {
 
 	if(hash.size() == 32) {
 		for(int i = 0; i < 4; ++i) {
-			md5.h_[i]  = (hash[0 + i * 8].isDigit() ? hash[0 + i * 8].toAscii() - '0' : hash[0 + i * 8].toUpper().toAscii() - 'A' + 10) << 0x1c;
-			md5.h_[i] |= (hash[1 + i * 8].isDigit() ? hash[1 + i * 8].toAscii() - '0' : hash[1 + i * 8].toUpper().toAscii() - 'A' + 10) << 0x18;
-			md5.h_[i] |= (hash[2 + i * 8].isDigit() ? hash[2 + i * 8].toAscii() - '0' : hash[2 + i * 8].toUpper().toAscii() - 'A' + 10) << 0x14;
-			md5.h_[i] |= (hash[3 + i * 8].isDigit() ? hash[3 + i * 8].toAscii() - '0' : hash[3 + i * 8].toUpper().toAscii() - 'A' + 10) << 0x10;
-			md5.h_[i] |= (hash[4 + i * 8].isDigit() ? hash[4 + i * 8].toAscii() - '0' : hash[4 + i * 8].toUpper().toAscii() - 'A' + 10) << 0x0c;
-			md5.h_[i] |= (hash[5 + i * 8].isDigit() ? hash[5 + i * 8].toAscii() - '0' : hash[5 + i * 8].toUpper().toAscii() - 'A' + 10) << 0x08;
-			md5.h_[i] |= (hash[6 + i * 8].isDigit() ? hash[6 + i * 8].toAscii() - '0' : hash[6 + i * 8].toUpper().toAscii() - 'A' + 10) << 0x04;
-			md5.h_[i] |= (hash[7 + i * 8].isDigit() ? hash[7 + i * 8].toAscii() - '0' : hash[7 + i * 8].toUpper().toAscii() - 'A' + 10) << 0x00;
+			md5.h_[i]  = (hash[0 + i * 8].isDigit() ? hash[0 + i * 8].toLatin1() - '0' : hash[0 + i * 8].toUpper().toLatin1() - 'A' + 10) << 0x1c;
+			md5.h_[i] |= (hash[1 + i * 8].isDigit() ? hash[1 + i * 8].toLatin1() - '0' : hash[1 + i * 8].toUpper().toLatin1() - 'A' + 10) << 0x18;
+			md5.h_[i] |= (hash[2 + i * 8].isDigit() ? hash[2 + i * 8].toLatin1() - '0' : hash[2 + i * 8].toUpper().toLatin1() - 'A' + 10) << 0x14;
+			md5.h_[i] |= (hash[3 + i * 8].isDigit() ? hash[3 + i * 8].toLatin1() - '0' : hash[3 + i * 8].toUpper().toLatin1() - 'A' + 10) << 0x10;
+			md5.h_[i] |= (hash[4 + i * 8].isDigit() ? hash[4 + i * 8].toLatin1() - '0' : hash[4 + i * 8].toUpper().toLatin1() - 'A' + 10) << 0x0c;
+			md5.h_[i] |= (hash[5 + i * 8].isDigit() ? hash[5 + i * 8].toLatin1() - '0' : hash[5 + i * 8].toUpper().toLatin1() - 'A' + 10) << 0x08;
+			md5.h_[i] |= (hash[6 + i * 8].isDigit() ? hash[6 + i * 8].toLatin1() - '0' : hash[6 + i * 8].toUpper().toLatin1() - 'A' + 10) << 0x04;
+			md5.h_[i] |= (hash[7 + i * 8].isDigit() ? hash[7 + i * 8].toLatin1() - '0' : hash[7 + i * 8].toUpper().toLatin1() - 'A' + 10) << 0x00;
 		}
 	}
 	return md5;

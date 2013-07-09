@@ -52,7 +52,7 @@ DialogASCIIString::~DialogASCIIString() {
 //------------------------------------------------------------------------------
 void DialogASCIIString::do_find() {
 
-	const QByteArray b = ui->txtASCII->text().toAscii();
+	const QByteArray b = ui->txtASCII->text().toLatin1();
 	ui->listWidget->clear();
 
 	const int sz = b.size();

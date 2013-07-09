@@ -38,8 +38,11 @@ DialogMemoryRegions::DialogMemoryRegions(QWidget *parent) : QDialog(parent), ui(
 	ui->setupUi(this);
 
 	ui->regions_table->verticalHeader()->hide();
+#if QT_VERSION >= 0x050000
+	ui->regions_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+#else
 	ui->regions_table->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-
+#endif
 	filter_model_ = new QSortFilterProxyModel(this);
 	connect(ui->filter, SIGNAL(textChanged(const QString &)), filter_model_, SLOT(setFilterFixedString(const QString &)));
 }

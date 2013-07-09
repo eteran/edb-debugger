@@ -96,4 +96,6 @@ void BinaryInfo::explore_header() {
 	dialog->show();
 }
 
+#if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(BinaryInfo, BinaryInfo)
+#endif

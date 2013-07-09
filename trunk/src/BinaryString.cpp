@@ -55,7 +55,7 @@ BinaryString::~BinaryString() {
 //------------------------------------------------------------------------------
 void BinaryString::on_txtAscii_textEdited(const QString &text) {
 
-	const QByteArray p = text.toAscii();
+	const QByteArray p = text.toLatin1();
 	QString textHex;
 	QString textUTF16;
 	QString temp;
@@ -166,7 +166,7 @@ QByteArray BinaryString::value() const {
 //------------------------------------------------------------------------------
 void BinaryString::setValue(const QByteArray &data) {
 
-	const QString temp = QString::fromAscii(data.data(), data.size());
+	const QString temp = QString::fromLatin1(data.data(), data.size());
 
 	ui->txtAscii->setText(temp);
 	on_txtAscii_textEdited(temp);

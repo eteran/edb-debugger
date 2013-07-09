@@ -30,6 +30,9 @@ class BookmarkWidget;
 class Bookmarks : public QObject, public IPlugin {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
+#if QT_VERSION >= 0x050000
+	Q_PLUGIN_METADATA(IID "edb.IPlugin/1.0")
+#endif
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 	
