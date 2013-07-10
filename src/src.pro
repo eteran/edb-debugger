@@ -1,7 +1,7 @@
-LEVEL       = ..
+LEVEL = ..
 
-include($$LEVEL/qmake/clean-objects.pri)
-include($$LEVEL/qmake/target-arch.pri)
+include(../qmake/clean-objects.pri)
+include(../qmake/target-arch.pri)
 
 TEMPLATE    = app
 TARGET      = edb
@@ -137,7 +137,6 @@ SOURCES += \
 # QHexView stuff
 INCLUDEPATH += qhexview
 VPATH       += qhexview
-
 SOURCES     += qhexview.cpp
 HEADERS     += qhexview.h QHexView
 

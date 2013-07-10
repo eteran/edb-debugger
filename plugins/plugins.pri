@@ -1,7 +1,7 @@
 LEVEL = ../..
 
-include($$LEVEL/qmake/clean-objects.pri)
-include($$LEVEL/qmake/target-arch.pri)
+include(../qmake/clean-objects.pri)
+include(../qmake/target-arch.pri)
 
 TEMPLATE = lib
 CONFIG   += plugin
