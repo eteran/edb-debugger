@@ -447,8 +447,8 @@ void DialogHeap::do_find() {
 		}
 	}
 
-	qDebug("[Heap Analyzer] heap start symbol : " EDB_FMT_PTR, start_address);
-	qDebug("[Heap Analyzer] heap end symbol   : " EDB_FMT_PTR, end_address);
+	qDebug() << "[Heap Analyzer] heap start symbol : " << edb::v1::format_pointer(start_address);
+	qDebug() << "[Heap Analyzer] heap end symbol   : " << edb::v1::format_pointer(end_address);
 
 	// read the contents of those symbols
 	edb::v1::debugger_core->read_bytes(end_address, &end_address, sizeof(end_address));
@@ -457,8 +457,8 @@ void DialogHeap::do_find() {
 	#error "Unsupported Platform"
 #endif
 
-	qDebug("[Heap Analyzer] heap start : " EDB_FMT_PTR, start_address);
-	qDebug("[Heap Analyzer] heap end   : " EDB_FMT_PTR, end_address);
+	qDebug() << "[Heap Analyzer] heap start : " << edb::v1::format_pointer(start_address);
+	qDebug() << "[Heap Analyzer] heap end   : " << edb::v1::format_pointer(end_address);
 
 	collect_blocks(start_address, end_address);
 }

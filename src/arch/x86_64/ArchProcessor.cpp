@@ -439,7 +439,7 @@ void analyze_call(const State &state, const edb::Instruction &insn, QStringList 
 				int offset;
 				const QString symname = edb::v1::find_function_symbol(effective_address, QString(), &offset);
 				if(!symname.isEmpty()) {
-					ret << temp.sprintf("%s = " EDB_FMT_PTR " <%s>", qPrintable(temp_operand), effective_address, qPrintable(symname));
+					ret << QString("%1 = %2 <%3>").arg(temp_operand, edb::v1::format_pointer(effective_address), symname);
 
 					if(offset == 0) {
 						if(is_call(insn)) {

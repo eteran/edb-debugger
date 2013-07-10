@@ -46,14 +46,40 @@ public:
 	virtual ~IDebuggerCore() {}
 
 public:
-	// system information
-	virtual edb::address_t page_size() const = 0;
-	virtual int            pointer_size() const = 0;
-	virtual quint64        cpu_type() const = 0;
-	virtual bool           has_extension(quint64 ext) const = 0;
-
-public:
+	// system properties
+	virtual edb::address_t      page_size() const = 0;
+	virtual int                 pointer_size() const = 0;
+	virtual quint64             cpu_type() const = 0;
+	virtual bool                has_extension(quint64 ext) const = 0;
 	virtual QMap<long, QString> exceptions() const = 0;
+	
+public:
+	// process properties
+	virtual QDateTime               process_start(edb::pid_t pid) const = 0;
+	virtual QList<QByteArray>       process_args(edb::pid_t pid) const = 0;
+	virtual QString                 process_cwd(edb::pid_t pid) const = 0;
+	virtual QString                 process_exe(edb::pid_t pid) const = 0;
+	virtual edb::address_t          process_code_address() const = 0;
+	virtual edb::address_t          process_data_address() const = 0;
+	virtual edb::pid_t              parent_pid(edb::pid_t pid) const = 0;
+	virtual QList<IRegion::pointer> memory_regions() const = 0;
+    virtual QList<Module>           loaded_modules() const = 0;
+	// equal to "(edb::pid_t)0" if we are not attached
+	virtual edb::pid_t pid() const = 0;
+	
+public:
+	// basic process management
+	virtual bool attach(edb::pid_t pid) = 0;
+	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args) = 0;
+	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
+	virtual IDebugEvent::const_pointer wait_debug_event(int msecs) = 0;
+	virtual void detach() = 0;
+	virtual void get_state(State *state) = 0;
+	virtual void kill() = 0;
+	virtual void pause() = 0;
+	virtual void resume(edb::EVENT_STATUS status) = 0;
+	virtual void set_state(const State &state) = 0;
+	virtual void step(edb::EVENT_STATUS status) = 0;
 
 public:
 	// returns true on success, false on failure, all bytes must be successfully
@@ -70,20 +96,6 @@ public:
 	virtual void              set_active_thread(edb::tid_t) {}
 
 public:
-	// basic process management
-	virtual bool attach(edb::pid_t pid) = 0;
-	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args) = 0;
-	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
-	virtual IDebugEvent::const_pointer wait_debug_event(int msecs) = 0;
-	virtual void detach() = 0;
-	virtual void get_state(State *state) = 0;
-	virtual void kill() = 0;
-	virtual void pause() = 0;
-	virtual void resume(edb::EVENT_STATUS status) = 0;
-	virtual void set_state(const State &state) = 0;
-	virtual void step(edb::EVENT_STATUS status) = 0;
-
-public:
 	// basic breakpoint managment
 	virtual BreakpointList       backup_breakpoints() const = 0;
 	virtual IBreakpoint::pointer add_breakpoint(edb::address_t address) = 0;
@@ -93,26 +105,13 @@ public:
 	virtual void                 remove_breakpoint(edb::address_t address) = 0;
 
 public:
-	// process properties
-	virtual QDateTime         process_start(edb::pid_t pid) const = 0;
-	virtual QList<QByteArray> process_args(edb::pid_t pid) const = 0;
-	virtual QString           process_cwd(edb::pid_t pid) const = 0;
-	virtual QString           process_exe(edb::pid_t pid) const = 0;
-	virtual edb::address_t    process_code_address() const = 0;
-	virtual edb::address_t    process_data_address() const = 0;
-	virtual edb::pid_t        parent_pid(edb::pid_t pid) const = 0;
-	virtual QList<IRegion::pointer> memory_regions() const = 0;
-    virtual QList<Module>           loaded_modules() const = 0;
-
+	virtual QString format_pointer(edb::address_t address) const = 0;
 
 public:
 	virtual IState *create_state() const = 0;
 	virtual QWidget *create_register_view() const = 0;
 
 public:
-	// what is the PID of the process we are currently debugging
-	// equal to "(edb::pid_t)0" if we are not attached
-	virtual edb::pid_t pid() const = 0;
 	virtual QMap<edb::pid_t, Process> enumerate_processes() const = 0;
 };
 

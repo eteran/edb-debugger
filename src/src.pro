@@ -1,8 +1,12 @@
+LEVEL       = ..
+
+include($$LEVEL/qmake/clean-objects.pri)
+include($$LEVEL/qmake/target-arch.pri)
+
 TEMPLATE    = app
 TARGET      = edb
-DEPENDPATH  += $$PWD/widgets $$PWD/../include
-INCLUDEPATH += $$PWD/widgets $$PWD/../include
-VPATH       += $$PWD/widgets $$PWD/../include
+INCLUDEPATH += widgets $$LEVEL/include
+VPATH       += widgets $$LEVEL/include
 
 RESOURCES   = debugger.qrc
 DESTDIR     = ../
@@ -131,26 +135,23 @@ SOURCES += \
 	symbols.cpp
 
 # QHexView stuff
-DEPENDPATH  += $$PWD/qhexview
-INCLUDEPATH += $$PWD/qhexview
-VPATH       += $$PWD/qhexview
+INCLUDEPATH += qhexview
+VPATH       += qhexview
 
 SOURCES     += qhexview.cpp
 HEADERS     += qhexview.h QHexView
 
 win32 {
 	win32-msvc*:contains(QMAKE_TARGET.arch, x86_64):{
-		VPATH       += $$PWD/../include/os/win32 $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64 $$PWD/edisassm
-		DEPENDPATH  += $$PWD/../include/os/win32 $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64 $$PWD/edisassm
-		INCLUDEPATH += $$PWD/../include/os/win32 $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64 $$PWD/edisassm "C:\\Program Files\\boost\\boost_1_51"
+		VPATH       += $$LEVEL/include/os/win32 arch/x86_64 $$LEVEL/include/arch/x86_64 edisassm
+		INCLUDEPATH += $$LEVEL/include/os/win32 arch/x86_64 $$LEVEL/include/arch/x86_64 edisassm "C:\\Program Files\\boost\\boost_1_51"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
 		RC_FILE     = edb.rc
 	}
 
 	win32-msvc*:contains(QMAKE_TARGET.arch, x86):{
-		VPATH       += $$PWD/../include/os/win32 $$PWD/arch/x86 $$PWD/../include/arch/x86 $$PWD/edisassm
-		DEPENDPATH  += $$PWD/../include/os/win32 $$PWD/arch/x86 $$PWD/../include/arch/x86 $$PWD/edisassm
-		INCLUDEPATH += $$PWD/../include/os/win32 $$PWD/arch/x86 $$PWD/../include/arch/x86 $$PWD/edisassm "C:\\Program Files\\boost\\boost_1_51"
+		VPATH       += $$LEVEL/include/os/win32 arch/x86 $$LEVEL/include/arch/x86 edisassm
+		INCLUDEPATH += $$LEVEL/include/os/win32 arch/x86 $$LEVEL/include/arch/x86 edisassm "C:\\Program Files\\boost\\boost_1_51"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
 		RC_FILE     = edb.rc
 	}
@@ -158,9 +159,8 @@ win32 {
 
 unix {
 	graph {
-		VPATH       += $$PWD/graph
-		DEPENDPATH  += $$PWD/graph
-		INCLUDEPATH += $$PWD/graph
+		VPATH       += graph
+		INCLUDEPATH += graph
 		HEADERS     += GraphEdge.h   GraphWidget.h   GraphNode.h
 		SOURCES     += GraphEdge.cpp GraphWidget.cpp GraphNode.cpp
 		LIBS        += -lgvc
@@ -178,64 +178,48 @@ unix {
 		DEFINES += DEFAULT_SESSION_PATH=DEFAULT_SESSION_PATH
 	}
 	
-	VPATH       += $$PWD/../include/os/unix $$PWD/edisassm
-	DEPENDPATH  += $$PWD/../include/os/unix $$PWD/edisassm
-	INCLUDEPATH += $$PWD/../include/os/unix $$PWD/edisassm
-
-	QMAKE_TARGET.arch = $$QMAKE_HOST.arch
-	*-g++-32  :QMAKE_TARGET.arch = x86
-	*-g++-64  :QMAKE_TARGET.arch = x86_64
-	*-clang-32:QMAKE_TARGET.arch = x86
-	*-clang-64:QMAKE_TARGET.arch = x86_64
+	VPATH       += $$LEVEL/include/os/unix edisassm
+	INCLUDEPATH += $$LEVEL/include/os/unix edisassm
 
 	linux-* {
-		VPATH       += $$PWD/../include/os/unix/linux
-		DEPENDPATH  += $$PWD/../include/os/unix/linux
-		INCLUDEPATH += $$PWD/../include/os/unix/linux
+		VPATH       += $$LEVEL/include/os/unix/linux
+		INCLUDEPATH += $$LEVEL/include/os/unix/linux
 	}
 
 	openbsd-* {
-		VPATH       += $$PWD/../include/os/unix/openbsd
-		DEPENDPATH  += $$PWD/../include/os/unix/openbsd
-		INCLUDEPATH += $$PWD/../include/os/unix/openbsd /usr/local/include
+		VPATH       += $$LEVEL/include/os/unix/openbsd
+		INCLUDEPATH += $$LEVEL/include/os/unix/openbsd /usr/local/include
 	}
 
 	freebsd-* {
-		VPATH       += $$PWD/../include/os/unix/freebsd
-		DEPENDPATH  += $$PWD/../include/os/unix/freebsd
-		INCLUDEPATH += $$PWD/../include/os/unix/freebsd
+		VPATH       += $$LEVEL/include/os/unix/freebsd
+		INCLUDEPATH += $$LEVEL/include/os/unix/freebsd
 	}
 
 	macx-* {
-		VPATH       += $$PWD/../include/os/unix/osx
-		DEPENDPATH  += $$PWD/../include/os/unix/osx
-		INCLUDEPATH += $$PWD/../include/os/unix/osx /opt/local/include
+		VPATH       += $$LEVEL/include/os/unix/osx
+		INCLUDEPATH += $$LEVEL/include/os/unix/osx /opt/local/include
 	}
 
 	macx {
-		VPATH       += $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64
-		DEPENDPATH  += $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64
-		INCLUDEPATH += $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64
+		VPATH       += arch/x86_64 $$LEVEL/include/arch/x86_64
+		INCLUDEPATH += arch/x86_64 $$LEVEL/include/arch/x86_64
 	}
 
 	!macx:contains(QMAKE_TARGET.arch, x86_64):{
-		VPATH       += $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64
-		DEPENDPATH  += $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64
-		INCLUDEPATH += $$PWD/arch/x86_64 $$PWD/../include/arch/x86_64
+		VPATH       += arch/x86_64 $$LEVEL/include/arch/x86_64
+		INCLUDEPATH += arch/x86_64 $$LEVEL/include/arch/x86_64
 	}
 	
 	!macx:contains(QMAKE_TARGET.arch, x86):{
-		VPATH       += $$PWD/arch/x86 $$PWD/../include/arch/x86
-		DEPENDPATH  += $$PWD/arch/x86 $$PWD/../include/arch/x86
-		INCLUDEPATH += $$PWD/arch/x86 $$PWD/../include/arch/x86
+		VPATH       += arch/x86 $$LEVEL/include/arch/x86
+		INCLUDEPATH += arch/x86 $$LEVEL/include/arch/x86
 	}
 
 	*-g++* {
-		QMAKE_CXXFLAGS       += -ansi -pedantic -W -Wall -Wno-long-long -Wnon-virtual-dtor
 		QMAKE_CXXFLAGS_DEBUG += -g3
 	}
 
-	linux-g++*:     QMAKE_CXXFLAGS += -Wstrict-null-sentinel
 
 	# linker flags
 	freebsd-g++*: QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic $$(LDFLAGS)
@@ -244,19 +228,5 @@ unix {
 	macx-clang*:  QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
 	macx-g++*:    QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
 	openbsd-g++*: QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic $$(LDFLAGS)
-
-	CONFIG(debug, debug|release) {
-		OBJECTS_DIR = $${OUT_PWD}/.debug-shared/obj
-		MOC_DIR     = $${OUT_PWD}/.debug-shared/moc
-		RCC_DIR     = $${OUT_PWD}/.debug-shared/rcc
-		UI_DIR      = $${OUT_PWD}/.debug-shared/uic
-		DEFINES    += QT_SHAREDPOINTER_TRACK_POINTERS
-	}
-
-	CONFIG(release, debug|release) {
-		OBJECTS_DIR = $${OUT_PWD}/.release-shared/obj
-		MOC_DIR     = $${OUT_PWD}/.release-shared/moc
-		RCC_DIR     = $${OUT_PWD}/.release-shared/rcc
-		UI_DIR      = $${OUT_PWD}/.release-shared/uic
-	}
 }
+
