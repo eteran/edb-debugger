@@ -70,9 +70,12 @@ public:
 	virtual QDateTime process_start(edb::pid_t pid) const;
 	virtual quint64 cpu_type() const;
 
-private:
+public:
 	virtual QMap<edb::pid_t, Process> enumerate_processes() const;
 	virtual QList<Module> loaded_modules() const;
+	
+public:
+	virtual QString format_pointer(edb::address_t address) const;
 
 private:
 	virtual long read_data(edb::address_t address, bool *ok);

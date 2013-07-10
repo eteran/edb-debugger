@@ -163,7 +163,7 @@ edb::address_t ELF32::calculate_main() {
 			if(ba[0] == 0x68 && ba[5] == 0xe8 && ba[10] == 0xf4) {
 				const edb::address_t address = *reinterpret_cast<const edb::address_t *>(ba.data() + 1);
 				// TODO: make sure that this address resides in an executable region
-				qDebug("No main symbol found, calculated it to be " EDB_FMT_PTR " using heuristic", address);
+				qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
 				return address;
 			}
 		} else {

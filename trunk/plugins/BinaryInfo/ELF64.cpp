@@ -164,7 +164,7 @@ edb::address_t ELF64::calculate_main() {
 				// Seems that this 64-bit mov still has a 32-bit immediate
 				const edb::address_t address = *reinterpret_cast<const edb::address_t *>(ba.data() + 3) & 0xffffffff;
 				// TODO: make sure that this address resides in an executable region
-				qDebug("No main symbol found, calculated it to be " EDB_FMT_PTR " using heuristic", address);
+				qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
 				return address;
 			}
 		} else {

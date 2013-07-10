@@ -1176,7 +1176,10 @@ QString edb::v1::format_bytes(const QByteArray &x) {
 // Desc:
 //------------------------------------------------------------------------------
 QString edb::v1::format_pointer(edb::address_t p) {
-	return QString("%1").arg(p, EDB_MAX_HEX, 16, QChar('0'));
+	if(edb::v1::debugger_core) {
+		return debugger_core->format_pointer(p);
+	}
+	return QString();
 }
 
 //------------------------------------------------------------------------------
