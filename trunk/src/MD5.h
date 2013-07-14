@@ -33,7 +33,7 @@ public:
 		h_[2] = 0x98badcfe;
 		h_[3] = 0x10325476;
 
-	while(first != last && !corrupted_) {
+		while(first != last && !corrupted_) {
 			message_block_[message_block_index_++] = *first++;
 
 			length_ += 8;

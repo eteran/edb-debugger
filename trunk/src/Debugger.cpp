@@ -2111,7 +2111,7 @@ void Debugger::cleanup_debugger() {
 QString Debugger::session_filename() const {
 	if(!program_executable_.isEmpty()) {
 		const QString basename = edb::v1::basename(program_executable_);
-		return QString("%1/%2.edb").arg(edb::v1::config().session_path, basename);
+		return QString(QLatin1String("%1/%2.edb")).arg(edb::v1::config().session_path, basename);
 	}
 	return QString();
 }

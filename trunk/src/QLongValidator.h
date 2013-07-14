@@ -30,12 +30,13 @@ public:
 	QLongValidator(value_type minimum, value_type maximum, QObject *parent = 0);
 	virtual ~QLongValidator() {}
 
+public:
 	value_type bottom() const;
-	void setBottom(value_type bottom);
-	virtual void setRange(value_type bottom, value_type top);
-	void setTop(value_type top);
 	value_type top() const;
 	virtual QValidator::State validate(QString &input, int &pos) const;
+	virtual void setRange(value_type bottom, value_type top);
+	void setBottom(value_type bottom);
+	void setTop(value_type top);
 
 private:
 	value_type minimum_;
