@@ -148,7 +148,7 @@ win32 {
 		RC_FILE     = edb.rc
 	}
 
-	win32-msvc*:contains(QMAKE_TARGET.arch, x86):{
+	win32-msvc*:contains(QMAKE_TARGET.arch, i686):{
 		VPATH       += $$LEVEL/include/os/win32 arch/x86 $$LEVEL/include/arch/x86 edisassm
 		INCLUDEPATH += $$LEVEL/include/os/win32 arch/x86 $$LEVEL/include/arch/x86 edisassm "C:\\Program Files\\boost\\boost_1_51"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS QJSON_MAKEDLL
@@ -210,7 +210,7 @@ unix {
 		INCLUDEPATH += arch/x86_64 $$LEVEL/include/arch/x86_64
 	}
 	
-	!macx:contains(QMAKE_TARGET.arch, x86):{
+	!macx:contains(QMAKE_TARGET.arch, i686):{
 		VPATH       += arch/x86 $$LEVEL/include/arch/x86
 		INCLUDEPATH += arch/x86 $$LEVEL/include/arch/x86
 	}
@@ -219,13 +219,12 @@ unix {
 		QMAKE_CXXFLAGS_DEBUG += -g3
 	}
 
-
 	# linker flags
-	freebsd-g++*: QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic $$(LDFLAGS)
-	linux-clang*: QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
-	linux-g++*:   QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
-	macx-clang*:  QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
-	macx-g++*:    QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
-	openbsd-g++*: QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic $$(LDFLAGS)
+	freebsd-g++* : QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic $$(LDFLAGS)
+	linux-clang* : QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
+	linux-g++*   : QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
+	macx-clang*  : QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
+	macx-g++*    : QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
+	openbsd-g++* : QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic $$(LDFLAGS)
 }
 
