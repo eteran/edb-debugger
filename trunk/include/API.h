@@ -21,10 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QtGlobal>
 
-#ifndef EDB_PLUGIN
-#define EDB_EXPORT Q_DECL_EXPORT
-#else
+#ifdef QT_PLUGIN
 #define EDB_EXPORT Q_DECL_IMPORT
+#else
+#define EDB_EXPORT Q_DECL_EXPORT
 #endif
 
 #endif

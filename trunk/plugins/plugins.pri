@@ -12,8 +12,6 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
 }
 
-DEFINES += EDB_PLUGIN
-
 # ignore missing symbols, they'll be found when linked into edb
 linux-g++*: QMAKE_LFLAGS -= $$QMAKE_LFLAGS_NOUNDEF
 linux-g++*: QMAKE_LFLAGS -= "-Wl,--no-undefined"
@@ -54,7 +52,7 @@ win32 {
 		LIBS        += $$LEVEL/edb.lib
 	}
 
-	win32-msvc*:contains(QMAKE_HOST.arch, x86):{
+	win32-msvc*:contains(QMAKE_HOST.arch, i686):{
 		INCLUDEPATH += $$LEVEL/include/os/win32 $$LEVEL/include $$LEVEL/include/arch/x86 "C:\\Program Files\\boost\\boost_1_51"
 		LIBS        += $$LEVEL/edb.lib
 	}
