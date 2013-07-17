@@ -17,11 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Configuration.h"
+#include "Debugger.h"
+#include "DebuggerInternal.h"
 #include "IDebuggerCore.h"
 #include "IPlugin.h"
-#include "Debugger.h"
 #include "edb.h"
-#include "DebuggerInternal.h"
 #include "symbols.h"
 #include "version.h"
 
@@ -136,6 +136,10 @@ void load_translations() {
 	qApp->installTranslator(&myappTranslator);
 }
 
+//------------------------------------------------------------------------------
+// Name: usage
+// Desc: displays a usage statement then exits
+//------------------------------------------------------------------------------
 void usage() {
 	QStringList args = qApp->arguments();
 	std::cerr << "usage: " << qPrintable(args[0]) << " [--symbols <filename>] [ --attach <pid> ] [ --run <program> (args...) ] [ --version ] [ --dump-version ]" << std::endl;
@@ -177,7 +181,8 @@ int main(int argc, char *argv[]) {
 	// ALL plugins are loaded in case there are inter-plugin dependencies
 	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
 		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
-			IPlugin::ArgumentStatus r = p->parse_argments(args);
+			
+			const IPlugin::ArgumentStatus r = p->parse_argments(args);
 			switch(r) {
 			case IPlugin::ARG_ERROR:
 				usage();
