@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2012 Evan Teran
-                   eteran@alum.rit.edu
+Copyright (C) 2012-2013 Evan Teran
+                        eteran@alum.rit.edu
 
 Copyright (C) 1995-2003,2004,2005,2006,2007,2008,2009,2010,2011
                    Free Software Foundation, Inc.
@@ -22,7 +22,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELF_TYPES_20121007_H_
 #define ELF_TYPES_20121007_H_
 
-#include <stdint.h>
+#if defined(_MSC_VER) && _MSC_VER < 1600
+  typedef unsigned __int8  uint8_t;
+  typedef unsigned __int16 uint16_t;
+  typedef unsigned __int32 uint32_t;
+  typedef unsigned __int64 uint64_t;
+  typedef __int8           int8_t;
+  typedef __int16          int16_t;
+  typedef __int32          int32_t;
+  typedef __int64          int64_t;
+#else
+	#include <stdint.h>
+#endif
 
 /* Type for a 16-bit quantity.  */
 typedef uint16_t elf32_half;
