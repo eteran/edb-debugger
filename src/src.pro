@@ -215,7 +215,7 @@ unix {
 		INCLUDEPATH += arch/x86 $$LEVEL/include/arch/x86
 	}
 
-	*-g++* {
+	*-g++* | *-clang* {
 		QMAKE_CXXFLAGS_DEBUG += -g3
 	}
 
