@@ -26,32 +26,25 @@ unix {
 	INCLUDEPATH += $$LEVEL/include $$LEVEL/include/os/unix
 	
 	# OS include paths
-	linux-* {
-		INCLUDEPATH += $$LEVEL/include/os/unix/linux
-	}
-
-	openbsd-* {
-		INCLUDEPATH += $$LEVEL/include/os/unix/openbsd /usr/local/include
-	}
-
-	freebsd-* {
-		INCLUDEPATH += $$LEVEL/include/os/unix/freebsd
-	}
-
-	macx-* {
-		INCLUDEPATH += $$LEVEL/include/os/unix/osx /opt/local/include
-	}
-
+	linux-*   : INCLUDEPATH += $$LEVEL/include/os/unix/linux
+	openbsd-* : INCLUDEPATH += $$LEVEL/include/os/unix/openbsd /usr/local/include
+	freebsd-* : INCLUDEPATH += $$LEVEL/include/os/unix/freebsd
+	macx-*    : INCLUDEPATH += $$LEVEL/include/os/unix/osx /opt/local/include
 
 	# arch include paths
 	macx {
 		INCLUDEPATH += $$LEVEL/include/arch/x86_64
 		include(plugins-x86_64.pri)
 	}
+
+	!macx:contains(QMAKE_TARGET.arch, x86_64):{
+		INCLUDEPATH += $$LEVEL/include/arch/x86_64
+		include(plugins-x86_64.pri)
+	}
 	
-	!macx {
-		INCLUDEPATH += $$LEVEL/include/arch/$${QMAKE_TARGET.arch}
-		include(plugins-$${QMAKE_TARGET.arch}.pri)
+	!macx:contains(QMAKE_TARGET.arch, i686):{
+		INCLUDEPATH += $$LEVEL/include/arch/x86
+		include(plugins-x86.pri)
 	}
 }
 
