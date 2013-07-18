@@ -956,9 +956,9 @@ void Analyzer::collect_basic_blocks(Analyzer::RegionData *data) {
 	
 	qDebug() << "----------Basic Blocks----------";
 	for(QHash<edb::address_t, BasicBlock>::iterator it = basic_blocks.begin(); it != basic_blocks.end(); ++it) {
-		qDebug("%p:", it.key());
+		qDebug("%p:", reinterpret_cast<void *>(it.key()));
 		Q_FOREACH(const QSharedPointer<edb::Instruction> &insn, it.value().instructions) {
-			qDebug("\t%p: %s", insn->rva(), to_string(*insn).c_str());
+			qDebug("\t%p: %s", reinterpret_cast<void *>(insn->rva()), to_string(*insn).c_str());
 		}
 	}
 	qDebug() << "----------Basic Blocks----------";
@@ -972,7 +972,7 @@ void Analyzer::collect_known_functions(RegionData *data) {
 	
 	Q_FOREACH(edb::address_t address, data->known_functions) {
 	
-		qDebug("Analyzing basic blocks of: %p", address);
+		qDebug("Analyzing basic blocks of: %p", reinterpret_cast<void *>(address));
 		QHash<edb::address_t, BasicBlock>::const_iterator it = data->basic_blocks.find(address);		
 		
 		if(it != data->basic_blocks.end()) {
@@ -983,7 +983,7 @@ void Analyzer::collect_known_functions(RegionData *data) {
 			
 			while(it != data->basic_blocks.end()) {
 
-				qDebug("Processing Block @ %p", it.key());
+				qDebug("Processing Block @ %p", reinterpret_cast<void *>(it.key()));
 
 				const BasicBlock &basic_block = it.value();
 				if(basic_block.instructions.empty()) {
@@ -1004,6 +1004,7 @@ void Analyzer::collect_known_functions(RegionData *data) {
 					const edb::Operand &op = last_instruction->operands()[0];
 					if(op.general_type() == edb::Operand::TYPE_REL) {
 						const edb::address_t target = op.relative_target();
+						Q_UNUSED(target);
 					}
 				} else if(is_unconditional_jump(*last_instruction)) {
 					const edb::Operand &op = last_instruction->operands()[0];
