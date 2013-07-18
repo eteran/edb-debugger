@@ -40,6 +40,7 @@ private:
 	void read_header();
 
 private:
+	IRegion::pointer                   region_;
 	plugin::binary_info::elf32_header *header_;
 };
 

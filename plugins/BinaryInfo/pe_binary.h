@@ -38,7 +38,8 @@ typedef int64_t  LONGLONG;
 #define IMAGE_NUMBEROF_DIRECTORY_ENTRIES 16
 #endif
 
-namespace edb {
+namespace plugin {
+namespace binary_info {
 
 struct IMAGE_DOS_HEADER {
 	WORD e_magic; // "MZ"
@@ -68,35 +69,35 @@ struct IMAGE_DATA_DIRECTORY {
 };
 
 struct IMAGE_OPTIONAL_HEADER64 {
-	WORD        Magic;
-	BYTE        MajorLinkerVersion;
-	BYTE        MinorLinkerVersion;
-	DWORD       SizeOfCode;
-	DWORD       SizeOfInitializedData;
-	DWORD       SizeOfUninitializedData;
-	DWORD       AddressOfEntryPoint;
-	DWORD       BaseOfCode;
-	ULONGLONG   ImageBase;
-	DWORD       SectionAlignment;
-	DWORD       FileAlignment;
-	WORD        MajorOperatingSystemVersion;
-	WORD        MinorOperatingSystemVersion;
-	WORD        MajorImageVersion;
-	WORD        MinorImageVersion;
-	WORD        MajorSubsystemVersion;
-	WORD        MinorSubsystemVersion;
-	DWORD       Win32VersionValue;
-	DWORD       SizeOfImage;
-	DWORD       SizeOfHeaders;
-	DWORD       CheckSum;
-	WORD        Subsystem;
-	WORD        DllCharacteristics;
-	ULONGLONG   SizeOfStackReserve;
-	ULONGLONG   SizeOfStackCommit;
-	ULONGLONG   SizeOfHeapReserve;
-	ULONGLONG   SizeOfHeapCommit;
-	DWORD       LoaderFlags;
-	DWORD       NumberOfRvaAndSizes;
+	WORD                 Magic;
+	BYTE                 MajorLinkerVersion;
+	BYTE                 MinorLinkerVersion;
+	DWORD                SizeOfCode;
+	DWORD                SizeOfInitializedData;
+	DWORD                SizeOfUninitializedData;
+	DWORD                AddressOfEntryPoint;
+	DWORD                BaseOfCode;
+	ULONGLONG            ImageBase;
+	DWORD                SectionAlignment;
+	DWORD                FileAlignment;
+	WORD                 MajorOperatingSystemVersion;
+	WORD                 MinorOperatingSystemVersion;
+	WORD                 MajorImageVersion;
+	WORD                 MinorImageVersion;
+	WORD                 MajorSubsystemVersion;
+	WORD                 MinorSubsystemVersion;
+	DWORD                Win32VersionValue;
+	DWORD                SizeOfImage;
+	DWORD                SizeOfHeaders;
+	DWORD                CheckSum;
+	WORD                 Subsystem;
+	WORD                 DllCharacteristics;
+	ULONGLONG            SizeOfStackReserve;
+	ULONGLONG            SizeOfStackCommit;
+	ULONGLONG            SizeOfHeapReserve;
+	ULONGLONG            SizeOfHeapCommit;
+	DWORD                LoaderFlags;
+	DWORD                NumberOfRvaAndSizes;
 	IMAGE_DATA_DIRECTORY DataDirectory[IMAGE_NUMBEROF_DIRECTORY_ENTRIES];
 };
 
@@ -145,17 +146,18 @@ struct IMAGE_FILE_HEADER {
 };
 
 struct IMAGE_NT_HEADERS32 {
-	DWORD                 Signature;
-	IMAGE_FILE_HEADER     FileHeader;
+	DWORD                   Signature;
+	IMAGE_FILE_HEADER       FileHeader;
 	IMAGE_OPTIONAL_HEADER32 OptionalHeader;
 };
 
 struct IMAGE_NT_HEADERS64 {
-	DWORD Signature;
-	IMAGE_FILE_HEADER FileHeader;
+	DWORD                   Signature;
+	IMAGE_FILE_HEADER       FileHeader;
 	IMAGE_OPTIONAL_HEADER64 OptionalHeader;
 };
 
+}
 }
 
 #endif

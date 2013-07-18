@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class EDB_EXPORT IBinary {
 public:
-	explicit IBinary(const IRegion::pointer &region);
 	virtual ~IBinary() {}
 
 public:
@@ -41,9 +40,6 @@ public:
 	// if there is a structure in the target process which has debug data
 	// this should return a pointer to it
 	virtual edb::address_t debug_pointer() { return 0; }
-
-protected:
-	IRegion::pointer region_;
 
 public:
 	typedef IBinary *(*create_func_ptr_t)(const IRegion::pointer &);
