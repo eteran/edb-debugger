@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebuggerCore.h"
 #include "IPlugin.h"
 #include "edb.h"
-#include "symbols.h"
 #include "version.h"
 
 #include <QApplication>
@@ -141,8 +140,27 @@ void load_translations() {
 // Desc: displays a usage statement then exits
 //------------------------------------------------------------------------------
 void usage() {
+
 	QStringList args = qApp->arguments();
-	std::cerr << "usage: " << qPrintable(args[0]) << " [--symbols <filename>] [ --attach <pid> ] [ --run <program> (args...) ] [ --version ] [ --dump-version ]" << std::endl;
+	std::cerr << "Usage: " << qPrintable(args[0]) << " [OPTION]" << std::endl;
+	std::cerr << std::endl;
+	std::cerr << " --attach <pid>            : attach to running process" << std::endl;
+	std::cerr << " --run <program> (args...) : execute specified <program> with <args>" << std::endl;
+	std::cerr << " --version                 : output version information and exit" << std::endl;
+	std::cerr << " --dump-version            : display terse version string and exit" << std::endl;
+	std::cerr << " --help                    : display this help and exit" << std::endl;
+	
+	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
+		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
+			const QString s = p->extra_arguments();
+			if(!s.isEmpty()) {
+				std::cerr << std::endl;
+				std::cerr << qPrintable(plugin->metaObject()->className()) << std::endl;
+				std::cerr << qPrintable(s) << std::endl;
+			}
+		}
+	}
+	
 	std::exit(-1);
 }
 	
@@ -205,9 +223,6 @@ int main(int argc, char *argv[]) {
 			for(int i = 3; i < args.size(); ++i) {
 				run_args.push_back(argv[i]);
 			}
-		} else if(args.size() == 3 && args[1] == "--symbols") {
-			symbols::generate_symbols(args[2]);
-			return 0;
 		} else if(args.size() == 2 && args[1] == "--version") {
 			std::cout << "edb version: " << edb::version << std::endl;
 			return 0;

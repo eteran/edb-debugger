@@ -80,7 +80,6 @@ HEADERS += \
 	Util.h \
 	edb.h \
 	string_hash.h \
-	symbols.h \
 	version.h
 
 FORMS += \
@@ -130,8 +129,7 @@ SOURCES += \
 	TabWidget.cpp \
 	edb.cpp \
 	instruction.cpp \
-	main.cpp \
-	symbols.cpp
+	main.cpp
 
 # QHexView stuff
 INCLUDEPATH += qhexview

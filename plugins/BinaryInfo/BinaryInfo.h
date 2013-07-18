@@ -41,6 +41,8 @@ private:
 
 public:
 	virtual QMenu *menu(QWidget *parent = 0);
+	virtual QString extra_arguments() const;
+	virtual ArgumentStatus parse_argments(QStringList &args);
 
 public Q_SLOTS:
 	void explore_header();

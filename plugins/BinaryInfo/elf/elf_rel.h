@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "elf/elf_types.h"
 
-/* Relocation table entry without addend (in section of type SHT_REL).  */
+// Relocation table entry without addend (in section of type SHT_REL).
 
 struct elf32_rel {
 	elf32_addr r_offset; /* Address */
