@@ -1,11 +1,9 @@
 LEVEL = ../..
 
 include(../qmake/clean-objects.pri)
-include(../qmake/target-arch.pri)
 
 TEMPLATE = lib
 CONFIG   += plugin
-#CONFIG  += silent
 DESTDIR  = $$LEVEL
 INSTALLS += target
 greaterThan(QT_MAJOR_VERSION, 4) {
@@ -35,12 +33,12 @@ unix {
 		include(plugins-x86_64.pri)
 	}
 
-	!macx:contains(QMAKE_TARGET.arch, x86_64):{
+	!macx:contains(QMAKE_HOST.arch, x86_64) {
 		INCLUDEPATH += $$LEVEL/include/arch/x86_64
 		include(plugins-x86_64.pri)
 	}
 	
-	!macx:contains(QMAKE_TARGET.arch, i686):{
+	!macx:contains(QMAKE_HOST.arch, i[3456]86) {
 		INCLUDEPATH += $$LEVEL/include/arch/x86
 		include(plugins-x86.pri)
 	}
@@ -52,7 +50,7 @@ win32 {
 		LIBS        += $$LEVEL/edb.lib
 	}
 
-	win32-msvc*:contains(QMAKE_HOST.arch, i686):{
+	win32-msvc*:contains(QMAKE_HOST.arch, i[3456]86):{
 		INCLUDEPATH += $$LEVEL/include/os/win32 $$LEVEL/include $$LEVEL/include/arch/x86 "C:\\Program Files\\boost\\boost_1_51"
 		LIBS        += $$LEVEL/edb.lib
 	}
