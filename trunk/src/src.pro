@@ -111,7 +111,6 @@ SOURCES += \
 	DialogPlugins.cpp \
 	DialogThreads.cpp \
 	HexStringValidator.cpp \
-	IBinary.cpp \
 	LineEdit.cpp \
 	MD5.cpp \
 	MemoryRegions.cpp \

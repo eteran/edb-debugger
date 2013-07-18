@@ -17,13 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PE32.h"
+#include "string_hash.h"
 #include "pe_binary.h"
 
 //------------------------------------------------------------------------------
 // Name: 
 // Desc: 
 //------------------------------------------------------------------------------
-PE32::PE32(const IRegion::pointer &region) : IBinary(region) {
+PE32::PE32(const IRegion::pointer &region) : region_(region) {
 
 }
 
@@ -64,7 +65,7 @@ edb::address_t PE32::calculate_main() {
 // Desc: 
 //------------------------------------------------------------------------------
 bool PE32::native() const {
-	return false;
+	return true;
 }
 
 //------------------------------------------------------------------------------

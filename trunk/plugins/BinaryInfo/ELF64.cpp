@@ -18,11 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ELF64.h"
 #include "ByteShiftArray.h"
-#include "edb.h"
 #include "IDebuggerCore.h"
 #include "Util.h"
+#include "edb.h"
+#include "string_hash.h"
+
 #include <QDebug>
-#include <QFile>
 #include <QVector>
 #include <cstring>
 
@@ -34,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: ELF64
 // Desc: constructor
 //------------------------------------------------------------------------------
-ELF64::ELF64(const IRegion::pointer &region) : IBinary(region), header_(0) {
+ELF64::ELF64(const IRegion::pointer &region) : region_(region), header_(0) {
 }
 
 //------------------------------------------------------------------------------
@@ -64,12 +65,13 @@ bool ELF64::validate_header() {
 // Desc: returns true if this binary is native to the arch edb was built for
 //------------------------------------------------------------------------------
 bool ELF64::native() const {
-	// TODO: test against what debugger_core thinks is native...
-#ifdef EDB_X86_64
-	return true;
-#else
-	return false;
-#endif
+
+	switch(edb::v1::debugger_core->cpu_type()) {
+	case edb::string_hash<'x', '8', '6', '-', '6', '4'>::value:
+		return true;
+	default:
+		return false;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -146,7 +148,7 @@ edb::address_t ELF64::debug_pointer() {
 }
 
 //------------------------------------------------------------------------------
-// Name: calculate_mai
+// Name: calculate_main
 // Desc: uses a heuristic to locate "main"
 //------------------------------------------------------------------------------
 edb::address_t ELF64::calculate_main() {

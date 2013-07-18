@@ -34,6 +34,9 @@ public:
 	virtual edb::address_t entry_point();
 	virtual size_t header_size() const;
 	virtual const void *header() const;
+	
+private:
+	IRegion::pointer region_;
 };
 
 #endif
