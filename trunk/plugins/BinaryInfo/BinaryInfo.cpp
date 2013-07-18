@@ -17,12 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "BinaryInfo.h"
-#include "edb.h"
 #include "DialogHeader.h"
 #include "ELF32.h"
 #include "ELF64.h"
 #include "IBinary.h"
 #include "PE32.h"
+#include "edb.h"
+#include "symbols.h"
+
 #include <QDebug>
 #include <QMenu>
 
@@ -94,6 +96,28 @@ QMenu *BinaryInfo::menu(QWidget *parent) {
 void BinaryInfo::explore_header() {
 	static QDialog *dialog = new DialogHeader(edb::v1::debugger_ui);
 	dialog->show();
+}
+
+//------------------------------------------------------------------------------
+// Name: extra_arguments
+// Desc:
+//------------------------------------------------------------------------------
+QString BinaryInfo::extra_arguments() const {
+	return " --symbols <filename>      : generate symbols for <filename> and exit";
+}
+
+//------------------------------------------------------------------------------
+// Name: parse_argments
+// Desc:
+//------------------------------------------------------------------------------
+IPlugin::ArgumentStatus BinaryInfo::parse_argments(QStringList &args) {
+
+	if(args.size() == 3 && args[1] == "--symbols") {
+		symbols::generate_symbols(args[2]);
+		return ARG_EXIT;
+	}
+
+	return ARG_SUCCESS;
 }
 
 #if QT_VERSION < 0x050000

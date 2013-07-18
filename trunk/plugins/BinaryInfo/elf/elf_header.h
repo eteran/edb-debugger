@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "elf/elf_types.h"
 
-/* The ELF file header.  This appears at the start of every ELF file.  */
+// The ELF file header.  This appears at the start of every ELF file.
 enum {
 	EI_NIDENT = 16
 };

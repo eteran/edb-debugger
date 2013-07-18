@@ -18,26 +18,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "symbols.h"
 #include "edb.h"
-#include "Types.h"
 
 #include <QString>
 #include <QFile>
 #include <QDateTime>
 #include <QFileInfo>
 #include <QSet>
+#include <QList>
 #include <iostream>
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACX)
-#ifdef Q_OS_OPENBSD
-#include <sys/exec_elf.h>
-#else
-#include <elf.h>
-#endif
-#include <fcntl.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-#include <sys/types.h>
-#endif
+#include "elf/elf_types.h"
+#include "elf/elf_header.h"
+#include "elf/elf_rela.h"
+#include "elf/elf_rel.h"
+#include "elf/elf_sym.h"
+#include "elf/elf_shdr.h"
+#include "elf/elf_syminfo.h"
 
 namespace {
 
@@ -45,11 +41,11 @@ namespace {
 	struct elf32_model {
 		typedef quint32    address_t;
 
-		typedef Elf32_Ehdr elf_header_t;
-		typedef Elf32_Shdr elf_section_header_t;
-		typedef Elf32_Sym  elf_symbol_t;
-		typedef Elf32_Rela elf_relocation_a_t;
-		typedef Elf32_Rel  elf_relocation_t;
+		typedef elf32_header elf_header_t;
+		typedef elf32_shdr   elf_section_header_t;
+		typedef elf32_sym    elf_symbol_t;
+		typedef elf32_rela   elf_relocation_a_t;
+		typedef elf32_rel    elf_relocation_t;
 
 		static const int plt_entry_size = 0x10;
 
@@ -88,11 +84,11 @@ namespace {
 
 		typedef quint64    address_t;
 
-		typedef Elf64_Ehdr elf_header_t;
-		typedef Elf64_Shdr elf_section_header_t;
-		typedef Elf64_Sym  elf_symbol_t;
-		typedef Elf64_Rela elf_relocation_a_t;
-		typedef Elf64_Rel  elf_relocation_t;
+		typedef elf64_header elf_header_t;
+		typedef elf64_shdr   elf_section_header_t;
+		typedef elf64_sym    elf_symbol_t;
+		typedef elf64_rela   elf_relocation_a_t;
+		typedef elf64_rel    elf_relocation_t;
 
 		static const int plt_entry_size = 0x10;
 
@@ -129,7 +125,7 @@ namespace {
 
 
 	bool is_elf32(const void *ptr) {
-		const Elf32_Ehdr *const elf32_hdr = reinterpret_cast<const Elf32_Ehdr *>(ptr);
+		const elf32_header *const elf32_hdr = reinterpret_cast<const elf32_header *>(ptr);
 		if(std::memcmp(elf32_hdr->e_ident, ELFMAG, SELFMAG) == 0) {
 			return elf32_hdr->e_ident[EI_CLASS] == ELFCLASS32;
 		}
@@ -137,7 +133,7 @@ namespace {
 	}
 
 	bool is_elf64(const void *ptr) {
-		const Elf64_Ehdr *const elf64_hdr = reinterpret_cast<const Elf64_Ehdr *>(ptr);
+		const elf64_header *const elf64_hdr = reinterpret_cast<const elf64_header *>(ptr);
 		if(std::memcmp(elf64_hdr->e_ident, ELFMAG, SELFMAG) == 0) {
 			return elf64_hdr->e_ident[EI_CLASS] == ELFCLASS64;
 		}
@@ -417,7 +413,7 @@ namespace {
 // Desc:
 //--------------------------------------------------------------------------
 void symbols::generate_symbols(const QString &filename) {
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MACX)
+
 	QFile file(filename);
 	if(file.open(QIODevice::ReadOnly)) {
 #if QT_VERSION >= 0x040700
@@ -433,11 +429,9 @@ void symbols::generate_symbols(const QString &filename) {
 				process_symbols<elf64_model>(file_ptr, file.size());
 			} else if(is_elf32(file_ptr)) {
 				process_symbols<elf32_model>(file_ptr, file.size());
+			} else {
+				std::cerr << "unknown file type" << std::endl;
 			}
 		}
 	}
-#else
-	Q_UNUSED(filename);
-	std::cerr << "generating symbols is not yet supported on non-unix targets" << std::endl;
-#endif
 }

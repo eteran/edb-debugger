@@ -57,14 +57,14 @@ public:
 
 	// optional, command line argument processing
 	// return a string to add to "--help"
-	QString extra_arguments() const        { return QString(); }
+	virtual QString extra_arguments() const        { return QString(); }
 	
 	// take actions based on the command line arguments
 	// you *may* remove arguments which are exclusively yours
 	// return ARG_SUCCESS if the normal execution should continue
 	// return ARG_ERROR   if we should show usage and exit
 	// return ARG_EXIT    if you processed the arguments and we should terminate successfully
-	ArgumentStatus parse_argments(QStringList &) { return ARG_SUCCESS; }
+	virtual ArgumentStatus parse_argments(QStringList &) { return ARG_SUCCESS; }
 
 protected:
 	// optional init, overload this to have edb run it after loading the plugin

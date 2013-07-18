@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "elf/elf_types.h"
 
-/* Section header.  */
+// Section header.
 
 struct elf32_shdr
 {
