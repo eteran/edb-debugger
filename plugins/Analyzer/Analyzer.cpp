@@ -259,45 +259,39 @@ void Analyzer::find_function_calls(const IRegion::pointer &region, FunctionMap *
 
 	Q_ASSERT(found_functions);
 
-	static const edb::address_t page_size = edb::v1::debugger_core->page_size();
-	const edb::address_t size_in_pages = region->size() / page_size;
+	const edb::address_t page_size = edb::v1::debugger_core->page_size();
+	const size_t page_count        = region->size() / page_size;
+	const QVector<quint8> pages    = edb::v1::read_pages(region->start(), page_count);
+	
+	if(!pages.isEmpty()) {
+		for(int i = 0; i < pages.size(); ++i) {
+			const edb::Instruction insn(&pages[i], &pages[pages.size()], region->start() + i, std::nothrow);
 
-	try {
-		QVector<quint8> pages(size_in_pages * page_size);
+			if(is_call(insn)) {
 
-		if(edb::v1::debugger_core->read_pages(region->start(), &pages[0], size_in_pages)) {
-			for(edb::address_t i = 0; i < static_cast<edb::address_t>(region->size()); ++i) {
-				const edb::Instruction insn(&pages[i], &pages[0] + region->size(), region->start() + i, std::nothrow);
+				const edb::address_t ip = region->start() + i;
+				const edb::Operand &op = insn.operands()[0];
 
-				if(is_call(insn)) {
+				if(op.general_type() == edb::Operand::TYPE_REL) {
+					const edb::address_t ea = op.relative_target();
 
-					const edb::address_t ip = region->start() + i;
-					const edb::Operand &op = insn.operands()[0];
-
-					if(op.general_type() == edb::Operand::TYPE_REL) {
-						const edb::address_t ea = op.relative_target();
-
-						// skip over ones which are : call <label>; label:
-						if(ea != ip + insn.size()) {
-							if(region->contains(ea)) {
-								// avoid calls which land in the middle of a function...
-								// this may or may not be the best approach
-								if(!is_inside_known(region, ea)) {
-									(*found_functions)[ea].entry_address = ea;
-									(*found_functions)[ea].end_address   = ea;
-									(*found_functions)[ea].reference_count++;
-								}
+					// skip over ones which are : call <label>; label:
+					if(ea != ip + insn.size()) {
+						if(region->contains(ea)) {
+							// avoid calls which land in the middle of a function...
+							// this may or may not be the best approach
+							if(!is_inside_known(region, ea)) {
+								(*found_functions)[ea].entry_address = ea;
+								(*found_functions)[ea].end_address   = ea;
+								(*found_functions)[ea].reference_count++;
 							}
 						}
 					}
-
-					emit update_progress(util::percentage(6, 10, i, region->size()));
 				}
+
+				emit update_progress(util::percentage(6, 10, i, region->size()));
 			}
 		}
-	} catch(const std::bad_alloc &) {
-		QMessageBox::information(0, tr("Memroy Allocation Error"),
-			tr("Unable to satisfy memory allocation request for requested region->"));
 	}
 }
 
@@ -1199,20 +1193,14 @@ bool Analyzer::find_containing_function(edb::address_t address, IAnalyzer::Funct
 //------------------------------------------------------------------------------
 QByteArray Analyzer::md5_region(const IRegion::pointer &region) const{
 
-	static const edb::address_t page_size = edb::v1::debugger_core->page_size();
-
-	const edb::address_t size_in_pages = region->size() / page_size;
-	try {
-		QVector<quint8> pages(size_in_pages * page_size);
-
-		if(edb::v1::debugger_core->read_pages(region->start(), &pages[0], size_in_pages)) {
-			return edb::v1::get_md5(&pages[0], size_in_pages * page_size);
-		}
-
-	} catch(const std::bad_alloc &) {
-		QMessageBox::information(0, tr("Memroy Allocation Error"),
-			tr("Unable to satisfy memory allocation request for requested region->"));
+	const edb::address_t page_size = edb::v1::debugger_core->page_size();
+	const size_t page_count        = region->size() / page_size;
+	
+	const QVector<quint8> pages = edb::v1::read_pages(region->start(), page_count);
+	if(!pages.isEmpty()) {
+		return edb::v1::get_md5(pages);
 	}
+
 
 	return QByteArray();
 }
@@ -1317,7 +1305,7 @@ edb::address_t Analyzer::find_containing_function(edb::address_t address, bool *
 //------------------------------------------------------------------------------
 int Analyzer::block_size(const BasicBlock &basic_block) {
 	int n = 0;
-	for(QVector<QSharedPointer<edb::Instruction> >::const_iterator it = basic_block.instructions.begin(); it != basic_block.instructions.end(); ++it) {
+	for(QList<QSharedPointer<edb::Instruction> >::const_iterator it = basic_block.instructions.begin(); it != basic_block.instructions.end(); ++it) {
 		const QSharedPointer<edb::Instruction> &insn = *it;
 		n += insn->size();
 	}

@@ -20,10 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PE32_20070718_H_
 
 #include "IBinary.h"
+#include "pe_binary.h"
 
 class PE32 : public IBinary {
 public:
 	PE32(const IRegion::pointer &region);
+	PE32(const QString &filename);
 	virtual ~PE32();
 
 public:

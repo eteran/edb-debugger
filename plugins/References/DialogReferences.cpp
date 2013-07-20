@@ -70,62 +70,54 @@ void DialogReferences::do_find() {
 			// a short circut for speading things up
 			if(region->accessible() || !ui->chkSkipNoAccess->isChecked()) {
 
-				const edb::address_t size_in_pages = region->size() / page_size;
-
-				try {
-
-					QVector<quint8> pages(size_in_pages * page_size);
+				const size_t page_count     = region->size() / page_size;
+				const QVector<quint8> pages = edb::v1::read_pages(region->start(), page_count);
+				
+				if(!pages.isEmpty()) {
+					const quint8 *p = &pages[0];
 					const quint8 *const pages_end = &pages[0] + region->size();
+					
+					while(p != pages_end) {
 
-					if(edb::v1::debugger_core->read_pages(region->start(), &pages[0], size_in_pages)) {
-						const quint8 *p = &pages[0];
-						while(p != pages_end) {
+						if(static_cast<std::size_t>(pages_end - p) < sizeof(edb::address_t)) {
+							break;
+						}
 
-							if(static_cast<std::size_t>(pages_end - p) < sizeof(edb::address_t)) {
+						const edb::address_t addr = p - &pages[0] + region->start();
+
+						edb::address_t test_address;
+						memcpy(&test_address, p, sizeof(edb::address_t));
+
+						if(test_address == address) {
+							QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
+							item->setData(Qt::UserRole, 'D');
+							ui->listWidget->addItem(item);
+						}
+
+						edb::Instruction insn(p, pages_end, addr, std::nothrow);
+						if(insn) {
+							switch(insn.type()) {
+							case edb::Instruction::OP_JMP:
+							case edb::Instruction::OP_CALL:
+							case edb::Instruction::OP_JCC:
+								if(insn.operands()[0].general_type() == edb::Operand::TYPE_REL) {
+									if(insn.operands()[0].relative_target() == address) {
+										QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
+										item->setData(Qt::UserRole, 'C');
+										ui->listWidget->addItem(item);
+									}
+								}
+								break;
+							default:
 								break;
 							}
-
-							const edb::address_t addr = p - &pages[0] + region->start();
-
-							edb::address_t test_address;
-							memcpy(&test_address, p, sizeof(edb::address_t));
-
-							if(test_address == address) {
-
-								QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
-								item->setData(Qt::UserRole, 'D');
-								ui->listWidget->addItem(item);
-							}
-
-							edb::Instruction insn(p, pages_end, addr, std::nothrow);
-							if(insn) {
-								switch(insn.type()) {
-								case edb::Instruction::OP_JMP:
-								case edb::Instruction::OP_CALL:
-								case edb::Instruction::OP_JCC:
-									if(insn.operands()[0].general_type() == edb::Operand::TYPE_REL) {
-										if(insn.operands()[0].relative_target() == address) {
-											QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
-											item->setData(Qt::UserRole, 'C');
-											ui->listWidget->addItem(item);
-										}
-									}
-									break;
-								default:
-									break;
-								}
-							}
-
-							emit updateProgress(util::percentage(i, regions.size(), p - &pages[0], region->size()));
-							++p;
 						}
+
+						emit updateProgress(util::percentage(i, regions.size(), p - &pages[0], region->size()));
+						++p;
 					}
-				} catch(const std::bad_alloc &) {
-					QMessageBox::information(
-						0,
-						tr("Memroy Allocation Error"),
-						tr("Unable to satisfy memory allocation request for requested region->"));
 				}
+
 			} else {
 				emit updateProgress(util::percentage(i, regions.size()));
 			}

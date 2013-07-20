@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMap>
 #include <QHash>
 #include <QVector>
+#include <QList>
 
 class QMenu;
 class AnalyzerWidget;
@@ -116,7 +117,7 @@ private:
 
 private:
 	struct BasicBlock {
-		QVector<QSharedPointer<edb::Instruction> > instructions;
+		QList<QSharedPointer<edb::Instruction> > instructions;
 	};
 
 	struct RegionData {

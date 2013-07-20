@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDebug>
 #include <QVector>
+#include <QFile>
 #include <cstring>
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
@@ -36,6 +37,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Desc: constructor
 //------------------------------------------------------------------------------
 ELF64::ELF64(const IRegion::pointer &region) : region_(region), header_(0) {
+}
+
+//------------------------------------------------------------------------------
+// Name: ELF64
+// Desc: constructor
+//------------------------------------------------------------------------------
+ELF64::ELF64(const QString &filename) : header_(0), file_(filename) {
+
 }
 
 //------------------------------------------------------------------------------
@@ -65,13 +74,7 @@ bool ELF64::validate_header() {
 // Desc: returns true if this binary is native to the arch edb was built for
 //------------------------------------------------------------------------------
 bool ELF64::native() const {
-
-	switch(edb::v1::debugger_core->cpu_type()) {
-	case edb::string_hash<'x', '8', '6', '-', '6', '4'>::value:
-		return true;
-	default:
-		return false;
-	}
+	return edb::v1::debugger_core->cpu_type() == edb::string_hash<'x', '8', '6', '-', '6', '4'>::value;
 }
 
 //------------------------------------------------------------------------------
@@ -98,6 +101,10 @@ void ELF64::read_header() {
 			if(!edb::v1::debugger_core->read_bytes(region_->start(), header_, sizeof(plugin::binary_info::elf64_header))) {
 				std::memset(header_, 0, sizeof(plugin::binary_info::elf64_header));
 			}
+		} else if(file_.open(QIODevice::ReadOnly)) {
+			header_ = new plugin::binary_info::elf64_header;
+			file_.read(reinterpret_cast<char *>(header_), sizeof(plugin::binary_info::elf64_header));		
+			file_.close();
 		}
 	}
 }
