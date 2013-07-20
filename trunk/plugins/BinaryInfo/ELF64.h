@@ -21,10 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IBinary.h"
 #include "elf_binary.h"
+#include <QFile>
 
 class ELF64 : public IBinary {
 public:
 	ELF64(const IRegion::pointer &region);
+	ELF64(const QString &filename);
 	virtual ~ELF64();
 
 public:
@@ -42,6 +44,7 @@ private:
 private:
 	IRegion::pointer                   region_;
 	plugin::binary_info::elf64_header *header_;
+	QFile                              file_;
 };
 
 #endif

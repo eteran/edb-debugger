@@ -54,7 +54,8 @@ void SymbolManager::clear() {
 //------------------------------------------------------------------------------
 void SymbolManager::load_symbol_file(const QString &filename, edb::address_t base) {
 
-	const QString name = edb::v1::basename(filename);
+	const QFileInfo info(filename);
+	const QString name = info.fileName();
 
 	if(!symbol_files_.contains(name)) {
 		const QString map_file = QString("%1/%2.map").arg(symbol_directory_, name);
@@ -153,7 +154,8 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 					qDebug() << "Your symbol file for" << library_filename << "appears to not match the actual file, perhaps you should rebuild your symbols?";
 				}
 
-				const QString prefix = edb::v1::basename(QString::fromStdString(filename));
+				const QFileInfo info(QString::fromStdString(filename));
+				const QString prefix = info.fileName();
 				char sym_type;
 
 				while(file >> std::hex >> sym_start >> std::hex >> sym_end >> sym_type >> sym_name) {

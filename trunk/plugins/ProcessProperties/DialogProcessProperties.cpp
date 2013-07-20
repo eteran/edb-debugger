@@ -243,8 +243,8 @@ QString process_socket_udp(QString *symlink) {
 // Desc:
 //------------------------------------------------------------------------------
 QString file_type(const QString &filename) {
-	QFileInfo info(filename);
-	QString basename(info.completeBaseName());
+	const QFileInfo info(filename);
+	const QString basename(info.completeBaseName());
 
 	if(basename.startsWith("socket:")) {
 		return QT_TRANSLATE_NOOP("DialogProcessProperties", "Socket");

@@ -346,7 +346,7 @@ QString Debugger::create_tty() {
 			const QString tty_command = proc_args.takeFirst().trimmed();
 
 			// start constructing the arguments for the term
-			QFileInfo command_info(tty_command);
+			const QFileInfo command_info(tty_command);
 
 			if(command_info.fileName() == "gnome-terminal") {
 				proc_args << "--hide-menubar" << "--title" << tr("edb output") << "-e" << QString("sh -c '%1'").arg(shell_script);
@@ -1960,6 +1960,8 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 //------------------------------------------------------------------------------
 void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced) {
 
+	Q_ASSERT(edb::v1::debugger_core);
+
 	// if necessary pass the trap to the application, otherwise just resume
 	// as normal
 	const edb::EVENT_STATUS status = resume_status(pass_exception == PASS_EXCEPTION);
@@ -1969,8 +1971,7 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 	edb::v1::debugger_core->get_state(&state);
 	IBreakpoint::pointer bp;
 	if(!forced) {
-		bp = edb::v1::find_breakpoint(state.instruction_pointer());
-		if(bp) {
+		if(bp = edb::v1::debugger_core->find_breakpoint(state.instruction_pointer())) {
 			bp->disable();
 		}
 	}
@@ -2110,8 +2111,8 @@ void Debugger::cleanup_debugger() {
 //------------------------------------------------------------------------------
 QString Debugger::session_filename() const {
 	if(!program_executable_.isEmpty()) {
-		const QString basename = edb::v1::basename(program_executable_);
-		return QString(QLatin1String("%1/%2.edb")).arg(edb::v1::config().session_path, basename);
+		const QFileInfo info(program_executable_);
+		return QString(QLatin1String("%1/%2.edb")).arg(edb::v1::config().session_path, info.fileName());
 	}
 	return QString();
 }
@@ -2218,7 +2219,7 @@ void Debugger::set_initial_breakpoint(const QString &s) {
 	edb::address_t entryPoint = 0;
 
 	if(edb::v1::config().initial_breakpoint == Configuration::MainSymbol) {
-		const QString mainSymbol = edb::v1::basename(s) + "::main";
+		const QString mainSymbol = QFileInfo(s).fileName() + "::main";
 		const Symbol::pointer sym = edb::v1::symbol_manager().find(mainSymbol);
 
 		if(sym) {
