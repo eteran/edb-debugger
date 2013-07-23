@@ -33,9 +33,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QVector>
 
+class ArchProcessor;
 class Configuration;
 class IAnalyzer;
-class IArchProcessor;
 class IBinary;
 class IDebugEventHandler;
 class IDebuggerCore;
@@ -69,7 +69,7 @@ EDB_EXPORT ISymbolManager &symbol_manager();
 EDB_EXPORT MemoryRegions &memory_regions();
 
 // the current arch processor
-EDB_EXPORT IArchProcessor &arch_processor();
+EDB_EXPORT ArchProcessor &arch_processor();
 
 // widgets
 EDB_EXPORT QWidget *disassembly_widget();

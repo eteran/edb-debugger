@@ -15,6 +15,7 @@ QT          += xml xmlpatterns
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
+	CONFIG += c++11
 }
 
 TRANSLATIONS += \
@@ -43,7 +44,6 @@ HEADERS += \
 	Function.h \
 	HexStringValidator.h \
 	IAnalyzer.h \
-	IArchProcessor.h \
 	IBinary.h \
 	IBreakpoint.h \
 	IDebugEvent.h \

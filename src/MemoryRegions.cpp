@@ -16,10 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "MemoryRegions.h"
-#include "edb.h"
 #include "IDebuggerCore.h"
 #include "ISymbolManager.h"
+#include "MemoryRegions.h"
+#include "edb.h"
+
 #include <QDebug>
 
 //------------------------------------------------------------------------------
@@ -168,14 +169,10 @@ int MemoryRegions::columnCount(const QModelIndex &parent) const {
 QVariant MemoryRegions::headerData(int section, Qt::Orientation orientation, int role) const {
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
 		switch(section) {
-		case 0:
-			return tr("Start Address");
-		case 1:
-			return tr("End Address");
-		case 2:
-			return tr("Permissions");
-		case 3:
-			return tr("Name");
+		case 0: return tr("Start Address");
+		case 1: return tr("End Address");
+		case 2: return tr("Permissions");
+		case 3: return tr("Name");
 		}
 	}
 

@@ -185,7 +185,7 @@ MemoryRegions &memory_regions() {
 // Name: arch_processor
 // Desc:
 //------------------------------------------------------------------------------
-IArchProcessor &arch_processor() {
+ArchProcessor &arch_processor() {
 	static ArchProcessor g_ArchProcessor;
 	return g_ArchProcessor;
 }

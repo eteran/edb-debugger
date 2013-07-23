@@ -617,7 +617,6 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 
 	if(edb::v1::debugger_core) {
 		State state;
-		edb::v1::debugger_core->get_state(&state);
 
 		Q_ASSERT(category_list);
 
@@ -696,7 +695,7 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 			}
 		}
 
-		update_register_view(QString());
+		update_register_view(QString(), State());
 	}
 }
 
@@ -740,7 +739,7 @@ void ArchProcessor::reset() {
 
 	if(edb::v1::debugger_core) {
 		last_state_.clear();
-		update_register_view("", State());
+		update_register_view(QString(), State());
 	}
 }
 
@@ -825,17 +824,6 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	register_view_items_[0x09]->setForeground(0, flags_changed ? Qt::red : palette.text());
 
 	last_state_ = state;
-}
-
-//------------------------------------------------------------------------------
-// Name: update_register_view
-// Desc:
-//------------------------------------------------------------------------------
-void ArchProcessor::update_register_view(const QString &default_region_name) {
-
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-	update_register_view(default_region_name, state);
 }
 
 //------------------------------------------------------------------------------

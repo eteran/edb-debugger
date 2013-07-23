@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "AnalyzerOptionsPage.h"
 #include "AnalyzerWidget.h"
 #include "DialogSpecifiedFunctions.h"
-#include "IArchProcessor.h"
 #include "IBinary.h"
 #include "IDebuggerCore.h"
 #include "ISymbolManager.h"
