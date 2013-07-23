@@ -27,7 +27,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Desc: constructor
 //------------------------------------------------------------------------------
 RecentFileManager::RecentFileManager(QWidget * parent, Qt::WindowFlags f) : QWidget(parent, f), menu_(0) {
-	load_file_list();
+	QSettings settings;
+	settings.beginGroup("Recent");
+	file_list_ = settings.value("recent.files", QStringList()).value<QStringList>();
+	settings.endGroup();
 }
 
 //------------------------------------------------------------------------------
@@ -35,44 +38,12 @@ RecentFileManager::RecentFileManager(QWidget * parent, Qt::WindowFlags f) : QWid
 // Desc: destructor
 //------------------------------------------------------------------------------
 RecentFileManager::~RecentFileManager() {
-	save_file_list();
-}
-
-//------------------------------------------------------------------------------
-// Name: save_file_list
-// Desc:
-//------------------------------------------------------------------------------
-void RecentFileManager::save_file_list() {
 	QSettings settings;
-	settings.beginGroup("Recent Files");
-
-	for(int i = 0; i < max_recent_files; ++i) {
-		QString s;
-		if(i < file_list_.size()) {
-			s = file_list_[i];
-		}
-		settings.setValue(tr("File%1").arg(i), s);
-	}
+	settings.beginGroup("Recent");
+	settings.setValue("recent.files", file_list_);
 	settings.endGroup();
 }
 
-//------------------------------------------------------------------------------
-// Name: load_file_list
-// Desc:
-//------------------------------------------------------------------------------
-void RecentFileManager::load_file_list() {
-	QSettings settings;
-	settings.beginGroup("Recent Files");
-
-	file_list_.clear();
-	for(int i = 0; i < max_recent_files; ++i) {
-		const QString s = settings.value(tr("File%1").arg(i)).value<QString>();
-		if(!s.isEmpty()) {
-			file_list_.push_back(s);
-		}
-	}
-	settings.endGroup();
-}
 
 //------------------------------------------------------------------------------
 // Name: clear_file_list

@@ -44,17 +44,14 @@ private:
 public:
 	QStringList update_instruction_info(edb::address_t address);
 	Register value_from_item(const QTreeWidgetItem &item);
+	bool can_step_over(const edb::Instruction &insn) const;
+	bool is_filling(const edb::Instruction &insn) const;
 	void reset();
 	void setup_register_view(RegisterListWidget *category_list);
 	void update_register_view(const QString &default_region_name, const State &state);
 
-public:
-	bool is_filling(const edb::Instruction &insn) const;
-	bool can_step_over(const edb::Instruction &insn) const;
-
 private:
 	void update_register(QTreeWidgetItem *item, const QString &name, const Register &reg) const;
-
 
 private:
 	QTreeWidgetItem * split_flags_;
