@@ -44,12 +44,10 @@ signals:
 	void file_selected(const QString &);
 
 private:
-	void save_file_list();
-	void load_file_list();
 	void update();
 
 private:
-	static const int max_recent_files = 4;
+	static const int max_recent_files = 8;
 
 private:
 	QStringList file_list_;
