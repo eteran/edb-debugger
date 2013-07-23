@@ -17,10 +17,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Debugger.h"
+#include "ArchProcessor.h"
 #include "CommentServer.h"
 #include "Configuration.h"
-#include "DebuggerInternal.h"
 #include "Debugger.h"
+#include "DebuggerInternal.h"
 #include "DialogArguments.h"
 #include "DialogAttach.h"
 #include "DialogMemoryRegions.h"
@@ -28,13 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogPlugins.h"
 #include "DialogThreads.h"
 #include "Expression.h"
-#include "Expression.h"
 #include "IAnalyzer.h"
-#include "IArchProcessor.h"
 #include "IBinary.h"
 #include "IDebugEvent.h"
 #include "IDebuggerCore.h"
-#include "IPlugin.h"
 #include "IPlugin.h"
 #include "ISessionFile.h"
 #include "Instruction.h"
@@ -1928,7 +1926,7 @@ void Debugger::update_gui() {
 		update_stack_view(state);
 
 		if(const IRegion::pointer region = update_cpu_view(state)) {
-			edb::v1::arch_processor().update_register_view(region->name());
+			edb::v1::arch_processor().update_register_view(region->name(), state);
 		}
 	}
 }

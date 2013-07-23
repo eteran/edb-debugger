@@ -19,39 +19,42 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ARCHPROCESSOR_20070312_H_
 #define ARCHPROCESSOR_20070312_H_
 
-#include "IArchProcessor.h"
 #include "State.h"
 #include "Types.h"
 #include <QCoreApplication>
 #include <QStringList>
 #include <QVector>
+#include <QObject>
 
-class QTreeWidgetItem;
+class QByteArray;
 class QString;
+class QTreeWidgetItem;
+class RegisterListWidget;
+class State;
 
-class ArchProcessor : public IArchProcessor {
+class ArchProcessor : public QObject {
+	Q_OBJECT
 public:
 	ArchProcessor();
 	virtual ~ArchProcessor() {}
 
 private:
 	Q_DISABLE_COPY(ArchProcessor)
-	Q_DECLARE_TR_FUNCTIONS(ArchProcessor)
 
 public:
-	virtual QStringList update_instruction_info(edb::address_t address);
-	virtual Register value_from_item(const QTreeWidgetItem &item);
-	virtual void reset();
-	virtual void setup_register_view(RegisterListWidget *category_list);
-	virtual void update_register_view(const QString &default_region_name);
-	virtual void update_register_view(const QString &default_region_name, const State &state);
+	QStringList update_instruction_info(edb::address_t address);
+	Register value_from_item(const QTreeWidgetItem &item);
+	void reset();
+	void setup_register_view(RegisterListWidget *category_list);
+	void update_register_view(const QString &default_region_name, const State &state);
 
 public:
-	virtual bool is_filling(const edb::Instruction &insn) const;
-	virtual bool can_step_over(const edb::Instruction &insn) const;
+	bool is_filling(const edb::Instruction &insn) const;
+	bool can_step_over(const edb::Instruction &insn) const;
 
 private:
 	void update_register(QTreeWidgetItem *item, const QString &name, const Register &reg) const;
+
 
 private:
 	QTreeWidgetItem * split_flags_;

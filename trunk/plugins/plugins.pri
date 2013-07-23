@@ -8,6 +8,7 @@ DESTDIR  = $$LEVEL
 INSTALLS += target
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
+	CONFIG += c++11
 }
 
 # ignore missing symbols, they'll be found when linked into edb
