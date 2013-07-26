@@ -618,12 +618,32 @@ void Debugger::setup_ui() {
 	ui.tabWidget->clear();
 	mnuDumpCreateTab();
 
-	// replace the register view with one created by the debugger core	
+	// replace the register view with one created by the debugger core
+#if 0
 	if(edb::v1::debugger_core) {
-		delete ui.registerList;
-		ui.registerList = qobject_cast<RegisterListWidget *>(edb::v1::debugger_core->create_register_view());
-		ui.registersDock->setWidget(ui.registerList);
+		if(RegisterListWidget *const register_list = qobject_cast<RegisterListWidget *>(edb::v1::debugger_core->create_register_view())) {
+		
+			delete ui.registerList;
+
+			ui.registerList = register_list;
+			ui.registersDock->setWidget(register_list);
+
+			connect(
+				register_list,
+				SIGNAL(customContextMenuRequested(const QPoint &)),
+				this,
+				SLOT(on_registerList_customContextMenuRequested(const QPoint &))
+				);
+
+			connect(
+				register_list,
+				SIGNAL(itemDoubleClicked(QTreeWidgetItem *)),
+				this,
+				SLOT(on_registerList_itemDoubleClicked(QTreeWidgetItem *))
+				);
+		}
 	}
+#endif
 
 	// apply any fonts we may have stored
 	apply_default_fonts();

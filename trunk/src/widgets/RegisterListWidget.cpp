@@ -42,7 +42,6 @@ RegisterListWidget::RegisterListWidget(QWidget *parent) : QTreeWidget(parent) {
 	header()->setResizeMode(QHeaderView::Stretch);
 #endif
 	
-
 	connect(this, SIGNAL(itemPressed(QTreeWidgetItem *, int)), SLOT(handleMousePress(QTreeWidgetItem *)));
 }
 
