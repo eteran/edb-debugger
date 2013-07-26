@@ -16,29 +16,40 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CHECKVERSIONOPTIONSPAGE_20090703_H_
-#define CHECKVERSIONOPTIONSPAGE_20090703_H_
+#ifndef DIALOGSPECIFIEDFUNCTIONS_20070705_H_
+#define DIALOGSPECIFIEDFUNCTIONS_20070705_H_
 
-#include <QWidget>
 
-namespace Ui { class CheckVersionOptionsPage; }
+#include "Types.h"
+#include <QDialog>
 
-class CheckVersionOptionsPage : public QWidget {
-	Q_OBJECT;
+class QStringListModel;
+class QSortFilterProxyModel;
+class QModelIndex;
+
+namespace Ui { class SpecifiedFunctions; }
+
+class SpecifiedFunctions : public QDialog {
+	Q_OBJECT
 
 public:
-	CheckVersionOptionsPage(QWidget *parent = 0);
-	virtual ~CheckVersionOptionsPage();
-
-public:
-	virtual void showEvent(QShowEvent *event);
+	SpecifiedFunctions(QWidget *parent = 0);
+	virtual ~SpecifiedFunctions();
 
 public Q_SLOTS:
-	void on_checkBox_toggled(bool checked = false);
+	void on_function_list_doubleClicked(const QModelIndex &index);
+	void on_refresh_button_clicked();
 
 private:
-	Ui::CheckVersionOptionsPage *const ui;
+	virtual void showEvent(QShowEvent *event);
+
+private:
+	void do_find();
+
+private:
+	 Ui::SpecifiedFunctions *const ui;
+	 QStringListModel *         model_;
+	 QSortFilterProxyModel *    filter_model_;
 };
 
 #endif
-

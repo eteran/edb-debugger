@@ -16,40 +16,29 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGSPECIFIEDFUNCTIONS_20070705_H_
-#define DIALOGSPECIFIEDFUNCTIONS_20070705_H_
+#ifndef OPTIONSPAGE_20090706_H_
+#define OPTIONSPAGE_20090706_H_
 
+#include <QWidget>
 
-#include "Types.h"
-#include <QDialog>
+namespace Ui { class OptionsPage; }
 
-class QStringListModel;
-class QSortFilterProxyModel;
-class QModelIndex;
-
-namespace Ui { class DialogSpecified; }
-
-class DialogSpecifiedFunctions : public QDialog {
-	Q_OBJECT
+class OptionsPage : public QWidget {
+	Q_OBJECT;
 
 public:
-	DialogSpecifiedFunctions(QWidget *parent = 0);
-	virtual ~DialogSpecifiedFunctions();
+	OptionsPage(QWidget *parent = 0);
+	virtual ~OptionsPage();
 
-public Q_SLOTS:
-	void on_function_list_doubleClicked(const QModelIndex &index);
-	void on_refresh_button_clicked();
-
-private:
+public:
 	virtual void showEvent(QShowEvent *event);
 
-private:
-	void do_find();
+public Q_SLOTS:
+	void on_checkBox_toggled(bool checked = false);
 
 private:
-	 Ui::DialogSpecified *const ui;
-	 QStringListModel *         model_;
-	 QSortFilterProxyModel *    filter_model_;
+	Ui::OptionsPage *const ui;
 };
 
 #endif
+

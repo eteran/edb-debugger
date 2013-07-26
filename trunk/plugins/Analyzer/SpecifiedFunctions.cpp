@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "DialogSpecifiedFunctions.h"
+#include "SpecifiedFunctions.h"
 #include "edb.h"
 #include "IAnalyzer.h"
 
@@ -25,13 +25,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHeaderView>
 #include <QtDebug>
 
-#include "ui_dialogspecified.h"
+#include "ui_SpecifiedFunctions.h"
 
 //------------------------------------------------------------------------------
-// Name: DialogSpecifiedFunctions
+// Name: SpecifiedFunctions
 // Desc:
 //------------------------------------------------------------------------------
-DialogSpecifiedFunctions::DialogSpecifiedFunctions(QWidget *parent) : QDialog(parent), ui(new Ui::DialogSpecified) {
+SpecifiedFunctions::SpecifiedFunctions(QWidget *parent) : QDialog(parent), ui(new Ui::SpecifiedFunctions) {
 	ui->setupUi(this);
 
 	model_        = new QStringListModel(this);
@@ -45,10 +45,10 @@ DialogSpecifiedFunctions::DialogSpecifiedFunctions(QWidget *parent) : QDialog(pa
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DialogSpecifiedFunctions
+// Name: ~SpecifiedFunctions
 // Desc:
 //------------------------------------------------------------------------------
-DialogSpecifiedFunctions::~DialogSpecifiedFunctions() {
+SpecifiedFunctions::~SpecifiedFunctions() {
 	delete ui;
 }
 
@@ -56,7 +56,7 @@ DialogSpecifiedFunctions::~DialogSpecifiedFunctions() {
 // Name: on_function_list_doubleClicked
 // Desc: follows the found item in the data view
 //------------------------------------------------------------------------------
-void DialogSpecifiedFunctions::on_function_list_doubleClicked(const QModelIndex &index) {
+void SpecifiedFunctions::on_function_list_doubleClicked(const QModelIndex &index) {
 
 	bool ok;
 	const QString s = index.data().toString();
@@ -70,7 +70,7 @@ void DialogSpecifiedFunctions::on_function_list_doubleClicked(const QModelIndex 
 // Name: do_find
 // Desc:
 //------------------------------------------------------------------------------
-void DialogSpecifiedFunctions::do_find() {
+void SpecifiedFunctions::do_find() {
 	IAnalyzer *const analyzer = edb::v1::analyzer();
 	QSet<edb::address_t> functions = analyzer->specified_functions();
 	QStringList results;
@@ -84,7 +84,7 @@ void DialogSpecifiedFunctions::do_find() {
 // Name: on_refresh_button_clicked
 // Desc:
 //------------------------------------------------------------------------------
-void DialogSpecifiedFunctions::on_refresh_button_clicked() {
+void SpecifiedFunctions::on_refresh_button_clicked() {
 	ui->refresh_button->setEnabled(false);
 	do_find();
 	ui->refresh_button->setEnabled(true);
@@ -95,6 +95,6 @@ void DialogSpecifiedFunctions::on_refresh_button_clicked() {
 // Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
-void DialogSpecifiedFunctions::showEvent(QShowEvent *) {
+void SpecifiedFunctions::showEvent(QShowEvent *) {
 	on_refresh_button_clicked();
 }

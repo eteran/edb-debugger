@@ -17,9 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Analyzer.h"
-#include "AnalyzerOptionsPage.h"
+#include "OptionsPage.h"
 #include "AnalyzerWidget.h"
-#include "DialogSpecifiedFunctions.h"
+#include "SpecifiedFunctions.h"
 #include "IBinary.h"
 #include "IDebuggerCore.h"
 #include "ISymbolManager.h"
@@ -76,7 +76,7 @@ Analyzer::Analyzer() : menu_(0), analyzer_widget_(0) {
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *Analyzer::options_page() {
-	return new AnalyzerOptionsPage;
+	return new OptionsPage;
 }
 
 //------------------------------------------------------------------------------
@@ -133,7 +133,7 @@ void Analyzer::private_init() {
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::show_specified() {
-	static QDialog *dialog = new DialogSpecifiedFunctions(edb::v1::debugger_ui);
+	static QDialog *dialog = new SpecifiedFunctions(edb::v1::debugger_ui);
 	dialog->show();
 }
 

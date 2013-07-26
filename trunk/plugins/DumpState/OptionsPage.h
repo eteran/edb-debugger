@@ -16,19 +16,19 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ANALYZEROPTIONSPAGE_20090706_H_
-#define ANALYZEROPTIONSPAGE_20090706_H_
+#ifndef OPTIONSPAGE_20090706_H_
+#define OPTIONSPAGE_20090706_H_
 
 #include <QWidget>
 
-namespace Ui { class DumpStateOptionsPage; }
+namespace Ui { class OptionsPage; }
 
-class DumpStateOptionsPage : public QWidget {
+class OptionsPage : public QWidget {
 	Q_OBJECT;
 
 public:
-	DumpStateOptionsPage(QWidget *parent = 0);
-	virtual ~DumpStateOptionsPage();
+	OptionsPage(QWidget *parent = 0);
+	virtual ~OptionsPage();
 
 public:
 	virtual void showEvent(QShowEvent *event);
@@ -38,7 +38,7 @@ public Q_SLOTS:
 	void on_instructionsAfterIP_valueChanged(int i);
 
 private:
-	Ui::DumpStateOptionsPage *const ui;
+	Ui::OptionsPage *const ui;
 };
 
 #endif

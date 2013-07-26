@@ -17,8 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "CheckVersion.h"
-#include "CheckVersionOptionsPage.h"
+#include "OptionsPage.h"
 #include "edb.h"
+
 #include <QDebug>
 #include <QMenu>
 #include <QMessageBox>
@@ -60,7 +61,7 @@ void CheckVersion::private_init() {
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *CheckVersion::options_page() {
-	return new CheckVersionOptionsPage;
+	return new OptionsPage;
 }
 
 //------------------------------------------------------------------------------
