@@ -16,24 +16,24 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "DumpStateOptionsPage.h"
+#include "OptionsPage.h"
 #include <QSettings>
 
-#include "ui_dumpstate_options_page.h"
+#include "ui_OptionsPage.h"
 
 //------------------------------------------------------------------------------
-// Name: DumpStateOptionsPage
+// Name: OptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-DumpStateOptionsPage::DumpStateOptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::DumpStateOptionsPage) {
+OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsPage) {
 	ui->setupUi(this);
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DumpStateOptionsPage
+// Name: ~OptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-DumpStateOptionsPage::~DumpStateOptionsPage() {
+OptionsPage::~OptionsPage() {
 	delete ui;
 }
 
@@ -41,29 +41,20 @@ DumpStateOptionsPage::~DumpStateOptionsPage() {
 // Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
-void DumpStateOptionsPage::showEvent(QShowEvent *event) {
+void OptionsPage::showEvent(QShowEvent *event) {
 	Q_UNUSED(event);
 
 	QSettings settings;
-	ui->instructionsBeforeIP->setValue(settings.value("DumpState/instructions_before_ip", 0).toInt());
-	ui->instructionsAfterIP->setValue(settings.value("DumpState/instructions_after_ip", 5).toInt());
+	ui->checkBox->setChecked(settings.value("Analyzer/fuzzy_logic_functions.enabled", true).toBool());
 }
 
 //------------------------------------------------------------------------------
-// Name: on_instructionsBeforeIP_valueChanged
+// Name: on_checkBox_toggled
 // Desc:
 //------------------------------------------------------------------------------
-void DumpStateOptionsPage::on_instructionsBeforeIP_valueChanged(int i) {
-	QSettings settings;
-	settings.setValue("DumpState/instructions_before_ip", i);
-}
+void OptionsPage::on_checkBox_toggled(bool checked) {
+	Q_UNUSED(checked);
 
-//------------------------------------------------------------------------------
-// Name: on_instructionsAfterIP_valueChanged
-// Desc:
-//------------------------------------------------------------------------------
-void DumpStateOptionsPage::on_instructionsAfterIP_valueChanged(int i) {
 	QSettings settings;
-	settings.setValue("DumpState/instructions_after_ip", i);
+	settings.setValue("Analyzer/fuzzy_logic_functions.enabled", ui->checkBox->isChecked());
 }
-

@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <author>Evan Teran</author>
- <class>DialogSpecified</class>
- <widget class="QDialog" name="DialogSpecified">
+ <class>SpecifiedFunctions</class>
+ <widget class="QDialog" name="SpecifiedFunctions">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -101,7 +101,7 @@
   <connection>
    <sender>close_button</sender>
    <signal>clicked()</signal>
-   <receiver>DialogSpecified</receiver>
+   <receiver>SpecifiedFunctions</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

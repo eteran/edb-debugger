@@ -17,19 +17,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DumpState.h"
-#include "edb.h"
-#include "DumpStateOptionsPage.h"
 #include "IDebuggerCore.h"
 #include "Instruction.h"
+#include "OptionsPage.h"
 #include "State.h"
 #include "Util.h"
+#include "edb.h"
+
 #include <QMenu>
 #include <QSettings>
 #include <iomanip>
 #include <iostream>
 #include <sstream>
 #include <string>
-
 
 namespace {
 
@@ -263,7 +263,7 @@ void DumpState::show_menu() {
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *DumpState::options_page() {
-	return new DumpStateOptionsPage;
+	return new OptionsPage;
 }
 
 #if QT_VERSION < 0x050000

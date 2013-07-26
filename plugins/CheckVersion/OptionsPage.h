@@ -16,19 +16,19 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ANALYZEROPTIONSPAGE_20090706_H_
-#define ANALYZEROPTIONSPAGE_20090706_H_
+#ifndef OPTIONSPAGE_20090703_H_
+#define OPTIONSPAGE_20090703_H_
 
 #include <QWidget>
 
-namespace Ui { class AnalyzerOptionsPage; }
+namespace Ui { class OptionsPage; }
 
-class AnalyzerOptionsPage : public QWidget {
+class OptionsPage : public QWidget {
 	Q_OBJECT;
 
 public:
-	AnalyzerOptionsPage(QWidget *parent = 0);
-	virtual ~AnalyzerOptionsPage();
+	OptionsPage(QWidget *parent = 0);
+	virtual ~OptionsPage();
 
 public:
 	virtual void showEvent(QShowEvent *event);
@@ -37,7 +37,7 @@ public Q_SLOTS:
 	void on_checkBox_toggled(bool checked = false);
 
 private:
-	Ui::AnalyzerOptionsPage *const ui;
+	Ui::OptionsPage *const ui;
 };
 
 #endif

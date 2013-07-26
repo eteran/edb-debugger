@@ -16,24 +16,24 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "CheckVersionOptionsPage.h"
+#include "OptionsPage.h"
 #include <QSettings>
 
-#include "ui_checkversion_options_page.h"
+#include "ui_OptionsPage.h"
 
 //------------------------------------------------------------------------------
-// Name: CheckVersionOptionsPage
+// Name: OptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-CheckVersionOptionsPage::CheckVersionOptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::CheckVersionOptionsPage) {
+OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsPage) {
 	ui->setupUi(this);
 }
 
 //------------------------------------------------------------------------------
-// Name: ~CheckVersionOptionsPage
+// Name: ~OptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-CheckVersionOptionsPage::~CheckVersionOptionsPage() {
+OptionsPage::~OptionsPage() {
 	delete ui;
 }
 
@@ -41,20 +41,29 @@ CheckVersionOptionsPage::~CheckVersionOptionsPage() {
 // Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
-void CheckVersionOptionsPage::showEvent(QShowEvent *event) {
+void OptionsPage::showEvent(QShowEvent *event) {
 	Q_UNUSED(event);
 
 	QSettings settings;
-	ui->checkBox->setChecked(settings.value("CheckVersion/check_on_start.enabled", true).toBool());
+	ui->instructionsBeforeIP->setValue(settings.value("DumpState/instructions_before_ip", 0).toInt());
+	ui->instructionsAfterIP->setValue(settings.value("DumpState/instructions_after_ip", 5).toInt());
 }
 
 //------------------------------------------------------------------------------
-// Name: on_checkBox_toggled
+// Name: on_instructionsBeforeIP_valueChanged
 // Desc:
 //------------------------------------------------------------------------------
-void CheckVersionOptionsPage::on_checkBox_toggled(bool checked) {
-	Q_UNUSED(checked);
-
+void OptionsPage::on_instructionsBeforeIP_valueChanged(int i) {
 	QSettings settings;
-	settings.setValue("CheckVersion/check_on_start.enabled", ui->checkBox->isChecked());
+	settings.setValue("DumpState/instructions_before_ip", i);
 }
+
+//------------------------------------------------------------------------------
+// Name: on_instructionsAfterIP_valueChanged
+// Desc:
+//------------------------------------------------------------------------------
+void OptionsPage::on_instructionsAfterIP_valueChanged(int i) {
+	QSettings settings;
+	settings.setValue("DumpState/instructions_after_ip", i);
+}
+
