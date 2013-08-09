@@ -835,7 +835,7 @@ IPlugin *find_plugin_by_name(const QString &name) {
 // Desc:
 //------------------------------------------------------------------------------
 void reload_symbols() {
-	symbol_manager().load_symbols(config().symbol_path);
+	symbol_manager().clear();
 }
 
 //------------------------------------------------------------------------------

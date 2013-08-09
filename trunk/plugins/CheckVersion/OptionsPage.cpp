@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_OptionsPage.h"
 
+namespace check_version {
+
 //------------------------------------------------------------------------------
 // Name: OptionsPage
 // Desc:
@@ -57,4 +59,6 @@ void OptionsPage::on_checkBox_toggled(bool checked) {
 
 	QSettings settings;
 	settings.setValue("CheckVersion/check_on_start.enabled", ui->checkBox->isChecked());
+}
+
 }

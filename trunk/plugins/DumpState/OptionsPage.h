@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace Ui { class OptionsPage; }
 
+namespace dump_state {
+
 class OptionsPage : public QWidget {
 	Q_OBJECT;
 
@@ -40,6 +42,7 @@ public Q_SLOTS:
 private:
 	Ui::OptionsPage *const ui;
 };
+}
 
 #endif
 

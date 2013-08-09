@@ -81,6 +81,7 @@ void DialogBinaryString::do_find() {
 
 				const quint8 *p = &pages[0];
 				const quint8 *const pages_end = &pages[0] + region->size();
+				
 				QString temp;
 				while(p != pages_end) {
 					// shift in the next byte

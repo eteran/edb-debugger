@@ -55,22 +55,11 @@ void Configuration::read_settings() {
 	const QString default_font = QFont("Monospace", 8).toString();
 #endif
 
-#ifdef DEFAULT_SYMBOL_PATH
-	const QString default_symbol_path = TOSTRING(DEFAULT_SYMBOL_PATH);
-#else
-	const QString default_symbol_path = QDir().absolutePath();
-#endif
 
 #ifdef DEFAULT_PLUGIN_PATH
 	const QString default_plugin_path = TOSTRING(DEFAULT_PLUGIN_PATH);
 #else
 	const QString default_plugin_path = QDir().absolutePath();
-#endif
-
-#ifdef DEFAULT_SESSION_PATH
-	const QString default_session_path = TOSTRING(DEFAULT_SESSION_PATH);
-#else
-	const QString default_session_path = QDir().absolutePath();
 #endif
 
 	QSettings settings;
@@ -109,9 +98,9 @@ void Configuration::read_settings() {
 	settings.endGroup();
 
 	settings.beginGroup("Directories");
-	symbol_path  = settings.value("directory.symbol.path", default_symbol_path).value<QString>();
+	symbol_path  = settings.value("directory.symbol.path", QString()).value<QString>();
 	plugin_path  = settings.value("directory.plugin.path", default_plugin_path).value<QString>();
-	session_path = settings.value("directory.session.path", default_session_path).value<QString>();
+	session_path = settings.value("directory.session.path", QString()).value<QString>();
 	settings.endGroup();
 
 	// normalize values

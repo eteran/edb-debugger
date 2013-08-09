@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_OptionsPage.h"
 
+namespace analyzer {
+
 //------------------------------------------------------------------------------
 // Name: OptionsPage
 // Desc:
@@ -57,4 +59,6 @@ void OptionsPage::on_checkBox_toggled(bool checked) {
 
 	QSettings settings;
 	settings.setValue("Analyzer/fuzzy_logic_functions.enabled", ui->checkBox->isChecked());
+}
+
 }

@@ -16,12 +16,14 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPTIONSPAGE_20090703_H_
-#define OPTIONSPAGE_20090703_H_
+#ifndef OPTIONS_PAGE_20090703_H_
+#define OPTIONS_PAGE_20090703_H_
 
 #include <QWidget>
 
 namespace Ui { class OptionsPage; }
+
+namespace check_version {
 
 class OptionsPage : public QWidget {
 	Q_OBJECT;
@@ -39,6 +41,8 @@ public Q_SLOTS:
 private:
 	Ui::OptionsPage *const ui;
 };
+
+}
 
 #endif
 

@@ -16,14 +16,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef SYMBOLS_20110312_H_
-#define SYMBOLS_20110312_H_
+
+#ifndef SYMBOL_GENERATOR_20130808_H_
+#define SYMBOL_GENERATOR_20130808_H_
+
+#include "API.h"
 
 class QString;
-#include <iostream>
 
-namespace symbols {
-bool generate_symbols(const QString &filename, std::ostream &os = std::cout);
-}
+class EDB_EXPORT ISymbolGenerator {
+public:
+	virtual ~ISymbolGenerator() {}
+
+public:
+	virtual bool generate_symbol_file(const QString &filename, const QString &symbol_file) = 0;
+};
 
 #endif

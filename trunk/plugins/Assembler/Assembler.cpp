@@ -90,7 +90,7 @@ void Assembler::show_dialog() {
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *Assembler::options_page() {
-	return new OptionsPage;
+	return new assembler::OptionsPage;
 }
 
 #if QT_VERSION < 0x050000

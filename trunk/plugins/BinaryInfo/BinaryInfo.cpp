@@ -21,12 +21,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ELF32.h"
 #include "ELF64.h"
 #include "IBinary.h"
+#include "ISymbolManager.h"
 #include "PE32.h"
 #include "edb.h"
 #include "symbols.h"
 
 #include <QDebug>
 #include <QMenu>
+
+#include <fstream>
 
 namespace {
 
@@ -71,6 +74,7 @@ void BinaryInfo::private_init() {
 	edb::v1::register_binary_info(create_binary_info_elf32);
 	edb::v1::register_binary_info(create_binary_info_elf64);
 	edb::v1::register_binary_info(create_binary_info_pe32);
+	edb::v1::symbol_manager().set_symbol_generator(this);
 }
 
 //------------------------------------------------------------------------------
@@ -118,6 +122,22 @@ IPlugin::ArgumentStatus BinaryInfo::parse_argments(QStringList &args) {
 	}
 
 	return ARG_SUCCESS;
+}
+
+//------------------------------------------------------------------------------
+// Name: generate_symbol_file
+// Desc:
+//------------------------------------------------------------------------------
+bool BinaryInfo::generate_symbol_file(const QString &filename, const QString &symbol_file) {
+
+	std::ofstream file(qPrintable(symbol_file));	
+	if(file) {
+		if(symbols::generate_symbols(filename, file)) {
+			return true;
+		}
+	}
+	
+	return false;
 }
 
 #if QT_VERSION < 0x050000

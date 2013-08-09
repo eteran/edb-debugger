@@ -57,6 +57,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
+	// NOTE: the details of this structure are 32/64-bit sensitive!
+
 	struct malloc_chunk {
 		ulong prev_size; /* Size of previous chunk (if free).  */
 		ulong size;      /* Size in bytes, including overhead. */
