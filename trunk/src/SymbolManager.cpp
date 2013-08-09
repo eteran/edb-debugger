@@ -44,7 +44,6 @@ SymbolManager::SymbolManager() : symbol_generator_(0), show_path_notice_(true) {
 //------------------------------------------------------------------------------
 void SymbolManager::set_symbol_path(const QString &symbol_directory) {
 	symbol_directory_ = symbol_directory;
-	show_path_notice_ = true;
 	clear();
 }
 
@@ -156,9 +155,9 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 	// TODO: support symbol files with paths so we can deal with binaries that have 
 	//       conflicting names in different directories
 
-	qDebug() << "loading symbols:" << f;
 	std::ifstream file(qPrintable(f));
 	if(file) {
+		qDebug() << "loading symbols:" << f;
 		edb::address_t sym_start;
 		edb::address_t sym_end;
 		std::string    sym_name;

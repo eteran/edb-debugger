@@ -398,6 +398,8 @@ P4FILE = "FILE *"
 	<function type="v" name="_Exit"><argument type="i" name="x" /></function>
 	<function type="v" name="abort"></function>
 	<function type="v" name="exit"><argument type="i" name="x" /></function>
+	<function type="i" name="atexit"><argument type="PFvv" name="function" /></function>
+	
 	
 	<!--
 	char         *initstate(unsigned, char *, size_t);
@@ -410,7 +412,6 @@ P4FILE = "FILE *"
 	double        erand48(unsigned short[3]);
 	double        strtod(const char *, char **);
 	float         strtof(const char *, char **);
-	int           atexit(void (*)(void));
 	int           getsubopt(char **, char *const *, char **);
 	int           mblen(const char *, size_t);
 	int           mbtowc(wchar_t *, const char *, size_t);
@@ -452,5 +453,13 @@ P4FILE = "FILE *"
 	-->
 	
 	
-	<function type="i" name="__libc_start_main"><argument type="PFiiPPcS0_E" name="main" /><argument type="i" name="main" /><argument type="PFvvE" name="init" /><argument type="PFvvE" name="fini" /><argument type="Pv" name="rtld_fini" /></function>
+	<function type="i" name="__libc_start_main">
+		<argument type="PFiiPPcS0_E" name="main" />
+		<argument type="i" name="argc" />
+		<argument type="PPc" name="ubp_av" />
+		<argument type="PFvvE" name="init" />
+		<argument type="PFvvE" name="fini" />
+		<argument type="PFvvE" name="rtld_fini" />
+		<argument type="Pv" name="stack_end" />
+	</function>
 </functions>
