@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_OptionsPage.h"
 
+namespace assembler {
+
 //------------------------------------------------------------------------------
 // Name: OptionsPage
 // Desc:
@@ -68,4 +70,6 @@ void OptionsPage::on_toolButton_clicked() {
 	if(!filename.isEmpty()) {
 		ui->assemblerPath->setEditText(filename);
 	}
+}
+
 }

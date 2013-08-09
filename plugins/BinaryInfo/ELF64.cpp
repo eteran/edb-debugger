@@ -40,14 +40,6 @@ ELF64::ELF64(const IRegion::pointer &region) : region_(region), header_(0) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ELF64
-// Desc: constructor
-//------------------------------------------------------------------------------
-ELF64::ELF64(const QString &filename) : header_(0), file_(filename) {
-
-}
-
-//------------------------------------------------------------------------------
 // Name: ~ELF64
 // Desc: deconstructor
 //------------------------------------------------------------------------------
@@ -101,10 +93,6 @@ void ELF64::read_header() {
 			if(!edb::v1::debugger_core->read_bytes(region_->start(), header_, sizeof(plugin::binary_info::elf64_header))) {
 				std::memset(header_, 0, sizeof(plugin::binary_info::elf64_header));
 			}
-		} else if(file_.open(QIODevice::ReadOnly)) {
-			header_ = new plugin::binary_info::elf64_header;
-			file_.read(reinterpret_cast<char *>(header_), sizeof(plugin::binary_info::elf64_header));		
-			file_.close();
 		}
 	}
 }

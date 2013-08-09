@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_OptionsPage.h"
 
+namespace dump_state {
 //------------------------------------------------------------------------------
 // Name: OptionsPage
 // Desc:
@@ -67,3 +68,4 @@ void OptionsPage::on_instructionsAfterIP_valueChanged(int i) {
 	settings.setValue("DumpState/instructions_after_ip", i);
 }
 
+}

@@ -142,7 +142,7 @@ void load_translations() {
 void usage() {
 
 	QStringList args = qApp->arguments();
-	std::cerr << "Usage: " << qPrintable(args[0]) << " [OPTION]" << std::endl;
+	std::cerr << "Usage: " << qPrintable(args[0]) << " [OPTIONS]" << std::endl;
 	std::cerr << std::endl;
 	std::cerr << " --attach <pid>            : attach to running process" << std::endl;
 	std::cerr << " --run <program> (args...) : execute specified <program> with <args>" << std::endl;

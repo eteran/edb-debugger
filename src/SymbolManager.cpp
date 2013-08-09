@@ -17,8 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "SymbolManager.h"
-#include "edb.h"
+#include "ISymbolGenerator.h"
 #include "MD5.h"
+#include "edb.h"
 
 #include <QFile>
 #include <QDir>
@@ -29,11 +30,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 //------------------------------------------------------------------------------
-// Name: load_symbols
+// Name: SymbolManager
 // Desc:
 //------------------------------------------------------------------------------
-void SymbolManager::load_symbols(const QString &symbol_directory) {
+SymbolManager::SymbolManager() : symbol_generator_(0), show_path_notice_(true) {
+
+}
+
+//------------------------------------------------------------------------------
+// Name: set_symbol_path
+// Desc:
+// Note: as a side effect, this function clears all loaded symbols
+//------------------------------------------------------------------------------
+void SymbolManager::set_symbol_path(const QString &symbol_directory) {
 	symbol_directory_ = symbol_directory;
+	show_path_notice_ = true;
 	clear();
 }
 
@@ -53,6 +64,14 @@ void SymbolManager::clear() {
 // Desc:
 //------------------------------------------------------------------------------
 void SymbolManager::load_symbol_file(const QString &filename, edb::address_t base) {
+
+	if(symbol_directory_.isEmpty()) {
+		if(show_path_notice_) {
+			qDebug() << "No symbol path specified. Please set it in the preferences to enable symbols.";
+			show_path_notice_ = false;
+		}
+		return;
+	}
 
 	const QFileInfo info(filename);
 	const QString name = info.fileName();
@@ -129,10 +148,13 @@ void SymbolManager::add_symbol(const Symbol::pointer &symbol) {
 //------------------------------------------------------------------------------
 // Name: process_symbol_file
 // Desc:
+// Note: returning false means 'try again', true means, 'we loaded what we could'
 //------------------------------------------------------------------------------
 bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename) {
 
 	// TODO: support filename starting with "http://" being fetched from a web server
+	// TODO: support symbol files with paths so we can deal with binaries that have 
+	//       conflicting names in different directories
 
 	qDebug() << "loading symbols:" << f;
 	std::ifstream file(qPrintable(f));
@@ -178,6 +200,11 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 				return true;
 			}
 		}
+	} else if(symbol_generator_) {
+		qDebug() << "Auto-Generating Symbol File: " << f;
+		if(symbol_generator_->generate_symbol_file(library_filename, f)) {
+			return false;
+		}
 	}
 
 	// TODO: should we return false and try again later?
@@ -190,4 +217,12 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 //------------------------------------------------------------------------------
 const QList<Symbol::pointer> SymbolManager::symbols() const {
 	return symbols_;
+}
+
+//------------------------------------------------------------------------------
+// Name: set_symbol_generator
+// Desc:
+//------------------------------------------------------------------------------
+void SymbolManager::set_symbol_generator(ISymbolGenerator *generator) {
+	symbol_generator_ = generator;
 }

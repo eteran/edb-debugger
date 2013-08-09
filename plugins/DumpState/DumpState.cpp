@@ -263,7 +263,7 @@ void DumpState::show_menu() {
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *DumpState::options_page() {
-	return new OptionsPage;
+	return new dump_state::OptionsPage;
 }
 
 #if QT_VERSION < 0x050000

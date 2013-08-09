@@ -61,7 +61,7 @@ void CheckVersion::private_init() {
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *CheckVersion::options_page() {
-	return new OptionsPage;
+	return new check_version::OptionsPage;
 }
 
 //------------------------------------------------------------------------------

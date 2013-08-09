@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class PE32 : public IBinary {
 public:
 	PE32(const IRegion::pointer &region);
-	PE32(const QString &filename);
 	virtual ~PE32();
 
 public:

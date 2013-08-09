@@ -450,6 +450,7 @@ P4FILE = "FILE *"
 	void         *malloc(size_t);
 	void         *realloc(void *, size_t);
 	-->
-
-
+	
+	
+	<function type="i" name="__libc_start_main"><argument type="PFiiPPcS0_E" name="main" /><argument type="i" name="main" /><argument type="PFvvE" name="init" /><argument type="PFvvE" name="fini" /><argument type="Pv" name="rtld_fini" /></function>
 </functions>

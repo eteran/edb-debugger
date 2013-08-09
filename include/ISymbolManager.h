@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 
 class QString;
+class ISymbolGenerator;
 
 class EDB_EXPORT ISymbolManager {
 public:
@@ -35,10 +36,11 @@ public:
 	virtual const Symbol::pointer find(const QString &name) const = 0;
 	virtual const Symbol::pointer find(edb::address_t address) const = 0;
 	virtual const Symbol::pointer find_near_symbol(edb::address_t address) const = 0;
+	virtual void add_symbol(const Symbol::pointer &symbol) = 0;
 	virtual void clear() = 0;
 	virtual void load_symbol_file(const QString &filename, edb::address_t base) = 0;
-	virtual void load_symbols(const QString &symbol_directory) = 0;
-	virtual void add_symbol(const Symbol::pointer &symbol) = 0;
+	virtual void set_symbol_generator(ISymbolGenerator *generator) = 0;
+	virtual void set_symbol_path(const QString &symbol_directory) = 0;
 };
 
 #endif

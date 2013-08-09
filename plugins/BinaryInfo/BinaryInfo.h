@@ -20,11 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ELFBINARYINFO_20061122_H_
 
 #include "IPlugin.h"
+#include "ISymbolGenerator.h"
 #include "Types.h"
 
 class QMenu;
 
-class BinaryInfo : public QObject, public IPlugin {
+class BinaryInfo : public QObject, public IPlugin, public ISymbolGenerator {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
 #if QT_VERSION >= 0x050000
@@ -43,6 +44,9 @@ public:
 	virtual QMenu *menu(QWidget *parent = 0);
 	virtual QString extra_arguments() const;
 	virtual ArgumentStatus parse_argments(QStringList &args);
+	
+public:
+	virtual bool generate_symbol_file(const QString &filename, const QString &symbol_file);
 
 public Q_SLOTS:
 	void explore_header();

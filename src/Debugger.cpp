@@ -2128,10 +2128,18 @@ void Debugger::cleanup_debugger() {
 // Desc:
 //------------------------------------------------------------------------------
 QString Debugger::session_filename() const {
+
+	QString session_path = edb::v1::config().session_path;
+	if(session_path.isEmpty()) {
+		qDebug() << "No session path specified, Using current working directory.";
+		session_path = QDir().absolutePath();
+	}
+
 	if(!program_executable_.isEmpty()) {
 		const QFileInfo info(program_executable_);
-		return QString(QLatin1String("%1/%2.edb")).arg(edb::v1::config().session_path, info.fileName());
+		return QString(QLatin1String("%1/%2.edb")).arg(session_path, info.fileName());
 	}
+	
 	return QString();
 }
 
@@ -2169,7 +2177,7 @@ void Debugger::set_initial_debugger_state() {
 	update_menu_state(PAUSED);
 	timer_->start(0);
 
-	edb::v1::symbol_manager().load_symbols(edb::v1::config().symbol_path);
+	edb::v1::symbol_manager().set_symbol_path(edb::v1::config().symbol_path);
 	edb::v1::memory_regions().sync();
 
 	Q_ASSERT(data_regions_.size() > 0);
@@ -2664,7 +2672,7 @@ void Debugger::next_debug_event() {
 		// TODO: make the system use this information, this is huge! it will
 		// allow us to have restorable breakpoints...even in libraries!
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-		if(debug_pointer_ == 0 && binary_info_) {
+		if(!debug_pointer_ && binary_info_) {
 			if((debug_pointer_ = binary_info_->debug_pointer()) != 0) {
 				r_debug dynamic_info;
 				const bool ok = edb::v1::debugger_core->read_bytes(debug_pointer_, &dynamic_info, sizeof(dynamic_info));

@@ -76,7 +76,7 @@ Analyzer::Analyzer() : menu_(0), analyzer_widget_(0) {
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *Analyzer::options_page() {
-	return new OptionsPage;
+	return new analyzer::OptionsPage;
 }
 
 //------------------------------------------------------------------------------
@@ -264,7 +264,11 @@ void Analyzer::find_function_calls(const IRegion::pointer &region, FunctionMap *
 	
 	if(!pages.isEmpty()) {
 		for(int i = 0; i < pages.size(); ++i) {
-			const edb::Instruction insn(&pages[i], &pages[pages.size()], region->start() + i, std::nothrow);
+		
+			const quint8 *p = &pages[0];
+			const quint8 *const pages_end = &pages[0] + pages.size();
+		
+			const edb::Instruction insn(p, pages_end, region->start() + i, std::nothrow);
 
 			if(is_call(insn)) {
 
