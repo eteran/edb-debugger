@@ -18,9 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ArchProcessor.h"
 #include "Configuration.h"
-#include "Function.h"
 #include "IDebuggerCore.h"
 #include "Instruction.h"
+#include "Prototype.h"
 #include "RegisterListWidget.h"
 #include "State.h"
 #include "Util.h"
@@ -280,7 +280,7 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 	// safe not to check for -1, it means 'rest of string' for the mid function
 	func_name = func_name.mid(0, func_name.indexOf("@"));
 
-	if(const edb::Function *const info = edb::v1::get_function_info(func_name)) {
+	if(const edb::Prototype *const info = edb::v1::get_function_info(func_name)) {
 
 		QStringList arguments;
 		int i = 0;

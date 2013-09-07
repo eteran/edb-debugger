@@ -116,7 +116,7 @@ void DialogFunctions::do_find() {
 
 				const IAnalyzer::FunctionMap &results = analyzer->functions(region);
 
-				Q_FOREACH(const IAnalyzer::Function &info, results) {
+				Q_FOREACH(const Function &info, results) {
 
 					const int row = ui->tableWidget->rowCount();
 					ui->tableWidget->insertRow(row);
@@ -142,10 +142,13 @@ void DialogFunctions::do_find() {
 					ui->tableWidget->setItem(row, 3, itemCount);
 
 					// type
-					if(info.type == IAnalyzer::Function::FUNCTION_THUNK) {
+					switch(info.type) {
+					case Function::FUNCTION_THUNK:
 						ui->tableWidget->setItem(row, 4, new QTableWidgetItem(tr("Thunk")));
-					} else {
+						break;
+					case Function::FUNCTION_STANDARD:
 						ui->tableWidget->setItem(row, 4, new QTableWidgetItem(tr("Standard Function")));
+						break;
 					}
 				}
 			}

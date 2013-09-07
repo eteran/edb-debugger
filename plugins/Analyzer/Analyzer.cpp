@@ -876,7 +876,7 @@ void Analyzer::collect_function_blocks(RegionData *data, edb::address_t address)
 						
 			if(!basic_block.empty()) {
 			
-				IAnalyzer::Function func;
+				Function func;
 				func.entry_address      = address;
 				func.reference_count    = MIN_REFCOUNT;
 				func.end_address        = basic_block.last_address() - 1;
@@ -895,7 +895,7 @@ void Analyzer::collect_known_functions(RegionData *data) {
 	
 	// can't use concurrent (yet) because it creates new entries in 
 	// data->analysis
-	Q_FOREACH(edb::address_t address, data->known_functions) {
+	Q_FOREACH(const edb::address_t address, data->known_functions) {
 		collect_function_blocks(data, address);
 	}	
 }
@@ -1026,7 +1026,7 @@ IAnalyzer::FunctionMap Analyzer::functions(const IRegion::pointer &region) const
 // Name: find_containing_function
 // Desc:
 //------------------------------------------------------------------------------
-bool Analyzer::find_containing_function(edb::address_t address, IAnalyzer::Function *function) const {
+bool Analyzer::find_containing_function(edb::address_t address, Function *function) const {
 
 	Q_ASSERT(function);
 

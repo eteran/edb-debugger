@@ -25,6 +25,7 @@ HEADERS += \
 	API.h \
 	ArchProcessor.h \
 	ArchTypes.h \
+	BasicBlock.h \
 	BinaryString.h \
 	ByteShiftArray.h \
 	CommentServer.h \
@@ -41,7 +42,6 @@ HEADERS += \
 	DialogPlugins.h \
 	DialogThreads.h \
 	Expression.h \
-	Function.h \
 	HexStringValidator.h \
 	IAnalyzer.h \
 	IBinary.h \
@@ -61,13 +61,14 @@ HEADERS += \
 	Module.h \
 	OSTypes.h \
 	Process.h \
-	RegisterListWidget.h \
+	Prototype.h \
 	QDisassemblyView.h \
 	QLongValidator.h \
 	QULongValidator.h \
 	RecentFileManager.h \
 	RegionBuffer.h \
 	Register.h \
+	RegisterListWidget.h \
 	RegisterViewDelegate.h \
 	ScopedPointer.h \
 	ShiftBuffer.h \
@@ -81,6 +82,7 @@ HEADERS += \
 	edb.h \
 	string_hash.h \
 	version.h
+
 
 FORMS += \
 	BinaryString.ui \
@@ -96,6 +98,7 @@ FORMS += \
 
 SOURCES += \
 	ArchProcessor.cpp \
+	BasicBlock.cpp \
 	BinaryString.cpp \
 	ByteShiftArray.cpp \
 	CommentServer.cpp \
@@ -114,13 +117,13 @@ SOURCES += \
 	LineEdit.cpp \
 	MD5.cpp \
 	MemoryRegions.cpp \
-	RegisterListWidget.cpp \
 	QDisassemblyView.cpp \
 	QLongValidator.cpp \
 	QULongValidator.cpp \
 	RecentFileManager.cpp \
 	RegionBuffer.cpp \
 	Register.cpp \
+	RegisterListWidget.cpp \
 	RegisterViewDelegate.cpp \
 	State.cpp \
 	SymbolManager.cpp \

@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogOptions.h"
 #include "Debugger.h"
 #include "Expression.h"
-#include "Function.h"
+#include "Prototype.h"
 #include "IDebuggerCore.h"
 #include "IPlugin.h"
 #include "MD5.h"
@@ -60,7 +60,7 @@ namespace {
 	QHash<QString, QObject *>          g_GeneralPlugins;
 	BinaryInfoList                     g_BinaryInfoList;
 
-	QHash<QString, edb::Function>      g_FunctionDB;
+	QHash<QString, edb::Prototype>     g_FunctionDB;
 
 	Debugger *ui() {
 		return qobject_cast<Debugger *>(edb::v1::debugger_ui);
@@ -114,7 +114,7 @@ void load_function_db() {
 			for (; !function.isNull(); function = function.nextSiblingElement("function")) {
 
 
-				Function func;
+				Prototype func;
 				func.name = function.attribute("name");
 				func.type = function.attribute("type");
 
@@ -842,9 +842,9 @@ void reload_symbols() {
 // Name: get_function_info
 // Desc:
 //------------------------------------------------------------------------------
-const Function *get_function_info(const QString &function) {
+const Prototype *get_function_info(const QString &function) {
 
-	QHash<QString, Function>::const_iterator it = g_FunctionDB.find(function);
+	QHash<QString, Prototype>::const_iterator it = g_FunctionDB.find(function);
 	if(it != g_FunctionDB.end()) {
 		return &(it.value());
 	}
