@@ -29,7 +29,7 @@ class DataViewInfo {
 public:
 	typedef QSharedPointer<DataViewInfo> pointer;
 public:
-	explicit DataViewInfo(const IRegion::pointer &r = IRegion::pointer());
+	explicit DataViewInfo(const IRegion::pointer &r);
 	~DataViewInfo();
 
 private:

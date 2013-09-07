@@ -23,7 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Instruction.h"
 
 #define EDB_X86
-#define EDB_FMT_PTR "%08x"
 
 namespace edb {
 	typedef quint32                              reg_t;

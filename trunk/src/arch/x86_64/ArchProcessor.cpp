@@ -450,7 +450,7 @@ void analyze_call(const State &state, const edb::Instruction &insn, QStringList 
 					}
 
 				} else {
-					ret << temp.sprintf("%s = " EDB_FMT_PTR, qPrintable(temp_operand), effective_address);
+					ret << QString("%1 = %2").arg(temp_operand, edb::v1::format_pointer(effective_address));
 				}
 			} while(0);
 			break;
@@ -464,8 +464,8 @@ void analyze_call(const State &state, const edb::Instruction &insn, QStringList 
 				if(ok) {
 					int offset;
 					const QString symname = edb::v1::find_function_symbol(target, QString(), &offset);
-					if(!symname.isEmpty()) {
-						ret << temp.sprintf("%s = [" EDB_FMT_PTR "] = " EDB_FMT_PTR " <%s>", qPrintable(temp_operand), effective_address, target, qPrintable(symname));
+					if(!symname.isEmpty()) {							
+						ret << QString("%1 = [%2] = %3 <%4>").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::v1::format_pointer(target), symname);
 
 						if(offset == 0) {
 							if(is_call(insn)) {
@@ -476,11 +476,11 @@ void analyze_call(const State &state, const edb::Instruction &insn, QStringList 
 						}
 
 					} else {
-						ret << temp.sprintf("%s = [" EDB_FMT_PTR "] = " EDB_FMT_PTR, qPrintable(temp_operand), effective_address, target);
+						ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::v1::format_pointer(target));
 					}
 				} else {
 					// could not read from the address
-					ret << temp.sprintf("%s = [" EDB_FMT_PTR "] = ?", qPrintable(temp_operand), effective_address);
+					ret << QString("%1 = [%2] = ?").arg(temp_operand, edb::v1::format_pointer(effective_address));
 				}
 			} while(0);
 			break;
