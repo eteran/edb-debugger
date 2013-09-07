@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "API.h"
 #include "Types.h"
+#include "BasicBlock.h"
+#include <QVector>
 
 class EDB_EXPORT Function {
 public:
@@ -35,6 +37,9 @@ public:
 	} type;
 
 	int size() const { return end_address - entry_address; }
+	
+private:
+	QVector<BasicBlock> blocks_;
 };
 
 #endif
