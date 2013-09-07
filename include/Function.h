@@ -24,27 +24,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 
 namespace edb {
-namespace internal {
 
-void load_function_db();
-
-}
-
-struct Argument {
+struct EDB_EXPORT Argument {
 	QString name;
 	QString type;
 };
 
-struct Function {
+struct EDB_EXPORT Function {
 	QString           name;
 	QString           type;
 	QVector<Argument> arguments;
 };
 
 }
-
-
-
 
 #endif
 

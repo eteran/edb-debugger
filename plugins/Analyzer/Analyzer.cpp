@@ -52,7 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #define MIN_REFCOUNT 2
-#define OLD_ANALYSIS
+//#define OLD_ANALYSIS
 
 namespace {
 #if defined(EDB_X86)
@@ -62,6 +62,7 @@ namespace {
 	const edb::Operand::Register STACK_REG = edb::Operand::REG_RSP;
 	const edb::Operand::Register FRAME_REG = edb::Operand::REG_RBP;
 #endif
+
 }
 
 //------------------------------------------------------------------------------
@@ -312,37 +313,47 @@ bool Analyzer::is_stack_frame(edb::address_t addr) const {
 		// gets the bytes for the instruction
 		int buf_size = sizeof(buf);
 		if(!edb::v1::get_instruction_bytes(addr, buf, &buf_size)) {
-			break;
+			return false;
 		}
 
 		// decode it
 		const edb::Instruction insn(buf, buf + buf_size, addr, std::nothrow);
 		if(!insn) {
-			break;;
+			return false;
 		}
 
 		// which part of the sequence are we looking at?
-		switch(i++) {
+		switch(i) {
 		case 0:
-			// are we looking at a 'push rBP' ?
-			if(insn.type() == edb::Instruction::OP_PUSH) {
-				Q_ASSERT(insn.operand_count() == 1);
-				const edb::Operand &op = insn.operands()[0];
-				if(op.complete_type() == edb::Operand::TYPE_REGISTER) {
-					if(op.reg() == FRAME_REG) {
-						break;
+			switch(insn.type()) {
+			case edb::Instruction::OP_PUSH:
+				{
+					// are we looking at a 'push rBP' ?
+					Q_ASSERT(insn.operand_count() == 1);
+					const edb::Operand &op = insn.operands()[0];
+					if(op.complete_type() == edb::Operand::TYPE_REGISTER) {
+						if(op.reg() == FRAME_REG) {
+							return false;
+						}
 					}
 				}
-			// if it is an 'enter 0,0' instruction, then it's a stack frame right away
-			} else if(insn.type() == edb::Instruction::OP_ENTER) {
-				Q_ASSERT(insn.operand_count() == 2);
-				const edb::Operand &op0 = insn.operands()[0];
-				const edb::Operand &op1 = insn.operands()[1];
-				if(op0.immediate() == 0 && op1.immediate() == 0) {
-					return true;
+				break;
+				
+			case edb::Instruction::OP_ENTER:
+				{
+					// if it is an 'enter 0,0' instruction, then it's a stack frame right away
+					Q_ASSERT(insn.operand_count() == 2);
+					const edb::Operand &op0 = insn.operands()[0];
+					const edb::Operand &op1 = insn.operands()[1];
+					if(op0.immediate() == 0 && op1.immediate() == 0) {
+						return true;
+					}
 				}
+				break;
+				
+			default:
+				return false;
 			}
-			++i;
 			break;
 		case 1:
 			// are we looking at a 'mov rBP, rSP' ?
@@ -357,11 +368,10 @@ bool Analyzer::is_stack_frame(edb::address_t addr) const {
 				}
 			}
 			break;
-		default:
-			break;
 		}
 
 		addr += insn.size();
+		++i;
 	}
 
 	return false;
@@ -399,26 +409,6 @@ void Analyzer::bonus_stack_frames(RegionData *data) {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_results_entry
-// Desc:
-//------------------------------------------------------------------------------
-void Analyzer::update_results_entry(FunctionMap *results, edb::address_t address) const {
-
-	Q_ASSERT(results);
-
-	Function &func = (*results)[address];
-
-	func.entry_address = address;
-	func.end_address   = address;
-
-	if(func.reference_count == 0) {
-		func.reference_count = MIN_REFCOUNT;
-	} else {
-		func.reference_count++;
-	}
-}
-
-//------------------------------------------------------------------------------
 // Name: bonus_main
 // Desc:
 //------------------------------------------------------------------------------
@@ -431,10 +421,6 @@ void Analyzer::bonus_main(RegionData *data) const {
 		const edb::address_t main = edb::v1::locate_main_function();
 
 		if(main && data->region->contains(main)) {
-			// make sure we have an entry for this function
-		#if defined(OLD_ANALYSIS)
-			update_results_entry(&data->analysis, main);
-		#endif
 			data->known_functions.insert(main);
 		}
 	}
@@ -452,11 +438,6 @@ void Analyzer::bonus_symbols_helper(RegionData *data, const Symbol::pointer &sym
 
 	if(data->region->contains(addr) && sym->is_code()) {
 		qDebug("[Analyzer] adding: %s <%p>", qPrintable(sym->name), reinterpret_cast<void *>(addr));
-
-		// make sure we have an entry for this function
-	#if defined(OLD_ANALYSIS)
-		update_results_entry(&data->analysis, addr);
-	#endif
 		data->known_functions.insert(addr);
 	}
 }
@@ -489,88 +470,10 @@ void Analyzer::bonus_marked_functions(RegionData *data) {
 
 	Q_FOREACH(edb::address_t addr, specified_functions_) {
 		if(data->region->contains(addr)) {
-
 			qDebug("[Analyzer] adding: <%p>", reinterpret_cast<void *>(addr));
-
-		#if defined(OLD_ANALYSIS)
-			// make sure we have an entry for this function
-			update_results_entry(&data->analysis, addr);
-		#endif
 			data->known_functions.insert(addr);
 		}
 	}
-}
-
-//------------------------------------------------------------------------------
-// Name: walk_all_functions
-// Desc:
-//------------------------------------------------------------------------------
-int Analyzer::walk_all_functions(FunctionMap *results, const IRegion::pointer &region, QSet<edb::address_t> *walked_functions) {
-
-	Q_ASSERT(results);
-	Q_ASSERT(walked_functions);
-
-	int updates = 0;
-
-	QSet<edb::address_t> found_functions;
-
-	FunctionMap::iterator it = results->begin();
-	while(it != results->end()) {
-		Function &function = it.value();
-
-		const FunctionMap::iterator next = ++it;
-
-		if(function.reference_count >= MIN_REFCOUNT) {
-			if(!walked_functions->contains(function.entry_address)) {
-
-				// the function's upper bound is either the entry point of the next function
-				// or the region's end which is the absolute max end this function can have
-				const edb::address_t next_entry = (next != results->end()) ? next.value().entry_address : region->end();
-
-				// walk the function and collect some results
-
-				find_function_end(&function, next_entry, &found_functions, *results);
-				walked_functions->insert(function.entry_address);
-
-				// if the very last instruction happens to be a jmp, then this may
-				// be a call/ret -> jmp optimization. This isn't always the case
-				// but often enough that it's probably right
-				quint8 buf[edb::Instruction::MAX_SIZE];
-				int buf_size = sizeof(buf);
-				if(edb::v1::get_instruction_bytes(function.last_instruction, buf, &buf_size)) {
-					const edb::Instruction insn(buf, buf + buf_size, function.last_instruction, std::nothrow);
-					if(is_unconditional_jump(insn)) {
-
-						Q_ASSERT(insn.operand_count() == 1);
-						const edb::Operand &op = insn.operands()[0];
-
-						if(op.general_type() == edb::Operand::TYPE_REL) {
-							const edb::address_t target = op.relative_target();
-
-							Function func;
-							if(!find_containing_function(target, &func)) {
-								found_functions.insert(target);
-							}
-						}
-					}
-				}
-			}
-		}
-
-		it = next;
-	}
-
-	// add the newly found functions to the list and report the number of "updates"
-	Q_FOREACH(edb::address_t func, found_functions) {
-		if(!results->contains(func)) {
-			(*results)[func].entry_address   = func;
-			(*results)[func].end_address     = func;
-			(*results)[func].reference_count = MIN_REFCOUNT;
-			++updates;
-		}
-	}
-
-	return updates;
 }
 
 //------------------------------------------------------------------------------
@@ -793,67 +696,6 @@ bool Analyzer::is_inside_known(const IRegion::pointer &region, edb::address_t ad
 }
 
 //------------------------------------------------------------------------------
-// Name: find_calls_from_known
-// Desc:
-//------------------------------------------------------------------------------
-void Analyzer::find_calls_from_known(const IRegion::pointer &region, FunctionMap *results, QSet<edb::address_t> *walked_functions) {
-
-	Q_ASSERT(results);
-	Q_ASSERT(walked_functions);
-
-	int updates;
-	do {
-		updates = walk_all_functions(results, region, walked_functions);
-		qDebug() << "[Analyzer] got" << updates << "updates";
-	} while(updates != 0);
-}
-
-//------------------------------------------------------------------------------
-// Name: collect_high_ref_results
-// Desc:
-//------------------------------------------------------------------------------
-void Analyzer::collect_high_ref_results(FunctionMap *function_map, FunctionMap *found_functions) const {
-
-	Q_ASSERT(function_map);
-	Q_ASSERT(found_functions);
-
-	for(FunctionMap::iterator it = found_functions->begin(); it != found_functions->end(); ) {
-		if(it->reference_count >= MIN_REFCOUNT) {
-			(*function_map)[it->entry_address] = *it;
-			found_functions->erase(it++);
-		} else {
-			++it;
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-void Analyzer::collect_low_ref_results(const IRegion::pointer &region, FunctionMap *function_map, FunctionMap *found_functions) {
-
-	Q_ASSERT(function_map);
-	Q_ASSERT(found_functions);
-
-	// promote weak symbols...
-	ISymbolManager &syms = edb::v1::symbol_manager();
-	Q_FOREACH(const Function &func, *found_functions) {
-		if(!is_inside_known(region, func.entry_address)) {
-			if(!function_map->contains(func.entry_address)) {
-				(*function_map)[func.entry_address] = func;
-
-				const Symbol::pointer s = syms.find(func.entry_address);
-				if(s && s->is_weak()) {
-					(*function_map)[func.entry_address].reference_count++;
-				}
-
-			}
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
 // Name: ident_header
 // Desc:
 //------------------------------------------------------------------------------
@@ -894,7 +736,7 @@ void Analyzer::collect_basic_blocks(Analyzer::RegionData *data) {
 					break;
 				}
 				
-				block.instructions.push_back(QSharedPointer<edb::Instruction>(new edb::Instruction(insn)));
+				block.push_back(instruction_pointer(new edb::Instruction(insn)));
 
 				if(is_call(insn)) {
 				
@@ -913,9 +755,12 @@ void Analyzer::collect_basic_blocks(Analyzer::RegionData *data) {
 					} else if(op.general_type() == edb::Operand::TYPE_EXPRESSION) {
 						// looks like: "call [...]", if it is of the form, call [C + REG]
 						// then it may be a jump table using REG as an offset
+					} else if(op.general_type() == edb::Operand::TYPE_REGISTER) {
+						// looks like: "call <reg>", this is this may be a callback
+						// if we can use analysis to determine that it's a constant
+						// we can figure it out...
 					}
 				}
-
 
 				if(is_unconditional_jump(insn)) {
 
@@ -954,7 +799,9 @@ void Analyzer::collect_basic_blocks(Analyzer::RegionData *data) {
 	qDebug() << "----------Basic Blocks----------";
 	for(QHash<edb::address_t, BasicBlock>::iterator it = basic_blocks.begin(); it != basic_blocks.end(); ++it) {
 		qDebug("%p:", reinterpret_cast<void *>(it.key()));
-		Q_FOREACH(const QSharedPointer<edb::Instruction> &insn, it.value().instructions) {
+		
+		for(BasicBlock::const_iterator j = it.value().begin(); j != it.value().end(); ++j) {
+			const instruction_pointer &insn = *j;
 			qDebug("\t%p: %s", reinterpret_cast<void *>(insn->rva()), to_string(*insn).c_str());
 		}
 	}
@@ -962,46 +809,39 @@ void Analyzer::collect_basic_blocks(Analyzer::RegionData *data) {
 }
 
 //------------------------------------------------------------------------------
-// Name: collect_known_functions
+// Name: collect_function_blocks
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::collect_known_functions(RegionData *data) {
-	
-	Q_FOREACH(edb::address_t address, data->known_functions) {
-	
-		qDebug("Analyzing basic blocks of: %p", reinterpret_cast<void *>(address));
-		QHash<edb::address_t, BasicBlock>::const_iterator it = data->basic_blocks.find(address);		
-		
+void Analyzer::collect_function_blocks(RegionData *data, edb::address_t address) {
+	qDebug("Analyzing basic blocks of: %p", reinterpret_cast<void *>(address));
+
+	QStack<edb::address_t> block_addresses;
+	QSet<edb::address_t>   processed_addresses;
+
+	block_addresses.push(address);
+	while(!block_addresses.empty()) {
+		const edb::address_t current_address = block_addresses.pop();
+		processed_addresses.insert(current_address);
+
+		QHash<edb::address_t, BasicBlock>::const_iterator it = data->basic_blocks.find(current_address);
 		if(it != data->basic_blocks.end()) {
+			const BasicBlock &basic_block = it.value();
+			if(!basic_block.empty()) {
+				const instruction_pointer &last_instruction = basic_block.back();
 
-			IAnalyzer::Function func;
-			func.entry_address   = address;
-			func.reference_count = MIN_REFCOUNT;
-			
-			while(it != data->basic_blocks.end()) {
+				if(is_conditional_jump(*last_instruction)) {
+					// add both the jump target and the instructions which follow this block
+					const edb::address_t next_block = current_address + basic_block.byte_size();
+					if(!processed_addresses.contains(next_block)) {
+						block_addresses.push(next_block);
+					}
 
-				qDebug("Processing Block @ %p", reinterpret_cast<void *>(it.key()));
-
-				const BasicBlock &basic_block = it.value();
-				if(basic_block.instructions.empty()) {
-					break;
-				}
-
-				const QSharedPointer<edb::Instruction> &last_instruction = basic_block.instructions.last();
-				func.end_address      = basic_block.instructions.first()->rva() + block_size(basic_block) - 1;
-				func.last_instruction = last_instruction->rva();
-
-				if(!last_instruction || is_ret(*last_instruction) || last_instruction->type() == edb::Instruction::OP_HLT) {
-					break;
-				} else if(is_conditional_jump(*last_instruction)) {
-					// continue process the next adjacent block
-					it = data->basic_blocks.find(func.end_address + 1);
-
-					// but note where the jump would take us if true
 					const edb::Operand &op = last_instruction->operands()[0];
 					if(op.general_type() == edb::Operand::TYPE_REL) {
 						const edb::address_t target = op.relative_target();
-						Q_UNUSED(target);
+						if(!processed_addresses.contains(target)) {
+							block_addresses.push(target);
+						}
 					}
 				} else if(is_unconditional_jump(*last_instruction)) {
 					const edb::Operand &op = last_instruction->operands()[0];
@@ -1010,30 +850,53 @@ void Analyzer::collect_known_functions(RegionData *data) {
 
 						// a JMP <func> is simply an optimization for "CALL <func>; RET"
 						if(data->known_functions.contains(target)) {
-							break;						
+							//break;						
+						} else if(target <= address) {
+							//break;
+						} else {
+							if(!processed_addresses.contains(target)) {
+								block_addresses.push(target);
+							}
 						}
-
-						if(target <= address) {
-							break;
-						}
-
-						if(target <= func.end_address) {
-							break;
-						}
-
-						it = data->basic_blocks.find(target);
 					}
-					break;
-				} else {
-					it = data->basic_blocks.find(func.end_address + 1);
-					break;
 				}
-				
 			}
-
-			
-			data->analysis[address] = func;
 		}
+	}
+	
+	if(!processed_addresses.isEmpty()) {
+		QList<edb::address_t> block_list = processed_addresses.toList();
+		qSort(block_list);
+		const edb::address_t last_block = block_list.back();
+		
+		QHash<edb::address_t, BasicBlock>::const_iterator it = data->basic_blocks.find(last_block);
+		if(it != data->basic_blocks.end()) {
+			
+			const BasicBlock &basic_block = it.value();
+						
+			if(!basic_block.empty()) {
+			
+				IAnalyzer::Function func;
+				func.entry_address      = address;
+				func.reference_count    = MIN_REFCOUNT;
+				func.end_address        = basic_block.last_address() - 1;
+				func.last_instruction   = basic_block.back()->rva();
+				data->analysis[address] = func;
+			}	
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: collect_known_functions
+// Desc:
+//------------------------------------------------------------------------------
+void Analyzer::collect_known_functions(RegionData *data) {
+	
+	// can't use concurrent (yet) because it creates new entries in 
+	// data->analysis
+	Q_FOREACH(edb::address_t address, data->known_functions) {
+		collect_function_blocks(data, address);
 	}	
 }
 
@@ -1076,11 +939,7 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			{ "attempting to add functions with symbols to the list...", boost::bind(&Analyzer::bonus_symbols,           this, &region_data) },
 			{ "attempting to add marked functions to the list...",       boost::bind(&Analyzer::bonus_marked_functions,  this, &region_data) },			
 			{ "collecting basic blocks...",                              boost::bind(&Analyzer::collect_basic_blocks,    this, &region_data) },
-#if defined(OLD_ANALYSIS)
-			{ "calculating function bounds... (pass 1)",                 boost::bind(&Analyzer::find_calls_from_known,  this, boost::cref(region), &region_data.analysis, &walked_functions) },
-#else
 			{ "collecting known functions...",                           boost::bind(&Analyzer::collect_known_functions, this, &region_data) },
-#endif
 		};
 
 		const struct {
@@ -1090,10 +949,6 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 #if defined(OLD_ANALYSIS)
 			{ "finding possible function calls...",      boost::bind(&Analyzer::find_function_calls,      this, boost::cref(region), &found_functions) },
 			{ "bonusing stack frames...",                boost::bind(&Analyzer::bonus_stack_frames,       this, &region_data) },
-			{ "collecting high reference answers...",    boost::bind(&Analyzer::collect_high_ref_results, this, &region_data.analysis, &found_functions) },
-			{ "calculating function bounds... (pass 2)", boost::bind(&Analyzer::find_calls_from_known,    this, boost::cref(region), &region_data.analysis, &walked_functions) },
-			{ "collecting low reference answers...",     boost::bind(&Analyzer::collect_low_ref_results,  this, boost::cref(region), &region_data.analysis, &found_functions) },
-			{ "calculating function bounds... (pass 3)", boost::bind(&Analyzer::find_calls_from_known,    this, boost::cref(region), &region_data.analysis, &walked_functions) },
 #endif
 		};
 
@@ -1108,9 +963,8 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			emit update_progress(util::percentage(i + 1, total_steps));
 		}
 
-#if defined(OLD_ANALYSIS)
 		fix_overlaps(&region_data.analysis);
-#endif
+
 		// ok, at this point, we've done the best we can with knowns
 		// we should have a full analysis of all functions which are
 		// reachable from known entry points in the code
@@ -1123,10 +977,8 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			}
 		}
 
-#if defined(OLD_ANALYSIS)
 		qDebug("[Analyzer] determining function types...");
 		set_function_types(&region_data.analysis);
-#endif
 
 		qDebug("[Analyzer] complete");
 		emit update_progress(100);
@@ -1242,11 +1094,7 @@ void Analyzer::bonus_entry_point(RegionData *data) const {
 
 		qDebug("[Analyzer] found entry point: %p", reinterpret_cast<void*>(entry));
 
-		// make sure we have an entry for this function
 		if(data->region->contains(entry)) {
-		#if defined(OLD_ANALYSIS)
-			update_results_entry(&data->analysis, entry);
-		#endif
 			data->known_functions.insert(entry);
 		}
 	}
@@ -1301,20 +1149,6 @@ edb::address_t Analyzer::find_containing_function(edb::address_t address, bool *
 		return 0;
 	}
 }
-
-//------------------------------------------------------------------------------
-// Name: block_size
-// Desc: 
-//------------------------------------------------------------------------------
-int Analyzer::block_size(const BasicBlock &basic_block) {
-	int n = 0;
-	for(QList<QSharedPointer<edb::Instruction> >::const_iterator it = basic_block.instructions.begin(); it != basic_block.instructions.end(); ++it) {
-		const QSharedPointer<edb::Instruction> &insn = *it;
-		n += insn->size();
-	}
-	return n;
-}
-
 
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(Analyzer, Analyzer)

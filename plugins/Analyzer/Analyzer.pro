@@ -9,13 +9,15 @@ HEADERS += \
 	Analyzer.h \
 	AnalyzerWidget.h \
 	OptionsPage.h \
-	SpecifiedFunctions.h
+	SpecifiedFunctions.h \
+	BasicBlock.h
 	
 SOURCES += \
 	Analyzer.cpp \
 	AnalyzerWidget.cpp \
 	OptionsPage.cpp \
-	SpecifiedFunctions.cpp
+	SpecifiedFunctions.cpp \
+	BasicBlock.cpp
 	
 FORMS += \
 	OptionsPage.ui\
