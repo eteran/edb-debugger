@@ -16,25 +16,27 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef FUNCTION_20130830_H_
-#define FUNCTION_20130830_H_
+#ifndef PROTOTYPE_20070320_H_
+#define PROTOTYPE_20070320_H_
 
 #include "API.h"
-#include "Types.h"
+#include <QVector>
+#include <QString>
 
-class EDB_EXPORT Function {
-public:
-	edb::address_t entry_address;
-	edb::address_t end_address;
-	edb::address_t last_instruction;
-	int            reference_count;
+namespace edb {
 
-	enum Type {
-		FUNCTION_STANDARD,
-		FUNCTION_THUNK
-	} type;
-
-	int size() const { return end_address - entry_address; }
+struct EDB_EXPORT Argument {
+	QString name;
+	QString type;
 };
 
+struct EDB_EXPORT Prototype {
+	QString           name;
+	QString           type;
+	QVector<Argument> arguments;
+};
+
+}
+
 #endif
+

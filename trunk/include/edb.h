@@ -54,7 +54,7 @@ struct ExpressionError;
 
 namespace edb {
 
-class Function;
+class Prototype;
 
 namespace v1 {
 
@@ -147,7 +147,7 @@ EDB_EXPORT ISessionFile *session_file_handler();
 EDB_EXPORT bool get_instruction_bytes(address_t address, quint8 *buf, int *size);
 
 EDB_EXPORT IBinary *get_binary_info(const IRegion::pointer &region);
-EDB_EXPORT const Function *get_function_info(const QString &function);
+EDB_EXPORT const Prototype *get_function_info(const QString &function);
 
 EDB_EXPORT address_t locate_main_function();
 
