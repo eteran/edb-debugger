@@ -119,10 +119,10 @@ private:
 		IRegion::pointer                  region;
 	};
 
-	QMenu                              *menu_;
-	QHash<edb::address_t, RegionData>   analysis_info_;
-	QSet<edb::address_t>                specified_functions_;
-	AnalyzerWidget                     *analyzer_widget_;
+	QMenu                             *menu_;
+	QHash<edb::address_t, RegionData>  analysis_info_;
+	QSet<edb::address_t>               specified_functions_;
+	AnalyzerWidget                    *analyzer_widget_;
 };
 
 #endif
