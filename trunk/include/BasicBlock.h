@@ -26,10 +26,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSharedPointer>
 #include <iterator>
 
-
 typedef QSharedPointer<edb::Instruction> instruction_pointer;
 
 class EDB_EXPORT BasicBlock {
+public:
+	typedef QSharedPointer<BasicBlock>                   pointer;
+
 public:
 	typedef size_t                                       size_type;
 	typedef instruction_pointer                          value_type;
