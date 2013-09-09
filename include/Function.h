@@ -39,7 +39,7 @@ public:
 	int size() const { return end_address - entry_address; }
 	
 private:
-	QVector<BasicBlock> blocks_;
+	QVector<BasicBlock::pointer> blocks_;
 };
 
 #endif
