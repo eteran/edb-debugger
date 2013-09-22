@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "DialogAssembler.h"
 #include "MemoryRegions.h"
-#include "OptionsPage.h"
+#include "AssemblerOptionsPage.h"
 
 #include <QMenu>
 #include <QList>
@@ -90,7 +90,7 @@ void Assembler::show_dialog() {
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *Assembler::options_page() {
-	return new assembler::OptionsPage;
+	return new AssemblerOptionsPage;
 }
 
 #if QT_VERSION < 0x050000

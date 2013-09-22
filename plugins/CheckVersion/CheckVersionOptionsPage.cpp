@@ -16,28 +16,24 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "OptionsPage.h"
+#include "CheckVersionOptionsPage.h"
 #include <QSettings>
-#include <QDebug>
-#include <QFileDialog>
 
-#include "ui_OptionsPage.h"
-
-namespace assembler {
+#include "ui_CheckVersionOptionsPage.h"
 
 //------------------------------------------------------------------------------
-// Name: OptionsPage
+// Name: CheckVersionOptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsPage) {
+CheckVersionOptionsPage::CheckVersionOptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::CheckVersionOptionsPage) {
 	ui->setupUi(this);
 }
 
 //------------------------------------------------------------------------------
-// Name: ~OptionsPage
+// Name: ~CheckVersionOptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-OptionsPage::~OptionsPage() {
+CheckVersionOptionsPage::~CheckVersionOptionsPage() {
 	delete ui;
 }
 
@@ -45,31 +41,21 @@ OptionsPage::~OptionsPage() {
 // Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
-void OptionsPage::showEvent(QShowEvent *event) {
+void CheckVersionOptionsPage::showEvent(QShowEvent *event) {
 	Q_UNUSED(event);
 
 	QSettings settings;
-	ui->assemblerPath->setEditText(settings.value("Assembler/helper_application", "/usr/bin/yasm").toString());
+	ui->checkBox->setChecked(settings.value("CheckVersion/check_on_start.enabled", true).toBool());
 }
 
 //------------------------------------------------------------------------------
-// Name: on_assemblerPath_editTextChanged
+// Name: on_checkBox_toggled
 // Desc:
 //------------------------------------------------------------------------------
-void OptionsPage::on_assemblerPath_editTextChanged(const QString &text) {
+void CheckVersionOptionsPage::on_checkBox_toggled(bool checked) {
+	Q_UNUSED(checked);
+
 	QSettings settings;
-	settings.setValue("Assembler/helper_application", text);
+	settings.setValue("CheckVersion/check_on_start.enabled", ui->checkBox->isChecked());
 }
 
-//------------------------------------------------------------------------------
-// Name: on_toolButton_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void OptionsPage::on_toolButton_clicked() {
-	const QString filename = QFileDialog::getOpenFileName(this, "Choose Your Preferred Assembler");
-	if(!filename.isEmpty()) {
-		ui->assemblerPath->setEditText(filename);
-	}
-}
-
-}

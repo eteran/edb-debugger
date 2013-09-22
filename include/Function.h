@@ -22,24 +22,69 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "API.h"
 #include "Types.h"
 #include "BasicBlock.h"
-#include <QVector>
+#include <QMap>
 
 class EDB_EXPORT Function {
+	friend class Analyzer;
 public:
-	edb::address_t entry_address;
-	edb::address_t end_address;
-	edb::address_t last_instruction;
-	int            reference_count;
-
 	enum Type {
 		FUNCTION_STANDARD,
 		FUNCTION_THUNK
 	} type;
 
-	int size() const { return end_address - entry_address; }
+public:
+	typedef size_t                                             size_type;
+	typedef BasicBlock                                         value_type;
+	typedef BasicBlock                                        &reference;
+	typedef const BasicBlock                                  &const_reference;
+	typedef QMap<edb::address_t, BasicBlock>::iterator         iterator;
+	typedef QMap<edb::address_t, BasicBlock>::const_iterator   const_iterator;
+	typedef std::reverse_iterator<iterator>                    reverse_iterator;
+	typedef std::reverse_iterator<const_iterator>              const_reverse_iterator;
+
+public:
+	Function();
+	Function(const Function &other);
+	Function &operator=(const Function &rhs);
+	
+public:
+	void insert(const BasicBlock &bb);
+
+public:	
+	const_reference back() const;
+	const_reference front() const;
+	reference back();
+	reference front();
+
+public:
+	const_iterator begin() const;
+	const_iterator end() const;
+	const_reverse_iterator rbegin() const;
+	const_reverse_iterator rend() const;
+	iterator begin();
+	iterator end();
+	reverse_iterator rbegin();
+	reverse_iterator rend();
+
+public:
+	bool empty() const;
+	size_type size() const;
+	
+public:
+	edb::address_t entry_address() const;
+	edb::address_t end_address() const;
+	edb::address_t last_instruction() const;
+	int reference_count() const;
+	
+public:
+	void swap(Function &other);
 	
 private:
-	QVector<BasicBlock::pointer> blocks_;
+	edb::address_t                   entry_address_;
+	edb::address_t                   end_address_;
+	edb::address_t                   last_instruction_;
+	int                              reference_count_;
+	QMap<edb::address_t, BasicBlock> blocks_;
 };
 
 #endif

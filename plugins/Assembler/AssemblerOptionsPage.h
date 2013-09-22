@@ -16,32 +16,30 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OPTIONS_PAGE_20090706_H_
-#define OPTIONS_PAGE_20090706_H_
+#ifndef ASSEMBLER_OPTIONS_PAGE_20130611_H_
+#define ASSEMBLER_OPTIONS_PAGE_20130611_H_
 
 #include <QWidget>
 
-namespace Ui { class OptionsPage; }
+namespace Ui { class AssemblerOptionsPage; }
 
-namespace analyzer {
-
-class OptionsPage : public QWidget {
+class AssemblerOptionsPage : public QWidget {
 	Q_OBJECT;
 
 public:
-	OptionsPage(QWidget *parent = 0);
-	virtual ~OptionsPage();
+	AssemblerOptionsPage(QWidget *parent = 0);
+	virtual ~AssemblerOptionsPage();
 
 public:
 	virtual void showEvent(QShowEvent *event);
 
 public Q_SLOTS:
-	void on_checkBox_toggled(bool checked = false);
-
+	virtual void on_assemblerPath_editTextChanged(const QString &text);
+	virtual void on_toolButton_clicked();
+	
 private:
-	Ui::OptionsPage *const ui;
+	Ui::AssemblerOptionsPage *const ui;
 };
 
-}
 
 #endif

@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DumpState.h"
 #include "IDebuggerCore.h"
 #include "Instruction.h"
-#include "OptionsPage.h"
+#include "DumpStateOptionsPage.h"
 #include "State.h"
 #include "Util.h"
 #include "edb.h"
@@ -263,7 +263,7 @@ void DumpState::show_menu() {
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *DumpState::options_page() {
-	return new dump_state::OptionsPage;
+	return new DumpStateOptionsPage;
 }
 
 #if QT_VERSION < 0x050000

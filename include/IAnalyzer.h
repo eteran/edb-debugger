@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QMap>
 #include <QSet>
+#include <QHash>
 
 class IAnalyzer {
 public:
@@ -32,7 +33,7 @@ public:
 
 public:
 	// TODO: can this be a QHash?
-	typedef QMap<edb::address_t, Function> FunctionMap;
+	typedef QHash<edb::address_t, Function> FunctionMap;
 
 public:
 	enum AddressCategory {
