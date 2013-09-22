@@ -2,9 +2,9 @@
 include(../plugins.pri)
 
 # Input
-HEADERS += CheckVersion.h OptionsPage.h
-FORMS   += OptionsPage.ui
-SOURCES += CheckVersion.cpp OptionsPage.cpp
+HEADERS += CheckVersion.h CheckVersionOptionsPage.h
+FORMS   += CheckVersionOptionsPage.ui
+SOURCES += CheckVersion.cpp CheckVersionOptionsPage.cpp
 
 QT += network
 

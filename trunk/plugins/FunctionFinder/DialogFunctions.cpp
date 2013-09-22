@@ -122,23 +122,23 @@ void DialogFunctions::do_find() {
 					ui->tableWidget->insertRow(row);
 
 					// entry point
-					QTableWidgetItem *const p = new QTableWidgetItem(edb::v1::format_pointer(info.entry_address));
-					p->setData(Qt::UserRole, info.entry_address);
+					QTableWidgetItem *const p = new QTableWidgetItem(edb::v1::format_pointer(info.entry_address()));
+					p->setData(Qt::UserRole, info.entry_address());
 					ui->tableWidget->setItem(row, 0, p);
 
 					// upper bound of the function
-					if(info.reference_count >= MIN_REFCOUNT) {
-						ui->tableWidget->setItem(row, 1, new QTableWidgetItem(edb::v1::format_pointer(info.end_address)));
+					if(info.reference_count() >= MIN_REFCOUNT) {
+						ui->tableWidget->setItem(row, 1, new QTableWidgetItem(edb::v1::format_pointer(info.end_address())));
 
 						QTableWidgetItem *const size_item = new QTableWidgetItem;
-						size_item->setData(Qt::DisplayRole, info.end_address - info.entry_address + 1);
+						size_item->setData(Qt::DisplayRole, info.end_address() - info.entry_address() + 1);
 
 						ui->tableWidget->setItem(row, 2, size_item);
 					}
 
 					// reference count
 					QTableWidgetItem *const itemCount = new QTableWidgetItem;
-					itemCount->setData(Qt::DisplayRole, info.reference_count);
+					itemCount->setData(Qt::DisplayRole, info.reference_count());
 					ui->tableWidget->setItem(row, 3, itemCount);
 
 					// type

@@ -83,7 +83,7 @@ public:
 	edb::address_t last_address() const;
 
 private:
-	QVector<instruction_pointer> instructions;
+	QVector<instruction_pointer> instructions_;
 };
 
 #endif

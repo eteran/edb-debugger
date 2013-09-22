@@ -68,30 +68,21 @@ public:
 	virtual void invalidate_analysis(const IRegion::pointer &region);
 
 private:
-	void ident_header();
-	void bonus_stack_frames_helper(Function &info) const;
-	void bonus_stack_frames(RegionData *data);
+	void ident_header(Analyzer::RegionData *data);
 	void bonus_marked_functions(RegionData *data);
 	void bonus_symbols(RegionData *data);
-	void bonus_symbols_helper(RegionData *data, const Symbol::pointer &sym);
 	void bonus_entry_point(RegionData *data) const;
 	void bonus_main(RegionData *data) const;
 
 private:
 	QByteArray md5_region(const IRegion::pointer &region) const;
 	bool find_containing_function(edb::address_t address, Function *function) const;
-	bool is_inside_known(const IRegion::pointer &region, edb::address_t address);
-	bool is_stack_frame(edb::address_t address) const;
 	bool is_thunk(edb::address_t address) const;
-	edb::address_t module_entry_point(const IRegion::pointer &region) const;
-	int walk_all_functions(FunctionMap *results, const IRegion::pointer &region, QSet<edb::address_t> *walked_functions);
-	void find_function_calls(const IRegion::pointer &region, FunctionMap *results);
-	void find_function_end(Function *function, edb::address_t end_address, QSet<edb::address_t> *found_functions, const FunctionMap &results);
 	void fix_overlaps(FunctionMap *function_map);
 	void invalidate_dynamic_analysis(const IRegion::pointer &region);
 	void set_function_types(FunctionMap *results);
 	void set_function_types_helper(Function &info) const;
-	void collect_basic_blocks(RegionData *data);
+	void collect_functions(RegionData *data);
 	void collect_known_functions(RegionData *data);
 	void collect_function_blocks(RegionData *data, edb::address_t address);
 
@@ -111,9 +102,15 @@ private:
 
 private:
 	struct RegionData {
-		QHash<edb::address_t, BasicBlock> basic_blocks;
 		QSet<edb::address_t>              known_functions;
+		
+		QHash<edb::address_t, Function>   functions;
+		QHash<edb::address_t, BasicBlock> basic_blocks;
+	
+	#if 0
 		FunctionMap                       analysis;
+	#endif
+	
 		QByteArray                        md5;
 		bool                              fuzzy;
 		IRegion::pointer                  region;

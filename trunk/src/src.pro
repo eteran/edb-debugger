@@ -105,6 +105,7 @@ SOURCES += \
 	Configuration.cpp \
 	DataViewInfo.cpp \
 	Debugger.cpp \
+	Function.cpp \
 	DialogArguments.cpp \
 	DialogAttach.cpp \
 	DialogInputBinaryString.cpp \

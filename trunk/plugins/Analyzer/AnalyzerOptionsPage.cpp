@@ -16,26 +16,24 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "OptionsPage.h"
+#include "AnalyzerOptionsPage.h"
 #include <QSettings>
 
-#include "ui_OptionsPage.h"
-
-namespace check_version {
+#include "ui_AnalyzerOptionsPage.h"
 
 //------------------------------------------------------------------------------
-// Name: OptionsPage
+// Name: AnalyzerOptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsPage) {
+AnalyzerOptionsPage::AnalyzerOptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::AnalyzerOptionsPage) {
 	ui->setupUi(this);
 }
 
 //------------------------------------------------------------------------------
-// Name: ~OptionsPage
+// Name: ~AnalyzerOptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-OptionsPage::~OptionsPage() {
+AnalyzerOptionsPage::~AnalyzerOptionsPage() {
 	delete ui;
 }
 
@@ -43,22 +41,20 @@ OptionsPage::~OptionsPage() {
 // Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
-void OptionsPage::showEvent(QShowEvent *event) {
+void AnalyzerOptionsPage::showEvent(QShowEvent *event) {
 	Q_UNUSED(event);
 
 	QSettings settings;
-	ui->checkBox->setChecked(settings.value("CheckVersion/check_on_start.enabled", true).toBool());
+	ui->checkBox->setChecked(settings.value("Analyzer/fuzzy_logic_functions.enabled", true).toBool());
 }
 
 //------------------------------------------------------------------------------
 // Name: on_checkBox_toggled
 // Desc:
 //------------------------------------------------------------------------------
-void OptionsPage::on_checkBox_toggled(bool checked) {
+void AnalyzerOptionsPage::on_checkBox_toggled(bool checked) {
 	Q_UNUSED(checked);
 
 	QSettings settings;
-	settings.setValue("CheckVersion/check_on_start.enabled", ui->checkBox->isChecked());
-}
-
+	settings.setValue("Analyzer/fuzzy_logic_functions.enabled", ui->checkBox->isChecked());
 }

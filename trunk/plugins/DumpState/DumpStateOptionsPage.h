@@ -21,16 +21,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 
-namespace Ui { class OptionsPage; }
+namespace Ui { class DumpStateOptionsPage; }
 
-namespace dump_state {
-
-class OptionsPage : public QWidget {
+class DumpStateOptionsPage : public QWidget {
 	Q_OBJECT;
 
 public:
-	OptionsPage(QWidget *parent = 0);
-	virtual ~OptionsPage();
+	DumpStateOptionsPage(QWidget *parent = 0);
+	virtual ~DumpStateOptionsPage();
 
 public:
 	virtual void showEvent(QShowEvent *event);
@@ -40,9 +38,8 @@ public Q_SLOTS:
 	void on_instructionsAfterIP_valueChanged(int i);
 
 private:
-	Ui::OptionsPage *const ui;
+	Ui::DumpStateOptionsPage *const ui;
 };
-}
 
 #endif
 

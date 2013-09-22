@@ -8,16 +8,16 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 HEADERS += \
 	Analyzer.h \
 	AnalyzerWidget.h \
-	OptionsPage.h \
+	AnalyzerOptionsPage.h \
 	SpecifiedFunctions.h
 	
 SOURCES += \
 	Analyzer.cpp \
 	AnalyzerWidget.cpp \
-	OptionsPage.cpp \
+	AnalyzerOptionsPage.cpp \
 	SpecifiedFunctions.cpp
 	
 FORMS += \
-	OptionsPage.ui\
+	AnalyzerOptionsPage.ui\
 	SpecifiedFunctions.ui
 

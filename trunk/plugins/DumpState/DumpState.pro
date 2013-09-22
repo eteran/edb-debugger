@@ -2,7 +2,7 @@
 include(../plugins.pri)
 
 # Input
-HEADERS += DumpState.h OptionsPage.h
-FORMS   += OptionsPage.ui
-SOURCES += DumpState.cpp OptionsPage.cpp
+HEADERS += DumpState.h DumpStateOptionsPage.h
+FORMS   += DumpStateOptionsPage.ui
+SOURCES += DumpState.cpp DumpStateOptionsPage.cpp
 
