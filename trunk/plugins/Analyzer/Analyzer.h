@@ -68,21 +68,20 @@ public:
 	virtual void invalidate_analysis(const IRegion::pointer &region);
 
 private:
-	void ident_header(Analyzer::RegionData *data);
-	void bonus_marked_functions(RegionData *data);
-	void bonus_symbols(RegionData *data);
-	void bonus_entry_point(RegionData *data) const;
-	void bonus_main(RegionData *data) const;
-
-private:
 	QByteArray md5_region(const IRegion::pointer &region) const;
 	bool find_containing_function(edb::address_t address, Function *function) const;
 	bool is_thunk(edb::address_t address) const;
+	void bonus_entry_point(RegionData *data) const;
+	void bonus_main(RegionData *data) const;
+	void bonus_marked_functions(RegionData *data);
+	void bonus_symbols(RegionData *data);
+	void collect_functions(RegionData *data);
+	void do_analysis(const IRegion::pointer &region);
 	void fix_overlaps(FunctionMap *function_map);
+	void ident_header(Analyzer::RegionData *data);
 	void invalidate_dynamic_analysis(const IRegion::pointer &region);
 	void set_function_types(FunctionMap *results);
 	void set_function_types_helper(Function &function) const;
-	void collect_functions(RegionData *data);
 
 Q_SIGNALS:
 	void update_progress(int);
@@ -94,9 +93,6 @@ public Q_SLOTS:
 	void goto_function_end();
 	void mark_function_start();
 	void show_specified();
-
-private:
-	void do_analysis(const IRegion::pointer &region);
 
 private:
 	struct RegionData {
