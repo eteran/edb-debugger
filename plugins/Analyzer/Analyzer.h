@@ -71,8 +71,8 @@ private:
 	QByteArray md5_region(const IRegion::pointer &region) const;
 	bool find_containing_function(edb::address_t address, Function *function) const;
 	bool is_thunk(edb::address_t address) const;
-	void bonus_entry_point(RegionData *data) const;
 	bool will_return(const Function &function) const;
+	void bonus_entry_point(RegionData *data) const;
 	void bonus_main(RegionData *data) const;
 	void bonus_marked_functions(RegionData *data);
 	void bonus_symbols(RegionData *data);
