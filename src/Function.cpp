@@ -4,14 +4,21 @@
 //------------------------------------------------------------------------------
 // Name: Function
 //------------------------------------------------------------------------------
-Function::Function() : entry_address_(0), end_address_(0), last_instruction_(0), reference_count_(0) {
+Function::Function() : address_(0), reference_count_(0), type_(FUNCTION_STANDARD) {
 
 }
 
 //------------------------------------------------------------------------------
 // Name: Function
 //------------------------------------------------------------------------------
-Function::Function(const Function &other) : entry_address_(other.entry_address_), end_address_(other.end_address_), last_instruction_(other.last_instruction_), reference_count_(other.reference_count_), blocks_(other.blocks_) {
+Function::Function(edb::address_t address) : address_(address), reference_count_(1), type_(FUNCTION_STANDARD) {
+
+}
+
+//------------------------------------------------------------------------------
+// Name: Function
+//------------------------------------------------------------------------------
+Function::Function(const Function &other) : address_(other.address_), reference_count_(other.reference_count_), type_(other.type_), blocks_(other.blocks_) {
 }
 
 //------------------------------------------------------------------------------
@@ -26,10 +33,9 @@ Function &Function::operator=(const Function &rhs) {
 // Name: swap
 //------------------------------------------------------------------------------
 void Function::swap(Function &other) {
-	qSwap(entry_address_, other.entry_address_);
-	qSwap(end_address_, other.end_address_);
-	qSwap(last_instruction_, other.last_instruction_);
-	qSwap(reference_count_, other.reference_count_);	
+	qSwap(address_, other.address_);
+	qSwap(reference_count_, other.reference_count_);
+	qSwap(type_, other.type_);
 	qSwap(blocks_, other.blocks_);
 }
 
@@ -41,43 +47,35 @@ void Function::insert(const BasicBlock &bb) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: entry_address
 //------------------------------------------------------------------------------
 edb::address_t Function::entry_address() const {
-#if 0
-	return entry_address_;
-#else
 	return front().first_address();
-#endif
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: end_address
 //------------------------------------------------------------------------------
 edb::address_t Function::end_address() const {
-#if 0
-	return end_address_;
-#else
 	return back().last_address() - 1;
-#endif
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: last_instruction
 //------------------------------------------------------------------------------
 edb::address_t Function::last_instruction() const {
-	return last_instruction_;
+	return back().back()->rva();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: reference_count
 //------------------------------------------------------------------------------
 int Function::reference_count() const {
 	return reference_count_;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: back
 //------------------------------------------------------------------------------
 Function::const_reference Function::back() const {
 	Q_ASSERT(!empty());
@@ -85,7 +83,7 @@ Function::const_reference Function::back() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: front
 //------------------------------------------------------------------------------
 Function::const_reference Function::front() const {
 	Q_ASSERT(!empty());
@@ -93,7 +91,7 @@ Function::const_reference Function::front() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: back
 //------------------------------------------------------------------------------
 Function::reference Function::back() {
 	Q_ASSERT(!empty());
@@ -101,7 +99,7 @@ Function::reference Function::back() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: front
 //------------------------------------------------------------------------------
 Function::reference Function::front() {
 	Q_ASSERT(!empty());
@@ -109,71 +107,92 @@ Function::reference Function::front() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: begin
 //------------------------------------------------------------------------------
 Function::const_iterator Function::begin() const {
 	return blocks_.begin();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: end
 //------------------------------------------------------------------------------
 Function::const_iterator Function::end() const {
 	return blocks_.end();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: rbegin
 //------------------------------------------------------------------------------
 Function::const_reverse_iterator Function::rbegin() const {
 	return const_reverse_iterator(blocks_.end());
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: rend
 //------------------------------------------------------------------------------
 Function::const_reverse_iterator Function::rend() const {
 	return const_reverse_iterator(blocks_.begin());
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: begin
 //------------------------------------------------------------------------------
 Function::iterator Function::begin() {
 	return blocks_.begin();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: end
 //------------------------------------------------------------------------------
 Function::iterator Function::end() {
 	return blocks_.end();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: rbegin
 //------------------------------------------------------------------------------
 Function::reverse_iterator Function::rbegin() {
 	return reverse_iterator(blocks_.end());
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: rend
 //------------------------------------------------------------------------------
 Function::reverse_iterator Function::rend() {
 	return reverse_iterator(blocks_.begin());
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: empty
 //------------------------------------------------------------------------------
 bool Function::empty() const {
 	return blocks_.isEmpty();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: size
 //------------------------------------------------------------------------------
 Function::size_type Function::size() const {
 	return blocks_.size();
+}
+
+//------------------------------------------------------------------------------
+// Name: add_reference
+//------------------------------------------------------------------------------
+void Function::add_reference() {
+	++reference_count_;
+}
+
+//------------------------------------------------------------------------------
+// Name: type
+//------------------------------------------------------------------------------
+Function::Type Function::type() const {
+	return type_;
+}
+
+//------------------------------------------------------------------------------
+// Name: set_type
+//------------------------------------------------------------------------------
+void Function::set_type(Type t) {
+	type_ = t;
 }
