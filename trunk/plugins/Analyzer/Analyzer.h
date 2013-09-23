@@ -81,10 +81,8 @@ private:
 	void fix_overlaps(FunctionMap *function_map);
 	void invalidate_dynamic_analysis(const IRegion::pointer &region);
 	void set_function_types(FunctionMap *results);
-	void set_function_types_helper(Function &info) const;
+	void set_function_types_helper(Function &function) const;
 	void collect_functions(RegionData *data);
-	void collect_known_functions(RegionData *data);
-	void collect_function_blocks(RegionData *data, edb::address_t address);
 
 Q_SIGNALS:
 	void update_progress(int);
@@ -106,11 +104,7 @@ private:
 		
 		QHash<edb::address_t, Function>   functions;
 		QHash<edb::address_t, BasicBlock> basic_blocks;
-	
-	#if 0
-		FunctionMap                       analysis;
-	#endif
-	
+			
 		QByteArray                        md5;
 		bool                              fuzzy;
 		IRegion::pointer                  region;

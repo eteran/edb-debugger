@@ -25,12 +25,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMap>
 
 class EDB_EXPORT Function {
-	friend class Analyzer;
 public:
 	enum Type {
 		FUNCTION_STANDARD,
 		FUNCTION_THUNK
-	} type;
+	};
 
 public:
 	typedef size_t                                             size_type;
@@ -44,11 +43,15 @@ public:
 
 public:
 	Function();
+	explicit Function(edb::address_t address);
 	Function(const Function &other);
 	Function &operator=(const Function &rhs);
 	
 public:
 	void insert(const BasicBlock &bb);
+	void add_reference();
+	Type type() const;
+	void set_type(Type t);
 
 public:	
 	const_reference back() const;
@@ -80,10 +83,9 @@ public:
 	void swap(Function &other);
 	
 private:
-	edb::address_t                   entry_address_;
-	edb::address_t                   end_address_;
-	edb::address_t                   last_instruction_;
+	edb::address_t                   address_;
 	int                              reference_count_;
+	Type                             type_;
 	QMap<edb::address_t, BasicBlock> blocks_;
 };
 

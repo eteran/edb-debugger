@@ -327,6 +327,7 @@ void Analyzer::bonus_marked_functions(RegionData *data) {
 //------------------------------------------------------------------------------
 void Analyzer::fix_overlaps(FunctionMap *function_map) {
 
+#if 0
 	Q_ASSERT(function_map);
 
 	for(FunctionMap::iterator it = function_map->begin(); it != function_map->end(); ) {
@@ -338,6 +339,7 @@ void Analyzer::fix_overlaps(FunctionMap *function_map) {
 			}
 		}
 	}
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -360,12 +362,12 @@ bool Analyzer::is_thunk(edb::address_t address) const {
 // Name: set_function_types_helper
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::set_function_types_helper(Function &info) const {
+void Analyzer::set_function_types_helper(Function &function) const {
 
-	if(is_thunk(info.entry_address())) {
-		info.type = Function::FUNCTION_THUNK;
+	if(is_thunk(function.entry_address())) {
+		function.set_type(Function::FUNCTION_THUNK);
 	} else {
-		info.type = Function::FUNCTION_STANDARD;
+		function.set_type(Function::FUNCTION_STANDARD);
 	}
 }
 
@@ -424,7 +426,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 			QStack<edb::address_t> blocks;
 			blocks.push(function_address);
 
-			Function func;
+			Function func(function_address);
 
 			// process are basic blocks that are known
 			while(!blocks.empty()) {
@@ -518,6 +520,8 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 			if(!func.empty()) {
 				functions.insert(function_address, func);
 			}
+		} else {
+			functions[function_address].add_reference();
 		}
 	}
 	
@@ -537,102 +541,6 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 }
 
 //------------------------------------------------------------------------------
-// Name: collect_function_blocks
-// Desc:
-//------------------------------------------------------------------------------
-void Analyzer::collect_function_blocks(RegionData *data, edb::address_t address) {
-
-	qDebug("Analyzing basic blocks of: %p", reinterpret_cast<void *>(address));
-
-
-	QStack<edb::address_t> block_addresses;
-	QSet<edb::address_t>   processed_addresses;
-
-	block_addresses.push(address);
-	while(!block_addresses.empty()) {
-		const edb::address_t current_address = block_addresses.pop();
-		processed_addresses.insert(current_address);
-
-		QHash<edb::address_t, BasicBlock>::const_iterator it = data->basic_blocks.find(current_address);
-		if(it != data->basic_blocks.end()) {
-			const BasicBlock &basic_block = it.value();
-			if(!basic_block.empty()) {
-				const instruction_pointer &last_instruction = basic_block.back();
-
-				if(is_conditional_jump(*last_instruction)) {
-					// add both the jump target and the instructions which follow this block
-					const edb::address_t next_block = current_address + basic_block.byte_size();
-					if(!processed_addresses.contains(next_block)) {
-						block_addresses.push(next_block);
-					}
-
-					const edb::Operand &op = last_instruction->operands()[0];
-					if(op.general_type() == edb::Operand::TYPE_REL) {
-						const edb::address_t target = op.relative_target();
-						if(!processed_addresses.contains(target)) {
-							block_addresses.push(target);
-						}
-					}
-				} else if(is_unconditional_jump(*last_instruction)) {
-					const edb::Operand &op = last_instruction->operands()[0];
-					if(op.general_type() == edb::Operand::TYPE_REL) {
-						const edb::address_t target = op.relative_target();
-
-						// a JMP <func> is simply an optimization for "CALL <func>; RET"
-						if(data->known_functions.contains(target)) {
-							//break;						
-						} else if(target <= address) {
-							//break;
-						} else {
-							if(!processed_addresses.contains(target)) {
-								block_addresses.push(target);
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	if(!processed_addresses.isEmpty()) {
-		QList<edb::address_t> block_list = processed_addresses.toList();
-		qSort(block_list);
-		const edb::address_t last_block = block_list.back();
-		
-		QHash<edb::address_t, BasicBlock>::const_iterator it = data->basic_blocks.find(last_block);
-		if(it != data->basic_blocks.end()) {
-			
-			const BasicBlock &basic_block = it.value();
-						
-			if(!basic_block.empty()) {
-
-#if 0			
-				Function func;
-				func.entry_address_     = address;
-				func.reference_count_   = MIN_REFCOUNT;
-				func.end_address_       = basic_block.last_address() - 1;
-				func.last_instruction_  = basic_block.back()->rva();
-				data->analysis[address] = func;
-#endif
-			}	
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: collect_known_functions
-// Desc:
-//------------------------------------------------------------------------------
-void Analyzer::collect_known_functions(RegionData *data) {
-	
-	// can't use concurrent (yet) because it creates new entries in 
-	// data->analysis
-	Q_FOREACH(const edb::address_t address, data->known_functions) {
-		collect_function_blocks(data, address);
-	}	
-}
-
-//------------------------------------------------------------------------------
 // Name: analyze
 // Desc:
 //------------------------------------------------------------------------------
@@ -649,10 +557,7 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 	const QByteArray prev_md5 = region_data.md5;
 
 	if(md5 != prev_md5 || fuzzy != region_data.fuzzy) {
-		
-	#if 0
-		region_data.analysis.clear();
-	#endif
+
 		region_data.functions.clear();
 		region_data.basic_blocks.clear();
 		region_data.known_functions.clear();
@@ -671,9 +576,6 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			{ "attempting to add functions with symbols to the list...", boost::bind(&Analyzer::bonus_symbols,           this, &region_data) },
 			{ "attempting to add marked functions to the list...",       boost::bind(&Analyzer::bonus_marked_functions,  this, &region_data) },			
 			{ "collecting basic blocks...",                              boost::bind(&Analyzer::collect_functions,       this, &region_data) },
-		#if 0
-			{ "collecting known functions...",                           boost::bind(&Analyzer::collect_known_functions, this, &region_data) },
-		#endif
 		};
 
 		const int total_steps = sizeof(analysis_steps) / sizeof(analysis_steps[0]);
@@ -686,12 +588,12 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 		}
 
 #if 0
-		fix_overlaps(&region_data.analysis);
+		fix_overlaps(&region_data.functions);
 #endif
 		qDebug("[Analyzer] determining function types...");
-#if 0
-		set_function_types(&region_data.analysis);
-#endif
+
+		set_function_types(&region_data.functions);
+
 		qDebug("[Analyzer] complete");
 		emit update_progress(100);
 
@@ -731,11 +633,7 @@ IAnalyzer::AddressCategory Analyzer::category(edb::address_t address) const {
 // Desc:
 //------------------------------------------------------------------------------
 IAnalyzer::FunctionMap Analyzer::functions(const IRegion::pointer &region) const {
-#if 0
-	return analysis_info_[region->start()].analysis;
-#else
 	return analysis_info_[region->start()].functions;
-#endif
 }
 
 //------------------------------------------------------------------------------

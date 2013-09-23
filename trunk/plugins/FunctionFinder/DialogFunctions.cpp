@@ -142,7 +142,7 @@ void DialogFunctions::do_find() {
 					ui->tableWidget->setItem(row, 3, itemCount);
 
 					// type
-					switch(info.type) {
+					switch(info.type()) {
 					case Function::FUNCTION_THUNK:
 						ui->tableWidget->setItem(row, 4, new QTableWidgetItem(tr("Thunk")));
 						break;
