@@ -72,12 +72,12 @@ private:
 	bool find_containing_function(edb::address_t address, Function *function) const;
 	bool is_thunk(edb::address_t address) const;
 	void bonus_entry_point(RegionData *data) const;
+	bool will_return(const Function &function) const;
 	void bonus_main(RegionData *data) const;
 	void bonus_marked_functions(RegionData *data);
 	void bonus_symbols(RegionData *data);
 	void collect_functions(RegionData *data);
 	void do_analysis(const IRegion::pointer &region);
-	void fix_overlaps(FunctionMap *function_map);
 	void ident_header(Analyzer::RegionData *data);
 	void invalidate_dynamic_analysis(const IRegion::pointer &region);
 	void set_function_types(FunctionMap *results);

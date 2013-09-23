@@ -322,27 +322,6 @@ void Analyzer::bonus_marked_functions(RegionData *data) {
 }
 
 //------------------------------------------------------------------------------
-// Name: fix_overlaps
-// Desc: ensures that no function overlaps another
-//------------------------------------------------------------------------------
-void Analyzer::fix_overlaps(FunctionMap *function_map) {
-
-#if 0
-	Q_ASSERT(function_map);
-
-	for(FunctionMap::iterator it = function_map->begin(); it != function_map->end(); ) {
-		Function &func = *it++;
-		if(it != function_map->end()) {
-			const Function &next_func = *it;
-			if(next_func.entry_address() <= func.end_address()) {
-				func.end_address_ = next_func.entry_address() - 1;
-			}
-		}
-	}
-#endif
-}
-
-//------------------------------------------------------------------------------
 // Name: is_thunk
 // Desc: basically returns true if the first instruction of the function is a
 //       jmp
@@ -464,6 +443,9 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 								if(ea != address + inst.size()) {
 									data->known_functions.insert(ea);
 									known_functions.push(ea);
+									
+									// TODO: if the target function won't ever return
+									//       then we want to stop
 								}
 							} else if(op.general_type() == edb::Operand::TYPE_EXPRESSION) {
 								// looks like: "call [...]", if it is of the form, call [C + REG]
@@ -475,20 +457,24 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 								// eventually, we should figure out the parameters of the function
 								// to see if we can know what the target is
 							}
-						} 
-
-						if(is_unconditional_jump(inst)) {
+						} else if(is_unconditional_jump(inst)) {
 
 							Q_ASSERT(inst.operand_count() == 1);
 							const edb::Operand &op = inst.operands()[0];
-
+							
+							// TODO: we need some heuristic for detecting when this is 
+							//       a call/ret -> jmp optimization
 							if(op.general_type() == edb::Operand::TYPE_REL) {
-								blocks.push(op.relative_target());
+								const edb::address_t ea = op.relative_target();
+								
+								if(functions.contains(ea)) {
+									functions[ea].add_reference();
+								} else {
+									blocks.push(ea);
+								}
 							}
 							break;
-						}
-
-						if(is_conditional_jump(inst)) {
+						} else if(is_conditional_jump(inst)) {
 
 							Q_ASSERT(inst.operand_count() == 1);
 							const edb::Operand &op = inst.operands()[0];
@@ -498,9 +484,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 								blocks.push(address + inst.size());
 							}
 							break;
-						} 
-
-						if(is_ret(inst) || inst.type() == edb::Instruction::OP_HLT) {
+						} else if(is_ret(inst) || inst.type() == edb::Instruction::OP_HLT) {
 							break;
 						}
 
@@ -587,9 +571,6 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			emit update_progress(util::percentage(i + 1, total_steps));
 		}
 
-#if 0
-		fix_overlaps(&region_data.functions);
-#endif
 		qDebug("[Analyzer] determining function types...");
 
 		set_function_types(&region_data.functions);
@@ -747,6 +728,15 @@ edb::address_t Analyzer::find_containing_function(edb::address_t address, bool *
 	} else {
 		return 0;
 	}
+}
+
+//------------------------------------------------------------------------------
+// Name: will_return
+// Desc:
+//------------------------------------------------------------------------------
+bool Analyzer::will_return(const Function &function) const {
+	Q_UNUSED(function);
+	return true;
 }
 
 #if QT_VERSION < 0x050000
