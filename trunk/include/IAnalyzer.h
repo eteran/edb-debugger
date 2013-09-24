@@ -23,7 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IRegion.h"
 #include "Types.h"
 
-#include <QMap>
 #include <QSet>
 #include <QHash>
 
@@ -32,7 +31,6 @@ public:
 	virtual ~IAnalyzer() {}
 
 public:
-	// TODO: can this be a QHash?
 	typedef QHash<edb::address_t, Function> FunctionMap;
 
 public:
