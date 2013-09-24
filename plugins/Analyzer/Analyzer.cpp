@@ -276,10 +276,10 @@ void Analyzer::bonus_main(RegionData *data) const {
 
 	const QString s = edb::v1::debugger_core->process_exe(edb::v1::debugger_core->pid());
 	if(!s.isEmpty()) {
-		const edb::address_t main = edb::v1::locate_main_function();
-
-		if(main && data->region->contains(main)) {
-			data->known_functions.insert(main);
+		if(const edb::address_t main = edb::v1::locate_main_function()) {
+			if(data->region->contains(main)) {
+				data->known_functions.insert(main);
+			}
 		}
 	}
 }
@@ -294,7 +294,7 @@ void Analyzer::bonus_symbols(RegionData *data) {
 
 	// give bonus if we have a symbol for the address
 	const QList<Symbol::pointer> symbols = edb::v1::symbol_manager().symbols();
-	
+
 	Q_FOREACH(const Symbol::pointer &sym, symbols) {
 		const edb::address_t addr = sym->address;
 
@@ -327,6 +327,7 @@ void Analyzer::bonus_marked_functions(RegionData *data) {
 //       jmp
 //------------------------------------------------------------------------------
 bool Analyzer::is_thunk(edb::address_t address) const {
+
 	quint8 buf[edb::Instruction::MAX_SIZE];
 	int buf_size = sizeof(buf);
 	if(edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
@@ -385,23 +386,28 @@ void Analyzer::ident_header(Analyzer::RegionData *data) {
 //------------------------------------------------------------------------------
 void Analyzer::collect_functions(Analyzer::RegionData *data) {
 	Q_ASSERT(data);
-	
+
 	// results
 	QHash<edb::address_t, BasicBlock> basic_blocks;
 	QHash<edb::address_t, Function>   functions;
-	
+
 	// push all known functions onto a stack
 	QStack<edb::address_t> known_functions;
-	Q_FOREACH(const edb::address_t function, data->known_functions) {	
+	Q_FOREACH(const edb::address_t function, data->known_functions) {
 		known_functions.push(function);
 	}
-	
+
+	// push all fuzzy function too...
+	Q_FOREACH(const edb::address_t function, data->fuzzy_functions) {
+		known_functions.push(function);
+	}
+
 	// process all functions that are known
 	while(!known_functions.empty()) {
 		const edb::address_t function_address = known_functions.pop();
-		
+
 		if(!functions.contains(function_address)) {
-		
+
 			QStack<edb::address_t> blocks;
 			blocks.push(function_address);
 
@@ -441,11 +447,11 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 
 								// skip over ones which are: "call <label>; label:"
 								if(ea != address + inst.size()) {
-									data->known_functions.insert(ea);
 									known_functions.push(ea);
 									
-									// TODO: if the target function won't ever return
-									//       then we want to stop
+									if(!will_return(ea)) {
+										break;
+									}
 								}
 							} else if(op.general_type() == edb::Operand::TYPE_EXPRESSION) {
 								// looks like: "call [...]", if it is of the form, call [C + REG]
@@ -457,18 +463,23 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 								// eventually, we should figure out the parameters of the function
 								// to see if we can know what the target is
 							}
+
+							
 						} else if(is_unconditional_jump(inst)) {
 
 							Q_ASSERT(inst.operand_count() == 1);
 							const edb::Operand &op = inst.operands()[0];
-							
-							// TODO: we need some heuristic for detecting when this is 
+
+							// TODO: we need some heuristic for detecting when this is
 							//       a call/ret -> jmp optimization
 							if(op.general_type() == edb::Operand::TYPE_REL) {
 								const edb::address_t ea = op.relative_target();
+
 								
 								if(functions.contains(ea)) {
 									functions[ea].add_reference();
+								} else if((ea - function_address) > 0x2000) {
+									known_functions.push(ea);
 								} else {
 									blocks.push(ea);
 								}
@@ -493,14 +504,14 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 
 					if(!block.empty()) {
 						basic_blocks.insert(block_address, block);
-						
+
 						if(block_address >= function_address) {
 							func.insert(block);
 						}
 					}
 				}
 			}
-			
+
 			if(!func.empty()) {
 				functions.insert(function_address, func);
 			}
@@ -508,20 +519,72 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 			functions[function_address].add_reference();
 		}
 	}
-	
+
 	qDebug() << "----------Basic Blocks----------";
 	for(QHash<edb::address_t, BasicBlock>::iterator it = basic_blocks.begin(); it != basic_blocks.end(); ++it) {
 		qDebug("%p:", reinterpret_cast<void *>(it.key()));
-		
+
 		for(BasicBlock::const_iterator j = it.value().begin(); j != it.value().end(); ++j) {
 			const instruction_pointer &inst = *j;
 			qDebug("\t%p: %s", reinterpret_cast<void *>(inst->rva()), to_string(*inst).c_str());
 		}
 	}
 	qDebug() << "----------Basic Blocks----------";
-	
+
 	qSwap(data->basic_blocks, basic_blocks);
 	qSwap(data->functions, functions);
+}
+
+//------------------------------------------------------------------------------
+// Name: collect_fuzzy_functions
+// Desc:
+//------------------------------------------------------------------------------
+void Analyzer::collect_fuzzy_functions(RegionData *data) {
+	Q_ASSERT(data);
+
+	data->fuzzy_functions.clear();
+
+	if(data->fuzzy) {
+
+		QHash<edb::address_t, int> fuzzy_functions;
+
+		// fuzzy_functions, known_functions
+		for(edb::address_t addr = data->region->start(); addr != data->region->end(); ++addr) {
+
+			quint8 buf[edb::Instruction::MAX_SIZE];
+			int buf_size = sizeof(buf);
+			if(edb::v1::get_instruction_bytes(addr, buf, &buf_size)) {
+				const edb::Instruction inst(buf, buf + buf_size, addr, std::nothrow);
+				if(inst) {
+					if(is_call(inst)) {
+
+						// note the destination and move on
+						// we special case some simple things.
+						// also this is an opportunity to find call tables.
+						const edb::Operand &op = inst.operands()[0];
+						if(op.general_type() == edb::Operand::TYPE_REL) {
+							const edb::address_t ea = op.relative_target();
+
+							// skip over ones which are: "call <label>; label:"
+							if(ea != addr + inst.size()) {
+
+								if(!data->known_functions.contains(ea)) {
+									fuzzy_functions[ea]++;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+
+		// transfer results to data->fuzzy_functions
+		for(QHash<edb::address_t, int>::const_iterator it = fuzzy_functions.begin(); it != fuzzy_functions.end(); ++it) {
+			if(it.value() > MIN_REFCOUNT) {
+				data->fuzzy_functions.insert(it.key());
+			}
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -542,10 +605,11 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 
 	if(md5 != prev_md5 || fuzzy != region_data.fuzzy) {
 
-		region_data.functions.clear();
 		region_data.basic_blocks.clear();
+		region_data.functions.clear();
+		region_data.fuzzy_functions.clear();
 		region_data.known_functions.clear();
-		
+
 		region_data.region = region;
 		region_data.md5    = md5;
 		region_data.fuzzy  = fuzzy;
@@ -558,7 +622,8 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			{ "adding entry points to the list...",                      boost::bind(&Analyzer::bonus_entry_point,       this, &region_data) },
 			{ "attempting to add 'main' to the list...",                 boost::bind(&Analyzer::bonus_main,              this, &region_data) },
 			{ "attempting to add functions with symbols to the list...", boost::bind(&Analyzer::bonus_symbols,           this, &region_data) },
-			{ "attempting to add marked functions to the list...",       boost::bind(&Analyzer::bonus_marked_functions,  this, &region_data) },			
+			{ "attempting to add marked functions to the list...",       boost::bind(&Analyzer::bonus_marked_functions,  this, &region_data) },
+			{ "attempting to collect functions with fuzzy analysis...",  boost::bind(&Analyzer::collect_fuzzy_functions, this, &region_data) },
 			{ "collecting basic blocks...",                              boost::bind(&Analyzer::collect_functions,       this, &region_data) },
 		};
 
@@ -645,7 +710,7 @@ QByteArray Analyzer::md5_region(const IRegion::pointer &region) const{
 
 	const edb::address_t page_size = edb::v1::debugger_core->page_size();
 	const size_t page_count        = region->size() / page_size;
-	
+
 	const QVector<quint8> pages = edb::v1::read_pages(region->start(), page_count);
 	if(!pages.isEmpty()) {
 		return edb::v1::get_md5(pages);
@@ -734,8 +799,22 @@ edb::address_t Analyzer::find_containing_function(edb::address_t address, bool *
 // Name: will_return
 // Desc:
 //------------------------------------------------------------------------------
-bool Analyzer::will_return(const Function &function) const {
-	Q_UNUSED(function);
+bool Analyzer::will_return(edb::address_t address) const {
+
+
+	const QList<Symbol::pointer> symbols = edb::v1::symbol_manager().symbols();
+	Q_FOREACH(const Symbol::pointer &symbol, symbols) {
+		if(symbol->address == address) {
+			const QString symname = symbol->name_no_prefix;
+			const QString func_name = symname.mid(0, symname.indexOf("@"));
+
+			if(func_name == "__assert_fail" || func_name == "abort" || func_name == "_exit" || func_name == "_Exit") {
+				return false;
+			}
+		}
+	}
+
+
 	return true;
 }
 

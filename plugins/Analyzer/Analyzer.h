@@ -71,12 +71,13 @@ private:
 	QByteArray md5_region(const IRegion::pointer &region) const;
 	bool find_containing_function(edb::address_t address, Function *function) const;
 	bool is_thunk(edb::address_t address) const;
-	bool will_return(const Function &function) const;
+	bool will_return(edb::address_t address) const;
 	void bonus_entry_point(RegionData *data) const;
 	void bonus_main(RegionData *data) const;
 	void bonus_marked_functions(RegionData *data);
 	void bonus_symbols(RegionData *data);
 	void collect_functions(RegionData *data);
+	void collect_fuzzy_functions(RegionData *data);
 	void do_analysis(const IRegion::pointer &region);
 	void ident_header(Analyzer::RegionData *data);
 	void invalidate_dynamic_analysis(const IRegion::pointer &region);
@@ -97,6 +98,7 @@ public Q_SLOTS:
 private:
 	struct RegionData {
 		QSet<edb::address_t>              known_functions;
+		QSet<edb::address_t>              fuzzy_functions;
 		
 		QHash<edb::address_t, Function>   functions;
 		QHash<edb::address_t, BasicBlock> basic_blocks;
