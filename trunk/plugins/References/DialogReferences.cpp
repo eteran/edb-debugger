@@ -95,6 +95,7 @@ void DialogReferences::do_find() {
 						}
 
 						edb::Instruction insn(p, pages_end, addr, std::nothrow);
+
 						if(insn) {
 							switch(insn.type()) {
 							case edb::Instruction::OP_JMP:
@@ -106,6 +107,29 @@ void DialogReferences::do_find() {
 										item->setData(Qt::UserRole, 'C');
 										ui->listWidget->addItem(item);
 									}
+								}
+								break;
+							case edb::Instruction::OP_MOV:
+								// instructions of the form: mov [ADDR], 0xNNNNNNNN
+								Q_ASSERT(insn.operand_count() == 2);
+
+								if(insn.operands()[0].general_type() == edb::Operand::TYPE_EXPRESSION) {								
+									if(insn.operands()[1].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(insn.operands()[1].immediate()) == address) {
+										QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
+										item->setData(Qt::UserRole, 'C');
+										ui->listWidget->addItem(item);
+									}
+								}
+
+								break;
+							case edb::Instruction::OP_PUSH:
+								// instructions of the form: push 0xNNNNNNNN
+								Q_ASSERT(insn.operand_count() == 1);
+
+								if(insn.operands()[0].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(insn.operands()[0].immediate()) == address) {
+									QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
+									item->setData(Qt::UserRole, 'C');
+									ui->listWidget->addItem(item);
 								}
 								break;
 							default:
