@@ -117,13 +117,11 @@ bool CheckVersion::set_proxy(const QUrl &url) {
 		proxy_str = QString::fromUtf8(qgetenv("http_proxy"));
 	}
 
-#if QT_VERSION >= 0x040600
 	if(!proxy_str.isEmpty()) {
 		const QUrl proxy_url = QUrl::fromUserInput(proxy_str);
 		proxy = QNetworkProxy(QNetworkProxy::HttpProxy, proxy_url.host(), proxy_url.port(80), proxy_url.userName(), proxy_url.password());
 		set = true;
 	}
-#endif
 
 #else
 	QList<QNetworkProxy> proxies = QNetworkProxyFactory::systemProxyForQuery(QNetworkProxyQuery(url));

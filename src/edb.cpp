@@ -44,6 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QInputDialog>
 #include <QMessageBox>
+#include <QScopedPointer>
 
 #include <cctype>
 
@@ -794,7 +795,7 @@ address_t locate_main_function() {
 		memory_regions().sync();
 		if(IRegion::pointer region = memory_regions().find_region(address)) {
 
-			SCOPED_POINTER<IBinary> binfo(get_binary_info(region));
+			QScopedPointer<IBinary> binfo(get_binary_info(region));
 			if(binfo) {
 				const address_t main_func = binfo->calculate_main();
 				if(main_func != 0) {

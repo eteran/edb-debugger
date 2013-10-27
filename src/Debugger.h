@@ -23,7 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Debugger.h"
 #include "IDebugEventHandler.h"
 #include "QHexView"
-#include "ScopedPointer.h"
 #include "edb.h"
 
 class DialogArguments;
@@ -44,6 +43,7 @@ class QDropEvent;
 #include <QMainWindow>
 #include <QProcess>
 #include <QVector>
+#include <QScopedPointer>
 
 #include <cstring>
 
@@ -271,7 +271,7 @@ private:
 	QSharedPointer<QHexView::CommentServerInterface> stack_comment_server_;
 	IBreakpoint::pointer                             reenable_breakpoint_run_;
 	IBreakpoint::pointer                             reenable_breakpoint_step_;
-	SCOPED_POINTER<IBinary>                          binary_info_;
+	QScopedPointer<IBinary>                          binary_info_;
 
 	QString                                          last_open_directory_;
 	QString                                          working_directory_;
