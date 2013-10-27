@@ -34,7 +34,7 @@ public:
 	virtual void showEvent(QShowEvent *event);
 
 public Q_SLOTS:
-	void on_checkBox_toggled(bool checked = false);
+	void on_checkBox_toggled(bool checked);
 
 private:
 	Ui::CheckVersionOptionsPage *const ui;
