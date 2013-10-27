@@ -51,9 +51,7 @@ void MemoryRegions::clear() {
 //------------------------------------------------------------------------------
 void MemoryRegions::sync() {
 
-#if QT_VERSION >= 0x050000
 	beginResetModel();
-#endif
 
 	QList<IRegion::pointer> regions;
 	
@@ -79,11 +77,8 @@ void MemoryRegions::sync() {
 
 
 	qSwap(regions_, regions);
-#if QT_VERSION >= 0x050000
 	endResetModel();
-#else
-	reset();
-#endif
+
 }
 
 //------------------------------------------------------------------------------

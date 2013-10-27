@@ -70,7 +70,6 @@ HEADERS += \
 	Register.h \
 	RegisterListWidget.h \
 	RegisterViewDelegate.h \
-	ScopedPointer.h \
 	ShiftBuffer.h \
 	State.h \
 	Symbol.h \

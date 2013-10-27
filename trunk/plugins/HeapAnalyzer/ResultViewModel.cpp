@@ -103,12 +103,8 @@ void ResultViewModel::clearResults() {
 //------------------------------------------------------------------------------
 void ResultViewModel::update() {
 	if(updates_enabled_) {
-#if QT_VERSION >= 0x050000
 		beginResetModel();
 		endResetModel();
-#else
-		reset();
-#endif
 	}
 }
 
