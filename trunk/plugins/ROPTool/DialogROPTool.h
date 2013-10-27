@@ -44,19 +44,16 @@ public:
 
 public:
 	void set_mask_bit(quint32 mask, bool value) {
-#if QT_VERSION >= 0x050000
+
 		beginResetModel();
-#endif
+		
 		if(value) {
 			mask_ |= mask;
 		} else {
 			mask_ &= ~mask;
 		}
-#if QT_VERSION >= 0x050000
+		
 		endResetModel();
-#else
-		reset();
-#endif
 	}
 
 protected:

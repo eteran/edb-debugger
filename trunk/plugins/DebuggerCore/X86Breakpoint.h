@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class X86Breakpoint : public IBreakpoint {
 public:
 	X86Breakpoint(edb::address_t address);
-	~X86Breakpoint();
+	virtual ~X86Breakpoint();
 
 public:
 	virtual edb::address_t address() const    { return address_; }
@@ -37,9 +37,9 @@ public:
 public:
 	virtual bool enable();
 	virtual bool disable();
-	virtual void hit()                    { hit_count_++; }
-	virtual void set_one_time(bool value) { one_time_ = value; }
-	virtual void set_internal(bool value) { internal_ = value; }
+	virtual void hit();
+	virtual void set_one_time(bool value);
+	virtual void set_internal(bool value);
 
 public:
 	static const int size = 1;

@@ -34,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace {
 	bool is_nop(const edb::Instruction &insn) {
 		if(insn) {
-			if(is_nop(insn)) {
+			if(edisassm::is_nop(insn)) {
 				return true;
 			}
 			
