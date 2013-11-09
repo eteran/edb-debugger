@@ -52,7 +52,7 @@ protected:
 
 private:
 	void do_check();
-	bool set_proxy(const QUrl &url);
+	void set_proxy(const QUrl &url);
 
 private:
 	QMenu                 *menu_;

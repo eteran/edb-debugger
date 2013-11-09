@@ -105,10 +105,9 @@ void CheckVersion::do_check() {
 // Name: set_proxy
 // Desc:
 //------------------------------------------------------------------------------
-bool CheckVersion::set_proxy(const QUrl &url) {
+void CheckVersion::set_proxy(const QUrl &url) {
 	
 	QNetworkProxy proxy;
-	bool set = false;
 	
 #ifdef Q_OS_LINUX
 	Q_UNUSED(url);
@@ -119,19 +118,21 @@ bool CheckVersion::set_proxy(const QUrl &url) {
 
 	if(!proxy_str.isEmpty()) {
 		const QUrl proxy_url = QUrl::fromUserInput(proxy_str);
-		proxy = QNetworkProxy(QNetworkProxy::HttpProxy, proxy_url.host(), proxy_url.port(80), proxy_url.userName(), proxy_url.password());
-		set = true;
+		proxy = QNetworkProxy(
+			QNetworkProxy::HttpProxy,
+			proxy_url.host(),
+			proxy_url.port(80),
+			proxy_url.userName(),
+			proxy_url.password());
 	}
 
 #else
 	QList<QNetworkProxy> proxies = QNetworkProxyFactory::systemProxyForQuery(QNetworkProxyQuery(url));
 	if(proxies.size() >= 1) {
 		proxy = proxies.first();
-		set = (proxy.type() != QNetworkProxy::NoProxy);
 	}
 #endif
 	network_->setProxy(proxy);
-	return set;
 }
 
 //------------------------------------------------------------------------------
