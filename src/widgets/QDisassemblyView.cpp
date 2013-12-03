@@ -732,6 +732,16 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	IAnalyzer *const analyzer = edb::v1::analyzer();
 
 	edb::address_t last_address = 0;
+	
+	// TODO: read larger chunks of data at a time
+	//       my gut tells me that 2 pages is probably enough
+	//       perhaps a page-cache in general using QCache
+	//       first. I am thinking that it should be safe to
+	//       store cache objects which represent 2 page blocks
+	//       keyed by the page contining the address we care about
+	//       so address: 0x1000 would have pages for [0x1000-0x3000)
+	//       and address 0x2000 would have pages for [0x2000-0x4000)
+	//       there is overlap, but i think it avoids page bounary issues
 
 	while(viewable_lines >= 0 && current_line < region_size) {
 		const edb::address_t address = address_offset_ + current_line;

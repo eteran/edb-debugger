@@ -19,12 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef QDISASSEMBLYVIEW_20061101_H_
 #define QDISASSEMBLYVIEW_20061101_H_
 
-#include <QAbstractScrollArea>
-#include <QAbstractSlider>
-#include <QPixmap>
-#include <QSet>
 #include "IRegion.h"
 #include "Types.h"
+#include <QAbstractScrollArea>
+#include <QAbstractSlider>
+#include <QCache>
+#include <QPixmap>
+#include <QSet>
 
 class IAnalyzer;
 class QPainter;
@@ -95,24 +96,25 @@ private:
 	void updateSelectedAddress(QMouseEvent *event);
 
 private:
-	IRegion::pointer         region_;
-	QPixmap                  breakpoint_icon_;
-	QPixmap                  current_address_icon_;
-	QSet<edb::address_t>     show_addresses_;
-	SyntaxHighlighter *const highlighter_;
-	edb::address_t           address_offset_;
-	edb::address_t           selected_instruction_address_;
-	edb::address_t           current_address_;
-	int                      font_height_; // height of a character in this font
-	qreal                    font_width_;  // width of a character in this font
-	int                      line1_;
-	int                      line2_;
-	int                      line3_;
-	int                      selected_instruction_size_;
-	bool                     moving_line1_;
-	bool                     moving_line2_;
-	bool                     moving_line3_;
-	bool                     show_address_separator_;
+	IRegion::pointer                  region_;
+	QCache<edb::address_t, uint8_t *> page_cache_;
+	QPixmap                           breakpoint_icon_;
+	QPixmap                           current_address_icon_;
+	QSet<edb::address_t>              show_addresses_;
+	SyntaxHighlighter *const          highlighter_;
+	edb::address_t                    address_offset_;
+	edb::address_t                    selected_instruction_address_;
+	edb::address_t                    current_address_;
+	int                               font_height_; // height of a character in this font
+	qreal                             font_width_;  // width of a character in this font
+	int                               line1_;
+	int                               line2_;
+	int                               line3_;
+	int                               selected_instruction_size_;
+	bool                              moving_line1_;
+	bool                              moving_line2_;
+	bool                              moving_line3_;
+	bool                              show_address_separator_;
 };
 
 #endif
