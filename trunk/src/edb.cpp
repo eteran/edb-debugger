@@ -736,7 +736,7 @@ address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 
 	*ok = debugger_core->read_bytes(address, &ret, sizeof(ret));
 
-	if(!ok) {
+	if(!*ok) {
 		*err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
 	}
 
