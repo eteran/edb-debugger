@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 
+namespace ProcessProperties {
+
 namespace Ui { class DialogProcessProperties; }
 
 class DialogProcessProperties : public QDialog {
@@ -51,5 +53,7 @@ private:
 private:
 	Ui::DialogProcessProperties *const ui;
 };
+
+}
 
 #endif

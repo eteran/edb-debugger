@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 #include "Types.h"
 
+namespace HeapAnalyzer {
+
 struct Result {
 	Result() : block(0), size(0) {
 	}
@@ -66,5 +68,6 @@ private:
 	bool            updates_enabled_;
 };
 
-#endif
+}
 
+#endif

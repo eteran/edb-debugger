@@ -31,6 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	#define MAX_HEX "16"
 #endif
 
+namespace HardwareBreakpoints {
+
 //------------------------------------------------------------------------------
 // Name: DialogHWBreakpoints
 // Desc:
@@ -124,4 +126,6 @@ void DialogHWBreakpoints::showEvent(QShowEvent *event) {
 	if(bp4_enabled) {
 		ui->txtBP4->setText(edb::v1::format_pointer(state.debug_register(3)));
 	}
+}
+
 }

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <author>Evan Teran</author>
- <class>DialogHeader</class>
+ <class>BinaryInfo::DialogHeader</class>
  <widget class="QDialog" name="DialogHeader">
   <property name="geometry">
    <rect>

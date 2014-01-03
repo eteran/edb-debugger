@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include "Types.h"
 
+namespace Bookmarks {
+
 namespace Ui { class Bookmarks; }
 
 class BookmarkWidget : public QWidget {
@@ -49,5 +51,6 @@ private:
 	QSet<edb::address_t> entries_;
 };
 
-#endif
+}
 
+#endif

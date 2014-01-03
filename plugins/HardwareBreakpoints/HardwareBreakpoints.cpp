@@ -35,6 +35,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #error "Unsupported Platform"
 #endif
 
+namespace HardwareBreakpoints {
+
 //------------------------------------------------------------------------------
 // Name: HardwareBreakpoints
 // Desc:
@@ -224,3 +226,5 @@ edb::EVENT_STATUS HardwareBreakpoints::handle_event(const IDebugEvent::const_poi
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(HardwareBreakpoints, HardwareBreakpoints)
 #endif
+
+}

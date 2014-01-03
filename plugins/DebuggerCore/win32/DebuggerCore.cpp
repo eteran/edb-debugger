@@ -41,6 +41,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma comment(lib, "Psapi.lib")
 #endif
 
+namespace DebuggerCore {
+
 typedef struct _LSA_UNICODE_STRING {
   USHORT Length;
   USHORT MaximumLength;
@@ -966,3 +968,5 @@ QString DebuggerCore::format_pointer(edb::address_t address) const {
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
 #endif
+
+}

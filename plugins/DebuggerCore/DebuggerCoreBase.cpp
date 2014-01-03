@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCoreBase.h"
 #include "X86Breakpoint.h"
 
+namespace DebuggerCore {
+
 //------------------------------------------------------------------------------
 // Name: DebuggerCoreBase
 // Desc: constructor
@@ -156,4 +158,6 @@ void DebuggerCoreBase::set_active_thread(edb::tid_t) {
 //------------------------------------------------------------------------------
 int DebuggerCoreBase::breakpoint_size() const {
 	return X86Breakpoint::size;
+}
+
 }

@@ -28,6 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_dialogbinarystring.h"
 
+namespace BinarySearcher {
+
 //------------------------------------------------------------------------------
 // Name: DialogBinaryString
 // Desc: constructor
@@ -130,4 +132,6 @@ void DialogBinaryString::on_listWidget_itemDoubleClicked(QListWidgetItem *item) 
 	if(ok) {
 		edb::v1::dump_data(addr, false);
 	}
+}
+
 }

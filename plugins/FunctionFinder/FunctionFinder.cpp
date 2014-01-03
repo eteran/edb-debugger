@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogFunctions.h"
 #include <QMenu>
 
+namespace FunctionFinder {
+
 //------------------------------------------------------------------------------
 // Name: FunctionFinder
 // Desc:
@@ -68,3 +70,5 @@ void FunctionFinder::show_menu() {
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(FunctionFinder, FunctionFinder)
 #endif
+
+}

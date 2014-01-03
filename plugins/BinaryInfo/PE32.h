@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IBinary.h"
 #include "pe_binary.h"
 
+namespace BinaryInfo {
+
 class PE32 : public IBinary {
 public:
 	PE32(const IRegion::pointer &region);
@@ -40,5 +42,6 @@ private:
 	IRegion::pointer region_;
 };
 
-#endif
+}
 
+#endif

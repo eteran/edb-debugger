@@ -21,8 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 #include "Types.h"
+
 class QSortFilterProxyModel;
 class QListWidgetItem;
+
+namespace ProcessProperties {
 
 namespace Ui { class DialogStrings; }
 
@@ -47,5 +50,7 @@ private:
 	 Ui::DialogStrings *const ui;
 	 QSortFilterProxyModel *  filter_model_;
 };
+
+}
 
 #endif

@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 
+namespace HardwareBreakpoints {
+
 namespace Ui { class DialogHWBreakpoints; }
 
 class DialogHWBreakpoints : public QDialog {
@@ -45,5 +47,7 @@ private Q_SLOTS:
 private:
 	Ui::DialogHWBreakpoints *const ui;
 };
+
+}
 
 #endif

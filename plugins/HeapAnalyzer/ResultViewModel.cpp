@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include <QtAlgorithms>
 
+namespace HeapAnalyzer {
+
 namespace {
 	bool BlockGreater(const Result &s1, const Result &s2) { return s1.block > s2.block; }
 	bool BlockLess(const Result &s1, const Result &s2)    { return s1.block < s2.block; }
@@ -200,4 +202,6 @@ void ResultViewModel::setUpdatesEnabled(bool value) {
 //------------------------------------------------------------------------------
 bool ResultViewModel::updatesEnabled() const {
 	return updates_enabled_;
+}
+
 }

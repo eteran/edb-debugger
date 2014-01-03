@@ -26,6 +26,8 @@ class QStringListModel;
 class QSortFilterProxyModel;
 class QModelIndex;
 
+namespace BinaryInfo {
+
 namespace Ui { class DialogHeader; }
 
 class DialogHeader : public QDialog {
@@ -45,5 +47,7 @@ private:
 	 Ui::DialogHeader *const ui;
 	 QSortFilterProxyModel *filter_model_;
 };
+
+}
 
 #endif

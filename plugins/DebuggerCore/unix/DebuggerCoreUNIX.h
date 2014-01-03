@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define SET_OK(ok, v) do { (ok) = ((v) != -1) || (errno == 0); } while(0)
 
+namespace DebuggerCore {
 
 namespace native {
 	int execvp(const char *file, char *const argv[]);
@@ -59,5 +60,7 @@ protected:
 	virtual long read_data(edb::address_t address, bool *ok) = 0;
 	virtual bool write_data(edb::address_t address, long value) = 0;
 };
+
+}
 
 #endif

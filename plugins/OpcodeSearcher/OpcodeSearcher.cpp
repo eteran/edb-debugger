@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include <QMenu>
 
+namespace OpcodeSearcher {
+
 //------------------------------------------------------------------------------
 // Name: OpcodeSearcher
 // Desc:
@@ -68,3 +70,5 @@ void OpcodeSearcher::show_menu() {
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(OpcodeSearcher, OpcodeSearcher)
 #endif
+
+}

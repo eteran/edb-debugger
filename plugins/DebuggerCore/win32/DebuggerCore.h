@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCoreBase.h"
 #include <QSet>
 
+namespace DebuggerCore {
+
 class DebuggerCore : public DebuggerCoreBase {
 	Q_OBJECT
 	Q_INTERFACES(IDebuggerCore)
@@ -95,5 +97,7 @@ private:
 	HANDLE           process_handle_;
 	QSet<edb::tid_t> threads_;
 };
+
+}
 
 #endif

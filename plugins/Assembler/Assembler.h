@@ -24,6 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QMenu;
 class QDialog;
 
+namespace Assembler {
+
 class Assembler : public QObject, public IPlugin {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
@@ -48,5 +50,7 @@ public Q_SLOTS:
 private:
 	QDialog *dialog_;
 };
+
+}
 
 #endif

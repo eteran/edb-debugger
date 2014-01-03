@@ -21,14 +21,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 
-namespace Ui { class AnalyzerOptionsPage; }
+namespace Analyzer {
 
-class AnalyzerOptionsPage : public QWidget {
+namespace Ui { class OptionsPage; }
+
+class OptionsPage : public QWidget {
 	Q_OBJECT;
 
 public:
-	AnalyzerOptionsPage(QWidget *parent = 0);
-	virtual ~AnalyzerOptionsPage();
+	OptionsPage(QWidget *parent = 0);
+	virtual ~OptionsPage();
 
 public:
 	virtual void showEvent(QShowEvent *event);
@@ -37,7 +39,9 @@ public Q_SLOTS:
 	void on_checkBox_toggled(bool checked = false);
 
 private:
-	Ui::AnalyzerOptionsPage *const ui;
+	Ui::OptionsPage *const ui;
 };
+
+}
 
 #endif

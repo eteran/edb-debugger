@@ -25,8 +25,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugEventHandler.h"
 #include <QMessageBox>
 
+namespace DebuggerCore {
+
 namespace {
-	const IRegion::permissions_t KNOWN_PERMISSIONS = (PAGE_NOACCESS | PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY);
+
+const IRegion::permissions_t KNOWN_PERMISSIONS = (PAGE_NOACCESS | PAGE_READONLY | PAGE_READWRITE | PAGE_WRITECOPY | PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY);
+
 }
 
 PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions) : start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
@@ -135,4 +139,6 @@ void PlatformRegion::set_start(edb::address_t address) {
 
 void PlatformRegion::set_end(edb::address_t address) {
 	end_ = address;
+}
+
 }

@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QListWidgetItem;
 
+namespace References {
+
 namespace Ui { class DialogReferences; }
 
 class DialogReferences : public QDialog {
@@ -50,5 +52,7 @@ private:
 private:
 	 Ui::DialogReferences *const ui;
 };
+
+}
 
 #endif

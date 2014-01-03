@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "string_hash.h"
 #include "pe_binary.h"
 
+namespace BinaryInfo {
+
 //------------------------------------------------------------------------------
 // Name: 
 // Desc: 
@@ -89,4 +91,6 @@ size_t PE32::header_size() const {
 //------------------------------------------------------------------------------
 const void *PE32::header() const {
 	return 0;
+}
+
 }

@@ -32,6 +32,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 
 class QMenu;
+
+namespace Analyzer {
+
 class AnalyzerWidget;
 
 class Analyzer : public QObject, public IAnalyzer, public IPlugin {
@@ -113,5 +116,7 @@ private:
 	QSet<edb::address_t>               specified_functions_;
 	AnalyzerWidget                    *analyzer_widget_;
 };
+
+}
 
 #endif

@@ -21,14 +21,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 
-namespace Ui { class AssemblerOptionsPage; }
+namespace Assembler {
 
-class AssemblerOptionsPage : public QWidget {
+namespace Ui { class OptionsPage; }
+
+class OptionsPage : public QWidget {
 	Q_OBJECT;
 
 public:
-	AssemblerOptionsPage(QWidget *parent = 0);
-	virtual ~AssemblerOptionsPage();
+	OptionsPage(QWidget *parent = 0);
+	virtual ~OptionsPage();
 
 public:
 	virtual void showEvent(QShowEvent *event);
@@ -38,8 +40,9 @@ public Q_SLOTS:
 	virtual void on_toolButton_clicked();
 	
 private:
-	Ui::AssemblerOptionsPage *const ui;
+	Ui::OptionsPage *const ui;
 };
 
+}
 
 #endif

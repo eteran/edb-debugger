@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <limits>
 #include <cmath>
 
+namespace DebuggerCore {
+
 namespace {
 
 // little-endian!
@@ -492,4 +494,6 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 	else if(lreg == "ss") { context_.SegSs = value; }
 	else if(lreg == "rflags") { context_.EFlags = value; }
 #endif
+}
+
 }

@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IDebuggerCore.h"
 
+namespace DebuggerCore {
+
 class DebuggerCoreBase : public QObject, public IDebuggerCore {
 public:
 	DebuggerCoreBase();
@@ -55,5 +57,7 @@ protected:
 	edb::pid_t      pid_;
 	BreakpointList  breakpoints_;
 };
+
+}
 
 #endif

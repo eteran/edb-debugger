@@ -41,6 +41,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_dialogprocess.h"
 
+namespace ProcessProperties {
+
 namespace {
 
 QString size_to_string(size_t n) {
@@ -531,4 +533,6 @@ void DialogProcessProperties::on_btnStrings_clicked() {
 
 	static QDialog *dialog = new DialogStrings(edb::v1::debugger_ui);
 	dialog->show();
+}
+
 }

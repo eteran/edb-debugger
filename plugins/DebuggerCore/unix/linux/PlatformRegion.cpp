@@ -10,6 +10,8 @@
 #include <sys/mman.h>
 #include <asm/unistd.h>
 
+namespace DebuggerCore {
+
 namespace {
 
 //------------------------------------------------------------------------------
@@ -338,4 +340,6 @@ void PlatformRegion::set_start(edb::address_t address) {
 
 void PlatformRegion::set_end(edb::address_t address) {
 	end_ = address;
+}
+
 }

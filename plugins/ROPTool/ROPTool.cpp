@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogROPTool.h"
 #include <QMenu>
 
+namespace ROPTool {
+
 //------------------------------------------------------------------------------
 // Name: ROPTool
 // Desc:
@@ -69,3 +71,5 @@ void ROPTool::show_menu() {
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(ROPTool, ROPTool)
 #endif
+
+}

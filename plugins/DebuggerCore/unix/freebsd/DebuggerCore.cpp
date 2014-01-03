@@ -42,8 +42,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/wait.h>
 #include <unistd.h>
 
+namespace DebuggerCore {
+
 namespace {
-inline int resume_code(int status) {
+int resume_code(int status) {
 	if(WIFSIGNALED(status)) {
 		return WTERMSIG(status);
 	} else if(WIFSTOPPED(status)) {
@@ -557,3 +559,5 @@ QString DebuggerCore::format_pointer(edb::address_t address) const {
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
 #endif
+
+}

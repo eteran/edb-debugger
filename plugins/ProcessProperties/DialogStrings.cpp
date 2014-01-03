@@ -28,6 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_dialogstrings.h"
 
+namespace ProcessProperties {
+
 //------------------------------------------------------------------------------
 // Name: DialogStrings
 // Desc:
@@ -153,4 +155,6 @@ void DialogStrings::on_btnFind_clicked() {
 	do_find();
 	ui->progressBar->setValue(100);
 	ui->btnFind->setEnabled(true);
+}
+
 }

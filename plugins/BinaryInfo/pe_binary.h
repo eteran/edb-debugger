@@ -38,8 +38,7 @@ typedef int64_t  LONGLONG;
 #define IMAGE_NUMBEROF_DIRECTORY_ENTRIES 16
 #endif
 
-namespace plugin {
-namespace binary_info {
+namespace BinaryInfo {
 
 struct IMAGE_DOS_HEADER {
 	WORD e_magic; // "MZ"
@@ -157,7 +156,6 @@ struct IMAGE_NT_HEADERS64 {
 	IMAGE_OPTIONAL_HEADER64 OptionalHeader;
 };
 
-}
 }
 
 #endif

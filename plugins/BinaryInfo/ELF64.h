@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IBinary.h"
 #include "elf_binary.h"
 
+namespace BinaryInfo {
+
 class ELF64 : public IBinary {
 public:
 	ELF64(const IRegion::pointer &region);
@@ -40,9 +42,11 @@ private:
 	void read_header();
 
 private:
-	IRegion::pointer                   region_;
-	plugin::binary_info::elf64_header *header_;
+	IRegion::pointer region_;
+	elf64_header *   header_;
 };
+
+}
 
 #endif
 

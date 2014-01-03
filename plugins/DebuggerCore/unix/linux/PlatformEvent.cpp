@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformEvent.h"
 #include "edb.h"
 
+namespace DebuggerCore {
+
 //------------------------------------------------------------------------------
 // Name: 
 //------------------------------------------------------------------------------
@@ -236,4 +238,6 @@ int PlatformEvent::code() const {
 	}
 	
 	return 0;
+}
+
 }

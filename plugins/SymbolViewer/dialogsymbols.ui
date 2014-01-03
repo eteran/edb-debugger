@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <author>Evan Teran</author>
- <class>DialogSymbolViewer</class>
+ <class>SymbolViewer::DialogSymbolViewer</class>
  <widget class="QDialog" name="DialogSymbolViewer">
   <property name="geometry">
    <rect>

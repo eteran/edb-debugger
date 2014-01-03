@@ -36,6 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "elf/elf_shdr.h"
 #include "elf/elf_syminfo.h"
 
+namespace BinaryInfo {
 namespace {
 struct elf32_model {
 	typedef quint32    address_t;
@@ -410,7 +411,7 @@ void process_symbols(const void *p, size_t size, std::ostream &os) {
 // Name: generate_symbols
 // Desc:
 //--------------------------------------------------------------------------
-bool symbols::generate_symbols(const QString &filename, std::ostream &os) {
+bool generate_symbols(const QString &filename, std::ostream &os) {
 
 	QFile file(filename);
 	if(file.open(QIODevice::ReadOnly)) {
@@ -435,4 +436,5 @@ bool symbols::generate_symbols(const QString &filename, std::ostream &os) {
 		}
 	}
 	return false;
+}
 }

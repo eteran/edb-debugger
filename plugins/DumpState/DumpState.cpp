@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DumpState.h"
 #include "IDebuggerCore.h"
 #include "Instruction.h"
-#include "DumpStateOptionsPage.h"
+#include "OptionsPage.h"
 #include "State.h"
 #include "Util.h"
 #include "edb.h"
@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <string>
 
+namespace DumpState {
 namespace {
 
 //------------------------------------------------------------------------------
@@ -205,11 +206,7 @@ void DumpState::dump_lines(edb::address_t address, int lines) {
 
 			for(int j = 0; j < 16; ++j) {
 				const quint8 ch = buf[j];
-				std::cout << (
-					(
-                                                std::isprint(ch) ||
-                                                (std::isspace(ch) && (ch != '\f' && ch != '\t' && ch != '\r' && ch != '\n') && ch < 0x80)
-					) ? static_cast<char>(ch) : '.');
+				std::cout << ((std::isprint(ch) || (std::isspace(ch) && (ch != '\f' && ch != '\t' && ch != '\r' && ch != '\n') && ch < 0x80)) ? static_cast<char>(ch) : '.');
 			}
 
 			std::cout << "\n";
@@ -263,9 +260,11 @@ void DumpState::show_menu() {
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *DumpState::options_page() {
-	return new DumpStateOptionsPage;
+	return new OptionsPage;
 }
 
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(DumpState, DumpState)
 #endif
+
+}

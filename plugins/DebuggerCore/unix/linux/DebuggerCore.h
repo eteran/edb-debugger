@@ -30,6 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class IBinary;
 
+namespace DebuggerCore {
+
 class DebuggerCore : public DebuggerCoreUNIX {
 	Q_OBJECT
 #if QT_VERSION >= 0x050000
@@ -136,5 +138,7 @@ private:
 	edb::tid_t       event_thread_;
 	IBinary          *binary_info_;
 };
+
+}
 
 #endif

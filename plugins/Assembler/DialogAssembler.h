@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QListWidgetItem;
 
+namespace Assembler {
+
 namespace Ui { class DialogAssembler; }
 
 class DialogAssembler : public QDialog {
@@ -45,5 +47,7 @@ private:
 	 edb::address_t             address_;
 	 int                        instruction_size_;
 };
+
+}
 
 #endif

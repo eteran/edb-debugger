@@ -25,6 +25,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVariantList>
 
 class QSignalMapper;
+
+namespace Bookmarks {
+
 class BookmarkWidget;
 
 class Bookmarks : public QObject, public IPlugin {
@@ -57,5 +60,7 @@ private:
 	QSignalMapper *      signal_mapper_;
 	BookmarkWidget *     bookmark_widget_;
 };
+
+}
 
 #endif

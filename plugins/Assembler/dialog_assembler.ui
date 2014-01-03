@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <author>Evan Teran</author>
- <class>DialogAssembler</class>
+ <class>Assembler::DialogAssembler</class>
  <widget class="QDialog" name="DialogAssembler">
   <property name="geometry">
    <rect>

@@ -26,6 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_dialogreferences.h"
 
+namespace References {
+
 //------------------------------------------------------------------------------
 // Name: DialogReferences
 // Desc: constructor
@@ -177,4 +179,6 @@ void DialogReferences::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 			edb::v1::jump_to_address(addr);
 		}
 	}
+}
+
 }

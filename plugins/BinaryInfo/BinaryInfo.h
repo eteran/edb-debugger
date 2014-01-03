@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QMenu;
 
+namespace BinaryInfo {
+
 class BinaryInfo : public QObject, public IPlugin, public ISymbolGenerator {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
@@ -54,5 +56,7 @@ public Q_SLOTS:
 private:
 	QMenu *menu_;
 };
+
+}
 
 #endif

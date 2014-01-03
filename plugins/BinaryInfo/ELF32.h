@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IBinary.h"
 #include "elf_binary.h"
 
+namespace BinaryInfo {
+
 class ELF32 : public IBinary {
 public:
 	ELF32(const IRegion::pointer &region);
@@ -40,9 +42,10 @@ private:
 	void read_header();
 
 private:
-	IRegion::pointer                   region_;
-	plugin::binary_info::elf32_header *header_;
+	IRegion::pointer region_;
+	elf32_header *   header_;
 };
 
-#endif
+}
 
+#endif

@@ -26,6 +26,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QSortFilterProxyModel;
 
+
+namespace HeapAnalyzer {
+
 namespace Ui { class DialogHeap; }
 
 class DialogHeap : public QDialog {
@@ -56,5 +59,7 @@ private:
 	 Ui::DialogHeap *const ui;
 	 ResultViewModel *     model_;
 };
+
+}
 
 #endif

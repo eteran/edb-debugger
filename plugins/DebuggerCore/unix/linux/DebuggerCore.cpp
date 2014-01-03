@@ -72,6 +72,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PTRACE_O_TRACECLONE (1 << PTRACE_EVENT_CLONE)
 #endif
 
+namespace DebuggerCore {
+
 namespace {
 
 //------------------------------------------------------------------------------
@@ -1218,3 +1220,5 @@ QString DebuggerCore::format_pointer(edb::address_t address) const {
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
 #endif
+
+}

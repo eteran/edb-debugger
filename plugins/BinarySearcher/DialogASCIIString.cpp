@@ -28,6 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_dialogasciistring.h"
 
+namespace BinarySearcher {
+
 //------------------------------------------------------------------------------
 // Name: DialogASCIIString
 // Desc: constructor
@@ -115,4 +117,6 @@ void DialogASCIIString::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 	if(ok) {
 		edb::v1::dump_stack(addr, true);
 	}
+}
+
 }

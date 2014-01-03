@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <QCoreApplication>
 
+namespace DebuggerCore {
+
 class PlatformRegion : public IRegion {
 	Q_DECLARE_TR_FUNCTIONS(PlatformRegion)
 	
@@ -65,6 +67,8 @@ private:
 	QString        name_;
 	permissions_t  permissions_;
 };
+
+}
 
 #endif
 
