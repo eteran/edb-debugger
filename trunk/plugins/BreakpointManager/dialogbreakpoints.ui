@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <author>Evan Teran</author>
- <class>DialogBreakpoints</class>
+ <class>BreakpointManager::DialogBreakpoints</class>
  <widget class="QDialog" name="DialogBreakpoints">
   <property name="geometry">
    <rect>

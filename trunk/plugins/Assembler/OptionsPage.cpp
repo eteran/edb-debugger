@@ -16,24 +16,28 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "DumpStateOptionsPage.h"
+#include "OptionsPage.h"
 #include <QSettings>
+#include <QDebug>
+#include <QFileDialog>
 
-#include "ui_DumpStateOptionsPage.h"
+#include "ui_OptionsPage.h"
+
+namespace Assembler {
 
 //------------------------------------------------------------------------------
-// Name: DumpStateOptionsPage
+// Name: OptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-DumpStateOptionsPage::DumpStateOptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::DumpStateOptionsPage) {
+OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsPage) {
 	ui->setupUi(this);
 }
 
 //------------------------------------------------------------------------------
-// Name: ~DumpStateOptionsPage
+// Name: ~OptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-DumpStateOptionsPage::~DumpStateOptionsPage() {
+OptionsPage::~OptionsPage() {
 	delete ui;
 }
 
@@ -41,29 +45,31 @@ DumpStateOptionsPage::~DumpStateOptionsPage() {
 // Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
-void DumpStateOptionsPage::showEvent(QShowEvent *event) {
+void OptionsPage::showEvent(QShowEvent *event) {
 	Q_UNUSED(event);
 
 	QSettings settings;
-	ui->instructionsBeforeIP->setValue(settings.value("DumpState/instructions_before_ip", 0).toInt());
-	ui->instructionsAfterIP->setValue(settings.value("DumpState/instructions_after_ip", 5).toInt());
+	ui->assemblerPath->setEditText(settings.value("Assembler/helper_application", "/usr/bin/yasm").toString());
 }
 
 //------------------------------------------------------------------------------
-// Name: on_instructionsBeforeIP_valueChanged
+// Name: on_assemblerPath_editTextChanged
 // Desc:
 //------------------------------------------------------------------------------
-void DumpStateOptionsPage::on_instructionsBeforeIP_valueChanged(int i) {
+void OptionsPage::on_assemblerPath_editTextChanged(const QString &text) {
 	QSettings settings;
-	settings.setValue("DumpState/instructions_before_ip", i);
+	settings.setValue("Assembler/helper_application", text);
 }
 
 //------------------------------------------------------------------------------
-// Name: on_instructionsAfterIP_valueChanged
+// Name: on_toolButton_clicked
 // Desc:
 //------------------------------------------------------------------------------
-void DumpStateOptionsPage::on_instructionsAfterIP_valueChanged(int i) {
-	QSettings settings;
-	settings.setValue("DumpState/instructions_after_ip", i);
+void OptionsPage::on_toolButton_clicked() {
+	const QString filename = QFileDialog::getOpenFileName(this, "Choose Your Preferred Assembler");
+	if(!filename.isEmpty()) {
+		ui->assemblerPath->setEditText(filename);
+	}
 }
 
+}

@@ -26,6 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_bookmarks.h"
 
+namespace Bookmarks {
+
 //------------------------------------------------------------------------------
 // Name: BookmarkWidget
 // Desc:
@@ -172,4 +174,4 @@ void BookmarkWidget::on_tableWidget_customContextMenuRequested(const QPoint &pos
 	}
 }
 
-
+}

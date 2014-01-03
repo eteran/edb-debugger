@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define REG(x) x
 #endif
 
+namespace DebuggerCore {
+
 //------------------------------------------------------------------------------
 // Name: PlatformState
 // Desc:
@@ -416,4 +418,6 @@ quint64 PlatformState::mmx_register(int n) const {
 QByteArray PlatformState::xmm_register(int n) const {
 	Q_UNUSED(n);
 	return QByteArray();
+}
+
 }

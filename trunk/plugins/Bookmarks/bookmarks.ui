@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Bookmarks</class>
+ <class>Bookmarks::Bookmarks</class>
  <widget class="QWidget" name="Bookmarks">
   <property name="geometry">
    <rect>

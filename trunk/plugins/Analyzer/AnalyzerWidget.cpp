@@ -29,6 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPainter>
 #include <QScrollBar>
 
+namespace Analyzer {
+
 //------------------------------------------------------------------------------
 // Name: 
 //------------------------------------------------------------------------------
@@ -154,4 +156,6 @@ void AnalyzerWidget::mouseMoveEvent(QMouseEvent *event) {
 	if(mouse_pressed_) {
 		mousePressEvent(event);
 	}
+}
+
 }

@@ -35,6 +35,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 #include <signal.h> // for the SIG* definitions
 
+namespace DebuggerCore {
+
 //------------------------------------------------------------------------------
 // Name: 
 //------------------------------------------------------------------------------
@@ -251,4 +253,6 @@ int PlatformEvent::code() const {
 	}
 	
 	return 0;
+}
+
 }

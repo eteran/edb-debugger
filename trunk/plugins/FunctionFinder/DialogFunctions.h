@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QSortFilterProxyModel;
 class IAnalyzer;
 
+namespace FunctionFinder {
+
 namespace Ui { class DialogFunctions; }
 
 class DialogFunctions : public QDialog {
@@ -48,5 +50,7 @@ private:
 	Ui::DialogFunctions *const ui;
 	QSortFilterProxyModel *    filter_model_;
 };
+
+}
 
 #endif

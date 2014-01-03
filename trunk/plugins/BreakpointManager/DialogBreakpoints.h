@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 
+namespace BreakpointManager {
+
 namespace Ui { class DialogBreakpoints; }
 
 class DialogBreakpoints : public QDialog {
@@ -43,5 +45,7 @@ private:
 private:
 	 Ui::DialogBreakpoints *const ui;
 };
+
+}
 
 #endif

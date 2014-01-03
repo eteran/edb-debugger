@@ -26,6 +26,8 @@ class QDialog;
 class QMenu;
 class State;
 
+namespace HardwareBreakpoints {
+
 class HardwareBreakpoints : public QObject, public IPlugin, public IDebugEventHandler {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
@@ -54,5 +56,7 @@ private:
 	QDialog *            dialog_;
 	IDebugEventHandler * old_event_handler_;
 };
+
+}
 
 #endif

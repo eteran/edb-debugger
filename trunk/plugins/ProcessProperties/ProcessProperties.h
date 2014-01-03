@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QMenu;
 class QDialog;
 
+namespace ProcessProperties {
+
 class ProcessProperties : public QObject, public IPlugin {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
@@ -46,5 +48,7 @@ private:
 	QMenu *   menu_;
 	QDialog * dialog_;
 };
+
+}
 
 #endif

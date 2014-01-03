@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogBinaryString.h"
 #include <QMenu>
 
+namespace BinarySearcher {
+
 //------------------------------------------------------------------------------
 // Name: BinarySearcher
 // Desc:
@@ -88,3 +90,5 @@ void BinarySearcher::mnuStackFindASCII() {
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(BinarySearcher, BinarySearcher)
 #endif
+
+}

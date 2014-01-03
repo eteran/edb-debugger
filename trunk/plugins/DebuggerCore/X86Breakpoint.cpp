@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebuggerCore.h"
 #include "edb.h"
 
+namespace DebuggerCore {
+
 namespace {
 const quint8 BreakpointInstruction[X86Breakpoint::size] = {0xcc};
 }
@@ -94,4 +96,6 @@ void X86Breakpoint::set_one_time(bool value) {
 //------------------------------------------------------------------------------
 void X86Breakpoint::set_internal(bool value) {
 	internal_ = value;
+}
+
 }

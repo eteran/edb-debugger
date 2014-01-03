@@ -29,6 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_dialogsymbols.h"
 
+namespace SymbolViewer {
+
 //------------------------------------------------------------------------------
 // Name: DialogSymbolViewer
 // Desc:
@@ -181,4 +183,6 @@ void DialogSymbolViewer::on_btnRefresh_clicked() {
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::showEvent(QShowEvent *) {
 	on_btnRefresh_clicked();
+}
+
 }

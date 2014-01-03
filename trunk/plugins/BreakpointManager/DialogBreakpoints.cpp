@@ -27,6 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_dialogbreakpoints.h"
 
+namespace BreakpointManager {
+
 //------------------------------------------------------------------------------
 // Name: DialogBreakpoints
 // Desc:
@@ -207,4 +209,6 @@ void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {
 			break;
 		}
 	}
+}
+
 }

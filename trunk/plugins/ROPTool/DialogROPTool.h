@@ -33,6 +33,8 @@ class QSortFilterProxyModel;
 class QStandardItem;
 class QStandardItemModel;
 
+namespace ROPTool {
+
 class ResultFilterProxy;
 
 namespace Ui { class DialogROPTool; }
@@ -100,5 +102,7 @@ private:
 	ResultFilterProxy *      result_filter_;
 	QSet<QString>            unique_results_;
 };
+
+}
 
 #endif

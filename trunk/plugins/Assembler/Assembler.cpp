@@ -20,11 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "DialogAssembler.h"
 #include "MemoryRegions.h"
-#include "AssemblerOptionsPage.h"
+#include "OptionsPage.h"
 
 #include <QMenu>
 #include <QList>
 #include <QAction>
+
+namespace Assembler {
 
 //------------------------------------------------------------------------------
 // Name: Assembler
@@ -90,9 +92,11 @@ void Assembler::show_dialog() {
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *Assembler::options_page() {
-	return new AssemblerOptionsPage;
+	return new OptionsPage;
 }
 
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(Assembler, Assembler)
 #endif
+
+}

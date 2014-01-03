@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <fstream>
 
+namespace BinaryInfo {
 namespace {
 
 //------------------------------------------------------------------------------
@@ -117,7 +118,7 @@ QString BinaryInfo::extra_arguments() const {
 IPlugin::ArgumentStatus BinaryInfo::parse_argments(QStringList &args) {
 
 	if(args.size() == 3 && args[1] == "--symbols") {
-		symbols::generate_symbols(args[2]);
+		generate_symbols(args[2]);
 		return ARG_EXIT;
 	}
 
@@ -132,7 +133,7 @@ bool BinaryInfo::generate_symbol_file(const QString &filename, const QString &sy
 
 	std::ofstream file(qPrintable(symbol_file));	
 	if(file) {
-		if(symbols::generate_symbols(filename, file)) {
+		if(generate_symbols(filename, file)) {
 			return true;
 		}
 	}
@@ -143,3 +144,5 @@ bool BinaryInfo::generate_symbol_file(const QString &filename, const QString &sy
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(BinaryInfo, BinaryInfo)
 #endif
+
+}

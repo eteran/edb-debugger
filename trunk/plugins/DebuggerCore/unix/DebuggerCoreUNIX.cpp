@@ -34,23 +34,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define EDB_WORDSIZE sizeof(long)
 
+namespace DebuggerCore {
+
 namespace {
-	int selfpipe[2];
-	void (*old_sigchld_handler)(int sig, siginfo_t *, void *);
 
-	//------------------------------------------------------------------------------
-	// Name: sigchld_handler
-	// Desc:
-	//------------------------------------------------------------------------------
-	void sigchld_handler(int sig, siginfo_t *info, void *p) {
-		if(sig == SIGCHLD) {
-			native::write(selfpipe[1], " ", sizeof(char));
-		}
+int selfpipe[2];
+void (*old_sigchld_handler)(int sig, siginfo_t *, void *);
 
-		if(old_sigchld_handler) {
-			old_sigchld_handler(sig, info, p);
-		}
+//------------------------------------------------------------------------------
+// Name: sigchld_handler
+// Desc:
+//------------------------------------------------------------------------------
+void sigchld_handler(int sig, siginfo_t *info, void *p) {
+	if(sig == SIGCHLD) {
+		native::write(selfpipe[1], " ", sizeof(char));
 	}
+
+	if(old_sigchld_handler) {
+		old_sigchld_handler(sig, info, p);
+	}
+}
+
 }
 
 //------------------------------------------------------------------------------
@@ -573,4 +577,6 @@ QMap<long, QString> DebuggerCoreUNIX::exceptions() const {
 	#endif
 
 	return exceptions;
+}
+
 }

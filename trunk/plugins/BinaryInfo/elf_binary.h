@@ -22,8 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELF_BINARY_20121007_H_
 #define ELF_BINARY_20121007_H_
 
-namespace plugin {
-namespace binary_info {
+namespace BinaryInfo {
 
 #include "elf/elf_types.h"
 #include "elf/elf_header.h"
@@ -41,9 +40,6 @@ namespace binary_info {
 #include "elf/elf_auxv.h"
 #include "elf/elf_nhdr.h"
 #include "elf/elf_move.h"
-
-}
-}
 
 /* Motorola 68k specific definitions.  */
 
@@ -379,25 +375,24 @@ namespace binary_info {
 
 /* Entries found in sections of type SHT_MIPS_GPTAB.  */
 
-union elf32_gptab{
+union elf32_gptab {
+  struct {
+      elf32_word gt_current_g_value; /* -G value used for compilation */
+      elf32_word gt_unused;          /* Not used */
+    } gt_header;                     /* First entry in section */
   struct
     {
-      plugin::binary_info::elf32_word gt_current_g_value;	/* -G value used for compilation */
-      plugin::binary_info::elf32_word gt_unused;		/* Not used */
-    } gt_header;			/* First entry in section */
-  struct
-    {
-      plugin::binary_info::elf32_word gt_g_value;		/* If this value were used for -G */
-      plugin::binary_info::elf32_word gt_bytes;		/* This many bytes would be used */
-    } gt_entry;				/* Subsequent entries in section */
+      elf32_word gt_g_value; /* If this value were used for -G */
+      elf32_word gt_bytes;   /* This many bytes would be used */
+    } gt_entry;              /* Subsequent entries in section */
 };
 
 /* Entry found in sections of type SHT_MIPS_REGINFO.  */
 
 struct elf32_reginfo {
-	plugin::binary_info::elf32_word	ri_gprmask;		/* General registers used */
-	plugin::binary_info::elf32_word	ri_cprmask[4];		/* Coprocessor registers used */
-	plugin::binary_info::elf32_sword	ri_gp_value;		/* $gp register value */
+   elf32_word  ri_gprmask;	  /* General registers used */
+   elf32_word  ri_cprmask[4]; /* Coprocessor registers used */
+   elf32_sword ri_gp_value;   /* $gp register value */
 };
 
 
@@ -409,8 +404,8 @@ struct elf32_reginfo {
 struct elf_options {
 	unsigned char kind;		/* Determines interpretation of the variable part of descriptor.  */
 	unsigned char size;		/* Size of descriptor, including header.  */
-	plugin::binary_info::elf32_section section;	/* Section header index of section affected, 0 for global options.  */
-	plugin::binary_info::elf32_word info;		/* Kind-specific information.  */
+	elf32_section section;	/* Section header index of section affected, 0 for global options.  */
+	elf32_word info;		/* Kind-specific information.  */
 };
 
 /* Values for `kind' field in Elf_Options.  */
@@ -455,8 +450,8 @@ struct elf_options {
 /* Entry found in `.options' section.  */
 
 struct elf_options_hw {
-	plugin::binary_info::elf32_word hwp_flags1; /* Extra flags.  */
-	plugin::binary_info::elf32_word hwp_flags2; /* Extra flags.  */
+	elf32_word hwp_flags1; /* Extra flags.  */
+	elf32_word hwp_flags2; /* Extra flags.  */
 };
 
 /* Masks for `info' in ElfOptions for ODK_HWAND and ODK_HWOR entries.  */
@@ -616,20 +611,20 @@ struct elf_options_hw {
 
 struct elf32_lib
 {
-  plugin::binary_info::elf32_word l_name;		/* Name (string table index) */
-  plugin::binary_info::elf32_word l_time_stamp;	/* Timestamp */
-  plugin::binary_info::elf32_word l_checksum;	/* Checksum */
-  plugin::binary_info::elf32_word l_version;		/* Interface version */
-  plugin::binary_info::elf32_word l_flags;		/* Flags */
+  elf32_word l_name;		/* Name (string table index) */
+  elf32_word l_time_stamp;	/* Timestamp */
+  elf32_word l_checksum;	/* Checksum */
+  elf32_word l_version;		/* Interface version */
+  elf32_word l_flags;		/* Flags */
 };
 
 struct elf64_lib
 {
-  plugin::binary_info::elf64_word l_name;		/* Name (string table index) */
-  plugin::binary_info::elf64_word l_time_stamp;	/* Timestamp */
-  plugin::binary_info::elf64_word l_checksum;	/* Checksum */
-  plugin::binary_info::elf64_word l_version;		/* Interface version */
-  plugin::binary_info::elf64_word l_flags;		/* Flags */
+  elf64_word l_name;		/* Name (string table index) */
+  elf64_word l_time_stamp;	/* Timestamp */
+  elf64_word l_checksum;	/* Checksum */
+  elf64_word l_version;		/* Interface version */
+  elf64_word l_flags;		/* Flags */
 };
 
 
@@ -645,7 +640,7 @@ struct elf64_lib
 
 /* Entries found in sections of type SHT_MIPS_CONFLICT.  */
 
-typedef plugin::binary_info::elf32_addr elf32_conflict;
+typedef elf32_addr elf32_conflict;
 
 
 #if 0
@@ -1718,5 +1713,9 @@ typedef plugin::binary_info::elf32_addr elf32_conflict;
 #define R_M32R_GOTOFF_LO	64	/* Low 16 bit offset to GOT */
 #define R_M32R_NUM		256	/* Keep this the last entry. */
 
+
 #endif
+
+}
+
 #endif

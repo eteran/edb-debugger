@@ -28,8 +28,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class IState;
 
+namespace DebuggerCore { class DebuggerCore; }
+
 class EDB_EXPORT State {
-	friend class DebuggerCore;
+	friend class DebuggerCore::DebuggerCore;
 
 public:
 	State &operator=(const State &other);

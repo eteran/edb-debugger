@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QListWidgetItem;
 
+namespace BinarySearcher {
+
 namespace Ui { class DialogASCIIString; }
 
 class DialogASCIIString : public QDialog {
@@ -42,5 +44,7 @@ private:
 private:
 	 Ui::DialogASCIIString *const ui;
 };
+
+}
 
 #endif

@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Analyzer.h"
-#include "AnalyzerOptionsPage.h"
+#include "OptionsPage.h"
 #include "AnalyzerWidget.h"
 #include "SpecifiedFunctions.h"
 #include "IBinary.h"
@@ -53,15 +53,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define MIN_REFCOUNT 2
 
+namespace Analyzer {
+
 namespace {
 #if defined(EDB_X86)
-	const edb::Operand::Register STACK_REG = edb::Operand::REG_ESP;
-	const edb::Operand::Register FRAME_REG = edb::Operand::REG_EBP;
+const edb::Operand::Register STACK_REG = edb::Operand::REG_ESP;
+const edb::Operand::Register FRAME_REG = edb::Operand::REG_EBP;
 #elif defined(EDB_X86_64)
-	const edb::Operand::Register STACK_REG = edb::Operand::REG_RSP;
-	const edb::Operand::Register FRAME_REG = edb::Operand::REG_RBP;
+const edb::Operand::Register STACK_REG = edb::Operand::REG_RSP;
+const edb::Operand::Register FRAME_REG = edb::Operand::REG_RBP;
 #endif
-
 
 //------------------------------------------------------------------------------
 // Name: module_entry_point
@@ -92,7 +93,7 @@ Analyzer::Analyzer() : menu_(0), analyzer_widget_(0) {
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *Analyzer::options_page() {
-	return new AnalyzerOptionsPage;
+	return new OptionsPage;
 }
 
 //------------------------------------------------------------------------------
@@ -821,3 +822,5 @@ bool Analyzer::will_return(edb::address_t address) const {
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(Analyzer, Analyzer)
 #endif
+
+}

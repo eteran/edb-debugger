@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCoreApplication>
 #include "IDebugEvent.h"
 
+namespace DebuggerCore {
+
 class PlatformEvent : IDebugEvent {
 	Q_DECLARE_TR_FUNCTIONS(PlatformEvent)
 	friend class DebuggerCore;
@@ -54,5 +56,7 @@ private:
 	void *     fault_address_;
 	long       fault_code_;
 };
+
+}
 
 #endif

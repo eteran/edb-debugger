@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 
+namespace Analyzer {
+
 class AnalyzerWidget : public QWidget {
 	Q_OBJECT
 public:
@@ -32,3 +34,5 @@ protected:
 private:
 	bool mouse_pressed_;
 };
+
+}

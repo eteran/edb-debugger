@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <author>Evan Teran</author>
- <class>DialogStrings</class>
+ <class>ProcessProperties::DialogStrings</class>
  <widget class="QDialog" name="DialogStrings">
   <property name="geometry">
    <rect>

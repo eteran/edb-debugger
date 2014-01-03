@@ -31,38 +31,42 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_dialogrop.h"
 
+namespace ROPTool {
+
 namespace {
-	bool is_nop(const edb::Instruction &insn) {
-		if(insn) {
-			if(edisassm::is_nop(insn)) {
-				return true;
-			}
-			
-			// TODO: does this effect flags?
-			if(insn.type() == edb::Instruction::OP_MOV && insn.operand_count() == 2) {
-				if(insn.operands()[0].general_type() == edb::Operand::TYPE_REGISTER && insn.operands()[1].general_type() == edb::Operand::TYPE_REGISTER) {
-					if(insn.operands()[0].reg() == insn.operands()[1].reg()) {
-						return true;
-					}
-				}
-			
-			}
-			
-			// TODO: does this effect flags?
-			if(insn.type() == edb::Instruction::OP_XCHG && insn.operand_count() == 2) {
-				if(insn.operands()[0].general_type() == edb::Operand::TYPE_REGISTER && insn.operands()[1].general_type() == edb::Operand::TYPE_REGISTER) {
-					if(insn.operands()[0].reg() == insn.operands()[1].reg()) {
-						return true;
-					}
-				}
-			
-			}
-			
-			// TODO: support LEA reg, [reg]
-			
+
+bool is_nop(const edb::Instruction &insn) {
+	if(insn) {
+		if(edisassm::is_nop(insn)) {
+			return true;
 		}
-		return false;
+
+		// TODO: does this effect flags?
+		if(insn.type() == edb::Instruction::OP_MOV && insn.operand_count() == 2) {
+			if(insn.operands()[0].general_type() == edb::Operand::TYPE_REGISTER && insn.operands()[1].general_type() == edb::Operand::TYPE_REGISTER) {
+				if(insn.operands()[0].reg() == insn.operands()[1].reg()) {
+					return true;
+				}
+			}
+
+		}
+
+		// TODO: does this effect flags?
+		if(insn.type() == edb::Instruction::OP_XCHG && insn.operand_count() == 2) {
+			if(insn.operands()[0].general_type() == edb::Operand::TYPE_REGISTER && insn.operands()[1].general_type() == edb::Operand::TYPE_REGISTER) {
+				if(insn.operands()[0].reg() == insn.operands()[1].reg()) {
+					return true;
+				}
+			}
+
+		}
+
+		// TODO: support LEA reg, [reg]
+
 	}
+	return false;
+}
+
 }
 
 //------------------------------------------------------------------------------
@@ -425,4 +429,6 @@ void DialogROPTool::on_btnFind_clicked() {
 	do_find();
 	ui->progressBar->setValue(100);
 	ui->btnFind->setEnabled(true);
+}
+
 }

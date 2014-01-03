@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogHeap.h"
 #include <QMenu>
 
+namespace HeapAnalyzer {
+
 //------------------------------------------------------------------------------
 // Name: HeapAnalyzer
 // Desc:
@@ -68,3 +70,5 @@ void HeapAnalyzer::show_menu() {
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(HeapAnalyzer, HeapAnalyzer)
 #endif
+
+}

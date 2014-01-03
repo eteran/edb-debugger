@@ -38,6 +38,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_dialog_assembler.h"
 
+namespace Assembler {
+
 //------------------------------------------------------------------------------
 // Name: DialogAssembler
 // Desc: constructor
@@ -304,5 +306,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 	} else {
 		QMessageBox::warning(this, tr("Error In Code"), tr("Failed to assembly the given assemble code."));
 	}
+
+}
 
 }

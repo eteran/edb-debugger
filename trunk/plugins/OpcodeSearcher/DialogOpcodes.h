@@ -28,6 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QSortFilterProxyModel;
 class QListWidgetItem;
 
+namespace OpcodeSearcher {
+
 namespace Ui { class DialogOpcodes; }
 
 class DialogOpcodes : public QDialog {
@@ -70,5 +72,7 @@ private:
 	Ui::DialogOpcodes *const ui;
 	QSortFilterProxyModel *  filter_model_;
 };
+
+}
 
 #endif

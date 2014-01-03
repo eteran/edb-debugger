@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "CheckVersion.h"
-#include "CheckVersionOptionsPage.h"
+#include "OptionsPage.h"
 #include "edb.h"
 
 #include <QDebug>
@@ -30,6 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QNetworkRequest>
 #include <QSettings>
 #include <QUrl>
+
+namespace CheckVersion {
 
 //------------------------------------------------------------------------------
 // Name: CheckVersion
@@ -61,7 +63,7 @@ void CheckVersion::private_init() {
 // Desc:
 //------------------------------------------------------------------------------
 QWidget *CheckVersion::options_page() {
-	return new CheckVersionOptionsPage;
+	return new OptionsPage;
 }
 
 //------------------------------------------------------------------------------
@@ -183,3 +185,5 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(CheckVersion, CheckVersion)
 #endif
+
+}

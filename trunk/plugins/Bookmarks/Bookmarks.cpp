@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QShortcut>
 #include <QSignalMapper>
 
+namespace Bookmarks {
+
 //------------------------------------------------------------------------------
 // Name: Bookmarks
 // Desc:
@@ -116,3 +118,5 @@ void Bookmarks::add_bookmark_menu() {
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(Bookmarks, Bookmarks)
 #endif
+
+}

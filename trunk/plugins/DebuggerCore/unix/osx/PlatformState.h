@@ -24,6 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/user.h>
 #include <mach/mach.h>
 
+namespace DebuggerCore {
+
 class PlatformState : public IState {
 	friend class DebuggerCore;
 
@@ -65,6 +67,8 @@ private:
 	x86_exception_state64_t exception_state_;
 #endif
 };
+
+}
 
 #endif
 

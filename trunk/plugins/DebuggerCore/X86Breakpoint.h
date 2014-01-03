@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IBreakpoint.h"
 
+namespace DebuggerCore {
+
 class X86Breakpoint : public IBreakpoint {
 public:
 	X86Breakpoint(edb::address_t address);
@@ -52,6 +54,8 @@ private:
 	bool           one_time_;
 	bool           internal_;
 };
+
+}
 
 #endif
 

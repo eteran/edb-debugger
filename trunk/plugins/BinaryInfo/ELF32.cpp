@@ -32,6 +32,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <link.h>
 #endif
 
+namespace BinaryInfo {
+
 //------------------------------------------------------------------------------
 // Name: ELF32
 // Desc: constructor
@@ -88,10 +90,10 @@ edb::address_t ELF32::entry_point() {
 void ELF32::read_header() {
 	if(!header_) {
 		if(region_) {
-			header_ = new plugin::binary_info::elf32_header;
+			header_ = new elf32_header;
 	
-			if(!edb::v1::debugger_core->read_bytes(region_->start(), header_, sizeof(plugin::binary_info::elf32_header))) {
-				std::memset(header_, 0, sizeof(plugin::binary_info::elf32_header));
+			if(!edb::v1::debugger_core->read_bytes(region_->start(), header_, sizeof(elf32_header))) {
+				std::memset(header_, 0, sizeof(elf32_header));
 			}
 		}
 	}
@@ -102,7 +104,7 @@ void ELF32::read_header() {
 // Desc: returns the number of bytes in this executable's header
 //------------------------------------------------------------------------------
 size_t ELF32::header_size() const {
-	return sizeof(plugin::binary_info::elf32_header);
+	return sizeof(elf32_header);
 }
 
 //------------------------------------------------------------------------------
@@ -116,14 +118,14 @@ edb::address_t ELF32::debug_pointer() {
 		const edb::address_t section_offset = header_->e_phoff;
 		const std::size_t count             = header_->e_phnum;
 
-		plugin::binary_info::elf32_phdr section_header;
+		elf32_phdr section_header;
 		for(std::size_t i = 0; i < count; ++i) {
-			if(edb::v1::debugger_core->read_bytes(region_->start() + (section_offset + i * sizeof(plugin::binary_info::elf32_phdr)), &section_header, sizeof(plugin::binary_info::elf32_phdr))) {
+			if(edb::v1::debugger_core->read_bytes(region_->start() + (section_offset + i * sizeof(elf32_phdr)), &section_header, sizeof(elf32_phdr))) {
 				if(section_header.p_type == PT_DYNAMIC) {
 					try {
 						QVector<quint8> buf(section_header.p_memsz);
 						if(edb::v1::debugger_core->read_bytes(section_header.p_vaddr, &buf[0], section_header.p_memsz)) {
-							const plugin::binary_info::elf32_dyn *dynamic = reinterpret_cast<plugin::binary_info::elf32_dyn *>(&buf[0]);
+							const elf32_dyn *dynamic = reinterpret_cast<elf32_dyn *>(&buf[0]);
 							while(dynamic->d_tag != DT_NULL) {
 								if(dynamic->d_tag == DT_DEBUG) {
 									return dynamic->d_un.d_val;
@@ -178,4 +180,6 @@ edb::address_t ELF32::calculate_main() {
 //------------------------------------------------------------------------------
 const void *ELF32::header() const {
 	return header_;
+}
+
 }

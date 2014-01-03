@@ -27,6 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_SpecifiedFunctions.h"
 
+namespace Analyzer {
+
 //------------------------------------------------------------------------------
 // Name: SpecifiedFunctions
 // Desc:
@@ -97,4 +99,6 @@ void SpecifiedFunctions::on_refresh_button_clicked() {
 //------------------------------------------------------------------------------
 void SpecifiedFunctions::showEvent(QShowEvent *) {
 	on_refresh_button_clicked();
+}
+
 }

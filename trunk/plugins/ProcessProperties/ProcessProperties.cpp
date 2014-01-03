@@ -19,7 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ProcessProperties.h"
 #include "DialogProcessProperties.h"
 #include "edb.h"
+
 #include <QMenu>
+
+namespace ProcessProperties {
 
 //------------------------------------------------------------------------------
 // Name: ProcessProperties
@@ -65,3 +68,5 @@ void ProcessProperties::show_menu() {
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(ProcessProperties, ProcessProperties)
 #endif
+
+}

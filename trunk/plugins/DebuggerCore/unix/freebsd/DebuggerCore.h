@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCoreUNIX.h"
 #include <QHash>
 
+namespace DebuggerCore {
+
 class DebuggerCore : public DebuggerCoreUNIX {
 	Q_OBJECT
 	Q_INTERFACES(IDebuggerCore)
@@ -98,5 +100,7 @@ private:
 	edb::address_t page_size_;
 	threadmap_t    threads_;
 };
+
+}
 
 #endif

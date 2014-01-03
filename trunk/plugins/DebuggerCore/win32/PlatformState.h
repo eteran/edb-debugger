@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 #include <windows.h>
 
+namespace DebuggerCore {
+
 class PlatformState : public IState {
 	friend class DebuggerCore;
 
@@ -56,5 +58,7 @@ private:
 	edb::address_t fs_base_;
 	edb::address_t gs_base_;
 };
+
+}
 
 #endif

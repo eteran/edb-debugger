@@ -47,6 +47,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_dialogheap.h"
 
+namespace HeapAnalyzer {
+
 #define PREV_INUSE     0x1
 #define IS_MMAPPED     0x2
 #define NON_MAIN_ARENA 0x4
@@ -57,43 +59,44 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
-	// NOTE: the details of this structure are 32/64-bit sensitive!
+// NOTE: the details of this structure are 32/64-bit sensitive!
 
-	struct malloc_chunk {
-		ulong prev_size; /* Size of previous chunk (if free).  */
-		ulong size;      /* Size in bytes, including overhead. */
+struct malloc_chunk {
+	ulong prev_size; /* Size of previous chunk (if free).  */
+	ulong size;      /* Size in bytes, including overhead. */
 
-		struct malloc_chunk* fd; /* double links -- used only if free. */
-		struct malloc_chunk* bk;
+	struct malloc_chunk* fd; /* double links -- used only if free. */
+	struct malloc_chunk* bk;
 
-		ulong chunk_size() const { return size & ~(SIZE_BITS); }
-		bool prev_inuse() const  { return size & PREV_INUSE; }
-	};
+	ulong chunk_size() const { return size & ~(SIZE_BITS); }
+	bool prev_inuse() const  { return size & PREV_INUSE; }
+};
 
-	//------------------------------------------------------------------------------
-	// Name: block_start
-	// Desc:
-	//------------------------------------------------------------------------------
-	edb::address_t block_start(edb::address_t pointer) {
-		return pointer + sizeof(struct malloc_chunk *) * 2;
-	}
+//------------------------------------------------------------------------------
+// Name: block_start
+// Desc:
+//------------------------------------------------------------------------------
+edb::address_t block_start(edb::address_t pointer) {
+	return pointer + sizeof(struct malloc_chunk *) * 2;
+}
 
-	//------------------------------------------------------------------------------
-	// Name: block_start
-	// Desc:
-	//------------------------------------------------------------------------------
-	edb::address_t block_start(const Result &result) {
-		return block_start(result.block);
-	}
+//------------------------------------------------------------------------------
+// Name: block_start
+// Desc:
+//------------------------------------------------------------------------------
+edb::address_t block_start(const Result &result) {
+	return block_start(result.block);
+}
 
-	//------------------------------------------------------------------------------
-	// Name: block_start
-	// Desc:
-	//------------------------------------------------------------------------------
-	edb::address_t block_start(const Result *result) {
-		Q_ASSERT(result);
-		return block_start(*result);
-	}
+//------------------------------------------------------------------------------
+// Name: block_start
+// Desc:
+//------------------------------------------------------------------------------
+edb::address_t block_start(const Result *result) {
+	Q_ASSERT(result);
+	return block_start(*result);
+}
+
 }
 
 //------------------------------------------------------------------------------
@@ -559,4 +562,6 @@ void DialogHeap::on_btnGraph_clicked() {
 	agclose(g);
 	gvFreeContext(gvc);
 #endif
+}
+
 }

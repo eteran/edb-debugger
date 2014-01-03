@@ -26,6 +26,8 @@ class QNetworkReply;
 class QNetworkAccessManager;
 class QUrl;
 
+namespace CheckVersion {
+
 class CheckVersion : public QObject, public IPlugin {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
@@ -59,5 +61,7 @@ private:
 	QNetworkAccessManager *network_;
 	bool                   initial_check_;
 };
+
+}
 
 #endif

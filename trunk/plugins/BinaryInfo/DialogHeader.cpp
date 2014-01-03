@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_dialogheader.h"
 
+namespace BinaryInfo {
 namespace {
 
 template <class T>
@@ -538,7 +539,7 @@ void DialogHeader::on_btnExplore_clicked() {
 
 					if(ELF32 *const elf32 = dynamic_cast<ELF32 *>(binary_info)) {
 
-						const plugin::binary_info::elf32_header *const header = reinterpret_cast<const plugin::binary_info::elf32_header *>(elf32->header());
+						const elf32_header *const header = reinterpret_cast<const elf32_header *>(elf32->header());
 
 						QTreeWidgetItem *root = new QTreeWidgetItem;
 						root->setText(0, tr("ELF32"));
@@ -559,7 +560,7 @@ void DialogHeader::on_btnExplore_clicked() {
 
 					if(ELF64 *const elf64 = dynamic_cast<ELF64 *>(binary_info)) {
 
-						const plugin::binary_info::elf64_header *const header = reinterpret_cast<const plugin::binary_info::elf64_header *>(elf64->header());
+						const elf64_header *const header = reinterpret_cast<const elf64_header *>(elf64->header());
 
 						QTreeWidgetItem *root = new QTreeWidgetItem;
 						root->setText(0, tr("ELF64"));
@@ -581,7 +582,7 @@ void DialogHeader::on_btnExplore_clicked() {
 					if(PE32 *const pe32 = dynamic_cast<PE32 *>(binary_info)) {
 
 					#if 0
-						const plugin::binary_info::pe32_header *const header = reinterpret_cast<const plugin::binary_info::pe32_header *>(pe32->header());
+						const pe32_header *const header = reinterpret_cast<const pe32_header *>(pe32->header());
 					#endif
 						QTreeWidgetItem *root = new QTreeWidgetItem;
 						root->setText(0, tr("PE32"));
@@ -593,4 +594,5 @@ void DialogHeader::on_btnExplore_clicked() {
 			}
 		}
 	}
+}
 }

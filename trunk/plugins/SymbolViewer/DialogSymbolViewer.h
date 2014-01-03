@@ -27,6 +27,8 @@ class QPoint;
 class QSortFilterProxyModel;
 class QStringListModel;
 
+namespace SymbolViewer {
+
 namespace Ui { class DialogSymbolViewer; }
 
 class DialogSymbolViewer : public QDialog {
@@ -58,5 +60,7 @@ private:
 	 QStringListModel *            model_;
 	 QSortFilterProxyModel *       filter_model_;
 };
+
+}
 
 #endif

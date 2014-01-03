@@ -24,6 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QMenu;
 
+namespace SessionManager {
+
 class SessionManager : public QObject, public IPlugin, public ISessionFile {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
@@ -43,5 +45,7 @@ public:
 public:
 	virtual QMenu *menu(QWidget *parent = 0);
 };
+
+}
 
 #endif

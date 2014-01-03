@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include <QtDebug>
 
+namespace SessionManager {
+
 //------------------------------------------------------------------------------
 // Name: private_init
 // Desc:
@@ -71,3 +73,5 @@ QMenu *SessionManager::menu(QWidget *parent) {
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(SessionManager, SessionManager)
 #endif
+
+}

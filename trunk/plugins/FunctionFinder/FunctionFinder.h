@@ -24,6 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QMenu;
 class QDialog;
 
+namespace FunctionFinder {
+
 class FunctionFinder : public QObject, public IPlugin {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
@@ -48,5 +50,8 @@ private:
 	QDialog * dialog_;
 
 };
+
+}
+
 
 #endif

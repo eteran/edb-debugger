@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogOpcodes.h"
-#include "IDebuggerCore.h"
-#include "edb.h"
-#include "MemoryRegions.h"
 #include "ByteShiftArray.h"
+#include "IDebuggerCore.h"
+#include "MemoryRegions.h"
 #include "ShiftBuffer.h"
 #include "Util.h"
+#include "edb.h"
 
 #include <QHeaderView>
 #include <QMessageBox>
@@ -32,11 +32,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_dialogopcodes.h"
 
+namespace OpcodeSearcher {
+
 namespace {
 #if defined(EDB_X86)
-	const edb::Operand::Register STACK_REG = edb::Operand::REG_ESP;
+const edb::Operand::Register STACK_REG = edb::Operand::REG_ESP;
 #elif defined(EDB_X86_64)
-	const edb::Operand::Register STACK_REG = edb::Operand::REG_RSP;
+const edb::Operand::Register STACK_REG = edb::Operand::REG_RSP;
 #endif
 }
 
@@ -797,4 +799,6 @@ void DialogOpcodes::on_btnFind_clicked() {
 	do_find();
 	ui->progressBar->setValue(100);
 	ui->btnFind->setEnabled(true);
+}
+
 }

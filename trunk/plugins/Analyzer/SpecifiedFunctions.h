@@ -19,13 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOGSPECIFIED_FUNCTIONS_20070705_H_
 #define DIALOGSPECIFIED_FUNCTIONS_20070705_H_
 
-
-#include "Types.h"
 #include <QDialog>
 
 class QStringListModel;
 class QSortFilterProxyModel;
 class QModelIndex;
+
+namespace Analyzer {
 
 namespace Ui { class SpecifiedFunctions; }
 
@@ -51,5 +51,7 @@ private:
 	 QStringListModel *         model_;
 	 QSortFilterProxyModel *    filter_model_;
 };
+
+}
 
 #endif
