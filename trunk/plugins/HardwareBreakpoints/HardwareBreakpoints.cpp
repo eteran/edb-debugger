@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 #include <QDialog>
 
-#include "ui_DialogHardwareBreakpoints.h"
+#include "ui_DialogHWBreakpoints.h"
 
 // TODO: at the moment, nearly this entire file is x86/x86-64 specific
 //       we need to figure out a proper way to support (if at all) non
