@@ -60,6 +60,7 @@ HEADERS += \
 	MemoryRegions.h \
 	Module.h \
 	OSTypes.h \
+	PluginModel.h \
 	Process.h \
 	Prototype.h \
 	QDisassemblyView.h \
@@ -82,7 +83,6 @@ HEADERS += \
 	string_hash.h \
 	version.h
 
-
 FORMS += \
 	BinaryString.ui \
 	Debugger.ui \
@@ -104,7 +104,6 @@ SOURCES += \
 	Configuration.cpp \
 	DataViewInfo.cpp \
 	Debugger.cpp \
-	Function.cpp \
 	DialogArguments.cpp \
 	DialogAttach.cpp \
 	DialogInputBinaryString.cpp \
@@ -113,10 +112,13 @@ SOURCES += \
 	DialogOptions.cpp \
 	DialogPlugins.cpp \
 	DialogThreads.cpp \
+	Function.cpp \
 	HexStringValidator.cpp \
+	Instruction.cpp \
 	LineEdit.cpp \
 	MD5.cpp \
 	MemoryRegions.cpp \
+	PluginModel.cpp \
 	QDisassemblyView.cpp \
 	QLongValidator.cpp \
 	QULongValidator.cpp \
@@ -130,7 +132,6 @@ SOURCES += \
 	SyntaxHighlighter.cpp \
 	TabWidget.cpp \
 	edb.cpp \
-	Instruction.cpp \
 	main.cpp
 
 # QHexView stuff
