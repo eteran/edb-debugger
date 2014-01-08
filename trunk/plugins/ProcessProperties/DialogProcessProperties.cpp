@@ -170,6 +170,9 @@ bool unix_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 //------------------------------------------------------------------------------
 template <class F>
 QString process_socket_file(const QString &filename, QString *symlink, int sock, F fp) {
+
+	Q_ASSERT(symlink);
+
 	QFile net(filename);
 	net.open(QIODevice::ReadOnly | QIODevice::Text);
 	if(net.isOpen()) {
