@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace edb {
 	typedef quint64                                 reg_t;
 	typedef quint64                                 address_t;
-	typedef edisassm::instruction<edisassm::x86_64> Instruction;
+	typedef edisassm::Instruction<edisassm::x86_64> Instruction;
 	typedef Instruction::operand_type               Operand;
 }
 

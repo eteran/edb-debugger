@@ -130,7 +130,7 @@ SOURCES += \
 	SyntaxHighlighter.cpp \
 	TabWidget.cpp \
 	edb.cpp \
-	instruction.cpp \
+	Instruction.cpp \
 	main.cpp
 
 # QHexView stuff
