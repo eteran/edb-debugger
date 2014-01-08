@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2013 Evan Teran
+Copyright (C) 2006 - 2014 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -51,18 +51,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtConcurrentMap>
 #endif
 
-#define MIN_REFCOUNT 2
-
 namespace Analyzer {
 
 namespace {
-#if defined(EDB_X86)
-const edb::Operand::Register STACK_REG = edb::Operand::REG_ESP;
-const edb::Operand::Register FRAME_REG = edb::Operand::REG_EBP;
-#elif defined(EDB_X86_64)
-const edb::Operand::Register STACK_REG = edb::Operand::REG_RSP;
-const edb::Operand::Register FRAME_REG = edb::Operand::REG_RBP;
-#endif
+
+const int MIN_REFCOUNT = 2;
 
 //------------------------------------------------------------------------------
 // Name: module_entry_point

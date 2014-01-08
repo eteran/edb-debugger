@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2013 Evan Teran
+Copyright (C) 2006 - 2014 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -41,6 +41,7 @@ void SessionManager::save_session(const QString &filename, const QString &execut
 	for(QHash<QString, QObject *>::iterator it = plugins.begin(); it != plugins.end(); ++it) {
 		QObject *const o = it.value();
 		if(IPlugin *const p = qobject_cast<IPlugin *>(o)) {
+			Q_UNUSED(p);
 			//qDebug() << edb::v1::serialize_object(o);
 		}
 	}
@@ -56,7 +57,7 @@ void SessionManager::load_session(const QString &filename, const QString &execut
 	QHash<QString, QObject *> plugins = edb::v1::plugin_list();
 	for(QHash<QString, QObject *>::iterator it = plugins.begin(); it != plugins.end(); ++it) {
 		if(IPlugin *const p = qobject_cast<IPlugin *>(it.value())) {
-
+			Q_UNUSED(p);
 		}
 	}
 }
