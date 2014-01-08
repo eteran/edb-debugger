@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2013 Evan Teran
+Copyright (C) 2006 - 2014 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -134,7 +134,7 @@ void BookmarkWidget::add_address(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::shortcut(int index) {
-	if(QTableWidgetItem *const item = ui->tableWidget->item(index, 0)) {
+	if(ui->tableWidget->item(index, 0)) {
 		emit on_tableWidget_cellDoubleClicked(index, 0);
 	}
 }

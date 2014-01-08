@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2013 Evan Teran
+Copyright (C) 2006 - 2014 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -48,7 +48,6 @@ public Q_SLOTS:
 private:
 	QMenu *   menu_;
 	QDialog * dialog_;
-
 };
 
 }

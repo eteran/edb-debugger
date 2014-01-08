@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2013 Evan Teran
+Copyright (C) 2006 - 2014 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -1990,7 +1990,8 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 	edb::v1::debugger_core->get_state(&state);
 	IBreakpoint::pointer bp;
 	if(!forced) {
-		if(bp = edb::v1::debugger_core->find_breakpoint(state.instruction_pointer())) {
+		bp = edb::v1::debugger_core->find_breakpoint(state.instruction_pointer());
+		if(bp) {
 			bp->disable();
 		}
 	}

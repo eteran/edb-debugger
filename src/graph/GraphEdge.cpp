@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2009 - 2013 Evan Teran
+Copyright (C) 2009 - 2014 Evan Teran
                           eteran@alum.rit.edu
 
 Copyright (C) 2009        Arvin Schnell

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2013 Evan Teran
+Copyright (C) 2006 - 2014 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -580,7 +580,7 @@ void DialogHeader::on_btnExplore_clicked() {
 					}
 
 					if(PE32 *const pe32 = dynamic_cast<PE32 *>(binary_info)) {
-
+						Q_UNUSED(pe32);
 					#if 0
 						const pe32_header *const header = reinterpret_cast<const pe32_header *>(pe32->header());
 					#endif

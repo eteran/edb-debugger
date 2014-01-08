@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2013 Evan Teran
+Copyright (C) 2006 - 2014 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -86,15 +86,6 @@ edb::address_t block_start(edb::address_t pointer) {
 //------------------------------------------------------------------------------
 edb::address_t block_start(const Result &result) {
 	return block_start(result.block);
-}
-
-//------------------------------------------------------------------------------
-// Name: block_start
-// Desc:
-//------------------------------------------------------------------------------
-edb::address_t block_start(const Result *result) {
-	Q_ASSERT(result);
-	return block_start(*result);
 }
 
 }
@@ -385,12 +376,12 @@ void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t DialogHeap::find_heap_start_heuristic(edb::address_t end_address, size_t offset) const {
-	edb::address_t start_address = end_address - offset;
+	const edb::address_t start_address = end_address - offset;
 
 #if defined(EDB_X86_64)
-	edb::address_t heap_symbol = start_address - (sizeof(edb::address_t) + sizeof(edb::address_t) + sizeof(edb::address_t) + sizeof(edb::address_t));
+	const edb::address_t heap_symbol = start_address - (sizeof(edb::address_t) + sizeof(edb::address_t) + sizeof(edb::address_t) + sizeof(edb::address_t));
 #else
-	edb::address_t heap_symbol = start_address - (sizeof(edb::address_t) + sizeof(edb::address_t) + sizeof(edb::address_t) + sizeof(unsigned int));
+	const edb::address_t heap_symbol = start_address - (sizeof(edb::address_t) + sizeof(edb::address_t) + sizeof(edb::address_t) + sizeof(unsigned int));
 #endif
 
 	edb::address_t test_addr;

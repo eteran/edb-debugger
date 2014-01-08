@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2013 Evan Teran
+Copyright (C) 2006 - 2014 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -62,7 +62,7 @@ void load_plugins(const QString &directory) {
 					if(!edb::v1::debugger_core) {
 						edb::v1::debugger_core = core_plugin;
 					}
-				} else if(IPlugin *const generic_plugin = qobject_cast<IPlugin *>(plugin)) {
+				} else if(qobject_cast<IPlugin *>(plugin)) {
 					if(edb::internal::register_plugin(full_path, plugin)) {
 					}
 				}
