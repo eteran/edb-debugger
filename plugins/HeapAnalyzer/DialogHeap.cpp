@@ -45,7 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtConcurrentMap>
 #endif
 
-#include "ui_dialogheap.h"
+#include "ui_DialogHeap.h"
 
 namespace HeapAnalyzer {
 

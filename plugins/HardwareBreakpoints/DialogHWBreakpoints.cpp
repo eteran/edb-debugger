@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QRegExpValidator>
 
-#include "ui_dialoghwbreakpoints.h"
+#include "ui_DialogHWBreakpoints.h"
 
 #if defined(EDB_X86)
 	#define MAX_HEX "8"

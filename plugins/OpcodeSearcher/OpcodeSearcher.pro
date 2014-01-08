@@ -3,6 +3,6 @@ include(../plugins.pri)
 
 # Input
 HEADERS += OpcodeSearcher.h DialogOpcodes.h
-FORMS += dialogopcodes.ui
+FORMS += DialogOpcodes.ui
 SOURCES += OpcodeSearcher.cpp DialogOpcodes.cpp
 

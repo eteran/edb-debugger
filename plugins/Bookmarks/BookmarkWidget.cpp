@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QTableWidgetItem>
 
-#include "ui_bookmarks.h"
+#include "ui_Bookmarks.h"
 
 namespace Bookmarks {
 

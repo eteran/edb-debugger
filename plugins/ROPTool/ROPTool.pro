@@ -3,6 +3,6 @@ include(../plugins.pri)
 
 # Input
 HEADERS += ROPTool.h DialogROPTool.h
-FORMS += dialogrop.ui
+FORMS += DialogROPTool.ui
 SOURCES += ROPTool.cpp DialogROPTool.cpp
 

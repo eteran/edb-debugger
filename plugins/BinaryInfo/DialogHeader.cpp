@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 
-#include "ui_dialogheader.h"
+#include "ui_DialogHeader.h"
 
 namespace BinaryInfo {
 namespace {

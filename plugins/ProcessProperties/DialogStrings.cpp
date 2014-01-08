@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 
-#include "ui_dialogstrings.h"
+#include "ui_DialogStrings.h"
 
 namespace ProcessProperties {
 

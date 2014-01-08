@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QInputDialog>
 #include <QMessageBox>
 
-#include "ui_dialogbreakpoints.h"
+#include "ui_DialogBreakpoints.h"
 
 namespace BreakpointManager {
 

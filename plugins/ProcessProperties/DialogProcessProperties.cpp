@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <arpa/inet.h>
 #endif
 
-#include "ui_dialogprocess.h"
+#include "ui_DialogProcessProperties.h"
 
 namespace ProcessProperties {
 
