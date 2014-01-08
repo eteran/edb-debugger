@@ -994,7 +994,7 @@ NOTE: for future change logs, please refer to the SVN commit logs found at:
 * Made a large effort to port edisassm to 64-bit :) The most visible change
   is that is makes much larger use of templates. Instruction and Operand now 
   take a template param (32 and 64 are valid). which can be used like this:
-  Instruction<32> insn(buf, size); or you can use edb::Instruction which will be
+  Instruction<32> inst(buf, size); or you can use edb::Instruction which will be
   be typedefed to the appropriate type based on your build environment. Because
   of the massive ammount of templating needed to implement this, it is possible
   that older compilers will have trouble with it. I will test which compilers

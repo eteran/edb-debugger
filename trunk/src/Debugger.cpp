@@ -104,8 +104,8 @@ bool is_instruction_ret(edb::address_t address) {
 	int size = sizeof(buffer);
 
 	if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
-		edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
-		return is_ret(insn);
+		edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
+		return is_ret(inst);
 	}
 	return false;
 }
@@ -149,9 +149,9 @@ public:
 					// if this some variant of a call, then we should
 					// record where we think it'll return to
 					if(edb::v1::get_instruction_bytes(address, buffer, &sz)) {
-						edb::Instruction insn(buffer, buffer + sz, 0, std::nothrow);
-						if(insn && edb::v1::arch_processor().can_step_over(insn)) {
-							last_call_return_ = address + insn.size();
+						edb::Instruction inst(buffer, buffer + sz, 0, std::nothrow);
+						if(inst && edb::v1::arch_processor().can_step_over(inst)) {
+							last_call_return_ = address + inst.size();
 						}
 					}
 				}
@@ -956,12 +956,12 @@ void Debugger::step_over(F1 run_func, F2 step_func) {
 	int sz = sizeof(buffer);
 
 	if(edb::v1::get_instruction_bytes(ip, buffer, &sz)) {
-		edb::Instruction insn(buffer, buffer + sz, 0, std::nothrow);
-		if(insn && edb::v1::arch_processor().can_step_over(insn)) {
+		edb::Instruction inst(buffer, buffer + sz, 0, std::nothrow);
+		if(inst && edb::v1::arch_processor().can_step_over(inst)) {
 
 			// add a temporary breakpoint at the instruction just
 			// after the call
-			if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(ip + insn.size())) {
+			if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(ip + inst.size())) {
 				bp->set_internal(true);
 				bp->set_one_time(true);
 				run_func();
@@ -1274,35 +1274,35 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	if(edb::v1::debugger_core->pid() != 0) {
 		quint8 buffer[edb::Instruction::MAX_SIZE + 1];
 		if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
-			edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
-			if(insn) {
+			edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
+			if(inst) {
 
-				switch(insn.type()) {
+				switch(inst.type()) {
 				case edb::Instruction::OP_JMP:
 				case edb::Instruction::OP_CALL:
 				case edb::Instruction::OP_JCC:
-					if(insn.operands()[0].general_type() == edb::Operand::TYPE_REL) {
+					if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
 						QAction *const action = menu.addAction(tr("&Follow"), this, SLOT(mnuCPUFollow()));
-						action->setData(static_cast<qlonglong>(insn.operands()[0].relative_target()));
+						action->setData(static_cast<qlonglong>(inst.operands()[0].relative_target()));
 					}
 
 					/*
-					if(insn.operands()[0].general_type() == edb::Operand::TYPE_EXPRESSION) {
-						if(insn.operands()[0].expression().base == edb::Operand::REG_RIP && insn.operands()[0].expression().index == edb::Operand::REG_NULL && insn.operands()[0].expression().scale == 1) {
+					if(inst.operands()[0].general_type() == edb::Operand::TYPE_EXPRESSION) {
+						if(inst.operands()[0].expression().base == edb::Operand::REG_RIP && inst.operands()[0].expression().index == edb::Operand::REG_NULL && inst.operands()[0].expression().scale == 1) {
 							QAction *const action = menu.addAction(tr("&Follow"), this, SLOT(mnuCPUFollow()));
-							action->setData(static_cast<qlonglong>(address + insn.operands()[0].displacement()));
+							action->setData(static_cast<qlonglong>(address + inst.operands()[0].displacement()));
 						}
 					}
 					*/
 					break;
 				default:
-					for(std::size_t i = 0; i < insn.operand_count(); ++i) {
-						if(insn.operands()[i].general_type() == edb::Operand::TYPE_IMMEDIATE) {
+					for(std::size_t i = 0; i < inst.operand_count(); ++i) {
+						if(inst.operands()[i].general_type() == edb::Operand::TYPE_IMMEDIATE) {
 							QAction *const action = menu.addAction(tr("Follow Constant In &Dump"), this, SLOT(mnuCPUFollowInDump()));
-							action->setData(static_cast<qlonglong>(insn.operands()[i].immediate()));
+							action->setData(static_cast<qlonglong>(inst.operands()[i].immediate()));
 
 							QAction *const action2 = menu.addAction(tr("Follow Constant In &Stack"), this, SLOT(mnuCPUFollowInStack()));
-							action2->setData(static_cast<qlonglong>(insn.operands()[i].immediate()));
+							action2->setData(static_cast<qlonglong>(inst.operands()[i].immediate()));
 						}
 					}
 				}

@@ -182,8 +182,8 @@ BasicBlock::const_reference BasicBlock::back() const {
 //------------------------------------------------------------------------------
 BasicBlock::size_type BasicBlock::byte_size() const {
 	size_type n = 0;
-	Q_FOREACH(const instruction_pointer &insn, instructions_) {
-		n += insn->size();
+	Q_FOREACH(const instruction_pointer &inst, instructions_) {
+		n += inst->size();
 	}
 	return n;
 }

@@ -75,23 +75,23 @@ signals:
 
 private:
 	QString formatAddress(edb::address_t address) const;
-	QString format_instruction_bytes(const edb::Instruction &insn) const;
-	QString format_instruction_bytes(const edb::Instruction &insn, int maxStringPx, const QFontMetricsF &metrics) const;
-	QString format_invalid_instruction_bytes(const edb::Instruction &insn, QPainter &painter) const;
+	QString format_instruction_bytes(const edb::Instruction &inst) const;
+	QString format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, const QFontMetricsF &metrics) const;
+	QString format_invalid_instruction_bytes(const edb::Instruction &inst, QPainter &painter) const;
 	edb::address_t address_from_coord(int x, int y) const;
 	size_t length_disasm_back(const quint8 *buf, size_t size) const;
 	edb::address_t previous_instructions(edb::address_t current_address, int count);
 	edb::address_t following_instructions(edb::address_t current_address, int count);
 	int address_length() const;
 	int auto_line1() const;
-	int draw_instruction(QPainter &painter, const edb::Instruction &insn, bool upper, int y, int line_height, int l2, int l3) const;
+	int draw_instruction(QPainter &painter, const edb::Instruction &inst, bool upper, int y, int line_height, int l2, int l3) const;
 	int get_instruction_size(edb::address_t address, bool *ok) const;
 	int get_instruction_size(edb::address_t address, bool *ok, quint8 *buf, int *size) const;
 	int line1() const;
 	int line2() const;
 	int line3() const;
 	int line_height() const;
-	void draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int insn_size, IAnalyzer *analyzer);
+	void draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int inst_size, IAnalyzer *analyzer);
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);
 

@@ -159,11 +159,11 @@ void DialogOpcodes::showEvent(QShowEvent *) {
 //------------------------------------------------------------------------------
 void DialogOpcodes::add_result(QList<edb::Instruction> instructions, edb::address_t rva) {
 	if(!instructions.isEmpty()) {
-		const edb::Instruction insn1 = instructions.takeFirst();
+		const edb::Instruction inst1 = instructions.takeFirst();
 
 		QString instruction_string = QString("%1: %2").arg(
 			edb::v1::format_pointer(rva),
-			QString::fromStdString(to_string(insn1)));
+			QString::fromStdString(to_string(inst1)));
 
 
 		Q_FOREACH(const edb::Instruction &instruction, instructions) {
@@ -186,11 +186,11 @@ void DialogOpcodes::test_deref_reg_to_ip(const OpcodeData &data, edb::address_t 
 	const quint8 *p = data.data;
 	const quint8 *last = p + sizeof(data);
 
-	edb::Instruction insn(p, last, 0, std::nothrow);
+	edb::Instruction inst(p, last, 0, std::nothrow);
 
-	if(insn) {
-		const edb::Operand &op1 = insn.operands()[0];
-		switch(insn.type()) {
+	if(inst) {
+		const edb::Operand &op1 = inst.operands()[0];
+		switch(inst.type()) {
 		case edb::Instruction::OP_JMP:
 		case edb::Instruction::OP_CALL:
 			if(op1.general_type() == edb::Operand::TYPE_EXPRESSION) {
@@ -198,12 +198,12 @@ void DialogOpcodes::test_deref_reg_to_ip(const OpcodeData &data, edb::address_t 
 				if(op1.expression().displacement_type == edb::Operand::DISP_NONE) {
 
 					if(op1.expression().base == REG && op1.expression().index == edb::Operand::REG_NULL && op1.expression().scale == 1) {
-						add_result((QList<edb::Instruction>() << insn), start_address);
+						add_result((QList<edb::Instruction>() << inst), start_address);
 						return;
 					}
 
 					if(op1.expression().index == REG && op1.expression().base == edb::Operand::REG_NULL && op1.expression().scale == 1) {
-						add_result((QList<edb::Instruction>() << insn), start_address);
+						add_result((QList<edb::Instruction>() << inst), start_address);
 						return;
 					}
 				}
@@ -225,16 +225,16 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 	const quint8 *p = data.data;
 	const quint8 *last = p + sizeof(data);
 
-	edb::Instruction insn(p, last, 0, std::nothrow);
+	edb::Instruction inst(p, last, 0, std::nothrow);
 
-	if(insn) {
-		const edb::Operand &op1 = insn.operands()[0];
-		switch(insn.type()) {
+	if(inst) {
+		const edb::Operand &op1 = inst.operands()[0];
+		switch(inst.type()) {
 		case edb::Instruction::OP_JMP:
 		case edb::Instruction::OP_CALL:
 			if(op1.general_type() == edb::Operand::TYPE_REGISTER) {
 				if(op1.reg() == REG) {
-					add_result((QList<edb::Instruction>() << insn), start_address);
+					add_result((QList<edb::Instruction>() << inst), start_address);
 					return;
 				}
 			}
@@ -244,13 +244,13 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 			if(op1.general_type() == edb::Operand::TYPE_REGISTER) {
 				if(op1.reg() == REG) {
 
-					p += insn.size();
-					edb::Instruction insn2(p, last, 0, std::nothrow);
-					if(insn2) {
-						const edb::Operand &op2 = insn2.operands()[0];
-						switch(insn2.type()) {
+					p += inst.size();
+					edb::Instruction inst2(p, last, 0, std::nothrow);
+					if(inst2) {
+						const edb::Operand &op2 = inst2.operands()[0];
+						switch(inst2.type()) {
 						case edb::Instruction::OP_RET:
-							add_result((QList<edb::Instruction>() << insn << insn2), start_address);
+							add_result((QList<edb::Instruction>() << inst << inst2), start_address);
 							break;
 						case edb::Instruction::OP_JMP:
 						case edb::Instruction::OP_CALL:
@@ -260,12 +260,12 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 								if(op2.expression().displacement_type == edb::Operand::DISP_NONE) {
 
 									if(op2.expression().base == STACK_REG && op2.expression().index == edb::Operand::REG_NULL) {
-										add_result((QList<edb::Instruction>() << insn << insn2), start_address);
+										add_result((QList<edb::Instruction>() << inst << inst2), start_address);
 										return;
 									}
 
 									if(op2.expression().index == STACK_REG && op2.expression().base == edb::Operand::REG_NULL) {
-										add_result((QList<edb::Instruction>() << insn << insn2), start_address);
+										add_result((QList<edb::Instruction>() << inst << inst2), start_address);
 										return;
 									}
 								}
@@ -293,13 +293,13 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 	const quint8 *p = data.data;
 	const quint8 *last = p + sizeof(data);
 
-	edb::Instruction insn(p, last, 0, std::nothrow);
+	edb::Instruction inst(p, last, 0, std::nothrow);
 
-	if(insn) {
-		const edb::Operand &op1 = insn.operands()[0];
-		switch(insn.type()) {
+	if(inst) {
+		const edb::Operand &op1 = inst.operands()[0];
+		switch(inst.type()) {
 		case edb::Instruction::OP_RET:
-			add_result((QList<edb::Instruction>() << insn), start_address);
+			add_result((QList<edb::Instruction>() << inst), start_address);
 			break;
 
 		case edb::Instruction::OP_CALL:
@@ -309,12 +309,12 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 				if(op1.expression().displacement_type == edb::Operand::DISP_NONE) {
 
 					if(op1.expression().base == STACK_REG && op1.expression().index == edb::Operand::REG_NULL) {
-						add_result((QList<edb::Instruction>() << insn), start_address);
+						add_result((QList<edb::Instruction>() << inst), start_address);
 						return;
 					}
 
 					if(op1.expression().index == STACK_REG && op1.expression().base == edb::Operand::REG_NULL) {
-						add_result((QList<edb::Instruction>() << insn), start_address);
+						add_result((QList<edb::Instruction>() << inst), start_address);
 						return;
 					}
 				}
@@ -323,18 +323,18 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 		case edb::Instruction::OP_POP:
 			if(op1.general_type() == edb::Operand::TYPE_REGISTER) {
 
-				p += insn.size();
-				edb::Instruction insn2(p, last, 0, std::nothrow);
-				if(insn2) {
-					const edb::Operand &op2 = insn2.operands()[0];
-					switch(insn2.type()) {
+				p += inst.size();
+				edb::Instruction inst2(p, last, 0, std::nothrow);
+				if(inst2) {
+					const edb::Operand &op2 = inst2.operands()[0];
+					switch(inst2.type()) {
 					case edb::Instruction::OP_JMP:
 					case edb::Instruction::OP_CALL:
 
 						if(op2.general_type() == edb::Operand::TYPE_REGISTER) {
 
 							if(op1.reg() == op2.reg()) {
-								add_result((QList<edb::Instruction>() << insn << insn2), start_address);
+								add_result((QList<edb::Instruction>() << inst << inst2), start_address);
 							}
 						}
 						break;
@@ -360,19 +360,19 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 	const quint8 *p = data.data;
 	const quint8 *last = p + sizeof(data);
 
-	edb::Instruction insn(p, last, 0, std::nothrow);
+	edb::Instruction inst(p, last, 0, std::nothrow);
 
-	if(insn) {
-		const edb::Operand &op1 = insn.operands()[0];
-		switch(insn.type()) {
+	if(inst) {
+		const edb::Operand &op1 = inst.operands()[0];
+		switch(inst.type()) {
 		case edb::Instruction::OP_POP:
 
 			if(op1.general_type() != edb::Operand::TYPE_REGISTER || op1.reg() != STACK_REG) {
-				p += insn.size();
-				edb::Instruction insn2(p, last, 0, std::nothrow);
-				if(insn2) {
-					if(is_ret(insn2)) {
-						add_result((QList<edb::Instruction>() << insn << insn2), start_address);
+				p += inst.size();
+				edb::Instruction inst2(p, last, 0, std::nothrow);
+				if(inst2) {
+					if(is_ret(inst2)) {
+						add_result((QList<edb::Instruction>() << inst << inst2), start_address);
 					}
 				}
 			}
@@ -384,9 +384,9 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 
 				if(op1.displacement() == 4) {
 					if(op1.expression().base == STACK_REG && op1.expression().index == edb::Operand::REG_NULL) {
-						add_result((QList<edb::Instruction>() << insn), start_address);
+						add_result((QList<edb::Instruction>() << inst), start_address);
 					} else if(op1.expression().base == edb::Operand::REG_NULL && op1.expression().index == STACK_REG && op1.expression().scale == 1) {
-						add_result((QList<edb::Instruction>() << insn), start_address);
+						add_result((QList<edb::Instruction>() << inst), start_address);
 					}
 
 				}
@@ -395,15 +395,15 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 		case edb::Instruction::OP_SUB:
 			if(op1.general_type() == edb::Operand::TYPE_REGISTER && op1.reg() == STACK_REG) {
 
-				const edb::Operand &op2 = insn.operands()[1];
+				const edb::Operand &op2 = inst.operands()[1];
 				if(op2.general_type() == edb::Operand::TYPE_IMMEDIATE) {
 
 					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t))) {
-						p += insn.size();
-						edb::Instruction insn2(p, last, 0, std::nothrow);
-						if(insn2) {
-							if(is_ret(insn2)) {
-								add_result((QList<edb::Instruction>() << insn << insn2), start_address);
+						p += inst.size();
+						edb::Instruction inst2(p, last, 0, std::nothrow);
+						if(inst2) {
+							if(is_ret(inst2)) {
+								add_result((QList<edb::Instruction>() << inst << inst2), start_address);
 							}
 						}
 					}
@@ -414,15 +414,15 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 		case edb::Instruction::OP_ADD:
 			if(op1.general_type() == edb::Operand::TYPE_REGISTER && op1.reg() == STACK_REG) {
 
-				const edb::Operand &op2 = insn.operands()[1];
+				const edb::Operand &op2 = inst.operands()[1];
 				if(op2.general_type() == edb::Operand::TYPE_IMMEDIATE) {
 
 					if(op2.immediate() == sizeof(edb::reg_t)) {
-						p += insn.size();
-						edb::Instruction insn2(p, last, 0, std::nothrow);
-						if(insn2) {
-							if(is_ret(insn2)) {
-								add_result((QList<edb::Instruction>() << insn << insn2), start_address);
+						p += inst.size();
+						edb::Instruction inst2(p, last, 0, std::nothrow);
+						if(inst2) {
+							if(is_ret(inst2)) {
+								add_result((QList<edb::Instruction>() << inst << inst2), start_address);
 							}
 						}
 					}
@@ -445,27 +445,27 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 	const quint8 *p = data.data;
 	const quint8 *last = p + sizeof(data);
 
-	edb::Instruction insn(p, last, 0, std::nothrow);
+	edb::Instruction inst(p, last, 0, std::nothrow);
 
-	if(insn) {
-		const edb::Operand &op1 = insn.operands()[0];
-		switch(insn.type()) {
+	if(inst) {
+		const edb::Operand &op1 = inst.operands()[0];
+		switch(inst.type()) {
 		case edb::Instruction::OP_POP:
 
 			if(op1.general_type() != edb::Operand::TYPE_REGISTER || op1.reg() != STACK_REG) {
-				p += insn.size();
-				edb::Instruction insn2(p, last, 0, std::nothrow);
-				if(insn2) {
-					const edb::Operand &op2 = insn2.operands()[0];
-					switch(insn2.type()) {
+				p += inst.size();
+				edb::Instruction inst2(p, last, 0, std::nothrow);
+				if(inst2) {
+					const edb::Operand &op2 = inst2.operands()[0];
+					switch(inst2.type()) {
 					case edb::Instruction::OP_POP:
 
 						if(op2.general_type() != edb::Operand::TYPE_REGISTER || op2.reg() != STACK_REG) {
-							p += insn2.size();
-							edb::Instruction insn3(p, last, 0, std::nothrow);
-							if(insn3) {
-								if(is_ret(insn3)) {
-									add_result((QList<edb::Instruction>() << insn << insn2 << insn3), start_address);
+							p += inst2.size();
+							edb::Instruction inst3(p, last, 0, std::nothrow);
+							if(inst3) {
+								if(is_ret(inst3)) {
+									add_result((QList<edb::Instruction>() << inst << inst2 << inst3), start_address);
 								}
 							}
 						}
@@ -483,9 +483,9 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 
 				if(op1.displacement() == (sizeof(edb::reg_t) * 2)) {
 					if(op1.expression().base == STACK_REG && op1.expression().index == edb::Operand::REG_NULL) {
-						add_result((QList<edb::Instruction>() << insn), start_address);
+						add_result((QList<edb::Instruction>() << inst), start_address);
 					} else if(op1.expression().base == edb::Operand::REG_NULL && op1.expression().index == STACK_REG && op1.expression().scale == 1) {
-						add_result((QList<edb::Instruction>() << insn), start_address);
+						add_result((QList<edb::Instruction>() << inst), start_address);
 					}
 
 				}
@@ -495,15 +495,15 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 		case edb::Instruction::OP_SUB:
 			if(op1.general_type() == edb::Operand::TYPE_REGISTER && op1.reg() == STACK_REG) {
 
-				const edb::Operand &op2 = insn.operands()[1];
+				const edb::Operand &op2 = inst.operands()[1];
 				if(op2.general_type() == edb::Operand::TYPE_IMMEDIATE) {
 
 					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t) * 2)) {
-						p += insn.size();
-						edb::Instruction insn2(p, last, 0, std::nothrow);
-						if(insn2) {
-							if(is_ret(insn2)) {
-								add_result((QList<edb::Instruction>() << insn << insn2), start_address);
+						p += inst.size();
+						edb::Instruction inst2(p, last, 0, std::nothrow);
+						if(inst2) {
+							if(is_ret(inst2)) {
+								add_result((QList<edb::Instruction>() << inst << inst2), start_address);
 							}
 						}
 					}
@@ -514,15 +514,15 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 		case edb::Instruction::OP_ADD:
 			if(op1.general_type() == edb::Operand::TYPE_REGISTER && op1.reg() == STACK_REG) {
 
-				const edb::Operand &op2 = insn.operands()[1];
+				const edb::Operand &op2 = inst.operands()[1];
 				if(op2.general_type() == edb::Operand::TYPE_IMMEDIATE) {
 
 					if(op2.immediate() == (sizeof(edb::reg_t) * 2)) {
-						p += insn.size();
-						edb::Instruction insn2(p, last, 0, std::nothrow);
-						if(insn2) {
-							if(is_ret(insn2)) {
-								add_result((QList<edb::Instruction>() << insn << insn2), start_address);
+						p += inst.size();
+						edb::Instruction inst2(p, last, 0, std::nothrow);
+						if(inst2) {
+							if(is_ret(inst2)) {
+								add_result((QList<edb::Instruction>() << inst << inst2), start_address);
 							}
 						}
 					}
@@ -545,20 +545,20 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 	const quint8 *p = data.data;
 	const quint8 *last = p + sizeof(data);
 
-	edb::Instruction insn(p, last, 0, std::nothrow);
+	edb::Instruction inst(p, last, 0, std::nothrow);
 
-	if(insn) {
-		const edb::Operand &op1 = insn.operands()[0];
-		switch(insn.type()) {
+	if(inst) {
+		const edb::Operand &op1 = inst.operands()[0];
+		switch(inst.type()) {
 		case edb::Instruction::OP_JMP:
 		case edb::Instruction::OP_CALL:
 			if(op1.general_type() == edb::Operand::TYPE_EXPRESSION) {
 
 				if(op1.displacement() == -static_cast<int>(sizeof(edb::reg_t))) {
 					if(op1.expression().base == STACK_REG && op1.expression().index == edb::Operand::REG_NULL) {
-						add_result((QList<edb::Instruction>() << insn), start_address);
+						add_result((QList<edb::Instruction>() << inst), start_address);
 					} else if(op1.expression().base == edb::Operand::REG_NULL && op1.expression().index == STACK_REG && op1.expression().scale == 1) {
-						add_result((QList<edb::Instruction>() << insn), start_address);
+						add_result((QList<edb::Instruction>() << inst), start_address);
 					}
 
 				}
@@ -568,15 +568,15 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 		case edb::Instruction::OP_SUB:
 			if(op1.general_type() == edb::Operand::TYPE_REGISTER && op1.reg() == STACK_REG) {
 
-				const edb::Operand &op2 = insn.operands()[1];
+				const edb::Operand &op2 = inst.operands()[1];
 				if(op2.general_type() == edb::Operand::TYPE_IMMEDIATE) {
 
 					if(op2.immediate() == static_cast<int>(sizeof(edb::reg_t))) {
-						p += insn.size();
-						edb::Instruction insn2(p, last, 0, std::nothrow);
-						if(insn2) {
-							if(is_ret(insn2)) {
-								add_result((QList<edb::Instruction>() << insn << insn2), start_address);
+						p += inst.size();
+						edb::Instruction inst2(p, last, 0, std::nothrow);
+						if(inst2) {
+							if(is_ret(inst2)) {
+								add_result((QList<edb::Instruction>() << inst << inst2), start_address);
 							}
 						}
 					}
@@ -587,15 +587,15 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 		case edb::Instruction::OP_ADD:
 			if(op1.general_type() == edb::Operand::TYPE_REGISTER && op1.reg() == STACK_REG) {
 
-				const edb::Operand &op2 = insn.operands()[1];
+				const edb::Operand &op2 = inst.operands()[1];
 				if(op2.general_type() == edb::Operand::TYPE_IMMEDIATE) {
 
 					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t))) {
-						p += insn.size();
-						edb::Instruction insn2(p, last, 0, std::nothrow);
-						if(insn2) {
-							if(is_ret(insn2)) {
-								add_result((QList<edb::Instruction>() << insn << insn2), start_address);
+						p += inst.size();
+						edb::Instruction inst2(p, last, 0, std::nothrow);
+						if(inst2) {
+							if(is_ret(inst2)) {
+								add_result((QList<edb::Instruction>() << inst << inst2), start_address);
 							}
 						}
 					}
