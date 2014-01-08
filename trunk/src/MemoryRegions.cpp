@@ -69,10 +69,6 @@ void MemoryRegions::sync() {
 				}
 			}
 		}
-		
-		if(regions.isEmpty()) {
-			qDebug() << "[MemoryRegions] warning: empty memory map";
-		}
 	}
 
 
