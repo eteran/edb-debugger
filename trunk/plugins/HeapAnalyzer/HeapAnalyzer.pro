@@ -7,7 +7,7 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 
 # Input
 HEADERS += HeapAnalyzer.h DialogHeap.h ResultViewModel.h
-FORMS += dialogheap.ui
+FORMS += DialogHeap.ui
 SOURCES += HeapAnalyzer.cpp DialogHeap.cpp ResultViewModel.cpp
 
 graph {

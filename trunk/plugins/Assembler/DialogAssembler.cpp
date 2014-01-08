@@ -36,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 #endif
 
-#include "ui_dialog_assembler.h"
+#include "ui_DialogAssembler.h"
 
 namespace Assembler {
 

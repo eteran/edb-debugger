@@ -3,6 +3,6 @@ include(../plugins.pri)
 
 # Input
 HEADERS += DialogSymbolViewer.h  SymbolViewer.h
-FORMS += dialogsymbols.ui
+FORMS += DialogSymbolViewer.ui
 SOURCES += DialogSymbolViewer.cpp  SymbolViewer.cpp
 

@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 #include <cstring>
 
-#include "ui_dialogbinarystring.h"
+#include "ui_DialogBinaryString.h"
 
 namespace BinarySearcher {
 

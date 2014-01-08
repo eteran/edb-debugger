@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QListWidgetItem>
 #include <QDebug>
 
-#include "ui_dialogopcodes.h"
+#include "ui_DialogOpcodes.h"
 
 namespace OpcodeSearcher {
 
