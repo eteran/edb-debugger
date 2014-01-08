@@ -19,9 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOGPLUGINS_20080926_H_
 #define DIALOGPLUGINS_20080926_H_
 
-namespace Ui { class DialogPlugins; }
-
 #include <QDialog>
+
+class QSortFilterProxyModel;
+class PluginModel;
+
+namespace Ui { class DialogPlugins; }
 
 class DialogPlugins : public QDialog {
 	Q_OBJECT
@@ -34,6 +37,8 @@ public:
 
 private:
 	Ui::DialogPlugins *const ui;
+	PluginModel           *plugin_model_;
+	QSortFilterProxyModel *plugin_filter_;
 };
 
 #endif

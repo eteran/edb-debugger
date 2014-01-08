@@ -17,11 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogPlugins.h"
-#include "edb.h"
 #include "IPlugin.h"
+#include "PluginModel.h"
+#include "edb.h"
 
-#include <QHeaderView>
 #include <QMetaClassInfo>
+#include <QSortFilterProxyModel>
 
 #include "ui_DialogPlugins.h"
 
@@ -31,6 +32,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 DialogPlugins::DialogPlugins(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogPlugins) {
 	ui->setupUi(this);
+	
+	plugin_model_ = new PluginModel(this);
+	plugin_filter_ = new QSortFilterProxyModel(this);
+	
+	plugin_filter_->setSourceModel(plugin_model_);
+	plugin_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	
+	ui->plugins_table->setModel(plugin_filter_);
 }
 
 //------------------------------------------------------------------------------
@@ -49,12 +58,9 @@ void DialogPlugins::showEvent(QShowEvent *) {
 
 	QHash<QString, QObject *> plugins = edb::v1::plugin_list();
 
-	ui->plugins_table->setSortingEnabled(false);
-	ui->plugins_table->setRowCount(0);
+	plugin_model_->clear();
 
 	for(QHash<QString, QObject *>::iterator it = plugins.begin(); it != plugins.end(); ++it) {
-		const int row = ui->plugins_table->rowCount();
-		ui->plugins_table->insertRow(row);
 
 		const QString filename = it.key();
 		QString plugin_name;
@@ -75,14 +81,10 @@ void DialogPlugins::showEvent(QShowEvent *) {
 				url = meta->classInfo(url_index).value();
 			}
 		}
-
-		ui->plugins_table->setItem(row, 0, new QTableWidgetItem(filename));
-		ui->plugins_table->setItem(row, 1, new QTableWidgetItem(plugin_name));
-		ui->plugins_table->setItem(row, 2, new QTableWidgetItem(author));
-		ui->plugins_table->setItem(row, 3, new QTableWidgetItem(url));
+		
+		plugin_model_->addPlugin(filename, plugin_name, author, url);
 	}
 
 	ui->plugins_table->resizeRowsToContents();
 	ui->plugins_table->resizeColumnsToContents();
-	ui->plugins_table->setSortingEnabled(true);
 }

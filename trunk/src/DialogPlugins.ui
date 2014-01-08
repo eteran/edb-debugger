@@ -14,8 +14,18 @@
    <string>Plugins</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="button_box">
+     <property name="orientation">
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
-    <widget class="QTableWidget" name="plugins_table">
+    <widget class="QTableView" name="plugins_table">
      <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
      </property>
@@ -28,38 +38,8 @@
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
      </property>
-     <attribute name="verticalHeaderVisible">
-      <bool>false</bool>
-     </attribute>
-     <column>
-      <property name="text">
-       <string>Filename</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Plugin Name</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Author</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Website</string>
-      </property>
-     </column>
-    </widget>
-   </item>
-   <item row="1" column="0">
-    <widget class="QDialogButtonBox" name="button_box">
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Close</set>
+     <property name="sortingEnabled">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
