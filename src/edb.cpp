@@ -370,8 +370,8 @@ void create_breakpoint(address_t address) {
 			int size = sizeof(buffer);
 
 			if(get_instruction_bytes(address, buffer, &size)) {
-				Instruction insn(buffer, buffer + size, address, std::nothrow);
-				if(!insn) {
+				Instruction inst(buffer, buffer + size, address, std::nothrow);
+				if(!inst) {
 					ret = QMessageBox::question(
 						0,
 						QT_TRANSLATE_NOOP("edb", "Suspicious breakpoint"),

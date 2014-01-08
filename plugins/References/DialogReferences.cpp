@@ -96,15 +96,15 @@ void DialogReferences::do_find() {
 							ui->listWidget->addItem(item);
 						}
 
-						edb::Instruction insn(p, pages_end, addr, std::nothrow);
+						edb::Instruction inst(p, pages_end, addr, std::nothrow);
 
-						if(insn) {
-							switch(insn.type()) {
+						if(inst) {
+							switch(inst.type()) {
 							case edb::Instruction::OP_JMP:
 							case edb::Instruction::OP_CALL:
 							case edb::Instruction::OP_JCC:
-								if(insn.operands()[0].general_type() == edb::Operand::TYPE_REL) {
-									if(insn.operands()[0].relative_target() == address) {
+								if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
+									if(inst.operands()[0].relative_target() == address) {
 										QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
 										item->setData(Qt::UserRole, 'C');
 										ui->listWidget->addItem(item);
@@ -113,10 +113,10 @@ void DialogReferences::do_find() {
 								break;
 							case edb::Instruction::OP_MOV:
 								// instructions of the form: mov [ADDR], 0xNNNNNNNN
-								Q_ASSERT(insn.operand_count() == 2);
+								Q_ASSERT(inst.operand_count() == 2);
 
-								if(insn.operands()[0].general_type() == edb::Operand::TYPE_EXPRESSION) {								
-									if(insn.operands()[1].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(insn.operands()[1].immediate()) == address) {
+								if(inst.operands()[0].general_type() == edb::Operand::TYPE_EXPRESSION) {								
+									if(inst.operands()[1].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[1].immediate()) == address) {
 										QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
 										item->setData(Qt::UserRole, 'C');
 										ui->listWidget->addItem(item);
@@ -126,9 +126,9 @@ void DialogReferences::do_find() {
 								break;
 							case edb::Instruction::OP_PUSH:
 								// instructions of the form: push 0xNNNNNNNN
-								Q_ASSERT(insn.operand_count() == 1);
+								Q_ASSERT(inst.operand_count() == 1);
 
-								if(insn.operands()[0].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(insn.operands()[0].immediate()) == address) {
+								if(inst.operands()[0].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[0].immediate()) == address) {
 									QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
 									item->setData(Qt::UserRole, 'C');
 									ui->listWidget->addItem(item);

@@ -69,10 +69,10 @@ void DialogAssembler::set_address(edb::address_t address) {
 	int size = sizeof(buffer);
 
 	if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
-		edb::Instruction insn(buffer, buffer + size, address, std::nothrow);
-		if(insn) {
-			ui->assembly->setEditText(QString::fromStdString(to_string(insn)));
-			instruction_size_ = insn.size();
+		edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
+		if(inst) {
+			ui->assembly->setEditText(QString::fromStdString(to_string(inst)));
+			instruction_size_ = inst.size();
 		}
 	}
 }

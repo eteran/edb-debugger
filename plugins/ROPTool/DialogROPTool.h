@@ -90,7 +90,7 @@ public Q_SLOTS:
 private:
 	void do_find();
 	void add_gadget(QList<edb::Instruction> instructions);
-	void set_gadget_role(QStandardItem *item, const edb::Instruction &insn1);
+	void set_gadget_role(QStandardItem *item, const edb::Instruction &inst1);
 
 private:
 	virtual void showEvent(QShowEvent *event);

@@ -35,16 +35,16 @@ namespace ROPTool {
 
 namespace {
 
-bool is_nop(const edb::Instruction &insn) {
-	if(insn) {
-		if(edisassm::is_nop(insn)) {
+bool is_nop(const edb::Instruction &inst) {
+	if(inst) {
+		if(edisassm::is_nop(inst)) {
 			return true;
 		}
 
 		// TODO: does this effect flags?
-		if(insn.type() == edb::Instruction::OP_MOV && insn.operand_count() == 2) {
-			if(insn.operands()[0].general_type() == edb::Operand::TYPE_REGISTER && insn.operands()[1].general_type() == edb::Operand::TYPE_REGISTER) {
-				if(insn.operands()[0].reg() == insn.operands()[1].reg()) {
+		if(inst.type() == edb::Instruction::OP_MOV && inst.operand_count() == 2) {
+			if(inst.operands()[0].general_type() == edb::Operand::TYPE_REGISTER && inst.operands()[1].general_type() == edb::Operand::TYPE_REGISTER) {
+				if(inst.operands()[0].reg() == inst.operands()[1].reg()) {
 					return true;
 				}
 			}
@@ -52,9 +52,9 @@ bool is_nop(const edb::Instruction &insn) {
 		}
 
 		// TODO: does this effect flags?
-		if(insn.type() == edb::Instruction::OP_XCHG && insn.operand_count() == 2) {
-			if(insn.operands()[0].general_type() == edb::Operand::TYPE_REGISTER && insn.operands()[1].general_type() == edb::Operand::TYPE_REGISTER) {
-				if(insn.operands()[0].reg() == insn.operands()[1].reg()) {
+		if(inst.type() == edb::Instruction::OP_XCHG && inst.operand_count() == 2) {
+			if(inst.operands()[0].general_type() == edb::Operand::TYPE_REGISTER && inst.operands()[1].general_type() == edb::Operand::TYPE_REGISTER) {
+				if(inst.operands()[0].reg() == inst.operands()[1].reg()) {
 					return true;
 				}
 			}
@@ -174,9 +174,9 @@ void DialogROPTool::on_chkShowOther_stateChanged(int state) {
 // Name: set_gadget_role
 // Desc:
 //------------------------------------------------------------------------------
-void DialogROPTool::set_gadget_role(QStandardItem *item, const edb::Instruction &insn1) {
+void DialogROPTool::set_gadget_role(QStandardItem *item, const edb::Instruction &inst1) {
 
-	switch(insn1.type()) {
+	switch(inst1.type()) {
 	case edb::Instruction::OP_ADD:
 	case edb::Instruction::OP_ADC:
 	case edb::Instruction::OP_SUB:
@@ -270,9 +270,9 @@ void DialogROPTool::set_gadget_role(QStandardItem *item, const edb::Instruction 
 void DialogROPTool::add_gadget(QList<edb::Instruction> instructions) {
 
 	if(!instructions.isEmpty()) {
-		const edb::Instruction insn1 = instructions.takeFirst();
+		const edb::Instruction inst1 = instructions.takeFirst();
 
-		QString instruction_string = QString("%1").arg(QString::fromStdString(to_string(insn1)));
+		QString instruction_string = QString("%1").arg(QString::fromStdString(to_string(inst1)));
 		Q_FOREACH(const edb::Instruction &instruction, instructions) {
 			instruction_string.append(QString("; %1").arg(QString::fromStdString(to_string(instruction))));
 		}
@@ -282,12 +282,12 @@ void DialogROPTool::add_gadget(QList<edb::Instruction> instructions) {
 
 			// found a gadget
 			QStandardItem *const item = new QStandardItem(
-				QString("%1: %2").arg(edb::v1::format_pointer(insn1.rva()), instruction_string));
+				QString("%1: %2").arg(edb::v1::format_pointer(inst1.rva()), instruction_string));
 
-			item->setData(static_cast<qulonglong>(insn1.rva()), Qt::UserRole);
+			item->setData(static_cast<qulonglong>(inst1.rva()), Qt::UserRole);
 			
 			// TODO: make this look for 1st non-NOP
-			set_gadget_role(item, insn1);
+			set_gadget_role(item, inst1);
 
 			result_model_->insertRow(result_model_->rowCount(), item);
 		}
@@ -338,65 +338,65 @@ void DialogROPTool::do_find() {
 
 						// eat up any NOPs in front...
 						Q_FOREVER {
-							edb::Instruction insn(p, l, rva, std::nothrow);
-							if(!is_nop(insn)) {
+							edb::Instruction inst(p, l, rva, std::nothrow);
+							if(!is_nop(inst)) {
 								break;
 							}
 
-							instruction_list << insn;
-							p += insn.size();
-							rva += insn.size();
+							instruction_list << inst;
+							p += inst.size();
+							rva += inst.size();
 						}
 
 
-						edb::Instruction insn1(p, l, rva, std::nothrow);
-						if(insn1) {
-							instruction_list << insn1;
+						edb::Instruction inst1(p, l, rva, std::nothrow);
+						if(inst1) {
+							instruction_list << inst1;
 
-							if(insn1.type() == edb::Instruction::OP_INT && insn1.operands()[0].general_type() == edb::Operand::TYPE_IMMEDIATE && (insn1.operands()[0].immediate() & 0xff) == 0x80) {
+							if(inst1.type() == edb::Instruction::OP_INT && inst1.operands()[0].general_type() == edb::Operand::TYPE_IMMEDIATE && (inst1.operands()[0].immediate() & 0xff) == 0x80) {
 								add_gadget(instruction_list);
-							} else if(insn1.type() == edb::Instruction::OP_SYSENTER) {
+							} else if(inst1.type() == edb::Instruction::OP_SYSENTER) {
 								add_gadget(instruction_list);
-							} else if(insn1.type() == edb::Instruction::OP_SYSCALL) {
+							} else if(inst1.type() == edb::Instruction::OP_SYSCALL) {
 								add_gadget(instruction_list);
-							} else if(is_ret(insn1)) {
+							} else if(is_ret(inst1)) {
 								ui->progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
 								++start_address;
 								continue;
 							} else {
 
-								p += insn1.size();
-								rva += insn1.size();
+								p += inst1.size();
+								rva += inst1.size();
 
 								// eat up any NOPs in between...
 								Q_FOREVER {
-									edb::Instruction insn(p, l, rva, std::nothrow);
-									if(!is_nop(insn)) {
+									edb::Instruction inst(p, l, rva, std::nothrow);
+									if(!is_nop(inst)) {
 										break;
 									}
 
-									instruction_list << insn;
-									p += insn.size();
-									rva += insn.size();
+									instruction_list << inst;
+									p += inst.size();
+									rva += inst.size();
 								}
 
-								edb::Instruction insn2(p, l, rva, std::nothrow);
-								if(is_ret(insn2)) {
-									instruction_list << insn2;
+								edb::Instruction inst2(p, l, rva, std::nothrow);
+								if(is_ret(inst2)) {
+									instruction_list << inst2;
 									add_gadget(instruction_list);
-								} else if(insn2 && insn2.type() == edb::Instruction::OP_POP) {
-									instruction_list << insn2;
-									p += insn2.size();
-									rva += insn2.size();
+								} else if(inst2 && inst2.type() == edb::Instruction::OP_POP) {
+									instruction_list << inst2;
+									p += inst2.size();
+									rva += inst2.size();
 
-									edb::Instruction insn3(p, l, rva, std::nothrow);
-									if(insn3 && insn3.type() == edb::Instruction::OP_JMP) {
+									edb::Instruction inst3(p, l, rva, std::nothrow);
+									if(inst3 && inst3.type() == edb::Instruction::OP_JMP) {
 
-										instruction_list << insn3;
+										instruction_list << inst3;
 
-										if(insn2.operand_count() == 1 && insn2.operands()[0].general_type() == edb::Operand::TYPE_REGISTER) {
-											if(insn3.operand_count() == 1 && insn3.operands()[0].general_type() == edb::Operand::TYPE_REGISTER) {
-												if(insn2.operands()[0].reg() == insn3.operands()[0].reg()) {
+										if(inst2.operand_count() == 1 && inst2.operands()[0].general_type() == edb::Operand::TYPE_REGISTER) {
+											if(inst3.operand_count() == 1 && inst3.operands()[0].general_type() == edb::Operand::TYPE_REGISTER) {
+												if(inst2.operands()[0].reg() == inst3.operands()[0].reg()) {
 													add_gadget(instruction_list);
 												}
 											}

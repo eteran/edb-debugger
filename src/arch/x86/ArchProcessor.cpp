@@ -327,11 +327,11 @@ bool is_jcc_taken(const State &state, quint8 instruction_byte) {
 // Name: analyze_cmov
 // Desc:
 //------------------------------------------------------------------------------
-void analyze_cmov(const State &state, const edb::Instruction &insn, QStringList &ret) {
+void analyze_cmov(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
-	const quint8 *const insn_buf = insn.bytes();
+	const quint8 *const buf = inst.bytes();
 
-	const bool taken = is_jcc_taken(state, insn_buf[1 + insn.prefix_size()]);
+	const bool taken = is_jcc_taken(state, buf[1 + inst.prefix_size()]);
 
 	if(taken) {
 		ret << ArchProcessor::tr("move performed");
@@ -344,25 +344,25 @@ void analyze_cmov(const State &state, const edb::Instruction &insn, QStringList 
 // Name: analyze_jump
 // Desc:
 //------------------------------------------------------------------------------
-void analyze_jump(const State &state, const edb::Instruction &insn, QStringList &ret) {
+void analyze_jump(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
 	bool taken = false;
 
-	const quint8 *const insn_buf = insn.bytes();
+	const quint8 *const buf = inst.bytes();
 
-	if(is_conditional_jump(insn)) {
+	if(is_conditional_jump(inst)) {
 
-		if(insn.size() - insn.prefix_size() == 2) {
-			taken = is_jcc_taken(state, insn_buf[0 + insn.prefix_size()]);
+		if(inst.size() - inst.prefix_size() == 2) {
+			taken = is_jcc_taken(state, buf[0 + inst.prefix_size()]);
 		} else {
-			taken = is_jcc_taken(state, insn_buf[1 + insn.prefix_size()]);
+			taken = is_jcc_taken(state, buf[1 + inst.prefix_size()]);
 		}
 
 
 
 	// TODO: this is not correct! 0xe3 IS an OP_JCC
-	} else if(insn_buf[0] == 0xe3) {
-		if(insn.prefix() & edb::Instruction::PREFIX_ADDRESS) {
+	} else if(buf[0] == 0xe3) {
+		if(inst.prefix() & edb::Instruction::PREFIX_ADDRESS) {
 			taken = (state["ecx"].value<edb::reg_t>() & 0xffff) == 0;
 		} else {
 			taken = state["ecx"].value<edb::reg_t>() == 0;
@@ -380,9 +380,9 @@ void analyze_jump(const State &state, const edb::Instruction &insn, QStringList 
 // Name: analyze_return
 // Desc:
 //------------------------------------------------------------------------------
-void analyze_return(const State &state, const edb::Instruction &insn, QStringList &ret) {
+void analyze_return(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
-	Q_UNUSED(insn);
+	Q_UNUSED(inst);
 
 	edb::address_t return_address;
 	edb::v1::debugger_core->read_bytes(state.stack_pointer(), &return_address, sizeof(return_address));
@@ -399,9 +399,9 @@ void analyze_return(const State &state, const edb::Instruction &insn, QStringLis
 // Name: analyze_call
 // Desc:
 //------------------------------------------------------------------------------
-void analyze_call(const State &state, const edb::Instruction &insn, QStringList &ret) {
+void analyze_call(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
-	const edb::Operand &operand = insn.operands()[0];
+	const edb::Operand &operand = inst.operands()[0];
 
 	if(operand.valid()) {
 
@@ -419,7 +419,7 @@ void analyze_call(const State &state, const edb::Instruction &insn, QStringList 
 					ret << QString("%1 = %2 <%3>").arg(temp_operand, edb::v1::format_pointer(effective_address), symname);
 
 					if(offset == 0) {
-						if(is_call(insn)) {
+						if(is_call(inst)) {
 							resolve_function_parameters(state, symname, 0, ret);
 						} else {
 							resolve_function_parameters(state, symname, 4, ret);
@@ -445,7 +445,7 @@ void analyze_call(const State &state, const edb::Instruction &insn, QStringList 
 						ret << QString("%1 = [%2] = %3 <%4>").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::v1::format_pointer(target), symname);
 
 						if(offset == 0) {
-							if(is_call(insn)) {
+							if(is_call(inst)) {
 								resolve_function_parameters(state, symname, 0, ret);
 							} else {
 								resolve_function_parameters(state, symname, 4, ret);
@@ -469,13 +469,13 @@ void analyze_call(const State &state, const edb::Instruction &insn, QStringList 
 // Name: analyze_operands
 // Desc:
 //------------------------------------------------------------------------------
-void analyze_operands(const State &state, const edb::Instruction &insn, QStringList &ret) {
+void analyze_operands(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
-	Q_UNUSED(insn);
+	Q_UNUSED(inst);
 
 	for(int j = 0; j < edb::Instruction::MAX_OPERANDS; ++j) {
 
-		const edb::Operand &operand = insn.operands()[j];
+		const edb::Operand &operand = inst.operands()[j];
 
 		if(operand.valid()) {
 
@@ -525,8 +525,8 @@ void analyze_operands(const State &state, const edb::Instruction &insn, QStringL
 // Name: analyze_jump_targets
 // Desc:
 //------------------------------------------------------------------------------
-void analyze_jump_targets(const edb::Instruction &insn, QStringList &ret) {
-	const edb::address_t address       = insn.rva();
+void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
+	const edb::address_t address       = inst.rva();
 	const edb::address_t start_address = address - 128;
 	const edb::address_t end_address   = address + 127;
 
@@ -535,9 +535,9 @@ void analyze_jump_targets(const edb::Instruction &insn, QStringList &ret) {
 	for(edb::address_t addr = start_address; addr < end_address; ++addr) {
 		int sz = sizeof(buffer);
 		if(edb::v1::get_instruction_bytes(addr, buffer, &sz)) {
-			edb::Instruction insn(buffer, buffer + sz, addr, std::nothrow);
-			if(is_jump(insn)) {
-				const edb::Operand &operand = insn.operands()[0];
+			edb::Instruction inst(buffer, buffer + sz, addr, std::nothrow);
+			if(is_jump(inst)) {
+				const edb::Operand &operand = inst.operands()[0];
 
 				if(operand.general_type() == edb::Operand::TYPE_REL) {
 					const edb::address_t target = operand.relative_target();
@@ -555,8 +555,8 @@ void analyze_jump_targets(const edb::Instruction &insn, QStringList &ret) {
 // Name: analyze_syscall
 // Desc:
 //------------------------------------------------------------------------------
-void analyze_syscall(const State &state, const edb::Instruction &insn, QStringList &ret) {
-	Q_UNUSED(insn);
+void analyze_syscall(const State &state, const edb::Instruction &inst, QStringList &ret) {
+	Q_UNUSED(inst);
 	Q_UNUSED(ret);
 	Q_UNUSED(state);
 
@@ -840,45 +840,45 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 
 	const bool ok = edb::v1::debugger_core->read_bytes(address, buffer, sizeof(buffer));
 	if(ok) {
-		edb::Instruction insn(buffer, buffer + sizeof(buffer), address, std::nothrow);
-		if(insn) {
+		edb::Instruction inst(buffer, buffer + sizeof(buffer), address, std::nothrow);
+		if(inst) {
 
 			State state;
 			edb::v1::debugger_core->get_state(&state);
 
 			// figure out the instruction type and display some information about it
-			switch(insn.type()) {
+			switch(inst.type()) {
 			case edb::Instruction::OP_CMOVCC:
-				analyze_cmov(state, insn, ret);
+				analyze_cmov(state, inst, ret);
 				break;
 			case edb::Instruction::OP_RET:
-				analyze_return(state, insn, ret);
+				analyze_return(state, inst, ret);
 				break;
 			case edb::Instruction::OP_JCC:
-				analyze_jump(state, insn, ret);
+				analyze_jump(state, inst, ret);
 				// FALL THROUGH!
 			case edb::Instruction::OP_JMP:
 			case edb::Instruction::OP_CALL:
-				analyze_call(state, insn, ret);
+				analyze_call(state, inst, ret);
 				break;
 			#ifdef Q_OS_LINUX
 			case edb::Instruction::OP_INT:
-				if(insn.operands()[0].complete_type() == edb::Operand::TYPE_IMMEDIATE8 && (insn.operands()[0].immediate() & 0xff) == 0x80) {
-					analyze_syscall(state, insn, ret);
+				if(inst.operands()[0].complete_type() == edb::Operand::TYPE_IMMEDIATE8 && (inst.operands()[0].immediate() & 0xff) == 0x80) {
+					analyze_syscall(state, inst, ret);
 				} else {
-					analyze_operands(state, insn, ret);
+					analyze_operands(state, inst, ret);
 				}
 				break;
 			#endif
 			case edb::Instruction::OP_SYSCALL:
-				analyze_syscall(state, insn, ret);
+				analyze_syscall(state, inst, ret);
 				break;
 			default:
-				analyze_operands(state, insn, ret);
+				analyze_operands(state, inst, ret);
 				break;
 			}
 
-			analyze_jump_targets(insn, ret);
+			analyze_jump_targets(inst, ret);
 
 		}
 	}
@@ -893,26 +893,26 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 // Name: can_step_over
 // Desc:
 //------------------------------------------------------------------------------
-bool ArchProcessor::can_step_over(const edb::Instruction &insn) const {
-	return insn && (is_call(insn) || (insn.prefix() & (edb::Instruction::PREFIX_REPNE | edb::Instruction::PREFIX_REP)));
+bool ArchProcessor::can_step_over(const edb::Instruction &inst) const {
+	return inst && (is_call(inst) || (inst.prefix() & (edb::Instruction::PREFIX_REPNE | edb::Instruction::PREFIX_REP)));
 }
 
 //------------------------------------------------------------------------------
 // Name: is_filling
 // Desc:
 //------------------------------------------------------------------------------
-bool ArchProcessor::is_filling(const edb::Instruction &insn) const {
+bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 	bool ret = false;
 
 	// fetch the operands
-	if(insn) {
+	if(inst) {
 		const edb::Operand operands[edb::Instruction::MAX_OPERANDS] = {
-			insn.operands()[0],
-			insn.operands()[1],
-			insn.operands()[2]
+			inst.operands()[0],
+			inst.operands()[1],
+			inst.operands()[2]
 		};
 
-		switch(insn.type()) {
+		switch(inst.type()) {
 		case edb::Instruction::OP_NOP:
 		case edb::Instruction::OP_INT3:
 			ret = true;
@@ -957,11 +957,11 @@ bool ArchProcessor::is_filling(const edb::Instruction &insn) const {
 
 		if(!ret) {
 			if(edb::v1::config().zeros_are_filling) {
-				ret = (QByteArray::fromRawData(reinterpret_cast<const char *>(insn.bytes()), insn.size()) == QByteArray::fromRawData("\x00\x00", 2));
+				ret = (QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.size()) == QByteArray::fromRawData("\x00\x00", 2));
 			}
 		}
 	} else {
-		ret = (insn.size() == 1 && insn.bytes()[0] == 0x00);
+		ret = (inst.size() == 1 && inst.bytes()[0] == 0x00);
 	}
 
 	return ret;

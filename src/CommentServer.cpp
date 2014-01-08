@@ -72,8 +72,8 @@ QString CommentServer::resolve_function_call(QHexView::address_t address, bool *
 	// TODO: portability warning, makes assumptions on the size of a call
 	if(edb::v1::debugger_core->read_bytes(address - CALL_MAX_SIZE, buffer, sizeof(buffer))) {
 		for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
-			edb::Instruction insn(buffer + i, buffer + sizeof(buffer), 0, std::nothrow);
-			if(is_call(insn)) {
+			edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0, std::nothrow);
+			if(is_call(inst)) {
 				const QString symname = edb::v1::find_function_symbol(address);
 				if(!symname.isEmpty()) {
 					ret = tr("return to %1 <%2>").arg(edb::v1::format_pointer(address)).arg(symname);

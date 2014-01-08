@@ -120,8 +120,8 @@ bool near_line(int x, int linex) {
 // Desc:
 //------------------------------------------------------------------------------
 int instruction_size(quint8 *buffer, std::size_t size) {
-	edb::Instruction insn(buffer, buffer + size, 0, std::nothrow);
-	return insn.size();
+	edb::Instruction inst(buffer, buffer + size, 0, std::nothrow);
+	return inst.size();
 }
 
 }
@@ -177,12 +177,12 @@ size_t QDisassemblyView::length_disasm_back(const quint8 *buf, size_t size) cons
 
 	while(offs < edb::Instruction::MAX_SIZE) {
 
-		const edb::Instruction insn(tmp + offs, tmp + sizeof(tmp), 0, std::nothrow);
-		if(!insn) {
+		const edb::Instruction inst(tmp + offs, tmp + sizeof(tmp), 0, std::nothrow);
+		if(!inst) {
 			return 0;
 		}
 
-		const size_t cmdsize = insn.size();
+		const size_t cmdsize = inst.size();
 		offs += cmdsize;
 
 		if(offs == edb::Instruction::MAX_SIZE) {
@@ -234,18 +234,18 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 					}
 
 					if(edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
-						const edb::Instruction insn(buf, buf + buf_size, address, std::nothrow);
-						if(!insn) {
+						const edb::Instruction inst(buf, buf + buf_size, address, std::nothrow);
+						if(!inst) {
 							break;
 						}
 
 						// if the NEXT address would be our target, then
 						// we are at the previous instruction!
-						if(address + insn.size() >= current_address + address_offset_) {
+						if(address + inst.size() >= current_address + address_offset_) {
 							break;
 						}
 
-						address += insn.size();
+						address += inst.size();
 					}
 				}
 
@@ -301,9 +301,9 @@ edb::address_t QDisassemblyView::following_instructions(edb::address_t current_a
 			current_address += 1;
 			break;
 		} else {
-			const edb::Instruction insn(buf, buf + buf_size, current_address, std::nothrow);
-			if(insn) {
-				current_address += insn.size();
+			const edb::Instruction inst(buf, buf + buf_size, current_address, std::nothrow);
+			if(inst) {
+				current_address += inst.size();
 			} else {
 				current_address += 1;
 				break;
@@ -479,9 +479,9 @@ void QDisassemblyView::scrollTo(edb::address_t address) {
 // Name: format_instruction_bytes
 // Desc:
 //------------------------------------------------------------------------------
-QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &insn, int maxStringPx, const QFontMetricsF &metrics) const {
+QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, const QFontMetricsF &metrics) const {
 	const QString byte_buffer =
-	edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(insn.bytes()), insn.size()));
+	edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.size()));
 	return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
 }
 
@@ -489,8 +489,8 @@ QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &insn,
 // Name: format_instruction_bytes
 // Desc:
 //------------------------------------------------------------------------------
-QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &insn) const {
-	return edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(insn.bytes()), insn.size()));
+QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &inst) const {
+	return edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.size()));
 }
 
 struct intel_lower {
@@ -507,17 +507,17 @@ struct intel_upper {
 // Name: draw_instruction
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction &insn, bool upper, int y, int line_height, int l2, int l3) const {
+int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction &inst, bool upper, int y, int line_height, int l2, int l3) const {
 
-	const bool is_filling = edb::v1::arch_processor().is_filling(insn);
+	const bool is_filling = edb::v1::arch_processor().is_filling(inst);
 	int x                 = font_width_ + font_width_ + l2 + (font_width_ / 2);
-	const int ret         = insn.size();
+	const int ret         = inst.size();
 	
-	if(insn) {
+	if(inst) {
 		QString opcode = QString::fromStdString(
 			upper ?
-				edisassm::to_string(insn, intel_upper()) :
-				edisassm::to_string(insn, intel_lower())
+				edisassm::to_string(inst, intel_upper()) :
+				edisassm::to_string(inst, intel_lower())
 		);
 
 		//return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
@@ -536,15 +536,15 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 				opcode);
 		} else {
 
-			switch(insn.type()) {
+			switch(inst.type()) {
 			case edb::Instruction::OP_JCC:
 			case edb::Instruction::OP_JMP:
 			case edb::Instruction::OP_LOOP:
 			case edb::Instruction::OP_LOOPE:
 			case edb::Instruction::OP_LOOPNE:
 			case edb::Instruction::OP_CALL:
-				if(insn.operand_count() != 0) {
-					const edb::Operand &oper = insn.operands()[0];
+				if(inst.operand_count() != 0) {
+					const edb::Operand &oper = inst.operands()[0];
 					if(oper.general_type() == edb::Operand::TYPE_REL) {
 						const edb::address_t target = oper.relative_target();
 						if(const Symbol::pointer sym = edb::v1::symbol_manager().find(target)) {
@@ -569,7 +569,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 		}
 
 	} else {
-		QString asm_buffer = format_invalid_instruction_bytes(insn, painter);
+		QString asm_buffer = format_invalid_instruction_bytes(inst, painter);
 		asm_buffer = painter.fontMetrics().elidedText(asm_buffer, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
 
 		painter.drawText(
@@ -588,11 +588,11 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 // Name: format_invalid_instruction_bytes
 // Desc:
 //------------------------------------------------------------------------------
-QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instruction &insn, QPainter &painter) const {
+QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instruction &inst, QPainter &painter) const {
 	char byte_buffer[32];
-	const quint8 *const buf = insn.bytes();
+	const quint8 *const buf = inst.bytes();
 
-	switch(insn.size()) {
+	switch(inst.size()) {
 	case 1:
 		painter.setPen(data_dis_color);
 		qsnprintf(byte_buffer, sizeof(byte_buffer), "db 0x%02x", *buf & 0xff);
@@ -621,7 +621,7 @@ QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instructio
 // Name: draw_function_markers
 // Desc:
 //------------------------------------------------------------------------------
-void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int insn_size, IAnalyzer *analyzer) {
+void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int inst_size, IAnalyzer *analyzer) {
 	Q_ASSERT(analyzer);
 	painter.setPen(QPen(palette().shadow().color(), 2));
 
@@ -650,7 +650,7 @@ void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t a
 
 		break;
 	case IAnalyzer::ADDRESS_FUNC_BODY:
-		if(analyzer->category(address + insn_size - 1) == IAnalyzer::ADDRESS_FUNC_END) {
+		if(analyzer->category(address + inst_size - 1) == IAnalyzer::ADDRESS_FUNC_END) {
 			goto do_end;
 		} else {
 
@@ -761,14 +761,14 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 		// disassemble the instruction, if it happens that the next byte is the start of a known function
 		// then we should treat this like a one byte instruction
-		edb::Instruction insn(buf, buf + buf_size, address, std::nothrow);
+		edb::Instruction inst(buf, buf + buf_size, address, std::nothrow);
 		if(analyzer && (analyzer->category(address + 1) == IAnalyzer::ADDRESS_FUNC_START)) {
-			edb::Instruction(buf, buf + 1, address, std::nothrow).swap(insn);
+			edb::Instruction(buf, buf + 1, address, std::nothrow).swap(inst);
 		}
 
-		const int insn_size = insn.size();
+		const int inst_size = inst.size();
 
-		if(insn_size == 0) {
+		if(inst_size == 0) {
 			return;
 		}
 
@@ -783,7 +783,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		}
 
 		if(analyzer) {
-			draw_function_markers(painter, address, l2, y, insn_size, analyzer);
+			draw_function_markers(painter, address, l2, y, inst_size, analyzer);
 		}
 
 		// draw breakpoint icon or eip indicator
@@ -805,7 +805,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		}
 
 		// format the different components
-		const QString byte_buffer    = format_instruction_bytes(insn, bytes_width, painter.fontMetrics());
+		const QString byte_buffer    = format_instruction_bytes(inst, bytes_width, painter.fontMetrics());
 		const QString address_buffer = formatAddress(address);
 
 		// draw the address
@@ -848,14 +848,14 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		}
 
 		// for relative jumps draw the jump direction indicators
-		switch(insn.type()) {
+		switch(inst.type()) {
 		case edb::Instruction::OP_JCC:
 		case edb::Instruction::OP_JMP:
 		case edb::Instruction::OP_LOOP:
 		case edb::Instruction::OP_LOOPE:
 		case edb::Instruction::OP_LOOPNE:
-			if(insn.operands()[0].general_type() == edb::Operand::TYPE_REL) {
-				const edb::address_t target = insn.operands()[0].relative_target();
+			if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
+				const edb::address_t target = inst.operands()[0].relative_target();
 
 				painter.drawText(
 					l2 + font_width_ + (font_width_ / 2),
@@ -872,7 +872,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		}
 
 		// draw the disassembly
-		current_line += draw_instruction(painter, insn, uppercase, y, line_height, l2, l3);
+		current_line += draw_instruction(painter, inst, uppercase, y, line_height, l2, l3);
 		show_addresses_.insert(address);
 		last_address = address;
 
@@ -1120,10 +1120,10 @@ bool QDisassemblyView::event(QEvent *event) {
 				// do the longest read we can while still not passing the region end
 				int buf_size = qMin<edb::address_t>((region_->end() - address), sizeof(buf));
 				if(edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
-					const edb::Instruction insn(buf, buf + buf_size, address, std::nothrow);
+					const edb::Instruction inst(buf, buf + buf_size, address, std::nothrow);
 
-					if((line1() + (static_cast<int>(insn.size()) * 3) * font_width_) > line2()) {
-						const QString byte_buffer = format_instruction_bytes(insn);
+					if((line1() + (static_cast<int>(inst.size()) * 3) * font_width_) > line2()) {
+						const QString byte_buffer = format_instruction_bytes(inst);
 						QToolTip::showText(helpEvent->globalPos(), byte_buffer);
 						show = true;
 					}

@@ -44,8 +44,8 @@ private:
 public:
 	QStringList update_instruction_info(edb::address_t address);
 	Register value_from_item(const QTreeWidgetItem &item);
-	bool can_step_over(const edb::Instruction &insn) const;
-	bool is_filling(const edb::Instruction &insn) const;
+	bool can_step_over(const edb::Instruction &inst) const;
+	bool is_filling(const edb::Instruction &inst) const;
 	void reset();
 	void setup_register_view(RegisterListWidget *category_list);
 	void update_register_view(const QString &default_region_name, const State &state);

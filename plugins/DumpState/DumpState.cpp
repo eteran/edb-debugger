@@ -94,13 +94,13 @@ void DumpState::dump_code(const State &state) {
 		int size = sizeof(buf);
 
 		if(edb::v1::get_instruction_bytes(address, buf, &size)) {
-			edb::Instruction insn(buf, buf + size, address, std::nothrow);
-			if(insn) {
-				std::cout << ((address == ip) ? "> " : "  ") << hex_string(address) << ": " << to_string(insn) << "\n";
+			edb::Instruction inst(buf, buf + size, address, std::nothrow);
+			if(inst) {
+				std::cout << ((address == ip) ? "> " : "  ") << hex_string(address) << ": " << to_string(inst) << "\n";
 			} else {
 				break;
 			}
-			address += insn.size();
+			address += inst.size();
 		} else {
 			break;
 		}
