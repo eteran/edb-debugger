@@ -24,6 +24,9 @@ namespace Ui { class DialogThreads; }
 #include <QDialog>
 #include "Types.h"
 
+class ThreadsModel;
+class QSortFilterProxyModel;
+
 class DialogThreads : public QDialog {
 	Q_OBJECT
 public:
@@ -38,6 +41,8 @@ public:
 
 private:
 	Ui::DialogThreads *const ui;
+	ThreadsModel          *threads_model_;
+	QSortFilterProxyModel *threads_filter_;
 };
 
 #endif

@@ -17,10 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogThreads.h"
-#include "edb.h"
 #include "IDebuggerCore.h"
+#include "ThreadsModel.h"
+#include "edb.h"
 
 #include <QHeaderView>
+#include <QSortFilterProxyModel>
 
 #include "ui_DialogThreads.h"
 
@@ -35,6 +37,14 @@ DialogThreads::DialogThreads(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 #else
 	ui->thread_table->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 #endif
+
+	threads_model_ = new ThreadsModel(this);
+	threads_filter_ = new QSortFilterProxyModel(this);
+	
+	threads_filter_->setSourceModel(threads_model_);
+	threads_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	
+	ui->thread_table->setModel(threads_filter_);
 }
 
 //------------------------------------------------------------------------------
@@ -51,32 +61,20 @@ DialogThreads::~DialogThreads() {
 //------------------------------------------------------------------------------
 void DialogThreads::showEvent(QShowEvent *) {
 
-	ui->thread_table->setSortingEnabled(false);
-	ui->thread_table->setRowCount(0);
+	threads_model_->clear();
 
 	QList<edb::tid_t> threads       = edb::v1::debugger_core->thread_ids();
 	const edb::tid_t current_thread = edb::v1::debugger_core->active_thread();
 
 	Q_FOREACH(edb::tid_t thread, threads) {
-		const int row = ui->thread_table->rowCount();
-		ui->thread_table->insertRow(row);
-
-		QTableWidgetItem *item;
-
 		if(thread == current_thread) {
-			item = new QTableWidgetItem(QString("*%1").arg(thread));
+			threads_model_->addThread(thread, true);
 		} else {
-			item = new QTableWidgetItem(QString("%1").arg(thread));
+			threads_model_->addThread(thread, false);
 		}
-
-		item->setData(Qt::UserRole, static_cast<qulonglong>(thread));
-
-		ui->thread_table->setItem(row, 0, item);
 	}
 
-	ui->thread_table->resizeRowsToContents();
 	ui->thread_table->resizeColumnsToContents();
-	ui->thread_table->setSortingEnabled(true);
 }
 
 //------------------------------------------------------------------------------
@@ -84,9 +82,13 @@ void DialogThreads::showEvent(QShowEvent *) {
 // Desc:
 //------------------------------------------------------------------------------
 edb::tid_t DialogThreads::selected_thread() {
-	QList<QTableWidgetItem *> selected = ui->thread_table->selectedItems();
-	if(!selected.isEmpty()) {
-		return selected[0]->data(Qt::UserRole).toUInt();
+	const QItemSelectionModel *const selModel = ui->thread_table->selectionModel();
+	const QModelIndexList sel = selModel->selectedRows();
+
+	if(sel.size() == 1) {
+		const QModelIndex index = threads_filter_->mapToSource(sel[0]);
+		return threads_model_->data(index, Qt::UserRole).toUInt();
 	}
+	
 	return 0;
 }
