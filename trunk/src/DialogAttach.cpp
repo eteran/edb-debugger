@@ -67,8 +67,6 @@ DialogAttach::~DialogAttach() {
 	delete ui;
 }
 
-#include <QtDebug>
-
 //------------------------------------------------------------------------------
 // Name: update_list
 // Desc:
@@ -89,8 +87,6 @@ void DialogAttach::update_list() {
 			}
 		}
 	}
-	
-	qDebug() << process_filter_->rowCount(QModelIndex());
 }
 
 //------------------------------------------------------------------------------
