@@ -23,8 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 #include "IRegion.h"
 
-class QListWidgetItem;
-
 namespace Assembler {
 
 namespace Ui { class DialogAssembler; }

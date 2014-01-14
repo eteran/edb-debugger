@@ -16,16 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "PluginModel.h"
+#include "ProcessModel.h"
+#include "Process.h"
 #include <QtAlgorithms>
 
-PluginModel::PluginModel(QObject *parent) : QAbstractItemModel(parent) {
+ProcessModel::ProcessModel(QObject *parent) : QAbstractItemModel(parent) {
 }
 
-PluginModel::~PluginModel() {
+ProcessModel::~ProcessModel() {
 }
 
-QModelIndex PluginModel::index(int row, int column, const QModelIndex &parent) const {
+QModelIndex ProcessModel::index(int row, int column, const QModelIndex &parent) const {
 	Q_UNUSED(parent);
 
 	if(row >= rowCount(parent) || column >= columnCount(parent)) {
@@ -39,12 +40,12 @@ QModelIndex PluginModel::index(int row, int column, const QModelIndex &parent) c
 	}
 }
 
-QModelIndex PluginModel::parent(const QModelIndex &index) const {
+QModelIndex ProcessModel::parent(const QModelIndex &index) const {
 	Q_UNUSED(index);
 	return QModelIndex();
 }
 
-QVariant PluginModel::data(const QModelIndex &index, int role) const {
+QVariant ProcessModel::data(const QModelIndex &index, int role) const {
 
 	if(index.isValid()) {
 
@@ -53,59 +54,57 @@ QVariant PluginModel::data(const QModelIndex &index, int role) const {
 		if(role == Qt::DisplayRole) {
 			switch(index.column()) {
 			case 0:
-				return item.filename;
+				return item.pid;
 			case 1:
-				return item.plugin;
+				return item.user;
 			case 2:
-				return item.author;
-			case 3:
-				return item.url;
+				return item.name;
 			}
+		} else if(role == Qt::UserRole) {
+			return item.pid;
 		}
 	}
 
 	return QVariant();
 }
 
-QVariant PluginModel::headerData(int section, Qt::Orientation orientation, int role) const {
+QVariant ProcessModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
 		switch(section) {
 		case 0:
-			return tr("File Name");
+			return tr("PID");
 		case 1:
-			return tr("Plugin Name");
+			return tr("UID");
 		case 2:
-			return tr("Author");
-		case 3:
-			return tr("Website");
+			return tr("Name");
 		}
 	}
 
 	return QVariant();
 }
 
-int PluginModel::columnCount(const QModelIndex &parent) const {
+int ProcessModel::columnCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent);
-	return 4;
+	return 3;
 }
 
-int PluginModel::rowCount(const QModelIndex &parent) const {
+int ProcessModel::rowCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent);
 	return items_.size();
 }
 
-void PluginModel::addPlugin(const QString &filename, const QString &plugin, const QString &author, const QString &url) {
+void ProcessModel::addProcess(const Process &process) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());	
 	
 	const Item item = {
-		filename, plugin, author, url
+		process.pid, process.uid, process.user, process.name
 	};
 	items_.push_back(item);
 	endInsertRows();
 }
 
-void PluginModel::clear() {
+void ProcessModel::clear() {
 	beginRemoveRows(QModelIndex(), 0, rowCount());	
 	items_.clear();
 	endRemoveRows();
