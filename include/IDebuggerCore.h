@@ -30,7 +30,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHash>
 #include <QMap>
 #include <QString>
-#include <QStringList>
 #include <QVector>
 #include <QtPlugin>
 
