@@ -16,13 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGATTACHUNIX_20091218_H_
-#define DIALOGATTACHUNIX_20091218_H_
+#ifndef DIALOG_ATTACH_20091218_H_
+#define DIALOG_ATTACH_20091218_H_
 
 #include "Types.h"
 #include "Process.h"
 #include <QString>
 #include <QDialog>
+
+class ProcessModel;
+class QSortFilterProxyModel;
 
 namespace Ui { class DialogAttach; }
 
@@ -37,17 +40,18 @@ private:
 	virtual void showEvent(QShowEvent *event);
 
 private:
-	void update_list(const QString &filter);
+	void update_list();
 
 public Q_SLOTS:
-	void on_filter_textChanged(const QString &text);
 	void on_filter_uid_clicked(bool checked);
 
 public:
 	edb::pid_t selected_pid(bool *ok) const;
 
 private:
-	 Ui::DialogAttach *const ui;
+	Ui::DialogAttach *const ui;
+	ProcessModel          *process_model_;
+	QSortFilterProxyModel *process_filter_;
 };
 
 #endif

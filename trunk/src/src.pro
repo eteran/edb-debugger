@@ -42,6 +42,7 @@ HEADERS += \
 	DialogPlugins.h \
 	DialogThreads.h \
 	ThreadsModel.h \
+	ProcessModel.h \
 	Expression.h \
 	HexStringValidator.h \
 	IAnalyzer.h \
@@ -114,6 +115,7 @@ SOURCES += \
 	DialogPlugins.cpp \
 	DialogThreads.cpp \
 	ThreadsModel.cpp \
+	ProcessModel.cpp \
 	Function.cpp \
 	HexStringValidator.cpp \
 	Instruction.cpp \

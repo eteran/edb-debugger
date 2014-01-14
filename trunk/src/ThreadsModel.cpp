@@ -100,7 +100,7 @@ void ThreadsModel::addThread(edb::tid_t tid, bool current) {
 }
 
 void ThreadsModel::clear() {
-	beginRemoveRows(QModelIndex(), rowCount(), rowCount());	
+	beginRemoveRows(QModelIndex(), 0, rowCount());	
 	items_.clear();
 	endRemoveRows();
 }
