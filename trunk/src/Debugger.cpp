@@ -2475,8 +2475,7 @@ void Debugger::on_action_Threads_triggered() {
 
 	if(dlg->exec() == QDialog::Accepted) {
 		if(dlg) {
-			edb::tid_t tid = dlg->selected_thread();
-			if(tid != 0) {
+			if(const edb::tid_t tid = dlg->selected_thread()) {
 				edb::v1::debugger_core->set_active_thread(tid);
 				update_gui();
 			}
