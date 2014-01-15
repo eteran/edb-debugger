@@ -85,6 +85,5 @@ void DialogPlugins::showEvent(QShowEvent *) {
 		plugin_model_->addPlugin(filename, plugin_name, author, url);
 	}
 
-	ui->plugins_table->resizeRowsToContents();
 	ui->plugins_table->resizeColumnsToContents();
 }
