@@ -1,0 +1,465 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+we attempt to do something similar to the IA-64 name mangling system:
+
+	<type>
+		::= <CV-qualifiers> <type>
+		::= P <type>	# pointer-to
+		::= R <type>	# reference-to
+		::= O <type>	# rvalue reference-to (C++0x)
+		::= C <type>	# complex pair (C 2000)
+		::= G <type>	# imaginary (C 2000)
+		::= U <source-name> <type>	# vendor extended type qualifier
+
+	<CV-qualifiers> ::= [r] [V] [K] #(C99), volatile, const
+	<ref-qualifier> ::= R           # & ref-qualifier
+	<ref-qualifier> ::= O           # && ref-qualifier
+
+	<builtin-type> 
+		::= v	# void
+		::= w	# wchar_t
+		::= b	# bool
+		::= c	# char
+		::= a	# signed char
+		::= h	# unsigned char
+		::= s	# short
+		::= t	# unsigned short
+		::= i	# int
+		::= j	# unsigned int
+		::= l	# long
+		::= m	# unsigned long
+		::= x	# long long, __int64
+		::= y	# unsigned long long, __int64
+		::= n	# __int128
+		::= o	# unsigned __int128
+		::= f	# float
+		::= d	# double
+		::= e	# long double, __float80
+		::= g	# __float128
+		::= z	# ellipsis
+		::= Dd # IEEE 754r decimal floating point (64 bits)
+		::= De # IEEE 754r decimal floating point (128 bits)
+		::= Df # IEEE 754r decimal floating point (32 bits)
+		::= Dh # IEEE 754r half-precision floating point (16 bits)
+		::= Di # char32_t
+		::= Ds # char16_t
+		::= Da # auto
+		::= Dc # decltype(auto)
+		::= Dn # std::nullptr_t (i.e., decltype(nullptr))
+		::= u <source-name>	# vendor extended type
+		
+
+Generically:
+we support "u" for "size_t" for now
+            
+For example:
+
+PKc = "const char *"
+Pc  = "char *"
+P4FILE = "FILE *"
+
+-->
+<functions version="1.0">
+	<!-- assert.h -->
+	<!-- complex.h -->
+	<!-- ctype.h -->
+	<function name="isalnum" type="i"><argument type="i" name="c"/></function>
+	<function name="isalpha" type="i"><argument type="i" name="c"/></function>
+	<function name="islower" type="i"><argument type="i" name="c"/></function>
+	<function name="isupper" type="i"><argument type="i" name="c"/></function>
+	<function name="isdigit" type="i"><argument type="i" name="c"/></function>
+	<function name="isxdigit" type="i"><argument type="i" name="c"/></function>
+	<function name="iscntrl" type="i"><argument type="i" name="c"/></function>
+	<function name="isgraph" type="i"><argument type="i" name="c"/></function>
+	<function name="isspace" type="i"><argument type="i" name="c"/></function>
+	<function name="isblank" type="i"><argument type="i" name="c"/></function>
+	<function name="isprint" type="i"><argument type="i" name="c"/></function>
+	<function name="ispunct" type="i"><argument type="i" name="c"/></function>
+	<function name="tolower" type="i"><argument type="i" name="c"/></function>
+	<function name="toupper" type="i"><argument type="i" name="c"/></function>
+	<!-- errno.h -->
+	<!-- fenv.h -->
+	<!-- float.h -->
+	<!-- inttypes.h -->
+	<!-- iso646.h -->
+	<!-- limits.h -->
+	<!-- locale.h -->
+	<function name="setlocale" type="Pc"><argument type="i" name="category"/><argument type="PKc" name="locale"/></function>
+	<function name="localeconv" type="P5lconv"></function>
+	
+	<!-- math.h -->
+	<function name="abs" type="i"><argument type="i" name="n"/></function>
+	<function name="acos" type="d"><argument type="d" name="x"/></function>
+	<function name="acosf" type="f"><argument type="f" name="x"/></function>
+	<function name="acosh" type="d"><argument type="d" name="x"/></function>
+	<function name="acoshf" type="f"><argument type="f" name="x"/></function>
+	<function name="acoshl" type="e"><argument type="e" name="x" /></function>
+	<function name="acosl" type="e"><argument type="e" name="x" /></function>
+	<function name="asin" type="d"><argument type="d" name="x"/></function>
+	<function name="asinf" type="f"><argument type="f" name="x"/></function>
+	<function name="asinh" type="d"><argument type="d" name="x"/></function>
+	<function name="asinhf" type="f"><argument type="f" name="x"/></function>
+	<function name="asinhl" type="e"><argument type="e" name="x" /></function>
+	<function name="asinl" type="e"><argument type="e" name="x" /></function>
+	<function name="atan" type="d"><argument type="d" name="x"/></function>
+	<function name="atan2" type="d"><argument type="d" name="x"/><argument type="d" name="y"/></function>
+	<function name="atan2f" type="f"><argument type="f" name="x"/><argument type="f" name="y"/></function>
+	<function name="atan2l" type="e"><argument type="e" name="x" /><argument type="e" name="y" /></function>
+	<function name="atanf" type="f"><argument type="f" name="x"/></function>
+	<function name="atanh" type="d"><argument type="d" name="x"/></function>
+	<function name="atanhf" type="f"><argument type="f" name="x"/></function>
+	<function name="atanhl" type="e"><argument type="e" name="x" /></function>
+	<function name="atanl" type="e"><argument type="e" name="x" /></function>
+	<function name="cbrt" type="d"><argument type="d" name="x"/></function>
+	<function name="cbrtf" type="f"><argument type="f" name="x"/></function>
+	<function name="cbrtl" type="e"><argument type="e" name="x" /></function>
+	<function name="ceil" type="d"><argument type="d" name="x"/></function>
+	<function name="ceilf" type="f"><argument type="f" name="x"/></function>
+	<function name="ceill" type="e"><argument type="e" name="x" /></function>
+	<function name="copysign" type="d"><argument type="d" name="x"/><argument type="d" name="y"/></function>
+	<function name="copysignf" type="f"><argument type="f" name="x"/><argument type="f" name="y"/></function>
+	<function name="copysignl" type="e"><argument type="e" name="x" /><argument type="e" name="y" /></function>
+	<function name="cos" type="d"><argument type="d" name="x"/></function>
+	<function name="cosf" type="f"><argument type="f" name="x"/></function>
+	<function name="cosh" type="d"><argument type="d" name="x"/></function>
+	<function name="coshf" type="f"><argument type="f" name="x"/></function>
+	<function name="coshl" type="e"><argument type="e" name="x" /></function>
+	<function name="cosl" type="e"><argument type="e" name="x" /></function>
+	<function name="erf" type="d"><argument type="d" name="x"/></function>
+	<function name="erfc" type="d"><argument type="d" name="x"/></function>
+	<function name="erfcf" type="f"><argument type="f" name="x"/></function>
+	<function name="erfcl" type="e"><argument type="e" name="x" /></function>
+	<function name="erff" type="f"><argument type="f" name="x"/></function>
+	<function name="erfl" type="e"><argument type="e" name="x" /></function>
+	<function name="exp" type="d"><argument type="d" name="x"/></function>
+	<function name="exp2" type="d"><argument type="d" name="x"/></function>
+	<function name="exp2f" type="f"><argument type="f" name="x"/></function>
+	<function name="exp2l" type="e"><argument type="e" name="x" /></function>
+	<function name="expf" type="f"><argument type="f" name="x"/></function>
+	<function name="expl" type="e"><argument type="e" name="x" /></function>
+	<function name="expm1" type="d"><argument type="d" name="x"/></function>
+	<function name="expm1f" type="f"><argument type="f" name="x"/></function>
+	<function name="expm1l" type="e"><argument type="e" name="x" /></function>
+	<function name="fabs" type="d"><argument type="d" name="arg"/></function>
+	<function name="fabsf" type="f"><argument type="f" name="arg"/></function>
+	<function name="fabsl" type="e"><argument type="e" name="arg"/></function>
+	<function name="fdim" type="d"><argument type="d" name="x"/><argument type="d" name="y"/></function>
+	<function name="fdimf" type="f"><argument type="f" name="x"/><argument type="f" name="y"/></function>
+	<function name="fdiml" type="e"><argument type="e" name="x" /><argument type="e" name="y" /></function>
+	<function name="floor" type="d"><argument type="d" name="x"/></function>
+	<function name="floorf" type="f"><argument type="f" name="x"/></function>
+	<function name="floorl" type="e"><argument type="e" name="x" /></function>
+	<function name="fma" type="d"><argument type="d" name="x"/><argument type="d" name="y"/><argument type="d" name="z"/></function>
+	<function name="fmaf" type="f"><argument type="f" name="x"/><argument type="f" name="y"/><argument type="f" name="z"/></function>
+	<function name="fmax" type="d"><argument type="d" name="x"/><argument type="d" name="y"/></function>
+	<function name="fmaxf" type="f"><argument type="f" name="x"/><argument type="f" name="y"/></function>
+	<function name="fmaxl" type="e"><argument type="e" name="x" /><argument type="e" name="y" /></function>
+	<function name="fmin" type="d"><argument type="d" name="x"/><argument type="d" name="y"/></function>
+	<function name="fminf" type="f"><argument type="f" name="x"/><argument type="f" name="y"/></function>
+	<function name="fminl" type="e"><argument type="e" name="x" /><argument type="e" name="y" /></function>
+	<function name="fmod" type="d"><argument type="d" name="x"/><argument type="d" name="y"/></function>
+	<function name="fmodf" type="f"><argument type="f" name="x"/><argument type="f" name="y"/></function>
+	<function name="fmodl" type="e"><argument type="e" name="x" /><argument type="e" name="y" /></function>
+	<function name="frexp" type="d"><argument type="d" name="x"/><argument type="Pi" name="exp"/></function>
+	<function name="frexpf" type="f"><argument type="f" name="x"/><argument type="Pi" name="exp"/></function>
+	<function name="hypot" type="d"><argument type="d" name="x"/><argument type="d" name="y"/></function>
+	<function name="hypotf" type="f"><argument type="f" name="x"/><argument type="f" name="y"/></function>
+	<function name="hypotl" type="e"><argument type="e" name="x" /><argument type="e" name="y" /></function>
+	<function name="j0" type="d"><argument type="d" name="x"/></function>
+	<function name="j1" type="d"><argument type="d" name="x"/></function>
+	<function name="jn" type="d"><argument type="i" name="x"/><argument type="d" name="y"/></function>
+	<function name="labs" type="l"><argument type="l" name="n"/></function>
+	<function name="ldexp" type="d"><argument type="d" name="x"/><argument type="Pi" name="y"/></function>
+	<function name="ldexpf" type="f"><argument type="f" name="x"/><argument type="i" name="y"/></function>
+	<function name="lgamma" type="d"><argument type="d" name="x"/></function>
+	<function name="lgammaf" type="f"><argument type="f" name="x"/></function>
+	<function name="lgammal" type="e"><argument type="e" name="x" /></function>
+	<function name="llabs" type="x"><argument type="x" name="n"/></function>
+	<function name="log" type="d"><argument type="d" name="x"/></function>
+	<function name="log10" type="d"><argument type="d" name="x"/></function>
+	<function name="log10f" type="f"><argument type="f" name="x"/></function>
+	<function name="log10l" type="e"><argument type="e" name="x" /></function>
+	<function name="log1p" type="d"><argument type="d" name="x"/></function>
+	<function name="log1pf" type="f"><argument type="f" name="x"/></function>
+	<function name="log1pl" type="e"><argument type="e" name="x" /></function>
+	<function name="log2" type="d"><argument type="d" name="x"/></function>
+	<function name="log2f" type="f"><argument type="f" name="x"/></function>
+	<function name="log2l" type="e"><argument type="e" name="x" /></function>
+	<function name="logb" type="d"><argument type="d" name="x"/></function>
+	<function name="logbf" type="f"><argument type="f" name="x"/></function>
+	<function name="logbl" type="e"><argument type="e" name="x" /></function>
+	<function name="logf" type="f"><argument type="f" name="x"/></function>
+	<function name="logl" type="e"><argument type="e" name="x" /></function>
+	<function name="modf" type="d"><argument type="d" name="x"/><argument type="Pd" name="y"/></function>
+	<function name="modff" type="f"><argument type="f" name="x"/><argument type="Pf" name="y"/></function>
+	<function name="nan" type="d"><argument type="PKc" name="s"/></function>
+	<function name="nanf" type="f"><argument type="PKc" name="s"/></function>
+	<function name="nearbyint" type="d"><argument type="d" name="x"/></function>
+	<function name="nearbyintf" type="f"><argument type="f" name="x"/></function>
+	<function name="nearbyintl" type="e"><argument type="e" name="x" /></function>
+	<function name="nextafter" type="d"><argument type="d" name="x"/><argument type="d" name="y"/></function>
+	<function name="nextafterf" type="f"><argument type="f" name="x"/><argument type="f" name="y"/></function>
+	<function name="nextafterl" type="e"><argument type="e" name="x" /><argument type="e" name="y" /></function>
+	<function name="nexttoward" type="d"><argument type="d" name="x"/><argument type="e" name="y"/></function>
+	<function name="nexttowardf" type="f"><argument type="f" name="x"/><argument type="e" name="y"/></function>
+	<function name="nexttowardl" type="e"><argument type="e" name="x" /><argument type="e" name="y" /></function>
+	<function name="pow" type="d"><argument type="d" name="x"/><argument type="d" name="y"/></function>
+	<function name="powf" type="f"><argument type="f" name="x"/><argument type="f" name="y"/></function>
+	<function name="powl" type="e"><argument type="e" name="x" /><argument type="e" name="y" /></function>
+	<function name="remainder" type="d"><argument type="d" name="x"/><argument type="d" name="y"/></function>
+	<function name="remainderf" type="f"><argument type="f" name="x"/><argument type="f" name="y"/></function>
+	<function name="remainderl" type="e"><argument type="e" name="x" /><argument type="e" name="y" /></function>
+	<function name="remquo" type="d"><argument type="d" name="x"/><argument type="d" name="y"/><argument type="Pi" name="quo"/></function>
+	<function name="remquof" type="f"><argument type="f" name="x"/><argument type="f" name="y"/><argument type="Pi" name="quo"/></function>
+	<function name="rint" type="d"><argument type="d" name="x"/></function>
+	<function name="rintf" type="f"><argument type="f" name="x"/></function>
+	<function name="rintl" type="e"><argument type="e" name="x" /></function>
+	<function name="round" type="d"><argument type="d" name="x"/></function>
+	<function name="roundf" type="f"><argument type="f" name="x"/></function>
+	<function name="roundl" type="e"><argument type="e" name="x" /></function>
+	<function name="scalb" type="d"><argument type="d" name="x"/><argument type="d" name="y"/></function>
+	<function name="scalbln" type="d"><argument type="d" name="x"/><argument type="l" name="y"/></function>
+	<function name="scalblnf" type="f"><argument type="f" name="x"/><argument type="l" name="y"/></function>
+	<function name="scalbn" type="d"><argument type="d" name="x"/><argument type="Pi" name="y"/></function>
+	<function name="scalbnf" type="f"><argument type="f" name="x"/><argument type="i" name="y"/></function>
+	<function name="sin" type="d"><argument type="d" name="x"/></function>
+	<function name="sinf" type="f"><argument type="f" name="x"/></function>
+	<function name="sinh" type="d"><argument type="d" name="x"/></function>
+	<function name="sinhf" type="f"><argument type="f" name="x"/></function>
+	<function name="sinhl" type="e"><argument type="e" name="x" /></function>
+	<function name="sinl" type="e"><argument type="e" name="x" /></function>
+	<function name="sqrt" type="d"><argument type="d" name="x"/></function>
+	<function name="sqrtf" type="f"><argument type="f" name="x"/></function>
+	<function name="sqrtl" type="e"><argument type="e" name="x" /></function>
+	<function name="tan" type="d"><argument type="d" name="x"/></function>
+	<function name="tanf" type="f"><argument type="f" name="x"/></function>
+	<function name="tanh" type="d"><argument type="d" name="x"/></function>
+	<function name="tanhf" type="f"><argument type="f" name="x"/></function>
+	<function name="tanhl" type="e"><argument type="e" name="x" /></function>
+	<function name="tanl" type="e"><argument type="e" name="x" /></function>
+	<function name="tgamma" type="d"><argument type="d" name="x"/></function>
+	<function name="tgammaf" type="f"><argument type="f" name="x"/></function>
+	<function name="tgammal" type="e"><argument type="e" name="x" /></function>
+	<function name="trunc" type="d"><argument type="d" name="x"/></function>
+	<function name="truncf" type="f"><argument type="f" name="x"/></function>
+	<function name="truncl" type="e"><argument type="e" name="x" /></function>
+	<function name="y0" type="d"><argument type="d" name="x"/></function>
+	<function name="y1" type="d"><argument type="d" name="x"/></function>
+	<function name="yn" type="d"><argument type="i" name="x"/><argument type="d" name="y"/></function>
+	<function name="ilogb" type="i"><argument type="d" name="x" /></function>
+	<function name="ilogbf" type="i"><argument type="f" name="x" /></function>
+	<function name="ilogbl" type="i"><argument type="e" name="x" /></function>
+	<function name="lrint" type="l"><argument type="d" name="x" /></function>
+	<function name="lrintf" type="l"><argument type="f" name="x" /></function>
+	<function name="lrintl" type="l"><argument type="e" name="x" /></function>
+	<function name="lround" type="l"><argument type="d" name="x" /></function>
+	<function name="lroundf" type="l"><argument type="f" name="x" /></function>
+	<function name="lroundl" type="l"><argument type="e" name="x" /></function>
+	<function name="llrint" type="x"><argument type="d" name="x" /></function>
+	<function name="llrintf" type="x"><argument type="f" name="x" /></function>
+	<function name="llrintl" type="x"><argument type="e" name="x" /></function>
+	<function name="llround" type="x"><argument type="d" name="x" /></function>
+	<function name="llroundf" type="x"><argument type="f" name="x" /></function>
+	<function name="llroundl" type="x"><argument type="e" name="x" /></function>
+	<function name="nanl" type="e"><argument type="PKc" name="x" /></function>
+	<!--
+	long double fmal(long double, long double, long double);
+	long double frexpl(long double value, int *);
+	long double ldexpl(long double, int);
+	long double modfl(long double, long double *);
+	long double remquol(long double, long double, int *);
+	long double scalblnl(long double, long);
+	long double scalbnl(long double, int);
+	intmax_t imaxabs(intmax_t n);
+	-->
+	<!-- setjmp.h -->
+	<function name="setjmp" type="i"><argument type="P" name="env"/></function>
+	<function name="longjmp" type="v"><argument type="P" name="env"/><argument type="i" name="status"/></function>
+	<!-- signal.h -->
+	<function name="signal" type="P"><argument type="i" name="sig"/><argument type="P" name="handler"/></function>
+	<function name="raise" type="i"><argument type="i" name="sig"/></function>
+	<!-- stdalign.h -->
+	<!-- stdarg.h -->
+	<!-- stdatomic.h -->
+	<!-- stdbool.h -->
+	<!-- stddef.h -->
+	<!-- stdint.h -->
+	<!-- stdio.h -->	
+	<function name="ctermid" type="Pc"><argument type="Pc" name="s" /></function>
+	<function name="fclose" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="feof" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="ferror" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="fflush" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="fgetc" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="fileno" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="ftrylockfile" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="getc" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="getc_unlocked" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="gets" type="Pc"><argument type="Pc" name="s" /></function>
+	<function name="pclose" type="i"><argument type="P4FILE" name="stream" /></function>
+	<function name="putchar" type="i"><argument type="i" name="ch" /></function>
+	<function name="putchar_unlocked" type="i"><argument type="i" name="ch" /></function>
+	<function name="puts" type="i"><argument type="PKc" name="s" /></function>
+	<function name="remove" type="i"><argument type="PKc" name="s" /></function>
+	<function name="tmpnam" type="Pc"><argument type="Pc" name="s" /></function>
+	<function name="fputc" type="i"><argument type="i" name="ch" /><argument type="P4FILE" name="stream" /></function>
+	<function name="putc" type="i"><argument type="i" name="ch" /><argument type="P4FILE" name="stream" /></function>
+	<function name="putc_unlocked" type="i"><argument type="i" name="ch" /><argument type="P4FILE" name="stream" /></function>
+	<function name="ungetc" type="i"><argument type="i" name="ch" /><argument type="P4FILE" name="stream" /></function>
+	<function name="getchar" type="i"></function>
+	<function name="getchar_unlocked" type="i"></function>
+
+	<!--
+	FILE    *fdopen(int, const char *);
+	FILE    *fopen(const char *, const char *);
+	FILE    *freopen(const char *, const char *, FILE *);
+	FILE    *popen(const char *, const char *);
+	FILE    *tmpfile(void);
+	char    *fgets(char *, int, FILE *);
+	char    *tempnam(const char *, const char *);
+	int      fgetpos(FILE *, fpos_t *);
+	int      fprintf(FILE *, const char *, ...);
+	int      fputs(const char *, FILE *);
+	int      fscanf(FILE *, const char *, ...);
+	int      fseek(FILE *, long, int);
+	int      fseeko(FILE *, off_t, int);
+	int      fsetpos(FILE *, const fpos_t *);
+	int      printf(const char *, ...);
+	int      rename(const char *, const char *);
+	int      scanf(const char *, ...);
+	int      setvbuf(FILE *, char *, int, size_t);
+	int      snprintf(char *, size_t, const char *, ...);
+	int      sprintf(char *, const char *, ...);
+	int      sscanf(const char *, const char *, int ...);
+	int      vfprintf(FILE *, const char *, va_list);
+	int      vfscanf(FILE *, const char *, va_list);
+	int      vprintf(const char *, va_list);
+	int      vscanf(const char *, va_list);
+	int      vsnprintf(char *, size_t, const char *, va_list;
+	int      vsprintf(char *, const char *, va_list);
+	int      vsscanf(const char *, const char *, va_list arg);
+	long     ftell(FILE *);
+	off_t    ftello(FILE *);
+	size_t   fread(void *, size_t, size_t, FILE *);
+	size_t   fwrite(const void *, size_t, size_t, FILE *);
+	void     clearerr(FILE *);
+	void     flockfile(FILE *);
+	void     funlockfile(FILE *);
+	void     perror(const char *);
+	void     rewind(FILE *);
+	void     setbuf(FILE *, char *);
+	-->
+	
+	<!-- string.h -->
+	<function name="memchr" type="Pv"><argument type="PKv" name="s1" /><argument type="i" name="ch" /><argument type="u" name="n" /></function>
+	<function name="memcmp" type="i"><argument type="PKv" name="s1" /><argument type="PKv" name="s2" /><argument type="u" name="s3" /></function>
+	<function name="memcpy" type="Pv"><argument type="Pv" name="dest" /><argument type="PKc" name="src" /><argument type="u" name="n" /></function>
+	<function name="memmove" type="Pv"><argument type="Pv" name="dest" /><argument type="PKc" name="src" /><argument type="u" name="n" /></function>
+	<function name="memset" type="Pv"><argument type="Pv" name="dest" /><argument type="i" name="ch" /><argument type="u" name="n" /></function>
+	<function name="strcat" type="Pc"><argument type="Pc" name="s1" /><argument type="PKc" name="s2" /></function>
+	<function name="strchr" type="Pc"><argument type="PKc" name="s1" /><argument type="i" name="ch" /></function>
+	<function name="strcmp" type="i"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /></function>
+	<function name="strcoll" type="i"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /></function>
+	<function name="strcpy" type="Pc"><argument type="Pc" name="s1" /><argument type="PKc" name="s2" /></function>
+	<function name="strcspn" type="u"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /></function>
+	<function name="strdup" type="Pc"><argument type="PKc" name="s" /></function>
+	<function name="strerror" type="Pc"><argument type="i" name="n" /></function>
+	<function name="strlen" type="u"><argument type="PKc" name="s" /></function>
+	<function name="strncat" type="Pc"><argument type="Pc" name="s1" /><argument type="PKc" name="s2" /><argument type="u" name="s3" /></function>
+	<function name="strncmp" type="i"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /><argument type="u" name="s3" /></function>
+	<function name="strncpy" type="Pc"><argument type="Pc" name="s1" /><argument type="PKc" name="s2" /><argument type="u" name="s3" /></function>
+	<function name="strpbrk" type="Pc"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /></function>
+	<function name="strrchr" type="Pc"><argument type="PKc" name="s" /><argument type="i" name="c" /></function>
+	<function name="strspn" type="u"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /></function>
+	<function name="strstr" type="Pc"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /></function>
+	<function name="strtok" type="Pc"><argument type="Pc" name="s1" /><argument type="PKc" name="s2" /></function>
+	<function name="strtok_r" type="Pc"><argument type="Pc" name="s1" /><argument type="PKc" name="s2" /><argument type="PPc" name="s3" /></function>
+
+	<!--
+	int     *strerror_r(int, char *, size_t);
+	size_t   strxfrm(char *, const char *, size_t);
+	void    *memccpy(void *, const void *, int, size_t);
+	-->
+	
+	<!-- stdlib.h -->
+	<function type="Pc" name="getenv"><argument type="PKc" name="s" /></function>
+	<function type="Pc" name="mktemp"><argument type="Pc" name="s" /></function>
+	<function type="Pc" name="setstate"><argument type="PKc" name="s" /></function>
+	<function type="i" name="abs"><argument type="i" name="n" /></function>
+	<function type="i" name="atoi"><argument type="PKc" name="s" /></function>
+	<function type="i" name="grantpt"><argument type="i" name="n" /></function>
+	<function type="i" name="mkstemp"><argument type="Pc" name="s" /></function>
+	<function type="i" name="posix_openpt"><argument type="i" name="n" /></function>
+	<function type="i" name="putenv"><argument type="Pc" name="s" /></function>
+	<function type="i" name="rand"></function>
+	<function type="i" name="system"><argument type="PKc" name="s" /></function>
+	<function type="i" name="unlockpt"><argument type="i" name="n" /></function>
+	<function type="i" name="unsetenv"><argument type="PKc" name="s" /></function>
+	<function type="v" name="_Exit"><argument type="i" name="x" /></function>
+	<function type="v" name="abort"></function>
+	<function type="v" name="exit"><argument type="i" name="x" /></function>
+	<function type="i" name="atexit"><argument type="PFvv" name="function" /></function>
+	
+	
+	<!--
+	char         *initstate(unsigned, char *, size_t);
+	char         *l64a(long);
+	char         *ptsname(int);
+	char         *realpath(const char *, char *);
+	div_t         div(int, int);
+	double        atof(const char *);
+	double        drand48(void);
+	double        erand48(unsigned short[3]);
+	double        strtod(const char *, char **);
+	float         strtof(const char *, char **);
+	int           getsubopt(char **, char *const *, char **);
+	int           mblen(const char *, size_t);
+	int           mbtowc(wchar_t *, const char *, size_t);
+	int           posix_memalign(void **, size_t, size_t);
+	int           rand_r(unsigned *);
+	int           setenv(const char *, const char *, int);
+	int           wctomb(char *, wchar_t);
+	ldiv_t        ldiv(long, long);
+	lldiv_t       lldiv(long long, long long);
+	long          a64l(const char *);
+	long          atol(const char *);
+	long          jrand48(unsigned short[3]);
+	long          labs(long);
+	long          lrand48(void);
+	long          mrand48(void);
+	long          nrand48(unsigned short[3]);
+	long          random(void);
+	long          strtol(const char *, char **, int);
+	long double   strtold(const char *, char **);
+	long long     atoll(const char *);
+	long long     llabs(long long);
+	long long     strtoll(const char *, char **, int);
+	size_t        mbstowcs(wchar_t *, const char *, size_t);
+	size_t        wcstombs(char *, const wchar_t *, size_t);
+	unsigned long long strtoull(const char *, char **, int);
+	unsigned long strtoul(const char *, char **, int);
+	unsigned short seed48(unsigned short[3]);
+	void          free(void *);
+	void          lcong48(unsigned short[7]);
+	void          qsort(void *, size_t, size_t, int (*)(const void *, const void *));
+	void          setkey(const char *);
+	void          srand(unsigned);
+	void          srand48(long);
+	void          srandom(unsigned);
+	void         *bsearch(const void *, const void *, size_t, size_t, int (*)(const void *, const void *));
+	void         *calloc(size_t, size_t);
+	void         *malloc(size_t);
+	void         *realloc(void *, size_t);
+	-->
+	
+	
+	<function type="i" name="__libc_start_main">
+		<argument type="PFiiPPcS0_E" name="main" />
+		<argument type="i" name="argc" />
+		<argument type="PPc" name="ubp_av" />
+		<argument type="PFvvE" name="init" />
+		<argument type="PFvvE" name="fini" />
+		<argument type="PFvvE" name="rtld_fini" />
+		<argument type="Pv" name="stack_end" />
+	</function>
+</functions>
