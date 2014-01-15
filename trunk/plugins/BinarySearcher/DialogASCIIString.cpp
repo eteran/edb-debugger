@@ -28,6 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_DialogASCIIString.h"
 
+#include <QtDebug>
+
 namespace BinarySearcher {
 
 //------------------------------------------------------------------------------
@@ -50,7 +52,7 @@ DialogASCIIString::~DialogASCIIString() {
 
 //------------------------------------------------------------------------------
 // Name: do_find
-// Desc:
+// Desc: This will find *stack aligned pointers* to exact string matches
 //------------------------------------------------------------------------------
 void DialogASCIIString::do_find() {
 
@@ -67,7 +69,9 @@ void DialogASCIIString::do_find() {
 		edb::address_t stack_ptr = state.stack_pointer();
 
 		if(IRegion::pointer region = edb::v1::memory_regions().find_region(stack_ptr)) {
+				
 			std::size_t count = (region->end() - stack_ptr) / sizeof(edb::address_t);
+			stack_ptr = region->start();
 
 			try {
 				QVector<quint8> chars(sz);
@@ -79,7 +83,9 @@ void DialogASCIIString::do_find() {
 					if(edb::v1::debugger_core->read_bytes(stack_ptr, &value, sizeof(edb::address_t))) {
 						if(edb::v1::debugger_core->read_bytes(value, &chars[0], sz)) {
 							if(std::memcmp(&chars[0], b.constData(), sz) == 0) {
-								ui->listWidget->addItem(edb::v1::format_pointer(stack_ptr));
+								QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(stack_ptr));
+								item->setData(Qt::UserRole, stack_ptr);
+								ui->listWidget->addItem(item);
 							}
 						}
 					}
@@ -112,11 +118,8 @@ void DialogASCIIString::on_btnFind_clicked() {
 // Desc: follows the found item in the data view
 //------------------------------------------------------------------------------
 void DialogASCIIString::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
-	bool ok;
-	const edb::address_t addr = edb::v1::string_to_address(item->text(), &ok);
-	if(ok) {
-		edb::v1::dump_stack(addr, true);
-	}
+	const edb::address_t addr = item->data(Qt::UserRole).toULongLong();
+	edb::v1::dump_stack(addr, true);
 }
 
 }

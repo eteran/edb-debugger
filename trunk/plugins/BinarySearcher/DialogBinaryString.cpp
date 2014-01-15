@@ -95,7 +95,9 @@ void DialogBinaryString::do_find() {
 						const edb::address_t align = 1 << (ui->cmbAlignment->currentIndex() + 1);
 
 						if(!ui->chkAlignment->isChecked() || (addr % align) == 0) {
-							ui->listWidget->addItem(edb::v1::format_pointer(addr));
+							QListWidgetItem *item = new QListWidgetItem(edb::v1::format_pointer(addr));
+							item->setData(Qt::UserRole, addr);
+							ui->listWidget->addItem(item);
 						}
 					}
 
@@ -127,11 +129,8 @@ void DialogBinaryString::on_btnFind_clicked() {
 // Desc: follows the found item in the data view
 //------------------------------------------------------------------------------
 void DialogBinaryString::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
-	bool ok;
-	const edb::address_t addr = edb::v1::string_to_address(item->text(), &ok);
-	if(ok) {
-		edb::v1::dump_data(addr, false);
-	}
+	const edb::address_t addr = item->data(Qt::UserRole).toULongLong();
+	edb::v1::dump_data(addr, false);
 }
 
 }

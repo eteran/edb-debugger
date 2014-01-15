@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
+#include <QScopedPointer>
 #include <QTableWidgetItem>
 
 #include "ui_Bookmarks.h"
@@ -89,12 +90,10 @@ void BookmarkWidget::on_btnAdd_clicked() {
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::on_btnDel_clicked() {
-	std::auto_ptr<QTableWidgetItem> item(ui->tableWidget->takeItem(ui->tableWidget->currentRow(), 0));
+	QScopedPointer<QTableWidgetItem> item(ui->tableWidget->takeItem(ui->tableWidget->currentRow(), 0));
 	ui->tableWidget->removeRow(ui->tableWidget->currentRow());
-	if(item.get()) {
-		bool ok;
-		const QString s = item->text();
-		const edb::address_t address = edb::v1::string_to_address(s, &ok);
+	if(item) {
+		const edb::address_t address = item->data(Qt::UserRole).toULongLong();
 		entries_.remove(address);
 	}
 }
@@ -116,9 +115,7 @@ void BookmarkWidget::on_btnClear_clicked() {
 void BookmarkWidget::add_address(edb::address_t address) {
 	if(!entries_.contains(address)) {
 		QTableWidgetItem *const new_item = new QTableWidgetItem(edb::v1::format_pointer(address));
-		
 		new_item->setData(Qt::UserRole, address);
-		
 		const int row = ui->tableWidget->rowCount();
 		ui->tableWidget->setRowCount(row + 1);
 		ui->tableWidget->setItem(row, 0, new_item);
