@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef REGIONBUFFER_20101111_H_
-#define REGIONBUFFER_20101111_H_
+#ifndef REGION_BUFFER_20101111_H_
+#define REGION_BUFFER_20101111_H_
 
 #include <QIODevice>
 #include "IRegion.h"

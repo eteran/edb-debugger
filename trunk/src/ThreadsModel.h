@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QAbstractItemModel>
 #include <QVector>
-#include <QString>
 #include "Types.h"
 
 class ThreadsModel : public QAbstractItemModel {

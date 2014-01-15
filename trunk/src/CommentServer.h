@@ -21,12 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "QHexView"
 #include <QHash>
-#include <QCoreApplication>
+#include <QObject>
 
-class CommentServer : public QHexView::CommentServerInterface {
-	Q_DECLARE_TR_FUNCTIONS(CommentServer)
+class CommentServer : public QObject, public QHexView::CommentServerInterface {
+	Q_OBJECT
 
 public:
+	CommentServer(QObject *parent = 0);
 	virtual ~CommentServer();
 
 public:
@@ -39,7 +40,7 @@ private:
 	QString resolve_string(QHexView::address_t address, bool *ok) const;
 
 private:
-        QHash<quint64, QString> custom_comments_;
+	QHash<quint64, QString> custom_comments_;
 };
 
 #endif
