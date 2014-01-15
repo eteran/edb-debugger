@@ -17,16 +17,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogReferences.h"
-#include "edb.h"
 #include "IDebuggerCore.h"
 #include "MemoryRegions.h"
 #include "Util.h"
+#include "edb.h"
+
 #include <QMessageBox>
 #include <QVector>
 
 #include "ui_DialogReferences.h"
 
 namespace References {
+
+enum Role {
+	TypeRole    = Qt::UserRole + 0,
+	AddressRole = Qt::UserRole + 1
+};
 
 //------------------------------------------------------------------------------
 // Name: DialogReferences
@@ -92,7 +98,8 @@ void DialogReferences::do_find() {
 
 						if(test_address == address) {
 							QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
-							item->setData(Qt::UserRole, 'D');
+							item->setData(TypeRole, 'D');
+							item->setData(AddressRole, addr);
 							ui->listWidget->addItem(item);
 						}
 
@@ -106,7 +113,8 @@ void DialogReferences::do_find() {
 								if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
 									if(inst.operands()[0].relative_target() == address) {
 										QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
-										item->setData(Qt::UserRole, 'C');
+										item->setData(TypeRole, 'C');
+										item->setData(AddressRole, addr);
 										ui->listWidget->addItem(item);
 									}
 								}
@@ -118,7 +126,8 @@ void DialogReferences::do_find() {
 								if(inst.operands()[0].general_type() == edb::Operand::TYPE_EXPRESSION) {								
 									if(inst.operands()[1].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[1].immediate()) == address) {
 										QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
-										item->setData(Qt::UserRole, 'C');
+										item->setData(TypeRole, 'C');
+										item->setData(AddressRole, addr);
 										ui->listWidget->addItem(item);
 									}
 								}
@@ -130,7 +139,8 @@ void DialogReferences::do_find() {
 
 								if(inst.operands()[0].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[0].immediate()) == address) {
 									QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
-									item->setData(Qt::UserRole, 'C');
+									item->setData(TypeRole, 'C');
+									item->setData(AddressRole, addr);
 									ui->listWidget->addItem(item);
 								}
 								break;
@@ -170,14 +180,11 @@ void DialogReferences::on_btnFind_clicked() {
 // Desc: follows the found item in the data view
 //------------------------------------------------------------------------------
 void DialogReferences::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
-	bool ok;
-	const edb::address_t addr = edb::v1::string_to_address(item->text(), &ok);
-	if(ok) {
-		if(item->data(Qt::UserRole).toChar() == 'D') {
-			edb::v1::dump_data(addr, false);
-		} else {
-			edb::v1::jump_to_address(addr);
-		}
+	const edb::address_t addr = item->data(AddressRole).toULongLong();
+	if(item->data(TypeRole).toChar() == 'D') {
+		edb::v1::dump_data(addr, false);
+	} else {
+		edb::v1::jump_to_address(addr);
 	}
 }
 
