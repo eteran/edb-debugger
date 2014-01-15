@@ -21,9 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 
-#include <QByteArray>
 #include <QString>
 #include <QSharedPointer>
+
+class QByteArray;
 
 class IBreakpoint {
 public:

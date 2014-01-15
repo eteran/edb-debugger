@@ -19,8 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef MODULE_H_
 #define MODULE_H_
 
-#include <QString>
 #include "Types.h"
+#include <QString>
 
 struct Module {
 	QString        name;

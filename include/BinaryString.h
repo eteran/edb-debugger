@@ -22,11 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "API.h"
 
 #include <QWidget>
-#include <QByteArray>
 
 namespace Ui { class BinaryStringWidget; }
 
 class QString;
+class QByteArray;
 
 class EDB_EXPORT BinaryString : public QWidget {
 	Q_OBJECT

@@ -23,13 +23,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IBinary.h"
 #include "IRegion.h"
 #include "IBreakpoint.h"
-#include "Module.h"
 #include "Types.h"
 
 #include <QHash>
 #include <QList>
 #include <QPointer>
-#include <QString>
 #include <QStringList>
 #include <QVector>
 
@@ -49,6 +47,7 @@ class QByteArray;
 class QDialog;
 class QFileInfo;
 class QWidget;
+class QString;
 
 struct ExpressionError;
 
