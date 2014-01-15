@@ -83,7 +83,10 @@ void DialogBreakpoints::updateList() {
 			const QString symname        = edb::v1::find_function_symbol(address, QString(), 0);
 			const QString bytes          = edb::v1::format_bytes(orig_bytes);
 
-			ui->tableWidget->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(address)));
+			QTableWidgetItem *item = new QTableWidgetItem(edb::v1::format_pointer(address));
+			item->setData(Qt::UserRole, address);
+			
+			ui->tableWidget->setItem(row, 0, item);
 			ui->tableWidget->setItem(row, 1, new QTableWidgetItem(condition));
 			ui->tableWidget->setItem(row, 2, new QTableWidgetItem(bytes));
 			ui->tableWidget->setItem(row, 3, new QTableWidgetItem(onetime ? tr("One Time") : tr("Standard")));
@@ -123,16 +126,15 @@ void DialogBreakpoints::on_btnAdd_clicked() {
 //------------------------------------------------------------------------------
 void DialogBreakpoints::on_btnCondition_clicked() {
 	QList<QTableWidgetItem *> sel = ui->tableWidget->selectedItems();
-	if(sel.size() != 0) {
+	if(!sel.empty()) {
+		QTableWidgetItem *const item = sel[0];
 		bool ok;
-		const edb::address_t address = edb::v1::string_to_address(sel.begin()[0]->text(), &ok);
+		const edb::address_t address = item->data(Qt::UserRole).toULongLong();
+		const QString condition      = edb::v1::get_breakpoint_condition(address);
+		const QString text           = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, condition, &ok);
 		if(ok) {
-			const QString condition = edb::v1::get_breakpoint_condition(address);
-			const QString text = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, condition, &ok);
-		    if(ok) {
-				edb::v1::set_breakpoint_condition(address, text);
-				updateList();
-			}
+			edb::v1::set_breakpoint_condition(address, text);
+			updateList();
 		}
 	}
 }
@@ -163,14 +165,10 @@ void DialogBreakpoints::on_btnAddFunction_clicked() {
 //------------------------------------------------------------------------------
 void DialogBreakpoints::on_btnRemove_clicked() {
 	QList<QTableWidgetItem *> sel = ui->tableWidget->selectedItems();
-	Q_FOREACH(QTableWidgetItem *it, sel) {
-		if(it->column() == 0) { // address column
-			bool ok;
-			const edb::address_t address = edb::v1::string_to_address(it->text(), &ok);
-			if(ok) {
-				edb::v1::remove_breakpoint(address);
-			}
-		}
+	if(!sel.empty()) {
+		QTableWidgetItem *const item = sel[0];
+		const edb::address_t address = item->data(Qt::UserRole).toULongLong();
+		edb::v1::remove_breakpoint(address);
 	}
 	updateList();
 }
@@ -181,33 +179,24 @@ void DialogBreakpoints::on_btnRemove_clicked() {
 //------------------------------------------------------------------------------
 void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {
 	switch(col) {
-		case 0: // address
-		{
-			if(QTableWidgetItem *const address_item = ui->tableWidget->item(row, 0)) {
-				bool ok;
-				const edb::address_t address = edb::v1::string_to_address(address_item->text(), &ok);
-				if(ok) {
-					edb::v1::jump_to_address(address);
-				}
-			}
-			break;
+	case 0: // address
+		if(QTableWidgetItem *const address_item = ui->tableWidget->item(row, 0)) {
+			const edb::address_t address = address_item->data(Qt::UserRole).toULongLong();
+			edb::v1::jump_to_address(address);
 		}
-		case 1: // condition
-		{
-			if(QTableWidgetItem *const address_item = ui->tableWidget->item(row, 0)) {
-				bool ok;
-				const edb::address_t address = edb::v1::string_to_address(address_item->text(), &ok);
-				if(ok) {
-					const QString condition = edb::v1::get_breakpoint_condition(address);
-					const QString text = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, condition, &ok);
-					if(ok) {
-						edb::v1::set_breakpoint_condition(address, text);
-						updateList();
-					}
-				}
+		break;
+	case 1: // condition
+		if(QTableWidgetItem *const address_item = ui->tableWidget->item(row, 0)) {
+			bool ok;
+			const edb::address_t address = address_item->data(Qt::UserRole).toULongLong();
+			const QString condition      = edb::v1::get_breakpoint_condition(address);
+			const QString text           = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, condition, &ok);
+			if(ok) {
+				edb::v1::set_breakpoint_condition(address, text);
+				updateList();
 			}
-			break;
 		}
+		break;
 	}
 }
 
