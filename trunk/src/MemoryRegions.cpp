@@ -74,7 +74,6 @@ void MemoryRegions::sync() {
 
 	qSwap(regions_, regions);
 	endResetModel();
-
 }
 
 //------------------------------------------------------------------------------

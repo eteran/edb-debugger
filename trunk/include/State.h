@@ -23,10 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Register.h"
 #include "Types.h"
 
-#include <QString>
 #include <QMetaType>
 
 class IState;
+class QString;
 
 namespace DebuggerCore { class DebuggerCore; }
 

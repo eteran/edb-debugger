@@ -23,7 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 #include <QCoreApplication>
 #include <QStringList>
-#include <QVector>
 #include <QObject>
 
 class QByteArray;
