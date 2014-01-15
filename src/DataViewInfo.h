@@ -23,7 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RegionBuffer.h"
 #include "IRegion.h"
 #include <QSharedPointer>
-#include "QHexView"
+
+class QHexView;
 
 class DataViewInfo {
 public:

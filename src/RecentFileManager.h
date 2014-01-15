@@ -20,11 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define RECENTFILEMANAGER_20070430_H_
 
 #include <QStringList>
-#include <QString>
 #include <QWidget>
 
 class QMenu;
 class QWidget;
+class QString;
 
 class RecentFileManager : public QWidget {
 	Q_OBJECT

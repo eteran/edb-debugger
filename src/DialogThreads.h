@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGTHREADS_20101026_H_
-#define DIALOGTHREADS_20101026_H_
+#ifndef DIALOG_THREADS_20101026_H_
+#define DIALOG_THREADS_20101026_H_
 
 namespace Ui { class DialogThreads; }
 
