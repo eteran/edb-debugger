@@ -6,7 +6,7 @@ This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
 the Free Software Foundation, either version 2 of the License, or
 (at your option) any later version.
-
+length_disasm_back
 This program is distributed in the hope that it will be useful,
 but WITHOUT ANY WARRANTY; without even the implied warranty of
 MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
@@ -79,7 +79,6 @@ private:
 	QString format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, const QFontMetricsF &metrics) const;
 	QString format_invalid_instruction_bytes(const edb::Instruction &inst, QPainter &painter) const;
 	edb::address_t address_from_coord(int x, int y) const;
-	size_t length_disasm_back(const quint8 *buf, size_t size) const;
 	edb::address_t previous_instructions(edb::address_t current_address, int count);
 	edb::address_t following_instructions(edb::address_t current_address, int count);
 	int address_length() const;
