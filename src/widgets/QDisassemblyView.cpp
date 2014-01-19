@@ -119,9 +119,39 @@ bool near_line(int x, int linex) {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-int instruction_size(quint8 *buffer, std::size_t size) {
+int instruction_size(const quint8 *buffer, std::size_t size) {
 	edb::Instruction inst(buffer, buffer + size, 0, std::nothrow);
 	return inst.size();
+}
+
+//------------------------------------------------------------------------------
+// Name: length_disasm_back
+// Desc:
+//------------------------------------------------------------------------------
+size_t length_disasm_back(const quint8 *buf, size_t size) {
+
+	quint8 tmp[edb::Instruction::MAX_SIZE * 2];
+	Q_ASSERT(size <= sizeof(tmp));
+
+	int offs = 0;
+
+	memcpy(tmp, buf, size);
+
+	while(offs < edb::Instruction::MAX_SIZE) {
+
+		const edb::Instruction inst(tmp + offs, tmp + sizeof(tmp), 0, std::nothrow);
+		if(!inst) {
+			return 0;
+		}
+
+		const size_t cmdsize = inst.size();
+		offs += cmdsize;
+
+		if(offs == edb::Instruction::MAX_SIZE) {
+			return cmdsize;
+		}
+	}
+	return 0;
 }
 
 }
@@ -162,35 +192,7 @@ QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(paren
 QDisassemblyView::~QDisassemblyView() {
 }
 
-//------------------------------------------------------------------------------
-// Name: length_disasm_back
-// Desc:
-//------------------------------------------------------------------------------
-size_t QDisassemblyView::length_disasm_back(const quint8 *buf, size_t size) const {
 
-	quint8 tmp[edb::Instruction::MAX_SIZE * 2];
-	Q_ASSERT(size <= sizeof(tmp));
-
-	int offs = 0;
-
-	memcpy(tmp, buf, size);
-
-	while(offs < edb::Instruction::MAX_SIZE) {
-
-		const edb::Instruction inst(tmp + offs, tmp + sizeof(tmp), 0, std::nothrow);
-		if(!inst) {
-			return 0;
-		}
-
-		const size_t cmdsize = inst.size();
-		offs += cmdsize;
-
-		if(offs == edb::Instruction::MAX_SIZE) {
-			return cmdsize;
-		}
-	}
-	return 0;
-}
 
 //------------------------------------------------------------------------------
 // Name: previous_instructions
