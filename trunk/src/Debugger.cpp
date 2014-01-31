@@ -936,6 +936,19 @@ void Debugger::on_action_Configure_Debugger_triggered() {
 
 	// apply changes to the GUI options
 	apply_default_show_separator();
+	
+	
+	if(edb::v1::pointer_size() == 64) {
+		stack_view_->setAddressSize(QHexView::Address64);
+		Q_FOREACH(const DataViewInfo::pointer &data_view, data_regions_) {
+			data_view->view->setAddressSize(QHexView::Address64);
+		}
+	} else {
+		stack_view_->setAddressSize(QHexView::Address32);
+		Q_FOREACH(const DataViewInfo::pointer &data_view, data_regions_) {
+			data_view->view->setAddressSize(QHexView::Address32);
+		}
+	}
 
 	// show changes
 	refresh_gui();
