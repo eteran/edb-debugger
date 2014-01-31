@@ -1091,13 +1091,15 @@ edb::address_t Debugger::get_follow_address(const T &hexview, bool *ok) {
 	Q_ASSERT(ok);
 
 	*ok = false;
+	
+	const size_t pointer_size = edb::v1::pointer_size();
 
 	if(hexview->hasSelectedText()) {
 		const QByteArray data = hexview->selectedBytes();
 
 		if(data.size() == edb::v1::pointer_size()) {
 			edb::address_t d;
-			std::memcpy(&d, data.data(), edb::v1::pointer_size());
+			std::memcpy(&d, data.data(), pointer_size);
 
 			*ok = true;
 			return d;
@@ -1106,7 +1108,7 @@ edb::address_t Debugger::get_follow_address(const T &hexview, bool *ok) {
 
 	QMessageBox::information(this,
 		tr("Invalid Selection"),
-		tr("Please select %1 bytes to use this function.").arg(edb::v1::pointer_size()));
+		tr("Please select %1 bytes to use this function.").arg(pointer_size));
 
 	return 0;
 }
