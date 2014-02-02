@@ -597,19 +597,19 @@ QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instructio
 	switch(inst.size()) {
 	case 1:
 		painter.setPen(data_dis_color);
-		qsnprintf(byte_buffer, sizeof(byte_buffer), "db 0x%02x", *buf & 0xff);
+		qsnprintf(byte_buffer, sizeof(byte_buffer), "db 0x%02x", buf[0] & 0xff);
 		break;
 	case 2:
 		painter.setPen(data_dis_color);
-		qsnprintf(byte_buffer, sizeof(byte_buffer), "dw 0x%04x", *reinterpret_cast<const quint16 *>(buf) & 0xffff);
+		qsnprintf(byte_buffer, sizeof(byte_buffer), "dw 0x%02x%02x", buf[1] & 0xff, buf[0] & 0xff);
 		break;
 	case 4:
 		painter.setPen(data_dis_color);
-		qsnprintf(byte_buffer, sizeof(byte_buffer), "dd 0x%08x", *reinterpret_cast<const quint32 *>(buf) & 0xffffffff);
+		qsnprintf(byte_buffer, sizeof(byte_buffer), "dd 0x%02x%02x%02x%02x", buf[3] & 0xff, buf[2] & 0xff, buf[1] & 0xff, buf[0] & 0xff);
 		break;
 	case 8:
 		painter.setPen(data_dis_color);
-		qsnprintf(byte_buffer, sizeof(byte_buffer), "dq 0x%016llx", *reinterpret_cast<const quint64 *>(buf));
+		qsnprintf(byte_buffer, sizeof(byte_buffer), "dq 0x%02x%02x%02x%02x%02x%02x%02x%02x", buf[7] & 0xff, buf[6] & 0xff, buf[5] & 0xff, buf[4] & 0xff, buf[3] & 0xff, buf[2] & 0xff, buf[1] & 0xff, buf[0] & 0xff);
 		break;
 	default:
 		// we tried...didn't we?
