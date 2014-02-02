@@ -938,7 +938,7 @@ void Debugger::on_action_Configure_Debugger_triggered() {
 	apply_default_show_separator();
 	
 	
-	if(edb::v1::pointer_size() == 64) {
+	if(edb::v1::pointer_size() == sizeof(quint64)) {
 		stack_view_->setAddressSize(QHexView::Address64);
 		Q_FOREACH(const DataViewInfo::pointer &data_view, data_regions_) {
 			data_view->view->setAddressSize(QHexView::Address64);
