@@ -114,38 +114,6 @@ void DialogOptions::on_btnTTY_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnStackFont_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogOptions::on_btnStackFont_clicked() {
-	ui->txtStackFont->setText(font_from_dialog(ui->txtStackFont->text()));
-}
-
-//------------------------------------------------------------------------------
-// Name: on_btnMemoryFont_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogOptions::on_btnMemoryFont_clicked() {
-	ui->txtMemoryFont->setText(font_from_dialog(ui->txtMemoryFont->text()));
-}
-
-//------------------------------------------------------------------------------
-// Name: on_btnRegisterFont_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogOptions::on_btnRegisterFont_clicked() {
-	ui->txtRegisterFont->setText(font_from_dialog(ui->txtRegisterFont->text()));
-}
-
-//------------------------------------------------------------------------------
-// Name: on_btnDisFont_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogOptions::on_btnDisFont_clicked() {
-	ui->txtDisFont->setText(font_from_dialog(ui->txtDisFont->text()));
-}
-
-//------------------------------------------------------------------------------
 // Name: on_btnSymbolDir_clicked
 // Desc:
 //------------------------------------------------------------------------------
@@ -211,11 +179,11 @@ void DialogOptions::showEvent(QShowEvent *event) {
 
 	ui->spnMinString->setValue(config.min_string_length);
 
-	ui->txtStackFont->setText(config.stack_font);
-	ui->txtMemoryFont->setText(config.data_font);
-	ui->txtRegisterFont->setText(config.registers_font);
-	ui->txtDisFont->setText(config.disassembly_font);
-
+	ui->stackFont->setCurrentFont(config.stack_font);
+	ui->dataFont->setCurrentFont(config.data_font);
+	ui->registerFont->setCurrentFont(config.registers_font);
+	ui->disassemblyFont->setCurrentFont(config.disassembly_font);
+	
 	ui->txtSymbolDir->setText(config.symbol_path);
 	ui->txtPluginDir->setText(config.plugin_path);
 	ui->txtSessionDir->setText(config.session_path);
@@ -250,10 +218,10 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 		config.close_behavior = Configuration::Terminate;
 	}
 
-	config.stack_font            = ui->txtStackFont->text();
-	config.data_font             = ui->txtMemoryFont->text();
-	config.registers_font        = ui->txtRegisterFont->text();
-	config.disassembly_font      = ui->txtDisFont->text();
+	config.stack_font            = ui->stackFont->currentFont().toString();
+	config.data_font             = ui->dataFont->currentFont().toString();
+	config.registers_font        = ui->registerFont->currentFont().toString();
+	config.disassembly_font      = ui->disassemblyFont->currentFont().toString();
 	config.tty_command           = ui->txtTTY->text();
 	config.tty_enabled           = ui->chkTTY->isChecked();
 	config.zeros_are_filling     = ui->chkZerosAreFilling->isChecked();

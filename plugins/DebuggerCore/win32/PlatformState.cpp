@@ -318,7 +318,7 @@ edb::reg_t PlatformState::flags() const {
 // Desc:
 //------------------------------------------------------------------------------
 long double PlatformState::fpu_register(int n) const {
-double ret = 0.0;
+	double ret = 0.0;
 
 	if(n >= 0 && n <= 7) {
 #if defined(EDB_X86)
@@ -340,44 +340,47 @@ double ret = 0.0;
 	return ret;
 }
 
+//------------------------------------------------------------------------------
+// Name: mmx_register
+// Desc:
+//------------------------------------------------------------------------------
 quint64 PlatformState::mmx_register(int n) const {
 	quint64 ret = 0;
 
-	// TODO: actually check again for this again
-	if(true) {
-		if(n >= 0 && n <= 7) {
+	if(n >= 0 && n <= 7) {
 #if defined(EDB_X86)
-			// MMX registers are an alias to the lower 64-bits of the FPU regs
-			const quint64* p = reinterpret_cast<const quint64*>(&context_.FloatSave.RegisterArea[n*10]);
-			ret = *p; // little endian!
+		// MMX registers are an alias to the lower 64-bits of the FPU regs
+		const quint64* p = reinterpret_cast<const quint64*>(&context_.FloatSave.RegisterArea[n*10]);
+		ret = *p; // little endian!
 #elif defined(EDB_X86_64)
-			const quint64* p = reinterpret_cast<const quint64*>(&context_.FltSave.FloatRegisters[n]);
-			ret = *p;
+		const quint64* p = reinterpret_cast<const quint64*>(&context_.FltSave.FloatRegisters[n]);
+		ret = *p;
 #endif
-		}
 	}
 	return ret;
 }
 
+//------------------------------------------------------------------------------
+// Name: xmm_register
+// Desc:
+//------------------------------------------------------------------------------
 QByteArray PlatformState::xmm_register(int n) const {
 	QByteArray ret(16, 0);
 
-	// TODO: actually check again for this again
-	if(true) {
 #if defined(EDB_X86)
-		if(n >= 0 && n <= 7) {
-			const char* p = reinterpret_cast<const char*>(&context_.ExtendedRegisters[(10+n)*16]);
-			ret = QByteArray(p, 16);
-			std::reverse(ret.begin(), ret.end()); //little endian!
-		}
-#elif defined(EDB_X86_64)
-		if(n >= 0 && n <= 15) {
-			const char* p = reinterpret_cast<const char*>(&context_.FltSave.XmmRegisters[n]);
-			ret = QByteArray(p, sizeof(M128A));
-			std::reverse(ret.begin(), ret.end());
-		}
-#endif
+	if(n >= 0 && n <= 7) {
+		const char* p = reinterpret_cast<const char*>(&context_.ExtendedRegisters[(10+n)*16]);
+		ret = QByteArray(p, 16);
+		std::reverse(ret.begin(), ret.end()); //little endian!
 	}
+#elif defined(EDB_X86_64)
+	if(n >= 0 && n <= 15) {
+		const char* p = reinterpret_cast<const char*>(&context_.FltSave.XmmRegisters[n]);
+		ret = QByteArray(p, sizeof(M128A));
+		std::reverse(ret.begin(), ret.end());
+	}
+#endif
+
 	return ret;
 }
 

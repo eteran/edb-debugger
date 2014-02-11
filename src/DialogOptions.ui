@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>602</width>
+    <width>598</width>
     <height>387</height>
    </rect>
   </property>
@@ -82,85 +82,45 @@
       <layout class="QGridLayout" name="gridLayout">
        <item row="0" column="0" colspan="2">
         <layout class="QGridLayout">
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="txtStackFont"/>
+         <item row="1" column="1">
+          <widget class="FixedFontSelector" name="dataFont" native="true"/>
          </item>
-         <item row="3" column="2">
-          <widget class="QToolButton" name="btnDisFont">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
+         <item row="3" column="1">
+          <widget class="FixedFontSelector" name="disassemblyFont" native="true"/>
          </item>
          <item row="2" column="1">
-          <widget class="QLineEdit" name="txtRegisterFont"/>
+          <widget class="FixedFontSelector" name="registerFont" native="true"/>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="lblDisFont">
+          <widget class="QLabel" name="label_10">
            <property name="text">
             <string>Default Disassembly View Font</string>
-           </property>
-           <property name="buddy">
-            <cstring>txtDisFont</cstring>
            </property>
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QLabel" name="lblStackFont">
+          <widget class="QLabel" name="label_9">
            <property name="text">
             <string>Default Stack View Font</string>
-           </property>
-           <property name="buddy">
-            <cstring>txtStackFont</cstring>
            </property>
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="lblRegisterFont">
+          <widget class="QLabel" name="label_12">
            <property name="text">
             <string>Default Register View Font</string>
            </property>
-           <property name="buddy">
-            <cstring>txtRegisterFont</cstring>
-           </property>
           </widget>
          </item>
-         <item row="1" column="1">
-          <widget class="QLineEdit" name="txtMemoryFont"/>
-         </item>
          <item row="1" column="0">
-          <widget class="QLabel" name="lblMemFont">
+          <widget class="QLabel" name="label_11">
            <property name="text">
             <string>Default Memory Dump View Font</string>
            </property>
-           <property name="buddy">
-            <cstring>txtMemoryFont</cstring>
-           </property>
           </widget>
          </item>
-         <item row="2" column="2">
-          <widget class="QToolButton" name="btnRegisterFont">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="2">
-          <widget class="QToolButton" name="btnStackFont">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QLineEdit" name="txtDisFont"/>
-         </item>
-         <item row="1" column="2">
-          <widget class="QToolButton" name="btnMemoryFont">
-           <property name="text">
-            <string>...</string>
-           </property>
-          </widget>
+         <item row="0" column="1">
+          <widget class="FixedFontSelector" name="stackFont" native="true"/>
          </item>
         </layout>
        </item>
@@ -680,18 +640,18 @@
    </item>
   </layout>
  </widget>
+ <customwidgets>
+  <customwidget>
+   <class>FixedFontSelector</class>
+   <extends>QWidget</extends>
+   <header>FixedFontSelector.h</header>
+   <container>1</container>
+  </customwidget>
+ </customwidgets>
  <tabstops>
   <tabstop>tabWidget</tabstop>
   <tabstop>rdoDetach</tabstop>
   <tabstop>rdoKill</tabstop>
-  <tabstop>txtStackFont</tabstop>
-  <tabstop>btnStackFont</tabstop>
-  <tabstop>txtMemoryFont</tabstop>
-  <tabstop>btnMemoryFont</tabstop>
-  <tabstop>txtRegisterFont</tabstop>
-  <tabstop>btnRegisterFont</tabstop>
-  <tabstop>txtDisFont</tabstop>
-  <tabstop>btnDisFont</tabstop>
   <tabstop>chkDataShowAddress</tabstop>
   <tabstop>chkDataShowHex</tabstop>
   <tabstop>chkDataShowAscii</tabstop>
