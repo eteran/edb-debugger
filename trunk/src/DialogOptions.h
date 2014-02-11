@@ -32,10 +32,6 @@ public:
 	virtual ~DialogOptions();
 
 public Q_SLOTS:
-	void on_btnStackFont_clicked();
-	void on_btnMemoryFont_clicked();
-	void on_btnDisFont_clicked();
-	void on_btnRegisterFont_clicked();
 	void on_btnSymbolDir_clicked();
 	void on_btnPluginDir_clicked();
 	void on_btnTTY_clicked();

@@ -40,8 +40,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <asm/ldt.h>
 #include <pwd.h>
-
 #include <link.h>
+#include <cpuid.h> 
 #include <sys/mman.h>
 #include <sys/ptrace.h>
 #include <sys/user.h>
@@ -301,8 +301,36 @@ DebuggerCore::DebuggerCore() : binary_info_(0) {
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
-	Q_UNUSED(ext);
+
+
+
+#if !defined(EDB_X86_64)
+
+	quint32 eax;
+	quint32 ebx;
+	quint32 ecx;
+	quint32 edx; 
+	__cpuid(1, eax, ebx, ecx, edx);
+
+	switch(ext) {
+	case edb::string_hash<'M', 'M', 'X'>::value:
+		return (edx & bit_MMX);
+	case edb::string_hash<'X', 'M', 'M'>::value:
+		return (edx & bit_SSE);
+	default:
+		return false;
+	}
+
 	return false;
+#else
+	switch(ext) {
+	case edb::string_hash<'M', 'M', 'X'>::value:
+	case edb::string_hash<'X', 'M', 'M'>::value:
+		return true;
+	default:
+		return false;
+	}
+#endif
 }
 
 //------------------------------------------------------------------------------

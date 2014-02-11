@@ -216,7 +216,6 @@ void DialogAssembler::on_buttonBox_accepted() {
 			return;
 		}
 
-
 		QSettings settings;
 		const QString assembler = settings.value("Assembler/helper_application", "/usr/bin/yasm").toString();
 		const QFile file(assembler);

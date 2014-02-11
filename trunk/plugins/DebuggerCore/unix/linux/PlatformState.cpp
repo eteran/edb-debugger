@@ -385,7 +385,14 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 // Desc:
 //------------------------------------------------------------------------------
 quint64 PlatformState::mmx_register(int n) const {
-	Q_UNUSED(n);
+
+	if(n >= 0 && n <= 7) {
+		// MMX registers are an alias to the lower 64-bits of the FPU regs
+		// little endian!
+		const uint64_t *const p = reinterpret_cast<const uint64_t *>(fpregs_.st_space);
+		return p[n * 2];
+	}
+	
 	return 0;
 }
 
@@ -394,8 +401,19 @@ quint64 PlatformState::mmx_register(int n) const {
 // Desc:
 //------------------------------------------------------------------------------
 QByteArray PlatformState::xmm_register(int n) const {
-	Q_UNUSED(n);
-	return QByteArray();
+
+#if defined(EDB_X86)
+	if(n >= 0 && n <= 7) {
+#elif defined(EDB_X86_64)
+	if(n >= 0 && n <= 16) {
+#endif
+		// little endian!
+		const uint8_t *const p = reinterpret_cast<const uint8_t *>(fpregs_.xmm_space);
+		const uint8_t *r = &p[n * 16];
+		return QByteArray(reinterpret_cast<const char *>(r), 16);
+	}
+	
+	return 0;
 }
 
 }

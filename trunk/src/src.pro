@@ -41,9 +41,8 @@ HEADERS += \
 	DialogOptions.h \
 	DialogPlugins.h \
 	DialogThreads.h \
-	ThreadsModel.h \
-	ProcessModel.h \
 	Expression.h \
+	FixedFontSelector.h \
 	HexStringValidator.h \
 	IAnalyzer.h \
 	IBinary.h \
@@ -64,6 +63,7 @@ HEADERS += \
 	OSTypes.h \
 	PluginModel.h \
 	Process.h \
+	ProcessModel.h \
 	Prototype.h \
 	QDisassemblyView.h \
 	QLongValidator.h \
@@ -79,6 +79,7 @@ HEADERS += \
 	SymbolManager.h \
 	SyntaxHighlighter.h \
 	TabWidget.h \
+	ThreadsModel.h \
 	Types.h \
 	Util.h \
 	edb.h \
@@ -95,7 +96,8 @@ FORMS += \
 	DialogMemoryRegions.ui \
 	DialogOptions.ui \
 	DialogPlugins.ui \
-	DialogThreads.ui
+	DialogThreads.ui \
+	FixedFontSelector.ui
 
 SOURCES += \
 	ArchProcessor.cpp \
@@ -114,8 +116,7 @@ SOURCES += \
 	DialogOptions.cpp \
 	DialogPlugins.cpp \
 	DialogThreads.cpp \
-	ThreadsModel.cpp \
-	ProcessModel.cpp \
+	FixedFontSelector.cpp \
 	Function.cpp \
 	HexStringValidator.cpp \
 	Instruction.cpp \
@@ -123,6 +124,7 @@ SOURCES += \
 	MD5.cpp \
 	MemoryRegions.cpp \
 	PluginModel.cpp \
+	ProcessModel.cpp \
 	QDisassemblyView.cpp \
 	QLongValidator.cpp \
 	QULongValidator.cpp \
@@ -135,6 +137,7 @@ SOURCES += \
 	SymbolManager.cpp \
 	SyntaxHighlighter.cpp \
 	TabWidget.cpp \
+	ThreadsModel.cpp \
 	edb.cpp \
 	main.cpp
 
