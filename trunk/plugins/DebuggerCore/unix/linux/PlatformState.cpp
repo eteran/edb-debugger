@@ -410,7 +410,9 @@ QByteArray PlatformState::xmm_register(int n) const {
 		// little endian!
 		const uint8_t *const p = reinterpret_cast<const uint8_t *>(fpregs_.xmm_space);
 		const uint8_t *r = &p[n * 16];
-		return QByteArray(reinterpret_cast<const char *>(r), 16);
+		QByteArray ret(reinterpret_cast<const char *>(r), 16);
+		std::reverse(ret.begin(), ret.end());
+		return ret;
 	}
 	
 	return 0;
