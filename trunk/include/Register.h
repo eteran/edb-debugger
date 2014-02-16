@@ -33,6 +33,7 @@ public:
 		TYPE_SEG     = 0x0004,
 		TYPE_COND    = 0x0008,
 		TYPE_FPU     = 0x0010,
+		TYPE_SIMD    = 0x0020,
 		TYPE_ANY     = -1 // type_ can never be one of these
 	};
 
