@@ -157,14 +157,17 @@ edb::address_t ELF64::calculate_main() {
 		quint8 byte;
 		if(edb::v1::debugger_core->read_bytes(entry_point + i, &byte, sizeof(byte))) {
 			ba << byte;
+			
+			if(ba.size() >= 13) {
 
-			// beginning of a call preceeded by a 64-bit mov and followed by a hlt
-			if(ba[0] == 0x48 && ba[1] == 0xc7 && ba[7] == 0xe8 && ba[12] == 0xf4) {
-				// Seems that this 64-bit mov still has a 32-bit immediate
-				const edb::address_t address = *reinterpret_cast<const edb::address_t *>(ba.data() + 3) & 0xffffffff;
-				// TODO: make sure that this address resides in an executable region
-				qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
-				return address;
+				// beginning of a call preceeded by a 64-bit mov and followed by a hlt
+				if(ba[0] == 0x48 && ba[1] == 0xc7 && ba[7] == 0xe8 && ba[12] == 0xf4) {
+					// Seems that this 64-bit mov still has a 32-bit immediate
+					const edb::address_t address = *reinterpret_cast<const edb::address_t *>(ba.data() + 3) & 0xffffffff;
+					// TODO: make sure that this address resides in an executable region
+					qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
+					return address;
+				}
 			}
 		} else {
 			break;

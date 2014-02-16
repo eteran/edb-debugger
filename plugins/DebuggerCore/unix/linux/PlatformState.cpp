@@ -114,6 +114,7 @@ Register PlatformState::value(const QString &reg) const {
 	else if(lreg == "fs_base") return Register("fs_base", fs_base, Register::TYPE_SEG);
 	else if(lreg == "gs_base") return Register("gs_base", gs_base, Register::TYPE_SEG);
 	else if(lreg == "eflags")  return Register("eflags", regs_.eflags, Register::TYPE_COND);
+	else if(lreg == "mxcsr")   return Register("mxcsr", fpregs_.mxcsr, Register::TYPE_COND);
 #elif defined(EDB_X86_64)
 	if(lreg == "rax")          return Register("rax", regs_.rax, Register::TYPE_GPR);
 	else if(lreg == "rbx")     return Register("rbx", regs_.rbx, Register::TYPE_GPR);
@@ -193,6 +194,7 @@ Register PlatformState::value(const QString &reg) const {
 	else if(lreg == "fs_base") return Register("fs_base", regs_.fs_base, Register::TYPE_SEG);
 	else if(lreg == "gs_base") return Register("gs_base", regs_.gs_base, Register::TYPE_SEG);
 	else if(lreg == "rflags")  return Register("rflags", regs_.eflags, Register::TYPE_COND);
+	else if(lreg == "mxcsr")   return Register("mxcsr", fpregs_.mxcsr, Register::TYPE_COND);
 #endif
 
 	return Register();
@@ -352,6 +354,7 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 	else if(lreg == "gs") { regs_.xgs = value; }
 	else if(lreg == "ss") { regs_.xss = value; }
 	else if(lreg == "eflags") { regs_.eflags = value; }
+	else if(lreg == "mxcsr") { fpregs_.mxcsr = value; }
 #elif defined(EDB_X86_64)
 	if(lreg == "rax") { regs_.rax = value; }
 	else if(lreg == "rbx") { regs_.rbx = value; }
@@ -377,11 +380,12 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 	else if(lreg == "gs") { regs_.gs = value; }
 	else if(lreg == "ss") { regs_.ss = value; }
 	else if(lreg == "rflags") { regs_.eflags = value; }
+	else if(lreg == "mxcsr") { fpregs_.mxcsr = value; }
 #endif
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: mmx_register
 // Desc:
 //------------------------------------------------------------------------------
 quint64 PlatformState::mmx_register(int n) const {
@@ -397,7 +401,7 @@ quint64 PlatformState::mmx_register(int n) const {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: xmm_register
 // Desc:
 //------------------------------------------------------------------------------
 QByteArray PlatformState::xmm_register(int n) const {

@@ -113,8 +113,6 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 QString format_pointer(int pointer_level, edb::reg_t arg, QChar type) {
 	
 	Q_UNUSED(type);
-	Q_UNUSED(pointer_level);
-	Q_ASSERT(pointer_level >= 1);
 	
 	if(arg == 0) {
 		return "NULL";
@@ -692,6 +690,7 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 				register_view_items_[0x2d] = create_register_item(xmm, "xmm5");
 				register_view_items_[0x2e] = create_register_item(xmm, "xmm6");
 				register_view_items_[0x2f] = create_register_item(xmm, "xmm7");
+				register_view_items_[0x30] = create_register_item(xmm, "mxcsr");
 			}
 		}
 
@@ -804,6 +803,11 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 			register_view_items_[40 + i]->setText(0, QString("XMM%1: %2").arg(i).arg(current.toHex().constData()));
 			register_view_items_[40 + i]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
+		
+		const quint32 current = state["mxcsr"].value<edb::reg_t>();
+		const quint32 prev    = last_state_["mxcsr"].value<edb::reg_t>();
+		register_view_items_[0x30]->setText(0, QString("MXCSR: %1").arg(current, 0, 16));
+		register_view_items_[0x30]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 	}
 
 	const bool flags_changed = state.flags() != last_state_.flags();

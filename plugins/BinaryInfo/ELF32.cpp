@@ -158,12 +158,14 @@ edb::address_t ELF32::calculate_main() {
 		if(edb::v1::debugger_core->read_bytes(entry_point + i, &byte, sizeof(byte))) {
 			ba << byte;
 
-			// beginning of a call preceeded by a push and followed by a hlt
-			if(ba[0] == 0x68 && ba[5] == 0xe8 && ba[10] == 0xf4) {
-				const edb::address_t address = *reinterpret_cast<const edb::address_t *>(ba.data() + 1);
-				// TODO: make sure that this address resides in an executable region
-				qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
-				return address;
+			if(ba.size() >= 11) {
+				// beginning of a call preceeded by a push and followed by a hlt
+				if(ba[0] == 0x68 && ba[5] == 0xe8 && ba[10] == 0xf4) {
+					const edb::address_t address = *reinterpret_cast<const edb::address_t *>(ba.data() + 1);
+					// TODO: make sure that this address resides in an executable region
+					qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
+					return address;
+				}
 			}
 		} else {
 			break;
