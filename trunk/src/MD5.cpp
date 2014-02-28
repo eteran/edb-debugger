@@ -435,6 +435,10 @@ MD5 MD5::from_string(const QString &hash) {
 			md5.h_[i] |= (hash[6 + i * 8].isDigit() ? hash[6 + i * 8].toLatin1() - '0' : hash[6 + i * 8].toUpper().toLatin1() - 'A' + 10) << 0x04;
 			md5.h_[i] |= (hash[7 + i * 8].isDigit() ? hash[7 + i * 8].toLatin1() - '0' : hash[7 + i * 8].toUpper().toLatin1() - 'A' + 10) << 0x00;
 		}
+	} else {
+		for(int i = 0; i < 4; ++i) {
+			md5.h_[i] = 0;
+		}
 	}
 	return md5;
 }
