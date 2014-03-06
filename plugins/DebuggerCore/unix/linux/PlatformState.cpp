@@ -114,7 +114,9 @@ Register PlatformState::value(const QString &reg) const {
 	else if(lreg == "fs_base") return Register("fs_base", fs_base, Register::TYPE_SEG);
 	else if(lreg == "gs_base") return Register("gs_base", gs_base, Register::TYPE_SEG);
 	else if(lreg == "eflags")  return Register("eflags", regs_.eflags, Register::TYPE_COND);
+#if 0
 	else if(lreg == "mxcsr")   return Register("mxcsr", fpregs_.mxcsr, Register::TYPE_COND);
+#endif
 #elif defined(EDB_X86_64)
 	if(lreg == "rax")          return Register("rax", regs_.rax, Register::TYPE_GPR);
 	else if(lreg == "rbx")     return Register("rbx", regs_.rbx, Register::TYPE_GPR);
@@ -354,7 +356,9 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 	else if(lreg == "gs") { regs_.xgs = value; }
 	else if(lreg == "ss") { regs_.xss = value; }
 	else if(lreg == "eflags") { regs_.eflags = value; }
+#if 0
 	else if(lreg == "mxcsr") { fpregs_.mxcsr = value; }
+#endif
 #elif defined(EDB_X86_64)
 	if(lreg == "rax") { regs_.rax = value; }
 	else if(lreg == "rbx") { regs_.rbx = value; }
@@ -392,7 +396,6 @@ quint64 PlatformState::mmx_register(int n) const {
 
 	if(n >= 0 && n <= 7) {
 		// MMX registers are an alias to the lower 64-bits of the FPU regs
-		// little endian!
 		const uint64_t *const p = reinterpret_cast<const uint64_t *>(fpregs_.st_space);
 		return p[n * 2];
 	}
@@ -407,18 +410,16 @@ quint64 PlatformState::mmx_register(int n) const {
 QByteArray PlatformState::xmm_register(int n) const {
 
 #if defined(EDB_X86)
-	if(n >= 0 && n <= 7) {
 #elif defined(EDB_X86_64)
 	if(n >= 0 && n <= 16) {
-#endif
-		// little endian!
 		const uint8_t *const p = reinterpret_cast<const uint8_t *>(fpregs_.xmm_space);
 		const uint8_t *r = &p[n * 16];
 		QByteArray ret(reinterpret_cast<const char *>(r), 16);
+		// little endian!
 		std::reverse(ret.begin(), ret.end());
 		return ret;
 	}
-	
+#endif
 	return 0;
 }
 

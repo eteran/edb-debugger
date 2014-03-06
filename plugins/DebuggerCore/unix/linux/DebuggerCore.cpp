@@ -304,7 +304,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 
 
 
-#if !defined(EDB_X86_64)
+#if defined(EDB_X86)
 
 	quint32 eax;
 	quint32 ebx;
@@ -316,13 +316,13 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 	case edb::string_hash<'M', 'M', 'X'>::value:
 		return (edx & bit_MMX);
 	case edb::string_hash<'X', 'M', 'M'>::value:
-		return (edx & bit_SSE);
+		//return (edx & bit_SSE);
 	default:
 		return false;
 	}
 
 	return false;
-#else
+#elif defined(EDB_X86_64)
 	switch(ext) {
 	case edb::string_hash<'M', 'M', 'X'>::value:
 	case edb::string_hash<'X', 'M', 'M'>::value:
