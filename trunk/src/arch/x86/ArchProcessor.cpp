@@ -113,6 +113,7 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 QString format_pointer(int pointer_level, edb::reg_t arg, QChar type) {
 	
 	Q_UNUSED(type);
+	Q_UNUSED(pointer_level);
 	
 	if(arg == 0) {
 		return "NULL";
@@ -531,8 +532,7 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 
 	for(edb::address_t addr = start_address; addr < end_address; ++addr) {
-		int sz = sizeof(buffer);
-		if(edb::v1::get_instruction_bytes(addr, buffer, &sz)) {
+		if(const int sz = edb::v1::get_instruction_bytes(addr, buffer)) {
 			edb::Instruction inst(buffer, buffer + sz, addr, std::nothrow);
 			if(is_jump(inst)) {
 				const edb::Operand &operand = inst.operands()[0];

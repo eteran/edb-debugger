@@ -91,9 +91,7 @@ void DumpState::dump_code(const State &state) {
 
 	for(int i = 0; i < instructions_to_print + 1; ++i) {
 		quint8 buf[edb::Instruction::MAX_SIZE];
-		int size = sizeof(buf);
-
-		if(edb::v1::get_instruction_bytes(address, buf, &size)) {
+		if(const int size = edb::v1::get_instruction_bytes(address, buf)) {
 			edb::Instruction inst(buf, buf + size, address, std::nothrow);
 			if(inst) {
 				std::cout << ((address == ip) ? "> " : "  ") << hex_string(address) << ": " << to_string(inst) << "\n";
