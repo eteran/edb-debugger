@@ -30,7 +30,7 @@ public:
 
 public:
 	virtual edb::address_t address() const    { return address_; }
-	virtual unsigned int hit_count() const    { return hit_count_; }
+	virtual quint64 hit_count() const         { return hit_count_; }
 	virtual bool enabled() const              { return enabled_; }
 	virtual bool one_time() const             { return one_time_; }
 	virtual bool internal() const             { return internal_; }
@@ -49,7 +49,7 @@ public:
 private:
 	QByteArray     original_bytes_;
 	edb::address_t address_;
-	unsigned int   hit_count_;
+	quint64        hit_count_;
 	bool           enabled_ ;
 	bool           one_time_;
 	bool           internal_;

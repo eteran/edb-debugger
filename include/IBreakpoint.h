@@ -35,7 +35,7 @@ public:
 
 public:
 	virtual edb::address_t address() const = 0;
-	virtual unsigned int hit_count() const = 0;
+	virtual quint64 hit_count() const = 0;
 	virtual bool enabled() const = 0;
 	virtual bool one_time() const = 0;
 	virtual bool internal() const = 0;
@@ -50,6 +50,8 @@ public:
 
 public:
 	QString condition;
+	quint64 tag;
+	
 };
 
 #endif

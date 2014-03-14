@@ -145,6 +145,16 @@ EDB_EXPORT ISessionFile *session_file_handler();
 // reads up to size bytes from address (stores how many it could read in size)
 EDB_EXPORT bool get_instruction_bytes(address_t address, quint8 *buf, int *size);
 
+template <int N>
+EDB_EXPORT int get_instruction_bytes(address_t address, quint8 (&buffer)[N]) {
+	int size = N;
+	if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
+		return size;
+	}
+	
+	return 0;
+}
+
 EDB_EXPORT IBinary *get_binary_info(const IRegion::pointer &region);
 EDB_EXPORT const Prototype *get_function_info(const QString &function);
 

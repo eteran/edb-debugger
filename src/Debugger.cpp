@@ -101,9 +101,7 @@ namespace {
 bool is_instruction_ret(edb::address_t address) {
 
 	quint8 buffer[edb::Instruction::MAX_SIZE];
-	int size = sizeof(buffer);
-
-	if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
+	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 		edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
 		return is_ret(inst);
 	}
@@ -964,11 +962,8 @@ void Debugger::step_over(F1 run_func, F2 step_func) {
 	edb::v1::debugger_core->get_state(&state);
 
 	const edb::address_t ip = state.instruction_pointer();
-
 	quint8 buffer[edb::Instruction::MAX_SIZE];
-	int sz = sizeof(buffer);
-
-	if(edb::v1::get_instruction_bytes(ip, buffer, &sz)) {
+	if(const int sz = edb::v1::get_instruction_bytes(ip, buffer)) {
 		edb::Instruction inst(buffer, buffer + sz, 0, std::nothrow);
 		if(inst && edb::v1::arch_processor().can_step_over(inst)) {
 

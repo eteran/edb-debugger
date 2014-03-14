@@ -367,9 +367,7 @@ void create_breakpoint(address_t address) {
 				QMessageBox::Yes, QMessageBox::No);
 		} else {
 			quint8 buffer[Instruction::MAX_SIZE + 1];
-			int size = sizeof(buffer);
-
-			if(get_instruction_bytes(address, buffer, &size)) {
+			if(const int size = get_instruction_bytes(address, buffer)) {
 				Instruction inst(buffer, buffer + size, address, std::nothrow);
 				if(!inst) {
 					ret = QMessageBox::question(
