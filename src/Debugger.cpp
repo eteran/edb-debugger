@@ -972,11 +972,14 @@ void Debugger::step_over(F1 run_func, F2 step_func) {
 			if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(ip + inst.size())) {
 				bp->set_internal(true);
 				bp->set_one_time(true);
+				bp->tag = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
 				run_func();
 				return;
 			}
 		}
 	}
+
+	
 
 	// if all else fails, it's a step into
 	step_func();
@@ -2276,6 +2279,8 @@ void Debugger::set_initial_breakpoint(const QString &s) {
 	if(entryPoint != 0) {
 		if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(entryPoint)) {
 			bp->set_one_time(true);
+			bp->set_internal(true);
+			bp->tag = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
 		}
 	}
 }
