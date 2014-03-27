@@ -31,6 +31,7 @@ public:
 	typedef QSharedPointer<IBreakpoint> pointer;
 	
 public:
+	IBreakpoint() : tag(0) {}
 	virtual ~IBreakpoint() {}
 
 public:
