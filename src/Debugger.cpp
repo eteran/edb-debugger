@@ -81,19 +81,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 #endif
 
+namespace {
+
 #if defined(EDB_X86)
-	static const char instruction_pointer_name[] = "EIP";
-	static const char stack_pointer_name[]       = "ESP";
-	static const char frame_pointer_name[]       = "EBP";
-	static const char stack_type_name[]          = "DWORD";
+const char instruction_pointer_name[] = "EIP";
+const char stack_pointer_name[] 	  = "ESP";
+const char frame_pointer_name[] 	  = "EBP";
+const char stack_type_name[]		  = "DWORD";
 #elif defined(EDB_X86_64)
-	static const char instruction_pointer_name[] = "RIP";
-	static const char stack_pointer_name[]       = "RSP";
-	static const char frame_pointer_name[]       = "RBP";
-	static const char stack_type_name[]          = "QWORD";
+const char instruction_pointer_name[] = "RIP";
+const char stack_pointer_name[] 	  = "RSP";
+const char frame_pointer_name[] 	  = "RBP";
+const char stack_type_name[]		  = "QWORD";
 #endif
 
-namespace {
+const quint64 initial_bp_tag  = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
+const quint64 stepover_bp_tag = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
 
 //--------------------------------------------------------------------------
 // Name: is_instruction_ret
@@ -142,11 +145,10 @@ public:
 				// semantics).
 				if(last_call_return_ == 0) {
 					quint8 buffer[edb::Instruction::MAX_SIZE];
-					int sz = sizeof(buffer);
 
 					// if this some variant of a call, then we should
 					// record where we think it'll return to
-					if(edb::v1::get_instruction_bytes(address, buffer, &sz)) {
+					if(const int sz = edb::v1::get_instruction_bytes(address, buffer)) {
 						edb::Instruction inst(buffer, buffer + sz, 0, std::nothrow);
 						if(inst && edb::v1::arch_processor().can_step_over(inst)) {
 							last_call_return_ = address + inst.size();
@@ -972,7 +974,7 @@ void Debugger::step_over(F1 run_func, F2 step_func) {
 			if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(ip + inst.size())) {
 				bp->set_internal(true);
 				bp->set_one_time(true);
-				bp->tag = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
+				bp->tag = stepover_bp_tag;
 				run_func();
 				return;
 			}
@@ -2280,7 +2282,7 @@ void Debugger::set_initial_breakpoint(const QString &s) {
 		if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(entryPoint)) {
 			bp->set_one_time(true);
 			bp->set_internal(true);
-			bp->tag = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
+			bp->tag = initial_bp_tag;
 		}
 	}
 }
@@ -2622,7 +2624,7 @@ bool Debugger::dump_stack(edb::address_t address, bool scroll_to) {
 
 	if(stack_view_info_.region) {
 		stack_view_info_.update();
-		if(scroll_to || stack_view_info_.region != last_region) {
+		if(scroll_to || stack_view_info_.region->compare(last_region)) {
 			stack_view_->scrollTo(address - stack_view_info_.region->start());
 		}
 		return true;
