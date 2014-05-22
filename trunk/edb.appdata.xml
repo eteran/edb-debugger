@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Copyright 2014 Evan Teran <evan.teran@gmail.com> -->
+<application>
+	<id type="desktop">edb.desktop</id>
+	<metadata_license>CC0</metadata_license>
+	<project_license>GPL-2.0</project_license>
+	<name>edb</name>
+	<summary>A reverse engineer's debugger</summary>
+	<description>
+		<p>edb is a cross platform x86/x86-64 debugger. It was inspired by OllyDbg, but aims to function on x86 and x86-64 as well as multiple OS's.</p>
+		<p>Linux is the only officially supported platform at the moment, but FreeBSD, OpenBSD, OSX and Windows ports are underway with varying degrees of functionality.</p>
+	</description>
+	<screenshots>
+		<screenshot type="default" width="1121" height="839">http://codef00.com/img/debugger.png</screenshot>
+	</screenshots>
+	<url type="homepage">http://codef00.com/projects</url>
+	<updatecontact>evan.teran_at_gmail.com</updatecontact>
+</application>
+
