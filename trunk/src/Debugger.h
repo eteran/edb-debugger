@@ -211,8 +211,10 @@ private:
 	void do_jump_to_address(edb::address_t address, const IRegion::pointer &r, bool scroll_to);
 	void finish_plugin_setup();
 	void follow_register_in_dump(bool tabbed);
+	void load_session(const QString &session_file);
 	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode);
 	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced);
+	void save_session(const QString &session_file);
 	void set_debugger_caption(const QString &appname);
 	void set_initial_breakpoint(const QString &s);
 	void set_initial_debugger_state();
@@ -225,6 +227,7 @@ private:
 	void update_menu_state(GUI_STATE state);
 	void update_stack_view(const State &state);
 	void update_tab_caption(const QSharedPointer<QHexView> &view, edb::address_t start, edb::address_t end);
+
 
 private:
 	template <class F>

@@ -34,7 +34,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugEvent.h"
 #include "IDebuggerCore.h"
 #include "IPlugin.h"
-#include "ISessionFile.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"
 #include "QHexView"
@@ -2166,13 +2165,12 @@ QString Debugger::session_filename() const {
 //------------------------------------------------------------------------------
 void Debugger::detach_from_process(DETACH_ACTION kill) {
 
-	if(ISessionFile *const session_file = edb::v1::session_file_handler()) {
-		const QString filename = session_filename();
-		if(!filename.isEmpty()) {
-			session_file->save_session(filename, program_executable_);
-			program_executable_.clear();
-		}
+	const QString filename = session_filename();
+	if(!filename.isEmpty()) {
+		save_session(filename);
 	}
+
+	program_executable_.clear();
 
 	if(edb::v1::debugger_core) {
 		if(kill == KILL_ON_DETACH) edb::v1::debugger_core->kill();
@@ -2219,12 +2217,10 @@ void Debugger::set_initial_debugger_state() {
 	if(edb::v1::debugger_core->pid() != 0) {
 		program_executable_ = executable;
 	}
-
-	if(ISessionFile *const session_file = edb::v1::session_file_handler()) {
-		const QString filename = session_filename();
-		if(!filename.isEmpty()) {
-			session_file->load_session(filename, program_executable_);
-		}
+	
+	const QString filename = session_filename();
+	if(!filename.isEmpty()) {	
+		load_session(filename);
 	}
 
 	// create our binary info object for the primary code module
@@ -2724,4 +2720,20 @@ void Debugger::next_debug_event() {
 			break;
 		}
 	}
+}
+
+//------------------------------------------------------------------------------
+// Name: save_session
+// Desc:
+//------------------------------------------------------------------------------
+void Debugger::save_session(const QString &session_file) {
+	Q_UNUSED(session_file);
+}
+
+//------------------------------------------------------------------------------
+// Name: load_session
+// Desc:
+//------------------------------------------------------------------------------
+void Debugger::load_session(const QString &session_file) {
+	Q_UNUSED(session_file);
 }

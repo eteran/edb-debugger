@@ -57,7 +57,6 @@ namespace {
 
 	QAtomicPointer<IDebugEventHandler> g_DebugEventHandler = 0;
 	QAtomicPointer<IAnalyzer>          g_Analyzer          = 0;
-	QAtomicPointer<ISessionFile>       g_SessionHandler    = 0;
 	QHash<QString, QObject *>          g_GeneralPlugins;
 	BinaryInfoList                     g_BinaryInfoList;
 
@@ -209,27 +208,6 @@ IAnalyzer *analyzer() {
 	return g_Analyzer.load();
 #else
 	return g_Analyzer;
-#endif
-}
-
-//------------------------------------------------------------------------------
-// Name: set_session_file_handler
-// Desc:
-//------------------------------------------------------------------------------
-ISessionFile *set_session_file_handler(ISessionFile *p) {
-	Q_ASSERT(p);
-	return g_SessionHandler.fetchAndStoreAcquire(p);
-}
-
-//------------------------------------------------------------------------------
-// Name: session_file_handler
-// Desc:
-//------------------------------------------------------------------------------
-ISessionFile *session_file_handler() {
-#if QT_VERSION >= 0x050000
-	return g_SessionHandler.load();
-#else
-	return g_SessionHandler;
 #endif
 }
 

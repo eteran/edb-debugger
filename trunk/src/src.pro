@@ -52,7 +52,6 @@ HEADERS += \
 	IDebuggerCore.h \
 	IPlugin.h \
 	IRegion.h \
-	ISessionFile.h \
 	IState.h \
 	ISymbolManager.h \
 	Instruction.h \

@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QMenu;
 class QAction;
+class QByteArray;
 
 class IPlugin {
 public:
@@ -46,9 +47,12 @@ public:
 
 	// optional, overload this to add a page to the options dialog
 	virtual QWidget *options_page() { return 0; }
-	
+
 public:
-	
+	virtual QByteArray save_state() const          { return QByteArray(); }
+	virtual void restore_state(const QByteArray &) { }
+
+public:
 	enum ArgumentStatus {
 		ARG_SUCCESS,
 		ARG_ERROR,
