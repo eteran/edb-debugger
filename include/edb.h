@@ -38,7 +38,6 @@ class IBinary;
 class IDebugEventHandler;
 class IDebuggerCore;
 class IPlugin;
-class ISessionFile;
 class ISymbolManager;
 class MemoryRegions;
 class State;
@@ -138,9 +137,6 @@ EDB_EXPORT IDebugEventHandler *debug_event_handler();
 
 EDB_EXPORT IAnalyzer *set_analyzer(IAnalyzer *p);
 EDB_EXPORT IAnalyzer *analyzer();
-
-EDB_EXPORT ISessionFile *set_session_file_handler(ISessionFile *p);
-EDB_EXPORT ISessionFile *session_file_handler();
 
 // reads up to size bytes from address (stores how many it could read in size)
 EDB_EXPORT bool get_instruction_bytes(address_t address, quint8 *buf, int *size);

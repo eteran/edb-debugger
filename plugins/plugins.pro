@@ -17,7 +17,6 @@ SUBDIRS += \
 	ProcessProperties \
 	ROPTool \
 	References \
-	SessionManager \
 	SymbolViewer
 
 unix {
