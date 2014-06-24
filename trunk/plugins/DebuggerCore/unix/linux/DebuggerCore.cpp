@@ -1245,6 +1245,42 @@ QString DebuggerCore::format_pointer(edb::address_t address) const {
 	return buf;
 }
 
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+QString DebuggerCore::stack_pointer() const {
+#ifdef EDB_X86
+	return "esp";
+#elif defined(EDB_X86_64)
+	return "rsp";
+#endif
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+QString DebuggerCore::frame_pointer() const {
+#ifdef EDB_X86
+	return "ebp";
+#elif defined(EDB_X86_64)
+	return "rbp";
+#endif
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+QString DebuggerCore::instruction_pointer() const {
+#ifdef EDB_X86
+	return "eip";
+#elif defined(EDB_X86_64)
+	return "rip";
+#endif
+}
+
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(DebuggerCore, DebuggerCore)
 #endif

@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 DialogPlugins::DialogPlugins(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogPlugins) {
 	ui->setupUi(this);
 	
-	plugin_model_ = new PluginModel(this);
+	plugin_model_  = new PluginModel(this);
 	plugin_filter_ = new QSortFilterProxyModel(this);
 	
 	plugin_filter_->setSourceModel(plugin_model_);
