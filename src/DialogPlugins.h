@@ -28,6 +28,7 @@ namespace Ui { class DialogPlugins; }
 
 class DialogPlugins : public QDialog {
 	Q_OBJECT
+	Q_DISABLE_COPY(DialogPlugins);
 public:
 	DialogPlugins(QWidget *parent = 0, Qt::WindowFlags f = 0);
 	virtual ~DialogPlugins();

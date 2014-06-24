@@ -83,14 +83,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace {
 
 #if defined(EDB_X86)
-const char instruction_pointer_name[] = "EIP";
-const char stack_pointer_name[] 	  = "ESP";
-const char frame_pointer_name[] 	  = "EBP";
 const char stack_type_name[]		  = "DWORD";
 #elif defined(EDB_X86_64)
-const char instruction_pointer_name[] = "RIP";
-const char stack_pointer_name[] 	  = "RSP";
-const char frame_pointer_name[] 	  = "RBP";
 const char stack_type_name[]		  = "QWORD";
 #endif
 
@@ -1278,8 +1272,11 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	// TODO: add comment
 	//menu.addAction(tr("Add &Comment"), this, SLOT(""));
 	//menu.addSeparator();
+	
 	menu.addAction(tr("&Goto Address"), this, SLOT(mnuCPUJumpToAddress()));
-	menu.addAction(tr("&Goto %1").arg(instruction_pointer_name), this, SLOT(mnuCPUJumpToEIP()));
+	if(edb::v1::debugger_core) {
+		menu.addAction(tr("&Goto %1").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUJumpToEIP()));
+	}
 
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	int size                     = ui.cpuView->selectedSize();
@@ -1325,7 +1322,9 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	}
 
 	menu.addSeparator();
-	menu.addAction(tr("&Set %1 to this Instruction").arg(instruction_pointer_name), this, SLOT(mnuCPUSetEIP()));
+	if(edb::v1::debugger_core) {
+		menu.addAction(tr("&Set %1 to this Instruction").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUSetEIP()));
+	}
 	menu.addSeparator();
 	menu.addAction(tr("&Edit Bytes"), this, SLOT(mnuCPUModify()));
 	menu.addAction(tr("&Fill with 00's"), this, SLOT(mnuCPUFillZero()));
@@ -1393,8 +1392,10 @@ void Debugger::mnuStackContextMenu(const QPoint &pos) {
 	menu->addAction(tr("Follow Address In &Dump"), this, SLOT(mnuStackFollowInDump()));
 	menu->addAction(tr("Follow Address In &Stack"), this, SLOT(mnuStackFollowInStack()));
 	menu->addAction(tr("&Goto Address"), this, SLOT(mnuStackGotoAddress()));
-	menu->addAction(tr("Goto %1").arg(stack_pointer_name), this, SLOT(mnuStackGotoESP()));
-	menu->addAction(tr("Goto %1").arg(frame_pointer_name), this, SLOT(mnuStackGotoEBP()));
+	if(edb::v1::debugger_core) {
+		menu->addAction(tr("Goto %1").arg(edb::v1::debugger_core->stack_pointer().toUpper()), this, SLOT(mnuStackGotoESP()));
+		menu->addAction(tr("Goto %1").arg(edb::v1::debugger_core->frame_pointer().toUpper()), this, SLOT(mnuStackGotoEBP()));
+	}
 
 	menu->addSeparator();
 	menu->addAction(tr("&Edit Bytes"), this, SLOT(mnuStackModify()));

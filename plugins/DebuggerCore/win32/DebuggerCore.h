@@ -80,7 +80,12 @@ public:
 private:
 	virtual QMap<edb::pid_t, Process> enumerate_processes() const;
 	virtual QList<Module> loaded_modules() const;
-	
+
+public:
+	virtual QString stack_pointer() const;
+	virtual QString frame_pointer() const;
+	virtual QString instruction_pointer() const;
+
 public:
 	virtual QString format_pointer(edb::address_t address) const;
 	

@@ -180,7 +180,7 @@ QString process_socket_file(const QString &filename, QString *symlink, int sock,
 		QString line;
 
 		// ditch first line, it is just table headings
-		line = in.readLine();
+		in.readLine();
 
 		// read in the first line we care about
 		line = in.readLine();

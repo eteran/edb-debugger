@@ -19,12 +19,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PluginModel.h"
 #include <QtAlgorithms>
 
+//------------------------------------------------------------------------------
+// Name: PluginModel
+// Desc:
+//------------------------------------------------------------------------------
 PluginModel::PluginModel(QObject *parent) : QAbstractItemModel(parent) {
 }
 
+//------------------------------------------------------------------------------
+// Name: ~PluginModel
+// Desc:
+//------------------------------------------------------------------------------
 PluginModel::~PluginModel() {
 }
 
+//------------------------------------------------------------------------------
+// Name: index
+// Desc:
+//------------------------------------------------------------------------------
 QModelIndex PluginModel::index(int row, int column, const QModelIndex &parent) const {
 	Q_UNUSED(parent);
 
@@ -39,11 +51,19 @@ QModelIndex PluginModel::index(int row, int column, const QModelIndex &parent) c
 	}
 }
 
+//------------------------------------------------------------------------------
+// Name: parent
+// Desc:
+//------------------------------------------------------------------------------
 QModelIndex PluginModel::parent(const QModelIndex &index) const {
 	Q_UNUSED(index);
 	return QModelIndex();
 }
 
+//------------------------------------------------------------------------------
+// Name: data
+// Desc:
+//------------------------------------------------------------------------------
 QVariant PluginModel::data(const QModelIndex &index, int role) const {
 
 	if(index.isValid()) {
@@ -67,6 +87,10 @@ QVariant PluginModel::data(const QModelIndex &index, int role) const {
 	return QVariant();
 }
 
+//------------------------------------------------------------------------------
+// Name: headerData
+// Desc:
+//------------------------------------------------------------------------------
 QVariant PluginModel::headerData(int section, Qt::Orientation orientation, int role) const {
 
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
@@ -85,16 +109,28 @@ QVariant PluginModel::headerData(int section, Qt::Orientation orientation, int r
 	return QVariant();
 }
 
+//------------------------------------------------------------------------------
+// Name: columnCount
+// Desc:
+//------------------------------------------------------------------------------
 int PluginModel::columnCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent);
 	return 4;
 }
 
+//------------------------------------------------------------------------------
+// Name: rowCount
+// Desc:
+//------------------------------------------------------------------------------
 int PluginModel::rowCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent);
 	return items_.size();
 }
 
+//------------------------------------------------------------------------------
+// Name: addPlugin
+// Desc:
+//------------------------------------------------------------------------------
 void PluginModel::addPlugin(const QString &filename, const QString &plugin, const QString &author, const QString &url) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());	
 	
@@ -105,6 +141,10 @@ void PluginModel::addPlugin(const QString &filename, const QString &plugin, cons
 	endInsertRows();
 }
 
+//------------------------------------------------------------------------------
+// Name: clear
+// Desc:
+//------------------------------------------------------------------------------
 void PluginModel::clear() {
 	beginRemoveRows(QModelIndex(), 0, rowCount());	
 	items_.clear();
