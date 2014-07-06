@@ -42,6 +42,10 @@ public:
 	Register(const QString &name, edb::reg_t value, Type type);
 	Register(const Register &other);
 	Register &operator=(const Register &rhs);
+	
+#ifdef Q_COMPILER_RVALUE_REFS
+
+#endif
 
 public:
 	bool operator==(const Register &rhs) const;

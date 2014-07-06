@@ -25,10 +25,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 
 class EDB_EXPORT ByteShiftArray {
+	Q_DISABLE_COPY(ByteShiftArray)
 public:
 	explicit ByteShiftArray(int size);
-	ByteShiftArray(const ByteShiftArray& other);
-	ByteShiftArray &operator=(const ByteShiftArray &other);
 
 public:
 	ByteShiftArray &shl();

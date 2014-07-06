@@ -11,6 +11,13 @@ greaterThan(QT_MAJOR_VERSION, 4) {
 	CONFIG += c++11
 }
 
+linux-g++ {
+    system(g++ -dumpversion | grep -e "^4\\.[7-9]\\.[0-9]$" > /dev/null) {
+		QMAKE_CXXFLAGS += -std=c++11
+	}
+}
+
+
 # ignore missing symbols, they'll be found when linked into edb
 linux-g++*: QMAKE_LFLAGS -= $$QMAKE_LFLAGS_NOUNDEF
 linux-g++*: QMAKE_LFLAGS -= "-Wl,--no-undefined"
