@@ -51,6 +51,7 @@ class QDropEvent;
 
 class Debugger : public QMainWindow, public IDebugEventHandler {
 	Q_OBJECT
+	Q_DISABLE_COPY(Debugger)
 
 private:
 	friend class RunUntilRet;

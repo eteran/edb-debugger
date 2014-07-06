@@ -26,24 +26,6 @@ ByteShiftArray::ByteShiftArray(int size) : max_size_(size) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ByteShiftArray
-// Desc: copy constructor
-//------------------------------------------------------------------------------
-ByteShiftArray::ByteShiftArray(const ByteShiftArray& other) : data_(other.data_), max_size_(other.max_size_) {
-}
-
-//------------------------------------------------------------------------------
-// Name: operator=
-// Desc: assignment operator
-//------------------------------------------------------------------------------
-ByteShiftArray &ByteShiftArray::operator=(const ByteShiftArray &other) {
-	if(&other != this) {
-		ByteShiftArray(other).swap(*this);
-	}
-	return *this;
-}
-
-//------------------------------------------------------------------------------
 // Name: swap
 // Desc:
 //------------------------------------------------------------------------------

@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QTreeView;
 
 class RegisterViewDelegate: public QItemDelegate {
+	Q_DISABLE_COPY(RegisterViewDelegate)
 public:
     RegisterViewDelegate(QTreeView *view, QWidget *parent);
 	virtual ~RegisterViewDelegate();

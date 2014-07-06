@@ -33,12 +33,10 @@ class State;
 
 class ArchProcessor : public QObject {
 	Q_OBJECT
+	Q_DISABLE_COPY(ArchProcessor)
 public:
 	ArchProcessor();
 	virtual ~ArchProcessor() {}
-
-private:
-	Q_DISABLE_COPY(ArchProcessor)
 
 public:
 	QStringList update_instruction_info(edb::address_t address);
