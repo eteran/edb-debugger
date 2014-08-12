@@ -100,11 +100,11 @@ QMenu *Analyzer::menu(QWidget *parent) {
 	if(!menu_) {
 		menu_ = new QMenu(tr("Analyzer"), parent);
 		menu_->addAction(tr("Show &Specified Functions"), this, SLOT(show_specified()));
-#if defined(EDB_X86)
-		menu_->addAction(tr("&Analyze EIP's Region"), this, SLOT(do_ip_analysis()), QKeySequence(tr("Ctrl+A")));
-#elif defined(EDB_X86_64)
-		menu_->addAction(tr("&Analyze RIP's Region"), this, SLOT(do_ip_analysis()), QKeySequence(tr("Ctrl+A")));
-#endif
+				
+		if(edb::v1::debugger_core) {
+			menu_->addAction(tr("&Analyze %1's Region").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(do_ip_analysis()), QKeySequence(tr("Ctrl+A")));
+		}
+		
 		menu_->addAction(tr("&Analyze Viewed Region"), this, SLOT(do_view_analysis()), QKeySequence(tr("Ctrl+Shift+A")));
 
 		// if we are dealing with a main window (and we are...)
