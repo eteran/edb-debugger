@@ -92,18 +92,18 @@ void DialogAssembler::on_buttonBox_accepted() {
 
 	static const QString assembly_regex   = QString("%1(?:\\s+%2\\s*(?:\\s*,\\s*%2\\s*(?:\\s*,\\s*%2\\s*)?)?)?").arg(mnemonic_regex, operand_regex);
 
-//	[                 OFFSET]
-//	[     INDEX             ]
-//	[     INDEX      +OFFSET]
-//	[     INDEX*SCALE       ]
-//	[     INDEX*SCALE+OFFSET]
-//	[BASE                   ]
-//	[BASE            +OFFSET]
-//	[BASE+INDEX             ]
-//	[BASE+INDEX      +OFFSET]
-//	[BASE+INDEX*SCALE       ]
-//	[BASE+INDEX*SCALE+OFFSET]
-//  -------------------------
+// [                 OFFSET]
+// [     INDEX             ]
+// [     INDEX      +OFFSET]
+// [     INDEX*SCALE       ]
+// [     INDEX*SCALE+OFFSET]
+// [BASE                   ]
+// [BASE            +OFFSET]
+// [BASE+INDEX             ]
+// [BASE+INDEX      +OFFSET]
+// [BASE+INDEX*SCALE       ]
+// [BASE+INDEX*SCALE+OFFSET]
+// -------------------------
 // [((BASE(\+INDEX(\*SCALE)?)?(\+OFFSET)?)|((INDEX(\*SCALE)?)(\+OFFSET)?)|(OFFSET))]
 
 
@@ -220,7 +220,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 			QMessageBox::warning(this, tr("Couldn't Find Assembler"), tr("Failed to locate your assembler, please specify one in the options."));
 			return;
 		}
-		
+
 		const QFileInfo info(assembler);
 
 		QProcess process;
@@ -228,7 +228,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 		QString program(assembler);
 
 		if(info.fileName() == "yasm") {
-		
+
 			switch(edb::v1::debugger_core->cpu_type()) {
 			case edb::string_hash<'x', '8', '6'>::value:
 				source_file.write("[BITS 32]\n");
@@ -239,7 +239,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 			default:
 				Q_ASSERT(0);
 			}
-			
+
 			source_file.write(QString("[SECTION .text vstart=0x%1 valign=1]\n\n").arg(edb::v1::format_pointer(address_)).toLatin1());
 			source_file.write(nasm_syntax.toLatin1());
 			source_file.write("\n");
@@ -249,7 +249,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 			arguments << "-f" << "bin";
 			arguments << source_file.fileName();
 		} else if(info.fileName() == "nasm") {
-			
+
 			switch(edb::v1::debugger_core->cpu_type()) {
 			case edb::string_hash<'x', '8', '6'>::value:
 				source_file.write("[BITS 32]\n");
@@ -260,13 +260,13 @@ void DialogAssembler::on_buttonBox_accepted() {
 			default:
 				Q_ASSERT(0);
 			}
-			
+
 			source_file.write(QString("ORG 0x%1\n\n").arg(edb::v1::format_pointer(address_)).toLatin1());
 			source_file.write(nasm_syntax.toLatin1());
 			source_file.write("\n");
 			source_file.close();
 
-			
+
 			arguments << "-o" << output_file.fileName();
 			arguments << "-f" << "bin";
 			arguments << source_file.fileName();
@@ -282,7 +282,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 				QMessageBox::warning(this, tr("Error In Code"), process.readAllStandardError());
 			} else {
 				QByteArray bytes = output_file.readAll();
-				
+
 				if(bytes.size() <= instruction_size_) {
 					if(ui->fillWithNOPs->isChecked()) {
 						// TODO: get system independent nop-code

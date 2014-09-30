@@ -22,23 +22,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCore {
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 PlatformEvent::PlatformEvent() : event(DEBUG_EVENT()) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 PlatformEvent *PlatformEvent::clone() const {
 	return new PlatformEvent(*this);
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 IDebugEvent::Message PlatformEvent::error_description() const {
 	Q_ASSERT(is_error());
@@ -182,8 +182,8 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 IDebugEvent::REASON PlatformEvent::reason() const {
 	switch(event.dwDebugEventCode) {
@@ -210,8 +210,8 @@ IDebugEvent::REASON PlatformEvent::reason() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 IDebugEvent::TRAP_REASON PlatformEvent::trap_reason() const {
 	switch(event.dwDebugEventCode) {
@@ -227,16 +227,16 @@ IDebugEvent::TRAP_REASON PlatformEvent::trap_reason() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 bool PlatformEvent::exited() const {
 	return reason() == EVENT_EXITED;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 bool PlatformEvent::is_error() const {
 	switch(event.dwDebugEventCode) {
@@ -281,24 +281,24 @@ bool PlatformEvent::is_error() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 bool PlatformEvent::is_kill() const {
 	return false;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 bool PlatformEvent::is_stop() const {
 	return !is_trap();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 bool PlatformEvent::is_trap() const {
 	if(stopped()) {
@@ -314,54 +314,54 @@ bool PlatformEvent::is_trap() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 bool PlatformEvent::terminated() const {
 	return reason() == EVENT_TERMINATED;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 bool PlatformEvent::stopped() const {
 	return reason() == EVENT_STOPPED;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 edb::pid_t PlatformEvent::process() const {
 	return event.dwProcessId;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 edb::tid_t PlatformEvent::thread() const {
 	return event.dwThreadId;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 int PlatformEvent::code() const {
 	if(stopped()) {
 		return event.u.Exception.ExceptionRecord.ExceptionCode;
 	}
-	
+
 	if(terminated()) {
 		return event.u.Exception.ExceptionRecord.ExceptionCode;
 	}
-	
+
 	if(exited()) {
 		return event.u.ExitProcess.dwExitCode;
 	}
-	
+
 	return 0;
 }
 

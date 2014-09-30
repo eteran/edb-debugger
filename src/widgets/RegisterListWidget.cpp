@@ -69,7 +69,7 @@ void RegisterListWidget::handleMousePress(QTreeWidgetItem *item) {
 //------------------------------------------------------------------------------
 void RegisterListWidget::mouseDoubleClickEvent(QMouseEvent *event) {
 	if(QTreeWidgetItem *const p = itemAt(event->pos())) {
-		emit itemDoubleClicked(p, 0);
+		Q_EMIT itemDoubleClicked(p, 0);
 	}
 }
 

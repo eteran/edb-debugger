@@ -120,7 +120,7 @@ void load_function_db() {
 
 				QDomElement argument = function.firstChildElement("argument");
 				for (; !argument.isNull(); argument = argument.nextSiblingElement("argument")) {
-					
+
 					Argument arg;
 					arg.name = argument.attribute("name");
 					arg.type = argument.attribute("type");
@@ -1122,16 +1122,16 @@ address_t string_to_address(const QString &s, bool *ok) {
 //------------------------------------------------------------------------------
 QString format_bytes(const QByteArray &x) {
 	QString bytes;
-	
+
 	if(!x.isEmpty()) {
 		bytes.reserve(x.size() * 4);
 
 		QByteArray::const_iterator it = x.begin();
-		
+
 		char buf[4];
 		qsnprintf(buf, sizeof(buf), "%02x", *it++ & 0xff);
 		bytes += buf;
-		
+
 		while(it != x.end()) {
 			qsnprintf(buf, sizeof(buf), " %02x", *it++ & 0xff);
 			bytes += buf;
@@ -1206,7 +1206,7 @@ QWidget *disassembly_widget() {
 // Desc:
 //------------------------------------------------------------------------------
 QVector<quint8> read_pages(address_t address, size_t page_count) {
-	
+
 	if(debugger_core) {
 		try {
 			const address_t page_size = debugger_core->page_size();
@@ -1218,12 +1218,12 @@ QVector<quint8> read_pages(address_t address, size_t page_count) {
 
 
 		} catch(const std::bad_alloc &) {
-			QMessageBox::information(0, 
+			QMessageBox::information(0,
 				QT_TRANSLATE_NOOP("edb", "Memroy Allocation Error"),
 				QT_TRANSLATE_NOOP("edb", "Unable to satisfy memory allocation request for requested region->"));
 		}
 	}
-	
+
 	return QVector<quint8>();
 }
 

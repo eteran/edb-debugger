@@ -22,21 +22,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCore {
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 PlatformEvent::PlatformEvent() : pid_(0), tid_(0), status_(0) {
 	std::memset(&siginfo_, 0, sizeof(siginfo_t));
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 PlatformEvent *PlatformEvent::clone() const {
 	return new PlatformEvent(*this);
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 IDebugEvent::Message PlatformEvent::error_description() const {
 	Q_ASSERT(is_error());
@@ -112,7 +112,7 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 IDebugEvent::REASON PlatformEvent::reason() const {
 	// this basically converts our value into a 'switchable' value for convenience
@@ -129,7 +129,7 @@ IDebugEvent::REASON PlatformEvent::reason() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 IDebugEvent::TRAP_REASON PlatformEvent::trap_reason() const {
 	switch(siginfo_.si_code) {
@@ -139,14 +139,14 @@ IDebugEvent::TRAP_REASON PlatformEvent::trap_reason() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 bool PlatformEvent::exited() const {
 	return WIFEXITED(status_) != 0;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 bool PlatformEvent::is_error() const {
 	if(stopped()) {
@@ -173,70 +173,70 @@ bool PlatformEvent::is_error() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 bool PlatformEvent::is_kill() const {
 	return stopped() && code() == SIGKILL;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 bool PlatformEvent::is_stop() const {
 	return stopped() && code() == SIGSTOP;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 bool PlatformEvent::is_trap() const {
 	return stopped() && code() == SIGTRAP;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 bool PlatformEvent::terminated() const {
 	return WIFSIGNALED(status_) != 0;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 bool PlatformEvent::stopped() const {
 	return WIFSTOPPED(status_) != 0;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 edb::pid_t PlatformEvent::process() const {
 	return pid_;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 edb::tid_t PlatformEvent::thread() const {
 	return tid_;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 int PlatformEvent::code() const {
 	if(stopped()) {
 		return WSTOPSIG(status_);
 	}
-	
+
 	if(terminated()) {
 		return WTERMSIG(status_);
 	}
-	
+
 	if(exited()) {
 		return WEXITSTATUS(status_);
 	}
-	
+
 	return 0;
 }
 

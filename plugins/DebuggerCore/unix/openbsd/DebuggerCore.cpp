@@ -123,7 +123,7 @@ ssize_t load_vmmap_entries(kvm_t *kd, u_long kptr, struct vm_map_entry **rptr, s
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc: Free the vmmap entries in the given tree.
 //------------------------------------------------------------------------------
 void unload_vmmap_entries(struct vm_map_entry *entry) {
@@ -136,7 +136,7 @@ void unload_vmmap_entries(struct vm_map_entry *entry) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc: Don't implement address comparison.
 //------------------------------------------------------------------------------
 int no_impl(void *p, void *q) {
@@ -167,8 +167,8 @@ DebuggerCore::DebuggerCore() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
 	return false;
@@ -248,7 +248,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 
 	Q_ASSERT(ok);
-	
+
 	errno = 0;
 	const long v = ptrace(PT_READ_D, pid(), reinterpret_cast<char*>(address), 0);
 	SET_OK(*ok, v);
@@ -289,9 +289,9 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 //------------------------------------------------------------------------------
 void DebuggerCore::detach() {
 	if(attached()) {
-	
+
 		// TODO: do i need to stop each thread first, and wait for them?
-	
+
 		clear_breakpoints();
 		ptrace(PT_DETACH, pid(), 0, 0);
 		pid_ = 0;
@@ -362,9 +362,9 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::get_state(State *state) {
-	
+
 	Q_ASSERT(state);
-	
+
 	// TODO: assert that we are paused
 	PlatformState *const state_impl = static_cast<PlatformState *>(state->impl_);
 
@@ -489,7 +489,7 @@ IState *DebuggerCore::create_state() const {
 //------------------------------------------------------------------------------
 QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	QMap<edb::pid_t, Process> ret;
-	
+
 	char ebuffer[_POSIX2_LINE_MAX];
 	int numprocs;
 
@@ -508,12 +508,12 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	} else {
 		QMessageBox::warning(0, "Error Listing Processes", ebuffer);
 	}
-	
+
 	return ret;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::process_exe(edb::pid_t pid) const {
@@ -535,7 +535,7 @@ QString DebuggerCore::process_exe(edb::pid_t pid) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::process_cwd(edb::pid_t pid) const {
@@ -544,7 +544,7 @@ QString DebuggerCore::process_cwd(edb::pid_t pid) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
@@ -560,7 +560,7 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QList<IRegion::pointer> DebuggerCore::memory_regions() const {
@@ -576,7 +576,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 			Q_ASSERT(proc);
 
 			struct vmspace vmsp;
-			
+
 
 			kvm_read(kd, proc->p_vmspace, &vmsp, sizeof vmsp);
 
@@ -592,14 +592,14 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 				const edb::address_t end                 = e->end;
 				const edb::address_t base                = e->offset;
 				const QString name                       = QString();
-				const IRegion::permissions_t permissions = 
+				const IRegion::permissions_t permissions =
 					((e->protection & VM_PROT_READ)    ? PROT_READ  : 0) |
 					((e->protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
 					((e->protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
 
 				regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
 			}
-			
+
 do_unload:
 			unload_vmmap_entries(RB_ROOT(&root));
 #else
@@ -607,12 +607,12 @@ do_unload:
 			if(vmsp.vm_map.header.next != 0) {
 				kvm_read(kd, (u_long)vmsp.vm_map.header.next, &e, sizeof(e));
 				while(e.next != vmsp.vm_map.header.next) {
-				
+
 					const edb::address_t start               = e.start;
 					const edb::address_t end                 = e.end;
 					const edb::address_t base                = e.offset;
 					const QString name                       = QString();
-					const IRegion::permissions_t permissions = 
+					const IRegion::permissions_t permissions =
 						((e.protection & VM_PROT_READ)    ? PROT_READ  : 0) |
 						((e.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
 						((e.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
@@ -633,7 +633,7 @@ do_unload:
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {

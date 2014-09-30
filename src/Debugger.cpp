@@ -83,9 +83,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace {
 
 #if defined(EDB_X86)
-const char stack_type_name[]		  = "DWORD";
+const char stack_type_name[] = "DWORD";
 #elif defined(EDB_X86_64)
-const char stack_type_name[]		  = "QWORD";
+const char stack_type_name[] = "QWORD";
 #endif
 
 const quint64 initial_bp_tag  = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
@@ -189,7 +189,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 		del_tab_(0),
 		tty_proc_(new QProcess(this)),
 		gui_state_(TERMINATED),
-		stack_view_info_(IRegion::pointer()), 
+		stack_view_info_(IRegion::pointer()),
 		arguments_dialog_(new DialogArguments),
 		timer_(new QTimer(this)),
 		recent_file_manager_(new RecentFileManager(this)),
@@ -221,13 +221,13 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 
 	// make us the default event handler
 	edb::v1::set_debug_event_handler(this);
-	
+
 	// enable the arch processor
 	edb::v1::arch_processor().setup_register_view(ui.registerList);
 
 	// default the working directory to ours
 	working_directory_ = QDir().absolutePath();
-	
+
 	// let the plugins setup their menus
 	finish_plugin_setup();
 }
@@ -616,7 +616,7 @@ void Debugger::setup_ui() {
 #if 0
 	if(edb::v1::debugger_core) {
 		if(RegisterListWidget *const register_list = qobject_cast<RegisterListWidget *>(edb::v1::debugger_core->create_register_view())) {
-		
+
 			delete ui.registerList;
 
 			ui.registerList = register_list;
@@ -929,8 +929,8 @@ void Debugger::on_action_Configure_Debugger_triggered() {
 
 	// apply changes to the GUI options
 	apply_default_show_separator();
-	
-	
+
+
 	if(edb::v1::pointer_size() == sizeof(quint64)) {
 		stack_view_->setAddressSize(QHexView::Address64);
 		Q_FOREACH(const DataViewInfo::pointer &data_view, data_regions_) {
@@ -974,7 +974,7 @@ void Debugger::step_over(F1 run_func, F2 step_func) {
 		}
 	}
 
-	
+
 
 	// if all else fails, it's a step into
 	step_func();
@@ -1097,7 +1097,7 @@ edb::address_t Debugger::get_follow_address(const T &hexview, bool *ok) {
 	Q_ASSERT(ok);
 
 	*ok = false;
-	
+
 	const size_t pointer_size = edb::v1::pointer_size();
 
 	if(hexview->hasSelectedText()) {
@@ -1272,7 +1272,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	// TODO: add comment
 	//menu.addAction(tr("Add &Comment"), this, SLOT(""));
 	//menu.addSeparator();
-	
+
 	menu.addAction(tr("&Goto Address"), this, SLOT(mnuCPUJumpToAddress()));
 	if(edb::v1::debugger_core) {
 		menu.addAction(tr("&Goto %1").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUJumpToEIP()));
@@ -1862,7 +1862,7 @@ void Debugger::clear_data(const DataViewInfo::pointer &v) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::do_jump_to_address(edb::address_t address, const IRegion::pointer &r, bool scrollTo) {
-	
+
 	ui.cpuView->setAddressOffset(r->start());
 	ui.cpuView->setRegion(r);
 	if(scrollTo && !ui.cpuView->addressShown(address)) {
@@ -2156,7 +2156,7 @@ QString Debugger::session_filename() const {
 		const QFileInfo info(program_executable_);
 		return QString(QLatin1String("%1/%2.edb")).arg(session_path, info.fileName());
 	}
-	
+
 	return QString();
 }
 
@@ -2218,9 +2218,9 @@ void Debugger::set_initial_debugger_state() {
 	if(edb::v1::debugger_core->pid() != 0) {
 		program_executable_ = executable;
 	}
-	
+
 	const QString filename = session_filename();
-	if(!filename.isEmpty()) {	
+	if(!filename.isEmpty()) {
 		load_session(filename);
 	}
 

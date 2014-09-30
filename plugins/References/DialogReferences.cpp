@@ -80,11 +80,11 @@ void DialogReferences::do_find() {
 
 				const size_t page_count     = region->size() / page_size;
 				const QVector<quint8> pages = edb::v1::read_pages(region->start(), page_count);
-				
+
 				if(!pages.isEmpty()) {
 					const quint8 *p = &pages[0];
 					const quint8 *const pages_end = &pages[0] + region->size();
-					
+
 					while(p != pages_end) {
 
 						if(static_cast<std::size_t>(pages_end - p) < sizeof(edb::address_t)) {
@@ -123,7 +123,7 @@ void DialogReferences::do_find() {
 								// instructions of the form: mov [ADDR], 0xNNNNNNNN
 								Q_ASSERT(inst.operand_count() == 2);
 
-								if(inst.operands()[0].general_type() == edb::Operand::TYPE_EXPRESSION) {								
+								if(inst.operands()[0].general_type() == edb::Operand::TYPE_EXPRESSION) {
 									if(inst.operands()[1].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[1].immediate()) == address) {
 										QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
 										item->setData(TypeRole, 'C');

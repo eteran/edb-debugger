@@ -42,7 +42,7 @@ IRegion::permissions_t permissions_value(bool read, bool write, bool execute) {
 	if(execute) perms |= PROT_EXEC;
 	return perms;
 }
-	
+
 }
 
 template <size_t N>
@@ -131,21 +131,21 @@ edb::EVENT_STATUS BackupInfo<N>::handle_event(const IDebugEvent::const_pointer &
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions) : start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 PlatformRegion::~PlatformRegion() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 IRegion *PlatformRegion::clone() const {
@@ -153,7 +153,7 @@ IRegion *PlatformRegion::clone() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 bool PlatformRegion::accessible() const {
@@ -161,7 +161,7 @@ bool PlatformRegion::accessible() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 bool PlatformRegion::readable() const {
@@ -169,7 +169,7 @@ bool PlatformRegion::readable() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 bool PlatformRegion::writable() const {
@@ -177,7 +177,7 @@ bool PlatformRegion::writable() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 bool PlatformRegion::executable() const {
@@ -185,7 +185,7 @@ bool PlatformRegion::executable() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t PlatformRegion::size() const {
@@ -193,7 +193,7 @@ edb::address_t PlatformRegion::size() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
@@ -239,7 +239,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t PlatformRegion::start() const {
@@ -247,7 +247,7 @@ edb::address_t PlatformRegion::start() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t PlatformRegion::end() const {
@@ -255,7 +255,7 @@ edb::address_t PlatformRegion::end() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t PlatformRegion::base() const {
@@ -263,7 +263,7 @@ edb::address_t PlatformRegion::base() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QString PlatformRegion::name() const {
@@ -271,7 +271,7 @@ QString PlatformRegion::name() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 IRegion::permissions_t PlatformRegion::permissions() const {
@@ -279,7 +279,7 @@ IRegion::permissions_t PlatformRegion::permissions() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::address_t temp_address) {
