@@ -41,7 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <asm/ldt.h>
 #include <pwd.h>
 #include <link.h>
-#include <cpuid.h> 
+#include <cpuid.h>
 #include <sys/mman.h>
 #include <sys/ptrace.h>
 #include <sys/user.h>
@@ -309,7 +309,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 	quint32 eax;
 	quint32 ebx;
 	quint32 ecx;
-	quint32 edx; 
+	quint32 edx;
 	__cpuid(1, eax, ebx, ecx, edx);
 
 	switch(ext) {

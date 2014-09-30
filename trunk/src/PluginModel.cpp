@@ -132,8 +132,8 @@ int PluginModel::rowCount(const QModelIndex &parent) const {
 // Desc:
 //------------------------------------------------------------------------------
 void PluginModel::addPlugin(const QString &filename, const QString &plugin, const QString &author, const QString &url) {
-	beginInsertRows(QModelIndex(), rowCount(), rowCount());	
-	
+	beginInsertRows(QModelIndex(), rowCount(), rowCount());
+
 	const Item item = {
 		filename, plugin, author, url
 	};
@@ -146,7 +146,7 @@ void PluginModel::addPlugin(const QString &filename, const QString &plugin, cons
 // Desc:
 //------------------------------------------------------------------------------
 void PluginModel::clear() {
-	beginRemoveRows(QModelIndex(), 0, rowCount());	
+	beginRemoveRows(QModelIndex(), 0, rowCount());
 	items_.clear();
 	endRemoveRows();
 }

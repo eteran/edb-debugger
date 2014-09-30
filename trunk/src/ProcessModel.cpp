@@ -95,8 +95,8 @@ int ProcessModel::rowCount(const QModelIndex &parent) const {
 }
 
 void ProcessModel::addProcess(const Process &process) {
-	beginInsertRows(QModelIndex(), rowCount(), rowCount());	
-	
+	beginInsertRows(QModelIndex(), rowCount(), rowCount());
+
 	const Item item = {
 		process.pid, process.uid, process.user, process.name
 	};
@@ -105,7 +105,7 @@ void ProcessModel::addProcess(const Process &process) {
 }
 
 void ProcessModel::clear() {
-	beginRemoveRows(QModelIndex(), 0, rowCount());	
+	beginRemoveRows(QModelIndex(), 0, rowCount());
 	items_.clear();
 	endRemoveRows();
 }

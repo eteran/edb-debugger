@@ -46,16 +46,16 @@ int getuid() {
 //------------------------------------------------------------------------------
 DialogAttach::DialogAttach(QWidget *parent) : QDialog(parent), ui(new Ui::DialogAttach) {
 	ui->setupUi(this);
-	
+
 	process_model_ = new ProcessModel(this);
 	process_filter_ = new QSortFilterProxyModel(this);
-	
+
 	process_filter_->setSourceModel(process_model_);
 	process_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
 	process_filter_->setFilterKeyColumn(2);
-	
+
 	ui->processes_table->setModel(process_filter_);
-	
+
 	connect(ui->filter, SIGNAL(textChanged(const QString &)), process_filter_, SLOT(setFilterFixedString(const QString &)));
 }
 
@@ -73,7 +73,7 @@ DialogAttach::~DialogAttach() {
 //------------------------------------------------------------------------------
 void DialogAttach::update_list() {
 
-	process_model_->clear();	
+	process_model_->clear();
 
 	if(edb::v1::debugger_core) {
 		QMap<edb::pid_t, Process> procs = edb::v1::debugger_core->enumerate_processes();
@@ -123,7 +123,7 @@ edb::pid_t DialogAttach::selected_pid(bool *ok) const {
 		*ok = true;
 		return process_model_->data(index, Qt::UserRole).toUInt();
 	}
-	
+
 	*ok = false;
 	return 0;
 }

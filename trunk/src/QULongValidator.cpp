@@ -41,7 +41,7 @@ QULongValidator::value_type QULongValidator::bottom() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 void QULongValidator::setBottom(QULongValidator::value_type bottom) {

@@ -57,8 +57,8 @@ quint32 I(quint32 x, quint32 y, quint32 z) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 template <typename T>
 T circular_shift(T v, int n) {
@@ -68,8 +68,8 @@ T circular_shift(T v, int n) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 template <quint32 (*Fun)(quint32, quint32, quint32)>
 void do_transform(quint32& a, quint32 b, quint32 c, quint32 d, quint32 x, quint32 s, quint32 ac) {

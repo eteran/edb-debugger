@@ -32,13 +32,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace Analyzer {
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), mouse_pressed_(false) {
 	setMinimumHeight(20);
 	setMaximumHeight(20);
 	QSizePolicy policy;
-	
+
 	policy.setHorizontalPolicy(QSizePolicy::Expanding);
 	setSizePolicy(policy);
 
@@ -53,16 +53,16 @@ AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(par
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 
 	Q_UNUSED(event);
-	
+
 	QPainter painter(this);
 	painter.fillRect(0, 0, width(), height(), QBrush(Qt::black));
 	QFontMetrics fm(font());
-	
+
 	if(const IRegion::pointer region = edb::v1::current_cpu_view_region()) {
 		if(region->size() != 0) {
 			const float byte_width = static_cast<float>(width()) / region->size();
@@ -125,12 +125,12 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
-	
+
 	mouse_pressed_ = true;
-	
+
 	if(const IRegion::pointer region = edb::v1::current_cpu_view_region()) {
 		const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
 		if(region->size() != 0 && !functions.empty()) {
@@ -142,7 +142,7 @@ void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 void AnalyzerWidget::mouseReleaseEvent(QMouseEvent *event) {
 	Q_UNUSED(event);
@@ -150,7 +150,7 @@ void AnalyzerWidget::mouseReleaseEvent(QMouseEvent *event) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 void AnalyzerWidget::mouseMoveEvent(QMouseEvent *event) {
 	if(mouse_pressed_) {

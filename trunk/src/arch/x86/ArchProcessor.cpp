@@ -111,10 +111,10 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 // Desc:
 //------------------------------------------------------------------------------
 QString format_pointer(int pointer_level, edb::reg_t arg, QChar type) {
-	
+
 	Q_UNUSED(type);
 	Q_UNUSED(pointer_level);
-	
+
 	if(arg == 0) {
 		return "NULL";
 	} else {
@@ -130,9 +130,9 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 	if(pointer_level > 0) {
 		return format_pointer(pointer_level, arg, type);
 	}
-	
+
 	QString s;
-	
+
 	switch(type.toLatin1()) {
 	case 'w': return s.sprintf("%u", static_cast<wchar_t>(arg));
 	case 'b': return s.sprintf("%d", static_cast<bool>(arg));
@@ -142,8 +142,8 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 		} else {
 			return s.sprintf("'\\x%02x'", static_cast<quint16>(arg));
 		}
-	
-	
+
+
 	case 'a': return s.sprintf("%d", static_cast<signed char>(arg));
 	case 'h': return s.sprintf("%u", static_cast<unsigned char>(arg));
 	case 's': return s.sprintf("%d", static_cast<short>(arg));
@@ -196,10 +196,10 @@ QString format_char(int pointer_level, edb::reg_t arg, QChar type) {
 //------------------------------------------------------------------------------
 QString format_argument(const QString &type, edb::reg_t arg) {
 	QString param_text;
-	
+
 	int pointer_level = 0;
 	Q_FOREACH(QChar ch, type) {
-	
+
 		if(ch == 'P') {
 			++pointer_level;
 		} else if(ch == 'r' || ch == 'V' || ch == 'K') {
@@ -230,11 +230,11 @@ QString format_argument(const QString &type, edb::reg_t arg) {
 			case 'g':
 			case 'z':
 			default:
-				break;		
+				break;
 			}
 		}
 	}
-	
+
 	return format_pointer(pointer_level, arg, 'x');
 }
 
@@ -561,7 +561,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 #ifdef Q_OS_LINUX
 	QString syscall_entry;
 	QDomDocument syscall_xml;
-	QFile file(":/debugger/xml/syscalls.xml");	
+	QFile file(":/debugger/xml/syscalls.xml");
 	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 
 		QXmlQuery query;
@@ -573,11 +573,11 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 		}
 		file.close();
 	}
-	
+
 	if(!syscall_entry.isEmpty()) {
 		syscall_xml.setContent("" + syscall_entry + "");
 		QDomElement root = syscall_xml.documentElement();
-		
+
 		QStringList arguments;
 
 		for (QDomElement argument = root.firstChildElement("argument"); !argument.isNull(); argument = argument.nextSiblingElement("argument")) {
@@ -585,7 +585,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 			const QString argument_register = argument.attribute("register");
 			arguments << format_argument(argument_type, state[argument_register].value<edb::reg_t>());
 		}
-		
+
 		ret << ArchProcessor::tr("SYSCALL: %1(%2)").arg(root.attribute("name"), arguments.join(","));
 	}
 #endif
@@ -630,7 +630,7 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 			register_view_items_[0x07] = create_register_item(gpr, "edi");
 			register_view_items_[0x08] = create_register_item(gpr, "eip");
 			register_view_items_[0x09] = create_register_item(gpr, "eflags");
-		
+
 			// split eflags view
 			split_flags_ = new QTreeWidgetItem(register_view_items_[0x09]);
 			split_flags_->setText(0, state.flags_to_string(0));
@@ -803,7 +803,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 			register_view_items_[40 + i]->setText(0, QString("XMM%1: %2").arg(i).arg(current.toHex().constData()));
 			register_view_items_[40 + i]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
-		
+
 		const quint32 current = state["mxcsr"].value<edb::reg_t>();
 		const quint32 prev    = last_state_["mxcsr"].value<edb::reg_t>();
 		register_view_items_[0x30]->setText(0, QString("MXCSR: %1").arg(current, 0, 16));

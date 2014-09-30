@@ -122,7 +122,7 @@ int start_debugger(edb::pid_t attach_pid, const QString &program, const QList<QB
 
 //------------------------------------------------------------------------------
 // Name: load_translations
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 void load_translations() {
 	// load some translations
@@ -149,7 +149,7 @@ void usage() {
 	std::cerr << " --version                 : output version information and exit" << std::endl;
 	std::cerr << " --dump-version            : display terse version string and exit" << std::endl;
 	std::cerr << " --help                    : display this help and exit" << std::endl;
-	
+
 	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
 		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
 			const QString s = p->extra_arguments();
@@ -160,10 +160,10 @@ void usage() {
 			}
 		}
 	}
-	
+
 	std::exit(-1);
 }
-	
+
 }
 
 
@@ -186,20 +186,20 @@ int main(int argc, char *argv[]) {
 	QApplication::setApplicationName("edb");
 
 	load_translations();
-	
+
 	// look for some plugins..
 	load_plugins(edb::v1::config().plugin_path);
-	
+
 	QStringList args = app.arguments();
 	edb::pid_t        attach_pid = 0;
 	QList<QByteArray> run_args;
 	QString           run_app;
-	
+
 	// call the init function for each plugin, this is done after
 	// ALL plugins are loaded in case there are inter-plugin dependencies
 	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
 		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
-			
+
 			const IPlugin::ArgumentStatus r = p->parse_argments(args);
 			switch(r) {
 			case IPlugin::ARG_ERROR:

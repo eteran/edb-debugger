@@ -90,8 +90,8 @@ int ThreadsModel::rowCount(const QModelIndex &parent) const {
 }
 
 void ThreadsModel::addThread(edb::tid_t tid, bool current) {
-	beginInsertRows(QModelIndex(), rowCount(), rowCount());	
-	
+	beginInsertRows(QModelIndex(), rowCount(), rowCount());
+
 	const Item item = {
 		tid, current
 	};
@@ -100,7 +100,7 @@ void ThreadsModel::addThread(edb::tid_t tid, bool current) {
 }
 
 void ThreadsModel::clear() {
-	beginRemoveRows(QModelIndex(), 0, rowCount());	
+	beginRemoveRows(QModelIndex(), 0, rowCount());
 	items_.clear();
 	endRemoveRows();
 }

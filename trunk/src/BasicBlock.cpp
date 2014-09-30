@@ -19,21 +19,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "BasicBlock.h"
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::BasicBlock() {
 
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::BasicBlock(const BasicBlock &other) : instructions_(other.instructions_) {
 
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock &BasicBlock::operator=(const BasicBlock &rhs) {
 	BasicBlock(rhs).swap(*this);
@@ -41,112 +41,112 @@ BasicBlock &BasicBlock::operator=(const BasicBlock &rhs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::~BasicBlock() {
 
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 void BasicBlock::swap(BasicBlock &other) {
 	qSwap(instructions_, other.instructions_);
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 void BasicBlock::push_back(const instruction_pointer &inst) {
 	instructions_.push_back(inst);
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::const_iterator BasicBlock::begin() const {
 	return instructions_.begin();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::const_iterator BasicBlock::end() const {
 	return instructions_.end();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::iterator BasicBlock::begin() {
 	return instructions_.begin();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::iterator BasicBlock::end() {
 	return instructions_.end();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::const_reverse_iterator BasicBlock::rbegin() const {
 	return const_reverse_iterator(instructions_.end());
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::const_reverse_iterator BasicBlock::rend() const {
 	return const_reverse_iterator(instructions_.begin());
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::reverse_iterator BasicBlock::rbegin() {
 	return reverse_iterator(instructions_.end());
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::reverse_iterator BasicBlock::rend() {
 	return reverse_iterator(instructions_.begin());
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::size_type BasicBlock::size() const {
 	return instructions_.size();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 bool BasicBlock::empty() const {
 	return instructions_.isEmpty();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::reference BasicBlock::operator[](size_type pos) {
 	return instructions_[pos];
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::const_reference BasicBlock::operator[](size_type pos) const {
 	return instructions_[pos];
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::reference BasicBlock::front() {
 	Q_ASSERT(!empty());
@@ -154,7 +154,7 @@ BasicBlock::reference BasicBlock::front() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::const_reference BasicBlock::front() const {
 	Q_ASSERT(!empty());
@@ -162,7 +162,7 @@ BasicBlock::const_reference BasicBlock::front() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::reference BasicBlock::back() {
 	Q_ASSERT(!empty());
@@ -170,7 +170,7 @@ BasicBlock::reference BasicBlock::back() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::const_reference BasicBlock::back() const {
 	Q_ASSERT(!empty());
@@ -178,7 +178,7 @@ BasicBlock::const_reference BasicBlock::back() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 BasicBlock::size_type BasicBlock::byte_size() const {
 	size_type n = 0;
@@ -189,7 +189,7 @@ BasicBlock::size_type BasicBlock::byte_size() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 edb::address_t BasicBlock::first_address() const {
 	Q_ASSERT(!empty());
@@ -197,7 +197,7 @@ edb::address_t BasicBlock::first_address() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 edb::address_t BasicBlock::last_address() const {
 	Q_ASSERT(!empty());

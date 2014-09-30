@@ -29,7 +29,7 @@ HexStringValidator::HexStringValidator(QObject * parent) : QValidator(parent) {
 
 //------------------------------------------------------------------------------
 // Name: fixup
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 void HexStringValidator::fixup(QString &input) const {
 	QString temp;
@@ -53,7 +53,7 @@ void HexStringValidator::fixup(QString &input) const {
 
 //------------------------------------------------------------------------------
 // Name: validate
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 QValidator::State HexStringValidator::validate(QString &input, int &pos) const {
 	if(!input.isEmpty()) {

@@ -131,13 +131,13 @@ IPlugin::ArgumentStatus BinaryInfo::parse_argments(QStringList &args) {
 //------------------------------------------------------------------------------
 bool BinaryInfo::generate_symbol_file(const QString &filename, const QString &symbol_file) {
 
-	std::ofstream file(qPrintable(symbol_file));	
+	std::ofstream file(qPrintable(symbol_file));
 	if(file) {
 		if(generate_symbols(filename, file)) {
 			return true;
 		}
 	}
-	
+
 	return false;
 }
 

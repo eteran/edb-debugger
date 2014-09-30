@@ -152,7 +152,7 @@ void SymbolManager::add_symbol(const Symbol::pointer &symbol) {
 bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename) {
 
 	// TODO: support filename starting with "http://" being fetched from a web server
-	// TODO: support symbol files with paths so we can deal with binaries that have 
+	// TODO: support symbol files with paths so we can deal with binaries that have
 	//       conflicting names in different directories
 
 	std::ifstream file(qPrintable(f));
