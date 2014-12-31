@@ -46,9 +46,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 
 #if QT_VERSION >= 0x050000
+#ifdef QT_CONCURRENT_LIB
 #include <QtConcurrent>
+#endif
 #elif QT_VERSION >= 0x040800
 #include <QtConcurrentMap>
+
+#ifndef QT_NO_CONCURRENT
+#define QT_CONCURRENT_LIB
+#endif
+
 #endif
 
 namespace Analyzer {
@@ -353,7 +360,7 @@ void Analyzer::set_function_types(FunctionMap *results) {
 	Q_ASSERT(results);
 
 	// give bonus if we have a symbol for the address
-#if QT_VERSION >= 0x040800
+#if QT_VERSION >= 0x040800 && defined(QT_CONCURRENT_LIB)
 	QtConcurrent::blockingMap(
 		*results,
 		boost::bind(&Analyzer::set_function_types_helper, this, _1));
