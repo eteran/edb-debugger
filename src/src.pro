@@ -1,6 +1,7 @@
 LEVEL = ..
 
 include(../qmake/clean-objects.pri)
+include(../qmake/c++11.pri)
 
 TEMPLATE    = app
 TARGET      = edb
@@ -15,14 +16,6 @@ QT          += xml xmlpatterns
 
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
-	CONFIG += c++11
-}
-
-linux-g++ {
-    system(g++ -dumpversion | grep -e "^4\\.[7-9]\\.[0-9]$" > /dev/null) {
-        message(g++ version 4.7+ found)
-		QMAKE_CXXFLAGS += -std=c++11
-	}
 }
 
 TRANSLATIONS += \

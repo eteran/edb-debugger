@@ -1,6 +1,7 @@
 LEVEL = ../..
 
 include(../qmake/clean-objects.pri)
+include(../qmake/c++11.pri)
 
 TEMPLATE = lib
 CONFIG   += plugin
@@ -8,14 +9,9 @@ DESTDIR  = $$LEVEL
 INSTALLS += target
 greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
-	CONFIG += c++11
 }
 
-linux-g++ {
-    system(g++ -dumpversion | grep -e "^4\\.[7-9]\\.[0-9]$" > /dev/null) {
-		QMAKE_CXXFLAGS += -std=c++11
-	}
-}
+# QMAKE_DISTCLEAN += -r $$LEVEL/lib $$TARGET $$TARGET_EXT
 
 
 # ignore missing symbols, they'll be found when linked into edb
