@@ -11,9 +11,6 @@ greaterThan(QT_MAJOR_VERSION, 4) {
     QT += widgets
 }
 
-# QMAKE_DISTCLEAN += -r $$LEVEL/lib $$TARGET $$TARGET_EXT
-
-
 # ignore missing symbols, they'll be found when linked into edb
 linux-g++*: QMAKE_LFLAGS -= $$QMAKE_LFLAGS_NOUNDEF
 linux-g++*: QMAKE_LFLAGS -= "-Wl,--no-undefined"
