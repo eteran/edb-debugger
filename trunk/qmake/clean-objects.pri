@@ -15,3 +15,11 @@ unix {
 		UI_DIR      = $${OUT_PWD}/.release-shared/uic
 	}
 }
+
+unix {
+	QMAKE_DISTCLEAN += -r              \
+		$${OUT_PWD}/.debug-shared/     \
+		$${OUT_PWD}/.release-shared/
+}
+
+
