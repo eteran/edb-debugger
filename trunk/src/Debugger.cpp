@@ -307,6 +307,9 @@ void Debugger::update_menu_state(GUI_STATE state) {
 // Desc: creates a TTY object for our command line I/O
 //------------------------------------------------------------------------------
 QString Debugger::create_tty() {
+
+	QString result_tty = tty_file_;
+
 #if defined(Q_OS_LINUX) || defined(Q_OS_OPENBSD) || defined(Q_OS_FREEBSD)
 	// we attempt to reuse an open output window
 	if(edb::v1::config().tty_enabled && tty_proc_->state() != QProcess::Running) {
@@ -341,12 +344,17 @@ QString Debugger::create_tty() {
 			const QFileInfo command_info(tty_command);
 
 			if(command_info.fileName() == "gnome-terminal") {
-				proc_args << "--hide-menubar" << "--title" << tr("edb output") << "-e" << QString("sh -c '%1'").arg(shell_script);
+				proc_args << "--hide-menubar" << "--title" << tr("edb output");
 			} else if(command_info.fileName() == "konsole") {
-				proc_args << "--hide-menubar" << "--title" << "--nofork" << tr("edb output") << "-e" << QString("sh -c '%1'").arg(shell_script);
+				proc_args << "--hide-menubar" << "--title" << tr("edb output") << "--nofork" << "-hold";
 			} else {
-				proc_args << "-title" << tr("edb output") << "-e" << QString("sh -c '%1'").arg(shell_script);
+				proc_args << "-title" << tr("edb output") << "-hold";
 			}
+
+			proc_args << "-e" << "sh" << "-c" << QString("%1").arg(shell_script);
+			
+			qDebug() << "Running Terminal: " << tty_command;
+			qDebug() << "Terminal Args: " << proc_args;
 
 			// make the tty process object and connect it's death signal to our cleanup
 			connect(tty_proc_, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(tty_proc_finished(int, QProcess::ExitStatus)));
@@ -354,18 +362,18 @@ QString Debugger::create_tty() {
 			tty_proc_->start(tty_command, proc_args);
 
 			if(tty_proc_->waitForStarted(3000)) {
-
+			
 				const Q_PID tty_pid = tty_proc_->pid();
 				Q_UNUSED(tty_pid);
-
+							
 				// get the output, this should block until the xterm actually gets a chance to write it
 				QFile file(temp_pipe);
 				if(file.open(QIODevice::ReadOnly)) {
-					tty_file_ = file.readLine().trimmed();
+					result_tty = file.readLine().trimmed();
 				}
+				
 			} else {
 				qDebug().nospace() << "Could not launch the desired terminal [" << tty_command << "], please check that it exists and you have proper permissions.";
-				tty_file_.clear();
 			}
 
 			// cleanup, god i wish there was an easier way than this!
@@ -373,7 +381,7 @@ QString Debugger::create_tty() {
 		}
 	}
 #endif
-	return tty_file_;
+	return result_tty;
 }
 
 //------------------------------------------------------------------------------
@@ -2322,9 +2330,9 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 			tr("The specified file (%1) does not appear to exist, please check privileges and try again.").arg(s));
 	} else {
 
-		const QString tty = create_tty();
+		tty_file_ = create_tty();
 
-		if(edb::v1::debugger_core->open(s, working_directory_, args, tty)) {
+		if(edb::v1::debugger_core->open(s, working_directory_, args, tty_file_)) {
 			set_initial_debugger_state();
 			test_native_binary();
 			set_initial_breakpoint(s);
