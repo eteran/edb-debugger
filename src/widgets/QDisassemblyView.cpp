@@ -549,8 +549,10 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 					const edb::Operand &oper = inst.operands()[0];
 					if(oper.general_type() == edb::Operand::TYPE_REL) {
 						const edb::address_t target = oper.relative_target();
-						if(const Symbol::pointer sym = edb::v1::symbol_manager().find(target)) {
-							opcode.append(QString(" <%2>").arg(sym->name));
+						
+						const QString sym = edb::v1::symbol_manager().find_address_name(target);
+						if(!sym.isEmpty()) {
+							opcode.append(QString(" <%2>").arg(sym));
 						}
 					}
 				}
@@ -832,12 +834,13 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 
 		// optionally draw the symbol name
-		if(const Symbol::pointer sym = edb::v1::symbol_manager().find(address)) {
+		const QString sym = edb::v1::symbol_manager().find_address_name(address);
+		if(!sym.isEmpty()) {
 
 			const int maxStringPx = l1 - (breakpoint_icon_.width() + 1 + ((address_buffer.length() + 1) * font_width_));
 
 			if(maxStringPx >= font_width_) {
-				const QString symbol_buffer = painter.fontMetrics().elidedText(sym->name, Qt::ElideRight, maxStringPx);
+				const QString symbol_buffer = painter.fontMetrics().elidedText(sym, Qt::ElideRight, maxStringPx);
 
 				painter.drawText(
 					breakpoint_icon_.width() + 1 + ((address_buffer.length() + 1) * font_width_),
