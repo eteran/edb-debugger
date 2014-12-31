@@ -139,6 +139,7 @@ private Q_SLOTS:
 	void mnuCPUModify();
 	void mnuCPURemoveBreakpoint();
 	void mnuCPUSetEIP();
+	void mnuCPULabelAddress();
 
 private Q_SLOTS:
 	// the manually connected Register slots

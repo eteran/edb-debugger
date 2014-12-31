@@ -1280,6 +1280,9 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	// TODO: add comment
 	//menu.addAction(tr("Add &Comment"), this, SLOT(""));
 	//menu.addSeparator();
+	
+	menu.addAction(tr("Set Address &Label"), this, SLOT(mnuCPULabelAddress()));
+	menu.addSeparator();
 
 	menu.addAction(tr("&Goto Address"), this, SLOT(mnuCPUJumpToAddress()));
 	if(edb::v1::debugger_core) {
@@ -1543,6 +1546,29 @@ void Debugger::mnuCPUFillZero() {
 void Debugger::mnuCPUFillNop() {
 	// TODO: get system independent nop-code
 	cpu_fill(0x90);
+}
+
+//------------------------------------------------------------------------------
+// Name: mnuCPULabelAddress
+// Desc:
+//------------------------------------------------------------------------------
+void Debugger::mnuCPULabelAddress() {
+
+	const edb::address_t address = ui.cpuView->selectedAddress();
+
+	bool ok;
+	const QString text = QInputDialog::getText(
+		this,
+		tr("Set Label"),
+		tr("Labe:"),
+		QLineEdit::Normal,
+		edb::v1::symbol_manager().find_address_name(address),
+		&ok);
+
+	if(ok) {
+		edb::v1::symbol_manager().set_label(address, text);
+		refresh_gui();
+	}
 }
 
 //------------------------------------------------------------------------------

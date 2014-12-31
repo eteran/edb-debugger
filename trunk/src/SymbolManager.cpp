@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDir>
 #include <QtDebug>
 #include <QProcess>
+#include <QMessageBox>
 #include <istream>
 #include <fstream>
 #include <iostream>
@@ -33,8 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: SymbolManager
 // Desc:
 //------------------------------------------------------------------------------
-SymbolManager::SymbolManager() : symbol_generator_(0), show_path_notice_(true) {
-
+SymbolManager::SymbolManager() : symbol_generator_(0), show_path_notice_(true) {	
 }
 
 //------------------------------------------------------------------------------
@@ -55,7 +55,9 @@ void SymbolManager::clear() {
 	symbol_files_.clear();
 	symbols_.clear();
 	symbols_by_address_.clear();
-	symbols_by_name_.clear();
+	symbols_by_name_.clear();	
+	labels_.clear();
+	labels_by_name_.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -224,4 +226,56 @@ const QList<Symbol::pointer> SymbolManager::symbols() const {
 //------------------------------------------------------------------------------
 void SymbolManager::set_symbol_generator(ISymbolGenerator *generator) {
 	symbol_generator_ = generator;
+}
+
+//------------------------------------------------------------------------------
+// Name: set_label
+// Desc: a label is like a symbol, but can be set/unset by users. They will take
+//       precidence over symbols (since this is the name that the user really
+//       wants to call this address). And only apply to code
+//------------------------------------------------------------------------------
+void SymbolManager::set_label(edb::address_t address, const QString &label) {
+	if(label.isEmpty()) {
+		labels_by_name_.remove(labels_[address]);
+		labels_.remove(address);
+	} else {
+	
+		if(labels_by_name_.contains(label) && labels_by_name_[label] != address) {
+			QMessageBox::warning(
+				edb::v1::debugger_ui,
+				QT_TRANSLATE_NOOP("edb", "Duplicate Label"),
+				QT_TRANSLATE_NOOP("edb", "You are attempting to give two seperate addresses the same label, this is not supported.")
+				);
+			return;
+		}
+	
+		labels_[address] = label;
+		labels_by_name_[label] = address;
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: find_address_name
+// Desc:
+//------------------------------------------------------------------------------
+QString SymbolManager::find_address_name(edb::address_t address) {
+	QHash<edb::address_t, QString>::const_iterator it = labels_.find(address);
+	if(it != labels_.end()) {
+		return it.value();
+	}
+	
+	if(const Symbol::pointer sym = find(address)) {
+		return sym->name;
+	}
+	
+	return QString();
+	
+}
+
+//------------------------------------------------------------------------------
+// Name: labels
+// Desc:
+//------------------------------------------------------------------------------
+QHash<edb::address_t, QString> SymbolManager::labels() const {
+	return labels_;
 }

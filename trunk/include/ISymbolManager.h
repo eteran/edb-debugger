@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 #include "Symbol.h"
 #include <QList>
+#include <QHash>
 
 class QString;
 class ISymbolGenerator;
@@ -41,6 +42,9 @@ public:
 	virtual void load_symbol_file(const QString &filename, edb::address_t base) = 0;
 	virtual void set_symbol_generator(ISymbolGenerator *generator) = 0;
 	virtual void set_symbol_path(const QString &symbol_directory) = 0;
+	virtual void set_label(edb::address_t address, const QString &label) = 0;
+	virtual QString find_address_name(edb::address_t address) = 0;
+	virtual QHash<edb::address_t, QString> labels() const = 0;
 };
 
 #endif
