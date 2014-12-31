@@ -2,6 +2,7 @@ LEVEL = ..
 
 include(../qmake/clean-objects.pri)
 include(../qmake/c++11.pri)
+include(../qmake/qt5-gui.pri)
 
 TEMPLATE    = app
 TARGET      = edb
@@ -13,10 +14,6 @@ DESTDIR     = ../
 target.path = /bin/
 INSTALLS    += target
 QT          += xml xmlpatterns
-
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += widgets
-}
 
 TRANSLATIONS += \
 	lang/edb_en.ts
@@ -178,25 +175,10 @@ unix {
 	VPATH       += $$LEVEL/include/os/unix edisassm
 	INCLUDEPATH += $$LEVEL/include/os/unix edisassm
 
-	linux-* {
-		VPATH       += $$LEVEL/include/os/unix/linux
-		INCLUDEPATH += $$LEVEL/include/os/unix/linux
-	}
-
-	openbsd-* {
-		VPATH       += $$LEVEL/include/os/unix/openbsd
-		INCLUDEPATH += $$LEVEL/include/os/unix/openbsd /usr/local/include
-	}
-
-	freebsd-* {
-		VPATH       += $$LEVEL/include/os/unix/freebsd
-		INCLUDEPATH += $$LEVEL/include/os/unix/freebsd
-	}
-
-	macx-* {
-		VPATH       += $$LEVEL/include/os/unix/osx
-		INCLUDEPATH += $$LEVEL/include/os/unix/osx /opt/local/include
-	}
+	# OS include paths
+	openbsd-* : INCLUDEPATH += /usr/local/include
+	macx-*    : INCLUDEPATH += /opt/local/include
+	
 
 	macx {
 		VPATH       += arch/x86_64 $$LEVEL/include/arch/x86_64
@@ -225,4 +207,3 @@ unix {
 	macx-g++*    : QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
 	openbsd-g++* : QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic $$(LDFLAGS)
 }
-

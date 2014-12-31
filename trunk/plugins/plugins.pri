@@ -2,20 +2,20 @@ LEVEL = ../..
 
 include(../qmake/clean-objects.pri)
 include(../qmake/c++11.pri)
+include(../qmake/qt5-gui.pri)
 
 TEMPLATE = lib
 CONFIG   += plugin
 DESTDIR  = $$LEVEL
 INSTALLS += target
-greaterThan(QT_MAJOR_VERSION, 4) {
-    QT += widgets
-}
 
 # ignore missing symbols, they'll be found when linked into edb
-linux-g++*: QMAKE_LFLAGS -= $$QMAKE_LFLAGS_NOUNDEF
-linux-g++*: QMAKE_LFLAGS -= "-Wl,--no-undefined"
-macx-g++*:  QMAKE_LFLAGS += "-undefined dynamic_lookup"
-macx*:      QMAKE_LFLAGS += "-undefined dynamic_lookup"
+linux-g++*:      QMAKE_LFLAGS -= $$QMAKE_LFLAGS_NOUNDEF
+linux-g++*:      QMAKE_LFLAGS -= "-Wl,--no-undefined"
+linux-clang++*:  QMAKE_LFLAGS -= $$QMAKE_LFLAGS_NOUNDEF
+linux-clang++*:  QMAKE_LFLAGS -= "-Wl,--no-undefined"
+macx-g++*:       QMAKE_LFLAGS += "-undefined dynamic_lookup"
+macx-clang*:     QMAKE_LFLAGS += "-undefined dynamic_lookup"
 
 linux-g++*:QMAKE_LFLAGS += $$(LDFLAGS)
 
@@ -23,10 +23,8 @@ unix {
 	INCLUDEPATH += $$LEVEL/include $$LEVEL/include/os/unix
 	
 	# OS include paths
-	linux-*   : INCLUDEPATH += $$LEVEL/include/os/unix/linux
-	openbsd-* : INCLUDEPATH += $$LEVEL/include/os/unix/openbsd /usr/local/include
-	freebsd-* : INCLUDEPATH += $$LEVEL/include/os/unix/freebsd
-	macx-*    : INCLUDEPATH += $$LEVEL/include/os/unix/osx /opt/local/include
+	openbsd-* : INCLUDEPATH += /usr/local/include
+	macx-*    : INCLUDEPATH += /opt/local/include
 
 	# arch include paths
 	macx {
