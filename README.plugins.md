@@ -18,13 +18,13 @@ general purpose plugin and "DebuggerCore" which is uses to implement the core
 debugging functionality. Most likley you will want to create a "DebuggerPlugin".
 
 To create a "DebuggerPlugin" plugin, you must inherit from 
-IPlugin found in include/IPlugin.h. It requires 
+`IPlugin` found in `/include/IPlugin.h`. It requires 
 that you implement the following virtual function(s):
 
-virtual QMenu *menu(QWidget *parent = 0) = 0;
+	virtual QMenu *menu(QWidget *parent = 0) = 0;
 
 This will return a menu object which will be added to the "plugins" in edb. 
 When this menu item is activated, you may do whatever you wish.
 
 Basic operations for implementing the plugin functionality can be found in 
-include/edb.h which defines the "edb" namespace.
+`include/edb.h` which defines the `edb` namespace.
