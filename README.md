@@ -13,12 +13,12 @@ Compiling
 Compiling edb is generally quite simple. edb currently depends on the 
 following packages:
 
-Qt >= 4.6
-boost >= 1.35 (headers only)
+* Qt >= 4.6
+* Boost >= 1.35 (headers only)
 
 Many distributions already have packages that satisify these.
 
-Once you have QT and boost installed, it is as simple as
+Once you have Qt and Boost installed, it is as simple as
 
 	$ qmake
 	$ make
