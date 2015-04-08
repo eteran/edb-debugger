@@ -15,8 +15,6 @@ When cloning the repo, please use git's `--recursive` flag to ensure that the su
 
 `git clone --recursive git@github.com:eteran/edb-debugger.git`
 
-Also please note that the `QHexView` and `edissasm` submodules are setup to use SSH and not HTTPS. This means you need to setup a SSH key to your GitHub account. More information about GitHub SSH keys can be found on [GitHub Help page about GitHub SSH keys](https://help.github.com/articles/generating-ssh-keys/).
-
 Compiling
 ---------
 
