@@ -1,6 +1,6 @@
 [submodule "src/qhexview"]
 	path = src/qhexview
-	url = git@github.com:eteran/qhexview.git
+	url = https://github.com/eteran/qhexview.git
 [submodule "src/edisassm"]
 	path = src/edisassm
-	url = git@github.com:eteran/edisassm.git
+	url = https://github.com/eteran/edisassm.git
