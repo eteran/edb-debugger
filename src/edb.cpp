@@ -1243,5 +1243,21 @@ QVector<quint8> read_pages(address_t address, size_t page_count) {
 	return QVector<quint8>();
 }
 
+//------------------------------------------------------------------------------
+// Name: disassemble_address
+// Desc: will return a QString where isNull is true on failure
+//------------------------------------------------------------------------------
+QString disassemble_address(address_t address) {
+	quint8 buffer[edb::Instruction::MAX_SIZE];
+	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
+		edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
+		if(inst) {
+			return QString::fromStdString(to_string(inst));
+		}
+	}
+	
+	return QString();
+}
+
 }
 }

@@ -424,8 +424,8 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 					while(data->region->contains(address)) {
 
 						quint8 buffer[edb::Instruction::MAX_SIZE];
-						int buf_size = sizeof(buffer);
-						if(!edb::v1::get_instruction_bytes(address, buffer, &buf_size)) {
+						const int buf_size = edb::v1::get_instruction_bytes(address, buffer);
+						if(buf_size == 0) {
 							break;
 						}
 

@@ -151,6 +151,8 @@ EDB_EXPORT int get_instruction_bytes(address_t address, quint8 (&buffer)[N]) {
 	return 0;
 }
 
+EDB_EXPORT QString disassemble_address(address_t address);
+
 EDB_EXPORT IBinary *get_binary_info(const IRegion::pointer &region);
 EDB_EXPORT const Prototype *get_function_info(const QString &function);
 
