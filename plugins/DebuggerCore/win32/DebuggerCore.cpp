@@ -364,7 +364,7 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 		SIZE_T bytes_read = 0;
         if(ReadProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_read)) {
 			Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
-				// TODO: handle if breakponts have a size more than 1!
+
 				if(bp->address() >= address && bp->address() < address + bytes_read) {
 					reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_byte();
 				}

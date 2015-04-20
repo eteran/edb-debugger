@@ -22,8 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCoreBase.h"
 #include <QList>
 
-#define SET_OK(ok, v) do { (ok) = ((v) != -1) || (errno == 0); } while(0)
-
 namespace DebuggerCore {
 
 namespace native {
@@ -47,7 +45,6 @@ protected:
 	quint8 read_byte_base(edb::address_t address, bool *ok); // TODO: remind me why these aren't const...
 	void execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args);
 	void write_byte(edb::address_t address, quint8 value, bool *ok);      // TODO: remind me why these aren't const...
-	void write_byte_base(edb::address_t address, quint8 value, bool *ok); // TODO: remind me why these aren't const...
 
 public:
 	virtual bool read_pages(edb::address_t address, void *buf, std::size_t count);      // TODO: remind me why these aren't const...
@@ -59,6 +56,11 @@ public:
 protected:
 	virtual long read_data(edb::address_t address, bool *ok) = 0;
 	virtual bool write_data(edb::address_t address, long value) = 0;
+	
+protected:
+	void SET_OK(bool &ok, long value) {
+		ok = (value != -1) || (errno == 0);
+	}
 };
 
 }

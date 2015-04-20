@@ -555,7 +555,6 @@ bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t cou
 		memory_file.seek(address);
 		const qint64 n = memory_file.read(reinterpret_cast<char *>(buf), len);
 
-		// TODO: handle if breakponts have a size more than 1!
 		Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
 			if(bp->address() >= address && bp->address() < (address + n)) {
 				// show the original bytes in the buffer..
@@ -1173,7 +1172,6 @@ QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 			const ssize_t n = syscall(__NR_process_vm_readv, (long)pid_, local, 1, remote, 1, 0);
 
 			if(n > 0) {
-				// TODO: handle if breakponts have a size more than 1!
 				Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
 					if(bp->address() >= address && bp->address() < (address + n)) {
 						// show the original bytes in the buffer..

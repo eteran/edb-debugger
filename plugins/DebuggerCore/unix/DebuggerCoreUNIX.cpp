@@ -32,7 +32,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define EDB_WORDSIZE sizeof(long)
+#ifdef EDB_X86_64
+#define EDB_WORDSIZE sizeof(quint64)
+#elif defined(EDB_X86)
+#define EDB_WORDSIZE sizeof(quint32)
+#endif
 
 namespace DebuggerCore {
 
@@ -211,32 +215,6 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 //       in calling code!
 //------------------------------------------------------------------------------
 void DebuggerCoreUNIX::write_byte(edb::address_t address, quint8 value, bool *ok) {
-	write_byte_base(address, value, ok);
-}
-
-//------------------------------------------------------------------------------
-// Name: read_byte
-// Desc: reads a single bytes at a given address
-//------------------------------------------------------------------------------
-quint8 DebuggerCoreUNIX::read_byte(edb::address_t address, bool *ok) {
-
-	// TODO: handle if breakponts have a size more than 1!
-	const quint8 ret = read_byte_base(address, ok);
-
-	if(ok) {
-		if(const IBreakpoint::pointer bp = find_breakpoint(address)) {
-			return bp->original_byte();
-		}
-	}
-
-	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name: write_byte_base
-// Desc: the base implementation of writing a byte
-//------------------------------------------------------------------------------
-void DebuggerCoreUNIX::write_byte_base(edb::address_t address, quint8 value, bool *ok) {
 	// TODO: assert that we are paused
 
 	Q_ASSERT(ok);
@@ -276,6 +254,23 @@ void DebuggerCoreUNIX::write_byte_base(edb::address_t address, quint8 value, boo
 			*ok = write_data(address, v);
 		}
 	}
+}
+
+//------------------------------------------------------------------------------
+// Name: read_byte
+// Desc: reads a single bytes at a given address
+//------------------------------------------------------------------------------
+quint8 DebuggerCoreUNIX::read_byte(edb::address_t address, bool *ok) {
+
+	const quint8 ret = read_byte_base(address, ok);
+
+	if(ok) {
+		if(const IBreakpoint::pointer bp = find_breakpoint(address)) {
+			return bp->original_byte();
+		}
+	}
+
+	return ret;
 }
 
 //------------------------------------------------------------------------------
@@ -358,7 +353,6 @@ bool DebuggerCoreUNIX::read_pages(edb::address_t address, void *buf, std::size_t
 			}
 		}
 
-		// TODO: handle if breakponts have a size more than 1!
 		Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
 			if(bp->address() >= orig_address && bp->address() < end_address) {
 				// show the original bytes in the buffer..
