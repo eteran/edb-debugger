@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCore {
 
 namespace {
-const quint8 BreakpointInstruction[X86Breakpoint::size] = {0xcc};
+const quint8 BreakpointInstruction = 0xcc;
 }
 
 //------------------------------------------------------------------------------
@@ -48,10 +48,10 @@ X86Breakpoint::~X86Breakpoint() {
 //------------------------------------------------------------------------------
 bool X86Breakpoint::enable() {
 	if(!enabled()) {
-		char prev[size];
-		if(edb::v1::debugger_core->read_bytes(address(), prev, size)) {
-			if(edb::v1::debugger_core->write_bytes(address(), BreakpointInstruction, size)) {
-				original_bytes_ = QByteArray(prev, size);
+		quint8 prev[1];
+		if(edb::v1::debugger_core->read_bytes(address(), prev, 1)) {
+			if(edb::v1::debugger_core->write_bytes(address(), &BreakpointInstruction, 1)) {
+				original_byte_ = prev[0];
 				enabled_ = true;
 				return true;
 			}
@@ -66,7 +66,7 @@ bool X86Breakpoint::enable() {
 //------------------------------------------------------------------------------
 bool X86Breakpoint::disable() {
 	if(enabled()) {
-		if(edb::v1::debugger_core->write_bytes(address(), original_bytes_.constData(), size)) {
+		if(edb::v1::debugger_core->write_bytes(address(), &original_byte_, 1)) {
 			enabled_ = false;
 			return true;
 		}

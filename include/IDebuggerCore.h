@@ -99,7 +99,6 @@ public:
 	virtual BreakpointList       backup_breakpoints() const = 0;
 	virtual IBreakpoint::pointer add_breakpoint(edb::address_t address) = 0;
 	virtual IBreakpoint::pointer find_breakpoint(edb::address_t address) = 0;
-	virtual int                  breakpoint_size() const = 0;
 	virtual void                 clear_breakpoints() = 0;
 	virtual void                 remove_breakpoint(edb::address_t address) = 0;
 

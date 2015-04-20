@@ -1142,6 +1142,22 @@ QString format_bytes(const QByteArray &x) {
 }
 
 //------------------------------------------------------------------------------
+// Name: format_bytes
+// Desc:
+//------------------------------------------------------------------------------
+QString format_bytes(quint8 byte) {
+	QString bytes;
+
+	bytes.reserve(4);
+
+	char buf[4];
+	qsnprintf(buf, sizeof(buf), "%02x", byte & 0xff);
+	bytes += buf;
+
+	return bytes;
+}
+
+//------------------------------------------------------------------------------
 // Name: format_pointer
 // Desc:
 //------------------------------------------------------------------------------

@@ -66,7 +66,7 @@ void OptionsPage::on_assemblerPath_editTextChanged(const QString &text) {
 // Desc:
 //------------------------------------------------------------------------------
 void OptionsPage::on_toolButton_clicked() {
-	const QString filename = QFileDialog::getOpenFileName(this, "Choose Your Preferred Assembler");
+	const QString filename = QFileDialog::getOpenFileName(this, tr("Choose Your Preferred Assembler"));
 	if(!filename.isEmpty()) {
 		ui->assemblerPath->setEditText(filename);
 	}

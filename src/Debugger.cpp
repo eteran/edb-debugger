@@ -1669,7 +1669,7 @@ edb::EVENT_STATUS Debugger::handle_trap() {
 	State state;
 	edb::v1::debugger_core->get_state(&state);
 
-	const edb::address_t previous_ip = state.instruction_pointer() - edb::v1::debugger_core->breakpoint_size();
+	const edb::address_t previous_ip = state.instruction_pointer() - 1;
 
 	// look it up in our breakpoint list, make sure it is one of OUR int3s!
 	// if it is, we need to backup EIP and pause ourselves

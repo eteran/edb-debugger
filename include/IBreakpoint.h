@@ -40,7 +40,7 @@ public:
 	virtual bool enabled() const = 0;
 	virtual bool one_time() const = 0;
 	virtual bool internal() const = 0;
-	virtual QByteArray original_bytes() const = 0;
+	virtual quint8 original_byte() const = 0;
 
 public:
 	virtual bool enable() = 0;

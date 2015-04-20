@@ -181,6 +181,7 @@ EDB_EXPORT QString symlink_target(const QString &s);
 EDB_EXPORT QStringList parse_command_line(const QString &cmdline);
 EDB_EXPORT address_t string_to_address(const QString &s, bool *ok);
 EDB_EXPORT QString format_bytes(const QByteArray &x);
+EDB_EXPORT QString format_bytes(quint8 byte);
 EDB_EXPORT QString format_pointer(address_t p);
 
 EDB_EXPORT address_t cpu_selected_address();

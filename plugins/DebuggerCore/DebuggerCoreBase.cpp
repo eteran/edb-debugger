@@ -152,12 +152,4 @@ edb::tid_t DebuggerCoreBase::active_thread() const {
 void DebuggerCoreBase::set_active_thread(edb::tid_t) {
 }
 
-//------------------------------------------------------------------------------
-// Name: breakpoint_size
-// Desc:
-//------------------------------------------------------------------------------
-int DebuggerCoreBase::breakpoint_size() const {
-	return X86Breakpoint::size;
-}
-
 }

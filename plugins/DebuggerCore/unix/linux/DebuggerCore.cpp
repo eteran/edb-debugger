@@ -559,7 +559,7 @@ bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t cou
 		Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
 			if(bp->address() >= address && bp->address() < (address + n)) {
 				// show the original bytes in the buffer..
-				reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_bytes()[0];
+				reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_byte();
 			}
 		}
 
@@ -1177,7 +1177,7 @@ QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 				Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
 					if(bp->address() >= address && bp->address() < (address + n)) {
 						// show the original bytes in the buffer..
-						reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_bytes()[0];
+						reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_byte();
 					}
 				}
 				return true;

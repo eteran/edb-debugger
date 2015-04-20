@@ -225,7 +225,7 @@ quint8 DebuggerCoreUNIX::read_byte(edb::address_t address, bool *ok) {
 
 	if(ok) {
 		if(const IBreakpoint::pointer bp = find_breakpoint(address)) {
-			return bp->original_bytes()[0];
+			return bp->original_byte();
 		}
 	}
 
@@ -362,7 +362,7 @@ bool DebuggerCoreUNIX::read_pages(edb::address_t address, void *buf, std::size_t
 		Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
 			if(bp->address() >= orig_address && bp->address() < end_address) {
 				// show the original bytes in the buffer..
-				orig_ptr[bp->address() - orig_address] = bp->original_bytes()[0];
+				orig_ptr[bp->address() - orig_address] = bp->original_byte();
 			}
 		}
 	}

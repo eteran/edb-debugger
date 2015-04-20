@@ -78,10 +78,10 @@ void DialogBreakpoints::updateList() {
 
 			const edb::address_t address = bp->address();
 			const QString condition      = bp->condition;
-			const QByteArray orig_bytes  = bp->original_bytes();
+			const quint8 orig_byte       = bp->original_byte();
 			const bool onetime           = bp->one_time();
 			const QString symname        = edb::v1::find_function_symbol(address, QString(), 0);
-			const QString bytes          = edb::v1::format_bytes(orig_bytes);
+			const QString bytes          = edb::v1::format_bytes(orig_byte);
 
 			QTableWidgetItem *item = new QTableWidgetItem(edb::v1::format_pointer(address));
 			item->setData(Qt::UserRole, address);

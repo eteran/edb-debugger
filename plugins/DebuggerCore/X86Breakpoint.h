@@ -29,12 +29,12 @@ public:
 	virtual ~X86Breakpoint();
 
 public:
-	virtual edb::address_t address() const    { return address_; }
-	virtual quint64 hit_count() const         { return hit_count_; }
-	virtual bool enabled() const              { return enabled_; }
-	virtual bool one_time() const             { return one_time_; }
-	virtual bool internal() const             { return internal_; }
-	virtual QByteArray original_bytes() const { return original_bytes_; }
+	virtual edb::address_t address() const { return address_; }
+	virtual quint64 hit_count() const      { return hit_count_; }
+	virtual bool enabled() const           { return enabled_; }
+	virtual bool one_time() const          { return one_time_; }
+	virtual bool internal() const          { return internal_; }
+	virtual quint8 original_byte() const   { return original_byte_; }
 
 public:
 	virtual bool enable();
@@ -43,11 +43,8 @@ public:
 	virtual void set_one_time(bool value);
 	virtual void set_internal(bool value);
 
-public:
-	static const int size = 1;
-
 private:
-	QByteArray     original_bytes_;
+	quint8         original_byte_;
 	edb::address_t address_;
 	quint64        hit_count_;
 	bool           enabled_ ;
