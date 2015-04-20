@@ -805,9 +805,8 @@ void DebuggerCore::set_state(const State &state) {
 //------------------------------------------------------------------------------
 bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 	detach();
-	pid_t pid;
 
-	switch(pid = fork()) {
+	switch(pid_t pid = fork()) {
 	case 0:
 		// we are in the child now...
 

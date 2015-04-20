@@ -85,17 +85,6 @@ public:
 	virtual quint64 cpu_type() const;
 
 
-public:
-#if 0
-#ifdef __NR_process_vm_readv
-	virtual bool read_bytes(edb::address_t address, void *buf, std::size_t len);        // TODO: remind me why these aren't const...
-#endif
-
-#ifdef __NR_process_vm_writev
-	virtual bool write_bytes(edb::address_t address, const void *buf, std::size_t len); // TODO: remind me why these aren't const...
-#endif
-#endif
-
 private:
 	virtual QMap<edb::pid_t, Process> enumerate_processes() const;
 	virtual QList<Module> loaded_modules() const;
