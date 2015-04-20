@@ -402,9 +402,6 @@ void DialogHeap::do_find() {
 	// get both the libc and ld symbols of __curbrk
 	// this will be the 'before/after libc' addresses
 
-	// we should get them from the regions we see
-	Symbol::pointer s;
-
 	edb::address_t start_address = 0;
 	edb::address_t end_address   = 0;
 
@@ -413,13 +410,11 @@ void DialogHeap::do_find() {
 
 	get_library_names(&libcName, &ldName);
 #if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
-	s = edb::v1::symbol_manager().find(libcName + "::__curbrk");
+	Symbol::pointer s = edb::v1::symbol_manager().find(libcName + "::__curbrk");
 	if(s) {
 		end_address = s->address;
 	} else {
-		QMessageBox::information(this, tr("__curbrk symbol not found in libc"), tr("Could not find the symbol for <strong>__curbrk</strong> in your libc, perhaps you need to regenerate your symbols?"));
-		qDebug() << "[Heap Analyzer] __curbrk symbol not found in libc";
-		return;
+		qDebug() << "[Heap Analyzer] __curbrk symbol not found in libc, falling back on heuristic! This may or may not work.";	
 	}
 
 	s = edb::v1::symbol_manager().find(ldName + "::__curbrk");
@@ -435,20 +430,46 @@ void DialogHeap::do_find() {
 				break;
 			}
 		}
+	}
+	
+	if(start_address != 0 && end_address != 0) {
+		qDebug() << "[Heap Analyzer] heap start symbol : " << edb::v1::format_pointer(start_address);
+		qDebug() << "[Heap Analyzer] heap end symbol   : " << edb::v1::format_pointer(end_address);
 
-		// ok, I give up
-		if(start_address == 0) {
-			QMessageBox::information(this, tr("Could not calculate heap start"), tr("Failed to calculate the beginning of the heap."));
-			return;
+		// read the contents of those symbols
+		edb::v1::debugger_core->read_bytes(end_address, &end_address, sizeof(end_address));
+		edb::v1::debugger_core->read_bytes(start_address, &start_address, sizeof(start_address));	
+	}
+	
+	// just assume it's the bounds of the [heap] memory region for now
+	if(start_address == 0 || end_address == 0) {
+
+		const QList<IRegion::pointer> &regions = edb::v1::memory_regions().regions();
+		Q_FOREACH(IRegion::pointer region, regions) {
+
+			if(region->name() == "[heap]") {
+
+				qDebug() << "Found a memory region named '[heap]', assuming that it provides sane bounds";
+			
+				if(start_address == 0) {
+					start_address = region->start();
+				}
+							
+				if(end_address == 0) {
+					end_address = region->end();
+				}
+						
+				break;
+			}
 		}
 	}
+	
+	// ok, I give up
+	if(start_address == 0 || end_address == 0) {
+		QMessageBox::information(this, tr("Could not calculate heap bounds"), tr("Failed to calculate the bounds of the heap."));
+		return;
+	}	
 
-	qDebug() << "[Heap Analyzer] heap start symbol : " << edb::v1::format_pointer(start_address);
-	qDebug() << "[Heap Analyzer] heap end symbol   : " << edb::v1::format_pointer(end_address);
-
-	// read the contents of those symbols
-	edb::v1::debugger_core->read_bytes(end_address, &end_address, sizeof(end_address));
-	edb::v1::debugger_core->read_bytes(start_address, &start_address, sizeof(start_address));
 #else
 	#error "Unsupported Platform"
 #endif
