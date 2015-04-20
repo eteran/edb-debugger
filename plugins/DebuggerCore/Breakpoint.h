@@ -23,10 +23,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCore {
 
-class X86Breakpoint : public IBreakpoint {
+class Breakpoint : public IBreakpoint {
 public:
-	X86Breakpoint(edb::address_t address);
-	virtual ~X86Breakpoint();
+	Breakpoint(edb::address_t address);
+	virtual ~Breakpoint();
 
 public:
 	virtual edb::address_t address() const { return address_; }

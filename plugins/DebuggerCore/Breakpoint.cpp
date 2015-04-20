@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "X86Breakpoint.h"
+#include "Breakpoint.h"
 #include "IDebuggerCore.h"
 #include "edb.h"
 
@@ -27,18 +27,18 @@ const quint8 BreakpointInstruction = 0xcc;
 }
 
 //------------------------------------------------------------------------------
-// Name: X86Breakpoint
+// Name: Breakpoint
 // Desc: constructor
 //------------------------------------------------------------------------------
-X86Breakpoint::X86Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false) {
+Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false) {
 	enable();
 }
 
 //------------------------------------------------------------------------------
-// Name: ~X86Breakpoint
+// Name: ~Breakpoint
 // Desc:
 //------------------------------------------------------------------------------
-X86Breakpoint::~X86Breakpoint() {
+Breakpoint::~Breakpoint() {
 	disable();
 }
 
@@ -46,7 +46,7 @@ X86Breakpoint::~X86Breakpoint() {
 // Name: enable
 // Desc:
 //------------------------------------------------------------------------------
-bool X86Breakpoint::enable() {
+bool Breakpoint::enable() {
 	if(!enabled()) {
 		quint8 prev[1];
 		if(edb::v1::debugger_core->read_bytes(address(), prev, 1)) {
@@ -64,7 +64,7 @@ bool X86Breakpoint::enable() {
 // Name: disable
 // Desc:
 //------------------------------------------------------------------------------
-bool X86Breakpoint::disable() {
+bool Breakpoint::disable() {
 	if(enabled()) {
 		if(edb::v1::debugger_core->write_bytes(address(), &original_byte_, 1)) {
 			enabled_ = false;
@@ -78,7 +78,7 @@ bool X86Breakpoint::disable() {
 // Name: hit
 // Desc:
 //------------------------------------------------------------------------------
-void X86Breakpoint::hit() {
+void Breakpoint::hit() {
 	++hit_count_;
 }
 
@@ -86,7 +86,7 @@ void X86Breakpoint::hit() {
 // Name: set_one_time
 // Desc:
 //------------------------------------------------------------------------------
-void X86Breakpoint::set_one_time(bool value) {
+void Breakpoint::set_one_time(bool value) {
 	one_time_ = value;
 }
 
@@ -94,7 +94,7 @@ void X86Breakpoint::set_one_time(bool value) {
 // Name: set_internal
 // Desc:
 //------------------------------------------------------------------------------
-void X86Breakpoint::set_internal(bool value) {
+void Breakpoint::set_internal(bool value) {
 	internal_ = value;
 }
 

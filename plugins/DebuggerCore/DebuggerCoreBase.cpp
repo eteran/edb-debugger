@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerCoreBase.h"
-#include "X86Breakpoint.h"
+#include "Breakpoint.h"
 
 namespace DebuggerCore {
 
@@ -54,7 +54,7 @@ IBreakpoint::pointer DebuggerCoreBase::add_breakpoint(edb::address_t address) {
 
 	if(attached()) {
 		if(!find_breakpoint(address)) {
-			IBreakpoint::pointer bp(new X86Breakpoint(address));
+			IBreakpoint::pointer bp(new Breakpoint(address));
 			breakpoints_[address] = bp;
 			return bp;
 		}
