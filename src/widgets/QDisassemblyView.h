@@ -75,8 +75,6 @@ signals:
 
 private:
 	QString formatAddress(edb::address_t address) const;
-	QString format_instruction_bytes(const edb::Instruction &inst) const;
-	QString format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, const QFontMetricsF &metrics) const;
 	QString format_invalid_instruction_bytes(const edb::Instruction &inst, QPainter &painter) const;
 	edb::address_t address_from_coord(int x, int y) const;
 	edb::address_t previous_instructions(edb::address_t current_address, int count);

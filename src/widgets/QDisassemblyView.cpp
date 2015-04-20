@@ -154,6 +154,24 @@ size_t length_disasm_back(const quint8 *buf, size_t size) {
 	return 0;
 }
 
+//------------------------------------------------------------------------------
+// Name: format_instruction_bytes
+// Desc:
+//------------------------------------------------------------------------------
+QString format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, const QFontMetricsF &metrics) {
+	const QString byte_buffer =
+	edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.size()));
+	return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
+}
+
+//------------------------------------------------------------------------------
+// Name: format_instruction_bytes
+// Desc:
+//------------------------------------------------------------------------------
+QString format_instruction_bytes(const edb::Instruction &inst) {
+	return edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.size()));
+}
+
 }
 
 //------------------------------------------------------------------------------
@@ -475,24 +493,6 @@ void QDisassemblyView::setAddressOffset(edb::address_t address) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::scrollTo(edb::address_t address) {
 	verticalScrollBar()->setValue(address - address_offset_);
-}
-
-//------------------------------------------------------------------------------
-// Name: format_instruction_bytes
-// Desc:
-//------------------------------------------------------------------------------
-QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, const QFontMetricsF &metrics) const {
-	const QString byte_buffer =
-	edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.size()));
-	return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
-}
-
-//------------------------------------------------------------------------------
-// Name: format_instruction_bytes
-// Desc:
-//------------------------------------------------------------------------------
-QString QDisassemblyView::format_instruction_bytes(const edb::Instruction &inst) const {
-	return edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.size()));
 }
 
 struct intel_lower {
