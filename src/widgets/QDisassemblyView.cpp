@@ -210,7 +210,24 @@ QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(paren
 QDisassemblyView::~QDisassemblyView() {
 }
 
-
+//------------------------------------------------------------------------------
+// Name: keyPressEvent
+//------------------------------------------------------------------------------
+void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
+	if (event->matches(QKeySequence::MoveToStartOfDocument)) {
+		verticalScrollBar()->setValue(0);
+	} else if (event->matches(QKeySequence::MoveToEndOfDocument)) {
+		verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+	} else if (event->matches(QKeySequence::MoveToNextLine)) {
+		scrollbar_action_triggered(QAbstractSlider::SliderSingleStepAdd);
+	} else if (event->matches(QKeySequence::MoveToPreviousLine)) {
+		scrollbar_action_triggered(QAbstractSlider::SliderSingleStepSub);
+	} else if (event->matches(QKeySequence::MoveToNextPage)) {
+		scrollbar_action_triggered(QAbstractSlider::SliderPageStepAdd);
+	} else if (event->matches(QKeySequence::MoveToPreviousPage)) {
+		scrollbar_action_triggered(QAbstractSlider::SliderPageStepSub);
+	}
+}
 
 //------------------------------------------------------------------------------
 // Name: previous_instructions

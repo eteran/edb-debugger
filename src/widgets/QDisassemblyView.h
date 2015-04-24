@@ -47,6 +47,7 @@ protected:
 	virtual void mouseReleaseEvent(QMouseEvent *event);
 	virtual void paintEvent(QPaintEvent *event);
 	virtual void wheelEvent(QWheelEvent *e);
+	virtual void keyPressEvent(QKeyEvent *event);
 
 public:
 	IRegion::pointer region() const;
