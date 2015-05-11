@@ -62,18 +62,6 @@ void sigchld_handler(int sig, siginfo_t *info, void *p) {
 }
 
 //------------------------------------------------------------------------------
-// Name: execvp
-// Desc: execvp, but handles being interrupted
-//------------------------------------------------------------------------------
-int native::execvp(const char *file, char *const argv[]) {
-	int ret;
-	do {
-		ret = ::execvp(file, argv);
-	} while(ret == -1 && errno == EINTR);
-	return ret;
-}
-
-//------------------------------------------------------------------------------
 // Name: read
 // Desc: read, but handles being interrupted
 //------------------------------------------------------------------------------
@@ -449,7 +437,7 @@ void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, 
 
 		*p = 0;
 
-		const int ret = native::execvp(argv_pointers[0], argv_pointers);
+		const int ret = execvp(argv_pointers[0], argv_pointers);
 
 		// should be no need to cleanup, the process which allocated all that
 		// space no longer exists!
