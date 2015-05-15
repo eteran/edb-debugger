@@ -65,6 +65,7 @@ public:
 	virtual QList<edb::tid_t> thread_ids() const { return threads_.keys(); }
 	virtual edb::tid_t active_thread() const     { return active_thread_; }
 	virtual void set_active_thread(edb::tid_t);
+	virtual ThreadInfo get_thread_info(edb::tid_t);
 
 public:
 	virtual QList<IRegion::pointer> memory_regions() const;

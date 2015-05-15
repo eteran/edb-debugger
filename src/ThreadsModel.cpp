@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ThreadsModel.h"
+#include "edb.h"
 #include <QtAlgorithms>
 
 ThreadsModel::ThreadsModel(QObject *parent) : QAbstractItemModel(parent) {
@@ -54,13 +55,21 @@ QVariant ThreadsModel::data(const QModelIndex &index, int role) const {
 			switch(index.column()) {
 			case 0:
 				if(item.current) {
-					return tr("*%1").arg(item.tid);
+					return tr("*%1").arg(item.info.tid);
 				} else {
-					return item.tid;
+					return item.info.tid;
 				}
+			case 1:
+				return item.info.priority;
+			case 2:
+				return edb::v1::format_pointer(item.info.ip);
+			case 3:
+				return item.info.state;
+			case 4:
+				return item.info.name;								
 			}
 		} else if(role == Qt::UserRole) {
-			return item.tid;
+			return item.info.tid;
 		}
 	}
 
@@ -72,7 +81,15 @@ QVariant ThreadsModel::headerData(int section, Qt::Orientation orientation, int 
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
 		switch(section) {
 		case 0:
-			return tr("Thread ID");
+			return tr("ID");
+		case 1:
+			return tr("Priority");
+		case 2:
+			return tr("Instruction Pointer");
+		case 3:
+			return tr("State");			
+		case 4:
+			return tr("Name");			
 		}
 	}
 
@@ -81,7 +98,7 @@ QVariant ThreadsModel::headerData(int section, Qt::Orientation orientation, int 
 
 int ThreadsModel::columnCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent);
-	return 1;
+	return 5;
 }
 
 int ThreadsModel::rowCount(const QModelIndex &parent) const {
@@ -89,11 +106,11 @@ int ThreadsModel::rowCount(const QModelIndex &parent) const {
 	return items_.size();
 }
 
-void ThreadsModel::addThread(edb::tid_t tid, bool current) {
+void ThreadsModel::addThread(const ThreadInfo &info, bool current) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
 	const Item item = {
-		tid, current
+		info, current
 	};
 	items_.push_back(item);
 	endInsertRows();

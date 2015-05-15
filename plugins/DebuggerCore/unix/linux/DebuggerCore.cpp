@@ -229,19 +229,21 @@ struct user_stat {
 // Desc: gets the contents of /proc/<pid>/stat and returns the number of elements
 //       successfully parsed
 //------------------------------------------------------------------------------
-int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
-
+int get_user_stat(const QString &path, struct user_stat *user_stat) {
 	Q_ASSERT(user_stat);
 
 	int r = -1;
-	QFile file(QString("/proc/%1/stat").arg(pid));
+	QFile file(path);
 	if(file.open(QIODevice::ReadOnly)) {
 		QTextStream in(&file);
 		const QString line = in.readLine();
 		if(!line.isNull()) {
-			r = sscanf(qPrintable(line), "%d %255s %c %d %d %d %d %d %u %lu %lu %lu %lu %lu %lu %ld %ld %ld %ld %ld %ld %llu %lu %ld %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %d %d %u %u %llu %lu %ld",
+			char ch;
+			r = sscanf(qPrintable(line), "%d %c%255[0-9a-zA-Z_ #~/-]%c %c %d %d %d %d %d %u %lu %lu %lu %lu %lu %lu %ld %ld %ld %ld %ld %ld %llu %lu %ld %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %d %d %u %u %llu %lu %ld",
 					&user_stat->pid,
+					&ch, // consume the (
 					user_stat->comm,
+					&ch, // consume the )
 					&user_stat->state,
 					&user_stat->ppid,
 					&user_stat->pgrp,
@@ -289,6 +291,16 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 	}
 
 	return r;
+}
+
+//------------------------------------------------------------------------------
+// Name: get_user_stat
+// Desc: gets the contents of /proc/<pid>/stat and returns the number of elements
+//       successfully parsed
+//------------------------------------------------------------------------------
+int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
+
+	return get_user_stat(QString("/proc/%1/stat").arg(pid), user_stat);
 }
 
 
@@ -1235,6 +1247,67 @@ QString DebuggerCore::instruction_pointer() const {
 #elif defined(EDB_X86_64)
 	return "rip";
 #endif
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+ThreadInfo DebuggerCore::get_thread_info(edb::tid_t tid) {
+
+	ThreadInfo info;
+	struct user_stat thread_stat;
+	int n = get_user_stat(QString("/proc/%1/task/%2/stat").arg(pid_).arg(tid), &thread_stat);	
+	if(n >= 30) {
+		info.name     = thread_stat.comm;     // 02
+		info.tid      = tid;
+		info.ip       = thread_stat.kstkeip;  // 18
+		info.priority = thread_stat.priority; // 30
+		
+		switch(thread_stat.state) {           // 03
+		case 'R':
+			info.state = tr("%1 (Running)").arg(thread_stat.state);
+			break;
+		case 'S':
+			info.state = tr("%1 (Sleeping)").arg(thread_stat.state);
+			break;
+		case 'D':
+			info.state = tr("%1 (Disk Sleep)").arg(thread_stat.state);
+			break;		
+		case 'T':
+			info.state = tr("%1 (Stopped)").arg(thread_stat.state);
+			break;		
+		case 't':
+			info.state = tr("%1 (Tracing Stop)").arg(thread_stat.state);
+			break;		
+		case 'Z':
+			info.state = tr("%1 (Zombie)").arg(thread_stat.state);
+			break;		
+		case 'X':
+		case 'x':
+			info.state = tr("%1 (Dead)").arg(thread_stat.state);
+			break;
+		case 'W':
+			info.state = tr("%1 (Waking/Paging)").arg(thread_stat.state);
+			break;			
+		case 'K':
+			info.state = tr("%1 (Wakekill)").arg(thread_stat.state);
+			break;		
+		case 'P':
+			info.state = tr("%1 (Parked)").arg(thread_stat.state);
+			break;		
+		default:
+			info.state = tr("%1").arg(thread_stat.state);
+			break;		
+		} 
+	} else {
+		info.name     = QString();
+		info.tid      = tid;
+		info.ip       = 0;
+		info.priority = 0;
+		info.state    = '?';
+	}
+	return info;
 }
 
 #if QT_VERSION < 0x050000

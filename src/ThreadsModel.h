@@ -22,13 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAbstractItemModel>
 #include <QVector>
 #include "Types.h"
+#include "ThreadInfo.h"
 
 class ThreadsModel : public QAbstractItemModel {
 	Q_OBJECT
 
 public:
 	struct Item {
-		edb::tid_t tid;
+		ThreadInfo info;
 		bool       current;
 	};
 
@@ -45,7 +46,7 @@ public:
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
 public:
-	void addThread(edb::tid_t tid, bool current);
+	void addThread(const ThreadInfo &info, bool current);
 	void clear();
 
 private:

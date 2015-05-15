@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IRegion.h"
 #include "Process.h"
 #include "Module.h"
+#include "ThreadInfo.h"
 
 #include <QByteArray>
 #include <QDateTime>
@@ -93,6 +94,7 @@ public:
 	virtual QList<edb::tid_t> thread_ids() const            { return QList<edb::tid_t>(); }
 	virtual edb::tid_t        active_thread() const         { return static_cast<edb::tid_t>(-1); }
 	virtual void              set_active_thread(edb::tid_t) {}
+	virtual ThreadInfo        get_thread_info(edb::tid_t)   { return ThreadInfo(); }
 
 public:
 	// basic breakpoint managment

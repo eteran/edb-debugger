@@ -67,14 +67,15 @@ void DialogThreads::showEvent(QShowEvent *) {
 	const edb::tid_t current_thread = edb::v1::debugger_core->active_thread();
 
 	Q_FOREACH(edb::tid_t thread, threads) {
+	
+		const ThreadInfo info = edb::v1::debugger_core->get_thread_info(thread);
+	
 		if(thread == current_thread) {
-			threads_model_->addThread(thread, true);
+			threads_model_->addThread(info, true);
 		} else {
-			threads_model_->addThread(thread, false);
+			threads_model_->addThread(info, false);
 		}
 	}
-
-	ui->thread_table->resizeColumnsToContents();
 }
 
 //------------------------------------------------------------------------------
