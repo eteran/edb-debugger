@@ -62,7 +62,16 @@ QVariant ThreadsModel::data(const QModelIndex &index, int role) const {
 			case 1:
 				return item.info.priority;
 			case 2:
-				return edb::v1::format_pointer(item.info.ip);
+				{
+					const QString default_region_name;
+					const QString symname = edb::v1::find_function_symbol(item.info.ip, default_region_name);
+
+					if(!symname.isEmpty()) {
+						return QString("%1 <%2>").arg(edb::v1::format_pointer(item.info.ip)).arg(symname);
+					} else {
+						return QString("%1").arg(edb::v1::format_pointer(item.info.ip));
+					}				
+				}
 			case 3:
 				return item.info.state;
 			case 4:

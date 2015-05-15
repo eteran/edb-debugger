@@ -963,10 +963,6 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 			const int n = get_user_stat(pid, &user_stat);
 			if(n >= 2) {
 				process_info.name = user_stat.comm;
-
-				// remove silly '(' and ')'
-				process_info.name = process_info.name.mid(1);
-				process_info.name.chop(1);
 			}
 
 			process_info.pid = pid;
