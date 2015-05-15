@@ -2653,8 +2653,15 @@ bool Debugger::dump_stack(edb::address_t address, bool scroll_to) {
 	const IRegion::pointer last_region = stack_view_info_.region;
 	stack_view_info_.region = edb::v1::memory_regions().find_region(address);
 
+
+
 	if(stack_view_info_.region) {
 		stack_view_info_.update();
+		
+		State state;
+		edb::v1::debugger_core->get_state(&state);
+		stack_view_->setColdZoneEnd(state.stack_pointer());
+		
 		if(scroll_to || stack_view_info_.region->compare(last_region)) {
 			stack_view_->scrollTo(address - stack_view_info_.region->start());
 		}
