@@ -26,6 +26,12 @@
    </item>
    <item row="0" column="0">
     <widget class="QTableView" name="thread_table">
+     <property name="font">
+      <font>
+       <family>Monospace</family>
+       <pointsize>8</pointsize>
+      </font>
+     </property>
      <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
      </property>
