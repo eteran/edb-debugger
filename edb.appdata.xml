@@ -13,7 +13,7 @@
 	<screenshots>
 		<screenshot type="default" width="1121" height="839">http://codef00.com/img/debugger.png</screenshot>
 	</screenshots>
-	<url type="homepage">http://codef00.com/projects</url>
+	<url type="homepage">https://github.com/eteran/edb-debugger</url>
 	<updatecontact>evan.teran_at_gmail.com</updatecontact>
 </application>
 

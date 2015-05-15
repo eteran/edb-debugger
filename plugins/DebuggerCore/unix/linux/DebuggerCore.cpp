@@ -203,9 +203,25 @@ struct user_stat {
 /* 39 */ int processor;
 /* 40 */ unsigned rt_priority;
 /* 41 */ unsigned policy;
+
+// Linux 2.6.18
 /* 42 */ unsigned long long delayacct_blkio_ticks;
+
+// Linux 2.6.24
 /* 43 */ unsigned long guest_time;
 /* 44 */ long cguest_time;
+
+// Linux 3.3
+/* 45 */ unsigned long start_data;
+/* 46 */ unsigned long end_data;
+/* 47 */ unsigned long start_brk;
+
+// Linux 3.5
+/* 48 */ unsigned long arg_start;
+/* 49 */ unsigned long arg_end;
+/* 50 */ unsigned long env_start;
+/* 51 */ unsigned long env_end;
+/* 52 */ int exit_code;
 };
 
 //------------------------------------------------------------------------------

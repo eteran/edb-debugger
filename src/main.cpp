@@ -80,7 +80,7 @@ void load_plugins(const QString &directory) {
 int start_debugger(edb::pid_t attach_pid, const QString &program, const QList<QByteArray> &programArgs) {
 
 	qDebug() << "Starting edb version:" << edb::version;
-	qDebug("Please Report Bugs & Requests At: http://bugs.codef00.com/");
+	qDebug("Please Report Bugs & Requests At: https://github.com/eteran/edb-debugger/issues");
 
 	edb::internal::load_function_db();
 
