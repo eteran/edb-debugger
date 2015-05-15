@@ -61,6 +61,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QUrl>
 #include <QVector>
 #include <QtDebug>
+#include <QDesktopServices>
 
 #include <boost/bind.hpp>
 #include <memory>
@@ -2778,4 +2779,12 @@ void Debugger::save_session(const QString &session_file) {
 //------------------------------------------------------------------------------
 void Debugger::load_session(const QString &session_file) {
 	Q_UNUSED(session_file);
+}
+
+//------------------------------------------------------------------------------
+// Name: on_action_Help_triggered
+// Desc:
+//-----------------------------------------------------------------------------
+void Debugger::on_action_Help_triggered() {
+	 QDesktopServices::openUrl(QUrl("https://github.com/eteran/edb-debugger/wiki", QUrl::TolerantMode));
 }
