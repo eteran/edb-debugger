@@ -487,8 +487,8 @@ IState *DebuggerCore::create_state() const {
 // Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
-	QMap<edb::pid_t, Process> ret;
+QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, ProcessInfo> ret;
 
 	char ebuffer[_POSIX2_LINE_MAX];
 	int numprocs;
@@ -496,7 +496,7 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	if(kvm_t *const kaccess = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, ebuffer)) {
 		if(struct kinfo_proc *const kprocaccess = kvm_getprocs(kaccess, KERN_PROC_ALL, 0, sizeof *kprocaccess, &numprocs)) {
 			for(int i = 0; i < numprocs; ++i) {
-				Process procInfo;
+				ProcessInfo procInfo;
 				procInfo.pid  = kprocaccess[i].p_pid;
 				procInfo.uid  = kprocaccess[i].p_uid;
 				procInfo.name = kprocaccess[i].p_comm;

@@ -73,7 +73,7 @@ public:
 	virtual quint64 cpu_type() const;
 
 public:
-	virtual QMap<edb::pid_t, Process> enumerate_processes() const;
+	virtual QMap<edb::pid_t, ProcessInfo> enumerate_processes() const;
 	virtual QList<Module> loaded_modules() const;
 
 public:

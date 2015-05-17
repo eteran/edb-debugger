@@ -946,8 +946,8 @@ IState *DebuggerCore::create_state() const {
 // Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
-	QMap<edb::pid_t, Process> ret;
+QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, ProcessInfo> ret;
 
 	QDir proc_directory("/proc/");
 	QFileInfoList entries = proc_directory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
@@ -957,7 +957,7 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 		if(is_numeric(filename)) {
 
 			const edb::pid_t pid = filename.toULong();
-			Process process_info;
+			ProcessInfo process_info;
 
 			struct user_stat user_stat;
 			const int n = get_user_stat(pid, &user_stat);

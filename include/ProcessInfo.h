@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 #include <QString>
 
-struct Process {
+struct ProcessInfo {
 	edb::pid_t pid;
 	edb::uid_t uid;
 	QString    user;
