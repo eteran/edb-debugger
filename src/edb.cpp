@@ -713,11 +713,14 @@ address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 	Q_ASSERT(err);
 
 	address_t ret = 0;
+	*ok = false;
 
-	*ok = debugger_core->process()->read_bytes(address, &ret, sizeof(ret));
-
-	if(!*ok) {
-		*err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		*ok = process->read_bytes(address, &ret, sizeof(ret));
+	
+		if(!*ok) {
+			*err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
+		}
 	}
 
 	return ret;
@@ -733,13 +736,17 @@ bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
 	Q_ASSERT(size);
 	Q_ASSERT(*size >= 0);
 
-	bool ok = debugger_core->process()->read_bytes(address, buf, *size);
-
-	while(!ok && *size) {
-		ok = debugger_core->process()->read_bytes(address, buf, --(*size));
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		bool ok = process->read_bytes(address, buf, *size);
+	
+		while(!ok && *size) {
+			ok = process->read_bytes(address, buf, --(*size));
+		}
+		
+		return ok;
 	}
 
-	return ok;
+	return false;
 }
 
 //------------------------------------------------------------------------------
@@ -901,8 +908,11 @@ void pop_value(State *state) {
 //------------------------------------------------------------------------------
 void push_value(State *state, reg_t value) {
 	Q_ASSERT(state);
-	state->adjust_stack(- static_cast<int>(sizeof(reg_t)));
-	debugger_core->process()->write_bytes(state->stack_pointer(), &value, sizeof(reg_t));
+	
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		state->adjust_stack(- static_cast<int>(sizeof(reg_t)));	
+		process->write_bytes(state->stack_pointer(), &value, sizeof(reg_t));
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -959,20 +969,21 @@ bool overwrite_check(address_t address, unsigned int size) {
 //------------------------------------------------------------------------------
 void modify_bytes(address_t address, unsigned int size, QByteArray &bytes, quint8 fill) {
 
-	if(size != 0) {
-		// fill bytes
-		while(bytes.size() < static_cast<int>(size)) {
-			bytes.push_back(fill);
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(size != 0) {
+			// fill bytes
+			while(bytes.size() < static_cast<int>(size)) {
+				bytes.push_back(fill);
+			}
+	
+			process->write_bytes(address, bytes.data(), size);
+	
+			// do a refresh, not full update
+			Debugger *const gui = ui();
+			Q_ASSERT(gui);
+			gui->refresh_gui();
 		}
-
-		debugger_core->process()->write_bytes(address, bytes.data(), size);
-
-		// do a refresh, not full update
-		Debugger *const gui = ui();
-		Q_ASSERT(gui);
-		gui->refresh_gui();
 	}
-
 }
 
 //------------------------------------------------------------------------------
@@ -1228,19 +1239,21 @@ QWidget *disassembly_widget() {
 QVector<quint8> read_pages(address_t address, size_t page_count) {
 
 	if(debugger_core) {
-		try {
-			const address_t page_size = debugger_core->page_size();
-			QVector<quint8> pages(page_count * page_size);
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			try {
+				const address_t page_size = debugger_core->page_size();
+				QVector<quint8> pages(page_count * page_size);
 
-			if(debugger_core->process()->read_pages(address, pages.data(), page_count)) {
-				return pages;
+				if(process->read_pages(address, pages.data(), page_count)) {
+					return pages;
+				}
+
+
+			} catch(const std::bad_alloc &) {
+				QMessageBox::information(0,
+					QT_TRANSLATE_NOOP("edb", "Memroy Allocation Error"),
+					QT_TRANSLATE_NOOP("edb", "Unable to satisfy memory allocation request for requested region->"));
 			}
-
-
-		} catch(const std::bad_alloc &) {
-			QMessageBox::information(0,
-				QT_TRANSLATE_NOOP("edb", "Memroy Allocation Error"),
-				QT_TRANSLATE_NOOP("edb", "Unable to satisfy memory allocation request for requested region->"));
 		}
 	}
 

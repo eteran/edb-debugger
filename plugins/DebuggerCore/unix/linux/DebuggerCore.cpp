@@ -1122,30 +1122,32 @@ QList<Module> DebuggerCore::loaded_modules() const {
 	if(binary_info_) {
 		struct r_debug dynamic_info;
 		if(const edb::address_t debug_pointer = binary_info_->debug_pointer()) {
-			if(edb::v1::debugger_core->process()->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
-				if(dynamic_info.r_map) {
+			if(IProcess *process = edb::v1::debugger_core->process()) {
+				if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
+					if(dynamic_info.r_map) {
 
-					edb::address_t link_address = reinterpret_cast<edb::address_t>(dynamic_info.r_map);
+						edb::address_t link_address = reinterpret_cast<edb::address_t>(dynamic_info.r_map);
 
-					while(link_address) {
+						while(link_address) {
 
-						struct link_map map;
-						if(edb::v1::debugger_core->process()->read_bytes(link_address, &map, sizeof(map))) {
-							char path[PATH_MAX];
-							if(!edb::v1::debugger_core->process()->read_bytes(reinterpret_cast<edb::address_t>(map.l_name), &path, sizeof(path))) {
-								path[0] = '\0';
+							struct link_map map;
+							if(process->read_bytes(link_address, &map, sizeof(map))) {
+								char path[PATH_MAX];
+								if(!process->read_bytes(reinterpret_cast<edb::address_t>(map.l_name), &path, sizeof(path))) {
+									path[0] = '\0';
+								}
+
+								if(map.l_addr) {
+									Module module;
+									module.name         = path;
+									module.base_address = map.l_addr;
+									ret.push_back(module);
+								}
+
+								link_address = reinterpret_cast<edb::address_t>(map.l_next);
+							} else {
+								break;
 							}
-
-							if(map.l_addr) {
-								Module module;
-								module.name         = path;
-								module.base_address = map.l_addr;
-								ret.push_back(module);
-							}
-
-							link_address = reinterpret_cast<edb::address_t>(map.l_next);
-						} else {
-							break;
 						}
 					}
 				}

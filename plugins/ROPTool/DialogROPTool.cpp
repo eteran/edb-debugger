@@ -312,106 +312,108 @@ void DialogROPTool::do_find() {
 
 		unique_results_.clear();
 
-		Q_FOREACH(const QModelIndex &selected_item, sel) {
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			Q_FOREACH(const QModelIndex &selected_item, sel) {
 
-			const QModelIndex index = filter_model_->mapToSource(selected_item);
-			if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
+				const QModelIndex index = filter_model_->mapToSource(selected_item);
+				if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
-				edb::address_t start_address     = region->start();
-				const edb::address_t end_address = region->end();
-				const edb::address_t orig_start  = start_address;
+					edb::address_t start_address     = region->start();
+					const edb::address_t end_address = region->end();
+					const edb::address_t orig_start  = start_address;
 
-				ByteShiftArray bsa(32);
+					ByteShiftArray bsa(32);
 
-				while(start_address < end_address) {
+					while(start_address < end_address) {
 
-					// read in the next byte
-					quint8 byte;
-					if(edb::v1::debugger_core->process()->read_bytes(start_address, &byte, 1)) {
-						bsa << byte;
+						// read in the next byte
+						quint8 byte;
+						if(process->read_bytes(start_address, &byte, 1)) {
+							bsa << byte;
 
-						const quint8       *p = bsa.data();
-						const quint8 *const l = p + bsa.size();
-						edb::address_t    rva = start_address - bsa.size() + 1;
+							const quint8       *p = bsa.data();
+							const quint8 *const l = p + bsa.size();
+							edb::address_t    rva = start_address - bsa.size() + 1;
 
-						QList<edb::Instruction> instruction_list;
+							QList<edb::Instruction> instruction_list;
 
-						// eat up any NOPs in front...
-						Q_FOREVER {
-							edb::Instruction inst(p, l, rva, std::nothrow);
-							if(!is_nop(inst)) {
-								break;
-							}
-
-							instruction_list << inst;
-							p += inst.size();
-							rva += inst.size();
-						}
-
-
-						edb::Instruction inst1(p, l, rva, std::nothrow);
-						if(inst1) {
-							instruction_list << inst1;
-
-							if(inst1.type() == edb::Instruction::OP_INT && inst1.operands()[0].general_type() == edb::Operand::TYPE_IMMEDIATE && (inst1.operands()[0].immediate() & 0xff) == 0x80) {
-								add_gadget(instruction_list);
-							} else if(inst1.type() == edb::Instruction::OP_SYSENTER) {
-								add_gadget(instruction_list);
-							} else if(inst1.type() == edb::Instruction::OP_SYSCALL) {
-								add_gadget(instruction_list);
-							} else if(is_ret(inst1)) {
-								ui->progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
-								++start_address;
-								continue;
-							} else {
-
-								p += inst1.size();
-								rva += inst1.size();
-
-								// eat up any NOPs in between...
-								Q_FOREVER {
-									edb::Instruction inst(p, l, rva, std::nothrow);
-									if(!is_nop(inst)) {
-										break;
-									}
-
-									instruction_list << inst;
-									p += inst.size();
-									rva += inst.size();
+							// eat up any NOPs in front...
+							Q_FOREVER {
+								edb::Instruction inst(p, l, rva, std::nothrow);
+								if(!is_nop(inst)) {
+									break;
 								}
 
-								edb::Instruction inst2(p, l, rva, std::nothrow);
-								if(is_ret(inst2)) {
-									instruction_list << inst2;
+								instruction_list << inst;
+								p += inst.size();
+								rva += inst.size();
+							}
+
+
+							edb::Instruction inst1(p, l, rva, std::nothrow);
+							if(inst1) {
+								instruction_list << inst1;
+
+								if(inst1.type() == edb::Instruction::OP_INT && inst1.operands()[0].general_type() == edb::Operand::TYPE_IMMEDIATE && (inst1.operands()[0].immediate() & 0xff) == 0x80) {
 									add_gadget(instruction_list);
-								} else if(inst2 && inst2.type() == edb::Instruction::OP_POP) {
-									instruction_list << inst2;
-									p += inst2.size();
-									rva += inst2.size();
+								} else if(inst1.type() == edb::Instruction::OP_SYSENTER) {
+									add_gadget(instruction_list);
+								} else if(inst1.type() == edb::Instruction::OP_SYSCALL) {
+									add_gadget(instruction_list);
+								} else if(is_ret(inst1)) {
+									ui->progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
+									++start_address;
+									continue;
+								} else {
 
-									edb::Instruction inst3(p, l, rva, std::nothrow);
-									if(inst3 && inst3.type() == edb::Instruction::OP_JMP) {
+									p += inst1.size();
+									rva += inst1.size();
 
-										instruction_list << inst3;
+									// eat up any NOPs in between...
+									Q_FOREVER {
+										edb::Instruction inst(p, l, rva, std::nothrow);
+										if(!is_nop(inst)) {
+											break;
+										}
 
-										if(inst2.operand_count() == 1 && inst2.operands()[0].general_type() == edb::Operand::TYPE_REGISTER) {
-											if(inst3.operand_count() == 1 && inst3.operands()[0].general_type() == edb::Operand::TYPE_REGISTER) {
-												if(inst2.operands()[0].reg() == inst3.operands()[0].reg()) {
-													add_gadget(instruction_list);
+										instruction_list << inst;
+										p += inst.size();
+										rva += inst.size();
+									}
+
+									edb::Instruction inst2(p, l, rva, std::nothrow);
+									if(is_ret(inst2)) {
+										instruction_list << inst2;
+										add_gadget(instruction_list);
+									} else if(inst2 && inst2.type() == edb::Instruction::OP_POP) {
+										instruction_list << inst2;
+										p += inst2.size();
+										rva += inst2.size();
+
+										edb::Instruction inst3(p, l, rva, std::nothrow);
+										if(inst3 && inst3.type() == edb::Instruction::OP_JMP) {
+
+											instruction_list << inst3;
+
+											if(inst2.operand_count() == 1 && inst2.operands()[0].general_type() == edb::Operand::TYPE_REGISTER) {
+												if(inst3.operand_count() == 1 && inst3.operands()[0].general_type() == edb::Operand::TYPE_REGISTER) {
+													if(inst2.operands()[0].reg() == inst3.operands()[0].reg()) {
+														add_gadget(instruction_list);
+													}
 												}
 											}
 										}
 									}
 								}
+
+								// TODO(eteran): catch things like "add rsp, 8; jmp [rsp - 8]" and similar, it's rare,
+								// but could happen
 							}
-
-							// TODO: catch things like "add rsp, 8; jmp [rsp - 8]" and similar, it's rare,
-							// but could happen
 						}
-					}
 
-					ui->progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
-					++start_address;
+						ui->progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
+						++start_address;
+					}
 				}
 			}
 		}

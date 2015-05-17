@@ -1487,13 +1487,15 @@ void Debugger::cpu_fill(quint8 byte) {
 	const unsigned int size      = ui.cpuView->selectedSize();
 
 	if(size != 0) {
-		if(edb::v1::overwrite_check(address, size)) {
-			QByteArray bytes(size, byte);
-
-			edb::v1::debugger_core->process()->write_bytes(address, bytes.data(), size);
-
-			// do a refresh, not full update
-			refresh_gui();
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			if(edb::v1::overwrite_check(address, size)) {
+				QByteArray bytes(size, byte);
+	
+				process->write_bytes(address, bytes.data(), size);
+	
+				// do a refresh, not full update
+				refresh_gui();
+			}
 		}
 	}
 }
@@ -1597,12 +1599,14 @@ void Debugger::mnuCPUModify() {
 
 	Q_ASSERT(size <= sizeof(buf));
 
-	const bool ok = edb::v1::debugger_core->process()->read_bytes(address, buf, size);
-	if(ok) {
-		QByteArray bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), size);
-		if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"), size)) {
-			if(edb::v1::overwrite_check(address, size)) {
-				edb::v1::modify_bytes(address, size, bytes, 0x00);
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		const bool ok = process->read_bytes(address, buf, size);
+		if(ok) {
+			QByteArray bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), size);
+			if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"), size)) {
+				if(edb::v1::overwrite_check(address, size)) {
+					edb::v1::modify_bytes(address, size, bytes, 0x00);
+				}
 			}
 		}
 	}
@@ -2709,12 +2713,12 @@ void Debugger::tab_context_menu(int index, const QPoint &pos) {
 void Debugger::next_debug_event() {
 
 
-	// TODO: come up with a nice system to inject a debug event
-	//       into the system, for example on windows, we want
-	//       to deliver real "memory map updated" events, but
-	//       on linux, (at least for now), I would want to send
-	//       a fake one before every event so it is always up to
-	//       date.
+	// TODO(eteran): come up with a nice system to inject a debug event
+	//               into the system, for example on windows, we want
+	//               to deliver real "memory map updated" events, but
+	//               on linux, (at least for now), I would want to send
+	//               a fake one before every event so it is always up to
+	//               date.
 
 	Q_ASSERT(edb::v1::debugger_core);
 
@@ -2722,24 +2726,26 @@ void Debugger::next_debug_event() {
 
 		last_event_ = e;
 
-		// TODO: figure out a way to do this less often, if they map an obscene
+		// TODO(eteran): figure out a way to do this less often, if they map an obscene
 		// number of regions, this really slows things down
 		edb::v1::memory_regions().sync();
 
-		// TODO: make the system use this information, this is huge! it will
+		// TODO(eteran): make the system use this information, this is huge! it will
 		// allow us to have restorable breakpoints...even in libraries!
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-		if(!debug_pointer_ && binary_info_) {
-			if((debug_pointer_ = binary_info_->debug_pointer()) != 0) {
-				r_debug dynamic_info;
-				const bool ok = edb::v1::debugger_core->process()->read_bytes(debug_pointer_, &dynamic_info, sizeof(dynamic_info));
-				if(ok) {
-				#if 0
-					qDebug("READ DYNAMIC INFO! %p", dynamic_info.r_brk);
-				#endif
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			if(!debug_pointer_ && binary_info_) {
+				if((debug_pointer_ = binary_info_->debug_pointer()) != 0) {
+					r_debug dynamic_info;
+					const bool ok = process->read_bytes(debug_pointer_, &dynamic_info, sizeof(dynamic_info));
+					if(ok) {
+					#if 0
+						qDebug("READ DYNAMIC INFO! %p", dynamic_info.r_brk);
+					#endif
+					}
 				}
+	
 			}
-
 		}
 	#if 0
 		qDebug("DEBUG POINTER: %p", debug_pointer_);

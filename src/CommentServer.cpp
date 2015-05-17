@@ -58,7 +58,7 @@ void CommentServer::clear() {
 // a call can be anywhere from 2 to 7 bytes long depends on if there is a Mod/RM byte
 // or a SIB byte, etc
 // this is ignoring prefixes, fortunately, no calls have mandatory prefixes
-// TODO: this is a arch specific concept
+// TODO(eteran): this is an arch specific concept
 #define CALL_MAX_SIZE 7
 #define CALL_MIN_SIZE 2
 
@@ -77,19 +77,21 @@ QString CommentServer::resolve_function_call(QHexView::address_t address, bool *
 	// so we need to look back a few bytes
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 
-	// TODO: portability warning, makes assumptions on the size of a call
-	if(edb::v1::debugger_core->process()->read_bytes(address - CALL_MAX_SIZE, buffer, sizeof(buffer))) {
-		for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
-			edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0, std::nothrow);
-			if(is_call(inst)) {
-				const QString symname = edb::v1::find_function_symbol(address);
-				if(!symname.isEmpty()) {
-					ret = tr("return to %1 <%2>").arg(edb::v1::format_pointer(address)).arg(symname);
-				} else {
-					ret = tr("return to %1").arg(edb::v1::format_pointer(address));
+	// TODO(eteran): portability warning, makes assumptions on the size of a call
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(process->read_bytes(address - CALL_MAX_SIZE, buffer, sizeof(buffer))) {
+			for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
+				edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0, std::nothrow);
+				if(is_call(inst)) {
+					const QString symname = edb::v1::find_function_symbol(address);
+					if(!symname.isEmpty()) {
+						ret = tr("return to %1 <%2>").arg(edb::v1::format_pointer(address)).arg(symname);
+					} else {
+						ret = tr("return to %1").arg(edb::v1::format_pointer(address));
+					}
+					*ok = true;
+					break;
 				}
-				*ok = true;
-				break;
 			}
 		}
 	}
@@ -128,21 +130,22 @@ QString CommentServer::comment(QHexView::address_t address, int size) const {
 
 	QString ret;
 	
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		// if the view is currently looking at words which are a pointer in size
+		// then see if it points to anything...
+		if(size == edb::v1::pointer_size()) {
+			edb::address_t value;
+			if(process->read_bytes(address, &value, sizeof(value))) {
 
-	// if the view is currently looking at words which are a pointer in size
-	// then see if it points to anything...
-	if(size == edb::v1::pointer_size()) {
-		edb::address_t value;
-		if(edb::v1::debugger_core->process()->read_bytes(address, &value, sizeof(value))) {
-
-			QHash<quint64, QString>::const_iterator it = custom_comments_.find(value);
-			if(it != custom_comments_.end()) {
-				ret = it.value();
-			} else {
-				bool ok;
-				ret = resolve_function_call(value, &ok);
-				if(!ok) {
-					ret = resolve_string(value, &ok);
+				QHash<quint64, QString>::const_iterator it = custom_comments_.find(value);
+				if(it != custom_comments_.end()) {
+					ret = it.value();
+				} else {
+					bool ok;
+					ret = resolve_function_call(value, &ok);
+					if(!ok) {
+						ret = resolve_string(value, &ok);
+					}
 				}
 			}
 		}

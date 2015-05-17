@@ -166,28 +166,33 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 // Desc:
 //------------------------------------------------------------------------------
 QString format_char(int pointer_level, edb::reg_t arg, QChar type) {
-	if(pointer_level == 1) {
-		if(arg == 0) {
-			return "NULL";
-		} else {
-			QString string_param;
-			int string_length;
 
-			if(edb::v1::get_ascii_string_at_address(arg, string_param, edb::v1::config().min_string_length, 256, string_length)) {
-				return QString("<0x%1> \"%2\"").arg(edb::v1::format_pointer(arg)).arg(string_param);
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(pointer_level == 1) {
+			if(arg == 0) {
+				return "NULL";
 			} else {
-				char character;
-				edb::v1::debugger_core->process()->read_bytes(arg, &character, sizeof(character));
-				if(character == '\0') {
-					return QString("<0x%1> \"\"").arg(edb::v1::format_pointer(arg));
+				QString string_param;
+				int string_length;
+
+				if(edb::v1::get_ascii_string_at_address(arg, string_param, edb::v1::config().min_string_length, 256, string_length)) {
+					return QString("<0x%1> \"%2\"").arg(edb::v1::format_pointer(arg)).arg(string_param);
 				} else {
-					return QString("<0x%1>").arg(edb::v1::format_pointer(arg));
+					char character;
+					process->read_bytes(arg, &character, sizeof(character));
+					if(character == '\0') {
+						return QString("<0x%1> \"\"").arg(edb::v1::format_pointer(arg));
+					} else {
+						return QString("<0x%1>").arg(edb::v1::format_pointer(arg));
+					}
 				}
 			}
+		} else {
+			return format_integer(pointer_level, arg, type);
 		}
-	} else {
-		return format_integer(pointer_level, arg, type);
 	}
+	
+	return "?";
 }
 
 //------------------------------------------------------------------------------
@@ -244,32 +249,34 @@ QString format_argument(const QString &type, edb::reg_t arg) {
 //------------------------------------------------------------------------------
 void resolve_function_parameters(const State &state, const QString &symname, int offset, QStringList &ret) {
 
-	// we will always be removing the last 2 chars '+0' from the string as well
-	// as chopping the region prefix we like to prepend to symbols
-	QString func_name;
-	const int colon_index = symname.indexOf("::");
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		// we will always be removing the last 2 chars '+0' from the string as well
+		// as chopping the region prefix we like to prepend to symbols
+		QString func_name;
+		const int colon_index = symname.indexOf("::");
 
-	if(colon_index != -1) {
-		func_name = symname.left(symname.length() - 2).mid(colon_index + 2);
-	}
-
-	// safe not to check for -1, it means 'rest of string' for the mid function
-	func_name = func_name.mid(0, func_name.indexOf("@"));
-
-	if(const edb::Prototype *const info = edb::v1::get_function_info(func_name)) {
-
-		QStringList arguments;
-		int i = 0;
-		Q_FOREACH(edb::Argument argument, info->arguments) {
-
-			edb::reg_t arg;
-			edb::v1::debugger_core->process()->read_bytes(state.stack_pointer() + i * sizeof(edb::reg_t) + offset, &arg, sizeof(arg));
-
-			arguments << format_argument(argument.type, arg);
-			++i;
+		if(colon_index != -1) {
+			func_name = symname.left(symname.length() - 2).mid(colon_index + 2);
 		}
 
-		ret << QString("%1(%2)").arg(func_name, arguments.join(", "));
+		// safe not to check for -1, it means 'rest of string' for the mid function
+		func_name = func_name.mid(0, func_name.indexOf("@"));
+
+		if(const edb::Prototype *const info = edb::v1::get_function_info(func_name)) {
+
+			QStringList arguments;
+			int i = 0;
+			Q_FOREACH(edb::Argument argument, info->arguments) {
+
+				edb::reg_t arg;
+				process->read_bytes(state.stack_pointer() + i * sizeof(edb::reg_t) + offset, &arg, sizeof(arg));
+
+				arguments << format_argument(argument.type, arg);
+				++i;
+			}
+
+			ret << QString("%1(%2)").arg(func_name, arguments.join(", "));
+		}
 	}
 }
 
@@ -383,14 +390,16 @@ void analyze_return(const State &state, const edb::Instruction &inst, QStringLis
 
 	Q_UNUSED(inst);
 
-	edb::address_t return_address;
-	edb::v1::debugger_core->process()->read_bytes(state.stack_pointer(), &return_address, sizeof(return_address));
-
-	const QString symname = edb::v1::find_function_symbol(return_address);
-	if(!symname.isEmpty()) {
-		ret << ArchProcessor::tr("return to %1 <%2>").arg(edb::v1::format_pointer(return_address)).arg(symname);
-	} else {
-		ret << ArchProcessor::tr("return to %1").arg(edb::v1::format_pointer(return_address));
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		edb::address_t return_address;
+		process->read_bytes(state.stack_pointer(), &return_address, sizeof(return_address));
+	
+		const QString symname = edb::v1::find_function_symbol(return_address);
+		if(!symname.isEmpty()) {
+			ret << ArchProcessor::tr("return to %1 <%2>").arg(edb::v1::format_pointer(return_address)).arg(symname);
+		} else {
+			ret << ArchProcessor::tr("return to %1").arg(edb::v1::format_pointer(return_address));
+		}
 	}
 }
 
@@ -400,48 +409,23 @@ void analyze_return(const State &state, const edb::Instruction &inst, QStringLis
 //------------------------------------------------------------------------------
 void analyze_call(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
-	const edb::Operand &operand = inst.operands()[0];
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		const edb::Operand &operand = inst.operands()[0];
 
-	if(operand.valid()) {
+		if(operand.valid()) {
 
-		const edb::address_t effective_address = get_effective_address(operand, state);
-		const QString temp_operand             = QString::fromStdString(to_string(operand));
-		QString temp;
+			const edb::address_t effective_address = get_effective_address(operand, state);
+			const QString temp_operand             = QString::fromStdString(to_string(operand));
+			QString temp;
 
-		switch(operand.general_type()) {
-		case edb::Operand::TYPE_REL:
-		case edb::Operand::TYPE_REGISTER:
-			do {
-				int offset;
-				const QString symname = edb::v1::find_function_symbol(effective_address, QString(), &offset);
-				if(!symname.isEmpty()) {
-					ret << QString("%1 = %2 <%3>").arg(temp_operand, edb::v1::format_pointer(effective_address), symname);
-
-					if(offset == 0) {
-						if(is_call(inst)) {
-							resolve_function_parameters(state, symname, 0, ret);
-						} else {
-							resolve_function_parameters(state, symname, 4, ret);
-						}
-					}
-
-				} else {
-					ret << QString("%1 = %2").arg(temp_operand, edb::v1::format_pointer(effective_address));
-				}
-			} while(0);
-			break;
-
-		case edb::Operand::TYPE_EXPRESSION:
-		default:
-			do {
-				edb::address_t target;
-				const bool ok = edb::v1::debugger_core->process()->read_bytes(effective_address, &target, sizeof(target));
-
-				if(ok) {
+			switch(operand.general_type()) {
+			case edb::Operand::TYPE_REL:
+			case edb::Operand::TYPE_REGISTER:
+				do {
 					int offset;
-					const QString symname = edb::v1::find_function_symbol(target, QString(), &offset);
+					const QString symname = edb::v1::find_function_symbol(effective_address, QString(), &offset);
 					if(!symname.isEmpty()) {
-						ret << QString("%1 = [%2] = %3 <%4>").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::v1::format_pointer(target), symname);
+						ret << QString("%1 = %2 <%3>").arg(temp_operand, edb::v1::format_pointer(effective_address), symname);
 
 						if(offset == 0) {
 							if(is_call(inst)) {
@@ -452,14 +436,40 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 						}
 
 					} else {
-						ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::v1::format_pointer(target));
+						ret << QString("%1 = %2").arg(temp_operand, edb::v1::format_pointer(effective_address));
 					}
-				} else {
-					// could not read from the address
-					ret << QString("%1 = [%2] = ?").arg(temp_operand, edb::v1::format_pointer(effective_address));
-				}
-			} while(0);
-			break;
+				} while(0);
+				break;
+
+			case edb::Operand::TYPE_EXPRESSION:
+			default:
+				do {
+					edb::address_t target;
+
+					if(process->read_bytes(effective_address, &target, sizeof(target))) {
+						int offset;
+						const QString symname = edb::v1::find_function_symbol(target, QString(), &offset);
+						if(!symname.isEmpty()) {
+							ret << QString("%1 = [%2] = %3 <%4>").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::v1::format_pointer(target), symname);
+
+							if(offset == 0) {
+								if(is_call(inst)) {
+									resolve_function_parameters(state, symname, 0, ret);
+								} else {
+									resolve_function_parameters(state, symname, 4, ret);
+								}
+							}
+
+						} else {
+							ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::v1::format_pointer(target));
+						}
+					} else {
+						// could not read from the address
+						ret << QString("%1 = [%2] = ?").arg(temp_operand, edb::v1::format_pointer(effective_address));
+					}
+				} while(0);
+				break;
+			}
 		}
 	}
 }
@@ -472,49 +482,49 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 
 	Q_UNUSED(inst);
 
-	for(int j = 0; j < edb::Instruction::MAX_OPERANDS; ++j) {
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		for(int j = 0; j < edb::Instruction::MAX_OPERANDS; ++j) {
 
-		const edb::Operand &operand = inst.operands()[j];
+			const edb::Operand &operand = inst.operands()[j];
 
-		if(operand.valid()) {
+			if(operand.valid()) {
 
-			const QString temp_operand = QString::fromStdString(to_string(operand));
+				const QString temp_operand = QString::fromStdString(to_string(operand));
 
-			switch(operand.general_type()) {
-			case edb::Operand::TYPE_REL:
-			case edb::Operand::TYPE_REGISTER:
-				do {
-					const edb::address_t effective_address = get_effective_address(operand, state);
-					ret << QString("%1 = %2").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
-				} while(0);
-				break;
-			case edb::Operand::TYPE_EXPRESSION:
-				do {
-					const edb::address_t effective_address = get_effective_address(operand, state);
-					edb::address_t target;
+				switch(operand.general_type()) {
+				case edb::Operand::TYPE_REL:
+				case edb::Operand::TYPE_REGISTER:
+					do {
+						const edb::address_t effective_address = get_effective_address(operand, state);
+						ret << QString("%1 = %2").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
+					} while(0);
+					break;
+				case edb::Operand::TYPE_EXPRESSION:
+					do {
+						const edb::address_t effective_address = get_effective_address(operand, state);
+						edb::address_t target;
 
-					const bool ok = edb::v1::debugger_core->process()->read_bytes(effective_address, &target, sizeof(target));
-
-					if(ok) {
-						switch(operand.complete_type()) {
-						case edb::Operand::TYPE_EXPRESSION8:
-							ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target & 0xff, 2, 16, QChar('0'));
-							break;
-						case edb::Operand::TYPE_EXPRESSION16:
-							ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target & 0xffff, 4, 16, QChar('0'));
-							break;
-						case edb::Operand::TYPE_EXPRESSION32:
-						default:
-							ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target & 0xffffffff, 8, 16, QChar('0'));
-							break;
+						if(process->read_bytes(effective_address, &target, sizeof(target)) {
+							switch(operand.complete_type()) {
+							case edb::Operand::TYPE_EXPRESSION8:
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target & 0xff, 2, 16, QChar('0'));
+								break;
+							case edb::Operand::TYPE_EXPRESSION16:
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target & 0xffff, 4, 16, QChar('0'));
+								break;
+							case edb::Operand::TYPE_EXPRESSION32:
+							default:
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target & 0xffffffff, 8, 16, QChar('0'));
+								break;
+							}
+						} else {
+							ret << QString("%1 = [%2] = ?").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
 						}
-					} else {
-						ret << QString("%1 = [%2] = ?").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
-					}
-				} while(0);
-				break;
-			default:
-				break;
+					} while(0);
+					break;
+				default:
+					break;
+				}
 			}
 		}
 	}
@@ -840,56 +850,56 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 
 	Q_ASSERT(edb::v1::debugger_core);
 
-	quint8 buffer[edb::Instruction::MAX_SIZE];
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		quint8 buffer[edb::Instruction::MAX_SIZE];
 
-	const bool ok = edb::v1::debugger_core->process()->read_bytes(address, buffer, sizeof(buffer));
-	if(ok) {
-		edb::Instruction inst(buffer, buffer + sizeof(buffer), address, std::nothrow);
-		if(inst) {
+		if(process->read_bytes(address, buffer, sizeof(buffer))) {
+			edb::Instruction inst(buffer, buffer + sizeof(buffer), address, std::nothrow);
+			if(inst) {
 
-			State state;
-			edb::v1::debugger_core->get_state(&state);
+				State state;
+				edb::v1::debugger_core->get_state(&state);
 
-			// figure out the instruction type and display some information about it
-			switch(inst.type()) {
-			case edb::Instruction::OP_CMOVCC:
-				analyze_cmov(state, inst, ret);
-				break;
-			case edb::Instruction::OP_RET:
-				analyze_return(state, inst, ret);
-				break;
-			case edb::Instruction::OP_JCC:
-				analyze_jump(state, inst, ret);
-				// FALL THROUGH!
-			case edb::Instruction::OP_JMP:
-			case edb::Instruction::OP_CALL:
-				analyze_call(state, inst, ret);
-				break;
-			#ifdef Q_OS_LINUX
-			case edb::Instruction::OP_INT:
-				if(inst.operands()[0].complete_type() == edb::Operand::TYPE_IMMEDIATE8 && (inst.operands()[0].immediate() & 0xff) == 0x80) {
+				// figure out the instruction type and display some information about it
+				switch(inst.type()) {
+				case edb::Instruction::OP_CMOVCC:
+					analyze_cmov(state, inst, ret);
+					break;
+				case edb::Instruction::OP_RET:
+					analyze_return(state, inst, ret);
+					break;
+				case edb::Instruction::OP_JCC:
+					analyze_jump(state, inst, ret);
+					// FALL THROUGH!
+				case edb::Instruction::OP_JMP:
+				case edb::Instruction::OP_CALL:
+					analyze_call(state, inst, ret);
+					break;
+				#ifdef Q_OS_LINUX
+				case edb::Instruction::OP_INT:
+					if(inst.operands()[0].complete_type() == edb::Operand::TYPE_IMMEDIATE8 && (inst.operands()[0].immediate() & 0xff) == 0x80) {
+						analyze_syscall(state, inst, ret);
+					} else {
+						analyze_operands(state, inst, ret);
+					}
+					break;
+				#endif
+				case edb::Instruction::OP_SYSCALL:
 					analyze_syscall(state, inst, ret);
-				} else {
+					break;
+				default:
 					analyze_operands(state, inst, ret);
+					break;
 				}
-				break;
-			#endif
-			case edb::Instruction::OP_SYSCALL:
-				analyze_syscall(state, inst, ret);
-				break;
-			default:
-				analyze_operands(state, inst, ret);
-				break;
+
+				analyze_jump_targets(inst, ret);
+
 			}
-
-			analyze_jump_targets(inst, ret);
-
 		}
+
+		// eliminate duplicates
+		ret = QStringList::fromSet(ret.toSet());
 	}
-
-	// eliminate duplicates
-	ret = QStringList::fromSet(ret.toSet());
-
 	return ret;
 }
 
