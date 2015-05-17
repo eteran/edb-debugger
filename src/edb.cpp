@@ -553,33 +553,35 @@ bool get_ascii_string_at_address(address_t address, QString &s, int min_length, 
 	bool is_string = false;
 
 	if(debugger_core) {
-		s.clear();
+		if(IProcess *process = debugger_core->process()) {
+			s.clear();
 
-		if(min_length <= max_length) {
-			while(max_length--) {
-				char ch;
-				if(!debugger_core->read_bytes(address++, &ch, sizeof(ch))) {
-					break;
-				}
+			if(min_length <= max_length) {
+				while(max_length--) {
+					char ch;
+					if(!process->read_bytes(address++, &ch, sizeof(ch))) {
+						break;
+					}
 
-				const int ascii_char = static_cast<unsigned char>(ch);
-				if(ascii_char < 0x80 && (std::isprint(ascii_char) || std::isspace(ascii_char))) {
-					s += ch;
-				} else {
-					break;
+					const int ascii_char = static_cast<unsigned char>(ch);
+					if(ascii_char < 0x80 && (std::isprint(ascii_char) || std::isspace(ascii_char))) {
+						s += ch;
+					} else {
+						break;
+					}
 				}
 			}
-		}
 
-		is_string = s.length() >= min_length;
+			is_string = s.length() >= min_length;
 
-		if(is_string) {
-			found_length = s.length();
-			s.replace("\r", "\\r");
-			s.replace("\n", "\\n");
-			s.replace("\t", "\\t");
-			s.replace("\v", "\\v");
-			s.replace("\"", "\\\"");
+			if(is_string) {
+				found_length = s.length();
+				s.replace("\r", "\\r");
+				s.replace("\n", "\\n");
+				s.replace("\t", "\\t");
+				s.replace("\v", "\\v");
+				s.replace("\"", "\\\"");
+			}
 		}
 	}
 
@@ -598,39 +600,41 @@ bool get_ascii_string_at_address(address_t address, QString &s, int min_length, 
 bool get_utf16_string_at_address(address_t address, QString &s, int min_length, int max_length, int &found_length) {
 	bool is_string = false;
 	if(debugger_core) {
-		s.clear();
+		if(IProcess *process = debugger_core->process()) {
+			s.clear();
 
-		if(min_length <= max_length) {
-			while(max_length--) {
+			if(min_length <= max_length) {
+				while(max_length--) {
 
-				quint16 val;
-				if(!debugger_core->read_bytes(address, &val, sizeof(val))) {
-					break;
-				}
+					quint16 val;
+					if(!process->read_bytes(address, &val, sizeof(val))) {
+						break;
+					}
 
-				address += sizeof(val);
+					address += sizeof(val);
 
-				QChar ch(val);
+					QChar ch(val);
 
-				// for now, we only acknowledge ASCII chars encoded as unicode
-				const int ascii_char = ch.toLatin1();
-				if(ascii_char >= 0x20 && ascii_char < 0x80) {
-					s += ch;
-				} else {
-					break;
+					// for now, we only acknowledge ASCII chars encoded as unicode
+					const int ascii_char = ch.toLatin1();
+					if(ascii_char >= 0x20 && ascii_char < 0x80) {
+						s += ch;
+					} else {
+						break;
+					}
 				}
 			}
-		}
 
-		is_string = s.length() >= min_length;
+			is_string = s.length() >= min_length;
 
-		if(is_string) {
-			found_length = s.length();
-			s.replace("\r", "\\r");
-			s.replace("\n", "\\n");
-			s.replace("\t", "\\t");
-			s.replace("\v", "\\v");
-			s.replace("\"", "\\\"");
+			if(is_string) {
+				found_length = s.length();
+				s.replace("\r", "\\r");
+				s.replace("\n", "\\n");
+				s.replace("\t", "\\t");
+				s.replace("\v", "\\v");
+				s.replace("\"", "\\\"");
+			}
 		}
 	}
 	return is_string;
@@ -710,7 +714,7 @@ address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 
 	address_t ret = 0;
 
-	*ok = debugger_core->read_bytes(address, &ret, sizeof(ret));
+	*ok = debugger_core->process()->read_bytes(address, &ret, sizeof(ret));
 
 	if(!*ok) {
 		*err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
@@ -729,10 +733,10 @@ bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
 	Q_ASSERT(size);
 	Q_ASSERT(*size >= 0);
 
-	bool ok = debugger_core->read_bytes(address, buf, *size);
+	bool ok = debugger_core->process()->read_bytes(address, buf, *size);
 
 	while(!ok && *size) {
-		ok = debugger_core->read_bytes(address, buf, --(*size));
+		ok = debugger_core->process()->read_bytes(address, buf, --(*size));
 	}
 
 	return ok;
@@ -898,7 +902,7 @@ void pop_value(State *state) {
 void push_value(State *state, reg_t value) {
 	Q_ASSERT(state);
 	state->adjust_stack(- static_cast<int>(sizeof(reg_t)));
-	debugger_core->write_bytes(state->stack_pointer(), &value, sizeof(reg_t));
+	debugger_core->process()->write_bytes(state->stack_pointer(), &value, sizeof(reg_t));
 }
 
 //------------------------------------------------------------------------------
@@ -961,7 +965,7 @@ void modify_bytes(address_t address, unsigned int size, QByteArray &bytes, quint
 			bytes.push_back(fill);
 		}
 
-		debugger_core->write_bytes(address, bytes.data(), size);
+		debugger_core->process()->write_bytes(address, bytes.data(), size);
 
 		// do a refresh, not full update
 		Debugger *const gui = ui();
@@ -1228,7 +1232,7 @@ QVector<quint8> read_pages(address_t address, size_t page_count) {
 			const address_t page_size = debugger_core->page_size();
 			QVector<quint8> pages(page_count * page_size);
 
-			if(debugger_core->read_pages(address, pages.data(), page_count)) {
+			if(debugger_core->process()->read_pages(address, pages.data(), page_count)) {
 				return pages;
 			}
 

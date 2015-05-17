@@ -198,7 +198,7 @@ void DialogHeap::process_potential_pointer(const QHash<edb::address_t, edb::addr
 
 		while(block_ptr < block_end) {
 
-			if(edb::v1::debugger_core->read_bytes(block_ptr, &pointer, sizeof(pointer))) {
+			if(edb::v1::debugger_core->process()->read_bytes(block_ptr, &pointer, sizeof(pointer))) {
 				QHash<edb::address_t, edb::address_t>::const_iterator it = targets.find(pointer);
 				if(it != targets.end()) {
 				#if QT_POINTER_SIZE == 4
@@ -273,7 +273,7 @@ void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end
 		const edb::address_t how_many = end_address - start_address;
 		while(currentChunkAddress != end_address) {
 			// read in the current chunk..
-			edb::v1::debugger_core->read_bytes(currentChunkAddress, &currentChunk, sizeof(currentChunk));
+			edb::v1::debugger_core->process()->read_bytes(currentChunkAddress, &currentChunk, sizeof(currentChunk));
 
 			// figure out the address of the next chunk
 			const edb::address_t nextChunkAddress = next_chunk(currentChunkAddress, currentChunk);
@@ -298,7 +298,7 @@ void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end
 				QString data;
 
 				// read in the next chunk
-				edb::v1::debugger_core->read_bytes(nextChunkAddress, &nextChunk, sizeof(nextChunk));
+				edb::v1::debugger_core->process()->read_bytes(nextChunkAddress, &nextChunk, sizeof(nextChunk));
 
 				// if this block is a container for an ascii string, display it...
 				// there is a lot of room for improvement here, but it's a start
@@ -326,7 +326,7 @@ void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end
 					using std::memcmp;
 					
 					quint8 bytes[16];
-					edb::v1::debugger_core->read_bytes(block_start(currentChunkAddress), bytes, sizeof(bytes));
+					edb::v1::debugger_core->process()->read_bytes(block_start(currentChunkAddress), bytes, sizeof(bytes));
 					
 					if(memcmp(bytes, "\x89\x50\x4e\x47", 4) == 0) {
 						data = "PNG IMAGE";
@@ -385,7 +385,7 @@ edb::address_t DialogHeap::find_heap_start_heuristic(edb::address_t end_address,
 #endif
 
 	edb::address_t test_addr;
-	edb::v1::debugger_core->read_bytes(heap_symbol, &test_addr, sizeof(test_addr));
+	edb::v1::debugger_core->process()->read_bytes(heap_symbol, &test_addr, sizeof(test_addr));
 
 	if(test_addr != edb::v1::debugger_core->page_size()) {
 		return 0;
@@ -437,8 +437,8 @@ void DialogHeap::do_find() {
 		qDebug() << "[Heap Analyzer] heap end symbol   : " << edb::v1::format_pointer(end_address);
 
 		// read the contents of those symbols
-		edb::v1::debugger_core->read_bytes(end_address, &end_address, sizeof(end_address));
-		edb::v1::debugger_core->read_bytes(start_address, &start_address, sizeof(start_address));	
+		edb::v1::debugger_core->process()->read_bytes(end_address, &end_address, sizeof(end_address));
+		edb::v1::debugger_core->process()->read_bytes(start_address, &start_address, sizeof(start_address));	
 	}
 	
 	// just assume it's the bounds of the [heap] memory region for now

@@ -40,7 +40,8 @@ class DebuggerCore : public DebuggerCoreUNIX {
 	Q_INTERFACES(IDebuggerCore)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
-
+	friend class PlatformProcess;
+	
 public:
 	DebuggerCore();
 	virtual ~DebuggerCore();
@@ -97,6 +98,9 @@ public:
 
 public:
 	virtual QString format_pointer(edb::address_t address) const;
+	
+public:
+	virtual IProcess *process() const;
 
 private:
 	virtual long read_data(edb::address_t address, bool *ok);
@@ -132,6 +136,7 @@ private:
 	QSet<edb::tid_t> waited_threads_;
 	edb::tid_t       event_thread_;
 	IBinary          *binary_info_;
+	IProcess         *process_;
 };
 
 }

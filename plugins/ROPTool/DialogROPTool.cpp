@@ -327,7 +327,7 @@ void DialogROPTool::do_find() {
 
 					// read in the next byte
 					quint8 byte;
-					if(edb::v1::debugger_core->read_bytes(start_address, &byte, 1)) {
+					if(edb::v1::debugger_core->process()->read_bytes(start_address, &byte, 1)) {
 						bsa << byte;
 
 						const quint8       *p = bsa.data();

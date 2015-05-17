@@ -49,8 +49,8 @@ Breakpoint::~Breakpoint() {
 bool Breakpoint::enable() {
 	if(!enabled()) {
 		quint8 prev[1];
-		if(edb::v1::debugger_core->read_bytes(address(), prev, 1)) {
-			if(edb::v1::debugger_core->write_bytes(address(), &BreakpointInstruction, 1)) {
+		if(edb::v1::debugger_core->process()->read_bytes(address(), prev, 1)) {
+			if(edb::v1::debugger_core->process()->write_bytes(address(), &BreakpointInstruction, 1)) {
 				original_byte_ = prev[0];
 				enabled_ = true;
 				return true;
@@ -66,7 +66,7 @@ bool Breakpoint::enable() {
 //------------------------------------------------------------------------------
 bool Breakpoint::disable() {
 	if(enabled()) {
-		if(edb::v1::debugger_core->write_bytes(address(), &original_byte_, 1)) {
+		if(edb::v1::debugger_core->process()->write_bytes(address(), &original_byte_, 1)) {
 			enabled_ = false;
 			return true;
 		}

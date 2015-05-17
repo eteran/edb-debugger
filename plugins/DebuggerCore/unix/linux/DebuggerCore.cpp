@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-// TODO: research usage of process_vm_readv, process_vm_writev
+// TODO(eteran): research usage of process_vm_readv, process_vm_writev
 
 #include "DebuggerCore.h"
 #include "edb.h"
@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformEvent.h"
 #include "PlatformRegion.h"
 #include "PlatformState.h"
+#include "PlatformProcess.h"
 #include "State.h"
 #include "string_hash.h"
 
@@ -310,7 +311,7 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 // Name: DebuggerCore
 // Desc: constructor
 //------------------------------------------------------------------------------
-DebuggerCore::DebuggerCore() : binary_info_(0) {
+DebuggerCore::DebuggerCore() : binary_info_(0), process_(0) {
 #if defined(_SC_PAGESIZE)
 	page_size_ = sysconf(_SC_PAGESIZE);
 #elif defined(_SC_PAGE_SIZE)
@@ -653,6 +654,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 		active_thread_  = pid;
 		event_thread_   = pid;
 		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
+		process_        = new PlatformProcess(this, pid);
 		return true;
 	}
 
@@ -675,6 +677,9 @@ void DebuggerCore::detach() {
 				native::waitpid(thread, 0, __WALL);
 			}
 		}
+		
+		delete process_;
+		process_ = 0;
 
 		reset();
 	}
@@ -692,6 +697,9 @@ void DebuggerCore::kill() {
 
 		// TODO: do i need to actually do this wait?
 		native::waitpid(pid(), 0, __WALL);
+
+		delete process_;
+		process_ = 0;
 
 		reset();
 	}
@@ -897,6 +905,8 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			active_thread_  = pid;
 			event_thread_   = pid;
 			binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
+
+			process_ = new PlatformProcess(this, pid);
 
 			return true;
 		} while(0);
@@ -1112,7 +1122,7 @@ QList<Module> DebuggerCore::loaded_modules() const {
 	if(binary_info_) {
 		struct r_debug dynamic_info;
 		if(const edb::address_t debug_pointer = binary_info_->debug_pointer()) {
-			if(edb::v1::debugger_core->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
+			if(edb::v1::debugger_core->process()->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
 				if(dynamic_info.r_map) {
 
 					edb::address_t link_address = reinterpret_cast<edb::address_t>(dynamic_info.r_map);
@@ -1120,9 +1130,9 @@ QList<Module> DebuggerCore::loaded_modules() const {
 					while(link_address) {
 
 						struct link_map map;
-						if(edb::v1::debugger_core->read_bytes(link_address, &map, sizeof(map))) {
+						if(edb::v1::debugger_core->process()->read_bytes(link_address, &map, sizeof(map))) {
 							char path[PATH_MAX];
-							if(!edb::v1::debugger_core->read_bytes(reinterpret_cast<edb::address_t>(map.l_name), &path, sizeof(path))) {
+							if(!edb::v1::debugger_core->process()->read_bytes(reinterpret_cast<edb::address_t>(map.l_name), &path, sizeof(path))) {
 								path[0] = '\0';
 							}
 
@@ -1304,6 +1314,10 @@ ThreadInfo DebuggerCore::get_thread_info(edb::tid_t tid) {
 		info.state    = '?';
 	}
 	return info;
+}
+
+IProcess *DebuggerCore::process() const {
+	return process_;
 }
 
 #if QT_VERSION < 0x050000

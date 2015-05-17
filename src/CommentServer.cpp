@@ -78,7 +78,7 @@ QString CommentServer::resolve_function_call(QHexView::address_t address, bool *
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 
 	// TODO: portability warning, makes assumptions on the size of a call
-	if(edb::v1::debugger_core->read_bytes(address - CALL_MAX_SIZE, buffer, sizeof(buffer))) {
+	if(edb::v1::debugger_core->process()->read_bytes(address - CALL_MAX_SIZE, buffer, sizeof(buffer))) {
 		for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
 			edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0, std::nothrow);
 			if(is_call(inst)) {
@@ -133,7 +133,7 @@ QString CommentServer::comment(QHexView::address_t address, int size) const {
 	// then see if it points to anything...
 	if(size == edb::v1::pointer_size()) {
 		edb::address_t value;
-		if(edb::v1::debugger_core->read_bytes(address, &value, sizeof(value))) {
+		if(edb::v1::debugger_core->process()->read_bytes(address, &value, sizeof(value))) {
 
 			QHash<quint64, QString>::const_iterator it = custom_comments_.find(value);
 			if(it != custom_comments_.end()) {

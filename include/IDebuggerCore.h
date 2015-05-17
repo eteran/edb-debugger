@@ -83,14 +83,6 @@ public:
 	virtual void step(edb::EVENT_STATUS status) = 0;
 
 public:
-	// returns true on success, false on failure, all bytes must be successfully
-	// read/written in order for a success. The debugged application should be stopped
-	// or this will return false immediately.
-	virtual bool write_bytes(edb::address_t address, const void *buf, std::size_t len) = 0;
-	virtual bool read_bytes(edb::address_t address, void *buf, std::size_t len) = 0;
-	virtual bool read_pages(edb::address_t address, void *buf, std::size_t count) = 0;
-
-public:
 	// thread support stuff (optional)
 	virtual QList<edb::tid_t> thread_ids() const            { return QList<edb::tid_t>(); }
 	virtual edb::tid_t        active_thread() const         { return static_cast<edb::tid_t>(-1); }
@@ -116,6 +108,9 @@ public:
 public:
 	virtual IState *create_state() const = 0;
 	virtual QWidget *create_register_view() const = 0;
+	
+public:
+	virtual IProcess *process() const = 0;
 
 public:
 	virtual QMap<edb::pid_t, ProcessInfo> enumerate_processes() const = 0;

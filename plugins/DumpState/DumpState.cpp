@@ -191,7 +191,7 @@ void DumpState::dump_registers(const State &state) {
 void DumpState::dump_lines(edb::address_t address, int lines) {
 	for(int i = 0; i < lines; ++i) {
 		quint8 buf[16];
-		if(edb::v1::debugger_core->read_bytes(address, buf, sizeof(buf))) {
+		if(edb::v1::debugger_core->process()->read_bytes(address, buf, sizeof(buf))) {
 			std::cout << hex_string(address) << " : ";
 
 			for(int j = 0x00; j < 0x04; ++j) std::cout << hex_string(buf[j]) << " ";

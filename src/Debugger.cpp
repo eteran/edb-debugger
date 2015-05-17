@@ -1490,7 +1490,7 @@ void Debugger::cpu_fill(quint8 byte) {
 		if(edb::v1::overwrite_check(address, size)) {
 			QByteArray bytes(size, byte);
 
-			edb::v1::debugger_core->write_bytes(address, bytes.data(), size);
+			edb::v1::debugger_core->process()->write_bytes(address, bytes.data(), size);
 
 			// do a refresh, not full update
 			refresh_gui();
@@ -1597,7 +1597,7 @@ void Debugger::mnuCPUModify() {
 
 	Q_ASSERT(size <= sizeof(buf));
 
-	const bool ok = edb::v1::debugger_core->read_bytes(address, buf, size);
+	const bool ok = edb::v1::debugger_core->process()->read_bytes(address, buf, size);
 	if(ok) {
 		QByteArray bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), size);
 		if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"), size)) {
@@ -2732,7 +2732,7 @@ void Debugger::next_debug_event() {
 		if(!debug_pointer_ && binary_info_) {
 			if((debug_pointer_ = binary_info_->debug_pointer()) != 0) {
 				r_debug dynamic_info;
-				const bool ok = edb::v1::debugger_core->read_bytes(debug_pointer_, &dynamic_info, sizeof(dynamic_info));
+				const bool ok = edb::v1::debugger_core->process()->read_bytes(debug_pointer_, &dynamic_info, sizeof(dynamic_info));
 				if(ok) {
 				#if 0
 					qDebug("READ DYNAMIC INFO! %p", dynamic_info.r_brk);

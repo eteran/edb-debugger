@@ -182,7 +182,7 @@ QString format_char(int pointer_level, edb::reg_t arg, QChar type) {
 				return QString("<0x%1> \"%2\"").arg(edb::v1::format_pointer(arg)).arg(string_param);
 			} else {
 				char character;
-				edb::v1::debugger_core->read_bytes(arg, &character, sizeof(character));
+				edb::v1::debugger_core->process()->read_bytes(arg, &character, sizeof(character));
 				if(character == '\0') {
 					return QString("<0x%1> \"\"").arg(edb::v1::format_pointer(arg));
 				} else {
@@ -288,7 +288,7 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 			edb::reg_t arg;
 
 			if(i > 5) {
-				edb::v1::debugger_core->read_bytes(state.stack_pointer() + (i - 5) * sizeof(edb::reg_t) + offset, &arg, sizeof(arg));
+				edb::v1::debugger_core->process()->read_bytes(state.stack_pointer() + (i - 5) * sizeof(edb::reg_t) + offset, &arg, sizeof(arg));
 			} else {
 				arg = state[parameter_registers[i]].value<edb::reg_t>();
 			}
@@ -407,7 +407,7 @@ void analyze_return(const State &state, const edb::Instruction &inst, QStringLis
 	Q_UNUSED(inst);
 
 	edb::address_t return_address;
-	edb::v1::debugger_core->read_bytes(state.stack_pointer(), &return_address, sizeof(return_address));
+	edb::v1::debugger_core->process()->read_bytes(state.stack_pointer(), &return_address, sizeof(return_address));
 
 	const QString symname = edb::v1::find_function_symbol(return_address);
 	if(!symname.isEmpty()) {
@@ -458,7 +458,7 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 		default:
 			do {
 				edb::address_t target;
-				const bool ok = edb::v1::debugger_core->read_bytes(effective_address, &target, sizeof(target));
+				const bool ok = edb::v1::debugger_core->process()->read_bytes(effective_address, &target, sizeof(target));
 
 				if(ok) {
 					int offset;
@@ -516,7 +516,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 					const edb::address_t effective_address = get_effective_address(operand, state);
 					edb::address_t target;
 
-					const bool ok = edb::v1::debugger_core->read_bytes(effective_address, &target, sizeof(target));
+					const bool ok = edb::v1::debugger_core->process()->read_bytes(effective_address, &target, sizeof(target));
 
 					if(ok) {
 						switch(operand.complete_type()) {
@@ -902,7 +902,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 
-	const bool ok = edb::v1::debugger_core->read_bytes(address, buffer, sizeof(buffer));
+	const bool ok = edb::v1::debugger_core->process()->read_bytes(address, buffer, sizeof(buffer));
 	if(ok) {
 		edb::Instruction inst(buffer, buffer + sizeof(buffer), address, std::nothrow);
 		if(inst) {

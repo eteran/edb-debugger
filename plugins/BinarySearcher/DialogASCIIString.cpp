@@ -80,8 +80,8 @@ void DialogASCIIString::do_find() {
 				while(stack_ptr < region->end()) {
 					// get the value from the stack
 					edb::address_t value;
-					if(edb::v1::debugger_core->read_bytes(stack_ptr, &value, sizeof(edb::address_t))) {
-						if(edb::v1::debugger_core->read_bytes(value, &chars[0], sz)) {
+					if(edb::v1::debugger_core->process()->read_bytes(stack_ptr, &value, sizeof(edb::address_t))) {
+						if(edb::v1::debugger_core->process()->read_bytes(value, &chars[0], sz)) {
 							if(std::memcmp(&chars[0], b.constData(), sz) == 0) {
 								QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(stack_ptr));
 								item->setData(Qt::UserRole, stack_ptr);

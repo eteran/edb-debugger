@@ -92,7 +92,7 @@ BackupInfo<N>::BackupInfo(edb::address_t address, IRegion::permissions_t perms, 
 template <size_t N>
 bool BackupInfo<N>::backup() {
 	edb::v1::debugger_core->get_state(&state_);
-	return edb::v1::debugger_core->read_bytes(address_, buffer_, N);
+	return edb::v1::debugger_core->process()->read_bytes(address_, buffer_, N);
 }
 
 //------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ bool BackupInfo<N>::backup() {
 template <size_t N>
 bool BackupInfo<N>::restore() {
 	edb::v1::debugger_core->set_state(state_);
-	return edb::v1::debugger_core->write_bytes(address_, buffer_, N);
+	return edb::v1::debugger_core->process()->write_bytes(address_, buffer_, N);
 }
 
 //------------------------------------------------------------------------------
@@ -310,7 +310,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 
 		if(backup_info.backup()) {
 			// write out our shellcode
-			if(edb::v1::debugger_core->write_bytes(temp_address, shellcode, sizeof(shellcode))) {
+			if(edb::v1::debugger_core->process()->write_bytes(temp_address, shellcode, sizeof(shellcode))) {
 
 				State state;
 				state.set_instruction_pointer(temp_address);

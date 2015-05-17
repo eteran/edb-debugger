@@ -744,7 +744,7 @@ void DialogOpcodes::do_find() {
 				for(size_t i = 0; i < shift_buffer.size(); ++i) {
 
 					quint8 byte;
-					edb::v1::debugger_core->read_bytes(start_address, &byte, 1);
+					edb::v1::debugger_core->process()->read_bytes(start_address, &byte, 1);
 					shift_buffer.shl();
 					shift_buffer[shift_buffer.size() - 1] = byte;
 
@@ -759,7 +759,7 @@ void DialogOpcodes::do_find() {
 					run_tests(classtype, opcode, address);
 
 					quint8 byte;
-					edb::v1::debugger_core->read_bytes(start_address, &byte, 1);
+					edb::v1::debugger_core->process()->read_bytes(start_address, &byte, 1);
 					shift_buffer.shl();
 					shift_buffer[shift_buffer.size() - 1] = byte;
 
