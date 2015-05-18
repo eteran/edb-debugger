@@ -504,7 +504,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						const edb::address_t effective_address = get_effective_address(operand, state);
 						edb::address_t target;
 
-						if(process->read_bytes(effective_address, &target, sizeof(target)) {
+						if(process->read_bytes(effective_address, &target, sizeof(target))) {
 							switch(operand.complete_type()) {
 							case edb::Operand::TYPE_EXPRESSION8:
 								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target & 0xff, 2, 16, QChar('0'));
