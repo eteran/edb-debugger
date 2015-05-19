@@ -87,7 +87,7 @@ IBreakpoint::pointer DebuggerCoreBase::find_breakpoint(edb::address_t address) {
 //------------------------------------------------------------------------------
 void DebuggerCoreBase::remove_breakpoint(edb::address_t address) {
 
-	// TODO: assert paused
+	// TODO(eteran): assert paused
 	if(attached()) {
 		const BreakpointList::iterator it = breakpoints_.find(address);
 		if(it != breakpoints_.end()) {

@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIALOG_ATTACH_20091218_H_
 
 #include "Types.h"
-#include "Process.h"
 #include <QDialog>
 
 class ProcessModel;

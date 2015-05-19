@@ -26,7 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCore {
 
 namespace native {
-	int execvp(const char *file, char *const argv[]);
 	int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
 	int select_ex(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, quint64 msecs);
 	pid_t waitpid(pid_t pid, int *status, int options);
@@ -42,15 +41,9 @@ public:
 	virtual ~DebuggerCoreUNIX() {}
 
 protected:
-	quint8 read_byte(edb::address_t address, bool *ok);      // TODO: remind me why these aren't const...
-	quint8 read_byte_base(edb::address_t address, bool *ok); // TODO: remind me why these aren't const...
 	void execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args);
-	void write_byte(edb::address_t address, quint8 value, bool *ok);      // TODO: remind me why these aren't const...
 
 public:
-	virtual bool read_pages(edb::address_t address, void *buf, std::size_t count);      // TODO: remind me why these aren't const...
-	virtual bool read_bytes(edb::address_t address, void *buf, std::size_t len);        // TODO: remind me why these aren't const...
-	virtual bool write_bytes(edb::address_t address, const void *buf, std::size_t len); // TODO: remind me why these aren't const...
 	virtual int pointer_size() const;
 	virtual QMap<long, QString> exceptions() const;
 

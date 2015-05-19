@@ -92,7 +92,11 @@ BackupInfo<N>::BackupInfo(edb::address_t address, IRegion::permissions_t perms, 
 template <size_t N>
 bool BackupInfo<N>::backup() {
 	edb::v1::debugger_core->get_state(&state_);
-	return edb::v1::debugger_core->read_bytes(address_, buffer_, N);
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		return process->read_bytes(address_, buffer_, N);
+	}
+	
+	return false;
 }
 
 //------------------------------------------------------------------------------
@@ -102,7 +106,12 @@ bool BackupInfo<N>::backup() {
 template <size_t N>
 bool BackupInfo<N>::restore() {
 	edb::v1::debugger_core->set_state(state_);
-	return edb::v1::debugger_core->write_bytes(address_, buffer_, N);
+	
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		return process->write_bytes(address_, buffer_, N);
+	}
+	
+	return false;
 }
 
 //------------------------------------------------------------------------------
@@ -305,49 +314,51 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 	// end nowhere near portable code
 
 	typedef BackupInfo<sizeof(shellcode)> BI;
-	try {
-		BI backup_info(temp_address, perms, this);
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		try {
+			BI backup_info(temp_address, perms, this);
 
-		if(backup_info.backup()) {
-			// write out our shellcode
-			if(edb::v1::debugger_core->write_bytes(temp_address, shellcode, sizeof(shellcode))) {
+			if(backup_info.backup()) {
+				// write out our shellcode
+				if(process->write_bytes(temp_address, shellcode, sizeof(shellcode))) {
 
-				State state;
-				state.set_instruction_pointer(temp_address);
+					State state;
+					state.set_instruction_pointer(temp_address);
 
-#if defined(EDB_X86)
-				state.set_register("ebx", len);
-				state.set_register("ecx", addr);
-				state.set_register("edx", perms);
-				state.set_register("eax", syscallnum);
-#elif defined(EDB_X86_64)
-				state.set_register("rsi", len);
-				state.set_register("rdi", addr);
-				state.set_register("rdx", perms);
-				state.set_register("rax", syscallnum);
-#else
-#error "invalid architecture"
-#endif
-				edb::v1::debugger_core->set_state(state);
+	#if defined(EDB_X86)
+					state.set_register("ebx", len);
+					state.set_register("ecx", addr);
+					state.set_register("edx", perms);
+					state.set_register("eax", syscallnum);
+	#elif defined(EDB_X86_64)
+					state.set_register("rsi", len);
+					state.set_register("rdi", addr);
+					state.set_register("rdx", perms);
+					state.set_register("rax", syscallnum);
+	#else
+	#error "invalid architecture"
+	#endif
+					edb::v1::debugger_core->set_state(state);
 
-				backup_info.event_handler_ = edb::v1::set_debug_event_handler(&backup_info);
+					backup_info.event_handler_ = edb::v1::set_debug_event_handler(&backup_info);
 
-				// run and wait for the 'crash' caused by the hlt instruction
-				// should be a SIGSEGV on Linux
-				edb::v1::debugger_core->resume(edb::DEBUG_CONTINUE);
+					// run and wait for the 'crash' caused by the hlt instruction
+					// should be a SIGSEGV on Linux
+					edb::v1::debugger_core->resume(edb::DEBUG_CONTINUE);
 
-				// we use a spinlock here because we want to be able to
-				// process events while waiting
-				while(backup_info.locked()) {
-					QCoreApplication::processEvents(QEventLoop::WaitForMoreEvents);
+					// we use a spinlock here because we want to be able to
+					// process events while waiting
+					while(backup_info.locked()) {
+						QCoreApplication::processEvents(QEventLoop::WaitForMoreEvents);
+					}
 				}
 			}
+		} catch(const std::bad_alloc &) {
+			QMessageBox::information(
+				0,
+				tr("Memory Allocation Error"),
+				tr("Unable to satisfy memory allocation request for backup code."));
 		}
-	} catch(const std::bad_alloc &) {
-		QMessageBox::information(
-			0,
-			tr("Memory Allocation Error"),
-			tr("Unable to satisfy memory allocation request for backup code."));
 	}
 }
 

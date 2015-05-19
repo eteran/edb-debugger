@@ -16,13 +16,17 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef VERSION_20061109_H_
-#define VERSION_20061109_H_
+#ifndef PROCESS_20120728_H_
+#define PROCESS_20120728_H_
 
-#define EDB_VERSION 0x00000921
+#include "Types.h"
+#include <QString>
 
-namespace edb {
-	static const char version[] = "0.9.21";
-}
+struct ProcessInfo {
+	edb::pid_t pid;
+	edb::uid_t uid;
+	QString    user;
+	QString    name;
+};
 
 #endif

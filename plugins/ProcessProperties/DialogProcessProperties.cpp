@@ -277,11 +277,20 @@ DialogProcessProperties::DialogProcessProperties(QWidget *parent) : QDialog(pare
 #if QT_VERSION >= 0x050000
 	ui->tableModules->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	ui->tableMemory->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	ui->threadTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 #else
 	ui->tableModules->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 	ui->tableMemory->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+	ui->threadTable->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 #endif
 
+	threads_model_ = new ThreadsModel(this);
+	threads_filter_ = new QSortFilterProxyModel(this);
+	
+	threads_filter_->setSourceModel(threads_model_);
+	threads_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	
+	ui->threadTable->setModel(threads_filter_);
 }
 
 //------------------------------------------------------------------------------
@@ -293,7 +302,7 @@ DialogProcessProperties::~DialogProcessProperties() {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: updateGeneralPage
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateGeneralPage() {
@@ -325,7 +334,7 @@ void DialogProcessProperties::updateGeneralPage() {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: updateModulePage
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateModulePage() {
@@ -347,7 +356,7 @@ void DialogProcessProperties::updateModulePage() {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: updateMemoryPage
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateMemoryPage() {
@@ -377,7 +386,7 @@ void DialogProcessProperties::updateMemoryPage() {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: on_txtSearchEnvironment_textChanged
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_txtSearchEnvironment_textChanged(const QString &text) {
@@ -385,7 +394,7 @@ void DialogProcessProperties::on_txtSearchEnvironment_textChanged(const QString 
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: updateEnvironmentPage
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
@@ -425,7 +434,7 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: updateHandles
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateHandles() {
@@ -481,11 +490,12 @@ void DialogProcessProperties::showEvent(QShowEvent *) {
 	updateMemoryPage();
 	updateModulePage();
 	updateHandles();
+	updateThreads();
 	updateEnvironmentPage(ui->txtSearchEnvironment->text());
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: on_btnParent_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnParent_clicked() {
@@ -501,7 +511,7 @@ void DialogProcessProperties::on_btnParent_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: on_btnImage_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnImage_clicked() {
@@ -513,7 +523,7 @@ void DialogProcessProperties::on_btnImage_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: on_btnRefreshEnvironment_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnRefreshEnvironment_clicked() {
@@ -521,7 +531,7 @@ void DialogProcessProperties::on_btnRefreshEnvironment_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: on_btnRefreshHandles_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnRefreshHandles_clicked() {
@@ -529,13 +539,43 @@ void DialogProcessProperties::on_btnRefreshHandles_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: on_btnStrings_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnStrings_clicked() {
 
 	static QDialog *dialog = new DialogStrings(edb::v1::debugger_ui);
 	dialog->show();
+}
+
+//------------------------------------------------------------------------------
+// Name: on_btnRefreshThreads_clicked
+// Desc:
+//------------------------------------------------------------------------------
+void DialogProcessProperties::on_btnRefreshThreads_clicked() {
+	updateThreads();
+}
+
+//------------------------------------------------------------------------------
+// Name: updateThreads
+// Desc:
+//------------------------------------------------------------------------------
+void DialogProcessProperties::updateThreads() {
+	threads_model_->clear();
+
+	QList<edb::tid_t> threads       = edb::v1::debugger_core->thread_ids();
+	const edb::tid_t current_thread = edb::v1::debugger_core->active_thread();
+
+	Q_FOREACH(edb::tid_t thread, threads) {
+	
+		const ThreadInfo info = edb::v1::debugger_core->get_thread_info(thread);
+	
+		if(thread == current_thread) {
+			threads_model_->addThread(info, true);
+		} else {
+			threads_model_->addThread(info, false);
+		}
+	}
 }
 
 }

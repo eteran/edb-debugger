@@ -40,7 +40,8 @@ class DebuggerCore : public DebuggerCoreUNIX {
 	Q_INTERFACES(IDebuggerCore)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
-
+	friend class PlatformProcess;
+	
 public:
 	DebuggerCore();
 	virtual ~DebuggerCore();
@@ -65,6 +66,7 @@ public:
 	virtual QList<edb::tid_t> thread_ids() const { return threads_.keys(); }
 	virtual edb::tid_t active_thread() const     { return active_thread_; }
 	virtual void set_active_thread(edb::tid_t);
+	virtual ThreadInfo get_thread_info(edb::tid_t);
 
 public:
 	virtual QList<IRegion::pointer> memory_regions() const;
@@ -86,7 +88,7 @@ public:
 
 
 private:
-	virtual QMap<edb::pid_t, Process> enumerate_processes() const;
+	virtual QMap<edb::pid_t, ProcessInfo> enumerate_processes() const;
 	virtual QList<Module> loaded_modules() const;
 
 public:
@@ -96,6 +98,9 @@ public:
 
 public:
 	virtual QString format_pointer(edb::address_t address) const;
+	
+public:
+	virtual IProcess *process() const;
 
 private:
 	virtual long read_data(edb::address_t address, bool *ok);
@@ -131,6 +136,7 @@ private:
 	QSet<edb::tid_t> waited_threads_;
 	edb::tid_t       event_thread_;
 	IBinary          *binary_info_;
+	IProcess         *process_;
 };
 
 }

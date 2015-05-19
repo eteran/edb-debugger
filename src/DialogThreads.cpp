@@ -32,11 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 DialogThreads::DialogThreads(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogThreads) {
 	ui->setupUi(this);
-#if QT_VERSION >= 0x050000
-	ui->thread_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-#else
-	ui->thread_table->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-#endif
 
 	threads_model_ = new ThreadsModel(this);
 	threads_filter_ = new QSortFilterProxyModel(this);
@@ -67,14 +62,17 @@ void DialogThreads::showEvent(QShowEvent *) {
 	const edb::tid_t current_thread = edb::v1::debugger_core->active_thread();
 
 	Q_FOREACH(edb::tid_t thread, threads) {
+	
+		const ThreadInfo info = edb::v1::debugger_core->get_thread_info(thread);
+	
 		if(thread == current_thread) {
-			threads_model_->addThread(thread, true);
+			threads_model_->addThread(info, true);
 		} else {
-			threads_model_->addThread(thread, false);
+			threads_model_->addThread(info, false);
 		}
 	}
-
-	ui->thread_table->resizeColumnsToContents();
+	
+	ui->thread_table->horizontalHeader()->resizeSections(QHeaderView::Stretch);
 }
 
 //------------------------------------------------------------------------------
