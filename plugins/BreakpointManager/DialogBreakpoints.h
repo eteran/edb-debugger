@@ -38,6 +38,8 @@ public Q_SLOTS:
 	void on_btnRemove_clicked();
 	void on_btnCondition_clicked();
 	void on_tableWidget_cellDoubleClicked(int row, int col);
+    void on_btnImport_clicked();
+    void on_btnExport_clicked();
 
 private:
 	virtual void showEvent(QShowEvent *event);

@@ -3,4 +3,4 @@ edb
 lib*.so
 .debug-shared/
 .release-shared/
-
+debugger.pro.user
