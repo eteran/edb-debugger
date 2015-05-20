@@ -78,7 +78,7 @@ public:
 	virtual QWidget *create_register_view() const;
 
 private:
-	virtual QMap<edb::pid_t, Process> enumerate_processes() const;
+	virtual QMap<edb::pid_t, ProcessInfo> enumerate_processes() const;
 	virtual QList<Module> loaded_modules() const;
 
 public:

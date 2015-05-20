@@ -76,12 +76,12 @@ void DialogAttach::update_list() {
 	process_model_->clear();
 
 	if(edb::v1::debugger_core) {
-		QMap<edb::pid_t, Process> procs = edb::v1::debugger_core->enumerate_processes();
+		QMap<edb::pid_t, ProcessInfo> procs = edb::v1::debugger_core->enumerate_processes();
 
 		const edb::uid_t user_id = getuid();
 		const bool filterUID = ui->filter_uid->isChecked();
 
-		Q_FOREACH(const Process &process_info, procs) {
+		Q_FOREACH(const ProcessInfo &process_info, procs) {
 			if(!filterUID || process_info.uid == user_id) {
 				process_model_->addProcess(process_info);
 			}

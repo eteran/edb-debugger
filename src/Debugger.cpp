@@ -61,6 +61,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QUrl>
 #include <QVector>
 #include <QtDebug>
+#include <QDesktopServices>
 
 #include <boost/bind.hpp>
 #include <memory>
@@ -897,8 +898,8 @@ void Debugger::on_action_About_triggered() {
 	QMessageBox::about(this, tr("About edb"),
 		tr(
 		"<p>edb (Evan's Debugger) is designed to be an easy to use, modular, and cross platform debugger.</p>"
-		"<p>More information and updates can be found at <a href=\"http://codef00.com\">http://codef00.com</a></p>"
-		"<p>You can also report bugs an feature requests at <a href=\"http://bugs.codef00.com\">http://bugs.codef00.com</a></p>"
+		"<p>More information and updates can be found at <a href=\"https://github.com/eteran/edb-debugger\">https://github.com/eteran/edb-debugger</a></p>"
+		"<p>You can also report bugs an feature requests at <a href=\"https://github.com/eteran/edb-debugger/issues\">https://github.com/eteran/edb-debugger/issues</a></p>"
 		"<p>Written by Evan Teran.</p>"
 		"<p>version: %1</p>"
 		).arg(edb::version));
@@ -1486,13 +1487,15 @@ void Debugger::cpu_fill(quint8 byte) {
 	const unsigned int size      = ui.cpuView->selectedSize();
 
 	if(size != 0) {
-		if(edb::v1::overwrite_check(address, size)) {
-			QByteArray bytes(size, byte);
-
-			edb::v1::debugger_core->write_bytes(address, bytes.data(), size);
-
-			// do a refresh, not full update
-			refresh_gui();
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			if(edb::v1::overwrite_check(address, size)) {
+				QByteArray bytes(size, byte);
+	
+				process->write_bytes(address, bytes.data(), size);
+	
+				// do a refresh, not full update
+				refresh_gui();
+			}
 		}
 	}
 }
@@ -1596,12 +1599,14 @@ void Debugger::mnuCPUModify() {
 
 	Q_ASSERT(size <= sizeof(buf));
 
-	const bool ok = edb::v1::debugger_core->read_bytes(address, buf, size);
-	if(ok) {
-		QByteArray bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), size);
-		if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"), size)) {
-			if(edb::v1::overwrite_check(address, size)) {
-				edb::v1::modify_bytes(address, size, bytes, 0x00);
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		const bool ok = process->read_bytes(address, buf, size);
+		if(ok) {
+			QByteArray bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), size);
+			if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"), size)) {
+				if(edb::v1::overwrite_check(address, size)) {
+					edb::v1::modify_bytes(address, size, bytes, 0x00);
+				}
 			}
 		}
 	}
@@ -2653,8 +2658,15 @@ bool Debugger::dump_stack(edb::address_t address, bool scroll_to) {
 	const IRegion::pointer last_region = stack_view_info_.region;
 	stack_view_info_.region = edb::v1::memory_regions().find_region(address);
 
+
+
 	if(stack_view_info_.region) {
 		stack_view_info_.update();
+		
+		State state;
+		edb::v1::debugger_core->get_state(&state);
+		stack_view_->setColdZoneEnd(state.stack_pointer());
+		
 		if(scroll_to || stack_view_info_.region->compare(last_region)) {
 			stack_view_->scrollTo(address - stack_view_info_.region->start());
 		}
@@ -2701,12 +2713,12 @@ void Debugger::tab_context_menu(int index, const QPoint &pos) {
 void Debugger::next_debug_event() {
 
 
-	// TODO: come up with a nice system to inject a debug event
-	//       into the system, for example on windows, we want
-	//       to deliver real "memory map updated" events, but
-	//       on linux, (at least for now), I would want to send
-	//       a fake one before every event so it is always up to
-	//       date.
+	// TODO(eteran): come up with a nice system to inject a debug event
+	//               into the system, for example on windows, we want
+	//               to deliver real "memory map updated" events, but
+	//               on linux, (at least for now), I would want to send
+	//               a fake one before every event so it is always up to
+	//               date.
 
 	Q_ASSERT(edb::v1::debugger_core);
 
@@ -2714,24 +2726,26 @@ void Debugger::next_debug_event() {
 
 		last_event_ = e;
 
-		// TODO: figure out a way to do this less often, if they map an obscene
+		// TODO(eteran): figure out a way to do this less often, if they map an obscene
 		// number of regions, this really slows things down
 		edb::v1::memory_regions().sync();
 
-		// TODO: make the system use this information, this is huge! it will
+		// TODO(eteran): make the system use this information, this is huge! it will
 		// allow us to have restorable breakpoints...even in libraries!
 #if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-		if(!debug_pointer_ && binary_info_) {
-			if((debug_pointer_ = binary_info_->debug_pointer()) != 0) {
-				r_debug dynamic_info;
-				const bool ok = edb::v1::debugger_core->read_bytes(debug_pointer_, &dynamic_info, sizeof(dynamic_info));
-				if(ok) {
-				#if 0
-					qDebug("READ DYNAMIC INFO! %p", dynamic_info.r_brk);
-				#endif
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			if(!debug_pointer_ && binary_info_) {
+				if((debug_pointer_ = binary_info_->debug_pointer()) != 0) {
+					r_debug dynamic_info;
+					const bool ok = process->read_bytes(debug_pointer_, &dynamic_info, sizeof(dynamic_info));
+					if(ok) {
+					#if 0
+						qDebug("READ DYNAMIC INFO! %p", dynamic_info.r_brk);
+					#endif
+					}
 				}
+	
 			}
-
 		}
 	#if 0
 		qDebug("DEBUG POINTER: %p", debug_pointer_);
@@ -2771,4 +2785,12 @@ void Debugger::save_session(const QString &session_file) {
 //------------------------------------------------------------------------------
 void Debugger::load_session(const QString &session_file) {
 	Q_UNUSED(session_file);
+}
+
+//------------------------------------------------------------------------------
+// Name: on_action_Help_triggered
+// Desc:
+//-----------------------------------------------------------------------------
+void Debugger::on_action_Help_triggered() {
+	 QDesktopServices::openUrl(QUrl("https://github.com/eteran/edb-debugger/wiki", QUrl::TolerantMode));
 }

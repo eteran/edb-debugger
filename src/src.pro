@@ -58,7 +58,7 @@ HEADERS += \
 	Module.h \
 	OSTypes.h \
 	PluginModel.h \
-	Process.h \
+	ProcessInfo.h \
 	ProcessModel.h \
 	Prototype.h \
 	QDisassemblyView.h \

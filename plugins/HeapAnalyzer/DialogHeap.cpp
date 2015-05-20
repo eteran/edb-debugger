@@ -191,29 +191,31 @@ void DialogHeap::get_library_names(QString *libcName, QString *ldName) const {
 //------------------------------------------------------------------------------
 void DialogHeap::process_potential_pointer(const QHash<edb::address_t, edb::address_t> &targets, Result &result) {
 	
-	if(result.data.isEmpty()) {
-		edb::address_t pointer;
-		edb::address_t block_ptr = block_start(result);
-		edb::address_t block_end = block_ptr + result.size;
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(result.data.isEmpty()) {
+			edb::address_t pointer;
+			edb::address_t block_ptr = block_start(result);
+			edb::address_t block_end = block_ptr + result.size;
 
-		while(block_ptr < block_end) {
+			while(block_ptr < block_end) {
 
-			if(edb::v1::debugger_core->read_bytes(block_ptr, &pointer, sizeof(pointer))) {
-				QHash<edb::address_t, edb::address_t>::const_iterator it = targets.find(pointer);
-				if(it != targets.end()) {
-				#if QT_POINTER_SIZE == 4
-					result.data += QString("dword ptr [%1] |").arg(edb::v1::format_pointer(it.key()));
-				#elif QT_POINTER_SIZE == 8
-					result.data += QString("qword ptr [%1] |").arg(edb::v1::format_pointer(it.key()));
-				#endif
-				result.points_to.push_back(it.value());
+				if(process->read_bytes(block_ptr, &pointer, sizeof(pointer))) {
+					QHash<edb::address_t, edb::address_t>::const_iterator it = targets.find(pointer);
+					if(it != targets.end()) {
+					#if QT_POINTER_SIZE == 4
+						result.data += QString("dword ptr [%1] |").arg(edb::v1::format_pointer(it.key()));
+					#elif QT_POINTER_SIZE == 8
+						result.data += QString("qword ptr [%1] |").arg(edb::v1::format_pointer(it.key()));
+					#endif
+					result.points_to.push_back(it.value());
+					}
 				}
+
+				block_ptr += sizeof(edb::address_t);
 			}
-			
-			block_ptr += sizeof(edb::address_t);
+
+			result.data.truncate(result.data.size() - 2);
 		}
-		
-		result.data.truncate(result.data.size() - 2);
 	}
 }
 
@@ -260,114 +262,116 @@ void DialogHeap::detect_pointers() {
 void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end_address) {
 	model_->clearResults();
 
-	const int min_string_length = edb::v1::config().min_string_length;
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		const int min_string_length = edb::v1::config().min_string_length;
 
-	if(start_address != 0 && end_address != 0) {
-#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
-		malloc_chunk currentChunk;
-		malloc_chunk nextChunk;
-		edb::address_t currentChunkAddress = start_address;
+		if(start_address != 0 && end_address != 0) {
+	#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
+			malloc_chunk currentChunk;
+			malloc_chunk nextChunk;
+			edb::address_t currentChunkAddress = start_address;
 
-		model_->setUpdatesEnabled(false);
+			model_->setUpdatesEnabled(false);
 
-		const edb::address_t how_many = end_address - start_address;
-		while(currentChunkAddress != end_address) {
-			// read in the current chunk..
-			edb::v1::debugger_core->read_bytes(currentChunkAddress, &currentChunk, sizeof(currentChunk));
+			const edb::address_t how_many = end_address - start_address;
+			while(currentChunkAddress != end_address) {
+				// read in the current chunk..
+				process->read_bytes(currentChunkAddress, &currentChunk, sizeof(currentChunk));
 
-			// figure out the address of the next chunk
-			const edb::address_t nextChunkAddress = next_chunk(currentChunkAddress, currentChunk);
+				// figure out the address of the next chunk
+				const edb::address_t nextChunkAddress = next_chunk(currentChunkAddress, currentChunk);
 
-			// is this the last chunk (if so, it's the 'top')
-			if(nextChunkAddress == end_address) {
+				// is this the last chunk (if so, it's the 'top')
+				if(nextChunkAddress == end_address) {
 
-				const Result r(
-					currentChunkAddress,
-					currentChunk.chunk_size(),
-					tr("Top"));
+					const Result r(
+						currentChunkAddress,
+						currentChunk.chunk_size(),
+						tr("Top"));
 
-				model_->addResult(r);
+					model_->addResult(r);
 
-			} else {
+				} else {
 
-				// make sure we aren't following a broken heap...
-				if(nextChunkAddress > end_address || nextChunkAddress < start_address) {
+					// make sure we aren't following a broken heap...
+					if(nextChunkAddress > end_address || nextChunkAddress < start_address) {
+						break;
+					}
+
+					QString data;
+
+					// read in the next chunk
+					process->read_bytes(nextChunkAddress, &nextChunk, sizeof(nextChunk));
+
+					// if this block is a container for an ascii string, display it...
+					// there is a lot of room for improvement here, but it's a start
+					QString asciiData;
+					QString utf16Data;
+					int asciisz;
+					int utf16sz;
+					if(edb::v1::get_ascii_string_at_address(
+							block_start(currentChunkAddress),
+							asciiData,
+							min_string_length,
+							currentChunk.chunk_size(),
+							asciisz)) {
+
+						data = QString("ASCII \"%1\"").arg(asciiData);
+					} else if(edb::v1::get_utf16_string_at_address(
+							block_start(currentChunkAddress),
+							utf16Data,
+							min_string_length,
+							currentChunk.chunk_size(),
+							utf16sz)) {
+						data = QString("UTF-16 \"%1\"").arg(utf16Data);
+					} else {
+
+						using std::memcmp;
+
+						quint8 bytes[16];
+						process->read_bytes(block_start(currentChunkAddress), bytes, sizeof(bytes));
+
+						if(memcmp(bytes, "\x89\x50\x4e\x47", 4) == 0) {
+							data = "PNG IMAGE";
+						} else if(memcmp(bytes, "\x2f\x2a\x20\x58\x50\x4d\x20\x2a\x2f", 9) == 0) {
+							data = "XPM IMAGE";
+						} else if(memcmp(bytes, "\x42\x5a", 2) == 0) {
+							data = "BZIP FILE";
+						} else if(memcmp(bytes, "\x1f\x9d", 2) == 0) {
+							data = "COMPRESS FILE";
+						} else if(memcmp(bytes, "\x1f\x8b", 2) == 0) {
+							data = "GZIP FILE";
+						}
+
+					}
+
+					const Result r(
+						currentChunkAddress,
+						currentChunk.chunk_size() + sizeof(unsigned int),
+						nextChunk.prev_inuse() ? tr("Busy") : tr("Free"),
+						data);
+
+					model_->addResult(r);
+				}
+
+				// avoif self referencing blocks
+				if(currentChunkAddress == nextChunkAddress) {
 					break;
 				}
 
-				QString data;
+				currentChunkAddress = nextChunkAddress;
 
-				// read in the next chunk
-				edb::v1::debugger_core->read_bytes(nextChunkAddress, &nextChunk, sizeof(nextChunk));
-
-				// if this block is a container for an ascii string, display it...
-				// there is a lot of room for improvement here, but it's a start
-				QString asciiData;
-				QString utf16Data;
-				int asciisz;
-				int utf16sz;
-				if(edb::v1::get_ascii_string_at_address(
-						block_start(currentChunkAddress),
-						asciiData,
-						min_string_length,
-						currentChunk.chunk_size(),
-						asciisz)) {
-
-					data = QString("ASCII \"%1\"").arg(asciiData);
-				} else if(edb::v1::get_utf16_string_at_address(
-						block_start(currentChunkAddress),
-						utf16Data,
-						min_string_length,
-						currentChunk.chunk_size(),
-						utf16sz)) {
-					data = QString("UTF-16 \"%1\"").arg(utf16Data);
-				} else {
-				
-					using std::memcmp;
-					
-					quint8 bytes[16];
-					edb::v1::debugger_core->read_bytes(block_start(currentChunkAddress), bytes, sizeof(bytes));
-					
-					if(memcmp(bytes, "\x89\x50\x4e\x47", 4) == 0) {
-						data = "PNG IMAGE";
-					} else if(memcmp(bytes, "\x2f\x2a\x20\x58\x50\x4d\x20\x2a\x2f", 9) == 0) {
-						data = "XPM IMAGE";
-					} else if(memcmp(bytes, "\x42\x5a", 2) == 0) {
-						data = "BZIP FILE";
-					} else if(memcmp(bytes, "\x1f\x9d", 2) == 0) {
-						data = "COMPRESS FILE";
-					} else if(memcmp(bytes, "\x1f\x8b", 2) == 0) {
-						data = "GZIP FILE";
-					}
-					
-				}
-
-				const Result r(
-					currentChunkAddress,
-					currentChunk.chunk_size() + sizeof(unsigned int),
-					nextChunk.prev_inuse() ? tr("Busy") : tr("Free"),
-					data);
-
-				model_->addResult(r);
+				ui->progressBar->setValue(util::percentage(currentChunkAddress - start_address, how_many));
 			}
 
-			// avoif self referencing blocks
-			if(currentChunkAddress == nextChunkAddress) {
-				break;
-			}
+			detect_pointers();
+			model_->setUpdatesEnabled(true);
 
-			currentChunkAddress = nextChunkAddress;
 
-			ui->progressBar->setValue(util::percentage(currentChunkAddress - start_address, how_many));
+	#else
+		#error "Unsupported Platform"
+	#endif
 		}
-
-		detect_pointers();
-		model_->setUpdatesEnabled(true);
-
-
-#else
-	#error "Unsupported Platform"
-#endif
 	}
 }
 
@@ -385,13 +389,17 @@ edb::address_t DialogHeap::find_heap_start_heuristic(edb::address_t end_address,
 #endif
 
 	edb::address_t test_addr;
-	edb::v1::debugger_core->read_bytes(heap_symbol, &test_addr, sizeof(test_addr));
-
-	if(test_addr != edb::v1::debugger_core->page_size()) {
-		return 0;
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		process->read_bytes(heap_symbol, &test_addr, sizeof(test_addr));
+	
+		if(test_addr != edb::v1::debugger_core->page_size()) {
+			return 0;
+		}
+	
+		return start_address;
 	}
-
-	return start_address;
+	
+	return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -402,82 +410,84 @@ void DialogHeap::do_find() {
 	// get both the libc and ld symbols of __curbrk
 	// this will be the 'before/after libc' addresses
 
-	edb::address_t start_address = 0;
-	edb::address_t end_address   = 0;
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		edb::address_t start_address = 0;
+		edb::address_t end_address   = 0;
 
-	QString libcName;
-	QString ldName;
+		QString libcName;
+		QString ldName;
 
-	get_library_names(&libcName, &ldName);
-#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
-	Symbol::pointer s = edb::v1::symbol_manager().find(libcName + "::__curbrk");
-	if(s) {
-		end_address = s->address;
-	} else {
-		qDebug() << "[Heap Analyzer] __curbrk symbol not found in libc, falling back on heuristic! This may or may not work.";	
-	}
+		get_library_names(&libcName, &ldName);
+	#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
+		Symbol::pointer s = edb::v1::symbol_manager().find(libcName + "::__curbrk");
+		if(s) {
+			end_address = s->address;
+		} else {
+			qDebug() << "[Heap Analyzer] __curbrk symbol not found in libc, falling back on heuristic! This may or may not work.";	
+		}
 
-	s = edb::v1::symbol_manager().find(ldName + "::__curbrk");
-	if(s) {
-		start_address = s->address;
-	} else {
+		s = edb::v1::symbol_manager().find(ldName + "::__curbrk");
+		if(s) {
+			start_address = s->address;
+		} else {
 
-		qDebug() << "[Heap Analyzer] __curbrk symbol not found in ld, falling back on heuristic! This may or may not work.";
+			qDebug() << "[Heap Analyzer] __curbrk symbol not found in ld, falling back on heuristic! This may or may not work.";
 
-		for(edb::address_t offset = 0x0000; offset != 0x1000; offset += sizeof(edb::address_t)) {
-			start_address = find_heap_start_heuristic(end_address, offset);
-			if(start_address != 0) {
-				break;
+			for(edb::address_t offset = 0x0000; offset != 0x1000; offset += sizeof(edb::address_t)) {
+				start_address = find_heap_start_heuristic(end_address, offset);
+				if(start_address != 0) {
+					break;
+				}
 			}
 		}
-	}
-	
-	if(start_address != 0 && end_address != 0) {
-		qDebug() << "[Heap Analyzer] heap start symbol : " << edb::v1::format_pointer(start_address);
-		qDebug() << "[Heap Analyzer] heap end symbol   : " << edb::v1::format_pointer(end_address);
 
-		// read the contents of those symbols
-		edb::v1::debugger_core->read_bytes(end_address, &end_address, sizeof(end_address));
-		edb::v1::debugger_core->read_bytes(start_address, &start_address, sizeof(start_address));	
-	}
-	
-	// just assume it's the bounds of the [heap] memory region for now
-	if(start_address == 0 || end_address == 0) {
+		if(start_address != 0 && end_address != 0) {
+			qDebug() << "[Heap Analyzer] heap start symbol : " << edb::v1::format_pointer(start_address);
+			qDebug() << "[Heap Analyzer] heap end symbol   : " << edb::v1::format_pointer(end_address);
 
-		const QList<IRegion::pointer> &regions = edb::v1::memory_regions().regions();
-		Q_FOREACH(IRegion::pointer region, regions) {
+			// read the contents of those symbols
+			process->read_bytes(end_address, &end_address, sizeof(end_address));
+			process->read_bytes(start_address, &start_address, sizeof(start_address));	
+		}
 
-			if(region->name() == "[heap]") {
+		// just assume it's the bounds of the [heap] memory region for now
+		if(start_address == 0 || end_address == 0) {
 
-				qDebug() << "Found a memory region named '[heap]', assuming that it provides sane bounds";
-			
-				if(start_address == 0) {
-					start_address = region->start();
+			const QList<IRegion::pointer> &regions = edb::v1::memory_regions().regions();
+			Q_FOREACH(IRegion::pointer region, regions) {
+
+				if(region->name() == "[heap]") {
+
+					qDebug() << "Found a memory region named '[heap]', assuming that it provides sane bounds";
+
+					if(start_address == 0) {
+						start_address = region->start();
+					}
+
+					if(end_address == 0) {
+						end_address = region->end();
+					}
+
+					break;
 				}
-							
-				if(end_address == 0) {
-					end_address = region->end();
-				}
-						
-				break;
 			}
 		}
+
+		// ok, I give up
+		if(start_address == 0 || end_address == 0) {
+			QMessageBox::information(this, tr("Could not calculate heap bounds"), tr("Failed to calculate the bounds of the heap."));
+			return;
+		}	
+
+	#else
+		#error "Unsupported Platform"
+	#endif
+
+		qDebug() << "[Heap Analyzer] heap start : " << edb::v1::format_pointer(start_address);
+		qDebug() << "[Heap Analyzer] heap end   : " << edb::v1::format_pointer(end_address);
+
+		collect_blocks(start_address, end_address);
 	}
-	
-	// ok, I give up
-	if(start_address == 0 || end_address == 0) {
-		QMessageBox::information(this, tr("Could not calculate heap bounds"), tr("Failed to calculate the bounds of the heap."));
-		return;
-	}	
-
-#else
-	#error "Unsupported Platform"
-#endif
-
-	qDebug() << "[Heap Analyzer] heap start : " << edb::v1::format_pointer(start_address);
-	qDebug() << "[Heap Analyzer] heap end   : " << edb::v1::format_pointer(end_address);
-
-	collect_blocks(start_address, end_address);
 }
 
 //------------------------------------------------------------------------------

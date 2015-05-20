@@ -99,6 +99,7 @@ public:
 
 public Q_SLOTS:
 	// the autoconnected slots
+	void on_action_Help_triggered();
 	void on_actionAbout_QT_triggered();
 	void on_actionApplication_Arguments_triggered();
 	void on_actionApplication_Working_Directory_triggered();

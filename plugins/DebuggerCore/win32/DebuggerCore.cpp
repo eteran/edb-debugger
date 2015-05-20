@@ -659,8 +659,8 @@ int DebuggerCore::sys_pointer_size() const {
 // Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
-	QMap<edb::pid_t, Process> ret;
+QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, ProcessInfo> ret;
 
 	HANDLE handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if(handle != INVALID_HANDLE_VALUE) {
@@ -675,7 +675,7 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 
 		if(Process32First(handle, &lppe)) {
 			do {
-				Process pi;
+				ProcessInfo pi;
 				pi.pid = lppe.th32ProcessID;
 				pi.uid = 0; // TODO
 				pi.name = QString::fromWCharArray(lppe.szExeFile);

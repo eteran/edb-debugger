@@ -30,8 +30,10 @@ class IBreakpoint {
 public:
 	typedef QSharedPointer<IBreakpoint> pointer;
 	
-public:
+protected:
 	IBreakpoint() : tag(0) {}
+	
+public:
 	virtual ~IBreakpoint() {}
 
 public:

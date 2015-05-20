@@ -52,21 +52,23 @@ void RegionBuffer::set_region(const IRegion::pointer &region) {
 qint64 RegionBuffer::readData(char *data, qint64 maxSize) {
 
 	if(region_) {
-		const edb::address_t start = region_->start() + pos();
-		const edb::address_t end   = region_->start() + region_->size();
-
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			const edb::address_t start = region_->start() + pos();
+			const edb::address_t end   = region_->start() + region_->size();
+	
 		if(start + maxSize > end) {
-			maxSize = end - start;
-		}
-
-		if(maxSize == 0) {
-			return 0;
-		}
-
-		if(edb::v1::debugger_core->read_bytes(start, data, maxSize)) {
-			return maxSize;
-		} else {
-			return -1;
+					maxSize = end - start;
+			}
+	
+			if(maxSize == 0) {
+				return 0;
+			}
+	
+			if(process->read_bytes(start, data, maxSize)) {
+				return maxSize;
+			} else {
+				return -1;
+			}
 		}
 	}
 

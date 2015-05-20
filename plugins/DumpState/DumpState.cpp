@@ -189,29 +189,32 @@ void DumpState::dump_registers(const State &state) {
 // Desc:
 //------------------------------------------------------------------------------
 void DumpState::dump_lines(edb::address_t address, int lines) {
-	for(int i = 0; i < lines; ++i) {
-		quint8 buf[16];
-		if(edb::v1::debugger_core->read_bytes(address, buf, sizeof(buf))) {
-			std::cout << hex_string(address) << " : ";
+	
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		for(int i = 0; i < lines; ++i) {
+			quint8 buf[16];
+			if(process->read_bytes(address, buf, sizeof(buf))) {
+				std::cout << hex_string(address) << " : ";
 
-			for(int j = 0x00; j < 0x04; ++j) std::cout << hex_string(buf[j]) << " ";
-			std::cout << " ";
-			for(int j = 0x04; j < 0x08; ++j) std::cout << hex_string(buf[j]) << " ";
-			std::cout << "- ";
-			for(int j = 0x08; j < 0x0c; ++j) std::cout << hex_string(buf[j]) << " ";
-			std::cout << " ";
-			for(int j = 0x0c; j < 0x10; ++j) std::cout << hex_string(buf[j]) << " ";
+				for(int j = 0x00; j < 0x04; ++j) std::cout << hex_string(buf[j]) << " ";
+				std::cout << " ";
+				for(int j = 0x04; j < 0x08; ++j) std::cout << hex_string(buf[j]) << " ";
+				std::cout << "- ";
+				for(int j = 0x08; j < 0x0c; ++j) std::cout << hex_string(buf[j]) << " ";
+				std::cout << " ";
+				for(int j = 0x0c; j < 0x10; ++j) std::cout << hex_string(buf[j]) << " ";
 
-			for(int j = 0; j < 16; ++j) {
-				const quint8 ch = buf[j];
-				std::cout << ((std::isprint(ch) || (std::isspace(ch) && (ch != '\f' && ch != '\t' && ch != '\r' && ch != '\n') && ch < 0x80)) ? static_cast<char>(ch) : '.');
+				for(int j = 0; j < 16; ++j) {
+					const quint8 ch = buf[j];
+					std::cout << ((std::isprint(ch) || (std::isspace(ch) && (ch != '\f' && ch != '\t' && ch != '\r' && ch != '\n') && ch < 0x80)) ? static_cast<char>(ch) : '.');
+				}
+
+				std::cout << "\n";
+			} else {
+				break;
 			}
-
-			std::cout << "\n";
-		} else {
-			break;
+			address += 16;
 		}
-		address += 16;
 	}
 }
 

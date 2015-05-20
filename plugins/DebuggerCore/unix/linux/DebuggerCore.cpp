@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-// TODO: research usage of process_vm_readv, process_vm_writev
+// TODO(eteran): research usage of process_vm_readv, process_vm_writev
 
 #include "DebuggerCore.h"
 #include "edb.h"
@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformEvent.h"
 #include "PlatformRegion.h"
 #include "PlatformState.h"
+#include "PlatformProcess.h"
 #include "State.h"
 #include "string_hash.h"
 
@@ -203,9 +204,25 @@ struct user_stat {
 /* 39 */ int processor;
 /* 40 */ unsigned rt_priority;
 /* 41 */ unsigned policy;
+
+// Linux 2.6.18
 /* 42 */ unsigned long long delayacct_blkio_ticks;
+
+// Linux 2.6.24
 /* 43 */ unsigned long guest_time;
 /* 44 */ long cguest_time;
+
+// Linux 3.3
+/* 45 */ unsigned long start_data;
+/* 46 */ unsigned long end_data;
+/* 47 */ unsigned long start_brk;
+
+// Linux 3.5
+/* 48 */ unsigned long arg_start;
+/* 49 */ unsigned long arg_end;
+/* 50 */ unsigned long env_start;
+/* 51 */ unsigned long env_end;
+/* 52 */ int exit_code;
 };
 
 //------------------------------------------------------------------------------
@@ -213,19 +230,21 @@ struct user_stat {
 // Desc: gets the contents of /proc/<pid>/stat and returns the number of elements
 //       successfully parsed
 //------------------------------------------------------------------------------
-int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
-
+int get_user_stat(const QString &path, struct user_stat *user_stat) {
 	Q_ASSERT(user_stat);
 
 	int r = -1;
-	QFile file(QString("/proc/%1/stat").arg(pid));
+	QFile file(path);
 	if(file.open(QIODevice::ReadOnly)) {
 		QTextStream in(&file);
 		const QString line = in.readLine();
 		if(!line.isNull()) {
-			r = sscanf(qPrintable(line), "%d %255s %c %d %d %d %d %d %u %lu %lu %lu %lu %lu %lu %ld %ld %ld %ld %ld %ld %llu %lu %ld %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %d %d %u %u %llu %lu %ld",
+			char ch;
+			r = sscanf(qPrintable(line), "%d %c%255[0-9a-zA-Z_ #~/-]%c %c %d %d %d %d %d %u %lu %lu %lu %lu %lu %lu %ld %ld %ld %ld %ld %ld %llu %lu %ld %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %d %d %u %u %llu %lu %ld",
 					&user_stat->pid,
+					&ch, // consume the (
 					user_stat->comm,
+					&ch, // consume the )
 					&user_stat->state,
 					&user_stat->ppid,
 					&user_stat->pgrp,
@@ -275,6 +294,16 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 	return r;
 }
 
+//------------------------------------------------------------------------------
+// Name: get_user_stat
+// Desc: gets the contents of /proc/<pid>/stat and returns the number of elements
+//       successfully parsed
+//------------------------------------------------------------------------------
+int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
+
+	return get_user_stat(QString("/proc/%1/stat").arg(pid), user_stat);
+}
+
 
 }
 
@@ -282,7 +311,7 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 // Name: DebuggerCore
 // Desc: constructor
 //------------------------------------------------------------------------------
-DebuggerCore::DebuggerCore() : binary_info_(0) {
+DebuggerCore::DebuggerCore() : binary_info_(0), process_(0) {
 #if defined(_SC_PAGESIZE)
 	page_size_ = sysconf(_SC_PAGESIZE);
 #elif defined(_SC_PAGE_SIZE)
@@ -625,6 +654,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 		active_thread_  = pid;
 		event_thread_   = pid;
 		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
+		process_        = new PlatformProcess(this, pid);
 		return true;
 	}
 
@@ -647,6 +677,9 @@ void DebuggerCore::detach() {
 				native::waitpid(thread, 0, __WALL);
 			}
 		}
+		
+		delete process_;
+		process_ = 0;
 
 		reset();
 	}
@@ -664,6 +697,9 @@ void DebuggerCore::kill() {
 
 		// TODO: do i need to actually do this wait?
 		native::waitpid(pid(), 0, __WALL);
+
+		delete process_;
+		process_ = 0;
 
 		reset();
 	}
@@ -870,6 +906,8 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			event_thread_   = pid;
 			binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
+			process_ = new PlatformProcess(this, pid);
+
 			return true;
 		} while(0);
 		break;
@@ -918,8 +956,8 @@ IState *DebuggerCore::create_state() const {
 // Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
-	QMap<edb::pid_t, Process> ret;
+QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, ProcessInfo> ret;
 
 	QDir proc_directory("/proc/");
 	QFileInfoList entries = proc_directory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
@@ -929,16 +967,12 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 		if(is_numeric(filename)) {
 
 			const edb::pid_t pid = filename.toULong();
-			Process process_info;
+			ProcessInfo process_info;
 
 			struct user_stat user_stat;
 			const int n = get_user_stat(pid, &user_stat);
 			if(n >= 2) {
 				process_info.name = user_stat.comm;
-
-				// remove silly '(' and ')'
-				process_info.name = process_info.name.mid(1);
-				process_info.name.chop(1);
 			}
 
 			process_info.pid = pid;
@@ -1088,30 +1122,32 @@ QList<Module> DebuggerCore::loaded_modules() const {
 	if(binary_info_) {
 		struct r_debug dynamic_info;
 		if(const edb::address_t debug_pointer = binary_info_->debug_pointer()) {
-			if(edb::v1::debugger_core->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
-				if(dynamic_info.r_map) {
+			if(IProcess *process = edb::v1::debugger_core->process()) {
+				if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
+					if(dynamic_info.r_map) {
 
-					edb::address_t link_address = reinterpret_cast<edb::address_t>(dynamic_info.r_map);
+						edb::address_t link_address = reinterpret_cast<edb::address_t>(dynamic_info.r_map);
 
-					while(link_address) {
+						while(link_address) {
 
-						struct link_map map;
-						if(edb::v1::debugger_core->read_bytes(link_address, &map, sizeof(map))) {
-							char path[PATH_MAX];
-							if(!edb::v1::debugger_core->read_bytes(reinterpret_cast<edb::address_t>(map.l_name), &path, sizeof(path))) {
-								path[0] = '\0';
+							struct link_map map;
+							if(process->read_bytes(link_address, &map, sizeof(map))) {
+								char path[PATH_MAX];
+								if(!process->read_bytes(reinterpret_cast<edb::address_t>(map.l_name), &path, sizeof(path))) {
+									path[0] = '\0';
+								}
+
+								if(map.l_addr) {
+									Module module;
+									module.name         = path;
+									module.base_address = map.l_addr;
+									ret.push_back(module);
+								}
+
+								link_address = reinterpret_cast<edb::address_t>(map.l_next);
+							} else {
+								break;
 							}
-
-							if(map.l_addr) {
-								Module module;
-								module.name         = path;
-								module.base_address = map.l_addr;
-								ret.push_back(module);
-							}
-
-							link_address = reinterpret_cast<edb::address_t>(map.l_next);
-						} else {
-							break;
 						}
 					}
 				}
@@ -1219,6 +1255,71 @@ QString DebuggerCore::instruction_pointer() const {
 #elif defined(EDB_X86_64)
 	return "rip";
 #endif
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+ThreadInfo DebuggerCore::get_thread_info(edb::tid_t tid) {
+
+	ThreadInfo info;
+	struct user_stat thread_stat;
+	int n = get_user_stat(QString("/proc/%1/task/%2/stat").arg(pid_).arg(tid), &thread_stat);	
+	if(n >= 30) {
+		info.name     = thread_stat.comm;     // 02
+		info.tid      = tid;
+		info.ip       = thread_stat.kstkeip;  // 18
+		info.priority = thread_stat.priority; // 30
+		
+		switch(thread_stat.state) {           // 03
+		case 'R':
+			info.state = tr("%1 (Running)").arg(thread_stat.state);
+			break;
+		case 'S':
+			info.state = tr("%1 (Sleeping)").arg(thread_stat.state);
+			break;
+		case 'D':
+			info.state = tr("%1 (Disk Sleep)").arg(thread_stat.state);
+			break;		
+		case 'T':
+			info.state = tr("%1 (Stopped)").arg(thread_stat.state);
+			break;		
+		case 't':
+			info.state = tr("%1 (Tracing Stop)").arg(thread_stat.state);
+			break;		
+		case 'Z':
+			info.state = tr("%1 (Zombie)").arg(thread_stat.state);
+			break;		
+		case 'X':
+		case 'x':
+			info.state = tr("%1 (Dead)").arg(thread_stat.state);
+			break;
+		case 'W':
+			info.state = tr("%1 (Waking/Paging)").arg(thread_stat.state);
+			break;			
+		case 'K':
+			info.state = tr("%1 (Wakekill)").arg(thread_stat.state);
+			break;		
+		case 'P':
+			info.state = tr("%1 (Parked)").arg(thread_stat.state);
+			break;		
+		default:
+			info.state = tr("%1").arg(thread_stat.state);
+			break;		
+		} 
+	} else {
+		info.name     = QString();
+		info.tid      = tid;
+		info.ip       = 0;
+		info.priority = 0;
+		info.state    = '?';
+	}
+	return info;
+}
+
+IProcess *DebuggerCore::process() const {
+	return process_;
 }
 
 #if QT_VERSION < 0x050000

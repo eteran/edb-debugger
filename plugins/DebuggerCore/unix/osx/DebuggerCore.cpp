@@ -533,8 +533,8 @@ IState *DebuggerCore::create_state() const {
 // Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
-	QMap<edb::pid_t, Process> ret;
+QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, ProcessInfo> ret;
 
 	static const int name[] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
 	size_t length = 0;
@@ -545,7 +545,7 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 
 	size_t count = length / sizeof(struct kinfo_proc);
 	for(size_t i = 0; i < count; ++i) {
-		Process procInfo;
+		ProcessInfo procInfo;
 		procInfo.pid  = proc_info[i].kp_proc.p_pid;
 		procInfo.uid  = proc_info[i].kp_eproc.e_ucred.cr_uid;
 		procInfo.name = proc_info[i].kp_proc.p_comm;

@@ -69,32 +69,33 @@ void DialogASCIIString::do_find() {
 		edb::address_t stack_ptr = state.stack_pointer();
 
 		if(IRegion::pointer region = edb::v1::memory_regions().find_region(stack_ptr)) {
-				
-			std::size_t count = (region->end() - stack_ptr) / sizeof(edb::address_t);
-			stack_ptr = region->start();
+			if(IProcess *process = edb::v1::debugger_core->process()) {
+				std::size_t count = (region->end() - stack_ptr) / sizeof(edb::address_t);
+				stack_ptr = region->start();
 
-			try {
-				QVector<quint8> chars(sz);
+				try {
+					QVector<quint8> chars(sz);
 
-				int i = 0;
-				while(stack_ptr < region->end()) {
-					// get the value from the stack
-					edb::address_t value;
-					if(edb::v1::debugger_core->read_bytes(stack_ptr, &value, sizeof(edb::address_t))) {
-						if(edb::v1::debugger_core->read_bytes(value, &chars[0], sz)) {
-							if(std::memcmp(&chars[0], b.constData(), sz) == 0) {
-								QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(stack_ptr));
-								item->setData(Qt::UserRole, stack_ptr);
-								ui->listWidget->addItem(item);
+					int i = 0;
+					while(stack_ptr < region->end()) {
+						// get the value from the stack
+						edb::address_t value;
+						if(process->read_bytes(stack_ptr, &value, sizeof(edb::address_t))) {
+							if(process->read_bytes(value, &chars[0], sz)) {
+								if(std::memcmp(&chars[0], b.constData(), sz) == 0) {
+									QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(stack_ptr));
+									item->setData(Qt::UserRole, stack_ptr);
+									ui->listWidget->addItem(item);
+								}
 							}
 						}
+						ui->progressBar->setValue(util::percentage(i++, count));
+						stack_ptr += sizeof(edb::address_t);
 					}
-					ui->progressBar->setValue(util::percentage(i++, count));
-					stack_ptr += sizeof(edb::address_t);
+				} catch(const std::bad_alloc &) {
+					QMessageBox::information(0, tr("Memroy Allocation Error"),
+						tr("Unable to satisfy memory allocation request for search string."));
 				}
-			} catch(const std::bad_alloc &) {
-				QMessageBox::information(0, tr("Memroy Allocation Error"),
-					tr("Unable to satisfy memory allocation request for search string."));
 			}
 		}
 	}
