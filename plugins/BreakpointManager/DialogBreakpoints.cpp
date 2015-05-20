@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Expression.h"
 #include "IDebuggerCore.h"
 #include "edb.h"
+#include "MemoryRegions.h"
 
 #include <QHeaderView>
 #include <QInputDialog>
@@ -216,15 +217,12 @@ void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {
 //------------------------------------------------------------------------------
 void DialogBreakpoints::on_btnImport_clicked() {
 
-	qDebug() << "Import clicked";
-
 	//Let the user choose the file; get the file name.
 	QString file_name, home_directory;
 	home_directory	= QDir::homePath();
 	file_name		= QFileDialog::getOpenFileName(this, "Breakpoints File", home_directory, NULL);
 
 	if (file_name.isEmpty()) {
-		qDebug() << "File selection cancelled.";
 		return;	}
 
 	//Open the file; fail if error or it doesn't exist.
@@ -241,13 +239,19 @@ void DialogBreakpoints::on_btnImport_clicked() {
 	//Addreses should be prefixed with 0x, i.e. a hex number.
 	while (!file.atEnd()) {
 		bool ok;
-		int base = 16;
+		ExpressionError err;
 		QString line = file.readLine();
-		edb::address_t address = line.toLongLong(&ok, base);
 
-		//If there's an issue with the line, add to error list and skip.
-		if (!ok) {
-			qDebug() << line + " not ok.";
+		Expression<edb::address_t> expr(line, edb::v1::get_variable, edb::v1::get_value);
+		edb::address_t address = expr.evaluate_expression(&ok, &err);
+
+		//If there's an issue with the line or address isn't in any region,
+		//add to error list and skip.
+		edb::v1::memory_regions().sync();
+		IRegion::pointer p = edb::v1::memory_regions().find_region(address);
+
+		if (!p) {
+			qDebug() << line.trimmed() + " not ok.";
 			errors.append(line);
 			continue;
 		}
@@ -260,7 +264,6 @@ void DialogBreakpoints::on_btnImport_clicked() {
 		//Access debugger_core directly to avoid many possible error windows by edb::v1::create_breakpoint()
 		const IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(address);
 		if (!bp) {
-			qDebug() << line + " failed to add as bp";
 			errors.append(line);
 		}
 	}
