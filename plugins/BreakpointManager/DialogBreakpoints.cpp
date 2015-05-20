@@ -25,6 +25,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QInputDialog>
 #include <QMessageBox>
 
+#include <QDir>
+#include <QFileDialog>
+#include <QFile>
+#include <QTextStream>
+#include <QMessageBox>
+#include <QStringList>
+
+#include <QDebug>
+
 #include "ui_DialogBreakpoints.h"
 
 namespace BreakpointManager {
@@ -198,6 +207,81 @@ void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {
 		}
 		break;
 	}
+}
+
+//------------------------------------------------------------------------------
+// Name: on_btnImport_clicked()
+// Desc: Opens a file selection window to choose a file with newline-separated,
+//          hex address breakpoints.
+//------------------------------------------------------------------------------
+void DialogBreakpoints::on_btnImport_clicked() {
+
+	qDebug() << "Import clicked";
+
+	//Let the user choose the file; get the file name.
+	QString file_name, home_directory;
+	home_directory	= QDir::homePath();
+	file_name		= QFileDialog::getOpenFileName(this, "Breakpoints File", home_directory, NULL);
+
+	if (file_name.isEmpty()) {
+		qDebug() << "File selection cancelled.";
+		return;	}
+
+	//Open the file; fail if error or it doesn't exist.
+	QFile file(file_name);
+	if (!file.open(QIODevice::ReadOnly)) {
+		QMessageBox::information(this, "Error Opening File", "Unable to open breakpoint file:" + file_name);
+		file.close();
+		return;
+	}
+
+	QStringList errors;
+
+	//Iterate through each line; attempt to make a breakpoint for each line.
+	//Addreses should be prefixed with 0x, i.e. a hex number.
+	while (!file.atEnd()) {
+		bool ok;
+		int base = 16;
+		QString line = file.readLine();
+		edb::address_t address = line.toLongLong(&ok, base);
+
+		//If there's an issue with the line, add to error list and skip.
+		if (!ok) {
+			qDebug() << line + " not ok.";
+			errors.append(line);
+			continue;
+		}
+
+		//If the bp already exists, skip.  No error.
+		if (edb::v1::debugger_core->find_breakpoint(address)) {
+			continue; }
+
+		//If the line was converted to an address, try to create the breakpoint.
+		//Access debugger_core directly to avoid many possible error windows by edb::v1::create_breakpoint()
+		const IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(address);
+		if (!bp) {
+			qDebug() << line + " failed to add as bp";
+			errors.append(line);
+		}
+	}
+
+	//Report any errors to the user
+	if (errors.size() > 0) {
+		QString msg = "The following breakpoints were not made:\n" + errors.join("");
+		QMessageBox::information(this, "Invalid Breakpoints", msg);
+	}
+
+	file.close();
+	updateList();
+}
+
+//------------------------------------------------------------------------------
+// Name: on_btnExport_clicked()
+// Desc: Opens a file selection window to choose a file to save newline-separated,
+//          hex address breakpoints.
+//------------------------------------------------------------------------------
+void DialogBreakpoints::on_btnExport_clicked() {
+
 }
 
 }
