@@ -161,22 +161,6 @@
    </hints>
   </connection>
   <connection>
-   <sender>btnImport</sender>
-   <signal>clicked()</signal>
-   <receiver>DialogBreakpoints</receiver>
-   <slot>on_btnImport_clicked()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>712</x>
-     <y>150</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>957</x>
-     <y>126</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
    <sender>btnExport</sender>
    <signal>clicked()</signal>
    <receiver>DialogBreakpoints</receiver>
