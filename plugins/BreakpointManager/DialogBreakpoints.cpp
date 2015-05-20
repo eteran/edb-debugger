@@ -233,23 +233,29 @@ void DialogBreakpoints::on_btnImport_clicked() {
 		return;
 	}
 
+	//Keep a list of any lines in the file that don't make valid breakpoints.
 	QStringList errors;
 
 	//Iterate through each line; attempt to make a breakpoint for each line.
 	//Addreses should be prefixed with 0x, i.e. a hex number.
 	while (!file.atEnd()) {
-		bool ok;
-		ExpressionError err;
-		QString line = file.readLine();
 
-		Expression<edb::address_t> expr(line, edb::v1::get_variable, edb::v1::get_value);
-		edb::address_t address = expr.evaluate_expression(&ok, &err);
+		//Get the address
+		QString line = file.readLine();
+		bool ok;
+		int base = 16;
+		edb::address_t address = line.toULong(&ok, base);
+
+		//Skip if there's an issue.
+		if (!ok) {
+			errors.append(line);
+			continue;
+		}
 
 		//If there's an issue with the line or address isn't in any region,
 		//add to error list and skip.
 		edb::v1::memory_regions().sync();
 		IRegion::pointer p = edb::v1::memory_regions().find_region(address);
-
 		if (!p) {
 			qDebug() << line.trimmed() + " not ok.";
 			errors.append(line);
