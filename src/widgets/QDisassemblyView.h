@@ -55,6 +55,10 @@ public:
 	edb::address_t addressFromPoint(const QPoint &pos) const;
 	edb::address_t selectedAddress() const;
 	int selectedSize() const;
+	void add_comment(edb::address_t address, QString comment);
+	int remove_comment(edb::address_t address);
+	QString get_comment(edb::address_t address);
+	void clear_comments();
 
 public Q_SLOTS:
 	void setFont(const QFont &f);
@@ -113,6 +117,7 @@ private:
 	bool                              moving_line2_;
 	bool                              moving_line3_;
 	bool                              show_address_separator_;
+	QHash<edb::address_t, QString>    *comments_;
 };
 
 #endif
