@@ -793,11 +793,10 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			return;
 		}
 
-		/*
 		if(selectedAddress() == address) {
 			painter.fillRect(0, y, width(), line_height, palette().highlight());
 		} else
-		*/
+
 		if(row_index & 1) {
 			// draw alternating line backgrounds
 			painter.fillRect(0, y, width(), line_height, alternated_base_color);
