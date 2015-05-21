@@ -210,6 +210,9 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 
 	connect(new QShortcut(QKeySequence(tr("Ctrl+G")), this), SIGNAL(activated()), this, SLOT(goto_triggered()));
 
+	//Connect the add/edit comment feature
+	connect(new QShortcut(QKeySequence(tr(";")), this), SIGNAL(activated()), this, SLOT(mnuCPUEditComment()));
+
 	setAcceptDrops(true);
 
 	// setup the list model for instruction details list
@@ -1278,9 +1281,10 @@ void Debugger::mnuStackPop() {
 //------------------------------------------------------------------------------
 void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	QMenu menu;
-	// TODO: add comment
-	//menu.addAction(tr("Add &Comment"), this, SLOT(""));
-	//menu.addSeparator();
+
+	menu.addAction(tr("Add &Comment"), this, SLOT(mnuCPUEditComment()));
+	menu.addAction(tr("Remove Comment"), this, SLOT(mnuCPURemoveComment()));
+	menu.addSeparator();
 	
 	menu.addAction(tr("Set Address &Label"), this, SLOT(mnuCPULabelAddress()));
 	menu.addSeparator();
@@ -1501,6 +1505,41 @@ void Debugger::cpu_fill(quint8 byte) {
 }
 
 //------------------------------------------------------------------------------
+// Name: mnuCPUEditComment
+// Desc: Adds/edits a comment at the selected address.
+//------------------------------------------------------------------------------
+void Debugger::mnuCPUEditComment() {
+	const edb::address_t address = ui.cpuView->selectedAddress();
+
+	bool ok;
+	const QString comment = QInputDialog::getText(
+				this,
+				QString("Edit Comment"),
+				QString("Comment:"),
+				QLineEdit::Normal,
+				ui.cpuView->get_comment(address),
+				&ok);
+
+	if (!ok) {
+		QMessageBox::information(this, "Error", "Error adding comment...");
+		return;
+	}
+
+	ui.cpuView->add_comment(address, comment);
+	refresh_gui();
+}
+
+//------------------------------------------------------------------------------
+// Name: mnuCPURemoveComment
+// Desc: Removes a comment at the selected address.
+//------------------------------------------------------------------------------
+void Debugger::mnuCPURemoveComment() {
+	const edb::address_t address = ui.cpuView->selectedAddress();
+	ui.cpuView->remove_comment(address);
+	refresh_gui();
+}
+
+//------------------------------------------------------------------------------
 // Name: mnuCPUAddBreakpoint
 // Desc:
 //------------------------------------------------------------------------------
@@ -1563,7 +1602,7 @@ void Debugger::mnuCPULabelAddress() {
 	const QString text = QInputDialog::getText(
 		this,
 		tr("Set Label"),
-		tr("Labe:"),
+		tr("Label:"),
 		QLineEdit::Normal,
 		edb::v1::symbol_manager().find_address_name(address),
 		&ok);
