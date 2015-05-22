@@ -191,7 +191,8 @@ QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(paren
 		selected_instruction_size_(0),
 		moving_line1_(false),
 		moving_line2_(false),
-		moving_line3_(false) {
+		moving_line3_(false),
+		comments_(new QHash<edb::address_t, QString>) {
 
 
 	setShowAddressSeparator(true);
@@ -793,11 +794,10 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			return;
 		}
 
-		/*
 		if(selectedAddress() == address) {
 			painter.fillRect(0, y, width(), line_height, palette().highlight());
 		} else
-		*/
+
 		if(row_index & 1) {
 			// draw alternating line backgrounds
 			painter.fillRect(0, y, width(), line_height, alternated_base_color);
@@ -897,6 +897,18 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		current_line += draw_instruction(painter, inst, uppercase, y, line_height, l2, l3);
 		show_addresses_.insert(address);
 		last_address = address;
+
+		//Draw any comments
+		QString comment = comments_->value(address, QString(""));
+		if (!comment.isEmpty()) {
+			painter.drawText(
+						l3 + font_width_ + (font_width_ / 2),
+						y,
+						comment.length() * font_width_,
+						line_height,
+						Qt::AlignCenter,
+						comment);
+		}
 
 		y += line_height;
 		++row_index;
@@ -1283,4 +1295,36 @@ int QDisassemblyView::selectedSize() const {
 //------------------------------------------------------------------------------
 IRegion::pointer QDisassemblyView::region() const {
 	return region_;
+}
+
+//------------------------------------------------------------------------------
+// Name: add_comment
+// Desc: Adds a comment to the comment hash.
+//------------------------------------------------------------------------------
+void QDisassemblyView::add_comment(edb::address_t address, QString comment) {
+	comments_->insert(address, comment);
+}
+
+//------------------------------------------------------------------------------
+// Name: remove_comment
+// Desc: Removes a comment from the comment hash and returns the number of comments removed.
+//------------------------------------------------------------------------------
+int QDisassemblyView::remove_comment(edb::address_t address) {
+	return comments_->remove(address);
+}
+
+//------------------------------------------------------------------------------
+// Name: get_comment
+// Desc: Returns a comment assigned for an address or a blank string if there is none.
+//------------------------------------------------------------------------------
+QString QDisassemblyView::get_comment(edb::address_t address) {
+	return comments_->value(address, QString(""));
+}
+
+//------------------------------------------------------------------------------
+// Name: clear_comments
+// Desc: Clears all comments in the comment hash.
+//------------------------------------------------------------------------------
+void QDisassemblyView::clear_comments() {
+	comments_->clear();
 }

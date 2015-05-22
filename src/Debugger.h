@@ -128,6 +128,8 @@ public Q_SLOTS:
 
 private Q_SLOTS:
 	// the manually connected CPU slots
+	void mnuCPUEditComment();
+	void mnuCPURemoveComment();
 	void mnuCPUAddBreakpoint();
 	void mnuCPUAddConditionalBreakpoint();
 	void mnuCPUFillNop();
