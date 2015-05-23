@@ -311,6 +311,13 @@ void DialogBreakpoints::on_btnExport_clicked() {
 			export_list.append(bp->address()); }
 	}
 
+	//If there are no breakpoints, fail
+	if (export_list.isEmpty()) {
+		QString msg("No breakpoints to export");
+		QMessageBox::information(this, "No Breakpoints", "There are no breakpoints to export.");
+		return;
+	}
+
 	//Now ask the user for a file, open it, and write each address to it.
 	QString filename = QFileDialog::getSaveFileName(this, "Breakpoint Export File", QDir::homePath());
 
