@@ -313,7 +313,6 @@ void DialogBreakpoints::on_btnExport_clicked() {
 
 	//If there are no breakpoints, fail
 	if (export_list.isEmpty()) {
-		QString msg("No breakpoints to export");
 		QMessageBox::information(this, "No Breakpoints", "There are no breakpoints to export.");
 		return;
 	}
