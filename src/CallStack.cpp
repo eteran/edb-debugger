@@ -13,6 +13,16 @@ CallStack::CallStack() : stack_frames_(new QList<stack_frame*>)
 	get_call_stack();
 }
 
+//I guess we need to delete everything when this goes away.
+CallStack::~CallStack() {
+	int size = this->size();
+	for (int i = size; i < size; i++) {
+		stack_frame *frame = pop();
+		delete frame;
+	}
+	delete stack_frames_;
+}
+
 void CallStack::get_call_stack() {
 	/*
 	 * Is rbp a pointer somewhere in the stack?

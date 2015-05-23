@@ -10,6 +10,7 @@ class CallStack
 {
 public:
 	CallStack();
+	~CallStack();
 
 public:
 	typedef struct stack_frame_t {
