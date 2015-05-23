@@ -9,19 +9,13 @@
 #include "Expression.h"
 
 //TODO: This may be specific to x86... Maybe abstract this in the future.
-CallStack::CallStack() : stack_frames_(new QList<stack_frame*>)
+CallStack::CallStack()
 {
 	get_call_stack();
 }
 
-//I guess we need to delete everything when this goes away.
 CallStack::~CallStack() {
-	int size = this->size();
-	for (int i = size; i < size; i++) {
-		stack_frame *frame = pop();
-		delete frame;
-	}
-	delete stack_frames_;
+
 }
 
 void CallStack::get_call_stack() {
@@ -73,10 +67,11 @@ void CallStack::get_call_stack() {
 
 					//If it's a call, then make a frame
 					if(is_call(inst)) {
-						stack_frame *frame = new stack_frame;
-						frame->ret = possible_ret;
-						frame->caller = possible_ret - CALL_MAX_SIZE + i;
-						stack_frames_->append(frame);
+						stack_frame frame;
+						frame.ret = possible_ret;
+						frame.caller = possible_ret - CALL_MAX_SIZE + i;
+						frame.invalid = false;
+						stack_frames_.append(frame);
 						break;
 					}
 				}
@@ -86,27 +81,36 @@ void CallStack::get_call_stack() {
 }
 
 int CallStack::size() {
-	return stack_frames_->size();
+	return stack_frames_.size();
 }
 
-CallStack::stack_frame *CallStack::top() {
-	if (!size()) { return 0; }
-	return stack_frames_->first();
+CallStack::stack_frame CallStack::top() {
+	if (!size()) {
+		stack_frame f;
+		return f;
+	}
+	return stack_frames_.first();
 }
 
-CallStack::stack_frame *CallStack::bottom() {
-	if (!size()) { return 0; }
-	return stack_frames_->last();
+CallStack::stack_frame CallStack::bottom() {
+	if (!size()) {
+		stack_frame f;
+		return f;
+	}
+	return stack_frames_.last();
 }
 
-void CallStack::push(stack_frame *frame) {
-	stack_frames_->push_front(frame);
+void CallStack::push(stack_frame frame) {
+	stack_frames_.push_front(frame);
 }
 
 //TODO: Is there a danger of memory leaking if the frames are not deleted?
-CallStack::stack_frame *CallStack::pop() {
-	if (!size()) { return 0; }
-	stack_frame *frame = stack_frames_->first();
-	stack_frames_->pop_front();
+CallStack::stack_frame CallStack::pop() {
+	if (!size()) {
+		stack_frame f;
+		return f;
+	}
+	stack_frame frame = stack_frames_.first();
+	stack_frames_.pop_front();
 	return frame;
 }
