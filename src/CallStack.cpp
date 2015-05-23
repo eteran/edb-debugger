@@ -6,6 +6,7 @@
 #include "IState.h"
 #include "State.h"
 #include "MemoryRegions.h"
+#include "Expression.h"
 
 //TODO: This may be specific to x86... Maybe abstract this in the future.
 CallStack::CallStack() : stack_frames_(new QList<stack_frame*>)
@@ -50,7 +51,7 @@ void CallStack::get_call_stack() {
 	edb::v1::memory_regions().sync();
 	region_rsp = edb::v1::memory_regions().find_region(rsp);
 	region_rbp = edb::v1::memory_regions().find_region(rbp);
-	if (region_rbp != region_rsp) {
+	if (!region_rsp || !region_rbp || (region_rbp != region_rsp) ) {
 		return;
 	}
 
@@ -59,23 +60,28 @@ void CallStack::get_call_stack() {
 	const quint8 CALL_MIN_SIZE = 2, CALL_MAX_SIZE = 7;
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 	for (edb::address_t addr = rbp; region_rbp->contains(addr); addr += sizeof(edb::address_t)) {
+
+		//Get the stack value so that we can see if it's a pointer
+		bool ok;
+		ExpressionError err;
+		edb::address_t possible_ret = edb::v1::get_value(addr, &ok, &err);
+
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(process->read_bytes(addr - CALL_MAX_SIZE, buffer, sizeof(buffer))) {
+			if(process->read_bytes(possible_ret - CALL_MAX_SIZE, buffer, sizeof(buffer))) {	//0xfffff... if not a ptr.
 				for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
 					edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0, std::nothrow);
 
 					//If it's a call, then make a frame
 					if(is_call(inst)) {
 						stack_frame *frame = new stack_frame;
-						frame->ret = addr;
-						frame->caller = addr - CALL_MAX_SIZE + i;
+						frame->ret = possible_ret;
+						frame->caller = possible_ret - CALL_MAX_SIZE + i;
 						stack_frames_->append(frame);
 						break;
 					}
 				}
 			}
 		}
-		addr += sizeof(edb::address_t);
 	}
 }
 
