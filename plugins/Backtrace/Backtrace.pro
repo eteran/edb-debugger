@@ -5,6 +5,5 @@ SOURCES += Backtrace.cpp\
 
 HEADERS += Backtrace.h\
 	DialogBacktrace.h\
-        backtrace_global.h
 
 FORMS	+= DialogBacktrace.ui

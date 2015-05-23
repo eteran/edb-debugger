@@ -5,13 +5,11 @@
 #include <QMenu>
 #include <QKeySequence>
 
-#include <QDebug>
-
 namespace Backtrace {
 
 Backtrace::Backtrace() : menu_(0), dialog_(0)
 {
-	qDebug() << "Backtrace";
+
 }
 
 Backtrace::~Backtrace() {
@@ -23,7 +21,6 @@ Backtrace::~Backtrace() {
 // Desc: Creates the menu entry.
 //------------------------------------------------------------------------------
 QMenu *Backtrace::menu(QWidget *parent) {
-	qDebug() << "Menu";
 	Q_ASSERT(parent);
 
 	if(!menu_) {
@@ -50,10 +47,8 @@ void Backtrace::show_menu() {
 }
 
 //Do we need this?  Wasn't included by default; I saw it in other plugins and added it.
-
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(Backtrace, Backtrace)
 #endif
-
 
 }
