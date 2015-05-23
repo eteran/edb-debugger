@@ -12,20 +12,20 @@ public:
 	CallStack();
 	~CallStack();
 
+//Struct that holds the caller and return addresses.
 public:
 	typedef struct stack_frame_t {
 		edb::address_t ret;
 		edb::address_t caller;
-		bool invalid = true;
 	} stack_frame;
 
 public:
 	void get_call_stack();
 	int size();
-	stack_frame top();
-	stack_frame bottom();
+	stack_frame *top();
+	stack_frame *bottom();
 	void push(stack_frame frame);
-	stack_frame pop();
+	stack_frame *pop();
 
 private:
 	QList<stack_frame> stack_frames_;

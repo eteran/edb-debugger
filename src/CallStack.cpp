@@ -18,6 +18,10 @@ CallStack::~CallStack() {
 
 }
 
+//------------------------------------------------------------------------------
+// Name: get_call_stack
+// Desc: Gets the state of the call stack at the time the object is created.
+//------------------------------------------------------------------------------
 void CallStack::get_call_stack() {
 	/*
 	 * Is rbp a pointer somewhere in the stack?
@@ -70,7 +74,6 @@ void CallStack::get_call_stack() {
 						stack_frame frame;
 						frame.ret = possible_ret;
 						frame.caller = possible_ret - CALL_MAX_SIZE + i;
-						frame.invalid = false;
 						stack_frames_.append(frame);
 						break;
 					}
@@ -80,37 +83,51 @@ void CallStack::get_call_stack() {
 	}
 }
 
+//------------------------------------------------------------------------------
+// Name: size
+// Desc: Returns the number of frames in the call stack.
+//------------------------------------------------------------------------------
 int CallStack::size() {
 	return stack_frames_.size();
 }
 
-CallStack::stack_frame CallStack::top() {
-	if (!size()) {
-		stack_frame f;
-		return f;
-	}
-	return stack_frames_.first();
+//------------------------------------------------------------------------------
+// Name: top
+// Desc: Returns a pointer to the frame at the top of the call stack or null if
+//			there are no frames on the stack
+//------------------------------------------------------------------------------
+CallStack::stack_frame *CallStack::top() {
+	if (!size()) { return 0; }
+	stack_frame *frame = &(stack_frames_.first());
+	return frame;
 }
 
-CallStack::stack_frame CallStack::bottom() {
-	if (!size()) {
-		stack_frame f;
-		return f;
-	}
-	return stack_frames_.last();
+//------------------------------------------------------------------------------
+// Name: bottom
+// Desc: Returns a pointer to the frame at the bottom of the call stack or null if
+//			there are no frames on the stack
+//------------------------------------------------------------------------------
+CallStack::stack_frame *CallStack::bottom() {
+	if (!size()) { return 0; }
+	stack_frame *frame = &(stack_frames_.last());
+	return frame;
 }
 
+//------------------------------------------------------------------------------
+// Name: push
+// Desc: Pushes a stack frame onto the top of the call stack.
+//------------------------------------------------------------------------------
 void CallStack::push(stack_frame frame) {
 	stack_frames_.push_front(frame);
 }
 
-//TODO: Is there a danger of memory leaking if the frames are not deleted?
-CallStack::stack_frame CallStack::pop() {
-	if (!size()) {
-		stack_frame f;
-		return f;
-	}
-	stack_frame frame = stack_frames_.first();
-	stack_frames_.pop_front();
+//------------------------------------------------------------------------------
+// Name: pop
+// Desc: Pops a stack frame off of the call stack and returns a pointer to the frame.
+//------------------------------------------------------------------------------
+CallStack::stack_frame *CallStack::pop() {
+	if (!size()) { return 0; }
+	stack_frame *frame = &(stack_frames_.first());
+	stack_frames_.pop_front();	//TODO: Safe, since we're ret'ing a ptr to it?
 	return frame;
 }
