@@ -1,0 +1,12 @@
+#ifndef BACKTRACE_GLOBAL_H
+#define BACKTRACE_GLOBAL_H
+
+#include <QtCore/qglobal.h>
+
+#if defined(BACKTRACE_LIBRARY)
+#  define BACKTRACESHARED_EXPORT Q_DECL_EXPORT
+#else
+#  define BACKTRACESHARED_EXPORT Q_DECL_IMPORT
+#endif
+
+#endif // BACKTRACE_GLOBAL_H

@@ -17,7 +17,8 @@ SUBDIRS += \
 	ProcessProperties \
 	ROPTool \
 	References \
-	SymbolViewer
+	SymbolViewer \
+    Backtrace
 
 unix {
 	!macx {
