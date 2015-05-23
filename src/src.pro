@@ -80,7 +80,8 @@ HEADERS += \
 	Util.h \
 	edb.h \
 	string_hash.h \
-	version.h
+	version.h \
+    CallStack.h
 
 FORMS += \
 	BinaryString.ui \
@@ -135,7 +136,8 @@ SOURCES += \
 	TabWidget.cpp \
 	ThreadsModel.cpp \
 	edb.cpp \
-	main.cpp
+	main.cpp \
+    CallStack.cpp
 
 # QHexView stuff
 INCLUDEPATH += qhexview
