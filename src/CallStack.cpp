@@ -100,6 +100,16 @@ void CallStack::get_call_stack() {
 }
 
 //------------------------------------------------------------------------------
+// Name: []
+// Desc: Provides array-like access to the stack_frames_
+//------------------------------------------------------------------------------
+CallStack::stack_frame *CallStack::operator [](qint32 index) {
+	if (index > size() || index < 0) { return 0; }
+	stack_frame *frame = &(stack_frames_[index]);
+	return frame;
+}
+
+//------------------------------------------------------------------------------
 // Name: size
 // Desc: Returns the number of frames in the call stack.
 //------------------------------------------------------------------------------
@@ -135,15 +145,4 @@ CallStack::stack_frame *CallStack::bottom() {
 //------------------------------------------------------------------------------
 void CallStack::push(stack_frame frame) {
 	stack_frames_.push_front(frame);
-}
-
-//------------------------------------------------------------------------------
-// Name: pop
-// Desc: Pops a stack frame off of the call stack and returns a pointer to the frame.
-//------------------------------------------------------------------------------
-CallStack::stack_frame *CallStack::pop() {
-	if (!size()) { return 0; }
-	stack_frame *frame = &(stack_frames_.first());
-	stack_frames_.pop_front();	//TODO: Safe, since we're ret'ing a ptr to it?
-	return frame;
 }

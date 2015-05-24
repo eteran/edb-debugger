@@ -37,13 +37,15 @@ public:
 		edb::address_t caller;
 	} stack_frame;
 
-public:
+private:
 	void get_call_stack();
+
+public:
+	stack_frame *operator [](qint32 index);
 	int size();
 	stack_frame *top();
 	stack_frame *bottom();
 	void push(stack_frame frame);
-	stack_frame *pop();
 
 private:
 	QList<stack_frame> stack_frames_;
