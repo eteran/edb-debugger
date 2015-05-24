@@ -97,6 +97,9 @@ public:
 	void update_data(const DataViewInfo::pointer &v);
 	void update_gui();
 
+Q_SIGNALS:
+	void gui_updated();
+
 public Q_SLOTS:
 	// the autoconnected slots
 	void on_action_Help_triggered();

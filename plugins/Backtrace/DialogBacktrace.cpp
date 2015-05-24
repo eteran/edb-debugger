@@ -10,6 +10,17 @@
 
 #include <QDebug>
 
+//------------------------------------------------------------------------------
+// Name: DialogBacktrace
+// Desc: Initializes the Dialog with its QTableWidget.  This class over all is
+//			designed to analyze the stack for return addresses to show the user
+//			the runtime call stack.  The user can double-click addresses to go
+//			to them in the CPU Disassembly view or click "Run To Return" on
+//			return addresses to return to those addresses.  The first item on
+//			the stack should be the current RIP/PC, and "Run To Return" should
+//			do a "Step Out" (the behavior for the 1st row should be different
+//			than all others.
+//------------------------------------------------------------------------------
 DialogBacktrace::DialogBacktrace(QWidget *parent) :
 	QDialog(parent),
 	ui(new Ui::DialogBacktrace)
@@ -23,21 +34,48 @@ DialogBacktrace::~DialogBacktrace()
 	delete ui;
 }
 
+//------------------------------------------------------------------------------
+// Name: showEvent
+// Desc: Ensures the column sizes are correct, connects the sig/slot for
+//			syncing with the Debugger UI, then populates the Call Stack table.
+//------------------------------------------------------------------------------
 void DialogBacktrace::showEvent(QShowEvent *) {
-	table_->horizontalHeader()->resizeSections(QHeaderView::Stretch);
-	qDebug() << "Show event";
+	resizeEvent(NULL);
+
+	//Sync with the Debugger UI.
+	connect(edb::v1::debugger_ui, SIGNAL(gui_updated()),
+			this, SLOT(populate_table()));
+
+	//Populate the tabel with our call stack info.
 	populate_table();
 }
 
+//------------------------------------------------------------------------------
+// Name: resizeEvent
+// Desc: Stretches columns to the table width so that they get equal size.
+//------------------------------------------------------------------------------
 void DialogBacktrace::resizeEvent(QResizeEvent *) {
+	//Because on first open of plugin, there is a Resize followed by Show.
+	//We want the opposite, so block the first Resize and let Show call this.
+	static bool first_time = true;
+	if (first_time) {
+		first_time = false;
+		return;
+	}
+
 	table_->horizontalHeader()->resizeSections(QHeaderView::Stretch);
-	qDebug() << "Resize event";
 }
 
+//------------------------------------------------------------------------------
+// Name: populate_table
+// Desc: Populates the Call Stack table with stack frame entries.
+//------------------------------------------------------------------------------
+//TODO: The first row should break protocol and display the current RIP/PC.
+//		It should be treated specially on "Run To Return" and do a "Step Out"
 void DialogBacktrace::populate_table() {
+
 	//Remove rows of the table (clearing does not remove rows)
 	//Yes, we depend on i going negative.
-	//Watch for 1-off. My last implementation used absolute indexing.
 	for (int i = table_->rowCount() - 1; i >= 0; i--) {
 		table_->removeRow(i); }
 
@@ -87,17 +125,28 @@ void DialogBacktrace::populate_table() {
 	}
 }
 
+//------------------------------------------------------------------------------
+// Name: hideEvent
+// Desc: Disconnects the signal/slot when the dialog goes away so that
+//			populate_table() is not called unnecessarily.
+//------------------------------------------------------------------------------
 void DialogBacktrace::hideEvent(QHideEvent *) {
-	qDebug() << "Disconnected from GUI updates (hide)";
+	disconnect(edb::v1::debugger_ui, SIGNAL(gui_updated()),
+			   this, SLOT(populate_table()));
 }
 
-void DialogBacktrace::on_pushButtonClose_clicked()
-{
-	//closeEvent() will disconnect from the sig/slot for GUI updates
+//------------------------------------------------------------------------------
+// Name: on_pushButtonClose_clicked()
+// Desc: Triggered when the dialog is closed which signals hideEvent & closeEvent.
+//------------------------------------------------------------------------------
+void DialogBacktrace::on_pushButtonClose_clicked() {
 	close();
 }
 
-//When an address is double-clicked, go to it.
+//------------------------------------------------------------------------------
+// Name: on_tableWidgetCallStack_itemDoubleClicked
+// Desc: Jumps to the double-clicked address in the CPU/Disassembly view.
+//------------------------------------------------------------------------------
 void DialogBacktrace::on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem *item) {
 	bool ok;
 	edb::address_t address = address_from_table(&ok, item);
@@ -106,11 +155,15 @@ void DialogBacktrace::on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem
 	}
 }
 
-//When an address is selected, make it the "current item" so that we can
-//click "Return To".
-//Disable "Return To" if it's not an item in RETURN_COLUMN
+//------------------------------------------------------------------------------
+// Name: on_tableWidgetCallStack_cellClicked
+// Desc: Enables the "Run To Return" button if the selected cell is in the
+//			column for return addresses.  Disables it, otherwise.
+//------------------------------------------------------------------------------
 void DialogBacktrace::on_tableWidgetCallStack_cellClicked(int row, int column)
 {
+	row = row;	//Not used, and the warning is annoying.
+
 	QPushButton *return_to = ui->pushButtonReturnTo;
 	if (is_ret(column)) {
 		return_to->setEnabled(true);
@@ -119,8 +172,11 @@ void DialogBacktrace::on_tableWidgetCallStack_cellClicked(int row, int column)
 	}
 }
 
-//When "Return To" is clicked, check that the item is in RETURN_COLUMN.
-//Then set the breakpoint at the address and run.
+//------------------------------------------------------------------------------
+// Name: on_pushButtonReturnTo_clicked()
+// Desc: Ensures that the selected item is a return address.  If so, sets a
+//			breakpoint at that address and continues execution.
+//------------------------------------------------------------------------------
 void DialogBacktrace::on_pushButtonReturnTo_clicked()
 {
 	//Make sure our current item is in the RETURN_COLUMN
@@ -133,14 +189,11 @@ void DialogBacktrace::on_pushButtonReturnTo_clicked()
 	//If we didn't get a valid address, then fail.
 	//TODO: Make sure "ok" actually signifies success of getting an address...
 	if (!ok) {
-		qDebug() << "Not ok";
 		int base = 16;
 		QString msg("Could not return to 0x%x" + QString().number(address, base));
 		QMessageBox::information( this,	"Error", msg);
 		return;
 	}
-
-	qDebug() << "Ok";
 
 	//Now that we got the address, we can run.  First check if bp @ that address
 	//already exists.
@@ -163,15 +216,30 @@ void DialogBacktrace::on_pushButtonReturnTo_clicked()
 
 }
 
+//------------------------------------------------------------------------------
+// Name: is_ret (QTableWidgetItem version)
+// Desc: Returns true if the selected item is in the column for return addresses.
+//			Returns false otherwise.
+//------------------------------------------------------------------------------
 bool DialogBacktrace::is_ret(const QTableWidgetItem *item) {
 	if (!item) { return false; }
 	return item->column() == RETURN_COLUMN;
 }
 
+//------------------------------------------------------------------------------
+// Name: is_ret (column number version)
+// Desc: Returns true if the column number is the one dedicated to return addresses.
+//			Returns false otherwise.
+//------------------------------------------------------------------------------
 bool DialogBacktrace::is_ret(int column) {
 	return column == RETURN_COLUMN;
 }
 
+//------------------------------------------------------------------------------
+// Name: address_from_table
+// Desc: Returns the edb::address_t represented by the given *item and sets *ok
+//			to true if successful or false, otherwise.
+//------------------------------------------------------------------------------
 edb::address_t DialogBacktrace::address_from_table(bool *ok, const QTableWidgetItem *item) {
 	QString addr_text = item->text();
 	Expression<edb::address_t> expr(addr_text, edb::v1::get_variable, edb::v1::get_value);

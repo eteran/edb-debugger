@@ -33,7 +33,7 @@ private:
 	bool is_ret(int column);
 	edb::address_t address_from_table(bool *ok, const QTableWidgetItem *item);
 
-public slots:
+public Q_SLOTS:
 	void populate_table();
 
 private slots:

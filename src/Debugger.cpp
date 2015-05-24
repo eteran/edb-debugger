@@ -2043,6 +2043,11 @@ void Debugger::update_gui() {
 			edb::v1::arch_processor().update_register_view(region->name(), state);
 		}
 	}
+
+	//Signal all connected slots that the GUI has been updated.
+	//Useful for plugins with windows that should updated after
+	//hitting breakpoints, Step Over, etc.
+	emit gui_updated();
 }
 
 //------------------------------------------------------------------------------
