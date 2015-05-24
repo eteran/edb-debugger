@@ -70,9 +70,13 @@ void DialogBacktrace::populate_table() {
 	}
 
 	//1st ret is selected on every refresh so that we can just click "Return To"
+	//Turn Run To button off if no item.
 	QTableWidgetItem *item = table_->item(FIRST_ROW, RETURN_COLUMN);
 	if (item) {
 		table_->setCurrentItem(item);
+		ui->pushButtonReturnTo->setEnabled(true);
+	} else {
+		ui->pushButtonReturnTo->setDisabled(true);
 	}
 }
 
@@ -153,6 +157,7 @@ void DialogBacktrace::on_pushButtonReturnTo_clicked()
 }
 
 bool DialogBacktrace::is_ret(const QTableWidgetItem *item) {
+	if (!item) { return false; }
 	return item->column() == RETURN_COLUMN;
 }
 
