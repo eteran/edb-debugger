@@ -38,6 +38,7 @@ public slots:
 
 private slots:
 	virtual void showEvent(QShowEvent *);
+	virtual void resizeEvent(QResizeEvent *);
 	virtual void hideEvent(QHideEvent *);
 	void on_pushButtonClose_clicked();
 

@@ -24,7 +24,14 @@ DialogBacktrace::~DialogBacktrace()
 }
 
 void DialogBacktrace::showEvent(QShowEvent *) {
+	table_->horizontalHeader()->resizeSections(QHeaderView::Stretch);
+	qDebug() << "Show event";
 	populate_table();
+}
+
+void DialogBacktrace::resizeEvent(QResizeEvent *) {
+	table_->horizontalHeader()->resizeSections(QHeaderView::Stretch);
+	qDebug() << "Resize event";
 }
 
 void DialogBacktrace::populate_table() {
