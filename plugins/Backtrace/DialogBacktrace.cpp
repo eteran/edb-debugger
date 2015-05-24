@@ -1,8 +1,12 @@
 #include "DialogBacktrace.h"
 #include "ui_DialogBacktrace.h"
 #include "CallStack.h"
+#include "Expression.h"
+#include "IBreakpoint.h"
+#include "IDebuggerCore.h"
 
 #include <QTableWidget>
+#include <QMessageBox>
 
 #include <QDebug>
 
@@ -50,12 +54,17 @@ void DialogBacktrace::populate_table() {
 
 		//Put them in the table: create string from address and set item flags.
 		for (int j = 0; j < stack_entry.size() && j < table_->columnCount(); j++) {
+
+			//Turn the address into a string prefixed with "0x"
 			int base = 16;
 			QTableWidgetItem *item = new QTableWidgetItem;
 			item->setText(QString("0x") + QString().number(stack_entry.at(j), base));
+
+			//Remove all flags (namely Edit), then put the flags that we want.
 			Qt::ItemFlags flags = Qt::NoItemFlags;
 			flags |= Qt::ItemIsEnabled | Qt::ItemIsSelectable;
 			item->setFlags(flags);
+
 			table_->setItem(i, j, item);
 		}
 	}
@@ -67,13 +76,94 @@ void DialogBacktrace::populate_table() {
 	}
 }
 
-void DialogBacktrace::closeEvent(QCloseEvent *) {
-	//Disconnect from GUI update sig/slot
-	qDebug() << "Disconnected from GUI updates";
+void DialogBacktrace::hideEvent(QHideEvent *) {
+	qDebug() << "Disconnected from GUI updates (hide)";
 }
 
 void DialogBacktrace::on_pushButtonClose_clicked()
 {
 	//closeEvent() will disconnect from the sig/slot for GUI updates
 	close();
+}
+
+//When an address is double-clicked, go to it.
+void DialogBacktrace::on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem *item) {
+	bool ok;
+	edb::address_t address = address_from_table(&ok, item);
+	if (ok) {
+		edb::v1::jump_to_address(address);
+	}
+}
+
+//When an address is selected, make it the "current item" so that we can
+//click "Return To".
+//Disable "Return To" if it's not an item in RETURN_COLUMN
+void DialogBacktrace::on_tableWidgetCallStack_cellClicked(int row, int column)
+{
+	QPushButton *return_to = ui->pushButtonReturnTo;
+	if (is_ret(column)) {
+		return_to->setEnabled(true);
+	} else {
+		return_to->setDisabled(true);
+	}
+}
+
+//When "Return To" is clicked, check that the item is in RETURN_COLUMN.
+//Then set the breakpoint at the address and run.
+void DialogBacktrace::on_pushButtonReturnTo_clicked()
+{
+	//Make sure our current item is in the RETURN_COLUMN
+	QTableWidgetItem *item = table_->currentItem();
+	if (!is_ret(item)) { return; }
+
+	bool ok;
+	edb::address_t address = address_from_table(&ok, item);
+
+	//If we didn't get a valid address, then fail.
+	//TODO: Make sure "ok" actually signifies success of getting an address...
+	if (!ok) {
+		qDebug() << "Not ok";
+		int base = 16;
+		QString msg("Could not return to 0x%x" + QString().number(address, base));
+		QMessageBox::information( this,	"Error", msg);
+		return;
+	}
+
+	qDebug() << "Ok";
+
+	//Now that we got the address, we can run.  First check if bp @ that address
+	//already exists.
+	IBreakpoint::pointer bp = edb::v1::debugger_core->find_breakpoint(address);
+	if (bp) {
+		edb::v1::debugger_core->resume(edb::DEBUG_CONTINUE);
+		return;
+	}
+
+	//Using the non-debugger_core version ensures bp is set in a valid region
+	edb::v1::create_breakpoint(address);
+	bp = edb::v1::debugger_core->find_breakpoint(address);
+	if (bp) {
+		bp->set_internal(true);
+		bp->set_one_time(true);
+		edb::v1::debugger_core->resume(edb::DEBUG_CONTINUE);
+		return;
+	}
+
+
+}
+
+bool DialogBacktrace::is_ret(const QTableWidgetItem *item) {
+	return item->column() == RETURN_COLUMN;
+}
+
+bool DialogBacktrace::is_ret(int column) {
+	return column == RETURN_COLUMN;
+}
+
+edb::address_t DialogBacktrace::address_from_table(bool *ok, const QTableWidgetItem *item) {
+	QString addr_text = item->text();
+	Expression<edb::address_t> expr(addr_text, edb::v1::get_variable, edb::v1::get_value);
+	ExpressionError err;
+	const edb::address_t address = expr.evaluate_expression(ok, &err);
+	return address;
 }

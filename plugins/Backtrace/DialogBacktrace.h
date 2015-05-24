@@ -28,13 +28,24 @@ public:
 	explicit DialogBacktrace(QWidget *parent = 0);
 	~DialogBacktrace();
 
+private:
+	bool is_ret(const QTableWidgetItem *item);
+	bool is_ret(int column);
+	edb::address_t address_from_table(bool *ok, const QTableWidgetItem *item);
+
 public slots:
 	void populate_table();
 
 private slots:
 	virtual void showEvent(QShowEvent *);
-	virtual void closeEvent(QCloseEvent *);
+	virtual void hideEvent(QHideEvent *);
 	void on_pushButtonClose_clicked();
+
+	void on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem *item);
+
+	void on_tableWidgetCallStack_cellClicked(int row, int column);
+
+	void on_pushButtonReturnTo_clicked();
 
 private:
 	Ui::DialogBacktrace		*ui;

@@ -59,11 +59,6 @@
     </item>
     <item row="0" column="0">
      <widget class="QTableWidget" name="tableWidgetCallStack">
-      <row>
-       <property name="text">
-        <string>Current Frame</string>
-       </property>
-      </row>
       <column>
        <property name="text">
         <string>Call From</string>
