@@ -861,8 +861,61 @@ void Debugger::on_registerList_customContextMenuRequested(const QPoint &pos) {
 				menu.exec(ui.registerList->mapToGlobal(pos));
 			}
 		}
+
+		//Special case for the flag values. Open a context menu with the flag names for toggle.
+		else if (QTreeWidgetItem *parent = item->parent()) {
+			if (const Register reg = edb::v1::arch_processor().value_from_item(*parent)) {
+				if (reg.name() == edb::v1::debugger_core->flag_register()) {
+					QMenu menu;
+					menu.addAction(tr("&Carry"), this, SLOT(toggle_flag_carry()));
+					menu.addAction(tr("&Parity"), this, SLOT(toggle_flag_parity()));
+					menu.addAction(tr("&Auxiliary"), this, SLOT(toggle_flag_auxiliary()));
+					menu.addAction(tr("&Zero"), this, SLOT(toggle_flag_zero()));
+					menu.addAction(tr("&Sign"), this, SLOT(toggle_flag_sign()));
+					menu.addAction(tr("&Direction"), this, SLOT(toggle_flag_direction()));
+					menu.addAction(tr("&Overflow"), this, SLOT(toggle_flag_overflow()));
+
+					add_plugin_context_menu(&menu, &IPlugin::register_context_menu);
+
+					menu.exec(ui.registerList->mapToGlobal(pos));
+				}
+			}
+		}
 	}
 }
+
+//Flag-toggling functions.  Not sure if this is the best solution, but it works.
+
+//------------------------------------------------------------------------------
+// Name: toggle_flag
+// Desc: toggles flag register at bit position pos
+// Param: pos The position of the flag bit to toggle
+//------------------------------------------------------------------------------
+void Debugger::toggle_flag(int pos)
+{
+	//TODO Maybe this should just return w/o action if no process is loaded.
+
+	//Get the state and get the flag register
+	State state;
+	edb::v1::debugger_core->get_state(&state);
+	edb::reg_t flags = state.flags();
+
+	//Toggle the flag
+	flags ^= (1 << pos);
+	state.set_flags(flags);
+	edb::v1::debugger_core->set_state(state);
+
+	update_gui();
+	refresh_gui();
+}
+
+void Debugger::toggle_flag_carry() { toggle_flag(0); }
+void Debugger::toggle_flag_parity() { toggle_flag(2); }
+void Debugger::toggle_flag_auxiliary() { toggle_flag(4); }
+void Debugger::toggle_flag_zero() { toggle_flag(6); }
+void Debugger::toggle_flag_sign() { toggle_flag(7); }
+void Debugger::toggle_flag_direction() { toggle_flag(10); }
+void Debugger::toggle_flag_overflow() { toggle_flag(11); }
 
 //------------------------------------------------------------------------------
 // Name: on_cpuView_breakPointToggled

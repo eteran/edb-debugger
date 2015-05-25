@@ -129,6 +129,19 @@ public Q_SLOTS:
 	void on_registerList_customContextMenuRequested(const QPoint &);
 	void on_registerList_itemDoubleClicked(QTreeWidgetItem *);
 
+//Flag-toggling slots for right-click --> toggle flag
+public Q_SLOTS:
+	void toggle_flag_carry();
+	void toggle_flag_parity();
+	void toggle_flag_auxiliary();
+	void toggle_flag_zero();
+	void toggle_flag_sign();
+	void toggle_flag_direction();
+	void toggle_flag_overflow();
+
+private:
+	void toggle_flag(int);
+
 private Q_SLOTS:
 	// the manually connected CPU slots
 	void mnuCPUEditComment();

@@ -1258,6 +1258,18 @@ QString DebuggerCore::instruction_pointer() const {
 }
 
 //------------------------------------------------------------------------------
+// Name: flag_register
+// Desc: Returns the name of the flag register as a QString.
+//------------------------------------------------------------------------------
+QString DebuggerCore::flag_register() const {
+#ifdef EDB_X86
+	return "eflags";
+#elif defined(EDB_X86_64)
+	return "rflags";
+#endif
+}
+
+//------------------------------------------------------------------------------
 // Name:
 // Desc:
 //------------------------------------------------------------------------------

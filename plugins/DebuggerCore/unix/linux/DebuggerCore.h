@@ -95,6 +95,7 @@ public:
 	virtual QString stack_pointer() const;
 	virtual QString frame_pointer() const;
 	virtual QString instruction_pointer() const;
+	virtual QString flag_register() const;
 
 public:
 	virtual QString format_pointer(edb::address_t address) const;
