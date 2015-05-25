@@ -1511,21 +1511,31 @@ void Debugger::cpu_fill(quint8 byte) {
 void Debugger::mnuCPUEditComment() {
 	const edb::address_t address = ui.cpuView->selectedAddress();
 
-	bool ok;
+	bool got_text;
 	const QString comment = QInputDialog::getText(
 				this,
 				QString("Edit Comment"),
 				QString("Comment:"),
 				QLineEdit::Normal,
 				ui.cpuView->get_comment(address),
-				&ok);
+				&got_text);
 
-	if (!ok) {
-		QMessageBox::information(this, "Error", "Error adding comment...");
+	//If we got a comment, add it.
+	if (got_text && !comment.isEmpty()) {
+		ui.cpuView->add_comment(address, comment);
+	}
+
+	//If the user backspaced the comment, remove the comment since
+	//there's no need for a null string to take space in the hash.
+	else if (got_text && comment.isEmpty()) {
+		ui.cpuView->remove_comment(address);
+	}
+
+	//The only other real case is that we didn't got_text.  No change.
+	else {
 		return;
 	}
 
-	ui.cpuView->add_comment(address, comment);
 	refresh_gui();
 }
 
