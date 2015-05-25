@@ -16,39 +16,42 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef CALLSTACK_H
-#define CALLSTACK_H
+#ifndef BACKTRACE_H
+#define BACKTRACE_H
 
-#include "edb.h"
+//#include "backtrace_global.h"
 
-#include <QList>
-#include <QtCore/qglobal.h>
+#include "IPlugin.h"
 
-class CallStack
+class QMenu;
+class QDialog;
+
+namespace Backtrace {
+
+class Backtrace : public QObject, public IPlugin
 {
-public:
-	CallStack();
-	~CallStack();
+	Q_OBJECT
+	Q_INTERFACES(IPlugin)
+#if QT_VERSION >= 0x050000
+	Q_PLUGIN_METADATA(IID, "edb.IPlugin/1.0")
+#endif
+	Q_CLASSINFO("author", "Armen Boursalian")
+	Q_CLASSINFO("url", "https://github.com/Northern-Lights")
 
-//Struct that holds the caller and return addresses.
 public:
-	typedef struct stack_frame_t {
-		edb::address_t ret;
-		edb::address_t caller;
-	} stack_frame;
+	Backtrace();
+	virtual ~Backtrace();
+
+public:
+	virtual QMenu *menu(QWidget *parent = 0);
+
+public Q_SLOTS:
+	void show_menu();
 
 private:
-	void get_call_stack();
-
-public:
-	stack_frame *operator [](qint32 index);
-	int size();
-	stack_frame *top();
-	stack_frame *bottom();
-	void push(stack_frame frame);
-
-private:
-	QList<stack_frame> stack_frames_;
+	QMenu	*menu_;
+	QDialog	*dialog_;
 };
 
-#endif // CALLSTACK_H
+}
+#endif // BACKTRACE_H
