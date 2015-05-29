@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ArchProcessor.h"
 #include "Configuration.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "Instruction.h"
 #include "Prototype.h"
 #include "RegisterListWidget.h"

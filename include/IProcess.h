@@ -19,10 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IPROCESS_20150516_H_
 #define IPROCESS_20150516_H_
 
+#include "IRegion.h"
+#include "IThread.h"
 #include "Types.h"
 #include <QDateTime>
-#include <QString>
 #include <QSharedPointer>
+#include <QString>
 
 class IProcess {
 public:
@@ -31,12 +33,15 @@ public:
 	virtual ~IProcess() {}
 
 public:
-	virtual QDateTime         start_time() const = 0;
-	virtual QList<QByteArray> arguments() const = 0;
-	virtual QString           current_working_directory() const = 0;
-	virtual QString           executable() const = 0;
-	virtual edb::pid_t        pid() const = 0;
-	virtual pointer           parent() const = 0;
+	virtual QDateTime               start_time() const = 0;
+	virtual QList<QByteArray>       arguments() const = 0;
+	virtual QString                 current_working_directory() const = 0;
+	virtual QString                 executable() const = 0;
+	virtual edb::pid_t              pid() const = 0;
+	virtual pointer                 parent() const = 0;
+	virtual edb::address_t          code_address() const = 0;
+	virtual edb::address_t          data_address() const = 0;
+	virtual QList<IRegion::pointer> regions() const = 0;
 
 public:
 	// returns true on success, false on failure, all bytes must be successfully

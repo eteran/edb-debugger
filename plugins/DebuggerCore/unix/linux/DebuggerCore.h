@@ -35,9 +35,9 @@ namespace DebuggerCore {
 class DebuggerCore : public DebuggerCoreUNIX {
 	Q_OBJECT
 #if QT_VERSION >= 0x050000
-	Q_PLUGIN_METADATA(IID "edb.IDebuggerCore/1.0")
+	Q_PLUGIN_METADATA(IID "edb.IDebugger/1.0")
 #endif
-	Q_INTERFACES(IDebuggerCore)
+	Q_INTERFACES(IDebugger)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 	friend class PlatformProcess;
@@ -69,9 +69,6 @@ public:
 	virtual ThreadInfo get_thread_info(edb::tid_t);
 
 public:
-	virtual QList<IRegion::pointer> memory_regions() const;
-	virtual edb::address_t process_code_address() const;
-	virtual edb::address_t process_data_address() const;
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const;
 
 public:

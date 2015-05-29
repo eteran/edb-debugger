@@ -1,11 +1,13 @@
 
 #include "PlatformProcess.h"
 #include "DebuggerCore.h"
+#include "PlatformRegion.h"
 #include "edb.h"
-#include <QFileInfo>
-#include <QFile>
-#include <QTextStream>
 #include <QByteArray>
+#include <QFile>
+#include <QFileInfo>
+#include <QTextStream>
+#include <sys/mman.h>
 
 using namespace DebuggerCore;
 
@@ -158,6 +160,48 @@ int get_user_stat(const QString &path, struct user_stat *user_stat) {
 int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 
 	return get_user_stat(QString("/proc/%1/stat").arg(pid), user_stat);
+}
+
+//------------------------------------------------------------------------------
+// Name: process_map_line
+// Desc: parses the data from a line of a memory map file
+//------------------------------------------------------------------------------
+IRegion::pointer process_map_line(const QString &line) {
+
+	edb::address_t start;
+	edb::address_t end;
+	edb::address_t base;
+	IRegion::permissions_t permissions;
+	QString name;
+
+	const QStringList items = line.split(" ", QString::SkipEmptyParts);
+	if(items.size() >= 3) {
+		bool ok;
+		const QStringList bounds = items[0].split("-");
+		if(bounds.size() == 2) {
+			start = bounds[0].toULongLong(&ok, 16);
+			if(ok) {
+				end = bounds[1].toULongLong(&ok, 16);
+				if(ok) {
+					base = items[2].toULongLong(&ok, 16);
+					if(ok) {
+						const QString perms = items[1];
+						permissions = 0;
+						if(perms[0] == 'r') permissions |= PROT_READ;
+						if(perms[1] == 'w') permissions |= PROT_WRITE;
+						if(perms[2] == 'x') permissions |= PROT_EXEC;
+
+						if(items.size() >= 6) {
+							name = items[5];
+						}
+
+						return IRegion::pointer(new PlatformRegion(start, end, base, name, permissions));
+					}
+				}
+			}
+		}
+	}
+	return IRegion::pointer();
 }
 
 }
@@ -466,5 +510,56 @@ IProcess::pointer PlatformProcess::parent() const {
 	}
 
 	return IProcess::pointer();
+}
 
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+edb::address_t PlatformProcess::code_address() const {
+	struct user_stat user_stat;
+	int n = get_user_stat(pid(), &user_stat);
+	if(n >= 26) {
+		return user_stat.startcode;
+	}
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+edb::address_t PlatformProcess::data_address() const {
+	struct user_stat user_stat;
+	int n = get_user_stat(pid(), &user_stat);
+	if(n >= 27) {
+		return user_stat.endcode + 1; // endcode == startdata ?
+	}
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+QList<IRegion::pointer> PlatformProcess::regions() const {
+	QList<IRegion::pointer> regions;
+
+	const QString map_file(QString("/proc/%1/maps").arg(pid_));
+
+	QFile file(map_file);
+    if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+
+		QTextStream in(&file);
+		QString line = in.readLine();
+
+		while(!line.isNull()) {
+			if(IRegion::pointer region = process_map_line(line)) {
+				regions.push_back(region);
+			}
+			line = in.readLine();
+		}
+	}
+
+	return regions;
 }

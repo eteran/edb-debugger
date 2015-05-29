@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IAnalyzer.h"
 #include "IBinary.h"
 #include "IDebugEvent.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "IPlugin.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"

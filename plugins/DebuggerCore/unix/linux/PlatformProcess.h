@@ -14,12 +14,15 @@ public:
 	virtual ~PlatformProcess();
 
 public:
-	virtual QDateTime         start_time() const;
-	virtual QList<QByteArray> arguments() const;
-	virtual QString           current_working_directory() const;
-	virtual QString           executable() const;
-	virtual edb::pid_t        pid() const;
-	virtual IProcess::pointer parent() const;
+	virtual QDateTime               start_time() const;
+	virtual QList<QByteArray>       arguments() const;
+	virtual QString                 current_working_directory() const;
+	virtual QString                 executable() const;
+	virtual edb::pid_t              pid() const;
+	virtual IProcess::pointer       parent() const;
+	virtual edb::address_t          code_address() const;
+	virtual edb::address_t          data_address() const;
+	virtual QList<IRegion::pointer> regions() const;
 
 public:
 	virtual bool write_bytes(edb::address_t address, const void *buf, size_t len);

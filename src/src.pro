@@ -46,9 +46,10 @@ HEADERS += \
 	IBreakpoint.h \
 	IDebugEvent.h \
 	IDebugEventHandler.h \
-	IDebuggerCore.h \
+	IDebugger.h \
 	IPlugin.h \
 	IProcess.h \
+	IThread.h \
 	IRegion.h \
 	IState.h \
 	ISymbolManager.h \

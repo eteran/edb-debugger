@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "Debugger.h"
 #include "DebuggerInternal.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "IPlugin.h"
 #include "edb.h"
 #include "version.h"
@@ -58,7 +58,7 @@ void load_plugins(const QString &directory) {
 			if(QObject *const plugin = loader.instance()) {
 
 				// TODO: handle the case where we find more than one core plugin...
-				if(IDebuggerCore *const core_plugin = qobject_cast<IDebuggerCore *>(plugin)) {
+				if(IDebugger *const core_plugin = qobject_cast<IDebugger *>(plugin)) {
 					if(!edb::v1::debugger_core) {
 						edb::v1::debugger_core = core_plugin;
 					}

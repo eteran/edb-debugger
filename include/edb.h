@@ -36,7 +36,7 @@ class Configuration;
 class IAnalyzer;
 class IBinary;
 class IDebugEventHandler;
-class IDebuggerCore;
+class IDebugger;
 class IPlugin;
 class ISymbolManager;
 class MemoryRegions;
@@ -57,7 +57,7 @@ struct Prototype;
 namespace v1 {
 
 // some useful objects
-EDB_EXPORT extern IDebuggerCore *debugger_core;
+EDB_EXPORT extern IDebugger *debugger_core;
 EDB_EXPORT extern QWidget       *debugger_ui;
 
 // the symbol mananger

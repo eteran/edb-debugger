@@ -16,8 +16,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef IDEBUGGER_CORE_20061101_H_
-#define IDEBUGGER_CORE_20061101_H_
+#ifndef IDEBUGGER_20061101_H_
+#define IDEBUGGER_20061101_H_
 
 #include "IBreakpoint.h"
 #include "IDebugEvent.h"
@@ -38,12 +38,12 @@ class IState;
 class QString;
 class State;
 
-class IDebuggerCore {
+class IDebugger {
 public:
 	typedef QHash<edb::address_t, IBreakpoint::pointer> BreakpointList;
 	
 public:
-	virtual ~IDebuggerCore() {}
+	virtual ~IDebugger() {}
 
 public:
 	// system properties
@@ -62,9 +62,6 @@ public:
 	
 public:
 	// process properties
-	virtual edb::address_t          process_code_address() const = 0;
-	virtual edb::address_t          process_data_address() const = 0;
-	virtual QList<IRegion::pointer> memory_regions() const = 0;
     virtual QList<Module>           loaded_modules() const = 0;
 	
 public:
@@ -110,6 +107,6 @@ public:
 	virtual QMap<edb::pid_t, ProcessInfo> enumerate_processes() const = 0;
 };
 
-Q_DECLARE_INTERFACE(IDebuggerCore, "EDB.IDebuggerCore/1.0")
+Q_DECLARE_INTERFACE(IDebugger, "EDB.IDebugger/1.0")
 
 #endif

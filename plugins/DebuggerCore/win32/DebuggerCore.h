@@ -26,7 +26,7 @@ namespace DebuggerCore {
 
 class DebuggerCore : public DebuggerCoreBase {
 	Q_OBJECT
-	Q_INTERFACES(IDebuggerCore)
+	Q_INTERFACES(IDebugger)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
