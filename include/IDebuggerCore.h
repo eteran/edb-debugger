@@ -28,7 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ThreadInfo.h"
 
 #include <QByteArray>
-#include <QDateTime>
 #include <QHash>
 #include <QMap>
 #include <QString>
@@ -55,18 +54,18 @@ public:
 	virtual QMap<long, QString> exceptions() const = 0;
 	
 public:
+	// important register names
+	virtual QString stack_pointer() const = 0;
+	virtual QString frame_pointer() const = 0;
+	virtual QString instruction_pointer() const = 0;
+	virtual edb::pid_t parent_pid(edb::pid_t pid) const = 0;
+	
+public:
 	// process properties
-	virtual QDateTime               process_start(edb::pid_t pid) const = 0;
-	virtual QList<QByteArray>       process_args(edb::pid_t pid) const = 0;
-	virtual QString                 process_cwd(edb::pid_t pid) const = 0;
-	virtual QString                 process_exe(edb::pid_t pid) const = 0;
 	virtual edb::address_t          process_code_address() const = 0;
 	virtual edb::address_t          process_data_address() const = 0;
-	virtual edb::pid_t              parent_pid(edb::pid_t pid) const = 0;
 	virtual QList<IRegion::pointer> memory_regions() const = 0;
     virtual QList<Module>           loaded_modules() const = 0;
-	// equal to "(edb::pid_t)0" if we are not attached
-	virtual edb::pid_t pid() const = 0;
 	
 public:
 	// basic process management
@@ -98,17 +97,13 @@ public:
 	virtual void                 remove_breakpoint(edb::address_t address) = 0;
 
 public:
-	virtual QString stack_pointer() const = 0;
-	virtual QString frame_pointer() const = 0;
-	virtual QString instruction_pointer() const = 0;
-
-public:
 	virtual QString format_pointer(edb::address_t address) const = 0;
 
 public:
 	virtual IState *create_state() const = 0;
 	
 public:
+	// NULL if not attached
 	virtual IProcess *process() const = 0;
 
 public:

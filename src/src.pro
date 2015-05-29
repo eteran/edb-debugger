@@ -48,6 +48,7 @@ HEADERS += \
 	IDebugEventHandler.h \
 	IDebuggerCore.h \
 	IPlugin.h \
+	IProcess.h \
 	IRegion.h \
 	IState.h \
 	ISymbolManager.h \
@@ -81,6 +82,7 @@ HEADERS += \
 	edb.h \
 	string_hash.h \
 	version.h
+
 
 FORMS += \
 	BinaryString.ui \

@@ -989,21 +989,6 @@ QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QString DebuggerCore::process_exe(edb::pid_t pid) const {
-	return edb::v1::symlink_target(QString("/proc/%1/exe").arg(pid));
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QString DebuggerCore::process_cwd(edb::pid_t pid) const {
-	return edb::v1::symlink_target(QString("/proc/%1/cwd").arg(pid));
-}
 
 //------------------------------------------------------------------------------
 // Name:
@@ -1046,44 +1031,6 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 	}
 
 	return regions;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
-
-	QList<QByteArray> ret;
-
-	if(pid != 0) {
-		const QString command_line_file(QString("/proc/%1/cmdline").arg(pid));
-		QFile file(command_line_file);
-
-		if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-			QTextStream in(&file);
-
-			QByteArray s;
-			QChar ch;
-
-			while(in.status() == QTextStream::Ok) {
-				in >> ch;
-				if(ch == '\0') {
-					if(!s.isEmpty()) {
-						ret << s;
-					}
-					s.clear();
-				} else {
-					s += ch;
-				}
-			}
-
-			if(!s.isEmpty()) {
-				ret << s;
-			}
-		}
-	}
-	return ret;
 }
 
 //------------------------------------------------------------------------------
@@ -1176,15 +1123,6 @@ QList<Module> DebuggerCore::loaded_modules() const {
 	}
 
 	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
-	QFileInfo info(QString("/proc/%1/stat").arg(pid));
-	return info.created();
 }
 
 //------------------------------------------------------------------------------

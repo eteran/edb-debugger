@@ -275,7 +275,7 @@ void Analyzer::bonus_main(RegionData *data) const {
 
 	Q_ASSERT(data);
 
-	const QString s = edb::v1::debugger_core->process_exe(edb::v1::debugger_core->pid());
+	const QString s = edb::v1::debugger_core->process()->executable();
 	if(!s.isEmpty()) {
 		if(const edb::address_t main = edb::v1::locate_main_function()) {
 			if(data->region->contains(main)) {

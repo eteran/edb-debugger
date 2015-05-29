@@ -72,17 +72,12 @@ public:
 	virtual QList<IRegion::pointer> memory_regions() const;
 	virtual edb::address_t process_code_address() const;
 	virtual edb::address_t process_data_address() const;
+	virtual edb::pid_t parent_pid(edb::pid_t pid) const;
 
 public:
 	virtual IState *create_state() const;
 
 public:
-	// process properties
-	virtual QList<QByteArray> process_args(edb::pid_t pid) const;
-	virtual QString process_cwd(edb::pid_t pid) const;
-	virtual QString process_exe(edb::pid_t pid) const;
-	virtual edb::pid_t parent_pid(edb::pid_t pid) const;
-	virtual QDateTime process_start(edb::pid_t pid) const;
 	virtual quint64 cpu_type() const;
 
 
@@ -118,7 +113,7 @@ private:
 	void stop_threads();
 	IDebugEvent::const_pointer handle_event(edb::tid_t tid, int status);
 	bool attach_thread(edb::tid_t tid);
-
+	
 private:
 	struct thread_info {
 		int status;

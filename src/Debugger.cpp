@@ -420,7 +420,7 @@ DataViewInfo::pointer Debugger::current_data_view_info() const {
 // Desc: sets the caption part to also show the application name and pid
 //------------------------------------------------------------------------------
 void Debugger::set_debugger_caption(const QString &appname) {
-	setWindowTitle(tr("edb - %1 [%2]").arg(appname).arg(edb::v1::debugger_core->pid()));
+	setWindowTitle(tr("edb - %1 [%2]").arg(appname).arg(edb::v1::debugger_core->process()->pid()));
 }
 
 //------------------------------------------------------------------------------
@@ -1271,7 +1271,10 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	int size                     = ui.cpuView->selectedSize();
 
 
-	if(edb::v1::debugger_core->pid() != 0) {
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+	
+		Q_UNUSED(process);
+	
 		quint8 buffer[edb::Instruction::MAX_SIZE + 1];
 		if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
 			edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
@@ -2261,12 +2264,15 @@ void Debugger::set_initial_debugger_state() {
 #ifdef Q_OS_UNIX
 	debug_pointer_ = 0;
 #endif
-	const QString executable = edb::v1::debugger_core->process_exe(edb::v1::debugger_core->pid());
+
+	IProcess *process = edb::v1::debugger_core->process();
+
+	const QString executable = process ? process->executable() : QString();
 
 	set_debugger_caption(executable);
 
 	program_executable_.clear();
-	if(edb::v1::debugger_core->pid() != 0) {
+	if(!executable.isEmpty()) {
 		program_executable_ = executable;
 	}
 
@@ -2342,12 +2348,11 @@ void Debugger::set_initial_breakpoint(const QString &s) {
 void Debugger::on_action_Restart_triggered() {
 
 	Q_ASSERT(edb::v1::debugger_core);
-
-	const edb::pid_t pid = edb::v1::debugger_core->pid();
-
-	working_directory_     = edb::v1::debugger_core->process_cwd(pid);
-	QList<QByteArray> args = edb::v1::debugger_core->process_args(pid);
-	const QString s        = edb::v1::debugger_core->process_exe(pid);
+	Q_ASSERT(edb::v1::debugger_core->process());
+	
+	working_directory_     = edb::v1::debugger_core->process()->current_working_directory();
+	QList<QByteArray> args = edb::v1::debugger_core->process()->arguments();
+	const QString s        = edb::v1::debugger_core->process()->executable();
 
 	if(!args.empty()) {
 		args.removeFirst();
@@ -2426,7 +2431,7 @@ void Debugger::attach(edb::pid_t pid) {
 	// TODO: we need a core concept of debugger capabilities which
 	// may restrict some actions
 
-#ifdef Q_OS_UNIX
+#if defined(Q_OS_UNIX)
 	edb::pid_t current_pid = getpid();
 	while(current_pid != 0) {
 		if(current_pid == pid) {
@@ -2440,35 +2445,37 @@ void Debugger::attach(edb::pid_t pid) {
 	}
 #endif
 
-	if(pid == edb::v1::debugger_core->pid()) {
-		QMessageBox::information(
-			this,
-			tr("Attach"),
-			tr("You are already debugging that process!"));
-	} else {
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(pid == process->pid()) {
+			QMessageBox::information(
+				this,
+				tr("Attach"),
+				tr("You are already debugging that process!"));
+			return;
+		}
+	}
+	
 
+	detach_from_process(NO_KILL_ON_DETACH);
 
-		detach_from_process(NO_KILL_ON_DETACH);
+	if(edb::v1::debugger_core->attach(pid)) {
 
-		if(edb::v1::debugger_core->attach(pid)) {
+		working_directory_ = edb::v1::debugger_core->process()->current_working_directory();
 
-			working_directory_ = edb::v1::debugger_core->process_cwd(edb::v1::debugger_core->pid());
+		set_initial_debugger_state();
 
-			set_initial_debugger_state();
+		QList<QByteArray> args = edb::v1::debugger_core->process()->arguments();
 
-			QList<QByteArray> args = edb::v1::debugger_core->process_args(edb::v1::debugger_core->pid());
-
-			if(!args.empty()) {
-				args.removeFirst();
-			}
-
-			arguments_dialog_->set_arguments(args);
-		} else {
-			QMessageBox::information(this, tr("Attach"), tr("Failed to attach to process, please check privileges and try again."));
+		if(!args.empty()) {
+			args.removeFirst();
 		}
 
-		update_gui();
+		arguments_dialog_->set_arguments(args);
+	} else {
+		QMessageBox::information(this, tr("Attach"), tr("Failed to attach to process, please check privileges and try again."));
 	}
+
+	update_gui();
 }
 
 //------------------------------------------------------------------------------
@@ -2768,7 +2775,7 @@ void Debugger::next_debug_event() {
 		switch(status) {
 		case edb::DEBUG_STOP:
 			update_gui();
-			update_menu_state((edb::v1::debugger_core->pid() != 0) ? PAUSED : TERMINATED);
+			update_menu_state(edb::v1::debugger_core->process() ? PAUSED : TERMINATED);
 			break;
 		case edb::DEBUG_CONTINUE:
 			resume_execution(IGNORE_EXCEPTION, MODE_RUN, true);

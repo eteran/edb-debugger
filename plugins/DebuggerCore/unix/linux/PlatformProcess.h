@@ -12,7 +12,15 @@ class PlatformProcess : public IProcess {
 public:
 	PlatformProcess(DebuggerCore *core, edb::pid_t pid);
 	virtual ~PlatformProcess();
-	
+
+public:
+	virtual QDateTime         start_time() const;
+	virtual QList<QByteArray> arguments() const;
+	virtual QString           current_working_directory() const;
+	virtual QString           executable() const;
+	virtual edb::pid_t        pid() const;
+	virtual IProcess::pointer parent() const;
+
 public:
 	virtual bool write_bytes(edb::address_t address, const void *buf, size_t len);
 	virtual bool read_bytes(edb::address_t address, void *buf, size_t len);
