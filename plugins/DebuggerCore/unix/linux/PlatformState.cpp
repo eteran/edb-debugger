@@ -336,6 +336,48 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 // Name: set_register
 // Desc:
 //------------------------------------------------------------------------------
+edb::reg_t PlatformState::gp_register(int n) const {
+#if defined(EDB_X86)
+	switch(n) {
+	case 0: return regs_.eax;
+	case 1: return regs_.ebx;
+	case 2: return regs_.ecx;
+	case 3: return regs_.edx;
+	case 4: return regs_.ebp;
+	case 5: return regs_.esp;
+	case 6: return regs_.esi;
+	case 7: return regs_.edi;
+	default:
+		return 0;
+	}
+#elif defined(EDB_X86_64)
+	switch(n) {
+	case 0: return regs_.rax;
+	case 1: return regs_.rbx;
+	case 2: return regs_.rcx;
+	case 3: return regs_.rdx;
+	case 4: return regs_.rbp;
+	case 5: return regs_.rsp;
+	case 6: return regs_.rsi;
+	case 7: return regs_.rdi;
+	case 8: return regs_.r8;
+	case 9: return regs_.r9;
+	case 10: return regs_.r10;
+	case 11: return regs_.r11;
+	case 12: return regs_.r12;
+	case 13: return regs_.r13;
+	case 14: return regs_.r14;
+	case 15: return regs_.r15;
+	default:
+		return 0;
+	}
+#endif
+}
+
+//------------------------------------------------------------------------------
+// Name: set_register
+// Desc:
+//------------------------------------------------------------------------------
 void PlatformState::set_register(const QString &name, edb::reg_t value) {
 
 	const QString lreg = name.toLower();

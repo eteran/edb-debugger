@@ -47,6 +47,10 @@ public:
 	virtual void set_register(const QString &name, edb::reg_t value) = 0;
 
 public:
+	// GP
+	virtual edb::reg_t gp_register(int n) const = 0;
+
+public:
 	// FPU
 	virtual long double fpu_register(int n) const = 0;
 

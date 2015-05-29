@@ -255,3 +255,14 @@ QByteArray State::xmm_register(int n) const {
 	}
 	return QByteArray(16, 0);
 }
+
+//------------------------------------------------------------------------------
+// Name: gp_register
+// Desc:
+//------------------------------------------------------------------------------
+edb::reg_t State::gp_register(int n) const {
+	if(impl_) {
+		return impl_->gp_register(n);
+	}
+	return 0;
+}
