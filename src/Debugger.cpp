@@ -112,73 +112,70 @@ public:
 	//--------------------------------------------------------------------------
 	// Name: RunUntilRet
 	//--------------------------------------------------------------------------
-	RunUntilRet() :previous_handler_(0), last_call_return_(0) {
+	RunUntilRet() :previous_handler_(0), last_call_return_(0), ret_address_(0) {
 		previous_handler_ = edb::v1::set_debug_event_handler(this);
 	}
 
 	//--------------------------------------------------------------------------
 	// Name: handle_event
+	// Desc: Scan proceeding instructions to find the next block terminator, e.g.
+	//			hlt/ret/jmp/jcc/etc.  Set a breakpoint there and run.  When we get there,
+	//			if it's a ret, we're done.  If not, repeat.
+	//			*Caveat: What if the jmp or jcc jumps us upward?
 	//--------------------------------------------------------------------------
 	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event) {
 
-		if(event->trap_reason() == IDebugEvent::TRAP_STEPPING) {
+		State state;
+		edb::v1::debugger_core->get_state(&state);
+		edb::address_t address = state.instruction_pointer();
 
-			State state;
-			edb::v1::debugger_core->get_state(&state);
-			const edb::address_t address = state.instruction_pointer();
-
-			if(last_call_return_ == address) {
-				last_call_return_ = 0;
-			}
-
-
-			if(!is_instruction_ret(address)) {
-
-				// we haven't seen a top-level call yet, so this one is noteworthy,
-				// record where we think it will return to (assuming normal call
-				// semantics).
-				if(last_call_return_ == 0) {
-					quint8 buffer[edb::Instruction::MAX_SIZE];
-
-					// if this some variant of a call, then we should
-					// record where we think it'll return to
-					if(const int sz = edb::v1::get_instruction_bytes(address, buffer)) {
-						edb::Instruction inst(buffer, buffer + sz, 0, std::nothrow);
-						if(inst && edb::v1::arch_processor().can_step_over(inst)) {
-							last_call_return_ = address + inst.size();
-						}
-					}
-				}
-
-				return edb::DEBUG_CONTINUE_STEP;
-			} else {
-				// if we are on the top level, then we are done because this is a RET
-				if(last_call_return_ == 0) {
-					const edb::EVENT_STATUS status = previous_handler_->handle_event(event);
-					edb::v1::set_debug_event_handler(previous_handler_);
-					delete this;
-					return status;
-				} else {
-					return edb::DEBUG_CONTINUE_STEP;
-				}
-			}
-
-		} else {
+		//If we're at our ret-ish adress from last time, then pass back to Debugger
+		if (address == ret_address_ || is_instruction_ret(address)) {
 			const edb::EVENT_STATUS status = previous_handler_->handle_event(event);
-
-			if(status == edb::DEBUG_CONTINUE) {
-				return edb::DEBUG_CONTINUE_STEP;
-			}
-
 			edb::v1::set_debug_event_handler(previous_handler_);
 			delete this;
 			return status;
 		}
+
+		//Find the next ret-ish instruction.  Iterate while we can get instruction bytes.
+		//We should never be passing this loop, in ideal conditions.
+		quint8 buffer[edb::Instruction::MAX_SIZE];
+		while (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
+
+			edb::Instruction inst(buffer, buffer + size, 0, std::nothrow);
+
+			//If our instruction is ret-ish, then set a breakpoint and run.
+			if (inst && (is_ret(inst) || is_jump(inst) || is_halt(inst))) {
+				IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(address);
+				if (bp) {
+					bp->set_internal(true);
+					bp->set_one_time(true);
+					ret_address_ = address;
+					return edb::DEBUG_CONTINUE;
+				}
+
+			//If it wasn't a ret, at least increment to the next instruction and try again.
+			} else if (inst) {
+				address += inst.size();
+
+			//Otherwise, we've got bigger problems.
+			} else {
+				break;
+			}
+		}
+
+		//We shouldn't have ever arrived here.  Pass back to the Debugger and hope for the best.
+		qDebug() << "Houston, we have a problem";
+		const edb::EVENT_STATUS status = previous_handler_->handle_event(event);
+		edb::v1::set_debug_event_handler(previous_handler_);
+		delete this;
+		return status;
 	}
 
 private:
 	IDebugEventHandler *previous_handler_;
 	edb::address_t      last_call_return_;
+	edb::address_t		ret_address_;
 };
 
 //------------------------------------------------------------------------------
