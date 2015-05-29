@@ -121,11 +121,41 @@ public:
 	//--------------------------------------------------------------------------
 	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event) {
 
-		if(event->trap_reason() == IDebugEvent::TRAP_STEPPING) {
+		State state;
+		edb::v1::debugger_core->get_state(&state);
+		const edb::address_t address = state.instruction_pointer();
 
-			State state;
-			edb::v1::debugger_core->get_state(&state);
-			const edb::address_t address = state.instruction_pointer();
+		quint8 buffer[edb::Instruction::MAX_SIZE];
+
+//		QString q = QString("Address: 0x%1\tInstruction: %2").arg(address, 0, 16);
+//		qDebug() << q;
+
+		//If the previous instruction was a syscall, then set reason to IDebugEvent::TRAP_SETTING
+		IDebugEvent::TRAP_REASON r = event->trap_reason();
+
+		bool ok;
+		ExpressionError err;
+		edb::address_t possible_ret = address;//edb::v1::get_value(address, &ok, &err);
+		const int CALL_MAX_SIZE = 7;
+		const int CALL_MIN_SIZE = 2;
+
+
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			if(process->read_bytes(possible_ret - CALL_MAX_SIZE, buffer, sizeof(buffer))) {	//0xfffff... if not a ptr.
+				for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
+					edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0, std::nothrow);
+					//If it's a call, then make a frame
+					if(inst && QString(inst.mnemonic().c_str()) == "syscall") {
+						qDebug() << "Found a syscall";
+						r = IDebugEvent::TRAP_STEPPING;
+						break;
+					}
+				}
+			}
+		}
+
+
+		if(r == IDebugEvent::TRAP_STEPPING) {
 
 			if(last_call_return_ == address) {
 				last_call_return_ = 0;
