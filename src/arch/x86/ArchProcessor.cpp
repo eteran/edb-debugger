@@ -44,6 +44,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
+enum RegisterIndex {
+	Eax  = 0,
+	Ebx  = 1,
+	Ecx  = 2,
+	Edx  = 3,
+	Ebp  = 4,
+	Esp  = 5,
+	Esi  = 6,
+	Edi  = 7
+};
+
 //------------------------------------------------------------------------------
 // Name: create_register_item
 // Desc:
@@ -369,9 +380,9 @@ void analyze_jump(const State &state, const edb::Instruction &inst, QStringList 
 	// TODO: this is not correct! 0xe3 IS an OP_JCC
 	} else if(buf[0] == 0xe3) {
 		if(inst.prefix() & edb::Instruction::PREFIX_ADDRESS) {
-			taken = (state["ecx"].value<edb::reg_t>() & 0xffff) == 0;
+			taken = (state.gp_register(Ecx).value<edb::reg_t>() & 0xffff) == 0;
 		} else {
-			taken = state["ecx"].value<edb::reg_t>() == 0;
+			taken = state.gp_register(Ecx).value<edb::reg_t>() == 0;
 		}
 	}
 
@@ -577,7 +588,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 		QXmlQuery query;
 		QString res;
 		query.setFocus(&file);
-		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='x86']/syscall[index=%1]").arg(state["eax"].value<edb::reg_t>()));
+		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='x86']/syscall[index=%1]").arg(state.gp_register(Eax).value<edb::reg_t>()));
 		if (query.isValid()) {
 			query.evaluateTo(&syscall_entry);
 		}
@@ -759,14 +770,14 @@ void ArchProcessor::reset() {
 void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
 	const QPalette palette = QApplication::palette();
 
-	update_register(register_view_items_[0], "EAX", state["eax"]);
-	update_register(register_view_items_[1], "EBX", state["ebx"]);
-	update_register(register_view_items_[2], "ECX", state["ecx"]);
-	update_register(register_view_items_[3], "EDX", state["edx"]);
-	update_register(register_view_items_[4], "EBP", state["ebp"]);
-	update_register(register_view_items_[5], "ESP", state["esp"]);
-	update_register(register_view_items_[6], "ESI", state["esi"]);
-	update_register(register_view_items_[7], "EDI", state["edi"]);
+	update_register(register_view_items_[0], "EAX", state.gp_register(Eax));
+	update_register(register_view_items_[1], "EBX", state.gp_register(Ebx));
+	update_register(register_view_items_[2], "ECX", state.gp_register(Ecx));
+	update_register(register_view_items_[3], "EDX", state.gp_register(Edx));
+	update_register(register_view_items_[4], "EBP", state.gp_register(Ebp));
+	update_register(register_view_items_[5], "ESP", state.gp_register(Esp));
+	update_register(register_view_items_[6], "ESI", state.gp_register(Esi));
+	update_register(register_view_items_[7], "EDI", state.gp_register(Edi));
 
 	const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
 
@@ -826,14 +837,14 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	}
 
 	// highlight any changed registers
-	register_view_items_[0x00]->setForeground(0, (state["eax"] != last_state_["eax"]) ? Qt::red : palette.text());
-	register_view_items_[0x01]->setForeground(0, (state["ebx"] != last_state_["ebx"]) ? Qt::red : palette.text());
-	register_view_items_[0x02]->setForeground(0, (state["ecx"] != last_state_["ecx"]) ? Qt::red : palette.text());
-	register_view_items_[0x03]->setForeground(0, (state["edx"] != last_state_["edx"]) ? Qt::red : palette.text());
-	register_view_items_[0x04]->setForeground(0, (state["ebp"] != last_state_["ebp"]) ? Qt::red : palette.text());
-	register_view_items_[0x05]->setForeground(0, (state["esp"] != last_state_["esp"]) ? Qt::red : palette.text());
-	register_view_items_[0x06]->setForeground(0, (state["esi"] != last_state_["esi"]) ? Qt::red : palette.text());
-	register_view_items_[0x07]->setForeground(0, (state["edi"] != last_state_["edi"]) ? Qt::red : palette.text());
+	register_view_items_[0x00]->setForeground(0, (state.gp_register(Eax) != last_state_.gp_register(Eax)) ? Qt::red : palette.text());
+	register_view_items_[0x01]->setForeground(0, (state.gp_register(Ebx) != last_state_.gp_register(Ebx)) ? Qt::red : palette.text());
+	register_view_items_[0x02]->setForeground(0, (state.gp_register(Ecx) != last_state_.gp_register(Ecx)) ? Qt::red : palette.text());
+	register_view_items_[0x03]->setForeground(0, (state.gp_register(Edx) != last_state_.gp_register(Edx)) ? Qt::red : palette.text());
+	register_view_items_[0x04]->setForeground(0, (state.gp_register(Ebp) != last_state_.gp_register(Ebp)) ? Qt::red : palette.text());
+	register_view_items_[0x05]->setForeground(0, (state.gp_register(Esp) != last_state_.gp_register(Esp)) ? Qt::red : palette.text());
+	register_view_items_[0x06]->setForeground(0, (state.gp_register(Esi) != last_state_.gp_register(Esi)) ? Qt::red : palette.text());
+	register_view_items_[0x07]->setForeground(0, (state.gp_register(Edi) != last_state_.gp_register(Edi)) ? Qt::red : palette.text());
 	register_view_items_[0x08]->setForeground(0, (state.instruction_pointer() != last_state_.instruction_pointer()) ? Qt::red : palette.text());
 	register_view_items_[0x09]->setForeground(0, flags_changed ? Qt::red : palette.text());
 

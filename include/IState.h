@@ -48,7 +48,7 @@ public:
 
 public:
 	// GP
-	virtual edb::reg_t gp_register(int n) const = 0;
+	virtual Register gp_register(int n) const = 0;
 
 public:
 	// FPU

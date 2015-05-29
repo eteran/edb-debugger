@@ -336,40 +336,40 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 // Name: set_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::reg_t PlatformState::gp_register(int n) const {
+Register PlatformState::gp_register(int n) const {
 #if defined(EDB_X86)
 	switch(n) {
-	case 0: return regs_.eax;
-	case 1: return regs_.ebx;
-	case 2: return regs_.ecx;
-	case 3: return regs_.edx;
-	case 4: return regs_.ebp;
-	case 5: return regs_.esp;
-	case 6: return regs_.esi;
-	case 7: return regs_.edi;
+	case 0: return Register("eax", regs_.eax, Register::TYPE_GPR);
+	case 1: return Register("ebx", regs_.ebx, Register::TYPE_GPR);
+	case 2: return Register("ecx", regs_.ecx, Register::TYPE_GPR);
+	case 3: return Register("edx", regs_.edx, Register::TYPE_GPR);
+	case 4: return Register("ebp", regs_.ebp, Register::TYPE_GPR);
+	case 5: return Register("esp", regs_.esp, Register::TYPE_GPR);
+	case 6: return Register("esi", regs_.esi, Register::TYPE_GPR);
+	case 7: return Register("edi", regs_.edi, Register::TYPE_GPR);
 	default:
-		return 0;
+		return Register();
 	}
 #elif defined(EDB_X86_64)
 	switch(n) {
-	case 0: return regs_.rax;
-	case 1: return regs_.rbx;
-	case 2: return regs_.rcx;
-	case 3: return regs_.rdx;
-	case 4: return regs_.rbp;
-	case 5: return regs_.rsp;
-	case 6: return regs_.rsi;
-	case 7: return regs_.rdi;
-	case 8: return regs_.r8;
-	case 9: return regs_.r9;
-	case 10: return regs_.r10;
-	case 11: return regs_.r11;
-	case 12: return regs_.r12;
-	case 13: return regs_.r13;
-	case 14: return regs_.r14;
-	case 15: return regs_.r15;
+	case 0:  return Register("rax", regs_.rax, Register::TYPE_GPR);
+	case 1:  return Register("rbx", regs_.rbx, Register::TYPE_GPR);
+	case 2:  return Register("rcx", regs_.rcx, Register::TYPE_GPR);
+	case 3:  return Register("rdx", regs_.rdx, Register::TYPE_GPR);
+	case 4:  return Register("rbp", regs_.rbp, Register::TYPE_GPR);
+	case 5:  return Register("rsp", regs_.rsp, Register::TYPE_GPR);
+	case 6:  return Register("rsi", regs_.rsi, Register::TYPE_GPR);
+	case 7:  return Register("rdi", regs_.rdi, Register::TYPE_GPR);
+	case 8:  return Register("r8",  regs_.r8,  Register::TYPE_GPR);
+	case 9:  return Register("r9",  regs_.r9,  Register::TYPE_GPR);
+	case 10: return Register("r10", regs_.r10, Register::TYPE_GPR);
+	case 11: return Register("r11", regs_.r11, Register::TYPE_GPR);
+	case 12: return Register("r12", regs_.r12, Register::TYPE_GPR);
+	case 13: return Register("r13", regs_.r13, Register::TYPE_GPR);
+	case 14: return Register("r14", regs_.r14, Register::TYPE_GPR);
+	case 15: return Register("r15", regs_.r15, Register::TYPE_GPR);	 
 	default:
-		return 0;
+		return Register();
 	}
 #endif
 }
