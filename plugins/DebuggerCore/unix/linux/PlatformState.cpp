@@ -347,6 +347,7 @@ Register PlatformState::gp_register(int n) const {
 	case 5: return Register("esp", regs_.esp, Register::TYPE_GPR);
 	case 6: return Register("esi", regs_.esi, Register::TYPE_GPR);
 	case 7: return Register("edi", regs_.edi, Register::TYPE_GPR);
+	case 8: return Register("eip", regs_.eip, Register::TYPE_IP);
 	default:
 		return Register();
 	}
@@ -367,7 +368,8 @@ Register PlatformState::gp_register(int n) const {
 	case 12: return Register("r12", regs_.r12, Register::TYPE_GPR);
 	case 13: return Register("r13", regs_.r13, Register::TYPE_GPR);
 	case 14: return Register("r14", regs_.r14, Register::TYPE_GPR);
-	case 15: return Register("r15", regs_.r15, Register::TYPE_GPR);	 
+	case 15: return Register("r15", regs_.r15, Register::TYPE_GPR);
+	case 16: return Register("rip", regs_.rip, Register::TYPE_IP);
 	default:
 		return Register();
 	}

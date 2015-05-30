@@ -60,7 +60,8 @@ enum RegisterIndex {
 	R12  = 12,
 	R13  = 13,
 	R14  = 14,
-	R15  = 15
+	R15  = 15,
+	RIP  = 16
 };
 
 
