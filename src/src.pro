@@ -187,13 +187,17 @@ unix {
 		VPATH       += arch/x86_64 $$LEVEL/include/arch/x86_64
 		INCLUDEPATH += arch/x86_64 $$LEVEL/include/arch/x86_64
 	}
-
-	!macx:contains(QMAKE_HOST.arch, x86_64) {
+	
+	*-g++-32 {
+		VPATH       += arch/x86 $$LEVEL/include/arch/x86
+		INCLUDEPATH += arch/x86 $$LEVEL/include/arch/x86	
+	} else:*-g++-64 {
 		VPATH       += arch/x86_64 $$LEVEL/include/arch/x86_64
 		INCLUDEPATH += arch/x86_64 $$LEVEL/include/arch/x86_64
-	}
-	
-	!macx:contains(QMAKE_HOST.arch, i[3456]86) {
+	} else:!macx:contains(QMAKE_HOST.arch, x86_64) {
+		VPATH       += arch/x86_64 $$LEVEL/include/arch/x86_64
+		INCLUDEPATH += arch/x86_64 $$LEVEL/include/arch/x86_64
+	} else:	!macx:contains(QMAKE_HOST.arch, i[3456]86) {
 		VPATH       += arch/x86 $$LEVEL/include/arch/x86
 		INCLUDEPATH += arch/x86 $$LEVEL/include/arch/x86
 	}

@@ -31,11 +31,13 @@ unix {
 		include(plugins-x86_64.pri)
 	}
 
-	!macx:contains(QMAKE_HOST.arch, x86_64) {
+	*-g++-32 {
+		include(plugins-x86.pri)	
+	} else:*-g++-64 {
 		include(plugins-x86_64.pri)
-	}
-	
-	!macx:contains(QMAKE_HOST.arch, i[3456]86) {		
+	} else:!macx:contains(QMAKE_HOST.arch, x86_64) {
+		include(plugins-x86_64.pri)
+	} else:!macx:contains(QMAKE_HOST.arch, i[3456]86) {		
 		include(plugins-x86.pri)
 	}
 }
