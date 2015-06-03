@@ -169,7 +169,7 @@ public:
 
 			//If there was a bp there, then we hit a block terminator as part of our RunUntilRet
 			//algorithm, or it is a user-set breakpoint.
-			if(bp) {
+			if(bp && bp->enabled()) {	//Isn't it always enabled if trap_reason is breakpoint, anyway?
 
 				bp->hit();
 
