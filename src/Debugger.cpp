@@ -206,6 +206,7 @@ public:
 			//If not a ret, then step so we can find the next block terminator.
 			else {
 				qDebug() << "Not ret. Single-stepping";
+				const edb::EVENT_STATUS status = previous_handler_->handle_event(event);
 				return edb::DEBUG_CONTINUE_STEP;
 			}
 		}
