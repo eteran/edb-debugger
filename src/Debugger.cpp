@@ -171,9 +171,11 @@ public:
 			//algorithm, or it is a user-set breakpoint.
 			if(bp) {
 
+				bp->hit();
+
 				//Adjust RIP since 1st byte was replaced with 0xcc and we are now 1 byte after it.
 				state.set_instruction_pointer(prev_address);
-//				edb::v1::debugger_core->set_state(state);
+				edb::v1::debugger_core->set_state(state);
 				address = prev_address;
 
 				//If it wasn't internal, it was a user breakpoint. Pass back to Debugger.
@@ -185,6 +187,8 @@ public:
 					return status;
 				}
 				qDebug() << "Previous was an internal breakpoint.";
+				bp->disable();
+				edb::v1::debugger_core->remove_breakpoint(bp->address());
 			}
 
 			//No breakpoint if it was a syscall; continue.
@@ -207,7 +211,6 @@ public:
 			//If not a ret, then step so we can find the next block terminator.
 			else {
 				qDebug() << "Not ret. Single-stepping";
-				previous_handler_->handle_event(event);
 				return edb::DEBUG_CONTINUE_STEP;
 			}
 		}
