@@ -130,6 +130,7 @@ public:
 	//--------------------------------------------------------------------------
 	// Name: handle_event
 	//--------------------------------------------------------------------------
+	//TODO: Need to handle stop/pause button
 	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event) {
 
 		State state;
@@ -157,10 +158,7 @@ public:
 			if (reason == IDebugEvent::EVENT_EXITED || reason == IDebugEvent::EVENT_TERMINATED ||
 					address == 0) {
 				qDebug() << "The process is no longer running.";
-				edb::EVENT_STATUS status = previous_handler_->handle_event(event);
-				edb::v1::set_debug_event_handler(previous_handler_);
-				delete this;
-				return status;
+				return pass_back_to_debugger(event);
 			}
 
 			//Check the previous byte for 0xcc to see if it was an actual breakpoint
@@ -181,10 +179,7 @@ public:
 				//If it wasn't internal, it was a user breakpoint. Pass back to Debugger.
 				if (!bp->internal()) {
 					qDebug() << "Previous was not an internal breakpoint.";
-					edb::EVENT_STATUS status = previous_handler_->handle_event(event);
-					edb::v1::set_debug_event_handler(previous_handler_);
-					delete this;
-					return status;
+					return pass_back_to_debugger(event);
 				}
 				qDebug() << "Previous was an internal breakpoint.";
 				bp->disable();
@@ -202,10 +197,7 @@ public:
 			qDebug() << QString("On our terminator at 0x%1").arg(address, 0, 16);
 			if (is_instruction_ret(address)) {
 				qDebug() << "Found ret; passing back to debugger";
-				edb::EVENT_STATUS status = previous_handler_->handle_event(event);
-				edb::v1::set_debug_event_handler(previous_handler_);
-				delete this;
-				return status;
+				return pass_back_to_debugger(event);
 			}
 
 			//If not a ret, then step so we can find the next block terminator.
@@ -260,10 +252,7 @@ public:
 			//Invalid instruction or some other problem. Pass it back to the debugger.
 			else {
 				qDebug() << "Invalid instruction or something.";
-				edb::EVENT_STATUS status = previous_handler_->handle_event(event);
-				edb::v1::set_debug_event_handler(previous_handler_);
-				delete this;
-				return status;
+				return pass_back_to_debugger(event);
 			}
 
 			address += inst.size();
@@ -271,10 +260,7 @@ public:
 
 		//If we end up out here, we've got bigger problems. Pass it back to the debugger.
 		qDebug() << "Stepped outside the loop.  Bad.";
-		edb::EVENT_STATUS status = previous_handler_->handle_event(event);
-		edb::v1::set_debug_event_handler(previous_handler_);
-		delete this;
-		return status;
+		return pass_back_to_debugger(event);
 	}
 
 private:
@@ -365,6 +351,7 @@ void Debugger::update_menu_state(GUI_STATE state) {
 		ui.action_Pause->setEnabled(false);
 		ui.action_Step_Into->setEnabled(true);
 		ui.action_Step_Over->setEnabled(true);
+		ui.actionStep_Out->setEnabled(true);
 		ui.action_Step_Into_Pass_Signal_To_Application->setEnabled(true);
 		ui.action_Step_Over_Pass_Signal_To_Application->setEnabled(true);
 		ui.action_Run_Pass_Signal_To_Application->setEnabled(true);
@@ -380,6 +367,7 @@ void Debugger::update_menu_state(GUI_STATE state) {
 		ui.action_Pause->setEnabled(true);
 		ui.action_Step_Into->setEnabled(false);
 		ui.action_Step_Over->setEnabled(false);
+		ui.actionStep_Out->setEnabled(false);
 		ui.action_Step_Into_Pass_Signal_To_Application->setEnabled(false);
 		ui.action_Step_Over_Pass_Signal_To_Application->setEnabled(false);
 		ui.action_Run_Pass_Signal_To_Application->setEnabled(false);
@@ -395,6 +383,7 @@ void Debugger::update_menu_state(GUI_STATE state) {
 		ui.action_Pause->setEnabled(false);
 		ui.action_Step_Into->setEnabled(false);
 		ui.action_Step_Over->setEnabled(false);
+		ui.actionStep_Out->setEnabled(false);
 		ui.action_Step_Into_Pass_Signal_To_Application->setEnabled(false);
 		ui.action_Step_Over_Pass_Signal_To_Application->setEnabled(false);
 		ui.action_Run_Pass_Signal_To_Application->setEnabled(false);
@@ -2344,12 +2333,26 @@ void Debugger::on_action_Step_Over_triggered() {
 }
 
 //------------------------------------------------------------------------------
+// Name: on_actionStep_Out_triggered
+// Desc: Step out is the same as run until return, in our context.
+//------------------------------------------------------------------------------
+void Debugger::on_actionStep_Out_triggered() {
+	on_actionRun_Until_Return_triggered();
+}
+
+//------------------------------------------------------------------------------
 // Name: on_actionRun_Until_Return_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_actionRun_Until_Return_triggered() {
+
 	new RunUntilRet();
-	resume_execution(PASS_EXCEPTION, MODE_STEP);
+
+	//Step over rather than resume in MODE_STEP so that we can avoid stepping into calls.
+	//TODO: If we are sitting on the call and it has a bp, it steps over for some reason...
+	step_over(
+				boost::bind(&Debugger::on_action_Run_triggered, this),
+				boost::bind(&Debugger::on_action_Step_Into_triggered, this));
 }
 
 //------------------------------------------------------------------------------
