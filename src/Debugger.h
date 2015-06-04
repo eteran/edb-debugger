@@ -123,6 +123,7 @@ public Q_SLOTS:
 	void on_action_Step_Into_triggered();
 	void on_action_Step_Over_Pass_Signal_To_Application_triggered();
 	void on_action_Step_Over_triggered();
+	void on_actionStep_Out_triggered();
 	void on_action_Threads_triggered();
 	void on_cpuView_breakPointToggled(edb::address_t);
 	void on_cpuView_customContextMenuRequested(const QPoint &);
@@ -308,4 +309,3 @@ private:
 };
 
 #endif
-
