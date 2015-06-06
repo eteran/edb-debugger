@@ -31,17 +31,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QVector>
 
+
 class ArchProcessor;
 class Configuration;
 class IAnalyzer;
 class IBinary;
 class IDebugEventHandler;
-class IDebuggerCore;
+class IDebugger;
 class IPlugin;
 class ISymbolManager;
 class MemoryRegions;
 class State;
 
+class QAbstractScrollArea;
 class QByteArray;
 class QDialog;
 class QFileInfo;
@@ -57,7 +59,7 @@ struct Prototype;
 namespace v1 {
 
 // some useful objects
-EDB_EXPORT extern IDebuggerCore *debugger_core;
+EDB_EXPORT extern IDebugger *debugger_core;
 EDB_EXPORT extern QWidget       *debugger_ui;
 
 // the symbol mananger
@@ -70,7 +72,7 @@ EDB_EXPORT MemoryRegions &memory_regions();
 EDB_EXPORT ArchProcessor &arch_processor();
 
 // widgets
-EDB_EXPORT QWidget *disassembly_widget();
+EDB_EXPORT QAbstractScrollArea *disassembly_widget();
 
 // breakpoint managment
 EDB_EXPORT IBreakpoint::pointer find_breakpoint(address_t address);

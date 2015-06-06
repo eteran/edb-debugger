@@ -120,48 +120,6 @@ bool is_clone_event(int status) {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name: process_map_line
-// Desc: parses the data from a line of a memory map file
-//------------------------------------------------------------------------------
-IRegion::pointer process_map_line(const QString &line) {
-
-	edb::address_t start;
-	edb::address_t end;
-	edb::address_t base;
-	IRegion::permissions_t permissions;
-	QString name;
-
-	const QStringList items = line.split(" ", QString::SkipEmptyParts);
-	if(items.size() >= 3) {
-		bool ok;
-		const QStringList bounds = items[0].split("-");
-		if(bounds.size() == 2) {
-			start = bounds[0].toULongLong(&ok, 16);
-			if(ok) {
-				end = bounds[1].toULongLong(&ok, 16);
-				if(ok) {
-					base = items[2].toULongLong(&ok, 16);
-					if(ok) {
-						const QString perms = items[1];
-						permissions = 0;
-						if(perms[0] == 'r') permissions |= PROT_READ;
-						if(perms[1] == 'w') permissions |= PROT_WRITE;
-						if(perms[2] == 'x') permissions |= PROT_EXEC;
-
-						if(items.size() >= 6) {
-							name = items[5];
-						}
-
-						return IRegion::pointer(new PlatformRegion(start, end, base, name, permissions));
-					}
-				}
-			}
-		}
-	}
-	return IRegion::pointer();
-}
-
 struct user_stat {
 /* 01 */ int pid;
 /* 02 */ char comm[256];
@@ -989,21 +947,6 @@ QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QString DebuggerCore::process_exe(edb::pid_t pid) const {
-	return edb::v1::symlink_target(QString("/proc/%1/exe").arg(pid));
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QString DebuggerCore::process_cwd(edb::pid_t pid) const {
-	return edb::v1::symlink_target(QString("/proc/%1/cwd").arg(pid));
-}
 
 //------------------------------------------------------------------------------
 // Name:
@@ -1024,105 +967,13 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QList<IRegion::pointer> DebuggerCore::memory_regions() const {
-	QList<IRegion::pointer> regions;
-
-	if(pid_ != 0) {
-		const QString map_file(QString("/proc/%1/maps").arg(pid_));
-
-		QFile file(map_file);
-        if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-
-			QTextStream in(&file);
-			QString line = in.readLine();
-
-			while(!line.isNull()) {
-				if(IRegion::pointer region = process_map_line(line)) {
-					regions.push_back(region);
-				}
-				line = in.readLine();
-			}
-		}
-	}
-
-	return regions;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
-
-	QList<QByteArray> ret;
-
-	if(pid != 0) {
-		const QString command_line_file(QString("/proc/%1/cmdline").arg(pid));
-		QFile file(command_line_file);
-
-		if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-			QTextStream in(&file);
-
-			QByteArray s;
-			QChar ch;
-
-			while(in.status() == QTextStream::Ok) {
-				in >> ch;
-				if(ch == '\0') {
-					if(!s.isEmpty()) {
-						ret << s;
-					}
-					s.clear();
-				} else {
-					s += ch;
-				}
-			}
-
-			if(!s.isEmpty()) {
-				ret << s;
-			}
-		}
-	}
-	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-edb::address_t DebuggerCore::process_code_address() const {
-	struct user_stat user_stat;
-	int n = get_user_stat(pid(), &user_stat);
-	if(n >= 26) {
-		return user_stat.startcode;
-	}
-	return 0;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-edb::address_t DebuggerCore::process_data_address() const {
-	struct user_stat user_stat;
-	int n = get_user_stat(pid(), &user_stat);
-	if(n >= 27) {
-		return user_stat.endcode + 1; // endcode == startdata ?
-	}
-	return 0;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
 QList<Module> DebuggerCore::loaded_modules() const {
 	QList<Module> ret;
 
 	if(binary_info_) {
 		struct r_debug dynamic_info;
 		if(const edb::address_t debug_pointer = binary_info_->debug_pointer()) {
-			if(IProcess *process = edb::v1::debugger_core->process()) {
+			if(IProcess *process = this->process()) {
 				if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
 					if(dynamic_info.r_map) {
 
@@ -1182,15 +1033,6 @@ QList<Module> DebuggerCore::loaded_modules() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
-	QFileInfo info(QString("/proc/%1/stat").arg(pid));
-	return info.created();
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
 quint64 DebuggerCore::cpu_type() const {
 #ifdef EDB_X86
 	return edb::string_hash<'x', '8', '6'>::value;
@@ -1199,13 +1041,6 @@ quint64 DebuggerCore::cpu_type() const {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QWidget *DebuggerCore::create_register_view() const {
-	return 0;
-}
 
 //------------------------------------------------------------------------------
 // Name:

@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogHWBreakpoints.h"
 #include "edb.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "State.h"
 
 #include <QRegExpValidator>

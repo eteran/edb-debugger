@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "State.h"
 #include "edb.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "IState.h"
 
 #include <QtAlgorithms>
@@ -254,4 +254,15 @@ QByteArray State::xmm_register(int n) const {
 		return impl_->xmm_register(n);
 	}
 	return QByteArray(16, 0);
+}
+
+//------------------------------------------------------------------------------
+// Name: gp_register
+// Desc:
+//------------------------------------------------------------------------------
+Register State::gp_register(int n) const {
+	if(impl_) {
+		return impl_->gp_register(n);
+	}
+	return Register();
 }

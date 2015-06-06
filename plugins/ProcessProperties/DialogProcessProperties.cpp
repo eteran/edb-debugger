@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogProcessProperties.h"
 #include "edb.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "MemoryRegions.h"
 #include "Configuration.h"
 #include "ISymbolManager.h"
@@ -307,17 +307,20 @@ DialogProcessProperties::~DialogProcessProperties() {
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateGeneralPage() {
 	if(edb::v1::debugger_core) {
-	    if(const edb::pid_t pid = edb::v1::debugger_core->pid()) {
-	        const QString exe            = edb::v1::debugger_core->process_exe(pid);
-	        const QString cwd            = edb::v1::debugger_core->process_cwd(pid);
-	        const edb::pid_t parent_pid  = edb::v1::debugger_core->parent_pid(pid);
-	        const QString parent_exe     = edb::v1::debugger_core->process_exe(parent_pid);
-	        const QList<QByteArray> args = edb::v1::debugger_core->process_args(pid);
+	    if(IProcess *process = edb::v1::debugger_core->process()) {
+	        const QString exe            = process->executable();
+	        const QString cwd            = process->current_working_directory();
+			
+			QSharedPointer<IProcess> parent = process->parent();
+	        const edb::pid_t parent_pid  = parent ? parent->pid() : 0;
+	        const QString parent_exe     = parent ? parent->executable() : QString();
+			
+	        const QList<QByteArray> args = process->arguments();
 
 			ui->editImage->setText(exe);
 			ui->editCommand->setText(QString());
 			ui->editCurrentDirectory->setText(cwd);
-			ui->editStarted->setText(edb::v1::debugger_core->process_start(pid).toString("yyyy-MM-dd hh:mm:ss.z"));
+			ui->editStarted->setText(process->start_time().toString("yyyy-MM-dd hh:mm:ss.z"));
 			if(parent_pid) {
 				ui->editParent->setText(QString("%1 (%2)").arg(parent_exe).arg(parent_pid));
 			} else {
@@ -407,26 +410,28 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 	const QString lower_filter = filter.toLower();
 
 #ifdef Q_OS_LINUX
-	QFile proc_environ(QString("/proc/%1/environ").arg(edb::v1::debugger_core->pid()));
-	if(proc_environ.open(QIODevice::ReadOnly)) {
-		QByteArray env = proc_environ.readAll();
-		char *p = env.data();
-		char *ptr = p;
-		while(ptr != p + env.size()) {
-			const QString env = QString::fromUtf8(ptr);
-			const QString env_name  = env.mid(0, env.indexOf("="));
-			const QString env_value = env.mid(env.indexOf("=") + 1);
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		QFile proc_environ(QString("/proc/%1/environ").arg(process->pid()));
+		if(proc_environ.open(QIODevice::ReadOnly)) {
+			QByteArray env = proc_environ.readAll();
+			char *p = env.data();
+			char *ptr = p;
+			while(ptr != p + env.size()) {
+				const QString env = QString::fromUtf8(ptr);
+				const QString env_name  = env.mid(0, env.indexOf("="));
+				const QString env_value = env.mid(env.indexOf("=") + 1);
 
-			if(lower_filter.isEmpty() || env_name.toLower().contains(lower_filter)) {
-				const int row = ui->tableEnvironment->rowCount();
-				ui->tableEnvironment->insertRow(row);
-				ui->tableEnvironment->setItem(row, 0, new QTableWidgetItem(env_name));
-			    ui->tableEnvironment->setItem(row, 1, new QTableWidgetItem(env_value));
+				if(lower_filter.isEmpty() || env_name.toLower().contains(lower_filter)) {
+					const int row = ui->tableEnvironment->rowCount();
+					ui->tableEnvironment->insertRow(row);
+					ui->tableEnvironment->setItem(row, 0, new QTableWidgetItem(env_name));
+			    	ui->tableEnvironment->setItem(row, 1, new QTableWidgetItem(env_value));
+				}
+
+				ptr += qstrlen(ptr) + 1;
 			}
 
-			ptr += qstrlen(ptr) + 1;
 		}
-
 	}
 #endif
 
@@ -443,9 +448,8 @@ void DialogProcessProperties::updateHandles() {
 	ui->tableHandles->setRowCount(0);
 
 #ifdef Q_OS_LINUX
-	const edb::pid_t pid = edb::v1::debugger_core->pid();
-	if(pid != -1) {
-		QDir dir(QString("/proc/%1/fd/").arg(pid));
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		QDir dir(QString("/proc/%1/fd/").arg(process->pid()));
 		const QFileInfoList entries = dir.entryInfoList(QStringList() << "[0-9]*");
 		Q_FOREACH(const QFileInfo &info, entries) {
 			if(info.isSymLink()) {
@@ -501,12 +505,15 @@ void DialogProcessProperties::showEvent(QShowEvent *) {
 void DialogProcessProperties::on_btnParent_clicked() {
 
 	if(edb::v1::debugger_core) {
-		const edb::pid_t pid        = edb::v1::debugger_core->pid();
-		const edb::pid_t parent_pid = edb::v1::debugger_core->parent_pid(pid);
-		const QString parent_exe    = edb::v1::debugger_core->process_exe(parent_pid);
-		QFileInfo info(parent_exe);
-		QDir dir = info.absoluteDir();
-		QDesktopServices::openUrl(QUrl(QString("file:///%1").arg(dir.absolutePath()), QUrl::TolerantMode));
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+		
+			QSharedPointer<IProcess> parent = process->parent();
+	        const QString parent_exe     = parent ? parent->executable() : QString();					
+
+			QFileInfo info(parent_exe);
+			QDir dir = info.absoluteDir();
+			QDesktopServices::openUrl(QUrl(tr("file:///%1").arg(dir.absolutePath()), QUrl::TolerantMode));
+		}
 	}
 }
 
@@ -518,7 +525,7 @@ void DialogProcessProperties::on_btnImage_clicked() {
 	if(edb::v1::debugger_core) {
 		QFileInfo info(ui->editImage->text());
 		QDir dir = info.absoluteDir();
-		QDesktopServices::openUrl(QUrl(QString("file:///%1").arg(dir.absolutePath()), QUrl::TolerantMode));
+		QDesktopServices::openUrl(QUrl(tr("file:///%1").arg(dir.absolutePath()), QUrl::TolerantMode));
 	}
 }
 

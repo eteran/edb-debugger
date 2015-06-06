@@ -947,14 +947,6 @@ quint64 DebuggerCore::cpu_type() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QWidget *DebuggerCore::create_register_view() const {
-	return 0;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
 QString DebuggerCore::format_pointer(edb::address_t address) const {
 	char buf[32];
 #ifdef EDB_X86
