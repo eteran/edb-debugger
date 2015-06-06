@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ArchProcessor.h"
 #include "Configuration.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "Instruction.h"
 #include "Prototype.h"
 #include "RegisterListWidget.h"
@@ -43,6 +43,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 namespace {
+
+enum RegisterIndex {
+	Rax  = 0,
+	Rbx  = 1,
+	Rcx  = 2,
+	Rdx  = 3,
+	Rbp  = 4,
+	Rsp  = 5,
+	Rsi  = 6,
+	Rdi  = 7,
+	R8   = 8,
+	R9   = 9,
+	R10  = 10,
+	R11  = 11,
+	R12  = 12,
+	R13  = 13,
+	R14  = 14,
+	R15  = 15,
+	RIP  = 16
+};
+
 
 //------------------------------------------------------------------------------
 // Name: create_register_item
@@ -393,9 +414,9 @@ void analyze_jump(const State &state, const edb::Instruction &inst, QStringList 
 
 	} else if(buf[0] == 0xe3) {
 		if(inst.prefix() & edb::Instruction::PREFIX_ADDRESS) {
-			taken = (state["rcx"].value<edb::reg_t>() & 0xffff) == 0;
+			taken = (state.gp_register(Rcx).value<edb::reg_t>() & 0xffff) == 0;
 		} else {
-			taken = state["rcx"].value<edb::reg_t>() == 0;
+			taken = state.gp_register(Rcx).value<edb::reg_t>() == 0;
 		}
 	}
 
@@ -603,7 +624,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 		QXmlQuery query;
 		QString res;
 		query.setFocus(&file);
-		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='x86-64']/syscall[index=%1]").arg(state["rax"].value<edb::reg_t>()));
+		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='x86-64']/syscall[index=%1]").arg(state.gp_register(Rax).value<edb::reg_t>()));
 		if (query.isValid()) {
 			query.evaluateTo(&syscall_entry);
 		}
@@ -801,22 +822,22 @@ void ArchProcessor::reset() {
 void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
 	const QPalette palette = QApplication::palette();
 
-	update_register(register_view_items_[0], "RAX", state["rax"]);
-	update_register(register_view_items_[1], "RBX", state["rbx"]);
-	update_register(register_view_items_[2], "RCX", state["rcx"]);
-	update_register(register_view_items_[3], "RDX", state["rdx"]);
-	update_register(register_view_items_[4], "RBP", state["rbp"]);
-	update_register(register_view_items_[5], "RSP", state["rsp"]);
-	update_register(register_view_items_[6], "RSI", state["rsi"]);
-	update_register(register_view_items_[7], "RDI", state["rdi"]);
-	update_register(register_view_items_[8], "R8 ", state["r8"]);
-	update_register(register_view_items_[9], "R9 ", state["r9"]);
-	update_register(register_view_items_[10], "R10", state["r10"]);
-	update_register(register_view_items_[11], "R11", state["r11"]);
-	update_register(register_view_items_[12], "R12", state["r12"]);
-	update_register(register_view_items_[13], "R13", state["r13"]);
-	update_register(register_view_items_[14], "R14", state["r14"]);
-	update_register(register_view_items_[15], "R15", state["r15"]);
+	update_register(register_view_items_[0],  "RAX", state.gp_register(Rax));
+	update_register(register_view_items_[1],  "RBX", state.gp_register(Rbx));
+	update_register(register_view_items_[2],  "RCX", state.gp_register(Rcx));
+	update_register(register_view_items_[3],  "RDX", state.gp_register(Rdx));
+	update_register(register_view_items_[4],  "RBP", state.gp_register(Rbp));
+	update_register(register_view_items_[5],  "RSP", state.gp_register(Rsp));
+	update_register(register_view_items_[6],  "RSI", state.gp_register(Rsi));
+	update_register(register_view_items_[7],  "RDI", state.gp_register(Rdi));
+	update_register(register_view_items_[8],  "R8 ", state.gp_register(R8));
+	update_register(register_view_items_[9],  "R9 ", state.gp_register(R9));
+	update_register(register_view_items_[10], "R10", state.gp_register(R10));
+	update_register(register_view_items_[11], "R11", state.gp_register(R11));
+	update_register(register_view_items_[12], "R12", state.gp_register(R12));
+	update_register(register_view_items_[13], "R13", state.gp_register(R13));
+	update_register(register_view_items_[14], "R14", state.gp_register(R14));
+	update_register(register_view_items_[15], "R15", state.gp_register(R15));
 
 	const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
 
@@ -878,22 +899,22 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	}
 
 	// highlight any changed registers
-	register_view_items_[0x00]->setForeground(0, QBrush((state["rax"] != last_state_["rax"]) ? Qt::red : palette.text()));
-	register_view_items_[0x01]->setForeground(0, QBrush((state["rbx"] != last_state_["rbx"]) ? Qt::red : palette.text()));
-	register_view_items_[0x02]->setForeground(0, QBrush((state["rcx"] != last_state_["rcx"]) ? Qt::red : palette.text()));
-	register_view_items_[0x03]->setForeground(0, QBrush((state["rdx"] != last_state_["rdx"]) ? Qt::red : palette.text()));
-	register_view_items_[0x04]->setForeground(0, QBrush((state["rbp"] != last_state_["rbp"]) ? Qt::red : palette.text()));
-	register_view_items_[0x05]->setForeground(0, QBrush((state["rsp"] != last_state_["rsp"]) ? Qt::red : palette.text()));
-	register_view_items_[0x06]->setForeground(0, QBrush((state["rsi"] != last_state_["rsi"]) ? Qt::red : palette.text()));
-	register_view_items_[0x07]->setForeground(0, QBrush((state["rdi"] != last_state_["rdi"]) ? Qt::red : palette.text()));
-	register_view_items_[0x08]->setForeground(0, QBrush((state["r8"] != last_state_["r8"]) ? Qt::red : palette.text()));
-	register_view_items_[0x09]->setForeground(0, QBrush((state["r9"] != last_state_["r9"]) ? Qt::red : palette.text()));
-	register_view_items_[0x0a]->setForeground(0, QBrush((state["r10"] != last_state_["r10"]) ? Qt::red : palette.text()));
-	register_view_items_[0x0b]->setForeground(0, QBrush((state["r11"] != last_state_["r11"]) ? Qt::red : palette.text()));
-	register_view_items_[0x0c]->setForeground(0, QBrush((state["r12"] != last_state_["r12"]) ? Qt::red : palette.text()));
-	register_view_items_[0x0d]->setForeground(0, QBrush((state["r13"] != last_state_["r13"]) ? Qt::red : palette.text()));
-	register_view_items_[0x0e]->setForeground(0, QBrush((state["r14"] != last_state_["r14"]) ? Qt::red : palette.text()));
-	register_view_items_[0x0f]->setForeground(0, QBrush((state["r15"] != last_state_["r15"]) ? Qt::red : palette.text()));
+	register_view_items_[0x00]->setForeground(0, QBrush((state.gp_register(Rax) != last_state_.gp_register(Rax)) ? Qt::red : palette.text()));
+	register_view_items_[0x01]->setForeground(0, QBrush((state.gp_register(Rbx) != last_state_.gp_register(Rbx)) ? Qt::red : palette.text()));
+	register_view_items_[0x02]->setForeground(0, QBrush((state.gp_register(Rcx) != last_state_.gp_register(Rcx)) ? Qt::red : palette.text()));
+	register_view_items_[0x03]->setForeground(0, QBrush((state.gp_register(Rdx) != last_state_.gp_register(Rdx)) ? Qt::red : palette.text()));
+	register_view_items_[0x04]->setForeground(0, QBrush((state.gp_register(Rbp) != last_state_.gp_register(Rbp)) ? Qt::red : palette.text()));
+	register_view_items_[0x05]->setForeground(0, QBrush((state.gp_register(Rsp) != last_state_.gp_register(Rsp)) ? Qt::red : palette.text()));
+	register_view_items_[0x06]->setForeground(0, QBrush((state.gp_register(Rsi) != last_state_.gp_register(Rsi)) ? Qt::red : palette.text()));
+	register_view_items_[0x07]->setForeground(0, QBrush((state.gp_register(Rdi) != last_state_.gp_register(Rdi)) ? Qt::red : palette.text()));
+	register_view_items_[0x08]->setForeground(0, QBrush((state.gp_register(R8)  != last_state_.gp_register(R8))  ? Qt::red : palette.text()));
+	register_view_items_[0x09]->setForeground(0, QBrush((state.gp_register(R9)  != last_state_.gp_register(R9))  ? Qt::red : palette.text()));
+	register_view_items_[0x0a]->setForeground(0, QBrush((state.gp_register(R10) != last_state_.gp_register(R10)) ? Qt::red : palette.text()));
+	register_view_items_[0x0b]->setForeground(0, QBrush((state.gp_register(R11) != last_state_.gp_register(R11)) ? Qt::red : palette.text()));
+	register_view_items_[0x0c]->setForeground(0, QBrush((state.gp_register(R12) != last_state_.gp_register(R12)) ? Qt::red : palette.text()));
+	register_view_items_[0x0d]->setForeground(0, QBrush((state.gp_register(R13) != last_state_.gp_register(R13)) ? Qt::red : palette.text()));
+	register_view_items_[0x0e]->setForeground(0, QBrush((state.gp_register(R14) != last_state_.gp_register(R14)) ? Qt::red : palette.text()));
+	register_view_items_[0x0f]->setForeground(0, QBrush((state.gp_register(R15) != last_state_.gp_register(R15)) ? Qt::red : palette.text()));
 	register_view_items_[0x10]->setForeground(0, QBrush((state.instruction_pointer() != last_state_.instruction_pointer()) ? Qt::red : palette.text()));
 	register_view_items_[0x11]->setForeground(0, QBrush(flags_changed ? Qt::red : palette.text()));
 

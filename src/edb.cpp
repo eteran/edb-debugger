@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Debugger.h"
 #include "Expression.h"
 #include "Prototype.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "IPlugin.h"
 #include "MD5.h"
 #include "MemoryRegions.h"
@@ -48,7 +48,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cctype>
 
-IDebuggerCore *edb::v1::debugger_core = 0;
+IDebugger *edb::v1::debugger_core = 0;
 QWidget       *edb::v1::debugger_ui   = 0;
 
 namespace {
@@ -777,18 +777,19 @@ IBinary *get_binary_info(const IRegion::pointer &region) {
 address_t locate_main_function() {
 
 	if(debugger_core) {
+		if(IProcess *process = debugger_core->process()) {
+			const address_t address = process->code_address();
+			memory_regions().sync();
+			if(IRegion::pointer region = memory_regions().find_region(address)) {
 
-		const address_t address = debugger_core->process_code_address();
-		memory_regions().sync();
-		if(IRegion::pointer region = memory_regions().find_region(address)) {
-
-			QScopedPointer<IBinary> binfo(get_binary_info(region));
-			if(binfo) {
-				const address_t main_func = binfo->calculate_main();
-				if(main_func != 0) {
-					return main_func;
-				} else {
-					return binfo->entry_point();
+				QScopedPointer<IBinary> binfo(get_binary_info(region));
+				if(binfo) {
+					const address_t main_func = binfo->calculate_main();
+					if(main_func != 0) {
+						return main_func;
+					} else {
+						return binfo->entry_point();
+					}
 				}
 			}
 		}
@@ -849,11 +850,12 @@ const Prototype *get_function_info(const QString &function) {
 IRegion::pointer primary_data_region() {
 
 	if(debugger_core) {
-
-		const address_t address = debugger_core->process_data_address();
-		memory_regions().sync();
-		if(IRegion::pointer region = memory_regions().find_region(address)) {
-			return region;
+		if(IProcess *process = debugger_core->process()) {
+			const address_t address = process->data_address();
+			memory_regions().sync();
+			if(IRegion::pointer region = memory_regions().find_region(address)) {
+				return region;
+			}
 		}
 	}
 
@@ -868,13 +870,14 @@ IRegion::pointer primary_data_region() {
 //------------------------------------------------------------------------------
 IRegion::pointer primary_code_region() {
 
-#ifdef Q_OS_LINUX
+#if defined(Q_OS_LINUX)
 	if(debugger_core) {
-
-		const address_t address = debugger_core->process_code_address();
-		memory_regions().sync();
-		if(IRegion::pointer region = memory_regions().find_region(address)) {
-			return region;
+		if(IProcess *process = debugger_core->process()) {
+			const address_t address = process->code_address();
+			memory_regions().sync();
+			if(IRegion::pointer region = memory_regions().find_region(address)) {
+				return region;
+			}
 		}
 	}
 
@@ -1228,7 +1231,7 @@ int pointer_size() {
 // Name: disassembly_widget
 // Desc:
 //------------------------------------------------------------------------------
-QWidget *disassembly_widget() {
+QAbstractScrollArea *disassembly_widget() {
 	return ui()->ui.cpuView;
 }
 

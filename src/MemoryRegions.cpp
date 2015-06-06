@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "ISymbolManager.h"
 #include "MemoryRegions.h"
 #include "edb.h"
@@ -56,15 +56,17 @@ void MemoryRegions::sync() {
 	QList<IRegion::pointer> regions;
 	
 	if(edb::v1::debugger_core) {
-		regions = edb::v1::debugger_core->memory_regions();
-		Q_FOREACH(const IRegion::pointer &region, regions) {
-			// if the region has a name, is mapped starting
-			// at the beginning of the file, and is executable, sounds
-			// like a module mapping!
-			if(!region->name().isEmpty()) {
-				if(region->base() == 0) {
-					if(region->executable()) {
-						edb::v1::symbol_manager().load_symbol_file(region->name(), region->start());
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			regions = process->regions();
+			Q_FOREACH(const IRegion::pointer &region, regions) {
+				// if the region has a name, is mapped starting
+				// at the beginning of the file, and is executable, sounds
+				// like a module mapping!
+				if(!region->name().isEmpty()) {
+					if(region->base() == 0) {
+						if(region->executable()) {
+							edb::v1::symbol_manager().load_symbol_file(region->name(), region->start());
+						}
 					}
 				}
 			}

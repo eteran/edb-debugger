@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogThreads.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "ThreadsModel.h"
 #include "edb.h"
 

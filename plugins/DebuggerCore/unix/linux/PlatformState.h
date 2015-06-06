@@ -52,7 +52,8 @@ public:
 	virtual void set_register(const QString &name, edb::reg_t value);
 	virtual quint64 mmx_register(int n) const;
 	virtual QByteArray xmm_register(int n) const;
-
+	virtual Register gp_register(int n) const;
+	
 private:
 	struct user_regs_struct   regs_;
 	struct user_fpregs_struct fpregs_;

@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "CallStack.h"
 #include "Expression.h"
 #include "IBreakpoint.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 
 #include <QTableWidget>
 #include <QMessageBox>

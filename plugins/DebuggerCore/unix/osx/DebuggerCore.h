@@ -26,7 +26,7 @@ namespace DebuggerCore {
 
 class DebuggerCore : public DebuggerCoreUNIX {
 	Q_OBJECT
-	Q_INTERFACES(IDebuggerCore)
+	Q_INTERFACES(IDebugger)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
@@ -70,7 +70,6 @@ public:
 
 public:
 	virtual IState *create_state() const;
-	virtual QWidget *create_register_view() const;
 
 private:
 	virtual QMap<edb::pid_t, ProcessInfo> enumerate_processes() const;
