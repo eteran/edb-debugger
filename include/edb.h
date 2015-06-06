@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QVector>
 
+
 class ArchProcessor;
 class Configuration;
 class IAnalyzer;
@@ -42,6 +43,7 @@ class ISymbolManager;
 class MemoryRegions;
 class State;
 
+class QAbstractScrollArea;
 class QByteArray;
 class QDialog;
 class QFileInfo;
@@ -70,7 +72,7 @@ EDB_EXPORT MemoryRegions &memory_regions();
 EDB_EXPORT ArchProcessor &arch_processor();
 
 // widgets
-EDB_EXPORT QWidget *disassembly_widget();
+EDB_EXPORT QAbstractScrollArea *disassembly_widget();
 
 // breakpoint managment
 EDB_EXPORT IBreakpoint::pointer find_breakpoint(address_t address);

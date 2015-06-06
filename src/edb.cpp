@@ -1231,7 +1231,7 @@ int pointer_size() {
 // Name: disassembly_widget
 // Desc:
 //------------------------------------------------------------------------------
-QWidget *disassembly_widget() {
+QAbstractScrollArea *disassembly_widget() {
 	return ui()->ui.cpuView;
 }
 
