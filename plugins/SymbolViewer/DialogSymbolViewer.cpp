@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogSymbolViewer.h"
 #include "Configuration.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "ISymbolManager.h"
 #include "Util.h"
 #include "edb.h"

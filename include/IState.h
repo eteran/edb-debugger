@@ -23,6 +23,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "API.h"
 #include "Register.h"
 
+// TODO(eteran): This file is still too taylored to x86 and family
+// we should develop a better abstraction model at some point
+
 class EDB_EXPORT IState {
 public:
 	virtual ~IState() {}
@@ -45,6 +48,10 @@ public:
 	virtual void set_flags(edb::reg_t flags) = 0;
 	virtual void set_instruction_pointer(edb::address_t value) = 0;
 	virtual void set_register(const QString &name, edb::reg_t value) = 0;
+
+public:
+	// GP
+	virtual Register gp_register(int n) const = 0;
 
 public:
 	// FPU

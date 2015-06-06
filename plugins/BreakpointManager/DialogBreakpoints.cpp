@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogBreakpoints.h"
 #include "Expression.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "edb.h"
 #include "MemoryRegions.h"
 
@@ -76,7 +76,7 @@ void DialogBreakpoints::updateList() {
 	ui->tableWidget->setSortingEnabled(false);
 	ui->tableWidget->setRowCount(0);
 
-	const IDebuggerCore::BreakpointList breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
+	const IDebugger::BreakpointList breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
 
 	Q_FOREACH(const IBreakpoint::pointer &bp, breakpoint_state) {
 
@@ -302,7 +302,7 @@ void DialogBreakpoints::on_btnImport_clicked() {
 void DialogBreakpoints::on_btnExport_clicked() {
 
 	//Get the current list of breakpoints
-	const IDebuggerCore::BreakpointList breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
+	const IDebugger::BreakpointList breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
 
 	//Create a list for addresses to be exported at the end
 	QList<edb::address_t> export_list;

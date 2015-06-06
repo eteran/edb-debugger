@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "HardwareBreakpoints.h"
 #include "edb.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "DialogHWBreakpoints.h"
 #include "State.h"
 

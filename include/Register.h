@@ -33,8 +33,7 @@ public:
 		TYPE_SEG     = 0x0004,
 		TYPE_COND    = 0x0008,
 		TYPE_FPU     = 0x0010,
-		TYPE_SIMD    = 0x0020,
-		TYPE_ANY     = -1 // type_ can never be one of these
+		TYPE_SIMD    = 0x0020
 	};
 
 public:
@@ -43,23 +42,18 @@ public:
 	Register(const Register &other);
 	Register &operator=(const Register &rhs);
 	
-#ifdef Q_COMPILER_RVALUE_REFS
-
-#endif
-
 public:
 	bool operator==(const Register &rhs) const;
 	bool operator!=(const Register &rhs) const;
 
 public:
 	operator void*() const       { return reinterpret_cast<void*>(valid()); }
-	edb::reg_t operator*() const { return value_; }
+
 	Type type() const            { return type_; }
 	QString name() const         { return name_; }
 	
 	template <class T>
 	T value() const              { return value_; }
-	
 
 private:
 	bool valid() const { return type_ != TYPE_INVALID; }

@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogAttach.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "ProcessModel.h"
 #include "Types.h"
 #include "edb.h"

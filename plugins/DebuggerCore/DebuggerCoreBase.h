@@ -19,11 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DEBUGGERCOREBASE_20090529_H_
 #define DEBUGGERCOREBASE_20090529_H_
 
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 
 namespace DebuggerCore {
 
-class DebuggerCoreBase : public QObject, public IDebuggerCore {
+class DebuggerCoreBase : public QObject, public IDebugger {
 public:
 	DebuggerCoreBase();
 	virtual ~DebuggerCoreBase();

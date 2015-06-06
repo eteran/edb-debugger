@@ -20,7 +20,7 @@ macx-clang*:     QMAKE_LFLAGS += "-undefined dynamic_lookup"
 linux-g++*:QMAKE_LFLAGS += $$(LDFLAGS)
 
 unix {
-	INCLUDEPATH += $$LEVEL/include $$LEVEL/include/os/unix
+	INCLUDEPATH += $$LEVEL/include/os/unix
 	
 	# OS include paths
 	openbsd-* : INCLUDEPATH += /usr/local/include
@@ -28,29 +28,30 @@ unix {
 
 	# arch include paths
 	macx {
-		INCLUDEPATH += $$LEVEL/include/arch/x86_64
 		include(plugins-x86_64.pri)
 	}
 
-	!macx:contains(QMAKE_HOST.arch, x86_64) {
-		INCLUDEPATH += $$LEVEL/include/arch/x86_64
+	*-g++-32 {
+		include(plugins-x86.pri)	
+	} else:*-g++-64 {
 		include(plugins-x86_64.pri)
-	}
-	
-	!macx:contains(QMAKE_HOST.arch, i[3456]86) {
-		INCLUDEPATH += $$LEVEL/include/arch/x86
+	} else:!macx:contains(QMAKE_HOST.arch, x86_64) {
+		include(plugins-x86_64.pri)
+	} else:!macx:contains(QMAKE_HOST.arch, i[3456]86) {		
 		include(plugins-x86.pri)
 	}
 }
 
 win32 {
 	win32-msvc*:contains(QMAKE_HOST.arch, x86_64):{
-		INCLUDEPATH += $$LEVEL/include/os/win32 $$LEVEL/include $$LEVEL/include/arch/x86_64 "C:\\Program Files\\boost\\boost_1_51"
-		LIBS        += $$LEVEL/edb.lib
+		include(plugins-x86_64.pri)
 	}
 
 	win32-msvc*:contains(QMAKE_HOST.arch, i[3456]86):{
-		INCLUDEPATH += $$LEVEL/include/os/win32 $$LEVEL/include $$LEVEL/include/arch/x86 "C:\\Program Files\\boost\\boost_1_51"
-		LIBS        += $$LEVEL/edb.lib
+		include(plugins-x86.pri)
 	}
+	
+	INCLUDEPATH += $$LEVEL/include/os/win32 
+	INCLUDEPATH += "C:\\Program Files\\boost\\boost_1_51"
+	LIBS        += $$LEVEL/edb.lib	
 }
