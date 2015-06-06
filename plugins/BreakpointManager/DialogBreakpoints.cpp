@@ -79,27 +79,29 @@ void DialogBreakpoints::updateList() {
 	const IDebuggerCore::BreakpointList breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
 
 	Q_FOREACH(const IBreakpoint::pointer &bp, breakpoint_state) {
+
+		//Skip if it's an internal bp; we don't want to insert a row for it.
+		if (bp->internal()) {
+			continue; }
+
 		const int row = ui->tableWidget->rowCount();
 		ui->tableWidget->insertRow(row);
 
-		if(!bp->internal()) {
+		const edb::address_t address = bp->address();
+		const QString condition      = bp->condition;
+		const quint8 orig_byte       = bp->original_byte();
+		const bool onetime           = bp->one_time();
+		const QString symname        = edb::v1::find_function_symbol(address, QString(), 0);
+		const QString bytes          = edb::v1::format_bytes(orig_byte);
 
-			const edb::address_t address = bp->address();
-			const QString condition      = bp->condition;
-			const quint8 orig_byte       = bp->original_byte();
-			const bool onetime           = bp->one_time();
-			const QString symname        = edb::v1::find_function_symbol(address, QString(), 0);
-			const QString bytes          = edb::v1::format_bytes(orig_byte);
+		QTableWidgetItem *item = new QTableWidgetItem(edb::v1::format_pointer(address));
+		item->setData(Qt::UserRole, address);
 
-			QTableWidgetItem *item = new QTableWidgetItem(edb::v1::format_pointer(address));
-			item->setData(Qt::UserRole, address);
-			
-			ui->tableWidget->setItem(row, 0, item);
-			ui->tableWidget->setItem(row, 1, new QTableWidgetItem(condition));
-			ui->tableWidget->setItem(row, 2, new QTableWidgetItem(bytes));
-			ui->tableWidget->setItem(row, 3, new QTableWidgetItem(onetime ? tr("One Time") : tr("Standard")));
-			ui->tableWidget->setItem(row, 4, new QTableWidgetItem(symname));
-		}
+		ui->tableWidget->setItem(row, 0, item);
+		ui->tableWidget->setItem(row, 1, new QTableWidgetItem(condition));
+		ui->tableWidget->setItem(row, 2, new QTableWidgetItem(bytes));
+		ui->tableWidget->setItem(row, 3, new QTableWidgetItem(onetime ? tr("One Time") : tr("Standard")));
+		ui->tableWidget->setItem(row, 4, new QTableWidgetItem(symname));
 	}
 
 	ui->tableWidget->setSortingEnabled(true);
