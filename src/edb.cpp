@@ -160,7 +160,7 @@ IRegion::pointer current_cpu_view_region() {
 void repaint_cpu_view() {
 	Debugger *const gui = ui();
 	Q_ASSERT(gui);
-	gui->ui.cpuView->viewport()->repaint();
+	gui->ui.cpuView->repaint();
 }
 
 //------------------------------------------------------------------------------
