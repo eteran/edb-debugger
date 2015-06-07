@@ -450,6 +450,7 @@ QString QDisassemblyView::formatAddress(edb::address_t address) const {
 //------------------------------------------------------------------------------
 void QDisassemblyView::repaint() {
 	viewport()->repaint();
+	emit signal_updated();
 }
 
 //------------------------------------------------------------------------------

@@ -63,7 +63,12 @@ DialogBreakpoints::~DialogBreakpoints() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogBreakpoints::showEvent(QShowEvent *) {
+	connect(edb::v1::disassembly_widget(), SIGNAL(signal_updated()), this, SLOT(updateList()));
 	updateList();
+}
+
+void DialogBreakpoints::hideEvent(QHideEvent *) {
+	disconnect(edb::v1::disassembly_widget(), SIGNAL(signal_updated()), this, SLOT(updateList()));
 }
 
 //------------------------------------------------------------------------------
