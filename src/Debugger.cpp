@@ -2177,6 +2177,7 @@ void Debugger::cleanup_debugger() {
 
 	timer_->stop();
 
+	ui.cpuView->clear_comments();
 	edb::v1::memory_regions().clear();
 	edb::v1::symbol_manager().clear();
 	edb::v1::arch_processor().reset();
