@@ -212,6 +212,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 
 	//Connect the add/edit comment feature
 	connect(new QShortcut(QKeySequence(tr(";")), this), SIGNAL(activated()), this, SLOT(mnuCPUEditComment()));
+	connect(new QShortcut(QKeySequence(tr("Ctrl+E")), this), SIGNAL(activated()), this, SLOT(mnuCPUModify()));
 
 	setAcceptDrops(true);
 
@@ -1255,7 +1256,7 @@ void Debugger::mnuStackPop() {
 void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	QMenu menu;
 
-	menu.addAction(tr("Add &Comment"), this, SLOT(mnuCPUEditComment()));
+	menu.addAction(tr("Add &Comment"), this, SLOT(mnuCPUEditComment()), QKeySequence(tr(";")));
 	menu.addAction(tr("Remove Comment"), this, SLOT(mnuCPURemoveComment()));
 	menu.addSeparator();
 	
@@ -1318,7 +1319,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 		menu.addAction(tr("&Set %1 to this Instruction").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUSetEIP()));
 	}
 	menu.addSeparator();
-	menu.addAction(tr("&Edit Bytes"), this, SLOT(mnuCPUModify()));
+	menu.addAction(tr("&Edit Bytes"), this, SLOT(mnuCPUModify()), QKeySequence(tr("Ctrl+E")));
 	menu.addAction(tr("&Fill with 00's"), this, SLOT(mnuCPUFillZero()));
 	menu.addAction(tr("Fill with &NOPs"), this, SLOT(mnuCPUFillNop()));
 	menu.addSeparator();
