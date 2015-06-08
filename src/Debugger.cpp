@@ -1486,19 +1486,25 @@ void Debugger::cpu_fill(quint8 byte) {
 // Desc: Adds/edits a comment at the selected address.
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUEditComment() {
-	const edb::address_t address = ui.cpuView->selectedAddress();
 
-	bool ok;
-	const QString comment = QInputDialog::getText(
-				this,
-				QString("Edit Comment"),
-				QString("Comment:"),
-				QLineEdit::Normal,
-				ui.cpuView->get_comment(address),
-				&ok);
-
-	ui.cpuView->add_comment(address, comment);
-	refresh_gui();
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+	
+		Q_UNUSED(process);
+	
+		const edb::address_t address = ui.cpuView->selectedAddress();
+	
+		bool ok;
+		const QString comment = QInputDialog::getText(
+					this,
+					QString("Edit Comment"),
+					QString("Comment:"),
+					QLineEdit::Normal,
+					ui.cpuView->get_comment(address),
+					&ok);
+	
+		ui.cpuView->add_comment(address, comment);
+		refresh_gui();
+	}
 }
 
 //------------------------------------------------------------------------------
