@@ -1496,11 +1496,6 @@ void Debugger::mnuCPUEditComment() {
 				ui.cpuView->get_comment(address),
 				&ok);
 
-	if (!ok) {
-		QMessageBox::information(this, "Error", "Error adding comment...");
-		return;
-	}
-
 	ui.cpuView->add_comment(address, comment);
 	refresh_gui();
 }
