@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ArchProcessor.h"
 #include "CommentServer.h"
 #include "Configuration.h"
-#include "Debugger.h"
 #include "DebuggerInternal.h"
 #include "DialogArguments.h"
 #include "DialogAttach.h"
