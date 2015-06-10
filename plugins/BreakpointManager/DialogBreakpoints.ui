@@ -129,7 +129,7 @@
    <item row="5" column="1">
     <widget class="QPushButton" name="btnExport">
      <property name="text">
-      <string>Export Breakpoints</string>
+      <string>&amp;Export Breakpoints</string>
      </property>
     </widget>
    </item>

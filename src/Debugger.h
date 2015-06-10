@@ -97,6 +97,9 @@ public:
 	void update_data(const DataViewInfo::pointer &v);
 	void update_gui();
 
+Q_SIGNALS:
+	void gui_updated();
+
 public Q_SLOTS:
 	// the autoconnected slots
 	void on_action_Help_triggered();
@@ -120,11 +123,25 @@ public Q_SLOTS:
 	void on_action_Step_Into_triggered();
 	void on_action_Step_Over_Pass_Signal_To_Application_triggered();
 	void on_action_Step_Over_triggered();
+	void on_actionStep_Out_triggered();
 	void on_action_Threads_triggered();
 	void on_cpuView_breakPointToggled(edb::address_t);
 	void on_cpuView_customContextMenuRequested(const QPoint &);
 	void on_registerList_customContextMenuRequested(const QPoint &);
 	void on_registerList_itemDoubleClicked(QTreeWidgetItem *);
+
+//Flag-toggling slots for right-click --> toggle flag
+public Q_SLOTS:
+	void toggle_flag_carry();
+	void toggle_flag_parity();
+	void toggle_flag_auxiliary();
+	void toggle_flag_zero();
+	void toggle_flag_sign();
+	void toggle_flag_direction();
+	void toggle_flag_overflow();
+
+private:
+	void toggle_flag(int);
 
 private Q_SLOTS:
 	// the manually connected CPU slots
@@ -292,4 +309,3 @@ private:
 };
 
 #endif
-

@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>27</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_help">
@@ -188,6 +188,7 @@
    <addaction name="action_Pause"/>
    <addaction name="action_Step_Into"/>
    <addaction name="action_Step_Over"/>
+   <addaction name="actionStep_Out"/>
    <addaction name="action_Run"/>
   </widget>
   <action name="action_Open">
@@ -442,6 +443,21 @@
    </property>
    <property name="shortcut">
     <string>Ctrl+T</string>
+   </property>
+  </action>
+  <action name="actionStep_Out">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="debugger.qrc">
+     <normaloff>:/debugger/images/edb22-action-stepout.png</normaloff>:/debugger/images/edb22-action-stepout.png</iconset>
+   </property>
+   <property name="text">
+    <string>Step &amp;Out</string>
+   </property>
+   <property name="toolTip">
+    <string>Step Out</string>
    </property>
   </action>
  </widget>
