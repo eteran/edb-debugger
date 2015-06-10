@@ -116,68 +116,156 @@ public:
 	}
 
 	//--------------------------------------------------------------------------
+	// Name: pass_back_to_debugger
+	// Desc: Makes the previous handler the event handler again and deletes this.
+	//--------------------------------------------------------------------------
+	virtual edb::EVENT_STATUS pass_back_to_debugger(const IDebugEvent::const_pointer &event) {
+		edb::EVENT_STATUS status = previous_handler_->handle_event(event);
+		edb::v1::set_debug_event_handler(previous_handler_);
+		delete this;
+		return status;
+	}
+
+	//--------------------------------------------------------------------------
 	// Name: handle_event
 	//--------------------------------------------------------------------------
+	//TODO: Need to handle stop/pause button
 	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event) {
 
-		if(event->trap_reason() == IDebugEvent::TRAP_STEPPING) {
+		State state;
+		edb::v1::debugger_core->get_state(&state);
 
-			State state;
-			edb::v1::debugger_core->get_state(&state);
-			const edb::address_t address = state.instruction_pointer();
+		edb::address_t				address = state.instruction_pointer();
+		IDebugEvent::TRAP_REASON	trap_reason = event->trap_reason();
+		IDebugEvent::REASON			reason = event->reason();
 
-			if(last_call_return_ == address) {
-				last_call_return_ = 0;
+		qDebug() << QString("Event at address 0x%1").arg(address, 0, 16);
+
+		/*
+		 * An IDebugEvent::TRAP_BREAKPOINT can happen for the following reasons:
+		 *	1. We hit a user-set breakpoint.
+		 *	2. We hit an internal breakpoint due to our RunUntilRet algorithm.
+		 *	3. We hit a syscall (this shouldn't be; it may be a ptrace bug).
+		 *	4. We have exited in some form or another.
+		 * First check for exit, then breakpoint (user-set, then internal; adjust for RIP in both cases),
+		 *	then finally for the syscall bug.
+		 */
+		if (trap_reason == IDebugEvent::TRAP_BREAKPOINT) {
+			qDebug() << "Trap breakpoint";
+
+			//Take care of exit/terminated conditions; address == 0 may suffice to catch all, but not 100% sure.
+			if (reason == IDebugEvent::EVENT_EXITED || reason == IDebugEvent::EVENT_TERMINATED ||
+					address == 0) {
+				qDebug() << "The process is no longer running.";
+				return pass_back_to_debugger(event);
 			}
 
+			//Check the previous byte for 0xcc to see if it was an actual breakpoint
+			edb::address_t prev_address = address - 1;
+			IBreakpoint::pointer bp = edb::v1::find_breakpoint(prev_address);
 
-			if(!is_instruction_ret(address)) {
+			//If there was a bp there, then we hit a block terminator as part of our RunUntilRet
+			//algorithm, or it is a user-set breakpoint.
+			if(bp && bp->enabled()) {	//Isn't it always enabled if trap_reason is breakpoint, anyway?
 
-				// we haven't seen a top-level call yet, so this one is noteworthy,
-				// record where we think it will return to (assuming normal call
-				// semantics).
-				if(last_call_return_ == 0) {
-					quint8 buffer[edb::Instruction::MAX_SIZE];
+				bp->hit();
 
-					// if this some variant of a call, then we should
-					// record where we think it'll return to
-					if(const int sz = edb::v1::get_instruction_bytes(address, buffer)) {
-						edb::Instruction inst(buffer, buffer + sz, 0, std::nothrow);
-						if(inst && edb::v1::arch_processor().can_step_over(inst)) {
-							last_call_return_ = address + inst.size();
-						}
-					}
+				//Adjust RIP since 1st byte was replaced with 0xcc and we are now 1 byte after it.
+				state.set_instruction_pointer(prev_address);
+				edb::v1::debugger_core->set_state(state);
+				address = prev_address;
+
+				//If it wasn't internal, it was a user breakpoint. Pass back to Debugger.
+				if (!bp->internal()) {
+					qDebug() << "Previous was not an internal breakpoint.";
+					return pass_back_to_debugger(event);
 				}
-
-				return edb::DEBUG_CONTINUE_STEP;
-			} else {
-				// if we are on the top level, then we are done because this is a RET
-				if(last_call_return_ == 0) {
-					const edb::EVENT_STATUS status = previous_handler_->handle_event(event);
-					edb::v1::set_debug_event_handler(previous_handler_);
-					delete this;
-					return status;
-				} else {
-					return edb::DEBUG_CONTINUE_STEP;
-				}
+				qDebug() << "Previous was an internal breakpoint.";
+				bp->disable();
+				edb::v1::debugger_core->remove_breakpoint(bp->address());
 			}
 
-		} else {
-			const edb::EVENT_STATUS status = previous_handler_->handle_event(event);
-
-			if(status == edb::DEBUG_CONTINUE) {
-				return edb::DEBUG_CONTINUE_STEP;
+			//No breakpoint if it was a syscall; continue.
+			else {
+				return edb::DEBUG_CONTINUE;
 			}
-
-			edb::v1::set_debug_event_handler(previous_handler_);
-			delete this;
-			return status;
 		}
+
+		//If we are on our ret (or the instr after?), then ret.
+		if (address == ret_address_) {
+			qDebug() << QString("On our terminator at 0x%1").arg(address, 0, 16);
+			if (is_instruction_ret(address)) {
+				qDebug() << "Found ret; passing back to debugger";
+				return pass_back_to_debugger(event);
+			}
+
+			//If not a ret, then step so we can find the next block terminator.
+			else {
+				qDebug() << "Not ret. Single-stepping";
+				return edb::DEBUG_CONTINUE_STEP;
+			}
+		}
+
+		//If we stepped (either because it was the first event or because we hit a jmp/jcc),
+		//then find the next block terminator and edb::DEBUG_CONTINUE.
+		//TODO: What if we started on a ret? Set bp, then the proc runs away?
+		quint8 buffer[edb::Instruction::MAX_SIZE];
+		while (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
+
+			//Get the instruction
+			edb::Instruction inst(buffer, buffer + size, 0, std::nothrow);
+			qDebug() << QString("Scanning for terminator at 0x%1: found %2").arg(
+							address, 0, 16).arg(
+							inst.mnemonic().c_str());
+
+			//Check if it's a proper block terminator (ret/jmp/jcc/hlt)
+			if (inst) {
+				if (is_ret(inst) || is_jump(inst) || is_halt(inst)) {
+					qDebug() << QString("Found terminator %1 at 0x%2").arg(
+									QString(inst.mnemonic().c_str())).arg(
+									address, 0, 16);
+					IBreakpoint::pointer bp;
+
+					//If we already had a breakpoint there, then just continue.
+					if (bp = edb::v1::debugger_core->find_breakpoint(address)) {
+						qDebug() << QString("Already a breakpoint at terminator 0x%1").arg(address, 0, 16);
+						return edb::DEBUG_CONTINUE;
+					}
+
+					//Otherwise, attempt to set a breakpoint there and continue.
+					if (bp = edb::v1::debugger_core->add_breakpoint(address)) {
+						qDebug() << QString("Setting breakpoint at terminator 0x%1").arg(address, 0, 16);
+						bp->set_internal(true);
+						bp->set_one_time(true);	//If the 0xcc get's rm'd on next event, then
+												//don't set it one time; we'll hande it manually
+						ret_address_ = address;
+						return edb::DEBUG_CONTINUE;
+					}
+
+					//If we get here, then we've got a problem... Coludn't set a breakpoint on
+					//a block terminator for some reason.
+					qDebug() << "Couldn't set a breakpoint on a block terminator...";
+				}
+			}
+
+			//Invalid instruction or some other problem. Pass it back to the debugger.
+			else {
+				qDebug() << "Invalid instruction or something.";
+				return pass_back_to_debugger(event);
+			}
+
+			address += inst.size();
+		}
+
+		//If we end up out here, we've got bigger problems. Pass it back to the debugger.
+		qDebug() << "Stepped outside the loop.  Bad.";
+		return pass_back_to_debugger(event);
 	}
 
 private:
 	IDebugEventHandler *previous_handler_;
 	edb::address_t      last_call_return_;
+	edb::address_t		ret_address_;
 };
 
 //------------------------------------------------------------------------------
@@ -263,6 +351,7 @@ void Debugger::update_menu_state(GUI_STATE state) {
 		ui.action_Pause->setEnabled(false);
 		ui.action_Step_Into->setEnabled(true);
 		ui.action_Step_Over->setEnabled(true);
+		ui.actionStep_Out->setEnabled(true);
 		ui.action_Step_Into_Pass_Signal_To_Application->setEnabled(true);
 		ui.action_Step_Over_Pass_Signal_To_Application->setEnabled(true);
 		ui.action_Run_Pass_Signal_To_Application->setEnabled(true);
@@ -278,6 +367,7 @@ void Debugger::update_menu_state(GUI_STATE state) {
 		ui.action_Pause->setEnabled(true);
 		ui.action_Step_Into->setEnabled(false);
 		ui.action_Step_Over->setEnabled(false);
+		ui.actionStep_Out->setEnabled(false);
 		ui.action_Step_Into_Pass_Signal_To_Application->setEnabled(false);
 		ui.action_Step_Over_Pass_Signal_To_Application->setEnabled(false);
 		ui.action_Run_Pass_Signal_To_Application->setEnabled(false);
@@ -293,6 +383,7 @@ void Debugger::update_menu_state(GUI_STATE state) {
 		ui.action_Pause->setEnabled(false);
 		ui.action_Step_Into->setEnabled(false);
 		ui.action_Step_Over->setEnabled(false);
+		ui.actionStep_Out->setEnabled(false);
 		ui.action_Step_Into_Pass_Signal_To_Application->setEnabled(false);
 		ui.action_Step_Over_Pass_Signal_To_Application->setEnabled(false);
 		ui.action_Run_Pass_Signal_To_Application->setEnabled(false);
@@ -834,8 +925,61 @@ void Debugger::on_registerList_customContextMenuRequested(const QPoint &pos) {
 				menu.exec(ui.registerList->mapToGlobal(pos));
 			}
 		}
+
+		//Special case for the flag values. Open a context menu with the flag names for toggle.
+		else if (QTreeWidgetItem *parent = item->parent()) {
+			if (const Register reg = edb::v1::arch_processor().value_from_item(*parent)) {
+				if (reg.name() == edb::v1::debugger_core->flag_register()) {
+					QMenu menu;
+					menu.addAction(tr("&Carry"), this, SLOT(toggle_flag_carry()));
+					menu.addAction(tr("&Parity"), this, SLOT(toggle_flag_parity()));
+					menu.addAction(tr("&Auxiliary"), this, SLOT(toggle_flag_auxiliary()));
+					menu.addAction(tr("&Zero"), this, SLOT(toggle_flag_zero()));
+					menu.addAction(tr("&Sign"), this, SLOT(toggle_flag_sign()));
+					menu.addAction(tr("&Direction"), this, SLOT(toggle_flag_direction()));
+					menu.addAction(tr("&Overflow"), this, SLOT(toggle_flag_overflow()));
+
+					add_plugin_context_menu(&menu, &IPlugin::register_context_menu);
+
+					menu.exec(ui.registerList->mapToGlobal(pos));
+				}
+			}
+		}
 	}
 }
+
+//Flag-toggling functions.  Not sure if this is the best solution, but it works.
+
+//------------------------------------------------------------------------------
+// Name: toggle_flag
+// Desc: toggles flag register at bit position pos
+// Param: pos The position of the flag bit to toggle
+//------------------------------------------------------------------------------
+void Debugger::toggle_flag(int pos)
+{
+	//TODO Maybe this should just return w/o action if no process is loaded.
+
+	//Get the state and get the flag register
+	State state;
+	edb::v1::debugger_core->get_state(&state);
+	edb::reg_t flags = state.flags();
+
+	//Toggle the flag
+	flags ^= (1 << pos);
+	state.set_flags(flags);
+	edb::v1::debugger_core->set_state(state);
+
+	update_gui();
+	refresh_gui();
+}
+
+void Debugger::toggle_flag_carry() { toggle_flag(0); }
+void Debugger::toggle_flag_parity() { toggle_flag(2); }
+void Debugger::toggle_flag_auxiliary() { toggle_flag(4); }
+void Debugger::toggle_flag_zero() { toggle_flag(6); }
+void Debugger::toggle_flag_sign() { toggle_flag(7); }
+void Debugger::toggle_flag_direction() { toggle_flag(10); }
+void Debugger::toggle_flag_overflow() { toggle_flag(11); }
 
 //------------------------------------------------------------------------------
 // Name: on_cpuView_breakPointToggled
@@ -1485,25 +1629,34 @@ void Debugger::cpu_fill(quint8 byte) {
 // Desc: Adds/edits a comment at the selected address.
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUEditComment() {
+	const edb::address_t address = ui.cpuView->selectedAddress();
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
-	
-		Q_UNUSED(process);
-	
-		const edb::address_t address = ui.cpuView->selectedAddress();
-	
-		bool ok;
-		const QString comment = QInputDialog::getText(
-					this,
-					QString("Edit Comment"),
-					QString("Comment:"),
-					QLineEdit::Normal,
-					ui.cpuView->get_comment(address),
-					&ok);
-	
+	bool got_text;
+	const QString comment = QInputDialog::getText(
+				this,
+				QString("Edit Comment"),
+				QString("Comment:"),
+				QLineEdit::Normal,
+				ui.cpuView->get_comment(address),
+				&got_text);
+
+	//If we got a comment, add it.
+	if (got_text && !comment.isEmpty()) {
 		ui.cpuView->add_comment(address, comment);
-		refresh_gui();
 	}
+
+	//If the user backspaced the comment, remove the comment since
+	//there's no need for a null string to take space in the hash.
+	else if (got_text && comment.isEmpty()) {
+		ui.cpuView->remove_comment(address);
+	}
+
+	//The only other real case is that we didn't got_text.  No change.
+	else {
+		return;
+	}
+
+	refresh_gui();
 }
 
 //------------------------------------------------------------------------------
@@ -2020,6 +2173,11 @@ void Debugger::update_gui() {
 			edb::v1::arch_processor().update_register_view(region->name(), state);
 		}
 	}
+
+	//Signal all connected slots that the GUI has been updated.
+	//Useful for plugins with windows that should updated after
+	//hitting breakpoints, Step Over, etc.
+	emit gui_updated();
 }
 
 //------------------------------------------------------------------------------
@@ -2151,12 +2309,26 @@ void Debugger::on_action_Step_Over_triggered() {
 }
 
 //------------------------------------------------------------------------------
+// Name: on_actionStep_Out_triggered
+// Desc: Step out is the same as run until return, in our context.
+//------------------------------------------------------------------------------
+void Debugger::on_actionStep_Out_triggered() {
+	on_actionRun_Until_Return_triggered();
+}
+
+//------------------------------------------------------------------------------
 // Name: on_actionRun_Until_Return_triggered
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_actionRun_Until_Return_triggered() {
+
 	new RunUntilRet();
-	resume_execution(PASS_EXCEPTION, MODE_STEP);
+
+	//Step over rather than resume in MODE_STEP so that we can avoid stepping into calls.
+	//TODO: If we are sitting on the call and it has a bp, it steps over for some reason...
+	step_over(
+				boost::bind(&Debugger::on_action_Run_triggered, this),
+				boost::bind(&Debugger::on_action_Step_Into_triggered, this));
 }
 
 //------------------------------------------------------------------------------

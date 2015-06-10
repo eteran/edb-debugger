@@ -43,6 +43,7 @@ public Q_SLOTS:
 
 private:
 	virtual void showEvent(QShowEvent *event);
+	virtual void hideEvent(QHideEvent *event);
 
 private:
 	 Ui::DialogBreakpoints *const ui;

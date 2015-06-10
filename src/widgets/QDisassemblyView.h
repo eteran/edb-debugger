@@ -60,6 +60,9 @@ public:
 	QString get_comment(edb::address_t address);
 	void clear_comments();
 
+signals:
+	void signal_updated();
+
 public Q_SLOTS:
 	void setFont(const QFont &f);
 	void resizeEvent(QResizeEvent *event);
