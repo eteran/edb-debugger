@@ -223,18 +223,17 @@ void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {
 void DialogBreakpoints::on_btnImport_clicked() {
 
 	//Let the user choose the file; get the file name.
-	QString file_name, home_directory;
-	home_directory	= QDir::homePath();
-	file_name		= QFileDialog::getOpenFileName(this, "Breakpoint Import File", home_directory, NULL);
+	QString home_directory	= QDir::homePath();
+	QString file_name		= QFileDialog::getOpenFileName(this, tr("Breakpoint Import File"), home_directory, NULL);
 
 	if (file_name.isEmpty()) {
-		return;	}
+		return;
+	}
 
 	//Open the file; fail if error or it doesn't exist.
 	QFile file(file_name);
 	if (!file.open(QIODevice::ReadOnly)) {
-		QMessageBox::information(this, "Error Opening File", "Unable to open breakpoint file:" + file_name);
-		file.close();
+		QMessageBox::information(this, tr("Error Opening File"), tr("Unable to open breakpoint file: %1").arg(file_name));
 		return;
 	}
 
@@ -245,10 +244,15 @@ void DialogBreakpoints::on_btnImport_clicked() {
 	//Addreses should be prefixed with 0x, i.e. a hex number.
 	//Count each breakpoint successfully made.
 	int count = 0;
-	while (!file.atEnd()) {
+	Q_FOREVER {
 
 		//Get the address
 		QString line = file.readLine();
+		
+		if(line.isNull()) {
+			break;
+		}
+		
 		bool ok;
 		int base = 16;
 		edb::address_t address = line.toULong(&ok, base);
@@ -263,19 +267,19 @@ void DialogBreakpoints::on_btnImport_clicked() {
 		//add to error list and skip.
 		edb::v1::memory_regions().sync();
 		IRegion::pointer p = edb::v1::memory_regions().find_region(address);
-		if (!p) {;
+		if (!p) {
 			errors.append(line);
 			continue;
 		}
 
 		//If the bp already exists, skip.  No error.
 		if (edb::v1::debugger_core->find_breakpoint(address)) {
-			continue; }
+			continue;
+		}
 
 		//If the line was converted to an address, try to create the breakpoint.
 		//Access debugger_core directly to avoid many possible error windows by edb::v1::create_breakpoint()
-		const IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(address);
-		if (bp) {
+		if (const IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(address)) {
 			count++;
 		} else{
 			errors.append(line);
@@ -284,18 +288,12 @@ void DialogBreakpoints::on_btnImport_clicked() {
 
 	//Report any errors to the user
 	if (errors.size() > 0) {
-		QString msg = "The following breakpoints were not made:\n" + errors.join("");
-		QMessageBox::information(this, "Invalid Breakpoints", msg);
+		QMessageBox::information(this, tr("Invalid Breakpoints"), tr("The following breakpoints were not made:\n%1").arg(errors.join("")));
 	}
 
 	//Report breakpoints successfully made
-	QString msg = "Imported ";
-	msg += QString().number(count);
-	msg += " breakpoints.";
+	QMessageBox::information(this, tr("Breakpoint Import"), tr("Imported %1 breakpoints.").arg(count));
 
-	QMessageBox::information(this, "Breakpoint Import", msg);
-
-	file.close();
 	updateList();
 }
 
@@ -315,39 +313,36 @@ void DialogBreakpoints::on_btnExport_clicked() {
 	//Go through our breakpoints and add for export if not one-time and not internal.
 	Q_FOREACH (const IBreakpoint::pointer bp, breakpoint_state) {
 		if (!bp->one_time() && !bp->internal()) {
-			export_list.append(bp->address()); }
+			export_list.append(bp->address());
+		}
 	}
 
 	//If there are no breakpoints, fail
 	if (export_list.isEmpty()) {
-		QMessageBox::information(this, "No Breakpoints", "There are no breakpoints to export.");
+		QMessageBox::information(this, tr("No Breakpoints"), tr("There are no breakpoints to export."));
 		return;
 	}
 
 	//Now ask the user for a file, open it, and write each address to it.
-	QString filename = QFileDialog::getSaveFileName(this, "Breakpoint Export File", QDir::homePath());
+	QString filename = QFileDialog::getSaveFileName(this, tr("Breakpoint Export File"), QDir::homePath());
 
 	if (filename.isEmpty()) {
-		return; }
+		return;
+	}
 
 	QFile file(filename);
 
 	if (!file.open(QIODevice::WriteOnly)) {
-		return; }
+		return;
+	}
 
 	Q_FOREACH (edb::address_t address, export_list) {
 		int base = 16;
-		QString string_address = "0x" + QString().number(address, base) + "\n";
-		file.write(string_address.toAscii());
+		QString string_address = "0x" + QString::number(address, base) + "\n";
+		file.write(string_address.toLatin1());
 	}
 
-	file.close();
-
-	QString msg = "Exported ";
-	msg += QString().number(export_list.size());
-	msg += " breakpoints.";
-
-	QMessageBox::information(this, "Breakpoint Export", msg);
+	QMessageBox::information(this, tr("Breakpoint Export"), tr("Exported %1 breakpoints").arg(export_list.size()));
 }
 
 }
