@@ -19,8 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef BACKTRACE_H
 #define BACKTRACE_H
 
-//#include "backtrace_global.h"
-
 #include "IPlugin.h"
 
 class QMenu;
@@ -33,7 +31,7 @@ class Backtrace : public QObject, public IPlugin
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
 #if QT_VERSION >= 0x050000
-	Q_PLUGIN_METADATA(IID, "edb.IPlugin/1.0")
+	Q_PLUGIN_METADATA(IID "edb.IPlugin/1.0")
 #endif
 	Q_CLASSINFO("author", "Armen Boursalian")
 	Q_CLASSINFO("url", "https://github.com/Northern-Lights")

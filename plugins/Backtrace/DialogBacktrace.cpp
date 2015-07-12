@@ -17,14 +17,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogBacktrace.h"
-#include "ui_DialogBacktrace.h"
 #include "CallStack.h"
 #include "Expression.h"
 #include "IBreakpoint.h"
 #include "IDebugger.h"
+#include "ui_DialogBacktrace.h"
 
 #include <QTableWidget>
 #include <QMessageBox>
+
+//Default values in the table
+#define FIRST_ROW 0
+#define CALLER_COLUMN 0
+#define RETURN_COLUMN 1
 
 //------------------------------------------------------------------------------
 // Name: DialogBacktrace
@@ -37,16 +42,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //			do a "Step Out" (the behavior for the 1st row should be different
 //			than all others.
 //------------------------------------------------------------------------------
-DialogBacktrace::DialogBacktrace(QWidget *parent) :
-	QDialog(parent),
-	ui(new Ui::DialogBacktrace)
-{
+DialogBacktrace::DialogBacktrace(QWidget *parent) : QDialog(parent), ui(new Ui::DialogBacktrace) {
 	ui->setupUi(this);
 	table_ = ui->tableWidgetCallStack;
 }
 
-DialogBacktrace::~DialogBacktrace()
-{
+DialogBacktrace::~DialogBacktrace() {
 	delete ui;
 }
 
@@ -108,8 +109,8 @@ void DialogBacktrace::populate_table() {
 
 		//Get the caller & ret addresses and put them in the table
 		QList<edb::address_t> stack_entry;
-		edb::address_t caller = frame->caller,
-				ret = frame->ret;
+		edb::address_t caller = frame->caller;
+		edb::address_t ret = frame->ret;
 		stack_entry.append(caller);
 		stack_entry.append(ret);
 
@@ -119,7 +120,7 @@ void DialogBacktrace::populate_table() {
 			//Turn the address into a string prefixed with "0x"
 			int base = 16;
 			QTableWidgetItem *item = new QTableWidgetItem;
-			item->setText(QString("0x") + QString().number(stack_entry.at(j), base));
+			item->setText(QString("0x") + QString::number(stack_entry.at(j), base));
 
 			//Remove all flags (namely Edit), then put the flags that we want.
 			Qt::ItemFlags flags = Qt::NoItemFlags;
@@ -206,7 +207,7 @@ void DialogBacktrace::on_pushButtonReturnTo_clicked()
 	//TODO: Make sure "ok" actually signifies success of getting an address...
 	if (!ok) {
 		int base = 16;
-		QString msg("Could not return to 0x%x" + QString().number(address, base));
+		QString msg("Could not return to 0x%x" + QString::number(address, base));
 		QMessageBox::information( this,	"Error", msg);
 		return;
 	}

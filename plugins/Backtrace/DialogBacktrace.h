@@ -19,20 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOGBACKTRACE_H
 #define DIALOGBACKTRACE_H
 
-#if QT_VERSION >= 0x050000
-#include <QtWidgets/QDialog>
-#else
-#include <QtGui/QDialog>
-#endif
-
 #include "CallStack.h"
 
+#include <QDialog>
 #include <QTableWidget>
-
-//Default values in the table
-#define FIRST_ROW 0
-#define CALLER_COLUMN 0
-#define RETURN_COLUMN 1
 
 namespace Ui {
 class DialogBacktrace;
