@@ -517,11 +517,13 @@ void QDisassemblyView::scrollTo(edb::address_t address) {
 struct intel_lower {
 	typedef edisassm::lower_case   case_type;
 	typedef edisassm::syntax_intel syntax_type;
+	typedef edisassm::small_int_hex small_int_type;
 };
 
 struct intel_upper {
 	typedef edisassm::upper_case   case_type;
 	typedef edisassm::syntax_intel syntax_type;
+	typedef edisassm::small_int_hex small_int_type;	
 };
 
 //------------------------------------------------------------------------------
