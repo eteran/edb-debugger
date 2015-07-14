@@ -495,7 +495,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 								blocks.push(address + inst.size());
 							}
 							break;
-						} else if(is_ret(inst) || inst.type() == edb::Instruction::OP_HLT) {
+						} else if(is_terminator(inst)) {
 							break;
 						}
 

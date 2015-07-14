@@ -220,20 +220,18 @@ public:
 
 			//Check if it's a proper block terminator (ret/jmp/jcc/hlt)
 			if (inst) {
-				if (is_ret(inst) || is_jump(inst) || is_halt(inst)) {
+				if (is_terminator(inst)) {
 					qDebug() << QString("Found terminator %1 at 0x%2").arg(
 									QString(inst.mnemonic().c_str())).arg(
 									address, 0, 16);
-					IBreakpoint::pointer bp;
-
 					//If we already had a breakpoint there, then just continue.
-					if (bp = edb::v1::debugger_core->find_breakpoint(address)) {
+					if (IBreakpoint::pointer bp = edb::v1::debugger_core->find_breakpoint(address)) {
 						qDebug() << QString("Already a breakpoint at terminator 0x%1").arg(address, 0, 16);
 						return edb::DEBUG_CONTINUE;
 					}
 
 					//Otherwise, attempt to set a breakpoint there and continue.
-					if (bp = edb::v1::debugger_core->add_breakpoint(address)) {
+					if (IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(address)) {
 						qDebug() << QString("Setting breakpoint at terminator 0x%1").arg(address, 0, 16);
 						bp->set_internal(true);
 						bp->set_one_time(true);	//If the 0xcc get's rm'd on next event, then
