@@ -17,6 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Configuration.h"
+#include "Formatter.h"
+#include "edb.h"
 #include <QtDebug>
 #include <QSettings>
 #include <QDir>
@@ -95,6 +97,7 @@ void Configuration::read_settings() {
 	syntax                = static_cast<Syntax>(settings.value("disassembly.syntax", Intel).value<uint>());
 	zeros_are_filling     = settings.value("disassembly.zeros_are_filling.enabled", true).value<bool>();
 	uppercase_disassembly = settings.value("disassembly.uppercase.enabled", false).value<bool>();
+	small_int_as_decimal  = settings.value("disassembly.small_int_as_decimal.enabled", false).value<bool>();
 	settings.endGroup();
 
 	settings.beginGroup("Directories");
@@ -111,6 +114,11 @@ void Configuration::read_settings() {
 	if(data_row_width != 1 && data_row_width != 2 && data_row_width != 4 && data_row_width != 8 && data_row_width != 16) {
 		data_row_width = 16;
 	}
+	
+	edisassm::FormatOptions options = edb::v1::formatter().options();
+	options.capitalization = uppercase_disassembly ? edisassm::UpperCase : edisassm::LowerCase;
+	options.smallNumFormat = small_int_as_decimal  ? edisassm::SmallNumAsDec : edisassm::SmallNumAsHex;
+	edb::v1::formatter().setOptions(options);	
 }
 
 //------------------------------------------------------------------------------
@@ -152,6 +160,7 @@ void Configuration::write_settings() {
 	settings.setValue("disassembly.syntax", syntax);
 	settings.setValue("disassembly.zeros_are_filling.enabled", zeros_are_filling);
 	settings.setValue("disassembly.uppercase.enabled", uppercase_disassembly);
+	settings.setValue("disassembly.small_int_as_decimal.enabled", small_int_as_decimal);
 	settings.endGroup();
 
 	settings.beginGroup("Directories");

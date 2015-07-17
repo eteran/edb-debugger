@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogOptions.h"
 #include "edb.h"
+#include "Formatter.h"
 #include "Configuration.h"
 
 #include <QFontDialog>
@@ -173,6 +174,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 
 	ui->chkZerosAreFilling->setChecked(config.zeros_are_filling);
 	ui->chkUppercase->setChecked(config.uppercase_disassembly);
+	ui->chkSmallIntAsDecimal->setChecked(config.small_int_as_decimal);
 
 	ui->chkFindMain->setChecked(config.find_main);
 	ui->chkWarnDataBreakpoint->setChecked(config.warn_on_no_exec_bp);
@@ -226,6 +228,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.tty_enabled           = ui->chkTTY->isChecked();
 	config.zeros_are_filling     = ui->chkZerosAreFilling->isChecked();
 	config.uppercase_disassembly = ui->chkUppercase->isChecked();
+	config.small_int_as_decimal  = ui->chkSmallIntAsDecimal->isChecked();
 
 	config.symbol_path           = ui->txtSymbolDir->text();
 	config.plugin_path           = ui->txtPluginDir->text();
@@ -250,6 +253,11 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.data_show_comments = ui->chkDataShowComments->isChecked();
 	config.data_word_width    = 1 << ui->cmbDataWordWidth->currentIndex();
 	config.data_row_width     = 1 << ui->cmbDataRowWidth->currentIndex();
+	
+	edisassm::FormatOptions options = edb::v1::formatter().options();
+	options.capitalization = config.uppercase_disassembly ? edisassm::UpperCase : edisassm::LowerCase;
+	options.smallNumFormat = config.small_int_as_decimal  ? edisassm::SmallNumAsDec : edisassm::SmallNumAsHex;
+	edb::v1::formatter().setOptions(options);
 
 	event->accept();
 }

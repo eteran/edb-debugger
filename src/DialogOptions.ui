@@ -511,6 +511,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="chkSmallIntAsDecimal">
+         <property name="text">
+          <string>Display small integers in decimal</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer>
          <property name="orientation">
           <enum>Qt::Vertical</enum>

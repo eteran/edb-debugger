@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Prototype.h"
 #include "IDebugger.h"
 #include "IPlugin.h"
+#include "Formatter.h"
 #include "MD5.h"
 #include "MemoryRegions.h"
 #include "QHexView"
@@ -49,7 +50,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cctype>
 
 IDebugger *edb::v1::debugger_core = 0;
-QWidget       *edb::v1::debugger_ui   = 0;
+QWidget   *edb::v1::debugger_ui   = 0;
 
 namespace {
 
@@ -59,6 +60,7 @@ namespace {
 	QAtomicPointer<IAnalyzer>          g_Analyzer          = 0;
 	QHash<QString, QObject *>          g_GeneralPlugins;
 	BinaryInfoList                     g_BinaryInfoList;
+	edisassm::Formatter                g_Formatter;
 
 	QHash<QString, edb::Prototype>     g_FunctionDB;
 
@@ -1272,11 +1274,19 @@ QString disassemble_address(address_t address) {
 	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 		edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
 		if(inst) {
-			return QString::fromStdString(to_string(inst));
+			return QString::fromStdString(g_Formatter.to_string(inst));
 		}
 	}
 	
 	return QString();
+}
+
+//------------------------------------------------------------------------------
+// Name: formatter
+// Desc: returns a reference to the global instruction formatter
+//------------------------------------------------------------------------------
+edisassm::Formatter &formatter() {
+	return g_Formatter;
 }
 
 }

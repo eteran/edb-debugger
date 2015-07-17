@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "IDebugger.h"
 #include "Instruction.h"
+#include "Formatter.h"
 #include "Prototype.h"
 #include "RegisterListWidget.h"
 #include "State.h"
@@ -84,21 +85,21 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 	edb::address_t ret = 0;
 
 	// TODO: get registers by index, not string! too slow
-
+	
 	if(op.valid()) {
 		switch(op.general_type()) {
 		case edb::Operand::TYPE_REGISTER:
-			ret = state[QString::fromStdString(to_string(op))].value<edb::reg_t>();
+			ret = state[QString::fromStdString(edb::v1::formatter().to_string(op))].value<edb::reg_t>();
 			break;
 		case edb::Operand::TYPE_EXPRESSION:
 			do {
 
-				edb::reg_t base = state[QString::fromStdString(edisassm::register_name<edisassm::x86_64>(op.expression().base))].value<edb::reg_t>();
+				edb::reg_t base = state[QString::fromStdString(edb::v1::formatter().register_name<edisassm::x86_64>(op.expression().base))].value<edb::reg_t>();
 				if(op.expression().base == edb::Operand::REG_RIP) {
 					base += op.owner()->size();
 				}
 
-				const edb::reg_t index = state[QString::fromStdString(edisassm::register_name<edisassm::x86_64>(op.expression().index))].value<edb::reg_t>();
+				const edb::reg_t index = state[QString::fromStdString(edb::v1::formatter().register_name<edisassm::x86_64>(op.expression().index))].value<edb::reg_t>();
 				ret                    = base + index * op.expression().scale + op.displacement();
 
 				if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
@@ -457,9 +458,9 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 		const edb::Operand &operand = inst.operands()[0];
 
 		if(operand.valid()) {
-
+		
 			const edb::address_t effective_address = get_effective_address(operand, state);
-			const QString temp_operand             = QString::fromStdString(to_string(operand));
+			const QString temp_operand             = QString::fromStdString(edb::v1::formatter().to_string(operand));
 			QString temp;
 
 			switch(operand.general_type()) {
@@ -525,7 +526,7 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 void analyze_operands(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
 	Q_UNUSED(inst);
-
+	
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		for(int j = 0; j < edb::Instruction::MAX_OPERANDS; ++j) {
 
@@ -533,7 +534,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 
 			if(operand.valid()) {
 
-				const QString temp_operand = QString::fromStdString(to_string(operand));
+				const QString temp_operand = QString::fromStdString(edb::v1::formatter().to_string(operand));
 
 				switch(operand.general_type()) {
 				case edb::Operand::TYPE_REL:

@@ -71,6 +71,7 @@ public:
 	Syntax            syntax;
 	bool              zeros_are_filling;
 	bool              uppercase_disassembly;
+	bool              small_int_as_decimal;
 
 	// directories tab
 	QString           symbol_path;

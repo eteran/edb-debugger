@@ -24,6 +24,7 @@ HEADERS += \
 	ArchTypes.h \
 	BasicBlock.h \
 	BinaryString.h \
+	ByteArray.h \
 	ByteShiftArray.h \
 	CommentServer.h \
 	Configuration.h \
@@ -103,6 +104,7 @@ SOURCES += \
 	ArchProcessor.cpp \
 	BasicBlock.cpp \
 	BinaryString.cpp \
+	ByteArray.cpp \	
 	ByteShiftArray.cpp \
 	CommentServer.cpp \
 	Configuration.cpp \
@@ -120,6 +122,7 @@ SOURCES += \
 	Function.cpp \
 	HexStringValidator.cpp \
 	Instruction.cpp \
+	Formatter.cpp \
 	LineEdit.cpp \
 	MD5.cpp \
 	MemoryRegions.cpp \

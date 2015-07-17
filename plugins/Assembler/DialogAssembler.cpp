@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogAssembler.h"
 #include "IDebugger.h"
+#include "Formatter.h"
 #include "edb.h"
 #include "string_hash.h"
 
@@ -68,7 +69,7 @@ void DialogAssembler::set_address(edb::address_t address) {
 	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 		edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
 		if(inst) {
-			ui->assembly->setEditText(QString::fromStdString(to_string(inst)));
+			ui->assembly->setEditText(QString::fromStdString(edb::v1::formatter().to_string(inst)));
 			instruction_size_ = inst.size();
 		}
 	}

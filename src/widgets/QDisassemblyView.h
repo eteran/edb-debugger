@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IRegion.h"
 #include "Types.h"
+#include "Formatter.h"
 #include <QAbstractScrollArea>
 #include <QAbstractSlider>
 #include <QCache>
@@ -89,7 +90,7 @@ private:
 	edb::address_t following_instructions(edb::address_t current_address, int count);
 	int address_length() const;
 	int auto_line1() const;
-	int draw_instruction(QPainter &painter, const edb::Instruction &inst, bool upper, int y, int line_height, int l2, int l3) const;
+	int draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l2, int l3) const;
 	int get_instruction_size(edb::address_t address, bool *ok) const;
 	int get_instruction_size(edb::address_t address, bool *ok, quint8 *buf, int *size) const;
 	int line1() const;

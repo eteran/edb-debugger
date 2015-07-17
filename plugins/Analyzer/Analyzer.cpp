@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "ISymbolManager.h"
 #include "Instruction.h"
+#include "Formatter.h"
 #include "MemoryRegions.h"
 #include "State.h"
 #include "Util.h"
@@ -526,7 +527,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 
 		for(BasicBlock::const_iterator j = it.value().begin(); j != it.value().end(); ++j) {
 			const instruction_pointer &inst = *j;
-			qDebug("\t%p: %s", reinterpret_cast<void *>(inst->rva()), to_string(*inst).c_str());
+			qDebug("\t%p: %s", reinterpret_cast<void *>(inst->rva()), edb::v1::formatter().to_string(*inst).c_str());
 		}
 	}
 	qDebug() << "----------Basic Blocks----------";

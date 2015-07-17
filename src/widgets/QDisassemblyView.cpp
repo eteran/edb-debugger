@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "ISymbolManager.h"
 #include "Instruction.h"
+#include "Formatter.h"
 #include "SyntaxHighlighter.h"
 #include "Util.h"
 
@@ -514,34 +515,18 @@ void QDisassemblyView::scrollTo(edb::address_t address) {
 	verticalScrollBar()->setValue(address - address_offset_);
 }
 
-struct intel_lower {
-	typedef edisassm::lower_case   case_type;
-	typedef edisassm::syntax_intel syntax_type;
-	typedef edisassm::small_int_hex small_int_type;
-};
-
-struct intel_upper {
-	typedef edisassm::upper_case   case_type;
-	typedef edisassm::syntax_intel syntax_type;
-	typedef edisassm::small_int_hex small_int_type;	
-};
-
 //------------------------------------------------------------------------------
 // Name: draw_instruction
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction &inst, bool upper, int y, int line_height, int l2, int l3) const {
+int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l2, int l3) const {
 
 	const bool is_filling = edb::v1::arch_processor().is_filling(inst);
 	int x                 = font_width_ + font_width_ + l2 + (font_width_ / 2);
 	const int ret         = inst.size();
 	
 	if(inst) {
-		QString opcode = QString::fromStdString(
-			upper ?
-				edisassm::to_string(inst, intel_upper()) :
-				edisassm::to_string(inst, intel_lower())
-		);
+		QString opcode = QString::fromStdString(edb::v1::formatter().to_string(inst));
 
 		//return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
 
@@ -719,7 +704,6 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	QPainter painter(viewport());
 
-	const bool uppercase  = edb::v1::config().uppercase_disassembly;
 	const int line_height = qMax(this->line_height(), breakpoint_icon_.height());
 	int viewable_lines    = viewport()->height() / line_height;
 	int current_line      = verticalScrollBar()->value();
@@ -897,7 +881,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		}
 
 		// draw the disassembly
-		current_line += draw_instruction(painter, inst, uppercase, y, line_height, l2, l3);
+		current_line += draw_instruction(painter, inst, y, line_height, l2, l3);
 		show_addresses_.insert(address);
 		last_address = address;
 

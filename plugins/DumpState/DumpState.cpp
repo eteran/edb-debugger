@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DumpState.h"
 #include "IDebugger.h"
 #include "Instruction.h"
+#include "Formatter.h"
 #include "OptionsPage.h"
 #include "State.h"
 #include "Util.h"
@@ -94,7 +95,7 @@ void DumpState::dump_code(const State &state) {
 		if(const int size = edb::v1::get_instruction_bytes(address, buf)) {
 			edb::Instruction inst(buf, buf + size, address, std::nothrow);
 			if(inst) {
-				std::cout << ((address == ip) ? "> " : "  ") << hex_string(address) << ": " << to_string(inst) << "\n";
+				std::cout << ((address == ip) ? "> " : "  ") << hex_string(address) << ": " << edb::v1::formatter().to_string(inst) << "\n";
 			} else {
 				break;
 			}

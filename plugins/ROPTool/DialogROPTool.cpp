@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "IDebugger.h"
 #include "MemoryRegions.h"
+#include "Formatter.h"
 #include "Util.h"
 #include <QDebug>
 #include <QHeaderView>
@@ -272,9 +273,9 @@ void DialogROPTool::add_gadget(QList<edb::Instruction> instructions) {
 	if(!instructions.isEmpty()) {
 		const edb::Instruction inst1 = instructions.takeFirst();
 
-		QString instruction_string = QString("%1").arg(QString::fromStdString(to_string(inst1)));
+		QString instruction_string = QString("%1").arg(QString::fromStdString(edb::v1::formatter().to_string(inst1)));
 		Q_FOREACH(const edb::Instruction &instruction, instructions) {
-			instruction_string.append(QString("; %1").arg(QString::fromStdString(to_string(instruction))));
+			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().to_string(instruction))));
 		}
 
 		if(!ui->checkUnique->isChecked() || !unique_results_.contains(instruction_string)) {

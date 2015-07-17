@@ -52,6 +52,11 @@ class QString;
 
 struct ExpressionError;
 
+
+namespace edisassm {
+class Formatter;
+}
+
 namespace edb {
 
 struct Prototype;
@@ -195,6 +200,8 @@ EDB_EXPORT void set_status(const QString &message);
 EDB_EXPORT int pointer_size();
 
 EDB_EXPORT QVector<quint8> read_pages(address_t address, size_t page_count);
+
+EDB_EXPORT edisassm::Formatter &formatter();
 
 }
 }

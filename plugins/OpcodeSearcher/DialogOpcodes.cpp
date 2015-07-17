@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "MemoryRegions.h"
 #include "ShiftBuffer.h"
+#include "Formatter.h"
 #include "Util.h"
 #include "edb.h"
 
@@ -163,11 +164,11 @@ void DialogOpcodes::add_result(QList<edb::Instruction> instructions, edb::addres
 
 		QString instruction_string = QString("%1: %2").arg(
 			edb::v1::format_pointer(rva),
-			QString::fromStdString(to_string(inst1)));
+			QString::fromStdString(edb::v1::formatter().to_string(inst1)));
 
 
 		Q_FOREACH(const edb::Instruction &instruction, instructions) {
-			instruction_string.append(QString("; %1").arg(QString::fromStdString(to_string(instruction))));
+			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().to_string(instruction))));
 		}
 
 		QListWidgetItem *const item = new QListWidgetItem(instruction_string);

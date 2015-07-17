@@ -16,15 +16,4 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef OSTYPES_20060625_H_
-#define OSTYPES_20060625_H_
-
-#include <sys/types.h> // for pid_t/uid_t
-
-namespace edb {
-	using   ::pid_t;
-	using   ::uid_t;
-	typedef ::pid_t tid_t;
-}
-
-#endif
+#include "../../../src/edisassm/Formatter.h"
