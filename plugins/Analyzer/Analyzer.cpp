@@ -43,7 +43,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtDebug>
 
 #include <functional>
-#include <boost/function.hpp>
 #include <cstring>
 
 #if QT_VERSION >= 0x050000
@@ -615,7 +614,7 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 
 		const struct {
 			const char             *message;
-			boost::function<void()> function;
+			std::function<void()> function;
 		} analysis_steps[] = {
 			{ "identifying executable headers...",                       std::bind(&Analyzer::ident_header,            this, &region_data) },
 			{ "adding entry points to the list...",                      std::bind(&Analyzer::bonus_entry_point,       this, &region_data) },

@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define EXPRESSION_20070402_H_
 
 #include <QString>
-#include <boost/function.hpp>
+#include <functional>
 
 struct ExpressionError {
 public:
@@ -79,8 +79,8 @@ private:
 template <class T>
 class Expression {
 public:
-	typedef boost::function<T(const QString&, bool*, ExpressionError*)> variable_getter_t;
-	typedef boost::function<T(T, bool*, ExpressionError*)>              memory_reader_t;
+	typedef std::function<T(const QString&, bool*, ExpressionError*)> variable_getter_t;
+	typedef std::function<T(T, bool*, ExpressionError*)>              memory_reader_t;
 
 public:
 	Expression(const QString &s, variable_getter_t vg, memory_reader_t mr);
