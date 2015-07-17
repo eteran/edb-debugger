@@ -22,13 +22,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 
 #include <QString>
-#include <QSharedPointer>
+#include <memory>
 
 class QByteArray;
 
 class IBreakpoint {
 public:
-	typedef QSharedPointer<IBreakpoint> pointer;
+	typedef std::shared_ptr<IBreakpoint> pointer;
 	
 protected:
 	IBreakpoint() : tag(0) {}

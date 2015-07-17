@@ -22,12 +22,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "API.h"
 #include "Types.h"
 #include <QString>
-#include <QSharedPointer>
+#include <memory>
 
 class EDB_EXPORT IDebugEvent {
 public:
-	typedef QSharedPointer<IDebugEvent>       pointer;
-	typedef QSharedPointer<const IDebugEvent> const_pointer;
+	typedef std::shared_ptr<IDebugEvent>       pointer;
+	typedef std::shared_ptr<const IDebugEvent> const_pointer;
 
 public:
 	enum REASON {

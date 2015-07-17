@@ -22,11 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "API.h"
 #include "Types.h"
 #include <QString>
-#include <QSharedPointer>
+#include <memory>
 
 class EDB_EXPORT Symbol {
 public:
-	typedef QSharedPointer<Symbol> pointer;
+	typedef std::shared_ptr<Symbol> pointer;
 
 public:
 	QString        file;

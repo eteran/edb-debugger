@@ -23,12 +23,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IThread.h"
 #include "Types.h"
 #include <QDateTime>
-#include <QSharedPointer>
+#include <memory>
 #include <QString>
 
 class IProcess {
 public:
-	typedef QSharedPointer<IProcess> pointer;
+	typedef std::shared_ptr<IProcess> pointer;
 public:
 	virtual ~IProcess() {}
 

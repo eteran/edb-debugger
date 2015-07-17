@@ -538,11 +538,11 @@ void Debugger::create_data_tab() {
 	const int current = current_tab();
 
 	// duplicate the current region
-	DataViewInfo *const new_data_view = new DataViewInfo((current != -1) ? data_regions_[current]->region : IRegion::pointer());
+	auto new_data_view = std::make_shared<DataViewInfo>((current != -1) ? data_regions_[current]->region : IRegion::pointer());
 
 	QHexView *const hexview = new QHexView;
 
-	new_data_view->view = QSharedPointer<QHexView>(hexview);
+	new_data_view->view = std::shared_ptr<QHexView>(hexview);
 
 	// setup the context menu
 	hexview->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -572,7 +572,7 @@ void Debugger::create_data_tab() {
 	dump_font.fromString(config.data_font);
 	hexview->setFont(dump_font);
 
-	data_regions_.push_back(DataViewInfo::pointer(new_data_view));
+	data_regions_.push_back(new_data_view);
 
 	// create the tab!
 	if(new_data_view->region) {
@@ -664,7 +664,7 @@ edb::reg_t Debugger::get_follow_register(bool *ok) const {
 void Debugger::goto_triggered() {
 	QWidget *const widget = QApplication::focusWidget();
 	if(auto hexview = qobject_cast<QHexView*>(widget)) {
-		if(hexview == stack_view_) {
+		if(hexview == stack_view_.get()) {
 			mnuStackGotoAddress();
 		} else {
 			mnuDumpGotoAddress();
@@ -725,12 +725,12 @@ void Debugger::setup_ui() {
 //------------------------------------------------------------------------------
 void Debugger::setup_stack_view() {
 
-	stack_view_ = QSharedPointer<QHexView>(new QHexView);
-	ui.stackDock->setWidget(stack_view_.data());
+	stack_view_ = std::make_shared<QHexView>();
+	ui.stackDock->setWidget(stack_view_.get());
 
 	// setup the context menu
 	stack_view_->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(stack_view_.data(), SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(mnuStackContextMenu(const QPoint &)));
+	connect(stack_view_.get(), SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(mnuStackContextMenu(const QPoint &)));
 
 	// we placed a view in the designer, so just set it here
 	// this may get transitioned to heap allocated, we'll see
@@ -2016,10 +2016,10 @@ edb::EVENT_STATUS Debugger::handle_event(const IDebugEvent::const_pointer &event
 	// re-enable any breakpoints we previously disabled
 	if(reenable_breakpoint_step_) {
 		reenable_breakpoint_step_->enable();
-		reenable_breakpoint_step_.clear();
+		reenable_breakpoint_step_ = nullptr;
 	} else if(reenable_breakpoint_run_) {
 		reenable_breakpoint_run_->enable();
-		reenable_breakpoint_run_.clear();
+		reenable_breakpoint_run_ = nullptr;
 		status = edb::DEBUG_CONTINUE;
 	}
 
@@ -2040,8 +2040,8 @@ edb::EVENT_STATUS Debugger::debug_event_handler(const IDebugEvent::const_pointer
 // Name: update_tab_caption
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::update_tab_caption(const QSharedPointer<QHexView> &view, edb::address_t start, edb::address_t end) {
-	const int index = ui.tabWidget->indexOf(view.data());
+void Debugger::update_tab_caption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end) {
+	const int index = ui.tabWidget->indexOf(view.get());
 	const QString caption = ui.tabWidget->data(index).toString();
 
 	if(caption.isEmpty()) {
@@ -2059,7 +2059,7 @@ void Debugger::update_data(const DataViewInfo::pointer &v) {
 
 	Q_ASSERT(v);
 
-	const QSharedPointer<QHexView> &view = v->view;
+	const std::shared_ptr<QHexView> &view = v->view;
 
 	Q_ASSERT(view);
 
@@ -2076,7 +2076,7 @@ void Debugger::clear_data(const DataViewInfo::pointer &v) {
 
 	Q_ASSERT(v);
 
-	const QSharedPointer<QHexView> &view = v->view;
+	const std::shared_ptr<QHexView> &view = v->view;
 
 	Q_ASSERT(view);
 
@@ -2427,7 +2427,7 @@ void Debugger::detach_from_process(DETACH_ACTION kill) {
 		else                       edb::v1::debugger_core->detach();
 	}
 
-	last_event_.clear();
+	last_event_ = nullptr;
 
 	cleanup_debugger();
 	update_menu_state(TERMINATED);
@@ -2453,8 +2453,8 @@ void Debugger::set_initial_debugger_state() {
 		analyzer->invalidate_analysis();
 	}
 
-	reenable_breakpoint_run_.clear();
-	reenable_breakpoint_step_.clear();
+	reenable_breakpoint_run_  = nullptr;
+	reenable_breakpoint_step_ = nullptr;
 
 #ifdef Q_OS_UNIX
 	debug_pointer_ = 0;

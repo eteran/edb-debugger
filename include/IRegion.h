@@ -21,11 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 #include "API.h"
-#include <QSharedPointer>
+#include <QString>
+#include <memory>
 
 class EDB_EXPORT IRegion {
 public:
-	typedef QSharedPointer<IRegion> pointer;
+	typedef std::shared_ptr<IRegion> pointer;
 	typedef quint32                 permissions_t;
 
 public:

@@ -446,7 +446,7 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 	// normal event
 
 
-	PlatformEvent *const e = new PlatformEvent;
+	auto e = std::make_shared<PlatformEvent>();
 
 	e->pid_    = pid();
 	e->tid_    = tid;
@@ -460,7 +460,7 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 	threads_[tid].status = status;
 
 	stop_threads();
-	return IDebugEvent::const_pointer(e);
+	return e;
 }
 
 //------------------------------------------------------------------------------

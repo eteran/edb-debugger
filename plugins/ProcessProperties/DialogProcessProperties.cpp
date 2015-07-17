@@ -311,7 +311,7 @@ void DialogProcessProperties::updateGeneralPage() {
 	        const QString exe            = process->executable();
 	        const QString cwd            = process->current_working_directory();
 			
-			QSharedPointer<IProcess> parent = process->parent();
+			std::shared_ptr<IProcess> parent = process->parent();
 	        const edb::pid_t parent_pid  = parent ? parent->pid() : 0;
 	        const QString parent_exe     = parent ? parent->executable() : QString();
 			
@@ -507,7 +507,7 @@ void DialogProcessProperties::on_btnParent_clicked() {
 	if(edb::v1::debugger_core) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 		
-			QSharedPointer<IProcess> parent = process->parent();
+			std::shared_ptr<IProcess> parent = process->parent();
 	        const QString parent_exe     = parent ? parent->executable() : QString();					
 
 			QFileInfo info(parent_exe);

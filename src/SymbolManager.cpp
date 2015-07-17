@@ -182,7 +182,7 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 				char sym_type;
 
 				while(file >> std::hex >> sym_start >> std::hex >> sym_end >> sym_type >> sym_name) {
-					Symbol::pointer sym(new Symbol);
+					auto sym = std::make_shared<Symbol>();
 
 					sym->file           = f;
 					sym->name_no_prefix = QString::fromStdString(sym_name);

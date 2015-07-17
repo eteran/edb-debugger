@@ -23,14 +23,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 
 #include <QVector>
-#include <QSharedPointer>
+#include <memory>
 #include <iterator>
 
-typedef QSharedPointer<edb::Instruction> instruction_pointer;
+typedef std::shared_ptr<edb::Instruction> instruction_pointer;
 
 class EDB_EXPORT BasicBlock {
 public:
-	typedef QSharedPointer<BasicBlock>                   pointer;
+	typedef std::shared_ptr<BasicBlock>                   pointer;
 
 public:
 	typedef size_t                                       size_type;

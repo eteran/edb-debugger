@@ -597,7 +597,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 					((e->protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
 					((e->protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
 
-				regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
+				regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
 			}
 
 do_unload:
@@ -617,7 +617,7 @@ do_unload:
 						((e.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
 						((e.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
 
-					regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
+					regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
 					kvm_read(kd, (u_long)e.next, &e, sizeof(e));
 				}
 			}

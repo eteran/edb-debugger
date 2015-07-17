@@ -822,7 +822,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 					}
 					// get stack addresses, PEB, TEB, etc. and set name accordingly
 
-					regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
+					regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
 				}
 
 				addr += info.RegionSize;

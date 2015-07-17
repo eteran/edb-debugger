@@ -248,7 +248,7 @@ private:
 	void update_disassembly(edb::address_t address, const IRegion::pointer &r);
 	void update_menu_state(GUI_STATE state);
 	void update_stack_view(const State &state);
-	void update_tab_caption(const QSharedPointer<QHexView> &view, edb::address_t start, edb::address_t end);
+	void update_tab_caption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end);
 
 
 private:
@@ -287,7 +287,7 @@ private:
 	QString                                          tty_file_;
 	QVector<DataViewInfo::pointer>                   data_regions_;
 	DataViewInfo                                     stack_view_info_;
-	QSharedPointer<QHexView>                         stack_view_;
+	std::shared_ptr<QHexView>                         stack_view_;
 	QStringListModel *                               list_model_;
 	DialogArguments *                                arguments_dialog_;
 	QTimer *                                         timer_;

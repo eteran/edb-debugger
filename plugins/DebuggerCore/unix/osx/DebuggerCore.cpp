@@ -635,7 +635,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 					((info.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
 					((info.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
 
-				regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
+				regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
 
 				/*
 				printf("%016llx-%016llx %8uK %c%c%c/%c%c%c %11s %6s %10s uwir=%hu sub=%u\n",

@@ -195,13 +195,13 @@ IRegion::pointer process_map_line(const QString &line) {
 							name = items[5];
 						}
 
-						return IRegion::pointer(new PlatformRegion(start, end, base, name, permissions));
+						return std::make_shared<PlatformRegion>(start, end, base, name, permissions);
 					}
 				}
 			}
 		}
 	}
-	return IRegion::pointer();
+	return nullptr;;
 }
 
 }
@@ -507,10 +507,10 @@ IProcess::pointer PlatformProcess::parent() const {
 	struct user_stat user_stat;
 	int n = get_user_stat(pid_, &user_stat);
 	if(n >= 4) {
-		return IProcess::pointer(new PlatformProcess(core_, user_stat.ppid));
+		return std::make_shared<PlatformProcess>(core_, user_stat.ppid);
 	}
 
-	return IProcess::pointer();
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------

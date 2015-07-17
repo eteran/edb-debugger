@@ -464,7 +464,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 			const QString name                       = vm_entry.pve_path;
 			const IRegion::permissions_t permissions = vm_entry.pve_prot;
 
-			regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
+			regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
 			memset(buffer, 0, sizeof(buffer));
 		}
 	}

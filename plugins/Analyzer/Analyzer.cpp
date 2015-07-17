@@ -433,7 +433,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							break;
 						}
 
-						block.push_back(instruction_pointer(new edb::Instruction(inst)));
+						block.push_back(std::make_shared<edb::Instruction>(inst));
 
 						if(is_call(inst)) {
 
