@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 #include <QtDebug>
 #include <algorithm>
-#include <boost/bind.hpp>
+#include <functional>
 
 #ifdef ENABLE_GRAPH
 #include "GraphWidget.h"
@@ -242,14 +242,14 @@ void DialogHeap::detect_pointers() {
 	}
 
 #if QT_VERSION >= 0x040800
-	QtConcurrent::blockingMap(
-		results,
-		boost::bind(&DialogHeap::process_potential_pointer, this, targets, _1));
+	QtConcurrent::blockingMap(results, [this, targets](Result &result) {
+		process_potential_pointer(targets, result);
+	});
+
 #else
-	std::for_each(
-		results.begin(),
-		results.end(),
-		boost::bind(&DialogHeap::process_potential_pointer, this, targets, _1));
+	std::for_each(results.begin(), results.end(), [this, targets](Result &result) {
+		process_potential_pointer(targets, result);
+	});
 #endif
 
 	model_->update();

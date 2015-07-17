@@ -62,7 +62,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtDebug>
 #include <QDesktopServices>
 
-#include <boost/bind.hpp>
 #include <memory>
 #include <cstring>
 
@@ -1141,7 +1140,9 @@ void Debugger::follow_register_in_dump(bool tabbed) {
 void Debugger::mnuStackGotoESP() {
 	State state;
 	edb::v1::debugger_core->get_state(&state);
-	follow_memory(state.stack_pointer(), boost::bind(edb::v1::dump_stack, _1));
+	follow_memory(state.stack_pointer(), [](edb::address_t address) {
+		return edb::v1::dump_stack(address);
+	});
 }
 
 //------------------------------------------------------------------------------
@@ -1151,7 +1152,9 @@ void Debugger::mnuStackGotoESP() {
 void Debugger::mnuStackGotoEBP() {
 	State state;
 	edb::v1::debugger_core->get_state(&state);
-	follow_memory(state.frame_pointer(), boost::bind(edb::v1::dump_stack, _1));
+	follow_memory(state.frame_pointer(), [](edb::address_t address) {
+		return edb::v1::dump_stack(address);
+	});
 }
 
 //------------------------------------------------------------------------------
@@ -1161,7 +1164,9 @@ void Debugger::mnuStackGotoEBP() {
 void Debugger::mnuCPUJumpToEIP() {
 	State state;
 	edb::v1::debugger_core->get_state(&state);
-	follow_memory(state.instruction_pointer(), boost::bind(edb::v1::jump_to_address, _1));
+	follow_memory(state.instruction_pointer(), [](edb::address_t address) {
+		return edb::v1::jump_to_address(address);
+	});
 }
 
 //------------------------------------------------------------------------------
@@ -1172,7 +1177,9 @@ void Debugger::mnuCPUJumpToAddress() {
 	bool ok;
 	const edb::address_t address = get_goto_expression(&ok);
 	if(ok) {
-		follow_memory(address, boost::bind(edb::v1::jump_to_address, _1));
+		follow_memory(address, [](edb::address_t address) {
+			return edb::v1::jump_to_address(address);
+		});
 	}
 }
 
@@ -1184,7 +1191,9 @@ void Debugger::mnuDumpGotoAddress() {
     bool ok;
 	const edb::address_t address = get_goto_expression(&ok);
 	if(ok) {
-		follow_memory(address, boost::bind(edb::v1::dump_data, _1));
+		follow_memory(address, [](edb::address_t address) {
+			return edb::v1::dump_data(address);
+		});
 	}
 }
 
@@ -1196,7 +1205,9 @@ void Debugger::mnuStackGotoAddress() {
     bool ok;
 	const edb::address_t address = get_goto_expression(&ok);
 	if(ok) {
-		follow_memory(address, boost::bind(edb::v1::dump_stack, _1));
+		follow_memory(address, [](edb::address_t address) {
+			return edb::v1::dump_stack(address);
+		});
 	}
 }
 
@@ -1208,7 +1219,9 @@ void Debugger::mnuRegisterFollowInStack() {
 	bool ok;
 	const edb::address_t address = get_follow_register(&ok);
 	if(ok) {
-		follow_memory(address, boost::bind(edb::v1::dump_stack, _1));
+		follow_memory(address, [](edb::address_t address) {
+			return edb::v1::dump_stack(address);
+		});
 	}
 }
 
@@ -1255,7 +1268,9 @@ void Debugger::follow_in_stack(const T &hexview) {
 	bool ok;
 	const edb::address_t address = get_follow_address(hexview, &ok);
 	if(ok) {
-		follow_memory(address, boost::bind(edb::v1::dump_stack, _1));
+		follow_memory(address, [](edb::address_t address) {
+			return edb::v1::dump_stack(address);
+		});
 	}
 }
 
@@ -1268,7 +1283,9 @@ void Debugger::follow_in_dump(const T &hexview) {
 	bool ok;
 	const edb::address_t address = get_follow_address(hexview, &ok);
 	if(ok) {
-		follow_memory(address, boost::bind(edb::v1::dump_data, _1));
+		follow_memory(address, [](edb::address_t address) {
+			return edb::v1::dump_data(address);
+		});
 	}
 }
 
@@ -1281,7 +1298,9 @@ void Debugger::follow_in_cpu(const T &hexview) {
 	bool ok;
 	const edb::address_t address = get_follow_address(hexview, &ok);
 	if(ok) {
-		follow_memory(address, boost::bind(edb::v1::jump_to_address, _1));
+		follow_memory(address, [](edb::address_t address) {
+			return edb::v1::jump_to_address(address);
+		});
 	}
 }
 
@@ -1491,7 +1510,9 @@ void Debugger::mnuCPUFollow() {
 void Debugger::mnuCPUFollowInDump() {
 	if(auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
-		follow_memory(address, boost::bind(edb::v1::dump_data, _1));
+		follow_memory(address, [](edb::address_t address) {
+			return edb::v1::dump_data(address);
+		});
 	}
 }
 
@@ -1502,7 +1523,9 @@ void Debugger::mnuCPUFollowInDump() {
 void Debugger::mnuCPUFollowInStack() {
 	if(auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
-		follow_memory(address, boost::bind(edb::v1::dump_stack, _1));
+		follow_memory(address, [](edb::address_t address) {
+			return edb::v1::dump_stack(address);
+		});
 	}
 }
 
@@ -2292,8 +2315,8 @@ void Debugger::on_action_Kill_triggered() {
 //------------------------------------------------------------------------------
 void Debugger::on_action_Step_Over_Pass_Signal_To_Application_triggered() {
 	step_over(
-		boost::bind(&Debugger::on_action_Run_Pass_Signal_To_Application_triggered, this),
-		boost::bind(&Debugger::on_action_Step_Into_Pass_Signal_To_Application_triggered, this));
+		std::bind(&Debugger::on_action_Run_Pass_Signal_To_Application_triggered, this),
+		std::bind(&Debugger::on_action_Step_Into_Pass_Signal_To_Application_triggered, this));
 }
 
 //------------------------------------------------------------------------------
@@ -2302,8 +2325,8 @@ void Debugger::on_action_Step_Over_Pass_Signal_To_Application_triggered() {
 //------------------------------------------------------------------------------
 void Debugger::on_action_Step_Over_triggered() {
 	step_over(
-		boost::bind(&Debugger::on_action_Run_triggered, this),
-		boost::bind(&Debugger::on_action_Step_Into_triggered, this));
+		std::bind(&Debugger::on_action_Run_triggered, this),
+		std::bind(&Debugger::on_action_Step_Into_triggered, this));
 }
 
 //------------------------------------------------------------------------------
@@ -2325,8 +2348,8 @@ void Debugger::on_actionRun_Until_Return_triggered() {
 	//Step over rather than resume in MODE_STEP so that we can avoid stepping into calls.
 	//TODO: If we are sitting on the call and it has a bp, it steps over for some reason...
 	step_over(
-				boost::bind(&Debugger::on_action_Run_triggered, this),
-				boost::bind(&Debugger::on_action_Step_Into_triggered, this));
+				std::bind(&Debugger::on_action_Run_triggered, this),
+				std::bind(&Debugger::on_action_Step_Into_triggered, this));
 }
 
 //------------------------------------------------------------------------------

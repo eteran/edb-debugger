@@ -42,7 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QToolBar>
 #include <QtDebug>
 
-#include <boost/bind.hpp>
+#include <functional>
 #include <boost/function.hpp>
 #include <cstring>
 
@@ -362,14 +362,13 @@ void Analyzer::set_function_types(FunctionMap *results) {
 
 	// give bonus if we have a symbol for the address
 #if QT_VERSION >= 0x040800 && defined(QT_CONCURRENT_LIB)
-	QtConcurrent::blockingMap(
-		*results,
-		boost::bind(&Analyzer::set_function_types_helper, this, _1));
+	QtConcurrent::blockingMap(*results, [this](Function &function) {
+		set_function_types_helper(function);
+	});
 #else
-	std::for_each(
-		results->begin(),
-		results->end(),
-		boost::bind(&Analyzer::set_function_types_helper, this, _1));
+	std::for_each(results->begin(), results->end(), [this](Function &function) {
+		set_function_types_helper(function);
+	});
 #endif
 }
 
@@ -618,13 +617,13 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			const char             *message;
 			boost::function<void()> function;
 		} analysis_steps[] = {
-			{ "identifying executable headers...",                       boost::bind(&Analyzer::ident_header,            this, &region_data) },
-			{ "adding entry points to the list...",                      boost::bind(&Analyzer::bonus_entry_point,       this, &region_data) },
-			{ "attempting to add 'main' to the list...",                 boost::bind(&Analyzer::bonus_main,              this, &region_data) },
-			{ "attempting to add functions with symbols to the list...", boost::bind(&Analyzer::bonus_symbols,           this, &region_data) },
-			{ "attempting to add marked functions to the list...",       boost::bind(&Analyzer::bonus_marked_functions,  this, &region_data) },
-			{ "attempting to collect functions with fuzzy analysis...",  boost::bind(&Analyzer::collect_fuzzy_functions, this, &region_data) },
-			{ "collecting basic blocks...",                              boost::bind(&Analyzer::collect_functions,       this, &region_data) },
+			{ "identifying executable headers...",                       std::bind(&Analyzer::ident_header,            this, &region_data) },
+			{ "adding entry points to the list...",                      std::bind(&Analyzer::bonus_entry_point,       this, &region_data) },
+			{ "attempting to add 'main' to the list...",                 std::bind(&Analyzer::bonus_main,              this, &region_data) },
+			{ "attempting to add functions with symbols to the list...", std::bind(&Analyzer::bonus_symbols,           this, &region_data) },
+			{ "attempting to add marked functions to the list...",       std::bind(&Analyzer::bonus_marked_functions,  this, &region_data) },
+			{ "attempting to collect functions with fuzzy analysis...",  std::bind(&Analyzer::collect_fuzzy_functions, this, &region_data) },
+			{ "collecting basic blocks...",                              std::bind(&Analyzer::collect_functions,       this, &region_data) },
 		};
 
 		const int total_steps = sizeof(analysis_steps) / sizeof(analysis_steps[0]);
