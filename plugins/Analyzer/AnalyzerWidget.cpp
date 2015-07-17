@@ -70,7 +70,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 			const QSet<edb::address_t> specified_functions = edb::v1::analyzer()->specified_functions();
 
 			const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
-			for(IAnalyzer::FunctionMap::const_iterator it = functions.begin(); it != functions.end(); ++it) {
+			for(auto it = functions.begin(); it != functions.end(); ++it) {
 				const Function &f = it.value();
 
 				const int first_offset = (f.entry_address() - region->start()) * byte_width;

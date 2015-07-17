@@ -175,7 +175,7 @@ void DebuggerCore::detach() {
 		// TODO: do i need to stop each thread first, and wait for them?
 
 		clear_breakpoints();
-		for(threadmap_t::const_iterator it = threads_.begin(); it != threads_.end(); ++it) {
+		for(auto it = threads_.begin(); it != threads_.end(); ++it) {
 			ptrace(PT_DETACH, it.key(), 0, 0);
 		}
 
@@ -204,7 +204,7 @@ void DebuggerCore::kill() {
 //------------------------------------------------------------------------------
 void DebuggerCore::pause() {
 	if(attached()) {
-		for(threadmap_t::const_iterator it = threads_.begin(); it != threads_.end(); ++it) {
+		for(auto it = threads_.begin(); it != threads_.end(); ++it) {
 			::kill(it.key(), SIGSTOP);
 		}
 	}

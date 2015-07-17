@@ -137,7 +137,7 @@ QString CommentServer::comment(QHexView::address_t address, int size) const {
 			edb::address_t value;
 			if(process->read_bytes(address, &value, sizeof(value))) {
 
-				QHash<quint64, QString>::const_iterator it = custom_comments_.find(value);
+				auto it = custom_comments_.find(value);
 				if(it != custom_comments_.end()) {
 					ret = it.value();
 				} else {

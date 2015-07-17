@@ -60,7 +60,7 @@ void DialogPlugins::showEvent(QShowEvent *) {
 
 	plugin_model_->clear();
 
-	for(QHash<QString, QObject *>::iterator it = plugins.begin(); it != plugins.end(); ++it) {
+	for(auto it = plugins.begin(); it != plugins.end(); ++it) {
 
 		const QString filename = it.key();
 		QString plugin_name;

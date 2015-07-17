@@ -91,7 +91,7 @@ void SymbolManager::load_symbol_file(const QString &filename, edb::address_t bas
 // Desc:
 //------------------------------------------------------------------------------
 const Symbol::pointer SymbolManager::find(const QString &name) const {
-	QHash<QString, Symbol::pointer>::const_iterator it = symbols_by_name_.find(name);
+	auto it = symbols_by_name_.find(name);
 	if(it != symbols_by_name_.end()) {
 		return it.value();
 	}
@@ -103,7 +103,7 @@ const Symbol::pointer SymbolManager::find(const QString &name) const {
 // Desc:
 //------------------------------------------------------------------------------
 const Symbol::pointer SymbolManager::find(edb::address_t address) const {
-	QMap<edb::address_t, Symbol::pointer>::const_iterator it = symbols_by_address_.find(address);
+	auto it = symbols_by_address_.find(address);
 	return (it != symbols_by_address_.end()) ? it.value() : Symbol::pointer();
 }
 
@@ -113,7 +113,7 @@ const Symbol::pointer SymbolManager::find(edb::address_t address) const {
 //------------------------------------------------------------------------------
 const Symbol::pointer SymbolManager::find_near_symbol(edb::address_t address) const {
 
-	QMap<edb::address_t, Symbol::pointer>::const_iterator it = symbols_by_address_.lowerBound(address);
+	auto it = symbols_by_address_.lowerBound(address);
 	if(it != symbols_by_address_.end()) {
 
 		// not an exact match, we should backup one
@@ -259,7 +259,7 @@ void SymbolManager::set_label(edb::address_t address, const QString &label) {
 // Desc:
 //------------------------------------------------------------------------------
 QString SymbolManager::find_address_name(edb::address_t address) {
-	QHash<edb::address_t, QString>::const_iterator it = labels_.find(address);
+	auto it = labels_.find(address);
 	if(it != labels_.end()) {
 		return it.value();
 	}

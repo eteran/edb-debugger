@@ -468,7 +468,7 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::stop_threads() {
-	for(threadmap_t::iterator it = threads_.begin(); it != threads_.end(); ++it) {
+	for(auto it = threads_.begin(); it != threads_.end(); ++it) {
 		if(!waited_threads_.contains(it.key())) {
 			const edb::tid_t tid = it.key();
 
@@ -692,7 +692,7 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 			ptrace_continue(tid, code);
 
 			// resume the other threads passing the signal they originally reported had
-			for(threadmap_t::const_iterator it = threads_.begin(); it != threads_.end(); ++it) {
+			for(auto it = threads_.begin(); it != threads_.end(); ++it) {
 				if(waited_threads_.contains(it.key())) {
 					ptrace_continue(it.key(), resume_code(it->status));
 				}

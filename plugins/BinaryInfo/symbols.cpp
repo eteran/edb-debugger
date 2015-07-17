@@ -400,8 +400,8 @@ void process_symbols(const void *p, size_t size, std::ostream &os) {
 	QList<symbol> symbols = collect_symbols<M>(p, size);
 
 	qSort(symbols.begin(), symbols.end());
-	typename QList<symbol>::const_iterator new_end = std::unique(symbols.begin(), symbols.end());
-	for(typename QList<symbol>::const_iterator it = symbols.begin(); it != new_end; ++it) {
+	auto new_end = std::unique(symbols.begin(), symbols.end());
+	for(auto it = symbols.begin(); it != new_end; ++it) {
 		os << qPrintable(it->to_string()) << '\n';
 	}
 }

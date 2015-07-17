@@ -69,7 +69,7 @@ IBreakpoint::pointer DebuggerCoreBase::add_breakpoint(edb::address_t address) {
 //------------------------------------------------------------------------------
 IBreakpoint::pointer DebuggerCoreBase::find_breakpoint(edb::address_t address) {
 	if(attached()) {
-		const BreakpointList::const_iterator it = breakpoints_.find(address);
+		auto it = breakpoints_.find(address);
 		if(it != breakpoints_.end()) {
 			return it.value();
 		}
@@ -89,7 +89,7 @@ void DebuggerCoreBase::remove_breakpoint(edb::address_t address) {
 
 	// TODO(eteran): assert paused
 	if(attached()) {
-		const BreakpointList::iterator it = breakpoints_.find(address);
+		auto it = breakpoints_.find(address);
 		if(it != breakpoints_.end()) {
 			breakpoints_.erase(it);
 		}

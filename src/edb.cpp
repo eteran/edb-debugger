@@ -835,7 +835,7 @@ void reload_symbols() {
 //------------------------------------------------------------------------------
 const Prototype *get_function_info(const QString &function) {
 
-	QHash<QString, Prototype>::const_iterator it = g_FunctionDB.find(function);
+	auto it = g_FunctionDB.find(function);
 	if(it != g_FunctionDB.end()) {
 		return &(it.value());
 	}
@@ -1068,7 +1068,7 @@ QStringList parse_command_line(const QString &cmdline) {
 	int bcount = 0;
 	bool in_quotes = false;
 
-	QString::const_iterator s = cmdline.begin();
+	auto s = cmdline.begin();
 
 	while(s != cmdline.end()) {
 		if(!in_quotes && s->isSpace()) {
@@ -1146,7 +1146,7 @@ QString format_bytes(const QByteArray &x) {
 	if(!x.isEmpty()) {
 		bytes.reserve(x.size() * 4);
 
-		QByteArray::const_iterator it = x.begin();
+		auto it = x.begin();
 
 		char buf[4];
 		qsnprintf(buf, sizeof(buf), "%02x", *it++ & 0xff);

@@ -522,10 +522,10 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 	}
 
 	qDebug() << "----------Basic Blocks----------";
-	for(QHash<edb::address_t, BasicBlock>::iterator it = basic_blocks.begin(); it != basic_blocks.end(); ++it) {
+	for(auto it = basic_blocks.begin(); it != basic_blocks.end(); ++it) {
 		qDebug("%p:", reinterpret_cast<void *>(it.key()));
 
-		for(BasicBlock::const_iterator j = it.value().begin(); j != it.value().end(); ++j) {
+		for(auto j = it.value().begin(); j != it.value().end(); ++j) {
 			const instruction_pointer &inst = *j;
 			qDebug("\t%p: %s", reinterpret_cast<void *>(inst->rva()), edb::v1::formatter().to_string(*inst).c_str());
 		}
@@ -579,7 +579,7 @@ void Analyzer::collect_fuzzy_functions(RegionData *data) {
 		}
 
 		// transfer results to data->fuzzy_functions
-		for(QHash<edb::address_t, int>::const_iterator it = fuzzy_functions.begin(); it != fuzzy_functions.end(); ++it) {
+		for(auto it = fuzzy_functions.begin(); it != fuzzy_functions.end(); ++it) {
 			if(it.value() > MIN_REFCOUNT) {
 				data->fuzzy_functions.insert(it.key());
 			}

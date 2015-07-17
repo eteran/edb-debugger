@@ -200,7 +200,7 @@ void DialogHeap::process_potential_pointer(const QHash<edb::address_t, edb::addr
 			while(block_ptr < block_end) {
 
 				if(process->read_bytes(block_ptr, &pointer, sizeof(pointer))) {
-					QHash<edb::address_t, edb::address_t>::const_iterator it = targets.find(pointer);
+					auto it = targets.find(pointer);
 					if(it != targets.end()) {
 					#if QT_POINTER_SIZE == 4
 						result.data += QString("dword ptr [%1] |").arg(edb::v1::format_pointer(it.key()));
