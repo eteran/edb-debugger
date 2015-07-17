@@ -96,7 +96,7 @@ void RecentFileManager::update() {
 // Desc:
 //------------------------------------------------------------------------------
 void RecentFileManager::item_selected() {
-	if(QAction *const action = qobject_cast<QAction *>(sender())) {
+	if(auto action = qobject_cast<QAction *>(sender())) {
 		const QString s = action->data().toString();
 		emit file_selected(s);
 	}

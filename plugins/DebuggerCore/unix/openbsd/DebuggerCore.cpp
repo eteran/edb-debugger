@@ -366,7 +366,7 @@ void DebuggerCore::get_state(State *state) {
 	Q_ASSERT(state);
 
 	// TODO: assert that we are paused
-	PlatformState *const state_impl = static_cast<PlatformState *>(state->impl_);
+	auto state_impl = static_cast<PlatformState *>(state->impl_);
 
 	if(attached()) {
 		if(ptrace(PT_GETREGS, active_thread(), reinterpret_cast<char*>(&state_impl->regs_), 0) != -1) {
@@ -392,7 +392,7 @@ void DebuggerCore::get_state(State *state) {
 void DebuggerCore::set_state(const State &state) {
 
 	// TODO: assert that we are paused
-	PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_);
+	auto state_impl = static_cast<PlatformState *>(state.impl_);
 
 	if(attached()) {
 		ptrace(PT_SETREGS, active_thread(), reinterpret_cast<char*>(&state_impl->regs_), 0);

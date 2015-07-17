@@ -1130,7 +1130,7 @@ bool QDisassemblyView::event(QEvent *event) {
 		if(event->type() == QEvent::ToolTip) {
 			bool show = false;
 
-			const QHelpEvent *const helpEvent = static_cast<QHelpEvent *>(event);
+			auto helpEvent = static_cast<QHelpEvent *>(event);
 
 			if(helpEvent->x() >= line1() && helpEvent->x() < line2()) {
 

@@ -28,7 +28,7 @@ namespace util {
 inline int percentage(int regions_finished, int regions_total, int bytes_done, int bytes_total) {
 
 	// how much percent does each region account for?
-	const double region_step      = 1.0 / static_cast<double>(regions_total) * 100;
+	const auto region_step      = 1.0 / static_cast<double>(regions_total) * 100;
 
 	// how many regions are done?
 	const double regions_complete = region_step * regions_finished;

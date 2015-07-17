@@ -125,7 +125,7 @@ struct elf64_model {
 
 
 bool is_elf32(const void *ptr) {
-	const elf32_header *const elf32_hdr = reinterpret_cast<const elf32_header *>(ptr);
+	auto elf32_hdr = reinterpret_cast<const elf32_header *>(ptr);
 	if(std::memcmp(elf32_hdr->e_ident, ELFMAG, SELFMAG) == 0) {
 		return elf32_hdr->e_ident[EI_CLASS] == ELFCLASS32;
 	}
@@ -133,7 +133,7 @@ bool is_elf32(const void *ptr) {
 }
 
 bool is_elf64(const void *ptr) {
-	const elf64_header *const elf64_hdr = reinterpret_cast<const elf64_header *>(ptr);
+	auto elf64_hdr = reinterpret_cast<const elf64_header *>(ptr);
 	if(std::memcmp(elf64_hdr->e_ident, ELFMAG, SELFMAG) == 0) {
 		return elf64_hdr->e_ident[EI_CLASS] == ELFCLASS64;
 	}
@@ -207,12 +207,12 @@ QList<typename M::symbol> collect_symbols(const void *p, size_t size) {
 	typedef typename M::elf_relocation_t     elf_relocation_t;
 	typedef typename M::symbol               symbol;
 
-	const uintptr_t base = reinterpret_cast<uintptr_t>(p);
+	const auto base = reinterpret_cast<uintptr_t>(p);
 
-	const elf_header_t *const header                 = static_cast<const elf_header_t*>(p);
-	const elf_section_header_t *const sections_begin = reinterpret_cast<elf_section_header_t*>(base + header->e_shoff);
-	const elf_section_header_t *const sections_end   = sections_begin + header->e_shnum;
-	const char *section_strings                      = reinterpret_cast<const char*>(base + sections_begin[header->e_shstrndx].sh_offset);
+	const auto header                              = static_cast<const elf_header_t*>(p);
+	const auto sections_begin                      = reinterpret_cast<elf_section_header_t*>(base + header->e_shoff);
+	const elf_section_header_t *const sections_end = sections_begin + header->e_shnum;
+	auto section_strings                           = reinterpret_cast<const char*>(base + sections_begin[header->e_shstrndx].sh_offset);
 
 
 	address_t plt_address = 0;
@@ -248,14 +248,14 @@ QList<typename M::symbol> collect_symbols(const void *p, size_t size) {
 		case SHT_RELA:
 			{
 				int n = 0;
-				const elf_relocation_a_t *relocation = reinterpret_cast<elf_relocation_a_t*>(base + section->sh_offset);
+				auto relocation = reinterpret_cast<elf_relocation_a_t*>(base + section->sh_offset);
 
 				for(size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
 
-					const int sym_index              = M::elf_r_sym(relocation[i].r_info);
+					const int sym_index                = M::elf_r_sym(relocation[i].r_info);
 					const elf_section_header_t *linked = &sections_begin[section->sh_link];
-					const elf_symbol_t *symbol_tab     = reinterpret_cast<elf_symbol_t*>(base + linked->sh_offset);
-					const char *string_tab           = reinterpret_cast<const char*>(base + sections_begin[linked->sh_link].sh_offset);
+					auto symbol_tab                    = reinterpret_cast<elf_symbol_t*>(base + linked->sh_offset);
+					auto string_tab                    = reinterpret_cast<const char*>(base + sections_begin[linked->sh_link].sh_offset);
 
 					const address_t symbol_address = base_address + ++n * M::plt_entry_size;
 
@@ -281,14 +281,14 @@ QList<typename M::symbol> collect_symbols(const void *p, size_t size) {
 		case SHT_REL:
 			{
 				int n = 0;
-				const elf_relocation_t *relocation = reinterpret_cast<elf_relocation_t*>(base + section->sh_offset);
+				auto relocation = reinterpret_cast<elf_relocation_t*>(base + section->sh_offset);
 
 				for(size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
 
-					const int sym_index              = M::elf_r_sym(relocation[i].r_info);
+					const int sym_index                = M::elf_r_sym(relocation[i].r_info);
 					const elf_section_header_t *linked = &sections_begin[section->sh_link];
-					const elf_symbol_t *symbol_tab     = reinterpret_cast<elf_symbol_t*>(base + linked->sh_offset);
-					const char *string_tab           = reinterpret_cast<const char*>(base + sections_begin[linked->sh_link].sh_offset);
+					auto symbol_tab                    = reinterpret_cast<elf_symbol_t*>(base + linked->sh_offset);
+					auto string_tab                    = reinterpret_cast<const char*>(base + sections_begin[linked->sh_link].sh_offset);
 
 					const address_t symbol_address = base_address + ++n * M::plt_entry_size;
 
@@ -321,8 +321,8 @@ QList<typename M::symbol> collect_symbols(const void *p, size_t size) {
 		case SHT_SYMTAB:
 		case SHT_DYNSYM:
 			{
-				elf_symbol_t *symbol_tab = reinterpret_cast<elf_symbol_t*>(base + section->sh_offset);
-				const char *string_tab = reinterpret_cast<const char*>(base + sections_begin[section->sh_link].sh_offset);
+				auto symbol_tab = reinterpret_cast<elf_symbol_t*>(base + section->sh_offset);
+				auto string_tab = reinterpret_cast<const char*>(base + sections_begin[section->sh_link].sh_offset);
 
 				for(size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
 
@@ -359,8 +359,8 @@ QList<typename M::symbol> collect_symbols(const void *p, size_t size) {
 		case SHT_SYMTAB:
 		case SHT_DYNSYM:
 			{
-				elf_symbol_t *symbol_tab = reinterpret_cast<elf_symbol_t*>(base + section->sh_offset);
-				const char *string_tab = reinterpret_cast<const char*>(base + sections_begin[section->sh_link].sh_offset);
+				auto symbol_tab = reinterpret_cast<elf_symbol_t*>(base + section->sh_offset);
+				auto string_tab = reinterpret_cast<const char*>(base + sections_begin[section->sh_link].sh_offset);
 
 				for(size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
 
@@ -423,7 +423,7 @@ bool generate_symbols(const QString &filename, std::ostream &os) {
 		const QByteArray md5 = edb::v1::get_file_md5(filename);
 		os << md5.toHex().data() << ' ' << qPrintable(QFileInfo(filename).absoluteFilePath()) << '\n';
 
-		if(const void *const file_ptr = reinterpret_cast<void *>(file.map(0, file.size(), QFile::NoOptions))) {
+		if(auto file_ptr = reinterpret_cast<void *>(file.map(0, file.size(), QFile::NoOptions))) {
 			if(is_elf64(file_ptr)) {
 				process_symbols<elf64_model>(file_ptr, file.size(), os);
 				return true;

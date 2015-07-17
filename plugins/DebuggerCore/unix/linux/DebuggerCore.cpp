@@ -724,7 +724,7 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
 
-	if(PlatformState *const state_impl = static_cast<PlatformState *>(state->impl_)) {
+	if(auto state_impl = static_cast<PlatformState *>(state->impl_)) {
 		if(attached()) {
 			if(ptrace(PTRACE_GETREGS, active_thread(), 0, &state_impl->regs_) != -1) {
 			#if defined(EDB_X86)
@@ -777,7 +777,7 @@ void DebuggerCore::set_state(const State &state) {
 
 	if(attached()) {
 
-		if(PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_)) {
+		if(auto state_impl = static_cast<PlatformState *>(state.impl_)) {
 			ptrace(PTRACE_SETREGS, active_thread(), 0, &state_impl->regs_);
 
 			// debug registers
@@ -977,7 +977,7 @@ QList<Module> DebuggerCore::loaded_modules() const {
 				if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
 					if(dynamic_info.r_map) {
 
-						edb::address_t link_address = reinterpret_cast<edb::address_t>(dynamic_info.r_map);
+						auto link_address = reinterpret_cast<edb::address_t>(dynamic_info.r_map);
 
 						while(link_address) {
 

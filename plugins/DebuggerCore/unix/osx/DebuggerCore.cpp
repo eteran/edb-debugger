@@ -251,7 +251,7 @@ void DebuggerCore::get_state(State *state) {
 	Q_ASSERT(state);
 
 	// TODO: assert that we are paused
-	PlatformState *const state_impl = static_cast<PlatformState *>(state->impl_);
+	auto state_impl = static_cast<PlatformState *>(state->impl_);
 
 	if(attached()) {
 
@@ -370,7 +370,7 @@ void DebuggerCore::get_state(State *state) {
 void DebuggerCore::set_state(const State &state) {
 
 	// TODO: assert that we are paused
-	PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_);
+	auto state_impl = static_cast<PlatformState *>(state.impl_);
 
 	if(attached()) {
 
@@ -540,7 +540,7 @@ QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 	size_t length = 0;
 
 	sysctl(const_cast<int*>(name), (sizeof(name) / sizeof(*name)) - 1, 0, &length, 0, 0);
-	struct kinfo_proc *proc_info = static_cast<struct kinfo_proc*>(malloc(length));
+	auto proc_info = static_cast<struct kinfo_proc*>(malloc(length));
 	sysctl(const_cast<int*>(name), (sizeof(name) / sizeof(*name)) - 1, proc_info, &length, 0, 0);
 
 	size_t count = length / sizeof(struct kinfo_proc);

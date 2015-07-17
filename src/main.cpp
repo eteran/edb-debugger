@@ -58,7 +58,7 @@ void load_plugins(const QString &directory) {
 			if(QObject *const plugin = loader.instance()) {
 
 				// TODO: handle the case where we find more than one core plugin...
-				if(IDebugger *const core_plugin = qobject_cast<IDebugger *>(plugin)) {
+				if(auto core_plugin = qobject_cast<IDebugger *>(plugin)) {
 					if(!edb::v1::debugger_core) {
 						edb::v1::debugger_core = core_plugin;
 					}
@@ -151,7 +151,7 @@ void usage() {
 	std::cerr << " --help                    : display this help and exit" << std::endl;
 
 	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
-		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
+		if(auto p = qobject_cast<IPlugin *>(plugin)) {
 			const QString s = p->extra_arguments();
 			if(!s.isEmpty()) {
 				std::cerr << std::endl;
@@ -198,7 +198,7 @@ int main(int argc, char *argv[]) {
 	// call the init function for each plugin, this is done after
 	// ALL plugins are loaded in case there are inter-plugin dependencies
 	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
-		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
+		if(auto p = qobject_cast<IPlugin *>(plugin)) {
 
 			const IPlugin::ArgumentStatus r = p->parse_argments(args);
 			switch(r) {

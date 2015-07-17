@@ -98,7 +98,7 @@ void DialogFunctions::do_find() {
 			return;
 		}
 
-		QObject *const analyzer_object = dynamic_cast<QObject *>(analyzer);
+		auto analyzer_object = dynamic_cast<QObject *>(analyzer);
 
 		if(analyzer_object) {
 			connect(analyzer_object, SIGNAL(update_progress(int)), ui->progressBar, SLOT(setValue(int)));
@@ -112,7 +112,7 @@ void DialogFunctions::do_find() {
 			const QModelIndex index = filter_model_->mapToSource(selected_item);
 
 			// do the search for this region!
-			if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
+			if(auto region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
 				analyzer->analyze(region);
 

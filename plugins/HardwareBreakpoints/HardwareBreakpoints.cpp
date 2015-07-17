@@ -126,7 +126,7 @@ void HardwareBreakpoints::setup_breakpoints() {
 	// TODO: assert that we are paused
 	
 	
-	if(DialogHWBreakpoints *const p = qobject_cast<DialogHWBreakpoints *>(dialog_)) {
+	if(auto p = qobject_cast<DialogHWBreakpoints *>(dialog_)) {
 
 		const bool enabled =
 			p->ui->chkBP1->isChecked() ||

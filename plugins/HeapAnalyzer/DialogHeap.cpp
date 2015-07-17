@@ -138,7 +138,7 @@ void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
 	// NOTE: remember that if we use a sort filter, we need to map the indexes
 	// to get at the data we need
 
-	if(const Result *const item = static_cast<Result *>(index.internalPointer())) {
+	if(auto item = static_cast<Result *>(index.internalPointer())) {
 		edb::v1::dump_data_range(item->block, item->block + item->size, false);
 	}
 }
@@ -530,9 +530,9 @@ void DialogHeap::on_btnGraph_clicked() {
 		const QModelIndexList sel = selModel->selectedRows();
 		if(sel.size() != 0) {
 			Q_FOREACH(QModelIndex index, sel) {
-				const Result *const item = static_cast<Result *>(index.internalPointer());
-					result_stack.push(item);
-					seen_results.insert(item);
+				auto item = static_cast<Result *>(index.internalPointer());
+				result_stack.push(item);
+				seen_results.insert(item);
 			}
 		}
 

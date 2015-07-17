@@ -601,7 +601,7 @@ void Debugger::finish_plugin_setup() {
 	// call the init function for each plugin, this is done after
 	// ALL plugins are loaded in case there are inter-plugin dependencies
 	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
-		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
+		if(auto p = qobject_cast<IPlugin *>(plugin)) {
 			p->init();
 		}
 	}
@@ -609,7 +609,7 @@ void Debugger::finish_plugin_setup() {
 	// setup the menu for all plugins that which to do so
 	QPointer<DialogOptions> options = qobject_cast<DialogOptions *>(edb::v1::dialog_options());
 	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
-		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
+		if(auto p = qobject_cast<IPlugin *>(plugin)) {
 			if(QMenu *const menu = p->menu(this)) {
 				ui.menu_Plugins->addMenu(menu);
 			}
@@ -664,7 +664,7 @@ edb::reg_t Debugger::get_follow_register(bool *ok) const {
 //------------------------------------------------------------------------------
 void Debugger::goto_triggered() {
 	QWidget *const widget = QApplication::focusWidget();
-	if(QHexView *const hexview = qobject_cast<QHexView*>(widget)) {
+	if(auto hexview = qobject_cast<QHexView*>(widget)) {
 		if(hexview == stack_view_) {
 			mnuStackGotoAddress();
 		} else {
@@ -1478,7 +1478,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUFollow() {
-	if(QAction *const action = qobject_cast<QAction *>(sender())) {
+	if(auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
 		follow_memory(address, edb::v1::jump_to_address);
 	}
@@ -1489,7 +1489,7 @@ void Debugger::mnuCPUFollow() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUFollowInDump() {
-	if(QAction *const action = qobject_cast<QAction *>(sender())) {
+	if(auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
 		follow_memory(address, boost::bind(edb::v1::dump_data, _1));
 	}
@@ -1500,7 +1500,7 @@ void Debugger::mnuCPUFollowInDump() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUFollowInStack() {
-	if(QAction *const action = qobject_cast<QAction *>(sender())) {
+	if(auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
 		follow_memory(address, boost::bind(edb::v1::dump_stack, _1));
 	}
@@ -1556,7 +1556,7 @@ void Debugger::mnuStackContextMenu(const QPoint &pos) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuDumpContextMenu(const QPoint &pos) {
-	QHexView *const s = qobject_cast<QHexView *>(sender());
+	auto s = qobject_cast<QHexView *>(sender());
 
 	Q_ASSERT(s);
 
@@ -1582,7 +1582,7 @@ void Debugger::mnuDumpContextMenu(const QPoint &pos) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuDumpSaveToFile() {
-	QHexView *const s = qobject_cast<QHexView *>(ui.tabWidget->currentWidget());
+	auto s = qobject_cast<QHexView *>(ui.tabWidget->currentWidget());
 
 	Q_ASSERT(s);
 
@@ -2754,7 +2754,7 @@ void Debugger::mnuDumpDeleteTab() {
 template <class F, class T>
 void Debugger::add_plugin_context_menu(const T &menu, const F &f) {
 	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
-		if(IPlugin *const p = qobject_cast<IPlugin *>(plugin)) {
+		if(auto p = qobject_cast<IPlugin *>(plugin)) {
 			const QList<QAction *> acts = (p->*f)();
 			if(!acts.isEmpty()) {
 				menu->addSeparator();

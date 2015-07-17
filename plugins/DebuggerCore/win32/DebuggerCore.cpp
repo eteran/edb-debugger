@@ -159,7 +159,7 @@ namespace {
 		DWORD needed;
 		GetTokenInformation(hToken, TokenOwner, NULL, 0, &needed);
 
-		if(TOKEN_OWNER *owner = static_cast<TOKEN_OWNER *>(malloc(needed))) {
+		if(auto owner = static_cast<TOKEN_OWNER *>(malloc(needed))) {
 			if(GetTokenInformation(hToken, TokenOwner, owner, needed, &needed)) {
 				WCHAR user[MAX_PATH];
 				WCHAR domain[MAX_PATH];
@@ -516,7 +516,7 @@ void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
 	Q_ASSERT(state);
 
-	PlatformState *state_impl = static_cast<PlatformState *>(state->impl_);
+	auto state_impl = static_cast<PlatformState *>(state->impl_);
 
 	if(attached() && state_impl) {
 
@@ -556,7 +556,7 @@ void DebuggerCore::set_state(const State &state) {
 
 	// TODO: assert that we are paused
 
-	PlatformState *state_impl = static_cast<PlatformState *>(state.impl_);
+	auto state_impl = static_cast<PlatformState *>(state.impl_);
 
 	if(attached()) {
 		state_impl->context_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
@@ -797,7 +797,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 	if(pid_ != 0) {
 		if(HANDLE ph = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid_)) {
 			edb::address_t addr = 0;
-			LPVOID last_base    = reinterpret_cast<LPVOID>(-1);
+			auto last_base    = reinterpret_cast<LPVOID>(-1);
 
 			Q_FOREVER {
 				MEMORY_BASIC_INFORMATION info;
@@ -811,10 +811,10 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 
 				if(info.State == MEM_COMMIT) {
 
-					const edb::address_t start = reinterpret_cast<edb::address_t>(info.BaseAddress);
-					const edb::address_t end   = reinterpret_cast<edb::address_t>(info.BaseAddress) + info.RegionSize;
-					const edb::address_t base  = reinterpret_cast<edb::address_t>(info.AllocationBase);
-					const QString name         = QString();
+					const auto start   = reinterpret_cast<edb::address_t>(info.BaseAddress);
+					const auto end     = reinterpret_cast<edb::address_t>(info.BaseAddress) + info.RegionSize;
+					const auto base    = reinterpret_cast<edb::address_t>(info.AllocationBase);
+					const QString name = QString();
 					const IRegion::permissions_t permissions = info.Protect; // let IRegion::pointer handle permissions and modifiers
 
 					if(info.Type == MEM_IMAGE) {

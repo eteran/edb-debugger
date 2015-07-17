@@ -266,7 +266,7 @@ long double PlatformState::fpu_register(int n) const {
 
 	if(sizeof(long double) == 16) {
 		// st_space is an array of 128 bytes, 16 bytes for each of 8 FPU registers
-		const long double *const p = reinterpret_cast<const long double *>(fpregs_.st_space);
+		auto p = reinterpret_cast<const long double *>(fpregs_.st_space);
 		return p[n];
 	}
 	return 0.0;
@@ -440,7 +440,7 @@ quint64 PlatformState::mmx_register(int n) const {
 
 	if(n >= 0 && n <= 7) {
 		// MMX registers are an alias to the lower 64-bits of the FPU regs
-		const uint64_t *const p = reinterpret_cast<const uint64_t *>(fpregs_.st_space);
+		auto p = reinterpret_cast<const uint64_t *>(fpregs_.st_space);
 		return p[n * 2];
 	}
 	
@@ -456,7 +456,7 @@ QByteArray PlatformState::xmm_register(int n) const {
 #if defined(EDB_X86)
 #elif defined(EDB_X86_64)
 	if(n >= 0 && n <= 16) {
-		const uint8_t *const p = reinterpret_cast<const uint8_t *>(fpregs_.xmm_space);
+		auto p = reinterpret_cast<const uint8_t *>(fpregs_.xmm_space);
 		const uint8_t *r = &p[n * 16];
 		QByteArray ret(reinterpret_cast<const char *>(r), 16);
 		// little endian!

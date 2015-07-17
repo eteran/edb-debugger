@@ -80,7 +80,7 @@ void Assembler::show_dialog() {
 	
 	const edb::address_t address = edb::v1::cpu_selected_address();
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
-		if(DialogAssembler *const d = qobject_cast<DialogAssembler *>(dialog_)) {
+		if(auto d = qobject_cast<DialogAssembler *>(dialog_)) {
 			d->set_address(address);
 		}
 		dialog_->show();

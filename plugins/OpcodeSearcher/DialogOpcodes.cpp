@@ -733,7 +733,7 @@ void DialogOpcodes::do_find() {
 
 				const QModelIndex index = filter_model_->mapToSource(selected_item);
 
-				if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
+				if(auto region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
 					edb::address_t start_address     = region->start();
 					edb::address_t address           = region->start();
@@ -757,7 +757,7 @@ void DialogOpcodes::do_find() {
 					while(start_address < end_address) {
 
 						// create a reference to the bsa's data so we can pass it to the testXXXX functions
-						const OpcodeData &opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
+						auto opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
 						run_tests(classtype, opcode, address);
 
 						quint8 byte;
@@ -775,7 +775,7 @@ void DialogOpcodes::do_find() {
 					for(size_t i = 0; i < shift_buffer.size(); ++i) {
 
 						// create a reference to the bsa's data so we can pass it to the testXXXX functions
-						const OpcodeData &opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
+						auto opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
 						run_tests(classtype, opcode, address);
 
 						// we just shift in 0's and hope it doesn't give false positives

@@ -533,13 +533,13 @@ void DialogHeader::on_btnExplore_clicked() {
 		Q_FOREACH(const QModelIndex &selected_item, sel) {
 
 			const QModelIndex index = filter_model_->mapToSource(selected_item);
-			if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
+			if(auto region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
 				if(IBinary *binary_info = edb::v1::get_binary_info(region)) {
 
-					if(ELF32 *const elf32 = dynamic_cast<ELF32 *>(binary_info)) {
+					if(auto elf32 = dynamic_cast<ELF32 *>(binary_info)) {
 
-						const elf32_header *const header = reinterpret_cast<const elf32_header *>(elf32->header());
+						auto header = reinterpret_cast<const elf32_header *>(elf32->header());
 
 						QTreeWidgetItem *root = new QTreeWidgetItem;
 						root->setText(0, tr("ELF32"));
@@ -558,9 +558,9 @@ void DialogHeader::on_btnExplore_clicked() {
 						ui->treeWidget->insertTopLevelItem(0, root);
 					}
 
-					if(ELF64 *const elf64 = dynamic_cast<ELF64 *>(binary_info)) {
+					if(auto elf64 = dynamic_cast<ELF64 *>(binary_info)) {
 
-						const elf64_header *const header = reinterpret_cast<const elf64_header *>(elf64->header());
+						auto header = reinterpret_cast<const elf64_header *>(elf64->header());
 
 						QTreeWidgetItem *root = new QTreeWidgetItem;
 						root->setText(0, tr("ELF64"));
@@ -579,10 +579,10 @@ void DialogHeader::on_btnExplore_clicked() {
 						ui->treeWidget->insertTopLevelItem(0, root);
 					}
 
-					if(PE32 *const pe32 = dynamic_cast<PE32 *>(binary_info)) {
+					if(auto pe32 = dynamic_cast<PE32 *>(binary_info)) {
 						Q_UNUSED(pe32);
 					#if 0
-						const pe32_header *const header = reinterpret_cast<const pe32_header *>(pe32->header());
+						auto header = reinterpret_cast<const pe32_header *>(pe32->header());
 					#endif
 						QTreeWidgetItem *root = new QTreeWidgetItem;
 						root->setText(0, tr("PE32"));

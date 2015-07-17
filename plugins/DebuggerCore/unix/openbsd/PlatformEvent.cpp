@@ -57,7 +57,7 @@ PlatformEvent *PlatformEvent::clone() const {
 IDebugEvent::Message PlatformEvent::error_description() const {
 	Q_ASSERT(is_error());
 
-	const edb::address_t fault_address = reinterpret_cast<edb::address_t>(fault_address_);
+	auto fault_address = reinterpret_cast<edb::address_t>(fault_address_);
 
 	switch(code()) {
 	case SIGSEGV:

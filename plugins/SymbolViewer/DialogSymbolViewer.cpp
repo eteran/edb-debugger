@@ -112,7 +112,7 @@ void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &po
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::mnuFollowInDump() {
-	if(QAction *const action = qobject_cast<QAction *>(sender())) {
+	if(auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
 		edb::v1::dump_data(address, false);
 	}
@@ -123,7 +123,7 @@ void DialogSymbolViewer::mnuFollowInDump() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::mnuFollowInDumpNewTab() {
-	if(QAction *const action = qobject_cast<QAction *>(sender())) {
+	if(auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
 		edb::v1::dump_data(address, true);
 	}
@@ -134,7 +134,7 @@ void DialogSymbolViewer::mnuFollowInDumpNewTab() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::mnuFollowInStack() {
-	if(QAction *const action = qobject_cast<QAction *>(sender())) {
+	if(auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
 		edb::v1::dump_stack(address, false);
 	}
@@ -145,7 +145,7 @@ void DialogSymbolViewer::mnuFollowInStack() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::mnuFollowInCPU() {
-	if(QAction *const action = qobject_cast<QAction *>(sender())) {
+	if(auto action = qobject_cast<QAction *>(sender())) {
 		const edb::address_t address = action->data().toULongLong();
 		edb::v1::jump_to_address(address);
 	}

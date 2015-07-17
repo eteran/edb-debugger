@@ -82,7 +82,7 @@ void GraphNode::draw_label(const textlabel_t *textlabel) {
 // Desc:
 //------------------------------------------------------------------------------
 void GraphNode::make_polygon_helper(node_t *node, QPainterPath &path) const {
-	const polygon_t *const poly = static_cast<polygon_t *>(ND_shape_info(node));
+	auto poly = static_cast<polygon_t *>(ND_shape_info(node));
 
 	if(poly->peripheries != 1) {
 		qWarning("unsupported number of peripheries %d", poly->peripheries);
@@ -105,7 +105,7 @@ void GraphNode::make_polygon_helper(node_t *node, QPainterPath &path) const {
 // Desc:
 //------------------------------------------------------------------------------
 void GraphNode::make_ellipse_helper(node_t *node, QPainterPath &path) const {
-	const polygon_t *const poly = static_cast<polygon_t *>(ND_shape_info(node));
+	auto poly = static_cast<polygon_t *>(ND_shape_info(node));
 
 	if(poly->peripheries != 1) {
 		qWarning("unsupported number of peripheries %d", poly->peripheries);

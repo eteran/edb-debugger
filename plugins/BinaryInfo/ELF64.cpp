@@ -128,7 +128,7 @@ edb::address_t ELF64::debug_pointer() {
 						try {
 							QVector<quint8> buf(section_header.p_memsz);
 							if(process->read_bytes(section_header.p_vaddr, &buf[0], section_header.p_memsz)) {
-								const elf64_dyn *dynamic = reinterpret_cast<elf64_dyn *>(&buf[0]);
+								auto dynamic = reinterpret_cast<elf64_dyn *>(&buf[0]);
 								while(dynamic->d_tag != DT_NULL) {
 									if(dynamic->d_tag == DT_DEBUG) {
 										return dynamic->d_un.d_val;
@@ -168,7 +168,7 @@ edb::address_t ELF64::calculate_main() {
 					// beginning of a call preceeded by a 64-bit mov and followed by a hlt
 					if(ba[0] == 0x48 && ba[1] == 0xc7 && ba[7] == 0xe8 && ba[12] == 0xf4) {
 						// Seems that this 64-bit mov still has a 32-bit immediate
-						const edb::address_t address = *reinterpret_cast<const edb::address_t *>(ba.data() + 3) & 0xffffffff;
+						auto address = *reinterpret_cast<const edb::address_t *>(ba.data() + 3) & 0xffffffff;
 						// TODO: make sure that this address resides in an executable region
 						qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
 						return address;

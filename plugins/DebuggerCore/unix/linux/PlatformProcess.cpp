@@ -232,9 +232,10 @@ bool PlatformProcess::read_pages(edb::address_t address, void *buf, std::size_t 
 	Q_ASSERT(buf);
 
 	if((address & (core_->page_size() - 1)) == 0) {
+	
 		const edb::address_t orig_address = address;
-		long *ptr                         = reinterpret_cast<long *>(buf);
-		quint8 *const orig_ptr            = reinterpret_cast<quint8 *>(buf);
+		auto ptr                          = reinterpret_cast<long *>(buf);
+		auto orig_ptr                     = reinterpret_cast<quint8 *>(buf);
 
 		const edb::address_t end_address  = orig_address + core_->page_size() * count;
 
@@ -274,7 +275,7 @@ bool PlatformProcess::read_bytes(edb::address_t address, void *buf, std::size_t 
 
 	if(len != 0) {
 		bool ok;
-		quint8 *p = reinterpret_cast<quint8 *>(buf);
+		auto p = reinterpret_cast<quint8 *>(buf);
 		quint8 ch = read_byte(address, &ok);
 
 		while(ok && len) {
@@ -305,7 +306,7 @@ bool PlatformProcess::write_bytes(edb::address_t address, const void *buf, std::
 
 	bool ok = false;
 
-	const quint8 *p = reinterpret_cast<const quint8 *>(buf);
+	auto p = reinterpret_cast<const quint8 *>(buf);
 
 	while(len--) {
 		write_byte(address++, *p++, &ok);
