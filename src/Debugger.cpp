@@ -540,13 +540,13 @@ void Debugger::create_data_tab() {
 	// duplicate the current region
 	auto new_data_view = std::make_shared<DataViewInfo>((current != -1) ? data_regions_[current]->region : IRegion::pointer());
 
-	QHexView *const hexview = new QHexView;
+	auto hexview = std::make_shared<QHexView>();
 
-	new_data_view->view = std::shared_ptr<QHexView>(hexview);
+	new_data_view->view = hexview;
 
 	// setup the context menu
 	hexview->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(hexview, SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(mnuDumpContextMenu(const QPoint &)));
+	connect(hexview.get(), SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(mnuDumpContextMenu(const QPoint &)));
 
 	// show the initial data for this new view
 	if(new_data_view->region) {
@@ -576,11 +576,11 @@ void Debugger::create_data_tab() {
 
 	// create the tab!
 	if(new_data_view->region) {
-		ui.tabWidget->addTab(hexview, tr("%1-%2").arg(
+		ui.tabWidget->addTab(hexview.get(), tr("%1-%2").arg(
 			edb::v1::format_pointer(new_data_view->region->start()),
 			edb::v1::format_pointer(new_data_view->region->end())));
 	} else {
-		ui.tabWidget->addTab(hexview, tr("%1-%2").arg(
+		ui.tabWidget->addTab(hexview.get(), tr("%1-%2").arg(
 			edb::v1::format_pointer(0),
 			edb::v1::format_pointer(0)));
 	}
