@@ -116,7 +116,7 @@ void DialogStrings::do_find() {
 				int string_length = 0;
 				bool ok = edb::v1::get_ascii_string_at_address(start_address, str, min_string_length, 256, string_length);
 				if(ok) {
-					QListWidgetItem *const item = new QListWidgetItem(QString("%1: [ASCII] %2").arg(edb::v1::format_pointer(start_address)).arg(str));
+					auto item = new QListWidgetItem(QString("%1: [ASCII] %2").arg(edb::v1::format_pointer(start_address)).arg(str));
 					item->setData(Qt::UserRole, start_address);
 					ui->listWidget->addItem(item);
 				} else {
@@ -125,7 +125,7 @@ void DialogStrings::do_find() {
 						string_length = 0;
 						ok = edb::v1::get_utf16_string_at_address(start_address, str, min_string_length, 256, string_length);
 						if(ok) {
-							QListWidgetItem *const item = new QListWidgetItem(QString("%1: [UTF16] %2").arg(edb::v1::format_pointer(start_address)).arg(str));
+							auto item = new QListWidgetItem(QString("%1: [UTF16] %2").arg(edb::v1::format_pointer(start_address)).arg(str));
 							item->setData(Qt::UserRole, start_address);
 							ui->listWidget->addItem(item);
 						}

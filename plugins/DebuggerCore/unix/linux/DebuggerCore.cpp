@@ -411,7 +411,7 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 		// if this wasn't, then we should silently
 		// procceed.
 		if(!threads_.empty()) {
-			return IDebugEvent::const_pointer();
+			return nullptr;
 		}
 	}
 
@@ -440,7 +440,7 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 		}
 
 		ptrace_continue(tid, 0);
-		return IDebugEvent::const_pointer();
+		return nullptr;
 	}
 
 	// normal event
@@ -505,7 +505,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 			}
 		}
 	}
-	return IDebugEvent::const_pointer();
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------

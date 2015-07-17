@@ -470,7 +470,7 @@ void DialogProcessProperties::updateHandles() {
 				ui->tableHandles->insertRow(row);
 
 
-				QTableWidgetItem *const itemFD = new QTableWidgetItem;
+				auto itemFD = new QTableWidgetItem;
 				itemFD->setData(Qt::DisplayRole, info.fileName().toUInt());
 
 				ui->tableHandles->setItem(row, 0, new QTableWidgetItem(type));
@@ -551,7 +551,7 @@ void DialogProcessProperties::on_btnRefreshHandles_clicked() {
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnStrings_clicked() {
 
-	static QDialog *dialog = new DialogStrings(edb::v1::debugger_ui);
+	static auto dialog = new DialogStrings(edb::v1::debugger_ui);
 	dialog->show();
 }
 

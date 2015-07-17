@@ -72,7 +72,7 @@ enum RegisterIndex {
 //------------------------------------------------------------------------------
 QTreeWidgetItem *create_register_item(QTreeWidgetItem *parent, const QString &name) {
 
-	QTreeWidgetItem *const item = new QTreeWidgetItem(parent);
+	auto item = new QTreeWidgetItem(parent);
 	item->setData(0, Qt::UserRole, name);
 	return item;
 }

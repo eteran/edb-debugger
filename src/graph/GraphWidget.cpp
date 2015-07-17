@@ -263,7 +263,7 @@ void GraphWidget::render_edge(edge_t *edge) {
 			const bezier &bz = spl->list[i];
 			const QColor color(aggetToQColor(edge, "color", Qt::black));
 
-			GraphEdge *const item = new GraphEdge(this, bz, color);
+			auto item = new GraphEdge(this, bz, color);
 
 			QPen pen(color);
 			pen.setStyle(aggetToQPenStyle(edge, "style", Qt::SolidLine));
@@ -287,7 +287,7 @@ void GraphWidget::render_node(graph_t *graph, node_t *node) {
 
 	if(!node_styles.contains("invisible")) {
 
-		GraphNode *const item = new GraphNode(this, node);
+		auto item = new GraphNode(this, node);
 		item->setZValue(1.0);
 #ifdef ND_coord_i
 		item->setPos(gToQ(ND_coord_i(node)));

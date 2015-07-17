@@ -119,7 +119,7 @@ void DialogBacktrace::populate_table() {
 
 			//Turn the address into a string prefixed with "0x"
 			int base = 16;
-			QTableWidgetItem *item = new QTableWidgetItem;
+			auto item = new QTableWidgetItem;
 			item->setText(QString("0x") + QString::number(stack_entry.at(j), base));
 
 			//Remove all flags (namely Edit), then put the flags that we want.

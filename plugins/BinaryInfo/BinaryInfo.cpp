@@ -99,7 +99,7 @@ QMenu *BinaryInfo::menu(QWidget *parent) {
 // Desc:
 //------------------------------------------------------------------------------
 void BinaryInfo::explore_header() {
-	static QDialog *dialog = new DialogHeader(edb::v1::debugger_ui);
+	static auto dialog = new DialogHeader(edb::v1::debugger_ui);
 	dialog->show();
 }
 

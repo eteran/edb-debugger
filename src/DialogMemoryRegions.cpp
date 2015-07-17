@@ -73,7 +73,7 @@ void DialogMemoryRegions::showEvent(QShowEvent *) {
 void DialogMemoryRegions::on_regions_table_customContextMenuRequested(const QPoint &pos) {
 
 	QMenu menu;
-	QMenu *const access_menu = new QMenu(tr("Set Access"), this);
+	auto access_menu = new QMenu(tr("Set Access"), this);
 	access_menu->addAction(tr("No Access"), this, SLOT(set_access_none()));   // ---
 	access_menu->addAction(tr("Read Only"), this, SLOT(set_access_r()));      // r--
 	access_menu->addAction(tr("Write Only"), this, SLOT(set_access_w()));     // -w-

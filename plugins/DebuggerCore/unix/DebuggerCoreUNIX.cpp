@@ -196,14 +196,6 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 }
 
 
-
-
-
-
-
-
-
-
 //------------------------------------------------------------------------------
 // Name: execute_process
 // Desc:
@@ -213,7 +205,7 @@ void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, 
 	if(::chdir(qPrintable(cwd)) == 0) {
 
 		// allocate space for all the arguments
-		char **const argv_pointers = new char *[args.count() + 2];
+		auto argv_pointers = new char *[args.count() + 2];
 
 		char **p = argv_pointers;
 

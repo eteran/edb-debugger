@@ -171,7 +171,7 @@ void DialogOpcodes::add_result(QList<edb::Instruction> instructions, edb::addres
 			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().to_string(instruction))));
 		}
 
-		QListWidgetItem *const item = new QListWidgetItem(instruction_string);
+		auto item = new QListWidgetItem(instruction_string);
 
 		item->setData(Qt::UserRole, rva);
 		ui->listWidget->addItem(item);

@@ -97,7 +97,7 @@ void DialogReferences::do_find() {
 						memcpy(&test_address, p, sizeof(edb::address_t));
 
 						if(test_address == address) {
-							QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
+							auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 							item->setData(TypeRole, 'D');
 							item->setData(AddressRole, addr);
 							ui->listWidget->addItem(item);
@@ -112,7 +112,7 @@ void DialogReferences::do_find() {
 							case edb::Instruction::OP_JCC:
 								if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
 									if(inst.operands()[0].relative_target() == address) {
-										QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
+										auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 										item->setData(TypeRole, 'C');
 										item->setData(AddressRole, addr);
 										ui->listWidget->addItem(item);
@@ -125,7 +125,7 @@ void DialogReferences::do_find() {
 
 								if(inst.operands()[0].general_type() == edb::Operand::TYPE_EXPRESSION) {
 									if(inst.operands()[1].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[1].immediate()) == address) {
-										QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
+										auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 										item->setData(TypeRole, 'C');
 										item->setData(AddressRole, addr);
 										ui->listWidget->addItem(item);
@@ -138,7 +138,7 @@ void DialogReferences::do_find() {
 								Q_ASSERT(inst.operand_count() == 1);
 
 								if(inst.operands()[0].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[0].immediate()) == address) {
-									QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
+									auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 									item->setData(TypeRole, 'C');
 									item->setData(AddressRole, addr);
 									ui->listWidget->addItem(item);

@@ -51,7 +51,7 @@ QMenu *Bookmarks::menu(QWidget *parent) {
 
 			// make the dock widget and _name_ it, it is important to name it so
 			// that it's state is saved in the GUI info
-			QDockWidget *const dock_widget = new QDockWidget(tr("Bookmarks"), main_window);
+			auto dock_widget = new QDockWidget(tr("Bookmarks"), main_window);
 			dock_widget->setObjectName(QString::fromUtf8("Bookmarks"));
 			dock_widget->setWidget(bookmark_widget_);
 
@@ -66,7 +66,7 @@ QMenu *Bookmarks::menu(QWidget *parent) {
 
 			for(int i = 0; i < 10; ++i) {
 				// create an action and attach it to the signal mapper
-				QShortcut *const action = new QShortcut(QKeySequence(tr("Ctrl+%1").arg(i)), main_window);
+				auto action = new QShortcut(QKeySequence(tr("Ctrl+%1").arg(i)), main_window);
 				signal_mapper_->setMapping(action, (i == 0) ? 9 : (i - 1));
 				connect(action, SIGNAL(activated()), signal_mapper_, SLOT(map()));
 			}
@@ -87,7 +87,7 @@ QList<QAction *> Bookmarks::cpu_context_menu() {
 
 	QList<QAction *> ret;
 
-	QAction *const action_bookmark = new QAction(tr("Add &Bookmark"), this);
+	auto action_bookmark = new QAction(tr("Add &Bookmark"), this);
 	connect(action_bookmark, SIGNAL(triggered()), this, SLOT(add_bookmark_menu()));
 	ret << action_bookmark;
 

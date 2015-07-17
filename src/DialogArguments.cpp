@@ -42,7 +42,7 @@ DialogArguments::~DialogArguments() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogArguments::on_btnAdd_clicked() {
-	QListWidgetItem *p = new QListWidgetItem(tr("New Argument"), ui->listWidget);
+	auto p = new QListWidgetItem(tr("New Argument"), ui->listWidget);
 	p->setFlags(p->flags() | Qt::ItemIsEditable);
 }
 

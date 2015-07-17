@@ -121,7 +121,7 @@ QMenu *Analyzer::menu(QWidget *parent) {
 
 			// make the toolbar widget and _name_ it, it is important to name it so
 			// that it's state is saved in the GUI info
-			QToolBar *const toolbar = new QToolBar(tr("Region Analysis"), main_window);
+			auto toolbar = new QToolBar(tr("Region Analysis"), main_window);
 			toolbar->setAllowedAreas(Qt::TopToolBarArea | Qt::BottomToolBarArea);
 			toolbar->setObjectName(QString::fromUtf8("Region Analysis"));
 			toolbar->addWidget(analyzer_widget_);
@@ -150,7 +150,7 @@ void Analyzer::private_init() {
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::show_specified() {
-	static QDialog *dialog = new SpecifiedFunctions(edb::v1::debugger_ui);
+	static auto dialog = new SpecifiedFunctions(edb::v1::debugger_ui);
 	dialog->show();
 }
 
@@ -238,10 +238,10 @@ QList<QAction *> Analyzer::cpu_context_menu() {
 
 	QList<QAction *> ret;
 
-	QAction *const action_find                = new QAction(tr("Analyze Here"), this);
-	QAction *const action_goto_function_start = new QAction(tr("Goto Function Start"), this);
-	QAction *const action_goto_function_end   = new QAction(tr("Goto Function End"), this);
-	QAction *const action_mark_function_start = new QAction(tr("Mark As Function Start"), this);
+	auto action_find                = new QAction(tr("Analyze Here"), this);
+	auto action_goto_function_start = new QAction(tr("Goto Function Start"), this);
+	auto action_goto_function_end   = new QAction(tr("Goto Function End"), this);
+	auto action_mark_function_start = new QAction(tr("Mark As Function Start"), this);
 
 	connect(action_find, SIGNAL(triggered()), this, SLOT(do_view_analysis()));
 	connect(action_goto_function_start, SIGNAL(triggered()), this, SLOT(goto_function_start()));

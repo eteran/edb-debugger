@@ -51,7 +51,7 @@ QList<QAction *> Assembler::cpu_context_menu() {
 
 	QList<QAction *> ret;
 
-	QAction *const action_assemble = new QAction(tr("Assemble"), this);
+	auto action_assemble = new QAction(tr("Assemble"), this);
 
 	connect(action_assemble, SIGNAL(triggered()), this, SLOT(show_dialog()));
 	ret << action_assemble;

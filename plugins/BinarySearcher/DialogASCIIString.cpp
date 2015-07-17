@@ -83,7 +83,7 @@ void DialogASCIIString::do_find() {
 						if(process->read_bytes(stack_ptr, &value, sizeof(edb::address_t))) {
 							if(process->read_bytes(value, &chars[0], sz)) {
 								if(std::memcmp(&chars[0], b.constData(), sz) == 0) {
-									QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(stack_ptr));
+									auto item = new QListWidgetItem(edb::v1::format_pointer(stack_ptr));
 									item->setData(Qt::UserRole, stack_ptr);
 									ui->listWidget->addItem(item);
 								}

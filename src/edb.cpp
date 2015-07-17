@@ -474,7 +474,7 @@ bool get_value_from_user(reg_t &value) {
 // Desc:
 //------------------------------------------------------------------------------
 bool get_value_from_user(reg_t &value, const QString &title) {
-	static DialogInputValue *const dlg = new DialogInputValue(debugger_ui);
+	static auto dlg = new DialogInputValue(debugger_ui);
 	bool ret = false;
 
 	dlg->setWindowTitle(title);
@@ -500,7 +500,7 @@ bool get_binary_string_from_user(QByteArray &value, const QString &title) {
 // Desc:
 //------------------------------------------------------------------------------
 bool get_binary_string_from_user(QByteArray &value, const QString &title, int max_length) {
-	static DialogInputBinaryString *const dlg = new DialogInputBinaryString(debugger_ui);
+	static auto dlg = new DialogInputBinaryString(debugger_ui);
 
 	bool ret = false;
 

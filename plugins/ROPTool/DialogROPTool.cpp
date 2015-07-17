@@ -282,8 +282,7 @@ void DialogROPTool::add_gadget(QList<edb::Instruction> instructions) {
 			unique_results_.insert(instruction_string);
 
 			// found a gadget
-			QStandardItem *const item = new QStandardItem(
-				QString("%1: %2").arg(edb::v1::format_pointer(inst1.rva()), instruction_string));
+			auto item = new QStandardItem(QString("%1: %2").arg(edb::v1::format_pointer(inst1.rva()), instruction_string));
 
 			item->setData(static_cast<qulonglong>(inst1.rva()), Qt::UserRole);
 			

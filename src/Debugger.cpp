@@ -1562,7 +1562,7 @@ void Debugger::mnuStackContextMenu(const QPoint &pos) {
 
 	// lockable stack feature
 	menu->addSeparator();
-	QAction *const action = new QAction(tr("&Lock Stack"), this);
+	auto action = new QAction(tr("&Lock Stack"), this);
     action->setCheckable(true);
     action->setChecked(stack_view_locked_);
 	menu->addAction(action);
@@ -2792,7 +2792,7 @@ void Debugger::add_plugin_context_menu(const T &menu, const F &f) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_Plugins_triggered() {
-	static QDialog *const dlg = new DialogPlugins(this);
+	static auto dlg = new DialogPlugins(this);
 	dlg->show();
 }
 

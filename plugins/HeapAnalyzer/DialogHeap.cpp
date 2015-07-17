@@ -577,7 +577,7 @@ void DialogHeap::on_btnGraph_clicked() {
 		qDebug("[Heap Analyzer] Done Processing Edges");
 	} while(0);
 
-	GraphWidget *graph = new GraphWidget(gvc, g, "dot");
+	auto graph = new GraphWidget(gvc, g, "dot");
 	graph->show();
 
 	gvFreeLayout(gvc, g);

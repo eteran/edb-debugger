@@ -78,7 +78,7 @@ void RegisterListWidget::mouseDoubleClickEvent(QMouseEvent *event) {
 // Desc:
 //------------------------------------------------------------------------------
 QTreeWidgetItem *RegisterListWidget::addCategory(const QString &name) {
-	QTreeWidgetItem *const cat = new QTreeWidgetItem(this);
+	auto cat = new QTreeWidgetItem(this);
 	cat->setText(0, name);
 	setItemExpanded(cat, true);
 	return cat;

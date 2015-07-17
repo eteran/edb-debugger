@@ -95,7 +95,7 @@ void DialogBinaryString::do_find() {
 						const edb::address_t align = 1 << (ui->cmbAlignment->currentIndex() + 1);
 
 						if(!ui->chkAlignment->isChecked() || (addr % align) == 0) {
-							QListWidgetItem *item = new QListWidgetItem(edb::v1::format_pointer(addr));
+							auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 							item->setData(Qt::UserRole, addr);
 							ui->listWidget->addItem(item);
 						}

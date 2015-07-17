@@ -322,14 +322,14 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 
 			if(propagate) {
 				// normal event
-				PlatformEvent *const e = new PlatformEvent;
+				auto e = std::make_shared<PlatformEvent>();
 				e->event = de;
-				return IDebugEvent::const_pointer(e);
+				return e;
 			}
 			resume(edb::DEBUG_EXCEPTION_NOT_HANDLED);
 		}
 	}
-	return IDebugEvent::const_pointer();
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -610,7 +610,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 	}
 
 	// CreateProcessW wants a writable copy of the command line :<
-	wchar_t* command_path = new wchar_t[command_str.length() + sizeof(wchar_t)];
+	auto command_path = new wchar_t[command_str.length() + sizeof(wchar_t)];
     wcscpy_s(command_path, command_str.length() + 1, command_str.utf16());
 
 	if(CreateProcessW(

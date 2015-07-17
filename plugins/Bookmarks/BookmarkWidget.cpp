@@ -114,7 +114,7 @@ void BookmarkWidget::on_btnClear_clicked() {
 //------------------------------------------------------------------------------
 void BookmarkWidget::add_address(edb::address_t address) {
 	if(!entries_.contains(address)) {
-		QTableWidgetItem *const new_item = new QTableWidgetItem(edb::v1::format_pointer(address));
+		auto new_item = new QTableWidgetItem(edb::v1::format_pointer(address));
 		new_item->setData(Qt::UserRole, address);
 		const int row = ui->tableWidget->rowCount();
 		ui->tableWidget->setRowCount(row + 1);

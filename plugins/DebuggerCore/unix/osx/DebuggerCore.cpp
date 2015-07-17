@@ -101,18 +101,18 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 		if(!timeout) {
 			if(tid > 0) {
 				// normal event
-				PlatformEvent *const e = new PlatformEvent;
+				auto e = std::make_shared<PlatformEvent>();
 				e->pid    = pid();
 				e->tid    = tid;
 				e->status = status;
 
 				active_thread_       = tid;
 				threads_[tid].status = status;
-				return IDebugEvent::const_pointer(e);
+				return e;
 			}
 		}
 	}
-	return IDebugEvent::const_pointer();
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
