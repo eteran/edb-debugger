@@ -56,7 +56,11 @@ public:
 	
 private:
 	struct user_regs_struct   regs_;
+#if defined(EDB_X86)
+	struct user_fpxregs_struct fpregs_;
+#elif defined(EDB_X86_64)
 	struct user_fpregs_struct fpregs_;
+#endif
 	edb::reg_t                dr_[8];
 #if defined(EDB_X86)
 	edb::address_t            fs_base;
