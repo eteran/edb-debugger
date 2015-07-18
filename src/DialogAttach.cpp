@@ -81,7 +81,7 @@ void DialogAttach::update_list() {
 		const edb::uid_t user_id = getuid();
 		const bool filterUID = ui->filter_uid->isChecked();
 
-		Q_FOREACH(const ProcessInfo &process_info, procs) {
+		for(const ProcessInfo &process_info: procs) {
 			if(!filterUID || process_info.uid == user_id) {
 				process_model_->addProcess(process_info);
 			}

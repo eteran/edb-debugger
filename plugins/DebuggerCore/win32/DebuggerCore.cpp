@@ -363,7 +363,7 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 		memset(buf, 0xff, len);
 		SIZE_T bytes_read = 0;
         if(ReadProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_read)) {
-			Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
+			for(const IBreakpoint::pointer &bp: breakpoints_) {
 
 				if(bp->address() >= address && bp->address() < address + bytes_read) {
 					reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_byte();
@@ -603,7 +603,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 	// Set up command line
 	QString command_str = '\"' + QFileInfo(path).canonicalPath() + '\"'; // argv[0] = full path (explorer style)
 	if(!args.isEmpty()) {
-		Q_FOREACH(QByteArray arg, args) {
+		for(QByteArray arg: args) {
 			command_str += " ";
 			command_str += arg;
 		}

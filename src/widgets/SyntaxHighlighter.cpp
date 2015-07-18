@@ -250,7 +250,7 @@ void SyntaxHighlighter::create_rules() {
 // Desc:
 //------------------------------------------------------------------------------
 void SyntaxHighlighter::highlightBlock(const QString &text) {
-	Q_FOREACH(const HighlightingRule &rule, rules_) {
+	for(const HighlightingRule &rule: rules_) {
 		int index = rule.pattern.indexIn(text);
 		while(index >= 0) {
 			const int length = rule.pattern.matchedLength();

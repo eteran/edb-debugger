@@ -100,11 +100,11 @@ void DialogStrings::do_find() {
 			tr("You must select a region which is to be scanned for strings."));
 	}
 
-	Q_FOREACH(const QModelIndex &selected_item, sel) {
+	for(const QModelIndex &selected_item: sel) {
 
 		const QModelIndex index = filter_model_->mapToSource(selected_item);
 
-		if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
+		if(auto region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
 			edb::address_t start_address     = region->start();
 			const edb::address_t end_address = region->end();

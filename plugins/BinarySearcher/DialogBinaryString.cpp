@@ -66,7 +66,7 @@ void DialogBinaryString::do_find() {
 		const edb::address_t page_size = edb::v1::debugger_core->page_size();
 
 		int i = 0;
-		Q_FOREACH(const IRegion::pointer &region, regions) {
+		for(const IRegion::pointer &region: regions) {
 
 			bsa.clear();
 

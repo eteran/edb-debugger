@@ -101,7 +101,7 @@ QList<QAction *> Bookmarks::cpu_context_menu() {
 QVariantList Bookmarks::addresses() const {
 	QVariantList r;
 	QList<edb::address_t> a = bookmark_widget_->entries();
-	Q_FOREACH(edb::address_t x, a) {
+	for(edb::address_t x: a) {
 		r.push_back(x);
 	}
 	return r;

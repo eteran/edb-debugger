@@ -167,7 +167,7 @@ void DialogOpcodes::add_result(QList<edb::Instruction> instructions, edb::addres
 			QString::fromStdString(edb::v1::formatter().to_string(inst1)));
 
 
-		Q_FOREACH(const edb::Instruction &instruction, instructions) {
+		for(const edb::Instruction &instruction: instructions) {
 			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().to_string(instruction))));
 		}
 
@@ -729,7 +729,7 @@ void DialogOpcodes::do_find() {
 	} else {
 
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			Q_FOREACH(const QModelIndex &selected_item, sel) {
+			for(const QModelIndex &selected_item: sel) {
 
 				const QModelIndex index = filter_model_->mapToSource(selected_item);
 

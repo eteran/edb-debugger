@@ -76,7 +76,7 @@ void SpecifiedFunctions::do_find() {
 	IAnalyzer *const analyzer = edb::v1::analyzer();
 	QSet<edb::address_t> functions = analyzer->specified_functions();
 	QStringList results;
-	Q_FOREACH(edb::address_t address, functions) {
+	for(edb::address_t address: functions) {
 		results << QString("%1").arg(edb::v1::format_pointer(address));
 	}
 	model_->setStringList(results);

@@ -212,7 +212,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 	const QList<IRegion::pointer> &regions = edb::v1::memory_regions().regions();
 
 	// search for an executable region to run our shell code
-	Q_FOREACH(const IRegion::pointer &region, regions) {
+	for(const IRegion::pointer &region: regions) {
 		if(region->executable()) {
 			if(temp_address == 0) {
 				temp_address = region->start();

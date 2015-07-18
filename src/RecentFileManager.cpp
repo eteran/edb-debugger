@@ -80,7 +80,7 @@ void RecentFileManager::update() {
 	if(menu_) {
 		menu_->clear();
 
-		Q_FOREACH(const QString &s, file_list_) {
+		for(const QString &s: file_list_) {
 			if(QAction *const action = menu_->addAction(s, this, SLOT(item_selected()))) {
 				action->setData(s);
 			}

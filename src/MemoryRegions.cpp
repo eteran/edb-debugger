@@ -58,7 +58,7 @@ void MemoryRegions::sync() {
 	if(edb::v1::debugger_core) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 			regions = process->regions();
-			Q_FOREACH(const IRegion::pointer &region, regions) {
+			for(const IRegion::pointer &region: regions) {
 				// if the region has a name, is mapped starting
 				// at the beginning of the file, and is executable, sounds
 				// like a module mapping!
@@ -84,7 +84,7 @@ void MemoryRegions::sync() {
 //------------------------------------------------------------------------------
 IRegion::pointer MemoryRegions::find_region(edb::address_t address) const {
 
-	Q_FOREACH(const IRegion::pointer &i, regions_) {
+	for(const IRegion::pointer &i: regions_) {
 		if(i->contains(address)) {
 			return i;
 		}

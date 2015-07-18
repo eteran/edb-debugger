@@ -78,7 +78,7 @@ namespace {
 // Desc: returns true if the string only contains decimal digits
 //------------------------------------------------------------------------------
 bool is_numeric(const QString &s) {
-	Q_FOREACH(QChar ch, s) {
+	for(QChar ch: s) {
 		if(!ch.isDigit()) {
 			return false;
 		}
@@ -496,7 +496,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 
 	if(attached()) {
 		if(!native::wait_for_sigchld(msecs)) {
-			Q_FOREACH(edb::tid_t thread, thread_ids()) {
+			for(edb::tid_t thread: thread_ids()) {
 				int status;
 				const edb::tid_t tid = native::waitpid(thread, &status, __WALL | WNOHANG);
 				if(tid > 0) {
@@ -538,7 +538,7 @@ bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t cou
 		memory_file.seek(address);
 		const qint64 n = memory_file.read(reinterpret_cast<char *>(buf), len);
 
-		Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
+		for(const IBreakpoint::pointer &bp: breakpoints_) {
 			if(bp->address() >= address && bp->address() < (address + n)) {
 				// show the original bytes in the buffer..
 				reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_byte();
@@ -595,7 +595,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 	do {
 		attached = false;
 		QDir proc_directory(QString("/proc/%1/task/").arg(pid));
-		Q_FOREACH(QString s, proc_directory.entryList(QDir::NoDotAndDotDot | QDir::Dirs)) {
+		for(const QString &s: proc_directory.entryList(QDir::NoDotAndDotDot | QDir::Dirs)) {
 			// this can get tricky if the threads decide to spawn new threads
 			// when we are attaching. I wish that linux had an atomic way to do this
 			// all in one shot
@@ -630,7 +630,7 @@ void DebuggerCore::detach() {
 
 		clear_breakpoints();
 
-		Q_FOREACH(edb::tid_t thread, thread_ids()) {
+		for(edb::tid_t thread: thread_ids()) {
 			if(ptrace(PTRACE_DETACH, thread, 0, 0) == 0) {
 				native::waitpid(thread, 0, __WALL);
 			}
@@ -920,7 +920,7 @@ QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 	QDir proc_directory("/proc/");
 	QFileInfoList entries = proc_directory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
 
-	Q_FOREACH(const QFileInfo &info, entries) {
+	for(const QFileInfo &info: entries) {
 		const QString filename = info.fileName();
 		if(is_numeric(filename)) {
 
@@ -1011,7 +1011,7 @@ QList<Module> DebuggerCore::loaded_modules() const {
 		const QList<IRegion::pointer> r = edb::v1::memory_regions().regions();
 		QSet<QString> found_modules;
 
-		Q_FOREACH(const IRegion::pointer &region, r) {
+		for(const IRegion::pointer &region: r) {
 
 			// we assume that modules will be listed by absolute path
 			if(region->name().startsWith("/")) {

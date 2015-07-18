@@ -599,7 +599,7 @@ void Debugger::finish_plugin_setup() {
 
 	// call the init function for each plugin, this is done after
 	// ALL plugins are loaded in case there are inter-plugin dependencies
-	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
+	for(QObject *plugin: edb::v1::plugin_list()) {
 		if(auto p = qobject_cast<IPlugin *>(plugin)) {
 			p->init();
 		}
@@ -607,7 +607,7 @@ void Debugger::finish_plugin_setup() {
 
 	// setup the menu for all plugins that which to do so
 	QPointer<DialogOptions> options = qobject_cast<DialogOptions *>(edb::v1::dialog_options());
-	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
+	for(QObject *plugin: edb::v1::plugin_list()) {
 		if(auto p = qobject_cast<IPlugin *>(plugin)) {
 			if(QMenu *const menu = p->menu(this)) {
 				ui.menu_Plugins->addMenu(menu);
@@ -871,7 +871,7 @@ void Debugger::apply_default_fonts() {
 	}
 
 	if(font.fromString(config.data_font)) {
-		Q_FOREACH(const DataViewInfo::pointer &data_view, data_regions_) {
+		for(const DataViewInfo::pointer &data_view: data_regions_) {
 			data_view->view->setFont(font);
 		}
 	}
@@ -1031,7 +1031,7 @@ void Debugger::apply_default_show_separator() {
 
 	ui.cpuView->setShowAddressSeparator(show);
 	stack_view_->setShowAddressSeparator(show);
-	Q_FOREACH(const DataViewInfo::pointer &data_view, data_regions_) {
+	for(const DataViewInfo::pointer &data_view: data_regions_) {
 		data_view->view->setShowAddressSeparator(show);
 	}
 }
@@ -1059,12 +1059,12 @@ void Debugger::on_action_Configure_Debugger_triggered() {
 
 	if(edb::v1::pointer_size() == sizeof(quint64)) {
 		stack_view_->setAddressSize(QHexView::Address64);
-		Q_FOREACH(const DataViewInfo::pointer &data_view, data_regions_) {
+		for(const DataViewInfo::pointer &data_view: data_regions_) {
 			data_view->view->setAddressSize(QHexView::Address64);
 		}
 	} else {
 		stack_view_->setAddressSize(QHexView::Address32);
-		Q_FOREACH(const DataViewInfo::pointer &data_view, data_regions_) {
+		for(const DataViewInfo::pointer &data_view: data_regions_) {
 			data_view->view->setAddressSize(QHexView::Address32);
 		}
 	}
@@ -2146,7 +2146,7 @@ IRegion::pointer Debugger::update_cpu_view(const State &state) {
 void Debugger::update_data_views() {
 
 	// update all data views with the current region data
-	Q_FOREACH(const DataViewInfo::pointer &info, data_regions_) {
+	for(const DataViewInfo::pointer &info: data_regions_) {
 
 		// make sure the regions are still valid..
 		if(info->region && edb::v1::memory_regions().find_region(info->region->start())) {
@@ -2166,7 +2166,7 @@ void Debugger::refresh_gui() {
 	ui.cpuView->repaint();
 	stack_view_->repaint();
 
-	Q_FOREACH(const DataViewInfo::pointer &info, data_regions_) {
+	for(const DataViewInfo::pointer &info: data_regions_) {
 		info->view->repaint();
 	}
 
@@ -2776,7 +2776,7 @@ void Debugger::mnuDumpDeleteTab() {
 //------------------------------------------------------------------------------
 template <class F, class T>
 void Debugger::add_plugin_context_menu(const T &menu, const F &f) {
-	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
+	for(QObject *plugin: edb::v1::plugin_list()) {
 		if(auto p = qobject_cast<IPlugin *>(plugin)) {
 			const QList<QAction *> acts = (p->*f)();
 			if(!acts.isEmpty()) {

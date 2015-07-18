@@ -61,7 +61,7 @@ void DialogThreads::showEvent(QShowEvent *) {
 	QList<edb::tid_t> threads       = edb::v1::debugger_core->thread_ids();
 	const edb::tid_t current_thread = edb::v1::debugger_core->active_thread();
 
-	Q_FOREACH(edb::tid_t thread, threads) {
+	for(edb::tid_t thread: threads) {
 	
 		const ThreadInfo info = edb::v1::debugger_core->get_thread_info(thread);
 	

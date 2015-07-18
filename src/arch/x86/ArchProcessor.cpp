@@ -216,7 +216,7 @@ QString format_argument(const QString &type, edb::reg_t arg) {
 	QString param_text;
 
 	int pointer_level = 0;
-	Q_FOREACH(QChar ch, type) {
+	for(QChar ch: type) {
 
 		if(ch == 'P') {
 			++pointer_level;
@@ -279,7 +279,7 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 
 			QStringList arguments;
 			int i = 0;
-			Q_FOREACH(edb::Argument argument, info->arguments) {
+			for(edb::Argument argument: info->arguments) {
 
 				edb::reg_t arg;
 				process->read_bytes(state.stack_pointer() + i * sizeof(edb::reg_t) + offset, &arg, sizeof(arg));

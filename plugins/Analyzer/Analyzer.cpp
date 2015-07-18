@@ -296,7 +296,7 @@ void Analyzer::bonus_symbols(RegionData *data) {
 	// give bonus if we have a symbol for the address
 	const QList<Symbol::pointer> symbols = edb::v1::symbol_manager().symbols();
 
-	Q_FOREACH(const Symbol::pointer &sym, symbols) {
+	for(const Symbol::pointer &sym: symbols) {
 		const edb::address_t addr = sym->address;
 
 		if(data->region->contains(addr) && sym->is_code()) {
@@ -314,7 +314,7 @@ void Analyzer::bonus_marked_functions(RegionData *data) {
 
 	Q_ASSERT(data);
 
-	Q_FOREACH(const edb::address_t addr, specified_functions_) {
+	for(const edb::address_t addr: specified_functions_) {
 		if(data->region->contains(addr)) {
 			qDebug("[Analyzer] adding user marked function: <%p>", reinterpret_cast<void *>(addr));
 			data->known_functions.insert(addr);
@@ -392,12 +392,12 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 
 	// push all known functions onto a stack
 	QStack<edb::address_t> known_functions;
-	Q_FOREACH(const edb::address_t function, data->known_functions) {
+	for(const edb::address_t function: data->known_functions) {
 		known_functions.push(function);
 	}
 
 	// push all fuzzy function too...
-	Q_FOREACH(const edb::address_t function, data->fuzzy_functions) {
+	for(const edb::address_t function: data->fuzzy_functions) {
 		known_functions.push(function);
 	}
 
@@ -690,7 +690,7 @@ bool Analyzer::find_containing_function(edb::address_t address, Function *functi
 
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
 		const FunctionMap &funcs = functions(region);
-		Q_FOREACH(const Function &f, funcs) {
+		for(const Function &f: funcs) {
 			if(address >= f.entry_address() && address <= f.end_address()) {
 				*function = f;
 				return true;
@@ -749,7 +749,7 @@ void Analyzer::bonus_entry_point(RegionData *data) const {
 //------------------------------------------------------------------------------
 void Analyzer::invalidate_analysis(const IRegion::pointer &region) {
 	invalidate_dynamic_analysis(region);
-	Q_FOREACH(const edb::address_t addr, specified_functions_) {
+	for(const edb::address_t addr: specified_functions_) {
 		if(addr >= region->start() && addr < region->end()) {
 			specified_functions_.remove(addr);
 		}
@@ -801,7 +801,7 @@ bool Analyzer::will_return(edb::address_t address) const {
 
 
 	const QList<Symbol::pointer> symbols = edb::v1::symbol_manager().symbols();
-	Q_FOREACH(const Symbol::pointer &symbol, symbols) {
+	for(const Symbol::pointer &symbol: symbols) {
 		if(symbol->address == address) {
 			const QString symname = symbol->name_no_prefix;
 			const QString func_name = symname.mid(0, symname.indexOf("@"));

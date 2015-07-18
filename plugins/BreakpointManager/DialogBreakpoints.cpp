@@ -83,7 +83,7 @@ void DialogBreakpoints::updateList() {
 
 	const IDebugger::BreakpointList breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
 
-	Q_FOREACH(const IBreakpoint::pointer &bp, breakpoint_state) {
+	for(const IBreakpoint::pointer &bp: breakpoint_state) {
 
 		//Skip if it's an internal bp; we don't want to insert a row for it.
 		if (bp->internal()) {
@@ -164,7 +164,7 @@ void DialogBreakpoints::on_btnAddFunction_clicked() {
     const QString text = QInputDialog::getText(this, tr("Add Breakpoint On Library Function"), tr("Function Name:"), QLineEdit::Normal, QString(), &ok);
 	if(ok && !text.isEmpty()) {
 		const QList<Symbol::pointer> syms = edb::v1::symbol_manager().symbols();
-		Q_FOREACH(const Symbol::pointer &current, syms) {
+		for(const Symbol::pointer &current: syms) {
 			if(current.name_no_prefix == text) {
 				edb::v1::create_breakpoint(current.address);
 			}
@@ -311,7 +311,7 @@ void DialogBreakpoints::on_btnExport_clicked() {
 	QList<edb::address_t> export_list;
 
 	//Go through our breakpoints and add for export if not one-time and not internal.
-	Q_FOREACH (const IBreakpoint::pointer bp, breakpoint_state) {
+	for(const IBreakpoint::pointer bp: breakpoint_state) {
 		if (!bp->one_time() && !bp->internal()) {
 			export_list.append(bp->address());
 		}
@@ -336,7 +336,7 @@ void DialogBreakpoints::on_btnExport_clicked() {
 		return;
 	}
 
-	Q_FOREACH (edb::address_t address, export_list) {
+	for(edb::address_t address: export_list) {
 		int base = 16;
 		QString string_address = "0x" + QString::number(address, base) + "\n";
 		file.write(string_address.toLatin1());

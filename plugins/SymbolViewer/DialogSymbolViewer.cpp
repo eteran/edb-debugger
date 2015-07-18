@@ -160,7 +160,7 @@ void DialogSymbolViewer::do_find() {
 	QString temp;
 
 	const QList<Symbol::pointer> symbols = edb::v1::symbol_manager().symbols();
-	Q_FOREACH(const Symbol::pointer &sym, symbols) {
+	for(const Symbol::pointer &sym: symbols) {
 		results << QString("%1: %2").arg(edb::v1::format_pointer(sym->address)).arg(sym->name);
 	}
 

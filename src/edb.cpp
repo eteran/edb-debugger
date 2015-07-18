@@ -758,7 +758,7 @@ bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
 // Note: the caller is responsible for deleting the object!
 //------------------------------------------------------------------------------
 IBinary *get_binary_info(const IRegion::pointer &region) {
-	Q_FOREACH(IBinary::create_func_ptr_t f, g_BinaryInfoList) {
+	for(IBinary::create_func_ptr_t f: g_BinaryInfoList) {
 		IBinary *const p = (*f)(region);
 
 		if(p->validate_header()) {
@@ -813,7 +813,7 @@ const QHash<QString, QObject *> &plugin_list() {
 // Desc: gets a pointer to a plugin based on it's classname
 //------------------------------------------------------------------------------
 IPlugin *find_plugin_by_name(const QString &name) {
-	Q_FOREACH(QObject *p, g_GeneralPlugins) {
+	for(QObject *p: g_GeneralPlugins) {
 		if(name == p->metaObject()->className()) {
 			return qobject_cast<IPlugin *>(p);
 		}
@@ -889,7 +889,7 @@ IRegion::pointer primary_code_region() {
 
 	memory_regions().sync();
 	const QList<IRegion::pointer> r = memory_regions().regions();
-	Q_FOREACH(const IRegion::pointer &region, r) {
+	for(const IRegion::pointer &region: r) {
 		if(region->executable() && region->name() == process_executable) {
 			return region;
 		}

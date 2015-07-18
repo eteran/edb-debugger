@@ -274,7 +274,7 @@ void DialogROPTool::add_gadget(QList<edb::Instruction> instructions) {
 		const edb::Instruction inst1 = instructions.takeFirst();
 
 		QString instruction_string = QString("%1").arg(QString::fromStdString(edb::v1::formatter().to_string(inst1)));
-		Q_FOREACH(const edb::Instruction &instruction, instructions) {
+		for(const edb::Instruction &instruction: instructions) {
 			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().to_string(instruction))));
 		}
 
@@ -313,10 +313,10 @@ void DialogROPTool::do_find() {
 		unique_results_.clear();
 
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			Q_FOREACH(const QModelIndex &selected_item, sel) {
+			for(const QModelIndex &selected_item: sel) {
 
 				const QModelIndex index = filter_model_->mapToSource(selected_item);
-				if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
+				if(auto region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
 					edb::address_t start_address     = region->start();
 					const edb::address_t end_address = region->end();

@@ -63,7 +63,7 @@ void BinaryString::on_txtAscii_textEdited(const QString &text) {
 
 	int counter = 0;
 
-	Q_FOREACH(quint8 ch, p) {
+	for(quint8 ch: p) {
 
 		textHex += temp.sprintf("%02x ", ch & 0xff);
 
@@ -91,7 +91,7 @@ void BinaryString::on_txtUTF16_textEdited(const QString &text) {
 	QString textHex;
 	QString temp;
 
-	Q_FOREACH(QChar i, text) {
+	for(QChar i: text) {
 		const quint16 ch = i.unicode();
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
@@ -123,7 +123,7 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 
 	const QStringList list1 = text.split(" ", QString::SkipEmptyParts);
 
-	Q_FOREACH(const QString &s, list1) {
+	for(const QString &s: list1) {
 
 		const quint8 ch = s.toUInt(0, 16);
 
@@ -153,7 +153,7 @@ QByteArray BinaryString::value() const {
 	QByteArray ret;
 	const QStringList list1 = ui->txtHex->text().split(" ", QString::SkipEmptyParts);
 
-	Q_FOREACH(const QString &i, list1) {
+	for(const QString &i: list1) {
 		ret += static_cast<quint8>(i.toUInt(0, 16));
 	}
 

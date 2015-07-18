@@ -74,7 +74,7 @@ void DialogReferences::do_find() {
 		const QList<IRegion::pointer> regions = edb::v1::memory_regions().regions();
 
 		int i = 0;
-		Q_FOREACH(const IRegion::pointer &region, regions) {
+		for(const IRegion::pointer &region: regions) {
 			// a short circut for speading things up
 			if(region->accessible() || !ui->chkSkipNoAccess->isChecked()) {
 

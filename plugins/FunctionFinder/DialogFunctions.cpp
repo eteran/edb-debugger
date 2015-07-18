@@ -107,7 +107,7 @@ void DialogFunctions::do_find() {
 		ui->tableWidget->setRowCount(0);
 		ui->tableWidget->setSortingEnabled(false);
 
-		Q_FOREACH(const QModelIndex &selected_item, sel) {
+		for(const QModelIndex &selected_item: sel) {
 
 			const QModelIndex index = filter_model_->mapToSource(selected_item);
 
@@ -118,7 +118,7 @@ void DialogFunctions::do_find() {
 
 				const IAnalyzer::FunctionMap &results = analyzer->functions(region);
 
-				Q_FOREACH(const Function &info, results) {
+				for(const Function &info: results) {
 
 					const int row = ui->tableWidget->rowCount();
 					ui->tableWidget->insertRow(row);

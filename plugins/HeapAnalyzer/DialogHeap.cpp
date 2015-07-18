@@ -154,7 +154,7 @@ void DialogHeap::get_library_names(QString *libcName, QString *ldName) const {
 	
 	const QList<Module> libs = edb::v1::debugger_core->loaded_modules();
 
-	Q_FOREACH(const Module &module, libs) {
+	for(const Module &module: libs) {
 		if(!ldName->isEmpty() && !libcName->isEmpty()) {
 			break;
 		}
@@ -232,7 +232,7 @@ void DialogHeap::detect_pointers() {
 
 	// the potential targets
 	qDebug() << "[Heap Analyzer] collecting possible targets addresses";
-	Q_FOREACH(const Result &result, results) {
+	for(const Result &result: results) {
 		edb::address_t block_ptr = block_start(result);
 		edb::address_t block_end = block_ptr + result.size;
 		while(block_ptr < block_end) {
@@ -454,7 +454,7 @@ void DialogHeap::do_find() {
 		if(start_address == 0 || end_address == 0) {
 
 			const QList<IRegion::pointer> &regions = edb::v1::memory_regions().regions();
-			Q_FOREACH(IRegion::pointer region, regions) {
+			for(IRegion::pointer region: regions) {
 
 				if(region->name() == "[heap]") {
 
@@ -521,7 +521,7 @@ void DialogHeap::on_btnGraph_clicked() {
 
 		// first we make a nice index for our results, this is likely redundant,
 		// but won't take long
-		Q_FOREACH(const Result &result, results) {
+		for(const Result &result: results) {
 			result_map.insert(result.block, &result);
 		}
 
@@ -529,7 +529,7 @@ void DialogHeap::on_btnGraph_clicked() {
 		const QItemSelectionModel *const selModel = ui->tableView->selectionModel();
 		const QModelIndexList sel = selModel->selectedRows();
 		if(sel.size() != 0) {
-			Q_FOREACH(QModelIndex index, sel) {
+			for(const QModelIndex &index: sel) {
 				auto item = static_cast<Result *>(index.internalPointer());
 				result_stack.push(item);
 				seen_results.insert(item);
@@ -549,7 +549,7 @@ void DialogHeap::on_btnGraph_clicked() {
 
 			nodes.insert(result->block, n);
 
-			Q_FOREACH(edb::address_t pointer, result->points_to) {
+			for(edb::address_t pointer: result->points_to) {
 				const Result *next_result = result_map[pointer];
 				if(!seen_results.contains(next_result)) {
 					seen_results.insert(next_result);
@@ -565,10 +565,10 @@ void DialogHeap::on_btnGraph_clicked() {
 			return;
 		}
 
-		Q_FOREACH(const Result *result, result_map) {
+		for(const Result *result: result_map) {
 			const edb::address_t addr = result->block;
 			if(nodes.contains(addr)) {
-				Q_FOREACH(edb::address_t pointer, result->points_to) {
+				for(edb::address_t pointer: result->points_to) {
 					agedge(g, nodes[addr], nodes[pointer]);
 				}
 			}

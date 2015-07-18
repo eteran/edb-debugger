@@ -252,7 +252,7 @@ bool PlatformProcess::read_pages(edb::address_t address, void *buf, std::size_t 
 			}
 		}
 
-		Q_FOREACH(const IBreakpoint::pointer &bp, core_->breakpoints_) {
+		for(const IBreakpoint::pointer &bp: core_->breakpoints_) {
 			if(bp->address() >= orig_address && bp->address() < end_address) {
 				// show the original bytes in the buffer..
 				orig_ptr[bp->address() - orig_address] = bp->original_byte();

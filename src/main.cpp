@@ -49,7 +49,7 @@ void load_plugins(const QString &directory) {
 	// TODO: attempt to detect the same plugin being loaded twice
 	plugins_dir.cd(directory);
 
-	Q_FOREACH(const QString &file_name, plugins_dir.entryList(QDir::Files)) {
+	for(const QString &file_name: plugins_dir.entryList(QDir::Files)) {
 		if(QLibrary::isLibrary(file_name)) {
 			const QString full_path = plugins_dir.absoluteFilePath(file_name);
 			QPluginLoader loader(full_path);
@@ -150,7 +150,7 @@ void usage() {
 	std::cerr << " --dump-version            : display terse version string and exit" << std::endl;
 	std::cerr << " --help                    : display this help and exit" << std::endl;
 
-	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
+	for(QObject *plugin: edb::v1::plugin_list()) {
 		if(auto p = qobject_cast<IPlugin *>(plugin)) {
 			const QString s = p->extra_arguments();
 			if(!s.isEmpty()) {
@@ -197,7 +197,7 @@ int main(int argc, char *argv[]) {
 
 	// call the init function for each plugin, this is done after
 	// ALL plugins are loaded in case there are inter-plugin dependencies
-	Q_FOREACH(QObject *plugin, edb::v1::plugin_list()) {
+	for(QObject *plugin: edb::v1::plugin_list()) {
 		if(auto p = qobject_cast<IPlugin *>(plugin)) {
 
 			const IPlugin::ArgumentStatus r = p->parse_argments(args);

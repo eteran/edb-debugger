@@ -347,7 +347,7 @@ void DialogProcessProperties::updateModulePage() {
 	if(edb::v1::debugger_core) {
 		const QList<Module> modules = edb::v1::debugger_core->loaded_modules();
 		ui->tableModules->setSortingEnabled(false);
-		Q_FOREACH(const Module &m, modules) {
+		for(const Module &m: modules) {
 			const int row = ui->tableModules->rowCount();
 			ui->tableModules->insertRow(row);
 			ui->tableModules->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(m.base_address)));
@@ -373,7 +373,7 @@ void DialogProcessProperties::updateMemoryPage() {
 		ui->tableMemory->setSortingEnabled(false);
 
 
-		Q_FOREACH(const IRegion::pointer &r, regions) {
+		for(const IRegion::pointer &r: regions) {
 			const int row = ui->tableMemory->rowCount();
 			ui->tableMemory->insertRow(row);
 			ui->tableMemory->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(r->start()))); // address
@@ -451,7 +451,7 @@ void DialogProcessProperties::updateHandles() {
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		QDir dir(QString("/proc/%1/fd/").arg(process->pid()));
 		const QFileInfoList entries = dir.entryInfoList(QStringList() << "[0-9]*");
-		Q_FOREACH(const QFileInfo &info, entries) {
+		for(const QFileInfo &info: entries) {
 			if(info.isSymLink()) {
 				QString symlink(info.symLinkTarget());
 				const QString type(file_type(symlink));
@@ -573,7 +573,7 @@ void DialogProcessProperties::updateThreads() {
 	QList<edb::tid_t> threads       = edb::v1::debugger_core->thread_ids();
 	const edb::tid_t current_thread = edb::v1::debugger_core->active_thread();
 
-	Q_FOREACH(edb::tid_t thread, threads) {
+	for(edb::tid_t thread: threads) {
 	
 		const ThreadInfo info = edb::v1::debugger_core->get_thread_info(thread);
 	

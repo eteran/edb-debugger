@@ -530,7 +530,7 @@ void DialogHeader::on_btnExplore_clicked() {
 			tr("You must select a region which is to be scanned for executable headers."));
 	} else {
 
-		Q_FOREACH(const QModelIndex &selected_item, sel) {
+		for(const QModelIndex &selected_item: sel) {
 
 			const QModelIndex index = filter_model_->mapToSource(selected_item);
 			if(auto region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
