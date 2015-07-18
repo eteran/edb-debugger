@@ -446,6 +446,11 @@ quint64 PlatformState::mmx_register(int n) const {
 
 	if(n >= 0 && n <= 7) {
 		// MMX registers are an alias to the lower 64-bits of the FPU regs
+		// But they alias regs R0-R7, thus don't reflect FPU's stack
+		// structure of ST0-ST7. So fixup n using TOP value from status word
+		int top=(fpregs_.swd&0x3800)>>11;
+		n-=top;
+		if(n<0) n+=8;
 #if defined(EDB_X86)
 		const char* c=reinterpret_cast<const char*>(fpregs_.st_space);
 		auto p = reinterpret_cast<const uint64_t *>(c+10*n);
