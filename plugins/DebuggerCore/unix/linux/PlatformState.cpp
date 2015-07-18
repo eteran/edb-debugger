@@ -264,12 +264,18 @@ edb::reg_t PlatformState::flags() const {
 //------------------------------------------------------------------------------
 long double PlatformState::fpu_register(int n) const {
 
-	if(sizeof(long double) == 16) {
-		// st_space is an array of 128 bytes, 16 bytes for each of 8 FPU registers
-		auto p = reinterpret_cast<const long double *>(fpregs_.st_space);
-		return p[n];
-	}
-	return 0.0;
+#if defined(EDB_X86)
+	static_assert(sizeof(long double)==12,"Unexpected sizeof(long double)");
+	// st_space is an array of 80 bytes, 10 bytes for each of 8 FPU registers
+	const char* c=reinterpret_cast<const char*>(fpregs_.st_space);
+	auto p = reinterpret_cast<const long double *>(c+10*n);
+	return *p;
+#elif defined(EDB_X86_64)
+	static_assert(sizeof(long double)==16,"Unexpected sizeof(long double)");
+	// st_space is an array of 128 bytes, 16 bytes for each of 8 FPU registers
+	auto p = reinterpret_cast<const long double *>(fpregs_.st_space);
+	return p[n];
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -440,8 +446,19 @@ quint64 PlatformState::mmx_register(int n) const {
 
 	if(n >= 0 && n <= 7) {
 		// MMX registers are an alias to the lower 64-bits of the FPU regs
+		// But they alias regs R0-R7, thus don't reflect FPU's stack
+		// structure of ST0-ST7. So fixup n using TOP value from status word
+		int top=(fpregs_.swd&0x3800)>>11;
+		n-=top;
+		if(n<0) n+=8;
+#if defined(EDB_X86)
+		const char* c=reinterpret_cast<const char*>(fpregs_.st_space);
+		auto p = reinterpret_cast<const uint64_t *>(c+10*n);
+		return *p;
+#elif defined(EDB_X86_64)
 		auto p = reinterpret_cast<const uint64_t *>(fpregs_.st_space);
 		return p[n * 2];
+#endif
 	}
 	
 	return 0;
