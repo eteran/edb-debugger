@@ -446,8 +446,14 @@ quint64 PlatformState::mmx_register(int n) const {
 
 	if(n >= 0 && n <= 7) {
 		// MMX registers are an alias to the lower 64-bits of the FPU regs
+#if defined(EDB_X86)
+		const char* c=reinterpret_cast<const char*>(fpregs_.st_space);
+		auto p = reinterpret_cast<const uint64_t *>(c+10*n);
+		return *p;
+#elif defined(EDB_X86_64)
 		auto p = reinterpret_cast<const uint64_t *>(fpregs_.st_space);
 		return p[n * 2];
+#endif
 	}
 	
 	return 0;
