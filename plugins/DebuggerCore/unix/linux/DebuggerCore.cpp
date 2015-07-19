@@ -299,7 +299,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 	case edb::string_hash<'M', 'M', 'X'>::value:
 		return (edx & bit_MMX);
 	case edb::string_hash<'X', 'M', 'M'>::value:
-		//return (edx & bit_SSE);
+		return (edx & bit_SSE);
 	default:
 		return false;
 	}
@@ -746,8 +746,12 @@ void DebuggerCore::get_state(State *state) {
 			#endif
 			}
 
-			// floating point registers
+			// floating point and SSE registers
+#if defined(EDB_X86)
+			if(ptrace(PTRACE_GETFPXREGS, active_thread(), 0, &state_impl->fpregs_) != -1) {
+#elif defined(EDB_X86_64)
 			if(ptrace(PTRACE_GETFPREGS, active_thread(), 0, &state_impl->fpregs_) != -1) {
+#endif
 			}
 
 			// debug registers

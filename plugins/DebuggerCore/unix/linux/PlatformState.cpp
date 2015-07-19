@@ -114,9 +114,7 @@ Register PlatformState::value(const QString &reg) const {
 	else if(lreg == "fs_base") return Register("fs_base", fs_base, Register::TYPE_SEG);
 	else if(lreg == "gs_base") return Register("gs_base", gs_base, Register::TYPE_SEG);
 	else if(lreg == "eflags")  return Register("eflags", regs_.eflags, Register::TYPE_COND);
-#if 0
 	else if(lreg == "mxcsr")   return Register("mxcsr", fpregs_.mxcsr, Register::TYPE_COND);
-#endif
 #elif defined(EDB_X86_64)
 	if(lreg == "rax")          return Register("rax", regs_.rax, Register::TYPE_GPR);
 	else if(lreg == "rbx")     return Register("rbx", regs_.rbx, Register::TYPE_GPR);
@@ -264,18 +262,12 @@ edb::reg_t PlatformState::flags() const {
 //------------------------------------------------------------------------------
 long double PlatformState::fpu_register(int n) const {
 
-#if defined(EDB_X86)
-	static_assert(sizeof(long double)==12,"Unexpected sizeof(long double)");
-	// st_space is an array of 80 bytes, 10 bytes for each of 8 FPU registers
-	const char* c=reinterpret_cast<const char*>(fpregs_.st_space);
-	auto p = reinterpret_cast<const long double *>(c+10*n);
-	return *p;
-#elif defined(EDB_X86_64)
-	static_assert(sizeof(long double)==16,"Unexpected sizeof(long double)");
 	// st_space is an array of 128 bytes, 16 bytes for each of 8 FPU registers
-	auto p = reinterpret_cast<const long double *>(fpregs_.st_space);
-	return p[n];
-#endif
+	// Layout of st_space is common for x86 and x86-64, while sizeof(long double)
+	// is different. So just do conversion via char*, which works for both.
+	const char* c=reinterpret_cast<const char*>(fpregs_.st_space);
+	auto p = reinterpret_cast<const long double *>(c+16*n);
+	return *p;
 }
 
 //------------------------------------------------------------------------------
@@ -406,9 +398,7 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 	else if(lreg == "gs") { regs_.xgs = value; }
 	else if(lreg == "ss") { regs_.xss = value; }
 	else if(lreg == "eflags") { regs_.eflags = value; }
-#if 0
 	else if(lreg == "mxcsr") { fpregs_.mxcsr = value; }
-#endif
 #elif defined(EDB_X86_64)
 	if(lreg == "rax") { regs_.rax = value; }
 	else if(lreg == "rbx") { regs_.rbx = value; }
@@ -451,14 +441,8 @@ quint64 PlatformState::mmx_register(int n) const {
 		int top=(fpregs_.swd&0x3800)>>11;
 		n-=top;
 		if(n<0) n+=8;
-#if defined(EDB_X86)
-		const char* c=reinterpret_cast<const char*>(fpregs_.st_space);
-		auto p = reinterpret_cast<const uint64_t *>(c+10*n);
-		return *p;
-#elif defined(EDB_X86_64)
 		auto p = reinterpret_cast<const uint64_t *>(fpregs_.st_space);
 		return p[n * 2];
-#endif
 	}
 	
 	return 0;
@@ -471,8 +455,10 @@ quint64 PlatformState::mmx_register(int n) const {
 QByteArray PlatformState::xmm_register(int n) const {
 
 #if defined(EDB_X86)
+	if(n >= 0 && n <= 7) {
 #elif defined(EDB_X86_64)
 	if(n >= 0 && n <= 16) {
+#endif
 		auto p = reinterpret_cast<const uint8_t *>(fpregs_.xmm_space);
 		const uint8_t *r = &p[n * 16];
 		QByteArray ret(reinterpret_cast<const char *>(r), 16);
@@ -480,7 +466,6 @@ QByteArray PlatformState::xmm_register(int n) const {
 		std::reverse(ret.begin(), ret.end());
 		return ret;
 	}
-#endif
 	return 0;
 }
 
