@@ -744,23 +744,16 @@ void DialogOpcodes::do_find() {
 
 					ShiftBuffer<sizeof(OpcodeData)> shift_buffer;
 
-					// prime the buffer by filling it up with the minimum block size
-					for(size_t i = 0; i < shift_buffer.size(); ++i) {
-
-						quint8 byte;
-						process->read_bytes(start_address, &byte, 1);
-						shift_buffer.shl();
-						shift_buffer[shift_buffer.size() - 1] = byte;
-
-						++start_address;
-					}
-
 					// this will read the rest of the region
+					size_t i = 0;
 					while(start_address < end_address) {
 
 						// create a reference to the bsa's data so we can pass it to the testXXXX functions
-						auto opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
-						run_tests(classtype, opcode, address);
+						// but only do so if we have read enough bytes to fill our shift buffer
+						if(i >= shift_buffer.size()) {
+							auto opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
+							run_tests(classtype, opcode, address - shift_buffer.size());
+						}
 
 						quint8 byte;
 						process->read_bytes(start_address, &byte, 1);
@@ -771,6 +764,7 @@ void DialogOpcodes::do_find() {
 
 						ui->progressBar->setValue(util::percentage(address - orig_start, region->size()));
 						++address;
+						++i;
 					}
 
 					// test the stuff at the regions edge
@@ -778,7 +772,7 @@ void DialogOpcodes::do_find() {
 
 						// create a reference to the bsa's data so we can pass it to the testXXXX functions
 						auto opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
-						run_tests(classtype, opcode, address);
+						run_tests(classtype, opcode, address - shift_buffer.size());
 
 						// we just shift in 0's and hope it doesn't give false positives
 						shift_buffer.shl();
