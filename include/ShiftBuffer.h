@@ -25,6 +25,7 @@ template <size_t N>
 class ShiftBuffer {
 public:
 	ShiftBuffer() {
+		qFill(buffer_, buffer_ + N, 0);
 	}
 	
 	~ShiftBuffer() {
