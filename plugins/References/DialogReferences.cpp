@@ -107,18 +107,6 @@ void DialogReferences::do_find() {
 
 						if(inst) {
 							switch(inst.type()) {
-							case edb::Instruction::OP_JMP:
-							case edb::Instruction::OP_CALL:
-							case edb::Instruction::OP_JCC:
-								if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
-									if(inst.operands()[0].relative_target() == address) {
-										auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
-										item->setData(TypeRole, 'C');
-										item->setData(AddressRole, addr);
-										ui->listWidget->addItem(item);
-									}
-								}
-								break;
 							case edb::Instruction::OP_MOV:
 								// instructions of the form: mov [ADDR], 0xNNNNNNNN
 								Q_ASSERT(inst.operand_count() == 2);
@@ -145,6 +133,16 @@ void DialogReferences::do_find() {
 								}
 								break;
 							default:
+								if(is_jump(inst) || is_call(inst)) {
+									if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
+										if(inst.operands()[0].relative_target() == address) {
+											auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
+											item->setData(TypeRole, 'C');
+											item->setData(AddressRole, addr);
+											ui->listWidget->addItem(item);
+										}
+									}								
+								}
 								break;
 							}
 						}

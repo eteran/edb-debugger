@@ -249,31 +249,33 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 					edb::Instruction inst2(p, last, 0, std::nothrow);
 					if(inst2) {
 						const edb::Operand &op2 = inst2.operands()[0];
-						switch(inst2.type()) {
-						case edb::Instruction::OP_RET:
+						
+						if(is_ret(inst2)) {
 							add_result((QList<edb::Instruction>() << inst << inst2), start_address);
-							break;
-						case edb::Instruction::OP_JMP:
-						case edb::Instruction::OP_CALL:
+						} else {
+							switch(inst2.type()) {
+							case edb::Instruction::OP_JMP:
+							case edb::Instruction::OP_CALL:
 
-							if(op2.general_type() == edb::Operand::TYPE_EXPRESSION) {
+								if(op2.general_type() == edb::Operand::TYPE_EXPRESSION) {
 
-								if(op2.expression().displacement_type == edb::Operand::DISP_NONE) {
+									if(op2.expression().displacement_type == edb::Operand::DISP_NONE) {
 
-									if(op2.expression().base == STACK_REG && op2.expression().index == edb::Operand::REG_NULL) {
-										add_result((QList<edb::Instruction>() << inst << inst2), start_address);
-										return;
-									}
+										if(op2.expression().base == STACK_REG && op2.expression().index == edb::Operand::REG_NULL) {
+											add_result((QList<edb::Instruction>() << inst << inst2), start_address);
+											return;
+										}
 
-									if(op2.expression().index == STACK_REG && op2.expression().base == edb::Operand::REG_NULL) {
-										add_result((QList<edb::Instruction>() << inst << inst2), start_address);
-										return;
+										if(op2.expression().index == STACK_REG && op2.expression().base == edb::Operand::REG_NULL) {
+											add_result((QList<edb::Instruction>() << inst << inst2), start_address);
+											return;
+										}
 									}
 								}
+								break;
+							default:
+								break;
 							}
-							break;
-						default:
-							break;
 						}
 					}
 				}
@@ -298,56 +300,56 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 
 	if(inst) {
 		const edb::Operand &op1 = inst.operands()[0];
-		switch(inst.type()) {
-		case edb::Instruction::OP_RET:
+		if(is_ret(inst)) {
 			add_result((QList<edb::Instruction>() << inst), start_address);
-			break;
+		} else {
+			switch(inst.type()) {
+			case edb::Instruction::OP_CALL:
+			case edb::Instruction::OP_JMP:
+				if(op1.general_type() == edb::Operand::TYPE_EXPRESSION) {
 
-		case edb::Instruction::OP_CALL:
-		case edb::Instruction::OP_JMP:
-			if(op1.general_type() == edb::Operand::TYPE_EXPRESSION) {
+					if(op1.expression().displacement_type == edb::Operand::DISP_NONE) {
 
-				if(op1.expression().displacement_type == edb::Operand::DISP_NONE) {
-
-					if(op1.expression().base == STACK_REG && op1.expression().index == edb::Operand::REG_NULL) {
-						add_result((QList<edb::Instruction>() << inst), start_address);
-						return;
-					}
-
-					if(op1.expression().index == STACK_REG && op1.expression().base == edb::Operand::REG_NULL) {
-						add_result((QList<edb::Instruction>() << inst), start_address);
-						return;
-					}
-				}
-			}
-			break;
-		case edb::Instruction::OP_POP:
-			if(op1.general_type() == edb::Operand::TYPE_REGISTER) {
-
-				p += inst.size();
-				edb::Instruction inst2(p, last, 0, std::nothrow);
-				if(inst2) {
-					const edb::Operand &op2 = inst2.operands()[0];
-					switch(inst2.type()) {
-					case edb::Instruction::OP_JMP:
-					case edb::Instruction::OP_CALL:
-
-						if(op2.general_type() == edb::Operand::TYPE_REGISTER) {
-
-							if(op1.reg() == op2.reg()) {
-								add_result((QList<edb::Instruction>() << inst << inst2), start_address);
-							}
+						if(op1.expression().base == STACK_REG && op1.expression().index == edb::Operand::REG_NULL) {
+							add_result((QList<edb::Instruction>() << inst), start_address);
+							return;
 						}
-						break;
-					default:
-						break;
+
+						if(op1.expression().index == STACK_REG && op1.expression().base == edb::Operand::REG_NULL) {
+							add_result((QList<edb::Instruction>() << inst), start_address);
+							return;
+						}
 					}
 				}
-			}
-			break;
+				break;
+			case edb::Instruction::OP_POP:
+				if(op1.general_type() == edb::Operand::TYPE_REGISTER) {
 
-		default:
-			break;
+					p += inst.size();
+					edb::Instruction inst2(p, last, 0, std::nothrow);
+					if(inst2) {
+						const edb::Operand &op2 = inst2.operands()[0];
+						switch(inst2.type()) {
+						case edb::Instruction::OP_JMP:
+						case edb::Instruction::OP_CALL:
+
+							if(op2.general_type() == edb::Operand::TYPE_REGISTER) {
+
+								if(op1.reg() == op2.reg()) {
+									add_result((QList<edb::Instruction>() << inst << inst2), start_address);
+								}
+							}
+							break;
+						default:
+							break;
+						}
+					}
+				}
+				break;
+
+			default:
+				break;
+			}		
 		}
 	}
 }

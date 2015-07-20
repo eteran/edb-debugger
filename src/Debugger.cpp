@@ -1440,11 +1440,9 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 		if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
 			edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
 			if(inst) {
-
-				switch(inst.type()) {
-				case edb::Instruction::OP_JMP:
-				case edb::Instruction::OP_CALL:
-				case edb::Instruction::OP_JCC:
+			
+			
+				if(is_call(inst) || is_jump(inst)) {
 					if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
 						QAction *const action = menu.addAction(tr("&Follow"), this, SLOT(mnuCPUFollow()));
 						action->setData(static_cast<qlonglong>(inst.operands()[0].relative_target()));
@@ -1458,8 +1456,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 						}
 					}
 					*/
-					break;
-				default:
+				} else {
 					for(std::size_t i = 0; i < inst.operand_count(); ++i) {
 						if(inst.operands()[i].general_type() == edb::Operand::TYPE_IMMEDIATE) {
 							QAction *const action = menu.addAction(tr("Follow Constant In &Dump"), this, SLOT(mnuCPUFollowInDump()));

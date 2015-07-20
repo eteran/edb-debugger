@@ -543,13 +543,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 				opcode);
 		} else {
 
-			switch(inst.type()) {
-			case edb::Instruction::OP_JCC:
-			case edb::Instruction::OP_JMP:
-			case edb::Instruction::OP_LOOP:
-			case edb::Instruction::OP_LOOPE:
-			case edb::Instruction::OP_LOOPNE:
-			case edb::Instruction::OP_CALL:
+			if(is_call(inst) || is_jump(inst)) {
 				if(inst.operand_count() != 0) {
 					const edb::Operand &oper = inst.operands()[0];
 					if(oper.general_type() == edb::Operand::TYPE_REL) {
@@ -561,9 +555,6 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 						}
 					}
 				}
-				break;
-			default:
-				break;
 			}
 
 			opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
@@ -856,12 +847,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		}
 
 		// for relative jumps draw the jump direction indicators
-		switch(inst.type()) {
-		case edb::Instruction::OP_JCC:
-		case edb::Instruction::OP_JMP:
-		case edb::Instruction::OP_LOOP:
-		case edb::Instruction::OP_LOOPE:
-		case edb::Instruction::OP_LOOPNE:
+		if(is_jump(inst)) {
 			if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
 				const edb::address_t target = inst.operands()[0].relative_target();
 
@@ -874,9 +860,6 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 					QString((target > address) ? QChar(0x02C7) : QChar(0x02C6))
 					);
 			}
-			break;
-		default:
-			break;
 		}
 
 		// draw the disassembly
