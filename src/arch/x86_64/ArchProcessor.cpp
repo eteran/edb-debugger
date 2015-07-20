@@ -547,7 +547,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 				case edb::Operand::TYPE_EXPRESSION:
 					do {
 						const edb::address_t effective_address = get_effective_address(operand, state);
-						edb::address_t target[2]={0}; // up to size of xmmword
+						uint64_t target[2]={0}; // up to size of xmmword
 
 						if(process->read_bytes(effective_address, &target, sizeof(target))) {
 							switch(operand.complete_type()) {
