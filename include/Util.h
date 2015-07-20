@@ -19,6 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef UTIL_20061126_H_
 #define UTIL_20061126_H_
 
+#include <QString>
+#include <sstream>
+#include <iomanip>
+#include <type_traits>
+
 namespace util {
 
 //------------------------------------------------------------------------------
@@ -45,6 +50,13 @@ inline int percentage(int regions_finished, int regions_total, int bytes_done, i
 //------------------------------------------------------------------------------
 inline int percentage(int bytes_done, int bytes_total) {
 	return percentage(0, 1, bytes_done, bytes_total);
+}
+
+template<typename T> typename std::enable_if<std::is_floating_point<T>::value,
+QString>::type toString(T value, int precision) {
+	std::ostringstream ss;
+	ss << std::setprecision(precision) << value;
+	return QString::fromStdString(ss.str());
 }
 
 }
