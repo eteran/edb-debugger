@@ -547,30 +547,28 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 				case edb::Operand::TYPE_EXPRESSION:
 					do {
 						const edb::address_t effective_address = get_effective_address(operand, state);
-						uint64_t target[2]={0}; // up to size of xmmword
+						edb::value128 target;
 
 						if(process->read_bytes(effective_address, &target, sizeof(target))) {
 							switch(operand.complete_type()) {
 							case edb::Operand::TYPE_EXPRESSION8:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target[0] & 0xff, 2, 16, QChar('0'));
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value8(target).toHexString());
 								break;
 							case edb::Operand::TYPE_EXPRESSION16:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target[0] & 0xffff, 4, 16, QChar('0'));
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value16(target).toHexString());
 								break;
 							case edb::Operand::TYPE_EXPRESSION32:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target[0] & 0xffffffff, 8, 16, QChar('0'));
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value32(target).toHexString());
 								break;
 							case edb::Operand::TYPE_EXPRESSION80:
-								ret << QString("%1 = [%2] = 0x%3%4").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target[1] & 0xffff, 4, 16, QChar('0'))
-																																	  .arg(target[0], 16, 16, QChar('0'));
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value80(target).toHexString());
 								break;
 							case edb::Operand::TYPE_EXPRESSION128:
-								ret << QString("%1 = [%2] = 0x%3%4").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target[1], 16, 16, QChar('0'))
-																																	  .arg(target[0], 16, 16, QChar('0'));
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value128(target).toHexString());
 								break;
 							case edb::Operand::TYPE_EXPRESSION64:
 							default:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target[0], 16, 16, QChar('0'));
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value64(target).toHexString());
 								break;
 							}
 						} else {
