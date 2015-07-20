@@ -627,11 +627,11 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 
 		const int total_steps = sizeof(analysis_steps) / sizeof(analysis_steps[0]);
 
-		emit update_progress(util::percentage(0, total_steps));
+		Q_EMIT update_progress(util::percentage(0, total_steps));
 		for(int i = 0; i < total_steps; ++i) {
 			qDebug("[Analyzer] %s", analysis_steps[i].message);
 			analysis_steps[i].function();
-			emit update_progress(util::percentage(i + 1, total_steps));
+			Q_EMIT update_progress(util::percentage(i + 1, total_steps));
 		}
 
 		qDebug("[Analyzer] determining function types...");
@@ -639,7 +639,7 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 		set_function_types(&region_data.functions);
 
 		qDebug("[Analyzer] complete");
-		emit update_progress(100);
+		Q_EMIT update_progress(100);
 
 		if(analyzer_widget_) {
 			analyzer_widget_->repaint();

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,11 +22,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAction>
 #include <QMenu>
 
+namespace {
+const int MaxRecentFiles = 8;
+}
+
 //------------------------------------------------------------------------------
 // Name: RecentFileManager
 // Desc: constructor
 //------------------------------------------------------------------------------
-RecentFileManager::RecentFileManager(QWidget * parent, Qt::WindowFlags f) : QWidget(parent, f), menu_(0) {
+RecentFileManager::RecentFileManager(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), menu_(0) {
 	QSettings settings;
 	settings.beginGroup("Recent");
 	file_list_ = settings.value("recent.files", QStringList()).value<QStringList>();
@@ -98,7 +102,7 @@ void RecentFileManager::update() {
 void RecentFileManager::item_selected() {
 	if(auto action = qobject_cast<QAction *>(sender())) {
 		const QString s = action->data().toString();
-		emit file_selected(s);
+		Q_EMIT file_selected(s);
 	}
 }
 
@@ -112,7 +116,7 @@ void RecentFileManager::add_file(const QString &file) {
 		file_list_.push_front(file);
 
 		// make sure we don't add more than the max
-		while(file_list_.size() > max_recent_files) {
+		while(file_list_.size() > MaxRecentFiles) {
 			file_list_.pop_back();
 		}
 		update();

@@ -2195,7 +2195,7 @@ void Debugger::update_gui() {
 	//Signal all connected slots that the GUI has been updated.
 	//Useful for plugins with windows that should updated after
 	//hitting breakpoints, Step Over, etc.
-	emit gui_updated();
+	Q_EMIT gui_updated();
 }
 
 //------------------------------------------------------------------------------

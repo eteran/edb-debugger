@@ -450,7 +450,7 @@ QString QDisassemblyView::formatAddress(edb::address_t address) const {
 //------------------------------------------------------------------------------
 void QDisassemblyView::repaint() {
 	viewport()->repaint();
-	emit signal_updated();
+	Q_EMIT signal_updated();
 }
 
 //------------------------------------------------------------------------------
@@ -485,7 +485,7 @@ void QDisassemblyView::setRegion(const IRegion::pointer &r) {
 	if((r && r->compare(region_) != 0) || (!r)) {
 		region_ = r;
 		updateScrollbars();
-		emit regionChanged();
+		Q_EMIT regionChanged();
 	}
 	repaint();
 }
@@ -1094,7 +1094,7 @@ void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
 				const edb::address_t address = addressFromPoint(event->pos());
 
 				if(region_->contains(address)) {
-					emit breakPointToggled(address);
+					Q_EMIT breakPointToggled(address);
 					repaint();
 				}
 			}

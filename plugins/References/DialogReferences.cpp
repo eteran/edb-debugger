@@ -147,13 +147,13 @@ void DialogReferences::do_find() {
 							}
 						}
 
-						emit updateProgress(util::percentage(i, regions.size(), p - &pages[0], region->size()));
+						Q_EMIT updateProgress(util::percentage(i, regions.size(), p - &pages[0], region->size()));
 						++p;
 					}
 				}
 
 			} else {
-				emit updateProgress(util::percentage(i, regions.size()));
+				Q_EMIT updateProgress(util::percentage(i, regions.size()));
 			}
 			++i;
 		}

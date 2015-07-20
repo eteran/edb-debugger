@@ -130,7 +130,7 @@ void BookmarkWidget::add_address(edb::address_t address) {
 //------------------------------------------------------------------------------
 void BookmarkWidget::shortcut(int index) {
 	if(ui->tableWidget->item(index, 0)) {
-		emit on_tableWidget_cellDoubleClicked(index, 0);
+		Q_EMIT on_tableWidget_cellDoubleClicked(index, 0);
 	}
 }
 

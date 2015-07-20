@@ -63,6 +63,6 @@ void TabWidget::mousePressEvent(QMouseEvent *event) {
 
 	const int tab = tabBar()->tabAt(event->pos());
 	if(tab != -1) {
-		emit customContextMenuRequested(tab, event->pos());
+		Q_EMIT customContextMenuRequested(tab, event->pos());
 	}
 }

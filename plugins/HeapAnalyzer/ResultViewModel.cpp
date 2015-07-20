@@ -182,7 +182,7 @@ void ResultViewModel::sort(int column, Qt::SortOrder order) {
 		}
 	}
 
-	emit dataChanged(createIndex(0, 0, static_cast<void *>(0)), createIndex(-1, -1, static_cast<void *>(0)));
+	Q_EMIT dataChanged(createIndex(0, 0, static_cast<void *>(0)), createIndex(-1, -1, static_cast<void *>(0)));
 }
 
 //------------------------------------------------------------------------------

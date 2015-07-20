@@ -126,9 +126,9 @@ void GraphWidget::scale_view(qreal scaleFactor) {
 void GraphWidget::contextMenuEvent(QContextMenuEvent* event) {
 
 	if(auto node = qgraphicsitem_cast<GraphNode*>(itemAt(event->pos()))) {
-		emit nodeContextMenuEvent(event, node->name);
+		Q_EMIT nodeContextMenuEvent(event, node->name);
 	} else {
-		emit backgroundContextMenuEvent(event);
+		Q_EMIT backgroundContextMenuEvent(event);
 	}
 }
 
@@ -139,7 +139,7 @@ void GraphWidget::contextMenuEvent(QContextMenuEvent* event) {
 void GraphWidget::mouseDoubleClickEvent(QMouseEvent* event) {
 
 	if(auto node = qgraphicsitem_cast<GraphNode*>(itemAt(event->pos()))) {
-		emit nodeDoubleClickEvent(event, node->name);
+		Q_EMIT nodeDoubleClickEvent(event, node->name);
 	}
 }
 
