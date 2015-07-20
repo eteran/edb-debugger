@@ -55,6 +55,7 @@ void SymbolManager::clear() {
 	symbol_files_.clear();
 	symbols_.clear();
 	symbols_by_address_.clear();
+	symbols_by_file_.clear();
 	symbols_by_name_.clear();	
 	labels_.clear();
 	labels_by_name_.clear();
@@ -141,9 +142,10 @@ const Symbol::pointer SymbolManager::find_near_symbol(edb::address_t address) co
 //------------------------------------------------------------------------------
 void SymbolManager::add_symbol(const Symbol::pointer &symbol) {
 	Q_ASSERT(symbol);
-	symbols_.append(symbol);
+	symbols_.push_back(symbol);
 	symbols_by_address_[symbol->address] = symbol;
 	symbols_by_name_[symbol->name]       = symbol;
+	symbols_by_file_[symbol->file].push_back(symbol);
 }
 
 //------------------------------------------------------------------------------
@@ -278,4 +280,12 @@ QString SymbolManager::find_address_name(edb::address_t address) {
 //------------------------------------------------------------------------------
 QHash<edb::address_t, QString> SymbolManager::labels() const {
 	return labels_;
+}
+
+//------------------------------------------------------------------------------
+// Name: files
+// Desc:
+//------------------------------------------------------------------------------
+QList<QString> SymbolManager::files() const {
+	return symbols_by_file_.keys();
 }

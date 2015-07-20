@@ -42,20 +42,22 @@ public:
 	virtual void set_label(edb::address_t address, const QString &label);
 	virtual QString find_address_name(edb::address_t address);
 	virtual QHash<edb::address_t, QString> labels() const;
+	virtual QList<QString> files() const;
 
 private:
 	bool process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename);
 
 private:
-	QString                               symbol_directory_;
-	QSet<QString>                         symbol_files_;
-	QList<Symbol::pointer>                symbols_;
-	QMap<edb::address_t, Symbol::pointer> symbols_by_address_;
-	QHash<QString, Symbol::pointer>       symbols_by_name_;
-	ISymbolGenerator                     *symbol_generator_;
-	bool                                  show_path_notice_;
-	QHash<edb::address_t, QString>        labels_;
-	QHash<QString, edb::address_t>        labels_by_name_;
+	QString                                symbol_directory_;
+	QSet<QString>                          symbol_files_;
+	QList<Symbol::pointer>                 symbols_;
+	QMap<edb::address_t, Symbol::pointer>  symbols_by_address_;
+	QHash<QString, QList<Symbol::pointer>> symbols_by_file_;
+	QHash<QString, Symbol::pointer>        symbols_by_name_;
+	ISymbolGenerator                      *symbol_generator_;
+	bool                                   show_path_notice_;
+	QHash<edb::address_t, QString>         labels_;
+	QHash<QString, edb::address_t>         labels_by_name_;
 	
 };
 
