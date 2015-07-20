@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -44,10 +44,10 @@ public:
 	explicit ExpressionError(ERROR_MSG type) : error_(type) {
 	}
 
-	~ExpressionError() throw() {
+	~ExpressionError() noexcept {
 	}
 
-	const char *what() const throw() {
+	const char *what() const noexcept {
 		switch(error_) {
 		case SYNTAX:
 			return "Syntax Error";
@@ -146,7 +146,7 @@ private:
 	}
 
 public:
-	T evaluate_expression(bool *ok, ExpressionError *error) throw() {
+	T evaluate_expression(bool *ok, ExpressionError *error) noexcept {
 	
 		Q_ASSERT(ok);
 		Q_ASSERT(error);
