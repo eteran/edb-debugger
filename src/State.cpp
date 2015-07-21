@@ -227,33 +227,33 @@ void State::set_debug_register(int n, edb::reg_t value) {
 // Name: fpu_register
 // Desc:
 //------------------------------------------------------------------------------
-long double State::fpu_register(int n) const {
+edb::value80 State::fpu_register(int n) const {
 	if(impl_) {
 		return impl_->fpu_register(n);
 	}
-	return 0.0;
+	return edb::value80(0.0L);
 }
 
 //------------------------------------------------------------------------------
 // Name: mmx_register
 // Desc:
 //------------------------------------------------------------------------------
-quint64 State::mmx_register(int n) const {
+edb::value64 State::mmx_register(int n) const {
 	if(impl_) {
 		return impl_->mmx_register(n);
 	}
-	return 0;
+	return edb::value64(0LL);
 }
 
 //------------------------------------------------------------------------------
 // Name: xmm_register
 // Desc:
 //------------------------------------------------------------------------------
-QByteArray State::xmm_register(int n) const {
+edb::value128 State::xmm_register(int n) const {
 	if(impl_) {
 		return impl_->xmm_register(n);
 	}
-	return QByteArray(16, 0);
+	return edb::value128();
 }
 
 //------------------------------------------------------------------------------

@@ -55,15 +55,15 @@ public:
 
 public:
 	// FPU
-	virtual long double fpu_register(int n) const = 0;
+	virtual edb::value80 fpu_register(int n) const = 0;
 
 public:
 	// MMX
-	virtual quint64 mmx_register(int n) const = 0;
+	virtual edb::value64 mmx_register(int n) const = 0;
 	
 public:
 	// SSE
-	virtual QByteArray xmm_register(int n) const = 0;
+	virtual edb::value128 xmm_register(int n) const = 0;
 };
 
 #endif

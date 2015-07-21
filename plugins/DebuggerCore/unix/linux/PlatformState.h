@@ -43,15 +43,15 @@ public:
 	virtual edb::address_t stack_pointer() const;
 	virtual edb::reg_t debug_register(int n) const;
 	virtual edb::reg_t flags() const;
-	virtual long double fpu_register(int n) const;
+	virtual edb::value80 fpu_register(int n) const;
 	virtual void adjust_stack(int bytes);
 	virtual void clear();
 	virtual void set_debug_register(int n, edb::reg_t value);
 	virtual void set_flags(edb::reg_t flags);
 	virtual void set_instruction_pointer(edb::address_t value);
 	virtual void set_register(const QString &name, edb::reg_t value);
-	virtual quint64 mmx_register(int n) const;
-	virtual QByteArray xmm_register(int n) const;
+	virtual edb::value64 mmx_register(int n) const;
+	virtual edb::value128 xmm_register(int n) const;
 	virtual Register gp_register(int n) const;
 	
 private:

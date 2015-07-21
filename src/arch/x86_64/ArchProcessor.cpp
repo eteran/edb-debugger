@@ -863,10 +863,10 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	register_view_items_[23]->setText(0, QString("SS: %1")     .arg(state["ss"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
 
 	for(int i = 0; i < 8; ++i) {
-		const long double current = state.fpu_register(i);
-		const long double prev    = last_state_.fpu_register(i);
-		register_view_items_[24 + i]->setText(0, QString("ST%1: %2").arg(i).arg(util::toString(current, 16)));
-		register_view_items_[24 + i]->setForeground(0, QBrush((current != prev && !(boost::math::isnan(prev) && boost::math::isnan(current))) ? Qt::red : palette.text()));
+		const edb::value80 current = state.fpu_register(i);
+		const edb::value80 prev    = last_state_.fpu_register(i);
+		register_view_items_[24 + i]->setText(0, QString("ST%1: %2").arg(i).arg(current.toString()));
+		register_view_items_[24 + i]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 	}
 
 	for(int i = 0; i < 8; ++i) {
@@ -876,23 +876,22 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 
 	if(has_mmx_) {
 		for(int i = 0; i < 8; ++i) {
-			const quint64 current = state.mmx_register(i);
-			const quint64 prev    = last_state_.mmx_register(i);
-			register_view_items_[40 + i]->setText(0, QString("MM%1: %2").arg(i).arg(current, sizeof(quint64)*2, 16, QChar('0')));
+			const edb::value64 current = state.mmx_register(i);
+			const edb::value64 prev    = last_state_.mmx_register(i);
+			register_view_items_[40 + i]->setText(0, QString("MM%1: %2").arg(i).arg(current.toHexString()));
 			register_view_items_[40 + i]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 	}
 
 	if(has_xmm_) {
 		for(int i = 0; i < 16; ++i) {
-			const QByteArray current = state.xmm_register(i);
-			const QByteArray prev    = last_state_.xmm_register(i);
-			Q_ASSERT(current.size() == 16 || current.size() == 0);
-			register_view_items_[48 + i]->setText(0, QString("XMM%1: %2").arg(i, -2).arg(current.toHex().constData()));
+			const edb::value128 current = state.xmm_register(i);
+			const edb::value128 prev    = last_state_.xmm_register(i);
+			register_view_items_[48 + i]->setText(0, QString("XMM%1: %2").arg(i, -2).arg(current.toHexString()));
 			register_view_items_[48 + i]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 
-
+		// TODO(10110111): switch to edb::value32
 		const quint32 current = state["mxcsr"].value<edb::reg_t>();
 		const quint32 prev    = last_state_["mxcsr"].value<edb::reg_t>();
 		register_view_items_[0x40]->setText(0, QString("MXCSR: %1").arg(current, 0, 16));
