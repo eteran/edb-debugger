@@ -6,7 +6,7 @@ include(../qmake/qt5-gui.pri)
 
 TEMPLATE    = app
 TARGET      = edb
-INCLUDEPATH += widgets $$LEVEL/include
+INCLUDEPATH += widgets $$LEVEL/include $$LEVEL/src/edisassm/include
 VPATH       += widgets $$LEVEL/include
 
 RESOURCES   = debugger.qrc
