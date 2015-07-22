@@ -43,7 +43,7 @@ public:
 	void swap(State &other);
 
 public:
-	QByteArray xmm_register(int n) const;
+	edb::value128 xmm_register(int n) const;
 	QString flags_to_string() const;
 	QString flags_to_string(edb::reg_t flags) const;
 	Register value(const QString &reg) const;
@@ -53,8 +53,9 @@ public:
 	edb::reg_t debug_register(int n) const;
 	edb::reg_t flags() const;
 	Register gp_register(int n) const;
-	long double fpu_register(int n) const;
-	quint64 mmx_register(int n) const;
+	int fpu_stack_pointer() const;
+	edb::value80 fpu_register(int n) const;
+	edb::value64 mmx_register(int n) const;
 	void adjust_stack(int bytes);
 	void clear();
 

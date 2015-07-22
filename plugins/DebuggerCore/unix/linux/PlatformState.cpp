@@ -257,17 +257,27 @@ edb::reg_t PlatformState::flags() const {
 }
 
 //------------------------------------------------------------------------------
+// Name: fpu_stack_pointer
+// Desc:
+//------------------------------------------------------------------------------
+int PlatformState::fpu_stack_pointer() const {
+
+	return (fpregs_.swd&0x3800)>>11;
+}
+
+//------------------------------------------------------------------------------
 // Name: fpu_register
 // Desc:
 //------------------------------------------------------------------------------
-long double PlatformState::fpu_register(int n) const {
+edb::value80 PlatformState::fpu_register(int n) const {
 
+	assert(fpuIndexValid(n));
 	// st_space is an array of 128 bytes, 16 bytes for each of 8 FPU registers
-	// Layout of st_space is common for x86 and x86-64, while sizeof(long double)
-	// is different. So just do conversion via char*, which works for both.
-	const char* c=reinterpret_cast<const char*>(fpregs_.st_space);
-	auto p = reinterpret_cast<const long double *>(c+16*n);
-	return *p;
+	// We don't want to reflect FPU's stack structure, we want to return Rx
+	// So fixup n using TOP value from status word
+	n-=fpu_stack_pointer();
+	if(n<0) n+=8;
+	return edb::value80(fpregs_.st_space,n*16);
 }
 
 //------------------------------------------------------------------------------
@@ -432,41 +442,25 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 // Name: mmx_register
 // Desc:
 //------------------------------------------------------------------------------
-quint64 PlatformState::mmx_register(int n) const {
+edb::value64 PlatformState::mmx_register(int n) const {
 
-	if(n >= 0 && n <= 7) {
-		// MMX registers are an alias to the lower 64-bits of the FPU regs
-		// But they alias regs R0-R7, thus don't reflect FPU's stack
-		// structure of ST0-ST7. So fixup n using TOP value from status word
-		int top=(fpregs_.swd&0x3800)>>11;
-		n-=top;
-		if(n<0) n+=8;
-		auto p = reinterpret_cast<const uint64_t *>(fpregs_.st_space);
-		return p[n * 2];
-	}
-	
-	return 0;
+	assert(mmxIndexValid(n));
+	// MMX registers are an alias to the lower 64-bits of the FPU regs
+	// But they alias regs R0-R7, thus don't reflect FPU's stack
+	// structure of ST0-ST7. So fixup n using TOP value from status word
+	n-=fpu_stack_pointer();
+	if(n<0) n+=8;
+	return edb::value64(fpregs_.st_space,n*16);
 }
 
 //------------------------------------------------------------------------------
 // Name: xmm_register
 // Desc:
 //------------------------------------------------------------------------------
-QByteArray PlatformState::xmm_register(int n) const {
+edb::value128 PlatformState::xmm_register(int n) const {
 
-#if defined(EDB_X86)
-	if(n >= 0 && n <= 7) {
-#elif defined(EDB_X86_64)
-	if(n >= 0 && n <= 16) {
-#endif
-		auto p = reinterpret_cast<const uint8_t *>(fpregs_.xmm_space);
-		const uint8_t *r = &p[n * 16];
-		QByteArray ret(reinterpret_cast<const char *>(r), 16);
-		// little endian!
-		std::reverse(ret.begin(), ret.end());
-		return ret;
-	}
-	return 0;
+    assert(xmmIndexValid(n));
+	return edb::value128(fpregs_.xmm_space,n*16);
 }
 
 }

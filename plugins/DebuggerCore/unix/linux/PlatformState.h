@@ -21,9 +21,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IState.h"
 #include "Types.h"
+#include <cstddef>
 #include <sys/user.h>
 
 namespace DebuggerCore {
+
+static constexpr std::size_t FPU_REG_COUNT=8;
+static constexpr std::size_t MMX_REG_COUNT=FPU_REG_COUNT;
+#if defined EDB_X86
+static constexpr std::size_t GPR_COUNT=8;
+#elif defined EDB_X86_64
+static constexpr std::size_t GPR_COUNT=16;
+#endif
+static constexpr std::size_t XMM_REG_COUNT=GPR_COUNT;
+static constexpr std::size_t YMM_REG_COUNT=GPR_COUNT;
+static constexpr std::size_t ZMM_REG_COUNT=GPR_COUNT;
+
+static constexpr bool gprIndexValid(std::size_t n) { return n<GPR_COUNT; }
+static constexpr bool fpuIndexValid(std::size_t n) { return n<FPU_REG_COUNT; }
+static constexpr bool mmxIndexValid(std::size_t n) { return n<MMX_REG_COUNT; }
+static constexpr bool xmmIndexValid(std::size_t n) { return n<XMM_REG_COUNT; }
+static constexpr bool ymmIndexValid(std::size_t n) { return n<YMM_REG_COUNT; }
+static constexpr bool zmmIndexValid(std::size_t n) { return n<ZMM_REG_COUNT; }
 
 class PlatformState : public IState {
 	friend class DebuggerCore;
@@ -43,15 +62,16 @@ public:
 	virtual edb::address_t stack_pointer() const;
 	virtual edb::reg_t debug_register(int n) const;
 	virtual edb::reg_t flags() const;
-	virtual long double fpu_register(int n) const;
+	virtual int fpu_stack_pointer() const;
+	virtual edb::value80 fpu_register(int n) const;
 	virtual void adjust_stack(int bytes);
 	virtual void clear();
 	virtual void set_debug_register(int n, edb::reg_t value);
 	virtual void set_flags(edb::reg_t flags);
 	virtual void set_instruction_pointer(edb::address_t value);
 	virtual void set_register(const QString &name, edb::reg_t value);
-	virtual quint64 mmx_register(int n) const;
-	virtual QByteArray xmm_register(int n) const;
+	virtual edb::value64 mmx_register(int n) const;
+	virtual edb::value128 xmm_register(int n) const;
 	virtual Register gp_register(int n) const;
 	
 private:

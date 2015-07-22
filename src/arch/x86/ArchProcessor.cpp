@@ -515,34 +515,28 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 				case edb::Operand::TYPE_EXPRESSION:
 					do {
 						const edb::address_t effective_address = get_effective_address(operand, state);
-						uint32_t target[4]={0}; // up to size of xmmword
+						edb::value128 target;
 
-						if(process->read_bytes(effective_address, &target, sizeof(target))) {
+						if(process->read_bytes(effective_address, &target.value(), sizeof(target))) {
 							switch(operand.complete_type()) {
 							case edb::Operand::TYPE_EXPRESSION8:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target[0] & 0xff, 2, 16, QChar('0'));
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value8(target).toHexString());
 								break;
 							case edb::Operand::TYPE_EXPRESSION16:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target[0] & 0xffff, 4, 16, QChar('0'));
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value16(target).toHexString());
 								break;
 							case edb::Operand::TYPE_EXPRESSION64:
-								ret << QString("%1 = [%2] = 0x%3%4").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target[1], 8, 16, QChar('0'))
-																																	  .arg(target[0], 8, 16, QChar('0'));
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value64(target).toHexString());
 								break;
 							case edb::Operand::TYPE_EXPRESSION80:
-								ret << QString("%1 = [%2] = 0x%3%4%5").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target[2] & 0xffff, 4, 16, QChar('0'))
-																																		.arg(target[1], 8, 16, QChar('0'))
-																																		.arg(target[0], 8, 16, QChar('0'));
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value80(target).toHexString());
 								break;
 							case edb::Operand::TYPE_EXPRESSION128:
-								ret << QString("%1 = [%2] = 0x%3%4%5%6").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target[3], 8, 16, QChar('0'))
-																																		  .arg(target[2], 8, 16, QChar('0'))
-																																		  .arg(target[1], 8, 16, QChar('0'))
-																																		  .arg(target[0], 8, 16, QChar('0'));
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value128(target).toHexString());
 								break;
 							case edb::Operand::TYPE_EXPRESSION32:
 							default:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(target[0] & 0xffffffff, 8, 16, QChar('0'));
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value32(target).toHexString());
 								break;
 							}
 						} else {
@@ -813,10 +807,11 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	register_view_items_[15]->setText(0, QString("SS: %1")     .arg(state["ss"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
 
 	for(int i = 0; i < 8; ++i) {
-		const long double current = state.fpu_register(i);
-		const long double prev    = last_state_.fpu_register(i);
-		register_view_items_[16 + i]->setText(0, QString("ST%1: %2").arg(i).arg(util::toString(current, 16)));
-		register_view_items_[16 + i]->setForeground(0, QBrush((current != prev && !(boost::math::isnan(prev) && boost::math::isnan(current))) ? Qt::red : palette.text()));
+		const edb::value80 current = state.fpu_register(i);
+		const edb::value80 prev    = last_state_.fpu_register(i);
+		const int top=state.fpu_stack_pointer();
+		register_view_items_[16 + i]->setText(0, QString("%1R%2: 0x%3 %4").arg(top==i?"=>":"  ").arg(i).arg(current.toHexString()).arg(current.toString()));
+		register_view_items_[16 + i]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 	}
 
 	for(int i = 0; i < 8; ++i) {
@@ -826,22 +821,22 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 
 	if(has_mmx_) {
 		for(int i = 0; i < 8; ++i) {
-			const quint64 current = state.mmx_register(i);
-			const quint64 prev    = last_state_.mmx_register(i);
-			register_view_items_[32 + i]->setText(0, QString("MM%1: %2").arg(i).arg(current, sizeof(quint64)*2, 16, QChar('0')));
+			const edb::value64 current = state.mmx_register(i);
+			const edb::value64 prev    = last_state_.mmx_register(i);
+			register_view_items_[32 + i]->setText(0, QString("MM%1: %2").arg(i).arg(current.toHexString()));
 			register_view_items_[32 + i]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 	}
 
 	if(has_xmm_) {
 		for(int i = 0; i < 8; ++i) {
-			const QByteArray current = state.xmm_register(i);
-			const QByteArray prev    = last_state_.xmm_register(i);
-			Q_ASSERT(current.size() == 16 || current.size() == 0);
-			register_view_items_[40 + i]->setText(0, QString("XMM%1: %2").arg(i).arg(current.toHex().constData()));
+			const edb::value128 current = state.xmm_register(i);
+			const edb::value128 prev    = last_state_.xmm_register(i);
+			register_view_items_[40 + i]->setText(0, QString("XMM%1: %2").arg(i).arg(current.toHexString()));
 			register_view_items_[40 + i]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 
+		// TODO(10110111): switch to edb::value32
 		const quint32 current = state["mxcsr"].value<edb::reg_t>();
 		const quint32 prev    = last_state_["mxcsr"].value<edb::reg_t>();
 		register_view_items_[0x30]->setText(0, QString("MXCSR: %1").arg(current, 0, 16));
