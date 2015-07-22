@@ -21,9 +21,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IState.h"
 #include "Types.h"
+#include <cstddef>
 #include <sys/user.h>
 
 namespace DebuggerCore {
+
+static constexpr std::size_t FPU_REG_COUNT=8;
+static constexpr std::size_t MMX_REG_COUNT=FPU_REG_COUNT;
+#if defined EDB_X86
+static constexpr std::size_t GPR_COUNT=8;
+#elif defined EDB_X86_64
+static constexpr std::size_t GPR_COUNT=16;
+#endif
+static constexpr std::size_t XMM_REG_COUNT=GPR_COUNT;
+static constexpr std::size_t YMM_REG_COUNT=GPR_COUNT;
+static constexpr std::size_t ZMM_REG_COUNT=GPR_COUNT;
+
+static constexpr bool gprIndexValid(std::size_t n) { return n<GPR_COUNT; }
+static constexpr bool fpuIndexValid(std::size_t n) { return n<FPU_REG_COUNT; }
+static constexpr bool mmxIndexValid(std::size_t n) { return n<MMX_REG_COUNT; }
+static constexpr bool xmmIndexValid(std::size_t n) { return n<XMM_REG_COUNT; }
+static constexpr bool ymmIndexValid(std::size_t n) { return n<YMM_REG_COUNT; }
+static constexpr bool zmmIndexValid(std::size_t n) { return n<ZMM_REG_COUNT; }
 
 class PlatformState : public IState {
 	friend class DebuggerCore;

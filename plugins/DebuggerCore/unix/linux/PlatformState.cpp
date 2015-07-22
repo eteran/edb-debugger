@@ -271,7 +271,7 @@ int PlatformState::fpu_stack_pointer() const {
 //------------------------------------------------------------------------------
 edb::value80 PlatformState::fpu_register(int n) const {
 
-	assert(0<=n && n<=7);
+	assert(fpuIndexValid(n));
 	// st_space is an array of 128 bytes, 16 bytes for each of 8 FPU registers
 	// We don't want to reflect FPU's stack structure, we want to return Rx
 	// So fixup n using TOP value from status word
@@ -444,7 +444,7 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 //------------------------------------------------------------------------------
 edb::value64 PlatformState::mmx_register(int n) const {
 
-	assert(n >= 0 && n <= 7);
+	assert(mmxIndexValid(n));
 	// MMX registers are an alias to the lower 64-bits of the FPU regs
 	// But they alias regs R0-R7, thus don't reflect FPU's stack
 	// structure of ST0-ST7. So fixup n using TOP value from status word
@@ -459,11 +459,7 @@ edb::value64 PlatformState::mmx_register(int n) const {
 //------------------------------------------------------------------------------
 edb::value128 PlatformState::xmm_register(int n) const {
 
-#if defined(EDB_X86)
-	assert(n >= 0 && n <= 7);
-#elif defined(EDB_X86_64)
-	assert(n >= 0 && n <= 15);
-#endif
+    assert(xmmIndexValid(n));
 	return edb::value128(fpregs_.xmm_space,n*16);
 }
 
