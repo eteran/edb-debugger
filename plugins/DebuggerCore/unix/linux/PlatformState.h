@@ -43,6 +43,7 @@ public:
 	virtual edb::address_t stack_pointer() const;
 	virtual edb::reg_t debug_register(int n) const;
 	virtual edb::reg_t flags() const;
+	virtual int fpu_stack_pointer() const;
 	virtual edb::value80 fpu_register(int n) const;
 	virtual void adjust_stack(int bytes);
 	virtual void clear();

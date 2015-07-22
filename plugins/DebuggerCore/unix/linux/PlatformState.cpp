@@ -257,6 +257,15 @@ edb::reg_t PlatformState::flags() const {
 }
 
 //------------------------------------------------------------------------------
+// Name: fpu_stack_pointer
+// Desc:
+//------------------------------------------------------------------------------
+int PlatformState::fpu_stack_pointer() const {
+
+	return (fpregs_.swd&0x3800)>>11;
+}
+
+//------------------------------------------------------------------------------
 // Name: fpu_register
 // Desc:
 //------------------------------------------------------------------------------
@@ -266,8 +275,7 @@ edb::value80 PlatformState::fpu_register(int n) const {
 	// st_space is an array of 128 bytes, 16 bytes for each of 8 FPU registers
 	// We don't want to reflect FPU's stack structure, we want to return Rx
 	// So fixup n using TOP value from status word
-	int top=(fpregs_.swd&0x3800)>>11;
-	n-=top;
+	n-=fpu_stack_pointer();
 	if(n<0) n+=8;
 	return edb::value80(fpregs_.st_space,n*16);
 }
@@ -440,8 +448,7 @@ edb::value64 PlatformState::mmx_register(int n) const {
 	// MMX registers are an alias to the lower 64-bits of the FPU regs
 	// But they alias regs R0-R7, thus don't reflect FPU's stack
 	// structure of ST0-ST7. So fixup n using TOP value from status word
-	int top=(fpregs_.swd&0x3800)>>11;
-	n-=top;
+	n-=fpu_stack_pointer();
 	if(n<0) n+=8;
 	return edb::value64(fpregs_.st_space,n*16);
 }

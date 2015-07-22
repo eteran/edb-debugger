@@ -55,6 +55,7 @@ public:
 
 public:
 	// FPU
+	virtual int fpu_stack_pointer() const = 0;
 	virtual edb::value80 fpu_register(int n) const = 0;
 
 public:

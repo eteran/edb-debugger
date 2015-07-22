@@ -865,7 +865,8 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	for(int i = 0; i < 8; ++i) {
 		const edb::value80 current = state.fpu_register(i);
 		const edb::value80 prev    = last_state_.fpu_register(i);
-		register_view_items_[24 + i]->setText(0, QString("ST%1: %2").arg(i).arg(current.toString()));
+		const int top=state.fpu_stack_pointer();
+		register_view_items_[24 + i]->setText(0, QString("%1R%2: 0x%3 %4").arg(top==i?"=>":"  ").arg(i).arg(current.toHexString()).arg(current.toString()));
 		register_view_items_[24 + i]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 	}
 

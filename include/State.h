@@ -53,6 +53,7 @@ public:
 	edb::reg_t debug_register(int n) const;
 	edb::reg_t flags() const;
 	Register gp_register(int n) const;
+	int fpu_stack_pointer() const;
 	edb::value80 fpu_register(int n) const;
 	edb::value64 mmx_register(int n) const;
 	void adjust_stack(int bytes);
