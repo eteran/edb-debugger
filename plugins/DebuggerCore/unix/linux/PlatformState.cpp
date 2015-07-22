@@ -264,6 +264,11 @@ edb::value80 PlatformState::fpu_register(int n) const {
 
 	assert(0<=n && n<=7);
 	// st_space is an array of 128 bytes, 16 bytes for each of 8 FPU registers
+	// We don't want to reflect FPU's stack structure, we want to return Rx
+	// So fixup n using TOP value from status word
+	int top=(fpregs_.swd&0x3800)>>11;
+	n-=top;
+	if(n<0) n+=8;
 	return edb::value80(fpregs_.st_space,n*16);
 }
 
