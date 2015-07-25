@@ -105,6 +105,9 @@ struct Value80 : public ValueBase<16,5> {
 		ss << std::showpos << std::setprecision(20) << float80val;
 		return QString::fromStdString(ss.str());
 	}
+
+	uint16_t exponent() const { return value_[4] & 0x7fff; }
+	uint64_t mantissa() const { return SizedValue<64>(value_).value()[0]; }
 };
 
 static constexpr int LARGE_SIZED_VALUE_ELEMENT_WIDTH=64;
