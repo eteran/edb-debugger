@@ -665,7 +665,7 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 			register_view_items_[itemNumber++] = create_register_item(gpr, "eflags");
 
 			// split eflags view
-			split_flags_ = new QTreeWidgetItem(register_view_items_[itemNumber]);
+			split_flags_ = new QTreeWidgetItem(register_view_items_[itemNumber - 1]);
 			split_flags_->setText(0, state.flags_to_string(0));
 		}
 
