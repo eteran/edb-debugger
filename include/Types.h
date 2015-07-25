@@ -174,11 +174,15 @@ struct Value80 : public ValueBase<16,5> {
 		return floatTypeString(floatType());
 	}
 
-	QString toString() const {
-		std::ostringstream ss;
+	long double toFloatValue() const {
 		long double float80val;
 		std::memcpy(&float80val, &value_, sizeof value_);
-		ss << std::showpos << std::setprecision(20) << float80val;
+		return float80val;
+	}
+
+	QString toString() const {
+		std::ostringstream ss;
+		ss << std::showpos << std::setprecision(20) << toFloatValue();
 		return QString::fromStdString(ss.str());
 	}
 
