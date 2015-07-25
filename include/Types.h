@@ -98,6 +98,65 @@ struct Value80 : public ValueBase<16,5> {
 	explicit Value80 (const Data& data, std::size_t offset=0) : ValueBase<16,5>(data,offset)
 	{ static_assert(sizeof(Value80)*8==80,"Size is broken!"); }
 
+	enum class FloatType {
+		Zero,
+		Normal,
+		Infinity,
+		NegativeInfinity,
+		Denormal,
+		PseudoDenormal,
+		SNaN,
+		QNaN,
+		Unsupported
+	};
+	FloatType floatType() const {
+		uint16_t exponent=this->exponent();
+		uint64_t mantissa=this->mantissa();
+		bool negative=value_[4] & 0x8000;
+		static constexpr uint64_t integerBitOnly=0x8000000000000000ULL;
+		static constexpr uint64_t QNaN_mask=0xc000000000000000ULL;
+		bool integerBitSet=mantissa & integerBitOnly;
+		if(exponent==0x7fff)
+		{
+			if(mantissa==integerBitOnly)
+			{
+				if(negative)
+					return FloatType::NegativeInfinity; // |1|11..11|1.000..0|
+				else
+					return FloatType::Infinity;         // |0|11..11|1.000..0|
+			}
+			if((mantissa & QNaN_mask) == QNaN_mask)
+				return FloatType::QNaN;                 // |X|11..11|1.1XX..X|
+			else if((mantissa & QNaN_mask) == integerBitOnly)
+				return FloatType::SNaN;                 // |X|11..11|1.0XX..X|
+			else
+				return FloatType::Unsupported; 			// integer bit reset
+		}
+		else if(exponent==0x0000)
+		{
+			if(mantissa==0)
+				return FloatType::Zero;
+			else
+			{
+				if(!integerBitSet)
+					return FloatType::Denormal;     // |X|00.00|0.XXXX..X|
+				else
+					return FloatType::PseudoDenormal;// |X|00.00|1.XXXX..X|
+			}
+		}
+		else
+		{
+			if(integerBitSet)
+				return FloatType::Normal;
+			else
+				return FloatType::Unsupported;
+		}
+	}
+	bool isSpecial(FloatType type) const {
+		return type!=FloatType::Normal &&
+			   type!=FloatType::Zero;
+	}
+
 	QString toString() const {
 		std::ostringstream ss;
 		long double float80val;
