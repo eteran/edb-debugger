@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <cassert>
 #include <cstddef>
+#include <map>
 
 namespace edb {
 
@@ -49,103 +50,155 @@ template<> struct sized_uint<16> { typedef uint16_t type; };
 template<> struct sized_uint<32> { typedef uint32_t type; };
 template<> struct sized_uint<64> { typedef uint64_t type; };
 
-template<int N>
-class SizedValue {
-	typedef typename sized_uint<N>::type ValueType;
-	typename std::enable_if<N%8==0 && N<=64,ValueType>::type value_;
-public:
-	SizedValue() = default;
-	explicit SizedValue(ValueType value) :value_(value) {}
+template<int ELEMENT_WIDTH, int ELEMENT_COUNT>
+class ValueBase
+{
+	static_assert(ELEMENT_COUNT>0,"ValueBase::value_ must be non-empty");
+protected:
+	typedef std::array<typename sized_uint<ELEMENT_WIDTH>::type,ELEMENT_COUNT> ValueType;
+	ValueType value_;
 
 	template<typename Data>
-	explicit SizedValue (const Data& data, std::size_t offset=0) {
-		static_assert(sizeof(Data)>=sizeof(ValueType),"SizedValue can only be constructed from large enough variable");
+	explicit ValueBase(const Data& data, std::size_t offset=0) {
+		static_assert(sizeof(Data)>=sizeof(ValueType),"ValueBase can only be constructed from large enough variable");
 		assert(sizeof(Data)-offset>=sizeof(ValueType)); // check bounds, this can't be done at compile time
 		const char* const dataStart = reinterpret_cast<const char*>(&data);
 		std::memcpy(&value_, dataStart+offset, sizeof value_);
 	}
+	ValueBase() = default;
+public:
+	QString toHexString() const {
+		std::ostringstream ss;
+		for(auto it = value_.rbegin(); it!=value_.rend(); ++it)
+			ss << std::setw(sizeof(*it)*2) << std::setfill('0') << std::hex << +*it; // + to prevent printing uint8_t as a character
+		return QString::fromStdString(ss.str());
+	}
 
 	ValueType& value() { return value_; }
 	const ValueType& value() const { return value_; }
-
-	bool operator==(const SizedValue& other) const { return value_==other.value_; }
-	bool operator!=(const SizedValue& other) const { return !(*this==other); }
-
-	QString toHexString() const { return QString("%1").arg(value_, sizeof(value_)*2, 16, QChar('0')); }
-	QString toString() const { return QString("%1").arg(value_); }
+	bool operator==(const ValueBase& other) const { return value_==other.value_; }
+	bool operator!=(const ValueBase& other) const { return !(*this==other); }
 };
 
-template<typename T>
-QString makeHexString(const T& value) {
-    std::ostringstream ss;
-    for(auto it = value.rbegin(); it!=value.rend(); ++it)
-        ss << std::setw(sizeof(*it)*2) << std::setfill('0') << std::hex << *it;
-    return QString::fromStdString(ss.str());
-}
-
-class Value80 {
-    // Not using long double because for e.g. x86_64 it has 128 bits.
-    // If we did, it would in particular break current comparison operators
-    // And anyway this class is Value80, not ValueAtLeast80.
-	typedef std::array<uint16_t,5> ValueType;
-	ValueType value_;
-public:
-	Value80() = default;
-	explicit Value80(ValueType value) :value_(value) {}
-
+template<int N>
+struct SizedValue : public ValueBase<N,1> {
+	typedef typename sized_uint<N>::type InnerValueType;
+	static_assert(N%8==0,"SizedValue must have multiple of 8 bits in size");
+	SizedValue() = default;
 	template<typename Data>
-	explicit Value80 (const Data& data, std::size_t offset=0) {
-		static_assert(sizeof(Data)>=sizeof(ValueType),"Value80 can only be constructed from large enough variable");
-		assert(sizeof(Data)-offset>=sizeof(ValueType)); // check bounds, this can't be done at compile time
-		const char* const dataStart = reinterpret_cast<const char*>(&data);
-		std::memcpy(&value_, dataStart+offset, sizeof value_);
+	explicit SizedValue (const Data& data, std::size_t offset=0) : ValueBase<N,1>(data,offset)
+	{ static_assert(sizeof(SizedValue)*8==N,"Size is broken!"); }
+
+	QString toString() const { return QString("%1").arg(this->value_); }
+};
+
+// Not using long double because for e.g. x86_64 it has 128 bits.
+struct Value80 : public ValueBase<16,5> {
+	Value80() = default;
+	template<typename Data>
+	explicit Value80 (const Data& data, std::size_t offset=0) : ValueBase<16,5>(data,offset)
+	{ static_assert(sizeof(Value80)*8==80,"Size is broken!"); }
+
+	enum class FloatType {
+		Zero,
+		Normal,
+		Infinity,
+		NegativeInfinity,
+		Denormal,
+		PseudoDenormal,
+		SNaN,
+		QNaN,
+		Unsupported
+	};
+	FloatType floatType() const {
+		uint16_t exponent=this->exponent();
+		uint64_t mantissa=this->mantissa();
+		bool negative=value_[4] & 0x8000;
+		static constexpr uint64_t integerBitOnly=0x8000000000000000ULL;
+		static constexpr uint64_t QNaN_mask=0xc000000000000000ULL;
+		bool integerBitSet=mantissa & integerBitOnly;
+		if(exponent==0x7fff)
+		{
+			if(mantissa==integerBitOnly)
+			{
+				if(negative)
+					return FloatType::NegativeInfinity; // |1|11..11|1.000..0|
+				else
+					return FloatType::Infinity;         // |0|11..11|1.000..0|
+			}
+			if((mantissa & QNaN_mask) == QNaN_mask)
+				return FloatType::QNaN;                 // |X|11..11|1.1XX..X|
+			else if((mantissa & QNaN_mask) == integerBitOnly)
+				return FloatType::SNaN;                 // |X|11..11|1.0XX..X|
+			else
+				return FloatType::Unsupported; 			// integer bit reset
+		}
+		else if(exponent==0x0000)
+		{
+			if(mantissa==0)
+				return FloatType::Zero;
+			else
+			{
+				if(!integerBitSet)
+					return FloatType::Denormal;     // |X|00.00|0.XXXX..X|
+				else
+					return FloatType::PseudoDenormal;// |X|00.00|1.XXXX..X|
+			}
+		}
+		else
+		{
+			if(integerBitSet)
+				return FloatType::Normal;
+			else
+				return FloatType::Unsupported;
+		}
+	}
+	bool isSpecial(FloatType type) const {
+		return type!=FloatType::Normal &&
+			   type!=FloatType::Zero;
+	}
+	static QString floatTypeString(FloatType type) {
+		std::map<FloatType,QString> types{
+			{FloatType::Zero,            "Zero"},
+			{FloatType::Normal,          "Normal"},
+			{FloatType::Infinity,        "+Inf"},
+			{FloatType::NegativeInfinity,"-Inf"},
+			{FloatType::Denormal,        "Denormal"},
+			{FloatType::PseudoDenormal,  "Pseudo-denormal"},
+			{FloatType::SNaN,            "SNaN"},
+			{FloatType::QNaN,            "QNaN"},
+			{FloatType::Unsupported,     "Unsupported"}};
+		return types[type];
+	}
+	QString floatTypeString() const {
+		return floatTypeString(floatType());
 	}
 
-	ValueType& value() { return value_; }
-	const ValueType& value() const { return value_; }
-
-	bool operator==(const Value80& other) const {
-		// Can't directly compare because:
-		// * if it's nan, it's unequal to anything, this would mislead the user if highlighted
-		// * nans have non-unique representation and type, and we want to see _all_ the differences
-		// * if it's zero, it may have different sign but be equal, we want to see sign change
-		// Thus just compare per-byte
-		return !std::memcmp(&value_,&other.value_, sizeof value_);
+	long double toFloatValue() const {
+		long double float80val;
+		std::memcpy(&float80val, &value_, sizeof value_);
+		return float80val;
 	}
-	bool operator!=(const Value80& other) const { return !(*this==other); }
-	QString toHexString() const { return makeHexString(value_); }
 
 	QString toString() const {
 		std::ostringstream ss;
-        long double float80val;
-        std::memcpy(&float80val, &value_, sizeof value_);
-		ss << std::showpos << std::setprecision(16) << float80val;
+		ss << std::showpos << std::setprecision(20) << toFloatValue();
 		return QString::fromStdString(ss.str());
 	}
+
+	uint16_t exponent() const { return value_[4] & 0x7fff; }
+	uint64_t mantissa() const { return SizedValue<64>(value_).value()[0]; }
 };
 
+static constexpr int LARGE_SIZED_VALUE_ELEMENT_WIDTH=64;
 template<int N>
-class LargeSizedValue {
-	typedef std::array<uint64_t,N/64> ValueType;
-	typename std::enable_if<N%8==0 && (N>64),ValueType>::type value_;
-public:
+struct LargeSizedValue : public ValueBase<LARGE_SIZED_VALUE_ELEMENT_WIDTH,N/LARGE_SIZED_VALUE_ELEMENT_WIDTH> {
+	typedef ValueBase<LARGE_SIZED_VALUE_ELEMENT_WIDTH,N/LARGE_SIZED_VALUE_ELEMENT_WIDTH> BaseClass;
+	static_assert(N % LARGE_SIZED_VALUE_ELEMENT_WIDTH==0,"LargeSizedValue must have multiple of 64 bits in size");
 	LargeSizedValue() = default;
-	explicit LargeSizedValue(ValueType value) :value_(value) {}
-
 	template<typename Data>
-	explicit LargeSizedValue (const Data& data, std::size_t offset=0) {
-		static_assert(sizeof(Data)>=sizeof(ValueType),"LargeSizedValue can only be constructed from large enough variable");
-		assert(sizeof(Data)-offset>=sizeof(ValueType)); // check bounds, this can't be done at compile time
-		const char* const dataStart = reinterpret_cast<const char*>(&data);
-		std::memcpy(&value_, dataStart+offset, sizeof value_);
-	}
-
-	ValueType& value() { return value_; }
-	const ValueType& value() const { return value_; }
-
-	bool operator==(const LargeSizedValue& other) const { return value_==other.value_; }
-	bool operator!=(const LargeSizedValue& other) const { return !(*this==other); }
-	QString toHexString() const { return makeHexString(value_); }
+	explicit LargeSizedValue (const Data& data, std::size_t offset=0) : BaseClass(data,offset)
+	{ static_assert(sizeof(LargeSizedValue)*8==N,"Size is broken!"); }
 };
 }
 
@@ -163,7 +216,15 @@ typedef detail::LargeSizedValue<128> value128;
 typedef detail::LargeSizedValue<256> value256;
 // AVX512
 typedef detail::LargeSizedValue<512> value512;
-	
+
+static_assert(std::is_standard_layout<value8>::value &&
+			  std::is_standard_layout<value16>::value &&
+			  std::is_standard_layout<value32>::value &&
+			  std::is_standard_layout<value64>::value &&
+			  std::is_standard_layout<value80>::value &&
+			  std::is_standard_layout<value128>::value &&
+			  std::is_standard_layout<value256>::value &&
+			  std::is_standard_layout<value512>::value,"Fixed-sized values are intended to have standard layout");
 }
 
 #endif

@@ -246,6 +246,61 @@ edb::value80 State::fpu_register(int n) const {
 }
 
 //------------------------------------------------------------------------------
+// Name: fpu_register_is_empty
+// Desc:
+//------------------------------------------------------------------------------
+bool State::fpu_register_is_empty(std::size_t n) const {
+	if(impl_) {
+		return impl_->fpu_register_is_empty(n);
+	}
+	return true;
+}
+
+//------------------------------------------------------------------------------
+// Name: fpu_status_word
+// Desc:
+//------------------------------------------------------------------------------
+edb::value16 State::fpu_status_word() const {
+	if(impl_) {
+		return impl_->fpu_status_word();
+	}
+	return edb::value16(0);
+}
+
+//------------------------------------------------------------------------------
+// Name: fpu_control_word
+// Desc:
+//------------------------------------------------------------------------------
+edb::value16 State::fpu_control_word() const {
+	if(impl_) {
+		return impl_->fpu_control_word();
+	}
+	return edb::value16(0);
+}
+
+//------------------------------------------------------------------------------
+// Name: fpu_tag_word
+// Desc:
+//------------------------------------------------------------------------------
+edb::value16 State::fpu_tag_word() const {
+	if(impl_) {
+		return impl_->fpu_tag_word();
+	}
+	return edb::value16(0);
+}
+
+//------------------------------------------------------------------------------
+// Name: fpu_register_tag_string
+// Desc:
+//------------------------------------------------------------------------------
+QString State::fpu_register_tag_string(std::size_t n) const {
+	if(impl_) {
+		return impl_->fpu_register_tag_string(n);
+	}
+	return QString();
+}
+
+//------------------------------------------------------------------------------
 // Name: mmx_register
 // Desc:
 //------------------------------------------------------------------------------

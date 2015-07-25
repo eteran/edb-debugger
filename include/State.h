@@ -55,6 +55,11 @@ public:
 	Register gp_register(int n) const;
 	int fpu_stack_pointer() const;
 	edb::value80 fpu_register(int n) const;
+	bool fpu_register_is_empty(std::size_t n) const;
+	QString fpu_register_tag_string(std::size_t n) const;
+	edb::value16 fpu_control_word() const;
+	edb::value16 fpu_status_word() const;
+	edb::value16 fpu_tag_word() const;
 	edb::value64 mmx_register(int n) const;
 	void adjust_stack(int bytes);
 	void clear();

@@ -266,6 +266,17 @@ int PlatformState::fpu_stack_pointer() const {
 }
 
 //------------------------------------------------------------------------------
+// Name: fpu_stack_pointer
+// Desc: We don't want to reflect FPU's stack structure, we want to work with Rx
+// So this function fixes n using TOP value from status word
+//------------------------------------------------------------------------------
+std::size_t PlatformState::fpu_fixup_index(std::size_t n) const {
+
+	n=(n+8-fpu_stack_pointer()) % 8;
+	return n;
+}
+
+//------------------------------------------------------------------------------
 // Name: fpu_register
 // Desc:
 //------------------------------------------------------------------------------
@@ -273,11 +284,91 @@ edb::value80 PlatformState::fpu_register(int n) const {
 
 	assert(fpuIndexValid(n));
 	// st_space is an array of 128 bytes, 16 bytes for each of 8 FPU registers
-	// We don't want to reflect FPU's stack structure, we want to return Rx
-	// So fixup n using TOP value from status word
-	n-=fpu_stack_pointer();
-	if(n<0) n+=8;
+	n=fpu_fixup_index(n); // Returning Rn not ST(n)
 	return edb::value80(fpregs_.st_space,n*16);
+}
+
+//------------------------------------------------------------------------------
+// Name: fpu_register_is_empty
+// Desc: Returns true if Rn register is empty when treated in terms of FPU stack
+//------------------------------------------------------------------------------
+bool PlatformState::fpu_register_is_empty(std::size_t n) const {
+
+	return fpu_register_tag(n)==3;
+}
+
+//------------------------------------------------------------------------------
+// Name: fpu_register_tag_string
+// Desc:
+//------------------------------------------------------------------------------
+QString PlatformState::fpu_register_tag_string(std::size_t n) const {
+	int tag=fpu_register_tag(n);
+	switch(tag)
+	{
+	case 0:
+		return QString("Valid");
+	case 1:
+		return QString("Zero");
+	case 2:
+		return QString("Special");
+	case 3:
+		return QString("Empty");
+	}
+	return QString();
+}
+
+//------------------------------------------------------------------------------
+// Name: recreate_fpu_register_tag
+// Desc: ptrace returns not a full tag word: merely a word of flags empty/non-empty
+//  This function uses the value of corresponding Rn register to recreate the
+//  full tag for that register.
+//------------------------------------------------------------------------------
+int PlatformState::recreate_fpu_register_tag(edb::value80 regval) const {
+
+	switch(regval.floatType())
+	{
+	case edb::value80::FloatType::Zero:
+		return 1; // Zero
+	case edb::value80::FloatType::Normal:
+		return 0; // Valid
+	default:
+		return 2; // Special
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: fpu_register_tag
+// Desc:
+//------------------------------------------------------------------------------
+int PlatformState::fpu_register_tag(int n) const {
+
+	assert(fpuIndexValid(n));
+	// Note that twd is not the same as x87 tag word, it's just a bit field of valid(1)/empty(0)
+#if defined EDB_X86
+	int minitag=(fpregs_.twd>>n)&0x1;
+#elif defined EDB_X86_64
+	int minitag=(fpregs_.ftw>>n)&0x1;
+#endif
+	return minitag ? recreate_fpu_register_tag(fpu_register(n)) : 3;
+}
+
+edb::value16 PlatformState::fpu_control_word() const {
+
+	return edb::value16(fpregs_.cwd);
+}
+
+edb::value16 PlatformState::fpu_status_word() const {
+
+	return edb::value16(fpregs_.swd);
+}
+
+edb::value16 PlatformState::fpu_tag_word() const {
+
+	uint16_t tagWord=0;
+	for(std::size_t n=0;n<FPU_REG_COUNT;++n)
+		tagWord |= fpu_register_tag(n)<<(2*n);
+
+	return edb::value16(tagWord);
 }
 
 //------------------------------------------------------------------------------
@@ -445,11 +536,8 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 edb::value64 PlatformState::mmx_register(int n) const {
 
 	assert(mmxIndexValid(n));
-	// MMX registers are an alias to the lower 64-bits of the FPU regs
-	// But they alias regs R0-R7, thus don't reflect FPU's stack
-	// structure of ST0-ST7. So fixup n using TOP value from status word
-	n-=fpu_stack_pointer();
-	if(n<0) n+=8;
+	// MMX registers are an alias to the lower 64-bits of the FPU regs Rn
+	n=fpu_fixup_index(n);
 	return edb::value64(fpregs_.st_space,n*16);
 }
 
