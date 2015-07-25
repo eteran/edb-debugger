@@ -718,14 +718,14 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 		}
 
 		if(QTreeWidgetItem *const fpu = category_list->addCategory(tr("FPU"))) {
-			register_view_items_[0x18] = create_register_item(fpu, "st0");
-			register_view_items_[0x19] = create_register_item(fpu, "st1");
-			register_view_items_[0x1a] = create_register_item(fpu, "st2");
-			register_view_items_[0x1b] = create_register_item(fpu, "st3");
-			register_view_items_[0x1c] = create_register_item(fpu, "st4");
-			register_view_items_[0x1d] = create_register_item(fpu, "st5");
-			register_view_items_[0x1e] = create_register_item(fpu, "st6");
-			register_view_items_[0x1f] = create_register_item(fpu, "st7");
+			register_view_items_[0x18] = create_register_item(fpu, "R0");
+			register_view_items_[0x19] = create_register_item(fpu, "R1");
+			register_view_items_[0x1a] = create_register_item(fpu, "R2");
+			register_view_items_[0x1b] = create_register_item(fpu, "R3");
+			register_view_items_[0x1c] = create_register_item(fpu, "R4");
+			register_view_items_[0x1d] = create_register_item(fpu, "R5");
+			register_view_items_[0x1e] = create_register_item(fpu, "R6");
+			register_view_items_[0x1f] = create_register_item(fpu, "R7");
 		}
 
 		if(QTreeWidgetItem *const dbg = category_list->addCategory(tr("Debug"))) {
