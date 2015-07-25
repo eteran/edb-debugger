@@ -289,6 +289,15 @@ edb::value80 PlatformState::fpu_register(int n) const {
 }
 
 //------------------------------------------------------------------------------
+// Name: fpu_register_is_empty
+// Desc: Returns true if Rn register is empty when treated in terms of FPU stack
+//------------------------------------------------------------------------------
+bool PlatformState::fpu_register_is_empty(std::size_t n) const {
+
+	return fpu_register_tag(n)==3;
+}
+
+//------------------------------------------------------------------------------
 // Name: fpu_register_tag_string
 // Desc:
 //------------------------------------------------------------------------------

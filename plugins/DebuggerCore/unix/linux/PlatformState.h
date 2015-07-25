@@ -64,6 +64,7 @@ public:
 	virtual edb::reg_t flags() const;
 	virtual int fpu_stack_pointer() const;
 	virtual edb::value80 fpu_register(int n) const;
+	virtual bool fpu_register_is_empty(std::size_t n) const;
 	virtual QString fpu_register_tag_string(std::size_t n) const;
 	virtual edb::value16 fpu_tag_word() const;
 	virtual void adjust_stack(int bytes);
