@@ -897,30 +897,30 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	QString precisionMode;
 	switch((controlWordValue>>10)&3) {
 	case 0:
-		roundingMode="Rounding to nearest";
+		roundingMode = tr("Rounding to nearest");
 		break;
 	case 1:
-		roundingMode="Rounding down";
+		roundingMode = tr("Rounding down");
 		break;
 	case 2:
-		roundingMode="Rounding up";
+		roundingMode = tr("Rounding up");
 		break;
 	case 3:
-		roundingMode="Rounding toward zero";
+		roundingMode = tr("Rounding toward zero");
 		break;
 	}
 	switch((controlWordValue>>8)&3) {
 	case 0:
-		precisionMode="Single precision (24 bit complete mantissa)";
+		precisionMode = tr("Single precision (24 bit complete mantissa)");
 		break;
 	case 1:
-		precisionMode="Reserved";
+		precisionMode = tr("Reserved");
 		break;
 	case 2:
-		precisionMode="Double precision (53 bit complete mantissa)";
+		precisionMode = tr("Double precision (53 bit complete mantissa)");
 		break;
 	case 3:
-		precisionMode="Extended precision (64 bit mantissa)";
+		precisionMode = tr("Extended precision (64 bit mantissa)");
 		break;
 	}
 	int exceptionMask=controlWordValue&0x3f;
