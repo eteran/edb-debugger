@@ -73,7 +73,10 @@ public:
 	virtual edb::value64 mmx_register(int n) const;
 	virtual edb::value128 xmm_register(int n) const;
 	virtual Register gp_register(int n) const;
-	
+
+private:
+	std::size_t fpu_fixup_index(std::size_t n) const;
+
 private:
 	struct user_regs_struct   regs_;
 #if defined(EDB_X86)
