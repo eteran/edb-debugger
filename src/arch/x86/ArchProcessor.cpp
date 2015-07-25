@@ -650,79 +650,80 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 
 		Q_ASSERT(category_list);
 
+		int itemNumber=0;
 		// setup the register view
 		if(QTreeWidgetItem *const gpr = category_list->addCategory(tr("General Purpose"))) {
-			register_view_items_[0x00] = create_register_item(gpr, "eax");
-			register_view_items_[0x01] = create_register_item(gpr, "ebx");
-			register_view_items_[0x02] = create_register_item(gpr, "ecx");
-			register_view_items_[0x03] = create_register_item(gpr, "edx");
-			register_view_items_[0x04] = create_register_item(gpr, "ebp");
-			register_view_items_[0x05] = create_register_item(gpr, "esp");
-			register_view_items_[0x06] = create_register_item(gpr, "esi");
-			register_view_items_[0x07] = create_register_item(gpr, "edi");
-			register_view_items_[0x08] = create_register_item(gpr, "eip");
-			register_view_items_[0x09] = create_register_item(gpr, "eflags");
+			register_view_items_[itemNumber++] = create_register_item(gpr, "eax");
+			register_view_items_[itemNumber++] = create_register_item(gpr, "ebx");
+			register_view_items_[itemNumber++] = create_register_item(gpr, "ecx");
+			register_view_items_[itemNumber++] = create_register_item(gpr, "edx");
+			register_view_items_[itemNumber++] = create_register_item(gpr, "ebp");
+			register_view_items_[itemNumber++] = create_register_item(gpr, "esp");
+			register_view_items_[itemNumber++] = create_register_item(gpr, "esi");
+			register_view_items_[itemNumber++] = create_register_item(gpr, "edi");
+			register_view_items_[itemNumber++] = create_register_item(gpr, "eip");
+			register_view_items_[itemNumber++] = create_register_item(gpr, "eflags");
 
 			// split eflags view
-			split_flags_ = new QTreeWidgetItem(register_view_items_[0x09]);
+			split_flags_ = new QTreeWidgetItem(register_view_items_[itemNumber]);
 			split_flags_->setText(0, state.flags_to_string(0));
 		}
 
 		if(QTreeWidgetItem *const segs = category_list->addCategory(tr("Segments"))) {
-			register_view_items_[0x0a] = create_register_item(segs, "cs");
-			register_view_items_[0x0b] = create_register_item(segs, "ds");
-			register_view_items_[0x0c] = create_register_item(segs, "es");
-			register_view_items_[0x0d] = create_register_item(segs, "fs");
-			register_view_items_[0x0e] = create_register_item(segs, "gs");
-			register_view_items_[0x0f] = create_register_item(segs, "ss");
+			register_view_items_[itemNumber++] = create_register_item(segs, "cs");
+			register_view_items_[itemNumber++] = create_register_item(segs, "ds");
+			register_view_items_[itemNumber++] = create_register_item(segs, "es");
+			register_view_items_[itemNumber++] = create_register_item(segs, "fs");
+			register_view_items_[itemNumber++] = create_register_item(segs, "gs");
+			register_view_items_[itemNumber++] = create_register_item(segs, "ss");
 		}
 
 		if(QTreeWidgetItem *const fpu = category_list->addCategory(tr("FPU"))) {
-			register_view_items_[0x10] = create_register_item(fpu, "R0");
-			register_view_items_[0x11] = create_register_item(fpu, "R1");
-			register_view_items_[0x12] = create_register_item(fpu, "R2");
-			register_view_items_[0x13] = create_register_item(fpu, "R3");
-			register_view_items_[0x14] = create_register_item(fpu, "R4");
-			register_view_items_[0x15] = create_register_item(fpu, "R5");
-			register_view_items_[0x16] = create_register_item(fpu, "R6");
-			register_view_items_[0x17] = create_register_item(fpu, "R7");
+			register_view_items_[itemNumber++] = create_register_item(fpu, "R0");
+			register_view_items_[itemNumber++] = create_register_item(fpu, "R1");
+			register_view_items_[itemNumber++] = create_register_item(fpu, "R2");
+			register_view_items_[itemNumber++] = create_register_item(fpu, "R3");
+			register_view_items_[itemNumber++] = create_register_item(fpu, "R4");
+			register_view_items_[itemNumber++] = create_register_item(fpu, "R5");
+			register_view_items_[itemNumber++] = create_register_item(fpu, "R6");
+			register_view_items_[itemNumber++] = create_register_item(fpu, "R7");
 		}
 
 		if(QTreeWidgetItem *const dbg = category_list->addCategory(tr("Debug"))) {
-			register_view_items_[0x18] = create_register_item(dbg, "dr0");
-			register_view_items_[0x19] = create_register_item(dbg, "dr1");
-			register_view_items_[0x1a] = create_register_item(dbg, "dr2");
-			register_view_items_[0x1b] = create_register_item(dbg, "dr3");
-			register_view_items_[0x1c] = create_register_item(dbg, "dr4");
-			register_view_items_[0x1d] = create_register_item(dbg, "dr5");
-			register_view_items_[0x1e] = create_register_item(dbg, "dr6");
-			register_view_items_[0x1f] = create_register_item(dbg, "dr7");
+			register_view_items_[itemNumber++] = create_register_item(dbg, "dr0");
+			register_view_items_[itemNumber++] = create_register_item(dbg, "dr1");
+			register_view_items_[itemNumber++] = create_register_item(dbg, "dr2");
+			register_view_items_[itemNumber++] = create_register_item(dbg, "dr3");
+			register_view_items_[itemNumber++] = create_register_item(dbg, "dr4");
+			register_view_items_[itemNumber++] = create_register_item(dbg, "dr5");
+			register_view_items_[itemNumber++] = create_register_item(dbg, "dr6");
+			register_view_items_[itemNumber++] = create_register_item(dbg, "dr7");
 		}
 
 		if(has_mmx_) {
 			if(QTreeWidgetItem *const mmx = category_list->addCategory(tr("MMX"))) {
-				register_view_items_[0x20] = create_register_item(mmx, "mm0");
-				register_view_items_[0x21] = create_register_item(mmx, "mm1");
-				register_view_items_[0x22] = create_register_item(mmx, "mm2");
-				register_view_items_[0x23] = create_register_item(mmx, "mm3");
-				register_view_items_[0x24] = create_register_item(mmx, "mm4");
-				register_view_items_[0x25] = create_register_item(mmx, "mm5");
-				register_view_items_[0x26] = create_register_item(mmx, "mm6");
-				register_view_items_[0x27] = create_register_item(mmx, "mm7");
+				register_view_items_[itemNumber++] = create_register_item(mmx, "mm0");
+				register_view_items_[itemNumber++] = create_register_item(mmx, "mm1");
+				register_view_items_[itemNumber++] = create_register_item(mmx, "mm2");
+				register_view_items_[itemNumber++] = create_register_item(mmx, "mm3");
+				register_view_items_[itemNumber++] = create_register_item(mmx, "mm4");
+				register_view_items_[itemNumber++] = create_register_item(mmx, "mm5");
+				register_view_items_[itemNumber++] = create_register_item(mmx, "mm6");
+				register_view_items_[itemNumber++] = create_register_item(mmx, "mm7");
 			}
 		}
 
 		if(has_xmm_) {
 			if(QTreeWidgetItem *const xmm = category_list->addCategory(tr("XMM"))) {
-				register_view_items_[0x28] = create_register_item(xmm, "xmm0");
-				register_view_items_[0x29] = create_register_item(xmm, "xmm1");
-				register_view_items_[0x2a] = create_register_item(xmm, "xmm2");
-				register_view_items_[0x2b] = create_register_item(xmm, "xmm3");
-				register_view_items_[0x2c] = create_register_item(xmm, "xmm4");
-				register_view_items_[0x2d] = create_register_item(xmm, "xmm5");
-				register_view_items_[0x2e] = create_register_item(xmm, "xmm6");
-				register_view_items_[0x2f] = create_register_item(xmm, "xmm7");
-				register_view_items_[0x30] = create_register_item(xmm, "mxcsr");
+				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm0");
+				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm1");
+				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm2");
+				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm3");
+				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm4");
+				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm5");
+				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm6");
+				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm7");
+				register_view_items_[itemNumber++] = create_register_item(xmm, "mxcsr");
 			}
 		}
 
@@ -781,30 +782,31 @@ void ArchProcessor::reset() {
 void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
 	const QPalette palette = QApplication::palette();
 
-	update_register(register_view_items_[0], "EAX", state.gp_register(Eax));
-	update_register(register_view_items_[1], "EBX", state.gp_register(Ebx));
-	update_register(register_view_items_[2], "ECX", state.gp_register(Ecx));
-	update_register(register_view_items_[3], "EDX", state.gp_register(Edx));
-	update_register(register_view_items_[4], "EBP", state.gp_register(Ebp));
-	update_register(register_view_items_[5], "ESP", state.gp_register(Esp));
-	update_register(register_view_items_[6], "ESI", state.gp_register(Esi));
-	update_register(register_view_items_[7], "EDI", state.gp_register(Edi));
+	int itemNumber=0;
+	update_register(register_view_items_[itemNumber++], "EAX", state.gp_register(Eax));
+	update_register(register_view_items_[itemNumber++], "EBX", state.gp_register(Ebx));
+	update_register(register_view_items_[itemNumber++], "ECX", state.gp_register(Ecx));
+	update_register(register_view_items_[itemNumber++], "EDX", state.gp_register(Edx));
+	update_register(register_view_items_[itemNumber++], "EBP", state.gp_register(Ebp));
+	update_register(register_view_items_[itemNumber++], "ESP", state.gp_register(Esp));
+	update_register(register_view_items_[itemNumber++], "ESI", state.gp_register(Esi));
+	update_register(register_view_items_[itemNumber++], "EDI", state.gp_register(Edi));
 
 	const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
 
 	if(!symname.isEmpty()) {
-		register_view_items_[8]->setText(0, QString("EIP: %1 <%2>").arg(edb::v1::format_pointer(state.instruction_pointer())).arg(symname));
+		register_view_items_[itemNumber++]->setText(0, QString("EIP: %1 <%2>").arg(edb::v1::format_pointer(state.instruction_pointer())).arg(symname));
 	} else {
-		register_view_items_[8]->setText(0, QString("EIP: %1").arg(edb::v1::format_pointer(state.instruction_pointer())));
+		register_view_items_[itemNumber++]->setText(0, QString("EIP: %1").arg(edb::v1::format_pointer(state.instruction_pointer())));
 	}
-	register_view_items_[9]->setText(0, QString("EFLAGS: %1").arg(edb::v1::format_pointer(state.flags())));
+	register_view_items_[itemNumber++]->setText(0, QString("EFLAGS: %1").arg(edb::v1::format_pointer(state.flags())));
 
-	register_view_items_[10]->setText(0, QString("CS: %1")     .arg(state["cs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
-	register_view_items_[11]->setText(0, QString("DS: %1")     .arg(state["ds"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
-	register_view_items_[12]->setText(0, QString("ES: %1")     .arg(state["es"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
-	register_view_items_[13]->setText(0, QString("FS: %1 (%2)").arg(state["fs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["fs_base"].value<edb::reg_t>())));
-	register_view_items_[14]->setText(0, QString("GS: %1 (%2)").arg(state["gs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["gs_base"].value<edb::reg_t>())));
-	register_view_items_[15]->setText(0, QString("SS: %1")     .arg(state["ss"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	register_view_items_[itemNumber++]->setText(0, QString("CS: %1")     .arg(state["cs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	register_view_items_[itemNumber++]->setText(0, QString("DS: %1")     .arg(state["ds"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	register_view_items_[itemNumber++]->setText(0, QString("ES: %1")     .arg(state["es"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	register_view_items_[itemNumber++]->setText(0, QString("FS: %1 (%2)").arg(state["fs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["fs_base"].value<edb::reg_t>())));
+	register_view_items_[itemNumber++]->setText(0, QString("GS: %1 (%2)").arg(state["gs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["gs_base"].value<edb::reg_t>())));
+	register_view_items_[itemNumber++]->setText(0, QString("SS: %1")     .arg(state["ss"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
 
 	for(int i = 0; i < 8; ++i) {
 		const edb::value80 current = state.fpu_register(i);
@@ -824,21 +826,21 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 				valueString=" "+current.toString();
 		}
 
-		register_view_items_[16 + i]->setText(0, QString("%1R%2: %3 0x%4%5%6").arg(top==i?"=>":"  ").arg(i).arg(tag.leftJustified(8)).arg(current.toHexString()).arg(valueString).arg(typeString));
-		register_view_items_[16 + i]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
+		register_view_items_[itemNumber]->setText(0, QString("%1R%2: %3 0x%4%5%6").arg(top==i?"=>":"  ").arg(i).arg(tag.leftJustified(8)).arg(current.toHexString()).arg(valueString).arg(typeString));
+		register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 	}
 
 	for(int i = 0; i < 8; ++i) {
-		register_view_items_[24 + i]->setText(0, QString("DR%1: %2").arg(i).arg(state.debug_register(i), 0, 16));
-		register_view_items_[24 + i]->setForeground(0, QBrush((state.debug_register(i) != last_state_.debug_register(i)) ? Qt::red : palette.text()));
+		register_view_items_[itemNumber]->setText(0, QString("DR%1: %2").arg(i).arg(state.debug_register(i), 0, 16));
+		register_view_items_[itemNumber++]->setForeground(0, QBrush((state.debug_register(i) != last_state_.debug_register(i)) ? Qt::red : palette.text()));
 	}
 
 	if(has_mmx_) {
 		for(int i = 0; i < 8; ++i) {
 			const edb::value64 current = state.mmx_register(i);
 			const edb::value64 prev    = last_state_.mmx_register(i);
-			register_view_items_[32 + i]->setText(0, QString("MM%1: %2").arg(i).arg(current.toHexString()));
-			register_view_items_[32 + i]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
+			register_view_items_[itemNumber]->setText(0, QString("MM%1: %2").arg(i).arg(current.toHexString()));
+			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 	}
 
@@ -846,15 +848,15 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		for(int i = 0; i < 8; ++i) {
 			const edb::value128 current = state.xmm_register(i);
 			const edb::value128 prev    = last_state_.xmm_register(i);
-			register_view_items_[40 + i]->setText(0, QString("XMM%1: %2").arg(i).arg(current.toHexString()));
-			register_view_items_[40 + i]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
+			register_view_items_[itemNumber]->setText(0, QString("XMM%1: %2").arg(i).arg(current.toHexString()));
+			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 
 		// TODO(10110111): switch to edb::value32
 		const quint32 current = state["mxcsr"].value<edb::reg_t>();
 		const quint32 prev    = last_state_["mxcsr"].value<edb::reg_t>();
-		register_view_items_[0x30]->setText(0, QString("MXCSR: %1").arg(current, 0, 16));
-		register_view_items_[0x30]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
+		register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1").arg(current, 0, 16));
+		register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 	}
 
 	const bool flags_changed = state.flags() != last_state_.flags();
@@ -863,16 +865,17 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	}
 
 	// highlight any changed registers
-	register_view_items_[0x00]->setForeground(0, (state.gp_register(Eax) != last_state_.gp_register(Eax)) ? Qt::red : palette.text());
-	register_view_items_[0x01]->setForeground(0, (state.gp_register(Ebx) != last_state_.gp_register(Ebx)) ? Qt::red : palette.text());
-	register_view_items_[0x02]->setForeground(0, (state.gp_register(Ecx) != last_state_.gp_register(Ecx)) ? Qt::red : palette.text());
-	register_view_items_[0x03]->setForeground(0, (state.gp_register(Edx) != last_state_.gp_register(Edx)) ? Qt::red : palette.text());
-	register_view_items_[0x04]->setForeground(0, (state.gp_register(Ebp) != last_state_.gp_register(Ebp)) ? Qt::red : palette.text());
-	register_view_items_[0x05]->setForeground(0, (state.gp_register(Esp) != last_state_.gp_register(Esp)) ? Qt::red : palette.text());
-	register_view_items_[0x06]->setForeground(0, (state.gp_register(Esi) != last_state_.gp_register(Esi)) ? Qt::red : palette.text());
-	register_view_items_[0x07]->setForeground(0, (state.gp_register(Edi) != last_state_.gp_register(Edi)) ? Qt::red : palette.text());
-	register_view_items_[0x08]->setForeground(0, (state.instruction_pointer() != last_state_.instruction_pointer()) ? Qt::red : palette.text());
-	register_view_items_[0x09]->setForeground(0, flags_changed ? Qt::red : palette.text());
+	itemNumber=0;
+	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Eax) != last_state_.gp_register(Eax)) ? Qt::red : palette.text());
+	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Ebx) != last_state_.gp_register(Ebx)) ? Qt::red : palette.text());
+	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Ecx) != last_state_.gp_register(Ecx)) ? Qt::red : palette.text());
+	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Edx) != last_state_.gp_register(Edx)) ? Qt::red : palette.text());
+	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Ebp) != last_state_.gp_register(Ebp)) ? Qt::red : palette.text());
+	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Esp) != last_state_.gp_register(Esp)) ? Qt::red : palette.text());
+	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Esi) != last_state_.gp_register(Esi)) ? Qt::red : palette.text());
+	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Edi) != last_state_.gp_register(Edi)) ? Qt::red : palette.text());
+	register_view_items_[itemNumber++]->setForeground(0, (state.instruction_pointer() != last_state_.instruction_pointer()) ? Qt::red : palette.text());
+	register_view_items_[itemNumber++]->setForeground(0, flags_changed ? Qt::red : palette.text());
 
 	last_state_ = state;
 }
