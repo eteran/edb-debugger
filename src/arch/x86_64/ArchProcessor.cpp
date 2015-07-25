@@ -727,7 +727,13 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 			register_view_items_[itemNumber++] = create_register_item(fpu, "R5");
 			register_view_items_[itemNumber++] = create_register_item(fpu, "R6");
 			register_view_items_[itemNumber++] = create_register_item(fpu, "R7");
-		}
+			register_view_items_[itemNumber++] = create_register_item(fpu, "Control Word");
+			register_view_items_[itemNumber++] = create_register_item(fpu, "PC");
+			register_view_items_[itemNumber++] = create_register_item(fpu, "RC");
+			register_view_items_[itemNumber++] = create_register_item(fpu, "Status Word");
+			register_view_items_[itemNumber++] = create_register_item(fpu, "TOP");
+			register_view_items_[itemNumber++] = create_register_item(fpu, "Tag Word");
+}
 
 		if(QTreeWidgetItem *const dbg = category_list->addCategory(tr("Debug"))) {
 			register_view_items_[itemNumber++] = create_register_item(dbg, "dr0");
@@ -864,10 +870,10 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	register_view_items_[itemNumber++]->setText(0, QString("GS: %1 (%2)").arg(state["gs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["gs_base"].value<edb::reg_t>())));
 	register_view_items_[itemNumber++]->setText(0, QString("SS: %1")     .arg(state["ss"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
 
+	const int fpuTop=state.fpu_stack_pointer();
 	for(int i = 0; i < 8; ++i) {
 		const edb::value80 current = state.fpu_register(i);
 		const edb::value80 prev    = last_state_.fpu_register(i);
-		const int top=state.fpu_stack_pointer();
 		bool empty=state.fpu_register_is_empty(i);
 		const QString tag=state.fpu_register_tag_string(i);
 
@@ -882,9 +888,55 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 				valueString=" "+current.toString();
 		}
 
-		register_view_items_[itemNumber]->setText(0, QString("%1R%2: %3 0x%4%5%6").arg(top==i?"=>":"  ").arg(i).arg(tag.leftJustified(8)).arg(current.toHexString()).arg(valueString).arg(typeString));
+		register_view_items_[itemNumber]->setText(0, QString("%1R%2: %3 0x%4%5%6").arg(fpuTop==i?"=>":"  ").arg(i).arg(tag.leftJustified(8)).arg(current.toHexString()).arg(valueString).arg(typeString));
 		register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 	}
+	edb::value16 controlWord=state.fpu_control_word();
+	int controlWordValue=controlWord.value()[0];
+	QString roundingMode;
+	QString precisionMode;
+	switch((controlWordValue>>10)&3) {
+	case 0:
+		roundingMode="Rounding to nearest";
+		break;
+	case 1:
+		roundingMode="Rounding down";
+		break;
+	case 2:
+		roundingMode="Rounding up";
+		break;
+	case 3:
+		roundingMode="Rounding toward zero";
+		break;
+	}
+	switch((controlWordValue>>8)&3) {
+	case 0:
+		precisionMode="Single precision (24 bit complete mantissa)";
+		break;
+	case 1:
+		precisionMode="Reserved";
+		break;
+	case 2:
+		precisionMode="Double precision (53 bit complete mantissa)";
+		break;
+	case 3:
+		precisionMode="Extended precision (64 bit mantissa)";
+		break;
+	}
+	int exceptionMask=controlWordValue&0x3f;
+	QString exceptionMaskString;
+	exceptionMaskString += ((exceptionMask & 0x01) ? " IM" : "   ");
+	exceptionMaskString += ((exceptionMask & 0x02) ? " DM" : "   ");
+	exceptionMaskString += ((exceptionMask & 0x04) ? " ZM" : "   ");
+	exceptionMaskString += ((exceptionMask & 0x08) ? " OM" : "   ");
+	exceptionMaskString += ((exceptionMask & 0x10) ? " UM" : "   ");
+	exceptionMaskString += ((exceptionMask & 0x20) ? " PM" : "   ");
+	register_view_items_[itemNumber++]->setText(0, QString("Control Word: %1   %2").arg(controlWord.toHexString()).arg(exceptionMaskString));
+	register_view_items_[itemNumber++]->setText(0, QString("  PC: %1").arg(precisionMode));
+	register_view_items_[itemNumber++]->setText(0, QString("  RC: %1").arg(roundingMode));
+	register_view_items_[itemNumber++]->setText(0, QString("Status Word: %1").arg(state.fpu_status_word().toHexString()));
+	register_view_items_[itemNumber++]->setText(0, QString("  TOP: %1").arg(fpuTop));
+	register_view_items_[itemNumber++]->setText(0, QString("Tag Word: 0x%1").arg(state.fpu_tag_word().toHexString()));
 
 	for(int i = 0; i < 8; ++i) {
 		register_view_items_[itemNumber]->setText(0, QString("DR%1: %2").arg(i).arg(state.debug_register(i), 0, 16));
