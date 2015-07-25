@@ -352,6 +352,16 @@ int PlatformState::fpu_register_tag(int n) const {
 	return minitag ? recreate_fpu_register_tag(fpu_register(n)) : 3;
 }
 
+edb::value16 PlatformState::fpu_control_word() const {
+
+	return edb::value16(fpregs_.cwd);
+}
+
+edb::value16 PlatformState::fpu_status_word() const {
+
+	return edb::value16(fpregs_.swd);
+}
+
 edb::value16 PlatformState::fpu_tag_word() const {
 
 	uint16_t tagWord=0;
