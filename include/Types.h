@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <cassert>
 #include <cstddef>
+#include <map>
 
 namespace edb {
 
@@ -155,6 +156,22 @@ struct Value80 : public ValueBase<16,5> {
 	bool isSpecial(FloatType type) const {
 		return type!=FloatType::Normal &&
 			   type!=FloatType::Zero;
+	}
+	static QString floatTypeString(FloatType type) {
+		std::map<FloatType,QString> types{
+			{FloatType::Zero,            "Zero"},
+			{FloatType::Normal,          "Normal"},
+			{FloatType::Infinity,        "+Inf"},
+			{FloatType::NegativeInfinity,"-Inf"},
+			{FloatType::Denormal,        "Denormal"},
+			{FloatType::PseudoDenormal,  "Pseudo-denormal"},
+			{FloatType::SNaN,            "SNaN"},
+			{FloatType::QNaN,            "QNaN"},
+			{FloatType::Unsupported,     "Unsupported"}};
+		return types[type];
+	}
+	QString floatTypeString() const {
+		return floatTypeString(floatType());
 	}
 
 	QString toString() const {
