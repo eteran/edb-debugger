@@ -57,6 +57,8 @@ public:
 	// FPU
 	virtual int fpu_stack_pointer() const = 0;
 	virtual edb::value80 fpu_register(int n) const = 0;
+	virtual QString fpu_register_tag_string(std::size_t n) const = 0;
+	virtual edb::value16 fpu_tag_word() const = 0;
 
 public:
 	// MMX

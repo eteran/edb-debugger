@@ -64,6 +64,8 @@ public:
 	virtual edb::reg_t flags() const;
 	virtual int fpu_stack_pointer() const;
 	virtual edb::value80 fpu_register(int n) const;
+	virtual QString fpu_register_tag_string(std::size_t n) const;
+	virtual edb::value16 fpu_tag_word() const;
 	virtual void adjust_stack(int bytes);
 	virtual void clear();
 	virtual void set_debug_register(int n, edb::reg_t value);
@@ -75,6 +77,8 @@ public:
 	virtual Register gp_register(int n) const;
 
 private:
+	int fpu_register_tag(int n) const;
+	int recreate_fpu_register_tag(edb::value80 regval) const;
 	std::size_t fpu_fixup_index(std::size_t n) const;
 
 private:
