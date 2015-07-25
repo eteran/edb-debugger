@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCoreApplication>
 #include <QStringList>
 #include <QObject>
+#include <vector>
 
 class QByteArray;
 class QString;
@@ -55,7 +56,7 @@ private:
 	State             last_state_;
 	bool              has_mmx_;
 	bool              has_xmm_;
-	QTreeWidgetItem * register_view_items_[128];
+	std::vector<QTreeWidgetItem*> register_view_items_;
 };
 
 #endif

@@ -650,86 +650,85 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 
 		Q_ASSERT(category_list);
 
-		int itemNumber=0;
 		// setup the register view
 		if(QTreeWidgetItem *const gpr = category_list->addCategory(tr("General Purpose"))) {
-			register_view_items_[itemNumber++] = create_register_item(gpr, "eax");
-			register_view_items_[itemNumber++] = create_register_item(gpr, "ebx");
-			register_view_items_[itemNumber++] = create_register_item(gpr, "ecx");
-			register_view_items_[itemNumber++] = create_register_item(gpr, "edx");
-			register_view_items_[itemNumber++] = create_register_item(gpr, "ebp");
-			register_view_items_[itemNumber++] = create_register_item(gpr, "esp");
-			register_view_items_[itemNumber++] = create_register_item(gpr, "esi");
-			register_view_items_[itemNumber++] = create_register_item(gpr, "edi");
-			register_view_items_[itemNumber++] = create_register_item(gpr, "eip");
-			register_view_items_[itemNumber++] = create_register_item(gpr, "eflags");
+			register_view_items_.push_back(create_register_item(gpr, "eax"));
+			register_view_items_.push_back(create_register_item(gpr, "ebx"));
+			register_view_items_.push_back(create_register_item(gpr, "ecx"));
+			register_view_items_.push_back(create_register_item(gpr, "edx"));
+			register_view_items_.push_back(create_register_item(gpr, "ebp"));
+			register_view_items_.push_back(create_register_item(gpr, "esp"));
+			register_view_items_.push_back(create_register_item(gpr, "esi"));
+			register_view_items_.push_back(create_register_item(gpr, "edi"));
+			register_view_items_.push_back(create_register_item(gpr, "eip"));
+			register_view_items_.push_back(create_register_item(gpr, "eflags"));
 
 			// split eflags view
-			split_flags_ = new QTreeWidgetItem(register_view_items_[itemNumber - 1]);
+			split_flags_ = new QTreeWidgetItem(register_view_items_.back());
 			split_flags_->setText(0, state.flags_to_string(0));
 		}
 
 		if(QTreeWidgetItem *const segs = category_list->addCategory(tr("Segments"))) {
-			register_view_items_[itemNumber++] = create_register_item(segs, "cs");
-			register_view_items_[itemNumber++] = create_register_item(segs, "ds");
-			register_view_items_[itemNumber++] = create_register_item(segs, "es");
-			register_view_items_[itemNumber++] = create_register_item(segs, "fs");
-			register_view_items_[itemNumber++] = create_register_item(segs, "gs");
-			register_view_items_[itemNumber++] = create_register_item(segs, "ss");
+			register_view_items_.push_back(create_register_item(segs, "cs"));
+			register_view_items_.push_back(create_register_item(segs, "ds"));
+			register_view_items_.push_back(create_register_item(segs, "es"));
+			register_view_items_.push_back(create_register_item(segs, "fs"));
+			register_view_items_.push_back(create_register_item(segs, "gs"));
+			register_view_items_.push_back(create_register_item(segs, "ss"));
 		}
 
 		if(QTreeWidgetItem *const fpu = category_list->addCategory(tr("FPU"))) {
-			register_view_items_[itemNumber++] = create_register_item(fpu, "R0");
-			register_view_items_[itemNumber++] = create_register_item(fpu, "R1");
-			register_view_items_[itemNumber++] = create_register_item(fpu, "R2");
-			register_view_items_[itemNumber++] = create_register_item(fpu, "R3");
-			register_view_items_[itemNumber++] = create_register_item(fpu, "R4");
-			register_view_items_[itemNumber++] = create_register_item(fpu, "R5");
-			register_view_items_[itemNumber++] = create_register_item(fpu, "R6");
-			register_view_items_[itemNumber++] = create_register_item(fpu, "R7");
-			register_view_items_[itemNumber++] = create_register_item(fpu, "Control Word");
-			register_view_items_[itemNumber++] = create_register_item(fpu, "PC");
-			register_view_items_[itemNumber++] = create_register_item(fpu, "RC");
-			register_view_items_[itemNumber++] = create_register_item(fpu, "Status Word");
-			register_view_items_[itemNumber++] = create_register_item(fpu, "TOP");
-			register_view_items_[itemNumber++] = create_register_item(fpu, "Tag Word");
+			register_view_items_.push_back(create_register_item(fpu, "R0"));
+			register_view_items_.push_back(create_register_item(fpu, "R1"));
+			register_view_items_.push_back(create_register_item(fpu, "R2"));
+			register_view_items_.push_back(create_register_item(fpu, "R3"));
+			register_view_items_.push_back(create_register_item(fpu, "R4"));
+			register_view_items_.push_back(create_register_item(fpu, "R5"));
+			register_view_items_.push_back(create_register_item(fpu, "R6"));
+			register_view_items_.push_back(create_register_item(fpu, "R7"));
+			register_view_items_.push_back(create_register_item(fpu, "Control Word"));
+			register_view_items_.push_back(create_register_item(fpu, "PC"));
+			register_view_items_.push_back(create_register_item(fpu, "RC"));
+			register_view_items_.push_back(create_register_item(fpu, "Status Word"));
+			register_view_items_.push_back(create_register_item(fpu, "TOP"));
+			register_view_items_.push_back(create_register_item(fpu, "Tag Word"));
 		}
 
 		if(QTreeWidgetItem *const dbg = category_list->addCategory(tr("Debug"))) {
-			register_view_items_[itemNumber++] = create_register_item(dbg, "dr0");
-			register_view_items_[itemNumber++] = create_register_item(dbg, "dr1");
-			register_view_items_[itemNumber++] = create_register_item(dbg, "dr2");
-			register_view_items_[itemNumber++] = create_register_item(dbg, "dr3");
-			register_view_items_[itemNumber++] = create_register_item(dbg, "dr4");
-			register_view_items_[itemNumber++] = create_register_item(dbg, "dr5");
-			register_view_items_[itemNumber++] = create_register_item(dbg, "dr6");
-			register_view_items_[itemNumber++] = create_register_item(dbg, "dr7");
+			register_view_items_.push_back(create_register_item(dbg, "dr0"));
+			register_view_items_.push_back(create_register_item(dbg, "dr1"));
+			register_view_items_.push_back(create_register_item(dbg, "dr2"));
+			register_view_items_.push_back(create_register_item(dbg, "dr3"));
+			register_view_items_.push_back(create_register_item(dbg, "dr4"));
+			register_view_items_.push_back(create_register_item(dbg, "dr5"));
+			register_view_items_.push_back(create_register_item(dbg, "dr6"));
+			register_view_items_.push_back(create_register_item(dbg, "dr7"));
 		}
 
 		if(has_mmx_) {
 			if(QTreeWidgetItem *const mmx = category_list->addCategory(tr("MMX"))) {
-				register_view_items_[itemNumber++] = create_register_item(mmx, "mm0");
-				register_view_items_[itemNumber++] = create_register_item(mmx, "mm1");
-				register_view_items_[itemNumber++] = create_register_item(mmx, "mm2");
-				register_view_items_[itemNumber++] = create_register_item(mmx, "mm3");
-				register_view_items_[itemNumber++] = create_register_item(mmx, "mm4");
-				register_view_items_[itemNumber++] = create_register_item(mmx, "mm5");
-				register_view_items_[itemNumber++] = create_register_item(mmx, "mm6");
-				register_view_items_[itemNumber++] = create_register_item(mmx, "mm7");
+				register_view_items_.push_back(create_register_item(mmx, "mm0"));
+				register_view_items_.push_back(create_register_item(mmx, "mm1"));
+				register_view_items_.push_back(create_register_item(mmx, "mm2"));
+				register_view_items_.push_back(create_register_item(mmx, "mm3"));
+				register_view_items_.push_back(create_register_item(mmx, "mm4"));
+				register_view_items_.push_back(create_register_item(mmx, "mm5"));
+				register_view_items_.push_back(create_register_item(mmx, "mm6"));
+				register_view_items_.push_back(create_register_item(mmx, "mm7"));
 			}
 		}
 
 		if(has_xmm_) {
 			if(QTreeWidgetItem *const xmm = category_list->addCategory(tr("XMM"))) {
-				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm0");
-				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm1");
-				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm2");
-				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm3");
-				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm4");
-				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm5");
-				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm6");
-				register_view_items_[itemNumber++] = create_register_item(xmm, "xmm7");
-				register_view_items_[itemNumber++] = create_register_item(xmm, "mxcsr");
+				register_view_items_.push_back(create_register_item(xmm, "xmm0"));
+				register_view_items_.push_back(create_register_item(xmm, "xmm1"));
+				register_view_items_.push_back(create_register_item(xmm, "xmm2"));
+				register_view_items_.push_back(create_register_item(xmm, "xmm3"));
+				register_view_items_.push_back(create_register_item(xmm, "xmm4"));
+				register_view_items_.push_back(create_register_item(xmm, "xmm5"));
+				register_view_items_.push_back(create_register_item(xmm, "xmm6"));
+				register_view_items_.push_back(create_register_item(xmm, "xmm7"));
+				register_view_items_.push_back(create_register_item(xmm, "mxcsr"));
 			}
 		}
 
