@@ -183,8 +183,8 @@ struct Value80 : public ValueBase<16,5> {
 		Unsupported
 	};
 	FloatType floatType() const {
-		uint16_t exponent=this->exponent();
-		uint64_t mantissa=this->mantissa();
+		auto exponent=this->exponent();
+		auto mantissa=this->mantissa();
 		bool negative=value_[4] & 0x8000;
 		static constexpr uint64_t integerBitOnly=0x8000000000000000ULL;
 		static constexpr uint64_t QNaN_mask=0xc000000000000000ULL;
@@ -258,8 +258,8 @@ struct Value80 : public ValueBase<16,5> {
 		return QString::fromStdString(ss.str());
 	}
 
-	uint16_t exponent() const { return value_[4] & 0x7fff; }
-	uint64_t mantissa() const { return SizedValue<64>(value_).value()[0]; }
+	SizedValue<16> exponent() const { return value_[4] & 0x7fff; }
+	SizedValue<64> mantissa() const { return SizedValue<64>(value_); }
 };
 
 static constexpr int LARGE_SIZED_VALUE_ELEMENT_WIDTH=64;
