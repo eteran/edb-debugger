@@ -891,7 +891,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 	}
 	edb::value16 controlWord=state.fpu_control_word();
-	int controlWordValue=controlWord.value()[0];
+	int controlWordValue=controlWord;
 	QString roundingMode;
 	QString precisionMode;
 	switch((controlWordValue>>10)&3) {
