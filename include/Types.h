@@ -65,6 +65,14 @@ protected:
 		const char* const dataStart = reinterpret_cast<const char*>(&data);
 		std::memcpy(&value_, dataStart+offset, sizeof value_);
 	}
+	template<typename SmallData>
+	void copyZeroExtended(const SmallData& data) {
+		static_assert(sizeof(SmallData)<=sizeof(ValueType),"It doesn't make sense to expand a larger type into a smaller type");
+		const char* const dataStart = reinterpret_cast<const char*>(&data);
+		char* const target = reinterpret_cast<char*>(&value_);
+		std::memcpy(target, dataStart, sizeof data);
+		std::memset(target+sizeof data, 0, sizeof(value_)-sizeof(data));
+	}
 	ValueBase() = default;
 public:
 	QString toHexString() const {
@@ -88,6 +96,13 @@ struct SizedValue : public ValueBase<N,1> {
 	template<typename Data>
 	explicit SizedValue (const Data& data, std::size_t offset=0) : ValueBase<N,1>(data,offset)
 	{ static_assert(sizeof(SizedValue)*8==N,"Size is broken!"); }
+
+	template<typename SmallData>
+	static SizedValue fromZeroExtended(const SmallData& data) {
+		SizedValue created;
+		created.copyZeroExtended(data);
+		return created;
+	}
 
 	QString toString() const { return QString("%1").arg(this->value_); }
 	using ValueBase<N,1>::operator==;
@@ -138,6 +153,13 @@ struct Value80 : public ValueBase<16,5> {
 	template<typename Data>
 	explicit Value80 (const Data& data, std::size_t offset=0) : ValueBase<16,5>(data,offset)
 	{ static_assert(sizeof(Value80)*8==80,"Size is broken!"); }
+
+	template<typename SmallData>
+	static Value80 fromZeroExtended(const SmallData& data) {
+		Value80 created;
+		created.copyZeroExtended(data);
+		return created;
+	}
 
 	enum class FloatType {
 		Zero,
@@ -239,6 +261,13 @@ struct LargeSizedValue : public ValueBase<LARGE_SIZED_VALUE_ELEMENT_WIDTH,N/LARG
 	template<typename Data>
 	explicit LargeSizedValue (const Data& data, std::size_t offset=0) : BaseClass(data,offset)
 	{ static_assert(sizeof(LargeSizedValue)*8==N,"Size is broken!"); }
+
+	template<typename SmallData>
+	static LargeSizedValue fromZeroExtended(const SmallData& data) {
+		LargeSizedValue created;
+		created.copyZeroExtended(data);
+		return created;
+	}
 };
 }
 
