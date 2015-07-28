@@ -1129,11 +1129,7 @@ QStringList parse_command_line(const QString &cmdline) {
 // Desc:
 //------------------------------------------------------------------------------
 address_t string_to_address(const QString &s, bool *ok) {
-#if defined(EDB_X86)
-	return s.left(8).toULongLong(ok, 16);
-#elif defined(EDB_X86_64)
-	return s.left(16).toULongLong(ok, 16);
-#endif
+	return s.left(2*sizeof(edb::address_t)).toULongLong(ok, 16);
 }
 
 //------------------------------------------------------------------------------
