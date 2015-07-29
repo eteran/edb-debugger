@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "OSTypes.h"
 #include <cstdint>
 #include <QString>
+#include <QVariant>
 #include <type_traits>
 #include <cstring>
 #include <array>
@@ -107,6 +108,11 @@ struct SizedValue : public ValueBase<N,1> {
 		created.copyZeroExtended(data);
 		return created;
 	}
+
+	operator InnerValueType() const { return this->value_[0]; }
+	operator QVariant() const { return QVariant::fromValue(this->value_[0]); }
+	template<int M=0> typename std::enable_if<sizeof(void*)>=sizeof(InnerValueType) && M==0,
+	void*>::type toPointer() const { return reinterpret_cast<void*>(this->value_[0]); }
 
 	QString toString() const { return QString("%1").arg(this->value_); }
 	using ValueBase<N,1>::operator==;
