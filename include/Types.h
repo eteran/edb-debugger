@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef TYPES_20071127_H_
 #define TYPES_20071127_H_
 
-#include "ArchTypes.h"
 #include "OSTypes.h"
 #include <cstdint>
 #include <QString>
@@ -346,4 +345,5 @@ std::ostream&>::type operator<<(std::ostream& os, T val)
 	return os;
 }
 
+#include "ArchTypes.h"
 #endif

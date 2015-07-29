@@ -981,14 +981,14 @@ QList<Module> DebuggerCore::loaded_modules() const {
 				if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
 					if(dynamic_info.r_map) {
 
-						auto link_address = reinterpret_cast<edb::address_t>(dynamic_info.r_map);
+						auto link_address = edb::address_t(dynamic_info.r_map);
 
 						while(link_address) {
 
 							struct link_map map;
 							if(process->read_bytes(link_address, &map, sizeof(map))) {
 								char path[PATH_MAX];
-								if(!process->read_bytes(reinterpret_cast<edb::address_t>(map.l_name), &path, sizeof(path))) {
+								if(!process->read_bytes(edb::address_t(map.l_name), &path, sizeof(path))) {
 									path[0] = '\0';
 								}
 
@@ -999,7 +999,7 @@ QList<Module> DebuggerCore::loaded_modules() const {
 									ret.push_back(module);
 								}
 
-								link_address = reinterpret_cast<edb::address_t>(map.l_next);
+								link_address = edb::address_t(map.l_next);
 							} else {
 								break;
 							}

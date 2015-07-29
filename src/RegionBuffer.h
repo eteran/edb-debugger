@@ -34,7 +34,7 @@ public:
 public:
 	virtual qint64 readData(char * data, qint64 maxSize);
 	virtual qint64 writeData(const char*, qint64);
-	virtual qint64 size() const       { return region_ ? region_->size() : 0; }
+	virtual qint64 size() const       { return region_ ? region_->size().toUint() : 0; }
 	virtual bool isSequential() const { return false; }
 
 private:
