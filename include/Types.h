@@ -109,6 +109,24 @@ struct SizedValue : public ValueBase<N,1> {
 		return created;
 	}
 
+	static SizedValue fromString(const QString& str, bool* ok=nullptr, int base=10, bool Signed=false) {
+		qulonglong v;
+		if(Signed)
+			v=str.toLongLong(ok, base);
+		else
+			v=str.toULongLong(ok, base);
+		if(!*ok)
+			return SizedValue(0);
+		// Check that the result fits into InnerValueType
+		SizedValue result(v);
+		if(result==v) return result;
+		if(ok!=nullptr) *ok=false;
+		return SizedValue(0);
+	}
+	static SizedValue fromHexString(const QString& str, bool* ok=nullptr) { return fromString(str,ok,16); }
+	static SizedValue fromSignedString(const QString& str, bool* ok=nullptr) { return fromString(str,ok,10,true); }
+	static SizedValue fromCString(const QString& str, bool* ok=nullptr) { return fromString(str,ok,0); }
+
 	operator InnerValueType() const { return this->value_[0]; }
 	operator QVariant() const { return QVariant::fromValue(this->value_[0]); }
 	template<int M=0> typename std::enable_if<sizeof(void*)>=sizeof(InnerValueType) && M==0,
