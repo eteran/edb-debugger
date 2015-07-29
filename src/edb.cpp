@@ -1129,7 +1129,7 @@ QStringList parse_command_line(const QString &cmdline) {
 // Desc:
 //------------------------------------------------------------------------------
 address_t string_to_address(const QString &s, bool *ok) {
-	return s.left(2*sizeof(edb::address_t)).toULongLong(ok, 16);
+	return edb::address_t::fromHexString(s.left(2*sizeof(edb::address_t)),ok);
 }
 
 //------------------------------------------------------------------------------

@@ -53,7 +53,7 @@ DialogInputValue::~DialogInputValue() {
 //------------------------------------------------------------------------------
 edb::reg_t DialogInputValue::value() const {
 	bool ok;
-	return ui->hexInput->text().toULongLong(&ok, 16);
+	return edb::reg_t::fromHexString(ui->hexInput->text(),&ok);
 }
 
 //------------------------------------------------------------------------------
@@ -72,7 +72,7 @@ void DialogInputValue::set_value(edb::reg_t value) {
 //------------------------------------------------------------------------------
 void DialogInputValue::on_hexInput_textEdited(const QString &s) {
 	bool ok;
-	edb::reg_t value = s.toULongLong(&ok, 16);
+	edb::reg_t value = edb::reg_t::fromHexString(s,&ok);
 
 	if(!ok) {
 		value = 0;
@@ -89,7 +89,7 @@ void DialogInputValue::on_hexInput_textEdited(const QString &s) {
 //------------------------------------------------------------------------------
 void DialogInputValue::on_signedInput_textEdited(const QString &s) {
 	bool ok;
-	edb::reg_t value = s.toLongLong(&ok, 10);
+	edb::reg_t value = edb::reg_t::fromSignedString(s,&ok);
 
 	if(!ok) {
 		value = 0;
@@ -105,7 +105,7 @@ void DialogInputValue::on_signedInput_textEdited(const QString &s) {
 //------------------------------------------------------------------------------
 void DialogInputValue::on_unsignedInput_textEdited(const QString &s) {
 	bool ok;
-	edb::reg_t value = s.toULongLong(&ok, 10);
+	edb::reg_t value = edb::reg_t::fromString(s,&ok);
 
 	if(!ok) {
 		value = 0;
