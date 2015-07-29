@@ -882,7 +882,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	register_view_items_[itemNumber++]->setText(0, QString("Tag Word: 0x%1").arg(state.fpu_tag_word().toHexString()));
 
 	for(int i = 0; i < 8; ++i) {
-		register_view_items_[itemNumber]->setText(0, QString("DR%1: %2").arg(i).arg(state.debug_register(i), 0, 16));
+		register_view_items_[itemNumber]->setText(0, QString("DR%1: %2").arg(i).arg(state.debug_register(i).toHexString()));
 		register_view_items_[itemNumber++]->setForeground(0, QBrush((state.debug_register(i) != last_state_.debug_register(i)) ? Qt::red : palette.text()));
 	}
 
@@ -903,10 +903,9 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 
-		// TODO(10110111): switch to edb::value32
-		const quint32 current = state["mxcsr"].value<edb::reg_t>();
-		const quint32 prev    = last_state_["mxcsr"].value<edb::reg_t>();
-		register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1").arg(current, 0, 16));
+		const edb::value32 current = state["mxcsr"].value<edb::value32>();
+		const edb::value32 prev    = last_state_["mxcsr"].value<edb::value32>();
+		register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1").arg(current.toHexString()));
 		register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 	}
 
