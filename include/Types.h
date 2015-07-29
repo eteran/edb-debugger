@@ -93,9 +93,13 @@ struct SizedValue : public ValueBase<N,1> {
 	typedef typename sized_uint<N>::type InnerValueType;
 	static_assert(N%8==0,"SizedValue must have multiple of 8 bits in size");
 	SizedValue() = default;
-	template<typename Data>
+	template<typename Data, typename = typename std::enable_if<!std::is_floating_point<Data>::value && !std::is_integral<Data>::value>::type>
 	explicit SizedValue (const Data& data, std::size_t offset=0) : ValueBase<N,1>(data,offset)
 	{ static_assert(sizeof(SizedValue)*8==N,"Size is broken!"); }
+	template<typename Float, typename dummy=void, typename check=typename std::enable_if<std::is_floating_point<Float>::value>::type>
+	explicit SizedValue(Float floatVal) { this->value_[0]=floatVal; }
+	template<typename Integer, typename = typename std::enable_if<std::is_integral<Integer>::value>::type>
+	SizedValue(Integer integer) { this->value_[0]=integer; }
 
 	template<typename SmallData>
 	static SizedValue fromZeroExtended(const SmallData& data) {
