@@ -132,7 +132,9 @@ struct SizedValue : public ValueBase<N,1> {
 	template<int M=0> typename std::enable_if<sizeof(void*)>=sizeof(InnerValueType) && M==0,
 	void*>::type toPointer() const { return reinterpret_cast<void*>(this->value_[0]); }
 
-	QString toString() const { return QString("%1").arg(this->value_); }
+	QString toString() const { return QString("%1").arg(this->value_[0]); }
+	QString unsignedToString() const { return toString(); }
+	QString signedToString() const { return QString("%1").arg(typename std::make_signed<InnerValueType>::type(this->value_[0])); }
 	using ValueBase<N,1>::operator==;
 	using ValueBase<N,1>::operator!=;
 	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, bool>::type operator == (RHS rhs) const { return this->value_[0] == rhs; }
