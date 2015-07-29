@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define EDB_X86
 
 namespace edb {
+	typedef value16                              seg_reg_t;
 	typedef value32                              reg_t;
 	typedef value32                              address_t;
 	typedef edisassm::Instruction<edisassm::x86> Instruction;
