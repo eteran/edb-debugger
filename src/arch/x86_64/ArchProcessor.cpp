@@ -862,12 +862,12 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	}
 	register_view_items_[itemNumber++]->setText(0, QString("RFLAGS: %1").arg(edb::v1::format_pointer(state.flags())));
 
-	register_view_items_[itemNumber++]->setText(0, QString("CS: %1")     .arg(state["cs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
-	register_view_items_[itemNumber++]->setText(0, QString("DS: %1")     .arg(state["ds"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
-	register_view_items_[itemNumber++]->setText(0, QString("ES: %1")     .arg(state["es"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
-	register_view_items_[itemNumber++]->setText(0, QString("FS: %1 (%2)").arg(state["fs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["fs_base"].value<edb::reg_t>())));
-	register_view_items_[itemNumber++]->setText(0, QString("GS: %1 (%2)").arg(state["gs"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')).arg(edb::v1::format_pointer(state["gs_base"].value<edb::reg_t>())));
-	register_view_items_[itemNumber++]->setText(0, QString("SS: %1")     .arg(state["ss"].value<edb::reg_t>() & 0xffff, 4, 16, QChar('0')));
+	register_view_items_[itemNumber++]->setText(0, QString("CS: %1")     .arg(state["cs"].value<edb::seg_reg_t>().toHexString()));
+	register_view_items_[itemNumber++]->setText(0, QString("DS: %1")     .arg(state["ds"].value<edb::seg_reg_t>().toHexString()));
+	register_view_items_[itemNumber++]->setText(0, QString("ES: %1")     .arg(state["es"].value<edb::seg_reg_t>().toHexString()));
+	register_view_items_[itemNumber++]->setText(0, QString("FS: %1 (%2)").arg(state["fs"].value<edb::seg_reg_t>().toHexString()).arg(edb::v1::format_pointer(state["fs_base"].value<edb::reg_t>())));
+	register_view_items_[itemNumber++]->setText(0, QString("GS: %1 (%2)").arg(state["gs"].value<edb::seg_reg_t>().toHexString()).arg(edb::v1::format_pointer(state["gs_base"].value<edb::reg_t>())));
+	register_view_items_[itemNumber++]->setText(0, QString("SS: %1")     .arg(state["ss"].value<edb::seg_reg_t>().toHexString()));
 
 	const int fpuTop=state.fpu_stack_pointer();
 	for(int i = 0; i < 8; ++i) {
@@ -891,7 +891,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 	}
 	edb::value16 controlWord=state.fpu_control_word();
-	int controlWordValue=controlWord.value()[0];
+	int controlWordValue=controlWord;
 	QString roundingMode;
 	QString precisionMode;
 	switch((controlWordValue>>10)&3) {
@@ -938,7 +938,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	register_view_items_[itemNumber++]->setText(0, QString("Tag Word: 0x%1").arg(state.fpu_tag_word().toHexString()));
 
 	for(int i = 0; i < 8; ++i) {
-		register_view_items_[itemNumber]->setText(0, QString("DR%1: %2").arg(i).arg(state.debug_register(i), 0, 16));
+		register_view_items_[itemNumber]->setText(0, QString("DR%1: %2").arg(i).arg(state.debug_register(i).toHexString()));
 		register_view_items_[itemNumber++]->setForeground(0, QBrush((state.debug_register(i) != last_state_.debug_register(i)) ? Qt::red : palette.text()));
 	}
 
@@ -959,10 +959,9 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 
-		// TODO(10110111): switch to edb::value32
-		const quint32 current = state["mxcsr"].value<edb::reg_t>();
-		const quint32 prev    = last_state_["mxcsr"].value<edb::reg_t>();
-		register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1").arg(current, 0, 16));
+		const edb::value32 current = state["mxcsr"].value<edb::value32>();
+		const edb::value32 prev    = last_state_["mxcsr"].value<edb::value32>();
+		register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1").arg(current.toHexString()));
 		register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 
 	}

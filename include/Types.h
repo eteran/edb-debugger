@@ -19,10 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef TYPES_20071127_H_
 #define TYPES_20071127_H_
 
-#include "ArchTypes.h"
 #include "OSTypes.h"
 #include <cstdint>
 #include <QString>
+#include <QVariant>
 #include <type_traits>
 #include <cstring>
 #include <array>
@@ -65,6 +65,14 @@ protected:
 		const char* const dataStart = reinterpret_cast<const char*>(&data);
 		std::memcpy(&value_, dataStart+offset, sizeof value_);
 	}
+	template<typename SmallData>
+	void copyZeroExtended(const SmallData& data) {
+		static_assert(sizeof(SmallData)<=sizeof(ValueType),"It doesn't make sense to expand a larger type into a smaller type");
+		const char* const dataStart = reinterpret_cast<const char*>(&data);
+		char* const target = reinterpret_cast<char*>(&value_);
+		std::memcpy(target, dataStart, sizeof data);
+		std::memset(target+sizeof data, 0, sizeof(value_)-sizeof(data));
+	}
 	ValueBase() = default;
 public:
 	QString toHexString() const {
@@ -85,11 +93,87 @@ struct SizedValue : public ValueBase<N,1> {
 	typedef typename sized_uint<N>::type InnerValueType;
 	static_assert(N%8==0,"SizedValue must have multiple of 8 bits in size");
 	SizedValue() = default;
-	template<typename Data>
+	template<typename Data, typename = typename std::enable_if<!std::is_floating_point<Data>::value && !std::is_integral<Data>::value>::type>
 	explicit SizedValue (const Data& data, std::size_t offset=0) : ValueBase<N,1>(data,offset)
 	{ static_assert(sizeof(SizedValue)*8==N,"Size is broken!"); }
+	template<typename Float, typename dummy=void, typename check=typename std::enable_if<std::is_floating_point<Float>::value>::type>
+	explicit SizedValue(Float floatVal) { this->value_[0]=floatVal; }
+	template<typename Integer, typename = typename std::enable_if<std::is_integral<Integer>::value>::type>
+	SizedValue(Integer integer) { this->value_[0]=integer; }
 
-	QString toString() const { return QString("%1").arg(this->value_); }
+	template<typename SmallData>
+	static SizedValue fromZeroExtended(const SmallData& data) {
+		SizedValue created;
+		created.copyZeroExtended(data);
+		return created;
+	}
+
+	static SizedValue fromString(const QString& str, bool* ok=nullptr, int base=10, bool Signed=false) {
+		qulonglong v;
+		if(Signed)
+			v=str.toLongLong(ok, base);
+		else
+			v=str.toULongLong(ok, base);
+		if(!*ok)
+			return SizedValue(0);
+		// Check that the result fits into InnerValueType
+		SizedValue result(v);
+		if(result==v) return result;
+		if(ok!=nullptr) *ok=false;
+		return SizedValue(0);
+	}
+	static SizedValue fromHexString(const QString& str, bool* ok=nullptr) { return fromString(str,ok,16); }
+	static SizedValue fromSignedString(const QString& str, bool* ok=nullptr) { return fromString(str,ok,10,true); }
+	static SizedValue fromCString(const QString& str, bool* ok=nullptr) { return fromString(str,ok,0); }
+
+	operator InnerValueType() const { return this->value_[0]; }
+	operator QVariant() const { return QVariant::fromValue(this->value_[0]); }
+	template<int M=0> typename std::enable_if<sizeof(void*)>=sizeof(InnerValueType) && M==0,
+	void*>::type toPointer() const { return reinterpret_cast<void*>(this->value_[0]); }
+
+	QString toString() const { return QString("%1").arg(this->value_[0]); }
+	QString unsignedToString() const { return toString(); }
+	QString signedToString() const { return QString("%1").arg(typename std::make_signed<InnerValueType>::type(this->value_[0])); }
+	using ValueBase<N,1>::operator==;
+	using ValueBase<N,1>::operator!=;
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, bool>::type operator == (RHS rhs) const { return this->value_[0] == rhs; }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, bool>::type operator != (RHS rhs) const { return this->value_[0] != rhs; }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, bool>::type operator >  (RHS rhs) const { return this->value_[0] >  rhs; }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, bool>::type operator <  (RHS rhs) const { return this->value_[0] <  rhs; }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, bool>::type operator >= (RHS rhs) const { return this->value_[0] >= rhs; }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, bool>::type operator <= (RHS rhs) const { return this->value_[0] <= rhs; }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, SizedValue>::type operator + (RHS rhs) const { return SizedValue(this->value_[0] + rhs); }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, SizedValue>::type operator - (RHS rhs) const { return SizedValue(this->value_[0] - rhs); }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, SizedValue>::type operator & (RHS rhs) const { return SizedValue(this->value_[0] & rhs); }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, SizedValue>::type operator % (RHS rhs) const { return SizedValue(this->value_[0] % rhs); }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, SizedValue>::type operator += (RHS rhs) { this->value_[0] += rhs; return *this; }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, SizedValue>::type operator -= (RHS rhs) { this->value_[0] -= rhs; return *this; }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, SizedValue>::type operator ^= (RHS rhs) { this->value_[0] ^= rhs; return *this; }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, SizedValue>::type operator &= (RHS rhs) { this->value_[0] &= rhs; return *this; }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, SizedValue>::type operator |= (RHS rhs) { this->value_[0] |= rhs; return *this; }
+	bool operator >  (SizedValue other) const { return this->value_[0] >  other.value_[0]; }
+	bool operator <  (SizedValue other) const { return this->value_[0] <  other.value_[0]; }
+	bool operator >= (SizedValue other) const { return this->value_[0] >= other.value_[0]; }
+	bool operator <= (SizedValue other) const { return this->value_[0] <= other.value_[0]; }
+	SizedValue operator + (const SizedValue& other) const { return SizedValue(this->value_[0] + other.value_[0]); }
+	SizedValue operator - (const SizedValue& other) const { return SizedValue(this->value_[0] - other.value_[0]); }
+	SizedValue operator >> (int rhs) const { return SizedValue(this->value_[0] >> rhs); }
+	SizedValue operator << (int rhs) const { return SizedValue(this->value_[0] << rhs); }
+	SizedValue operator += (SizedValue other) { this->value_[0] += other.value_[0]; return *this; }
+	SizedValue operator -= (SizedValue other) { this->value_[0] -= other.value_[0]; return *this; }
+	SizedValue operator ^= (SizedValue other) { this->value_[0] ^= other.value_[0]; return *this; }
+	SizedValue operator &= (SizedValue other) { this->value_[0] &= other.value_[0]; return *this; }
+	SizedValue operator |= (SizedValue other) { this->value_[0] |= other.value_[0]; return *this; }
+	SizedValue operator <<=(SizedValue other) { this->value_[0] <<=other.value_[0]; return *this; }
+	SizedValue operator >>=(SizedValue other) { this->value_[0] >>=other.value_[0]; return *this; }
+	SizedValue operator *= (SizedValue other) { this->value_[0] *= other.value_[0]; return *this; }
+	SizedValue operator /= (SizedValue other) { this->value_[0] /= other.value_[0]; return *this; }
+	SizedValue operator %= (SizedValue other) { this->value_[0] %= other.value_[0]; return *this; }
+	SizedValue operator ++ (int) { SizedValue copy(*this); ++this->value_[0]; return copy; }
+	SizedValue operator ++ () { ++this->value_[0]; return *this; }
+	SizedValue operator + () const { return *this; }
+	InnerValueType toUint() const { return this->value_[0]; }
+	InnerValueType& asUint() { return this->value_[0]; }
 };
 
 // Not using long double because for e.g. x86_64 it has 128 bits.
@@ -98,6 +182,13 @@ struct Value80 : public ValueBase<16,5> {
 	template<typename Data>
 	explicit Value80 (const Data& data, std::size_t offset=0) : ValueBase<16,5>(data,offset)
 	{ static_assert(sizeof(Value80)*8==80,"Size is broken!"); }
+
+	template<typename SmallData>
+	static Value80 fromZeroExtended(const SmallData& data) {
+		Value80 created;
+		created.copyZeroExtended(data);
+		return created;
+	}
 
 	enum class FloatType {
 		Zero,
@@ -111,8 +202,8 @@ struct Value80 : public ValueBase<16,5> {
 		Unsupported
 	};
 	FloatType floatType() const {
-		uint16_t exponent=this->exponent();
-		uint64_t mantissa=this->mantissa();
+		auto exponent=this->exponent();
+		auto mantissa=this->mantissa();
 		bool negative=value_[4] & 0x8000;
 		static constexpr uint64_t integerBitOnly=0x8000000000000000ULL;
 		static constexpr uint64_t QNaN_mask=0xc000000000000000ULL;
@@ -186,8 +277,8 @@ struct Value80 : public ValueBase<16,5> {
 		return QString::fromStdString(ss.str());
 	}
 
-	uint16_t exponent() const { return value_[4] & 0x7fff; }
-	uint64_t mantissa() const { return SizedValue<64>(value_).value()[0]; }
+	SizedValue<16> exponent() const { return value_[4] & 0x7fff; }
+	SizedValue<64> mantissa() const { return SizedValue<64>(value_); }
 };
 
 static constexpr int LARGE_SIZED_VALUE_ELEMENT_WIDTH=64;
@@ -199,6 +290,13 @@ struct LargeSizedValue : public ValueBase<LARGE_SIZED_VALUE_ELEMENT_WIDTH,N/LARG
 	template<typename Data>
 	explicit LargeSizedValue (const Data& data, std::size_t offset=0) : BaseClass(data,offset)
 	{ static_assert(sizeof(LargeSizedValue)*8==N,"Size is broken!"); }
+
+	template<typename SmallData>
+	static LargeSizedValue fromZeroExtended(const SmallData& data) {
+		LargeSizedValue created;
+		created.copyZeroExtended(data);
+		return created;
+	}
 };
 }
 
@@ -227,4 +325,25 @@ static_assert(std::is_standard_layout<value8>::value &&
 			  std::is_standard_layout<value512>::value,"Fixed-sized values are intended to have standard layout");
 }
 
+template<class T> typename std::enable_if<std::is_same<T,edb::value8 >::value ||
+										  std::is_same<T,edb::value16>::value ||
+										  std::is_same<T,edb::value32>::value ||
+										  std::is_same<T,edb::value64>::value,
+std::istream&>::type operator>>(std::istream& os, T& val)
+{
+	os >> val.asUint();
+	return os;
+}
+
+template<class T> typename std::enable_if<std::is_same<T,edb::value8 >::value ||
+										  std::is_same<T,edb::value16>::value ||
+										  std::is_same<T,edb::value32>::value ||
+										  std::is_same<T,edb::value64>::value,
+std::ostream&>::type operator<<(std::ostream& os, T val)
+{
+	os << val.toUint();
+	return os;
+}
+
+#include "ArchTypes.h"
 #endif
