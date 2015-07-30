@@ -692,11 +692,11 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 		// setup the register view
 		if(QTreeWidgetItem *const gpr = category_list->addCategory(tr("General Purpose"))) {
 			register_view_items_.push_back(create_register_item(gpr, "rax"));
-			register_view_items_.push_back(create_register_item(gpr, "rbx"));
 			register_view_items_.push_back(create_register_item(gpr, "rcx"));
 			register_view_items_.push_back(create_register_item(gpr, "rdx"));
-			register_view_items_.push_back(create_register_item(gpr, "rbp"));
+			register_view_items_.push_back(create_register_item(gpr, "rbx"));
 			register_view_items_.push_back(create_register_item(gpr, "rsp"));
+			register_view_items_.push_back(create_register_item(gpr, "rbp"));
 			register_view_items_.push_back(create_register_item(gpr, "rsi"));
 			register_view_items_.push_back(create_register_item(gpr, "rdi"));
 			register_view_items_.push_back(create_register_item(gpr, "r8"));
@@ -844,11 +844,11 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 
 	int itemNumber=0;
 	update_register(register_view_items_[itemNumber++],  "RAX", state.gp_register(Rax));
-	update_register(register_view_items_[itemNumber++],  "RBX", state.gp_register(Rbx));
 	update_register(register_view_items_[itemNumber++],  "RCX", state.gp_register(Rcx));
 	update_register(register_view_items_[itemNumber++],  "RDX", state.gp_register(Rdx));
-	update_register(register_view_items_[itemNumber++],  "RBP", state.gp_register(Rbp));
+	update_register(register_view_items_[itemNumber++],  "RBX", state.gp_register(Rbx));
 	update_register(register_view_items_[itemNumber++],  "RSP", state.gp_register(Rsp));
+	update_register(register_view_items_[itemNumber++],  "RBP", state.gp_register(Rbp));
 	update_register(register_view_items_[itemNumber++],  "RSI", state.gp_register(Rsi));
 	update_register(register_view_items_[itemNumber++],  "RDI", state.gp_register(Rdi));
 	update_register(register_view_items_[itemNumber++],  "R8 ", state.gp_register(R8));
@@ -981,11 +981,11 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	itemNumber=0;
 	// highlight any changed registers
 	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rax) != last_state_.gp_register(Rax)) ? Qt::red : palette.text()));
-	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rbx) != last_state_.gp_register(Rbx)) ? Qt::red : palette.text()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rcx) != last_state_.gp_register(Rcx)) ? Qt::red : palette.text()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rdx) != last_state_.gp_register(Rdx)) ? Qt::red : palette.text()));
-	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rbp) != last_state_.gp_register(Rbp)) ? Qt::red : palette.text()));
+	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rbx) != last_state_.gp_register(Rbx)) ? Qt::red : palette.text()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rsp) != last_state_.gp_register(Rsp)) ? Qt::red : palette.text()));
+	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rbp) != last_state_.gp_register(Rbp)) ? Qt::red : palette.text()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rsi) != last_state_.gp_register(Rsi)) ? Qt::red : palette.text()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rdi) != last_state_.gp_register(Rdi)) ? Qt::red : palette.text()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(R8)  != last_state_.gp_register(R8))  ? Qt::red : palette.text()));

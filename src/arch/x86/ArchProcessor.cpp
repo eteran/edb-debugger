@@ -661,11 +661,11 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 		// setup the register view
 		if(QTreeWidgetItem *const gpr = category_list->addCategory(tr("General Purpose"))) {
 			register_view_items_.push_back(create_register_item(gpr, "eax"));
-			register_view_items_.push_back(create_register_item(gpr, "ebx"));
 			register_view_items_.push_back(create_register_item(gpr, "ecx"));
 			register_view_items_.push_back(create_register_item(gpr, "edx"));
-			register_view_items_.push_back(create_register_item(gpr, "ebp"));
+			register_view_items_.push_back(create_register_item(gpr, "ebx"));
 			register_view_items_.push_back(create_register_item(gpr, "esp"));
+			register_view_items_.push_back(create_register_item(gpr, "ebp"));
 			register_view_items_.push_back(create_register_item(gpr, "esi"));
 			register_view_items_.push_back(create_register_item(gpr, "edi"));
 			register_view_items_.push_back(create_register_item(gpr, "eip"));
@@ -797,11 +797,11 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 
 	int itemNumber=0;
 	update_register(register_view_items_[itemNumber++], "EAX", state.gp_register(Eax));
-	update_register(register_view_items_[itemNumber++], "EBX", state.gp_register(Ebx));
 	update_register(register_view_items_[itemNumber++], "ECX", state.gp_register(Ecx));
 	update_register(register_view_items_[itemNumber++], "EDX", state.gp_register(Edx));
-	update_register(register_view_items_[itemNumber++], "EBP", state.gp_register(Ebp));
+	update_register(register_view_items_[itemNumber++], "EBX", state.gp_register(Ebx));
 	update_register(register_view_items_[itemNumber++], "ESP", state.gp_register(Esp));
+	update_register(register_view_items_[itemNumber++], "EBP", state.gp_register(Ebp));
 	update_register(register_view_items_[itemNumber++], "ESI", state.gp_register(Esi));
 	update_register(register_view_items_[itemNumber++], "EDI", state.gp_register(Edi));
 
@@ -925,11 +925,11 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	// highlight any changed registers
 	itemNumber=0;
 	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Eax) != last_state_.gp_register(Eax)) ? Qt::red : palette.text());
-	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Ebx) != last_state_.gp_register(Ebx)) ? Qt::red : palette.text());
 	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Ecx) != last_state_.gp_register(Ecx)) ? Qt::red : palette.text());
 	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Edx) != last_state_.gp_register(Edx)) ? Qt::red : palette.text());
-	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Ebp) != last_state_.gp_register(Ebp)) ? Qt::red : palette.text());
+	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Ebx) != last_state_.gp_register(Ebx)) ? Qt::red : palette.text());
 	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Esp) != last_state_.gp_register(Esp)) ? Qt::red : palette.text());
+	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Ebp) != last_state_.gp_register(Ebp)) ? Qt::red : palette.text());
 	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Esi) != last_state_.gp_register(Esi)) ? Qt::red : palette.text());
 	register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(Edi) != last_state_.gp_register(Edi)) ? Qt::red : palette.text());
 	register_view_items_[itemNumber++]->setForeground(0, (state.instruction_pointer() != last_state_.instruction_pointer()) ? Qt::red : palette.text());
