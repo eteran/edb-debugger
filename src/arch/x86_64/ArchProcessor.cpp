@@ -94,12 +94,19 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 		case edb::Operand::TYPE_EXPRESSION:
 			do {
 
-				edb::reg_t base = state[QString::fromStdString(edb::v1::formatter().register_name<edisassm::x86_64>(op.expression().base))].value<edb::reg_t>();
+				Register baseR  = state[QString::fromStdString(edb::v1::formatter().register_name<edisassm::x86_64>(op.expression().base))];
+				Register indexR = state[QString::fromStdString(edb::v1::formatter().register_name<edisassm::x86_64>(op.expression().index))];
+				edb::reg_t base = 0;
+				edb::reg_t index = 0;
+				if(!!baseR)
+					base=baseR.value<edb::reg_t>();
+				if(!!indexR)
+					index=indexR.value<edb::reg_t>();
+
 				if(op.expression().base == edb::Operand::REG_RIP) {
 					base += op.owner()->size();
 				}
 
-				const edb::reg_t index = state[QString::fromStdString(edb::v1::formatter().register_name<edisassm::x86_64>(op.expression().index))].value<edb::reg_t>();
 				ret                    = base + index * op.expression().scale + op.displacement();
 
 				if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
