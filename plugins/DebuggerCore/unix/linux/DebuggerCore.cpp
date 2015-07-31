@@ -61,6 +61,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PTRACE_GETSIGINFO static_cast<__ptrace_request>(0x4202)
 #endif
 
+#ifndef PTRACE_GETREGSET
+#define PTRACE_GETREGSET static_cast<__ptrace_request>(0x4204)
+#endif
+
 #ifndef PTRACE_EVENT_CLONE
 #define PTRACE_EVENT_CLONE 3
 #endif
