@@ -725,44 +725,68 @@ void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
 
 	if(auto state_impl = static_cast<PlatformState *>(state->impl_)) {
+		// State must be cleared before filling to zero all presence flags, otherwise something
+		// may remain not updated. Also, this way we'll mark all the unfilled values.
+		state_impl->clear();
 		if(attached()) {
-			if(ptrace(PTRACE_GETREGS, active_thread(), 0, &state_impl->regs_) != -1) {
-			#if defined(EDB_X86)
-				struct user_desc desc;
-				std::memset(&desc, 0, sizeof(desc));
 
-				if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->regs_.xgs / LDT_ENTRY_SIZE), &desc) != -1) {
-					state_impl->gs_base = desc.base_addr;
-				} else {
-					state_impl->gs_base = 0;
+			user_regs_struct regs;
+			long ptraceStatus=0;
+			if((ptraceStatus=ptrace(PTRACE_GETREGS, active_thread(), 0, &regs)) != -1) {
+				if(IS_X86_32_BIT)
+				{
+					struct user_desc desc;
+					std::memset(&desc, 0, sizeof(desc));
+
+					bool fsBaseFilled=false, gsBaseFilled=false;
+					if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->x86.segRegs[PlatformState::X86::FS] / LDT_ENTRY_SIZE), &desc) != -1) {
+						state_impl->x86.fsBase = desc.base_addr;
+						fsBaseFilled=true;
+					} else {
+						state_impl->x86.fsBase = 0;
+					}
+					if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->x86.segRegs[PlatformState::X86::GS] / LDT_ENTRY_SIZE), &desc) != -1) {
+						state_impl->x86.gsBase = desc.base_addr;
+						gsBaseFilled=true;
+					} else {
+						state_impl->x86.gsBase = 0;
+					}
+					if(fsBaseFilled && gsBaseFilled)
+						state_impl->x86.segBasesFilled=true;
 				}
 
-				if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->regs_.xfs / LDT_ENTRY_SIZE), &desc) != -1) {
-					state_impl->fs_base = desc.base_addr;
-				} else {
-					state_impl->fs_base = 0;
-				}
-			#elif defined(EDB_X86_64)
-			#endif
+				state_impl->fillFrom(regs);
 			}
+			else
+				perror("PTRACE_GETREGS failed");
 
 			// floating point and SSE registers
-#if defined(EDB_X86)
-			if(ptrace(PTRACE_GETFPXREGS, active_thread(), 0, &state_impl->fpregs_) != -1) {
-#elif defined(EDB_X86_64)
-			if(ptrace(PTRACE_GETFPREGS, active_thread(), 0, &state_impl->fpregs_) != -1) {
-#endif
+			static bool getFPXRegsSupported=(IS_X86_32_BIT ? true : false);
+			UserFPXRegsStructX86 fpxregs;
+			// This should be automatically optimized out on amd64. If not, not a big deal.
+			// Avoiding conditional compilation to facilitate syntax error checking
+			if(getFPXRegsSupported)
+				getFPXRegsSupported=(ptrace(PTRACE_GETFPXREGS, active_thread(), 0, &fpxregs)!=-1);
+
+			if(getFPXRegsSupported) {
+				state_impl->fillFrom(fpxregs);
+			} else {
+				user_fpregs_struct fpregs;
+				if((ptraceStatus=ptrace(PTRACE_GETFPREGS, active_thread(), 0, &fpregs))!=-1)
+					state_impl->fillFrom(fpregs);
+				else
+					perror("PTRACE_GETFPREGS failed");
 			}
 
 			// debug registers
-			state_impl->dr_[0] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[0]), 0);
-			state_impl->dr_[1] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[1]), 0);
-			state_impl->dr_[2] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[2]), 0);
-			state_impl->dr_[3] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[3]), 0);
-			state_impl->dr_[4] = 0;
-			state_impl->dr_[5] = 0;
-			state_impl->dr_[6] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[6]), 0);
-			state_impl->dr_[7] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[7]), 0);
+			state_impl->x86.dbgRegs[0] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[0]), 0);
+			state_impl->x86.dbgRegs[1] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[1]), 0);
+			state_impl->x86.dbgRegs[2] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[2]), 0);
+			state_impl->x86.dbgRegs[3] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[3]), 0);
+			state_impl->x86.dbgRegs[4] = 0;
+			state_impl->x86.dbgRegs[5] = 0;
+			state_impl->x86.dbgRegs[6] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[6]), 0);
+			state_impl->x86.dbgRegs[7] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[7]), 0);
 
 		} else {
 			state_impl->clear();
@@ -782,17 +806,19 @@ void DebuggerCore::set_state(const State &state) {
 	if(attached()) {
 
 		if(auto state_impl = static_cast<PlatformState *>(state.impl_)) {
-			ptrace(PTRACE_SETREGS, active_thread(), 0, &state_impl->regs_);
+			user_regs_struct regs;
+			state_impl->fillStruct(regs);
+			ptrace(PTRACE_SETREGS, active_thread(), 0, &regs);
 
 			// debug registers
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[0]), state_impl->dr_[0]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[1]), state_impl->dr_[1]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[2]), state_impl->dr_[2]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[3]), state_impl->dr_[3]);
-			//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[4]), state_impl->dr_[4]);
-			//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[5]), state_impl->dr_[5]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[6]), state_impl->dr_[6]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[7]), state_impl->dr_[7]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[0]), state_impl->x86.dbgRegs[0]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[1]), state_impl->x86.dbgRegs[1]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[2]), state_impl->x86.dbgRegs[2]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[3]), state_impl->x86.dbgRegs[3]);
+			//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[4]), state_impl->x86.dbgRegs[4]);
+			//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[5]), state_impl->x86.dbgRegs[5]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[6]), state_impl->x86.dbgRegs[6]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[7]), state_impl->x86.dbgRegs[7]);
 		}
 	}
 }

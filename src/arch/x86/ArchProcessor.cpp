@@ -47,11 +47,11 @@ namespace {
 
 enum RegisterIndex {
 	Eax  = 0,
-	Ebx  = 1,
-	Ecx  = 2,
-	Edx  = 3,
-	Ebp  = 4,
-	Esp  = 5,
+	Ecx  = 1,
+	Edx  = 2,
+	Ebx  = 3,
+	Esp  = 4,
+	Ebp  = 5,
 	Esi  = 6,
 	Edi  = 7,
 	Eip  = 8,
