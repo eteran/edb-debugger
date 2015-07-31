@@ -59,6 +59,14 @@ QString>::type toString(T value, int precision) {
 	return QString::fromStdString(ss.str());
 }
 
+inline void markMemory(void* memory, std::size_t size)
+{
+	char* p=reinterpret_cast<char*>(memory);
+	// Fill memory with 0xbad1bad1 marker
+	for(std::size_t i=0;i<size;++i)
+		p[i]=i&1 ? 0xba : 0xd1;
+}
+
 }
 
 #endif
