@@ -672,9 +672,11 @@ ArchProcessor::ArchProcessor() : split_flags_(0) {
 	if(edb::v1::debugger_core) {
 		has_mmx_ = edb::v1::debugger_core->has_extension(edb::string_hash<'M', 'M', 'X'>::value);
 		has_xmm_ = edb::v1::debugger_core->has_extension(edb::string_hash<'X', 'M', 'M'>::value);
+		has_ymm_ = edb::v1::debugger_core->has_extension(edb::string_hash<'Y', 'M', 'M'>::value);
 	} else {
 		has_mmx_ = false;
 		has_xmm_ = false;
+		has_ymm_ = false;
 	}
 }
 
