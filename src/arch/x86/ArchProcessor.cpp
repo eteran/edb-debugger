@@ -728,8 +728,20 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 			}
 		}
 
-		if(has_xmm_) {
-			if(QTreeWidgetItem *const xmm = category_list->addCategory(tr("XMM"))) {
+		if(has_ymm_) {
+			if(QTreeWidgetItem *const ymm = category_list->addCategory(tr("AVX"))) {
+				register_view_items_.push_back(create_register_item(ymm, "ymm0"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm1"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm2"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm3"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm4"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm5"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm6"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm7"));
+				register_view_items_.push_back(create_register_item(ymm, "mxcsr"));
+			}
+		} else if(has_xmm_) {
+			if(QTreeWidgetItem *const xmm = category_list->addCategory(tr("SSE"))) {
 				register_view_items_.push_back(create_register_item(xmm, "xmm0"));
 				register_view_items_.push_back(create_register_item(xmm, "xmm1"));
 				register_view_items_.push_back(create_register_item(xmm, "xmm2"));
@@ -905,14 +917,22 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		}
 	}
 
-	if(has_xmm_) {
+	if(has_ymm_) {
+		for(int i = 0; i < 8; ++i) {
+			const edb::value256 current = state.ymm_register(i);
+			const edb::value256 prev    = last_state_.ymm_register(i);
+			register_view_items_[itemNumber]->setText(0, QString("YMM%1: %2").arg(i).arg(current.toHexString()));
+			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
+		}
+	} else if(has_xmm_) {
 		for(int i = 0; i < 8; ++i) {
 			const edb::value128 current = state.xmm_register(i);
 			const edb::value128 prev    = last_state_.xmm_register(i);
 			register_view_items_[itemNumber]->setText(0, QString("XMM%1: %2").arg(i).arg(current.toHexString()));
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
-
+	}
+	if(has_xmm_ || has_ymm_) {
 		const edb::value32 current = state["mxcsr"].value<edb::value32>();
 		const edb::value32 prev    = last_state_["mxcsr"].value<edb::value32>();
 		register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1").arg(current.toHexString()));
