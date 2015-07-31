@@ -70,6 +70,9 @@ public:
 public:
 	// SSE
 	virtual edb::value128 xmm_register(int n) const = 0;
+public:
+	// AVX
+	virtual edb::value256 ymm_register(int n) const = 0;
 };
 
 #endif

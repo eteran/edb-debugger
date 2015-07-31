@@ -747,4 +747,13 @@ edb::value128 PlatformState::xmm_register(int n) const {
 	return avx.xmm(n);
 }
 
+//------------------------------------------------------------------------------
+// Name: ymm_register
+// Desc:
+//------------------------------------------------------------------------------
+edb::value256 PlatformState::ymm_register(int n) const {
+    assert(ymmIndexValid(n));
+	return avx.ymm(n);
+}
+
 }

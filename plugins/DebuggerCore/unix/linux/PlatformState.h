@@ -239,6 +239,7 @@ public:
 	virtual void set_register(const QString &name, edb::reg_t value);
 	virtual edb::value64 mmx_register(int n) const;
 	virtual edb::value128 xmm_register(int n) const;
+	virtual edb::value256 ymm_register(int n) const;
 	virtual Register gp_register(int n) const;
 
 private:
