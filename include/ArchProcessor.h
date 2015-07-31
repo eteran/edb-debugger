@@ -56,6 +56,7 @@ private:
 	State             last_state_;
 	bool              has_mmx_;
 	bool              has_xmm_;
+	bool              has_ymm_;
 	std::vector<QTreeWidgetItem*> register_view_items_;
 };
 
