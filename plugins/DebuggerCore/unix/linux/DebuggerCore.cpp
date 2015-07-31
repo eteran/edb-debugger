@@ -291,9 +291,11 @@ DebuggerCore::DebuggerCore() : binary_info_(0), process_(0) {
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
 
-
-
-#if defined(EDB_X86)
+	const auto mmxHash=edb::string_hash<'M', 'M', 'X'>::value;
+	const auto xmmHash=edb::string_hash<'X', 'M', 'M'>::value;
+	const auto ymmHash=edb::string_hash<'Y', 'M', 'M'>::value;
+	if(IS_X86_64_BIT && (ext==xmmHash || ext==mmxHash))
+		return true;
 
 	quint32 eax;
 	quint32 ebx;
@@ -302,24 +304,27 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 	__cpuid(1, eax, ebx, ecx, edx);
 
 	switch(ext) {
-	case edb::string_hash<'M', 'M', 'X'>::value:
+	case mmxHash:
 		return (edx & bit_MMX);
-	case edb::string_hash<'X', 'M', 'M'>::value:
+	case xmmHash:
 		return (edx & bit_SSE);
+	case ymmHash:
+	{
+		// Check OSXSAVE and AVX feature flags
+		if((ecx&0x18000000)!=0x18000000)
+			return false;
+		// Get XCR0, must be exactly after OSXSAVE feature check, otherwise #UD
+		asm volatile("xgetbv" : "=a"(eax),"=d"(edx) : "c"(0));
+		// Check that the OS has enabled XMM and YMM state support
+		if((eax&0x6)!=0x6)
+			return false;
+		return true;
+	}
 	default:
 		return false;
 	}
 
 	return false;
-#elif defined(EDB_X86_64)
-	switch(ext) {
-	case edb::string_hash<'M', 'M', 'X'>::value:
-	case edb::string_hash<'X', 'M', 'M'>::value:
-		return true;
-	default:
-		return false;
-	}
-#endif
 }
 
 //------------------------------------------------------------------------------
