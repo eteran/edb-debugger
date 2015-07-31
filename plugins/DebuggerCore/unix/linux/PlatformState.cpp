@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformState.h"
 #include "Util.h"
 #include <unordered_map>
+#include <QDebug>
 
 namespace DebuggerCore {
 
@@ -272,6 +273,77 @@ void PlatformState::fillFrom(const UserFPRegsStructX86_64& regs) {
 	avx.xmmFilled=true;
 }
 
+void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) {
+	if(sizeFromKernel<X86XState::AVX_SIZE) {
+		// Shouldn't ever happen. If AVX isn't supported, the ptrace call will fail.
+		qDebug() << "Size of X86_XSTATE returned from the kernel appears less than expected";
+		return;
+	}
+
+	avx.xcr0=regs.xcr0;
+
+	bool statePresentX87=regs.xstate_bv & X86XState::FEATURE_X87;
+	bool statePresentSSE=regs.xstate_bv & X86XState::FEATURE_SSE;
+	bool statePresentAVX=regs.xstate_bv & X86XState::FEATURE_AVX;
+
+	// Due to the lazy saving the feature bits may be unset in XSTATE_BV if the app
+	// has not touched the corresponding registers yet. But once the registers are
+	// touched, they are initialized to zero by the OS (not control/tag ones). To the app
+	// it looks as if the registers have always been zero. Thus we should provide the same
+	// illusion to the user.
+	if(statePresentX87) {
+		x87.statusWord=regs.swd; // should be first for stIndexToRIndex() to work
+		for(std::size_t n=0;n<FPU_REG_COUNT;++n)
+			x87.R[n]=edb::value80(regs.st_space,16*x87.stIndexToRIndex(n));
+		x87.controlWord=regs.cwd;
+		x87.tagWord=x87.restoreTagWord(regs.twd);
+		x87.instPtrOffset=regs.fioff; // FIXME: x86_64 has different meaning of these?
+		x87.dataPtrOffset=regs.fooff; // FIXME: x86_64 has different meaning of these?
+		x87.instPtrSelector=regs.fiseg; // FIXME: x86_64 has different meaning of these?
+		x87.dataPtrSelector=regs.foseg; // FIXME: x86_64 has different meaning of these?
+		x87.opCode=regs.fop;
+		x87.filled=true;
+		x87.opCodeFilled=true;
+	} else {
+		std::memset(&x87,0,sizeof x87);
+		x87.controlWord=regs.cwd; // this appears always present
+		x87.tagWord=0xffff;
+		x87.filled=true;
+		x87.opCodeFilled=true;
+	}
+	if(statePresentAVX) {
+		for(std::size_t n=0;n<YMM_REG_COUNT;++n)
+			avx.setYMM(n,edb::value128(regs.xmm_space,16*n),edb::value128(regs.ymmh_space,16*n));
+		avx.mxcsr=regs.mxcsr;
+		avx.mxcsrMask=regs.mxcsr_mask;
+		avx.mxcsrMaskFilled=true;
+		avx.xmmFilled=true;
+		avx.ymmFilled=true;
+	} else if(statePresentSSE) {
+		for(std::size_t n=0;n<XMM_REG_COUNT;++n)
+			avx.setXMM(n,edb::value128(regs.xmm_space,16*n));
+		avx.mxcsr=regs.mxcsr;
+		avx.mxcsrMask=regs.mxcsr_mask;
+		avx.mxcsrMaskFilled=true;
+		avx.xmmFilled=true;
+	} else {
+		avx.mxcsr=regs.mxcsr;
+		avx.mxcsrMask=regs.mxcsr_mask;
+		avx.mxcsrMaskFilled=true;
+		// Only fill the registers which are actually supported, leave invalidity marks intact for other parts
+		if(avx.xcr0 & X86XState::FEATURE_AVX) { // If AVX state management has been enabled by the OS
+			for(std::size_t n=0;n<YMM_REG_COUNT;++n)
+				avx.setYMM(n,edb::value256::fromZeroExtended(0));
+			avx.xmmFilled=true;
+			avx.ymmFilled=true;
+		} else if(avx.xcr0 & X86XState::FEATURE_SSE) { // If SSE state management has been enabled by the OS
+			for(std::size_t n=0;n<YMM_REG_COUNT;++n)
+				avx.setYMM(n,edb::value256::fromZeroExtended(0));
+			avx.xmmFilled=true;
+		}
+	}
+}
+
 void PlatformState::fillStruct(UserRegsStructX86& regs) const
 {
 	util::markMemory(&regs,sizeof(regs));
@@ -345,6 +417,12 @@ edb::value512 PlatformState::AVX::zmm(std::size_t index) const {
 void PlatformState::AVX::setXMM(std::size_t index, edb::value128 value) {
 	// leave upper part unchanged.
 	std::memcpy(&zmmStorage[index],&value,sizeof value);
+}
+
+void PlatformState::AVX::setYMM(std::size_t index, edb::value128 low, edb::value128 high) {
+	// leave upper part unchanged.
+	std::memcpy(reinterpret_cast<uint8_t*>(&zmmStorage[index])+0,&low,sizeof low);
+	std::memcpy(reinterpret_cast<uint8_t*>(&zmmStorage[index])+16,&high,sizeof high);
 }
 
 void PlatformState::AVX::setYMM(std::size_t index, edb::value256 value) {

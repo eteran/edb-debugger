@@ -149,6 +149,63 @@ struct UserFPRegsStructX86 {
 };
 #endif
 
+// Masks for XCR0 feature enabled bits
+#define X86_XSTATE_X87_MASK  X87_XSTATE_X87
+#define X86_XSTATE_SSE_MASK  (X87_XSTATE_X87|X87_XSTATE_SSE)
+struct X86XState
+{
+	uint16_t cwd;
+	uint16_t swd;
+	uint16_t twd;
+	uint16_t fop;
+	uint32_t fioff; // FIXME
+	uint32_t fiseg; // FIXME
+	uint32_t fooff; // FIXME
+	uint32_t foseg; // FIXME
+	uint32_t mxcsr;
+	uint32_t mxcsr_mask; // FIXME
+	uint8_t st_space[16*8]; // 8 16-byte fields
+	uint8_t xmm_space[16*16]; // 16 16-byte fields, regardless of XMM_REG_COUNT
+	uint8_t padding[48];
+	union {
+		uint64_t xcr0;
+		uint8_t sw_usable_bytes[48];
+	};
+	union {
+		uint64_t xstate_bv;
+		uint8_t xstate_hdr_bytes[64];
+	};
+	uint8_t ymmh_space[16*16];
+
+	// The extended state feature bits
+	enum FeatureBit : uint64_t {
+		FEATURE_X87     = 1<<0,
+		FEATURE_SSE     = 1<<1,
+		FEATURE_AVX     = 1<<2,
+		// MPX adds two feature bits
+		FEATURE_BNDREGS = 1<<3,
+		FEATURE_BNDCFG  = 1<<4,
+		FEATURE_MPX     = FEATURE_BNDREGS|FEATURE_BNDCFG,
+		// AVX-512 adds three feature bits
+		FEATURE_K       = 1<<5,
+		FEATURE_ZMM_H   = 1<<6,
+		FEATURE_ZMM     = 1<<7,
+		FEATURE_AVX512  = FEATURE_K|FEATURE_ZMM_H|FEATURE_ZMM,
+	};
+	// Possible sizes of X86_XSTATE
+	static constexpr std::size_t SSE_SIZE=576;
+	static constexpr std::size_t AVX_SIZE=832;
+	static constexpr std::size_t BNDREGS_SIZE=1024;
+	static constexpr std::size_t BNDCFG_SIZE=1088;
+	static constexpr std::size_t AVX512_SIZE=2688;
+	static constexpr std::size_t MAX_SIZE=2688;
+};
+static_assert(std::is_standard_layout<X86XState>::value,"X86XState struct is supposed to have standard layout");
+static_assert(offsetof(X86XState,st_space)==32,"ST space should appear at offset 32");
+static_assert(offsetof(X86XState,xmm_space)==160,"XMM space should appear at offset 160");
+static_assert(offsetof(X86XState,xcr0)==464,"XCR0 should appear at offset 464");
+static_assert(offsetof(X86XState,ymmh_space)==576,"YMM_H space should appear at offset 576");
+
 class PlatformState : public IState {
 	friend class DebuggerCore;
 
@@ -191,6 +248,7 @@ private:
 	public:
 		edb::value32 mxcsr;
 		edb::value32 mxcsrMask;
+		edb::value64 xcr0;
 		bool xmmFilled=false;
 		bool ymmFilled=false;
 		bool zmmFilled=false;
@@ -201,6 +259,7 @@ private:
 		void setXMM(std::size_t index,edb::value128);
 		edb::value256 ymm(std::size_t index) const;
 		void setYMM(std::size_t index,edb::value256);
+		void setYMM(std::size_t index,edb::value128 low, edb::value128 high);
 		edb::value512 zmm(std::size_t index) const;
 		void setZMM(std::size_t index,edb::value512);
 
@@ -298,6 +357,7 @@ private:
 	void fillFrom(const UserFPXRegsStructX86& regs);
 	void fillFrom(const UserRegsStructX86_64& regs);
 	void fillFrom(const UserFPRegsStructX86_64& regs);
+	void fillFrom(const X86XState& regs, std::size_t sizeFromKernel);
 
 	void fillStruct(UserRegsStructX86& regs) const;
 	void fillStruct(UserRegsStructX86_64& regs) const;

@@ -47,6 +47,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/ptrace.h>
 #include <sys/user.h>
 #include <sys/wait.h>
+#include <elf.h>
+#include <linux/uio.h>
 
 // doesn't always seem to be defined in the headers
 #ifndef PTRACE_GET_THREAD_AREA
@@ -764,22 +766,33 @@ void DebuggerCore::get_state(State *state) {
 			else
 				perror("PTRACE_GETREGS failed");
 
-			// floating point and SSE registers
-			static bool getFPXRegsSupported=(IS_X86_32_BIT ? true : false);
-			UserFPXRegsStructX86 fpxregs;
-			// This should be automatically optimized out on amd64. If not, not a big deal.
-			// Avoiding conditional compilation to facilitate syntax error checking
-			if(getFPXRegsSupported)
-				getFPXRegsSupported=(ptrace(PTRACE_GETFPXREGS, active_thread(), 0, &fpxregs)!=-1);
-
-			if(getFPXRegsSupported) {
-				state_impl->fillFrom(fpxregs);
+			// First try to get full XSTATE
+			X86XState xstate;
+			iovec iov={&xstate,sizeof(xstate)};
+			ptraceStatus=ptrace(PTRACE_GETREGSET, active_thread(), NT_X86_XSTATE, &iov);
+			if(ptraceStatus!=-1) {
+				state_impl->fillFrom(xstate,iov.iov_len);
 			} else {
-				user_fpregs_struct fpregs;
-				if((ptraceStatus=ptrace(PTRACE_GETFPREGS, active_thread(), 0, &fpregs))!=-1)
-					state_impl->fillFrom(fpregs);
-				else
-					perror("PTRACE_GETFPREGS failed");
+
+				// No XSTATE available, get just floating point and SSE registers
+				static bool getFPXRegsSupported=(IS_X86_32_BIT ? true : false);
+				UserFPXRegsStructX86 fpxregs;
+				// This should be automatically optimized out on amd64. If not, not a big deal.
+				// Avoiding conditional compilation to facilitate syntax error checking
+				if(getFPXRegsSupported)
+					getFPXRegsSupported=(ptrace(PTRACE_GETFPXREGS, active_thread(), 0, &fpxregs)!=-1);
+
+				if(getFPXRegsSupported) {
+					state_impl->fillFrom(fpxregs);
+				} else {
+					// No GETFPXREGS: on x86 this means SSE is not supported
+					//                on x86_64 FPREGS already contain SSE state
+					user_fpregs_struct fpregs;
+					if((ptraceStatus=ptrace(PTRACE_GETFPREGS, active_thread(), 0, &fpregs))!=-1)
+						state_impl->fillFrom(fpregs);
+					else
+						perror("PTRACE_GETFPREGS failed");
+				}
 			}
 
 			// debug registers
