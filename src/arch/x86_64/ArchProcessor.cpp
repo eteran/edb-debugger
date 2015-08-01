@@ -526,6 +526,37 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 	}
 }
 
+// XXX: complete duplicate of that in x86 ArchProcessor
+std::size_t operand_size(edb::Operand::Register reg)
+{
+	if(edb::Operand::REG_RAX <= reg && reg <= edb::Operand::REG_R15)
+		return 64;
+	if(edb::Operand::REG_EAX <= reg && reg <= edb::Operand::REG_R15D)
+		return 32;
+	if(edb::Operand::REG_AX <= reg && reg <= edb::Operand::REG_R15W)
+		return 16;
+	if(edb::Operand::REG_AL <= reg && reg <= edb::Operand::REG_DIL)
+		return 8;
+	if(edb::Operand::REG_ES <= reg && reg <= edb::Operand::REG_SEG8)
+		return 16;
+	if((edb::Operand::REG_CR0 <= reg && reg <= edb::Operand::REG_CR15)||
+	   (edb::Operand::REG_DR0 <= reg && reg <= edb::Operand::REG_DR15))
+		return sizeof(edb::reg_t)*8;
+	// FIXME: what are REG_TR[0-9]?
+	if(edb::Operand::REG_MM0 <= reg && reg <= edb::Operand::REG_MM7)
+		return 64;
+	if(edb::Operand::REG_XMM0 <= reg && reg <= edb::Operand::REG_XMM15)
+		return 128;
+	if(edb::Operand::REG_ST <= reg && reg <= edb::Operand::REG_ST7)
+		return 80;
+	if(reg == edb::Operand::REG_RIP)
+	   return 64;
+	if(reg == edb::Operand::REG_EIP)
+		return 32;
+
+	return 0;
+}
+
 //------------------------------------------------------------------------------
 // Name: analyze_operands
 // Desc:
@@ -545,12 +576,35 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 
 				switch(operand.general_type()) {
 				case edb::Operand::TYPE_REL:
-				case edb::Operand::TYPE_REGISTER:
 					do {
 						const edb::address_t effective_address = get_effective_address(operand, state);
 						ret << QString("%1 = %2").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
 					} while(0);
 					break;
+				case edb::Operand::TYPE_REGISTER:
+					{
+						QString valueString;
+						switch(operand_size(operand.reg()))
+						{
+						case 8:
+							valueString=state[QString::fromStdString(edb::v1::formatter().to_string(operand))].value<edb::value8>().toHexString();
+							break;
+						case 16:
+							valueString=state[QString::fromStdString(edb::v1::formatter().to_string(operand))].value<edb::value16>().toHexString();
+							break;
+						case 32:
+							valueString=state[QString::fromStdString(edb::v1::formatter().to_string(operand))].value<edb::value32>().toHexString();
+							break;
+						case 64:
+							valueString=state[QString::fromStdString(edb::v1::formatter().to_string(operand))].value<edb::value64>().toHexString();
+							break;
+						// TODO: Register currently doesn't have anything larger than reg_t. Need to implement this and then add support for larger values here
+						default:
+							valueString=state[QString::fromStdString(edb::v1::formatter().to_string(operand))].value<edb::reg_t>().toHexString();
+						}
+						ret << QString("%1 = %2").arg(temp_operand).arg(valueString);
+						break;
+					}
 				case edb::Operand::TYPE_EXPRESSION:
 					do {
 						const edb::address_t effective_address = get_effective_address(operand, state);
