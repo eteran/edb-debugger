@@ -809,6 +809,18 @@ void ArchProcessor::reset() {
 void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
 	const QPalette palette = QApplication::palette();
 
+	if(state.empty()) {
+		for(auto item : register_view_items_)
+			if(auto parent=item->parent())
+				parent->setHidden(true);
+		return;
+	} else {
+		for(auto item : register_view_items_)
+			if(auto parent=item->parent())
+				parent->setHidden(false);
+		// and continue filling in the values
+	}
+
 	int itemNumber=0;
 	update_register(register_view_items_[itemNumber++], "EAX", state.gp_register(Eax));
 	update_register(register_view_items_[itemNumber++], "ECX", state.gp_register(Ecx));
