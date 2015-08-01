@@ -64,6 +64,7 @@ public:
 	edb::value64 mmx_register(int n) const;
 	void adjust_stack(int bytes);
 	void clear();
+	bool empty() const;
 
 public:
 	void set_debug_register(int n, edb::reg_t value);

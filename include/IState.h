@@ -44,6 +44,7 @@ public:
 	virtual edb::reg_t flags() const = 0;
 	virtual void adjust_stack(int bytes) = 0;
 	virtual void clear() = 0;
+	virtual bool empty() const = 0;
 	virtual void set_debug_register(int n, edb::reg_t value) = 0;
 	virtual void set_flags(edb::reg_t flags) = 0;
 	virtual void set_instruction_pointer(edb::address_t value) = 0;
