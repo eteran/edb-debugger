@@ -670,9 +670,9 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 //------------------------------------------------------------------------------
 ArchProcessor::ArchProcessor() : split_flags_(0) {
 	if(edb::v1::debugger_core) {
-		has_mmx_ = edb::v1::debugger_core->has_extension(edb::string_hash<'M', 'M', 'X'>::value);
-		has_xmm_ = edb::v1::debugger_core->has_extension(edb::string_hash<'X', 'M', 'M'>::value);
-		has_ymm_ = edb::v1::debugger_core->has_extension(edb::string_hash<'Y', 'M', 'M'>::value);
+		has_mmx_ = edb::v1::debugger_core->has_extension(edb::string_hash("MMX"));
+		has_xmm_ = edb::v1::debugger_core->has_extension(edb::string_hash("XMM"));
+		has_ymm_ = edb::v1::debugger_core->has_extension(edb::string_hash("YMM"));
 	} else {
 		has_mmx_ = false;
 		has_xmm_ = false;

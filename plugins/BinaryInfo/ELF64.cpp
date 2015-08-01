@@ -68,7 +68,7 @@ bool ELF64::validate_header() {
 // Desc: returns true if this binary is native to the arch edb was built for
 //------------------------------------------------------------------------------
 bool ELF64::native() const {
-	return edb::v1::debugger_core->cpu_type() == edb::string_hash<'x', '8', '6', '-', '6', '4'>::value;
+	return edb::v1::debugger_core->cpu_type() == edb::string_hash("x86-64");
 }
 
 //------------------------------------------------------------------------------

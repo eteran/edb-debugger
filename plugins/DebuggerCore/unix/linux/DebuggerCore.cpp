@@ -291,9 +291,9 @@ DebuggerCore::DebuggerCore() : binary_info_(0), process_(0) {
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
 
-	const auto mmxHash=edb::string_hash<'M', 'M', 'X'>::value;
-	const auto xmmHash=edb::string_hash<'X', 'M', 'M'>::value;
-	const auto ymmHash=edb::string_hash<'Y', 'M', 'M'>::value;
+	const auto mmxHash=edb::string_hash("MMX");
+	const auto xmmHash=edb::string_hash("XMM");
+	const auto ymmHash=edb::string_hash("YMM");
 	if(IS_X86_64_BIT && (ext==xmmHash || ext==mmxHash))
 		return true;
 
@@ -1087,9 +1087,9 @@ QList<Module> DebuggerCore::loaded_modules() const {
 //------------------------------------------------------------------------------
 quint64 DebuggerCore::cpu_type() const {
 #ifdef EDB_X86
-	return edb::string_hash<'x', '8', '6'>::value;
+	return edb::string_hash("x86");
 #elif defined(EDB_X86_64)
-	return edb::string_hash<'x', '8', '6', '-', '6', '4'>::value;
+	return edb::string_hash("x86-64");
 #endif
 }
 
