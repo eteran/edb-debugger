@@ -440,10 +440,18 @@ void PlatformState::X86::clear() {
 	segBasesFilled=false;
 }
 
+bool PlatformState::X86::empty() const {
+	return !filled;
+}
+
 void PlatformState::X87::clear() {
 	util::markMemory(this,sizeof(*this));
 	filled=false;
 	opCodeFilled=false;
+}
+
+bool PlatformState::X87::empty() const {
+	return !filled;
 }
 
 void PlatformState::AVX::clear() {
@@ -451,6 +459,10 @@ void PlatformState::AVX::clear() {
 	xmmFilled=false;
 	ymmFilled=false;
 	zmmFilled=false;
+}
+
+bool PlatformState::AVX::empty() const {
+	return !xmmFilled;
 }
 
 //------------------------------------------------------------------------------
@@ -654,6 +666,14 @@ void PlatformState::clear() {
 	x86.clear();
 	x87.clear();
 	avx.clear();
+}
+
+//------------------------------------------------------------------------------
+// Name: clear
+// Desc:
+//------------------------------------------------------------------------------
+bool PlatformState::empty() const {
+	return x86.empty() && x87.empty() && avx.empty();
 }
 
 //------------------------------------------------------------------------------

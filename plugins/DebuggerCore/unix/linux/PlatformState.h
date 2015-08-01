@@ -233,6 +233,7 @@ public:
 	virtual edb::value16 fpu_tag_word() const;
 	virtual void adjust_stack(int bytes);
 	virtual void clear();
+	virtual bool empty() const;
 	virtual void set_debug_register(int n, edb::reg_t value);
 	virtual void set_flags(edb::reg_t flags);
 	virtual void set_instruction_pointer(edb::address_t value);
@@ -256,6 +257,7 @@ private:
 		bool mxcsrMaskFilled=false;
 
 		void clear();
+		bool empty() const;
 		edb::value128 xmm(std::size_t index) const;
 		void setXMM(std::size_t index,edb::value128);
 		edb::value256 ymm(std::size_t index) const;
@@ -282,6 +284,7 @@ private:
 		bool opCodeFilled=false;
 
 		void clear();
+		bool empty() const;
 		std::size_t stackPointer() const;
 		// Convert from ST(n) index n to Rx index x
 		std::size_t stIndexToRIndex(std::size_t index) const;
@@ -313,6 +316,7 @@ private:
 		bool filled=false;
 
 		void clear();
+		bool empty() const;
 
 		enum GPRIndex : std::size_t {
 			EAX,RAX=EAX,
