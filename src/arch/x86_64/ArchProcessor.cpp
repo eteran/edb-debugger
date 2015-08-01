@@ -864,6 +864,18 @@ void ArchProcessor::reset() {
 void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
 	const QPalette palette = QApplication::palette();
 
+	if(state.empty()) {
+		for(auto item : register_view_items_)
+			if(auto parent=item->parent())
+				parent->setHidden(true);
+		return;
+	} else {
+		for(auto item : register_view_items_)
+			if(auto parent=item->parent())
+				parent->setHidden(false);
+		// and continue filling in the values
+	}
+
 	int itemNumber=0;
 	update_register(register_view_items_[itemNumber++],  "RAX", state.gp_register(Rax));
 	update_register(register_view_items_[itemNumber++],  "RCX", state.gp_register(Rcx));
