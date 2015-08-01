@@ -44,6 +44,7 @@ public:
 
 public:
 	edb::value128 xmm_register(int n) const;
+	edb::value256 ymm_register(int n) const;
 	QString flags_to_string() const;
 	QString flags_to_string(edb::reg_t flags) const;
 	Register value(const QString &reg) const;
@@ -63,6 +64,7 @@ public:
 	edb::value64 mmx_register(int n) const;
 	void adjust_stack(int bytes);
 	void clear();
+	bool empty() const;
 
 public:
 	void set_debug_register(int n, edb::reg_t value);

@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Instruction.h"
 
 #define EDB_X86
+static constexpr const bool IS_X86_64_BIT=false;
+static constexpr const bool IS_X86_32_BIT=true;
 
 namespace edb {
 	typedef value16                              seg_reg_t;

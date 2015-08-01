@@ -47,11 +47,11 @@ namespace {
 
 enum RegisterIndex {
 	Rax  = 0,
-	Rbx  = 1,
-	Rcx  = 2,
-	Rdx  = 3,
-	Rbp  = 4,
-	Rsp  = 5,
+	Rcx  = 1,
+	Rdx  = 2,
+	Rbx  = 3,
+	Rsp  = 4,
+	Rbp  = 5,
 	Rsi  = 6,
 	Rdi  = 7,
 	R8   = 8,
@@ -94,12 +94,19 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 		case edb::Operand::TYPE_EXPRESSION:
 			do {
 
-				edb::reg_t base = state[QString::fromStdString(edb::v1::formatter().register_name<edisassm::x86_64>(op.expression().base))].value<edb::reg_t>();
+				Register baseR  = state[QString::fromStdString(edb::v1::formatter().register_name<edisassm::x86_64>(op.expression().base))];
+				Register indexR = state[QString::fromStdString(edb::v1::formatter().register_name<edisassm::x86_64>(op.expression().index))];
+				edb::reg_t base = 0;
+				edb::reg_t index = 0;
+				if(!!baseR)
+					base=baseR.value<edb::reg_t>();
+				if(!!indexR)
+					index=indexR.value<edb::reg_t>();
+
 				if(op.expression().base == edb::Operand::REG_RIP) {
 					base += op.owner()->size();
 				}
 
-				const edb::reg_t index = state[QString::fromStdString(edb::v1::formatter().register_name<edisassm::x86_64>(op.expression().index))].value<edb::reg_t>();
 				ret                    = base + index * op.expression().scale + op.displacement();
 
 				if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
@@ -663,11 +670,13 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 //------------------------------------------------------------------------------
 ArchProcessor::ArchProcessor() : split_flags_(0) {
 	if(edb::v1::debugger_core) {
-		has_mmx_ = edb::v1::debugger_core->has_extension(edb::string_hash<'M', 'M', 'X'>::value);
-		has_xmm_ = edb::v1::debugger_core->has_extension(edb::string_hash<'X', 'M', 'M'>::value);
+		has_mmx_ = edb::v1::debugger_core->has_extension(edb::string_hash("MMX"));
+		has_xmm_ = edb::v1::debugger_core->has_extension(edb::string_hash("XMM"));
+		has_ymm_ = edb::v1::debugger_core->has_extension(edb::string_hash("YMM"));
 	} else {
 		has_mmx_ = false;
 		has_xmm_ = false;
+		has_ymm_ = false;
 	}
 }
 
@@ -685,11 +694,11 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 		// setup the register view
 		if(QTreeWidgetItem *const gpr = category_list->addCategory(tr("General Purpose"))) {
 			register_view_items_.push_back(create_register_item(gpr, "rax"));
-			register_view_items_.push_back(create_register_item(gpr, "rbx"));
 			register_view_items_.push_back(create_register_item(gpr, "rcx"));
 			register_view_items_.push_back(create_register_item(gpr, "rdx"));
-			register_view_items_.push_back(create_register_item(gpr, "rbp"));
+			register_view_items_.push_back(create_register_item(gpr, "rbx"));
 			register_view_items_.push_back(create_register_item(gpr, "rsp"));
+			register_view_items_.push_back(create_register_item(gpr, "rbp"));
 			register_view_items_.push_back(create_register_item(gpr, "rsi"));
 			register_view_items_.push_back(create_register_item(gpr, "rdi"));
 			register_view_items_.push_back(create_register_item(gpr, "r8"));
@@ -758,8 +767,28 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 			}
 		}
 
-		if(has_xmm_) {
-			if(QTreeWidgetItem *const xmm = category_list->addCategory(tr("XMM"))) {
+		if(has_ymm_) {
+			if(QTreeWidgetItem *const ymm = category_list->addCategory(tr("AVX"))) {
+				register_view_items_.push_back(create_register_item(ymm, "ymm0"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm1"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm2"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm3"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm4"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm5"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm6"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm7"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm8"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm9"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm10"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm11"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm12"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm13"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm14"));
+				register_view_items_.push_back(create_register_item(ymm, "ymm15"));
+				register_view_items_.push_back(create_register_item(ymm, "mxcsr"));
+			}
+		} else if(has_xmm_) {
+			if(QTreeWidgetItem *const xmm = category_list->addCategory(tr("SSE"))) {
 				register_view_items_.push_back(create_register_item(xmm, "xmm0"));
 				register_view_items_.push_back(create_register_item(xmm, "xmm1"));
 				register_view_items_.push_back(create_register_item(xmm, "xmm2"));
@@ -835,13 +864,25 @@ void ArchProcessor::reset() {
 void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
 	const QPalette palette = QApplication::palette();
 
+	if(state.empty()) {
+		for(auto item : register_view_items_)
+			if(auto parent=item->parent())
+				parent->setHidden(true);
+		return;
+	} else {
+		for(auto item : register_view_items_)
+			if(auto parent=item->parent())
+				parent->setHidden(false);
+		// and continue filling in the values
+	}
+
 	int itemNumber=0;
 	update_register(register_view_items_[itemNumber++],  "RAX", state.gp_register(Rax));
-	update_register(register_view_items_[itemNumber++],  "RBX", state.gp_register(Rbx));
 	update_register(register_view_items_[itemNumber++],  "RCX", state.gp_register(Rcx));
 	update_register(register_view_items_[itemNumber++],  "RDX", state.gp_register(Rdx));
-	update_register(register_view_items_[itemNumber++],  "RBP", state.gp_register(Rbp));
+	update_register(register_view_items_[itemNumber++],  "RBX", state.gp_register(Rbx));
 	update_register(register_view_items_[itemNumber++],  "RSP", state.gp_register(Rsp));
+	update_register(register_view_items_[itemNumber++],  "RBP", state.gp_register(Rbp));
 	update_register(register_view_items_[itemNumber++],  "RSI", state.gp_register(Rsi));
 	update_register(register_view_items_[itemNumber++],  "RDI", state.gp_register(Rdi));
 	update_register(register_view_items_[itemNumber++],  "R8 ", state.gp_register(R8));
@@ -951,19 +992,26 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		}
 	}
 
-	if(has_xmm_) {
+	if(has_ymm_) {
+		for(int i = 0; i < 16; ++i) {
+			const edb::value256 current = state.ymm_register(i);
+			const edb::value256 prev    = last_state_.ymm_register(i);
+			register_view_items_[itemNumber]->setText(0, QString("YMM%1: %2").arg(i, -2).arg(current.toHexString()));
+			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
+		}
+	} else if(has_xmm_) {
 		for(int i = 0; i < 16; ++i) {
 			const edb::value128 current = state.xmm_register(i);
 			const edb::value128 prev    = last_state_.xmm_register(i);
 			register_view_items_[itemNumber]->setText(0, QString("XMM%1: %2").arg(i, -2).arg(current.toHexString()));
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
-
+	}
+	if(has_xmm_ || has_ymm_) {
 		const edb::value32 current = state["mxcsr"].value<edb::value32>();
 		const edb::value32 prev    = last_state_["mxcsr"].value<edb::value32>();
 		register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1").arg(current.toHexString()));
 		register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
-
 	}
 
 	const bool flags_changed = state.flags() != last_state_.flags();
@@ -974,11 +1022,11 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	itemNumber=0;
 	// highlight any changed registers
 	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rax) != last_state_.gp_register(Rax)) ? Qt::red : palette.text()));
-	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rbx) != last_state_.gp_register(Rbx)) ? Qt::red : palette.text()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rcx) != last_state_.gp_register(Rcx)) ? Qt::red : palette.text()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rdx) != last_state_.gp_register(Rdx)) ? Qt::red : palette.text()));
-	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rbp) != last_state_.gp_register(Rbp)) ? Qt::red : palette.text()));
+	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rbx) != last_state_.gp_register(Rbx)) ? Qt::red : palette.text()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rsp) != last_state_.gp_register(Rsp)) ? Qt::red : palette.text()));
+	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rbp) != last_state_.gp_register(Rbp)) ? Qt::red : palette.text()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rsi) != last_state_.gp_register(Rsi)) ? Qt::red : palette.text()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(Rdi) != last_state_.gp_register(Rdi)) ? Qt::red : palette.text()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush((state.gp_register(R8)  != last_state_.gp_register(R8))  ? Qt::red : palette.text()));

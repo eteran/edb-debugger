@@ -151,14 +151,14 @@ struct SizedValue : public ValueBase<N,1> {
 	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, SizedValue>::type operator ^= (RHS rhs) { this->value_[0] ^= rhs; return *this; }
 	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, SizedValue>::type operator &= (RHS rhs) { this->value_[0] &= rhs; return *this; }
 	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, SizedValue>::type operator |= (RHS rhs) { this->value_[0] |= rhs; return *this; }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, SizedValue>::type operator >> (RHS rhs) const { return SizedValue(this->value_[0] >> rhs); }
+	template<typename RHS> typename std::enable_if<std::is_integral<RHS>::value, SizedValue>::type operator << (RHS rhs) const { return SizedValue(this->value_[0] << rhs); }
 	bool operator >  (SizedValue other) const { return this->value_[0] >  other.value_[0]; }
 	bool operator <  (SizedValue other) const { return this->value_[0] <  other.value_[0]; }
 	bool operator >= (SizedValue other) const { return this->value_[0] >= other.value_[0]; }
 	bool operator <= (SizedValue other) const { return this->value_[0] <= other.value_[0]; }
 	SizedValue operator + (const SizedValue& other) const { return SizedValue(this->value_[0] + other.value_[0]); }
 	SizedValue operator - (const SizedValue& other) const { return SizedValue(this->value_[0] - other.value_[0]); }
-	SizedValue operator >> (int rhs) const { return SizedValue(this->value_[0] >> rhs); }
-	SizedValue operator << (int rhs) const { return SizedValue(this->value_[0] << rhs); }
 	SizedValue operator += (SizedValue other) { this->value_[0] += other.value_[0]; return *this; }
 	SizedValue operator -= (SizedValue other) { this->value_[0] -= other.value_[0]; return *this; }
 	SizedValue operator ^= (SizedValue other) { this->value_[0] ^= other.value_[0]; return *this; }
