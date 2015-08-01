@@ -47,6 +47,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/ptrace.h>
 #include <sys/user.h>
 #include <sys/wait.h>
+#include <elf.h>
+#include <linux/uio.h>
 
 // doesn't always seem to be defined in the headers
 #ifndef PTRACE_GET_THREAD_AREA
@@ -59,6 +61,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef PTRACE_GETSIGINFO
 #define PTRACE_GETSIGINFO static_cast<__ptrace_request>(0x4202)
+#endif
+
+#ifndef PTRACE_GETREGSET
+#define PTRACE_GETREGSET static_cast<__ptrace_request>(0x4204)
 #endif
 
 #ifndef PTRACE_EVENT_CLONE
@@ -285,9 +291,11 @@ DebuggerCore::DebuggerCore() : binary_info_(0), process_(0) {
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
 
-
-
-#if defined(EDB_X86)
+	const auto mmxHash=edb::string_hash("MMX");
+	const auto xmmHash=edb::string_hash("XMM");
+	const auto ymmHash=edb::string_hash("YMM");
+	if(IS_X86_64_BIT && (ext==xmmHash || ext==mmxHash))
+		return true;
 
 	quint32 eax;
 	quint32 ebx;
@@ -296,24 +304,27 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 	__cpuid(1, eax, ebx, ecx, edx);
 
 	switch(ext) {
-	case edb::string_hash<'M', 'M', 'X'>::value:
+	case mmxHash:
 		return (edx & bit_MMX);
-	case edb::string_hash<'X', 'M', 'M'>::value:
+	case xmmHash:
 		return (edx & bit_SSE);
+	case ymmHash:
+	{
+		// Check OSXSAVE and AVX feature flags
+		if((ecx&0x18000000)!=0x18000000)
+			return false;
+		// Get XCR0, must be exactly after OSXSAVE feature check, otherwise #UD
+		asm volatile("xgetbv" : "=a"(eax),"=d"(edx) : "c"(0));
+		// Check that the OS has enabled XMM and YMM state support
+		if((eax&0x6)!=0x6)
+			return false;
+		return true;
+	}
 	default:
 		return false;
 	}
 
 	return false;
-#elif defined(EDB_X86_64)
-	switch(ext) {
-	case edb::string_hash<'M', 'M', 'X'>::value:
-	case edb::string_hash<'X', 'M', 'M'>::value:
-		return true;
-	default:
-		return false;
-	}
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -725,44 +736,79 @@ void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
 
 	if(auto state_impl = static_cast<PlatformState *>(state->impl_)) {
+		// State must be cleared before filling to zero all presence flags, otherwise something
+		// may remain not updated. Also, this way we'll mark all the unfilled values.
+		state_impl->clear();
 		if(attached()) {
-			if(ptrace(PTRACE_GETREGS, active_thread(), 0, &state_impl->regs_) != -1) {
-			#if defined(EDB_X86)
-				struct user_desc desc;
-				std::memset(&desc, 0, sizeof(desc));
 
-				if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->regs_.xgs / LDT_ENTRY_SIZE), &desc) != -1) {
-					state_impl->gs_base = desc.base_addr;
-				} else {
-					state_impl->gs_base = 0;
+			user_regs_struct regs;
+			long ptraceStatus=0;
+			if((ptraceStatus=ptrace(PTRACE_GETREGS, active_thread(), 0, &regs)) != -1) {
+				if(IS_X86_32_BIT)
+				{
+					struct user_desc desc;
+					std::memset(&desc, 0, sizeof(desc));
+
+					bool fsBaseFilled=false, gsBaseFilled=false;
+					if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->x86.segRegs[PlatformState::X86::FS] / LDT_ENTRY_SIZE), &desc) != -1) {
+						state_impl->x86.fsBase = desc.base_addr;
+						fsBaseFilled=true;
+					} else {
+						state_impl->x86.fsBase = 0;
+					}
+					if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->x86.segRegs[PlatformState::X86::GS] / LDT_ENTRY_SIZE), &desc) != -1) {
+						state_impl->x86.gsBase = desc.base_addr;
+						gsBaseFilled=true;
+					} else {
+						state_impl->x86.gsBase = 0;
+					}
+					if(fsBaseFilled && gsBaseFilled)
+						state_impl->x86.segBasesFilled=true;
 				}
 
-				if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->regs_.xfs / LDT_ENTRY_SIZE), &desc) != -1) {
-					state_impl->fs_base = desc.base_addr;
-				} else {
-					state_impl->fs_base = 0;
-				}
-			#elif defined(EDB_X86_64)
-			#endif
+				state_impl->fillFrom(regs);
 			}
+			else
+				perror("PTRACE_GETREGS failed");
 
-			// floating point and SSE registers
-#if defined(EDB_X86)
-			if(ptrace(PTRACE_GETFPXREGS, active_thread(), 0, &state_impl->fpregs_) != -1) {
-#elif defined(EDB_X86_64)
-			if(ptrace(PTRACE_GETFPREGS, active_thread(), 0, &state_impl->fpregs_) != -1) {
-#endif
+			// First try to get full XSTATE
+			X86XState xstate;
+			iovec iov={&xstate,sizeof(xstate)};
+			ptraceStatus=ptrace(PTRACE_GETREGSET, active_thread(), NT_X86_XSTATE, &iov);
+			if(ptraceStatus!=-1) {
+				state_impl->fillFrom(xstate,iov.iov_len);
+			} else {
+
+				// No XSTATE available, get just floating point and SSE registers
+				static bool getFPXRegsSupported=(IS_X86_32_BIT ? true : false);
+				UserFPXRegsStructX86 fpxregs;
+				// This should be automatically optimized out on amd64. If not, not a big deal.
+				// Avoiding conditional compilation to facilitate syntax error checking
+				if(getFPXRegsSupported)
+					getFPXRegsSupported=(ptrace(PTRACE_GETFPXREGS, active_thread(), 0, &fpxregs)!=-1);
+
+				if(getFPXRegsSupported) {
+					state_impl->fillFrom(fpxregs);
+				} else {
+					// No GETFPXREGS: on x86 this means SSE is not supported
+					//                on x86_64 FPREGS already contain SSE state
+					user_fpregs_struct fpregs;
+					if((ptraceStatus=ptrace(PTRACE_GETFPREGS, active_thread(), 0, &fpregs))!=-1)
+						state_impl->fillFrom(fpregs);
+					else
+						perror("PTRACE_GETFPREGS failed");
+				}
 			}
 
 			// debug registers
-			state_impl->dr_[0] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[0]), 0);
-			state_impl->dr_[1] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[1]), 0);
-			state_impl->dr_[2] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[2]), 0);
-			state_impl->dr_[3] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[3]), 0);
-			state_impl->dr_[4] = 0;
-			state_impl->dr_[5] = 0;
-			state_impl->dr_[6] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[6]), 0);
-			state_impl->dr_[7] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[7]), 0);
+			state_impl->x86.dbgRegs[0] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[0]), 0);
+			state_impl->x86.dbgRegs[1] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[1]), 0);
+			state_impl->x86.dbgRegs[2] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[2]), 0);
+			state_impl->x86.dbgRegs[3] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[3]), 0);
+			state_impl->x86.dbgRegs[4] = 0;
+			state_impl->x86.dbgRegs[5] = 0;
+			state_impl->x86.dbgRegs[6] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[6]), 0);
+			state_impl->x86.dbgRegs[7] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[7]), 0);
 
 		} else {
 			state_impl->clear();
@@ -782,17 +828,19 @@ void DebuggerCore::set_state(const State &state) {
 	if(attached()) {
 
 		if(auto state_impl = static_cast<PlatformState *>(state.impl_)) {
-			ptrace(PTRACE_SETREGS, active_thread(), 0, &state_impl->regs_);
+			user_regs_struct regs;
+			state_impl->fillStruct(regs);
+			ptrace(PTRACE_SETREGS, active_thread(), 0, &regs);
 
 			// debug registers
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[0]), state_impl->dr_[0]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[1]), state_impl->dr_[1]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[2]), state_impl->dr_[2]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[3]), state_impl->dr_[3]);
-			//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[4]), state_impl->dr_[4]);
-			//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[5]), state_impl->dr_[5]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[6]), state_impl->dr_[6]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[7]), state_impl->dr_[7]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[0]), state_impl->x86.dbgRegs[0]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[1]), state_impl->x86.dbgRegs[1]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[2]), state_impl->x86.dbgRegs[2]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[3]), state_impl->x86.dbgRegs[3]);
+			//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[4]), state_impl->x86.dbgRegs[4]);
+			//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[5]), state_impl->x86.dbgRegs[5]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[6]), state_impl->x86.dbgRegs[6]);
+			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[7]), state_impl->x86.dbgRegs[7]);
 		}
 	}
 }
@@ -981,14 +1029,14 @@ QList<Module> DebuggerCore::loaded_modules() const {
 				if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
 					if(dynamic_info.r_map) {
 
-						auto link_address = reinterpret_cast<edb::address_t>(dynamic_info.r_map);
+						auto link_address = edb::address_t(dynamic_info.r_map);
 
 						while(link_address) {
 
 							struct link_map map;
 							if(process->read_bytes(link_address, &map, sizeof(map))) {
 								char path[PATH_MAX];
-								if(!process->read_bytes(reinterpret_cast<edb::address_t>(map.l_name), &path, sizeof(path))) {
+								if(!process->read_bytes(edb::address_t(map.l_name), &path, sizeof(path))) {
 									path[0] = '\0';
 								}
 
@@ -999,7 +1047,7 @@ QList<Module> DebuggerCore::loaded_modules() const {
 									ret.push_back(module);
 								}
 
-								link_address = reinterpret_cast<edb::address_t>(map.l_next);
+								link_address = edb::address_t(map.l_next);
 							} else {
 								break;
 							}
@@ -1039,9 +1087,9 @@ QList<Module> DebuggerCore::loaded_modules() const {
 //------------------------------------------------------------------------------
 quint64 DebuggerCore::cpu_type() const {
 #ifdef EDB_X86
-	return edb::string_hash<'x', '8', '6'>::value;
+	return edb::string_hash("x86");
 #elif defined(EDB_X86_64)
-	return edb::string_hash<'x', '8', '6', '-', '6', '4'>::value;
+	return edb::string_hash("x86-64");
 #endif
 }
 

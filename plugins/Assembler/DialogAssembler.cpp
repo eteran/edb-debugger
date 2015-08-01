@@ -231,10 +231,10 @@ void DialogAssembler::on_buttonBox_accepted() {
 		if(info.fileName() == "yasm") {
 
 			switch(edb::v1::debugger_core->cpu_type()) {
-			case edb::string_hash<'x', '8', '6'>::value:
+			case edb::string_hash("x86"):
 				source_file.write("[BITS 32]\n");
 				break;
-			case edb::string_hash<'x', '8', '6', '-', '6', '4'>::value:
+			case edb::string_hash("x86-64"):
 				source_file.write("[BITS 64]\n");
 				break;
 			default:
@@ -252,10 +252,10 @@ void DialogAssembler::on_buttonBox_accepted() {
 		} else if(info.fileName() == "nasm") {
 
 			switch(edb::v1::debugger_core->cpu_type()) {
-			case edb::string_hash<'x', '8', '6'>::value:
+			case edb::string_hash("x86"):
 				source_file.write("[BITS 32]\n");
 				break;
-			case edb::string_hash<'x', '8', '6', '-', '6', '4'>::value:
+			case edb::string_hash("x86-64"):
 				source_file.write("[BITS 64]\n");
 				break;
 			default:

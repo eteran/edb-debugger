@@ -184,7 +184,7 @@ void Analyzer::mark_function_start() {
 
 	const edb::address_t address = edb::v1::cpu_selected_address();
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
-		qDebug("Added %p to the list of known functions", reinterpret_cast<void *>(address));
+		qDebug("Added %p to the list of known functions", address.toPointer());
 		specified_functions_.insert(address);
 		invalidate_dynamic_analysis(region);
 	}
@@ -300,7 +300,7 @@ void Analyzer::bonus_symbols(RegionData *data) {
 		const edb::address_t addr = sym->address;
 
 		if(data->region->contains(addr) && sym->is_code()) {
-			qDebug("[Analyzer] adding: %s <%p>", qPrintable(sym->name), reinterpret_cast<void *>(addr));
+			qDebug("[Analyzer] adding: %s <%p>", qPrintable(sym->name), addr.toPointer());
 			data->known_functions.insert(addr);
 		}
 	}
@@ -316,7 +316,7 @@ void Analyzer::bonus_marked_functions(RegionData *data) {
 
 	for(const edb::address_t addr: specified_functions_) {
 		if(data->region->contains(addr)) {
-			qDebug("[Analyzer] adding user marked function: <%p>", reinterpret_cast<void *>(addr));
+			qDebug("[Analyzer] adding user marked function: <%p>", addr.toPointer());
 			data->known_functions.insert(addr);
 		}
 	}
@@ -521,7 +521,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 
 	qDebug() << "----------Basic Blocks----------";
 	for(auto it = basic_blocks.begin(); it != basic_blocks.end(); ++it) {
-		qDebug("%p:", reinterpret_cast<void *>(it.key()));
+		qDebug("%p:", it.key().toPointer());
 
 		for(auto j = it.value().begin(); j != it.value().end(); ++j) {
 			const instruction_pointer &inst = *j;
@@ -735,7 +735,7 @@ void Analyzer::bonus_entry_point(RegionData *data) const {
 			entry += data->region->start();
 		}
 
-		qDebug("[Analyzer] found entry point: %p", reinterpret_cast<void*>(entry));
+		qDebug("[Analyzer] found entry point: %p", entry.toPointer());
 
 		if(data->region->contains(entry)) {
 			data->known_functions.insert(entry);

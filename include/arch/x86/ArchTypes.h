@@ -23,10 +23,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Instruction.h"
 
 #define EDB_X86
+static constexpr const bool IS_X86_64_BIT=false;
+static constexpr const bool IS_X86_32_BIT=true;
 
 namespace edb {
-	typedef quint32                              reg_t;
-	typedef quint32                              address_t;
+	typedef value16                              seg_reg_t;
+	typedef value32                              reg_t;
+	typedef value32                              address_t;
 	typedef edisassm::Instruction<edisassm::x86> Instruction;
 	typedef Instruction::operand_type            Operand;
 }

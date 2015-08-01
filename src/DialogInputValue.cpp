@@ -25,14 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_DialogInputValue.h"
 
-#if defined(EDB_X86)
-	#define SNUM_FMT "%d"
-	#define UNUM_FMT "%u"
-#elif defined(EDB_X86_64)
-	#define SNUM_FMT "%lld"
-	#define UNUM_FMT "%llu"
-#endif
-
 //------------------------------------------------------------------------------
 // Name: DialogInputValue
 // Desc:
@@ -61,7 +53,7 @@ DialogInputValue::~DialogInputValue() {
 //------------------------------------------------------------------------------
 edb::reg_t DialogInputValue::value() const {
 	bool ok;
-	return ui->hexInput->text().toULongLong(&ok, 16);
+	return edb::reg_t::fromHexString(ui->hexInput->text(),&ok);
 }
 
 //------------------------------------------------------------------------------
@@ -69,10 +61,9 @@ edb::reg_t DialogInputValue::value() const {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogInputValue::set_value(edb::reg_t value) {
-	QString temp;
 	ui->hexInput->setText(edb::v1::format_pointer(value));
-	ui->signedInput->setText(temp.sprintf(SNUM_FMT, value));
-	ui->unsignedInput->setText(temp.sprintf(UNUM_FMT, value));
+	ui->signedInput->setText(value.signedToString());
+	ui->unsignedInput->setText(value.unsignedToString());
 }
 
 //------------------------------------------------------------------------------
@@ -81,15 +72,14 @@ void DialogInputValue::set_value(edb::reg_t value) {
 //------------------------------------------------------------------------------
 void DialogInputValue::on_hexInput_textEdited(const QString &s) {
 	bool ok;
-	edb::reg_t value = s.toULongLong(&ok, 16);
+	edb::reg_t value = edb::reg_t::fromHexString(s,&ok);
 
 	if(!ok) {
 		value = 0;
 	}
 
-	QString temp;
-	ui->signedInput->setText(temp.sprintf(SNUM_FMT, value));
-	ui->unsignedInput->setText(temp.sprintf(UNUM_FMT, value));
+	ui->signedInput->setText(value.signedToString());
+	ui->unsignedInput->setText(value.unsignedToString());
 
 }
 
@@ -99,15 +89,14 @@ void DialogInputValue::on_hexInput_textEdited(const QString &s) {
 //------------------------------------------------------------------------------
 void DialogInputValue::on_signedInput_textEdited(const QString &s) {
 	bool ok;
-	edb::reg_t value = s.toLongLong(&ok, 10);
+	edb::reg_t value = edb::reg_t::fromSignedString(s,&ok);
 
 	if(!ok) {
 		value = 0;
 	}
 
-	QString temp;
 	ui->hexInput->setText(edb::v1::format_pointer(value));
-	ui->unsignedInput->setText(temp.sprintf(UNUM_FMT, value));
+	ui->unsignedInput->setText(value.unsignedToString());
 }
 
 //------------------------------------------------------------------------------
@@ -116,12 +105,11 @@ void DialogInputValue::on_signedInput_textEdited(const QString &s) {
 //------------------------------------------------------------------------------
 void DialogInputValue::on_unsignedInput_textEdited(const QString &s) {
 	bool ok;
-	edb::reg_t value = s.toULongLong(&ok, 10);
+	edb::reg_t value = edb::reg_t::fromString(s,&ok);
 
 	if(!ok) {
 		value = 0;
 	}
-	QString temp;
 	ui->hexInput->setText(edb::v1::format_pointer(value));
-	ui->signedInput->setText(temp.sprintf(SNUM_FMT, value));
+	ui->signedInput->setText(value.signedToString());
 }

@@ -53,7 +53,7 @@ public:
 	QString name() const         { return name_; }
 	
 	template <class T>
-	T value() const              { return value_; }
+	T value() const              { return T(value_); }
 
 private:
 	bool valid() const { return type_ != TYPE_INVALID; }

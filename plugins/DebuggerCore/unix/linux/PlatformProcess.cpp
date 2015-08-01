@@ -179,11 +179,11 @@ IRegion::pointer process_map_line(const QString &line) {
 		bool ok;
 		const QStringList bounds = items[0].split("-");
 		if(bounds.size() == 2) {
-			start = bounds[0].toULongLong(&ok, 16);
+			start = edb::address_t::fromHexString(bounds[0],&ok);
 			if(ok) {
-				end = bounds[1].toULongLong(&ok, 16);
+				end = edb::address_t::fromHexString(bounds[1],&ok);
 				if(ok) {
-					base = items[2].toULongLong(&ok, 16);
+					base = edb::address_t::fromHexString(items[2],&ok);
 					if(ok) {
 						const QString perms = items[1];
 						permissions = 0;

@@ -17,12 +17,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Register.h"
+#include "Util.h"
 
 //------------------------------------------------------------------------------
 // Name: Register
 // Desc:
 //------------------------------------------------------------------------------
-Register::Register() : value_(0), type_(TYPE_INVALID) {
+Register::Register() : type_(TYPE_INVALID) {
+	util::markMemory(&value_,sizeof(value_));
 }
 
 //------------------------------------------------------------------------------

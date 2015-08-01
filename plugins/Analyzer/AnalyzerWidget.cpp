@@ -135,7 +135,7 @@ void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
 		const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
 		if(region->size() != 0 && !functions.empty()) {
 			const auto byte_width = static_cast<float>(width()) / region->size();
-			const edb::address_t address = qBound(region->start(), region->start() + static_cast<edb::address_t>(event->x() / byte_width), region->end() - 1);
+			const edb::address_t address = qBound(region->start(), region->start() + edb::address_t(event->x() / byte_width), region->end() - 1);
 			edb::v1::jump_to_address(address);
 		}
 	}
