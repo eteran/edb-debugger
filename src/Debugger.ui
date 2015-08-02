@@ -330,17 +330,6 @@
     <string>F1</string>
    </property>
   </action>
-  <action name="action_Toggle_Breakpoint">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Toggle Breakpoint</string>
-   </property>
-   <property name="shortcut">
-    <string>F2</string>
-   </property>
-  </action>
   <action name="action_Configure_Debugger">
    <property name="text">
     <string>&amp;Preferences</string>

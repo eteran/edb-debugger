@@ -298,6 +298,9 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	connect(new QShortcut(QKeySequence(tr(";")), this), SIGNAL(activated()), this, SLOT(mnuCPUEditComment()));
 	connect(new QShortcut(QKeySequence(tr("Ctrl+E")), this), SIGNAL(activated()), this, SLOT(mnuCPUModify()));
 
+	// Connect the toggle breakpoing feature
+	connect(new QShortcut(QKeySequence(tr("F2")), this), SIGNAL(activated()), this, SLOT(mnuCPUToggleBreakpoint()));
+
 	setAcceptDrops(true);
 
 	// setup the list model for instruction details list
@@ -1480,7 +1483,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	menu.addAction(tr("&Fill with 00's"), this, SLOT(mnuCPUFillZero()));
 	menu.addAction(tr("Fill with &NOPs"), this, SLOT(mnuCPUFillNop()));
 	menu.addSeparator();
-	menu.addAction(tr("&Add Breakpoint"), this, SLOT(mnuCPUAddBreakpoint()));
+	menu.addAction(tr("&Toggle Breakpoint"), this, SLOT(mnuCPUToggleBreakpoint()), QKeySequence(tr("F2")));
 	menu.addAction(tr("Add &Conditional Breakpoint"), this, SLOT(mnuCPUAddConditionalBreakpoint()));
 	menu.addAction(tr("&Remove Breakpoint"), this, SLOT(mnuCPURemoveBreakpoint()));
 
@@ -1688,12 +1691,12 @@ void Debugger::mnuCPURemoveComment() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCPUAddBreakpoint
+// Name: mnuCPUToggleBreakpoint
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::mnuCPUAddBreakpoint() {
+void Debugger::mnuCPUToggleBreakpoint() {
 	const edb::address_t address = ui.cpuView->selectedAddress();
-	edb::v1::create_breakpoint(address);
+	edb::v1::toggle_breakpoint(address);
 }
 
 //------------------------------------------------------------------------------
