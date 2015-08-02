@@ -154,7 +154,7 @@ std::size_t PlatformState::X87::stackPointer() const {
 	return (statusWord&0x3800)>>11;
 }
 
-std::size_t PlatformState::X87::stIndexToRIndex(std::size_t n) const {
+std::size_t PlatformState::X87::RIndexToSTIndex(std::size_t n) const {
 
 	n=(n+8-stackPointer()) % 8;
 	return n;
@@ -189,9 +189,9 @@ edb::value16 PlatformState::X87::restoreTagWord(uint16_t twd) const {
 }
 
 void PlatformState::fillFrom(const UserFPRegsStructX86& regs) {
-	x87.statusWord=regs.swd; // should be first for stIndexToRIndex() to work
+	x87.statusWord=regs.swd; // should be first for RIndexToSTIndex() to work
 	for(std::size_t n=0;n<FPU_REG_COUNT;++n)
-		x87.R[n]=edb::value80(regs.st_space,10*x87.stIndexToRIndex(n));
+		x87.R[n]=edb::value80(regs.st_space,10*x87.RIndexToSTIndex(n));
 	x87.controlWord=regs.cwd;
 	x87.tagWord=regs.twd; // This is the true tag word, unlike in FPX regs and x86-64 FP regs structs
 	x87.instPtrOffset=regs.fip;
@@ -202,9 +202,9 @@ void PlatformState::fillFrom(const UserFPRegsStructX86& regs) {
 	x87.filled=true;
 }
 void PlatformState::fillFrom(const UserFPXRegsStructX86& regs) {
-	x87.statusWord=regs.swd; // should be first for stIndexToRIndex() to work
+	x87.statusWord=regs.swd; // should be first for RIndexToSTIndex() to work
 	for(std::size_t n=0;n<FPU_REG_COUNT;++n)
-		x87.R[n]=edb::value80(regs.st_space,16*x87.stIndexToRIndex(n));
+		x87.R[n]=edb::value80(regs.st_space,16*x87.RIndexToSTIndex(n));
 	x87.controlWord=regs.cwd;
 	x87.tagWord=x87.restoreTagWord(regs.twd);
 	x87.instPtrOffset=regs.fip;
@@ -253,9 +253,9 @@ void PlatformState::fillFrom(const UserRegsStructX86_64& regs) {
 	x86.segBasesFilled=true;
 }
 void PlatformState::fillFrom(const UserFPRegsStructX86_64& regs) {
-	x87.statusWord=regs.swd; // should be first for stIndexToRIndex() to work
+	x87.statusWord=regs.swd; // should be first for RIndexToSTIndex() to work
 	for(std::size_t n=0;n<FPU_REG_COUNT;++n)
-		x87.R[n]=edb::value80(regs.st_space,16*x87.stIndexToRIndex(n));
+		x87.R[n]=edb::value80(regs.st_space,16*x87.RIndexToSTIndex(n));
 	x87.controlWord=regs.cwd;
 	x87.tagWord=x87.restoreTagWord(regs.ftw);
 	x87.instPtrOffset=regs.rip; // FIXME
@@ -292,9 +292,9 @@ void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) 
 	// it looks as if the registers have always been zero. Thus we should provide the same
 	// illusion to the user.
 	if(statePresentX87) {
-		x87.statusWord=regs.swd; // should be first for stIndexToRIndex() to work
+		x87.statusWord=regs.swd; // should be first for RIndexToSTIndex() to work
 		for(std::size_t n=0;n<FPU_REG_COUNT;++n)
-			x87.R[n]=edb::value80(regs.st_space,16*x87.stIndexToRIndex(n));
+			x87.R[n]=edb::value80(regs.st_space,16*x87.RIndexToSTIndex(n));
 		x87.controlWord=regs.cwd;
 		x87.tagWord=x87.restoreTagWord(regs.twd);
 		x87.instPtrOffset=regs.fioff; // FIXME: x86_64 has different meaning of these?

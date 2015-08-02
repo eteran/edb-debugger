@@ -287,7 +287,7 @@ private:
 		bool empty() const;
 		std::size_t stackPointer() const;
 		// Convert from ST(n) index n to Rx index x
-		std::size_t stIndexToRIndex(std::size_t index) const;
+		std::size_t RIndexToSTIndex(std::size_t index) const;
 		// Restore the full FPU Tag Word from the ptrace-filtered version
 		edb::value16 restoreTagWord(uint16_t twd) const;
 		int tag(std::size_t n) const;
