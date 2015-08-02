@@ -160,6 +160,12 @@ std::size_t PlatformState::X87::RIndexToSTIndex(std::size_t n) const {
 	return n;
 }
 
+std::size_t PlatformState::X87::STIndexToRIndex(std::size_t n) const {
+
+	n=(n+stackPointer()) % 8;
+	return n;
+}
+
 int PlatformState::X87::recreateTag(edb::value80 value) const {
 	switch(value.floatType())
 	{
