@@ -31,7 +31,11 @@ Register::Register() : type_(TYPE_INVALID) {
 // Name: Register
 // Desc:
 //------------------------------------------------------------------------------
-Register::Register(const Register &other) : name_(other.name_), value_(other.value_), type_(other.type_) {
+Register::Register(const Register &other)
+	: name_(other.name_),
+	  value_(other.value_),
+	  type_(other.type_),
+	  bitSize_(other.bitSize_) {
 }
 
 //------------------------------------------------------------------------------
@@ -43,6 +47,7 @@ Register &Register::operator=(const Register &rhs) {
 		name_         = rhs.name_;
 		value_        = rhs.value_;
 		type_         = rhs.type_;
+		bitSize_      = rhs.bitSize_;
 	}
 	return *this;
 }
@@ -55,7 +60,7 @@ bool Register::operator==(const Register &rhs) const {
 	if(!valid() && !rhs.valid()) {
 		return true;
 	} else {
-		return name_ == rhs.name_ && value_ == rhs.value_ && type_ == rhs.type_;
+		return name_ == rhs.name_ && value_ == rhs.value_ && type_ == rhs.type_ && bitSize_ == rhs.bitSize_;
 	}
 }
 

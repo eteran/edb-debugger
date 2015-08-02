@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <iomanip>
 #include <type_traits>
+#include <cstddef>
 
 namespace util {
 
@@ -68,5 +69,7 @@ inline void markMemory(void* memory, std::size_t size)
 }
 
 }
+
+#define BIT_LENGTH(expr) (8*sizeof(expr))
 
 #endif

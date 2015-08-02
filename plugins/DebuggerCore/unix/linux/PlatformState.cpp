@@ -510,12 +510,12 @@ QString PlatformState::flags_to_string() const {
 	return flags_to_string(flags());
 }
 
-template<typename Names, typename Regs>
-Register findRegisterValue(const Names& names, const Regs& regs, const QString& regName, Register::Type type, edb::reg_t mask=~0UL, int shift=0)
+template<std::size_t bitSize=0, typename Names, typename Regs>
+Register findRegisterValue(const Names& names, const Regs& regs, const QString& regName, Register::Type type, int shift=0)
 {
 	auto regNameFoundIter=std::find(names.begin(),names.end(),regName);
 	if(regNameFoundIter!=names.end())
-		return Register(regName, (regs[regNameFoundIter-names.begin()]>>shift) & mask, type);
+		return make_Register<bitSize>(regName, regs[regNameFoundIter-names.begin()]>>shift, type);
 	else
 		return Register();
 }
@@ -531,30 +531,30 @@ Register PlatformState::value(const QString &reg) const {
 	Register found;
 	if(x86.filled) // don't return valid Register with garbage value
 	{
-		if(static_cast<void*>(found=findRegisterValue(x86.GPRegNames, x86.GPRegs, regName, Register::TYPE_GPR)))
+		if(!!(found=findRegisterValue(x86.GPRegNames, x86.GPRegs, regName, Register::TYPE_GPR)))
 			return found;
 		// On IA-32 this is duplicate of the above; hopefully the compiler will optimize this out. Not a big deal if not.
-		if(static_cast<void*>(found=findRegisterValue(x86.GPReg32Names, x86.GPRegs, regName, Register::TYPE_GPR,0xffffffff)))
+		if(!!(found=findRegisterValue<32>(x86.GPReg32Names, x86.GPRegs, regName, Register::TYPE_GPR)))
 			return found;
-		if(static_cast<void*>(found=findRegisterValue(x86.GPReg16Names, x86.GPRegs, regName, Register::TYPE_GPR,0xffff)))
+		if(!!(found=findRegisterValue<16>(x86.GPReg16Names, x86.GPRegs, regName, Register::TYPE_GPR)))
 			return found;
-		if(static_cast<void*>(found=findRegisterValue(x86.GPReg8LNames, x86.GPRegs, regName, Register::TYPE_GPR,0xff)))
+		if(!!(found=findRegisterValue<8>(x86.GPReg8LNames, x86.GPRegs, regName, Register::TYPE_GPR)))
 			return found;
-		if(static_cast<void*>(found=findRegisterValue(x86.GPReg8HNames, x86.GPRegs, regName, Register::TYPE_GPR,0xff, 8)))
+		if(!!(found=findRegisterValue<8>(x86.GPReg8HNames, x86.GPRegs, regName, Register::TYPE_GPR, 8)))
 			return found;
-		if(static_cast<void*>(found=findRegisterValue(x86.segRegNames, x86.segRegs, regName, Register::TYPE_SEG)))
+		if(!!(found=findRegisterValue(x86.segRegNames, x86.segRegs, regName, Register::TYPE_SEG)))
 			return found;
 		if(regName==x86.fsBaseName)
-			return Register(x86.fsBaseName, x86.fsBase, Register::TYPE_SEG); // FIXME: it's not a segment register, it's an address
+			return make_Register(x86.fsBaseName, x86.fsBase, Register::TYPE_SEG); // FIXME: it's not a segment register, it's an address
 		if(regName==x86.gsBaseName)
-			return Register(x86.gsBaseName, x86.gsBase, Register::TYPE_SEG); // FIXME: it's not a segment register, it's an address
+			return make_Register(x86.gsBaseName, x86.gsBase, Register::TYPE_SEG); // FIXME: it's not a segment register, it's an address
 		if(regName==x86.flagsName)
-			return Register(x86.flagsName, x86.flags, Register::TYPE_COND);
+			return make_Register(x86.flagsName, x86.flags, Register::TYPE_COND);
 		if(regName==x86.IPName)
-			return Register(x86.IPName, x86.IP, Register::TYPE_IP);
+			return make_Register(x86.IPName, x86.IP, Register::TYPE_IP);
 	}
 	if(avx.xmmFilled && regName==avx.mxcsrName)
-		return Register(avx.mxcsrName, edb::reg_t::fromZeroExtended(avx.mxcsr), Register::TYPE_COND);
+		return make_Register(avx.mxcsrName, avx.mxcsr, Register::TYPE_COND);
 	return Register();
 }
 
@@ -709,9 +709,9 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 Register PlatformState::gp_register(int n) const {
 
 	if(gprIndexValid(n))
-		return Register(x86.GPRegNames[n], x86.GPRegs[n], Register::TYPE_GPR);
+		return make_Register(x86.GPRegNames[n], x86.GPRegs[n], Register::TYPE_GPR);
 	else if(n==GPR_COUNT) // This value is used as an alias for program counter, although it's not a GPR
-		return Register(x86.IPName, x86.IP, Register::TYPE_IP);
+		return make_Register(x86.IPName, x86.IP, Register::TYPE_IP);
 	else
 		return Register();
 }
