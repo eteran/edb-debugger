@@ -1,3 +1,4 @@
+include(../common.pri)
 LEVEL = ..
 
 include(../qmake/clean-objects.pri)
@@ -11,7 +12,7 @@ VPATH       += widgets $$LEVEL/include
 
 RESOURCES   = debugger.qrc
 DESTDIR     = ../
-target.path = /bin/
+target.path = $$PREFIX/bin/
 INSTALLS    += target
 QT          += xml xmlpatterns
 
