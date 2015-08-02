@@ -292,6 +292,7 @@ private:
 		// Restore the full FPU Tag Word from the ptrace-filtered version
 		edb::value16 restoreTagWord(uint16_t twd) const;
 		int tag(std::size_t n) const;
+		edb::value80 st(std::size_t n) const;
 		enum Tag {
 			TAG_VALID=0,
 			TAG_ZERO=1,
