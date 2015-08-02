@@ -575,6 +575,17 @@ Register PlatformState::value(const QString &reg) const {
 			return make_Register(regName, x87.st(i), Register::TYPE_FPU);
 		}
 	}
+	if(x87.filled) {
+		QRegExp MMx("^mm([0-7])$");
+		if(MMx.indexIn(regName)!=-1) {
+			QChar digit=MMx.cap(1).at(0);
+			assert(digit.isDigit());
+			char digitChar=digit.toLatin1();
+			std::size_t i=digitChar-'0';
+			assert(mmxIndexValid(i));
+			return make_Register(regName, x87.R[i].mantissa(), Register::TYPE_SIMD);
+		}
+	}
 	if(avx.xmmFilled && regName==avx.mxcsrName)
 		return make_Register(avx.mxcsrName, avx.mxcsr, Register::TYPE_COND);
 	return Register();
