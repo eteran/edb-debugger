@@ -1020,7 +1020,7 @@
     </message>
     <message>
         <location filename="../DialogOptions.ui" line="262"/>
-        <source>Show Semicolon in Addresses</source>
+        <source>Show Colons in Addresses</source>
         <translation></translation>
     </message>
     <message>

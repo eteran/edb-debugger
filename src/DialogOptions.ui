@@ -257,9 +257,9 @@
        <item row="1" column="1">
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QCheckBox" name="chkAddressSemicolon">
+          <widget class="QCheckBox" name="chkAddressColon">
            <property name="text">
-            <string>Show Semicolon in Addresses</string>
+            <string>Show Colons in Addresses</string>
            </property>
            <property name="checked">
             <bool>true</bool>

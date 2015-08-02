@@ -197,7 +197,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui->cmbDataWordWidth->setCurrentIndex(width_to_index(config.data_word_width));
 	ui->cmbDataRowWidth->setCurrentIndex(width_to_index(config.data_row_width));
 
-	ui->chkAddressSemicolon->setChecked(config.show_address_separator);
+	ui->chkAddressColon->setChecked(config.show_address_separator);
 }
 
 //------------------------------------------------------------------------------
@@ -243,7 +243,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.warn_on_no_exec_bp     = ui->chkWarnDataBreakpoint->isChecked();
 	config.find_main              = ui->chkFindMain->isChecked();
 
-	config.show_address_separator = ui->chkAddressSemicolon->isChecked();
+	config.show_address_separator = ui->chkAddressColon->isChecked();
 
 	config.min_string_length      = ui->spnMinString->value();
 

@@ -81,7 +81,7 @@ void Configuration::read_settings() {
 	data_show_comments     = settings.value("appearance.data.show_comments.enabled", true).value<bool>();
 	data_word_width        = settings.value("appearance.data.word_width", 1).value<int>();
 	data_row_width         = settings.value("appearance.data.row_width", 16).value<int>();
-	show_address_separator = settings.value("appearance.address_semicolon.enabled", true).value<bool>();
+	show_address_separator = settings.value("appearance.address_colon.enabled", true).value<bool>();
 	settings.endGroup();
 
 	settings.beginGroup("Debugging");
@@ -144,7 +144,7 @@ void Configuration::write_settings() {
 	settings.setValue("appearance.data.show_comments.enabled", data_show_comments);
 	settings.setValue("appearance.data.word_width", data_word_width);
 	settings.setValue("appearance.data.row_width", data_row_width);
-	settings.setValue("appearance.address_semicolon.enabled", show_address_separator);
+	settings.setValue("appearance.address_colon.enabled", show_address_separator);
 	settings.endGroup();
 
 	settings.beginGroup("Debugging");
