@@ -586,6 +586,16 @@ Register PlatformState::value(const QString &reg) const {
 			return make_Register(regName, x87.R[i].mantissa(), Register::TYPE_SIMD);
 		}
 	}
+	if(avx.xmmFilled) {
+		QRegExp XMMx("^xmm([0-9]|1[0-5])$");
+		if(XMMx.indexIn(regName)!=-1) {
+			bool ok=false;
+			std::size_t i=XMMx.cap(1).toUShort(&ok);
+			assert(ok);
+			if(xmmIndexValid(i)) // May be invalid but legitimate for a disassembler: e.g. XMM13 but 32 bit mode
+				return make_Register(regName, avx.xmm(i), Register::TYPE_SIMD);
+		}
+	}
 	if(avx.xmmFilled && regName==avx.mxcsrName)
 		return make_Register(avx.mxcsrName, avx.mxcsr, Register::TYPE_COND);
 	return Register();
