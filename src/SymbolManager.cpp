@@ -155,8 +155,8 @@ void SymbolManager::add_symbol(const Symbol::pointer &symbol) {
 //------------------------------------------------------------------------------
 bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename) {
 
-	// TODO: support filename starting with "http://" being fetched from a web server
-	// TODO: support symbol files with paths so we can deal with binaries that have
+	// TODO(eteran): support filename starting with "http://" being fetched from a web server
+	// TODO(eteran): support symbol files with paths so we can deal with binaries that have
 	//       conflicting names in different directories
 
 	std::ifstream file(qPrintable(f));
@@ -177,6 +177,7 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 
 				if(file_md5 != actual_md5) {
 					qDebug() << "Your symbol file for" << library_filename << "appears to not match the actual file, perhaps you should rebuild your symbols?";
+					return false;
 				}
 
 				const QFileInfo info(QString::fromStdString(filename));
