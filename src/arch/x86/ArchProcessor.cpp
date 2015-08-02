@@ -495,36 +495,6 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 	}
 }
 
-std::size_t operand_size(edb::Operand::Register reg)
-{
-	if(edb::Operand::REG_RAX <= reg && reg <= edb::Operand::REG_R15)
-		return 64;
-	if(edb::Operand::REG_EAX <= reg && reg <= edb::Operand::REG_R15D)
-		return 32;
-	if(edb::Operand::REG_AX <= reg && reg <= edb::Operand::REG_R15W)
-		return 16;
-	if(edb::Operand::REG_AL <= reg && reg <= edb::Operand::REG_DIL)
-		return 8;
-	if(edb::Operand::REG_ES <= reg && reg <= edb::Operand::REG_SEG8)
-		return 16;
-	if((edb::Operand::REG_CR0 <= reg && reg <= edb::Operand::REG_CR15)||
-	   (edb::Operand::REG_DR0 <= reg && reg <= edb::Operand::REG_DR15))
-		return sizeof(edb::reg_t)*8;
-	// FIXME: what are REG_TR[0-9]?
-	if(edb::Operand::REG_MM0 <= reg && reg <= edb::Operand::REG_MM7)
-		return 64;
-	if(edb::Operand::REG_XMM0 <= reg && reg <= edb::Operand::REG_XMM15)
-		return 128;
-	if(edb::Operand::REG_ST <= reg && reg <= edb::Operand::REG_ST7)
-		return 80;
-	if(reg == edb::Operand::REG_RIP)
-	   return 64;
-	if(reg == edb::Operand::REG_EIP)
-		return 32;
-
-	return 0;
-}
-
 //------------------------------------------------------------------------------
 // Name: analyze_operands
 // Desc:
@@ -551,21 +521,33 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 					break;
 				case edb::Operand::TYPE_REGISTER:
 					{
+						Register reg=state[QString::fromStdString(edb::v1::formatter().to_string(operand))];
 						QString valueString;
-						switch(operand_size(operand.reg()))
-						{
-						case 8:
-							valueString=state[QString::fromStdString(edb::v1::formatter().to_string(operand))].value<edb::value8>().toHexString();
-							break;
-						case 16:
-							valueString=state[QString::fromStdString(edb::v1::formatter().to_string(operand))].value<edb::value16>().toHexString();
-							break;
-						case 32:
-							valueString=state[QString::fromStdString(edb::v1::formatter().to_string(operand))].value<edb::value32>().toHexString();
-							break;
-						// TODO: Register currently doesn't have anything larger than reg_t. Need to implement this and then add support for larger values here
-						default:
-							valueString=state[QString::fromStdString(edb::v1::formatter().to_string(operand))].value<edb::reg_t>().toHexString();
+						if(!reg) {
+							valueString="(Error: obtained invalid register value from State)";
+						} else {
+							switch(reg.bitSize()) {
+							case 8:
+								valueString=reg.value<edb::value8>().toHexString();
+								break;
+							case 16:
+								valueString=reg.value<edb::value16>().toHexString();
+								break;
+							case 32:
+								valueString=reg.value<edb::value32>().toHexString();
+								break;
+							case 64:
+								valueString=reg.value<edb::value64>().toHexString();
+								break;
+							case 80:
+								valueString=reg.value<edb::value80>().toHexString();
+								break;
+							case 128:
+								valueString=reg.value<edb::value128>().toHexString();
+								break;
+							default:
+								valueString=QString("(Error: unexpected register size %1)").arg(reg.bitSize());
+							}
 						}
 						ret << QString("%1 = %2").arg(temp_operand).arg(valueString);
 						break;
@@ -915,7 +897,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 				valueString=" "+current.toString();
 		}
 
-		register_view_items_[itemNumber]->setText(0, QString("%1R%2: %3 0x%4%5%6").arg(fpuTop==i?"=>":"  ").arg(i).arg(tag.leftJustified(8)).arg(current.toHexString()).arg(valueString).arg(typeString));
+		register_view_items_[itemNumber]->setText(0, QString("%1R%2: %3 %4%5%6").arg(fpuTop==i?"=>":"  ").arg(i).arg(tag.leftJustified(8)).arg(current.toHexString()).arg(valueString).arg(typeString));
 		register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 	}
 	edb::value16 controlWord=state.fpu_control_word();
@@ -963,7 +945,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	register_view_items_[itemNumber++]->setText(0, QString("  RC: %1").arg(roundingMode));
 	register_view_items_[itemNumber++]->setText(0, QString("Status Word: %1").arg(state.fpu_status_word().toHexString()));
 	register_view_items_[itemNumber++]->setText(0, QString("  TOP: %1").arg(fpuTop));
-	register_view_items_[itemNumber++]->setText(0, QString("Tag Word: 0x%1").arg(state.fpu_tag_word().toHexString()));
+	register_view_items_[itemNumber++]->setText(0, QString("Tag Word: %1").arg(state.fpu_tag_word().toHexString()));
 
 	for(int i = 0; i < 8; ++i) {
 		register_view_items_[itemNumber]->setText(0, QString("DR%1: %2").arg(i).arg(state.debug_register(i).toHexString()));

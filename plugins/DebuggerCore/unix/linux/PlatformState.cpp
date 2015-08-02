@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformState.h"
 #include "Util.h"
 #include <unordered_map>
+#include <QRegExp>
 #include <QDebug>
 
 namespace DebuggerCore {
@@ -154,9 +155,15 @@ std::size_t PlatformState::X87::stackPointer() const {
 	return (statusWord&0x3800)>>11;
 }
 
-std::size_t PlatformState::X87::stIndexToRIndex(std::size_t n) const {
+std::size_t PlatformState::X87::RIndexToSTIndex(std::size_t n) const {
 
 	n=(n+8-stackPointer()) % 8;
+	return n;
+}
+
+std::size_t PlatformState::X87::STIndexToRIndex(std::size_t n) const {
+
+	n=(n+stackPointer()) % 8;
 	return n;
 }
 
@@ -170,6 +177,10 @@ int PlatformState::X87::recreateTag(edb::value80 value) const {
 	default:
 		return TAG_SPECIAL;
 	}
+}
+
+edb::value80 PlatformState::X87::st(std::size_t n) const {
+	return R[STIndexToRIndex(n)];
 }
 
 int PlatformState::X87::makeTag(std::size_t n, uint16_t twd) const {
@@ -189,9 +200,9 @@ edb::value16 PlatformState::X87::restoreTagWord(uint16_t twd) const {
 }
 
 void PlatformState::fillFrom(const UserFPRegsStructX86& regs) {
-	x87.statusWord=regs.swd; // should be first for stIndexToRIndex() to work
+	x87.statusWord=regs.swd; // should be first for RIndexToSTIndex() to work
 	for(std::size_t n=0;n<FPU_REG_COUNT;++n)
-		x87.R[n]=edb::value80(regs.st_space,10*x87.stIndexToRIndex(n));
+		x87.R[n]=edb::value80(regs.st_space,10*x87.RIndexToSTIndex(n));
 	x87.controlWord=regs.cwd;
 	x87.tagWord=regs.twd; // This is the true tag word, unlike in FPX regs and x86-64 FP regs structs
 	x87.instPtrOffset=regs.fip;
@@ -202,9 +213,9 @@ void PlatformState::fillFrom(const UserFPRegsStructX86& regs) {
 	x87.filled=true;
 }
 void PlatformState::fillFrom(const UserFPXRegsStructX86& regs) {
-	x87.statusWord=regs.swd; // should be first for stIndexToRIndex() to work
+	x87.statusWord=regs.swd; // should be first for RIndexToSTIndex() to work
 	for(std::size_t n=0;n<FPU_REG_COUNT;++n)
-		x87.R[n]=edb::value80(regs.st_space,16*x87.stIndexToRIndex(n));
+		x87.R[n]=edb::value80(regs.st_space,16*x87.RIndexToSTIndex(n));
 	x87.controlWord=regs.cwd;
 	x87.tagWord=x87.restoreTagWord(regs.twd);
 	x87.instPtrOffset=regs.fip;
@@ -253,9 +264,9 @@ void PlatformState::fillFrom(const UserRegsStructX86_64& regs) {
 	x86.segBasesFilled=true;
 }
 void PlatformState::fillFrom(const UserFPRegsStructX86_64& regs) {
-	x87.statusWord=regs.swd; // should be first for stIndexToRIndex() to work
+	x87.statusWord=regs.swd; // should be first for RIndexToSTIndex() to work
 	for(std::size_t n=0;n<FPU_REG_COUNT;++n)
-		x87.R[n]=edb::value80(regs.st_space,16*x87.stIndexToRIndex(n));
+		x87.R[n]=edb::value80(regs.st_space,16*x87.RIndexToSTIndex(n));
 	x87.controlWord=regs.cwd;
 	x87.tagWord=x87.restoreTagWord(regs.ftw);
 	x87.instPtrOffset=regs.rip; // FIXME
@@ -292,9 +303,9 @@ void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) 
 	// it looks as if the registers have always been zero. Thus we should provide the same
 	// illusion to the user.
 	if(statePresentX87) {
-		x87.statusWord=regs.swd; // should be first for stIndexToRIndex() to work
+		x87.statusWord=regs.swd; // should be first for RIndexToSTIndex() to work
 		for(std::size_t n=0;n<FPU_REG_COUNT;++n)
-			x87.R[n]=edb::value80(regs.st_space,16*x87.stIndexToRIndex(n));
+			x87.R[n]=edb::value80(regs.st_space,16*x87.RIndexToSTIndex(n));
 		x87.controlWord=regs.cwd;
 		x87.tagWord=x87.restoreTagWord(regs.twd);
 		x87.instPtrOffset=regs.fioff; // FIXME: x86_64 has different meaning of these?
@@ -320,6 +331,13 @@ void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) 
 		avx.xmmFilled=true;
 		avx.ymmFilled=true;
 	} else if(statePresentSSE) {
+		// If AVX state management has been enabled by the OS,
+		// the state may be not present due to lazy saving,
+		// so initialize the space with zeros
+		if(avx.xcr0 & X86XState::FEATURE_AVX)
+			for(std::size_t n=0;n<YMM_REG_COUNT;++n)
+				avx.setYMM(n,edb::value256::fromZeroExtended(0));
+		// Now we can fill in the XMM registers
 		for(std::size_t n=0;n<XMM_REG_COUNT;++n)
 			avx.setXMM(n,edb::value128(regs.xmm_space,16*n));
 		avx.mxcsr=regs.mxcsr;
@@ -510,12 +528,12 @@ QString PlatformState::flags_to_string() const {
 	return flags_to_string(flags());
 }
 
-template<typename Names, typename Regs>
-Register findRegisterValue(const Names& names, const Regs& regs, const QString& regName, Register::Type type, edb::reg_t mask=~0UL, int shift=0)
+template<std::size_t bitSize=0, typename Names, typename Regs>
+Register findRegisterValue(const Names& names, const Regs& regs, const QString& regName, Register::Type type, int shift=0)
 {
 	auto regNameFoundIter=std::find(names.begin(),names.end(),regName);
 	if(regNameFoundIter!=names.end())
-		return Register(regName, (regs[regNameFoundIter-names.begin()]>>shift) & mask, type);
+		return make_Register<bitSize>(regName, regs[regNameFoundIter-names.begin()]>>shift, type);
 	else
 		return Register();
 }
@@ -531,30 +549,62 @@ Register PlatformState::value(const QString &reg) const {
 	Register found;
 	if(x86.filled) // don't return valid Register with garbage value
 	{
-		if(static_cast<void*>(found=findRegisterValue(x86.GPRegNames, x86.GPRegs, regName, Register::TYPE_GPR)))
+		if(!!(found=findRegisterValue(x86.GPRegNames, x86.GPRegs, regName, Register::TYPE_GPR)))
 			return found;
 		// On IA-32 this is duplicate of the above; hopefully the compiler will optimize this out. Not a big deal if not.
-		if(static_cast<void*>(found=findRegisterValue(x86.GPReg32Names, x86.GPRegs, regName, Register::TYPE_GPR,0xffffffff)))
+		if(!!(found=findRegisterValue<32>(x86.GPReg32Names, x86.GPRegs, regName, Register::TYPE_GPR)))
 			return found;
-		if(static_cast<void*>(found=findRegisterValue(x86.GPReg16Names, x86.GPRegs, regName, Register::TYPE_GPR,0xffff)))
+		if(!!(found=findRegisterValue<16>(x86.GPReg16Names, x86.GPRegs, regName, Register::TYPE_GPR)))
 			return found;
-		if(static_cast<void*>(found=findRegisterValue(x86.GPReg8LNames, x86.GPRegs, regName, Register::TYPE_GPR,0xff)))
+		if(!!(found=findRegisterValue<8>(x86.GPReg8LNames, x86.GPRegs, regName, Register::TYPE_GPR)))
 			return found;
-		if(static_cast<void*>(found=findRegisterValue(x86.GPReg8HNames, x86.GPRegs, regName, Register::TYPE_GPR,0xff, 8)))
+		if(!!(found=findRegisterValue<8>(x86.GPReg8HNames, x86.GPRegs, regName, Register::TYPE_GPR, 8)))
 			return found;
-		if(static_cast<void*>(found=findRegisterValue(x86.segRegNames, x86.segRegs, regName, Register::TYPE_SEG)))
+		if(!!(found=findRegisterValue(x86.segRegNames, x86.segRegs, regName, Register::TYPE_SEG)))
 			return found;
 		if(regName==x86.fsBaseName)
-			return Register(x86.fsBaseName, x86.fsBase, Register::TYPE_SEG); // FIXME: it's not a segment register, it's an address
+			return make_Register(x86.fsBaseName, x86.fsBase, Register::TYPE_SEG); // FIXME: it's not a segment register, it's an address
 		if(regName==x86.gsBaseName)
-			return Register(x86.gsBaseName, x86.gsBase, Register::TYPE_SEG); // FIXME: it's not a segment register, it's an address
+			return make_Register(x86.gsBaseName, x86.gsBase, Register::TYPE_SEG); // FIXME: it's not a segment register, it's an address
 		if(regName==x86.flagsName)
-			return Register(x86.flagsName, x86.flags, Register::TYPE_COND);
+			return make_Register(x86.flagsName, x86.flags, Register::TYPE_COND);
 		if(regName==x86.IPName)
-			return Register(x86.IPName, x86.IP, Register::TYPE_IP);
+			return make_Register(x86.IPName, x86.IP, Register::TYPE_IP);
+	}
+	if(x87.filled) {
+		QRegExp STx("^st\\(?([0-7])\\)?$");
+		if(STx.indexIn(regName)!=-1) {
+			QChar digit=STx.cap(1).at(0);
+			assert(digit.isDigit());
+			char digitChar=digit.toLatin1();
+			std::size_t i=digitChar-'0';
+			assert(fpuIndexValid(i));
+			return make_Register(regName, x87.st(i), Register::TYPE_FPU);
+		}
+	}
+	if(x87.filled) {
+		QRegExp MMx("^mm([0-7])$");
+		if(MMx.indexIn(regName)!=-1) {
+			QChar digit=MMx.cap(1).at(0);
+			assert(digit.isDigit());
+			char digitChar=digit.toLatin1();
+			std::size_t i=digitChar-'0';
+			assert(mmxIndexValid(i));
+			return make_Register(regName, x87.R[i].mantissa(), Register::TYPE_SIMD);
+		}
+	}
+	if(avx.xmmFilled) {
+		QRegExp XMMx("^xmm([0-9]|1[0-5])$");
+		if(XMMx.indexIn(regName)!=-1) {
+			bool ok=false;
+			std::size_t i=XMMx.cap(1).toUShort(&ok);
+			assert(ok);
+			if(xmmIndexValid(i)) // May be invalid but legitimate for a disassembler: e.g. XMM13 but 32 bit mode
+				return make_Register(regName, avx.xmm(i), Register::TYPE_SIMD);
+		}
 	}
 	if(avx.xmmFilled && regName==avx.mxcsrName)
-		return Register(avx.mxcsrName, edb::reg_t::fromZeroExtended(avx.mxcsr), Register::TYPE_COND);
+		return make_Register(avx.mxcsrName, avx.mxcsr, Register::TYPE_COND);
 	return Register();
 }
 
@@ -709,9 +759,9 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 Register PlatformState::gp_register(int n) const {
 
 	if(gprIndexValid(n))
-		return Register(x86.GPRegNames[n], x86.GPRegs[n], Register::TYPE_GPR);
+		return make_Register(x86.GPRegNames[n], x86.GPRegs[n], Register::TYPE_GPR);
 	else if(n==GPR_COUNT) // This value is used as an alias for program counter, although it's not a GPR
-		return Register(x86.IPName, x86.IP, Register::TYPE_IP);
+		return make_Register(x86.IPName, x86.IP, Register::TYPE_IP);
 	else
 		return Register();
 }
