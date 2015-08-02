@@ -331,6 +331,13 @@ void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) 
 		avx.xmmFilled=true;
 		avx.ymmFilled=true;
 	} else if(statePresentSSE) {
+		// If AVX state management has been enabled by the OS,
+		// the state may be not present due to lazy saving,
+		// so initialize the space with zeros
+		if(avx.xcr0 & X86XState::FEATURE_AVX)
+			for(std::size_t n=0;n<YMM_REG_COUNT;++n)
+				avx.setYMM(n,edb::value256::fromZeroExtended(0));
+		// Now we can fill in the XMM registers
 		for(std::size_t n=0;n<XMM_REG_COUNT;++n)
 			avx.setXMM(n,edb::value128(regs.xmm_space,16*n));
 		avx.mxcsr=regs.mxcsr;
