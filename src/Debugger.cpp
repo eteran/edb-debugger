@@ -89,6 +89,7 @@ const char stack_type_name[] = "QWORD";
 
 const quint64 initial_bp_tag  = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
 const quint64 stepover_bp_tag = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
+const quint64 run_to_cursor_tag = Q_UINT64_C(0x474f544f48455245); // "GOTOHERE" in hex
 
 //--------------------------------------------------------------------------
 // Name: is_instruction_ret
@@ -300,6 +301,9 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 
 	// Connect the toggle breakpoing feature
 	connect(new QShortcut(QKeySequence(tr("F2")), this), SIGNAL(activated()), this, SLOT(mnuCPUToggleBreakpoint()));
+
+	// Connect the run to this line feature
+	connect(new QShortcut(QKeySequence(tr("F4")), this), SIGNAL(activated()), this, SLOT(mnuCPURunToThisLine()));
 
 	setAcceptDrops(true);
 
@@ -1478,6 +1482,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	if(edb::v1::debugger_core) {
 		menu.addAction(tr("&Set %1 to this Instruction").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUSetEIP()));
 	}
+	menu.addAction(tr("R&un to this Line"), this, SLOT(mnuCPURunToThisLine()), QKeySequence(tr("F4")));
 	menu.addSeparator();
 	menu.addAction(tr("&Edit Bytes"), this, SLOT(mnuCPUModify()), QKeySequence(tr("Ctrl+E")));
 	menu.addAction(tr("&Fill with 00's"), this, SLOT(mnuCPUFillZero()));
@@ -1688,6 +1693,23 @@ void Debugger::mnuCPURemoveComment() {
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	ui.cpuView->remove_comment(address);
 	refresh_gui();
+}
+
+//------------------------------------------------------------------------------
+// Name: mnuCPURunToThisLine
+// Desc:
+//------------------------------------------------------------------------------
+void Debugger::mnuCPURunToThisLine() {
+	const edb::address_t address = ui.cpuView->selectedAddress();
+	IBreakpoint::pointer bp = edb::v1::find_breakpoint(address);
+	if(!bp) {
+		edb::v1::create_breakpoint(address);
+		bp = edb::v1::find_breakpoint(address);
+		bp->set_one_time(true);
+		bp->set_internal(true);
+		bp->tag = run_to_cursor_tag;
+	}
+	resume_execution(IGNORE_EXCEPTION, MODE_RUN);
 }
 
 //------------------------------------------------------------------------------
