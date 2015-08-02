@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformState.h"
 #include "Util.h"
 #include <unordered_map>
+#include <QRegExp>
 #include <QDebug>
 
 namespace DebuggerCore {
@@ -562,6 +563,17 @@ Register PlatformState::value(const QString &reg) const {
 			return make_Register(x86.flagsName, x86.flags, Register::TYPE_COND);
 		if(regName==x86.IPName)
 			return make_Register(x86.IPName, x86.IP, Register::TYPE_IP);
+	}
+	if(x87.filled) {
+		QRegExp STx("^st\\(?([0-7])\\)?$");
+		if(STx.indexIn(regName)!=-1) {
+			QChar digit=STx.cap(1).at(0);
+			assert(digit.isDigit());
+			char digitChar=digit.toLatin1();
+			std::size_t i=digitChar-'0';
+			assert(fpuIndexValid(i));
+			return make_Register(regName, x87.st(i), Register::TYPE_FPU);
+		}
 	}
 	if(avx.xmmFilled && regName==avx.mxcsrName)
 		return make_Register(avx.mxcsrName, avx.mxcsr, Register::TYPE_COND);
