@@ -31,13 +31,6 @@ Register::Register() : type_(TYPE_INVALID) {
 // Name: Register
 // Desc:
 //------------------------------------------------------------------------------
-Register::Register(const QString &name, edb::reg_t value, Type type) : name_(name), value_(value), type_(type) {
-}
-
-//------------------------------------------------------------------------------
-// Name: Register
-// Desc:
-//------------------------------------------------------------------------------
 Register::Register(const Register &other) : name_(other.name_), value_(other.value_), type_(other.type_) {
 }
 

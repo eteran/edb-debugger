@@ -36,9 +36,18 @@ public:
 		TYPE_SIMD    = 0x0020
 	};
 
+	// Expand when AVX instructions are supported
+	typedef edb::value128 StoredType;
+
 public:
 	Register();
-	Register(const QString &name, edb::reg_t value, Type type);
+	template<typename ValueType>
+	Register(const QString &name, ValueType value, Type type)
+		: name_(name),
+		  value_(StoredType::fromZeroExtended(value)),
+		  type_(type) {
+	}
+
 	Register(const Register &other);
 	Register &operator=(const Register &rhs);
 	
@@ -60,7 +69,7 @@ private:
 
 private:
 	QString    name_;
-	edb::reg_t value_;
+	StoredType value_;
 	Type       type_;
 };
 
