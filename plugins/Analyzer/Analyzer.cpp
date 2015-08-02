@@ -809,6 +809,12 @@ bool Analyzer::will_return(edb::address_t address) const {
 			if(func_name == "__assert_fail" || func_name == "abort" || func_name == "_exit" || func_name == "_Exit") {
 				return false;
 			}
+
+#ifdef Q_OS_LINUX
+			if(func_name == "_Unwind_Resume") {
+				return false;
+			}
+#endif
 		}
 	}
 
