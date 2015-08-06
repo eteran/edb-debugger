@@ -1020,10 +1020,16 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	QString fpuBusyString;
 	if(fpuBusy)
 		fpuBusyString=" BUSY";
+	QString stackFaultDetail;
+	bool invalidOperationException=(exceptionsHappened & 0x01);
+	bool C1=statusWord&(1<<9);
+	if(invalidOperationException && stackFault) {
+		stackFaultDetail=C1?" (stack overflow)":" (stack underflow)";
+	}
 	register_view_items_[itemNumber++]->setText(0, QString("Control Word: %1   %2").arg(controlWord.toHexString()).arg(exceptionMaskString));
 	register_view_items_[itemNumber++]->setText(0, QString("  PC: %1").arg(precisionMode));
 	register_view_items_[itemNumber++]->setText(0, QString("  RC: %1").arg(roundingMode));
-	register_view_items_[itemNumber++]->setText(0, QString("Status Word: %1   %2%3").arg(statusWord.toHexString()).arg(exceptionsHappenedString).arg(fpuBusyString));
+	register_view_items_[itemNumber++]->setText(0, QString("Status Word: %1   %2%3%4").arg(statusWord.toHexString()).arg(exceptionsHappenedString).arg(fpuBusyString).arg(stackFaultDetail));
 	register_view_items_[itemNumber++]->setText(0, QString("  TOP: %1").arg(fpuTop));
 	register_view_items_[itemNumber++]->setText(0, QString("Tag Word: %1").arg(state.fpu_tag_word().toHexString()));
 
