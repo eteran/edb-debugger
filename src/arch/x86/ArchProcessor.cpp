@@ -902,6 +902,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	}
 	edb::value16 controlWord=state.fpu_control_word();
 	int controlWordValue=controlWord;
+	edb::value16 statusWord=state.fpu_status_word();
 	QString roundingMode;
 	QString precisionMode;
 	switch((controlWordValue>>10)&3) {
@@ -933,17 +934,32 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		break;
 	}
 	int exceptionMask=controlWordValue&0x3f;
+	int exceptionsHappened=statusWord&0x3f;
 	QString exceptionMaskString;
-	exceptionMaskString += ((exceptionMask & 0x01) ? " IM" : "   ");
-	exceptionMaskString += ((exceptionMask & 0x02) ? " DM" : "   ");
-	exceptionMaskString += ((exceptionMask & 0x04) ? " ZM" : "   ");
-	exceptionMaskString += ((exceptionMask & 0x08) ? " OM" : "   ");
-	exceptionMaskString += ((exceptionMask & 0x10) ? " UM" : "   ");
-	exceptionMaskString += ((exceptionMask & 0x20) ? " PM" : "   ");
+	exceptionMaskString += ((exceptionMask & 0x01) ? " IM" : " Iu");
+	exceptionMaskString += ((exceptionMask & 0x02) ? " DM" : " Du");
+	exceptionMaskString += ((exceptionMask & 0x04) ? " ZM" : " Zu");
+	exceptionMaskString += ((exceptionMask & 0x08) ? " OM" : " Ou");
+	exceptionMaskString += ((exceptionMask & 0x10) ? " UM" : " Uu");
+	exceptionMaskString += ((exceptionMask & 0x20) ? " PM" : " Pu");
+	QString exceptionsHappenedString;
+	exceptionsHappenedString += ((exceptionsHappened & 0x01) ? " IE" : "");
+	exceptionsHappenedString += ((exceptionsHappened & 0x02) ? " DE" : "");
+	exceptionsHappenedString += ((exceptionsHappened & 0x04) ? " ZE" : "");
+	exceptionsHappenedString += ((exceptionsHappened & 0x08) ? " OE" : "");
+	exceptionsHappenedString += ((exceptionsHappened & 0x10) ? " UE" : "");
+	exceptionsHappenedString += ((exceptionsHappened & 0x20) ? " PE" : "");
+	bool stackFault=statusWord&0x40;
+	if(stackFault)
+		exceptionsHappenedString += " SF";
+	bool fpuBusy=statusWord&0x8000;
+	QString fpuBusyString;
+	if(fpuBusy)
+		fpuBusyString=" BUSY";
 	register_view_items_[itemNumber++]->setText(0, QString("Control Word: %1   %2").arg(controlWord.toHexString()).arg(exceptionMaskString));
 	register_view_items_[itemNumber++]->setText(0, QString("  PC: %1").arg(precisionMode));
 	register_view_items_[itemNumber++]->setText(0, QString("  RC: %1").arg(roundingMode));
-	register_view_items_[itemNumber++]->setText(0, QString("Status Word: %1").arg(state.fpu_status_word().toHexString()));
+	register_view_items_[itemNumber++]->setText(0, QString("Status Word: %1   %2%3").arg(statusWord.toHexString()).arg(exceptionsHappenedString).arg(fpuBusyString));
 	register_view_items_[itemNumber++]->setText(0, QString("  TOP: %1").arg(fpuTop));
 	register_view_items_[itemNumber++]->setText(0, QString("Tag Word: %1").arg(state.fpu_tag_word().toHexString()));
 
