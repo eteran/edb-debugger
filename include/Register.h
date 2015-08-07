@@ -65,6 +65,12 @@ public:
 	
 	template <class T>
 	T value() const              { return T(value_); }
+	// Return the value, zero-extended to address_t to be usable in address calculations
+	edb::address_t valueAsAddress() const {
+		edb::address_t result(0LL);
+		std::memcpy(&result,&value_,bitSize_/8);
+		return result;
+	}
 
 private:
 	bool valid() const { return type_ != TYPE_INVALID; }
