@@ -86,33 +86,33 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 			do {
 				const Register baseR  = state[QString::fromStdString(edb::v1::formatter().register_name<edisassm::x86>(op.expression().base))];
 				const Register indexR = state[QString::fromStdString(edb::v1::formatter().register_name<edisassm::x86>(op.expression().index))];
-				edb::reg_t base  = 0;
-				edb::reg_t index = 0;
+				edb::address_t base  = 0;
+				edb::address_t index = 0;
 
 				if(!!baseR)
-					base=baseR.value<edb::reg_t>();
+					base=baseR.valueAsAddress();
 				if(!!indexR)
-					index=indexR.value<edb::reg_t>();
+					index=indexR.valueAsAddress();
 
-				ret                    = base + index * op.expression().scale + op.displacement();
+				ret = base + index * op.expression().scale + op.displacement();
 
 				if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
-					ret += state["gs_base"].value<edb::reg_t>();
+					ret += state["gs_base"].valueAsAddress();
 				}
 
 				if(op.owner()->prefix() & edb::Instruction::PREFIX_FS) {
-					ret += state["fs_base"].value<edb::reg_t>();
+					ret += state["fs_base"].valueAsAddress();
 				}
 			} while(0);
 			break;
 		case edb::Operand::TYPE_ABSOLUTE:
 			ret = op.absolute().offset;
 			if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
-				ret += state["gs_base"].value<edb::reg_t>();
+				ret += state["gs_base"].valueAsAddress();
 			}
 
 			if(op.owner()->prefix() & edb::Instruction::PREFIX_FS) {
-				ret += state["fs_base"].value<edb::reg_t>();
+				ret += state["fs_base"].valueAsAddress();
 			}
 			break;
 		case edb::Operand::TYPE_IMMEDIATE:
