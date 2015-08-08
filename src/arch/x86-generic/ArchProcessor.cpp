@@ -908,43 +908,10 @@ void ArchProcessor::reset() {
 }
 
 //------------------------------------------------------------------------------
-// Name: update_register_view
+// Name: update_fpu_view
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
-	const QPalette palette = QApplication::palette();
-
-	if(state.empty()) {
-		for(auto item : register_view_items_)
-			if(auto parent=item->parent())
-				parent->setHidden(true);
-		return;
-	} else {
-		for(auto item : register_view_items_)
-			if(auto parent=item->parent())
-				parent->setHidden(false);
-		// and continue filling in the values
-	}
-
-	int itemNumber=0;
-	for(std::size_t i=0;i<GPR_COUNT;++i)
-		update_register(register_view_items_[itemNumber++], GPRegNames[i], state.gp_register(i));
-
-	const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
-
-	if(!symname.isEmpty()) {
-		register_view_items_[itemNumber++]->setText(0, QString("%0: %1 <%2>").arg(IP_name).arg(edb::v1::format_pointer(state.instruction_pointer())).arg(symname));
-	} else {
-		register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(IP_name).arg(edb::v1::format_pointer(state.instruction_pointer())));
-	}
-	register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(FLAGS_name).arg(edb::v1::format_pointer(state.flags())));
-
-	register_view_items_[itemNumber++]->setText(0, QString("CS: %1")     .arg(state["cs"].value<edb::seg_reg_t>().toHexString()));
-	register_view_items_[itemNumber++]->setText(0, QString("DS: %1")     .arg(state["ds"].value<edb::seg_reg_t>().toHexString()));
-	register_view_items_[itemNumber++]->setText(0, QString("ES: %1")     .arg(state["es"].value<edb::seg_reg_t>().toHexString()));
-	register_view_items_[itemNumber++]->setText(0, QString("FS: %1 (%2)").arg(state["fs"].value<edb::seg_reg_t>().toHexString()).arg(edb::v1::format_pointer(state["fs_base"].value<edb::reg_t>())));
-	register_view_items_[itemNumber++]->setText(0, QString("GS: %1 (%2)").arg(state["gs"].value<edb::seg_reg_t>().toHexString()).arg(edb::v1::format_pointer(state["gs_base"].value<edb::reg_t>())));
-	register_view_items_[itemNumber++]->setText(0, QString("SS: %1")     .arg(state["ss"].value<edb::seg_reg_t>().toHexString()));
+void ArchProcessor::update_fpu_view(int& itemNumber, const State &state, const QPalette& palette) const {
 
 	const int fpuTop=state.fpu_stack_pointer();
 	for(int i = 0; i < 8; ++i) {
@@ -1035,6 +1002,48 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	register_view_items_[itemNumber++]->setText(0, QString("Status Word: %1   %2%3%4").arg(statusWord.toHexString()).arg(exceptionsHappenedString).arg(fpuBusyString).arg(stackFaultDetail));
 	register_view_items_[itemNumber++]->setText(0, QString("  TOP: %1").arg(fpuTop));
 	register_view_items_[itemNumber++]->setText(0, QString("Tag Word: %1").arg(state.fpu_tag_word().toHexString()));
+}
+
+//------------------------------------------------------------------------------
+// Name: update_register_view
+// Desc:
+//------------------------------------------------------------------------------
+void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
+	const QPalette palette = QApplication::palette();
+
+	if(state.empty()) {
+		for(auto item : register_view_items_)
+			if(auto parent=item->parent())
+				parent->setHidden(true);
+		return;
+	} else {
+		for(auto item : register_view_items_)
+			if(auto parent=item->parent())
+				parent->setHidden(false);
+		// and continue filling in the values
+	}
+
+	int itemNumber=0;
+	for(std::size_t i=0;i<GPR_COUNT;++i)
+		update_register(register_view_items_[itemNumber++], GPRegNames[i], state.gp_register(i));
+
+	const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
+
+	if(!symname.isEmpty()) {
+		register_view_items_[itemNumber++]->setText(0, QString("%0: %1 <%2>").arg(IP_name).arg(edb::v1::format_pointer(state.instruction_pointer())).arg(symname));
+	} else {
+		register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(IP_name).arg(edb::v1::format_pointer(state.instruction_pointer())));
+	}
+	register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(FLAGS_name).arg(edb::v1::format_pointer(state.flags())));
+
+	register_view_items_[itemNumber++]->setText(0, QString("CS: %1")     .arg(state["cs"].value<edb::seg_reg_t>().toHexString()));
+	register_view_items_[itemNumber++]->setText(0, QString("DS: %1")     .arg(state["ds"].value<edb::seg_reg_t>().toHexString()));
+	register_view_items_[itemNumber++]->setText(0, QString("ES: %1")     .arg(state["es"].value<edb::seg_reg_t>().toHexString()));
+	register_view_items_[itemNumber++]->setText(0, QString("FS: %1 (%2)").arg(state["fs"].value<edb::seg_reg_t>().toHexString()).arg(edb::v1::format_pointer(state["fs_base"].value<edb::reg_t>())));
+	register_view_items_[itemNumber++]->setText(0, QString("GS: %1 (%2)").arg(state["gs"].value<edb::seg_reg_t>().toHexString()).arg(edb::v1::format_pointer(state["gs_base"].value<edb::reg_t>())));
+	register_view_items_[itemNumber++]->setText(0, QString("SS: %1")     .arg(state["ss"].value<edb::seg_reg_t>().toHexString()));
+
+	update_fpu_view(itemNumber,state,palette);
 
 	for(int i = 0; i < 8; ++i) {
 		register_view_items_[itemNumber]->setText(0, QString("DR%1: %2").arg(i).arg(state.debug_register(i).toHexString()));

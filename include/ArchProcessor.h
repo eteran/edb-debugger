@@ -50,6 +50,7 @@ public:
 
 private:
 	void update_register(QTreeWidgetItem *item, const QString &name, const Register &reg) const;
+	void update_fpu_view(int& itemNumber, const State &state, const QPalette& palette) const;
 
 private:
 	QTreeWidgetItem * split_flags_;
