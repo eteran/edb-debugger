@@ -154,15 +154,15 @@ HEADERS     += qhexview.h QHexView
 
 win32 {
 	win32-msvc*:contains(QMAKE_HOST.arch, x86_64) {
-		VPATH       += $$LEVEL/include/os/win32 arch/x86_64 $$LEVEL/include/arch/x86_64 edisassm
-		INCLUDEPATH += $$LEVEL/include/os/win32 arch/x86_64 $$LEVEL/include/arch/x86_64 edisassm "C:\\Program Files\\boost\\boost_1_51"
+		VPATH       += $$LEVEL/include/os/win32 arch/x86-generic $$LEVEL/include/arch/x86_64 edisassm
+		INCLUDEPATH += $$LEVEL/include/os/win32 arch/x86-generic $$LEVEL/include/arch/x86_64 edisassm "C:\\Program Files\\boost\\boost_1_51"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS
 		RC_FILE     = edb.rc
 	}
 
 	win32-msvc*:contains(QMAKE_HOST.arch, i[3456]86) {
-		VPATH       += $$LEVEL/include/os/win32 arch/x86 $$LEVEL/include/arch/x86 edisassm
-		INCLUDEPATH += $$LEVEL/include/os/win32 arch/x86 $$LEVEL/include/arch/x86 edisassm "C:\\Program Files\\boost\\boost_1_51"
+		VPATH       += $$LEVEL/include/os/win32 arch/x86-generic $$LEVEL/include/arch/x86 edisassm
+		INCLUDEPATH += $$LEVEL/include/os/win32 arch/x86-generic $$LEVEL/include/arch/x86 edisassm "C:\\Program Files\\boost\\boost_1_51"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS
 		RC_FILE     = edb.rc
 	}
@@ -190,22 +190,22 @@ unix {
 	
 
 	macx {
-		VPATH       += arch/x86_64 $$LEVEL/include/arch/x86_64
-		INCLUDEPATH += arch/x86_64 $$LEVEL/include/arch/x86_64
+		VPATH       += arch/x86-generic $$LEVEL/include/arch/x86_64
+		INCLUDEPATH += arch/x86-generic $$LEVEL/include/arch/x86_64
 	}
 	
 	*-g++-32 {
-		VPATH       += arch/x86 $$LEVEL/include/arch/x86
-		INCLUDEPATH += arch/x86 $$LEVEL/include/arch/x86	
+		VPATH       += arch/x86-generic $$LEVEL/include/arch/x86
+		INCLUDEPATH += arch/x86-generic $$LEVEL/include/arch/x86	
 	} else:*-g++-64 {
-		VPATH       += arch/x86_64 $$LEVEL/include/arch/x86_64
-		INCLUDEPATH += arch/x86_64 $$LEVEL/include/arch/x86_64
+		VPATH       += arch/x86-generic $$LEVEL/include/arch/x86_64
+		INCLUDEPATH += arch/x86-generic $$LEVEL/include/arch/x86_64
 	} else:!macx:contains(QMAKE_HOST.arch, x86_64) {
-		VPATH       += arch/x86_64 $$LEVEL/include/arch/x86_64
-		INCLUDEPATH += arch/x86_64 $$LEVEL/include/arch/x86_64
+		VPATH       += arch/x86-generic $$LEVEL/include/arch/x86_64
+		INCLUDEPATH += arch/x86-generic $$LEVEL/include/arch/x86_64
 	} else:	!macx:contains(QMAKE_HOST.arch, i[3456]86) {
-		VPATH       += arch/x86 $$LEVEL/include/arch/x86
-		INCLUDEPATH += arch/x86 $$LEVEL/include/arch/x86
+		VPATH       += arch/x86-generic $$LEVEL/include/arch/x86
+		INCLUDEPATH += arch/x86-generic $$LEVEL/include/arch/x86
 	}
 
 	*-g++* | *-clang* {
