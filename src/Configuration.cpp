@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "Formatter.h"
 #include "edb.h"
+#include <QCoreApplication>
 #include <QtDebug>
 #include <QSettings>
 #include <QDir>
@@ -61,7 +62,11 @@ void Configuration::read_settings() {
 #ifdef DEFAULT_PLUGIN_PATH
 	const QString default_plugin_path = TOSTRING(DEFAULT_PLUGIN_PATH);
 #else
-	const QString default_plugin_path = QDir().absolutePath();
+	const QString edb_lib_dir=QCoreApplication::applicationDirPath()+(sizeof(void*)==8 ? "/../lib64/edb" : "/../lib/edb");
+	const QString edb_binary_dir=QCoreApplication::applicationDirPath();
+	// If the binary is in its installation directory, then look for plugins in their installation directory
+	// Otherwise assume that we are in build directory, so the plugins are in the same directory as the binary
+	const QString default_plugin_path = QRegExp(".*/bin/?$").exactMatch(edb_binary_dir) ? edb_lib_dir : edb_binary_dir;
 #endif
 
 	QSettings settings;
