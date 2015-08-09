@@ -19,19 +19,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ARCHTYPES_20071127_H_
 #define ARCHTYPES_20071127_H_
 
+#include <cstdint>
 #include <QtGlobal>
 #include "Instruction.h"
+
+#if INTPTR_MAX==INT32_MAX
 
 #define EDB_X86
 static constexpr const bool IS_X86_64_BIT=false;
 static constexpr const bool IS_X86_32_BIT=true;
+typedef edisassm::x86 edisassm_platform_t;
+
+#elif INTPTR_MAX==INT64_MAX
+
+#define EDB_X86_64
+static constexpr const bool IS_X86_64_BIT=true;
+static constexpr const bool IS_X86_32_BIT=false;
+typedef edisassm::x86_64 edisassm_platform_t;
+
+#endif
 
 namespace edb {
-	typedef value16                              seg_reg_t;
-	typedef value32                              reg_t;
-	typedef value32                              address_t;
-	typedef edisassm::Instruction<edisassm::x86> Instruction;
-	typedef Instruction::operand_type            Operand;
+	typedef value16                                    seg_reg_t;
+	typedef detail::SizedValue<8*sizeof(void*)>        reg_t;
+	typedef detail::SizedValue<8*sizeof(void*)>        address_t;
+	typedef edisassm::Instruction<edisassm_platform_t> Instruction;
+	typedef Instruction::operand_type                  Operand;
 }
 
 #endif
