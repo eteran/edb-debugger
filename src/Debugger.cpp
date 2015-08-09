@@ -304,6 +304,8 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 
 	// Connect the run to this line feature
 	connect(new QShortcut(QKeySequence(tr("F4")), this), SIGNAL(activated()), this, SLOT(mnuCPURunToThisLine()));
+	// Connect the run to this line passing signal feature
+	connect(new QShortcut(QKeySequence(tr("Shift+F4")), this), SIGNAL(activated()), this, SLOT(mnuCPURunToThisLinePassSignal()));
 
 	setAcceptDrops(true);
 
@@ -1483,6 +1485,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 		menu.addAction(tr("&Set %1 to this Instruction").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUSetEIP()));
 	}
 	menu.addAction(tr("R&un to this Line"), this, SLOT(mnuCPURunToThisLine()), QKeySequence(tr("F4")));
+	menu.addAction(tr("Run to this Line (Pass Signal To Application)"), this, SLOT(mnuCPURunToThisLinePassSignal()), QKeySequence(tr("Shift+F4")));
 	menu.addSeparator();
 	menu.addAction(tr("&Edit Bytes"), this, SLOT(mnuCPUModify()), QKeySequence(tr("Ctrl+E")));
 	menu.addAction(tr("&Fill with 00's"), this, SLOT(mnuCPUFillZero()));
@@ -1696,10 +1699,10 @@ void Debugger::mnuCPURemoveComment() {
 }
 
 //------------------------------------------------------------------------------
-// Name: mnuCPURunToThisLine
+// Name: run_to_this_line
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::mnuCPURunToThisLine() {
+void Debugger::run_to_this_line(bool pass_signal) {
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	IBreakpoint::pointer bp = edb::v1::find_breakpoint(address);
 	if(!bp) {
@@ -1709,7 +1712,26 @@ void Debugger::mnuCPURunToThisLine() {
 		bp->set_internal(true);
 		bp->tag = run_to_cursor_tag;
 	}
-	resume_execution(IGNORE_EXCEPTION, MODE_RUN);
+    if(pass_signal)
+		resume_execution(PASS_EXCEPTION, MODE_RUN);
+	else
+		resume_execution(IGNORE_EXCEPTION, MODE_RUN);
+}
+
+//------------------------------------------------------------------------------
+// Name: mnuCPURunToThisLinePassSignal
+// Desc:
+//------------------------------------------------------------------------------
+void Debugger::mnuCPURunToThisLinePassSignal() {
+	run_to_this_line(true);
+}
+
+//------------------------------------------------------------------------------
+// Name: mnuCPURunToThisLine
+// Desc:
+//------------------------------------------------------------------------------
+void Debugger::mnuCPURunToThisLine() {
+	run_to_this_line(false);
 }
 
 //------------------------------------------------------------------------------
