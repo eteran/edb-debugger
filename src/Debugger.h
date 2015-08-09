@@ -143,11 +143,13 @@ public Q_SLOTS:
 private:
 	void toggle_flag(int);
 
+	void run_to_this_line(bool pass_signal);
 private Q_SLOTS:
 	// the manually connected CPU slots
 	void mnuCPUEditComment();
 	void mnuCPURemoveComment();
 	void mnuCPURunToThisLine();
+	void mnuCPURunToThisLinePassSignal();
 	void mnuCPUToggleBreakpoint();
 	void mnuCPUAddConditionalBreakpoint();
 	void mnuCPUFillNop();
