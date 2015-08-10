@@ -464,22 +464,34 @@ void analyze_jump(const State &state, const edb::Instruction &inst, QStringList 
 
 	if(is_conditional_jump(inst)) {
 
-		if(inst.size() - inst.prefix_size() == 2) {
-			taken = is_jcc_taken(state, buf[0 + inst.prefix_size()]);
+		if(buf[0 + inst.prefix_size()] == 0xe3) {
+
+			// NOTE: Index Ecx is equal to Rcx
+			if(IS_X86_64_BIT) {
+
+				// either ECX or RCX
+				if(inst.prefix() & edb::Instruction::PREFIX_ADDRESS) {
+					taken = (state.gp_register(Ecx).value<edb::reg_t>() & 0xffffffff) == 0;
+				} else {
+					taken = state.gp_register(Ecx).value<edb::reg_t>() == 0;
+				}
+			} else {
+
+				// either CX or ECX
+				if(inst.prefix() & edb::Instruction::PREFIX_ADDRESS) {
+					taken = (state.gp_register(Ecx).value<edb::reg_t>() & 0xffff) == 0;
+				} else {
+					taken = state.gp_register(Ecx).value<edb::reg_t>() == 0;
+				}
+			}
 		} else {
-			taken = is_jcc_taken(state, buf[1 + inst.prefix_size()]);
+			if(inst.size() - inst.prefix_size() == 2) {
+				taken = is_jcc_taken(state, buf[0 + inst.prefix_size()]);
+			} else {
+				taken = is_jcc_taken(state, buf[1 + inst.prefix_size()]);
+			}
 		}
 
-
-
-	// TODO: this is not correct! 0xe3 IS an OP_JCC
-	} else if(buf[0] == 0xe3) {
-		// Index Ecx is equal to Rcx
-		if(inst.prefix() & edb::Instruction::PREFIX_ADDRESS) {
-			taken = (state.gp_register(Ecx).value<edb::reg_t>() & 0xffff) == 0;
-		} else {
-			taken = state.gp_register(Ecx).value<edb::reg_t>() == 0;
-		}
 	}
 
 	if(taken) {
