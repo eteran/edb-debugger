@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSettings>
 #include <QAction>
 #include <QMenu>
+#include <QFileInfo>
 
 namespace {
 const int MaxRecentFiles = 8;
@@ -111,9 +112,13 @@ void RecentFileManager::item_selected() {
 // Desc:
 //------------------------------------------------------------------------------
 void RecentFileManager::add_file(const QString &file) {
+
+	QFileInfo fi(file);
+	QString path = fi.absoluteFilePath();
+
 	// update recent file list
-	if(!file_list_.contains(file)) {
-		file_list_.push_front(file);
+	if(!file_list_.contains(path)) {
+		file_list_.push_front(path);
 
 		// make sure we don't add more than the max
 		while(file_list_.size() > MaxRecentFiles) {
