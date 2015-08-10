@@ -171,6 +171,8 @@ void DialogOptions::showEvent(QShowEvent *event) {
 
 	ui->chkTTY->setChecked(config.tty_enabled);
 	ui->txtTTY->setText(config.tty_command);
+	
+	ui->chkDeleteStaleSymbols->setChecked(config.remove_stale_symbols);
 
 	ui->chkZerosAreFilling->setChecked(config.zeros_are_filling);
 	ui->chkUppercase->setChecked(config.uppercase_disassembly);
@@ -226,6 +228,8 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.disassembly_font      = ui->disassemblyFont->currentFont().toString();
 	config.tty_command           = ui->txtTTY->text();
 	config.tty_enabled           = ui->chkTTY->isChecked();
+	config.remove_stale_symbols  = ui->chkDeleteStaleSymbols->isChecked();
+	
 	config.zeros_are_filling     = ui->chkZerosAreFilling->isChecked();
 	config.uppercase_disassembly = ui->chkUppercase->isChecked();
 	config.small_int_as_decimal  = ui->chkSmallIntAsDecimal->isChecked();

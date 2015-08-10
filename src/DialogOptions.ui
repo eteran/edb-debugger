@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>598</width>
-    <height>387</height>
+    <width>681</width>
+    <height>434</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -300,7 +300,7 @@
       <attribute name="title">
        <string>Debugging</string>
       </attribute>
-      <layout class="QVBoxLayout">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
@@ -344,6 +344,13 @@
         <widget class="QCheckBox" name="chkFindMain">
          <property name="text">
           <string>Use heuristic to find &quot;main&quot; symbol when it is not found in symbol file</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkDeleteStaleSymbols">
+         <property name="text">
+          <string>Delete Stale Symbol Files</string>
          </property>
         </widget>
        </item>
@@ -434,6 +441,12 @@
         </spacer>
        </item>
       </layout>
+      <zorder>groupBox_2</zorder>
+      <zorder>chkWarnDataBreakpoint</zorder>
+      <zorder>chkFindMain</zorder>
+      <zorder>groupBox_4</zorder>
+      <zorder>label_5</zorder>
+      <zorder>chkDeleteStaleSymbols</zorder>
      </widget>
      <widget class="QWidget" name="tab_6">
       <attribute name="title">

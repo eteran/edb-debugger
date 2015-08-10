@@ -45,7 +45,7 @@ public:
 	virtual QList<QString> files() const;
 
 private:
-	bool process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename);
+	bool process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename, bool allow_retry);
 
 private:
 	QString                                symbol_directory_;

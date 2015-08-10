@@ -65,6 +65,7 @@ public:
 	bool              warn_on_no_exec_bp;
 	bool              find_main;
 	bool              tty_enabled;
+	bool              remove_stale_symbols;
 	QString           tty_command;
 
 	// disassembly tab

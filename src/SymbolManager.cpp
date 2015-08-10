@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ISymbolGenerator.h"
 #include "MD5.h"
 #include "edb.h"
+#include "Configuration.h"
 
 #include <QFile>
 #include <QDir>
@@ -34,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: SymbolManager
 // Desc:
 //------------------------------------------------------------------------------
-SymbolManager::SymbolManager() : symbol_generator_(0), show_path_notice_(true) {	
+SymbolManager::SymbolManager() : symbol_generator_(0), show_path_notice_(true) {
 }
 
 //------------------------------------------------------------------------------
@@ -56,7 +57,7 @@ void SymbolManager::clear() {
 	symbols_.clear();
 	symbols_by_address_.clear();
 	symbols_by_file_.clear();
-	symbols_by_name_.clear();	
+	symbols_by_name_.clear();
 	labels_.clear();
 	labels_by_name_.clear();
 }
@@ -74,7 +75,7 @@ void SymbolManager::load_symbol_file(const QString &filename, edb::address_t bas
 		}
 		return;
 	}
-	
+
 	if(!symbol_directory_.isEmpty()) {
 		QDir symbolPath;
 		symbolPath.mkpath(symbol_directory_);
@@ -86,7 +87,7 @@ void SymbolManager::load_symbol_file(const QString &filename, edb::address_t bas
 	if(!symbol_files_.contains(name)) {
 		const QString map_file = QString("%1/%2.map").arg(symbol_directory_, name);
 
-		if(process_symbol_file(map_file, base, filename)) {
+		if(process_symbol_file(map_file, base, filename, true)) {
 			symbol_files_.insert(name);
 		}
 	}
@@ -158,7 +159,7 @@ void SymbolManager::add_symbol(const Symbol::pointer &symbol) {
 // Desc:
 // Note: returning false means 'try again', true means, 'we loaded what we could'
 //------------------------------------------------------------------------------
-bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename) {
+bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename, bool allow_retry) {
 
 	// TODO(eteran): support filename starting with "http://" being fetched from a web server
 	// TODO(eteran): support symbol files with paths so we can deal with binaries that have
@@ -182,6 +183,16 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 
 				if(file_md5 != actual_md5) {
 					qDebug() << "Your symbol file for" << library_filename << "appears to not match the actual file, perhaps you should rebuild your symbols?";
+					const Configuration &config = edb::v1::config();
+					if(config.remove_stale_symbols) {
+						QFile symbolFile(f);
+						symbolFile.remove();
+
+						if(allow_retry) {
+							return process_symbol_file(f, base, library_filename, false);
+						}
+
+					}
 					return false;
 				}
 
@@ -247,7 +258,7 @@ void SymbolManager::set_label(edb::address_t address, const QString &label) {
 		labels_by_name_.remove(labels_[address]);
 		labels_.remove(address);
 	} else {
-	
+
 		if(labels_by_name_.contains(label) && labels_by_name_[label] != address) {
 			QMessageBox::warning(
 				edb::v1::debugger_ui,
@@ -256,7 +267,7 @@ void SymbolManager::set_label(edb::address_t address, const QString &label) {
 				);
 			return;
 		}
-	
+
 		labels_[address] = label;
 		labels_by_name_[label] = address;
 	}
@@ -271,13 +282,13 @@ QString SymbolManager::find_address_name(edb::address_t address) {
 	if(it != labels_.end()) {
 		return it.value();
 	}
-	
+
 	if(const Symbol::pointer sym = find(address)) {
 		return sym->name;
 	}
-	
+
 	return QString();
-	
+
 }
 
 //------------------------------------------------------------------------------
