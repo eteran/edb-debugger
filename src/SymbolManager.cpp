@@ -74,6 +74,11 @@ void SymbolManager::load_symbol_file(const QString &filename, edb::address_t bas
 		}
 		return;
 	}
+	
+	if(!symbol_directory_.isEmpty()) {
+		QDir symbolPath;
+		symbolPath.mkpath(symbol_directory_);
+	}
 
 	const QFileInfo info(filename);
 	const QString name = info.fileName();
