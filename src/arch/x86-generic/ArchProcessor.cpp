@@ -622,7 +622,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						Register reg=state[QString::fromStdString(edb::v1::formatter().to_string(operand))];
 						QString valueString;
 						if(!reg) {
-							valueString = tr("(Error: obtained invalid register value from State)");
+							valueString = ArchProcessor::tr("(Error: obtained invalid register value from State)");
 						} else {
 							switch(reg.bitSize()) {
 							case 8:
@@ -644,7 +644,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								valueString=reg.value<edb::value128>().toHexString();
 								break;
 							default:
-								valueString = tr("(Error: unexpected register size %1)").arg(reg.bitSize());
+								valueString = ArchProcessor::tr("(Error: unexpected register size %1)").arg(reg.bitSize());
 							}
 						}
 						ret << QString("%1 = %2").arg(temp_operand).arg(valueString);
