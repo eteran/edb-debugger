@@ -258,9 +258,9 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.data_word_width    = 1 << ui->cmbDataWordWidth->currentIndex();
 	config.data_row_width     = 1 << ui->cmbDataRowWidth->currentIndex();
 	
-	edisassm::FormatOptions options = edb::v1::formatter().options();
-	options.capitalization = config.uppercase_disassembly ? edisassm::UpperCase : edisassm::LowerCase;
-	options.smallNumFormat = config.small_int_as_decimal  ? edisassm::SmallNumAsDec : edisassm::SmallNumAsHex;
+	CapstoneEDB::Formatter::FormatOptions options = edb::v1::formatter().options();
+	options.capitalization = config.uppercase_disassembly ? CapstoneEDB::Formatter::UpperCase : CapstoneEDB::Formatter::LowerCase;
+	options.smallNumFormat = config.small_int_as_decimal  ? CapstoneEDB::Formatter::SmallNumAsDec : CapstoneEDB::Formatter::SmallNumAsHex;
 	edb::v1::formatter().setOptions(options);
 
 	event->accept();

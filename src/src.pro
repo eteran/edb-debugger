@@ -7,7 +7,7 @@ include(../qmake/qt5-gui.pri)
 
 TEMPLATE    = app
 TARGET      = edb
-INCLUDEPATH += widgets $$LEVEL/include $$LEVEL/src/edisassm/include
+INCLUDEPATH += widgets $$LEVEL/include $$LEVEL/src/capstone-edb/include
 VPATH       += widgets $$LEVEL/include
 
 RESOURCES   = debugger.qrc
@@ -154,8 +154,8 @@ HEADERS     += qhexview.h QHexView
 
 win32 {
 	win32-msvc*:contains(QMAKE_HOST.arch, x86_64|i[3456]86) {
-		VPATH       += $$LEVEL/include/os/win32 arch/x86-generic $$LEVEL/include/arch/x86-generic edisassm
-		INCLUDEPATH += $$LEVEL/include/os/win32 arch/x86-generic $$LEVEL/include/arch/x86-generic edisassm "C:\\Program Files\\boost\\boost_1_51"
+		VPATH       += $$LEVEL/include/os/win32 arch/x86-generic $$LEVEL/include/arch/x86-generic capstone-edb
+		INCLUDEPATH += $$LEVEL/include/os/win32 arch/x86-generic $$LEVEL/include/arch/x86-generic capstone-edb "C:\\Program Files\\boost\\boost_1_51"
 		DEFINES     += _CRT_SECURE_NO_WARNINGS
 		RC_FILE     = edb.rc
 	}
@@ -174,8 +174,8 @@ unix {
 		DEFINES += DEFAULT_PLUGIN_PATH=$$DEFAULT_PLUGIN_PATH
 	}
 	
-	VPATH       += $$LEVEL/include/os/unix edisassm
-	INCLUDEPATH += $$LEVEL/include/os/unix edisassm
+	VPATH       += $$LEVEL/include/os/unix capstone-edb
+	INCLUDEPATH += $$LEVEL/include/os/unix capstone-edb
 
 	# OS include paths
 	openbsd-* : INCLUDEPATH += /usr/local/include

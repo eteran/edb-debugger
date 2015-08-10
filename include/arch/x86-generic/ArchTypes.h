@@ -28,14 +28,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define EDB_X86
 static constexpr const bool IS_X86_64_BIT=false;
 static constexpr const bool IS_X86_32_BIT=true;
-typedef edisassm::x86 edisassm_platform_t;
 
 #elif INTPTR_MAX==INT64_MAX
 
 #define EDB_X86_64
 static constexpr const bool IS_X86_64_BIT=true;
 static constexpr const bool IS_X86_32_BIT=false;
-typedef edisassm::x86_64 edisassm_platform_t;
 
 #endif
 
@@ -43,7 +41,7 @@ namespace edb {
 	typedef value16                                    seg_reg_t;
 	typedef detail::SizedValue<8*sizeof(void*)>        reg_t;
 	typedef detail::SizedValue<8*sizeof(void*)>        address_t;
-	typedef edisassm::Instruction<edisassm_platform_t> Instruction;
+	typedef CapstoneEDB::Instruction                   Instruction;
 	typedef Instruction::operand_type                  Operand;
 }
 
