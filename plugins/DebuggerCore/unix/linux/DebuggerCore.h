@@ -26,8 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/syscall.h>   /* For SYS_xxx definitions */
 #include <unistd.h>
 
-// These system calls were added in Linux 3.2. Support is provided in glibc since version 2.15.
-
 class IBinary;
 
 namespace DebuggerCore {
