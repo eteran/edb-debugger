@@ -45,12 +45,31 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 
 	switch(code()) {
 	case SIGSEGV:
-		return Message(
-			tr("Illegal Access Fault"),
-			tr(
-				"<p>The debugged application encountered a segmentation fault.<br />The address <strong>0x%1</strong> could not be accessed.</p>"
-				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>").arg(edb::v1::format_pointer(fault_address))
-			);
+		
+		switch(siginfo_.si_code) {
+		case SEGV_MAPERR:
+			return Message(
+				tr("Illegal Access Fault"),
+				tr(
+					"<p>The debugged application encountered a segmentation fault.<br />The address <strong>0x%1</strong> does not appear to be mapped.</p>"
+					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>").arg(edb::v1::format_pointer(fault_address))
+				);		
+		case SEGV_ACCERR:
+			return Message(
+				tr("Illegal Access Fault"),
+				tr(
+					"<p>The debugged application encountered a segmentation fault.<br />The address <strong>0x%1</strong> could not be accessed.</p>"
+					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>").arg(edb::v1::format_pointer(fault_address))
+				);			
+		default:
+			return Message(
+				tr("Illegal Access Fault"),
+				tr(
+					"<p>The debugged application encountered a segmentation fault.<br />The instruction could not be executed.</p>"
+					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
+				);	
+		}
+	
 	case SIGILL:
 		return Message(
 			tr("Illegal Instruction Fault"),
