@@ -66,36 +66,24 @@ public:
 	};
 	enum DisplacementType {
 		DISP_NONE,
-		DISP_U8,
-		DISP_U16,
-		DISP_U32,
-		DISP_S8,
-		DISP_S16,
-		DISP_S32
+		DISP_PRESENT // XXX: Just to avoid changing API too early. DispType should actually be a bool.
 	};
 	struct absolute_t {
 		uint16_t seg=0;
 		uint32_t offset=0;
 	};
 	struct expression_t {
-			union {
-				  int8_t   s_disp8;
-				  int16_t  s_disp16;
-				  int32_t  s_disp32;
-				  uint8_t  u_disp8;
-				  uint16_t u_disp16;
-				  uint32_t u_disp32;
-			  };
 
 		DisplacementType displacement_type=DISP_NONE;
 		Register         base=Register::X86_REG_INVALID;
 		Register         index=Register::X86_REG_INVALID;
+		int32_t          displacement=0;
 		uint8_t          scale=0;
 	};
 	Type general_type() const { return static_cast<Type>(complete_type() & ~0xff); }
 	Type complete_type() const { return type_; }
 	uint64_t relative_target() const { return imm_; };
-	int32_t displacement() const { return expr_.s_disp32; } // FIXME: find a way to detect size and signdness
+	int32_t displacement() const { return expr_.displacement; }
 	int64_t immediate() const { return imm_; } // FIXME: do we really want it signed?
 	bool valid() const { return type_!=TYPE_INVALID; }
 	operator void*() const { return reinterpret_cast<void*>(valid()); }

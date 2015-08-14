@@ -190,8 +190,8 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva, cons
 				}
 				if(ops[i].mem.disp!=0) // FIXME: this doesn't catch zero-valued existing displacements!
 				{
-					operand.expr_.displacement_type=Operand::DISP_S32; // FIXME: we don't have a good way to correctly get size
-					operand.expr_.s_disp32=ops[i].mem.disp; // FIXME: truncation or wrong type chosen by capstone?..
+					operand.expr_.displacement_type=Operand::DISP_PRESENT;
+					operand.expr_.displacement=ops[i].mem.disp; // FIXME: truncation or wrong type chosen by capstone?..
 				}
 				operand.expr_.base =static_cast<Operand::Register>(ops[i].mem.base);
 				operand.expr_.index=static_cast<Operand::Register>(ops[i].mem.index);

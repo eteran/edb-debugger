@@ -1181,7 +1181,7 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 					reg1 = operands[0].reg();
 
 					if(operands[1].expression().scale == 1) {
-						if(operands[1].expression().u_disp32 == 0) {
+						if(operands[1].expression().displacement == 0) {
 
 							if(operands[1].expression().base == edb::Operand::Register::X86_REG_INVALID) {
 								reg2 = operands[1].expression().index;
