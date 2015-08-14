@@ -119,7 +119,7 @@ CapstoneEDB::Instruction::Instruction(const void* first, const void* last, uint6
 		valid_=true;
 		std::memcpy(&insn_,insn,sizeof insn_);
 		std::memcpy(&detail_,insn->detail, sizeof detail_);
-		insn_.detail=insn->detail;
+		insn_.detail=&detail_;
 		Capstone::cs_free(insn,1);
 		fillPrefix();
 		Capstone::cs_x86_op* ops=insn_.detail->x86.operands;
