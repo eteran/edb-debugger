@@ -151,6 +151,7 @@ CapstoneEDB::Instruction::Instruction(const void* first, const void* last, uint6
 				default:operand.type_=Operand::TYPE_IMMEDIATE;   break;
 				}
 				operand.imm_=ops[i].imm;
+				break;
 			case Capstone::X86_OP_MEM:
 				switch(ops[i].size)
 				{
