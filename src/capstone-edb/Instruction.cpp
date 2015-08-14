@@ -466,11 +466,22 @@ std::string CapstoneEDB::Formatter::to_string(const CapstoneEDB::Instruction& in
 	return str;
 }
 
-void CapstoneEDB::Formatter::checkCapitalize(std::string& str) const
+void CapstoneEDB::Formatter::checkCapitalize(std::string& str,bool canContainHex) const
 {
-	// FIXME: undo capitalization of 0x prefix
 	if(options_.capitalization==UpperCase)
+	{
 		std::transform(str.begin(),str.end(),str.begin(), ::toupper);
+		if(canContainHex)
+		{
+			std::string::iterator it;
+			do
+			{
+				const std::string hexPrefix="0X";
+				it=std::search(str.begin(),str.end(), hexPrefix.begin(),hexPrefix.end());
+				if(it!=str.end()) *(it+1)='x';
+			} while(it!=str.end());
+		}
+	}
 }
 
 std::string CapstoneEDB::Formatter::to_string(const CapstoneEDB::Operand& operand) const
@@ -501,6 +512,6 @@ std::string CapstoneEDB::Formatter::register_name(const CapstoneEDB::Operand::Re
 	if(!raw)
 		return "(invalid register)";
 	std::string str(raw);
-	checkCapitalize(str);
+	checkCapitalize(str,false);
 	return str;
 }

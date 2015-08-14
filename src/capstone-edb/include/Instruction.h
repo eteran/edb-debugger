@@ -260,7 +260,7 @@ public:
 	private:
 		FormatOptions options_;
 
-		void checkCapitalize(std::string& str) const;
+		void checkCapitalize(std::string& str,bool canContainHex=true) const;
 	};
 
 	static bool init(bool amd64);
