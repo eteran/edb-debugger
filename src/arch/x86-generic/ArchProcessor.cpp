@@ -1114,7 +1114,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 					analyze_call(state, inst, ret);
 				} else if(inst.is_int()) {
 				#ifdef Q_OS_LINUX
-				   if(inst.operands()[0].complete_type() == edb::Operand::TYPE_IMMEDIATE8 && (inst.operands()[0].immediate() & 0xff) == 0x80) {
+				   if((inst.operands()[0].immediate() & 0xff) == 0x80) {
 
 						analyze_syscall(state, inst, ret);
 					} else {
