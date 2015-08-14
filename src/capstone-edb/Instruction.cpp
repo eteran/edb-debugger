@@ -89,6 +89,21 @@ void CapstoneEDB::Instruction::fillPrefix()
 	}
 }
 
+CapstoneEDB::Instruction& CapstoneEDB::Instruction::operator=(const CapstoneEDB::Instruction& other)
+{
+	static_assert(std::is_standard_layout<Instruction>::value,"Instruction should have standard layout");
+	std::memcpy(this,&other,sizeof other);
+	// Update pointer after replacement
+	insn_.detail=&detail_;
+
+	return *this;
+}
+
+CapstoneEDB::Instruction::Instruction(const CapstoneEDB::Instruction& other)
+{
+	*this=other;
+}
+
 CapstoneEDB::Instruction::Instruction(const void* first, const void* last, uint64_t rva, const std::nothrow_t&) throw()
 {
 	assert(capstoneInitialized);
@@ -252,11 +267,7 @@ bool CapstoneEDB::Instruction::is_halt() const
 
 void CapstoneEDB::Instruction::swap(Instruction &other)
 {
-	// Just swap data
 	std::swap(*this,other);
-	// But don't forget to update detail pointers
-	insn_.detail=&detail_;
-	other.insn_.detail=&other.detail_;
 }
 
 bool CapstoneEDB::Instruction::is_conditional_set() const

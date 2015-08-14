@@ -149,6 +149,8 @@ public:
 
 	public:
 		Instruction(const void* first, const void* end, uint64_t rva, const std::nothrow_t&) throw();
+		Instruction(const Instruction&);
+		Instruction& operator=(const Instruction&);
 		bool valid() const { return valid_; }
 		operator void*() const { return reinterpret_cast<void*>(valid()); }
 		const uint8_t* bytes() const;
