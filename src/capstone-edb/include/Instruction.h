@@ -44,9 +44,11 @@ public:
 			TYPE_IMMEDIATE32   = 0x00000203,
 			TYPE_IMMEDIATE64   = 0x00000204,
 			TYPE_REL           = 0x00000300,
-			TYPE_REL8          = 0x00000301,
-			TYPE_REL16         = 0x00000302,
-			TYPE_REL32         = 0x00000303,
+			// XXX: To determine relative operand size with capstone, we'd have to implement
+			//      additional mini-disassembler on top of it. No native way is provided.
+			//TYPE_REL8          = 0x00000301,
+			//TYPE_REL16         = 0x00000302,
+			//TYPE_REL32         = 0x00000303,
 			TYPE_EXPRESSION    = 0x00000400,
 			TYPE_EXPRESSION8   = 0x00000401,
 			TYPE_EXPRESSION16  = 0x00000402,

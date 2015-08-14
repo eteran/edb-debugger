@@ -152,37 +152,16 @@ CapstoneEDB::Instruction::Instruction(const void* first, const void* last, uint6
 				*/
 				if(operation()==Operation::X86_INS_LOOP   ||
 				   operation()==Operation::X86_INS_LOOPE  ||
-				   operation()==Operation::X86_INS_LOOPNE)
+				   operation()==Operation::X86_INS_LOOPNE ||
+				   operation()==Operation::X86_INS_XBEGIN ||
+				   is_conditional_jump() ||
+				   (((operation()==Operation::X86_INS_JMP ||
+					  operation()==Operation::X86_INS_CALL) && (insn_.detail->x86.opcode[0]==0xEB ||
+																insn_.detail->x86.opcode[0]==0xE9 ||
+																insn_.detail->x86.opcode[0]==0xE8)))
+				  )
 				{
-					// LOOP* always has rel8 operand
-					operand.type_=Operand::TYPE_REL8;
-					break;
-				}
-				if(operation()==Operation::X86_INS_JMP  ||
-				   operation()==Operation::X86_INS_CALL ||
-				   operation()==Operation::X86_INS_XBEGIN)
-				{
-					if(insn_.detail->x86.opcode[0]==0xEB)
-						operand.type_=Operand::TYPE_REL8;
-					else if(insn_.detail->x86.opcode[0]==0xE9 || insn_.detail->x86.opcode[0]==0xE8 ||
-							operation()==Operation::X86_INS_XBEGIN)
-					{
-						if(ops[i].size==2)
-							operand.type_=Operand::TYPE_REL16;
-						else // size is 4 or 8
-							operand.type_=Operand::TYPE_REL32;
-					}
-					break;
-				}
-				if(is_conditional_jump())
-				{
-					switch(ops[i].size)
-					{
-					case 1: operand.type_=Operand::TYPE_REL8;  break;
-					case 2: operand.type_=Operand::TYPE_REL16; break;
-					case 4: operand.type_=Operand::TYPE_REL32; break;
-					case 8: operand.type_=Operand::TYPE_REL32; break; // sic!
-					}
+					operand.type_=Operand::TYPE_REL;
 					break;
 				}
 				switch(ops[i].size)
