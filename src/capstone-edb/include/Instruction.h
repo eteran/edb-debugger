@@ -43,7 +43,6 @@ public:
 			TYPE_IMMEDIATE16   = 0x00000202,
 			TYPE_IMMEDIATE32   = 0x00000203,
 			TYPE_IMMEDIATE64   = 0x00000204,
-			// FIXME: REL* is not easy to implement with capstone, but it doesn't seem to be used much
 			TYPE_REL           = 0x00000300,
 			TYPE_REL8          = 0x00000301,
 			TYPE_REL16         = 0x00000302,

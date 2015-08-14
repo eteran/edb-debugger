@@ -142,6 +142,49 @@ CapstoneEDB::Instruction::Instruction(const void* first, const void* last, uint6
 				operand.reg_=ops[i].reg;
 				break;
 			case Capstone::X86_OP_IMM:
+				operand.imm_=ops[i].imm;
+				/* Operands can be relative in the following cases:
+					* all versions of loop* instruction: E0, E1, E2 (always rel8)
+					* some unconditional jumps: EB (rel8), E9 (rel16, rel32)
+					* all conditional jumps have relative arguments (rel8, rel16, rel32)
+					* some call instructions: E8 (rel16, rel32)
+					* xbegin: C7 F8 (rel16, rel32)
+				*/
+				if(operation()==Operation::X86_INS_LOOP   ||
+				   operation()==Operation::X86_INS_LOOPE  ||
+				   operation()==Operation::X86_INS_LOOPNE)
+				{
+					// LOOP* always has rel8 operand
+					operand.type_=Operand::TYPE_REL8;
+					break;
+				}
+				if(operation()==Operation::X86_INS_JMP  ||
+				   operation()==Operation::X86_INS_CALL ||
+				   operation()==Operation::X86_INS_XBEGIN)
+				{
+					if(insn_.detail->x86.opcode[0]==0xEB)
+						operand.type_=Operand::TYPE_REL8;
+					else if(insn_.detail->x86.opcode[0]==0xE9 || insn_.detail->x86.opcode[0]==0xE8 ||
+							operation()==Operation::X86_INS_XBEGIN)
+					{
+						if(ops[i].size==2)
+							operand.type_=Operand::TYPE_REL16;
+						else // size is 4 or 8
+							operand.type_=Operand::TYPE_REL32;
+					}
+					break;
+				}
+				if(is_conditional_jump())
+				{
+					switch(ops[i].size)
+					{
+					case 1: operand.type_=Operand::TYPE_REL8;  break;
+					case 2: operand.type_=Operand::TYPE_REL16; break;
+					case 4: operand.type_=Operand::TYPE_REL32; break;
+					case 8: operand.type_=Operand::TYPE_REL32; break; // sic!
+					}
+					break;
+				}
 				switch(ops[i].size)
 				{
 				case 1: operand.type_=Operand::TYPE_IMMEDIATE8;  break;
@@ -150,7 +193,6 @@ CapstoneEDB::Instruction::Instruction(const void* first, const void* last, uint6
 				case 8: operand.type_=Operand::TYPE_IMMEDIATE64; break;
 				default:operand.type_=Operand::TYPE_IMMEDIATE;   break;
 				}
-				operand.imm_=ops[i].imm;
 				break;
 			case Capstone::X86_OP_MEM:
 				switch(ops[i].size)
