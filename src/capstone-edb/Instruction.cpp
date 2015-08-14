@@ -21,10 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 #include <cctype>
 
+namespace CapstoneEDB {
+
 static bool capstoneInitialized=false;
 static Capstone::csh csh=0;
 
-bool CapstoneEDB::init(bool amd64)
+bool init(bool amd64)
 {
     if(capstoneInitialized)
 		Capstone::cs_close(&csh);
@@ -42,7 +44,7 @@ bool CapstoneEDB::init(bool amd64)
 	return true;
 }
 
-void CapstoneEDB::Instruction::fillPrefix()
+void Instruction::fillPrefix()
 {
 	// FIXME: Capstone seems to be unable to correctly report prefixes for
 	// instructions like F0 F3 2E 3E 75 fa, where e.g. F0 and F3 are put
@@ -89,7 +91,7 @@ void CapstoneEDB::Instruction::fillPrefix()
 	}
 }
 
-CapstoneEDB::Instruction& CapstoneEDB::Instruction::operator=(const CapstoneEDB::Instruction& other)
+Instruction& Instruction::operator=(const Instruction& other)
 {
 	static_assert(std::is_standard_layout<Instruction>::value,"Instruction should have standard layout");
 	std::memcpy(this,&other,sizeof other);
@@ -99,12 +101,12 @@ CapstoneEDB::Instruction& CapstoneEDB::Instruction::operator=(const CapstoneEDB:
 	return *this;
 }
 
-CapstoneEDB::Instruction::Instruction(const CapstoneEDB::Instruction& other)
+Instruction::Instruction(const Instruction& other)
 {
 	*this=other;
 }
 
-CapstoneEDB::Instruction::Instruction(const void* first, const void* last, uint64_t rva, const std::nothrow_t&) throw()
+Instruction::Instruction(const void* first, const void* last, uint64_t rva, const std::nothrow_t&) throw()
 {
 	assert(capstoneInitialized);
     const uint8_t* codeBegin=static_cast<const uint8_t*>(first);
@@ -221,31 +223,31 @@ CapstoneEDB::Instruction::Instruction(const void* first, const void* last, uint6
 		operands_.push_back(Operand());
 }
 
-const uint8_t* CapstoneEDB::Instruction::bytes() const
+const uint8_t* Instruction::bytes() const
 {
 	return insn_.bytes;
 }
 
-std::size_t CapstoneEDB::Instruction::operand_count() const
+std::size_t Instruction::operand_count() const
 {
 	return insn_.detail->x86.op_count;
 }
 
-std::size_t CapstoneEDB::Instruction::size() const
+std::size_t Instruction::size() const
 {
 	return insn_.size;
 }
 
-CapstoneEDB::Instruction::Operation CapstoneEDB::Instruction::operation() const
+Instruction::Operation Instruction::operation() const
 {
 	return static_cast<Operation>(insn_.id);
 }
 
-std::string CapstoneEDB::Instruction::mnemonic() const
+std::string Instruction::mnemonic() const
 {
 	return insn_.mnemonic;
 }
-CapstoneEDB::Instruction::ConditionCode CapstoneEDB::Instruction::condition_code() const
+Instruction::ConditionCode Instruction::condition_code() const
 {
 	switch(operation())
 	{
@@ -275,24 +277,24 @@ CapstoneEDB::Instruction::ConditionCode CapstoneEDB::Instruction::condition_code
 	return CC_UNCONDITIONAL;
 }
 
-bool CapstoneEDB::Instruction::is_terminator() const
+bool Instruction::is_terminator() const
 {
 	return is_halt() || is_jump() || is_return();
 }
 
-bool CapstoneEDB::Instruction::is_halt() const
+bool Instruction::is_halt() const
 {
 	if(!valid_) return false;
 
 	return operation()==Operation::X86_INS_HLT;
 }
 
-void CapstoneEDB::Instruction::swap(Instruction &other)
+void Instruction::swap(Instruction &other)
 {
 	std::swap(*this,other);
 }
 
-bool CapstoneEDB::Instruction::is_conditional_set() const
+bool Instruction::is_conditional_set() const
 {
 	switch(operation())
 	{
@@ -318,12 +320,12 @@ bool CapstoneEDB::Instruction::is_conditional_set() const
 	}
 }
 
-bool CapstoneEDB::Instruction::is_unconditional_jump() const
+bool Instruction::is_unconditional_jump() const
 {
 	return operation()==Operation::X86_INS_JMP || operation()==Operation::X86_INS_LJMP;
 }
 
-bool CapstoneEDB::Instruction::is_conditional_jump() const
+bool Instruction::is_conditional_jump() const
 {
 	switch(operation())
 	{
@@ -352,7 +354,7 @@ bool CapstoneEDB::Instruction::is_conditional_jump() const
 	}
 }
 
-bool CapstoneEDB::Instruction::is_conditional_fpu_move() const
+bool Instruction::is_conditional_fpu_move() const
 {
 	switch(operation())
 	{
@@ -370,7 +372,7 @@ bool CapstoneEDB::Instruction::is_conditional_fpu_move() const
 	}
 }
 
-bool CapstoneEDB::Instruction::is_conditional_gpr_move() const
+bool Instruction::is_conditional_gpr_move() const
 {
 	switch(operation())
 	{
@@ -396,24 +398,24 @@ bool CapstoneEDB::Instruction::is_conditional_gpr_move() const
 	}
 }
 
-bool CapstoneEDB::Instruction::is_syscall() const
+bool Instruction::is_syscall() const
 {
 	return operation()==Operation::X86_INS_SYSCALL;
 }
 
-bool CapstoneEDB::Instruction::is_call() const
+bool Instruction::is_call() const
 {
 	return operation()==Operation::X86_INS_CALL;
 }
 
-bool CapstoneEDB::Instruction::is_return() const
+bool Instruction::is_return() const
 {
 	if(!valid_) return false;
 
 	return Capstone::cs_insn_group(csh, &insn_, Capstone::X86_GRP_RET);
 }
 
-bool CapstoneEDB::Instruction::is_interrupt() const
+bool Instruction::is_interrupt() const
 {
 	const auto op=operation();
 	return op==Operation::X86_INS_INT ||
@@ -422,31 +424,31 @@ bool CapstoneEDB::Instruction::is_interrupt() const
 		   op==Operation::X86_INS_INTO;
 }
 
-bool CapstoneEDB::Instruction::is_ret() const
+bool Instruction::is_ret() const
 {
 	return operation()==Operation::X86_INS_RET;
 }
 
-bool CapstoneEDB::Instruction::is_int() const
+bool Instruction::is_int() const
 {
 	return operation()==Operation::X86_INS_INT;
 }
 
-bool CapstoneEDB::Instruction::is_jump() const
+bool Instruction::is_jump() const
 {
 	if(!valid_) return false;
 
 	return Capstone::cs_insn_group(csh, &insn_, Capstone::X86_GRP_JUMP);
 }
 
-bool CapstoneEDB::Instruction::is_nop() const
+bool Instruction::is_nop() const
 {
 	if(!valid_) return false;
 
 	return operation()==Operation::X86_INS_NOP;
 }
 
-void CapstoneEDB::Formatter::setOptions(const CapstoneEDB::Formatter::FormatOptions& options)
+void Formatter::setOptions(const Formatter::FormatOptions& options)
 {
 	assert(capstoneInitialized);
 	options_=options;
@@ -457,7 +459,7 @@ void CapstoneEDB::Formatter::setOptions(const CapstoneEDB::Formatter::FormatOpti
 	// FIXME: SmallNumberFormat is not yet supported
 }
 
-std::string CapstoneEDB::Formatter::to_string(const CapstoneEDB::Instruction& instruction) const
+std::string Formatter::to_string(const Instruction& instruction) const
 {
 	if(!instruction) return "(bad)";
 
@@ -466,7 +468,7 @@ std::string CapstoneEDB::Formatter::to_string(const CapstoneEDB::Instruction& in
 	return str;
 }
 
-void CapstoneEDB::Formatter::checkCapitalize(std::string& str,bool canContainHex) const
+void Formatter::checkCapitalize(std::string& str,bool canContainHex) const
 {
 	if(options_.capitalization==UpperCase)
 	{
@@ -484,7 +486,7 @@ void CapstoneEDB::Formatter::checkCapitalize(std::string& str,bool canContainHex
 	}
 }
 
-std::string CapstoneEDB::Formatter::to_string(const CapstoneEDB::Operand& operand) const
+std::string Formatter::to_string(const Operand& operand) const
 {
 	if(!operand) return "(bad)";
 
@@ -505,7 +507,7 @@ std::string CapstoneEDB::Formatter::to_string(const CapstoneEDB::Operand& operan
 	return str;
 }
 
-std::string CapstoneEDB::Formatter::register_name(const CapstoneEDB::Operand::Register reg) const
+std::string Formatter::register_name(const Operand::Register reg) const
 {
 	assert(capstoneInitialized);
 	const char* raw=Capstone::cs_reg_name(csh, reg);
@@ -514,4 +516,6 @@ std::string CapstoneEDB::Formatter::register_name(const CapstoneEDB::Operand::Re
 	std::string str(raw);
 	checkCapitalize(str,false);
 	return str;
+}
+
 }
