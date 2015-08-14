@@ -111,12 +111,11 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva, cons
 	assert(capstoneInitialized);
     const uint8_t* codeBegin=static_cast<const uint8_t*>(first);
     const uint8_t* codeEnd=static_cast<const uint8_t*>(last);
-	assert(last>first);
 	rva_=rva;
 	firstByte_=codeBegin[0];
 
 	Capstone::cs_insn* insn=nullptr;
-    if(Capstone::cs_disasm(csh, codeBegin, codeEnd-codeBegin-1, rva, 1, &insn))
+    if(first<last && Capstone::cs_disasm(csh, codeBegin, codeEnd-codeBegin-1, rva, 1, &insn))
 	{
 		valid_=true;
 		std::memcpy(&insn_,insn,sizeof insn_);
