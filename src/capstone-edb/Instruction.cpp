@@ -208,8 +208,12 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva, cons
 	{
 		std::memset(&insn_,0,sizeof insn_);
 		std::memset(&detail_,0,sizeof detail_);
-		insn_.bytes[0]=firstByte_;
-		insn_.size=1;
+		if(first<last)
+		{
+			insn_.bytes[0]=firstByte_;
+			insn_.size=1;
+		}
+		else insn_.size=0;
 		insn_.id=Capstone::X86_INS_INVALID;
 		std::strcpy(insn_.mnemonic,"(bad)");
 	}
