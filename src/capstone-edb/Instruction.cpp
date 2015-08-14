@@ -462,10 +462,15 @@ std::string CapstoneEDB::Formatter::to_string(const CapstoneEDB::Instruction& in
 	if(!instruction) return "(bad)";
 
 	std::string str(std::string(instruction.insn_.mnemonic)+" "+instruction.insn_.op_str);
+	checkCapitalize(str);
+	return str;
+}
+
+void CapstoneEDB::Formatter::checkCapitalize(std::string& str) const
+{
 	// FIXME: undo capitalization of 0x prefix
 	if(options_.capitalization==UpperCase)
 		std::transform(str.begin(),str.end(),str.begin(), ::toupper);
-	return str;
 }
 
 std::string CapstoneEDB::Formatter::to_string(const CapstoneEDB::Operand& operand) const
@@ -485,9 +490,7 @@ std::string CapstoneEDB::Formatter::to_string(const CapstoneEDB::Operand& operan
 		str="(formatting of non-register operands not implemented)";
 	}
 
-	// FIXME: undo capitalization of 0x prefix
-	if(options_.capitalization==UpperCase)
-		std::transform(str.begin(),str.end(),str.begin(), ::toupper);
+	checkCapitalize(str);
 	return str;
 }
 
@@ -498,7 +501,6 @@ std::string CapstoneEDB::Formatter::register_name(const CapstoneEDB::Operand::Re
 	if(!raw)
 		return "(invalid register)";
 	std::string str(raw);
-	if(options_.capitalization==UpperCase)
-		std::transform(str.begin(),str.end(),str.begin(), ::toupper);
+	checkCapitalize(str);
 	return str;
 }

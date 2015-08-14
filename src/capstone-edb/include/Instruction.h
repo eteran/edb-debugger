@@ -259,6 +259,8 @@ public:
 		void setOptions(const FormatOptions& options);
 	private:
 		FormatOptions options_;
+
+		void checkCapitalize(std::string& str) const;
 	};
 
 	static bool init(bool amd64);
