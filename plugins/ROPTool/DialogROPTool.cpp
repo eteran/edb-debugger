@@ -232,6 +232,7 @@ void DialogROPTool::set_gadget_role(QStandardItem *item, const edb::Instruction 
 		item->setData(0x04, Qt::UserRole + 1);
 		break;
 	case edb::Instruction::Operation::X86_INS_MOV:
+	case edb::Instruction::Operation::X86_INS_MOVABS:
 	case edb::Instruction::Operation::X86_INS_CMOVA:
 	case edb::Instruction::Operation::X86_INS_CMOVAE:
 	case edb::Instruction::Operation::X86_INS_CMOVB:
