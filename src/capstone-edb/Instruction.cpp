@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <cstring>
 #include <cctype>
+#include <QString>
+#include <QRegExp>
 
 namespace CapstoneEDB {
 
@@ -478,13 +480,8 @@ void Formatter::checkCapitalize(std::string& str,bool canContainHex) const
 		std::transform(str.begin(),str.end(),str.begin(), ::toupper);
 		if(canContainHex)
 		{
-			std::string::iterator it;
-			do
-			{
-				const std::string hexPrefix="0X";
-				it=std::search(str.begin(),str.end(), hexPrefix.begin(),hexPrefix.end());
-				if(it!=str.end()) *(it+1)='x';
-			} while(it!=str.end());
+			QString qstr=QString::fromStdString(str);
+			str=qstr.replace(QRegExp("\\b0X([0-9A-F]+)\\b"),"0x\\1").toStdString();
 		}
 	}
 }
