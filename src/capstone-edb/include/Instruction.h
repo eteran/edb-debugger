@@ -248,7 +248,7 @@ public:
 	FormatOptions options() const { return options_; }
 	void setOptions(const FormatOptions& options);
 private:
-	FormatOptions options_;
+	FormatOptions options_={SyntaxIntel,LowerCase,SmallNumAsDec};
 
 	void checkCapitalize(std::string& str,bool canContainHex=true) const;
 };

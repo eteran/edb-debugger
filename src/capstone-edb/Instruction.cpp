@@ -29,6 +29,7 @@ namespace CapstoneEDB {
 
 static bool capstoneInitialized=false;
 static Capstone::csh csh=0;
+static Formatter activeFormatter;
 
 bool init(bool amd64)
 {
@@ -41,10 +42,12 @@ bool init(bool amd64)
 	Capstone::cs_err result=Capstone::cs_open(Capstone::CS_ARCH_X86, mode, &csh);
 	if(result!=Capstone::CS_ERR_OK)
 		return false;
+    capstoneInitialized=true;
 
 	Capstone::cs_option(csh, Capstone::CS_OPT_DETAIL, Capstone::CS_OPT_ON);
 
-    capstoneInitialized=true;
+	// Set selected formatting options on reinit
+	activeFormatter.setOptions(activeFormatter.options());
 	return true;
 }
 
@@ -464,6 +467,7 @@ void Formatter::setOptions(const Formatter::FormatOptions& options)
 	else
 		Capstone::cs_option(csh,Capstone::CS_OPT_SYNTAX, Capstone::CS_OPT_SYNTAX_INTEL);
 	// FIXME: SmallNumberFormat is not yet supported
+	activeFormatter=*this;
 }
 
 std::string Formatter::to_string(const Instruction& instruction) const
