@@ -21,7 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 #include <cctype>
 #include <QString>
+#include <QStringList>
 #include <QRegExp>
+#include <stdexcept>
 
 namespace CapstoneEDB {
 
@@ -486,21 +488,72 @@ void Formatter::checkCapitalize(std::string& str,bool canContainHex) const
 	}
 }
 
+std::vector<std::string> toOperands(QString str)
+{
+	// Remove any decorations: we want just operands themselves
+	str.replace(QRegExp(",?\\{[^}]*\\}"),"");
+	QStringList betweenCommas=str.split(",");
+	std::vector<std::string> operands;
+	// Have to work around inconvenient AT&T syntax for SIB, that's why so complicated logic
+	for(auto it=betweenCommas.begin();it!=betweenCommas.end();++it)
+	{
+		QString& current(*it);
+		// We've split operand string by commas, but there may be SIB scheme
+		// in the form (B,I,S) or (B) or (I,S). Let's find missing parts of it.
+		if(it->contains("(") && !it->contains(")"))
+		{
+			std::logic_error matchFailed("failed to find matching ')'");
+			// the next part must exist and have continuation of SIB scheme
+			if(std::next(it)==betweenCommas.end())
+				throw matchFailed;
+			current+=",";
+			current+=*(++it);
+			// This may still be not enough
+			if(current.contains("(") && !current.contains(")"))
+			{
+				if(std::next(it)==betweenCommas.end())
+					throw matchFailed;
+				current+=",";
+				current+=*(++it);
+			}
+			// The expected SIB string has at most three components.
+			// If we still haven't found closing parenthesis, we're screwed
+			if(current.contains("(") && !current.contains(")"))
+				throw matchFailed;
+		}
+		operands.push_back(current.trimmed().toStdString());
+	}
+	if(operands.size()>Instruction::MAX_OPERANDS)
+		throw std::logic_error("got more than "+std::to_string(Instruction::MAX_OPERANDS)+" operands");
+	return operands;
+}
+
 std::string Formatter::to_string(const Operand& operand) const
 {
 	if(!operand) return "(bad)";
 
 	std::string str;
 
+	std::size_t totalOperands=operand.owner()->operand_count();
 	if(operand.type_==Operand::TYPE_REGISTER)
 		str=register_name(operand.reg());
-	else if(operand.owner()->operand_count()==1)
+	else if(totalOperands==1)
 		str=operand.owner()->insn_.op_str;
 	else
 	{
-		// XXX: Capstone doesn't provide a way to get operand string. We might try to split op_str
-		// by ',', but in AT&T syntax this can be easily confused with SIB syntax - (s,i,b) or whatever it is.
-		str="(formatting of non-register operands not implemented)";
+		// Capstone doesn't provide a way to get operand string, so we try
+		// to extract it from the formatted all-operands string
+		try
+		{
+			const auto operands=toOperands(operand.owner()->insn_.op_str);
+			if(operands.size()<=operand.numberInInstruction_)
+				throw std::logic_error("got less than "+std::to_string(operand.numberInInstruction_)+" operands");
+			str=operands[operand.numberInInstruction_];
+		}
+		catch(std::logic_error& error)
+		{
+			return std::string("(error splitting operands string: ")+error.what()+")";
+		}
 	}
 
 	checkCapitalize(str);
