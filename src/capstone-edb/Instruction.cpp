@@ -113,6 +113,19 @@ Instruction::Instruction(const Instruction& other)
 	*this=other;
 }
 
+void adjustInstructionText(Capstone::cs_insn& insn)
+{
+	QString operands(insn.op_str);
+
+	// Remove extra spaces
+	operands.replace(" + ","+");
+	operands.replace(" - ","-");
+
+	operands.replace(QRegExp("\\bxword "),"tbyte ");
+
+	strcpy(insn.op_str,operands.toStdString().c_str());
+}
+
 Instruction::Instruction(const void* first, const void* last, uint64_t rva, const std::nothrow_t&) throw()
 {
 	assert(capstoneInitialized);
@@ -129,6 +142,7 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva, cons
 		std::memcpy(&detail_,insn->detail, sizeof detail_);
 		insn_.detail=&detail_;
 		Capstone::cs_free(insn,1);
+		adjustInstructionText(insn_);
 		fillPrefix();
 		Capstone::cs_x86_op* ops=insn_.detail->x86.operands;
 		if((operation()==Operation::X86_INS_LCALL||operation()==Operation::X86_INS_LJMP) &&
