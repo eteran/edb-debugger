@@ -2236,6 +2236,8 @@ void Debugger::update_gui() {
 
 		if(const IRegion::pointer region = update_cpu_view(state)) {
 			edb::v1::arch_processor().update_register_view(region->name(), state);
+		} else {		
+			edb::v1::arch_processor().update_register_view(QString(), state);
 		}
 	}
 
