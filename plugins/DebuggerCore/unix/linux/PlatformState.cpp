@@ -797,6 +797,7 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 		avx.mxcsr=edb::value32(value);
 		return;
 	}
+	qDebug() << "fixme: set_register("<<name<<", "<<value.toHexString().toStdString().c_str()<<"): didn't set register " << name;
 }
 
 //------------------------------------------------------------------------------
