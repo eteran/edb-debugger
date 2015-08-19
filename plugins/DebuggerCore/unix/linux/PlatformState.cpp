@@ -787,6 +787,11 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 		x86.segRegs[index]=edb::seg_reg_t(value);
 		return;
 	}
+	if(regName==x86.IPName)
+	{
+		x86.IP=value;
+		return;
+	}
 	if(regName==x86.flagsName)
 	{
 		x86.flags=value;
