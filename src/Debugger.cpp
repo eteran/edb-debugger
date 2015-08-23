@@ -1708,6 +1708,7 @@ void Debugger::run_to_this_line(bool pass_signal) {
 	if(!bp) {
 		edb::v1::create_breakpoint(address);
 		bp = edb::v1::find_breakpoint(address);
+		if(!bp) return;
 		bp->set_one_time(true);
 		bp->set_internal(true);
 		bp->tag = run_to_cursor_tag;
