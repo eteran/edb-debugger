@@ -707,7 +707,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 		QXmlQuery query;
 		QString res;
 		query.setFocus(&file);
-		static const QString arch=IS_X86_32_BIT ? "x86" : "x86-64";
+		const QString arch=CapstoneEDB::isX86_64()? "x86-64" : "x86";
 		// Index Eax is equal to Rax
 		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='"+arch+"']/syscall[index=%1]").arg(state.gp_register(Eax).value<edb::reg_t>()));
 		if (query.isValid()) {

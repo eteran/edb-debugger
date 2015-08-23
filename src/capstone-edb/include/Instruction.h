@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace CapstoneEDB {
 
 bool init(bool amd64);
+bool isX86_64();
 
 namespace Capstone {
 #include <capstone/capstone.h>

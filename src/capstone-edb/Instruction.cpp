@@ -31,8 +31,13 @@ static bool capstoneInitialized=false;
 static Capstone::csh csh=0;
 static Formatter activeFormatter;
 
+bool isAMD64=false;
+
+bool isX86_64() { return isAMD64; }
+
 bool init(bool amd64)
 {
+	isAMD64=amd64;
     if(capstoneInitialized)
 		Capstone::cs_close(&csh);
 	capstoneInitialized=false;
