@@ -507,6 +507,27 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 
 			switch(operand.general_type()) {
 			case edb::Operand::TYPE_REL:
+				do {
+					int offset;
+					const QString symname = edb::v1::find_function_symbol(effective_address, QString(), &offset);
+					if(!symname.isEmpty()) {
+						ret << QString("%1 = %2 <%3>").arg(temp_operand, edb::v1::format_pointer(effective_address), symname);
+
+						if(offset == 0) {
+							if(is_call(inst)) {
+								resolve_function_parameters(state, symname, 0, ret);
+							} else {
+								resolve_function_parameters(state, symname, 4, ret);
+							}
+						}
+
+					} else {
+#if 0
+						ret << QString("%1 = %2").arg(temp_operand, edb::v1::format_pointer(effective_address));
+#endif
+					}
+				} while(0);
+				break;
 			case edb::Operand::TYPE_REGISTER:
 				do {
 					int offset;
@@ -581,8 +602,10 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 				switch(operand.general_type()) {
 				case edb::Operand::TYPE_REL:
 					do {
+#if 0
 						const edb::address_t effective_address = get_effective_address(operand, state);
 						ret << QString("%1 = %2").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
+#endif
 					} while(0);
 					break;
 				case edb::Operand::TYPE_REGISTER:

@@ -1708,6 +1708,7 @@ void Debugger::run_to_this_line(bool pass_signal) {
 	if(!bp) {
 		edb::v1::create_breakpoint(address);
 		bp = edb::v1::find_breakpoint(address);
+		if(!bp) return;
 		bp->set_one_time(true);
 		bp->set_internal(true);
 		bp->tag = run_to_cursor_tag;
@@ -2236,6 +2237,8 @@ void Debugger::update_gui() {
 
 		if(const IRegion::pointer region = update_cpu_view(state)) {
 			edb::v1::arch_processor().update_register_view(region->name(), state);
+		} else {		
+			edb::v1::arch_processor().update_register_view(QString(), state);
 		}
 	}
 
