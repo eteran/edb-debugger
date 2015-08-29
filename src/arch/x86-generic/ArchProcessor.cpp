@@ -1145,7 +1145,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 						analyze_operands(state, inst, ret);
 					}
 				#endif
-				} else if (inst.is_syscall()) {
+				} else if (inst.is_syscall() || inst.is_sysenter()) {
 
 					analyze_syscall(state, inst, ret);
 

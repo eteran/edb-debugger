@@ -425,6 +425,11 @@ bool Instruction::is_conditional_gpr_move() const
 	}
 }
 
+bool Instruction::is_sysenter() const
+{
+	return operation()==Operation::X86_INS_SYSENTER;
+}
+
 bool Instruction::is_syscall() const
 {
 	return operation()==Operation::X86_INS_SYSCALL;

@@ -186,6 +186,8 @@ public:
 	bool is_int() const;
 	// Check that instruction is call .*
 	bool is_call() const;
+	// Check that instruction is P5 sysenter
+	bool is_sysenter() const;
 	// Check that instruction is x86-64 syscall
 	bool is_syscall() const;
 	// Check that instruction is any type of return

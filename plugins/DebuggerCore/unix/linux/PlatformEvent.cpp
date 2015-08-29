@@ -38,6 +38,18 @@ PlatformEvent *PlatformEvent::clone() const {
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
+IDebugEvent::Message PlatformEvent::createUnexpectedSignalMessage(const QString &name, int number) {
+	return Message(
+		tr("Unexpected Signal Encountered"),
+		tr(
+			"<p>The debugged application encountered a %1 (%2).</p>"
+			"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>").arg(name).arg(number)
+		);
+}
+
+//------------------------------------------------------------------------------
+// Name:
+//------------------------------------------------------------------------------
 IDebugEvent::Message PlatformEvent::error_description() const {
 	Q_ASSERT(is_error());
 
@@ -45,7 +57,6 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 
 	switch(code()) {
 	case SIGSEGV:
-		
 		switch(siginfo_.si_code) {
 		case SEGV_MAPERR:
 			return Message(
@@ -53,23 +64,23 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 				tr(
 					"<p>The debugged application encountered a segmentation fault.<br />The address <strong>0x%1</strong> does not appear to be mapped.</p>"
 					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>").arg(edb::v1::format_pointer(fault_address))
-				);		
+				);
 		case SEGV_ACCERR:
 			return Message(
 				tr("Illegal Access Fault"),
 				tr(
 					"<p>The debugged application encountered a segmentation fault.<br />The address <strong>0x%1</strong> could not be accessed.</p>"
 					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>").arg(edb::v1::format_pointer(fault_address))
-				);			
+				);
 		default:
 			return Message(
 				tr("Illegal Access Fault"),
 				tr(
 					"<p>The debugged application encountered a segmentation fault.<br />The instruction could not be executed.</p>"
 					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
-				);	
+				);
 		}
-	
+
 	case SIGILL:
 		return Message(
 			tr("Illegal Instruction Fault"),
@@ -125,6 +136,94 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 				"<p>The debugged application encountered a broken pipe fault.</p>"
 				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
 			);
+#ifdef SIGHUP
+	case SIGHUP:
+		return createUnexpectedSignalMessage("SIGHUP", SIGHUP);
+#endif
+#ifdef SIGINT
+	case SIGINT:
+		return createUnexpectedSignalMessage("SIGINT", SIGINT);
+#endif
+#ifdef SIGQUIT
+	case SIGQUIT:
+		return createUnexpectedSignalMessage("SIGQUIT", SIGQUIT);
+#endif
+#ifdef SIGTRAP
+	case SIGTRAP:
+		return createUnexpectedSignalMessage("SIGTRAP", SIGTRAP);
+#endif
+#ifdef SIGKILL
+	case SIGKILL:
+		return createUnexpectedSignalMessage("SIGKILL", SIGKILL);
+#endif
+#ifdef SIGUSR1
+	case SIGUSR1:
+		return createUnexpectedSignalMessage("SIGUSR1", SIGUSR1);
+#endif
+#ifdef SIGUSR2
+	case SIGUSR2:
+		return createUnexpectedSignalMessage("SIGUSR2", SIGUSR2);
+#endif
+#ifdef SIGALRM
+	case SIGALRM:
+		return createUnexpectedSignalMessage("SIGALRM", SIGALRM);
+#endif
+#ifdef SIGTERM
+	case SIGTERM:
+		return createUnexpectedSignalMessage("SIGTERM", SIGTERM);
+#endif
+#ifdef SIGCHLD
+	case SIGCHLD:
+		return createUnexpectedSignalMessage("SIGCHLD", SIGCHLD);
+#endif
+#ifdef SIGCONT
+	case SIGCONT:
+		return createUnexpectedSignalMessage("SIGCONT", SIGCONT);
+#endif
+#ifdef SIGSTOP
+	case SIGSTOP:
+		return createUnexpectedSignalMessage("SIGSTOP", SIGSTOP);
+#endif
+#ifdef SIGTSTP
+	case SIGTSTP:
+		return createUnexpectedSignalMessage("SIGTSTP", SIGTSTP);
+#endif
+#ifdef SIGTTIN
+	case SIGTTIN:
+		return createUnexpectedSignalMessage("SIGTTIN", SIGTTIN);
+#endif
+#ifdef SIGTTOU
+	case SIGTTOU:
+		return createUnexpectedSignalMessage("SIGTTOU", SIGTTOU);
+#endif
+#ifdef SIGURG
+	case SIGURG:
+		return createUnexpectedSignalMessage("SIGURG", SIGURG);
+#endif
+#ifdef SIGXCPU
+	case SIGXCPU:
+		return createUnexpectedSignalMessage("SIGXCPU", SIGXCPU);
+#endif
+#ifdef SIGXFSZ
+	case SIGXFSZ:
+		return createUnexpectedSignalMessage("SIGXFSZ", SIGXFSZ);
+#endif
+#ifdef SIGVTALRM
+	case SIGVTALRM:
+		return createUnexpectedSignalMessage("SIGVTALRM", SIGVTALRM);
+#endif
+#ifdef SIGPROF
+	case SIGPROF:
+		return createUnexpectedSignalMessage("SIGPROF", SIGPROF);
+#endif
+#ifdef SIGWINCH
+	case SIGWINCH:
+		return createUnexpectedSignalMessage("SIGWINCH", SIGWINCH);
+#endif
+#ifdef SIGIO
+	case SIGIO:
+		return createUnexpectedSignalMessage("SIGIO", SIGIO);
+#endif
 	default:
 		return Message();
 	}

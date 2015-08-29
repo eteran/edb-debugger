@@ -135,20 +135,20 @@ public:
 		State state;
 		edb::v1::debugger_core->get_state(&state);
 
-		edb::address_t				address = state.instruction_pointer();
-		IDebugEvent::TRAP_REASON	trap_reason = event->trap_reason();
-		IDebugEvent::REASON			reason = event->reason();
+		edb::address_t              address = state.instruction_pointer();
+		IDebugEvent::TRAP_REASON    trap_reason = event->trap_reason();
+		IDebugEvent::REASON         reason = event->reason();
 
 		qDebug() << QString("Event at address 0x%1").arg(address, 0, 16);
 
 		/*
 		 * An IDebugEvent::TRAP_BREAKPOINT can happen for the following reasons:
-		 *	1. We hit a user-set breakpoint.
-		 *	2. We hit an internal breakpoint due to our RunUntilRet algorithm.
-		 *	3. We hit a syscall (this shouldn't be; it may be a ptrace bug).
-		 *	4. We have exited in some form or another.
+		 * 1. We hit a user-set breakpoint.
+		 * 2. We hit an internal breakpoint due to our RunUntilRet algorithm.
+		 * 3. We hit a syscall (this shouldn't be; it may be a ptrace bug).
+		 * 4. We have exited in some form or another.
 		 * First check for exit, then breakpoint (user-set, then internal; adjust for RIP in both cases),
-		 *	then finally for the syscall bug.
+		 * then finally for the syscall bug.
 		 */
 		if (trap_reason == IDebugEvent::TRAP_BREAKPOINT) {
 			qDebug() << "Trap breakpoint";
@@ -166,7 +166,7 @@ public:
 
 			//If there was a bp there, then we hit a block terminator as part of our RunUntilRet
 			//algorithm, or it is a user-set breakpoint.
-			if(bp && bp->enabled()) {	//Isn't it always enabled if trap_reason is breakpoint, anyway?
+			if(bp && bp->enabled()) { //Isn't it always enabled if trap_reason is breakpoint, anyway?
 
 				bp->hit();
 
@@ -234,8 +234,8 @@ public:
 					if (IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(address)) {
 						qDebug() << QString("Setting breakpoint at terminator 0x%1").arg(address, 0, 16);
 						bp->set_internal(true);
-						bp->set_one_time(true);	//If the 0xcc get's rm'd on next event, then
-												//don't set it one time; we'll hande it manually
+						bp->set_one_time(true); //If the 0xcc get's rm'd on next event, then
+						                        //don't set it one time; we'll hande it manually
 						ret_address_ = address;
 						return edb::DEBUG_CONTINUE;
 					}
@@ -263,7 +263,7 @@ public:
 private:
 	IDebugEventHandler *previous_handler_;
 	edb::address_t      last_call_return_;
-	edb::address_t		ret_address_;
+	edb::address_t      ret_address_;
 };
 
 //------------------------------------------------------------------------------
@@ -453,7 +453,7 @@ QString Debugger::create_tty() {
 			}
 
 			proc_args << "-e" << "sh" << "-c" << QString("%1").arg(shell_script);
-			
+
 			qDebug() << "Running Terminal: " << tty_command;
 			qDebug() << "Terminal Args: " << proc_args;
 
@@ -463,16 +463,16 @@ QString Debugger::create_tty() {
 			tty_proc_->start(tty_command, proc_args);
 
 			if(tty_proc_->waitForStarted(3000)) {
-			
+
 				const Q_PID tty_pid = tty_proc_->pid();
 				Q_UNUSED(tty_pid);
-							
+
 				// get the output, this should block until the xterm actually gets a chance to write it
 				QFile file(temp_pipe);
 				if(file.open(QIODevice::ReadOnly)) {
 					result_tty = file.readLine().trimmed();
 				}
-				
+
 			} else {
 				qDebug().nospace() << "Could not launch the desired terminal [" << tty_command << "], please check that it exists and you have proper permissions.";
 			}
@@ -1428,7 +1428,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	menu.addAction(tr("Add &Comment"), this, SLOT(mnuCPUEditComment()), QKeySequence(tr(";")));
 	menu.addAction(tr("Remove Comment"), this, SLOT(mnuCPURemoveComment()));
 	menu.addSeparator();
-	
+
 	menu.addAction(tr("Set Address &Label"), this, SLOT(mnuCPULabelAddress()));
 	menu.addSeparator();
 
@@ -1442,15 +1442,15 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-	
+
 		Q_UNUSED(process);
-	
+
 		quint8 buffer[edb::Instruction::MAX_SIZE + 1];
 		if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
 			edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
 			if(inst) {
-			
-			
+
+
 				if(is_call(inst) || is_jump(inst)) {
 					if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
 						QAction *const action = menu.addAction(tr("&Follow"), this, SLOT(mnuCPUFollow()));
@@ -1643,9 +1643,9 @@ void Debugger::cpu_fill(quint8 byte) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 			if(edb::v1::overwrite_check(address, size)) {
 				QByteArray bytes(size, byte);
-	
+
 				process->write_bytes(address, bytes.data(), size);
-	
+
 				// do a refresh, not full update
 				refresh_gui();
 			}
@@ -2237,7 +2237,7 @@ void Debugger::update_gui() {
 
 		if(const IRegion::pointer region = update_cpu_view(state)) {
 			edb::v1::arch_processor().update_register_view(region->name(), state);
-		} else {		
+		} else {
 			edb::v1::arch_processor().update_register_view(QString(), state);
 		}
 	}
@@ -2599,7 +2599,7 @@ void Debugger::on_action_Restart_triggered() {
 
 	Q_ASSERT(edb::v1::debugger_core);
 	Q_ASSERT(edb::v1::debugger_core->process());
-	
+
 	working_directory_     = edb::v1::debugger_core->process()->current_working_directory();
 	QList<QByteArray> args = edb::v1::debugger_core->process()->arguments();
 	const QString s        = edb::v1::debugger_core->process()->executable();
@@ -2704,7 +2704,7 @@ void Debugger::attach(edb::pid_t pid) {
 			return;
 		}
 	}
-	
+
 
 	detach_from_process(NO_KILL_ON_DETACH);
 
@@ -2931,11 +2931,11 @@ bool Debugger::dump_stack(edb::address_t address, bool scroll_to) {
 
 	if(stack_view_info_.region) {
 		stack_view_info_.update();
-		
+
 		State state;
 		edb::v1::debugger_core->get_state(&state);
 		stack_view_->setColdZoneEnd(state.stack_pointer());
-		
+
 		if(scroll_to || stack_view_info_.region->compare(last_region)) {
 			stack_view_->scrollTo(address - stack_view_info_.region->start());
 		}
@@ -3013,7 +3013,7 @@ void Debugger::next_debug_event() {
 					#endif
 					}
 				}
-	
+
 			}
 		}
 	#if 0
