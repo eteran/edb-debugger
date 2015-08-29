@@ -1177,6 +1177,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 					break;
 				#endif
 				case edb::Instruction::OP_SYSCALL:
+				case edb::Instruction::OP_SYSENTER:
 					analyze_syscall(state, inst, ret);
 					break;
 				default:
