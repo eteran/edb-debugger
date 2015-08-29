@@ -152,6 +152,8 @@ VPATH       += qhexview
 SOURCES     += qhexview.cpp
 HEADERS     += qhexview.h QHexView
 
+LIBS += -lcapstone
+
 win32 {
 	win32-msvc*:contains(QMAKE_HOST.arch, x86_64|i[3456]86) {
 		VPATH       += $$LEVEL/include/os/win32 arch/x86-generic $$LEVEL/include/arch/x86-generic capstone-edb
