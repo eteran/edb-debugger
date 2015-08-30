@@ -728,6 +728,66 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 	}
 }
 
+void DebuggerCore::fillFSGSBases(PlatformState* state) {
+	if(state->is32Bit()) {
+		struct user_desc desc;
+		std::memset(&desc, 0, sizeof(desc));
+
+		if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state->x86.segRegs[PlatformState::X86::FS] / LDT_ENTRY_SIZE), &desc) != -1) {
+			state->x86.fsBase = desc.base_addr;
+			state->x86.fsBaseFilled=true;
+		}
+		if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state->x86.segRegs[PlatformState::X86::GS] / LDT_ENTRY_SIZE), &desc) != -1) {
+			state->x86.gsBase = desc.base_addr;
+			state->x86.gsBaseFilled=true;
+		}
+	}
+}
+
+bool DebuggerCore::fillStateFromPrStatus(PlatformState* state) {
+
+	static bool prStatusSupported=true;
+	if(!prStatusSupported)
+		return false;
+
+	alignas(PrStatus_X86_64) char prstat[sizeof(PrStatus_X86_64)];
+	iovec prstat_iov={prstat, sizeof(PrStatus_X86_64)};
+
+	if(ptrace(PTRACE_GETREGSET, active_thread(), NT_PRSTATUS, &prstat_iov) != -1) {
+		if(prstat_iov.iov_len==sizeof(PrStatus_X86_64))
+			state->fillFrom(*reinterpret_cast<PrStatus_X86_64*>(prstat));
+		else if(prstat_iov.iov_len==sizeof(PrStatus_X86))
+			state->fillFrom(*reinterpret_cast<PrStatus_X86*>(prstat));
+		else {
+			prStatusSupported=false;
+			qWarning() << "PTRACE_GETREGSET(NT_PRSTATUS) returned unexpected length " << prstat_iov.iov_len;
+			return false;
+		}
+	}
+	else {
+		prStatusSupported=false;
+		perror("PTRACE_GETREGSET(NT_PRSTATUS) failed");
+		return false;
+	}
+	fillFSGSBases(state);
+	return true;
+}
+
+bool DebuggerCore::fillStateFromSimpleRegs(PlatformState* state) {
+
+	user_regs_struct regs;
+	if(ptrace(PTRACE_GETREGS, active_thread(), 0, &regs) != -1) {
+
+		state->fillFrom(regs);
+		fillFSGSBases(state);
+		return true;
+	}
+	else {
+		perror("PTRACE_GETREGS failed");
+		return false;
+	}
+}
+
 //------------------------------------------------------------------------------
 // Name: get_state
 // Desc:
@@ -741,33 +801,10 @@ void DebuggerCore::get_state(State *state) {
 		state_impl->clear();
 		if(attached()) {
 
-			user_regs_struct regs;
+			if(!fillStateFromPrStatus(state_impl))
+				fillStateFromSimpleRegs(state_impl);
+
 			long ptraceStatus=0;
-			if((ptraceStatus=ptrace(PTRACE_GETREGS, active_thread(), 0, &regs)) != -1) {
-
-				state_impl->fillFrom(regs);
-
-				if(IS_X86_32_BIT)
-				{
-					struct user_desc desc;
-					std::memset(&desc, 0, sizeof(desc));
-
-					const edb::seg_reg_t fs=state_impl->x86.segRegs[PlatformState::X86::FS];
-					bool fsFromGDT=!(fs&0x04); // otherwise the selector picks descriptor from LDT
-					if(fsFromGDT && ptrace(PTRACE_GET_THREAD_AREA, active_thread(), fs/LDT_ENTRY_SIZE, &desc) != -1) {
-						state_impl->x86.fsBase = desc.base_addr;
-						state_impl->x86.fsBaseFilled=true;
-					}
-					const edb::seg_reg_t gs=state_impl->x86.segRegs[PlatformState::X86::GS];
-					bool gsFromGDT=!(gs&0x04); // otherwise the selector picks descriptor from LDT
-					if(gsFromGDT && ptrace(PTRACE_GET_THREAD_AREA, active_thread(), gs/LDT_ENTRY_SIZE, &desc) != -1) {
-						state_impl->x86.gsBase = desc.base_addr;
-						state_impl->x86.gsBaseFilled=true;
-					}
-				}
-			}
-			else
-				perror("PTRACE_GETREGS failed");
 
 			// First try to get full XSTATE
 			X86XState xstate;

@@ -267,6 +267,62 @@ void PlatformState::fillFrom(const UserFPRegsStructX86_64& regs) {
 	avx.xmmFilled=true;
 }
 
+void PlatformState::fillFrom(const PrStatus_X86& regs)
+{
+	x86.GPRegs[X86::EAX] = regs.eax;
+	x86.GPRegs[X86::ECX] = regs.ecx;
+	x86.GPRegs[X86::EDX] = regs.edx;
+	x86.GPRegs[X86::EBX] = regs.ebx;
+	x86.GPRegs[X86::ESP] = regs.esp;
+	x86.GPRegs[X86::EBP] = regs.ebp;
+	x86.GPRegs[X86::ESI] = regs.esi;
+	x86.GPRegs[X86::EDI] = regs.edi;
+	x86.orig_ax = regs.orig_eax;
+	x86.flags = regs.eflags;
+	x86.IP = regs.eip;
+	x86.segRegs[X86::ES] = regs.es;
+	x86.segRegs[X86::CS] = regs.cs;
+	x86.segRegs[X86::SS] = regs.ss;
+	x86.segRegs[X86::DS] = regs.ds;
+	x86.segRegs[X86::FS] = regs.fs;
+	x86.segRegs[X86::GS] = regs.gs;
+	x86.filled=true;
+}
+
+void PlatformState::fillFrom(const PrStatus_X86_64& regs)
+{
+	x86.GPRegs[X86::RAX] = regs.rax;
+	x86.GPRegs[X86::RCX] = regs.rcx;
+	x86.GPRegs[X86::RDX] = regs.rdx;
+	x86.GPRegs[X86::RBX] = regs.rbx;
+	x86.GPRegs[X86::RSP] = regs.rsp;
+	x86.GPRegs[X86::RBP] = regs.rbp;
+	x86.GPRegs[X86::RSI] = regs.rsi;
+	x86.GPRegs[X86::RDI] = regs.rdi;
+	x86.GPRegs[X86::R8 ] = regs.r8 ;
+	x86.GPRegs[X86::R9 ] = regs.r9 ;
+	x86.GPRegs[X86::R10] = regs.r10;
+	x86.GPRegs[X86::R11] = regs.r11;
+	x86.GPRegs[X86::R12] = regs.r12;
+	x86.GPRegs[X86::R13] = regs.r13;
+	x86.GPRegs[X86::R14] = regs.r14;
+	x86.GPRegs[X86::R15] = regs.r15;
+	x86.orig_ax = regs.orig_rax;
+	x86.flags = regs.rflags;
+	x86.IP = regs.rip;
+	x86.segRegs[X86::ES] = regs.es;
+	x86.segRegs[X86::CS] = regs.cs;
+	x86.segRegs[X86::SS] = regs.ss;
+	x86.segRegs[X86::DS] = regs.ds;
+	x86.segRegs[X86::FS] = regs.fs;
+	x86.segRegs[X86::GS] = regs.gs;
+	x86.filled=true;
+	x86.fsBase = regs.fs_base;
+	x86.fsBaseFilled=true;
+	x86.gsBase = regs.gs_base;
+	x86.gsBaseFilled=true;
+}
+
 void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) {
 	if(sizeFromKernel<X86XState::AVX_SIZE) {
 		// Shouldn't ever happen. If AVX isn't supported, the ptrace call will fail.

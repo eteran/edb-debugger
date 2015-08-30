@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DEBUGGERCORE_20090529_H_
 
 #include "DebuggerCoreUNIX.h"
+#include "PlatformState.h"
 #include <QHash>
 #include <QSet>
 #include <csignal>
@@ -109,7 +110,10 @@ private:
 	void stop_threads();
 	IDebugEvent::const_pointer handle_event(edb::tid_t tid, int status);
 	bool attach_thread(edb::tid_t tid);
-	
+
+	bool fillStateFromPrStatus(PlatformState* state);
+	bool fillStateFromSimpleRegs(PlatformState* state);
+	void fillFSGSBases(PlatformState* state);
 private:
 	struct thread_info {
 		int status;
