@@ -134,7 +134,7 @@ size_t length_disasm_back(const quint8 *buf, size_t size) {
 	quint8 tmp[edb::Instruction::MAX_SIZE * 2];
 	Q_ASSERT(size <= sizeof(tmp));
 
-	int offs = 0;
+	std::size_t offs = 0;
 
 	memcpy(tmp, buf, size);
 

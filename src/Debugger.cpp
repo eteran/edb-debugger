@@ -2545,6 +2545,14 @@ void Debugger::test_native_binary() {
 			"For example a 32-bit binary on x86-64. "
 			"This is not supported yet, so you may need to use a version of edb that was compiled for the same architecture as your target program")
 			);
+		// Although non-native debugging is not fully supported, let's give the user a nicer experience with unsupported feature.
+		// Reinitialize CapstoneEDB to inverse of native bitness
+		CapstoneEDB::init(sizeof(void*)!=8);
+	}
+	else {
+		// Reinitialize CapstoneEDB with native bitness. This is needed when e.g. previous
+		// debugging session was non-native, and the new one is native.
+		CapstoneEDB::init(sizeof(void*)==8);
 	}
 }
 

@@ -499,7 +499,7 @@
           <item>
            <widget class="QRadioButton" name="rdoSytntaxATT">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="text">
              <string>AT&amp;&amp;T</string>

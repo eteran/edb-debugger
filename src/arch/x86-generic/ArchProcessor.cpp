@@ -103,12 +103,7 @@ constexpr const char* const FLAGS_name=IS_X86_32_BIT ? "EFLAGS" : "RFLAGS";
 
 template<typename T>
 std::string register_name(const T& val) {
-#ifdef EDB_X86
-	typedef edisassm::x86 Platform;
-#elif defined EDB_X86_64
-	typedef edisassm::x86_64 Platform;
-#endif
-	return edb::v1::formatter().register_name<Platform>(val);
+	return edb::v1::formatter().register_name(val);
 }
 
 //------------------------------------------------------------------------------
@@ -149,7 +144,7 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 					index=indexR.valueAsAddress();
 
 				// This only makes sense for x86_64, but doesn't hurt on x86
-				if(op.expression().base == edb::Operand::REG_RIP) {
+				if(op.expression().base == edb::Operand::Register::X86_REG_RIP) {
 					base += op.owner()->size();
 				}
 
@@ -390,7 +385,12 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 // Name: is_jcc_taken
 // Desc:
 //------------------------------------------------------------------------------
-bool is_jcc_taken(const State &state, quint8 instruction_byte) {
+bool is_jcc_taken(const State &state, edb::Instruction::ConditionCode cond) {
+
+	if(cond==edb::Instruction::CC_UNCONDITIONAL) return true;
+	if(cond==edb::Instruction::CC_RCXZ) return state.gp_register(Rcx).value<edb::value64>() == 0;
+	if(cond==edb::Instruction::CC_ECXZ) return state.gp_register(Rcx).value<edb::value32>() == 0;
+	if(cond==edb::Instruction::CC_CXZ)  return state.gp_register(Rcx).value<edb::value16>() == 0;
 
 	const edb::reg_t efl = state.flags();
 	const bool cf = (efl & 0x0001) != 0;
@@ -401,7 +401,7 @@ bool is_jcc_taken(const State &state, quint8 instruction_byte) {
 
 	bool taken = false;
 
-	switch(instruction_byte & 0x0e) {
+	switch(cond & 0x0e) {
 	case 0x00:
 		taken = of;
 		break;
@@ -428,7 +428,7 @@ bool is_jcc_taken(const State &state, quint8 instruction_byte) {
 		break;
 	}
 
-	if(instruction_byte & 0x01) {
+	if(cond & 0x01) {
 		taken = !taken;
 	}
 
@@ -441,9 +441,7 @@ bool is_jcc_taken(const State &state, quint8 instruction_byte) {
 //------------------------------------------------------------------------------
 void analyze_cmov(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
-	const quint8 *const buf = inst.bytes();
-
-	const bool taken = is_jcc_taken(state, buf[1 + inst.prefix_size()]);
+	const bool taken = is_jcc_taken(state, inst.condition_code());
 
 	if(taken) {
 		ret << ArchProcessor::tr("move performed");
@@ -460,38 +458,8 @@ void analyze_jump(const State &state, const edb::Instruction &inst, QStringList 
 
 	bool taken = false;
 
-	const quint8 *const buf = inst.bytes();
-
 	if(is_conditional_jump(inst)) {
-
-		if(buf[0 + inst.prefix_size()] == 0xe3) {
-
-			// NOTE: Index Ecx is equal to Rcx
-			if(IS_X86_64_BIT) {
-
-				// either ECX or RCX
-				if(inst.prefix() & edb::Instruction::PREFIX_ADDRESS) {
-					taken = (state.gp_register(Ecx).value<edb::reg_t>() & 0xffffffff) == 0;
-				} else {
-					taken = state.gp_register(Ecx).value<edb::reg_t>() == 0;
-				}
-			} else {
-
-				// either CX or ECX
-				if(inst.prefix() & edb::Instruction::PREFIX_ADDRESS) {
-					taken = (state.gp_register(Ecx).value<edb::reg_t>() & 0xffff) == 0;
-				} else {
-					taken = state.gp_register(Ecx).value<edb::reg_t>() == 0;
-				}
-			}
-		} else {
-			if(inst.size() - inst.prefix_size() == 2) {
-				taken = is_jcc_taken(state, buf[0 + inst.prefix_size()]);
-			} else {
-				taken = is_jcc_taken(state, buf[1 + inst.prefix_size()]);
-			}
-		}
-
+		taken = is_jcc_taken(state, inst.condition_code());
 	}
 
 	if(taken) {
@@ -623,7 +591,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 	Q_UNUSED(inst);
 	
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		for(int j = 0; j < edb::Instruction::MAX_OPERANDS; ++j) {
+		for(std::size_t j = 0; j < edb::Instruction::MAX_OPERANDS; ++j) {
 
 			const edb::Operand &operand = inst.operands()[j];
 
@@ -762,7 +730,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 		QXmlQuery query;
 		QString res;
 		query.setFocus(&file);
-		static const QString arch=IS_X86_32_BIT ? "x86" : "x86-64";
+		const QString arch=CapstoneEDB::isX86_64()? "x86-64" : "x86";
 		// Index Eax is equal to Rax
 		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='"+arch+"']/syscall[index=%1]").arg(state.gp_register(Eax).value<edb::reg_t>()));
 		if (query.isValid()) {
@@ -1153,36 +1121,37 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 				edb::v1::debugger_core->get_state(&state);
 
 				// figure out the instruction type and display some information about it
-				switch(inst.type()) {
-				case edb::Instruction::OP_CMOVCC:
+				// TODO: handle SETcc, LOOPcc, REPcc OP
+				if(inst.is_conditional_move()) {
+
 					analyze_cmov(state, inst, ret);
-					break;
-				case edb::Instruction::OP_RET:
+
+				} else if(inst.is_ret()) {
+
 					analyze_return(state, inst, ret);
-					break;
-				case edb::Instruction::OP_JCC:
-					analyze_jump(state, inst, ret);
-					// FALL THROUGH!
-				case edb::Instruction::OP_JMP:
-				case edb::Instruction::OP_CALL:
+
+				} else if(inst.is_jump() || inst.is_call()) {
+
+					if(is_conditional_jump(inst))
+						analyze_jump(state, inst, ret);
 					analyze_call(state, inst, ret);
-					break;
+				} else if(inst.is_int()) {
 				#ifdef Q_OS_LINUX
-				case edb::Instruction::OP_INT:
-					if(inst.operands()[0].complete_type() == edb::Operand::TYPE_IMMEDIATE8 && (inst.operands()[0].immediate() & 0xff) == 0x80) {
+				   if((inst.operands()[0].immediate() & 0xff) == 0x80) {
+
 						analyze_syscall(state, inst, ret);
 					} else {
+
 						analyze_operands(state, inst, ret);
 					}
-					break;
 				#endif
-				case edb::Instruction::OP_SYSCALL:
-				case edb::Instruction::OP_SYSENTER:
+				} else if (inst.is_syscall() || inst.is_sysenter()) {
+
 					analyze_syscall(state, inst, ret);
-					break;
-				default:
+
+				} else {
+
 					analyze_operands(state, inst, ret);
-					break;
 				}
 
 				analyze_jump_targets(inst, ret);
@@ -1219,13 +1188,13 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 			inst.operands()[2]
 		};
 
-		switch(inst.type()) {
-		case edb::Instruction::OP_NOP:
-		case edb::Instruction::OP_INT3:
+		switch(inst.operation()) {
+		case edb::Instruction::Operation::X86_INS_NOP:
+		case edb::Instruction::Operation::X86_INS_INT3:
 			ret = true;
 			break;
 
-		case edb::Instruction::OP_LEA:
+		case edb::Instruction::Operation::X86_INS_LEA:
 			if(operands[0].valid() && operands[1].valid()) {
 				if(operands[0].general_type() == edb::Operand::TYPE_REGISTER && operands[1].general_type() == edb::Operand::TYPE_EXPRESSION) {
 
@@ -1235,12 +1204,12 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 					reg1 = operands[0].reg();
 
 					if(operands[1].expression().scale == 1) {
-						if(operands[1].expression().u_disp32 == 0) {
+						if(operands[1].expression().displacement == 0) {
 
-							if(operands[1].expression().base == edb::Operand::REG_NULL) {
+							if(operands[1].expression().base == edb::Operand::Register::X86_REG_INVALID) {
 								reg2 = operands[1].expression().index;
 								ret = reg1 == reg2;
-							} else if(operands[1].expression().index == edb::Operand::REG_NULL) {
+							} else if(operands[1].expression().index == edb::Operand::Register::X86_REG_INVALID) {
 								reg2 = operands[1].expression().base;
 								ret = reg1 == reg2;
 							}
@@ -1250,7 +1219,7 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 			}
 			break;
 
-		case edb::Instruction::OP_MOV:
+		case edb::Instruction::Operation::X86_INS_MOV:
 			if(operands[0].valid() && operands[1].valid()) {
 				if(operands[0].general_type() == edb::Operand::TYPE_REGISTER && operands[1].general_type() == edb::Operand::TYPE_REGISTER) {
 					ret = operands[0].reg() == operands[1].reg();

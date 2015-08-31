@@ -106,8 +106,8 @@ void DialogReferences::do_find() {
 						edb::Instruction inst(p, pages_end, addr, std::nothrow);
 
 						if(inst) {
-							switch(inst.type()) {
-							case edb::Instruction::OP_MOV:
+							switch(inst.operation()) {
+							case edb::Instruction::Operation::X86_INS_MOV:
 								// instructions of the form: mov [ADDR], 0xNNNNNNNN
 								Q_ASSERT(inst.operand_count() == 2);
 
@@ -121,7 +121,7 @@ void DialogReferences::do_find() {
 								}
 
 								break;
-							case edb::Instruction::OP_PUSH:
+							case edb::Instruction::Operation::X86_INS_PUSH:
 								// instructions of the form: push 0xNNNNNNNN
 								Q_ASSERT(inst.operand_count() == 1);
 

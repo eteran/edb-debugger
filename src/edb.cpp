@@ -60,7 +60,7 @@ namespace {
 	QAtomicPointer<IAnalyzer>          g_Analyzer          = 0;
 	QHash<QString, QObject *>          g_GeneralPlugins;
 	BinaryInfoList                     g_BinaryInfoList;
-	edisassm::Formatter                g_Formatter;
+	CapstoneEDB::Formatter             g_Formatter;
 
 	QHash<QString, edb::Prototype>     g_FunctionDB;
 
@@ -1281,7 +1281,7 @@ QString disassemble_address(address_t address) {
 // Name: formatter
 // Desc: returns a reference to the global instruction formatter
 //------------------------------------------------------------------------------
-edisassm::Formatter &formatter() {
+CapstoneEDB::Formatter &formatter() {
 	return g_Formatter;
 }
 

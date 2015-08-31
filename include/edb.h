@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IRegion.h"
 #include "IBreakpoint.h"
 #include "Types.h"
+#include "Formatter.h"
 
 #include <QHash>
 #include <QList>
@@ -51,11 +52,6 @@ class QWidget;
 class QString;
 
 struct ExpressionError;
-
-
-namespace edisassm {
-class Formatter;
-}
 
 namespace edb {
 
@@ -201,7 +197,7 @@ EDB_EXPORT int pointer_size();
 
 EDB_EXPORT QVector<quint8> read_pages(address_t address, size_t page_count);
 
-EDB_EXPORT edisassm::Formatter &formatter();
+EDB_EXPORT CapstoneEDB::Formatter &formatter();
 
 }
 }

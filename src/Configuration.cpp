@@ -121,9 +121,11 @@ void Configuration::read_settings() {
 		data_row_width = 16;
 	}
 	
-	edisassm::FormatOptions options = edb::v1::formatter().options();
-	options.capitalization = uppercase_disassembly ? edisassm::UpperCase : edisassm::LowerCase;
-	options.smallNumFormat = small_int_as_decimal  ? edisassm::SmallNumAsDec : edisassm::SmallNumAsHex;
+	CapstoneEDB::init(sizeof(void*)==8); // TODO: properly choose bitness according to target bitness
+	CapstoneEDB::Formatter::FormatOptions options = edb::v1::formatter().options();
+	options.capitalization = uppercase_disassembly ? CapstoneEDB::Formatter::UpperCase : CapstoneEDB::Formatter::LowerCase;
+	options.smallNumFormat = small_int_as_decimal  ? CapstoneEDB::Formatter::SmallNumAsDec : CapstoneEDB::Formatter::SmallNumAsHex;
+	options.syntax=static_cast<CapstoneEDB::Formatter::Syntax>(syntax);
 	edb::v1::formatter().setOptions(options);	
 }
 
