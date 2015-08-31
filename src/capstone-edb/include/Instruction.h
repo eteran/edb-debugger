@@ -256,14 +256,19 @@ private:
 	void checkCapitalize(std::string& str,bool canContainHex=true) const;
 };
 
-}
-
 // TODO: move into Instruction class and remove from global scope
+// NOTE(eteran): moved into the namespace, it'll be found by ADL, so we're all good :-)
+//               so it may not be necessary to remove these after all. Sometimes free
+//               functions can allow more flexibility in the API.
 inline bool is_call(const CapstoneEDB::Instruction& insn) { return insn.is_call(); }
 inline bool is_jump(const CapstoneEDB::Instruction& insn) { return insn.is_jump(); }
 inline bool is_ret(const CapstoneEDB::Instruction& insn) { return insn.is_ret(); }
 inline bool is_terminator(const CapstoneEDB::Instruction& insn) { return insn.is_terminator(); }
 inline bool is_conditional_jump(const CapstoneEDB::Instruction& insn) { return insn.is_conditional_jump(); }
 inline bool is_unconditional_jump(const CapstoneEDB::Instruction& insn) { return insn.is_unconditional_jump(); }
+
+}
+
+
 
 #endif

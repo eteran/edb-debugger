@@ -35,6 +35,11 @@ bool isAMD64=false;
 
 bool isX86_64() { return isAMD64; }
 
+// TODO(eteran): I'm not the biggest fan (though I sometimes do it too) of APIs 
+//               which take booleans, you end up having to check the headers to
+//               know what true/false mean. Since we are going the capstone route,
+//               let's go all in and make this take an enum specifying the mode
+//               it'll be more clear from the call site
 bool init(bool amd64)
 {
 	isAMD64=amd64;
@@ -131,7 +136,9 @@ void adjustInstructionText(Capstone::cs_insn& insn)
 	strcpy(insn.op_str,operands.toStdString().c_str());
 }
 
-Instruction::Instruction(const void* first, const void* last, uint64_t rva, const std::nothrow_t&) throw()
+// TODO(eteran): since Capstone is a C libray and therefore won't throw any exceptions
+//               we can start to migrate away from the nothrow variants of the code
+Instruction::Instruction(const void* first, const void* last, uint64_t rva, const std::nothrow_t&) noexcept
 {
 	assert(capstoneInitialized);
     const uint8_t* codeBegin=static_cast<const uint8_t*>(first);
