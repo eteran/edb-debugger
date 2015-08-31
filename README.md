@@ -23,6 +23,7 @@ following packages:
 
 * Qt >= 4.6
 * Boost >= 1.35 (headers only)
+* Capstone >= 3.0
 
 Many distributions already have packages that satisify these.
 
