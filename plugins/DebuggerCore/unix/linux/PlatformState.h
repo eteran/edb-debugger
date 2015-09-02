@@ -314,7 +314,8 @@ private:
 		std::array<edb::seg_reg_t,SEG_REG_COUNT> segRegs;
 		edb::address_t fsBase;
 		edb::address_t gsBase;
-		bool segBasesFilled=false;
+		bool fsBaseFilled=false;
+		bool gsBaseFilled=false;
 		bool filled=false;
 
 		void clear();
