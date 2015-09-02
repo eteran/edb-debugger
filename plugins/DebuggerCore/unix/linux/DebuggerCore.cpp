@@ -744,6 +744,9 @@ void DebuggerCore::get_state(State *state) {
 			user_regs_struct regs;
 			long ptraceStatus=0;
 			if((ptraceStatus=ptrace(PTRACE_GETREGS, active_thread(), 0, &regs)) != -1) {
+
+				state_impl->fillFrom(regs);
+
 				if(IS_X86_32_BIT)
 				{
 					struct user_desc desc;
@@ -765,8 +768,6 @@ void DebuggerCore::get_state(State *state) {
 					if(fsBaseFilled && gsBaseFilled)
 						state_impl->x86.segBasesFilled=true;
 				}
-
-				state_impl->fillFrom(regs);
 			}
 			else
 				perror("PTRACE_GETREGS failed");
