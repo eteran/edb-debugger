@@ -121,8 +121,9 @@ QTreeWidgetItem *create_register_item(QTreeWidgetItem *parent, const QString &na
 // Name: get_effective_address
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t get_effective_address(const edb::Operand &op, const State &state) {
+edb::address_t get_effective_address(const edb::Operand &op, const State &state, bool& ok) {
 	edb::address_t ret = 0;
+	ok=false;
 
 	// TODO: get registers by index, not string! too slow
 	
@@ -152,13 +153,13 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 
 				if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
 					const Register gsBase=state["gs_base"];
-					if(!gsBase) return ret; // no way to reliably compute address
+					if(!gsBase) return 0; // no way to reliably compute address
 					ret += gsBase.valueAsAddress();
 				}
 
 				if(op.owner()->prefix() & edb::Instruction::PREFIX_FS) {
 					const Register fsBase=state["fs_base"];
-					if(!fsBase) return ret; // no way to reliably compute address
+					if(!fsBase) return 0; // no way to reliably compute address
 					ret += fsBase.valueAsAddress();
 				}
 			} while(0);
@@ -167,13 +168,13 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 			ret = op.absolute().offset;
 			if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
 				const Register gsBase=state["gs_base"];
-				if(!gsBase) return ret; // no way to reliably compute address
+				if(!gsBase) return 0; // no way to reliably compute address
 				ret += gsBase.valueAsAddress();
 			}
 
 			if(op.owner()->prefix() & edb::Instruction::PREFIX_FS) {
 				const Register fsBase=state["fs_base"];
-				if(!fsBase) return ret; // no way to reliably compute address
+				if(!fsBase) return 0; // no way to reliably compute address
 				ret += fsBase.valueAsAddress();
 			}
 			break;
@@ -186,6 +187,7 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 			break;
 		}
 	}
+	ok=true;
 	return ret;
 }
 
@@ -509,7 +511,9 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 
 		if(operand.valid()) {
 		
-			const edb::address_t effective_address = get_effective_address(operand, state);
+			bool ok;
+			const edb::address_t effective_address = get_effective_address(operand, state,ok);
+			if(!ok) return;
 			const QString temp_operand             = QString::fromStdString(edb::v1::formatter().to_string(operand));
 			QString temp;
 
@@ -611,7 +615,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 				case edb::Operand::TYPE_REL:
 					do {
 #if 0
-						const edb::address_t effective_address = get_effective_address(operand, state);
+						bool ok;
+						const edb::address_t effective_address = get_effective_address(operand, state,ok);
+						if(!ok) return;
 						ret << QString("%1 = %2").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
 #endif
 					} while(0);
@@ -651,7 +657,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 					}
 				case edb::Operand::TYPE_EXPRESSION:
 					do {
-						const edb::address_t effective_address = get_effective_address(operand, state);
+						bool ok;
+						const edb::address_t effective_address = get_effective_address(operand, state,ok);
+						if(!ok) return;
 						edb::value128 target;
 
 						if(process->read_bytes(effective_address, &target, sizeof(target))) {
