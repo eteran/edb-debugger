@@ -752,11 +752,15 @@ void DebuggerCore::get_state(State *state) {
 					struct user_desc desc;
 					std::memset(&desc, 0, sizeof(desc));
 
-					if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->x86.segRegs[PlatformState::X86::FS] / LDT_ENTRY_SIZE), &desc) != -1) {
+					const edb::seg_reg_t fs=state_impl->x86.segRegs[PlatformState::X86::FS];
+					bool fsFromGDT=!(fs&0x04); // otherwise the selector picks descriptor from LDT
+					if(fsFromGDT && ptrace(PTRACE_GET_THREAD_AREA, active_thread(), fs/LDT_ENTRY_SIZE, &desc) != -1) {
 						state_impl->x86.fsBase = desc.base_addr;
 						state_impl->x86.fsBaseFilled=true;
 					}
-					if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->x86.segRegs[PlatformState::X86::GS] / LDT_ENTRY_SIZE), &desc) != -1) {
+					const edb::seg_reg_t gs=state_impl->x86.segRegs[PlatformState::X86::GS];
+					bool gsFromGDT=!(gs&0x04); // otherwise the selector picks descriptor from LDT
+					if(gsFromGDT && ptrace(PTRACE_GET_THREAD_AREA, active_thread(), gs/LDT_ENTRY_SIZE, &desc) != -1) {
 						state_impl->x86.gsBase = desc.base_addr;
 						state_impl->x86.gsBaseFilled=true;
 					}
