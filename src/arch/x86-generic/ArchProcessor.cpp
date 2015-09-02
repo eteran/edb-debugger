@@ -1055,20 +1055,21 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	}
 	register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(FLAGS_name).arg(edb::v1::format_pointer(state.flags())));
 
-	register_view_items_[itemNumber++]->setText(0, QString("CS: %1")     .arg(state["cs"].value<edb::seg_reg_t>().toHexString()));
-	register_view_items_[itemNumber++]->setText(0, QString("DS: %1")     .arg(state["ds"].value<edb::seg_reg_t>().toHexString()));
-	register_view_items_[itemNumber++]->setText(0, QString("ES: %1")     .arg(state["es"].value<edb::seg_reg_t>().toHexString()));
-	QString fsStr=QString("FS: %1").arg(state["fs"].value<edb::seg_reg_t>().toHexString());
-	const Register fsBase=state["fs_base"];
-	if(fsBase)
-		fsStr+=QString(" (%1)").arg(fsBase.value<edb::reg_t>().toHexString());
-	QString gsStr=QString("GS: %1").arg(state["gs"].value<edb::seg_reg_t>().toHexString());
-	const Register gsBase=state["gs_base"];
-	if(gsBase)
-		gsStr+=QString(" (%1)").arg(gsBase.value<edb::reg_t>().toHexString());
-	register_view_items_[itemNumber++]->setText(0, fsStr);
-	register_view_items_[itemNumber++]->setText(0, gsStr);
-	register_view_items_[itemNumber++]->setText(0, QString("SS: %1")     .arg(state["ss"].value<edb::seg_reg_t>().toHexString()));
+	const QString usualSegs[]={"es","cs","ss","ds"};
+	for(const QString sreg : usualSegs) {
+		register_view_items_[itemNumber]->setText(0, sreg.toUpper()+QString(": %1").arg(state[sreg].value<edb::seg_reg_t>().toHexString()));
+		register_view_items_[itemNumber++]->setForeground(0, QBrush((state[sreg] != last_state_[sreg]) ? Qt::red : palette.text()));
+	}
+	const QString specialSegs[]={"fs","gs"};
+	const Register bases[]={state["fs_base"],state["gs_base"]};
+	for(std::size_t i=0;i<sizeof(specialSegs)/sizeof(specialSegs[0]);++i) {
+		QString sreg(specialSegs[i]);
+		QString sregStr=sreg.toUpper()+QString(": %1").arg(state[sreg].value<edb::seg_reg_t>().toHexString());
+		if(bases[i])
+			sregStr+=QString(" (%1)").arg(bases[i].value<edb::reg_t>().toHexString());
+		register_view_items_[itemNumber]->setText(0, sregStr);
+		register_view_items_[itemNumber++]->setForeground(0, QBrush((state[sreg] != last_state_[sreg]) ? Qt::red : palette.text()));
+	}
 
 	update_fpu_view(itemNumber,state,palette);
 
