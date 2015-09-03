@@ -203,7 +203,7 @@ QString format_pointer(int pointer_level, edb::reg_t arg, QChar type) {
 	if(arg == 0) {
 		return "NULL";
 	} else {
-		return QString("0x%1").arg(edb::v1::format_pointer(arg));
+		return edb::v1::format_pointer(arg);
 	}
 }
 
@@ -261,14 +261,14 @@ QString format_char(int pointer_level, edb::reg_t arg, QChar type) {
 				int string_length;
 
 				if(edb::v1::get_ascii_string_at_address(arg, string_param, edb::v1::config().min_string_length, 256, string_length)) {
-					return QString("<0x%1> \"%2\"").arg(edb::v1::format_pointer(arg)).arg(string_param);
+					return QString("<%1> \"%2\"").arg(edb::v1::format_pointer(arg)).arg(string_param);
 				} else {
 					char character;
 					process->read_bytes(arg, &character, sizeof(character));
 					if(character == '\0') {
-						return QString("<0x%1> \"\"").arg(edb::v1::format_pointer(arg));
+						return QString("<%1> \"\"").arg(edb::v1::format_pointer(arg));
 					} else {
-						return QString("<0x%1>").arg(edb::v1::format_pointer(arg));
+						return QString("<%1>").arg(edb::v1::format_pointer(arg));
 					}
 				}
 			}
@@ -720,7 +720,7 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 					const edb::address_t target = operand.relative_target();
 
 					if(target == address) {
-						ret << ArchProcessor::tr("possible jump from 0x%1").arg(edb::v1::format_pointer(addr));
+						ret << ArchProcessor::tr("possible jump from %1").arg(edb::v1::format_pointer(addr));
 					}
 				}
 			}

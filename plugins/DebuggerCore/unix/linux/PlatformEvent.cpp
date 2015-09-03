@@ -62,14 +62,14 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 			return Message(
 				tr("Illegal Access Fault"),
 				tr(
-					"<p>The debugged application encountered a segmentation fault.<br />The address <strong>0x%1</strong> does not appear to be mapped.</p>"
+					"<p>The debugged application encountered a segmentation fault.<br />The address <strong>%1</strong> does not appear to be mapped.</p>"
 					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>").arg(edb::v1::format_pointer(fault_address))
 				);
 		case SEGV_ACCERR:
 			return Message(
 				tr("Illegal Access Fault"),
 				tr(
-					"<p>The debugged application encountered a segmentation fault.<br />The address <strong>0x%1</strong> could not be accessed.</p>"
+					"<p>The debugged application encountered a segmentation fault.<br />The address <strong>%1</strong> could not be accessed.</p>"
 					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>").arg(edb::v1::format_pointer(fault_address))
 				);
 		default:
