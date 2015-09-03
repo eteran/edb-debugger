@@ -950,8 +950,11 @@ void ArchProcessor::update_fpu_view(int& itemNumber, const State &state, const Q
 				valueString=" "+current.toString();
 		}
 
+		bool changed=current != prev;
+		QPalette::ColorGroup colGroup(empty ? QPalette::Disabled : QPalette::Normal);
+		QBrush textColor(changed ? Qt::red : palette.brush(colGroup,QPalette::Text));
 		register_view_items_[itemNumber]->setText(0, QString("%1R%2: %3 %4%5%6").arg(fpuTop==i?"=>":"  ").arg(i).arg(tag.leftJustified(8)).arg(current.toHexString()).arg(valueString).arg(typeString));
-		register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
+		register_view_items_[itemNumber++]->setForeground(0, textColor);
 	}
 	edb::value16 controlWord=state.fpu_control_word();
 	int controlWordValue=controlWord;
