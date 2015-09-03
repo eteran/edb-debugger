@@ -906,11 +906,11 @@ void ArchProcessor::update_register(QTreeWidgetItem *item, const QString &name_,
 	const QString name=IS_X86_64_BIT ? name_.leftJustified(3) : name_;
 
 	if(edb::v1::get_ascii_string_at_address(value, reg_string, edb::v1::config().min_string_length, 256, string_length)) {
-		item->setText(0, QString("%1: %2 ASCII \"%3\"").arg(name, edb::v1::format_pointer(value), reg_string));
+		item->setText(0, QString("%1: %2 ASCII \"%3\"").arg(name, value.toHexString(), reg_string));
 	} else if(edb::v1::get_utf16_string_at_address(value, reg_string, edb::v1::config().min_string_length, 256, string_length)) {
-		item->setText(0, QString("%1: %2 UTF16 \"%3\"").arg(name, edb::v1::format_pointer(value), reg_string));
+		item->setText(0, QString("%1: %2 UTF16 \"%3\"").arg(name, value.toHexString(), reg_string));
 	} else {
-		item->setText(0, QString("%1: %2").arg(name, edb::v1::format_pointer(value)));
+		item->setText(0, QString("%1: %2").arg(name, value.toHexString()));
 	}
 }
 
@@ -1049,11 +1049,11 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
 
 	if(!symname.isEmpty()) {
-		register_view_items_[itemNumber++]->setText(0, QString("%0: %1 <%2>").arg(IP_name).arg(edb::v1::format_pointer(state.instruction_pointer())).arg(symname));
+		register_view_items_[itemNumber++]->setText(0, QString("%0: %1 <%2>").arg(IP_name).arg(state.instruction_pointer().toHexString()).arg(symname));
 	} else {
-		register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(IP_name).arg(edb::v1::format_pointer(state.instruction_pointer())));
+		register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(IP_name).arg(state.instruction_pointer().toHexString()));
 	}
-	register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(FLAGS_name).arg(edb::v1::format_pointer(state.flags())));
+	register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(FLAGS_name).arg(state.flags().toHexString()));
 
 	const QString usualSegs[]={"es","cs","ss","ds"};
 	for(const QString sreg : usualSegs) {
