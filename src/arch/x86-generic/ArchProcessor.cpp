@@ -1015,12 +1015,18 @@ void ArchProcessor::update_fpu_view(int& itemNumber, const State &state, const Q
 	if(invalidOperationException && stackFault) {
 		stackFaultDetail=C1?" (stack overflow)":" (stack underflow)";
 	}
-	register_view_items_[itemNumber++]->setText(0, QString("Control Word: %1   %2").arg(controlWord.toHexString()).arg(exceptionMaskString));
-	register_view_items_[itemNumber++]->setText(0, QString("  PC: %1").arg(precisionMode));
-	register_view_items_[itemNumber++]->setText(0, QString("  RC: %1").arg(roundingMode));
-	register_view_items_[itemNumber++]->setText(0, QString("Status Word: %1   %2%3%4").arg(statusWord.toHexString()).arg(exceptionsHappenedString).arg(fpuBusyString).arg(stackFaultDetail));
-	register_view_items_[itemNumber++]->setText(0, QString("  TOP: %1").arg(fpuTop));
-	register_view_items_[itemNumber++]->setText(0, QString("Tag Word: %1").arg(state.fpu_tag_word().toHexString()));
+	register_view_items_[itemNumber]->setText(0, QString("Control Word: %1   %2").arg(controlWord.toHexString()).arg(exceptionMaskString));
+	register_view_items_[itemNumber++]->setForeground(0, QBrush(controlWord != last_state_.fpu_control_word() ? Qt::red : palette.text()));
+	register_view_items_[itemNumber]->setText(0, QString("  PC: %1").arg(precisionMode));
+	register_view_items_[itemNumber++]->setForeground(0, QBrush((controlWord&(3<<10)) != (last_state_.fpu_control_word()&(3<<10)) ? Qt::red : palette.text()));
+	register_view_items_[itemNumber]->setText(0, QString("  RC: %1").arg(roundingMode));
+	register_view_items_[itemNumber++]->setForeground(0, QBrush((controlWord&(3<<8)) != (last_state_.fpu_control_word()&(3<<8)) ? Qt::red : palette.text()));
+	register_view_items_[itemNumber]->setText(0, QString("Status Word: %1   %2%3%4").arg(statusWord.toHexString()).arg(exceptionsHappenedString).arg(fpuBusyString).arg(stackFaultDetail));
+	register_view_items_[itemNumber++]->setForeground(0, QBrush(statusWord != last_state_.fpu_status_word() ? Qt::red : palette.text()));
+	register_view_items_[itemNumber]->setText(0, QString("  TOP: %1").arg(fpuTop));
+	register_view_items_[itemNumber++]->setForeground(0, QBrush(fpuTop != last_state_.fpu_stack_pointer() ? Qt::red : palette.text()));
+	register_view_items_[itemNumber]->setText(0, QString("Tag Word: %1").arg(state.fpu_tag_word().toHexString()));
+	register_view_items_[itemNumber++]->setForeground(0, QBrush(state.fpu_tag_word() != last_state_.fpu_tag_word() ? Qt::red : palette.text()));
 }
 
 //------------------------------------------------------------------------------
