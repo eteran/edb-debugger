@@ -695,6 +695,9 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 		*err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
 	}
 
+	// FIXME: should this really return segment base, not selector?
+	// FIXME: if it's really meant to return base, then need to check whether
+	//        State::operator[]() returned valid Register
 	if(reg.name() == "fs") {
 		return state["fs_base"].value<reg_t>();
 	} else if(reg.name() == "gs") {

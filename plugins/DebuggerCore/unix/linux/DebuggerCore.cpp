@@ -744,29 +744,27 @@ void DebuggerCore::get_state(State *state) {
 			user_regs_struct regs;
 			long ptraceStatus=0;
 			if((ptraceStatus=ptrace(PTRACE_GETREGS, active_thread(), 0, &regs)) != -1) {
+
+				state_impl->fillFrom(regs);
+
 				if(IS_X86_32_BIT)
 				{
 					struct user_desc desc;
 					std::memset(&desc, 0, sizeof(desc));
 
-					bool fsBaseFilled=false, gsBaseFilled=false;
-					if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->x86.segRegs[PlatformState::X86::FS] / LDT_ENTRY_SIZE), &desc) != -1) {
+					const edb::seg_reg_t fs=state_impl->x86.segRegs[PlatformState::X86::FS];
+					bool fsFromGDT=!(fs&0x04); // otherwise the selector picks descriptor from LDT
+					if(fsFromGDT && ptrace(PTRACE_GET_THREAD_AREA, active_thread(), fs/LDT_ENTRY_SIZE, &desc) != -1) {
 						state_impl->x86.fsBase = desc.base_addr;
-						fsBaseFilled=true;
-					} else {
-						state_impl->x86.fsBase = 0;
+						state_impl->x86.fsBaseFilled=true;
 					}
-					if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->x86.segRegs[PlatformState::X86::GS] / LDT_ENTRY_SIZE), &desc) != -1) {
+					const edb::seg_reg_t gs=state_impl->x86.segRegs[PlatformState::X86::GS];
+					bool gsFromGDT=!(gs&0x04); // otherwise the selector picks descriptor from LDT
+					if(gsFromGDT && ptrace(PTRACE_GET_THREAD_AREA, active_thread(), gs/LDT_ENTRY_SIZE, &desc) != -1) {
 						state_impl->x86.gsBase = desc.base_addr;
-						gsBaseFilled=true;
-					} else {
-						state_impl->x86.gsBase = 0;
+						state_impl->x86.gsBaseFilled=true;
 					}
-					if(fsBaseFilled && gsBaseFilled)
-						state_impl->x86.segBasesFilled=true;
 				}
-
-				state_impl->fillFrom(regs);
 			}
 			else
 				perror("PTRACE_GETREGS failed");

@@ -260,8 +260,9 @@ void PlatformState::fillFrom(const UserRegsStructX86_64& regs) {
 	x86.segRegs[X86::GS] = regs.gs;
 	x86.filled=true;
 	x86.fsBase = regs.fs_base;
+	x86.fsBaseFilled=true;
 	x86.gsBase = regs.gs_base;
-	x86.segBasesFilled=true;
+	x86.gsBaseFilled=true;
 }
 void PlatformState::fillFrom(const UserFPRegsStructX86_64& regs) {
 	x87.statusWord=regs.swd; // should be first for RIndexToSTIndex() to work
@@ -455,7 +456,8 @@ void PlatformState::AVX::setZMM(std::size_t index, edb::value512 value) {
 void PlatformState::X86::clear() {
 	util::markMemory(this,sizeof(*this));
 	filled=false;
-	segBasesFilled=false;
+	fsBaseFilled=false;
+	gsBaseFilled=false;
 }
 
 bool PlatformState::X86::empty() const {
@@ -562,9 +564,9 @@ Register PlatformState::value(const QString &reg) const {
 			return found;
 		if(!!(found=findRegisterValue(x86.segRegNames, x86.segRegs, regName, Register::TYPE_SEG)))
 			return found;
-		if(regName==x86.fsBaseName)
+		if(regName==x86.fsBaseName && x86.fsBaseFilled)
 			return make_Register(x86.fsBaseName, x86.fsBase, Register::TYPE_SEG); // FIXME: it's not a segment register, it's an address
-		if(regName==x86.gsBaseName)
+		if(regName==x86.gsBaseName && x86.gsBaseFilled)
 			return make_Register(x86.gsBaseName, x86.gsBase, Register::TYPE_SEG); // FIXME: it's not a segment register, it's an address
 		if(regName==x86.flagsName)
 			return make_Register(x86.flagsName, x86.flags, Register::TYPE_COND);

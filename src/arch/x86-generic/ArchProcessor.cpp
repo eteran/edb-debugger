@@ -121,8 +121,9 @@ QTreeWidgetItem *create_register_item(QTreeWidgetItem *parent, const QString &na
 // Name: get_effective_address
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t get_effective_address(const edb::Operand &op, const State &state) {
+edb::address_t get_effective_address(const edb::Operand &op, const State &state, bool& ok) {
 	edb::address_t ret = 0;
+	ok=false;
 
 	// TODO: get registers by index, not string! too slow
 	
@@ -151,22 +152,30 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 				ret = base + index * op.expression().scale + op.displacement();
 
 				if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
-					ret += state["gs_base"].valueAsAddress();
+					const Register gsBase=state["gs_base"];
+					if(!gsBase) return 0; // no way to reliably compute address
+					ret += gsBase.valueAsAddress();
 				}
 
 				if(op.owner()->prefix() & edb::Instruction::PREFIX_FS) {
-					ret += state["fs_base"].valueAsAddress();
+					const Register fsBase=state["fs_base"];
+					if(!fsBase) return 0; // no way to reliably compute address
+					ret += fsBase.valueAsAddress();
 				}
 			} while(0);
 			break;
 		case edb::Operand::TYPE_ABSOLUTE:
 			ret = op.absolute().offset;
 			if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
-				ret += state["gs_base"].valueAsAddress();
+				const Register gsBase=state["gs_base"];
+				if(!gsBase) return 0; // no way to reliably compute address
+				ret += gsBase.valueAsAddress();
 			}
 
 			if(op.owner()->prefix() & edb::Instruction::PREFIX_FS) {
-				ret += state["fs_base"].valueAsAddress();
+				const Register fsBase=state["fs_base"];
+				if(!fsBase) return 0; // no way to reliably compute address
+				ret += fsBase.valueAsAddress();
 			}
 			break;
 		case edb::Operand::TYPE_IMMEDIATE:
@@ -178,6 +187,7 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state)
 			break;
 		}
 	}
+	ok=true;
 	return ret;
 }
 
@@ -501,7 +511,9 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 
 		if(operand.valid()) {
 		
-			const edb::address_t effective_address = get_effective_address(operand, state);
+			bool ok;
+			const edb::address_t effective_address = get_effective_address(operand, state,ok);
+			if(!ok) return;
 			const QString temp_operand             = QString::fromStdString(edb::v1::formatter().to_string(operand));
 			QString temp;
 
@@ -603,7 +615,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 				case edb::Operand::TYPE_REL:
 					do {
 #if 0
-						const edb::address_t effective_address = get_effective_address(operand, state);
+						bool ok;
+						const edb::address_t effective_address = get_effective_address(operand, state,ok);
+						if(!ok) return;
 						ret << QString("%1 = %2").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
 #endif
 					} while(0);
@@ -643,7 +657,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 					}
 				case edb::Operand::TYPE_EXPRESSION:
 					do {
-						const edb::address_t effective_address = get_effective_address(operand, state);
+						bool ok;
+						const edb::address_t effective_address = get_effective_address(operand, state,ok);
+						if(!ok) return;
 						edb::value128 target;
 
 						if(process->read_bytes(effective_address, &target, sizeof(target))) {
@@ -1042,8 +1058,16 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	register_view_items_[itemNumber++]->setText(0, QString("CS: %1")     .arg(state["cs"].value<edb::seg_reg_t>().toHexString()));
 	register_view_items_[itemNumber++]->setText(0, QString("DS: %1")     .arg(state["ds"].value<edb::seg_reg_t>().toHexString()));
 	register_view_items_[itemNumber++]->setText(0, QString("ES: %1")     .arg(state["es"].value<edb::seg_reg_t>().toHexString()));
-	register_view_items_[itemNumber++]->setText(0, QString("FS: %1 (%2)").arg(state["fs"].value<edb::seg_reg_t>().toHexString()).arg(edb::v1::format_pointer(state["fs_base"].value<edb::reg_t>())));
-	register_view_items_[itemNumber++]->setText(0, QString("GS: %1 (%2)").arg(state["gs"].value<edb::seg_reg_t>().toHexString()).arg(edb::v1::format_pointer(state["gs_base"].value<edb::reg_t>())));
+	QString fsStr=QString("FS: %1").arg(state["fs"].value<edb::seg_reg_t>().toHexString());
+	const Register fsBase=state["fs_base"];
+	if(fsBase)
+		fsStr+=QString(" (%1)").arg(fsBase.value<edb::reg_t>().toHexString());
+	QString gsStr=QString("GS: %1").arg(state["gs"].value<edb::seg_reg_t>().toHexString());
+	const Register gsBase=state["gs_base"];
+	if(gsBase)
+		gsStr+=QString(" (%1)").arg(gsBase.value<edb::reg_t>().toHexString());
+	register_view_items_[itemNumber++]->setText(0, fsStr);
+	register_view_items_[itemNumber++]->setText(0, gsStr);
 	register_view_items_[itemNumber++]->setText(0, QString("SS: %1")     .arg(state["ss"].value<edb::seg_reg_t>().toHexString()));
 
 	update_fpu_view(itemNumber,state,palette);
