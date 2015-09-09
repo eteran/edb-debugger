@@ -1097,7 +1097,7 @@ quint64 DebuggerCore::cpu_type() const {
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::format_pointer(edb::address_t address) const {
-	return address.toHexString();
+	return "0x"+address.toHexString();
 }
 
 //------------------------------------------------------------------------------

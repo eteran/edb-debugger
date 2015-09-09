@@ -1124,7 +1124,7 @@ void Debugger::follow_memory(edb::address_t address, F follow_func) {
 	if(!follow_func(address)) {
 		QMessageBox::information(this,
 			tr("No Memory Found"),
-			tr("There appears to be no memory at that location (<strong>0x%1</strong>)").arg(edb::v1::format_pointer(address)));
+			tr("There appears to be no memory at that location (<strong>%1</strong>)").arg(edb::v1::format_pointer(address)));
 	}
 }
 
@@ -1138,7 +1138,7 @@ void Debugger::follow_register_in_dump(bool tabbed) {
 	if(ok && !edb::v1::dump_data(address, tabbed)) {
 		QMessageBox::information(this,
 			tr("No Memory Found"),
-			tr("There appears to be no memory at that location (<strong>0x%1</strong>)").arg(edb::v1::format_pointer(address)));
+			tr("There appears to be no memory at that location (<strong>%1</strong>)").arg(edb::v1::format_pointer(address)));
 	}
 }
 
