@@ -445,7 +445,6 @@
       <zorder>chkWarnDataBreakpoint</zorder>
       <zorder>chkFindMain</zorder>
       <zorder>groupBox_4</zorder>
-      <zorder>label_5</zorder>
       <zorder>chkDeleteStaleSymbols</zorder>
      </widget>
      <widget class="QWidget" name="tab_6">
@@ -525,6 +524,9 @@
        </item>
        <item>
         <widget class="QCheckBox" name="chkSmallIntAsDecimal">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
          <property name="text">
           <string>Display small integers in decimal</string>
          </property>
