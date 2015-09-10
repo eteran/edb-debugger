@@ -1022,8 +1022,10 @@ QByteArray get_file_md5(const QString &s) {
 	QFile file(s);
 	file.open(QIODevice::ReadOnly);
 	if(file.isOpen()) {
-		const QByteArray file_bytes = file.readAll();
-		return get_md5(file_bytes.data(), file_bytes.size());
+		if(file.size() != 0) {
+			const QByteArray file_bytes = file.readAll();
+			return get_md5(file_bytes.data(), file_bytes.size());
+		}
 	}
 
 	return QByteArray();
