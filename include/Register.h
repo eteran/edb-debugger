@@ -72,6 +72,8 @@ public:
 		return result;
 	}
 
+	QString toHexString() const;
+
 private:
 	bool valid() const { return type_ != TYPE_INVALID; }
 
