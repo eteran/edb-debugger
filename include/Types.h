@@ -226,7 +226,7 @@ struct Value80 : public ValueBase<16,5> {
 		}
 		else if(exponent==0x0000)
 		{
-			if(mantissa==0)
+			if(mantissa==0u)
 				return FloatType::Zero;
 			else
 			{
