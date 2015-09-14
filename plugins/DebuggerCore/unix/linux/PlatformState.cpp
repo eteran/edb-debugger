@@ -661,6 +661,16 @@ Register PlatformState::value(const QString &reg) const {
 				return make_Register(regName, avx.xmm(i), Register::TYPE_SIMD);
 		}
 	}
+	if(avx.ymmFilled) {
+		QRegExp YMMx("^ymm([0-9]|1[0-5])$");
+		if(YMMx.indexIn(regName)!=-1) {
+			bool ok=false;
+			std::size_t i=YMMx.cap(1).toUShort(&ok);
+			assert(ok);
+			if(ymmIndexValid(i)) // May be invalid but legitimate for a disassembler: e.g. YMM13 but 32 bit mode
+				return make_Register(regName, avx.ymm(i), Register::TYPE_SIMD);
+		}
+	}
 	if(avx.xmmFilled && regName==avx.mxcsrName)
 		return make_Register(avx.mxcsrName, avx.mxcsr, Register::TYPE_COND);
 	return Register();
