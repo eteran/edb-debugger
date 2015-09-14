@@ -876,27 +876,33 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 // Name: mmx_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::value64 PlatformState::mmx_register(int n) const {
-	assert(mmxIndexValid(n));
-	return x87.R[n].mantissa();
+Register PlatformState::mmx_register(size_t n) const {
+	if(!mmxIndexValid(n))
+		return Register();
+	edb::value64 value(x87.R[n].mantissa());
+	return make_Register(QString("mm%1").arg(n),value,Register::TYPE_SIMD);
 }
 
 //------------------------------------------------------------------------------
 // Name: xmm_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::value128 PlatformState::xmm_register(int n) const {
-    assert(xmmIndexValid(n));
-	return avx.xmm(n);
+Register PlatformState::xmm_register(size_t n) const {
+	if(!xmmIndexValid(n))
+		return Register();
+	edb::value128 value(avx.xmm(n));
+	return make_Register(QString("xmm%1").arg(n),value,Register::TYPE_SIMD);
 }
 
 //------------------------------------------------------------------------------
 // Name: ymm_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::value256 PlatformState::ymm_register(int n) const {
-    assert(ymmIndexValid(n));
-	return avx.ymm(n);
+Register PlatformState::ymm_register(size_t n) const {
+	if(!ymmIndexValid(n))
+		return Register();
+	edb::value256 value(avx.ymm(n));
+	return make_Register(QString("ymm%1").arg(n),value,Register::TYPE_SIMD);
 }
 
 }

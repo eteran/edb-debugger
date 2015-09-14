@@ -315,33 +315,33 @@ QString State::fpu_register_tag_string(std::size_t n) const {
 // Name: mmx_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::value64 State::mmx_register(int n) const {
+Register State::mmx_register(std::size_t n) const {
 	if(impl_) {
 		return impl_->mmx_register(n);
 	}
-	return edb::value64(0LL);
+	return Register();
 }
 
 //------------------------------------------------------------------------------
 // Name: xmm_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::value128 State::xmm_register(int n) const {
+Register State::xmm_register(std::size_t n) const {
 	if(impl_) {
 		return impl_->xmm_register(n);
 	}
-	return edb::value128();
+	return Register();
 }
 
 //------------------------------------------------------------------------------
 // Name: xmm_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::value256 State::ymm_register(int n) const {
+Register State::ymm_register(std::size_t n) const {
 	if(impl_) {
 		return impl_->ymm_register(n);
 	}
-	return edb::value256();
+	return Register();
 }
 
 //------------------------------------------------------------------------------

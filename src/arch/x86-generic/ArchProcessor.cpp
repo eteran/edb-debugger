@@ -1070,8 +1070,8 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 
 	if(has_mmx_) {
 		for(int i = 0; i < 8; ++i) {
-			const edb::value64 current = state.mmx_register(i);
-			const edb::value64 prev    = last_state_.mmx_register(i);
+			const Register current = state.mmx_register(i);
+			const Register prev    = last_state_.mmx_register(i);
 			register_view_items_[itemNumber]->setText(0, QString("MM%1: %2").arg(i).arg(current.toHexString()));
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
@@ -1080,15 +1080,15 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	int padding=debuggeeIs64Bit() ? -2 : -1;
 	if(has_ymm_) {
 		for(std::size_t i = 0; i < ymm_reg_count(); ++i) {
-			const edb::value256 current = state.ymm_register(i);
-			const edb::value256 prev    = last_state_.ymm_register(i);
+			const Register current = state.ymm_register(i);
+			const Register prev    = last_state_.ymm_register(i);
 			register_view_items_[itemNumber]->setText(0, QString("YMM%1: %2").arg(i, padding).arg(current.toHexString()));
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 	} else if(has_xmm_) {
 		for(std::size_t i = 0; i < xmm_reg_count(); ++i) {
-			const edb::value128 current = state.xmm_register(i);
-			const edb::value128 prev    = last_state_.xmm_register(i);
+			const Register current = state.xmm_register(i);
+			const Register prev    = last_state_.xmm_register(i);
 			register_view_items_[itemNumber]->setText(0, QString("XMM%1: %2").arg(i, padding).arg(current.toHexString()));
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
