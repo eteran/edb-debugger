@@ -45,6 +45,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
+using std::size_t;
+
 enum RegisterIndex {
 	Rax  = 0, Eax  = Rax,
 	Rcx  = 1, Ecx  = Rcx,
@@ -54,23 +56,24 @@ enum RegisterIndex {
 	Rbp  = 5, Ebp  = Rbp,
 	Rsi  = 6, Esi  = Rsi,
 	Rdi  = 7, Edi  = Rdi,
-	R8   = 8, Eip  = R8, // XXX: this is ugly
+	R8   = 8,
 	R9   = 9,
 	R10  = 10,
 	R11  = 11,
 	R12  = 12,
 	R13  = 13,
 	R14  = 14,
-	R15  = 15,
-	RIP  = 16
+	R15  = 15
 };
 
-constexpr int FUNC_PARAM_REGS_COUNT=IS_X86_32_BIT ? 0 : 6;
-static constexpr std::size_t GPR_COUNT=IS_X86_32_BIT ? 8 : 16;
-static constexpr std::size_t XMM_REG_COUNT=GPR_COUNT;
-static constexpr std::size_t YMM_REG_COUNT=GPR_COUNT;
-const std::array<const char*,GPR_COUNT> GPRegNames={
-#ifdef EDB_X86
+static constexpr size_t GPR_COUNT_IA32=8;
+static constexpr size_t GPR_COUNT_AMD64=16;
+bool debuggeeIs32Bit() { return edb::v1::pointer_size()==4; }
+bool debuggeeIs64Bit() { return edb::v1::pointer_size()==8; }
+size_t gpr_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
+size_t xmm_reg_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
+size_t ymm_reg_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
+const std::array<const char*,GPR_COUNT_IA32> GPReg32Names={
 	"EAX",
 	"ECX",
 	"EDX",
@@ -79,7 +82,8 @@ const std::array<const char*,GPR_COUNT> GPRegNames={
 	"EBP",
 	"ESI",
 	"EDI"
-#elif defined EDB_X86_64
+};
+const std::array<const char*,GPR_COUNT_AMD64> GPReg64Names={
 	"RAX",
 	"RCX",
 	"RDX",
@@ -96,10 +100,11 @@ const std::array<const char*,GPR_COUNT> GPRegNames={
 	"R13",
 	"R14",
 	"R15"
-#endif
 };
-constexpr const char* const IP_name=IS_X86_32_BIT ? "EIP" : "RIP";
-constexpr const char* const FLAGS_name=IS_X86_32_BIT ? "EFLAGS" : "RFLAGS";
+const char* GPRegName(size_t n) { return debuggeeIs32Bit() ? GPReg32Names[n] : GPReg64Names[n]; }
+const char* IP_name() { return debuggeeIs32Bit() ? "EIP" : "RIP"; }
+const char* FLAGS_name() { return debuggeeIs32Bit() ? "EFLAGS" : "RFLAGS"; }
+int func_param_regs_count() { return debuggeeIs32Bit() ? 0 : 6; }
 
 template<typename T>
 std::string register_name(const T& val) {
@@ -130,7 +135,7 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state,
 	if(op.valid()) {
 		switch(op.general_type()) {
 		case edb::Operand::TYPE_REGISTER:
-			ret = state[QString::fromStdString(edb::v1::formatter().to_string(op))].value<edb::reg_t>();
+			ret = state[QString::fromStdString(edb::v1::formatter().to_string(op))].valueAsAddress();
 			break;
 		case edb::Operand::TYPE_EXPRESSION:
 			do {
@@ -343,17 +348,14 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 	 * calling convention, additional arguments are pushed onto the stack and
 	 * the return value is stored in RAX.
 	 */
-	static const char *const parameter_registers[FUNC_PARAM_REGS_COUNT] = {
-	#ifdef EDB_X86
-	#elif defined EDB_X86_64
+	const std::vector<const char *> parameter_registers = ( debuggeeIs64Bit() ? std::vector<const char*>{
 		"rdi",
 		"rsi",
 		"rdx",
 		"rcx",
 		"r8",
-		"r9"
-	#endif
-	};
+		"r9" } :
+	std::vector<const char*>{} );
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		// we will always be removing the last 2 chars '+0' from the string as well
@@ -375,8 +377,8 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 			for(edb::Argument argument: info->arguments) {
 
 				edb::reg_t arg;
-				if(i+1 > FUNC_PARAM_REGS_COUNT) {
-					size_t arg_i_position=(i - FUNC_PARAM_REGS_COUNT) * sizeof(edb::reg_t);
+				if(i+1 > func_param_regs_count()) {
+					size_t arg_i_position=(i - func_param_regs_count()) * sizeof(edb::reg_t);
 					process->read_bytes(state.stack_pointer() + offset + arg_i_position, &arg, sizeof(arg));
 				} else {
 					arg = state[parameter_registers[i]].value<edb::reg_t>();
@@ -626,32 +628,8 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 					{
 						Register reg=state[QString::fromStdString(edb::v1::formatter().to_string(operand))];
 						QString valueString;
-						if(!reg) {
-							valueString = ArchProcessor::tr("(Error: obtained invalid register value from State)");
-						} else {
-							switch(reg.bitSize()) {
-							case 8:
-								valueString=reg.value<edb::value8>().toHexString();
-								break;
-							case 16:
-								valueString=reg.value<edb::value16>().toHexString();
-								break;
-							case 32:
-								valueString=reg.value<edb::value32>().toHexString();
-								break;
-							case 64:
-								valueString=reg.value<edb::value64>().toHexString();
-								break;
-							case 80:
-								valueString=reg.value<edb::value80>().toHexString();
-								break;
-							case 128:
-								valueString=reg.value<edb::value128>().toHexString();
-								break;
-							default:
-								valueString = ArchProcessor::tr("(Error: unexpected register size %1)").arg(reg.bitSize());
-							}
-						}
+						if(!reg) valueString = ArchProcessor::tr("(Error: obtained invalid register value from State)");
+						else valueString = reg.toHexString();
 						ret << QString("%1 = %2").arg(temp_operand).arg(valueString);
 						break;
 					}
@@ -746,7 +724,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 		QXmlQuery query;
 		QString res;
 		query.setFocus(&file);
-		const QString arch=CapstoneEDB::isX86_64()? "x86-64" : "x86";
+		const QString arch=debuggeeIs64Bit() ? "x86-64" : "x86";
 		// Index Eax is equal to Rax
 		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='"+arch+"']/syscall[index=%1]").arg(state.gp_register(Eax).value<edb::reg_t>()));
 		if (query.isValid()) {
@@ -796,6 +774,9 @@ ArchProcessor::ArchProcessor() : split_flags_(0) {
 //------------------------------------------------------------------------------
 void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 
+	category_list->clear();
+	register_view_items_.clear();
+
 	if(edb::v1::debugger_core) {
 		State state;
 
@@ -803,10 +784,10 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 
 		// setup the register view
 		if(QTreeWidgetItem *const gpr = category_list->addCategory(tr("General Purpose"))) {
-			for(std::size_t i=0;i<GPR_COUNT;++i)
-				register_view_items_.push_back(create_register_item(gpr, GPRegNames[i]));
-			register_view_items_.push_back(create_register_item(gpr, IP_name));
-			register_view_items_.push_back(create_register_item(gpr, FLAGS_name));
+			for(std::size_t i=0;i<gpr_count();++i)
+				register_view_items_.push_back(create_register_item(gpr, GPRegName(i)));
+			register_view_items_.push_back(create_register_item(gpr, IP_name()));
+			register_view_items_.push_back(create_register_item(gpr, FLAGS_name()));
 
 			// split [ER]FLAGS view
 			split_flags_ = new QTreeWidgetItem(register_view_items_.back());
@@ -865,13 +846,13 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 
 		if(has_ymm_) {
 			if(QTreeWidgetItem *const ymm = category_list->addCategory(tr("AVX"))) {
-				for(std::size_t i=0;i<YMM_REG_COUNT;++i)
+				for(std::size_t i=0;i<ymm_reg_count();++i)
 					register_view_items_.push_back(create_register_item(ymm, QString("YMM%1").arg(i)));
 				register_view_items_.push_back(create_register_item(ymm, "mxcsr"));
 			}
 		} else if(has_xmm_) {
 			if(QTreeWidgetItem *const xmm = category_list->addCategory(tr("SSE"))) {
-				for(std::size_t i=0;i<XMM_REG_COUNT;++i)
+				for(std::size_t i=0;i<xmm_reg_count();++i)
 					register_view_items_.push_back(create_register_item(xmm, QString("XMM%1").arg(i)));
 				register_view_items_.push_back(create_register_item(xmm, "mxcsr"));
 			}
@@ -903,7 +884,7 @@ void ArchProcessor::update_register(QTreeWidgetItem *item, const QString &name_,
 	QString reg_string;
 	int string_length;
 	const edb::reg_t value = reg.value<edb::reg_t>();
-	const QString name=IS_X86_64_BIT ? name_.leftJustified(3) : name_;
+	const QString name=debuggeeIs64Bit() ? name_.leftJustified(3) : name_;
 
 	if(edb::v1::get_ascii_string_at_address(value, reg_string, edb::v1::config().min_string_length, 256, string_length)) {
 		item->setText(0, QString("%1: %2 ASCII \"%3\"").arg(name, value.toHexString(), reg_string));
@@ -1052,17 +1033,17 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	}
 
 	int itemNumber=0;
-	for(std::size_t i=0;i<GPR_COUNT;++i)
-		update_register(register_view_items_[itemNumber++], GPRegNames[i], state.gp_register(i));
+	for(std::size_t i=0;i<gpr_count();++i)
+		update_register(register_view_items_[itemNumber++], GPRegName(i), state.gp_register(i));
 
 	const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
 
 	if(!symname.isEmpty()) {
-		register_view_items_[itemNumber++]->setText(0, QString("%0: %1 <%2>").arg(IP_name).arg(state.instruction_pointer().toHexString()).arg(symname));
+		register_view_items_[itemNumber++]->setText(0, QString("%0: %1 <%2>").arg(IP_name()).arg(state.instruction_pointer().toHexString()).arg(symname));
 	} else {
-		register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(IP_name).arg(state.instruction_pointer().toHexString()));
+		register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(IP_name()).arg(state.instruction_pointer().toHexString()));
 	}
-	register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(FLAGS_name).arg(state.flags().toHexString()));
+	register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(FLAGS_name()).arg(state.flags().toHexString()));
 
 	const QString usualSegs[]={"es","cs","ss","ds"};
 	for(const QString sreg : usualSegs) {
@@ -1096,16 +1077,16 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		}
 	}
 
-	int padding=IS_X86_64_BIT ? -2 : -1;
+	int padding=debuggeeIs64Bit() ? -2 : -1;
 	if(has_ymm_) {
-		for(std::size_t i = 0; i < YMM_REG_COUNT; ++i) {
+		for(std::size_t i = 0; i < ymm_reg_count(); ++i) {
 			const edb::value256 current = state.ymm_register(i);
 			const edb::value256 prev    = last_state_.ymm_register(i);
 			register_view_items_[itemNumber]->setText(0, QString("YMM%1: %2").arg(i, padding).arg(current.toHexString()));
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 	} else if(has_xmm_) {
-		for(std::size_t i = 0; i < XMM_REG_COUNT; ++i) {
+		for(std::size_t i = 0; i < xmm_reg_count(); ++i) {
 			const edb::value128 current = state.xmm_register(i);
 			const edb::value128 prev    = last_state_.xmm_register(i);
 			register_view_items_[itemNumber]->setText(0, QString("XMM%1: %2").arg(i, padding).arg(current.toHexString()));
@@ -1113,10 +1094,12 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		}
 	}
 	if(has_xmm_ || has_ymm_) {
-		const edb::value32 current = state["mxcsr"].value<edb::value32>();
-		const edb::value32 prev    = last_state_["mxcsr"].value<edb::value32>();
-		register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1").arg(current.toHexString()));
-		register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
+	    const Register current = state["mxcsr"];
+		const Register prev    = last_state_["mxcsr"];
+		if(current) {
+			register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1").arg(current.toHexString()));
+			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
+		}
 	}
 
 	const bool flags_changed = state.flags() != last_state_.flags();
@@ -1126,7 +1109,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 
 	// highlight any changed registers
 	itemNumber=0;
-	for(std::size_t i=0;i<GPR_COUNT;++i)
+	for(std::size_t i=0;i<gpr_count();++i)
 		register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(i) != last_state_.gp_register(i)) ? Qt::red : palette.text());
 	register_view_items_[itemNumber++]->setForeground(0, (state.instruction_pointer() != last_state_.instruction_pointer()) ? Qt::red : palette.text());
 	register_view_items_[itemNumber++]->setForeground(0, flags_changed ? Qt::red : palette.text());
