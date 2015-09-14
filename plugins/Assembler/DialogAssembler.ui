@@ -65,7 +65,7 @@
    <item row="2" column="1">
     <widget class="QDialogButtonBox" name="buttonBox">
      <property name="standardButtons">
-      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+      <set>QDialogButtonBox::Close|QDialogButtonBox::Ok</set>
      </property>
     </widget>
    </item>
@@ -77,7 +77,6 @@
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
    <receiver>DialogAssembler</receiver>
-   <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
      <x>347</x>

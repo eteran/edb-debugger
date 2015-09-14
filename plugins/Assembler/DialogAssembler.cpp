@@ -298,6 +298,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 						edb::v1::modify_bytes(address_, bytes.size(), bytes, 0x00);
 					}
 				}
+				accept();
 			}
 		}
 	} else {
