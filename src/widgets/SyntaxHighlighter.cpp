@@ -114,7 +114,7 @@ void SyntaxHighlighter::create_rules() {
 	// registers
 	// TODO: support ST(N)
 	rules_.append(HighlightingRule(
-		"\\b(((e|r)?(ax|bx|cx|dx|bp|sp|si|di|ip))|([abcd](l|h))|(sp|bp|si|di)l|([cdefgs]s)|(x?mm([0-9]|(1[0-5])))|r(8|9|(1[0-5]))[dwb]?)\\b",
+		"\\b(((e|r)?(ax|bx|cx|dx|bp|sp|si|di|ip))|([abcd](l|h))|(sp|bp|si|di)l|([cdefgs]s)|([xy]?mm([0-9]|(1[0-5])))|r(8|9|(1[0-5]))[dwb]?)\\b",
 		QColor(settings.value("theme.register.foreground", "red").value<QString>()),
 		QColor(settings.value("theme.register.background", "transparent").value<QString>()),
 		settings.value("theme.register.weight", QFont::Bold).value<int>(),
@@ -163,11 +163,6 @@ void SyntaxHighlighter::create_rules() {
 		settings.value("theme.flow_ctrl.underline", false).value<bool>()
 		));
 		
-		
-
-	
-	
-
 
 	// function call
 	rules_.append(HighlightingRule(
