@@ -298,7 +298,9 @@ void DialogAssembler::on_buttonBox_accepted() {
 						edb::v1::modify_bytes(address_, bytes.size(), bytes, 0x00);
 					}
 				}
-				accept();
+				
+				set_address(address_ + bytes.size());
+				edb::v1::set_cpu_selected_address(address_ + bytes.size());
 			}
 		}
 	} else {

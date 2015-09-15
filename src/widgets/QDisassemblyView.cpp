@@ -1163,18 +1163,8 @@ void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 
-	if(region_) {
-		bool ok;
-		const edb::address_t address = addressFromPoint(event->pos());
-		const int size               = get_instruction_size(address, &ok);
-
-		if(ok) {
-			selected_instruction_address_ = address;
-			selected_instruction_size_    = size;
-		} else {
-			selected_instruction_address_ = 0;
-			selected_instruction_size_    = 0;
-		}
+	if(region_) {		
+		setSelectedAddress(addressFromPoint(event->pos()));
 	}
 }
 
@@ -1247,6 +1237,25 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 edb::address_t QDisassemblyView::selectedAddress() const {
 	return selected_instruction_address_;
+}
+
+//------------------------------------------------------------------------------
+// Name: setSelectedAddress
+// Desc:
+//------------------------------------------------------------------------------
+void QDisassemblyView::setSelectedAddress(edb::address_t address) {
+	if(region_) {
+		bool ok;
+		const int size = get_instruction_size(address, &ok);
+
+		if(ok) {
+			selected_instruction_address_ = address;
+			selected_instruction_size_    = size;
+		} else {
+			selected_instruction_address_ = 0;
+			selected_instruction_size_    = 0;
+		}
+	}
 }
 
 //------------------------------------------------------------------------------

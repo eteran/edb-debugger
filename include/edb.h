@@ -190,6 +190,7 @@ EDB_EXPORT QString format_bytes(quint8 byte);
 EDB_EXPORT QString format_pointer(address_t p);
 
 EDB_EXPORT address_t cpu_selected_address();
+EDB_EXPORT void set_cpu_selected_address(address_t address);
 
 EDB_EXPORT void set_status(const QString &message);
 

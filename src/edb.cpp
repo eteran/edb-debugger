@@ -140,6 +140,15 @@ void load_function_db() {
 namespace v1 {
 
 //------------------------------------------------------------------------------
+// Name: set_cpu_selected_address
+// Desc:
+//------------------------------------------------------------------------------
+void set_cpu_selected_address(address_t address) {
+	ui()->ui.cpuView->setSelectedAddress(address);
+	ui()->ui.cpuView->update();
+}
+
+//------------------------------------------------------------------------------
 // Name: cpu_selected_address
 // Desc:
 //------------------------------------------------------------------------------

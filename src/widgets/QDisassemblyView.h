@@ -60,6 +60,7 @@ public:
 	int remove_comment(edb::address_t address);
 	QString get_comment(edb::address_t address);
 	void clear_comments();
+	void setSelectedAddress(edb::address_t address);
 
 signals:
 	void signal_updated();

@@ -75,21 +75,6 @@
  <connections>
   <connection>
    <sender>buttonBox</sender>
-   <signal>accepted()</signal>
-   <receiver>DialogAssembler</receiver>
-   <hints>
-    <hint type="sourcelabel">
-     <x>347</x>
-     <y>55</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>351</x>
-     <y>59</y>
-    </hint>
-   </hints>
-  </connection>
-  <connection>
-   <sender>buttonBox</sender>
    <signal>rejected()</signal>
    <receiver>DialogAssembler</receiver>
    <slot>reject()</slot>
