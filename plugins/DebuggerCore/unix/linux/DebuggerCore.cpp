@@ -755,17 +755,20 @@ bool DebuggerCore::fillStateFromPrStatus(PlatformState* state) {
 		return false;
 
 
-	alignas(PrStatus_X86_64) char prstat[sizeof(PrStatus_X86_64)];
+	PrStatus_X86_64 prstat64;
 
-	iovec prstat_iov = { prstat, sizeof(prstat) };
+	iovec prstat_iov = {&prstat64, sizeof(prstat64)};
 
 	if(ptrace(PTRACE_GETREGSET, active_thread(), NT_PRSTATUS, &prstat_iov) != -1) {
-		if(prstat_iov.iov_len==sizeof(PrStatus_X86_64)) {
-			auto p = reinterpret_cast<const PrStatus_X86_64 *>(prstat);
-			state->fillFrom(*p);
+		if(prstat_iov.iov_len==sizeof(prstat64)) {
+			state->fillFrom(prstat64);
 		} else if(prstat_iov.iov_len==sizeof(PrStatus_X86)) {
-			auto p = reinterpret_cast<const PrStatus_X86 *>(prstat);
-			state->fillFrom(*p);
+			// In this case the actual structure returned is PrStatus_X86,
+			// so copy it to the correct container (reinterpret_cast would
+			// cause UB in any case). Good compiler should be able to optimize this out.
+			PrStatus_X86 prstat32;
+			std::memcpy(&prstat32,&prstat64,sizeof(prstat32));
+			state->fillFrom(prstat32);
 		} else {
 			prStatusSupported=false;
 			qWarning() << "PTRACE_GETREGSET(NT_PRSTATUS) returned unexpected length " << prstat_iov.iov_len;
