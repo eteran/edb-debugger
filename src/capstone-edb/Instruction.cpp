@@ -110,8 +110,13 @@ void Instruction::fillPrefix()
 
 Instruction& Instruction::operator=(const Instruction& other)
 {
-	static_assert(std::is_standard_layout<Instruction>::value,"Instruction should have standard layout");
-	std::memcpy(this,&other,sizeof other);
+	insn_=other.insn_;
+	detail_=other.detail_;
+	valid_=other.valid_;
+	rva_=other.rva_;
+	firstByte_=other.firstByte_;
+	prefix_=other.prefix_;
+	operands_=other.operands_;
 	// Update pointer after replacement
 	insn_.detail=&detail_;
 

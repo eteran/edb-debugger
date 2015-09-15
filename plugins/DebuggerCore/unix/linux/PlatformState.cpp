@@ -210,7 +210,7 @@ void PlatformState::fillFrom(const UserFPXRegsStructX86& regs) {
 	for(std::size_t n=0;n<IA32_XMM_REG_COUNT;++n)
 		avx.setXMM(n,edb::value128(regs.xmm_space,16*n));
 	avx.mxcsr=regs.mxcsr;
-	avx.xmmFilled=true;
+	avx.xmmFilledIA32=true;
 }
 void PlatformState::fillFrom(const UserRegsStructX86_64& regs) {
 	// On 32 bit OS this code would access beyond the length of the array, but it won't ever execute there
@@ -264,7 +264,8 @@ void PlatformState::fillFrom(const UserFPRegsStructX86_64& regs) {
 	avx.mxcsr=regs.mxcsr;
 	avx.mxcsrMask=regs.mxcr_mask;
 	avx.mxcsrMaskFilled=true;
-	avx.xmmFilled=true;
+	avx.xmmFilledIA32=true;
+	avx.xmmFilledAMD64=true;
 }
 
 void PlatformState::fillFrom(const PrStatus_X86& regs)
@@ -367,22 +368,26 @@ void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) 
 		avx.mxcsr=regs.mxcsr;
 		avx.mxcsrMask=regs.mxcsr_mask;
 		avx.mxcsrMaskFilled=true;
-		avx.xmmFilled=true;
+		avx.xmmFilledIA32=true;
+		avx.xmmFilledAMD64=true;
 		avx.ymmFilled=true;
 	} else if(statePresentSSE) {
 		// If AVX state management has been enabled by the OS,
 		// the state may be not present due to lazy saving,
 		// so initialize the space with zeros
-		if(avx.xcr0 & X86XState::FEATURE_AVX)
+		if(avx.xcr0 & X86XState::FEATURE_AVX) {
 			for(std::size_t n=0;n<MAX_YMM_REG_COUNT;++n)
 				avx.setYMM(n,edb::value256::fromZeroExtended(0));
+			avx.ymmFilled=true;
+		}
 		// Now we can fill in the XMM registers
 		for(std::size_t n=0;n<MAX_XMM_REG_COUNT;++n)
 			avx.setXMM(n,edb::value128(regs.xmm_space,16*n));
 		avx.mxcsr=regs.mxcsr;
 		avx.mxcsrMask=regs.mxcsr_mask;
 		avx.mxcsrMaskFilled=true;
-		avx.xmmFilled=true;
+		avx.xmmFilledIA32=true;
+		avx.xmmFilledAMD64=true;
 	} else {
 		avx.mxcsr=regs.mxcsr;
 		avx.mxcsrMask=regs.mxcsr_mask;
@@ -391,12 +396,14 @@ void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) 
 		if(avx.xcr0 & X86XState::FEATURE_AVX) { // If AVX state management has been enabled by the OS
 			for(std::size_t n=0;n<MAX_YMM_REG_COUNT;++n)
 				avx.setYMM(n,edb::value256::fromZeroExtended(0));
-			avx.xmmFilled=true;
+			avx.xmmFilledIA32=true;
+			avx.xmmFilledAMD64=true;
 			avx.ymmFilled=true;
 		} else if(avx.xcr0 & X86XState::FEATURE_SSE) { // If SSE state management has been enabled by the OS
 			for(std::size_t n=0;n<MAX_YMM_REG_COUNT;++n)
 				avx.setYMM(n,edb::value256::fromZeroExtended(0));
-			avx.xmmFilled=true;
+			avx.xmmFilledIA32=true;
+			avx.xmmFilledAMD64=true;
 		}
 	}
 }
@@ -514,13 +521,14 @@ bool PlatformState::X87::empty() const {
 
 void PlatformState::AVX::clear() {
 	util::markMemory(this,sizeof(*this));
-	xmmFilled=false;
+	xmmFilledIA32=false;
+	xmmFilledAMD64=false;
 	ymmFilled=false;
 	zmmFilled=false;
 }
 
 bool PlatformState::AVX::empty() const {
-	return !xmmFilled;
+	return !xmmFilledIA32;
 }
 
 //------------------------------------------------------------------------------
@@ -651,12 +659,14 @@ Register PlatformState::value(const QString &reg) const {
 			return make_Register(regName, x87.R[i].mantissa(), Register::TYPE_SIMD);
 		}
 	}
-	if(avx.xmmFilled) {
+	if(avx.xmmFilledIA32) {
 		QRegExp XMMx("^xmm([0-9]|1[0-5])$");
 		if(XMMx.indexIn(regName)!=-1) {
 			bool ok=false;
 			std::size_t i=XMMx.cap(1).toUShort(&ok);
 			assert(ok);
+			if(i>=IA32_XMM_REG_COUNT && !avx.xmmFilledAMD64)
+				return Register();
 			if(xmmIndexValid(i)) // May be invalid but legitimate for a disassembler: e.g. XMM13 but 32 bit mode
 				return make_Register(regName, avx.xmm(i), Register::TYPE_SIMD);
 		}
@@ -671,7 +681,7 @@ Register PlatformState::value(const QString &reg) const {
 				return make_Register(regName, avx.ymm(i), Register::TYPE_SIMD);
 		}
 	}
-	if(avx.xmmFilled && regName==avx.mxcsrName)
+	if(avx.xmmFilledIA32 && regName==avx.mxcsrName)
 		return make_Register(avx.mxcsrName, avx.mxcsr, Register::TYPE_COND);
 	return Register();
 }
@@ -888,7 +898,9 @@ Register PlatformState::mmx_register(size_t n) const {
 // Desc:
 //------------------------------------------------------------------------------
 Register PlatformState::xmm_register(size_t n) const {
-	if(!xmmIndexValid(n))
+	if(!xmmIndexValid(n) || !avx.xmmFilledIA32)
+		return Register();
+	if(n>=IA32_XMM_REG_COUNT && !avx.xmmFilledAMD64)
 		return Register();
 	edb::value128 value(avx.xmm(n));
 	return make_Register(QString("xmm%1").arg(n),value,Register::TYPE_SIMD);
@@ -899,7 +911,7 @@ Register PlatformState::xmm_register(size_t n) const {
 // Desc:
 //------------------------------------------------------------------------------
 Register PlatformState::ymm_register(size_t n) const {
-	if(!ymmIndexValid(n))
+	if(!ymmIndexValid(n) || !avx.ymmFilled)
 		return Register();
 	edb::value256 value(avx.ymm(n));
 	return make_Register(QString("ymm%1").arg(n),value,Register::TYPE_SIMD);

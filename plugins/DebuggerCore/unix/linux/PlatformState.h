@@ -323,7 +323,8 @@ private:
 		edb::value32 mxcsr;
 		edb::value32 mxcsrMask;
 		edb::value64 xcr0;
-		bool xmmFilled=false;
+		bool xmmFilledIA32=false;
+		bool xmmFilledAMD64=false; // This can be false when filled from e.g. FPXregs
 		bool ymmFilled=false;
 		bool zmmFilled=false;
 		bool mxcsrMaskFilled=false;
