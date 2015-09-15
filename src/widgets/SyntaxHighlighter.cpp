@@ -155,17 +155,23 @@ void SyntaxHighlighter::create_rules() {
 
 	// flow control
 	rules_.append(HighlightingRule(
-		"\\b(jmp|jn?[blopsz]|jn?[bl]e|jcez|loopn?[ez])[bswlqt]?\\b",
+		"\\b(l?jmp[bswlqt]?|loopn?[ez]|(jn?(a|ae|b|be|c|e|g|ge|l|le|o|p|s|z)|j(pe|po|cxz|ecxz)))\\b",
 		QColor(settings.value("theme.flow_ctrl.foreground", "blue").value<QString>()),
 		QColor(settings.value("theme.flow_ctrl.background", "yellow").value<QString>()),
 		settings.value("theme.flow_ctrl.weight", QFont::Normal).value<int>(),
 		settings.value("theme.flow_ctrl.italic", false).value<bool>(),
 		settings.value("theme.flow_ctrl.underline", false).value<bool>()
 		));
+		
+		
+
+	
+	
+
 
 	// function call
 	rules_.append(HighlightingRule(
-		"\\b(call|retn?)[bswlqt]?\\b",
+		"\\b(call|ret[nf]?)[bswlqt]?\\b",
 		QColor(settings.value("theme.function.foreground", "blue").value<QString>()),
 		QColor(settings.value("theme.function.background", "yellow").value<QString>()),
 		settings.value("theme.function.weight", QFont::Normal).value<int>(),
