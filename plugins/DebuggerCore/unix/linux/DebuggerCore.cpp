@@ -648,13 +648,11 @@ void DebuggerCore::detach() {
 		clear_breakpoints();
 
 		for(edb::tid_t thread: thread_ids()) {
-			if(ptrace(PTRACE_DETACH, thread, 0, 0) == 0) {
-				native::waitpid(thread, 0, __WALL);
-			}
+			ptrace(PTRACE_DETACH, thread, 0, 0);
 		}
 		
 		delete process_;
-		process_ = 0;
+		process_ = nullptr;
 
 		reset();
 	}
