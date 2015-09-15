@@ -755,20 +755,18 @@ bool DebuggerCore::fillStateFromPrStatus(PlatformState* state) {
 		return false;
 
 
-	union {
-		PrStatus_X86_64 state64;
-		PrStatus_X86    state32;
-		uint8_t         prstat[sizeof(PrStatus_X86_64)];
-	};
+	alignas(PrStatus_X86_64) char prstat[sizeof(PrStatus_X86_64)];
 
-	iovec prstat_iov={prstat, sizeof(PrStatus_X86_64)};
+	iovec prstat_iov = { prstat, sizeof(prstat) };
 
 	if(ptrace(PTRACE_GETREGSET, active_thread(), NT_PRSTATUS, &prstat_iov) != -1) {
-		if(prstat_iov.iov_len==sizeof(PrStatus_X86_64))
-			state->fillFrom(state64);
-		else if(prstat_iov.iov_len==sizeof(PrStatus_X86))
-			state->fillFrom(state32);
-		else {
+		if(prstat_iov.iov_len==sizeof(PrStatus_X86_64)) {
+			auto p = reinterpret_cast<const PrStatus_X86_64 *>(prstat);
+			state->fillFrom(*p);
+		} else if(prstat_iov.iov_len==sizeof(PrStatus_X86)) {
+			auto p = reinterpret_cast<const PrStatus_X86 *>(prstat);
+			state->fillFrom(*p);
+		} else {
 			prStatusSupported=false;
 			qWarning() << "PTRACE_GETREGSET(NT_PRSTATUS) returned unexpected length " << prstat_iov.iov_len;
 			return false;
