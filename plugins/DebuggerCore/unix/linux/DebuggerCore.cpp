@@ -589,6 +589,12 @@ bool DebuggerCore::attach_thread(edb::tid_t tid) {
 			if(ptrace_set_options(tid, PTRACE_O_TRACECLONE) == -1) {
 				qDebug("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: [%d] %s", tid, strerror(errno));
 			}
+			
+#ifdef PTRACE_O_EXITKILL
+			if(ptrace_set_options(tid, PTRACE_O_EXITKILL) == -1) {
+				qDebug("[DebuggerCore] failed to set PTRACE_O_EXITKILL: [%d] %s", tid, strerror(errno));
+			}
+#endif
 		}
 		return true;
 	}
@@ -939,6 +945,14 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 				detach();
 				return false;
 			}
+			
+#ifdef PTRACE_O_EXITKILL
+			if(ptrace_set_options(pid, PTRACE_O_EXITKILL) == -1) {
+				qDebug("[DebuggerCore] failed to set PTRACE_SETOPTIONS: %s", strerror(errno));
+				detach();
+				return false;
+			}
+#endif
 
 			// setup the first event data for the primary thread
 			waited_threads_.insert(pid);
