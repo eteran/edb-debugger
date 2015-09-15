@@ -257,7 +257,7 @@ QList<QAction *> Analyzer::cpu_context_menu() {
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::do_analysis(const IRegion::pointer &region) {
-	if(region->size() != 0) {
+	if(region && region->size() != 0) {
 		QProgressDialog progress(tr("Performing Analysis"), 0, 0, 100, edb::v1::debugger_ui);
 		connect(this, SIGNAL(update_progress(int)), &progress, SLOT(setValue(int)));
 		progress.show();
