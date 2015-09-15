@@ -113,15 +113,17 @@ const std::array<const char*,MAX_SEG_REG_COUNT> PlatformState::X86::segRegNames=
 };
 
 void PlatformState::fillFrom(const UserRegsStructX86& regs) {
-	x86.GPRegs[X86::EAX] = regs.eax;
-	x86.GPRegs[X86::ECX] = regs.ecx;
-	x86.GPRegs[X86::EDX] = regs.edx;
-	x86.GPRegs[X86::EBX] = regs.ebx;
-	x86.GPRegs[X86::ESP] = regs.esp;
-	x86.GPRegs[X86::EBP] = regs.ebp;
-	x86.GPRegs[X86::ESI] = regs.esi;
-	x86.GPRegs[X86::EDI] = regs.edi;
-	x86.orig_ax = regs.orig_eax;
+	// Don't touch higher parts to avoid zeroing out bad value mark
+	std::memcpy(&x86.GPRegs[X86::EAX],&regs.eax,sizeof(regs.eax));
+	std::memcpy(&x86.GPRegs[X86::ECX],&regs.ecx,sizeof(regs.ecx));
+	std::memcpy(&x86.GPRegs[X86::EDX],&regs.edx,sizeof(regs.edx));
+	std::memcpy(&x86.GPRegs[X86::EBX],&regs.ebx,sizeof(regs.ebx));
+	std::memcpy(&x86.GPRegs[X86::ESP],&regs.esp,sizeof(regs.esp));
+	std::memcpy(&x86.GPRegs[X86::EBP],&regs.ebp,sizeof(regs.ebp));
+	std::memcpy(&x86.GPRegs[X86::ESI],&regs.esi,sizeof(regs.esi));
+	std::memcpy(&x86.GPRegs[X86::EDI],&regs.edi,sizeof(regs.edi));
+	std::memcpy(&x86.orig_ax,&regs.orig_eax,sizeof(regs.orig_eax));
+	// TODO: these two should also be treated as GPRs
 	x86.flags = regs.eflags;
 	x86.IP = regs.eip;
 	x86.segRegs[X86::ES] = regs.xes;
@@ -130,7 +132,7 @@ void PlatformState::fillFrom(const UserRegsStructX86& regs) {
 	x86.segRegs[X86::DS] = regs.xds;
 	x86.segRegs[X86::FS] = regs.xfs;
 	x86.segRegs[X86::GS] = regs.xgs;
-	x86.filled=true;
+	x86.gpr32Filled=true;
 }
 
 std::size_t PlatformState::X87::stackPointer() const {
@@ -240,7 +242,8 @@ void PlatformState::fillFrom(const UserRegsStructX86_64& regs) {
 	x86.segRegs[X86::DS] = regs.ds;
 	x86.segRegs[X86::FS] = regs.fs;
 	x86.segRegs[X86::GS] = regs.gs;
-	x86.filled=true;
+	x86.gpr32Filled=true;
+	x86.gpr64Filled=true;
 	x86.fsBase = regs.fs_base;
 	x86.fsBaseFilled=true;
 	x86.gsBase = regs.gs_base;
@@ -270,15 +273,17 @@ void PlatformState::fillFrom(const UserFPRegsStructX86_64& regs) {
 
 void PlatformState::fillFrom(const PrStatus_X86& regs)
 {
-	x86.GPRegs[X86::EAX] = regs.eax;
-	x86.GPRegs[X86::ECX] = regs.ecx;
-	x86.GPRegs[X86::EDX] = regs.edx;
-	x86.GPRegs[X86::EBX] = regs.ebx;
-	x86.GPRegs[X86::ESP] = regs.esp;
-	x86.GPRegs[X86::EBP] = regs.ebp;
-	x86.GPRegs[X86::ESI] = regs.esi;
-	x86.GPRegs[X86::EDI] = regs.edi;
-	x86.orig_ax = regs.orig_eax;
+	// Don't touch higher parts to avoid zeroing out bad value mark
+	std::memcpy(&x86.GPRegs[X86::EAX],&regs.eax,sizeof(regs.eax));
+	std::memcpy(&x86.GPRegs[X86::ECX],&regs.ecx,sizeof(regs.ecx));
+	std::memcpy(&x86.GPRegs[X86::EDX],&regs.edx,sizeof(regs.edx));
+	std::memcpy(&x86.GPRegs[X86::EBX],&regs.ebx,sizeof(regs.ebx));
+	std::memcpy(&x86.GPRegs[X86::ESP],&regs.esp,sizeof(regs.esp));
+	std::memcpy(&x86.GPRegs[X86::EBP],&regs.ebp,sizeof(regs.ebp));
+	std::memcpy(&x86.GPRegs[X86::ESI],&regs.esi,sizeof(regs.esi));
+	std::memcpy(&x86.GPRegs[X86::EDI],&regs.edi,sizeof(regs.edi));
+	std::memcpy(&x86.orig_ax,&regs.orig_eax,sizeof(regs.orig_eax));
+	// TODO: these two should also be treated as GPRs
 	x86.flags = regs.eflags;
 	x86.IP = regs.eip;
 	x86.segRegs[X86::ES] = regs.es;
@@ -287,7 +292,7 @@ void PlatformState::fillFrom(const PrStatus_X86& regs)
 	x86.segRegs[X86::DS] = regs.ds;
 	x86.segRegs[X86::FS] = regs.fs;
 	x86.segRegs[X86::GS] = regs.gs;
-	x86.filled=true;
+	x86.gpr32Filled=true;
 }
 
 void PlatformState::fillFrom(const PrStatus_X86_64& regs)
@@ -317,7 +322,8 @@ void PlatformState::fillFrom(const PrStatus_X86_64& regs)
 	x86.segRegs[X86::DS] = regs.ds;
 	x86.segRegs[X86::FS] = regs.fs;
 	x86.segRegs[X86::GS] = regs.gs;
-	x86.filled=true;
+	x86.gpr32Filled=true;
+	x86.gpr64Filled=true;
 	x86.fsBase = regs.fs_base;
 	x86.fsBaseFilled=true;
 	x86.gsBase = regs.gs_base;
@@ -411,7 +417,7 @@ void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) 
 void PlatformState::fillStruct(UserRegsStructX86& regs) const
 {
 	util::markMemory(&regs,sizeof(regs));
-	if(x86.filled) {
+	if(x86.gpr32Filled) {
 		regs.eax=x86.GPRegs[X86::EAX];
 		regs.ecx=x86.GPRegs[X86::ECX];
 		regs.edx=x86.GPRegs[X86::EDX];
@@ -435,7 +441,8 @@ void PlatformState::fillStruct(UserRegsStructX86_64& regs) const
 {
 	// Put some markers to make invalid values immediately visible
 	util::markMemory(&regs,sizeof(regs));
-	if(x86.filled) {
+	// If 64-bit part is not filled in state, we'll set marked values
+	if(x86.gpr64Filled || x86.gpr32Filled) {
 		regs.rax=x86.GPRegs[X86::RAX];
 		regs.rcx=x86.GPRegs[X86::RCX];
 		regs.rdx=x86.GPRegs[X86::RDX];
@@ -500,13 +507,14 @@ void PlatformState::AVX::setZMM(std::size_t index, edb::value512 value) {
 
 void PlatformState::X86::clear() {
 	util::markMemory(this,sizeof(*this));
-	filled=false;
+	gpr32Filled=false;
+	gpr64Filled=false;
 	fsBaseFilled=false;
 	gsBaseFilled=false;
 }
 
 bool PlatformState::X86::empty() const {
-	return !filled;
+	return !gpr32Filled;
 }
 
 void PlatformState::X87::clear() {
@@ -596,9 +604,9 @@ Register PlatformState::value(const QString &reg) const {
 	const QString regName = reg.toLower();
 
 	Register found;
-	if(x86.filled) // don't return valid Register with garbage value
+	if(x86.gpr32Filled) // don't return valid Register with garbage value
 	{
-		if(is64Bit() && !!(found=findRegisterValue(x86.GPReg64Names, x86.GPRegs, regName, Register::TYPE_GPR, gpr64_count())))
+		if(x86.gpr64Filled && is64Bit() && !!(found=findRegisterValue(x86.GPReg64Names, x86.GPRegs, regName, Register::TYPE_GPR, gpr64_count())))
 			return found;
 		if(!!(found=findRegisterValue<32>(x86.GPReg32Names, x86.GPRegs, regName, Register::TYPE_GPR, gpr_count())))
 			return found;
@@ -836,10 +844,14 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 //------------------------------------------------------------------------------
 Register PlatformState::gp_register(int n) const { // TODO: switch this and similar methods to size_t arg
 
-	if(gprIndexValid(n))
-		return make_Register(GPRegNames()[n], x86.GPRegs[n], Register::TYPE_GPR);
-	else
-		return Register();
+	if(gprIndexValid(n)) {
+
+		if(x86.gpr64Filled && is64Bit())
+			return make_Register(x86.GPReg64Names[n], x86.GPRegs[n], Register::TYPE_GPR);
+		else if(x86.gpr32Filled)
+			return make_Register<32>(x86.GPReg32Names[n], x86.GPRegs[n], Register::TYPE_GPR);
+	}
+	return Register();
 }
 
 //------------------------------------------------------------------------------

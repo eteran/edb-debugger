@@ -389,7 +389,8 @@ private:
 		edb::address_t gsBase;
 		bool fsBaseFilled=false;
 		bool gsBaseFilled=false;
-		bool filled=false;
+		bool gpr64Filled=false;
+		bool gpr32Filled=false;
 
 		void clear();
 		bool empty() const;
