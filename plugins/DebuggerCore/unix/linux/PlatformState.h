@@ -23,32 +23,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 #include <cstddef>
 #include <sys/user.h>
+#include "edb.h"
 
 namespace DebuggerCore {
 
-static constexpr std::size_t DBG_REG_COUNT=8;
-static constexpr std::size_t SEG_REG_COUNT=6;
-static constexpr std::size_t FPU_REG_COUNT=8;
-static constexpr std::size_t MMX_REG_COUNT=FPU_REG_COUNT;
-#if defined EDB_X86
-static constexpr std::size_t GPR_COUNT=8;
-static constexpr std::size_t GPR_LOW_ADDRESSABLE_COUNT=4; // al,cl,dl,bl
-#elif defined EDB_X86_64
-static constexpr std::size_t GPR_COUNT=16;
-static constexpr std::size_t GPR_LOW_ADDRESSABLE_COUNT=16; // all GPRs' low bytes are addressable
-#endif
-static constexpr std::size_t GPR_HIGH_ADDRESSABLE_COUNT=4; // ah,ch,dh,bh
-static constexpr std::size_t XMM_REG_COUNT=GPR_COUNT;
-static constexpr std::size_t YMM_REG_COUNT=GPR_COUNT;
-static constexpr std::size_t ZMM_REG_COUNT=(IS_X86_32_BIT ? 8 : 32);
+using std::size_t;
 
-static constexpr bool dbgIndexValid(std::size_t n) { return n<DBG_REG_COUNT; }
-static constexpr bool gprIndexValid(std::size_t n) { return n<GPR_COUNT; }
-static constexpr bool fpuIndexValid(std::size_t n) { return n<FPU_REG_COUNT; }
-static constexpr bool mmxIndexValid(std::size_t n) { return n<MMX_REG_COUNT; }
-static constexpr bool xmmIndexValid(std::size_t n) { return n<XMM_REG_COUNT; }
-static constexpr bool ymmIndexValid(std::size_t n) { return n<YMM_REG_COUNT; }
-static constexpr bool zmmIndexValid(std::size_t n) { return n<ZMM_REG_COUNT; }
+static constexpr size_t IA32_GPR_COUNT=8;
+static constexpr size_t IA32_GPR_LOW_ADDRESSABLE_COUNT=4; // al,cl,dl,bl
+static constexpr size_t AMD64_GPR_COUNT=16;
+static constexpr size_t AMD64_GPR_LOW_ADDRESSABLE_COUNT=16; // all GPRs' low bytes are addressable in 64 bit mode
+static constexpr size_t IA32_XMM_REG_COUNT=IA32_GPR_COUNT;
+static constexpr size_t AMD64_XMM_REG_COUNT=AMD64_GPR_COUNT;
+static constexpr size_t IA32_YMM_REG_COUNT=IA32_GPR_COUNT;
+static constexpr size_t AMD64_YMM_REG_COUNT=AMD64_GPR_COUNT;
+static constexpr size_t IA32_ZMM_REG_COUNT=IA32_GPR_COUNT;
+static constexpr size_t AMD64_ZMM_REG_COUNT=32;
+static constexpr size_t MAX_GPR_COUNT=AMD64_GPR_COUNT;
+static constexpr size_t MAX_GPR_LOW_ADDRESSABLE_COUNT=AMD64_GPR_LOW_ADDRESSABLE_COUNT;
+static constexpr size_t MAX_GPR_HIGH_ADDRESSABLE_COUNT=4; // ah,ch,dh,bh
+static constexpr size_t MAX_DBG_REG_COUNT=8;
+static constexpr size_t MAX_SEG_REG_COUNT=6;
+static constexpr size_t MAX_FPU_REG_COUNT=8;
+static constexpr size_t MAX_MMX_REG_COUNT=MAX_FPU_REG_COUNT;
+static constexpr size_t MAX_XMM_REG_COUNT=AMD64_XMM_REG_COUNT;
+static constexpr size_t MAX_YMM_REG_COUNT=AMD64_YMM_REG_COUNT;
+static constexpr size_t MAX_ZMM_REG_COUNT=AMD64_ZMM_REG_COUNT;
 
 #ifdef EDB_X86
 typedef struct user_regs_struct UserRegsStructX86;
@@ -149,6 +149,61 @@ struct UserFPRegsStructX86 {
 };
 #endif
 
+struct PrStatus_X86
+{
+	uint32_t ebx;
+	uint32_t ecx;
+	uint32_t edx;
+	uint32_t esi;
+	uint32_t edi;
+	uint32_t ebp;
+	uint32_t eax;
+	uint32_t ds;
+	uint32_t es;
+	uint32_t fs;
+	uint32_t gs;
+	uint32_t orig_eax;
+	uint32_t eip;
+	uint32_t cs;
+	uint32_t eflags;
+	uint32_t esp;
+	uint32_t ss;
+};
+static_assert(sizeof(PrStatus_X86)==68,"PrStatus_X86 is messed up!");
+
+struct PrStatus_X86_64
+{
+	uint64_t r15;
+	uint64_t r14;
+	uint64_t r13;
+	uint64_t r12;
+	uint64_t rbp;
+	uint64_t rbx;
+	uint64_t r11;
+	uint64_t r10;
+	uint64_t r9;
+	uint64_t r8;
+	uint64_t rax;
+	uint64_t rcx;
+	uint64_t rdx;
+	uint64_t rsi;
+	uint64_t rdi;
+	uint64_t orig_rax;
+	uint64_t rip;
+	uint64_t cs;
+	uint64_t rflags;
+	uint64_t rsp;
+	uint64_t ss;
+	uint64_t fs_base;
+	uint64_t gs_base;
+	uint64_t ds;
+	uint64_t es;
+	uint64_t fs;
+	uint64_t gs;
+};
+static_assert(sizeof(PrStatus_X86_64)==216,"PrStatus_X86_64 is messed up!");
+
+
 // Masks for XCR0 feature enabled bits
 #define X86_XSTATE_X87_MASK  X87_XSTATE_X87
 #define X86_XSTATE_SSE_MASK  (X87_XSTATE_X87|X87_XSTATE_SSE)
@@ -238,15 +293,32 @@ public:
 	virtual void set_flags(edb::reg_t flags);
 	virtual void set_instruction_pointer(edb::address_t value);
 	virtual void set_register(const QString &name, edb::reg_t value);
-	virtual edb::value64 mmx_register(int n) const;
-	virtual edb::value128 xmm_register(int n) const;
-	virtual edb::value256 ymm_register(int n) const;
+	virtual Register mmx_register(size_t n) const;
+	virtual Register xmm_register(size_t n) const;
+	virtual Register ymm_register(size_t n) const;
 	virtual Register gp_register(int n) const;
+	size_t pointer_size() const { return edb::v1::pointer_size(); }
+	bool is64Bit() const { return pointer_size()==8; }
+	bool is32Bit() const { return pointer_size()==4; }
+	size_t dbg_reg_count() const { return MAX_DBG_REG_COUNT; }
+	size_t seg_reg_count() const { return MAX_SEG_REG_COUNT; }
+	size_t fpu_reg_count() const { return MAX_FPU_REG_COUNT; }
+	size_t mmx_reg_count() const { return MAX_MMX_REG_COUNT; }
+	size_t xmm_reg_count() const { return is64Bit() ? AMD64_XMM_REG_COUNT : IA32_XMM_REG_COUNT; }
+	size_t ymm_reg_count() const { return is64Bit() ? AMD64_YMM_REG_COUNT : IA32_YMM_REG_COUNT; }
+	size_t zmm_reg_count() const { return is64Bit() ? AMD64_ZMM_REG_COUNT : IA32_ZMM_REG_COUNT; }
+	size_t gpr64_count() const { return is64Bit() ? AMD64_GPR_COUNT : 0; }
+	size_t gpr_count() const { return is64Bit() ? AMD64_GPR_COUNT : IA32_GPR_COUNT; }
+	size_t gpr_low_addressable_count() const { return is64Bit() ? AMD64_GPR_LOW_ADDRESSABLE_COUNT : IA32_GPR_LOW_ADDRESSABLE_COUNT; }
+	size_t gpr_high_addressable_count() const { return MAX_GPR_HIGH_ADDRESSABLE_COUNT; }
 
+	const char* IPName() const { return is64Bit() ? x86.IP64Name : x86.IP32Name; }
+	const char* flagsName() const { return is64Bit() ? x86.flags64Name : x86.flags32Name; }
+	const std::array<const char*,MAX_GPR_COUNT>& GPRegNames() const { return is64Bit() ? x86.GPReg64Names : x86.GPReg32Names; }
 private:
 	// The whole AVX* state. XMM and YMM registers are lower parts of ZMM ones.
 	class AVX {
-		std::array<edb::value512,ZMM_REG_COUNT> zmmStorage;
+		std::array<edb::value512,MAX_ZMM_REG_COUNT> zmmStorage;
 	public:
 		edb::value32 mxcsr;
 		edb::value32 mxcsrMask;
@@ -258,20 +330,20 @@ private:
 
 		void clear();
 		bool empty() const;
-		edb::value128 xmm(std::size_t index) const;
-		void setXMM(std::size_t index,edb::value128);
-		edb::value256 ymm(std::size_t index) const;
-		void setYMM(std::size_t index,edb::value256);
-		void setYMM(std::size_t index,edb::value128 low, edb::value128 high);
-		edb::value512 zmm(std::size_t index) const;
-		void setZMM(std::size_t index,edb::value512);
+		edb::value128 xmm(size_t index) const;
+		void setXMM(size_t index,edb::value128);
+		edb::value256 ymm(size_t index) const;
+		void setYMM(size_t index,edb::value256);
+		void setYMM(size_t index,edb::value128 low, edb::value128 high);
+		edb::value512 zmm(size_t index) const;
+		void setZMM(size_t index,edb::value512);
 
 		static constexpr const char* mxcsrName="mxcsr";
 	} avx;
 
 	// x87 state
 	struct X87 {
-		std::array<edb::value80,FPU_REG_COUNT> R; // Rx registers
+		std::array<edb::value80,MAX_FPU_REG_COUNT> R; // Rx registers
 		edb::address_t instPtrOffset;
 		edb::address_t dataPtrOffset;
 		edb::value16 instPtrSelector;
@@ -306,12 +378,12 @@ private:
 
 	// i386-inherited (and expanded on x86_64) state
 	struct X86 {
-		std::array<edb::reg_t,GPR_COUNT> GPRegs;
-		std::array<edb::reg_t,DBG_REG_COUNT> dbgRegs;
+		std::array<edb::reg_t,MAX_GPR_COUNT> GPRegs;
+		std::array<edb::reg_t,MAX_DBG_REG_COUNT> dbgRegs;
 		edb::reg_t orig_ax;
 		edb::reg_t flags; // whole flags register: EFLAGS/RFLAGS
 		edb::address_t IP; // program counter: EIP/RIP
-		std::array<edb::seg_reg_t,SEG_REG_COUNT> segRegs;
+		std::array<edb::seg_reg_t,MAX_SEG_REG_COUNT> segRegs;
 		edb::address_t fsBase;
 		edb::address_t gsBase;
 		bool fsBaseFilled=false;
@@ -347,24 +419,39 @@ private:
 			FS,
 			GS
 		};
-		static constexpr const char* IPName=(sizeof(edb::address_t)==8?"rip":"eip");
-		static constexpr const char* flagsName=(sizeof(edb::reg_t)==8?"rflags":"eflags");
+		static constexpr const char* IP64Name="rip";
+		static constexpr const char* IP32Name="eip";
+		static constexpr const char* IP16Name="ip";
+		static constexpr const char* flags64Name="rflags";
+		static constexpr const char* flags32Name="eflags";
+		static constexpr const char* flags16Name="flags";
 		static constexpr const char* fsBaseName="fs_base";
 		static constexpr const char* gsBaseName="gs_base";
 		// gcc 4.8 fails to understand inline initialization of std::array, so define these the old way
-		static const std::array<const char*,GPR_COUNT> GPRegNames;
-		static const std::array<const char*,GPR_COUNT> GPReg32Names;
-		static const std::array<const char*,GPR_COUNT> GPReg16Names;
-		static const std::array<const char*,GPR_LOW_ADDRESSABLE_COUNT> GPReg8LNames;
-		static const std::array<const char*,GPR_HIGH_ADDRESSABLE_COUNT> GPReg8HNames;
-		static const std::array<const char*,SEG_REG_COUNT> segRegNames;
+		static const std::array<const char*,MAX_GPR_COUNT> GPReg64Names;
+		static const std::array<const char*,MAX_GPR_COUNT> GPReg32Names;
+		static const std::array<const char*,MAX_GPR_COUNT> GPReg16Names;
+		static const std::array<const char*,MAX_GPR_LOW_ADDRESSABLE_COUNT> GPReg8LNames;
+		static const std::array<const char*,MAX_GPR_HIGH_ADDRESSABLE_COUNT> GPReg8HNames;
+		static const std::array<const char*,MAX_SEG_REG_COUNT> segRegNames;
 	} x86;
+
+	bool dbgIndexValid(size_t n) const { return n<dbg_reg_count(); }
+	bool gprIndexValid(size_t n) const { return n<gpr_count(); }
+	bool fpuIndexValid(size_t n) const { return n<fpu_reg_count(); }
+	bool mmxIndexValid(size_t n) const { return n<mmx_reg_count(); }
+	bool xmmIndexValid(size_t n) const { return n<xmm_reg_count(); }
+	bool ymmIndexValid(size_t n) const { return n<ymm_reg_count(); }
+	bool zmmIndexValid(size_t n) const { return n<zmm_reg_count(); }
+
 
 	void fillFrom(const UserRegsStructX86& regs);
 	void fillFrom(const UserFPRegsStructX86& regs);
 	void fillFrom(const UserFPXRegsStructX86& regs);
 	void fillFrom(const UserRegsStructX86_64& regs);
 	void fillFrom(const UserFPRegsStructX86_64& regs);
+	void fillFrom(const PrStatus_X86& regs);
+	void fillFrom(const PrStatus_X86_64& regs);
 	void fillFrom(const X86XState& regs, std::size_t sizeFromKernel);
 
 	void fillStruct(UserRegsStructX86& regs) const;

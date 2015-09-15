@@ -184,7 +184,7 @@ void Analyzer::mark_function_start() {
 
 	const edb::address_t address = edb::v1::cpu_selected_address();
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
-		qDebug("Added %p to the list of known functions", address.toPointer());
+		qDebug("Added %s to the list of known functions",qPrintable(address.toPointerString()));
 		specified_functions_.insert(address);
 		invalidate_dynamic_analysis(region);
 	}
@@ -300,7 +300,7 @@ void Analyzer::bonus_symbols(RegionData *data) {
 		const edb::address_t addr = sym->address;
 
 		if(data->region->contains(addr) && sym->is_code()) {
-			qDebug("[Analyzer] adding: %s <%p>", qPrintable(sym->name), addr.toPointer());
+			qDebug("[Analyzer] adding: %s <%s>", qPrintable(sym->name), qPrintable(addr.toPointerString()));
 			data->known_functions.insert(addr);
 		}
 	}
@@ -316,7 +316,7 @@ void Analyzer::bonus_marked_functions(RegionData *data) {
 
 	for(const edb::address_t addr: specified_functions_) {
 		if(data->region->contains(addr)) {
-			qDebug("[Analyzer] adding user marked function: <%p>", addr.toPointer());
+			qDebug("[Analyzer] adding user marked function: <%s>", qPrintable(addr.toPointerString()));
 			data->known_functions.insert(addr);
 		}
 	}
@@ -521,11 +521,11 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 
 	qDebug() << "----------Basic Blocks----------";
 	for(auto it = basic_blocks.begin(); it != basic_blocks.end(); ++it) {
-		qDebug("%p:", it.key().toPointer());
+		qDebug("%s:", qPrintable(it.key().toPointerString()));
 
 		for(auto j = it.value().begin(); j != it.value().end(); ++j) {
 			const instruction_pointer &inst = *j;
-			qDebug("\t%p: %s", reinterpret_cast<void *>(inst->rva()), edb::v1::formatter().to_string(*inst).c_str());
+			qDebug("\t%s: %s", qPrintable(edb::address_t(inst->rva()).toPointerString()), edb::v1::formatter().to_string(*inst).c_str());
 		}
 	}
 	qDebug() << "----------Basic Blocks----------";
@@ -735,7 +735,7 @@ void Analyzer::bonus_entry_point(RegionData *data) const {
 			entry += data->region->start();
 		}
 
-		qDebug("[Analyzer] found entry point: %p", entry.toPointer());
+		qDebug("[Analyzer] found entry point: %s", qPrintable(entry.toPointerString()));
 
 		if(data->region->contains(entry)) {
 			data->known_functions.insert(entry);

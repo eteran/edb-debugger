@@ -66,14 +66,14 @@ public:
 
 public:
 	// MMX
-	virtual edb::value64 mmx_register(int n) const = 0;
+	virtual Register mmx_register(std::size_t n) const = 0;
 	
 public:
 	// SSE
-	virtual edb::value128 xmm_register(int n) const = 0;
+	virtual Register xmm_register(std::size_t n) const = 0;
 public:
 	// AVX
-	virtual edb::value256 ymm_register(int n) const = 0;
+	virtual Register ymm_register(std::size_t n) const = 0;
 };
 
 #endif

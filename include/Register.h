@@ -44,8 +44,8 @@ public:
 		TYPE_SIMD    = 0x0020
 	};
 
-	// Expand when AVX instructions are supported
-	typedef edb::value128 StoredType;
+	// Expand when AVX-512 instructions and state are supported
+	typedef edb::value256 StoredType;
 
 public:
 	Register();
@@ -71,6 +71,8 @@ public:
 		std::memcpy(&result,&value_,bitSize_/8);
 		return result;
 	}
+
+	QString toHexString() const;
 
 private:
 	bool valid() const { return type_ != TYPE_INVALID; }

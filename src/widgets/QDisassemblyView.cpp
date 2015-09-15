@@ -86,15 +86,11 @@ struct address_format<T, 4> {
 template <class T>
 struct address_format<T, 8> {
 	static QString format_address(T address, const show_separator_tag&) {
-		static char buffer[18];
-		qsnprintf(buffer, sizeof(buffer), "%08x:%08x", (address >> 32) & 0xffffffff, address & 0xffffffff);
-		return QString::fromLatin1(buffer, sizeof(buffer) - 1);
+		return edb::value32(address >> 32).toHexString()+":"+edb::value32(address).toHexString();
 	}
 
 	static QString format_address(T address) {
-		static char buffer[17];
-		qsnprintf(buffer, sizeof(buffer), "%08x%08x", (address >> 32) & 0xffffffff, address & 0xffffffff);
-		return QString::fromLatin1(buffer, sizeof(buffer) - 1);
+		return edb::value64(address).toHexString();
 	}
 };
 
@@ -441,7 +437,10 @@ void QDisassemblyView::setShowAddressSeparator(bool value) {
 // Desc:
 //------------------------------------------------------------------------------
 QString QDisassemblyView::formatAddress(edb::address_t address) const {
-	return format_address(address, show_address_separator_);
+	if(edb::v1::pointer_size()==sizeof(quint32))
+		return format_address<quint32>(address.toUint(), show_address_separator_);
+	else
+		return format_address(address, show_address_separator_);
 }
 
 //------------------------------------------------------------------------------
@@ -991,7 +990,7 @@ int QDisassemblyView::line3() const {
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::address_length() const {
-	const unsigned int address_len = (sizeof(edb::address_t) * CHAR_BIT) / 4;
+	const unsigned int address_len = edb::v1::pointer_size() * CHAR_BIT / 4;
 	return address_len + (show_address_separator_ ? 1 : 0);
 }
 
