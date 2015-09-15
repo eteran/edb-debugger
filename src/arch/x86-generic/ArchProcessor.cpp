@@ -876,21 +876,20 @@ Register ArchProcessor::value_from_item(const QTreeWidgetItem &item) {
 // Name: update_register
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::update_register(QTreeWidgetItem *item, const QString &name_, const Register &reg) const {
+void ArchProcessor::update_register(QTreeWidgetItem *item, const Register &reg) const {
 
 	Q_ASSERT(item);
 
 	QString reg_string;
 	int string_length;
-	const edb::reg_t value = reg.value<edb::reg_t>();
-	const QString name=debuggeeIs64Bit() ? name_.leftJustified(3) : name_;
+	const QString name=reg.name().leftJustified(3).toUpper();
 
-	if(edb::v1::get_ascii_string_at_address(value, reg_string, edb::v1::config().min_string_length, 256, string_length)) {
-		item->setText(0, QString("%1: %2 ASCII \"%3\"").arg(name, value.toHexString(), reg_string));
-	} else if(edb::v1::get_utf16_string_at_address(value, reg_string, edb::v1::config().min_string_length, 256, string_length)) {
-		item->setText(0, QString("%1: %2 UTF16 \"%3\"").arg(name, value.toHexString(), reg_string));
+	if(edb::v1::get_ascii_string_at_address(reg.valueAsAddress(), reg_string, edb::v1::config().min_string_length, 256, string_length)) {
+		item->setText(0, QString("%1: %2 ASCII \"%3\"").arg(name, reg.toHexString(), reg_string));
+	} else if(edb::v1::get_utf16_string_at_address(reg.valueAsAddress(), reg_string, edb::v1::config().min_string_length, 256, string_length)) {
+		item->setText(0, QString("%1: %2 UTF16 \"%3\"").arg(name, reg.toHexString(), reg_string));
 	} else {
-		item->setText(0, QString("%1: %2").arg(name, value.toHexString()));
+		item->setText(0, QString("%1: %2").arg(name, reg.toHexString()));
 	}
 }
 
@@ -1033,7 +1032,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 
 	int itemNumber=0;
 	for(std::size_t i=0;i<gpr_count();++i)
-		update_register(register_view_items_[itemNumber++], GPRegName(i), state.gp_register(i));
+		update_register(register_view_items_[itemNumber++], state.gp_register(i));
 
 	const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
 
