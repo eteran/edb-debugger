@@ -48,14 +48,14 @@ namespace {
 using std::size_t;
 
 enum RegisterIndex {
-	Rax  = 0, Eax  = Rax,
-	Rcx  = 1, Ecx  = Rcx,
-	Rdx  = 2, Edx  = Rdx,
-	Rbx  = 3, Ebx  = Rbx,
-	Rsp  = 4, Esp  = Rsp,
-	Rbp  = 5, Ebp  = Rbp,
-	Rsi  = 6, Esi  = Rsi,
-	Rdi  = 7, Edi  = Rdi,
+	rAX  = 0,
+	rCX  = 1,
+	rDX  = 2,
+	rBX  = 3,
+	rSP  = 4,
+	rBP  = 5,
+	rSI  = 6,
+	rDI  = 7,
 	R8   = 8,
 	R9   = 9,
 	R10  = 10,
@@ -400,9 +400,9 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 bool is_jcc_taken(const State &state, edb::Instruction::ConditionCode cond) {
 
 	if(cond==edb::Instruction::CC_UNCONDITIONAL) return true;
-	if(cond==edb::Instruction::CC_RCXZ) return state.gp_register(Rcx).value<edb::value64>() == 0;
-	if(cond==edb::Instruction::CC_ECXZ) return state.gp_register(Rcx).value<edb::value32>() == 0;
-	if(cond==edb::Instruction::CC_CXZ)  return state.gp_register(Rcx).value<edb::value16>() == 0;
+	if(cond==edb::Instruction::CC_RCXZ) return state.gp_register(rCX).value<edb::value64>() == 0;
+	if(cond==edb::Instruction::CC_ECXZ) return state.gp_register(rCX).value<edb::value32>() == 0;
+	if(cond==edb::Instruction::CC_CXZ)  return state.gp_register(rCX).value<edb::value16>() == 0;
 
 	const edb::reg_t efl = state.flags();
 	const bool cf = (efl & 0x0001) != 0;
@@ -725,8 +725,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 		QString res;
 		query.setFocus(&file);
 		const QString arch=debuggeeIs64Bit() ? "x86-64" : "x86";
-		// Index Eax is equal to Rax
-		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='"+arch+"']/syscall[index=%1]").arg(state.gp_register(Eax).value<edb::reg_t>()));
+		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='"+arch+"']/syscall[index=%1]").arg(state.gp_register(rAX).value<edb::reg_t>()));
 		if (query.isValid()) {
 			query.evaluateTo(&syscall_entry);
 		}
