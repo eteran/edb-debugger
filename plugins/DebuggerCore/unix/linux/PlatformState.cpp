@@ -888,7 +888,7 @@ Register PlatformState::mmx_register(size_t n) const {
 // Desc:
 //------------------------------------------------------------------------------
 Register PlatformState::xmm_register(size_t n) const {
-	if(!xmmIndexValid(n))
+	if(!xmmIndexValid(n) || !avx.xmmFilled)
 		return Register();
 	edb::value128 value(avx.xmm(n));
 	return make_Register(QString("xmm%1").arg(n),value,Register::TYPE_SIMD);
@@ -899,7 +899,7 @@ Register PlatformState::xmm_register(size_t n) const {
 // Desc:
 //------------------------------------------------------------------------------
 Register PlatformState::ymm_register(size_t n) const {
-	if(!ymmIndexValid(n))
+	if(!ymmIndexValid(n) || !avx.ymmFilled)
 		return Register();
 	edb::value256 value(avx.ymm(n));
 	return make_Register(QString("ymm%1").arg(n),value,Register::TYPE_SIMD);
