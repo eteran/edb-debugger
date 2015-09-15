@@ -73,35 +73,6 @@ bool debuggeeIs64Bit() { return edb::v1::pointer_size()==8; }
 size_t gpr_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
 size_t xmm_reg_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
 size_t ymm_reg_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
-const std::array<const char*,GPR_COUNT_IA32> GPReg32Names={
-	"EAX",
-	"ECX",
-	"EDX",
-	"EBX",
-	"ESP",
-	"EBP",
-	"ESI",
-	"EDI"
-};
-const std::array<const char*,GPR_COUNT_AMD64> GPReg64Names={
-	"RAX",
-	"RCX",
-	"RDX",
-	"RBX",
-	"RSP",
-	"RBP",
-	"RSI",
-	"RDI",
-	"R8",
-	"R9",
-	"R10",
-	"R11",
-	"R12",
-	"R13",
-	"R14",
-	"R15"
-};
-const char* GPRegName(size_t n) { return debuggeeIs32Bit() ? GPReg32Names[n] : GPReg64Names[n]; }
 const char* IP_name() { return debuggeeIs32Bit() ? "EIP" : "RIP"; }
 const char* FLAGS_name() { return debuggeeIs32Bit() ? "EFLAGS" : "RFLAGS"; }
 int func_param_regs_count() { return debuggeeIs32Bit() ? 0 : 6; }
@@ -784,7 +755,7 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 		// setup the register view
 		if(QTreeWidgetItem *const gpr = category_list->addCategory(tr("General Purpose"))) {
 			for(std::size_t i=0;i<gpr_count();++i)
-				register_view_items_.push_back(create_register_item(gpr, GPRegName(i)));
+				register_view_items_.push_back(create_register_item(gpr, QString("GPR%1").arg(i)));
 			register_view_items_.push_back(create_register_item(gpr, IP_name()));
 			register_view_items_.push_back(create_register_item(gpr, FLAGS_name()));
 
