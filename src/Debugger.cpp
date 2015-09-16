@@ -301,6 +301,8 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 
 	// Connect the toggle breakpoing feature
 	connect(new QShortcut(QKeySequence(tr("F2")), this), SIGNAL(activated()), this, SLOT(mnuCPUToggleBreakpoint()));
+	// Connect the conditional breakpoint feature
+	connect(new QShortcut(QKeySequence(tr("Shift+F2")), this), SIGNAL(activated()), this, SLOT(mnuCPUAddConditionalBreakpoint()));
 
 	// Connect the run to this line feature
 	connect(new QShortcut(QKeySequence(tr("F4")), this), SIGNAL(activated()), this, SLOT(mnuCPURunToThisLine()));
@@ -1495,7 +1497,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	menu.addAction(tr("Fill with &NOPs"), this, SLOT(mnuCPUFillNop()));
 	menu.addSeparator();
 	menu.addAction(tr("&Toggle Breakpoint"), this, SLOT(mnuCPUToggleBreakpoint()), QKeySequence(tr("F2")));
-	menu.addAction(tr("Add &Conditional Breakpoint"), this, SLOT(mnuCPUAddConditionalBreakpoint()));
+	menu.addAction(tr("Add &Conditional Breakpoint"), this, SLOT(mnuCPUAddConditionalBreakpoint()), QKeySequence(tr("Shift+F2")));
 	menu.addAction(tr("&Remove Breakpoint"), this, SLOT(mnuCPURemoveBreakpoint()));
 
 	add_plugin_context_menu(&menu, &IPlugin::cpu_context_menu);
