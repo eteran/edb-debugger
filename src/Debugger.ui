@@ -360,6 +360,9 @@
    <property name="text">
     <string>Run &amp;Until Return</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+F9</string>
+   </property>
   </action>
   <action name="action_Step_Into_Pass_Signal_To_Application">
    <property name="enabled">
