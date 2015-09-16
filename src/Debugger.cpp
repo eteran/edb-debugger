@@ -307,6 +307,9 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	// Connect the run to this line passing signal feature
 	connect(new QShortcut(QKeySequence(tr("Shift+F4")), this), SIGNAL(activated()), this, SLOT(mnuCPURunToThisLinePassSignal()));
 
+	// Connect Set rIP to this instruction feature
+	connect(new QShortcut(QKeySequence(tr("Ctrl+*")), this), SIGNAL(activated()), this, SLOT(mnuCPUSetEIP()));
+
 	setAcceptDrops(true);
 
 	// setup the list model for instruction details list
@@ -1482,7 +1485,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 	menu.addSeparator();
 	if(edb::v1::debugger_core) {
-		menu.addAction(tr("&Set %1 to this Instruction").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUSetEIP()));
+		menu.addAction(tr("&Set %1 to this Instruction").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUSetEIP()), QKeySequence(tr("Ctrl+*")));
 	}
 	menu.addAction(tr("R&un to this Line"), this, SLOT(mnuCPURunToThisLine()), QKeySequence(tr("F4")));
 	menu.addAction(tr("Run to this Line (Pass Signal To Application)"), this, SLOT(mnuCPURunToThisLinePassSignal()), QKeySequence(tr("Shift+F4")));
