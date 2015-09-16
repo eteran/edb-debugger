@@ -99,6 +99,7 @@ static const QKeySequence conditionalBreakpointShortcut(QObject::tr("Shift+F2"))
 static const QKeySequence runToThisLineShortcut(QObject::tr("F4"));
 static const QKeySequence runToLinePassShortcut(QObject::tr("Shift+F4"));
 static const QKeySequence setRIPShortcut(QObject::tr("Ctrl+*"));
+static const QKeySequence gotoRIPShortcut(QObject::tr("*"));
 
 
 //--------------------------------------------------------------------------
@@ -321,6 +322,8 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 
 	// Connect Set rIP to this instruction feature
 	connect(new QShortcut(setRIPShortcut, this), SIGNAL(activated()), this, SLOT(mnuCPUSetEIP()));
+	// Connect Goto rIP feature
+	connect(new QShortcut(gotoRIPShortcut, this), SIGNAL(activated()), this, SLOT(mnuCPUJumpToEIP()));
 
 	setAcceptDrops(true);
 
@@ -1449,7 +1452,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 	menu.addAction(tr("&Goto Address"), this, SLOT(mnuCPUJumpToAddress()), gotoAddressShortcut);
 	if(edb::v1::debugger_core) {
-		menu.addAction(tr("&Goto %1").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUJumpToEIP()));
+		menu.addAction(tr("&Goto %1").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUJumpToEIP()), gotoRIPShortcut);
 	}
 
 	const edb::address_t address = ui.cpuView->selectedAddress();
