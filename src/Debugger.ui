@@ -269,6 +269,9 @@
    <property name="text">
     <string>&amp;Restart</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+F2</string>
+   </property>
   </action>
   <action name="action_Detach">
    <property name="enabled">
