@@ -848,7 +848,7 @@ Register PlatformState::gp_register(int n) const { // TODO: switch this and simi
 
 		if(x86.gpr64Filled && is64Bit())
 			return make_Register(x86.GPReg64Names[n], x86.GPRegs[n], Register::TYPE_GPR);
-		else if(x86.gpr32Filled)
+		else if(x86.gpr32Filled && n<IA32_GPR_COUNT)
 			return make_Register<32>(x86.GPReg32Names[n], x86.GPRegs[n], Register::TYPE_GPR);
 	}
 	return Register();
