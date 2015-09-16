@@ -711,7 +711,7 @@ Register PlatformState::instruction_pointer_register() const {
 // Desc: returns what is conceptually the frame pointer for this platform
 //------------------------------------------------------------------------------
 edb::address_t PlatformState::frame_pointer() const {
-	return x86.GPRegs[X86::RSP];
+	return stack_pointer();
 }
 
 //------------------------------------------------------------------------------
@@ -727,7 +727,7 @@ edb::address_t PlatformState::instruction_pointer() const {
 // Desc: returns the stack pointer for this platform
 //------------------------------------------------------------------------------
 edb::address_t PlatformState::stack_pointer() const {
-	return x86.GPRegs[X86::RSP];
+	return gp_register(X86::RSP).valueAsAddress();
 }
 
 //------------------------------------------------------------------------------
