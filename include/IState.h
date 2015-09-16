@@ -40,25 +40,25 @@ public:
 	virtual edb::address_t frame_pointer() const = 0;
 	virtual edb::address_t instruction_pointer() const = 0;
 	virtual edb::address_t stack_pointer() const = 0;
-	virtual edb::reg_t debug_register(int n) const = 0;
+	virtual edb::reg_t debug_register(size_t n) const = 0;
 	virtual edb::reg_t flags() const = 0;
 	virtual void adjust_stack(int bytes) = 0;
 	virtual void clear() = 0;
 	virtual bool empty() const = 0;
-	virtual void set_debug_register(int n, edb::reg_t value) = 0;
+	virtual void set_debug_register(size_t n, edb::reg_t value) = 0;
 	virtual void set_flags(edb::reg_t flags) = 0;
 	virtual void set_instruction_pointer(edb::address_t value) = 0;
 	virtual void set_register(const QString &name, edb::reg_t value) = 0;
 
 public:
 	// GP
-	virtual Register gp_register(int n) const = 0;
+	virtual Register gp_register(size_t n) const = 0;
 
 public:
 	// FPU
 	virtual int fpu_stack_pointer() const = 0;
 	virtual bool fpu_register_is_empty(std::size_t n) const = 0;
-	virtual edb::value80 fpu_register(int n) const = 0;
+	virtual edb::value80 fpu_register(size_t n) const = 0;
 	virtual QString fpu_register_tag_string(std::size_t n) const = 0;
 	virtual edb::value16 fpu_control_word() const = 0;
 	virtual edb::value16 fpu_status_word() const = 0;

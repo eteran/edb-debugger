@@ -277,10 +277,10 @@ public:
 	virtual edb::address_t frame_pointer() const;
 	virtual edb::address_t instruction_pointer() const;
 	virtual edb::address_t stack_pointer() const;
-	virtual edb::reg_t debug_register(int n) const;
+	virtual edb::reg_t debug_register(size_t n) const;
 	virtual edb::reg_t flags() const;
 	virtual int fpu_stack_pointer() const;
-	virtual edb::value80 fpu_register(int n) const;
+	virtual edb::value80 fpu_register(size_t n) const;
 	virtual bool fpu_register_is_empty(std::size_t n) const;
 	virtual QString fpu_register_tag_string(std::size_t n) const;
 	virtual edb::value16 fpu_control_word() const;
@@ -289,14 +289,14 @@ public:
 	virtual void adjust_stack(int bytes);
 	virtual void clear();
 	virtual bool empty() const;
-	virtual void set_debug_register(int n, edb::reg_t value);
+	virtual void set_debug_register(size_t n, edb::reg_t value);
 	virtual void set_flags(edb::reg_t flags);
 	virtual void set_instruction_pointer(edb::address_t value);
 	virtual void set_register(const QString &name, edb::reg_t value);
 	virtual Register mmx_register(size_t n) const;
 	virtual Register xmm_register(size_t n) const;
 	virtual Register ymm_register(size_t n) const;
-	virtual Register gp_register(int n) const;
+	virtual Register gp_register(size_t n) const;
 	size_t pointer_size() const { return edb::v1::pointer_size(); }
 	bool is64Bit() const { return pointer_size()==8; }
 	bool is32Bit() const { return pointer_size()==4; }

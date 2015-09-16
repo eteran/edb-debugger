@@ -49,11 +49,11 @@ public:
 	edb::address_t frame_pointer() const;
 	edb::address_t instruction_pointer() const;
 	edb::address_t stack_pointer() const;
-	edb::reg_t debug_register(int n) const;
+	edb::reg_t debug_register(size_t n) const;
 	edb::reg_t flags() const;
-	Register gp_register(int n) const;
+	Register gp_register(size_t n) const;
 	int fpu_stack_pointer() const;
-	edb::value80 fpu_register(int n) const;
+	edb::value80 fpu_register(size_t n) const;
 	bool fpu_register_is_empty(std::size_t n) const;
 	QString fpu_register_tag_string(std::size_t n) const;
 	edb::value16 fpu_control_word() const;
@@ -67,7 +67,7 @@ public:
 	bool empty() const;
 
 public:
-	void set_debug_register(int n, edb::reg_t value);
+	void set_debug_register(size_t n, edb::reg_t value);
 	void set_flags(edb::reg_t flags);
 	void set_instruction_pointer(edb::address_t value);
 	void set_register(const QString &name, edb::reg_t value);

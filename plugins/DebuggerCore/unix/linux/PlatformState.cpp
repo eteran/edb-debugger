@@ -722,7 +722,7 @@ edb::address_t PlatformState::stack_pointer() const {
 // Name: debug_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::reg_t PlatformState::debug_register(int n) const {
+edb::reg_t PlatformState::debug_register(size_t n) const {
 	assert(dbgIndexValid(n));
 	return x86.dbgRegs[n];
 }
@@ -747,7 +747,7 @@ int PlatformState::fpu_stack_pointer() const {
 // Name: fpu_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::value80 PlatformState::fpu_register(int n) const {
+edb::value80 PlatformState::fpu_register(size_t n) const {
 	assert(fpuIndexValid(n));
 	return x87.R[n];
 }
@@ -816,7 +816,7 @@ bool PlatformState::empty() const {
 // Name: set_debug_register
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::set_debug_register(int n, edb::reg_t value) {
+void PlatformState::set_debug_register(size_t n, edb::reg_t value) {
 	assert(dbgIndexValid(n));
 	x86.dbgRegs[n] = value;
 }
@@ -842,7 +842,7 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 // Name: set_register
 // Desc:
 //------------------------------------------------------------------------------
-Register PlatformState::gp_register(int n) const { // TODO: switch this and similar methods to size_t arg
+Register PlatformState::gp_register(size_t n) const {
 
 	if(gprIndexValid(n)) {
 

@@ -217,7 +217,7 @@ void State::set_flags(edb::reg_t flags) {
 // Name: debug_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::reg_t State::debug_register(int n) const {
+edb::reg_t State::debug_register(size_t n) const {
 	if(impl_) {
 		return impl_->debug_register(n);
 	}
@@ -228,7 +228,7 @@ edb::reg_t State::debug_register(int n) const {
 // Name: set_debug_register
 // Desc:
 //------------------------------------------------------------------------------
-void State::set_debug_register(int n, edb::reg_t value) {
+void State::set_debug_register(size_t n, edb::reg_t value) {
 	if(impl_) {
 		impl_->set_debug_register(n, value);
 	}
@@ -249,7 +249,7 @@ int State::fpu_stack_pointer() const {
 // Name: fpu_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::value80 State::fpu_register(int n) const {
+edb::value80 State::fpu_register(size_t n) const {
 	if(impl_) {
 		return impl_->fpu_register(n);
 	}
@@ -348,7 +348,7 @@ Register State::ymm_register(std::size_t n) const {
 // Name: gp_register
 // Desc:
 //------------------------------------------------------------------------------
-Register State::gp_register(int n) const {
+Register State::gp_register(size_t n) const {
 	if(impl_) {
 		return impl_->gp_register(n);
 	}
