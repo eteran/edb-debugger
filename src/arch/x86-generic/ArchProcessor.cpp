@@ -1007,10 +1007,11 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 
 	const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
 
+	Register rIP=state.instruction_pointer_register();
 	if(!symname.isEmpty()) {
-		register_view_items_[itemNumber++]->setText(0, QString("%0: %1 <%2>").arg(IP_name()).arg(state.instruction_pointer().toHexString()).arg(symname));
+		register_view_items_[itemNumber++]->setText(0, QString("%0: %1 <%2>").arg(rIP.name().toUpper()).arg(rIP.toHexString()).arg(symname));
 	} else {
-		register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(IP_name()).arg(state.instruction_pointer().toHexString()));
+		register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(rIP.name().toUpper()).arg(rIP.toHexString()));
 	}
 	register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(FLAGS_name()).arg(state.flags().toHexString()));
 
