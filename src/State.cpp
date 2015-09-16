@@ -86,6 +86,17 @@ bool State::empty() const {
 }
 
 //------------------------------------------------------------------------------
+// Name: instruction_pointer_register
+// Desc:
+//------------------------------------------------------------------------------
+Register State::instruction_pointer_register() const {
+	if(impl_) {
+		return impl_->instruction_pointer_register();
+	}
+	return Register();
+}
+
+//------------------------------------------------------------------------------
 // Name: instruction_pointer
 // Desc:
 //------------------------------------------------------------------------------
