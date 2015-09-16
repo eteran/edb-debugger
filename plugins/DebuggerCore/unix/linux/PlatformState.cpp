@@ -695,6 +695,18 @@ Register PlatformState::value(const QString &reg) const {
 }
 
 //------------------------------------------------------------------------------
+// Name: instruction_pointer_register
+// Desc:
+//------------------------------------------------------------------------------
+Register PlatformState::instruction_pointer_register() const {
+	if(x86.gpr64Filled && is64Bit())
+		return make_Register(x86.IP64Name, x86.IP, Register::TYPE_GPR);
+	else if(x86.gpr32Filled)
+		return make_Register<32>(x86.IP32Name, x86.IP, Register::TYPE_GPR);
+	return Register();
+}
+
+//------------------------------------------------------------------------------
 // Name: frame_pointer
 // Desc: returns what is conceptually the frame pointer for this platform
 //------------------------------------------------------------------------------
@@ -707,7 +719,7 @@ edb::address_t PlatformState::frame_pointer() const {
 // Desc: returns the instruction pointer for this platform
 //------------------------------------------------------------------------------
 edb::address_t PlatformState::instruction_pointer() const {
-	return x86.IP;
+	return instruction_pointer_register().valueAsAddress();
 }
 
 //------------------------------------------------------------------------------
