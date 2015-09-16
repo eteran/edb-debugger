@@ -1435,7 +1435,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	menu.addAction(tr("Set Address &Label"), this, SLOT(mnuCPULabelAddress()));
 	menu.addSeparator();
 
-	menu.addAction(tr("&Goto Address"), this, SLOT(mnuCPUJumpToAddress()));
+	menu.addAction(tr("&Goto Address"), this, SLOT(mnuCPUJumpToAddress()), QKeySequence(tr("Ctrl+G")));
 	if(edb::v1::debugger_core) {
 		menu.addAction(tr("&Goto %1").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUJumpToEIP()));
 	}
@@ -1559,7 +1559,7 @@ void Debugger::mnuStackContextMenu(const QPoint &pos) {
 	menu->addAction(tr("Follow Address In &CPU"), this, SLOT(mnuStackFollowInCPU()));
 	menu->addAction(tr("Follow Address In &Dump"), this, SLOT(mnuStackFollowInDump()));
 	menu->addAction(tr("Follow Address In &Stack"), this, SLOT(mnuStackFollowInStack()));
-	menu->addAction(tr("&Goto Address"), this, SLOT(mnuStackGotoAddress()));
+	menu->addAction(tr("&Goto Address"), this, SLOT(mnuStackGotoAddress()), QKeySequence(tr("Ctrl+G")));
 	if(edb::v1::debugger_core) {
 		menu->addAction(tr("Goto %1").arg(edb::v1::debugger_core->stack_pointer().toUpper()), this, SLOT(mnuStackGotoESP()));
 		menu->addAction(tr("Goto %1").arg(edb::v1::debugger_core->frame_pointer().toUpper()), this, SLOT(mnuStackGotoEBP()));
@@ -1599,7 +1599,7 @@ void Debugger::mnuDumpContextMenu(const QPoint &pos) {
 	menu->addAction(tr("Follow Address In &CPU"), this, SLOT(mnuDumpFollowInCPU()));
 	menu->addAction(tr("Follow Address In &Dump"), this, SLOT(mnuDumpFollowInDump()));
 	menu->addAction(tr("Follow Address In &Stack"), this, SLOT(mnuDumpFollowInStack()));
-	menu->addAction(tr("&Goto Address"), this, SLOT(mnuDumpGotoAddress()));
+	menu->addAction(tr("&Goto Address"), this, SLOT(mnuDumpGotoAddress()), QKeySequence(tr("Ctrl+G")));
 	menu->addSeparator();
 	menu->addAction(tr("&Edit Bytes"), this, SLOT(mnuDumpModify()));
 	menu->addSeparator();
