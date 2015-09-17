@@ -38,6 +38,7 @@ public:
 	virtual QString flags_to_string(edb::reg_t flags) const = 0;
 	virtual Register value(const QString &reg) const = 0;
 	virtual Register instruction_pointer_register() const = 0;
+	virtual Register flags_register() const = 0;
 	virtual edb::address_t frame_pointer() const = 0;
 	virtual edb::address_t instruction_pointer() const = 0;
 	virtual edb::address_t stack_pointer() const = 0;
