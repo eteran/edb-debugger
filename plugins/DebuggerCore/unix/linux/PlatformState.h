@@ -275,6 +275,7 @@ public:
 	virtual QString flags_to_string(edb::reg_t flags) const;
 	virtual Register value(const QString &reg) const;
 	virtual Register instruction_pointer_register() const;
+	virtual Register flags_register() const;
 	virtual edb::address_t frame_pointer() const;
 	virtual edb::address_t instruction_pointer() const;
 	virtual edb::address_t stack_pointer() const;

@@ -740,11 +740,26 @@ edb::reg_t PlatformState::debug_register(size_t n) const {
 }
 
 //------------------------------------------------------------------------------
+// Name: flags_register
+// Desc:
+//------------------------------------------------------------------------------
+Register PlatformState::flags_register() const {
+	if(x86.gpr64Filled && is64Bit())
+		return make_Register(x86.flags64Name, x86.flags, Register::TYPE_GPR);
+	else if(x86.gpr32Filled)
+		return make_Register<32>(x86.flags32Name, x86.flags, Register::TYPE_GPR);
+	return Register();
+}
+
+//------------------------------------------------------------------------------
 // Name: flags
 // Desc:
 //------------------------------------------------------------------------------
 edb::reg_t PlatformState::flags() const {
-	return x86.flags;
+	Register flagsR=flags_register();
+	if(flagsR.bitSize()==64) return flagsR.value<edb::reg_t>();
+	else if(flagsR) return edb::reg_t::fromZeroExtended(flagsR.value<edb::value32>());
+	return 0;
 }
 
 //------------------------------------------------------------------------------
