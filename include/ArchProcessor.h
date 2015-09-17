@@ -49,7 +49,7 @@ public:
 	void update_register_view(const QString &default_region_name, const State &state);
 
 private:
-	void update_register(QTreeWidgetItem *item, const QString &name, const Register &reg) const;
+	void update_register(QTreeWidgetItem *item, const Register &reg) const;
 	void update_fpu_view(int& itemNumber, const State &state, const QPalette& palette) const;
 
 private:

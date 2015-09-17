@@ -812,8 +812,10 @@ void DebuggerCore::get_state(State *state) {
 		state_impl->clear();
 		if(attached()) {
 
-			if(!fillStateFromPrStatus(state_impl))
-				fillStateFromSimpleRegs(state_impl);
+			if(sizeof(void*)==8)
+				fillStateFromSimpleRegs(state_impl); // 64-bit GETREGS call always returns 64-bit state, so use it
+			else if(!fillStateFromPrStatus(state_impl)) // if EDB is 32 bit, use GETREGSET so that we get 64-bit state for 64-bit debuggee
+				fillStateFromSimpleRegs(state_impl); // failing that, try to just get what we can
 
 			long ptraceStatus=0;
 

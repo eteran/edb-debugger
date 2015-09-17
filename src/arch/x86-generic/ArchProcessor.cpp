@@ -73,37 +73,6 @@ bool debuggeeIs64Bit() { return edb::v1::pointer_size()==8; }
 size_t gpr_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
 size_t xmm_reg_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
 size_t ymm_reg_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
-const std::array<const char*,GPR_COUNT_IA32> GPReg32Names={
-	"EAX",
-	"ECX",
-	"EDX",
-	"EBX",
-	"ESP",
-	"EBP",
-	"ESI",
-	"EDI"
-};
-const std::array<const char*,GPR_COUNT_AMD64> GPReg64Names={
-	"RAX",
-	"RCX",
-	"RDX",
-	"RBX",
-	"RSP",
-	"RBP",
-	"RSI",
-	"RDI",
-	"R8",
-	"R9",
-	"R10",
-	"R11",
-	"R12",
-	"R13",
-	"R14",
-	"R15"
-};
-const char* GPRegName(size_t n) { return debuggeeIs32Bit() ? GPReg32Names[n] : GPReg64Names[n]; }
-const char* IP_name() { return debuggeeIs32Bit() ? "EIP" : "RIP"; }
-const char* FLAGS_name() { return debuggeeIs32Bit() ? "EFLAGS" : "RFLAGS"; }
 int func_param_regs_count() { return debuggeeIs32Bit() ? 0 : 6; }
 
 template<typename T>
@@ -784,9 +753,9 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 		// setup the register view
 		if(QTreeWidgetItem *const gpr = category_list->addCategory(tr("General Purpose"))) {
 			for(std::size_t i=0;i<gpr_count();++i)
-				register_view_items_.push_back(create_register_item(gpr, GPRegName(i)));
-			register_view_items_.push_back(create_register_item(gpr, IP_name()));
-			register_view_items_.push_back(create_register_item(gpr, FLAGS_name()));
+				register_view_items_.push_back(create_register_item(gpr, QString("GPR%1").arg(i)));
+			register_view_items_.push_back(create_register_item(gpr, "rIP"));
+			register_view_items_.push_back(create_register_item(gpr, "rFLAGS"));
 
 			// split [ER]FLAGS view
 			split_flags_ = new QTreeWidgetItem(register_view_items_.back());
@@ -876,21 +845,20 @@ Register ArchProcessor::value_from_item(const QTreeWidgetItem &item) {
 // Name: update_register
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::update_register(QTreeWidgetItem *item, const QString &name_, const Register &reg) const {
+void ArchProcessor::update_register(QTreeWidgetItem *item, const Register &reg) const {
 
 	Q_ASSERT(item);
 
 	QString reg_string;
 	int string_length;
-	const edb::reg_t value = reg.value<edb::reg_t>();
-	const QString name=debuggeeIs64Bit() ? name_.leftJustified(3) : name_;
+	const QString name=reg.name().leftJustified(3).toUpper();
 
-	if(edb::v1::get_ascii_string_at_address(value, reg_string, edb::v1::config().min_string_length, 256, string_length)) {
-		item->setText(0, QString("%1: %2 ASCII \"%3\"").arg(name, value.toHexString(), reg_string));
-	} else if(edb::v1::get_utf16_string_at_address(value, reg_string, edb::v1::config().min_string_length, 256, string_length)) {
-		item->setText(0, QString("%1: %2 UTF16 \"%3\"").arg(name, value.toHexString(), reg_string));
+	if(edb::v1::get_ascii_string_at_address(reg.valueAsAddress(), reg_string, edb::v1::config().min_string_length, 256, string_length)) {
+		item->setText(0, QString("%1: %2 ASCII \"%3\"").arg(name, reg.toHexString(), reg_string));
+	} else if(edb::v1::get_utf16_string_at_address(reg.valueAsAddress(), reg_string, edb::v1::config().min_string_length, 256, string_length)) {
+		item->setText(0, QString("%1: %2 UTF16 \"%3\"").arg(name, reg.toHexString(), reg_string));
 	} else {
-		item->setText(0, QString("%1: %2").arg(name, value.toHexString()));
+		item->setText(0, QString("%1: %2").arg(name, reg.toHexString()));
 	}
 }
 
@@ -1033,16 +1001,18 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 
 	int itemNumber=0;
 	for(std::size_t i=0;i<gpr_count();++i)
-		update_register(register_view_items_[itemNumber++], GPRegName(i), state.gp_register(i));
+		update_register(register_view_items_[itemNumber++], state.gp_register(i));
 
 	const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
 
+	Register rIP=state.instruction_pointer_register();
 	if(!symname.isEmpty()) {
-		register_view_items_[itemNumber++]->setText(0, QString("%0: %1 <%2>").arg(IP_name()).arg(state.instruction_pointer().toHexString()).arg(symname));
+		register_view_items_[itemNumber++]->setText(0, QString("%0: %1 <%2>").arg(rIP.name().toUpper()).arg(rIP.toHexString()).arg(symname));
 	} else {
-		register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(IP_name()).arg(state.instruction_pointer().toHexString()));
+		register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(rIP.name().toUpper()).arg(rIP.toHexString()));
 	}
-	register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(FLAGS_name()).arg(state.flags().toHexString()));
+	Register flags=state.flags_register();
+	register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(flags.name().toUpper()).arg(flags.toHexString()));
 
 	const QString usualSegs[]={"es","cs","ss","ds"};
 	for(const QString sreg : usualSegs) {
