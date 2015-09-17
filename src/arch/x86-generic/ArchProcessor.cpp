@@ -73,7 +73,6 @@ bool debuggeeIs64Bit() { return edb::v1::pointer_size()==8; }
 size_t gpr_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
 size_t xmm_reg_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
 size_t ymm_reg_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
-const char* FLAGS_name() { return debuggeeIs32Bit() ? "EFLAGS" : "RFLAGS"; }
 int func_param_regs_count() { return debuggeeIs32Bit() ? 0 : 6; }
 
 template<typename T>
@@ -756,7 +755,7 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 			for(std::size_t i=0;i<gpr_count();++i)
 				register_view_items_.push_back(create_register_item(gpr, QString("GPR%1").arg(i)));
 			register_view_items_.push_back(create_register_item(gpr, "rIP"));
-			register_view_items_.push_back(create_register_item(gpr, FLAGS_name()));
+			register_view_items_.push_back(create_register_item(gpr, "rFLAGS"));
 
 			// split [ER]FLAGS view
 			split_flags_ = new QTreeWidgetItem(register_view_items_.back());
