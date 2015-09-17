@@ -294,6 +294,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 				} else {
 					if(ui->keepSize->isChecked()) {
 						QMessageBox::warning(this, tr("Error In Code"), tr("New instruction is too big to fit."));
+						return;
 					} else {
 						edb::v1::modify_bytes(address_, bytes.size(), bytes, 0x00);
 					}
@@ -306,7 +307,6 @@ void DialogAssembler::on_buttonBox_accepted() {
 	} else {
 		QMessageBox::warning(this, tr("Error In Code"), tr("Failed to assembly the given assemble code."));
 	}
-
 }
 
 }
