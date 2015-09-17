@@ -252,6 +252,7 @@ int DebuggerCoreUNIX::pointer_size() const {
 QMap<long, QString> DebuggerCoreUNIX::exceptions() const {
 	QMap<long, QString> exceptions;
 
+
 	#ifdef SIGABRT
 		exceptions[SIGABRT] = "SIGABRT";
 	#endif
@@ -342,7 +343,15 @@ QMap<long, QString> DebuggerCoreUNIX::exceptions() const {
 	#ifdef SIGRTMAX
 		exceptions[SIGRTMAX] = "SIGRTMAX";
 	#endif
-
+	#ifdef SIGIO
+		exceptions[SIGIO] = "SIGIO";
+	#endif
+	#ifdef SIGSTKFLT
+		exceptions[SIGSTKFLT] = "SIGSTKFLT";
+	#endif
+	#ifdef SIGWINCH
+		exceptions[SIGWINCH] = "SIGWINCH";
+	#endif
 	return exceptions;
 }
 
