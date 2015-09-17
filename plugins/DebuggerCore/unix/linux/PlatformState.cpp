@@ -123,9 +123,8 @@ void PlatformState::fillFrom(const UserRegsStructX86& regs) {
 	std::memcpy(&x86.GPRegs[X86::ESI],&regs.esi,sizeof(regs.esi));
 	std::memcpy(&x86.GPRegs[X86::EDI],&regs.edi,sizeof(regs.edi));
 	std::memcpy(&x86.orig_ax,&regs.orig_eax,sizeof(regs.orig_eax));
-	// TODO: these two should also be treated as GPRs
-	x86.flags = regs.eflags;
-	x86.IP = regs.eip;
+	std::memcpy(&x86.flags,&regs.eflags,sizeof(regs.eflags));
+	std::memcpy(&x86.IP,&regs.eip,sizeof(regs.eip));
 	x86.segRegs[X86::ES] = regs.xes;
 	x86.segRegs[X86::CS] = regs.xcs;
 	x86.segRegs[X86::SS] = regs.xss;
@@ -283,9 +282,8 @@ void PlatformState::fillFrom(const PrStatus_X86& regs)
 	std::memcpy(&x86.GPRegs[X86::ESI],&regs.esi,sizeof(regs.esi));
 	std::memcpy(&x86.GPRegs[X86::EDI],&regs.edi,sizeof(regs.edi));
 	std::memcpy(&x86.orig_ax,&regs.orig_eax,sizeof(regs.orig_eax));
-	// TODO: these two should also be treated as GPRs
-	x86.flags = regs.eflags;
-	x86.IP = regs.eip;
+	std::memcpy(&x86.flags,&regs.eflags,sizeof(regs.eflags));
+	std::memcpy(&x86.IP,&regs.eip,sizeof(regs.eip));
 	x86.segRegs[X86::ES] = regs.es;
 	x86.segRegs[X86::CS] = regs.cs;
 	x86.segRegs[X86::SS] = regs.ss;
