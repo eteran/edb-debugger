@@ -117,7 +117,7 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 		return Message(
 			tr("Bus Error"),
 			tr(
-				"<p>The debugged application tried to read or write data that is misaligned.</p>"
+				"<p>The debugged application received a bus error. Typically, this means that it tried to read or write data that is misaligned.</p>"
 				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
 			);
 #ifdef SIGSTKFLT
