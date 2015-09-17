@@ -1012,7 +1012,8 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	} else {
 		register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(rIP.name().toUpper()).arg(rIP.toHexString()));
 	}
-	register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(FLAGS_name()).arg(state.flags().toHexString()));
+	Register flags=state.flags_register();
+	register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(flags.name().toUpper()).arg(flags.toHexString()));
 
 	const QString usualSegs[]={"es","cs","ss","ds"};
 	for(const QString sreg : usualSegs) {
