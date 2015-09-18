@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<assemblers>
+	<assembler name="yasm">
+		<executable command_line="/usr/bin/yasm -f bin %IN% -o %OUT%" extension="asm" />
+		<template>
+		<![CDATA[
+		[BITS %BITS%]
+		[SECTION .text vstart=%VADDR% valign=1]
+	
+		%CODE%
+		]]>
+		</template>
+	</assembler>
+	<assembler name="nasm">
+		<executable command_line="/usr/bin/nasm -f bin %IN% -o %OUT%" extension="asm" />
+		<template>
+		<![CDATA[
+		[BITS %BITS%]
+		ORG %VADDR%
+	
+		%CODE%
+		]]>
+	</template>
+	</assembler>
+</assemblers>

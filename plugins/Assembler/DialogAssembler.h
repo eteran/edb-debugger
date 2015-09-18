@@ -39,7 +39,10 @@ public Q_SLOTS:
 	
 public:
 	void set_address(edb::address_t address);
-	
+
+public:
+	virtual void showEvent(QShowEvent *event) override;
+
 private:
 	 Ui::DialogAssembler *const ui;
 	 edb::address_t             address_;

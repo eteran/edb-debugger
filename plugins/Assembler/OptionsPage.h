@@ -36,8 +36,7 @@ public:
 	virtual void showEvent(QShowEvent *event);
 
 public Q_SLOTS:
-	virtual void on_assemblerPath_editTextChanged(const QString &text);
-	virtual void on_toolButton_clicked();
+	virtual void on_assemblerName_currentIndexChanged(const QString &text);
 	
 private:
 	Ui::OptionsPage *const ui;

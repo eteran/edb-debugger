@@ -1,0 +1,5 @@
+<RCC>
+  <qresource prefix="/debugger/Assembler" >
+	<file>xml/assemblers.xml</file>
+  </qresource>
+</RCC>

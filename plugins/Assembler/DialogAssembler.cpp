@@ -31,6 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QFileInfo>
 #include <QSettings>
+#include <QDomDocument>
+#include <QXmlQuery>
 
 #ifdef Q_OS_UNIX
 #include <sys/types.h>
@@ -81,8 +83,9 @@ void DialogAssembler::set_address(edb::address_t address) {
 //------------------------------------------------------------------------------
 void DialogAssembler::on_buttonBox_accepted() {
 
+#if 1
 	static const QString mnemonic_regex   = "([a-z][a-z0-9]*)";
-	static const QString register_regex   = "((?:(?:e|r)?(?:ax|bx|cx|dx|bp|sp|si|di|ip))|(?:[abcd](?:l|h))|(?:sp|bp|si|di)l|(?:[cdefgs]s)|(?:x?mm[0-7])|r(?:8|9|(?:1[0-5]))[dwb]?)";
+	static const QString register_regex   = "((?:(?:e|r)?(?:ax|bx|cx|dx|bp|sp|si|di|ip))|(?:[abcd](?:l|h))|(?:sp|bp|si|di)l|(?:[cdefgs]s)|(?:[xy]?mm[0-7])|r(?:8|9|(?:1[0-5]))[dwb]?)";
 	static const QString constant_regex   = "((?:0[0-7]*)|(?:0x[0-9a-f]+)|(?:[1-9][0-9]*))";
 
 	static const QString pointer_regex    = "(?:(t?byte|(?:xmm|[qdf]?)word)(?:\\s+ptr)?)?";
@@ -201,112 +204,140 @@ void DialogAssembler::on_buttonBox_accepted() {
 		}
 
 		const QString nasm_syntax = list[1] + ' ' + operands.join(",");
-
-		QTemporaryFile source_file(QString("%1/edb_asm_temp_%2_XXXXXX.asm").arg(QDir::tempPath()).arg(getpid()));
-		if(!source_file.open()) {
-			QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary source file."));
-			return;
-		}
-
-		QTemporaryFile output_file(QString("%1/edb_asm_temp_%2_XXXXXX.bin").arg(QDir::tempPath()).arg(getpid()));
-		if(!output_file.open()) {
-			QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary object file."));
-			return;
-		}
-
+#else
+	if(true) {
+		const QString nasm_syntax = ui->assembly->currentText().trimmed();
+#endif
 		QSettings settings;
-		const QString assembler = settings.value("Assembler/helper_application", "/usr/bin/yasm").toString();
-		const QFile file(assembler);
-		if(assembler.isEmpty() || !file.exists()) {
-			QMessageBox::warning(this, tr("Couldn't Find Assembler"), tr("Failed to locate your assembler, please specify one in the options."));
-			return;
-		}
+		const QString assembler = settings.value("Assembler/helper", "yasm").toString();
+		
+		QFile file(":/debugger/Assembler/xml/assemblers.xml");
+		if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 
-		const QFileInfo info(assembler);
+			QXmlQuery query;
+			QString assembler_xml;
+			query.setFocus(&file);
+			query.setQuery(QString("assemblers/assembler[@name='%1']").arg(assembler));
+			if (query.isValid()) {
+				query.evaluateTo(&assembler_xml);
+			}
+			file.close();	
 
-		QProcess process;
-		QStringList arguments;
-		QString program(assembler);
+			QDomDocument xml;
+			xml.setContent(assembler_xml);
+			QDomElement asm_root       = xml.documentElement();
+			QDomElement asm_executable = asm_root.firstChildElement("executable");
+			QDomElement asm_template   = asm_root.firstChildElement("template");
 
-		if(info.fileName() == "yasm") {
+			const QString asm_name = asm_root.attribute("name");
+			const QString asm_cmd  = asm_executable.attribute("command_line");
+			const QString asm_ext  = asm_executable.attribute("extension");
+			QString asm_code       = asm_template.text();
 
+			QStringList command_line = edb::v1::parse_command_line(asm_cmd);
+			if(command_line.isEmpty()) {
+				QMessageBox::warning(this, tr("Couldn't Find Assembler"), tr("Failed to locate your assembler."));
+				return;			
+			}
+			
+						
+			const QFile file(command_line[0]);
+			if(command_line[0].isEmpty() || !file.exists()) {
+				QMessageBox::warning(this, tr("Couldn't Find Assembler"), tr("Failed to locate your assembler."));
+				return;
+			}
+
+			QTemporaryFile source_file(QString("%1/edb_asm_temp_%2_XXXXXX.%3").arg(QDir::tempPath()).arg(getpid()).arg(asm_ext));
+			if(!source_file.open()) {
+				QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary source file."));
+				return;
+			}
+
+			QTemporaryFile output_file(QString("%1/edb_asm_temp_%2_XXXXXX.bin").arg(QDir::tempPath()).arg(getpid()));
+			if(!output_file.open()) {
+				QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary object file."));
+				return;
+			}		
+			
 			switch(edb::v1::debugger_core->cpu_type()) {
 			case edb::string_hash("x86"):
-				source_file.write("[BITS 32]\n");
+				asm_code.replace("%BITS%", "32");
 				break;
 			case edb::string_hash("x86-64"):
-				source_file.write("[BITS 64]\n");
+				asm_code.replace("%BITS%", "64");
 				break;
 			default:
 				Q_ASSERT(0);
-			}
-
-			source_file.write(QString("[SECTION .text vstart=%1 valign=1]\n\n").arg(edb::v1::format_pointer(address_)).toLatin1());
-			source_file.write(nasm_syntax.toLatin1());
-			source_file.write("\n");
+			}			
+			
+			asm_code.replace("%VADDR%", edb::v1::format_pointer(address_));
+			asm_code.replace("%CODE%",  nasm_syntax);
+						
+			source_file.write(asm_code.toLatin1());
 			source_file.close();
-
-			arguments << "-o" << output_file.fileName();
-			arguments << "-f" << "bin";
-			arguments << source_file.fileName();
-		} else if(info.fileName() == "nasm") {
-
-			switch(edb::v1::debugger_core->cpu_type()) {
-			case edb::string_hash("x86"):
-				source_file.write("[BITS 32]\n");
-				break;
-			case edb::string_hash("x86-64"):
-				source_file.write("[BITS 64]\n");
-				break;
-			default:
-				Q_ASSERT(0);
+						
+			QProcess process;
+			QString program(command_line[0]);
+			
+			command_line.pop_front();
+			
+			QStringList arguments = command_line;
+			for(auto &arg : arguments) {
+				arg.replace("%OUT%",  output_file.fileName());
+				arg.replace("%IN%",   source_file.fileName());
 			}
+			
+			qDebug() << "RUNNING ASM TOOL: " << program << arguments;
+			
+			process.start(program, arguments);
 
-			source_file.write(QString("ORG %1\n\n").arg(edb::v1::format_pointer(address_)).toLatin1());
-			source_file.write(nasm_syntax.toLatin1());
-			source_file.write("\n");
-			source_file.close();
+			if(process.waitForFinished()) {
 
+				const int exit_code = process.exitCode();
 
-			arguments << "-o" << output_file.fileName();
-			arguments << "-f" << "bin";
-			arguments << source_file.fileName();
-		}
-
-		process.start(program, arguments);
-
-		if(process.waitForFinished()) {
-
-			const int exit_code = process.exitCode();
-
-			if(exit_code != 0) {
-				QMessageBox::warning(this, tr("Error In Code"), process.readAllStandardError());
-			} else {
-				QByteArray bytes = output_file.readAll();
-
-				if(bytes.size() <= instruction_size_) {
-					if(ui->fillWithNOPs->isChecked()) {
-						// TODO: get system independent nop-code
-						edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x90);
-					} else {
-						edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x00);
-					}
+				if(exit_code != 0) {
+					QMessageBox::warning(this, tr("Error In Code"), process.readAllStandardError());
 				} else {
-					if(ui->keepSize->isChecked()) {
-						QMessageBox::warning(this, tr("Error In Code"), tr("New instruction is too big to fit."));
-						return;
+					QByteArray bytes = output_file.readAll();
+
+					if(bytes.size() <= instruction_size_) {
+						if(ui->fillWithNOPs->isChecked()) {
+							// TODO: get system independent nop-code
+							edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x90);
+						} else {
+							edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x00);
+						}
 					} else {
-						edb::v1::modify_bytes(address_, bytes.size(), bytes, 0x00);
+						if(ui->keepSize->isChecked()) {
+							QMessageBox::warning(this, tr("Error In Code"), tr("New instruction is too big to fit."));
+							return;
+						} else {
+							edb::v1::modify_bytes(address_, bytes.size(), bytes, 0x00);
+						}
 					}
+
+					set_address(address_ + bytes.size());
+					edb::v1::set_cpu_selected_address(address_ + bytes.size());
 				}
-				
-				set_address(address_ + bytes.size());
-				edb::v1::set_cpu_selected_address(address_ + bytes.size());
 			}
+		
 		}
 	} else {
 		QMessageBox::warning(this, tr("Error In Code"), tr("Failed to assembly the given assemble code."));
 	}
+}
+
+//------------------------------------------------------------------------------
+// Name: showEvent
+// Desc:
+//------------------------------------------------------------------------------
+void DialogAssembler::showEvent(QShowEvent *event) {
+	Q_UNUSED(event);
+	
+	QSettings settings;
+	const QString assembler = settings.value("Assembler/helper", "yasm").toString();	
+	
+	ui->label->setText(tr("Assembler: %1").arg(assembler));
 }
 
 }

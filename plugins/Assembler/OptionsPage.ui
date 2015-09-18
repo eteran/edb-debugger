@@ -24,26 +24,9 @@
       </widget>
      </item>
      <item>
-      <widget class="QComboBox" name="assemblerPath">
+      <widget class="QComboBox" name="assemblerName">
        <property name="editable">
-        <bool>true</bool>
-       </property>
-       <item>
-        <property name="text">
-         <string>/usr/bin/yasm</string>
-        </property>
-       </item>
-       <item>
-        <property name="text">
-         <string>/usr/bin/nasm</string>
-        </property>
-       </item>
-      </widget>
-     </item>
-     <item>
-      <widget class="QToolButton" name="toolButton">
-       <property name="text">
-        <string>...</string>
+        <bool>false</bool>
        </property>
       </widget>
      </item>
