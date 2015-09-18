@@ -799,6 +799,14 @@ bool DebuggerCore::fillStateFromSimpleRegs(PlatformState* state) {
 	}
 }
 
+long DebuggerCore::get_debug_register(std::size_t n) {
+	return ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[n]), 0);
+}
+
+long DebuggerCore::set_debug_register(std::size_t n, long value) {
+	return ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[n]), value);
+}
+
 //------------------------------------------------------------------------------
 // Name: get_state
 // Desc:
@@ -849,15 +857,8 @@ void DebuggerCore::get_state(State *state) {
 			}
 
 			// debug registers
-			state_impl->x86.dbgRegs[0] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[0]), 0);
-			state_impl->x86.dbgRegs[1] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[1]), 0);
-			state_impl->x86.dbgRegs[2] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[2]), 0);
-			state_impl->x86.dbgRegs[3] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[3]), 0);
-			state_impl->x86.dbgRegs[4] = 0;
-			state_impl->x86.dbgRegs[5] = 0;
-			state_impl->x86.dbgRegs[6] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[6]), 0);
-			state_impl->x86.dbgRegs[7] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[7]), 0);
-
+			for(std::size_t i=0;i<8;++i)
+				state_impl->x86.dbgRegs[i] = get_debug_register(i);
 		} else {
 			state_impl->clear();
 		}
@@ -881,14 +882,8 @@ void DebuggerCore::set_state(const State &state) {
 			ptrace(PTRACE_SETREGS, active_thread(), 0, &regs);
 
 			// debug registers
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[0]), state_impl->x86.dbgRegs[0]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[1]), state_impl->x86.dbgRegs[1]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[2]), state_impl->x86.dbgRegs[2]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[3]), state_impl->x86.dbgRegs[3]);
-			//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[4]), state_impl->x86.dbgRegs[4]);
-			//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[5]), state_impl->x86.dbgRegs[5]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[6]), state_impl->x86.dbgRegs[6]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[7]), state_impl->x86.dbgRegs[7]);
+			for(std::size_t i=0;i<8;++i)
+				set_debug_register(i,state_impl->x86.dbgRegs[i]);
 		}
 	}
 }
