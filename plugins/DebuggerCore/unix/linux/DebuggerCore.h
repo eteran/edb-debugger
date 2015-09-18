@@ -114,6 +114,7 @@ private:
 	bool fillStateFromPrStatus(PlatformState* state);
 	bool fillStateFromSimpleRegs(PlatformState* state);
 	void fillFSGSBases(PlatformState* state);
+	long get_debug_register(std::size_t n);
 private:
 	struct thread_info {
 		int status;

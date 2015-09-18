@@ -799,6 +799,10 @@ bool DebuggerCore::fillStateFromSimpleRegs(PlatformState* state) {
 	}
 }
 
+long DebuggerCore::get_debug_register(std::size_t n) {
+	return ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[n]), 0);
+}
+
 //------------------------------------------------------------------------------
 // Name: get_state
 // Desc:
