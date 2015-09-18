@@ -803,6 +803,10 @@ long DebuggerCore::get_debug_register(std::size_t n) {
 	return ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[n]), 0);
 }
 
+long DebuggerCore::set_debug_register(std::size_t n, long value) {
+	return ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[n]), value);
+}
+
 //------------------------------------------------------------------------------
 // Name: get_state
 // Desc:
