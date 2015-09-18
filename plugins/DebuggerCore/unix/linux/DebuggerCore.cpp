@@ -857,15 +857,8 @@ void DebuggerCore::get_state(State *state) {
 			}
 
 			// debug registers
-			state_impl->x86.dbgRegs[0] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[0]), 0);
-			state_impl->x86.dbgRegs[1] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[1]), 0);
-			state_impl->x86.dbgRegs[2] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[2]), 0);
-			state_impl->x86.dbgRegs[3] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[3]), 0);
-			state_impl->x86.dbgRegs[4] = 0;
-			state_impl->x86.dbgRegs[5] = 0;
-			state_impl->x86.dbgRegs[6] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[6]), 0);
-			state_impl->x86.dbgRegs[7] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[7]), 0);
-
+			for(std::size_t i=0;i<8;++i)
+				state_impl->x86.dbgRegs[i] = get_debug_register(i);
 		} else {
 			state_impl->clear();
 		}
