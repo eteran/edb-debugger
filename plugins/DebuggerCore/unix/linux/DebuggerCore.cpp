@@ -294,7 +294,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 	const auto mmxHash=edb::string_hash("MMX");
 	const auto xmmHash=edb::string_hash("XMM");
 	const auto ymmHash=edb::string_hash("YMM");
-	if(IS_X86_64_BIT && (ext==xmmHash || ext==mmxHash))
+	if(EDB_IS_64_BIT && (ext==xmmHash || ext==mmxHash))
 		return true;
 
 	quint32 eax;
@@ -836,7 +836,7 @@ void DebuggerCore::get_state(State *state) {
 			} else {
 
 				// No XSTATE available, get just floating point and SSE registers
-				static bool getFPXRegsSupported=(IS_X86_32_BIT ? true : false);
+				static bool getFPXRegsSupported=(EDB_IS_32_BIT ? true : false);
 				UserFPXRegsStructX86 fpxregs;
 				// This should be automatically optimized out on amd64. If not, not a big deal.
 				// Avoiding conditional compilation to facilitate syntax error checking
