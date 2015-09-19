@@ -35,7 +35,7 @@ OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsP
 	
 	
 	QSettings settings;
-	const QString name = settings.value("Assembler/helper", "yadddsm").toString();
+	const QString name = settings.value("Assembler/helper", "yasm").toString();
 	
 	
 	ui->assemblerName->clear();
