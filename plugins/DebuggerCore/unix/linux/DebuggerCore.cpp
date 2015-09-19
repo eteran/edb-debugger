@@ -634,6 +634,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 		event_thread_   = pid;
 		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 		process_        = new PlatformProcess(this, pid);
+		detectDebuggeeBitness();
 		return true;
 	}
 
@@ -811,6 +812,27 @@ long DebuggerCore::set_debug_register(std::size_t n, long value) {
 	return ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[n]), value);
 }
 
+void DebuggerCore::detectDebuggeeBitness() {
+
+	bool detected=false;
+	PrStatus_X86_64 prstat64;
+	iovec prstat_iov = {&prstat64, sizeof(prstat64)};
+	if(ptrace(PTRACE_GETREGSET, active_thread(), NT_PRSTATUS, &prstat_iov) != -1) {
+
+		detected=true;
+		if(prstat_iov.iov_len==sizeof prstat64)
+			pointer_size_=sizeof(std::uint64_t);
+		else if(prstat_iov.iov_len==sizeof(PrStatus_X86))
+			pointer_size_=sizeof(std::uint32_t);
+		else detected=false;
+	}
+
+	if(!detected) {
+		qDebug() << "Warning: failed to detect bitness of debuggee, using native EDB bitness";
+		pointer_size_=sizeof(void*);
+	}
+}
+
 //------------------------------------------------------------------------------
 // Name: get_state
 // Desc:
@@ -972,6 +994,8 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
 			process_ = new PlatformProcess(this, pid);
+
+			detectDebuggeeBitness();
 
 			return true;
 		} while(0);

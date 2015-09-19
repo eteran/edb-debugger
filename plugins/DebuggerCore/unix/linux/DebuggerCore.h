@@ -117,6 +117,7 @@ private:
 	void fillFSGSBases(PlatformState* state);
 	long get_debug_register(std::size_t n);
 	long set_debug_register(std::size_t n, long value);
+	void detectDebuggeeBitness();
 private:
 	struct thread_info {
 		int status;
