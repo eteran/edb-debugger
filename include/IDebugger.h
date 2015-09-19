@@ -48,7 +48,7 @@ public:
 public:
 	// system properties
 	virtual edb::address_t      page_size() const = 0;
-	virtual int                 pointer_size() const = 0;
+	virtual std::size_t         pointer_size() const = 0;
 	virtual quint64             cpu_type() const = 0;
 	virtual bool                has_extension(quint64 ext) const = 0;
 	virtual QMap<long, QString> exceptions() const = 0;
