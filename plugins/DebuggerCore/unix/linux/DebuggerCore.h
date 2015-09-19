@@ -46,6 +46,7 @@ public:
 	virtual ~DebuggerCore();
 
 public:
+	virtual std::size_t pointer_size() const override;
 	virtual edb::address_t page_size() const;
 	virtual bool has_extension(quint64 ext) const;
 	virtual IDebugEvent::const_pointer wait_debug_event(int msecs);
@@ -133,6 +134,7 @@ private:
 	edb::tid_t       event_thread_;
 	IBinary          *binary_info_;
 	IProcess         *process_;
+	std::size_t      pointer_size_;
 };
 
 }

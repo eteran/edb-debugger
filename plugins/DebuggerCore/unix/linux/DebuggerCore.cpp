@@ -275,7 +275,7 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 // Name: DebuggerCore
 // Desc: constructor
 //------------------------------------------------------------------------------
-DebuggerCore::DebuggerCore() : binary_info_(0), process_(0) {
+DebuggerCore::DebuggerCore() : binary_info_(0), process_(0), pointer_size_(sizeof(void*)) {
 #if defined(_SC_PAGESIZE)
 	page_size_ = sysconf(_SC_PAGESIZE);
 #elif defined(_SC_PAGE_SIZE)
@@ -333,6 +333,10 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 //------------------------------------------------------------------------------
 edb::address_t DebuggerCore::page_size() const {
 	return page_size_;
+}
+
+std::size_t DebuggerCore::pointer_size() const {
+	return pointer_size_;
 }
 
 //------------------------------------------------------------------------------
