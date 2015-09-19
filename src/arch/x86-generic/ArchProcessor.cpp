@@ -983,19 +983,29 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	}
 
 	int itemNumber=0;
-	for(std::size_t i=0;i<MAX_GPR_COUNT;++i)
-		update_register(register_view_items_[itemNumber++], state.gp_register(i));
+	for(std::size_t i=0;i<MAX_GPR_COUNT;++i) {
+		update_register(register_view_items_[itemNumber], state.gp_register(i));
+		register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(i) != last_state_.gp_register(i)) ? Qt::red : palette.text());
+	}
 
 	const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
-
 	Register rIP=state.instruction_pointer_register();
 	if(!symname.isEmpty()) {
-		register_view_items_[itemNumber++]->setText(0, QString("%0: %1 <%2>").arg(rIP.name().toUpper()).arg(rIP.toHexString()).arg(symname));
+		register_view_items_[itemNumber]->setText(0, QString("%0: %1 <%2>").arg(rIP.name().toUpper()).arg(rIP.toHexString()).arg(symname));
 	} else {
-		register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(rIP.name().toUpper()).arg(rIP.toHexString()));
+		register_view_items_[itemNumber]->setText(0, QString("%0: %1").arg(rIP.name().toUpper()).arg(rIP.toHexString()));
 	}
+	register_view_items_[itemNumber++]->setForeground(0, (rIP != last_state_.instruction_pointer_register()) ? Qt::red : palette.text());
+
 	Register flags=state.flags_register();
-	register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(flags.name().toUpper()).arg(flags.toHexString()));
+	Register flagsPrev=last_state_.flags_register();
+	const bool flags_changed = flags != flagsPrev;
+	if(flags_changed) {
+		split_flags_->setText(0, state.flags_to_string());
+	}
+
+	register_view_items_[itemNumber]->setText(0, QString("%0: %1").arg(flags.name().toUpper()).arg(flags.toHexString()));
+	register_view_items_[itemNumber++]->setForeground(0, flags_changed ? Qt::red : palette.text());
 
 	const QString usualSegs[]={"es","cs","ss","ds"};
 	for(const QString sreg : usualSegs) {
@@ -1055,18 +1065,6 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 	}
-
-	const bool flags_changed = state.flags() != last_state_.flags();
-	if(flags_changed) {
-		split_flags_->setText(0, state.flags_to_string());
-	}
-
-	// highlight any changed registers
-	itemNumber=0;
-	for(std::size_t i=0;i<MAX_GPR_COUNT;++i)
-		register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(i) != last_state_.gp_register(i)) ? Qt::red : palette.text());
-	register_view_items_[itemNumber++]->setForeground(0, (state.instruction_pointer() != last_state_.instruction_pointer()) ? Qt::red : palette.text());
-	register_view_items_[itemNumber++]->setForeground(0, flags_changed ? Qt::red : palette.text());
 
 	last_state_ = state;
 }
