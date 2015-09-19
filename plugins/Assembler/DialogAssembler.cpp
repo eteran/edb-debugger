@@ -259,17 +259,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 				return;
 			}		
 			
-			switch(edb::v1::debugger_core->cpu_type()) {
-			case edb::string_hash("x86"):
-				asm_code.replace("%BITS%", "32");
-				break;
-			case edb::string_hash("x86-64"):
-				asm_code.replace("%BITS%", "64");
-				break;
-			default:
-				Q_ASSERT(0);
-			}			
-			
+			asm_code.replace("%BITS%", std::to_string(edb::v1::debugger_core->pointer_size()*8).c_str());
 			asm_code.replace("%ADDRESS%", edb::v1::format_pointer(address_));
 			asm_code.replace("%INSTRUCTION%",  nasm_syntax);
 						
