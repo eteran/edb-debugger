@@ -71,17 +71,18 @@
    </item>
    <item row="0" column="0" colspan="2">
     <widget class="QLabel" name="label">
+     <property name="font">
+      <font>
+       <weight>75</weight>
+       <bold>true</bold>
+      </font>
+     </property>
      <property name="text">
       <string>Assembler: </string>
      </property>
     </widget>
    </item>
   </layout>
-  <zorder>keepSize</zorder>
-  <zorder>fillWithNOPs</zorder>
-  <zorder>buttonBox</zorder>
-  <zorder>address</zorder>
-  <zorder>label</zorder>
  </widget>
  <resources/>
  <connections>
