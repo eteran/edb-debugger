@@ -270,8 +270,8 @@ void DialogAssembler::on_buttonBox_accepted() {
 				Q_ASSERT(0);
 			}			
 			
-			asm_code.replace("%VADDR%", edb::v1::format_pointer(address_));
-			asm_code.replace("%CODE%",  nasm_syntax);
+			asm_code.replace("%ADDRESS%", edb::v1::format_pointer(address_));
+			asm_code.replace("%INSTRUCTION%",  nasm_syntax);
 						
 			source_file.write(asm_code.toLatin1());
 			source_file.close();

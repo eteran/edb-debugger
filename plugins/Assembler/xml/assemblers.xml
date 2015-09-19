@@ -5,9 +5,9 @@
 		<template>
 		<![CDATA[
 		[BITS %BITS%]
-		[SECTION .text vstart=%VADDR% valign=1]
+		[SECTION .text vstart=%ADDRESS% valign=1]
 	
-		%CODE%
+		%INSTRUCTION%
 		]]>
 		</template>
 	</assembler>
@@ -16,9 +16,9 @@
 		<template>
 		<![CDATA[
 		[BITS %BITS%]
-		ORG %VADDR%
+		ORG %ADDRESS%
 	
-		%CODE%
+		%INSTRUCTION%
 		]]>
 	</template>
 	</assembler>
