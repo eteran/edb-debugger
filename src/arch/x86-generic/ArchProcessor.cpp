@@ -73,8 +73,8 @@ static constexpr size_t MAX_FPU_REGS_COUNT=8;
 static constexpr size_t MAX_MMX_REGS_COUNT=MAX_FPU_REGS_COUNT;
 static constexpr size_t MAX_XMM_REGS_COUNT=MAX_GPR_COUNT;
 static constexpr size_t MAX_YMM_REGS_COUNT=MAX_GPR_COUNT;
-bool debuggeeIs32Bit() { return edb::v1::pointer_size()==4; }
-bool debuggeeIs64Bit() { return edb::v1::pointer_size()==8; }
+using edb::v1::debuggeeIs32Bit;
+using edb::v1::debuggeeIs64Bit;
 int func_param_regs_count() { return debuggeeIs32Bit() ? 0 : 6; }
 
 template<typename T>
