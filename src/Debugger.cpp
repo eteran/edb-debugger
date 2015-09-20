@@ -675,7 +675,7 @@ edb::reg_t Debugger::get_follow_register(bool *ok) const {
 		if(const Register reg = edb::v1::arch_processor().value_from_item(*i)) {
 			if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP)) {
 				*ok = true;
-				return reg.value<edb::reg_t>();
+				return reg.valueAsAddress();
 			}
 		}
 	}
