@@ -1162,14 +1162,13 @@ QList<Module> DebuggerCore::loaded_modules() const {
 
 //------------------------------------------------------------------------------
 // Name:
-// Desc:
+// Desc: Returns EDB's native CPU type
 //------------------------------------------------------------------------------
 quint64 DebuggerCore::cpu_type() const {
-#ifdef EDB_X86
-	return edb::string_hash("x86");
-#elif defined(EDB_X86_64)
-	return edb::string_hash("x86-64");
-#endif
+	if(EDB_IS_32_BIT)
+		return edb::string_hash("x86");
+	else
+		return edb::string_hash("x86-64");
 }
 
 
@@ -1186,11 +1185,10 @@ QString DebuggerCore::format_pointer(edb::address_t address) const {
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::stack_pointer() const {
-#ifdef EDB_X86
-	return "esp";
-#elif defined(EDB_X86_64)
-	return "rsp";
-#endif
+	if(edb::v1::debuggeeIs32Bit())
+		return "esp";
+	else
+		return "rsp";
 }
 
 //------------------------------------------------------------------------------
@@ -1198,11 +1196,10 @@ QString DebuggerCore::stack_pointer() const {
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::frame_pointer() const {
-#ifdef EDB_X86
-	return "ebp";
-#elif defined(EDB_X86_64)
-	return "rbp";
-#endif
+	if(edb::v1::debuggeeIs32Bit())
+		return "ebp";
+	else
+		return "rbp";
 }
 
 //------------------------------------------------------------------------------
@@ -1210,11 +1207,10 @@ QString DebuggerCore::frame_pointer() const {
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::instruction_pointer() const {
-#ifdef EDB_X86
-	return "eip";
-#elif defined(EDB_X86_64)
-	return "rip";
-#endif
+	if(edb::v1::debuggeeIs32Bit())
+		return "eip";
+	else
+		return "rip";
 }
 
 //------------------------------------------------------------------------------
@@ -1222,11 +1218,10 @@ QString DebuggerCore::instruction_pointer() const {
 // Desc: Returns the name of the flag register as a QString.
 //------------------------------------------------------------------------------
 QString DebuggerCore::flag_register() const {
-#ifdef EDB_X86
-	return "eflags";
-#elif defined(EDB_X86_64)
-	return "rflags";
-#endif
+	if(edb::v1::debuggeeIs32Bit())
+		return "eflags";
+	else
+		return "rflags";
 }
 
 //------------------------------------------------------------------------------
