@@ -139,6 +139,9 @@ void load_function_db() {
 
 namespace v1 {
 
+bool debuggeeIs32Bit() { return pointer_size()==sizeof(std::uint32_t); }
+bool debuggeeIs64Bit() { return pointer_size()==sizeof(std::uint64_t); }
+
 //------------------------------------------------------------------------------
 // Name: set_cpu_selected_address
 // Desc:

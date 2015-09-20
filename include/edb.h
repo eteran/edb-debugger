@@ -200,6 +200,8 @@ EDB_EXPORT QVector<quint8> read_pages(address_t address, size_t page_count);
 
 EDB_EXPORT CapstoneEDB::Formatter &formatter();
 
+EDB_EXPORT bool debuggeeIs32Bit();
+EDB_EXPORT bool debuggeeIs64Bit();
 }
 }
 
