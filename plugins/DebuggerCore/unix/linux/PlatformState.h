@@ -299,9 +299,8 @@ public:
 	virtual Register xmm_register(size_t n) const;
 	virtual Register ymm_register(size_t n) const;
 	virtual Register gp_register(size_t n) const;
-	size_t pointer_size() const { return edb::v1::pointer_size(); }
-	bool is64Bit() const { return pointer_size()==8; }
-	bool is32Bit() const { return pointer_size()==4; }
+	bool is64Bit() const { return edb::v1::debuggeeIs64Bit(); }
+	bool is32Bit() const { return edb::v1::debuggeeIs32Bit(); }
 	size_t dbg_reg_count() const { return MAX_DBG_REG_COUNT; }
 	size_t seg_reg_count() const { return MAX_SEG_REG_COUNT; }
 	size_t fpu_reg_count() const { return MAX_FPU_REG_COUNT; }

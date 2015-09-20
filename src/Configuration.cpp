@@ -62,7 +62,7 @@ void Configuration::read_settings() {
 #ifdef DEFAULT_PLUGIN_PATH
 	const QString default_plugin_path = TOSTRING(DEFAULT_PLUGIN_PATH);
 #else
-	const QString edb_lib_dir=QCoreApplication::applicationDirPath()+(sizeof(void*)==8 ? "/../lib64/edb" : "/../lib/edb");
+	const QString edb_lib_dir=QCoreApplication::applicationDirPath()+(EDB_IS_64_BIT ? "/../lib64/edb" : "/../lib/edb");
 	const QString edb_binary_dir=QCoreApplication::applicationDirPath();
 	// If the binary is in its installation directory, then look for plugins in their installation directory
 	// Otherwise assume that we are in build directory, so the plugins are in the same directory as the binary
@@ -121,7 +121,7 @@ void Configuration::read_settings() {
 		data_row_width = 16;
 	}
 	
-	CapstoneEDB::init(sizeof(void*)==8); // TODO: properly choose bitness according to target bitness
+	CapstoneEDB::init(EDB_IS_64_BIT); // TODO: properly choose bitness according to target bitness
 	CapstoneEDB::Formatter::FormatOptions options = edb::v1::formatter().options();
 	options.capitalization = uppercase_disassembly ? CapstoneEDB::Formatter::UpperCase : CapstoneEDB::Formatter::LowerCase;
 	options.smallNumFormat = small_int_as_decimal  ? CapstoneEDB::Formatter::SmallNumAsDec : CapstoneEDB::Formatter::SmallNumAsHex;

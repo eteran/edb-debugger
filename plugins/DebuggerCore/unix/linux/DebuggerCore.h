@@ -46,6 +46,7 @@ public:
 	virtual ~DebuggerCore();
 
 public:
+	virtual std::size_t pointer_size() const override;
 	virtual edb::address_t page_size() const;
 	virtual bool has_extension(quint64 ext) const;
 	virtual IDebugEvent::const_pointer wait_debug_event(int msecs);
@@ -116,6 +117,7 @@ private:
 	void fillFSGSBases(PlatformState* state);
 	long get_debug_register(std::size_t n);
 	long set_debug_register(std::size_t n, long value);
+	void detectDebuggeeBitness();
 private:
 	struct thread_info {
 		int status;
@@ -133,6 +135,7 @@ private:
 	edb::tid_t       event_thread_;
 	IBinary          *binary_info_;
 	IProcess         *process_;
+	std::size_t      pointer_size_;
 };
 
 }

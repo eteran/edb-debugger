@@ -275,7 +275,7 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 // Name: DebuggerCore
 // Desc: constructor
 //------------------------------------------------------------------------------
-DebuggerCore::DebuggerCore() : binary_info_(0), process_(0) {
+DebuggerCore::DebuggerCore() : binary_info_(0), process_(0), pointer_size_(sizeof(void*)) {
 #if defined(_SC_PAGESIZE)
 	page_size_ = sysconf(_SC_PAGESIZE);
 #elif defined(_SC_PAGE_SIZE)
@@ -294,7 +294,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 	const auto mmxHash=edb::string_hash("MMX");
 	const auto xmmHash=edb::string_hash("XMM");
 	const auto ymmHash=edb::string_hash("YMM");
-	if(IS_X86_64_BIT && (ext==xmmHash || ext==mmxHash))
+	if(EDB_IS_64_BIT && (ext==xmmHash || ext==mmxHash))
 		return true;
 
 	quint32 eax;
@@ -333,6 +333,10 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 //------------------------------------------------------------------------------
 edb::address_t DebuggerCore::page_size() const {
 	return page_size_;
+}
+
+std::size_t DebuggerCore::pointer_size() const {
+	return pointer_size_;
 }
 
 //------------------------------------------------------------------------------
@@ -630,6 +634,7 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 		event_thread_   = pid;
 		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 		process_        = new PlatformProcess(this, pid);
+		detectDebuggeeBitness();
 		return true;
 	}
 
@@ -807,6 +812,27 @@ long DebuggerCore::set_debug_register(std::size_t n, long value) {
 	return ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[n]), value);
 }
 
+void DebuggerCore::detectDebuggeeBitness() {
+
+	bool detected=false;
+	PrStatus_X86_64 prstat64;
+	iovec prstat_iov = {&prstat64, sizeof(prstat64)};
+	if(ptrace(PTRACE_GETREGSET, active_thread(), NT_PRSTATUS, &prstat_iov) != -1) {
+
+		detected=true;
+		if(prstat_iov.iov_len==sizeof prstat64)
+			pointer_size_=sizeof(std::uint64_t);
+		else if(prstat_iov.iov_len==sizeof(PrStatus_X86))
+			pointer_size_=sizeof(std::uint32_t);
+		else detected=false;
+	}
+
+	if(!detected) {
+		qDebug() << "Warning: failed to detect bitness of debuggee, using native EDB bitness";
+		pointer_size_=sizeof(void*);
+	}
+}
+
 //------------------------------------------------------------------------------
 // Name: get_state
 // Desc:
@@ -820,7 +846,7 @@ void DebuggerCore::get_state(State *state) {
 		state_impl->clear();
 		if(attached()) {
 
-			if(sizeof(void*)==8)
+			if(EDB_IS_64_BIT)
 				fillStateFromSimpleRegs(state_impl); // 64-bit GETREGS call always returns 64-bit state, so use it
 			else if(!fillStateFromPrStatus(state_impl)) // if EDB is 32 bit, use GETREGSET so that we get 64-bit state for 64-bit debuggee
 				fillStateFromSimpleRegs(state_impl); // failing that, try to just get what we can
@@ -836,7 +862,7 @@ void DebuggerCore::get_state(State *state) {
 			} else {
 
 				// No XSTATE available, get just floating point and SSE registers
-				static bool getFPXRegsSupported=(IS_X86_32_BIT ? true : false);
+				static bool getFPXRegsSupported=(EDB_IS_32_BIT ? true : false);
 				UserFPXRegsStructX86 fpxregs;
 				// This should be automatically optimized out on amd64. If not, not a big deal.
 				// Avoiding conditional compilation to facilitate syntax error checking
@@ -968,6 +994,8 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
 			process_ = new PlatformProcess(this, pid);
+
+			detectDebuggeeBitness();
 
 			return true;
 		} while(0);
@@ -1134,14 +1162,13 @@ QList<Module> DebuggerCore::loaded_modules() const {
 
 //------------------------------------------------------------------------------
 // Name:
-// Desc:
+// Desc: Returns EDB's native CPU type
 //------------------------------------------------------------------------------
 quint64 DebuggerCore::cpu_type() const {
-#ifdef EDB_X86
-	return edb::string_hash("x86");
-#elif defined(EDB_X86_64)
-	return edb::string_hash("x86-64");
-#endif
+	if(EDB_IS_32_BIT)
+		return edb::string_hash("x86");
+	else
+		return edb::string_hash("x86-64");
 }
 
 
@@ -1158,11 +1185,10 @@ QString DebuggerCore::format_pointer(edb::address_t address) const {
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::stack_pointer() const {
-#ifdef EDB_X86
-	return "esp";
-#elif defined(EDB_X86_64)
-	return "rsp";
-#endif
+	if(edb::v1::debuggeeIs32Bit())
+		return "esp";
+	else
+		return "rsp";
 }
 
 //------------------------------------------------------------------------------
@@ -1170,11 +1196,10 @@ QString DebuggerCore::stack_pointer() const {
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::frame_pointer() const {
-#ifdef EDB_X86
-	return "ebp";
-#elif defined(EDB_X86_64)
-	return "rbp";
-#endif
+	if(edb::v1::debuggeeIs32Bit())
+		return "ebp";
+	else
+		return "rbp";
 }
 
 //------------------------------------------------------------------------------
@@ -1182,11 +1207,10 @@ QString DebuggerCore::frame_pointer() const {
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::instruction_pointer() const {
-#ifdef EDB_X86
-	return "eip";
-#elif defined(EDB_X86_64)
-	return "rip";
-#endif
+	if(edb::v1::debuggeeIs32Bit())
+		return "eip";
+	else
+		return "rip";
 }
 
 //------------------------------------------------------------------------------
@@ -1194,11 +1218,10 @@ QString DebuggerCore::instruction_pointer() const {
 // Desc: Returns the name of the flag register as a QString.
 //------------------------------------------------------------------------------
 QString DebuggerCore::flag_register() const {
-#ifdef EDB_X86
-	return "eflags";
-#elif defined(EDB_X86_64)
-	return "rflags";
-#endif
+	if(edb::v1::debuggeeIs32Bit())
+		return "eflags";
+	else
+		return "rflags";
 }
 
 //------------------------------------------------------------------------------

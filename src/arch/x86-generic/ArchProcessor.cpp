@@ -66,13 +66,15 @@ enum RegisterIndex {
 	R15  = 15
 };
 
-static constexpr size_t GPR_COUNT_IA32=8;
-static constexpr size_t GPR_COUNT_AMD64=16;
-bool debuggeeIs32Bit() { return edb::v1::pointer_size()==4; }
-bool debuggeeIs64Bit() { return edb::v1::pointer_size()==8; }
-size_t gpr_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
-size_t xmm_reg_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
-size_t ymm_reg_count() { return debuggeeIs32Bit() ? GPR_COUNT_IA32 : GPR_COUNT_AMD64; }
+static constexpr size_t MAX_DEBUG_REGS_COUNT=8;
+static constexpr size_t MAX_SEGMENT_REGS_COUNT=6;
+static constexpr size_t MAX_GPR_COUNT=16;
+static constexpr size_t MAX_FPU_REGS_COUNT=8;
+static constexpr size_t MAX_MMX_REGS_COUNT=MAX_FPU_REGS_COUNT;
+static constexpr size_t MAX_XMM_REGS_COUNT=MAX_GPR_COUNT;
+static constexpr size_t MAX_YMM_REGS_COUNT=MAX_GPR_COUNT;
+using edb::v1::debuggeeIs32Bit;
+using edb::v1::debuggeeIs64Bit;
 int func_param_regs_count() { return debuggeeIs32Bit() ? 0 : 6; }
 
 template<typename T>
@@ -752,7 +754,7 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 
 		// setup the register view
 		if(QTreeWidgetItem *const gpr = category_list->addCategory(tr("General Purpose"))) {
-			for(std::size_t i=0;i<gpr_count();++i)
+			for(std::size_t i=0;i<MAX_GPR_COUNT;++i)
 				register_view_items_.push_back(create_register_item(gpr, QString("GPR%1").arg(i)));
 			register_view_items_.push_back(create_register_item(gpr, "rIP"));
 			register_view_items_.push_back(create_register_item(gpr, "rFLAGS"));
@@ -763,23 +765,13 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 		}
 
 		if(QTreeWidgetItem *const segs = category_list->addCategory(tr("Segments"))) {
-			register_view_items_.push_back(create_register_item(segs, "cs"));
-			register_view_items_.push_back(create_register_item(segs, "ds"));
-			register_view_items_.push_back(create_register_item(segs, "es"));
-			register_view_items_.push_back(create_register_item(segs, "fs"));
-			register_view_items_.push_back(create_register_item(segs, "gs"));
-			register_view_items_.push_back(create_register_item(segs, "ss"));
+			for(std::size_t i=0;i<MAX_SEGMENT_REGS_COUNT;++i)
+                register_view_items_.push_back(create_register_item(segs, QString("Seg%1").arg(i)));
 		}
 
 		if(QTreeWidgetItem *const fpu = category_list->addCategory(tr("FPU"))) {
-			register_view_items_.push_back(create_register_item(fpu, "R0"));
-			register_view_items_.push_back(create_register_item(fpu, "R1"));
-			register_view_items_.push_back(create_register_item(fpu, "R2"));
-			register_view_items_.push_back(create_register_item(fpu, "R3"));
-			register_view_items_.push_back(create_register_item(fpu, "R4"));
-			register_view_items_.push_back(create_register_item(fpu, "R5"));
-			register_view_items_.push_back(create_register_item(fpu, "R6"));
-			register_view_items_.push_back(create_register_item(fpu, "R7"));
+			for(std::size_t i=0;i<MAX_FPU_REGS_COUNT;++i)
+                register_view_items_.push_back(create_register_item(fpu, QString("R%1").arg(i)));
 			register_view_items_.push_back(create_register_item(fpu, "Control Word"));
 			register_view_items_.push_back(create_register_item(fpu, "PC"));
 			register_view_items_.push_back(create_register_item(fpu, "RC"));
@@ -789,38 +781,26 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 		}
 
 		if(QTreeWidgetItem *const dbg = category_list->addCategory(tr("Debug"))) {
-			register_view_items_.push_back(create_register_item(dbg, "dr0"));
-			register_view_items_.push_back(create_register_item(dbg, "dr1"));
-			register_view_items_.push_back(create_register_item(dbg, "dr2"));
-			register_view_items_.push_back(create_register_item(dbg, "dr3"));
-			register_view_items_.push_back(create_register_item(dbg, "dr4"));
-			register_view_items_.push_back(create_register_item(dbg, "dr5"));
-			register_view_items_.push_back(create_register_item(dbg, "dr6"));
-			register_view_items_.push_back(create_register_item(dbg, "dr7"));
+			for(std::size_t i=0;i<MAX_DEBUG_REGS_COUNT;++i)
+                register_view_items_.push_back(create_register_item(dbg, QString("dr%1").arg(i)));
 		}
 
 		if(has_mmx_) {
 			if(QTreeWidgetItem *const mmx = category_list->addCategory(tr("MMX"))) {
-				register_view_items_.push_back(create_register_item(mmx, "mm0"));
-				register_view_items_.push_back(create_register_item(mmx, "mm1"));
-				register_view_items_.push_back(create_register_item(mmx, "mm2"));
-				register_view_items_.push_back(create_register_item(mmx, "mm3"));
-				register_view_items_.push_back(create_register_item(mmx, "mm4"));
-				register_view_items_.push_back(create_register_item(mmx, "mm5"));
-				register_view_items_.push_back(create_register_item(mmx, "mm6"));
-				register_view_items_.push_back(create_register_item(mmx, "mm7"));
+                for(std::size_t i=0;i<MAX_MMX_REGS_COUNT;++i)
+                    register_view_items_.push_back(create_register_item(mmx, QString("mm%1").arg(i)));
 			}
 		}
 
 		if(has_ymm_) {
 			if(QTreeWidgetItem *const ymm = category_list->addCategory(tr("AVX"))) {
-				for(std::size_t i=0;i<ymm_reg_count();++i)
+				for(std::size_t i=0;i<MAX_YMM_REGS_COUNT;++i)
 					register_view_items_.push_back(create_register_item(ymm, QString("YMM%1").arg(i)));
 				register_view_items_.push_back(create_register_item(ymm, "mxcsr"));
 			}
 		} else if(has_xmm_) {
 			if(QTreeWidgetItem *const xmm = category_list->addCategory(tr("SSE"))) {
-				for(std::size_t i=0;i<xmm_reg_count();++i)
+				for(std::size_t i=0;i<MAX_XMM_REGS_COUNT;++i)
 					register_view_items_.push_back(create_register_item(xmm, QString("XMM%1").arg(i)));
 				register_view_items_.push_back(create_register_item(xmm, "mxcsr"));
 			}
@@ -848,6 +828,9 @@ Register ArchProcessor::value_from_item(const QTreeWidgetItem &item) {
 void ArchProcessor::update_register(QTreeWidgetItem *item, const Register &reg) const {
 
 	Q_ASSERT(item);
+
+	item->setHidden(!reg);
+	if(!reg) return;
 
 	QString reg_string;
 	int string_length;
@@ -1000,19 +983,29 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	}
 
 	int itemNumber=0;
-	for(std::size_t i=0;i<gpr_count();++i)
-		update_register(register_view_items_[itemNumber++], state.gp_register(i));
+	for(std::size_t i=0;i<MAX_GPR_COUNT;++i) {
+		update_register(register_view_items_[itemNumber], state.gp_register(i));
+		register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(i) != last_state_.gp_register(i)) ? Qt::red : palette.text());
+	}
 
 	const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
-
 	Register rIP=state.instruction_pointer_register();
 	if(!symname.isEmpty()) {
-		register_view_items_[itemNumber++]->setText(0, QString("%0: %1 <%2>").arg(rIP.name().toUpper()).arg(rIP.toHexString()).arg(symname));
+		register_view_items_[itemNumber]->setText(0, QString("%0: %1 <%2>").arg(rIP.name().toUpper()).arg(rIP.toHexString()).arg(symname));
 	} else {
-		register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(rIP.name().toUpper()).arg(rIP.toHexString()));
+		register_view_items_[itemNumber]->setText(0, QString("%0: %1").arg(rIP.name().toUpper()).arg(rIP.toHexString()));
 	}
+	register_view_items_[itemNumber++]->setForeground(0, (rIP != last_state_.instruction_pointer_register()) ? Qt::red : palette.text());
+
 	Register flags=state.flags_register();
-	register_view_items_[itemNumber++]->setText(0, QString("%0: %1").arg(flags.name().toUpper()).arg(flags.toHexString()));
+	Register flagsPrev=last_state_.flags_register();
+	const bool flags_changed = flags != flagsPrev;
+	if(flags_changed) {
+		split_flags_->setText(0, state.flags_to_string());
+	}
+
+	register_view_items_[itemNumber]->setText(0, QString("%0: %1").arg(flags.name().toUpper()).arg(flags.toHexString()));
+	register_view_items_[itemNumber++]->setForeground(0, flags_changed ? Qt::red : palette.text());
 
 	const QString usualSegs[]={"es","cs","ss","ds"};
 	for(const QString sreg : usualSegs) {
@@ -1025,7 +1018,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		QString sreg(specialSegs[i]);
 		QString sregStr=sreg.toUpper()+QString(": %1").arg(state[sreg].value<edb::seg_reg_t>().toHexString());
 		if(bases[i])
-			sregStr+=QString(" (%1)").arg(bases[i].value<edb::reg_t>().toHexString());
+			sregStr+=QString(" (%1)").arg(bases[i].valueAsAddress().toHexString());
 		register_view_items_[itemNumber]->setText(0, sregStr);
 		register_view_items_[itemNumber++]->setForeground(0, QBrush((state[sreg] != last_state_[sreg]) ? Qt::red : palette.text()));
 	}
@@ -1048,16 +1041,18 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 
 	int padding=debuggeeIs64Bit() ? -2 : -1;
 	if(has_ymm_) {
-		for(std::size_t i = 0; i < ymm_reg_count(); ++i) {
+		for(std::size_t i = 0; i < MAX_YMM_REGS_COUNT; ++i) {
 			const Register current = state.ymm_register(i);
 			const Register prev    = last_state_.ymm_register(i);
+			register_view_items_[itemNumber]->setHidden(!current);
 			register_view_items_[itemNumber]->setText(0, QString("YMM%1: %2").arg(i, padding).arg(current.toHexString()));
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 	} else if(has_xmm_) {
-		for(std::size_t i = 0; i < xmm_reg_count(); ++i) {
+		for(std::size_t i = 0; i < MAX_XMM_REGS_COUNT; ++i) {
 			const Register current = state.xmm_register(i);
 			const Register prev    = last_state_.xmm_register(i);
+			register_view_items_[itemNumber]->setHidden(!current);
 			register_view_items_[itemNumber]->setText(0, QString("XMM%1: %2").arg(i, padding).arg(current.toHexString()));
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
@@ -1070,18 +1065,6 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 	}
-
-	const bool flags_changed = state.flags() != last_state_.flags();
-	if(flags_changed) {
-		split_flags_->setText(0, state.flags_to_string());
-	}
-
-	// highlight any changed registers
-	itemNumber=0;
-	for(std::size_t i=0;i<gpr_count();++i)
-		register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(i) != last_state_.gp_register(i)) ? Qt::red : palette.text());
-	register_view_items_[itemNumber++]->setForeground(0, (state.instruction_pointer() != last_state_.instruction_pointer()) ? Qt::red : palette.text());
-	register_view_items_[itemNumber++]->setForeground(0, flags_changed ? Qt::red : palette.text());
 
 	last_state_ = state;
 }

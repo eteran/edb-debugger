@@ -111,7 +111,7 @@ void DumpState::dump_code(const State &state) {
 void DumpState::dump_registers(const State &state) {
 
 	using std::cout;
-	if(edb::v1::pointer_size()==4) { // TODO: check if state itself is 32 bit, not current debuggee. Generally it's not the same.
+	if(edb::v1::debuggeeIs32Bit()) { // TODO: check if state itself is 32 bit, not current debuggee. Generally it's not the same.
 		cout << "     eax:" <<    hex_string(state["eax"]);
 		cout << " ecx:" <<        hex_string(state["ecx"]);
 		cout << "  edx:" <<       hex_string(state["edx"]);

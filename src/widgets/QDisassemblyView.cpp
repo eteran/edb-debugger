@@ -437,7 +437,7 @@ void QDisassemblyView::setShowAddressSeparator(bool value) {
 // Desc:
 //------------------------------------------------------------------------------
 QString QDisassemblyView::formatAddress(edb::address_t address) const {
-	if(edb::v1::pointer_size()==sizeof(quint32))
+	if(edb::v1::debuggeeIs32Bit())
 		return format_address<quint32>(address.toUint(), show_address_separator_);
 	else
 		return format_address(address, show_address_separator_);

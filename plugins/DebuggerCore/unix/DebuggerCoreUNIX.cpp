@@ -241,7 +241,7 @@ void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, 
 // Name: pointer_size
 // Desc: returns the size of a pointer on this arch
 //------------------------------------------------------------------------------
-int DebuggerCoreUNIX::pointer_size() const {
+std::size_t DebuggerCoreUNIX::pointer_size() const {
 	return EDB_WORDSIZE;
 }
 
