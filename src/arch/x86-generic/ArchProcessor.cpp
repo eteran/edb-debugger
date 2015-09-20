@@ -1018,7 +1018,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		QString sreg(specialSegs[i]);
 		QString sregStr=sreg.toUpper()+QString(": %1").arg(state[sreg].value<edb::seg_reg_t>().toHexString());
 		if(bases[i])
-			sregStr+=QString(" (%1)").arg(bases[i].value<edb::reg_t>().toHexString());
+			sregStr+=QString(" (%1)").arg(bases[i].valueAsAddress().toHexString());
 		register_view_items_[itemNumber]->setText(0, sregStr);
 		register_view_items_[itemNumber++]->setForeground(0, QBrush((state[sreg] != last_state_[sreg]) ? Qt::red : palette.text()));
 	}
