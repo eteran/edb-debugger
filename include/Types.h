@@ -323,12 +323,28 @@ static_assert(std::is_standard_layout<value8>::value &&
 			  std::is_standard_layout<value128>::value &&
 			  std::is_standard_layout<value256>::value &&
 			  std::is_standard_layout<value512>::value,"Fixed-sized values are intended to have standard layout");
+
+struct address_t : public value64 {
+	QString toPointerString(bool createdFromNativePointer=true) const;
+	QString toHexString() const;
+	template<typename SmallData>
+	static address_t fromZeroExtended(const SmallData& data) {
+		return value64::fromZeroExtended(data);
+	}
+	template<class T>
+	address_t(const T& val) : value64(val) {}
+	address_t()=default;
+};
+
+	typedef address_t                                  reg_t;
 }
 
 template<class T> typename std::enable_if<std::is_same<T,edb::value8 >::value ||
 										  std::is_same<T,edb::value16>::value ||
 										  std::is_same<T,edb::value32>::value ||
-										  std::is_same<T,edb::value64>::value,
+										  std::is_same<T,edb::value64>::value ||
+										  std::is_same<T,edb::reg_t>::value   ||
+										  std::is_same<T,edb::address_t>::value,
 std::istream&>::type operator>>(std::istream& os, T& val)
 {
 	os >> val.asUint();
@@ -338,7 +354,9 @@ std::istream&>::type operator>>(std::istream& os, T& val)
 template<class T> typename std::enable_if<std::is_same<T,edb::value8 >::value ||
 										  std::is_same<T,edb::value16>::value ||
 										  std::is_same<T,edb::value32>::value ||
-										  std::is_same<T,edb::value64>::value,
+										  std::is_same<T,edb::value64>::value ||
+										  std::is_same<T,edb::reg_t>::value   ||
+										  std::is_same<T,edb::address_t>::value,
 std::ostream&>::type operator<<(std::ostream& os, T val)
 {
 	os << val.toUint();
