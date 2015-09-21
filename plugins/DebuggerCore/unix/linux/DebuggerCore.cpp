@@ -560,8 +560,17 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 
 	Q_ASSERT(ok);
 
+	if(EDB_IS_32_BIT && address>0xffffffffULL) {
+		// 32 bit ptrace can't handle such long addresses
+		*ok=false;
+		return 0;
+	}
+
 	errno = 0;
-	const long v = ptrace(PTRACE_PEEKTEXT, pid(), address, 0);
+	// NOTE: on some Linux systems ptrace prototype has ellipsis instead of third and fourth arguments
+	// Thus we can't just pass address as is on IA32 systems: it'd put 64 bit integer on stack and cause UB
+	auto nativeAddress=reinterpret_cast<const void* const>(address.toUint());
+	const long v = ptrace(PTRACE_PEEKTEXT, pid(), nativeAddress, 0);
 	SET_OK(*ok, v);
 	return v;
 }
@@ -599,7 +608,14 @@ bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t cou
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::write_data(edb::address_t address, long value) {
-	return ptrace(PTRACE_POKETEXT, pid(), address, value) != -1;
+	if(EDB_IS_32_BIT && address>0xffffffffULL) {
+		// 32 bit ptrace can't handle such long addresses
+		return false;
+	}
+	// NOTE: on some Linux systems ptrace prototype has ellipsis instead of third and fourth arguments
+	// Thus we can't just pass address as is on IA32 systems: it'd put 64 bit integer on stack and cause UB
+	auto nativeAddress=reinterpret_cast<const void* const>(address.toUint());
+	return ptrace(PTRACE_POKETEXT, pid(), nativeAddress, value) != -1;
 }
 
 //------------------------------------------------------------------------------
