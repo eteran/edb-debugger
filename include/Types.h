@@ -128,8 +128,6 @@ struct SizedValue : public ValueBase<N,1> {
 
 	operator InnerValueType() const { return this->value_[0]; }
 	operator QVariant() const { return QVariant::fromValue(this->value_[0]); }
-	template<int M=0> typename std::enable_if<sizeof(void*)==sizeof(InnerValueType) && M==0,
-	QString>::type toPointerString() const { return "0x"+this->toHexString(); }
 
 	QString toString() const { return QString("%1").arg(this->value_[0]); }
 	QString unsignedToString() const { return toString(); }
