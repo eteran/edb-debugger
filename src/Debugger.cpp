@@ -2579,14 +2579,6 @@ void Debugger::test_native_binary() {
 			"For example a 32-bit binary on x86-64. "
 			"This is not supported yet, so you may need to use a version of edb that was compiled for the same architecture as your target program")
 			);
-		// Although non-native debugging is not fully supported, let's give the user a nicer experience with unsupported feature.
-		// Reinitialize CapstoneEDB to inverse of native bitness
-		CapstoneEDB::init(EDB_IS_32_BIT);
-	}
-	else {
-		// Reinitialize CapstoneEDB with native bitness. This is needed when e.g. previous
-		// debugging session was non-native, and the new one is native.
-		CapstoneEDB::init(EDB_IS_64_BIT);
 	}
 }
 
@@ -2667,6 +2659,7 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 		if(edb::v1::debugger_core->open(s, working_directory_, args, tty_file_)) {
 			set_initial_debugger_state();
 			test_native_binary();
+			CapstoneEDB::init(edb::v1::debuggeeIs64Bit());
 			set_initial_breakpoint(s);
 			ret = true;
 		} else {
