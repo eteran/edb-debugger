@@ -167,7 +167,8 @@ edb::address_t ELF32::calculate_main() {
 				if(ba.size() >= 11) {
 					// beginning of a call preceeded by a push and followed by a hlt
 					if(ba[0] == 0x68 && ba[5] == 0xe8 && ba[10] == 0xf4) {
-						auto address = *reinterpret_cast<const edb::address_t *>(ba.data() + 1);
+						edb::address_t address(0);
+						std::memcpy(&address,ba.data() + 1,sizeof(uint32_t));
 						// TODO: make sure that this address resides in an executable region
 						qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
 						return address;
