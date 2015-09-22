@@ -291,7 +291,9 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 		timer_(new QTimer(this)),
 		recent_file_manager_(new RecentFileManager(this)),
 		stack_comment_server_(new CommentServer),
-		stack_view_locked_(false)
+		stack_view_locked_(false),
+		auto_stack_word_width_(true),
+		stack_word_width_(edb::v1::pointer_size())
 #ifdef Q_OS_UNIX
 		,debug_pointer_(0)
 #endif
@@ -783,7 +785,10 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	settings.setValue("window.stack.show_ascii.enabled", stack_view_->showAsciiDump());
 	settings.setValue("window.stack.show_comments.enabled", stack_view_->showComments());
 	settings.setValue("window.stack.row_width", stack_view_->rowWidth());
-	settings.setValue("window.stack.word_width", stack_view_->wordWidth());
+	if(auto_stack_word_width_)
+		settings.setValue("window.stack.word_width", -1);
+	else
+		settings.setValue("window.stack.word_width", stack_view_->wordWidth());
 	settings.endGroup();
 	event->accept();
 }
@@ -813,11 +818,19 @@ void Debugger::showEvent(QShowEvent *) {
 	stack_view_->setShowComments(settings.value("window.stack.show_comments.enabled", true).value<bool>());
 
 	int row_width = settings.value("window.stack.row_width", 1).value<int>();
-	int word_width = settings.value("window.stack.word_width", edb::v1::pointer_size()).value<int>();
+
+	{
+		int word_width = settings.value("window.stack.word_width", edb::v1::pointer_size()).value<int>();
+		auto_stack_word_width_=(word_width<0);
+		if(auto_stack_word_width_)
+			stack_word_width_=edb::v1::pointer_size();
+		else
+			stack_word_width_=word_width;
+	}
 
 	// normalize values
-	if(word_width != 1 && word_width != 2 && word_width != 4 && word_width != 8) {
-		word_width = edb::v1::pointer_size();
+	if(stack_word_width_ != 1 && stack_word_width_ != 2 && stack_word_width_ != 4 && stack_word_width_ != 8) {
+		stack_word_width_ = edb::v1::pointer_size();
 	}
 
 	if(row_width != 1 && row_width != 2 && row_width != 4 && row_width != 8 && row_width != 16) {
@@ -825,7 +838,7 @@ void Debugger::showEvent(QShowEvent *) {
 	}
 
 	stack_view_->setRowWidth(row_width);
-	stack_view_->setWordWidth(word_width);
+	stack_view_->setWordWidth(stack_word_width_);
 
 	settings.endGroup();
 	restoreState(state);
@@ -1082,19 +1095,6 @@ void Debugger::on_action_Configure_Debugger_triggered() {
 
 	// apply changes to the GUI options
 	apply_default_show_separator();
-
-
-	if(edb::v1::pointer_size() == sizeof(quint64)) {
-		stack_view_->setAddressSize(QHexView::Address64);
-		for(const DataViewInfo::pointer &data_view: data_regions_) {
-			data_view->view->setAddressSize(QHexView::Address64);
-		}
-	} else {
-		stack_view_->setAddressSize(QHexView::Address32);
-		for(const DataViewInfo::pointer &data_view: data_regions_) {
-			data_view->view->setAddressSize(QHexView::Address32);
-		}
-	}
 
 	// show changes
 	refresh_gui();
@@ -2670,6 +2670,23 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 		}
 	}
 
+	// Setup data views according to debuggee bitness
+	if(edb::v1::debuggeeIs64Bit()) {
+		stack_view_->setAddressSize(QHexView::Address64);
+		for(const DataViewInfo::pointer &data_view: data_regions_) {
+			data_view->view->setAddressSize(QHexView::Address64);
+		}
+	} else {
+		stack_view_->setAddressSize(QHexView::Address32);
+		for(const DataViewInfo::pointer &data_view: data_regions_) {
+			data_view->view->setAddressSize(QHexView::Address32);
+		}
+	}
+
+	// Update stack word width
+	if(auto_stack_word_width_)
+		stack_word_width_=edb::v1::pointer_size();
+	stack_view_->setWordWidth(stack_word_width_);
 
 	update_gui();
 	return ret;
