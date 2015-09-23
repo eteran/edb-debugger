@@ -561,8 +561,18 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 	Q_ASSERT(ok);
 
 	if(EDB_IS_32_BIT && address>0xffffffffULL) {
-		// 32 bit ptrace can't handle such long addresses
-		*ok=false;
+		// 32 bit ptrace can't handle such long addresses, try reading /proc/$PID/mem
+		// FIXME: this is slow. Try keeping the file open, not reopening it on each read.
+		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
+		if(memory_file.open(QIODevice::ReadOnly)) {
+
+			memory_file.seek(address);
+			long value;
+			if(memory_file.read(reinterpret_cast<char*>(&value), sizeof(long))==sizeof(long)) {
+				*ok=true;
+				return value;
+			}
+		}
 		return 0;
 	}
 
