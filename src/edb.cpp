@@ -734,12 +734,12 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 	// FIXME: if it's really meant to return base, then need to check whether
 	//        State::operator[]() returned valid Register
 	if(reg.name() == "fs") {
-		return state["fs_base"].value<reg_t>();
+		return state["fs_base"].valueAsAddress();
 	} else if(reg.name() == "gs") {
-		return state["gs_base"].value<reg_t>();
+		return state["gs_base"].valueAsAddress();
 	}
 
-	return reg.value<reg_t>();
+	return reg.valueAsAddress();
 }
 
 //------------------------------------------------------------------------------
