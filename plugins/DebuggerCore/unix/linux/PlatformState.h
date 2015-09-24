@@ -459,6 +459,7 @@ private:
 
 	void fillStruct(UserRegsStructX86& regs) const;
 	void fillStruct(UserRegsStructX86_64& regs) const;
+	void fillStruct(PrStatus_X86_64& regs) const;
 };
 
 }

@@ -469,6 +469,40 @@ void PlatformState::fillStruct(UserRegsStructX86_64& regs) const
 	}
 }
 
+void PlatformState::fillStruct(PrStatus_X86_64& regs) const
+{
+	// If 64-bit part is not filled in state, we'll set marked values
+	if(x86.gpr64Filled || x86.gpr32Filled) {
+		regs.rax=x86.GPRegs[X86::RAX];
+		regs.rcx=x86.GPRegs[X86::RCX];
+		regs.rdx=x86.GPRegs[X86::RDX];
+		regs.rbx=x86.GPRegs[X86::RBX];
+		regs.rsp=x86.GPRegs[X86::RSP];
+		regs.rbp=x86.GPRegs[X86::RBP];
+		regs.rsi=x86.GPRegs[X86::RSI];
+		regs.rdi=x86.GPRegs[X86::RDI];
+		regs.r8 =x86.GPRegs[X86::R8 ];
+		regs.r9 =x86.GPRegs[X86::R9 ];
+		regs.r10=x86.GPRegs[X86::R10];
+		regs.r11=x86.GPRegs[X86::R11];
+		regs.r12=x86.GPRegs[X86::R12];
+		regs.r13=x86.GPRegs[X86::R13];
+		regs.r14=x86.GPRegs[X86::R14];
+		regs.r15=x86.GPRegs[X86::R15];
+		regs.orig_rax=x86.orig_ax;
+		regs.rflags=x86.flags;
+		regs.rip=x86.IP;
+		regs.es=x86.segRegs[X86::ES];
+		regs.cs=x86.segRegs[X86::CS];
+		regs.ss=x86.segRegs[X86::SS];
+		regs.ds=x86.segRegs[X86::DS];
+		regs.fs=x86.segRegs[X86::FS];
+		regs.gs=x86.segRegs[X86::GS];
+		regs.fs_base=x86.fsBase;
+		regs.gs_base=x86.gsBase;
+	}
+}
+
 edb::value128 PlatformState::AVX::xmm(std::size_t index) const {
 	return edb::value128(zmmStorage[index]);
 }
