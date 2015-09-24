@@ -624,6 +624,13 @@ bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t cou
 bool DebuggerCore::write_data(edb::address_t address, long value) {
 	if(EDB_IS_32_BIT && address>0xffffffffULL) {
 		// 32 bit ptrace can't handle such long addresses
+		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
+		if(memory_file.open(QIODevice::WriteOnly)) {
+
+			memory_file.seek(address);
+			if(memory_file.write(reinterpret_cast<char*>(&value), sizeof(long))==sizeof(long))
+				return true;
+		}
 		return false;
 	}
 	// NOTE: on some Linux systems ptrace prototype has ellipsis instead of third and fourth arguments
