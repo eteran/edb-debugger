@@ -94,6 +94,10 @@ struct link_map
 #define PTRACE_GETREGSET static_cast<__ptrace_request>(0x4204)
 #endif
 
+#ifndef PTRACE_SETREGSET
+#define PTRACE_SETREGSET static_cast<__ptrace_request>(0x4205)
+#endif
+
 #ifndef PTRACE_EVENT_CLONE
 #define PTRACE_EVENT_CLONE 3
 #endif
@@ -956,9 +960,23 @@ void DebuggerCore::set_state(const State &state) {
 	if(attached()) {
 
 		if(auto state_impl = static_cast<PlatformState *>(state.impl_)) {
-			user_regs_struct regs;
-			state_impl->fillStruct(regs);
-			ptrace(PTRACE_SETREGS, active_thread(), 0, &regs);
+			bool setRegSetDone=false;
+			if(EDB_IS_32_BIT && state_impl->is64Bit()) {
+				// Try to set 64-bit state
+				PrStatus_X86_64 prstat64;
+				state_impl->fillStruct(prstat64);
+				iovec prstat_iov = {&prstat64, sizeof(prstat64)};
+				if(ptrace(PTRACE_SETREGSET, active_thread(), NT_PRSTATUS, &prstat_iov) != -1)
+					setRegSetDone=true;
+				else
+					perror("PTRACE_SETREGSET failed");
+			}
+			// Fallback to setting 32-bit set
+			if(!setRegSetDone) {
+				user_regs_struct regs;
+				state_impl->fillStruct(regs);
+				ptrace(PTRACE_SETREGS, active_thread(), 0, &regs);
+			}
 
 			// debug registers
 			for(std::size_t i=0;i<8;++i)
