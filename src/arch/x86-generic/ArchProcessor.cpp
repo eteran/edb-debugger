@@ -815,7 +815,7 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 // Desc:
 //------------------------------------------------------------------------------
 Register ArchProcessor::value_from_item(const QTreeWidgetItem &item) {
-	const QString name = item.text(0).split(':').front();
+	const QString name = item.text(0).split(':').front().trimmed();
 	State state;
 	edb::v1::debugger_core->get_state(&state);
 	return state[name];
