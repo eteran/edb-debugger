@@ -437,8 +437,6 @@ void PlatformState::fillStruct(UserRegsStructX86& regs) const
 }
 void PlatformState::fillStruct(UserRegsStructX86_64& regs) const
 {
-	// Put some markers to make invalid values immediately visible
-	util::markMemory(&regs,sizeof(regs));
 	// If 64-bit part is not filled in state, we'll set marked values
 	if(x86.gpr64Filled || x86.gpr32Filled) {
 		regs.rax=x86.GPRegs[X86::RAX];
