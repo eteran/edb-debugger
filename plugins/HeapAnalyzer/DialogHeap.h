@@ -48,8 +48,10 @@ private:
 
 private:
 	void get_library_names(QString *libcName, QString *ldName) const;
+	template<class Addr>
 	void collect_blocks(edb::address_t start_address, edb::address_t end_address);
 	void detect_pointers();
+	template<class Addr>
 	void do_find();
 	void process_potential_pointer(const QHash<edb::address_t, edb::address_t> &targets, Result &result);
 
