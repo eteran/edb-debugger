@@ -72,6 +72,10 @@ public:
 		return result;
 	}
 
+	uint64_t valueAsInteger() const {
+		return valueAsAddress().toUint();
+	}
+
 	QString toHexString() const;
 
 private:
