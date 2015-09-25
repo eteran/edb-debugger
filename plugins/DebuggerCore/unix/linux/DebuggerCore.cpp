@@ -593,18 +593,21 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 // Name: read_pages
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
+std::size_t DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
 
 	const std::size_t len = count * page_size();
+	quint64 bytesRead=0;
 
 	QFile memory_file(QString("/proc/%1/mem").arg(pid_));
 	if(memory_file.open(QIODevice::ReadOnly)) {
 
 		memory_file.seek(address);
-		const qint64 n = memory_file.read(reinterpret_cast<char *>(buf), len);
+		bytesRead = memory_file.read(reinterpret_cast<char *>(buf), len);
+		if(bytesRead==0 || bytesRead==quint64(-1))
+			return 0;
 
 		for(const IBreakpoint::pointer &bp: breakpoints_) {
-			if(bp->address() >= address && bp->address() < (address + n)) {
+			if(bp->address() >= address && bp->address() < (address + bytesRead)) {
 				// show the original bytes in the buffer..
 				reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_byte();
 			}
@@ -613,7 +616,7 @@ bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t cou
 		memory_file.close();
 	}
 
-	return true;
+	return bytesRead/page_size();
 }
 
 
