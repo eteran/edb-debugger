@@ -352,7 +352,7 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 					size_t arg_i_position=(i - func_param_regs_count()) * sizeof(edb::reg_t);
 					process->read_bytes(state.stack_pointer() + offset + arg_i_position, &arg, sizeof(arg));
 				} else {
-					arg = state[parameter_registers[i]].value<edb::reg_t>();
+					arg = state[parameter_registers[i]].valueAsInteger();
 				}
 
 				arguments << format_argument(argument.type, arg);
@@ -696,7 +696,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 		QString res;
 		query.setFocus(&file);
 		const QString arch=debuggeeIs64Bit() ? "x86-64" : "x86";
-		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='"+arch+"']/syscall[index=%1]").arg(state.gp_register(rAX).value<edb::reg_t>()));
+		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='"+arch+"']/syscall[index=%1]").arg(state.gp_register(rAX).valueAsInteger()));
 		if (query.isValid()) {
 			query.evaluateTo(&syscall_entry);
 		}
