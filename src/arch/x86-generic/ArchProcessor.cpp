@@ -347,10 +347,10 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 			int i = 0;
 			for(edb::Argument argument: info->arguments) {
 
-				edb::reg_t arg;
+				edb::reg_t arg(0);
 				if(i+1 > func_param_regs_count()) {
-					size_t arg_i_position=(i - func_param_regs_count()) * sizeof(edb::reg_t);
-					process->read_bytes(state.stack_pointer() + offset + arg_i_position, &arg, sizeof(arg));
+					size_t arg_i_position=(i - func_param_regs_count()) * edb::v1::pointer_size();
+					process->read_bytes(state.stack_pointer() + offset + arg_i_position, &arg, edb::v1::pointer_size());
 				} else {
 					arg = state[parameter_registers[i]].valueAsInteger();
 				}
@@ -537,9 +537,9 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 			case edb::Operand::TYPE_EXPRESSION:
 			default:
 				do {
-					edb::address_t target;
+					edb::address_t target(0);
 
-					if(process->read_bytes(effective_address, &target, sizeof(target))) {
+					if(process->read_bytes(effective_address, &target, edb::v1::pointer_size())) {
 						int offset;
 						const QString symname = edb::v1::find_function_symbol(target, QString(), &offset);
 						if(!symname.isEmpty()) {
