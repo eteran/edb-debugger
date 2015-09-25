@@ -786,10 +786,7 @@ Register PlatformState::flags_register() const {
 // Desc:
 //------------------------------------------------------------------------------
 edb::reg_t PlatformState::flags() const {
-	Register flagsR=flags_register();
-	if(flagsR.bitSize()==64) return flagsR.value<edb::reg_t>();
-	else if(flagsR) return edb::reg_t::fromZeroExtended(flagsR.value<edb::value32>());
-	return 0;
+	return flags_register().valueAsInteger();
 }
 
 //------------------------------------------------------------------------------
