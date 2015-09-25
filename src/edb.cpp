@@ -159,6 +159,10 @@ QString address_t::toHexString() const {
 	}
 	else return value64::toHexString();
 }
+void address_t::normalize() {
+	if(v1::debuggeeIs32Bit())
+		value_[0]&=0xffffffffull;
+}
 
 namespace v1 {
 

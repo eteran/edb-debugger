@@ -332,6 +332,7 @@ struct address_t : public value64 {
 	template<class T>
 	address_t(const T& val) : value64(val) {}
 	address_t()=default;
+	void normalize();
 };
 
 	typedef address_t                                  reg_t;
