@@ -462,7 +462,7 @@ void analyze_return(const State &state, const edb::Instruction &inst, QStringLis
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		edb::address_t return_address;
-		process->read_bytes(state.stack_pointer(), &return_address, sizeof(return_address));
+		process->read_bytes(state.stack_pointer(), &return_address, edb::v1::pointer_size());
 	
 		const QString symname = edb::v1::find_function_symbol(return_address);
 		if(!symname.isEmpty()) {
