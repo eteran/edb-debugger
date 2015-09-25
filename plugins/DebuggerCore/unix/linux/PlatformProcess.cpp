@@ -227,7 +227,7 @@ PlatformProcess::~PlatformProcess() {
 // Note: buf's size must be >= count * core_->page_size()
 // Note: address should be page aligned.
 //------------------------------------------------------------------------------
-bool PlatformProcess::read_pages(edb::address_t address, void *buf, std::size_t count) {
+std::size_t PlatformProcess::read_pages(edb::address_t address, void *buf, std::size_t count) {
 
 	Q_ASSERT(buf);
 

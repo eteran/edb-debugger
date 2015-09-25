@@ -49,7 +49,7 @@ public:
 	// or this will return false immediately.
 	virtual bool write_bytes(edb::address_t address, const void *buf, size_t len) = 0;
 	virtual bool read_bytes(edb::address_t address, void *buf, size_t len) = 0;
-	virtual bool read_pages(edb::address_t address, void *buf, size_t count) = 0;
+	virtual std::size_t read_pages(edb::address_t address, void *buf, size_t count) = 0;
 };
 
 #endif

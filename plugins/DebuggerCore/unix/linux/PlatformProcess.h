@@ -27,7 +27,7 @@ public:
 public:
 	virtual bool write_bytes(edb::address_t address, const void *buf, size_t len);
 	virtual bool read_bytes(edb::address_t address, void *buf, size_t len);
-	virtual bool read_pages(edb::address_t address, void *buf, size_t count);
+	virtual std::size_t read_pages(edb::address_t address, void *buf, size_t count);
 
 private:
 	quint8 read_byte(edb::address_t address, bool *ok);
