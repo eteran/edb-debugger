@@ -231,36 +231,7 @@ bool PlatformProcess::read_pages(edb::address_t address, void *buf, std::size_t 
 
 	Q_ASSERT(buf);
 
-	if((address & (core_->page_size() - 1)) == 0) {
-	
-		const edb::address_t orig_address = address;
-		auto ptr                          = reinterpret_cast<long *>(buf);
-		auto orig_ptr                     = reinterpret_cast<quint8 *>(buf);
-
-		const edb::address_t end_address  = orig_address + core_->page_size() * count;
-
-		for(std::size_t c = 0; c < count; ++c) {
-			for(edb::address_t i = 0; i < core_->page_size(); i += EDB_WORDSIZE) {
-				bool ok;
-				const long v = core_->read_data(address, &ok);
-				if(!ok) {
-					return false;
-				}
-
-				*ptr++ = v;
-				address += EDB_WORDSIZE;
-			}
-		}
-
-		for(const IBreakpoint::pointer &bp: core_->breakpoints_) {
-			if(bp->address() >= orig_address && bp->address() < end_address) {
-				// show the original bytes in the buffer..
-				orig_ptr[bp->address() - orig_address] = bp->original_byte();
-			}
-		}
-	}
-
-	return true;
+	return core_->read_pages(address,buf,count);
 }
 
 //------------------------------------------------------------------------------
