@@ -67,6 +67,8 @@ public:
 	T value() const              { return T(value_); }
 	// Return the value, zero-extended to address_t to be usable in address calculations
 	edb::address_t valueAsAddress() const {
+		// This function only makes sense for GPRs
+		assert(bitSize_<=8*sizeof(edb::address_t));
 		edb::address_t result(0LL);
 		std::memcpy(&result,&value_,bitSize_/8);
 		return result;
