@@ -247,6 +247,7 @@ private:
 	void setup_tab_buttons();
 	void setup_ui();
 	void test_native_binary();
+	void setup_data_views();
 	void update_data_views();
 	void update_disassembly(edb::address_t address, const IRegion::pointer &r);
 	void update_menu_state(GUI_STATE state);

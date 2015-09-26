@@ -2641,6 +2641,31 @@ void Debugger::on_action_Restart_triggered() {
 }
 
 //------------------------------------------------------------------------------
+// Name: setup_data_views
+// Desc:
+//------------------------------------------------------------------------------
+void Debugger::setup_data_views() {
+
+	// Setup data views according to debuggee bitness
+	if(edb::v1::debuggeeIs64Bit()) {
+		stack_view_->setAddressSize(QHexView::Address64);
+		for(const DataViewInfo::pointer &data_view: data_regions_) {
+			data_view->view->setAddressSize(QHexView::Address64);
+		}
+	} else {
+		stack_view_->setAddressSize(QHexView::Address32);
+		for(const DataViewInfo::pointer &data_view: data_regions_) {
+			data_view->view->setAddressSize(QHexView::Address32);
+		}
+	}
+
+	// Update stack word width
+	if(auto_stack_word_width_)
+		stack_word_width_=edb::v1::pointer_size();
+	stack_view_->setWordWidth(stack_word_width_);
+}
+
+//------------------------------------------------------------------------------
 // Name: common_open
 // Desc:
 //------------------------------------------------------------------------------
@@ -2660,6 +2685,7 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 			set_initial_debugger_state();
 			test_native_binary();
 			CapstoneEDB::init(edb::v1::debuggeeIs64Bit());
+			setup_data_views();
 			set_initial_breakpoint(s);
 			ret = true;
 		} else {
@@ -2669,24 +2695,6 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 				tr("Failed to open and attach to process, please check privileges and try again."));
 		}
 	}
-
-	// Setup data views according to debuggee bitness
-	if(edb::v1::debuggeeIs64Bit()) {
-		stack_view_->setAddressSize(QHexView::Address64);
-		for(const DataViewInfo::pointer &data_view: data_regions_) {
-			data_view->view->setAddressSize(QHexView::Address64);
-		}
-	} else {
-		stack_view_->setAddressSize(QHexView::Address32);
-		for(const DataViewInfo::pointer &data_view: data_regions_) {
-			data_view->view->setAddressSize(QHexView::Address32);
-		}
-	}
-
-	// Update stack word width
-	if(auto_stack_word_width_)
-		stack_word_width_=edb::v1::pointer_size();
-	stack_view_->setWordWidth(stack_word_width_);
 
 	update_gui();
 	return ret;
@@ -2765,6 +2773,9 @@ void Debugger::attach(edb::pid_t pid) {
 		}
 
 		arguments_dialog_->set_arguments(args);
+
+		CapstoneEDB::init(edb::v1::debuggeeIs64Bit());
+		setup_data_views();
 	} else {
 		QMessageBox::information(this, tr("Attach"), tr("Failed to attach to process, please check privileges and try again."));
 	}
