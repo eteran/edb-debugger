@@ -234,15 +234,7 @@ std::size_t PlatformProcess::read_pages(edb::address_t address, void *buf, std::
 	return core_->read_pages(address,buf,count);
 }
 
-//------------------------------------------------------------------------------
-// Name: read_bytes
-// Desc: reads <len> bytes into <buf> starting at <address>
-// Note: if the read failed, the part of the buffer that could not be read will
-//       be filled with 0xff bytes
-//------------------------------------------------------------------------------
-bool PlatformProcess::read_bytes(edb::address_t address, void *buf, std::size_t len) {
-
-	Q_ASSERT(buf);
+bool PlatformProcess::read_bytes_one_by_one(edb::address_t address, void* buf, std::size_t len) {
 
 	if(len != 0) {
 		bool ok;
@@ -264,6 +256,24 @@ bool PlatformProcess::read_bytes(edb::address_t address, void *buf, std::size_t 
 		}
 
 		return ok;
+	}
+
+	return true;
+}
+
+//------------------------------------------------------------------------------
+// Name: read_bytes
+// Desc: reads <len> bytes into <buf> starting at <address>
+// Note: if the read failed, the part of the buffer that could not be read will
+//       be filled with 0xff bytes
+//------------------------------------------------------------------------------
+bool PlatformProcess::read_bytes(const edb::address_t address, void *buf, const std::size_t len) {
+
+	Q_ASSERT(buf);
+
+	if(len != 0) {
+		bool ok = len==core_->read_bytes(address,buf,len);
+		if(!ok) return read_bytes_one_by_one(address,buf,len);
 	}
 
 	return true;
