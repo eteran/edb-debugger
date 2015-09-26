@@ -589,13 +589,7 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 	return v;
 }
 
-//------------------------------------------------------------------------------
-// Name: read_pages
-// Desc:
-//------------------------------------------------------------------------------
-std::size_t DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
-
-	const std::size_t len = count * page_size();
+std::size_t DebuggerCore::read_bytes(edb::address_t address, void* buf, std::size_t len) {
 	quint64 bytesRead=0;
 
 	QFile memory_file(QString("/proc/%1/mem").arg(pid_));
@@ -616,7 +610,16 @@ std::size_t DebuggerCore::read_pages(edb::address_t address, void *buf, std::siz
 		memory_file.close();
 	}
 
-	return bytesRead/page_size();
+	return bytesRead;
+}
+
+//------------------------------------------------------------------------------
+// Name: read_pages
+// Desc:
+//------------------------------------------------------------------------------
+std::size_t DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
+
+	return read_bytes(address,buf,count*page_size())/page_size();
 }
 
 
