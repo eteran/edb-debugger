@@ -61,7 +61,7 @@ edb::reg_t DialogInputValue::value() const {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogInputValue::set_value(edb::reg_t value) {
-	ui->hexInput->setText(edb::v1::format_pointer(value));
+	ui->hexInput->setText(value.toHexString());
 	ui->signedInput->setText(value.signedToString());
 	ui->unsignedInput->setText(value.unsignedToString());
 }
@@ -95,7 +95,7 @@ void DialogInputValue::on_signedInput_textEdited(const QString &s) {
 		value = 0;
 	}
 
-	ui->hexInput->setText(edb::v1::format_pointer(value));
+	ui->hexInput->setText(value.toHexString());
 	ui->unsignedInput->setText(value.unsignedToString());
 }
 
@@ -110,6 +110,6 @@ void DialogInputValue::on_unsignedInput_textEdited(const QString &s) {
 	if(!ok) {
 		value = 0;
 	}
-	ui->hexInput->setText(edb::v1::format_pointer(value));
+	ui->hexInput->setText(value.toHexString());
 	ui->signedInput->setText(value.signedToString());
 }
