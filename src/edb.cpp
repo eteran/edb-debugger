@@ -957,8 +957,8 @@ void push_value(State *state, reg_t value) {
 	Q_ASSERT(state);
 	
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		state->adjust_stack(- static_cast<int>(sizeof(reg_t)));	
-		process->write_bytes(state->stack_pointer(), &value, sizeof(reg_t));
+		state->adjust_stack(- static_cast<int>(pointer_size()));	
+		process->write_bytes(state->stack_pointer(), &value, pointer_size());
 	}
 }
 
