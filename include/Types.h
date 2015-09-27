@@ -129,6 +129,16 @@ struct SizedValue : public ValueBase<N,1> {
 	operator InnerValueType() const { return this->value_[0]; }
 	operator QVariant() const { return QVariant::fromValue(this->value_[0]); }
 
+	SizedValue signExtended(std::size_t valueLength) const {
+		SizedValue result(*this);
+		if(valueLength==sizeof(*this)) return result;
+		if(this->value_[0]&(1ull << (valueLength*8-1))) {
+			result=-1ll;
+			std::memcpy(&result,this,valueLength);
+		}
+		return result;
+	}
+
 	QString toString() const { return QString("%1").arg(this->value_[0]); }
 	QString unsignedToString() const { return toString(); }
 	QString signedToString() const { return QString("%1").arg(typename std::make_signed<InnerValueType>::type(this->value_[0])); }
