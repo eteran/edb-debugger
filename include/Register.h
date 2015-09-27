@@ -88,6 +88,10 @@ public:
 		return result;
 	}
 
+	void setScalarValue(std::uint64_t newValue) {
+		std::memcpy(&value_,&newValue,bitSize_/8);
+	}
+
 	QString toHexString() const;
 
 private:
