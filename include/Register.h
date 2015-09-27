@@ -78,6 +78,16 @@ public:
 		return valueAsAddress().toUint();
 	}
 
+	int64_t valueAsSignedInteger() const {
+		auto result=valueAsInteger();
+		// If MSB is set, sign extend the result
+		if(result&(1<<(bitSize_-1))) {
+			result=-1ll;
+			std::memcpy(&result,&value_,bitSize_/8);
+		}
+		return result;
+	}
+
 	QString toHexString() const;
 
 private:
