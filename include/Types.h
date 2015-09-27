@@ -32,6 +32,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstddef>
 #include <map>
 
+class Register;
+
 namespace edb {
 
 enum EVENT_STATUS {
@@ -100,6 +102,7 @@ struct SizedValue : public ValueBase<N,1> {
 	explicit SizedValue(Float floatVal) { this->value_[0]=floatVal; }
 	template<typename Integer, typename = typename std::enable_if<std::is_integral<Integer>::value>::type>
 	SizedValue(Integer integer) { this->value_[0]=integer; }
+	SizedValue(const Register&)=delete;
 
 	template<typename SmallData>
 	static SizedValue fromZeroExtended(const SmallData& data) {
