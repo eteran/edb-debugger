@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 
 #include <QRegExpValidator>
+#include <QDebug>
 
 #include "ui_DialogInputValue.h"
 
@@ -29,14 +30,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DialogInputValue
 // Desc:
 //------------------------------------------------------------------------------
-DialogInputValue::DialogInputValue(QWidget *parent) : QDialog(parent), ui(new Ui::DialogInputValue) {
+DialogInputValue::DialogInputValue(QWidget *parent) : QDialog(parent), ui(new Ui::DialogInputValue), mask(-1ll), valueLength(sizeof(std::uint64_t)) {
 	ui->setupUi(this);
 
-	const QString regex = QString("[A-Fa-f0-9]{0,%1}").arg(edb::v1::pointer_size() * 2);
-
+	// Apply some defaults
+	const QString regex = QString("[A-Fa-f0-9]{0,%1}").arg(16);
 	ui->hexInput->setValidator(new QRegExpValidator(QRegExp(regex), this));
-	ui->signedInput->setValidator(new QLongValidator(LONG_MIN, LONG_MAX, this));
-	ui->unsignedInput->setValidator(new QULongValidator(0, ULONG_MAX, this));
+	ui->signedInput->setValidator(new QLongValidator(LONG_LONG_MIN, LONG_LONG_MAX, this));
+	ui->unsignedInput->setValidator(new QULongValidator(0, ULONG_LONG_MAX, this));
 }
 
 //------------------------------------------------------------------------------
@@ -53,17 +54,32 @@ DialogInputValue::~DialogInputValue() {
 //------------------------------------------------------------------------------
 edb::reg_t DialogInputValue::value() const {
 	bool ok;
-	return edb::reg_t::fromHexString(ui->hexInput->text(),&ok);
+	return mask & edb::reg_t::fromHexString(ui->hexInput->text(),&ok);
 }
 
 //------------------------------------------------------------------------------
 // Name: set_value
 // Desc:
 //------------------------------------------------------------------------------
-void DialogInputValue::set_value(edb::reg_t value) {
-	ui->hexInput->setText(value.toHexString());
-	ui->signedInput->setText(value.signedToString());
-	ui->unsignedInput->setText(value.unsignedToString());
+void DialogInputValue::set_value(Register &reg) {
+	if(reg.bitSize()>sizeof(edb::reg_t)*8) {
+		qWarning() << "Warning: DialogInputValue::set_value(tooLargeRegister): such large registers are not supported yet";
+		return;
+	}
+	ui->hexInput->setText(reg.toHexString());
+	ui->signedInput->setText(QString("%1").arg(reg.valueAsSignedInteger()));
+	ui->unsignedInput->setText(QString("%1").arg(reg.valueAsInteger()));
+
+	const QString regex = QString("[A-Fa-f0-9]{0,%1}").arg(reg.bitSize()/4);
+	const std::uint64_t unsignedMax=(reg.bitSize()==64 ? -1 : (1ull<<(reg.bitSize()))-1); // Avoid UB
+	const std::int64_t signedMin=1ull<<(reg.bitSize()-1);
+	const std::int64_t signedMax=unsignedMax>>1;
+	mask=unsignedMax;
+	valueLength=reg.bitSize()/8;
+
+	ui->hexInput->setValidator(new QRegExpValidator(QRegExp(regex), this));
+	ui->signedInput->setValidator(new QLongValidator(signedMin, signedMax, this));
+	ui->unsignedInput->setValidator(new QULongValidator(0, unsignedMax, this));
 }
 
 //------------------------------------------------------------------------------
@@ -78,7 +94,7 @@ void DialogInputValue::on_hexInput_textEdited(const QString &s) {
 		value = 0;
 	}
 
-	ui->signedInput->setText(value.signedToString());
+	ui->signedInput->setText(value.signExtended(valueLength).signedToString());
 	ui->unsignedInput->setText(value.unsignedToString());
 
 }

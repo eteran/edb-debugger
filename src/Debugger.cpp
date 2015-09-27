@@ -1033,13 +1033,12 @@ void Debugger::on_cpuView_breakPointToggled(edb::address_t address) {
 void Debugger::on_registerList_itemDoubleClicked(QTreeWidgetItem *item) {
 	Q_ASSERT(item);
 
-	if(const Register reg = edb::v1::arch_processor().value_from_item(*item)) {
-		edb::reg_t r = reg.value<edb::reg_t>();
+	if(Register r = edb::v1::arch_processor().value_from_item(*item)) {
 		if(edb::v1::get_value_from_user(r, tr("Register Value"))) {
 
 			State state;
 			edb::v1::debugger_core->get_state(&state);
-			state.set_register(reg.name(), r);
+			state.set_register(r.name(), r.valueAsInteger());
 			edb::v1::debugger_core->set_state(state);
 			update_gui();
 			refresh_gui();
@@ -1408,7 +1407,9 @@ void Debugger::on_actionApplication_Working_Directory_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuStackPush() {
-	edb::reg_t value = 0;
+	Register value(edb::v1::debuggeeIs32Bit()?
+					   make_Register("",edb::value32(0),Register::TYPE_GPR):
+					   make_Register("",edb::value64(0),Register::TYPE_GPR));
 	State state;
 	edb::v1::debugger_core->get_state(&state);
 
@@ -1416,7 +1417,7 @@ void Debugger::mnuStackPush() {
 	if(edb::v1::get_value_from_user(value, tr("Enter value to push"))) {
 
 		// if they said ok, do the push, just like the hardware would do
-		edb::v1::push_value(&state, value);
+		edb::v1::push_value(&state, value.valueAsInteger());
 
 		// update the state
 		edb::v1::debugger_core->set_state(state);

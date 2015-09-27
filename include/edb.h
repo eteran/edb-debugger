@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IRegion.h"
 #include "IBreakpoint.h"
 #include "Types.h"
+#include "Register.h"
 #include "Formatter.h"
 
 #include <QHash>
@@ -101,8 +102,8 @@ EDB_EXPORT bool get_expression_from_user(const QString &title, const QString pro
 EDB_EXPORT bool eval_expression(const QString &expression, address_t *value);
 
 // ask the user for a value suitable for a register via an input box
-EDB_EXPORT bool get_value_from_user(reg_t &value, const QString &title);
-EDB_EXPORT bool get_value_from_user(reg_t &value);
+EDB_EXPORT bool get_value_from_user(Register &value, const QString &title);
+EDB_EXPORT bool get_value_from_user(Register &value);
 
 // ask the user for a binary string via an input box
 EDB_EXPORT bool get_binary_string_from_user(QByteArray &value, const QString &title, int max_length);

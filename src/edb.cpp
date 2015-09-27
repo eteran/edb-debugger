@@ -504,7 +504,7 @@ bool get_expression_from_user(const QString &title, const QString prompt, addres
 // Name: get_value_from_user
 // Desc:
 //------------------------------------------------------------------------------
-bool get_value_from_user(reg_t &value) {
+bool get_value_from_user(Register &value) {
 	return get_value_from_user(value, QT_TRANSLATE_NOOP("edb", "Input Value"));
 }
 
@@ -512,14 +512,14 @@ bool get_value_from_user(reg_t &value) {
 // Name: get_value_from_user
 // Desc:
 //------------------------------------------------------------------------------
-bool get_value_from_user(reg_t &value, const QString &title) {
+bool get_value_from_user(Register &value, const QString &title) {
 	static auto dlg = new DialogInputValue(debugger_ui);
 	bool ret = false;
 
 	dlg->setWindowTitle(title);
 	dlg->set_value(value);
 	if(dlg->exec() == QDialog::Accepted) {
-		value = dlg->value();
+		value.setScalarValue(dlg->value());
 		ret = true;
 	}
 
