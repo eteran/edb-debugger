@@ -24,6 +24,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCore {
 
+constexpr const char* PlatformState::AVX::mxcsrName;
+constexpr const char* PlatformState::X86::IP64Name;
+constexpr const char* PlatformState::X86::IP32Name;
+constexpr const char* PlatformState::X86::IP16Name;
+constexpr const char* PlatformState::X86::flags64Name;
+constexpr const char* PlatformState::X86::flags32Name;
+constexpr const char* PlatformState::X86::flags16Name;
+constexpr const char* PlatformState::X86::fsBaseName;
+constexpr const char* PlatformState::X86::gsBaseName;
 const std::array<const char*,MAX_GPR_COUNT> PlatformState::X86::GPReg64Names={
 	"rax",
 	"rcx",
