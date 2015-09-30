@@ -134,8 +134,8 @@ QString CommentServer::comment(QHexView::address_t address, int size) const {
 		// if the view is currently looking at words which are a pointer in size
 		// then see if it points to anything...
 		if(size == edb::v1::pointer_size()) {
-			edb::address_t value;
-			if(process->read_bytes(address, &value, sizeof(value))) {
+			edb::address_t value(0);
+			if(process->read_bytes(address, &value, edb::v1::pointer_size())) {
 
 				auto it = custom_comments_.find(value);
 				if(it != custom_comments_.end()) {
