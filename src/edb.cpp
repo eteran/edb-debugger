@@ -760,7 +760,7 @@ address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 	*ok = false;
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		*ok = process->read_bytes(address, &ret, sizeof(ret));
+		*ok = process->read_bytes(address, &ret, edb::v1::pointer_size());
 	
 		if(!*ok) {
 			*err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
