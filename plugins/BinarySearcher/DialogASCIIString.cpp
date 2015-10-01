@@ -70,7 +70,7 @@ void DialogASCIIString::do_find() {
 
 		if(IRegion::pointer region = edb::v1::memory_regions().find_region(stack_ptr)) {
 			if(IProcess *process = edb::v1::debugger_core->process()) {
-				std::size_t count = (region->end() - stack_ptr) / sizeof(edb::address_t);
+				edb::address_t count = (region->end() - stack_ptr) / edb::v1::pointer_size();
 				stack_ptr = region->start();
 
 				try {
@@ -79,8 +79,8 @@ void DialogASCIIString::do_find() {
 					int i = 0;
 					while(stack_ptr < region->end()) {
 						// get the value from the stack
-						edb::address_t value;
-						if(process->read_bytes(stack_ptr, &value, sizeof(edb::address_t))) {
+						edb::address_t value(0);
+						if(process->read_bytes(stack_ptr, &value, edb::v1::pointer_size())) {
 							if(process->read_bytes(value, &chars[0], sz)) {
 								if(std::memcmp(&chars[0], b.constData(), sz) == 0) {
 									auto item = new QListWidgetItem(edb::v1::format_pointer(stack_ptr));
@@ -90,7 +90,7 @@ void DialogASCIIString::do_find() {
 							}
 						}
 						ui->progressBar->setValue(util::percentage(i++, count));
-						stack_ptr += sizeof(edb::address_t);
+						stack_ptr += edb::v1::pointer_size();
 					}
 				} catch(const std::bad_alloc &) {
 					QMessageBox::information(0, tr("Memroy Allocation Error"),

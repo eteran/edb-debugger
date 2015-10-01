@@ -53,7 +53,10 @@ IDebugEvent::Message PlatformEvent::createUnexpectedSignalMessage(const QString 
 IDebugEvent::Message PlatformEvent::error_description() const {
 	Q_ASSERT(is_error());
 
-	auto fault_address = edb::address_t(siginfo_.si_addr);
+	auto fault_address = edb::address_t::fromZeroExtended(siginfo_.si_addr);
+
+	std::size_t debuggeePtrSize=edb::v1::pointer_size();
+	bool fullAddressKnown=debuggeePtrSize<=sizeof(void*);
 
 	switch(code()) {
 	case SIGSEGV:
@@ -63,14 +66,14 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 				tr("Illegal Access Fault"),
 				tr(
 					"<p>The debugged application encountered a segmentation fault.<br />The address <strong>%1</strong> does not appear to be mapped.</p>"
-					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>").arg(edb::v1::format_pointer(fault_address))
+					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>").arg(fault_address.toPointerString(fullAddressKnown))
 				);
 		case SEGV_ACCERR:
 			return Message(
 				tr("Illegal Access Fault"),
 				tr(
 					"<p>The debugged application encountered a segmentation fault.<br />The address <strong>%1</strong> could not be accessed.</p>"
-					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>").arg(edb::v1::format_pointer(fault_address))
+					"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>").arg(fault_address.toPointerString(fullAddressKnown))
 				);
 		default:
 			return Message(

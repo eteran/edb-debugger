@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 #include "Types.h"
+#include "Register.h"
 
 namespace Ui { class DialogInputValue; }
 
@@ -38,10 +39,12 @@ public Q_SLOTS:
 
 public:
 	edb::reg_t value() const;
-	void set_value(edb::reg_t value);
+	void set_value(Register &reg);
 
 private:
 	Ui::DialogInputValue *const ui;
+	edb::reg_t mask;
+	std::size_t valueLength;
 };
 
 #endif

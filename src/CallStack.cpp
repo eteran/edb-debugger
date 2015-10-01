@@ -52,8 +52,8 @@ void CallStack::get_call_stack() {
 	edb::address_t rsp = state.stack_pointer();
 
 	//Check the alignment.  rbp and rsp should be aligned to the stack.
-	if (rbp % sizeof(edb::address_t) != 0 ||
-			rsp % sizeof(edb::address_t) != 0)
+	if (rbp % edb::v1::pointer_size() != 0 ||
+			rsp % edb::v1::pointer_size() != 0)
 	{
 		return;
 	}
@@ -73,7 +73,7 @@ void CallStack::get_call_stack() {
 	//Code is largely from CommentServer.cpp.  Makes assumption of size of call.
 	const quint8 CALL_MIN_SIZE = 2, CALL_MAX_SIZE = 7;
 	quint8 buffer[edb::Instruction::MAX_SIZE];
-	for (edb::address_t addr = rbp; region_rbp->contains(addr); addr += sizeof(edb::address_t)) {
+	for (edb::address_t addr = rbp; region_rbp->contains(addr); addr += edb::v1::pointer_size()) {
 
 		//Get the stack value so that we can see if it's a pointer
 		bool ok;

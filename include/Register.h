@@ -67,9 +67,29 @@ public:
 	T value() const              { return T(value_); }
 	// Return the value, zero-extended to address_t to be usable in address calculations
 	edb::address_t valueAsAddress() const {
+		// This function only makes sense for GPRs
+		assert(bitSize_<=8*sizeof(edb::address_t));
 		edb::address_t result(0LL);
 		std::memcpy(&result,&value_,bitSize_/8);
 		return result;
+	}
+
+	uint64_t valueAsInteger() const {
+		return valueAsAddress().toUint();
+	}
+
+	int64_t valueAsSignedInteger() const {
+		auto result=valueAsInteger();
+		// If MSB is set, sign extend the result
+		if(result&(1<<(bitSize_-1))) {
+			result=-1ll;
+			std::memcpy(&result,&value_,bitSize_/8);
+		}
+		return result;
+	}
+
+	void setScalarValue(std::uint64_t newValue) {
+		std::memcpy(&value_,&newValue,bitSize_/8);
 	}
 
 	QString toHexString() const;

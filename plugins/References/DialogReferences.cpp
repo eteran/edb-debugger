@@ -78,7 +78,7 @@ void DialogReferences::do_find() {
 			// a short circut for speading things up
 			if(region->accessible() || !ui->chkSkipNoAccess->isChecked()) {
 
-				const size_t page_count     = region->size() / page_size;
+				const edb::address_t page_count = region->size() / page_size;
 				const QVector<quint8> pages = edb::v1::read_pages(region->start(), page_count);
 
 				if(!pages.isEmpty()) {
@@ -87,14 +87,14 @@ void DialogReferences::do_find() {
 
 					while(p != pages_end) {
 
-						if(static_cast<std::size_t>(pages_end - p) < sizeof(edb::address_t)) {
+						if(pages_end - p < edb::v1::pointer_size()) {
 							break;
 						}
 
 						const edb::address_t addr = p - &pages[0] + region->start();
 
-						edb::address_t test_address;
-						memcpy(&test_address, p, sizeof(edb::address_t));
+						edb::address_t test_address(0);
+						memcpy(&test_address, p, edb::v1::pointer_size());
 
 						if(test_address == address) {
 							auto item = new QListWidgetItem(edb::v1::format_pointer(addr));

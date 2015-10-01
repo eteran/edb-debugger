@@ -137,6 +137,33 @@ void load_function_db() {
 
 }
 
+QString address_t::toPointerString(bool createdFromNativePointer) const {
+	if(v1::debuggeeIs32Bit()) {
+		return "0x"+toHexString();
+	} else {
+		if(!createdFromNativePointer) // then we don't know value of upper dword
+			return "0x????????"+value32(value_[0]).toHexString();
+		else
+			return "0x"+toHexString();
+	}
+}
+QString address_t::toHexString() const {
+	if(v1::debuggeeIs32Bit()) {
+		if(value_[0]>0xffffffffull) {
+			// Make erroneous bits visible
+			QString string=value64::toHexString();
+			string.insert(8,"]");
+			return "["+string;
+		}
+		return value32(value_[0]).toHexString();
+	}
+	else return value64::toHexString();
+}
+void address_t::normalize() {
+	if(v1::debuggeeIs32Bit())
+		value_[0]&=0xffffffffull;
+}
+
 namespace v1 {
 
 bool debuggeeIs32Bit() { return pointer_size()==sizeof(std::uint32_t); }
@@ -477,7 +504,7 @@ bool get_expression_from_user(const QString &title, const QString prompt, addres
 // Name: get_value_from_user
 // Desc:
 //------------------------------------------------------------------------------
-bool get_value_from_user(reg_t &value) {
+bool get_value_from_user(Register &value) {
 	return get_value_from_user(value, QT_TRANSLATE_NOOP("edb", "Input Value"));
 }
 
@@ -485,14 +512,14 @@ bool get_value_from_user(reg_t &value) {
 // Name: get_value_from_user
 // Desc:
 //------------------------------------------------------------------------------
-bool get_value_from_user(reg_t &value, const QString &title) {
+bool get_value_from_user(Register &value, const QString &title) {
 	static auto dlg = new DialogInputValue(debugger_ui);
 	bool ret = false;
 
 	dlg->setWindowTitle(title);
 	dlg->set_value(value);
 	if(dlg->exec() == QDialog::Accepted) {
-		value = dlg->value();
+		value.setScalarValue(dlg->value());
 		ret = true;
 	}
 
@@ -711,12 +738,12 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 	// FIXME: if it's really meant to return base, then need to check whether
 	//        State::operator[]() returned valid Register
 	if(reg.name() == "fs") {
-		return state["fs_base"].value<reg_t>();
+		return state["fs_base"].valueAsAddress();
 	} else if(reg.name() == "gs") {
-		return state["gs_base"].value<reg_t>();
+		return state["gs_base"].valueAsAddress();
 	}
 
-	return reg.value<reg_t>();
+	return reg.valueAsAddress();
 }
 
 //------------------------------------------------------------------------------
@@ -733,7 +760,7 @@ address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 	*ok = false;
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		*ok = process->read_bytes(address, &ret, sizeof(ret));
+		*ok = process->read_bytes(address, &ret, edb::v1::pointer_size());
 
 		if(!*ok) {
 			*err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
@@ -930,8 +957,8 @@ void push_value(State *state, reg_t value) {
 	Q_ASSERT(state);
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		state->adjust_stack(- static_cast<int>(sizeof(reg_t)));
-		process->write_bytes(state->stack_pointer(), &value, sizeof(reg_t));
+		state->adjust_stack(- static_cast<int>(pointer_size()));
+		process->write_bytes(state->stack_pointer(), &value, pointer_size());
 	}
 }
 

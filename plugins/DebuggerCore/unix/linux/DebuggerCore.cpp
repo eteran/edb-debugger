@@ -50,6 +50,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <elf.h>
 #include <linux/uio.h>
 
+namespace BinaryInfo {
+// Bitness-templated version of struct r_debug defined in link.h
+template<class Addr>
+struct r_debug
+{
+	int r_version;
+	Addr r_map; // struct link_map*
+	Addr r_brk;
+	enum {
+		RT_CONSISTENT,
+		RT_ADD,
+		RT_DELETE
+	} r_state;
+	Addr r_ldbase;
+};
+
+// Bitness-templated version of struct link_map defined in link.h
+template<class Addr>
+struct link_map
+{
+	Addr l_addr;
+	Addr l_name; // char*
+	Addr l_ld; // ElfW(Dyn)*
+	Addr l_next, l_prev; // struct link_map*
+};
+}
+
 // doesn't always seem to be defined in the headers
 #ifndef PTRACE_GET_THREAD_AREA
 #define PTRACE_GET_THREAD_AREA static_cast<__ptrace_request>(25)
@@ -65,6 +92,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifndef PTRACE_GETREGSET
 #define PTRACE_GETREGSET static_cast<__ptrace_request>(0x4204)
+#endif
+
+#ifndef PTRACE_SETREGSET
+#define PTRACE_SETREGSET static_cast<__ptrace_request>(0x4205)
 #endif
 
 #ifndef PTRACE_EVENT_CLONE
@@ -533,28 +564,44 @@ long DebuggerCore::read_data(edb::address_t address, bool *ok) {
 
 	Q_ASSERT(ok);
 
+	if(EDB_IS_32_BIT && address>0xffffffffULL) {
+		// 32 bit ptrace can't handle such long addresses, try reading /proc/$PID/mem
+		// FIXME: this is slow. Try keeping the file open, not reopening it on each read.
+		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
+		if(memory_file.open(QIODevice::ReadOnly)) {
+
+			memory_file.seek(address);
+			long value;
+			if(memory_file.read(reinterpret_cast<char*>(&value), sizeof(long))==sizeof(long)) {
+				*ok=true;
+				return value;
+			}
+		}
+		return 0;
+	}
+
 	errno = 0;
-	const long v = ptrace(PTRACE_PEEKTEXT, pid(), address, 0);
+	// NOTE: on some Linux systems ptrace prototype has ellipsis instead of third and fourth arguments
+	// Thus we can't just pass address as is on IA32 systems: it'd put 64 bit integer on stack and cause UB
+	auto nativeAddress=reinterpret_cast<const void* const>(address.toUint());
+	const long v = ptrace(PTRACE_PEEKTEXT, pid(), nativeAddress, 0);
 	SET_OK(*ok, v);
 	return v;
 }
 
-//------------------------------------------------------------------------------
-// Name: read_pages
-// Desc:
-//------------------------------------------------------------------------------
-bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
-
-	const std::size_t len = count * page_size();
+std::size_t DebuggerCore::read_bytes(edb::address_t address, void* buf, std::size_t len) {
+	quint64 bytesRead=0;
 
 	QFile memory_file(QString("/proc/%1/mem").arg(pid_));
 	if(memory_file.open(QIODevice::ReadOnly)) {
 
 		memory_file.seek(address);
-		const qint64 n = memory_file.read(reinterpret_cast<char *>(buf), len);
+		bytesRead = memory_file.read(reinterpret_cast<char *>(buf), len);
+		if(bytesRead==0 || bytesRead==quint64(-1))
+			return 0;
 
 		for(const IBreakpoint::pointer &bp: breakpoints_) {
-			if(bp->address() >= address && bp->address() < (address + n)) {
+			if(bp->address() >= address && bp->address() < (address + bytesRead)) {
 				// show the original bytes in the buffer..
 				reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_byte();
 			}
@@ -563,7 +610,16 @@ bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t cou
 		memory_file.close();
 	}
 
-	return true;
+	return bytesRead;
+}
+
+//------------------------------------------------------------------------------
+// Name: read_pages
+// Desc:
+//------------------------------------------------------------------------------
+std::size_t DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
+
+	return read_bytes(address,buf,count*page_size())/page_size();
 }
 
 
@@ -572,7 +628,21 @@ bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t cou
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::write_data(edb::address_t address, long value) {
-	return ptrace(PTRACE_POKETEXT, pid(), address, value) != -1;
+	if(EDB_IS_32_BIT && address>0xffffffffULL) {
+		// 32 bit ptrace can't handle such long addresses
+		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
+		if(memory_file.open(QIODevice::WriteOnly)) {
+
+			memory_file.seek(address);
+			if(memory_file.write(reinterpret_cast<char*>(&value), sizeof(long))==sizeof(long))
+				return true;
+		}
+		return false;
+	}
+	// NOTE: on some Linux systems ptrace prototype has ellipsis instead of third and fourth arguments
+	// Thus we can't just pass address as is on IA32 systems: it'd put 64 bit integer on stack and cause UB
+	auto nativeAddress=reinterpret_cast<const void* const>(address.toUint());
+	return ptrace(PTRACE_POKETEXT, pid(), nativeAddress, value) != -1;
 }
 
 //------------------------------------------------------------------------------
@@ -903,9 +973,23 @@ void DebuggerCore::set_state(const State &state) {
 	if(attached()) {
 
 		if(auto state_impl = static_cast<PlatformState *>(state.impl_)) {
-			user_regs_struct regs;
-			state_impl->fillStruct(regs);
-			ptrace(PTRACE_SETREGS, active_thread(), 0, &regs);
+			bool setRegSetDone=false;
+			if(EDB_IS_32_BIT && state_impl->is64Bit()) {
+				// Try to set 64-bit state
+				PrStatus_X86_64 prstat64;
+				state_impl->fillStruct(prstat64);
+				iovec prstat_iov = {&prstat64, sizeof(prstat64)};
+				if(ptrace(PTRACE_SETREGSET, active_thread(), NT_PRSTATUS, &prstat_iov) != -1)
+					setRegSetDone=true;
+				else
+					perror("PTRACE_SETREGSET failed");
+			}
+			// Fallback to setting 32-bit set
+			if(!setRegSetDone) {
+				user_regs_struct regs;
+				state_impl->fillStruct(regs);
+				ptrace(PTRACE_SETREGS, active_thread(), 0, &regs);
+			}
 
 			// debug registers
 			for(std::size_t i=0;i<8;++i)
@@ -1098,24 +1182,25 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QList<Module> DebuggerCore::loaded_modules() const {
+template<class Addr>
+QList<Module> loaded_modules_(IProcess* process, IBinary* binary_info_) {
 	QList<Module> ret;
 
 	if(binary_info_) {
-		struct r_debug dynamic_info;
+		BinaryInfo::r_debug<Addr> dynamic_info;
 		if(const edb::address_t debug_pointer = binary_info_->debug_pointer()) {
-			if(IProcess *process = this->process()) {
+			if(process) {
 				if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
 					if(dynamic_info.r_map) {
 
-						auto link_address = edb::address_t(dynamic_info.r_map);
+						auto link_address = edb::address_t::fromZeroExtended(dynamic_info.r_map);
 
 						while(link_address) {
 
-							struct link_map map;
+							BinaryInfo::link_map<Addr> map;
 							if(process->read_bytes(link_address, &map, sizeof(map))) {
 								char path[PATH_MAX];
-								if(!process->read_bytes(edb::address_t(map.l_name), &path, sizeof(path))) {
+								if(!process->read_bytes(edb::address_t::fromZeroExtended(map.l_name), &path, sizeof(path))) {
 									path[0] = '\0';
 								}
 
@@ -1126,7 +1211,7 @@ QList<Module> DebuggerCore::loaded_modules() const {
 									ret.push_back(module);
 								}
 
-								link_address = edb::address_t(map.l_next);
+								link_address = edb::address_t::fromZeroExtended(map.l_next);
 							} else {
 								break;
 							}
@@ -1158,6 +1243,18 @@ QList<Module> DebuggerCore::loaded_modules() const {
 	}
 
 	return ret;
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+QList<Module> DebuggerCore::loaded_modules() const {
+	if(edb::v1::debuggeeIs64Bit())
+		return loaded_modules_<Elf64_Addr>(process(), binary_info_);
+	else if(edb::v1::debuggeeIs32Bit())
+		return loaded_modules_<Elf32_Addr>(process(), binary_info_);
+	else return QList<Module>();
 }
 
 //------------------------------------------------------------------------------

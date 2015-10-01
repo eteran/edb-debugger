@@ -227,51 +227,14 @@ PlatformProcess::~PlatformProcess() {
 // Note: buf's size must be >= count * core_->page_size()
 // Note: address should be page aligned.
 //------------------------------------------------------------------------------
-bool PlatformProcess::read_pages(edb::address_t address, void *buf, std::size_t count) {
+std::size_t PlatformProcess::read_pages(edb::address_t address, void *buf, std::size_t count) {
 
 	Q_ASSERT(buf);
 
-	if((address & (core_->page_size() - 1)) == 0) {
-	
-		const edb::address_t orig_address = address;
-		auto ptr                          = reinterpret_cast<long *>(buf);
-		auto orig_ptr                     = reinterpret_cast<quint8 *>(buf);
-
-		const edb::address_t end_address  = orig_address + core_->page_size() * count;
-
-		for(std::size_t c = 0; c < count; ++c) {
-			for(edb::address_t i = 0; i < core_->page_size(); i += EDB_WORDSIZE) {
-				bool ok;
-				const long v = core_->read_data(address, &ok);
-				if(!ok) {
-					return false;
-				}
-
-				*ptr++ = v;
-				address += EDB_WORDSIZE;
-			}
-		}
-
-		for(const IBreakpoint::pointer &bp: core_->breakpoints_) {
-			if(bp->address() >= orig_address && bp->address() < end_address) {
-				// show the original bytes in the buffer..
-				orig_ptr[bp->address() - orig_address] = bp->original_byte();
-			}
-		}
-	}
-
-	return true;
+	return core_->read_pages(address,buf,count);
 }
 
-//------------------------------------------------------------------------------
-// Name: read_bytes
-// Desc: reads <len> bytes into <buf> starting at <address>
-// Note: if the read failed, the part of the buffer that could not be read will
-//       be filled with 0xff bytes
-//------------------------------------------------------------------------------
-bool PlatformProcess::read_bytes(edb::address_t address, void *buf, std::size_t len) {
-
-	Q_ASSERT(buf);
+bool PlatformProcess::read_bytes_one_by_one(edb::address_t address, void* buf, std::size_t len) {
 
 	if(len != 0) {
 		bool ok;
@@ -293,6 +256,24 @@ bool PlatformProcess::read_bytes(edb::address_t address, void *buf, std::size_t 
 		}
 
 		return ok;
+	}
+
+	return true;
+}
+
+//------------------------------------------------------------------------------
+// Name: read_bytes
+// Desc: reads <len> bytes into <buf> starting at <address>
+// Note: if the read failed, the part of the buffer that could not be read will
+//       be filled with 0xff bytes
+//------------------------------------------------------------------------------
+bool PlatformProcess::read_bytes(const edb::address_t address, void *buf, const std::size_t len) {
+
+	Q_ASSERT(buf);
+
+	if(len != 0) {
+		bool ok = len==core_->read_bytes(address,buf,len);
+		if(!ok) return read_bytes_one_by_one(address,buf,len);
 	}
 
 	return true;

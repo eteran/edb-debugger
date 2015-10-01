@@ -32,6 +32,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstddef>
 #include <map>
 
+class Register;
+
 namespace edb {
 
 enum EVENT_STATUS {
@@ -100,6 +102,7 @@ struct SizedValue : public ValueBase<N,1> {
 	explicit SizedValue(Float floatVal) { this->value_[0]=floatVal; }
 	template<typename Integer, typename = typename std::enable_if<std::is_integral<Integer>::value>::type>
 	SizedValue(Integer integer) { this->value_[0]=integer; }
+	SizedValue(const Register&)=delete;
 
 	template<typename SmallData>
 	static SizedValue fromZeroExtended(const SmallData& data) {
@@ -128,8 +131,16 @@ struct SizedValue : public ValueBase<N,1> {
 
 	operator InnerValueType() const { return this->value_[0]; }
 	operator QVariant() const { return QVariant::fromValue(this->value_[0]); }
-	template<int M=0> typename std::enable_if<sizeof(void*)==sizeof(InnerValueType) && M==0,
-	QString>::type toPointerString() const { return "0x"+this->toHexString(); }
+
+	SizedValue signExtended(std::size_t valueLength) const {
+		SizedValue result(*this);
+		if(valueLength==sizeof(*this)) return result;
+		if(this->value_[0]&(1ull << (valueLength*8-1))) {
+			result=-1ll;
+			std::memcpy(&result,this,valueLength);
+		}
+		return result;
+	}
 
 	QString toString() const { return QString("%1").arg(this->value_[0]); }
 	QString unsignedToString() const { return toString(); }
@@ -323,12 +334,29 @@ static_assert(std::is_standard_layout<value8>::value &&
 			  std::is_standard_layout<value128>::value &&
 			  std::is_standard_layout<value256>::value &&
 			  std::is_standard_layout<value512>::value,"Fixed-sized values are intended to have standard layout");
+
+struct address_t : public value64 {
+	QString toPointerString(bool createdFromNativePointer=true) const;
+	QString toHexString() const;
+	template<typename SmallData>
+	static address_t fromZeroExtended(const SmallData& data) {
+		return value64::fromZeroExtended(data);
+	}
+	template<class T>
+	address_t(const T& val) : value64(val) {}
+	address_t()=default;
+	void normalize();
+};
+
+	typedef address_t                                  reg_t;
 }
 
 template<class T> typename std::enable_if<std::is_same<T,edb::value8 >::value ||
 										  std::is_same<T,edb::value16>::value ||
 										  std::is_same<T,edb::value32>::value ||
-										  std::is_same<T,edb::value64>::value,
+										  std::is_same<T,edb::value64>::value ||
+										  std::is_same<T,edb::reg_t>::value   ||
+										  std::is_same<T,edb::address_t>::value,
 std::istream&>::type operator>>(std::istream& os, T& val)
 {
 	os >> val.asUint();
@@ -338,7 +366,9 @@ std::istream&>::type operator>>(std::istream& os, T& val)
 template<class T> typename std::enable_if<std::is_same<T,edb::value8 >::value ||
 										  std::is_same<T,edb::value16>::value ||
 										  std::is_same<T,edb::value32>::value ||
-										  std::is_same<T,edb::value64>::value,
+										  std::is_same<T,edb::value64>::value ||
+										  std::is_same<T,edb::reg_t>::value   ||
+										  std::is_same<T,edb::address_t>::value,
 std::ostream&>::type operator<<(std::ostream& os, T val)
 {
 	os << val.toUint();

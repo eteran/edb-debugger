@@ -39,8 +39,6 @@ static constexpr const bool EDB_IS_32_BIT=false;
 
 namespace edb {
 	typedef value16                                    seg_reg_t;
-	typedef detail::SizedValue<8*sizeof(void*)>        reg_t;
-	typedef detail::SizedValue<8*sizeof(void*)>        address_t;
 	typedef CapstoneEDB::Instruction                   Instruction;
 	typedef Instruction::operand_type                  Operand;
 }

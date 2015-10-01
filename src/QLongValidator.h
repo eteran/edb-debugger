@@ -20,10 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define QLONGVALIDATOR_20071128_H_
 
 #include <QValidator>
+#include <cstdint>
 
 class QLongValidator : public QValidator {
 public:
-	typedef long value_type;
+	typedef std::int64_t value_type;
 
 public:
 	explicit QLongValidator(QObject *parent = 0);

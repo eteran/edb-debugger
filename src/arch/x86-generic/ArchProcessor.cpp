@@ -347,12 +347,12 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 			int i = 0;
 			for(edb::Argument argument: info->arguments) {
 
-				edb::reg_t arg;
+				edb::reg_t arg(0);
 				if(i+1 > func_param_regs_count()) {
-					size_t arg_i_position=(i - func_param_regs_count()) * sizeof(edb::reg_t);
-					process->read_bytes(state.stack_pointer() + offset + arg_i_position, &arg, sizeof(arg));
+					size_t arg_i_position=(i - func_param_regs_count()) * edb::v1::pointer_size();
+					process->read_bytes(state.stack_pointer() + offset + arg_i_position, &arg, edb::v1::pointer_size());
 				} else {
-					arg = state[parameter_registers[i]].value<edb::reg_t>();
+					arg = state[parameter_registers[i]].valueAsInteger();
 				}
 
 				arguments << format_argument(argument.type, arg);
@@ -461,8 +461,8 @@ void analyze_return(const State &state, const edb::Instruction &inst, QStringLis
 	Q_UNUSED(inst);
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		edb::address_t return_address;
-		process->read_bytes(state.stack_pointer(), &return_address, sizeof(return_address));
+		edb::address_t return_address(0);
+		process->read_bytes(state.stack_pointer(), &return_address, edb::v1::pointer_size());
 	
 		const QString symname = edb::v1::find_function_symbol(return_address);
 		if(!symname.isEmpty()) {
@@ -537,9 +537,9 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 			case edb::Operand::TYPE_EXPRESSION:
 			default:
 				do {
-					edb::address_t target;
+					edb::address_t target(0);
 
-					if(process->read_bytes(effective_address, &target, sizeof(target))) {
+					if(process->read_bytes(effective_address, &target, edb::v1::pointer_size())) {
 						int offset;
 						const QString symname = edb::v1::find_function_symbol(target, QString(), &offset);
 						if(!symname.isEmpty()) {
@@ -696,7 +696,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 		QString res;
 		query.setFocus(&file);
 		const QString arch=debuggeeIs64Bit() ? "x86-64" : "x86";
-		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='"+arch+"']/syscall[index=%1]").arg(state.gp_register(rAX).value<edb::reg_t>()));
+		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='"+arch+"']/syscall[index=%1]").arg(state.gp_register(rAX).valueAsInteger()));
 		if (query.isValid()) {
 			query.evaluateTo(&syscall_entry);
 		}
@@ -815,7 +815,7 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 // Desc:
 //------------------------------------------------------------------------------
 Register ArchProcessor::value_from_item(const QTreeWidgetItem &item) {
-	const QString name = item.text(0).split(':').front();
+	const QString name = item.text(0).split(':').front().trimmed();
 	State state;
 	edb::v1::debugger_core->get_state(&state);
 	return state[name];

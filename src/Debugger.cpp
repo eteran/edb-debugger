@@ -291,7 +291,9 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 		timer_(new QTimer(this)),
 		recent_file_manager_(new RecentFileManager(this)),
 		stack_comment_server_(new CommentServer),
-		stack_view_locked_(false)
+		stack_view_locked_(false),
+		auto_stack_word_width_(true),
+		stack_word_width_(edb::v1::pointer_size())
 #ifdef Q_OS_UNIX
 		,debug_pointer_(0)
 #endif
@@ -783,7 +785,10 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	settings.setValue("window.stack.show_ascii.enabled", stack_view_->showAsciiDump());
 	settings.setValue("window.stack.show_comments.enabled", stack_view_->showComments());
 	settings.setValue("window.stack.row_width", stack_view_->rowWidth());
-	settings.setValue("window.stack.word_width", stack_view_->wordWidth());
+	if(auto_stack_word_width_)
+		settings.setValue("window.stack.word_width", -1);
+	else
+		settings.setValue("window.stack.word_width", stack_view_->wordWidth());
 	settings.endGroup();
 	event->accept();
 }
@@ -813,11 +818,19 @@ void Debugger::showEvent(QShowEvent *) {
 	stack_view_->setShowComments(settings.value("window.stack.show_comments.enabled", true).value<bool>());
 
 	int row_width = settings.value("window.stack.row_width", 1).value<int>();
-	int word_width = settings.value("window.stack.word_width", edb::v1::pointer_size()).value<int>();
+
+	{
+		int word_width = settings.value("window.stack.word_width", edb::v1::pointer_size()).value<int>();
+		auto_stack_word_width_=(word_width<0);
+		if(auto_stack_word_width_)
+			stack_word_width_=edb::v1::pointer_size();
+		else
+			stack_word_width_=word_width;
+	}
 
 	// normalize values
-	if(word_width != 1 && word_width != 2 && word_width != 4 && word_width != 8) {
-		word_width = edb::v1::pointer_size();
+	if(stack_word_width_ != 1 && stack_word_width_ != 2 && stack_word_width_ != 4 && stack_word_width_ != 8) {
+		stack_word_width_ = edb::v1::pointer_size();
 	}
 
 	if(row_width != 1 && row_width != 2 && row_width != 4 && row_width != 8 && row_width != 16) {
@@ -825,7 +838,7 @@ void Debugger::showEvent(QShowEvent *) {
 	}
 
 	stack_view_->setRowWidth(row_width);
-	stack_view_->setWordWidth(word_width);
+	stack_view_->setWordWidth(stack_word_width_);
 
 	settings.endGroup();
 	restoreState(state);
@@ -1020,13 +1033,12 @@ void Debugger::on_cpuView_breakPointToggled(edb::address_t address) {
 void Debugger::on_registerList_itemDoubleClicked(QTreeWidgetItem *item) {
 	Q_ASSERT(item);
 
-	if(const Register reg = edb::v1::arch_processor().value_from_item(*item)) {
-		edb::reg_t r = reg.value<edb::reg_t>();
+	if(Register r = edb::v1::arch_processor().value_from_item(*item)) {
 		if(edb::v1::get_value_from_user(r, tr("Register Value"))) {
 
 			State state;
 			edb::v1::debugger_core->get_state(&state);
-			state.set_register(reg.name(), r);
+			state.set_register(r.name(), r.valueAsInteger());
 			edb::v1::debugger_core->set_state(state);
 			update_gui();
 			refresh_gui();
@@ -1082,19 +1094,6 @@ void Debugger::on_action_Configure_Debugger_triggered() {
 
 	// apply changes to the GUI options
 	apply_default_show_separator();
-
-
-	if(edb::v1::pointer_size() == sizeof(quint64)) {
-		stack_view_->setAddressSize(QHexView::Address64);
-		for(const DataViewInfo::pointer &data_view: data_regions_) {
-			data_view->view->setAddressSize(QHexView::Address64);
-		}
-	} else {
-		stack_view_->setAddressSize(QHexView::Address32);
-		for(const DataViewInfo::pointer &data_view: data_regions_) {
-			data_view->view->setAddressSize(QHexView::Address32);
-		}
-	}
 
 	// show changes
 	refresh_gui();
@@ -1408,7 +1407,9 @@ void Debugger::on_actionApplication_Working_Directory_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuStackPush() {
-	edb::reg_t value = 0;
+	Register value(edb::v1::debuggeeIs32Bit()?
+					   make_Register("",edb::value32(0),Register::TYPE_GPR):
+					   make_Register("",edb::value64(0),Register::TYPE_GPR));
 	State state;
 	edb::v1::debugger_core->get_state(&state);
 
@@ -1416,7 +1417,7 @@ void Debugger::mnuStackPush() {
 	if(edb::v1::get_value_from_user(value, tr("Enter value to push"))) {
 
 		// if they said ok, do the push, just like the hardware would do
-		edb::v1::push_value(&state, value);
+		edb::v1::push_value(&state, value.valueAsInteger());
 
 		// update the state
 		edb::v1::debugger_core->set_state(state);
@@ -2575,14 +2576,6 @@ void Debugger::test_native_binary() {
 			"For example a 32-bit binary on x86-64. "
 			"This is not supported yet, so you may need to use a version of edb that was compiled for the same architecture as your target program")
 			);
-		// Although non-native debugging is not fully supported, let's give the user a nicer experience with unsupported feature.
-		// Reinitialize CapstoneEDB to inverse of native bitness
-		CapstoneEDB::init(EDB_IS_32_BIT);
-	}
-	else {
-		// Reinitialize CapstoneEDB with native bitness. This is needed when e.g. previous
-		// debugging session was non-native, and the new one is native.
-		CapstoneEDB::init(EDB_IS_64_BIT);
 	}
 }
 
@@ -2645,6 +2638,31 @@ void Debugger::on_action_Restart_triggered() {
 }
 
 //------------------------------------------------------------------------------
+// Name: setup_data_views
+// Desc:
+//------------------------------------------------------------------------------
+void Debugger::setup_data_views() {
+
+	// Setup data views according to debuggee bitness
+	if(edb::v1::debuggeeIs64Bit()) {
+		stack_view_->setAddressSize(QHexView::Address64);
+		for(const DataViewInfo::pointer &data_view: data_regions_) {
+			data_view->view->setAddressSize(QHexView::Address64);
+		}
+	} else {
+		stack_view_->setAddressSize(QHexView::Address32);
+		for(const DataViewInfo::pointer &data_view: data_regions_) {
+			data_view->view->setAddressSize(QHexView::Address32);
+		}
+	}
+
+	// Update stack word width
+	if(auto_stack_word_width_)
+		stack_word_width_=edb::v1::pointer_size();
+	stack_view_->setWordWidth(stack_word_width_);
+}
+
+//------------------------------------------------------------------------------
 // Name: common_open
 // Desc:
 //------------------------------------------------------------------------------
@@ -2663,6 +2681,8 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 		if(edb::v1::debugger_core->open(s, working_directory_, args, tty_file_)) {
 			set_initial_debugger_state();
 			test_native_binary();
+			CapstoneEDB::init(edb::v1::debuggeeIs64Bit());
+			setup_data_views();
 			set_initial_breakpoint(s);
 			ret = true;
 		} else {
@@ -2672,7 +2692,6 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 				tr("Failed to open and attach to process, please check privileges and try again."));
 		}
 	}
-
 
 	update_gui();
 	return ret;
@@ -2751,6 +2770,9 @@ void Debugger::attach(edb::pid_t pid) {
 		}
 
 		arguments_dialog_->set_arguments(args);
+
+		CapstoneEDB::init(edb::v1::debuggeeIs64Bit());
+		setup_data_views();
 	} else {
 		QMessageBox::information(this, tr("Attach"), tr("Failed to attach to process, please check privileges and try again."));
 	}

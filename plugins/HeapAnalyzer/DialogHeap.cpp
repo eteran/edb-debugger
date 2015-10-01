@@ -61,14 +61,17 @@ namespace {
 
 // NOTE: the details of this structure are 32/64-bit sensitive!
 
+template<class MallocChunkPtr>
 struct malloc_chunk {
-	ulong prev_size; /* Size of previous chunk (if free).  */
-	ulong size;      /* Size in bytes, including overhead. */
+	typedef MallocChunkPtr ULong; // ulong has the same size
 
-	struct malloc_chunk* fd; /* double links -- used only if free. */
-	struct malloc_chunk* bk;
+	ULong prev_size; /* Size of previous chunk (if free).  */
+	ULong size;      /* Size in bytes, including overhead. */
 
-	ulong chunk_size() const { return size & ~(SIZE_BITS); }
+	MallocChunkPtr fd; /* double links -- used only if free. */
+	MallocChunkPtr bk;
+
+	edb::address_t chunk_size() const { return edb::address_t::fromZeroExtended(size & ~(SIZE_BITS)); }
 	bool prev_inuse() const  { return size & PREV_INUSE; }
 };
 
@@ -77,7 +80,7 @@ struct malloc_chunk {
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t block_start(edb::address_t pointer) {
-	return pointer + sizeof(struct malloc_chunk *) * 2;
+	return pointer + edb::v1::pointer_size() * 2; // pointer_size() is malloc_chunk*
 }
 
 //------------------------------------------------------------------------------
@@ -193,13 +196,13 @@ void DialogHeap::process_potential_pointer(const QHash<edb::address_t, edb::addr
 	
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		if(result.data.isEmpty()) {
-			edb::address_t pointer;
+			edb::address_t pointer(0);
 			edb::address_t block_ptr = block_start(result);
 			edb::address_t block_end = block_ptr + result.size;
 
 			while(block_ptr < block_end) {
 
-				if(process->read_bytes(block_ptr, &pointer, sizeof(pointer))) {
+				if(process->read_bytes(block_ptr, &pointer, edb::v1::pointer_size())) {
 					auto it = targets.find(pointer);
 					if(it != targets.end()) {
 					#if QT_POINTER_SIZE == 4
@@ -211,7 +214,7 @@ void DialogHeap::process_potential_pointer(const QHash<edb::address_t, edb::addr
 					}
 				}
 
-				block_ptr += sizeof(edb::address_t);
+				block_ptr += edb::v1::pointer_size();
 			}
 
 			result.data.truncate(result.data.size() - 2);
@@ -237,7 +240,7 @@ void DialogHeap::detect_pointers() {
 		edb::address_t block_end = block_ptr + result.size;
 		while(block_ptr < block_end) {
 			targets.insert(block_ptr, result.block);
-			block_ptr += sizeof(edb::address_t);
+			block_ptr += edb::v1::pointer_size();
 		}
 	}
 
@@ -259,6 +262,7 @@ void DialogHeap::detect_pointers() {
 // Name: collect_blocks
 // Desc:
 //------------------------------------------------------------------------------
+template<class Addr>
 void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end_address) {
 	model_->clearResults();
 
@@ -267,8 +271,8 @@ void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end
 
 		if(start_address != 0 && end_address != 0) {
 	#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
-			malloc_chunk currentChunk;
-			malloc_chunk nextChunk;
+			malloc_chunk<Addr> currentChunk;
+			malloc_chunk<Addr> nextChunk;
 			edb::address_t currentChunkAddress = start_address;
 
 			model_->setUpdatesEnabled(false);
@@ -382,15 +386,11 @@ void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end
 edb::address_t DialogHeap::find_heap_start_heuristic(edb::address_t end_address, size_t offset) const {
 	const edb::address_t start_address = end_address - offset;
 
-#if defined(EDB_X86_64)
-	const edb::address_t heap_symbol = start_address - (sizeof(edb::address_t) + sizeof(edb::address_t) + sizeof(edb::address_t) + sizeof(edb::address_t));
-#else
-	const edb::address_t heap_symbol = start_address - (sizeof(edb::address_t) + sizeof(edb::address_t) + sizeof(edb::address_t) + sizeof(unsigned int));
-#endif
+	const edb::address_t heap_symbol = start_address - 4*edb::v1::pointer_size();
 
-	edb::address_t test_addr;
+	edb::address_t test_addr(0);
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		process->read_bytes(heap_symbol, &test_addr, sizeof(test_addr));
+		process->read_bytes(heap_symbol, &test_addr, edb::v1::pointer_size());
 	
 		if(test_addr != edb::v1::debugger_core->page_size()) {
 			return 0;
@@ -406,6 +406,7 @@ edb::address_t DialogHeap::find_heap_start_heuristic(edb::address_t end_address,
 // Name: do_find
 // Desc:
 //------------------------------------------------------------------------------
+template<class Addr>
 void DialogHeap::do_find() {
 	// get both the libc and ld symbols of __curbrk
 	// this will be the 'before/after libc' addresses
@@ -433,7 +434,7 @@ void DialogHeap::do_find() {
 
 			qDebug() << "[Heap Analyzer] __curbrk symbol not found in ld, falling back on heuristic! This may or may not work.";
 
-			for(edb::address_t offset = 0x0000; offset != 0x1000; offset += sizeof(edb::address_t)) {
+			for(edb::address_t offset = 0x0000; offset != 0x1000; offset += edb::v1::pointer_size()) {
 				start_address = find_heap_start_heuristic(end_address, offset);
 				if(start_address != 0) {
 					break;
@@ -446,8 +447,8 @@ void DialogHeap::do_find() {
 			qDebug() << "[Heap Analyzer] heap end symbol   : " << edb::v1::format_pointer(end_address);
 
 			// read the contents of those symbols
-			process->read_bytes(end_address, &end_address, sizeof(end_address));
-			process->read_bytes(start_address, &start_address, sizeof(start_address));	
+			process->read_bytes(end_address, &end_address, edb::v1::pointer_size());
+			process->read_bytes(start_address, &start_address, edb::v1::pointer_size());	
 		}
 
 		// just assume it's the bounds of the [heap] memory region for now
@@ -486,7 +487,7 @@ void DialogHeap::do_find() {
 		qDebug() << "[Heap Analyzer] heap start : " << edb::v1::format_pointer(start_address);
 		qDebug() << "[Heap Analyzer] heap end   : " << edb::v1::format_pointer(end_address);
 
-		collect_blocks(start_address, end_address);
+		collect_blocks<Addr>(start_address, end_address);
 	}
 }
 
@@ -497,7 +498,10 @@ void DialogHeap::do_find() {
 void DialogHeap::on_btnFind_clicked() {
 	ui->btnFind->setEnabled(false);
 	ui->progressBar->setValue(0);
-	do_find();
+	if(edb::v1::debuggeeIs32Bit())
+		do_find<edb::value32>();
+	else
+		do_find<edb::value64>();
 	ui->progressBar->setValue(100);
 	ui->btnFind->setEnabled(true);
 }

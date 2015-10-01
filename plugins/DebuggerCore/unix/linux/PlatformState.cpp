@@ -24,6 +24,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCore {
 
+constexpr const char* PlatformState::AVX::mxcsrName;
+constexpr const char* PlatformState::X86::IP64Name;
+constexpr const char* PlatformState::X86::IP32Name;
+constexpr const char* PlatformState::X86::IP16Name;
+constexpr const char* PlatformState::X86::flags64Name;
+constexpr const char* PlatformState::X86::flags32Name;
+constexpr const char* PlatformState::X86::flags16Name;
+constexpr const char* PlatformState::X86::fsBaseName;
+constexpr const char* PlatformState::X86::gsBaseName;
 const std::array<const char*,MAX_GPR_COUNT> PlatformState::X86::GPReg64Names={
 	"rax",
 	"rcx",
@@ -437,8 +446,6 @@ void PlatformState::fillStruct(UserRegsStructX86& regs) const
 }
 void PlatformState::fillStruct(UserRegsStructX86_64& regs) const
 {
-	// Put some markers to make invalid values immediately visible
-	util::markMemory(&regs,sizeof(regs));
 	// If 64-bit part is not filled in state, we'll set marked values
 	if(x86.gpr64Filled || x86.gpr32Filled) {
 		regs.rax=x86.GPRegs[X86::RAX];
@@ -468,6 +475,40 @@ void PlatformState::fillStruct(UserRegsStructX86_64& regs) const
 		regs.orig_rax=x86.orig_ax;
 		regs.eflags=x86.flags;
 		regs.rip=x86.IP;
+	}
+}
+
+void PlatformState::fillStruct(PrStatus_X86_64& regs) const
+{
+	// If 64-bit part is not filled in state, we'll set marked values
+	if(x86.gpr64Filled || x86.gpr32Filled) {
+		regs.rax=x86.GPRegs[X86::RAX];
+		regs.rcx=x86.GPRegs[X86::RCX];
+		regs.rdx=x86.GPRegs[X86::RDX];
+		regs.rbx=x86.GPRegs[X86::RBX];
+		regs.rsp=x86.GPRegs[X86::RSP];
+		regs.rbp=x86.GPRegs[X86::RBP];
+		regs.rsi=x86.GPRegs[X86::RSI];
+		regs.rdi=x86.GPRegs[X86::RDI];
+		regs.r8 =x86.GPRegs[X86::R8 ];
+		regs.r9 =x86.GPRegs[X86::R9 ];
+		regs.r10=x86.GPRegs[X86::R10];
+		regs.r11=x86.GPRegs[X86::R11];
+		regs.r12=x86.GPRegs[X86::R12];
+		regs.r13=x86.GPRegs[X86::R13];
+		regs.r14=x86.GPRegs[X86::R14];
+		regs.r15=x86.GPRegs[X86::R15];
+		regs.orig_rax=x86.orig_ax;
+		regs.rflags=x86.flags;
+		regs.rip=x86.IP;
+		regs.es=x86.segRegs[X86::ES];
+		regs.cs=x86.segRegs[X86::CS];
+		regs.ss=x86.segRegs[X86::SS];
+		regs.ds=x86.segRegs[X86::DS];
+		regs.fs=x86.segRegs[X86::FS];
+		regs.gs=x86.segRegs[X86::GS];
+		regs.fs_base=x86.fsBase;
+		regs.gs_base=x86.gsBase;
 	}
 }
 
@@ -754,10 +795,7 @@ Register PlatformState::flags_register() const {
 // Desc:
 //------------------------------------------------------------------------------
 edb::reg_t PlatformState::flags() const {
-	Register flagsR=flags_register();
-	if(flagsR.bitSize()==64) return flagsR.value<edb::reg_t>();
-	else if(flagsR) return edb::reg_t::fromZeroExtended(flagsR.value<edb::value32>());
-	return 0;
+	return flags_register().valueAsInteger();
 }
 
 //------------------------------------------------------------------------------
