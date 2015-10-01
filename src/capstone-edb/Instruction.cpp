@@ -152,7 +152,7 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva, cons
 	firstByte_=codeBegin[0];
 
 	Capstone::cs_insn* insn=nullptr;
-    if(first<last && Capstone::cs_disasm(csh, codeBegin, codeEnd-codeBegin-1, rva, 1, &insn))
+    if(first<last && Capstone::cs_disasm(csh, codeBegin, codeEnd-codeBegin, rva, 1, &insn))
 	{
 		valid_=true;
 		std::memcpy(&insn_,insn,sizeof insn_);
