@@ -114,7 +114,7 @@ void SyntaxHighlighter::create_rules() {
 	// registers
 	// TODO: support ST(N)
 	rules_.append(HighlightingRule(
-		"\\b(((e|r)?(ax|bx|cx|dx|bp|sp|si|di|ip))|([abcd](l|h))|(sp|bp|si|di)l|([cdefgs]s)|([xy]?mm([0-9]|(1[0-5])))|r(8|9|(1[0-5]))[dwb]?)\\b",
+		"\\b(((e|r)?(ax|bx|cx|dx|bp|sp|si|di|ip))|([abcd](l|h))|(sp|bp|si|di)l|([cdefgs]s)|[xyz]?mm([0-9]|[12][0-9]|3[01])|r(8|9|(1[0-5]))[dwb]?)\\b",		
 		QColor(settings.value("theme.register.foreground", "red").value<QString>()),
 		QColor(settings.value("theme.register.background", "transparent").value<QString>()),
 		settings.value("theme.register.weight", QFont::Bold).value<int>(),
@@ -134,7 +134,7 @@ void SyntaxHighlighter::create_rules() {
 
 	// pointer modifiers
 	rules_.append(HighlightingRule(
-		"\\b(t?byte|(xmm|[qdf]?)word) ptr\\b",
+		"\\b(t?byte|([xyz]mm|[qdf]?)word) ptr\\b",
 		QColor(settings.value("theme.ptr.foreground", "darkGreen").value<QString>()),
 		QColor(settings.value("theme.ptr.background", "transparent").value<QString>()),
 		settings.value("theme.ptr.weight", QFont::Normal).value<int>(),
