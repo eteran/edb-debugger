@@ -109,7 +109,7 @@ bool is_instruction_ret(edb::address_t address) {
 
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
-		edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
+		edb::Instruction inst(buffer, buffer + size, address);
 		return is_ret(inst);
 	}
 	return false;
@@ -224,7 +224,7 @@ public:
 		while (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 
 			//Get the instruction
-			edb::Instruction inst(buffer, buffer + size, 0, std::nothrow);
+			edb::Instruction inst(buffer, buffer + size, 0);
 			qDebug() << QString("Scanning for terminator at 0x%1: found %2").arg(
 							address, 0, 16).arg(
 							inst.mnemonic().c_str());
@@ -1112,7 +1112,7 @@ void Debugger::step_over(F1 run_func, F2 step_func) {
 	const edb::address_t ip = state.instruction_pointer();
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 	if(const int sz = edb::v1::get_instruction_bytes(ip, buffer)) {
-		edb::Instruction inst(buffer, buffer + sz, 0, std::nothrow);
+		edb::Instruction inst(buffer, buffer + sz, 0);
 		if(inst && edb::v1::arch_processor().can_step_over(inst)) {
 
 			// add a temporary breakpoint at the instruction just
@@ -1465,7 +1465,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 		quint8 buffer[edb::Instruction::MAX_SIZE + 1];
 		if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
-			edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
+			edb::Instruction inst(buffer, buffer + size, address);
 			if(inst) {
 
 

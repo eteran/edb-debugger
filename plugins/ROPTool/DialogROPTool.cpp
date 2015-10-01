@@ -371,7 +371,7 @@ void DialogROPTool::do_find() {
 
 							// eat up any NOPs in front...
 							Q_FOREVER {
-								edb::Instruction inst(p, l, rva, std::nothrow);
+								edb::Instruction inst(p, l, rva);
 								if(!is_nop(inst)) {
 									break;
 								}
@@ -382,7 +382,7 @@ void DialogROPTool::do_find() {
 							}
 
 
-							edb::Instruction inst1(p, l, rva, std::nothrow);
+							edb::Instruction inst1(p, l, rva);
 							if(inst1) {
 								instruction_list << inst1;
 
@@ -403,7 +403,7 @@ void DialogROPTool::do_find() {
 
 									// eat up any NOPs in between...
 									Q_FOREVER {
-										edb::Instruction inst(p, l, rva, std::nothrow);
+										edb::Instruction inst(p, l, rva);
 										if(!is_nop(inst)) {
 											break;
 										}
@@ -413,7 +413,7 @@ void DialogROPTool::do_find() {
 										rva += inst.size();
 									}
 
-									edb::Instruction inst2(p, l, rva, std::nothrow);
+									edb::Instruction inst2(p, l, rva);
 									if(is_ret(inst2)) {
 										instruction_list << inst2;
 										add_gadget(instruction_list);
@@ -422,7 +422,7 @@ void DialogROPTool::do_find() {
 										p += inst2.size();
 										rva += inst2.size();
 
-										edb::Instruction inst3(p, l, rva, std::nothrow);
+										edb::Instruction inst3(p, l, rva);
 										if(inst3 && inst3.operation() == edb::Instruction::Operation::X86_INS_JMP) {
 
 											instruction_list << inst3;

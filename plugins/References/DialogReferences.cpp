@@ -103,7 +103,7 @@ void DialogReferences::do_find() {
 							ui->listWidget->addItem(item);
 						}
 
-						edb::Instruction inst(p, pages_end, addr, std::nothrow);
+						edb::Instruction inst(p, pages_end, addr);
 
 						if(inst) {
 							switch(inst.operation()) {

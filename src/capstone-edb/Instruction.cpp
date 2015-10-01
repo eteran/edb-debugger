@@ -141,9 +141,7 @@ void adjustInstructionText(Capstone::cs_insn& insn)
 	strcpy(insn.op_str,operands.toStdString().c_str());
 }
 
-// TODO(eteran): since Capstone is a C libray and therefore won't throw any exceptions
-//               we can start to migrate away from the nothrow variants of the code
-Instruction::Instruction(const void* first, const void* last, uint64_t rva, const std::nothrow_t&) noexcept
+Instruction::Instruction(const void* first, const void* last, uint64_t rva) noexcept
 {
 	assert(capstoneInitialized);
     const uint8_t* codeBegin=static_cast<const uint8_t*>(first);

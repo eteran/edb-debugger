@@ -69,7 +69,7 @@ void DialogAssembler::set_address(edb::address_t address) {
 
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
-		edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
+		edb::Instruction inst(buffer, buffer + size, address);
 		if(inst) {
 			ui->assembly->setEditText(QString::fromStdString(edb::v1::formatter().to_string(inst)));
 			instruction_size_ = inst.size();

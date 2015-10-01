@@ -81,7 +81,7 @@ QString CommentServer::resolve_function_call(QHexView::address_t address, bool *
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		if(process->read_bytes(address - CALL_MAX_SIZE, buffer, sizeof(buffer))) {
 			for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
-				edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0, std::nothrow);
+				edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
 				if(is_call(inst)) {
 					const QString symname = edb::v1::find_function_symbol(address);
 					if(!symname.isEmpty()) {

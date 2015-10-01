@@ -360,7 +360,7 @@ void create_breakpoint(address_t address) {
 		} else {
 			quint8 buffer[Instruction::MAX_SIZE + 1];
 			if(const int size = get_instruction_bytes(address, buffer)) {
-				Instruction inst(buffer, buffer + size, address, std::nothrow);
+				Instruction inst(buffer, buffer + size, address);
 				if(!inst) {
 					ret = QMessageBox::question(
 						0,
@@ -1291,7 +1291,7 @@ QVector<quint8> read_pages(address_t address, size_t page_count) {
 QString disassemble_address(address_t address) {
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
-		edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
+		edb::Instruction inst(buffer, buffer + size, address);
 		if(inst) {
 			return QString::fromStdString(g_Formatter.to_string(inst));
 		}

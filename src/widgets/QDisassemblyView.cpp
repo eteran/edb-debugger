@@ -117,7 +117,7 @@ bool near_line(int x, int linex) {
 // Desc:
 //------------------------------------------------------------------------------
 int instruction_size(const quint8 *buffer, std::size_t size) {
-	edb::Instruction inst(buffer, buffer + size, 0, std::nothrow);
+	edb::Instruction inst(buffer, buffer + size, 0);
 	return inst.size();
 }
 
@@ -136,7 +136,7 @@ size_t length_disasm_back(const quint8 *buf, size_t size) {
 
 	while(offs < edb::Instruction::MAX_SIZE) {
 
-		const edb::Instruction inst(tmp + offs, tmp + sizeof(tmp), 0, std::nothrow);
+		const edb::Instruction inst(tmp + offs, tmp + sizeof(tmp), 0);
 		if(!inst) {
 			return 0;
 		}
@@ -268,7 +268,7 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 					}
 
 					if(edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
-						const edb::Instruction inst(buf, buf + buf_size, address, std::nothrow);
+						const edb::Instruction inst(buf, buf + buf_size, address);
 						if(!inst) {
 							break;
 						}
@@ -335,7 +335,7 @@ edb::address_t QDisassemblyView::following_instructions(edb::address_t current_a
 			current_address += 1;
 			break;
 		} else {
-			const edb::Instruction inst(buf, buf + buf_size, current_address, std::nothrow);
+			const edb::Instruction inst(buf, buf + buf_size, current_address);
 			if(inst) {
 				current_address += inst.size();
 			} else {
@@ -759,9 +759,9 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 		// disassemble the instruction, if it happens that the next byte is the start of a known function
 		// then we should treat this like a one byte instruction
-		edb::Instruction inst(buf, buf + buf_size, address, std::nothrow);
+		edb::Instruction inst(buf, buf + buf_size, address);
 		if(analyzer && (analyzer->category(address + 1) == IAnalyzer::ADDRESS_FUNC_START)) {
-			edb::Instruction(buf, buf + 1, address, std::nothrow).swap(inst);
+			edb::Instruction(buf, buf + 1, address).swap(inst);
 		}
 
 		const int inst_size = inst.size();
@@ -1122,7 +1122,7 @@ bool QDisassemblyView::event(QEvent *event) {
 				// do the longest read we can while still not passing the region end
 				int buf_size = qMin<edb::address_t>((region_->end() - address), sizeof(buf));
 				if(edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
-					const edb::Instruction inst(buf, buf + buf_size, address, std::nothrow);
+					const edb::Instruction inst(buf, buf + buf_size, address);
 
 					if((line1() + (static_cast<int>(inst.size()) * 3) * font_width_) > line2()) {
 						const QString byte_buffer = format_instruction_bytes(inst);

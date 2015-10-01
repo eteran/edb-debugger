@@ -139,7 +139,7 @@ public:
 	static constexpr std::size_t MAX_OPERANDS = 3;
 
 public:
-	Instruction(const void* first, const void* end, uint64_t rva, const std::nothrow_t&) throw();
+	Instruction(const void* first, const void* end, uint64_t rva) throw();
 	Instruction(const Instruction&);
 	Instruction& operator=(const Instruction&);
 	bool valid() const { return valid_; }
