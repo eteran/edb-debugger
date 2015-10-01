@@ -661,7 +661,7 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 
 	for(edb::address_t addr = start_address; addr < end_address; ++addr) {
 		if(const int sz = edb::v1::get_instruction_bytes(addr, buffer)) {
-			edb::Instruction inst(buffer, buffer + sz, addr, std::nothrow);
+			edb::Instruction inst(buffer, buffer + sz, addr);
 			if(is_jump(inst)) {
 				const edb::Operand &operand = inst.operands()[0];
 
@@ -1083,7 +1083,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 		quint8 buffer[edb::Instruction::MAX_SIZE];
 
 		if(process->read_bytes(address, buffer, sizeof(buffer))) {
-			edb::Instruction inst(buffer, buffer + sizeof(buffer), address, std::nothrow);
+			edb::Instruction inst(buffer, buffer + sizeof(buffer), address);
 			if(inst) {
 
 				State state;

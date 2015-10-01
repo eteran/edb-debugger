@@ -387,7 +387,7 @@ void create_breakpoint(address_t address) {
 		} else {
 			quint8 buffer[Instruction::MAX_SIZE + 1];
 			if(const int size = get_instruction_bytes(address, buffer)) {
-				Instruction inst(buffer, buffer + size, address, std::nothrow);
+				Instruction inst(buffer, buffer + size, address);
 				if(!inst) {
 					ret = QMessageBox::question(
 						0,
@@ -761,7 +761,7 @@ address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		*ok = process->read_bytes(address, &ret, edb::v1::pointer_size());
-	
+
 		if(!*ok) {
 			*err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
 		}
@@ -782,11 +782,11 @@ bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		bool ok = process->read_bytes(address, buf, *size);
-	
+
 		while(!ok && *size) {
 			ok = process->read_bytes(address, buf, --(*size));
 		}
-		
+
 		return ok;
 	}
 
@@ -955,9 +955,9 @@ void pop_value(State *state) {
 //------------------------------------------------------------------------------
 void push_value(State *state, reg_t value) {
 	Q_ASSERT(state);
-	
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		state->adjust_stack(- static_cast<int>(pointer_size()));	
+		state->adjust_stack(- static_cast<int>(pointer_size()));
 		process->write_bytes(state->stack_pointer(), &value, pointer_size());
 	}
 }
@@ -1014,23 +1014,29 @@ bool overwrite_check(address_t address, unsigned int size) {
 // Name: modify_bytes
 // Desc:
 //------------------------------------------------------------------------------
-void modify_bytes(address_t address, unsigned int size, QByteArray &bytes, quint8 fill) {
+bool modify_bytes(address_t address, unsigned int size, QByteArray &bytes, quint8 fill) {
+
+	if(!edb::v1::overwrite_check(address, size)) {
+		return false;
+	}
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		if(size != 0) {
 			// fill bytes
 			while(bytes.size() < static_cast<int>(size)) {
-				bytes.push_back(fill);
+			bytes.push_back(fill);
 			}
-	
+
 			process->write_bytes(address, bytes.data(), size);
-	
+
 			// do a refresh, not full update
 			Debugger *const gui = ui();
 			Q_ASSERT(gui);
 			gui->refresh_gui();
 		}
 	}
+
+	return true;
 }
 
 //------------------------------------------------------------------------------
@@ -1312,12 +1318,12 @@ QVector<quint8> read_pages(address_t address, size_t page_count) {
 QString disassemble_address(address_t address) {
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
-		edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
+		edb::Instruction inst(buffer, buffer + size, address);
 		if(inst) {
 			return QString::fromStdString(g_Formatter.to_string(inst));
 		}
 	}
-	
+
 	return QString();
 }
 

@@ -83,7 +83,7 @@ void CallStack::get_call_stack() {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 			if(process->read_bytes(possible_ret - CALL_MAX_SIZE, buffer, sizeof(buffer))) {	//0xfffff... if not a ptr.
 				for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
-					edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0, std::nothrow);
+					edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
 
 					//If it's a call, then make a frame
 					if(is_call(inst)) {

@@ -69,7 +69,7 @@ void DialogAssembler::set_address(edb::address_t address) {
 
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
-		edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
+		edb::Instruction inst(buffer, buffer + size, address);
 		if(inst) {
 			ui->assembly->setEditText(QString::fromStdString(edb::v1::formatter().to_string(inst)));
 			instruction_size_ = inst.size();
@@ -210,7 +210,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 #endif
 		QSettings settings;
 		const QString assembler = settings.value("Assembler/helper", "yasm").toString();
-		
+
 		QFile file(":/debugger/Assembler/xml/assemblers.xml");
 		if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 
@@ -221,7 +221,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 			if (query.isValid()) {
 				query.evaluateTo(&assembler_xml);
 			}
-			file.close();	
+			file.close();
 
 			QDomDocument xml;
 			xml.setContent(assembler_xml);
@@ -237,10 +237,10 @@ void DialogAssembler::on_buttonBox_accepted() {
 			QStringList command_line = edb::v1::parse_command_line(asm_cmd);
 			if(command_line.isEmpty()) {
 				QMessageBox::warning(this, tr("Couldn't Find Assembler"), tr("Failed to locate your assembler."));
-				return;			
+				return;
 			}
-			
-						
+
+
 			const QFile file(command_line[0]);
 			if(command_line[0].isEmpty() || !file.exists()) {
 				QMessageBox::warning(this, tr("Couldn't Find Assembler"), tr("Failed to locate your assembler."));
@@ -257,28 +257,28 @@ void DialogAssembler::on_buttonBox_accepted() {
 			if(!output_file.open()) {
 				QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary object file."));
 				return;
-			}		
-			
+			}
+
 			asm_code.replace("%BITS%", std::to_string(edb::v1::debugger_core->pointer_size()*8).c_str());
 			asm_code.replace("%ADDRESS%", edb::v1::format_pointer(address_));
 			asm_code.replace("%INSTRUCTION%",  nasm_syntax);
-						
+
 			source_file.write(asm_code.toLatin1());
 			source_file.close();
-						
+
 			QProcess process;
 			QString program(command_line[0]);
-			
+
 			command_line.pop_front();
-			
+
 			QStringList arguments = command_line;
 			for(auto &arg : arguments) {
 				arg.replace("%OUT%",  output_file.fileName());
 				arg.replace("%IN%",   source_file.fileName());
 			}
-			
+
 			qDebug() << "RUNNING ASM TOOL: " << program << arguments;
-			
+
 			process.start(program, arguments);
 
 			if(process.waitForFinished()) {
@@ -293,16 +293,22 @@ void DialogAssembler::on_buttonBox_accepted() {
 					if(bytes.size() <= instruction_size_) {
 						if(ui->fillWithNOPs->isChecked()) {
 							// TODO: get system independent nop-code
-							edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x90);
+							if(!edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x90)) {
+								return;
+							}
 						} else {
-							edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x00);
+							if(!edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x00)) {
+								return;
+							}
 						}
 					} else {
 						if(ui->keepSize->isChecked()) {
 							QMessageBox::warning(this, tr("Error In Code"), tr("New instruction is too big to fit."));
 							return;
 						} else {
-							edb::v1::modify_bytes(address_, bytes.size(), bytes, 0x00);
+							if(!edb::v1::modify_bytes(address_, bytes.size(), bytes, 0x00)) {
+								return;
+							}
 						}
 					}
 
@@ -310,7 +316,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 					edb::v1::set_cpu_selected_address(address_ + bytes.size());
 				}
 			}
-		
+
 		}
 	} else {
 		QMessageBox::warning(this, tr("Error In Code"), tr("Failed to assembly the given assemble code."));
@@ -323,10 +329,10 @@ void DialogAssembler::on_buttonBox_accepted() {
 //------------------------------------------------------------------------------
 void DialogAssembler::showEvent(QShowEvent *event) {
 	Q_UNUSED(event);
-	
+
 	QSettings settings;
-	const QString assembler = settings.value("Assembler/helper", "yasm").toString();	
-	
+	const QString assembler = settings.value("Assembler/helper", "yasm").toString();
+
 	ui->label->setText(tr("Assembler: %1").arg(assembler));
 }
 

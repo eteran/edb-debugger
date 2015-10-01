@@ -331,7 +331,7 @@ bool Analyzer::is_thunk(edb::address_t address) const {
 
 	quint8 buf[edb::Instruction::MAX_SIZE];
 	if(const int buf_size = edb::v1::get_instruction_bytes(address, buf)) {
-		const edb::Instruction inst(buf, buf + buf_size, address, std::nothrow);
+		const edb::Instruction inst(buf, buf + buf_size, address);
 		return is_unconditional_jump(inst);
 	}
 
@@ -428,7 +428,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							break;
 						}
 
-						const edb::Instruction inst(buffer, buffer + buf_size, address, std::nothrow);
+						const edb::Instruction inst(buffer, buffer + buf_size, address);
 						if(!inst) {
 							break;
 						}
@@ -552,7 +552,7 @@ void Analyzer::collect_fuzzy_functions(RegionData *data) {
 
 			quint8 buf[edb::Instruction::MAX_SIZE];
 			if(const int buf_size = edb::v1::get_instruction_bytes(addr, buf)) {
-				const edb::Instruction inst(buf, buf + buf_size, addr, std::nothrow);
+				const edb::Instruction inst(buf, buf + buf_size, addr);
 				if(inst) {
 					if(is_call(inst)) {
 

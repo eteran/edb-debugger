@@ -109,7 +109,7 @@ bool is_instruction_ret(edb::address_t address) {
 
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
-		edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
+		edb::Instruction inst(buffer, buffer + size, address);
 		return is_ret(inst);
 	}
 	return false;
@@ -224,7 +224,7 @@ public:
 		while (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 
 			//Get the instruction
-			edb::Instruction inst(buffer, buffer + size, 0, std::nothrow);
+			edb::Instruction inst(buffer, buffer + size, 0);
 			qDebug() << QString("Scanning for terminator at 0x%1: found %2").arg(
 							address, 0, 16).arg(
 							inst.mnemonic().c_str());
@@ -1111,7 +1111,7 @@ void Debugger::step_over(F1 run_func, F2 step_func) {
 	const edb::address_t ip = state.instruction_pointer();
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 	if(const int sz = edb::v1::get_instruction_bytes(ip, buffer)) {
-		edb::Instruction inst(buffer, buffer + sz, 0, std::nothrow);
+		edb::Instruction inst(buffer, buffer + sz, 0);
 		if(inst && edb::v1::arch_processor().can_step_over(inst)) {
 
 			// add a temporary breakpoint at the instruction just
@@ -1466,7 +1466,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 		quint8 buffer[edb::Instruction::MAX_SIZE + 1];
 		if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
-			edb::Instruction inst(buffer, buffer + size, address, std::nothrow);
+			edb::Instruction inst(buffer, buffer + size, address);
 			if(inst) {
 
 
@@ -1858,9 +1858,7 @@ void Debugger::mnuCPUModify() {
 		if(ok) {
 			QByteArray bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), size);
 			if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"), size)) {
-				if(edb::v1::overwrite_check(address, size)) {
-					edb::v1::modify_bytes(address, size, bytes, 0x00);
-				}
+				edb::v1::modify_bytes(address, size, bytes, 0x00);
 			}
 		}
 	}
@@ -1878,9 +1876,7 @@ void Debugger::modify_bytes(const T &hexview) {
 		QByteArray bytes             = hexview->selectedBytes();
 
 		if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"), size)) {
-			if(edb::v1::overwrite_check(address, size)) {
-				edb::v1::modify_bytes(address, size, bytes, 0x00);
-			}
+			edb::v1::modify_bytes(address, size, bytes, 0x00);
 		}
 	}
 }
@@ -2014,20 +2010,20 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const IDebugEvent::const_pointe
 			QString exception_name;
 			if(it != known_exceptions.end()) {
 				exception_name = it.value();
-				
+
 				QMessageBox::information(this, tr("Debug Event"),
 					tr(
 					"<p>The debugged application has received a debug event-> <strong>%1 (%2)</strong></p>"
 					"<p>If you would like to pass this event to the application press Shift+[F7/F8/F9]</p>"
-					"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event->code()).arg(exception_name));				
+					"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event->code()).arg(exception_name));
 			} else {
 				QMessageBox::information(this, tr("Debug Event"),
 					tr(
 					"<p>The debugged application has received a debug event-> <strong>%1</strong></p>"
 					"<p>If you would like to pass this event to the application press Shift+[F7/F8/F9]</p>"
-					"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event->code()));			
+					"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event->code()));
 			}
-			
+
 			return edb::DEBUG_STOP;
 		}
 	}
