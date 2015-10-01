@@ -41,7 +41,7 @@ unix {
 		include(plugins-x86.pri)
 	}
 	
-	QMAKE_CLEAN += $${DESTDIR}/lib$${TARGET}.so
+	QMAKE_CLEAN += $${DESTDIR}/$${QMAKE_PREFIX_SHLIB}$${TARGET}.so
 }
 
 win32 {
