@@ -260,7 +260,7 @@ struct Value80 : public ValueBase<16,5> {
 			   type!=FloatType::Zero;
 	}
 	static QString floatTypeString(FloatType type) {
-		std::map<FloatType,QString> types{
+		static const std::map<FloatType,QString> types{
 			{FloatType::Zero,            "Zero"},
 			{FloatType::Normal,          "Normal"},
 			{FloatType::Infinity,        "+Inf"},
@@ -270,7 +270,14 @@ struct Value80 : public ValueBase<16,5> {
 			{FloatType::SNaN,            "SNaN"},
 			{FloatType::QNaN,            "QNaN"},
 			{FloatType::Unsupported,     "Unsupported"}};
-		return types[type];
+			
+			
+		auto it = types.find(type);
+		if(it != types.end()) {
+			return it->second;
+		}
+		
+		return "Unsupported";
 	}
 	QString floatTypeString() const {
 		return floatTypeString(floatType());
