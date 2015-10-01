@@ -176,7 +176,7 @@ EDB_EXPORT void push_value(State *state, reg_t value);
 EDB_EXPORT void register_binary_info(IBinary::create_func_ptr_t fptr);
 
 EDB_EXPORT bool overwrite_check(address_t address, unsigned int size);
-EDB_EXPORT void modify_bytes(address_t address, unsigned int size, QByteArray &bytes, quint8 fill);
+EDB_EXPORT bool modify_bytes(address_t address, unsigned int size, QByteArray &bytes, quint8 fill);
 
 EDB_EXPORT QByteArray get_file_md5(const QString &s);
 EDB_EXPORT QByteArray get_md5(const void *p, size_t n);

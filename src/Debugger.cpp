@@ -1857,9 +1857,7 @@ void Debugger::mnuCPUModify() {
 		if(ok) {
 			QByteArray bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), size);
 			if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"), size)) {
-				if(edb::v1::overwrite_check(address, size)) {
-					edb::v1::modify_bytes(address, size, bytes, 0x00);
-				}
+				edb::v1::modify_bytes(address, size, bytes, 0x00);
 			}
 		}
 	}
@@ -1877,9 +1875,7 @@ void Debugger::modify_bytes(const T &hexview) {
 		QByteArray bytes             = hexview->selectedBytes();
 
 		if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"), size)) {
-			if(edb::v1::overwrite_check(address, size)) {
-				edb::v1::modify_bytes(address, size, bytes, 0x00);
-			}
+			edb::v1::modify_bytes(address, size, bytes, 0x00);
 		}
 	}
 }

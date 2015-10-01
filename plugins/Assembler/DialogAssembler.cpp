@@ -293,16 +293,22 @@ void DialogAssembler::on_buttonBox_accepted() {
 					if(bytes.size() <= instruction_size_) {
 						if(ui->fillWithNOPs->isChecked()) {
 							// TODO: get system independent nop-code
-							edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x90);
+							if(!edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x90)) {
+								return;
+							}
 						} else {
-							edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x00);
+							if(!edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x00)) {
+								return;
+							}
 						}
 					} else {
 						if(ui->keepSize->isChecked()) {
 							QMessageBox::warning(this, tr("Error In Code"), tr("New instruction is too big to fit."));
 							return;
 						} else {
-							edb::v1::modify_bytes(address_, bytes.size(), bytes, 0x00);
+							if(!edb::v1::modify_bytes(address_, bytes.size(), bytes, 0x00)) {
+								return;
+							}
 						}
 					}
 

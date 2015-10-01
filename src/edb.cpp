@@ -987,23 +987,29 @@ bool overwrite_check(address_t address, unsigned int size) {
 // Name: modify_bytes
 // Desc:
 //------------------------------------------------------------------------------
-void modify_bytes(address_t address, unsigned int size, QByteArray &bytes, quint8 fill) {
+bool modify_bytes(address_t address, unsigned int size, QByteArray &bytes, quint8 fill) {
 
+	if(!edb::v1::overwrite_check(address, size)) {
+		return false;
+	}
+		
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		if(size != 0) {
 			// fill bytes
 			while(bytes.size() < static_cast<int>(size)) {
-				bytes.push_back(fill);
+			bytes.push_back(fill);
 			}
-	
+
 			process->write_bytes(address, bytes.data(), size);
-	
+
 			// do a refresh, not full update
 			Debugger *const gui = ui();
 			Q_ASSERT(gui);
 			gui->refresh_gui();
 		}
 	}
+	
+	return true;
 }
 
 //------------------------------------------------------------------------------
