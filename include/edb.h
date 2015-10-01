@@ -150,7 +150,7 @@ EDB_EXPORT int get_instruction_bytes(address_t address, quint8 (&buffer)[N]) {
 	if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
 		return size;
 	}
-	
+
 	return 0;
 }
 

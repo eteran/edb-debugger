@@ -734,7 +734,7 @@ address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		*ok = process->read_bytes(address, &ret, sizeof(ret));
-	
+
 		if(!*ok) {
 			*err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
 		}
@@ -755,11 +755,11 @@ bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		bool ok = process->read_bytes(address, buf, *size);
-	
+
 		while(!ok && *size) {
 			ok = process->read_bytes(address, buf, --(*size));
 		}
-		
+
 		return ok;
 	}
 
@@ -928,9 +928,9 @@ void pop_value(State *state) {
 //------------------------------------------------------------------------------
 void push_value(State *state, reg_t value) {
 	Q_ASSERT(state);
-	
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		state->adjust_stack(- static_cast<int>(sizeof(reg_t)));	
+		state->adjust_stack(- static_cast<int>(sizeof(reg_t)));
 		process->write_bytes(state->stack_pointer(), &value, sizeof(reg_t));
 	}
 }
@@ -992,7 +992,7 @@ bool modify_bytes(address_t address, unsigned int size, QByteArray &bytes, quint
 	if(!edb::v1::overwrite_check(address, size)) {
 		return false;
 	}
-		
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		if(size != 0) {
 			// fill bytes
@@ -1008,7 +1008,7 @@ bool modify_bytes(address_t address, unsigned int size, QByteArray &bytes, quint
 			gui->refresh_gui();
 		}
 	}
-	
+
 	return true;
 }
 
@@ -1296,7 +1296,7 @@ QString disassemble_address(address_t address) {
 			return QString::fromStdString(g_Formatter.to_string(inst));
 		}
 	}
-	
+
 	return QString();
 }
 
