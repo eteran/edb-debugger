@@ -477,7 +477,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 								
 								if(functions.contains(ea)) {
 									functions[ea].add_reference();
-								} else if((ea - function_address) > 0x2000) {
+								} else if((ea - function_address) > 0x2000u) {
 									known_functions.push(ea);
 								} else {
 									blocks.push(ea);

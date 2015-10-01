@@ -198,7 +198,7 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 	case 'w': return s.sprintf("%u", static_cast<wchar_t>(arg));
 	case 'b': return s.sprintf("%d", static_cast<bool>(arg));
 	case 'c':
-		if(arg < 0x80 && (std::isprint(arg) || std::isspace(arg))) {
+		if(arg < 0x80u && (std::isprint(arg) || std::isspace(arg))) {
 			return s.sprintf("'%c'", static_cast<char>(arg));
 		} else {
 			return s.sprintf("'\\x%02x'", static_cast<quint16>(arg));
