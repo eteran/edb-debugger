@@ -208,4 +208,7 @@ unix {
 	macx-clang*  : QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
 	macx-g++*    : QMAKE_LFLAGS += -rdynamic $$(LDFLAGS)
 	openbsd-g++* : QMAKE_LFLAGS += -lkvm -Wl,--export-dynamic $$(LDFLAGS)
+	
+
+	QMAKE_CLEAN += $${DESTDIR}/$${TARGET}
 }
