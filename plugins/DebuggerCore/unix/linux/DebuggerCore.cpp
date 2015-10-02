@@ -813,12 +813,12 @@ void DebuggerCore::fillFSGSBases(PlatformState* state) {
 		std::memset(&desc, 0, sizeof(desc));
 
 		if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state->x86.segRegs[PlatformState::X86::FS] / LDT_ENTRY_SIZE), &desc) != -1) {
-			state->x86.fsBase = desc.base_addr;
-			state->x86.fsBaseFilled=true;
+			state->x86.segRegBases[PlatformState::X86::FS] = desc.base_addr;
+			state->x86.segRegBasesFilled[PlatformState::X86::FS]=true;
 		}
 		if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state->x86.segRegs[PlatformState::X86::GS] / LDT_ENTRY_SIZE), &desc) != -1) {
-			state->x86.gsBase = desc.base_addr;
-			state->x86.gsBaseFilled=true;
+			state->x86.segRegBases[PlatformState::X86::GS] = desc.base_addr;
+			state->x86.segRegBasesFilled[PlatformState::X86::GS]=true;
 		}
 	}
 }
