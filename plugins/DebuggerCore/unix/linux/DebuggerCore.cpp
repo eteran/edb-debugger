@@ -314,6 +314,30 @@ DebuggerCore::DebuggerCore() : binary_info_(0), process_(0), pointer_size_(sizeo
 #else
 	page_size_ = PAGE_SIZE;
 #endif
+
+	// Check that we're running in 64 bit segment: this can be in cases
+	// of LP64 and ILP32 programming models, so we can't rely on sizeof(void*)
+	asm(R"(
+		   .byte 0x33,0xc0 # XOR EAX,EAX
+		   .byte 0x48      # DEC EAX for 32 bit, REX prefix for 64 bit
+		   .byte 0xff,0xc0 # INC EAX for 32 bit, INC RAX due to REX.W in 64 bit
+		 )":"=a"(edbIsIn64BitSegment));
+	if(edbIsIn64BitSegment)
+		osIs64Bit=true;
+	else {
+		// We want to be really sure the OS is 32 bit, so we can't rely on such easy
+		// to (even unintentionally) fake mechanisms as uname(2) (e.g. see setarch(8))
+		asm(R"(.intel_syntax noprefix
+			   mov eax,cs
+			   cmp ax,0x23 # this value is set for 32-bit processes on 64-bit kernel
+			   mov ah,0    # not sure this is really needed: usually the compiler will do
+						   # MOVZX EAX,AL, but we have to be certain the result is correct
+			   sete al
+			   .att_syntax # restore default syntax
+			   )":"=a"(osIs64Bit));
+	}
+	qDebug() << "EDB is in" << (edbIsIn64BitSegment?"64":"32") << "bit segment";
+	qDebug() << "OS is" << (osIs64Bit?"64":"32") << "bit";
 }
 
 //------------------------------------------------------------------------------

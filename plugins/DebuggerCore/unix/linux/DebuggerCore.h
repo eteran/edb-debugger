@@ -138,6 +138,8 @@ private:
 	IBinary          *binary_info_;
 	IProcess         *process_;
 	std::size_t      pointer_size_;
+	bool             osIs64Bit;
+	bool             edbIsIn64BitSegment;
 };
 
 }
