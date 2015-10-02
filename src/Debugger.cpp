@@ -1270,7 +1270,7 @@ edb::address_t Debugger::get_follow_address(const T &hexview, bool *ok) {
 		const QByteArray data = hexview->selectedBytes();
 
 		if(data.size() == edb::v1::pointer_size()) {
-			edb::address_t d;
+			edb::address_t d(0);
 			std::memcpy(&d, data.data(), pointer_size);
 
 			*ok = true;
