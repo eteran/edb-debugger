@@ -117,7 +117,7 @@ private:
 	bool fillStateFromPrStatus(PlatformState* state);
 	bool fillStateFromSimpleRegs(PlatformState* state);
 	void fillFSGSBases(PlatformState* state);
-	long get_debug_register(std::size_t n);
+	unsigned long get_debug_register(std::size_t n);
 	long set_debug_register(std::size_t n, long value);
 	void detectDebuggeeBitness();
 private:
