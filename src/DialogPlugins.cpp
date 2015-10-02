@@ -56,7 +56,7 @@ DialogPlugins::~DialogPlugins() {
 //------------------------------------------------------------------------------
 void DialogPlugins::showEvent(QShowEvent *) {
 
-	QHash<QString, QObject *> plugins = edb::v1::plugin_list();
+	QMap<QString, QObject *> plugins = edb::v1::plugin_list();
 
 	plugin_model_->clear();
 

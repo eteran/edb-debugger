@@ -58,7 +58,7 @@ namespace {
 
 	QAtomicPointer<IDebugEventHandler> g_DebugEventHandler = 0;
 	QAtomicPointer<IAnalyzer>          g_Analyzer          = 0;
-	QHash<QString, QObject *>          g_GeneralPlugins;
+	QMap<QString, QObject *>           g_GeneralPlugins;
 	BinaryInfoList                     g_BinaryInfoList;
 	CapstoneEDB::Formatter             g_Formatter;
 
@@ -846,7 +846,7 @@ address_t locate_main_function() {
 // Name: plugin_list
 // Desc:
 //------------------------------------------------------------------------------
-const QHash<QString, QObject *> &plugin_list() {
+const QMap<QString, QObject *> &plugin_list() {
 	return g_GeneralPlugins;
 }
 

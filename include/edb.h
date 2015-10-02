@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Register.h"
 #include "Formatter.h"
 
-#include <QHash>
+#include <QMap>
 #include <QList>
 #include <QPointer>
 #include <QStringList>
@@ -162,7 +162,7 @@ EDB_EXPORT const Prototype *get_function_info(const QString &function);
 
 EDB_EXPORT address_t locate_main_function();
 
-EDB_EXPORT const QHash<QString, QObject *> &plugin_list();
+EDB_EXPORT const QMap<QString, QObject *> &plugin_list();
 EDB_EXPORT IPlugin *find_plugin_by_name(const QString &name);
 
 EDB_EXPORT void reload_symbols();
