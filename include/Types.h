@@ -277,7 +277,7 @@ struct Value80 : public ValueBase<16,5> {
 			return it->second;
 		}
 		
-		return "Unsupported";
+		Q_ASSERT(0 && "Invalid Float Type");
 	}
 	QString floatTypeString() const {
 		return floatTypeString(floatType());
