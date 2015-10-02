@@ -846,6 +846,17 @@ void DebuggerCore::fillFSGSBases(PlatformState* state) {
 			}
 		}
 	}
+	static const edb::seg_reg_t USER_CS_32 = osIs64Bit?0x23:0x73;
+	static const edb::seg_reg_t USER_CS_64 = osIs64Bit?0x33:0xfff8; // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
+	static const edb::seg_reg_t USER_SS = osIs64Bit?0x2b:0x7b;
+	for(size_t sregIndex=0;sregIndex<state->seg_reg_count();++sregIndex) {
+		const edb::seg_reg_t sreg=state->x86.segRegs[sregIndex];
+		if(sreg==USER_CS_32||sreg==USER_CS_64||sreg==USER_SS ||
+				(state->is64Bit() && sregIndex<PlatformState::X86::FS)) {
+			state->x86.segRegBases[sregIndex] = 0;
+			state->x86.segRegBasesFilled[sregIndex]=true;
+		}
+	}
 }
 
 bool DebuggerCore::fillStateFromPrStatus(PlatformState* state) {
