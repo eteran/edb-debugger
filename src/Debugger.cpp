@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
+Copyright (C) 2006 - 2015 Evan Teran
                           eteran@alum.rit.edu
 
 This program is free software: you can redistribute it and/or modify
@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "CommentServer.h"
 #include "Configuration.h"
 #include "DebuggerInternal.h"
+#include "DialogAbout.h"
 #include "DialogArguments.h"
 #include "DialogAttach.h"
 #include "DialogMemoryRegions.h"
@@ -40,7 +41,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "State.h"
 #include "SymbolManager.h"
 #include "edb.h"
-#include "version.h"
 
 #include <QCloseEvent>
 #include <QDir>
@@ -1051,14 +1051,10 @@ void Debugger::on_registerList_itemDoubleClicked(QTreeWidgetItem *item) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_About_triggered() {
-	QMessageBox::about(this, tr("About edb"),
-		tr(
-		"<p>edb (Evan's Debugger) is designed to be an easy to use, modular, and cross platform debugger.</p>"
-		"<p>More information and updates can be found at <a href=\"https://github.com/eteran/edb-debugger\">https://github.com/eteran/edb-debugger</a></p>"
-		"<p>You can also report bugs an feature requests at <a href=\"https://github.com/eteran/edb-debugger/issues\">https://github.com/eteran/edb-debugger/issues</a></p>"
-		"<p>Written by Evan Teran.</p>"
-		"<p>version: %1</p>"
-		).arg(edb::version));
+	
+	QPointer<DialogAbout> dlg = new DialogAbout(this);
+	dlg->exec();
+	delete dlg;
 }
 
 //------------------------------------------------------------------------------

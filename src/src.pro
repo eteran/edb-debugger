@@ -39,6 +39,7 @@ HEADERS += \
 	DialogMemoryRegions.h \
 	DialogOptions.h \
 	DialogPlugins.h \
+	DialogAbout.h \
 	DialogThreads.h \
 	Expression.h \
 	FixedFontSelector.h \
@@ -99,6 +100,7 @@ FORMS += \
 	DialogOptions.ui \
 	DialogPlugins.ui \
 	DialogThreads.ui \
+	DialogAbout.ui \
 	FixedFontSelector.ui
 
 SOURCES += \
@@ -118,6 +120,7 @@ SOURCES += \
 	DialogMemoryRegions.cpp \
 	DialogOptions.cpp \
 	DialogPlugins.cpp \
+	DialogAbout.cpp \
 	DialogThreads.cpp \
 	FixedFontSelector.cpp \
 	Function.cpp \
