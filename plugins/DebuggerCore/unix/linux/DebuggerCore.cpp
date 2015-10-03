@@ -967,6 +967,8 @@ void DebuggerCore::detectDebuggeeBitness() {
 void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
 
+	detectDebuggeeBitness();
+
 	if(auto state_impl = static_cast<PlatformState *>(state->impl_)) {
 		// State must be cleared before filling to zero all presence flags, otherwise something
 		// may remain not updated. Also, this way we'll mark all the unfilled values.
