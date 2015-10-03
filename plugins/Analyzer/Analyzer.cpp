@@ -466,7 +466,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							
 						} else if(is_unconditional_jump(inst)) {
 
-							Q_ASSERT(inst.operand_count() == 1);
+							Q_ASSERT(inst.operand_count() >= 1);
 							const edb::Operand &op = inst.operands()[0];
 
 							// TODO: we need some heuristic for detecting when this is
