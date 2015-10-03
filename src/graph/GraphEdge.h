@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2009 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2009 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 Copyright (C) 2009        Arvin Schnell
                           aschnell@suse.de
