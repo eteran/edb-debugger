@@ -1013,12 +1013,14 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		auto sregValue=state[sreg].value<edb::seg_reg_t>();
 		QString sregStr=sreg.toUpper()+QString(": %1").arg(sregValue.toHexString());
 		const Register base=state[sregs[i]+"_base"];
-		if(base)
-			sregStr+=QString(" (%1)").arg(base.valueAsAddress().toHexString());
-		else if(edb::v1::debuggeeIs32Bit() && sregValue==0)
-			sregStr+=" NULL";
-		else
-			sregStr+=" (?)";
+		if(edb::v1::debuggeeIs32Bit() || i>=4/*FS or GS*/) {
+			if(base)
+				sregStr+=QString(" (%1)").arg(base.valueAsAddress().toHexString());
+			else if(edb::v1::debuggeeIs32Bit() && sregValue==0)
+				sregStr+=" NULL";
+			else
+				sregStr+=" (?)";
+		}
 		register_view_items_[itemNumber]->setText(0, sregStr);
 		register_view_items_[itemNumber++]->setForeground(0, QBrush((state[sreg] != last_state_[sreg]) ? Qt::red : palette.text()));
 	}
