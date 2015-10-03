@@ -831,7 +831,7 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 	}
 }
 
-void DebuggerCore::fillFSGSBases(PlatformState* state) {
+void DebuggerCore::fillSegmentBases(PlatformState* state) {
 	if(state->is32Bit()) {
 		struct user_desc desc;
 		std::memset(&desc, 0, sizeof(desc));
@@ -891,7 +891,7 @@ bool DebuggerCore::fillStateFromPrStatus(PlatformState* state) {
 		perror("PTRACE_GETREGSET(NT_PRSTATUS) failed");
 		return false;
 	}
-	fillFSGSBases(state);
+	fillSegmentBases(state);
 	return true;
 }
 
@@ -901,7 +901,7 @@ bool DebuggerCore::fillStateFromSimpleRegs(PlatformState* state) {
 	if(ptrace(PTRACE_GETREGS, active_thread(), 0, &regs) != -1) {
 
 		state->fillFrom(regs);
-		fillFSGSBases(state);
+		fillSegmentBases(state);
 		return true;
 	}
 	else {
