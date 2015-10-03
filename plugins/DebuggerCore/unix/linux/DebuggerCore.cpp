@@ -936,22 +936,27 @@ long DebuggerCore::set_debug_register(std::size_t n, long value) {
 
 void DebuggerCore::detectDebuggeeBitness() {
 
-	bool detected=false;
-	PrStatus_X86_64 prstat64;
-	iovec prstat_iov = {&prstat64, sizeof(prstat64)};
-	if(ptrace(PTRACE_GETREGSET, active_thread(), NT_PRSTATUS, &prstat_iov) != -1) {
-
-		detected=true;
-		if(prstat_iov.iov_len==sizeof prstat64)
-			pointer_size_=sizeof(std::uint64_t);
-		else if(prstat_iov.iov_len==sizeof(PrStatus_X86))
-			pointer_size_=sizeof(std::uint32_t);
-		else detected=false;
-	}
-
-	if(!detected) {
-		qDebug() << "Warning: failed to detect bitness of debuggee, using native EDB bitness";
-		pointer_size_=sizeof(void*);
+	const size_t offset=EDB_IS_64_BIT ?
+						offsetof(UserRegsStructX86_64, cs) :
+						offsetof(UserRegsStructX86,   xcs);
+	errno=0;
+	const edb::seg_reg_t cs=ptrace(PTRACE_PEEKUSER, active_thread(), offset, 0);
+	if(!errno) {
+		if(cs==USER_CS_32) {
+			if(pointer_size_==sizeof(quint64)) {
+				qDebug() << "Debuggee is now 32 bit";
+				CapstoneEDB::init(false);
+			}
+			pointer_size_=sizeof(quint32);
+			return;
+		} else if(cs==USER_CS_64) {
+			if(pointer_size_==sizeof(quint32)) {
+				qDebug() << "Debuggee is now 64 bit";
+				CapstoneEDB::init(true);
+			}
+			pointer_size_=sizeof(quint64);
+			return;
+		}
 	}
 }
 
