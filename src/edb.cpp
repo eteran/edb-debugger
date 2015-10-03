@@ -1024,7 +1024,7 @@ bool modify_bytes(address_t address, unsigned int size, QByteArray &bytes, quint
 		if(size != 0) {
 			// fill bytes
 			while(bytes.size() < static_cast<int>(size)) {
-			bytes.push_back(fill);
+				bytes.push_back(fill);
 			}
 
 			process->write_bytes(address, bytes.data(), size);
