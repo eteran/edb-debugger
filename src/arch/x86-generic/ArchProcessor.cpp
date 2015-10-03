@@ -66,6 +66,15 @@ enum RegisterIndex {
 	R15  = 15
 };
 
+enum SegmentRegisterIndex {
+	ES,
+	CS,
+	SS,
+	DS,
+	FS,
+	GS
+};
+
 static constexpr size_t MAX_DEBUG_REGS_COUNT=8;
 static constexpr size_t MAX_SEGMENT_REGS_COUNT=6;
 static constexpr size_t MAX_GPR_COUNT=16;
@@ -1013,7 +1022,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		auto sregValue=state[sreg].value<edb::seg_reg_t>();
 		QString sregStr=sreg.toUpper()+QString(": %1").arg(sregValue.toHexString());
 		const Register base=state[sregs[i]+"_base"];
-		if(edb::v1::debuggeeIs32Bit() || i>=4/*FS or GS*/) {
+		if(edb::v1::debuggeeIs32Bit() || i>=FS) {
 			if(base)
 				sregStr+=QString(" (%1)").arg(base.valueAsAddress().toHexString());
 			else if(edb::v1::debuggeeIs32Bit() && sregValue==0)
