@@ -138,8 +138,11 @@ private:
 	IBinary          *binary_info_;
 	IProcess         *process_;
 	std::size_t      pointer_size_;
-	bool             osIs64Bit;
-	bool             edbIsIn64BitSegment;
+	const bool       edbIsIn64BitSegment;
+	const bool       osIs64Bit;
+	const edb::seg_reg_t USER_CS_32;
+	const edb::seg_reg_t USER_CS_64;
+	const edb::seg_reg_t USER_SS;
 };
 
 }

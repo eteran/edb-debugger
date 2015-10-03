@@ -299,22 +299,8 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 	return get_user_stat(QString("/proc/%1/stat").arg(pid), user_stat);
 }
 
-
-}
-
-//------------------------------------------------------------------------------
-// Name: DebuggerCore
-// Desc: constructor
-//------------------------------------------------------------------------------
-DebuggerCore::DebuggerCore() : binary_info_(0), process_(0), pointer_size_(sizeof(void*)) {
-#if defined(_SC_PAGESIZE)
-	page_size_ = sysconf(_SC_PAGESIZE);
-#elif defined(_SC_PAGE_SIZE)
-	page_size_ = sysconf(_SC_PAGE_SIZE);
-#else
-	page_size_ = PAGE_SIZE;
-#endif
-
+bool in64BitSegment() {
+	bool edbIsIn64BitSegment;
 	// Check that we're running in 64 bit segment: this can be in cases
 	// of LP64 and ILP32 programming models, so we can't rely on sizeof(void*)
 	asm(R"(
@@ -322,6 +308,11 @@ DebuggerCore::DebuggerCore() : binary_info_(0), process_(0), pointer_size_(sizeo
 		   .byte 0x48      # DEC EAX for 32 bit, REX prefix for 64 bit
 		   .byte 0xff,0xc0 # INC EAX for 32 bit, INC RAX due to REX.W in 64 bit
 		 )":"=a"(edbIsIn64BitSegment));
+	return edbIsIn64BitSegment;
+}
+
+bool os64Bit(bool edbIsIn64BitSegment) {
+	bool osIs64Bit;
 	if(edbIsIn64BitSegment)
 		osIs64Bit=true;
 	else {
@@ -336,6 +327,34 @@ DebuggerCore::DebuggerCore() : binary_info_(0), process_(0), pointer_size_(sizeo
 			   .att_syntax # restore default syntax
 			   )":"=a"(osIs64Bit));
 	}
+	return osIs64Bit;
+}
+
+
+}
+
+//------------------------------------------------------------------------------
+// Name: DebuggerCore
+// Desc: constructor
+//------------------------------------------------------------------------------
+DebuggerCore::DebuggerCore() : 
+	binary_info_(0),
+	process_(0),
+	pointer_size_(sizeof(void*)),
+	edbIsIn64BitSegment(in64BitSegment()),
+	osIs64Bit(os64Bit(edbIsIn64BitSegment)),
+	USER_CS_32(osIs64Bit?0x23:0x73),
+	USER_CS_64(osIs64Bit?0x33:0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
+	USER_SS(osIs64Bit?0x2b:0x7b)
+{
+#if defined(_SC_PAGESIZE)
+	page_size_ = sysconf(_SC_PAGESIZE);
+#elif defined(_SC_PAGE_SIZE)
+	page_size_ = sysconf(_SC_PAGE_SIZE);
+#else
+	page_size_ = PAGE_SIZE;
+#endif
+
 	qDebug() << "EDB is in" << (edbIsIn64BitSegment?"64":"32") << "bit segment";
 	qDebug() << "OS is" << (osIs64Bit?"64":"32") << "bit";
 }
@@ -846,9 +865,6 @@ void DebuggerCore::fillSegmentBases(PlatformState* state) {
 			}
 		}
 	}
-	static const edb::seg_reg_t USER_CS_32 = osIs64Bit?0x23:0x73;
-	static const edb::seg_reg_t USER_CS_64 = osIs64Bit?0x33:0xfff8; // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
-	static const edb::seg_reg_t USER_SS = osIs64Bit?0x2b:0x7b;
 	for(size_t sregIndex=0;sregIndex<state->seg_reg_count();++sregIndex) {
 		const edb::seg_reg_t sreg=state->x86.segRegs[sregIndex];
 		if(sreg==USER_CS_32||sreg==USER_CS_64||sreg==USER_SS ||
