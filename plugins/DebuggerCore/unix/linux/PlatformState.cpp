@@ -250,10 +250,12 @@ void PlatformState::fillFrom(const UserRegsStructX86_64& regs) {
 	x86.segRegs[X86::GS] = regs.gs;
 	x86.gpr32Filled=true;
 	x86.gpr64Filled=true;
-	x86.segRegBases[X86::FS] = regs.fs_base;
-	x86.segRegBasesFilled[X86::FS]=true;
-	x86.segRegBases[X86::GS] = regs.gs_base;
-	x86.segRegBasesFilled[X86::GS]=true;
+	if(is64Bit()) { // 32-bit processes get always zeros here, which may be wrong or meaningless
+		x86.segRegBases[X86::FS] = regs.fs_base;
+		x86.segRegBasesFilled[X86::FS]=true;
+		x86.segRegBases[X86::GS] = regs.gs_base;
+		x86.segRegBasesFilled[X86::GS]=true;
+	}
 }
 void PlatformState::fillFrom(const UserFPRegsStructX86_64& regs) {
 	x87.statusWord=regs.swd; // should be first for RIndexToSTIndex() to work
