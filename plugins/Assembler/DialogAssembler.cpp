@@ -289,8 +289,9 @@ void DialogAssembler::on_buttonBox_accepted() {
 					QMessageBox::warning(this, tr("Error In Code"), process.readAllStandardError());
 				} else {
 					QByteArray bytes = output_file.readAll();
+					const int replacement_size = bytes.size();
 
-					if(bytes.size() <= instruction_size_) {
+					if(replacement_size <= instruction_size_) {
 						if(ui->fillWithNOPs->isChecked()) {
 							// TODO: get system independent nop-code
 							if(!edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x90)) {
@@ -306,14 +307,14 @@ void DialogAssembler::on_buttonBox_accepted() {
 							QMessageBox::warning(this, tr("Error In Code"), tr("New instruction is too big to fit."));
 							return;
 						} else {
-							if(!edb::v1::modify_bytes(address_, bytes.size(), bytes, 0x00)) {
+							if(!edb::v1::modify_bytes(address_, replacement_size, bytes, 0x00)) {
 								return;
 							}
 						}
 					}
 
-					set_address(address_ + bytes.size());
-					edb::v1::set_cpu_selected_address(address_ + bytes.size());
+					set_address(address_ + replacement_size);
+					edb::v1::set_cpu_selected_address(address_ + replacement_size);
 				}
 			}
 
