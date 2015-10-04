@@ -771,7 +771,11 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		}
 
 		if(selectedAddress() == address) {
-			painter.fillRect(0, y, width(), line_height, palette().highlight());
+			if(hasFocus()) {
+				painter.fillRect(0, y, width(), line_height, palette().color(QPalette::Active, QPalette::Highlight));
+			} else {
+				painter.fillRect(0, y, width(), line_height, palette().color(QPalette::Inactive, QPalette::Highlight));
+			}
 		} else
 
 		if(row_index & 1) {
