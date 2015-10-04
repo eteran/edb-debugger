@@ -719,10 +719,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	const int bytes_width = l2 - l1;
 
 	const QBrush alternated_base_color = palette().alternateBase();
-	const QBrush bytes_color           = palette().text();
-	const QBrush divider_color         = palette().shadow();
-	const QPen bytes_pen               = bytes_color.color();
-	const QPen divider_pen             = divider_color.color();
+	const QPen divider_pen             = palette().shadow().color();
 	const QPen address_pen(Qt::red);
 
 	IAnalyzer *const analyzer = edb::v1::analyzer();
@@ -818,7 +815,12 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			address_buffer);
 
 		// draw the data bytes
-		painter.setPen(bytes_pen);
+		if(selectedAddress() != address) {
+			painter.setPen(palette().text().color());
+		} else {
+			painter.setPen(palette().highlightedText().color());
+		}
+
 		painter.drawText(
 			l1 + (font_width_ / 2),
 			y,
