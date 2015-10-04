@@ -712,7 +712,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	if(region_size == 0) {
 		return;
 	}
-
+	
 	show_addresses_.clear();
 	show_addresses_.insert(address_offset_ + current_line);
 
@@ -1246,6 +1246,7 @@ edb::address_t QDisassemblyView::selectedAddress() const {
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::setSelectedAddress(edb::address_t address) {
+
 	if(region_) {
 		bool ok;
 		const int size = get_instruction_size(address, &ok);
@@ -1257,6 +1258,8 @@ void QDisassemblyView::setSelectedAddress(edb::address_t address) {
 			selected_instruction_address_ = 0;
 			selected_instruction_size_    = 0;
 		}
+		
+		viewport()->repaint();
 	}
 }
 

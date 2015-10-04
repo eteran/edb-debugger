@@ -313,8 +313,9 @@ void DialogAssembler::on_buttonBox_accepted() {
 						}
 					}
 
-					set_address(address_ + replacement_size);
-					edb::v1::set_cpu_selected_address(address_ + replacement_size);
+					const edb::address_t new_address = address_ + replacement_size;
+					set_address(new_address);
+					edb::v1::set_cpu_selected_address(new_address);
 				}
 			}
 
