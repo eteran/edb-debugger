@@ -59,8 +59,8 @@ Compiled: %2</string>
         <widget class="QLabel" name="label_2">
          <property name="text">
           <string>&lt;p&gt;edb (Evan's Debugger) is designed to be an easy to use, modular, and cross platform debugger.&lt;/p&gt;
-&lt;p&gt;More information and updates can be found at &lt;a href=\&quot;https://github.com/eteran/edb-debugger\&quot;&gt;https://github.com/eteran/edb-debugger&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;You can also report bugs an feature requests at &lt;a href=\&quot;https://github.com/eteran/edb-debugger/issues\&quot;&gt;https://github.com/eteran/edb-debugger/issues&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;More information and updates can be found at &lt;a href=&quot;https://github.com/eteran/edb-debugger&quot;&gt;https://github.com/eteran/edb-debugger&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;You can also report bugs an feature requests at &lt;a href=&quot;https://github.com/eteran/edb-debugger/issues&quot;&gt;https://github.com/eteran/edb-debugger/issues&lt;/a&gt;&lt;/p&gt;
 &lt;p&gt;Written by &lt;a href=&quot;mailto:evan.teran@gmail.com&quot;&gt;Evan Teran&lt;/a&gt;.&lt;/p&gt;</string>
          </property>
          <property name="textFormat">
