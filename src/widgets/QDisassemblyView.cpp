@@ -707,8 +707,6 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		return;
 	}
 
-	// TODO: reimplement me
-	// const Configuration::Syntax syntax = edb::v1::config().syntax;
 	const int region_size = region_->size();
 
 	if(region_size == 0) {
