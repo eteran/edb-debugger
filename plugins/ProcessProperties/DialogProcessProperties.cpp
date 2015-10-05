@@ -47,14 +47,18 @@ namespace {
 
 QString size_to_string(size_t n) {
 
-	if(n < 1000) {
+	static constexpr size_t KiB = 1024;
+	static constexpr size_t MiB = 1024 * 1024;
+	static constexpr size_t GiB = 1024 * 1024 * 1024;
+	
+	if(n < KiB) {
 		return QString::number(n);
-	} else if(n < 1000000) {
-		return QString::number(n / 1000) + " KiB";
-	} else if(n < 1000000000) {
-		return QString::number(n / 1000000) + " MiB";
+	} else if(n < MiB) {
+		return QString::number(n / KiB) + " KiB";
+	} else if(n < GiB) {
+		return QString::number(n / MiB) + " MiB";
 	} else {
-		return QString::number(n / 1000000) + " GiB";
+		return QString::number(n / GiB) + " GiB";
 	}
 }
 
