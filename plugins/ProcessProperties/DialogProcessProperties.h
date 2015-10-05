@@ -41,6 +41,7 @@ public Q_SLOTS:
 	void on_btnRefreshHandles_clicked();
 	void on_btnStrings_clicked();
 	void on_btnRefreshThreads_clicked();
+	void on_btnRefreshMemory_clicked();
 	void on_txtSearchEnvironment_textChanged(const QString &text);
 	
 private:

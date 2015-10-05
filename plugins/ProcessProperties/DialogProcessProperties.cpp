@@ -560,6 +560,14 @@ void DialogProcessProperties::on_btnStrings_clicked() {
 }
 
 //------------------------------------------------------------------------------
+// Name: on_btnRefreshMemory_clicked
+// Desc:
+//------------------------------------------------------------------------------
+void DialogProcessProperties::on_btnRefreshMemory_clicked() {
+	updateMemoryPage();
+}
+
+//------------------------------------------------------------------------------
 // Name: on_btnRefreshThreads_clicked
 // Desc:
 //------------------------------------------------------------------------------
