@@ -299,6 +299,37 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 	return get_user_stat(QString("/proc/%1/stat").arg(pid), user_stat);
 }
 
+bool in64BitSegment() {
+	bool edbIsIn64BitSegment;
+	// Check that we're running in 64 bit segment: this can be in cases
+	// of LP64 and ILP32 programming models, so we can't rely on sizeof(void*)
+	asm(R"(
+		   .byte 0x33,0xc0 # XOR EAX,EAX
+		   .byte 0x48      # DEC EAX for 32 bit, REX prefix for 64 bit
+		   .byte 0xff,0xc0 # INC EAX for 32 bit, INC RAX due to REX.W in 64 bit
+		 )":"=a"(edbIsIn64BitSegment));
+	return edbIsIn64BitSegment;
+}
+
+bool os64Bit(bool edbIsIn64BitSegment) {
+	bool osIs64Bit;
+	if(edbIsIn64BitSegment)
+		osIs64Bit=true;
+	else {
+		// We want to be really sure the OS is 32 bit, so we can't rely on such easy
+		// to (even unintentionally) fake mechanisms as uname(2) (e.g. see setarch(8))
+		asm(R"(.intel_syntax noprefix
+			   mov eax,cs
+			   cmp ax,0x23 # this value is set for 32-bit processes on 64-bit kernel
+			   mov ah,0    # not sure this is really needed: usually the compiler will do
+						   # MOVZX EAX,AL, but we have to be certain the result is correct
+			   sete al
+			   .att_syntax # restore default syntax
+			   )":"=a"(osIs64Bit));
+	}
+	return osIs64Bit;
+}
+
 
 }
 
@@ -306,7 +337,16 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 // Name: DebuggerCore
 // Desc: constructor
 //------------------------------------------------------------------------------
-DebuggerCore::DebuggerCore() : binary_info_(0), process_(0), pointer_size_(sizeof(void*)) {
+DebuggerCore::DebuggerCore() : 
+	binary_info_(0),
+	process_(0),
+	pointer_size_(sizeof(void*)),
+	edbIsIn64BitSegment(in64BitSegment()),
+	osIs64Bit(os64Bit(edbIsIn64BitSegment)),
+	USER_CS_32(osIs64Bit?0x23:0x73),
+	USER_CS_64(osIs64Bit?0x33:0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
+	USER_SS(osIs64Bit?0x2b:0x7b)
+{
 #if defined(_SC_PAGESIZE)
 	page_size_ = sysconf(_SC_PAGESIZE);
 #elif defined(_SC_PAGE_SIZE)
@@ -314,6 +354,9 @@ DebuggerCore::DebuggerCore() : binary_info_(0), process_(0), pointer_size_(sizeo
 #else
 	page_size_ = PAGE_SIZE;
 #endif
+
+	qDebug() << "EDB is in" << (edbIsIn64BitSegment?"64":"32") << "bit segment";
+	qDebug() << "OS is" << (osIs64Bit?"64":"32") << "bit";
 }
 
 //------------------------------------------------------------------------------
@@ -807,18 +850,27 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 	}
 }
 
-void DebuggerCore::fillFSGSBases(PlatformState* state) {
-	if(state->is32Bit()) {
-		struct user_desc desc;
-		std::memset(&desc, 0, sizeof(desc));
+void DebuggerCore::fillSegmentBases(PlatformState* state) {
 
-		if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state->x86.segRegs[PlatformState::X86::FS] / LDT_ENTRY_SIZE), &desc) != -1) {
-			state->x86.fsBase = desc.base_addr;
-			state->x86.fsBaseFilled=true;
+	struct user_desc desc;
+	std::memset(&desc, 0, sizeof(desc));
+
+	for(size_t sregIndex=0;sregIndex<state->seg_reg_count();++sregIndex) {
+		const edb::seg_reg_t reg=state->x86.segRegs[sregIndex];
+		if(!reg) continue;
+		bool fromGDT=!(reg&0x04); // otherwise the selector picks descriptor from LDT
+		if(!fromGDT) continue;
+		if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), reg / LDT_ENTRY_SIZE, &desc) != -1) {
+			state->x86.segRegBases[sregIndex] = desc.base_addr;
+			state->x86.segRegBasesFilled[sregIndex]=true;
 		}
-		if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state->x86.segRegs[PlatformState::X86::GS] / LDT_ENTRY_SIZE), &desc) != -1) {
-			state->x86.gsBase = desc.base_addr;
-			state->x86.gsBaseFilled=true;
+	}
+	for(size_t sregIndex=0;sregIndex<state->seg_reg_count();++sregIndex) {
+		const edb::seg_reg_t sreg=state->x86.segRegs[sregIndex];
+		if(sreg==USER_CS_32||sreg==USER_CS_64||sreg==USER_SS ||
+				(state->is64Bit() && sregIndex<PlatformState::X86::FS)) {
+			state->x86.segRegBases[sregIndex] = 0;
+			state->x86.segRegBasesFilled[sregIndex]=true;
 		}
 	}
 }
@@ -855,7 +907,7 @@ bool DebuggerCore::fillStateFromPrStatus(PlatformState* state) {
 		perror("PTRACE_GETREGSET(NT_PRSTATUS) failed");
 		return false;
 	}
-	fillFSGSBases(state);
+	fillSegmentBases(state);
 	return true;
 }
 
@@ -865,7 +917,7 @@ bool DebuggerCore::fillStateFromSimpleRegs(PlatformState* state) {
 	if(ptrace(PTRACE_GETREGS, active_thread(), 0, &regs) != -1) {
 
 		state->fillFrom(regs);
-		fillFSGSBases(state);
+		fillSegmentBases(state);
 		return true;
 	}
 	else {
@@ -884,22 +936,27 @@ long DebuggerCore::set_debug_register(std::size_t n, long value) {
 
 void DebuggerCore::detectDebuggeeBitness() {
 
-	bool detected=false;
-	PrStatus_X86_64 prstat64;
-	iovec prstat_iov = {&prstat64, sizeof(prstat64)};
-	if(ptrace(PTRACE_GETREGSET, active_thread(), NT_PRSTATUS, &prstat_iov) != -1) {
-
-		detected=true;
-		if(prstat_iov.iov_len==sizeof prstat64)
-			pointer_size_=sizeof(std::uint64_t);
-		else if(prstat_iov.iov_len==sizeof(PrStatus_X86))
-			pointer_size_=sizeof(std::uint32_t);
-		else detected=false;
-	}
-
-	if(!detected) {
-		qDebug() << "Warning: failed to detect bitness of debuggee, using native EDB bitness";
-		pointer_size_=sizeof(void*);
+	const size_t offset=EDB_IS_64_BIT ?
+						offsetof(UserRegsStructX86_64, cs) :
+						offsetof(UserRegsStructX86,   xcs);
+	errno=0;
+	const edb::seg_reg_t cs=ptrace(PTRACE_PEEKUSER, active_thread(), offset, 0);
+	if(!errno) {
+		if(cs==USER_CS_32) {
+			if(pointer_size_==sizeof(quint64)) {
+				qDebug() << "Debuggee is now 32 bit";
+				CapstoneEDB::init(false);
+			}
+			pointer_size_=sizeof(quint32);
+			return;
+		} else if(cs==USER_CS_64) {
+			if(pointer_size_==sizeof(quint32)) {
+				qDebug() << "Debuggee is now 64 bit";
+				CapstoneEDB::init(true);
+			}
+			pointer_size_=sizeof(quint64);
+			return;
+		}
 	}
 }
 
@@ -909,6 +966,8 @@ void DebuggerCore::detectDebuggeeBitness() {
 //------------------------------------------------------------------------------
 void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
+
+	detectDebuggeeBitness();
 
 	if(auto state_impl = static_cast<PlatformState *>(state->impl_)) {
 		// State must be cleared before filling to zero all presence flags, otherwise something

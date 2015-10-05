@@ -2564,13 +2564,13 @@ void Debugger::set_initial_debugger_state() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::test_native_binary() {
-	if(binary_info_ && !binary_info_->native()) {
+	if(EDB_IS_32_BIT && binary_info_ && !binary_info_->native()) {
 		QMessageBox::warning(
 			this,
 			tr("Not A Native Binary"),
 			tr("The program you just attached to was built for a different architecture than the one that edb was built for. "
-			"For example a 32-bit binary on x86-64. "
-			"This is not supported yet, so you may need to use a version of edb that was compiled for the same architecture as your target program")
+			"For example a AMD64 binary on EDB built for IA32. "
+			"This is not fully supported yet, so you may need to use a version of edb that was compiled for the same architecture as your target program")
 			);
 	}
 }

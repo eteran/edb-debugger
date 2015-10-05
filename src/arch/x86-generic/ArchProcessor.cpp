@@ -66,6 +66,15 @@ enum RegisterIndex {
 	R15  = 15
 };
 
+enum SegmentRegisterIndex {
+	ES,
+	CS,
+	SS,
+	DS,
+	FS,
+	GS
+};
+
 static constexpr size_t MAX_DEBUG_REGS_COUNT=8;
 static constexpr size_t MAX_SEGMENT_REGS_COUNT=6;
 static constexpr size_t MAX_GPR_COUNT=16;
@@ -1007,18 +1016,20 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	register_view_items_[itemNumber]->setText(0, QString("%0: %1").arg(flags.name().toUpper()).arg(flags.toHexString()));
 	register_view_items_[itemNumber++]->setForeground(0, flags_changed ? Qt::red : palette.text());
 
-	const QString usualSegs[]={"es","cs","ss","ds"};
-	for(const QString sreg : usualSegs) {
-		register_view_items_[itemNumber]->setText(0, sreg.toUpper()+QString(": %1").arg(state[sreg].value<edb::seg_reg_t>().toHexString()));
-		register_view_items_[itemNumber++]->setForeground(0, QBrush((state[sreg] != last_state_[sreg]) ? Qt::red : palette.text()));
-	}
-	const QString specialSegs[]={"fs","gs"};
-	const Register bases[]={state["fs_base"],state["gs_base"]};
-	for(std::size_t i=0;i<sizeof(specialSegs)/sizeof(specialSegs[0]);++i) {
-		QString sreg(specialSegs[i]);
-		QString sregStr=sreg.toUpper()+QString(": %1").arg(state[sreg].value<edb::seg_reg_t>().toHexString());
-		if(bases[i])
-			sregStr+=QString(" (%1)").arg(bases[i].valueAsAddress().toHexString());
+	const QString sregs[]={"es","cs","ss","ds","fs","gs"};
+	for(std::size_t i=0;i<sizeof(sregs)/sizeof(sregs[0]);++i) {
+		QString sreg(sregs[i]);
+		auto sregValue=state[sreg].value<edb::seg_reg_t>();
+		QString sregStr=sreg.toUpper()+QString(": %1").arg(sregValue.toHexString());
+		const Register base=state[sregs[i]+"_base"];
+		if(edb::v1::debuggeeIs32Bit() || i>=FS) {
+			if(base)
+				sregStr+=QString(" (%1)").arg(base.valueAsAddress().toHexString());
+			else if(edb::v1::debuggeeIs32Bit() && sregValue==0)
+				sregStr+=" NULL";
+			else
+				sregStr+=" (?)";
+		}
 		register_view_items_[itemNumber]->setText(0, sregStr);
 		register_view_items_[itemNumber++]->setForeground(0, QBrush((state[sreg] != last_state_[sreg]) ? Qt::red : palette.text()));
 	}

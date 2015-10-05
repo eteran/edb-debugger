@@ -116,7 +116,7 @@ private:
 
 	bool fillStateFromPrStatus(PlatformState* state);
 	bool fillStateFromSimpleRegs(PlatformState* state);
-	void fillFSGSBases(PlatformState* state);
+	void fillSegmentBases(PlatformState* state);
 	unsigned long get_debug_register(std::size_t n);
 	long set_debug_register(std::size_t n, long value);
 	void detectDebuggeeBitness();
@@ -138,6 +138,11 @@ private:
 	IBinary          *binary_info_;
 	IProcess         *process_;
 	std::size_t      pointer_size_;
+	const bool       edbIsIn64BitSegment;
+	const bool       osIs64Bit;
+	const edb::seg_reg_t USER_CS_32;
+	const edb::seg_reg_t USER_CS_64;
+	const edb::seg_reg_t USER_SS;
 };
 
 }

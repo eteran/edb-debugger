@@ -31,8 +31,6 @@ constexpr const char* PlatformState::X86::IP16Name;
 constexpr const char* PlatformState::X86::flags64Name;
 constexpr const char* PlatformState::X86::flags32Name;
 constexpr const char* PlatformState::X86::flags16Name;
-constexpr const char* PlatformState::X86::fsBaseName;
-constexpr const char* PlatformState::X86::gsBaseName;
 const std::array<const char*,MAX_GPR_COUNT> PlatformState::X86::GPReg64Names={
 	"rax",
 	"rcx",
@@ -252,10 +250,16 @@ void PlatformState::fillFrom(const UserRegsStructX86_64& regs) {
 	x86.segRegs[X86::GS] = regs.gs;
 	x86.gpr32Filled=true;
 	x86.gpr64Filled=true;
-	x86.fsBase = regs.fs_base;
-	x86.fsBaseFilled=true;
-	x86.gsBase = regs.gs_base;
-	x86.gsBaseFilled=true;
+	if(is64Bit()) { // 32-bit processes get always zeros here, which may be wrong or meaningless
+		if(x86.segRegs[X86::FS]==0) {
+			x86.segRegBases[X86::FS] = regs.fs_base;
+			x86.segRegBasesFilled[X86::FS]=true;
+		}
+		if(x86.segRegs[X86::GS]==0) {
+			x86.segRegBases[X86::GS] = regs.gs_base;
+			x86.segRegBasesFilled[X86::GS]=true;
+		}
+	}
 }
 void PlatformState::fillFrom(const UserFPRegsStructX86_64& regs) {
 	x87.statusWord=regs.swd; // should be first for RIndexToSTIndex() to work
@@ -331,10 +335,10 @@ void PlatformState::fillFrom(const PrStatus_X86_64& regs)
 	x86.segRegs[X86::GS] = regs.gs;
 	x86.gpr32Filled=true;
 	x86.gpr64Filled=true;
-	x86.fsBase = regs.fs_base;
-	x86.fsBaseFilled=true;
-	x86.gsBase = regs.gs_base;
-	x86.gsBaseFilled=true;
+	x86.segRegBases[X86::FS] = regs.fs_base;
+	x86.segRegBasesFilled[X86::FS]=true;
+	x86.segRegBases[X86::GS] = regs.gs_base;
+	x86.segRegBasesFilled[X86::GS]=true;
 }
 
 void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) {
@@ -470,8 +474,8 @@ void PlatformState::fillStruct(UserRegsStructX86_64& regs) const
 		regs.ds=x86.segRegs[X86::DS];
 		regs.fs=x86.segRegs[X86::FS];
 		regs.gs=x86.segRegs[X86::GS];
-		regs.fs_base=x86.fsBase;
-		regs.gs_base=x86.gsBase;
+		regs.fs_base=x86.segRegBases[X86::FS];
+		regs.gs_base=x86.segRegBases[X86::GS];
 		regs.orig_rax=x86.orig_ax;
 		regs.eflags=x86.flags;
 		regs.rip=x86.IP;
@@ -507,8 +511,8 @@ void PlatformState::fillStruct(PrStatus_X86_64& regs) const
 		regs.ds=x86.segRegs[X86::DS];
 		regs.fs=x86.segRegs[X86::FS];
 		regs.gs=x86.segRegs[X86::GS];
-		regs.fs_base=x86.fsBase;
-		regs.gs_base=x86.gsBase;
+		regs.fs_base=x86.segRegBases[X86::FS];
+		regs.gs_base=x86.segRegBases[X86::GS];
 	}
 }
 
@@ -548,8 +552,8 @@ void PlatformState::X86::clear() {
 	util::markMemory(this,sizeof(*this));
 	gpr32Filled=false;
 	gpr64Filled=false;
-	fsBaseFilled=false;
-	gsBaseFilled=false;
+	for(auto& base : segRegBasesFilled)
+		base=false;
 }
 
 bool PlatformState::X86::empty() const {
@@ -657,17 +661,20 @@ Register PlatformState::value(const QString &reg) const {
 			return found;
 		if(!!(found=findRegisterValue(x86.segRegNames, x86.segRegs, regName, Register::TYPE_SEG, seg_reg_count())))
 			return found;
-		if(regName==x86.fsBaseName && x86.fsBaseFilled) {
-			if(is64Bit())
-				return make_Register(x86.fsBaseName, x86.fsBase, Register::TYPE_SEG); // FIXME: it's not a segment register, it's an address
-			else
-				return make_Register<32>(x86.fsBaseName, x86.fsBase, Register::TYPE_SEG); // FIXME: it's not a segment register, it's an address
-		}
-		if(regName==x86.gsBaseName && x86.gsBaseFilled) {
-			if(is64Bit())
-				return make_Register(x86.gsBaseName, x86.gsBase, Register::TYPE_SEG); // FIXME: it's not a segment register, it's an address
-			else
-				return make_Register<32>(x86.gsBaseName, x86.gsBase, Register::TYPE_SEG); // FIXME: it's not a segment register, it's an address
+		if(regName.mid(1)=="s_base") {
+			const QString segRegName=regName.mid(0,2);
+			const auto end=x86.segRegNames.end();
+			const auto regNameFoundIter=std::find(x86.segRegNames.begin(),end,segRegName);
+			if(regNameFoundIter!=end) {
+				const size_t index=regNameFoundIter-x86.segRegNames.begin();
+				if(!x86.segRegBasesFilled[index])
+					return Register();
+				const auto value=x86.segRegBases[index];
+				if(is64Bit())
+					return make_Register(regName, value, Register::TYPE_SEG);
+				else
+					return make_Register<32>(regName, value, Register::TYPE_SEG);
+			}
 		}
 
 		if(is64Bit() && regName==x86.flags64Name)

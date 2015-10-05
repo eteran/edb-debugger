@@ -386,10 +386,8 @@ private:
 		edb::reg_t flags; // whole flags register: EFLAGS/RFLAGS
 		edb::address_t IP; // program counter: EIP/RIP
 		std::array<edb::seg_reg_t,MAX_SEG_REG_COUNT> segRegs;
-		edb::address_t fsBase;
-		edb::address_t gsBase;
-		bool fsBaseFilled=false;
-		bool gsBaseFilled=false;
+		std::array<edb::address_t,MAX_SEG_REG_COUNT> segRegBases;
+		std::array<bool,MAX_SEG_REG_COUNT> segRegBasesFilled={{false}};
 		bool gpr64Filled=false;
 		bool gpr32Filled=false;
 
@@ -428,8 +426,6 @@ private:
 		static constexpr const char* flags64Name="rflags";
 		static constexpr const char* flags32Name="eflags";
 		static constexpr const char* flags16Name="flags";
-		static constexpr const char* fsBaseName="fs_base";
-		static constexpr const char* gsBaseName="gs_base";
 		// gcc 4.8 fails to understand inline initialization of std::array, so define these the old way
 		static const std::array<const char*,MAX_GPR_COUNT> GPReg64Names;
 		static const std::array<const char*,MAX_GPR_COUNT> GPReg32Names;
