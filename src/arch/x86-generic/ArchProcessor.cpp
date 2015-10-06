@@ -235,7 +235,7 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 // Name: format_integer
 // Desc:
 //------------------------------------------------------------------------------
-QString format_char(int pointer_level, edb::reg_t arg, QChar type) {
+QString format_char(int pointer_level, edb::address_t arg, QChar type) {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		if(pointer_level == 1) {
@@ -269,7 +269,7 @@ QString format_char(int pointer_level, edb::reg_t arg, QChar type) {
 // Name: format_argument
 // Desc:
 //------------------------------------------------------------------------------
-QString format_argument(const QString &type, edb::reg_t arg) {
+QString format_argument(const QString &type, const Register& arg) {
 	QString param_text;
 
 	int pointer_level = 0;
@@ -283,22 +283,22 @@ QString format_argument(const QString &type, edb::reg_t arg) {
 			continue;
 		} else {
 			switch(ch.toLatin1()) {
-			case 'v': return format_pointer(pointer_level, arg, ch);
-			case 'w': return format_integer(pointer_level, arg, ch);
-			case 'b': return format_integer(pointer_level, arg, ch);
-			case 'c': return format_char(pointer_level, arg, ch);
-			case 'a': return format_integer(pointer_level, arg, ch);
-			case 'h': return format_integer(pointer_level, arg, ch);
-			case 's': return format_integer(pointer_level, arg, ch);
-			case 't': return format_integer(pointer_level, arg, ch);
-			case 'i': return format_integer(pointer_level, arg, ch);
-			case 'j': return format_integer(pointer_level, arg, ch);
-			case 'l': return format_integer(pointer_level, arg, ch);
-			case 'm': return format_integer(pointer_level, arg, ch);
-			case 'x': return format_integer(pointer_level, arg, ch);
-			case 'y': return format_integer(pointer_level, arg, ch);
-			case 'n': return format_integer(pointer_level, arg, ch);
-			case 'o': return format_integer(pointer_level, arg, ch);
+			case 'v': return format_pointer(pointer_level, arg.valueAsAddress(), ch);
+			case 'w': return format_integer(pointer_level, arg.valueAsInteger(), ch);
+			case 'b': return format_integer(pointer_level, arg.valueAsSignedInteger(), ch);
+			case 'c': return format_char(pointer_level, arg.valueAsAddress(), ch);
+			case 'a': return format_integer(pointer_level, arg.valueAsSignedInteger(), ch);
+			case 'h': return format_integer(pointer_level, arg.valueAsInteger(), ch);
+			case 's': return format_integer(pointer_level, arg.valueAsSignedInteger(), ch);
+			case 't': return format_integer(pointer_level, arg.valueAsInteger(), ch);
+			case 'i': return format_integer(pointer_level, arg.valueAsSignedInteger(), ch);
+			case 'j': return format_integer(pointer_level, arg.valueAsInteger(), ch);
+			case 'l': return format_integer(pointer_level, arg.valueAsSignedInteger(), ch);
+			case 'm': return format_integer(pointer_level, arg.valueAsInteger(), ch);
+			case 'x': return format_integer(pointer_level, arg.valueAsSignedInteger(), ch);
+			case 'y': return format_integer(pointer_level, arg.valueAsInteger(), ch);
+			case 'n': return format_integer(pointer_level, arg.valueAsSignedInteger(), ch);
+			case 'o': return format_integer(pointer_level, arg.valueAsSignedInteger(), ch);
 			case 'f':
 			case 'd':
 			case 'e':
@@ -310,7 +310,7 @@ QString format_argument(const QString &type, edb::reg_t arg) {
 		}
 	}
 
-	return format_pointer(pointer_level, arg, 'x');
+	return format_pointer(pointer_level, arg.valueAsAddress(), 'x');
 }
 
 //------------------------------------------------------------------------------
@@ -356,12 +356,16 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 			int i = 0;
 			for(edb::Argument argument: info->arguments) {
 
-				edb::reg_t arg(0);
+				Register arg;
 				if(i+1 > func_param_regs_count()) {
 					size_t arg_i_position=(i - func_param_regs_count()) * edb::v1::pointer_size();
-					process->read_bytes(state.stack_pointer() + offset + arg_i_position, &arg, edb::v1::pointer_size());
+					edb::reg_t value(0);
+					process->read_bytes(state.stack_pointer() + offset + arg_i_position, &value, edb::v1::pointer_size());
+					arg=edb::v1::debuggeeIs64Bit()?
+						make_Register<64>("",value,Register::TYPE_GPR) :
+						make_Register<32>("",value,Register::TYPE_GPR);
 				} else {
-					arg = state[parameter_registers[i]].valueAsInteger();
+					arg = state[parameter_registers[i]];
 				}
 
 				arguments << format_argument(argument.type, arg);
@@ -721,7 +725,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 		for (QDomElement argument = root.firstChildElement("argument"); !argument.isNull(); argument = argument.nextSiblingElement("argument")) {
 			const QString argument_type     = argument.attribute("type");
 			const QString argument_register = argument.attribute("register");
-			arguments << format_argument(argument_type, state[argument_register].value<edb::reg_t>());
+			arguments << format_argument(argument_type, state[argument_register]);
 		}
 
 		ret << ArchProcessor::tr("SYSCALL: %1(%2)").arg(root.attribute("name"), arguments.join(","));
