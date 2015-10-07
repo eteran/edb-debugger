@@ -35,7 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 #include <QXmlQuery>
 
-#include <boost/math/special_functions/fpclassify.hpp>
 #include <climits>
 #include <cmath>
 
