@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <string>
 #include <memory>
 #include <vector>
+#include <cstdint>
 
 namespace CapstoneEDB {
 
@@ -38,6 +39,19 @@ class Operand
 {
 public:
 	using Register=Capstone::x86_reg;
+	struct Segment { // not enum class because we want to use this as array index etc.
+		enum Reg : std::size_t
+		{
+			ES,
+			CS,
+			SS,
+			DS,
+			FS,
+			GS,
+
+			REG_INVALID=std::size_t(-1)
+		};
+	};
 	enum Type {
 		TYPE_INVALID       = 0x00000000,
 		TYPE_REGISTER      = 0x00000100,
@@ -75,6 +89,7 @@ public:
 	};
 	struct expression_t {
 
+		Segment::Reg     segment=Segment::REG_INVALID;
 		DisplacementType displacement_type=DISP_NONE;
 		Register         base=Register::X86_REG_INVALID;
 		Register         index=Register::X86_REG_INVALID;
