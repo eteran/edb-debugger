@@ -789,6 +789,12 @@ void Debugger::closeEvent(QCloseEvent *event) {
 		settings.setValue("window.stack.word_width", -1);
 	else
 		settings.setValue("window.stack.word_width", stack_view_->wordWidth());
+		
+	
+	QByteArray dissassemblyState = ui.cpuView->saveState();
+	settings.setValue("window.disassembly.state", dissassemblyState);
+	
+	
 	settings.endGroup();
 	event->accept();
 }
@@ -839,6 +845,10 @@ void Debugger::showEvent(QShowEvent *) {
 
 	stack_view_->setRowWidth(row_width);
 	stack_view_->setWordWidth(stack_word_width_);
+	
+	
+	QByteArray disassemblyState = settings.value("window.disassembly.state").value<QByteArray>();
+	ui.cpuView->restoreState(disassemblyState);
 
 	settings.endGroup();
 	restoreState(state);

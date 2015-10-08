@@ -61,6 +61,8 @@ public:
 	QString get_comment(edb::address_t address);
 	void clear_comments();
 	void setSelectedAddress(edb::address_t address);
+	QByteArray saveState() const;
+	void restoreState(const QByteArray &stateBuffer);
 
 signals:
 	void signal_updated();

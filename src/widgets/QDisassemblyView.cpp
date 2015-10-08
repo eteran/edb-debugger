@@ -44,6 +44,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
+struct WidgetState {
+	int version;
+	int line1;
+	int line2;
+	int line3;	
+};
+
 const int default_byte_width   = 8;
 const QColor filling_dis_color = Qt::gray;
 const QColor default_dis_color = Qt::blue;
@@ -1311,4 +1318,42 @@ QString QDisassemblyView::get_comment(edb::address_t address) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::clear_comments() {
 	comments_.clear();
+}
+
+//------------------------------------------------------------------------------
+// Name: saveState
+// Desc: 
+//------------------------------------------------------------------------------
+QByteArray QDisassemblyView::saveState() const {
+
+	const WidgetState state = {
+		1,
+		line1_,
+		line2_,
+		line3_
+	};
+	
+	char buf[sizeof(WidgetState)];
+	memcpy(buf, &state, sizeof(buf));
+	
+	return QByteArray(buf, sizeof(buf));
+}
+
+//------------------------------------------------------------------------------
+// Name: restoreState
+// Desc: 
+//------------------------------------------------------------------------------
+void QDisassemblyView::restoreState(const QByteArray &stateBuffer) {
+
+	WidgetState state;
+	
+	if(stateBuffer.size() >= (int)sizeof(WidgetState)) {
+		memcpy(&state, stateBuffer.data(), sizeof(WidgetState));
+		
+		if(state.version == 1) {
+			line1_ = state.line1;
+			line2_ = state.line2;
+			line3_ = state.line3;
+		}
+	}
 }
