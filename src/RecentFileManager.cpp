@@ -115,15 +115,17 @@ void RecentFileManager::add_file(const QString &file) {
 
 	QFileInfo fi(file);
 	QString path = fi.absoluteFilePath();
+	
+	// update recent file list, we remove all entries for this file (if any)
+	// and then push the file on the front, ensuring that the recently run 
+	// entries are higher in the list
+	file_list_.removeAll(path);
+	file_list_.push_front(path);
 
-	// update recent file list
-	if(!file_list_.contains(path)) {
-		file_list_.push_front(path);
-
-		// make sure we don't add more than the max
-		while(file_list_.size() > MaxRecentFiles) {
-			file_list_.pop_back();
-		}
-		update();
+	// make sure we don't add more than the max
+	while(file_list_.size() > MaxRecentFiles) {
+		file_list_.pop_back();
 	}
+	update();
+
 }
