@@ -149,22 +149,13 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state,
 			} while(0);
 			break;
 		case edb::Operand::TYPE_ABSOLUTE:
+			// TODO: find out segment base for op.absolute().seg, otherwise this isn't going to be useful
 			ret = op.absolute().offset;
-			if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
-				const Register gsBase=state["gs_base"];
-				if(!gsBase) return 0; // no way to reliably compute address
-				ret += gsBase.valueAsAddress();
-			}
-
-			if(op.owner()->prefix() & edb::Instruction::PREFIX_FS) {
-				const Register fsBase=state["fs_base"];
-				if(!fsBase) return 0; // no way to reliably compute address
-				ret += fsBase.valueAsAddress();
-			}
 			break;
 		case edb::Operand::TYPE_IMMEDIATE:
 			break;
 		case edb::Operand::TYPE_REL:
+			// TODO: find out segment base for CS, otherwise this can be wrong
 			ret = op.relative_target();
 			break;
 		default:
