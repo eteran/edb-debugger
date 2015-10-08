@@ -1940,7 +1940,7 @@ edb::EVENT_STATUS Debugger::handle_trap() {
 		// handle conditional breakpoints
 		if(!condition.isEmpty()) {
 			if(!breakpoint_condition_true(condition)) {
-				return edb::DEBUG_CONTINUE;
+				return edb::DEBUG_CONTINUE_BP;
 			}
 		}
 
@@ -3077,6 +3077,9 @@ void Debugger::next_debug_event() {
 			break;
 		case edb::DEBUG_CONTINUE:
 			resume_execution(IGNORE_EXCEPTION, MODE_RUN, true);
+			break;
+		case edb::DEBUG_CONTINUE_BP:
+			resume_execution(IGNORE_EXCEPTION, MODE_RUN, false);
 			break;
 		case edb::DEBUG_CONTINUE_STEP:
 			resume_execution(IGNORE_EXCEPTION, MODE_STEP, true);
