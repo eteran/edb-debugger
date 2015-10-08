@@ -152,9 +152,12 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state,
 		case edb::Operand::TYPE_IMMEDIATE:
 			break;
 		case edb::Operand::TYPE_REL:
-			// TODO: find out segment base for CS, otherwise this can be wrong
-			ret = op.relative_target();
-			break;
+			{
+				const Register csBase = state["cs_base"];
+				if(!csBase) return 0; // no way to reliably compute address
+				ret = op.relative_target() + csBase.valueAsAddress();
+				break;
+			}
 		default:
 			break;
 		}
