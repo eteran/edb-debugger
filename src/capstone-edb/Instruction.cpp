@@ -229,6 +229,25 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 				operand.expr_.base =static_cast<Operand::Register>(ops[i].mem.base);
 				operand.expr_.index=static_cast<Operand::Register>(ops[i].mem.index);
 				operand.expr_.scale=ops[i].mem.scale;
+				switch(ops[i].mem.segment)
+				{
+				case Capstone::X86_REG_ES: operand.expr_.segment=Operand::Segment::ES; break;
+				case Capstone::X86_REG_CS: operand.expr_.segment=Operand::Segment::CS; break;
+				case Capstone::X86_REG_SS: operand.expr_.segment=Operand::Segment::SS; break;
+				case Capstone::X86_REG_DS: operand.expr_.segment=Operand::Segment::DS; break;
+				case Capstone::X86_REG_FS: operand.expr_.segment=Operand::Segment::FS; break;
+				case Capstone::X86_REG_GS: operand.expr_.segment=Operand::Segment::GS; break;
+				default: operand.expr_.segment=Operand::Segment::REG_INVALID; break;
+				}
+				if(operand.expr_.segment==Operand::Segment::REG_INVALID && !isAMD64)
+				{
+					if(operand.expr_.base==Capstone::X86_REG_BP ||
+					   operand.expr_.base==Capstone::X86_REG_EBP ||
+					   operand.expr_.base==Capstone::X86_REG_ESP)
+						operand.expr_.segment=Operand::Segment::SS;
+					else
+						operand.expr_.segment=Operand::Segment::DS;
+				}
 			case Capstone::X86_OP_FP: // FIXME: what instructions have this?
 				break;
 			case Capstone::X86_OP_INVALID:

@@ -35,7 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 #include <QXmlQuery>
 
-#include <boost/math/special_functions/fpclassify.hpp>
 #include <climits>
 #include <cmath>
 
@@ -136,43 +135,35 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state,
 
 				ret = base + index * op.expression().scale + op.displacement();
 
-				if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
-					const Register gsBase=state["gs_base"];
-					if(!gsBase) return 0; // no way to reliably compute address
-					ret += gsBase.valueAsAddress();
-				}
-
-				if(op.owner()->prefix() & edb::Instruction::PREFIX_FS) {
-					const Register fsBase=state["fs_base"];
-					if(!fsBase) return 0; // no way to reliably compute address
-					ret += fsBase.valueAsAddress();
+				std::size_t segRegIndex=op.expression().segment;
+				if(segRegIndex!=edb::Operand::Segment::REG_INVALID) {
+					static constexpr const char segInitials[]="ecsdfg";
+					Q_ASSERT(segRegIndex<sizeof(segInitials));
+					const Register segBase=state[segInitials[segRegIndex]+QString("s_base")];
+					if(!segBase) return 0; // no way to reliably compute address
+					ret += segBase.valueAsAddress();
 				}
 			} while(0);
 			break;
 		case edb::Operand::TYPE_ABSOLUTE:
+			// TODO: find out segment base for op.absolute().seg, otherwise this isn't going to be useful
 			ret = op.absolute().offset;
-			if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
-				const Register gsBase=state["gs_base"];
-				if(!gsBase) return 0; // no way to reliably compute address
-				ret += gsBase.valueAsAddress();
-			}
-
-			if(op.owner()->prefix() & edb::Instruction::PREFIX_FS) {
-				const Register fsBase=state["fs_base"];
-				if(!fsBase) return 0; // no way to reliably compute address
-				ret += fsBase.valueAsAddress();
-			}
 			break;
 		case edb::Operand::TYPE_IMMEDIATE:
 			break;
 		case edb::Operand::TYPE_REL:
-			ret = op.relative_target();
-			break;
+			{
+				const Register csBase = state["cs_base"];
+				if(!csBase) return 0; // no way to reliably compute address
+				ret = op.relative_target() + csBase.valueAsAddress();
+				break;
+			}
 		default:
 			break;
 		}
 	}
 	ok=true;
+	ret.normalize();
 	return ret;
 }
 
