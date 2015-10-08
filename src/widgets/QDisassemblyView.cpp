@@ -1347,10 +1347,10 @@ void QDisassemblyView::restoreState(const QByteArray &stateBuffer) {
 
 	WidgetState1 state;
 	
-	if(stateBuffer.size() >= (int)sizeof(WidgetState1)) {
+	if(stateBuffer.size() >= static_cast<int>(sizeof(WidgetState1))) {
 		memcpy(&state, stateBuffer.data(), sizeof(WidgetState1));
 		
-		if(state.version >= sizeof(WidgetState1)) {
+		if(state.version >= static_cast<int>(sizeof(WidgetState1))) {
 			line1_ = state.line1;
 			line2_ = state.line2;
 			line3_ = state.line3;
