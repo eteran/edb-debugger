@@ -42,53 +42,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_DialogAssembler.h"
 
 namespace Assembler {
+namespace {
 
 //------------------------------------------------------------------------------
-// Name: DialogAssembler
-// Desc: constructor
+// Name: normalizeAssembly
+// Desc: attempts to fix up the incomming assembly to best match what
 //------------------------------------------------------------------------------
-DialogAssembler::DialogAssembler(QWidget *parent) : QDialog(parent), ui(new Ui::DialogAssembler), address_(0), instruction_size_(0) {
-	ui->setupUi(this);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogAssembler
-// Desc:
-//------------------------------------------------------------------------------
-DialogAssembler::~DialogAssembler() {
-	delete ui;
-}
-
-//------------------------------------------------------------------------------
-// Name: set_address
-// Desc:
-//------------------------------------------------------------------------------
-void DialogAssembler::set_address(edb::address_t address) {
-	address_ = address;
-	ui->address->setText(edb::v1::format_pointer(address_));
-
-	quint8 buffer[edb::Instruction::MAX_SIZE];
-	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
-		edb::Instruction inst(buffer, buffer + size, address);
-		if(inst) {
-			ui->assembly->setEditText(QString::fromStdString(edb::v1::formatter().to_string(inst)));
-			instruction_size_ = inst.size();
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: on_buttonBox_accepted
-// Desc:
-//------------------------------------------------------------------------------
-void DialogAssembler::on_buttonBox_accepted() {
-
-#if 1
+QString normalizeAssembly(const QString &assembly) {
 	static const QString mnemonic_regex   = "([a-z][a-z0-9]*)";
-	static const QString register_regex   = "((?:(?:e|r)?(?:ax|bx|cx|dx|bp|sp|si|di|ip))|(?:[abcd](?:l|h))|(?:sp|bp|si|di)l|(?:[cdefgs]s)|(?:[xy]?mm[0-7])|r(?:8|9|(?:1[0-5]))[dwb]?)";
+	static const QString register_regex   = "((?:(?:e|r)?(?:ax|bx|cx|dx|bp|sp|si|di|ip))|(?:[abcd](?:l|h))|(?:sp|bp|si|di)l|(?:[cdefgs]s)|(?:[xyz]?mm[0-7])|r(?:8|9|(?:1[0-5]))[dwb]?)";
 	static const QString constant_regex   = "((?:0[0-7]*)|(?:0x[0-9a-f]+)|(?:[1-9][0-9]*))";
 
-	static const QString pointer_regex    = "(?:(t?byte|(?:xmm|[qdf]?)word)(?:\\s+ptr)?)?";
+	static const QString pointer_regex    = "(?:(t?byte|(?:[xyz]mm|[qdf]?)word)(?:\\s+ptr)?)?";
 	static const QString segment_regex    = "([csdefg]s)";
 	static const QString expression_regex = QString("(%1\\s*(?:\\s+%2\\s*:\\s*)?\\[(\\s*(?:(?:%3(?:\\s*\\+\\s*%3(?:\\s*\\*\\s*%4)?)?(?:\\s*\\+\\s*%4)?)|(?:(?:%3(?:\\s*\\*\\s*%4)?)(?:\\s*\\+\\s*%4)?)|(?:%4)\\s*))\\])").arg(pointer_regex, segment_regex, register_regex, constant_regex);
 
@@ -111,7 +76,6 @@ void DialogAssembler::on_buttonBox_accepted() {
 // [((BASE(\+INDEX(\*SCALE)?)?(\+OFFSET)?)|((INDEX(\*SCALE)?)(\+OFFSET)?)|(OFFSET))]
 
 
-	const QString assembly = ui->assembly->currentText().trimmed();
 	QRegExp regex(assembly_regex, Qt::CaseInsensitive, QRegExp::RegExp2);
 
 	if(regex.exactMatch(assembly)) {
@@ -203,125 +167,168 @@ void DialogAssembler::on_buttonBox_accepted() {
 			}
 		}
 
-		const QString nasm_syntax = list[1] + ' ' + operands.join(",");
-#else
-	if(true) {
-		const QString nasm_syntax = ui->assembly->currentText().trimmed();
-#endif
-		QSettings settings;
-		const QString assembler = settings.value("Assembler/helper", "yasm").toString();
+		return list[1] + ' ' + operands.join(",");
+	} else {
+		// if the regex failed, just assume that it might be able to be handled...
+		return assembly;
+	}
+}
 
-		QFile file(":/debugger/Assembler/xml/assemblers.xml");
-		if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+}
 
-			QXmlQuery query;
-			QString assembler_xml;
-			query.setFocus(&file);
-			query.setQuery(QString("assemblers/assembler[@name='%1']").arg(assembler));
-			if (query.isValid()) {
-				query.evaluateTo(&assembler_xml);
-			}
-			file.close();
+//------------------------------------------------------------------------------
+// Name: DialogAssembler
+// Desc: constructor
+//------------------------------------------------------------------------------
+DialogAssembler::DialogAssembler(QWidget *parent) : QDialog(parent), ui(new Ui::DialogAssembler), address_(0), instruction_size_(0) {
+	ui->setupUi(this);
+}
 
-			QDomDocument xml;
-			xml.setContent(assembler_xml);
-			QDomElement asm_root       = xml.documentElement();
-			QDomElement asm_executable = asm_root.firstChildElement("executable");
-			QDomElement asm_template   = asm_root.firstChildElement("template");
+//------------------------------------------------------------------------------
+// Name: ~DialogAssembler
+// Desc:
+//------------------------------------------------------------------------------
+DialogAssembler::~DialogAssembler() {
+	delete ui;
+}
 
-			const QString asm_name = asm_root.attribute("name");
-			const QString asm_cmd  = asm_executable.attribute("command_line");
-			const QString asm_ext  = asm_executable.attribute("extension");
-			QString asm_code       = asm_template.text();
+//------------------------------------------------------------------------------
+// Name: set_address
+// Desc:
+//------------------------------------------------------------------------------
+void DialogAssembler::set_address(edb::address_t address) {
+	address_ = address;
+	ui->address->setText(edb::v1::format_pointer(address_));
 
-			QStringList command_line = edb::v1::parse_command_line(asm_cmd);
-			if(command_line.isEmpty()) {
-				QMessageBox::warning(this, tr("Couldn't Find Assembler"), tr("Failed to locate your assembler."));
-				return;
-			}
+	quint8 buffer[edb::Instruction::MAX_SIZE];
+	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
+		edb::Instruction inst(buffer, buffer + size, address);
+		if(inst) {
+			ui->assembly->setEditText(QString::fromStdString(edb::v1::formatter().to_string(inst)));
+			instruction_size_ = inst.size();
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: on_buttonBox_accepted
+// Desc:
+//------------------------------------------------------------------------------
+void DialogAssembler::on_buttonBox_accepted() {
+
+	const QString nasm_syntax = normalizeAssembly(ui->assembly->currentText().trimmed());
+
+	QSettings settings;
+	const QString assembler = settings.value("Assembler/helper", "yasm").toString();
+
+	QFile file(":/debugger/Assembler/xml/assemblers.xml");
+	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+
+		QXmlQuery query;
+		QString assembler_xml;
+		query.setFocus(&file);
+		query.setQuery(QString("assemblers/assembler[@name='%1']").arg(assembler));
+		if (query.isValid()) {
+			query.evaluateTo(&assembler_xml);
+		}
+		file.close();
+
+		QDomDocument xml;
+		xml.setContent(assembler_xml);
+		QDomElement asm_root       = xml.documentElement();
+		QDomElement asm_executable = asm_root.firstChildElement("executable");
+		QDomElement asm_template   = asm_root.firstChildElement("template");
+
+		const QString asm_name = asm_root.attribute("name");
+		const QString asm_cmd  = asm_executable.attribute("command_line");
+		const QString asm_ext  = asm_executable.attribute("extension");
+		QString asm_code       = asm_template.text();
+
+		QStringList command_line = edb::v1::parse_command_line(asm_cmd);
+		if(command_line.isEmpty()) {
+			QMessageBox::warning(this, tr("Couldn't Find Assembler"), tr("Failed to locate your assembler."));
+			return;
+		}
 
 
-			const QFile file(command_line[0]);
-			if(command_line[0].isEmpty() || !file.exists()) {
-				QMessageBox::warning(this, tr("Couldn't Find Assembler"), tr("Failed to locate your assembler."));
-				return;
-			}
+		const QFile file(command_line[0]);
+		if(command_line[0].isEmpty() || !file.exists()) {
+			QMessageBox::warning(this, tr("Couldn't Find Assembler"), tr("Failed to locate your assembler."));
+			return;
+		}
 
-			QTemporaryFile source_file(QString("%1/edb_asm_temp_%2_XXXXXX.%3").arg(QDir::tempPath()).arg(getpid()).arg(asm_ext));
-			if(!source_file.open()) {
-				QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary source file."));
-				return;
-			}
+		QTemporaryFile source_file(QString("%1/edb_asm_temp_%2_XXXXXX.%3").arg(QDir::tempPath()).arg(getpid()).arg(asm_ext));
+		if(!source_file.open()) {
+			QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary source file."));
+			return;
+		}
 
-			QTemporaryFile output_file(QString("%1/edb_asm_temp_%2_XXXXXX.bin").arg(QDir::tempPath()).arg(getpid()));
-			if(!output_file.open()) {
-				QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary object file."));
-				return;
-			}
+		QTemporaryFile output_file(QString("%1/edb_asm_temp_%2_XXXXXX.bin").arg(QDir::tempPath()).arg(getpid()));
+		if(!output_file.open()) {
+			QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary object file."));
+			return;
+		}
 
-			asm_code.replace("%BITS%", std::to_string(edb::v1::debugger_core->pointer_size()*8).c_str());
-			asm_code.replace("%ADDRESS%", edb::v1::format_pointer(address_));
-			asm_code.replace("%INSTRUCTION%",  nasm_syntax);
+		asm_code.replace("%BITS%", std::to_string(edb::v1::debugger_core->pointer_size()*8).c_str());
+		asm_code.replace("%ADDRESS%", edb::v1::format_pointer(address_));
+		asm_code.replace("%INSTRUCTION%",  nasm_syntax);
 
-			source_file.write(asm_code.toLatin1());
-			source_file.close();
+		source_file.write(asm_code.toLatin1());
+		source_file.close();
 
-			QProcess process;
-			QString program(command_line[0]);
+		QProcess process;
+		QString program(command_line[0]);
 
-			command_line.pop_front();
+		command_line.pop_front();
 
-			QStringList arguments = command_line;
-			for(auto &arg : arguments) {
-				arg.replace("%OUT%",  output_file.fileName());
-				arg.replace("%IN%",   source_file.fileName());
-			}
+		QStringList arguments = command_line;
+		for(auto &arg : arguments) {
+			arg.replace("%OUT%",  output_file.fileName());
+			arg.replace("%IN%",   source_file.fileName());
+		}
 
-			qDebug() << "RUNNING ASM TOOL: " << program << arguments;
+		qDebug() << "RUNNING ASM TOOL: " << program << arguments;
 
-			process.start(program, arguments);
+		process.start(program, arguments);
 
-			if(process.waitForFinished()) {
+		if(process.waitForFinished()) {
 
-				const int exit_code = process.exitCode();
+			const int exit_code = process.exitCode();
 
-				if(exit_code != 0) {
-					QMessageBox::warning(this, tr("Error In Code"), process.readAllStandardError());
-				} else {
-					QByteArray bytes = output_file.readAll();
-					const int replacement_size = bytes.size();
+			if(exit_code != 0) {
+				QMessageBox::warning(this, tr("Error In Code"), process.readAllStandardError());
+			} else {
+				QByteArray bytes = output_file.readAll();
+				const int replacement_size = bytes.size();
 
-					if(replacement_size <= instruction_size_) {
-						if(ui->fillWithNOPs->isChecked()) {
-							// TODO: get system independent nop-code
-							if(!edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x90)) {
-								return;
-							}
-						} else {
-							if(!edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x00)) {
-								return;
-							}
+				if(replacement_size <= instruction_size_) {
+					if(ui->fillWithNOPs->isChecked()) {
+						// TODO: get system independent nop-code
+						if(!edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x90)) {
+							return;
 						}
 					} else {
-						if(ui->keepSize->isChecked()) {
-							QMessageBox::warning(this, tr("Error In Code"), tr("New instruction is too big to fit."));
+						if(!edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x00)) {
 							return;
-						} else {
-							if(!edb::v1::modify_bytes(address_, replacement_size, bytes, 0x00)) {
-								return;
-							}
 						}
 					}
-
-					const edb::address_t new_address = address_ + replacement_size;
-					set_address(new_address);
-					edb::v1::set_cpu_selected_address(new_address);
+				} else {
+					if(ui->keepSize->isChecked()) {
+						QMessageBox::warning(this, tr("Error In Code"), tr("New instruction is too big to fit."));
+						return;
+					} else {
+						if(!edb::v1::modify_bytes(address_, replacement_size, bytes, 0x00)) {
+							return;
+						}
+					}
 				}
-			}
 
+				const edb::address_t new_address = address_ + replacement_size;
+				set_address(new_address);
+				edb::v1::set_cpu_selected_address(new_address);
+			}
 		}
-	} else {
-		QMessageBox::warning(this, tr("Error In Code"), tr("Failed to assembly the given assemble code."));
+
 	}
 }
 
