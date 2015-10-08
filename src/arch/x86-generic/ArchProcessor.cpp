@@ -135,16 +135,13 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state,
 
 				ret = base + index * op.expression().scale + op.displacement();
 
-				if(op.owner()->prefix() & edb::Instruction::PREFIX_GS) {
-					const Register gsBase=state["gs_base"];
-					if(!gsBase) return 0; // no way to reliably compute address
-					ret += gsBase.valueAsAddress();
-				}
-
-				if(op.owner()->prefix() & edb::Instruction::PREFIX_FS) {
-					const Register fsBase=state["fs_base"];
-					if(!fsBase) return 0; // no way to reliably compute address
-					ret += fsBase.valueAsAddress();
+				std::size_t segRegIndex=op.expression().segment;
+				if(segRegIndex!=edb::Operand::Segment::REG_INVALID) {
+					static constexpr const char segInitials[]="ecsdfg";
+					Q_ASSERT(segRegIndex<sizeof(segInitials));
+					const Register segBase=state[segInitials[segRegIndex]+QString("s_base")];
+					if(!segBase) return 0; // no way to reliably compute address
+					ret += segBase.valueAsAddress();
 				}
 			} while(0);
 			break;
