@@ -163,6 +163,7 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state,
 		}
 	}
 	ok=true;
+	ret.normalize();
 	return ret;
 }
 
