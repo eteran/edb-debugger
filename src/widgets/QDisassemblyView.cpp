@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
-struct WidgetState {
+struct WidgetState1 {
 	int version;
 	int line1;
 	int line2;
@@ -1326,14 +1326,14 @@ void QDisassemblyView::clear_comments() {
 //------------------------------------------------------------------------------
 QByteArray QDisassemblyView::saveState() const {
 
-	const WidgetState state = {
-		1,
+	const WidgetState1 state = {
+		sizeof(WidgetState1),
 		line1_,
 		line2_,
 		line3_
 	};
 	
-	char buf[sizeof(WidgetState)];
+	char buf[sizeof(WidgetState1)];
 	memcpy(buf, &state, sizeof(buf));
 	
 	return QByteArray(buf, sizeof(buf));
@@ -1345,12 +1345,12 @@ QByteArray QDisassemblyView::saveState() const {
 //------------------------------------------------------------------------------
 void QDisassemblyView::restoreState(const QByteArray &stateBuffer) {
 
-	WidgetState state;
+	WidgetState1 state;
 	
-	if(stateBuffer.size() >= (int)sizeof(WidgetState)) {
-		memcpy(&state, stateBuffer.data(), sizeof(WidgetState));
+	if(stateBuffer.size() >= (int)sizeof(WidgetState1)) {
+		memcpy(&state, stateBuffer.data(), sizeof(WidgetState1));
 		
-		if(state.version == 1) {
+		if(state.version >= sizeof(WidgetState1)) {
 			line1_ = state.line1;
 			line2_ = state.line2;
 			line3_ = state.line3;
