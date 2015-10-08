@@ -369,7 +369,9 @@ QString get_breakpoint_condition(address_t address) {
 // Name: create_breakpoint
 // Desc: adds a breakpoint at a given address
 //------------------------------------------------------------------------------
-void create_breakpoint(address_t address) {
+IBreakpoint::pointer create_breakpoint(address_t address) {
+
+	IBreakpoint::pointer bp;
 
 	memory_regions().sync();
 	if(IRegion::pointer region = memory_regions().find_region(address)) {
@@ -401,8 +403,9 @@ void create_breakpoint(address_t address) {
 			}
 		}
 
+
 		if(ret == QMessageBox::Yes) {
-			debugger_core->add_breakpoint(address);
+			bp = debugger_core->add_breakpoint(address);
 			repaint_cpu_view();
 		}
 
@@ -413,6 +416,8 @@ void create_breakpoint(address_t address) {
 			QT_TRANSLATE_NOOP("edb", "Error Setting Breakpoint"),
 			QT_TRANSLATE_NOOP("edb", "Sorry, but setting a breakpoint which is not in a valid region is not allowed."));
 	}
+	
+	return bp;
 }
 
 //------------------------------------------------------------------------------

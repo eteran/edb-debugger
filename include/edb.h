@@ -81,7 +81,7 @@ EDB_EXPORT IBreakpoint::pointer find_breakpoint(address_t address);
 EDB_EXPORT QString get_breakpoint_condition(address_t address);
 EDB_EXPORT address_t disable_breakpoint(address_t address);
 EDB_EXPORT address_t enable_breakpoint(address_t address);
-EDB_EXPORT void create_breakpoint(address_t address);
+EDB_EXPORT IBreakpoint::pointer create_breakpoint(address_t address);
 EDB_EXPORT void remove_breakpoint(address_t address);
 EDB_EXPORT void set_breakpoint_condition(address_t address, const QString &condition);
 EDB_EXPORT void toggle_breakpoint(address_t address);
