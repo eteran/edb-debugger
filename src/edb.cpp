@@ -1252,7 +1252,7 @@ address_t current_data_view_address() {
 // Desc:
 //------------------------------------------------------------------------------
 void set_status(const QString &message) {
-	ui()->statusLabel()->setText(message);
+	ui()->ui.statusbar->showMessage(message, 2000);
 }
 
 //------------------------------------------------------------------------------
