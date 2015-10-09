@@ -124,7 +124,6 @@ SOURCES += \
 	Function.cpp \
 	HexStringValidator.cpp \
 	Instruction.cpp \
-	Formatter.cpp \
 	LineEdit.cpp \
 	MD5.cpp \
 	MemoryRegions.cpp \

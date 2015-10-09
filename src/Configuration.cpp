@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Configuration.h"
-#include "Formatter.h"
 #include "edb.h"
 #include <QCoreApplication>
 #include <QtDebug>

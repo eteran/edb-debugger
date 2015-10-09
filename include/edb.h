@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IBreakpoint.h"
 #include "Types.h"
 #include "Register.h"
-#include "Formatter.h"
 
 #include <QMap>
 #include <QList>

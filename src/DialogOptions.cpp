@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogOptions.h"
 #include "edb.h"
-#include "Formatter.h"
 #include "Configuration.h"
 
 #include <QFontDialog>

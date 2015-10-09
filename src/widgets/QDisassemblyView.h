@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IRegion.h"
 #include "Types.h"
-#include "Formatter.h"
 #include <QAbstractScrollArea>
 #include <QAbstractSlider>
 #include <QCache>

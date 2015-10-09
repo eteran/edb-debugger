@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DumpState.h"
 #include "IDebugger.h"
 #include "Instruction.h"
-#include "Formatter.h"
 #include "OptionsPage.h"
 #include "State.h"
 #include "Util.h"

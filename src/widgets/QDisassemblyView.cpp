@@ -24,7 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "ISymbolManager.h"
 #include "Instruction.h"
-#include "Formatter.h"
 #include "SyntaxHighlighter.h"
 #include "Util.h"
 

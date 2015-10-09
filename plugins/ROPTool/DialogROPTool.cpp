@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "IDebugger.h"
 #include "MemoryRegions.h"
-#include "Formatter.h"
 #include "Util.h"
 #include <QDebug>
 #include <QHeaderView>
