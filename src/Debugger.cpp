@@ -81,12 +81,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
-#if defined(EDB_X86)
-const char stack_type_name[] = "DWORD";
-#elif defined(EDB_X86_64)
-const char stack_type_name[] = "QWORD";
-#endif
-
 const quint64 initial_bp_tag  = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
 const quint64 stepover_bp_tag = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
 const quint64 run_to_cursor_tag = Q_UINT64_C(0x474f544f48455245); // "GOTOHERE" in hex
@@ -1604,8 +1598,14 @@ void Debugger::mnuStackContextMenu(const QPoint &pos) {
 	menu->addSeparator();
 	menu->addAction(tr("&Edit Bytes"), this, SLOT(mnuStackModify()));
 	menu->addSeparator();
-	menu->addAction(tr("&Push %1").arg(stack_type_name), this, SLOT(mnuStackPush()));
-	menu->addAction(tr("P&op %1").arg(stack_type_name), this, SLOT(mnuStackPop()));
+
+	if(edb::v1::debuggeeIs64Bit()) {
+		menu->addAction(tr("&Push QWORD"), this, SLOT(mnuStackPush()));
+		menu->addAction(tr("P&op QWORD"), this, SLOT(mnuStackPop()));
+	} else {
+		menu->addAction(tr("&Push DWORD"), this, SLOT(mnuStackPush()));
+		menu->addAction(tr("P&op DWORD"), this, SLOT(mnuStackPop()));
+	}
 
 	// lockable stack feature
 	menu->addSeparator();
