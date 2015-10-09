@@ -52,6 +52,8 @@ QList<QAction *> Assembler::cpu_context_menu() {
 	QList<QAction *> ret;
 
 	auto action_assemble = new QAction(tr("Assemble"), this);
+	action_assemble->setShortcut(QKeySequence(tr("Space")));
+
 
 	connect(action_assemble, SIGNAL(triggered()), this, SLOT(show_dialog()));
 	ret << action_assemble;

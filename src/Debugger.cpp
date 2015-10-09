@@ -647,6 +647,20 @@ void Debugger::finish_plugin_setup() {
 					options->addOptionsPage(options_page);
 				}
 			}
+
+			// setup the shortcuts for these actions
+			const QList<QAction *> register_actions = p->register_context_menu();
+			const QList<QAction *> cpu_actions      = p->cpu_context_menu();
+			const QList<QAction *> stack_actions    = p->stack_context_menu();
+			const QList<QAction *> data_actions     = p->data_context_menu();
+			const QList<QAction *> actions = register_actions + cpu_actions + stack_actions + data_actions;
+
+			for(QAction *action : actions) {
+				QKeySequence shortcut = action->shortcut();
+				if(!shortcut.isEmpty()) {
+					connect(new QShortcut(shortcut, this), SIGNAL(activated()), action, SLOT(trigger()));
+				}
+			}
 		}
 	}
 }
