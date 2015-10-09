@@ -45,6 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QScopedPointer>
+#include <QLabel>
 
 #include <cctype>
 
@@ -1251,7 +1252,7 @@ address_t current_data_view_address() {
 // Desc:
 //------------------------------------------------------------------------------
 void set_status(const QString &message) {
-	ui()->ui.statusbar->showMessage(message, 0);
+	ui()->statusLabel()->setText(message);
 }
 
 //------------------------------------------------------------------------------

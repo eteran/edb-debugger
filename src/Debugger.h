@@ -39,6 +39,7 @@ class QTreeWidgetItem;
 class QToolButton;
 class QDragEnterEvent;
 class QDropEvent;
+class QLabel;
 
 #include <QMainWindow>
 #include <QProcess>
@@ -96,6 +97,7 @@ public:
 	void refresh_gui();
 	void update_data(const DataViewInfo::pointer &v);
 	void update_gui();
+	QLabel *statusLabel() const;
 
 Q_SIGNALS:
 	void gui_updated();
@@ -309,6 +311,7 @@ private:
 	bool                                             auto_stack_word_width_;
 	int                                              stack_word_width_;
 	IDebugEvent::const_pointer                       last_event_;
+	QLabel *                                         status_;
 #ifdef Q_OS_UNIX
 	edb::address_t                                   debug_pointer_;
 #endif

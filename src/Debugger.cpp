@@ -61,6 +61,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 #include <QtDebug>
 #include <QDesktopServices>
+#include <QLabel>
 
 #include <memory>
 #include <cstring>
@@ -363,6 +364,10 @@ Debugger::~Debugger() {
 //------------------------------------------------------------------------------
 void Debugger::update_menu_state(GUI_STATE state) {
 
+	static const QString Paused     = tr("paused");
+	static const QString Running    = tr("running");
+	static const QString Terminated = tr("terminated");
+
 	switch(state) {
 	case PAUSED:
 		ui.actionRun_Until_Return->setEnabled(true);
@@ -378,7 +383,7 @@ void Debugger::update_menu_state(GUI_STATE state) {
 		ui.action_Detach->setEnabled(true);
 		ui.action_Kill->setEnabled(true);
 		add_tab_->setEnabled(true);
-		edb::v1::set_status(tr("paused"));
+		status_->setText(Paused);
 		break;
 	case RUNNING:
 		ui.actionRun_Until_Return->setEnabled(false);
@@ -394,7 +399,7 @@ void Debugger::update_menu_state(GUI_STATE state) {
 		ui.action_Detach->setEnabled(true);
 		ui.action_Kill->setEnabled(true);
 		add_tab_->setEnabled(true);
-		edb::v1::set_status(tr("running"));
+		status_->setText(Running);
 		break;
 	case TERMINATED:
 		ui.actionRun_Until_Return->setEnabled(false);
@@ -410,7 +415,7 @@ void Debugger::update_menu_state(GUI_STATE state) {
 		ui.action_Detach->setEnabled(false);
 		ui.action_Kill->setEnabled(false);
 		add_tab_->setEnabled(false);
-		edb::v1::set_status(tr("terminated"));
+		status_->setText(Terminated);
 		break;
 	}
 
@@ -724,6 +729,9 @@ void Debugger::setup_ui() {
 	edb::v1::debugger_ui = this;
 
 	ui.setupUi(this);
+
+	status_ = new QLabel(this);
+	ui.statusbar->insertPermanentWidget(0, status_);
 
 	// add toggles for the dock windows
 	ui.menu_View->addAction(ui.registersDock->toggleViewAction());
@@ -3134,7 +3142,15 @@ void Debugger::load_session(const QString &session_file) {
 //------------------------------------------------------------------------------
 // Name: on_action_Help_triggered
 // Desc:
-//-----------------------------------------------------------------------------
+//------------------------------------------------------------------------------
 void Debugger::on_action_Help_triggered() {
 	 QDesktopServices::openUrl(QUrl("https://github.com/eteran/edb-debugger/wiki", QUrl::TolerantMode));
+}
+
+//------------------------------------------------------------------------------
+// Name: statusLabel
+// Desc:
+//------------------------------------------------------------------------------
+QLabel *Debugger::statusLabel() const {
+	return status_;
 }
