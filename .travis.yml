@@ -4,6 +4,7 @@ cache: apt
 
 compiler:
     - gcc
+    - clang
 
 env:
     - MAKEFLAGS="-j2"
