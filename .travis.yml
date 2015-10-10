@@ -4,6 +4,8 @@ compiler:
     - gcc
     - clang
 
+sudo: required
+
 before_install:
     - git submodule update --init --recursive
     - ./travis_install_capstone.sh
