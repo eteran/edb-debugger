@@ -4,6 +4,7 @@ cache: apt
 
 compiler:
     - gcc
+    - clang
 
 env:
     - MAKEFLAGS="-j2"
@@ -15,7 +16,8 @@ before_install:
     - ./travis_install_capstone.sh
 
 before_script:
-    - qmake
+    - if [ "$CXX" = "clang++" ]; then qmake -spec unsupported/linux-clang; fi
+    - if [ "$CXX" != "clang++" ]; then qmake; fi
 
 script:
     - make
