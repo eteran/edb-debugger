@@ -12,7 +12,6 @@ sudo: required
 
 before_install:
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
-    - git submodule update --init --recursive
     - ./travis_install_capstone.sh
 
 before_script:
