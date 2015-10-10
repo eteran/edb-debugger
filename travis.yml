@@ -1,0 +1,27 @@
+language: cpp
+
+compiler:
+	- gcc
+	- clang
+	
+before_script:
+	- qmake
+
+script:
+	- make
+	
+branches:
+	only:
+		- master
+
+os:
+	- linux
+
+addons:
+	apt:
+		packages:
+			- build-essential
+			- libboost-dev
+			- libqt4-dev
+			- libqt4-core
+			- libqt4-gui
