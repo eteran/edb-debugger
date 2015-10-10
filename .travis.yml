@@ -5,13 +5,7 @@ compiler:
 	- clang
 
 before_install:
-	mkdir -p $HOME/src
-	cd $HOME/src
-	git clone --depth=50 --branch=3.0.4 https://github.com/aquynj/capstone.git
-	cd capstone
-	./make.sh
-	sudo ./make.sh install
-	cd $TRAVIS_BUILD_DIR
+	- ./travis_install_capstone.sh
 	
 before_script:
 	- qmake
