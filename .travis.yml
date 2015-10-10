@@ -1,7 +1,12 @@
 language: cpp
 
+cache: apt
+
 compiler:
     - gcc
+
+env:
+    - MAKEFLAGS="-j2"
 
 sudo: required
 
