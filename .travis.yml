@@ -6,20 +6,16 @@ compiler:
 sudo: required
 
 before_install:
-    - sudo add-apt-repository ppa:ubuntu-toolchain-r/test -y
-    - sudo apt-get update -qq
-    - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
-    - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
     - git submodule update --init --recursive
     - ./travis_install_capstone.sh
-    
+
 before_script:
     - qmake
 
 script:
     - make
-    
+
 branches:
     only:
         - master
@@ -29,6 +25,8 @@ os:
 
 addons:
     apt:
+        sources:
+            ubuntu-toolchain-r-test
         packages:
             - build-essential
             - libboost-dev
@@ -36,3 +34,5 @@ addons:
             - libqt4-core
             - libqt4-gui
             - qt4-qmake
+            - gcc-4.8
+            - g++-4.8
