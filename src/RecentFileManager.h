@@ -40,7 +40,7 @@ public Q_SLOTS:
 	void clear_file_list();
 	void item_selected();
 
-signals:
+Q_SIGNALS:
 	void file_selected(const QString &);
 
 private:
