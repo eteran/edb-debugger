@@ -35,6 +35,7 @@ public:
 public:
 	void add_file(const QString &file);
 	QMenu *create_menu();
+	QString most_recent() const;
 
 public Q_SLOTS:
 	void clear_file_list();
