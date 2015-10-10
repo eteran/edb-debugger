@@ -1,31 +1,31 @@
 language: cpp
 
 compiler:
-	- gcc
-	- clang
+    - gcc
+    - clang
 
 before_install:
-	- ./travis_install_capstone.sh
-	
+    - ./travis_install_capstone.sh
+    
 before_script:
-	- qmake
+    - qmake
 
 script:
-	- make
-	
+    - make
+    
 branches:
-	only:
-		- master
+    only:
+        - master
 
 os:
-	- linux
+    - linux
 
 addons:
-	apt:
-		packages:
-			- build-essential
-			- libboost-dev
-			- libqt4-dev
-			- libqt4-core
-			- libqt4-gui
-			- qt4-qmake
+    apt:
+        packages:
+            - build-essential
+            - libboost-dev
+            - libqt4-dev
+            - libqt4-core
+            - libqt4-gui
+            - qt4-qmake
