@@ -5,7 +5,7 @@ compiler:
     - clang
 
 before_install:
-	- git submodule update --init --recursive
+    - git submodule update --init --recursive
     - ./travis_install_capstone.sh
     
 before_script:
