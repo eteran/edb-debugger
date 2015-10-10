@@ -294,6 +294,7 @@ public:
 	virtual void set_debug_register(size_t n, edb::reg_t value);
 	virtual void set_flags(edb::reg_t flags);
 	virtual void set_instruction_pointer(edb::address_t value);
+	virtual void set_register(const Register& reg);
 	virtual void set_register(const QString &name, edb::reg_t value);
 	virtual Register mmx_register(size_t n) const;
 	virtual Register xmm_register(size_t n) const;

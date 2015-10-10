@@ -928,9 +928,10 @@ Register PlatformState::gp_register(size_t n) const {
 // Name: set_register
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::set_register(const QString &name, edb::reg_t value) {
+void PlatformState::set_register(const Register& reg) {
+	const QString regName = reg.name().toLower();
+	const auto value=reg.value<edb::value64>();
 
-	const QString regName = name.toLower();
 	const auto gpr_end=GPRegNames().begin()+gpr_count();
 	auto GPRegNameFoundIter=std::find(GPRegNames().begin(), gpr_end, regName);
 	if(GPRegNameFoundIter!=gpr_end)
@@ -961,7 +962,17 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 		avx.mxcsr=edb::value32(value);
 		return;
 	}
-	qDebug() << "fixme: set_register("<<name<<", "<<value.toHexString().toStdString().c_str()<<"): didn't set register " << name;
+	qDebug() << "fixme: set_register(0x"<< qPrintable(reg.toHexString()) <<"): didn't set register " << reg.name();
+}
+
+//------------------------------------------------------------------------------
+// Name: set_register
+// Desc:
+//------------------------------------------------------------------------------
+void PlatformState::set_register(const QString &name, edb::reg_t value) {
+
+	const QString regName = name.toLower();
+	set_register(make_Register<64>(regName,value,Register::TYPE_GPR));
 }
 
 //------------------------------------------------------------------------------
