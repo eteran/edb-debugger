@@ -189,6 +189,20 @@ edb::value16 PlatformState::X87::restoreTagWord(uint16_t twd) const {
 	return edb::value16(tagWord);
 }
 
+std::uint16_t PlatformState::X87::reducedTagWord() const {
+	// Algorithm is the same as in linux/arch/x86/kernel/i387.c: twd_i387_to_fxsr()
+
+	// Transforming each pair of bits into 01 (valid) or 00 (empty)
+	unsigned int result = ~tagWord;
+	result = (result | (result>>1)) & 0x5555; // 0102030405060708
+	// moving the valid bits to the lower byte
+	result = (result | (result>>1)) & 0x3333; // 0012003400560078
+	result = (result | (result>>2)) & 0x0f0f; // 0000123400005678
+	result = (result | (result>>4)) & 0x00ff; // 0000000012345678
+
+	return result;
+}
+
 void PlatformState::fillFrom(const UserFPRegsStructX86& regs) {
 	x87.statusWord=regs.swd; // should be first for RIndexToSTIndex() to work
 	for(std::size_t n=0;n<MAX_FPU_REG_COUNT;++n)
@@ -513,6 +527,44 @@ void PlatformState::fillStruct(PrStatus_X86_64& regs) const
 		regs.gs=x86.segRegs[X86::GS];
 		regs.fs_base=x86.segRegBases[X86::FS];
 		regs.gs_base=x86.segRegBases[X86::GS];
+	}
+}
+
+void PlatformState::fillStruct(UserFPRegsStructX86& regs) const {
+	util::markMemory(&regs,sizeof(regs));
+	if(x87.filled) {
+		regs.swd=x87.statusWord;
+		regs.cwd=x87.controlWord;
+		regs.twd=x87.tagWord;
+		regs.fip=x87.instPtrOffset;
+		regs.foo=x87.dataPtrOffset;
+		regs.fcs=x87.instPtrSelector;
+		regs.fos=x87.dataPtrSelector;
+		for(std::size_t n=0;n<MAX_FPU_REG_COUNT;++n)
+			std::memcpy(reinterpret_cast<char*>(regs.st_space)+10*x87.RIndexToSTIndex(n),&x87.R[n],sizeof(x87.R[n]));
+	}
+}
+
+void PlatformState::fillStruct(UserFPRegsStructX86_64& regs) const {
+	util::markMemory(&regs,sizeof(regs));
+	if(x87.filled) {
+		regs.swd=x87.statusWord;
+		regs.cwd=x87.controlWord;
+		regs.ftw=x87.reducedTagWord();
+		regs.rip=x87.instPtrOffset;
+		regs.rdp=x87.dataPtrOffset;
+		if(x87.opCodeFilled)
+			regs.fop=x87.opCode;
+		for(std::size_t n=0;n<MAX_FPU_REG_COUNT;++n)
+			std::memcpy(reinterpret_cast<char*>(regs.st_space)+16*x87.RIndexToSTIndex(n),&x87.R[n],sizeof(x87.R[n]));
+		if(avx.xmmFilledIA32||avx.xmmFilledAMD64) {
+			for(std::size_t n=0;n<MAX_XMM_REG_COUNT;++n)
+				std::memcpy(reinterpret_cast<char*>(regs.xmm_space)+16*n,&avx.zmmStorage[n],sizeof(edb::value128));
+			regs.mxcsr=avx.mxcsr;
+		}
+		if(avx.mxcsrMaskFilled)
+			regs.mxcr_mask=avx.mxcsrMask;
+
 	}
 }
 
@@ -928,9 +980,10 @@ Register PlatformState::gp_register(size_t n) const {
 // Name: set_register
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::set_register(const QString &name, edb::reg_t value) {
+void PlatformState::set_register(const Register& reg) {
+	const QString regName = reg.name().toLower();
+	const auto value=reg.value<edb::value64>();
 
-	const QString regName = name.toLower();
 	const auto gpr_end=GPRegNames().begin()+gpr_count();
 	auto GPRegNameFoundIter=std::find(GPRegNames().begin(), gpr_end, regName);
 	if(GPRegNameFoundIter!=gpr_end)
@@ -961,7 +1014,31 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 		avx.mxcsr=edb::value32(value);
 		return;
 	}
-	qDebug() << "fixme: set_register("<<name<<", "<<value.toHexString().toStdString().c_str()<<"): didn't set register " << name;
+	{
+		QRegExp MMx("^mm([0-7])$");
+		if(MMx.indexIn(regName)!=-1) {
+			QChar digit=MMx.cap(1).at(0);
+			assert(digit.isDigit());
+			char digitChar=digit.toLatin1();
+			std::size_t i=digitChar-'0';
+			assert(mmxIndexValid(i));
+			std::memcpy(&x87.R[i],&value,sizeof value);
+			const uint16_t RiUpper=0xffff;
+			std::memcpy(reinterpret_cast<char*>(&x87.R[i])+sizeof value,&RiUpper,sizeof RiUpper);
+			return;
+		}
+	}
+	qDebug() << "fixme: set_register(0x"<< qPrintable(reg.toHexString()) <<"): didn't set register " << reg.name();
+}
+
+//------------------------------------------------------------------------------
+// Name: set_register
+// Desc:
+//------------------------------------------------------------------------------
+void PlatformState::set_register(const QString &name, edb::reg_t value) {
+
+	const QString regName = name.toLower();
+	set_register(make_Register<64>(regName,value,Register::TYPE_GPR));
 }
 
 //------------------------------------------------------------------------------

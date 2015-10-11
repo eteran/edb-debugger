@@ -1053,6 +1053,12 @@ void DebuggerCore::set_state(const State &state) {
 			// debug registers
 			for(std::size_t i=0;i<8;++i)
 				set_debug_register(i,state_impl->x86.dbgRegs[i]);
+
+			// FPU registers
+			user_fpregs_struct fpregs;
+			state_impl->fillStruct(fpregs);
+			if(ptrace(PTRACE_SETFPREGS, active_thread(), 0, &fpregs)==-1)
+				perror("PTRACE_SETFPREGS failed");
 		}
 	}
 }

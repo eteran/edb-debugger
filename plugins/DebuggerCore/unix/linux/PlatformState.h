@@ -294,6 +294,7 @@ public:
 	virtual void set_debug_register(size_t n, edb::reg_t value);
 	virtual void set_flags(edb::reg_t flags);
 	virtual void set_instruction_pointer(edb::address_t value);
+	virtual void set_register(const Register& reg);
 	virtual void set_register(const QString &name, edb::reg_t value);
 	virtual Register mmx_register(size_t n) const;
 	virtual Register xmm_register(size_t n) const;
@@ -318,9 +319,9 @@ public:
 	const std::array<const char*,MAX_GPR_COUNT>& GPRegNames() const { return is64Bit() ? x86.GPReg64Names : x86.GPReg32Names; }
 private:
 	// The whole AVX* state. XMM and YMM registers are lower parts of ZMM ones.
-	class AVX {
+	struct AVX {
 		std::array<edb::value512,MAX_ZMM_REG_COUNT> zmmStorage;
-	public:
+
 		edb::value32 mxcsr;
 		edb::value32 mxcsrMask;
 		edb::value64 xcr0;
@@ -365,6 +366,7 @@ private:
 		std::size_t STIndexToRIndex(std::size_t index) const;
 		// Restore the full FPU Tag Word from the ptrace-filtered version
 		edb::value16 restoreTagWord(uint16_t twd) const;
+		std::uint16_t reducedTagWord() const;
 		int tag(std::size_t n) const;
 		edb::value80 st(std::size_t n) const;
 		enum Tag {
@@ -456,6 +458,8 @@ private:
 	void fillStruct(UserRegsStructX86& regs) const;
 	void fillStruct(UserRegsStructX86_64& regs) const;
 	void fillStruct(PrStatus_X86_64& regs) const;
+	void fillStruct(UserFPRegsStructX86& regs) const;
+	void fillStruct(UserFPRegsStructX86_64& regs) const;
 };
 
 }
