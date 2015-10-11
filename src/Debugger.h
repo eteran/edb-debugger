@@ -325,6 +325,13 @@ private:
 	QAction *conditionalBreakpointAction_;
 	QAction *runToThisLineAction_;
 	QAction *runToLinePassAction_;
+	QAction *fillWithZerosAction_;
+	QAction *fillWithNOPsAction_;
+	QAction *removeBreakpointAction_;
+	QAction *setAddressLabelAction_;
+	QAction *followConstantInDumpAction_;
+	QAction *followConstantInStackAction_;
+	QAction *followAction_;
 };
 
 #endif

@@ -304,7 +304,20 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	conditionalBreakpointAction_ = createAction(tr("Add &Conditional Breakpoint"),                   QKeySequence(tr("Shift+F2")));
 	runToThisLineAction_         = createAction(tr("R&un to this Line"),                             QKeySequence(tr("F4")));
 	runToLinePassAction_         = createAction(tr("Run to this Line (Pass Signal To Application)"), QKeySequence(tr("Shift+F4")));
+	fillWithZerosAction_         = createAction(tr("&Fill with 00's"),                               QKeySequence());
+	fillWithNOPsAction_          = createAction(tr("Fill with &NOPs"),                               QKeySequence());
+	removeBreakpointAction_      = createAction(tr("&Remove Breakpoint"),                            QKeySequence());
+	setAddressLabelAction_       = createAction(tr("Set Address &Label"),                            QKeySequence());
+	followConstantInDumpAction_  = createAction(tr("Follow Constant In &Dump"),                      QKeySequence());
+	followConstantInStackAction_ = createAction(tr("Follow Constant In &Stack"),                     QKeySequence());
+	followAction_                = createAction(tr("&Follow"),                                       QKeySequence());
 	
+	// set these to have no meaningful "data" (yet)
+	followConstantInDumpAction_->setData(qlonglong(0));
+	followConstantInStackAction_->setData(qlonglong(0));
+	followAction_->setData(qlonglong(0));
+	
+
 	// connect them to events
 	connect(gotoAddressAction_,           SIGNAL(activated()), this, SLOT(goto_triggered()));
 	connect(editCommentAction_,           SIGNAL(activated()), this, SLOT(mnuCPUEditComment()));
@@ -314,9 +327,14 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	connect(conditionalBreakpointAction_, SIGNAL(activated()), this, SLOT(mnuCPUAddConditionalBreakpoint()));
 	connect(runToThisLineAction_,         SIGNAL(activated()), this, SLOT(mnuCPURunToThisLine()));
 	connect(runToLinePassAction_,         SIGNAL(activated()), this, SLOT(mnuCPURunToThisLinePassSignal()));
+	connect(fillWithZerosAction_,         SIGNAL(activated()), this, SLOT(mnuCPUFillZero()));
+	connect(fillWithNOPsAction_,          SIGNAL(activated()), this, SLOT(mnuCPUFillNop()));
+	connect(removeBreakpointAction_,      SIGNAL(activated()), this, SLOT(mnuCPURemoveBreakpoint()));
+	connect(setAddressLabelAction_,       SIGNAL(activated()), this, SLOT(mnuCPULabelAddress()));
+	connect(followConstantInDumpAction_,  SIGNAL(activated()), this, SLOT(mnuCPUFollowInDump()));
+	connect(followConstantInStackAction_, SIGNAL(activated()), this, SLOT(mnuCPUFollowInStack()));
+	connect(followAction_,                SIGNAL(activated()), this, SLOT(mnuCPUFollow()));
 	
-	
-
 	// Connect Set rIP to this instruction feature
 	connect(new QShortcut(setRIPShortcut, this), SIGNAL(activated()), this, SLOT(mnuCPUSetEIP()));
 	// Connect Goto rIP feature
@@ -1481,7 +1499,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	menu.addAction(removeCommentAction_);
 	menu.addSeparator();
 
-	menu.addAction(tr("Set Address &Label"), this, SLOT(mnuCPULabelAddress()));
+	menu.addAction(setAddressLabelAction_);
 	menu.addSeparator();
 
 	menu.addAction(gotoAddressAction_);
@@ -1505,26 +1523,26 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 				if(is_call(inst) || is_jump(inst)) {
 					if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
-						QAction *const action = menu.addAction(tr("&Follow"), this, SLOT(mnuCPUFollow()));
-						action->setData(static_cast<qlonglong>(inst.operands()[0].relative_target()));
+						menu.addAction(followAction_);
+						followAction_->setData(static_cast<qlonglong>(inst.operands()[0].relative_target()));
 					}
 
 					/*
 					if(inst.operands()[0].general_type() == edb::Operand::TYPE_EXPRESSION) {
 						if(inst.operands()[0].expression().base == edb::Operand::REG_RIP && inst.operands()[0].expression().index == edb::Operand::REG_NULL && inst.operands()[0].expression().scale == 1) {
-							QAction *const action = menu.addAction(tr("&Follow"), this, SLOT(mnuCPUFollow()));
-							action->setData(static_cast<qlonglong>(address + inst.operands()[0].displacement()));
+							menu.addAction(followAction_);
+							followAction_->setData(static_cast<qlonglong>(address + inst.operands()[0].displacement()));
 						}
 					}
 					*/
 				} else {
 					for(std::size_t i = 0; i < inst.operand_count(); ++i) {
 						if(inst.operands()[i].general_type() == edb::Operand::TYPE_IMMEDIATE) {
-							QAction *const action = menu.addAction(tr("Follow Constant In &Dump"), this, SLOT(mnuCPUFollowInDump()));
-							action->setData(static_cast<qlonglong>(inst.operands()[i].immediate()));
-
-							QAction *const action2 = menu.addAction(tr("Follow Constant In &Stack"), this, SLOT(mnuCPUFollowInStack()));
-							action2->setData(static_cast<qlonglong>(inst.operands()[i].immediate()));
+							menu.addAction(followConstantInDumpAction_);
+							menu.addAction(followConstantInStackAction_);
+							
+							followConstantInDumpAction_->setData(static_cast<qlonglong>(inst.operands()[i].immediate()));
+							followConstantInStackAction_->setData(static_cast<qlonglong>(inst.operands()[i].immediate()));
 						}
 					}
 				}
@@ -1540,12 +1558,12 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	menu.addAction(runToLinePassAction_);
 	menu.addSeparator();
 	menu.addAction(editBytesAction_);
-	menu.addAction(tr("&Fill with 00's"), this, SLOT(mnuCPUFillZero()));
-	menu.addAction(tr("Fill with &NOPs"), this, SLOT(mnuCPUFillNop()));
+	menu.addAction(fillWithZerosAction_);
+	menu.addAction(fillWithNOPsAction_);
 	menu.addSeparator();
 	menu.addAction(toggleBreakpointAction_);
 	menu.addAction(conditionalBreakpointAction_);
-	menu.addAction(tr("&Remove Breakpoint"), this, SLOT(mnuCPURemoveBreakpoint()));
+	menu.addAction(removeBreakpointAction_);
 
 	add_plugin_context_menu(&menu, &IPlugin::cpu_context_menu);
 
@@ -2743,9 +2761,7 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 void Debugger::execute(const QString &program, const QList<QByteArray> &args) {
 	if(common_open(program, args)) {
 		recent_file_manager_->add_file(program);
-#if 0		
 		arguments_dialog_->set_arguments(args);
-#endif
 	}
 }
 
