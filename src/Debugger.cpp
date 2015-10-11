@@ -2741,6 +2741,7 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 			CapstoneEDB::init(edb::v1::debuggeeIs64Bit());
 			setup_data_views();
 			set_initial_breakpoint(s);
+			attachComplete();
 			ret = true;
 		} else {
 			QMessageBox::information(
@@ -2831,11 +2832,20 @@ void Debugger::attach(edb::pid_t pid) {
 
 		CapstoneEDB::init(edb::v1::debuggeeIs64Bit());
 		setup_data_views();
+		attachComplete();
 	} else {
 		QMessageBox::information(this, tr("Attach"), tr("Failed to attach to process, please check privileges and try again."));
 	}
 
 	update_gui();
+}
+
+//------------------------------------------------------------------------------
+// Name: attachComplete
+// Desc:
+//------------------------------------------------------------------------------
+void Debugger::attachComplete() {
+
 }
 
 //------------------------------------------------------------------------------
