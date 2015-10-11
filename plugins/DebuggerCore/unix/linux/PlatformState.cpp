@@ -189,6 +189,20 @@ edb::value16 PlatformState::X87::restoreTagWord(uint16_t twd) const {
 	return edb::value16(tagWord);
 }
 
+std::uint16_t PlatformState::X87::reducedTagWord() const {
+	// Algorithm is the same as in linux/arch/x86/kernel/i387.c: twd_i387_to_fxsr()
+
+	// Transforming each pair of bits into 01 (valid) or 00 (empty)
+	unsigned int result = ~tagWord;
+	result = (result | (result>>1)) & 0x5555; // 0102030405060708
+	// moving the valid bits to the lower byte
+	result = (result | (result>>1)) & 0x3333; // 0012003400560078
+	result = (result | (result>>2)) & 0x0f0f; // 0000123400005678
+	result = (result | (result>>4)) & 0x00ff; // 0000000012345678
+
+	return result;
+}
+
 void PlatformState::fillFrom(const UserFPRegsStructX86& regs) {
 	x87.statusWord=regs.swd; // should be first for RIndexToSTIndex() to work
 	for(std::size_t n=0;n<MAX_FPU_REG_COUNT;++n)

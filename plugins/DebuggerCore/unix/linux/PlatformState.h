@@ -366,6 +366,7 @@ private:
 		std::size_t STIndexToRIndex(std::size_t index) const;
 		// Restore the full FPU Tag Word from the ptrace-filtered version
 		edb::value16 restoreTagWord(uint16_t twd) const;
+		std::uint16_t reducedTagWord() const;
 		int tag(std::size_t n) const;
 		edb::value80 st(std::size_t n) const;
 		enum Tag {
