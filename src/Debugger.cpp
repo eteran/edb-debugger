@@ -1788,8 +1788,7 @@ void Debugger::run_to_this_line(bool pass_signal) {
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	IBreakpoint::pointer bp = edb::v1::find_breakpoint(address);
 	if(!bp) {
-		edb::v1::create_breakpoint(address);
-		bp = edb::v1::find_breakpoint(address);
+		bp = edb::v1::create_breakpoint(address);
 		if(!bp) return;
 		bp->set_one_time(true);
 		bp->set_internal(true);
