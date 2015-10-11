@@ -319,9 +319,9 @@ public:
 	const std::array<const char*,MAX_GPR_COUNT>& GPRegNames() const { return is64Bit() ? x86.GPReg64Names : x86.GPReg32Names; }
 private:
 	// The whole AVX* state. XMM and YMM registers are lower parts of ZMM ones.
-	class AVX {
+	struct AVX {
 		std::array<edb::value512,MAX_ZMM_REG_COUNT> zmmStorage;
-	public:
+
 		edb::value32 mxcsr;
 		edb::value32 mxcsrMask;
 		edb::value64 xcr0;
@@ -459,6 +459,7 @@ private:
 	void fillStruct(UserRegsStructX86_64& regs) const;
 	void fillStruct(PrStatus_X86_64& regs) const;
 	void fillStruct(UserFPRegsStructX86& regs) const;
+	void fillStruct(UserFPRegsStructX86_64& regs) const;
 };
 
 }
