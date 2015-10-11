@@ -77,7 +77,7 @@ private:
 		NO_KILL_ON_DETACH,
 		KILL_ON_DETACH
 	};
-	
+
 	enum GUI_STATE {
 		PAUSED,
 		RUNNING,
@@ -264,7 +264,7 @@ private:
 
 	template <class T>
 	edb::address_t get_follow_address(const T &hexview, bool *ok);
-	
+
 	template <class F, class T>
 	void add_plugin_context_menu(const T &menu, const F &f);
 
@@ -279,7 +279,7 @@ private:
 
 	template <class T>
 	void modify_bytes(const T &hexview);
-	
+
 	template <class F1, class F2>
 	void step_over(F1 run_func, F2 step_func);
 
@@ -335,7 +335,11 @@ private:
 	QAction *followAction_;
 	QAction *setRIPAction_;
 	QAction *gotoRIPAction_;
-	QAction *dumpFollowAddressCPUAction_;
+	QAction *dumpFollowInCPUAction_;
+	QAction *dumpFollowInDumpAction_;
+	QAction *dumpFollowInStackAction_;
+	QAction *dumpEditBytesAction_;
+	QAction *dumpSaveToFileAction_;
 };
 
 #endif

@@ -291,7 +291,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	// create a context menu for the tab bar as well
 	connect(ui.tabWidget, SIGNAL(customContextMenuRequested(int, const QPoint &)), this, SLOT(tab_context_menu(int, const QPoint &)));
 
-	// create debugger wide actions
+	// CPU Shortcuts
 	gotoAddressAction_           = createAction(tr("&Goto Address"),                                 QKeySequence(tr("Ctrl+G")),   SLOT(goto_triggered()));
 	editCommentAction_           = createAction(tr("Add &Comment"),                                  QKeySequence(tr(";")),        SLOT(mnuCPUEditComment()));
 	removeCommentAction_         = createAction(tr("Remove Comment"),                                QKeySequence(),               SLOT(mnuCPURemoveComment()));
@@ -307,7 +307,6 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	followConstantInDumpAction_  = createAction(tr("Follow Constant In &Dump"),                      QKeySequence(),               SLOT(mnuCPUFollowInDump()));
 	followConstantInStackAction_ = createAction(tr("Follow Constant In &Stack"),                     QKeySequence(),               SLOT(mnuCPUFollowInStack()));
 	followAction_                = createAction(tr("&Follow"),                                       QKeySequence(),               SLOT(mnuCPUFollow()));
-	dumpFollowAddressCPUAction_  = createAction(tr("&Follow In Dump"),                               QKeySequence(),               SLOT(mnuDumpFollowInCPU()));
 	
 	// these get updated when we attach/run a new process, so it's OK to hard code them here
 #if defined(EDB_X86_64)
@@ -318,8 +317,12 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	gotoRIPAction_               = createAction(tr("&Goto %1").arg("EIP"),                           QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
 #endif
 	
-	
-	
+	// Data Dump Shorcuts
+	dumpFollowInCPUAction_       = createAction(tr("Follow Address In &CPU"),                        QKeySequence(),               SLOT(mnuDumpFollowInCPU()));
+	dumpFollowInDumpAction_      = createAction(tr("Follow Address In &Dump"),                       QKeySequence(),               SLOT(mnuDumpFollowInDump()));
+	dumpFollowInStackAction_     = createAction(tr("Follow Address In &Stack"),                      QKeySequence(),               SLOT(mnuDumpFollowInStack()));
+	dumpEditBytesAction_         = createAction(tr("&Edit Bytes"),                                   QKeySequence(),               SLOT(mnuDumpModify()));
+	dumpSaveToFileAction_        = createAction(tr("&Save To File"),                                 QKeySequence(),               SLOT(mnuDumpSaveToFile()));
 		
 	
 	// set these to have no meaningful "data" (yet)
@@ -1655,14 +1658,14 @@ void Debugger::mnuDumpContextMenu(const QPoint &pos) {
 
 	QMenu *const menu = s->createStandardContextMenu();
 	menu->addSeparator();
-	menu->addAction(tr("Follow Address In &CPU"), this, SLOT(mnuDumpFollowInCPU()));
-	menu->addAction(tr("Follow Address In &Dump"), this, SLOT(mnuDumpFollowInDump()));
-	menu->addAction(tr("Follow Address In &Stack"), this, SLOT(mnuDumpFollowInStack()));
+	menu->addAction(dumpFollowInCPUAction_);
+	menu->addAction(dumpFollowInDumpAction_);
+	menu->addAction(dumpFollowInStackAction_);
 	menu->addAction(gotoAddressAction_);
 	menu->addSeparator();
-	menu->addAction(tr("&Edit Bytes"), this, SLOT(mnuDumpModify()));
+	menu->addAction(dumpEditBytesAction_);
 	menu->addSeparator();
-	menu->addAction(tr("&Save To File"), this, SLOT(mnuDumpSaveToFile()));
+	menu->addAction(dumpSaveToFileAction_);
 
 	add_plugin_context_menu(menu, &IPlugin::data_context_menu);
 
