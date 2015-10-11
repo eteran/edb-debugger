@@ -110,8 +110,6 @@ bool is_instruction_ret(edb::address_t address) {
 	return false;
 }
 
-}
-
 class RunUntilRet : public IDebugEventHandler {
 public:
 	//--------------------------------------------------------------------------
@@ -271,6 +269,8 @@ private:
 	edb::address_t      last_call_return_;
 	edb::address_t      ret_address_;
 };
+
+}
 
 //------------------------------------------------------------------------------
 // Name: Debugger
