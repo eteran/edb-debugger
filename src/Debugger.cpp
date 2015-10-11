@@ -292,56 +292,42 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	connect(ui.tabWidget, SIGNAL(customContextMenuRequested(int, const QPoint &)), this, SLOT(tab_context_menu(int, const QPoint &)));
 
 	// create debugger wide actions
-	gotoAddressAction_           = createAction(tr("&Goto Address"),                                 QKeySequence(tr("Ctrl+G")));
-	editCommentAction_           = createAction(tr("Add &Comment"),                                  QKeySequence(tr(";")));
-	removeCommentAction_         = createAction(tr("Remove Comment"),                                QKeySequence());
-	editBytesAction_             = createAction(tr("&Edit Bytes"),                                   QKeySequence(tr("Ctrl+E")));
-	toggleBreakpointAction_      = createAction(tr("&Toggle Breakpoint"),                            QKeySequence(tr("F2")));
-	conditionalBreakpointAction_ = createAction(tr("Add &Conditional Breakpoint"),                   QKeySequence(tr("Shift+F2")));
-	runToThisLineAction_         = createAction(tr("R&un to this Line"),                             QKeySequence(tr("F4")));
-	runToLinePassAction_         = createAction(tr("Run to this Line (Pass Signal To Application)"), QKeySequence(tr("Shift+F4")));
-	fillWithZerosAction_         = createAction(tr("&Fill with 00's"),                               QKeySequence());
-	fillWithNOPsAction_          = createAction(tr("Fill with &NOPs"),                               QKeySequence());
-	removeBreakpointAction_      = createAction(tr("&Remove Breakpoint"),                            QKeySequence());
-	setAddressLabelAction_       = createAction(tr("Set Address &Label"),                            QKeySequence(tr(":")));
-	followConstantInDumpAction_  = createAction(tr("Follow Constant In &Dump"),                      QKeySequence());
-	followConstantInStackAction_ = createAction(tr("Follow Constant In &Stack"),                     QKeySequence());
-	followAction_                = createAction(tr("&Follow"),                                       QKeySequence());
-	
+	gotoAddressAction_           = createAction(tr("&Goto Address"),                                 QKeySequence(tr("Ctrl+G")),   SLOT(goto_triggered()));
+	editCommentAction_           = createAction(tr("Add &Comment"),                                  QKeySequence(tr(";")),        SLOT(mnuCPUEditComment()));
+	removeCommentAction_         = createAction(tr("Remove Comment"),                                QKeySequence(),               SLOT(mnuCPURemoveComment()));
+	editBytesAction_             = createAction(tr("&Edit Bytes"),                                   QKeySequence(tr("Ctrl+E")),   SLOT(mnuCPUModify()));
+	toggleBreakpointAction_      = createAction(tr("&Toggle Breakpoint"),                            QKeySequence(tr("F2")),       SLOT(mnuCPUToggleBreakpoint()));
+	conditionalBreakpointAction_ = createAction(tr("Add &Conditional Breakpoint"),                   QKeySequence(tr("Shift+F2")), SLOT(mnuCPUAddConditionalBreakpoint()));
+	runToThisLineAction_         = createAction(tr("R&un to this Line"),                             QKeySequence(tr("F4")),       SLOT(mnuCPURunToThisLine()));
+	runToLinePassAction_         = createAction(tr("Run to this Line (Pass Signal To Application)"), QKeySequence(tr("Shift+F4")), SLOT(mnuCPURunToThisLinePassSignal()));
+	fillWithZerosAction_         = createAction(tr("&Fill with 00's"),                               QKeySequence(),               SLOT(mnuCPUFillZero()));
+	fillWithNOPsAction_          = createAction(tr("Fill with &NOPs"),                               QKeySequence(),               SLOT(mnuCPUFillNop()));
+	removeBreakpointAction_      = createAction(tr("&Remove Breakpoint"),                            QKeySequence(),               SLOT(mnuCPURemoveBreakpoint()));
+	setAddressLabelAction_       = createAction(tr("Set Address &Label"),                            QKeySequence(tr(":")),        SLOT(mnuCPULabelAddress()));
+	followConstantInDumpAction_  = createAction(tr("Follow Constant In &Dump"),                      QKeySequence(),               SLOT(mnuCPUFollowInDump()));
+	followConstantInStackAction_ = createAction(tr("Follow Constant In &Stack"),                     QKeySequence(),               SLOT(mnuCPUFollowInStack()));
+	followAction_                = createAction(tr("&Follow"),                                       QKeySequence(),               SLOT(mnuCPUFollow()));
+	dumpFollowAddressCPUAction_  = createAction(tr("&Follow In Dump"),                               QKeySequence(),               SLOT(mnuDumpFollowInCPU()));
 	
 	// these get updated when we attach/run a new process, so it's OK to hard code them here
 #if defined(EDB_X86_64)
-	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("RIP"),         QKeySequence(tr("Ctrl+*")));
-	gotoRIPAction_               = createAction(tr("&Goto %1").arg("RIP"),                            QKeySequence(tr("*")));
+	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("RIP"),        QKeySequence(tr("Ctrl+*")),   SLOT(mnuCPUSetEIP()));
+	gotoRIPAction_               = createAction(tr("&Goto %1").arg("RIP"),                           QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
 #elif defined(EDB_X86)
-	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("EIP"),         QKeySequence(tr("Ctrl+*")));
-	gotoRIPAction_               = createAction(tr("&Goto %1").arg("EIP"),                            QKeySequence(tr("*")));
+	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("EIP"),        QKeySequence(tr("Ctrl+*")),   SLOT(mnuCPUSetEIP()));
+	gotoRIPAction_               = createAction(tr("&Goto %1").arg("EIP"),                           QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
 #endif
+	
+	
+	
+		
 	
 	// set these to have no meaningful "data" (yet)
 	followConstantInDumpAction_->setData(qlonglong(0));
 	followConstantInStackAction_->setData(qlonglong(0));
 	followAction_->setData(qlonglong(0));
 	
-
-	// connect them to events
-	connect(gotoAddressAction_,           SIGNAL(activated()), this, SLOT(goto_triggered()));
-	connect(editCommentAction_,           SIGNAL(activated()), this, SLOT(mnuCPUEditComment()));
-	connect(removeCommentAction_,         SIGNAL(activated()), this, SLOT(mnuCPURemoveComment()));
-	connect(editBytesAction_,             SIGNAL(activated()), this, SLOT(mnuCPUModify()));
-	connect(toggleBreakpointAction_,      SIGNAL(activated()), this, SLOT(mnuCPUToggleBreakpoint()));
-	connect(conditionalBreakpointAction_, SIGNAL(activated()), this, SLOT(mnuCPUAddConditionalBreakpoint()));
-	connect(runToThisLineAction_,         SIGNAL(activated()), this, SLOT(mnuCPURunToThisLine()));
-	connect(runToLinePassAction_,         SIGNAL(activated()), this, SLOT(mnuCPURunToThisLinePassSignal()));
-	connect(fillWithZerosAction_,         SIGNAL(activated()), this, SLOT(mnuCPUFillZero()));
-	connect(fillWithNOPsAction_,          SIGNAL(activated()), this, SLOT(mnuCPUFillNop()));
-	connect(removeBreakpointAction_,      SIGNAL(activated()), this, SLOT(mnuCPURemoveBreakpoint()));
-	connect(setAddressLabelAction_,       SIGNAL(activated()), this, SLOT(mnuCPULabelAddress()));
-	connect(followConstantInDumpAction_,  SIGNAL(activated()), this, SLOT(mnuCPUFollowInDump()));
-	connect(followConstantInStackAction_, SIGNAL(activated()), this, SLOT(mnuCPUFollowInStack()));
-	connect(followAction_,                SIGNAL(activated()), this, SLOT(mnuCPUFollow()));
-	connect(setRIPAction_,                SIGNAL(activated()), this, SLOT(mnuCPUSetEIP()));
-	connect(gotoRIPAction_,               SIGNAL(activated()), this, SLOT(mnuCPUJumpToEIP()));	
+	
 
 	setAcceptDrops(true);
 
@@ -383,10 +369,11 @@ Debugger::~Debugger() {
 // Name: createAction
 // Desc:
 //------------------------------------------------------------------------------
-QAction *Debugger::createAction(const QString &text, const QKeySequence &keySequence) {
+QAction *Debugger::createAction(const QString &text, const QKeySequence &keySequence, const char *slot) {
 	auto action = new QAction(text, this);
 	action->setShortcut(keySequence);
 	addAction(action);
+	connect(action, SIGNAL(activated()), this, slot);
 	return action;
 }
 
