@@ -340,6 +340,17 @@ private:
 	QAction *dumpFollowInStackAction_;
 	QAction *dumpEditBytesAction_;
 	QAction *dumpSaveToFileAction_;
+	QAction *registerFollowInDumpAction_;
+	QAction *registerFollowInDumpTabAction_;
+	QAction *registerFollowInStackAction_;
+	QAction *stackFollowInCPUAction_;
+	QAction *stackFollowInDumpAction_;
+	QAction *stackFollowInStackAction_;
+	QAction *stackEditBytesAction_;;	
+	QAction *stackGotoRSPAction_;
+	QAction *stackGotoRBPAction_;
+	QAction *stackPushAction_;
+	QAction *stackPopAction_;
 };
 
 #endif

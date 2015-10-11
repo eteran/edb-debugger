@@ -323,7 +323,31 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	dumpFollowInStackAction_     = createAction(tr("Follow Address In &Stack"),                      QKeySequence(),               SLOT(mnuDumpFollowInStack()));
 	dumpEditBytesAction_         = createAction(tr("&Edit Bytes"),                                   QKeySequence(),               SLOT(mnuDumpModify()));
 	dumpSaveToFileAction_        = createAction(tr("&Save To File"),                                 QKeySequence(),               SLOT(mnuDumpSaveToFile()));
-		
+	
+	// Register View Shortcuts
+	registerFollowInDumpAction_    = createAction(tr("&Follow In Dump"),           QKeySequence(), SLOT(mnuRegisterFollowInDump()));
+	registerFollowInDumpTabAction_ = createAction(tr("&Follow In Dump (New Tab)"), QKeySequence(), SLOT(mnuRegisterFollowInDumpNewTab()));
+	registerFollowInStackAction_   = createAction(tr("&Follow In Stack"),          QKeySequence(), SLOT(mnuRegisterFollowInStack()));
+
+	// Stack View Shortcuts
+	stackFollowInCPUAction_   = createAction(tr("Follow Address In &CPU"),   QKeySequence(), SLOT(mnuStackFollowInCPU()));
+	stackFollowInDumpAction_  = createAction(tr("Follow Address In &Dump"),  QKeySequence(), SLOT(mnuStackFollowInDump()));
+	stackFollowInStackAction_ = createAction(tr("Follow Address In &Stack"), QKeySequence(), SLOT(mnuStackFollowInStack()));
+	stackEditBytesAction_     = createAction(tr("&Edit Bytes"),              QKeySequence(), SLOT(mnuStackModify()));
+	
+	// these get updated when we attach/run a new process, so it's OK to hard code them here	
+#if defined(EDB_X86_64)
+	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("RSP"),       QKeySequence(), SLOT(mnuStackGotoESP()));
+	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("RBP"),       QKeySequence(), SLOT(mnuStackGotoEBP()));
+	stackPushAction_    = createAction(tr("&Push %1").arg("QWORD"),    QKeySequence(), SLOT(mnuStackPush()));
+	stackPopAction_     = createAction(tr("P&op %1").arg("QWORD"),     QKeySequence(), SLOT(mnuStackPop()));
+#elif defined(EDB_X86)
+	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("ESP"),       QKeySequence(), SLOT(mnuStackGotoESP()));
+	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("EBP"),       QKeySequence(), SLOT(mnuStackGotoEBP()));
+	stackPushAction_    = createAction(tr("&Push %1").arg("DWORD"),    QKeySequence(), SLOT(mnuStackPush()));
+	stackPopAction_     = createAction(tr("P&op %1").arg("DWORD"),     QKeySequence(), SLOT(mnuStackPop()));
+#endif
+
 	
 	// set these to have no meaningful "data" (yet)
 	followConstantInDumpAction_->setData(qlonglong(0));
@@ -1001,9 +1025,9 @@ void Debugger::on_registerList_customContextMenuRequested(const QPoint &pos) {
 		if(const Register reg = edb::v1::arch_processor().value_from_item(*item)) {
 			if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP | Register::TYPE_COND)) {
 				QMenu menu;
-				menu.addAction(tr("&Follow In Dump"),           this, SLOT(mnuRegisterFollowInDump()));
-				menu.addAction(tr("&Follow In Dump (New Tab)"), this, SLOT(mnuRegisterFollowInDumpNewTab()));
-				menu.addAction(tr("&Follow In Stack"),          this, SLOT(mnuRegisterFollowInStack()));
+				menu.addAction(registerFollowInDumpAction_);
+				menu.addAction(registerFollowInDumpTabAction_);
+				menu.addAction(registerFollowInStackAction_);
 
 				add_plugin_context_menu(&menu, &IPlugin::register_context_menu);
 
@@ -1611,27 +1635,20 @@ void Debugger::mnuStackToggleLock(bool locked) {
 void Debugger::mnuStackContextMenu(const QPoint &pos) {
 
 	QMenu *const menu = stack_view_->createStandardContextMenu();
+
 	menu->addSeparator();
-	menu->addAction(tr("Follow Address In &CPU"), this, SLOT(mnuStackFollowInCPU()));
-	menu->addAction(tr("Follow Address In &Dump"), this, SLOT(mnuStackFollowInDump()));
-	menu->addAction(tr("Follow Address In &Stack"), this, SLOT(mnuStackFollowInStack()));
+	menu->addAction(stackFollowInCPUAction_);
+	menu->addAction(stackFollowInDumpAction_);
+	menu->addAction(stackFollowInStackAction_);	
 	menu->addAction(gotoAddressAction_);
-	if(edb::v1::debugger_core) {
-		menu->addAction(tr("Goto %1").arg(edb::v1::debugger_core->stack_pointer().toUpper()), this, SLOT(mnuStackGotoESP()));
-		menu->addAction(tr("Goto %1").arg(edb::v1::debugger_core->frame_pointer().toUpper()), this, SLOT(mnuStackGotoEBP()));
-	}
+	menu->addAction(stackGotoRSPAction_);
+	menu->addAction(stackGotoRBPAction_);
 
 	menu->addSeparator();
-	menu->addAction(tr("&Edit Bytes"), this, SLOT(mnuStackModify()));
+	menu->addAction(stackEditBytesAction_);
 	menu->addSeparator();
-
-	if(edb::v1::debuggeeIs64Bit()) {
-		menu->addAction(tr("&Push QWORD"), this, SLOT(mnuStackPush()));
-		menu->addAction(tr("P&op QWORD"), this, SLOT(mnuStackPop()));
-	} else {
-		menu->addAction(tr("&Push DWORD"), this, SLOT(mnuStackPush()));
-		menu->addAction(tr("P&op DWORD"), this, SLOT(mnuStackPop()));
-	}
+	menu->addAction(stackPushAction_);
+	menu->addAction(stackPopAction_);
 
 	// lockable stack feature
 	menu->addSeparator();
@@ -2830,10 +2847,17 @@ void Debugger::attachComplete() {
 	CapstoneEDB::init(edb::v1::debuggeeIs64Bit());
 	setup_data_views();
 	
+	QString ip   = edb::v1::debugger_core->instruction_pointer().toUpper();
+	QString sp   = edb::v1::debugger_core->stack_pointer().toUpper();
+	QString bp   = edb::v1::debugger_core->frame_pointer().toUpper();
+	QString word = edb::v1::debuggeeIs64Bit() ? "QWORD" : "DWORD";
 	
-	QString ip = edb::v1::debugger_core->instruction_pointer().toUpper();
-	setRIPAction_->setText(tr("&Set %1 to this Instruction").arg(ip));
-	gotoRIPAction_->setText(tr("&Goto %1").arg(ip));
+	setRIPAction_      ->setText(tr("&Set %1 to this Instruction").arg(ip));
+	gotoRIPAction_     ->setText(tr("&Goto %1").arg(ip));
+	stackGotoRSPAction_->setText(tr("Goto %1").arg(sp));
+	stackGotoRBPAction_->setText(tr("Goto %1").arg(bp));
+	stackPushAction_   ->setText(tr("&Push %1").arg(word));
+	stackPopAction_    ->setText(tr("P&op %1").arg(word));
 }
 
 //------------------------------------------------------------------------------
