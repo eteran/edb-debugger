@@ -516,6 +516,22 @@ void PlatformState::fillStruct(PrStatus_X86_64& regs) const
 	}
 }
 
+void PlatformState::fillStruct(UserFPRegsStructX86& regs) const {
+	util::markMemory(&regs,sizeof(regs));
+	if(x87.filled) {
+		regs.swd=x87.statusWord;
+		regs.cwd=x87.controlWord;
+		regs.twd=x87.tagWord;
+		regs.fip=x87.instPtrOffset;
+		regs.foo=x87.dataPtrOffset;
+		regs.fcs=x87.instPtrSelector;
+		regs.fos=x87.dataPtrSelector;
+		for(std::size_t n=0;n<MAX_FPU_REG_COUNT;++n)
+			std::memcpy(reinterpret_cast<char*>(regs.st_space)+10*x87.RIndexToSTIndex(n),&x87.R[n],sizeof(x87.R[n]));
+	}
+}
+
+
 edb::value128 PlatformState::AVX::xmm(std::size_t index) const {
 	return edb::value128(zmmStorage[index]);
 }
