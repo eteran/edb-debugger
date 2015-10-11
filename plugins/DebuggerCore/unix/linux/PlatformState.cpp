@@ -962,6 +962,20 @@ void PlatformState::set_register(const Register& reg) {
 		avx.mxcsr=edb::value32(value);
 		return;
 	}
+	{
+		QRegExp MMx("^mm([0-7])$");
+		if(MMx.indexIn(regName)!=-1) {
+			QChar digit=MMx.cap(1).at(0);
+			assert(digit.isDigit());
+			char digitChar=digit.toLatin1();
+			std::size_t i=digitChar-'0';
+			assert(mmxIndexValid(i));
+			std::memcpy(&x87.R[i],&value,sizeof value);
+			const uint16_t RiUpper=0xffff;
+			std::memcpy(reinterpret_cast<char*>(&x87.R[i])+sizeof value,&RiUpper,sizeof RiUpper);
+			return;
+		}
+	}
 	qDebug() << "fixme: set_register(0x"<< qPrintable(reg.toHexString()) <<"): didn't set register " << reg.name();
 }
 
