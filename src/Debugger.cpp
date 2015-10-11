@@ -86,10 +86,6 @@ const quint64 initial_bp_tag  = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in
 const quint64 stepover_bp_tag = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
 const quint64 run_to_cursor_tag = Q_UINT64_C(0x474f544f48455245); // "GOTOHERE" in hex
 
-const QKeySequence setRIPShortcut(QObject::tr("Ctrl+*"));
-const QKeySequence gotoRIPShortcut(QObject::tr("*"));
-
-
 //--------------------------------------------------------------------------
 // Name: is_instruction_ret
 //--------------------------------------------------------------------------
@@ -307,10 +303,20 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	fillWithZerosAction_         = createAction(tr("&Fill with 00's"),                               QKeySequence());
 	fillWithNOPsAction_          = createAction(tr("Fill with &NOPs"),                               QKeySequence());
 	removeBreakpointAction_      = createAction(tr("&Remove Breakpoint"),                            QKeySequence());
-	setAddressLabelAction_       = createAction(tr("Set Address &Label"),                            QKeySequence());
+	setAddressLabelAction_       = createAction(tr("Set Address &Label"),                            QKeySequence(tr(":")));
 	followConstantInDumpAction_  = createAction(tr("Follow Constant In &Dump"),                      QKeySequence());
 	followConstantInStackAction_ = createAction(tr("Follow Constant In &Stack"),                     QKeySequence());
 	followAction_                = createAction(tr("&Follow"),                                       QKeySequence());
+	
+	
+	// these get updated when we attach/run a new process, so it's OK to hard code them here
+#if defined(EDB_X86_64)
+	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("RIP"),         QKeySequence(tr("Ctrl+*")));
+	gotoRIPAction_               = createAction(tr("&Goto %1").arg("RIP"),                            QKeySequence(tr("*")));
+#elif defined(EDB_X86)
+	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("EIP"),         QKeySequence(tr("Ctrl+*")));
+	gotoRIPAction_               = createAction(tr("&Goto %1").arg("EIP"),                            QKeySequence(tr("*")));
+#endif
 	
 	// set these to have no meaningful "data" (yet)
 	followConstantInDumpAction_->setData(qlonglong(0));
@@ -334,11 +340,8 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	connect(followConstantInDumpAction_,  SIGNAL(activated()), this, SLOT(mnuCPUFollowInDump()));
 	connect(followConstantInStackAction_, SIGNAL(activated()), this, SLOT(mnuCPUFollowInStack()));
 	connect(followAction_,                SIGNAL(activated()), this, SLOT(mnuCPUFollow()));
-	
-	// Connect Set rIP to this instruction feature
-	connect(new QShortcut(setRIPShortcut, this), SIGNAL(activated()), this, SLOT(mnuCPUSetEIP()));
-	// Connect Goto rIP feature
-	connect(new QShortcut(gotoRIPShortcut, this), SIGNAL(activated()), this, SLOT(mnuCPUJumpToEIP()));
+	connect(setRIPAction_,                SIGNAL(activated()), this, SLOT(mnuCPUSetEIP()));
+	connect(gotoRIPAction_,               SIGNAL(activated()), this, SLOT(mnuCPUJumpToEIP()));	
 
 	setAcceptDrops(true);
 
@@ -1503,9 +1506,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	menu.addSeparator();
 
 	menu.addAction(gotoAddressAction_);
-	if(edb::v1::debugger_core) {
-		menu.addAction(tr("&Goto %1").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUJumpToEIP()), gotoRIPShortcut);
-	}
+	menu.addAction(gotoRIPAction_);
 
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	int size                     = ui.cpuView->selectedSize();
@@ -1551,9 +1552,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	}
 
 	menu.addSeparator();
-	if(edb::v1::debugger_core) {
-		menu.addAction(tr("&Set %1 to this Instruction").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUSetEIP()), setRIPShortcut);
-	}
+	menu.addAction(setRIPAction_);
 	menu.addAction(runToThisLineAction_);
 	menu.addAction(runToLinePassAction_);
 	menu.addSeparator();
@@ -2736,10 +2735,7 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 		tty_file_ = create_tty();
 
 		if(edb::v1::debugger_core->open(s, working_directory_, args, tty_file_)) {
-			set_initial_debugger_state();
 			test_native_binary();
-			CapstoneEDB::init(edb::v1::debuggeeIs64Bit());
-			setup_data_views();
 			set_initial_breakpoint(s);
 			attachComplete();
 			ret = true;
@@ -2820,8 +2816,6 @@ void Debugger::attach(edb::pid_t pid) {
 
 		working_directory_ = edb::v1::debugger_core->process()->current_working_directory();
 
-		set_initial_debugger_state();
-
 		QList<QByteArray> args = edb::v1::debugger_core->process()->arguments();
 
 		if(!args.empty()) {
@@ -2829,9 +2823,6 @@ void Debugger::attach(edb::pid_t pid) {
 		}
 
 		arguments_dialog_->set_arguments(args);
-
-		CapstoneEDB::init(edb::v1::debuggeeIs64Bit());
-		setup_data_views();
 		attachComplete();
 	} else {
 		QMessageBox::information(this, tr("Attach"), tr("Failed to attach to process, please check privileges and try again."));
@@ -2845,7 +2836,14 @@ void Debugger::attach(edb::pid_t pid) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::attachComplete() {
-
+	set_initial_debugger_state();
+	CapstoneEDB::init(edb::v1::debuggeeIs64Bit());
+	setup_data_views();
+	
+	
+	QString ip = edb::v1::debugger_core->instruction_pointer().toUpper();
+	setRIPAction_->setText(tr("&Set %1 to this Instruction").arg(ip));
+	gotoRIPAction_->setText(tr("&Goto %1").arg(ip));
 }
 
 //------------------------------------------------------------------------------

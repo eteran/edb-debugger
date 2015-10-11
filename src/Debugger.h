@@ -333,6 +333,8 @@ private:
 	QAction *followConstantInDumpAction_;
 	QAction *followConstantInStackAction_;
 	QAction *followAction_;
+	QAction *setRIPAction_;
+	QAction *gotoRIPAction_;
 };
 
 #endif
