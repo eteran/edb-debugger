@@ -86,13 +86,6 @@ const quint64 initial_bp_tag  = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in
 const quint64 stepover_bp_tag = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
 const quint64 run_to_cursor_tag = Q_UINT64_C(0x474f544f48455245); // "GOTOHERE" in hex
 
-const QKeySequence gotoAddressShortcut(QObject::tr("Ctrl+G"));
-const QKeySequence editCommentShortcut(QObject::tr(";"));
-const QKeySequence editBytesShortcut(QObject::tr("Ctrl+E"));
-const QKeySequence toggleBreakpointShortcut(QObject::tr("F2"));
-const QKeySequence conditionalBreakpointShortcut(QObject::tr("Shift+F2"));
-const QKeySequence runToThisLineShortcut(QObject::tr("F4"));
-const QKeySequence runToLinePassShortcut(QObject::tr("Shift+F4"));
 const QKeySequence setRIPShortcut(QObject::tr("Ctrl+*"));
 const QKeySequence gotoRIPShortcut(QObject::tr("*"));
 
@@ -270,6 +263,7 @@ private:
 	edb::address_t      ret_address_;
 };
 
+
 }
 
 //------------------------------------------------------------------------------
@@ -301,21 +295,27 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	// create a context menu for the tab bar as well
 	connect(ui.tabWidget, SIGNAL(customContextMenuRequested(int, const QPoint &)), this, SLOT(tab_context_menu(int, const QPoint &)));
 
-	connect(new QShortcut(gotoAddressShortcut, this), SIGNAL(activated()), this, SLOT(goto_triggered()));
-
-	//Connect the add/edit comment feature
-	connect(new QShortcut(editCommentShortcut, this), SIGNAL(activated()), this, SLOT(mnuCPUEditComment()));
-	connect(new QShortcut(editBytesShortcut, this), SIGNAL(activated()), this, SLOT(mnuCPUModify()));
-
-	// Connect the toggle breakpoint feature
-	connect(new QShortcut(toggleBreakpointShortcut, this), SIGNAL(activated()), this, SLOT(mnuCPUToggleBreakpoint()));
-	// Connect the conditional breakpoint feature
-	connect(new QShortcut(conditionalBreakpointShortcut, this), SIGNAL(activated()), this, SLOT(mnuCPUAddConditionalBreakpoint()));
-
-	// Connect the run to this line feature
-	connect(new QShortcut(runToThisLineShortcut, this), SIGNAL(activated()), this, SLOT(mnuCPURunToThisLine()));
-	// Connect the run to this line passing signal feature
-	connect(new QShortcut(runToLinePassShortcut, this), SIGNAL(activated()), this, SLOT(mnuCPURunToThisLinePassSignal()));
+	// create debugger wide actions
+	gotoAddressAction_           = createAction(tr("&Goto Address"),                                 QKeySequence(tr("Ctrl+G")));
+	editCommentAction_           = createAction(tr("Add &Comment"),                                  QKeySequence(tr(";")));
+	removeCommentAction_         = createAction(tr("Remove Comment"),                                QKeySequence());
+	editBytesAction_             = createAction(tr("&Edit Bytes"),                                   QKeySequence(tr("Ctrl+E")));
+	toggleBreakpointAction_      = createAction(tr("&Toggle Breakpoint"),                            QKeySequence(tr("F2")));
+	conditionalBreakpointAction_ = createAction(tr("Add &Conditional Breakpoint"),                   QKeySequence(tr("Shift+F2")));
+	runToThisLineAction_         = createAction(tr("R&un to this Line"),                             QKeySequence(tr("F4")));
+	runToLinePassAction_         = createAction(tr("Run to this Line (Pass Signal To Application)"), QKeySequence(tr("Shift+F4")));
+	
+	// connect them to events
+	connect(gotoAddressAction_,           SIGNAL(activated()), this, SLOT(goto_triggered()));
+	connect(editCommentAction_,           SIGNAL(activated()), this, SLOT(mnuCPUEditComment()));
+	connect(removeCommentAction_,         SIGNAL(activated()), this, SLOT(mnuCPURemoveComment()));
+	connect(editBytesAction_,             SIGNAL(activated()), this, SLOT(mnuCPUModify()));
+	connect(toggleBreakpointAction_,      SIGNAL(activated()), this, SLOT(mnuCPUToggleBreakpoint()));
+	connect(conditionalBreakpointAction_, SIGNAL(activated()), this, SLOT(mnuCPUAddConditionalBreakpoint()));
+	connect(runToThisLineAction_,         SIGNAL(activated()), this, SLOT(mnuCPURunToThisLine()));
+	connect(runToLinePassAction_,         SIGNAL(activated()), this, SLOT(mnuCPURunToThisLinePassSignal()));
+	
+	
 
 	// Connect Set rIP to this instruction feature
 	connect(new QShortcut(setRIPShortcut, this), SIGNAL(activated()), this, SLOT(mnuCPUSetEIP()));
@@ -356,6 +356,17 @@ Debugger::~Debugger() {
 	// kill our xterm and wait for it to die
 	tty_proc_->kill();
 	tty_proc_->waitForFinished(3000);
+}
+
+//------------------------------------------------------------------------------
+// Name: createAction
+// Desc:
+//------------------------------------------------------------------------------
+QAction *Debugger::createAction(const QString &text, const QKeySequence &keySequence) {
+	auto action = new QAction(text, this);
+	action->setShortcut(keySequence);
+	addAction(action);
+	return action;
 }
 
 //------------------------------------------------------------------------------
@@ -1466,14 +1477,14 @@ void Debugger::mnuStackPop() {
 void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	QMenu menu;
 
-	menu.addAction(tr("Add &Comment"), this, SLOT(mnuCPUEditComment()), editCommentShortcut);
-	menu.addAction(tr("Remove Comment"), this, SLOT(mnuCPURemoveComment()));
+	menu.addAction(editCommentAction_);
+	menu.addAction(removeCommentAction_);
 	menu.addSeparator();
 
 	menu.addAction(tr("Set Address &Label"), this, SLOT(mnuCPULabelAddress()));
 	menu.addSeparator();
 
-	menu.addAction(tr("&Goto Address"), this, SLOT(mnuCPUJumpToAddress()), gotoAddressShortcut);
+	menu.addAction(gotoAddressAction_);
 	if(edb::v1::debugger_core) {
 		menu.addAction(tr("&Goto %1").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUJumpToEIP()), gotoRIPShortcut);
 	}
@@ -1525,15 +1536,15 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	if(edb::v1::debugger_core) {
 		menu.addAction(tr("&Set %1 to this Instruction").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(mnuCPUSetEIP()), setRIPShortcut);
 	}
-	menu.addAction(tr("R&un to this Line"), this, SLOT(mnuCPURunToThisLine()), runToThisLineShortcut);
-	menu.addAction(tr("Run to this Line (Pass Signal To Application)"), this, SLOT(mnuCPURunToThisLinePassSignal()), runToLinePassShortcut);
+	menu.addAction(runToThisLineAction_);
+	menu.addAction(runToLinePassAction_);
 	menu.addSeparator();
-	menu.addAction(tr("&Edit Bytes"), this, SLOT(mnuCPUModify()), editBytesShortcut);
+	menu.addAction(editBytesAction_);
 	menu.addAction(tr("&Fill with 00's"), this, SLOT(mnuCPUFillZero()));
 	menu.addAction(tr("Fill with &NOPs"), this, SLOT(mnuCPUFillNop()));
 	menu.addSeparator();
-	menu.addAction(tr("&Toggle Breakpoint"), this, SLOT(mnuCPUToggleBreakpoint()), toggleBreakpointShortcut);
-	menu.addAction(tr("Add &Conditional Breakpoint"), this, SLOT(mnuCPUAddConditionalBreakpoint()), conditionalBreakpointShortcut);
+	menu.addAction(toggleBreakpointAction_);
+	menu.addAction(conditionalBreakpointAction_);
 	menu.addAction(tr("&Remove Breakpoint"), this, SLOT(mnuCPURemoveBreakpoint()));
 
 	add_plugin_context_menu(&menu, &IPlugin::cpu_context_menu);
@@ -1597,7 +1608,7 @@ void Debugger::mnuStackContextMenu(const QPoint &pos) {
 	menu->addAction(tr("Follow Address In &CPU"), this, SLOT(mnuStackFollowInCPU()));
 	menu->addAction(tr("Follow Address In &Dump"), this, SLOT(mnuStackFollowInDump()));
 	menu->addAction(tr("Follow Address In &Stack"), this, SLOT(mnuStackFollowInStack()));
-	menu->addAction(tr("&Goto Address"), this, SLOT(mnuStackGotoAddress()), gotoAddressShortcut);
+	menu->addAction(gotoAddressAction_);
 	if(edb::v1::debugger_core) {
 		menu->addAction(tr("Goto %1").arg(edb::v1::debugger_core->stack_pointer().toUpper()), this, SLOT(mnuStackGotoESP()));
 		menu->addAction(tr("Goto %1").arg(edb::v1::debugger_core->frame_pointer().toUpper()), this, SLOT(mnuStackGotoEBP()));
@@ -1643,7 +1654,7 @@ void Debugger::mnuDumpContextMenu(const QPoint &pos) {
 	menu->addAction(tr("Follow Address In &CPU"), this, SLOT(mnuDumpFollowInCPU()));
 	menu->addAction(tr("Follow Address In &Dump"), this, SLOT(mnuDumpFollowInDump()));
 	menu->addAction(tr("Follow Address In &Stack"), this, SLOT(mnuDumpFollowInStack()));
-	menu->addAction(tr("&Goto Address"), this, SLOT(mnuDumpGotoAddress()), gotoAddressShortcut);
+	menu->addAction(gotoAddressAction_);
 	menu->addSeparator();
 	menu->addAction(tr("&Edit Bytes"), this, SLOT(mnuDumpModify()));
 	menu->addSeparator();

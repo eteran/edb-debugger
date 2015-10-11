@@ -255,7 +255,7 @@ private:
 	void update_menu_state(GUI_STATE state);
 	void update_stack_view(const State &state);
 	void update_tab_caption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end);
-
+	QAction *createAction(const QString &text, const QKeySequence &keySequence);
 
 private:
 	template <class F>
@@ -315,6 +315,16 @@ private:
 #ifdef Q_OS_UNIX
 	edb::address_t                                   debug_pointer_;
 #endif
+
+private:
+	QAction *gotoAddressAction_;
+	QAction *editCommentAction_;
+	QAction *removeCommentAction_;
+	QAction *editBytesAction_;
+	QAction *toggleBreakpointAction_;
+	QAction *conditionalBreakpointAction_;
+	QAction *runToThisLineAction_;
+	QAction *runToLinePassAction_;
 };
 
 #endif
