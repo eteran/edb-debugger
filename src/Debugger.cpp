@@ -86,15 +86,15 @@ const quint64 initial_bp_tag  = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in
 const quint64 stepover_bp_tag = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
 const quint64 run_to_cursor_tag = Q_UINT64_C(0x474f544f48455245); // "GOTOHERE" in hex
 
-static const QKeySequence gotoAddressShortcut(QObject::tr("Ctrl+G"));
-static const QKeySequence editCommentShortcut(QObject::tr(";"));
-static const QKeySequence editBytesShortcut(QObject::tr("Ctrl+E"));
-static const QKeySequence toggleBreakpointShortcut(QObject::tr("F2"));
-static const QKeySequence conditionalBreakpointShortcut(QObject::tr("Shift+F2"));
-static const QKeySequence runToThisLineShortcut(QObject::tr("F4"));
-static const QKeySequence runToLinePassShortcut(QObject::tr("Shift+F4"));
-static const QKeySequence setRIPShortcut(QObject::tr("Ctrl+*"));
-static const QKeySequence gotoRIPShortcut(QObject::tr("*"));
+const QKeySequence gotoAddressShortcut(QObject::tr("Ctrl+G"));
+const QKeySequence editCommentShortcut(QObject::tr(";"));
+const QKeySequence editBytesShortcut(QObject::tr("Ctrl+E"));
+const QKeySequence toggleBreakpointShortcut(QObject::tr("F2"));
+const QKeySequence conditionalBreakpointShortcut(QObject::tr("Shift+F2"));
+const QKeySequence runToThisLineShortcut(QObject::tr("F4"));
+const QKeySequence runToLinePassShortcut(QObject::tr("Shift+F4"));
+const QKeySequence setRIPShortcut(QObject::tr("Ctrl+*"));
+const QKeySequence gotoRIPShortcut(QObject::tr("*"));
 
 
 //--------------------------------------------------------------------------
@@ -2732,6 +2732,9 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 void Debugger::execute(const QString &program, const QList<QByteArray> &args) {
 	if(common_open(program, args)) {
 		recent_file_manager_->add_file(program);
+#if 0		
+		arguments_dialog_->set_arguments(args);
+#endif
 	}
 }
 
