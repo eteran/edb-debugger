@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 #include <memory>
 
+class ThreadInfo;
+
 class IThread {
 public:
 	typedef std::shared_ptr<IThread> pointer;
