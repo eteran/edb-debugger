@@ -830,8 +830,10 @@ void ArchProcessor::edit_item(const QTreeWidgetItem &item) {
 		if(edb::v1::get_value_from_user(r, tr("Modify %1","register").arg(r.name().toUpper()))) {
 			State state;
 			edb::v1::debugger_core->get_state(&state);
-			state.set_register(r.name(), r.valueAsInteger());
-			edb::v1::debugger_core->set_state(state);
+			if(r && r.bitSize() <= 64) {
+				state.set_register(r.name(), r.valueAsInteger());
+				edb::v1::debugger_core->set_state(state);
+			}
 		}
 	}
 }
