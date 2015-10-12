@@ -194,7 +194,8 @@ QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(paren
 		selected_instruction_size_(0),
 		moving_line1_(false),
 		moving_line2_(false),
-		moving_line3_(false) {
+		moving_line3_(false),
+		selecting_address_(false) {
 
 
 	setShowAddressSeparator(true);
@@ -1159,9 +1160,10 @@ void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
 
 	Q_UNUSED(event);
 
-	moving_line1_ = false;
-	moving_line2_ = false;
-	moving_line3_ = false;
+	moving_line1_      = false;
+	moving_line2_      = false;
+	moving_line3_      = false;
+	selecting_address_ = false;
 
 	setCursor(Qt::ArrowCursor);
 	repaint();
@@ -1194,9 +1196,11 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 				moving_line3_ = true;
 			} else {
 				updateSelectedAddress(event);
+				selecting_address_ = true;
 			}
 		} else {
 			updateSelectedAddress(event);
+			selecting_address_ = true;
 		}
 	}
 }
@@ -1236,6 +1240,9 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 				setCursor(Qt::SplitHCursor);
 			} else {
 				setCursor(Qt::ArrowCursor);
+				if(selecting_address_) {
+					updateSelectedAddress(event);
+				}
 			}
 		}
 	}

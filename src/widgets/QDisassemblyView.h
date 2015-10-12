@@ -122,6 +122,7 @@ private:
 	bool                              moving_line1_;
 	bool                              moving_line2_;
 	bool                              moving_line3_;
+	bool                              selecting_address_;
 	bool                              show_address_separator_;
 	QHash<edb::address_t, QString>    comments_;
 };
