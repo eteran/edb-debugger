@@ -730,6 +730,8 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	const QPen address_pen(Qt::red);
 
 	IAnalyzer *const analyzer = edb::v1::analyzer();
+	
+	auto binary_info = edb::v1::get_binary_info(region_);
 
 	edb::address_t last_address = 0;
 	
@@ -780,6 +782,12 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			}
 		} else
 
+#if 1
+		// highlight header of binary
+		if(binary_info && address >= region_->start() && address - region_->start() < binary_info->header_size()) {		
+			painter.fillRect(0, y, width(), line_height, QBrush(Qt::lightGray));
+		} else
+#endif
 		if(row_index & 1) {
 			// draw alternating line backgrounds
 			painter.fillRect(0, y, width(), line_height, alternated_base_color);
