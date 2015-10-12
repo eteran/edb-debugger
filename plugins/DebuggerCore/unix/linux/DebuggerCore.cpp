@@ -111,6 +111,8 @@ namespace DebuggerCore {
 
 namespace {
 
+const edb::address_t PageSize = 0x1000;
+
 //------------------------------------------------------------------------------
 // Name: is_numeric
 // Desc: returns true if the string only contains decimal digits
@@ -206,14 +208,6 @@ DebuggerCore::DebuggerCore() :
 	USER_CS_64(osIs64Bit?0x33:0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
 	USER_SS(osIs64Bit?0x2b:0x7b)
 {
-#if defined(_SC_PAGESIZE)
-	page_size_ = sysconf(_SC_PAGESIZE);
-#elif defined(_SC_PAGE_SIZE)
-	page_size_ = sysconf(_SC_PAGE_SIZE);
-#else
-	page_size_ = PAGE_SIZE;
-#endif
-
 	qDebug() << "EDB is in" << (edbIsIn64BitSegment?"64":"32") << "bit segment";
 	qDebug() << "OS is" << (osIs64Bit?"64":"32") << "bit";
 }
@@ -265,7 +259,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 // Desc: returns the size of a page on this system
 //------------------------------------------------------------------------------
 edb::address_t DebuggerCore::page_size() const {
-	return page_size_;
+	return PageSize;
 }
 
 std::size_t DebuggerCore::pointer_size() const {

@@ -131,7 +131,6 @@ private:
 
 	typedef QHash<edb::tid_t, thread_info> threadmap_t;
 
-	edb::address_t   page_size_;
 	threadmap_t      threads_;
 	QSet<edb::tid_t> waited_threads_;
 	edb::tid_t       event_thread_;
