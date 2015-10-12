@@ -24,6 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <boost/functional/hash.hpp>
+#include <fstream>
 #include <sys/mman.h>
 
 using namespace DebuggerCore;
@@ -35,7 +37,6 @@ namespace {
 #elif defined(EDB_X86)
 #define EDB_WORDSIZE sizeof(quint32)
 #endif
-
 
 struct user_stat {
 /* 01 */ int pid;
@@ -544,10 +545,30 @@ edb::address_t PlatformProcess::data_address() const {
 // Desc:
 //------------------------------------------------------------------------------
 QList<IRegion::pointer> PlatformProcess::regions() const {
-	QList<IRegion::pointer> regions;
+	static QList<IRegion::pointer> regions;
+	static size_t totalHash = 0;
 
 	const QString map_file(QString("/proc/%1/maps").arg(pid_));
 
+	// hash the region file to see if it changed or not
+	{
+		std::ifstream mf(map_file.toStdString());
+		size_t newHash = 0;
+		std::string line;
+		
+		while(std::getline(mf,line)) {
+			boost::hash_combine(newHash, line);
+		}
+			
+		if(totalHash == newHash) {
+			return regions;
+		}
+		
+		totalHash = newHash;
+		regions.clear();
+	}
+
+	// it changed, so let's process it
 	QFile file(map_file);
     if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 
