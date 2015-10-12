@@ -1104,18 +1104,9 @@ void Debugger::on_cpuView_breakPointToggled(edb::address_t address) {
 //------------------------------------------------------------------------------
 void Debugger::on_registerList_itemDoubleClicked(QTreeWidgetItem *item) {
 	Q_ASSERT(item);
-
-	if(Register r = edb::v1::arch_processor().value_from_item(*item)) {
-		if(edb::v1::get_value_from_user(r, tr("Register Value"))) {
-
-			State state;
-			edb::v1::debugger_core->get_state(&state);
-			state.set_register(r.name(), r.valueAsInteger());
-			edb::v1::debugger_core->set_state(state);
-			update_gui();
-			refresh_gui();
-		}
-	}
+	edb::v1::arch_processor().edit_item(*item);
+	update_gui();
+	refresh_gui();
 }
 
 //------------------------------------------------------------------------------
