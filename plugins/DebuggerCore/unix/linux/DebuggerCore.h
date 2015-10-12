@@ -62,6 +62,7 @@ public:
 	virtual std::size_t read_pages(edb::address_t address, void *buf, std::size_t count);
 
 	std::size_t read_bytes(edb::address_t address, void *buf, std::size_t len);
+	std::size_t write_bytes(edb::address_t address, const void *buf, std::size_t len);
 
 public:
 	// thread support stuff (optional)
@@ -95,10 +96,6 @@ public:
 	
 public:
 	virtual IProcess *process() const;
-
-private:
-	virtual long read_data(edb::address_t address, bool *ok);
-	virtual bool write_data(edb::address_t address, long value);
 
 private:
 	long ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo);

@@ -451,40 +451,9 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: read_data
+// Name: read_bytes
 // Desc:
-// Note: this will fail on newer versions of linux if called from a
-//       different thread than the one which attached to process
 //------------------------------------------------------------------------------
-long DebuggerCore::read_data(edb::address_t address, bool *ok) {
-
-	Q_ASSERT(ok);
-
-	if(EDB_IS_32_BIT && address>0xffffffffULL) {
-		// 32 bit ptrace can't handle such long addresses, try reading /proc/$PID/mem
-		// FIXME: this is slow. Try keeping the file open, not reopening it on each read.
-		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-		if(memory_file.open(QIODevice::ReadOnly)) {
-
-			memory_file.seek(address);
-			long value;
-			if(memory_file.read(reinterpret_cast<char*>(&value), sizeof(long))==sizeof(long)) {
-				*ok=true;
-				return value;
-			}
-		}
-		return 0;
-	}
-
-	errno = 0;
-	// NOTE: on some Linux systems ptrace prototype has ellipsis instead of third and fourth arguments
-	// Thus we can't just pass address as is on IA32 systems: it'd put 64 bit integer on stack and cause UB
-	auto nativeAddress=reinterpret_cast<const void* const>(address.toUint());
-	const long v = ptrace(PTRACE_PEEKTEXT, pid(), nativeAddress, 0);
-	SET_OK(*ok, v);
-	return v;
-}
-
 std::size_t DebuggerCore::read_bytes(edb::address_t address, void* buf, std::size_t len) {
 	quint64 bytesRead=0;
 
@@ -510,35 +479,34 @@ std::size_t DebuggerCore::read_bytes(edb::address_t address, void* buf, std::siz
 }
 
 //------------------------------------------------------------------------------
+// Name: write_bytes
+// Desc:
+//------------------------------------------------------------------------------
+std::size_t DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
+	quint64 written = 0;
+
+	QFile memory_file(QString("/proc/%1/mem").arg(pid_));
+	if(memory_file.open(QIODevice::WriteOnly)) {
+
+		memory_file.seek(address);
+		written = memory_file.write(reinterpret_cast<const char *>(buf), len);
+		if(written == 0 || written == quint64(-1)) {
+			return 0;
+		}
+
+		memory_file.close();
+	}
+
+	return written;
+}
+
+//------------------------------------------------------------------------------
 // Name: read_pages
 // Desc:
 //------------------------------------------------------------------------------
 std::size_t DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
 
 	return read_bytes(address,buf,count*page_size())/page_size();
-}
-
-
-//------------------------------------------------------------------------------
-// Name: write_data
-// Desc:
-//------------------------------------------------------------------------------
-bool DebuggerCore::write_data(edb::address_t address, long value) {
-	if(EDB_IS_32_BIT && address>0xffffffffULL) {
-		// 32 bit ptrace can't handle such long addresses
-		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-		if(memory_file.open(QIODevice::WriteOnly)) {
-
-			memory_file.seek(address);
-			if(memory_file.write(reinterpret_cast<char*>(&value), sizeof(long))==sizeof(long))
-				return true;
-		}
-		return false;
-	}
-	// NOTE: on some Linux systems ptrace prototype has ellipsis instead of third and fourth arguments
-	// Thus we can't just pass address as is on IA32 systems: it'd put 64 bit integer on stack and cause UB
-	auto nativeAddress=reinterpret_cast<const void* const>(address.toUint());
-	return ptrace(PTRACE_POKETEXT, pid(), nativeAddress, value) != -1;
 }
 
 //------------------------------------------------------------------------------

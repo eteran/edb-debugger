@@ -135,68 +135,12 @@ std::size_t PlatformProcess::read_bytes(const edb::address_t address, void *buf,
 std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
 
 	Q_ASSERT(buf);
-
-	bool ok = false;
-
-	auto p = reinterpret_cast<const quint8 *>(buf);
-	std::size_t n = 0;
-	while(len--) {
-		write_byte(address++, *p++, &ok);
-		if(!ok) {
-			break;
-		}
-		++n;
+	
+	if(len != 0) {
+		return core_->write_bytes(address, buf, len);
 	}
-
-	return n;
-}
-
-//------------------------------------------------------------------------------
-// Name: write_byte
-// Desc: writes a single byte at a given address
-// Note: assumes the this will not trample any breakpoints, must be handled
-//       in calling code!
-//------------------------------------------------------------------------------
-void PlatformProcess::write_byte(edb::address_t address, quint8 value, bool *ok) {
-	// TODO(eteran): assert that we are paused
-
-	Q_ASSERT(ok);
-
-	*ok = false;
-
-	long v;
-	long mask;
-	// core_->page_size() - 1 will always be 0xf* because pagesizes
-	// are always 0x10*, so the masking works
-	// range of a is [1..n] where n=pagesize, and we have to adjust
-	// if a < wordsize
-	const edb::address_t a = core_->page_size() - (address & (core_->page_size() - 1));
-
-	v = value;
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-	if(a < EDB_WORDSIZE) {
-		address -= (EDB_WORDSIZE - a);                       // LE + BE
-		mask = ~(0xffUL << (CHAR_BIT * (EDB_WORDSIZE - a))); // LE
-		v <<= CHAR_BIT * (EDB_WORDSIZE - a);                 // LE
-	} else {
-		mask = ~0xffUL; // LE
-	}
-#else /* BIG ENDIAN */
-	if(a < EDB_WORDSIZE) {
-		address -= (EDB_WORDSIZE - a);            // LE + BE
-		mask = ~(0xffUL << (CHAR_BIT * (a - 1))); // BE
-		v <<= CHAR_BIT * (a - 1);                 // BE
-	} else {
-		mask = ~(0xffUL << (CHAR_BIT * (EDB_WORDSIZE - 1))); // BE
-		v <<= CHAR_BIT * (EDB_WORDSIZE - 1);                 // BE
-	}
-#endif
-
-	v |= (core_->read_data(address, ok) & mask);
-	if(*ok) {
-		*ok = core_->write_data(address, v);
-	}
-
+	
+	return 0;
 }
 
 //------------------------------------------------------------------------------
