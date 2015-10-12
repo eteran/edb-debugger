@@ -61,11 +61,6 @@ public:
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty);
 	
 public:
-	std::size_t read_pages(edb::address_t address, void *buf, std::size_t count);
-	std::size_t read_bytes(edb::address_t address, void *buf, std::size_t len);
-	std::size_t write_bytes(edb::address_t address, const void *buf, std::size_t len);
-
-public:
 	// thread support stuff (optional)
 	virtual QList<edb::tid_t> thread_ids() const { return threads_.keys(); }
 	virtual edb::tid_t active_thread() const     { return active_thread_; }

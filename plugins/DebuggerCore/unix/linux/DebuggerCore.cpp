@@ -451,65 +451,6 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: read_bytes
-// Desc:
-//------------------------------------------------------------------------------
-std::size_t DebuggerCore::read_bytes(edb::address_t address, void* buf, std::size_t len) {
-	quint64 bytesRead=0;
-
-	QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-	if(memory_file.open(QIODevice::ReadOnly)) {
-
-		memory_file.seek(address);
-		bytesRead = memory_file.read(reinterpret_cast<char *>(buf), len);
-		if(bytesRead==0 || bytesRead==quint64(-1))
-			return 0;
-
-		for(const IBreakpoint::pointer &bp: breakpoints_) {
-			if(bp->address() >= address && bp->address() < (address + bytesRead)) {
-				// show the original bytes in the buffer..
-				reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_byte();
-			}
-		}
-
-		memory_file.close();
-	}
-
-	return bytesRead;
-}
-
-//------------------------------------------------------------------------------
-// Name: write_bytes
-// Desc:
-//------------------------------------------------------------------------------
-std::size_t DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
-	quint64 written = 0;
-
-	QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-	if(memory_file.open(QIODevice::WriteOnly)) {
-
-		memory_file.seek(address);
-		written = memory_file.write(reinterpret_cast<const char *>(buf), len);
-		if(written == 0 || written == quint64(-1)) {
-			return 0;
-		}
-
-		memory_file.close();
-	}
-
-	return written;
-}
-
-//------------------------------------------------------------------------------
-// Name: read_pages
-// Desc:
-//------------------------------------------------------------------------------
-std::size_t DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
-
-	return read_bytes(address,buf,count*page_size())/page_size();
-}
-
-//------------------------------------------------------------------------------
 // Name: attach_thread
 // Desc:
 //------------------------------------------------------------------------------

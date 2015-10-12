@@ -47,6 +47,12 @@ public:
 	virtual std::size_t read_pages(edb::address_t address, void *buf, size_t count);
 
 private:
+	bool write_data(edb::address_t address, long value);
+	long read_data(edb::address_t address, bool *ok);
+	void write_byte(edb::address_t address, quint8 value, bool *ok);
+	quint8 read_byte(edb::address_t address, bool *ok);
+
+private:
 	DebuggerCore* core_;
 	edb::pid_t    pid_;
 };
