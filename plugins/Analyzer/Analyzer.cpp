@@ -70,9 +70,8 @@ const int MIN_REFCOUNT = 2;
 edb::address_t module_entry_point(const IRegion::pointer &region) {
 
 	edb::address_t entry = 0;
-	if(IBinary *const binary_info = edb::v1::get_binary_info(region)) {
+	if(auto binary_info = edb::v1::get_binary_info(region)) {
 		entry = binary_info->entry_point();
-		delete binary_info;
 	}
 
 	return entry;

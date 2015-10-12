@@ -127,7 +127,7 @@ private:
 	threadmap_t      threads_;
 	QSet<edb::tid_t> waited_threads_;
 	edb::tid_t       event_thread_;
-	IBinary          *binary_info_;
+	std::unique_ptr<IBinary> binary_info_;
 	IProcess         *process_;
 	std::size_t      pointer_size_;
 	const bool       edbIsIn64BitSegment;

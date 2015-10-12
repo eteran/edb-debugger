@@ -44,9 +44,9 @@ class QLabel;
 #include <QMainWindow>
 #include <QProcess>
 #include <QVector>
-#include <QScopedPointer>
 
 #include <cstring>
+#include <memory>
 
 #include "ui_Debugger.h"
 
@@ -303,7 +303,7 @@ private:
 	QSharedPointer<QHexView::CommentServerInterface> stack_comment_server_;
 	IBreakpoint::pointer                             reenable_breakpoint_run_;
 	IBreakpoint::pointer                             reenable_breakpoint_step_;
-	QScopedPointer<IBinary>                          binary_info_;
+	std::unique_ptr<IBinary>                         binary_info_;
 
 	QString                                          last_open_directory_;
 	QString                                          working_directory_;

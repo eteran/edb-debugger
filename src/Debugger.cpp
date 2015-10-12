@@ -2608,7 +2608,7 @@ void Debugger::set_initial_debugger_state() {
 	}
 
 	// create our binary info object for the primary code module
-	binary_info_.reset(edb::v1::get_binary_info(edb::v1::primary_code_region()));
+	binary_info_ = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
 	stack_comment_server_->clear();
 	if(binary_info_) {

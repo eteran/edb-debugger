@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "API.h"
 #include "IRegion.h"
 #include "Types.h"
+#include <memory>
 
 class EDB_EXPORT IBinary {
 public:
@@ -42,7 +43,7 @@ public:
 	virtual edb::address_t debug_pointer() { return 0; }
 
 public:
-	typedef IBinary *(*create_func_ptr_t)(const IRegion::pointer &);
+	typedef std::unique_ptr<IBinary> (*create_func_ptr_t)(const IRegion::pointer &);
 };
 
 #endif

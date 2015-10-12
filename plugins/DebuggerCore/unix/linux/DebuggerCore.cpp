@@ -199,7 +199,7 @@ bool os64Bit(bool edbIsIn64BitSegment) {
 // Desc: constructor
 //------------------------------------------------------------------------------
 DebuggerCore::DebuggerCore() : 
-	binary_info_(0),
+	binary_info_(nullptr),
 	process_(0),
 	pointer_size_(sizeof(void*)),
 	edbIsIn64BitSegment(in64BitSegment()),
@@ -940,8 +940,7 @@ void DebuggerCore::reset() {
 	active_thread_ = 0;
 	pid_           = 0;
 	event_thread_  = 0;
-	delete binary_info_;
-	binary_info_   = 0;
+	binary_info_   = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -1010,7 +1009,7 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 // Desc:
 //------------------------------------------------------------------------------
 template<class Addr>
-QList<Module> loaded_modules_(IProcess* process, IBinary* binary_info_) {
+QList<Module> loaded_modules_(IProcess* process, const std::unique_ptr<IBinary> &binary_info_) {
 	QList<Module> ret;
 
 	if(binary_info_) {

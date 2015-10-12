@@ -535,9 +535,9 @@ void DialogHeader::on_btnExplore_clicked() {
 			const QModelIndex index = filter_model_->mapToSource(selected_item);
 			if(auto region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
-				if(IBinary *binary_info = edb::v1::get_binary_info(region)) {
+				if(auto binary_info = edb::v1::get_binary_info(region)) {
 
-					if(auto elf32 = dynamic_cast<ELF32 *>(binary_info)) {
+					if(auto elf32 = dynamic_cast<ELF32 *>(binary_info.get())) {
 
 						auto header = reinterpret_cast<const elf32_header *>(elf32->header());
 
@@ -558,7 +558,7 @@ void DialogHeader::on_btnExplore_clicked() {
 						ui->treeWidget->insertTopLevelItem(0, root);
 					}
 
-					if(auto elf64 = dynamic_cast<ELF64 *>(binary_info)) {
+					if(auto elf64 = dynamic_cast<ELF64 *>(binary_info.get())) {
 
 						auto header = reinterpret_cast<const elf64_header *>(elf64->header());
 
@@ -579,7 +579,7 @@ void DialogHeader::on_btnExplore_clicked() {
 						ui->treeWidget->insertTopLevelItem(0, root);
 					}
 
-					if(auto pe32 = dynamic_cast<PE32 *>(binary_info)) {
+					if(auto pe32 = dynamic_cast<PE32 *>(binary_info.get())) {
 						Q_UNUSED(pe32);
 					#if 0
 						auto header = reinterpret_cast<const pe32_header *>(pe32->header());
@@ -588,8 +588,6 @@ void DialogHeader::on_btnExplore_clicked() {
 						root->setText(0, tr("PE32"));
 						ui->treeWidget->insertTopLevelItem(0, root);
 					}
-
-					delete binary_info;
 				}
 			}
 		}

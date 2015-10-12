@@ -84,9 +84,8 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 			}
 
 			// highlight header of binary (probably not going to be too noticeable but just in case)
-			if(IBinary *const binary_info = edb::v1::get_binary_info(region)) {
+			if(auto binary_info = edb::v1::get_binary_info(region)) {
 				painter.fillRect(0, 0, binary_info->header_size() * byte_width, height(), QBrush(Qt::darkBlue));
-				delete binary_info;
 			}
 
 			if(functions.isEmpty()) {

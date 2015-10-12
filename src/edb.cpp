@@ -44,7 +44,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QInputDialog>
 #include <QMessageBox>
-#include <QScopedPointer>
 #include <QLabel>
 
 #include <cctype>
@@ -804,18 +803,16 @@ bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
 //       or NULL if none-found.
 // Note: the caller is responsible for deleting the object!
 //------------------------------------------------------------------------------
-IBinary *get_binary_info(const IRegion::pointer &region) {
+std::unique_ptr<IBinary> get_binary_info(const IRegion::pointer &region) {
 	for(IBinary::create_func_ptr_t f: g_BinaryInfoList) {
-		IBinary *const p = (*f)(region);
+		std::unique_ptr<IBinary> p((*f)(region));
 
 		if(p->validate_header()) {
 			return p;
 		}
-
-		delete p;
 	}
 
-	return 0;
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -831,7 +828,7 @@ address_t locate_main_function() {
 			memory_regions().sync();
 			if(IRegion::pointer region = memory_regions().find_region(address)) {
 
-				QScopedPointer<IBinary> binfo(get_binary_info(region));
+				std::unique_ptr<IBinary> binfo(get_binary_info(region));
 				if(binfo) {
 					const address_t main_func = binfo->calculate_main();
 					if(main_func != 0) {

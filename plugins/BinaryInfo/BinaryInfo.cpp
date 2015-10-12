@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 
 #include <fstream>
+#include <memory>
 
 namespace BinaryInfo {
 namespace {
@@ -38,24 +39,24 @@ namespace {
 // Name: create_binary_info_elf32
 // Desc:
 //------------------------------------------------------------------------------
-IBinary *create_binary_info_elf32(const IRegion::pointer &region) {
-	return new ELF32(region);
+std::unique_ptr<IBinary> create_binary_info_elf32(const IRegion::pointer &region) {
+	return std::unique_ptr<IBinary>(new ELF32(region));
 }
 
 //------------------------------------------------------------------------------
 // Name: create_binary_info_elf64
 // Desc:
 //------------------------------------------------------------------------------
-IBinary *create_binary_info_elf64(const IRegion::pointer &region) {
-	return new ELF64(region);
+std::unique_ptr<IBinary> create_binary_info_elf64(const IRegion::pointer &region) {
+	return std::unique_ptr<IBinary>(new ELF64(region));
 }
 
 //------------------------------------------------------------------------------
 // Name: create_binary_info_pe32
 // Desc:
 //------------------------------------------------------------------------------
-IBinary *create_binary_info_pe32(const IRegion::pointer &region) {
-	return new PE32(region);
+std::unique_ptr<IBinary> create_binary_info_pe32(const IRegion::pointer &region) {
+	return std::unique_ptr<IBinary>(new PE32(region));
 }
 
 }
