@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 
 class ThreadInfo;
+class State;
 
 class IThread {
 public:
@@ -37,10 +38,17 @@ public:
 public:
 	virtual void resume() = 0;
 	virtual void step() = 0;
+	virtual void pause() = 0;
+	virtual void resume(edb::EVENT_STATUS status) = 0;
+	virtual void step(edb::EVENT_STATUS status) = 0;
 	
 public:
 	// TODO(eteran): maybe break this up into piece by piece functions
 	virtual ThreadInfo info() const = 0;
+	
+public:
+	virtual void get_state(State *state) = 0;
+	virtual void set_state(const State &state) = 0;
 };
 
 #endif
