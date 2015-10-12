@@ -52,6 +52,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCore {
 
 namespace {
+
+void SET_OK(bool &ok, long value) {
+	ok = (value != -1) || (errno == 0);
+}
+
 int resume_code(int status) {
 	if(WIFSIGNALED(status)) {
 		return WTERMSIG(status);

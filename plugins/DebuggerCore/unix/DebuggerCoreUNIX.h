@@ -48,11 +48,6 @@ protected:
 public:
 	virtual std::size_t pointer_size() const override;
 	virtual QMap<long, QString> exceptions() const;
-
-protected:
-	void SET_OK(bool &ok, long value) {
-		ok = (value != -1) || (errno == 0);
-	}
 };
 
 }
