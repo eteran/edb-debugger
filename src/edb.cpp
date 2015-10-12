@@ -827,9 +827,7 @@ address_t locate_main_function() {
 			const address_t address = process->code_address();
 			memory_regions().sync();
 			if(IRegion::pointer region = memory_regions().find_region(address)) {
-
-				std::unique_ptr<IBinary> binfo(get_binary_info(region));
-				if(binfo) {
+				if(auto binfo = get_binary_info(region)) {
 					const address_t main_func = binfo->calculate_main();
 					if(main_func != 0) {
 						return main_func;
