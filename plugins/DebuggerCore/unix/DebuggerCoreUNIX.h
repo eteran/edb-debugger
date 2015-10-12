@@ -46,7 +46,6 @@ protected:
 	void execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args);
 
 public:
-	virtual std::size_t pointer_size() const override;
 	virtual QMap<long, QString> exceptions() const;
 };
 

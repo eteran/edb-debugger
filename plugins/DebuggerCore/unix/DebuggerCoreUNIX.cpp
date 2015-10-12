@@ -32,12 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/wait.h>
 #include <unistd.h>
 
-#ifdef EDB_X86_64
-#define EDB_WORDSIZE sizeof(quint64)
-#elif defined(EDB_X86)
-#define EDB_WORDSIZE sizeof(quint32)
-#endif
-
 namespace DebuggerCore {
 
 namespace {
@@ -235,14 +229,6 @@ void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, 
 			delete [] argv_pointers;
 		}
 	}
-}
-
-//------------------------------------------------------------------------------
-// Name: pointer_size
-// Desc: returns the size of a pointer on this arch
-//------------------------------------------------------------------------------
-std::size_t DebuggerCoreUNIX::pointer_size() const {
-	return EDB_WORDSIZE;
 }
 
 //------------------------------------------------------------------------------
