@@ -19,9 +19,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ITHREAD_20150529_H_
 #define ITHREAD_20150529_H_
 
+#include "Types.h"
+#include <memory>
+
 class IThread {
 public:
+	typedef std::shared_ptr<IThread> pointer;
+	
+public:
 	virtual ~IThread() {}
+	
+public:
+	virtual edb::tid_t tid() const = 0;
+	
+public:
+	virtual void resume() = 0;
+	virtual void step() = 0;
+	
+public:
+	// TODO(eteran): maybe break this up into piece by piece functions
+	virtual ThreadInfo info() const = 0;
 };
 
 #endif
