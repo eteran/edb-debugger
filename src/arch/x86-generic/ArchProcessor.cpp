@@ -825,6 +825,17 @@ Register ArchProcessor::value_from_item(const QTreeWidgetItem &item) {
 	return state[name];
 }
 
+void ArchProcessor::edit_item(const QTreeWidgetItem &item) {
+	if(Register r = value_from_item(item)) {
+		if(edb::v1::get_value_from_user(r, tr("Modify %1","register").arg(r.name().toUpper()))) {
+			State state;
+			edb::v1::debugger_core->get_state(&state);
+			state.set_register(r.name(), r.valueAsInteger());
+			edb::v1::debugger_core->set_state(state);
+		}
+	}
+}
+
 //------------------------------------------------------------------------------
 // Name: update_register
 // Desc:

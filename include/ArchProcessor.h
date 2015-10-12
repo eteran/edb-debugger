@@ -42,6 +42,7 @@ public:
 public:
 	QStringList update_instruction_info(edb::address_t address);
 	Register value_from_item(const QTreeWidgetItem &item);
+	void edit_item(const QTreeWidgetItem &item);
 	bool can_step_over(const edb::Instruction &inst) const;
 	bool is_filling(const edb::Instruction &inst) const;
 	void reset();
