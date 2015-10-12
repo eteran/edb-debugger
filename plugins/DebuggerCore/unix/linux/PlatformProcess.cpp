@@ -111,71 +111,44 @@ std::size_t PlatformProcess::read_pages(edb::address_t address, void *buf, std::
 	return core_->read_pages(address,buf,count);
 }
 
-bool PlatformProcess::read_bytes_one_by_one(edb::address_t address, void* buf, std::size_t len) {
-
-	if(len != 0) {
-		bool ok;
-		auto p = reinterpret_cast<quint8 *>(buf);
-		quint8 ch = read_byte(address, &ok);
-
-		while(ok && len) {
-			*p++ = ch;
-			if(--len) {
-				++address;
-				ch = read_byte(address, &ok);
-			}
-		}
-
-		if(!ok) {
-			while(len--) {
-				*p++ = 0xff;
-			}
-		}
-
-		return ok;
-	}
-
-	return true;
-}
-
 //------------------------------------------------------------------------------
 // Name: read_bytes
 // Desc: reads <len> bytes into <buf> starting at <address>
-// Note: if the read failed, the part of the buffer that could not be read will
-//       be filled with 0xff bytes
+// Note: returns the number of bytes read <N>
+// Note: if the read is short, only the first <N> bytes are defined
 //------------------------------------------------------------------------------
-bool PlatformProcess::read_bytes(const edb::address_t address, void *buf, const std::size_t len) {
+std::size_t PlatformProcess::read_bytes(const edb::address_t address, void *buf, const std::size_t len) {
 
 	Q_ASSERT(buf);
 
 	if(len != 0) {
-		bool ok = len==core_->read_bytes(address,buf,len);
-		if(!ok) return read_bytes_one_by_one(address,buf,len);
+		return core_->read_bytes(address, buf, len);
 	}
 
-	return true;
+	return 0;
 }
 
 //------------------------------------------------------------------------------
 // Name: write_bytes
 // Desc: writes <len> bytes from <buf> starting at <address>
 //------------------------------------------------------------------------------
-bool PlatformProcess::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
+std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
 
 	Q_ASSERT(buf);
 
 	bool ok = false;
 
 	auto p = reinterpret_cast<const quint8 *>(buf);
-
+	std::size_t n = 0;
 	while(len--) {
 		write_byte(address++, *p++, &ok);
 		if(!ok) {
 			break;
 		}
+		++n;
 	}
 
-	return ok;
+	return n;
 }
 
 //------------------------------------------------------------------------------
@@ -224,68 +197,6 @@ void PlatformProcess::write_byte(edb::address_t address, quint8 value, bool *ok)
 		*ok = core_->write_data(address, v);
 	}
 
-}
-
-//------------------------------------------------------------------------------
-// Name: read_byte
-// Desc: reads a single bytes at a given address
-//------------------------------------------------------------------------------
-quint8 PlatformProcess::read_byte(edb::address_t address, bool *ok) {
-
-	const quint8 ret = read_byte_base(address, ok);
-
-	if(ok) {
-		if(const IBreakpoint::pointer bp = core_->find_breakpoint(address)) {
-			return bp->original_byte();
-		}
-	}
-
-	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name: read_byte_base
-// Desc: the base implementation of reading a byte
-//------------------------------------------------------------------------------
-quint8 PlatformProcess::read_byte_base(edb::address_t address, bool *ok) {
-	// TODO(eteran): assert that we are paused
-
-	Q_ASSERT(ok);
-
-	*ok = false;
-	errno = -1;
-
-	// if this spot is unreadable, then just return 0xff, otherwise
-	// continue as normal.
-
-	// core_->page_size() - 1 will always be 0xf* because pagesizes
-	// are always 0x10*, so the masking works
-	// range of a is [1..n] where n=pagesize, and we have to adjust
-	// if a < wordsize
-	const edb::address_t a = core_->page_size() - (address & (core_->page_size() - 1));
-
-	if(a < EDB_WORDSIZE) {
-		address -= (EDB_WORDSIZE - a); // LE + BE
-	}
-
-	long value = core_->read_data(address, ok);
-
-	if(*ok) {
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-		if(a < EDB_WORDSIZE) {
-			value >>= CHAR_BIT * (EDB_WORDSIZE - a); // LE
-		}
-#else
-		if(a < EDB_WORDSIZE) {
-			value >>= CHAR_BIT * (a - 1);            // BE
-		} else {
-			value >>= CHAR_BIT * (EDB_WORDSIZE - 1); // BE
-		}
-#endif
-		return value & 0xff;
-	}
-
-	return 0xff;
 }
 
 //------------------------------------------------------------------------------

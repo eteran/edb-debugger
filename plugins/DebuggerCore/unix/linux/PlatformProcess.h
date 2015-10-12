@@ -42,15 +42,12 @@ public:
 	virtual QList<IRegion::pointer> regions() const;
 
 public:
-	virtual bool write_bytes(edb::address_t address, const void *buf, size_t len);
-	virtual bool read_bytes(edb::address_t address, void *buf, size_t len);
+	virtual std::size_t write_bytes(edb::address_t address, const void *buf, size_t len);
+	virtual std::size_t read_bytes(edb::address_t address, void *buf, size_t len);
 	virtual std::size_t read_pages(edb::address_t address, void *buf, size_t count);
 
 private:
-	bool read_bytes_one_by_one(edb::address_t address, void *buf, size_t len);
-	quint8 read_byte(edb::address_t address, bool *ok);
 	void write_byte(edb::address_t address, quint8 value, bool *ok);
-	quint8 read_byte_base(edb::address_t address, bool *ok);
 
 private:
 	DebuggerCore* core_;

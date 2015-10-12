@@ -47,8 +47,8 @@ public:
 	// returns true on success, false on failure, all bytes must be successfully
 	// read/written in order for a success. The debugged application should be stopped
 	// or this will return false immediately.
-	virtual bool write_bytes(edb::address_t address, const void *buf, size_t len) = 0;
-	virtual bool read_bytes(edb::address_t address, void *buf, size_t len) = 0;
+	virtual std::size_t write_bytes(edb::address_t address, const void *buf, size_t len) = 0;
+	virtual std::size_t read_bytes(edb::address_t address, void *buf, size_t len) = 0;
 	virtual std::size_t read_pages(edb::address_t address, void *buf, size_t count) = 0;
 };
 
