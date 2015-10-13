@@ -34,7 +34,8 @@ public:
 	
 public:
 	virtual edb::tid_t tid() const = 0;
-	
+
+#if 0
 public:
 	virtual void resume() = 0;
 	virtual void step() = 0;
@@ -49,6 +50,7 @@ public:
 public:
 	virtual void get_state(State *state) = 0;
 	virtual void set_state(const State &state) = 0;
+#endif
 };
 
 #endif
