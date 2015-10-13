@@ -184,6 +184,7 @@ int main(int argc, char *argv[]) {
 	QApplication::setOrganizationName("codef00.com");
 	QApplication::setOrganizationDomain("codef00.com");
 	QApplication::setApplicationName("edb");
+	QApplication::setApplicationVersion(edb::version);
 
 	load_translations();
 
