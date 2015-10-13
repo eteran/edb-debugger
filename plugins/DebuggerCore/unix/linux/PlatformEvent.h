@@ -34,8 +34,8 @@ public:
 	PlatformEvent();
 	
 private:
-	PlatformEvent(const PlatformEvent &) = delete;
-	PlatformEvent& operator=(const PlatformEvent &) = delete;
+	PlatformEvent(const PlatformEvent &) = default;
+	PlatformEvent& operator=(const PlatformEvent &) = default;
 
 public:
 	virtual IDebugEvent *clone() const override;
