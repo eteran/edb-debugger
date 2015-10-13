@@ -32,6 +32,10 @@ class PlatformEvent : public IDebugEvent {
 
 public:
 	PlatformEvent();
+	
+private:
+	PlatformEvent(const PlatformEvent &) = delete;
+	PlatformEvent& operator=(const PlatformEvent &) = delete;
 
 public:
 	virtual IDebugEvent *clone() const override;
