@@ -31,7 +31,7 @@ PlatformEvent::PlatformEvent() : pid_(0), tid_(0), status_(0) {
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-PlatformEvent *PlatformEvent::clone() const {
+IDebugEvent *PlatformEvent::clone() const {
 	return new PlatformEvent(*this);
 }
 

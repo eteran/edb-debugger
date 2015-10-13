@@ -34,7 +34,7 @@ public:
 	PlatformEvent();
 
 public:
-	virtual PlatformEvent *clone() const;
+	virtual IDebugEvent *clone() const;
 
 public:
 	virtual Message error_description() const;
