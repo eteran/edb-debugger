@@ -22,8 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
-#include <QScopedPointer>
 #include <QTableWidgetItem>
+#include <memory>
 
 #include "ui_Bookmarks.h"
 
@@ -90,7 +90,7 @@ void BookmarkWidget::on_btnAdd_clicked() {
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::on_btnDel_clicked() {
-	QScopedPointer<QTableWidgetItem> item(ui->tableWidget->takeItem(ui->tableWidget->currentRow(), 0));
+	std::unique_ptr<QTableWidgetItem> item(ui->tableWidget->takeItem(ui->tableWidget->currentRow(), 0));
 	ui->tableWidget->removeRow(ui->tableWidget->currentRow());
 	if(item) {
 		const edb::address_t address = item->data(Qt::UserRole).toULongLong();
