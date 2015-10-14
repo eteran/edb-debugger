@@ -416,21 +416,25 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::stop_threads() {
-	for(auto it = threads_.begin(); it != threads_.end(); ++it) {
-		if(!waited_threads_.contains(it.key())) {
-			PlatformThread::pointer &thread = it.value();
-		
-			const edb::tid_t tid = it.key();
+	if(process_) {
+		for(auto &thread: process_->threads()) {
+			const edb::tid_t tid = thread->tid();
 
-			syscall(SYS_tgkill, pid(), tid, SIGSTOP);
+			if(!waited_threads_.contains(tid)) {
+			
+				if(auto thread_ptr = static_cast<PlatformThread *>(thread.get())) {
+			
+					syscall(SYS_tgkill, pid(), tid, SIGSTOP);
 
-			int thread_status;
-			if(native::waitpid(tid, &thread_status, __WALL) > 0) {
-				waited_threads_.insert(tid);
-				thread->status_ = thread_status;
+					int thread_status;
+					if(native::waitpid(tid, &thread_status, __WALL) > 0) {
+						waited_threads_.insert(tid);
+						thread_ptr->status_ = thread_status;
 
-				if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
-					qDebug("[warning] paused thread [%d] received an event besides SIGSTOP", tid);
+						if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
+							qDebug("[warning] paused thread [%d] received an event besides SIGSTOP", tid);
+						}
+					}
 				}
 			}
 		}
@@ -595,7 +599,7 @@ void DebuggerCore::pause() {
 void DebuggerCore::resume(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 
-	if(attached()) {
+	if(process_) {
 		if(status != edb::DEBUG_STOP) {
 			
 			auto it = threads_.find(active_thread_);
@@ -606,12 +610,11 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 				ptrace_continue(active_thread_, code);
 
 				// resume the other threads passing the signal they originally reported had
-				for(auto it = threads_.begin(); it != threads_.end(); ++it) {
-					if(waited_threads_.contains(it.key())) {
-					
-						PlatformThread::pointer &otherThread = it.value();
-					
-						ptrace_continue(it.key(), resume_code(otherThread->status_));
+				for(auto &other_thread : process_->threads()) {
+					if(waited_threads_.contains(other_thread->tid())) {	
+						if(auto thread_ptr = static_cast<PlatformThread *>(other_thread.get())) {			
+							ptrace_continue(thread_ptr->tid(), resume_code(thread_ptr->status_));
+						}
 					}
 				}
 			}
