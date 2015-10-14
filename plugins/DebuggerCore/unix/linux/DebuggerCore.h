@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DebuggerCoreUNIX.h"
 #include "PlatformState.h"
+#include "PlatformThread.h"
 #include <QHash>
 #include <QSet>
 #include <csignal>
@@ -113,17 +114,11 @@ private:
 	unsigned long get_debug_register(std::size_t n);
 	long set_debug_register(std::size_t n, long value);
 	void detectDebuggeeBitness();
+	
 private:
-	struct thread_info {
-		int status;
-		enum {
-			THREAD_STOPPED,
-			THREAD_SIGNALED
-		} state;
-	};
+	typedef QHash<edb::tid_t, PlatformThread::pointer> threadmap_t;
 
-	typedef QHash<edb::tid_t, thread_info> threadmap_t;
-
+private:
 	threadmap_t      threads_;
 	QSet<edb::tid_t> waited_threads_;
 	edb::tid_t       event_thread_;

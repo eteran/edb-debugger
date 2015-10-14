@@ -34,5 +34,5 @@ win32 {
 	INCLUDEPATH += win32 .
 }
 
-HEADERS += PlatformProcess.h   PlatformEvent.h   PlatformState.h   PlatformRegion.h   DebuggerCoreBase.h   DebuggerCore.h   Breakpoint.h   PlatformCommon.h
-SOURCES += PlatformProcess.cpp PlatformEvent.cpp PlatformState.cpp PlatformRegion.cpp DebuggerCoreBase.cpp DebuggerCore.cpp Breakpoint.cpp PlatformCommon.cpp
+HEADERS += PlatformProcess.h   PlatformEvent.h   PlatformState.h   PlatformRegion.h   DebuggerCoreBase.h   DebuggerCore.h   Breakpoint.h   PlatformCommon.h   PlatformThread.h
+SOURCES += PlatformProcess.cpp PlatformEvent.cpp PlatformState.cpp PlatformRegion.cpp DebuggerCoreBase.cpp DebuggerCore.cpp Breakpoint.cpp PlatformCommon.cpp PlatformThread.cpp

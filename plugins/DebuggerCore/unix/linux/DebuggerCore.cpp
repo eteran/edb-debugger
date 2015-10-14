@@ -363,8 +363,11 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 		unsigned long new_tid;
 		if(ptrace_get_event_message(tid, &new_tid) != -1) {
 
-			const thread_info info = { 0, thread_info::THREAD_STOPPED };
-			threads_.insert(new_tid, info);
+			auto newThread     = std::make_shared<PlatformThread>(new_tid);
+			newThread->status_ = 0;
+			newThread->state_  = PlatformThread::Stopped;
+
+			threads_.insert(new_tid, newThread);
 
 			int thread_status = 0;
 			if(!waited_threads_.contains(new_tid)) {
@@ -397,9 +400,13 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 		// TODO: handle no info?
 	}
 
-	active_thread_       = tid;
-	event_thread_        = tid;
-	threads_[tid].status = status;
+	active_thread_ = tid;
+	event_thread_  = tid;
+	
+	auto it = threads_.find(tid);
+	if(it != threads_.end()) {
+		it.value()->status_ = status;
+	}
 
 	stop_threads();
 	return e;
@@ -412,6 +419,8 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 void DebuggerCore::stop_threads() {
 	for(auto it = threads_.begin(); it != threads_.end(); ++it) {
 		if(!waited_threads_.contains(it.key())) {
+			PlatformThread::pointer &thread = it.value();
+		
 			const edb::tid_t tid = it.key();
 
 			syscall(SYS_tgkill, pid(), tid, SIGSTOP);
@@ -419,7 +428,7 @@ void DebuggerCore::stop_threads() {
 			int thread_status;
 			if(native::waitpid(tid, &thread_status, __WALL) > 0) {
 				waited_threads_.insert(tid);
-				it->status = thread_status;
+				thread->status_ = thread_status;
 
 				if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
 					qDebug("[warning] paused thread [%d] received an event besides SIGSTOP", tid);
@@ -461,8 +470,11 @@ bool DebuggerCore::attach_thread(edb::tid_t tid) {
 		int status;
 		if(native::waitpid(tid, &status, __WALL) > 0) {
 
-			const thread_info info = { status, thread_info::THREAD_STOPPED };
-			threads_[tid] = info;
+			auto newThread     = std::make_shared<PlatformThread>(tid);
+			newThread->status_ = status;
+			newThread->state_  = PlatformThread::Stopped;
+
+			threads_[tid] = newThread;
 
 			waited_threads_.insert(tid);
 			if(ptrace_set_options(tid, PTRACE_O_TRACECLONE) == -1) {
@@ -583,13 +595,22 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 	if(attached()) {
 		if(status != edb::DEBUG_STOP) {
 			const edb::tid_t tid = active_thread();
-			const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(threads_[tid].status) : 0;
-			ptrace_continue(tid, code);
+			
+			auto it = threads_.find(tid);
+			if(it != threads_.end()) {
+				PlatformThread::pointer &thread = it.value();
+			
+				const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(thread->status_) : 0;
+				ptrace_continue(tid, code);
 
-			// resume the other threads passing the signal they originally reported had
-			for(auto it = threads_.begin(); it != threads_.end(); ++it) {
-				if(waited_threads_.contains(it.key())) {
-					ptrace_continue(it.key(), resume_code(it->status));
+				// resume the other threads passing the signal they originally reported had
+				for(auto it = threads_.begin(); it != threads_.end(); ++it) {
+					if(waited_threads_.contains(it.key())) {
+					
+						PlatformThread::pointer &otherThread = it.value();
+					
+						ptrace_continue(it.key(), resume_code(otherThread->status_));
+					}
 				}
 			}
 		}
@@ -606,8 +627,14 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 	if(attached()) {
 		if(status != edb::DEBUG_STOP) {
 			const edb::tid_t tid = active_thread();
-			const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(threads_[tid].status) : 0;
-			ptrace_step(tid, code);
+			
+			auto it = threads_.find(tid);
+			if(it != threads_.end()) {			
+				PlatformThread::pointer &thread = it.value();
+			
+				const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(thread->status_) : 0;
+				ptrace_step(tid, code);
+			}
 		}
 	}
 }
@@ -896,8 +923,12 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			// setup the first event data for the primary thread
 			waited_threads_.insert(pid);
 
-			const thread_info info = { status, thread_info::THREAD_STOPPED };
-			threads_[pid]   = info;
+			// the PID == primary TID
+			auto newThread     = std::make_shared<PlatformThread>(pid);
+			newThread->status_ = status;
+			newThread->state_  = PlatformThread::Stopped;
+			
+			threads_[pid]   = newThread;
 
 			pid_            = pid;
 			active_thread_  = pid;

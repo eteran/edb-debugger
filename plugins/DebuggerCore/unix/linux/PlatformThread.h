@@ -16,40 +16,41 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ITHREAD_20150529_H_
-#define ITHREAD_20150529_H_
+#ifndef PLATFORM_THREAD_20151013_H_
+#define PLATFORM_THREAD_20151013_H_
 
-#include "Types.h"
-#include <memory>
+#include "IThread.h"
 
-class ThreadInfo;
-class State;
+namespace DebuggerCore {
 
-class IThread {
+class PlatformThread : public IThread {
+	friend class DebuggerCore;
 public:
-	typedef std::shared_ptr<IThread> pointer;
-public:
-	virtual ~IThread() {}
+	typedef std::shared_ptr<PlatformThread> pointer;
 	
 public:
-	virtual edb::tid_t tid() const = 0;
-
-#if 0
+	enum State {
+		Stopped,
+		Signaled
+	};
 public:
-	virtual void resume() = 0;
-	virtual void step() = 0;
-	virtual void pause() = 0;
-	virtual void resume(edb::EVENT_STATUS status) = 0;
-	virtual void step(edb::EVENT_STATUS status) = 0;
+	PlatformThread();
+	PlatformThread(edb::tid_t tid);
+	virtual ~PlatformThread() override;
+	
+private:
+	PlatformThread(const PlatformThread &) = delete;
+	PlatformThread& operator=(const PlatformThread &) = delete;
 	
 public:
-	// TODO(eteran): maybe break this up into piece by piece functions
-	virtual ThreadInfo info() const = 0;
+	virtual edb::tid_t tid() const override;
 	
-public:
-	virtual void get_state(State *state) = 0;
-	virtual void set_state(const State &state) = 0;
-#endif
+private:
+	edb::tid_t tid_;
+	int        status_;
+	State      state_;
 };
+
+}
 
 #endif

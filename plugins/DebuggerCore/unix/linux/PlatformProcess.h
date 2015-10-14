@@ -30,6 +30,10 @@ public:
 	PlatformProcess(DebuggerCore *core, edb::pid_t pid);
 	virtual ~PlatformProcess();
 
+private:
+	PlatformProcess(const PlatformProcess &) = delete;
+	PlatformProcess& operator=(const PlatformProcess &) = delete;
+
 public:
 	virtual QDateTime               start_time() const;
 	virtual QList<QByteArray>       arguments() const;
