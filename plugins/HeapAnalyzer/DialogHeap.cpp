@@ -155,35 +155,39 @@ void DialogHeap::get_library_names(QString *libcName, QString *ldName) const {
 	Q_ASSERT(libcName);
 	Q_ASSERT(ldName);
 	
-	const QList<Module> libs = edb::v1::debugger_core->loaded_modules();
+	if(edb::v1::debugger_core) {
+		if(IProcess *process = edb::v1::debugger_core->process()) {	
+			const QList<Module> libs = process->loaded_modules();
 
-	for(const Module &module: libs) {
-		if(!ldName->isEmpty() && !libcName->isEmpty()) {
-			break;
-		}
+			for(const Module &module: libs) {
+				if(!ldName->isEmpty() && !libcName->isEmpty()) {
+					break;
+				}
 
-		const QFileInfo fileinfo(module.name);
+				const QFileInfo fileinfo(module.name);
 
-		// this tries its best to cover all possible libc library versioning
-		// possibilities we need to find out if this is 100% accurate, so far
-		// seems correct based on my system
+				// this tries its best to cover all possible libc library versioning
+				// possibilities we need to find out if this is 100% accurate, so far
+				// seems correct based on my system
 
-		if(fileinfo.completeBaseName().startsWith("libc-")) {
-			*libcName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
-			qDebug() << "[Heap Analyzer] libc library appears to be:" << *libcName;
-			continue;
-		}
+				if(fileinfo.completeBaseName().startsWith("libc-")) {
+					*libcName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
+					qDebug() << "[Heap Analyzer] libc library appears to be:" << *libcName;
+					continue;
+				}
 
-		if(fileinfo.completeBaseName().startsWith("libc.so")) {
-			*libcName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
-			qDebug() << "[Heap Analyzer] libc library appears to be:" << *libcName;
-			continue;
-		}
+				if(fileinfo.completeBaseName().startsWith("libc.so")) {
+					*libcName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
+					qDebug() << "[Heap Analyzer] libc library appears to be:" << *libcName;
+					continue;
+				}
 
-		if(fileinfo.completeBaseName().startsWith("ld-")) {
-			*ldName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
-			qDebug() << "[Heap Analyzer] ld library appears to be:" << *ldName;
-			continue;
+				if(fileinfo.completeBaseName().startsWith("ld-")) {
+					*ldName = fileinfo.completeBaseName() + "." + fileinfo.suffix();
+					qDebug() << "[Heap Analyzer] ld library appears to be:" << *ldName;
+					continue;
+				}
+			}
 		}
 	}
 }

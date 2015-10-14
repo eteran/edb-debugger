@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogStrings.h"
 #include "Symbol.h"
 
+#include <QDateTime>
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
@@ -48,8 +49,8 @@ namespace {
 QString size_to_string(size_t n) {
 
 	static constexpr size_t KiB = 1024;
-	static constexpr size_t MiB = 1024 * 1024;
-	static constexpr size_t GiB = 1024 * 1024 * 1024;
+	static constexpr size_t MiB = KiB * 1024;
+	static constexpr size_t GiB = MiB * 1024;
 	
 	if(n < KiB) {
 		return QString::number(n);
@@ -349,15 +350,17 @@ void DialogProcessProperties::updateModulePage() {
 	ui->tableModules->clearContents();
 	ui->tableModules->setRowCount(0);
 	if(edb::v1::debugger_core) {
-		const QList<Module> modules = edb::v1::debugger_core->loaded_modules();
-		ui->tableModules->setSortingEnabled(false);
-		for(const Module &m: modules) {
-			const int row = ui->tableModules->rowCount();
-			ui->tableModules->insertRow(row);
-			ui->tableModules->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(m.base_address)));
-			ui->tableModules->setItem(row, 1, new QTableWidgetItem(m.name));
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			const QList<Module> modules = process->loaded_modules();
+			ui->tableModules->setSortingEnabled(false);
+			for(const Module &m: modules) {
+				const int row = ui->tableModules->rowCount();
+				ui->tableModules->insertRow(row);
+				ui->tableModules->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(m.base_address)));
+				ui->tableModules->setItem(row, 1, new QTableWidgetItem(m.name));
+			}
+			ui->tableModules->setSortingEnabled(true);
 		}
-		ui->tableModules->setSortingEnabled(true);
 	}
 
 }

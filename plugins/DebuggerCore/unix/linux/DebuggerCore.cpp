@@ -51,33 +51,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <elf.h>
 #include <linux/uio.h>
 
-namespace BinaryInfo {
-// Bitness-templated version of struct r_debug defined in link.h
-template<class Addr>
-struct r_debug
-{
-	int r_version;
-	Addr r_map; // struct link_map*
-	Addr r_brk;
-	enum {
-		RT_CONSISTENT,
-		RT_ADD,
-		RT_DELETE
-	} r_state;
-	Addr r_ldbase;
-};
-
-// Bitness-templated version of struct link_map defined in link.h
-template<class Addr>
-struct link_map
-{
-	Addr l_addr;
-	Addr l_name; // char*
-	Addr l_ld; // ElfW(Dyn)*
-	Addr l_next, l_prev; // struct link_map*
-};
-}
-
 // doesn't always seem to be defined in the headers
 #ifndef PTRACE_GET_THREAD_AREA
 #define PTRACE_GET_THREAD_AREA static_cast<__ptrace_request>(25)
@@ -981,85 +954,6 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 	}
 
 	return 0;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-template<class Addr>
-QList<Module> loaded_modules_(IProcess* process, const std::unique_ptr<IBinary> &binary_info_) {
-	QList<Module> ret;
-
-	if(binary_info_) {
-		BinaryInfo::r_debug<Addr> dynamic_info;
-		if(const edb::address_t debug_pointer = binary_info_->debug_pointer()) {
-			if(process) {
-				if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
-					if(dynamic_info.r_map) {
-
-						auto link_address = edb::address_t::fromZeroExtended(dynamic_info.r_map);
-
-						while(link_address) {
-
-							BinaryInfo::link_map<Addr> map;
-							if(process->read_bytes(link_address, &map, sizeof(map))) {
-								char path[PATH_MAX];
-								if(!process->read_bytes(edb::address_t::fromZeroExtended(map.l_name), &path, sizeof(path))) {
-									path[0] = '\0';
-								}
-
-								if(map.l_addr) {
-									Module module;
-									module.name         = path;
-									module.base_address = map.l_addr;
-									ret.push_back(module);
-								}
-
-								link_address = edb::address_t::fromZeroExtended(map.l_next);
-							} else {
-								break;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// fallback
-	if(ret.isEmpty()) {
-		const QList<IRegion::pointer> r = edb::v1::memory_regions().regions();
-		QSet<QString> found_modules;
-
-		for(const IRegion::pointer &region: r) {
-
-			// we assume that modules will be listed by absolute path
-			if(region->name().startsWith("/")) {
-				if(!found_modules.contains(region->name())) {
-					Module module;
-					module.name         = region->name();
-					module.base_address = region->start();
-					found_modules.insert(region->name());
-					ret.push_back(module);
-				}
-			}
-		}
-	}
-
-	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QList<Module> DebuggerCore::loaded_modules() const {
-	if(edb::v1::debuggeeIs64Bit())
-		return loaded_modules_<Elf64_Addr>(process(), binary_info_);
-	else if(edb::v1::debuggeeIs32Bit())
-		return loaded_modules_<Elf32_Addr>(process(), binary_info_);
-	else return QList<Module>();
 }
 
 //------------------------------------------------------------------------------

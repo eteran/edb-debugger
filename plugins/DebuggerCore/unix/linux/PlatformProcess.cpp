@@ -20,18 +20,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCore.h"
 #include "PlatformCommon.h"
 #include "PlatformRegion.h"
+#include "MemoryRegions.h"
 #include "edb.h"
 
 #include <QByteArray>
 #include <QFile>
 #include <QFileInfo>
 #include <QTextStream>
+#include <QDateTime>
 #include <boost/functional/hash.hpp>
 #include <fstream>
 #include <sys/mman.h>
 #include <sys/ptrace.h>
 #include <sys/types.h>
 #include <pwd.h>
+#include <elf.h>
 
 namespace DebuggerCore {
 namespace {
@@ -42,10 +45,36 @@ namespace {
 #define EDB_WORDSIZE sizeof(quint32)
 #endif
 
+namespace BinaryInfo {
+// Bitness-templated version of struct r_debug defined in link.h
+template<class Addr>
+struct r_debug
+{
+	int r_version;
+	Addr r_map; // struct link_map*
+	Addr r_brk;
+	enum {
+		RT_CONSISTENT,
+		RT_ADD,
+		RT_DELETE
+	} r_state;
+	Addr r_ldbase;
+};
+
+// Bitness-templated version of struct link_map defined in link.h
+template<class Addr>
+struct link_map
+{
+	Addr l_addr;
+	Addr l_name; // char*
+	Addr l_ld; // ElfW(Dyn)*
+	Addr l_next, l_prev; // struct link_map*
+};
+}
+
 void set_ok(bool &ok, long value) {
 	ok = (value != -1) || (errno == 0);
 }
-
 
 //------------------------------------------------------------------------------
 // Name: process_map_line
@@ -89,6 +118,73 @@ IRegion::pointer process_map_line(const QString &line) {
 	return nullptr;;
 }
 
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+template<class Addr>
+QList<Module> loaded_modules_(const IProcess* process, const std::unique_ptr<IBinary> &binary_info_) {
+	QList<Module> ret;
+
+	if(binary_info_) {
+		BinaryInfo::r_debug<Addr> dynamic_info;
+		if(const edb::address_t debug_pointer = binary_info_->debug_pointer()) {
+			if(process) {
+				if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
+					if(dynamic_info.r_map) {
+
+						auto link_address = edb::address_t::fromZeroExtended(dynamic_info.r_map);
+
+						while(link_address) {
+
+							BinaryInfo::link_map<Addr> map;
+							if(process->read_bytes(link_address, &map, sizeof(map))) {
+								char path[PATH_MAX];
+								if(!process->read_bytes(edb::address_t::fromZeroExtended(map.l_name), &path, sizeof(path))) {
+									path[0] = '\0';
+								}
+
+								if(map.l_addr) {
+									Module module;
+									module.name         = path;
+									module.base_address = map.l_addr;
+									ret.push_back(module);
+								}
+
+								link_address = edb::address_t::fromZeroExtended(map.l_next);
+							} else {
+								break;
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	// fallback
+	if(ret.isEmpty()) {
+		const QList<IRegion::pointer> r = edb::v1::memory_regions().regions();
+		QSet<QString> found_modules;
+
+		for(const IRegion::pointer &region: r) {
+
+			// we assume that modules will be listed by absolute path
+			if(region->name().startsWith("/")) {
+				if(!found_modules.contains(region->name())) {
+					Module module;
+					module.name         = region->name();
+					module.base_address = region->start();
+					found_modules.insert(region->name());
+					ret.push_back(module);
+				}
+			}
+		}
+	}
+
+	return ret;
+}
+
 }
 
 //------------------------------------------------------------------------------
@@ -113,7 +209,7 @@ PlatformProcess::~PlatformProcess() {
 // Note: returns the number of bytes read <N>
 // Note: if the read is short, only the first <N> bytes are defined
 //------------------------------------------------------------------------------
-std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::size_t len) {
+std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::size_t len) const {
 	quint64 read = 0;
 
 	Q_ASSERT(buf);
@@ -203,7 +299,7 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 // Note: buf's size must be >= count * core_->page_size()
 // Note: address should be page aligned.
 //------------------------------------------------------------------------------
-std::size_t PlatformProcess::read_pages(edb::address_t address, void *buf, std::size_t count) {
+std::size_t PlatformProcess::read_pages(edb::address_t address, void *buf, std::size_t count) const {
 	Q_ASSERT(buf);
 	Q_ASSERT(core_->process_ == this);
 	return read_bytes(address, buf, count * core_->page_size()) / core_->page_size();
@@ -370,7 +466,7 @@ QList<IRegion::pointer> PlatformProcess::regions() const {
 // Name: read_byte
 // Desc: the base implementation of reading a byte
 //------------------------------------------------------------------------------
-quint8 PlatformProcess::read_byte(edb::address_t address, bool *ok) {
+quint8 PlatformProcess::read_byte(edb::address_t address, bool *ok) const {
 	// TODO(eteran): assert that we are paused
 
 	Q_ASSERT(ok);
@@ -466,7 +562,7 @@ void PlatformProcess::write_byte(edb::address_t address, quint8 value, bool *ok)
 // Note: this will fail on newer versions of linux if called from a
 //       different thread than the one which attached to process
 //------------------------------------------------------------------------------
-long PlatformProcess::read_data(edb::address_t address, bool *ok) {
+long PlatformProcess::read_data(edb::address_t address, bool *ok) const {
 
 	Q_ASSERT(ok);
 	Q_ASSERT(core_->process_ == this);
@@ -587,6 +683,20 @@ QString PlatformProcess::name() const {
 	}
 	
 	return QString();
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+QList<Module> PlatformProcess::loaded_modules() const {
+	if(edb::v1::debuggeeIs64Bit()) {
+		return loaded_modules_<Elf64_Addr>(this, core_->binary_info_);
+	} else if(edb::v1::debuggeeIs32Bit()) {
+		return loaded_modules_<Elf32_Addr>(this, core_->binary_info_);
+	} else {
+		return QList<Module>();
+	}
 }
 
 }

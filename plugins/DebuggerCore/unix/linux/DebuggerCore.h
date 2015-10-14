@@ -73,8 +73,7 @@ public:
 
 
 private:
-	virtual QMap<edb::pid_t, IProcess::pointer> enumerate_processes() const;
-	virtual QList<Module> loaded_modules() const;
+	virtual QMap<edb::pid_t, IProcess::pointer> enumerate_processes() const;	
 
 public:
 	virtual QString stack_pointer() const;

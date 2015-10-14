@@ -49,18 +49,19 @@ public:
 	virtual IThread::pointer        current_thread() const;
 	virtual edb::uid_t              uid() const;
 	virtual QString                 user() const;
-	virtual QString                 name() const;	
+	virtual QString                 name() const;
+	virtual QList<Module>           loaded_modules() const;
 
 public:
 	virtual std::size_t write_bytes(edb::address_t address, const void *buf, size_t len);
-	virtual std::size_t read_bytes(edb::address_t address, void *buf, size_t len);
-	virtual std::size_t read_pages(edb::address_t address, void *buf, size_t count);
+	virtual std::size_t read_bytes(edb::address_t address, void *buf, size_t len) const;
+	virtual std::size_t read_pages(edb::address_t address, void *buf, size_t count) const;
 
 private:
 	bool write_data(edb::address_t address, long value);
-	long read_data(edb::address_t address, bool *ok);
+	long read_data(edb::address_t address, bool *ok) const;
 	void write_byte(edb::address_t address, quint8 value, bool *ok);
-	quint8 read_byte(edb::address_t address, bool *ok);
+	quint8 read_byte(edb::address_t address, bool *ok) const;
 
 private:
 	DebuggerCore* core_;

@@ -61,10 +61,6 @@ public:
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const = 0;
 	
 public:
-	// process properties
-    virtual QList<Module>           loaded_modules() const = 0;
-	
-public:
 	// basic process management
 	virtual bool attach(edb::pid_t pid) = 0;
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args) = 0;
