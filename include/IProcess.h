@@ -44,6 +44,9 @@ public:
 	virtual QList<IRegion::pointer> regions() const = 0;
 	virtual QList<IThread::pointer> threads() const = 0;
 	virtual IThread::pointer        current_thread() const = 0;
+	virtual edb::uid_t              uid() const = 0;
+	virtual QString                 user() const = 0;
+	virtual QString                 name() const = 0;
 
 public:
 	// returns true on success, false on failure, all bytes must be successfully

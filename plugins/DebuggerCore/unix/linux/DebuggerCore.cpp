@@ -945,8 +945,8 @@ IState *DebuggerCore::create_state() const {
 // Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
-	QMap<edb::pid_t, ProcessInfo> ret;
+QMap<edb::pid_t, IProcess::pointer> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, IProcess::pointer> ret;
 
 	QDir proc_directory("/proc/");
 	QFileInfoList entries = proc_directory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
@@ -954,24 +954,13 @@ QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 	for(const QFileInfo &info: entries) {
 		const QString filename = info.fileName();
 		if(is_numeric(filename)) {
-
 			const edb::pid_t pid = filename.toULong();
-			ProcessInfo process_info;
-
-			struct user_stat user_stat;
-			const int n = get_user_stat(pid, &user_stat);
-			if(n >= 2) {
-				process_info.name = user_stat.comm;
-			}
-
-			process_info.pid = pid;
-			process_info.uid = info.ownerId();
-
-			if(const struct passwd *const pwd = ::getpwuid(process_info.uid)) {
-				process_info.user = pwd->pw_name;
-			}
-
-			ret.insert(process_info.pid, process_info);
+			
+			// NOTE(eteran): the const_cast is reasonable here.
+			// While we don't want THIS function to mutate the DebuggerCore object
+			// we do want the associated PlatformProcess to be able to trigger
+			// non-const operations in the future, at least hypothetically.
+			ret.insert(pid, std::make_shared<PlatformProcess>(const_cast<DebuggerCore*>(this), pid));
 		}
 	}
 

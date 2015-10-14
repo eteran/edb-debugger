@@ -23,7 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugEvent.h"
 #include "IRegion.h"
 #include "IProcess.h"
-#include "ProcessInfo.h"
 #include "Module.h"
 
 #include <QByteArray>
@@ -95,7 +94,7 @@ public:
 	virtual IProcess *process() const = 0;
 
 public:
-	virtual QMap<edb::pid_t, ProcessInfo> enumerate_processes() const = 0;
+	virtual QMap<edb::pid_t, IProcess::pointer> enumerate_processes() const = 0;
 };
 
 Q_DECLARE_INTERFACE(IDebugger, "EDB.IDebugger/1.0")

@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformCommon.h"
 #include "PlatformRegion.h"
 #include "edb.h"
+
 #include <QByteArray>
 #include <QFile>
 #include <QFileInfo>
@@ -29,6 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <sys/mman.h>
 #include <sys/ptrace.h>
+#include <sys/types.h>
+#include <pwd.h>
 
 namespace DebuggerCore {
 namespace {
@@ -114,6 +117,7 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 	quint64 read = 0;
 
 	Q_ASSERT(buf);
+	Q_ASSERT(core_->process_ == this);	
 	
 	if(len != 0) {
 
@@ -166,6 +170,7 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 	quint64 written = 0;
 
 	Q_ASSERT(buf);
+	Q_ASSERT(core_->process_ == this);	
 	
 	if(len != 0) {
 	
@@ -200,6 +205,7 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 //------------------------------------------------------------------------------
 std::size_t PlatformProcess::read_pages(edb::address_t address, void *buf, std::size_t count) {
 	Q_ASSERT(buf);
+	Q_ASSERT(core_->process_ == this);
 	return read_bytes(address, buf, count * core_->page_size()) / core_->page_size();
 }
 
@@ -368,6 +374,7 @@ quint8 PlatformProcess::read_byte(edb::address_t address, bool *ok) {
 	// TODO(eteran): assert that we are paused
 
 	Q_ASSERT(ok);
+	Q_ASSERT(core_->process_ == this);
 
 	*ok = false;
 
@@ -415,6 +422,7 @@ void PlatformProcess::write_byte(edb::address_t address, quint8 value, bool *ok)
 	// TODO(eteran): assert that we are paused
 
 	Q_ASSERT(ok);
+	Q_ASSERT(core_->process_ == this);
 
 	*ok = false;
 
@@ -461,6 +469,7 @@ void PlatformProcess::write_byte(edb::address_t address, quint8 value, bool *ok)
 long PlatformProcess::read_data(edb::address_t address, bool *ok) {
 
 	Q_ASSERT(ok);
+	Q_ASSERT(core_->process_ == this);
 
 	if(EDB_IS_32_BIT && address>0xffffffffULL) {
 		// 32 bit ptrace can't handle such long addresses, try reading /proc/$PID/mem
@@ -492,6 +501,9 @@ long PlatformProcess::read_data(edb::address_t address, bool *ok) {
 // Desc:
 //------------------------------------------------------------------------------
 bool PlatformProcess::write_data(edb::address_t address, long value) {
+
+	Q_ASSERT(core_->process_ == this);
+
 	if(EDB_IS_32_BIT && address>0xffffffffULL) {
 		// 32 bit ptrace can't handle such long addresses
 		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
@@ -514,6 +526,9 @@ bool PlatformProcess::write_data(edb::address_t address, long value) {
 // Desc:
 //------------------------------------------------------------------------------
 QList<IThread::pointer> PlatformProcess::threads() const {
+
+	Q_ASSERT(core_->process_ == this);
+
 	QList<IThread::pointer> threadList;
 	
 	for(auto &thread : core_->threads_) {
@@ -528,11 +543,50 @@ QList<IThread::pointer> PlatformProcess::threads() const {
 // Desc:
 //------------------------------------------------------------------------------
 IThread::pointer PlatformProcess::current_thread() const {
+
+	Q_ASSERT(core_->process_ == this);
+
 	auto it = core_->threads_.find(core_->active_thread_);
 	if(it != core_->threads_.end()) {
 		return it.value();
 	}
 	return IThread::pointer();
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+edb::uid_t PlatformProcess::uid() const {
+	
+	const QFileInfo info(QString("/proc/%1").arg(pid_));
+	return info.ownerId();
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QString PlatformProcess::user() const {
+	if(const struct passwd *const pwd = ::getpwuid(uid())) {
+		return pwd->pw_name;
+	}
+	
+	return QString();
+}
+
+//------------------------------------------------------------------------------
+// Name: 
+// Desc:
+//------------------------------------------------------------------------------
+QString PlatformProcess::name() const {
+	struct user_stat user_stat;
+	const int n = get_user_stat(pid_, &user_stat);
+	if(n >= 2) {
+		return user_stat.comm;
+	}
+	
+	return QString();
 }
 
 }

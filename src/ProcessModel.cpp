@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ProcessModel.h"
-#include "ProcessInfo.h"
+#include "IProcess.h"
 #include <QtAlgorithms>
 
 ProcessModel::ProcessModel(QObject *parent) : QAbstractItemModel(parent) {
@@ -94,11 +94,11 @@ int ProcessModel::rowCount(const QModelIndex &parent) const {
 	return items_.size();
 }
 
-void ProcessModel::addProcess(const ProcessInfo &process) {
+void ProcessModel::addProcess(const IProcess::pointer &process) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
 	const Item item = {
-		process.pid, process.uid, process.user, process.name
+		process->pid(), process->uid(), process->user(), process->name()
 	};
 	items_.push_back(item);
 	endInsertRows();

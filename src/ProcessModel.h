@@ -23,8 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 #include <QString>
 #include "Types.h"
-
-class ProcessInfo;
+#include "IProcess.h"
 
 class ProcessModel : public QAbstractItemModel {
 	Q_OBJECT
@@ -50,7 +49,7 @@ public:
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
 public:
-	void addProcess(const ProcessInfo &process);
+	void addProcess(const IProcess::pointer &process);
 	void clear();
 
 private:

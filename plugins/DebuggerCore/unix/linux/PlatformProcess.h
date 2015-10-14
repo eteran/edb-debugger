@@ -47,6 +47,9 @@ public:
 	virtual QList<IRegion::pointer> regions() const;
 	virtual QList<IThread::pointer> threads() const;
 	virtual IThread::pointer        current_thread() const;
+	virtual edb::uid_t              uid() const;
+	virtual QString                 user() const;
+	virtual QString                 name() const;	
 
 public:
 	virtual std::size_t write_bytes(edb::address_t address, const void *buf, size_t len);
