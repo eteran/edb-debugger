@@ -26,6 +26,7 @@ namespace DebuggerCore {
 class DebuggerCore;
 
 class PlatformProcess : public IProcess {
+	friend class PlatformThread;
 public:
 	PlatformProcess(DebuggerCore *core, edb::pid_t pid);
 	virtual ~PlatformProcess();

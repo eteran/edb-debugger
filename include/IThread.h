@@ -37,14 +37,14 @@ public:
 	virtual edb::address_t instruction_pointer() const = 0;
 	virtual QString runState() const = 0;
 
-#if 0
+
 public:
-	virtual void resume() = 0;
 	virtual void step() = 0;
-	virtual void pause() = 0;
+	virtual void step(edb::EVENT_STATUS status) = 0;	
+	virtual void resume() = 0;
 	virtual void resume(edb::EVENT_STATUS status) = 0;
-	virtual void step(edb::EVENT_STATUS status) = 0;
-	
+
+#if 0	
 public:
 	virtual void get_state(State *state) = 0;
 	virtual void set_state(const State &state) = 0;

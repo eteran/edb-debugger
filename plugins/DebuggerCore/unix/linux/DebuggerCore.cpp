@@ -128,27 +128,6 @@ bool is_numeric(const QString &s) {
 }
 
 //------------------------------------------------------------------------------
-// Name: resume_code
-// Desc:
-//------------------------------------------------------------------------------
-int resume_code(int status) {
-
-	if(WIFSTOPPED(status) && WSTOPSIG(status) == SIGSTOP) {
-		return 0;
-	}
-
-	if(WIFSIGNALED(status)) {
-		return WTERMSIG(status);
-	}
-
-	if(WIFSTOPPED(status)) {
-		return WSTOPSIG(status);
-	}
-
-	return 0;
-}
-
-//------------------------------------------------------------------------------
 // Name: is_clone_event
 // Desc:
 //------------------------------------------------------------------------------
@@ -363,7 +342,7 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 		unsigned long new_tid;
 		if(ptrace_get_event_message(tid, &new_tid) != -1) {
 
-			auto newThread     = std::make_shared<PlatformThread>(process_, new_tid);
+			auto newThread     = std::make_shared<PlatformThread>(this, process_, new_tid);
 			newThread->status_ = 0;
 			newThread->state_  = PlatformThread::Stopped;
 
@@ -379,9 +358,11 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 			if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
 				qDebug("[warning] new thread [%d] received an event besides SIGSTOP", static_cast<int>(new_tid));
 			}
+			
+			newThread->status_ = thread_status;
 
 			// TODO: what the heck do we do if this isn't a SIGSTOP?
-			ptrace_continue(new_tid, resume_code(thread_status));
+			newThread->resume();
 		}
 
 		ptrace_continue(tid, 0);
@@ -473,7 +454,7 @@ bool DebuggerCore::attach_thread(edb::tid_t tid) {
 		int status;
 		if(native::waitpid(tid, &status, __WALL) > 0) {
 
-			auto newThread     = std::make_shared<PlatformThread>(process_, tid);
+			auto newThread     = std::make_shared<PlatformThread>(this, process_, tid);
 			newThread->status_ = status;
 			newThread->state_  = PlatformThread::Stopped;
 
@@ -594,27 +575,21 @@ void DebuggerCore::pause() {
 
 //------------------------------------------------------------------------------
 // Name: resume
-// Desc:
+// Desc: resumes ALL threads
+// TODO(eteran): move to IProcess
 //------------------------------------------------------------------------------
 void DebuggerCore::resume(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 
 	if(process_) {
-		if(status != edb::DEBUG_STOP) {
+		if(status != edb::DEBUG_STOP) {			
+			if(IThread::pointer thread = process_->current_thread()) {
+				thread->resume(status);
 			
-			auto it = threads_.find(active_thread_);
-			if(it != threads_.end()) {
-				PlatformThread::pointer &thread = it.value();
-			
-				const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(thread->status_) : 0;
-				ptrace_continue(active_thread_, code);
-
 				// resume the other threads passing the signal they originally reported had
 				for(auto &other_thread : process_->threads()) {
 					if(waited_threads_.contains(other_thread->tid())) {	
-						if(auto thread_ptr = static_cast<PlatformThread *>(other_thread.get())) {			
-							ptrace_continue(thread_ptr->tid(), resume_code(thread_ptr->status_));
-						}
+						other_thread->resume();
 					}
 				}
 			}
@@ -624,20 +599,16 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 
 //------------------------------------------------------------------------------
 // Name: step
-// Desc:
+// Desc: steps the currently active thread
+// TODO(eteran): move to IProcess
 //------------------------------------------------------------------------------
 void DebuggerCore::step(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 
-	if(attached()) {
-		if(status != edb::DEBUG_STOP) {
-			
-			auto it = threads_.find(active_thread_);
-			if(it != threads_.end()) {			
-				PlatformThread::pointer &thread = it.value();
-			
-				const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(thread->status_) : 0;
-				ptrace_step(active_thread_, code);
+	if(process_) {
+		if(status != edb::DEBUG_STOP) {			
+			if(IThread::pointer thread = process_->current_thread()) {
+				thread->step(status);
 			}
 		}
 	}
@@ -932,7 +903,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			
 
 			// the PID == primary TID
-			auto newThread     = std::make_shared<PlatformThread>(process_, pid);
+			auto newThread     = std::make_shared<PlatformThread>(this, process_, pid);
 			newThread->status_ = status;
 			newThread->state_  = PlatformThread::Stopped;
 			

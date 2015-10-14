@@ -41,6 +41,7 @@ class DebuggerCore : public DebuggerCoreUNIX {
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 	friend class PlatformProcess;
+	friend class PlatformThread;
 	
 public:
 	DebuggerCore();

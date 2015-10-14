@@ -90,6 +90,7 @@ struct user_stat {
 
 int get_user_stat(const QString &path, struct user_stat *user_stat);
 int get_user_stat(edb::pid_t pid, struct user_stat *user_stat);
+int resume_code(int status);
 
 }
 

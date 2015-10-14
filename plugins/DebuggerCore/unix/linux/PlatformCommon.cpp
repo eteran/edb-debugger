@@ -19,8 +19,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformCommon.h"
 #include <QFile>
 #include <QTextStream>
+#include <sys/wait.h>
 
 namespace DebuggerCore {
+
+//------------------------------------------------------------------------------
+// Name: resume_code
+// Desc:
+//------------------------------------------------------------------------------
+int resume_code(int status) {
+
+	if(WIFSTOPPED(status) && WSTOPSIG(status) == SIGSTOP) {
+		return 0;
+	}
+
+	if(WIFSIGNALED(status)) {
+		return WTERMSIG(status);
+	}
+
+	if(WIFSTOPPED(status)) {
+		return WSTOPSIG(status);
+	}
+
+	return 0;
+}
 
 //------------------------------------------------------------------------------
 // Name: get_user_stat

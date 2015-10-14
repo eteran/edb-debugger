@@ -19,23 +19,39 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformThread.h"
 #include "PlatformCommon.h"
 #include "IProcess.h"
+#include "DebuggerCore.h"
 #include <cassert>
 
 namespace DebuggerCore {
 
-PlatformThread::PlatformThread(IProcess *process, edb::tid_t tid) : process_(process), tid_(tid) {
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: 
+//------------------------------------------------------------------------------
+PlatformThread::PlatformThread(DebuggerCore *core, IProcess *process, edb::tid_t tid) : core_(core), process_(process), tid_(tid) {
 	assert(process);
-
+	assert(core);
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: 
+//------------------------------------------------------------------------------
 PlatformThread::~PlatformThread() {
-
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: 
+//------------------------------------------------------------------------------
 edb::tid_t PlatformThread::tid() const {
 	return tid_;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: 
+//------------------------------------------------------------------------------
 QString PlatformThread::name() const  {
 	struct user_stat thread_stat;
 	int n = get_user_stat(QString("/proc/%1/task/%2/stat").arg(process_->pid()).arg(tid_), &thread_stat);
@@ -46,6 +62,10 @@ QString PlatformThread::name() const  {
 	return QString();
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: 
+//------------------------------------------------------------------------------
 int PlatformThread::priority() const  {
 	struct user_stat thread_stat;
 	int n = get_user_stat(QString("/proc/%1/task/%2/stat").arg(process_->pid()).arg(tid_), &thread_stat);
@@ -56,6 +76,10 @@ int PlatformThread::priority() const  {
 	return 0;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: 
+//------------------------------------------------------------------------------
 edb::address_t PlatformThread::instruction_pointer() const  {
 	struct user_stat thread_stat;
 	int n = get_user_stat(QString("/proc/%1/task/%2/stat").arg(process_->pid()).arg(tid_), &thread_stat);
@@ -66,6 +90,10 @@ edb::address_t PlatformThread::instruction_pointer() const  {
 	return 0;
 }
 
+//------------------------------------------------------------------------------
+// Name: 
+// Desc: 
+//------------------------------------------------------------------------------
 QString PlatformThread::runState() const  {
 	struct user_stat thread_stat;
 	int n = get_user_stat(QString("/proc/%1/task/%2/stat").arg(process_->pid()).arg(tid_), &thread_stat);
@@ -109,6 +137,44 @@ QString PlatformThread::runState() const  {
 	}
 	
 	return tr("Unknown");
+}
+
+//------------------------------------------------------------------------------
+// Name: step
+// Desc: steps this thread one instruction, passing the signal that stopped it 
+//       (unless the signal was SIGSTOP)
+//------------------------------------------------------------------------------
+void PlatformThread::step() {
+	core_->ptrace_step(tid_, resume_code(status_));
+}
+
+//------------------------------------------------------------------------------
+// Name: step
+// Desc: steps this thread one instruction, passing the signal that stopped it 
+//       (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
+//------------------------------------------------------------------------------
+void PlatformThread::step(edb::EVENT_STATUS status) {
+	const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(status_) : 0;
+	core_->ptrace_step(tid_, code);
+}
+
+//------------------------------------------------------------------------------
+// Name: resume
+// Desc: resumes this thread, passing the signal that stopped it 
+//       (unless the signal was SIGSTOP)
+//------------------------------------------------------------------------------	
+void PlatformThread::resume() {
+	core_->ptrace_continue(tid_, resume_code(status_));
+}
+
+//------------------------------------------------------------------------------
+// Name: resume
+// Desc: resumes this thread , passing the signal that stopped it 
+//       (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
+//------------------------------------------------------------------------------
+void PlatformThread::resume(edb::EVENT_STATUS status) {
+	const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(status_) : 0;
+	core_->ptrace_continue(tid_, code);
 }
 
 }

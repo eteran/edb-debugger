@@ -26,6 +26,8 @@ class IProcess;
 
 namespace DebuggerCore {
 
+class DebuggerCore;
+
 class PlatformThread : public IThread {
 	Q_DECLARE_TR_FUNCTIONS(PlatformThread)
 	friend class DebuggerCore;
@@ -39,7 +41,7 @@ public:
 	};
 
 public:
-	PlatformThread(IProcess *process, edb::tid_t tid);
+	PlatformThread(DebuggerCore *core, IProcess *process, edb::tid_t tid);
 	virtual ~PlatformThread() override;
 	
 private:
@@ -53,11 +55,18 @@ public:
 	virtual edb::address_t instruction_pointer() const override;
 	virtual QString runState() const override;
 	
+public:
+	virtual void step() override;
+	virtual void step(edb::EVENT_STATUS status) override;	
+	virtual void resume() override;
+	virtual void resume(edb::EVENT_STATUS status) override;
+	
 private:
-	IProcess *const process_;
-	edb::tid_t      tid_;
-	int             status_;
-	State           state_;
+	DebuggerCore *const core_;
+	IProcess *const     process_;
+	edb::tid_t          tid_;
+	int                 status_;
+	State               state_;
 };
 
 }
