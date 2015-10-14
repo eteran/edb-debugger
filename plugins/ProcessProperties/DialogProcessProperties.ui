@@ -200,6 +200,12 @@
        </item>
        <item row="1" column="0" colspan="2">
         <widget class="QTableView" name="threadTable">
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
@@ -252,6 +258,12 @@
        </item>
        <item row="1" column="0" colspan="2">
         <widget class="QTableWidget" name="tableModules">
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
@@ -321,6 +333,12 @@
        </item>
        <item row="1" column="0" colspan="3">
         <widget class="QTableWidget" name="tableMemory">
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
@@ -411,6 +429,12 @@
        </item>
        <item>
         <widget class="QTableWidget" name="tableEnvironment">
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
@@ -477,6 +501,12 @@
        </item>
        <item>
         <widget class="QTableWidget" name="tableHandles">
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
