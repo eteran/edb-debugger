@@ -62,13 +62,6 @@ public:
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty);
 	
 public:
-	// thread support stuff (optional)
-	virtual QList<edb::tid_t> thread_ids() const { return threads_.keys(); }
-	virtual edb::tid_t active_thread() const     { return active_thread_; }
-	virtual void set_active_thread(edb::tid_t);
-	virtual ThreadInfo get_thread_info(edb::tid_t);
-
-public:
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const;
 
 public:
@@ -121,7 +114,7 @@ private:
 private:
 	threadmap_t      threads_;
 	QSet<edb::tid_t> waited_threads_;
-	edb::tid_t       event_thread_;
+	edb::tid_t       active_thread_;
 	std::unique_ptr<IBinary> binary_info_;
 	IProcess         *process_;
 	std::size_t      pointer_size_;

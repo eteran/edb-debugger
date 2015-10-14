@@ -57,21 +57,20 @@ DialogThreads::~DialogThreads() {
 void DialogThreads::showEvent(QShowEvent *) {
 
 	threads_model_->clear();
-
-	QList<edb::tid_t> threads       = edb::v1::debugger_core->thread_ids();
-	const edb::tid_t current_thread = edb::v1::debugger_core->active_thread();
-
-	for(edb::tid_t thread: threads) {
 	
-		const ThreadInfo info = edb::v1::debugger_core->get_thread_info(thread);
-	
-		if(thread == current_thread) {
-			threads_model_->addThread(info, true);
-		} else {
-			threads_model_->addThread(info, false);
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		IThread::pointer current = process->current_thread();
+		
+		for(IThread::pointer thread : process->threads()) {
+
+			if(thread == current) {
+				threads_model_->addThread(thread, true);
+			} else {
+				threads_model_->addThread(thread, false);
+			}		
 		}
 	}
-	
+
 	ui->thread_table->horizontalHeader()->resizeSections(QHeaderView::Stretch);
 }
 

@@ -20,10 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PLATFORM_THREAD_20151013_H_
 
 #include "IThread.h"
+#include <QCoreApplication>
+
+class IProcess;
 
 namespace DebuggerCore {
 
 class PlatformThread : public IThread {
+	Q_DECLARE_TR_FUNCTIONS(PlatformThread)
 	friend class DebuggerCore;
 public:
 	typedef std::shared_ptr<PlatformThread> pointer;
@@ -33,9 +37,9 @@ public:
 		Stopped,
 		Signaled
 	};
+
 public:
-	PlatformThread();
-	PlatformThread(edb::tid_t tid);
+	PlatformThread(IProcess *process, edb::tid_t tid);
 	virtual ~PlatformThread() override;
 	
 private:
@@ -44,11 +48,16 @@ private:
 	
 public:
 	virtual edb::tid_t tid() const override;
+	virtual QString name() const override;
+	virtual int priority() const override;
+	virtual edb::address_t instruction_pointer() const override;
+	virtual QString runState() const override;
 	
 private:
-	edb::tid_t tid_;
-	int        status_;
-	State      state_;
+	IProcess *const process_;
+	edb::tid_t      tid_;
+	int             status_;
+	State           state_;
 };
 
 }

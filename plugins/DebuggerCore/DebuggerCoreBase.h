@@ -29,12 +29,6 @@ public:
 	virtual ~DebuggerCoreBase();
 
 public:
-	// thread support stuff (optional)
-	virtual QList<edb::tid_t> thread_ids() const;
-	virtual edb::tid_t active_thread() const;
-	virtual void set_active_thread(edb::tid_t);
-
-public:
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args);
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
 
@@ -52,7 +46,6 @@ protected:
 	bool attached() const;
 
 protected:
-	edb::tid_t      active_thread_;
 	edb::pid_t      pid_;
 	BreakpointList  breakpoints_;
 };

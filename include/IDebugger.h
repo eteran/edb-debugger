@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IProcess.h"
 #include "ProcessInfo.h"
 #include "Module.h"
-#include "ThreadInfo.h"
 
 #include <QByteArray>
 #include <QHash>
@@ -79,13 +78,6 @@ public:
 	virtual void resume(edb::EVENT_STATUS status) = 0;
 	virtual void set_state(const State &state) = 0;
 	virtual void step(edb::EVENT_STATUS status) = 0;
-
-public:
-	// thread support stuff (optional)
-	virtual QList<edb::tid_t> thread_ids() const            { return QList<edb::tid_t>(); }
-	virtual edb::tid_t        active_thread() const         { return static_cast<edb::tid_t>(-1); }
-	virtual void              set_active_thread(edb::tid_t) {}
-	virtual ThreadInfo        get_thread_info(edb::tid_t)   { return ThreadInfo(); }
 
 public:
 	// basic breakpoint managment

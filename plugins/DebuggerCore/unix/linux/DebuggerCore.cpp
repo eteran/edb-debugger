@@ -363,7 +363,7 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 		unsigned long new_tid;
 		if(ptrace_get_event_message(tid, &new_tid) != -1) {
 
-			auto newThread     = std::make_shared<PlatformThread>(new_tid);
+			auto newThread     = std::make_shared<PlatformThread>(process_, new_tid);
 			newThread->status_ = 0;
 			newThread->state_  = PlatformThread::Stopped;
 
@@ -401,7 +401,6 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 	}
 
 	active_thread_ = tid;
-	event_thread_  = tid;
 	
 	auto it = threads_.find(tid);
 	if(it != threads_.end()) {
@@ -445,11 +444,11 @@ void DebuggerCore::stop_threads() {
 //------------------------------------------------------------------------------
 IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 
-	if(attached()) {
+	if(process_) {
 		if(!native::wait_for_sigchld(msecs)) {
-			for(edb::tid_t thread: thread_ids()) {
+			for(auto thread : process_->threads()) {
 				int status;
-				const edb::tid_t tid = native::waitpid(thread, &status, __WALL | WNOHANG);
+				const edb::tid_t tid = native::waitpid(thread->tid(), &status, __WALL | WNOHANG);
 				if(tid > 0) {
 					return handle_event(tid, status);
 				}
@@ -470,7 +469,7 @@ bool DebuggerCore::attach_thread(edb::tid_t tid) {
 		int status;
 		if(native::waitpid(tid, &status, __WALL) > 0) {
 
-			auto newThread     = std::make_shared<PlatformThread>(tid);
+			auto newThread     = std::make_shared<PlatformThread>(process_, tid);
 			newThread->status_ = status;
 			newThread->state_  = PlatformThread::Stopped;
 
@@ -498,6 +497,9 @@ bool DebuggerCore::attach_thread(edb::tid_t tid) {
 //------------------------------------------------------------------------------
 bool DebuggerCore::attach(edb::pid_t pid) {
 	detach();
+	
+	// create this, so the threads created can refer to it
+	process_ = new PlatformProcess(this, pid);
 
 	bool attached;
 	do {
@@ -518,11 +520,12 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 	if(!threads_.empty()) {
 		pid_            = pid;
 		active_thread_  = pid;
-		event_thread_   = pid;
-		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
-		process_        = new PlatformProcess(this, pid);
+		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());		
 		detectDebuggeeBitness();
 		return true;
+	} else {
+		delete process_;
+		process_ = nullptr;
 	}
 
 	return false;
@@ -533,14 +536,14 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::detach() {
-	if(attached()) {
+	if(process_) {
 
 		stop_threads();
 
 		clear_breakpoints();
 
-		for(edb::tid_t thread: thread_ids()) {
-			ptrace(PTRACE_DETACH, thread, 0, 0);
+		for(auto thread: process_->threads()) {
+			ptrace(PTRACE_DETACH, thread->tid(), 0, 0);
 		}
 		
 		delete process_;
@@ -594,14 +597,13 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 
 	if(attached()) {
 		if(status != edb::DEBUG_STOP) {
-			const edb::tid_t tid = active_thread();
 			
-			auto it = threads_.find(tid);
+			auto it = threads_.find(active_thread_);
 			if(it != threads_.end()) {
 				PlatformThread::pointer &thread = it.value();
 			
 				const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(thread->status_) : 0;
-				ptrace_continue(tid, code);
+				ptrace_continue(active_thread_, code);
 
 				// resume the other threads passing the signal they originally reported had
 				for(auto it = threads_.begin(); it != threads_.end(); ++it) {
@@ -626,14 +628,13 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 
 	if(attached()) {
 		if(status != edb::DEBUG_STOP) {
-			const edb::tid_t tid = active_thread();
 			
-			auto it = threads_.find(tid);
+			auto it = threads_.find(active_thread_);
 			if(it != threads_.end()) {			
 				PlatformThread::pointer &thread = it.value();
 			
 				const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(thread->status_) : 0;
-				ptrace_step(tid, code);
+				ptrace_step(active_thread_, code);
 			}
 		}
 	}
@@ -649,7 +650,7 @@ void DebuggerCore::fillSegmentBases(PlatformState* state) {
 		if(!reg) continue;
 		bool fromGDT=!(reg&0x04); // otherwise the selector picks descriptor from LDT
 		if(!fromGDT) continue;
-		if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), reg / LDT_ENTRY_SIZE, &desc) != -1) {
+		if(ptrace(PTRACE_GET_THREAD_AREA, active_thread_, reg / LDT_ENTRY_SIZE, &desc) != -1) {
 			state->x86.segRegBases[sregIndex] = desc.base_addr;
 			state->x86.segRegBasesFilled[sregIndex]=true;
 		}
@@ -675,7 +676,7 @@ bool DebuggerCore::fillStateFromPrStatus(PlatformState* state) {
 
 	iovec prstat_iov = {&prstat64, sizeof(prstat64)};
 
-	if(ptrace(PTRACE_GETREGSET, active_thread(), NT_PRSTATUS, &prstat_iov) != -1) {
+	if(ptrace(PTRACE_GETREGSET, active_thread_, NT_PRSTATUS, &prstat_iov) != -1) {
 		if(prstat_iov.iov_len==sizeof(prstat64)) {
 			state->fillFrom(prstat64);
 		} else if(prstat_iov.iov_len==sizeof(PrStatus_X86)) {
@@ -703,7 +704,7 @@ bool DebuggerCore::fillStateFromPrStatus(PlatformState* state) {
 bool DebuggerCore::fillStateFromSimpleRegs(PlatformState* state) {
 
 	user_regs_struct regs;
-	if(ptrace(PTRACE_GETREGS, active_thread(), 0, &regs) != -1) {
+	if(ptrace(PTRACE_GETREGS, active_thread_, 0, &regs) != -1) {
 
 		state->fillFrom(regs);
 		fillSegmentBases(state);
@@ -716,11 +717,11 @@ bool DebuggerCore::fillStateFromSimpleRegs(PlatformState* state) {
 }
 
 unsigned long DebuggerCore::get_debug_register(std::size_t n) {
-	return ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[n]), 0);
+	return ptrace(PTRACE_PEEKUSER, active_thread_, offsetof(struct user, u_debugreg[n]), 0);
 }
 
 long DebuggerCore::set_debug_register(std::size_t n, long value) {
-	return ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[n]), value);
+	return ptrace(PTRACE_POKEUSER, active_thread_, offsetof(struct user, u_debugreg[n]), value);
 }
 
 void DebuggerCore::detectDebuggeeBitness() {
@@ -729,7 +730,7 @@ void DebuggerCore::detectDebuggeeBitness() {
 						offsetof(UserRegsStructX86_64, cs) :
 						offsetof(UserRegsStructX86,   xcs);
 	errno=0;
-	const edb::seg_reg_t cs=ptrace(PTRACE_PEEKUSER, active_thread(), offset, 0);
+	const edb::seg_reg_t cs=ptrace(PTRACE_PEEKUSER, active_thread_, offset, 0);
 	if(!errno) {
 		if(cs==USER_CS_32) {
 			if(pointer_size_==sizeof(quint64)) {
@@ -774,7 +775,7 @@ void DebuggerCore::get_state(State *state) {
 			// First try to get full XSTATE
 			X86XState xstate;
 			iovec iov={&xstate,sizeof(xstate)};
-			ptraceStatus=ptrace(PTRACE_GETREGSET, active_thread(), NT_X86_XSTATE, &iov);
+			ptraceStatus=ptrace(PTRACE_GETREGSET, active_thread_, NT_X86_XSTATE, &iov);
 			if(ptraceStatus!=-1) {
 				state_impl->fillFrom(xstate,iov.iov_len);
 			} else {
@@ -785,7 +786,7 @@ void DebuggerCore::get_state(State *state) {
 				// This should be automatically optimized out on amd64. If not, not a big deal.
 				// Avoiding conditional compilation to facilitate syntax error checking
 				if(getFPXRegsSupported)
-					getFPXRegsSupported=(ptrace(PTRACE_GETFPXREGS, active_thread(), 0, &fpxregs)!=-1);
+					getFPXRegsSupported=(ptrace(PTRACE_GETFPXREGS, active_thread_, 0, &fpxregs)!=-1);
 
 				if(getFPXRegsSupported) {
 					state_impl->fillFrom(fpxregs);
@@ -793,7 +794,7 @@ void DebuggerCore::get_state(State *state) {
 					// No GETFPXREGS: on x86 this means SSE is not supported
 					//                on x86_64 FPREGS already contain SSE state
 					user_fpregs_struct fpregs;
-					if((ptraceStatus=ptrace(PTRACE_GETFPREGS, active_thread(), 0, &fpregs))!=-1)
+					if((ptraceStatus=ptrace(PTRACE_GETFPREGS, active_thread_, 0, &fpregs))!=-1)
 						state_impl->fillFrom(fpregs);
 					else
 						perror("PTRACE_GETFPREGS failed");
@@ -827,7 +828,7 @@ void DebuggerCore::set_state(const State &state) {
 				PrStatus_X86_64 prstat64;
 				state_impl->fillStruct(prstat64);
 				iovec prstat_iov = {&prstat64, sizeof(prstat64)};
-				if(ptrace(PTRACE_SETREGSET, active_thread(), NT_PRSTATUS, &prstat_iov) != -1)
+				if(ptrace(PTRACE_SETREGSET, active_thread_, NT_PRSTATUS, &prstat_iov) != -1)
 					setRegSetDone=true;
 				else
 					perror("PTRACE_SETREGSET failed");
@@ -836,7 +837,7 @@ void DebuggerCore::set_state(const State &state) {
 			if(!setRegSetDone) {
 				user_regs_struct regs;
 				state_impl->fillStruct(regs);
-				ptrace(PTRACE_SETREGS, active_thread(), 0, &regs);
+				ptrace(PTRACE_SETREGS, active_thread_, 0, &regs);
 			}
 
 			// debug registers
@@ -846,7 +847,7 @@ void DebuggerCore::set_state(const State &state) {
 			// FPU registers
 			user_fpregs_struct fpregs;
 			state_impl->fillStruct(fpregs);
-			if(ptrace(PTRACE_SETFPREGS, active_thread(), 0, &fpregs)==-1)
+			if(ptrace(PTRACE_SETFPREGS, active_thread_, 0, &fpregs)==-1)
 				perror("PTRACE_SETFPREGS failed");
 		}
 	}
@@ -922,20 +923,21 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 
 			// setup the first event data for the primary thread
 			waited_threads_.insert(pid);
+			
+			// create the process
+			process_ = new PlatformProcess(this, pid);
+			
 
 			// the PID == primary TID
-			auto newThread     = std::make_shared<PlatformThread>(pid);
+			auto newThread     = std::make_shared<PlatformThread>(process_, pid);
 			newThread->status_ = status;
 			newThread->state_  = PlatformThread::Stopped;
 			
 			threads_[pid]   = newThread;
 
 			pid_            = pid;
-			active_thread_  = pid;
-			event_thread_   = pid;
+			active_thread_   = pid;
 			binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
-
-			process_ = new PlatformProcess(this, pid);
 
 			detectDebuggeeBitness();
 
@@ -946,31 +948,14 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 }
 
 //------------------------------------------------------------------------------
-// Name: set_active_thread
-// Desc:
-//------------------------------------------------------------------------------
-void DebuggerCore::set_active_thread(edb::tid_t tid) {
-	if(threads_.contains(tid)) {
-#if 0
-		active_thread_ = tid;
-#else
-		qDebug("[DebuggerCore::set_active_thread] not implemented yet");
-#endif
-	} else {
-		qDebug("[DebuggerCore] warning, attempted to set invalid thread as active: %d", tid);
-	}
-}
-
-//------------------------------------------------------------------------------
 // Name: reset
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::reset() {
 	threads_.clear();
 	waited_threads_.clear();
-	active_thread_ = 0;
 	pid_           = 0;
-	event_thread_  = 0;
+	active_thread_ = 0;
 	binary_info_   = nullptr;
 }
 
@@ -1179,66 +1164,9 @@ QString DebuggerCore::flag_register() const {
 }
 
 //------------------------------------------------------------------------------
-// Name:
-// Desc:
+// Name: process
+// Desc: 
 //------------------------------------------------------------------------------
-ThreadInfo DebuggerCore::get_thread_info(edb::tid_t tid) {
-
-	ThreadInfo info;
-	struct user_stat thread_stat;
-	int n = get_user_stat(QString("/proc/%1/task/%2/stat").arg(pid_).arg(tid), &thread_stat);	
-	if(n >= 30) {
-		info.name     = thread_stat.comm;     // 02
-		info.tid      = tid;
-		info.ip       = thread_stat.kstkeip;  // 18
-		info.priority = thread_stat.priority; // 30
-		
-		switch(thread_stat.state) {           // 03
-		case 'R':
-			info.state = tr("%1 (Running)").arg(thread_stat.state);
-			break;
-		case 'S':
-			info.state = tr("%1 (Sleeping)").arg(thread_stat.state);
-			break;
-		case 'D':
-			info.state = tr("%1 (Disk Sleep)").arg(thread_stat.state);
-			break;		
-		case 'T':
-			info.state = tr("%1 (Stopped)").arg(thread_stat.state);
-			break;		
-		case 't':
-			info.state = tr("%1 (Tracing Stop)").arg(thread_stat.state);
-			break;		
-		case 'Z':
-			info.state = tr("%1 (Zombie)").arg(thread_stat.state);
-			break;		
-		case 'X':
-		case 'x':
-			info.state = tr("%1 (Dead)").arg(thread_stat.state);
-			break;
-		case 'W':
-			info.state = tr("%1 (Waking/Paging)").arg(thread_stat.state);
-			break;			
-		case 'K':
-			info.state = tr("%1 (Wakekill)").arg(thread_stat.state);
-			break;		
-		case 'P':
-			info.state = tr("%1 (Parked)").arg(thread_stat.state);
-			break;		
-		default:
-			info.state = tr("%1").arg(thread_stat.state);
-			break;		
-		} 
-	} else {
-		info.name     = QString();
-		info.tid      = tid;
-		info.ip       = 0;
-		info.priority = 0;
-		info.state    = '?';
-	}
-	return info;
-}
-
 IProcess *DebuggerCore::process() const {
 	return process_;
 }

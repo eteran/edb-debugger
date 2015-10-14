@@ -25,7 +25,7 @@ namespace DebuggerCore {
 // Name: DebuggerCoreBase
 // Desc: constructor
 //------------------------------------------------------------------------------
-DebuggerCoreBase::DebuggerCoreBase() : active_thread_(0), pid_(0) {
+DebuggerCoreBase::DebuggerCoreBase() : pid_(0) {
 }
 
 //------------------------------------------------------------------------------
@@ -127,29 +127,6 @@ edb::pid_t DebuggerCoreBase::pid() const {
 //------------------------------------------------------------------------------
 bool DebuggerCoreBase::attached() const {
 	return pid() != 0;
-}
-
-//------------------------------------------------------------------------------
-// Name: thread_ids
-// Desc:
-//------------------------------------------------------------------------------
-QList<edb::tid_t> DebuggerCoreBase::thread_ids() const {
-	return QList<edb::tid_t>();
-}
-
-//------------------------------------------------------------------------------
-// Name: active_thread
-// Desc:
-//------------------------------------------------------------------------------
-edb::tid_t DebuggerCoreBase::active_thread() const {
-	return active_thread_;
-}
-
-//------------------------------------------------------------------------------
-// Name: set_active_thread
-// Desc:
-//------------------------------------------------------------------------------
-void DebuggerCoreBase::set_active_thread(edb::tid_t) {
 }
 
 }

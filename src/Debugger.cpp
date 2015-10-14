@@ -2919,10 +2919,14 @@ void Debugger::on_action_Threads_triggered() {
 
 	if(dlg->exec() == QDialog::Accepted) {
 		if(dlg) {
+#if 0
+			// TODO(eteran): disabling this for now, no real loss
+			// since it did nothing in the backend yet anyway
 			if(const edb::tid_t tid = dlg->selected_thread()) {
 				edb::v1::debugger_core->set_active_thread(tid);
 				update_gui();
 			}
+#endif
 		}
 	}
 

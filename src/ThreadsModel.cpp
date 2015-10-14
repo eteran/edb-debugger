@@ -55,30 +55,30 @@ QVariant ThreadsModel::data(const QModelIndex &index, int role) const {
 			switch(index.column()) {
 			case 0:
 				if(item.current) {
-					return tr("*%1").arg(item.info.tid);
+					return tr("*%1").arg(item.thread->tid());
 				} else {
-					return item.info.tid;
+					return item.thread->tid();
 				}
 			case 1:
-				return item.info.priority;
+				return item.thread->priority();
 			case 2:
 				{
 					const QString default_region_name;
-					const QString symname = edb::v1::find_function_symbol(item.info.ip, default_region_name);
+					const QString symname = edb::v1::find_function_symbol(item.thread->instruction_pointer(), default_region_name);
 
 					if(!symname.isEmpty()) {
-						return QString("%1 <%2>").arg(edb::v1::format_pointer(item.info.ip)).arg(symname);
+						return QString("%1 <%2>").arg(edb::v1::format_pointer(item.thread->instruction_pointer())).arg(symname);
 					} else {
-						return QString("%1").arg(edb::v1::format_pointer(item.info.ip));
+						return QString("%1").arg(edb::v1::format_pointer(item.thread->instruction_pointer()));
 					}				
 				}
 			case 3:
-				return item.info.state;
+				return item.thread->runState();
 			case 4:
-				return item.info.name;								
+				return item.thread->name();								
 			}
 		} else if(role == Qt::UserRole) {
-			return item.info.tid;
+			return item.thread->tid();
 		}
 	}
 
@@ -115,11 +115,11 @@ int ThreadsModel::rowCount(const QModelIndex &parent) const {
 	return items_.size();
 }
 
-void ThreadsModel::addThread(const ThreadInfo &info, bool current) {
+void ThreadsModel::addThread(const IThread::pointer &thread, bool current) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
 	const Item item = {
-		info, current
+		thread, current
 	};
 	items_.push_back(item);
 	endInsertRows();

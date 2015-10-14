@@ -509,5 +509,30 @@ bool PlatformProcess::write_data(edb::address_t address, long value) {
 	return ptrace(PTRACE_POKETEXT, pid_, nativeAddress, value) != -1;
 }
 
+//------------------------------------------------------------------------------
+// Name: threads
+// Desc:
+//------------------------------------------------------------------------------
+QList<IThread::pointer> PlatformProcess::threads() const {
+	QList<IThread::pointer> threadList;
+	
+	for(auto &thread : core_->threads_) {
+		threadList.push_back(thread);
+	}
+	
+	return threadList;
+}
+
+//------------------------------------------------------------------------------
+// Name: current_thread
+// Desc:
+//------------------------------------------------------------------------------
+IThread::pointer PlatformProcess::current_thread() const {
+	auto it = core_->threads_.find(core_->active_thread_);
+	if(it != core_->threads_.end()) {
+		return it.value();
+	}
+	return IThread::pointer();
+}
 
 }
