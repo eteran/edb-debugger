@@ -45,53 +45,58 @@ void CallStack::get_call_stack() {
 	 * Are we still scanning within the stack region?
 	 */
 
-	//Get the frame & stack pointers.
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-	edb::address_t rbp = state.frame_pointer();
-	edb::address_t rsp = state.stack_pointer();
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(IThread::pointer thread = process->current_thread()) {
 
-	//Check the alignment.  rbp and rsp should be aligned to the stack.
-	if (rbp % edb::v1::pointer_size() != 0 ||
-			rsp % edb::v1::pointer_size() != 0)
-	{
-		return;
-	}
+			//Get the frame & stack pointers.
+			State state;
+			thread->get_state(&state);
+			edb::address_t rbp = state.frame_pointer();
+			edb::address_t rsp = state.stack_pointer();
 
-	//Make sure frame pointer is pointing in the same region as stack pointer.
-	//If not, then it's being used as a GPR, and we don't have enough info.
-	//This assumes the stack pointer is always pointing somewhere in the stack.
-	IRegion::pointer region_rsp, region_rbp;
-	edb::v1::memory_regions().sync();
-	region_rsp = edb::v1::memory_regions().find_region(rsp);
-	region_rbp = edb::v1::memory_regions().find_region(rbp);
-	if (!region_rsp || !region_rbp || (region_rbp != region_rsp) ) {
-		return;
-	}
+			//Check the alignment.  rbp and rsp should be aligned to the stack.
+			if (rbp % edb::v1::pointer_size() != 0 ||
+					rsp % edb::v1::pointer_size() != 0)
+			{
+				return;
+			}
 
-	//But if we're good, then scan from rbp downward and look for return addresses.
-	//Code is largely from CommentServer.cpp.  Makes assumption of size of call.
-	const quint8 CALL_MIN_SIZE = 2, CALL_MAX_SIZE = 7;
-	quint8 buffer[edb::Instruction::MAX_SIZE];
-	for (edb::address_t addr = rbp; region_rbp->contains(addr); addr += edb::v1::pointer_size()) {
+			//Make sure frame pointer is pointing in the same region as stack pointer.
+			//If not, then it's being used as a GPR, and we don't have enough info.
+			//This assumes the stack pointer is always pointing somewhere in the stack.
+			IRegion::pointer region_rsp, region_rbp;
+			edb::v1::memory_regions().sync();
+			region_rsp = edb::v1::memory_regions().find_region(rsp);
+			region_rbp = edb::v1::memory_regions().find_region(rbp);
+			if (!region_rsp || !region_rbp || (region_rbp != region_rsp) ) {
+				return;
+			}
 
-		//Get the stack value so that we can see if it's a pointer
-		bool ok;
-		ExpressionError err;
-		edb::address_t possible_ret = edb::v1::get_value(addr, &ok, &err);
+			//But if we're good, then scan from rbp downward and look for return addresses.
+			//Code is largely from CommentServer.cpp.  Makes assumption of size of call.
+			const quint8 CALL_MIN_SIZE = 2, CALL_MAX_SIZE = 7;
+			quint8 buffer[edb::Instruction::MAX_SIZE];
+			for (edb::address_t addr = rbp; region_rbp->contains(addr); addr += edb::v1::pointer_size()) {
 
-		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(process->read_bytes(possible_ret - CALL_MAX_SIZE, buffer, sizeof(buffer))) {	//0xfffff... if not a ptr.
-				for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
-					edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
+				//Get the stack value so that we can see if it's a pointer
+				bool ok;
+				ExpressionError err;
+				edb::address_t possible_ret = edb::v1::get_value(addr, &ok, &err);
 
-					//If it's a call, then make a frame
-					if(is_call(inst)) {
-						stack_frame frame;
-						frame.ret = possible_ret;
-						frame.caller = possible_ret - CALL_MAX_SIZE + i;
-						stack_frames_.append(frame);
-						break;
+				if(IProcess *process = edb::v1::debugger_core->process()) {
+					if(process->read_bytes(possible_ret - CALL_MAX_SIZE, buffer, sizeof(buffer))) {	//0xfffff... if not a ptr.
+						for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
+							edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
+
+							//If it's a call, then make a frame
+							if(is_call(inst)) {
+								stack_frame frame;
+								frame.ret = possible_ret;
+								frame.caller = possible_ret - CALL_MAX_SIZE + i;
+								stack_frames_.append(frame);
+								break;
+							}
+						}
 					}
 				}
 			}

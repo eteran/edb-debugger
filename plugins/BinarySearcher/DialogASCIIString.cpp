@@ -64,37 +64,41 @@ void DialogASCIIString::do_find() {
 
 		edb::v1::memory_regions().sync();
 		
-		State state;
-		edb::v1::debugger_core->get_state(&state);
-		edb::address_t stack_ptr = state.stack_pointer();
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			if(IThread::pointer thread = process->current_thread()) {		
+		
+				State state;
+				thread->get_state(&state);
+				edb::address_t stack_ptr = state.stack_pointer();
 
-		if(IRegion::pointer region = edb::v1::memory_regions().find_region(stack_ptr)) {
-			if(IProcess *process = edb::v1::debugger_core->process()) {
-				edb::address_t count = (region->end() - stack_ptr) / edb::v1::pointer_size();
-				stack_ptr = region->start();
+				if(IRegion::pointer region = edb::v1::memory_regions().find_region(stack_ptr)) {
 
-				try {
-					QVector<quint8> chars(sz);
+					edb::address_t count = (region->end() - stack_ptr) / edb::v1::pointer_size();
+					stack_ptr = region->start();
 
-					int i = 0;
-					while(stack_ptr < region->end()) {
-						// get the value from the stack
-						edb::address_t value(0);
-						if(process->read_bytes(stack_ptr, &value, edb::v1::pointer_size())) {
-							if(process->read_bytes(value, &chars[0], sz)) {
-								if(std::memcmp(&chars[0], b.constData(), sz) == 0) {
-									auto item = new QListWidgetItem(edb::v1::format_pointer(stack_ptr));
-									item->setData(Qt::UserRole, stack_ptr);
-									ui->listWidget->addItem(item);
+					try {
+						QVector<quint8> chars(sz);
+
+						int i = 0;
+						while(stack_ptr < region->end()) {
+							// get the value from the stack
+							edb::address_t value(0);
+							if(process->read_bytes(stack_ptr, &value, edb::v1::pointer_size())) {
+								if(process->read_bytes(value, &chars[0], sz)) {
+									if(std::memcmp(&chars[0], b.constData(), sz) == 0) {
+										auto item = new QListWidgetItem(edb::v1::format_pointer(stack_ptr));
+										item->setData(Qt::UserRole, stack_ptr);
+										ui->listWidget->addItem(item);
+									}
 								}
 							}
+							ui->progressBar->setValue(util::percentage(i++, count));
+							stack_ptr += edb::v1::pointer_size();
 						}
-						ui->progressBar->setValue(util::percentage(i++, count));
-						stack_ptr += edb::v1::pointer_size();
+					} catch(const std::bad_alloc &) {
+						QMessageBox::information(0, tr("Memroy Allocation Error"),
+							tr("Unable to satisfy memory allocation request for search string."));
 					}
-				} catch(const std::bad_alloc &) {
-					QMessageBox::information(0, tr("Memroy Allocation Error"),
-						tr("Unable to satisfy memory allocation request for search string."));
 				}
 			}
 		}

@@ -157,12 +157,16 @@ void Analyzer::show_specified() {
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::do_ip_analysis() {
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-
-	const edb::address_t address = state.instruction_pointer();
-	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
-		do_analysis(region);
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(IThread::pointer thread = process->current_thread()) {
+			State state;
+			thread->get_state(&state);
+		
+			const edb::address_t address = state.instruction_pointer();
+			if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
+				do_analysis(region);
+			}
+		}
 	}
 }
 

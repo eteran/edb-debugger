@@ -125,6 +125,7 @@ public:
 	//TODO: Need to handle stop/pause button
 	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event) {
 
+
 		State state;
 		edb::v1::debugger_core->get_state(&state);
 
@@ -1069,17 +1070,21 @@ void Debugger::toggle_flag(int pos)
 	// TODO Maybe this should just return w/o action if no process is loaded.
 
 	// Get the state and get the flag register
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-	edb::reg_t flags = state.flags();
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(IThread::pointer thread = process->current_thread()) {	
+			State state;
+			thread->get_state(&state);
+			edb::reg_t flags = state.flags();
 
-	// Toggle the flag
-	flags ^= (1 << pos);
-	state.set_flags(flags);
-	edb::v1::debugger_core->set_state(state);
+			// Toggle the flag
+			flags ^= (1 << pos);
+			state.set_flags(flags);
+			thread->set_state(state);
 
-	update_gui();
-	refresh_gui();
+			update_gui();
+			refresh_gui();
+		}
+	}
 }
 
 void Debugger::toggle_flag_carry()     { toggle_flag(0); }
@@ -1164,28 +1169,30 @@ void Debugger::on_action_Configure_Debugger_triggered() {
 template <class F1, class F2>
 void Debugger::step_over(F1 run_func, F2 step_func) {
 
-	State state;
-	edb::v1::debugger_core->get_state(&state);
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(IThread::pointer thread = process->current_thread()) {
+			State state;
+			thread->get_state(&state);
 
-	const edb::address_t ip = state.instruction_pointer();
-	quint8 buffer[edb::Instruction::MAX_SIZE];
-	if(const int sz = edb::v1::get_instruction_bytes(ip, buffer)) {
-		edb::Instruction inst(buffer, buffer + sz, 0);
-		if(inst && edb::v1::arch_processor().can_step_over(inst)) {
+			const edb::address_t ip = state.instruction_pointer();
+			quint8 buffer[edb::Instruction::MAX_SIZE];
+			if(const int sz = edb::v1::get_instruction_bytes(ip, buffer)) {
+				edb::Instruction inst(buffer, buffer + sz, 0);
+				if(inst && edb::v1::arch_processor().can_step_over(inst)) {
 
-			// add a temporary breakpoint at the instruction just
-			// after the call
-			if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(ip + inst.size())) {
-				bp->set_internal(true);
-				bp->set_one_time(true);
-				bp->tag = stepover_bp_tag;
-				run_func();
-				return;
+					// add a temporary breakpoint at the instruction just
+					// after the call
+					if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(ip + inst.size())) {
+						bp->set_internal(true);
+						bp->set_one_time(true);
+						bp->tag = stepover_bp_tag;
+						run_func();
+						return;
+					}
+				}
 			}
 		}
 	}
-
-
 
 	// if all else fails, it's a step into
 	step_func();
@@ -1223,11 +1230,15 @@ void Debugger::follow_register_in_dump(bool tabbed) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuStackGotoESP() {
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-	follow_memory(state.stack_pointer(), [](edb::address_t address) {
-		return edb::v1::dump_stack(address);
-	});
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(IThread::pointer thread = process->current_thread()) {
+			State state;
+			thread->get_state(&state);
+			follow_memory(state.stack_pointer(), [](edb::address_t address) {
+				return edb::v1::dump_stack(address);
+			});
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -1235,11 +1246,15 @@ void Debugger::mnuStackGotoESP() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuStackGotoEBP() {
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-	follow_memory(state.frame_pointer(), [](edb::address_t address) {
-		return edb::v1::dump_stack(address);
-	});
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(IThread::pointer thread = process->current_thread()) {
+			State state;
+			thread->get_state(&state);
+			follow_memory(state.frame_pointer(), [](edb::address_t address) {
+				return edb::v1::dump_stack(address);
+			});
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -1247,11 +1262,15 @@ void Debugger::mnuStackGotoEBP() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUJumpToEIP() {
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-	follow_memory(state.instruction_pointer(), [](edb::address_t address) {
-		return edb::v1::jump_to_address(address);
-	});
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(IThread::pointer thread = process->current_thread()) {
+			State state;
+			thread->get_state(&state);
+			follow_memory(state.instruction_pointer(), [](edb::address_t address) {
+				return edb::v1::jump_to_address(address);
+			});
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -1469,18 +1488,23 @@ void Debugger::mnuStackPush() {
 	Register value(edb::v1::debuggeeIs32Bit()?
 					   make_Register("",edb::value32(0),Register::TYPE_GPR):
 					   make_Register("",edb::value64(0),Register::TYPE_GPR));
-	State state;
-	edb::v1::debugger_core->get_state(&state);
+					   
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(IThread::pointer thread = process->current_thread()) {
+			State state;
+			thread->get_state(&state);
 
-	// ask for a replacement
-	if(edb::v1::get_value_from_user(value, tr("Enter value to push"))) {
+			// ask for a replacement
+			if(edb::v1::get_value_from_user(value, tr("Enter value to push"))) {
 
-		// if they said ok, do the push, just like the hardware would do
-		edb::v1::push_value(&state, value.valueAsInteger());
+				// if they said ok, do the push, just like the hardware would do
+				edb::v1::push_value(&state, value.valueAsInteger());
 
-		// update the state
-		edb::v1::debugger_core->set_state(state);
-		update_gui();
+				// update the state
+				thread->set_state(state);
+				update_gui();
+			}
+		}
 	}
 }
 
@@ -1489,11 +1513,15 @@ void Debugger::mnuStackPush() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuStackPop() {
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-	edb::v1::pop_value(&state);
-	edb::v1::debugger_core->set_state(state);
-	update_gui();
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(IThread::pointer thread = process->current_thread()) {
+			State state;
+			thread->get_state(&state);
+			edb::v1::pop_value(&state);
+			thread->set_state(state);
+			update_gui();
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -1886,12 +1914,16 @@ void Debugger::mnuCPULabelAddress() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUSetEIP() {
-	const edb::address_t address = ui.cpuView->selectedAddress();
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-	state.set_instruction_pointer(address);
-	edb::v1::debugger_core->set_state(state);
-	update_gui();
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(IThread::pointer thread = process->current_thread()) {
+			const edb::address_t address = ui.cpuView->selectedAddress();
+			State state;
+			thread->get_state(&state);
+			state.set_instruction_pointer(address);
+			thread->set_state(state);
+			update_gui();
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -2300,9 +2332,13 @@ void Debugger::refresh_gui() {
 	}
 
 	if(edb::v1::debugger_core) {
-		State state;
-		edb::v1::debugger_core->get_state(&state);
-		list_model_->setStringList(edb::v1::arch_processor().update_instruction_info(state.instruction_pointer()));
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			if(IThread::pointer thread = process->current_thread()) {	
+				State state;
+				thread->get_state(&state);
+				list_model_->setStringList(edb::v1::arch_processor().update_instruction_info(state.instruction_pointer()));
+			}
+		}
 	}
 }
 
@@ -2313,16 +2349,20 @@ void Debugger::refresh_gui() {
 void Debugger::update_gui() {
 
 	if(edb::v1::debugger_core) {
-		State state;
-		edb::v1::debugger_core->get_state(&state);
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			if(IThread::pointer thread = process->current_thread()) {		
+				State state;
+				thread->get_state(&state);
 
-		update_data_views();
-		update_stack_view(state);
+				update_data_views();
+				update_stack_view(state);
 
-		if(const IRegion::pointer region = update_cpu_view(state)) {
-			edb::v1::arch_processor().update_register_view(region->name(), state);
-		} else {
-			edb::v1::arch_processor().update_register_view(QString(), state);
+				if(const IRegion::pointer region = update_cpu_view(state)) {
+					edb::v1::arch_processor().update_register_view(region->name(), state);
+				} else {
+					edb::v1::arch_processor().update_register_view(QString(), state);
+				}
+			}
 		}
 	}
 
@@ -2360,38 +2400,41 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced) {
 
 	Q_ASSERT(edb::v1::debugger_core);
-
-	// if necessary pass the trap to the application, otherwise just resume
-	// as normal
-	const edb::EVENT_STATUS status = resume_status(pass_exception == PASS_EXCEPTION);
-
-	// if we are on a breakpoint, disable it
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-	IBreakpoint::pointer bp;
-	if(!forced) {
-		bp = edb::v1::debugger_core->find_breakpoint(state.instruction_pointer());
-		if(bp) {
-			bp->disable();
-		}
-	}
-
+	
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(mode == MODE_STEP) {
-			reenable_breakpoint_step_ = bp;
-			process->step(status);
-		} else if(mode == MODE_RUN) {
-			reenable_breakpoint_run_ = bp;
-			if(bp) {
-				process->step(status);
-			} else {
-				process->resume(status);
+		if(IThread::pointer thread = process->current_thread()) {	
+
+			// if necessary pass the trap to the application, otherwise just resume
+			// as normal
+			const edb::EVENT_STATUS status = resume_status(pass_exception == PASS_EXCEPTION);
+
+			// if we are on a breakpoint, disable it
+			State state;
+			thread->get_state(&state);
+			IBreakpoint::pointer bp;
+			if(!forced) {
+				bp = edb::v1::debugger_core->find_breakpoint(state.instruction_pointer());
+				if(bp) {
+					bp->disable();
+				}
 			}
+
+			if(mode == MODE_STEP) {
+				reenable_breakpoint_step_ = bp;
+				process->step(status);
+			} else if(mode == MODE_RUN) {
+				reenable_breakpoint_run_ = bp;
+				if(bp) {
+					process->step(status);
+				} else {
+					process->resume(status);
+				}
+			}
+
+			// set the state to 'running'
+			update_menu_state(RUNNING);
 		}
 	}
-
-	// set the state to 'running'
-	update_menu_state(RUNNING);
 }
 
 //------------------------------------------------------------------------------
@@ -3062,14 +3105,19 @@ bool Debugger::dump_stack(edb::address_t address, bool scroll_to) {
 	if(stack_view_info_.region) {
 		stack_view_info_.update();
 
-		State state;
-		edb::v1::debugger_core->get_state(&state);
-		stack_view_->setColdZoneEnd(state.stack_pointer());
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			if(IThread::pointer thread = process->current_thread()) {
 
-		if(scroll_to || stack_view_info_.region->compare(last_region)) {
-			stack_view_->scrollTo(address - stack_view_info_.region->start());
+				State state;
+				thread->get_state(&state);
+				stack_view_->setColdZoneEnd(state.stack_pointer());
+
+				if(scroll_to || stack_view_info_.region->compare(last_region)) {
+					stack_view_->scrollTo(address - stack_view_info_.region->start());
+				}
+				return true;
+			}
 		}
-		return true;
 	}
 
 	return false;

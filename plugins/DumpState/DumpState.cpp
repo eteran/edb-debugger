@@ -247,20 +247,24 @@ void DumpState::dump_data(edb::address_t address) {
 //------------------------------------------------------------------------------
 void DumpState::show_menu() {
 
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-
-	std::cout << "------------------------------------------------------------------------------\n";
-	dump_registers(state);
-	std::cout << "[" << hex_string(state["ss"]) << ":" << hex_string(state.stack_pointer()) << "]---------------------------------------------------------[stack]\n";
-	dump_stack(state);
-
-	const edb::address_t data_address = edb::v1::current_data_view_address();
-	std::cout << "[" << hex_string(state["ds"]) << ":" << hex_string(data_address) << "]---------------------------------------------------------[ data]\n";
-	dump_data(data_address);
-	std::cout << "[" << hex_string(state["cs"]) << ":" << hex_string(state.instruction_pointer()) << "]---------------------------------------------------------[ code]\n";
-	dump_code(state);
-	std::cout << "------------------------------------------------------------------------------\n";
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(IThread::pointer thread = process->current_thread()) {
+			State state;
+			thread->get_state(&state);
+		
+			std::cout << "------------------------------------------------------------------------------\n";
+			dump_registers(state);
+			std::cout << "[" << hex_string(state["ss"]) << ":" << hex_string(state.stack_pointer()) << "]---------------------------------------------------------[stack]\n";
+			dump_stack(state);
+		
+			const edb::address_t data_address = edb::v1::current_data_view_address();
+			std::cout << "[" << hex_string(state["ds"]) << ":" << hex_string(data_address) << "]---------------------------------------------------------[ data]\n";
+			dump_data(data_address);
+			std::cout << "[" << hex_string(state["cs"]) << ":" << hex_string(state.instruction_pointer()) << "]---------------------------------------------------------[ code]\n";
+			dump_code(state);
+			std::cout << "------------------------------------------------------------------------------\n";
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
