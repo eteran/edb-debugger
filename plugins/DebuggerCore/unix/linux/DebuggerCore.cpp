@@ -400,7 +400,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 bool DebuggerCore::attach_thread(edb::tid_t tid) {
 	if(ptrace(PTRACE_ATTACH, tid, 0, 0) == 0) {
 		// I *think* that the PTRACE_O_TRACECLONE is only valid on
-		// on stopped threads
+		// stopped threads
 		int status;
 		if(native::waitpid(tid, &status, __WALL) > 0) {
 
