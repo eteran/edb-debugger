@@ -50,6 +50,7 @@ public Q_SLOTS:
 private:
 	void setup_breakpoints();
 	void setup_bp(State *state, int num, bool enabled, edb::address_t addr, int type, int size);
+	bool validate_bp(bool enabled, edb::address_t addr, int type, int size);
 
 private:
 	QMenu *              menu_;

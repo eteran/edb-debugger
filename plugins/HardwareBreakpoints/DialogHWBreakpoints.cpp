@@ -112,19 +112,19 @@ void DialogHWBreakpoints::showEvent(QShowEvent *event) {
 	ui->chkBP4->setChecked(bp4_enabled);
 
 	if(bp1_enabled) {
-		ui->txtBP1->setText(edb::v1::format_pointer(state.debug_register(0)));
+		ui->txtBP1->setText(state.debug_register(0).toHexString());
 	}
 
 	if(bp2_enabled) {
-		ui->txtBP2->setText(edb::v1::format_pointer(state.debug_register(1)));
+		ui->txtBP2->setText(state.debug_register(1).toHexString());
 	}
 
 	if(bp3_enabled) {
-		ui->txtBP3->setText(edb::v1::format_pointer(state.debug_register(2)));
+		ui->txtBP3->setText(state.debug_register(2).toHexString());
 	}
 
 	if(bp4_enabled) {
-		ui->txtBP4->setText(edb::v1::format_pointer(state.debug_register(3)));
+		ui->txtBP4->setText(state.debug_register(3).toHexString());
 	}
 }
 

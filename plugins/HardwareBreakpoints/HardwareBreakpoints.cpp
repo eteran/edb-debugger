@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QMenu>
 #include <QDialog>
+#include <QMessageBox>
 
 #include "ui_DialogHWBreakpoints.h"
 
@@ -69,6 +70,7 @@ void HardwareBreakpoints::setup_bp(State *state, int num, bool enabled, edb::add
 	const int N1 = 16 + (num * 4);
 	const int N2 = 18 + (num * 4);
 
+
 	// default to disabled
 	state->set_debug_register(7, (state->debug_register(7) & ~(0x01 << (num * 2))));
 
@@ -98,6 +100,11 @@ void HardwareBreakpoints::setup_bp(State *state, int num, bool enabled, edb::add
 		if(type != 0) {
 			// setup the size
 			switch(size) {
+			case 3:
+				// 8 bytes
+				Q_ASSERT(edb::v1::debuggeeIs32Bit());
+				state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N2)) | (0x02 << N2));
+				break;
 			case 2:
 				// 4 bytes
 				state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N2)) | (0x03 << N2));
@@ -124,7 +131,7 @@ void HardwareBreakpoints::setup_bp(State *state, int num, bool enabled, edb::add
 void HardwareBreakpoints::setup_breakpoints() {
 
 	// TODO: assert that we are paused
-	
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		if(auto p = qobject_cast<DialogHWBreakpoints *>(dialog_)) {
 
@@ -135,6 +142,41 @@ void HardwareBreakpoints::setup_breakpoints() {
 				p->ui->chkBP4->isChecked();
 
 			if(enabled) {
+
+				edb::address_t addr[4];
+				bool ok[4];
+
+				// validate all of the entries
+				addr[0] = edb::v1::string_to_address(p->ui->txtBP1->text(), &ok[0]);
+				addr[1] = edb::v1::string_to_address(p->ui->txtBP2->text(), &ok[1]);
+				addr[2] = edb::v1::string_to_address(p->ui->txtBP3->text(), &ok[2]);
+				addr[3] = edb::v1::string_to_address(p->ui->txtBP4->text(), &ok[3]);
+
+
+				if(!ok[0] && !ok[1] && !ok[2] && !ok[3]) {
+					QMessageBox::information(
+						0,
+						tr("Address Error"),
+						tr("The address provided does not appear to be valid"));
+					return;
+				}
+
+				if(ok[0] && !validate_bp(p->ui->chkBP1->isChecked(), addr[0], p->ui->cmbType1->currentIndex(), p->ui->cmbSize1->currentIndex())) {
+					return;
+				}
+
+				if(ok[1] && !validate_bp(p->ui->chkBP2->isChecked(), addr[0], p->ui->cmbType2->currentIndex(), p->ui->cmbSize2->currentIndex())) {
+					return;
+				}
+
+				if(ok[2] && !validate_bp(p->ui->chkBP3->isChecked(), addr[0], p->ui->cmbType3->currentIndex(), p->ui->cmbSize3->currentIndex())) {
+					return;
+				}
+
+				if(ok[3] && !validate_bp(p->ui->chkBP4->isChecked(), addr[0], p->ui->cmbType4->currentIndex(), p->ui->cmbSize4->currentIndex())) {
+					return;
+				}
+
 				// we want to be enabled, if we aren't already hooked,
 				// hook it
 				if(!old_event_handler_) {
@@ -143,29 +185,22 @@ void HardwareBreakpoints::setup_breakpoints() {
 
 				for(IThread::pointer thread : process->threads()) {
 					State state;
-					bool ok;
 					thread->get_state(&state);
 
-					edb::address_t addr;
-
-					addr = edb::v1::string_to_address(p->ui->txtBP1->text(), &ok);
-					if(ok) {
-						setup_bp(&state, 0, p->ui->chkBP1->isChecked(), addr, p->ui->cmbType1->currentIndex(), p->ui->cmbSize1->currentIndex());
+					if(ok[0]) {
+						setup_bp(&state, 0, p->ui->chkBP1->isChecked(), addr[0], p->ui->cmbType1->currentIndex(), p->ui->cmbSize1->currentIndex());
 					}
 
-					addr = edb::v1::string_to_address(p->ui->txtBP2->text(), &ok);
-					if(ok) {
-						setup_bp(&state, 1, p->ui->chkBP2->isChecked(), addr, p->ui->cmbType2->currentIndex(), p->ui->cmbSize2->currentIndex());
+					if(ok[1]) {
+						setup_bp(&state, 1, p->ui->chkBP2->isChecked(), addr[1], p->ui->cmbType2->currentIndex(), p->ui->cmbSize2->currentIndex());
 					}
 
-					addr = edb::v1::string_to_address(p->ui->txtBP3->text(), &ok);
-					if(ok) {
-						setup_bp(&state, 2, p->ui->chkBP3->isChecked(), addr, p->ui->cmbType3->currentIndex(), p->ui->cmbSize3->currentIndex());
+					if(ok[2]) {
+						setup_bp(&state, 2, p->ui->chkBP3->isChecked(), addr[2], p->ui->cmbType3->currentIndex(), p->ui->cmbSize3->currentIndex());
 					}
 
-					addr = edb::v1::string_to_address(p->ui->txtBP4->text(), &ok);
-					if(ok) {
-						setup_bp(&state, 3, p->ui->chkBP4->isChecked(), addr, p->ui->cmbType4->currentIndex(), p->ui->cmbSize4->currentIndex());
+					if(ok[3]) {
+						setup_bp(&state, 3, p->ui->chkBP4->isChecked(), addr[3], p->ui->cmbType4->currentIndex(), p->ui->cmbSize4->currentIndex());
 					}
 
 					thread->set_state(state);
@@ -213,7 +248,7 @@ void HardwareBreakpoints::show_menu() {
 edb::EVENT_STATUS HardwareBreakpoints::handle_event(const IDebugEvent::const_pointer &event) {
 
 	if(event->stopped() && event->is_trap()) {
-	
+
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 			if(IThread::pointer thread = process->current_thread()) {
 				// check DR6 to see if it was a HW BP event
@@ -232,8 +267,48 @@ edb::EVENT_STATUS HardwareBreakpoints::handle_event(const IDebugEvent::const_poi
 	return old_event_handler_->handle_event(event);
 }
 
+//------------------------------------------------------------------------------
+// Name: validate_bp
+// Desc:
+//------------------------------------------------------------------------------
+bool HardwareBreakpoints::validate_bp(bool enabled, edb::address_t addr, int type, int size) {
+
+	if(enabled) {
+		switch(type) {
+		case 2:
+		case 1:
+			{
+				const edb::address_t address_mask = (1u << size) - 1;
+				if((addr & address_mask) != 0) {
+					QMessageBox::information(
+						0,
+						tr("Address Alignment Error"),
+						tr("Hardware read/write breakpoints must be aligned to there address."));
+					return false;
+				}
+			}
+			break;
+		default:
+			break;
+		}
+
+		if(edb::v1::debuggeeIs32Bit()) {
+			if(size == 3) {
+				QMessageBox::information(
+					0,
+					tr("BP Size Error"),
+					tr("Hardware read/write breakpoints cannot be 8-bytes in a 32-bit debuggee."));
+				return false;
+			}
+		}
+	}
+
+	return true;
+}
+
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(HardwareBreakpoints, HardwareBreakpoints)
 #endif
 
 }
+
