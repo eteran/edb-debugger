@@ -239,7 +239,6 @@ private:
 	void finish_plugin_setup();
 	void follow_register_in_dump(bool tabbed);
 	void load_session(const QString &session_file);
-	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode);
 	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced);
 	void save_session(const QString &session_file);
 	void set_debugger_caption(const QString &appname);

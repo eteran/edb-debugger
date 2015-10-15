@@ -1814,9 +1814,9 @@ void Debugger::run_to_this_line(bool pass_signal) {
 		bp->tag = run_to_cursor_tag;
 	}
     if(pass_signal)
-		resume_execution(PASS_EXCEPTION, MODE_RUN);
+		resume_execution(PASS_EXCEPTION, MODE_RUN, false);
 	else
-		resume_execution(IGNORE_EXCEPTION, MODE_RUN);
+		resume_execution(IGNORE_EXCEPTION, MODE_RUN, false);
 }
 
 //------------------------------------------------------------------------------
@@ -2389,14 +2389,6 @@ edb::EVENT_STATUS Debugger::resume_status(bool pass_exception) {
 // Name: resume_execution
 // Desc: resumes execution, handles the situation of being on a breakpoint as well
 //------------------------------------------------------------------------------
-void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode) {
-	resume_execution(pass_exception, mode, false);
-}
-
-//------------------------------------------------------------------------------
-// Name: resume_execution
-// Desc: resumes execution, handles the situation of being on a breakpoint as well
-//------------------------------------------------------------------------------
 void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced) {
 
 	Q_ASSERT(edb::v1::debugger_core);
@@ -2409,10 +2401,10 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 			const edb::EVENT_STATUS status = resume_status(pass_exception == PASS_EXCEPTION);
 
 			// if we are on a breakpoint, disable it
-			State state;
-			thread->get_state(&state);
 			IBreakpoint::pointer bp;
 			if(!forced) {
+				State state;
+				thread->get_state(&state);			
 				bp = edb::v1::debugger_core->find_breakpoint(state.instruction_pointer());
 				if(bp) {
 					bp->disable();
@@ -2421,11 +2413,11 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 
 			if(mode == MODE_STEP) {
 				reenable_breakpoint_step_ = bp;
-				process->step(status);
+				thread->step(status);
 			} else if(mode == MODE_RUN) {
 				reenable_breakpoint_run_ = bp;
 				if(bp) {
-					process->step(status);
+					thread->step(status);
 				} else {
 					process->resume(status);
 				}
@@ -2442,7 +2434,7 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_Run_Pass_Signal_To_Application_triggered() {
-	resume_execution(PASS_EXCEPTION, MODE_RUN);
+	resume_execution(PASS_EXCEPTION, MODE_RUN, false);
 }
 
 //------------------------------------------------------------------------------
@@ -2450,7 +2442,7 @@ void Debugger::on_action_Run_Pass_Signal_To_Application_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_Step_Into_Pass_Signal_To_Application_triggered() {
-	resume_execution(PASS_EXCEPTION, MODE_STEP);
+	resume_execution(PASS_EXCEPTION, MODE_STEP, false);
 }
 
 //------------------------------------------------------------------------------
@@ -2458,7 +2450,7 @@ void Debugger::on_action_Step_Into_Pass_Signal_To_Application_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_Run_triggered() {
-	resume_execution(IGNORE_EXCEPTION, MODE_RUN);
+	resume_execution(IGNORE_EXCEPTION, MODE_RUN, false);
 }
 
 //------------------------------------------------------------------------------
@@ -2466,7 +2458,7 @@ void Debugger::on_action_Run_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_Step_Into_triggered() {
-	resume_execution(IGNORE_EXCEPTION, MODE_STEP);
+	resume_execution(IGNORE_EXCEPTION, MODE_STEP, false);
 }
 
 //------------------------------------------------------------------------------
