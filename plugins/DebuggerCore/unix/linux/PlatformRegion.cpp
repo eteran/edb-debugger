@@ -342,19 +342,10 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 						state.set_instruction_pointer(temp_address);
 
 						if(edb::v1::debuggeeIs32Bit()) {
-
-
-							if(EDB_IS_64_BIT) {
-								state.set_register("ecx", len);
-								state.set_register("ebx", addr);
-								state.set_register("edx", perms);
-								state.set_register("eax", syscallnum);
-							} else {
-								state.set_register("ebx", len);
-								state.set_register("ecx", addr);
-								state.set_register("edx", perms);
-								state.set_register("eax", syscallnum);
-							}
+							state.set_register("ecx", len);
+							state.set_register("ebx", addr);
+							state.set_register("edx", perms);
+							state.set_register("eax", syscallnum);
 						} else {
 							state.set_register("rsi", len);
 							state.set_register("rdi", addr);
