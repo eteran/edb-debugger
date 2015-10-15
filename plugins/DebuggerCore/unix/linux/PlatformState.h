@@ -263,6 +263,7 @@ static_assert(offsetof(X86XState,ymmh_space)==576,"YMM_H space should appear at 
 
 class PlatformState : public IState {
 	friend class DebuggerCore;
+	friend class PlatformThread;
 
 public:
 	PlatformState();

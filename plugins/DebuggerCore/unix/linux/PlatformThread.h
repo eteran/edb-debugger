@@ -27,6 +27,7 @@ class IProcess;
 namespace DebuggerCore {
 
 class DebuggerCore;
+class PlatformState;
 
 class PlatformThread : public IThread {
 	Q_DECLARE_TR_FUNCTIONS(PlatformThread)
@@ -35,7 +36,7 @@ public:
 	typedef std::shared_ptr<PlatformThread> pointer;
 	
 public:
-	enum State {
+	enum SignalStatus {
 		Stopped,
 		Signaled
 	};
@@ -56,17 +57,30 @@ public:
 	virtual QString runState() const override;
 	
 public:
+	virtual void get_state(State *state) override;	
+	virtual void set_state(const State &state) override;
+	
+public:
 	virtual void step() override;
 	virtual void step(edb::EVENT_STATUS status) override;	
 	virtual void resume() override;
 	virtual void resume(edb::EVENT_STATUS status) override;
 	
 private:
+	void fillSegmentBases(PlatformState* state);
+	bool fillStateFromPrStatus(PlatformState* state);
+	bool fillStateFromSimpleRegs(PlatformState* state);
+	
+private:
+	unsigned long get_debug_register(std::size_t n);
+	long set_debug_register(std::size_t n, long value);
+	
+private:
 	DebuggerCore *const core_;
 	IProcess *const     process_;
 	edb::tid_t          tid_;
 	int                 status_;
-	State               state_;
+	SignalStatus        signal_status_;
 };
 
 }

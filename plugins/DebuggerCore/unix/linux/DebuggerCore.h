@@ -96,12 +96,6 @@ private:
 	void stop_threads();
 	IDebugEvent::const_pointer handle_event(edb::tid_t tid, int status);
 	bool attach_thread(edb::tid_t tid);
-
-	bool fillStateFromPrStatus(PlatformState* state);
-	bool fillStateFromSimpleRegs(PlatformState* state);
-	void fillSegmentBases(PlatformState* state);
-	unsigned long get_debug_register(std::size_t n);
-	long set_debug_register(std::size_t n, long value);
 	void detectDebuggeeBitness();
 	
 private:

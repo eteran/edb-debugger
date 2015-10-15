@@ -315,9 +315,9 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 		unsigned long new_tid;
 		if(ptrace_get_event_message(tid, &new_tid) != -1) {
 
-			auto newThread     = std::make_shared<PlatformThread>(this, process_, new_tid);
-			newThread->status_ = 0;
-			newThread->state_  = PlatformThread::Stopped;
+			auto newThread            = std::make_shared<PlatformThread>(this, process_, new_tid);
+			newThread->status_        = 0;
+			newThread->signal_status_ = PlatformThread::Stopped;
 
 			threads_.insert(new_tid, newThread);
 
@@ -427,9 +427,9 @@ bool DebuggerCore::attach_thread(edb::tid_t tid) {
 		int status;
 		if(native::waitpid(tid, &status, __WALL) > 0) {
 
-			auto newThread     = std::make_shared<PlatformThread>(this, process_, tid);
-			newThread->status_ = status;
-			newThread->state_  = PlatformThread::Stopped;
+			auto newThread            = std::make_shared<PlatformThread>(this, process_, tid);
+			newThread->status_        = status;
+			newThread->signal_status_ = PlatformThread::Stopped;
 
 			threads_[tid] = newThread;
 
@@ -531,90 +531,6 @@ void DebuggerCore::kill() {
 	}
 }
 
-void DebuggerCore::fillSegmentBases(PlatformState* state) {
-
-	struct user_desc desc;
-	std::memset(&desc, 0, sizeof(desc));
-
-	for(size_t sregIndex=0;sregIndex<state->seg_reg_count();++sregIndex) {
-		const edb::seg_reg_t reg=state->x86.segRegs[sregIndex];
-		if(!reg) continue;
-		bool fromGDT=!(reg&0x04); // otherwise the selector picks descriptor from LDT
-		if(!fromGDT) continue;
-		if(ptrace(PTRACE_GET_THREAD_AREA, active_thread_, reg / LDT_ENTRY_SIZE, &desc) != -1) {
-			state->x86.segRegBases[sregIndex] = desc.base_addr;
-			state->x86.segRegBasesFilled[sregIndex]=true;
-		}
-	}
-	for(size_t sregIndex=0;sregIndex<state->seg_reg_count();++sregIndex) {
-		const edb::seg_reg_t sreg=state->x86.segRegs[sregIndex];
-		if(sreg==USER_CS_32||sreg==USER_CS_64||sreg==USER_SS ||
-				(state->is64Bit() && sregIndex<PlatformState::X86::FS)) {
-			state->x86.segRegBases[sregIndex] = 0;
-			state->x86.segRegBasesFilled[sregIndex]=true;
-		}
-	}
-}
-
-bool DebuggerCore::fillStateFromPrStatus(PlatformState* state) {
-
-	static bool prStatusSupported=true;
-	if(!prStatusSupported)
-		return false;
-
-
-	PrStatus_X86_64 prstat64;
-
-	iovec prstat_iov = {&prstat64, sizeof(prstat64)};
-
-	if(ptrace(PTRACE_GETREGSET, active_thread_, NT_PRSTATUS, &prstat_iov) != -1) {
-		if(prstat_iov.iov_len==sizeof(prstat64)) {
-			state->fillFrom(prstat64);
-		} else if(prstat_iov.iov_len==sizeof(PrStatus_X86)) {
-			// In this case the actual structure returned is PrStatus_X86,
-			// so copy it to the correct container (reinterpret_cast would
-			// cause UB in any case). Good compiler should be able to optimize this out.
-			PrStatus_X86 prstat32;
-			std::memcpy(&prstat32,&prstat64,sizeof(prstat32));
-			state->fillFrom(prstat32);
-		} else {
-			prStatusSupported=false;
-			qWarning() << "PTRACE_GETREGSET(NT_PRSTATUS) returned unexpected length " << prstat_iov.iov_len;
-			return false;
-		}
-	}
-	else {
-		prStatusSupported=false;
-		perror("PTRACE_GETREGSET(NT_PRSTATUS) failed");
-		return false;
-	}
-	fillSegmentBases(state);
-	return true;
-}
-
-bool DebuggerCore::fillStateFromSimpleRegs(PlatformState* state) {
-
-	user_regs_struct regs;
-	if(ptrace(PTRACE_GETREGS, active_thread_, 0, &regs) != -1) {
-
-		state->fillFrom(regs);
-		fillSegmentBases(state);
-		return true;
-	}
-	else {
-		perror("PTRACE_GETREGS failed");
-		return false;
-	}
-}
-
-unsigned long DebuggerCore::get_debug_register(std::size_t n) {
-	return ptrace(PTRACE_PEEKUSER, active_thread_, offsetof(struct user, u_debugreg[n]), 0);
-}
-
-long DebuggerCore::set_debug_register(std::size_t n, long value) {
-	return ptrace(PTRACE_POKEUSER, active_thread_, offsetof(struct user, u_debugreg[n]), value);
-}
-
 void DebuggerCore::detectDebuggeeBitness() {
 
 	const size_t offset=EDB_IS_64_BIT ?
@@ -646,57 +562,10 @@ void DebuggerCore::detectDebuggeeBitness() {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::get_state(State *state) {
-	// TODO: assert that we are paused
-
-	detectDebuggeeBitness();
-
-	if(auto state_impl = static_cast<PlatformState *>(state->impl_)) {
-		// State must be cleared before filling to zero all presence flags, otherwise something
-		// may remain not updated. Also, this way we'll mark all the unfilled values.
-		state_impl->clear();
-		if(attached()) {
-
-			if(EDB_IS_64_BIT)
-				fillStateFromSimpleRegs(state_impl); // 64-bit GETREGS call always returns 64-bit state, so use it
-			else if(!fillStateFromPrStatus(state_impl)) // if EDB is 32 bit, use GETREGSET so that we get 64-bit state for 64-bit debuggee
-				fillStateFromSimpleRegs(state_impl); // failing that, try to just get what we can
-
-			long ptraceStatus=0;
-
-			// First try to get full XSTATE
-			X86XState xstate;
-			iovec iov={&xstate,sizeof(xstate)};
-			ptraceStatus=ptrace(PTRACE_GETREGSET, active_thread_, NT_X86_XSTATE, &iov);
-			if(ptraceStatus!=-1) {
-				state_impl->fillFrom(xstate,iov.iov_len);
-			} else {
-
-				// No XSTATE available, get just floating point and SSE registers
-				static bool getFPXRegsSupported=(EDB_IS_32_BIT ? true : false);
-				UserFPXRegsStructX86 fpxregs;
-				// This should be automatically optimized out on amd64. If not, not a big deal.
-				// Avoiding conditional compilation to facilitate syntax error checking
-				if(getFPXRegsSupported)
-					getFPXRegsSupported=(ptrace(PTRACE_GETFPXREGS, active_thread_, 0, &fpxregs)!=-1);
-
-				if(getFPXRegsSupported) {
-					state_impl->fillFrom(fpxregs);
-				} else {
-					// No GETFPXREGS: on x86 this means SSE is not supported
-					//                on x86_64 FPREGS already contain SSE state
-					user_fpregs_struct fpregs;
-					if((ptraceStatus=ptrace(PTRACE_GETFPREGS, active_thread_, 0, &fpregs))!=-1)
-						state_impl->fillFrom(fpregs);
-					else
-						perror("PTRACE_GETFPREGS failed");
-				}
-			}
-
-			// debug registers
-			for(std::size_t i=0;i<8;++i)
-				state_impl->x86.dbgRegs[i] = get_debug_register(i);
-		} else {
-			state_impl->clear();
+	// TODO: assert that we are paused	
+	if(process_) {
+		if(IThread::pointer thread = process_->current_thread()) {
+			thread->get_state(state);
 		}
 	}
 }
@@ -708,38 +577,9 @@ void DebuggerCore::get_state(State *state) {
 void DebuggerCore::set_state(const State &state) {
 
 	// TODO: assert that we are paused
-
-
-	if(attached()) {
-
-		if(auto state_impl = static_cast<PlatformState *>(state.impl_)) {
-			bool setRegSetDone=false;
-			if(EDB_IS_32_BIT && state_impl->is64Bit()) {
-				// Try to set 64-bit state
-				PrStatus_X86_64 prstat64;
-				state_impl->fillStruct(prstat64);
-				iovec prstat_iov = {&prstat64, sizeof(prstat64)};
-				if(ptrace(PTRACE_SETREGSET, active_thread_, NT_PRSTATUS, &prstat_iov) != -1)
-					setRegSetDone=true;
-				else
-					perror("PTRACE_SETREGSET failed");
-			}
-			// Fallback to setting 32-bit set
-			if(!setRegSetDone) {
-				user_regs_struct regs;
-				state_impl->fillStruct(regs);
-				ptrace(PTRACE_SETREGS, active_thread_, 0, &regs);
-			}
-
-			// debug registers
-			for(std::size_t i=0;i<8;++i)
-				set_debug_register(i,state_impl->x86.dbgRegs[i]);
-
-			// FPU registers
-			user_fpregs_struct fpregs;
-			state_impl->fillStruct(fpregs);
-			if(ptrace(PTRACE_SETFPREGS, active_thread_, 0, &fpregs)==-1)
-				perror("PTRACE_SETFPREGS failed");
+	if(process_) {
+		if(IThread::pointer thread = process_->current_thread()) {
+			thread->set_state(state);
 		}
 	}
 }
@@ -820,9 +660,9 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			
 
 			// the PID == primary TID
-			auto newThread     = std::make_shared<PlatformThread>(this, process_, pid);
-			newThread->status_ = status;
-			newThread->state_  = PlatformThread::Stopped;
+			auto newThread            = std::make_shared<PlatformThread>(this, process_, pid);
+			newThread->status_        = status;
+			newThread->signal_status_ = PlatformThread::Stopped;
 			
 			threads_[pid]   = newThread;
 
