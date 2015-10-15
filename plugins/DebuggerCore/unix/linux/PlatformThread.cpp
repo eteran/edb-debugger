@@ -57,7 +57,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCore {
 
-
+//------------------------------------------------------------------------------
+// Name: fillSegmentBases
+// Desc: 
+//------------------------------------------------------------------------------
 void PlatformThread::fillSegmentBases(PlatformState* state) {
 
 	struct user_desc desc;
@@ -83,6 +86,10 @@ void PlatformThread::fillSegmentBases(PlatformState* state) {
 	}
 }
 
+//------------------------------------------------------------------------------
+// Name: fillStateFromPrStatus
+// Desc: 
+//------------------------------------------------------------------------------
 bool PlatformThread::fillStateFromPrStatus(PlatformState* state) {
 
 	static bool prStatusSupported=true;
@@ -119,6 +126,10 @@ bool PlatformThread::fillStateFromPrStatus(PlatformState* state) {
 	return true;
 }
 
+//------------------------------------------------------------------------------
+// Name: fillStateFromSimpleRegs
+// Desc: 
+//------------------------------------------------------------------------------
 bool PlatformThread::fillStateFromSimpleRegs(PlatformState* state) {
 
 	user_regs_struct regs;
@@ -136,7 +147,7 @@ bool PlatformThread::fillStateFromSimpleRegs(PlatformState* state) {
 
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name: PlatformThread
 // Desc: 
 //------------------------------------------------------------------------------
 PlatformThread::PlatformThread(DebuggerCore *core, IProcess *process, edb::tid_t tid) : core_(core), process_(process), tid_(tid) {
@@ -383,14 +394,26 @@ void PlatformThread::set_state(const State &state) {
 	}
 }
 
+//------------------------------------------------------------------------------
+// Name: get_debug_register
+// Desc:
+//------------------------------------------------------------------------------
 unsigned long PlatformThread::get_debug_register(std::size_t n) {
 	return ptrace(PTRACE_PEEKUSER, tid_, offsetof(struct user, u_debugreg[n]), 0);
 }
 
+//------------------------------------------------------------------------------
+// Name: set_debug_register
+// Desc:
+//------------------------------------------------------------------------------
 long PlatformThread::set_debug_register(std::size_t n, long value) {
 	return ptrace(PTRACE_POKEUSER, tid_, offsetof(struct user, u_debugreg[n]), value);
 }
 
+//------------------------------------------------------------------------------
+// Name: stop
+// Desc:
+//------------------------------------------------------------------------------
 void PlatformThread::stop() {
 	syscall(SYS_tgkill, process_->pid(), tid_, SIGSTOP);
 	// TODO(eteran): should this just be this?
