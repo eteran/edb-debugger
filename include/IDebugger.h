@@ -57,8 +57,15 @@ public:
 	virtual QString frame_pointer() const = 0;
 	virtual QString instruction_pointer() const = 0;
 	virtual QString flag_register() const = 0;
+	
+public:
+	// data output
 	virtual QString format_pointer(edb::address_t address) const = 0;
+	
+public:
+	// general process data
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const = 0;
+	virtual QMap<edb::pid_t, IProcess::pointer> enumerate_processes() const = 0;	
 	
 public:
 	// basic process management
@@ -67,12 +74,9 @@ public:
 	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
 	virtual IDebugEvent::const_pointer wait_debug_event(int msecs) = 0;
 	virtual void detach() = 0;
-	virtual void get_state(State *state) = 0;
 	virtual void kill() = 0;
-	virtual void pause() = 0;
-	virtual void resume(edb::EVENT_STATUS status) = 0;
+	virtual void get_state(State *state) = 0;	
 	virtual void set_state(const State &state) = 0;
-	virtual void step(edb::EVENT_STATUS status) = 0;
 
 public:
 	// basic breakpoint managment
@@ -88,9 +92,6 @@ public:
 public:
 	// NULL if not attached
 	virtual IProcess *process() const = 0;
-
-public:
-	virtual QMap<edb::pid_t, IProcess::pointer> enumerate_processes() const = 0;
 };
 
 Q_DECLARE_INTERFACE(IDebugger, "EDB.IDebugger/1.0")

@@ -2376,15 +2376,17 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 		}
 	}
 
-	if(mode == MODE_STEP) {
-		reenable_breakpoint_step_ = bp;
-		edb::v1::debugger_core->step(status);
-	} else if(mode == MODE_RUN) {
-		reenable_breakpoint_run_ = bp;
-		if(bp) {
-			edb::v1::debugger_core->step(status);
-		} else {
-			edb::v1::debugger_core->resume(status);
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(mode == MODE_STEP) {
+			reenable_breakpoint_step_ = bp;
+			process->step(status);
+		} else if(mode == MODE_RUN) {
+			reenable_breakpoint_run_ = bp;
+			if(bp) {
+				process->step(status);
+			} else {
+				process->resume(status);
+			}
 		}
 	}
 
@@ -2489,7 +2491,9 @@ void Debugger::on_actionRun_Until_Return_triggered() {
 //------------------------------------------------------------------------------
 void Debugger::on_action_Pause_triggered() {
 	Q_ASSERT(edb::v1::debugger_core);
-	edb::v1::debugger_core->pause();
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		process->pause();
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -2554,8 +2558,8 @@ void Debugger::detach_from_process(DETACH_ACTION kill) {
 	program_executable_.clear();
 
 	if(edb::v1::debugger_core) {
-		if(kill == KILL_ON_DETACH) edb::v1::debugger_core->kill();
-		else                       edb::v1::debugger_core->detach();
+	if(kill == KILL_ON_DETACH) edb::v1::debugger_core->kill();
+	else                       edb::v1::debugger_core->detach();
 	}
 
 	last_event_ = nullptr;

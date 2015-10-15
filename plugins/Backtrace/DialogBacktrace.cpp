@@ -211,23 +211,26 @@ void DialogBacktrace::on_pushButtonReturnTo_clicked()
 		QMessageBox::information( this,	"Error", msg);
 		return;
 	}
+	
+	if(IProcess *process = edb::v1::debugger_core->process()) {
 
-	//Now that we got the address, we can run.  First check if bp @ that address
-	//already exists.
-	IBreakpoint::pointer bp = edb::v1::debugger_core->find_breakpoint(address);
-	if (bp) {
-		edb::v1::debugger_core->resume(edb::DEBUG_CONTINUE);
-		return;
-	}
+		//Now that we got the address, we can run.  First check if bp @ that address
+		//already exists.
+		IBreakpoint::pointer bp = edb::v1::debugger_core->find_breakpoint(address);
+		if (bp) {
+			process->resume(edb::DEBUG_CONTINUE);
+			return;
+		}
 
-	//Using the non-debugger_core version ensures bp is set in a valid region
-	edb::v1::create_breakpoint(address);
-	bp = edb::v1::debugger_core->find_breakpoint(address);
-	if (bp) {
-		bp->set_internal(true);
-		bp->set_one_time(true);
-		edb::v1::debugger_core->resume(edb::DEBUG_CONTINUE);
-		return;
+		//Using the non-debugger_core version ensures bp is set in a valid region
+		edb::v1::create_breakpoint(address);
+		bp = edb::v1::debugger_core->find_breakpoint(address);
+		if (bp) {
+			bp->set_internal(true);
+			bp->set_one_time(true);
+			process->resume(edb::DEBUG_CONTINUE);
+			return;
+		}
 	}
 
 

@@ -323,6 +323,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 				if(process->write_bytes(temp_address, shellcode, sizeof(shellcode))) {
 
 					State state;
+					edb::v1::debugger_core->get_state(&state);
 					state.set_instruction_pointer(temp_address);
 
 	#if defined(EDB_X86)
@@ -344,7 +345,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 
 					// run and wait for the 'crash' caused by the hlt instruction
 					// should be a SIGSEGV on Linux
-					edb::v1::debugger_core->resume(edb::DEBUG_CONTINUE);
+					process->resume(edb::DEBUG_CONTINUE);
 
 					// we use a spinlock here because we want to be able to
 					// process events while waiting

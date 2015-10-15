@@ -531,62 +531,6 @@ void DebuggerCore::kill() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: pause
-// Desc: stops *all* threads of a process
-//------------------------------------------------------------------------------
-void DebuggerCore::pause() {
-	if(attached()) {
-		// belive it or not, I belive that this is sufficient for all threads
-		// this is because in the debug event handler above, a SIGSTOP is sent
-		// to all threads when any event arrives, so no need to explicitly do
-		// it here. We just need any thread to stop. So we'll just target the
-		// pid() which will send it to any one of the threads in the process.
-		::kill(pid(), SIGSTOP);
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: resume
-// Desc: resumes ALL threads
-// TODO(eteran): move to IProcess
-//------------------------------------------------------------------------------
-void DebuggerCore::resume(edb::EVENT_STATUS status) {
-	// TODO: assert that we are paused
-
-	if(process_) {
-		if(status != edb::DEBUG_STOP) {			
-			if(IThread::pointer thread = process_->current_thread()) {
-				thread->resume(status);
-			
-				// resume the other threads passing the signal they originally reported had
-				for(auto &other_thread : process_->threads()) {
-					if(waited_threads_.contains(other_thread->tid())) {	
-						other_thread->resume();
-					}
-				}
-			}
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: step
-// Desc: steps the currently active thread
-// TODO(eteran): move to IProcess
-//------------------------------------------------------------------------------
-void DebuggerCore::step(edb::EVENT_STATUS status) {
-	// TODO: assert that we are paused
-
-	if(process_) {
-		if(status != edb::DEBUG_STOP) {			
-			if(IThread::pointer thread = process_->current_thread()) {
-				thread->step(status);
-			}
-		}
-	}
-}
-
 void DebuggerCore::fillSegmentBases(PlatformState* state) {
 
 	struct user_desc desc;

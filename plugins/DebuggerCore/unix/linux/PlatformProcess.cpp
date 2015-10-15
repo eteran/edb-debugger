@@ -213,7 +213,7 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 	quint64 read = 0;
 
 	Q_ASSERT(buf);
-	Q_ASSERT(core_->process_ == this);	
+	Q_ASSERT(core_->process_ == this);
 	
 	if(len != 0) {
 
@@ -696,6 +696,56 @@ QList<Module> PlatformProcess::loaded_modules() const {
 		return loaded_modules_<Elf32_Addr>(this, core_->binary_info_);
 	} else {
 		return QList<Module>();
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: pause
+// Desc: stops *all* threads of a process
+//------------------------------------------------------------------------------
+void PlatformProcess::pause() {
+	// belive it or not, I belive that this is sufficient for all threads
+	// this is because in the debug event handler above, a SIGSTOP is sent
+	// to all threads when any event arrives, so no need to explicitly do
+	// it here. We just need any thread to stop. So we'll just target the
+	// pid_ which will send it to any one of the threads in the process.
+	::kill(pid_, SIGSTOP);
+}
+
+//------------------------------------------------------------------------------
+// Name: resume
+// Desc: resumes ALL threads
+//------------------------------------------------------------------------------
+void PlatformProcess::resume(edb::EVENT_STATUS status) {
+	// TODO: assert that we are paused
+	Q_ASSERT(core_->process_ == this);
+
+	if(status != edb::DEBUG_STOP) {			
+		if(IThread::pointer thread = current_thread()) {
+			thread->resume(status);
+
+			// resume the other threads passing the signal they originally reported had
+			for(auto &other_thread : threads()) {
+				if(core_->waited_threads_.contains(other_thread->tid())) {	
+					other_thread->resume();
+				}
+			}
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: step
+// Desc: steps the currently active thread
+//------------------------------------------------------------------------------
+void PlatformProcess::step(edb::EVENT_STATUS status) {
+	// TODO: assert that we are paused
+	Q_ASSERT(core_->process_ == this);
+
+	if(status != edb::DEBUG_STOP) {			
+		if(IThread::pointer thread = current_thread()) {
+			thread->step(status);
+		}
 	}
 }
 

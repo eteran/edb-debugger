@@ -53,6 +53,11 @@ public:
 	virtual QList<Module>           loaded_modules() const;
 
 public:
+	virtual void                    pause();
+	virtual void                    resume(edb::EVENT_STATUS status);
+	virtual void                    step(edb::EVENT_STATUS status);		
+
+public:
 	virtual std::size_t write_bytes(edb::address_t address, const void *buf, size_t len);
 	virtual std::size_t read_bytes(edb::address_t address, void *buf, size_t len) const;
 	virtual std::size_t read_pages(edb::address_t address, void *buf, size_t count) const;

@@ -58,6 +58,9 @@ public:
 	virtual std::size_t             write_bytes(edb::address_t address, const void *buf, size_t len) = 0;
 	virtual std::size_t             read_bytes(edb::address_t address, void *buf, size_t len) const = 0;
 	virtual std::size_t             read_pages(edb::address_t address, void *buf, size_t count) const = 0;
+	virtual void                    pause() = 0;
+	virtual void                    resume(edb::EVENT_STATUS status) = 0;
+	virtual void                    step(edb::EVENT_STATUS status) = 0;	
 };
 
 #endif
