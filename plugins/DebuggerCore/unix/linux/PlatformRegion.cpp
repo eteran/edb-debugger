@@ -91,11 +91,14 @@ BackupInfo<N>::BackupInfo(edb::address_t address, IRegion::permissions_t perms, 
 //------------------------------------------------------------------------------
 template <size_t N>
 bool BackupInfo<N>::backup() {
-	edb::v1::debugger_core->get_state(&state_);
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(IThread::pointer thread = process->current_thread()) {
+			thread->get_state(&state_);
+		}
 		return process->read_bytes(address_, buffer_, N);
 	}
-	
+
 	return false;
 }
 
@@ -105,12 +108,15 @@ bool BackupInfo<N>::backup() {
 //------------------------------------------------------------------------------
 template <size_t N>
 bool BackupInfo<N>::restore() {
-	edb::v1::debugger_core->set_state(state_);
-	
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(IThread::pointer thread = process->current_thread()) {
+			thread->set_state(state_);
+		}
+
 		return process->write_bytes(address_, buffer_, N);
 	}
-	
+
 	return false;
 }
 
@@ -122,7 +128,6 @@ template <size_t N>
 edb::EVENT_STATUS BackupInfo<N>::handle_event(const IDebugEvent::const_pointer &event) {
 	Q_UNUSED(event);
 
-	// TODO: check that the event was caused by a hlt in our shellcode
 	lock_.testAndSetRelease(1, 0);
 
 	// restore the original code and register state
@@ -292,73 +297,90 @@ IRegion::permissions_t PlatformRegion::permissions() const {
 // Desc:
 //------------------------------------------------------------------------------
 void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::address_t temp_address) {
-	const permissions_t perms              = permissions_value(read, write, execute);
-	const edb::address_t len               = size();
-	const edb::address_t addr              = start();
-	static const edb::address_t syscallnum = __NR_mprotect;
+	const permissions_t perms       = permissions_value(read, write, execute);
+	const edb::address_t len        = size();
+	const edb::address_t addr       = start();
+
+	// I wish there was a clean way to get the value of this system call for either target
+	// but nothing obvious comes to mind. We may have to do something crazy
+	// with macros, but for now, we just hard code it :-/
+	const edb::address_t syscallnum = edb::v1::debuggeeIs32Bit() ? 125 : 10; //__NR_mprotect;
 
 	// start of nowhere near portable code
-#if defined(EDB_X86)
-	quint8 shellcode[] = {
+	const quint8 shellcode32[] = {
 		"\xcd\x80" // int $0x80
 		"\xf4"     // hlt
 	};
-#elif defined(EDB_X86_64)
-	quint8 shellcode[] = {
+
+	const quint8 shellcode64[] = {
 		"\x0f\x05" // syscall
 		"\xf4"     // hlt
 	};
-#else
-#error "invalid architecture"
-#endif
-	// end nowhere near portable code
 
+	quint8 shellcode[3];
+
+
+	if(edb::v1::debuggeeIs32Bit()) {
+		memcpy(shellcode, shellcode32, sizeof(shellcode));
+	} else {
+		memcpy(shellcode, shellcode64, sizeof(shellcode));
+	}
+
+	// end nowhere near portable code
 	typedef BackupInfo<sizeof(shellcode)> BI;
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		try {
-			BI backup_info(temp_address, perms, this);
+		if(IThread::pointer thread = process->current_thread()) {
+			try {
+				BI backup_info(temp_address, perms, this);
 
-			if(backup_info.backup()) {
-				// write out our shellcode
-				if(process->write_bytes(temp_address, shellcode, sizeof(shellcode))) {
+				if(backup_info.backup()) {
+					// write out our shellcode
+					if(process->write_bytes(temp_address, shellcode, sizeof(shellcode))) {
 
-					State state;
-					edb::v1::debugger_core->get_state(&state);
-					state.set_instruction_pointer(temp_address);
+						State state;
+						thread->get_state(&state);
+						state.set_instruction_pointer(temp_address);
 
-	#if defined(EDB_X86)
-					state.set_register("ebx", len);
-					state.set_register("ecx", addr);
-					state.set_register("edx", perms);
-					state.set_register("eax", syscallnum);
-	#elif defined(EDB_X86_64)
-					state.set_register("rsi", len);
-					state.set_register("rdi", addr);
-					state.set_register("rdx", perms);
-					state.set_register("rax", syscallnum);
-	#else
-	#error "invalid architecture"
-	#endif
-					edb::v1::debugger_core->set_state(state);
+						if(edb::v1::debuggeeIs32Bit()) {
 
-					backup_info.event_handler_ = edb::v1::set_debug_event_handler(&backup_info);
 
-					// run and wait for the 'crash' caused by the hlt instruction
-					// should be a SIGSEGV on Linux
-					process->resume(edb::DEBUG_CONTINUE);
+							if(EDB_IS_64_BIT) {
+								state.set_register("ecx", len);
+								state.set_register("ebx", addr);
+								state.set_register("edx", perms);
+								state.set_register("eax", syscallnum);
+							} else {
+								state.set_register("ebx", len);
+								state.set_register("ecx", addr);
+								state.set_register("edx", perms);
+								state.set_register("eax", syscallnum);
+							}
+						} else {
+							state.set_register("rsi", len);
+							state.set_register("rdi", addr);
+							state.set_register("rdx", perms);
+							state.set_register("rax", syscallnum);
+						}
 
-					// we use a spinlock here because we want to be able to
-					// process events while waiting
-					while(backup_info.locked()) {
-						QCoreApplication::processEvents(QEventLoop::WaitForMoreEvents);
+						thread->set_state(state);
+						backup_info.event_handler_ = edb::v1::set_debug_event_handler(&backup_info);
+
+						// run the system call instruction and wait for the trap
+						thread->step(edb::DEBUG_CONTINUE);
+
+						// we use a spinlock here because we want to be able to
+						// process events while waiting
+						while(backup_info.locked()) {
+							QCoreApplication::processEvents(QEventLoop::WaitForMoreEvents);
+						}
 					}
 				}
+			} catch(const std::bad_alloc &) {
+				QMessageBox::information(
+					0,
+					tr("Memory Allocation Error"),
+					tr("Unable to satisfy memory allocation request for backup code."));
 			}
-		} catch(const std::bad_alloc &) {
-			QMessageBox::information(
-				0,
-				tr("Memory Allocation Error"),
-				tr("Unable to satisfy memory allocation request for backup code."));
 		}
 	}
 }

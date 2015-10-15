@@ -2332,13 +2332,15 @@ void Debugger::refresh_gui() {
 	}
 
 	if(edb::v1::debugger_core) {
+		State state;
+				
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(IThread::pointer thread = process->current_thread()) {	
-				State state;
+			if(IThread::pointer thread = process->current_thread()) {					
 				thread->get_state(&state);
-				list_model_->setStringList(edb::v1::arch_processor().update_instruction_info(state.instruction_pointer()));
 			}
 		}
+		
+		list_model_->setStringList(edb::v1::arch_processor().update_instruction_info(state.instruction_pointer()));
 	}
 }
 
@@ -2349,20 +2351,21 @@ void Debugger::refresh_gui() {
 void Debugger::update_gui() {
 
 	if(edb::v1::debugger_core) {
+		
+		State state;
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(IThread::pointer thread = process->current_thread()) {		
-				State state;
+			if(IThread::pointer thread = process->current_thread()) {				
 				thread->get_state(&state);
-
-				update_data_views();
-				update_stack_view(state);
-
-				if(const IRegion::pointer region = update_cpu_view(state)) {
-					edb::v1::arch_processor().update_register_view(region->name(), state);
-				} else {
-					edb::v1::arch_processor().update_register_view(QString(), state);
-				}
 			}
+		}
+
+		update_data_views();
+		update_stack_view(state);
+
+		if(const IRegion::pointer region = update_cpu_view(state)) {
+			edb::v1::arch_processor().update_register_view(region->name(), state);
+		} else {
+			edb::v1::arch_processor().update_register_view(QString(), state);
 		}
 	}
 
