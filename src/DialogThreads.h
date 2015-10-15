@@ -26,6 +26,7 @@ namespace Ui { class DialogThreads; }
 
 class ThreadsModel;
 class QSortFilterProxyModel;
+class QModelIndex;
 
 class DialogThreads : public QDialog {
 	Q_OBJECT
@@ -33,8 +34,8 @@ public:
 	DialogThreads(QWidget *parent = 0, Qt::WindowFlags f = 0);
 	virtual ~DialogThreads();
 
-public:
-	edb::tid_t selected_thread();
+private Q_SLOTS:
+	void on_thread_table_doubleClicked(const QModelIndex &index);
 
 public:
 	void showEvent(QShowEvent *);

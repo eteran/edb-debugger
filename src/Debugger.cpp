@@ -2942,9 +2942,8 @@ void Debugger::on_action_Memory_Regions_triggered() {
 	// TODO: we need a core concept of debugger capabilities which
 	// may restrict some actions
 
-	QPointer<DialogMemoryRegions> dlg = new DialogMemoryRegions(this);
-	dlg->exec();
-	delete dlg;
+	static QPointer<DialogMemoryRegions> dlg = new DialogMemoryRegions(this);
+	dlg->show();
 }
 
 
@@ -2956,23 +2955,8 @@ void Debugger::on_action_Threads_triggered() {
 
 	// TODO: we need a core concept of debugger capabilities which
 	// may restrict some actions
-
-	QPointer<DialogThreads> dlg = new DialogThreads(this);
-
-	if(dlg->exec() == QDialog::Accepted) {
-		if(dlg) {
-#if 0
-			// TODO(eteran): disabling this for now, no real loss
-			// since it did nothing in the backend yet anyway
-			if(const edb::tid_t tid = dlg->selected_thread()) {
-				edb::v1::debugger_core->set_active_thread(tid);
-				update_gui();
-			}
-#endif
-		}
-	}
-
-	delete dlg;
+	static QPointer<DialogThreads> dlg = new DialogThreads(this);
+	dlg->show();
 }
 
 //------------------------------------------------------------------------------

@@ -75,17 +75,18 @@ void DialogThreads::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: selected_thread
+// Name: on_thread_table_doubleClicked
 // Desc:
 //------------------------------------------------------------------------------
-edb::tid_t DialogThreads::selected_thread() {
-	const QItemSelectionModel *const selModel = ui->thread_table->selectionModel();
-	const QModelIndexList sel = selModel->selectedRows();
+void DialogThreads::on_thread_table_doubleClicked(const QModelIndex &index) {
+	
 
-	if(sel.size() == 1) {
-		const QModelIndex index = threads_filter_->mapToSource(sel[0]);
-		return threads_model_->data(index, Qt::UserRole).toUInt();
+	const QModelIndex internal_index = threads_filter_->mapToSource(index);
+	if(auto item = reinterpret_cast<ThreadsModel::Item *>(internal_index.internalPointer())) {
+		if(IThread::pointer thread = item->thread) {
+			edb::v1::jump_to_address(thread->instruction_pointer());
+		}
 	}
 	
-	return 0;
+	
 }
