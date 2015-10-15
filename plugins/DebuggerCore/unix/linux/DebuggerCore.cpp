@@ -40,36 +40,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
 #endif
 
-#include <asm/ldt.h>
-#include <pwd.h>
-#include <link.h>
 #include <cpuid.h>
-#include <sys/mman.h>
 #include <sys/ptrace.h>
-#include <sys/user.h>
-#include <sys/wait.h>
-#include <elf.h>
-#include <linux/uio.h>
 
 // doesn't always seem to be defined in the headers
-#ifndef PTRACE_GET_THREAD_AREA
-#define PTRACE_GET_THREAD_AREA static_cast<__ptrace_request>(25)
-#endif
-
-#ifndef PTRACE_SET_THREAD_AREA
-#define PTRACE_SET_THREAD_AREA static_cast<__ptrace_request>(26)
-#endif
 
 #ifndef PTRACE_GETSIGINFO
 #define PTRACE_GETSIGINFO static_cast<__ptrace_request>(0x4202)
-#endif
-
-#ifndef PTRACE_GETREGSET
-#define PTRACE_GETREGSET static_cast<__ptrace_request>(0x4204)
-#endif
-
-#ifndef PTRACE_SETREGSET
-#define PTRACE_SETREGSET static_cast<__ptrace_request>(0x4205)
 #endif
 
 #ifndef PTRACE_EVENT_CLONE
@@ -378,7 +355,7 @@ void DebuggerCore::stop_threads() {
 			
 				if(auto thread_ptr = static_cast<PlatformThread *>(thread.get())) {
 			
-					syscall(SYS_tgkill, pid(), tid, SIGSTOP);
+					thread->stop();
 
 					int thread_status;
 					if(native::waitpid(tid, &thread_status, __WALL) > 0) {

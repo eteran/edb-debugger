@@ -65,6 +65,7 @@ public:
 	virtual void step(edb::EVENT_STATUS status) override;	
 	virtual void resume() override;
 	virtual void resume(edb::EVENT_STATUS status) override;
+	virtual void stop() override;
 	
 private:
 	void fillSegmentBases(PlatformState* state);

@@ -29,15 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 #include <asm/ldt.h>
-#include <pwd.h>
-#include <link.h>
-#include <cpuid.h>
-#include <sys/mman.h>
-#include <sys/ptrace.h>
-#include <sys/user.h>
-#include <sys/wait.h>
 #include <elf.h>
 #include <linux/uio.h>
+#include <sys/ptrace.h>
+#include <sys/user.h>
 
 // doesn't always seem to be defined in the headers
 #ifndef PTRACE_GET_THREAD_AREA
@@ -394,6 +389,12 @@ unsigned long PlatformThread::get_debug_register(std::size_t n) {
 
 long PlatformThread::set_debug_register(std::size_t n, long value) {
 	return ptrace(PTRACE_POKEUSER, tid_, offsetof(struct user, u_debugreg[n]), value);
+}
+
+void PlatformThread::stop() {
+	syscall(SYS_tgkill, process_->pid(), tid_, SIGSTOP);
+	// TODO(eteran): should this just be this?
+	//::kill(tid_, SIGSTOP);
 }
 
 

@@ -46,6 +46,7 @@ public:
 	virtual void step(edb::EVENT_STATUS status) = 0;	
 	virtual void resume() = 0;
 	virtual void resume(edb::EVENT_STATUS status) = 0;
+	virtual void stop() = 0;
 
 #if 0	
 public:

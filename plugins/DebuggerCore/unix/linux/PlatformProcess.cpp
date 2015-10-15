@@ -28,8 +28,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QTextStream>
 #include <QDateTime>
+
 #include <boost/functional/hash.hpp>
 #include <fstream>
+
 #include <sys/mman.h>
 #include <sys/ptrace.h>
 #include <sys/types.h>
