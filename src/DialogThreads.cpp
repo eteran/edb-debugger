@@ -80,13 +80,10 @@ void DialogThreads::showEvent(QShowEvent *) {
 //------------------------------------------------------------------------------
 void DialogThreads::on_thread_table_doubleClicked(const QModelIndex &index) {
 	
-
 	const QModelIndex internal_index = threads_filter_->mapToSource(index);
 	if(auto item = reinterpret_cast<ThreadsModel::Item *>(internal_index.internalPointer())) {
 		if(IThread::pointer thread = item->thread) {
 			edb::v1::jump_to_address(thread->instruction_pointer());
 		}
 	}
-	
-	
 }
