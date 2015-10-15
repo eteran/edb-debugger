@@ -655,19 +655,20 @@ IState *PlatformState::clone() const {
 // Desc: returns the flags in a string form appropriate for this platform
 //------------------------------------------------------------------------------
 QString PlatformState::flags_to_string(edb::reg_t flags) const {
-	char buf[14];
+	char buf[32];
 	qsnprintf(
 		buf,
 		sizeof(buf),
-		"%c %c %c %c %c %c %c",
+		"%c %c %c %c %c %c %c %c %c",
 		((flags & 0x001) ? 'C' : 'c'),
 		((flags & 0x004) ? 'P' : 'p'),
 		((flags & 0x010) ? 'A' : 'a'),
 		((flags & 0x040) ? 'Z' : 'z'),
 		((flags & 0x080) ? 'S' : 's'),
+		((flags & 0x100) ? 'T' : 't'),
+		((flags & 0x200) ? 'I' : 'i'),
 		((flags & 0x400) ? 'D' : 'd'),
 		((flags & 0x800) ? 'O' : 'o'));
-
 	return buf;
 }
 
