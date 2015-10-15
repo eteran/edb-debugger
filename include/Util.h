@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <type_traits>
 #include <cstddef>
+#include <array>
 
 namespace util {
 
@@ -67,6 +68,10 @@ inline void markMemory(void* memory, std::size_t size)
 	for(std::size_t i=0;i<size;++i)
 		p[i]=i&1 ? 0xba : 0xd1;
 }
+
+template<typename T, typename... Tail>
+auto make_array(T head, Tail...tail) -> std::array<T,1+sizeof...(Tail)>
+{ return std::array<T,1+sizeof...(Tail)>{head,tail...}; }
 
 }
 
