@@ -65,6 +65,7 @@ class DialogEditGPR : public QDialog
 	QLabel*& columnLabel(Column col);
 	QLabel*& rowLabel(Row row);
 	GPREdit*& entry(Row row, Column col);
+	void setupFocus();
 public:
 	DialogEditGPR(QWidget* parent=nullptr);
 	Register value() const;

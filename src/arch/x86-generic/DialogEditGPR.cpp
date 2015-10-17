@@ -249,6 +249,16 @@ void DialogEditGPR::setupEntriesAndLabels()
 		qWarning() << "Warning: " << regName << " not found in any list\n";
 }
 
+void DialogEditGPR::setupFocus()
+{
+	for(auto entry : entries)
+		if(!entry->isHidden())
+		{
+			entry->setFocus(Qt::OtherFocusReason);
+			break;
+		}
+}
+
 void DialogEditGPR::set_value(const Register& newReg)
 {
 	reg=newReg;
@@ -257,6 +267,7 @@ void DialogEditGPR::set_value(const Register& newReg)
 	setupEntriesAndLabels();
 	setWindowTitle(tr("Modify %1").arg(reg.name().toUpper()));
 	updateAllEntriesExcept(nullptr);
+	setupFocus();
 }
 
 Register DialogEditGPR::value() const
