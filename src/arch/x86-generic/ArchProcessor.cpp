@@ -37,6 +37,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <climits>
 #include <cmath>
 
+#include "DialogEditGPR.h"
+
 #ifdef Q_OS_LINUX
 #include <asm/unistd.h>
 #endif
@@ -827,10 +829,17 @@ Register ArchProcessor::value_from_item(const QTreeWidgetItem &item) {
 
 void ArchProcessor::edit_item(const QTreeWidgetItem &item) {
 	if(Register r = value_from_item(item)) {
-		if(edb::v1::get_value_from_user(r, tr("Modify %1","register").arg(r.name().toUpper()))) {
-			State state;
-			edb::v1::debugger_core->get_state(&state);
-			if(r && r.bitSize() <= 64) {
+		if((r.type()==Register::TYPE_GPR ||
+		   r.type()==Register::TYPE_SEG ||
+		   r.type()==Register::TYPE_IP  ||
+		   r.type()==Register::TYPE_COND) && r.bitSize()<=64) {
+
+			static auto gprEdit=new DialogEditGPR(item.treeWidget());
+			gprEdit->set_value(r);
+			if(gprEdit->exec()==QDialog::Accepted) {
+				r=gprEdit->value();
+				State state;
+				edb::v1::debugger_core->get_state(&state);
 				state.set_register(r.name(), r.valueAsInteger());
 				edb::v1::debugger_core->set_state(state);
 			}
