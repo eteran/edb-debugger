@@ -43,6 +43,7 @@ namespace HardwareBreakpoints {
 // Desc:
 //------------------------------------------------------------------------------
 HardwareBreakpoints::HardwareBreakpoints() : menu_(0), dialog_(0), old_event_handler_(0) {
+	dialog_ = new DialogHWBreakpoints(edb::v1::debugger_ui);
 }
 
 //------------------------------------------------------------------------------
@@ -231,10 +232,6 @@ void HardwareBreakpoints::setup_breakpoints() {
 //------------------------------------------------------------------------------
 void HardwareBreakpoints::show_menu() {
 
-	if(!dialog_) {
-		dialog_ = new DialogHWBreakpoints(edb::v1::debugger_ui);
-	}
-
 	if(dialog_->exec() == QDialog::Accepted) {
 		setup_breakpoints();
 	}
@@ -304,6 +301,178 @@ bool HardwareBreakpoints::validate_bp(bool enabled, edb::address_t addr, int typ
 	}
 
 	return true;
+}
+
+//------------------------------------------------------------------------------
+// Name: cpu_context_menu
+// Desc:
+//------------------------------------------------------------------------------
+QList<QAction *> HardwareBreakpoints::cpu_context_menu() {
+
+	auto menu = new QMenu(tr("Hardware Breakpoints"));
+	menu->addAction(tr("Hardware, On Execute #1"), this, SLOT(set_exec1()));
+	menu->addAction(tr("Hardware, On Execute #2"), this, SLOT(set_exec2()));
+	menu->addAction(tr("Hardware, On Execute #3"), this, SLOT(set_exec3()));
+	menu->addAction(tr("Hardware, On Execute #4"), this, SLOT(set_exec4()));
+
+	QList<QAction *> ret;
+
+	auto action = new QAction(tr("Hardware Breakpoints"), this);
+	action->setMenu(menu);
+	ret << action;
+	return ret;
+}
+
+//------------------------------------------------------------------------------
+// Name: set_exec1
+// Desc: TODO(eteran): this code is so much more complex than I'd like...
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_exec1() {
+
+	// we want to be enabled, if we aren't already hooked,
+	// hook it
+	if(!old_event_handler_) {
+		old_event_handler_ = edb::v1::set_debug_event_handler(this);
+	}
+
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(auto p = qobject_cast<DialogHWBreakpoints *>(dialog_)) {
+
+			if(p->ui->chkBP1->isChecked()) {
+				QMessageBox::StandardButton button = QMessageBox::question(nullptr, tr("Breakpoint Already In Use"), tr("This breakpoint is already being used. Do you want to replace it?"), QMessageBox::Yes | QMessageBox::Cancel);
+				if(button != QMessageBox::Yes) {
+					return;
+				}
+			}
+
+			edb::address_t address = edb::v1::cpu_selected_address();
+
+			p->ui->chkBP1->setChecked(true);
+			p->ui->cmbType1->setCurrentIndex(0);
+			p->ui->cmbSize1->setCurrentIndex(0);
+
+			for(IThread::pointer thread : process->threads()) {
+				State state;
+				thread->get_state(&state);
+				setup_bp(&state, 0, p->ui->chkBP1->isChecked(), address, p->ui->cmbType1->currentIndex(), p->ui->cmbSize1->currentIndex());
+				thread->set_state(state);
+			}
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: set_exec2
+// Desc: TODO(eteran): this code is so much more complex than I'd like...
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_exec2() {
+	// we want to be enabled, if we aren't already hooked,
+	// hook it
+	if(!old_event_handler_) {
+		old_event_handler_ = edb::v1::set_debug_event_handler(this);
+	}
+
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(auto p = qobject_cast<DialogHWBreakpoints *>(dialog_)) {
+
+
+			if(p->ui->chkBP2->isChecked()) {
+				QMessageBox::StandardButton button = QMessageBox::question(nullptr, tr("Breakpoint Already In Use"), tr("This breakpoint is already being used. Do you want to replace it?"), QMessageBox::Yes | QMessageBox::Cancel);
+				if(button != QMessageBox::Yes) {
+					return;
+				}
+			}
+
+
+			edb::address_t address = edb::v1::cpu_selected_address();
+
+			p->ui->chkBP2->setChecked(true);
+			p->ui->cmbType2->setCurrentIndex(0);
+			p->ui->cmbSize2->setCurrentIndex(0);
+
+			for(IThread::pointer thread : process->threads()) {
+				State state;
+				thread->get_state(&state);
+				setup_bp(&state, 1, p->ui->chkBP2->isChecked(), address, p->ui->cmbType2->currentIndex(), p->ui->cmbSize2->currentIndex());
+				thread->set_state(state);
+			}
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: set_exec3
+// Desc: TODO(eteran): this code is so much more complex than I'd like...
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_exec3() {
+	// we want to be enabled, if we aren't already hooked,
+	// hook it
+	if(!old_event_handler_) {
+		old_event_handler_ = edb::v1::set_debug_event_handler(this);
+	}
+
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(auto p = qobject_cast<DialogHWBreakpoints *>(dialog_)) {
+
+
+			if(p->ui->chkBP3->isChecked()) {
+				QMessageBox::StandardButton button = QMessageBox::question(nullptr, tr("Breakpoint Already In Use"), tr("This breakpoint is already being used. Do you want to replace it?"), QMessageBox::Yes | QMessageBox::Cancel);
+				if(button != QMessageBox::Yes) {
+					return;
+				}
+			}
+
+			edb::address_t address = edb::v1::cpu_selected_address();
+
+			p->ui->chkBP3->setChecked(true);
+			p->ui->cmbType3->setCurrentIndex(0);
+			p->ui->cmbSize3->setCurrentIndex(0);
+
+			for(IThread::pointer thread : process->threads()) {
+				State state;
+				thread->get_state(&state);
+				setup_bp(&state, 2, p->ui->chkBP3->isChecked(), address, p->ui->cmbType3->currentIndex(), p->ui->cmbSize3->currentIndex());
+				thread->set_state(state);
+			}
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: set_exec4
+// Desc: TODO(eteran): this code is so much more complex than I'd like...
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_exec4() {
+	// we want to be enabled, if we aren't already hooked,
+	// hook it
+	if(!old_event_handler_) {
+		old_event_handler_ = edb::v1::set_debug_event_handler(this);
+	}
+
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(auto p = qobject_cast<DialogHWBreakpoints *>(dialog_)) {
+
+			if(p->ui->chkBP4->isChecked()) {
+				QMessageBox::StandardButton button = QMessageBox::question(nullptr, tr("Breakpoint Already In Use"), tr("This breakpoint is already being used. Do you want to replace it?"), QMessageBox::Yes | QMessageBox::Cancel);
+				if(button != QMessageBox::Yes) {
+					return;
+				}
+			}
+
+			edb::address_t address = edb::v1::cpu_selected_address();
+
+			p->ui->chkBP4->setChecked(true);
+			p->ui->cmbType4->setCurrentIndex(0);
+			p->ui->cmbSize4->setCurrentIndex(0);
+
+			for(IThread::pointer thread : process->threads()) {
+				State state;
+				thread->get_state(&state);
+				setup_bp(&state, 3, p->ui->chkBP1->isChecked(), address, p->ui->cmbType4->currentIndex(), p->ui->cmbSize4->currentIndex());
+				thread->set_state(state);
+			}
+		}
+	}
 }
 
 #if QT_VERSION < 0x050000

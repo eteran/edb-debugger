@@ -43,9 +43,14 @@ public:
 public:
 	virtual QMenu *menu(QWidget *parent = 0);
 	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event);
+	virtual QList<QAction *> cpu_context_menu();
 
 public Q_SLOTS:
 	void show_menu();
+	void set_exec1();
+	void set_exec2();
+	void set_exec3();
+	void set_exec4();
 
 private:
 	void setup_breakpoints();
