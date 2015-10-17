@@ -21,15 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "State.h"
 
-#include <QRegExpValidator>
-
 #include "ui_DialogHWBreakpoints.h"
-
-#if defined(EDB_X86)
-	#define MAX_HEX "8"
-#elif defined(EDB_X86_64)
-	#define MAX_HEX "16"
-#endif
 
 namespace HardwareBreakpoints {
 
@@ -44,11 +36,6 @@ DialogHWBreakpoints::DialogHWBreakpoints(QWidget *parent) : QDialog(parent), ui(
 	connect(ui->cmbType2, SIGNAL(currentIndexChanged(int)), this, SLOT(type2IndexChanged(int)));
 	connect(ui->cmbType3, SIGNAL(currentIndexChanged(int)), this, SLOT(type3IndexChanged(int)));
 	connect(ui->cmbType4, SIGNAL(currentIndexChanged(int)), this, SLOT(type4IndexChanged(int)));
-
-	ui->txtBP1->setValidator(new QRegExpValidator(QRegExp("[A-Fa-f0-9]{0," MAX_HEX "}"), this));
-	ui->txtBP2->setValidator(new QRegExpValidator(QRegExp("[A-Fa-f0-9]{0," MAX_HEX "}"), this));
-	ui->txtBP3->setValidator(new QRegExpValidator(QRegExp("[A-Fa-f0-9]{0," MAX_HEX "}"), this));
-	ui->txtBP4->setValidator(new QRegExpValidator(QRegExp("[A-Fa-f0-9]{0," MAX_HEX "}"), this));
 }
 
 //------------------------------------------------------------------------------
@@ -112,19 +99,19 @@ void DialogHWBreakpoints::showEvent(QShowEvent *event) {
 	ui->chkBP4->setChecked(bp4_enabled);
 
 	if(bp1_enabled) {
-		ui->txtBP1->setText(state.debug_register(0).toHexString());
+		ui->txtBP1->setText(state.debug_register(0).toPointerString());
 	}
 
 	if(bp2_enabled) {
-		ui->txtBP2->setText(state.debug_register(1).toHexString());
+		ui->txtBP2->setText(state.debug_register(1).toPointerString());
 	}
 
 	if(bp3_enabled) {
-		ui->txtBP3->setText(state.debug_register(2).toHexString());
+		ui->txtBP3->setText(state.debug_register(2).toPointerString());
 	}
 
 	if(bp4_enabled) {
-		ui->txtBP4->setText(state.debug_register(3).toHexString());
+		ui->txtBP4->setText(state.debug_register(3).toPointerString());
 	}
 }
 

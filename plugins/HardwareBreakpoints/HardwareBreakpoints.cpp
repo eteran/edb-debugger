@@ -146,19 +146,19 @@ void HardwareBreakpoints::setup_breakpoints() {
 
 				edb::address_t addr[4];
 				bool ok[4];
-
-				// validate all of the entries
-				addr[0] = edb::v1::string_to_address(p->ui->txtBP1->text(), &ok[0]);
-				addr[1] = edb::v1::string_to_address(p->ui->txtBP2->text(), &ok[1]);
-				addr[2] = edb::v1::string_to_address(p->ui->txtBP3->text(), &ok[2]);
-				addr[3] = edb::v1::string_to_address(p->ui->txtBP4->text(), &ok[3]);
-
-
+				
+				
+				// evaluate all the expressions
+				ok[0] = p->ui->chkBP1->isChecked() && edb::v1::eval_expression(p->ui->txtBP1->text(), &addr[0]);
+				ok[1] = p->ui->chkBP2->isChecked() && edb::v1::eval_expression(p->ui->txtBP1->text(), &addr[1]);
+				ok[2] = p->ui->chkBP3->isChecked() && edb::v1::eval_expression(p->ui->txtBP1->text(), &addr[2]);
+				ok[3] = p->ui->chkBP4->isChecked() && edb::v1::eval_expression(p->ui->txtBP1->text(), &addr[3]);
+				
 				if(!ok[0] && !ok[1] && !ok[2] && !ok[3]) {
 					QMessageBox::information(
 						0,
 						tr("Address Error"),
-						tr("The address provided does not appear to be valid"));
+						tr("An address expression provided does not appear to be valid"));
 					return;
 				}
 
@@ -224,6 +224,9 @@ void HardwareBreakpoints::setup_breakpoints() {
 			}
 		}
 	}
+	
+	edb::v1::update_ui();
+	
 }
 
 //------------------------------------------------------------------------------
@@ -359,6 +362,8 @@ void HardwareBreakpoints::set_exec1() {
 			}
 		}
 	}
+	
+	edb::v1::update_ui();
 }
 
 //------------------------------------------------------------------------------
@@ -398,6 +403,8 @@ void HardwareBreakpoints::set_exec2() {
 			}
 		}
 	}
+	
+	edb::v1::update_ui();
 }
 
 //------------------------------------------------------------------------------
@@ -436,6 +443,8 @@ void HardwareBreakpoints::set_exec3() {
 			}
 		}
 	}
+	
+	edb::v1::update_ui();
 }
 
 //------------------------------------------------------------------------------
@@ -473,6 +482,8 @@ void HardwareBreakpoints::set_exec4() {
 			}
 		}
 	}
+	
+	edb::v1::update_ui();
 }
 
 #if QT_VERSION < 0x050000

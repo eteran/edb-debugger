@@ -167,6 +167,7 @@ EDB_EXPORT IPlugin *find_plugin_by_name(const QString &name);
 
 EDB_EXPORT void reload_symbols();
 EDB_EXPORT void repaint_cpu_view();
+EDB_EXPORT void update_ui();
 
 // these are here and not members of state because
 // they may require using the debugger core plugin and
