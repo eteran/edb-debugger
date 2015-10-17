@@ -84,7 +84,7 @@ QValidator::State QLongValidator::validate(QString &input, int &pos) const {
 		return QValidator::Acceptable;
 	}
 
-	if(input.length() == 1 && input == "-") {
+	if(input == "-") {
 		return QValidator::Intermediate;
 	}
 
