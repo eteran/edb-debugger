@@ -89,10 +89,10 @@ QValidator::State QLongValidator::validate(QString &input, int &pos) const {
 	}
 
 	bool ok;
-	const value_type temp = input.toLong(&ok);
+	const value_type temp = input.toLongLong(&ok);
 	if(!ok) {
 		return QValidator::Invalid;
 	}
 
-	return (temp >= bottom() && temp <= top()) ? QValidator::Acceptable : QValidator::Intermediate;
+	return (temp >= bottom() && temp <= top()) ? QValidator::Acceptable : QValidator::Invalid;
 }
