@@ -2774,9 +2774,8 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 		tty_file_ = create_tty();
 
 		if(edb::v1::debugger_core->open(s, working_directory_, args, tty_file_)) {
-			test_native_binary();
 			set_initial_breakpoint(s);
-			attachComplete();
+			attachComplete();			
 			ret = true;
 		} else {
 			QMessageBox::information(
@@ -2876,6 +2875,9 @@ void Debugger::attach(edb::pid_t pid) {
 //------------------------------------------------------------------------------
 void Debugger::attachComplete() {
 	set_initial_debugger_state();
+	
+	test_native_binary();
+	
 	CapstoneEDB::init(edb::v1::debuggeeIs64Bit());
 	setup_data_views();
 	
