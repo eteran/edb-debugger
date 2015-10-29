@@ -92,6 +92,12 @@ public:
 		std::memcpy(&value_,&newValue,bitSize_/8);
 	}
 
+	template<typename T>
+	void setValueFrom(const T& source) {
+		assert(bitSize_<=8*sizeof source);
+		std::memcpy(&value_,&source,bitSize_/8);
+	}
+
 	QString toHexString() const;
 
 private:
