@@ -76,6 +76,8 @@ void DialogEditFPU::onHexEdited(const QString& input)
 {
 	QString readable(input.trimmed());
 	readable.replace(' ',"");
+	while(readable.size()<20)
+		readable='0'+readable;
 	const auto byteArray=QByteArray::fromHex(readable.toAscii());
 	auto source=byteArray.constData();
 	auto dest=reinterpret_cast<unsigned char*>(&value_);
