@@ -177,6 +177,16 @@ Register State::operator[](const QString &reg) const {
 // Name: set_register
 // Desc:
 //------------------------------------------------------------------------------
+void State::set_register(const Register& reg) {
+	if(impl_) {
+		impl_->set_register(reg);
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: set_register
+// Desc:
+//------------------------------------------------------------------------------
 void State::set_register(const QString &name, edb::reg_t value) {
 	if(impl_) {
 		impl_->set_register(name, value);
