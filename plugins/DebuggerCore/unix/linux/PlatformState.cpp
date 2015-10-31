@@ -1053,7 +1053,7 @@ void PlatformState::set_register(const Register& reg) {
 			return;
 		}
 	}
-	qDebug() << "fixme: set_register(0x"<< qPrintable(reg.toHexString()) <<"): didn't set register " << reg.name();
+	qDebug().nospace() << "fixme: set_register(0x"<< qPrintable(reg.toHexString()) <<"): didn't set register " << reg.name();
 }
 
 //------------------------------------------------------------------------------
