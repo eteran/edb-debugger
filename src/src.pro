@@ -35,6 +35,7 @@ HEADERS += \
 	DialogAttach.h \
 	DialogEditFPU.h \
 	DialogEditGPR.h \
+	DialogEditSIMDRegister.h \
 	DialogInputBinaryString.h \
 	DialogInputValue.h \
 	DialogMemoryRegions.h \
@@ -119,6 +120,7 @@ SOURCES += \
 	DialogAttach.cpp \
 	DialogEditFPU.cpp \
 	DialogEditGPR.cpp \
+	DialogEditSIMDRegister.cpp \
 	DialogInputBinaryString.cpp \
 	DialogInputValue.cpp \
 	DialogMemoryRegions.cpp \
