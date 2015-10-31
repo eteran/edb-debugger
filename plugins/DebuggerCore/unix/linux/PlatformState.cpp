@@ -1040,6 +1040,19 @@ void PlatformState::set_register(const Register& reg) {
 			return;
 		}
 	}
+	{
+		QRegExp Rx("^r([0-7])$");
+		if(Rx.indexIn(regName)!=-1) {
+			QChar digit=Rx.cap(1).at(0);
+			assert(digit.isDigit());
+			char digitChar=digit.toLatin1();
+			std::size_t i=digitChar-'0';
+			assert(fpuIndexValid(i));
+			const auto value=reg.value<edb::value80>();
+			std::memcpy(&x87.R[i],&value,sizeof value);
+			return;
+		}
+	}
 	qDebug() << "fixme: set_register(0x"<< qPrintable(reg.toHexString()) <<"): didn't set register " << reg.name();
 }
 
