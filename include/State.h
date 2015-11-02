@@ -80,6 +80,7 @@ public:
 	void set_flags(edb::reg_t flags);
 	void set_instruction_pointer(edb::address_t value);
 	void set_register(const QString &name, edb::reg_t value);
+	void set_register(const Register &reg);
 
 public:
 	Register operator[](const QString &reg) const;

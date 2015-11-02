@@ -38,6 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 
 #include "DialogEditGPR.h"
+#include "DialogEditFPU.h"
 
 #ifdef Q_OS_LINUX
 #include <asm/unistd.h>
@@ -841,6 +842,16 @@ void ArchProcessor::edit_item(const QTreeWidgetItem &item) {
 				State state;
 				edb::v1::debugger_core->get_state(&state);
 				state.set_register(r.name(), r.valueAsInteger());
+				edb::v1::debugger_core->set_state(state);
+			}
+		}
+		else if(r.type()==Register::TYPE_FPU) {
+			static auto fpuEdit=new DialogEditFPU(item.treeWidget());
+			fpuEdit->set_value(r);
+			if(fpuEdit->exec()==QDialog::Accepted) {
+				State state;
+				edb::v1::debugger_core->get_state(&state);
+				state.set_register(fpuEdit->value());
 				edb::v1::debugger_core->set_state(state);
 			}
 		}

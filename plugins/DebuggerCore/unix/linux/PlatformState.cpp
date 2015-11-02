@@ -745,6 +745,17 @@ Register PlatformState::value(const QString &reg) const {
 			return make_Register<16>(x86.IP16Name, x86.IP, Register::TYPE_IP);
 	}
 	if(x87.filled) {
+		QRegExp Rx("^r([0-7])$");
+		if(Rx.indexIn(regName)!=-1) {
+			QChar digit=Rx.cap(1).at(0);
+			assert(digit.isDigit());
+			char digitChar=digit.toLatin1();
+			std::size_t i=digitChar-'0';
+			assert(fpuIndexValid(i));
+			return make_Register(regName, x87.R[i], Register::TYPE_FPU);
+		}
+	}
+	if(x87.filled) {
 		QRegExp STx("^st\\(?([0-7])\\)?$");
 		if(STx.indexIn(regName)!=-1) {
 			QChar digit=STx.cap(1).at(0);
@@ -1029,7 +1040,20 @@ void PlatformState::set_register(const Register& reg) {
 			return;
 		}
 	}
-	qDebug() << "fixme: set_register(0x"<< qPrintable(reg.toHexString()) <<"): didn't set register " << reg.name();
+	{
+		QRegExp Rx("^r([0-7])$");
+		if(Rx.indexIn(regName)!=-1) {
+			QChar digit=Rx.cap(1).at(0);
+			assert(digit.isDigit());
+			char digitChar=digit.toLatin1();
+			std::size_t i=digitChar-'0';
+			assert(fpuIndexValid(i));
+			const auto value=reg.value<edb::value80>();
+			std::memcpy(&x87.R[i],&value,sizeof value);
+			return;
+		}
+	}
+	qDebug().nospace() << "fixme: set_register(0x"<< qPrintable(reg.toHexString()) <<"): didn't set register " << reg.name();
 }
 
 //------------------------------------------------------------------------------
