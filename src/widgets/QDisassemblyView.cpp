@@ -451,11 +451,11 @@ QString QDisassemblyView::formatAddress(edb::address_t address) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: repaint
+// Name: update
 // Desc:
 //------------------------------------------------------------------------------
-void QDisassemblyView::repaint() {
-	viewport()->repaint();
+void QDisassemblyView::update() {
+	viewport()->update();
 	Q_EMIT signal_updated();
 }
 
@@ -493,7 +493,7 @@ void QDisassemblyView::setRegion(const IRegion::pointer &r) {
 		updateScrollbars();
 		Q_EMIT regionChanged();
 	}
-	repaint();
+	update();
 }
 
 //------------------------------------------------------------------------------
@@ -1113,7 +1113,7 @@ void QDisassemblyView::mouseDoubleClickEvent(QMouseEvent *event) {
 
 				if(region_->contains(address)) {
 					Q_EMIT breakPointToggled(address);
-					repaint();
+					update();
 				}
 			}
 		}
@@ -1174,7 +1174,7 @@ void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
 	selecting_address_ = false;
 
 	setCursor(Qt::ArrowCursor);
-	repaint();
+	update();
 }
 
 //------------------------------------------------------------------------------
@@ -1229,7 +1229,7 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 				}
 				line1_ = x_pos;
 			}
-			repaint();
+			update();
 		} else if(moving_line2_) {
 			if(x_pos > line1() + font_width_ && x_pos + 1 < line3()) {
 				if(line3_ == 0) {
@@ -1237,12 +1237,12 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 				}
 				line2_ = x_pos;
 			}
-			repaint();
+			update();
 		} else if(moving_line3_) {
 			if(x_pos > line2() + font_width_ && x_pos + 1 < width() - (verticalScrollBar()->width() + 3)) {
 				line3_ = x_pos;
 			}
-			repaint();
+			update();
 		} else {
 			if(near_line(x_pos, line1()) || near_line(x_pos, line2()) || near_line(x_pos, line3())) {
 				setCursor(Qt::SplitHCursor);
@@ -1282,7 +1282,7 @@ void QDisassemblyView::setSelectedAddress(edb::address_t address) {
 			selected_instruction_size_    = 0;
 		}
 		
-		viewport()->repaint();
+		update();
 	}
 }
 

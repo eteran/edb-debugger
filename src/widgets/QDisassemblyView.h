@@ -63,7 +63,7 @@ public:
 	QByteArray saveState() const;
 	void restoreState(const QByteArray &stateBuffer);
 
-signals:
+Q_SIGNALS:
 	void signal_updated();
 
 public Q_SLOTS:
@@ -74,7 +74,7 @@ public Q_SLOTS:
 	void setRegion(const IRegion::pointer &r);
 	void setCurrentAddress(edb::address_t address);
 	void clear();
-	void repaint();
+	void update();
 	void setShowAddressSeparator(bool value);
 
 private Q_SLOTS:
