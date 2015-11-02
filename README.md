@@ -23,9 +23,11 @@ Compiling
 Compiling edb is generally quite simple. edb currently depends on the 
 following packages:
 
-* Qt >= 4.6
-* Boost >= 1.35 (headers only)
-* Capstone >= 3.0
+Dependency                                  | Version Required
+------------------------------------------- | ----------------
+[Qt](http://www.qt.io/)                     | >= 4.6
+[Boost](http://boost.org) (Headers Only)    | >= 1.35
+[Capstone](http://www.capstone-engine.org/) | >= 3.0
 
 Many distributions already have packages that satisify these.
 
