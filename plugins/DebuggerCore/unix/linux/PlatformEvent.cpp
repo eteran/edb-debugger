@@ -97,7 +97,42 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 		return Message(
 			tr("Divide By Zero"),
 			tr(
-				"<p>The debugged application tried to divide an integer value by an integer divisor of zero.</p>"
+				"<p>The debugged application tried to divide an integer value by an integer divisor of zero or encountered integer division overflow.</p>"
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
+			);
+		case FPE_FLTDIV:
+		return Message(
+			tr("Divide By Zero"),
+			tr(
+				"<p>The debugged application tried to divide an floating-point value by a floating-point divisor of zero.</p>"
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
+			);
+		case FPE_FLTOVF:
+		return Message(
+			tr("Numeric Overflow"),
+			tr(
+				"<p>The debugged application encountered a numeric overflow while performing a floating-point computation.</p>"
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
+			);
+		case FPE_FLTUND:
+		return Message(
+			tr("Numeric Underflow"),
+			tr(
+				"<p>The debugged application encountered a numeric underflow while performing a floating-point computation.</p>"
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
+			);
+		case FPE_FLTRES:
+		return Message(
+			tr("Inexact Result"),
+			tr(
+				"<p>The debugged application encountered an inexact result of a floating-point computation it was performing.</p>"
+				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
+			);
+		case FPE_FLTINV:
+		return Message(
+			tr("Invalid Operation"),
+			tr(
+				"<p>The debugged application attempted to perform an invalid floating-point operation.</p>"
 				"<p>If you would like to pass this exception to the application press Shift+[F7/F8/F9]</p>")
 			);
 		default:
