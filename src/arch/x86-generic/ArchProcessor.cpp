@@ -1099,8 +1099,28 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	if(has_xmm_ || has_ymm_) {
 	    const Register current = state["mxcsr"];
 		const Register prev    = last_state_["mxcsr"];
+		const auto value = current.value<edb::value32>();
+		QString enabledBits;
+		enabledBits += "[";
+		enabledBits += value & 0x0001 ? " IE" : "";
+		enabledBits += value & 0x0002 ? " DE" : "";
+		enabledBits += value & 0x0004 ? " ZE" : "";
+		enabledBits += value & 0x0008 ? " OE" : "";
+		enabledBits += value & 0x0010 ? " UE" : "";
+		enabledBits += value & 0x0020 ? " PE" : "";
+		enabledBits += " ]";
+		enabledBits += value & 0x0040 ? " DAZ": "";
+		enabledBits += " [";
+		enabledBits += value & 0x0080 ? " IM" : " Iu";
+		enabledBits += value & 0x0100 ? " DM" : " Du";
+		enabledBits += value & 0x0200 ? " ZM" : " Zu";
+		enabledBits += value & 0x0400 ? " OM" : " Ou";
+		enabledBits += value & 0x0800 ? " UM" : " Uu";
+		enabledBits += value & 0x1000 ? " PM" : " Pu";
+		enabledBits += " ]";
+		enabledBits += value & 0x8000 ? " FZ" : "";
 		if(current) {
-			register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1").arg(current.toHexString()));
+			register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1   %2").arg(current.toHexString()).arg(enabledBits));
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 	}
