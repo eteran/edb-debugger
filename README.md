@@ -31,14 +31,14 @@ Dependency                                  | Version Required
 
 Many distributions already have packages that satisify these.
 
-Once you have Qt and Boost installed, it is as simple as
+Once you have the necessary dependencies installed, compiling should be as simple as:
 
 	$ qmake
 	$ make
 
-This will build the debugger along with all plugins I have written. On certain 
-systems your qmake may be named slightly differently, I've noticed that the 
-Fedora Core rpms name it `qmake-qt4`.
+This will build the debugger along with all included plugins. On certain 
+systems your qmake may be named slightly differently. For example, some distributions 
+name the Qt4 version of qmake as `qmake-qt4`.
 
 If you are planning on doing a make install, you likely want to specify the 
 default plugin path, here's how you would do that.
@@ -59,8 +59,9 @@ Basic installation is simple, you may run
 
 	$ make install
 
-In which case the plugins will be installed in /usr/local/lib/edb and the binaries
-will be installed in /usr/local/bin/ or, if you've specified PREFIX, then it'll be
-used instead of /usr/local/. Finally, if you are doing a make install, you probably
-want to specify a default plugin path, this is done during the qmake process.
+In which case the plugins will be installed in `/usr/local/lib/edb` and the binaries
+will be installed in `/usr/local/bin/` or, if you've specified `PREFIX`, then it'll be
+used instead of `/usr/local/`. Finally, as described above, if you are doing a 
+`make install`, you probably want to specify a default plugin path, this is done during 
+the qmake process.
 
