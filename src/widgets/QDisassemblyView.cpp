@@ -1208,7 +1208,6 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 			}
 		} else {
 			updateSelectedAddress(event);
-			selecting_address_ = true;
 		}
 	}
 }
