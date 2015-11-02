@@ -803,12 +803,14 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 				for(std::size_t i=0;i<MAX_YMM_REGS_COUNT;++i)
 					register_view_items_.push_back(create_register_item(ymm, QString("YMM%1").arg(i)));
 				register_view_items_.push_back(create_register_item(ymm, "mxcsr"));
+				register_view_items_.push_back(create_register_item(ymm, "AVX_RC"));
 			}
 		} else if(has_xmm_) {
 			if(QTreeWidgetItem *const xmm = category_list->addCategory(tr("SSE"))) {
 				for(std::size_t i=0;i<MAX_XMM_REGS_COUNT;++i)
 					register_view_items_.push_back(create_register_item(xmm, QString("XMM%1").arg(i)));
 				register_view_items_.push_back(create_register_item(xmm, "mxcsr"));
+				register_view_items_.push_back(create_register_item(xmm, "SSE_RC"));
 			}
 		}
 
@@ -1119,9 +1121,29 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		enabledBits += value & 0x1000 ? " PM" : " Pu";
 		enabledBits += " ]";
 		enabledBits += value & 0x8000 ? " FZ" : "";
+		QString roundingMode;
+		static constexpr const int MXCSR_RC_LOW_BIT_POS=13;
+		static constexpr const uint32_t MXCSR_RC_BITS=3<<MXCSR_RC_LOW_BIT_POS;
+		switch((value&MXCSR_RC_BITS)>>MXCSR_RC_LOW_BIT_POS)
+		{
+		case 0:
+			roundingMode = tr("Rounding to nearest");
+			break;
+		case 1:
+			roundingMode = tr("Rounding down");
+			break;
+		case 2:
+			roundingMode = tr("Rounding up");
+			break;
+		case 3:
+			roundingMode = tr("Rounding toward zero");
+			break;
+		}
 		if(current) {
 			register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1   %2").arg(current.toHexString()).arg(enabledBits));
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
+			register_view_items_[itemNumber]->setText(0, QString("  RC: %1").arg(roundingMode));
+			register_view_items_[itemNumber++]->setForeground(0, QBrush((value&MXCSR_RC_BITS) != (prev.value<edb::value32>()&MXCSR_RC_BITS) ? Qt::red : palette.text()));
 		}
 	}
 
