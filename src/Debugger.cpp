@@ -1024,7 +1024,7 @@ void Debugger::on_registerList_customContextMenuRequested(const QPoint &pos) {
 	if(item && !ui.registerList->isCategory(item)) {
 		// a little bit cheesy of a solution, but should work nicely
 		if(const Register reg = edb::v1::arch_processor().value_from_item(*item)) {
-			if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP | Register::TYPE_COND)) {
+			if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP)) {
 				QMenu menu;
 				menu.addAction(registerFollowInDumpAction_);
 				menu.addAction(registerFollowInDumpTabAction_);
