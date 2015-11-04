@@ -8,13 +8,11 @@ compiler:
 
 env:
     - QT_BASE=48 MAKEFLAGS="-j2"
-    - QT_BASE=50 MAKEFLAGS="-j2"
 
 sudo: required
 
 before_install:
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
-    - if [ "$QT_BASE" = "48" ]; then sudo add-apt-repository ppa:beineri/opt-qt486 -y; fi
     - if [ "$QT_BASE" = "50" ]; then sudo add-apt-repository ppa:beineri/opt-qt502 -y; fi
     - if [ "$QT_BASE" = "51" ]; then sudo add-apt-repository ppa:beineri/opt-qt511 -y; fi
     - if [ "$QT_BASE" = "52" ]; then sudo add-apt-repository ppa:beineri/opt-qt521 -y; fi
@@ -24,7 +22,7 @@ before_install:
     - ./travis_install_capstone.sh
 
 install:
-    - if [ "$QT_BASE" = "48" ]; then sudo apt-get install -qq opt-qt4-qmake opt-qt4-dev-tools; source /opt/qt-4.8/bin/qt-4.8-env.sh; fi
+    - if [ "$QT_BASE" = "48" ]; then sudo apt-get install -qq qt4-qmake libqt4-gui libqt4-core libqt4-dev; fi
     - if [ "$QT_BASE" = "50" ]; then sudo apt-get install -qq qtbase; source /opt/qt5/bin/qt5-env.sh; fi
     - if [ "$QT_BASE" = "51" ]; then sudo apt-get install -qq qt51base; source /opt/qt51/bin/qt51-env.sh; fi
     - if [ "$QT_BASE" = "52" ]; then sudo apt-get install -qq qt52base; source /opt/qt52/bin/qt52-env.sh; fi
