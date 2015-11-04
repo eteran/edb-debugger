@@ -11,7 +11,7 @@ env:
         - MAKEFLAGS="-j2"
     matrix:
         - QT_BASE=48
-        - QT_BASE=50
+        - QT_BASE=51
 
 sudo: required
 
