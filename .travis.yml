@@ -7,9 +7,8 @@ compiler:
     - clang
 
 env:
-    - MAKEFLAGS="-j2"
-    - QT_BASE=48
-    - QT_BASE=50
+    - QT_BASE=48 MAKEFLAGS="-j2"
+    - QT_BASE=50 MAKEFLAGS="-j2"
 
 sudo: required
 
