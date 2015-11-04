@@ -23,6 +23,7 @@ before_install:
     - if [ "$QT_BASE" = "53" ]; then sudo add-apt-repository ppa:beineri/opt-qt532 -y; fi
     - if [ "$QT_BASE" = "54" ]; then sudo add-apt-repository ppa:beineri/opt-qt541 -y; fi
     - if [ "$QT_BASE" = "55" ]; then sudo add-apt-repository ppa:beineri/opt-qt55 -y; fi
+    - sudo apt-get update -qq
     - ./travis_install_capstone.sh
 
 install:
