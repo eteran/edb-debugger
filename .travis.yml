@@ -4,14 +4,13 @@ cache: apt
 
 compiler:
     - gcc
-    - clang
 
 env:
     global:
         - MAKEFLAGS="-j2"
     matrix:
         - QT_BASE=48
-        - QT_BASE=51
+        - QT_BASE=55
 
 sudo: required
 
