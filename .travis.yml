@@ -4,14 +4,20 @@ cache: apt
 
 compiler:
     - gcc
+    - clang
 
 env:
     global:
         - MAKEFLAGS="-j2"
     matrix:
         - QT_BASE=48
+        - QT_BASE=50
+        - QT_BASE=51
+        - QT_BASE=52
+        - QT_BASE=53
+        - QT_BASE=54
         - QT_BASE=55
-
+		
 sudo: required
 
 before_install:
@@ -40,7 +46,9 @@ before_script:
     - if [ "$CXX" != "clang++" ]; then qmake; fi
 
 script:
-    - make
+    - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" == "48" ]; then make; fi
+    - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" != "48" ]; then /bin/true; fi
+    - if [ "$CXX" != "clang++" ]; then make; fi
 
 branches:
     only:
