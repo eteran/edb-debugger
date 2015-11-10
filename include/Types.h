@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <cassert>
 #include <cstddef>
+#include <limits>
 #include <map>
 
 class Register;
@@ -186,6 +187,7 @@ struct SizedValue : public ValueBase<N,1> {
 	SizedValue operator + () const { return *this; }
 	InnerValueType toUint() const { return this->value_[0]; }
 	InnerValueType& asUint() { return this->value_[0]; }
+	bool negative() const { return this->value_.back()>>(std::numeric_limits<InnerValueType>::digits-1); }
 };
 
 // Not using long double because for e.g. x86_64 it has 128 bits.
@@ -297,6 +299,7 @@ struct Value80 : public ValueBase<16,5> {
 		return QString::fromStdString(ss.str());
 	}
 
+	bool negative() const { return value_[4] & 0x8000; }
 	SizedValue<16> exponent() const { return value_[4] & 0x7fff; }
 	SizedValue<64> mantissa() const { return SizedValue<64>(value_); }
 };
