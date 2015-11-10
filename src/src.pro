@@ -45,6 +45,7 @@ HEADERS += \
 	Expression.h \
 	FixedFontSelector.h \
 	Float80Edit.h \
+	FloatX.h \
 	GPREdit.h \
 	HexStringValidator.h \
 	IAnalyzer.h \
@@ -127,6 +128,7 @@ SOURCES += \
 	DialogThreads.cpp \
 	FixedFontSelector.cpp \
 	Float80Edit.cpp \
+	FloatX.cpp \
 	Function.cpp \
 	GPREdit.cpp \
 	HexStringValidator.cpp \
