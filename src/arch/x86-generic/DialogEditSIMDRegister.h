@@ -99,6 +99,10 @@ private:
 	void onIntegerEdited(QObject* sender,const std::array<NumberEdit*,numBytes/sizeof(Integer)>& elements);
 	template<typename Float>
 	void onFloatEdited(QObject* sender,const std::array<NumberEdit*,numBytes/sizeof(Float)>& elements);
+	template<typename T>
+	void updateIntegralEntries(const std::array<NumberEdit*,numBytes/sizeof(T)>& entries,NumberEdit* notUpdated);
+	template<typename T>
+	void updateFloatEntries(const std::array<NumberEdit*,numBytes/sizeof(T)>& entries,NumberEdit* notUpdated);
 private slots:
 	void onByteEdited();
 	void onWordEdited();
