@@ -148,10 +148,10 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget* parent)
 
 void DialogEditSIMDRegister::updateAllEntriesExcept(NumberEdit* notUpdated)
 {
-	for(std::size_t byte=0;byte<numBytes;++byte)
+	for(std::size_t byte=0;byte<bytes.size();++byte)
 		if(bytes[byte]!=notUpdated)
 			formatInteger(bytes[byte],value_[byte]);
-	for(std::size_t word=0;word<numBytes/2;++word)
+	for(std::size_t word=0;word<words.size();++word)
 	{
 		if(words[word]==notUpdated)
 			continue;
@@ -159,7 +159,7 @@ void DialogEditSIMDRegister::updateAllEntriesExcept(NumberEdit* notUpdated)
 		std::memcpy(&value,&value_[word*sizeof(value)],sizeof(value));
 		formatInteger(words[word],value);
 	}
-	for(std::size_t dword=0;dword<numBytes/4;++dword)
+	for(std::size_t dword=0;dword<dwords.size();++dword)
 	{
 		if(dwords[dword]==notUpdated)
 			continue;
@@ -167,7 +167,7 @@ void DialogEditSIMDRegister::updateAllEntriesExcept(NumberEdit* notUpdated)
 		std::memcpy(&value,&value_[dword*sizeof(value)],sizeof(value));
 		formatInteger(dwords[dword],value);
 	}
-	for(std::size_t qword=0;qword<numBytes/8;++qword)
+	for(std::size_t qword=0;qword<qwords.size();++qword)
 	{
 		if(qwords[qword]==notUpdated)
 			continue;
