@@ -40,6 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogEditGPR.h"
 #include "DialogEditFPU.h"
 #include "FloatX.h"
+#include "DialogEditSIMDRegister.h"
 
 #ifdef Q_OS_LINUX
 #include <asm/unistd.h>
@@ -855,6 +856,16 @@ void ArchProcessor::edit_item(const QTreeWidgetItem &item) {
 				State state;
 				edb::v1::debugger_core->get_state(&state);
 				state.set_register(fpuEdit->value());
+				edb::v1::debugger_core->set_state(state);
+			}
+		}
+		else if(r.type()==Register::TYPE_SIMD) {
+			static auto simdEdit=new DialogEditSIMDRegister(item.treeWidget());
+			simdEdit->set_value(r);
+			if(simdEdit->exec()==QDialog::Accepted) {
+				State state;
+				edb::v1::debugger_core->get_state(&state);
+				state.set_register(simdEdit->value());
 				edb::v1::debugger_core->set_state(state);
 			}
 		}
