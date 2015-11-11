@@ -11,11 +11,7 @@ Float80Edit::Float80Edit(QWidget* parent)
 
 void Float80Edit::setValue(edb::value80 input)
 {
-	const auto value=input.toFloatValue();
-	if(!std::isnan(value) && !std::isinf(value))
-		setText(input.toString());
-	else
-		setText(input.floatTypeString(input.floatType()));
+	setText(formatFloat(input));
 }
 QSize Float80Edit::sizeHint() const
 {
