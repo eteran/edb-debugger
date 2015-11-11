@@ -17,6 +17,7 @@
 
 class QRegExpValidator;
 class QULongValidator;
+class QLongValidator;
 class QValidator;
 class NumberEdit;
 
@@ -63,10 +64,10 @@ class DialogEditSIMDRegister : public QDialog
 	QRegExpValidator* dwordHexValidator;
 	QRegExpValidator* qwordHexValidator;
 
-	QULongValidator* byteSignedValidator;
-	QULongValidator* wordSignedValidator;
-	QULongValidator* dwordSignedValidator;
-	QULongValidator* qwordSignedValidator;
+	QLongValidator* byteSignedValidator;
+	QLongValidator* wordSignedValidator;
+	QLongValidator* dwordSignedValidator;
+	QLongValidator* qwordSignedValidator;
 
 	QULongValidator* byteUnsignedValidator;
 	QULongValidator* wordUnsignedValidator;

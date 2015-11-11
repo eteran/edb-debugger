@@ -5,6 +5,7 @@
 #include <QLineEdit>
 #include <QDebug>
 #include "QULongValidator.h"
+#include "QLongValidator.h"
 #include "FloatX.h"
 #include <cstring>
 #include <type_traits>
@@ -64,10 +65,10 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget* parent)
 	  wordHexValidator (new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,4}"),this)),
 	  dwordHexValidator(new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,8}"),this)),
 	  qwordHexValidator(new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,16}"),this)),
-	  byteSignedValidator (new QULongValidator(INT8_MIN,INT8_MAX,this)),
-	  wordSignedValidator (new QULongValidator(INT16_MIN,INT16_MAX,this)),
-	  dwordSignedValidator(new QULongValidator(INT32_MIN,INT32_MAX,this)),
-	  qwordSignedValidator(new QULongValidator(INT64_MIN,INT64_MAX,this)),
+	  byteSignedValidator (new QLongValidator(INT8_MIN,INT8_MAX,this)),
+	  wordSignedValidator (new QLongValidator(INT16_MIN,INT16_MAX,this)),
+	  dwordSignedValidator(new QLongValidator(INT32_MIN,INT32_MAX,this)),
+	  qwordSignedValidator(new QLongValidator(INT64_MIN,INT64_MAX,this)),
 	  byteUnsignedValidator (new QULongValidator(0,UINT8_MAX,this)),
 	  wordUnsignedValidator (new QULongValidator(0,UINT16_MAX,this)),
 	  dwordUnsignedValidator(new QULongValidator(0,UINT32_MAX,this)),
