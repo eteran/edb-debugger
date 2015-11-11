@@ -17,6 +17,7 @@
 
 class QRegExpValidator;
 class QULongValidator;
+class QValidator;
 class NumberEdit;
 
 class DialogEditSIMDRegister : public QDialog
@@ -71,6 +72,9 @@ class DialogEditSIMDRegister : public QDialog
 	QULongValidator* wordUnsignedValidator;
 	QULongValidator* dwordUnsignedValidator;
 	QULongValidator* qwordUnsignedValidator;
+
+	QValidator* float32Validator;
+	QValidator* float64Validator;
 
 	enum class Mode
 	{

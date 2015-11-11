@@ -72,6 +72,8 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget* parent)
 	  wordUnsignedValidator (new QULongValidator(0,UINT16_MAX,this)),
 	  dwordUnsignedValidator(new QULongValidator(0,UINT32_MAX,this)),
 	  qwordUnsignedValidator(new QULongValidator(0,UINT64_MAX,this)),
+	  float32Validator(new FloatXValidator<float>(this)),
+	  float64Validator(new FloatXValidator<double>(this)),
 	  mode(Mode::Hex)
 {
 	setWindowTitle(tr("Edit SIMD Register"));
@@ -91,6 +93,11 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget* parent)
 	setupEntries(tr("Quadword"),qwords,QWORDS_ROW,SLOT(onQwordEdited()),21);
 	setupEntries(tr("float32"),floats32,FLOATS32_ROW,SLOT(onFloat32Edited()),14);
 	setupEntries(tr("float64"),floats64,FLOATS64_ROW,SLOT(onFloat64Edited()),24);
+
+	for(const auto& entry : floats32)
+		entry->setValidator(float32Validator);
+	for(const auto& entry : floats64)
+		entry->setValidator(float64Validator);
 
 	hexSignOKCancelLayout = new QHBoxLayout();
 	{
