@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <cassert>
 #include <cstddef>
+#include <limits>
 #include <map>
 
 class Register;
@@ -186,6 +187,7 @@ struct SizedValue : public ValueBase<N,1> {
 	SizedValue operator + () const { return *this; }
 	InnerValueType toUint() const { return this->value_[0]; }
 	InnerValueType& asUint() { return this->value_[0]; }
+	bool negative() const { return this->value_.back()>>(std::numeric_limits<InnerValueType>::digits-1); }
 };
 
 // Not using long double because for e.g. x86_64 it has 128 bits.
@@ -202,89 +204,6 @@ struct Value80 : public ValueBase<16,5> {
 		return created;
 	}
 
-	enum class FloatType {
-		Zero,
-		Normal,
-		Infinity,
-		NegativeInfinity,
-		Denormal,
-		PseudoDenormal,
-		SNaN,
-		QNaN,
-		Unsupported
-	};
-	FloatType floatType() const {
-		auto exponent=this->exponent();
-		auto mantissa=this->mantissa();
-		bool negative=value_[4] & 0x8000;
-		static constexpr uint64_t integerBitOnly=0x8000000000000000ULL;
-		static constexpr uint64_t QNaN_mask=0xc000000000000000ULL;
-		bool integerBitSet=mantissa & integerBitOnly;
-		if(exponent==0x7fff)
-		{
-			if(mantissa==integerBitOnly)
-			{
-				if(negative)
-					return FloatType::NegativeInfinity; // |1|11..11|1.000..0|
-				else
-					return FloatType::Infinity;         // |0|11..11|1.000..0|
-			}
-			if((mantissa & QNaN_mask) == QNaN_mask)
-				return FloatType::QNaN;                 // |X|11..11|1.1XX..X|
-			else if((mantissa & QNaN_mask) == integerBitOnly)
-				return FloatType::SNaN;                 // |X|11..11|1.0XX..X|
-			else
-				return FloatType::Unsupported; 			// integer bit reset
-		}
-		else if(exponent==0x0000)
-		{
-			if(mantissa==0u)
-				return FloatType::Zero;
-			else
-			{
-				if(!integerBitSet)
-					return FloatType::Denormal;     // |X|00.00|0.XXXX..X|
-				else
-					return FloatType::PseudoDenormal;// |X|00.00|1.XXXX..X|
-			}
-		}
-		else
-		{
-			if(integerBitSet)
-				return FloatType::Normal;
-			else
-				return FloatType::Unsupported;
-		}
-	}
-	bool isSpecial(FloatType type) const {
-		return type!=FloatType::Normal &&
-			   type!=FloatType::Zero;
-	}
-	static QString floatTypeString(FloatType type) {
-		static const std::map<FloatType,QString> types{
-			{FloatType::Zero,            "Zero"},
-			{FloatType::Normal,          "Normal"},
-			{FloatType::Infinity,        "+Inf"},
-			{FloatType::NegativeInfinity,"-Inf"},
-			{FloatType::Denormal,        "Denormal"},
-			{FloatType::PseudoDenormal,  "Pseudo-denormal"},
-			{FloatType::SNaN,            "SNaN"},
-			{FloatType::QNaN,            "QNaN"},
-			{FloatType::Unsupported,     "Unsupported"}};
-			
-			
-		auto it = types.find(type);
-		if(it != types.end()) {
-			return it->second;
-		}
-		
-		Q_ASSERT(0 && "Invalid Float Type");
-		return "Invalid";
-	}
-	QString floatTypeString() const {
-		return floatTypeString(floatType());
-	}
-
 	long double toFloatValue() const {
 		long double float80val;
 		std::memcpy(&float80val, &value_, sizeof value_);
@@ -297,6 +216,7 @@ struct Value80 : public ValueBase<16,5> {
 		return QString::fromStdString(ss.str());
 	}
 
+	bool negative() const { return value_[4] & 0x8000; }
 	SizedValue<16> exponent() const { return value_[4] & 0x7fff; }
 	SizedValue<64> mantissa() const { return SizedValue<64>(value_); }
 };

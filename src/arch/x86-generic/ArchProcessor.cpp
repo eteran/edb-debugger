@@ -39,6 +39,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogEditGPR.h"
 #include "DialogEditFPU.h"
+#include "FloatX.h"
+#include "DialogEditSIMDRegister.h"
 
 #ifdef Q_OS_LINUX
 #include <asm/unistd.h>
@@ -857,6 +859,16 @@ void ArchProcessor::edit_item(const QTreeWidgetItem &item) {
 				edb::v1::debugger_core->set_state(state);
 			}
 		}
+		else if(r.type()==Register::TYPE_SIMD) {
+			static auto simdEdit=new DialogEditSIMDRegister(item.treeWidget());
+			simdEdit->set_value(r);
+			if(simdEdit->exec()==QDialog::Accepted) {
+				State state;
+				edb::v1::debugger_core->get_state(&state);
+				state.set_register(simdEdit->value());
+				edb::v1::debugger_core->set_state(state);
+			}
+		}
 	}
 }
 
@@ -909,21 +921,10 @@ void ArchProcessor::update_fpu_view(int& itemNumber, const State &state, const Q
 		bool empty=state.fpu_register_is_empty(i);
 		const QString tag=state.fpu_register_tag_string(i);
 
-		QString typeString;
-		QString valueString;
-		if(!empty) {
-			auto type=current.floatType();
-			if(current.isSpecial(type))
-				typeString=" "+current.floatTypeString(type);
-			long double value=current.toFloatValue();
-			if(!std::isnan(value) && !std::isinf(value))
-				valueString=" "+current.toString();
-		}
-
 		bool changed=current != prev;
 		QPalette::ColorGroup colGroup(empty ? QPalette::Disabled : QPalette::Normal);
 		QBrush textColor(changed ? Qt::red : palette.brush(colGroup,QPalette::Text));
-		register_view_items_[itemNumber]->setText(0, QString("%1R%2: %3 %4%5%6").arg(fpuTop==i?"=>":"  ").arg(i).arg(tag.leftJustified(8)).arg(current.toHexString()).arg(valueString).arg(typeString));
+		register_view_items_[itemNumber]->setText(0, QString("%1R%2: %3 %4").arg(fpuTop==i?"=>":"  ").arg(i).arg(tag.leftJustified(8)).arg(formatFloat(current)));
 		register_view_items_[itemNumber++]->setForeground(0, textColor);
 	}
 	edb::value16 controlWord=state.fpu_control_word();

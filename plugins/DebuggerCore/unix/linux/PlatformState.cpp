@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PlatformState.h"
 #include "Util.h"
+#include "FloatX.h"
 #include <unordered_map>
 #include <QRegExp>
 #include <QDebug>
@@ -158,11 +159,11 @@ std::size_t PlatformState::X87::STIndexToRIndex(std::size_t n) const {
 }
 
 int PlatformState::X87::recreateTag(edb::value80 value) const {
-	switch(value.floatType())
+	switch(floatType(value))
 	{
-	case edb::value80::FloatType::Zero:
+	case FloatValueClass::Zero:
 		return TAG_ZERO;
-	case edb::value80::FloatType::Normal:
+	case FloatValueClass::Normal:
 		return TAG_VALID;
 	default:
 		return TAG_SPECIAL;
