@@ -14,6 +14,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <Register.h>
+#include "Util.h"
 
 class QRegExpValidator;
 class QULongValidator;
@@ -77,12 +78,7 @@ class DialogEditSIMDRegister : public QDialog
 	QValidator* float32Validator;
 	QValidator* float64Validator;
 
-	enum class Mode
-	{
-		Hex,
-		Signed,
-		Unsigned
-	} mode;
+	IntDisplayMode mode;
 	std::array<std::uint8_t,numBytes> value_;
 	Register reg;
 
