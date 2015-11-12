@@ -75,7 +75,7 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget* parent)
 	  qwordUnsignedValidator(new QULongValidator(0,UINT64_MAX,this)),
 	  float32Validator(new FloatXValidator<float>(this)),
 	  float64Validator(new FloatXValidator<double>(this)),
-	  mode(Mode::Hex)
+	  mode(IntDisplayMode::Hex)
 {
 	setWindowTitle(tr("Edit SIMD Register"));
 	setModal(true);
@@ -316,13 +316,13 @@ std::uint64_t DialogEditSIMDRegister::readInteger(const NumberEdit* const edit) 
 	bool ok;
 	switch(mode)
 	{
-	case Mode::Hex:
+	case IntDisplayMode::Hex:
 		return edit->text().toULongLong(&ok,16);
 		break;
-	case Mode::Signed:
+	case IntDisplayMode::Signed:
 		return edit->text().toLongLong(&ok);
 		break;
-	case Mode::Unsigned:
+	case IntDisplayMode::Unsigned:
 		return edit->text().toULongLong(&ok);
 		break;
 	}
@@ -334,15 +334,15 @@ void DialogEditSIMDRegister::formatInteger(NumberEdit* const edit, Integer integ
 {
 	switch(mode)
 	{
-	case Mode::Hex:
+	case IntDisplayMode::Hex:
 		edit->setText(QString("%1").arg(integer,2*sizeof integer,16,QChar('0')));
 		break;
-	case Mode::Signed:
+	case IntDisplayMode::Signed:
 		typedef typename std::remove_reference<Integer>::type Int;
 		typedef typename std::make_signed<Int>::type Signed;
 		edit->setText(QString("%1").arg(static_cast<Signed>(integer)));
 		break;
-	case Mode::Unsigned:
+	case IntDisplayMode::Unsigned:
 		edit->setText(QString("%1").arg(integer));
 		break;
 	}
@@ -398,9 +398,9 @@ void DialogEditSIMDRegister::onFloat64Edited()
 
 void DialogEditSIMDRegister::onHexToggled(bool checked)
 {
-	if((checked && mode!=Mode::Hex) || !bytes.front()->validator())
+	if((checked && mode!=IntDisplayMode::Hex) || !bytes.front()->validator())
 	{
-		mode=Mode::Hex;
+		mode=IntDisplayMode::Hex;
 		for(const auto& byte : bytes)
 			byte->setValidator(byteHexValidator);
 		for(const auto& word : words)
@@ -415,9 +415,9 @@ void DialogEditSIMDRegister::onHexToggled(bool checked)
 
 void DialogEditSIMDRegister::onSignedToggled(bool checked)
 {
-	if((checked && mode!=Mode::Signed) || !bytes.front()->validator())
+	if((checked && mode!=IntDisplayMode::Signed) || !bytes.front()->validator())
 	{
-		mode=Mode::Signed;
+		mode=IntDisplayMode::Signed;
 		for(const auto& byte : bytes)
 			byte->setValidator(byteSignedValidator);
 		for(const auto& word : words)
@@ -432,9 +432,9 @@ void DialogEditSIMDRegister::onSignedToggled(bool checked)
 
 void DialogEditSIMDRegister::onUnsignedToggled(bool checked)
 {
-	if((checked && mode!=Mode::Unsigned) || !bytes.front()->validator())
+	if((checked && mode!=IntDisplayMode::Unsigned) || !bytes.front()->validator())
 	{
-		mode=Mode::Unsigned;
+		mode=IntDisplayMode::Unsigned;
 		for(const auto& byte : bytes)
 			byte->setValidator(byteUnsignedValidator);
 		for(const auto& word : words)
