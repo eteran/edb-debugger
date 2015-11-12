@@ -26,6 +26,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstddef>
 #include <array>
 #include <algorithm>
+#include "FloatX.h"
+
+enum class IntDisplayMode {
+	Hex,
+	Signed,
+	Unsigned
+};
 
 namespace util {
 
@@ -77,6 +84,63 @@ auto make_array(T head, Tail...tail) -> std::array<T,1+sizeof...(Tail)>
 template<typename Container, typename Element>
 bool contains(const Container& container, const Element& element)
 { return std::find(std::begin(container),std::end(container),element)!=std::end(container); }
+
+// Returns a string of `AsType`s ordered from highest in SIMD register to lowest
+template<typename AsType, typename T>
+typename std::enable_if<std::is_floating_point<AsType>::value,
+QString>::type packedFloatsToString(const T& value)
+{
+    auto p=reinterpret_cast<const char*>(&value);
+    const std::size_t elementCount=sizeof value/sizeof(AsType);
+    QString result;
+    for(std::size_t i=elementCount-1;i!=std::size_t(-1);--i)
+    {
+		edb::detail::SizedValue<sizeof(AsType)*8> v;
+        std::memcpy(&v,&p[i*sizeof(AsType)],sizeof(AsType));
+
+		static const int spacing=1;
+        static const int fieldWidth=maxPrintedLength<AsType>()+spacing;
+		result += formatFloat(v).rightJustified(fieldWidth);
+    }
+    return result;
+}
+
+template<typename T>
+QString formatInt(T value, IntDisplayMode mode)
+{
+	switch(mode)
+	{
+	case IntDisplayMode::Hex:
+		return value.toHexString();
+	case IntDisplayMode::Signed:
+		return value.signedToString();
+	case IntDisplayMode::Unsigned:
+		return value.unsignedToString();
+	default:
+		Q_ASSERT(!"Unexpected integer display mode");
+		return "???";
+	}
+}
+
+template<typename AsType, typename T>
+typename std::enable_if<std::is_integral<AsType>::value,
+QString>::type packedIntsToString(const T& value,IntDisplayMode mode)
+{
+    auto p=reinterpret_cast<const char*>(&value);
+    const std::size_t elementCount=sizeof value/sizeof(AsType);
+    QString result;
+    for(std::size_t i=elementCount-1;i!=std::size_t(-1);--i)
+    {
+		edb::detail::SizedValue<sizeof(AsType)*8> v;
+        std::memcpy(&v,&p[i*sizeof(AsType)],sizeof(AsType));
+
+		static const int spacing=1;
+		static const int decimalLength=maxPrintedLength<AsType>();
+        const int fieldWidth=(mode==IntDisplayMode::Hex ? sizeof(AsType)*2 : decimalLength)+spacing;
+		result += formatInt(v,mode).rightJustified(fieldWidth);
+    }
+    return result;
+}
 
 }
 
