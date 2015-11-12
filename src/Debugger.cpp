@@ -1034,6 +1034,15 @@ void Debugger::on_registerList_customContextMenuRequested(const QPoint &pos) {
 
 				menu.exec(ui.registerList->mapToGlobal(pos));
 			}
+			else {
+				// Generally it's better to ask ArchProcessor to make its arch-specific item-specific menu
+				const auto menu = edb::v1::arch_processor().register_item_context_menu(reg);
+				if(menu) {
+					menu->exec(ui.registerList->mapToGlobal(pos));
+				}
+				update_gui();
+				refresh_gui();
+			}
 		}
 
 		// Special case for the flag values. Open a context menu with the flag names for toggle.
