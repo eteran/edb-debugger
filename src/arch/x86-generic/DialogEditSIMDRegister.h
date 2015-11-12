@@ -17,6 +17,8 @@
 
 class QRegExpValidator;
 class QULongValidator;
+class QLongValidator;
+class QValidator;
 class NumberEdit;
 
 class DialogEditSIMDRegister : public QDialog
@@ -62,15 +64,18 @@ class DialogEditSIMDRegister : public QDialog
 	QRegExpValidator* dwordHexValidator;
 	QRegExpValidator* qwordHexValidator;
 
-	QULongValidator* byteSignedValidator;
-	QULongValidator* wordSignedValidator;
-	QULongValidator* dwordSignedValidator;
-	QULongValidator* qwordSignedValidator;
+	QLongValidator* byteSignedValidator;
+	QLongValidator* wordSignedValidator;
+	QLongValidator* dwordSignedValidator;
+	QLongValidator* qwordSignedValidator;
 
 	QULongValidator* byteUnsignedValidator;
 	QULongValidator* wordUnsignedValidator;
 	QULongValidator* dwordUnsignedValidator;
 	QULongValidator* qwordUnsignedValidator;
+
+	QValidator* float32Validator;
+	QValidator* float64Validator;
 
 	enum class Mode
 	{
@@ -99,6 +104,10 @@ private:
 	void onIntegerEdited(QObject* sender,const std::array<NumberEdit*,numBytes/sizeof(Integer)>& elements);
 	template<typename Float>
 	void onFloatEdited(QObject* sender,const std::array<NumberEdit*,numBytes/sizeof(Float)>& elements);
+	template<typename T>
+	void updateIntegralEntries(const std::array<NumberEdit*,numBytes/sizeof(T)>& entries,NumberEdit* notUpdated);
+	template<typename T>
+	void updateFloatEntries(const std::array<NumberEdit*,numBytes/sizeof(T)>& entries,NumberEdit* notUpdated);
 private slots:
 	void onByteEdited();
 	void onWordEdited();

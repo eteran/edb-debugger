@@ -5,6 +5,7 @@
 #include <QLineEdit>
 #include <QDebug>
 #include "QULongValidator.h"
+#include "QLongValidator.h"
 #include "FloatX.h"
 #include <cstring>
 #include <type_traits>
@@ -64,14 +65,16 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget* parent)
 	  wordHexValidator (new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,4}"),this)),
 	  dwordHexValidator(new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,8}"),this)),
 	  qwordHexValidator(new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,16}"),this)),
-	  byteSignedValidator (new QULongValidator(INT8_MIN,INT8_MAX,this)),
-	  wordSignedValidator (new QULongValidator(INT16_MIN,INT16_MAX,this)),
-	  dwordSignedValidator(new QULongValidator(INT32_MIN,INT32_MAX,this)),
-	  qwordSignedValidator(new QULongValidator(INT64_MIN,INT64_MAX,this)),
+	  byteSignedValidator (new QLongValidator(INT8_MIN,INT8_MAX,this)),
+	  wordSignedValidator (new QLongValidator(INT16_MIN,INT16_MAX,this)),
+	  dwordSignedValidator(new QLongValidator(INT32_MIN,INT32_MAX,this)),
+	  qwordSignedValidator(new QLongValidator(INT64_MIN,INT64_MAX,this)),
 	  byteUnsignedValidator (new QULongValidator(0,UINT8_MAX,this)),
 	  wordUnsignedValidator (new QULongValidator(0,UINT16_MAX,this)),
 	  dwordUnsignedValidator(new QULongValidator(0,UINT32_MAX,this)),
 	  qwordUnsignedValidator(new QULongValidator(0,UINT64_MAX,this)),
+	  float32Validator(new FloatXValidator<float>(this)),
+	  float64Validator(new FloatXValidator<double>(this)),
 	  mode(Mode::Hex)
 {
 	setWindowTitle(tr("Edit SIMD Register"));
@@ -91,6 +94,11 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget* parent)
 	setupEntries(tr("Quadword"),qwords,QWORDS_ROW,SLOT(onQwordEdited()),21);
 	setupEntries(tr("float32"),floats32,FLOATS32_ROW,SLOT(onFloat32Edited()),14);
 	setupEntries(tr("float64"),floats64,FLOATS64_ROW,SLOT(onFloat64Edited()),24);
+
+	for(const auto& entry : floats32)
+		entry->setValidator(float32Validator);
+	for(const auto& entry : floats64)
+		entry->setValidator(float64Validator);
 
 	hexSignOKCancelLayout = new QHBoxLayout();
 	{
@@ -146,51 +154,40 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget* parent)
 	setTabOrder(radioUnsigned, okCancel);
 }
 
+template<typename T>
+void DialogEditSIMDRegister::updateFloatEntries(const std::array<NumberEdit*,numBytes/sizeof(T)>& entries,NumberEdit* notUpdated)
+{
+	for(std::size_t i=0;i<entries.size();++i)
+	{
+		if(entries[i]==notUpdated)
+			continue;
+		T value;
+		std::memcpy(&value,&value_[i*sizeof(value)],sizeof(value));
+		entries[i]->setText(formatFloat(value));
+	}
+}
+
+template<typename T>
+void DialogEditSIMDRegister::updateIntegralEntries(const std::array<NumberEdit*,numBytes/sizeof(T)>& entries,NumberEdit* notUpdated)
+{
+	for(std::size_t i=0;i<entries.size();++i)
+	{
+		if(entries[i]==notUpdated)
+			continue;
+		T value;
+		std::memcpy(&value,&value_[i*sizeof(value)],sizeof(value));
+		formatInteger(entries[i],value);
+	}
+}
+
 void DialogEditSIMDRegister::updateAllEntriesExcept(NumberEdit* notUpdated)
 {
-	for(std::size_t byte=0;byte<numBytes;++byte)
-		if(bytes[byte]!=notUpdated)
-			formatInteger(bytes[byte],value_[byte]);
-	for(std::size_t word=0;word<numBytes/2;++word)
-	{
-		if(words[word]==notUpdated)
-			continue;
-		std::uint16_t value;
-		std::memcpy(&value,&value_[word*sizeof(value)],sizeof(value));
-		formatInteger(words[word],value);
-	}
-	for(std::size_t dword=0;dword<numBytes/4;++dword)
-	{
-		if(dwords[dword]==notUpdated)
-			continue;
-		std::uint32_t value;
-		std::memcpy(&value,&value_[dword*sizeof(value)],sizeof(value));
-		formatInteger(dwords[dword],value);
-	}
-	for(std::size_t qword=0;qword<numBytes/8;++qword)
-	{
-		if(qwords[qword]==notUpdated)
-			continue;
-		std::uint64_t value;
-		std::memcpy(&value,&value_[qword*sizeof(value)],sizeof(value));
-		formatInteger(qwords[qword],value);
-	}
-	for(std::size_t float32=0;float32<floats32.size();++float32)
-	{
-		if(floats32[float32]==notUpdated)
-			continue;
-		edb::value32 value;
-		std::memcpy(&value,&value_[float32*sizeof(value)],sizeof(value));
-		floats32[float32]->setText(formatFloat(value));
-	}
-	for(std::size_t float64=0;float64<floats64.size();++float64)
-	{
-		if(floats64[float64]==notUpdated)
-			continue;
-		edb::value64 value;
-		std::memcpy(&value,&value_[float64*sizeof(value)],sizeof(value));
-		floats64[float64]->setText(formatFloat(value));
-	}
+	updateIntegralEntries<std::uint8_t>(bytes,notUpdated);
+	updateIntegralEntries<std::uint16_t>(words,notUpdated);
+	updateIntegralEntries<std::uint32_t>(dwords,notUpdated);
+	updateIntegralEntries<std::uint64_t>(qwords,notUpdated);
+	updateFloatEntries<edb::value32>(floats32,notUpdated);
+	updateFloatEntries<edb::value64>(floats64,notUpdated);
 }
 
 void DialogEditSIMDRegister::resetLayout()
