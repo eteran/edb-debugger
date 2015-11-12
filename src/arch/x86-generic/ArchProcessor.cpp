@@ -33,9 +33,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QVector>
 #include <QXmlQuery>
+#include <QMenu>
+#include <QSignalMapper>
 
 #include <climits>
 #include <cmath>
+#include <memory>
 
 #include "DialogEditGPR.h"
 #include "DialogEditFPU.h"
@@ -1335,4 +1338,135 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 	}
 
 	return ret;
+}
+
+void ArchProcessor::setupMMXRegisterMenu(QMenu& menu) {
+	{
+		const auto displayModeMapper = new QSignalMapper(&menu);
+		if(mmxDisplayMode_!=SIMDDisplayMode::Bytes) {
+			const auto action = menu.addAction(tr("View MMX as &bytes"),displayModeMapper,SLOT(map()));
+			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Bytes));
+		}
+		if(mmxDisplayMode_!=SIMDDisplayMode::Words) {
+			const auto action = menu.addAction(tr("View MMX as &words"),displayModeMapper,SLOT(map()));
+			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Words));
+		}
+		if(mmxDisplayMode_!=SIMDDisplayMode::Dwords) {
+			const auto action = menu.addAction(tr("View MMX as &doublewords"),displayModeMapper,SLOT(map()));
+			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Dwords));
+		}
+		if(mmxDisplayMode_!=SIMDDisplayMode::Qwords) {
+			const auto action = menu.addAction(tr("View MMX as &quadwords"),displayModeMapper,SLOT(map()));
+			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Qwords));
+		}
+		connect(displayModeMapper,SIGNAL(mapped(int)),this,SLOT(setMMXDisplayMode(int)));
+	}
+
+	menu.addSeparator();
+
+	{
+		const auto intModeMapper = new QSignalMapper(&menu);
+		if(mmxIntMode_!=IntDisplayMode::Hex) {
+			const auto action = menu.addAction(tr("View integers as &hexadecimal"),intModeMapper,SLOT(map()));
+			intModeMapper->setMapping(action,static_cast<int>(IntDisplayMode::Hex));
+		}
+		if(mmxIntMode_!=IntDisplayMode::Signed) {
+			const auto action = menu.addAction(tr("View integers as &signed decimal"),intModeMapper,SLOT(map()));
+			intModeMapper->setMapping(action,static_cast<int>(IntDisplayMode::Signed));
+		}
+		if(mmxIntMode_!=IntDisplayMode::Unsigned) {
+			const auto action = menu.addAction(tr("View integers as &unsigned decimal"),intModeMapper,SLOT(map()));
+			intModeMapper->setMapping(action,static_cast<int>(IntDisplayMode::Unsigned));
+		}
+		connect(intModeMapper,SIGNAL(mapped(int)),this,SLOT(setMMXIntMode(int)));
+	}
+}
+
+void ArchProcessor::setMMXIntMode(int mode) {
+	mmxIntMode_=static_cast<IntDisplayMode>(mode);
+}
+
+void ArchProcessor::setMMXDisplayMode(int mode) {
+	mmxDisplayMode_=static_cast<SIMDDisplayMode>(mode);
+}
+
+void ArchProcessor::setupSSEAVXRegisterMenu(QMenu& menu, const QString& extType) {
+	{
+		const auto displayModeMapper = new QSignalMapper(&menu);
+		if(xymmDisplayMode_!=SIMDDisplayMode::Bytes) {
+			const auto action = menu.addAction(tr("View %1 as &bytes").arg(extType),displayModeMapper,SLOT(map()));
+			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Bytes));
+		}
+		if(xymmDisplayMode_!=SIMDDisplayMode::Words) {
+			const auto action = menu.addAction(tr("View %1 as &words").arg(extType),displayModeMapper,SLOT(map()));
+			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Words));
+		}
+		if(xymmDisplayMode_!=SIMDDisplayMode::Dwords) {
+			const auto action = menu.addAction(tr("View %1 as &doublewords").arg(extType),displayModeMapper,SLOT(map()));
+			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Dwords));
+		}
+		if(xymmDisplayMode_!=SIMDDisplayMode::Qwords) {
+			const auto action = menu.addAction(tr("View %1 as &quadwords").arg(extType),displayModeMapper,SLOT(map()));
+			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Qwords));
+		}
+
+		menu.addSeparator();
+
+		if(xymmDisplayMode_!=SIMDDisplayMode::Floats32) {
+			const auto action = menu.addAction(tr("View %1 as &32-bit floats").arg(extType),displayModeMapper,SLOT(map()));
+			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Floats32));
+		}
+		if(xymmDisplayMode_!=SIMDDisplayMode::Floats64) {
+			const auto action = menu.addAction(tr("View %1 as &64-bit floats").arg(extType),displayModeMapper,SLOT(map()));
+			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Floats64));
+		}
+		connect(displayModeMapper,SIGNAL(mapped(int)),this,SLOT(setSSEAVXDisplayMode(int)));
+	}
+
+	if(xymmDisplayMode_!=SIMDDisplayMode::Floats32 && xymmDisplayMode_!=SIMDDisplayMode::Floats64) {
+
+		menu.addSeparator();
+
+		const auto intModeMapper = new QSignalMapper(&menu);
+		if(xymmIntMode_!=IntDisplayMode::Hex) {
+			const auto action = menu.addAction(tr("View integers as &hexadecimal"),intModeMapper,SLOT(map()));
+			intModeMapper->setMapping(action,static_cast<int>(IntDisplayMode::Hex));
+		}
+		if(xymmIntMode_!=IntDisplayMode::Signed) {
+			const auto action = menu.addAction(tr("View integers as &signed decimal"),intModeMapper,SLOT(map()));
+			intModeMapper->setMapping(action,static_cast<int>(IntDisplayMode::Signed));
+		}
+		if(xymmIntMode_!=IntDisplayMode::Unsigned) {
+			const auto action = menu.addAction(tr("View integers as &unsigned decimal"),intModeMapper,SLOT(map()));
+			intModeMapper->setMapping(action,static_cast<int>(IntDisplayMode::Unsigned));
+		}
+		connect(intModeMapper,SIGNAL(mapped(int)),this,SLOT(setSSEAVXIntMode(int)));
+	}
+}
+
+void ArchProcessor::setSSEAVXIntMode(int mode) {
+	xymmIntMode_=static_cast<IntDisplayMode>(mode);
+}
+
+void ArchProcessor::setSSEAVXDisplayMode(int mode) {
+	xymmDisplayMode_=static_cast<SIMDDisplayMode>(mode);
+}
+
+std::unique_ptr<QMenu> ArchProcessor::register_item_context_menu(const Register& reg) {
+	std::unique_ptr<QMenu> menu(new QMenu());
+
+	if(reg.type()==Register::TYPE_SIMD && reg.name().startsWith("mm")) {
+		setupMMXRegisterMenu(*menu);
+		return menu;
+	}
+	if(reg.type()==Register::TYPE_SIMD && reg.name().startsWith("xmm")) {
+		setupSSEAVXRegisterMenu(*menu,"SSE");
+		return menu;
+	}
+	if(reg.type()==Register::TYPE_SIMD && reg.name().startsWith("ymm")) {
+		setupSSEAVXRegisterMenu(*menu,"AVX");
+		return menu;
+	}
+
+	return nullptr;
 }

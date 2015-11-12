@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <vector>
 
+class QMenu;
 class QByteArray;
 class QString;
 class QTreeWidgetItem;
@@ -48,6 +49,7 @@ public:
 	void reset();
 	void setup_register_view(RegisterListWidget *category_list);
 	void update_register_view(const QString &default_region_name, const State &state);
+	std::unique_ptr<QMenu> register_item_context_menu(const Register& reg);
 
 private:
 	enum class SIMDDisplayMode {
@@ -61,6 +63,8 @@ private:
 private:
 	template<typename T>
 	QString formatSIMDRegister(const T& value, SIMDDisplayMode simdMode, IntDisplayMode intMode);
+	void setupMMXRegisterMenu(QMenu& menu);
+	void setupSSEAVXRegisterMenu(QMenu& menu, const QString& extType);
 	void update_register(QTreeWidgetItem *item, const Register &reg) const;
 	void update_fpu_view(int& itemNumber, const State &state, const QPalette& palette) const;
 
@@ -78,6 +82,11 @@ private:
 	IntDisplayMode    xymmIntMode_=IntDisplayMode::Hex;
 
 	std::vector<QTreeWidgetItem*> register_view_items_;
+private Q_SLOTS:
+	void setMMXDisplayMode(int);
+	void setMMXIntMode(int);
+	void setSSEAVXDisplayMode(int);
+	void setSSEAVXIntMode(int);
 };
 
 #endif
