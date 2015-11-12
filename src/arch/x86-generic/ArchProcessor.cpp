@@ -89,6 +89,11 @@ using edb::v1::debuggeeIs32Bit;
 using edb::v1::debuggeeIs64Bit;
 int func_param_regs_count() { return debuggeeIs32Bit() ? 0 : 6; }
 
+typedef edb::value64 MMWord;
+typedef edb::value128 XMMWord;
+typedef edb::value256 YMMWord;
+typedef edb::value512 ZMMWord;
+
 template<typename T>
 std::string register_name(const T& val) {
 	return edb::v1::formatter().register_name(val);
@@ -1003,6 +1008,35 @@ void ArchProcessor::update_fpu_view(int& itemNumber, const State &state, const Q
 	register_view_items_[itemNumber++]->setForeground(0, QBrush(state.fpu_tag_word() != last_state_.fpu_tag_word() ? Qt::red : palette.text()));
 }
 
+template<typename T>
+QString ArchProcessor::formatSIMDRegister(const T& value, SIMDDisplayMode simdMode, IntDisplayMode intMode) {
+	QString str;
+	switch(simdMode)
+	{
+	case SIMDDisplayMode::Bytes:
+		str=util::packedIntsToString<std::uint8_t>(value,intMode);
+		break;
+	case SIMDDisplayMode::Words:
+		str=util::packedIntsToString<std::uint16_t>(value,intMode);
+		break;
+	case SIMDDisplayMode::Dwords:
+		str=util::packedIntsToString<std::uint32_t>(value,intMode);
+		break;
+	case SIMDDisplayMode::Qwords:
+		str=util::packedIntsToString<std::uint64_t>(value,intMode);
+		break;
+	case SIMDDisplayMode::Floats32:
+		str=util::packedFloatsToString<float>(value);
+		break;
+	case SIMDDisplayMode::Floats64:
+		str=util::packedFloatsToString<double>(value);
+		break;
+	default:
+		str=value.toHexString();
+	}
+	return str;
+}
+
 //------------------------------------------------------------------------------
 // Name: update_register_view
 // Desc:
@@ -1076,7 +1110,10 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		for(int i = 0; i < 8; ++i) {
 			const Register current = state.mmx_register(i);
 			const Register prev    = last_state_.mmx_register(i);
-			register_view_items_[itemNumber]->setText(0, QString("MM%1: %2").arg(i).arg(current.toHexString()));
+			QString valueStr;
+			if(current) valueStr=formatSIMDRegister(current.value<MMWord>(),mmxDisplayMode_,mmxIntMode_);
+			else valueStr=current.toHexString();
+			register_view_items_[itemNumber]->setText(0, QString("MM%1: %2").arg(i).arg(valueStr));
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 	}
@@ -1087,7 +1124,10 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 			const Register current = state.ymm_register(i);
 			const Register prev    = last_state_.ymm_register(i);
 			register_view_items_[itemNumber]->setHidden(!current);
-			register_view_items_[itemNumber]->setText(0, QString("YMM%1: %2").arg(i, padding).arg(current.toHexString()));
+			QString valueStr;
+			if(current) valueStr=formatSIMDRegister(current.value<YMMWord>(),xymmDisplayMode_,xymmIntMode_);
+			else valueStr=current.toHexString();
+			register_view_items_[itemNumber]->setText(0, QString("YMM%1: %2").arg(i, padding).arg(valueStr));
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 	} else if(has_xmm_) {
@@ -1095,7 +1135,10 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 			const Register current = state.xmm_register(i);
 			const Register prev    = last_state_.xmm_register(i);
 			register_view_items_[itemNumber]->setHidden(!current);
-			register_view_items_[itemNumber]->setText(0, QString("XMM%1: %2").arg(i, padding).arg(current.toHexString()));
+			QString valueStr;
+			if(current) valueStr=formatSIMDRegister(current.value<XMMWord>(),xymmDisplayMode_,xymmIntMode_);
+			else valueStr=current.toHexString();
+			register_view_items_[itemNumber]->setText(0, QString("XMM%1: %2").arg(i, padding).arg(valueStr));
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 	}

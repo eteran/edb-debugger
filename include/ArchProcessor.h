@@ -50,15 +50,33 @@ public:
 	void update_register_view(const QString &default_region_name, const State &state);
 
 private:
+	enum class SIMDDisplayMode {
+		Bytes,
+		Words,
+		Dwords,
+		Qwords,
+		Floats32,
+		Floats64
+	};
+private:
+	template<typename T>
+	QString formatSIMDRegister(const T& value, SIMDDisplayMode simdMode, IntDisplayMode intMode);
 	void update_register(QTreeWidgetItem *item, const Register &reg) const;
 	void update_fpu_view(int& itemNumber, const State &state, const QPalette& palette) const;
 
 private:
 	QTreeWidgetItem * split_flags_;
 	State             last_state_;
+
 	bool              has_mmx_;
+	SIMDDisplayMode   mmxDisplayMode_=SIMDDisplayMode::Words;
+	IntDisplayMode    mmxIntMode_=IntDisplayMode::Hex;
+
 	bool              has_xmm_;
 	bool              has_ymm_;
+	SIMDDisplayMode   xymmDisplayMode_=SIMDDisplayMode::Dwords;
+	IntDisplayMode    xymmIntMode_=IntDisplayMode::Hex;
+
 	std::vector<QTreeWidgetItem*> register_view_items_;
 };
 
