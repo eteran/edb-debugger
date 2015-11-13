@@ -703,6 +703,13 @@ Register PlatformState::value(const QString &reg) const {
 	Register found;
 	if(x86.gpr32Filled) // don't return valid Register with garbage value
 	{
+		if(reg==x86.origRAXName && x86.gpr64Filled && is64Bit())
+			return make_Register<64>(x86.origRAXName, x86.orig_ax, Register::TYPE_GPR);
+
+		if(reg==x86.origEAXName)
+			return make_Register<32>(x86.origEAXName, x86.orig_ax, Register::TYPE_GPR);
+
+
 		if(x86.gpr64Filled && is64Bit() && !!(found=findRegisterValue(x86.GPReg64Names, x86.GPRegs, regName, Register::TYPE_GPR, gpr64_count())))
 			return found;
 		if(!!(found=findRegisterValue<32>(x86.GPReg32Names, x86.GPRegs, regName, Register::TYPE_GPR, gpr_count())))

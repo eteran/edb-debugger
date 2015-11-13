@@ -423,6 +423,8 @@ private:
 			FS,
 			GS
 		};
+		static constexpr const char* origEAXName="orig_eax";
+		static constexpr const char* origRAXName="orig_rax";
 		static constexpr const char* IP64Name="rip";
 		static constexpr const char* IP32Name="eip";
 		static constexpr const char* IP16Name="ip";

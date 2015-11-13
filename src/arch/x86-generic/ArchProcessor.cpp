@@ -697,7 +697,7 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 // Name: analyze_syscall
 // Desc:
 //------------------------------------------------------------------------------
-void analyze_syscall(const State &state, const edb::Instruction &inst, QStringList &ret) {
+void analyze_syscall(const State &state, const edb::Instruction &inst, QStringList &ret, std::uint64_t regAX) {
 	Q_UNUSED(inst);
 	Q_UNUSED(ret);
 	Q_UNUSED(state);
@@ -712,7 +712,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 		QString res;
 		query.setFocus(&file);
 		const QString arch=debuggeeIs64Bit() ? "x86-64" : "x86";
-		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='"+arch+"']/syscall[index=%1]").arg(state.gp_register(rAX).valueAsInteger()));
+		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='"+arch+"']/syscall[index=%1]").arg(regAX));
 		if (query.isValid()) {
 			query.evaluateTo(&syscall_entry);
 		}
@@ -1217,6 +1217,17 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 				State state;
 				edb::v1::debugger_core->get_state(&state);
 
+				std::int64_t origAX;
+				if(debuggeeIs64Bit())
+					origAX=state["orig_rax"].valueAsSignedInteger();
+				else
+					origAX=state["orig_eax"].valueAsSignedInteger();
+				if(origAX!=-1) {
+					analyze_syscall(state, inst, ret, origAX);
+					if(ret.size() && ret.back().startsWith("SYSCALL"))
+						ret.back()="Interrupted "+ret.back();
+				}
+
 				// figure out the instruction type and display some information about it
 				// TODO: handle SETcc, LOOPcc, REPcc OP
 				if(inst.is_conditional_move()) {
@@ -1236,7 +1247,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 				#ifdef Q_OS_LINUX
 				   if((inst.operands()[0].immediate() & 0xff) == 0x80) {
 
-						analyze_syscall(state, inst, ret);
+						analyze_syscall(state, inst, ret, state.gp_register(rAX).valueAsInteger());
 					} else {
 
 						analyze_operands(state, inst, ret);
@@ -1244,7 +1255,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 				#endif
 				} else if (inst.is_syscall() || inst.is_sysenter()) {
 
-					analyze_syscall(state, inst, ret);
+					analyze_syscall(state, inst, ret, state.gp_register(rAX).valueAsInteger());
 
 				} else {
 
