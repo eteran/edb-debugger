@@ -648,7 +648,8 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value128(target).toHexString());
 								break;
 							default:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::reg_t(target).toHexString());
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address))
+																  .arg(QString("<Error: unexpected size; low bytes form %2>").arg(target.toHexString()));
 								break;
 							}
 						} else {
