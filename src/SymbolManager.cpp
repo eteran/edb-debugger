@@ -215,7 +215,7 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 
 					sym->file           = f;
 					sym->name_no_prefix = QString::fromStdString(sym_name).trimmed();
-					sym->name           = QString("%1::%2").arg(prefix, sym->name_no_prefix);
+					sym->name           = QString("%1!%2").arg(prefix, sym->name_no_prefix);
 					sym->address        = sym_start;
 					sym->size           = sym_end;
 					sym->type           = sym_type;
