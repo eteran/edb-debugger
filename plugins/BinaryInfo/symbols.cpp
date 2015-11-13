@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "symbols.h"
+#include "demangle.h"
 #include "edb.h"
 
 #include <QDateTime>
@@ -26,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 #include <QSet>
 #include <QString>
+#include <QSettings>
 #include <iostream>
 
 #include "elf/elf_types.h"
@@ -401,7 +403,10 @@ void process_symbols(const void *p, size_t size, std::ostream &os) {
 
 	qSort(symbols.begin(), symbols.end());
 	auto new_end = std::unique(symbols.begin(), symbols.end());
+	const auto demanglingEnabled = QSettings().value("BinaryInfo/demangling_enabled", true).toBool();
 	for(auto it = symbols.begin(); it != new_end; ++it) {
+		if(demanglingEnabled)
+			it->name=demangle(it->name);
 		os << qPrintable(it->to_string()) << '\n';
 	}
 }

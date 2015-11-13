@@ -200,12 +200,22 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 				const QString prefix = info.fileName();
 				char sym_type;
 
-				while(file >> std::hex >> sym_start >> std::hex >> sym_end >> sym_type >> sym_name) {
+				while(true) {
+					file >> std::hex >> sym_start >> std::hex >> sym_end >> sym_type;
+					// For symbol name we can't use operator>>() as it may have spaces if demangled
+					// Thus, get the rest of the line as the symbol name
+					std::getline(file,sym_name);
+
+					if(!file) {
+						if(!file.eof()) qWarning() << "WARNING: File" << f << "seems corrupt";
+						break;
+					}
+
 					auto sym = std::make_shared<Symbol>();
 
 					sym->file           = f;
-					sym->name_no_prefix = QString::fromStdString(sym_name);
-					sym->name           = QString("%1::%2").arg(prefix, sym->name_no_prefix);
+					sym->name_no_prefix = QString::fromStdString(sym_name).trimmed();
+					sym->name           = QString("%1!%2").arg(prefix, sym->name_no_prefix);
 					sym->address        = sym_start;
 					sym->size           = sym_end;
 					sym->type           = sym_type;
