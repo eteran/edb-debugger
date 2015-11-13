@@ -2693,7 +2693,7 @@ void Debugger::set_initial_breakpoint(const QString &s) {
 	edb::address_t entryPoint = 0;
 
 	if(edb::v1::config().initial_breakpoint == Configuration::MainSymbol) {
-		const QString mainSymbol = QFileInfo(s).fileName() + "::main";
+		const QString mainSymbol = QFileInfo(s).fileName() + "!main";
 		const Symbol::pointer sym = edb::v1::symbol_manager().find(mainSymbol);
 
 		if(sym) {
