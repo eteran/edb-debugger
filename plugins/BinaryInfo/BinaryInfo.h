@@ -41,6 +41,7 @@ public:
 
 private:
 	virtual void private_init();
+	virtual QWidget* options_page() override;
 
 public:
 	virtual QMenu *menu(QWidget *parent = 0);

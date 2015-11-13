@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PE32.h"
 #include "edb.h"
 #include "symbols.h"
+#include "OptionsPage.h"
 
 #include <QDebug>
 #include <QMenu>
@@ -77,6 +78,10 @@ void BinaryInfo::private_init() {
 	edb::v1::register_binary_info(create_binary_info_elf64);
 	edb::v1::register_binary_info(create_binary_info_pe32);
 	edb::v1::symbol_manager().set_symbol_generator(this);
+}
+
+QWidget* BinaryInfo::options_page() {
+	return new OptionsPage;
 }
 
 //------------------------------------------------------------------------------
