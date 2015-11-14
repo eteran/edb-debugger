@@ -616,7 +616,12 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						Register reg=state[QString::fromStdString(edb::v1::formatter().to_string(operand))];
 						QString valueString;
 						if(!reg) valueString = ArchProcessor::tr("(Error: obtained invalid register value from State)");
-						else valueString = reg.toHexString();
+						else {
+							if(reg.type()==Register::TYPE_FPU && reg.bitSize()==80)
+								valueString=formatFloat(reg.value<edb::value80>());
+							else
+								valueString = reg.toHexString();
+						}
 						ret << QString("%1 = %2").arg(temp_operand).arg(valueString);
 						break;
 					}
