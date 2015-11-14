@@ -1002,36 +1002,35 @@ Register PlatformState::gp_register(size_t n) const {
 //------------------------------------------------------------------------------
 void PlatformState::set_register(const Register& reg) {
 	const QString regName = reg.name().toLower();
-	const auto value=reg.value<edb::value64>();
 
 	const auto gpr_end=GPRegNames().begin()+gpr_count();
 	auto GPRegNameFoundIter=std::find(GPRegNames().begin(), gpr_end, regName);
 	if(GPRegNameFoundIter!=gpr_end)
 	{
 		std::size_t index=GPRegNameFoundIter-GPRegNames().begin();
-		x86.GPRegs[index]=value;
+		x86.GPRegs[index]=reg.value<edb::value64>();
 		return;
 	}
 	auto segRegNameFoundIter=std::find(x86.segRegNames.begin(), x86.segRegNames.end(), regName);
 	if(segRegNameFoundIter!=x86.segRegNames.end())
 	{
 		std::size_t index=segRegNameFoundIter-x86.segRegNames.begin();
-		x86.segRegs[index]=edb::seg_reg_t(value);
+		x86.segRegs[index]=reg.value<edb::seg_reg_t>();
 		return;
 	}
 	if(regName==IPName())
 	{
-		x86.IP=value;
+		x86.IP=reg.value<edb::value64>();
 		return;
 	}
 	if(regName==flagsName())
 	{
-		x86.flags=value;
+		x86.flags=reg.value<edb::value64>();
 		return;
 	}
 	if(regName==avx.mxcsrName)
 	{
-		avx.mxcsr=edb::value32(value);
+		avx.mxcsr=reg.value<edb::value32>();
 		return;
 	}
 	{
@@ -1042,6 +1041,7 @@ void PlatformState::set_register(const Register& reg) {
 			char digitChar=digit.toLatin1();
 			std::size_t i=digitChar-'0';
 			assert(mmxIndexValid(i));
+			const auto value=reg.value<edb::value64>();
 			std::memcpy(&x87.R[i],&value,sizeof value);
 			const uint16_t RiUpper=0xffff;
 			std::memcpy(reinterpret_cast<char*>(&x87.R[i])+sizeof value,&RiUpper,sizeof RiUpper);
