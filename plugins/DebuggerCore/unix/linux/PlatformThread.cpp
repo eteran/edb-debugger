@@ -364,19 +364,19 @@ void PlatformThread::set_state(const State &state) {
 	// TODO: assert that we are paused
 	
 	if(auto state_impl = static_cast<PlatformState *>(state.impl_)) {
-		bool setRegSetDone=false;
+		bool setPrStatusDone=false;
 		if(EDB_IS_32_BIT && state_impl->is64Bit()) {
 			// Try to set 64-bit state
 			PrStatus_X86_64 prstat64;
 			state_impl->fillStruct(prstat64);
 			iovec prstat_iov = {&prstat64, sizeof(prstat64)};
 			if(ptrace(PTRACE_SETREGSET, tid_, NT_PRSTATUS, &prstat_iov) != -1)
-				setRegSetDone=true;
+				setPrStatusDone=true;
 			else
 				perror("PTRACE_SETREGSET failed");
 		}
 		// Fallback to setting 32-bit set
-		if(!setRegSetDone) {
+		if(!setPrStatusDone) {
 			user_regs_struct regs;
 			state_impl->fillStruct(regs);
 			ptrace(PTRACE_SETREGS, tid_, 0, &regs);
