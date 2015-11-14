@@ -647,8 +647,12 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value64(target).toHexString());
 								break;
 							case edb::Operand::TYPE_EXPRESSION80:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value80(target).toHexString());
+							{
+								const edb::value80 value(target);
+								const QString valueStr = inst.is_fpu() ? formatFloat(value) : "0x"+value.toHexString();
+								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
 								break;
+							}
 							case edb::Operand::TYPE_EXPRESSION128:
 								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value128(target).toHexString());
 								break;
