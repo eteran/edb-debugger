@@ -220,6 +220,7 @@ public:
 	bool is_conditional_set() const;
 	bool is_conditional_move() const { return is_conditional_fpu_move() || is_conditional_gpr_move(); }
 	bool is_terminator() const;
+	bool is_fpu() const;
 
 private:
 	Capstone::cs_insn insn_;

@@ -509,6 +509,11 @@ bool Instruction::is_nop() const
 	return operation()==Operation::X86_INS_NOP;
 }
 
+bool Instruction::is_fpu() const
+{
+	return (detail_.x86.opcode[0]&0xd8)==0xd8;
+}
+
 void Formatter::setOptions(const Formatter::FormatOptions& options)
 {
 	assert(capstoneInitialized);
