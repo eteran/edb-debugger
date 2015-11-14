@@ -221,6 +221,12 @@ public:
 	bool is_conditional_move() const { return is_conditional_fpu_move() || is_conditional_gpr_move(); }
 	bool is_terminator() const;
 	bool is_fpu() const;
+	// Check that instruction is an FPU instruction, taking only floating-point operands
+	bool is_fpu_taking_float() const;
+	// Check that instruction is an FPU instruction, one of operands of which is an integer
+	bool is_fpu_taking_integer() const;
+	// Check that instruction is an FPU instruction, one of operands of which is a packed BCD
+	bool is_fpu_taking_bcd() const;
 
 private:
 	Capstone::cs_insn insn_;
