@@ -1061,6 +1061,17 @@ void PlatformState::set_register(const Register& reg) {
 			return;
 		}
 	}
+	{
+		QRegExp XMMx("^xmm([12]?[0-9]|3[01])$");
+		if(XMMx.indexIn(regName)!=-1) {
+			const auto value=reg.value<edb::value128>();
+			bool indexReadOK=false;
+			std::size_t i=XMMx.cap(1).toInt(&indexReadOK);
+			assert(indexReadOK && xmmIndexValid(i));
+			std::memcpy(&avx.zmmStorage[i],&value,sizeof value);
+			return;
+		}
+	}
 	qDebug().nospace() << "fixme: set_register(0x"<< qPrintable(reg.toHexString()) <<"): didn't set register " << reg.name();
 }
 
