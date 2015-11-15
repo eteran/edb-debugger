@@ -569,6 +569,75 @@ void PlatformState::fillStruct(UserFPRegsStructX86_64& regs) const {
 	}
 }
 
+void PlatformState::fillStruct(UserFPXRegsStructX86& regs) const {
+	util::markMemory(&regs,sizeof regs);
+	if(x87.filled) {
+		regs.swd=x87.statusWord;
+		regs.twd=x87.reducedTagWord();
+		regs.cwd=x87.controlWord;
+		regs.fip=x87.instPtrOffset;
+		regs.foo=x87.dataPtrOffset;
+		regs.fcs=x87.instPtrSelector;
+		regs.fos=x87.dataPtrSelector;
+		regs.fop=x87.opCode;
+		for(std::size_t n=0;n<MAX_FPU_REG_COUNT;++n)
+			std::memcpy(reinterpret_cast<char*>(&regs.st_space)+16*x87.RIndexToSTIndex(n),&x87.R[n],sizeof x87.R[n]);
+	}
+	if(avx.xmmFilledIA32) {
+		regs.mxcsr=avx.mxcsr;
+		for(std::size_t n=0;n<IA32_XMM_REG_COUNT;++n)
+			std::memcpy(reinterpret_cast<char*>(&regs.xmm_space)+16*n,&avx.zmmStorage[n],sizeof(edb::value128));
+	}
+}
+
+size_t PlatformState::fillStruct(X86XState& regs) const {
+	util::markMemory(&regs,sizeof regs);
+	// Zero out reserved bytes; set xstate_bv to 0
+	std::memset(regs.xstate_hdr_bytes,0,sizeof regs.xstate_hdr_bytes);
+
+	regs.xcr0=avx.xcr0;
+	if(x87.filled) {
+		regs.swd=x87.statusWord;
+		regs.cwd=x87.controlWord;
+		regs.twd=x87.reducedTagWord();
+		regs.fioff=x87.instPtrOffset;
+		regs.fooff=x87.dataPtrOffset;
+		regs.fiseg=x87.instPtrSelector;
+		regs.foseg=x87.dataPtrSelector;
+		regs.fop=x87.opCode;
+		for(size_t n=0;n<MAX_FPU_REG_COUNT;++n)
+			std::memcpy(reinterpret_cast<char*>(&regs.st_space)+16*x87.RIndexToSTIndex(n),&x87.R[n],sizeof x87.R[n]);
+
+		regs.xstate_bv|=X86XState::FEATURE_X87;
+	}
+	if(avx.xmmFilledIA32) {
+		const auto nMax= avx.xmmFilledAMD64 ? AMD64_XMM_REG_COUNT : IA32_XMM_REG_COUNT;
+		for(size_t n=0;n<nMax;++n)
+			std::memcpy(reinterpret_cast<char*>(&regs.xmm_space)+16*n,
+						&avx.zmmStorage[n],sizeof(edb::value128));
+		regs.mxcsr=avx.mxcsr;
+		regs.mxcsr_mask=avx.mxcsrMask;
+		regs.xstate_bv|=X86XState::FEATURE_SSE;
+	}
+	if(avx.ymmFilled) {
+		// In this case SSE state is already filled by the code writing XMMx&MXCSR registers
+		for(size_t n=0;n<MAX_YMM_REG_COUNT;++n)
+			std::memcpy(reinterpret_cast<char*>(&regs.ymmh_space)+16*n,
+						reinterpret_cast<const char*>(&avx.zmmStorage[n])+sizeof(edb::value128),
+						sizeof(edb::value128));
+		regs.xstate_bv|=X86XState::FEATURE_AVX;
+	}
+
+	size_t size;
+	if(regs.xstate_bv&X86XState::FEATURE_AVX)
+		size=X86XState::AVX_SIZE;
+	else if(regs.xstate_bv&(X86XState::FEATURE_X87|X86XState::FEATURE_SSE))
+		size=X86XState::SSE_SIZE; // minimum size: legacy state + xsave header
+	else
+		size=0;
+	return size;
+}
+
 edb::value128 PlatformState::AVX::xmm(std::size_t index) const {
 	return edb::value128(zmmStorage[index]);
 }
@@ -1002,36 +1071,35 @@ Register PlatformState::gp_register(size_t n) const {
 //------------------------------------------------------------------------------
 void PlatformState::set_register(const Register& reg) {
 	const QString regName = reg.name().toLower();
-	const auto value=reg.value<edb::value64>();
 
 	const auto gpr_end=GPRegNames().begin()+gpr_count();
 	auto GPRegNameFoundIter=std::find(GPRegNames().begin(), gpr_end, regName);
 	if(GPRegNameFoundIter!=gpr_end)
 	{
 		std::size_t index=GPRegNameFoundIter-GPRegNames().begin();
-		x86.GPRegs[index]=value;
+		x86.GPRegs[index]=reg.value<edb::value64>();
 		return;
 	}
 	auto segRegNameFoundIter=std::find(x86.segRegNames.begin(), x86.segRegNames.end(), regName);
 	if(segRegNameFoundIter!=x86.segRegNames.end())
 	{
 		std::size_t index=segRegNameFoundIter-x86.segRegNames.begin();
-		x86.segRegs[index]=edb::seg_reg_t(value);
+		x86.segRegs[index]=reg.value<edb::seg_reg_t>();
 		return;
 	}
 	if(regName==IPName())
 	{
-		x86.IP=value;
+		x86.IP=reg.value<edb::value64>();
 		return;
 	}
 	if(regName==flagsName())
 	{
-		x86.flags=value;
+		x86.flags=reg.value<edb::value64>();
 		return;
 	}
 	if(regName==avx.mxcsrName)
 	{
-		avx.mxcsr=edb::value32(value);
+		avx.mxcsr=reg.value<edb::value32>();
 		return;
 	}
 	{
@@ -1042,6 +1110,7 @@ void PlatformState::set_register(const Register& reg) {
 			char digitChar=digit.toLatin1();
 			std::size_t i=digitChar-'0';
 			assert(mmxIndexValid(i));
+			const auto value=reg.value<edb::value64>();
 			std::memcpy(&x87.R[i],&value,sizeof value);
 			const uint16_t RiUpper=0xffff;
 			std::memcpy(reinterpret_cast<char*>(&x87.R[i])+sizeof value,&RiUpper,sizeof RiUpper);
@@ -1058,6 +1127,28 @@ void PlatformState::set_register(const Register& reg) {
 			assert(fpuIndexValid(i));
 			const auto value=reg.value<edb::value80>();
 			std::memcpy(&x87.R[i],&value,sizeof value);
+			return;
+		}
+	}
+	{
+		QRegExp XMMx("^xmm([12]?[0-9]|3[01])$");
+		if(XMMx.indexIn(regName)!=-1) {
+			const auto value=reg.value<edb::value128>();
+			bool indexReadOK=false;
+			std::size_t i=XMMx.cap(1).toInt(&indexReadOK);
+			assert(indexReadOK && xmmIndexValid(i));
+			std::memcpy(&avx.zmmStorage[i],&value,sizeof value);
+			return;
+		}
+	}
+	{
+		QRegExp YMMx("^ymm([12]?[0-9]|3[01])$");
+		if(YMMx.indexIn(regName)!=-1) {
+			const auto value=reg.value<edb::value256>();
+			bool indexReadOK=false;
+			std::size_t i=YMMx.cap(1).toInt(&indexReadOK);
+			assert(indexReadOK && ymmIndexValid(i));
+			std::memcpy(&avx.zmmStorage[i],&value,sizeof value);
 			return;
 		}
 	}

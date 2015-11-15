@@ -187,6 +187,7 @@ void DialogEditGPR::setupEntriesAndLabels()
 	static const auto rSP=util::make_array<QString>("ESP","RSP");
 	static const auto rIP=util::make_array<QString>("EIP","RIP");
 	static const auto rFLAGS=util::make_array<QString>("EFLAGS","RFLAGS");
+	static const auto mxcsr="MXCSR";
 
 	bool x86GPR=false, upperGPR64=false, stackPtr=false, segmentReg=false, instPtr=false, flags=false;
 	using util::contains;
@@ -211,6 +212,8 @@ void DialogEditGPR::setupEntriesAndLabels()
 	else if(contains(rIP,regName))
 		instPtr=true;
 	else if(contains(rFLAGS,regName))
+		flags=true;
+	else if(regName==mxcsr)
 		flags=true;
 
 	if(x86GPR)

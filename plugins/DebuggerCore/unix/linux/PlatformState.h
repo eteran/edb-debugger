@@ -450,12 +450,12 @@ private:
 
 
 	void fillFrom(const UserRegsStructX86& regs);
-	void fillFrom(const UserFPRegsStructX86& regs);
-	void fillFrom(const UserFPXRegsStructX86& regs);
 	void fillFrom(const UserRegsStructX86_64& regs);
-	void fillFrom(const UserFPRegsStructX86_64& regs);
 	void fillFrom(const PrStatus_X86& regs);
 	void fillFrom(const PrStatus_X86_64& regs);
+	void fillFrom(const UserFPRegsStructX86& regs);
+	void fillFrom(const UserFPRegsStructX86_64& regs);
+	void fillFrom(const UserFPXRegsStructX86& regs);
 	void fillFrom(const X86XState& regs, std::size_t sizeFromKernel);
 
 	void fillStruct(UserRegsStructX86& regs) const;
@@ -463,6 +463,8 @@ private:
 	void fillStruct(PrStatus_X86_64& regs) const;
 	void fillStruct(UserFPRegsStructX86& regs) const;
 	void fillStruct(UserFPRegsStructX86_64& regs) const;
+	void fillStruct(UserFPXRegsStructX86& regs) const;
+	size_t fillStruct(X86XState& regs) const;
 };
 
 }
