@@ -625,7 +625,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						bool ok;
 						const edb::address_t effective_address = get_effective_address(operand, state,ok);
 						if(!ok) return;
-						edb::value128 target;
+						edb::value256 target;
 
 						if(process->read_bytes(effective_address, &target, sizeof(target))) {
 							switch(operand.complete_type()) {
@@ -647,8 +647,12 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							case edb::Operand::TYPE_EXPRESSION128:
 								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value128(target).toHexString());
 								break;
+							case edb::Operand::TYPE_EXPRESSION256:
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value256(target).toHexString());
+								break;
 							default:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::reg_t(target).toHexString());
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address))
+																  .arg(QString("<Error: unexpected size; low bytes form %2>").arg(target.toHexString()));
 								break;
 							}
 						} else {
