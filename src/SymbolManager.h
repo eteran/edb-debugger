@@ -38,7 +38,6 @@ public:
 	virtual void clear();
 	virtual void load_symbol_file(const QString &filename, edb::address_t base);
 	virtual void set_symbol_generator(ISymbolGenerator *generator);
-	virtual void set_symbol_path(const QString &symbol_directory);
 	virtual void set_label(edb::address_t address, const QString &label);
 	virtual QString find_address_name(edb::address_t address);
 	virtual QHash<edb::address_t, QString> labels() const;
@@ -48,7 +47,6 @@ private:
 	bool process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename, bool allow_retry);
 
 private:
-	QString                                symbol_directory_;
 	QSet<QString>                          symbol_files_;
 	QList<Symbol::pointer>                 symbols_;
 	QMap<edb::address_t, Symbol::pointer>  symbols_by_address_;

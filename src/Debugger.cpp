@@ -2624,6 +2624,7 @@ void Debugger::set_initial_debugger_state() {
 	update_menu_state(PAUSED);
 	timer_->start(0);
 	
+	edb::v1::symbol_manager().clear();
 	edb::v1::memory_regions().sync();
 
 	Q_ASSERT(data_regions_.size() > 0);
@@ -2779,9 +2780,7 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 			tr("The specified file (%1) does not appear to exist, please check privileges and try again.").arg(s));
 	} else {
 
-		tty_file_ = create_tty();
-		
-		edb::v1::symbol_manager().set_symbol_path(edb::v1::config().symbol_path);
+		tty_file_ = create_tty();		
 
 		if(edb::v1::debugger_core->open(s, working_directory_, args, tty_file_)) {			
 			attachComplete();			
@@ -2860,8 +2859,6 @@ void Debugger::attach(edb::pid_t pid) {
 
 	detach_from_process(NO_KILL_ON_DETACH);
 	
-	edb::v1::symbol_manager().set_symbol_path(edb::v1::config().symbol_path);
-
 	if(edb::v1::debugger_core->attach(pid)) {
 
 		working_directory_ = edb::v1::debugger_core->process()->current_working_directory();

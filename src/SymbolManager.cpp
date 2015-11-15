@@ -38,15 +38,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 SymbolManager::SymbolManager() : symbol_generator_(0), show_path_notice_(true) {
 }
 
-//------------------------------------------------------------------------------
-// Name: set_symbol_path
-// Desc:
-// Note: as a side effect, this function clears all loaded symbols
-//------------------------------------------------------------------------------
-void SymbolManager::set_symbol_path(const QString &symbol_directory) {
-	symbol_directory_ = symbol_directory;
-	clear();
-}
 
 //------------------------------------------------------------------------------
 // Name: clear
@@ -68,7 +59,9 @@ void SymbolManager::clear() {
 //------------------------------------------------------------------------------
 void SymbolManager::load_symbol_file(const QString &filename, edb::address_t base) {
 
-	if(symbol_directory_.isEmpty()) {
+	const QString symbol_directory = edb::v1::config().symbol_path;
+
+	if(symbol_directory.isEmpty()) {
 		if(show_path_notice_) {
 			qDebug() << "No symbol path specified. Please set it in the preferences to enable symbols.";
 			show_path_notice_ = false;
@@ -76,16 +69,16 @@ void SymbolManager::load_symbol_file(const QString &filename, edb::address_t bas
 		return;
 	}
 
-	if(!symbol_directory_.isEmpty()) {
+	if(!symbol_directory.isEmpty()) {
 		QDir symbolPath;
-		symbolPath.mkpath(symbol_directory_);
+		symbolPath.mkpath(symbol_directory);
 	}
 
 	const QFileInfo info(filename);
 	const QString name = info.fileName();
 
 	if(!symbol_files_.contains(name)) {
-		const QString map_file = QString("%1/%2.map").arg(symbol_directory_, name);
+		const QString map_file = QString("%1/%2.map").arg(symbol_directory, name);
 
 		if(process_symbol_file(map_file, base, filename, true)) {
 			symbol_files_.insert(name);
