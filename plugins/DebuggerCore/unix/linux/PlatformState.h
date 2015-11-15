@@ -463,6 +463,7 @@ private:
 	void fillStruct(PrStatus_X86_64& regs) const;
 	void fillStruct(UserFPRegsStructX86& regs) const;
 	void fillStruct(UserFPRegsStructX86_64& regs) const;
+	void fillStruct(UserFPXRegsStructX86& regs) const;
 };
 
 }
