@@ -386,11 +386,21 @@ void PlatformThread::set_state(const State &state) {
 		for(std::size_t i=0;i<8;++i)
 			set_debug_register(i,state_impl->x86.dbgRegs[i]);
 
-		// FPU registers
-		user_fpregs_struct fpregs;
-		state_impl->fillStruct(fpregs);
-		if(ptrace(PTRACE_SETFPREGS, tid_, 0, &fpregs)==-1)
-			perror("PTRACE_SETFPREGS failed");
+		static bool setFPXRegsSupported=EDB_IS_32_BIT;
+		if(setFPXRegsSupported) {
+			UserFPXRegsStructX86 fpxregs;
+			state_impl->fillStruct(fpxregs);
+			setFPXRegsSupported=(ptrace(PTRACE_SETFPXREGS, tid_, 0, &fpxregs)!=-1);
+		}
+		if(!setFPXRegsSupported) {
+			// No SETFPXREGS: on x86 this means SSE is not supported
+			//                on x86_64 FPREGS already contain SSE state
+			// Just set fpregs then
+			user_fpregs_struct fpregs;
+			state_impl->fillStruct(fpregs);
+			if(ptrace(PTRACE_SETFPREGS, tid_, 0, &fpregs)==-1)
+				perror("PTRACE_SETFPREGS failed");
+		}
 	}
 }
 
