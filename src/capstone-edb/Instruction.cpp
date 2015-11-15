@@ -509,6 +509,64 @@ bool Instruction::is_nop() const
 	return operation()==Operation::X86_INS_NOP;
 }
 
+bool Instruction::is_fpu() const
+{
+	return (detail_.x86.opcode[0]&0xd8)==0xd8;
+}
+
+bool Instruction::is_fpu_taking_float() const
+{
+	if(!is_fpu()) return false;
+
+	const auto modrm=detail_.x86.modrm;
+	if(modrm>0xbf) return true; // always works with st(i) in this case
+
+	const auto ro=(modrm>>3)&7;
+	switch(detail_.x86.opcode[0])
+	{
+	case 0xd8:
+	case 0xdc:
+		return true;
+	case 0xdb:
+		return ro==5||ro==7;
+	case 0xd9:
+	case 0xdd:
+		return ro==0||ro==2||ro==3;
+	default:
+		return false;
+	}
+}
+
+bool Instruction::is_fpu_taking_integer() const
+{
+	if(!is_fpu()) return false;
+
+	const auto modrm=detail_.x86.modrm;
+	if(modrm>0xbf) return false; // always works with st(i) in this case
+
+	const auto ro=(modrm>>3)&7;
+	switch(detail_.x86.opcode[0])
+	{
+	case 0xda: return true;
+	case 0xdb: return 0<=ro&&ro<=3;
+	case 0xdd: return ro==1;
+	case 0xde: return true;
+	case 0xdf: return (0<=ro&&ro<=3)||ro==5||ro==7;
+	default: return false;
+	}
+}
+
+bool Instruction::is_fpu_taking_bcd() const
+{
+	if(!is_fpu()) return false;
+
+	const auto modrm=detail_.x86.modrm;
+	if(modrm>0xbf) return false; // always works with st(i) in this case
+
+	const auto ro=(modrm>>3)&7;
+	return detail_.x86.opcode[0]==0xdf && (ro==4||ro==6);
+}
+
 void Formatter::setOptions(const Formatter::FormatOptions& options)
 {
 	assert(capstoneInitialized);
