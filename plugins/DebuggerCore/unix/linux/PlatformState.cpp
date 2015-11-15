@@ -590,6 +590,54 @@ void PlatformState::fillStruct(UserFPXRegsStructX86& regs) const {
 	}
 }
 
+size_t PlatformState::fillStruct(X86XState& regs) const {
+	util::markMemory(&regs,sizeof regs);
+	// Zero out reserved bytes; set xstate_bv to 0
+	std::memset(regs.xstate_hdr_bytes,0,sizeof regs.xstate_hdr_bytes);
+
+	regs.xcr0=avx.xcr0;
+	if(x87.filled) {
+		regs.swd=x87.statusWord;
+		regs.cwd=x87.controlWord;
+		regs.twd=x87.reducedTagWord();
+		regs.fioff=x87.instPtrOffset;
+		regs.fooff=x87.dataPtrOffset;
+		regs.fiseg=x87.instPtrSelector;
+		regs.foseg=x87.dataPtrSelector;
+		regs.fop=x87.opCode;
+		for(size_t n=0;n<MAX_FPU_REG_COUNT;++n)
+			std::memcpy(reinterpret_cast<char*>(&regs.st_space)+16*x87.RIndexToSTIndex(n),&x87.R[n],sizeof x87.R[n]);
+
+		regs.xstate_bv|=X86XState::FEATURE_X87;
+	}
+	if(avx.xmmFilledIA32) {
+		const auto nMax= avx.xmmFilledAMD64 ? AMD64_XMM_REG_COUNT : IA32_XMM_REG_COUNT;
+		for(size_t n=0;n<nMax;++n)
+			std::memcpy(reinterpret_cast<char*>(&regs.xmm_space)+16*n,
+						&avx.zmmStorage[n],sizeof(edb::value128));
+		regs.mxcsr=avx.mxcsr;
+		regs.mxcsr_mask=avx.mxcsrMask;
+		regs.xstate_bv|=X86XState::FEATURE_SSE;
+	}
+	if(avx.ymmFilled) {
+		// In this case SSE state is already filled by the code writing XMMx&MXCSR registers
+		for(size_t n=0;n<MAX_YMM_REG_COUNT;++n)
+			std::memcpy(reinterpret_cast<char*>(&regs.ymmh_space)+16*n,
+						reinterpret_cast<const char*>(&avx.zmmStorage[n])+sizeof(edb::value128),
+						sizeof(edb::value128));
+		regs.xstate_bv|=X86XState::FEATURE_AVX;
+	}
+
+	size_t size;
+	if(regs.xstate_bv&X86XState::FEATURE_AVX)
+		size=X86XState::AVX_SIZE;
+	else if(regs.xstate_bv&(X86XState::FEATURE_X87|X86XState::FEATURE_SSE))
+		size=X86XState::SSE_SIZE; // minimum size: legacy state + xsave header
+	else
+		size=0;
+	return size;
+}
+
 edb::value128 PlatformState::AVX::xmm(std::size_t index) const {
 	return edb::value128(zmmStorage[index]);
 }
