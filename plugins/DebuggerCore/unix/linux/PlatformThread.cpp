@@ -364,19 +364,19 @@ void PlatformThread::set_state(const State &state) {
 	// TODO: assert that we are paused
 	
 	if(auto state_impl = static_cast<PlatformState *>(state.impl_)) {
-		bool setRegSetDone=false;
+		bool setPrStatusDone=false;
 		if(EDB_IS_32_BIT && state_impl->is64Bit()) {
 			// Try to set 64-bit state
 			PrStatus_X86_64 prstat64;
 			state_impl->fillStruct(prstat64);
 			iovec prstat_iov = {&prstat64, sizeof(prstat64)};
 			if(ptrace(PTRACE_SETREGSET, tid_, NT_PRSTATUS, &prstat_iov) != -1)
-				setRegSetDone=true;
+				setPrStatusDone=true;
 			else
 				perror("PTRACE_SETREGSET failed");
 		}
 		// Fallback to setting 32-bit set
-		if(!setRegSetDone) {
+		if(!setPrStatusDone) {
 			user_regs_struct regs;
 			state_impl->fillStruct(regs);
 			ptrace(PTRACE_SETREGS, tid_, 0, &regs);
@@ -386,11 +386,33 @@ void PlatformThread::set_state(const State &state) {
 		for(std::size_t i=0;i<8;++i)
 			set_debug_register(i,state_impl->x86.dbgRegs[i]);
 
-		// FPU registers
-		user_fpregs_struct fpregs;
-		state_impl->fillStruct(fpregs);
-		if(ptrace(PTRACE_SETFPREGS, tid_, 0, &fpregs)==-1)
-			perror("PTRACE_SETFPREGS failed");
+		static bool xsaveSupported=true; // hope for the best, adjust for reality
+		if(xsaveSupported) {
+			X86XState xstate;
+			const auto size=state_impl->fillStruct(xstate);
+			iovec iov={&xstate,size};
+			if(ptrace(PTRACE_SETREGSET, tid_, NT_X86_XSTATE, &iov)==-1)
+				xsaveSupported=false;
+		}
+		// If xsave/xrstor appears unsupported, fallback to fxrstor
+		// NOTE: it's not "else", it's an independent check for possibly modified flag
+		if(!xsaveSupported) {
+			static bool setFPXRegsSupported=EDB_IS_32_BIT;
+			if(setFPXRegsSupported) {
+				UserFPXRegsStructX86 fpxregs;
+				state_impl->fillStruct(fpxregs);
+				setFPXRegsSupported=(ptrace(PTRACE_SETFPXREGS, tid_, 0, &fpxregs)!=-1);
+			}
+			if(!setFPXRegsSupported) {
+				// No SETFPXREGS: on x86 this means SSE is not supported
+				//                on x86_64 FPREGS already contain SSE state
+				// Just set fpregs then
+				user_fpregs_struct fpregs;
+				state_impl->fillStruct(fpregs);
+				if(ptrace(PTRACE_SETFPREGS, tid_, 0, &fpregs)==-1)
+					perror("PTRACE_SETFPREGS failed");
+			}
+		}
 	}
 }
 

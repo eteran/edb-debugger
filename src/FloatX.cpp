@@ -277,8 +277,7 @@ QString formatFloat(Float value)
 			return result;
 		}
 	case FloatValueClass::Infinity:
-		specialStr=QString(value.negative()?"-":"+")+"INF  ";
-		break;
+		return QString(value.negative()?"-":"+")+"INF";
 	case FloatValueClass::QNaN:
 		specialStr=QString(value.negative()?"-":"+")+"QNAN ";
 		break;
@@ -286,7 +285,7 @@ QString formatFloat(Float value)
 		specialStr=QString(value.negative()?"-":"+")+"SNAN ";
 		break;
 	case FloatValueClass::Unsupported:
-		specialStr=QString(value.negative()?"-":"+")+"BAD  ";
+		specialStr=QString(value.negative()?"-":"+")+"BAD ";
 		break;
 	}
 	// If we are here, then the value is special

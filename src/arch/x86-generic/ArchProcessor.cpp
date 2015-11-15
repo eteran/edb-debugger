@@ -616,7 +616,12 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						Register reg=state[QString::fromStdString(edb::v1::formatter().to_string(operand))];
 						QString valueString;
 						if(!reg) valueString = ArchProcessor::tr("(Error: obtained invalid register value from State)");
-						else valueString = reg.toHexString();
+						else {
+							if(reg.type()==Register::TYPE_FPU && reg.bitSize()==80)
+								valueString=formatFloat(reg.value<edb::value80>());
+							else
+								valueString = reg.toHexString();
+						}
 						ret << QString("%1 = %2").arg(temp_operand).arg(valueString);
 						break;
 					}
@@ -625,7 +630,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						bool ok;
 						const edb::address_t effective_address = get_effective_address(operand, state,ok);
 						if(!ok) return;
-						edb::value128 target;
+						edb::value256 target;
 
 						if(process->read_bytes(effective_address, &target, sizeof(target))) {
 							switch(operand.complete_type()) {
@@ -633,22 +638,70 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value8(target).toHexString());
 								break;
 							case edb::Operand::TYPE_EXPRESSION16:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value16(target).toHexString());
+							{
+								const edb::value16 value(target);
+								QString valueStr;
+								if(inst.is_fpu_taking_integer())
+									// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
+									// even across values in analysis view about its use of 0x prefix
+									// Use of hexadecimal format here is pretty much pointless since the number here is
+									// expected to be used in usual numeric computations, not as address or similar
+									valueStr=util::formatInt(value,IntDisplayMode::Signed)+" (decimal)";
+								else
+									valueStr="0x"+value.toHexString();
+								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
 								break;
+							}
 							case edb::Operand::TYPE_EXPRESSION32:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value32(target).toHexString());
+							{
+								const edb::value32 value(target);
+								QString valueStr;
+								if(inst.is_fpu_taking_float())
+									valueStr=formatFloat(value);
+								else if(inst.is_fpu_taking_integer())
+									// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
+									// even across values in analysis view about its use of 0x prefix
+									// Use of hexadecimal format here is pretty much pointless since the number here is
+									// expected to be used in usual numeric computations, not as address or similar
+									valueStr=util::formatInt(value,IntDisplayMode::Signed)+" (decimal)";
+								else
+									valueStr="0x"+value.toHexString();
+								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
 								break;
+							}
 							case edb::Operand::TYPE_EXPRESSION64:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value64(target).toHexString());
+							{
+								const edb::value64 value(target);
+								QString valueStr;
+								if(inst.is_fpu_taking_float())
+									valueStr=formatFloat(value);
+								else if(inst.is_fpu_taking_integer())
+									// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
+									// even across values in analysis view about its use of 0x prefix
+									// Use of hexadecimal format here is pretty much pointless since the number here is
+									// expected to be used in usual numeric computations, not as address or similar
+									valueStr=util::formatInt(value,IntDisplayMode::Signed)+" (decimal)";
+								else
+									valueStr="0x"+value.toHexString();
+								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
 								break;
+							}
 							case edb::Operand::TYPE_EXPRESSION80:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value80(target).toHexString());
+							{
+								const edb::value80 value(target);
+								const QString valueStr = inst.is_fpu() ? formatFloat(value) : "0x"+value.toHexString();
+								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
 								break;
+							}
 							case edb::Operand::TYPE_EXPRESSION128:
 								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value128(target).toHexString());
 								break;
+							case edb::Operand::TYPE_EXPRESSION256:
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value256(target).toHexString());
+								break;
 							default:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::reg_t(target).toHexString());
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address))
+																  .arg(QString("<Error: unexpected size; low bytes form %2>").arg(target.toHexString()));
 								break;
 							}
 						} else {
