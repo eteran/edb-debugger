@@ -57,6 +57,12 @@ QMenu *Bookmarks::menu(QWidget *parent) {
 
 			// add it to the dock
 			main_window->addDockWidget(Qt::RightDockWidgetArea, dock_widget);
+			
+			if(QDockWidget *registersDock  = main_window->findChild<QDockWidget *>("registersDock")) {			
+				main_window->tabifyDockWidget(registersDock, dock_widget);
+				registersDock->show();
+				registersDock->raise();				
+			}
 
 			// make the menu and add the show/hide toggle for the widget
 			menu_ = new QMenu(tr("Bookmarks"), parent);
