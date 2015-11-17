@@ -1280,6 +1280,9 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 					analyze_syscall(state, inst, ret, origAX);
 					if(ret.size() && ret.back().startsWith("SYSCALL"))
 						ret.back()="Interrupted "+ret.back();
+					static const int ERESTARTSYS=512;
+					if((-rax)&ERESTARTSYS)
+						ret << QString("Syscall will be restarted on next step/run");
 				}
 
 				// figure out the instruction type and display some information about it
