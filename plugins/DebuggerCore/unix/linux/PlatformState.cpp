@@ -1020,7 +1020,7 @@ void PlatformState::clear() {
 }
 
 //------------------------------------------------------------------------------
-// Name: clear
+// Name: empty
 // Desc:
 //------------------------------------------------------------------------------
 bool PlatformState::empty() const {
@@ -1054,7 +1054,7 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_register
+// Name: gp_register
 // Desc:
 //------------------------------------------------------------------------------
 Register PlatformState::gp_register(size_t n) const {
