@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogOptions.h"
 #include "DialogPlugins.h"
 #include "DialogThreads.h"
+#include "DialogOpenProgram.h"
 #include "Expression.h"
 #include "IAnalyzer.h"
 #include "IBinary.h"
@@ -2912,12 +2913,16 @@ void Debugger::on_action_Open_triggered() {
 	// TODO: we need a core concept of debugger capabilities which
 	// may restrict some actions
 
-	const QString filename = QFileDialog::getOpenFileName(
-		this,
-		tr("Choose a file"),
-		last_open_directory_);
+	static auto* dialog = new DialogOpenProgram(this,
+												tr("Choose a file"),
+												last_open_directory_);
+	if(dialog->exec()==QDialog::Accepted) {
 
-	open_file(filename);
+		arguments_dialog_->set_arguments(dialog->arguments());
+		const QString filename = dialog->selectedFiles().front();
+		working_directory_ = dialog->workingDirectory();
+		open_file(filename);
+	}
 }
 
 //------------------------------------------------------------------------------
