@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSettings>
 #include <QDomDocument>
 #include <QXmlQuery>
+#include <QLineEdit>
 
 #ifdef Q_OS_UNIX
 #include <sys/types.h>
@@ -326,6 +327,8 @@ void DialogAssembler::on_buttonBox_accepted() {
 				set_address(new_address);
 				edb::v1::set_cpu_selected_address(new_address);
 			}
+			ui->assembly->setFocus(Qt::OtherFocusReason);
+			ui->assembly->lineEdit()->selectAll();
 		}
 
 	}
@@ -342,6 +345,8 @@ void DialogAssembler::showEvent(QShowEvent *event) {
 	const QString assembler = settings.value("Assembler/helper", "yasm").toString();
 
 	ui->label->setText(tr("Assembler: %1").arg(assembler));
+
+	ui->assembly->setFocus(Qt::OtherFocusReason);
 }
 
 }
