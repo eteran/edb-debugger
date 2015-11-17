@@ -370,6 +370,7 @@ private:
 		std::uint16_t reducedTagWord() const;
 		int tag(std::size_t n) const;
 		edb::value80 st(std::size_t n) const;
+		edb::value80& st(std::size_t n);
 		enum Tag {
 			TAG_VALID=0,
 			TAG_ZERO=1,

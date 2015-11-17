@@ -977,15 +977,32 @@ void ArchProcessor::update_fpu_view(int& itemNumber, const State &state, const Q
 
 	const int fpuTop=state.fpu_stack_pointer();
 	for(int i = 0; i < 8; ++i) {
-		const edb::value80 current = state.fpu_register(i);
-		const edb::value80 prev    = last_state_.fpu_register(i);
-		bool empty=state.fpu_register_is_empty(i);
-		const QString tag=state.fpu_register_tag_string(i);
+		const size_t regIndex=fpuOrderMode_==FPUOrderMode::Stack ? (i+fpuTop) % 8 : i;
+		const edb::value80 current = state.fpu_register(regIndex);
+		const edb::value80 prev    = last_state_.fpu_register(regIndex); // take Rn with the same n so that check for changes makes sense
+		bool empty=state.fpu_register_is_empty(regIndex);
+		const QString tag=state.fpu_register_tag_string(regIndex);
 
 		bool changed=current != prev;
 		QPalette::ColorGroup colGroup(empty ? QPalette::Disabled : QPalette::Normal);
 		QBrush textColor(changed ? Qt::red : palette.brush(colGroup,QPalette::Text));
-		register_view_items_[itemNumber]->setText(0, QString("%1R%2: %3 %4").arg(fpuTop==i?"=>":"  ").arg(i).arg(tag.leftJustified(8)).arg(formatFloat(current)));
+		QString valueStr;
+		switch(fpuDisplayMode_)
+		{
+		case FPUDisplayMode::Float:
+			valueStr=formatFloat(current);
+			break;
+		case FPUDisplayMode::Hex:
+		{
+			valueStr=current.toHexString();
+			const QChar groupSeparator(' ');
+			valueStr.insert(valueStr.size()-8,groupSeparator);
+			valueStr.insert(valueStr.size()-16-1,groupSeparator);
+			break;
+		}
+		}
+		const QString regFormat(fpuOrderMode_==FPUOrderMode::Stack ? QString("ST%1: %2 %3") : QString("%0R%1: %2 %3").arg(fpuTop==i?"=>":"  "));
+		register_view_items_[itemNumber]->setText(0, QString(regFormat).arg(i).arg(tag.leftJustified(8)).arg(valueStr));
 		register_view_items_[itemNumber++]->setForeground(0, textColor);
 	}
 	edb::value16 controlWord=state.fpu_control_word();
@@ -1516,6 +1533,44 @@ void ArchProcessor::setSSEAVXDisplayMode(int mode) {
 	xymmDisplayMode_=static_cast<SIMDDisplayMode>(mode);
 }
 
+void ArchProcessor::setFPUDisplayMode(int mode) {
+	fpuDisplayMode_=static_cast<FPUDisplayMode>(mode);
+}
+
+void ArchProcessor::setFPUOrderMode(int mode) {
+	fpuOrderMode_=static_cast<FPUOrderMode>(mode);
+}
+
+void ArchProcessor::setupFPURegisterMenu(QMenu& menu) {
+	{
+		const auto displayModeMapper = new QSignalMapper(&menu);
+		if(fpuDisplayMode_!=FPUDisplayMode::Hex) {
+			const auto action = menu.addAction(tr("View FPU as raw &hex values"),displayModeMapper,SLOT(map()));
+			displayModeMapper->setMapping(action,static_cast<int>(FPUDisplayMode::Hex));
+		}
+		if(fpuDisplayMode_!=FPUDisplayMode::Float) {
+			const auto action = menu.addAction(tr("View FPU as 80-bit &floats"),displayModeMapper,SLOT(map()));
+			displayModeMapper->setMapping(action,static_cast<int>(FPUDisplayMode::Float));
+		}
+		connect(displayModeMapper,SIGNAL(mapped(int)),this,SLOT(setFPUDisplayMode(int)));
+	}
+
+	menu.addSeparator();
+
+	{
+		const auto orderModeMapper = new QSignalMapper(&menu);
+		if(fpuOrderMode_!=FPUOrderMode::Stack) {
+			const auto action = menu.addAction(tr("View FPU as &stack of ST(i) registers"),orderModeMapper,SLOT(map()));
+			orderModeMapper->setMapping(action,static_cast<int>(FPUOrderMode::Stack));
+		}
+		if(fpuOrderMode_!=FPUOrderMode::Independent) {
+			const auto action = menu.addAction(tr("View FPU as &independent Ri registers"),orderModeMapper,SLOT(map()));
+			orderModeMapper->setMapping(action,static_cast<int>(FPUOrderMode::Independent));
+		}
+		connect(orderModeMapper,SIGNAL(mapped(int)),this,SLOT(setFPUOrderMode(int)));
+	}
+}
+
 std::unique_ptr<QMenu> ArchProcessor::register_item_context_menu(const Register& reg) {
 	std::unique_ptr<QMenu> menu(new QMenu());
 
@@ -1529,6 +1584,10 @@ std::unique_ptr<QMenu> ArchProcessor::register_item_context_menu(const Register&
 	}
 	if(reg.type()==Register::TYPE_SIMD && reg.name().startsWith("ymm")) {
 		setupSSEAVXRegisterMenu(*menu,"AVX");
+		return menu;
+	}
+	if(reg.type()==Register::TYPE_FPU) {
+		setupFPURegisterMenu(*menu);
 		return menu;
 	}
 

@@ -60,9 +60,18 @@ private:
 		Floats32,
 		Floats64
 	};
+	enum class FPUDisplayMode {
+		Hex,
+		Float
+	};
+	enum class FPUOrderMode {
+		Stack, // ST(i)
+		Independent // Ri
+	};
 private:
 	template<typename T>
 	QString formatSIMDRegister(const T& value, SIMDDisplayMode simdMode, IntDisplayMode intMode);
+	void setupFPURegisterMenu(QMenu& menu);
 	void setupMMXRegisterMenu(QMenu& menu);
 	void setupSSEAVXRegisterMenu(QMenu& menu, const QString& extType);
 	void update_register(QTreeWidgetItem *item, const Register &reg) const;
@@ -81,12 +90,17 @@ private:
 	SIMDDisplayMode   xymmDisplayMode_=SIMDDisplayMode::Dwords;
 	IntDisplayMode    xymmIntMode_=IntDisplayMode::Hex;
 
+	FPUDisplayMode    fpuDisplayMode_=FPUDisplayMode::Float;
+	FPUOrderMode      fpuOrderMode_=FPUOrderMode::Independent;
+
 	std::vector<QTreeWidgetItem*> register_view_items_;
 private Q_SLOTS:
 	void setMMXDisplayMode(int);
 	void setMMXIntMode(int);
 	void setSSEAVXDisplayMode(int);
 	void setSSEAVXIntMode(int);
+	void setFPUDisplayMode(int);
+	void setFPUOrderMode(int);
 };
 
 #endif
