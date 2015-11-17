@@ -174,6 +174,10 @@ edb::value80 PlatformState::X87::st(std::size_t n) const {
 	return R[STIndexToRIndex(n)];
 }
 
+edb::value80& PlatformState::X87::st(std::size_t n) {
+	return R[STIndexToRIndex(n)];
+}
+
 int PlatformState::X87::makeTag(std::size_t n, uint16_t twd) const {
 	int minitag=(twd>>n)&0x1;
 	return minitag ? recreateTag(R[n]) : TAG_EMPTY;
@@ -1127,6 +1131,19 @@ void PlatformState::set_register(const Register& reg) {
 			assert(fpuIndexValid(i));
 			const auto value=reg.value<edb::value80>();
 			std::memcpy(&x87.R[i],&value,sizeof value);
+			return;
+		}
+	}
+	{
+		QRegExp Rx("^st\\(?([0-7])\\)?$");
+		if(Rx.indexIn(regName)!=-1) {
+			QChar digit=Rx.cap(1).at(0);
+			assert(digit.isDigit());
+			char digitChar=digit.toLatin1();
+			std::size_t i=digitChar-'0';
+			assert(fpuIndexValid(i));
+			const auto value=reg.value<edb::value80>();
+			std::memcpy(&x87.st(i),&value,sizeof value);
 			return;
 		}
 	}
