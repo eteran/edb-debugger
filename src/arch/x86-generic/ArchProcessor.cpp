@@ -1275,7 +1275,8 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 					origAX=state["orig_rax"].valueAsSignedInteger();
 				else
 					origAX=state["orig_eax"].valueAsSignedInteger();
-				if(origAX!=-1) {
+				const std::int64_t rax=state.gp_register(rAX).valueAsSignedInteger();
+				if(origAX!=-1 && (-rax)&EINTR) {
 					analyze_syscall(state, inst, ret, origAX);
 					if(ret.size() && ret.back().startsWith("SYSCALL"))
 						ret.back()="Interrupted "+ret.back();
