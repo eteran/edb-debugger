@@ -45,7 +45,7 @@
       <bool>true</bool>
      </property>
      <property name="text">
-      <string>Keep Size</string>
+      <string>&amp;Keep Size</string>
      </property>
      <property name="checked">
       <bool>true</bool>
@@ -55,7 +55,7 @@
    <item row="3" column="0">
     <widget class="QCheckBox" name="fillWithNOPs">
      <property name="text">
-      <string>Fill rest with NOPs</string>
+      <string>Fill rest with &amp;NOPs</string>
      </property>
      <property name="checked">
       <bool>true</bool>
