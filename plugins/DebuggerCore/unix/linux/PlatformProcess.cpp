@@ -277,7 +277,7 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 		}
 	
 		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-		if(memory_file.open(QIODevice::WriteOnly)) {
+		if(memory_file.open(QIODevice::WriteOnly|QIODevice::Unbuffered)) { // If buffered, it may not report any errors as if it succeeded
 
 			memory_file.seek(address);
 			written = memory_file.write(reinterpret_cast<const char *>(buf), len);
@@ -581,7 +581,7 @@ bool PlatformProcess::write_data(edb::address_t address, long value) {
 	if(EDB_IS_32_BIT && address>0xffffffffULL) {
 		// 32 bit ptrace can't handle such long addresses
 		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-		if(memory_file.open(QIODevice::WriteOnly)) {
+		if(memory_file.open(QIODevice::WriteOnly|QIODevice::Unbuffered)) { // If buffered, it may not report any errors as if it succeeded
 
 			memory_file.seek(address);
 			if(memory_file.write(reinterpret_cast<char*>(&value), sizeof(long))==sizeof(long))
