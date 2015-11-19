@@ -478,29 +478,22 @@ quint8 PlatformProcess::read_byte(edb::address_t address, bool *ok) const {
 
 	// core_->page_size() - 1 will always be 0xf* because pagesizes
 	// are always 0x10*, so the masking works
-	// range of a is [1..n] where n=pagesize, and we have to adjust
-	// if a < wordsize
-	const edb::address_t a = core_->page_size() - (address & (core_->page_size() - 1));
+	// range of nBytesToNextPage is [1..n] where n=pagesize, and we have to adjust
+	// if nByteToNextPage < wordsize
+	const edb::address_t nBytesToNextPage = core_->page_size() - (address & (core_->page_size() - 1));
 
-	if(a < EDB_WORDSIZE) {
-		address -= (EDB_WORDSIZE - a); // LE + BE
-	}
+	// Avoid crossing page boundary, since next page may be unreadable
+	const edb::address_t addressShift = nBytesToNextPage < EDB_WORDSIZE ? EDB_WORDSIZE - nBytesToNextPage : 0;
+	address -= addressShift;
 
-	long value = read_data(address, ok);
+	const long value = read_data(address, ok);
 
 	if(*ok) {
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-		if(a < EDB_WORDSIZE) {
-			value >>= CHAR_BIT * (EDB_WORDSIZE - a); // LE
-		}
-#else
-		if(a < EDB_WORDSIZE) {
-			value >>= CHAR_BIT * (a - 1);            // BE
-		} else {
-			value >>= CHAR_BIT * (EDB_WORDSIZE - 1); // BE
-		}
-#endif
-		return value & 0xff;
+		quint8 result;
+		// We aren't interested in `value` as in number, it's just a buffer, so no endianness magic.
+		// Just have to compensate for `addressShift` when reading it.
+		std::memcpy(&result,reinterpret_cast<const char*>(&value)+addressShift,sizeof result);
+		return result;
 	}
 
 	return 0xff;
