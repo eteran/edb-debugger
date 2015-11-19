@@ -41,11 +41,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCore {
 namespace {
 
-#ifdef EDB_X86_64
-#define EDB_WORDSIZE sizeof(quint64)
-#elif defined(EDB_X86)
-#define EDB_WORDSIZE sizeof(quint32)
-#endif
+// Used as size of ptrace word
+#define EDB_WORDSIZE sizeof(long)
 
 namespace BinaryInfo {
 // Bitness-templated version of struct r_debug defined in link.h
