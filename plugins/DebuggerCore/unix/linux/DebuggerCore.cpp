@@ -496,7 +496,7 @@ void DebuggerCore::kill() {
 	if(attached()) {
 		clear_breakpoints();
 
-		ptrace(PTRACE_KILL, pid(), 0, 0);
+		::kill(pid(), SIGSTOP);
 
 		// TODO: do i need to actually do this wait?
 		native::waitpid(pid(), 0, __WALL);
