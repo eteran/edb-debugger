@@ -41,11 +41,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCore {
 namespace {
 
-#ifdef EDB_X86_64
-#define EDB_WORDSIZE sizeof(quint64)
-#elif defined(EDB_X86)
-#define EDB_WORDSIZE sizeof(quint32)
-#endif
+// Used as size of ptrace word
+#define EDB_WORDSIZE sizeof(long)
 
 namespace BinaryInfo {
 // Bitness-templated version of struct r_debug defined in link.h
@@ -280,7 +277,7 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 		}
 	
 		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-		if(memory_file.open(QIODevice::WriteOnly)) {
+		if(memory_file.open(QIODevice::WriteOnly|QIODevice::Unbuffered)) { // If buffered, it may not report any errors as if it succeeded
 
 			memory_file.seek(address);
 			written = memory_file.write(reinterpret_cast<const char *>(buf), len);
@@ -481,29 +478,22 @@ quint8 PlatformProcess::read_byte(edb::address_t address, bool *ok) const {
 
 	// core_->page_size() - 1 will always be 0xf* because pagesizes
 	// are always 0x10*, so the masking works
-	// range of a is [1..n] where n=pagesize, and we have to adjust
-	// if a < wordsize
-	const edb::address_t a = core_->page_size() - (address & (core_->page_size() - 1));
+	// range of nBytesToNextPage is [1..n] where n=pagesize, and we have to adjust
+	// if nByteToNextPage < wordsize
+	const edb::address_t nBytesToNextPage = core_->page_size() - (address & (core_->page_size() - 1));
 
-	if(a < EDB_WORDSIZE) {
-		address -= (EDB_WORDSIZE - a); // LE + BE
-	}
+	// Avoid crossing page boundary, since next page may be unreadable
+	const edb::address_t addressShift = nBytesToNextPage < EDB_WORDSIZE ? EDB_WORDSIZE - nBytesToNextPage : 0;
+	address -= addressShift;
 
-	long value = read_data(address, ok);
+	const long value = read_data(address, ok);
 
 	if(*ok) {
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-		if(a < EDB_WORDSIZE) {
-			value >>= CHAR_BIT * (EDB_WORDSIZE - a); // LE
-		}
-#else
-		if(a < EDB_WORDSIZE) {
-			value >>= CHAR_BIT * (a - 1);            // BE
-		} else {
-			value >>= CHAR_BIT * (EDB_WORDSIZE - 1); // BE
-		}
-#endif
-		return value & 0xff;
+		quint8 result;
+		// We aren't interested in `value` as in number, it's just a buffer, so no endianness magic.
+		// Just have to compensate for `addressShift` when reading it.
+		std::memcpy(&result,reinterpret_cast<const char*>(&value)+addressShift,sizeof result);
+		return result;
 	}
 
 	return 0xff;
@@ -524,38 +514,24 @@ void PlatformProcess::write_byte(edb::address_t address, quint8 value, bool *ok)
 
 	*ok = false;
 
-	long v;
-	long mask;
 	// core_->page_size() - 1 will always be 0xf* because pagesizes
 	// are always 0x10*, so the masking works
-	// range of a is [1..n] where n=pagesize, and we have to adjust
-	// if a < wordsize
-	const edb::address_t a = core_->page_size() - (address & (core_->page_size() - 1));
+	// range of nBytesToNextPage is [1..n] where n=pagesize, and we have to adjust
+	// if nBytesToNextPage < wordsize
+	const edb::address_t nBytesToNextPage = core_->page_size() - (address & (core_->page_size() - 1));
 
-	v = value;
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-	if(a < EDB_WORDSIZE) {
-		address -= (EDB_WORDSIZE - a);                       // LE + BE
-		mask = ~(0xffUL << (CHAR_BIT * (EDB_WORDSIZE - a))); // LE
-		v <<= CHAR_BIT * (EDB_WORDSIZE - a);                 // LE
-	} else {
-		mask = ~0xffUL; // LE
-	}
-#else /* BIG ENDIAN */
-	if(a < EDB_WORDSIZE) {
-		address -= (EDB_WORDSIZE - a);            // LE + BE
-		mask = ~(0xffUL << (CHAR_BIT * (a - 1))); // BE
-		v <<= CHAR_BIT * (a - 1);                 // BE
-	} else {
-		mask = ~(0xffUL << (CHAR_BIT * (EDB_WORDSIZE - 1))); // BE
-		v <<= CHAR_BIT * (EDB_WORDSIZE - 1);                 // BE
-	}
-#endif
+	// Avoid crossing page boundary, since next page may be inaccessible
+	const edb::address_t addressShift = nBytesToNextPage < EDB_WORDSIZE ? EDB_WORDSIZE - nBytesToNextPage : 0;
+	address -= addressShift;
 
-	v |= (read_data(address, ok) & mask);
-	if(*ok) {
-		*ok = write_data(address, v);
-	}
+	long word = read_data(address, ok);
+	if(!*ok) return;
+
+	// We aren't interested in `value` as in number, it's just a buffer, so no endianness magic.
+	// Just have to compensate for `addressShift` when writing it.
+	std::memcpy(reinterpret_cast<char*>(&word)+addressShift,&value,sizeof value);
+
+	*ok = write_data(address, word);
 }
 
 //------------------------------------------------------------------------------
@@ -605,7 +581,7 @@ bool PlatformProcess::write_data(edb::address_t address, long value) {
 	if(EDB_IS_32_BIT && address>0xffffffffULL) {
 		// 32 bit ptrace can't handle such long addresses
 		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-		if(memory_file.open(QIODevice::WriteOnly)) {
+		if(memory_file.open(QIODevice::WriteOnly|QIODevice::Unbuffered)) { // If buffered, it may not report any errors as if it succeeded
 
 			memory_file.seek(address);
 			if(memory_file.write(reinterpret_cast<char*>(&value), sizeof(long))==sizeof(long))
