@@ -200,7 +200,7 @@ IRegion::pointer current_cpu_view_region() {
 void repaint_cpu_view() {
 	Debugger *const gui = ui();
 	Q_ASSERT(gui);
-	gui->ui.cpuView->repaint();
+	gui->ui.cpuView->update();
 }
 
 //------------------------------------------------------------------------------
@@ -1346,6 +1346,63 @@ QString disassemble_address(address_t address) {
 //------------------------------------------------------------------------------
 CapstoneEDB::Formatter &formatter() {
 	return g_Formatter;
+}
+
+//------------------------------------------------------------------------------
+// Name: selected_stack_address
+// Desc: returns the address of the selection or (address_t)-1
+//------------------------------------------------------------------------------
+address_t selected_stack_address() {
+
+	if(auto hexview = qobject_cast<QHexView *>(ui()->ui.stackDock->widget())) {
+		if(hexview->hasSelectedText()) {
+			return hexview->selectedBytesAddress();
+		}
+	}
+	
+	return static_cast<address_t>(-1);
+}
+
+//------------------------------------------------------------------------------
+// Name: selected_stack_size
+// Desc: returns the size of the selection or 0
+//------------------------------------------------------------------------------
+size_t selected_stack_size() {
+	if(auto hexview = qobject_cast<QHexView *>(ui()->ui.stackDock->widget())) {
+		if(hexview->hasSelectedText()) {
+			return hexview->selectedBytesSize();
+		}
+	}
+	
+	return 0;
+}
+
+//------------------------------------------------------------------------------
+// Name: selected_stack_address
+// Desc: returns the address of the selection or (address_t)-1
+//------------------------------------------------------------------------------
+address_t selected_data_address() {
+	if(auto hexview = qobject_cast<QHexView *>(ui()->ui.tabWidget->currentWidget())) {
+		if(hexview->hasSelectedText()) {
+			return hexview->selectedBytesAddress();
+		}
+	}
+	
+	return static_cast<address_t>(-1);
+}
+
+//------------------------------------------------------------------------------
+// Name: selected_data_size
+// Desc: returns the size of the selection or 0
+//------------------------------------------------------------------------------
+size_t selected_data_size() {
+	if(auto hexview = qobject_cast<QHexView *>(ui()->ui.tabWidget->currentWidget())) {
+		if(hexview->hasSelectedText()) {
+			return hexview->selectedBytesSize();
+		}
+	}
+	
+	return 0;
 }
 
 }

@@ -204,6 +204,12 @@ EDB_EXPORT CapstoneEDB::Formatter &formatter();
 
 EDB_EXPORT bool debuggeeIs32Bit();
 EDB_EXPORT bool debuggeeIs64Bit();
+
+EDB_EXPORT address_t selected_stack_address();
+EDB_EXPORT size_t    selected_stack_size();
+
+EDB_EXPORT address_t selected_data_address();
+EDB_EXPORT size_t    selected_data_size();
 }
 }
 

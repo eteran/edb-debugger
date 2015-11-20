@@ -644,7 +644,7 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 		Q_EMIT update_progress(100);
 
 		if(analyzer_widget_) {
-			analyzer_widget_->repaint();
+			analyzer_widget_->update();
 		}
 
 

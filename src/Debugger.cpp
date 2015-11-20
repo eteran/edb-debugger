@@ -2333,11 +2333,11 @@ void Debugger::update_data_views() {
 //------------------------------------------------------------------------------
 void Debugger::refresh_gui() {
 
-	ui.cpuView->repaint();
-	stack_view_->repaint();
+	ui.cpuView->update();
+	stack_view_->update();
 
 	for(const DataViewInfo::pointer &info: data_regions_) {
-		info->view->repaint();
+		info->view->update();
 	}
 
 	if(edb::v1::debugger_core) {
