@@ -9,8 +9,22 @@ unix {
 	HEADERS += DebuggerCoreUNIX.h
 
 	linux-* {
-		VPATH       += unix/linux
-		INCLUDEPATH += unix/linux
+		currentVPath = unix/linux
+		VPATH       += $$currentVPath
+		INCLUDEPATH += $$currentVPath
+
+		# Add detector of broken writes to /proc/pid/mem
+		checkProcPidMemWrites.target = $$currentVPath/detect/procPidMemWrites.h
+		checkProcPidMemWritesOutFile = $$currentVPath/detect/proc-pid-mem-write
+		checkProcPidMemWrites.commands += $$QMAKE_CXX $$QMAKE_CXXFLAGS $$currentVPath/detect/proc-pid-mem-write.cpp -o $$checkProcPidMemWritesOutFile && \
+										  $$currentVPath/detect/proc-pid-mem-write $$checkProcPidMemWrites.target
+		checkProcPidMemWrites.depends += $$currentVPath/detect/proc-pid-mem-write.cpp
+		# and its clean target
+		procPidMemWriteClean.commands = rm -f $$checkProcPidMemWrites.target $$checkProcPidMemWritesOutFile
+		clean.depends = procPidMemWriteClean
+
+		PRE_TARGETDEPS += $$checkProcPidMemWrites.target
+		QMAKE_EXTRA_TARGETS += checkProcPidMemWrites procPidMemWriteClean clean
 	}
 
 	openbsd-* {
