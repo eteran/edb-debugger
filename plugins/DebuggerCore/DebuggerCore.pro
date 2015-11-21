@@ -16,7 +16,7 @@ unix {
 		# Add detector of broken writes to /proc/pid/mem
 		checkProcPidMemWrites.target = $$currentVPath/detect/procPidMemWrites.h
 		checkProcPidMemWritesOutFile = $$currentVPath/detect/proc-pid-mem-write
-		checkProcPidMemWrites.commands += $$QMAKE_CXX $$QMAKE_CXXFLAGS $$currentVPath/detect/proc-pid-mem-write.cpp -o $$checkProcPidMemWritesOutFile && \
+		checkProcPidMemWrites.commands += $$QMAKE_CXX $$QMAKE_CXXFLAGS -std=c++11 $$currentVPath/detect/proc-pid-mem-write.cpp -o $$checkProcPidMemWritesOutFile && \
 										  $$currentVPath/detect/proc-pid-mem-write $$checkProcPidMemWrites.target
 		checkProcPidMemWrites.depends += $$currentVPath/detect/proc-pid-mem-write.cpp
 		# and its clean target
