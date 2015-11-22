@@ -41,7 +41,7 @@ install:
     - if [ "$QT_BASE" = "55" ]; then sudo apt-get install -qq qt55base qt55xmlpatterns; source /opt/qt55/bin/qt55-env.sh; fi
 
 before_script:
-    - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" == "48" ]; then qmake -spec unsupported/linux-clang; fi
+    - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" == "48" ]; then qmake -spec unsupported/linux-clang CONFIG+=warn_off QMAKE_CXXFLAGS+='-isystem /usr/include/qt4 -Wall -Wextra -Wno-missing-braces'; fi
     - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" != "48" ]; then qmake -spec linux-clang; fi
     - if [ "$CXX" != "clang++" ]; then qmake; fi
 
