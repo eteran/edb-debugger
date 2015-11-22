@@ -108,7 +108,7 @@ bool detectAndWriteHeader(std::string progName)
         int buf=0x12345678;
         const size_t len=sizeof buf;
         {
-            const auto read=file.read(reinterpret_cast<char*>(&buf),len);
+            file.read(reinterpret_cast<char*>(&buf),len);
             if(!file)
             {
                 perror((progName+": failed to read data from child's memory, won't even try to write").c_str());
@@ -124,7 +124,7 @@ bool detectAndWriteHeader(std::string progName)
         }
 
         {
-            const auto written=file.write(reinterpret_cast<char*>(&buf),len);
+            file.write(reinterpret_cast<char*>(&buf),len);
             if(!file) writeHeader(true);
             else writeHeader(false);
 			return true;
