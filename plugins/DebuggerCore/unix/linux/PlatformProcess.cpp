@@ -38,6 +38,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <pwd.h>
 #include <elf.h>
 
+#include "detect/procPidMemWrites.h"
+
 namespace DebuggerCore {
 namespace {
 
@@ -277,7 +279,8 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 		}
 	
 		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-		if(memory_file.open(QIODevice::WriteOnly|QIODevice::Unbuffered)) { // If buffered, it may not report any errors as if it succeeded
+		// NOTE: If buffered, it may not report any write errors, behaving as if it succeeded
+		if(!PROC_PID_MEM_WRITE_BROKEN && memory_file.open(QIODevice::WriteOnly|QIODevice::Unbuffered)) {
 
 			memory_file.seek(address);
 			written = memory_file.write(reinterpret_cast<const char *>(buf), len);
@@ -286,6 +289,14 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 			}
 
 			memory_file.close();
+		}
+		else {
+			for(std::size_t byteIndex=0;byteIndex<len;++byteIndex) {
+				bool ok=false;
+				write_byte(address+byteIndex, *(reinterpret_cast<const char*>(buf)+byteIndex), &ok);
+				if(!ok) return written;
+				++written;
+			}
 		}
 	}
 
