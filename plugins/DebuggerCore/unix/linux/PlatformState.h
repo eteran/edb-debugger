@@ -60,9 +60,9 @@ struct UserFPRegsStructX86_64 {
 	uint16_t cwd;
 	uint16_t swd;
 	uint16_t ftw;
-	uint16_t fop;
-	uint64_t rip;
-	uint64_t rdp;
+	uint16_t fop; // last instruction opcode
+	uint64_t rip; // last instruction EIP
+	uint64_t rdp; // last operand pointer
 	uint32_t mxcsr;
 	uint32_t mxcr_mask;
 	uint32_t st_space[32];
@@ -126,11 +126,11 @@ struct UserFPXRegsStructX86 {
 	uint16_t cwd;
 	uint16_t swd;
 	uint16_t twd;
-	uint16_t fop;
-	uint32_t fip;
-	uint32_t fcs;
-	uint32_t foo;
-	uint32_t fos;
+	uint16_t fop; // last instruction opcode
+	uint32_t fip; // last instruction EIP
+	uint32_t fcs; // last instruction CS
+	uint32_t foo; // last operand offset
+	uint32_t fos; // last operand selector
 	uint32_t mxcsr;
 	uint32_t reserved;
 	uint32_t st_space[32];   /* 8*16 bytes for each FP-reg = 128 bytes */
@@ -141,10 +141,10 @@ struct UserFPRegsStructX86 {
 	uint32_t cwd;
 	uint32_t swd;
 	uint32_t twd;
-	uint32_t fip;
-	uint32_t fcs;
-	uint32_t foo;
-	uint32_t fos;
+	uint32_t fip; // last instruction EIP
+	uint32_t fcs; // last instruction CS
+	uint32_t foo; // last operand offset
+	uint32_t fos; // last operand selector
 	uint32_t st_space [20];
 };
 #endif
@@ -212,11 +212,11 @@ struct X86XState
 	uint16_t cwd;
 	uint16_t swd;
 	uint16_t twd;
-	uint16_t fop;
-	uint32_t fioff; // FIXME
-	uint32_t fiseg; // FIXME
-	uint32_t fooff; // FIXME
-	uint32_t foseg; // FIXME
+	uint16_t fop; // last instruction opcode
+	uint32_t fioff; // last instruction EIP
+	uint32_t fiseg; // last instruction CS in 32 bit mode, high 32 bits of RIP in 64 bit mode
+	uint32_t fooff; // last operand offset
+	uint32_t foseg; // last operand selector in 32 bit mode, high 32 bits of FDP in 64 bit mode
 	uint32_t mxcsr;
 	uint32_t mxcsr_mask; // FIXME
 	uint8_t st_space[16*8]; // 8 16-byte fields
