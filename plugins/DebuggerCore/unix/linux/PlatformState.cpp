@@ -29,6 +29,8 @@ constexpr const char* PlatformState::AVX::mxcsrName;
 constexpr const char* PlatformState::X86::IP64Name;
 constexpr const char* PlatformState::X86::IP32Name;
 constexpr const char* PlatformState::X86::IP16Name;
+constexpr const char* PlatformState::X86::origEAXName;
+constexpr const char* PlatformState::X86::origRAXName;
 constexpr const char* PlatformState::X86::flags64Name;
 constexpr const char* PlatformState::X86::flags32Name;
 constexpr const char* PlatformState::X86::flags16Name;
