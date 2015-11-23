@@ -847,6 +847,9 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 			register_view_items_.push_back(create_register_item(fpu, "Status Word"));
 			register_view_items_.push_back(create_register_item(fpu, "TOP"));
 			register_view_items_.push_back(create_register_item(fpu, "Tag Word"));
+			register_view_items_.push_back(create_register_item(fpu, "Last instruction"));
+			register_view_items_.push_back(create_register_item(fpu, "Last operand"));
+			register_view_items_.push_back(create_register_item(fpu, "Last opcode"));
 		}
 
 		if(QTreeWidgetItem *const dbg = category_list->addCategory(tr("Debug"))) {
@@ -1079,6 +1082,33 @@ void ArchProcessor::update_fpu_view(int& itemNumber, const State &state, const Q
 	register_view_items_[itemNumber++]->setForeground(0, QBrush(fpuTop != last_state_.fpu_stack_pointer() ? Qt::red : palette.text()));
 	register_view_items_[itemNumber]->setText(0, QString("Tag Word: %1").arg(state.fpu_tag_word().toHexString()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush(state.fpu_tag_word() != last_state_.fpu_tag_word() ? Qt::red : palette.text()));
+
+	{
+		const Register FIP=state["FIP"];
+		const Register FIS=state["FIS"];
+		register_view_items_[itemNumber]->setText(0, QString("Last instruction: %1:%2").arg(FIS.toHexString()).arg(FIP.toHexString()));
+		const Register oldFIP=last_state_["FIP"];
+		const Register oldFIS=last_state_["FIS"];
+		bool changed=FIP.toHexString()!=oldFIP.toHexString() || FIS.toHexString()!=oldFIS.toHexString();
+		register_view_items_[itemNumber++]->setForeground(0, QBrush(changed ? Qt::red : palette.text()));
+	}
+	{
+		const Register FDP=state["FDP"];
+		const Register FDS=state["FDS"];
+		register_view_items_[itemNumber]->setText(0, QString("Last operand    : %1:%2").arg(FDS.toHexString()).arg(FDP.toHexString()));
+		const Register oldFDP=last_state_["FDP"];
+		const Register oldFDS=last_state_["FDS"];
+		bool changed=FDP.toHexString()!=oldFDP.toHexString() || FDS.toHexString()!=oldFDS.toHexString();
+		register_view_items_[itemNumber++]->setForeground(0, QBrush(changed ? Qt::red : palette.text()));
+	}
+	{
+		const Register fopc=state["fopcode"];
+		// Yes, it appears big-endian!
+		QString codeStr(!fopc ? "<unknown>" : edb::value8(fopc.value<edb::value16>() >> 8).toHexString()+" "+fopc.value<edb::value8>().toHexString());
+		bool changed=fopc.toHexString()!=last_state_["fopcode"].toHexString();
+		register_view_items_[itemNumber]->setText(0, QString("Last opcode     : %1").arg(codeStr));
+		register_view_items_[itemNumber++]->setForeground(0, QBrush(changed ? Qt::red : palette.text()));
+	}
 }
 
 template<typename T>
