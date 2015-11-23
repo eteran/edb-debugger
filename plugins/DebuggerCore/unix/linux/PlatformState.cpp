@@ -858,6 +858,22 @@ Register PlatformState::value(const QString &reg) const {
 		}
 	}
 	if(x87.filled) {
+		if(regName=="fip"||regName=="fdp") {
+			const edb::address_t addr = regName=="fip" ? x87.instPtrOffset : x87.dataPtrOffset;
+			if(is64Bit())
+				return make_Register<64>(regName,addr,Register::TYPE_FPU);
+			else
+				return make_Register<32>(regName,addr,Register::TYPE_FPU);
+		}
+		if(regName=="fis"||regName=="fds") {
+			const edb::value16 val = regName=="fis" ? x87.instPtrSelector : x87.dataPtrSelector;
+			return make_Register<16>(regName,val,Register::TYPE_FPU);
+		}
+		if(regName=="fopcode") {
+			return make_Register<16>(regName,x87.opCode,Register::TYPE_FPU);
+		}
+	}
+	if(x87.filled) {
 		QRegExp MMx("^mm([0-7])$");
 		if(MMx.indexIn(regName)!=-1) {
 			QChar digit=MMx.cap(1).at(0);
