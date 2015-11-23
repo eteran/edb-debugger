@@ -869,20 +869,27 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 			}
 		}
 
+		QTreeWidgetItem* mxcsr=0;
 		if(has_ymm_) {
 			if(QTreeWidgetItem *const ymm = category_list->addCategory(tr("AVX"))) {
 				for(std::size_t i=0;i<MAX_YMM_REGS_COUNT;++i)
 					register_view_items_.push_back(create_register_item(ymm, QString("YMM%1").arg(i)));
-				register_view_items_.push_back(create_register_item(ymm, "mxcsr"));
-				register_view_items_.push_back(create_register_item(ymm, "AVX_RC"));
+				mxcsr=create_register_item(ymm, "mxcsr");
 			}
 		} else if(has_xmm_) {
 			if(QTreeWidgetItem *const xmm = category_list->addCategory(tr("SSE"))) {
 				for(std::size_t i=0;i<MAX_XMM_REGS_COUNT;++i)
 					register_view_items_.push_back(create_register_item(xmm, QString("XMM%1").arg(i)));
-				register_view_items_.push_back(create_register_item(xmm, "mxcsr"));
-				register_view_items_.push_back(create_register_item(xmm, "SSE_RC"));
+				mxcsr=create_register_item(xmm, "mxcsr");
 			}
+		}
+		if(mxcsr) {
+			register_view_items_.push_back(mxcsr);
+			mxcsr_rc_ = new QTreeWidgetItem(mxcsr);
+			mxcsr_ftz_ = new QTreeWidgetItem(mxcsr);
+			mxcsr_daz_ = new QTreeWidgetItem(mxcsr);
+			mxcsr_exceptions_mask_ = new QTreeWidgetItem(mxcsr);
+			mxcsr_exceptions_active_ = new QTreeWidgetItem(mxcsr);
 		}
 
 		update_register_view(QString(), State());
@@ -996,6 +1003,40 @@ QString getFPUStatus(uint16_t statusWord) {
 	return fpuStatus.isEmpty() ? " OK" : fpuStatus;
 }
 
+QString ArchProcessor::getRoundingMode(unsigned modeBits) const {
+	switch(modeBits) {
+	case 0: return tr("Rounding to nearest");
+	case 1: return tr("Rounding down");
+	case 2: return tr("Rounding up");
+	case 3: return tr("Rounding toward zero");
+	}
+	return "???";
+}
+
+QString getExceptionMaskString(unsigned exceptionMask) {
+	QString exceptionMaskString;
+	exceptionMaskString += ((exceptionMask & 0x01) ? " IM" : " Iu");
+	exceptionMaskString += ((exceptionMask & 0x02) ? " DM" : " Du");
+	exceptionMaskString += ((exceptionMask & 0x04) ? " ZM" : " Zu");
+	exceptionMaskString += ((exceptionMask & 0x08) ? " OM" : " Ou");
+	exceptionMaskString += ((exceptionMask & 0x10) ? " UM" : " Uu");
+	exceptionMaskString += ((exceptionMask & 0x20) ? " PM" : " Pu");
+	return exceptionMaskString;
+}
+
+QString getActiveExceptionsString(unsigned exceptionsHappened) {
+	QString exceptionsHappenedString;
+	exceptionsHappenedString += ((exceptionsHappened & 0x01) ? " IE" : "");
+	exceptionsHappenedString += ((exceptionsHappened & 0x02) ? " DE" : "");
+	exceptionsHappenedString += ((exceptionsHappened & 0x04) ? " ZE" : "");
+	exceptionsHappenedString += ((exceptionsHappened & 0x08) ? " OE" : "");
+	exceptionsHappenedString += ((exceptionsHappened & 0x10) ? " UE" : "");
+	exceptionsHappenedString += ((exceptionsHappened & 0x20) ? " PE" : "");
+	if(exceptionsHappenedString.isEmpty())
+		exceptionsHappenedString=" (none)";
+	return exceptionsHappenedString;
+}
+
 //------------------------------------------------------------------------------
 // Name: update_fpu_view
 // Desc:
@@ -1035,22 +1076,8 @@ void ArchProcessor::update_fpu_view(int& itemNumber, const State &state, const Q
 	edb::value16 controlWord=state.fpu_control_word();
 	int controlWordValue=controlWord;
 	edb::value16 statusWord=state.fpu_status_word();
-	QString roundingMode;
+	QString roundingMode=getRoundingMode((controlWordValue>>10)&3);
 	QString precisionMode;
-	switch((controlWordValue>>10)&3) {
-	case 0:
-		roundingMode = tr("Rounding to nearest");
-		break;
-	case 1:
-		roundingMode = tr("Rounding down");
-		break;
-	case 2:
-		roundingMode = tr("Rounding up");
-		break;
-	case 3:
-		roundingMode = tr("Rounding toward zero");
-		break;
-	}
 	switch((controlWordValue>>8)&3) {
 	case 0:
 		precisionMode = tr("Single precision (24 bit complete mantissa)");
@@ -1069,22 +1096,8 @@ void ArchProcessor::update_fpu_view(int& itemNumber, const State &state, const Q
 	int exceptionsHappened=statusWord&0x3f;
 	int prevExMask=last_state_.fpu_control_word()&0x3f;
 	int prevExHap=last_state_.fpu_status_word()&0x3f;
-	QString exceptionMaskString;
-	exceptionMaskString += ((exceptionMask & 0x01) ? " IM" : " Iu");
-	exceptionMaskString += ((exceptionMask & 0x02) ? " DM" : " Du");
-	exceptionMaskString += ((exceptionMask & 0x04) ? " ZM" : " Zu");
-	exceptionMaskString += ((exceptionMask & 0x08) ? " OM" : " Ou");
-	exceptionMaskString += ((exceptionMask & 0x10) ? " UM" : " Uu");
-	exceptionMaskString += ((exceptionMask & 0x20) ? " PM" : " Pu");
-	QString exceptionsHappenedString;
-	exceptionsHappenedString += ((exceptionsHappened & 0x01) ? " IE" : "");
-	exceptionsHappenedString += ((exceptionsHappened & 0x02) ? " DE" : "");
-	exceptionsHappenedString += ((exceptionsHappened & 0x04) ? " ZE" : "");
-	exceptionsHappenedString += ((exceptionsHappened & 0x08) ? " OE" : "");
-	exceptionsHappenedString += ((exceptionsHappened & 0x10) ? " UE" : "");
-	exceptionsHappenedString += ((exceptionsHappened & 0x20) ? " PE" : "");
-	if(exceptionsHappenedString.isEmpty())
-		exceptionsHappenedString=" (none)";
+	QString exceptionMaskString = getExceptionMaskString(exceptionMask);
+	QString exceptionsHappenedString = getActiveExceptionsString(exceptionsHappened);
 	QString fpuStatus=getFPUStatus(statusWord);
 	register_view_items_[itemNumber]->setText(0, QString("FCR: %1").arg(controlWord.toHexString()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush(controlWord != last_state_.fpu_control_word() ? Qt::red : palette.text()));
@@ -1269,53 +1282,38 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
 		}
 	}
-	if(has_xmm_ || has_ymm_) {
+	if(has_xmm_) {
 	    const Register current = state["mxcsr"];
-		const Register prev    = last_state_["mxcsr"];
-		const auto value = current.value<edb::value32>();
-		QString enabledBits;
-		enabledBits += "[";
-		enabledBits += value & 0x0001 ? " IE" : "";
-		enabledBits += value & 0x0002 ? " DE" : "";
-		enabledBits += value & 0x0004 ? " ZE" : "";
-		enabledBits += value & 0x0008 ? " OE" : "";
-		enabledBits += value & 0x0010 ? " UE" : "";
-		enabledBits += value & 0x0020 ? " PE" : "";
-		enabledBits += " ]";
-		enabledBits += value & 0x0040 ? " DAZ": "";
-		enabledBits += " [";
-		enabledBits += value & 0x0080 ? " IM" : " Iu";
-		enabledBits += value & 0x0100 ? " DM" : " Du";
-		enabledBits += value & 0x0200 ? " ZM" : " Zu";
-		enabledBits += value & 0x0400 ? " OM" : " Ou";
-		enabledBits += value & 0x0800 ? " UM" : " Uu";
-		enabledBits += value & 0x1000 ? " PM" : " Pu";
-		enabledBits += " ]";
-		enabledBits += value & 0x8000 ? " FZ" : "";
-		QString roundingMode;
-		static constexpr const int MXCSR_RC_LOW_BIT_POS=13;
-		static constexpr const uint32_t MXCSR_RC_BITS=3<<MXCSR_RC_LOW_BIT_POS;
-		switch((value&MXCSR_RC_BITS)>>MXCSR_RC_LOW_BIT_POS)
-		{
-		case 0:
-			roundingMode = tr("Rounding to nearest");
-			break;
-		case 1:
-			roundingMode = tr("Rounding down");
-			break;
-		case 2:
-			roundingMode = tr("Rounding up");
-			break;
-		case 3:
-			roundingMode = tr("Rounding toward zero");
-			break;
-		}
 		if(current) {
-			register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1   %2").arg(current.toHexString()).arg(enabledBits));
-			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
-			register_view_items_[itemNumber]->setText(0, QString("  RC: %1").arg(roundingMode));
-			register_view_items_[itemNumber++]->setForeground(0, QBrush((value&MXCSR_RC_BITS) != (prev.value<edb::value32>()&MXCSR_RC_BITS) ? Qt::red : palette.text()));
+			const Register prev    = last_state_["mxcsr"];
+			const auto value = current.value<edb::value32>();
+
+			mxcsr_exceptions_mask_->setText(0,"Exception mask   :"+getExceptionMaskString(value>>7));
+			mxcsr_exceptions_mask_->setForeground(0, QBrush((prev.value<edb::value32>()&(0x3f<<7))!=(value&(0x3f<<7))? Qt::red : palette.text()));
+
+			mxcsr_exceptions_active_->setText(0,"Exceptions active:"+getActiveExceptionsString(value));
+			mxcsr_exceptions_active_->setForeground(0, QBrush((prev.value<edb::value32>()&0x3f)!=(value&0x3f)? Qt::red : palette.text()));
+
+			mxcsr_daz_->setText(0,QString("DAZ: ")+((value&0x0040)?"on":"off"));
+			mxcsr_daz_->setForeground(0, QBrush((prev.value<edb::value32>()&0x0040)!=(value&0x0040)? Qt::red : palette.text()));
+			mxcsr_ftz_->setText(0,QString("FTZ: ")+((value&0x8000)?"on":"off"));
+			mxcsr_ftz_->setForeground(0, QBrush((prev.value<edb::value32>()&0x8000)!=(value&0x8000)? Qt::red : palette.text()));
+
+			static constexpr const int MXCSR_RC_LOW_BIT_POS=13;
+			static constexpr const uint32_t MXCSR_RC_BITS=3<<MXCSR_RC_LOW_BIT_POS;
+			mxcsr_rc_->setText(0,"RC: "+getRoundingMode((value&MXCSR_RC_BITS)>>MXCSR_RC_LOW_BIT_POS));
+			mxcsr_rc_->setForeground(0, QBrush((value&MXCSR_RC_BITS) != (prev.value<edb::value32>()&MXCSR_RC_BITS) ? Qt::red : palette.text()));
+
+			register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1").arg(current.toHexString()));
+			register_view_items_[itemNumber]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
+		} else {
+			mxcsr_exceptions_mask_->setText(0,"???");
+			mxcsr_exceptions_active_->setText(0,"???");
+			mxcsr_ftz_->setText(0,"???");
+			mxcsr_daz_->setText(0,"???");
+			mxcsr_rc_->setText(0,"???");
 		}
+		++itemNumber;
 	}
 
 	last_state_ = state;
