@@ -216,8 +216,8 @@ void PlatformState::fillFrom(const UserFPRegsStructX86& regs) {
 		x87.R[n]=edb::value80(regs.st_space,10*x87.RIndexToSTIndex(n));
 	x87.controlWord=regs.cwd;
 	x87.tagWord=regs.twd; // This is the true tag word, unlike in FPX regs and x86-64 FP regs structs
-	x87.instPtrOffset=regs.fip;
-	x87.dataPtrOffset=regs.foo;
+	x87.instPtrOffset=edb::address_t::fromZeroExtended(regs.fip);
+	x87.dataPtrOffset=edb::address_t::fromZeroExtended(regs.foo);
 	x87.instPtrSelector=regs.fcs;
 	x87.dataPtrSelector=regs.fos;
 	x87.opCode=0; // not present in the given structure
@@ -229,8 +229,8 @@ void PlatformState::fillFrom(const UserFPXRegsStructX86& regs) {
 		x87.R[n]=edb::value80(regs.st_space,16*x87.RIndexToSTIndex(n));
 	x87.controlWord=regs.cwd;
 	x87.tagWord=x87.restoreTagWord(regs.twd);
-	x87.instPtrOffset=regs.fip;
-	x87.dataPtrOffset=regs.foo;
+	x87.instPtrOffset=edb::address_t::fromZeroExtended(regs.fip);
+	x87.dataPtrOffset=edb::address_t::fromZeroExtended(regs.foo);
 	x87.instPtrSelector=regs.fcs;
 	x87.dataPtrSelector=regs.fos;
 	x87.opCode=regs.fop;
