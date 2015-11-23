@@ -841,15 +841,20 @@ void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
 		if(QTreeWidgetItem *const fpu = category_list->addCategory(tr("FPU"))) {
 			for(std::size_t i=0;i<MAX_FPU_REGS_COUNT;++i)
                 register_view_items_.push_back(create_register_item(fpu, QString("R%1").arg(i)));
-			register_view_items_.push_back(create_register_item(fpu, "Control Word"));
-			register_view_items_.push_back(create_register_item(fpu, "PC"));
-			register_view_items_.push_back(create_register_item(fpu, "RC"));
-			register_view_items_.push_back(create_register_item(fpu, "Status Word"));
-			register_view_items_.push_back(create_register_item(fpu, "TOP"));
-			register_view_items_.push_back(create_register_item(fpu, "Tag Word"));
-			register_view_items_.push_back(create_register_item(fpu, "Last instruction"));
-			register_view_items_.push_back(create_register_item(fpu, "Last operand"));
-			register_view_items_.push_back(create_register_item(fpu, "Last opcode"));
+			const auto fcr=create_register_item(fpu, "FCR");
+			register_view_items_.push_back(fcr);
+			fpu_exceptions_mask_ = new QTreeWidgetItem(fcr);
+			fpu_rc_ = new QTreeWidgetItem(fcr);
+			fpu_pc_ = new QTreeWidgetItem(fcr);
+			const auto fsr=create_register_item(fpu, "FSR");
+			register_view_items_.push_back(fsr);
+			fpu_exceptions_active_ = new QTreeWidgetItem(fsr);
+			fpu_status_ = new QTreeWidgetItem(fsr);
+			fpu_top_ = new QTreeWidgetItem(fsr);
+			register_view_items_.push_back(create_register_item(fpu, "FTAGS"));
+			register_view_items_.push_back(create_register_item(fpu, "FIP"));
+			register_view_items_.push_back(create_register_item(fpu, "FDP"));
+			register_view_items_.push_back(create_register_item(fpu, "FOPC"));
 		}
 
 		if(QTreeWidgetItem *const dbg = category_list->addCategory(tr("Debug"))) {
@@ -972,6 +977,25 @@ void ArchProcessor::reset() {
 	}
 }
 
+QString getFPUStatus(uint16_t statusWord) {
+	const bool fpuBusy=statusWord&0x8000;
+	QString fpuBusyString;
+	if(fpuBusy)
+		fpuBusyString=" BUSY";
+	QString stackFaultDetail;
+	const int exceptionsHappened=statusWord&0x3f;
+	const bool invalidOperationException=(exceptionsHappened & 0x01);
+	const bool C1=statusWord&(1<<9);
+	const bool stackFault=statusWord&0x40;
+	if(invalidOperationException && stackFault) {
+		stackFaultDetail=C1?" Stack overflow":" Stack underflow";
+	}
+	QString fpuStatus=fpuBusyString;
+	if(stackFaultDetail.size())
+		fpuStatus += (fpuStatus.size() ? "," : "")+stackFaultDetail;
+	return fpuStatus.isEmpty() ? " OK" : fpuStatus;
+}
+
 //------------------------------------------------------------------------------
 // Name: update_fpu_view
 // Desc:
@@ -1043,6 +1067,8 @@ void ArchProcessor::update_fpu_view(int& itemNumber, const State &state, const Q
 	}
 	int exceptionMask=controlWordValue&0x3f;
 	int exceptionsHappened=statusWord&0x3f;
+	int prevExMask=last_state_.fpu_control_word()&0x3f;
+	int prevExHap=last_state_.fpu_status_word()&0x3f;
 	QString exceptionMaskString;
 	exceptionMaskString += ((exceptionMask & 0x01) ? " IM" : " Iu");
 	exceptionMaskString += ((exceptionMask & 0x02) ? " DM" : " Du");
@@ -1057,36 +1083,34 @@ void ArchProcessor::update_fpu_view(int& itemNumber, const State &state, const Q
 	exceptionsHappenedString += ((exceptionsHappened & 0x08) ? " OE" : "");
 	exceptionsHappenedString += ((exceptionsHappened & 0x10) ? " UE" : "");
 	exceptionsHappenedString += ((exceptionsHappened & 0x20) ? " PE" : "");
-	bool stackFault=statusWord&0x40;
-	if(stackFault)
-		exceptionsHappenedString += " SF";
-	bool fpuBusy=statusWord&0x8000;
-	QString fpuBusyString;
-	if(fpuBusy)
-		fpuBusyString=" BUSY";
-	QString stackFaultDetail;
-	bool invalidOperationException=(exceptionsHappened & 0x01);
-	bool C1=statusWord&(1<<9);
-	if(invalidOperationException && stackFault) {
-		stackFaultDetail=C1?" (stack overflow)":" (stack underflow)";
-	}
-	register_view_items_[itemNumber]->setText(0, QString("Control Word: %1   %2").arg(controlWord.toHexString()).arg(exceptionMaskString));
+	if(exceptionsHappenedString.isEmpty())
+		exceptionsHappenedString=" (none)";
+	QString fpuStatus=getFPUStatus(statusWord);
+	register_view_items_[itemNumber]->setText(0, QString("FCR: %1").arg(controlWord.toHexString()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush(controlWord != last_state_.fpu_control_word() ? Qt::red : palette.text()));
-	register_view_items_[itemNumber]->setText(0, QString("  PC: %1").arg(precisionMode));
-	register_view_items_[itemNumber++]->setForeground(0, QBrush((controlWord&(3<<10)) != (last_state_.fpu_control_word()&(3<<10)) ? Qt::red : palette.text()));
-	register_view_items_[itemNumber]->setText(0, QString("  RC: %1").arg(roundingMode));
-	register_view_items_[itemNumber++]->setForeground(0, QBrush((controlWord&(3<<8)) != (last_state_.fpu_control_word()&(3<<8)) ? Qt::red : palette.text()));
-	register_view_items_[itemNumber]->setText(0, QString("Status Word: %1   %2%3%4").arg(statusWord.toHexString()).arg(exceptionsHappenedString).arg(fpuBusyString).arg(stackFaultDetail));
+	fpu_exceptions_mask_->setText(0, QString("Exceptions mask:%1").arg(exceptionMaskString));
+	fpu_exceptions_mask_->setForeground(0, QBrush(exceptionMask != prevExMask ? Qt::red : palette.text()));
+	fpu_pc_->setText(0, QString("PC: %1").arg(precisionMode));
+	fpu_pc_->setForeground(0, QBrush((controlWord&(3<<10)) != (last_state_.fpu_control_word()&(3<<10)) ? Qt::red : palette.text()));
+	fpu_rc_->setText(0, QString("RC: %1").arg(roundingMode));
+	fpu_rc_->setForeground(0, QBrush((controlWord&(3<<8)) != (last_state_.fpu_control_word()&(3<<8)) ? Qt::red : palette.text()));
+
+	register_view_items_[itemNumber]->setText(0, QString("FSR: %1").arg(statusWord.toHexString()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush(statusWord != last_state_.fpu_status_word() ? Qt::red : palette.text()));
-	register_view_items_[itemNumber]->setText(0, QString("  TOP: %1").arg(fpuTop));
-	register_view_items_[itemNumber++]->setForeground(0, QBrush(fpuTop != last_state_.fpu_stack_pointer() ? Qt::red : palette.text()));
-	register_view_items_[itemNumber]->setText(0, QString("Tag Word: %1").arg(state.fpu_tag_word().toHexString()));
+	fpu_exceptions_active_->setText(0, QString("Exceptions active:%1").arg(exceptionsHappenedString));
+	fpu_exceptions_active_->setForeground(0, QBrush(exceptionsHappened != prevExHap ? Qt::red : palette.text()));
+	fpu_status_->setText(0, QString("Status:%1").arg(fpuStatus));
+	fpu_status_->setForeground(0, QBrush(fpuStatus!=getFPUStatus(last_state_.fpu_status_word()) ? Qt::red : palette.text()));
+	fpu_top_->setText(0, QString("TOP: %1").arg(fpuTop));
+	fpu_top_->setForeground(0, QBrush(fpuTop != last_state_.fpu_stack_pointer() ? Qt::red : palette.text()));
+
+	register_view_items_[itemNumber]->setText(0, QString("FTAGS: %1").arg(state.fpu_tag_word().toHexString()));
 	register_view_items_[itemNumber++]->setForeground(0, QBrush(state.fpu_tag_word() != last_state_.fpu_tag_word() ? Qt::red : palette.text()));
 
 	{
 		const Register FIP=state["FIP"];
 		const Register FIS=state["FIS"];
-		register_view_items_[itemNumber]->setText(0, QString("Last instruction: %1:%2").arg(FIS.toHexString()).arg(FIP.toHexString()));
+		register_view_items_[itemNumber]->setText(0, QString("FIP: %1:%2").arg(FIS.toHexString()).arg(FIP.toHexString()));
 		const Register oldFIP=last_state_["FIP"];
 		const Register oldFIS=last_state_["FIS"];
 		bool changed=FIP.toHexString()!=oldFIP.toHexString() || FIS.toHexString()!=oldFIS.toHexString();
@@ -1095,7 +1119,7 @@ void ArchProcessor::update_fpu_view(int& itemNumber, const State &state, const Q
 	{
 		const Register FDP=state["FDP"];
 		const Register FDS=state["FDS"];
-		register_view_items_[itemNumber]->setText(0, QString("Last operand    : %1:%2").arg(FDS.toHexString()).arg(FDP.toHexString()));
+		register_view_items_[itemNumber]->setText(0, QString("FDP: %1:%2").arg(FDS.toHexString()).arg(FDP.toHexString()));
 		const Register oldFDP=last_state_["FDP"];
 		const Register oldFDS=last_state_["FDS"];
 		bool changed=FDP.toHexString()!=oldFDP.toHexString() || FDS.toHexString()!=oldFDS.toHexString();
@@ -1106,7 +1130,7 @@ void ArchProcessor::update_fpu_view(int& itemNumber, const State &state, const Q
 		// Yes, it appears big-endian!
 		QString codeStr(!fopc ? "<unknown>" : edb::value8(fopc.value<edb::value16>() >> 8).toHexString()+" "+fopc.value<edb::value8>().toHexString());
 		bool changed=fopc.toHexString()!=last_state_["fopcode"].toHexString();
-		register_view_items_[itemNumber]->setText(0, QString("Last opcode     : %1").arg(codeStr));
+		register_view_items_[itemNumber]->setText(0, QString("FOPC: %1").arg(codeStr));
 		register_view_items_[itemNumber++]->setForeground(0, QBrush(changed ? Qt::red : palette.text()));
 	}
 }

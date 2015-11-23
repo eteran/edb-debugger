@@ -79,6 +79,12 @@ private:
 
 private:
 	QTreeWidgetItem * split_flags_;
+	QTreeWidgetItem * fpu_exceptions_mask_;
+	QTreeWidgetItem * fpu_exceptions_active_;
+	QTreeWidgetItem * fpu_pc_;
+	QTreeWidgetItem * fpu_rc_;
+	QTreeWidgetItem * fpu_top_;
+	QTreeWidgetItem * fpu_status_;
 	State             last_state_;
 
 	bool              has_mmx_;
