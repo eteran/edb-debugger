@@ -288,10 +288,10 @@ void PlatformState::fillFrom(const UserFPRegsStructX86_64& regs) {
 		x87.R[n]=edb::value80(regs.st_space,16*x87.RIndexToSTIndex(n));
 	x87.controlWord=regs.cwd;
 	x87.tagWord=x87.restoreTagWord(regs.ftw);
-	x87.instPtrOffset=regs.rip; // FIXME
-	x87.dataPtrOffset=regs.rdp; // FIXME
-	x87.instPtrSelector=0; // FIXME
-	x87.dataPtrSelector=0; // FIXME
+	x87.instPtrOffset=regs.rip;
+	x87.dataPtrOffset=regs.rdp;
+	x87.instPtrSelector=0;
+	x87.dataPtrSelector=0;
 	x87.opCode=regs.fop;
 	x87.filled=true;
 	x87.opCodeFilled=true;
@@ -386,10 +386,18 @@ void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) 
 			x87.R[n]=edb::value80(regs.st_space,16*x87.RIndexToSTIndex(n));
 		x87.controlWord=regs.cwd;
 		x87.tagWord=x87.restoreTagWord(regs.twd);
-		x87.instPtrOffset=regs.fioff; // FIXME: x86_64 has different meaning of these?
-		x87.dataPtrOffset=regs.fooff; // FIXME: x86_64 has different meaning of these?
-		x87.instPtrSelector=regs.fiseg; // FIXME: x86_64 has different meaning of these?
-		x87.dataPtrSelector=regs.foseg; // FIXME: x86_64 has different meaning of these?
+		x87.instPtrOffset=regs.fioff;
+		x87.dataPtrOffset=regs.fooff;
+		if(is64Bit()) {
+			std::memcpy(reinterpret_cast<char*>(&x87.instPtrOffset)+4,&regs.fiseg,sizeof regs.fiseg);
+			std::memcpy(reinterpret_cast<char*>(&x87.dataPtrOffset)+4,&regs.foseg,sizeof regs.foseg);
+			x87.instPtrSelector=0;
+			x87.dataPtrSelector=0;
+		}
+		else {
+			x87.instPtrSelector=regs.fiseg;
+			x87.dataPtrSelector=regs.foseg;
+		}
 		x87.opCode=regs.fop;
 		x87.filled=true;
 		x87.opCodeFilled=true;
