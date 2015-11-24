@@ -76,9 +76,21 @@ private:
 	void setupSSEAVXRegisterMenu(QMenu& menu, const QString& extType);
 	void update_register(QTreeWidgetItem *item, const Register &reg) const;
 	void update_fpu_view(int& itemNumber, const State &state, const QPalette& palette) const;
+	QString getRoundingMode(unsigned modeBits) const;
 
 private:
 	QTreeWidgetItem * split_flags_;
+	QTreeWidgetItem * fpu_exceptions_mask_;
+	QTreeWidgetItem * fpu_exceptions_active_;
+	QTreeWidgetItem * fpu_pc_;
+	QTreeWidgetItem * fpu_rc_;
+	QTreeWidgetItem * fpu_top_;
+	QTreeWidgetItem * fpu_status_;
+	QTreeWidgetItem * mxcsr_exceptions_mask_;
+	QTreeWidgetItem * mxcsr_exceptions_active_;
+	QTreeWidgetItem * mxcsr_daz_;
+	QTreeWidgetItem * mxcsr_ftz_;
+	QTreeWidgetItem * mxcsr_rc_;
 	State             last_state_;
 
 	bool              has_mmx_;

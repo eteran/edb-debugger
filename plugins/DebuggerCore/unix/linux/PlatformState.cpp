@@ -216,8 +216,8 @@ void PlatformState::fillFrom(const UserFPRegsStructX86& regs) {
 		x87.R[n]=edb::value80(regs.st_space,10*x87.RIndexToSTIndex(n));
 	x87.controlWord=regs.cwd;
 	x87.tagWord=regs.twd; // This is the true tag word, unlike in FPX regs and x86-64 FP regs structs
-	x87.instPtrOffset=regs.fip;
-	x87.dataPtrOffset=regs.foo;
+	x87.instPtrOffset=edb::address_t::fromZeroExtended(regs.fip);
+	x87.dataPtrOffset=edb::address_t::fromZeroExtended(regs.foo);
 	x87.instPtrSelector=regs.fcs;
 	x87.dataPtrSelector=regs.fos;
 	x87.opCode=0; // not present in the given structure
@@ -229,8 +229,8 @@ void PlatformState::fillFrom(const UserFPXRegsStructX86& regs) {
 		x87.R[n]=edb::value80(regs.st_space,16*x87.RIndexToSTIndex(n));
 	x87.controlWord=regs.cwd;
 	x87.tagWord=x87.restoreTagWord(regs.twd);
-	x87.instPtrOffset=regs.fip;
-	x87.dataPtrOffset=regs.foo;
+	x87.instPtrOffset=edb::address_t::fromZeroExtended(regs.fip);
+	x87.dataPtrOffset=edb::address_t::fromZeroExtended(regs.foo);
 	x87.instPtrSelector=regs.fcs;
 	x87.dataPtrSelector=regs.fos;
 	x87.opCode=regs.fop;
@@ -288,10 +288,10 @@ void PlatformState::fillFrom(const UserFPRegsStructX86_64& regs) {
 		x87.R[n]=edb::value80(regs.st_space,16*x87.RIndexToSTIndex(n));
 	x87.controlWord=regs.cwd;
 	x87.tagWord=x87.restoreTagWord(regs.ftw);
-	x87.instPtrOffset=regs.rip; // FIXME
-	x87.dataPtrOffset=regs.rdp; // FIXME
-	x87.instPtrSelector=0; // FIXME
-	x87.dataPtrSelector=0; // FIXME
+	x87.instPtrOffset=regs.rip;
+	x87.dataPtrOffset=regs.rdp;
+	x87.instPtrSelector=0;
+	x87.dataPtrSelector=0;
 	x87.opCode=regs.fop;
 	x87.filled=true;
 	x87.opCodeFilled=true;
@@ -386,10 +386,18 @@ void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) 
 			x87.R[n]=edb::value80(regs.st_space,16*x87.RIndexToSTIndex(n));
 		x87.controlWord=regs.cwd;
 		x87.tagWord=x87.restoreTagWord(regs.twd);
-		x87.instPtrOffset=regs.fioff; // FIXME: x86_64 has different meaning of these?
-		x87.dataPtrOffset=regs.fooff; // FIXME: x86_64 has different meaning of these?
-		x87.instPtrSelector=regs.fiseg; // FIXME: x86_64 has different meaning of these?
-		x87.dataPtrSelector=regs.foseg; // FIXME: x86_64 has different meaning of these?
+		x87.instPtrOffset=regs.fioff;
+		x87.dataPtrOffset=regs.fooff;
+		if(is64Bit()) {
+			std::memcpy(reinterpret_cast<char*>(&x87.instPtrOffset)+4,&regs.fiseg,sizeof regs.fiseg);
+			std::memcpy(reinterpret_cast<char*>(&x87.dataPtrOffset)+4,&regs.foseg,sizeof regs.foseg);
+			x87.instPtrSelector=0;
+			x87.dataPtrSelector=0;
+		}
+		else {
+			x87.instPtrSelector=regs.fiseg;
+			x87.dataPtrSelector=regs.foseg;
+		}
 		x87.opCode=regs.fop;
 		x87.filled=true;
 		x87.opCodeFilled=true;
@@ -847,6 +855,22 @@ Register PlatformState::value(const QString &reg) const {
 			std::size_t i=digitChar-'0';
 			assert(fpuIndexValid(i));
 			return make_Register(regName, x87.st(i), Register::TYPE_FPU);
+		}
+	}
+	if(x87.filled) {
+		if(regName=="fip"||regName=="fdp") {
+			const edb::address_t addr = regName=="fip" ? x87.instPtrOffset : x87.dataPtrOffset;
+			if(is64Bit())
+				return make_Register<64>(regName,addr,Register::TYPE_FPU);
+			else
+				return make_Register<32>(regName,addr,Register::TYPE_FPU);
+		}
+		if(regName=="fis"||regName=="fds") {
+			const edb::value16 val = regName=="fis" ? x87.instPtrSelector : x87.dataPtrSelector;
+			return make_Register<16>(regName,val,Register::TYPE_FPU);
+		}
+		if(regName=="fopcode") {
+			return make_Register<16>(regName,x87.opCode,Register::TYPE_FPU);
 		}
 	}
 	if(x87.filled) {
