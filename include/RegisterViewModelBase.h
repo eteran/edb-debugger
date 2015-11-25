@@ -24,6 +24,11 @@ public:
 		COMMENT_COLUMN,
 		NUM_COLS
 	};
+	enum Role
+	{
+		RegisterChangedRole=Qt::UserRole,
+		FixedLengthRole // fixed length of text (name, value) or undefined (0) if it's not fixed (comment)
+	};
 	Model(QObject* parent=nullptr);
 	int rowCount(QModelIndex const& parent=QModelIndex()) const override;
 	int columnCount(QModelIndex const& parent=QModelIndex()) const override;
@@ -67,6 +72,7 @@ public:
 	virtual RegisterViewItem* child(int /*row*/) { return nullptr; }
 	virtual int childCount() const { return 0; }
 	virtual QVariant data(int /*column*/) const { return QVariant(); }
+	virtual int valueMaxLength() const { return 0; }
 };
 
 class AbstractRegisterItem : public RegisterViewItem
@@ -110,6 +116,7 @@ class SimpleRegister : public RegisterItem<StoredType>
 public:
 	SimpleRegister(QString const& name) : RegisterItem<StoredType>(name) {}
 	virtual void update(StoredType const& newValue, QString const& newComment);
+	virtual int valueMaxLength() const override;
 };
 
 struct BitFieldDescription
@@ -163,6 +170,7 @@ class SIMDFormatItem : public RegisterViewItem
 	NumberDisplayMode format;
 
 	QString name() const;
+	QString name(NumberDisplayMode format) const;
 public:
 	SIMDFormatItem(NumberDisplayMode format);
 	QVariant data(int column) const override;

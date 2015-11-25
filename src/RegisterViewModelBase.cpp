@@ -137,6 +137,22 @@ QVariant Model::data(QModelIndex const& index, int role) const
 				return QVariant(); // default color for other columns
 			}
 		}
+	case RegisterChangedRole:
+		{
+			const auto reg=dynamic_cast<RegisterViewItem*>(getItem(index));
+			if(!reg) return QVariant();
+			return reg->changed();
+		}
+	case FixedLengthRole:
+		{
+			const auto reg=dynamic_cast<RegisterViewItem*>(getItem(index));
+			if(!reg) return QVariant();
+			if(index.column()==NAME_COLUMN)
+				return reg->name().size();
+			else if(index.column()==VALUE_COLUMN)
+				return reg->valueMaxLength();
+			else return QVariant();
+		}
 	default:
 		return QVariant();
 	}
@@ -303,6 +319,12 @@ void SimpleRegister<T>::update(T const& value, QString const& comment)
 	this->valueKnown_=true;
 }
 
+template<typename T>
+int SimpleRegister<T>::valueMaxLength() const
+{
+	return 2*sizeof(T);
+}
+
 template class SimpleRegister<edb::value16>;
 template class SimpleRegister<edb::value32>;
 template class SimpleRegister<edb::value64>;
@@ -415,6 +437,12 @@ template class FlagsRegister<edb::value64>;
 template<class StoredType, class SizingType>
 QString SIMDFormatItem<StoredType,SizingType>::name() const
 {
+	return name(format);
+}
+
+template<class StoredType, class SizingType>
+QString SIMDFormatItem<StoredType,SizingType>::name(NumberDisplayMode format) const
+{
 	switch(format)
 	{
 	case NumberDisplayMode::Hex: return "Hex";
@@ -427,7 +455,7 @@ QString SIMDFormatItem<StoredType,SizingType>::name() const
 
 template<class StoredType, class SizingType>
 SIMDFormatItem<StoredType,SizingType>::SIMDFormatItem(NumberDisplayMode format)
-	: RegisterViewItem(name()),
+	: RegisterViewItem(name(format)),
 	  format(format)
 {
 }
@@ -512,7 +540,7 @@ bool SIMDSizedElement<StoredType,SizingType>::valid() const
 template<class StoredType, class SizingType>
 QString SIMDSizedElement<StoredType,SizingType>::valueString() const
 {
-	return valid() ? value().toHexString() : "???";
+	return valid() ? value().toHexString() : "??";
 }
 
 template<class StoredType, class SizingType>
@@ -667,7 +695,7 @@ template class SIMDRegister<edb::value256>;
 
 void Model::dataUpdateFinished()
 {
-	Q_EMIT dataChanged(index(0,1/*names don't change*/,QModelIndex()), index(rowCount(),NUM_COLS-1,QModelIndex()));
+	Q_EMIT dataChanged(index(0,1/*names don't change*/,QModelIndex()), index(rowCount()-1,NUM_COLS-1,QModelIndex()));
 }
 
 }
