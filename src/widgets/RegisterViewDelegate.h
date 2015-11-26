@@ -19,11 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REGISTER_VIEW_DELEGATE_20070519_H_
 #define REGISTER_VIEW_DELEGATE_20070519_H_
 
-#include <QItemDelegate>
+#include <QStyledItemDelegate>
 
 class QTreeView;
 
-class RegisterViewDelegate: public QItemDelegate {
+class RegisterViewDelegate: public QStyledItemDelegate {
 	Q_DISABLE_COPY(RegisterViewDelegate)
 public:
     RegisterViewDelegate(QTreeView *view, QWidget *parent);
