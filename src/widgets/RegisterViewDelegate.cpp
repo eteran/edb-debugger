@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: RegisterViewDelegate
 // Desc:
 //------------------------------------------------------------------------------
-RegisterViewDelegate::RegisterViewDelegate(QTreeView *view, QWidget *parent) : QItemDelegate(parent), view_(view) {
+RegisterViewDelegate::RegisterViewDelegate(QTreeView *view, QWidget *parent) : QStyledItemDelegate(parent), view_(view) {
 }
 
 //------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ void RegisterViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 		view_->style()->drawItemText(painter, textrect, Qt::AlignCenter, option.palette, view_->isEnabled(), text);
 
 	} else {
-		QItemDelegate::paint(painter, option, index);
+		QStyledItemDelegate::paint(painter, option, index);
 	}
 }
 
@@ -86,5 +86,5 @@ void RegisterViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 // Desc:
 //------------------------------------------------------------------------------
 QSize RegisterViewDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const {
-    return QItemDelegate::sizeHint(opt, index) + QSize(2, 2);
+    return QStyledItemDelegate::sizeHint(opt, index) + QSize(2, 2);
 }
