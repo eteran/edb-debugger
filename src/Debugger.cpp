@@ -401,7 +401,7 @@ QAction *Debugger::createAction(const QString &text, const QKeySequence &keySequ
 	auto action = new QAction(text, this);
 	action->setShortcut(keySequence);
 	addAction(action);
-	connect(action, SIGNAL(activated()), this, slot);
+	connect(action, SIGNAL(triggered()), this, slot);
 	return action;
 }
 
