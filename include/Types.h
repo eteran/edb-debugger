@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstddef>
 #include <limits>
 #include <map>
+#include <vector>
 
 class Register;
 
@@ -62,6 +63,11 @@ protected:
 	typedef std::array<typename sized_uint<ELEMENT_WIDTH>::type,ELEMENT_COUNT> ValueType;
 	ValueType value_;
 
+	explicit ValueBase(const std::vector<std::uint8_t>& data,std::size_t offset=0) {
+		assert(data.size()-offset>=sizeof(ValueType)); // check bounds, this can't be done at compile time
+		const char* const dataStart = reinterpret_cast<const char*>(&data);
+		std::memcpy(&value_, dataStart+offset, sizeof value_);
+	}
 	template<typename Data>
 	explicit ValueBase(const Data& data, std::size_t offset=0) {
 		static_assert(sizeof(Data)>=sizeof(ValueType),"ValueBase can only be constructed from large enough variable");

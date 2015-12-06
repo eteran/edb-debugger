@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QObject>
 #include <vector>
+#include "RegisterViewModelBase.h"
 
 class QMenu;
 class QByteArray;
@@ -44,30 +45,19 @@ public:
 	bool can_step_over(const edb::Instruction &inst) const;
 	bool is_filling(const edb::Instruction &inst) const;
 	void reset();
-	void setup_register_view(RegisterListWidget *category_list);
+	void about_to_resume();
+	void just_attached();
+	void setup_register_view();
 	void update_register_view(const QString &default_region_name, const State &state);
 	std::unique_ptr<QMenu> register_item_context_menu(const Register& reg);
+	RegisterViewModelBase::Model& get_register_view_model() const;
 
 private:
-	enum class SIMDDisplayMode {
-		Bytes,
-		Words,
-		Dwords,
-		Qwords,
-		Floats32,
-		Floats64
-	};
-	enum class FPUDisplayMode {
-		Hex,
-		Float
-	};
 	enum class FPUOrderMode {
 		Stack, // ST(i)
 		Independent // Ri
 	};
 private:
-	template<typename T>
-	QString formatSIMDRegister(const T& value, SIMDDisplayMode simdMode, IntDisplayMode intMode);
 	void setupFPURegisterMenu(QMenu& menu);
 	void setupMMXRegisterMenu(QMenu& menu);
 	void setupSSEAVXRegisterMenu(QMenu& menu, const QString& extType);
@@ -75,11 +65,11 @@ private:
 	QString getRoundingMode(unsigned modeBits) const;
 
 private:
-	State             last_state_;
+	bool just_attached_=true;
 
-	bool              has_mmx_;
-	bool              has_xmm_;
-	bool              has_ymm_;
+	bool has_mmx_;
+	bool has_xmm_;
+	bool has_ymm_;
 
 private Q_SLOTS:
 };

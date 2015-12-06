@@ -90,6 +90,7 @@ set(edb_SRCS
 	RecentFileManager.cpp
 	RegionBuffer.cpp
 	Register.cpp
+	RegisterViewModelBase.cpp
 	State.cpp
 	SymbolManager.cpp
 	ThreadsModel.cpp
@@ -141,6 +142,7 @@ set(edb_INCLUDES
 	${PROJECT_SOURCE_DIR}/include/os/win32/OSTypes.h
 	${PROJECT_SOURCE_DIR}/include/Prototype.h
 	${PROJECT_SOURCE_DIR}/include/Register.h
+	${PROJECT_SOURCE_DIR}/include/RegisterViewModelBase.h
 	${PROJECT_SOURCE_DIR}/include/ShiftBuffer.h
 	${PROJECT_SOURCE_DIR}/include/State.h
 	${PROJECT_SOURCE_DIR}/include/string_hash.h
@@ -173,6 +175,7 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 		arch/x86-generic/DialogEditSIMDRegister.cpp
 		arch/x86-generic/Float80Edit.cpp
 		arch/x86-generic/GPREdit.cpp		
+		arch/x86-generic/RegisterViewModel.cpp
 	)
 endif()
 

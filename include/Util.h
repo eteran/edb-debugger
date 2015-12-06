@@ -30,13 +30,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstdlib>
 #include "FloatX.h"
 
-enum class IntDisplayMode {
+enum class NumberDisplayMode {
 	Hex,
 	Signed,
-	Unsigned
+	Unsigned,
+	Float
 };
 
 namespace util {
+
+// Until EDB switches to C++14, this will be useful
+template<typename T, typename ...Args>
+std::unique_ptr<T> make_unique( Args&& ...args )
+{
+    return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) );
+}
 
 //------------------------------------------------------------------------------
 // Name: percentage
@@ -118,15 +126,15 @@ QString>::type packedFloatsToString(const T& value)
 }
 
 template<typename T>
-QString formatInt(T value, IntDisplayMode mode)
+QString formatInt(T value, NumberDisplayMode mode)
 {
 	switch(mode)
 	{
-	case IntDisplayMode::Hex:
+	case NumberDisplayMode::Hex:
 		return value.toHexString();
-	case IntDisplayMode::Signed:
+	case NumberDisplayMode::Signed:
 		return value.signedToString();
-	case IntDisplayMode::Unsigned:
+	case NumberDisplayMode::Unsigned:
 		return value.unsignedToString();
 	default:
 		EDB_PRINT_AND_DIE("Unexpected integer display mode ",(long)mode);
@@ -135,7 +143,7 @@ QString formatInt(T value, IntDisplayMode mode)
 
 template<typename AsType, typename T>
 typename std::enable_if<std::is_integral<AsType>::value,
-QString>::type packedIntsToString(const T& value,IntDisplayMode mode)
+QString>::type packedIntsToString(const T& value,NumberDisplayMode mode)
 {
     auto p=reinterpret_cast<const char*>(&value);
     const std::size_t elementCount=sizeof value/sizeof(AsType);
@@ -147,7 +155,7 @@ QString>::type packedIntsToString(const T& value,IntDisplayMode mode)
 
 		static const int spacing=1;
 		static const int decimalLength=maxPrintedLength<AsType>();
-        const int fieldWidth=(mode==IntDisplayMode::Hex ? sizeof(AsType)*2 : decimalLength)+spacing;
+        const int fieldWidth=(mode==NumberDisplayMode::Hex ? sizeof(AsType)*2 : decimalLength)+spacing;
 		result += formatInt(v,mode).rightJustified(fieldWidth);
     }
     return result;

@@ -61,18 +61,30 @@ RegisterListWidget::~RegisterListWidget() {
 // Desc:
 //------------------------------------------------------------------------------
 void RegisterListWidget::mouseDoubleClickEvent(QMouseEvent *event) {
-}
-
-//------------------------------------------------------------------------------
-// Name: addCategory
-// Desc:
-//------------------------------------------------------------------------------
-int RegisterListWidget::addCategory(const QString &name) {
-    return 0;
+	const auto index=indexAt(event->pos());
+	if(index.isValid() && !model()->parent(index).isValid())
+		setExpanded(index,!isExpanded(index)); // toggle expanded state of category item
 }
 
 //------------------------------------------------------------------------------
 // Name: isCategory
 // Desc:
 //------------------------------------------------------------------------------
+void RegisterListWidget::setModel(QAbstractItemModel* model) {
+	QTreeView::setModel(model);
+	reset();
+}
 
+void RegisterListWidget::reset()
+{
+	QTreeView::reset();
+	// FIXME: this is a simplistic approach at making all categories open by default.
+	//        Maybe it's better to save which rows have to be expanded based on user actions and act accordingly.
+	for(int row=0;row<model()->rowCount();++row)
+	{
+		setExpanded(model()->index(row,0),true);
+		setFirstColumnSpanned(row,QModelIndex(),true);
+	}
+	header()->setResizeMode(QHeaderView::ResizeToContents);
+	header()->setStretchLastSection(false);
+}

@@ -86,6 +86,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <fcntl.h>
 #endif
 
+#include "RegisterViewModelBase.h"
+
 namespace {
 
 const int     SessionFileVersion  = 1;
@@ -380,7 +382,8 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	edb::v1::set_debug_event_handler(this);
 
 	// enable the arch processor
-	edb::v1::arch_processor().setup_register_view(ui.registerList);
+	ui.registerList->setModel(&edb::v1::arch_processor().get_register_view_model());
+	edb::v1::arch_processor().setup_register_view();
 
 	// default the working directory to ours
 	working_directory_ = QDir().absolutePath();
@@ -2410,6 +2413,8 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 				}
 			}
 
+			edb::v1::arch_processor().about_to_resume();
+
 			if(mode == MODE_STEP) {
 				reenable_breakpoint_step_ = bp;
 				thread->step(status);
@@ -2888,6 +2893,8 @@ void Debugger::attachComplete() {
 	stackGotoRBPAction_->setText(tr("Goto %1").arg(bp));
 	stackPushAction_   ->setText(tr("&Push %1").arg(word));
 	stackPopAction_    ->setText(tr("P&op %1").arg(word));
+
+	edb::v1::arch_processor().just_attached();
 }
 
 //------------------------------------------------------------------------------
