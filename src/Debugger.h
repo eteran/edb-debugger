@@ -35,7 +35,6 @@ class RecentFileManager;
 class QStringListModel;
 class QTimer;
 class QToolButton;
-class QTreeWidgetItem;
 class QToolButton;
 class QDragEnterEvent;
 class QDropEvent;
@@ -130,7 +129,6 @@ public Q_SLOTS:
 	void on_cpuView_breakPointToggled(edb::address_t);
 	void on_cpuView_customContextMenuRequested(const QPoint &);
 	void on_registerList_customContextMenuRequested(const QPoint &);
-	void on_registerList_itemDoubleClicked(QTreeWidgetItem *);
 
 //Flag-toggling slots for right-click --> toggle flag
 public Q_SLOTS:

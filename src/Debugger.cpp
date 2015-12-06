@@ -774,14 +774,6 @@ edb::reg_t Debugger::get_follow_register(bool *ok) const {
 	Q_ASSERT(ok);
 
 	*ok = false;
-	if(const QTreeWidgetItem *const i = ui.registerList->currentItem()) {
-		if(const Register reg = edb::v1::arch_processor().value_from_item(*i)) {
-			if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP)) {
-				*ok = true;
-				return reg.valueAsAddress();
-			}
-		}
-	}
 
 	return 0;
 }
@@ -1061,51 +1053,6 @@ void Debugger::setup_tab_buttons() {
 // Desc: context menu handler for register view
 //------------------------------------------------------------------------------
 void Debugger::on_registerList_customContextMenuRequested(const QPoint &pos) {
-	QTreeWidgetItem *const item = ui.registerList->itemAt(pos);
-	if(item && !ui.registerList->isCategory(item)) {
-		// a little bit cheesy of a solution, but should work nicely
-		if(const Register reg = edb::v1::arch_processor().value_from_item(*item)) {
-			if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP)) {
-				QMenu menu;
-				menu.addAction(registerFollowInDumpAction_);
-				menu.addAction(registerFollowInDumpTabAction_);
-				menu.addAction(registerFollowInStackAction_);
-
-				add_plugin_context_menu(&menu, &IPlugin::register_context_menu);
-
-				menu.exec(ui.registerList->mapToGlobal(pos));
-			}
-			else {
-				// Generally it's better to ask ArchProcessor to make its arch-specific item-specific menu
-				const auto menu = edb::v1::arch_processor().register_item_context_menu(reg);
-				if(menu) {
-					menu->exec(ui.registerList->mapToGlobal(pos));
-				}
-				update_gui();
-				refresh_gui();
-			}
-		}
-
-		// Special case for the flag values. Open a context menu with the flag names for toggle.
-		else if (QTreeWidgetItem *parent = item->parent()) {
-			if (const Register reg = edb::v1::arch_processor().value_from_item(*parent)) {
-				if (reg.name() == edb::v1::debugger_core->flag_register()) {
-					QMenu menu;
-					menu.addAction(tr("&Carry"),     this, SLOT(toggle_flag_carry()));
-					menu.addAction(tr("&Parity"),    this, SLOT(toggle_flag_parity()));
-					menu.addAction(tr("&Auxiliary"), this, SLOT(toggle_flag_auxiliary()));
-					menu.addAction(tr("&Zero"),      this, SLOT(toggle_flag_zero()));
-					menu.addAction(tr("&Sign"),      this, SLOT(toggle_flag_sign()));
-					menu.addAction(tr("&Direction"), this, SLOT(toggle_flag_direction()));
-					menu.addAction(tr("&Overflow"),  this, SLOT(toggle_flag_overflow()));
-
-					add_plugin_context_menu(&menu, &IPlugin::register_context_menu);
-
-					menu.exec(ui.registerList->mapToGlobal(pos));
-				}
-			}
-		}
-	}
 }
 
 // Flag-toggling functions.  Not sure if this is the best solution, but it works.
@@ -1151,17 +1098,6 @@ void Debugger::toggle_flag_overflow()  { toggle_flag(11); }
 //------------------------------------------------------------------------------
 void Debugger::on_cpuView_breakPointToggled(edb::address_t address) {
 	edb::v1::toggle_breakpoint(address);
-}
-
-//------------------------------------------------------------------------------
-// Name: on_registerList_itemDoubleClicked
-// Desc:
-//------------------------------------------------------------------------------
-void Debugger::on_registerList_itemDoubleClicked(QTreeWidgetItem *item) {
-	Q_ASSERT(item);
-	edb::v1::arch_processor().edit_item(*item);
-	update_gui();
-	refresh_gui();
 }
 
 //------------------------------------------------------------------------------

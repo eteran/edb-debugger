@@ -459,7 +459,7 @@
  <customwidgets>
   <customwidget>
    <class>RegisterListWidget</class>
-   <extends>QTreeWidget</extends>
+   <extends>QTreeView</extends>
    <header>RegisterListWidget.h</header>
   </customwidget>
   <customwidget>

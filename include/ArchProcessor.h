@@ -29,7 +29,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QMenu;
 class QByteArray;
 class QString;
-class QTreeWidgetItem;
 class RegisterListWidget;
 class State;
 
@@ -42,8 +41,6 @@ public:
 
 public:
 	QStringList update_instruction_info(edb::address_t address);
-	Register value_from_item(const QTreeWidgetItem &item);
-	void edit_item(const QTreeWidgetItem &item);
 	bool can_step_over(const edb::Instruction &inst) const;
 	bool is_filling(const edb::Instruction &inst) const;
 	void reset();
@@ -74,45 +71,17 @@ private:
 	void setupFPURegisterMenu(QMenu& menu);
 	void setupMMXRegisterMenu(QMenu& menu);
 	void setupSSEAVXRegisterMenu(QMenu& menu, const QString& extType);
-	void update_register(QTreeWidgetItem *item, const Register &reg) const;
 	void update_fpu_view(int& itemNumber, const State &state, const QPalette& palette) const;
 	QString getRoundingMode(unsigned modeBits) const;
 
 private:
-	QTreeWidgetItem * split_flags_;
-	QTreeWidgetItem * fpu_exceptions_mask_;
-	QTreeWidgetItem * fpu_exceptions_active_;
-	QTreeWidgetItem * fpu_pc_;
-	QTreeWidgetItem * fpu_rc_;
-	QTreeWidgetItem * fpu_top_;
-	QTreeWidgetItem * fpu_status_;
-	QTreeWidgetItem * mxcsr_exceptions_mask_;
-	QTreeWidgetItem * mxcsr_exceptions_active_;
-	QTreeWidgetItem * mxcsr_daz_;
-	QTreeWidgetItem * mxcsr_ftz_;
-	QTreeWidgetItem * mxcsr_rc_;
 	State             last_state_;
 
 	bool              has_mmx_;
-	SIMDDisplayMode   mmxDisplayMode_=SIMDDisplayMode::Words;
-	IntDisplayMode    mmxIntMode_=IntDisplayMode::Hex;
-
 	bool              has_xmm_;
 	bool              has_ymm_;
-	SIMDDisplayMode   xymmDisplayMode_=SIMDDisplayMode::Dwords;
-	IntDisplayMode    xymmIntMode_=IntDisplayMode::Hex;
 
-	FPUDisplayMode    fpuDisplayMode_=FPUDisplayMode::Float;
-	FPUOrderMode      fpuOrderMode_=FPUOrderMode::Independent;
-
-	std::vector<QTreeWidgetItem*> register_view_items_;
 private Q_SLOTS:
-	void setMMXDisplayMode(int);
-	void setMMXIntMode(int);
-	void setSSEAVXDisplayMode(int);
-	void setSSEAVXIntMode(int);
-	void setFPUDisplayMode(int);
-	void setFPUOrderMode(int);
 };
 
 #endif
