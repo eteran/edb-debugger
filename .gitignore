@@ -4,3 +4,5 @@ lib*.so
 .debug-shared/
 .release-shared/
 debugger.pro.user
+proc-pid-mem-write
+procPidMemWrites.h
