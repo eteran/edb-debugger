@@ -39,6 +39,7 @@ HEADERS += \
 	DialogInputBinaryString.h \
 	DialogInputValue.h \
 	DialogMemoryRegions.h \
+	DialogOpenProgram.h \
 	DialogOptions.h \
 	DialogPlugins.h \
 	DialogAbout.h \
@@ -124,6 +125,7 @@ SOURCES += \
 	DialogInputBinaryString.cpp \
 	DialogInputValue.cpp \
 	DialogMemoryRegions.cpp \
+	DialogOpenProgram.cpp \
 	DialogOptions.cpp \
 	DialogPlugins.cpp \
 	DialogAbout.cpp \
