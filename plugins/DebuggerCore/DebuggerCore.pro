@@ -9,16 +9,18 @@ unix {
 	HEADERS += DebuggerCoreUNIX.h
 
 	linux-* {
-		currentVPath = unix/linux
-		VPATH       += $$currentVPath
-		INCLUDEPATH += $$currentVPath
+		VPATH       += unix/linux
+		INCLUDEPATH += unix/linux
 
 		# Add detector of broken writes to /proc/pid/mem
-		checkProcPidMemWrites.target = $$currentVPath/detect/procPidMemWrites.h
-		checkProcPidMemWritesOutFile = $$currentVPath/detect/proc-pid-mem-write
-		checkProcPidMemWrites.commands += $$QMAKE_CXX $$QMAKE_CXXFLAGS $$QMAKE_LFLAGS -std=c++11 $$currentVPath/detect/proc-pid-mem-write.cpp -o $$checkProcPidMemWritesOutFile && \
-										  $$currentVPath/detect/proc-pid-mem-write $$checkProcPidMemWrites.target
-		checkProcPidMemWrites.depends += $$currentVPath/detect/proc-pid-mem-write.cpp
+		checkProcPidMemWrites.target = $$OUT_PWD/procPidMemWrites.h
+		checkProcPidMemWritesOutFile = $$OUT_PWD/proc-pid-mem-write
+		
+		checkProcPidMemWrites.commands += $$QMAKE_CXX $$QMAKE_CXXFLAGS $$QMAKE_LFLAGS -std=c++11 $$PWD/unix/linux/detect/proc-pid-mem-write.cpp -o $$checkProcPidMemWritesOutFile && \
+										  $$OUT_PWD/proc-pid-mem-write $$checkProcPidMemWrites.target
+		
+		checkProcPidMemWrites.depends += $$PWD/unix/linux/detect/proc-pid-mem-write.cpp
+		
 		# and its clean target
 		procPidMemWriteClean.commands = rm -f $$checkProcPidMemWrites.target $$checkProcPidMemWritesOutFile
 		clean.depends = procPidMemWriteClean

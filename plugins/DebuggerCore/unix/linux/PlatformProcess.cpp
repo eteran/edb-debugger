@@ -38,7 +38,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <pwd.h>
 #include <elf.h>
 
-#include "detect/procPidMemWrites.h"
+// auto-generated
+#include "procPidMemWrites.h"
 
 namespace DebuggerCore {
 namespace {
