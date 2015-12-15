@@ -88,7 +88,7 @@ BreakpointState breakpointState(const State *state, int num) {
 		break;	
 	default:
 		bp_state.type = -1;
-		Q_ASSERT(false);
+		Q_ASSERT(0 && "Internal Error");
 	}
 	
 	// size
