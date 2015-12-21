@@ -1345,11 +1345,12 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 				else
 					origAX=state["orig_eax"].valueAsSignedInteger();
 				const std::int64_t rax=state.gp_register(rAX).valueAsSignedInteger();
-				if(origAX!=-1 && (-rax)&EINTR) {
+				static const int ERESTARTSYS=512;
+				// both EINTR and ERESTARTSYS can be present in any nonzero combination to mean interrupted syscall
+				if(origAX!=-1 && (-rax)&(EINTR|ERESTARTSYS)) {
 					analyze_syscall(state, inst, ret, origAX);
 					if(ret.size() && ret.back().startsWith("SYSCALL"))
 						ret.back()="Interrupted "+ret.back();
-					static const int ERESTARTSYS=512;
 					if((-rax)&ERESTARTSYS)
 						ret << QString("Syscall will be restarted on next step/run");
 				}
