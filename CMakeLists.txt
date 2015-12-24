@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 project (edb)
+include("GNUInstallDirs")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -14,6 +15,8 @@ if(Qt5Core_DIR)
 elseif(NOT Qt5Core_DIR)
 	find_package(Qt4 4.6.0 REQUIRED QtGui QtXml QtXmlPatterns)
 endif()
+
+add_definitions(-DDEFAULT_PLUGIN_PATH=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb)
 
 include_directories(
 	"include"
@@ -126,5 +129,7 @@ elseif(NOT Qt5Core_DIR)
 	target_link_libraries(edb capstone Qt4::QtGui Qt4::QtXml Qt4::QtXmlPatterns)
 endif()
 
+
+
 add_subdirectory(plugins)
-install (TARGETS edb DESTINATION bin)
+install (TARGETS edb DESTINATION ${CMAKE_INSTALL_BINDIR})
