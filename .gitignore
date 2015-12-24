@@ -6,3 +6,4 @@ lib*.so
 debugger.pro.user
 proc-pid-mem-write
 procPidMemWrites.h
+build
