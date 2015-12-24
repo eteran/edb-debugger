@@ -18,6 +18,8 @@ endif()
 
 add_definitions(-DDEFAULT_PLUGIN_PATH=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb)
 
+
+# TODO(eteran): do some arch detection and pick the right directories here
 include_directories(
 	"include"
 	"include/arch/x86-generic"
