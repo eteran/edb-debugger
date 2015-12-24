@@ -16,7 +16,7 @@ else(Qt5Core_FOUND)
 endif()
 
 include_directories(
-	"${PROJECT_SRC_DIR}/include"
+	"${PROJECT_SOURCE_DIR}/include"
 	"unix"
 	"unix/linux"
 )
