@@ -15,8 +15,6 @@ else(Qt5Core_FOUND)
 	find_package(Qt4 4.6.0 REQUIRED QtGui)
 endif()
 
-include_directories("${PROJECT_SOURCE_DIR}/include")
-
 set(DebuggerCore_SRCS
 	Breakpoint.cpp
 	Breakpoint.h
