@@ -69,7 +69,7 @@ bool detectAndWriteHeader(std::string progName)
 			abort();
         }
 
-        execl(progName.c_str(),progName.c_str(),"/dev/null","child",0);
+        execl(progName.c_str(),progName.c_str(),"/dev/null","child",nullptr);
         perror((progName+"child: execl() returned").c_str());
         abort();
     }
