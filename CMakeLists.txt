@@ -1,9 +1,21 @@
 cmake_minimum_required (VERSION 3.0)
+
+# if the user has not specified which version, we try to make Qt5 happen
+# if they have, we prefer their preference
+if (NOT QT_VERSION)
+	SET(QT_VERSION "Qt5" CACHE STRING "Version of Qt to use")
+	SET_PROPERTY(CACHE QT_VERSION PROPERTY STRINGS Qt5 Qt4) 
+endif()
+
+
 project (edb)
 include("GNUInstallDirs")
 
 find_package(Boost 1.35 REQUIRED)
-find_package(Qt5Core) # optional, since we can fall back on Qt4
+
+if(${QT_VERSION} STREQUAL "Qt5")
+	find_package(Qt5Core)
+endif()
 
 include_directories("include")
 
