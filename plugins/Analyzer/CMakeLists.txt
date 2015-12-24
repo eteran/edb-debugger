@@ -38,5 +38,5 @@ else(Qt5Core_FOUND)
 	target_link_libraries(Analyzer Qt4::QtGui Qt4::QtConcurrent)
 endif()
 
-set(LIBRARY_OUTPUT_PATHAnalyzer${PROJECT_BINARY_DIR})
+set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 install (TARGETS Analyzer DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
