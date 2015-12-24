@@ -7,12 +7,10 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 
-find_package(Qt5Core)
-
 if(Qt5Core_FOUND)
     find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns)
 else(Qt5Core_FOUND)
-	find_package(Qt4 4.6.0 REQUIRED QtGui QtXml QtXmlPattern)
+	find_package(Qt4 4.6.0 QUIET REQUIRED QtGui QtXml QtXmlPatterns)
 endif()
 
 # we put the header files from the include directory here 
@@ -30,7 +28,7 @@ add_library(Assembler SHARED
 if(Qt5Core_FOUND)
 	target_link_libraries(Assembler Qt5::Widgets Qt5::Xml Qt5::XmlPatterns)
 else(Qt5Core_FOUND)
-	target_link_libraries(Assembler Qt4::QtXml Qt4::QtXmlPatterns)
+	target_link_libraries(Assembler Qt4::QtGui Qt4::QtXml Qt4::QtXmlPatterns)
 endif()
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR})

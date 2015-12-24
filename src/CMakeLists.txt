@@ -7,7 +7,6 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 
-find_package(Qt5Core)
 if(Qt5Core_DIR)
     find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns)
 elseif(NOT Qt5Core_DIR)

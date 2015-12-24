@@ -3,6 +3,7 @@ project (edb)
 include("GNUInstallDirs")
 
 find_package(Boost 1.35 REQUIRED)
+find_package(Qt5Core) # optional, since we can fall back on Qt4
 
 include_directories("include")
 

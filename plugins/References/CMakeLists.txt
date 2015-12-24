@@ -7,12 +7,10 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 
-find_package(Qt5Core)
-
 if(Qt5Core_FOUND)
     find_package(Qt5 5.0.0 REQUIRED Widgets)
 else(Qt5Core_FOUND)
-	find_package(Qt4 4.6.0 REQUIRED QtGui)
+	find_package(Qt4 4.6.0 QUIET REQUIRED QtGui)
 endif()
 
 # we put the header files from the include directory here 
