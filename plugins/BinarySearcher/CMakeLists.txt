@@ -15,10 +15,6 @@ else(Qt5Core_FOUND)
 	find_package(Qt4 4.6.0 REQUIRED QtGui)
 endif()
 
-include_directories(
-	"${PROJECT_SOURCE_DIR}/include"
-)
-
 # we put the header files from the include directory here 
 # too so automoc can "just work"
 add_library(BinarySearcher SHARED
