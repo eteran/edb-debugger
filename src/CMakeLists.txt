@@ -7,7 +7,6 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 
-
 find_package(Qt5Core)
 if(Qt5Core_DIR)
     find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns)
@@ -17,8 +16,6 @@ endif()
 
 add_definitions(-DDEFAULT_PLUGIN_PATH=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb)
 
-
-# TODO(eteran): do some arch detection and pick the right directories here
 include_directories(
 	"capstone-edb"
 	"qhexview"
@@ -26,12 +23,6 @@ include_directories(
 )
 
 set(edb_SRCS
-	arch/x86-generic/ArchProcessor.cpp
-	arch/x86-generic/DialogEditFPU.cpp
-	arch/x86-generic/DialogEditGPR.cpp
-	arch/x86-generic/DialogEditSIMDRegister.cpp
-	arch/x86-generic/Float80Edit.cpp
-	arch/x86-generic/GPREdit.cpp
 	BasicBlock.cpp
 	BinaryString.cpp
 	ByteShiftArray.cpp
@@ -82,8 +73,6 @@ set(edb_SRCS
 set(edb_INCLUDES
 	${PROJECT_SOURCE_DIR}/include/API.h
 	${PROJECT_SOURCE_DIR}/include/ArchProcessor.h
-	${PROJECT_SOURCE_DIR}/include/arch/x86-generic/ArchTypes.h
-	${PROJECT_SOURCE_DIR}/include/arch/x86-generic/Instruction.h
 	${PROJECT_SOURCE_DIR}/include/BasicBlock.h
 	${PROJECT_SOURCE_DIR}/include/BinaryString.h
 	${PROJECT_SOURCE_DIR}/include/ByteShiftArray.h
@@ -120,6 +109,24 @@ set(edb_INCLUDES
 	${PROJECT_SOURCE_DIR}/include/Types.h
 	${PROJECT_SOURCE_DIR}/include/version.h
 )
+
+if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64"))
+	set(edb_INCLUDES
+		${edb_INCLUDES}
+		${PROJECT_SOURCE_DIR}/include/arch/x86-generic/ArchTypes.h
+		${PROJECT_SOURCE_DIR}/include/arch/x86-generic/Instruction.h		
+	)
+	
+	set(edb_SRCS
+		${edb_SRCS}
+		arch/x86-generic/ArchProcessor.cpp
+		arch/x86-generic/DialogEditFPU.cpp
+		arch/x86-generic/DialogEditGPR.cpp
+		arch/x86-generic/DialogEditSIMDRegister.cpp
+		arch/x86-generic/Float80Edit.cpp
+		arch/x86-generic/GPREdit.cpp		
+	)
+endif()
 
 # we put the header files from the include directory here 
 # too so automoc can "just work"

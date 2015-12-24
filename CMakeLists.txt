@@ -4,12 +4,15 @@ include("GNUInstallDirs")
 
 find_package(Boost 1.35 REQUIRED)
 
-# TODO(eteran): do some arch detection and pick the right directories here
-include_directories(
-	"include"
-	"include/arch/x86-generic"
-	"include/os/unix"
-)
+include_directories("include")
+
+if(UNIX)
+	include_directories("include/os/unix")
+endif()
+
+if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64"))
+	include_directories("include/arch/x86-generic")
+endif()
 
 add_subdirectory(src)
 add_subdirectory(plugins)
