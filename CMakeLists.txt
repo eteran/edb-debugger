@@ -127,3 +127,4 @@ elseif(NOT Qt5Core_DIR)
 endif()
 
 add_subdirectory(plugins)
+install (TARGETS edb DESTINATION bin)

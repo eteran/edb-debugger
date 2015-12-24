@@ -1,4 +1,5 @@
 cmake_minimum_required (VERSION 3.0)
+include("GNUInstallDirs")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -65,3 +66,4 @@ endif()
 
 set(LIBRARY_OUTPUT_PATH    ${PROJECT_BINARY_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
+install (TARGETS DebuggerCore DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
