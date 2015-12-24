@@ -133,3 +133,4 @@ endif()
 
 add_subdirectory(plugins)
 install (TARGETS edb DESTINATION ${CMAKE_INSTALL_BINDIR})
+install (FILES edb.1 DESTINATION ${CMAKE_INSTALL_MANDIR})
