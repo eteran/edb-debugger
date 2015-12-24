@@ -46,7 +46,11 @@ void load_plugins(const QString &directory) {
 
 	QDir plugins_dir(qApp->applicationDirPath());
 
-	// TODO: attempt to detect the same plugin being loaded twice
+	// TODO(eteran): attempt to detect the same plugin being loaded twice
+	// NOTE(eteran): if the plugins directory doesn't exist at all, this CD
+	//               will fail and stay in the current directory. This actually
+	//               is VERY nice behavior for us since it will allow
+	//               running from the build directory without further config
 	plugins_dir.cd(directory);
 
 	for(const QString &file_name: plugins_dir.entryList(QDir::Files)) {
