@@ -311,7 +311,18 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 			
 			newThread->status_ = thread_status;
 
-			// TODO: what the heck do we do if this isn't a SIGSTOP?
+			// copy the hardware debug registers from the current thread to the new thread
+			if(process_) {
+				if(auto thread = process_->current_thread()) {
+					for(int i = 0; i < 8; ++i) {
+						auto new_thread = static_cast<PlatformThread *>(newThread.get());
+						auto old_thread = static_cast<PlatformThread *>(thread.get());
+						new_thread->set_debug_register(i, old_thread->get_debug_register(i));
+					}
+				}
+			}
+
+			// TODO(eteran): what the heck do we do if this isn't a SIGSTOP?
 			newThread->resume();
 		}
 
