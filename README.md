@@ -31,7 +31,27 @@ Dependency                                  | Version Required
 
 Many distributions already have packages that satisify these.
 
-Once you have the necessary dependencies installed, compiling should be as simple as:
+Once you have the necessary dependencies installed, there are two options for compiling:
+
+## CMake (Recommended)
+
+If you plan to just run edb out of the build directory, it's as simple as this:
+
+	$ mkdir build
+	$ cd build
+	$ make
+	$ ./edb
+
+If you would like to properly install edb on the system for all users, it's only a little different:
+
+	$ mkdir build
+	$ cd build
+	$ cmake -DCMAKE_INSTALL_PREFIX=/usr/local/ ..
+	$ make
+	$ make install
+	$ edb
+
+## QMake
 
 	$ qmake
 	$ make
