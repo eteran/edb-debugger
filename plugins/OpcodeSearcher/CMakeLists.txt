@@ -6,6 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
+set(PluginName "OpcodeSearcher")
 
 if(Qt5Core_FOUND)
     find_package(Qt5 5.0.0 REQUIRED Widgets)
@@ -15,7 +16,7 @@ endif()
 
 # we put the header files from the include directory here 
 # too so automoc can "just work"
-add_library(OpcodeSearcher SHARED
+add_library(${PluginName} SHARED
 	DialogOpcodes.cpp
 	DialogOpcodes.h
 	OpcodeSearcher.cpp
@@ -23,10 +24,10 @@ add_library(OpcodeSearcher SHARED
 )
 
 if(Qt5Core_FOUND)
-	target_link_libraries(OpcodeSearcher Qt5::Widgets)
+	target_link_libraries(${PluginName} Qt5::Widgets)
 else(Qt5Core_FOUND)
-	target_link_libraries(OpcodeSearcher Qt4::QtGui)
+	target_link_libraries(${PluginName} Qt4::QtGui)
 endif()
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR})
-install (TARGETS OpcodeSearcher DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
+install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
