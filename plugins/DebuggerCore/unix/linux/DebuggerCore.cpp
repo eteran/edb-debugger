@@ -315,8 +315,8 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 			if(process_) {
 				if(auto thread = process_->current_thread()) {
 					for(int i = 0; i < 8; ++i) {
-						auto new_thread = static_cast<PlatformThread *>(newThread.get());
-						auto old_thread = static_cast<PlatformThread *>(thread.get());
+						auto new_thread = std::static_pointer_cast<PlatformThread>(newThread);
+						auto old_thread = std::static_pointer_cast<PlatformThread>(thread);
 						new_thread->set_debug_register(i, old_thread->get_debug_register(i));
 					}
 				}
@@ -364,7 +364,7 @@ void DebuggerCore::stop_threads() {
 
 			if(!waited_threads_.contains(tid)) {
 			
-				if(auto thread_ptr = static_cast<PlatformThread *>(thread.get())) {
+				if(auto thread_ptr = std::static_pointer_cast<PlatformThread>(thread)) {
 			
 					thread->stop();
 
