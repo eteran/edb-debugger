@@ -7,11 +7,19 @@ if (NOT QT_VERSION)
 	SET_PROPERTY(CACHE QT_VERSION PROPERTY STRINGS Qt5 Qt4) 
 endif()
 
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 project (edb)
 include("GNUInstallDirs")
 
 find_package(Boost 1.35 REQUIRED)
+
+# graph code is wildly broken, disable for now
+# find_package(GraphViz)
+
+if(${GRAPHVIZ_FOUND})
+	include_directories(${GRAPHVIZ_INCLUDE})
+endif()
 
 if(${QT_VERSION} STREQUAL "Qt5")
 	find_package(Qt5Core)

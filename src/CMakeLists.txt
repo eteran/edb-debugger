@@ -127,14 +127,32 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 	)
 endif()
 
+if(${GRAPHVIZ_FOUND})
+	set(edb_INCLUDES
+		${edb_INCLUDES}
+		${PROJECT_SOURCE_DIR}/include/GraphWidget.h
+	)
+
+	set(edb_SRCS
+		${edb_SRCS}
+		graph/GraphEdge.cpp
+		graph/GraphEdge.h
+		graph/GraphNode.cpp
+		graph/GraphNode.h
+		graph/GraphWidget.cpp
+	)
+	
+	add_definitions(-DENABLE_GRAPH)
+endif()
+
 # we put the header files from the include directory here 
 # too so automoc can "just work"
 add_executable(edb ${edb_INCLUDES} ${edb_SRCS})
 
 if(Qt5Core_DIR)
-	target_link_libraries(edb capstone Qt5::Widgets Qt5::Xml Qt5::XmlPatterns)
+	target_link_libraries(edb capstone Qt5::Widgets Qt5::Xml Qt5::XmlPatterns ${GRAPHVIZ_LIBRARY} ${GVC_LIBRARY})
 elseif(NOT Qt5Core_DIR)
-	target_link_libraries(edb capstone Qt4::QtGui Qt4::QtXml Qt4::QtXmlPatterns)
+	target_link_libraries(edb capstone Qt4::QtGui Qt4::QtXml Qt4::QtXmlPatterns ${GRAPHVIZ_LIBRARY} ${GVC_LIBRARY})
 endif()
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})

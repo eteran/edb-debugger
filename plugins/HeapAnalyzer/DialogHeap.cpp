@@ -110,7 +110,9 @@ DialogHeap::DialogHeap(QWidget *parent) : QDialog(parent), ui(new Ui::DialogHeap
 	ui->tableView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 #endif
 
-#ifndef ENABLE_GRAPH
+#ifdef ENABLE_GRAPH
+	ui->btnGraph->setEnabled(true);
+#else
 	ui->btnGraph->setEnabled(false);
 #endif
 }
@@ -517,7 +519,7 @@ void DialogHeap::on_btnFind_clicked() {
 void DialogHeap::on_btnGraph_clicked() {
 #ifdef ENABLE_GRAPH
 	GVC_t *const gvc = gvContext();
-	graph_t *const g = agopen(const_cast<char*>("g"), AGDIGRAPH);
+	graph_t *const g = agopen(const_cast<char*>("g"), Agdirected, 0);
 
 	const QVector<Result> &results = model_->results();
 
@@ -546,7 +548,7 @@ void DialogHeap::on_btnGraph_clicked() {
 
 		while(!result_stack.isEmpty()) {
 			const Result *const result = result_stack.pop();
-			node_t *n = agnode(g, const_cast<char*>(qPrintable(edb::v1::format_pointer(result->block))));
+			node_t *n = agnode(g, const_cast<char*>(qPrintable(edb::v1::format_pointer(result->block))), 0);
 			if(result->type == tr("Busy")) {
 				agsafeset(n, const_cast<char*>("fillcolor"), const_cast<char*>("green"), const_cast<char*>(""));
 			} else {
@@ -577,7 +579,7 @@ void DialogHeap::on_btnGraph_clicked() {
 			const edb::address_t addr = result->block;
 			if(nodes.contains(addr)) {
 				for(edb::address_t pointer: result->points_to) {
-					agedge(g, nodes[addr], nodes[pointer]);
+					agedge(g, nodes[addr], nodes[pointer], const_cast<char*>(""), 0);
 				}
 			}
 		}

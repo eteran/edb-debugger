@@ -112,7 +112,7 @@ void GraphWidget::wheelEvent(QWheelEvent* event) {
 // Desc:
 //------------------------------------------------------------------------------
 void GraphWidget::scale_view(qreal scaleFactor) {
-	const qreal f = std::sqrt(matrix().det());
+	const qreal f = std::sqrt(matrix().determinant());
 
 	scaleFactor = qBound(0.1 / f, scaleFactor, 8.0 / f);
 
@@ -204,7 +204,7 @@ Qt::PenStyle GraphWidget::aggetToQPenStyle(void *obj, const char *name, const Qt
 void GraphWidget::render_graph(const QString& filename, const QString& layout) {
 	if(FILE *const fp = fopen(qPrintable(filename), "r")) {
 		if(GVC_t *const gvc = gvContext()) {
-			if(graph_t *const graph = agread(fp)) {
+			if(graph_t *const graph = agread(fp, nullptr)) {
 				render_graph(gvc, graph, layout);
 				agclose(graph);
 			} else {
