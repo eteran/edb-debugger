@@ -33,7 +33,7 @@ Many distributions already have packages that satisify these.
 
 Once you have the necessary dependencies installed, there are two options for compiling:
 
-## CMake (Recommended)
+### CMake (Recommended)
 
 If you plan to just run edb out of the build directory, it's as simple as this:
 
@@ -51,7 +51,7 @@ If you would like to properly install edb on the system for all users, it's only
 	$ make install
 	$ edb
 
-## QMake
+### QMake (Planned to be phased out once cmake based building is proven reliable)
 
 	$ qmake
 	$ make
