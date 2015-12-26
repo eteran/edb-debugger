@@ -39,6 +39,7 @@ If you plan to just run edb out of the build directory, it's as simple as this:
 
 	$ mkdir build
 	$ cd build
+	$ cmake ..
 	$ make
 	$ ./edb
 
