@@ -131,14 +131,17 @@ if(${GRAPHVIZ_FOUND})
 	set(edb_INCLUDES
 		${edb_INCLUDES}
 		${PROJECT_SOURCE_DIR}/include/GraphWidget.h
+		${PROJECT_SOURCE_DIR}/include/GraphEdge.h
+		${PROJECT_SOURCE_DIR}/include/GraphNode.h
+
 	)
 
 	set(edb_SRCS
 		${edb_SRCS}
 		graph/GraphEdge.cpp
-		graph/GraphEdge.h
+		graph/GraphicsScene.cpp
+		graph/GraphicsScene.h
 		graph/GraphNode.cpp
-		graph/GraphNode.h
 		graph/GraphWidget.cpp
 	)
 	

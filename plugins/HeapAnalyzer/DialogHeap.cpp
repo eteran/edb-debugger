@@ -36,7 +36,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef ENABLE_GRAPH
 #include "GraphWidget.h"
-#include <graphviz/gvc.h>
+#include "GraphNode.h"
+#include "GraphEdge.h"
 #endif
 
 #if QT_VERSION >= 0x050000
@@ -518,13 +519,15 @@ void DialogHeap::on_btnFind_clicked() {
 //------------------------------------------------------------------------------
 void DialogHeap::on_btnGraph_clicked() {
 #ifdef ENABLE_GRAPH
-	GVC_t *const gvc = gvContext();
-	graph_t *const g = agopen(const_cast<char*>("g"), Agdirected, 0);
+
+	auto graph = new GraphWidget(nullptr);
+	graph->setAttribute(Qt::WA_DeleteOnClose);
+
 
 	const QVector<Result> &results = model_->results();
 
 	do {
-		QMap<edb::address_t, node_t *>        nodes;
+		QMap<edb::address_t, GraphNode *>     nodes;
 		QHash<edb::address_t, const Result *> result_map;
 		QStack<const Result *>                result_stack;
 		QSet<const Result *>                  seen_results;
@@ -548,16 +551,15 @@ void DialogHeap::on_btnGraph_clicked() {
 
 		while(!result_stack.isEmpty()) {
 			const Result *const result = result_stack.pop();
-			node_t *n = agnode(g, const_cast<char*>(qPrintable(edb::v1::format_pointer(result->block))), 0);
+			
+			GraphNode *node;
 			if(result->type == tr("Busy")) {
-				agsafeset(n, const_cast<char*>("fillcolor"), const_cast<char*>("green"), const_cast<char*>(""));
+				node = new GraphNode(graph, edb::v1::format_pointer(result->block), Qt::lightGray);
 			} else {
-				agsafeset(n, const_cast<char*>("fillcolor"), const_cast<char*>("red"), const_cast<char*>(""));
+				node = new GraphNode(graph, edb::v1::format_pointer(result->block), Qt::red);
 			}
-			agsafeset(n, const_cast<char*>("style"), const_cast<char*>("filled"), const_cast<char*>(""));
-			//agsafeset(n, const_cast<char*>("shape"), const_cast<char*>("box"), const_cast<char*>(""));
 
-			nodes.insert(result->block, n);
+			nodes.insert(result->block, node);
 
 			for(edb::address_t pointer: result->points_to) {
 				const Result *next_result = result_map[pointer];
@@ -570,16 +572,19 @@ void DialogHeap::on_btnGraph_clicked() {
 
 		qDebug("[Heap Analyzer] Done Processing %d Nodes", nodes.size());
 
-		if(nodes.size() > 3000) {
+#if 1
+		if(nodes.size() > 5000) {
 			qDebug("[Heap Analyzer] Too Many Nodes! (%d)", nodes.size());
+			delete graph;
 			return;
 		}
+#endif
 
 		for(const Result *result: result_map) {
 			const edb::address_t addr = result->block;
 			if(nodes.contains(addr)) {
 				for(edb::address_t pointer: result->points_to) {
-					agedge(g, nodes[addr], nodes[pointer], const_cast<char*>(""), 0);
+					new GraphEdge(nodes[addr], nodes[pointer]);
 				}
 			}
 		}
@@ -587,12 +592,9 @@ void DialogHeap::on_btnGraph_clicked() {
 		qDebug("[Heap Analyzer] Done Processing Edges");
 	} while(0);
 
-	auto graph = new GraphWidget(gvc, g, "dot");
-	graph->show();
 
-	gvFreeLayout(gvc, g);
-	agclose(g);
-	gvFreeContext(gvc);
+	graph->layout();
+	graph->show();
 #endif
 }
 

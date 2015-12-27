@@ -13,9 +13,7 @@ project (edb)
 include("GNUInstallDirs")
 
 find_package(Boost 1.35 REQUIRED)
-
-# graph code is wildly broken, disable for now
-# find_package(GraphViz)
+find_package(GraphViz)
 
 if(${GRAPHVIZ_FOUND})
 	include_directories(${GRAPHVIZ_INCLUDE})

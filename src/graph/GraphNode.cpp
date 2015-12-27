@@ -1,9 +1,6 @@
 /*
-Copyright (C) 2009 - 2015 Evan Teran
+Copyright (C) 2015 - 2015 Evan Teran
                           evan.teran@gmail.com
-
-Copyright (C) 2009        Arvin Schnell
-                          aschnell@suse.de
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,18 +16,96 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-
 #include "GraphNode.h"
 #include "GraphWidget.h"
+#include "GraphEdge.h"
+
+#include <QtDebug>
+#include <QGraphicsColorizeEffect>
 #include <QPainter>
+#include <QPainterPath>
+
+namespace {
+
+const int NodeZValue        = 1;
+const int NodeWidth         = 100;
+const int NodeHeight        = 50;
+const int LabelFontSize     = 10;
+const int BorderScaleFactor = 4;
+const QColor TextColor      = Qt::black;
+const QColor BorderColor    = Qt::blue;
+const QColor SelectColor    = Qt::lightGray;
+const QString NodeFont      = "DejaVu Sans";
+
+}
+
+namespace {
+
+Agnode_t *_agnode(Agraph_t *g, QString name) {
+	return agnode(g, name.toLocal8Bit().data(),	true);
+}
+
+/// Directly use agsafeset which always works, contrarily to agset
+int _agset(void *object, QString attr, QString value) {
+	return agsafeset(
+		object, 
+		attr.toLocal8Bit().data(),
+		value.toLocal8Bit().data(),
+		value.toLocal8Bit().data());
+}
+
+}
 
 //------------------------------------------------------------------------------
 // Name: GraphNode
 // Desc:
 //------------------------------------------------------------------------------
-GraphNode::GraphNode(const GraphWidget *graph, node_t *node) : QGraphicsPathItem(make_shape(node)), name(QString::fromUtf8(agnameof(node))), graph_(graph) {
+GraphNode::GraphNode(GraphWidget *graph, const QString &text, const QColor &color) : color_(color), text_(text), graph_(graph)  {
 
-	draw_label(ND_label(node));
+
+    setFlag(QGraphicsItem::ItemIsMovable, true);
+    setFlag(QGraphicsItem::ItemIsSelectable, true);
+    setFlag(QGraphicsItem::ItemSendsGeometryChanges, true);
+	setAcceptHoverEvents(true);
+	setCacheMode(QGraphicsItem::DeviceCoordinateCache);
+	setZValue(NodeZValue);
+
+	drawLabel();
+	
+	graph->scene()->addItem(this);
+
+	QString name = QString("Node%1").arg(reinterpret_cast<uintptr_t>(this));
+	node_ = _agnode(graph->graph_, name);
+	
+	
+	_agset(node_, "fixedsize", "0");
+	_agset(node_, "width",  QString("%1").arg(boundingRect().width()  / 96.0));
+	_agset(node_, "height", QString("%1").arg(boundingRect().height() / 96.0));
+
+}
+
+//------------------------------------------------------------------------------
+// Name: ~GraphNode
+// Desc:
+//------------------------------------------------------------------------------
+GraphNode::~GraphNode() {
+
+	// we use Q_FOREACH because it operates on a *copy*
+	// of the list, which is important because deleting an
+	// edge removes it from the list
+	Q_FOREACH(GraphEdge *const edge, edges_) {
+		delete edge;
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: boundingRect
+// Desc:
+//------------------------------------------------------------------------------
+QRectF GraphNode::boundingRect() const {
+	const int weight = 2;
+	const int width = ::log2(weight) * BorderScaleFactor;
+	return picture_.boundingRect().adjusted(-width, -width, +width, +width);
 }
 
 //------------------------------------------------------------------------------
@@ -38,135 +113,123 @@ GraphNode::GraphNode(const GraphWidget *graph, node_t *node) : QGraphicsPathItem
 // Desc:
 //------------------------------------------------------------------------------
 void GraphNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
+
+	Q_UNUSED(option);
+	Q_UNUSED(widget);
+	
 	painter->save();
-	QGraphicsPathItem::paint(painter, option, widget);
+	
+	// draw border
+	painter->setPen(BorderColor);
+	painter->setBrush(BorderColor);
+	painter->drawRect(boundingRect());
+
+	// draw background
+	painter->setPen(QPen(color_));
+	painter->setBrush(QBrush(color_));
+	painter->drawRect(picture_.boundingRect());
+
+	if(isSelected()) {
+		painter->setPen(QPen(Qt::DashLine));
+		painter->drawRect(boundingRect().adjusted(+4, +4, -4, -4));	
+	}
+
+	// draw contents
 	painter->restore();
 	picture_.play(painter);
+	
+	
 }
 
 //------------------------------------------------------------------------------
-// Name: draw_label
+// Name: paint
 // Desc:
 //------------------------------------------------------------------------------
-void GraphNode::draw_label(const textlabel_t *textlabel) {
-	QPainter painter(&picture_);
+QVariant GraphNode::itemChange(GraphicsItemChange change, const QVariant &value) {
+	if(!graph_->inLayout_) {
 
-	painter.setPen(textlabel->fontcolor);
+		switch(change) {
+		case ItemPositionChange:
+			for(const auto edge : edges_) {
+				edge->updateLines();
+			}
+			break;
+		default:
+			break;
+		}
+	}
+
+	return QGraphicsItem::itemChange(change, value);
+}
+
+//------------------------------------------------------------------------------
+// Name: addEdge
+// Desc:
+//------------------------------------------------------------------------------
+void GraphNode::addEdge(GraphEdge *edge) {
+	edges_.insert(edge);
+}
+
+//------------------------------------------------------------------------------
+// Name: removeEdge
+// Desc:
+//------------------------------------------------------------------------------
+void GraphNode::removeEdge(GraphEdge *edge) {
+	edges_.remove(edge);
+}
+
+//------------------------------------------------------------------------------
+// Name: drawLabel
+// Desc:
+//------------------------------------------------------------------------------
+void GraphNode::drawLabel() {
+
+	QPainter painter(&picture_);
+	painter.setBrush(QBrush(color_));
+	painter.setPen(TextColor);
 
 	// Since I always just take the points from graph_ and pass them to Qt
 	// as pixel I also have to set the pixel size of the font.
-	QFont font(textlabel->fontname, textlabel->fontsize);
-	font.setPixelSize(textlabel->fontsize);
+	QFont font(NodeFont);
+	font.setPixelSize(LabelFontSize);
 
 	if(!font.exactMatch()) {
 		QFontInfo fontinfo(font);
-		qWarning("replacing font \"%s\" by font \"%s\"", qPrintable(font.family()), qPrintable(fontinfo.family()));
+		qWarning("replacing font '%s' by font '%s'", qPrintable(font.family()), qPrintable(fontinfo.family()));
 	}
 
 	painter.setFont(font);
+	
+	// just to calculate the proper bounding box
+	QRectF textBoundingRect;
+	painter.drawText(QRectF(), Qt::AlignHCenter | Qt::AlignTop, text_, &textBoundingRect);
+	
+	// set some reasonable minimums
+	if(textBoundingRect.width() < NodeWidth) {
+		textBoundingRect.setWidth(NodeWidth);
+	}
+	
+	if(textBoundingRect.height() < NodeHeight) {
+		textBoundingRect.setHeight(NodeHeight);
+	}
 
-	QString text(QString::fromUtf8(textlabel->text));
-	QFontMetricsF fm(painter.fontMetrics());
-	QRectF rect(fm.boundingRect(text));
-
-#ifdef ND_coord_i
-	rect.moveCenter(graph_->gToQ(textlabel->p, false));
-#else
-	rect.moveCenter(graph_->gToQ(textlabel->pos, false));
-#endif
-	painter.drawText(rect.adjusted(-2, -2, +2, +2), Qt::AlignCenter, text);
+	// set the bounding box and then really draw it
+	picture_.setBoundingRect(textBoundingRect.adjusted(-2, -2, +2, +2).toRect());
+	painter.drawText(textBoundingRect.adjusted(-2, -2, +2, +2), Qt::AlignLeft | Qt::AlignTop, text_);
 }
 
 //------------------------------------------------------------------------------
-// Name: make_polygon_helper
+// Name: hoverEnterEvent
 // Desc:
 //------------------------------------------------------------------------------
-void GraphNode::make_polygon_helper(node_t *node, QPainterPath &path) const {
-	auto poly = static_cast<polygon_t *>(ND_shape_info(node));
-
-	if(poly->peripheries != 1) {
-		qWarning("unsupported number of peripheries %d", poly->peripheries);
-	}
-
-	const int sides = poly->sides;
-	const pointf* vertices = poly->vertices;
-
-	QPolygonF polygon;
-	for (int side = 0; side < sides; side++) {
-		polygon.append(graph_->gToQ(vertices[side], false));
-	}
-	polygon.append(polygon[0]);
-
-	path.addPolygon(polygon);
+void GraphNode::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
+	Q_UNUSED(e);
 }
 
 //------------------------------------------------------------------------------
-// Name: make_ellipse_helper
+// Name: hoverLeaveEvent
 // Desc:
 //------------------------------------------------------------------------------
-void GraphNode::make_ellipse_helper(node_t *node, QPainterPath &path) const {
-	auto poly = static_cast<polygon_t *>(ND_shape_info(node));
-
-	if(poly->peripheries != 1) {
-		qWarning("unsupported number of peripheries %d", poly->peripheries);
-	}
-
-	const int sides = poly->sides;
-	const pointf* vertices = poly->vertices;
-
-	QPolygonF polygon;
-	for (int side = 0; side < sides; side++) {
-		polygon.append(graph_->gToQ(vertices[side], false));
-	}
-
-	QRectF ellipse_bounds(polygon[0], polygon[1]);
-
-	for (int i = 0; i < poly->peripheries; ++i) {
-		path.addEllipse(ellipse_bounds.adjusted(-2 * i, 2 * i, 2 * i, -2 * i));
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: make_shape
-// Desc:
-//------------------------------------------------------------------------------
-QPainterPath GraphNode::make_shape(node_t *node) const {
-	QPainterPath path;
-
-	const QString name = QString::fromUtf8(agnameof(ND_shape(node)));
-
-	// TODO: point, egg, doublecircle, doubleoctagon, tripleoctagon,
-	// note, tab, folder, box3d, component, record, plaintext
-
-	// handle all of the "regular" polygons
-	if(     name == "invhouse"      ||
-			name == "invtrapezium"  ||
-			name == "invtriangle"   ||
-			name == "box"           ||
-			name == "polygon"       ||
-			name == "triangle"      ||
-			name == "diamond"       ||
-			name == "trapezium"     ||
-			name == "parallelogram" ||
-			name == "house"         ||
-			name == "pentagon"      ||
-			name == "hexagon"       ||
-			name == "septagon"      ||
-			name == "octagon"       ||
-			name == "rect"          ||
-			name == "rectangle"     ||
-			name == "Msquare"       || // incomplete
-			name == "Mdiamond"         // incomplete
-			) {
-
-		make_polygon_helper(node, path);
-	} else if(name == "ellipse" || name == "circle" || name == "point" || name == "Mcircle") {
-		make_ellipse_helper(node, path);
-	} else if(name == "none") {
-		// NO-OP
-	} else {
-		qWarning("unsupported shape %s", qPrintable(name));
-	}
-
-	return path;
+void GraphNode::hoverLeaveEvent(QGraphicsSceneHoverEvent *e) {
+	Q_UNUSED(e);
 }
