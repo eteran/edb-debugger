@@ -7,13 +7,18 @@ if (NOT QT_VERSION)
 	SET_PROPERTY(CACHE QT_VERSION PROPERTY STRINGS Qt5 Qt4) 
 endif()
 
+option(ENABLE_GRAPHVIZ "Enable Graphviz" "ON")
+
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 project (edb)
 include("GNUInstallDirs")
 
 find_package(Boost 1.35 REQUIRED)
-find_package(GraphViz)
+
+if(${ENABLE_GRAPHVIZ})
+	find_package(GraphViz)
+endif()
 
 if(${GRAPHVIZ_FOUND})
 	include_directories(${GRAPHVIZ_INCLUDE})
