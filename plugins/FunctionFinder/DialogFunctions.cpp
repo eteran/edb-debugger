@@ -20,8 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "IAnalyzer.h"
 #include "MemoryRegions.h"
+#ifdef ENABLE_GRAPH
+#include "GraphWidget.h"
+#include "GraphNode.h"
+#include "GraphEdge.h"
+#endif
 #include <QDialog>
 #include <QHeaderView>
+#include <QMenu>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 
@@ -48,6 +54,12 @@ DialogFunctions::DialogFunctions(QWidget *parent) : QDialog(parent), ui(new Ui::
 
 	filter_model_ = new QSortFilterProxyModel(this);
 	connect(ui->txtSearch, SIGNAL(textChanged(const QString &)), filter_model_, SLOT(setFilterFixedString(const QString &)));
+	
+#ifdef ENABLE_GRAPH
+	ui->btnGraph->setEnabled(true);
+#else
+	ui->btnGraph->setEnabled(false);
+#endif	
 }
 
 //------------------------------------------------------------------------------
@@ -173,6 +185,102 @@ void DialogFunctions::on_btnFind_clicked() {
 	do_find();
 	ui->progressBar->setValue(100);
 	ui->btnFind->setEnabled(true);
+}
+
+//------------------------------------------------------------------------------
+// Name: on_btnGraph_clicked
+// Desc:
+//------------------------------------------------------------------------------
+void DialogFunctions::on_btnGraph_clicked() {
+
+	// this code is not ery pretty...
+	// but it works!
+
+#ifdef ENABLE_GRAPH
+
+	qDebug("[FunctionFinder] Constructing Graph...");
+
+	QList<QTableWidgetItem *> items = ui->tableWidget->selectedItems();
+	
+	// each column counts as an item	
+	if(items.size() == ui->tableWidget->columnCount()) {
+		if(QTableWidgetItem *item = items[0]) {
+			const edb::address_t addr = item->data(Qt::UserRole).toULongLong();
+			if(IAnalyzer *const analyzer = edb::v1::analyzer()) {
+				const IAnalyzer::FunctionMap &functions = analyzer->functions();
+				
+				
+				auto it = functions.find(addr);
+				if(it != functions.end()) {
+					Function f = *it;
+					
+					auto graph = new GraphWidget(nullptr);
+					graph->setAttribute(Qt::WA_DeleteOnClose);
+					
+					QMap<edb::address_t, GraphNode *> nodes;
+					
+					// first create all of the nodes
+					for(const BasicBlock &bb : f) {				
+						auto node = new GraphNode(graph, bb.toString(), Qt::lightGray);
+						nodes.insert(bb.first_address(), node);
+					}
+					
+					// then connect them!
+					for(const BasicBlock &bb : f) {
+					
+					
+						if(!bb.empty()) {
+						
+							auto term = bb.back();							
+							auto inst = *term;
+							
+							if(is_unconditional_jump(inst)) {
+
+								Q_ASSERT(inst.operand_count() >= 1);
+								const edb::Operand &op = inst.operands()[0];
+
+								// TODO: we need some heuristic for detecting when this is
+								//       a call/ret -> jmp optimization
+								if(op.general_type() == edb::Operand::TYPE_REL) {
+									const edb::address_t ea = op.relative_target();
+									
+									auto from = nodes.find(bb.first_address());
+									auto to = nodes.find(ea);
+									if(to != nodes.end() && from != nodes.end()) {
+										new GraphEdge(from.value(), to.value(), Qt::black);
+									}
+								}
+							} else if(is_conditional_jump(inst)) {
+
+								Q_ASSERT(inst.operand_count() == 1);
+								const edb::Operand &op = inst.operands()[0];
+
+								if(op.general_type() == edb::Operand::TYPE_REL) {
+								
+									auto from = nodes.find(bb.first_address());
+									
+									auto to_taken = nodes.find(op.relative_target());
+									if(to_taken != nodes.end() && from != nodes.end()) {
+										new GraphEdge(from.value(), to_taken.value(), Qt::green);
+									}
+									
+									auto to_skipped = nodes.find(inst.rva() + inst.size());
+									if(to_taken != nodes.end() && from != nodes.end()) {
+										new GraphEdge(from.value(), to_skipped.value(), Qt::red);
+									}																
+								}
+							} else if(is_terminator(inst)) {
+							}
+						}
+					}					
+					
+					graph->layout();
+					graph->show();
+				}
+			}
+		}
+	}
+#endif
 }
 
 }

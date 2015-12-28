@@ -14,25 +14,25 @@
   <property name="windowTitle">
    <string>Function Finder</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
     <widget class="QLabel" name="lblRegions">
      <property name="text">
       <string>Regions To Search:</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
+   <item>
+    <widget class="QLineEdit" name="txtSearch"/>
+   </item>
+   <item>
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Filter</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="txtSearch"/>
-   </item>
-   <item row="2" column="0" colspan="2">
+   <item>
     <widget class="QTableView" name="tableView">
      <property name="font">
       <font>
@@ -62,19 +62,22 @@
      </attribute>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item>
     <widget class="QLabel" name="lblResults">
      <property name="text">
       <string>Results:</string>
      </property>
     </widget>
    </item>
-   <item row="4" column="0" colspan="2">
+   <item>
     <widget class="QTableWidget" name="tableWidget">
      <property name="font">
       <font>
        <family>Monospace</family>
       </font>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::CustomContextMenu</enum>
      </property>
      <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
@@ -124,8 +127,8 @@
      </column>
     </widget>
    </item>
-   <item row="5" column="0" colspan="2">
-    <layout class="QHBoxLayout">
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QPushButton" name="btnClose">
        <property name="text">
@@ -157,6 +160,13 @@
       </spacer>
      </item>
      <item>
+      <widget class="QPushButton" name="btnGraph">
+       <property name="text">
+        <string>Graph Selected Function</string>
+       </property>
+      </widget>
+     </item>
+     <item>
       <widget class="QPushButton" name="btnFind">
        <property name="text">
         <string>&amp;Find</string>
@@ -168,7 +178,7 @@
      </item>
     </layout>
    </item>
-   <item row="6" column="0" colspan="2">
+   <item>
     <widget class="QProgressBar" name="progressBar">
      <property name="value">
       <number>0</number>

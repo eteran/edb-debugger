@@ -23,6 +23,10 @@ add_library(${PluginName} SHARED
 	FunctionFinder.h
 )
 
+if(${GRAPHVIZ_FOUND})
+	add_definitions(-DENABLE_GRAPH)
+endif()
+
 if(Qt5Core_FOUND)
 	target_link_libraries(${PluginName} Qt5::Widgets)
 else(Qt5Core_FOUND)

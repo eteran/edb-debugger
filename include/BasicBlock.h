@@ -26,6 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 #include <iterator>
 
+class QString;
+
 typedef std::shared_ptr<edb::Instruction> instruction_pointer;
 
 class EDB_EXPORT BasicBlock {
@@ -76,6 +78,9 @@ public:
 
 public:
 	void swap(BasicBlock &other);
+	
+public:
+	QString toString() const;
 	
 public:
 	size_type byte_size() const;

@@ -17,6 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "BasicBlock.h"
+#include "edb.h"
+#include <QString>
+#include <QTextStream>
 
 //------------------------------------------------------------------------------
 // Name: BasicBlock
@@ -202,4 +205,19 @@ edb::address_t BasicBlock::first_address() const {
 edb::address_t BasicBlock::last_address() const {
 	Q_ASSERT(!empty());
 	return back()->rva() + back()->size();
+}
+
+//------------------------------------------------------------------------------
+// Name: toString
+//------------------------------------------------------------------------------
+QString BasicBlock::toString() const {
+	QString text;
+	QTextStream ts(&text);
+
+	for(auto it = begin(); it != end(); ++it) {
+		const instruction_pointer &inst = *it;
+		ts << edb::address_t(inst->rva()).toPointerString() << ": " << edb::v1::formatter().to_string(*inst).c_str() << "\n";
+	}
+	
+	return text;
 }

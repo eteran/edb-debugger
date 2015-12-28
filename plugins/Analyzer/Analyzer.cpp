@@ -683,6 +683,18 @@ IAnalyzer::FunctionMap Analyzer::functions(const IRegion::pointer &region) const
 }
 
 //------------------------------------------------------------------------------
+// Name: functions
+// Desc:
+//------------------------------------------------------------------------------
+IAnalyzer::FunctionMap Analyzer::functions() const {
+	FunctionMap results;
+	for(auto &it : analysis_info_) {
+		results.unite(it.functions);
+	}
+	return results;
+}
+
+//------------------------------------------------------------------------------
 // Name: find_containing_function
 // Desc:
 //------------------------------------------------------------------------------

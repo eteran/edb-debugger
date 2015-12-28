@@ -64,6 +64,7 @@ private:
 public:
 	virtual AddressCategory category(edb::address_t address) const;
 	virtual FunctionMap functions(const IRegion::pointer &region) const;
+	virtual FunctionMap functions() const;
 	virtual QSet<edb::address_t> specified_functions() const { return specified_functions_; }
 	virtual edb::address_t find_containing_function(edb::address_t address, bool *ok) const;
 	virtual void analyze(const IRegion::pointer &region);
