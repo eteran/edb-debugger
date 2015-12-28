@@ -54,7 +54,7 @@ GraphicsScene::~GraphicsScene() {
 //------------------------------------------------------------------------------
 void GraphicsScene::helpEvent(QGraphicsSceneHelpEvent *helpEvent) {
 
-	QGraphicsItem *const item = itemAt(helpEvent->scenePos());
+	QGraphicsItem *const item = itemAt(helpEvent->scenePos(), QTransform());
 	Q_EMIT itemHelpEvent(helpEvent, item);
 	helpEvent->ignore();
 }
