@@ -19,11 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "GraphNode.h"
 #include "GraphWidget.h"
 #include "GraphEdge.h"
+#include "SyntaxHighlighter.h"
 
 #include <QtDebug>
 #include <QGraphicsColorizeEffect>
 #include <QPainter>
 #include <QPainterPath>
+#include <QAbstractTextDocumentLayout>
 
 namespace {
 
@@ -35,11 +37,8 @@ const int BorderScaleFactor = 4;
 const QColor TextColor      = Qt::black;
 const QColor BorderColor    = Qt::blue;
 const QColor SelectColor    = Qt::lightGray;
-const QString NodeFont      = "DejaVu Sans";
+const QString NodeFont      = "Monospace";
 
-}
-
-namespace {
 
 Agnode_t *_agnode(Agraph_t *g, QString name) {
 	return agnode(g, name.toLocal8Bit().data(),	true);
@@ -60,8 +59,7 @@ int _agset(void *object, QString attr, QString value) {
 // Name: GraphNode
 // Desc:
 //------------------------------------------------------------------------------
-GraphNode::GraphNode(GraphWidget *graph, const QString &text, const QColor &color) : color_(color), text_(text), graph_(graph)  {
-
+GraphNode::GraphNode(GraphWidget *graph, const QString &text, const QColor &color) : color_(color), graph_(graph) {
 
     setFlag(QGraphicsItem::ItemIsMovable, true);
     setFlag(QGraphicsItem::ItemIsSelectable, true);
@@ -70,14 +68,13 @@ GraphNode::GraphNode(GraphWidget *graph, const QString &text, const QColor &colo
 	setCacheMode(QGraphicsItem::DeviceCoordinateCache);
 	setZValue(NodeZValue);
 
-	drawLabel();
+	drawLabel(text);
 	
 	graph->scene()->addItem(this);
 
 	QString name = QString("Node%1").arg(reinterpret_cast<uintptr_t>(this));
 	node_ = _agnode(graph->graph_, name);
-	
-	
+		
 	_agset(node_, "fixedsize", "0");
 	_agset(node_, "width",  QString("%1").arg(boundingRect().width()  / 96.0));
 	_agset(node_, "height", QString("%1").arg(boundingRect().height() / 96.0));
@@ -182,7 +179,7 @@ void GraphNode::removeEdge(GraphEdge *edge) {
 // Name: drawLabel
 // Desc:
 //------------------------------------------------------------------------------
-void GraphNode::drawLabel() {
+void GraphNode::drawLabel(const QString &text) {
 
 	QPainter painter(&picture_);
 	painter.setBrush(QBrush(color_));
@@ -202,7 +199,7 @@ void GraphNode::drawLabel() {
 	
 	// just to calculate the proper bounding box
 	QRectF textBoundingRect;
-	painter.drawText(QRectF(), Qt::AlignHCenter | Qt::AlignTop, text_, &textBoundingRect);
+	painter.drawText(QRectF(), Qt::AlignLeft | Qt::AlignTop, text, &textBoundingRect);
 	
 	// set some reasonable minimums
 	if(textBoundingRect.width() < NodeWidth) {
@@ -215,7 +212,17 @@ void GraphNode::drawLabel() {
 
 	// set the bounding box and then really draw it
 	picture_.setBoundingRect(textBoundingRect.adjusted(-2, -2, +2, +2).toRect());
-	painter.drawText(textBoundingRect.adjusted(-2, -2, +2, +2), Qt::AlignLeft | Qt::AlignTop, text_);
+		
+#if 1
+	QTextDocument doc;
+	doc.setDefaultFont(font);
+	doc.setDocumentMargin(0);
+	doc.setPlainText(text);
+	auto highligher = new SyntaxHighlighter(&doc);
+	doc.drawContents(&painter, textBoundingRect);
+#else
+	painter.drawText(textBoundingRect.adjusted(-2, -2, +2, +2), Qt::AlignLeft | Qt::AlignTop, text);
+#endif
 }
 
 //------------------------------------------------------------------------------

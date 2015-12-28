@@ -49,6 +49,10 @@ public:
     }
 
 public:
+	void setFont(const QFont &font);
+	QFont font() const;
+
+public:
 	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
 	virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
 	virtual QRectF boundingRect() const override;
@@ -60,12 +64,11 @@ protected:
 private:
 	void addEdge(GraphEdge *edge);
 	void removeEdge(GraphEdge *edge);
-	void drawLabel();
+	void drawLabel(const QString &text);
 
 protected:
 	QPicture          picture_;
 	QColor            color_;
-	QString           text_;
 	GraphWidget *     graph_;
 	QSet<GraphEdge *> edges_;
 	Agnode_t         *node_;
