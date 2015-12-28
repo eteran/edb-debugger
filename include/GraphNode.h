@@ -27,7 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <graphviz/cgraph.h>
 
 class QVariant;
-class QPainterPath;
 
 class GraphWidget;
 class GraphEdge;
