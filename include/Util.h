@@ -129,8 +129,7 @@ QString formatInt(T value, IntDisplayMode mode)
 	case IntDisplayMode::Unsigned:
 		return value.unsignedToString();
 	default:
-		Q_ASSERT(!"Unexpected integer display mode");
-		return "???";
+		EDB_PRINT_AND_DIE("Unexpected integer display mode ",(long)mode);
 	}
 }
 
