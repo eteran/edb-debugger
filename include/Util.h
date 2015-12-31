@@ -26,6 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstddef>
 #include <array>
 #include <algorithm>
+#include <iostream>
+#include <cstdlib>
 #include "FloatX.h"
 
 enum class IntDisplayMode {
@@ -84,6 +86,16 @@ auto make_array(T head, Tail...tail) -> std::array<T,1+sizeof...(Tail)>
 template<typename Container, typename Element>
 bool contains(const Container& container, const Element& element)
 { return std::find(std::begin(container),std::end(container),element)!=std::end(container); }
+
+template<typename Stream>
+void print(Stream& str){ str << "\n"; }
+template<typename Stream, typename Arg0, typename...Args>
+void print(Stream& str, const Arg0& arg0, const Args&...args)
+{
+	str << arg0;
+	print(str,args...);
+}
+#define EDB_PRINT_AND_DIE(...) { util::print(std::cerr,__FILE__,":",__LINE__,": ",Q_FUNC_INFO,": Fatal error: ",__VA_ARGS__); std::abort(); }
 
 // Returns a string of `AsType`s ordered from highest in SIMD register to lowest
 template<typename AsType, typename T>
