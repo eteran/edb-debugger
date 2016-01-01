@@ -230,6 +230,7 @@ void FieldWidget::paintEvent(QPaintEvent* event)
 	option.text=text();
 	option.font=font();
 	option.palette=palette();
+	option.textElideMode=Qt::ElideNone;
 	style()->drawControl(QStyle::CE_ItemViewItem, &option, &painter);
 }
 
