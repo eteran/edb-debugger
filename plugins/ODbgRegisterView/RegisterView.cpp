@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStyle>
 #include <QStyleOptionViewItem>
 #include <QVBoxLayout>
+#include <QPlastiqueStyle>
 #include <algorithm>
 #include <QDebug>
 #include <iostream>
@@ -65,6 +66,8 @@ inline QSize letterSize(QFont const& font)
     const int height=fontMetrics.height();
     return QSize(width,height);
 }
+
+static QPlastiqueStyle plastiqueStyle;
 
 }
 
@@ -124,6 +127,9 @@ FieldWidget::FieldWidget(const int fieldWidth, const bool uneditable, QModelInde
 		auto palette=this->palette();
 		unchangedFieldFGColor=palette.color(foregroundRole());
 	}
+	// Set some known style to avoid e.g. Oxygen's label transition animations, which
+	// break updating of colors like "register changed" when single-stepping frequently
+	setStyle(&plastiqueStyle);
 }
 
 bool FieldWidget::isEditable() const
@@ -231,7 +237,7 @@ void FieldWidget::paintEvent(QPaintEvent* event)
 	if(hovered_)  option.state |= QStyle::State_MouseOver;
 	if(palette().currentColorGroup()==QPalette::Active)
 		option.state |= QStyle::State_Active;
-	style()->drawControl(QStyle::CE_ItemViewItem, &option, &painter);
+	QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &option, &painter);
 }
 
 // -------------------------------- RegisterGroup impl ----------------------------
