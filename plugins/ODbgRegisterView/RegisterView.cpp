@@ -227,9 +227,10 @@ void FieldWidget::paintEvent(QPaintEvent* event)
 		option.state |= QStyle::State_Active;
 	option.rect=rect();
 	option.showDecorationSelected=true;
+	option.text=text();
+	option.font=font();
+	option.palette=palette();
 	style()->drawControl(QStyle::CE_ItemViewItem, &option, &painter);
-
-	QLabel::paintEvent(event); // FIXME: Is it OK? Or better draw text manually, and call this one at the beginning?
 }
 
 // -------------------------------- RegisterGroup impl ----------------------------
