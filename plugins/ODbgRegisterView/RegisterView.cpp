@@ -374,7 +374,7 @@ void ODBRegView::setModel(QAbstractItemModel* model)
 {
 	model_=model;
 	connect(model,SIGNAL(modelReset()),this,SLOT(modelReset()));
-	connect(model,SIGNAL(dataChanged(QModelIndex const&,QModelIndex const&)),this,SLOT(modelUpdated(QModelIndex const&,QModelIndex const&)));
+	connect(model,SIGNAL(dataChanged(QModelIndex const&,QModelIndex const&)),this,SLOT(modelUpdated()));
 	modelReset();
 }
 
@@ -472,11 +472,10 @@ void ODBRegView::modelReset()
 		addGroup(groupType);
 }
 
-void ODBRegView::modelUpdated(QModelIndex const& topLeft,QModelIndex const& bottomRight)
+void ODBRegView::modelUpdated()
 {
 	for(auto* const field : fields())
-		if(field->isInRange(topLeft,bottomRight))
-			field->update();
+		field->update();
 	for(auto* const group : groups)
 		group->adjustWidth();
 }

@@ -68,7 +68,7 @@ private:
 	QList<RegisterGroup*> groups;
 private Q_SLOTS:
 	void modelReset();
-	void modelUpdated(QModelIndex const& topLeft,QModelIndex const& bottomRight);
+	void modelUpdated();
 };
 
 class FieldWidget : public QLabel
