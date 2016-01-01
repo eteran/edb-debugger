@@ -114,7 +114,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="registersDock">
    <property name="windowTitle">
-    <string>Registers</string>
+    <string>Register Tree</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
