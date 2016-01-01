@@ -223,7 +223,7 @@ void FieldWidget::paintEvent(QPaintEvent* event)
 	option.state |= QStyle::State_Enabled;
 	if(selected_) option.state |= QStyle::State_Selected;
 	if(hovered_)  option.state |= QStyle::State_MouseOver;
-	if(static_cast<QWidget*>(parent())->palette().currentColorGroup()==QPalette::Active)
+	if(parentWidget()->palette().currentColorGroup()==QPalette::Active)
 		option.state |= QStyle::State_Active;
 	option.rect=rect();
 	option.showDecorationSelected=true;
