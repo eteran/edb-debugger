@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPainter>
 #include <QStyle>
 #include <QStyleOptionViewItem>
+#include <QVBoxLayout>
 #include <algorithm>
 #include <QDebug>
 #include <iostream>
@@ -43,6 +44,10 @@ namespace ODbgRegisterView {
 
 namespace
 {
+
+static const int MODEL_NAME_COLUMN=RegisterViewModelBase::Model::NAME_COLUMN;
+static const int MODEL_VALUE_COLUMN=RegisterViewModelBase::Model::VALUE_COLUMN;
+static const int MODEL_COMMENT_COLUMN=RegisterViewModelBase::Model::COMMENT_COLUMN;
 
 template<typename T>
 T sqr(T v) { return v*v; }
@@ -347,12 +352,17 @@ void RegisterGroup::adjustWidth()
 ODBRegView::ODBRegView(QWidget* parent)
     : QScrollArea(parent)
 {
-	groups.push_back(new RegisterGroup(this));
-    setWidget(groups.front()); // TODO: generalize to all groups
+	auto* const canvas=new QWidget(this);
+	auto* const canvasLayout=new QVBoxLayout(canvas);
+	canvasLayout->setSpacing(0);
+	canvas->setLayout(canvasLayout);
+    setWidget(canvas);
     setWidgetResizable(true);
-
-	for(auto* const group : groups)
-		group->show();
+	// TODO: make this list user-selectable
+	regGroupTypes={RegisterGroupType::GPR,
+				   RegisterGroupType::rIP,
+				   RegisterGroupType::Segment,
+				   RegisterGroupType::EFL};
 }
 
 void ODBRegView::setModel(QAbstractItemModel* model)
@@ -363,25 +373,98 @@ void ODBRegView::setModel(QAbstractItemModel* model)
 	modelReset();
 }
 
+// TODO: switch from string-based search to enum-based one (add a new Role to model data)
+QModelIndex findModelCategory(QAbstractItemModel const*const model,
+							  QString const& catToFind)
+{
+	for(int row=0;row<model->rowCount();++row)
+	{
+		const auto cat=model->index(row,0).data(MODEL_NAME_COLUMN);
+		if(cat.isValid() && cat.toString()==catToFind)
+			return model->index(row,0);
+	}
+	return QModelIndex();
+}
+
+// TODO: switch from string-based search to enum-based one (add a new Role to model data)
+QModelIndex findModelRegister(QModelIndex categoryIndex,
+							  QString const& regToFind)
+{
+	auto* const model=categoryIndex.model();
+	for(int row=0;row<model->rowCount(categoryIndex);++row)
+	{
+		const auto regIndex=model->index(row,MODEL_NAME_COLUMN,categoryIndex);
+		const auto name=model->data(regIndex).toString();
+		if(name.toUpper()==regToFind)
+			return regIndex;
+	}
+	return QModelIndex();
+}
+
+void ODBRegView::addGroup(RegisterGroupType type)
+{
+	if(!model_->rowCount()) return;
+	std::vector<QModelIndex> nameValCommentIndices;
+	switch(type)
+	{
+	case RegisterGroupType::GPR:
+	{
+		const auto catIndex=findModelCategory(model_,"General Purpose");
+		if(!catIndex.isValid()) break;
+		for(int row=0;row<model_->rowCount(catIndex);++row)
+			nameValCommentIndices.emplace_back(model_->index(row,MODEL_NAME_COLUMN,catIndex));
+		break;
+	}
+	case RegisterGroupType::Segment:
+	{
+		const auto catIndex=findModelCategory(model_,"Segment");
+		if(!catIndex.isValid()) break;
+		for(int row=0;row<model_->rowCount(catIndex);++row)
+			nameValCommentIndices.emplace_back(model_->index(row,MODEL_NAME_COLUMN,catIndex));
+		break;
+	}
+	case RegisterGroupType::rIP:
+	{
+		const auto catIndex=findModelCategory(model_,"General Status");
+		if(!catIndex.isValid()) break;
+		nameValCommentIndices.emplace_back(findModelRegister(catIndex,"RIP"));
+		nameValCommentIndices.emplace_back(findModelRegister(catIndex,"EIP"));
+		break;
+	}
+	case RegisterGroupType::EFL:
+	{
+		const auto catIndex=findModelCategory(model_,"General Status");
+		if(!catIndex.isValid()) break;
+		nameValCommentIndices.emplace_back(findModelRegister(catIndex,"RFLAGS"));
+		nameValCommentIndices.emplace_back(findModelRegister(catIndex,"EFLAGS"));
+		break;
+	}
+	default: return;
+	}
+	nameValCommentIndices.erase(std::remove_if(nameValCommentIndices.begin(),
+											   nameValCommentIndices.end(),
+											   [](QModelIndex const& index){ return !index.isValid(); })
+								,nameValCommentIndices.end());
+	if(nameValCommentIndices.empty())
+	{
+		qWarning() << "Warning: failed to get any useful register indices for regGroupType" << static_cast<long>(type);
+		return;
+	}
+	groups.push_back(new RegisterGroup(this));
+	auto* const group=groups.back();
+	for(const auto& index : nameValCommentIndices)
+		group->appendNameValueComment(index);
+	static_cast<QVBoxLayout*>(widget()->layout())->addWidget(group);
+}
+
 void ODBRegView::modelReset()
 {
 	setWidget(nullptr);
 	for(auto* const group : groups)
 		group->deleteLater();
 	groups.clear();
-	groups.push_back(new RegisterGroup(this));
-	if(model_->hasIndex(0,0)) // TODO: implement this, it's a stub currently
-	{
-		const int NAME_COLUMN=RegisterViewModelBase::Model::NAME_COLUMN;
-		const auto groupIndex=model_->index(0,0);
-		auto* const group=groups.front();
-		for(int row=0;row<model_->rowCount(groupIndex);++row)
-		{
-			const auto index=model_->index(row,NAME_COLUMN,groupIndex);
-			group->appendNameValueComment(index);
-		}
-	}
-	setWidget(groups.front());
+	for(auto groupType : regGroupTypes)
+		addGroup(groupType);
 }
 
 void ODBRegView::modelUpdated(QModelIndex const& topLeft,QModelIndex const& bottomRight)

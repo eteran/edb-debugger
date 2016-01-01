@@ -37,6 +37,22 @@ class ODBRegView : public QScrollArea
 	Q_OBJECT
 
 	QAbstractItemModel* model_=nullptr;
+	enum class RegisterGroupType
+	{
+		GPR,
+		rIP,
+		EFL,
+		ExpandedEFL,
+		Segment,
+		FPUData,
+		FPUWords,
+		FPULastOp,
+		SSEData,
+		AVXData,
+		MXCSR
+	};
+	std::vector<RegisterGroupType> regGroupTypes;
+	void addGroup(RegisterGroupType type);
 public:
     ODBRegView(QWidget* parent=nullptr);
     void finalize();
