@@ -298,7 +298,6 @@ void RegisterGroup::appendNameValueComment(QModelIndex const& nameIndex, bool in
 	const auto valueWidth=valueIndex.data(Model::FixedLengthRole).toInt();
 	Q_ASSERT(valueWidth>0);
 
-	
 	const int line=lineAfterLastField();
 	int column=0;
 	insert(line,column,nameWidth,true,nameIndex);
