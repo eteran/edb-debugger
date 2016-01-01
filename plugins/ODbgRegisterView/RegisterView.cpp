@@ -286,7 +286,8 @@ void RegisterGroup::appendNameValueComment(QModelIndex const& nameIndex, bool in
 	using namespace RegisterViewModelBase;
 	const auto nameWidth=nameIndex.data(Model::FixedLengthRole).toInt();
 	Q_ASSERT(nameWidth>0);
-	const auto valueWidth=nameIndex.sibling(nameIndex.row(),Model::VALUE_COLUMN).data(Model::FixedLengthRole).toInt();
+	const auto valueIndex=nameIndex.sibling(nameIndex.row(),Model::VALUE_COLUMN);
+	const auto valueWidth=valueIndex.data(Model::FixedLengthRole).toInt();
 	Q_ASSERT(valueWidth>0);
 
 	
@@ -294,7 +295,7 @@ void RegisterGroup::appendNameValueComment(QModelIndex const& nameIndex, bool in
 	int column=0;
 	insert(line,column,nameWidth,true,nameIndex);
 	column+=nameWidth+1;
-	insert(line,column,valueWidth,false,nameIndex.sibling(nameIndex.row(),Model::VALUE_COLUMN));
+	insert(line,column,valueWidth,false,valueIndex);
 	if(insertComment)
 	{
 		column+=valueWidth+1;
