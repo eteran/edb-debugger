@@ -346,7 +346,7 @@ ODBRegView::ODBRegView(QWidget* parent)
 
 	auto* const canvas=new QWidget(this);
 	auto* const canvasLayout=new QVBoxLayout(canvas);
-	canvasLayout->setSpacing(letterSize(this->font()).height());
+	canvasLayout->setSpacing(letterSize(this->font()).height()/2);
 	canvasLayout->setContentsMargins(contentsMargins());
 	canvasLayout->setAlignment(Qt::AlignTop);
 	canvas->setLayout(canvasLayout);
