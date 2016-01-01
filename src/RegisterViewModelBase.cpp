@@ -126,7 +126,7 @@ QVariant Model::data(QModelIndex const& index, int role) const
 		return getItem(index)->data(index.column());
 	case Qt::ForegroundRole:
 		{
-			const auto reg=dynamic_cast<RegisterViewItem*>(getItem(index));
+			const auto reg=getItem(index);
 			if(!reg) return QVariant();
 			if(!reg->changed()) return QVariant(); // default color for unchanged register
 			switch(index.column())
@@ -139,13 +139,13 @@ QVariant Model::data(QModelIndex const& index, int role) const
 		}
 	case RegisterChangedRole:
 		{
-			const auto reg=dynamic_cast<RegisterViewItem*>(getItem(index));
+			const auto reg=getItem(index);
 			if(!reg) return QVariant();
 			return reg->changed();
 		}
 	case FixedLengthRole:
 		{
-			const auto reg=dynamic_cast<RegisterViewItem*>(getItem(index));
+			const auto reg=getItem(index);
 			if(!reg) return QVariant();
 			if(index.column()==NAME_COLUMN)
 				return reg->name().size();
