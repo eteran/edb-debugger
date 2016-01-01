@@ -347,6 +347,7 @@ ODBRegView::ODBRegView(QWidget* parent)
 	auto* const canvasLayout=new QVBoxLayout(canvas);
 	canvasLayout->setSpacing(letterSize(this->font()).height());
 	canvasLayout->setContentsMargins(contentsMargins());
+	canvasLayout->setAlignment(Qt::AlignTop);
 	canvas->setLayout(canvasLayout);
 	canvas->setBackgroundRole(QPalette::Base);
 	canvas->setAutoFillBackground(true);
