@@ -309,6 +309,19 @@ void addAVXRegs(RegisterViewModelBase::Category* avxRegs, unsigned regCount)
 	avxRegs->addRegister(make_unique<MXCSR>("MXCSR",MXCSRDescription));
 }
 
+QVariant RegisterViewModel::data(QModelIndex const& index, int role) const
+{
+	if(role==FixedLengthRole && index.column()==NAME_COLUMN)
+	{
+		using namespace RegisterViewModelBase;
+		const auto reg=static_cast<RegisterViewItem*>(index.internalPointer());
+		const auto name=reg->data(NAME_COLUMN).toString();
+		if(name=="R8"||name=="R9")
+			return 3;
+	}
+	return Model::data(index,role);
+}
+
 RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject* parent)
 	: RegisterViewModelBase::Model(parent),
 	  gprs32(addCategory(tr("General Purpose"))),
