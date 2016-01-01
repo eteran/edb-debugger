@@ -103,8 +103,6 @@ FieldWidget::FieldWidget(const int fieldWidth, const bool uneditable, QModelInde
 	  uneditable_(uneditable),
 	  index(index)
 {
-	setFont(parent->font());
-
 	const auto size=letterSize(font());
 	const int height=size.height();
 	setFixedHeight(height);
@@ -238,9 +236,6 @@ void FieldWidget::paintEvent(QPaintEvent* event)
 RegisterGroup::RegisterGroup(QWidget* parent)
 	: QWidget(parent)
 {
-	QFont font("Monospace");
-	font.setStyleHint(QFont::TypeWriter);
-	setFont(font);
 }
 
 void RegisterGroup::insert(const int line, const int column, const int width, const bool uneditable, QModelIndex const& index)
@@ -344,9 +339,13 @@ void RegisterGroup::adjustWidth()
 ODBRegView::ODBRegView(QWidget* parent)
     : QScrollArea(parent)
 {
+	QFont font("Monospace");
+	font.setStyleHint(QFont::TypeWriter);
+	setFont(font);
+
 	auto* const canvas=new QWidget(this);
 	auto* const canvasLayout=new QVBoxLayout(canvas);
-	canvasLayout->setSpacing(0);
+	canvasLayout->setSpacing(letterSize(this->font()).height());
 	canvasLayout->setContentsMargins(contentsMargins());
 	canvas->setLayout(canvasLayout);
 	canvas->setBackgroundRole(QPalette::Base);
