@@ -99,7 +99,7 @@ bool FieldWidget::changed() const
 }
 
 FieldWidget::FieldWidget(const int fieldWidth, const bool uneditable, QModelIndex const& index, QWidget* const parent)
-	: QLabel("FiWi???",parent),
+	: QLabel("Fw???",parent),
 	  uneditable_(uneditable),
 	  index(index)
 {
