@@ -50,15 +50,15 @@ static const int MODEL_VALUE_COLUMN=RegisterViewModelBase::Model::VALUE_COLUMN;
 static const int MODEL_COMMENT_COLUMN=RegisterViewModelBase::Model::COMMENT_COLUMN;
 
 template<typename T>
-T sqr(T v) { return v*v; }
+inline T sqr(T v) { return v*v; }
 
 // Square of Euclidean distance between two widgets
-int distSqr(QWidget const* w1, QWidget const* w2)
+inline int distSqr(QWidget const* w1, QWidget const* w2)
 {
     return sqr(w1->x()-w2->x())+sqr(w1->y()-w2->y());
 }
 
-QSize letterSize(QFont const& font)
+inline QSize letterSize(QFont const& font)
 {
     const QFontMetrics fontMetrics(font);
     const int width=fontMetrics.width('w');
