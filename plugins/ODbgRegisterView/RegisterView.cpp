@@ -84,7 +84,7 @@ void FieldWidget::setNeighbors(FieldWidget* up,FieldWidget* down,FieldWidget* le
 
 QString FieldWidget::text() const
 {
-	Q_ASSERT(index.isValid());
+	if(!index.isValid()) return "FW???";
 	const auto text=index.data();
 	Q_ASSERT(text.isValid());
 	return text.toString();
