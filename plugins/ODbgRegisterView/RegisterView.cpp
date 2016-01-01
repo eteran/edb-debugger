@@ -115,20 +115,17 @@ FieldWidget::FieldWidget(const int fieldWidth, const bool uneditable, QModelInde
 		setFixedWidth(width);
 	}
 
-	auto palette=this->palette();
-
 	if(uneditable_)
 	{
-		const QColor uneditableFGColor=palette.color(QPalette::Disabled,QPalette::Text);
-		palette.setColor(foregroundRole(),uneditableFGColor);
+		setDisabled(true);
 	}
 	else
 	{
 		setMouseTracking(true);
+
+		auto palette=this->palette();
 		unchangedFieldFGColor=palette.color(foregroundRole());
 	}
-
-	setPalette(palette);
 }
 
 bool FieldWidget::isEditable() const
@@ -244,9 +241,6 @@ RegisterGroup::RegisterGroup(QWidget* parent)
 	QFont font("Monospace");
 	font.setStyleHint(QFont::TypeWriter);
 	setFont(font);
-
-	setBackgroundRole(QPalette::Base);
-	setAutoFillBackground(true);
 }
 
 void RegisterGroup::insert(const int line, const int column, const int width, const bool uneditable, QModelIndex const& index)
@@ -353,7 +347,11 @@ ODBRegView::ODBRegView(QWidget* parent)
 	auto* const canvas=new QWidget(this);
 	auto* const canvasLayout=new QVBoxLayout(canvas);
 	canvasLayout->setSpacing(0);
+	canvasLayout->setContentsMargins(contentsMargins());
 	canvas->setLayout(canvasLayout);
+	canvas->setBackgroundRole(QPalette::Base);
+	canvas->setAutoFillBackground(true);
+
     setWidget(canvas);
     setWidgetResizable(true);
 	// TODO: make this list user-selectable
