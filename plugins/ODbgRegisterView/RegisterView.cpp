@@ -220,17 +220,17 @@ void FieldWidget::paintEvent(QPaintEvent* event)
 
 	QPainter painter(this);
 	QStyleOptionViewItemV4 option;
-	option.state |= QStyle::State_Enabled;
-	if(selected_) option.state |= QStyle::State_Selected;
-	if(hovered_)  option.state |= QStyle::State_MouseOver;
-	if(parentWidget()->palette().currentColorGroup()==QPalette::Active)
-		option.state |= QStyle::State_Active;
 	option.rect=rect();
 	option.showDecorationSelected=true;
 	option.text=text();
 	option.font=font();
 	option.palette=palette();
 	option.textElideMode=Qt::ElideNone;
+	option.state |= QStyle::State_Enabled;
+	if(selected_) option.state |= QStyle::State_Selected;
+	if(hovered_)  option.state |= QStyle::State_MouseOver;
+	if(palette().currentColorGroup()==QPalette::Active)
+		option.state |= QStyle::State_Active;
 	style()->drawControl(QStyle::CE_ItemViewItem, &option, &painter);
 }
 
