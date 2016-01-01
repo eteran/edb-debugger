@@ -118,44 +118,33 @@ Qt::ItemFlags Model::flags(QModelIndex const& index) const
 
 QVariant Model::data(QModelIndex const& index, int role) const
 {
-	if(!index.isValid()) return QVariant();
+	const auto*const reg=getItem(index);
+	if(!reg) return QVariant();
 
 	switch(role)
 	{
 	case Qt::DisplayRole:
-		return getItem(index)->data(index.column());
+		return reg->data(index.column());
+
 	case Qt::ForegroundRole:
-		{
-			const auto reg=getItem(index);
-			if(!reg) return QVariant();
-			if(!reg->changed()) return QVariant(); // default color for unchanged register
-			switch(index.column())
-			{
-			case VALUE_COLUMN:
-				return QVariant(QBrush(Qt::red)); // TODO: use user palette
-			default:
-				return QVariant(); // default color for other columns
-			}
-		}
+		if(index.column()!=VALUE_COLUMN || !reg->changed())
+			return QVariant(); // default color for unchanged register and for non-value column
+		return QVariant(QBrush(Qt::red)); // TODO: use user palette
+
 	case RegisterChangedRole:
-		{
-			const auto reg=getItem(index);
-			if(!reg) return QVariant();
-			return reg->changed();
-		}
+		return reg->changed();
+
 	case FixedLengthRole:
-		{
-			const auto reg=getItem(index);
-			if(!reg) return QVariant();
-			if(index.column()==NAME_COLUMN)
-				return reg->name().size();
-			else if(index.column()==VALUE_COLUMN)
-				return reg->valueMaxLength();
-			else return QVariant();
-		}
+		if(index.column()==NAME_COLUMN)
+			return reg->name().size();
+		else if(index.column()==VALUE_COLUMN)
+			return reg->valueMaxLength();
+		else return QVariant();
+
 	default:
 		return QVariant();
 	}
+	return QVariant();
 }
 
 void Model::hideAll()
