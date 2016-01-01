@@ -258,13 +258,11 @@ void RegisterGroup::insert(const int line, const int column, const int width, co
 	const auto charSize=letterSize(font());
 	const auto charWidth=charSize.width();
 	const auto charHeight=charSize.height();
-	const auto margins(parentWidget()->parentWidget()->contentsMargins());
 	// extra space for highlighting rectangle, so that single-digit fields are easier to target
 	const auto marginLeft=charWidth/2;
 	const auto marginRight=charWidth-marginLeft;
 
 	QPoint position(charWidth*column,charHeight*line);
-	position += QPoint(margins.left(),margins.top());
 	position -= QPoint(marginLeft,0);
 
 	QSize size(widget->size());
@@ -275,8 +273,8 @@ void RegisterGroup::insert(const int line, const int column, const int width, co
 	// FIXME: why are e.g. regnames like FSR truncated without the -1?
 	widget->setContentsMargins(marginLeft,0,marginRight-1,0);
 
-	const auto potentialNewWidth=widget->pos().x()+widget->width()+margins.right();
-	const auto potentialNewHeight=widget->pos().y()+widget->height()+margins.bottom();
+	const auto potentialNewWidth=widget->pos().x()+widget->width();
+	const auto potentialNewHeight=widget->pos().y()+widget->height();
 	const auto oldMinSize=minimumSize();
 	if(potentialNewWidth > oldMinSize.width() || potentialNewHeight > oldMinSize.height())
 		setMinimumSize(std::max(potentialNewWidth,oldMinSize.width()),std::max(potentialNewHeight,oldMinSize.height()));
