@@ -469,7 +469,9 @@ void ODBRegView::addGroup(RegisterGroupType type)
 		static_cast<QVBoxLayout*>(widget()->layout())->addWidget(group);
 		return;
 	}
-	default: return;
+	default:
+		qWarning() << "Warning: unexpected register group type requested in" << Q_FUNC_INFO;
+		return;
 	}
 	nameValCommentIndices.erase(std::remove_if(nameValCommentIndices.begin(),
 											   nameValCommentIndices.end(),
