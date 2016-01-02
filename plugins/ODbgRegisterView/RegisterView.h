@@ -70,6 +70,7 @@ private:
 
 	QList<RegisterGroup*> groups;
 private Q_SLOTS:
+    void fieldSelected();
 	void modelReset();
 	void modelUpdated();
 };
@@ -144,8 +145,6 @@ public:
 	void appendNameValueComment(QModelIndex const& nameIndex,bool insertComment=true);
 protected:
     void mousePressEvent(QMouseEvent* event);
-private Q_SLOTS:
-    void fieldSelected();
 public Q_SLOTS:
 	void adjustWidth();
 };

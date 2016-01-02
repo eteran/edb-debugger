@@ -247,7 +247,7 @@ void RegisterGroup::insert(int const line, int const column, FieldWidget* const 
 {
 	widget->update();
 	if(auto* const value=dynamic_cast<ValueField*>(widget))
-		connect(value,SIGNAL(selected()),this,SLOT(fieldSelected()));
+		connect(value,SIGNAL(selected()),parent(),SLOT(fieldSelected()));
 
 	const auto charSize=letterSize(font());
 	const auto charWidth=charSize.width();
@@ -337,7 +337,7 @@ void RegisterGroup::mousePressEvent(QMouseEvent* event)
 	for(auto* const field : valueFields()) field->unselect();
 }
 
-void RegisterGroup::fieldSelected()
+void ODBRegView::fieldSelected()
 {
 	for(auto* const field : valueFields())
 		if(sender()!=field)
