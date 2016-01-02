@@ -119,6 +119,7 @@ ValueField::ValueField(int const fieldWidth,
 	: FieldWidget(fieldWidth,index,parent),
 	  valueFormatter(valueFormatter)
 {
+	setDisabled(false);
 	setMouseTracking(true);
 	// Set some known style to avoid e.g. Oxygen's label transition animations, which
 	// break updating of colors such as "register changed" when single-stepping frequently
