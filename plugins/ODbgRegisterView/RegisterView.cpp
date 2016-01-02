@@ -400,7 +400,7 @@ void ODBRegView::fieldSelected()
 void RegisterGroup::adjustWidth()
 {
 	int widthNeeded=0;
-	for(auto* const field : valueFields())
+	for(auto* const field : fields())
 	{
 		const auto widthToRequire=field->pos().x()+field->width();
 		if(widthToRequire>widthNeeded) widthNeeded=widthToRequire;
