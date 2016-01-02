@@ -583,7 +583,7 @@ void ODBRegView::addGroup(RegisterGroupType type)
 	auto* const group=groups.back();
 	for(const auto& index : nameValCommentIndices)
 		group->appendNameValueComment(index);
-	static_cast<QVBoxLayout*>(widget()->layout())->addWidget(group);
+	layout->addWidget(group);
 }
 
 void ODBRegView::modelReset()
