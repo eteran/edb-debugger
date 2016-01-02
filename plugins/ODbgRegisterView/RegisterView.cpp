@@ -84,6 +84,7 @@ QString FieldWidget::text() const
 
 void FieldWidget::init(int const fieldWidth)
 {
+	setObjectName("FieldWidget");
 	const auto charSize=letterSize(font());
 	setFixedHeight(charSize.height());
 	if(fieldWidth>0)
@@ -119,6 +120,7 @@ ValueField::ValueField(int const fieldWidth,
 	: FieldWidget(fieldWidth,index,parent),
 	  valueFormatter(valueFormatter)
 {
+	setObjectName("ValueField");
 	setDisabled(false);
 	setMouseTracking(true);
 	// Set some known style to avoid e.g. Oxygen's label transition animations, which
@@ -241,6 +243,7 @@ void ValueField::paintEvent(QPaintEvent*)
 RegisterGroup::RegisterGroup(QWidget* parent)
 	: QWidget(parent)
 {
+	setObjectName("RegisterGroup");
 }
 
 void RegisterGroup::insert(int const line, int const column, FieldWidget* const widget)
@@ -339,6 +342,7 @@ void RegisterGroup::mousePressEvent(QMouseEvent* event)
 
 void ODBRegView::fieldSelected()
 {
+	setObjectName("ODBRegView");
 	for(auto* const field : valueFields())
 		if(sender()!=field)
 			field->unselect();
@@ -363,6 +367,7 @@ ODBRegView::ODBRegView(QWidget* parent)
 	setFont(font);
 
 	auto* const canvas=new QWidget(this);
+	canvas->setObjectName("RegViewCanvas");
 	auto* const canvasLayout=new QVBoxLayout(canvas);
 	canvasLayout->setSpacing(letterSize(this->font()).height()/2);
 	canvasLayout->setContentsMargins(contentsMargins());
