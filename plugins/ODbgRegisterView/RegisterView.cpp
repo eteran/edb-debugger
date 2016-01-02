@@ -549,7 +549,7 @@ void ODBRegView::modelReset()
 
 void ODBRegView::modelUpdated()
 {
-	for(auto* const field : valueFields())
+	for(auto* const field : fields())
 		field->update();
 	for(auto* const group : groups)
 		group->adjustWidth();
