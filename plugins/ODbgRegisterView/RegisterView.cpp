@@ -590,11 +590,25 @@ void ODBRegView::modelReset()
 		group->deleteLater();
 	groups.clear();
 	auto* const layout=static_cast<QVBoxLayout*>(widget()->layout());
+	auto* const flagsAndSegments=new QHBoxLayout();
+	flagsAndSegments->setSpacing(letterSize(this->font()).width());
+	flagsAndSegments->setContentsMargins(QMargins());
+	flagsAndSegments->setAlignment(Qt::AlignLeft);
+	bool flagsAndSegsInserted=false;
 	for(auto groupType : regGroupTypes)
 	{
 		auto*const group=makeGroup(groupType);
 		if(!group) continue;
-		layout->addWidget(group);
+		if(groupType==RegisterGroupType::Segment || groupType==RegisterGroupType::ExpandedEFL)
+		{
+			flagsAndSegments->addWidget(group);
+			if(!flagsAndSegsInserted)
+			{
+				layout->addLayout(flagsAndSegments);
+				flagsAndSegsInserted=true;
+			}
+		}
+		else layout->addWidget(group);
 	}
 }
 
