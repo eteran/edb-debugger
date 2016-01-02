@@ -120,7 +120,7 @@ FieldWidget::FieldWidget(const int fieldWidth, const bool uneditable, QModelInde
 	else
 		setMouseTracking(true);
 	// Set some known style to avoid e.g. Oxygen's label transition animations, which
-	// break updating of colors like "register changed" when single-stepping frequently
+	// break updating of colors such as "register changed" when single-stepping frequently
 	setStyle(&plastiqueStyle);
 }
 
