@@ -378,6 +378,7 @@ QList<ValueField*> RegisterGroup::valueFields() const
 	return allValues;
 }
 
+// FIXME: doens't work for click on canvas
 void RegisterGroup::mousePressEvent(QMouseEvent* event)
 {
 	if(event->type()!=QEvent::MouseButtonPress) return;
