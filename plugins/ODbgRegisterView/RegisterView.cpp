@@ -431,6 +431,7 @@ ODBRegView::ODBRegView(QWidget* parent)
 	// TODO: make this list user-selectable
 	regGroupTypes={RegisterGroupType::GPR,
 				   RegisterGroupType::rIP,
+				   RegisterGroupType::ExpandedEFL,
 				   RegisterGroupType::Segment,
 				   RegisterGroupType::EFL};
 }
@@ -475,6 +476,7 @@ void ODBRegView::addGroup(RegisterGroupType type)
 {
 	if(!model_->rowCount()) return;
 	std::vector<QModelIndex> nameValCommentIndices;
+	auto* const layout=static_cast<QVBoxLayout*>(widget()->layout());
 	switch(type)
 	{
 	case RegisterGroupType::GPR:
@@ -503,7 +505,6 @@ void ODBRegView::addGroup(RegisterGroupType type)
 	}
 	case RegisterGroupType::EFL:
 	{
-		using RegisterViewModelBase::Model;
 		const auto catIndex=findModelCategory(model_,"General Status");
 		if(!catIndex.isValid()) break;
 		auto nameIndex=findModelRegister(catIndex,"RFLAGS");
@@ -516,13 +517,53 @@ void ODBRegView::addGroup(RegisterGroupType type)
 		int column=0;
 		group->insert(0,column,new FieldWidget(nameWidth,"EFL",group));
 		const auto valueWidth=8;
-		const auto valueIndex=nameIndex.sibling(nameIndex.row(),Model::VALUE_COLUMN);
+		const auto valueIndex=nameIndex.sibling(nameIndex.row(),MODEL_VALUE_COLUMN);
 		column+=nameWidth+1;
 		group->insert(0,column,new ValueField(valueWidth,valueIndex,group,[](QString const& v){return v.right(8);}));
-		const auto commentIndex=nameIndex.sibling(nameIndex.row(),Model::COMMENT_COLUMN);
+		const auto commentIndex=nameIndex.sibling(nameIndex.row(),MODEL_COMMENT_COLUMN);
 		column+=valueWidth+1;
 		group->insert(0,column,new FieldWidget(0,commentIndex,group));
-		static_cast<QVBoxLayout*>(widget()->layout())->addWidget(group);
+		layout->addWidget(group);
+		return;
+	}
+	case RegisterGroupType::ExpandedEFL:
+	{
+		const auto catIndex=findModelCategory(model_,"General Status");
+		if(!catIndex.isValid()) break;
+		auto regNameIndex=findModelRegister(catIndex,"RFLAGS");
+		if(!regNameIndex.isValid())
+			regNameIndex=findModelRegister(catIndex,"EFLAGS");
+		if(!regNameIndex.isValid()) break;
+		groups.push_back(new RegisterGroup(this));
+		auto* const group=groups.back();
+		for(int row=0,groupRow=0;row<model_->rowCount(regNameIndex);++row)
+		{
+			const auto flagNameIndex=model_->index(row,MODEL_NAME_COLUMN,regNameIndex);
+			const auto flagValueIndex=model_->index(row,MODEL_VALUE_COLUMN,regNameIndex);
+			const auto flagName=model_->data(flagNameIndex).toString().toUpper();
+			if(flagName.length()!=2 || flagName[1]!='F') continue;
+			static const int flagNameWidth=1;
+			static const int valueWidth=1;
+			const char name=flagName[0].toLatin1();
+			switch(name)
+			{
+			case 'C':
+			case 'P':
+			case 'A':
+			case 'Z':
+			case 'S':
+			case 'T':
+			case 'D':
+			case 'O':
+				group->insert(groupRow,0,new FieldWidget(flagNameWidth,QChar(name),group));
+				group->insert(groupRow,flagNameWidth+1,new ValueField(valueWidth,flagValueIndex,group));
+				++groupRow;
+				break;
+			default:
+				continue;
+			}
+		}
+		layout->addWidget(group);
 		return;
 	}
 	default:
