@@ -55,7 +55,8 @@ inline T sqr(T v) { return v*v; }
 
 inline QPoint fieldPos(const FieldWidget* const field)
 {
-	return field->mapToGlobal(QPoint());
+	// NOTE: mapToGlobal() is VERY slow, don't use it. Here we map to canvas, it's enough for all fields.
+	return field->mapTo(field->parentWidget()->parentWidget(),QPoint());
 }
 
 // Square of Euclidean distance between two points
