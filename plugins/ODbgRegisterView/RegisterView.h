@@ -78,10 +78,8 @@ class FieldWidget : public QLabel
     bool selected_=false;
     bool uneditable_;
     bool hovered_=false;
-	bool fixedWidth=false;
 	QPersistentModelIndex index;
     FieldWidget *up_=0, *down_=0, *left_=0, *right_=0;
-	QColor unchangedFieldFGColor=Qt::green; // initialized to make bugs visible
 
 	QString text() const;
 	bool changed() const;
@@ -96,20 +94,19 @@ public:
     FieldWidget(int fieldWidth,bool uneditable,QModelIndex const& index,QWidget* parent=nullptr);
     bool isEditable() const;
     bool isSelected() const;
-	bool isInRange(QModelIndex const& topLeft, QModelIndex const& bottomRight) const;
-    void updatePalette();
+protected:
     void enterEvent(QEvent*) override;
     void leaveEvent(QEvent*) override;
-    void select();
     void mousePressEvent(QMouseEvent* event) override;
-    void unselect();
     void mouseDoubleClickEvent(QMouseEvent* event) override;
-protected:
     void paintEvent(QPaintEvent* event) override;
 Q_SIGNALS:
     void selected();
 public Q_SLOTS:
 	void update();
+    void updatePalette();
+    void select();
+    void unselect();
 };
 
 class RegisterGroup : public QWidget

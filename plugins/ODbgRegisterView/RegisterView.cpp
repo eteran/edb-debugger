@@ -111,22 +111,14 @@ FieldWidget::FieldWidget(const int fieldWidth, const bool uneditable, QModelInde
 	setFixedHeight(height);
 	if(fieldWidth>0)
 	{
-		fixedWidth=true;
 		const int width=fieldWidth*size.width();
 		setFixedWidth(width);
 	}
 
 	if(uneditable_)
-	{
 		setDisabled(true);
-	}
 	else
-	{
 		setMouseTracking(true);
-
-		auto palette=this->palette();
-		unchangedFieldFGColor=palette.color(foregroundRole());
-	}
 	// Set some known style to avoid e.g. Oxygen's label transition animations, which
 	// break updating of colors like "register changed" when single-stepping frequently
 	setStyle(&plastiqueStyle);
@@ -144,12 +136,6 @@ void FieldWidget::update()
 	updatePalette();
 }
 
-bool FieldWidget::isInRange(QModelIndex const& topLeft, QModelIndex const& bottomRight) const
-{
-	return topLeft.row() <= index.row() && index.row() <= bottomRight.row() &&
-		   topLeft.column() <= index.column() && index.column() <= bottomRight.column();
-}
-
 bool FieldWidget::isSelected() const
 {
 	return selected_;
@@ -160,7 +146,7 @@ void FieldWidget::updatePalette()
 	if(uneditable_) return;
 
 	auto palette=this->palette();
-	const auto appPalette=static_cast<QWidget*>(parent())->palette();
+	const auto appPalette=QApplication::palette();
 
 	const QColor selectedFGColor=appPalette.color(QPalette::HighlightedText);
 	const QColor normalFGColor=appPalette.color(QPalette::WindowText);
