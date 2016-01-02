@@ -62,15 +62,15 @@ inline QPoint fieldPos(const FieldWidget* const field)
 // Square of Euclidean distance between two points
 inline int distSqr(QPoint const& w1, QPoint const& w2)
 {
-    return sqr(w1.x()-w2.x())+sqr(w1.y()-w2.y());
+	return sqr(w1.x()-w2.x())+sqr(w1.y()-w2.y());
 }
 
 inline QSize letterSize(QFont const& font)
 {
-    const QFontMetrics fontMetrics(font);
-    const int width=fontMetrics.width('w');
-    const int height=fontMetrics.height();
-    return QSize(width,height);
+	const QFontMetrics fontMetrics(font);
+	const int width=fontMetrics.width('w');
+	const int height=fontMetrics.height();
+	return QSize(width,height);
 }
 
 static QPlastiqueStyle plastiqueStyle;
@@ -405,7 +405,7 @@ void RegisterGroup::adjustWidth()
 }
 
 ODBRegView::ODBRegView(QWidget* parent)
-    : QScrollArea(parent)
+	: QScrollArea(parent)
 {
 	setObjectName("ODBRegView");
 	QFont font("Monospace");
@@ -422,8 +422,8 @@ ODBRegView::ODBRegView(QWidget* parent)
 	canvas->setBackgroundRole(QPalette::Base);
 	canvas->setAutoFillBackground(true);
 
-    setWidget(canvas);
-    setWidgetResizable(true);
+	setWidget(canvas);
+	setWidgetResizable(true);
 	// TODO: make this list user-selectable
 	regGroupTypes={RegisterGroupType::GPR,
 				   RegisterGroupType::rIP,
@@ -578,15 +578,15 @@ QList<ValueField*> ODBRegView::valueFields() const
 
 void ODBRegView::updateFieldsPalette()
 {
-    for(auto* const field : valueFields())
+	for(auto* const field : valueFields())
 		field->updatePalette();
 }
 
 ValueField* ODBRegView::selectedField() const
 {
-    for(auto* const field : valueFields())
-        if(field->isSelected()) return field;
-    return nullptr;
+	for(auto* const field : valueFields())
+		if(field->isSelected()) return field;
+	return nullptr;
 }
 
 void ODBRegView::focusOutEvent(QFocusEvent*)
@@ -608,38 +608,38 @@ void ODBRegView::focusInEvent(QFocusEvent*)
 		palette.setCurrentColorGroup(QPalette::Active);
 		group->setPalette(palette);
 	}
-    updateFieldsPalette();
+	updateFieldsPalette();
 }
 
 void ODBRegView::keyPressEvent(QKeyEvent* event)
 {
-    auto* const selected=selectedField();
-    if(!selected)
-    {
-        QScrollArea::keyPressEvent(event);
-        return;
-    }
-    switch(event->key())
-    {
-    case Qt::Key_Up:
-        if(selected->up())
-            selected->up()->select();
-        break;
-    case Qt::Key_Down:
-        if(selected->down())
-            selected->down()->select();
-        break;
-    case Qt::Key_Left:
-        if(selected->left())
-            selected->left()->select();
-        break;
-    case Qt::Key_Right:
-        if(selected->right())
-            selected->right()->select();
-        break;
-    default:
-        QScrollArea::keyPressEvent(event);
-    }
+	auto* const selected=selectedField();
+	if(!selected)
+	{
+		QScrollArea::keyPressEvent(event);
+		return;
+	}
+	switch(event->key())
+	{
+	case Qt::Key_Up:
+		if(selected->up())
+			selected->up()->select();
+		break;
+	case Qt::Key_Down:
+		if(selected->down())
+			selected->down()->select();
+		break;
+	case Qt::Key_Left:
+		if(selected->left())
+			selected->left()->select();
+		break;
+	case Qt::Key_Right:
+		if(selected->right())
+			selected->right()->select();
+		break;
+	default:
+		QScrollArea::keyPressEvent(event);
+	}
 }
 
 }
