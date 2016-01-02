@@ -53,7 +53,7 @@ static const int MODEL_COMMENT_COLUMN=RegisterViewModelBase::Model::COMMENT_COLU
 template<typename T>
 inline T sqr(T v) { return v*v; }
 
-QPoint fieldPos(const FieldWidget* const field)
+inline QPoint fieldPos(const FieldWidget* const field)
 {
 	return field->mapToGlobal(QPoint());
 }
