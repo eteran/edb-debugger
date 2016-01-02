@@ -111,13 +111,23 @@ void FieldWidget::update()
 }
 
 // --------------------- ValueField impl ----------------------------------
-ValueField::ValueField(int const fieldWidth, QModelIndex const& index, QWidget* const parent)
-	: FieldWidget(fieldWidth,index,parent)
+ValueField::ValueField(int const fieldWidth,
+					   QModelIndex const& index,
+					   QWidget* const parent,
+					   std::function<QString(QString const&)> const& valueFormatter
+					  )
+	: FieldWidget(fieldWidth,index,parent),
+	  valueFormatter(valueFormatter)
 {
 	setMouseTracking(true);
 	// Set some known style to avoid e.g. Oxygen's label transition animations, which
 	// break updating of colors such as "register changed" when single-stepping frequently
 	setStyle(&plastiqueStyle);
+}
+
+QString ValueField::text() const
+{
+	return valueFormatter(FieldWidget::text());
 }
 
 bool ValueField::changed() const
@@ -437,11 +447,27 @@ void ODBRegView::addGroup(RegisterGroupType type)
 	}
 	case RegisterGroupType::EFL:
 	{
+		using RegisterViewModelBase::Model;
 		const auto catIndex=findModelCategory(model_,"General Status");
 		if(!catIndex.isValid()) break;
-		nameValCommentIndices.emplace_back(findModelRegister(catIndex,"RFLAGS"));
-		nameValCommentIndices.emplace_back(findModelRegister(catIndex,"EFLAGS"));
-		break;
+		auto nameIndex=findModelRegister(catIndex,"RFLAGS");
+		if(!nameIndex.isValid())
+			nameIndex=findModelRegister(catIndex,"EFLAGS");
+		if(!nameIndex.isValid()) break;
+		groups.push_back(new RegisterGroup(this));
+		auto* const group=groups.back();
+		const int nameWidth=3;
+		int column=0;
+		group->insert(0,column,new FieldWidget(nameWidth,"EFL",group));
+		const auto valueWidth=8;
+		const auto valueIndex=nameIndex.sibling(nameIndex.row(),Model::VALUE_COLUMN);
+		column+=nameWidth+1;
+		group->insert(0,column,new ValueField(valueWidth,valueIndex,group,[](QString const& v){return v.right(8);}));
+		const auto commentIndex=nameIndex.sibling(nameIndex.row(),Model::COMMENT_COLUMN);
+		column+=valueWidth+1;
+		group->insert(0,column,new FieldWidget(0,commentIndex,group));
+		static_cast<QVBoxLayout*>(widget()->layout())->addWidget(group);
+		return;
 	}
 	default: return;
 	}

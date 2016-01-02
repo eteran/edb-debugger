@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <array>
 #include <deque>
 #include <QPersistentModelIndex>
+#include <functional>
 
 class QAbstractItemModel;
 
@@ -80,7 +81,7 @@ class FieldWidget : public QLabel
 	void init(int fieldWidth);
 protected:
 	QPersistentModelIndex index;
-	QString text() const;
+	virtual QString text() const;
 public:
     FieldWidget(int fieldWidth,QModelIndex const& index,QWidget* parent=nullptr);
     FieldWidget(int fieldWidth,QString const& fixedText,QWidget* parent=nullptr);
@@ -95,17 +96,24 @@ class ValueField : public FieldWidget
     bool selected_=false;
     bool hovered_=false;
     ValueField *up_=0, *down_=0, *left_=0, *right_=0;
+	std::function<QString(QString)> valueFormatter;
 
+	void init();
 	bool changed() const;
     QColor fgColorForChangedField() const;
 protected:
+	QString text() const override;
     void enterEvent(QEvent*) override;
     void leaveEvent(QEvent*) override;
     void mousePressEvent(QMouseEvent* event) override;
     void mouseDoubleClickEvent(QMouseEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
 public:
-    ValueField(int fieldWidth,QModelIndex const& index,QWidget* parent=nullptr);
+    ValueField(int fieldWidth,
+			   QModelIndex const& index,
+			   QWidget* parent=nullptr,
+			   std::function<QString(QString const&)> const& valueFormatter=[](QString const&s){return s;}
+			   );
     void setNeighbors(ValueField* up,ValueField* down,ValueField* left,ValueField* right);
     ValueField* up() const { return up_; }
     ValueField* down() const { return down_; }
