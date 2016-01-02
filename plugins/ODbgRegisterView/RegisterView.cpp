@@ -72,28 +72,55 @@ static QPlastiqueStyle plastiqueStyle;
 }
 
 // --------------------- FieldWidget impl ----------------------------------
-QColor FieldWidget::fgColorForChangedField() const
-{
-	return Qt::red; // TODO: read from user palette
-}
-
-void FieldWidget::setNeighbors(FieldWidget* up,FieldWidget* down,FieldWidget* left,FieldWidget* right)
-{
-	up_=up;
-	down_=down;
-	left_=left;
-	right_=right;
-}
-
 QString FieldWidget::text() const
 {
-	if(!index.isValid()) return "FW???";
+	if(!index.isValid())
+		return QLabel::text();
 	const auto text=index.data();
-	Q_ASSERT(text.isValid());
+	if(!text.isValid())
+		return "fW???";
 	return text.toString();
 }
 
-bool FieldWidget::changed() const
+void FieldWidget::init(int const fieldWidth)
+{
+	const auto charSize=letterSize(font());
+	setFixedHeight(charSize.height());
+	if(fieldWidth>0)
+		setFixedWidth(fieldWidth*charSize.width());
+	setDisabled(true);
+}
+
+FieldWidget::FieldWidget(int const fieldWidth, QModelIndex const& index, QWidget* const parent)
+	: QLabel("Fw???",parent),
+	  index(index)
+{
+	init(fieldWidth);
+}
+
+FieldWidget::FieldWidget(int const fieldWidth, QString const& fixedText, QWidget* const parent)
+	: QLabel(fixedText,parent)
+{
+	init(fieldWidth); // NOTE: fieldWidth!=fixedText.length() in general
+}
+
+void FieldWidget::update()
+{
+	QLabel::setText(text());
+	adjustSize();
+}
+
+// --------------------- ValueField impl ----------------------------------
+ValueField::ValueField(int const fieldWidth, QModelIndex const& index, QWidget* const parent)
+	: FieldWidget(fieldWidth,index,parent)
+{
+	setMouseTracking(true);
+	// Set some known style to avoid e.g. Oxygen's label transition animations, which
+	// break updating of colors such as "register changed" when single-stepping frequently
+	setStyle(&plastiqueStyle);
+}
+
+bool ValueField::changed() const
 {
 	Q_ASSERT(index.isValid());
 	const auto changed=index.data(RegisterViewModelBase::Model::RegisterChangedRole);
@@ -101,50 +128,32 @@ bool FieldWidget::changed() const
 	return changed.toBool();
 }
 
-FieldWidget::FieldWidget(const int fieldWidth, const bool uneditable, QModelIndex const& index, QWidget* const parent)
-	: QLabel("Fw???",parent),
-	  uneditable_(uneditable),
-	  index(index)
+QColor ValueField::fgColorForChangedField() const
 {
-	const auto size=letterSize(font());
-	const int height=size.height();
-	setFixedHeight(height);
-	if(fieldWidth>0)
-	{
-		const int width=fieldWidth*size.width();
-		setFixedWidth(width);
-	}
-
-	if(uneditable_)
-		setDisabled(true);
-	else
-		setMouseTracking(true);
-	// Set some known style to avoid e.g. Oxygen's label transition animations, which
-	// break updating of colors such as "register changed" when single-stepping frequently
-	setStyle(&plastiqueStyle);
+	return Qt::red; // TODO: read from user palette
 }
 
-bool FieldWidget::isEditable() const
+void ValueField::setNeighbors(ValueField* up,ValueField* down,ValueField* left,ValueField* right)
 {
-	return !uneditable_;
+	up_=up;
+	down_=down;
+	left_=left;
+	right_=right;
 }
 
-void FieldWidget::update()
-{
-	QLabel::setText(text());
-	adjustSize();
-	updatePalette();
-}
-
-bool FieldWidget::isSelected() const
+bool ValueField::isSelected() const
 {
 	return selected_;
 }
 
-void FieldWidget::updatePalette()
+void ValueField::update()
 {
-	if(uneditable_) return;
+	FieldWidget::update();
+	updatePalette();
+}
 
+void ValueField::updatePalette()
+{
 	auto palette=this->palette();
 	const auto appPalette=QApplication::palette();
 
@@ -161,55 +170,46 @@ void FieldWidget::updatePalette()
 	QLabel::update();
 }
 
-void FieldWidget::enterEvent(QEvent*)
+void ValueField::enterEvent(QEvent*)
 {
-	if(uneditable_) return;
 	hovered_=true;
 	updatePalette();
 }
 
-void FieldWidget::leaveEvent(QEvent*)
+void ValueField::leaveEvent(QEvent*)
 {
-	if(uneditable_) return;
 	hovered_=false;
 	updatePalette();
 }
 
-void FieldWidget::select()
+void ValueField::select()
 {
 	selected_=true;
 	Q_EMIT selected();
 	updatePalette();
 }
 
-void FieldWidget::mousePressEvent(QMouseEvent* event)
+void ValueField::mousePressEvent(QMouseEvent* event)
 {
-	if(uneditable_) return;
-	if(event->button()==Qt::LeftButton) select();
+	if(event->button()==Qt::LeftButton)
+		select();
 }
 
-void FieldWidget::unselect()
+void ValueField::unselect()
 {
 	selected_=false;
 	updatePalette();
 }
 
-void FieldWidget::mouseDoubleClickEvent(QMouseEvent* event)
+void ValueField::mouseDoubleClickEvent(QMouseEvent* event)
 {
-	if(uneditable_) return;
 	mousePressEvent(event);
 	QMessageBox::information(this,"Double-clicked",QString("Double-clicked field %1 with contents \"%2\"")
 								.arg(QString().sprintf("%p",static_cast<void*>(this))).arg(text()));
 }
 
-void FieldWidget::paintEvent(QPaintEvent* event)
+void ValueField::paintEvent(QPaintEvent*)
 {
-	if(uneditable_)
-	{
-		QLabel::paintEvent(event);
-		return;
-	}
-
 	QPainter painter(this);
 	QStyleOptionViewItemV4 option;
 	option.rect=rect();
@@ -232,11 +232,11 @@ RegisterGroup::RegisterGroup(QWidget* parent)
 {
 }
 
-void RegisterGroup::insert(const int line, const int column, const int width, const bool uneditable, QModelIndex const& index)
+void RegisterGroup::insert(int const line, int const column, FieldWidget* const widget)
 {
-	const auto widget=new FieldWidget(width,uneditable,index,this);
 	widget->update();
-	connect(widget,SIGNAL(selected()),this,SLOT(fieldSelected()));
+	if(auto* const value=dynamic_cast<ValueField*>(widget))
+		connect(value,SIGNAL(selected()),this,SLOT(fieldSelected()));
 
 	const auto charSize=letterSize(font());
 	const auto charWidth=charSize.width();
@@ -286,13 +286,14 @@ void RegisterGroup::appendNameValueComment(QModelIndex const& nameIndex, bool in
 
 	const int line=lineAfterLastField();
 	int column=0;
-	insert(line,column,nameWidth,true,nameIndex);
+	insert(line,column,new FieldWidget(nameWidth,nameIndex.data().toString(),this));
 	column+=nameWidth+1;
-	insert(line,column,valueWidth,false,valueIndex);
+	insert(line,column,new ValueField(valueWidth,valueIndex,this));
 	if(insertComment)
 	{
 		column+=valueWidth+1;
-		insert(line,column,0,true,nameIndex.sibling(nameIndex.row(),Model::COMMENT_COLUMN));
+		const auto commentIndex=nameIndex.sibling(nameIndex.row(),Model::COMMENT_COLUMN);
+		insert(line,column,new FieldWidget(0,commentIndex,this));
 	}
 }
 
@@ -308,21 +309,34 @@ QList<FieldWidget*> RegisterGroup::fields() const
 	return fields;
 }
 
+QList<ValueField*> RegisterGroup::valueFields() const
+{
+	QList<ValueField*> allValues;
+	for(auto* const field : fields())
+	{
+		auto* const value=dynamic_cast<ValueField*>(field);
+		if(value) allValues.push_back(value);
+	}
+	return allValues;
+}
+
 void RegisterGroup::mousePressEvent(QMouseEvent* event)
 {
 	if(event->type()!=QEvent::MouseButtonPress) return;
-	for(auto* const field : fields()) field->unselect();
+	for(auto* const field : valueFields()) field->unselect();
 }
 
 void RegisterGroup::fieldSelected()
 {
-	for(auto* const field : fields()) if(sender()!=field) field->unselect();
+	for(auto* const field : valueFields())
+		if(sender()!=field)
+			field->unselect();
 }
 
 void RegisterGroup::adjustWidth()
 {
 	int widthNeeded=0;
-	for(auto* const field : fields())
+	for(auto* const field : valueFields())
 	{
 		const auto widthToRequire=field->pos().x()+field->width();
 		if(widthToRequire>widthNeeded) widthNeeded=widthToRequire;
@@ -459,7 +473,7 @@ void ODBRegView::modelReset()
 
 void ODBRegView::modelUpdated()
 {
-	for(auto* const field : fields())
+	for(auto* const field : valueFields())
 		field->update();
 	for(auto* const group : groups)
 		group->adjustWidth();
@@ -473,17 +487,23 @@ QList<FieldWidget*> ODBRegView::fields() const
 	return allFields;
 }
 
+QList<ValueField*> ODBRegView::valueFields() const
+{
+	QList<ValueField*> allValues;
+	for(auto* const group : groups)
+		allValues.append(group->valueFields());
+	return allValues;
+
+}
+
 void ODBRegView::finalize()
 {
-    for(auto* const field : fields())
+    for(auto* const field : valueFields())
     {
-        if(!field->isEditable()) continue;
-
-        FieldWidget *up=0, *down=0, *left=0, *right=0;
+        ValueField *up=0, *down=0, *left=0, *right=0;
         // now look for unaligned neighbors if no aligned were found
-        for(auto* const neighbor : fields())
+        for(auto* const neighbor : valueFields())
         {
-            if(!neighbor->isEditable()) continue;
             if(neighbor==field) continue;
 
             if(field->y()==neighbor->y())
@@ -504,13 +524,13 @@ void ODBRegView::finalize()
 
 void ODBRegView::updateFieldsPalette()
 {
-    for(auto* const field : fields())
+    for(auto* const field : valueFields())
 		field->updatePalette();
 }
 
-FieldWidget* ODBRegView::selectedField() const
+ValueField* ODBRegView::selectedField() const
 {
-    for(auto* const field : fields())
+    for(auto* const field : valueFields())
         if(field->isSelected()) return field;
     return nullptr;
 }
@@ -539,7 +559,7 @@ void ODBRegView::focusInEvent(QFocusEvent*)
 
 void ODBRegView::keyPressEvent(QKeyEvent* event)
 {
-    FieldWidget* selected=selectedField();
+    auto* const selected=selectedField();
     if(!selected)
     {
         QScrollArea::keyPressEvent(event);

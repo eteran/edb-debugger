@@ -31,6 +31,7 @@ namespace ODbgRegisterView {
 
 class RegisterGroup;
 class FieldWidget;
+class ValueField;
 
 class ODBRegView : public QScrollArea
 {
@@ -58,11 +59,12 @@ public:
     void finalize();
 	void setModel(QAbstractItemModel* model);
 private:
-    FieldWidget* selectedField() const;
+	ValueField* selectedField() const;
     void updateFieldsPalette();
     void focusOutEvent(QFocusEvent*) override;
     void focusInEvent(QFocusEvent*) override;
     void keyPressEvent(QKeyEvent* event) override;
+    QList<ValueField*> valueFields() const;
     QList<FieldWidget*> fields() const;
 
 	QList<RegisterGroup*> groups;
@@ -75,38 +77,49 @@ class FieldWidget : public QLabel
 {
     Q_OBJECT
 
-    bool selected_=false;
-    bool uneditable_;
-    bool hovered_=false;
+	void init(int fieldWidth);
+protected:
 	QPersistentModelIndex index;
-    FieldWidget *up_=0, *down_=0, *left_=0, *right_=0;
-
 	QString text() const;
+public:
+    FieldWidget(int fieldWidth,QModelIndex const& index,QWidget* parent=nullptr);
+    FieldWidget(int fieldWidth,QString const& fixedText,QWidget* parent=nullptr);
+public Q_SLOTS:
+	virtual void update();
+};
+
+class ValueField : public FieldWidget
+{
+	Q_OBJECT
+
+    bool selected_=false;
+    bool hovered_=false;
+    ValueField *up_=0, *down_=0, *left_=0, *right_=0;
+
 	bool changed() const;
     QColor fgColorForChangedField() const;
-public:
-    void setNeighbors(FieldWidget* up,FieldWidget* down,FieldWidget* left,FieldWidget* right);
-    FieldWidget* up() const { return up_; }
-    FieldWidget* down() const { return down_; }
-    FieldWidget* left() const { return left_; }
-    FieldWidget* right() const { return right_; }
-
-    FieldWidget(int fieldWidth,bool uneditable,QModelIndex const& index,QWidget* parent=nullptr);
-    bool isEditable() const;
-    bool isSelected() const;
 protected:
     void enterEvent(QEvent*) override;
     void leaveEvent(QEvent*) override;
     void mousePressEvent(QMouseEvent* event) override;
     void mouseDoubleClickEvent(QMouseEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
-Q_SIGNALS:
-    void selected();
+public:
+    ValueField(int fieldWidth,QModelIndex const& index,QWidget* parent=nullptr);
+    void setNeighbors(ValueField* up,ValueField* down,ValueField* left,ValueField* right);
+    ValueField* up() const { return up_; }
+    ValueField* down() const { return down_; }
+    ValueField* left() const { return left_; }
+    ValueField* right() const { return right_; }
+
+    bool isSelected() const;
 public Q_SLOTS:
-	void update();
-    void updatePalette();
+	void update() override;
     void select();
     void unselect();
+    void updatePalette();
+Q_SIGNALS:
+    void selected();
 };
 
 class RegisterGroup : public QWidget
@@ -117,8 +130,9 @@ class RegisterGroup : public QWidget
 public:
     RegisterGroup(QWidget* parent=nullptr);
     QList<FieldWidget*> fields() const;
+    QList<ValueField*> valueFields() const;
 	void setIndices(QList<QModelIndex> const& indices);
-    void insert(int line, int column, int width, bool uneditable, QModelIndex const& index);
+    void insert(int line, int column, FieldWidget* widget);
 	void appendNameValueComment(QModelIndex const& nameIndex,bool insertComment=true);
 protected:
     void mousePressEvent(QMouseEvent* event);
