@@ -239,6 +239,7 @@ void ValueField::leaveEvent(QEvent*)
 
 void ValueField::select()
 {
+	if(selected_) return;
 	selected_=true;
 	Q_EMIT selected();
 	updatePalette();
@@ -252,6 +253,7 @@ void ValueField::mousePressEvent(QMouseEvent* event)
 
 void ValueField::unselect()
 {
+	if(!selected_) return;
 	selected_=false;
 	updatePalette();
 }
