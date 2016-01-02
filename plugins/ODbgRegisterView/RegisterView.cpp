@@ -498,6 +498,7 @@ void ODBRegView::modelReset()
 	groups.clear();
 	for(auto groupType : regGroupTypes)
 		addGroup(groupType);
+	finalize();
 }
 
 void ODBRegView::modelUpdated()
