@@ -386,7 +386,6 @@ void RegisterGroup::mousePressEvent(QMouseEvent* event)
 
 void ODBRegView::fieldSelected()
 {
-	setObjectName("ODBRegView");
 	for(auto* const field : valueFields())
 		if(sender()!=field)
 			field->unselect();
@@ -406,6 +405,7 @@ void RegisterGroup::adjustWidth()
 ODBRegView::ODBRegView(QWidget* parent)
     : QScrollArea(parent)
 {
+	setObjectName("ODBRegView");
 	QFont font("Monospace");
 	font.setStyleHint(QFont::TypeWriter);
 	setFont(font);
