@@ -66,6 +66,7 @@ private:
 	void focusOutEvent(QFocusEvent*) override;
 	void focusInEvent(QFocusEvent*) override;
 	void keyPressEvent(QKeyEvent* event) override;
+    void mousePressEvent(QMouseEvent* event) override;
 
 	QList<RegisterGroup*> groups;
 private Q_SLOTS:
@@ -146,7 +147,7 @@ public:
 	void insert(int line, int column, FieldWidget* widget);
 	void appendNameValueComment(QModelIndex const& nameIndex,bool insertComment=true);
 protected:
-	void mousePressEvent(QMouseEvent* event);
+	void mousePressEvent(QMouseEvent* event) override;
 public Q_SLOTS:
 	void adjustWidth();
 };

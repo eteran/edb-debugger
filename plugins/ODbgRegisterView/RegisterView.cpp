@@ -291,6 +291,11 @@ RegisterGroup::RegisterGroup(QWidget* parent)
 	setObjectName("RegisterGroup");
 }
 
+void RegisterGroup::mousePressEvent(QMouseEvent* event)
+{
+	event->ignore();
+}
+
 void RegisterGroup::insert(int const line, int const column, FieldWidget* const widget)
 {
 	widget->update();
@@ -379,8 +384,7 @@ QList<ValueField*> RegisterGroup::valueFields() const
 	return allValues;
 }
 
-// FIXME: doens't work for click on canvas
-void RegisterGroup::mousePressEvent(QMouseEvent* event)
+void ODBRegView::mousePressEvent(QMouseEvent* event)
 {
 	if(event->type()!=QEvent::MouseButtonPress) return;
 	for(auto* const field : valueFields()) field->unselect();
