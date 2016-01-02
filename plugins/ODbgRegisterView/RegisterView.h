@@ -54,7 +54,7 @@ class ODBRegView : public QScrollArea
 		MXCSR
 	};
 	std::vector<RegisterGroupType> regGroupTypes;
-	void addGroup(RegisterGroupType type);
+	RegisterGroup* makeGroup(RegisterGroupType type);
 public:
 	ODBRegView(QWidget* parent=nullptr);
 	void setModel(QAbstractItemModel* model);

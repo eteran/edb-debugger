@@ -472,11 +472,10 @@ QModelIndex findModelRegister(QModelIndex categoryIndex,
 	return QModelIndex();
 }
 
-void ODBRegView::addGroup(RegisterGroupType type)
+RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 {
-	if(!model_->rowCount()) return;
+	if(!model_->rowCount()) return nullptr;
 	std::vector<QModelIndex> nameValCommentIndices;
-	auto* const layout=static_cast<QVBoxLayout*>(widget()->layout());
 	switch(type)
 	{
 	case RegisterGroupType::GPR:
@@ -523,8 +522,7 @@ void ODBRegView::addGroup(RegisterGroupType type)
 		const auto commentIndex=nameIndex.sibling(nameIndex.row(),MODEL_COMMENT_COLUMN);
 		column+=valueWidth+1;
 		group->insert(0,column,new FieldWidget(0,commentIndex,group));
-		layout->addWidget(group);
-		return;
+		return group;
 	}
 	case RegisterGroupType::ExpandedEFL:
 	{
@@ -563,12 +561,11 @@ void ODBRegView::addGroup(RegisterGroupType type)
 				continue;
 			}
 		}
-		layout->addWidget(group);
-		return;
+		return group;
 	}
 	default:
 		qWarning() << "Warning: unexpected register group type requested in" << Q_FUNC_INFO;
-		return;
+		return nullptr;
 	}
 	nameValCommentIndices.erase(std::remove_if(nameValCommentIndices.begin(),
 											   nameValCommentIndices.end(),
@@ -577,13 +574,13 @@ void ODBRegView::addGroup(RegisterGroupType type)
 	if(nameValCommentIndices.empty())
 	{
 		qWarning() << "Warning: failed to get any useful register indices for regGroupType" << static_cast<long>(type);
-		return;
+		return nullptr;
 	}
 	groups.push_back(new RegisterGroup(this));
 	auto* const group=groups.back();
 	for(const auto& index : nameValCommentIndices)
 		group->appendNameValueComment(index);
-	layout->addWidget(group);
+	return group;
 }
 
 void ODBRegView::modelReset()
@@ -592,8 +589,13 @@ void ODBRegView::modelReset()
 	for(auto* const group : groups)
 		group->deleteLater();
 	groups.clear();
+	auto* const layout=static_cast<QVBoxLayout*>(widget()->layout());
 	for(auto groupType : regGroupTypes)
-		addGroup(groupType);
+	{
+		auto*const group=makeGroup(groupType);
+		if(!group) continue;
+		layout->addWidget(group);
+	}
 }
 
 void ODBRegView::modelUpdated()
