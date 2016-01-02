@@ -57,16 +57,15 @@ class ODBRegView : public QScrollArea
 	void addGroup(RegisterGroupType type);
 public:
     ODBRegView(QWidget* parent=nullptr);
-    void finalize();
 	void setModel(QAbstractItemModel* model);
+    QList<ValueField*> valueFields() const;
+    QList<FieldWidget*> fields() const;
 private:
 	ValueField* selectedField() const;
     void updateFieldsPalette();
     void focusOutEvent(QFocusEvent*) override;
     void focusInEvent(QFocusEvent*) override;
     void keyPressEvent(QKeyEvent* event) override;
-    QList<ValueField*> valueFields() const;
-    QList<FieldWidget*> fields() const;
 
 	QList<RegisterGroup*> groups;
 private Q_SLOTS:
@@ -83,6 +82,7 @@ class FieldWidget : public QLabel
 protected:
 	QPersistentModelIndex index;
 	virtual QString text() const;
+	ODBRegView* regView() const;
 public:
     FieldWidget(int fieldWidth,QModelIndex const& index,QWidget* parent=nullptr);
     FieldWidget(int fieldWidth,QString const& fixedText,QWidget* parent=nullptr);
@@ -96,7 +96,6 @@ class ValueField : public FieldWidget
 
     bool selected_=false;
     bool hovered_=false;
-    ValueField *up_=0, *down_=0, *left_=0, *right_=0;
 	std::function<QString(QString)> valueFormatter;
 
 	void init();
@@ -109,17 +108,20 @@ protected:
     void mousePressEvent(QMouseEvent* event) override;
     void mouseDoubleClickEvent(QMouseEvent* event) override;
     void paintEvent(QPaintEvent* event) override;
+
+	ValueField* bestNeighbor(std::function<bool(QPoint const& neighborPos,
+												ValueField const*curResult,
+												QPoint const& selfPos)>const& firstIsBetter) const;
 public:
     ValueField(int fieldWidth,
 			   QModelIndex const& index,
 			   QWidget* parent=nullptr,
 			   std::function<QString(QString const&)> const& valueFormatter=[](QString const&s){return s;}
 			   );
-    void setNeighbors(ValueField* up,ValueField* down,ValueField* left,ValueField* right);
-    ValueField* up() const { return up_; }
-    ValueField* down() const { return down_; }
-    ValueField* left() const { return left_; }
-    ValueField* right() const { return right_; }
+    ValueField* up() const;
+    ValueField* down() const;
+    ValueField* left() const;
+    ValueField* right() const;
 
     bool isSelected() const;
 public Q_SLOTS:

@@ -53,10 +53,15 @@ static const int MODEL_COMMENT_COLUMN=RegisterViewModelBase::Model::COMMENT_COLU
 template<typename T>
 inline T sqr(T v) { return v*v; }
 
-// Square of Euclidean distance between two widgets
-inline int distSqr(QWidget const* w1, QWidget const* w2)
+QPoint fieldPos(const FieldWidget* const field)
 {
-    return sqr(w1->x()-w2->x())+sqr(w1->y()-w2->y());
+	return field->mapToGlobal(QPoint());
+}
+
+// Square of Euclidean distance between two points
+inline int distSqr(QPoint const& w1, QPoint const& w2)
+{
+    return sqr(w1.x()-w2.x())+sqr(w1.y()-w2.y());
 }
 
 inline QSize letterSize(QFont const& font)
@@ -111,6 +116,16 @@ void FieldWidget::update()
 	adjustSize();
 }
 
+ODBRegView* FieldWidget::regView() const
+{
+	auto* const parent=parentWidget() // group
+						->parentWidget() // canvas
+						->parentWidget() // viewport
+						->parentWidget(); // regview
+	Q_ASSERT(dynamic_cast<ODBRegView*>(parent));
+	return static_cast<ODBRegView*>(parent);
+}
+
 // --------------------- ValueField impl ----------------------------------
 ValueField::ValueField(int const fieldWidth,
 					   QModelIndex const& index,
@@ -126,6 +141,41 @@ ValueField::ValueField(int const fieldWidth,
 	// Set some known style to avoid e.g. Oxygen's label transition animations, which
 	// break updating of colors such as "register changed" when single-stepping frequently
 	setStyle(&plastiqueStyle);
+}
+
+ValueField* ValueField::bestNeighbor(std::function<bool(QPoint const&,ValueField const*,QPoint const&)>const& firstIsBetter) const
+{
+	ValueField* result=nullptr;
+	for(auto* const neighbor : regView()->valueFields())
+	{
+		if(neighbor->isVisible() && firstIsBetter(fieldPos(neighbor),result,fieldPos(this)))
+			result=neighbor;
+	}
+	return result;
+}
+
+ValueField* ValueField::up() const
+{
+	return bestNeighbor([](QPoint const& nPos,ValueField const*up,QPoint const& fPos)
+			{ return nPos.y() < fPos.y() && (!up || distSqr(nPos,fPos) < distSqr(fieldPos(up),fPos)); });
+}
+
+ValueField* ValueField::down() const
+{
+	return bestNeighbor([](QPoint const& nPos,ValueField const*down,QPoint const& fPos)
+			{ return nPos.y() > fPos.y() && (!down || distSqr(nPos,fPos) < distSqr(fieldPos(down),fPos)); });
+}
+
+ValueField* ValueField::left() const
+{
+	return bestNeighbor([](QPoint const& nPos,ValueField const*left,QPoint const& fPos)
+			{ return nPos.y()==fPos.y() && nPos.x()<fPos.x() && (!left || left->x()<nPos.x()); });
+}
+
+ValueField* ValueField::right() const
+{
+	return bestNeighbor([](QPoint const& nPos,ValueField const*right,QPoint const& fPos)
+			{ return nPos.y()==fPos.y() && nPos.x()>fPos.x() && (!right || right->x()>nPos.x()); });
 }
 
 QString ValueField::text() const
@@ -144,14 +194,6 @@ bool ValueField::changed() const
 QColor ValueField::fgColorForChangedField() const
 {
 	return Qt::red; // TODO: read from user palette
-}
-
-void ValueField::setNeighbors(ValueField* up,ValueField* down,ValueField* left,ValueField* right)
-{
-	up_=up;
-	down_=down;
-	left_=left;
-	right_=right;
 }
 
 bool ValueField::isSelected() const
@@ -503,7 +545,6 @@ void ODBRegView::modelReset()
 	groups.clear();
 	for(auto groupType : regGroupTypes)
 		addGroup(groupType);
-	finalize();
 }
 
 void ODBRegView::modelUpdated()
@@ -529,32 +570,6 @@ QList<ValueField*> ODBRegView::valueFields() const
 		allValues.append(group->valueFields());
 	return allValues;
 
-}
-
-void ODBRegView::finalize()
-{
-    for(auto* const field : valueFields())
-    {
-        ValueField *up=0, *down=0, *left=0, *right=0;
-        // now look for unaligned neighbors if no aligned were found
-        for(auto* const neighbor : valueFields())
-        {
-            if(neighbor==field) continue;
-
-            if(field->y()==neighbor->y())
-            {
-                if(neighbor->x()<field->x() && (!left || left->x()<neighbor->y()))
-                    left=neighbor;
-                if(neighbor->x()>field->x() && (!right || right->x()>neighbor->x()))
-                    right=neighbor;
-            }
-            else if(neighbor->y() < field->y() && (!up || distSqr(neighbor,field) < distSqr(up,field)))
-                up=neighbor;
-            else if(neighbor->y() > field->y() && (!down || distSqr(neighbor,field) < distSqr(down,field)))
-                down=neighbor;
-        }
-        field->setNeighbors(up,down,left,right);
-    }
 }
 
 void ODBRegView::updateFieldsPalette()
