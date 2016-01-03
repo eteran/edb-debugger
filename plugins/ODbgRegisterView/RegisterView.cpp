@@ -447,6 +447,8 @@ void ODBRegView::setModel(QAbstractItemModel* model)
 	modelReset();
 }
 
+namespace
+{
 // TODO: switch from string-based search to enum-based one (add a new Role to model data)
 QModelIndex findModelCategory(QAbstractItemModel const*const model,
 							  QString const& catToFind)
@@ -473,6 +475,30 @@ QModelIndex findModelRegister(QModelIndex categoryIndex,
 			return regIndex;
 	}
 	return QModelIndex();
+}
+
+QModelIndex getValueIndex(QModelIndex const& nameIndex)
+{
+	Q_ASSERT(nameIndex.isValid());
+	return nameIndex.sibling(nameIndex.row(),MODEL_VALUE_COLUMN);
+}
+}
+
+void addRoundingMode(RegisterGroup* const group, QModelIndex const& index, int const row, int const column)
+{
+	Q_ASSERT(index.isValid());
+	group->insert(row,column,new ValueField(4,index,group,[](QString const& str)
+				{
+					Q_ASSERT(str.length());
+					if(str[0]=='?') return "????";
+					bool roundModeParseOK=false;
+					const int value=str.toInt(&roundModeParseOK);
+					if(!roundModeParseOK)
+						EDB_PRINT_AND_DIE("Failed to parse rounding mode. String was \"",str.toStdString(),"\".");
+					Q_ASSERT(0<=value && value<=3);
+					static const char* strings[]={"NEAR","DOWN","  UP","ZERO"};
+					return strings[value];
+				}));
 }
 
 RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
@@ -625,8 +651,8 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		group->insert(fcrRow,condPrecLabelColumn,new FieldWidget(condPrecLabelWidth,"Prec",group));
 		const int condPrecValColumn=condPrecLabelColumn+condPrecLabelWidth+1;
 		const int roundModeWidth=4, precModeWidth=2;
-		const int roundModeColumn=condPrecValColumn+1;
-		const int precModeColumn=roundModeColumn+roundModeWidth;
+		const int roundModeColumn=condPrecValColumn;
+		const int precModeColumn=roundModeColumn+roundModeWidth+1;
 		// This must be inserted before precision&rounding value fields, since they overlap this label
 		group->insert(fcrRow,precModeColumn-1,new FieldWidget(1,",",group));
 		for(int condN=3;condN>=0;--condN)
@@ -639,6 +665,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 			group->insert(fsrRow-1,column,new FieldWidget(1,QString("%1").arg(condN),group));
 			group->insert(fsrRow,  column,new ValueField(1,condNIndex,group));
 		}
+		addRoundingMode(group,getValueIndex(findModelRegister(fcrIndex,"RC")),fcrRow,roundModeColumn);
 
 		return group;
 	}
