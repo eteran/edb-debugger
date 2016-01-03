@@ -71,7 +71,7 @@ std::vector<RegisterViewModelBase::BitFieldDescription> flagsDescription=
 // these commented out system flags are always zeroed by the kernel before giving out to debugger
 //	{"IOPL",12,2},
 //	{"NT",14,1},
-	{"RF",16,1}, // is user-visibly set on e.g. CLI instruction segfault
+	{"RF",16,1}, // is debugger-visibly set on e.g. CLI instruction segfault
 //	{"VM",17,1},
 	{"AC",18,1}, // this one can be set by the application and is visible to debugger
 //	{"VIF",19,1},
