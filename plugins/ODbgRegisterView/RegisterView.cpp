@@ -684,6 +684,16 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		}
 		addRoundingMode(group,getValueIndex(findModelRegister(fcrIndex,"RC")),fcrRow,roundModeColumn);
 		addPrecisionMode(group,getValueIndex(findModelRegister(fcrIndex,"PC")),fcrRow,precModeColumn);
+		const int errMaskColumn=precModeColumn+precModeWidth+2;
+		const int errLabelWidth=3,maskLabelWidth=4;
+		group->insert(fsrRow,errMaskColumn,new FieldWidget(errLabelWidth,"Err",group));
+		group->insert(fcrRow,errMaskColumn,new FieldWidget(maskLabelWidth,"Mask",group));
+		const int ESColumn=errMaskColumn+errLabelWidth+1;
+		const int SFColumn=ESColumn+2;
+		group->insert(fsrRow-1,ESColumn,new FieldWidget(1,"E",group));
+		group->insert(fsrRow-1,SFColumn,new FieldWidget(1,"S",group));
+		group->insert(fsrRow,ESColumn,new ValueField(1,getValueIndex(findModelRegister(fsrIndex,"ES")),group));
+		group->insert(fsrRow,SFColumn,new ValueField(1,getValueIndex(findModelRegister(fsrIndex,"SF")),group));
 
 		return group;
 	}
