@@ -73,10 +73,10 @@ std::vector<RegisterViewModelBase::BitFieldDescription> flagsDescription=
 //	{"NT",14,1},
 	{"RF",16,1}, // is user-visibly set on e.g. CLI instruction segfault
 //	{"VM",17,1},
-//	{"AC",18,1},
+	{"AC",18,1}, // this one can be set by the application and is visible to debugger
 //	{"VIF",19,1},
 //	{"VIP",20,1},
-	{"ID",21,1}
+	{"ID",21,1} // this one can be set by the application and is visible to debugger
 };
 
 static const std::vector<QString> roundingStrings{QObject::tr("Rounding to nearest"),
