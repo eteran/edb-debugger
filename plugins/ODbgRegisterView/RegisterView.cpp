@@ -516,6 +516,24 @@ void addPrecisionMode(RegisterGroup* const group, QModelIndex const& index, int 
 					return strings[value];
 				}));
 }
+
+void addPUOZDI(RegisterGroup* const group, QModelIndex const& excRegIndex, QModelIndex const& maskRegIndex, int const startRow, int const startColumn)
+{
+	QString const exceptions="PUOZDI";
+	for(int exN=0;exN<exceptions.length();++exN)
+	{
+		QString const ex=exceptions[exN];
+		const auto excIndex=findModelRegister(excRegIndex,ex+"E");
+		Q_ASSERT(excIndex.isValid());
+		const auto maskIndex=findModelRegister(maskRegIndex,ex+"M");
+		Q_ASSERT(maskIndex.isValid());
+		const int column=startColumn+exN*2;
+		group->insert(startRow,column,new FieldWidget(1,ex,group));
+		group->insert(startRow+1,column,new ValueField(1,getValueIndex(excIndex),group));
+		group->insert(startRow+2,column,new ValueField(1,getValueIndex(maskIndex),group));
+	}
+}
+
 }
 
 RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
@@ -694,6 +712,8 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		group->insert(fsrRow-1,SFColumn,new FieldWidget(1,"S",group));
 		group->insert(fsrRow,ESColumn,new ValueField(1,getValueIndex(findModelRegister(fsrIndex,"ES")),group));
 		group->insert(fsrRow,SFColumn,new ValueField(1,getValueIndex(findModelRegister(fsrIndex,"SF")),group));
+		const int PEPMColumn=SFColumn+2;
+		addPUOZDI(group,fsrIndex,fcrIndex,fsrRow-1,PEPMColumn);
 
 		return group;
 	}
