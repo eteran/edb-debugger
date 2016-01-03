@@ -954,7 +954,12 @@ void updateSegRegs(RegisterViewModel& model, const State& state) {
 
 void updateFPURegs(RegisterViewModel& model, const State& state) {
 	for(std::size_t i=0;i<MAX_FPU_REGS_COUNT;++i)
-		model.updateFPUReg(i,state.fpu_register(i),""/*TODO: mark pseudo-denormals somehow*/);
+	{
+		const auto reg=state.fpu_register(i);
+		const auto comment = floatType(reg)==FloatValueClass::PseudoDenormal ?
+								QObject::tr("pseudo-denormal") : "";
+		model.updateFPUReg(i,reg,comment);
+	}
 	model.updateFCR(state.fpu_control_word());
 	const auto fsr=state.fpu_status_word();
 	model.updateFSR(fsr,FSRComment(fsr));
