@@ -598,6 +598,9 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 			const int regValueWidth=regValueIndex.data(Model::FixedLengthRole).toInt();
 			Q_ASSERT(regValueWidth>0);
 			group->insert(row,column,new ValueField(regValueWidth,regValueIndex,group));
+			column+=regValueWidth+1;
+			const auto regCommentIndex=model_->index(row,MODEL_COMMENT_COLUMN,catIndex);
+			group->insert(row,column,new FieldWidget(0,regCommentIndex,group));
 		}
 		return group;
 	}
