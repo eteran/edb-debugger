@@ -482,7 +482,6 @@ QModelIndex getValueIndex(QModelIndex const& nameIndex)
 	Q_ASSERT(nameIndex.isValid());
 	return nameIndex.sibling(nameIndex.row(),MODEL_VALUE_COLUMN);
 }
-}
 
 void addRoundingMode(RegisterGroup* const group, QModelIndex const& index, int const row, int const column)
 {
@@ -499,6 +498,24 @@ void addRoundingMode(RegisterGroup* const group, QModelIndex const& index, int c
 					static const char* strings[]={"NEAR","DOWN","  UP","ZERO"};
 					return strings[value];
 				}));
+}
+
+void addPrecisionMode(RegisterGroup* const group, QModelIndex const& index, int const row, int const column)
+{
+	Q_ASSERT(index.isValid());
+	group->insert(row,column,new ValueField(2,index,group,[](QString const& str)
+				{
+					Q_ASSERT(str.length());
+					if(str[0]=='?') return "??";
+					bool precModeParseOK=false;
+					const int value=str.toInt(&precModeParseOK);
+					if(!precModeParseOK)
+						EDB_PRINT_AND_DIE("Failed to parse precision mode. String was \"",str.toStdString(),"\".");
+					Q_ASSERT(0<=value && value<=3);
+					static const char* strings[]={"24","??","53","64"};
+					return strings[value];
+				}));
+}
 }
 
 RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
@@ -666,6 +683,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 			group->insert(fsrRow,  column,new ValueField(1,condNIndex,group));
 		}
 		addRoundingMode(group,getValueIndex(findModelRegister(fcrIndex,"RC")),fcrRow,roundModeColumn);
+		addPrecisionMode(group,getValueIndex(findModelRegister(fcrIndex,"PC")),fcrRow,precModeColumn);
 
 		return group;
 	}
