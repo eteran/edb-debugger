@@ -899,7 +899,7 @@ QString FSRComment(uint16_t statusWord) {
 		stackFaultDetail=C1 ? QObject::tr(" Stack overflow") :
 							  QObject::tr(" Stack underflow");
 	// TODO: list C0-C3 passing jmp conditions when no exception is active
-	return stackFaultDetail;
+	return stackFaultDetail.trimmed();
 }
 
 void updateSegRegs(RegisterViewModel& model, const State& state) {
