@@ -890,16 +890,34 @@ void updateGeneralStatusRegs(RegisterViewModel& model, const State& state, bool 
 	}
 }
 
-QString FSRComment(uint16_t statusWord) {
-	QString stackFaultDetail;
+QString FPUStackFaultDetail(uint16_t statusWord) {
 	const bool invalidOperationException=statusWord & 0x01;
 	const bool C1=statusWord&(1<<9);
 	const bool stackFault=statusWord&0x40;
 	if(invalidOperationException && stackFault)
-		stackFaultDetail=C1 ? QObject::tr(" Stack overflow") :
-							  QObject::tr(" Stack underflow");
-	// TODO: list C0-C3 passing jmp conditions when no exception is active
-	return stackFaultDetail.trimmed();
+		return C1 ? QObject::tr("Stack overflow") : QObject::tr("Stack underflow");
+	return "";
+}
+
+QString FPUComparExplain(uint16_t statusWord) {
+	const bool C0=statusWord&(1<<8);
+	const bool C2=statusWord&(1<<10);
+	const bool C3=statusWord&(1<<14);
+	if(C3==0 && C2==0 && C0==0) return "GT";
+	if(C3==0 && C2==0 && C0==1) return "LT";
+	if(C3==1 && C2==0 && C0==0) return "EQ";
+	if(C3==1 && C2==1 && C0==1) return QObject::tr("Unordered","result of FPU comparison instruction");
+	return "";
+}
+
+QString FSRComment(uint16_t statusWord) {
+
+	const auto stackFaultDetail=FPUStackFaultDetail(statusWord);
+	const auto comparisonResult=FPUComparExplain(statusWord);
+	const auto comparComment=comparisonResult.isEmpty()?"":'('+comparisonResult+')';
+
+	const auto comment=comparComment+' '+stackFaultDetail;
+	return comment.trimmed();
 }
 
 void updateSegRegs(RegisterViewModel& model, const State& state) {
