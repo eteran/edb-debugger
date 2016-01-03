@@ -910,13 +910,26 @@ QString FPUComparExplain(uint16_t statusWord) {
 	return "";
 }
 
+QString FPUExplainPE(uint16_t statusWord) {
+	if(statusWord&(1<<5)) {
+		const bool C1=statusWord&(1<<9);
+		return C1 ? QObject::tr("Rounded UP") : QObject::tr("Rounded DOWN");
+	}
+	return "";
+}
+
 QString FSRComment(uint16_t statusWord) {
 
 	const auto stackFaultDetail=FPUStackFaultDetail(statusWord);
 	const auto comparisonResult=FPUComparExplain(statusWord);
 	const auto comparComment=comparisonResult.isEmpty()?"":'('+comparisonResult+')';
+	const auto peExplanation=FPUExplainPE(statusWord);
 
-	const auto comment=comparComment+' '+stackFaultDetail;
+	auto comment=comparComment;
+	if(comment.length() && stackFaultDetail.length()) comment+=", ";
+	comment+=stackFaultDetail;
+	if(comment.length() && peExplanation.length()) comment+=", ";
+	comment+=peExplanation;
 	return comment.trimmed();
 }
 
