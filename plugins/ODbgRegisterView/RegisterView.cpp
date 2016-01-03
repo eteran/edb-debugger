@@ -436,7 +436,8 @@ ODBRegView::ODBRegView(QWidget* parent)
 				   RegisterGroupType::Segment,
 				   RegisterGroupType::EFL,
 				   RegisterGroupType::FPUData,
-				   RegisterGroupType::FPUWords
+				   RegisterGroupType::FPUWords,
+				   RegisterGroupType::FPULastOp
 				  };
 }
 
@@ -715,6 +716,41 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		addPUOZDI(group,fsrIndex,fcrIndex,fsrRow-1,PEPMColumn);
 		const int PUOZDIWidth=6*2-1;
 		group->insert(fsrRow,PEPMColumn+PUOZDIWidth+1,new FieldWidget(0,getCommentIndex(fsrIndex),group));
+
+		return group;
+	}
+	case RegisterGroupType::FPULastOp:
+	{
+		enum {lastInsnRow, lastDataRow, lastOpcodeRow};
+		const QString lastInsnLabel="Last insn";
+		const QString lastDataLabel="Last data";
+		const QString lastOpcodeLabel="Last opcode";
+		group->insert(lastInsnRow,0,new FieldWidget(lastInsnLabel.length(),lastInsnLabel,group));
+		group->insert(lastDataRow,0,new FieldWidget(lastDataLabel.length(),lastDataLabel,group));
+		group->insert(lastOpcodeRow,0,new FieldWidget(lastOpcodeLabel.length(),lastOpcodeLabel,group));
+
+		const auto catIndex=findModelCategory(model_,"FPU");
+		const auto segWidth=4, segColumn=lastInsnLabel.length()+1;;
+		// these two must be inserted first, because seg & offset value fields overlap these labels
+		group->insert(lastInsnRow,segColumn+segWidth,new FieldWidget(1,":",group));
+		group->insert(lastDataRow,segColumn+segWidth,new FieldWidget(1,":",group));
+
+		group->insert(lastInsnRow,segColumn,
+				new ValueField(segWidth,getValueIndex(findModelRegister(catIndex,"FIS")),group));
+		group->insert(lastDataRow,segColumn,
+				new ValueField(segWidth,getValueIndex(findModelRegister(catIndex,"FDS")),group));
+		const auto FIPIndex=getValueIndex(findModelRegister(catIndex,"FIP"));
+		const auto FDPIndex=getValueIndex(findModelRegister(catIndex,"FDP"));
+		const auto offsetWidth=FIPIndex.data(Model::FixedLengthRole).toInt();
+		Q_ASSERT(offsetWidth>0);
+		const auto offsetColumn=segColumn+segWidth+1;
+		group->insert(lastInsnRow,offsetColumn,new ValueField(offsetWidth,FIPIndex,group));
+		group->insert(lastDataRow,offsetColumn,new ValueField(offsetWidth,FDPIndex,group));
+
+		// TODO: show 0xD800+value if FIP!=0
+		group->insert(lastOpcodeRow,lastOpcodeLabel.length()+1,
+				new ValueField(5,getValueIndex(findModelRegister(catIndex,"FOP")),group,[](QString const& str)
+						{ return str.left(2)+' '+str.right(2); }));
 
 		return group;
 	}
