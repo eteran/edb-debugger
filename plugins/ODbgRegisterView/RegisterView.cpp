@@ -434,7 +434,9 @@ ODBRegView::ODBRegView(QWidget* parent)
 				   RegisterGroupType::ExpandedEFL,
 				   RegisterGroupType::Segment,
 				   RegisterGroupType::EFL,
-				   RegisterGroupType::FPUData};
+				   RegisterGroupType::FPUData,
+				   RegisterGroupType::FPUWords
+				  };
 }
 
 void ODBRegView::setModel(QAbstractItemModel* model)
@@ -597,6 +599,20 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 			Q_ASSERT(regValueWidth>0);
 			group->insert(row,column,new ValueField(regValueWidth,regValueIndex,group));
 		}
+		return group;
+	}
+	case RegisterGroupType::FPUWords:
+	{
+		const auto catIndex=findModelCategory(model_,"FPU");
+		if(!catIndex.isValid()) break;
+		groups.push_back(new RegisterGroup(this));
+		auto* const group=groups.back();
+		group->appendNameValueComment(findModelRegister(catIndex,"FTR"),false);
+		const auto fcrIndex=findModelRegister(catIndex,"FCR");
+		group->appendNameValueComment(fcrIndex,false);
+		const auto fsrIndex=findModelRegister(catIndex,"FSR");
+		group->appendNameValueComment(fsrIndex,false);
+
 		return group;
 	}
 	default:
