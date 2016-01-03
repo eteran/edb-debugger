@@ -477,6 +477,12 @@ QModelIndex findModelRegister(QModelIndex categoryIndex,
 	return QModelIndex();
 }
 
+QModelIndex getCommentIndex(QModelIndex const& nameIndex)
+{
+	Q_ASSERT(nameIndex.isValid());
+	return nameIndex.sibling(nameIndex.row(),MODEL_COMMENT_COLUMN);
+}
+
 QModelIndex getValueIndex(QModelIndex const& nameIndex)
 {
 	Q_ASSERT(nameIndex.isValid());
@@ -714,6 +720,8 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		group->insert(fsrRow,SFColumn,new ValueField(1,getValueIndex(findModelRegister(fsrIndex,"SF")),group));
 		const int PEPMColumn=SFColumn+2;
 		addPUOZDI(group,fsrIndex,fcrIndex,fsrRow-1,PEPMColumn);
+		const int PUOZDIWidth=6*2-1;
+		group->insert(fsrRow,PEPMColumn+PUOZDIWidth+1,new FieldWidget(0,getCommentIndex(fsrIndex),group));
 
 		return group;
 	}
