@@ -68,10 +68,10 @@ std::vector<RegisterViewModelBase::BitFieldDescription> flagsDescription=
 	{"IF",9, 1},
 	{"DF",10,1},
 	{"OF",11,1},
-// these system flags are always zeroed by the kernel before giving out to debugger
+// these commented out system flags are always zeroed by the kernel before giving out to debugger
 //	{"IOPL",12,2},
 //	{"NT",14,1},
-//	{"RF",16,1},
+	{"RF",16,1},
 //	{"VM",17,1},
 //	{"AC",18,1},
 //	{"VIF",19,1},
