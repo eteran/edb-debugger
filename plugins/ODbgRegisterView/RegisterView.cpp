@@ -433,7 +433,8 @@ ODBRegView::ODBRegView(QWidget* parent)
 				   RegisterGroupType::rIP,
 				   RegisterGroupType::ExpandedEFL,
 				   RegisterGroupType::Segment,
-				   RegisterGroupType::EFL};
+				   RegisterGroupType::EFL,
+				   RegisterGroupType::FPUData};
 }
 
 void ODBRegView::setModel(QAbstractItemModel* model)
@@ -476,6 +477,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 {
 	if(!model_->rowCount()) return nullptr;
 	std::vector<QModelIndex> nameValCommentIndices;
+	using RegisterViewModelBase::Model;
 	switch(type)
 	{
 	case RegisterGroupType::GPR:
@@ -560,6 +562,40 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 			default:
 				continue;
 			}
+		}
+		return group;
+	}
+	case RegisterGroupType::FPUData:
+	{
+		const auto catIndex=findModelCategory(model_,"FPU");
+		if(!catIndex.isValid()) break;
+		const auto tagsIndex=findModelRegister(catIndex,"FTR");
+		if(!tagsIndex.isValid())
+		{
+			qWarning() << "Warning: failed to find FTR in the model, refusing to continue making FPUData group";
+			break;
+		}
+		static const int FPU_REG_COUNT=8;
+		groups.push_back(new RegisterGroup(this));
+		auto* const group=groups.back();
+		static const int nameWidth=3;
+		static const int tagWidth=7;
+		for(int row=0;row<FPU_REG_COUNT;++row)
+		{
+			int column=0;
+			const auto nameV=model_->index(row,MODEL_NAME_COLUMN,catIndex).data();
+			Q_ASSERT(nameV.isValid());
+			group->insert(row,column,new FieldWidget(nameWidth,nameV.toString(),group));
+			column+=nameWidth+1;
+			const auto tagCommentIndex=model_->index(row,MODEL_COMMENT_COLUMN,tagsIndex);
+			Q_ASSERT(tagCommentIndex.isValid());
+			group->insert(row,column,new ValueField(tagWidth,tagCommentIndex,group,
+													[](QString const&s){return s.toLower();}));
+			column+=tagWidth+1;
+			const auto regValueIndex=model_->index(row,MODEL_VALUE_COLUMN,catIndex);
+			const int regValueWidth=regValueIndex.data(Model::FixedLengthRole).toInt();
+			Q_ASSERT(regValueWidth>0);
+			group->insert(row,column,new ValueField(regValueWidth,regValueIndex,group));
 		}
 		return group;
 	}
