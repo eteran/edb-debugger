@@ -611,10 +611,34 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		groups.push_back(new RegisterGroup(this));
 		auto* const group=groups.back();
 		group->appendNameValueComment(findModelRegister(catIndex,"FTR"),false);
-		const auto fcrIndex=findModelRegister(catIndex,"FCR");
-		group->appendNameValueComment(fcrIndex,false);
+		const int fsrRow=1;
 		const auto fsrIndex=findModelRegister(catIndex,"FSR");
 		group->appendNameValueComment(fsrIndex,false);
+		const int fcrRow=2;
+		const auto fcrIndex=findModelRegister(catIndex,"FCR");
+		group->appendNameValueComment(fcrIndex,false);
+
+		const int wordNameWidth=3, wordValWidth=4;
+		const int condPrecLabelColumn=wordNameWidth+1+wordValWidth+1+1;
+		const int condPrecLabelWidth=4;
+		group->insert(fsrRow,condPrecLabelColumn,new FieldWidget(condPrecLabelWidth,"Cond",group));
+		group->insert(fcrRow,condPrecLabelColumn,new FieldWidget(condPrecLabelWidth,"Prec",group));
+		const int condPrecValColumn=condPrecLabelColumn+condPrecLabelWidth+1;
+		const int roundModeWidth=4, precModeWidth=2;
+		const int roundModeColumn=condPrecValColumn+1;
+		const int precModeColumn=roundModeColumn+roundModeWidth;
+		// This must be inserted before precision&rounding value fields, since they overlap this label
+		group->insert(fcrRow,precModeColumn-1,new FieldWidget(1,",",group));
+		for(int condN=3;condN>=0;--condN)
+		{
+			const auto condNNameIndex=findModelRegister(fsrIndex,QString("C%1").arg(condN));
+			Q_ASSERT(condNNameIndex.isValid());
+			const auto condNIndex=condNNameIndex.sibling(condNNameIndex.row(),MODEL_VALUE_COLUMN);
+			Q_ASSERT(condNIndex.isValid());
+			const int column=condPrecValColumn+2*(3-condN);
+			group->insert(fsrRow-1,column,new FieldWidget(1,QString("%1").arg(condN),group));
+			group->insert(fsrRow,  column,new ValueField(1,condNIndex,group));
+		}
 
 		return group;
 	}
