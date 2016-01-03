@@ -48,7 +48,7 @@ using EFLAGS=typename Regs<32>::FLAGS;
 using RFLAGS=typename Regs<64>::FLAGS;
 using EIP=typename Regs<32>::IP;
 using RIP=typename Regs<64>::IP;
-using FPUReg=RegisterViewModelBase::SimpleRegister<edb::value80>;
+using FPUReg=RegisterViewModelBase::FPURegister<edb::value80>;
 using FPUWord=RegisterViewModelBase::FlagsRegister<edb::value16>;
 using FOPCReg=RegisterViewModelBase::SimpleRegister<edb::value16>;
 using SegmentReg=RegisterViewModelBase::SimpleRegister<edb::value16>;
@@ -255,7 +255,6 @@ void addSegRegs(RegisterViewModelBase::Category* cat)
 template<std::size_t bitSize>
 void addFPURegs(RegisterViewModelBase::Category* fpuRegs)
 {
-	// TODO: FPUReg should have possibility to be shown in Float80 format
 	for(std::size_t i=0;i<FPU_REG_COUNT;++i)
 		fpuRegs->addRegister(make_unique<FPUReg>(QString("R%1").arg(i)));
 	fpuRegs->addRegister(make_unique<FPUWord>("FCR",FCRDescription));

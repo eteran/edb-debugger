@@ -229,6 +229,23 @@ public:
 	RegisterViewItem* child(int) override;
 };
 
+template<class FloatType>
+class FPURegister : public SimpleRegister<FloatType>
+{
+	template<class U,class V>
+	friend class SIMDFormatItem;
+	FloatType value() const;
+protected:
+	SimpleRegister<FloatType> rawReg;
+	SIMDFormatItem<FloatType,FloatType> formattedReg;
+public:
+	FPURegister(QString const& name);
+	void saveValue() override;
+	void update(FloatType const& newValue, QString const& newComment) override;
+	int childCount() const override;
+	RegisterViewItem* child(int) override;
+};
+
 class Category : public RegisterViewItem
 {
 	std::vector<std::unique_ptr<AbstractRegisterItem>> registers;

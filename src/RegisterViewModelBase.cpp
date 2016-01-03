@@ -455,7 +455,8 @@ bool SIMDFormatItem<StoredType,SizingType>::changed() const
 	return parent()->changed();
 }
 
-template<class SizingType> typename std::enable_if<(sizeof(SizingType)>=sizeof(float)),
+template<class SizingType> typename std::enable_if<(sizeof(SizingType)>=sizeof(float) &&
+													sizeof(SizingType)!=sizeof(edb::value80)),
 QString>::type toString(SizingType value,NumberDisplayMode format)
 {
 	return format==NumberDisplayMode::Float ? formatFloat(value) : util::formatInt(value,format);
@@ -467,6 +468,12 @@ QString>::type toString(SizingType value,NumberDisplayMode format)
 	return format==NumberDisplayMode::Float ? "(too small element width for float)" : util::formatInt(value,format);
 }
 
+QString toString(edb::value80 const& value, NumberDisplayMode format)
+{
+	Q_ASSERT(format==NumberDisplayMode::Float); Q_UNUSED(format);
+	return formatFloat(value);
+}
+
 template<class StoredType, class SizingType>
 QVariant SIMDFormatItem<StoredType,SizingType>::data(int column) const
 {
@@ -475,8 +482,11 @@ QVariant SIMDFormatItem<StoredType,SizingType>::data(int column) const
 	case Model::NAME_COLUMN: return this->name();
 	case Model::VALUE_COLUMN:
 		{
-			const auto value=static_cast<SIMDSizedElement<StoredType,SizingType>*>(parent())->value();
-			return toString(value,format);
+			if(const auto parent=dynamic_cast<SIMDSizedElement<StoredType,SizingType>*>(this->parent()))
+				return toString(parent->value(),format);
+			if(const auto parent=dynamic_cast<FPURegister<SizingType>*>(this->parent()))
+				return toString(parent->value(),format);
+			EDB_PRINT_AND_DIE("failed to detect parent type");
 		}
 	case Model::COMMENT_COLUMN: return QVariant();
 	}
@@ -679,6 +689,57 @@ RegisterViewItem* SIMDRegister<StoredType>::child(int row)
 template class SIMDRegister<edb::value64>;
 template class SIMDRegister<edb::value128>;
 template class SIMDRegister<edb::value256>;
+
+// ----------------------------- FPURegister impl ---------------------------
+
+template<class FloatType>
+FPURegister<FloatType>::FPURegister(QString const& name)
+	: SimpleRegister<FloatType>(name),
+	  rawReg(QObject::tr("raw","register value format")),
+	  formattedReg(NumberDisplayMode::Float)
+{
+	rawReg.init(this,0);
+	formattedReg.init(this,1);
+}
+
+template<class FloatType>
+void FPURegister<FloatType>::update(FloatType const& newValue, QString const& newComment)
+{
+	rawReg.update(newValue,newComment);
+	SimpleRegister<FloatType>::update(newValue,newComment);
+}
+
+template<class FloatType>
+void FPURegister<FloatType>::saveValue()
+{
+	rawReg.saveValue();
+	SimpleRegister<FloatType>::saveValue();
+}
+
+template<class FloatType>
+int FPURegister<FloatType>::childCount() const
+{
+	return 2; // raw & formatted
+}
+
+template<class FloatType>
+RegisterViewItem* FPURegister<FloatType>::child(int row)
+{
+	switch(row)
+	{
+	case 0: return &rawReg;
+	case 1: return &formattedReg;
+	default: return nullptr;
+	}
+}
+
+template<class FloatType>
+FloatType FPURegister<FloatType>::value() const
+{
+	return this->value_;
+}
+
+template class FPURegister<edb::value80>;
 
 // -----------------------------------------------
 
