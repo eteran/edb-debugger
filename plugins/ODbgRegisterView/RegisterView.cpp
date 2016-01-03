@@ -213,6 +213,7 @@ void ValueField::updatePalette()
 	auto palette=this->palette();
 	const auto appPalette=QApplication::palette();
 
+	// TODO: make selected items still red if they've changed
 	const QColor selectedFGColor=appPalette.color(QPalette::HighlightedText);
 	const QColor normalFGColor=appPalette.color(QPalette::WindowText);
 	const QColor hoveredFGColor=normalFGColor;
