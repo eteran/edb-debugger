@@ -80,11 +80,11 @@ static QPlastiqueStyle plastiqueStyle;
 // --------------------- FieldWidget impl ----------------------------------
 QString FieldWidget::text() const
 {
-	if(!index.isValid())
+	if(!index.isValid() && !this->isEnabled())
 		return QLabel::text();
 	const auto text=index.data();
 	if(!text.isValid())
-		return "fW???";
+		return QString(width()/letterSize(font()).width()-1,QChar('?'));
 	return text.toString();
 }
 
@@ -186,7 +186,7 @@ QString ValueField::text() const
 
 bool ValueField::changed() const
 {
-	Q_ASSERT(index.isValid());
+	if(!index.isValid()) return true;
 	const auto changed=index.data(RegisterViewModelBase::Model::RegisterChangedRole);
 	Q_ASSERT(changed.isValid());
 	return changed.toBool();
@@ -499,8 +499,7 @@ void addRoundingMode(RegisterGroup* const group, QModelIndex const& index, int c
 					if(str[0]=='?') return "????";
 					bool roundModeParseOK=false;
 					const int value=str.toInt(&roundModeParseOK);
-					if(!roundModeParseOK)
-						EDB_PRINT_AND_DIE("Failed to parse rounding mode. String was \"",str.toStdString(),"\".");
+					if(!roundModeParseOK) return "????";
 					Q_ASSERT(0<=value && value<=3);
 					static const char* strings[]={"NEAR","DOWN","  UP","ZERO"};
 					return strings[value];
@@ -516,8 +515,7 @@ void addPrecisionMode(RegisterGroup* const group, QModelIndex const& index, int 
 					if(str[0]=='?') return "??";
 					bool precModeParseOK=false;
 					const int value=str.toInt(&precModeParseOK);
-					if(!precModeParseOK)
-						EDB_PRINT_AND_DIE("Failed to parse precision mode. String was \"",str.toStdString(),"\".");
+					if(!precModeParseOK) return "??";
 					Q_ASSERT(0<=value && value<=3);
 					static const char* strings[]={"24","??","53","64"};
 					return strings[value];
