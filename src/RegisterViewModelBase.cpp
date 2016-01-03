@@ -434,10 +434,10 @@ QString SIMDFormatItem<StoredType,SizingType>::name(NumberDisplayMode format) co
 {
 	switch(format)
 	{
-	case NumberDisplayMode::Hex: return "Hex";
-	case NumberDisplayMode::Signed: return "Signed";
-	case NumberDisplayMode::Unsigned: return "Unsigned";
-	case NumberDisplayMode::Float: return "Float";
+	case NumberDisplayMode::Hex: return "hex";
+	case NumberDisplayMode::Signed: return "signed";
+	case NumberDisplayMode::Unsigned: return "unsigned";
+	case NumberDisplayMode::Float: return "float";
 	}
 	EDB_PRINT_AND_DIE("Unexpected format ",(long)format);
 }
