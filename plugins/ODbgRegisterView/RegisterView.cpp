@@ -546,6 +546,8 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	if(!model_->rowCount()) return nullptr;
 	std::vector<QModelIndex> nameValCommentIndices;
 	using RegisterViewModelBase::Model;
+	groups.push_back(new RegisterGroup(this));
+	auto* const group=groups.back();
 	switch(type)
 	{
 	case RegisterGroupType::GPR:
@@ -580,8 +582,6 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		if(!nameIndex.isValid())
 			nameIndex=findModelRegister(catIndex,"EFLAGS");
 		if(!nameIndex.isValid()) break;
-		groups.push_back(new RegisterGroup(this));
-		auto* const group=groups.back();
 		const int nameWidth=3;
 		int column=0;
 		group->insert(0,column,new FieldWidget(nameWidth,"EFL",group));
@@ -602,8 +602,6 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		if(!regNameIndex.isValid())
 			regNameIndex=findModelRegister(catIndex,"EFLAGS");
 		if(!regNameIndex.isValid()) break;
-		groups.push_back(new RegisterGroup(this));
-		auto* const group=groups.back();
 		for(int row=0,groupRow=0;row<model_->rowCount(regNameIndex);++row)
 		{
 			const auto flagNameIndex=model_->index(row,MODEL_NAME_COLUMN,regNameIndex);
@@ -644,8 +642,6 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 			break;
 		}
 		static const int FPU_REG_COUNT=8;
-		groups.push_back(new RegisterGroup(this));
-		auto* const group=groups.back();
 		static const int nameWidth=3;
 		static const int tagWidth=7;
 		for(int row=0;row<FPU_REG_COUNT;++row)
@@ -674,8 +670,6 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	{
 		const auto catIndex=findModelCategory(model_,"FPU");
 		if(!catIndex.isValid()) break;
-		groups.push_back(new RegisterGroup(this));
-		auto* const group=groups.back();
 		group->appendNameValueComment(findModelRegister(catIndex,"FTR"),false);
 		const int fsrRow=1;
 		const auto fsrIndex=findModelRegister(catIndex,"FSR");
@@ -726,6 +720,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	}
 	default:
 		qWarning() << "Warning: unexpected register group type requested in" << Q_FUNC_INFO;
+		groups.pop_back();
 		return nullptr;
 	}
 	nameValCommentIndices.erase(std::remove_if(nameValCommentIndices.begin(),
@@ -735,10 +730,9 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	if(nameValCommentIndices.empty())
 	{
 		qWarning() << "Warning: failed to get any useful register indices for regGroupType" << static_cast<long>(type);
+		groups.pop_back();
 		return nullptr;
 	}
-	groups.push_back(new RegisterGroup(this));
-	auto* const group=groups.back();
 	for(const auto& index : nameValCommentIndices)
 		group->appendNameValueComment(index);
 	return group;
