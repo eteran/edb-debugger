@@ -424,12 +424,6 @@ template class FlagsRegister<edb::value64>;
 // --------------------- SIMDFormatItem impl -----------------------
 
 template<class StoredType, class SizingType>
-QString SIMDFormatItem<StoredType,SizingType>::name() const
-{
-	return name(format);
-}
-
-template<class StoredType, class SizingType>
 QString SIMDFormatItem<StoredType,SizingType>::name(NumberDisplayMode format) const
 {
 	switch(format)

@@ -169,12 +169,12 @@ class SIMDFormatItem : public RegisterViewItem
 {
 	NumberDisplayMode format;
 
-	QString name() const;
 	QString name(NumberDisplayMode format) const;
 public:
 	SIMDFormatItem(NumberDisplayMode format);
 	QVariant data(int column) const override;
 	bool changed() const override;
+	using RegisterViewItem::name;
 };
 
 template<class StoredType, class SizingType>
