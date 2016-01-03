@@ -653,7 +653,8 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		for(int row=0;row<FPU_REG_COUNT;++row)
 		{
 			int column=0;
-			const auto nameV=model_->index(row,MODEL_NAME_COLUMN,catIndex).data();
+			const auto nameIndex=model_->index(row,MODEL_NAME_COLUMN,catIndex);
+			const auto nameV=nameIndex.data();
 			Q_ASSERT(nameV.isValid());
 			group->insert(row,column,new FieldWidget(nameWidth,nameV.toString(),group));
 			column+=nameWidth+1;
@@ -662,7 +663,8 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 			group->insert(row,column,new ValueField(tagWidth,tagCommentIndex,group,
 													[](QString const&s){return s.toLower();}));
 			column+=tagWidth+1;
-			const auto regValueIndex=model_->index(row,MODEL_VALUE_COLUMN,catIndex);
+			// Always show float-formatted value, not raw
+			const auto regValueIndex=findModelRegister(nameIndex,"FLOAT",MODEL_VALUE_COLUMN);
 			const int regValueWidth=regValueIndex.data(Model::FixedLengthRole).toInt();
 			Q_ASSERT(regValueWidth>0);
 			group->insert(row,column,new ValueField(regValueWidth,regValueIndex,group));
