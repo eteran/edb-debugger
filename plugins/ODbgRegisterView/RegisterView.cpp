@@ -39,7 +39,7 @@ namespace ODbgRegisterView {
 // TODO: GPR menu: Increment, Decrement, Invert, Zero(if not already), Set to 1(if not already)
 // TODO: rFLAGS menu: Set Condition (O,P,NAE etc. - see ODB)
 // TODO: FPU tags: toggle - set valid/empty
-// TODO: FSR: Set Condition: L,E,Unordered
+// TODO: FSR: Set Condition: G,L,E,Unordered
 // TODO: PC: set 24/53/64-bit mantissa
 // TODO: RC: round up/down/nearest
 
