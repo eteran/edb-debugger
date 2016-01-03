@@ -466,7 +466,8 @@ QModelIndex findModelCategory(QAbstractItemModel const*const model,
 
 // TODO: switch from string-based search to enum-based one (add a new Role to model data)
 QModelIndex findModelRegister(QModelIndex categoryIndex,
-							  QString const& regToFind)
+							  QString const& regToFind,
+							  int column=MODEL_NAME_COLUMN)
 {
 	auto* const model=categoryIndex.model();
 	for(int row=0;row<model->rowCount(categoryIndex);++row)
@@ -474,7 +475,11 @@ QModelIndex findModelRegister(QModelIndex categoryIndex,
 		const auto regIndex=model->index(row,MODEL_NAME_COLUMN,categoryIndex);
 		const auto name=model->data(regIndex).toString();
 		if(name.toUpper()==regToFind)
-			return regIndex;
+		{
+			if(column==MODEL_NAME_COLUMN)
+				return regIndex;
+			return regIndex.sibling(regIndex.row(),column);
+		}
 	}
 	return QModelIndex();
 }
