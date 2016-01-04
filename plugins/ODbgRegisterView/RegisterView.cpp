@@ -993,6 +993,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 
 void ODBRegView::modelReset()
 {
+	widget()->hide(); // prevent flicker while groups are added to/removed from the layout
 	// not all groups may be in the layout, so delete them individually
 	for(auto* const group : groups)
 		group->deleteLater();
@@ -1028,6 +1029,7 @@ void ODBRegView::modelReset()
 		}
 		else layout->addWidget(group);
 	}
+	widget()->show();
 }
 
 void ODBRegView::modelUpdated()
