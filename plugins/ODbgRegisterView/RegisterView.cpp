@@ -786,7 +786,7 @@ RegisterGroup* fillFPULastOp(RegisterGroup* group, QAbstractItemModel* model)
 	return group;
 }
 
-RegisterGroup* createDebugGroup(RegisterGroup* group, QAbstractItemModel* model)
+RegisterGroup* fillDebugGroup(RegisterGroup* group, QAbstractItemModel* model)
 {
 	using RegisterViewModelBase::Model;
 
@@ -946,7 +946,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	case RegisterGroupType::FPUData: return fillFPUData(group,model_);
 	case RegisterGroupType::FPUWords: return fillFPUWords(group,model_);
 	case RegisterGroupType::FPULastOp: return fillFPULastOp(group,model_);
-	case RegisterGroupType::Debug: return createDebugGroup(group,model_);
+	case RegisterGroupType::Debug: return fillDebugGroup(group,model_);
 	case RegisterGroupType::GPR:
 	{
 		const auto catIndex=findModelCategory(model_,"General Purpose");
