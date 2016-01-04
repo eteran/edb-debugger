@@ -319,6 +319,7 @@ QVariant RegisterItem<T>::data(int column) const
 template<typename T>
 QByteArray RegisterItem<T>::rawValue() const
 {
+	if(!this->valueKnown_) return {};
 	return QByteArray(reinterpret_cast<const char*>(&this->value_),
 					  sizeof this->value_);
 }
