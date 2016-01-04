@@ -28,7 +28,9 @@ public:
 	{
 		RegisterChangedRole=Qt::UserRole, // true if changed, false otherwise
 		FixedLengthRole, // fixed length of text (name, value) or undefined (0) if it's not fixed (comment)
-		RawValueRole // QByteArray with raw data
+		RawValueRole, // QByteArray with raw data
+
+		FirstConcreteRole=Qt::UserRole+10000 // first role available for use in derived models
 	};
 	Model(QObject* parent=nullptr);
 	int rowCount(QModelIndex const& parent=QModelIndex()) const override;
