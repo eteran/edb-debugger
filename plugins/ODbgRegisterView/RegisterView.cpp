@@ -707,8 +707,8 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 			group->insert(fsrRow-1,column,new FieldWidget(1,QString("%1").arg(condN),group));
 			group->insert(fsrRow,  column,new ValueField(1,condNIndex,group));
 		}
-		addRoundingMode(group,getValueIndex(findModelRegister(fcrIndex,"RC")),fcrRow,roundModeColumn);
-		addPrecisionMode(group,getValueIndex(findModelRegister(fcrIndex,"PC")),fcrRow,precModeColumn);
+		addRoundingMode(group,findModelRegister(fcrIndex,"RC",MODEL_VALUE_COLUMN),fcrRow,roundModeColumn);
+		addPrecisionMode(group,findModelRegister(fcrIndex,"PC",MODEL_VALUE_COLUMN),fcrRow,precModeColumn);
 		const int errMaskColumn=precModeColumn+precModeWidth+2;
 		const int errLabelWidth=3,maskLabelWidth=4;
 		group->insert(fsrRow,errMaskColumn,new FieldWidget(errLabelWidth,"Err",group));
@@ -717,8 +717,8 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		const int SFColumn=ESColumn+2;
 		group->insert(fsrRow-1,ESColumn,new FieldWidget(1,"E",group));
 		group->insert(fsrRow-1,SFColumn,new FieldWidget(1,"S",group));
-		group->insert(fsrRow,ESColumn,new ValueField(1,getValueIndex(findModelRegister(fsrIndex,"ES")),group));
-		group->insert(fsrRow,SFColumn,new ValueField(1,getValueIndex(findModelRegister(fsrIndex,"SF")),group));
+		group->insert(fsrRow,ESColumn,new ValueField(1,findModelRegister(fsrIndex,"ES",MODEL_VALUE_COLUMN),group));
+		group->insert(fsrRow,SFColumn,new ValueField(1,findModelRegister(fsrIndex,"SF",MODEL_VALUE_COLUMN),group));
 		const int PEPMColumn=SFColumn+2;
 		addPUOZDI(group,fsrIndex,fcrIndex,fsrRow-1,PEPMColumn);
 		const int PUOZDIWidth=6*2-1;
@@ -743,11 +743,11 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		group->insert(lastDataRow,segColumn+segWidth,new FieldWidget(1,":",group));
 
 		group->insert(lastInsnRow,segColumn,
-				new ValueField(segWidth,getValueIndex(findModelRegister(catIndex,"FIS")),group));
+				new ValueField(segWidth,findModelRegister(catIndex,"FIS",MODEL_VALUE_COLUMN),group));
 		group->insert(lastDataRow,segColumn,
-				new ValueField(segWidth,getValueIndex(findModelRegister(catIndex,"FDS")),group));
-		const auto FIPIndex=getValueIndex(findModelRegister(catIndex,"FIP"));
-		const auto FDPIndex=getValueIndex(findModelRegister(catIndex,"FDP"));
+				new ValueField(segWidth,findModelRegister(catIndex,"FDS",MODEL_VALUE_COLUMN),group));
+		const auto FIPIndex=findModelRegister(catIndex,"FIP",MODEL_VALUE_COLUMN);
+		const auto FDPIndex=findModelRegister(catIndex,"FDP",MODEL_VALUE_COLUMN);
 		const auto offsetWidth=FIPIndex.data(Model::FixedLengthRole).toInt();
 		Q_ASSERT(offsetWidth>0);
 		const auto offsetColumn=segColumn+segWidth+1;
