@@ -26,8 +26,9 @@ public:
 	};
 	enum Role
 	{
-		RegisterChangedRole=Qt::UserRole,
-		FixedLengthRole // fixed length of text (name, value) or undefined (0) if it's not fixed (comment)
+		RegisterChangedRole=Qt::UserRole, // true if changed, false otherwise
+		FixedLengthRole, // fixed length of text (name, value) or undefined (0) if it's not fixed (comment)
+		RawValueRole // QByteArray with raw data
 	};
 	Model(QObject* parent=nullptr);
 	int rowCount(QModelIndex const& parent=QModelIndex()) const override;
@@ -73,6 +74,7 @@ public:
 	virtual int childCount() const { return 0; }
 	virtual QVariant data(int /*column*/) const { return QVariant(); }
 	virtual int valueMaxLength() const { return 0; }
+	virtual QByteArray rawValue() const = 0;
 };
 
 class AbstractRegisterItem : public RegisterViewItem
@@ -108,6 +110,7 @@ public:
 	int childCount() const override;
 	RegisterViewItem* child(int) override;
 	QVariant data(int column) const override;
+	QByteArray rawValue() const override;
 };
 
 template<class StoredType>
@@ -173,6 +176,7 @@ class SIMDFormatItem : public RegisterViewItem
 public:
 	SIMDFormatItem(NumberDisplayMode format);
 	QVariant data(int column) const override;
+	QByteArray rawValue() const override;
 	bool changed() const override;
 	using RegisterViewItem::name;
 };
@@ -194,6 +198,7 @@ public:
 	RegisterViewItem* child(int row) override;
 	int childCount() const override;
 	QVariant data(int column) const override;
+	QByteArray rawValue() const override;
 	bool changed() const override;
 };
 
@@ -213,6 +218,7 @@ public:
 	RegisterViewItem* child(int row) override;
 	int childCount() const override;
 	QVariant data(int column) const override;
+	QByteArray rawValue() const override;
 	bool changed() const override;
 };
 
@@ -257,6 +263,7 @@ public:
 	int childCount() const override;
 	RegisterViewItem* child(int row) override;
 	QVariant data(int column) const override;
+	QByteArray rawValue() const override;
 
 	void addRegister(std::unique_ptr<AbstractRegisterItem> reg);
 	AbstractRegisterItem* getRegister(std::size_t i) const;
@@ -277,6 +284,7 @@ public:
 	int childCount() const override;
 	RegisterViewItem* child(int row) override;
 	QVariant data(int column) const;
+	QByteArray rawValue() const override;
 
 	friend class Model;
 };

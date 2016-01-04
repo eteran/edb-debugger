@@ -46,6 +46,11 @@ QVariant CategoriesHolder::data(int /*column*/) const
 	return QVariant();
 }
 
+QByteArray CategoriesHolder::rawValue() const
+{
+	return {};
+}
+
 RegisterViewItem* CategoriesHolder::child(int visibleRow)
 {
 	// return visible row #visibleRow
@@ -141,6 +146,14 @@ QVariant Model::data(QModelIndex const& index, int role) const
 			return reg->valueMaxLength();
 		else return QVariant();
 
+	case RawValueRole:
+	{
+		if(index.column()!=VALUE_COLUMN)
+			return QVariant();
+		const auto ret=reg->rawValue();
+		if(ret.size()) return ret;
+	}
+
 	default:
 		return QVariant();
 	}
@@ -206,6 +219,11 @@ QVariant Category::data(int column) const
 {
 	if(column==0) return name_;
 	return QVariant();
+}
+
+QByteArray Category::rawValue() const
+{
+	return {};
 }
 
 void Category::hide()
@@ -296,6 +314,13 @@ QVariant RegisterItem<T>::data(int column) const
 	case Model::COMMENT_COLUMN: return this->comment_;
 	}
 	return QVariant();
+}
+
+template<typename T>
+QByteArray RegisterItem<T>::rawValue() const
+{
+	return QByteArray(reinterpret_cast<const char*>(&this->value_),
+					  sizeof this->value_);
 }
 
 // -------------------- SimpleRegister impl -----------------------
@@ -487,6 +512,12 @@ QVariant SIMDFormatItem<StoredType,SizingType>::data(int column) const
 	return QVariant();
 }
 
+template<class StoredType, class SizingType>
+QByteArray SIMDFormatItem<StoredType,SizingType>::rawValue() const
+{
+	return static_cast<RegisterViewItem*>(this->parent())->rawValue();
+}
+
 // --------------------- SIMDSizedElement  impl -------------------------
 
 template<class StoredType, class SizingType>
@@ -553,6 +584,13 @@ QVariant SIMDSizedElement<StoredType,SizingType>::data(int column) const
 	case Model::COMMENT_COLUMN: return QVariant();
 	}
 	return QVariant();
+}
+
+template<class StoredType, class SizingType>
+QByteArray SIMDSizedElement<StoredType,SizingType>::rawValue() const
+{
+	const auto value=this->value();
+	return QByteArray(reinterpret_cast<const char*>(&value),sizeof value);
 }
 
 template<class StoredType, class SizingType>
@@ -637,6 +675,12 @@ QVariant SIMDSizedElementsContainer<StoredType>::data(int column) const
 	case Model::COMMENT_COLUMN: return QVariant();
 	default: return QVariant();
 	}
+}
+
+template<class StoredType>
+QByteArray SIMDSizedElementsContainer<StoredType>::rawValue() const
+{
+	return static_cast<RegisterViewItem*>(this->parent())->rawValue();
 }
 
 template<class StoredType>
