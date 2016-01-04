@@ -396,6 +396,7 @@ void ODBRegView::fieldSelected()
 	for(auto* const field : valueFields())
 		if(sender()!=field)
 			field->unselect();
+	ensureWidgetVisible(static_cast<QWidget*>(sender()),0,0);
 }
 
 void RegisterGroup::adjustWidth()
