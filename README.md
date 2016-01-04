@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/eteran/edb-debugger.svg?branch=master)](https://travis-ci.org/eteran/edb-debugger)
+[![Gitter](https://badges.gitter.im/eteran/edb-debugger.svg)](https://gitter.im/eteran/edb-debugger?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![Build Status](https://travis-ci.org/eteran/edb-debugger.svg?branch=master)](https://travis-ci.org/eteran/edb-debugger)
 
 edb is a cross platform x86/x86-64 debugger. It was inspired by [Ollydbg](http://www.ollydbg.de/ "Ollydbg"), but aims to function on x86 and x86-64 as well as multiple OS's. Linux is the only officially supported platform at the moment, but FreeBSD, OpenBSD, OSX and Windows ports are underway with varying degrees of functionality.
 
