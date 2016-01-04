@@ -548,7 +548,7 @@ void addPUOZDI(RegisterGroup* const group, QModelIndex const& excRegIndex, QMode
 		const auto maskIndex=findModelRegister(maskRegIndex,ex+"M");
 		Q_ASSERT(maskIndex.isValid());
 		const int column=startColumn+exN*2;
-		group->insert(startRow,column,new FieldWidget(1,ex,group));
+		group->insert(startRow,column,new FieldWidget(ex,group));
 		group->insert(startRow+1,column,new ValueField(1,getValueIndex(excIndex),group));
 		group->insert(startRow+2,column,new ValueField(1,getValueIndex(maskIndex),group));
 	}
@@ -566,7 +566,7 @@ RegisterGroup* fillEFL(RegisterGroup* group, QAbstractItemModel* model)
 	if(!nameIndex.isValid()) return nullptr;
 	const int nameWidth=3;
 	int column=0;
-	group->insert(0,column,new FieldWidget(nameWidth,"EFL",group));
+	group->insert(0,column,new FieldWidget("EFL",group));
 	const auto valueWidth=8;
 	const auto valueIndex=nameIndex.sibling(nameIndex.row(),MODEL_VALUE_COLUMN);
 	column+=nameWidth+1;
@@ -605,7 +605,7 @@ RegisterGroup* fillExpandedEFL(RegisterGroup* group, QAbstractItemModel* model)
 		case 'T':
 		case 'D':
 		case 'O':
-			group->insert(groupRow,0,new FieldWidget(flagNameWidth,QChar(name),group));
+			group->insert(groupRow,0,new FieldWidget(QChar(name),group));
 			group->insert(groupRow,flagNameWidth+1,new ValueField(valueWidth,flagValueIndex,group));
 			++groupRow;
 			break;
@@ -671,14 +671,14 @@ RegisterGroup* fillFPUWords(RegisterGroup* group, QAbstractItemModel* model)
 	const int wordNameWidth=3, wordValWidth=4;
 	const int condPrecLabelColumn=wordNameWidth+1+wordValWidth+1+1;
 	const int condPrecLabelWidth=4;
-	group->insert(fsrRow,condPrecLabelColumn,new FieldWidget(condPrecLabelWidth,"Cond",group));
-	group->insert(fcrRow,condPrecLabelColumn,new FieldWidget(condPrecLabelWidth,"Prec",group));
+	group->insert(fsrRow,condPrecLabelColumn,new FieldWidget("Cond",group));
+	group->insert(fcrRow,condPrecLabelColumn,new FieldWidget("Prec",group));
 	const int condPrecValColumn=condPrecLabelColumn+condPrecLabelWidth+1;
 	const int roundModeWidth=4, precModeWidth=2;
 	const int roundModeColumn=condPrecValColumn;
 	const int precModeColumn=roundModeColumn+roundModeWidth+1;
 	// This must be inserted before precision&rounding value fields, since they overlap this label
-	group->insert(fcrRow,precModeColumn-1,new FieldWidget(1,",",group));
+	group->insert(fcrRow,precModeColumn-1,new FieldWidget(",",group));
 	for(int condN=3;condN>=0;--condN)
 	{
 		const auto condNNameIndex=findModelRegister(fsrIndex,QString("C%1").arg(condN));
@@ -686,19 +686,19 @@ RegisterGroup* fillFPUWords(RegisterGroup* group, QAbstractItemModel* model)
 		const auto condNIndex=condNNameIndex.sibling(condNNameIndex.row(),MODEL_VALUE_COLUMN);
 		Q_ASSERT(condNIndex.isValid());
 		const int column=condPrecValColumn+2*(3-condN);
-		group->insert(fsrRow-1,column,new FieldWidget(1,QString("%1").arg(condN),group));
+		group->insert(fsrRow-1,column,new FieldWidget(QString("%1").arg(condN),group));
 		group->insert(fsrRow,  column,new ValueField(1,condNIndex,group));
 	}
 	addRoundingMode(group,findModelRegister(fcrIndex,"RC",MODEL_VALUE_COLUMN),fcrRow,roundModeColumn);
 	addPrecisionMode(group,findModelRegister(fcrIndex,"PC",MODEL_VALUE_COLUMN),fcrRow,precModeColumn);
 	const int errMaskColumn=precModeColumn+precModeWidth+2;
-	const int errLabelWidth=3,maskLabelWidth=4;
-	group->insert(fsrRow,errMaskColumn,new FieldWidget(errLabelWidth,"Err",group));
-	group->insert(fcrRow,errMaskColumn,new FieldWidget(maskLabelWidth,"Mask",group));
+	const int errLabelWidth=3;
+	group->insert(fsrRow,errMaskColumn,new FieldWidget("Err",group));
+	group->insert(fcrRow,errMaskColumn,new FieldWidget("Mask",group));
 	const int ESColumn=errMaskColumn+errLabelWidth+1;
 	const int SFColumn=ESColumn+2;
-	group->insert(fsrRow-1,ESColumn,new FieldWidget(1,"E",group));
-	group->insert(fsrRow-1,SFColumn,new FieldWidget(1,"S",group));
+	group->insert(fsrRow-1,ESColumn,new FieldWidget("E",group));
+	group->insert(fsrRow-1,SFColumn,new FieldWidget("S",group));
 	group->insert(fsrRow,ESColumn,new ValueField(1,findModelRegister(fsrIndex,"ES",MODEL_VALUE_COLUMN),group));
 	group->insert(fsrRow,SFColumn,new ValueField(1,findModelRegister(fsrIndex,"SF",MODEL_VALUE_COLUMN),group));
 	const int PEPMColumn=SFColumn+2;
@@ -717,9 +717,9 @@ RegisterGroup* fillFPULastOp(RegisterGroup* group, QAbstractItemModel* model)
 	const QString lastInsnLabel="Last insn";
 	const QString lastDataLabel="Last data";
 	const QString lastOpcodeLabel="Last opcode";
-	group->insert(lastInsnRow,0,new FieldWidget(lastInsnLabel.length(),lastInsnLabel,group));
-	group->insert(lastDataRow,0,new FieldWidget(lastDataLabel.length(),lastDataLabel,group));
-	group->insert(lastOpcodeRow,0,new FieldWidget(lastOpcodeLabel.length(),lastOpcodeLabel,group));
+	group->insert(lastInsnRow,0,new FieldWidget(lastInsnLabel,group));
+	group->insert(lastDataRow,0,new FieldWidget(lastDataLabel,group));
+	group->insert(lastOpcodeRow,0,new FieldWidget(lastOpcodeLabel,group));
 
 	const auto catIndex=findModelCategory(model,"FPU");
 	const auto FIPIndex=findModelRegister(catIndex,"FIP",MODEL_VALUE_COLUMN);
@@ -735,8 +735,8 @@ RegisterGroup* fillFPULastOp(RegisterGroup* group, QAbstractItemModel* model)
 	if(segWidth)
 	{
 		// these two must be inserted first, because seg & offset value fields overlap these labels
-		group->insert(lastInsnRow,segColumn+segWidth,new FieldWidget(1,":",group));
-		group->insert(lastDataRow,segColumn+segWidth,new FieldWidget(1,":",group));
+		group->insert(lastInsnRow,segColumn+segWidth,new FieldWidget(":",group));
+		group->insert(lastDataRow,segColumn+segWidth,new FieldWidget(":",group));
 
 		group->insert(lastInsnRow,segColumn,
 				new ValueField(segWidth,findModelRegister(catIndex,"FIS",MODEL_VALUE_COLUMN),group));
@@ -810,15 +810,15 @@ RegisterGroup* fillDebugGroup(RegisterGroup* group, QAbstractItemModel* model)
 	const auto bitsSpacing=1;
 	{
 		int column=nameWidth+1+valueWidth+2;
-		group->insert(row,column,new FieldWidget(1,"B",group));
+		group->insert(row,column,new FieldWidget("B",group));
 		column+=bitsSpacing+1;
-		group->insert(row,column,new FieldWidget(1,"L",group));
+		group->insert(row,column,new FieldWidget("L",group));
 		column+=bitsSpacing+1;
-		group->insert(row,column,new FieldWidget(1,"G",group));
+		group->insert(row,column,new FieldWidget("G",group));
 		column+=bitsSpacing+1;
-		group->insert(row,column,new FieldWidget(4,"Type",group));
+		group->insert(row,column,new FieldWidget("Type",group));
 		column+=bitsSpacing+4;
-		group->insert(row,column,new FieldWidget(3,"Len",group));
+		group->insert(row,column,new FieldWidget("Len",group));
 		column+=bitsSpacing+3;
 
 		++row;
@@ -829,7 +829,7 @@ RegisterGroup* fillDebugGroup(RegisterGroup* group, QAbstractItemModel* model)
 		const auto DRiValueIndex=findModelRegister(catIndex,name,MODEL_VALUE_COLUMN);
 		Q_ASSERT(DRiValueIndex.isValid());
 		int column=0;
-		group->insert(row,column,new FieldWidget(nameWidth,name,group));
+		group->insert(row,column,new FieldWidget(name,group));
 		column+=nameWidth+1;
 		group->insert(row,column,new ValueField(valueWidth,DRiValueIndex,group));
 		column+=valueWidth+2;
@@ -895,13 +895,13 @@ RegisterGroup* fillDebugGroup(RegisterGroup* group, QAbstractItemModel* model)
 	}
 	{
 		int column=0;
-		group->insert(row,column,new FieldWidget(nameWidth,dr6Index,group));
+		group->insert(row,column,new FieldWidget("DR6",group));
 		column+=nameWidth+1;
 		group->insert(row,column,new ValueField(valueWidth,getValueIndex(dr6Index),group));
 		column+=valueWidth+2;
 		const QString bsName="BS";
 		const auto bsWidth=bsName.length();
-		group->insert(row,column,new FieldWidget(bsWidth,bsName,group));
+		group->insert(row,column,new FieldWidget(bsName,group));
 		column+=bsWidth+1;
 		const auto bsIndex=findModelRegister(dr6Index,bsName,MODEL_VALUE_COLUMN);
 		group->insert(row,column,new ValueField(1,bsIndex,group));
@@ -910,14 +910,14 @@ RegisterGroup* fillDebugGroup(RegisterGroup* group, QAbstractItemModel* model)
 	}
 	{
 		int column=0;
-		group->insert(row,column,new FieldWidget(nameWidth,dr7Index,group));
+		group->insert(row,column,new FieldWidget("DR7",group));
 		column+=nameWidth+1;
 		group->insert(row,column,new ValueField(valueWidth,getValueIndex(dr7Index),group));
 		column+=valueWidth+2;
 		{
 			const QString leName="LE";
 			const auto leWidth=leName.length();
-			group->insert(row,column,new FieldWidget(leWidth,leName,group));
+			group->insert(row,column,new FieldWidget(leName,group));
 			column+=leWidth+1;
 			const auto leIndex=findModelRegister(dr7Index,leName,MODEL_VALUE_COLUMN);
 			const auto leValueWidth=1;
@@ -927,7 +927,7 @@ RegisterGroup* fillDebugGroup(RegisterGroup* group, QAbstractItemModel* model)
 		{
 			const QString geName="GE";
 			const auto geWidth=geName.length();
-			group->insert(row,column,new FieldWidget(geWidth,geName,group));
+			group->insert(row,column,new FieldWidget(geName,group));
 			column+=geWidth+1;
 			const auto geIndex=findModelRegister(dr7Index,geName,MODEL_VALUE_COLUMN);
 			const auto geValueWidth=1;
@@ -949,7 +949,7 @@ RegisterGroup* fillMXCSR(RegisterGroup* group, QAbstractItemModel* model)
 	int column=0;
 	const int mxcsrRow=1, fzRow=mxcsrRow,dazRow=mxcsrRow,excRow=mxcsrRow;
 	const int rndRow=fzRow+1, maskRow=rndRow;
-	group->insert(mxcsrRow,column,new FieldWidget(mxcsrName.length(),mxcsrName,group));
+	group->insert(mxcsrRow,column,new FieldWidget(mxcsrName,group));
 	column+=mxcsrName.length()+1;
 	const auto mxcsrIndex=findModelRegister(catIndex,"MXCSR",MODEL_VALUE_COLUMN);
 	const auto mxcsrValueWidth=mxcsrIndex.data(Model::FixedLengthRole).toInt();
@@ -961,27 +961,27 @@ RegisterGroup* fillMXCSR(RegisterGroup* group, QAbstractItemModel* model)
 	// Maybe following OllyDbg example here isn't a good idea.
 	const QString fzName="FZ", dazName="DZ";
 	const auto fzColumn=column;
-	group->insert(fzRow,fzColumn,new FieldWidget(fzName.length(),fzName,group));
+	group->insert(fzRow,fzColumn,new FieldWidget(fzName,group));
 	column+=fzName.length()+1;
 	const auto fzIndex=findModelRegister(mxcsrIndex,"FZ",MODEL_VALUE_COLUMN);
 	const auto fzValueWidth=1;
 	group->insert(fzRow,column,new ValueField(fzValueWidth,fzIndex,group));
 	column+=fzValueWidth+1;
-	group->insert(dazRow,column,new FieldWidget(dazName.length(),dazName,group));
+	group->insert(dazRow,column,new FieldWidget(dazName,group));
 	column+=dazName.length()+1;
 	const auto dazIndex=findModelRegister(mxcsrIndex,"DAZ",MODEL_VALUE_COLUMN);
 	const auto dazValueWidth=1;
 	group->insert(dazRow,column,new ValueField(dazValueWidth,dazIndex,group));
 	column+=dazValueWidth+2;
 	const QString excName="Err";
-	group->insert(excRow,column,new FieldWidget(excName.length(),excName,group));
+	group->insert(excRow,column,new FieldWidget(excName,group));
 	const QString maskName="Mask";
-	group->insert(maskRow,column,new FieldWidget(maskName.length(),maskName,group));
+	group->insert(maskRow,column,new FieldWidget(maskName,group));
 	column+=maskName.length()+1;
 	addPUOZDI(group,mxcsrIndex,mxcsrIndex,excRow-1,column);
 	const auto rndNameColumn=fzColumn;
 	const QString rndName="Rnd";
-	group->insert(rndRow,rndNameColumn,new FieldWidget(rndName.length(),rndName,group));
+	group->insert(rndRow,rndNameColumn,new FieldWidget(rndName,group));
 	const auto rndColumn=rndNameColumn+rndName.length()+1;
 	addRoundingMode(group,findModelRegister(mxcsrIndex,"RC",MODEL_VALUE_COLUMN),rndRow,rndColumn);
 
