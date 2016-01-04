@@ -438,7 +438,8 @@ ODBRegView::ODBRegView(QWidget* parent)
 				   RegisterGroupType::EFL,
 				   RegisterGroupType::FPUData,
 				   RegisterGroupType::FPUWords,
-				   RegisterGroupType::FPULastOp
+				   RegisterGroupType::FPULastOp,
+				   RegisterGroupType::Debug
 				  };
 }
 
@@ -785,6 +786,151 @@ RegisterGroup* fillFPULastOp(RegisterGroup* group, QAbstractItemModel* model)
 	return group;
 }
 
+RegisterGroup* createDebugGroup(RegisterGroup* group, QAbstractItemModel* model)
+{
+	using RegisterViewModelBase::Model;
+
+	const auto catIndex=findModelCategory(model,"Debug");
+	if(!catIndex.isValid()) return nullptr;
+	const auto dr6Index=findModelRegister(catIndex,"DR6");
+	const auto dr7Index=findModelRegister(catIndex,"DR7");
+	Q_ASSERT(dr6Index.isValid());
+	Q_ASSERT(dr7Index.isValid());
+	const auto nameWidth=3;
+	const auto valueWidth=getValueIndex(dr6Index).data(Model::FixedLengthRole).toInt();
+	Q_ASSERT(valueWidth>0);
+	int row=0;
+	const auto bitsSpacing=1;
+	{
+		int column=nameWidth+1+valueWidth+2;
+		group->insert(row,column,new FieldWidget(1,"B",group));
+		column+=bitsSpacing+1;
+		group->insert(row,column,new FieldWidget(1,"L",group));
+		column+=bitsSpacing+1;
+		group->insert(row,column,new FieldWidget(1,"G",group));
+		column+=bitsSpacing+1;
+		group->insert(row,column,new FieldWidget(4,"Type",group));
+		column+=bitsSpacing+4;
+		group->insert(row,column,new FieldWidget(3,"Len",group));
+		column+=bitsSpacing+3;
+
+		++row;
+	}
+	for(int drI=0;drI<4;++drI,++row)
+	{
+		const auto name=QString("DR%1").arg(drI);
+		const auto DRiValueIndex=findModelRegister(catIndex,name,MODEL_VALUE_COLUMN);
+		Q_ASSERT(DRiValueIndex.isValid());
+		int column=0;
+		group->insert(row,column,new FieldWidget(nameWidth,name,group));
+		column+=nameWidth+1;
+		group->insert(row,column,new ValueField(valueWidth,DRiValueIndex,group));
+		column+=valueWidth+2;
+		{
+			const auto BiName=QString("B%1").arg(drI);
+			const auto BiIndex=findModelRegister(dr6Index,BiName,MODEL_VALUE_COLUMN);
+			Q_ASSERT(BiIndex.isValid());
+			group->insert(row,column,new ValueField(1,BiIndex,group));
+			column+=bitsSpacing+1;
+		}
+		{
+			const auto LiName=QString("L%1").arg(drI);
+			const auto LiIndex=findModelRegister(dr7Index,LiName,MODEL_VALUE_COLUMN);
+			Q_ASSERT(LiIndex.isValid());
+			group->insert(row,column,new ValueField(1,LiIndex,group));
+			column+=bitsSpacing+1;
+		}
+		{
+			const auto GiName=QString("G%1").arg(drI);
+			const auto GiIndex=findModelRegister(dr7Index,GiName,MODEL_VALUE_COLUMN);
+			Q_ASSERT(GiIndex.isValid());
+			group->insert(row,column,new ValueField(1,GiIndex,group));
+			column+=bitsSpacing+1;
+		}
+		{
+			const auto RWiName=QString("R/W%1").arg(drI);
+			const QPersistentModelIndex RWiIndex=findModelRegister(dr7Index,RWiName,MODEL_VALUE_COLUMN);
+			Q_ASSERT(RWiIndex.isValid());
+			const auto width=5;
+			group->insert(row,column,new ValueField(width,RWiIndex,group,[RWiIndex](QString const& str)->QString
+						{
+							if(str.isEmpty() || str[0]=='?') return "??";
+							Q_ASSERT(str.size()==1);
+							switch(str[0].toLatin1())
+							{
+							case '0': return "EXEC";
+							case '1': return "WRITE";
+							case '2': return " IO";
+							case '3': return " R/W";
+							default: return "???";
+							}
+						}));
+			column+=bitsSpacing+width;
+		}
+		{
+			const auto LENiName=QString("LEN%1").arg(drI);
+			const QPersistentModelIndex LENiIndex=findModelRegister(dr7Index,LENiName,MODEL_VALUE_COLUMN);
+			Q_ASSERT(LENiIndex.isValid());
+			group->insert(row,column,new ValueField(1,LENiIndex,group,[LENiIndex](QString const& str)->QString
+						{
+							if(str.isEmpty() || str[0]=='?') return "??";
+							Q_ASSERT(str.size()==1);
+							switch(str[0].toLatin1())
+							{
+							case '0': return "1";
+							case '1': return "2";
+							case '2': return "8";
+							case '3': return "4";
+							default: return "???";
+							}
+						}));
+		}
+	}
+	{
+		int column=0;
+		group->insert(row,column,new FieldWidget(nameWidth,dr6Index,group));
+		column+=nameWidth+1;
+		group->insert(row,column,new ValueField(valueWidth,getValueIndex(dr6Index),group));
+		column+=valueWidth+2;
+		const QString bsName="BS";
+		const auto bsWidth=bsName.length();
+		group->insert(row,column,new FieldWidget(bsWidth,bsName,group));
+		column+=bsWidth+1;
+		const auto bsIndex=findModelRegister(dr6Index,bsName,MODEL_VALUE_COLUMN);
+		group->insert(row,column,new ValueField(1,bsIndex,group));
+
+		++row;
+	}
+	{
+		int column=0;
+		group->insert(row,column,new FieldWidget(nameWidth,dr7Index,group));
+		column+=nameWidth+1;
+		group->insert(row,column,new ValueField(valueWidth,getValueIndex(dr7Index),group));
+		column+=valueWidth+2;
+		{
+			const QString leName="LE";
+			const auto leWidth=leName.length();
+			group->insert(row,column,new FieldWidget(leWidth,leName,group));
+			column+=leWidth+1;
+			const auto leIndex=findModelRegister(dr7Index,leName,MODEL_VALUE_COLUMN);
+			const auto leValueWidth=1;
+			group->insert(row,column,new ValueField(leValueWidth,leIndex,group));
+			column+=leValueWidth+1;
+		}
+		{
+			const QString geName="GE";
+			const auto geWidth=geName.length();
+			group->insert(row,column,new FieldWidget(geWidth,geName,group));
+			column+=geWidth+1;
+			const auto geIndex=findModelRegister(dr7Index,geName,MODEL_VALUE_COLUMN);
+			const auto geValueWidth=1;
+			group->insert(row,column,new ValueField(geValueWidth,geIndex,group));
+			column+=geValueWidth+1;
+		}
+	}
+
+	return group;
+}
 
 RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 {
@@ -795,6 +941,12 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	auto* const group=groups.back();
 	switch(type)
 	{
+	case RegisterGroupType::EFL: return fillEFL(group,model_);
+	case RegisterGroupType::ExpandedEFL: return fillExpandedEFL(group,model_);
+	case RegisterGroupType::FPUData: return fillFPUData(group,model_);
+	case RegisterGroupType::FPUWords: return fillFPUWords(group,model_);
+	case RegisterGroupType::FPULastOp: return fillFPULastOp(group,model_);
+	case RegisterGroupType::Debug: return createDebugGroup(group,model_);
 	case RegisterGroupType::GPR:
 	{
 		const auto catIndex=findModelCategory(model_,"General Purpose");
@@ -819,11 +971,6 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		nameValCommentIndices.emplace_back(findModelRegister(catIndex,"EIP"));
 		break;
 	}
-	case RegisterGroupType::EFL: return fillEFL(group,model_);
-	case RegisterGroupType::ExpandedEFL: return fillExpandedEFL(group,model_);
-	case RegisterGroupType::FPUData: return fillFPUData(group,model_);
-	case RegisterGroupType::FPUWords: return fillFPUWords(group,model_);
-	case RegisterGroupType::FPULastOp: return fillFPULastOp(group,model_);
 	default:
 		qWarning() << "Warning: unexpected register group type requested in" << Q_FUNC_INFO;
 		groups.pop_back();
