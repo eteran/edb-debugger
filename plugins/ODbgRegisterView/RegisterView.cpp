@@ -737,20 +737,30 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		group->insert(lastOpcodeRow,0,new FieldWidget(lastOpcodeLabel.length(),lastOpcodeLabel,group));
 
 		const auto catIndex=findModelCategory(model_,"FPU");
-		const auto segWidth=4, segColumn=lastInsnLabel.length()+1;;
-		// these two must be inserted first, because seg & offset value fields overlap these labels
-		group->insert(lastInsnRow,segColumn+segWidth,new FieldWidget(1,":",group));
-		group->insert(lastDataRow,segColumn+segWidth,new FieldWidget(1,":",group));
-
-		group->insert(lastInsnRow,segColumn,
-				new ValueField(segWidth,findModelRegister(catIndex,"FIS",MODEL_VALUE_COLUMN),group));
-		group->insert(lastDataRow,segColumn,
-				new ValueField(segWidth,findModelRegister(catIndex,"FDS",MODEL_VALUE_COLUMN),group));
 		const auto FIPIndex=findModelRegister(catIndex,"FIP",MODEL_VALUE_COLUMN);
 		const auto FDPIndex=findModelRegister(catIndex,"FDP",MODEL_VALUE_COLUMN);
+
+		// FIS & FDS are not maintained in 64-bit mode; Linux64 always saves state from
+		// 64-bit mode, losing the values for 32-bit apps even if the CPU doesn't deprecate them
+		// We'll show zero offsets in 32 bit mode for consistency with 32-bit kernels
+		// In 64-bit mode, since segments are not maintained, we'll just show offsets
+		const auto FIPwidth=FDPIndex.data(Model::FixedLengthRole).toInt();
+		const auto segWidth = FIPwidth==8/*8chars=>32bit*/ ? 4 : 0;
+		const auto segColumn=lastInsnLabel.length()+1;
+		if(segWidth)
+		{
+			// these two must be inserted first, because seg & offset value fields overlap these labels
+			group->insert(lastInsnRow,segColumn+segWidth,new FieldWidget(1,":",group));
+			group->insert(lastDataRow,segColumn+segWidth,new FieldWidget(1,":",group));
+
+			group->insert(lastInsnRow,segColumn,
+					new ValueField(segWidth,findModelRegister(catIndex,"FIS",MODEL_VALUE_COLUMN),group));
+			group->insert(lastDataRow,segColumn,
+					new ValueField(segWidth,findModelRegister(catIndex,"FDS",MODEL_VALUE_COLUMN),group));
+		}
 		const auto offsetWidth=FIPIndex.data(Model::FixedLengthRole).toInt();
 		Q_ASSERT(offsetWidth>0);
-		const auto offsetColumn=segColumn+segWidth+1;
+		const auto offsetColumn=segColumn+segWidth+(segWidth?1:0);
 		group->insert(lastInsnRow,offsetColumn,new ValueField(offsetWidth,FIPIndex,group));
 		group->insert(lastDataRow,offsetColumn,new ValueField(offsetWidth,FDPIndex,group));
 
