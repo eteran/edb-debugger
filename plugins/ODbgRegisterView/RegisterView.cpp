@@ -648,6 +648,59 @@ RegisterGroup* fillFPUData(RegisterGroup* group, QAbstractItemModel* model)
 	return group;
 }
 
+RegisterGroup* fillFPUWords(RegisterGroup* group, QAbstractItemModel* model)
+{
+	const auto catIndex=findModelCategory(model,"FPU");
+	if(!catIndex.isValid()) return nullptr;
+	group->appendNameValueComment(findModelRegister(catIndex,"FTR"),false);
+	const int fsrRow=1;
+	const auto fsrIndex=findModelRegister(catIndex,"FSR");
+	group->appendNameValueComment(fsrIndex,false);
+	const int fcrRow=2;
+	const auto fcrIndex=findModelRegister(catIndex,"FCR");
+	group->appendNameValueComment(fcrIndex,false);
+
+	const int wordNameWidth=3, wordValWidth=4;
+	const int condPrecLabelColumn=wordNameWidth+1+wordValWidth+1+1;
+	const int condPrecLabelWidth=4;
+	group->insert(fsrRow,condPrecLabelColumn,new FieldWidget(condPrecLabelWidth,"Cond",group));
+	group->insert(fcrRow,condPrecLabelColumn,new FieldWidget(condPrecLabelWidth,"Prec",group));
+	const int condPrecValColumn=condPrecLabelColumn+condPrecLabelWidth+1;
+	const int roundModeWidth=4, precModeWidth=2;
+	const int roundModeColumn=condPrecValColumn;
+	const int precModeColumn=roundModeColumn+roundModeWidth+1;
+	// This must be inserted before precision&rounding value fields, since they overlap this label
+	group->insert(fcrRow,precModeColumn-1,new FieldWidget(1,",",group));
+	for(int condN=3;condN>=0;--condN)
+	{
+		const auto condNNameIndex=findModelRegister(fsrIndex,QString("C%1").arg(condN));
+		Q_ASSERT(condNNameIndex.isValid());
+		const auto condNIndex=condNNameIndex.sibling(condNNameIndex.row(),MODEL_VALUE_COLUMN);
+		Q_ASSERT(condNIndex.isValid());
+		const int column=condPrecValColumn+2*(3-condN);
+		group->insert(fsrRow-1,column,new FieldWidget(1,QString("%1").arg(condN),group));
+		group->insert(fsrRow,  column,new ValueField(1,condNIndex,group));
+	}
+	addRoundingMode(group,findModelRegister(fcrIndex,"RC",MODEL_VALUE_COLUMN),fcrRow,roundModeColumn);
+	addPrecisionMode(group,findModelRegister(fcrIndex,"PC",MODEL_VALUE_COLUMN),fcrRow,precModeColumn);
+	const int errMaskColumn=precModeColumn+precModeWidth+2;
+	const int errLabelWidth=3,maskLabelWidth=4;
+	group->insert(fsrRow,errMaskColumn,new FieldWidget(errLabelWidth,"Err",group));
+	group->insert(fcrRow,errMaskColumn,new FieldWidget(maskLabelWidth,"Mask",group));
+	const int ESColumn=errMaskColumn+errLabelWidth+1;
+	const int SFColumn=ESColumn+2;
+	group->insert(fsrRow-1,ESColumn,new FieldWidget(1,"E",group));
+	group->insert(fsrRow-1,SFColumn,new FieldWidget(1,"S",group));
+	group->insert(fsrRow,ESColumn,new ValueField(1,findModelRegister(fsrIndex,"ES",MODEL_VALUE_COLUMN),group));
+	group->insert(fsrRow,SFColumn,new ValueField(1,findModelRegister(fsrIndex,"SF",MODEL_VALUE_COLUMN),group));
+	const int PEPMColumn=SFColumn+2;
+	addPUOZDI(group,fsrIndex,fcrIndex,fsrRow-1,PEPMColumn);
+	const int PUOZDIWidth=6*2-1;
+	group->insert(fsrRow,PEPMColumn+PUOZDIWidth+1,new FieldWidget(0,getCommentIndex(fsrIndex),group));
+
+	return group;
+}
+
 RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 {
 	if(!model_->rowCount()) return nullptr;
@@ -684,58 +737,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	case RegisterGroupType::EFL: return fillEFL(group,model_);
 	case RegisterGroupType::ExpandedEFL: return fillExpandedEFL(group,model_);
 	case RegisterGroupType::FPUData: return fillFPUData(group,model_);
-	case RegisterGroupType::FPUWords:
-	{
-		const auto catIndex=findModelCategory(model_,"FPU");
-		if(!catIndex.isValid()) break;
-		group->appendNameValueComment(findModelRegister(catIndex,"FTR"),false);
-		const int fsrRow=1;
-		const auto fsrIndex=findModelRegister(catIndex,"FSR");
-		group->appendNameValueComment(fsrIndex,false);
-		const int fcrRow=2;
-		const auto fcrIndex=findModelRegister(catIndex,"FCR");
-		group->appendNameValueComment(fcrIndex,false);
-
-		const int wordNameWidth=3, wordValWidth=4;
-		const int condPrecLabelColumn=wordNameWidth+1+wordValWidth+1+1;
-		const int condPrecLabelWidth=4;
-		group->insert(fsrRow,condPrecLabelColumn,new FieldWidget(condPrecLabelWidth,"Cond",group));
-		group->insert(fcrRow,condPrecLabelColumn,new FieldWidget(condPrecLabelWidth,"Prec",group));
-		const int condPrecValColumn=condPrecLabelColumn+condPrecLabelWidth+1;
-		const int roundModeWidth=4, precModeWidth=2;
-		const int roundModeColumn=condPrecValColumn;
-		const int precModeColumn=roundModeColumn+roundModeWidth+1;
-		// This must be inserted before precision&rounding value fields, since they overlap this label
-		group->insert(fcrRow,precModeColumn-1,new FieldWidget(1,",",group));
-		for(int condN=3;condN>=0;--condN)
-		{
-			const auto condNNameIndex=findModelRegister(fsrIndex,QString("C%1").arg(condN));
-			Q_ASSERT(condNNameIndex.isValid());
-			const auto condNIndex=condNNameIndex.sibling(condNNameIndex.row(),MODEL_VALUE_COLUMN);
-			Q_ASSERT(condNIndex.isValid());
-			const int column=condPrecValColumn+2*(3-condN);
-			group->insert(fsrRow-1,column,new FieldWidget(1,QString("%1").arg(condN),group));
-			group->insert(fsrRow,  column,new ValueField(1,condNIndex,group));
-		}
-		addRoundingMode(group,findModelRegister(fcrIndex,"RC",MODEL_VALUE_COLUMN),fcrRow,roundModeColumn);
-		addPrecisionMode(group,findModelRegister(fcrIndex,"PC",MODEL_VALUE_COLUMN),fcrRow,precModeColumn);
-		const int errMaskColumn=precModeColumn+precModeWidth+2;
-		const int errLabelWidth=3,maskLabelWidth=4;
-		group->insert(fsrRow,errMaskColumn,new FieldWidget(errLabelWidth,"Err",group));
-		group->insert(fcrRow,errMaskColumn,new FieldWidget(maskLabelWidth,"Mask",group));
-		const int ESColumn=errMaskColumn+errLabelWidth+1;
-		const int SFColumn=ESColumn+2;
-		group->insert(fsrRow-1,ESColumn,new FieldWidget(1,"E",group));
-		group->insert(fsrRow-1,SFColumn,new FieldWidget(1,"S",group));
-		group->insert(fsrRow,ESColumn,new ValueField(1,findModelRegister(fsrIndex,"ES",MODEL_VALUE_COLUMN),group));
-		group->insert(fsrRow,SFColumn,new ValueField(1,findModelRegister(fsrIndex,"SF",MODEL_VALUE_COLUMN),group));
-		const int PEPMColumn=SFColumn+2;
-		addPUOZDI(group,fsrIndex,fcrIndex,fsrRow-1,PEPMColumn);
-		const int PUOZDIWidth=6*2-1;
-		group->insert(fsrRow,PEPMColumn+PUOZDIWidth+1,new FieldWidget(0,getCommentIndex(fsrIndex),group));
-
-		return group;
-	}
+	case RegisterGroupType::FPUWords: return fillFPUWords(group,model_);
 	case RegisterGroupType::FPULastOp:
 	{
 		enum {lastInsnRow, lastDataRow, lastOpcodeRow};
