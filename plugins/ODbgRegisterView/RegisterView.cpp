@@ -754,10 +754,46 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		group->insert(lastInsnRow,offsetColumn,new ValueField(offsetWidth,FIPIndex,group));
 		group->insert(lastDataRow,offsetColumn,new ValueField(offsetWidth,FDPIndex,group));
 
-		// TODO: show 0xD800+value if FIP!=0
+		QPersistentModelIndex const FOPIndex=findModelRegister(catIndex,"FOP",MODEL_VALUE_COLUMN);
+		QPersistentModelIndex const FSRIndex=findModelRegister(catIndex,"FSR",MODEL_VALUE_COLUMN);
+		QPersistentModelIndex const FCRIndex=findModelRegister(catIndex,"FCR",MODEL_VALUE_COLUMN);
+		const auto FOPFormatter=[FOPIndex,FSRIndex,FCRIndex](QString const& str)
+		{
+			if(str.isEmpty() || str[0]=='?') return str;
+
+			const auto rawFCR=FCRIndex.data(Model::RawValueRole).toByteArray();
+			Q_ASSERT(rawFCR.size()<=long(sizeof(edb::value16)));
+			if(rawFCR.isEmpty()) return str;
+			edb::value16 fcr(0);
+			std::memcpy(&fcr,rawFCR.constData(),rawFCR.size());
+
+			const auto rawFSR=FSRIndex.data(Model::RawValueRole).toByteArray();
+			Q_ASSERT(rawFSR.size()<=long(sizeof(edb::value16)));
+			if(rawFSR.isEmpty()) return str;
+			edb::value16 fsr(0);
+			std::memcpy(&fsr,rawFSR.constData(),rawFSR.size());
+
+			const auto rawFOP=FOPIndex.data(Model::RawValueRole).toByteArray();
+			edb::value16 fop(0);
+			Q_ASSERT(rawFOP.size()<=long(sizeof(edb::value16)));
+			if(rawFOP.isEmpty()) return str;
+			if(rawFOP.size()!=sizeof(edb::value16))
+				return QString("????");
+			std::memcpy(&fop,rawFOP.constData(),rawFOP.size());
+
+			const auto excMask=fcr&0x3f;
+			const auto excActive=fsr&0x3f;
+			const auto excActiveUnmasked=excActive&~excMask;
+			// TODO: check whether fopcode is actually not updated. This behavior starts 
+			// from Pentium 4 & Xeon, but not true for e.g. Atom and other P6-based CPUs
+			// TODO: move this to ArchProcessor/RegisterViewModel?
+			if(fop==0 && !excActiveUnmasked)
+				return QString("00 00");
+			return edb::value8(0xd8+rawFOP[1]).toHexString()+
+					' '+edb::value8(rawFOP[0]).toHexString();
+		};
 		group->insert(lastOpcodeRow,lastOpcodeLabel.length()+1,
-				new ValueField(5,getValueIndex(findModelRegister(catIndex,"FOP")),group,[](QString const& str)
-						{ return str.left(2)+' '+str.right(2); }));
+						new ValueField(5,FOPIndex,group,FOPFormatter));
 
 		return group;
 	}
