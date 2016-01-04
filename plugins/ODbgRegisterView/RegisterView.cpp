@@ -608,6 +608,46 @@ RegisterGroup* fillExpandedEFL(RegisterGroup* group, QAbstractItemModel* model)
 	return group;
 }
 
+RegisterGroup* fillFPUData(RegisterGroup* group, QAbstractItemModel* model)
+{
+	using RegisterViewModelBase::Model;
+
+	const auto catIndex=findModelCategory(model,"FPU");
+	if(!catIndex.isValid()) return nullptr;
+	const auto tagsIndex=findModelRegister(catIndex,"FTR");
+	if(!tagsIndex.isValid())
+	{
+		qWarning() << "Warning: failed to find FTR in the model, refusing to continue making FPUData group";
+		return nullptr;
+	}
+	static const int FPU_REG_COUNT=8;
+	static const int nameWidth=3;
+	static const int tagWidth=7;
+	for(int row=0;row<FPU_REG_COUNT;++row)
+	{
+		int column=0;
+		const auto nameIndex=model->index(row,MODEL_NAME_COLUMN,catIndex);
+		const auto nameV=nameIndex.data();
+		Q_ASSERT(nameV.isValid());
+		group->insert(row,column,new FieldWidget(nameWidth,nameV.toString(),group));
+		column+=nameWidth+1;
+		const auto tagCommentIndex=model->index(row,MODEL_COMMENT_COLUMN,tagsIndex);
+		Q_ASSERT(tagCommentIndex.isValid());
+		group->insert(row,column,new ValueField(tagWidth,tagCommentIndex,group,
+												[](QString const&s){return s.toLower();}));
+		column+=tagWidth+1;
+		// Always show float-formatted value, not raw
+		const auto regValueIndex=findModelRegister(nameIndex,"FLOAT",MODEL_VALUE_COLUMN);
+		const int regValueWidth=regValueIndex.data(Model::FixedLengthRole).toInt();
+		Q_ASSERT(regValueWidth>0);
+		group->insert(row,column,new ValueField(regValueWidth,regValueIndex,group));
+		column+=regValueWidth+1;
+		const auto regCommentIndex=model->index(row,MODEL_COMMENT_COLUMN,catIndex);
+		group->insert(row,column,new FieldWidget(0,regCommentIndex,group));
+	}
+	return group;
+}
+
 RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 {
 	if(!model_->rowCount()) return nullptr;
@@ -643,43 +683,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	}
 	case RegisterGroupType::EFL: return fillEFL(group,model_);
 	case RegisterGroupType::ExpandedEFL: return fillExpandedEFL(group,model_);
-	case RegisterGroupType::FPUData:
-	{
-		const auto catIndex=findModelCategory(model_,"FPU");
-		if(!catIndex.isValid()) break;
-		const auto tagsIndex=findModelRegister(catIndex,"FTR");
-		if(!tagsIndex.isValid())
-		{
-			qWarning() << "Warning: failed to find FTR in the model, refusing to continue making FPUData group";
-			break;
-		}
-		static const int FPU_REG_COUNT=8;
-		static const int nameWidth=3;
-		static const int tagWidth=7;
-		for(int row=0;row<FPU_REG_COUNT;++row)
-		{
-			int column=0;
-			const auto nameIndex=model_->index(row,MODEL_NAME_COLUMN,catIndex);
-			const auto nameV=nameIndex.data();
-			Q_ASSERT(nameV.isValid());
-			group->insert(row,column,new FieldWidget(nameWidth,nameV.toString(),group));
-			column+=nameWidth+1;
-			const auto tagCommentIndex=model_->index(row,MODEL_COMMENT_COLUMN,tagsIndex);
-			Q_ASSERT(tagCommentIndex.isValid());
-			group->insert(row,column,new ValueField(tagWidth,tagCommentIndex,group,
-													[](QString const&s){return s.toLower();}));
-			column+=tagWidth+1;
-			// Always show float-formatted value, not raw
-			const auto regValueIndex=findModelRegister(nameIndex,"FLOAT",MODEL_VALUE_COLUMN);
-			const int regValueWidth=regValueIndex.data(Model::FixedLengthRole).toInt();
-			Q_ASSERT(regValueWidth>0);
-			group->insert(row,column,new ValueField(regValueWidth,regValueIndex,group));
-			column+=regValueWidth+1;
-			const auto regCommentIndex=model_->index(row,MODEL_COMMENT_COLUMN,catIndex);
-			group->insert(row,column,new FieldWidget(0,regCommentIndex,group));
-		}
-		return group;
-	}
+	case RegisterGroupType::FPUData: return fillFPUData(group,model_);
 	case RegisterGroupType::FPUWords:
 	{
 		const auto catIndex=findModelCategory(model_,"FPU");
