@@ -548,6 +548,28 @@ void addPUOZDI(RegisterGroup* const group, QModelIndex const& excRegIndex, QMode
 
 }
 
+RegisterGroup* fillEFL(RegisterGroup* group, QAbstractItemModel* model)
+{
+	const auto catIndex=findModelCategory(model,"General Status");
+	if(!catIndex.isValid()) return nullptr;
+	auto nameIndex=findModelRegister(catIndex,"RFLAGS");
+	if(!nameIndex.isValid())
+		nameIndex=findModelRegister(catIndex,"EFLAGS");
+	if(!nameIndex.isValid()) return nullptr;
+	const int nameWidth=3;
+	int column=0;
+	group->insert(0,column,new FieldWidget(nameWidth,"EFL",group));
+	const auto valueWidth=8;
+	const auto valueIndex=nameIndex.sibling(nameIndex.row(),MODEL_VALUE_COLUMN);
+	column+=nameWidth+1;
+	group->insert(0,column,new ValueField(valueWidth,valueIndex,group,[](QString const& v){return v.right(8);}));
+	const auto commentIndex=nameIndex.sibling(nameIndex.row(),MODEL_COMMENT_COLUMN);
+	column+=valueWidth+1;
+	group->insert(0,column,new FieldWidget(0,commentIndex,group));
+
+	return group;
+}
+
 RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 {
 	if(!model_->rowCount()) return nullptr;
@@ -581,26 +603,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		nameValCommentIndices.emplace_back(findModelRegister(catIndex,"EIP"));
 		break;
 	}
-	case RegisterGroupType::EFL:
-	{
-		const auto catIndex=findModelCategory(model_,"General Status");
-		if(!catIndex.isValid()) break;
-		auto nameIndex=findModelRegister(catIndex,"RFLAGS");
-		if(!nameIndex.isValid())
-			nameIndex=findModelRegister(catIndex,"EFLAGS");
-		if(!nameIndex.isValid()) break;
-		const int nameWidth=3;
-		int column=0;
-		group->insert(0,column,new FieldWidget(nameWidth,"EFL",group));
-		const auto valueWidth=8;
-		const auto valueIndex=nameIndex.sibling(nameIndex.row(),MODEL_VALUE_COLUMN);
-		column+=nameWidth+1;
-		group->insert(0,column,new ValueField(valueWidth,valueIndex,group,[](QString const& v){return v.right(8);}));
-		const auto commentIndex=nameIndex.sibling(nameIndex.row(),MODEL_COMMENT_COLUMN);
-		column+=valueWidth+1;
-		group->insert(0,column,new FieldWidget(0,commentIndex,group));
-		return group;
-	}
+	case RegisterGroupType::EFL: return fillEFL(group,model_);
 	case RegisterGroupType::ExpandedEFL:
 	{
 		const auto catIndex=findModelCategory(model_,"General Status");
