@@ -49,6 +49,8 @@ class ODBRegView : public QScrollArea
 		FPUData,
 		FPUWords,
 		FPULastOp,
+		Debug,
+		MMX,
 		SSEData,
 		AVXData,
 		MXCSR
