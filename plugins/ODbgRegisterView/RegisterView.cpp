@@ -570,6 +570,44 @@ RegisterGroup* fillEFL(RegisterGroup* group, QAbstractItemModel* model)
 	return group;
 }
 
+RegisterGroup* fillExpandedEFL(RegisterGroup* group, QAbstractItemModel* model)
+{
+	const auto catIndex=findModelCategory(model,"General Status");
+	if(!catIndex.isValid()) return nullptr;
+	auto regNameIndex=findModelRegister(catIndex,"RFLAGS");
+	if(!regNameIndex.isValid())
+		regNameIndex=findModelRegister(catIndex,"EFLAGS");
+	if(!regNameIndex.isValid()) return nullptr;
+	for(int row=0,groupRow=0;row<model->rowCount(regNameIndex);++row)
+	{
+		const auto flagNameIndex=model->index(row,MODEL_NAME_COLUMN,regNameIndex);
+		const auto flagValueIndex=model->index(row,MODEL_VALUE_COLUMN,regNameIndex);
+		const auto flagName=model->data(flagNameIndex).toString().toUpper();
+		if(flagName.length()!=2 || flagName[1]!='F') continue;
+		static const int flagNameWidth=1;
+		static const int valueWidth=1;
+		const char name=flagName[0].toLatin1();
+		switch(name)
+		{
+		case 'C':
+		case 'P':
+		case 'A':
+		case 'Z':
+		case 'S':
+		case 'T':
+		case 'D':
+		case 'O':
+			group->insert(groupRow,0,new FieldWidget(flagNameWidth,QChar(name),group));
+			group->insert(groupRow,flagNameWidth+1,new ValueField(valueWidth,flagValueIndex,group));
+			++groupRow;
+			break;
+		default:
+			continue;
+		}
+	}
+	return group;
+}
+
 RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 {
 	if(!model_->rowCount()) return nullptr;
@@ -604,43 +642,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		break;
 	}
 	case RegisterGroupType::EFL: return fillEFL(group,model_);
-	case RegisterGroupType::ExpandedEFL:
-	{
-		const auto catIndex=findModelCategory(model_,"General Status");
-		if(!catIndex.isValid()) break;
-		auto regNameIndex=findModelRegister(catIndex,"RFLAGS");
-		if(!regNameIndex.isValid())
-			regNameIndex=findModelRegister(catIndex,"EFLAGS");
-		if(!regNameIndex.isValid()) break;
-		for(int row=0,groupRow=0;row<model_->rowCount(regNameIndex);++row)
-		{
-			const auto flagNameIndex=model_->index(row,MODEL_NAME_COLUMN,regNameIndex);
-			const auto flagValueIndex=model_->index(row,MODEL_VALUE_COLUMN,regNameIndex);
-			const auto flagName=model_->data(flagNameIndex).toString().toUpper();
-			if(flagName.length()!=2 || flagName[1]!='F') continue;
-			static const int flagNameWidth=1;
-			static const int valueWidth=1;
-			const char name=flagName[0].toLatin1();
-			switch(name)
-			{
-			case 'C':
-			case 'P':
-			case 'A':
-			case 'Z':
-			case 'S':
-			case 'T':
-			case 'D':
-			case 'O':
-				group->insert(groupRow,0,new FieldWidget(flagNameWidth,QChar(name),group));
-				group->insert(groupRow,flagNameWidth+1,new ValueField(valueWidth,flagValueIndex,group));
-				++groupRow;
-				break;
-			default:
-				continue;
-			}
-		}
-		return group;
-	}
+	case RegisterGroupType::ExpandedEFL: return fillExpandedEFL(group,model_);
 	case RegisterGroupType::FPUData:
 	{
 		const auto catIndex=findModelCategory(model_,"FPU");
