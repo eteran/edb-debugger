@@ -846,11 +846,17 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 
 void ODBRegView::modelReset()
 {
-	setWidget(nullptr);
+	// not all groups may be in the layout, so delete them individually
 	for(auto* const group : groups)
 		group->deleteLater();
 	groups.clear();
+
 	auto* const layout=static_cast<QVBoxLayout*>(widget()->layout());
+
+	// layout contains not only groups, so delete all items too
+	while(auto* const item=layout->takeAt(0))
+		delete item;
+
 	auto* const flagsAndSegments=new QHBoxLayout();
 	// (3/2+1/2)-letter — Total of 2-letter spacing. Fourth half-letter is from flag values extension.
 	// Segment extensions at LHS of the widget don't influence minimumSize request, so no need to take
@@ -858,6 +864,7 @@ void ODBRegView::modelReset()
 	flagsAndSegments->setSpacing(letterSize(this->font()).width()*3/2);
 	flagsAndSegments->setContentsMargins(QMargins());
 	flagsAndSegments->setAlignment(Qt::AlignLeft);
+
 	bool flagsAndSegsInserted=false;
 	for(auto groupType : regGroupTypes)
 	{
