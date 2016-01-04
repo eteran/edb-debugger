@@ -111,6 +111,12 @@ FieldWidget::FieldWidget(int const fieldWidth, QString const& fixedText, QWidget
 	init(fieldWidth); // NOTE: fieldWidth!=fixedText.length() in general
 }
 
+FieldWidget::FieldWidget(QString const& fixedText, QWidget* const parent)
+	: QLabel(fixedText,parent)
+{
+	init(fixedText.length());
+}
+
 void FieldWidget::update()
 {
 	QLabel::setText(text());

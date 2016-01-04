@@ -89,6 +89,7 @@ protected:
 public:
 	FieldWidget(int fieldWidth,QModelIndex const& index,QWidget* parent=nullptr);
 	FieldWidget(int fieldWidth,QString const& fixedText,QWidget* parent=nullptr);
+	FieldWidget(QString const& fixedText,QWidget* parent=nullptr);
 public Q_SLOTS:
 	virtual void update();
 };
