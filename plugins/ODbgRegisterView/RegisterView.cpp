@@ -835,7 +835,9 @@ void ODBRegView::modelReset()
 	groups.clear();
 	auto* const layout=static_cast<QVBoxLayout*>(widget()->layout());
 	auto* const flagsAndSegments=new QHBoxLayout();
-	flagsAndSegments->setSpacing(letterSize(this->font()).width());
+	// Another half-letter is from flag values extension. Segment extensions at LHS of the
+	// widget don't influence minimumSize request, so no need to take them into account.
+	flagsAndSegments->setSpacing(letterSize(this->font()).width()/2);
 	flagsAndSegments->setContentsMargins(QMargins());
 	flagsAndSegments->setAlignment(Qt::AlignLeft);
 	bool flagsAndSegsInserted=false;
