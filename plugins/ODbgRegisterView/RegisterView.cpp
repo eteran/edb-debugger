@@ -701,6 +701,91 @@ RegisterGroup* fillFPUWords(RegisterGroup* group, QAbstractItemModel* model)
 	return group;
 }
 
+RegisterGroup* fillFPULastOp(RegisterGroup* group, QAbstractItemModel* model)
+{
+	using RegisterViewModelBase::Model;
+
+	enum {lastInsnRow, lastDataRow, lastOpcodeRow};
+	const QString lastInsnLabel="Last insn";
+	const QString lastDataLabel="Last data";
+	const QString lastOpcodeLabel="Last opcode";
+	group->insert(lastInsnRow,0,new FieldWidget(lastInsnLabel.length(),lastInsnLabel,group));
+	group->insert(lastDataRow,0,new FieldWidget(lastDataLabel.length(),lastDataLabel,group));
+	group->insert(lastOpcodeRow,0,new FieldWidget(lastOpcodeLabel.length(),lastOpcodeLabel,group));
+
+	const auto catIndex=findModelCategory(model,"FPU");
+	const auto FIPIndex=findModelRegister(catIndex,"FIP",MODEL_VALUE_COLUMN);
+	const auto FDPIndex=findModelRegister(catIndex,"FDP",MODEL_VALUE_COLUMN);
+
+	// FIS & FDS are not maintained in 64-bit mode; Linux64 always saves state from
+	// 64-bit mode, losing the values for 32-bit apps even if the CPU doesn't deprecate them
+	// We'll show zero offsets in 32 bit mode for consistency with 32-bit kernels
+	// In 64-bit mode, since segments are not maintained, we'll just show offsets
+	const auto FIPwidth=FDPIndex.data(Model::FixedLengthRole).toInt();
+	const auto segWidth = FIPwidth==8/*8chars=>32bit*/ ? 4 : 0;
+	const auto segColumn=lastInsnLabel.length()+1;
+	if(segWidth)
+	{
+		// these two must be inserted first, because seg & offset value fields overlap these labels
+		group->insert(lastInsnRow,segColumn+segWidth,new FieldWidget(1,":",group));
+		group->insert(lastDataRow,segColumn+segWidth,new FieldWidget(1,":",group));
+
+		group->insert(lastInsnRow,segColumn,
+				new ValueField(segWidth,findModelRegister(catIndex,"FIS",MODEL_VALUE_COLUMN),group));
+		group->insert(lastDataRow,segColumn,
+				new ValueField(segWidth,findModelRegister(catIndex,"FDS",MODEL_VALUE_COLUMN),group));
+	}
+	const auto offsetWidth=FIPIndex.data(Model::FixedLengthRole).toInt();
+	Q_ASSERT(offsetWidth>0);
+	const auto offsetColumn=segColumn+segWidth+(segWidth?1:0);
+	group->insert(lastInsnRow,offsetColumn,new ValueField(offsetWidth,FIPIndex,group));
+	group->insert(lastDataRow,offsetColumn,new ValueField(offsetWidth,FDPIndex,group));
+
+	QPersistentModelIndex const FOPIndex=findModelRegister(catIndex,"FOP",MODEL_VALUE_COLUMN);
+	QPersistentModelIndex const FSRIndex=findModelRegister(catIndex,"FSR",MODEL_VALUE_COLUMN);
+	QPersistentModelIndex const FCRIndex=findModelRegister(catIndex,"FCR",MODEL_VALUE_COLUMN);
+	const auto FOPFormatter=[FOPIndex,FSRIndex,FCRIndex](QString const& str)
+	{
+		if(str.isEmpty() || str[0]=='?') return str;
+
+		const auto rawFCR=FCRIndex.data(Model::RawValueRole).toByteArray();
+		Q_ASSERT(rawFCR.size()<=long(sizeof(edb::value16)));
+		if(rawFCR.isEmpty()) return str;
+		edb::value16 fcr(0);
+		std::memcpy(&fcr,rawFCR.constData(),rawFCR.size());
+
+		const auto rawFSR=FSRIndex.data(Model::RawValueRole).toByteArray();
+		Q_ASSERT(rawFSR.size()<=long(sizeof(edb::value16)));
+		if(rawFSR.isEmpty()) return str;
+		edb::value16 fsr(0);
+		std::memcpy(&fsr,rawFSR.constData(),rawFSR.size());
+
+		const auto rawFOP=FOPIndex.data(Model::RawValueRole).toByteArray();
+		edb::value16 fop(0);
+		Q_ASSERT(rawFOP.size()<=long(sizeof(edb::value16)));
+		if(rawFOP.isEmpty()) return str;
+		if(rawFOP.size()!=sizeof(edb::value16))
+			return QString("????");
+		std::memcpy(&fop,rawFOP.constData(),rawFOP.size());
+
+		const auto excMask=fcr&0x3f;
+		const auto excActive=fsr&0x3f;
+		const auto excActiveUnmasked=excActive&~excMask;
+		// TODO: check whether fopcode is actually not updated. This behavior starts 
+		// from Pentium 4 & Xeon, but not true for e.g. Atom and other P6-based CPUs
+		// TODO: move this to ArchProcessor/RegisterViewModel?
+		if(fop==0 && !excActiveUnmasked)
+			return QString("00 00");
+		return edb::value8(0xd8+rawFOP[1]).toHexString()+
+				' '+edb::value8(rawFOP[0]).toHexString();
+	};
+	group->insert(lastOpcodeRow,lastOpcodeLabel.length()+1,
+					new ValueField(5,FOPIndex,group,FOPFormatter));
+
+	return group;
+}
+
+
 RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 {
 	if(!model_->rowCount()) return nullptr;
@@ -738,87 +823,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	case RegisterGroupType::ExpandedEFL: return fillExpandedEFL(group,model_);
 	case RegisterGroupType::FPUData: return fillFPUData(group,model_);
 	case RegisterGroupType::FPUWords: return fillFPUWords(group,model_);
-	case RegisterGroupType::FPULastOp:
-	{
-		enum {lastInsnRow, lastDataRow, lastOpcodeRow};
-		const QString lastInsnLabel="Last insn";
-		const QString lastDataLabel="Last data";
-		const QString lastOpcodeLabel="Last opcode";
-		group->insert(lastInsnRow,0,new FieldWidget(lastInsnLabel.length(),lastInsnLabel,group));
-		group->insert(lastDataRow,0,new FieldWidget(lastDataLabel.length(),lastDataLabel,group));
-		group->insert(lastOpcodeRow,0,new FieldWidget(lastOpcodeLabel.length(),lastOpcodeLabel,group));
-
-		const auto catIndex=findModelCategory(model_,"FPU");
-		const auto FIPIndex=findModelRegister(catIndex,"FIP",MODEL_VALUE_COLUMN);
-		const auto FDPIndex=findModelRegister(catIndex,"FDP",MODEL_VALUE_COLUMN);
-
-		// FIS & FDS are not maintained in 64-bit mode; Linux64 always saves state from
-		// 64-bit mode, losing the values for 32-bit apps even if the CPU doesn't deprecate them
-		// We'll show zero offsets in 32 bit mode for consistency with 32-bit kernels
-		// In 64-bit mode, since segments are not maintained, we'll just show offsets
-		const auto FIPwidth=FDPIndex.data(Model::FixedLengthRole).toInt();
-		const auto segWidth = FIPwidth==8/*8chars=>32bit*/ ? 4 : 0;
-		const auto segColumn=lastInsnLabel.length()+1;
-		if(segWidth)
-		{
-			// these two must be inserted first, because seg & offset value fields overlap these labels
-			group->insert(lastInsnRow,segColumn+segWidth,new FieldWidget(1,":",group));
-			group->insert(lastDataRow,segColumn+segWidth,new FieldWidget(1,":",group));
-
-			group->insert(lastInsnRow,segColumn,
-					new ValueField(segWidth,findModelRegister(catIndex,"FIS",MODEL_VALUE_COLUMN),group));
-			group->insert(lastDataRow,segColumn,
-					new ValueField(segWidth,findModelRegister(catIndex,"FDS",MODEL_VALUE_COLUMN),group));
-		}
-		const auto offsetWidth=FIPIndex.data(Model::FixedLengthRole).toInt();
-		Q_ASSERT(offsetWidth>0);
-		const auto offsetColumn=segColumn+segWidth+(segWidth?1:0);
-		group->insert(lastInsnRow,offsetColumn,new ValueField(offsetWidth,FIPIndex,group));
-		group->insert(lastDataRow,offsetColumn,new ValueField(offsetWidth,FDPIndex,group));
-
-		QPersistentModelIndex const FOPIndex=findModelRegister(catIndex,"FOP",MODEL_VALUE_COLUMN);
-		QPersistentModelIndex const FSRIndex=findModelRegister(catIndex,"FSR",MODEL_VALUE_COLUMN);
-		QPersistentModelIndex const FCRIndex=findModelRegister(catIndex,"FCR",MODEL_VALUE_COLUMN);
-		const auto FOPFormatter=[FOPIndex,FSRIndex,FCRIndex](QString const& str)
-		{
-			if(str.isEmpty() || str[0]=='?') return str;
-
-			const auto rawFCR=FCRIndex.data(Model::RawValueRole).toByteArray();
-			Q_ASSERT(rawFCR.size()<=long(sizeof(edb::value16)));
-			if(rawFCR.isEmpty()) return str;
-			edb::value16 fcr(0);
-			std::memcpy(&fcr,rawFCR.constData(),rawFCR.size());
-
-			const auto rawFSR=FSRIndex.data(Model::RawValueRole).toByteArray();
-			Q_ASSERT(rawFSR.size()<=long(sizeof(edb::value16)));
-			if(rawFSR.isEmpty()) return str;
-			edb::value16 fsr(0);
-			std::memcpy(&fsr,rawFSR.constData(),rawFSR.size());
-
-			const auto rawFOP=FOPIndex.data(Model::RawValueRole).toByteArray();
-			edb::value16 fop(0);
-			Q_ASSERT(rawFOP.size()<=long(sizeof(edb::value16)));
-			if(rawFOP.isEmpty()) return str;
-			if(rawFOP.size()!=sizeof(edb::value16))
-				return QString("????");
-			std::memcpy(&fop,rawFOP.constData(),rawFOP.size());
-
-			const auto excMask=fcr&0x3f;
-			const auto excActive=fsr&0x3f;
-			const auto excActiveUnmasked=excActive&~excMask;
-			// TODO: check whether fopcode is actually not updated. This behavior starts 
-			// from Pentium 4 & Xeon, but not true for e.g. Atom and other P6-based CPUs
-			// TODO: move this to ArchProcessor/RegisterViewModel?
-			if(fop==0 && !excActiveUnmasked)
-				return QString("00 00");
-			return edb::value8(0xd8+rawFOP[1]).toHexString()+
-					' '+edb::value8(rawFOP[0]).toHexString();
-		};
-		group->insert(lastOpcodeRow,lastOpcodeLabel.length()+1,
-						new ValueField(5,FOPIndex,group,FOPFormatter));
-
-		return group;
-	}
+	case RegisterGroupType::FPULastOp: return fillFPULastOp(group,model_);
 	default:
 		qWarning() << "Warning: unexpected register group type requested in" << Q_FUNC_INFO;
 		groups.pop_back();
