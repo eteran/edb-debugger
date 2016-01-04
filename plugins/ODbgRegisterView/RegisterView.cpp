@@ -439,7 +439,8 @@ ODBRegView::ODBRegView(QWidget* parent)
 				   RegisterGroupType::FPUData,
 				   RegisterGroupType::FPUWords,
 				   RegisterGroupType::FPULastOp,
-				   RegisterGroupType::Debug
+				   RegisterGroupType::Debug,
+				   RegisterGroupType::MXCSR
 				  };
 }
 
@@ -932,6 +933,55 @@ RegisterGroup* fillDebugGroup(RegisterGroup* group, QAbstractItemModel* model)
 	return group;
 }
 
+RegisterGroup* fillMXCSR(RegisterGroup* group, QAbstractItemModel* model)
+{
+	using namespace RegisterViewModelBase;
+
+	const auto catIndex=findModelCategory(model,"SSE");
+	if(!catIndex.isValid()) return nullptr;
+	const QString mxcsrName="MXCSR";
+	int column=0;
+	const int mxcsrRow=1, fzRow=mxcsrRow,dazRow=mxcsrRow,excRow=mxcsrRow;
+	const int rndRow=fzRow+1, maskRow=rndRow;
+	group->insert(mxcsrRow,column,new FieldWidget(mxcsrName.length(),mxcsrName,group));
+	column+=mxcsrName.length()+1;
+	const auto mxcsrIndex=findModelRegister(catIndex,"MXCSR",MODEL_VALUE_COLUMN);
+	const auto mxcsrValueWidth=mxcsrIndex.data(Model::FixedLengthRole).toInt();
+	Q_ASSERT(mxcsrValueWidth>0);
+	group->insert(mxcsrRow,column,new ValueField(mxcsrValueWidth,mxcsrIndex,group));
+	column+=mxcsrValueWidth+2;
+	// XXX: Sacrificing understandability of DAZ->DZ to align PUOZDI with FPU's.
+	// Also FZ value is one char away from DAZ name, which is also no good.
+	// Maybe following OllyDbg example here isn't a good idea.
+	const QString fzName="FZ", dazName="DZ";
+	const auto fzColumn=column;
+	group->insert(fzRow,fzColumn,new FieldWidget(fzName.length(),fzName,group));
+	column+=fzName.length()+1;
+	const auto fzIndex=findModelRegister(mxcsrIndex,"FZ",MODEL_VALUE_COLUMN);
+	const auto fzValueWidth=1;
+	group->insert(fzRow,column,new ValueField(fzValueWidth,fzIndex,group));
+	column+=fzValueWidth+1;
+	group->insert(dazRow,column,new FieldWidget(dazName.length(),dazName,group));
+	column+=dazName.length()+1;
+	const auto dazIndex=findModelRegister(mxcsrIndex,"DAZ",MODEL_VALUE_COLUMN);
+	const auto dazValueWidth=1;
+	group->insert(dazRow,column,new ValueField(dazValueWidth,dazIndex,group));
+	column+=dazValueWidth+2;
+	const QString excName="Err";
+	group->insert(excRow,column,new FieldWidget(excName.length(),excName,group));
+	const QString maskName="Mask";
+	group->insert(maskRow,column,new FieldWidget(maskName.length(),maskName,group));
+	column+=maskName.length()+1;
+	addPUOZDI(group,mxcsrIndex,mxcsrIndex,excRow-1,column);
+	const auto rndNameColumn=fzColumn;
+	const QString rndName="Rnd";
+	group->insert(rndRow,rndNameColumn,new FieldWidget(rndName.length(),rndName,group));
+	const auto rndColumn=rndNameColumn+rndName.length()+1;
+	addRoundingMode(group,findModelRegister(mxcsrIndex,"RC",MODEL_VALUE_COLUMN),rndRow,rndColumn);
+
+	return group;
+}
+
 RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 {
 	if(!model_->rowCount()) return nullptr;
@@ -947,6 +997,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	case RegisterGroupType::FPUWords: return fillFPUWords(group,model_);
 	case RegisterGroupType::FPULastOp: return fillFPULastOp(group,model_);
 	case RegisterGroupType::Debug: return fillDebugGroup(group,model_);
+	case RegisterGroupType::MXCSR: return fillMXCSR(group,model_);
 	case RegisterGroupType::GPR:
 	{
 		const auto catIndex=findModelCategory(model_,"General Purpose");
