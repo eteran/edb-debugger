@@ -150,7 +150,7 @@ void setBreakpointState(State *state, int num, const BreakpointState &bp_state) 
 			switch(bp_state.size) {
 			case 3:
 				// 8 bytes
-				Q_ASSERT(edb::v1::debuggeeIs32Bit());
+				Q_ASSERT(edb::v1::debuggeeIs64Bit());
 				state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N2)) | (0x02 << N2));
 				break;
 			case 2:
