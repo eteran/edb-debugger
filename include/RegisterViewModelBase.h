@@ -41,7 +41,7 @@ public:
 		RegisterChangedRole=Qt::UserRole, // true if changed, false otherwise
 		FixedLengthRole, // fixed length of text (name, value) or undefined (0) if it's not fixed (comment)
 		RawValueRole, // QByteArray with raw data
-		ChosenSIMDSizeRole, // What user chose to be current size of SIMD element
+		ChosenSIMDSizeRole, // What user chose to be current size of SIMD element. Type: ElementSize
 		ChosenSIMDFormatRole, // What user chose to be current format of SIMD element. Type: NumberDisplayMode
 
 		FirstConcreteRole=Qt::UserRole+10000 // first role available for use in derived models
