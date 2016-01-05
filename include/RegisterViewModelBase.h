@@ -194,6 +194,7 @@ public:
 	QVariant data(int column) const override;
 	QByteArray rawValue() const override;
 	bool changed() const override;
+	virtual int valueMaxLength() const override;
 	using RegisterViewItem::name;
 };
 

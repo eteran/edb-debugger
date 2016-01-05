@@ -524,6 +524,41 @@ QByteArray SIMDFormatItem<StoredType,SizingType>::rawValue() const
 	return static_cast<RegisterViewItem*>(this->parent())->rawValue();
 }
 
+template<>
+int SIMDFormatItem<edb::value80,edb::value80>::valueMaxLength() const
+{
+	Q_ASSERT(sizeof(edb::value80)==sizeof(long double));
+	switch(format)
+	{
+	case NumberDisplayMode::Hex: return 2*sizeof(edb::value80);
+	case NumberDisplayMode::Float: return maxPrintedLength<long double>();
+	default: EDB_PRINT_AND_DIE("Unexpected format: ",(long)format);
+	}
+}
+
+template<class StoredType, class SizingType>
+int SIMDFormatItem<StoredType,SizingType>::valueMaxLength() const
+{
+	using Unsigned=typename SizingType::InnerValueType;
+	using Signed=typename std::make_signed<Unsigned>::type;
+	switch(format)
+	{
+	case NumberDisplayMode::Hex: return 2*sizeof(SizingType);
+	case NumberDisplayMode::Signed: return maxPrintedLength<Signed>();
+	case NumberDisplayMode::Unsigned: return maxPrintedLength<Unsigned>();
+	case NumberDisplayMode::Float:
+		switch(sizeof(SizingType))
+		{
+		case sizeof(float): return maxPrintedLength<float>();
+		case sizeof(double): return maxPrintedLength<double>();
+		default:
+			if(sizeof(SizingType)<sizeof(float)) return 0;
+			EDB_PRINT_AND_DIE("Unexpected sizing type's size for format float: ",sizeof(SizingType));
+		}
+	}
+	EDB_PRINT_AND_DIE("Unexpected format: ",(long)format);
+}
+
 // --------------------- SIMDSizedElement  impl -------------------------
 
 template<class StoredType, class SizingType>
