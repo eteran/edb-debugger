@@ -153,6 +153,11 @@ QVariant Model::data(QModelIndex const& index, int role) const
 		const auto ret=reg->rawValue();
 		if(ret.size()) return ret;
 	}
+	case ChosenSIMDSizeRole:
+	{
+		const auto* const simdReg=dynamic_cast<AbstractRegisterItem const*>(reg);
+		if(!simdReg) return {};
+	}
 
 	default:
 		return {};
@@ -723,6 +728,44 @@ RegisterViewItem* SIMDRegister<StoredType>::child(int row)
 {
 	Q_ASSERT(unsigned(row)<sizedElementContainers.size());
 	return &sizedElementContainers[row];
+}
+
+template<class StoredType>
+QVariant SIMDRegister<StoredType>::data(int column) const
+{
+	if(column!=Model::VALUE_COLUMN) return RegisterItem<StoredType>::data(column);
+	switch(chosenSize_)
+	{
+	case Model::ElementSize::BYTE:  return sizedElementContainers[0].data(column);
+	case Model::ElementSize::WORD:  return sizedElementContainers[1].data(column);
+	case Model::ElementSize::DWORD: return sizedElementContainers[2].data(column);
+	case Model::ElementSize::QWORD: return sizedElementContainers[3].data(column);
+	default: EDB_PRINT_AND_DIE("Unexpected chosenSize_: ",chosenSize_);
+	}
+}
+
+template<class StoredType>
+NumberDisplayMode SIMDRegister<StoredType>::chosenFormat() const
+{
+	return chosenFormat_;
+}
+
+template<class StoredType>
+Model::ElementSize SIMDRegister<StoredType>::chosenSize() const
+{
+	return chosenSize_;
+}
+
+template<class StoredType>
+void SIMDRegister<StoredType>::setChosenFormat(NumberDisplayMode newFormat)
+{
+	chosenFormat_=newFormat;
+}
+
+template<class StoredType>
+void SIMDRegister<StoredType>::setChosenSize(Model::ElementSize newSize)
+{
+	chosenSize_=newSize;
 }
 
 template class SIMDRegister<edb::value64>;

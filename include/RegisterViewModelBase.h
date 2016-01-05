@@ -24,11 +24,25 @@ public:
 		COMMENT_COLUMN,
 		NUM_COLS
 	};
+	struct ElementSize
+	{
+		enum T
+		{
+			BYTE=1,
+			WORD=2,
+			DWORD=4,
+			QWORD=8
+		} value;
+		ElementSize(T v):value(v){}
+		operator T() const {return value;}
+	};
 	enum Role
 	{
 		RegisterChangedRole=Qt::UserRole, // true if changed, false otherwise
 		FixedLengthRole, // fixed length of text (name, value) or undefined (0) if it's not fixed (comment)
 		RawValueRole, // QByteArray with raw data
+		ChosenSIMDSizeRole, // What user chose to be current size of SIMD element
+		CHosenSIMDFormatRole, // What user chose to be current format of SIMD element. Type: NumberDisplayMode
 
 		FirstConcreteRole=Qt::UserRole+10000 // first role available for use in derived models
 	};
@@ -224,17 +238,34 @@ public:
 	bool changed() const override;
 };
 
+class SIMDSettings
+{
+public:
+	virtual Model::ElementSize chosenSize() const = 0;
+	virtual NumberDisplayMode chosenFormat() const = 0;
+	virtual void setChosenSize(Model::ElementSize newSize) = 0;
+	virtual void setChosenFormat(NumberDisplayMode newFormat) = 0;
+};
+
 template<class StoredType>
-class SIMDRegister : public SimpleRegister<StoredType>
+class SIMDRegister : public SimpleRegister<StoredType>, public SIMDSettings
 {
 	template<class U, class V>
 	friend class SIMDSizedElement;
 protected:
+	Model::ElementSize chosenSize_=Model::ElementSize::WORD;
+	NumberDisplayMode chosenFormat_=NumberDisplayMode::Signed;
 	std::deque<SIMDSizedElementsContainer<StoredType>> sizedElementContainers;
 public:
 	SIMDRegister(QString const& name, std::vector<NumberDisplayMode> validFormats);
 	int childCount() const override;
 	RegisterViewItem* child(int) override;
+	QVariant data(int column) const override;
+
+	Model::ElementSize chosenSize() const override;
+	NumberDisplayMode chosenFormat() const override;
+	void setChosenSize(Model::ElementSize newSize) override;
+	void setChosenFormat(NumberDisplayMode newFormat) override;
 };
 
 template<class FloatType>
