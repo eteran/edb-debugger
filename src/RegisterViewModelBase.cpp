@@ -720,14 +720,15 @@ QVariant SIMDSizedElementsContainer<StoredType>::data(int column) const
 	case Model::NAME_COLUMN: return this->name_;
 	case Model::VALUE_COLUMN:
 	{
+		const auto width=elements[0]->valueMaxLength();
 		QString str;
 #if Q_BYTE_ORDER==Q_LITTLE_ENDIAN
 		for(auto& elem : boost::adaptors::reverse(elements))
-			str+=elem->data(column).toString()+" ";
+			str+=elem->data(column).toString().rightJustified(width+1);
 #else
 #error "This piece of code relies on little endian byte order"
 #endif
-		return str.trimmed();
+		return str;
 	}
 	case Model::COMMENT_COLUMN: return {};
 	default: return {};
