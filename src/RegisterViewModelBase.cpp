@@ -612,9 +612,16 @@ template<class StoredType, class SizingType>
 QString SIMDSizedElement<StoredType,SizingType>::valueString() const
 {
 	if(!valid()) return "??";
-	Q_ASSERT(dynamic_cast<SIMDRegister<StoredType>*>(parent()->parent()));
-	const auto* const reg=static_cast<SIMDRegister<StoredType>*>(parent()->parent());
-	return toString(value(),reg->chosenFormat());
+	return toString(value(),reg()->chosenFormat());
+}
+
+template<class StoredType, class SizingType>
+int SIMDSizedElement<StoredType,SizingType>::valueMaxLength() const
+{
+	for(const auto& format : formats)
+		if(format.format()==reg()->chosenFormat())
+			return format.valueMaxLength();
+	return 0;
 }
 
 template<class StoredType, class SizingType>
