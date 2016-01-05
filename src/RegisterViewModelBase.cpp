@@ -43,7 +43,7 @@ int CategoriesHolder::childCount() const
 
 QVariant CategoriesHolder::data(int /*column*/) const
 {
-	return QVariant();
+	return {};
 }
 
 QByteArray CategoriesHolder::rawValue() const
@@ -124,7 +124,7 @@ Qt::ItemFlags Model::flags(QModelIndex const& index) const
 QVariant Model::data(QModelIndex const& index, int role) const
 {
 	const auto*const reg=getItem(index);
-	if(!reg) return QVariant();
+	if(!reg) return {};
 
 	switch(role)
 	{
@@ -133,8 +133,8 @@ QVariant Model::data(QModelIndex const& index, int role) const
 
 	case Qt::ForegroundRole:
 		if(index.column()!=VALUE_COLUMN || !reg->changed())
-			return QVariant(); // default color for unchanged register and for non-value column
-		return QVariant(QBrush(Qt::red)); // TODO: use user palette
+			return {}; // default color for unchanged register and for non-value column
+		return QBrush(Qt::red); // TODO: use user palette
 
 	case RegisterChangedRole:
 		return reg->changed();
@@ -144,20 +144,20 @@ QVariant Model::data(QModelIndex const& index, int role) const
 			return reg->name().size();
 		else if(index.column()==VALUE_COLUMN)
 			return reg->valueMaxLength();
-		else return QVariant();
+		else return {};
 
 	case RawValueRole:
 	{
 		if(index.column()!=VALUE_COLUMN)
-			return QVariant();
+			return {};
 		const auto ret=reg->rawValue();
 		if(ret.size()) return ret;
 	}
 
 	default:
-		return QVariant();
+		return {};
 	}
-	return QVariant();
+	return {};
 }
 
 void Model::hideAll()
@@ -218,7 +218,7 @@ RegisterViewItem* Category::child(int row)
 QVariant Category::data(int column) const
 {
 	if(column==0) return name_;
-	return QVariant();
+	return {};
 }
 
 QByteArray Category::rawValue() const
@@ -313,7 +313,7 @@ QVariant RegisterItem<T>::data(int column) const
 	case Model::VALUE_COLUMN:   return valueString();
 	case Model::COMMENT_COLUMN: return this->comment_;
 	}
-	return QVariant();
+	return {};
 }
 
 template<typename T>
@@ -508,9 +508,9 @@ QVariant SIMDFormatItem<StoredType,SizingType>::data(int column) const
 				return toString(parent->value(),format);
 			EDB_PRINT_AND_DIE("failed to detect parent type");
 		}
-	case Model::COMMENT_COLUMN: return QVariant();
+	case Model::COMMENT_COLUMN: return {};
 	}
-	return QVariant();
+	return {};
 }
 
 template<class StoredType, class SizingType>
@@ -582,9 +582,9 @@ QVariant SIMDSizedElement<StoredType,SizingType>::data(int column) const
 	{
 	case Model::NAME_COLUMN: return this->name_;
 	case Model::VALUE_COLUMN: return valueString();
-	case Model::COMMENT_COLUMN: return QVariant();
+	case Model::COMMENT_COLUMN: return {};
 	}
-	return QVariant();
+	return {};
 }
 
 template<class StoredType, class SizingType>
@@ -673,8 +673,8 @@ QVariant SIMDSizedElementsContainer<StoredType>::data(int column) const
 #endif
 		return str.trimmed();
 	}
-	case Model::COMMENT_COLUMN: return QVariant();
-	default: return QVariant();
+	case Model::COMMENT_COLUMN: return {};
+	default: return {};
 	}
 }
 
