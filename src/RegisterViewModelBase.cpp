@@ -470,8 +470,14 @@ QString SIMDFormatItem<StoredType,SizingType>::name(NumberDisplayMode format) co
 template<class StoredType, class SizingType>
 SIMDFormatItem<StoredType,SizingType>::SIMDFormatItem(NumberDisplayMode format)
 	: RegisterViewItem(name(format)),
-	  format(format)
+	  format_(format)
 {
+}
+
+template<class StoredType, class SizingType>
+NumberDisplayMode SIMDFormatItem<StoredType,SizingType>::format() const
+{
+	return format_;
 }
 
 template<class StoredType, class SizingType>
@@ -508,9 +514,9 @@ QVariant SIMDFormatItem<StoredType,SizingType>::data(int column) const
 	case Model::VALUE_COLUMN:
 		{
 			if(const auto parent=dynamic_cast<SIMDSizedElement<StoredType,SizingType>*>(this->parent()))
-				return toString(parent->value(),format);
+				return toString(parent->value(),format_);
 			if(const auto parent=dynamic_cast<FPURegister<SizingType>*>(this->parent()))
-				return toString(parent->value(),format);
+				return toString(parent->value(),format_);
 			EDB_PRINT_AND_DIE("failed to detect parent type");
 		}
 	case Model::COMMENT_COLUMN: return {};
@@ -528,11 +534,11 @@ template<>
 int SIMDFormatItem<edb::value80,edb::value80>::valueMaxLength() const
 {
 	Q_ASSERT(sizeof(edb::value80)<=sizeof(long double));
-	switch(format)
+	switch(format_)
 	{
 	case NumberDisplayMode::Hex: return 2*sizeof(edb::value80);
 	case NumberDisplayMode::Float: return maxPrintedLength<long double>();
-	default: EDB_PRINT_AND_DIE("Unexpected format: ",(long)format);
+	default: EDB_PRINT_AND_DIE("Unexpected format: ",(long)format_);
 	}
 }
 
@@ -541,7 +547,7 @@ int SIMDFormatItem<StoredType,SizingType>::valueMaxLength() const
 {
 	using Unsigned=typename SizingType::InnerValueType;
 	using Signed=typename std::make_signed<Unsigned>::type;
-	switch(format)
+	switch(format_)
 	{
 	case NumberDisplayMode::Hex: return 2*sizeof(SizingType);
 	case NumberDisplayMode::Signed: return maxPrintedLength<Signed>();
@@ -556,7 +562,7 @@ int SIMDFormatItem<StoredType,SizingType>::valueMaxLength() const
 			EDB_PRINT_AND_DIE("Unexpected sizing type's size for format float: ",sizeof(SizingType));
 		}
 	}
-	EDB_PRINT_AND_DIE("Unexpected format: ",(long)format);
+	EDB_PRINT_AND_DIE("Unexpected format: ",(long)format_);
 }
 
 // --------------------- SIMDSizedElement  impl -------------------------

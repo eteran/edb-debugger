@@ -186,11 +186,12 @@ class SIMDRegister;
 template<class StoredType, class SizingType>
 class SIMDFormatItem : public RegisterViewItem
 {
-	NumberDisplayMode format;
+	NumberDisplayMode format_;
 
 	QString name(NumberDisplayMode format) const;
 public:
 	SIMDFormatItem(NumberDisplayMode format);
+	NumberDisplayMode format() const;
 	QVariant data(int column) const override;
 	QByteArray rawValue() const override;
 	bool changed() const override;
