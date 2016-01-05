@@ -566,7 +566,7 @@ void addPUOZDI(RegisterGroup* const group, QModelIndex const& excRegIndex, QMode
 
 }
 
-RegisterGroup* fillEFL(RegisterGroup* group, QAbstractItemModel* model)
+RegisterGroup* createEFL(QAbstractItemModel* model,QWidget* parent)
 {
 	const auto catIndex=findModelCategory(model,"General Status");
 	if(!catIndex.isValid()) return nullptr;
@@ -574,6 +574,7 @@ RegisterGroup* fillEFL(RegisterGroup* group, QAbstractItemModel* model)
 	if(!nameIndex.isValid())
 		nameIndex=findModelRegister(catIndex,"EFLAGS");
 	if(!nameIndex.isValid()) return nullptr;
+	auto* const group=new RegisterGroup(parent);
 	const int nameWidth=3;
 	int column=0;
 	group->insert(0,column,new FieldWidget("EFL",group));
@@ -588,7 +589,7 @@ RegisterGroup* fillEFL(RegisterGroup* group, QAbstractItemModel* model)
 	return group;
 }
 
-RegisterGroup* fillExpandedEFL(RegisterGroup* group, QAbstractItemModel* model)
+RegisterGroup* createExpandedEFL(QAbstractItemModel* model,QWidget* parent)
 {
 	const auto catIndex=findModelCategory(model,"General Status");
 	if(!catIndex.isValid()) return nullptr;
@@ -596,6 +597,7 @@ RegisterGroup* fillExpandedEFL(RegisterGroup* group, QAbstractItemModel* model)
 	if(!regNameIndex.isValid())
 		regNameIndex=findModelRegister(catIndex,"EFLAGS");
 	if(!regNameIndex.isValid()) return nullptr;
+	auto* const group=new RegisterGroup(parent);
 	for(int row=0,groupRow=0;row<model->rowCount(regNameIndex);++row)
 	{
 		const auto flagNameIndex=model->index(row,MODEL_NAME_COLUMN,regNameIndex);
@@ -626,7 +628,7 @@ RegisterGroup* fillExpandedEFL(RegisterGroup* group, QAbstractItemModel* model)
 	return group;
 }
 
-RegisterGroup* fillFPUData(RegisterGroup* group, QAbstractItemModel* model)
+RegisterGroup* createFPUData(QAbstractItemModel* model,QWidget* parent)
 {
 	using RegisterViewModelBase::Model;
 
@@ -638,6 +640,7 @@ RegisterGroup* fillFPUData(RegisterGroup* group, QAbstractItemModel* model)
 		qWarning() << "Warning: failed to find FTR in the model, refusing to continue making FPUData group";
 		return nullptr;
 	}
+	auto* const group=new RegisterGroup(parent);
 	static const int FPU_REG_COUNT=8;
 	static const int nameWidth=3;
 	static const int tagWidth=7;
@@ -666,10 +669,11 @@ RegisterGroup* fillFPUData(RegisterGroup* group, QAbstractItemModel* model)
 	return group;
 }
 
-RegisterGroup* fillFPUWords(RegisterGroup* group, QAbstractItemModel* model)
+RegisterGroup* createFPUWords(QAbstractItemModel* model,QWidget* parent)
 {
 	const auto catIndex=findModelCategory(model,"FPU");
 	if(!catIndex.isValid()) return nullptr;
+	auto* const group=new RegisterGroup(parent);
 	group->appendNameValueComment(findModelRegister(catIndex,"FTR"),false);
 	const int fsrRow=1;
 	const auto fsrIndex=findModelRegister(catIndex,"FSR");
@@ -719,10 +723,18 @@ RegisterGroup* fillFPUWords(RegisterGroup* group, QAbstractItemModel* model)
 	return group;
 }
 
-RegisterGroup* fillFPULastOp(RegisterGroup* group, QAbstractItemModel* model)
+RegisterGroup* createFPULastOp(QAbstractItemModel* model,QWidget* parent)
 {
 	using RegisterViewModelBase::Model;
 
+	const auto catIndex=findModelCategory(model,"FPU");
+	if(!catIndex.isValid()) return nullptr;
+	const auto FIPIndex=findModelRegister(catIndex,"FIP",MODEL_VALUE_COLUMN);
+	if(!FIPIndex.isValid()) return nullptr;
+	const auto FDPIndex=findModelRegister(catIndex,"FDP",MODEL_VALUE_COLUMN);
+	if(!FDPIndex.isValid()) return nullptr;
+
+	auto* const group=new RegisterGroup(parent);
 	enum {lastInsnRow, lastDataRow, lastOpcodeRow};
 	const QString lastInsnLabel="Last insn";
 	const QString lastDataLabel="Last data";
@@ -730,10 +742,6 @@ RegisterGroup* fillFPULastOp(RegisterGroup* group, QAbstractItemModel* model)
 	group->insert(lastInsnRow,0,new FieldWidget(lastInsnLabel,group));
 	group->insert(lastDataRow,0,new FieldWidget(lastDataLabel,group));
 	group->insert(lastOpcodeRow,0,new FieldWidget(lastOpcodeLabel,group));
-
-	const auto catIndex=findModelCategory(model,"FPU");
-	const auto FIPIndex=findModelRegister(catIndex,"FIP",MODEL_VALUE_COLUMN);
-	const auto FDPIndex=findModelRegister(catIndex,"FDP",MODEL_VALUE_COLUMN);
 
 	// FIS & FDS are not maintained in 64-bit mode; Linux64 always saves state from
 	// 64-bit mode, losing the values for 32-bit apps even if the CPU doesn't deprecate them
@@ -803,12 +811,15 @@ RegisterGroup* fillFPULastOp(RegisterGroup* group, QAbstractItemModel* model)
 	return group;
 }
 
-RegisterGroup* fillDebugGroup(RegisterGroup* group, QAbstractItemModel* model)
+RegisterGroup* createDebugGroup(QAbstractItemModel* model,QWidget* parent)
 {
 	using RegisterViewModelBase::Model;
 
 	const auto catIndex=findModelCategory(model,"Debug");
 	if(!catIndex.isValid()) return nullptr;
+
+	auto* const group=new RegisterGroup(parent);
+
 	const auto dr6Index=findModelRegister(catIndex,"DR6");
 	const auto dr7Index=findModelRegister(catIndex,"DR7");
 	Q_ASSERT(dr6Index.isValid());
@@ -949,12 +960,13 @@ RegisterGroup* fillDebugGroup(RegisterGroup* group, QAbstractItemModel* model)
 	return group;
 }
 
-RegisterGroup* fillMXCSR(RegisterGroup* group, QAbstractItemModel* model)
+RegisterGroup* createMXCSR(QAbstractItemModel* model,QWidget* parent)
 {
 	using namespace RegisterViewModelBase;
 
 	const auto catIndex=findModelCategory(model,"SSE");
 	if(!catIndex.isValid()) return nullptr;
+	auto* const group=new RegisterGroup(parent);
 	const QString mxcsrName="MXCSR";
 	int column=0;
 	const int mxcsrRow=1, fzRow=mxcsrRow,dazRow=mxcsrRow,excRow=mxcsrRow;
@@ -1003,17 +1015,15 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	if(!model_->rowCount()) return nullptr;
 	std::vector<QModelIndex> nameValCommentIndices;
 	using RegisterViewModelBase::Model;
-	groups.push_back(new RegisterGroup(this));
-	auto* const group=groups.back();
 	switch(type)
 	{
-	case RegisterGroupType::EFL: return fillEFL(group,model_);
-	case RegisterGroupType::ExpandedEFL: return fillExpandedEFL(group,model_);
-	case RegisterGroupType::FPUData: return fillFPUData(group,model_);
-	case RegisterGroupType::FPUWords: return fillFPUWords(group,model_);
-	case RegisterGroupType::FPULastOp: return fillFPULastOp(group,model_);
-	case RegisterGroupType::Debug: return fillDebugGroup(group,model_);
-	case RegisterGroupType::MXCSR: return fillMXCSR(group,model_);
+	case RegisterGroupType::EFL: return createEFL(model_,this);
+	case RegisterGroupType::ExpandedEFL: return createExpandedEFL(model_,this);
+	case RegisterGroupType::FPUData: return createFPUData(model_,this);
+	case RegisterGroupType::FPUWords: return createFPUWords(model_,this);
+	case RegisterGroupType::FPULastOp: return createFPULastOp(model_,this);
+	case RegisterGroupType::Debug: return createDebugGroup(model_,this);
+	case RegisterGroupType::MXCSR: return createMXCSR(model_,this);
 	case RegisterGroupType::GPR:
 	{
 		const auto catIndex=findModelCategory(model_,"General Purpose");
@@ -1040,7 +1050,6 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	}
 	default:
 		qWarning() << "Warning: unexpected register group type requested in" << Q_FUNC_INFO;
-		groups.pop_back();
 		return nullptr;
 	}
 	nameValCommentIndices.erase(std::remove_if(nameValCommentIndices.begin(),
@@ -1050,9 +1059,9 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	if(nameValCommentIndices.empty())
 	{
 		qWarning() << "Warning: failed to get any useful register indices for regGroupType" << static_cast<long>(type);
-		groups.pop_back();
 		return nullptr;
 	}
+	auto* const group=new RegisterGroup(this);
 	for(const auto& index : nameValCommentIndices)
 		group->appendNameValueComment(index);
 	return group;
@@ -1085,6 +1094,7 @@ void ODBRegView::modelReset()
 	{
 		auto*const group=makeGroup(groupType);
 		if(!group) continue;
+		groups.push_back(group);
 		if(groupType==RegisterGroupType::Segment || groupType==RegisterGroupType::ExpandedEFL)
 		{
 			flagsAndSegments->addWidget(group);
