@@ -527,7 +527,7 @@ QByteArray SIMDFormatItem<StoredType,SizingType>::rawValue() const
 template<>
 int SIMDFormatItem<edb::value80,edb::value80>::valueMaxLength() const
 {
-	Q_ASSERT(sizeof(edb::value80)==sizeof(long double));
+	Q_ASSERT(sizeof(edb::value80)<=sizeof(long double));
 	switch(format)
 	{
 	case NumberDisplayMode::Hex: return 2*sizeof(edb::value80);
