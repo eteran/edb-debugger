@@ -317,8 +317,6 @@ QVariant RegisterViewModel::data(QModelIndex const& index, int role) const
 		const auto name=reg->data(NAME_COLUMN).toString();
 		if(index.column()==NAME_COLUMN && (name=="R8"||name=="R9"))
 			return 3;
-		if(const auto fpuItem=dynamic_cast<SIMDFormatItem<edb::value80,edb::value80>*>(reg))
-			return fpuItem->name()=="float" ? maxPrintedLength<long double>() : Model::data(index,role);
 	}
 	return Model::data(index,role);
 }
