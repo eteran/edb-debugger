@@ -380,14 +380,8 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 // Name: is_jcc_taken
 // Desc:
 //------------------------------------------------------------------------------
-bool is_jcc_taken(const State &state, edb::Instruction::ConditionCode cond) {
+bool is_jcc_taken(const edb::reg_t efl, edb::Instruction::ConditionCode cond) {
 
-	if(cond==edb::Instruction::CC_UNCONDITIONAL) return true;
-	if(cond==edb::Instruction::CC_RCXZ) return state.gp_register(rCX).value<edb::value64>() == 0;
-	if(cond==edb::Instruction::CC_ECXZ) return state.gp_register(rCX).value<edb::value32>() == 0;
-	if(cond==edb::Instruction::CC_CXZ)  return state.gp_register(rCX).value<edb::value16>() == 0;
-
-	const edb::reg_t efl = state.flags();
 	const bool cf = (efl & 0x0001) != 0;
 	const bool pf = (efl & 0x0004) != 0;
 	const bool zf = (efl & 0x0040) != 0;
@@ -429,6 +423,31 @@ bool is_jcc_taken(const State &state, edb::Instruction::ConditionCode cond) {
 
 	return taken;
 }
+
+//------------------------------------------------------------------------------
+// Name: is_jcc_taken
+// Desc:
+//------------------------------------------------------------------------------
+bool is_jcc_taken(const State &state, edb::Instruction::ConditionCode cond) {
+
+	if(cond==edb::Instruction::CC_UNCONDITIONAL) return true;
+	if(cond==edb::Instruction::CC_RCXZ) return state.gp_register(rCX).value<edb::value64>() == 0;
+	if(cond==edb::Instruction::CC_ECXZ) return state.gp_register(rCX).value<edb::value32>() == 0;
+	if(cond==edb::Instruction::CC_CXZ)  return state.gp_register(rCX).value<edb::value16>() == 0;
+
+	return is_jcc_taken(state.flags(),cond);
+}
+
+static QString jumpConditionMnemonics[]={
+										 "O", "NO",
+										 "B", "AE",
+										 "E", "NE",
+										 "BE", "A",
+										 "S", "NS",
+										 "P", "NP",
+										 "L", "GE",
+										 "LE", "G"
+										 };
 
 //------------------------------------------------------------------------------
 // Name: analyze_cmov
@@ -875,18 +894,28 @@ QString rIPcomment(edb::address_t rIP, const QString &default_region_name) {
 	return symname.isEmpty() ? symname : '<'+symname+'>';
 }
 
+QString eflagsComment(edb::reg_t flags) {
+	QString comment="(";
+	for(int cond=0;cond<0x10;++cond)
+		if(is_jcc_taken(flags,static_cast<edb::Instruction::ConditionCode>(cond)))
+			comment+=jumpConditionMnemonics[cond]+',';
+	comment[comment.size()-1]=')';
+	return comment;
+}
+
 void updateGeneralStatusRegs(RegisterViewModel& model, const State& state, bool is64Bit, const QString &default_region_name) {
 	const auto ip=state.instruction_pointer_register();
 	const auto flags=state.flags_register();
 	Q_ASSERT(!!ip);
 	Q_ASSERT(!!flags);
 	const auto ipComment=rIPcomment(ip.valueAsAddress(),default_region_name);
+	const auto flagsComment=eflagsComment(flags.valueAsInteger());
 	if(is64Bit) {
 		model.updateIP(ip.value<edb::value64>(),ipComment);
-		model.updateFlags(flags.value<edb::value64>(),""/*TODO: list passing jmp conditions*/);
+		model.updateFlags(flags.value<edb::value64>(),flagsComment);
 	} else {
 		model.updateIP(ip.value<edb::value32>(),ipComment);
-		model.updateFlags(flags.value<edb::value32>(),""/*TODO: list passing jmp conditions*/);
+		model.updateFlags(flags.value<edb::value32>(),flagsComment);
 	}
 }
 
