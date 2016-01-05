@@ -135,7 +135,7 @@ void HardwareBreakpoints::setupBreakpoints() {
 						QMessageBox::information(
 							0,
 							tr("Address Alignment Error"),
-							tr("Hardware read/write breakpoints must be aligned to there address."));					
+							tr("Hardware read/write breakpoint address must be aligned to breakpoint size."));					
 						return;
 					case SizeError:
 					QMessageBox::information(
