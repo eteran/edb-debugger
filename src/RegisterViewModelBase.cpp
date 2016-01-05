@@ -570,7 +570,10 @@ bool SIMDSizedElement<StoredType,SizingType>::valid() const
 template<class StoredType, class SizingType>
 QString SIMDSizedElement<StoredType,SizingType>::valueString() const
 {
-	return valid() ? value().toHexString() : "??";
+	if(!valid()) return "??";
+	Q_ASSERT(dynamic_cast<SIMDRegister<StoredType>*>(parent()->parent()));
+	const auto* const reg=static_cast<SIMDRegister<StoredType>*>(parent()->parent());
+	return toString(value(),reg->chosenFormat());
 }
 
 template<class StoredType, class SizingType>
