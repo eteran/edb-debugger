@@ -43,7 +43,7 @@ std::size_t maxPrintedLength()
 	using Limits=std::numeric_limits<T>;
 	static bool isInteger=Limits::is_integer;
 	static const int mantissaChars=isInteger ? 1+Limits::digits10 : Limits::max_digits10;
-	static const int signChars=1;
+	static const int signChars=std::is_signed<T>::value;
 	static const int expSignChars=!isInteger;
 	static const int decimalPointChars=!isInteger;
 	static const int expSymbol=!isInteger; // 'e' for floating-point value in scientific format
