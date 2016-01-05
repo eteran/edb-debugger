@@ -155,8 +155,9 @@ QVariant Model::data(QModelIndex const& index, int role) const
 	}
 	case ChosenSIMDSizeRole:
 	{
-		const auto* const simdReg=dynamic_cast<AbstractRegisterItem const*>(reg);
+		const auto* const simdReg=dynamic_cast<SIMDSettings const*>(reg);
 		if(!simdReg) return {};
+		return static_cast<int>(simdReg->chosenSize());
 	}
 
 	default:
