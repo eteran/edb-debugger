@@ -29,6 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 #include <iostream>
 #include "RegisterViewModelBase.h"
+#include "edb.h"
+#include "Configuration.h"
 
 namespace ODbgRegisterView {
 
@@ -420,9 +422,17 @@ ODBRegView::ODBRegView(QWidget* parent)
 	: QScrollArea(parent)
 {
 	setObjectName("ODBRegView");
-	QFont font("Monospace");
-	font.setStyleHint(QFont::TypeWriter);
-	setFont(font);
+
+	{
+		const Configuration &config = edb::v1::config();
+		QFont font;
+		if(!font.fromString(config.registers_font))
+		{
+			font=QFont("Monospace");
+			font.setStyleHint(QFont::TypeWriter);
+		}
+		setFont(font);
+	}
 
 	auto* const canvas=new QWidget(this);
 	canvas->setObjectName("RegViewCanvas");
