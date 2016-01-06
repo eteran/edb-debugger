@@ -460,6 +460,8 @@ ODBRegView::ODBRegView(QWidget* parent)
 				   RegisterGroupType::FPULastOp,
 				   RegisterGroupType::Debug,
 				   RegisterGroupType::MMX,
+				   RegisterGroupType::SSEData,
+				   RegisterGroupType::AVXData,
 				   RegisterGroupType::MXCSR
 				  };
 }
@@ -1000,17 +1002,20 @@ RegisterGroup* createMXCSR(QAbstractItemModel* model,QWidget* parent)
 	return group;
 }
 
-RegisterGroup* createMMX(QAbstractItemModel* model,QWidget* parent)
+RegisterGroup* createSIMDGroup(QAbstractItemModel* model,QWidget* parent,QString const& catName,QString const& regNamePrefix)
 {
-	const auto catIndex=findModelCategory(model,"MMX");
+	const auto catIndex=findModelCategory(model,catName);
 	if(!catIndex.isValid()) return nullptr;
-	Q_ASSERT(model->rowCount(catIndex)==8);
 	auto* const group=new RegisterGroup(parent);
 	for(int row=0;row<model->rowCount(catIndex);++row)
 	{
-		const auto nameIndex=model->index(row,MODEL_NAME_COLUMN,catIndex);
-		const auto name=QString("MM%1").arg(row);
-		Q_ASSERT(nameIndex.data().toString().toUpper()==name);
+		const auto nameIndex=VALID_INDEX(model->index(row,MODEL_NAME_COLUMN,catIndex));
+		const auto name=regNamePrefix+QString("%1").arg(row);
+		if(!VALID_VARIANT(nameIndex.data()).toString().toUpper().startsWith(regNamePrefix))
+		{
+			if(row==0) return nullptr; // don't want empty groups
+			break;
+		}
 		group->insert(row,0,new FieldWidget(name,group));
 		new SIMDValueManager(row,nameIndex,group);
 	}
@@ -1031,7 +1036,9 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	case RegisterGroupType::FPULastOp: return createFPULastOp(model_,this);
 	case RegisterGroupType::Debug: return createDebugGroup(model_,this);
 	case RegisterGroupType::MXCSR: return createMXCSR(model_,this);
-	case RegisterGroupType::MMX: return createMMX(model_,this);
+	case RegisterGroupType::MMX: return createSIMDGroup(model_,this,"MMX","MM");
+	case RegisterGroupType::SSEData: return createSIMDGroup(model_,this,"SSE","XMM");
+	case RegisterGroupType::AVXData: return createSIMDGroup(model_,this,"AVX","YMM");
 	case RegisterGroupType::GPR:
 	{
 		const auto catIndex=findModelCategory(model_,"General Purpose");
