@@ -277,6 +277,7 @@ void ValueField::mouseDoubleClickEvent(QMouseEvent* event)
 
 void ValueField::paintEvent(QPaintEvent*)
 {
+	auto*const regView=this->regView();
 	QPainter painter(this);
 	QStyleOptionViewItemV4 option;
 	option.rect=rect();
@@ -288,7 +289,7 @@ void ValueField::paintEvent(QPaintEvent*)
 	option.state |= QStyle::State_Enabled;
 	if(selected_) option.state |= QStyle::State_Selected;
 	if(hovered_)  option.state |= QStyle::State_MouseOver;
-	if(palette().currentColorGroup()==QPalette::Active)
+	if(regView->hasFocus())
 		option.state |= QStyle::State_Active;
 	QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &option, &painter);
 }
@@ -1145,28 +1146,6 @@ ValueField* ODBRegView::selectedField() const
 	for(auto* const field : valueFields())
 		if(field->isSelected()) return field;
 	return nullptr;
-}
-
-void ODBRegView::focusOutEvent(QFocusEvent*)
-{
-	for(auto* const group : groups)
-	{
-		auto palette=group->palette();
-		palette.setCurrentColorGroup(QPalette::Inactive);
-		group->setPalette(palette);
-	}
-	updateFieldsPalette();
-}
-
-void ODBRegView::focusInEvent(QFocusEvent*)
-{
-	for(auto* const group : groups)
-	{
-		auto palette=group->palette();
-		palette.setCurrentColorGroup(QPalette::Active);
-		group->setPalette(palette);
-	}
-	updateFieldsPalette();
 }
 
 void ODBRegView::keyPressEvent(QKeyEvent* event)

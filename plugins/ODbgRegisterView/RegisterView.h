@@ -65,8 +65,6 @@ public:
 private:
 	ValueField* selectedField() const;
 	void updateFieldsPalette();
-	void focusOutEvent(QFocusEvent*) override;
-	void focusInEvent(QFocusEvent*) override;
 	void keyPressEvent(QKeyEvent* event) override;
     void mousePressEvent(QMouseEvent* event) override;
 
