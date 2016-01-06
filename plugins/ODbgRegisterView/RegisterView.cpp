@@ -33,6 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 
 #define VALID_VARIANT(VARIANT) (Q_ASSERT((VARIANT).isValid()),(VARIANT))
+#define VALID_INDEX(INDEX) VALID_VARIANT(INDEX)
 
 namespace ODbgRegisterView {
 
@@ -197,9 +198,7 @@ QString ValueField::text() const
 bool ValueField::changed() const
 {
 	if(!index.isValid()) return true;
-	const auto changed=index.data(RegisterViewModelBase::Model::RegisterChangedRole);
-	Q_ASSERT(changed.isValid());
-	return changed.toBool();
+	return VALID_VARIANT(index.data(RegisterViewModelBase::Model::RegisterChangedRole)).toBool();
 }
 
 QColor ValueField::fgColorForChangedField() const
@@ -558,10 +557,8 @@ void addPUOZDI(RegisterGroup* const group, QModelIndex const& excRegIndex, QMode
 	for(int exN=0;exN<exceptions.length();++exN)
 	{
 		QString const ex=exceptions[exN];
-		const auto excIndex=findModelRegister(excRegIndex,ex+"E");
-		Q_ASSERT(excIndex.isValid());
-		const auto maskIndex=findModelRegister(maskRegIndex,ex+"M");
-		Q_ASSERT(maskIndex.isValid());
+		const auto excIndex=VALID_INDEX(findModelRegister(excRegIndex,ex+"E"));
+		const auto maskIndex=VALID_INDEX(findModelRegister(maskRegIndex,ex+"M"));
 		const int column=startColumn+exN*2;
 		group->insert(startRow,column,new FieldWidget(ex,group));
 		group->insert(startRow+1,column,new ValueField(1,getValueIndex(excIndex),group));
@@ -653,12 +650,10 @@ RegisterGroup* createFPUData(QAbstractItemModel* model,QWidget* parent)
 	{
 		int column=0;
 		const auto nameIndex=model->index(row,MODEL_NAME_COLUMN,catIndex);
-		const auto nameV=nameIndex.data();
-		Q_ASSERT(nameV.isValid());
-		group->insert(row,column,new FieldWidget(nameWidth,nameV.toString(),group));
+		const auto name=VALID_VARIANT(nameIndex.data()).toString();
+		group->insert(row,column,new FieldWidget(nameWidth,name,group));
 		column+=nameWidth+1;
-		const auto tagCommentIndex=model->index(row,MODEL_COMMENT_COLUMN,tagsIndex);
-		Q_ASSERT(tagCommentIndex.isValid());
+		const auto tagCommentIndex=VALID_INDEX(model->index(row,MODEL_COMMENT_COLUMN,tagsIndex));
 		group->insert(row,column,new ValueField(tagWidth,tagCommentIndex,group,
 												[](QString const&s){return s.toLower();}));
 		column+=tagWidth+1;
@@ -700,10 +695,8 @@ RegisterGroup* createFPUWords(QAbstractItemModel* model,QWidget* parent)
 	group->insert(fcrRow,precModeColumn-1,new FieldWidget(",",group));
 	for(int condN=3;condN>=0;--condN)
 	{
-		const auto condNNameIndex=findModelRegister(fsrIndex,QString("C%1").arg(condN));
-		Q_ASSERT(condNNameIndex.isValid());
-		const auto condNIndex=condNNameIndex.sibling(condNNameIndex.row(),MODEL_VALUE_COLUMN);
-		Q_ASSERT(condNIndex.isValid());
+		const auto condNNameIndex=VALID_INDEX(findModelRegister(fsrIndex,QString("C%1").arg(condN)));
+		const auto condNIndex=VALID_INDEX(condNNameIndex.sibling(condNNameIndex.row(),MODEL_VALUE_COLUMN));
 		const int column=condPrecValColumn+2*(3-condN);
 		group->insert(fsrRow-1,column,new FieldWidget(QString("%1").arg(condN),group));
 		group->insert(fsrRow,  column,new ValueField(1,condNIndex,group));
@@ -825,10 +818,8 @@ RegisterGroup* createDebugGroup(QAbstractItemModel* model,QWidget* parent)
 
 	auto* const group=new RegisterGroup(parent);
 
-	const auto dr6Index=findModelRegister(catIndex,"DR6");
-	const auto dr7Index=findModelRegister(catIndex,"DR7");
-	Q_ASSERT(dr6Index.isValid());
-	Q_ASSERT(dr7Index.isValid());
+	const auto dr6Index=VALID_INDEX(findModelRegister(catIndex,"DR6"));
+	const auto dr7Index=VALID_INDEX(findModelRegister(catIndex,"DR7"));
 	const auto nameWidth=3;
 	const auto valueWidth=getValueIndex(dr6Index).data(Model::FixedLengthRole).toInt();
 	Q_ASSERT(valueWidth>0);
@@ -852,8 +843,7 @@ RegisterGroup* createDebugGroup(QAbstractItemModel* model,QWidget* parent)
 	for(int drI=0;drI<4;++drI,++row)
 	{
 		const auto name=QString("DR%1").arg(drI);
-		const auto DRiValueIndex=findModelRegister(catIndex,name,MODEL_VALUE_COLUMN);
-		Q_ASSERT(DRiValueIndex.isValid());
+		const auto DRiValueIndex=VALID_INDEX(findModelRegister(catIndex,name,MODEL_VALUE_COLUMN));
 		int column=0;
 		group->insert(row,column,new FieldWidget(name,group));
 		column+=nameWidth+1;
@@ -861,29 +851,25 @@ RegisterGroup* createDebugGroup(QAbstractItemModel* model,QWidget* parent)
 		column+=valueWidth+2;
 		{
 			const auto BiName=QString("B%1").arg(drI);
-			const auto BiIndex=findModelRegister(dr6Index,BiName,MODEL_VALUE_COLUMN);
-			Q_ASSERT(BiIndex.isValid());
+			const auto BiIndex=VALID_INDEX(findModelRegister(dr6Index,BiName,MODEL_VALUE_COLUMN));
 			group->insert(row,column,new ValueField(1,BiIndex,group));
 			column+=bitsSpacing+1;
 		}
 		{
 			const auto LiName=QString("L%1").arg(drI);
-			const auto LiIndex=findModelRegister(dr7Index,LiName,MODEL_VALUE_COLUMN);
-			Q_ASSERT(LiIndex.isValid());
+			const auto LiIndex=VALID_INDEX(findModelRegister(dr7Index,LiName,MODEL_VALUE_COLUMN));
 			group->insert(row,column,new ValueField(1,LiIndex,group));
 			column+=bitsSpacing+1;
 		}
 		{
 			const auto GiName=QString("G%1").arg(drI);
-			const auto GiIndex=findModelRegister(dr7Index,GiName,MODEL_VALUE_COLUMN);
-			Q_ASSERT(GiIndex.isValid());
+			const auto GiIndex=VALID_INDEX(findModelRegister(dr7Index,GiName,MODEL_VALUE_COLUMN));
 			group->insert(row,column,new ValueField(1,GiIndex,group));
 			column+=bitsSpacing+1;
 		}
 		{
 			const auto RWiName=QString("R/W%1").arg(drI);
-			const QPersistentModelIndex RWiIndex=findModelRegister(dr7Index,RWiName,MODEL_VALUE_COLUMN);
-			Q_ASSERT(RWiIndex.isValid());
+			const QPersistentModelIndex RWiIndex=VALID_INDEX(findModelRegister(dr7Index,RWiName,MODEL_VALUE_COLUMN));
 			const auto width=5;
 			group->insert(row,column,new ValueField(width,RWiIndex,group,[RWiIndex](QString const& str)->QString
 						{
@@ -902,8 +888,7 @@ RegisterGroup* createDebugGroup(QAbstractItemModel* model,QWidget* parent)
 		}
 		{
 			const auto LENiName=QString("LEN%1").arg(drI);
-			const QPersistentModelIndex LENiIndex=findModelRegister(dr7Index,LENiName,MODEL_VALUE_COLUMN);
-			Q_ASSERT(LENiIndex.isValid());
+			const QPersistentModelIndex LENiIndex=VALID_INDEX(findModelRegister(dr7Index,LENiName,MODEL_VALUE_COLUMN));
 			group->insert(row,column,new ValueField(1,LENiIndex,group,[LENiIndex](QString const& str)->QString
 						{
 							if(str.isEmpty() || str[0]=='?') return "??";
