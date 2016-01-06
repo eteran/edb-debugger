@@ -315,8 +315,17 @@ QVariant RegisterViewModel::data(QModelIndex const& index, int role) const
 		using namespace RegisterViewModelBase;
 		const auto reg=static_cast<RegisterViewItem*>(index.internalPointer());
 		const auto name=reg->data(NAME_COLUMN).toString();
-		if(index.column()==NAME_COLUMN && (name=="R8"||name=="R9"))
-			return 3;
+		if(index.column()==NAME_COLUMN)
+		{
+			if(name=="R8"||name=="R9")
+				return 3;
+			if(name.startsWith("XMM") || name.startsWith("YMM"))
+			{
+				if(mode==CPUMode::IA32) return 4;
+				if(mode==CPUMode::AMD64) return 5;
+				return {};
+			}
+		}
 	}
 	return Model::data(index,role);
 }
