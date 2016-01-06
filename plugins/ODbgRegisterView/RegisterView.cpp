@@ -287,6 +287,7 @@ void ValueField::paintEvent(QPaintEvent*)
 	option.palette=palette();
 	option.textElideMode=Qt::ElideNone;
 	option.state |= QStyle::State_Enabled;
+	option.displayAlignment=alignment();
 	if(selected_) option.state |= QStyle::State_Selected;
 	if(hovered_)  option.state |= QStyle::State_MouseOver;
 	if(regView->hasFocus())
