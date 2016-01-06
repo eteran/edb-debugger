@@ -460,6 +460,7 @@ ODBRegView::ODBRegView(QWidget* parent)
 				   RegisterGroupType::FPUWords,
 				   RegisterGroupType::FPULastOp,
 				   RegisterGroupType::Debug,
+				   RegisterGroupType::MMX,
 				   RegisterGroupType::MXCSR
 				  };
 }
@@ -1014,6 +1015,23 @@ RegisterGroup* createMXCSR(QAbstractItemModel* model,QWidget* parent)
 	return group;
 }
 
+RegisterGroup* createMMX(QAbstractItemModel* model,QWidget* parent)
+{
+	const auto catIndex=findModelCategory(model,"MMX");
+	if(!catIndex.isValid()) return nullptr;
+	Q_ASSERT(model->rowCount(catIndex)==8);
+	auto* const group=new RegisterGroup(parent);
+	for(int row=0;row<model->rowCount(catIndex);++row)
+	{
+		const auto nameIndex=model->index(row,MODEL_NAME_COLUMN,catIndex);
+		const auto name=QString("MM%1").arg(row);
+		Q_ASSERT(nameIndex.data().toString().toUpper()==name);
+		group->insert(row,0,new FieldWidget(name,group));
+		new SIMDValueManager(row,nameIndex,group);
+	}
+	return group;
+}
+
 RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 {
 	if(!model_->rowCount()) return nullptr;
@@ -1028,6 +1046,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	case RegisterGroupType::FPULastOp: return createFPULastOp(model_,this);
 	case RegisterGroupType::Debug: return createDebugGroup(model_,this);
 	case RegisterGroupType::MXCSR: return createMXCSR(model_,this);
+	case RegisterGroupType::MMX: return createMMX(model_,this);
 	case RegisterGroupType::GPR:
 	{
 		const auto catIndex=findModelCategory(model_,"General Purpose");
