@@ -43,6 +43,8 @@ public:
 		RawValueRole, // QByteArray with raw data
 		ChosenSIMDSizeRole, // What user chose to be current size of SIMD element. Type: ElementSize
 		ChosenSIMDFormatRole, // What user chose to be current format of SIMD element. Type: NumberDisplayMode
+		ChosenSIMDSizeRowRole, // What row to take in given register index to get chosen-sized elements root
+		ChosenSIMDFormatRowRole, // What row to take in given sized element to get chosen-formatted element
 
 		FirstConcreteRole=Qt::UserRole+10000 // first role available for use in derived models
 	};

@@ -165,6 +165,34 @@ QVariant Model::data(QModelIndex const& index, int role) const
 		if(!simdReg) return {};
 		return static_cast<int>(simdReg->chosenFormat());
 	}
+	case ChosenSIMDSizeRowRole:
+	{
+		const auto simdReg=dynamic_cast<SIMDSettings const*>(reg);
+		if(!simdReg) return {};
+		// TODO: add assertions to make sure order is correct
+		switch(simdReg->chosenSize())
+		{
+		case ElementSize::BYTE:  return 0;
+		case ElementSize::WORD:  return 1;
+		case ElementSize::DWORD: return 2;
+		case ElementSize::QWORD: return 3;
+		}
+		return {};
+	}
+	case ChosenSIMDFormatRowRole:
+	{
+		const auto simdReg=dynamic_cast<SIMDSettings const*>(reg);
+		if(!simdReg) return {};
+		// TODO: add assertions to make sure order is correct
+		switch(simdReg->chosenFormat())
+		{
+		case NumberDisplayMode::Hex: return 0;
+		case NumberDisplayMode::Signed: return 1;
+		case NumberDisplayMode::Unsigned: return 2;
+		case NumberDisplayMode::Float: return 3;
+		}
+		return {};
+	}
 
 	default:
 		return {};
