@@ -32,6 +32,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "Configuration.h"
 
+#define VALID_VARIANT(VARIANT) (Q_ASSERT((VARIANT).isValid()),(VARIANT))
+
 namespace ODbgRegisterView {
 
 // TODO: Right click => select too
@@ -1147,6 +1149,46 @@ ValueField* ODBRegView::selectedField() const
 	for(auto* const field : valueFields())
 		if(field->isSelected()) return field;
 	return nullptr;
+}
+
+SIMDValueManager::SIMDValueManager(int lineInGroup, QModelIndex const& nameIndex, RegisterGroup* parent)
+	: QObject(parent),
+	  regIndex(nameIndex),
+	  lineInGroup(lineInGroup)
+{
+	displayFormatChanged();
+}
+
+RegisterGroup* SIMDValueManager::group() const
+{
+	Q_ASSERT(dynamic_cast<RegisterGroup*>(parent()));
+	return static_cast<RegisterGroup*>(parent());
+}
+
+void SIMDValueManager::displayFormatChanged()
+{
+	for(auto* const elem : elements)
+		elem->deleteLater();
+	elements.clear();
+
+	using RegisterViewModelBase::Model;
+	const auto model=regIndex.model();
+
+	const int sizeRow=VALID_VARIANT(regIndex.data(Model::ChosenSIMDSizeRowRole)).toInt();
+	QModelIndex sizeIndex=model->index(sizeRow,MODEL_NAME_COLUMN,regIndex);
+	const auto elemCount=model->rowCount(sizeIndex);
+
+	const auto regNameWidth=VALID_VARIANT(regIndex.data(Model::FixedLengthRole)).toInt();
+	int column=regNameWidth+1;
+	const auto elemWidth=VALID_VARIANT(model->index(0,MODEL_VALUE_COLUMN,sizeIndex).data(Model::FixedLengthRole)).toInt();
+	for(int elemN=0;elemN<elemCount;++elemN)
+	{
+		const auto elemIndex=model->index(elemN,MODEL_VALUE_COLUMN,sizeIndex);
+		const auto field=new ValueField(elemWidth,elemIndex,group());
+		field->setAlignment(Qt::AlignRight);
+		group()->insert(lineInGroup,column,field);
+		column+=elemWidth+1;
+	}
 }
 
 void ODBRegView::keyPressEvent(QKeyEvent* event)

@@ -153,6 +153,21 @@ public Q_SLOTS:
 	void adjustWidth();
 };
 
+class SIMDValueManager : public QObject
+{
+	Q_OBJECT
+	QPersistentModelIndex regIndex;
+	int lineInGroup;
+	QList<ValueField*> elements;
+	RegisterGroup* group() const;
+public:
+	SIMDValueManager(int lineInGroup,
+					 QModelIndex const& nameIndex,
+					 RegisterGroup* parent=nullptr);
+public Q_SLOTS:
+	void displayFormatChanged();
+};
+
 }
 
 #endif
