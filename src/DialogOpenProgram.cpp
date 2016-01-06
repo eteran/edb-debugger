@@ -42,7 +42,7 @@ DialogOpenProgram::DialogOpenProgram(QWidget* parent,const QString& caption, con
 
 		connect(browseDirButton,SIGNAL(clicked()),this,SLOT(browsePressed()));
 	}
-	else qDebug() << tr("Failed to setup program arguments and working directory entries for file open dialog, please report and be sure to tell your Qt version");
+	else qWarning() << tr("Failed to setup program arguments and working directory entries for file open dialog, please report and be sure to tell your Qt version");
 }
 
 void DialogOpenProgram::browsePressed()
@@ -54,7 +54,6 @@ void DialogOpenProgram::browsePressed()
 QList<QByteArray> DialogOpenProgram::arguments() const
 {
 	const QStringList args=argsEdit->text().split(' ');
-	qDebug() << "stringlist:" << args;
 	QList<QByteArray> ret;
 	for(auto arg : args)
 		ret << arg.toLocal8Bit();
