@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVBoxLayout>
 #include <QPlastiqueStyle>
 #include <algorithm>
+#include <unordered_map>
 #include <QDebug>
 #include <iostream>
 #include "RegisterViewModelBase.h"
@@ -602,6 +603,17 @@ RegisterGroup* createExpandedEFL(RegisterViewModelBase::Model* model,QWidget* pa
 		regNameIndex=findModelRegister(catIndex,"EFLAGS");
 	if(!regNameIndex.isValid()) return nullptr;
 	auto* const group=new RegisterGroup(parent);
+	static const std::unordered_map<char,QString> flagTooltips=
+		{
+		{'C',QObject::tr("Carry flag")+" (CF)"},
+		{'P',QObject::tr("Parity flag")+" (PF)"},
+		{'A',QObject::tr("Auxiliary carry flag")+" (AF)"},
+		{'Z',QObject::tr("Zero flag")+" (ZF)"},
+		{'S',QObject::tr("Sign flag")+" (SF)"},
+		{'T',QObject::tr("Trap flag")+" (TF)"},
+		{'D',QObject::tr("Direction flag")+" (DF)"},
+		{'O',QObject::tr("Overflow flag")+" (OF)"}
+		};
 	for(int row=0,groupRow=0;row<model->rowCount(regNameIndex);++row)
 	{
 		const auto flagNameIndex=model->index(row,MODEL_NAME_COLUMN,regNameIndex);
@@ -621,10 +633,19 @@ RegisterGroup* createExpandedEFL(RegisterViewModelBase::Model* model,QWidget* pa
 		case 'T':
 		case 'D':
 		case 'O':
-			group->insert(groupRow,0,new FieldWidget(QChar(name),group));
-			group->insert(groupRow,flagNameWidth+1,new ValueField(valueWidth,flagValueIndex,group));
+		{
+			const auto nameField=new FieldWidget(QChar(name),group);
+			group->insert(groupRow,0,nameField);
+			const auto valueField=new ValueField(valueWidth,flagValueIndex,group);
+			group->insert(groupRow,flagNameWidth+1,valueField);
 			++groupRow;
+
+			const auto tooltipStr=flagTooltips.at(name);
+			nameField->setToolTip(tooltipStr);
+			valueField->setToolTip(tooltipStr);
+
 			break;
+		}
 		default:
 			continue;
 		}
