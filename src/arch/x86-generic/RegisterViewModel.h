@@ -16,11 +16,11 @@ class RegisterViewModel : public RegisterViewModelBase::Model
 	RegisterViewModelBase::Category* dbgRegs64;
 	RegisterViewModelBase::Category* fpuRegs32;
 	RegisterViewModelBase::Category* fpuRegs64;
-	RegisterViewModelBase::Category* mmxRegs;
-	RegisterViewModelBase::Category* sseRegs32;
-	RegisterViewModelBase::Category* sseRegs64;
-	RegisterViewModelBase::Category* avxRegs32;
-	RegisterViewModelBase::Category* avxRegs64;
+	RegisterViewModelBase::SIMDCategory* mmxRegs;
+	RegisterViewModelBase::SIMDCategory* sseRegs32;
+	RegisterViewModelBase::SIMDCategory* sseRegs64;
+	RegisterViewModelBase::SIMDCategory* avxRegs32;
+	RegisterViewModelBase::SIMDCategory* avxRegs64;
 public:
 	enum class CPUMode
 	{

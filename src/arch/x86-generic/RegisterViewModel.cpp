@@ -286,7 +286,7 @@ static const std::vector<NumberDisplayMode> SSEAVXFormats{NumberDisplayMode::Hex
 														  NumberDisplayMode::Unsigned,
 														  NumberDisplayMode::Float};
 
-void addMMXRegs(RegisterViewModelBase::Category* mmxRegs)
+void addMMXRegs(RegisterViewModelBase::SIMDCategory* mmxRegs)
 {
 	using namespace RegisterViewModelBase;
 	// TODO: MMXReg should have possibility to be shown in byte/word/dword signed/unsigned/hex formats
@@ -294,14 +294,14 @@ void addMMXRegs(RegisterViewModelBase::Category* mmxRegs)
 		mmxRegs->addRegister(make_unique<MMXReg>(QString("MM%1").arg(i),MMXFormats));
 }
 
-void addSSERegs(RegisterViewModelBase::Category* sseRegs, unsigned regCount)
+void addSSERegs(RegisterViewModelBase::SIMDCategory* sseRegs, unsigned regCount)
 {
 	for(std::size_t i=0;i<regCount;++i)
 		sseRegs->addRegister(make_unique<SSEReg>(QString("XMM%1").arg(i),SSEAVXFormats));
 	sseRegs->addRegister(make_unique<MXCSR>("MXCSR",MXCSRDescription));
 }
 
-void addAVXRegs(RegisterViewModelBase::Category* avxRegs, unsigned regCount)
+void addAVXRegs(RegisterViewModelBase::SIMDCategory* avxRegs, unsigned regCount)
 {
 	for(std::size_t i=0;i<regCount;++i)
 		avxRegs->addRegister(make_unique<AVXReg>(QString("YMM%1").arg(i),SSEAVXFormats));
@@ -341,11 +341,11 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject* parent)
 	  dbgRegs64(addCategory(tr("Debug"))),
 	  fpuRegs32(addCategory(tr("FPU"))),
 	  fpuRegs64(addCategory(tr("FPU"))),
-	  mmxRegs(addCategory(tr("MMX"))),
-	  sseRegs32(addCategory(tr("SSE"))),
-	  sseRegs64(addCategory(tr("SSE"))),
-	  avxRegs32(addCategory(tr("AVX"))),
-	  avxRegs64(addCategory(tr("AVX")))
+	  mmxRegs(addSIMDCategory(tr("MMX"))),
+	  sseRegs32(addSIMDCategory(tr("SSE"))),
+	  sseRegs64(addSIMDCategory(tr("SSE"))),
+	  avxRegs32(addSIMDCategory(tr("AVX"))),
+	  avxRegs64(addSIMDCategory(tr("AVX")))
 {
 	addGPRs32(gprs32);
 	addGPRs64(gprs64);

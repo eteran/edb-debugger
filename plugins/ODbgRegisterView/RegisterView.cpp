@@ -1363,7 +1363,7 @@ void SIMDValueManager::displayFormatChanged()
 	using RegisterViewModelBase::Model;
 	const auto model=regIndex.model();
 
-	const int sizeRow=VALID_VARIANT(regIndex.data(Model::ChosenSIMDSizeRowRole)).toInt();
+	const int sizeRow=VALID_VARIANT(regIndex.parent().data(Model::ChosenSIMDSizeRowRole)).toInt();
 	QModelIndex sizeIndex=model->index(sizeRow,MODEL_NAME_COLUMN,regIndex);
 	const auto elemCount=model->rowCount(sizeIndex);
 

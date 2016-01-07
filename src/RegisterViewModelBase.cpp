@@ -68,6 +68,14 @@ Category* CategoriesHolder::insert(QString const& name)
 	return categories.back().get();
 }
 
+SIMDCategory* CategoriesHolder::insertSIMD(QString const& name)
+{
+	auto cat=util::make_unique<SIMDCategory>(name,categories.size());
+	auto ret=cat.get();
+	categories.emplace_back(std::move(cat));
+	return ret;
+}
+
 // ---------------- Model impl -------------------
 
 Model::Model(QObject* parent)
@@ -123,54 +131,54 @@ Qt::ItemFlags Model::flags(QModelIndex const& index) const
 
 QVariant Model::data(QModelIndex const& index, int role) const
 {
-	const auto*const reg=getItem(index);
-	if(!reg) return {};
+	const auto*const item=getItem(index);
+	if(!item) return {};
 
 	switch(role)
 	{
 	case Qt::DisplayRole:
-		return reg->data(index.column());
+		return item->data(index.column());
 
 	case Qt::ForegroundRole:
-		if(index.column()!=VALUE_COLUMN || !reg->changed())
+		if(index.column()!=VALUE_COLUMN || !item->changed())
 			return {}; // default color for unchanged register and for non-value column
 		return QBrush(Qt::red); // TODO: use user palette
 
 	case RegisterChangedRole:
-		return reg->changed();
+		return item->changed();
 
 	case FixedLengthRole:
 		if(index.column()==NAME_COLUMN)
-			return reg->name().size();
+			return item->name().size();
 		else if(index.column()==VALUE_COLUMN)
-			return reg->valueMaxLength();
+			return item->valueMaxLength();
 		else return {};
 
 	case RawValueRole:
 	{
 		if(index.column()!=VALUE_COLUMN)
 			return {};
-		const auto ret=reg->rawValue();
+		const auto ret=item->rawValue();
 		if(ret.size()) return ret;
 	}
 	case ChosenSIMDSizeRole:
 	{
-		const auto simdReg=dynamic_cast<SIMDSettings const*>(reg);
-		if(!simdReg) return {};
-		return static_cast<int>(simdReg->chosenSize());
+		const auto simdCat=dynamic_cast<SIMDCategory const*>(item);
+		if(!simdCat) return {};
+		return static_cast<int>(simdCat->chosenSize());
 	}
 	case ChosenSIMDFormatRole:
 	{
-		const auto simdReg=dynamic_cast<SIMDSettings const*>(reg);
-		if(!simdReg) return {};
-		return static_cast<int>(simdReg->chosenFormat());
+		const auto simdCat=dynamic_cast<SIMDCategory const*>(item);
+		if(!simdCat) return {};
+		return static_cast<int>(simdCat->chosenFormat());
 	}
 	case ChosenSIMDSizeRowRole:
 	{
-		const auto simdReg=dynamic_cast<SIMDSettings const*>(reg);
-		if(!simdReg) return {};
+		const auto simdCat=dynamic_cast<SIMDCategory const*>(item);
+		if(!simdCat) return {};
 		// TODO: add assertions to make sure order is correct
-		switch(simdReg->chosenSize())
+		switch(simdCat->chosenSize())
 		{
 		case ElementSize::BYTE:  return 0;
 		case ElementSize::WORD:  return 1;
@@ -181,10 +189,10 @@ QVariant Model::data(QModelIndex const& index, int role) const
 	}
 	case ChosenSIMDFormatRowRole:
 	{
-		const auto simdReg=dynamic_cast<SIMDSettings const*>(reg);
-		if(!simdReg) return {};
+		const auto simdCat=dynamic_cast<SIMDCategory const*>(item);
+		if(!simdCat) return {};
 		// TODO: add assertions to make sure order is correct
-		switch(simdReg->chosenFormat())
+		switch(simdCat->chosenFormat())
 		{
 		case NumberDisplayMode::Hex: return 0;
 		case NumberDisplayMode::Signed: return 1;
@@ -202,25 +210,30 @@ QVariant Model::data(QModelIndex const& index, int role) const
 
 void Model::setChosenSIMDSize(QModelIndex const& index, ElementSize const newSize)
 {
-	const auto reg=getItem(index);
-	Q_ASSERT(reg);
+	const auto cat=getItem(index);
+	Q_ASSERT(cat);
 
-	const auto simdReg=dynamic_cast<SIMDSettings*>(reg);
-	Q_ASSERT(simdReg);
+	const auto simdCat=dynamic_cast<SIMDCategory*>(cat);
+	Q_ASSERT(simdCat);
+	// Not very crash-worthy problem, just don't do anything in release mode
+	if(!simdCat) return;
 
-	simdReg->setChosenSize(newSize);
+	simdCat->setChosenSize(newSize);
 	Q_EMIT SIMDDisplayFormatChanged();
 }
 
 void Model::setChosenSIMDFormat(QModelIndex const& index, NumberDisplayMode const newFormat)
 {
-	const auto reg=getItem(index);
-	Q_ASSERT(reg);
+	const auto cat=getItem(index);
+	Q_ASSERT(cat);
 
-	const auto simdReg=dynamic_cast<SIMDSettings*>(reg);
-	Q_ASSERT(simdReg);
+	const auto simdCat=dynamic_cast<SIMDCategory*>(cat);
+	Q_ASSERT(simdCat);
+	// Not very crash-worthy problem, just don't do anything in release mode
+	if(!simdCat) return;
 
-	simdReg->setChosenFormat(newFormat);
+
+	simdCat->setChosenFormat(newFormat);
 	Q_EMIT SIMDDisplayFormatChanged();
 }
 
@@ -233,6 +246,11 @@ void Model::hideAll()
 Category* Model::addCategory(QString const& name)
 {
 	return rootItem->insert(name);
+}
+
+SIMDCategory* Model::addSIMDCategory(QString const& name)
+{
+	return rootItem->insertSIMD(name);
 }
 
 void Model::hide(Category* cat)
@@ -671,14 +689,14 @@ template<class StoredType, class SizingType>
 QString SIMDSizedElement<StoredType,SizingType>::valueString() const
 {
 	if(!valid()) return "??";
-	return toString(value(),reg()->chosenFormat());
+	return toString(value(),reg()->category()->chosenFormat());
 }
 
 template<class StoredType, class SizingType>
 int SIMDSizedElement<StoredType,SizingType>::valueMaxLength() const
 {
 	for(const auto& format : formats)
-		if(format.format()==reg()->chosenFormat())
+		if(format.format()==reg()->category()->chosenFormat())
 			return format.valueMaxLength();
 	return 0;
 }
@@ -841,42 +859,28 @@ RegisterViewItem* SIMDRegister<StoredType>::child(int row)
 	return &sizedElementContainers[row];
 }
 
+
+template<class StoredType>
+SIMDCategory* SIMDRegister<StoredType>::category() const
+{
+	const auto cat=this->parent();
+	Q_ASSERT(dynamic_cast<SIMDCategory*>(cat));
+	return static_cast<SIMDCategory*>(cat);
+}
+
 template<class StoredType>
 QVariant SIMDRegister<StoredType>::data(int column) const
 {
 	if(column!=Model::VALUE_COLUMN) return RegisterItem<StoredType>::data(column);
-	switch(chosenSize_)
+	const auto chosenSize=category()->chosenSize();
+	switch(chosenSize)
 	{
 	case Model::ElementSize::BYTE:  return sizedElementContainers[0].data(column);
 	case Model::ElementSize::WORD:  return sizedElementContainers[1].data(column);
 	case Model::ElementSize::DWORD: return sizedElementContainers[2].data(column);
 	case Model::ElementSize::QWORD: return sizedElementContainers[3].data(column);
-	default: EDB_PRINT_AND_DIE("Unexpected chosenSize_: ",chosenSize_);
+	default: EDB_PRINT_AND_DIE("Unexpected chosenSize: ",chosenSize);
 	}
-}
-
-template<class StoredType>
-NumberDisplayMode SIMDRegister<StoredType>::chosenFormat() const
-{
-	return chosenFormat_;
-}
-
-template<class StoredType>
-Model::ElementSize SIMDRegister<StoredType>::chosenSize() const
-{
-	return chosenSize_;
-}
-
-template<class StoredType>
-void SIMDRegister<StoredType>::setChosenFormat(NumberDisplayMode newFormat)
-{
-	chosenFormat_=newFormat;
-}
-
-template<class StoredType>
-void SIMDRegister<StoredType>::setChosenSize(Model::ElementSize newSize)
-{
-	chosenSize_=newSize;
 }
 
 template class SIMDRegister<edb::value64>;
@@ -933,6 +937,33 @@ FloatType FPURegister<FloatType>::value() const
 }
 
 template class FPURegister<edb::value80>;
+
+// ---------------------------- SIMDCategory impl ------------------------------
+SIMDCategory::SIMDCategory(QString const& name, int row)
+	: Category(name,row)
+{
+}
+
+NumberDisplayMode SIMDCategory::chosenFormat() const
+{
+	return chosenFormat_;
+}
+
+Model::ElementSize SIMDCategory::chosenSize() const
+{
+	return chosenSize_;
+}
+
+void SIMDCategory::setChosenFormat(NumberDisplayMode newFormat)
+{
+	chosenFormat_=newFormat;
+}
+
+void SIMDCategory::setChosenSize(Model::ElementSize newSize)
+{
+	chosenSize_=newSize;
+}
+
 
 // -----------------------------------------------
 

@@ -14,6 +14,8 @@ class RegisterViewItem;
 class AbstractRegisterItem;
 class CategoriesHolder;
 class Category;
+class SIMDCategory;
+
 class Model : public QAbstractItemModel
 {
 	Q_OBJECT
@@ -39,13 +41,26 @@ public:
 	};
 	enum Role
 	{
-		RegisterChangedRole=Qt::UserRole, // true if changed, false otherwise
-		FixedLengthRole, // fixed length of text (name, value) or undefined (0) if it's not fixed (comment)
-		RawValueRole, // QByteArray with raw data
-		ChosenSIMDSizeRole, // What user chose to be current size of SIMD element. Type: ElementSize
-		ChosenSIMDFormatRole, // What user chose to be current format of SIMD element. Type: NumberDisplayMode
-		ChosenSIMDSizeRowRole, // What row to take in given register index to get chosen-sized elements root
-		ChosenSIMDFormatRowRole, // What row to take in given sized element to get chosen-formatted element
+		// true if changed, false otherwise
+		// Property of: register's value column
+		RegisterChangedRole=Qt::UserRole,
+		// fixed length of text (name, value) or undefined (0) if it's not fixed (comment)
+		FixedLengthRole,
+		// QByteArray with raw data
+		// Property of: register's value column
+		RawValueRole,
+		// What user chose to be current size of SIMD element. Type: ElementSize
+		// Property of: Category
+		ChosenSIMDSizeRole,
+		// What user chose to be current format of SIMD element. Type: NumberDisplayMode
+		// Property of: Category
+		ChosenSIMDFormatRole,
+		// What row to take in given register index to get chosen-sized elements root
+		// Property of: Category
+		ChosenSIMDSizeRowRole,
+		// What row to take in given sized element to get chosen-formatted element
+		// Property of: Category
+		ChosenSIMDFormatRowRole,
 
 		FirstConcreteRole=Qt::UserRole+10000 // first role available for use in derived models
 	};
@@ -68,6 +83,7 @@ public:
 protected:
 	// All categories are there to stay after they've been inserted
 	Category* addCategory(QString const& name);
+	SIMDCategory* addSIMDCategory(QString const& name);
 	void hide(Category* cat);
 	void show(Category* cat);
 	void hide(AbstractRegisterItem* reg);
@@ -249,34 +265,21 @@ public:
 	bool changed() const override;
 };
 
-class SIMDSettings
-{
-public:
-	virtual Model::ElementSize chosenSize() const = 0;
-	virtual NumberDisplayMode chosenFormat() const = 0;
-	virtual void setChosenSize(Model::ElementSize newSize) = 0;
-	virtual void setChosenFormat(NumberDisplayMode newFormat) = 0;
-};
-
 template<class StoredType>
-class SIMDRegister : public SimpleRegister<StoredType>, public SIMDSettings
+class SIMDRegister : public SimpleRegister<StoredType>
 {
 	template<class U, class V>
 	friend class SIMDSizedElement;
 protected:
-	Model::ElementSize chosenSize_=Model::ElementSize::WORD;
-	NumberDisplayMode chosenFormat_=NumberDisplayMode::Signed;
 	std::deque<SIMDSizedElementsContainer<StoredType>> sizedElementContainers;
+
+	SIMDCategory* category() const;
 public:
 	SIMDRegister(QString const& name, std::vector<NumberDisplayMode> validFormats);
 	int childCount() const override;
 	RegisterViewItem* child(int) override;
 	QVariant data(int column) const override;
 
-	Model::ElementSize chosenSize() const override;
-	NumberDisplayMode chosenFormat() const override;
-	void setChosenSize(Model::ElementSize newSize) override;
-	void setChosenFormat(NumberDisplayMode newFormat) override;
 };
 
 template<class FloatType>
@@ -319,12 +322,25 @@ public:
 	bool visible() const;
 };
 
+class SIMDCategory : public Category
+{
+	Model::ElementSize chosenSize_=Model::ElementSize::WORD;
+	NumberDisplayMode chosenFormat_=NumberDisplayMode::Signed;
+public:
+	SIMDCategory(QString const& name, int row);
+	virtual Model::ElementSize chosenSize() const;
+	virtual NumberDisplayMode chosenFormat() const;
+	virtual void setChosenSize(Model::ElementSize newSize);
+	virtual void setChosenFormat(NumberDisplayMode newFormat);
+};
+
 class CategoriesHolder : public RegisterViewItem
 {
 	std::vector<std::unique_ptr<Category>> categories;
 public:
 	CategoriesHolder();
 	Category* insert(QString const& name);
+	SIMDCategory* insertSIMD(QString const& name);
 	int childCount() const override;
 	RegisterViewItem* child(int row) override;
 	QVariant data(int column) const;
