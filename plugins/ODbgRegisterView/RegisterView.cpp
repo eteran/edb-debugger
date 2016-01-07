@@ -435,6 +435,7 @@ ODBRegView::ODBRegView(QWidget* parent)
 	setObjectName("ODBRegView");
 
 	{
+		// TODO: get some signal to change font on the fly
 		QFont font;
 		if(!font.fromString(edb::v1::config().registers_font))
 		{
