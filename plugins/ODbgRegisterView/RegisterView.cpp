@@ -435,9 +435,8 @@ ODBRegView::ODBRegView(QWidget* parent)
 	setObjectName("ODBRegView");
 
 	{
-		const Configuration &config = edb::v1::config();
 		QFont font;
-		if(!font.fromString(config.registers_font))
+		if(!font.fromString(edb::v1::config().registers_font))
 		{
 			font=QFont("Monospace");
 			font.setStyleHint(QFont::TypeWriter);
