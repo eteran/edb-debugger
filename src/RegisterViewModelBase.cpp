@@ -177,13 +177,12 @@ QVariant Model::data(QModelIndex const& index, int role) const
 	{
 		const auto simdCat=dynamic_cast<SIMDCategory const*>(item);
 		if(!simdCat) return {};
-		// TODO: add assertions to make sure order is correct
 		switch(simdCat->chosenSize())
 		{
-		case ElementSize::BYTE:  return 0;
-		case ElementSize::WORD:  return 1;
-		case ElementSize::DWORD: return 2;
-		case ElementSize::QWORD: return 3;
+		case ElementSize::BYTE:  return BYTES_ROW;
+		case ElementSize::WORD:  return WORDS_ROW;
+		case ElementSize::DWORD: return DWORDS_ROW;
+		case ElementSize::QWORD: return QWORDS_ROW;
 		}
 		return {};
 	}
@@ -191,13 +190,12 @@ QVariant Model::data(QModelIndex const& index, int role) const
 	{
 		const auto simdCat=dynamic_cast<SIMDCategory const*>(item);
 		if(!simdCat) return {};
-		// TODO: add assertions to make sure order is correct
 		switch(simdCat->chosenFormat())
 		{
-		case NumberDisplayMode::Hex: return 0;
-		case NumberDisplayMode::Signed: return 1;
-		case NumberDisplayMode::Unsigned: return 2;
-		case NumberDisplayMode::Float: return 3;
+		case NumberDisplayMode::Hex: return HEX_ROW;
+		case NumberDisplayMode::Signed: return SIGNED_ROW;
+		case NumberDisplayMode::Unsigned: return UNSIGNED_ROW;
+		case NumberDisplayMode::Float: return FLOAT_ROW;
 		}
 		return {};
 	}
@@ -654,6 +652,12 @@ SIMDSizedElement<StoredType,SizingType>::SIMDSizedElement(
 	{
 		if(format!=NumberDisplayMode::Float || sizeof(SizingType)>=sizeof(float))
 		{
+			// The order must be as expected by other functions
+			Q_ASSERT(format!=NumberDisplayMode::Float || formats.size()==Model::FLOAT_ROW);
+			Q_ASSERT(format!=NumberDisplayMode::Hex || formats.size()==Model::HEX_ROW);
+			Q_ASSERT(format!=NumberDisplayMode::Signed || formats.size()==Model::SIGNED_ROW);
+			Q_ASSERT(format!=NumberDisplayMode::Unsigned || formats.size()==Model::UNSIGNED_ROW);
+
 			formats.emplace_back(format);
 			formats.back().init(this,formats.size()-1);
 		}
@@ -838,6 +842,7 @@ SIMDRegister<StoredType>::SIMDRegister(
 												 QObject::tr("words"),
 												 QObject::tr("dwords"),
 												 QObject::tr("qwords"));
+	// NOTE: If you change order, don't forget about enum SizesOrder and places where it's used
 	for(unsigned shift=0;(1u<<shift)<=sizeof(std::uint64_t);++shift)
 	{
 		const auto size=1u<<shift;
@@ -875,10 +880,10 @@ QVariant SIMDRegister<StoredType>::data(int column) const
 	const auto chosenSize=category()->chosenSize();
 	switch(chosenSize)
 	{
-	case Model::ElementSize::BYTE:  return sizedElementContainers[0].data(column);
-	case Model::ElementSize::WORD:  return sizedElementContainers[1].data(column);
-	case Model::ElementSize::DWORD: return sizedElementContainers[2].data(column);
-	case Model::ElementSize::QWORD: return sizedElementContainers[3].data(column);
+	case Model::ElementSize::BYTE:  return sizedElementContainers[Model::BYTES_ROW].data(column);
+	case Model::ElementSize::WORD:  return sizedElementContainers[Model::WORDS_ROW].data(column);
+	case Model::ElementSize::DWORD: return sizedElementContainers[Model::DWORDS_ROW].data(column);
+	case Model::ElementSize::QWORD: return sizedElementContainers[Model::QWORDS_ROW].data(column);
 	default: EDB_PRINT_AND_DIE("Unexpected chosenSize: ",chosenSize);
 	}
 }

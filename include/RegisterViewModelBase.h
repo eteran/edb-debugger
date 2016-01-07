@@ -39,6 +39,20 @@ public:
 		ElementSize(T v):value(v){}
 		operator T() const {return value;}
 	};
+	enum SizesOrder
+	{
+		BYTES_ROW,
+		WORDS_ROW,
+		DWORDS_ROW,
+		QWORDS_ROW
+	};
+	enum FormatsOrder
+	{
+		HEX_ROW,
+		SIGNED_ROW,
+		UNSIGNED_ROW,
+		FLOAT_ROW
+	};
 	enum Role
 	{
 		// true if changed, false otherwise
