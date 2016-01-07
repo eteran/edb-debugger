@@ -532,7 +532,7 @@ QModelIndex getValueIndex(QModelIndex const& nameIndex)
 void addRoundingMode(RegisterGroup* const group, QModelIndex const& index, int const row, int const column)
 {
 	Q_ASSERT(index.isValid());
-	group->insert(row,column,new ValueField(4,index,group,[](QString const& str)
+	const auto rndValueField=new ValueField(4,index,group,[](QString const& str)
 				{
 					Q_ASSERT(str.length());
 					if(str[0]=='?') return "????";
@@ -542,13 +542,15 @@ void addRoundingMode(RegisterGroup* const group, QModelIndex const& index, int c
 					Q_ASSERT(0<=value && value<=3);
 					static const char* strings[]={"NEAR","DOWN","  UP","ZERO"};
 					return strings[value];
-				}));
+				});
+	group->insert(row,column,rndValueField);
+	rndValueField->setToolTip(QObject::tr("Rounding mode"));
 }
 
 void addPrecisionMode(RegisterGroup* const group, QModelIndex const& index, int const row, int const column)
 {
 	Q_ASSERT(index.isValid());
-	group->insert(row,column,new ValueField(2,index,group,[](QString const& str)
+	const auto precValueField=new ValueField(2,index,group,[](QString const& str)
 				{
 					Q_ASSERT(str.length());
 					if(str[0]=='?') return "??";
@@ -558,7 +560,9 @@ void addPrecisionMode(RegisterGroup* const group, QModelIndex const& index, int 
 					Q_ASSERT(0<=value && value<=3);
 					static const char* strings[]={"24","??","53","64"};
 					return strings[value];
-				}));
+				});
+	group->insert(row,column,precValueField);
+	precValueField->setToolTip(QObject::tr("Precision mode: effective mantissa length"));
 }
 
 void addPUOZDI(RegisterGroup* const group, QModelIndex const& excRegIndex, QModelIndex const& maskRegIndex, int const startRow, int const startColumn)
