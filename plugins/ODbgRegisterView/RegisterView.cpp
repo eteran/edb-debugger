@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStyleOptionViewItem>
 #include <QVBoxLayout>
 #include <QPlastiqueStyle>
+#include <QAction>
+#include <QMenu>
 #include <algorithm>
 #include <unordered_map>
 #include <QDebug>
@@ -141,6 +143,11 @@ ODBRegView* FieldWidget::regView() const
 	return static_cast<ODBRegView*>(parent);
 }
 
+RegisterGroup* FieldWidget::group() const
+{
+	return CHECKED_CAST(RegisterGroup,parentWidget());
+}
+
 // --------------------- ValueField impl ----------------------------------
 ValueField::ValueField(int const fieldWidth,
 					   QModelIndex const& index,
@@ -156,6 +163,8 @@ ValueField::ValueField(int const fieldWidth,
 	// Set some known style to avoid e.g. Oxygen's label transition animations, which
 	// break updating of colors such as "register changed" when single-stepping frequently
 	setStyle(&plastiqueStyle);
+
+	menuItems.push_back(new QAction(tr("Modify"),this)); // TODO: implement
 }
 
 ValueField* ValueField::bestNeighbor(std::function<bool(QPoint const&,ValueField const*,QPoint const&)>const& firstIsBetter) const
@@ -261,8 +270,10 @@ void ValueField::select()
 
 void ValueField::mousePressEvent(QMouseEvent* event)
 {
-	if(event->button()==Qt::LeftButton)
+	if(event->button() & (Qt::LeftButton|Qt::RightButton))
 		select();
+	if(event->button()==Qt::RightButton)
+		group()->showMenu(event->globalPos(),menuItems);
 }
 
 void ValueField::unselect()
@@ -304,10 +315,24 @@ RegisterGroup::RegisterGroup(QWidget* parent)
 	: QWidget(parent)
 {
 	setObjectName("RegisterGroup");
+
+	{
+		const auto sep=new QAction(this);
+		sep->setSeparator(true);
+		menuItems.push_back(sep);
+		menuItems.push_back(new QAction(tr("Hide group"),this)); // TODO: implement
+	}
+}
+
+void RegisterGroup::showMenu(QPoint const& position, QList<QAction*>const& additionalItems) const
+{
+	return regView()->showMenu(position,additionalItems+menuItems);
 }
 
 void RegisterGroup::mousePressEvent(QMouseEvent* event)
 {
+	if(event->button()==Qt::RightButton)
+		showMenu(event->globalPos(),menuItems);
 	event->ignore();
 }
 
@@ -429,6 +454,18 @@ void ODBRegView::fieldSelected()
 	ensureWidgetVisible(static_cast<QWidget*>(sender()),0,0);
 }
 
+void ODBRegView::showMenu(QPoint const& position, QList<QAction*>const& additionalItems) const
+{
+	QMenu menu;
+	auto items=additionalItems+menuItems;
+	if(items.front()->isSeparator())
+		items.removeFirst();
+	for(const auto action : items)
+		menu.addAction(action);
+
+	menu.exec(position);
+}
+
 void RegisterGroup::adjustWidth()
 {
 	int widthNeeded=0;
@@ -468,6 +505,14 @@ ODBRegView::ODBRegView(QWidget* parent)
 
 	setWidget(canvas);
 	setWidgetResizable(true);
+
+	{
+		const auto sep=new QAction(this);
+		sep->setSeparator(true);
+		menuItems.push_back(sep);
+		menuItems.push_back(new QAction(tr("Copy all registers"),this)); // TODO: implement
+	}
+
 	// TODO: make this list user-selectable
 	regGroupTypes={RegisterGroupType::GPR,
 				   RegisterGroupType::rIP,

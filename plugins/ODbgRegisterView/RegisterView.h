@@ -59,12 +59,15 @@ class ODBRegView : public QScrollArea
 		MXCSR
 	};
 	std::vector<RegisterGroupType> regGroupTypes;
+	QList<QAction*> menuItems;
+
 	RegisterGroup* makeGroup(RegisterGroupType type);
 public:
 	ODBRegView(QWidget* parent=nullptr);
 	void setModel(RegisterViewModelBase::Model* model);
 	QList<ValueField*> valueFields() const;
 	QList<FieldWidget*> fields() const;
+	void showMenu(QPoint const& position,QList<QAction*>const& additionalItems={}) const;
 private:
 	ValueField* selectedField() const;
 	void updateFieldsPalette();
@@ -87,6 +90,7 @@ protected:
 	QPersistentModelIndex index;
 	virtual QString text() const;
 	ODBRegView* regView() const;
+	RegisterGroup* group() const;
 public:
 	FieldWidget(int fieldWidth,QModelIndex const& index,QWidget* parent=nullptr);
 	FieldWidget(int fieldWidth,QString const& fixedText,QWidget* parent=nullptr);
@@ -102,6 +106,7 @@ class ValueField : public FieldWidget
 	bool selected_=false;
 	bool hovered_=false;
 	std::function<QString(QString)> valueFormatter;
+	QList<QAction*> menuItems;
 
 	void init();
 	bool changed() const;
@@ -142,6 +147,8 @@ class RegisterGroup : public QWidget
 {
 	Q_OBJECT
 
+	QList<QAction*> menuItems;
+
 	int lineAfterLastField() const;
 	ODBRegView* regView() const;
 public:
@@ -151,6 +158,7 @@ public:
 	void setIndices(QList<QModelIndex> const& indices);
 	void insert(int line, int column, FieldWidget* widget);
 	void appendNameValueComment(QModelIndex const& nameIndex,QString const& tooltip="",bool insertComment=true);
+	void showMenu(QPoint const& position,QList<QAction*>const& additionalItems={}) const;
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
 public Q_SLOTS:
