@@ -333,7 +333,8 @@ void RegisterGroup::mousePressEvent(QMouseEvent* event)
 {
 	if(event->button()==Qt::RightButton)
 		showMenu(event->globalPos(),menuItems);
-	event->ignore();
+	else
+		event->ignore();
 }
 
 ODBRegView* RegisterGroup::regView() const
@@ -465,7 +466,16 @@ void Canvas::mousePressEvent(QMouseEvent* event)
 void ODBRegView::mousePressEvent(QMouseEvent* event)
 {
 	if(event->type()!=QEvent::MouseButtonPress) return;
-	for(auto* const field : valueFields()) field->unselect();
+
+	if(event->button()==Qt::RightButton)
+	{
+		showMenu(event->globalPos());
+		return;
+	}
+
+	if(event->button()==Qt::LeftButton)
+		for(auto* const field : valueFields())
+			field->unselect();
 }
 
 void ODBRegView::fieldSelected()
