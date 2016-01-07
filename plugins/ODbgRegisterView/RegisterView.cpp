@@ -937,17 +937,33 @@ RegisterGroup* createDebugGroup(RegisterViewModelBase::Model* model,QWidget* par
 	Q_ASSERT(valueWidth>0);
 	int row=0;
 	const auto bitsSpacing=1;
+	const auto BTooltip=QObject::tr("Breakpoint Condition Detected");
+	const auto LTooltip=QObject::tr("Local Breakpoint Enable");
+	const auto GTooltip=QObject::tr("Global Breakpoint Enable");
+	const auto typeTooltip=QObject::tr("Breakpoint condition");
+	const auto lenTooltip=QObject::tr("Data breakpoint length");
+	const auto lenDecodedStr=QObject::tr(" (bytes count from %1)");
 	{
 		int column=nameWidth+1+valueWidth+2;
-		group->insert(row,column,new FieldWidget("B",group));
+		const auto BLabelField=new FieldWidget("B",group);
+		BLabelField->setToolTip(BTooltip+" (B0..B3)");
+		group->insert(row,column,BLabelField);
 		column+=bitsSpacing+1;
-		group->insert(row,column,new FieldWidget("L",group));
+		const auto LLabelField=new FieldWidget("L",group);
+		LLabelField->setToolTip(LTooltip+" (L0..L3)");
+		group->insert(row,column,LLabelField);
 		column+=bitsSpacing+1;
-		group->insert(row,column,new FieldWidget("G",group));
+		const auto GLabelField=new FieldWidget("G",group);
+		GLabelField->setToolTip(GTooltip+" (G0..G3)");
+		group->insert(row,column,GLabelField);
 		column+=bitsSpacing+1;
-		group->insert(row,column,new FieldWidget("Type",group));
+		const auto typeLabelField=new FieldWidget("Type",group);
+		typeLabelField->setToolTip(typeTooltip+" (R/W0..R/W3)");
+		group->insert(row,column,typeLabelField);
 		column+=bitsSpacing+4;
-		group->insert(row,column,new FieldWidget("Len",group));
+		const auto lenLabelField=new FieldWidget("Len",group);
+		lenLabelField->setToolTip(lenTooltip+lenDecodedStr.arg("LEN0..LEN3"));
+		group->insert(row,column,lenLabelField);
 		column+=bitsSpacing+3;
 
 		++row;
@@ -964,26 +980,32 @@ RegisterGroup* createDebugGroup(RegisterViewModelBase::Model* model,QWidget* par
 		{
 			const auto BiName=QString("B%1").arg(drI);
 			const auto BiIndex=VALID_INDEX(findModelRegister(dr6Index,BiName,MODEL_VALUE_COLUMN));
-			group->insert(row,column,new ValueField(1,BiIndex,group));
+			const auto BiValueField=new ValueField(1,BiIndex,group);
+			BiValueField->setToolTip(BTooltip+" ("+BiName+")");
+			group->insert(row,column,BiValueField);
 			column+=bitsSpacing+1;
 		}
 		{
 			const auto LiName=QString("L%1").arg(drI);
 			const auto LiIndex=VALID_INDEX(findModelRegister(dr7Index,LiName,MODEL_VALUE_COLUMN));
-			group->insert(row,column,new ValueField(1,LiIndex,group));
+			const auto LiValueField=new ValueField(1,LiIndex,group);
+			LiValueField->setToolTip(LTooltip+" ("+LiName+")");
+			group->insert(row,column,LiValueField);
 			column+=bitsSpacing+1;
 		}
 		{
 			const auto GiName=QString("G%1").arg(drI);
 			const auto GiIndex=VALID_INDEX(findModelRegister(dr7Index,GiName,MODEL_VALUE_COLUMN));
-			group->insert(row,column,new ValueField(1,GiIndex,group));
+			const auto GiValueField=new ValueField(1,GiIndex,group);
+			GiValueField->setToolTip(GTooltip+" ("+GiName+")");
+			group->insert(row,column,GiValueField);
 			column+=bitsSpacing+1;
 		}
 		{
 			const auto RWiName=QString("R/W%1").arg(drI);
 			const QPersistentModelIndex RWiIndex=VALID_INDEX(findModelRegister(dr7Index,RWiName,MODEL_VALUE_COLUMN));
 			const auto width=5;
-			group->insert(row,column,new ValueField(width,RWiIndex,group,[RWiIndex](QString const& str)->QString
+			const auto RWiValueField=new ValueField(width,RWiIndex,group,[RWiIndex](QString const& str)->QString
 						{
 							if(str.isEmpty() || str[0]=='?') return "??";
 							Q_ASSERT(str.size()==1);
@@ -995,13 +1017,15 @@ RegisterGroup* createDebugGroup(RegisterViewModelBase::Model* model,QWidget* par
 							case '3': return " R/W";
 							default: return "???";
 							}
-						}));
+						});
+			RWiValueField->setToolTip(typeTooltip+" ("+RWiName+")");
+			group->insert(row,column,RWiValueField);
 			column+=bitsSpacing+width;
 		}
 		{
 			const auto LENiName=QString("LEN%1").arg(drI);
 			const QPersistentModelIndex LENiIndex=VALID_INDEX(findModelRegister(dr7Index,LENiName,MODEL_VALUE_COLUMN));
-			group->insert(row,column,new ValueField(1,LENiIndex,group,[LENiIndex](QString const& str)->QString
+			const auto LENiValueField=new ValueField(1,LENiIndex,group,[LENiIndex](QString const& str)->QString
 						{
 							if(str.isEmpty() || str[0]=='?') return "??";
 							Q_ASSERT(str.size()==1);
@@ -1013,7 +1037,9 @@ RegisterGroup* createDebugGroup(RegisterViewModelBase::Model* model,QWidget* par
 							case '3': return "4";
 							default: return "???";
 							}
-						}));
+						});
+			LENiValueField->setToolTip(lenTooltip+lenDecodedStr.arg(LENiName));
+			group->insert(row,column,LENiValueField);
 		}
 	}
 	{
@@ -1024,10 +1050,15 @@ RegisterGroup* createDebugGroup(RegisterViewModelBase::Model* model,QWidget* par
 		column+=valueWidth+2;
 		const QString bsName="BS";
 		const auto bsWidth=bsName.length();
-		group->insert(row,column,new FieldWidget(bsName,group));
+		const auto BSNameField=new FieldWidget(bsName,group);
+		const auto BSTooltip=QObject::tr("Single Step")+" (BS)";
+		BSNameField->setToolTip(BSTooltip);
+		group->insert(row,column,BSNameField);
 		column+=bsWidth+1;
 		const auto bsIndex=findModelRegister(dr6Index,bsName,MODEL_VALUE_COLUMN);
-		group->insert(row,column,new ValueField(1,bsIndex,group));
+		const auto BSValueField=new ValueField(1,bsIndex,group);
+		BSValueField->setToolTip(BSTooltip);
+		group->insert(row,column,BSValueField);
 
 		++row;
 	}
@@ -1040,21 +1071,31 @@ RegisterGroup* createDebugGroup(RegisterViewModelBase::Model* model,QWidget* par
 		{
 			const QString leName="LE";
 			const auto leWidth=leName.length();
-			group->insert(row,column,new FieldWidget(leName,group));
+			const auto LENameField=new FieldWidget(leName,group);
+			const auto LETooltip=QObject::tr("Local Exact Breakpoint Enable");
+			LENameField->setToolTip(LETooltip);
+			group->insert(row,column,LENameField);
 			column+=leWidth+1;
 			const auto leIndex=findModelRegister(dr7Index,leName,MODEL_VALUE_COLUMN);
 			const auto leValueWidth=1;
-			group->insert(row,column,new ValueField(leValueWidth,leIndex,group));
+			const auto LEValueField=new ValueField(leValueWidth,leIndex,group);
+			LEValueField->setToolTip(LETooltip);
+			group->insert(row,column,LEValueField);
 			column+=leValueWidth+1;
 		}
 		{
 			const QString geName="GE";
 			const auto geWidth=geName.length();
-			group->insert(row,column,new FieldWidget(geName,group));
+			const auto GENameField=new FieldWidget(geName,group);
+			const auto GETooltip=QObject::tr("Global Exact Breakpoint Enable");
+			GENameField->setToolTip(GETooltip);
+			group->insert(row,column,GENameField);
 			column+=geWidth+1;
 			const auto geIndex=findModelRegister(dr7Index,geName,MODEL_VALUE_COLUMN);
 			const auto geValueWidth=1;
-			group->insert(row,column,new ValueField(geValueWidth,geIndex,group));
+			const auto GEValueField=new ValueField(geValueWidth,geIndex,group);
+			GEValueField->setToolTip(GETooltip);
+			group->insert(row,column,GEValueField);
 			column+=geValueWidth+1;
 		}
 	}
