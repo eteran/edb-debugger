@@ -132,9 +132,9 @@ void FieldWidget::update()
 ODBRegView* FieldWidget::regView() const
 {
 	auto* const parent=parentWidget() // group
-						->parentWidget() // canvas
-						->parentWidget() // viewport
-						->parentWidget(); // regview
+					 ->parentWidget() // canvas
+					 ->parentWidget() // viewport
+					 ->parentWidget(); // regview
 	Q_ASSERT(dynamic_cast<ODBRegView*>(parent));
 	return static_cast<ODBRegView*>(parent);
 }
