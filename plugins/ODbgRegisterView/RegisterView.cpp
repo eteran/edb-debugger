@@ -42,7 +42,6 @@ namespace ODbgRegisterView {
 // TODO: Right click => select too
 // TODO: Menu key => open menu
 // TODO: Enter key => modify/toggle
-// TODO: Tooltips support
 // TODO: GPR menu: Increment, Decrement, Invert, Zero(if not already), Set to 1(if not already)
 // TODO: rFLAGS menu: Set Condition (O,P,NAE etc. - see ODB)
 // TODO: FPU tags: toggle - set valid/empty
