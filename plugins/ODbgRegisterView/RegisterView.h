@@ -149,7 +149,7 @@ public:
 	QList<ValueField*> valueFields() const;
 	void setIndices(QList<QModelIndex> const& indices);
 	void insert(int line, int column, FieldWidget* widget);
-	void appendNameValueComment(QModelIndex const& nameIndex,bool insertComment=true);
+	void appendNameValueComment(QModelIndex const& nameIndex,QString const& tooltip="",bool insertComment=true);
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
 public Q_SLOTS:

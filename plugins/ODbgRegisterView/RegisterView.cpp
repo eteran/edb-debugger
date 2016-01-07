@@ -351,7 +351,7 @@ int RegisterGroup::lineAfterLastField() const
 	return bottomField==fields.end() ? 0 : (*bottomField)->pos().y()/(*bottomField)->height()+1;
 }
 
-void RegisterGroup::appendNameValueComment(QModelIndex const& nameIndex, bool insertComment)
+void RegisterGroup::appendNameValueComment(QModelIndex const& nameIndex, QString const& tooltip, bool insertComment)
 {
 	Q_ASSERT(nameIndex.isValid());
 	using namespace RegisterViewModelBase;
@@ -363,9 +363,16 @@ void RegisterGroup::appendNameValueComment(QModelIndex const& nameIndex, bool in
 
 	const int line=lineAfterLastField();
 	int column=0;
-	insert(line,column,new FieldWidget(nameWidth,nameIndex.data().toString(),this));
+	const auto nameField=new FieldWidget(nameWidth,nameIndex.data().toString(),this);
+	insert(line,column,nameField);
 	column+=nameWidth+1;
-	insert(line,column,new ValueField(valueWidth,valueIndex,this));
+	const auto valueField=new ValueField(valueWidth,valueIndex,this);
+	insert(line,column,valueField);
+	if(!tooltip.isEmpty())
+	{
+		nameField->setToolTip(tooltip);
+		valueField->setToolTip(tooltip);
+	}
 	if(insertComment)
 	{
 		column+=valueWidth+1;
@@ -557,15 +564,34 @@ void addPrecisionMode(RegisterGroup* const group, QModelIndex const& index, int 
 void addPUOZDI(RegisterGroup* const group, QModelIndex const& excRegIndex, QModelIndex const& maskRegIndex, int const startRow, int const startColumn)
 {
 	QString const exceptions="PUOZDI";
+	std::unordered_map<char,QString> excNames=
+		{
+		{'P',QObject::tr("Precision")},
+		{'U',QObject::tr("Underflow")},
+		{'O',QObject::tr("Overflow")},
+		{'Z',QObject::tr("Zero Divide")},
+		{'D',QObject::tr("Denormalized Operand")},
+		{'I',QObject::tr("Invalid Operation")}
+		};
 	for(int exN=0;exN<exceptions.length();++exN)
 	{
 		QString const ex=exceptions[exN];
-		const auto excIndex=VALID_INDEX(findModelRegister(excRegIndex,ex+"E"));
-		const auto maskIndex=VALID_INDEX(findModelRegister(maskRegIndex,ex+"M"));
+		const auto exAbbrev=ex+"E";
+		const auto maskAbbrev=ex+"M";
+		const auto excIndex=VALID_INDEX(findModelRegister(excRegIndex,exAbbrev));
+		const auto maskIndex=VALID_INDEX(findModelRegister(maskRegIndex,maskAbbrev));
 		const int column=startColumn+exN*2;
-		group->insert(startRow,column,new FieldWidget(ex,group));
-		group->insert(startRow+1,column,new ValueField(1,getValueIndex(excIndex),group));
-		group->insert(startRow+2,column,new ValueField(1,getValueIndex(maskIndex),group));
+		const auto nameField=new FieldWidget(ex,group);
+		group->insert(startRow,column,nameField);
+		const auto excValueField=new ValueField(1,getValueIndex(excIndex),group);
+		group->insert(startRow+1,column,excValueField);
+		const auto maskValueField=new ValueField(1,getValueIndex(maskIndex),group);
+		group->insert(startRow+2,column,maskValueField);
+
+		const auto excName=excNames.at(ex[0].toLatin1());
+		nameField->setToolTip(excName);
+		excValueField->setToolTip(excName+' '+QObject::tr("Exception")+" ("+exAbbrev+")");
+		maskValueField->setToolTip(excName+' '+QObject::tr("Exception Mask")+" ("+maskAbbrev+")");
 	}
 }
 
@@ -697,13 +723,13 @@ RegisterGroup* createFPUWords(RegisterViewModelBase::Model* model,QWidget* paren
 	const auto catIndex=findModelCategory(model,"FPU");
 	if(!catIndex.isValid()) return nullptr;
 	auto* const group=new RegisterGroup(parent);
-	group->appendNameValueComment(findModelRegister(catIndex,"FTR"),false);
+	group->appendNameValueComment(findModelRegister(catIndex,"FTR"),QObject::tr("FPU Tag Register"),false);
 	const int fsrRow=1;
 	const auto fsrIndex=findModelRegister(catIndex,"FSR");
-	group->appendNameValueComment(fsrIndex,false);
+	group->appendNameValueComment(fsrIndex,QObject::tr("FPU Status Register"),false);
 	const int fcrRow=2;
 	const auto fcrIndex=findModelRegister(catIndex,"FCR");
-	group->appendNameValueComment(fcrIndex,false);
+	group->appendNameValueComment(fcrIndex,QObject::tr("FPU Control Register"),false);
 
 	const int wordNameWidth=3, wordValWidth=4;
 	const int condPrecLabelColumn=wordNameWidth+1+wordValWidth+1+1;
@@ -718,11 +744,17 @@ RegisterGroup* createFPUWords(RegisterViewModelBase::Model* model,QWidget* paren
 	group->insert(fcrRow,precModeColumn-1,new FieldWidget(",",group));
 	for(int condN=3;condN>=0;--condN)
 	{
-		const auto condNNameIndex=VALID_INDEX(findModelRegister(fsrIndex,QString("C%1").arg(condN)));
+		const auto name=QString("C%1").arg(condN);
+		const auto condNNameIndex=VALID_INDEX(findModelRegister(fsrIndex,name));
 		const auto condNIndex=VALID_INDEX(condNNameIndex.sibling(condNNameIndex.row(),MODEL_VALUE_COLUMN));
 		const int column=condPrecValColumn+2*(3-condN);
-		group->insert(fsrRow-1,column,new FieldWidget(QString("%1").arg(condN),group));
-		group->insert(fsrRow,  column,new ValueField(1,condNIndex,group));
+		const auto nameField=new FieldWidget(QString("%1").arg(condN),group);
+		group->insert(fsrRow-1,column,nameField);
+		const auto valueField=new ValueField(1,condNIndex,group);
+		group->insert(fsrRow, column,valueField);
+
+		nameField->setToolTip(name);
+		valueField->setToolTip(name);
 	}
 	addRoundingMode(group,findModelRegister(fcrIndex,"RC",MODEL_VALUE_COLUMN),fcrRow,roundModeColumn);
 	addPrecisionMode(group,findModelRegister(fcrIndex,"PC",MODEL_VALUE_COLUMN),fcrRow,precModeColumn);
@@ -732,10 +764,26 @@ RegisterGroup* createFPUWords(RegisterViewModelBase::Model* model,QWidget* paren
 	group->insert(fcrRow,errMaskColumn,new FieldWidget("Mask",group));
 	const int ESColumn=errMaskColumn+errLabelWidth+1;
 	const int SFColumn=ESColumn+2;
-	group->insert(fsrRow-1,ESColumn,new FieldWidget("E",group));
-	group->insert(fsrRow-1,SFColumn,new FieldWidget("S",group));
-	group->insert(fsrRow,ESColumn,new ValueField(1,findModelRegister(fsrIndex,"ES",MODEL_VALUE_COLUMN),group));
-	group->insert(fsrRow,SFColumn,new ValueField(1,findModelRegister(fsrIndex,"SF",MODEL_VALUE_COLUMN),group));
+	const auto ESNameField=new FieldWidget("E",group);
+	group->insert(fsrRow-1,ESColumn,ESNameField);
+	const auto SFNameField=new FieldWidget("S",group);
+	group->insert(fsrRow-1,SFColumn,SFNameField);
+	const auto ESValueField=new ValueField(1,findModelRegister(fsrIndex,"ES",MODEL_VALUE_COLUMN),group);
+	group->insert(fsrRow,ESColumn,ESValueField);
+	const auto SFValueField=new ValueField(1,findModelRegister(fsrIndex,"SF",MODEL_VALUE_COLUMN),group);
+	group->insert(fsrRow,SFColumn,SFValueField);
+
+	{
+		const auto ESTooltip=QObject::tr("Error Summary Status")+" (ES)";
+		ESNameField->setToolTip(ESTooltip);
+		ESValueField->setToolTip(ESTooltip);
+	}
+	{
+		const auto SFTooltip=QObject::tr("Stack Fault")+" (SF)";
+		SFNameField->setToolTip(SFTooltip);
+		SFValueField->setToolTip(SFTooltip);
+	}
+
 	const int PEPMColumn=SFColumn+2;
 	addPUOZDI(group,fsrIndex,fcrIndex,fsrRow-1,PEPMColumn);
 	const int PUOZDIWidth=6*2-1;
