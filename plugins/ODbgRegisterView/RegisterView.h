@@ -143,6 +143,7 @@ class RegisterGroup : public QWidget
 	Q_OBJECT
 
 	int lineAfterLastField() const;
+	ODBRegView* regView() const;
 public:
 	RegisterGroup(QWidget* parent=nullptr);
 	QList<FieldWidget*> fields() const;

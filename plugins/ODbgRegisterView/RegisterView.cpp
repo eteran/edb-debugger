@@ -310,12 +310,20 @@ void RegisterGroup::mousePressEvent(QMouseEvent* event)
 	event->ignore();
 }
 
+ODBRegView* RegisterGroup::regView() const
+{
+	return CHECKED_CAST(ODBRegView,  parent() // canvas
+								   ->parent() // viewport
+								   ->parent() // regview
+								   );
+}
+
 void RegisterGroup::insert(int const line, int const column, FieldWidget* const widget)
 {
 	widget->update();
 
 	if(auto* const value=dynamic_cast<ValueField*>(widget))
-		connect(value,SIGNAL(selected()),CHECKED_CAST(ODBRegView,parent()),SLOT(fieldSelected()));
+		connect(value,SIGNAL(selected()),regView(),SLOT(fieldSelected()));
 
 	const auto charSize=letterSize(font());
 	const auto charWidth=charSize.width();
@@ -1197,16 +1205,16 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	using RegisterViewModelBase::Model;
 	switch(type)
 	{
-	case RegisterGroupType::EFL: return createEFL(model_,this);
-	case RegisterGroupType::ExpandedEFL: return createExpandedEFL(model_,this);
-	case RegisterGroupType::FPUData: return createFPUData(model_,this);
-	case RegisterGroupType::FPUWords: return createFPUWords(model_,this);
-	case RegisterGroupType::FPULastOp: return createFPULastOp(model_,this);
-	case RegisterGroupType::Debug: return createDebugGroup(model_,this);
-	case RegisterGroupType::MXCSR: return createMXCSR(model_,this);
-	case RegisterGroupType::MMX: return createSIMDGroup(model_,this,"MMX","MM");
-	case RegisterGroupType::SSEData: return createSIMDGroup(model_,this,"SSE","XMM");
-	case RegisterGroupType::AVXData: return createSIMDGroup(model_,this,"AVX","YMM");
+	case RegisterGroupType::EFL: return createEFL(model_,widget());
+	case RegisterGroupType::ExpandedEFL: return createExpandedEFL(model_,widget());
+	case RegisterGroupType::FPUData: return createFPUData(model_,widget());
+	case RegisterGroupType::FPUWords: return createFPUWords(model_,widget());
+	case RegisterGroupType::FPULastOp: return createFPULastOp(model_,widget());
+	case RegisterGroupType::Debug: return createDebugGroup(model_,widget());
+	case RegisterGroupType::MXCSR: return createMXCSR(model_,widget());
+	case RegisterGroupType::MMX: return createSIMDGroup(model_,widget(),"MMX","MM");
+	case RegisterGroupType::SSEData: return createSIMDGroup(model_,widget(),"SSE","XMM");
+	case RegisterGroupType::AVXData: return createSIMDGroup(model_,widget(),"AVX","YMM");
 	case RegisterGroupType::GPR:
 	{
 		const auto catIndex=findModelCategory(model_,"General Purpose");
@@ -1244,7 +1252,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		qWarning() << "Warning: failed to get any useful register indices for regGroupType" << static_cast<long>(type);
 		return nullptr;
 	}
-	auto* const group=new RegisterGroup(this);
+	auto* const group=new RegisterGroup(widget());
 	for(const auto& index : nameValCommentIndices)
 		group->appendNameValueComment(index);
 	return group;
