@@ -48,6 +48,8 @@ namespace ODbgRegisterView {
 // TODO: FSR: Set Condition: G,L,E,Unordered
 // TODO: PC: set 24/53/64-bit mantissa
 // TODO: RC: round up/down/nearest
+// TODO: Push/Pop FPU stack
+// TODO: Add option to show FPU in STi mode, both ST-ordered and R-ordered (physically)
 
 namespace
 {
