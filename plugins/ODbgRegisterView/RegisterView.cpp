@@ -1374,6 +1374,7 @@ void SIMDValueManager::displayFormatChanged()
 	{
 		const auto elemIndex=model->index(elemN,MODEL_VALUE_COLUMN,sizeIndex);
 		const auto field=new ValueField(elemWidth,elemIndex,group());
+		elements.push_back(field);
 		field->setAlignment(Qt::AlignRight);
 		group()->insert(lineInGroup,column,field);
 		column+=elemWidth+1;
