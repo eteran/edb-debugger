@@ -1067,17 +1067,21 @@ RegisterGroup* createMXCSR(RegisterViewModelBase::Model* model,QWidget* parent)
 	// Maybe following OllyDbg example here isn't a good idea.
 	const QString fzName="FZ", dazName="DZ";
 	const auto fzColumn=column;
-	group->insert(fzRow,fzColumn,new FieldWidget(fzName,group));
+	const auto fzNameField=new FieldWidget(fzName,group);
+	group->insert(fzRow,fzColumn,fzNameField);
 	column+=fzName.length()+1;
 	const auto fzIndex=findModelRegister(mxcsrIndex,"FZ",MODEL_VALUE_COLUMN);
 	const auto fzValueWidth=1;
-	group->insert(fzRow,column,new ValueField(fzValueWidth,fzIndex,group));
+	const auto fzValueField=new ValueField(fzValueWidth,fzIndex,group);
+	group->insert(fzRow,column,fzValueField);
 	column+=fzValueWidth+1;
-	group->insert(dazRow,column,new FieldWidget(dazName,group));
+	const auto dazNameField=new FieldWidget(dazName,group);
+	group->insert(dazRow,column,dazNameField);
 	column+=dazName.length()+1;
 	const auto dazIndex=findModelRegister(mxcsrIndex,"DAZ",MODEL_VALUE_COLUMN);
 	const auto dazValueWidth=1;
-	group->insert(dazRow,column,new ValueField(dazValueWidth,dazIndex,group));
+	const auto dazValueField=new ValueField(dazValueWidth,dazIndex,group);
+	group->insert(dazRow,column,dazValueField);
 	column+=dazValueWidth+2;
 	const QString excName="Err";
 	group->insert(excRow,column,new FieldWidget(excName,group));
@@ -1090,6 +1094,17 @@ RegisterGroup* createMXCSR(RegisterViewModelBase::Model* model,QWidget* parent)
 	group->insert(rndRow,rndNameColumn,new FieldWidget(rndName,group));
 	const auto rndColumn=rndNameColumn+rndName.length()+1;
 	addRoundingMode(group,findModelRegister(mxcsrIndex,"RC",MODEL_VALUE_COLUMN),rndRow,rndColumn);
+
+	{
+		const auto fzTooltip=QObject::tr("Flush Denormals To Zero")+" (FTZ)";
+		fzNameField->setToolTip(fzTooltip);
+		fzValueField->setToolTip(fzTooltip);
+	}
+	{
+		const auto dazTooltip=QObject::tr("Denormals Are Zero")+" (DAZ)";
+		dazNameField->setToolTip(dazTooltip);
+		dazValueField->setToolTip(dazTooltip);
+	}
 
 	return group;
 }
