@@ -827,9 +827,15 @@ RegisterGroup* createFPULastOp(RegisterViewModelBase::Model* model,QWidget* pare
 	const QString lastInsnLabel="Last insn";
 	const QString lastDataLabel="Last data";
 	const QString lastOpcodeLabel="Last opcode";
-	group->insert(lastInsnRow,0,new FieldWidget(lastInsnLabel,group));
-	group->insert(lastDataRow,0,new FieldWidget(lastDataLabel,group));
-	group->insert(lastOpcodeRow,0,new FieldWidget(lastOpcodeLabel,group));
+	const auto lastInsnLabelField=new FieldWidget(lastInsnLabel,group);
+	group->insert(lastInsnRow,0,lastInsnLabelField);
+	const auto lastDataLabelField=new FieldWidget(lastDataLabel,group);
+	group->insert(lastDataRow,0,lastDataLabelField);
+	const auto lastOpcodeLabelField=new FieldWidget(lastOpcodeLabel,group);
+	group->insert(lastOpcodeRow,0,lastOpcodeLabelField);
+
+	lastInsnLabelField->setToolTip(QObject::tr("Last FPU instruction address"));
+	lastDataLabelField->setToolTip(QObject::tr("Last FPU memory operand address"));
 
 	// FIS & FDS are not maintained in 64-bit mode; Linux64 always saves state from
 	// 64-bit mode, losing the values for 32-bit apps even if the CPU doesn't deprecate them
@@ -844,16 +850,24 @@ RegisterGroup* createFPULastOp(RegisterViewModelBase::Model* model,QWidget* pare
 		group->insert(lastInsnRow,segColumn+segWidth,new FieldWidget(":",group));
 		group->insert(lastDataRow,segColumn+segWidth,new FieldWidget(":",group));
 
-		group->insert(lastInsnRow,segColumn,
-				new ValueField(segWidth,findModelRegister(catIndex,"FIS",MODEL_VALUE_COLUMN),group));
-		group->insert(lastDataRow,segColumn,
-				new ValueField(segWidth,findModelRegister(catIndex,"FDS",MODEL_VALUE_COLUMN),group));
+		const auto FISField=new ValueField(segWidth,findModelRegister(catIndex,"FIS",MODEL_VALUE_COLUMN),group);
+		group->insert(lastInsnRow,segColumn,FISField);
+		const auto FDSField=new ValueField(segWidth,findModelRegister(catIndex,"FDS",MODEL_VALUE_COLUMN),group);
+		group->insert(lastDataRow,segColumn,FDSField);
+
+		FISField->setToolTip(QObject::tr("Last FPU instruction selector"));
+		FDSField->setToolTip(QObject::tr("Last FPU memory operand selector"));
 	}
 	const auto offsetWidth=FIPIndex.data(Model::FixedLengthRole).toInt();
 	Q_ASSERT(offsetWidth>0);
 	const auto offsetColumn=segColumn+segWidth+(segWidth?1:0);
-	group->insert(lastInsnRow,offsetColumn,new ValueField(offsetWidth,FIPIndex,group));
-	group->insert(lastDataRow,offsetColumn,new ValueField(offsetWidth,FDPIndex,group));
+	const auto FIPValueField=new ValueField(offsetWidth,FIPIndex,group);
+	group->insert(lastInsnRow,offsetColumn,FIPValueField);
+	const auto FDPValueField=new ValueField(offsetWidth,FDPIndex,group);
+	group->insert(lastDataRow,offsetColumn,FDPValueField);
+
+	FIPValueField->setToolTip(QObject::tr("Last FPU instruction offset"));
+	FDPValueField->setToolTip(QObject::tr("Last FPU memory operand offset"));
 
 	QPersistentModelIndex const FOPIndex=findModelRegister(catIndex,"FOP",MODEL_VALUE_COLUMN);
 	QPersistentModelIndex const FSRIndex=findModelRegister(catIndex,"FSR",MODEL_VALUE_COLUMN);
@@ -897,8 +911,12 @@ RegisterGroup* createFPULastOp(RegisterViewModelBase::Model* model,QWidget* pare
 		return edb::value8(0xd8+rawFOP[1]).toHexString()+
 				' '+edb::value8(rawFOP[0]).toHexString();
 	};
-	group->insert(lastOpcodeRow,lastOpcodeLabel.length()+1,
-					new ValueField(5,FOPIndex,group,FOPFormatter));
+	const auto FOPValueField=new ValueField(5,FOPIndex,group,FOPFormatter);
+	group->insert(lastOpcodeRow,lastOpcodeLabel.length()+1,FOPValueField);
+
+	static const auto FOPTooltip=QObject::tr("Last FPU opcode");
+	lastOpcodeLabelField->setToolTip(FOPTooltip);
+	FOPValueField->setToolTip(FOPTooltip);
 
 	return group;
 }
