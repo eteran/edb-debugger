@@ -723,6 +723,21 @@ RegisterGroup* createFPUWords(QAbstractItemModel* model,QWidget* parent)
 	return group;
 }
 
+// Checks that FOP is in not in compatibility mode, i.e. is updated only on unmasked exception
+// This function would return false for e.g. Pentium III or Atom, but returns true since Pentium 4.
+// This can be made return false for such CPUs by setting bit 2 in IA32_MISC_ENABLE MSR.
+bool FOPIsIncompatible()
+{
+	char fenv[28];
+	asm volatile("fldz\n"
+				 "fstp %%st(0)\n"
+				 "fstenv %0\n"
+				 :"=m"(fenv)::"%st");
+	std::uint16_t fop;
+	std::memcpy(&fop,fenv+18,sizeof fop);
+	return fop==0;
+}
+
 RegisterGroup* createFPULastOp(QAbstractItemModel* model,QWidget* parent)
 {
 	using RegisterViewModelBase::Model;
@@ -770,7 +785,8 @@ RegisterGroup* createFPULastOp(QAbstractItemModel* model,QWidget* parent)
 	QPersistentModelIndex const FOPIndex=findModelRegister(catIndex,"FOP",MODEL_VALUE_COLUMN);
 	QPersistentModelIndex const FSRIndex=findModelRegister(catIndex,"FSR",MODEL_VALUE_COLUMN);
 	QPersistentModelIndex const FCRIndex=findModelRegister(catIndex,"FCR",MODEL_VALUE_COLUMN);
-	const auto FOPFormatter=[FOPIndex,FSRIndex,FCRIndex](QString const& str)
+	bool fopRarelyUpdated=FOPIsIncompatible();
+	const auto FOPFormatter=[FOPIndex,FSRIndex,FCRIndex,FIPIndex,fopRarelyUpdated](QString const& str)
 	{
 		if(str.isEmpty() || str[0]=='?') return str;
 
@@ -794,13 +810,16 @@ RegisterGroup* createFPULastOp(QAbstractItemModel* model,QWidget* parent)
 			return QString("????");
 		std::memcpy(&fop,rawFOP.constData(),rawFOP.size());
 
+		const auto rawFIP=FIPIndex.data(Model::RawValueRole).toByteArray();
+		if(rawFIP.isEmpty()) return str;
+		edb::address_t fip(0);
+		Q_ASSERT(rawFIP.size()<=long(sizeof fip));
+		std::memcpy(&fip,rawFIP.constData(),rawFIP.size());	
+
 		const auto excMask=fcr&0x3f;
 		const auto excActive=fsr&0x3f;
 		const auto excActiveUnmasked=excActive&~excMask;
-		// TODO: check whether fopcode is actually not updated. This behavior starts 
-		// from Pentium 4 & Xeon, but not true for e.g. Atom and other P6-based CPUs
-		// TODO: move this to ArchProcessor/RegisterViewModel?
-		if(fop==0 && !excActiveUnmasked)
+		if(fop==0 && ((fopRarelyUpdated && !excActiveUnmasked) || fip==0))
 			return QString("00 00");
 		return edb::value8(0xd8+rawFOP[1]).toHexString()+
 				' '+edb::value8(rawFOP[0]).toHexString();
