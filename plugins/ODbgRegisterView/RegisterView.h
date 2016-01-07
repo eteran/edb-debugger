@@ -81,6 +81,14 @@ private Q_SLOTS:
 	void modelUpdated();
 };
 
+class Canvas : public QWidget
+{
+public:
+	Canvas(QWidget* parent=nullptr);
+protected:
+    void mousePressEvent(QMouseEvent* event) override;
+};
+
 class FieldWidget : public QLabel
 {
 	Q_OBJECT

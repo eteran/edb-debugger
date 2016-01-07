@@ -440,6 +440,28 @@ QList<ValueField*> RegisterGroup::valueFields() const
 	return allValues;
 }
 
+// ------------------------------- Canvas impl ----------------------------------------
+
+Canvas::Canvas(QWidget* parent)
+	: QWidget(parent)
+{
+	setObjectName("RegViewCanvas");
+	auto* const canvasLayout=new QVBoxLayout(this);
+	canvasLayout->setSpacing(letterSize(parent->font()).height()/2);
+	canvasLayout->setContentsMargins(parent->contentsMargins());
+	canvasLayout->setAlignment(Qt::AlignTop);
+	setLayout(canvasLayout);
+	setBackgroundRole(QPalette::Base);
+	setAutoFillBackground(true);
+}
+
+void Canvas::mousePressEvent(QMouseEvent* event)
+{
+	event->ignore();
+}
+
+// -------------------------------- ODBRegView impl ----------------------------------------
+
 void ODBRegView::mousePressEvent(QMouseEvent* event)
 {
 	if(event->type()!=QEvent::MouseButtonPress) return;
@@ -493,16 +515,7 @@ ODBRegView::ODBRegView(QWidget* parent)
 		setFont(font);
 	}
 
-	auto* const canvas=new QWidget(this);
-	canvas->setObjectName("RegViewCanvas");
-	auto* const canvasLayout=new QVBoxLayout(canvas);
-	canvasLayout->setSpacing(letterSize(this->font()).height()/2);
-	canvasLayout->setContentsMargins(contentsMargins());
-	canvasLayout->setAlignment(Qt::AlignTop);
-	canvas->setLayout(canvasLayout);
-	canvas->setBackgroundRole(QPalette::Base);
-	canvas->setAutoFillBackground(true);
-
+	auto* const canvas=new Canvas(this);
 	setWidget(canvas);
 	setWidgetResizable(true);
 
