@@ -200,6 +200,30 @@ QVariant Model::data(QModelIndex const& index, int role) const
 	return {};
 }
 
+void Model::setChosenSIMDSize(QModelIndex const& index, ElementSize const newSize)
+{
+	const auto reg=getItem(index);
+	Q_ASSERT(reg);
+
+	const auto simdReg=dynamic_cast<SIMDSettings*>(reg);
+	Q_ASSERT(simdReg);
+
+	simdReg->setChosenSize(newSize);
+	Q_EMIT SIMDDisplayFormatChanged();
+}
+
+void Model::setChosenSIMDFormat(QModelIndex const& index, NumberDisplayMode const newFormat)
+{
+	const auto reg=getItem(index);
+	Q_ASSERT(reg);
+
+	const auto simdReg=dynamic_cast<SIMDSettings*>(reg);
+	Q_ASSERT(simdReg);
+
+	simdReg->setChosenFormat(newFormat);
+	Q_EMIT SIMDDisplayFormatChanged();
+}
+
 void Model::hideAll()
 {
 	for(const auto& cat : rootItem->categories)

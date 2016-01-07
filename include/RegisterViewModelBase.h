@@ -16,6 +16,7 @@ class CategoriesHolder;
 class Category;
 class Model : public QAbstractItemModel
 {
+	Q_OBJECT
 public:
 	enum Column
 	{
@@ -57,6 +58,9 @@ public:
 	Qt::ItemFlags flags(QModelIndex const& index) const override;
 	~Model();
 
+	virtual void setChosenSIMDSize(QModelIndex const& index, ElementSize newSize);
+	virtual void setChosenSIMDFormat(QModelIndex const& index, NumberDisplayMode newFormat);
+
 	// Should be called after updating all the data
 	virtual void dataUpdateFinished();
 	// should be called when the debugger is about to resume, to save current register values to previous
@@ -71,6 +75,8 @@ protected:
 	void hideAll();
 private:
 	std::unique_ptr<CategoriesHolder> rootItem;
+Q_SIGNALS:
+	void SIMDDisplayFormatChanged();
 };
 
 class RegisterViewItem
