@@ -1101,7 +1101,7 @@ RegisterGroup* createMXCSR(RegisterViewModelBase::Model* model,QWidget* parent)
 		fzValueField->setToolTip(fzTooltip);
 	}
 	{
-		const auto dazTooltip=QObject::tr("Denormals Are Zero")+" (DAZ)";
+		const auto dazTooltip=QObject::tr("Denormals Are Zeros")+" (DAZ)";
 		dazNameField->setToolTip(dazTooltip);
 		dazValueField->setToolTip(dazTooltip);
 	}
