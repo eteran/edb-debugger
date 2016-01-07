@@ -26,7 +26,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPersistentModelIndex>
 #include <functional>
 
-class QAbstractItemModel;
+namespace RegisterViewModelBase
+{
+class Model;
+}
 
 namespace ODbgRegisterView {
 
@@ -38,7 +41,7 @@ class ODBRegView : public QScrollArea
 {
 	Q_OBJECT
 
-	QAbstractItemModel* model_=nullptr;
+	RegisterViewModelBase::Model* model_=nullptr;
 	enum class RegisterGroupType
 	{
 		GPR,
@@ -59,7 +62,7 @@ class ODBRegView : public QScrollArea
 	RegisterGroup* makeGroup(RegisterGroupType type);
 public:
 	ODBRegView(QWidget* parent=nullptr);
-	void setModel(QAbstractItemModel* model);
+	void setModel(RegisterViewModelBase::Model* model);
 	QList<ValueField*> valueFields() const;
 	QList<FieldWidget*> fields() const;
 private:

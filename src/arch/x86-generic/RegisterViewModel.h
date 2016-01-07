@@ -38,7 +38,7 @@ public:
 		};
 	};
 	RegisterViewModel(int CPUFeaturesPresent, QObject* parent=nullptr);
-	QVariant data(QModelIndex const& index, int role) const override;
+	QVariant data(QModelIndex const& index, int role=Qt::DisplayRole) const override;
 	void setCPUMode(CPUMode mode);
 	// NOTE: all these functions only change data, they don't emit dataChanged!
 	// Use dataUpdateFinished() to have dataChanged emitted.

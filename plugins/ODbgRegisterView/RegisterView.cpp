@@ -466,7 +466,7 @@ ODBRegView::ODBRegView(QWidget* parent)
 				  };
 }
 
-void ODBRegView::setModel(QAbstractItemModel* model)
+void ODBRegView::setModel(RegisterViewModelBase::Model* model)
 {
 	model_=model;
 	connect(model,SIGNAL(modelReset()),this,SLOT(modelReset()));
@@ -477,7 +477,7 @@ void ODBRegView::setModel(QAbstractItemModel* model)
 namespace
 {
 // TODO: switch from string-based search to enum-based one (add a new Role to model data)
-QModelIndex findModelCategory(QAbstractItemModel const*const model,
+QModelIndex findModelCategory(RegisterViewModelBase::Model const*const model,
 							  QString const& catToFind)
 {
 	for(int row=0;row<model->rowCount();++row)
@@ -570,7 +570,7 @@ void addPUOZDI(RegisterGroup* const group, QModelIndex const& excRegIndex, QMode
 
 }
 
-RegisterGroup* createEFL(QAbstractItemModel* model,QWidget* parent)
+RegisterGroup* createEFL(RegisterViewModelBase::Model* model,QWidget* parent)
 {
 	const auto catIndex=findModelCategory(model,"General Status");
 	if(!catIndex.isValid()) return nullptr;
@@ -593,7 +593,7 @@ RegisterGroup* createEFL(QAbstractItemModel* model,QWidget* parent)
 	return group;
 }
 
-RegisterGroup* createExpandedEFL(QAbstractItemModel* model,QWidget* parent)
+RegisterGroup* createExpandedEFL(RegisterViewModelBase::Model* model,QWidget* parent)
 {
 	const auto catIndex=findModelCategory(model,"General Status");
 	if(!catIndex.isValid()) return nullptr;
@@ -632,7 +632,7 @@ RegisterGroup* createExpandedEFL(QAbstractItemModel* model,QWidget* parent)
 	return group;
 }
 
-RegisterGroup* createFPUData(QAbstractItemModel* model,QWidget* parent)
+RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent)
 {
 	using RegisterViewModelBase::Model;
 
@@ -671,7 +671,7 @@ RegisterGroup* createFPUData(QAbstractItemModel* model,QWidget* parent)
 	return group;
 }
 
-RegisterGroup* createFPUWords(QAbstractItemModel* model,QWidget* parent)
+RegisterGroup* createFPUWords(RegisterViewModelBase::Model* model,QWidget* parent)
 {
 	const auto catIndex=findModelCategory(model,"FPU");
 	if(!catIndex.isValid()) return nullptr;
@@ -738,7 +738,7 @@ bool FOPIsIncompatible()
 	return fop==0;
 }
 
-RegisterGroup* createFPULastOp(QAbstractItemModel* model,QWidget* parent)
+RegisterGroup* createFPULastOp(RegisterViewModelBase::Model* model,QWidget* parent)
 {
 	using RegisterViewModelBase::Model;
 
@@ -830,7 +830,7 @@ RegisterGroup* createFPULastOp(QAbstractItemModel* model,QWidget* parent)
 	return group;
 }
 
-RegisterGroup* createDebugGroup(QAbstractItemModel* model,QWidget* parent)
+RegisterGroup* createDebugGroup(RegisterViewModelBase::Model* model,QWidget* parent)
 {
 	using RegisterViewModelBase::Model;
 
@@ -971,7 +971,7 @@ RegisterGroup* createDebugGroup(QAbstractItemModel* model,QWidget* parent)
 	return group;
 }
 
-RegisterGroup* createMXCSR(QAbstractItemModel* model,QWidget* parent)
+RegisterGroup* createMXCSR(RegisterViewModelBase::Model* model,QWidget* parent)
 {
 	using namespace RegisterViewModelBase;
 
@@ -1021,7 +1021,7 @@ RegisterGroup* createMXCSR(QAbstractItemModel* model,QWidget* parent)
 	return group;
 }
 
-RegisterGroup* createSIMDGroup(QAbstractItemModel* model,QWidget* parent,QString const& catName,QString const& regNamePrefix)
+RegisterGroup* createSIMDGroup(RegisterViewModelBase::Model* model,QWidget* parent,QString const& catName,QString const& regNamePrefix)
 {
 	const auto catIndex=findModelCategory(model,catName);
 	if(!catIndex.isValid()) return nullptr;

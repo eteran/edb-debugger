@@ -53,7 +53,7 @@ public:
 	int columnCount(QModelIndex const& parent=QModelIndex()) const override;
 	QModelIndex parent(QModelIndex const& index) const override;
 	QModelIndex index(int row, int column, QModelIndex const& parent=QModelIndex()) const override;
-	QVariant data(QModelIndex const& index, int role) const override;
+	QVariant data(QModelIndex const& index, int role=Qt::DisplayRole) const override;
 	Qt::ItemFlags flags(QModelIndex const& index) const override;
 	~Model();
 
