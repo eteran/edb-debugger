@@ -1333,6 +1333,8 @@ SIMDValueManager::SIMDValueManager(int lineInGroup, QModelIndex const& nameIndex
 	  regIndex(nameIndex),
 	  lineInGroup(lineInGroup)
 {
+	Q_ASSERT(nameIndex.isValid());
+	connect(nameIndex.model(),SIGNAL(SIMDDisplayFormatChanged()),this,SLOT(displayFormatChanged()));
 	displayFormatChanged();
 }
 
