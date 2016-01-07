@@ -35,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define VALID_VARIANT(VARIANT) (Q_ASSERT((VARIANT).isValid()),(VARIANT))
 #define VALID_INDEX(INDEX) VALID_VARIANT(INDEX)
+#define CHECKED_CAST(TYPE,PARENT) (Q_ASSERT(dynamic_cast<TYPE*>(PARENT)),static_cast<TYPE*>(PARENT))
 
 namespace ODbgRegisterView {
 
@@ -312,8 +313,9 @@ void RegisterGroup::mousePressEvent(QMouseEvent* event)
 void RegisterGroup::insert(int const line, int const column, FieldWidget* const widget)
 {
 	widget->update();
+
 	if(auto* const value=dynamic_cast<ValueField*>(widget))
-		connect(value,SIGNAL(selected()),parent(),SLOT(fieldSelected()));
+		connect(value,SIGNAL(selected()),CHECKED_CAST(ODBRegView,parent()),SLOT(fieldSelected()));
 
 	const auto charSize=letterSize(font());
 	const auto charWidth=charSize.width();
