@@ -518,8 +518,6 @@ void ODBRegView::showMenu(QPoint const& position, QList<QAction*>const& addition
 {
 	QMenu menu;
 	auto items=additionalItems+menuItems;
-	if(items.front()->isSeparator())
-		items.removeFirst();
 	for(const auto action : items)
 		menu.addAction(action);
 
