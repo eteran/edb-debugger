@@ -317,16 +317,17 @@ void ValueField::paintEvent(QPaintEvent*)
 }
 
 // -------------------------------- RegisterGroup impl ----------------------------
-RegisterGroup::RegisterGroup(QWidget* parent)
-	: QWidget(parent)
+RegisterGroup::RegisterGroup(QString const& name, QWidget* parent)
+	: QWidget(parent),
+	  name(name)
 {
-	setObjectName("RegisterGroup");
+	setObjectName("RegisterGroup_"+name);
 
 	{
 		const auto sep=new QAction(this);
 		sep->setSeparator(true);
 		menuItems.push_back(sep);
-		menuItems.push_back(new QAction(tr("Hide group"),this)); // TODO: implement
+		menuItems.push_back(new QAction(tr("Hide %1","register group").arg(name),this)); // TODO: implement
 	}
 }
 
@@ -694,7 +695,7 @@ RegisterGroup* createEFL(RegisterViewModelBase::Model* model,QWidget* parent)
 	if(!nameIndex.isValid())
 		nameIndex=findModelRegister(catIndex,"EFLAGS");
 	if(!nameIndex.isValid()) return nullptr;
-	auto* const group=new RegisterGroup(parent);
+	auto* const group=new RegisterGroup("EFL",parent);
 	const int nameWidth=3;
 	int column=0;
 	group->insert(0,column,new FieldWidget("EFL",group));
@@ -717,7 +718,7 @@ RegisterGroup* createExpandedEFL(RegisterViewModelBase::Model* model,QWidget* pa
 	if(!regNameIndex.isValid())
 		regNameIndex=findModelRegister(catIndex,"EFLAGS");
 	if(!regNameIndex.isValid()) return nullptr;
-	auto* const group=new RegisterGroup(parent);
+	auto* const group=new RegisterGroup(QObject::tr("Expanded EFL"), parent);
 	static const std::unordered_map<char,QString> flagTooltips=
 		{
 		{'C',QObject::tr("Carry flag")+" (CF)"},
@@ -780,7 +781,7 @@ RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent
 		qWarning() << "Warning: failed to find FTR in the model, refusing to continue making FPUData group";
 		return nullptr;
 	}
-	auto* const group=new RegisterGroup(parent);
+	auto* const group=new RegisterGroup(QObject::tr("FPU Data Registers"),parent);
 	static const int FPU_REG_COUNT=8;
 	static const int nameWidth=3;
 	static const int tagWidth=7;
@@ -811,7 +812,7 @@ RegisterGroup* createFPUWords(RegisterViewModelBase::Model* model,QWidget* paren
 {
 	const auto catIndex=findModelCategory(model,"FPU");
 	if(!catIndex.isValid()) return nullptr;
-	auto* const group=new RegisterGroup(parent);
+	auto* const group=new RegisterGroup(QObject::tr("FPU Status&&Control Registers"),parent);
 	group->appendNameValueComment(findModelRegister(catIndex,"FTR"),QObject::tr("FPU Tag Register"),false);
 	const int fsrRow=1;
 	const auto fsrIndex=findModelRegister(catIndex,"FSR");
@@ -907,7 +908,7 @@ RegisterGroup* createFPULastOp(RegisterViewModelBase::Model* model,QWidget* pare
 	const auto FDPIndex=findModelRegister(catIndex,"FDP",MODEL_VALUE_COLUMN);
 	if(!FDPIndex.isValid()) return nullptr;
 
-	auto* const group=new RegisterGroup(parent);
+	auto* const group=new RegisterGroup(QObject::tr("FPU Last Operation Registers"),parent);
 	enum {lastInsnRow, lastDataRow, lastOpcodeRow};
 	const QString lastInsnLabel="Last insn";
 	const QString lastDataLabel="Last data";
@@ -1013,7 +1014,7 @@ RegisterGroup* createDebugGroup(RegisterViewModelBase::Model* model,QWidget* par
 	const auto catIndex=findModelCategory(model,"Debug");
 	if(!catIndex.isValid()) return nullptr;
 
-	auto* const group=new RegisterGroup(parent);
+	auto* const group=new RegisterGroup(QObject::tr("Debug Registers"),parent);
 
 	const auto dr6Index=VALID_INDEX(findModelRegister(catIndex,"DR6"));
 	const auto dr7Index=VALID_INDEX(findModelRegister(catIndex,"DR7"));
@@ -1194,7 +1195,7 @@ RegisterGroup* createMXCSR(RegisterViewModelBase::Model* model,QWidget* parent)
 
 	const auto catIndex=findModelCategory(model,"SSE");
 	if(!catIndex.isValid()) return nullptr;
-	auto* const group=new RegisterGroup(parent);
+	auto* const group=new RegisterGroup("MXCSR",parent);
 	const QString mxcsrName="MXCSR";
 	int column=0;
 	const int mxcsrRow=1, fzRow=mxcsrRow,dazRow=mxcsrRow,excRow=mxcsrRow;
@@ -1257,7 +1258,7 @@ RegisterGroup* createSIMDGroup(RegisterViewModelBase::Model* model,QWidget* pare
 {
 	const auto catIndex=findModelCategory(model,catName);
 	if(!catIndex.isValid()) return nullptr;
-	auto* const group=new RegisterGroup(parent);
+	auto* const group=new RegisterGroup(catName,parent);
 	for(int row=0;row<model->rowCount(catIndex);++row)
 	{
 		const auto nameIndex=VALID_INDEX(model->index(row,MODEL_NAME_COLUMN,catIndex));
@@ -1278,6 +1279,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	if(!model_->rowCount()) return nullptr;
 	std::vector<QModelIndex> nameValCommentIndices;
 	using RegisterViewModelBase::Model;
+	QString groupName;
 	switch(type)
 	{
 	case RegisterGroupType::EFL: return createEFL(model_,widget());
@@ -1292,6 +1294,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	case RegisterGroupType::AVXData: return createSIMDGroup(model_,widget(),"AVX","YMM");
 	case RegisterGroupType::GPR:
 	{
+		groupName=tr("GPRs");
 		const auto catIndex=findModelCategory(model_,"General Purpose");
 		if(!catIndex.isValid()) break;
 		for(int row=0;row<model_->rowCount(catIndex);++row)
@@ -1300,6 +1303,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	}
 	case RegisterGroupType::Segment:
 	{
+		groupName=tr("Segment Registers");
 		const auto catIndex=findModelCategory(model_,"Segment");
 		if(!catIndex.isValid()) break;
 		for(int row=0;row<model_->rowCount(catIndex);++row)
@@ -1308,6 +1312,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	}
 	case RegisterGroupType::rIP:
 	{
+		groupName=tr("Instruction Pointer");
 		const auto catIndex=findModelCategory(model_,"General Status");
 		if(!catIndex.isValid()) break;
 		nameValCommentIndices.emplace_back(findModelRegister(catIndex,"RIP"));
@@ -1327,7 +1332,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 		qWarning() << "Warning: failed to get any useful register indices for regGroupType" << static_cast<long>(type);
 		return nullptr;
 	}
-	auto* const group=new RegisterGroup(widget());
+	auto* const group=new RegisterGroup(groupName,widget());
 	for(const auto& index : nameValCommentIndices)
 		group->appendNameValueComment(index);
 	return group;
@@ -1418,9 +1423,37 @@ SIMDValueManager::SIMDValueManager(int lineInGroup, QModelIndex const& nameIndex
 	  regIndex(nameIndex),
 	  lineInGroup(lineInGroup)
 {
+	setupMenu();
+
 	Q_ASSERT(nameIndex.isValid());
 	connect(nameIndex.model(),SIGNAL(SIMDDisplayFormatChanged()),this,SLOT(displayFormatChanged()));
 	displayFormatChanged();
+}
+
+QAction* newActionSeparator(QObject* parent)
+{
+	const auto sep=new QAction(parent);
+	sep->setSeparator(true);
+	return sep;
+}
+
+void SIMDValueManager::setupMenu()
+{
+	const auto group=this->group();
+	// Setup menu if we're the first value field creator
+	if(group->valueFields().isEmpty())
+	{
+		group->menuItems.push_back(newActionSeparator(this));
+
+		const auto byteShow=new QAction(QObject::tr("Show %1 as bytes").arg(group->name),group);
+		group->menuItems.push_back(byteShow);
+		const auto wordShow=new QAction(QObject::tr("Show %1 as words").arg(group->name),group);
+		group->menuItems.push_back(wordShow);
+		const auto dwordShow=new QAction(QObject::tr("Show %1 as doublewords").arg(group->name),group);
+		group->menuItems.push_back(dwordShow);
+		const auto qwordShow=new QAction(QObject::tr("Show %1 as quadwords").arg(group->name),group);
+		group->menuItems.push_back(qwordShow);
+	}
 }
 
 RegisterGroup* SIMDValueManager::group() const
