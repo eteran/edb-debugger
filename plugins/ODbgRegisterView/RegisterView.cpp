@@ -83,6 +83,13 @@ inline QSize letterSize(QFont const& font)
 	return QSize(width,height);
 }
 
+QAction* newActionSeparator(QObject* parent)
+{
+	const auto sep=new QAction(parent);
+	sep->setSeparator(true);
+	return sep;
+}
+
 static QPlastiqueStyle plastiqueStyle;
 
 }
@@ -324,9 +331,7 @@ RegisterGroup::RegisterGroup(QString const& name, QWidget* parent)
 	setObjectName("RegisterGroup_"+name);
 
 	{
-		const auto sep=new QAction(this);
-		sep->setSeparator(true);
-		menuItems.push_back(sep);
+		menuItems.push_back(newActionSeparator(this));
 		menuItems.push_back(new QAction(tr("Hide %1","register group").arg(name),this)); // TODO: implement
 	}
 }
@@ -1428,13 +1433,6 @@ SIMDValueManager::SIMDValueManager(int lineInGroup, QModelIndex const& nameIndex
 	Q_ASSERT(nameIndex.isValid());
 	connect(nameIndex.model(),SIGNAL(SIMDDisplayFormatChanged()),this,SLOT(displayFormatChanged()));
 	displayFormatChanged();
-}
-
-QAction* newActionSeparator(QObject* parent)
-{
-	const auto sep=new QAction(parent);
-	sep->setSeparator(true);
-	return sep;
 }
 
 void SIMDValueManager::setupMenu()
