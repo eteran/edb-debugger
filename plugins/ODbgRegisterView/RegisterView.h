@@ -25,11 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <deque>
 #include <QPersistentModelIndex>
 #include <functional>
-
-namespace RegisterViewModelBase
-{
-class Model;
-}
+#include "RegisterViewModelBase.h"
 
 namespace ODbgRegisterView {
 
@@ -158,8 +154,29 @@ class SIMDValueManager : public QObject
 	QPersistentModelIndex regIndex;
 	int lineInGroup;
 	QList<ValueField*> elements;
+	QList<QAction*> menuItems;
+	enum MenuItemNumbers
+	{
+		VIEW_AS_BYTES,
+		VIEW_AS_WORDS,
+		VIEW_AS_DWORDS,
+		VIEW_AS_QWORDS,
+
+		VIEW_AS_32FLOAT,
+		VIEW_AS_64FLOAT,
+
+		VIEW_INT_AS_HEX,
+		VIEW_INT_AS_SIGNED,
+		VIEW_INT_AS_UNSIGNED,
+
+		MENU_ITEMS_COUNT
+	};
+
 	RegisterGroup* group() const;
+	RegisterViewModelBase::Model::ElementSize currentSize() const;
+	NumberDisplayMode currentFormat() const;
 	void setupMenu();
+	void updateMenu();
 public:
 	SIMDValueManager(int lineInGroup,
 					 QModelIndex const& nameIndex,

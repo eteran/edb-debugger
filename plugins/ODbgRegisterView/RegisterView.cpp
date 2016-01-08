@@ -1444,15 +1444,62 @@ void SIMDValueManager::setupMenu()
 	if(group->valueFields().isEmpty())
 	{
 		group->menuItems.push_back(newActionSeparator(this));
+		menuItems.push_back(new QAction(tr("View %1 as bytes").arg(group->name),group));
+		group->menuItems.push_back(menuItems.back());
+		menuItems.push_back(new QAction(tr("View %1 as words").arg(group->name),group));
+		group->menuItems.push_back(menuItems.back());
+		menuItems.push_back(new QAction(tr("View %1 as doublewords").arg(group->name),group));
+		group->menuItems.push_back(menuItems.back());
+		menuItems.push_back(new QAction(tr("View %1 as quadwords").arg(group->name),group));
+		group->menuItems.push_back(menuItems.back());
 
-		const auto byteShow=new QAction(QObject::tr("Show %1 as bytes").arg(group->name),group);
-		group->menuItems.push_back(byteShow);
-		const auto wordShow=new QAction(QObject::tr("Show %1 as words").arg(group->name),group);
-		group->menuItems.push_back(wordShow);
-		const auto dwordShow=new QAction(QObject::tr("Show %1 as doublewords").arg(group->name),group);
-		group->menuItems.push_back(dwordShow);
-		const auto qwordShow=new QAction(QObject::tr("Show %1 as quadwords").arg(group->name),group);
-		group->menuItems.push_back(qwordShow);
+		group->menuItems.push_back(newActionSeparator(this));
+		menuItems.push_back(new QAction(tr("View %1 as 32-bit floats").arg(group->name),group));
+		group->menuItems.push_back(menuItems.back());
+		menuItems.push_back(new QAction(tr("View %1 as 64-bit floats").arg(group->name),group));
+		group->menuItems.push_back(menuItems.back());
+
+		group->menuItems.push_back(newActionSeparator(this));
+		menuItems.push_back(new QAction(tr("View %1 integers as hex").arg(group->name),group));
+		group->menuItems.push_back(menuItems.back());
+		menuItems.push_back(new QAction(tr("View %1 integers as signed").arg(group->name),group));
+		group->menuItems.push_back(menuItems.back());
+		menuItems.push_back(new QAction(tr("View %1 integers as unsigned").arg(group->name),group));
+		group->menuItems.push_back(menuItems.back());
+	}
+}
+
+void SIMDValueManager::updateMenu()
+{
+	if(menuItems.isEmpty()) return;
+	for(auto item : menuItems)
+		item->setVisible(true);
+
+	using RegisterViewModelBase::Model;
+	switch(currentSize())
+	{
+	case Model::ElementSize::BYTE:  menuItems[VIEW_AS_BYTES]->setVisible(false); break;
+	case Model::ElementSize::WORD:  menuItems[VIEW_AS_WORDS]->setVisible(false); break;
+	case Model::ElementSize::DWORD:
+		menuItems[VIEW_AS_DWORDS]->setVisible(false);
+		menuItems[VIEW_AS_32FLOAT]->setVisible(false);
+		break;
+	case Model::ElementSize::QWORD:
+		menuItems[VIEW_AS_QWORDS]->setVisible(false);
+		menuItems[VIEW_AS_64FLOAT]->setVisible(false);
+		break;
+	default: EDB_PRINT_AND_DIE("Unexpected current size: ",currentSize());
+	}
+	switch(currentFormat())
+	{
+	case NumberDisplayMode::Float:
+		menuItems[VIEW_INT_AS_HEX]->setVisible(false);
+		menuItems[VIEW_INT_AS_SIGNED]->setVisible(false);
+		menuItems[VIEW_INT_AS_UNSIGNED]->setVisible(false);
+		break;
+	case NumberDisplayMode::Hex:      menuItems[VIEW_INT_AS_HEX]->setVisible(false); break;
+	case NumberDisplayMode::Signed:   menuItems[VIEW_INT_AS_SIGNED]->setVisible(false); break;
+	case NumberDisplayMode::Unsigned: menuItems[VIEW_INT_AS_UNSIGNED]->setVisible(false); break;
 	}
 }
 
@@ -1487,6 +1534,22 @@ void SIMDValueManager::displayFormatChanged()
 		group()->insert(lineInGroup,column,field);
 		column+=elemWidth+1;
 	}
+
+	updateMenu();
+}
+
+RegisterViewModelBase::Model::ElementSize SIMDValueManager::currentSize() const
+{
+	using RegisterViewModelBase::Model;
+	const int size=VALID_VARIANT(regIndex.parent().data(Model::ChosenSIMDSizeRole)).toInt();
+	return static_cast<Model::ElementSize>(size);
+}
+
+NumberDisplayMode SIMDValueManager::currentFormat() const
+{
+	using RegisterViewModelBase::Model;
+	const int size=VALID_VARIANT(regIndex.parent().data(Model::ChosenSIMDFormatRole)).toInt();
+	return static_cast<NumberDisplayMode>(size);
 }
 
 void ODBRegView::keyPressEvent(QKeyEvent* event)
