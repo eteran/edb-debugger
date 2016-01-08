@@ -1489,6 +1489,7 @@ void ODBRegView::keyPressEvent(QKeyEvent* event)
 			return;
 		}
 		break;
+	case Qt::Key_Enter:
 	case Qt::Key_Return:
 		if(selected)
 		{
