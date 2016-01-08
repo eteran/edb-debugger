@@ -223,6 +223,13 @@ bool ValueField::isSelected() const
 	return selected_;
 }
 
+void ValueField::defaultAction()
+{
+	QMessageBox::information(this,"Default action called",
+							 QString("Default action called for field %1 with contents \"%2\"")
+								.arg(QString().sprintf("%p",static_cast<void*>(this))).arg(text()));
+}
+
 void ValueField::update()
 {
 	FieldWidget::update();
@@ -272,7 +279,7 @@ void ValueField::mousePressEvent(QMouseEvent* event)
 {
 	if(event->button() & (Qt::LeftButton|Qt::RightButton))
 		select();
-	if(event->button()==Qt::RightButton)
+	if(event->button()==Qt::RightButton && event->type()!=QEvent::MouseButtonDblClick)
 		group()->showMenu(event->globalPos(),menuItems);
 }
 
@@ -286,8 +293,7 @@ void ValueField::unselect()
 void ValueField::mouseDoubleClickEvent(QMouseEvent* event)
 {
 	mousePressEvent(event);
-	QMessageBox::information(this,"Double-clicked",QString("Double-clicked field %1 with contents \"%2\"")
-								.arg(QString().sprintf("%p",static_cast<void*>(this))).arg(text()));
+	defaultAction();
 }
 
 void ValueField::paintEvent(QPaintEvent*)
@@ -1480,6 +1486,13 @@ void ODBRegView::keyPressEvent(QKeyEvent* event)
 		if(selected && selected->right())
 		{
 			selected->right()->select();
+			return;
+		}
+		break;
+	case Qt::Key_Return:
+		if(selected)
+		{
+			selected->defaultAction();
 			return;
 		}
 		break;

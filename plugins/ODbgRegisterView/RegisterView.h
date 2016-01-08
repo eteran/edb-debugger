@@ -142,6 +142,7 @@ public:
 	ValueField* right() const;
 
 	bool isSelected() const;
+	void defaultAction();
 public Q_SLOTS:
 	void update() override;
 	void select();
