@@ -1508,6 +1508,9 @@ void SIMDValueManager::setIntFormat(int format_)
 void SIMDValueManager::setupMenu()
 {
 	const auto group=this->group();
+	const auto validFormats=VALID_VARIANT(regIndex.parent()
+												  .data(Model::ValidSIMDFormatsRole))
+												  .value<std::vector<NumberDisplayMode>>();
 	// Setup menu if we're the first value field creator
 	if(group->valueFields().isEmpty())
 	{
@@ -1522,12 +1525,21 @@ void SIMDValueManager::setupMenu()
 		menuItems.push_back(newAction(tr("View %1 as quadwords").arg(group->name),
 							group,intSizeMapper,Model::ElementSize::QWORD));
 
-		const auto floatMapper=new QSignalMapper(this);
-		connect(floatMapper,SIGNAL(mapped(int)),this,SLOT(showAsFloat(int)));
-		menuItems.push_back(newAction(tr("View %1 as 32-bit floats").arg(group->name),
-							group,floatMapper,Model::ElementSize::DWORD));
-		menuItems.push_back(newAction(tr("View %1 as 64-bit floats").arg(group->name),
-							group,floatMapper,Model::ElementSize::QWORD));
+		if(util::contains(validFormats,NumberDisplayMode::Float))
+		{
+			const auto floatMapper=new QSignalMapper(this);
+			connect(floatMapper,SIGNAL(mapped(int)),this,SLOT(showAsFloat(int)));
+			menuItems.push_back(newAction(tr("View %1 as 32-bit floats").arg(group->name),
+								group,floatMapper,Model::ElementSize::DWORD));
+			menuItems.push_back(newAction(tr("View %1 as 64-bit floats").arg(group->name),
+								group,floatMapper,Model::ElementSize::QWORD));
+		}
+		else
+		{
+			// create empty elements to leave further items with correct indices
+			menuItems.push_back(newActionSeparator(this));
+			menuItems.push_back(newActionSeparator(this));
+		}
 
 		const auto intMapper=new QSignalMapper(this);
 		connect(intMapper,SIGNAL(mapped(int)),this,SLOT(setIntFormat(int)));
