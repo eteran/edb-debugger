@@ -346,7 +346,7 @@ public:
 class SIMDCategory : public Category
 {
 	Model::ElementSize chosenSize_=Model::ElementSize::WORD;
-	NumberDisplayMode chosenFormat_=NumberDisplayMode::Signed;
+	NumberDisplayMode chosenFormat_=NumberDisplayMode::Hex;
 	std::vector<NumberDisplayMode> const validFormats_;
 public:
 	SIMDCategory(QString const& name, int row,
