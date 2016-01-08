@@ -155,6 +155,7 @@ class SIMDValueManager : public QObject
 	int lineInGroup;
 	QList<ValueField*> elements;
 	QList<QAction*> menuItems;
+	NumberDisplayMode intMode;
 	enum MenuItemNumbers
 	{
 		VIEW_AS_BYTES,
@@ -162,8 +163,8 @@ class SIMDValueManager : public QObject
 		VIEW_AS_DWORDS,
 		VIEW_AS_QWORDS,
 
-		VIEW_AS_32FLOAT,
-		VIEW_AS_64FLOAT,
+		VIEW_AS_FLOAT32,
+		VIEW_AS_FLOAT64,
 
 		VIEW_INT_AS_HEX,
 		VIEW_INT_AS_SIGNED,
@@ -172,17 +173,24 @@ class SIMDValueManager : public QObject
 		MENU_ITEMS_COUNT
 	};
 
+	using Model=RegisterViewModelBase::Model;
+	Model* model() const;
 	RegisterGroup* group() const;
-	RegisterViewModelBase::Model::ElementSize currentSize() const;
+	Model::ElementSize currentSize() const;
 	NumberDisplayMode currentFormat() const;
 	void setupMenu();
 	void updateMenu();
+	void fillGroupMenu();
 public:
 	SIMDValueManager(int lineInGroup,
 					 QModelIndex const& nameIndex,
 					 RegisterGroup* parent=nullptr);
 public Q_SLOTS:
 	void displayFormatChanged();
+private Q_SLOTS:
+	void showAsInt(int size);
+	void showAsFloat(int size);
+	void setIntFormat(int format);
 };
 
 class RegisterGroup : public QWidget

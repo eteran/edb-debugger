@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPlastiqueStyle>
 #include <QAction>
 #include <QMenu>
+#include <QSignalMapper>
 #include <algorithm>
 #include <unordered_map>
 #include <QDebug>
@@ -88,6 +89,20 @@ QAction* newActionSeparator(QObject* parent)
 	const auto sep=new QAction(parent);
 	sep->setSeparator(true);
 	return sep;
+}
+
+QAction* newAction(QString const& text, QObject* parent, QObject* signalReceiver, const char* slot)
+{
+	const auto action=new QAction(text,parent);
+	QObject::connect(action,SIGNAL(triggered()),signalReceiver,slot);
+	return action;
+}
+
+QAction* newAction(QString const& text, QObject* parent, QSignalMapper* mapper, int mapping)
+{
+	const auto action=newAction(text,parent,mapper,SLOT(map()));
+	mapper->setMapping(action,mapping);
+	return action;
 }
 
 static QPlastiqueStyle plastiqueStyle;
@@ -1426,7 +1441,8 @@ ValueField* ODBRegView::selectedField() const
 SIMDValueManager::SIMDValueManager(int lineInGroup, QModelIndex const& nameIndex, RegisterGroup* parent)
 	: QObject(parent),
 	  regIndex(nameIndex),
-	  lineInGroup(lineInGroup)
+	  lineInGroup(lineInGroup),
+	  intMode(NumberDisplayMode::Hex)
 {
 	setupMenu();
 
@@ -1435,35 +1451,94 @@ SIMDValueManager::SIMDValueManager(int lineInGroup, QModelIndex const& nameIndex
 	displayFormatChanged();
 }
 
+void SIMDValueManager::fillGroupMenu()
+{
+	const auto group=this->group();
+	group->menuItems.push_back(newActionSeparator(this));
+	group->menuItems.push_back(menuItems[VIEW_AS_BYTES]);
+	group->menuItems.push_back(menuItems[VIEW_AS_WORDS]);
+	group->menuItems.push_back(menuItems[VIEW_AS_DWORDS]);
+	group->menuItems.push_back(menuItems[VIEW_AS_QWORDS]);
+	group->menuItems.push_back(newActionSeparator(this));
+	group->menuItems.push_back(menuItems[VIEW_AS_FLOAT32]);
+	group->menuItems.push_back(menuItems[VIEW_AS_FLOAT64]);
+	group->menuItems.push_back(newActionSeparator(this));
+	group->menuItems.push_back(menuItems[VIEW_INT_AS_HEX]);
+	group->menuItems.push_back(menuItems[VIEW_INT_AS_SIGNED]);
+	group->menuItems.push_back(menuItems[VIEW_INT_AS_UNSIGNED]);
+}
+
+auto SIMDValueManager::model() const -> Model*
+{
+	const auto model=static_cast<const Model*>(regIndex.model());
+	// The model is not supposed to have been created as const object,
+	// and our manipulations won't invalidate the index.
+	// Thus cast the const away.
+	return const_cast<Model*>(model);
+}
+
+void SIMDValueManager::showAsInt(int const size_)
+{
+	const auto size=static_cast<Model::ElementSize>(size_);
+	model()->setChosenSIMDSize(regIndex.parent(),size);
+	model()->setChosenSIMDFormat(regIndex.parent(),intMode);
+}
+
+void SIMDValueManager::showAsFloat(int const size)
+{
+	model()->setChosenSIMDFormat(regIndex.parent(),NumberDisplayMode::Float);
+	switch(size)
+	{
+	case sizeof(edb::value32):
+		model()->setChosenSIMDSize(regIndex.parent(),Model::ElementSize::DWORD);
+		break;
+	case sizeof(edb::value64):
+		model()->setChosenSIMDSize(regIndex.parent(),Model::ElementSize::QWORD);
+		break;
+	default: EDB_PRINT_AND_DIE("Unexpected size: ",size);
+	}
+}
+
+void SIMDValueManager::setIntFormat(int format_)
+{
+	const auto format=static_cast<NumberDisplayMode>(format_);
+	model()->setChosenSIMDFormat(regIndex.parent(),format);
+}
+
 void SIMDValueManager::setupMenu()
 {
 	const auto group=this->group();
 	// Setup menu if we're the first value field creator
 	if(group->valueFields().isEmpty())
 	{
-		group->menuItems.push_back(newActionSeparator(this));
-		menuItems.push_back(new QAction(tr("View %1 as bytes").arg(group->name),group));
-		group->menuItems.push_back(menuItems.back());
-		menuItems.push_back(new QAction(tr("View %1 as words").arg(group->name),group));
-		group->menuItems.push_back(menuItems.back());
-		menuItems.push_back(new QAction(tr("View %1 as doublewords").arg(group->name),group));
-		group->menuItems.push_back(menuItems.back());
-		menuItems.push_back(new QAction(tr("View %1 as quadwords").arg(group->name),group));
-		group->menuItems.push_back(menuItems.back());
+		const auto intSizeMapper=new QSignalMapper(this);
+		connect(intSizeMapper,SIGNAL(mapped(int)),this,SLOT(showAsInt(int)));
+		menuItems.push_back(newAction(tr("View %1 as bytes").arg(group->name),
+							group,intSizeMapper,Model::ElementSize::BYTE));
+		menuItems.push_back(newAction(tr("View %1 as words").arg(group->name),
+							group,intSizeMapper,Model::ElementSize::WORD));
+		menuItems.push_back(newAction(tr("View %1 as doublewords").arg(group->name),
+							group,intSizeMapper,Model::ElementSize::DWORD));
+		menuItems.push_back(newAction(tr("View %1 as quadwords").arg(group->name),
+							group,intSizeMapper,Model::ElementSize::QWORD));
 
-		group->menuItems.push_back(newActionSeparator(this));
-		menuItems.push_back(new QAction(tr("View %1 as 32-bit floats").arg(group->name),group));
-		group->menuItems.push_back(menuItems.back());
-		menuItems.push_back(new QAction(tr("View %1 as 64-bit floats").arg(group->name),group));
-		group->menuItems.push_back(menuItems.back());
+		const auto floatMapper=new QSignalMapper(this);
+		connect(floatMapper,SIGNAL(mapped(int)),this,SLOT(showAsFloat(int)));
+		menuItems.push_back(newAction(tr("View %1 as 32-bit floats").arg(group->name),
+							group,floatMapper,Model::ElementSize::DWORD));
+		menuItems.push_back(newAction(tr("View %1 as 64-bit floats").arg(group->name),
+							group,floatMapper,Model::ElementSize::QWORD));
 
-		group->menuItems.push_back(newActionSeparator(this));
-		menuItems.push_back(new QAction(tr("View %1 integers as hex").arg(group->name),group));
-		group->menuItems.push_back(menuItems.back());
-		menuItems.push_back(new QAction(tr("View %1 integers as signed").arg(group->name),group));
-		group->menuItems.push_back(menuItems.back());
-		menuItems.push_back(new QAction(tr("View %1 integers as unsigned").arg(group->name),group));
-		group->menuItems.push_back(menuItems.back());
+		const auto intMapper=new QSignalMapper(this);
+		connect(intMapper,SIGNAL(mapped(int)),this,SLOT(setIntFormat(int)));
+		menuItems.push_back(newAction(tr("View %1 integers as hex").arg(group->name),
+							group,intMapper,static_cast<int>(NumberDisplayMode::Hex)));
+		menuItems.push_back(newAction(tr("View %1 integers as signed").arg(group->name),
+							group,intMapper,static_cast<int>(NumberDisplayMode::Signed)));
+		menuItems.push_back(newAction(tr("View %1 integers as unsigned").arg(group->name),
+							group,intMapper,static_cast<int>(NumberDisplayMode::Unsigned)));
+
+		fillGroupMenu();
 	}
 }
 
@@ -1476,27 +1551,29 @@ void SIMDValueManager::updateMenu()
 	using RegisterViewModelBase::Model;
 	switch(currentSize())
 	{
-	case Model::ElementSize::BYTE:  menuItems[VIEW_AS_BYTES]->setVisible(false); break;
-	case Model::ElementSize::WORD:  menuItems[VIEW_AS_WORDS]->setVisible(false); break;
+	case Model::ElementSize::BYTE:  menuItems[VIEW_AS_BYTES ]->setVisible(false); break;
+	case Model::ElementSize::WORD:  menuItems[VIEW_AS_WORDS ]->setVisible(false); break;
 	case Model::ElementSize::DWORD:
 		menuItems[VIEW_AS_DWORDS]->setVisible(false);
-		menuItems[VIEW_AS_32FLOAT]->setVisible(false);
+		if(currentFormat()==NumberDisplayMode::Float)
+			menuItems[VIEW_AS_FLOAT32]->setVisible(false);
 		break;
 	case Model::ElementSize::QWORD:
 		menuItems[VIEW_AS_QWORDS]->setVisible(false);
-		menuItems[VIEW_AS_64FLOAT]->setVisible(false);
+		if(currentFormat()==NumberDisplayMode::Float)
+			menuItems[VIEW_AS_FLOAT64]->setVisible(false);
 		break;
 	default: EDB_PRINT_AND_DIE("Unexpected current size: ",currentSize());
 	}
 	switch(currentFormat())
 	{
 	case NumberDisplayMode::Float:
-		menuItems[VIEW_INT_AS_HEX]->setVisible(false);
-		menuItems[VIEW_INT_AS_SIGNED]->setVisible(false);
+		menuItems[  VIEW_INT_AS_HEX   ]->setVisible(false);
+		menuItems[ VIEW_INT_AS_SIGNED ]->setVisible(false);
 		menuItems[VIEW_INT_AS_UNSIGNED]->setVisible(false);
 		break;
-	case NumberDisplayMode::Hex:      menuItems[VIEW_INT_AS_HEX]->setVisible(false); break;
-	case NumberDisplayMode::Signed:   menuItems[VIEW_INT_AS_SIGNED]->setVisible(false); break;
+	case NumberDisplayMode::Hex:      menuItems[  VIEW_INT_AS_HEX   ]->setVisible(false); break;
+	case NumberDisplayMode::Signed:   menuItems[ VIEW_INT_AS_SIGNED ]->setVisible(false); break;
 	case NumberDisplayMode::Unsigned: menuItems[VIEW_INT_AS_UNSIGNED]->setVisible(false); break;
 	}
 }
@@ -1509,6 +1586,10 @@ RegisterGroup* SIMDValueManager::group() const
 
 void SIMDValueManager::displayFormatChanged()
 {
+	const auto newFormat=currentFormat();
+	if(newFormat!=NumberDisplayMode::Float)
+		intMode=newFormat;
+
 	for(auto* const elem : elements)
 		elem->deleteLater();
 	elements.clear();
