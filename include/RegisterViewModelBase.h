@@ -37,6 +37,7 @@ public:
 			QWORD=8
 		} value;
 		ElementSize(T v):value(v){}
+		explicit ElementSize(int v):value(static_cast<T>(v)){}
 		operator T() const {return value;}
 	};
 	enum SizesOrder
