@@ -64,6 +64,7 @@ QList<QAction*> Plugin::cpu_context_menu()
 {
 
 	QList<QAction*> ret;
+	// TODO: make a way to reopen register view if all its docks have been closed
 
 	return ret;
 }
