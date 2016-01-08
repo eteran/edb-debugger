@@ -139,6 +139,7 @@ public:
 
 	bool isSelected() const;
 	void defaultAction();
+	void showMenu(QPoint const& position);
 public Q_SLOTS:
 	void update() override;
 	void select();

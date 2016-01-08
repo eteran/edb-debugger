@@ -297,12 +297,17 @@ void ValueField::select()
 	updatePalette();
 }
 
+void ValueField::showMenu(QPoint const& position)
+{
+	group()->showMenu(position,menuItems);
+}
+
 void ValueField::mousePressEvent(QMouseEvent* event)
 {
 	if(event->button() & (Qt::LeftButton|Qt::RightButton))
 		select();
 	if(event->button()==Qt::RightButton && event->type()!=QEvent::MouseButtonDblClick)
-		group()->showMenu(event->globalPos(),menuItems);
+		showMenu(event->globalPos());
 }
 
 void ValueField::unselect()
@@ -1682,6 +1687,12 @@ void ODBRegView::keyPressEvent(QKeyEvent* event)
 			selected->defaultAction();
 			return;
 		}
+		break;
+	case Qt::Key_Menu:
+		if(selected)
+			selected->showMenu(selected->mapToGlobal(selected->rect().bottomLeft()));
+		else
+			showMenu(mapToGlobal(QPoint()));
 		break;
 	}
 	QScrollArea::keyPressEvent(event);
