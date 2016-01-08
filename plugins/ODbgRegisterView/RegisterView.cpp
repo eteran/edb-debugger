@@ -43,7 +43,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace ODbgRegisterView {
 
 // TODO: Right click => select too
-// TODO: Menu key => open menu
 // TODO: Enter key => modify/toggle
 // TODO: GPR menu: Increment, Decrement, Invert, Zero(if not already), Set to 1(if not already)
 // TODO: rFLAGS menu: Set Condition (O,P,NAE etc. - see ODB)
