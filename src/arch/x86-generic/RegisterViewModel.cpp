@@ -1,6 +1,7 @@
 #include "RegisterViewModel.h"
 #include "Util.h"
 #include <cstdint>
+#include <QList>
 
 namespace
 {
@@ -341,11 +342,11 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject* parent)
 	  dbgRegs64(addCategory(tr("Debug"))),
 	  fpuRegs32(addCategory(tr("FPU"))),
 	  fpuRegs64(addCategory(tr("FPU"))),
-	  mmxRegs(addSIMDCategory(tr("MMX"))),
-	  sseRegs32(addSIMDCategory(tr("SSE"))),
-	  sseRegs64(addSIMDCategory(tr("SSE"))),
-	  avxRegs32(addSIMDCategory(tr("AVX"))),
-	  avxRegs64(addSIMDCategory(tr("AVX")))
+	  mmxRegs(addSIMDCategory(tr("MMX"),MMXFormats)),
+	  sseRegs32(addSIMDCategory(tr("SSE"),SSEAVXFormats)),
+	  sseRegs64(addSIMDCategory(tr("SSE"),SSEAVXFormats)),
+	  avxRegs32(addSIMDCategory(tr("AVX"),SSEAVXFormats)),
+	  avxRegs64(addSIMDCategory(tr("AVX"),SSEAVXFormats))
 {
 	addGPRs32(gprs32);
 	addGPRs64(gprs64);

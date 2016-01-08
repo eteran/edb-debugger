@@ -68,9 +68,10 @@ Category* CategoriesHolder::insert(QString const& name)
 	return categories.back().get();
 }
 
-SIMDCategory* CategoriesHolder::insertSIMD(QString const& name)
+SIMDCategory* CategoriesHolder::insertSIMD(QString const& name,
+										   std::vector<NumberDisplayMode> const& validFormats)
 {
-	auto cat=util::make_unique<SIMDCategory>(name,categories.size());
+	auto cat=util::make_unique<SIMDCategory>(name,categories.size(),validFormats);
 	auto ret=cat.get();
 	categories.emplace_back(std::move(cat));
 	return ret;
@@ -199,6 +200,12 @@ QVariant Model::data(QModelIndex const& index, int role) const
 		}
 		return {};
 	}
+	case ValidSIMDFormatsRole:
+	{
+		const auto simdCat=dynamic_cast<SIMDCategory const*>(item);
+		if(!simdCat) return {};
+		return QVariant::fromValue(simdCat->validFormats());
+	}
 
 	default:
 		return {};
@@ -246,9 +253,10 @@ Category* Model::addCategory(QString const& name)
 	return rootItem->insert(name);
 }
 
-SIMDCategory* Model::addSIMDCategory(QString const& name)
+SIMDCategory* Model::addSIMDCategory(QString const& name,
+									 std::vector<NumberDisplayMode> const& validFormats)
 {
-	return rootItem->insertSIMD(name);
+	return rootItem->insertSIMD(name,validFormats);
 }
 
 void Model::hide(Category* cat)
@@ -835,7 +843,7 @@ bool SIMDSizedElementsContainer<StoredType>::changed() const
 template<class StoredType>
 SIMDRegister<StoredType>::SIMDRegister(
 									QString const& name,
-									std::vector<NumberDisplayMode> validFormats)
+									std::vector<NumberDisplayMode> const& validFormats)
 	: SimpleRegister<StoredType>(name)
 {
 	static const auto sizeNames=util::make_array(QObject::tr("bytes"),
@@ -944,8 +952,10 @@ FloatType FPURegister<FloatType>::value() const
 template class FPURegister<edb::value80>;
 
 // ---------------------------- SIMDCategory impl ------------------------------
-SIMDCategory::SIMDCategory(QString const& name, int row)
-	: Category(name,row)
+SIMDCategory::SIMDCategory(QString const& name, int row,
+							std::vector<NumberDisplayMode> const& validFormats)
+	: Category(name,row),
+	  validFormats_(validFormats)
 {
 }
 
@@ -969,6 +979,10 @@ void SIMDCategory::setChosenSize(Model::ElementSize newSize)
 	chosenSize_=newSize;
 }
 
+std::vector<NumberDisplayMode>const& SIMDCategory::validFormats() const
+{
+	return validFormats_;
+}
 
 // -----------------------------------------------
 

@@ -7,6 +7,8 @@
 #include <vector>
 #include "Util.h"
 
+Q_DECLARE_METATYPE(std::vector<NumberDisplayMode>);
+
 namespace RegisterViewModelBase
 {
 
@@ -76,6 +78,9 @@ public:
 		// What row to take in given sized element to get chosen-formatted element
 		// Property of: Category
 		ChosenSIMDFormatRowRole,
+		// Which SIMD formats are valid to be set. Type: std::vector<NumberDisplayMode>
+		// Property of: Category
+		ValidSIMDFormatsRole,
 
 		FirstConcreteRole=Qt::UserRole+10000 // first role available for use in derived models
 	};
@@ -98,7 +103,8 @@ public:
 protected:
 	// All categories are there to stay after they've been inserted
 	Category* addCategory(QString const& name);
-	SIMDCategory* addSIMDCategory(QString const& name);
+	SIMDCategory* addSIMDCategory(QString const& name,
+								  std::vector<NumberDisplayMode> const& validFormats);
 	void hide(Category* cat);
 	void show(Category* cat);
 	void hide(AbstractRegisterItem* reg);
@@ -290,7 +296,7 @@ protected:
 
 	SIMDCategory* category() const;
 public:
-	SIMDRegister(QString const& name, std::vector<NumberDisplayMode> validFormats);
+	SIMDRegister(QString const& name, std::vector<NumberDisplayMode> const& validFormats);
 	int childCount() const override;
 	RegisterViewItem* child(int) override;
 	QVariant data(int column) const override;
@@ -341,12 +347,15 @@ class SIMDCategory : public Category
 {
 	Model::ElementSize chosenSize_=Model::ElementSize::WORD;
 	NumberDisplayMode chosenFormat_=NumberDisplayMode::Signed;
+	std::vector<NumberDisplayMode> const validFormats_;
 public:
-	SIMDCategory(QString const& name, int row);
+	SIMDCategory(QString const& name, int row,
+				 std::vector<NumberDisplayMode> const& validFormats);
 	virtual Model::ElementSize chosenSize() const;
 	virtual NumberDisplayMode chosenFormat() const;
 	virtual void setChosenSize(Model::ElementSize newSize);
 	virtual void setChosenFormat(NumberDisplayMode newFormat);
+	std::vector<NumberDisplayMode>const& validFormats() const;
 };
 
 class CategoriesHolder : public RegisterViewItem
@@ -355,7 +364,8 @@ class CategoriesHolder : public RegisterViewItem
 public:
 	CategoriesHolder();
 	Category* insert(QString const& name);
-	SIMDCategory* insertSIMD(QString const& name);
+	SIMDCategory* insertSIMD(QString const& name,
+				 			 std::vector<NumberDisplayMode> const& validFormats);
 	int childCount() const override;
 	RegisterViewItem* child(int row) override;
 	QVariant data(int column) const;
