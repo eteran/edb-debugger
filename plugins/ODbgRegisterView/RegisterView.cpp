@@ -1453,32 +1453,38 @@ void SIMDValueManager::displayFormatChanged()
 void ODBRegView::keyPressEvent(QKeyEvent* event)
 {
 	auto* const selected=selectedField();
-	if(!selected)
-	{
-		QScrollArea::keyPressEvent(event);
-		return;
-	}
 	switch(event->key())
 	{
 	case Qt::Key_Up:
-		if(selected->up())
+		if(selected && selected->up())
+		{
 			selected->up()->select();
+			return;
+		}
 		break;
 	case Qt::Key_Down:
-		if(selected->down())
+		if(selected && selected->down())
+		{
 			selected->down()->select();
+			return;
+		}
 		break;
 	case Qt::Key_Left:
-		if(selected->left())
+		if(selected && selected->left())
+		{
 			selected->left()->select();
+			return;
+		}
 		break;
 	case Qt::Key_Right:
-		if(selected->right())
+		if(selected && selected->right())
+		{
 			selected->right()->select();
+			return;
+		}
 		break;
-	default:
-		QScrollArea::keyPressEvent(event);
 	}
+	QScrollArea::keyPressEvent(event);
 }
 
 }
