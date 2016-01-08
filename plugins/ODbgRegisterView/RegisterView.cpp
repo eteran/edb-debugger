@@ -347,7 +347,8 @@ RegisterGroup::RegisterGroup(QString const& name, QWidget* parent)
 
 	{
 		menuItems.push_back(newActionSeparator(this));
-		menuItems.push_back(new QAction(tr("Hide %1","register group").arg(name),this)); // TODO: implement
+		// TODO: instead of simply hiding, also invoke regView's slot to register this group as hidden for future model resets
+		menuItems.push_back(newAction(tr("Hide %1","register group").arg(name),this,this,SLOT(hide())));
 	}
 }
 
