@@ -80,7 +80,7 @@ inline void markMemory(void* memory, std::size_t size)
 }
 
 template<typename T, typename... Tail>
-auto make_array(T head, Tail...tail) -> std::array<T,1+sizeof...(Tail)>
+constexpr auto make_array(T head, Tail...tail) -> std::array<T,1+sizeof...(Tail)>
 { return std::array<T,1+sizeof...(Tail)>{head,tail...}; }
 
 template<typename Container, typename Element>
