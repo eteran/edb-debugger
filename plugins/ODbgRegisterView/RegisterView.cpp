@@ -1619,7 +1619,7 @@ void SIMDValueManager::displayFormatChanged()
 	const auto regNameWidth=VALID_VARIANT(regIndex.data(Model::FixedLengthRole)).toInt();
 	int column=regNameWidth+1;
 	const auto elemWidth=VALID_VARIANT(model->index(0,MODEL_VALUE_COLUMN,sizeIndex).data(Model::FixedLengthRole)).toInt();
-	for(int elemN=0;elemN<elemCount;++elemN)
+	for(int elemN=elemCount-1;elemN>=0;--elemN)
 	{
 		const auto elemIndex=model->index(elemN,MODEL_VALUE_COLUMN,sizeIndex);
 		const auto field=new ValueField(elemWidth,elemIndex,group());
