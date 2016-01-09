@@ -38,6 +38,7 @@ public:
 			DWORD=4,
 			QWORD=8
 		} value;
+		ElementSize()=default;
 		ElementSize(T v):value(v){}
 		explicit ElementSize(int v):value(static_cast<T>(v)){}
 		operator T() const {return value;}
@@ -345,12 +346,15 @@ public:
 
 class SIMDCategory : public Category
 {
-	Model::ElementSize chosenSize_=Model::ElementSize::WORD;
-	NumberDisplayMode chosenFormat_=NumberDisplayMode::Hex;
+	bool sizeChanged_=false;
+	bool formatChanged_=false;
+	Model::ElementSize chosenSize_;
+	NumberDisplayMode chosenFormat_;
 	std::vector<NumberDisplayMode> const validFormats_;
 public:
 	SIMDCategory(QString const& name, int row,
 				 std::vector<NumberDisplayMode> const& validFormats);
+	~SIMDCategory();
 	virtual Model::ElementSize chosenSize() const;
 	virtual NumberDisplayMode chosenFormat() const;
 	virtual void setChosenSize(Model::ElementSize newSize);

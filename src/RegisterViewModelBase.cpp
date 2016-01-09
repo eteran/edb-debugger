@@ -4,6 +4,7 @@
 #include <algorithm>
 #include "Types.h"
 #include <QBrush>
+#include <QSettings>
 #include "Util.h"
 #include <QDebug>
 #include <boost/range/adaptor/reversed.hpp>
@@ -952,11 +953,38 @@ FloatType FPURegister<FloatType>::value() const
 template class FPURegister<edb::value80>;
 
 // ---------------------------- SIMDCategory impl ------------------------------
+const QString simdCatKey="RegisterViewModelBase";
+const QString simdFormatKey="format";
+const QString simdSizeKey="size";
+
 SIMDCategory::SIMDCategory(QString const& name, int row,
 							std::vector<NumberDisplayMode> const& validFormats)
 	: Category(name,row),
 	  validFormats_(validFormats)
 {
+	QSettings settings;
+	settings.beginGroup(simdCatKey+"/"+name);
+	const auto defaultFormat=NumberDisplayMode::Hex;
+	chosenFormat_=static_cast<NumberDisplayMode>(settings.value(simdFormatKey,
+												 static_cast<int>(defaultFormat)).toInt());
+	if(!util::contains(validFormats,chosenFormat_))
+		chosenFormat_=defaultFormat;
+
+	chosenSize_=static_cast<Model::ElementSize>(settings.value(simdSizeKey,
+												static_cast<int>(Model::ElementSize::WORD)).toInt());
+}
+
+SIMDCategory::~SIMDCategory()
+{
+	QSettings settings;
+	settings.beginGroup(simdCatKey+"/"+name());
+	// Simple guard against rewriting settings which didn't change between
+	// categories with the same name (but e.g. different bitness)
+	// FIXME: this won't work correctly in general if multiple categories changed settings
+	if(formatChanged_)
+		settings.setValue(simdFormatKey,static_cast<int>(chosenFormat_));
+	if(sizeChanged_)
+		settings.setValue(simdSizeKey,static_cast<int>(chosenSize_));
 }
 
 NumberDisplayMode SIMDCategory::chosenFormat() const
@@ -971,11 +999,13 @@ Model::ElementSize SIMDCategory::chosenSize() const
 
 void SIMDCategory::setChosenFormat(NumberDisplayMode newFormat)
 {
+	formatChanged_=true;
 	chosenFormat_=newFormat;
 }
 
 void SIMDCategory::setChosenSize(Model::ElementSize newSize)
 {
+	sizeChanged_=true;
 	chosenSize_=newSize;
 }
 
