@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSettings>
 #include "RegisterView.h"
 #include "ArchProcessor.h"
+#include <QDebug>
 
 namespace ODbgRegisterView
 {
@@ -31,55 +32,76 @@ Plugin::Plugin()
 	: QObject(0),
 	  menu_(0)
 {
+	connect(QCoreApplication::instance(),SIGNAL(aboutToQuit()),this,SLOT(saveState()));
 }
 
-#define PLUGIN_NAME "ObgRegisterView"
-#define DOCK_COUNT "dockCount"
+const QString pluginName="ODbgRegisterView";
+const QString VIEW="views";
 
-void Plugin::setupDocks(QMainWindow* mainWindow)
+void Plugin::setupDocks()
 {
-	const auto dockCount=QSettings().value(PLUGIN_NAME "/" DOCK_COUNT,1).toInt();
-	for(int dockN=0;dockN<dockCount;++dockN)
+	QSettings settings;
+	settings.beginGroup(pluginName);
+	if(settings.value(VIEW+"/size").isValid())
 	{
-		const auto registerViewDock=createRegisterView();
-		if(QDockWidget* registersDock  = mainWindow->findChild<QDockWidget*>("registersDock"))
-			mainWindow->tabifyDockWidget(registersDock, registerViewDock);
+		const int size=settings.beginReadArray(VIEW);
+		for(int i=0;i<size;++i)
+		{
+			settings.setArrayIndex(i);
+			createRegisterView(settings);
+		}
+	}
+	else createRegisterView();
+}
+
+void Plugin::saveState() const
+{
+	QSettings settings;
+	const int size=registerViews_.size();
+	settings.beginWriteArray(pluginName+"/"+VIEW,size);
+	for(int i=0;i<size;++i)
+	{
+		settings.setArrayIndex(i);
+		registerViews_[i]->saveState(settings);
 	}
 }
 
-QDockWidget* Plugin::createRegisterView()
+void Plugin::createRegisterView()
+{
+	createRegisterView(QSettings());
+}
+
+void Plugin::createRegisterView(QSettings const& settings)
 {
 	if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
 	{
-		const auto dockN=registerViews_.size();
-		const auto regView=new ODBRegView(dockN,mainWindow);
+		const auto regView=new ODBRegView(settings,mainWindow);
 		registerViews_.emplace_back(regView);
 		regView->setModel(&edb::v1::arch_processor().get_register_view_model());
 
-		auto* const dock = new QDockWidget(tr("Registers"), mainWindow);
-		dock->setObjectName(QString(PLUGIN_NAME"-%1").arg(dockN));
-		dock->setWidget(regView);
+		auto* const regViewDockWidget = new QDockWidget(tr("Registers"), mainWindow);
+		const auto viewNumber=registerViews_.size();
+		regViewDockWidget->setObjectName(QString(pluginName+"-%1").arg(viewNumber));
+		regViewDockWidget->setWidget(regView);
 
-		mainWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
+		mainWindow->addDockWidget(Qt::RightDockWidgetArea, regViewDockWidget);
 
-		return dock;
+		if(QDockWidget* registersDock  = mainWindow->findChild<QDockWidget*>("registersDock"))
+			mainWindow->tabifyDockWidget(registersDock, regViewDockWidget);
+
 	}
-	return nullptr;
 }
 
 QMenu* Plugin::menu(QWidget* parent)
 {
 	if(!menu_)
 	{
-		if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
-		{
-			setupDocks(mainWindow);
-			// make the menu and add the show/hide toggle for the widget
-			menu_ = new QMenu(PLUGIN_NAME, parent);
-			const auto newRegisterView=new QAction(tr("New Register View"),menu_);
-			connect(newRegisterView,SIGNAL(triggered()),this,SLOT(createRegisterView()));
-			menu_->addAction(newRegisterView);
-		}
+		setupDocks();
+
+		menu_ = new QMenu(pluginName, parent);
+		const auto newRegisterView=new QAction(tr("New Register View"),menu_);
+		connect(newRegisterView,SIGNAL(triggered()),this,SLOT(createRegisterView()));
+		menu_->addAction(newRegisterView);
 	}
 
 	return menu_;

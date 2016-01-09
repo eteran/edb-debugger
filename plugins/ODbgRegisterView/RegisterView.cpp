@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAction>
 #include <QMenu>
 #include <QSignalMapper>
+#include <QSettings>
 #include <algorithm>
 #include <unordered_map>
 #include <QDebug>
@@ -539,10 +540,10 @@ void RegisterGroup::adjustWidth()
 	setMinimumWidth(widthNeeded);
 }
 
-ODBRegView::ODBRegView(int regViewIndex, QWidget* parent)
+ODBRegView::ODBRegView(QSettings const& settings, QWidget* parent)
 	: QScrollArea(parent)
 {
-	setObjectName(QString("ODBRegView-%1").arg(regViewIndex));
+	setObjectName("ODBRegView");
 
 	{
 		// TODO: get some signal to change font on the fly
@@ -581,6 +582,12 @@ ODBRegView::ODBRegView(int regViewIndex, QWidget* parent)
 				   RegisterGroupType::AVXData,
 				   RegisterGroupType::MXCSR
 				  };
+}
+
+void ODBRegView::saveState(QSettings& settings) const
+{
+	const auto value=objectName()+QString("%1").arg(reinterpret_cast<std::size_t>(this),0,16);
+	settings.setValue("objectName",value);
 }
 
 void ODBRegView::setModel(RegisterViewModelBase::Model* model)

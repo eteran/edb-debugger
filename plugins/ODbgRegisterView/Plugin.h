@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QMainWindow;
 class QDockWidget;
+class QSettings;
 
 namespace ODbgRegisterView {
 
@@ -37,19 +38,20 @@ class Plugin : public QObject, public IPlugin {
 	Q_CLASSINFO("author", "Ruslan Kabatsayev")
 	Q_CLASSINFO("email", "b7.10110111@gmail.com")
 
-	void setupDocks(QMainWindow* mainWindow);
+	void setupDocks();
 	
 public:
 	Plugin();
 	virtual QMenu* menu(QWidget* parent = 0) override;
 	virtual QList<QAction*> cpu_context_menu() override;
-
 private:
 	QMenu* menu_;
 	std::vector<ODBRegView*> registerViews_;
 
+	void createRegisterView(QSettings const& settings);
 private Q_SLOTS:
-	QDockWidget* createRegisterView();
+	void createRegisterView();
+	void saveState() const;
 };
 
 }

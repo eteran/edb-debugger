@@ -27,6 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <functional>
 #include "RegisterViewModelBase.h"
 
+class QSettings;
+
 namespace ODbgRegisterView {
 
 class RegisterGroup;
@@ -59,11 +61,12 @@ class ODBRegView : public QScrollArea
 
 	RegisterGroup* makeGroup(RegisterGroupType type);
 public:
-	ODBRegView(int regViewIndex, QWidget* parent=nullptr);
+	ODBRegView(QSettings const& settings, QWidget* parent=nullptr);
 	void setModel(RegisterViewModelBase::Model* model);
 	QList<ValueField*> valueFields() const;
 	QList<FieldWidget*> fields() const;
 	void showMenu(QPoint const& position,QList<QAction*>const& additionalItems={}) const;
+	void saveState(QSettings& settings) const;
 private:
 	ValueField* selectedField() const;
 	void updateFieldsPalette();
