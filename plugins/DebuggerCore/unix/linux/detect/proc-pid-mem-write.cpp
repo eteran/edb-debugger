@@ -58,6 +58,12 @@ void writeHeader(bool broken)
     file << "#define PROC_PID_MEM_WRITE_BROKEN " << std::boolalpha << broken << "\n";
 }
 
+void killChild(int pid, std::string const& progName)
+{
+	if(kill(pid,SIGKILL)==-1)
+		perror((progName+": warning: failed to kill child").c_str());
+}
+
 bool detectAndWriteHeader(std::string progName)
 {
     switch(pid_t pid = fork()) {
@@ -82,6 +88,7 @@ bool detectAndWriteHeader(std::string progName)
             if(waitpid(pid,&status,__WALL)==-1)
             {
                 perror((progName+": parent: waitpid failed").c_str());
+				killChild(pid,progName);
                 return false;
             }
 
@@ -89,6 +96,7 @@ bool detectAndWriteHeader(std::string progName)
             {
                 std::cerr << progName << ": unexpected status returned by waitpid: 0x"
                           << std::hex << status << "\n";
+				killChild(pid,progName);
                 return false;
             }
 
@@ -96,6 +104,7 @@ bool detectAndWriteHeader(std::string progName)
             if(!file)
             {
                 perror((progName+": failed to open memory file").c_str());
+				killChild(pid,progName);
                 return false;
             }
 
@@ -105,6 +114,7 @@ bool detectAndWriteHeader(std::string progName)
             if(!file)
             {
                 perror((progName+": failed to seek to address to read").c_str());
+				killChild(pid,progName);
                 return false;
             }
 
@@ -114,6 +124,7 @@ bool detectAndWriteHeader(std::string progName)
                 if(!file)
                 {
                     perror((progName+": failed to read data from child's memory, won't even try to write").c_str());
+					killChild(pid,progName);
                     return false;
                 }
             }
@@ -122,6 +133,7 @@ bool detectAndWriteHeader(std::string progName)
             if(!file)
             {
                 perror((progName+": failed to seek to address to write").c_str());
+				killChild(pid,progName);
                 return false;
             }
 
@@ -133,16 +145,9 @@ bool detectAndWriteHeader(std::string progName)
                     writeHeader(false);
                 }
             }
-
-            if(kill(pid,SIGKILL)==-1)
-            {
-                perror((progName+": warning: failed to kill child").c_str());
-                return false;
-            }
-
-            return true;
+			killChild(pid,progName);
+			return true;
         }
-        break;
     }
 }
 
