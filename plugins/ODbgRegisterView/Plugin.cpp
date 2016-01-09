@@ -100,7 +100,7 @@ QMenu* Plugin::menu(QWidget* parent)
 	{
 		setupDocks();
 
-		menu_ = new QMenu(pluginName, parent);
+		menu_ = new QMenu("OllyDbg-like Register View", parent);
 		const auto newRegisterView=new QAction(tr("New Register View"),menu_);
 		connect(newRegisterView,SIGNAL(triggered()),this,SLOT(createRegisterView()));
 		menu_->addAction(newRegisterView);
