@@ -46,9 +46,9 @@ class ODBRegView : public QScrollArea
 		{
 			GPR,
 			rIP,
-			EFL,
 			ExpandedEFL,
 			Segment,
+			EFL,
 			FPUData,
 			FPUWords,
 			FPULastOp,
