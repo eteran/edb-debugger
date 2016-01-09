@@ -81,7 +81,8 @@ void Plugin::createRegisterView(QString const& settingsGroup)
 		registerViews_.emplace_back(regView);
 		regView->setModel(&edb::v1::arch_processor().get_register_view_model());
 
-		auto* const regViewDockWidget = new QDockWidget(tr("Registers"), mainWindow);
+		const QString suffix=registerViews_.size()>1 ? QString(" <%1>").arg(registerViews_.size()) : "";
+		auto* const regViewDockWidget = new QDockWidget(tr("Registers")+suffix, mainWindow);
 		const auto viewNumber=registerViews_.size();
 		regViewDockWidget->setObjectName(QString(pluginName+"-%1").arg(viewNumber));
 		regViewDockWidget->setWidget(regView);
