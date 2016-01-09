@@ -57,8 +57,25 @@ namespace ODbgRegisterView {
 namespace
 {
 
+const constexpr auto registerGroupTypeNames=util::make_array<const char*>(
+			"GPR",
+			"rIP",
+			"ExpandedEFL",
+			"Segment",
+			"EFL",
+			"FPUData",
+			"FPUWords",
+			"FPULastOp",
+			"Debug",
+			"MMX",
+			"SSEData",
+			"AVXData",
+			"MXCSR"
+		);
+static_assert(registerGroupTypeNames.size()==ODBRegView::RegisterGroupType::NUM_GROUPS,
+					"Mismatch between number of register group types and names");
+
 const QString SETTINGS_GROUPS_ARRAY_NODE="visibleGroups";
-const QString SETTINGS_GROUP_NODE="group";
 
 static const int MODEL_NAME_COLUMN=RegisterViewModelBase::Model::NAME_COLUMN;
 static const int MODEL_VALUE_COLUMN=RegisterViewModelBase::Model::VALUE_COLUMN;
@@ -548,6 +565,14 @@ void RegisterGroup::adjustWidth()
 	setMinimumWidth(widthNeeded);
 }
 
+ODBRegView::RegisterGroupType findGroup(QString const& str)
+{
+	const auto& names=registerGroupTypeNames;
+	const auto foundIt=std::find(names.begin(),names.end(),str);
+	if(foundIt==names.end()) return ODBRegView::RegisterGroupType::NUM_GROUPS;
+	return ODBRegView::RegisterGroupType{foundIt-names.begin()};
+}
+
 ODBRegView::ODBRegView(QString const& settingsGroup, QWidget* parent)
 	: QScrollArea(parent)
 {
@@ -577,8 +602,8 @@ ODBRegView::ODBRegView(QString const& settingsGroup, QWidget* parent)
 
 	QSettings settings;
 	settings.beginGroup(settingsGroup);
-	const auto groupsSizeV=settings.value(SETTINGS_GROUPS_ARRAY_NODE+"/size");
-	if(settings.group().isEmpty() || !groupsSizeV.isValid())
+	const auto groupListV=settings.value(SETTINGS_GROUPS_ARRAY_NODE);
+	if(settings.group().isEmpty() || !groupListV.isValid())
 	{
 		visibleGroupTypes={
 							RegisterGroupType::GPR,
@@ -598,25 +623,15 @@ ODBRegView::ODBRegView(QString const& settingsGroup, QWidget* parent)
 	}
 	else
 	{
-		const int groupsSize=groupsSizeV.toInt(); // zero is acceptable
-		settings.beginReadArray(SETTINGS_GROUPS_ARRAY_NODE);
-		for(int grpIndex=0;grpIndex<groupsSize;++grpIndex)
+		for(const auto grp : groupListV.toStringList())
 		{
-			settings.setArrayIndex(grpIndex);
-			const auto groupV=settings.value(SETTINGS_GROUP_NODE);
-			if(!groupV.isValid())
+			const auto group=findGroup(grp);
+			if(group>=RegisterGroupType::NUM_GROUPS)
 			{
-				qWarning() << qPrintable(QString("Warning: failed to parse register group #%1").arg(grpIndex));
+				qWarning() << qPrintable(QString("Warning: failed to understand group %1").arg(group));
 				continue;
 			}
-			const int group=groupV.toInt();
-			if(group<0 || group>=RegisterGroupType::NUM_GROUPS)
-			{
-				qWarning() << qPrintable(QString("Warning: failed to understand group #%1: invalid value %2")
-												.arg(grpIndex).arg(group));
-				continue;
-			}
-			visibleGroupTypes.emplace_back(RegisterGroupType{group});
+			visibleGroupTypes.emplace_back(group);
 		}
 	}
 }
@@ -639,14 +654,11 @@ void ODBRegView::saveState(QString const& settingsGroup) const
 {
 	QSettings settings;
 	settings.beginGroup(settingsGroup);
-	const int groupsSize=visibleGroupTypes.size();
 	settings.remove(SETTINGS_GROUPS_ARRAY_NODE);
-	settings.beginWriteArray(SETTINGS_GROUPS_ARRAY_NODE,groupsSize);
-	for(int grpIndex=0;grpIndex<groupsSize;++grpIndex)
-	{
-		settings.setArrayIndex(grpIndex);
-		settings.setValue(SETTINGS_GROUP_NODE,int{visibleGroupTypes[grpIndex]});
-	}
+	QStringList groupTypes;
+	for(auto type : visibleGroupTypes)
+		groupTypes << registerGroupTypeNames[type];
+	settings.setValue(SETTINGS_GROUPS_ARRAY_NODE,groupTypes);
 }
 
 void ODBRegView::setModel(RegisterViewModelBase::Model* model)

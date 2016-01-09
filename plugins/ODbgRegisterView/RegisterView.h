@@ -40,6 +40,7 @@ class ODBRegView : public QScrollArea
 	Q_OBJECT
 
 	RegisterViewModelBase::Model* model_=nullptr;
+public:
 	struct RegisterGroupType
 	{
 		enum T
@@ -64,6 +65,7 @@ class ODBRegView : public QScrollArea
 		explicit RegisterGroupType(int v):value(static_cast<T>(v)){}
 		operator T() const {return value;}
 	};
+private:
 	std::vector<RegisterGroupType> visibleGroupTypes;
 	QList<QAction*> menuItems;
 
