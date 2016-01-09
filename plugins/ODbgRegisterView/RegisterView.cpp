@@ -539,10 +539,10 @@ void RegisterGroup::adjustWidth()
 	setMinimumWidth(widthNeeded);
 }
 
-ODBRegView::ODBRegView(QWidget* parent)
+ODBRegView::ODBRegView(int regViewIndex, QWidget* parent)
 	: QScrollArea(parent)
 {
-	setObjectName("ODBRegView");
+	setObjectName(QString("ODBRegView-%1").arg(regViewIndex));
 
 	{
 		// TODO: get some signal to change font on the fly

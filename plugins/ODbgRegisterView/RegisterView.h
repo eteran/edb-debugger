@@ -59,7 +59,7 @@ class ODBRegView : public QScrollArea
 
 	RegisterGroup* makeGroup(RegisterGroupType type);
 public:
-	ODBRegView(QWidget* parent=nullptr);
+	ODBRegView(int regViewIndex, QWidget* parent=nullptr);
 	void setModel(RegisterViewModelBase::Model* model);
 	QList<ValueField*> valueFields() const;
 	QList<FieldWidget*> fields() const;

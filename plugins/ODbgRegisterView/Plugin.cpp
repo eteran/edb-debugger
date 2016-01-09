@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDockWidget>
 #include <QMainWindow>
 #include <QMenu>
+#include <QSettings>
 #include "RegisterView.h"
 #include "ArchProcessor.h"
 
@@ -28,9 +29,42 @@ namespace ODbgRegisterView
 
 Plugin::Plugin()
 	: QObject(0),
-	  menu_(0),
-	  registerView_(0)
+	  menu_(0)
 {
+}
+
+#define PLUGIN_NAME "ObgRegisterView"
+#define DOCK_COUNT "dockCount"
+
+void Plugin::setupDocks(QMainWindow* mainWindow)
+{
+	const auto dockCount=QSettings().value(PLUGIN_NAME "/" DOCK_COUNT,1).toInt();
+	for(int dockN=0;dockN<dockCount;++dockN)
+	{
+		const auto registerViewDock=createRegisterView();
+		if(QDockWidget* registersDock  = mainWindow->findChild<QDockWidget*>("registersDock"))
+			mainWindow->tabifyDockWidget(registersDock, registerViewDock);
+	}
+}
+
+QDockWidget* Plugin::createRegisterView()
+{
+	if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
+	{
+		const auto dockN=registerViews_.size();
+		const auto regView=new ODBRegView(dockN,mainWindow);
+		registerViews_.emplace_back(regView);
+		regView->setModel(&edb::v1::arch_processor().get_register_view_model());
+
+		auto* const dock = new QDockWidget(tr("Registers"), mainWindow);
+		dock->setObjectName(QString(PLUGIN_NAME"-%1").arg(dockN));
+		dock->setWidget(regView);
+
+		mainWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
+
+		return dock;
+	}
+	return nullptr;
 }
 
 QMenu* Plugin::menu(QWidget* parent)
@@ -39,21 +73,12 @@ QMenu* Plugin::menu(QWidget* parent)
 	{
 		if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
 		{
-			registerView_ = new ODBRegView(mainWindow);
-			registerView_->setModel(&edb::v1::arch_processor().get_register_view_model());
-
-			auto* const dock = new QDockWidget(tr("Registers"), mainWindow);
-			dock->setObjectName(QString::fromUtf8("ODbgRegisterView"));
-			dock->setWidget(registerView_);
-
-			mainWindow->addDockWidget(Qt::RightDockWidgetArea, dock);
-			
-			if(QDockWidget* registersDock  = mainWindow->findChild<QDockWidget*>("registersDock"))
-				mainWindow->tabifyDockWidget(registersDock, dock);
-
+			setupDocks(mainWindow);
 			// make the menu and add the show/hide toggle for the widget
-			menu_ = new QMenu(tr("Plugin"), parent);
-			menu_->addAction(dock->toggleViewAction());
+			menu_ = new QMenu(PLUGIN_NAME, parent);
+			const auto newRegisterView=new QAction(tr("New Register View"),menu_);
+			connect(newRegisterView,SIGNAL(triggered()),this,SLOT(createRegisterView()));
+			menu_->addAction(newRegisterView);
 		}
 	}
 
@@ -64,7 +89,6 @@ QList<QAction*> Plugin::cpu_context_menu()
 {
 
 	QList<QAction*> ret;
-	// TODO: make a way to reopen register view if all its docks have been closed
 
 	return ret;
 }

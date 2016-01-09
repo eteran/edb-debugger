@@ -19,6 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ODBG_REGISTER_VIEW_PLUGIN_H_20151230
 
 #include "IPlugin.h"
+#include <vector>
+
+class QMainWindow;
+class QDockWidget;
 
 namespace ODbgRegisterView {
 
@@ -32,6 +36,8 @@ class Plugin : public QObject, public IPlugin {
 #endif
 	Q_CLASSINFO("author", "Ruslan Kabatsayev")
 	Q_CLASSINFO("email", "b7.10110111@gmail.com")
+
+	void setupDocks(QMainWindow* mainWindow);
 	
 public:
 	Plugin();
@@ -40,7 +46,10 @@ public:
 
 private:
 	QMenu* menu_;
-	ODBRegView* registerView_;
+	std::vector<ODBRegView*> registerViews_;
+
+private Q_SLOTS:
+	QDockWidget* createRegisterView();
 };
 
 }
