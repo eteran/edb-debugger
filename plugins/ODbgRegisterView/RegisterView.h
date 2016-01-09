@@ -89,6 +89,7 @@ private Q_SLOTS:
 	void fieldSelected();
 	void modelReset();
 	void modelUpdated();
+	void copyAllRegisters();
 };
 
 class Canvas : public QWidget
@@ -106,13 +107,13 @@ class FieldWidget : public QLabel
 	void init(int fieldWidth);
 protected:
 	QPersistentModelIndex index;
-	virtual QString text() const;
 	ODBRegView* regView() const;
 	RegisterGroup* group() const;
 public:
 	FieldWidget(int fieldWidth,QModelIndex const& index,QWidget* parent=nullptr);
 	FieldWidget(int fieldWidth,QString const& fixedText,QWidget* parent=nullptr);
 	FieldWidget(QString const& fixedText,QWidget* parent=nullptr);
+	virtual QString text() const;
 public Q_SLOTS:
 	virtual void update();
 };
@@ -130,7 +131,6 @@ class ValueField : public FieldWidget
 	bool changed() const;
 	QColor fgColorForChangedField() const;
 protected:
-	QString text() const override;
 	void enterEvent(QEvent*) override;
 	void leaveEvent(QEvent*) override;
 	void mousePressEvent(QMouseEvent* event) override;
@@ -154,6 +154,7 @@ public:
 	bool isSelected() const;
 	void defaultAction();
 	void showMenu(QPoint const& position);
+	QString text() const override;
 public Q_SLOTS:
 	void update() override;
 	void select();

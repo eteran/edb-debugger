@@ -29,8 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 #include <QSignalMapper>
 #include <QSettings>
+#include <QClipboard>
 #include <algorithm>
 #include <unordered_map>
+#include <climits>
 #include <QDebug>
 #include <iostream>
 #include "RegisterViewModelBase.h"
@@ -597,7 +599,7 @@ ODBRegView::ODBRegView(QString const& settingsGroup, QWidget* parent)
 		const auto sep=new QAction(this);
 		sep->setSeparator(true);
 		menuItems.push_back(sep);
-		menuItems.push_back(new QAction(tr("Copy all registers"),this)); // TODO: implement
+		menuItems.push_back(newAction(tr("Copy all registers"),this,this,SLOT(copyAllRegisters())));
 	}
 
 	QSettings settings;
@@ -634,6 +636,36 @@ ODBRegView::ODBRegView(QString const& settingsGroup, QWidget* parent)
 			visibleGroupTypes.emplace_back(group);
 		}
 	}
+}
+
+void ODBRegView::copyAllRegisters()
+{
+	auto allFields=fields();
+	std::sort(allFields.begin(),allFields.end(),[](FieldWidget const*const f1, FieldWidget const*const f2)
+			{
+				const auto f1Pos=fieldPos(f1);
+				const auto f2Pos=fieldPos(f2);
+				if(f1Pos.y()<f2Pos.y()) return true;
+				if(f1Pos.y()>f2Pos.y()) return false;
+				return f1Pos.x()<f2Pos.x(); 
+			});
+
+	// FIXME: Widget positions must be taken into account to put
+	// 		  the correct number of spaces and line feeds between fields text.
+	QString text;
+	int line=INT_MIN;
+	for(const auto*const field : allFields)
+	{
+		const int y=fieldPos(field).y();
+		if(y>line)
+		{
+			line=y;
+			text+='\n';
+		}
+		else text+=' ';
+		text+=field->text();
+	}
+	QApplication::clipboard()->setText(text.trimmed());
 }
 
 void ODBRegView::groupHidden(RegisterGroup* group)
