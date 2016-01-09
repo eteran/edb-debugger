@@ -48,7 +48,7 @@ void Plugin::setupDocks()
 		for(int i=0;i<size;++i)
 		{
 			settings.setArrayIndex(i);
-			createRegisterView(settings);
+			createRegisterView(settings.group());
 		}
 	}
 	else createRegisterView();
@@ -58,24 +58,26 @@ void Plugin::saveState() const
 {
 	QSettings settings;
 	const int size=registerViews_.size();
-	settings.beginWriteArray(pluginName+"/"+VIEW,size);
+	const auto arrayKey=pluginName+"/"+VIEW;
+	settings.remove(arrayKey);
+	settings.beginWriteArray(arrayKey,size);
 	for(int i=0;i<size;++i)
 	{
 		settings.setArrayIndex(i);
-		registerViews_[i]->saveState(settings);
+		registerViews_[i]->saveState(settings.group());
 	}
 }
 
 void Plugin::createRegisterView()
 {
-	createRegisterView(QSettings());
+	createRegisterView("");
 }
 
-void Plugin::createRegisterView(QSettings const& settings)
+void Plugin::createRegisterView(QString const& settingsGroup)
 {
 	if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
 	{
-		const auto regView=new ODBRegView(settings,mainWindow);
+		const auto regView=new ODBRegView(settingsGroup,mainWindow);
 		registerViews_.emplace_back(regView);
 		regView->setModel(&edb::v1::arch_processor().get_register_view_model());
 

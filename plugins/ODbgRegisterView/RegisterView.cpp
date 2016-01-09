@@ -57,6 +57,9 @@ namespace ODbgRegisterView {
 namespace
 {
 
+const QString SETTINGS_GROUPS_ARRAY_NODE="visibleGroups";
+const QString SETTINGS_GROUP_NODE="group";
+
 static const int MODEL_NAME_COLUMN=RegisterViewModelBase::Model::NAME_COLUMN;
 static const int MODEL_VALUE_COLUMN=RegisterViewModelBase::Model::VALUE_COLUMN;
 static const int MODEL_COMMENT_COLUMN=RegisterViewModelBase::Model::COMMENT_COLUMN;
@@ -352,9 +355,14 @@ RegisterGroup::RegisterGroup(QString const& name, QWidget* parent)
 
 	{
 		menuItems.push_back(newActionSeparator(this));
-		// TODO: instead of simply hiding, also invoke regView's slot to register this group as hidden for future model resets
-		menuItems.push_back(newAction(tr("Hide %1","register group").arg(name),this,this,SLOT(hide())));
+		menuItems.push_back(newAction(tr("Hide %1","register group").arg(name),this,this,SLOT(hideAndReport())));
 	}
+}
+
+void RegisterGroup::hideAndReport()
+{
+	hide();
+	regView()->groupHidden(this);
 }
 
 void RegisterGroup::showMenu(QPoint const& position, QList<QAction*>const& additionalItems) const
@@ -540,7 +548,7 @@ void RegisterGroup::adjustWidth()
 	setMinimumWidth(widthNeeded);
 }
 
-ODBRegView::ODBRegView(QSettings const& settings, QWidget* parent)
+ODBRegView::ODBRegView(QString const& settingsGroup, QWidget* parent)
 	: QScrollArea(parent)
 {
 	setObjectName("ODBRegView");
@@ -567,27 +575,78 @@ ODBRegView::ODBRegView(QSettings const& settings, QWidget* parent)
 		menuItems.push_back(new QAction(tr("Copy all registers"),this)); // TODO: implement
 	}
 
-	// TODO: make this list user-selectable
-	regGroupTypes={RegisterGroupType::GPR,
-				   RegisterGroupType::rIP,
-				   RegisterGroupType::ExpandedEFL,
-				   RegisterGroupType::Segment,
-				   RegisterGroupType::EFL,
-				   RegisterGroupType::FPUData,
-				   RegisterGroupType::FPUWords,
-				   RegisterGroupType::FPULastOp,
-				   RegisterGroupType::Debug,
-				   RegisterGroupType::MMX,
-				   RegisterGroupType::SSEData,
-				   RegisterGroupType::AVXData,
-				   RegisterGroupType::MXCSR
-				  };
+	QSettings settings;
+	settings.beginGroup(settingsGroup);
+	const auto groupsSizeV=settings.value(SETTINGS_GROUPS_ARRAY_NODE+"/size");
+	if(settings.group().isEmpty() || !groupsSizeV.isValid())
+	{
+		visibleGroupTypes={
+							RegisterGroupType::GPR,
+							RegisterGroupType::rIP,
+							RegisterGroupType::ExpandedEFL,
+							RegisterGroupType::Segment,
+							RegisterGroupType::EFL,
+							RegisterGroupType::FPUData,
+							RegisterGroupType::FPUWords,
+							RegisterGroupType::FPULastOp,
+							RegisterGroupType::Debug,
+							RegisterGroupType::MMX,
+							RegisterGroupType::SSEData,
+							RegisterGroupType::AVXData,
+							RegisterGroupType::MXCSR
+						  };
+	}
+	else
+	{
+		const int groupsSize=groupsSizeV.toInt(); // zero is acceptable
+		settings.beginReadArray(SETTINGS_GROUPS_ARRAY_NODE);
+		for(int grpIndex=0;grpIndex<groupsSize;++grpIndex)
+		{
+			settings.setArrayIndex(grpIndex);
+			const auto groupV=settings.value(SETTINGS_GROUP_NODE);
+			if(!groupV.isValid())
+			{
+				qWarning() << qPrintable(QString("Warning: failed to parse register group #%1").arg(grpIndex));
+				continue;
+			}
+			const int group=groupV.toInt();
+			if(group<0 || group>=RegisterGroupType::NUM_GROUPS)
+			{
+				qWarning() << qPrintable(QString("Warning: failed to understand group #%1: invalid value %2")
+												.arg(grpIndex).arg(group));
+				continue;
+			}
+			visibleGroupTypes.emplace_back(RegisterGroupType{group});
+		}
+	}
 }
 
-void ODBRegView::saveState(QSettings& settings) const
+void ODBRegView::groupHidden(RegisterGroup* group)
 {
-	const auto value=objectName()+QString("%1").arg(reinterpret_cast<std::size_t>(this),0,16);
-	settings.setValue("objectName",value);
+	using namespace std;
+	Q_ASSERT(util::contains(groups,group));
+	const auto groupPtrIter=std::find(groups.begin(),groups.end(),group);
+	auto& groupPtr=*groupPtrIter;
+	groupPtr->deleteLater();
+	groupPtr=nullptr;
+
+	auto& types(visibleGroupTypes);
+	const int groupType=groupPtrIter-groups.begin();
+	types.erase(remove_if(types.begin(),types.end(), [=](int type){return type==groupType;}) ,types.end());
+}
+
+void ODBRegView::saveState(QString const& settingsGroup) const
+{
+	QSettings settings;
+	settings.beginGroup(settingsGroup);
+	const int groupsSize=visibleGroupTypes.size();
+	settings.remove(SETTINGS_GROUPS_ARRAY_NODE);
+	settings.beginWriteArray(SETTINGS_GROUPS_ARRAY_NODE,groupsSize);
+	for(int grpIndex=0;grpIndex<groupsSize;++grpIndex)
+	{
+		settings.setArrayIndex(grpIndex);
+		settings.setValue(SETTINGS_GROUP_NODE,int{visibleGroupTypes[grpIndex]});
+	}
 }
 
 void ODBRegView::setModel(RegisterViewModelBase::Model* model)
@@ -1373,7 +1432,8 @@ void ODBRegView::modelReset()
 	widget()->hide(); // prevent flicker while groups are added to/removed from the layout
 	// not all groups may be in the layout, so delete them individually
 	for(auto* const group : groups)
-		group->deleteLater();
+		if(group)
+			group->deleteLater();
 	groups.clear();
 
 	auto* const layout=static_cast<QVBoxLayout*>(widget()->layout());
@@ -1391,21 +1451,26 @@ void ODBRegView::modelReset()
 	flagsAndSegments->setAlignment(Qt::AlignLeft);
 
 	bool flagsAndSegsInserted=false;
-	for(auto groupType : regGroupTypes)
+	for(int groupType_=0;groupType_<RegisterGroupType::NUM_GROUPS;++groupType_)
 	{
-		auto*const group=makeGroup(groupType);
-		if(!group) continue;
-		groups.push_back(group);
-		if(groupType==RegisterGroupType::Segment || groupType==RegisterGroupType::ExpandedEFL)
+		const auto groupType=RegisterGroupType{groupType_};
+		if(util::contains(visibleGroupTypes,groupType))
 		{
-			flagsAndSegments->addWidget(group);
-			if(!flagsAndSegsInserted)
+			auto*const group=makeGroup(groupType);
+			groups.push_back(group);
+			if(!group) continue;
+			if(groupType==RegisterGroupType::Segment || groupType==RegisterGroupType::ExpandedEFL)
 			{
-				layout->addLayout(flagsAndSegments);
-				flagsAndSegsInserted=true;
+				flagsAndSegments->addWidget(group);
+				if(!flagsAndSegsInserted)
+				{
+					layout->addLayout(flagsAndSegments);
+					flagsAndSegsInserted=true;
+				}
 			}
+			else layout->addWidget(group);
 		}
-		else layout->addWidget(group);
+		else groups.push_back(nullptr);
 	}
 	widget()->show();
 }
@@ -1415,14 +1480,15 @@ void ODBRegView::modelUpdated()
 	for(auto* const field : fields())
 		field->update();
 	for(auto* const group : groups)
-		group->adjustWidth();
+		if(group) group->adjustWidth();
 }
 
 QList<FieldWidget*> ODBRegView::fields() const
 {
 	QList<FieldWidget*> allFields;
 	for(auto* const group : groups)
-		allFields.append(group->fields());
+		if(group)
+			allFields.append(group->fields());
 	return allFields;
 }
 
@@ -1430,7 +1496,8 @@ QList<ValueField*> ODBRegView::valueFields() const
 {
 	QList<ValueField*> allValues;
 	for(auto* const group : groups)
-		allValues.append(group->valueFields());
+		if(group)
+			allValues.append(group->valueFields());
 	return allValues;
 
 }

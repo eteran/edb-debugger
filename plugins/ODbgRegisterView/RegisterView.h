@@ -40,33 +40,42 @@ class ODBRegView : public QScrollArea
 	Q_OBJECT
 
 	RegisterViewModelBase::Model* model_=nullptr;
-	enum class RegisterGroupType
+	struct RegisterGroupType
 	{
-		GPR,
-		rIP,
-		EFL,
-		ExpandedEFL,
-		Segment,
-		FPUData,
-		FPUWords,
-		FPULastOp,
-		Debug,
-		MMX,
-		SSEData,
-		AVXData,
-		MXCSR
+		enum T
+		{
+			GPR,
+			rIP,
+			EFL,
+			ExpandedEFL,
+			Segment,
+			FPUData,
+			FPUWords,
+			FPULastOp,
+			Debug,
+			MMX,
+			SSEData,
+			AVXData,
+			MXCSR,
+
+			NUM_GROUPS
+		} value;
+		RegisterGroupType(T v):value(v){}
+		explicit RegisterGroupType(int v):value(static_cast<T>(v)){}
+		operator T() const {return value;}
 	};
-	std::vector<RegisterGroupType> regGroupTypes;
+	std::vector<RegisterGroupType> visibleGroupTypes;
 	QList<QAction*> menuItems;
 
 	RegisterGroup* makeGroup(RegisterGroupType type);
 public:
-	ODBRegView(QSettings const& settings, QWidget* parent=nullptr);
+	ODBRegView(QString const& settings, QWidget* parent=nullptr);
 	void setModel(RegisterViewModelBase::Model* model);
 	QList<ValueField*> valueFields() const;
 	QList<FieldWidget*> fields() const;
 	void showMenu(QPoint const& position,QList<QAction*>const& additionalItems={}) const;
-	void saveState(QSettings& settings) const;
+	void saveState(QString const& settings) const;
+	void groupHidden(RegisterGroup* group);
 private:
 	ValueField* selectedField() const;
 	void updateFieldsPalette();
@@ -218,6 +227,7 @@ protected:
 	void mousePressEvent(QMouseEvent* event) override;
 public Q_SLOTS:
 	void adjustWidth();
+	void hideAndReport();
 
 	friend SIMDValueManager;
 };

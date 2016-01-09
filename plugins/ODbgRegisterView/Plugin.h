@@ -48,7 +48,7 @@ private:
 	QMenu* menu_;
 	std::vector<ODBRegView*> registerViews_;
 
-	void createRegisterView(QSettings const& settings);
+	void createRegisterView(QString const& settingsGroup);
 private Q_SLOTS:
 	void createRegisterView();
 	void saveState() const;
