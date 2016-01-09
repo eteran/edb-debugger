@@ -94,6 +94,30 @@ void Plugin::createRegisterView(QString const& settingsGroup)
 	}
 }
 
+void Plugin::expandLSDown(bool checked) const
+{
+	if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
+		mainWindow->setCorner(Qt::BottomLeftCorner,checked ? Qt::LeftDockWidgetArea : Qt::BottomDockWidgetArea);
+}
+
+void Plugin::expandRSDown(bool checked) const
+{
+	if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
+		mainWindow->setCorner(Qt::BottomRightCorner,checked ? Qt::RightDockWidgetArea : Qt::BottomDockWidgetArea);
+}
+
+void Plugin::expandLSUp(bool checked) const
+{
+	if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
+		mainWindow->setCorner(Qt::TopLeftCorner,checked ? Qt::LeftDockWidgetArea : Qt::TopDockWidgetArea);
+}
+
+void Plugin::expandRSUp(bool checked) const
+{
+	if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
+		mainWindow->setCorner(Qt::TopRightCorner,checked ? Qt::RightDockWidgetArea : Qt::TopDockWidgetArea);
+}
+
 QMenu* Plugin::menu(QWidget* parent)
 {
 	if(!menu_)
@@ -101,9 +125,43 @@ QMenu* Plugin::menu(QWidget* parent)
 		setupDocks();
 
 		menu_ = new QMenu("OllyDbg-like Register View", parent);
-		const auto newRegisterView=new QAction(tr("New Register View"),menu_);
-		connect(newRegisterView,SIGNAL(triggered()),this,SLOT(createRegisterView()));
-		menu_->addAction(newRegisterView);
+		{
+			const auto newRegisterView=new QAction(tr("New Register View"),menu_);
+			connect(newRegisterView,SIGNAL(triggered()),this,SLOT(createRegisterView()));
+			menu_->addAction(newRegisterView);
+		}
+		// FIXME: setChecked calls currently don't really work, since at this stage mainWindow hasn't yet restored its state
+		if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
+		{
+			{
+				const auto expandLeftSideUp=new QAction(tr("Expand Left-Hand Side Dock Up"),menu_);
+				expandLeftSideUp->setCheckable(true);
+				expandLeftSideUp->setChecked(mainWindow->corner(Qt::TopLeftCorner)==Qt::LeftDockWidgetArea);
+				connect(expandLeftSideUp,SIGNAL(toggled(bool)),this,SLOT(expandLSUp(bool)));
+				menu_->addAction(expandLeftSideUp);
+			}
+			{
+				const auto expandLeftSideDown=new QAction(tr("Expand Left-Hand Side Dock Down"),menu_);
+				expandLeftSideDown->setCheckable(true);
+				expandLeftSideDown->setChecked(mainWindow->corner(Qt::BottomLeftCorner)==Qt::LeftDockWidgetArea);
+				connect(expandLeftSideDown,SIGNAL(toggled(bool)),this,SLOT(expandLSDown(bool)));
+				menu_->addAction(expandLeftSideDown);
+			}
+			{
+				const auto expandRightSideUp=new QAction(tr("Expand Right-Hand Side Dock Up"),menu_);
+				expandRightSideUp->setCheckable(true);
+				expandRightSideUp->setChecked(mainWindow->corner(Qt::TopRightCorner)==Qt::RightDockWidgetArea);
+				connect(expandRightSideUp,SIGNAL(toggled(bool)),this,SLOT(expandRSUp(bool)));
+				menu_->addAction(expandRightSideUp);
+			}
+			{
+				const auto expandRightSideDown=new QAction(tr("Expand Right-Hand Side Dock Down"),menu_);
+				expandRightSideDown->setCheckable(true);
+				expandRightSideDown->setChecked(mainWindow->corner(Qt::BottomRightCorner)==Qt::RightDockWidgetArea);
+				connect(expandRightSideDown,SIGNAL(toggled(bool)),this,SLOT(expandRSDown(bool)));
+				menu_->addAction(expandRightSideDown);
+			}
+		}
 	}
 
 	return menu_;

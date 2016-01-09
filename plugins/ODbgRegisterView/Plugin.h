@@ -52,6 +52,10 @@ private:
 private Q_SLOTS:
 	void createRegisterView();
 	void saveState() const;
+	void expandRSUp(bool checked) const;
+	void expandRSDown(bool checked) const;
+	void expandLSUp(bool checked) const;
+	void expandLSDown(bool checked) const;
 };
 
 }
