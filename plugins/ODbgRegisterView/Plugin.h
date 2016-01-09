@@ -47,8 +47,10 @@ public:
 private:
 	QMenu* menu_;
 	std::vector<ODBRegView*> registerViews_;
+	std::vector<QAction*> menuDeleteRegViewActions_;
 
 	void createRegisterView(QString const& settingsGroup);
+	void renumerateDocks() const;
 private Q_SLOTS:
 	void createRegisterView();
 	void saveState() const;
@@ -56,6 +58,7 @@ private Q_SLOTS:
 	void expandRSDown(bool checked) const;
 	void expandLSUp(bool checked) const;
 	void expandLSDown(bool checked) const;
+	void removeDock(QWidget*);
 };
 
 }
