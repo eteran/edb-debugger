@@ -1417,6 +1417,8 @@ RegisterGroup* createSIMDGroup(RegisterViewModelBase::Model* model,QWidget* pare
 		group->insert(row,0,new FieldWidget(name,group));
 		new SIMDValueManager(row,nameIndex,group);
 	}
+	// This signal must be handled by group _after_ all `SIMDValueManager`s handle their connection to this signal
+	QObject::connect(model,SIGNAL(SIMDDisplayFormatChanged()),group,SLOT(adjustWidth()),Qt::QueuedConnection);
 	return group;
 }
 
