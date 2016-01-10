@@ -207,6 +207,34 @@ QVariant Model::data(QModelIndex const& index, int role) const
 		if(!simdCat) return {};
 		return QVariant::fromValue(simdCat->validFormats());
 	}
+	case IsNormalRegisterRole:
+	{
+		// Normal register is defined by its hierarchy level:
+		// root(invalid index)->category->register
+		// If level is not like this, it's not a normal register
+
+		// parent should be category
+		if(!index.parent().isValid()) return false;
+		// parent of category is root, i.e. invalid index
+		if(index.parent().parent().isValid()) return false;
+		return true;
+	}
+	case IsBitFieldRole:
+		return !!dynamic_cast<BitFieldProperties const*>(item);
+	case IsSIMDElementRole:
+		return !!dynamic_cast<SIMDElement const*>(item);
+	case BitFieldOffsetRole:
+	{
+		const auto bitField=dynamic_cast<BitFieldProperties const*>(item);
+		if(!bitField) return {};
+		return bitField->offset();
+	}
+	case BitFieldLengthRole:
+	{
+		const auto bitField=dynamic_cast<BitFieldProperties const*>(item);
+		if(!bitField) return {};
+		return bitField->length();
+	}
 
 	default:
 		return {};

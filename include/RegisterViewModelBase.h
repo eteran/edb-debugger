@@ -88,6 +88,21 @@ public:
 		// Type: std::vector<NumberDisplayMode>
 		// Property of: Category
 		ValidSIMDFormatsRole,
+		// Whether the index corresponds to a normal register, i.e. not a bit field nor a SIMD element
+		// Type: bool
+		IsNormalRegisterRole,
+		// Whether the index corresponds to a bit field of a normal register
+		// Type: bool
+		IsBitFieldRole,
+		// Whether the index corresponds to an element of a SIMD register
+		IsSIMDElementRole,
+		// Offset of bit field in the register, starting from least significant bit
+		// Type: int
+		BitFieldOffsetRole,
+		// Length of bit field in bits
+		// Type: int
+		BitFieldLengthRole,
+
 
 		FirstConcreteRole=Qt::UserRole+10000 // first role available for use in derived models
 	};
@@ -261,8 +276,10 @@ public:
 	using RegisterViewItem::name;
 };
 
+class SIMDElement {}; // generic non-templated class to dynamic_cast to
+
 template<class StoredType, class SizingType>
-class SIMDSizedElement : public RegisterViewItem
+class SIMDSizedElement : public RegisterViewItem, public SIMDElement
 {
 	friend class SIMDFormatItem<StoredType,SizingType>;
 	QString valueString() const;
