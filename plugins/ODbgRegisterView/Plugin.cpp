@@ -36,9 +36,10 @@ Plugin::Plugin()
 	connect(QCoreApplication::instance(),SIGNAL(aboutToQuit()),this,SLOT(saveState()));
 }
 
+const QString pluginName="ODbgRegisterView";
 const QString dockName=QObject::tr("Registers");
 const QString dockNameSuffixTemplate=" <%1>";
-const QString pluginName="ODbgRegisterView";
+const QString dockObjectNameTemplate=QString(pluginName+"-%1");
 const QString VIEW="views";
 
 void Plugin::setupDocks()
@@ -87,7 +88,7 @@ void Plugin::createRegisterView(QString const& settingsGroup)
 		const QString suffix=registerViews_.size()>1 ? dockNameSuffixTemplate.arg(registerViews_.size()) : "";
 		auto* const regViewDockWidget = new QDockWidget(dockName+suffix, mainWindow);
 		const auto viewNumber=registerViews_.size();
-		regViewDockWidget->setObjectName(QString(pluginName+"-%1").arg(viewNumber));
+		regViewDockWidget->setObjectName(dockObjectNameTemplate.arg(viewNumber));
 		regViewDockWidget->setWidget(regView);
 
 		mainWindow->addDockWidget(Qt::RightDockWidgetArea, regViewDockWidget);
@@ -113,9 +114,8 @@ void Plugin::renumerateDocks() const
 		const auto view=registerViews_[i];
 		Q_ASSERT(dynamic_cast<QDockWidget*>(view->parentWidget()));
 		const auto dock=view->parentWidget();
-		const auto name=dockName+(i ? dockNameSuffixTemplate.arg(i+1) : "");
-		dock->setObjectName(name); // FIXME: doesn't work for QMainWindow::saveState() for some reason
-		dock->setWindowTitle(name);
+		dock->setObjectName(dockObjectNameTemplate.arg(i+1));
+		dock->setWindowTitle(dockName+(i ? dockNameSuffixTemplate.arg(i+1) : ""));
 	}
 }
 
