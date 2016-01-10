@@ -203,6 +203,19 @@ RegisterGroup* FieldWidget::group() const
 	return CHECKED_CAST(RegisterGroup,parentWidget());
 }
 
+VolatileNameField::VolatileNameField(int fieldWidth,
+									 std::function<QString()> const& valueFormatter,
+									 QWidget* parent)
+	: FieldWidget(fieldWidth,"",parent),
+	  valueFormatter(valueFormatter)
+{
+}
+
+QString VolatileNameField::text() const
+{
+	return valueFormatter();
+}
+
 // --------------------- ValueField impl ----------------------------------
 ValueField::ValueField(int const fieldWidth,
 					   QModelIndex const& index,
@@ -935,9 +948,25 @@ RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent
 	{
 		int column=0;
 		const auto nameIndex=model->index(row,MODEL_NAME_COLUMN,catIndex);
-		const auto name=VALID_VARIANT(nameIndex.data()).toString();
-		group->insert(row,column,new FieldWidget(nameWidth,name,group));
-		column+=nameWidth+1;
+		{
+			const auto name=VALID_VARIANT(nameIndex.data()).toString();
+			const auto fsrIndex=VALID_INDEX(findModelRegister(catIndex,"FSR"));
+			const QPersistentModelIndex topIndex=VALID_INDEX(findModelRegister(fsrIndex,"TOP",MODEL_VALUE_COLUMN));
+			const auto STiFormatter=[row,topIndex]()
+			{
+				const auto topV=topIndex.data();
+				if(!topV.isValid()) return QString("R%1").arg(row);
+				Q_ASSERT(topV.type()==QVariant::String);
+				const auto top=topV.toInt(); // simply convert to int from string - easier than using raw byteArray
+				Q_ASSERT(top>=0); Q_ASSERT(top<8);
+				const auto stI=(row+8-top) % 8;
+				return QString("ST%1").arg(stI);
+			};
+			const auto field=new VolatileNameField(nameWidth,STiFormatter,group);
+			QObject::connect(model,SIGNAL(dataChanged(QModelIndex const&,QModelIndex const&)),field,SLOT(update()));
+			group->insert(row,column,field);
+			column+=nameWidth+1;
+		}
 		const auto tagCommentIndex=VALID_INDEX(model->index(row,MODEL_COMMENT_COLUMN,tagsIndex));
 		group->insert(row,column,new ValueField(tagWidth,tagCommentIndex,group,
 												[](QString const&s){return s.toLower();}));

@@ -120,6 +120,14 @@ public Q_SLOTS:
 	virtual void update();
 };
 
+class VolatileNameField : public FieldWidget
+{
+	std::function<QString()> valueFormatter;
+public:
+	VolatileNameField(int fieldWidth, std::function<QString()> const& valueFormatter,QWidget* parent=nullptr);
+	QString text() const override;
+};
+
 class ValueField : public FieldWidget
 {
 	Q_OBJECT
