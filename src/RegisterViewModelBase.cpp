@@ -8,9 +8,45 @@
 #include "Util.h"
 #include <QDebug>
 #include <boost/range/adaptor/reversed.hpp>
+#include "edb.h"
+#include "IDebugger.h"
+#include "State.h"
+
+#define CHECKED_CAST(TYPE,OBJECT) (Q_ASSERT(dynamic_cast<TYPE*>(OBJECT)),static_cast<TYPE*>(OBJECT))
 
 namespace RegisterViewModelBase
 {
+
+template<typename T>
+bool setDebuggeeRegister(QString const& name, T const& value)
+{
+	if(auto*const dcore=edb::v1::debugger_core)
+	{
+		State state;
+		// read
+		dcore->get_state(&state);
+		auto reg=state[name];
+		if(!reg) return false;
+		// modify
+		reg.setValueFrom(value);
+		// write
+		state.set_register(reg);
+		dcore->set_state(state);
+		// check
+		// FIXME: such check will not quite work for EFLAGS. We need to save result in the model in such cases and report (partial?) success to the caller.
+		dcore->get_state(&state);
+		const auto resultReg=state[name];
+		qDebug() << "tried to set register,"<<(resultReg==reg?"succeeded":"failed");
+		return resultReg==reg;
+	}
+	return false;
+}
+template bool setDebuggeeRegister<edb::value16 >(QString const& name, edb::value16  const& value);
+template bool setDebuggeeRegister<edb::value32 >(QString const& name, edb::value32  const& value);
+template bool setDebuggeeRegister<edb::value64 >(QString const& name, edb::value64  const& value);
+template bool setDebuggeeRegister<edb::value80 >(QString const& name, edb::value80  const& value);
+template bool setDebuggeeRegister<edb::value128>(QString const& name, edb::value128 const& value);
+template bool setDebuggeeRegister<edb::value256>(QString const& name, edb::value256 const& value);
 
 RegisterViewItem* getItem(QModelIndex const& index)
 {
@@ -128,7 +164,7 @@ QModelIndex Model::parent(QModelIndex const& index) const
 Qt::ItemFlags Model::flags(QModelIndex const& index) const
 {
 	if(!index.isValid()) return 0;
-	return Qt::ItemIsEnabled | Qt::ItemIsSelectable;
+	return Qt::ItemIsEnabled | Qt::ItemIsSelectable | (index.column()==1 ? Qt::ItemIsEditable : Qt::NoItemFlags);
 }
 
 QVariant Model::data(QModelIndex const& index, int role) const
@@ -240,6 +276,33 @@ QVariant Model::data(QModelIndex const& index, int role) const
 		return {};
 	}
 	return {};
+}
+
+bool Model::setData(QModelIndex const& index, QVariant const& data, int role)
+{
+	qDebug() << "setData( index ="<<index<<", data ="<<data<<", role ="<<role<<")";
+	auto*const item=getItem(index);
+	switch(role)
+	{
+	case Qt::EditRole:
+	{
+		if(this->data(index,IsNormalRegisterRole).toBool())
+		{
+			auto*const reg=CHECKED_CAST(AbstractRegisterItem,item);
+			bool ok=false;
+			if(data.type()==QVariant::String)
+				ok=reg->setValue(data.toString());
+			if(ok)
+			{
+				const auto valueIndex=index.sibling(index.row(),VALUE_COLUMN);
+				Q_EMIT dataChanged(valueIndex,valueIndex);
+			}
+			return ok;
+		}
+		break;
+	}
+	}
+	return false;
 }
 
 void Model::setChosenSIMDSize(QModelIndex const& index, ElementSize const newSize)
@@ -445,6 +508,32 @@ QByteArray RegisterItem<T>::rawValue() const
 	if(!this->valueKnown_) return {};
 	return QByteArray(reinterpret_cast<const char*>(&this->value_),
 					  sizeof this->value_);
+}
+
+
+template<typename T> typename std::enable_if<(sizeof(T)>sizeof(std::uint64_t)),
+bool>::type setValue(T& /*valueToSet*/, QString const& /*name*/, QString const& /*valueStr*/)
+{
+	return false; // TODO: maybe do set?.. would be arch-dependent then due to endianness
+}
+
+template<typename T> typename std::enable_if<sizeof(T)<=sizeof(std::uint64_t),
+bool>::type setValue(T& valueToSet, QString const& name, QString const& valueStr)
+{
+	bool ok=false;
+	const auto value=T::fromHexString(valueStr,&ok);
+	if(!ok) return false;
+	if(!setDebuggeeRegister(name,value))
+		return false;
+	valueToSet=value;
+	return true;
+}
+
+template<typename T>
+bool RegisterItem<T>::setValue(QString const& valueStr)
+{
+	// TODO: ask ArchProcessor to actually set it and return true only if done
+	return RegisterViewModelBase::setValue(value_,name(),valueStr);
 }
 
 // -------------------- SimpleRegister impl -----------------------

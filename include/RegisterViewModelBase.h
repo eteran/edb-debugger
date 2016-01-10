@@ -18,6 +18,9 @@ class CategoriesHolder;
 class Category;
 class SIMDCategory;
 
+template<typename T>
+bool setDebuggeeRegister(QString const& name, T const& value);
+
 class Model : public QAbstractItemModel
 {
 	Q_OBJECT
@@ -112,6 +115,7 @@ public:
 	QModelIndex parent(QModelIndex const& index) const override;
 	QModelIndex index(int row, int column, QModelIndex const& parent=QModelIndex()) const override;
 	QVariant data(QModelIndex const& index, int role=Qt::DisplayRole) const override;
+	bool setData(QModelIndex const& index, QVariant const& data, int role=Qt::EditRole) override;
 	Qt::ItemFlags flags(QModelIndex const& index) const override;
 	~Model();
 
@@ -175,6 +179,7 @@ public:
 	virtual void saveValue() = 0;
 	// clear all data, mark them unknown, both for current and previous states
 	virtual void invalidate() = 0;
+	virtual bool setValue(QString const& valueStr) = 0;
 };
 
 template<class StoredType>
@@ -194,6 +199,7 @@ public:
 	RegisterViewItem* child(int) override;
 	QVariant data(int column) const override;
 	QByteArray rawValue() const override;
+	bool setValue(QString const& valueStr) override;
 };
 
 template<class StoredType>
