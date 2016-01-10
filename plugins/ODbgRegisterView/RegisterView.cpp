@@ -293,20 +293,16 @@ void ValueField::update()
 
 void ValueField::updatePalette()
 {
-	auto palette=this->palette();
-	const auto appPalette=QApplication::palette();
+	if(changed())
+	{
+		auto palette=this->palette();
+		const QColor changedFGColor=fgColorForChangedField();
+		palette.setColor(foregroundRole(),changedFGColor);
+		palette.setColor(QPalette::HighlightedText,changedFGColor);
+		setPalette(palette);
+	}
+	else setPalette(QApplication::palette());
 
-	// TODO: make selected items still red if they've changed
-	const QColor selectedFGColor=appPalette.color(QPalette::HighlightedText);
-	const QColor normalFGColor=appPalette.color(QPalette::WindowText);
-	const QColor hoveredFGColor=normalFGColor;
-	const QColor changedFGColor=fgColorForChangedField();
-
-	palette.setColor(foregroundRole(),changed()  ? changedFGColor  : 
-									  selected_ ? selectedFGColor :
-									  hovered_  ? hoveredFGColor  : normalFGColor);
-
-	setPalette(palette);
 	QLabel::update();
 }
 
