@@ -64,6 +64,7 @@ void RegisterListWidget::mouseDoubleClickEvent(QMouseEvent *event) {
 	const auto index=indexAt(event->pos());
 	if(index.isValid() && !model()->parent(index).isValid())
 		setExpanded(index,!isExpanded(index)); // toggle expanded state of category item
+	QTreeView::mouseDoubleClickEvent(event);
 }
 
 //------------------------------------------------------------------------------
