@@ -445,25 +445,25 @@ template class SimpleRegister<edb::value256>;
 template<typename UnderlyingType>
 BitFieldItem<UnderlyingType>::BitFieldItem(BitFieldDescription const& descr)
 	: RegisterItem<UnderlyingType>(descr.name),
-	  offset(descr.offset),
-	  length(descr.length),
+	  offset_(descr.offset),
+	  length_(descr.length),
 	  explanations(descr.explanations)
 {
-	Q_ASSERT(8*sizeof(UnderlyingType)>=length);
-	Q_ASSERT(explanations.size()==0 || explanations.size()==2u<<(length-1));
+	Q_ASSERT(8*sizeof(UnderlyingType)>=length_);
+	Q_ASSERT(explanations.size()==0 || explanations.size()==2u<<(length_-1));
 }
 
 template<typename UnderlyingType>
 UnderlyingType BitFieldItem<UnderlyingType>::lengthToMask() const
 {
-	return 2*(1ull << (length-1))-1;
+	return 2*(1ull << (length_-1))-1;
 }
 
 template<typename UnderlyingType>
 void BitFieldItem<UnderlyingType>::update(UnderlyingType newValue)
 {
 	this->valueKnown_=true;
-	this->value_=(newValue>>offset)&lengthToMask();
+	this->value_=(newValue>>offset_)&lengthToMask();
 }
 
 template<typename UnderlyingType>
@@ -477,13 +477,25 @@ QVariant BitFieldItem<UnderlyingType>::data(int column) const
 		Q_ASSERT(datum.isValid());
 		const auto str=datum.toString();
 		Q_ASSERT(str.size()>0);
-		return str.right(std::ceil(length/4.));
+		return str.right(std::ceil(length_/4.));
 		}
 	case Model::COMMENT_COLUMN:
 		if(explanations.empty()) return datum;
 		return this->valueKnown_ ? explanations[this->value_] : QString();
 	}
 	return datum;
+}
+
+template<typename UnderlyingType>
+unsigned BitFieldItem<UnderlyingType>::length() const
+{
+	return length_;
+}
+
+template<typename UnderlyingType>
+unsigned BitFieldItem<UnderlyingType>::offset() const
+{
+	return offset_;
 }
 
 // ---------------- FlagsRegister impl ------------------------

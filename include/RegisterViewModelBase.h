@@ -202,12 +202,19 @@ struct BitFieldDescription
 		: name(name),offset(offset),length(length),explanations(explanations) {}
 };
 
+class BitFieldProperties
+{
+public:
+	virtual unsigned offset() const = 0;
+	virtual unsigned length() const = 0;
+};
+
 template<class UnderlyingType>
-class BitFieldItem : public RegisterItem<UnderlyingType>
+class BitFieldItem : public RegisterItem<UnderlyingType>, public BitFieldProperties
 {
 protected:
-	unsigned offset;
-	unsigned length;
+	unsigned offset_;
+	unsigned length_;
 	std::vector<QString> explanations;
 
 	UnderlyingType lengthToMask() const;
@@ -215,6 +222,9 @@ public:
 	BitFieldItem(BitFieldDescription const& descr);
 	QVariant data(int column) const override;
 	void update(UnderlyingType newValue);
+
+	unsigned offset() const override;
+	unsigned length() const override;
 };
 
 template<class StoredType>
