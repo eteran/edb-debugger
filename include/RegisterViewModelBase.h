@@ -7,7 +7,7 @@
 #include <vector>
 #include "Util.h"
 
-Q_DECLARE_METATYPE(std::vector<NumberDisplayMode>);
+Q_DECLARE_METATYPE(std::vector<NumberDisplayMode>)
 
 namespace RegisterViewModelBase
 {
