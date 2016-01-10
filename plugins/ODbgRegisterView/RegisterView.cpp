@@ -593,6 +593,7 @@ ODBRegView::ODBRegView(QString const& settingsGroup, QWidget* parent)
 
 	{
 		// TODO: get some signal to change font on the fly
+		// NOTE: on getting this signal all the fields must be resized and moved
 		QFont font;
 		if(!font.fromString(edb::v1::config().registers_font))
 		{
