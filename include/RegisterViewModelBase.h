@@ -63,23 +63,29 @@ public:
 		// Property of: register's value column
 		RegisterChangedRole=Qt::UserRole,
 		// fixed length of text (name, value) or undefined (0) if it's not fixed (comment)
+		// Type: int
 		FixedLengthRole,
 		// QByteArray with raw data
 		// Property of: register's value column
 		RawValueRole,
-		// What user chose to be current size of SIMD element. Type: ElementSize
+		// What user chose to be current size of SIMD element.
+		// Type: ElementSize
 		// Property of: Category
 		ChosenSIMDSizeRole,
-		// What user chose to be current format of SIMD element. Type: NumberDisplayMode
+		// What user chose to be current format of SIMD element.
+		// Type: NumberDisplayMode
 		// Property of: Category
 		ChosenSIMDFormatRole,
 		// What row to take in given register index to get chosen-sized elements root
+		// Type: int
 		// Property of: Category
 		ChosenSIMDSizeRowRole,
 		// What row to take in given sized element to get chosen-formatted element
+		// Type: int
 		// Property of: Category
 		ChosenSIMDFormatRowRole,
-		// Which SIMD formats are valid to be set. Type: std::vector<NumberDisplayMode>
+		// Which SIMD formats are valid to be set.
+		// Type: std::vector<NumberDisplayMode>
 		// Property of: Category
 		ValidSIMDFormatsRole,
 
