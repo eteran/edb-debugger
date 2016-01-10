@@ -114,6 +114,8 @@ public:
 	FieldWidget(int fieldWidth,QString const& fixedText,QWidget* parent=nullptr);
 	FieldWidget(QString const& fixedText,QWidget* parent=nullptr);
 	virtual QString text() const;
+	int lineNumber() const;
+	int columnNumber() const;
 public Q_SLOTS:
 	virtual void update();
 };

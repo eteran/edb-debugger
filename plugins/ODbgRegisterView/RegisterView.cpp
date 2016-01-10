@@ -32,7 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QClipboard>
 #include <algorithm>
 #include <unordered_map>
-#include <climits>
 #include <QDebug>
 #include <iostream>
 #include "RegisterViewModelBase.h"
@@ -140,6 +139,18 @@ QString FieldWidget::text() const
 	if(!text.isValid())
 		return QString(width()/letterSize(font()).width()-1,QChar('?'));
 	return text.toString();
+}
+
+int FieldWidget::lineNumber() const
+{
+	const auto charSize=letterSize(font());
+	return fieldPos(this).y()/charSize.height();
+}
+
+int FieldWidget::columnNumber() const
+{
+	const auto charSize=letterSize(font());
+	return fieldPos(this).x()/charSize.width();
 }
 
 void FieldWidget::init(int const fieldWidth)
@@ -650,20 +661,25 @@ void ODBRegView::copyAllRegisters()
 				return f1Pos.x()<f2Pos.x(); 
 			});
 
-	// FIXME: Widget positions must be taken into account to put
-	// 		  the correct number of spaces and line feeds between fields text.
 	QString text;
-	int line=INT_MIN;
+	int textLine=0;
+	int textColumn=0;
 	for(const auto*const field : allFields)
 	{
-		const int y=fieldPos(field).y();
-		if(y>line)
+		while(field->lineNumber()>textLine)
 		{
-			line=y;
+			++textLine;
+			textColumn=0;
 			text+='\n';
 		}
-		else text+=' ';
-		text+=field->text();
+		while(field->columnNumber()>textColumn)
+		{
+			++textColumn;
+			text+=' ';
+		}
+		const QString fieldText=field->text();
+		text+=fieldText;
+		textColumn+=fieldText.length();
 	}
 	QApplication::clipboard()->setText(text.trimmed());
 }
