@@ -226,6 +226,8 @@ void Model::setChosenSIMDSize(QModelIndex const& index, ElementSize const newSiz
 
 	simdCat->setChosenSize(newSize);
 	Q_EMIT SIMDDisplayFormatChanged();
+	// Make treeviews update root register items with default view
+	Q_EMIT dataChanged(index.parent(), index.parent());
 }
 
 void Model::setChosenSIMDFormat(QModelIndex const& index, NumberDisplayMode const newFormat)
@@ -241,6 +243,8 @@ void Model::setChosenSIMDFormat(QModelIndex const& index, NumberDisplayMode cons
 
 	simdCat->setChosenFormat(newFormat);
 	Q_EMIT SIMDDisplayFormatChanged();
+	// Make treeviews update root register items with default view
+	Q_EMIT dataChanged(index.parent(), index.parent());
 }
 
 void Model::hideAll()
