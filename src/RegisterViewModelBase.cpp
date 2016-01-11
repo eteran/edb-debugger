@@ -642,9 +642,9 @@ QVariant SIMDFormatItem<StoredType,SizingType>::data(int column) const
 	case Model::VALUE_COLUMN:
 		{
 			if(const auto parent=dynamic_cast<SIMDSizedElement<StoredType,SizingType>*>(this->parent()))
-				return toString(parent->value(),format_);
+				return parent->valid() ? toString(parent->value(),format_) : "???";
 			if(const auto parent=dynamic_cast<FPURegister<SizingType>*>(this->parent()))
-				return toString(parent->value(),format_);
+				return parent->valid() ? toString(parent->value(),format_) : "???";
 			EDB_PRINT_AND_DIE("failed to detect parent type");
 		}
 	case Model::COMMENT_COLUMN: return {};
