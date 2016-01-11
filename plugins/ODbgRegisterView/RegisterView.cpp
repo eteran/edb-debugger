@@ -165,21 +165,29 @@ void FieldWidget::init(int const fieldWidth)
 
 FieldWidget::FieldWidget(int const fieldWidth, QModelIndex const& index, QWidget* const parent)
 	: QLabel("Fw???",parent),
-	  index(index)
+	  index(index),
+	  fieldWidth_(fieldWidth)
 {
 	init(fieldWidth);
 }
 
 FieldWidget::FieldWidget(int const fieldWidth, QString const& fixedText, QWidget* const parent)
-	: QLabel(fixedText,parent)
+	: QLabel(fixedText,parent),
+	  fieldWidth_(fieldWidth)
 {
 	init(fieldWidth); // NOTE: fieldWidth!=fixedText.length() in general
 }
 
 FieldWidget::FieldWidget(QString const& fixedText, QWidget* const parent)
-	: QLabel(fixedText,parent)
+	: QLabel(fixedText,parent),
+	  fieldWidth_(fixedText.length())
 {
 	init(fixedText.length());
+}
+
+int FieldWidget::fieldWidth() const
+{
+	return fieldWidth_;
 }
 
 void FieldWidget::update()
@@ -688,6 +696,13 @@ void ODBRegView::copyAllRegisters()
 			text+=' ';
 		}
 		const QString fieldText=field->text();
+		if(field->alignment()==Qt::AlignRight)
+		{
+			const int fwidth=field->fieldWidth();
+			const int spaceWidth=fwidth-fieldText.length();
+			text+=QString(spaceWidth,' ');
+			textColumn+=spaceWidth;
+		}
 		text+=fieldText;
 		textColumn+=fieldText.length();
 	}

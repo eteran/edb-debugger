@@ -107,6 +107,8 @@ class FieldWidget : public QLabel
 	void init(int fieldWidth);
 protected:
 	QPersistentModelIndex index;
+	int fieldWidth_;
+
 	ODBRegView* regView() const;
 	RegisterGroup* group() const;
 public:
@@ -116,6 +118,7 @@ public:
 	virtual QString text() const;
 	int lineNumber() const;
 	int columnNumber() const;
+	int fieldWidth() const;
 public Q_SLOTS:
 	virtual void update();
 };
