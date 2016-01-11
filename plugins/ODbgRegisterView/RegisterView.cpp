@@ -954,10 +954,9 @@ RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent
 			const QPersistentModelIndex topIndex=VALID_INDEX(findModelRegister(fsrIndex,"TOP",MODEL_VALUE_COLUMN));
 			const auto STiFormatter=[row,topIndex]()
 			{
-				const auto topV=topIndex.data();
-				if(!topV.isValid()) return QString("R%1").arg(row);
-				Q_ASSERT(topV.type()==QVariant::String);
-				const auto top=topV.toInt(); // simply convert to int from string - easier than using raw byteArray
+				const auto topByteArray=topIndex.data(Model::RawValueRole).toByteArray();
+				if(topByteArray.isEmpty()) return QString("R%1").arg(row);
+				const auto top=topByteArray[0];
 				Q_ASSERT(top>=0); Q_ASSERT(top<8);
 				const auto stI=(row+8-top) % 8;
 				return QString("ST%1").arg(stI);
