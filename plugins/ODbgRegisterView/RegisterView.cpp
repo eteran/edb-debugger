@@ -240,7 +240,11 @@ ValueField::ValueField(int const fieldWidth,
 	// break updating of colors such as "register changed" when single-stepping frequently
 	setStyle(&plastiqueStyle);
 
-	menuItems.push_back(new QAction(tr("Modify"),this)); // TODO: implement
+	using namespace RegisterViewModelBase;
+	if(index.data(Model::IsNormalRegisterRole).toBool())
+		menuItems.push_back(new QAction(tr("Modify"),this)); // TODO: implement
+	else if(index.data(Model::IsBitFieldRole).toBool() && index.data(Model::BitFieldLengthRole).toInt()==1)
+		menuItems.push_back(new QAction(tr("Toggle"),this)); // TODO: implement
 }
 
 ValueField* ValueField::bestNeighbor(std::function<bool(QPoint const&,ValueField const*,QPoint const&)>const& firstIsBetter) const
