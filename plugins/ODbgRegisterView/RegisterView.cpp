@@ -600,7 +600,7 @@ ODBRegView::RegisterGroupType findGroup(QString const& str)
 	const auto& names=registerGroupTypeNames;
 	const auto foundIt=std::find(names.begin(),names.end(),str);
 	if(foundIt==names.end()) return ODBRegView::RegisterGroupType::NUM_GROUPS;
-	return ODBRegView::RegisterGroupType{foundIt-names.begin()};
+	return ODBRegView::RegisterGroupType(foundIt-names.begin());
 }
 
 ODBRegView::ODBRegView(QString const& settingsGroup, QWidget* parent)
