@@ -837,6 +837,20 @@ Register PlatformState::value(const QString &reg) const {
 		if(regName==x86.IP16Name)
 			return make_Register<16>(x86.IP16Name, x86.IP, Register::TYPE_IP);
 	}
+	if(x86.gpr32Filled) {
+		QRegExp DRx("^dr([0-7])$");
+		if(DRx.indexIn(regName)!=-1) {
+			QChar digit=DRx.cap(1).at(0);
+			assert(digit.isDigit());
+			char digitChar=digit.toLatin1();
+			std::size_t i=digitChar-'0';
+			assert(dbgIndexValid(i));
+			if(is64Bit() && x86.gpr64Filled)
+				return make_Register(regName, x86.dbgRegs[i], Register::TYPE_COND);
+			else
+				return make_Register<32>(regName, x86.dbgRegs[i], Register::TYPE_COND);
+		}
+	}
 	if(x87.filled) {
 		QRegExp Rx("^r([0-7])$");
 		if(Rx.indexIn(regName)!=-1) {
