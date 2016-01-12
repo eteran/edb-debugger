@@ -7,11 +7,13 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX11.cmake")
 set(PluginName "DebuggerCore")
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 if(Qt5Core_FOUND)
     find_package(Qt5 5.0.0 REQUIRED Widgets)
 else(Qt5Core_FOUND)
-	find_package(Qt4 4.6.0 QUIET REQUIRED QtGui)
+	find_package(Qt4 4.6.0 QUIET REQUIRED QtCore QtGui)
+	include(${QT_USE_FILE})
 endif()
 
 set(DebuggerCore_SRCS
