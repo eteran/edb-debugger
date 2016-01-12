@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 2.8)
 
 # if the user has not specified which version, we try to make Qt5 happen
 # if they have, we prefer their preference
@@ -15,6 +15,10 @@ project (edb)
 include("GNUInstallDirs")
 
 find_package(Boost 1.35 REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(CAPSTONE REQUIRED capstone>=3.0.4)
+include_directories(${CAPSTONE_INCLUDE_DIRS})
+link_directories(${CAPSTONE_LIBRARY_DIRS})
 
 if(${ENABLE_GRAPHVIZ})
 	find_package(GraphViz)

@@ -1,11 +1,11 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 2.8)
 include("GNUInstallDirs")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_CXX_STANDARD 11)
+include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX11.cmake")
 set(PluginName "DebuggerCore")
 
 if(Qt5Core_FOUND)
