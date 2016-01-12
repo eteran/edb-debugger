@@ -782,6 +782,8 @@ Register findRegisterValue(const Names& names, const Regs& regs, const QString& 
 //------------------------------------------------------------------------------
 Register PlatformState::value(const QString &reg) const {
 	const QString regName = reg.toLower();
+	// TODO: make use of string_hash and switch-case construct to make things easier to understand
+	// 		 All register names are always less than 9 chars in length, so string_hash would work.
 
 	Register found;
 	if(x86.gpr32Filled) // don't return valid Register with garbage value
