@@ -41,7 +41,6 @@ bool setDebuggeeRegister(QString const& name, T const& value, T& resultingValue)
 		if(!resultReg) return false;
 		resultingValue=resultReg.value<T>();
 		bool success=resultingValue!=origValue; // success if we changed it
-		qDebug() << "tried to set register,"<<(success?"succeeded":"failed");
 		return success;
 	}
 	return false;
@@ -294,6 +293,7 @@ bool Model::setData(QModelIndex const& index, QVariant const& data, int role)
 		if(this->data(index,IsNormalRegisterRole).toBool())
 		{
 			auto*const reg=CHECKED_CAST(AbstractRegisterItem,item);
+			qDebug() << "normal register found:" << reg->name();
 			bool ok=false;
 			if(data.type()==QVariant::String)
 				ok=reg->setValue(data.toString());
@@ -302,6 +302,7 @@ bool Model::setData(QModelIndex const& index, QVariant const& data, int role)
 				const auto valueIndex=index.sibling(index.row(),VALUE_COLUMN);
 				Q_EMIT dataChanged(valueIndex,valueIndex);
 			}
+			qDebug() << "setValue"<<(ok?"succeeded":"failed");
 			return ok;
 		}
 		break;
