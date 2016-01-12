@@ -33,7 +33,7 @@ bool setDebuggeeRegister(QString const& name, T const& value, T& resultingValue)
 		}
 		Q_ASSERT(reg.bitSize()==8*sizeof(T));
 		const auto origValue=reg.value<T>();
-		if(origValue==value) return true; // do nothing if it's not different
+		if(origValue==value) return true; // do nothing if it's not different, it'll help us check result
 		// modify
 		reg.setValueFrom(value);
 		// write
