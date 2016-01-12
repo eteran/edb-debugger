@@ -872,6 +872,15 @@ Register PlatformState::value(const QString &reg) const {
 		if(regName=="fopcode"||regName=="fop") {
 			return make_Register<16>(regName,x87.opCode,Register::TYPE_FPU);
 		}
+		if(regName=="ftr"||regName=="ftw") {
+			return make_Register<16>(regName,x87.tagWord,Register::TYPE_FPU);
+		}
+		if(regName=="fsr"||regName=="fsw") {
+			return make_Register<16>(regName,x87.statusWord,Register::TYPE_FPU);
+		}
+		if(regName=="fcr"||regName=="fcw") {
+			return make_Register<16>(regName,x87.controlWord,Register::TYPE_FPU);
+		}
 	}
 	if(x87.filled) {
 		QRegExp MMx("^mm([0-7])$");
