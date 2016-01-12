@@ -52,10 +52,24 @@ public:
 };
 
 static const char* headerName=nullptr;
+bool headerUpToDate(std::string const& line)
+{
+	std::ifstream file(headerName);
+	if(!file) return false;
+	// Try to read one char more than the line has to check that actual size of file is correct
+	std::string fileStr(line.length()+1,0);
+	if(file.readsome(&fileStr[0],fileStr.length())!=line.length())
+		return false;
+	fileStr.resize(line.length());
+	return fileStr==line;
+}
 void writeHeader(bool broken)
 {
-    std::ofstream file(headerName);
-    file << "#define PROC_PID_MEM_WRITE_BROKEN " << std::boolalpha << broken << "\n";
+	std::ostringstream line;
+    line << "#define PROC_PID_MEM_WRITE_BROKEN " << std::boolalpha << broken << "\n";
+	if(headerUpToDate(line.str())) return;
+	std::ofstream file(headerName);
+	file << line.str();
 }
 
 void killChild(int pid, std::string const& progName)
