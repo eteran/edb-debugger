@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 2.8)
 include("GNUInstallDirs")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -7,10 +7,26 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 
+set(UI_FILES
+		BinaryString.ui
+		Debugger.ui
+		DialogAbout.ui
+		DialogArguments.ui
+		DialogAttach.ui
+		DialogInputBinaryString.ui
+		DialogInputValue.ui
+		DialogMemoryRegions.ui
+		DialogOptions.ui
+		FixedFontSelector.ui
+		DialogPlugins.ui
+		DialogThreads.ui)
+
 if(Qt5Core_DIR)
     find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns)
+	qt5_wrap_ui(UI_H ${UI_FILES})
 elseif(NOT Qt5Core_DIR)
 	find_package(Qt4 4.6.0 REQUIRED QtGui QtXml QtXmlPatterns)
+	qt4_wrap_ui(UI_H ${UI_FILES})
 endif()
 
 add_definitions(-DDEFAULT_PLUGIN_PATH=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb)
@@ -67,6 +83,7 @@ set(edb_SRCS
 	widgets/RegisterViewDelegate.cpp
 	widgets/SyntaxHighlighter.cpp
 	widgets/TabWidget.cpp
+	${UI_H}
 )
 
 set(edb_INCLUDES

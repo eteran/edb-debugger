@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 2.8)
 
 # if the user has not specified which version, we try to make Qt5 happen
 # if they have, we prefer their preference

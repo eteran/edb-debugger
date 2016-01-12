@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 2.8)
 include("GNUInstallDirs")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
@@ -8,10 +8,15 @@ set(CMAKE_AUTORCC ON)
 set(CMAKE_CXX_STANDARD 11)
 set(PluginName "FunctionFinder")
 
+set(UI_FILES
+		DialogFunctions.ui)
+
 if(Qt5Core_FOUND)
     find_package(Qt5 5.0.0 REQUIRED Widgets)
+	qt5_wrap_ui(UI_H ${UI_FILES})
 else(Qt5Core_FOUND)
 	find_package(Qt4 4.6.0 QUIET REQUIRED QtGui)
+	qt4_wrap_ui(UI_H ${UI_FILES})
 endif()
 
 # we put the header files from the include directory here 
@@ -21,6 +26,7 @@ add_library(${PluginName} SHARED
 	DialogFunctions.h
 	FunctionFinder.cpp
 	FunctionFinder.h
+	${UI_H}
 )
 
 if(${GRAPHVIZ_FOUND})
