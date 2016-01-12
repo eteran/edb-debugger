@@ -18,7 +18,7 @@ namespace RegisterViewModelBase
 {
 
 template<typename T>
-bool setDebuggeeRegister(QString const& name, T const& value)
+bool setDebuggeeRegister(QString const& name, T const& value, T& resultingValue)
 {
 	if(auto*const dcore=edb::v1::debugger_core)
 	{
@@ -27,26 +27,31 @@ bool setDebuggeeRegister(QString const& name, T const& value)
 		dcore->get_state(&state);
 		auto reg=state[name];
 		if(!reg) return false;
+		Q_ASSERT(reg.bitSize()==8*sizeof(T));
+		const auto origValue=reg.value<T>();
+		if(origValue==value) return true; // do nothing if it's not different
 		// modify
 		reg.setValueFrom(value);
 		// write
 		state.set_register(reg);
 		dcore->set_state(state);
 		// check
-		// FIXME: such check will not quite work for EFLAGS. We need to save result in the model in such cases and report (partial?) success to the caller.
 		dcore->get_state(&state);
 		const auto resultReg=state[name];
-		qDebug() << "tried to set register,"<<(resultReg==reg?"succeeded":"failed");
-		return resultReg==reg;
+		if(!resultReg) return false;
+		resultingValue=resultReg.value<T>();
+		bool success=resultingValue!=origValue; // success if we changed it
+		qDebug() << "tried to set register,"<<(success?"succeeded":"failed");
+		return success;
 	}
 	return false;
 }
-template bool setDebuggeeRegister<edb::value16 >(QString const& name, edb::value16  const& value);
-template bool setDebuggeeRegister<edb::value32 >(QString const& name, edb::value32  const& value);
-template bool setDebuggeeRegister<edb::value64 >(QString const& name, edb::value64  const& value);
-template bool setDebuggeeRegister<edb::value80 >(QString const& name, edb::value80  const& value);
-template bool setDebuggeeRegister<edb::value128>(QString const& name, edb::value128 const& value);
-template bool setDebuggeeRegister<edb::value256>(QString const& name, edb::value256 const& value);
+template bool setDebuggeeRegister<edb::value16 >(QString const& name, edb::value16  const& value, edb::value16 & resultingValue);
+template bool setDebuggeeRegister<edb::value32 >(QString const& name, edb::value32  const& value, edb::value32 & resultingValue);
+template bool setDebuggeeRegister<edb::value64 >(QString const& name, edb::value64  const& value, edb::value64 & resultingValue);
+template bool setDebuggeeRegister<edb::value80 >(QString const& name, edb::value80  const& value, edb::value80 & resultingValue);
+template bool setDebuggeeRegister<edb::value128>(QString const& name, edb::value128 const& value, edb::value128& resultingValue);
+template bool setDebuggeeRegister<edb::value256>(QString const& name, edb::value256 const& value, edb::value256& resultingValue);
 
 RegisterViewItem* getItem(QModelIndex const& index)
 {
@@ -523,10 +528,7 @@ bool>::type setValue(T& valueToSet, QString const& name, QString const& valueStr
 	bool ok=false;
 	const auto value=T::fromHexString(valueStr,&ok);
 	if(!ok) return false;
-	if(!setDebuggeeRegister(name,value))
-		return false;
-	valueToSet=value;
-	return true;
+	return setDebuggeeRegister(name,value,valueToSet);
 }
 
 template<typename T>
