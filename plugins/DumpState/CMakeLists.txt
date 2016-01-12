@@ -5,7 +5,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_CXX_STANDARD 11)
+include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX11.cmake")
 set(PluginName "DumpState")
 
 set(UI_FILES
