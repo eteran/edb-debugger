@@ -185,6 +185,7 @@ public:
 	// clear all data, mark them unknown, both for current and previous states
 	virtual void invalidate() = 0;
 	virtual bool setValue(QString const& valueStr) = 0;
+	virtual bool setValue(QByteArray const& value) = 0;
 };
 
 template<class StoredType>
@@ -205,6 +206,7 @@ public:
 	QVariant data(int column) const override;
 	QByteArray rawValue() const override;
 	bool setValue(QString const& valueStr) override;
+	bool setValue(QByteArray const& value) override;
 };
 
 template<class StoredType>

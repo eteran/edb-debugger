@@ -311,6 +311,15 @@ bool Model::setData(QModelIndex const& index, QVariant const& data, int role)
 		}
 		break;
 	}
+	case RawValueRole:
+	{
+		if(this->data(index,IsNormalRegisterRole).toBool())
+		{
+			auto*const reg=CHECKED_CAST(AbstractRegisterItem,item);
+			qDebug() << "normal register found:" << reg->name();
+			return reg->setValue(data.toByteArray());
+		}
+	}
 	}
 	return false;
 }
@@ -520,6 +529,13 @@ QByteArray RegisterItem<T>::rawValue() const
 					  sizeof this->value_);
 }
 
+template<typename T>
+bool RegisterItem<T>::setValue(QByteArray const& newValue)
+{
+	T value;
+	std::memcpy(&value,newValue.constData(),newValue.size());
+	return setDebuggeeRegister<T>(name(),value,value_);
+}
 
 template<typename T> typename std::enable_if<(sizeof(T)>sizeof(std::uint64_t)),
 bool>::type setValue(T& /*valueToSet*/, QString const& /*name*/, QString const& /*valueStr*/)
