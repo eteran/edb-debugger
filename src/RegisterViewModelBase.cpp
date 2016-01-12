@@ -26,7 +26,11 @@ bool setDebuggeeRegister(QString const& name, T const& value, T& resultingValue)
 		// read
 		dcore->get_state(&state);
 		auto reg=state[name];
-		if(!reg) return false;
+		if(!reg)
+		{
+			qWarning() << qPrintable(QString("Warning: failed to get register %1 (in function `%2`)").arg(name).arg(Q_FUNC_INFO));
+			return false;
+		}
 		Q_ASSERT(reg.bitSize()==8*sizeof(T));
 		const auto origValue=reg.value<T>();
 		if(origValue==value) return true; // do nothing if it's not different
@@ -520,6 +524,7 @@ QByteArray RegisterItem<T>::rawValue() const
 template<typename T> typename std::enable_if<(sizeof(T)>sizeof(std::uint64_t)),
 bool>::type setValue(T& /*valueToSet*/, QString const& /*name*/, QString const& /*valueStr*/)
 {
+	qWarning() << "FIXME: unimplemented" << Q_FUNC_INFO;
 	return false; // TODO: maybe do set?.. would be arch-dependent then due to endianness
 }
 
