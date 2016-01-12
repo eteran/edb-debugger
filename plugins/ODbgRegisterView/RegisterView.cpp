@@ -963,14 +963,13 @@ RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent
 	static const int FPU_REG_COUNT=8;
 	static const int nameWidth=3;
 	static const int tagWidth=7;
+	const auto fsrIndex=VALID_INDEX(findModelRegister(catIndex,"FSR"));
+	const QPersistentModelIndex topIndex=VALID_INDEX(findModelRegister(fsrIndex,"TOP",MODEL_VALUE_COLUMN));
 	for(int row=0;row<FPU_REG_COUNT;++row)
 	{
 		int column=0;
 		const auto nameIndex=model->index(row,MODEL_NAME_COLUMN,catIndex);
 		{
-			const auto name=VALID_VARIANT(nameIndex.data()).toString();
-			const auto fsrIndex=VALID_INDEX(findModelRegister(catIndex,"FSR"));
-			const QPersistentModelIndex topIndex=VALID_INDEX(findModelRegister(fsrIndex,"TOP",MODEL_VALUE_COLUMN));
 			const auto STiFormatter=[row,topIndex]()
 			{
 				const auto topByteArray=topIndex.data(Model::RawValueRole).toByteArray();
