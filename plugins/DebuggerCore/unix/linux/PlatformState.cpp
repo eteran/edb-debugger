@@ -1244,6 +1244,18 @@ void PlatformState::set_register(const Register& reg) {
 		x87.opCode=reg.value<edb::value16>();
 		return;
 	}
+	{
+		QRegExp DRx("^dr([0-7])$");
+		if(DRx.indexIn(regName)!=-1) {
+			QChar digit=DRx.cap(1).at(0);
+			assert(digit.isDigit());
+			char digitChar=digit.toLatin1();
+			std::size_t i=digitChar-'0';
+			assert(dbgIndexValid(i));
+			x86.dbgRegs[i]=reg.valueAsAddress();
+			return;
+		}
+	}
 	qDebug().nospace() << "fixme: set_register(0x"<< qPrintable(reg.toHexString()) <<"): didn't set register " << reg.name();
 }
 
