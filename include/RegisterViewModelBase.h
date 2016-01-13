@@ -239,18 +239,27 @@ public:
 };
 
 template<class UnderlyingType>
-class BitFieldItem : public RegisterItem<UnderlyingType>, public BitFieldProperties
+class FlagsRegister;
+
+template<class UnderlyingType>
+class BitFieldItem : public RegisterViewItem, public BitFieldProperties
 {
 protected:
 	unsigned offset_;
 	unsigned length_;
 	std::vector<QString> explanations;
 
+	FlagsRegister<UnderlyingType>* reg() const;
 	UnderlyingType lengthToMask() const;
+	UnderlyingType calcValue(UnderlyingType regVal) const;
+	UnderlyingType value() const;
+	UnderlyingType prevValue() const;
 public:
 	BitFieldItem(BitFieldDescription const& descr);
 	QVariant data(int column) const override;
-	void update(UnderlyingType newValue);
+	bool changed() const override;
+	int valueMaxLength() const override;
+	QByteArray rawValue() const override;
 
 	unsigned offset() const override;
 	unsigned length() const override;
@@ -262,13 +271,13 @@ class FlagsRegister : public SimpleRegister<StoredType>
 	void addField(std::unique_ptr<BitFieldItem<StoredType>> item);
 public:
 	FlagsRegister(QString const& name, std::vector<BitFieldDescription> const& bitFields);
-	void update(StoredType const& newValue, QString const& newComment);
-	void invalidate() override;
-	void saveValue() override;
 	int childCount() const override;
 	RegisterViewItem* child(int) override;
 protected:
 	std::vector<BitFieldItem<StoredType>> fields;
+
+	template<class UnderlyingType>
+	friend class BitFieldItem;
 };
 
 template<class StoredType>

@@ -596,7 +596,7 @@ template class SimpleRegister<edb::value256>;
 
 template<typename UnderlyingType>
 BitFieldItem<UnderlyingType>::BitFieldItem(BitFieldDescription const& descr)
-	: RegisterItem<UnderlyingType>(descr.name),
+	: RegisterViewItem(descr.name),
 	  offset_(descr.offset),
 	  length_(descr.length),
 	  explanations(descr.explanations)
@@ -606,36 +606,70 @@ BitFieldItem<UnderlyingType>::BitFieldItem(BitFieldDescription const& descr)
 }
 
 template<typename UnderlyingType>
+FlagsRegister<UnderlyingType>* BitFieldItem<UnderlyingType>::reg() const
+{
+	return CHECKED_CAST(FlagsRegister<UnderlyingType>,this->parent());
+}
+
+template<typename UnderlyingType>
 UnderlyingType BitFieldItem<UnderlyingType>::lengthToMask() const
 {
 	return 2*(1ull << (length_-1))-1;
 }
 
 template<typename UnderlyingType>
-void BitFieldItem<UnderlyingType>::update(UnderlyingType newValue)
+UnderlyingType BitFieldItem<UnderlyingType>::calcValue(UnderlyingType regVal) const
 {
-	this->valueKnown_=true;
-	this->value_=(newValue>>offset_)&lengthToMask();
+	return (regVal>>offset_)&lengthToMask();
+}
+
+template<typename UnderlyingType>
+UnderlyingType BitFieldItem<UnderlyingType>::value() const
+{
+	return calcValue(reg()->value_);
+}
+
+template<typename UnderlyingType>
+UnderlyingType BitFieldItem<UnderlyingType>::prevValue() const
+{
+	return calcValue(reg()->prevValue_);
+}
+
+template<typename UnderlyingType>
+int BitFieldItem<UnderlyingType>::valueMaxLength() const
+{
+	return length_/4; // number of nibbles
+}
+
+template<typename UnderlyingType>
+bool BitFieldItem<UnderlyingType>::changed() const
+{
+	return !reg()->valueKnown_ || !reg()->prevValueKnown_ || value()!=prevValue();
 }
 
 template<typename UnderlyingType>
 QVariant BitFieldItem<UnderlyingType>::data(int column) const
 {
-	const auto datum=RegisterItem<UnderlyingType>::data(column);
+	const auto str=reg()->valid() ? value().toHexString() : QString(sizeof(UnderlyingType)*2,'?');
 	switch(column)
 	{
+	case Model::NAME_COLUMN:
+		return name();
 	case Model::VALUE_COLUMN:
-		{
-		Q_ASSERT(datum.isValid());
-		const auto str=datum.toString();
 		Q_ASSERT(str.size()>0);
 		return str.right(std::ceil(length_/4.));
-		}
 	case Model::COMMENT_COLUMN:
-		if(explanations.empty()) return datum;
-		return this->valueKnown_ ? explanations[this->value_] : QString();
+		if(explanations.empty()) return {};
+		return reg()->valid() ? explanations[value()] : QString();
 	}
-	return datum;
+	return {};
+}
+
+template<typename UnderlyingType>
+QByteArray BitFieldItem<UnderlyingType>::rawValue() const
+{
+	const auto val=value();
+	return QByteArray(reinterpret_cast<const char*>(&val),sizeof val);
 }
 
 template<typename UnderlyingType>
@@ -662,30 +696,6 @@ FlagsRegister<StoredType>::FlagsRegister(QString const& name,
 		fields.emplace_back(field);
 		fields.back().init(this,fields.size()-1);
 	}
-}
-
-template<typename StoredType>
-void FlagsRegister<StoredType>::update(StoredType const& newValue, QString const& newComment)
-{
-	SimpleRegister<StoredType>::update(newValue,newComment);
-	for(auto& field : fields)
-		field.update(newValue);
-}
-
-template<typename StoredType>
-void FlagsRegister<StoredType>::saveValue()
-{
-	SimpleRegister<StoredType>::saveValue();
-	for(auto& field : fields)
-		field.saveValue();
-}
-
-template<typename StoredType>
-void FlagsRegister<StoredType>::invalidate()
-{
-	SimpleRegister<StoredType>::invalidate();
-	for(auto& field : fields)
-		field.invalidate();
 }
 
 template<typename StoredType>
