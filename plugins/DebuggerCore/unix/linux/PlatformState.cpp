@@ -1232,6 +1232,18 @@ void PlatformState::set_register(const Register& reg) {
 		x87.controlWord=reg.value<edb::value16>();
 		return;
 	}
+	if(regName=="fis"||regName=="fds") {
+		(regName=="fis" ? x87.instPtrSelector : x87.dataPtrSelector)=reg.value<edb::value16>();
+		return;
+	}
+	if(regName=="fip"||regName=="fdp") {
+		(regName=="fip" ? x87.instPtrOffset : x87.dataPtrOffset)=reg.valueAsAddress();
+		return;
+	}
+	if(regName=="fopcode"||regName=="fop") {
+		x87.opCode=reg.value<edb::value16>();
+		return;
+	}
 	qDebug().nospace() << "fixme: set_register(0x"<< qPrintable(reg.toHexString()) <<"): didn't set register " << reg.name();
 }
 
