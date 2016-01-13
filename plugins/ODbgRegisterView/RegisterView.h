@@ -141,6 +141,7 @@ class ValueField : public FieldWidget
 	QList<QAction*> menuItems;
 
 	void init();
+	RegisterViewModelBase::Model* model() const;
 	bool changed() const;
 	QColor fgColorForChangedField() const;
 protected:

@@ -247,6 +247,16 @@ ValueField::ValueField(int const fieldWidth,
 		menuItems.push_back(new QAction(tr("Toggle"),this)); // TODO: implement
 }
 
+RegisterViewModelBase::Model* ValueField::model() const
+{
+	using namespace RegisterViewModelBase;
+	const auto model=static_cast<const Model*>(index.model());
+	// The model is not supposed to have been created as const object,
+	// and our manipulations won't invalidate the index.
+	// Thus cast the const away.
+	return const_cast<Model*>(model);
+}
+
 ValueField* ValueField::bestNeighbor(std::function<bool(QPoint const&,ValueField const*,QPoint const&)>const& firstIsBetter) const
 {
 	ValueField* result=nullptr;
@@ -305,9 +315,26 @@ bool ValueField::isSelected() const
 
 void ValueField::defaultAction()
 {
-	QMessageBox::information(this,"Default action called",
-							 QString("Default action called for field %1 with contents \"%2\"")
-								.arg(QString().sprintf("%p",static_cast<void*>(this))).arg(text()));
+	using namespace RegisterViewModelBase;
+	if(index.data(Model::IsBitFieldRole).toBool() && index.data(Model::BitFieldLengthRole).toInt()==1)
+	{
+		// toggle
+		// TODO: Model: make it possible to set bit field itself, without manipulating parent directly
+		//              I.e. set value without knowing field offset, then setData(fieldIndex,word)
+		const auto regIndex=index.parent().sibling(index.parent().row(),MODEL_VALUE_COLUMN);
+		auto byteArr=regIndex.data(Model::RawValueRole).toByteArray();
+		if(byteArr.isEmpty()) return;
+		std::uint64_t word(0);
+		std::memcpy(&word,byteArr.constData(),byteArr.size());
+		const auto offset=VALID_INDEX(index.data(Model::BitFieldOffsetRole)).toInt();
+		word^=1ull<<offset;
+		std::memcpy(byteArr.data(),&word,byteArr.size());
+		model()->setData(regIndex,byteArr,Model::RawValueRole);
+	}
+	else
+		QMessageBox::information(this,"Default action called",
+								 QString("Default action called for field %1 with contents \"%2\"")
+									.arg(QString().sprintf("%p",static_cast<void*>(this))).arg(text()));
 }
 
 void ValueField::update()
