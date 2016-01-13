@@ -287,35 +287,35 @@ bool Model::setData(QModelIndex const& index, QVariant const& data, int role)
 {
 	qDebug() << "setData( index ="<<index<<", data ="<<data<<", role ="<<role<<")";
 	auto*const item=getItem(index);
+	const auto valueIndex=index.sibling(index.row(),VALUE_COLUMN);
 	switch(role)
 	{
 	case Qt::EditRole:
-	{
-		if(this->data(index,IsNormalRegisterRole).toBool())
-		{
-			auto*const reg=CHECKED_CAST(AbstractRegisterItem,item);
-			qDebug() << "set string: normal register found:" << reg->name();
-			bool ok=false;
-			if(data.type()==QVariant::String)
-				ok=reg->setValue(data.toString());
-			if(ok)
-			{
-				const auto valueIndex=index.sibling(index.row(),VALUE_COLUMN);
-				Q_EMIT dataChanged(valueIndex,valueIndex);
-			}
-			qDebug() << "setValue"<<(ok?"succeeded":"failed");
-			return ok;
-		}
-		break;
-	}
 	case RawValueRole:
 	{
 		if(this->data(index,IsNormalRegisterRole).toBool())
 		{
 			auto*const reg=CHECKED_CAST(AbstractRegisterItem,item);
-			qDebug() << "set raw: normal register found:" << reg->name();
-			return reg->setValue(data.toByteArray());
+			qDebug() << "setData(role:"<<role<<"): normal register found:" << reg->name();
+			bool ok=false;
+			if(role==Qt::EditRole && data.type()==QVariant::String)
+				ok=reg->setValue(data.toString());
+			else if(data.type()==QVariant::ByteArray)
+				ok=reg->setValue(data.toByteArray());
+
+			if(ok)
+			{
+				Q_EMIT dataChanged(valueIndex,valueIndex);
+				if(rowCount(valueIndex))
+				{
+					Q_EMIT dataChanged(this->index(0,VALUE_COLUMN,valueIndex),
+									   this->index(rowCount(valueIndex),COMMENT_COLUMN,valueIndex));
+				}
+			}
+			qDebug() << "setValue()"<<(ok?"succeeded":"failed");
+			return ok;
 		}
+		break;
 	}
 	}
 	return false;
