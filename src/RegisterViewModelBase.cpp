@@ -856,8 +856,7 @@ int SIMDSizedElement<StoredType,SizingType>::childCount() const
 template<class StoredType, class SizingType>
 SIMDRegister<StoredType>* SIMDSizedElement<StoredType,SizingType>::reg() const
 {
-	Q_ASSERT(dynamic_cast<SIMDRegister<StoredType>*>(this->parent()->parent()));
-	return static_cast<SIMDRegister<StoredType>*>(this->parent()->parent());
+	return CHECKED_CAST(SIMDRegister<StoredType>,this->parent()->parent());
 }
 
 template<class StoredType, class SizingType>
