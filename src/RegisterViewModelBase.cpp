@@ -294,7 +294,7 @@ bool Model::setData(QModelIndex const& index, QVariant const& data, int role)
 		if(this->data(index,IsNormalRegisterRole).toBool())
 		{
 			auto*const reg=CHECKED_CAST(AbstractRegisterItem,item);
-			qDebug() << "normal register found:" << reg->name();
+			qDebug() << "set string: normal register found:" << reg->name();
 			bool ok=false;
 			if(data.type()==QVariant::String)
 				ok=reg->setValue(data.toString());
@@ -313,7 +313,7 @@ bool Model::setData(QModelIndex const& index, QVariant const& data, int role)
 		if(this->data(index,IsNormalRegisterRole).toBool())
 		{
 			auto*const reg=CHECKED_CAST(AbstractRegisterItem,item);
-			qDebug() << "normal register found:" << reg->name();
+			qDebug() << "set raw: normal register found:" << reg->name();
 			return reg->setValue(data.toByteArray());
 		}
 	}
