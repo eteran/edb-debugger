@@ -62,9 +62,6 @@ RegisterViewItem* getItem(QModelIndex const& index)
 	return static_cast<RegisterViewItem*>(index.internalPointer());
 }
 
-bool AbstractRegisterItem::valid()
-{ return valueKnown_; }
-
 // ----------------- RegisterViewItem impl ---------------------------
 
 void RegisterViewItem::init(RegisterViewItem* parent, int row)
@@ -466,15 +463,27 @@ void Category::saveValues()
 }
 
 // -------------------- RegisterItem impl ------------------------
+template<typename T>
+RegisterItem<T>::RegisterItem(QString const& name)
+	: AbstractRegisterItem(name)
+{
+	invalidate();
+}
 
 template<typename T>
 void RegisterItem<T>::invalidate()
 {
-	util::markMemory(&this->value_,sizeof this->value_);
-	util::markMemory(&this->prevValue_,sizeof this->prevValue_);
-	this->comment_.clear();
-	this->valueKnown_=false;
-	this->prevValueKnown_=false;
+	util::markMemory(&value_,sizeof value_);
+	util::markMemory(&prevValue_,sizeof prevValue_);
+	comment_.clear();
+	valueKnown_=false;
+	prevValueKnown_=false;
+}
+
+template<typename T>
+bool RegisterItem<T>::valid() const
+{
+	return valueKnown_;
 }
 
 template<typename T>

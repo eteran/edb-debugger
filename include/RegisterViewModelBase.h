@@ -172,13 +172,10 @@ public:
 class AbstractRegisterItem : public RegisterViewItem
 {
 protected:
-	QString comment_;
-	bool valueKnown_=false;
-	bool prevValueKnown_=false;
 	AbstractRegisterItem(QString const& name) : RegisterViewItem(name) {}
 public:
 	// check whether it has some valid value (not unknown etc.)
-	virtual bool valid();
+	virtual bool valid() const = 0;
 	// Should be used when EDB is about to resume execution of debuggee —
 	// so that it's possible to check whether it changed on next stop
 	virtual void saveValue() = 0;
@@ -192,12 +189,16 @@ template<class StoredType>
 class RegisterItem : public AbstractRegisterItem
 {
 protected:
+	QString comment_;
+	bool valueKnown_=false;
+	bool prevValueKnown_=false;
 	StoredType value_;
 	StoredType prevValue_;
 
 	virtual QString valueString() const;
 public:
-	RegisterItem(QString const& name) : AbstractRegisterItem(name) {}
+	RegisterItem(QString const& name);
+	bool valid() const override;
 	void saveValue() override;
 	bool changed() const override;
 	void invalidate() override;
