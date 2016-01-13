@@ -1220,6 +1220,18 @@ void PlatformState::set_register(const Register& reg) {
 			return;
 		}
 	}
+	if(regName=="ftr"||regName=="ftw") {
+		x87.tagWord=reg.value<edb::value16>();
+		return;
+	}
+	if(regName=="fsr"||regName=="fsw") {
+		x87.statusWord=reg.value<edb::value16>();
+		return;
+	}
+	if(regName=="fcr"||regName=="fcw") {
+		x87.controlWord=reg.value<edb::value16>();
+		return;
+	}
 	qDebug().nospace() << "fixme: set_register(0x"<< qPrintable(reg.toHexString()) <<"): didn't set register " << reg.name();
 }
 
