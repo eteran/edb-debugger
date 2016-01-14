@@ -171,10 +171,8 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 		${edb_SRCS}
 		arch/x86-generic/ArchProcessor.cpp
 		arch/x86-generic/DialogEditFPU.cpp
-		arch/x86-generic/DialogEditGPR.cpp
 		arch/x86-generic/DialogEditSIMDRegister.cpp
 		arch/x86-generic/Float80Edit.cpp
-		arch/x86-generic/GPREdit.cpp		
 		arch/x86-generic/RegisterViewModel.cpp
 	)
 endif()
