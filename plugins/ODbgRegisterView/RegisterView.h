@@ -166,10 +166,10 @@ public:
 	ValueField* right() const;
 
 	bool isSelected() const;
-	void defaultAction();
 	void showMenu(QPoint const& position);
 	QString text() const override;
 public Q_SLOTS:
+	void defaultAction();
 	void update() override;
 	void select();
 	void unselect();

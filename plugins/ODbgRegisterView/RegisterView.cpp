@@ -242,9 +242,9 @@ ValueField::ValueField(int const fieldWidth,
 
 	using namespace RegisterViewModelBase;
 	if(index.data(Model::IsNormalRegisterRole).toBool())
-		menuItems.push_back(new QAction(tr("Modify"),this)); // TODO: implement
+		menuItems.push_back(newAction(tr("Modify"),this,this,SLOT(defaultAction()))); // TODO: implement
 	else if(index.data(Model::IsBitFieldRole).toBool() && index.data(Model::BitFieldLengthRole).toInt()==1)
-		menuItems.push_back(new QAction(tr("Toggle"),this)); // TODO: implement
+		menuItems.push_back(newAction(tr("Toggle"),this,this,SLOT(defaultAction())));
 }
 
 RegisterViewModelBase::Model* ValueField::model() const
