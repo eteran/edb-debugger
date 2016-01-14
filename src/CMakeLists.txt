@@ -1,16 +1,33 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 2.8)
 include("GNUInstallDirs")
+include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX11.cmake")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_CXX_STANDARD 11)
+
+set(UI_FILES
+		BinaryString.ui
+		Debugger.ui
+		DialogAbout.ui
+		DialogArguments.ui
+		DialogAttach.ui
+		DialogInputBinaryString.ui
+		DialogInputValue.ui
+		DialogMemoryRegions.ui
+		DialogOptions.ui
+		FixedFontSelector.ui
+		DialogPlugins.ui
+		DialogThreads.ui)
 
 if(Qt5Core_DIR)
     find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns)
+	qt5_wrap_ui(UI_H ${UI_FILES})
 elseif(NOT Qt5Core_DIR)
-	find_package(Qt4 4.6.0 REQUIRED QtGui QtXml QtXmlPatterns)
+	find_package(Qt4 4.6.0 REQUIRED QtCore QtGui QtXml QtXmlPatterns)
+	include(${QT_USE_FILE})
+	qt4_wrap_ui(UI_H ${UI_FILES})
 endif()
 
 add_definitions(-DDEFAULT_PLUGIN_PATH=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb)
@@ -67,6 +84,7 @@ set(edb_SRCS
 	widgets/RegisterViewDelegate.cpp
 	widgets/SyntaxHighlighter.cpp
 	widgets/TabWidget.cpp
+	${UI_H}
 )
 
 set(edb_INCLUDES
@@ -153,9 +171,9 @@ endif()
 add_executable(edb ${edb_INCLUDES} ${edb_SRCS})
 
 if(Qt5Core_DIR)
-	target_link_libraries(edb capstone Qt5::Widgets Qt5::Xml Qt5::XmlPatterns ${GRAPHVIZ_LIBRARY} ${GVC_LIBRARY})
+	target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt5::Widgets Qt5::Xml Qt5::XmlPatterns ${GRAPHVIZ_LIBRARY} ${GVC_LIBRARY})
 elseif(NOT Qt5Core_DIR)
-	target_link_libraries(edb capstone Qt4::QtGui Qt4::QtXml Qt4::QtXmlPatterns ${GRAPHVIZ_LIBRARY} ${GVC_LIBRARY})
+	target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt4::QtGui Qt4::QtXml Qt4::QtXmlPatterns ${GRAPHVIZ_LIBRARY} ${GVC_LIBRARY})
 endif()
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})

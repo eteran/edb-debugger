@@ -1,17 +1,24 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 2.8)
 include("GNUInstallDirs")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-set(CMAKE_CXX_STANDARD 11)
+include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX11.cmake")
 set(PluginName "Assembler")
+
+set(UI_FILES
+		DialogAssembler.ui
+		OptionsPage.ui)
 
 if(Qt5Core_FOUND)
     find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns)
+	qt5_wrap_ui(UI_H ${UI_FILES})
 else(Qt5Core_FOUND)
-	find_package(Qt4 4.6.0 QUIET REQUIRED QtGui QtXml QtXmlPatterns)
+	find_package(Qt4 4.6.0 QUIET REQUIRED QtCore QtGui QtXml QtXmlPatterns)
+	include(${QT_USE_FILE})
+	qt4_wrap_ui(UI_H ${UI_FILES})
 endif()
 
 # we put the header files from the include directory here 
@@ -24,6 +31,7 @@ add_library(${PluginName} SHARED
 	DialogAssembler.h
 	OptionsPage.cpp
 	OptionsPage.h
+	${UI_H}
 )
 
 if(Qt5Core_FOUND)
