@@ -37,6 +37,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RegisterViewModelBase.h"
 #include "edb.h"
 #include "Configuration.h"
+#include "State.h"
+#include "DialogEditGPR.h"
 
 #define VALID_VARIANT(VARIANT) (Q_ASSERT((VARIANT).isValid()),(VARIANT))
 #define VALID_INDEX(INDEX) VALID_VARIANT(INDEX)
@@ -330,6 +332,25 @@ void ValueField::defaultAction()
 		word^=1ull<<offset;
 		std::memcpy(byteArr.data(),&word,byteArr.size());
 		model()->setData(regIndex,byteArr,Model::RawValueRole);
+	}
+	else if(index.data(Model::IsNormalRegisterRole).toBool())
+	{
+		const auto rV=model()->data(index,Model::ValueAsRegisterRole);
+		if(!rV.isValid()) return;
+		auto r=rV.value<Register>();
+		if(!r) return;
+
+		if((r.type()!=Register::TYPE_SIMD) && r.bitSize()<=64)
+		{
+
+			const auto gprEdit=regView()->gprEditDialog();
+			gprEdit->set_value(r);
+			if(gprEdit->exec()==QDialog::Accepted)
+			{
+				r=gprEdit->value();
+				model()->setData(index,QVariant::fromValue(r),Model::ValueAsRegisterRole);
+			}
+		}
 	}
 	else
 		QMessageBox::information(this,"Default action called",
@@ -635,7 +656,8 @@ ODBRegView::RegisterGroupType findGroup(QString const& str)
 }
 
 ODBRegView::ODBRegView(QString const& settingsGroup, QWidget* parent)
-	: QScrollArea(parent)
+	: QScrollArea(parent),
+	  dialogEditGPR(new DialogEditGPR(this))
 {
 	setObjectName("ODBRegView");
 
@@ -696,6 +718,11 @@ ODBRegView::ODBRegView(QString const& settingsGroup, QWidget* parent)
 			visibleGroupTypes.emplace_back(group);
 		}
 	}
+}
+
+DialogEditGPR* ODBRegView::gprEditDialog() const
+{
+	return dialogEditGPR;
 }
 
 void ODBRegView::copyAllRegisters()

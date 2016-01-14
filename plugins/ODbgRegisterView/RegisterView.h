@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RegisterViewModelBase.h"
 
 class QSettings;
+class DialogEditGPR;
 
 namespace ODbgRegisterView {
 
@@ -68,6 +69,7 @@ public:
 private:
 	std::vector<RegisterGroupType> visibleGroupTypes;
 	QList<QAction*> menuItems;
+	DialogEditGPR* dialogEditGPR;
 
 	RegisterGroup* makeGroup(RegisterGroupType type);
 public:
@@ -78,6 +80,7 @@ public:
 	void showMenu(QPoint const& position,QList<QAction*>const& additionalItems={}) const;
 	void saveState(QString const& settings) const;
 	void groupHidden(RegisterGroup* group);
+	DialogEditGPR* gprEditDialog() const;
 private:
 	ValueField* selectedField() const;
 	void updateFieldsPalette();

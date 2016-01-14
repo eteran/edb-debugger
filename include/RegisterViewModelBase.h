@@ -6,8 +6,10 @@
 #include <deque>
 #include <vector>
 #include "Util.h"
+#include "Register.h"
 
 Q_DECLARE_METATYPE(std::vector<NumberDisplayMode>)
+Q_DECLARE_METATYPE(Register)
 
 namespace RegisterViewModelBase
 {
@@ -110,6 +112,9 @@ public:
 		// Length of bit field in bits
 		// Type: int
 		BitFieldLengthRole,
+		// Value as EDB's Register
+		// Type: Register
+		ValueAsRegisterRole,
 
 
 		FirstConcreteRole=Qt::UserRole+10000 // first role available for use in derived models
@@ -183,6 +188,7 @@ public:
 	virtual void invalidate() = 0;
 	virtual bool setValue(QString const& valueStr) = 0;
 	virtual bool setValue(QByteArray const& value) = 0;
+	virtual bool setValue(Register const& reg) = 0;
 };
 
 template<class StoredType>
@@ -208,6 +214,7 @@ public:
 	QByteArray rawValue() const override;
 	bool setValue(QString const& valueStr) override;
 	bool setValue(QByteArray const& value) override;
+	bool setValue(Register const& reg) override;
 };
 
 template<class StoredType>

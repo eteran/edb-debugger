@@ -276,6 +276,17 @@ QVariant Model::data(QModelIndex const& index, int role) const
 		if(!bitField) return {};
 		return bitField->length();
 	}
+	case ValueAsRegisterRole:
+		if(auto*const dcore=edb::v1::debugger_core)
+		{
+			const auto name=index.sibling(index.row(),NAME_COLUMN).data().toString();
+			if(name.isEmpty()) return {};
+			State state;
+			// read
+			dcore->get_state(&state);
+			return QVariant::fromValue(state[name]);
+		}
+	break;
 
 	default:
 		return {};
@@ -288,35 +299,45 @@ bool Model::setData(QModelIndex const& index, QVariant const& data, int role)
 	qDebug() << "setData( index ="<<index<<", data ="<<data<<", role ="<<role<<")";
 	auto*const item=getItem(index);
 	const auto valueIndex=index.sibling(index.row(),VALUE_COLUMN);
+	bool ok=false;
+
 	switch(role)
 	{
 	case Qt::EditRole:
 	case RawValueRole:
-	{
 		if(this->data(index,IsNormalRegisterRole).toBool())
 		{
 			auto*const reg=CHECKED_CAST(AbstractRegisterItem,item);
 			qDebug() << "setData(role:"<<role<<"): normal register found:" << reg->name();
-			bool ok=false;
 			if(role==Qt::EditRole && data.type()==QVariant::String)
 				ok=reg->setValue(data.toString());
 			else if(data.type()==QVariant::ByteArray)
 				ok=reg->setValue(data.toByteArray());
 
-			if(ok)
-			{
-				Q_EMIT dataChanged(valueIndex,valueIndex);
-				if(rowCount(valueIndex))
-				{
-					Q_EMIT dataChanged(this->index(0,VALUE_COLUMN,valueIndex),
-									   this->index(rowCount(valueIndex),COMMENT_COLUMN,valueIndex));
-				}
-			}
 			qDebug() << "setValue()"<<(ok?"succeeded":"failed");
-			return ok;
 		}
 		break;
+	case ValueAsRegisterRole:
+	{
+		auto*const regItem=CHECKED_CAST(AbstractRegisterItem,item);
+		assert(data.isValid());
+		assert(index.isValid());
+		const auto name=index.sibling(index.row(),NAME_COLUMN).data().toString();
+		const auto regVal=data.value<Register>();
+		assert(name.toLower()==regVal.name().toLower());
+		ok=regItem->setValue(regVal);
+		break;
 	}
+	}
+	if(ok)
+	{
+		Q_EMIT dataChanged(valueIndex,valueIndex);
+		if(rowCount(valueIndex))
+		{
+			Q_EMIT dataChanged(this->index(0,VALUE_COLUMN,valueIndex),
+							   this->index(rowCount(valueIndex),COMMENT_COLUMN,valueIndex));
+		}
+		return true;
 	}
 	return false;
 }
@@ -538,6 +559,13 @@ QByteArray RegisterItem<T>::rawValue() const
 					  sizeof this->value_);
 }
 
+template<typename T>
+bool RegisterItem<T>::setValue(Register const& reg)
+{
+	assert(reg.bitSize()==8*sizeof(T));
+	return setDebuggeeRegister<T>(reg.name(),reg.value<T>(),value_);
+}
+	
 template<typename T>
 bool RegisterItem<T>::setValue(QByteArray const& newValue)
 {
