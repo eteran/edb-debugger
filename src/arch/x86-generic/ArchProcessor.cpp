@@ -40,10 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <memory>
 
-#include "DialogEditGPR.h"
-#include "DialogEditFPU.h"
 #include "FloatX.h"
-#include "DialogEditSIMDRegister.h"
 #include "RegisterViewModel.h"
 
 #ifdef Q_OS_LINUX
