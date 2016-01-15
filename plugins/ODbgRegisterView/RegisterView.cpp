@@ -353,9 +353,9 @@ void ValueField::defaultAction()
 		}
 	}
 	else
-		QMessageBox::information(this,"Default action called",
-								 QString("Default action called for field %1 with contents \"%2\"")
-									.arg(QString().sprintf("%p",static_cast<void*>(this))).arg(text()));
+		QMessageBox::information(this,"Unimplemented",
+								 QString("Sorry, editing %1 is not implemented yet")
+									.arg(index.sibling(index.row(),MODEL_NAME_COLUMN).data().toString()));
 }
 
 void ValueField::update()
