@@ -39,6 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "State.h"
 #include "DialogEditGPR.h"
+#include "DialogEditSIMDRegister.h"
 
 #define VALID_VARIANT(VARIANT) (Q_ASSERT((VARIANT).isValid()),(VARIANT))
 #define VALID_INDEX(INDEX) VALID_VARIANT(INDEX)
@@ -335,6 +336,16 @@ void ValueField::editNormalReg(QModelIndex const& index) const
 			model()->setData(index,QVariant::fromValue(r),Model::ValueAsRegisterRole);
 		}
 	}
+	else if(r.type()==Register::TYPE_SIMD)
+	{
+		const auto simdEdit=regView()->simdEditDialog();
+		simdEdit->set_value(r);
+		if(simdEdit->exec()==QDialog::Accepted)
+		{
+			r=simdEdit->value();
+			model()->setData(index,QVariant::fromValue(r),Model::ValueAsRegisterRole);
+		}
+	}
 }
 
 void ValueField::defaultAction()
@@ -357,6 +368,8 @@ void ValueField::defaultAction()
 	}
 	else if(index.data(Model::IsNormalRegisterRole).toBool())
 		editNormalReg(index);
+	else if(index.data(Model::IsSIMDElementRole).toBool())
+		editNormalReg(index.parent().parent());
 	else
 		QMessageBox::information(this,"Unimplemented",
 								 QString("Sorry, editing %1 is not implemented yet")
@@ -662,7 +675,8 @@ ODBRegView::RegisterGroupType findGroup(QString const& str)
 
 ODBRegView::ODBRegView(QString const& settingsGroup, QWidget* parent)
 	: QScrollArea(parent),
-	  dialogEditGPR(new DialogEditGPR(this))
+	  dialogEditGPR(new DialogEditGPR(this)),
+	  dialogEditSIMDReg(new DialogEditSIMDRegister(this))
 {
 	setObjectName("ODBRegView");
 
@@ -728,6 +742,11 @@ ODBRegView::ODBRegView(QString const& settingsGroup, QWidget* parent)
 DialogEditGPR* ODBRegView::gprEditDialog() const
 {
 	return dialogEditGPR;
+}
+
+DialogEditSIMDRegister* ODBRegView::simdEditDialog() const
+{
+	return dialogEditSIMDReg;
 }
 
 void ODBRegView::copyAllRegisters()
