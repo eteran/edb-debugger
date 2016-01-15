@@ -57,6 +57,7 @@ namespace ODbgRegisterView {
 // TODO: RC: round up/down/nearest
 // TODO: Push/Pop FPU stack
 // TODO: Add option to show FPU in STi mode, both ST-ordered and R-ordered (physically)
+// TODO: Update register comments after editing values
 
 namespace
 {
