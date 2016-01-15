@@ -183,17 +183,10 @@ void DialogEditGPR::setupEntriesAndLabels()
 	static const auto x86GPRsWithHighBytesAddressable=util::make_array<QString>("EAX","ECX","EDX","EBX","RAX","RCX","RDX","RBX");
 	static const auto x86GPRsWithHighBytesNotAddressable=util::make_array<QString>("ESP","EBP","ESI","EDI","RSP","RBP","RSI","RDI");
 	static const auto upperGPRs64=util::make_array<QString>("R8","R9","R10","R11","R12","R13","R14","R15");
-	static const auto segmentRegs=util::make_array<QString>("ES","CS","SS","DS","FS","GS");
-	static const auto rSP=util::make_array<QString>("ESP","RSP");
-	static const auto rIP=util::make_array<QString>("EIP","RIP");
-	static const auto rFLAGS=util::make_array<QString>("EFLAGS","RFLAGS");
-	static const auto mxcsr="MXCSR";
 
-	bool x86GPR=false, upperGPR64=false, stackPtr=false, segmentReg=false, instPtr=false, flags=false;
+	bool x86GPR=false, upperGPR64=false;
 	using util::contains;
-	if(contains(rSP,regName))
-		stackPtr=true;
-	else if(contains(x86GPRsWithHighBytesNotAddressable,regName))
+	if(contains(x86GPRsWithHighBytesNotAddressable,regName))
 	{
 		x86GPR=true;
 		hideColumn(GPR8H_COL);
@@ -207,14 +200,6 @@ void DialogEditGPR::setupEntriesAndLabels()
 		x86GPR=true;
 	else if(contains(upperGPRs64,regName))
 		upperGPR64=true;
-	else if(contains(segmentRegs,regName))
-		segmentReg=true;
-	else if(contains(rIP,regName))
-		instPtr=true;
-	else if(contains(rFLAGS,regName))
-		flags=true;
-	else if(regName==mxcsr)
-		flags=true;
 
 	if(x86GPR)
 	{
@@ -234,7 +219,7 @@ void DialogEditGPR::setupEntriesAndLabels()
 		columnLabel(GPR8L_COL)->setText(regName+"B");
 		hideColumn(GPR8H_COL);
 	}
-	else if(segmentReg || instPtr || flags || stackPtr)
+	else
 	{
 		// These have hex only format
 		hideColumn(GPR8H_COL);
@@ -248,8 +233,6 @@ void DialogEditGPR::setupEntriesAndLabels()
 		hideRow(UNSIGNED_ROW);
 		hideRow(CHAR_ROW);
 	}
-	else
-		qWarning() << "Warning: " << regName << " not found in any list\n";
 }
 
 void DialogEditGPR::setupFocus()
