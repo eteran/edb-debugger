@@ -311,6 +311,42 @@ void DialogEditSIMDRegister::set_value(const Register& newReg)
 	updateAllEntriesExcept(nullptr);
 }
 
+void DialogEditSIMDRegister::set_current_element(RegisterViewModelBase::Model::ElementSize size, NumberDisplayMode format, int elementIndex)
+{
+	using namespace RegisterViewModelBase;
+	if(format!=intMode && format!=NumberDisplayMode::Float)
+	{
+		switch(format)
+		{
+		case NumberDisplayMode::Hex: radioHex->setChecked(true); break;
+		case NumberDisplayMode::Signed: radioSigned->setChecked(true); break;
+		case NumberDisplayMode::Unsigned: radioUnsigned->setChecked(true); break;
+		case NumberDisplayMode::Float: break; // silence the compiler, we'll never get here
+		}
+	}
+	NumberEdit* edit=bytes[0];
+	if(format==NumberDisplayMode::Float)
+	{
+		edit=floats32[0];
+		if(size==Model::ElementSize::DWORD)
+			edit=floats32[elementIndex];
+		else if(size==Model::ElementSize::QWORD)
+			edit=floats64[elementIndex];
+	}
+	else
+	{
+		switch(size)
+		{
+		case Model::ElementSize::BYTE:  edit= bytes[elementIndex]; break;
+		case Model::ElementSize::WORD:  edit= words[elementIndex]; break;
+		case Model::ElementSize::DWORD: edit=dwords[elementIndex]; break;
+		case Model::ElementSize::QWORD: edit=qwords[elementIndex]; break;
+		default: EDB_PRINT_AND_DIE("Unexpected size ",static_cast<long>(size));
+		}
+	}
+	edit->setFocus(Qt::OtherFocusReason);
+}
+
 std::uint64_t DialogEditSIMDRegister::readInteger(const NumberEdit* const edit) const
 {
 	bool ok;

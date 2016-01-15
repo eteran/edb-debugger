@@ -15,6 +15,7 @@
 #include <cstdint>
 #include <Register.h>
 #include "Util.h"
+#include "RegisterViewModelBase.h"
 
 class QRegExpValidator;
 class QULongValidator;
@@ -94,6 +95,7 @@ class DialogEditSIMDRegister : public QDialog
 public:
 	DialogEditSIMDRegister(QWidget* parent=nullptr);
 	void set_value(const Register& value);
+	void set_current_element(RegisterViewModelBase::Model::ElementSize size, NumberDisplayMode format, int elementIndex);
 	Register value() const;
 private:
 	template<typename Integer>

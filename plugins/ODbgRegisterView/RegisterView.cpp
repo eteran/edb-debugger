@@ -316,11 +316,11 @@ bool ValueField::isSelected() const
 	return selected_;
 }
 
-void ValueField::editNormalReg(QModelIndex const& index) const
+void ValueField::editNormalReg(QModelIndex const& indexToEdit, QModelIndex const& clickedIndex) const
 {
 	using namespace RegisterViewModelBase;
 
-	const auto rV=model()->data(index,Model::ValueAsRegisterRole);
+	const auto rV=model()->data(indexToEdit,Model::ValueAsRegisterRole);
 	if(!rV.isValid()) return;
 	auto r=rV.value<Register>();
 	if(!r) return;
@@ -333,17 +333,23 @@ void ValueField::editNormalReg(QModelIndex const& index) const
 		if(gprEdit->exec()==QDialog::Accepted)
 		{
 			r=gprEdit->value();
-			model()->setData(index,QVariant::fromValue(r),Model::ValueAsRegisterRole);
+			model()->setData(indexToEdit,QVariant::fromValue(r),Model::ValueAsRegisterRole);
 		}
 	}
 	else if(r.type()==Register::TYPE_SIMD)
 	{
 		const auto simdEdit=regView()->simdEditDialog();
 		simdEdit->set_value(r);
+		const int size=VALID_VARIANT(indexToEdit.parent().data(Model::ChosenSIMDSizeRole)).toInt();
+		const int format=VALID_VARIANT(indexToEdit.parent().data(Model::ChosenSIMDFormatRole)).toInt();
+		const int elementIndex=clickedIndex.row();
+		simdEdit->set_current_element(static_cast<Model::ElementSize>(size),
+									static_cast<NumberDisplayMode>(format),
+									elementIndex);
 		if(simdEdit->exec()==QDialog::Accepted)
 		{
 			r=simdEdit->value();
-			model()->setData(index,QVariant::fromValue(r),Model::ValueAsRegisterRole);
+			model()->setData(indexToEdit,QVariant::fromValue(r),Model::ValueAsRegisterRole);
 		}
 	}
 }
@@ -367,9 +373,9 @@ void ValueField::defaultAction()
 		model()->setData(regIndex,byteArr,Model::RawValueRole);
 	}
 	else if(index.data(Model::IsNormalRegisterRole).toBool())
-		editNormalReg(index);
+		editNormalReg(index,index);
 	else if(index.data(Model::IsSIMDElementRole).toBool())
-		editNormalReg(index.parent().parent());
+		editNormalReg(index.parent().parent(), index);
 	else
 		QMessageBox::information(this,"Unimplemented",
 								 QString("Sorry, editing %1 is not implemented yet")
