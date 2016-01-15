@@ -18,12 +18,15 @@ endif()
 # we put the header files from the include directory here
 # too so automoc can "just work"
 add_library(${PluginName} SHARED
+	DialogEditFPU.cpp
 	DialogEditGPR.cpp
+	Float80Edit.cpp
 	GPREdit.cpp
 	Plugin.cpp
 	Plugin.h
 	RegisterView.cpp
 	RegisterView.h
+	DialogEditSIMDRegister.cpp
 )
 
 if(Qt5Core_FOUND)
