@@ -296,7 +296,6 @@ QVariant Model::data(QModelIndex const& index, int role) const
 
 bool Model::setData(QModelIndex const& index, QVariant const& data, int role)
 {
-	qDebug() << "setData( index ="<<index<<", data ="<<data<<", role ="<<role<<")";
 	auto*const item=getItem(index);
 	const auto valueIndex=index.sibling(index.row(),VALUE_COLUMN);
 	bool ok=false;
@@ -308,13 +307,10 @@ bool Model::setData(QModelIndex const& index, QVariant const& data, int role)
 		if(this->data(index,IsNormalRegisterRole).toBool())
 		{
 			auto*const reg=CHECKED_CAST(AbstractRegisterItem,item);
-			qDebug() << "setData(role:"<<role<<"): normal register found:" << reg->name();
 			if(role==Qt::EditRole && data.type()==QVariant::String)
 				ok=reg->setValue(data.toString());
 			else if(data.type()==QVariant::ByteArray)
 				ok=reg->setValue(data.toByteArray());
-
-			qDebug() << "setValue()"<<(ok?"succeeded":"failed");
 		}
 		break;
 	case ValueAsRegisterRole:
