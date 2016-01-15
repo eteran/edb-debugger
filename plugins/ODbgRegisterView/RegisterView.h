@@ -147,6 +147,7 @@ class ValueField : public FieldWidget
 	RegisterViewModelBase::Model* model() const;
 	bool changed() const;
 	QColor fgColorForChangedField() const;
+	void editNormalReg(QModelIndex const& index) const;
 protected:
 	void enterEvent(QEvent*) override;
 	void leaveEvent(QEvent*) override;

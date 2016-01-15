@@ -315,6 +315,28 @@ bool ValueField::isSelected() const
 	return selected_;
 }
 
+void ValueField::editNormalReg(QModelIndex const& index) const
+{
+	using namespace RegisterViewModelBase;
+
+	const auto rV=model()->data(index,Model::ValueAsRegisterRole);
+	if(!rV.isValid()) return;
+	auto r=rV.value<Register>();
+	if(!r) return;
+
+	if((r.type()!=Register::TYPE_SIMD) && r.bitSize()<=64)
+	{
+
+		const auto gprEdit=regView()->gprEditDialog();
+		gprEdit->set_value(r);
+		if(gprEdit->exec()==QDialog::Accepted)
+		{
+			r=gprEdit->value();
+			model()->setData(index,QVariant::fromValue(r),Model::ValueAsRegisterRole);
+		}
+	}
+}
+
 void ValueField::defaultAction()
 {
 	using namespace RegisterViewModelBase;
@@ -334,24 +356,7 @@ void ValueField::defaultAction()
 		model()->setData(regIndex,byteArr,Model::RawValueRole);
 	}
 	else if(index.data(Model::IsNormalRegisterRole).toBool())
-	{
-		const auto rV=model()->data(index,Model::ValueAsRegisterRole);
-		if(!rV.isValid()) return;
-		auto r=rV.value<Register>();
-		if(!r) return;
-
-		if((r.type()!=Register::TYPE_SIMD) && r.bitSize()<=64)
-		{
-
-			const auto gprEdit=regView()->gprEditDialog();
-			gprEdit->set_value(r);
-			if(gprEdit->exec()==QDialog::Accepted)
-			{
-				r=gprEdit->value();
-				model()->setData(index,QVariant::fromValue(r),Model::ValueAsRegisterRole);
-			}
-		}
-	}
+		editNormalReg(index);
 	else
 		QMessageBox::information(this,"Unimplemented",
 								 QString("Sorry, editing %1 is not implemented yet")
