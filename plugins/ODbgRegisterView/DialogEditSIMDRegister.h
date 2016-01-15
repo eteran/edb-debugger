@@ -78,7 +78,7 @@ class DialogEditSIMDRegister : public QDialog
 	QValidator* float32Validator;
 	QValidator* float64Validator;
 
-	NumberDisplayMode mode;
+	NumberDisplayMode intMode;
 	std::array<std::uint8_t,numBytes> value_;
 	Register reg;
 
