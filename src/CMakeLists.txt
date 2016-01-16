@@ -20,14 +20,17 @@ set(UI_FILES
 		FixedFontSelector.ui
 		DialogPlugins.ui
 		DialogThreads.ui)
+set(RC_FILES debugger.qrc)
 
 if(Qt5Core_DIR)
     find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns)
 	qt5_wrap_ui(UI_H ${UI_FILES})
+	qt5_add_resources(RC_SRCS ${RC_FILES})
 elseif(NOT Qt5Core_DIR)
 	find_package(Qt4 4.6.0 REQUIRED QtCore QtGui QtXml QtXmlPatterns)
 	include(${QT_USE_FILE})
 	qt4_wrap_ui(UI_H ${UI_FILES})
+	qt4_add_resources(RC_SRCS ${RC_FILES})
 endif()
 
 add_definitions(-DDEFAULT_PLUGIN_PATH=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb)
@@ -48,7 +51,6 @@ set(edb_SRCS
 	Configuration.cpp
 	DataViewInfo.cpp
 	Debugger.cpp
-	debugger.qrc
 	DialogAbout.cpp
 	DialogArguments.cpp
 	DialogAttach.cpp
@@ -84,6 +86,7 @@ set(edb_SRCS
 	widgets/RegisterViewDelegate.cpp
 	widgets/SyntaxHighlighter.cpp
 	widgets/TabWidget.cpp
+	${RC_SRCS}
 	${UI_H}
 )
 
