@@ -260,6 +260,10 @@ QVariant Model::data(QModelIndex const& index, int role) const
 		if(index.parent().parent().isValid()) return false;
 		return true;
 	}
+	case IsFPURegisterRole:
+	{
+		return !!dynamic_cast<GenericFPURegister const*>(item);
+	}
 	case IsBitFieldRole:
 		return !!dynamic_cast<BitFieldProperties const*>(item);
 	case IsSIMDElementRole:

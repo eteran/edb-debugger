@@ -105,7 +105,11 @@ public:
 		// Type: bool
 		IsBitFieldRole,
 		// Whether the index corresponds to an element of a SIMD register
+		// Type: bool
 		IsSIMDElementRole,
+		// Whether the index corresponds to any-sized FPU register
+		// Type: bool
+		IsFPURegisterRole,
 		// Offset of bit field in the register, starting from least significant bit
 		// Type: int
 		BitFieldOffsetRole,
@@ -367,8 +371,10 @@ public:
 
 };
 
+class GenericFPURegister {}; // generic non-templated class to dynamic_cast to
+
 template<class FloatType>
-class FPURegister : public SimpleRegister<FloatType>
+class FPURegister : public SimpleRegister<FloatType>, public GenericFPURegister
 {
 	template<class U,class V>
 	friend class SIMDFormatItem;
