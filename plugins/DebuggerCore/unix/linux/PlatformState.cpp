@@ -616,8 +616,13 @@ size_t PlatformState::fillStruct(X86XState& regs) const {
 		regs.twd=x87.reducedTagWord();
 		regs.fioff=x87.instPtrOffset;
 		regs.fooff=x87.dataPtrOffset;
-		regs.fiseg=x87.instPtrSelector;
-		regs.foseg=x87.dataPtrSelector;
+		if(is64Bit()) {
+			std::memcpy(&regs.fiseg,reinterpret_cast<const char*>(&x87.instPtrOffset)+4,4);
+			std::memcpy(&regs.foseg,reinterpret_cast<const char*>(&x87.dataPtrOffset)+4,4);
+		} else {
+			regs.fiseg=x87.instPtrSelector;
+			regs.foseg=x87.dataPtrSelector;
+		}
 		regs.fop=x87.opCode;
 		for(size_t n=0;n<MAX_FPU_REG_COUNT;++n)
 			std::memcpy(reinterpret_cast<char*>(&regs.st_space)+16*x87.RIndexToSTIndex(n),&x87.R[n],sizeof x87.R[n]);
