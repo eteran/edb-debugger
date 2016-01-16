@@ -41,9 +41,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogEditGPR.h"
 #include "DialogEditSIMDRegister.h"
 #include "DialogEditFPU.h"
+#include <type_traits>
 
-#define VALID_VARIANT(VARIANT) (Q_ASSERT((VARIANT).isValid()),(VARIANT))
-#define VALID_INDEX(INDEX) VALID_VARIANT(INDEX)
+#define VALID_VARIANT(VARIANT) ([]{static_assert(std::is_same<const typename std::remove_reference<decltype(VARIANT)>::type,const QVariant>::value,"Wrong type passed to VALID_VARIANT");}(),\
+								Q_ASSERT((VARIANT).isValid()),(VARIANT))
+#define VALID_INDEX(INDEX) ([]{static_assert(std::is_same<const typename std::remove_reference<decltype(INDEX)>::type,const QModelIndex>::value|| \
+											 std::is_same<const typename std::remove_reference<decltype(INDEX)>::type,const QPersistentModelIndex>::value,"Wrong type passed to VALID_INDEX");}(),\
+							Q_ASSERT((INDEX).isValid()),(INDEX))
 #define CHECKED_CAST(TYPE,PARENT) (Q_ASSERT(dynamic_cast<TYPE*>(PARENT)),static_cast<TYPE*>(PARENT))
 
 namespace ODbgRegisterView {
