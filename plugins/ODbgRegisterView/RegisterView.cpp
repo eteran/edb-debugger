@@ -910,7 +910,7 @@ void ODBRegView::copyAllRegisters()
 		{
 			++textLine;
 			textColumn=0;
-			text+='\n';
+			text=text.trimmed()+'\n';
 		}
 		while(field->columnNumber()>textColumn)
 		{
