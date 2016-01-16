@@ -60,9 +60,6 @@ namespace ODbgRegisterView {
 // TODO: Add option to show FPU in STi mode, both ST-ordered and R-ordered (physically)
 // TODO: Update register comments after editing values
 
-namespace
-{
-
 const constexpr auto registerGroupTypeNames=util::make_array<const char*>(
 			"GPR",
 			"rIP",
@@ -132,8 +129,6 @@ QAction* newAction(QString const& text, QObject* parent, QSignalMapper* mapper, 
 }
 
 static QPlastiqueStyle plastiqueStyle;
-
-}
 
 // --------------------- FieldWidget impl ----------------------------------
 QString FieldWidget::text() const
