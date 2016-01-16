@@ -174,6 +174,13 @@ static const BitFieldDescription roundControlDescription{4,
 							 QObject::tr("Round up"),
 							 QObject::tr("Round toward zero")}};
 
+static const BitFieldDescription precisionControlDescription{2,
+							{"24","??","53","64"},
+							{QObject::tr("Set 24-bit precision"),
+							 "",
+							 QObject::tr("Set 53-bit precision"),
+							 QObject::tr("Set 64-bit precision")}};
+
 // --------------------- FieldWidget impl ----------------------------------
 QString FieldWidget::text() const
 {
@@ -1001,17 +1008,7 @@ void addRoundingMode(RegisterGroup* const group, QModelIndex const& index, int c
 void addPrecisionMode(RegisterGroup* const group, QModelIndex const& index, int const row, int const column)
 {
 	Q_ASSERT(index.isValid());
-	const auto precValueField=new ValueField(2,index,group,[](QString const& str)
-				{
-					Q_ASSERT(str.length());
-					if(str[0]=='?') return "??";
-					bool precModeParseOK=false;
-					const int value=str.toInt(&precModeParseOK);
-					if(!precModeParseOK) return "??";
-					Q_ASSERT(0<=value && value<=3);
-					static const char* strings[]={"24","??","53","64"};
-					return strings[value];
-				});
+	const auto precValueField=new MultiBitFieldWidget(index,precisionControlDescription,group);
 	group->insert(row,column,precValueField);
 	precValueField->setToolTip(QObject::tr("Precision mode: effective mantissa length"));
 }
