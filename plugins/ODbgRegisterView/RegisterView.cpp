@@ -188,6 +188,13 @@ static const BitFieldDescription debugRWDescription{5,
 							 "",
 							 QObject::tr("Break on data read/write")}};
 
+static const BitFieldDescription debugLenDescription{1,
+							{"1","2","8","4"},
+							{QObject::tr("Set 1-byte length"),
+							 QObject::tr("Set 2-byte length"),
+							 QObject::tr("Set 8-byte length"),
+							 QObject::tr("Set 4-byte length")}};
+
 // --------------------- FieldWidget impl ----------------------------------
 QString FieldWidget::text() const
 {
@@ -1481,19 +1488,7 @@ RegisterGroup* createDebugGroup(RegisterViewModelBase::Model* model,QWidget* par
 		{
 			const auto LENiName=QString("LEN%1").arg(drI);
 			const QPersistentModelIndex LENiIndex=VALID_INDEX(findModelRegister(dr7Index,LENiName,MODEL_VALUE_COLUMN));
-			const auto LENiValueField=new ValueField(1,LENiIndex,group,[LENiIndex](QString const& str)->QString
-						{
-							if(str.isEmpty() || str[0]=='?') return "??";
-							Q_ASSERT(str.size()==1);
-							switch(str[0].toLatin1())
-							{
-							case '0': return "1";
-							case '1': return "2";
-							case '2': return "8";
-							case '3': return "4";
-							default: return "???";
-							}
-						});
+			const auto LENiValueField=new MultiBitFieldWidget(LENiIndex,debugLenDescription,group);
 			LENiValueField->setToolTip(lenTooltip+lenDecodedStr.arg(LENiName));
 			group->insert(row,column,LENiValueField);
 		}
