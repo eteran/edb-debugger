@@ -54,6 +54,7 @@ namespace ODbgRegisterView {
 // TODO: Push/Pop FPU stack
 // TODO: Add option to show FPU in STi mode, both ST-ordered and R-ordered (physically)
 // TODO: Update register comments after editing values
+// TODO: Gray out empty FPU registers
 
 const constexpr auto registerGroupTypeNames=util::make_array<const char*>(
 			"GPR",
