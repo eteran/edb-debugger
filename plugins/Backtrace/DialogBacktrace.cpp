@@ -179,7 +179,7 @@ void DialogBacktrace::on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem
 //------------------------------------------------------------------------------
 void DialogBacktrace::on_tableWidgetCallStack_cellClicked(int row, int column)
 {
-	row = row;	//Not used, and the warning is annoying.
+	Q_UNUSED(row);
 
 	QPushButton *return_to = ui->pushButtonReturnTo;
 	if (is_ret(column)) {
