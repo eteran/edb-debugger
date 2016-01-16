@@ -167,6 +167,13 @@ static const BitFieldDescription fpuTagDescription{7,
 							{QObject::tr("Tag as used"),"","",QObject::tr("Tag as empty")},
 							[](unsigned a,unsigned b){ return a==3||b==3 ? a==b : true;}};
 
+static const BitFieldDescription roundControlDescription{4,
+							{"NEAR","DOWN","  UP","ZERO"},
+							{QObject::tr("Round to nearest"),
+							 QObject::tr("Round down"),
+							 QObject::tr("Round up"),
+							 QObject::tr("Round toward zero")}};
+
 // --------------------- FieldWidget impl ----------------------------------
 QString FieldWidget::text() const
 {
@@ -986,17 +993,7 @@ QModelIndex getValueIndex(QModelIndex const& nameIndex)
 void addRoundingMode(RegisterGroup* const group, QModelIndex const& index, int const row, int const column)
 {
 	Q_ASSERT(index.isValid());
-	const auto rndValueField=new ValueField(4,index,group,[](QString const& str)
-				{
-					Q_ASSERT(str.length());
-					if(str[0]=='?') return "????";
-					bool roundModeParseOK=false;
-					const int value=str.toInt(&roundModeParseOK);
-					if(!roundModeParseOK) return "????";
-					Q_ASSERT(0<=value && value<=3);
-					static const char* strings[]={"NEAR","DOWN","  UP","ZERO"};
-					return strings[value];
-				});
+	const auto rndValueField=new MultiBitFieldWidget(index,roundControlDescription,group);
 	group->insert(row,column,rndValueField);
 	rndValueField->setToolTip(QObject::tr("Rounding mode"));
 }
