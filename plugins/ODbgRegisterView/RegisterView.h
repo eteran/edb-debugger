@@ -147,14 +147,17 @@ class ValueField : public FieldWidget
 	bool selected_=false;
 	bool hovered_=false;
 	std::function<QString(QString)> valueFormatter;
+protected:
 	QList<QAction*> menuItems;
 
+private:
 	void init();
-	RegisterViewModelBase::Model* model() const;
 	bool changed() const;
 	QColor fgColorForChangedField() const;
 	void editNormalReg(QModelIndex const& indexToEdit, QModelIndex const& clickedIndex) const;
 protected:
+	RegisterViewModelBase::Model* model() const;
+
 	void enterEvent(QEvent*) override;
 	void leaveEvent(QEvent*) override;
 	void mousePressEvent(QMouseEvent* event) override;
@@ -186,6 +189,41 @@ public Q_SLOTS:
 	void updatePalette();
 Q_SIGNALS:
 	void selected();
+};
+
+struct BitFieldDescription
+{
+	int textWidth;
+	std::vector<QString> valueNames;
+	std::vector<QString> setValueTexts;
+	std::function<bool(unsigned,unsigned)>const valueEqualComparator;
+	BitFieldDescription(int textWidth,
+						std::vector<QString>const& valueNames,
+						std::vector<QString>const& setValueTexts,
+						std::function<bool(unsigned,unsigned)>const& valueEqualComparator=[](unsigned a,unsigned b){return a==b;});
+};
+
+class BitFieldFormatter
+{
+	std::vector<QString> valueNames;
+public:
+	BitFieldFormatter(BitFieldDescription const& bfd);
+	QString operator()(QString const& text);
+};
+
+class MultiBitFieldWidget : public ValueField
+{
+	Q_OBJECT
+
+	QList<QAction*> valueActions;
+	std::function<bool(unsigned,unsigned)> equal;
+public:
+	MultiBitFieldWidget( QModelIndex const& index,
+					BitFieldDescription const& bfd,
+					QWidget* parent=nullptr);
+public Q_SLOTS:
+	void setValue(int value);
+	void update() override;
 };
 
 class SIMDValueManager : public QObject

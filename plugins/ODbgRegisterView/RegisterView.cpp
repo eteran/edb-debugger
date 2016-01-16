@@ -130,6 +130,38 @@ QAction* newAction(QString const& text, QObject* parent, QSignalMapper* mapper, 
 
 static QPlastiqueStyle plastiqueStyle;
 
+// ------------------------- BitFieldFormatter impl ------------------------------
+
+BitFieldFormatter::BitFieldFormatter(BitFieldDescription const& bfd)
+	: valueNames(bfd.valueNames)
+{
+}
+
+QString BitFieldFormatter::operator()(QString const& str)
+{
+	assert(str.length());
+	if(str[0]=='?') return "????";
+	bool parseOK=false;
+	const int value=str.toInt(&parseOK);
+	if(!parseOK) return "????";
+	assert(0<=value);
+	assert(std::size_t(value)<valueNames.size());
+	return valueNames[value];
+}
+
+// ----------------------- BitFieldDescription impl -------------------------
+
+BitFieldDescription::BitFieldDescription(int textWidth,
+						std::vector<QString>const& valueNames,
+						std::vector<QString> const&setValueTexts,
+						std::function<bool(unsigned,unsigned)>const& valueEqualComparator)
+	: textWidth(textWidth),
+	  valueNames(valueNames),
+	  setValueTexts(setValueTexts),
+	  valueEqualComparator(valueEqualComparator)
+{
+}
+
 // --------------------- FieldWidget impl ----------------------------------
 QString FieldWidget::text() const
 {
@@ -476,6 +508,64 @@ void ValueField::paintEvent(QPaintEvent*)
 	if(regView->hasFocus())
 		option.state |= QStyle::State_Active;
 	QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &option, &painter);
+}
+
+// -------------------------------- MultiBitFieldWidget impl ---------------------------
+MultiBitFieldWidget::MultiBitFieldWidget( QModelIndex const& index,
+								BitFieldDescription const& bfd,
+								QWidget* parent)
+	: ValueField(bfd.textWidth,index,parent,BitFieldFormatter(bfd)),
+	  equal(bfd.valueEqualComparator)
+{
+	const auto mapper=new QSignalMapper(this);
+	connect(mapper,SIGNAL(mapped(int)),this,SLOT(setValue(int)));
+	for(std::size_t i=0;i<bfd.valueNames.size();++i)
+	{
+		const auto& text=bfd.setValueTexts[i];
+		if(!text.isEmpty())
+		{
+			menuItems.push_back(newAction(text,this,mapper,i));
+			valueActions.push_back(menuItems.back());
+		}
+		else valueActions.push_back(nullptr);
+	}
+}
+
+void MultiBitFieldWidget::setValue(int value)
+{
+	using namespace RegisterViewModelBase;
+	// TODO: Model: make it possible to set bit field itself, without manipulating parent directly
+	//              I.e. set value without knowing field offset, then setData(fieldIndex,word)
+	const auto regIndex=index.parent().sibling(index.parent().row(),MODEL_VALUE_COLUMN);
+	auto byteArr=regIndex.data(Model::RawValueRole).toByteArray();
+	if(byteArr.isEmpty()) return;
+	std::uint64_t word(0);
+	std::memcpy(&word,byteArr.constData(),byteArr.size());
+	const auto mask=(1ull<<(VALID_VARIANT(index.data(Model::BitFieldLengthRole)).toInt()-1))*2-1;
+	const auto offset=VALID_VARIANT(index.data(Model::BitFieldOffsetRole)).toInt();
+	word=(word&~(mask<<offset))|(std::uint64_t(value)<<offset);
+	std::memcpy(byteArr.data(),&word,byteArr.size());
+	model()->setData(regIndex,byteArr,Model::RawValueRole);
+}
+
+void MultiBitFieldWidget::update()
+{
+	ValueField::update();
+
+	const auto byteArr=index.data(RegisterViewModelBase::Model::RawValueRole).toByteArray();
+	std::uint64_t word(0);
+	assert(unsigned(byteArr.size())<=sizeof word);
+	std::memcpy(&word,byteArr.constData(),byteArr.size());
+
+	for(int value=0;value<valueActions.size();++value)
+	{
+		const auto action=valueActions[value];
+		if(!action) continue;
+		if(byteArr.isEmpty() || equal(word,value))
+			action->setVisible(false);
+		else
+			action->setVisible(true);
+	}
 }
 
 // -------------------------------- RegisterGroup impl ----------------------------
