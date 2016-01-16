@@ -435,7 +435,7 @@ void ValueField::defaultAction()
 		if(byteArr.isEmpty()) return;
 		std::uint64_t word(0);
 		std::memcpy(&word,byteArr.constData(),byteArr.size());
-		const auto offset=VALID_INDEX(index.data(Model::BitFieldOffsetRole)).toInt();
+		const auto offset=VALID_VARIANT(index.data(Model::BitFieldOffsetRole)).toInt();
 		word^=1ull<<offset;
 		std::memcpy(byteArr.data(),&word,byteArr.size());
 		model()->setData(regIndex,byteArr,Model::RawValueRole);
