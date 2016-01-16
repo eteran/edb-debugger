@@ -48,14 +48,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-// TODO: Right click => select too
-// TODO: Enter key => modify/toggle
 // TODO: GPR menu: Increment, Decrement, Invert, Zero(if not already), Set to 1(if not already)
 // TODO: rFLAGS menu: Set Condition (O,P,NAE etc. - see ODB)
-// TODO: FPU tags: toggle - set valid/empty
 // TODO: FSR: Set Condition: G,L,E,Unordered
-// TODO: PC: set 24/53/64-bit mantissa
-// TODO: RC: round up/down/nearest
 // TODO: Push/Pop FPU stack
 // TODO: Add option to show FPU in STi mode, both ST-ordered and R-ordered (physically)
 // TODO: Update register comments after editing values
