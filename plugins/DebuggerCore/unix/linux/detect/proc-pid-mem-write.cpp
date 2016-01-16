@@ -123,7 +123,7 @@ bool detectAndWriteHeader(std::string progName)
             }
 
             const auto pageAlignMask=~(sysconf(_SC_PAGESIZE)-1);
-            const auto addr=reinterpret_cast<std::size_t>(&main) & pageAlignMask;
+            const auto addr=reinterpret_cast<std::size_t>(&detectAndWriteHeader) & pageAlignMask;
             file.seekp(addr);
             if(!file)
             {
