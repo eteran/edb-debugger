@@ -778,6 +778,7 @@ void Analyzer::invalidate_dynamic_analysis(const IRegion::pointer &region) {
 
 	RegionData info;
 	info.region = region;
+	info.fuzzy  = false;
 
 	analysis_info_[region->start()] = info;
 }
