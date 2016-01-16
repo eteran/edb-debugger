@@ -246,7 +246,7 @@ ValueField::ValueField(int const fieldWidth,
 	setStyle(&plastiqueStyle);
 
 	using namespace RegisterViewModelBase;
-	if(index.data(Model::IsNormalRegisterRole).toBool())
+	if(index.data(Model::IsNormalRegisterRole).toBool() || index.parent().data(Model::IsFPURegisterRole).toBool())
 		menuItems.push_back(newAction(tr("Modify"),this,this,SLOT(defaultAction()))); // TODO: implement
 	else if(index.data(Model::IsBitFieldRole).toBool() && index.data(Model::BitFieldLengthRole).toInt()==1)
 		menuItems.push_back(newAction(tr("Toggle"),this,this,SLOT(defaultAction())));
