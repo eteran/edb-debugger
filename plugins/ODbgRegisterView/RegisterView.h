@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QSettings;
 class DialogEditGPR;
 class DialogEditSIMDRegister;
+class DialogEditFPU;
 
 namespace ODbgRegisterView {
 
@@ -72,6 +73,7 @@ private:
 	QList<QAction*> menuItems;
 	DialogEditGPR* dialogEditGPR;
 	DialogEditSIMDRegister* dialogEditSIMDReg;
+	DialogEditFPU* dialogEditFPU;
 
 	RegisterGroup* makeGroup(RegisterGroupType type);
 public:
@@ -84,6 +86,7 @@ public:
 	void groupHidden(RegisterGroup* group);
 	DialogEditGPR* gprEditDialog() const;
 	DialogEditSIMDRegister* simdEditDialog() const;
+	DialogEditFPU* fpuEditDialog() const;
 private:
 	ValueField* selectedField() const;
 	void updateFieldsPalette();
