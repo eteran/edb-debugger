@@ -162,6 +162,11 @@ BitFieldDescription::BitFieldDescription(int textWidth,
 {
 }
 
+static const BitFieldDescription fpuTagDescription{7,
+							{"valid","zero","special","empty"},
+							{QObject::tr("Tag as used"),"","",QObject::tr("Tag as empty")},
+							[](unsigned a,unsigned b){ return a==3||b==3 ? a==b : true;}};
+
 // --------------------- FieldWidget impl ----------------------------------
 QString FieldWidget::text() const
 {
@@ -1169,9 +1174,8 @@ RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent
 			group->insert(row,column,field);
 			column+=nameWidth+1;
 		}
-		const auto tagCommentIndex=VALID_INDEX(model->index(row,MODEL_COMMENT_COLUMN,tagsIndex));
-		group->insert(row,column,new ValueField(tagWidth,tagCommentIndex,group,
-												[](QString const&s){return s.toLower();}));
+		const auto tagValueIndex=VALID_INDEX(model->index(row,MODEL_VALUE_COLUMN,tagsIndex));
+		group->insert(row,column,new MultiBitFieldWidget(tagValueIndex,fpuTagDescription,group));
 		column+=tagWidth+1;
 		// Always show float-formatted value, not raw
 		const auto regValueIndex=findModelRegister(nameIndex,"FLOAT",MODEL_VALUE_COLUMN);
