@@ -44,11 +44,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <type_traits>
 
 #define VALID_VARIANT(VARIANT) ([]{static_assert(std::is_same<const typename std::remove_reference<decltype(VARIANT)>::type,const QVariant>::value,"Wrong type passed to VALID_VARIANT");}(),\
-								Q_ASSERT((VARIANT).isValid()),(VARIANT))
+								assert((VARIANT).isValid()),(VARIANT))
 #define VALID_INDEX(INDEX) ([]{static_assert(std::is_same<const typename std::remove_reference<decltype(INDEX)>::type,const QModelIndex>::value|| \
 											 std::is_same<const typename std::remove_reference<decltype(INDEX)>::type,const QPersistentModelIndex>::value,"Wrong type passed to VALID_INDEX");}(),\
-							Q_ASSERT((INDEX).isValid()),(INDEX))
-#define CHECKED_CAST(TYPE,PARENT) (Q_ASSERT(dynamic_cast<TYPE*>(PARENT)),static_cast<TYPE*>(PARENT))
+							assert((INDEX).isValid()),(INDEX))
+#define CHECKED_CAST(TYPE,PARENT) (assert(dynamic_cast<TYPE*>(PARENT)),static_cast<TYPE*>(PARENT))
 
 namespace ODbgRegisterView {
 
@@ -267,7 +267,7 @@ ODBRegView* FieldWidget::regView() const
 					 ->parentWidget() // canvas
 					 ->parentWidget() // viewport
 					 ->parentWidget(); // regview
-	Q_ASSERT(dynamic_cast<ODBRegView*>(parent));
+	assert(dynamic_cast<ODBRegView*>(parent));
 	return static_cast<ODBRegView*>(parent);
 }
 
@@ -682,13 +682,13 @@ int RegisterGroup::lineAfterLastField() const
 
 void RegisterGroup::appendNameValueComment(QModelIndex const& nameIndex, QString const& tooltip, bool insertComment)
 {
-	Q_ASSERT(nameIndex.isValid());
+	assert(nameIndex.isValid());
 	using namespace RegisterViewModelBase;
 	const auto nameWidth=nameIndex.data(Model::FixedLengthRole).toInt();
-	Q_ASSERT(nameWidth>0);
+	assert(nameWidth>0);
 	const auto valueIndex=nameIndex.sibling(nameIndex.row(),Model::VALUE_COLUMN);
 	const auto valueWidth=valueIndex.data(Model::FixedLengthRole).toInt();
-	Q_ASSERT(valueWidth>0);
+	assert(valueWidth>0);
 
 	const int line=lineAfterLastField();
 	int column=0;
@@ -934,7 +934,7 @@ void ODBRegView::copyAllRegisters()
 void ODBRegView::groupHidden(RegisterGroup* group)
 {
 	using namespace std;
-	Q_ASSERT(util::contains(groups,group));
+	assert(util::contains(groups,group));
 	const auto groupPtrIter=std::find(groups.begin(),groups.end(),group);
 	auto& groupPtr=*groupPtrIter;
 	groupPtr->deleteLater();
@@ -1001,19 +1001,19 @@ QModelIndex findModelRegister(QModelIndex categoryIndex,
 
 QModelIndex getCommentIndex(QModelIndex const& nameIndex)
 {
-	Q_ASSERT(nameIndex.isValid());
+	assert(nameIndex.isValid());
 	return nameIndex.sibling(nameIndex.row(),MODEL_COMMENT_COLUMN);
 }
 
 QModelIndex getValueIndex(QModelIndex const& nameIndex)
 {
-	Q_ASSERT(nameIndex.isValid());
+	assert(nameIndex.isValid());
 	return nameIndex.sibling(nameIndex.row(),MODEL_VALUE_COLUMN);
 }
 
 void addRoundingMode(RegisterGroup* const group, QModelIndex const& index, int const row, int const column)
 {
-	Q_ASSERT(index.isValid());
+	assert(index.isValid());
 	const auto rndValueField=new MultiBitFieldWidget(index,roundControlDescription,group);
 	group->insert(row,column,rndValueField);
 	rndValueField->setToolTip(QObject::tr("Rounding mode"));
@@ -1021,7 +1021,7 @@ void addRoundingMode(RegisterGroup* const group, QModelIndex const& index, int c
 
 void addPrecisionMode(RegisterGroup* const group, QModelIndex const& index, int const row, int const column)
 {
-	Q_ASSERT(index.isValid());
+	assert(index.isValid());
 	const auto precValueField=new MultiBitFieldWidget(index,precisionControlDescription,group);
 	group->insert(row,column,precValueField);
 	precValueField->setToolTip(QObject::tr("Precision mode: effective mantissa length"));
@@ -1173,7 +1173,7 @@ RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent
 				const auto topByteArray=topIndex.data(Model::RawValueRole).toByteArray();
 				if(topByteArray.isEmpty()) return QString("R%1").arg(row);
 				const auto top=topByteArray[0];
-				Q_ASSERT(top>=0); Q_ASSERT(top<8);
+				assert(top>=0); Q_ASSERT(top<8);
 				const auto stI=(row+8-top) % 8;
 				return QString("ST%1").arg(stI);
 			};
@@ -1188,7 +1188,7 @@ RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent
 		// Always show float-formatted value, not raw
 		const auto regValueIndex=findModelRegister(nameIndex,"FLOAT",MODEL_VALUE_COLUMN);
 		const int regValueWidth=regValueIndex.data(Model::FixedLengthRole).toInt();
-		Q_ASSERT(regValueWidth>0);
+		assert(regValueWidth>0);
 		group->insert(row,column,new ValueField(regValueWidth,regValueIndex,group));
 		column+=regValueWidth+1;
 		const auto regCommentIndex=model->index(row,MODEL_COMMENT_COLUMN,catIndex);
@@ -1334,7 +1334,7 @@ RegisterGroup* createFPULastOp(RegisterViewModelBase::Model* model,QWidget* pare
 		FDSField->setToolTip(QObject::tr("Last FPU memory operand selector"));
 	}
 	const auto offsetWidth=FIPIndex.data(Model::FixedLengthRole).toInt();
-	Q_ASSERT(offsetWidth>0);
+	assert(offsetWidth>0);
 	const auto offsetColumn=segColumn+segWidth+(segWidth?1:0);
 	const auto FIPValueField=new ValueField(offsetWidth,FIPIndex,group);
 	group->insert(lastInsnRow,offsetColumn,FIPValueField);
@@ -1353,20 +1353,20 @@ RegisterGroup* createFPULastOp(RegisterViewModelBase::Model* model,QWidget* pare
 		if(str.isEmpty() || str[0]=='?') return str;
 
 		const auto rawFCR=FCRIndex.data(Model::RawValueRole).toByteArray();
-		Q_ASSERT(rawFCR.size()<=long(sizeof(edb::value16)));
+		assert(rawFCR.size()<=long(sizeof(edb::value16)));
 		if(rawFCR.isEmpty()) return str;
 		edb::value16 fcr(0);
 		std::memcpy(&fcr,rawFCR.constData(),rawFCR.size());
 
 		const auto rawFSR=FSRIndex.data(Model::RawValueRole).toByteArray();
-		Q_ASSERT(rawFSR.size()<=long(sizeof(edb::value16)));
+		assert(rawFSR.size()<=long(sizeof(edb::value16)));
 		if(rawFSR.isEmpty()) return str;
 		edb::value16 fsr(0);
 		std::memcpy(&fsr,rawFSR.constData(),rawFSR.size());
 
 		const auto rawFOP=FOPIndex.data(Model::RawValueRole).toByteArray();
 		edb::value16 fop(0);
-		Q_ASSERT(rawFOP.size()<=long(sizeof(edb::value16)));
+		assert(rawFOP.size()<=long(sizeof(edb::value16)));
 		if(rawFOP.isEmpty()) return str;
 		if(rawFOP.size()!=sizeof(edb::value16))
 			return QString("????");
@@ -1375,7 +1375,7 @@ RegisterGroup* createFPULastOp(RegisterViewModelBase::Model* model,QWidget* pare
 		const auto rawFIP=FIPIndex.data(Model::RawValueRole).toByteArray();
 		if(rawFIP.isEmpty()) return str;
 		edb::address_t fip(0);
-		Q_ASSERT(rawFIP.size()<=long(sizeof fip));
+		assert(rawFIP.size()<=long(sizeof fip));
 		std::memcpy(&fip,rawFIP.constData(),rawFIP.size());	
 
 		const auto excMask=fcr&0x3f;
@@ -1409,7 +1409,7 @@ RegisterGroup* createDebugGroup(RegisterViewModelBase::Model* model,QWidget* par
 	const auto dr7Index=VALID_INDEX(findModelRegister(catIndex,"DR7"));
 	const auto nameWidth=3;
 	const auto valueWidth=getValueIndex(dr6Index).data(Model::FixedLengthRole).toInt();
-	Q_ASSERT(valueWidth>0);
+	assert(valueWidth>0);
 	int row=0;
 	const auto bitsSpacing=1;
 	const auto BTooltip=QObject::tr("Breakpoint Condition Detected");
@@ -1569,7 +1569,7 @@ RegisterGroup* createMXCSR(RegisterViewModelBase::Model* model,QWidget* parent)
 	column+=mxcsrName.length()+1;
 	const auto mxcsrIndex=findModelRegister(catIndex,"MXCSR",MODEL_VALUE_COLUMN);
 	const auto mxcsrValueWidth=mxcsrIndex.data(Model::FixedLengthRole).toInt();
-	Q_ASSERT(mxcsrValueWidth>0);
+	assert(mxcsrValueWidth>0);
 	group->insert(mxcsrRow,column,new ValueField(mxcsrValueWidth,mxcsrIndex,group));
 	column+=mxcsrValueWidth+2;
 	// XXX: Sacrificing understandability of DAZ->DZ to align PUOZDI with FPU's.
@@ -1801,7 +1801,7 @@ SIMDValueManager::SIMDValueManager(int lineInGroup, QModelIndex const& nameIndex
 {
 	setupMenu();
 
-	Q_ASSERT(nameIndex.isValid());
+	assert(nameIndex.isValid());
 	connect(nameIndex.model(),SIGNAL(SIMDDisplayFormatChanged()),this,SLOT(displayFormatChanged()));
 	displayFormatChanged();
 }
@@ -1947,7 +1947,7 @@ void SIMDValueManager::updateMenu()
 
 RegisterGroup* SIMDValueManager::group() const
 {
-	Q_ASSERT(dynamic_cast<RegisterGroup*>(parent()));
+	assert(dynamic_cast<RegisterGroup*>(parent()));
 	return static_cast<RegisterGroup*>(parent());
 }
 
