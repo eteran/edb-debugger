@@ -181,6 +181,13 @@ static const BitFieldDescription precisionControlDescription{2,
 							 QObject::tr("Set 53-bit precision"),
 							 QObject::tr("Set 64-bit precision")}};
 
+static const BitFieldDescription debugRWDescription{5,
+							{"EXEC","WRITE","  IO"," R/W"},
+							{QObject::tr("Break on execution"),
+							 QObject::tr("Break on data write"),
+							 "",
+							 QObject::tr("Break on data read/write")}};
+
 // --------------------- FieldWidget impl ----------------------------------
 QString FieldWidget::text() const
 {
@@ -1466,19 +1473,7 @@ RegisterGroup* createDebugGroup(RegisterViewModelBase::Model* model,QWidget* par
 			const auto RWiName=QString("R/W%1").arg(drI);
 			const QPersistentModelIndex RWiIndex=VALID_INDEX(findModelRegister(dr7Index,RWiName,MODEL_VALUE_COLUMN));
 			const auto width=5;
-			const auto RWiValueField=new ValueField(width,RWiIndex,group,[RWiIndex](QString const& str)->QString
-						{
-							if(str.isEmpty() || str[0]=='?') return "??";
-							Q_ASSERT(str.size()==1);
-							switch(str[0].toLatin1())
-							{
-							case '0': return "EXEC";
-							case '1': return "WRITE";
-							case '2': return " IO";
-							case '3': return " R/W";
-							default: return "???";
-							}
-						});
+			const auto RWiValueField=new MultiBitFieldWidget(RWiIndex,debugRWDescription,group);
 			RWiValueField->setToolTip(typeTooltip+" ("+RWiName+")");
 			group->insert(row,column,RWiValueField);
 			column+=bitsSpacing+width;
