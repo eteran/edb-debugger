@@ -20,6 +20,12 @@ pkg_check_modules(CAPSTONE REQUIRED capstone>=3.0.4)
 include_directories(${CAPSTONE_INCLUDE_DIRS})
 link_directories(${CAPSTONE_LIBRARY_DIRS})
 
+
+set(TARGET_VERSION_MAJOR "0")
+set(TARGET_VERSION_MINOR "9")
+set(TARGET_VERSION_PATCH "20")
+
+
 if(${ENABLE_GRAPHVIZ})
 	find_package(GraphViz)
 endif()
