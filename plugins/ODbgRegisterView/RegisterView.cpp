@@ -417,10 +417,6 @@ void ValueField::defaultAction()
 		editNormalReg(index.parent().parent(), index);
 	else if(index.parent().data(Model::IsFPURegisterRole).toBool())
 		editNormalReg(index.parent(),index);
-	else
-		QMessageBox::information(this,"Unimplemented",
-								 QString("Sorry, editing %1 is not implemented yet")
-									.arg(index.sibling(index.row(),MODEL_NAME_COLUMN).data().toString()));
 }
 
 void ValueField::update()
