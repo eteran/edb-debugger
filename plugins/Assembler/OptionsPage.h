@@ -26,7 +26,7 @@ namespace Assembler {
 namespace Ui { class OptionsPage; }
 
 class OptionsPage : public QWidget {
-	Q_OBJECT;
+	Q_OBJECT
 
 public:
 	OptionsPage(QWidget *parent = 0);
