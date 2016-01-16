@@ -58,7 +58,7 @@ bool headerUpToDate(std::string const& line)
 	if(!file) return false;
 	// Try to read one char more than the line has to check that actual size of file is correct
 	std::string fileStr(line.length()+1,0);
-	if(file.readsome(&fileStr[0],fileStr.length())!=line.length())
+	if(file.readsome(&fileStr[0],fileStr.length())!=signed(line.length()))
 		return false;
 	fileStr.resize(line.length());
 	return fileStr==line;
