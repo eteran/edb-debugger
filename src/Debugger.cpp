@@ -642,6 +642,14 @@ void Debugger::create_data_tab() {
 	hexview->setShowComments(config.data_show_comments);
 	hexview->setRowWidth(config.data_row_width);
 	hexview->setWordWidth(config.data_word_width);
+	hexview->setShowAddressSeparator(config.show_address_separator);
+	
+	// Setup data views according to debuggee bitness
+	if(edb::v1::debuggeeIs64Bit()) {
+		hexview->setAddressSize(QHexView::Address64);
+	} else {
+		hexview->setAddressSize(QHexView::Address32);
+	}	
 
 	// set the default font
 	QFont dump_font;
