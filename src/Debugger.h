@@ -345,7 +345,7 @@ private:
 	QAction *stackFollowInCPUAction_;
 	QAction *stackFollowInDumpAction_;
 	QAction *stackFollowInStackAction_;
-	QAction *stackEditBytesAction_;;	
+	QAction *stackEditBytesAction_;
 	QAction *stackGotoRSPAction_;
 	QAction *stackGotoRBPAction_;
 	QAction *stackPushAction_;

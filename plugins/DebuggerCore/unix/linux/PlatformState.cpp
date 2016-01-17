@@ -616,8 +616,13 @@ size_t PlatformState::fillStruct(X86XState& regs) const {
 		regs.twd=x87.reducedTagWord();
 		regs.fioff=x87.instPtrOffset;
 		regs.fooff=x87.dataPtrOffset;
-		regs.fiseg=x87.instPtrSelector;
-		regs.foseg=x87.dataPtrSelector;
+		if(is64Bit()) {
+			std::memcpy(&regs.fiseg,reinterpret_cast<const char*>(&x87.instPtrOffset)+4,4);
+			std::memcpy(&regs.foseg,reinterpret_cast<const char*>(&x87.dataPtrOffset)+4,4);
+		} else {
+			regs.fiseg=x87.instPtrSelector;
+			regs.foseg=x87.dataPtrSelector;
+		}
 		regs.fop=x87.opCode;
 		for(size_t n=0;n<MAX_FPU_REG_COUNT;++n)
 			std::memcpy(reinterpret_cast<char*>(&regs.st_space)+16*x87.RIndexToSTIndex(n),&x87.R[n],sizeof x87.R[n]);
@@ -782,6 +787,8 @@ Register findRegisterValue(const Names& names, const Regs& regs, const QString& 
 //------------------------------------------------------------------------------
 Register PlatformState::value(const QString &reg) const {
 	const QString regName = reg.toLower();
+	// TODO: make use of string_hash and switch-case construct to make things easier to understand
+	// 		 All register names are always less than 9 chars in length, so string_hash would work.
 
 	Register found;
 	if(x86.gpr32Filled) // don't return valid Register with garbage value
@@ -835,6 +842,20 @@ Register PlatformState::value(const QString &reg) const {
 		if(regName==x86.IP16Name)
 			return make_Register<16>(x86.IP16Name, x86.IP, Register::TYPE_IP);
 	}
+	if(x86.gpr32Filled) {
+		QRegExp DRx("^dr([0-7])$");
+		if(DRx.indexIn(regName)!=-1) {
+			QChar digit=DRx.cap(1).at(0);
+			assert(digit.isDigit());
+			char digitChar=digit.toLatin1();
+			std::size_t i=digitChar-'0';
+			assert(dbgIndexValid(i));
+			if(is64Bit() && x86.gpr64Filled)
+				return make_Register(regName, x86.dbgRegs[i], Register::TYPE_COND);
+			else
+				return make_Register<32>(regName, x86.dbgRegs[i], Register::TYPE_COND);
+		}
+	}
 	if(x87.filled) {
 		QRegExp Rx("^r([0-7])$");
 		if(Rx.indexIn(regName)!=-1) {
@@ -869,8 +890,17 @@ Register PlatformState::value(const QString &reg) const {
 			const edb::value16 val = regName=="fis" ? x87.instPtrSelector : x87.dataPtrSelector;
 			return make_Register<16>(regName,val,Register::TYPE_FPU);
 		}
-		if(regName=="fopcode") {
+		if(regName=="fopcode"||regName=="fop") {
 			return make_Register<16>(regName,x87.opCode,Register::TYPE_FPU);
+		}
+		if(regName=="ftr"||regName=="ftw") {
+			return make_Register<16>(regName,x87.tagWord,Register::TYPE_FPU);
+		}
+		if(regName=="fsr"||regName=="fsw") {
+			return make_Register<16>(regName,x87.statusWord,Register::TYPE_FPU);
+		}
+		if(regName=="fcr"||regName=="fcw") {
+			return make_Register<16>(regName,x87.controlWord,Register::TYPE_FPU);
 		}
 	}
 	if(x87.filled) {
@@ -1192,6 +1222,42 @@ void PlatformState::set_register(const Register& reg) {
 			std::size_t i=YMMx.cap(1).toInt(&indexReadOK);
 			assert(indexReadOK && ymmIndexValid(i));
 			std::memcpy(&avx.zmmStorage[i],&value,sizeof value);
+			return;
+		}
+	}
+	if(regName=="ftr"||regName=="ftw") {
+		x87.tagWord=reg.value<edb::value16>();
+		return;
+	}
+	if(regName=="fsr"||regName=="fsw") {
+		x87.statusWord=reg.value<edb::value16>();
+		return;
+	}
+	if(regName=="fcr"||regName=="fcw") {
+		x87.controlWord=reg.value<edb::value16>();
+		return;
+	}
+	if(regName=="fis"||regName=="fds") {
+		(regName=="fis" ? x87.instPtrSelector : x87.dataPtrSelector)=reg.value<edb::value16>();
+		return;
+	}
+	if(regName=="fip"||regName=="fdp") {
+		(regName=="fip" ? x87.instPtrOffset : x87.dataPtrOffset)=reg.valueAsAddress();
+		return;
+	}
+	if(regName=="fopcode"||regName=="fop") {
+		x87.opCode=reg.value<edb::value16>();
+		return;
+	}
+	{
+		QRegExp DRx("^dr([0-7])$");
+		if(DRx.indexIn(regName)!=-1) {
+			QChar digit=DRx.cap(1).at(0);
+			assert(digit.isDigit());
+			char digitChar=digit.toLatin1();
+			std::size_t i=digitChar-'0';
+			assert(dbgIndexValid(i));
+			x86.dbgRegs[i]=reg.valueAsAddress();
 			return;
 		}
 	}

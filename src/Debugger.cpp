@@ -2129,12 +2129,12 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const IDebugEvent::const_pointe
 // Desc:
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS Debugger::handle_event_terminated(const IDebugEvent::const_pointer &event) {
+	on_action_Detach_triggered();
 	QMessageBox::information(
 		this,
 		tr("Application Terminated"),
 		tr("The debugged application was terminated with exit code %1.").arg(event->code()));
 
-	on_action_Detach_triggered();
 	return edb::DEBUG_STOP;
 }
 
@@ -2143,12 +2143,12 @@ edb::EVENT_STATUS Debugger::handle_event_terminated(const IDebugEvent::const_poi
 // Desc:
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS Debugger::handle_event_exited(const IDebugEvent::const_pointer &event) {
+	on_action_Detach_triggered();
 	QMessageBox::information(
 		this,
 		tr("Application Exited"),
 		tr("The debugged application exited normally with exit code %1.").arg(event->code()));
 
-	on_action_Detach_triggered();
 	return edb::DEBUG_STOP;
 }
 
