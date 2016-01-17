@@ -3257,7 +3257,7 @@ void Debugger::save_session(const QString &session_file) {
 	session_data["id"]          = SessionFileIdString; // just so we can sanity check things
 	
 	
-#if QT_VERSION >= 0x040700
+#if QT_VERSION < 0x040700
 	session_data["timestamp"]   = QDateTime::currentDateTime().toUTC();
 #else
 	session_data["timestamp"]   = QDateTime::currentDateTimeUtc();
