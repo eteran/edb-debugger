@@ -7,8 +7,8 @@ include(../qmake/qt5-gui.pri)
 
 TEMPLATE    = app
 TARGET      = edb
-INCLUDEPATH += widgets $$LEVEL/include $$LEVEL/src/capstone-edb/include
-VPATH       += widgets $$LEVEL/include
+INCLUDEPATH += widgets qjson4 $$LEVEL/include $$LEVEL/src/capstone-edb/include
+VPATH       += widgets qjson4 $$LEVEL/include
 
 RESOURCES   = debugger.qrc
 DESTDIR     = ../
@@ -91,7 +91,15 @@ HEADERS += \
 	edb.h \
 	string_hash.h \
 	version.h \
-    CallStack.h
+    CallStack.h \
+	QJsonArray.h \
+	QJsonDocument.h \
+	QJsonObject.h \
+	QJsonParseError.h \
+	QJsonParser.h \
+	QJsonRoot.h \
+	QJsonValue.h \
+	QJsonValueRef.h
 
 
 FORMS += \
@@ -157,7 +165,14 @@ SOURCES += \
 	ThreadsModel.cpp \
 	edb.cpp \
 	main.cpp \
-    CallStack.cpp
+    CallStack.cpp \
+	QJsonArray.cpp \
+	QJsonDocument.cpp \
+	QJsonObject.cpp \
+	QJsonParseError.cpp \
+	QJsonParser.cpp \
+	QJsonValue.cpp \
+	QJsonValueRef.cpp	
 
 # QHexView stuff
 INCLUDEPATH += qhexview
