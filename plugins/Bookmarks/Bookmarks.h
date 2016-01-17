@@ -48,6 +48,10 @@ public:
 public:
 	virtual QMenu *menu(QWidget *parent = 0);
 	virtual QList<QAction *> cpu_context_menu();
+	
+public:
+	virtual QVariantMap save_state() const;
+	virtual void restore_state(const QVariantMap &);
 
 public Q_SLOTS:
 	void add_bookmark_menu();

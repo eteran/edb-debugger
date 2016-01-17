@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 #include <QShortcut>
 #include <QSignalMapper>
+#include <QtDebug>
 
 namespace Bookmarks {
 
@@ -119,6 +120,36 @@ QVariantList Bookmarks::addresses() const {
 //------------------------------------------------------------------------------
 void Bookmarks::add_bookmark_menu() {
 	bookmark_widget_->add_address(edb::v1::cpu_selected_address());
+}
+
+//------------------------------------------------------------------------------
+// Name: save_state
+// Desc:
+//------------------------------------------------------------------------------
+QVariantMap Bookmarks::save_state() const {
+	QVariantMap  state;
+	QVariantList addresses;
+	for(edb::address_t addr: bookmark_widget_->entries()) {
+		addresses.push_back(addr.toHexString());
+	}
+	
+	state["bookmarks"] = addresses;
+	return state;
+}
+
+//------------------------------------------------------------------------------
+// Name: restore_state
+// Desc:
+//------------------------------------------------------------------------------
+void Bookmarks::restore_state(const QVariantMap &state) {
+	
+	QVariantList addresses = state["bookmarks"].toList();
+	for(auto addr: addresses) {
+		edb::address_t address = edb::address_t::fromHexString(addr.toString());
+		qDebug() << "Adding Address: " << address.toHexString();
+		bookmark_widget_->add_address(address);
+	}
+
 }
 
 #if QT_VERSION < 0x050000
