@@ -83,6 +83,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
+const int     SessionFileVersion  = 1;
+const QString SessionFileIdString = "edb-session";
+
 const quint64 initial_bp_tag  = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
 const quint64 stepover_bp_tag = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
 const quint64 run_to_cursor_tag = Q_UINT64_C(0x474f544f48455245); // "GOTOHERE" in hex
@@ -3230,6 +3233,28 @@ void Debugger::next_debug_event() {
 //------------------------------------------------------------------------------
 void Debugger::save_session(const QString &session_file) {
 	Q_UNUSED(session_file);
+	
+	QVariantMap plugin_data;
+	QVariantMap session_data;
+	
+	for(QObject *plugin: edb::v1::plugin_list()) {
+		if(auto p = qobject_cast<IPlugin *>(plugin)) {
+			if(const QMetaObject *const meta = plugin->metaObject()) {
+				QString name    = meta->className();				
+				QVariantMap data = p->save_state();
+				
+				if(!data.empty()) {				
+					plugin_data[name] = data;
+				}
+			}
+		}
+	}
+	
+	session_data["version"] = SessionFileVersion;
+	session_data["id"]      = SessionFileIdString; // just so we can sanity check things
+	session_data["plugins"] = plugin_data;
+	
+	// TODO(eteran): convert this to something like JSON, write it to the session_file
 }
 
 //------------------------------------------------------------------------------
@@ -3238,6 +3263,9 @@ void Debugger::save_session(const QString &session_file) {
 //------------------------------------------------------------------------------
 void Debugger::load_session(const QString &session_file) {
 	Q_UNUSED(session_file);
+	
+	// TODO(eteran): implement this
+	
 }
 
 //------------------------------------------------------------------------------
