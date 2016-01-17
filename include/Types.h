@@ -119,8 +119,13 @@ struct SizedValue : public ValueBase<N,1> {
 			v=str.toLongLong(ok, base);
 		else
 			v=str.toULongLong(ok, base);
-		if(!*ok)
-			return SizedValue(0);
+
+		if(ok) {
+			if(!*ok) {
+				return SizedValue(0);
+			}
+		}
+
 		// Check that the result fits into InnerValueType
 		SizedValue result(v);
 		if(result==v) return result;
