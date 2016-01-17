@@ -3324,7 +3324,7 @@ void Debugger::load_session(const QString &session_file) {
 			return;			
 		}
 		
-		QVariantMap plugin_data = session_data["plugins"].toMap();
+		QVariantMap plugin_data = session_data["plugin-data"].toMap();
 		for(auto it = plugin_data.begin(); it != plugin_data.end(); ++it) {
 
 			for(QObject *plugin: edb::v1::plugin_list()) {
