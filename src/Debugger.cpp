@@ -42,6 +42,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "State.h"
 #include "SymbolManager.h"
 #include "edb.h"
+#include "QJsonDocument.h"
+#include "QJsonObject.h"
+#include "QJsonParseError.h"
 
 #include <QCloseEvent>
 #include <QDir>
@@ -61,6 +64,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QUrl>
 #include <QVector>
 #include <QtDebug>
+#include <QDateTime>
 #include <QDesktopServices>
 #include <QLabel>
 
@@ -3232,7 +3236,6 @@ void Debugger::next_debug_event() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::save_session(const QString &session_file) {
-	Q_UNUSED(session_file);
 	
 	QVariantMap plugin_data;
 	QVariantMap session_data;
@@ -3250,11 +3253,27 @@ void Debugger::save_session(const QString &session_file) {
 		}
 	}
 	
-	session_data["version"] = SessionFileVersion;
-	session_data["id"]      = SessionFileIdString; // just so we can sanity check things
-	session_data["plugins"] = plugin_data;
+	session_data["version"]     = SessionFileVersion;
+	session_data["id"]          = SessionFileIdString; // just so we can sanity check things
 	
-	// TODO(eteran): convert this to something like JSON, write it to the session_file
+	
+#if QT_VERSION >= 0x040700
+	session_data["timestamp"]   = QDateTime::currentDateTime().toUTC();
+#else
+	session_data["timestamp"]   = QDateTime::currentDateTimeUtc();
+#endif
+	session_data["plugin-data"] = plugin_data;
+	
+	
+	auto object = QJsonObject::fromVariantMap(session_data);
+	QJsonDocument doc(object);
+	
+	QByteArray json = doc.toJson();
+	QFile file(session_file);
+	
+	if(file.open(QIODevice::WriteOnly | QIODevice::Text)) {
+		file.write(json);	
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -3262,10 +3281,67 @@ void Debugger::save_session(const QString &session_file) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::load_session(const QString &session_file) {
-	Q_UNUSED(session_file);
 	
-	// TODO(eteran): implement this
-	
+	QFile file(session_file);
+	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {	
+		QByteArray json = file.readAll();
+		QJsonParseError error;
+		auto doc = QJsonDocument::fromJson(json, &error);
+		if(error.error != QJsonParseError::NoError) {
+			QMessageBox::warning(
+				this,
+				tr("Error Loading Session"),
+				tr("An error occured while loading session JSON file. %1").arg(error.errorString())
+				);
+
+			return;
+		}
+		
+		if(!doc.isObject()) {
+			QMessageBox::warning(
+				this,
+				tr("Error Loading Session"),
+				tr("Session file is invalid. Not an object.")
+				);
+
+			return;		
+		}
+		
+		QJsonObject object = doc.object();
+		QVariantMap session_data = object.toVariantMap();
+		
+		QString id  = session_data["id"].toString();
+		QString ts  = session_data["timestamp"].toString();
+		int version = session_data["version"].toInt();
+		
+		if(id != SessionFileIdString || version > SessionFileVersion) {
+			QMessageBox::warning(
+				this,
+				tr("Error Loading Session"),
+				tr("Session file is invalid.")
+				);
+
+			return;			
+		}
+		
+		QVariantMap plugin_data = session_data["plugins"].toMap();
+		for(auto it = plugin_data.begin(); it != plugin_data.end(); ++it) {
+
+			for(QObject *plugin: edb::v1::plugin_list()) {
+				if(auto p = qobject_cast<IPlugin *>(plugin)) {
+					if(const QMetaObject *const meta = plugin->metaObject()) {
+						QString name     = meta->className();
+						QVariantMap data = it.value().toMap();
+						
+						if(name == it.key()) {			
+							p->restore_state(data);
+							break;
+						}
+					}
+				}
+			}		
+		}		
+	}
 }
 
 //------------------------------------------------------------------------------
