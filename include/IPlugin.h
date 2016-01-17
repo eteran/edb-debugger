@@ -21,10 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QtPlugin>
 #include <QList>
+#include <QVariantMap>
 
 class QMenu;
 class QAction;
-class QByteArray;
 
 class IPlugin {
 public:
@@ -49,8 +49,8 @@ public:
 	virtual QWidget *options_page() { return 0; }
 
 public:
-	virtual QByteArray save_state() const          { return QByteArray(); }
-	virtual void restore_state(const QByteArray &) { }
+	virtual QVariantMap save_state() const          { return QVariantMap(); }
+	virtual void restore_state(const QVariantMap &) { }
 
 public:
 	enum ArgumentStatus {
