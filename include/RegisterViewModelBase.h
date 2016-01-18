@@ -133,6 +133,9 @@ public:
 	Qt::ItemFlags flags(QModelIndex const& index) const override;
 	~Model();
 
+	void setActiveIndex(QModelIndex const& newActiveIndex);
+	QModelIndex activeIndex() const;
+
 	virtual void setChosenSIMDSize(QModelIndex const& index, ElementSize newSize);
 	virtual void setChosenSIMDFormat(QModelIndex const& index, NumberDisplayMode newFormat);
 
@@ -152,6 +155,7 @@ protected:
 	void hideAll();
 private:
 	std::unique_ptr<CategoriesHolder> rootItem;
+	QPersistentModelIndex activeIndex_;
 Q_SIGNALS:
 	void SIMDDisplayFormatChanged();
 };

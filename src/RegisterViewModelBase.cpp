@@ -131,6 +131,16 @@ Model::~Model()
 {
 }
 
+void Model::setActiveIndex(QModelIndex const& newActiveIndex)
+{
+	activeIndex_=newActiveIndex;
+}
+
+QModelIndex Model::activeIndex() const
+{
+	return activeIndex_;
+}
+
 QModelIndex Model::index(int row, int column, QModelIndex const& parent) const
 {
 	if(!hasIndex(row,column,parent)) return QModelIndex();
