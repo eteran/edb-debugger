@@ -799,8 +799,21 @@ void ODBRegView::showMenu(QPoint const& position, QList<QAction*>const& addition
 {
 	QMenu menu;
 	auto items=additionalItems+menuItems;
+	if(model_->activeIndex().isValid())
+	{
+		QList<QAction*> debuggerActions;
+		QMetaObject::invokeMethod(edb::v1::debugger_ui,
+								  "getCurrentRegisterContextMenuItems",
+								  Qt::DirectConnection,
+								  Q_RETURN_ARG(QList<QAction*>,debuggerActions));
+		items.push_back(nullptr);
+		items.append(debuggerActions);
+	}
 	for(const auto action : items)
-		menu.addAction(action);
+		if(action)
+			menu.addAction(action);
+		else
+			menu.addSeparator();
 
 	menu.exec(position);
 }
