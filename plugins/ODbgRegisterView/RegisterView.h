@@ -182,6 +182,7 @@ public:
 	bool isSelected() const;
 	void showMenu(QPoint const& position);
 	QString text() const override;
+	QModelIndex regIndex() const;
 public Q_SLOTS:
 	void defaultAction();
 	void update() override;

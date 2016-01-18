@@ -428,6 +428,20 @@ void ValueField::editNormalReg(QModelIndex const& indexToEdit, QModelIndex const
 	}
 }
 
+QModelIndex ValueField::regIndex() const
+{
+	using namespace RegisterViewModelBase;
+
+	if(index.data(Model::IsBitFieldRole).toBool())
+		return index;
+	if(index.data(Model::IsNormalRegisterRole).toBool())
+		return index.sibling(index.row(),MODEL_NAME_COLUMN);
+	const auto parent=index.parent();
+	if(parent.data(Model::IsFPURegisterRole).toBool())
+		return parent.sibling(parent.row(),MODEL_NAME_COLUMN);
+	return {};
+}
+
 void ValueField::defaultAction()
 {
 	using namespace RegisterViewModelBase;
