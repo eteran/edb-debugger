@@ -505,6 +505,7 @@ void ValueField::select()
 {
 	if(selected_) return;
 	selected_=true;
+	model()->setActiveIndex(regIndex());
 	Q_EMIT selected();
 	updatePalette();
 }
