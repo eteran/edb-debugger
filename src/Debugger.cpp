@@ -776,6 +776,8 @@ edb::reg_t Debugger::get_follow_register(bool *ok) const {
 
 	Q_ASSERT(ok);
 
+	// TODO: implement
+
 	*ok = false;
 
 	return 0;
@@ -1052,10 +1054,40 @@ void Debugger::setup_tab_buttons() {
 }
 
 //------------------------------------------------------------------------------
+// Name: active_register
+// Desc:
+//------------------------------------------------------------------------------
+Register Debugger::active_register() const {
+	const auto& model=edb::v1::arch_processor().get_register_view_model();
+	const auto index=model.activeIndex();
+	if(!index.data(RegisterViewModelBase::Model::IsNormalRegisterRole).toBool())
+		return {};
+	const auto regName=index.sibling(index.row(),RegisterViewModelBase::Model::NAME_COLUMN).data().toString();
+	if(regName.isEmpty()) return {};
+	if(auto*const dcore=edb::v1::debugger_core) {
+		State state;
+		// read
+		dcore->get_state(&state);
+		return state[regName];
+	}
+	return {};
+}
+
+//------------------------------------------------------------------------------
 // Name: on_registerList_customContextMenuRequested
 // Desc: context menu handler for register view
 //------------------------------------------------------------------------------
-void Debugger::on_registerList_customContextMenuRequested(const QPoint &pos) {
+QList<QAction*> Debugger::getCurrentRegisterContextMenuItems() const {
+	QList<QAction*> allActions;
+	const auto reg=active_register();
+	if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP)) {
+		QList<QAction*> actions{registerFollowInDumpAction_,
+								registerFollowInDumpTabAction_,
+								registerFollowInStackAction_};
+		allActions.append(actions);
+	}
+	allActions.append(get_plugin_context_menu_items(&IPlugin::register_context_menu));
+	return allActions;
 }
 
 // Flag-toggling functions.  Not sure if this is the best solution, but it works.
@@ -2984,6 +3016,27 @@ void Debugger::mnuDumpCreateTab() {
 void Debugger::mnuDumpDeleteTab() {
 	delete_data_tab();
 	del_tab_->setEnabled(ui.tabWidget->count() > 1);
+}
+
+//------------------------------------------------------------------------------
+// Name: get_plugin_context_menu_items
+// Desc: Returns context menu items using supplied function to call for each plugin.
+//       NULL pointer items mean "create separator here".
+//------------------------------------------------------------------------------
+template <class F>
+QList<QAction*> Debugger::get_plugin_context_menu_items(const F &f) const {
+	QList<QAction*> actions;
+
+	for(QObject *plugin: edb::v1::plugin_list()) {
+		if(auto p = qobject_cast<IPlugin *>(plugin)) {
+			const QList<QAction *> acts = (p->*f)();
+			if(!acts.isEmpty()) {
+				actions.push_back(nullptr);
+				actions.append(acts);
+			}
+		}
+	}
+	return actions;
 }
 
 //------------------------------------------------------------------------------

@@ -128,7 +128,8 @@ public Q_SLOTS:
 	void on_action_Threads_triggered();
 	void on_cpuView_breakPointToggled(edb::address_t);
 	void on_cpuView_customContextMenuRequested(const QPoint &);
-	void on_registerList_customContextMenuRequested(const QPoint &);
+	QList<QAction*> getCurrentRegisterContextMenuItems() const;
+	Register active_register() const;
 
 //Flag-toggling slots for right-click --> toggle flag
 public Q_SLOTS:
@@ -262,6 +263,8 @@ private:
 	template <class T>
 	edb::address_t get_follow_address(const T &hexview, bool *ok);
 
+	template <class F>
+	QList<QAction*> get_plugin_context_menu_items(const F &f) const;
 	template <class F, class T>
 	void add_plugin_context_menu(const T &menu, const F &f);
 
