@@ -776,11 +776,14 @@ edb::reg_t Debugger::get_follow_register(bool *ok) const {
 
 	Q_ASSERT(ok);
 
-	// TODO: implement
-
 	*ok = false;
 
-	return 0;
+	const auto reg=active_register();
+	if(!reg || reg.bitSize()>8*sizeof(edb::address_t))
+		return 0;
+
+	*ok = true;
+	return reg.valueAsAddress();
 }
 
 
