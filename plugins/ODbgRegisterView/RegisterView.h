@@ -87,6 +87,7 @@ public:
 	DialogEditGPR* gprEditDialog() const;
 	DialogEditSIMDRegister* simdEditDialog() const;
 	DialogEditFPU* fpuEditDialog() const;
+	void selectAField();
 private:
 	ValueField* selectedField() const;
 	void updateFieldsPalette();

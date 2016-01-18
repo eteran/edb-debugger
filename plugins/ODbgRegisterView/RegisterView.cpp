@@ -2000,6 +2000,13 @@ NumberDisplayMode SIMDValueManager::currentFormat() const
 	return static_cast<NumberDisplayMode>(size);
 }
 
+void ODBRegView::selectAField()
+{
+	const auto fields=valueFields();
+	if(!fields.isEmpty())
+		fields.front()->select();
+}
+
 void ODBRegView::keyPressEvent(QKeyEvent* event)
 {
 	auto* const selected=selectedField();
@@ -2011,6 +2018,8 @@ void ODBRegView::keyPressEvent(QKeyEvent* event)
 			selected->up()->select();
 			return;
 		}
+		if(!selected)
+			selectAField();
 		break;
 	case Qt::Key_Down:
 		if(selected && selected->down())
@@ -2018,6 +2027,8 @@ void ODBRegView::keyPressEvent(QKeyEvent* event)
 			selected->down()->select();
 			return;
 		}
+		if(!selected)
+			selectAField();
 		break;
 	case Qt::Key_Left:
 		if(selected && selected->left())
@@ -2025,6 +2036,8 @@ void ODBRegView::keyPressEvent(QKeyEvent* event)
 			selected->left()->select();
 			return;
 		}
+		if(!selected)
+			selectAField();
 		break;
 	case Qt::Key_Right:
 		if(selected && selected->right())
@@ -2032,6 +2045,8 @@ void ODBRegView::keyPressEvent(QKeyEvent* event)
 			selected->right()->select();
 			return;
 		}
+		if(!selected)
+			selectAField();
 		break;
 	case Qt::Key_Enter:
 	case Qt::Key_Return:
