@@ -2080,6 +2080,7 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const IDebugEvent::const_pointe
 	// because we just hit a break point or because we wanted to run, but had
 	// to step first in case were were on a breakpoint already...
 
+	edb::v1::clear_status();
 
 	if(event->is_kill()) {
 		QMessageBox::information(
@@ -2093,6 +2094,7 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const IDebugEvent::const_pointe
 
 	if(event->is_error()) {
 		const IDebugEvent::Message message = event->error_description();
+		edb::v1::set_status(message.statusMessage,0);
 		QMessageBox::information(this, message.caption, message.message);
 		return edb::DEBUG_STOP;
 	}
@@ -2121,12 +2123,14 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const IDebugEvent::const_pointe
 			if(it != known_exceptions.end()) {
 				exception_name = it.value();
 
+				edb::v1::set_status(tr("%1 signal received. Shift+Step/Run to pass to program, Step/Run to ignore").arg(exception_name),0);
 				QMessageBox::information(this, tr("Debug Event"),
 					tr(
 					"<p>The debugged application has received a debug event-> <strong>%1 (%2)</strong></p>"
 					"<p>If you would like to pass this event to the application press Shift+[F7/F8/F9]</p>"
 					"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event->code()).arg(exception_name));
 			} else {
+				edb::v1::set_status(tr("Signal received: %1. Shift+Step/Run to pass to program, Step/Run to ignore").arg(event->code()),0);
 				QMessageBox::information(this, tr("Debug Event"),
 					tr(
 					"<p>The debugged application has received a debug event-> <strong>%1</strong></p>"
@@ -2419,6 +2423,7 @@ edb::EVENT_STATUS Debugger::resume_status(bool pass_exception) {
 //------------------------------------------------------------------------------
 void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced) {
 
+	edb::v1::clear_status();
 	Q_ASSERT(edb::v1::debugger_core);
 	
 	if(IProcess *process = edb::v1::debugger_core->process()) {
