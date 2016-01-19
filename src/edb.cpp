@@ -45,6 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QInputDialog>
 #include <QMessageBox>
 #include <QLabel>
+#include <QCoreApplication>
 
 #include <cctype>
 
@@ -1259,8 +1260,14 @@ address_t current_data_view_address() {
 // Name: set_status
 // Desc:
 //------------------------------------------------------------------------------
-void set_status(const QString &message) {
-	ui()->ui.statusbar->showMessage(message, 2000);
+void set_status(const QString &message, int timeoutMillisecs) {
+	ui()->ui.statusbar->showMessage(message, timeoutMillisecs);
+	// Make sure the new status is visible even if the event loop isn't entered for some time
+	QCoreApplication::processEvents();
+}
+
+void clear_status() {
+	ui()->ui.statusbar->clearMessage();
 }
 
 //------------------------------------------------------------------------------
