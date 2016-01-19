@@ -1263,6 +1263,10 @@ void set_status(const QString &message, int timeoutMillisecs) {
 	ui()->ui.statusbar->showMessage(message, timeoutMillisecs);
 }
 
+void clear_status() {
+	ui()->ui.statusbar->clearMessage();
+}
+
 //------------------------------------------------------------------------------
 // Name: find_breakpoint
 // Desc:
