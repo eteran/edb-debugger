@@ -194,7 +194,7 @@ EDB_EXPORT QString format_pointer(address_t p);
 EDB_EXPORT address_t cpu_selected_address();
 EDB_EXPORT void set_cpu_selected_address(address_t address);
 
-EDB_EXPORT void set_status(const QString &message);
+EDB_EXPORT void set_status(const QString &message, int timeoutMillisecs=2000);
 
 EDB_EXPORT int pointer_size();
 

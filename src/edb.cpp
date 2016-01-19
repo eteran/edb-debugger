@@ -1259,8 +1259,8 @@ address_t current_data_view_address() {
 // Name: set_status
 // Desc:
 //------------------------------------------------------------------------------
-void set_status(const QString &message) {
-	ui()->ui.statusbar->showMessage(message, 2000);
+void set_status(const QString &message, int timeoutMillisecs) {
+	ui()->ui.statusbar->showMessage(message, timeoutMillisecs);
 }
 
 //------------------------------------------------------------------------------
