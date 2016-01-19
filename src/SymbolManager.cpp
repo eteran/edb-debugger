@@ -160,7 +160,7 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 
 	std::ifstream file(qPrintable(f));
 	if(file) {
-		qDebug() << "loading symbols:" << f;
+		edb::v1::set_status(QObject::tr("Loading symbols: %1").arg(f),0);
 		edb::address_t sym_start;
 		edb::address_t sym_end;
 		std::string    sym_name;
@@ -186,6 +186,7 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 						}
 
 					}
+					edb::v1::clear_status();
 					return false;
 				}
 
@@ -220,17 +221,19 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 
 					add_symbol(sym);
 				}
+				edb::v1::clear_status();
 				return true;
 			}
 		}
 	} else if(symbol_generator_) {
-		qDebug() << "Auto-Generating Symbol File: " << f;
-		if(symbol_generator_->generate_symbol_file(library_filename, f)) {
-			return false;
-		}
+		edb::v1::set_status(QObject::tr("Auto-Generating Symbol File: %1").arg(f),0);
+		bool generatedOK=symbol_generator_->generate_symbol_file(library_filename, f);
+		edb::v1::clear_status();
+		if(generatedOK) return false;
 	}
 
 	// TODO: should we return false and try again later?
+	edb::v1::clear_status();
 	return true;
 }
 
