@@ -607,6 +607,13 @@ bool RegisterItem<T>::setValue(QString const& valueStr)
 	return RegisterViewModelBase::setValue(value_,name(),valueStr);
 }
 
+template class RegisterItem<edb::value16>;
+template class RegisterItem<edb::value32>;
+template class RegisterItem<edb::value64>;
+template class RegisterItem<edb::value80>;
+template class RegisterItem<edb::value128>;
+template class RegisterItem<edb::value256>;
+
 // -------------------- SimpleRegister impl -----------------------
 
 template<typename T>
