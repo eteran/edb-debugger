@@ -2095,7 +2095,8 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const IDebugEvent::const_pointe
 	if(event->is_error()) {
 		const IDebugEvent::Message message = event->error_description();
 		edb::v1::set_status(message.statusMessage,0);
-		QMessageBox::information(this, message.caption, message.message);
+		if(edb::v1::config().enable_signals_message_box)
+			QMessageBox::information(this, message.caption, message.message);
 		return edb::DEBUG_STOP;
 	}
 
@@ -2124,18 +2125,22 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const IDebugEvent::const_pointe
 				exception_name = it.value();
 
 				edb::v1::set_status(tr("%1 signal received. Shift+Step/Run to pass to program, Step/Run to ignore").arg(exception_name),0);
-				QMessageBox::information(this, tr("Debug Event"),
-					tr(
-					"<p>The debugged application has received a debug event-> <strong>%1 (%2)</strong></p>"
-					"<p>If you would like to pass this event to the application press Shift+[F7/F8/F9]</p>"
-					"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event->code()).arg(exception_name));
+				if(edb::v1::config().enable_signals_message_box) {
+					QMessageBox::information(this, tr("Debug Event"),
+						tr(
+						"<p>The debugged application has received a debug event-> <strong>%1 (%2)</strong></p>"
+						"<p>If you would like to pass this event to the application press Shift+[F7/F8/F9]</p>"
+						"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event->code()).arg(exception_name));
+				}
 			} else {
 				edb::v1::set_status(tr("Signal received: %1. Shift+Step/Run to pass to program, Step/Run to ignore").arg(event->code()),0);
-				QMessageBox::information(this, tr("Debug Event"),
-					tr(
-					"<p>The debugged application has received a debug event-> <strong>%1</strong></p>"
-					"<p>If you would like to pass this event to the application press Shift+[F7/F8/F9]</p>"
-					"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event->code()));
+				if(edb::v1::config().enable_signals_message_box) {
+					QMessageBox::information(this, tr("Debug Event"),
+						tr(
+						"<p>The debugged application has received a debug event-> <strong>%1</strong></p>"
+						"<p>If you would like to pass this event to the application press Shift+[F7/F8/F9]</p>"
+						"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event->code()));
+				}
 			}
 
 			return edb::DEBUG_STOP;

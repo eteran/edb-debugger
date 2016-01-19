@@ -111,6 +111,10 @@ void Configuration::read_settings() {
 	session_path = settings.value("directory.session.path", QString()).value<QString>();
 	settings.endGroup();
 
+	settings.beginGroup("Exceptions");
+	enable_signals_message_box=settings.value("signals.show_message_box.enabled", true).value<bool>();
+	settings.endGroup();
+
 	// normalize values
 	if(data_word_width != 1 && data_word_width != 2 && data_word_width != 4 && data_word_width != 8) {
 		data_word_width = 1;
@@ -176,5 +180,9 @@ void Configuration::write_settings() {
 	settings.setValue("directory.symbol.path", symbol_path);
 	settings.setValue("directory.plugin.path", plugin_path);
 	settings.setValue("directory.session.path", session_path);
+	settings.endGroup();
+
+	settings.beginGroup("Exceptions");
+	settings.setValue("signals.show_message_box.enabled", enable_signals_message_box);
 	settings.endGroup();
 }

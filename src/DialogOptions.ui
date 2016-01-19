@@ -453,6 +453,13 @@
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
        <item>
+        <widget class="QCheckBox" name="signalsMessageBoxEnable">
+         <property name="text">
+          <string>Alert about signals with a message box</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QLabel" name="label_8">
          <property name="text">
           <string>Ignore (pass to program) the following exceptions:</string>
