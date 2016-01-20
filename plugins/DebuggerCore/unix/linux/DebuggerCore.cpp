@@ -236,10 +236,16 @@ long DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
 // Desc:
 //------------------------------------------------------------------------------
 long DebuggerCore::ptrace_step(edb::tid_t tid, long status) {
-	Q_ASSERT(waited_threads_.contains(tid));
-	Q_ASSERT(tid != 0);
-	waited_threads_.remove(tid);
-	return ptrace(PTRACE_SINGLESTEP, tid, 0, status);
+	// TODO(eteran): perhaps address this at a higher layer?
+	//               I would like to not have these events show up 
+	//               in the first place if we aren't stopped on this TID :-(
+	if(waited_threads_.contains(tid)) {
+		Q_ASSERT(waited_threads_.contains(tid));
+		Q_ASSERT(tid != 0);
+		waited_threads_.remove(tid);
+		return ptrace(PTRACE_SINGLESTEP, tid, 0, status);
+	}
+	return -1;
 }
 
 //------------------------------------------------------------------------------
