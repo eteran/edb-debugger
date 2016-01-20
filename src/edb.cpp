@@ -1268,6 +1268,8 @@ void set_status(const QString &message, int timeoutMillisecs) {
 
 void clear_status() {
 	ui()->ui.statusbar->clearMessage();
+	// Make sure the status is cleared even if the event loop isn't entered for some time
+	QCoreApplication::processEvents();
 }
 
 //------------------------------------------------------------------------------

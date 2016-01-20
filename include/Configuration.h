@@ -81,6 +81,9 @@ public:
 
 	int               min_string_length;
 
+	// Exceptions tab
+	bool			  enable_signals_message_box;
+
 protected:
 	void read_settings();
 	void write_settings();

@@ -199,6 +199,8 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui->cmbDataRowWidth->setCurrentIndex(width_to_index(config.data_row_width));
 
 	ui->chkAddressColon->setChecked(config.show_address_separator);
+
+	ui->signalsMessageBoxEnable->setChecked(config.enable_signals_message_box);
 }
 
 //------------------------------------------------------------------------------
@@ -262,6 +264,8 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	options.smallNumFormat = config.small_int_as_decimal  ? CapstoneEDB::Formatter::SmallNumAsDec : CapstoneEDB::Formatter::SmallNumAsHex;
 	options.syntax=static_cast<CapstoneEDB::Formatter::Syntax>(config.syntax);
 	edb::v1::formatter().setOptions(options);
+
+	config.enable_signals_message_box = ui->signalsMessageBoxEnable->isChecked();
 
 	event->accept();
 }

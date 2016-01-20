@@ -43,7 +43,7 @@ public:
 	};
 
 	struct Message {
-		Message(const QString &c, const QString &m) : caption(c), message(m) {
+		Message(const QString &c, const QString &m, const QString &s) : caption(c), message(m), statusMessage(s) {
 		}
 
 		Message() {
@@ -51,6 +51,7 @@ public:
 
 		QString caption;
 		QString message;
+		QString statusMessage;
 	};
 	
 public:
