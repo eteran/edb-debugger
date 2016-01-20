@@ -83,6 +83,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/stat.h>
 #if defined(Q_OS_LINUX) || defined(Q_OS_OPENBSD)
 #include <unistd.h>
+#include <fcntl.h>
 #endif
 
 namespace {
@@ -537,14 +538,35 @@ QString Debugger::create_tty() {
 			tty_proc_->start(tty_command, proc_args);
 
 			if(tty_proc_->waitForStarted(3000)) {
+			
+			
+				// try to read from the pipe, but with a 2 second timeout
+				int fd = open(qPrintable(temp_pipe), O_RDWR);
+				if(fd != -1) {
+					fd_set set;
+					FD_ZERO(&set);    // clear the set
+					FD_SET(fd, &set); // add our file descriptor to the set
 
-				const Q_PID tty_pid = tty_proc_->pid();
-				Q_UNUSED(tty_pid);
+					struct timeval timeout;
+					timeout.tv_sec  = 2;
+					timeout.tv_usec = 0;
 
-				// get the output, this should block until the xterm actually gets a chance to write it
-				QFile file(temp_pipe);
-				if(file.open(QIODevice::ReadOnly)) {
-					result_tty = file.readLine().trimmed();
+					char buf[256];
+					const int rv = select(fd + 1, &set, nullptr, nullptr, &timeout);
+					switch(rv) {
+					case -1:
+						qDebug() << "An error occured while attempting to get the TTY of the terminal sub-process";
+						break;
+					case 0:
+						qDebug() << "A Timeout occured while attempting to get the TTY of the terminal sub-process";
+						break;
+					default:
+						read(fd, buf, sizeof(buf));						
+						result_tty = QString(buf).trimmed();			
+						break;
+					}
+
+					::close(fd);
 				}
 
 			} else {
@@ -556,6 +578,9 @@ QString Debugger::create_tty() {
 		}
 	}
 #endif
+
+	qDebug() << "Terminal process has TTY: " << result_tty;
+
 	return result_tty;
 }
 
