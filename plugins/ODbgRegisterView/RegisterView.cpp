@@ -308,7 +308,9 @@ ValueField::ValueField(int const fieldWidth,
 	setStyle(&plastiqueStyle);
 
 	using namespace RegisterViewModelBase;
-	if(index.data(Model::IsNormalRegisterRole).toBool() || index.parent().data(Model::IsFPURegisterRole).toBool())
+	if(index.data(Model::IsNormalRegisterRole).toBool() ||
+	   index.parent().data(Model::IsFPURegisterRole).toBool() ||
+	   index.data(Model::IsSIMDElementRole).toBool())
 	{
 		menuItems.push_back(newAction(tr("Modify"),this,this,SLOT(defaultAction())));
 		menuItems.back()->setShortcut(QKeySequence(Qt::Key_Enter));
