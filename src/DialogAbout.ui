@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>523</width>
-    <height>408</height>
+    <width>600</width>
+    <height>410</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -36,7 +36,8 @@
        </property>
        <property name="text">
         <string>Version: %1
-Compiled: %2</string>
+Compiled: %2
+Git Commit: %3</string>
        </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>

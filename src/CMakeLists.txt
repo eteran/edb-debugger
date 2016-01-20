@@ -33,7 +33,19 @@ elseif(NOT Qt5Core_DIR)
 	qt4_add_resources(RC_SRCS ${RC_FILES})
 endif()
 
-add_definitions(-DDEFAULT_PLUGIN_PATH=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb)
+
+if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
+	execute_process(
+		COMMAND git rev-parse HEAD
+		WORKING_DIRECTORY ${CMAKE_SOURCE_DIR}
+		OUTPUT_VARIABLE GIT_BRANCH
+		OUTPUT_STRIP_TRAILING_WHITESPACE
+	)
+else()
+	set(GIT_BRANCH "Unknown")
+endif()
+
+add_definitions(-DDEFAULT_PLUGIN_PATH=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb -DGIT_BRANCH=${GIT_BRANCH})
 
 include_directories(
 	"capstone-edb"

@@ -20,13 +20,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_DialogAbout.h"
 #include "version.h"
 
+#define STRINGIFY(x) #x
+#define TOSTRING(x) STRINGIFY(x)
+
 //------------------------------------------------------------------------------
 // Name: DialogAbout
 // Desc: constructor
 //------------------------------------------------------------------------------
 DialogAbout::DialogAbout(QWidget *parent) : QDialog(parent), ui(new Ui::DialogAbout) {
 	ui->setupUi(this);
-	ui->labelVersion->setText(tr("Version: %1\nCompiled: %2").arg(edb::version).arg(__DATE__));
+	ui->labelVersion->setText(tr("Version: %1\nCompiled: %2\nGit Commit: %3").arg(edb::version).arg(__DATE__).arg(TOSTRING(GIT_BRANCH)));
 }
 
 //------------------------------------------------------------------------------

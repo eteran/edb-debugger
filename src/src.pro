@@ -199,6 +199,8 @@ unix {
 		SOURCES     += GraphEdge.cpp GraphWidget.cpp GraphNode.cpp
 		LIBS        += -lgvc
 	}
+	
+	DEFINES += GIT_BRANCH=Unknown
 
 	!isEmpty(DEFAULT_PLUGIN_PATH) {
 		DEFINES += DEFAULT_PLUGIN_PATH=$$DEFAULT_PLUGIN_PATH
