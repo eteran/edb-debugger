@@ -875,7 +875,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 					font_width_,
 					line_height,
 					Qt::AlignVCenter,
-					QString((target > address) ? QChar(0x02C7) : QChar(0x02C6))
+					QString((target > address) ? QChar(0x2304) : QChar(0x2303))
 					);
 			}
 		}
