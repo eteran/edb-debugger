@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStyle>
 #include <QStyleOptionViewItem>
 #include <QVBoxLayout>
-#include <QPlastiqueStyle>
+#include <QStyleFactory>
 #include <QAction>
 #include <QMenu>
 #include <QSignalMapper>
@@ -130,7 +130,7 @@ QAction* newAction(QString const& text, QObject* parent, QSignalMapper* mapper, 
 	return action;
 }
 
-static QPlastiqueStyle plastiqueStyle;
+static QStyle* flatStyle=nullptr;
 
 // ------------------------- BitFieldFormatter impl ------------------------------
 
@@ -305,7 +305,15 @@ ValueField::ValueField(int const fieldWidth,
 	setMouseTracking(true);
 	// Set some known style to avoid e.g. Oxygen's label transition animations, which
 	// break updating of colors such as "register changed" when single-stepping frequently
-	setStyle(&plastiqueStyle);
+#if QT_VERSION>=QT_VERSION_CHECK(5,0,0)
+#define FLAT_STYLE_NAME "fusion"
+#else
+#define FLAT_STYLE_NAME "plastique"
+#endif
+    if(!flatStyle)
+        flatStyle=QStyleFactory::create(FLAT_STYLE_NAME);
+    assert(flatStyle);
+	setStyle(flatStyle);
 
 	using namespace RegisterViewModelBase;
 	if(index.data(Model::IsNormalRegisterRole).toBool() ||

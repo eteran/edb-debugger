@@ -86,6 +86,9 @@ void RegisterListWidget::reset()
 		setExpanded(model()->index(row,0),true);
 		setFirstColumnSpanned(row,QModelIndex(),true);
 	}
-	header()->setResizeMode(QHeaderView::ResizeToContents);
+#if QT_VERSION<QT_VERSION_CHECK(5,0,0)
+#define setSectionResizeMode setResizeMode
+#endif
+	header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	header()->setStretchLastSection(false);
 }
