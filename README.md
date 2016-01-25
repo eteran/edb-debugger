@@ -86,3 +86,4 @@ used instead of `/usr/local/`. Finally, as described above, if you are doing a
 `make install`, you probably want to specify a default plugin path, this is done during 
 the qmake process.
 
+![Analytics](https://www.google-analytics.com/collect?v=1&tid=UA-2958870-1&ds=web&t=pageview&dl=https%3A%2F%2Fgithub.com%2Feteran%2Fedb-debugger&dh=github.com&dp=%2Feteran%2Fedb-debugger")
