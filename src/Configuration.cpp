@@ -101,6 +101,7 @@ void Configuration::read_settings() {
 
 	settings.beginGroup("Disassembly");
 	syntax                = static_cast<Syntax>(settings.value("disassembly.syntax", Intel).value<uint>());
+	syntax_highlighting_enabled = settings.value("disassembly.syntax_highlighting_enabled", true).value<bool>();
 	zeros_are_filling     = settings.value("disassembly.zeros_are_filling.enabled", true).value<bool>();
 	uppercase_disassembly = settings.value("disassembly.uppercase.enabled", false).value<bool>();
 	small_int_as_decimal  = settings.value("disassembly.small_int_as_decimal.enabled", false).value<bool>();
@@ -181,6 +182,7 @@ void Configuration::write_settings() {
 
 	settings.beginGroup("Disassembly");
 	settings.setValue("disassembly.syntax", syntax);
+	settings.setValue("disassembly.syntax_highlighting_enabled", syntax_highlighting_enabled);
 	settings.setValue("disassembly.zeros_are_filling.enabled", zeros_are_filling);
 	settings.setValue("disassembly.uppercase.enabled", uppercase_disassembly);
 	settings.setValue("disassembly.small_int_as_decimal.enabled", small_int_as_decimal);
