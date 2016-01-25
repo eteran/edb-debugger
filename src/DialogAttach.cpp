@@ -40,6 +40,24 @@ int getuid() {
 #include <unistd.h>
 #endif
 
+namespace {
+
+//------------------------------------------------------------------------------
+// Name: isNumeric
+// Desc: returns true if the string only contains decimal digits
+//------------------------------------------------------------------------------
+bool isNumeric(const QString &s) {
+	for(QChar ch: s) {
+		if(!ch.isDigit()) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+}
+
 //------------------------------------------------------------------------------
 // Name: DialogAttach
 // Desc: constructor
@@ -48,15 +66,18 @@ DialogAttach::DialogAttach(QWidget *parent) : QDialog(parent), ui(new Ui::Dialog
 	ui->setupUi(this);
 
 	process_model_ = new ProcessModel(this);
-	process_filter_ = new QSortFilterProxyModel(this);
+	
+	process_name_filter_ = new QSortFilterProxyModel(this);
+	process_name_filter_->setSourceModel(process_model_);
+	process_name_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	process_name_filter_->setFilterKeyColumn(2);
 
-	process_filter_->setSourceModel(process_model_);
-	process_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
-	process_filter_->setFilterKeyColumn(2);
+	process_pid_filter_ = new QSortFilterProxyModel(this);
+	process_pid_filter_->setSourceModel(process_name_filter_);
+	process_pid_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	process_pid_filter_->setFilterKeyColumn(0);
 
-	ui->processes_table->setModel(process_filter_);
-
-	connect(ui->filter, SIGNAL(textChanged(const QString &)), process_filter_, SLOT(setFilterFixedString(const QString &)));
+	ui->processes_table->setModel(process_pid_filter_);
 }
 
 //------------------------------------------------------------------------------
@@ -65,6 +86,21 @@ DialogAttach::DialogAttach(QWidget *parent) : QDialog(parent), ui(new Ui::Dialog
 //------------------------------------------------------------------------------
 DialogAttach::~DialogAttach() {
 	delete ui;
+}
+
+//------------------------------------------------------------------------------
+// Name: on_filter_textChanged
+// Desc:
+//------------------------------------------------------------------------------
+void DialogAttach::on_filter_textChanged(const QString &filter) {
+	
+	if(isNumeric(filter)) {
+		process_pid_filter_->setFilterFixedString(filter);
+		process_name_filter_->setFilterFixedString(QString());
+	} else {
+		process_name_filter_->setFilterFixedString(filter);
+		process_pid_filter_->setFilterFixedString(QString());	
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -119,7 +155,7 @@ edb::pid_t DialogAttach::selected_pid(bool *ok) const {
 	const QModelIndexList sel = selModel->selectedRows();
 
 	if(sel.size() == 1) {
-		const QModelIndex index = process_filter_->mapToSource(sel[0]);
+		const QModelIndex index = process_name_filter_->mapToSource(process_pid_filter_->mapToSource(sel[0]));
 		*ok = true;
 		return process_model_->data(index, Qt::UserRole).toUInt();
 	}
