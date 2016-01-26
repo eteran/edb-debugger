@@ -2628,10 +2628,15 @@ void Debugger::cleanup_debugger() {
 //------------------------------------------------------------------------------
 QString Debugger::session_filename() const {
 
+	static bool show_path_notice = true;
+
 	QString session_path = edb::v1::config().session_path;
 	if(session_path.isEmpty()) {
-		qDebug() << "No session path specified, Using current working directory.";
-		session_path = QDir().absolutePath();
+		if(show_path_notice) {
+			qDebug() << "No session path specified. Please set it in the preferences to enable symbols.";
+			show_path_notice = false;
+		}
+		return QString();
 	}
 
 	if(!program_executable_.isEmpty()) {
