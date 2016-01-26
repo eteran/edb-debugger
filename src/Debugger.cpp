@@ -2633,7 +2633,7 @@ QString Debugger::session_filename() const {
 	QString session_path = edb::v1::config().session_path;
 	if(session_path.isEmpty()) {
 		if(show_path_notice) {
-			qDebug() << "No session path specified. Please set it in the preferences to enable symbols.";
+			qDebug() << "No session path specified. Please set it in the preferences to enable sessions.";
 			show_path_notice = false;
 		}
 		return QString();
