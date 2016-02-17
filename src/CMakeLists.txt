@@ -44,8 +44,8 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 else()
 	set(GIT_BRANCH "Unknown")
 endif()
-
-add_definitions(-DDEFAULT_PLUGIN_PATH=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb -DGIT_BRANCH=${GIT_BRANCH})
+add_definitions(-DGIT_BRANCH=${GIT_BRANCH})
+add_definitions(-DDEFAULT_PLUGIN_PATH=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb)
 
 include_directories(
 	"capstone-edb"
@@ -182,7 +182,6 @@ if(${GRAPHVIZ_FOUND})
 		${PROJECT_SOURCE_DIR}/include/GraphWidget.h
 		${PROJECT_SOURCE_DIR}/include/GraphEdge.h
 		${PROJECT_SOURCE_DIR}/include/GraphNode.h
-
 	)
 
 	set(edb_SRCS
@@ -193,8 +192,6 @@ if(${GRAPHVIZ_FOUND})
 		graph/GraphNode.cpp
 		graph/GraphWidget.cpp
 	)
-	
-	add_definitions(-DENABLE_GRAPH)
 endif()
 
 # we put the header files from the include directory here 
@@ -202,9 +199,9 @@ endif()
 add_executable(edb ${edb_INCLUDES} ${edb_SRCS})
 
 if(Qt5Core_DIR)
-	target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt5::Widgets Qt5::Xml Qt5::XmlPatterns ${GRAPHVIZ_LIBRARY} ${GVC_LIBRARY})
+	target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt5::Widgets Qt5::Xml Qt5::XmlPatterns ${GRAPHVIZ_LIBRARIES})
 elseif(NOT Qt5Core_DIR)
-	target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt4::QtGui Qt4::QtXml Qt4::QtXmlPatterns ${GRAPHVIZ_LIBRARY} ${GVC_LIBRARY})
+	target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt4::QtGui Qt4::QtXml Qt4::QtXmlPatterns ${GRAPHVIZ_LIBRARIES})
 endif()
 
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
