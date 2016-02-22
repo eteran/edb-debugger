@@ -24,6 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDialog>
 #include <QTableWidget>
 
+namespace Backtrace {
+
 namespace Ui {
 class DialogBacktrace;
 }
@@ -60,5 +62,7 @@ private:
 	Ui::DialogBacktrace		*ui;
 	QTableWidget			*table_;
 };
+
+}
 
 #endif // DIALOGBACKTRACE_H
