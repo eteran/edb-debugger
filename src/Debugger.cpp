@@ -2616,6 +2616,8 @@ void Debugger::cleanup_debugger() {
 
 	Q_ASSERT(!data_regions_.isEmpty());
 	data_regions_.first()->region = IRegion::pointer();
+	
+	Q_EMIT(detachEvent());
 
 	setWindowTitle(tr("edb"));
 
@@ -2957,6 +2959,8 @@ void Debugger::attachComplete() {
 	stackGotoRBPAction_->setText(tr("Goto %1").arg(bp));
 	stackPushAction_   ->setText(tr("&Push %1").arg(word));
 	stackPopAction_    ->setText(tr("P&op %1").arg(word));
+	
+	Q_EMIT(attachEvent());
 }
 
 //------------------------------------------------------------------------------
@@ -2971,7 +2975,7 @@ void Debugger::on_action_Open_triggered() {
 	static auto* dialog = new DialogOpenProgram(this,
 												tr("Choose a file"),
 												last_open_directory_);
-	if(dialog->exec()==QDialog::Accepted) {
+	if(dialog->exec() == QDialog::Accepted) {
 
 		arguments_dialog_->set_arguments(dialog->arguments());
 		const QString filename = dialog->selectedFiles().front();
@@ -3248,6 +3252,8 @@ void Debugger::next_debug_event() {
 		qDebug("DEBUG POINTER: %p", debug_pointer_);
 	#endif
 #endif
+
+		Q_EMIT debugEvent();
 
 		const edb::EVENT_STATUS status = debug_event_handler(e);
 		switch(status) {

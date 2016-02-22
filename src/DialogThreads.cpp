@@ -40,6 +40,10 @@ DialogThreads::DialogThreads(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	threads_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
 	
 	ui->thread_table->setModel(threads_filter_);
+	
+	connect(edb::v1::debugger_ui, SIGNAL(debugEvent()), this, SLOT(updateThreads()));
+	connect(edb::v1::debugger_ui, SIGNAL(detachEvent()), this, SLOT(updateThreads()));
+	connect(edb::v1::debugger_ui, SIGNAL(attachEvent()), this, SLOT(updateThreads()));
 }
 
 //------------------------------------------------------------------------------
@@ -55,7 +59,28 @@ DialogThreads::~DialogThreads() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogThreads::showEvent(QShowEvent *) {
+	updateThreads();
+}
 
+//------------------------------------------------------------------------------
+// Name: on_thread_table_doubleClicked
+// Desc:
+//------------------------------------------------------------------------------
+void DialogThreads::on_thread_table_doubleClicked(const QModelIndex &index) {
+	
+	const QModelIndex internal_index = threads_filter_->mapToSource(index);
+	if(auto item = reinterpret_cast<ThreadsModel::Item *>(internal_index.internalPointer())) {
+		if(IThread::pointer thread = item->thread) {
+			edb::v1::jump_to_address(thread->instruction_pointer());
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: updateThreads
+// Desc:
+//------------------------------------------------------------------------------
+void DialogThreads::updateThreads() {
 	threads_model_->clear();
 	
 	if(IProcess *process = edb::v1::debugger_core->process()) {
@@ -72,18 +97,4 @@ void DialogThreads::showEvent(QShowEvent *) {
 	}
 
 	ui->thread_table->horizontalHeader()->resizeSections(QHeaderView::Stretch);
-}
-
-//------------------------------------------------------------------------------
-// Name: on_thread_table_doubleClicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogThreads::on_thread_table_doubleClicked(const QModelIndex &index) {
-	
-	const QModelIndex internal_index = threads_filter_->mapToSource(index);
-	if(auto item = reinterpret_cast<ThreadsModel::Item *>(internal_index.internalPointer())) {
-		if(IThread::pointer thread = item->thread) {
-			edb::v1::jump_to_address(thread->instruction_pointer());
-		}
-	}
 }
