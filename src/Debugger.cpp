@@ -551,7 +551,7 @@ QString Debugger::create_tty() {
 					timeout.tv_sec  = 2;
 					timeout.tv_usec = 0;
 
-					char buf[256];
+					char buf[256] = {};
 					const int rv = select(fd + 1, &set, nullptr, nullptr, &timeout);
 					switch(rv) {
 					case -1:
