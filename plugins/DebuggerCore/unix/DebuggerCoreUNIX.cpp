@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCoreUNIX.h"
 #include "edb.h"
 
+#include <QProcess>
 #include <QStringList>
 #include <cerrno>
 #include <climits>
@@ -181,6 +182,16 @@ pid_t native::waitpid_timeout(pid_t pid, int *status, int options, int msecs, bo
 //------------------------------------------------------------------------------
 DebuggerCoreUNIX::DebuggerCoreUNIX() {
 
+#if QT_VERSION >= 0x050000
+	// HACK(eteran): so, the first time we create a QProcess, it will hook SIGCHLD
+	//               unfortunately, in Qt5 it doesn't seem to call our handler
+	//               so we do this to force it to hook BEFORE we do, letting us
+	//               get the first crack at the signal, then we call the one that
+	//               Qt installed.
+	auto p = new QProcess(0);
+	p->start("/bin/true");
+#endif
+
 	// create a pipe and make it non-blocking
 	int r = ::pipe(selfpipe);
 	Q_UNUSED(r);
@@ -190,13 +201,14 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 
 	// setup a signal handler
 	struct sigaction new_action = {};
+	
 
 	new_action.sa_sigaction = sigchld_handler;
 	new_action.sa_flags     = SA_RESTART | SA_SIGINFO;
+	sigemptyset(&new_action.sa_mask);
 
 	sigaction(SIGCHLD, &new_action, &old_action);
 }
-
 
 //------------------------------------------------------------------------------
 // Name: execute_process
