@@ -37,20 +37,34 @@ namespace DebuggerCore {
 namespace {
 
 int selfpipe[2];
-void (*old_sigchld_handler)(int sig, siginfo_t *, void *);
+struct sigaction old_action;
 
 //------------------------------------------------------------------------------
 // Name: sigchld_handler
 // Desc:
 //------------------------------------------------------------------------------
 void sigchld_handler(int sig, siginfo_t *info, void *p) {
+
 	if(sig == SIGCHLD) {
 		native::write(selfpipe[1], " ", sizeof(char));
 	}
 
-	if(old_sigchld_handler) {
-		old_sigchld_handler(sig, info, p);
-	}
+    // load as volatile
+    volatile struct sigaction *vsa = &old_action;
+
+    if (old_action.sa_flags & SA_SIGINFO) {
+        void (*oldAction)(int, siginfo_t *, void *) = vsa->sa_sigaction;
+
+        if (oldAction) {
+            oldAction(sig, info, p);
+		}
+    } else {
+        void (*oldAction)(int) = vsa->sa_handler;
+
+        if (oldAction && oldAction != SIG_IGN) {
+            oldAction(sig);
+		}
+    }
 }
 
 }
@@ -175,18 +189,12 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 	::fcntl(selfpipe[1], F_SETFL, ::fcntl(selfpipe[1], F_GETFL) | O_NONBLOCK);
 
 	// setup a signal handler
-	struct sigaction new_action;
-	struct sigaction old_action;
-
-	std::memset(&new_action, 0, sizeof(new_action));
-	std::memset(&old_action, 0, sizeof(old_action));
+	struct sigaction new_action = {};
 
 	new_action.sa_sigaction = sigchld_handler;
 	new_action.sa_flags     = SA_RESTART | SA_SIGINFO;
 
 	sigaction(SIGCHLD, &new_action, &old_action);
-
-	old_sigchld_handler = old_action.sa_sigaction;
 }
 
 
