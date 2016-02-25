@@ -1153,6 +1153,8 @@ bool QDisassemblyView::event(QEvent *event) {
 
 			if(!show) {
 				QToolTip::showText(QPoint(), QString());
+				event->ignore();
+				return true;
 			}
 		}
 	}
