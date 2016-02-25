@@ -72,16 +72,25 @@ void SymbolManager::load_symbol_file(const QString &filename, edb::address_t bas
 	// ensure that the directory exists
 	QDir().mkpath(symbol_directory);
 
-	const QFileInfo info(filename);
+	QFileInfo info(filename);
 	
-	if(info.exists() && info.isReadable()) {	
+	if(info.exists() && info.isReadable()) {
+	
+		if(info.isRelative()) {
+			info.makeAbsolute();
+		}
+	
+		const QString path = QString("%1/%2").arg(symbol_directory, info.absolutePath());
 		const QString name = info.fileName();
-
-		if(!symbol_files_.contains(name)) {
-			const QString map_file = QString("%1/%2.map").arg(symbol_directory, name);
+		
+		// ensure that the sub-directory exists
+		QDir().mkpath(path);
+		
+		if(!symbol_files_.contains(info.absoluteFilePath())) {
+			const QString map_file = QString("%1/%2.map").arg(path, name);
 
 			if(process_symbol_file(map_file, base, filename, true)) {
-				symbol_files_.insert(name);
+				symbol_files_.insert(info.absoluteFilePath());
 			}
 		}
 	}
