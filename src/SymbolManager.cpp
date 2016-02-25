@@ -69,19 +69,20 @@ void SymbolManager::load_symbol_file(const QString &filename, edb::address_t bas
 		return;
 	}
 
-	if(!symbol_directory.isEmpty()) {
-		QDir symbolPath;
-		symbolPath.mkpath(symbol_directory);
-	}
+	// ensure that the directory exists
+	QDir().mkpath(symbol_directory);
 
 	const QFileInfo info(filename);
-	const QString name = info.fileName();
+	
+	if(info.exists() && info.isReadable()) {	
+		const QString name = info.fileName();
 
-	if(!symbol_files_.contains(name)) {
-		const QString map_file = QString("%1/%2.map").arg(symbol_directory, name);
+		if(!symbol_files_.contains(name)) {
+			const QString map_file = QString("%1/%2.map").arg(symbol_directory, name);
 
-		if(process_symbol_file(map_file, base, filename, true)) {
-			symbol_files_.insert(name);
+			if(process_symbol_file(map_file, base, filename, true)) {
+				symbol_files_.insert(name);
+			}
 		}
 	}
 }
