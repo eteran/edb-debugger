@@ -107,7 +107,12 @@ void Configuration::read_settings() {
 	settings.endGroup();
 
 	settings.beginGroup("Directories");
+#if QT_VERSION >= 0x050000
+	QStringList cacheDirectories = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
+	QString cacheDirectory = !cacheDirectories.isEmpty() ? cacheDirectories[0] : QString();
+#else
 	QString cacheDirectory = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
+#endif
 	QString defaultSymbolPath = QString("%1/%2").arg(cacheDirectory, "symbols");
 	symbol_path  = settings.value("directory.symbol.path", defaultSymbolPath).value<QString>();
 	plugin_path  = settings.value("directory.plugin.path", default_plugin_path).value<QString>();
