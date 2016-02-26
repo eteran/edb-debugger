@@ -2642,8 +2642,19 @@ QString Debugger::session_filename() const {
 	}
 
 	if(!program_executable_.isEmpty()) {
-		const QFileInfo info(program_executable_);
-		return QString(QLatin1String("%1/%2.edb")).arg(session_path, info.fileName());
+		QFileInfo info(program_executable_);
+
+		if(info.isRelative()) {
+			info.makeAbsolute();
+		}
+
+		const QString path = QString("%1/%2").arg(session_path, info.absolutePath());
+		const QString name = info.fileName();
+
+		// ensure that the sub-directory exists
+		QDir().mkpath(path);
+
+		return QString(QLatin1String("%1/%2.edb")).arg(path, name);
 	}
 
 	return QString();
