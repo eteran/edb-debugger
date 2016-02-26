@@ -28,11 +28,10 @@ class RegisterListWidget : public QTreeView {
 
 public:
 	RegisterListWidget(QWidget *parent = 0);
-	virtual ~RegisterListWidget();
 	void setModel(QAbstractItemModel* model) override;
 
 public:
-	virtual void mouseDoubleClickEvent(QMouseEvent * event);
+	void mousePressEvent(QMouseEvent* event) override;
 	void reset() override;
 };
 

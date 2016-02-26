@@ -35,37 +35,22 @@ RegisterListWidget::RegisterListWidget(QWidget *parent) : QTreeView(parent) {
 	setRootIsDecorated(false);
 
 	header()->hide();
-#if QT_VERSION >= 0x050000
-	header()->setSectionResizeMode(QHeaderView::Stretch);
-#else
-	header()->setResizeMode(QHeaderView::Stretch);
+
+#if QT_VERSION<QT_VERSION_CHECK(5,0,0)
+#define setSectionResizeMode setResizeMode
 #endif
-	
+	header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
-//------------------------------------------------------------------------------
-// Name: ~RegisterListWidget
-// Desc:
-//------------------------------------------------------------------------------
-RegisterListWidget::~RegisterListWidget() {
-
-}
-
-//------------------------------------------------------------------------------
-// Name: handleMousePress
-// Desc:
-//------------------------------------------------------------------------------
-
-//------------------------------------------------------------------------------
-// Name: mouseDoubleClickEvent
-// Desc:
-//------------------------------------------------------------------------------
-void RegisterListWidget::mouseDoubleClickEvent(QMouseEvent *event) {
+void RegisterListWidget::mousePressEvent(QMouseEvent* event)
+{
 	const auto index=indexAt(event->pos());
 	if(index.isValid() && !model()->parent(index).isValid())
 		setExpanded(index,!isExpanded(index)); // toggle expanded state of category item
-	QTreeView::mouseDoubleClickEvent(event);
+	else
+		QTreeView::mousePressEvent(event);
 }
+
 
 //------------------------------------------------------------------------------
 // Name: isCategory
@@ -79,16 +64,6 @@ void RegisterListWidget::setModel(QAbstractItemModel* model) {
 void RegisterListWidget::reset()
 {
 	QTreeView::reset();
-	// FIXME: this is a simplistic approach at making all categories open by default.
-	//        Maybe it's better to save which rows have to be expanded based on user actions and act accordingly.
 	for(int row=0;row<model()->rowCount();++row)
-	{
-		setExpanded(model()->index(row,0),true);
 		setFirstColumnSpanned(row,QModelIndex(),true);
-	}
-#if QT_VERSION<QT_VERSION_CHECK(5,0,0)
-#define setSectionResizeMode setResizeMode
-#endif
-	header()->setSectionResizeMode(QHeaderView::ResizeToContents);
-	header()->setStretchLastSection(false);
 }
