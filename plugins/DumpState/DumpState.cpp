@@ -43,6 +43,66 @@ std::string hex_string(const T& value) {
 	return value.toHexString().toStdString();
 }
 
+static const char *const Reset  = "\x1B[0m";
+static const char *const Red    = "\x1B[91m";
+static const char *const Yellow = "\x1B[93m";
+static const char *const Cyan   = "\x1B[96m";
+static const char *const Blue   = "\x1B[94m";
+static const char *const Green  = "\x1B[92m";
+static const char *const Purple = "\x1B[95m";
+	
+
+//------------------------------------------------------------------------------
+// Name: format_register
+// Desc:
+//------------------------------------------------------------------------------
+template <class T>
+std::string format_register(const T& value) {
+
+	QSettings settings;
+	const int colorize = settings.value("DumpState/colorize", true).toBool();
+
+	if(colorize) {
+		return Blue + hex_string(value) + Reset;
+	} else {
+		return hex_string(value);
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: format_segment
+// Desc:
+//------------------------------------------------------------------------------
+template <class T>
+std::string format_segment(const T& value) {
+
+	QSettings settings;
+	const int colorize = settings.value("DumpState/colorize", true).toBool();
+
+	if(colorize) {
+		return Green + hex_string(value) + Reset;
+	} else {
+		return hex_string(value);
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: format_address
+// Desc:
+//------------------------------------------------------------------------------
+template <class T>
+std::string format_address(const T& value) {
+
+	QSettings settings;
+	const int colorize = settings.value("DumpState/colorize", true).toBool();
+
+	if(colorize) {
+		return Purple + hex_string(value) + Reset;
+	} else {
+		return hex_string(value);
+	}
+}
+
 }
 
 //------------------------------------------------------------------------------
@@ -111,24 +171,24 @@ void DumpState::dump_registers(const State &state) {
 
 	using std::cout;
 	if(edb::v1::debuggeeIs32Bit()) { // TODO: check if state itself is 32 bit, not current debuggee. Generally it's not the same.
-		cout << "     eax:" <<    hex_string(state["eax"]);
-		cout << " ecx:" <<        hex_string(state["ecx"]);
-		cout << "  edx:" <<       hex_string(state["edx"]);
-		cout << "  ebx:" <<       hex_string(state["ebx"]);
-		cout << "     eflags:" << hex_string(state["eflags"]);
+		cout << "     eax:" <<    format_register(state["eax"]);
+		cout << " ecx:" <<        format_register(state["ecx"]);
+		cout << "  edx:" <<       format_register(state["edx"]);
+		cout << "  ebx:" <<       format_register(state["ebx"]);
+		cout << "     eflags:" << format_register(state["eflags"]);
 		cout << "\n";
-		cout << "     esp:" << hex_string(state["esp"]);
-		cout << " ebp:" <<     hex_string(state["ebp"]);
-		cout << "  esi:" <<    hex_string(state["esi"]);
-		cout << "  edi:" <<    hex_string(state["edi"]);
-		cout << "     eip:" << hex_string(state["eip"]);
+		cout << "     esp:" << format_register(state["esp"]);
+		cout << " ebp:" <<     format_register(state["ebp"]);
+		cout << "  esi:" <<    format_register(state["esi"]);
+		cout << "  edi:" <<    format_register(state["edi"]);
+		cout << "     eip:" << format_register(state["eip"]);
 		cout << "\n";
-		cout << "     es:" << hex_string(state["es"]);
-		cout << "  cs:" <<    hex_string(state["cs"]);
-		cout << "  ss:" <<    hex_string(state["ss"]);
-		cout << "  ds:" <<    hex_string(state["ds"]);
-		cout << "  fs:" <<    hex_string(state["fs"]);
-		cout << "  gs:" <<    hex_string(state["gs"]);
+		cout << "     es:" << format_segment(state["es"]);
+		cout << "  cs:" <<    format_segment(state["cs"]);
+		cout << "  ss:" <<    format_segment(state["ss"]);
+		cout << "  ds:" <<    format_segment(state["ds"]);
+		cout << "  fs:" <<    format_segment(state["fs"]);
+		cout << "  gs:" <<    format_segment(state["gs"]);
 		cout << "    ";
 		const Register eflagsR=state["eflags"];
 		if(eflagsR) {
@@ -145,22 +205,22 @@ void DumpState::dump_registers(const State &state) {
 		}
 		cout << "\n";
 	} else {
-		cout << "     rax:" <<    hex_string(state["rax"]);
-		cout << " rcx:" <<        hex_string(state["rcx"]);
-		cout << "  rdx:" <<       hex_string(state["rdx"]);
-		cout << "  rbx:" <<       hex_string(state["rbx"]);
-		cout << "     rflags:" << hex_string(state["rflags"]);
+		cout << "     rax:" <<    format_register(state["rax"]);
+		cout << " rcx:" <<        format_register(state["rcx"]);
+		cout << "  rdx:" <<       format_register(state["rdx"]);
+		cout << "  rbx:" <<       format_register(state["rbx"]);
+		cout << "     rflags:" << format_register(state["rflags"]);
 		cout << "\n";
-		cout << "     rsp:" <<    hex_string(state["rsp"]);
-		cout << " rbp:" <<        hex_string(state["rbp"]);
-		cout << "  rsi:" <<       hex_string(state["rsi"]);
-		cout << "  rdi:" <<       hex_string(state["rdi"]);
-		cout << "        rip:" << hex_string(state["rip"]);
+		cout << "     rsp:" <<    format_register(state["rsp"]);
+		cout << " rbp:" <<        format_register(state["rbp"]);
+		cout << "  rsi:" <<       format_register(state["rsi"]);
+		cout << "  rdi:" <<       format_register(state["rdi"]);
+		cout << "        rip:" << format_register(state["rip"]);
 		cout << "\n";
-		cout << "      r8:" << hex_string(state["r8"]);
-		cout << "  r9:" <<     hex_string(state["r9"]);
-		cout << "  r10:" <<    hex_string(state["r10"]);
-		cout << "  r11:" <<    hex_string(state["r11"]);
+		cout << "      r8:" << format_register(state["r8"]);
+		cout << "  r9:" <<     format_register(state["r9"]);
+		cout << "  r10:" <<    format_register(state["r10"]);
+		cout << "  r11:" <<    format_register(state["r11"]);
 		cout << "           ";
 		const Register rflagsR=state["rflags"];
 		if(rflagsR) {
@@ -176,17 +236,17 @@ void DumpState::dump_registers(const State &state) {
 			cout << ((rflags & (1 <<  0)) != 0 ? 'C' : 'c');
 		}
 		cout << "\n";
-		cout << "     r12:" << hex_string(state["r12"]);
-		cout << " r13:" <<     hex_string(state["r13"]);
-		cout << "  r14:" <<    hex_string(state["r14"]);
-		cout << "  r15:" <<    hex_string(state["r15"]);
+		cout << "     r12:" << format_register(state["r12"]);
+		cout << " r13:" <<     format_register(state["r13"]);
+		cout << "  r14:" <<    format_register(state["r14"]);
+		cout << "  r15:" <<    format_register(state["r15"]);
 		cout << "\n";
-		cout << "     es:" << hex_string(state["es"]);
-		cout << "  cs:" <<    hex_string(state["cs"]);
-		cout << "  ss:" <<    hex_string(state["ss"]);
-		cout << "  ds:" <<    hex_string(state["ds"]);
-		cout << "  fs:" <<    hex_string(state["fs"]);
-		cout << "  gs:" <<    hex_string(state["gs"]);
+		cout << "     es:" << format_segment(state["es"]);
+		cout << "  cs:" <<    format_segment(state["cs"]);
+		cout << "  ss:" <<    format_segment(state["ss"]);
+		cout << "  ds:" <<    format_segment(state["ds"]);
+		cout << "  fs:" <<    format_segment(state["fs"]);
+		cout << "  gs:" <<    format_segment(state["gs"]);
 		cout << "\n";
 	}
 }
@@ -254,13 +314,13 @@ void DumpState::show_menu() {
 		
 			std::cout << "------------------------------------------------------------------------------\n";
 			dump_registers(state);
-			std::cout << "[" << hex_string(state["ss"]) << ":" << hex_string(state.stack_pointer()) << "]---------------------------------------------------------[stack]\n";
+			std::cout << "[" << format_segment(state["ss"]) << ":" << format_address(state.stack_pointer()) << "]---------------------------------------------------------[stack]\n";
 			dump_stack(state);
 		
 			const edb::address_t data_address = edb::v1::current_data_view_address();
-			std::cout << "[" << hex_string(state["ds"]) << ":" << hex_string(data_address) << "]---------------------------------------------------------[ data]\n";
+			std::cout << "[" << format_segment(state["ds"]) << ":" << format_address(data_address) << "]---------------------------------------------------------[ data]\n";
 			dump_data(data_address);
-			std::cout << "[" << hex_string(state["cs"]) << ":" << hex_string(state.instruction_pointer()) << "]---------------------------------------------------------[ code]\n";
+			std::cout << "[" << format_segment(state["cs"]) << ":" << format_address(state.instruction_pointer()) << "]---------------------------------------------------------[ code]\n";
 			dump_code(state);
 			std::cout << "------------------------------------------------------------------------------\n";
 		}
