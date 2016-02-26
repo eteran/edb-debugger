@@ -30,7 +30,6 @@ namespace native {
 int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
 int select_ex(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, quint64 msecs);
 pid_t waitpid(pid_t pid, int *status, int options);
-pid_t waitpid_timeout(pid_t pid, int *status, int options, int msecs, bool *timeout);
 ssize_t read(int fd, void *buf, size_t count);
 ssize_t write(int fd, const void *buf, size_t count);
 bool wait_for_sigchld(int msecs);

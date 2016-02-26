@@ -159,24 +159,6 @@ bool native::wait_for_sigchld(int msecs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: waitpid_timeout
-// Desc:
-//------------------------------------------------------------------------------
-pid_t native::waitpid_timeout(pid_t pid, int *status, int options, int msecs, bool *timeout) {
-
-	Q_ASSERT(pid > 0);
-	Q_ASSERT(timeout);
-
-	*timeout = wait_for_sigchld(msecs);
-
-	if(!*timeout) {
-		return native::waitpid(pid, status, options | WNOHANG);
-	}
-
-	return -1;
-}
-
-//------------------------------------------------------------------------------
 // Name: DebuggerCoreUNIX
 // Desc:
 //------------------------------------------------------------------------------
