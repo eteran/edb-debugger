@@ -33,8 +33,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/wait.h>
 #include <unistd.h>
 
+#ifdef __linux__
+#include <linux/version.h>
+// being very conservative for now, technicall this could be 
+// as low as 2.6.22
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,0)
+#define USE_SIGTIMEDWAIT
+#endif
+#endif
+
 namespace DebuggerCore {
 
+#if !defined(USE_SIGTIMEDWAIT)
 namespace {
 
 int selfpipe[2];
@@ -69,6 +79,7 @@ void sigchld_handler(int sig, siginfo_t *info, void *p) {
 }
 
 }
+#endif
 
 //------------------------------------------------------------------------------
 // Name: read
@@ -141,7 +152,7 @@ int native::select_ex(int nfds, fd_set *readfds, fd_set *writefds, fd_set *excep
 // Desc:
 //------------------------------------------------------------------------------
 bool native::wait_for_sigchld(int msecs) {
-
+#if !defined(USE_SIGTIMEDWAIT)
 	fd_set rfds;
     FD_ZERO(&rfds);
     FD_SET(selfpipe[0], &rfds);
@@ -156,6 +167,19 @@ bool native::wait_for_sigchld(int msecs) {
 	}
 
 	return false;
+#else
+	sigset_t mask;
+	siginfo_t info;
+	struct timespec ts;
+    ts.tv_sec  = (msecs / 1000);
+    ts.tv_nsec = (msecs % 1000) * 1000000;
+
+
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGCHLD);
+	
+	return sigtimedwait(&mask, &info, &ts) == SIGCHLD;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -163,7 +187,7 @@ bool native::wait_for_sigchld(int msecs) {
 // Desc:
 //------------------------------------------------------------------------------
 DebuggerCoreUNIX::DebuggerCoreUNIX() {
-
+#if !defined(USE_SIGTIMEDWAIT)
 #if QT_VERSION >= 0x050000
 	// HACK(eteran): so, the first time we create a QProcess, it will hook SIGCHLD
 	//               unfortunately, in Qt5 it doesn't seem to call our handler
@@ -190,6 +214,7 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 	sigemptyset(&new_action.sa_mask);
 
 	sigaction(SIGCHLD, &new_action, &old_action);
+#endif
 }
 
 //------------------------------------------------------------------------------
