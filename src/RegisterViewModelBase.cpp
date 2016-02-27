@@ -388,6 +388,23 @@ void Model::setChosenSIMDFormat(QModelIndex const& index, NumberDisplayMode cons
 	Q_EMIT dataChanged(valueIndex, valueIndex);
 }
 
+void Model::setChosenFPUFormat(QModelIndex const& index, NumberDisplayMode const newFormat)
+{
+	const auto cat=getItem(index);
+	Q_ASSERT(cat);
+
+	const auto fpuCat=dynamic_cast<FPUCategory*>(cat);
+	Q_ASSERT(fpuCat);
+	// Not very crash-worthy problem, just don't do anything in release mode
+	if(!fpuCat) return;
+
+	fpuCat->setChosenFormat(newFormat);
+	Q_EMIT FPUDisplayFormatChanged();
+	// Make treeviews update root register items with default view
+	const auto valueIndex=index.sibling(index.row(),VALUE_COLUMN);
+	Q_EMIT dataChanged(valueIndex, valueIndex);
+}
+
 void Model::hideAll()
 {
 	for(const auto& cat : rootItem->categories)

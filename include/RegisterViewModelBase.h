@@ -139,6 +139,7 @@ public:
 
 	virtual void setChosenSIMDSize(QModelIndex const& index, ElementSize newSize);
 	virtual void setChosenSIMDFormat(QModelIndex const& index, NumberDisplayMode newFormat);
+	virtual void setChosenFPUFormat(QModelIndex const& index, NumberDisplayMode newFormat);
 
 	// Should be called after updating all the data
 	virtual void dataUpdateFinished();
@@ -160,6 +161,7 @@ private:
 	QPersistentModelIndex activeIndex_;
 Q_SIGNALS:
 	void SIMDDisplayFormatChanged();
+	void FPUDisplayFormatChanged();
 };
 
 class RegisterViewItem
