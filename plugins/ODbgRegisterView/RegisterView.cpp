@@ -317,7 +317,6 @@ ValueField::ValueField(int const fieldWidth,
 
 	using namespace RegisterViewModelBase;
 	if(index.data(Model::IsNormalRegisterRole).toBool() ||
-	   index.parent().data(Model::IsFPURegisterRole).toBool() ||
 	   index.data(Model::IsSIMDElementRole).toBool())
 	{
 		menuItems.push_back(newAction(tr("Modify"),this,this,SLOT(defaultAction())));
@@ -452,9 +451,6 @@ QModelIndex ValueField::regIndex() const
 		return index;
 	if(index.data(Model::IsNormalRegisterRole).toBool())
 		return index.sibling(index.row(),MODEL_NAME_COLUMN);
-	const auto parent=index.parent();
-	if(parent.data(Model::IsFPURegisterRole).toBool())
-		return parent.sibling(parent.row(),MODEL_NAME_COLUMN);
 	return {};
 }
 
