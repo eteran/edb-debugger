@@ -1231,8 +1231,7 @@ RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent
 		const auto tagValueIndex=VALID_INDEX(model->index(row,MODEL_VALUE_COLUMN,tagsIndex));
 		group->insert(row,column,new MultiBitFieldWidget(tagValueIndex,fpuTagDescription,group));
 		column+=tagWidth+1;
-		// Always show float-formatted value, not raw
-		const auto regValueIndex=findModelRegister(nameIndex,"FLOAT",MODEL_VALUE_COLUMN);
+		const auto regValueIndex=nameIndex.sibling(nameIndex.row(),MODEL_VALUE_COLUMN);
 		const int regValueWidth=regValueIndex.data(Model::FixedLengthRole).toInt();
 		assert(regValueWidth>0);
 		group->insert(row,column,new ValueField(regValueWidth,regValueIndex,group));
