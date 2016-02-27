@@ -104,10 +104,11 @@ RegisterViewItem* CategoriesHolder::child(int visibleRow)
 	return nullptr;
 }
 
-Category* CategoriesHolder::insert(QString const& name)
+template<typename CategoryType>
+CategoryType* CategoriesHolder::insert(QString const& name)
 {
-	categories.emplace_back(util::make_unique<Category>(name,categories.size()));
-	return categories.back().get();
+	categories.emplace_back(util::make_unique<CategoryType>(name,categories.size()));
+	return static_cast<CategoryType*>(categories.back().get());
 }
 
 SIMDCategory* CategoriesHolder::insertSIMD(QString const& name,
@@ -402,6 +403,11 @@ SIMDCategory* Model::addSIMDCategory(QString const& name,
 									 std::vector<NumberDisplayMode> const& validFormats)
 {
 	return rootItem->insertSIMD(name,validFormats);
+}
+
+FPUCategory* Model::addFPUCategory(QString const& name)
+{
+	return rootItem->insert<FPUCategory>(name);
 }
 
 void Model::hide(Category* cat)
@@ -808,8 +814,12 @@ QString>::type toString(SizingType value,NumberDisplayMode format)
 
 QString toString(edb::value80 const& value, NumberDisplayMode format)
 {
-	Q_ASSERT(format==NumberDisplayMode::Float); Q_UNUSED(format);
-	return formatFloat(value);
+	switch(format)
+	{
+	case NumberDisplayMode::Float: return formatFloat(value);
+	case NumberDisplayMode::Hex: return value.toHexString();
+	default: return QString("bug: format=%1").arg(static_cast<int>(format));
+	}
 }
 
 template<class StoredType, class SizingType>
@@ -1172,12 +1182,26 @@ FloatType FPURegister<FloatType>::value() const
 	return this->value_;
 }
 
+template<class FloatType>
+QString FPURegister<FloatType>::valueString() const
+{
+	if(!this->valid()) return "??";
+	return toString(value(),category()->chosenFormat());
+}
+
+template<class FloatType>
+FPUCategory* FPURegister<FloatType>::category() const
+{
+	const auto cat=this->parent();
+	return CHECKED_CAST(FPUCategory,cat);
+}
+
 template class FPURegister<edb::value80>;
 
 // ---------------------------- SIMDCategory impl ------------------------------
-const QString simdCatKey="RegisterViewModelBase";
-const QString simdFormatKey="format";
-const QString simdSizeKey="size";
+const QString settingsMainKey="RegisterViewModelBase";
+const QString settingsFormatKey="format";
+const QString settingsSIMDSizeKey="size";
 
 SIMDCategory::SIMDCategory(QString const& name, int row,
 							std::vector<NumberDisplayMode> const& validFormats)
@@ -1185,28 +1209,28 @@ SIMDCategory::SIMDCategory(QString const& name, int row,
 	  validFormats_(validFormats)
 {
 	QSettings settings;
-	settings.beginGroup(simdCatKey+"/"+name);
+	settings.beginGroup(settingsMainKey+"/"+name);
 	const auto defaultFormat=NumberDisplayMode::Hex;
-	chosenFormat_=static_cast<NumberDisplayMode>(settings.value(simdFormatKey,
+	chosenFormat_=static_cast<NumberDisplayMode>(settings.value(settingsFormatKey,
 												 static_cast<int>(defaultFormat)).toInt());
 	if(!util::contains(validFormats,chosenFormat_))
 		chosenFormat_=defaultFormat;
 
-	chosenSize_=static_cast<Model::ElementSize>(settings.value(simdSizeKey,
+	chosenSize_=static_cast<Model::ElementSize>(settings.value(settingsSIMDSizeKey,
 												static_cast<int>(Model::ElementSize::WORD)).toInt());
 }
 
 SIMDCategory::~SIMDCategory()
 {
 	QSettings settings;
-	settings.beginGroup(simdCatKey+"/"+name());
+	settings.beginGroup(settingsMainKey+"/"+name());
 	// Simple guard against rewriting settings which didn't change between
 	// categories with the same name (but e.g. different bitness)
 	// FIXME: this won't work correctly in general if multiple categories changed settings
 	if(formatChanged_)
-		settings.setValue(simdFormatKey,static_cast<int>(chosenFormat_));
+		settings.setValue(settingsFormatKey,static_cast<int>(chosenFormat_));
 	if(sizeChanged_)
-		settings.setValue(simdSizeKey,static_cast<int>(chosenSize_));
+		settings.setValue(settingsSIMDSizeKey,static_cast<int>(chosenSize_));
 }
 
 NumberDisplayMode SIMDCategory::chosenFormat() const
@@ -1234,6 +1258,39 @@ void SIMDCategory::setChosenSize(Model::ElementSize newSize)
 std::vector<NumberDisplayMode>const& SIMDCategory::validFormats() const
 {
 	return validFormats_;
+}
+
+// ----------------------------- FPUCategory impl ---------------------------
+
+FPUCategory::FPUCategory(QString const& name, int row)
+	: Category(name,row)
+{
+	QSettings settings;
+	settings.beginGroup(settingsMainKey+"/"+name);
+	const auto defaultFormat=NumberDisplayMode::Float;
+	chosenFormat_=static_cast<NumberDisplayMode>(settings.value(settingsFormatKey,
+												 static_cast<int>(defaultFormat)).toInt());
+	if(chosenFormat_!=NumberDisplayMode::Float && chosenFormat_!=NumberDisplayMode::Hex)
+		chosenFormat_=defaultFormat;
+}
+
+FPUCategory::~FPUCategory()
+{
+	QSettings settings;
+	settings.beginGroup(settingsMainKey+"/"+name());
+	if(formatChanged_)
+		settings.setValue(settingsFormatKey,static_cast<int>(chosenFormat_));
+}
+
+void FPUCategory::setChosenFormat(NumberDisplayMode newFormat)
+{
+	formatChanged_=true;
+	chosenFormat_=newFormat;
+}
+
+NumberDisplayMode FPUCategory::chosenFormat() const
+{
+	return chosenFormat_;
 }
 
 // -----------------------------------------------

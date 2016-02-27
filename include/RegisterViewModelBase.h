@@ -19,6 +19,7 @@ class AbstractRegisterItem;
 class CategoriesHolder;
 class Category;
 class SIMDCategory;
+class FPUCategory;
 
 // Sets register with name `name` to value `value`
 // Returns whether it succeeded
@@ -146,6 +147,7 @@ public:
 protected:
 	// All categories are there to stay after they've been inserted
 	Category* addCategory(QString const& name);
+	FPUCategory* addFPUCategory(QString const& name);
 	SIMDCategory* addSIMDCategory(QString const& name,
 								  std::vector<NumberDisplayMode> const& validFormats);
 	void hide(Category* cat);
@@ -386,12 +388,15 @@ class FPURegister : public SimpleRegister<FloatType>, public GenericFPURegister
 protected:
 	SimpleRegister<FloatType> rawReg;
 	SIMDFormatItem<FloatType,FloatType> formattedReg;
+	FPUCategory* category() const;
+
 public:
 	FPURegister(QString const& name);
 	void saveValue() override;
 	void update(FloatType const& newValue, QString const& newComment) override;
 	int childCount() const override;
 	RegisterViewItem* child(int) override;
+	QString valueString() const override;
 };
 
 class Category : public RegisterViewItem
@@ -435,12 +440,24 @@ public:
 	std::vector<NumberDisplayMode>const& validFormats() const;
 };
 
+class FPUCategory : public Category
+{
+	bool formatChanged_=false;
+	NumberDisplayMode chosenFormat_;
+public:
+	FPUCategory(QString const& name, int row);
+	~FPUCategory();
+	NumberDisplayMode chosenFormat() const;
+	void setChosenFormat(NumberDisplayMode newFormat);
+};
+
 class CategoriesHolder : public RegisterViewItem
 {
 	std::vector<std::unique_ptr<Category>> categories;
 public:
 	CategoriesHolder();
-	Category* insert(QString const& name);
+	template<typename CategoryType=Category>
+	CategoryType* insert(QString const& name);
 	SIMDCategory* insertSIMD(QString const& name,
 				 			 std::vector<NumberDisplayMode> const& validFormats);
 	int childCount() const override;

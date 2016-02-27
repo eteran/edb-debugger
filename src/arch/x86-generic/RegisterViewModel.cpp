@@ -340,8 +340,8 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject* parent)
 	  segRegs(addCategory(tr("Segment"))),
 	  dbgRegs32(addCategory(tr("Debug"))),
 	  dbgRegs64(addCategory(tr("Debug"))),
-	  fpuRegs32(addCategory(tr("FPU"))),
-	  fpuRegs64(addCategory(tr("FPU"))),
+	  fpuRegs32(addFPUCategory(tr("FPU"))),
+	  fpuRegs64(addFPUCategory(tr("FPU"))),
 	  mmxRegs(addSIMDCategory(tr("MMX"),MMXFormats)),
 	  sseRegs32(addSIMDCategory(tr("SSE"),SSEAVXFormats)),
 	  sseRegs64(addSIMDCategory(tr("SSE"),SSEAVXFormats)),
@@ -424,7 +424,7 @@ void RegisterViewModel::updateSegReg(std::size_t i, edb::value16 value, QString 
 	updateRegister<SegmentReg>(segRegs,i,value,comment);
 }
 
-RegisterViewModelBase::Category* RegisterViewModel::getFPUcat() const
+RegisterViewModelBase::FPUCategory* RegisterViewModel::getFPUcat() const
 {
 	return mode==CPUMode::IA32 ? fpuRegs32 : mode==CPUMode::AMD64 ? fpuRegs64 : 0;
 }

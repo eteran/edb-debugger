@@ -14,8 +14,8 @@ class RegisterViewModel : public RegisterViewModelBase::Model
 	RegisterViewModelBase::Category* segRegs;
 	RegisterViewModelBase::Category* dbgRegs32;
 	RegisterViewModelBase::Category* dbgRegs64;
-	RegisterViewModelBase::Category* fpuRegs32;
-	RegisterViewModelBase::Category* fpuRegs64;
+	RegisterViewModelBase::FPUCategory* fpuRegs32;
+	RegisterViewModelBase::FPUCategory* fpuRegs64;
 	RegisterViewModelBase::SIMDCategory* mmxRegs;
 	RegisterViewModelBase::SIMDCategory* sseRegs32;
 	RegisterViewModelBase::SIMDCategory* sseRegs64;
@@ -85,7 +85,7 @@ private:
 	std::tuple<RegisterViewModelBase::Category* /*sse*/,
 			   RegisterViewModelBase::Category* /*avx*/,
 			   unsigned/*maxRegs*/> getSSEparams() const;
-	RegisterViewModelBase::Category* getFPUcat() const;
+	RegisterViewModelBase::FPUCategory* getFPUcat() const;
 	CPUMode mode=static_cast<CPUMode>(-1);
 };
 
