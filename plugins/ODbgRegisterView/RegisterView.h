@@ -193,6 +193,22 @@ Q_SIGNALS:
 	void selected();
 };
 
+class FPUValueField : public ValueField
+{
+	Q_OBJECT
+	int showAsRawActionIndex;
+	int showAsFloatActionIndex;
+public:
+	FPUValueField(int fieldWidth,
+				  QModelIndex const& index,
+				  QWidget* parent=nullptr
+				  );
+public Q_SLOTS:
+	void showFPUAsRaw();
+	void showFPUAsFloat();
+	void displayFormatChanged();
+};
+
 struct BitFieldDescription
 {
 	int textWidth;

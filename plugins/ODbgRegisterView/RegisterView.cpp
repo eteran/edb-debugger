@@ -568,6 +568,55 @@ void ValueField::paintEvent(QPaintEvent*)
 	QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &option, &painter);
 }
 
+// -------------------------------- FPUValueField impl ---------------------------------
+
+FPUValueField::FPUValueField(int fieldWidth,
+							 QModelIndex const& index,
+							 QWidget* parent
+							 )
+							: ValueField(fieldWidth,index,parent)
+{
+	showAsRawActionIndex=menuItems.size();
+	menuItems.push_back(newAction(tr("View FPU as raw values"),this,this,SLOT(showFPUAsRaw())));
+
+	showAsFloatActionIndex=menuItems.size();
+	menuItems.push_back(newAction(tr("View FPU as floats"),this,this,SLOT(showFPUAsFloat())));
+
+	displayFormatChanged();
+	connect(index.model(),SIGNAL(FPUDisplayFormatChanged()),this,SLOT(displayFormatChanged()));
+}
+
+void FPUValueField::showFPUAsRaw()
+{
+	model()->setChosenFPUFormat(index.parent(),NumberDisplayMode::Hex);
+}
+
+void FPUValueField::showFPUAsFloat()
+{
+	model()->setChosenFPUFormat(index.parent(),NumberDisplayMode::Float);
+}
+
+void FPUValueField::displayFormatChanged()
+{
+	using RegisterViewModelBase::Model;
+	const auto format=static_cast<NumberDisplayMode>(VALID_VARIANT(index.parent().data(Model::ChosenFPUFormatRole)).toInt());
+	switch(format)
+	{
+	case NumberDisplayMode::Hex:
+		menuItems[showAsRawActionIndex]->setVisible(false);
+		menuItems[showAsFloatActionIndex]->setVisible(true);
+		break;
+	case NumberDisplayMode::Float:
+		menuItems[showAsRawActionIndex]->setVisible(true);
+		menuItems[showAsFloatActionIndex]->setVisible(false);
+		break;
+	default:
+		menuItems[showAsRawActionIndex]->setVisible(true);
+		menuItems[showAsFloatActionIndex]->setVisible(true);
+		break;
+	}
+}
+
 // -------------------------------- MultiBitFieldWidget impl ---------------------------
 MultiBitFieldWidget::MultiBitFieldWidget( QModelIndex const& index,
 								BitFieldDescription const& bfd,
@@ -1230,7 +1279,7 @@ RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent
 		const auto regValueIndex=nameIndex.sibling(nameIndex.row(),MODEL_VALUE_COLUMN);
 		const int regValueWidth=regValueIndex.data(Model::FixedLengthRole).toInt();
 		assert(regValueWidth>0);
-		group->insert(row,column,new ValueField(regValueWidth,regValueIndex,group));
+		group->insert(row,column,new FPUValueField(regValueWidth,regValueIndex,group));
 		column+=regValueWidth+1;
 		const auto regCommentIndex=model->index(row,MODEL_COMMENT_COLUMN,catIndex);
 		group->insert(row,column,new FieldWidget(0,regCommentIndex,group));
