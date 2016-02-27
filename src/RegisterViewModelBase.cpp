@@ -1169,43 +1169,37 @@ template class SIMDRegister<edb::value256>;
 
 template<class FloatType>
 FPURegister<FloatType>::FPURegister(QString const& name)
-	: SimpleRegister<FloatType>(name),
-	  rawReg(QObject::tr("raw","register value format")),
-	  formattedReg(NumberDisplayMode::Float)
+	: SimpleRegister<FloatType>(name)
 {
-	rawReg.init(this,0);
-	formattedReg.init(this,1);
+	formats.emplace_back(NumberDisplayMode::Hex);
+	formats.back().init(this,Model::FPU_HEX_ROW);
+	formats.emplace_back(NumberDisplayMode::Float);
+	formats.back().init(this,Model::FPU_FLOAT_ROW);
 }
 
 template<class FloatType>
 void FPURegister<FloatType>::update(FloatType const& newValue, QString const& newComment)
 {
-	rawReg.update(newValue,newComment);
 	SimpleRegister<FloatType>::update(newValue,newComment);
 }
 
 template<class FloatType>
 void FPURegister<FloatType>::saveValue()
 {
-	rawReg.saveValue();
 	SimpleRegister<FloatType>::saveValue();
 }
 
 template<class FloatType>
 int FPURegister<FloatType>::childCount() const
 {
-	return 2; // raw & formatted
+	return formats.size();
 }
 
 template<class FloatType>
 RegisterViewItem* FPURegister<FloatType>::child(int row)
 {
-	switch(row)
-	{
-	case Model::FPU_HEX_ROW: return &rawReg;
-	case Model::FPU_FLOAT_ROW: return &formattedReg;
-	default: return nullptr;
-	}
+	Q_ASSERT(unsigned(row)<formats.size());
+	return &formats[row];
 }
 
 template<class FloatType>
@@ -1227,6 +1221,16 @@ FPUCategory* FPURegister<FloatType>::category() const
 	const auto cat=this->parent();
 	return CHECKED_CAST(FPUCategory,cat);
 }
+
+template<class FloatType>
+int FPURegister<FloatType>::valueMaxLength() const
+{
+	for(const auto& format : formats)
+		if(format.format()==category()->chosenFormat())
+			return format.valueMaxLength();
+	return 0;
+}
+
 
 template class FPURegister<edb::value80>;
 

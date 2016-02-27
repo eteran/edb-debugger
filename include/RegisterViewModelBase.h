@@ -401,8 +401,7 @@ class FPURegister : public SimpleRegister<FloatType>, public GenericFPURegister
 	friend class SIMDFormatItem;
 	FloatType value() const;
 protected:
-	SimpleRegister<FloatType> rawReg;
-	SIMDFormatItem<FloatType,FloatType> formattedReg;
+	std::vector<SIMDFormatItem<FloatType,FloatType>> formats;
 	FPUCategory* category() const;
 
 public:
@@ -412,6 +411,7 @@ public:
 	int childCount() const override;
 	RegisterViewItem* child(int) override;
 	QString valueString() const override;
+	int valueMaxLength() const override;
 };
 
 class Category : public RegisterViewItem
