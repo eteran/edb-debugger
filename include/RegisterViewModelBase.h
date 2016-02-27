@@ -63,10 +63,10 @@ public:
 	};
 	enum FormatsOrder
 	{
-		HEX_ROW,
-		SIGNED_ROW,
-		UNSIGNED_ROW,
-		FLOAT_ROW
+		SIMD_HEX_ROW,
+		SIMD_SIGNED_ROW,
+		SIMD_UNSIGNED_ROW,
+		SIMD_FLOAT_ROW
 	};
 	enum FPUFormatsOrder
 	{

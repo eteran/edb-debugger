@@ -262,10 +262,10 @@ QVariant Model::data(QModelIndex const& index, int role) const
 		if(!simdCat) return {};
 		switch(simdCat->chosenFormat())
 		{
-		case NumberDisplayMode::Hex: return HEX_ROW;
-		case NumberDisplayMode::Signed: return SIGNED_ROW;
-		case NumberDisplayMode::Unsigned: return UNSIGNED_ROW;
-		case NumberDisplayMode::Float: return FLOAT_ROW;
+		case NumberDisplayMode::Hex: return SIMD_HEX_ROW;
+		case NumberDisplayMode::Signed: return SIMD_SIGNED_ROW;
+		case NumberDisplayMode::Unsigned: return SIMD_UNSIGNED_ROW;
+		case NumberDisplayMode::Float: return SIMD_FLOAT_ROW;
 		}
 		return {};
 	}
@@ -928,10 +928,10 @@ SIMDSizedElement<StoredType,SizingType>::SIMDSizedElement(
 		if(format!=NumberDisplayMode::Float || sizeof(SizingType)>=sizeof(float))
 		{
 			// The order must be as expected by other functions
-			Q_ASSERT(format!=NumberDisplayMode::Float || formats.size()==Model::FLOAT_ROW);
-			Q_ASSERT(format!=NumberDisplayMode::Hex || formats.size()==Model::HEX_ROW);
-			Q_ASSERT(format!=NumberDisplayMode::Signed || formats.size()==Model::SIGNED_ROW);
-			Q_ASSERT(format!=NumberDisplayMode::Unsigned || formats.size()==Model::UNSIGNED_ROW);
+			Q_ASSERT(format!=NumberDisplayMode::Float || formats.size()==Model::SIMD_FLOAT_ROW);
+			Q_ASSERT(format!=NumberDisplayMode::Hex || formats.size()==Model::SIMD_HEX_ROW);
+			Q_ASSERT(format!=NumberDisplayMode::Signed || formats.size()==Model::SIMD_SIGNED_ROW);
+			Q_ASSERT(format!=NumberDisplayMode::Unsigned || formats.size()==Model::SIMD_UNSIGNED_ROW);
 
 			formats.emplace_back(format);
 			formats.back().init(this,formats.size()-1);
