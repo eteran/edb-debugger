@@ -1143,8 +1143,7 @@ template<class StoredType>
 SIMDCategory* SIMDRegister<StoredType>::category() const
 {
 	const auto cat=this->parent();
-	Q_ASSERT(dynamic_cast<SIMDCategory*>(cat));
-	return static_cast<SIMDCategory*>(cat);
+	return CHECKED_CAST(SIMDCategory,cat);
 }
 
 template<class StoredType>
