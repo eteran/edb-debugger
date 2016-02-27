@@ -68,6 +68,11 @@ public:
 		UNSIGNED_ROW,
 		FLOAT_ROW
 	};
+	enum FPUFormatsOrder
+	{
+		FPU_HEX_ROW,
+		FPU_FLOAT_ROW
+	};
 	enum Role
 	{
 		// true if changed, false otherwise
@@ -121,6 +126,14 @@ public:
 		// Type: Register
 		ValueAsRegisterRole,
 
+		// What user chose to be current format of FPU registers
+		// Type: NumberDisplayMode
+		// Property of: Category
+		ChosenFPUFormatRole,
+		// What row to take in given register to get chosen-formatted value
+		// Type: int
+		// Property of: Category
+		ChosenFPUFormatRowRole,
 
 		FirstConcreteRole=Qt::UserRole+10000 // first role available for use in derived models
 	};

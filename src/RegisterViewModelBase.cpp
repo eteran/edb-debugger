@@ -240,6 +240,22 @@ QVariant Model::data(QModelIndex const& index, int role) const
 		}
 		return {};
 	}
+	case ChosenFPUFormatRole:
+		if(const auto fpuCat=dynamic_cast<FPUCategory const*>(item))
+			return static_cast<int>(fpuCat->chosenFormat());
+		else return {};
+	case ChosenFPUFormatRowRole:
+		if(const auto fpuCat=dynamic_cast<FPUCategory const*>(item))
+		{
+			switch(fpuCat->chosenFormat())
+			{
+			case NumberDisplayMode::Float: return FPU_FLOAT_ROW;
+			case NumberDisplayMode::Hex: return FPU_HEX_ROW;
+			default: return {};
+			}
+		}
+		return {};
+
 	case ChosenSIMDFormatRowRole:
 	{
 		const auto simdCat=dynamic_cast<SIMDCategory const*>(item);
@@ -1187,8 +1203,8 @@ RegisterViewItem* FPURegister<FloatType>::child(int row)
 {
 	switch(row)
 	{
-	case 0: return &rawReg;
-	case 1: return &formattedReg;
+	case Model::FPU_HEX_ROW: return &rawReg;
+	case Model::FPU_FLOAT_ROW: return &formattedReg;
 	default: return nullptr;
 	}
 }
