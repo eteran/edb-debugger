@@ -574,7 +574,14 @@ FPUValueField::FPUValueField(int fieldWidth,
 							 QModelIndex const& index,
 							 QWidget* parent
 							 )
-							: ValueField(fieldWidth,index,parent)
+							: ValueField(fieldWidth,index,parent,
+									[this](QString const& str)
+									{
+										if(str.length()!=20) return str;
+										if(groupDigits)
+											return str.left(4)+" "+str.mid(4,8)+" "+str.right(8);
+										return str;
+									})
 {
 	showAsRawActionIndex=menuItems.size();
 	menuItems.push_back(newAction(tr("View FPU as raw values"),this,this,SLOT(showFPUAsRaw())));
@@ -618,6 +625,12 @@ void FPUValueField::displayFormatChanged()
 	const auto margins=group()->getFieldMargins();
 	fieldWidth_=VALID_VARIANT(index.data(Model::FixedLengthRole)).toInt();
 	Q_ASSERT(fieldWidth_>0);
+	if(format==NumberDisplayMode::Hex)
+	{
+		groupDigits=true;
+		fieldWidth_+=2; // add some room for spaces between groups
+	}
+	else groupDigits=false;
 	const auto charWidth=letterSize(font()).width();
 	setFixedWidth(charWidth*fieldWidth_+margins.left()+margins.right());
 }

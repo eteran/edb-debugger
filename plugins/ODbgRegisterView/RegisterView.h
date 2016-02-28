@@ -198,6 +198,7 @@ class FPUValueField : public ValueField
 	Q_OBJECT
 	int showAsRawActionIndex;
 	int showAsFloatActionIndex;
+	bool groupDigits=false;
 public:
 	FPUValueField(int fieldWidth,
 				  QModelIndex const& index,
