@@ -306,6 +306,7 @@ public:
 	void insert(int line, int column, FieldWidget* widget);
 	void appendNameValueComment(QModelIndex const& nameIndex,QString const& tooltip="",bool insertComment=true);
 	void showMenu(QPoint const& position,QList<QAction*>const& additionalItems={}) const;
+	QMargins getFieldMargins() const;
 protected:
 	void mousePressEvent(QMouseEvent* event) override;
 public Q_SLOTS:

@@ -715,6 +715,16 @@ ODBRegView* RegisterGroup::regView() const
 								   );
 }
 
+QMargins RegisterGroup::getFieldMargins() const
+{
+	const auto charSize=letterSize(font());
+	const auto charWidth=charSize.width();
+	// extra space for highlighting rectangle, so that single-digit fields are easier to target
+	const auto marginLeft=charWidth/2;
+	const auto marginRight=charWidth-marginLeft;
+	return {marginLeft,0,marginRight-1,0};
+}
+
 void RegisterGroup::insert(int const line, int const column, FieldWidget* const widget)
 {
 	widget->update();
@@ -722,23 +732,19 @@ void RegisterGroup::insert(int const line, int const column, FieldWidget* const 
 	if(auto* const value=dynamic_cast<ValueField*>(widget))
 		connect(value,SIGNAL(selected()),regView(),SLOT(fieldSelected()));
 
-	const auto charSize=letterSize(font());
-	const auto charWidth=charSize.width();
-	const auto charHeight=charSize.height();
-	// extra space for highlighting rectangle, so that single-digit fields are easier to target
-	const auto marginLeft=charWidth/2;
-	const auto marginRight=charWidth-marginLeft;
+	const auto margins=getFieldMargins();
 
-	QPoint position(charWidth*column,charHeight*line);
-	position -= QPoint(marginLeft,0);
+	const auto charSize=letterSize(font());
+	QPoint position(charSize.width()*column,charSize.height()*line);
+	position -= QPoint(margins.left(),0);
 
 	QSize size(widget->size());
-	size += QSize(marginLeft+marginRight,0);
+	size += QSize(margins.left()+margins.right(),0);
 
 	widget->setMinimumSize(size);
 	widget->move(position);
 	// FIXME: why are e.g. regnames like FSR truncated without the -1?
-	widget->setContentsMargins(marginLeft,0,marginRight-1,0);
+	widget->setContentsMargins(margins);
 
 	const auto potentialNewWidth=widget->pos().x()+widget->width();
 	const auto potentialNewHeight=widget->pos().y()+widget->height();
