@@ -214,6 +214,9 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 	sigemptyset(&new_action.sa_mask);
 
 	sigaction(SIGCHLD, &new_action, &old_action);
+#else
+	// TODO(eteran): the man pages mention blocking the signal was want to catch
+	//               but I'm not if it is necessary for this use case...
 #endif
 }
 
