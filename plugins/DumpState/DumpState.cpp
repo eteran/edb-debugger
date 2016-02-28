@@ -273,7 +273,7 @@ void DumpState::dump_lines(edb::address_t address, int lines) {
 
 				for(int j = 0; j < 16; ++j) {
 					const quint8 ch = buf[j];
-					std::cout << ((std::isprint(ch) || (std::isspace(ch) && (ch != '\f' && ch != '\t' && ch != '\r' && ch != '\n') && ch < 0x80)) ? static_cast<char>(ch) : '.');
+					std::cout << ((std::isprint(ch) || (std::isspace(ch) && (ch != '\f' && ch != '\t' && ch != '\r' && ch != '\n' && ch != '\x0b') && ch < 0x80)) ? static_cast<char>(ch) : '.');
 				}
 
 				std::cout << "\n";

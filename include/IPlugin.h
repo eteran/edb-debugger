@@ -68,7 +68,7 @@ public:
 	// return ARG_SUCCESS if the normal execution should continue
 	// return ARG_ERROR   if we should show usage and exit
 	// return ARG_EXIT    if you processed the arguments and we should terminate successfully
-	virtual ArgumentStatus parse_argments(QStringList &) { return ARG_SUCCESS; }
+	virtual ArgumentStatus parse_arguments(QStringList &) { return ARG_SUCCESS; }
 
 protected:
 	// optional init, overload this to have edb run it after loading the plugin
