@@ -142,6 +142,7 @@ BitFieldFormatter::BitFieldFormatter(BitFieldDescription const& bfd)
 QString BitFieldFormatter::operator()(QString const& str)
 {
 	assert(str.length());
+	if(str.isEmpty()) return str; // for release builds have defined behavior
 	if(str[0]=='?') return "????";
 	bool parseOK=false;
 	const int value=str.toInt(&parseOK);
