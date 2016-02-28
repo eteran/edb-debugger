@@ -722,7 +722,7 @@ UnderlyingType BitFieldItem<UnderlyingType>::prevValue() const
 template<typename UnderlyingType>
 int BitFieldItem<UnderlyingType>::valueMaxLength() const
 {
-	return length_/4; // number of nibbles
+	return std::ceil(length_/4.); // number of nibbles
 }
 
 template<typename UnderlyingType>
