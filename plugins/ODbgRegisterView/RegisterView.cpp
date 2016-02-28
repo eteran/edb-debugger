@@ -615,6 +615,11 @@ void FPUValueField::displayFormatChanged()
 		menuItems[showAsFloatActionIndex]->setVisible(true);
 		break;
 	}
+	const auto margins=group()->getFieldMargins();
+	fieldWidth_=VALID_VARIANT(index.data(Model::FixedLengthRole)).toInt();
+	Q_ASSERT(fieldWidth_>0);
+	const auto charWidth=letterSize(font()).width();
+	setFixedWidth(charWidth*fieldWidth_+margins.left()+margins.right());
 }
 
 // -------------------------------- MultiBitFieldWidget impl ---------------------------
