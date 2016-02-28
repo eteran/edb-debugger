@@ -741,7 +741,7 @@ QMargins RegisterGroup::getFieldMargins() const
 	// extra space for highlighting rectangle, so that single-digit fields are easier to target
 	const auto marginLeft=charWidth/2;
 	const auto marginRight=charWidth-marginLeft;
-	return {marginLeft,0,marginRight-1,0};
+	return {marginLeft,0,marginRight,0};
 }
 
 void RegisterGroup::insert(int const line, int const column, FieldWidget* const widget)
@@ -763,7 +763,7 @@ void RegisterGroup::insert(int const line, int const column, FieldWidget* const 
 	widget->setMinimumSize(size);
 	widget->move(position);
 	// FIXME: why are e.g. regnames like FSR truncated without the -1?
-	widget->setContentsMargins(margins);
+	widget->setContentsMargins({margins.left(),margins.top(),margins.right()-1,margins.bottom()});
 
 	const auto potentialNewWidth=widget->pos().x()+widget->width();
 	const auto potentialNewHeight=widget->pos().y()+widget->height();
