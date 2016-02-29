@@ -744,12 +744,23 @@ QMargins RegisterGroup::getFieldMargins() const
 	return {marginLeft,0,marginRight,0};
 }
 
-void RegisterGroup::insert(int const line, int const column, FieldWidget* const widget)
+void RegisterGroup::insert(FieldWidget* const widget)
 {
-	widget->adjustToData();
-
 	if(auto* const value=dynamic_cast<ValueField*>(widget))
 		connect(value,SIGNAL(selected()),regView(),SLOT(fieldSelected()));
+}
+
+void RegisterGroup::insert(int const line, int const column, FieldWidget* const widget)
+{
+	insert(widget);
+	setupPositionAndSize(line,column,widget);
+
+	widget->show();
+}
+
+void RegisterGroup::setupPositionAndSize(int const line, int const column, FieldWidget* const widget)
+{
+	widget->adjustToData();
 
 	const auto margins=getFieldMargins();
 
@@ -770,8 +781,6 @@ void RegisterGroup::insert(int const line, int const column, FieldWidget* const 
 	const auto oldMinSize=minimumSize();
 	if(potentialNewWidth > oldMinSize.width() || potentialNewHeight > oldMinSize.height())
 		setMinimumSize(std::max(potentialNewWidth,oldMinSize.width()),std::max(potentialNewHeight,oldMinSize.height()));
-
-	widget->show();
 }
 
 int RegisterGroup::lineAfterLastField() const
