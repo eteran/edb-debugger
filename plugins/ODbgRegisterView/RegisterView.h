@@ -130,7 +130,7 @@ public:
 	int columnNumber() const;
 	int fieldWidth() const;
 public Q_SLOTS:
-	virtual void update();
+	virtual void adjustToData();
 };
 
 class VolatileNameField : public FieldWidget
@@ -185,7 +185,7 @@ public:
 	QModelIndex regIndex() const;
 public Q_SLOTS:
 	void defaultAction();
-	void update() override;
+	void adjustToData() override;
 	void select();
 	void unselect();
 	void updatePalette();
@@ -242,7 +242,7 @@ public:
 					QWidget* parent=nullptr);
 public Q_SLOTS:
 	void setValue(int value);
-	void update() override;
+	void adjustToData() override;
 };
 
 class SIMDValueManager : public QObject

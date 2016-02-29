@@ -258,7 +258,7 @@ int FieldWidget::fieldWidth() const
 	return fieldWidth_;
 }
 
-void FieldWidget::update()
+void FieldWidget::adjustToData()
 {
 	QLabel::setText(text());
 	adjustSize();
@@ -481,9 +481,9 @@ void ValueField::defaultAction()
 		editNormalReg(index.parent(),index);
 }
 
-void ValueField::update()
+void ValueField::adjustToData()
 {
-	FieldWidget::update();
+	FieldWidget::adjustToData();
 	updatePalette();
 }
 
@@ -674,9 +674,9 @@ void MultiBitFieldWidget::setValue(int value)
 	model()->setData(regIndex,byteArr,Model::RawValueRole);
 }
 
-void MultiBitFieldWidget::update()
+void MultiBitFieldWidget::adjustToData()
 {
-	ValueField::update();
+	ValueField::adjustToData();
 
 	const auto byteArr=index.data(RegisterViewModelBase::Model::RawValueRole).toByteArray();
 	std::uint64_t word(0);
@@ -746,7 +746,7 @@ QMargins RegisterGroup::getFieldMargins() const
 
 void RegisterGroup::insert(int const line, int const column, FieldWidget* const widget)
 {
-	widget->update();
+	widget->adjustToData();
 
 	if(auto* const value=dynamic_cast<ValueField*>(widget))
 		connect(value,SIGNAL(selected()),regView(),SLOT(fieldSelected()));
@@ -1294,7 +1294,7 @@ RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent
 				return QString("ST%1").arg(stI);
 			};
 			const auto field=new VolatileNameField(nameWidth,STiFormatter,group);
-			QObject::connect(model,SIGNAL(dataChanged(QModelIndex const&,QModelIndex const&)),field,SLOT(update()));
+			QObject::connect(model,SIGNAL(dataChanged(QModelIndex const&,QModelIndex const&)),field,SLOT(adjustToData()));
 			group->insert(row,column,field);
 			column+=nameWidth+1;
 		}
@@ -1871,7 +1871,7 @@ void ODBRegView::modelReset()
 void ODBRegView::modelUpdated()
 {
 	for(auto* const field : fields())
-		field->update();
+		field->adjustToData();
 	for(auto* const group : groups)
 		if(group) group->adjustWidth();
 }
