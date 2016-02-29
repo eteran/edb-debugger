@@ -198,11 +198,20 @@ class FPUValueField : public ValueField
 	Q_OBJECT
 	int showAsRawActionIndex;
 	int showAsFloatActionIndex;
+
+	FieldWidget* commentWidget;
+	int row;
+	int column;
+
 	bool groupDigits=false;
 public:
+	// Will add itself and commentWidget to the group and renew their positions as needed
 	FPUValueField(int fieldWidth,
 				  QModelIndex const& index,
-				  QWidget* parent=nullptr
+				  RegisterGroup* group,
+				  FieldWidget* commentWidget,
+				  int row,
+				  int column
 				  );
 public Q_SLOTS:
 	void showFPUAsRaw();
@@ -300,7 +309,6 @@ class RegisterGroup : public QWidget
 	int lineAfterLastField() const;
 	ODBRegView* regView() const;
 
-	void setupPositionAndSize(int line, int column, FieldWidget* widget);
 public:
 	RegisterGroup(QString const& name, QWidget* parent=nullptr);
 	QList<FieldWidget*> fields() const;
@@ -309,6 +317,7 @@ public:
 	void insert(int line, int column, FieldWidget* widget);
 	// Insert, but without moving to its place
 	void insert(FieldWidget* widget);
+	void setupPositionAndSize(int line, int column, FieldWidget* widget);
 	void appendNameValueComment(QModelIndex const& nameIndex,QString const& tooltip="",bool insertComment=true);
 	void showMenu(QPoint const& position,QList<QAction*>const& additionalItems={}) const;
 	QMargins getFieldMargins() const;

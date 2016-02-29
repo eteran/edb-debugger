@@ -573,23 +573,35 @@ void ValueField::paintEvent(QPaintEvent*)
 
 FPUValueField::FPUValueField(int fieldWidth,
 							 QModelIndex const& index,
-							 QWidget* parent
+							 RegisterGroup* group,
+							 FieldWidget* commentWidget,
+							 int row,
+							 int column
 							 )
-							: ValueField(fieldWidth,index,parent,
+							: ValueField(fieldWidth,index,group,
 									[this](QString const& str)
 									{
 										if(str.length()!=20) return str;
 										if(groupDigits)
 											return str.left(4)+" "+str.mid(4,8)+" "+str.right(8);
 										return str;
-									})
+									}),
+							  commentWidget(commentWidget),
+							  row(row),
+							  column(column)
 {
+	Q_ASSERT(group);
+	Q_ASSERT(commentWidget);
 	showAsRawActionIndex=menuItems.size();
 	menuItems.push_back(newAction(tr("View FPU as raw values"),this,this,SLOT(showFPUAsRaw())));
 
 	showAsFloatActionIndex=menuItems.size();
 	menuItems.push_back(newAction(tr("View FPU as floats"),this,this,SLOT(showFPUAsFloat())));
 
+	group->insert(row,column,this);
+	group->insert(commentWidget);
+	// will be moved to its column in the next line
+	group->setupPositionAndSize(row,0,commentWidget);
 	displayFormatChanged();
 	connect(index.model(),SIGNAL(FPUDisplayFormatChanged()),this,SLOT(displayFormatChanged()));
 }
@@ -634,6 +646,7 @@ void FPUValueField::displayFormatChanged()
 	else groupDigits=false;
 	const auto charWidth=letterSize(font()).width();
 	setFixedWidth(charWidth*fieldWidth_+margins.left()+margins.right());
+	commentWidget->move(x()+maximumWidth(),commentWidget->y());
 }
 
 // -------------------------------- MultiBitFieldWidget impl ---------------------------
@@ -1313,10 +1326,8 @@ RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent
 		const auto regValueIndex=nameIndex.sibling(nameIndex.row(),MODEL_VALUE_COLUMN);
 		const int regValueWidth=regValueIndex.data(Model::FixedLengthRole).toInt();
 		assert(regValueWidth>0);
-		group->insert(row,column,new FPUValueField(regValueWidth,regValueIndex,group));
-		column+=regValueWidth+1;
 		const auto regCommentIndex=model->index(row,MODEL_COMMENT_COLUMN,catIndex);
-		group->insert(row,column,new FieldWidget(0,regCommentIndex,group));
+		new FPUValueField(regValueWidth,regValueIndex,group,new FieldWidget(0,regCommentIndex,group),row,column);
 	}
 	return group;
 }
