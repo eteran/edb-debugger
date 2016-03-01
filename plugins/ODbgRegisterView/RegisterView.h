@@ -153,11 +153,11 @@ protected:
 
 private:
 	void init();
-	bool changed() const;
 	QColor fgColorForChangedField() const;
 	void editNormalReg(QModelIndex const& indexToEdit, QModelIndex const& clickedIndex) const;
 protected:
 	RegisterViewModelBase::Model* model() const;
+	bool changed() const;
 
 	void enterEvent(QEvent*) override;
 	void leaveEvent(QEvent*) override;
