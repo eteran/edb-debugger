@@ -169,6 +169,7 @@ static const BitFieldDescription fpuTagDescription{7,
 							{"valid","zero","special","empty"},
 							{QObject::tr("Tag as used"),"","",QObject::tr("Tag as empty")},
 							[](unsigned a,unsigned b){ return a==3||b==3 ? a==b : true;}};
+static const constexpr unsigned FPU_TAG_EMPTY=3;
 
 static const BitFieldDescription roundControlDescription{4,
 							{"NEAR","DOWN","  UP","ZERO"},
@@ -572,13 +573,14 @@ void ValueField::paintEvent(QPaintEvent*)
 // -------------------------------- FPUValueField impl ---------------------------------
 
 FPUValueField::FPUValueField(int fieldWidth,
-							 QModelIndex const& index,
+							 QModelIndex const& regValueIndex,
+							 QModelIndex const& tagValueIndex,
 							 RegisterGroup* group,
 							 FieldWidget* commentWidget,
 							 int row,
 							 int column
 							 )
-							: ValueField(fieldWidth,index,group,
+							: ValueField(fieldWidth,regValueIndex,group,
 									[this](QString const& str)
 									{
 										if(str.length()!=20) return str;
@@ -588,7 +590,8 @@ FPUValueField::FPUValueField(int fieldWidth,
 									}),
 							  commentWidget(commentWidget),
 							  row(row),
-							  column(column)
+							  column(column),
+							  tagValueIndex(tagValueIndex)
 {
 	Q_ASSERT(group);
 	Q_ASSERT(commentWidget);
@@ -647,6 +650,18 @@ void FPUValueField::displayFormatChanged()
 	const auto charWidth=letterSize(font()).width();
 	setFixedWidth(charWidth*fieldWidth_+margins.left()+margins.right());
 	commentWidget->move(x()+maximumWidth(),commentWidget->y());
+}
+
+void FPUValueField::updatePalette()
+{
+	if(!changed() && tagValueIndex.data().toUInt()==FPU_TAG_EMPTY)
+	{
+		auto palette=group()->palette();
+		palette.setColor(foregroundRole(),palette.color(QPalette::Disabled,QPalette::Text));
+		setPalette(palette);
+		QLabel::update();
+	}
+	else ValueField::updatePalette();
 }
 
 // -------------------------------- MultiBitFieldWidget impl ---------------------------
@@ -1327,7 +1342,7 @@ RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent
 		const int regValueWidth=regValueIndex.data(Model::FixedLengthRole).toInt();
 		assert(regValueWidth>0);
 		const auto regCommentIndex=model->index(row,MODEL_COMMENT_COLUMN,catIndex);
-		new FPUValueField(regValueWidth,regValueIndex,group,new FieldWidget(0,regCommentIndex,group),row,column);
+		new FPUValueField(regValueWidth,regValueIndex,tagValueIndex,group,new FieldWidget(0,regCommentIndex,group),row,column);
 	}
 	return group;
 }

@@ -188,7 +188,7 @@ public Q_SLOTS:
 	void adjustToData() override;
 	void select();
 	void unselect();
-	void updatePalette();
+	virtual void updatePalette();
 Q_SIGNALS:
 	void selected();
 };
@@ -203,11 +203,14 @@ class FPUValueField : public ValueField
 	int row;
 	int column;
 
+	QPersistentModelIndex tagValueIndex;
+
 	bool groupDigits=false;
 public:
 	// Will add itself and commentWidget to the group and renew their positions as needed
 	FPUValueField(int fieldWidth,
-				  QModelIndex const& index,
+				  QModelIndex const& regValueIndex,
+				  QModelIndex const& tagValueIndex,
 				  RegisterGroup* group,
 				  FieldWidget* commentWidget,
 				  int row,
@@ -217,6 +220,7 @@ public Q_SLOTS:
 	void showFPUAsRaw();
 	void showFPUAsFloat();
 	void displayFormatChanged();
+	void updatePalette() override;
 };
 
 struct BitFieldDescription
