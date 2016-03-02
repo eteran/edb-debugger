@@ -185,6 +185,8 @@ public:
 	QModelIndex regIndex() const;
 public Q_SLOTS:
 	void defaultAction();
+	void pushFPUStack();
+	void popFPUStack();
 	void adjustToData() override;
 	void select();
 	void unselect();

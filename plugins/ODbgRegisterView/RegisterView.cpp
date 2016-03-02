@@ -55,7 +55,6 @@ namespace ODbgRegisterView {
 // TODO: GPR menu: Increment, Decrement, Invert, Zero(if not already), Set to 1(if not already)
 // TODO: rFLAGS menu: Set Condition (O,P,NAE etc. - see ODB)
 // TODO: FSR: Set Condition: G,L,E,Unordered
-// TODO: Push/Pop FPU stack
 // TODO: Add option to show FPU in STi mode, both ST-ordered and R-ordered (physically)
 // TODO: Update register comments after editing values
 // TODO: Gray out empty FPU registers
@@ -333,6 +332,12 @@ ValueField::ValueField(int const fieldWidth,
 		menuItems.push_back(newAction(tr("Toggle"),this,this,SLOT(defaultAction())));
 		menuItems.back()->setShortcut(QKeySequence(Qt::Key_Enter));
 	}
+
+	if(index.sibling(index.row(),MODEL_NAME_COLUMN).data().toString()==FSR_NAME)
+	{
+		menuItems.push_back(newAction(tr("Push FPU stack"),this,this,SLOT(pushFPUStack())));
+		menuItems.push_back(newAction(tr("Pop FPU stack"),this,this,SLOT(popFPUStack())));
+	}
 }
 
 RegisterViewModelBase::Model* ValueField::model() const
@@ -572,6 +577,34 @@ void ValueField::paintEvent(QPaintEvent*)
 	if(regView->hasFocus())
 		option.state |= QStyle::State_Active;
 	QApplication::style()->drawControl(QStyle::CE_ItemViewItem, &option, &painter);
+}
+
+void addToTOP(RegisterViewModelBase::Model* model, QModelIndex const& fsrIndex,std::int16_t delta)
+{
+	using namespace RegisterViewModelBase;
+	// TODO: Model: make it possible to set bit field itself, without manipulating parent directly
+	//              I.e. set value without knowing field offset, then setData(fieldIndex,word)
+	auto byteArr=fsrIndex.data(Model::RawValueRole).toByteArray();
+	if(byteArr.isEmpty()) return;
+	std::uint16_t word(0);
+	assert(byteArr.size()==sizeof word);
+	std::memcpy(&word,byteArr.constData(),byteArr.size());
+	const auto value=(word>>11)&7;
+	word=(word&~0x3800)|(((value+delta)&7)<<11);
+	std::memcpy(byteArr.data(),&word,byteArr.size());
+	model->setData(fsrIndex,byteArr,Model::RawValueRole);
+}
+
+void ValueField::pushFPUStack()
+{
+	assert(index.sibling(index.row(),MODEL_NAME_COLUMN).data().toString()==FSR_NAME);
+	addToTOP(model(),index,-1);
+}
+
+void ValueField::popFPUStack()
+{
+	assert(index.sibling(index.row(),MODEL_NAME_COLUMN).data().toString()==FSR_NAME);
+	addToTOP(model(),index,+1);
 }
 
 // -------------------------------- FPUValueField impl ---------------------------------
