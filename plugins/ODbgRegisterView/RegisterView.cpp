@@ -86,6 +86,10 @@ static const int MODEL_NAME_COLUMN=RegisterViewModelBase::Model::NAME_COLUMN;
 static const int MODEL_VALUE_COLUMN=RegisterViewModelBase::Model::VALUE_COLUMN;
 static const int MODEL_COMMENT_COLUMN=RegisterViewModelBase::Model::COMMENT_COLUMN;
 
+static const char* FSR_NAME="FSR";
+static const char* FCR_NAME="FCR";
+static const char* FTR_NAME="FTR";
+
 template<typename T>
 inline T sqr(T v) { return v*v; }
 
@@ -1304,7 +1308,7 @@ RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent
 
 	const auto catIndex=findModelCategory(model,"FPU");
 	if(!catIndex.isValid()) return nullptr;
-	const auto tagsIndex=findModelRegister(catIndex,"FTR");
+	const auto tagsIndex=findModelRegister(catIndex,FTR_NAME);
 	if(!tagsIndex.isValid())
 	{
 		qWarning() << "Warning: failed to find FTR in the model, refusing to continue making FPUData group";
@@ -1314,7 +1318,7 @@ RegisterGroup* createFPUData(RegisterViewModelBase::Model* model,QWidget* parent
 	static const int FPU_REG_COUNT=8;
 	static const int nameWidth=3;
 	static const int tagWidth=7;
-	const auto fsrIndex=VALID_INDEX(findModelRegister(catIndex,"FSR"));
+	const auto fsrIndex=VALID_INDEX(findModelRegister(catIndex,FSR_NAME));
 	const QPersistentModelIndex topIndex=VALID_INDEX(findModelRegister(fsrIndex,"TOP",MODEL_VALUE_COLUMN));
 	for(int row=0;row<FPU_REG_COUNT;++row)
 	{
@@ -1352,12 +1356,12 @@ RegisterGroup* createFPUWords(RegisterViewModelBase::Model* model,QWidget* paren
 	const auto catIndex=findModelCategory(model,"FPU");
 	if(!catIndex.isValid()) return nullptr;
 	auto* const group=new RegisterGroup(QObject::tr("FPU Status&&Control Registers"),parent);
-	group->appendNameValueComment(findModelRegister(catIndex,"FTR"),QObject::tr("FPU Tag Register"),false);
+	group->appendNameValueComment(findModelRegister(catIndex,FTR_NAME),QObject::tr("FPU Tag Register"),false);
 	const int fsrRow=1;
-	const auto fsrIndex=findModelRegister(catIndex,"FSR");
+	const auto fsrIndex=findModelRegister(catIndex,FSR_NAME);
 	group->appendNameValueComment(fsrIndex,QObject::tr("FPU Status Register"),false);
 	const int fcrRow=2;
-	const auto fcrIndex=findModelRegister(catIndex,"FCR");
+	const auto fcrIndex=findModelRegister(catIndex,FCR_NAME);
 	group->appendNameValueComment(fcrIndex,QObject::tr("FPU Control Register"),false);
 
 	const int wordNameWidth=3, wordValWidth=4;
@@ -1495,8 +1499,8 @@ RegisterGroup* createFPULastOp(RegisterViewModelBase::Model* model,QWidget* pare
 	FDPValueField->setToolTip(QObject::tr("Last FPU memory operand offset"));
 
 	QPersistentModelIndex const FOPIndex=findModelRegister(catIndex,"FOP",MODEL_VALUE_COLUMN);
-	QPersistentModelIndex const FSRIndex=findModelRegister(catIndex,"FSR",MODEL_VALUE_COLUMN);
-	QPersistentModelIndex const FCRIndex=findModelRegister(catIndex,"FCR",MODEL_VALUE_COLUMN);
+	QPersistentModelIndex const FSRIndex=findModelRegister(catIndex,FSR_NAME,MODEL_VALUE_COLUMN);
+	QPersistentModelIndex const FCRIndex=findModelRegister(catIndex,FCR_NAME,MODEL_VALUE_COLUMN);
 	bool fopRarelyUpdated=FOPIsIncompatible();
 	const auto FOPFormatter=[FOPIndex,FSRIndex,FCRIndex,FIPIndex,fopRarelyUpdated](QString const& str)
 	{
