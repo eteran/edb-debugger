@@ -57,7 +57,6 @@ namespace ODbgRegisterView {
 // TODO: FSR: Set Condition: G,L,E,Unordered
 // TODO: Add option to show FPU in STi mode, both ST-ordered and R-ordered (physically)
 // TODO: Update register comments after editing values
-// TODO: Gray out empty FPU registers
 // TODO: Copy selected register on Ctrl+C and on corresponding menu action
 // TODO: Show shortcut keys (Enter, Ctrl+C etc.) in menu items
 
