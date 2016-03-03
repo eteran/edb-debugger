@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSignalMapper>
 #include <QSettings>
 #include <QClipboard>
+#include <QShortcut>
 #include <algorithm>
 #include <unordered_map>
 #include <QDebug>
@@ -87,6 +88,8 @@ static const int MODEL_COMMENT_COLUMN=RegisterViewModelBase::Model::COMMENT_COLU
 static const char* FSR_NAME="FSR";
 static const char* FCR_NAME="FCR";
 static const char* FTR_NAME="FTR";
+
+const QKeySequence copyFieldShortcut(Qt::CTRL|Qt::Key_C);
 
 template<typename T>
 inline T sqr(T v) { return v*v; }
@@ -331,6 +334,9 @@ ValueField::ValueField(int const fieldWidth,
 		menuItems.push_back(newAction(tr("Toggle"),this,this,SLOT(defaultAction())));
 		menuItems.back()->setShortcut(QKeySequence(Qt::Key_Enter));
 	}
+
+	menuItems.push_back(newAction(tr("Copy to clipboard"),this,this,SLOT(copyToClipboard())));
+	menuItems.back()->setShortcut(copyFieldShortcut);
 
 	if(index.sibling(index.row(),MODEL_NAME_COLUMN).data().toString()==FSR_NAME)
 	{
@@ -604,6 +610,11 @@ void ValueField::popFPUStack()
 {
 	assert(index.sibling(index.row(),MODEL_NAME_COLUMN).data().toString()==FSR_NAME);
 	addToTOP(model(),index,+1);
+}
+
+void ValueField::copyToClipboard() const
+{
+	QApplication::clipboard()->setText(text());
 }
 
 // -------------------------------- FPUValueField impl ---------------------------------
@@ -1062,6 +1073,14 @@ ODBRegView::ODBRegView(QString const& settingsGroup, QWidget* parent)
 			visibleGroupTypes.emplace_back(group);
 		}
 	}
+
+	connect(new QShortcut(copyFieldShortcut,this,0,0,Qt::WidgetShortcut),SIGNAL(activated()),this,SLOT(copyRegisterToClipboard()));
+}
+
+void ODBRegView::copyRegisterToClipboard() const
+{
+	auto* const selected=selectedField();
+	if(selected) selected->copyToClipboard();
 }
 
 DialogEditGPR* ODBRegView::gprEditDialog() const

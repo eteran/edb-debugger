@@ -100,6 +100,7 @@ private Q_SLOTS:
 	void modelReset();
 	void modelUpdated();
 	void copyAllRegisters();
+	void copyRegisterToClipboard() const;
 };
 
 class Canvas : public QWidget
@@ -191,6 +192,7 @@ public Q_SLOTS:
 	void select();
 	void unselect();
 	virtual void updatePalette();
+	void copyToClipboard() const;
 Q_SIGNALS:
 	void selected();
 };
