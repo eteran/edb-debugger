@@ -194,6 +194,7 @@ public Q_SLOTS:
 	virtual void updatePalette();
 	void copyToClipboard() const;
 	void setZero();
+	void setToOne();
 Q_SIGNALS:
 	void selected();
 };
