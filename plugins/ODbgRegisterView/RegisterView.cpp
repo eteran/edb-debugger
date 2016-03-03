@@ -326,22 +326,22 @@ ValueField::ValueField(int const fieldWidth,
 	if(index.data(Model::IsNormalRegisterRole).toBool() ||
 	   index.data(Model::IsSIMDElementRole).toBool())
 	{
-		menuItems.push_back(newAction(tr("Modify"),this,this,SLOT(defaultAction())));
+		menuItems.push_back(newAction(tr("&Modify..."),this,this,SLOT(defaultAction())));
 		menuItems.back()->setShortcut(QKeySequence(Qt::Key_Enter));
 	}
 	else if(index.data(Model::IsBitFieldRole).toBool() && index.data(Model::BitFieldLengthRole).toInt()==1)
 	{
-		menuItems.push_back(newAction(tr("Toggle"),this,this,SLOT(defaultAction())));
+		menuItems.push_back(newAction(tr("&Toggle"),this,this,SLOT(defaultAction())));
 		menuItems.back()->setShortcut(QKeySequence(Qt::Key_Enter));
 	}
 
-	menuItems.push_back(newAction(tr("Copy to clipboard"),this,this,SLOT(copyToClipboard())));
+	menuItems.push_back(newAction(tr("&Copy to clipboard"),this,this,SLOT(copyToClipboard())));
 	menuItems.back()->setShortcut(copyFieldShortcut);
 
 	if(index.sibling(index.row(),MODEL_NAME_COLUMN).data().toString()==FSR_NAME)
 	{
-		menuItems.push_back(newAction(tr("Push FPU stack"),this,this,SLOT(pushFPUStack())));
-		menuItems.push_back(newAction(tr("Pop FPU stack"),this,this,SLOT(popFPUStack())));
+		menuItems.push_back(newAction(tr("P&ush FPU stack"),this,this,SLOT(pushFPUStack())));
+		menuItems.push_back(newAction(tr("P&op FPU stack"),this,this,SLOT(popFPUStack())));
 	}
 }
 
