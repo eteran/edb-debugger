@@ -50,4 +50,6 @@ endif()
 add_subdirectory(src)
 add_subdirectory(plugins)
 
-install (FILES edb.1 DESTINATION ${CMAKE_INSTALL_MANDIR})
+install (FILES ${CMAKE_SOURCE_DIR}/edb.1 DESTINATION ${CMAKE_INSTALL_MANDIR})
+install (FILES ${CMAKE_SOURCE_DIR}/edb.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications/)
+install (FILES ${CMAKE_SOURCE_DIR}/src/images/edb48-logo.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pixmaps/)
