@@ -60,6 +60,7 @@ namespace ODbgRegisterView {
 // TODO: Update register comments after editing values
 // TODO: Add a way to add back register group to RegView
 // TODO: all TODOs scattered around sources
+// TODO: make it possible to transition from X-bit floats to X-bit words in SIMD view
 
 const constexpr auto registerGroupTypeNames=util::make_array<const char*>(
 			"GPR",
