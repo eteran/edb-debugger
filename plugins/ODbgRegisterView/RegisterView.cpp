@@ -326,7 +326,7 @@ ValueField::ValueField(int const fieldWidth,
 	if(index.data(Model::IsNormalRegisterRole).toBool() ||
 	   index.data(Model::IsSIMDElementRole).toBool())
 	{
-		menuItems.push_back(newAction(tr("&Modify..."),this,this,SLOT(defaultAction())));
+		menuItems.push_back(newAction(trUtf8("&Modify…"),this,this,SLOT(defaultAction())));
 		menuItems.back()->setShortcut(QKeySequence(Qt::Key_Enter));
 	}
 	else if(index.data(Model::IsBitFieldRole).toBool() && index.data(Model::BitFieldLengthRole).toInt()==1)
