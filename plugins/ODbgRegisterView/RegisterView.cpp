@@ -709,15 +709,16 @@ MultiBitFieldWidget::MultiBitFieldWidget( QModelIndex const& index,
 {
 	const auto mapper=new QSignalMapper(this);
 	connect(mapper,SIGNAL(mapped(int)),this,SLOT(setValue(int)));
-	for(std::size_t i=0;i<bfd.valueNames.size();++i)
+	menuItems.push_front(newActionSeparator(this));
+	for(std::size_t i=bfd.valueNames.size();i-->0;)
 	{
 		const auto& text=bfd.setValueTexts[i];
 		if(!text.isEmpty())
 		{
-			menuItems.push_back(newAction(text,this,mapper,i));
-			valueActions.push_back(menuItems.back());
+			menuItems.push_front(newAction(text,this,mapper,i));
+			valueActions.push_front(menuItems.front());
 		}
-		else valueActions.push_back(nullptr);
+		else valueActions.push_front(nullptr);
 	}
 }
 
