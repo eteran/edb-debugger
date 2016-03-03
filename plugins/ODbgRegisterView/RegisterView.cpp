@@ -89,6 +89,7 @@ static const int MODEL_COMMENT_COLUMN=RegisterViewModelBase::Model::COMMENT_COLU
 static const char* FSR_NAME="FSR";
 static const char* FCR_NAME="FCR";
 static const char* FTR_NAME="FTR";
+static const char* GPRCategoryName="General Purpose";
 
 const QKeySequence copyFieldShortcut(Qt::CTRL|Qt::Key_C);
 
@@ -343,6 +344,12 @@ ValueField::ValueField(int const fieldWidth,
 	{
 		menuItems.push_back(newAction(tr("P&ush FPU stack"),this,this,SLOT(pushFPUStack())));
 		menuItems.push_back(newAction(tr("P&op FPU stack"),this,this,SLOT(popFPUStack())));
+	}
+
+	if(index.parent().data().toString()==GPRCategoryName)
+	{
+		// These should be above others, so prepending instead of appending
+		menuItems.push_front(newAction(tr("&Zero"),this,this,SLOT(setZero())));
 	}
 }
 
@@ -616,6 +623,17 @@ void ValueField::popFPUStack()
 void ValueField::copyToClipboard() const
 {
 	QApplication::clipboard()->setText(text());
+}
+
+void ValueField::setZero()
+{
+	using RegisterViewModelBase::Model;
+	auto byteArr=index.data(Model::RawValueRole).toByteArray();
+	if(byteArr.isEmpty()) return;
+	std::uint64_t value(0);
+	assert(byteArr.size()<=int(sizeof value));
+	std::memcpy(byteArr.data(),&value,byteArr.size());
+	model()->setData(index,byteArr,Model::RawValueRole);
 }
 
 // -------------------------------- FPUValueField impl ---------------------------------
@@ -1869,7 +1887,7 @@ RegisterGroup* ODBRegView::makeGroup(RegisterGroupType type)
 	case RegisterGroupType::GPR:
 	{
 		groupName=tr("GPRs");
-		const auto catIndex=findModelCategory(model_,"General Purpose");
+		const auto catIndex=findModelCategory(model_,GPRCategoryName);
 		if(!catIndex.isValid()) break;
 		for(int row=0;row<model_->rowCount(catIndex);++row)
 			nameValCommentIndices.emplace_back(model_->index(row,MODEL_NAME_COLUMN,catIndex));

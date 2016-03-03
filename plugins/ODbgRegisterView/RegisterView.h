@@ -193,6 +193,7 @@ public Q_SLOTS:
 	void unselect();
 	virtual void updatePalette();
 	void copyToClipboard() const;
+	void setZero();
 Q_SIGNALS:
 	void selected();
 };
