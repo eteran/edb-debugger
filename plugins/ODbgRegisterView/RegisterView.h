@@ -195,6 +195,7 @@ public Q_SLOTS:
 	void copyToClipboard() const;
 	void setZero();
 	void setToOne();
+	void increment();
 Q_SIGNALS:
 	void selected();
 };

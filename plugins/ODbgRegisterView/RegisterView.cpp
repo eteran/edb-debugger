@@ -351,6 +351,7 @@ ValueField::ValueField(int const fieldWidth,
 		// These should be above others, so prepending instead of appending
 		menuItems.push_front(newAction(tr("Set to &1"),this,this,SLOT(setToOne())));
 		menuItems.push_front(newAction(tr("&Zero"),this,this,SLOT(setZero())));
+		menuItems.push_front(newAction(tr("&Increment"),this,this,SLOT(increment())));
 	}
 }
 
@@ -624,6 +625,19 @@ void ValueField::popFPUStack()
 void ValueField::copyToClipboard() const
 {
 	QApplication::clipboard()->setText(text());
+}
+
+void ValueField::increment()
+{
+	using RegisterViewModelBase::Model;
+	auto byteArr=index.data(Model::RawValueRole).toByteArray();
+	if(byteArr.isEmpty()) return;
+	std::uint64_t value(0);
+	assert(byteArr.size()<=int(sizeof value));
+	std::memcpy(&value,byteArr.constData(),byteArr.size());
+	++value;
+	std::memcpy(byteArr.data(),&value,byteArr.size());
+	model()->setData(index,byteArr,Model::RawValueRole);
 }
 
 void ValueField::setZero()
