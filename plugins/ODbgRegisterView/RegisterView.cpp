@@ -92,6 +92,9 @@ static const char* FTR_NAME="FTR";
 static const char* GPRCategoryName="General Purpose";
 
 const QKeySequence copyFieldShortcut(Qt::CTRL|Qt::Key_C);
+const Qt::Key setToZeroKey=Qt::Key_Z;
+const Qt::Key decrementKey=Qt::Key_Minus;
+const Qt::Key incrementKey=Qt::Key_Plus;
 
 template<typename T>
 inline T sqr(T v) { return v*v; }
@@ -350,9 +353,15 @@ ValueField::ValueField(int const fieldWidth,
 	{
 		// These should be above others, so prepending instead of appending
 		menuItems.push_front(setToOneAction=newAction(tr("Set to &1"),this,this,SLOT(setToOne())));
+
 		menuItems.push_front(setToZeroAction=newAction(tr("&Zero"),this,this,SLOT(setZero())));
+		menuItems.front()->setShortcut(QKeySequence(setToZeroKey));
+
 		menuItems.push_front(newAction(tr("&Decrement"),this,this,SLOT(decrement())));
+		menuItems.front()->setShortcut(QKeySequence(decrementKey));
+
 		menuItems.push_front(newAction(tr("&Increment"),this,this,SLOT(increment())));
+		menuItems.front()->setShortcut(QKeySequence(incrementKey));
 	}
 }
 
@@ -642,6 +651,9 @@ void ValueField::copyToClipboard() const
 
 void ValueField::decrement()
 {
+	if(index.parent().data().toString()!=GPRCategoryName)
+		return;
+
 	using RegisterViewModelBase::Model;
 	auto byteArr=index.data(Model::RawValueRole).toByteArray();
 	if(byteArr.isEmpty()) return;
@@ -655,6 +667,9 @@ void ValueField::decrement()
 
 void ValueField::increment()
 {
+	if(index.parent().data().toString()!=GPRCategoryName)
+		return;
+
 	using RegisterViewModelBase::Model;
 	auto byteArr=index.data(Model::RawValueRole).toByteArray();
 	if(byteArr.isEmpty()) return;
@@ -668,6 +683,9 @@ void ValueField::increment()
 
 void ValueField::setZero()
 {
+	if(index.parent().data().toString()!=GPRCategoryName)
+		return;
+
 	using RegisterViewModelBase::Model;
 	auto byteArr=index.data(Model::RawValueRole).toByteArray();
 	if(byteArr.isEmpty()) return;
@@ -679,6 +697,9 @@ void ValueField::setZero()
 
 void ValueField::setToOne()
 {
+	if(index.parent().data().toString()!=GPRCategoryName)
+		return;
+
 	using RegisterViewModelBase::Model;
 	auto byteArr=index.data(Model::RawValueRole).toByteArray();
 	if(byteArr.isEmpty()) return;
@@ -2336,6 +2357,27 @@ void ODBRegView::keyPressEvent(QKeyEvent* event)
 			selected->showMenu(selected->mapToGlobal(selected->rect().bottomLeft()));
 		else
 			showMenu(mapToGlobal(QPoint()));
+		break;
+	case setToZeroKey:
+		if(selected)
+		{
+			selected->setZero();
+			return;
+		}
+		break;
+	case incrementKey:
+		if(selected)
+		{
+			selected->increment();
+			return;
+		}
+		break;
+	case decrementKey:
+		if(selected)
+		{
+			selected->decrement();
+			return;
+		}
 		break;
 	}
 	QScrollArea::keyPressEvent(event);
