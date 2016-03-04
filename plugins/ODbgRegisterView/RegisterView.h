@@ -149,6 +149,10 @@ class ValueField : public FieldWidget
 	bool selected_=false;
 	bool hovered_=false;
 	std::function<QString(QString)> valueFormatter;
+
+	// For GPR
+	QAction* setToZeroAction=nullptr;
+	QAction* setToOneAction=nullptr;
 protected:
 	QList<QAction*> menuItems;
 

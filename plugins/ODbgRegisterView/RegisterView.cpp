@@ -349,8 +349,8 @@ ValueField::ValueField(int const fieldWidth,
 	if(index.parent().data().toString()==GPRCategoryName)
 	{
 		// These should be above others, so prepending instead of appending
-		menuItems.push_front(newAction(tr("Set to &1"),this,this,SLOT(setToOne())));
-		menuItems.push_front(newAction(tr("&Zero"),this,this,SLOT(setZero())));
+		menuItems.push_front(setToOneAction=newAction(tr("Set to &1"),this,this,SLOT(setToOne())));
+		menuItems.push_front(setToZeroAction=newAction(tr("&Zero"),this,this,SLOT(setZero())));
 		menuItems.push_front(newAction(tr("&Decrement"),this,this,SLOT(decrement())));
 		menuItems.push_front(newAction(tr("&Increment"),this,this,SLOT(increment())));
 	}
@@ -509,6 +509,18 @@ void ValueField::defaultAction()
 
 void ValueField::adjustToData()
 {
+	if(index.parent().data().toString()==GPRCategoryName)
+	{
+		using RegisterViewModelBase::Model;
+		auto byteArr=index.data(Model::RawValueRole).toByteArray();
+		if(byteArr.isEmpty()) return;
+		std::uint64_t value(0);
+		assert(byteArr.size()<=int(sizeof value));
+		std::memcpy(&value,byteArr.constData(),byteArr.size());
+
+		setToOneAction->setVisible(value!=1u);
+		setToZeroAction->setVisible(value!=0u);
+	}
 	FieldWidget::adjustToData();
 	updatePalette();
 }
