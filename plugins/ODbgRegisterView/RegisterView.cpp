@@ -59,7 +59,6 @@ namespace ODbgRegisterView {
 // TODO: Update register comments after editing values
 // TODO: Add a way to add back register group to RegView
 // TODO: all TODOs scattered around sources
-// TODO: make it possible to transition from X-bit floats to X-bit words in SIMD view
 // TODO: "Undo" action, which returns to the state after last stopping of debuggee (visible only if register has been modified by the user)
 
 const constexpr auto registerGroupTypeNames=util::make_array<const char*>(
@@ -2219,13 +2218,15 @@ void SIMDValueManager::updateMenu()
 	case Model::ElementSize::BYTE:  menuItems[VIEW_AS_BYTES ]->setVisible(false); break;
 	case Model::ElementSize::WORD:  menuItems[VIEW_AS_WORDS ]->setVisible(false); break;
 	case Model::ElementSize::DWORD:
-		menuItems[VIEW_AS_DWORDS]->setVisible(false);
-		if(currentFormat()==NumberDisplayMode::Float)
+		if(currentFormat()!=NumberDisplayMode::Float)
+			menuItems[VIEW_AS_DWORDS]->setVisible(false);
+		else
 			menuItems[VIEW_AS_FLOAT32]->setVisible(false);
 		break;
 	case Model::ElementSize::QWORD:
-		menuItems[VIEW_AS_QWORDS]->setVisible(false);
-		if(currentFormat()==NumberDisplayMode::Float)
+		if(currentFormat()!=NumberDisplayMode::Float)
+			menuItems[VIEW_AS_QWORDS]->setVisible(false);
+		else
 			menuItems[VIEW_AS_FLOAT64]->setVisible(false);
 		break;
 	default: EDB_PRINT_AND_DIE("Unexpected current size: ",currentSize());
