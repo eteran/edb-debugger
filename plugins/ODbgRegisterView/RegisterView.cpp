@@ -53,7 +53,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-// TODO: GPR menu: Increment, Decrement, Invert, Zero(if not already), Set to 1(if not already)
 // TODO: rFLAGS menu: Set Condition (O,P,NAE etc. - see ODB)
 // TODO: FSR: Set Condition: G,L,E,Unordered
 // TODO: Add option to show FPU in STi mode, both ST-ordered and R-ordered (physically)
@@ -61,6 +60,7 @@ namespace ODbgRegisterView {
 // TODO: Add a way to add back register group to RegView
 // TODO: all TODOs scattered around sources
 // TODO: make it possible to transition from X-bit floats to X-bit words in SIMD view
+// TODO: "Undo" action, which returns to the state after last stopping of debuggee (visible only if register has been modified by the user)
 
 const constexpr auto registerGroupTypeNames=util::make_array<const char*>(
 			"GPR",
