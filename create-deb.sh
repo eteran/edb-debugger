@@ -33,7 +33,7 @@ if [ ! -z $(ldd $BUILD_DIR/edb | grep "libQt5") ]; then
 	#TODO(eteran): figure out the proper deps for Qt5 on Ubuntu/Debian
 	DEPENDS="libqt5core5a (>= 5.0.0), libqt5gui5 (>= 5.0.0)"
 else
-	DEPENDS="libqtcore4 (>= 4.5.0), libqtgui4 (>= 4.5.0)"
+	DEPENDS="libqtcore4 (>= 4.6.0), libqtgui4 (>= 4.6.0)"
 fi
 
 
