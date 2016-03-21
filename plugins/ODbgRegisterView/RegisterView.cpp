@@ -53,6 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
+// TODO: GPR: Negate, Invert
 // TODO: rFLAGS menu: Set Condition (O,P,NAE etc. - see ODB)
 // TODO: FSR: Set Condition: G,L,E,Unordered
 // TODO: Add option to show FPU in STi mode, both ST-ordered and R-ordered (physically)
