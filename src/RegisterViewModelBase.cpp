@@ -1,18 +1,31 @@
 #include "RegisterViewModelBase.h"
-#include <QString>
-#include <cstdint>
-#include <algorithm>
-#include "Types.h"
-#include <QBrush>
-#include <QSettings>
-#include "Util.h"
-#include <QDebug>
-#include <boost/range/adaptor/reversed.hpp>
 #include "edb.h"
 #include "IDebugger.h"
 #include "State.h"
+#include "Types.h"
+#include "Util.h"
 
-#define CHECKED_CAST(TYPE,OBJECT) (Q_ASSERT(dynamic_cast<TYPE*>(OBJECT)),static_cast<TYPE*>(OBJECT))
+#include <algorithm>
+#include <boost/range/adaptor/reversed.hpp>
+#include <cstdint>
+#include <QBrush>
+#include <QDebug>
+#include <QSettings>
+#include <QString>
+#include <QtGlobal>
+
+
+#define CHECKED_CAST(TYPE,OBJECT) checked_cast<TYPE>(OBJECT)
+
+namespace {
+
+template <class T1, class T2>
+T1* checked_cast(T2 object) {
+	Q_ASSERT(dynamic_cast<T1*>(object));
+	return static_cast<T1*>(object);
+}
+
+}
 
 namespace RegisterViewModelBase
 {
@@ -337,7 +350,7 @@ bool Model::setData(QModelIndex const& index, QVariant const& data, int role)
 	case RawValueRole:
 		if(this->data(index,IsNormalRegisterRole).toBool())
 		{
-			auto*const reg=CHECKED_CAST(AbstractRegisterItem,item);
+			auto*const reg=checked_cast<AbstractRegisterItem>(item);
 			if(role==Qt::EditRole && data.type()==QVariant::String)
 				ok=reg->setValue(data.toString());
 			else if(data.type()==QVariant::ByteArray)
@@ -346,7 +359,7 @@ bool Model::setData(QModelIndex const& index, QVariant const& data, int role)
 		break;
 	case ValueAsRegisterRole:
 	{
-		auto*const regItem=CHECKED_CAST(AbstractRegisterItem,item);
+		auto*const regItem=checked_cast<AbstractRegisterItem>(item);
 		assert(data.isValid());
 		assert(index.isValid());
 		const auto name=index.sibling(index.row(),NAME_COLUMN).data().toString();
@@ -692,7 +705,7 @@ BitFieldItem<UnderlyingType>::BitFieldItem(BitFieldDescription const& descr)
 template<typename UnderlyingType>
 FlagsRegister<UnderlyingType>* BitFieldItem<UnderlyingType>::reg() const
 {
-	return CHECKED_CAST(FlagsRegister<UnderlyingType>,this->parent());
+	return checked_cast<FlagsRegister<UnderlyingType>>(this->parent());
 }
 
 template<typename UnderlyingType>
@@ -954,7 +967,7 @@ int SIMDSizedElement<StoredType,SizingType>::childCount() const
 template<class StoredType, class SizingType>
 SIMDRegister<StoredType>* SIMDSizedElement<StoredType,SizingType>::reg() const
 {
-	return CHECKED_CAST(SIMDRegister<StoredType>,this->parent()->parent());
+	return checked_cast<SIMDRegister<StoredType>>(this->parent()->parent());
 }
 
 template<class StoredType, class SizingType>
@@ -1143,7 +1156,7 @@ template<class StoredType>
 SIMDCategory* SIMDRegister<StoredType>::category() const
 {
 	const auto cat=this->parent();
-	return CHECKED_CAST(SIMDCategory,cat);
+	return checked_cast<SIMDCategory>(cat);
 }
 
 template<class StoredType>
@@ -1219,7 +1232,7 @@ template<class FloatType>
 FPUCategory* FPURegister<FloatType>::category() const
 {
 	const auto cat=this->parent();
-	return CHECKED_CAST(FPUCategory,cat);
+	return checked_cast<FPUCategory>(cat);
 }
 
 template<class FloatType>
