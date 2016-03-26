@@ -201,6 +201,7 @@ public Q_SLOTS:
 	void setToOne();
 	void increment();
 	void decrement();
+	void invert();
 Q_SIGNALS:
 	void selected();
 };

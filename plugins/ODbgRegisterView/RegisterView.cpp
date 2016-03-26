@@ -53,7 +53,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-// TODO: GPR: Negate, Invert
 // TODO: rFLAGS menu: Set Condition (O,P,NAE etc. - see ODB)
 // TODO: FSR: Set Condition: G,L,E,Unordered
 // TODO: Add option to show FPU in STi mode, both ST-ordered and R-ordered (physically)
@@ -352,6 +351,8 @@ ValueField::ValueField(int const fieldWidth,
 	if(index.parent().data().toString()==GPRCategoryName)
 	{
 		// These should be above others, so prepending instead of appending
+		menuItems.push_front(newAction(tr("In&vert"),this,this,SLOT(invert())));
+
 		menuItems.push_front(setToOneAction=newAction(tr("Set to &1"),this,this,SLOT(setToOne())));
 
 		menuItems.push_front(setToZeroAction=newAction(tr("&Zero"),this,this,SLOT(setZero())));
@@ -677,6 +678,22 @@ void ValueField::increment()
 	assert(byteArr.size()<=int(sizeof value));
 	std::memcpy(&value,byteArr.constData(),byteArr.size());
 	++value;
+	std::memcpy(byteArr.data(),&value,byteArr.size());
+	model()->setData(index,byteArr,Model::RawValueRole);
+}
+
+void ValueField::invert()
+{
+	if(index.parent().data().toString()!=GPRCategoryName)
+		return;
+
+	using RegisterViewModelBase::Model;
+	auto byteArr=index.data(Model::RawValueRole).toByteArray();
+	if(byteArr.isEmpty()) return;
+	std::uint64_t value(0);
+	assert(byteArr.size()<=int(sizeof value));
+	std::memcpy(&value,byteArr.constData(),byteArr.size());
+	value=~value;
 	std::memcpy(byteArr.data(),&value,byteArr.size());
 	model()->setData(index,byteArr,Model::RawValueRole);
 }
