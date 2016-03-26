@@ -38,6 +38,7 @@ public:
 public Q_SLOTS:
 	void on_instructionsBeforeIP_valueChanged(int i);
 	void on_instructionsAfterIP_valueChanged(int i);
+	void on_colorizeOutput_toggled(bool value);
 
 private:
 	Ui::OptionsPage *const ui;

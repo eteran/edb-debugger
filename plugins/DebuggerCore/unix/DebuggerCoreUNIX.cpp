@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCoreUNIX.h"
 #include "edb.h"
 
+#include <QProcess>
 #include <QStringList>
 #include <cerrno>
 #include <climits>
@@ -32,28 +33,53 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/wait.h>
 #include <unistd.h>
 
+#ifdef __linux__
+#include <linux/version.h>
+// being very conservative for now, technicall this could be 
+// as low as 2.6.22
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,0)
+#define USE_SIGTIMEDWAIT
+#endif
+#endif
+
 namespace DebuggerCore {
 
+#if !defined(USE_SIGTIMEDWAIT)
 namespace {
 
 int selfpipe[2];
-void (*old_sigchld_handler)(int sig, siginfo_t *, void *);
+struct sigaction old_action;
 
 //------------------------------------------------------------------------------
 // Name: sigchld_handler
 // Desc:
 //------------------------------------------------------------------------------
 void sigchld_handler(int sig, siginfo_t *info, void *p) {
+
 	if(sig == SIGCHLD) {
 		native::write(selfpipe[1], " ", sizeof(char));
 	}
 
-	if(old_sigchld_handler) {
-		old_sigchld_handler(sig, info, p);
-	}
+    // load as volatile
+    volatile struct sigaction *vsa = &old_action;
+
+    if (old_action.sa_flags & SA_SIGINFO) {
+        void (*oldAction)(int, siginfo_t *, void *) = vsa->sa_sigaction;
+
+        if (oldAction) {
+            oldAction(sig, info, p);
+		}
+    } else {
+        void (*oldAction)(int) = vsa->sa_handler;
+
+        if (oldAction && oldAction != SIG_IGN) {
+            oldAction(sig);
+		}
+    }
 }
 
 }
+#endif
 
 //------------------------------------------------------------------------------
 // Name: read
@@ -126,7 +152,7 @@ int native::select_ex(int nfds, fd_set *readfds, fd_set *writefds, fd_set *excep
 // Desc:
 //------------------------------------------------------------------------------
 bool native::wait_for_sigchld(int msecs) {
-
+#if !defined(USE_SIGTIMEDWAIT)
 	fd_set rfds;
     FD_ZERO(&rfds);
     FD_SET(selfpipe[0], &rfds);
@@ -141,24 +167,19 @@ bool native::wait_for_sigchld(int msecs) {
 	}
 
 	return false;
-}
+#else
+	sigset_t mask;
+	siginfo_t info;
+	struct timespec ts;
+    ts.tv_sec  = (msecs / 1000);
+    ts.tv_nsec = (msecs % 1000) * 1000000;
 
-//------------------------------------------------------------------------------
-// Name: waitpid_timeout
-// Desc:
-//------------------------------------------------------------------------------
-pid_t native::waitpid_timeout(pid_t pid, int *status, int options, int msecs, bool *timeout) {
 
-	Q_ASSERT(pid > 0);
-	Q_ASSERT(timeout);
-
-	*timeout = wait_for_sigchld(msecs);
-
-	if(!*timeout) {
-		return native::waitpid(pid, status, options | WNOHANG);
-	}
-
-	return -1;
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGCHLD);
+	
+	return sigtimedwait(&mask, &info, &ts) == SIGCHLD;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -166,6 +187,16 @@ pid_t native::waitpid_timeout(pid_t pid, int *status, int options, int msecs, bo
 // Desc:
 //------------------------------------------------------------------------------
 DebuggerCoreUNIX::DebuggerCoreUNIX() {
+#if !defined(USE_SIGTIMEDWAIT)
+#if QT_VERSION >= 0x050000
+	// HACK(eteran): so, the first time we create a QProcess, it will hook SIGCHLD
+	//               unfortunately, in Qt5 it doesn't seem to call our handler
+	//               so we do this to force it to hook BEFORE we do, letting us
+	//               get the first crack at the signal, then we call the one that
+	//               Qt installed.
+	auto p = new QProcess(0);
+	p->start("/bin/true");
+#endif
 
 	// create a pipe and make it non-blocking
 	int r = ::pipe(selfpipe);
@@ -175,20 +206,19 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 	::fcntl(selfpipe[1], F_SETFL, ::fcntl(selfpipe[1], F_GETFL) | O_NONBLOCK);
 
 	// setup a signal handler
-	struct sigaction new_action;
-	struct sigaction old_action;
-
-	std::memset(&new_action, 0, sizeof(new_action));
-	std::memset(&old_action, 0, sizeof(old_action));
+	struct sigaction new_action = {};
+	
 
 	new_action.sa_sigaction = sigchld_handler;
 	new_action.sa_flags     = SA_RESTART | SA_SIGINFO;
+	sigemptyset(&new_action.sa_mask);
 
 	sigaction(SIGCHLD, &new_action, &old_action);
-
-	old_sigchld_handler = old_action.sa_sigaction;
+#else
+	// TODO(eteran): the man pages mention blocking the signal was want to catch
+	//               but I'm not if it is necessary for this use case...
+#endif
 }
-
 
 //------------------------------------------------------------------------------
 // Name: execute_process

@@ -812,11 +812,13 @@ ArchProcessor::ArchProcessor() {
 		has_mmx_ = edb::v1::debugger_core->has_extension(edb::string_hash("MMX"));
 		has_xmm_ = edb::v1::debugger_core->has_extension(edb::string_hash("XMM"));
 		has_ymm_ = edb::v1::debugger_core->has_extension(edb::string_hash("YMM"));
+		connect(edb::v1::debugger_ui, SIGNAL(attachEvent()), this, SLOT(just_attached()));
 	} else {
 		has_mmx_ = false;
 		has_xmm_ = false;
 		has_ymm_ = false;
 	}
+
 }
 
 //------------------------------------------------------------------------------

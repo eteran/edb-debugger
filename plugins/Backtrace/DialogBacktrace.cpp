@@ -31,6 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define CALLER_COLUMN 0
 #define RETURN_COLUMN 1
 
+namespace Backtrace {
+
 //------------------------------------------------------------------------------
 // Name: DialogBacktrace
 // Desc: Initializes the Dialog with its QTableWidget.  This class over all is
@@ -45,6 +47,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 DialogBacktrace::DialogBacktrace(QWidget *parent) : QDialog(parent), ui(new Ui::DialogBacktrace) {
 	ui->setupUi(this);
 	table_ = ui->tableWidgetCallStack;
+	
+	
+	table_->verticalHeader()->hide();
+#if QT_VERSION >= 0x050000
+	table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+#else
+	table_->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+#endif
 }
 
 DialogBacktrace::~DialogBacktrace() {
@@ -118,9 +128,8 @@ void DialogBacktrace::populate_table() {
 		for (int j = 0; j < stack_entry.size() && j < table_->columnCount(); j++) {
 
 			//Turn the address into a string prefixed with "0x"
-			int base = 16;
 			auto item = new QTableWidgetItem;
-			item->setText(QString("0x") + QString::number(stack_entry.at(j), base));
+			item->setText(QString("0x%1").arg(QString::number(stack_entry.at(j), 16)));
 
 			//Remove all flags (namely Edit), then put the flags that we want.
 			Qt::ItemFlags flags = Qt::NoItemFlags;
@@ -206,9 +215,7 @@ void DialogBacktrace::on_pushButtonReturnTo_clicked()
 	//If we didn't get a valid address, then fail.
 	//TODO: Make sure "ok" actually signifies success of getting an address...
 	if (!ok) {
-		int base = 16;
-		QString msg("Could not return to 0x%x" + QString::number(address, base));
-		QMessageBox::information( this,	"Error", msg);
+		QMessageBox::information(this, tr("Error"), tr("Could not return to 0x%1").arg(QString::number(address, 16)));
 		return;
 	}
 	
@@ -266,4 +273,6 @@ edb::address_t DialogBacktrace::address_from_table(bool *ok, const QTableWidgetI
 	ExpressionError err;
 	const edb::address_t address = expr.evaluate_expression(ok, &err);
 	return address;
+}
+
 }

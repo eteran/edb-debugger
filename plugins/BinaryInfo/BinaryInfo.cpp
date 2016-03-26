@@ -118,10 +118,10 @@ QString BinaryInfo::extra_arguments() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: parse_argments
+// Name: parse_arguments
 // Desc:
 //------------------------------------------------------------------------------
-IPlugin::ArgumentStatus BinaryInfo::parse_argments(QStringList &args) {
+IPlugin::ArgumentStatus BinaryInfo::parse_arguments(QStringList &args) {
 
 	if(args.size() == 3 && args[1] == "--symbols") {
 		generate_symbols(args[2]);

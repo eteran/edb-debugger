@@ -47,7 +47,7 @@ struct WidgetState1 {
 	int version;
 	int line1;
 	int line2;
-	int line3;	
+	int line3;
 };
 
 const int default_byte_width   = 8;
@@ -529,7 +529,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 	const bool is_filling = edb::v1::arch_processor().is_filling(inst);
 	int x                 = font_width_ + font_width_ + l2 + (font_width_ / 2);
 	const int ret         = inst.size();
-	
+
 	if(inst) {
 		QString opcode = QString::fromStdString(edb::v1::formatter().to_string(inst));
 
@@ -554,7 +554,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 					const edb::Operand &oper = inst.operands()[0];
 					if(oper.general_type() == edb::Operand::TYPE_REL) {
 						const edb::address_t target = oper.relative_target();
-						
+
 						const QString sym = edb::v1::symbol_manager().find_address_name(target);
 						if(!sym.isEmpty()) {
 							opcode.append(QString(" <%2>").arg(sym));
@@ -719,7 +719,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	if(region_size == 0) {
 		return;
 	}
-	
+
 	show_addresses_.clear();
 	show_addresses_.insert(address_offset_ + current_line);
 
@@ -730,11 +730,11 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	const QPen address_pen(Qt::red);
 
 	IAnalyzer *const analyzer = edb::v1::analyzer();
-	
+
 	auto binary_info = edb::v1::get_binary_info(region_);
 
 	edb::address_t last_address = 0;
-	
+
 	// TODO: read larger chunks of data at a time
 	//       my gut tells me that 2 pages is probably enough
 	//       perhaps a page-cache in general using QCache
@@ -784,7 +784,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 #if 1
 		// highlight header of binary
-		if(binary_info && address >= region_->start() && address - region_->start() < binary_info->header_size()) {		
+		if(binary_info && address >= region_->start() && address - region_->start() < binary_info->header_size()) {
 			painter.fillRect(0, y, width(), line_height, QBrush(Qt::lightGray));
 		} else
 #endif
@@ -875,7 +875,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 					font_width_,
 					line_height,
 					Qt::AlignVCenter,
-					QString((target > address) ? QChar(0x02C7) : QChar(0x02C6))
+					QString((target > address) ? QChar(0x2304) : QChar(0x2303))
 					);
 			}
 		}
@@ -1142,9 +1142,9 @@ bool QDisassemblyView::event(QEvent *event) {
 				int buf_size = qMin<edb::address_t>((region_->end() - address), sizeof(buf));
 				if(edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
 					const edb::Instruction inst(buf, buf + buf_size, address);
+					const QString byte_buffer = format_instruction_bytes(inst);
 
-					if((line1() + (static_cast<int>(inst.size()) * 3) * font_width_) > line2()) {
-						const QString byte_buffer = format_instruction_bytes(inst);
+					if((line1() + byte_buffer.size() * font_width_) > line2()) {
 						QToolTip::showText(helpEvent->globalPos(), byte_buffer);
 						show = true;
 					}
@@ -1152,7 +1152,9 @@ bool QDisassemblyView::event(QEvent *event) {
 			}
 
 			if(!show) {
-				QToolTip::showText(helpEvent->globalPos(), QString());
+				QToolTip::showText(QPoint(), QString());
+				event->ignore();
+				return true;
 			}
 		}
 	}
@@ -1183,7 +1185,7 @@ void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 
-	if(region_) {		
+	if(region_) {
 		setSelectedAddress(addressFromPoint(event->pos()));
 	}
 }
@@ -1280,7 +1282,7 @@ void QDisassemblyView::setSelectedAddress(edb::address_t address) {
 			selected_instruction_address_ = 0;
 			selected_instruction_size_    = 0;
 		}
-		
+
 		update();
 	}
 }
@@ -1335,7 +1337,7 @@ void QDisassemblyView::clear_comments() {
 
 //------------------------------------------------------------------------------
 // Name: saveState
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 QByteArray QDisassemblyView::saveState() const {
 
@@ -1345,24 +1347,24 @@ QByteArray QDisassemblyView::saveState() const {
 		line2_,
 		line3_
 	};
-	
+
 	char buf[sizeof(WidgetState1)];
 	memcpy(buf, &state, sizeof(buf));
-	
+
 	return QByteArray(buf, sizeof(buf));
 }
 
 //------------------------------------------------------------------------------
 // Name: restoreState
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::restoreState(const QByteArray &stateBuffer) {
 
 	WidgetState1 state;
-	
+
 	if(stateBuffer.size() >= static_cast<int>(sizeof(WidgetState1))) {
 		memcpy(&state, stateBuffer.data(), sizeof(WidgetState1));
-		
+
 		if(state.version >= static_cast<int>(sizeof(WidgetState1))) {
 			line1_ = state.line1;
 			line2_ = state.line2;

@@ -205,7 +205,7 @@ int main(int argc, char *argv[]) {
 	for(QObject *plugin: edb::v1::plugin_list()) {
 		if(auto p = qobject_cast<IPlugin *>(plugin)) {
 
-			const IPlugin::ArgumentStatus r = p->parse_argments(args);
+			const IPlugin::ArgumentStatus r = p->parse_arguments(args);
 			switch(r) {
 			case IPlugin::ARG_ERROR:
 				usage();

@@ -36,6 +36,7 @@ public:
 
 private Q_SLOTS:
 	void on_thread_table_doubleClicked(const QModelIndex &index);
+	void updateThreads();
 
 public:
 	void showEvent(QShowEvent *);

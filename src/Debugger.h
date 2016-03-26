@@ -100,6 +100,12 @@ public:
 
 Q_SIGNALS:
 	void gui_updated();
+	
+	// TODO(eteran): maybe this is better off as a single event
+	//               with a type passed?
+	void debugEvent();
+	void detachEvent();
+	void attachEvent();
 
 public Q_SLOTS:
 	// the autoconnected slots

@@ -39,8 +39,14 @@
 Compiled: %2
 Git Commit: %3</string>
        </property>
+       <property name="textFormat">
+        <enum>Qt::RichText</enum>
+       </property>
        <property name="alignment">
         <set>Qt::AlignRight|Qt::AlignTop|Qt::AlignTrailing</set>
+       </property>
+       <property name="openExternalLinks">
+        <bool>true</bool>
        </property>
       </widget>
      </item>

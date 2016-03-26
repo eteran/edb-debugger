@@ -49,6 +49,7 @@ void OptionsPage::showEvent(QShowEvent *event) {
 	QSettings settings;
 	ui->instructionsBeforeIP->setValue(settings.value("DumpState/instructions_before_ip", 0).toInt());
 	ui->instructionsAfterIP->setValue(settings.value("DumpState/instructions_after_ip", 5).toInt());
+	ui->colorizeOutput->setChecked(settings.value("DumpState/colorize", true).toBool());
 }
 
 //------------------------------------------------------------------------------
@@ -67,6 +68,15 @@ void OptionsPage::on_instructionsBeforeIP_valueChanged(int i) {
 void OptionsPage::on_instructionsAfterIP_valueChanged(int i) {
 	QSettings settings;
 	settings.setValue("DumpState/instructions_after_ip", i);
+}
+
+//------------------------------------------------------------------------------
+// Name: on_colorizeOutput_toggled
+// Desc:
+//------------------------------------------------------------------------------
+void OptionsPage::on_colorizeOutput_toggled(bool value) {
+	QSettings settings;
+	settings.setValue("DumpState/colorize", value);
 }
 
 }

@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "edb.h"
 #include <QCoreApplication>
+#include <QDesktopServices>
 #include <QtDebug>
 #include <QSettings>
 #include <QDir>
@@ -106,9 +107,16 @@ void Configuration::read_settings() {
 	settings.endGroup();
 
 	settings.beginGroup("Directories");
-	symbol_path  = settings.value("directory.symbol.path", QString()).value<QString>();
+#if QT_VERSION >= 0x050000
+	QStringList cacheDirectories = QStandardPaths::standardLocations(QStandardPaths::CacheLocation);
+	QString cacheDirectory = !cacheDirectories.isEmpty() ? cacheDirectories[0] : QString();
+#else
+	QString cacheDirectory = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
+#endif
+	QString defaultSymbolPath = QString("%1/%2").arg(cacheDirectory, "symbols");
+	symbol_path  = settings.value("directory.symbol.path", defaultSymbolPath).value<QString>();
 	plugin_path  = settings.value("directory.plugin.path", default_plugin_path).value<QString>();
-	session_path = settings.value("directory.session.path", QString()).value<QString>();
+	session_path = settings.value("directory.session.path", QString()).value<QString>();	
 	settings.endGroup();
 
 	settings.beginGroup("Exceptions");

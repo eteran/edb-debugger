@@ -42,6 +42,7 @@ private:
 
 public Q_SLOTS:
 	void on_filter_uid_clicked(bool checked);
+	void on_filter_textChanged(const QString &filter);
 
 public:
 	edb::pid_t selected_pid(bool *ok) const;
@@ -49,7 +50,8 @@ public:
 private:
 	Ui::DialogAttach *const ui;
 	ProcessModel          *process_model_;
-	QSortFilterProxyModel *process_filter_;
+	QSortFilterProxyModel *process_name_filter_;
+	QSortFilterProxyModel *process_pid_filter_;
 };
 
 #endif

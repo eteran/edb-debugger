@@ -46,7 +46,6 @@ public:
 	bool is_filling(const edb::Instruction &inst) const;
 	void reset();
 	void about_to_resume();
-	void just_attached();
 	void setup_register_view();
 	void update_register_view(const QString &default_region_name, const State &state);
 	std::unique_ptr<QMenu> register_item_context_menu(const Register& reg);
@@ -72,6 +71,7 @@ private:
 	bool has_ymm_;
 
 private Q_SLOTS:
+	void just_attached();
 };
 
 #endif

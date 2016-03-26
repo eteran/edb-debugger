@@ -7,8 +7,6 @@ if (NOT QT_VERSION)
 	SET_PROPERTY(CACHE QT_VERSION PROPERTY STRINGS Qt5 Qt4) 
 endif()
 
-option(ENABLE_GRAPHVIZ "Enable Graphviz" "ON")
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${CMAKE_SOURCE_DIR}/cmake/Modules/")
 
 project (edb)
@@ -16,6 +14,7 @@ include("GNUInstallDirs")
 
 find_package(Boost 1.35 REQUIRED)
 find_package(PkgConfig REQUIRED)
+
 pkg_check_modules(CAPSTONE REQUIRED capstone>=3.0.4)
 include_directories(${CAPSTONE_INCLUDE_DIRS})
 link_directories(${CAPSTONE_LIBRARY_DIRS})
@@ -26,12 +25,12 @@ set(TARGET_VERSION_MINOR "9")
 set(TARGET_VERSION_PATCH "21")
 
 
-if(${ENABLE_GRAPHVIZ})
-	find_package(GraphViz)
-endif()
-
+# TODO(eteran): how lowe can we make this
+pkg_check_modules(GRAPHVIZ libgvc>=2.38.0)
 if(${GRAPHVIZ_FOUND})
-	include_directories(${GRAPHVIZ_INCLUDE})
+	include_directories(${GRAPHVIZ_INCLUDE_DIRS})
+	link_directories(${GRAPHVIZ_LIBRARY_DIRS})
+	add_definitions(-DENABLE_GRAPH)
 endif()
 
 if(${QT_VERSION} STREQUAL "Qt5")
@@ -51,4 +50,6 @@ endif()
 add_subdirectory(src)
 add_subdirectory(plugins)
 
-install (FILES edb.1 DESTINATION ${CMAKE_INSTALL_MANDIR})
+install (FILES ${CMAKE_SOURCE_DIR}/edb.1 DESTINATION ${CMAKE_INSTALL_MANDIR})
+install (FILES ${CMAKE_SOURCE_DIR}/edb.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications/)
+install (FILES ${CMAKE_SOURCE_DIR}/src/images/edb48-logo.png DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/pixmaps/)

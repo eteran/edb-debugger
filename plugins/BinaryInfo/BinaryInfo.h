@@ -46,7 +46,7 @@ private:
 public:
 	virtual QMenu *menu(QWidget *parent = 0);
 	virtual QString extra_arguments() const;
-	virtual ArgumentStatus parse_argments(QStringList &args);
+	virtual ArgumentStatus parse_arguments(QStringList &args);
 	
 public:
 	virtual bool generate_symbol_file(const QString &filename, const QString &symbol_file);

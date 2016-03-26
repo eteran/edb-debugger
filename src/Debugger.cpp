@@ -554,7 +554,7 @@ QString Debugger::create_tty() {
 					timeout.tv_sec  = 2;
 					timeout.tv_usec = 0;
 
-					char buf[256];
+					char buf[256] = {};
 					const int rv = select(fd + 1, &set, nullptr, nullptr, &timeout);
 					switch(rv) {
 					case -1:
@@ -2592,6 +2592,8 @@ void Debugger::cleanup_debugger() {
 
 	Q_ASSERT(!data_regions_.isEmpty());
 	data_regions_.first()->region = IRegion::pointer();
+	
+	Q_EMIT(detachEvent());
 
 	setWindowTitle(tr("edb"));
 
@@ -2604,15 +2606,31 @@ void Debugger::cleanup_debugger() {
 //------------------------------------------------------------------------------
 QString Debugger::session_filename() const {
 
+	static bool show_path_notice = true;
+
 	QString session_path = edb::v1::config().session_path;
 	if(session_path.isEmpty()) {
-		qDebug() << "No session path specified, Using current working directory.";
-		session_path = QDir().absolutePath();
+		if(show_path_notice) {
+			qDebug() << "No session path specified. Please set it in the preferences to enable sessions.";
+			show_path_notice = false;
+		}
+		return QString();
 	}
 
 	if(!program_executable_.isEmpty()) {
-		const QFileInfo info(program_executable_);
-		return QString(QLatin1String("%1/%2.edb")).arg(session_path, info.fileName());
+		QFileInfo info(program_executable_);
+
+		if(info.isRelative()) {
+			info.makeAbsolute();
+		}
+
+		const QString path = QString("%1/%2").arg(session_path, info.absolutePath());
+		const QString name = info.fileName();
+
+		// ensure that the sub-directory exists
+		QDir().mkpath(path);
+
+		return QString(QLatin1String("%1/%2.edb")).arg(path, name);
 	}
 
 	return QString();
@@ -2929,7 +2947,7 @@ void Debugger::attachComplete() {
 	stackPushAction_   ->setText(tr("&Push %1").arg(word));
 	stackPopAction_    ->setText(tr("P&op %1").arg(word));
 
-	edb::v1::arch_processor().just_attached();
+	Q_EMIT(attachEvent());
 }
 
 //------------------------------------------------------------------------------
@@ -2944,7 +2962,7 @@ void Debugger::on_action_Open_triggered() {
 	static auto* dialog = new DialogOpenProgram(this,
 												tr("Choose a file"),
 												last_open_directory_);
-	if(dialog->exec()==QDialog::Accepted) {
+	if(dialog->exec() == QDialog::Accepted) {
 
 		arguments_dialog_->set_arguments(dialog->arguments());
 		const QString filename = dialog->selectedFiles().front();
@@ -3242,6 +3260,8 @@ void Debugger::next_debug_event() {
 		qDebug("DEBUG POINTER: %p", debug_pointer_);
 	#endif
 #endif
+
+		Q_EMIT debugEvent();
 
 		const edb::EVENT_STATUS status = debug_event_handler(e);
 		switch(status) {
