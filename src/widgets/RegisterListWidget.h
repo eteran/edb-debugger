@@ -21,25 +21,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QTreeWidget>
 
-class QTreeWidgetItem;
 class QString;
 
-class RegisterListWidget : public QTreeWidget {
+class RegisterListWidget : public QTreeView {
 	Q_OBJECT
 
 public:
 	RegisterListWidget(QWidget *parent = 0);
-	virtual ~RegisterListWidget();
-
-private Q_SLOTS:
-    void handleMousePress(QTreeWidgetItem *item);
+	void setModel(QAbstractItemModel* model) override;
 
 public:
-	virtual void mouseDoubleClickEvent(QMouseEvent * event);
-
-public:
-	QTreeWidgetItem *addCategory(const QString &name);
-	bool isCategory(QTreeWidgetItem *item) const;
+	void mousePressEvent(QMouseEvent* event) override;
+	void reset() override;
 };
 
 #endif

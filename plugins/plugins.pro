@@ -7,6 +7,7 @@ SUBDIRS += \
 	BinaryInfo \
 	BinarySearcher \
 	Bookmarks \
+	ODbgRegisterView \
 	BreakpointManager \
 	CheckVersion \
 	DebuggerCore \

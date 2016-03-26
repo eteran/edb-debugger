@@ -86,6 +86,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <fcntl.h>
 #endif
 
+#include "RegisterViewModelBase.h"
+
 namespace {
 
 const int     SessionFileVersion  = 1;
@@ -380,7 +382,8 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	edb::v1::set_debug_event_handler(this);
 
 	// enable the arch processor
-	edb::v1::arch_processor().setup_register_view(ui.registerList);
+	ui.registerList->setModel(&edb::v1::arch_processor().get_register_view_model());
+	edb::v1::arch_processor().setup_register_view();
 
 	// default the working directory to ours
 	working_directory_ = QDir().absolutePath();
@@ -774,16 +777,13 @@ edb::reg_t Debugger::get_follow_register(bool *ok) const {
 	Q_ASSERT(ok);
 
 	*ok = false;
-	if(const QTreeWidgetItem *const i = ui.registerList->currentItem()) {
-		if(const Register reg = edb::v1::arch_processor().value_from_item(*i)) {
-			if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP)) {
-				*ok = true;
-				return reg.valueAsAddress();
-			}
-		}
-	}
 
-	return 0;
+	const auto reg=active_register();
+	if(!reg || reg.bitSize()>8*sizeof(edb::address_t))
+		return 0;
+
+	*ok = true;
+	return reg.valueAsAddress();
 }
 
 
@@ -1057,55 +1057,40 @@ void Debugger::setup_tab_buttons() {
 }
 
 //------------------------------------------------------------------------------
+// Name: active_register
+// Desc:
+//------------------------------------------------------------------------------
+Register Debugger::active_register() const {
+	const auto& model=edb::v1::arch_processor().get_register_view_model();
+	const auto index=model.activeIndex();
+	if(!index.data(RegisterViewModelBase::Model::IsNormalRegisterRole).toBool())
+		return {};
+	const auto regName=index.sibling(index.row(),RegisterViewModelBase::Model::NAME_COLUMN).data().toString();
+	if(regName.isEmpty()) return {};
+	if(auto*const dcore=edb::v1::debugger_core) {
+		State state;
+		// read
+		dcore->get_state(&state);
+		return state[regName];
+	}
+	return {};
+}
+
+//------------------------------------------------------------------------------
 // Name: on_registerList_customContextMenuRequested
 // Desc: context menu handler for register view
 //------------------------------------------------------------------------------
-void Debugger::on_registerList_customContextMenuRequested(const QPoint &pos) {
-	QTreeWidgetItem *const item = ui.registerList->itemAt(pos);
-	if(item && !ui.registerList->isCategory(item)) {
-		// a little bit cheesy of a solution, but should work nicely
-		if(const Register reg = edb::v1::arch_processor().value_from_item(*item)) {
-			if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP)) {
-				QMenu menu;
-				menu.addAction(registerFollowInDumpAction_);
-				menu.addAction(registerFollowInDumpTabAction_);
-				menu.addAction(registerFollowInStackAction_);
-
-				add_plugin_context_menu(&menu, &IPlugin::register_context_menu);
-
-				menu.exec(ui.registerList->mapToGlobal(pos));
-			}
-			else {
-				// Generally it's better to ask ArchProcessor to make its arch-specific item-specific menu
-				const auto menu = edb::v1::arch_processor().register_item_context_menu(reg);
-				if(menu) {
-					menu->exec(ui.registerList->mapToGlobal(pos));
-				}
-				update_gui();
-				refresh_gui();
-			}
-		}
-
-		// Special case for the flag values. Open a context menu with the flag names for toggle.
-		else if (QTreeWidgetItem *parent = item->parent()) {
-			if (const Register reg = edb::v1::arch_processor().value_from_item(*parent)) {
-				if (reg.name() == edb::v1::debugger_core->flag_register()) {
-					QMenu menu;
-					menu.addAction(tr("&Carry"),     this, SLOT(toggle_flag_carry()));
-					menu.addAction(tr("&Parity"),    this, SLOT(toggle_flag_parity()));
-					menu.addAction(tr("&Auxiliary"), this, SLOT(toggle_flag_auxiliary()));
-					menu.addAction(tr("&Zero"),      this, SLOT(toggle_flag_zero()));
-					menu.addAction(tr("&Sign"),      this, SLOT(toggle_flag_sign()));
-					menu.addAction(tr("&Direction"), this, SLOT(toggle_flag_direction()));
-					menu.addAction(tr("&Overflow"),  this, SLOT(toggle_flag_overflow()));
-
-					add_plugin_context_menu(&menu, &IPlugin::register_context_menu);
-
-					menu.exec(ui.registerList->mapToGlobal(pos));
-				}
-			}
-		}
+QList<QAction*> Debugger::getCurrentRegisterContextMenuItems() const {
+	QList<QAction*> allActions;
+	const auto reg=active_register();
+	if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP)) {
+		QList<QAction*> actions{registerFollowInDumpAction_,
+								registerFollowInDumpTabAction_,
+								registerFollowInStackAction_};
+		allActions.append(actions);
 	}
+	allActions.append(get_plugin_context_menu_items(&IPlugin::register_context_menu));
+	return allActions;
 }
 
 // Flag-toggling functions.  Not sure if this is the best solution, but it works.
@@ -1151,17 +1136,6 @@ void Debugger::toggle_flag_overflow()  { toggle_flag(11); }
 //------------------------------------------------------------------------------
 void Debugger::on_cpuView_breakPointToggled(edb::address_t address) {
 	edb::v1::toggle_breakpoint(address);
-}
-
-//------------------------------------------------------------------------------
-// Name: on_registerList_itemDoubleClicked
-// Desc:
-//------------------------------------------------------------------------------
-void Debugger::on_registerList_itemDoubleClicked(QTreeWidgetItem *item) {
-	Q_ASSERT(item);
-	edb::v1::arch_processor().edit_item(*item);
-	update_gui();
-	refresh_gui();
 }
 
 //------------------------------------------------------------------------------
@@ -2474,6 +2448,8 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 				}
 			}
 
+			edb::v1::arch_processor().about_to_resume();
+
 			if(mode == MODE_STEP) {
 				reenable_breakpoint_step_ = bp;
 				thread->step(status);
@@ -2970,7 +2946,7 @@ void Debugger::attachComplete() {
 	stackGotoRBPAction_->setText(tr("Goto %1").arg(bp));
 	stackPushAction_   ->setText(tr("&Push %1").arg(word));
 	stackPopAction_    ->setText(tr("P&op %1").arg(word));
-	
+
 	Q_EMIT(attachEvent());
 }
 
@@ -3061,6 +3037,27 @@ void Debugger::mnuDumpCreateTab() {
 void Debugger::mnuDumpDeleteTab() {
 	delete_data_tab();
 	del_tab_->setEnabled(ui.tabWidget->count() > 1);
+}
+
+//------------------------------------------------------------------------------
+// Name: get_plugin_context_menu_items
+// Desc: Returns context menu items using supplied function to call for each plugin.
+//       NULL pointer items mean "create separator here".
+//------------------------------------------------------------------------------
+template <class F>
+QList<QAction*> Debugger::get_plugin_context_menu_items(const F &f) const {
+	QList<QAction*> actions;
+
+	for(QObject *plugin: edb::v1::plugin_list()) {
+		if(auto p = qobject_cast<IPlugin *>(plugin)) {
+			const QList<QAction *> acts = (p->*f)();
+			if(!acts.isEmpty()) {
+				actions.push_back(nullptr);
+				actions.append(acts);
+			}
+		}
+	}
+	return actions;
 }
 
 //------------------------------------------------------------------------------

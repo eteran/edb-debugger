@@ -40,10 +40,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cmath>
 #include <memory>
 
-#include "DialogEditGPR.h"
-#include "DialogEditFPU.h"
 #include "FloatX.h"
-#include "DialogEditSIMDRegister.h"
+#include "RegisterViewModel.h"
 
 #ifdef Q_OS_LINUX
 #include <asm/unistd.h>
@@ -83,11 +81,17 @@ enum SegmentRegisterIndex {
 
 static constexpr size_t MAX_DEBUG_REGS_COUNT=8;
 static constexpr size_t MAX_SEGMENT_REGS_COUNT=6;
-static constexpr size_t MAX_GPR_COUNT=16;
+static constexpr size_t GPR32_COUNT=8;
+static constexpr size_t GPR64_COUNT=16;
+static constexpr size_t SSE32_COUNT=GPR32_COUNT;
+static constexpr size_t SSE64_COUNT=GPR64_COUNT;
+static constexpr size_t AVX32_COUNT=SSE32_COUNT;
+static constexpr size_t AVX64_COUNT=SSE64_COUNT;
+static constexpr size_t MAX_GPR_COUNT=GPR64_COUNT;
 static constexpr size_t MAX_FPU_REGS_COUNT=8;
 static constexpr size_t MAX_MMX_REGS_COUNT=MAX_FPU_REGS_COUNT;
-static constexpr size_t MAX_XMM_REGS_COUNT=MAX_GPR_COUNT;
-static constexpr size_t MAX_YMM_REGS_COUNT=MAX_GPR_COUNT;
+static constexpr size_t XMM_REGS_COUNT=MAX_GPR_COUNT;
+static constexpr size_t YMM_REGS_COUNT=MAX_GPR_COUNT;
 using edb::v1::debuggeeIs32Bit;
 using edb::v1::debuggeeIs64Bit;
 int func_param_regs_count() { return debuggeeIs32Bit() ? 0 : 6; }
@@ -100,17 +104,6 @@ typedef edb::value512 ZMMWord;
 template<typename T>
 std::string register_name(const T& val) {
 	return edb::v1::formatter().register_name(val);
-}
-
-//------------------------------------------------------------------------------
-// Name: create_register_item
-// Desc:
-//------------------------------------------------------------------------------
-QTreeWidgetItem *create_register_item(QTreeWidgetItem *parent, const QString &name) {
-
-	auto item = new QTreeWidgetItem(parent);
-	item->setData(0, Qt::UserRole, name);
-	return item;
 }
 
 //------------------------------------------------------------------------------
@@ -384,14 +377,8 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 // Name: is_jcc_taken
 // Desc:
 //------------------------------------------------------------------------------
-bool is_jcc_taken(const State &state, edb::Instruction::ConditionCode cond) {
+bool is_jcc_taken(const edb::reg_t efl, edb::Instruction::ConditionCode cond) {
 
-	if(cond==edb::Instruction::CC_UNCONDITIONAL) return true;
-	if(cond==edb::Instruction::CC_RCXZ) return state.gp_register(rCX).value<edb::value64>() == 0;
-	if(cond==edb::Instruction::CC_ECXZ) return state.gp_register(rCX).value<edb::value32>() == 0;
-	if(cond==edb::Instruction::CC_CXZ)  return state.gp_register(rCX).value<edb::value16>() == 0;
-
-	const edb::reg_t efl = state.flags();
 	const bool cf = (efl & 0x0001) != 0;
 	const bool pf = (efl & 0x0004) != 0;
 	const bool zf = (efl & 0x0040) != 0;
@@ -433,6 +420,31 @@ bool is_jcc_taken(const State &state, edb::Instruction::ConditionCode cond) {
 
 	return taken;
 }
+
+//------------------------------------------------------------------------------
+// Name: is_jcc_taken
+// Desc:
+//------------------------------------------------------------------------------
+bool is_jcc_taken(const State &state, edb::Instruction::ConditionCode cond) {
+
+	if(cond==edb::Instruction::CC_UNCONDITIONAL) return true;
+	if(cond==edb::Instruction::CC_RCXZ) return state.gp_register(rCX).value<edb::value64>() == 0;
+	if(cond==edb::Instruction::CC_ECXZ) return state.gp_register(rCX).value<edb::value32>() == 0;
+	if(cond==edb::Instruction::CC_CXZ)  return state.gp_register(rCX).value<edb::value16>() == 0;
+
+	return is_jcc_taken(state.flags(),cond);
+}
+
+static QString jumpConditionMnemonics[]={
+										 "O", "NO",
+										 "B", "AE",
+										 "E", "NE",
+										 "BE", "A",
+										 "S", "NS",
+										 "P", "NP",
+										 "L", "GE",
+										 "LE", "G"
+										 };
 
 //------------------------------------------------------------------------------
 // Name: analyze_cmov
@@ -646,7 +658,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 									// even across values in analysis view about its use of 0x prefix
 									// Use of hexadecimal format here is pretty much pointless since the number here is
 									// expected to be used in usual numeric computations, not as address or similar
-									valueStr=util::formatInt(value,IntDisplayMode::Signed)+" (decimal)";
+									valueStr=util::formatInt(value,NumberDisplayMode::Signed)+" (decimal)";
 								else
 									valueStr="0x"+value.toHexString();
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
@@ -663,7 +675,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 									// even across values in analysis view about its use of 0x prefix
 									// Use of hexadecimal format here is pretty much pointless since the number here is
 									// expected to be used in usual numeric computations, not as address or similar
-									valueStr=util::formatInt(value,IntDisplayMode::Signed)+" (decimal)";
+									valueStr=util::formatInt(value,NumberDisplayMode::Signed)+" (decimal)";
 								else
 									valueStr="0x"+value.toHexString();
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
@@ -680,7 +692,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 									// even across values in analysis view about its use of 0x prefix
 									// Use of hexadecimal format here is pretty much pointless since the number here is
 									// expected to be used in usual numeric computations, not as address or similar
-									valueStr=util::formatInt(value,IntDisplayMode::Signed)+" (decimal)";
+									valueStr=util::formatInt(value,NumberDisplayMode::Signed)+" (decimal)";
 								else
 									valueStr="0x"+value.toHexString();
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
@@ -795,180 +807,29 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 // Name: ArchProcessor
 // Desc:
 //------------------------------------------------------------------------------
-ArchProcessor::ArchProcessor() : split_flags_(0) {
+ArchProcessor::ArchProcessor() {
 	if(edb::v1::debugger_core) {
 		has_mmx_ = edb::v1::debugger_core->has_extension(edb::string_hash("MMX"));
 		has_xmm_ = edb::v1::debugger_core->has_extension(edb::string_hash("XMM"));
 		has_ymm_ = edb::v1::debugger_core->has_extension(edb::string_hash("YMM"));
+		connect(edb::v1::debugger_ui, SIGNAL(attachEvent()), this, SLOT(just_attached()));
 	} else {
 		has_mmx_ = false;
 		has_xmm_ = false;
 		has_ymm_ = false;
 	}
+
 }
 
 //------------------------------------------------------------------------------
 // Name: setup_register_view
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::setup_register_view(RegisterListWidget *category_list) {
-
-	category_list->clear();
-	register_view_items_.clear();
+void ArchProcessor::setup_register_view() {
 
 	if(edb::v1::debugger_core) {
-		State state;
-
-		Q_ASSERT(category_list);
-
-		// setup the register view
-		if(QTreeWidgetItem *const gpr = category_list->addCategory(tr("General Purpose"))) {
-			for(std::size_t i=0;i<MAX_GPR_COUNT;++i)
-				register_view_items_.push_back(create_register_item(gpr, QString("GPR%1").arg(i)));
-			register_view_items_.push_back(create_register_item(gpr, "rIP"));
-			register_view_items_.push_back(create_register_item(gpr, "rFLAGS"));
-
-			// split [ER]FLAGS view
-			split_flags_ = new QTreeWidgetItem(register_view_items_.back());
-			split_flags_->setText(0, state.flags_to_string(0));
-		}
-
-		if(QTreeWidgetItem *const segs = category_list->addCategory(tr("Segments"))) {
-			for(std::size_t i=0;i<MAX_SEGMENT_REGS_COUNT;++i)
-                register_view_items_.push_back(create_register_item(segs, QString("Seg%1").arg(i)));
-		}
-
-		if(QTreeWidgetItem *const fpu = category_list->addCategory(tr("FPU"))) {
-			for(std::size_t i=0;i<MAX_FPU_REGS_COUNT;++i)
-                register_view_items_.push_back(create_register_item(fpu, QString("R%1").arg(i)));
-			const auto fcr=create_register_item(fpu, "FCR");
-			register_view_items_.push_back(fcr);
-			fpu_exceptions_mask_ = new QTreeWidgetItem(fcr);
-			fpu_rc_ = new QTreeWidgetItem(fcr);
-			fpu_pc_ = new QTreeWidgetItem(fcr);
-			const auto fsr=create_register_item(fpu, "FSR");
-			register_view_items_.push_back(fsr);
-			fpu_exceptions_active_ = new QTreeWidgetItem(fsr);
-			fpu_status_ = new QTreeWidgetItem(fsr);
-			fpu_top_ = new QTreeWidgetItem(fsr);
-			register_view_items_.push_back(create_register_item(fpu, "FTAGS"));
-			register_view_items_.push_back(create_register_item(fpu, "FIP"));
-			register_view_items_.push_back(create_register_item(fpu, "FDP"));
-			register_view_items_.push_back(create_register_item(fpu, "FOPC"));
-		}
-
-		if(QTreeWidgetItem *const dbg = category_list->addCategory(tr("Debug"))) {
-			for(std::size_t i=0;i<MAX_DEBUG_REGS_COUNT;++i)
-                register_view_items_.push_back(create_register_item(dbg, QString("dr%1").arg(i)));
-		}
-
-		if(has_mmx_) {
-			if(QTreeWidgetItem *const mmx = category_list->addCategory(tr("MMX"))) {
-                for(std::size_t i=0;i<MAX_MMX_REGS_COUNT;++i)
-                    register_view_items_.push_back(create_register_item(mmx, QString("mm%1").arg(i)));
-			}
-		}
-
-		QTreeWidgetItem* mxcsr=0;
-		if(has_ymm_) {
-			if(QTreeWidgetItem *const ymm = category_list->addCategory(tr("AVX"))) {
-				for(std::size_t i=0;i<MAX_YMM_REGS_COUNT;++i)
-					register_view_items_.push_back(create_register_item(ymm, QString("YMM%1").arg(i)));
-				mxcsr=create_register_item(ymm, "mxcsr");
-			}
-		} else if(has_xmm_) {
-			if(QTreeWidgetItem *const xmm = category_list->addCategory(tr("SSE"))) {
-				for(std::size_t i=0;i<MAX_XMM_REGS_COUNT;++i)
-					register_view_items_.push_back(create_register_item(xmm, QString("XMM%1").arg(i)));
-				mxcsr=create_register_item(xmm, "mxcsr");
-			}
-		}
-		if(mxcsr) {
-			register_view_items_.push_back(mxcsr);
-			mxcsr_rc_ = new QTreeWidgetItem(mxcsr);
-			mxcsr_ftz_ = new QTreeWidgetItem(mxcsr);
-			mxcsr_daz_ = new QTreeWidgetItem(mxcsr);
-			mxcsr_exceptions_mask_ = new QTreeWidgetItem(mxcsr);
-			mxcsr_exceptions_active_ = new QTreeWidgetItem(mxcsr);
-		}
 
 		update_register_view(QString(), State());
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: value_from_item
-// Desc:
-//------------------------------------------------------------------------------
-Register ArchProcessor::value_from_item(const QTreeWidgetItem &item) {
-	QString preName = item.text(0).split(':').front().trimmed();
-	const QString name = preName.mid(0,2)=="=>" ? preName.mid(2) : preName;
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-	return state[name];
-}
-
-void ArchProcessor::edit_item(const QTreeWidgetItem &item) {
-	if(Register r = value_from_item(item)) {
-		if((r.type()==Register::TYPE_GPR ||
-		   r.type()==Register::TYPE_SEG ||
-		   r.type()==Register::TYPE_IP  ||
-		   r.type()==Register::TYPE_COND) && r.bitSize()<=64) {
-
-			static auto gprEdit=new DialogEditGPR(item.treeWidget());
-			gprEdit->set_value(r);
-			if(gprEdit->exec()==QDialog::Accepted) {
-				r=gprEdit->value();
-				State state;
-				edb::v1::debugger_core->get_state(&state);
-				state.set_register(r.name(), r.valueAsInteger());
-				edb::v1::debugger_core->set_state(state);
-			}
-		}
-		else if(r.type()==Register::TYPE_FPU) {
-			static auto fpuEdit=new DialogEditFPU(item.treeWidget());
-			fpuEdit->set_value(r);
-			if(fpuEdit->exec()==QDialog::Accepted) {
-				State state;
-				edb::v1::debugger_core->get_state(&state);
-				state.set_register(fpuEdit->value());
-				edb::v1::debugger_core->set_state(state);
-			}
-		}
-		else if(r.type()==Register::TYPE_SIMD) {
-			static auto simdEdit=new DialogEditSIMDRegister(item.treeWidget());
-			simdEdit->set_value(r);
-			if(simdEdit->exec()==QDialog::Accepted) {
-				State state;
-				edb::v1::debugger_core->get_state(&state);
-				state.set_register(simdEdit->value());
-				edb::v1::debugger_core->set_state(state);
-			}
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: update_register
-// Desc:
-//------------------------------------------------------------------------------
-void ArchProcessor::update_register(QTreeWidgetItem *item, const Register &reg) const {
-
-	Q_ASSERT(item);
-
-	item->setHidden(!reg);
-	if(!reg) return;
-
-	QString reg_string;
-	int string_length;
-	const QString name=reg.name().leftJustified(3).toUpper();
-
-	if(edb::v1::get_ascii_string_at_address(reg.valueAsAddress(), reg_string, edb::v1::config().min_string_length, 256, string_length)) {
-		item->setText(0, QString("%1: %2 ASCII \"%3\"").arg(name, reg.toHexString(), reg_string));
-	} else if(edb::v1::get_utf16_string_at_address(reg.valueAsAddress(), reg_string, edb::v1::config().min_string_length, 256, string_length)) {
-		item->setText(0, QString("%1: %2 UTF16 \"%3\"").arg(name, reg.toHexString(), reg_string));
-	} else {
-		item->setText(0, QString("%1: %2").arg(name, reg.toHexString()));
 	}
 }
 
@@ -979,202 +840,233 @@ void ArchProcessor::update_register(QTreeWidgetItem *item, const Register &reg) 
 void ArchProcessor::reset() {
 
 	if(edb::v1::debugger_core) {
-		last_state_.clear();
 		update_register_view(QString(), State());
 	}
 }
 
-QString getFPUStatus(uint16_t statusWord) {
-	const bool fpuBusy=statusWord&0x8000;
-	QString fpuBusyString;
-	if(fpuBusy)
-		fpuBusyString=" BUSY";
-	QString stackFaultDetail;
-	const int exceptionsHappened=statusWord&0x3f;
-	const bool invalidOperationException=(exceptionsHappened & 0x01);
+QString gprComment(const Register& reg)
+{
+	QString regString;
+	int stringLength;
+	QString comment;
+	if(edb::v1::get_ascii_string_at_address(reg.valueAsAddress(), regString, edb::v1::config().min_string_length, 256, stringLength))
+		comment=QString("ASCII \"%1\"").arg(regString);
+	else if(edb::v1::get_utf16_string_at_address(reg.valueAsAddress(), regString, edb::v1::config().min_string_length, 256, stringLength))
+		comment=QString("UTF16 \"%1\"").arg(regString);
+	return comment;
+}
+
+RegisterViewModel& getModel() {
+	return static_cast<RegisterViewModel&>(edb::v1::arch_processor().get_register_view_model());
+}
+
+void updateGPRs(RegisterViewModel& model, const State& state, bool is64Bit) {
+	if(is64Bit) {
+		for(std::size_t i=0;i<GPR64_COUNT;++i) {
+			const auto reg=state.gp_register(i);
+			Q_ASSERT(!!reg); Q_ASSERT(reg.bitSize()==64);
+			QString comment;
+			if(i==0) {
+				const auto origAX=state["orig_rax"].valueAsSignedInteger();
+				if(origAX!=-1)
+					comment="orig: "+edb::value64(origAX).toHexString();
+			} else comment=gprComment(reg);
+			model.updateGPR(i,reg.value<edb::value64>(),comment);
+		}
+	} else {
+		for(std::size_t i=0;i<GPR32_COUNT;++i) {
+			const auto reg=state.gp_register(i);
+			Q_ASSERT(!!reg); Q_ASSERT(reg.bitSize()==32);
+			QString comment;
+			if(i==0) {
+				const auto origAX=state["orig_eax"].valueAsSignedInteger();
+				if(origAX!=-1)
+					comment="orig: "+edb::value32(origAX).toHexString();
+			} else comment=gprComment(reg);
+			model.updateGPR(i,reg.value<edb::value32>(),comment);
+		}
+	}
+}
+
+QString rIPcomment(edb::address_t rIP, const QString &default_region_name) {
+	const auto symname=edb::v1::find_function_symbol(rIP, default_region_name);
+	return symname.isEmpty() ? symname : '<'+symname+'>';
+}
+
+QString eflagsComment(edb::reg_t flags) {
+	QString comment="(";
+	for(int cond=0;cond<0x10;++cond)
+		if(is_jcc_taken(flags,static_cast<edb::Instruction::ConditionCode>(cond)))
+			comment+=jumpConditionMnemonics[cond]+',';
+	comment[comment.size()-1]=')';
+	return comment;
+}
+
+void updateGeneralStatusRegs(RegisterViewModel& model, const State& state, bool is64Bit, const QString &default_region_name) {
+	const auto ip=state.instruction_pointer_register();
+	const auto flags=state.flags_register();
+	Q_ASSERT(!!ip);
+	Q_ASSERT(!!flags);
+	const auto ipComment=rIPcomment(ip.valueAsAddress(),default_region_name);
+	const auto flagsComment=eflagsComment(flags.valueAsInteger());
+	if(is64Bit) {
+		model.updateIP(ip.value<edb::value64>(),ipComment);
+		model.updateFlags(flags.value<edb::value64>(),flagsComment);
+	} else {
+		model.updateIP(ip.value<edb::value32>(),ipComment);
+		model.updateFlags(flags.value<edb::value32>(),flagsComment);
+	}
+}
+
+QString FPUStackFaultDetail(uint16_t statusWord) {
+	const bool invalidOperationException=statusWord & 0x01;
 	const bool C1=statusWord&(1<<9);
 	const bool stackFault=statusWord&0x40;
-	if(invalidOperationException && stackFault) {
-		stackFaultDetail=C1?" Stack overflow":" Stack underflow";
+	if(invalidOperationException && stackFault)
+		return C1 ? QObject::tr("Stack overflow") : QObject::tr("Stack underflow");
+	return "";
+}
+
+QString FPUComparExplain(uint16_t statusWord) {
+	const bool C0=statusWord&(1<<8);
+	const bool C2=statusWord&(1<<10);
+	const bool C3=statusWord&(1<<14);
+	if(C3==0 && C2==0 && C0==0) return "GT";
+	if(C3==0 && C2==0 && C0==1) return "LT";
+	if(C3==1 && C2==0 && C0==0) return "EQ";
+	if(C3==1 && C2==1 && C0==1) return QObject::tr("Unordered","result of FPU comparison instruction");
+	return "";
+}
+
+QString FPUExplainPE(uint16_t statusWord) {
+	if(statusWord&(1<<5)) {
+		const bool C1=statusWord&(1<<9);
+		return C1 ? QObject::tr("Rounded UP") : QObject::tr("Rounded DOWN");
 	}
-	QString fpuStatus=fpuBusyString;
-	if(stackFaultDetail.size())
-		fpuStatus += (fpuStatus.size() ? "," : "")+stackFaultDetail;
-	return fpuStatus.isEmpty() ? " OK" : fpuStatus;
+	return "";
 }
 
-QString ArchProcessor::getRoundingMode(unsigned modeBits) const {
-	switch(modeBits) {
-	case 0: return tr("Rounding to nearest");
-	case 1: return tr("Rounding down");
-	case 2: return tr("Rounding up");
-	case 3: return tr("Rounding toward zero");
-	}
-	return "???";
+QString FSRComment(uint16_t statusWord) {
+
+	const auto stackFaultDetail=FPUStackFaultDetail(statusWord);
+	const auto comparisonResult=FPUComparExplain(statusWord);
+	const auto comparComment=comparisonResult.isEmpty()?"":'('+comparisonResult+')';
+	const auto peExplanation=FPUExplainPE(statusWord);
+
+	auto comment=comparComment;
+	if(comment.length() && stackFaultDetail.length()) comment+=", ";
+	comment+=stackFaultDetail;
+	if(comment.length() && peExplanation.length()) comment+=", ";
+	comment+=peExplanation;
+	return comment.trimmed();
 }
 
-QString getExceptionMaskString(unsigned exceptionMask) {
-	QString exceptionMaskString;
-	exceptionMaskString += ((exceptionMask & 0x01) ? " IM" : " Iu");
-	exceptionMaskString += ((exceptionMask & 0x02) ? " DM" : " Du");
-	exceptionMaskString += ((exceptionMask & 0x04) ? " ZM" : " Zu");
-	exceptionMaskString += ((exceptionMask & 0x08) ? " OM" : " Ou");
-	exceptionMaskString += ((exceptionMask & 0x10) ? " UM" : " Uu");
-	exceptionMaskString += ((exceptionMask & 0x20) ? " PM" : " Pu");
-	return exceptionMaskString;
-}
-
-QString getActiveExceptionsString(unsigned exceptionsHappened) {
-	QString exceptionsHappenedString;
-	exceptionsHappenedString += ((exceptionsHappened & 0x01) ? " IE" : "");
-	exceptionsHappenedString += ((exceptionsHappened & 0x02) ? " DE" : "");
-	exceptionsHappenedString += ((exceptionsHappened & 0x04) ? " ZE" : "");
-	exceptionsHappenedString += ((exceptionsHappened & 0x08) ? " OE" : "");
-	exceptionsHappenedString += ((exceptionsHappened & 0x10) ? " UE" : "");
-	exceptionsHappenedString += ((exceptionsHappened & 0x20) ? " PE" : "");
-	if(exceptionsHappenedString.isEmpty())
-		exceptionsHappenedString=" (none)";
-	return exceptionsHappenedString;
-}
-
-//------------------------------------------------------------------------------
-// Name: update_fpu_view
-// Desc:
-//------------------------------------------------------------------------------
-void ArchProcessor::update_fpu_view(int& itemNumber, const State &state, const QPalette& palette) const {
-
-	const int fpuTop=state.fpu_stack_pointer();
-	for(int i = 0; i < 8; ++i) {
-		const size_t regIndex=fpuOrderMode_==FPUOrderMode::Stack ? (i+fpuTop) % 8 : i;
-		const edb::value80 current = state.fpu_register(regIndex);
-		const edb::value80 prev    = last_state_.fpu_register(regIndex); // take Rn with the same n so that check for changes makes sense
-		bool empty=state.fpu_register_is_empty(regIndex);
-		const QString tag=state.fpu_register_tag_string(regIndex);
-
-		bool changed=current != prev;
-		QPalette::ColorGroup colGroup(empty ? QPalette::Disabled : QPalette::Normal);
-		QBrush textColor(changed ? Qt::red : palette.brush(colGroup,QPalette::Text));
-		QString valueStr;
-		switch(fpuDisplayMode_)
-		{
-		case FPUDisplayMode::Float:
-			valueStr=formatFloat(current);
-			break;
-		case FPUDisplayMode::Hex:
-		{
-			valueStr=current.toHexString();
-			const QChar groupSeparator(' ');
-			valueStr.insert(valueStr.size()-8,groupSeparator);
-			valueStr.insert(valueStr.size()-16-1,groupSeparator);
-			break;
+void updateSegRegs(RegisterViewModel& model, const State& state) {
+	static const QString sregs[]={"es","cs","ss","ds","fs","gs"};
+    for(std::size_t i=0;i<sizeof(sregs)/sizeof(sregs[0]);++i) {
+        QString sreg(sregs[i]);
+        const auto sregValue=state[sreg].value<edb::seg_reg_t>();
+		const Register base=state[sregs[i]+"_base"];
+		QString comment;
+		if(edb::v1::debuggeeIs32Bit() || i>=FS) {
+			if(base)
+				comment=QString("(%1)").arg(base.valueAsAddress().toHexString());
+			else if(edb::v1::debuggeeIs32Bit() && sregValue==0)
+				comment="NULL";
+			else
+				comment="(?)";
 		}
-		}
-		const QString regFormat(fpuOrderMode_==FPUOrderMode::Stack ? QString("ST%1: %2 %3") : QString("%0R%1: %2 %3").arg(fpuTop==i?"=>":"  "));
-		register_view_items_[itemNumber]->setText(0, QString(regFormat).arg(i).arg(tag.leftJustified(8)).arg(valueStr));
-		register_view_items_[itemNumber++]->setForeground(0, textColor);
+		model.updateSegReg(i,sregValue,comment);
 	}
-	edb::value16 controlWord=state.fpu_control_word();
-	int controlWordValue=controlWord;
-	edb::value16 statusWord=state.fpu_status_word();
-	QString roundingMode=getRoundingMode((controlWordValue>>10)&3);
-	QString precisionMode;
-	switch((controlWordValue>>8)&3) {
-	case 0:
-		precisionMode = tr("Single precision (24 bit complete mantissa)");
-		break;
-	case 1:
-		precisionMode = tr("Reserved");
-		break;
-	case 2:
-		precisionMode = tr("Double precision (53 bit complete mantissa)");
-		break;
-	case 3:
-		precisionMode = tr("Extended precision (64 bit mantissa)");
-		break;
+}
+
+void updateFPURegs(RegisterViewModel& model, const State& state) {
+	for(std::size_t i=0;i<MAX_FPU_REGS_COUNT;++i)
+	{
+		const auto reg=state.fpu_register(i);
+		const auto comment = floatType(reg)==FloatValueClass::PseudoDenormal ?
+								QObject::tr("pseudo-denormal") : "";
+		model.updateFPUReg(i,reg,comment);
 	}
-	int exceptionMask=controlWordValue&0x3f;
-	int exceptionsHappened=statusWord&0x3f;
-	int prevExMask=last_state_.fpu_control_word()&0x3f;
-	int prevExHap=last_state_.fpu_status_word()&0x3f;
-	QString exceptionMaskString = getExceptionMaskString(exceptionMask);
-	QString exceptionsHappenedString = getActiveExceptionsString(exceptionsHappened);
-	QString fpuStatus=getFPUStatus(statusWord);
-	register_view_items_[itemNumber]->setText(0, QString("FCR: %1").arg(controlWord.toHexString()));
-	register_view_items_[itemNumber++]->setForeground(0, QBrush(controlWord != last_state_.fpu_control_word() ? Qt::red : palette.text()));
-	fpu_exceptions_mask_->setText(0, QString("Exceptions mask:%1").arg(exceptionMaskString));
-	fpu_exceptions_mask_->setForeground(0, QBrush(exceptionMask != prevExMask ? Qt::red : palette.text()));
-	fpu_pc_->setText(0, QString("PC: %1").arg(precisionMode));
-	fpu_pc_->setForeground(0, QBrush((controlWord&(3<<10)) != (last_state_.fpu_control_word()&(3<<10)) ? Qt::red : palette.text()));
-	fpu_rc_->setText(0, QString("RC: %1").arg(roundingMode));
-	fpu_rc_->setForeground(0, QBrush((controlWord&(3<<8)) != (last_state_.fpu_control_word()&(3<<8)) ? Qt::red : palette.text()));
-
-	register_view_items_[itemNumber]->setText(0, QString("FSR: %1").arg(statusWord.toHexString()));
-	register_view_items_[itemNumber++]->setForeground(0, QBrush(statusWord != last_state_.fpu_status_word() ? Qt::red : palette.text()));
-	fpu_exceptions_active_->setText(0, QString("Exceptions active:%1").arg(exceptionsHappenedString));
-	fpu_exceptions_active_->setForeground(0, QBrush(exceptionsHappened != prevExHap ? Qt::red : palette.text()));
-	fpu_status_->setText(0, QString("Status:%1").arg(fpuStatus));
-	fpu_status_->setForeground(0, QBrush(fpuStatus!=getFPUStatus(last_state_.fpu_status_word()) ? Qt::red : palette.text()));
-	fpu_top_->setText(0, QString("TOP: %1").arg(fpuTop));
-	fpu_top_->setForeground(0, QBrush(fpuTop != last_state_.fpu_stack_pointer() ? Qt::red : palette.text()));
-
-	register_view_items_[itemNumber]->setText(0, QString("FTAGS: %1").arg(state.fpu_tag_word().toHexString()));
-	register_view_items_[itemNumber++]->setForeground(0, QBrush(state.fpu_tag_word() != last_state_.fpu_tag_word() ? Qt::red : palette.text()));
-
+	model.updateFCR(state.fpu_control_word());
+	const auto fsr=state.fpu_status_word();
+	model.updateFSR(fsr,FSRComment(fsr));
+	model.updateFTR(state.fpu_tag_word());
+	{
+		const Register FIS=state["FIS"];
+		if(FIS) model.updateFIS(FIS.value<edb::value16>());
+		else model.invalidateFIS();
+	}
+	{
+		const Register FDS=state["FDS"];
+		if(FDS) model.updateFDS(FDS.value<edb::value16>());
+		else model.invalidateFDS();
+	}
 	{
 		const Register FIP=state["FIP"];
-		const Register FIS=state["FIS"];
-		register_view_items_[itemNumber]->setText(0, QString("FIP: %1:%2").arg(FIS.toHexString()).arg(FIP.toHexString()));
-		const Register oldFIP=last_state_["FIP"];
-		const Register oldFIS=last_state_["FIS"];
-		bool changed=FIP.toHexString()!=oldFIP.toHexString() || FIS.toHexString()!=oldFIS.toHexString();
-		register_view_items_[itemNumber++]->setForeground(0, QBrush(changed ? Qt::red : palette.text()));
+		if(FIP.bitSize()==64)
+			model.updateFIP(FIP.value<edb::value64>());
+		else if(FIP.bitSize()==32)
+			model.updateFIP(FIP.value<edb::value32>());
+		else
+			model.invalidateFIP();
 	}
 	{
 		const Register FDP=state["FDP"];
-		const Register FDS=state["FDS"];
-		register_view_items_[itemNumber]->setText(0, QString("FDP: %1:%2").arg(FDS.toHexString()).arg(FDP.toHexString()));
-		const Register oldFDP=last_state_["FDP"];
-		const Register oldFDS=last_state_["FDS"];
-		bool changed=FDP.toHexString()!=oldFDP.toHexString() || FDS.toHexString()!=oldFDS.toHexString();
-		register_view_items_[itemNumber++]->setForeground(0, QBrush(changed ? Qt::red : palette.text()));
+		if(FDP.bitSize()==64)
+			model.updateFDP(FDP.value<edb::value64>());
+		else if(FDP.bitSize()==32)
+			model.updateFDP(FDP.value<edb::value32>());
+		else
+			model.invalidateFDP();
 	}
 	{
-		const Register fopc=state["fopcode"];
-		// Yes, it appears big-endian!
-		QString codeStr(!fopc ? "<unknown>" : edb::value8(fopc.value<edb::value16>() >> 8).toHexString()+" "+fopc.value<edb::value8>().toHexString());
-		bool changed=fopc.toHexString()!=last_state_["fopcode"].toHexString();
-		register_view_items_[itemNumber]->setText(0, QString("FOPC: %1").arg(codeStr));
-		register_view_items_[itemNumber++]->setForeground(0, QBrush(changed ? Qt::red : palette.text()));
+		const Register FOP=state["fopcode"];
+		if(FOP) {
+			const auto value=FOP.value<edb::value16>();
+			// Yes, FOP is a big-endian view of the instruction
+			const auto comment=value>0x7ff ? QString("?!!") :
+								QObject::tr("Insn: %1 %2").arg((edb::value8(value>>8)+0xd8).toHexString()).arg(edb::value8(value).toHexString());
+			model.updateFOP(value,comment);
+		}
+		else model.invalidateFOP();
 	}
 }
 
-template<typename T>
-QString ArchProcessor::formatSIMDRegister(const T& value, SIMDDisplayMode simdMode, IntDisplayMode intMode) {
-	QString str;
-	switch(simdMode)
-	{
-	case SIMDDisplayMode::Bytes:
-		str=util::packedIntsToString<std::uint8_t>(value,intMode);
-		break;
-	case SIMDDisplayMode::Words:
-		str=util::packedIntsToString<std::uint16_t>(value,intMode);
-		break;
-	case SIMDDisplayMode::Dwords:
-		str=util::packedIntsToString<std::uint32_t>(value,intMode);
-		break;
-	case SIMDDisplayMode::Qwords:
-		str=util::packedIntsToString<std::uint64_t>(value,intMode);
-		break;
-	case SIMDDisplayMode::Floats32:
-		str=util::packedFloatsToString<float>(value);
-		break;
-	case SIMDDisplayMode::Floats64:
-		str=util::packedFloatsToString<double>(value);
-		break;
-	default:
-		str=value.toHexString();
+void updateDebugRegs(RegisterViewModel& model, const State& state) {
+	for(std::size_t i=0;i<MAX_DEBUG_REGS_COUNT;++i) {
+		const edb::reg_t reg=state.debug_register(i);
+		if(edb::v1::debuggeeIs32Bit())
+			model.updateDR(i,edb::value32(reg));
+		else model.updateDR(i,reg);
 	}
-	return str;
+}
+
+void updateMMXRegs(RegisterViewModel& model, const State& state) {
+	for(std::size_t i=0;i<MAX_MMX_REGS_COUNT;++i) {
+		const auto reg=state.mmx_register(i);
+		if(!!reg) model.updateMMXReg(i,reg.value<MMWord>());
+		else model.invalidateMMXReg(i);
+	}
+}
+
+void updateSSEAVXRegs(RegisterViewModel& model, const State& state, bool hasSSE, bool hasAVX) {
+	if(!hasSSE) return;
+	const std::size_t max=edb::v1::debuggeeIs32Bit() ? AVX32_COUNT : AVX64_COUNT;
+	for(std::size_t i=0;i<max;++i) {
+		if(hasAVX) {
+			const auto reg=state.ymm_register(i);
+			if(!reg) model.invalidateAVXReg(i);
+			else model.updateAVXReg(i,reg.value<YMMWord>());
+		} else if(hasSSE) {
+			const auto reg=state.xmm_register(i);
+			if(!reg) model.invalidateSSEReg(i);
+			else model.updateSSEReg(i,reg.value<XMMWord>());
+		}
+	}
+	const auto mxcsr=state["mxcsr"];
+	if(!mxcsr) model.invalidateMXCSR();
+	else model.updateMXCSR(mxcsr.value<edb::value32>());
 }
 
 //------------------------------------------------------------------------------
@@ -1184,139 +1076,41 @@ QString ArchProcessor::formatSIMDRegister(const T& value, SIMDDisplayMode simdMo
 void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
 	const QPalette palette = QApplication::palette();
 
-	if(state.empty()) {
-		for(auto item : register_view_items_)
-			if(auto parent=item->parent())
-				parent->setHidden(true);
+	auto& model=getModel();
+
+	const auto ip=state.instruction_pointer_register();
+
+	if(!ip) {
+		model.setCPUMode(RegisterViewModel::CPUMode::UNKNOWN);
 		return;
-	} else {
-		for(auto item : register_view_items_)
-			if(auto parent=item->parent())
-				parent->setHidden(false);
-		// and continue filling in the values
 	}
+	// FIXME: this function will crash for 32-bit process, jumped to 64-bit segment, if EDB
+	// doesn't find a way to get full 64-bit state for such process
+	const bool is64Bit=ip.bitSize()==64;
+	Q_ASSERT(is64Bit || ip.bitSize()==32);
+	
+	model.setCPUMode(is64Bit ? RegisterViewModel::CPUMode::AMD64 : RegisterViewModel::CPUMode::IA32);
+	updateGPRs(model,state,is64Bit);
+	updateGeneralStatusRegs(model,state,is64Bit,default_region_name);
+	updateSegRegs(model,state);
+	updateFPURegs(model,state);
+	updateDebugRegs(model,state);
+	updateMMXRegs(model,state);
+	updateSSEAVXRegs(model,state,has_xmm_,has_ymm_);
 
-	int itemNumber=0;
-	for(std::size_t i=0;i<MAX_GPR_COUNT;++i) {
-		update_register(register_view_items_[itemNumber], state.gp_register(i));
-		register_view_items_[itemNumber++]->setForeground(0, (state.gp_register(i) != last_state_.gp_register(i)) ? Qt::red : palette.text());
+	if(just_attached_) {
+		model.saveValues();
+		just_attached_=false;
 	}
+	model.dataUpdateFinished();
+}
 
-	const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
-	Register rIP=state.instruction_pointer_register();
-	if(!symname.isEmpty()) {
-		register_view_items_[itemNumber]->setText(0, QString("%0: %1 <%2>").arg(rIP.name().toUpper()).arg(rIP.toHexString()).arg(symname));
-	} else {
-		register_view_items_[itemNumber]->setText(0, QString("%0: %1").arg(rIP.name().toUpper()).arg(rIP.toHexString()));
-	}
-	register_view_items_[itemNumber++]->setForeground(0, (rIP != last_state_.instruction_pointer_register()) ? Qt::red : palette.text());
+void ArchProcessor::about_to_resume() {
+	getModel().saveValues();
+}
 
-	Register flags=state.flags_register();
-	Register flagsPrev=last_state_.flags_register();
-	const bool flags_changed = flags != flagsPrev;
-	if(flags_changed) {
-		split_flags_->setText(0, state.flags_to_string());
-	}
-
-	register_view_items_[itemNumber]->setText(0, QString("%0: %1").arg(flags.name().toUpper()).arg(flags.toHexString()));
-	register_view_items_[itemNumber++]->setForeground(0, flags_changed ? Qt::red : palette.text());
-
-	const QString sregs[]={"es","cs","ss","ds","fs","gs"};
-	for(std::size_t i=0;i<sizeof(sregs)/sizeof(sregs[0]);++i) {
-		QString sreg(sregs[i]);
-		auto sregValue=state[sreg].value<edb::seg_reg_t>();
-		QString sregStr=sreg.toUpper()+QString(": %1").arg(sregValue.toHexString());
-		const Register base=state[sregs[i]+"_base"];
-		if(edb::v1::debuggeeIs32Bit() || i>=FS) {
-			if(base)
-				sregStr+=QString(" (%1)").arg(base.valueAsAddress().toHexString());
-			else if(edb::v1::debuggeeIs32Bit() && sregValue==0)
-				sregStr+=" NULL";
-			else
-				sregStr+=" (?)";
-		}
-		register_view_items_[itemNumber]->setText(0, sregStr);
-		register_view_items_[itemNumber++]->setForeground(0, QBrush((state[sreg] != last_state_[sreg]) ? Qt::red : palette.text()));
-	}
-
-	update_fpu_view(itemNumber,state,palette);
-
-	for(int i = 0; i < 8; ++i) {
-		register_view_items_[itemNumber]->setText(0, QString("DR%1: %2").arg(i).arg(state.debug_register(i).toHexString()));
-		register_view_items_[itemNumber++]->setForeground(0, QBrush((state.debug_register(i) != last_state_.debug_register(i)) ? Qt::red : palette.text()));
-	}
-
-	if(has_mmx_) {
-		for(int i = 0; i < 8; ++i) {
-			const Register current = state.mmx_register(i);
-			const Register prev    = last_state_.mmx_register(i);
-			QString valueStr;
-			if(current) valueStr=formatSIMDRegister(current.value<MMWord>(),mmxDisplayMode_,mmxIntMode_);
-			else valueStr=current.toHexString();
-			register_view_items_[itemNumber]->setText(0, QString("MM%1: %2").arg(i).arg(valueStr));
-			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
-		}
-	}
-
-	int padding=debuggeeIs64Bit() ? -2 : -1;
-	if(has_ymm_) {
-		for(std::size_t i = 0; i < MAX_YMM_REGS_COUNT; ++i) {
-			const Register current = state.ymm_register(i);
-			const Register prev    = last_state_.ymm_register(i);
-			register_view_items_[itemNumber]->setHidden(!current);
-			QString valueStr;
-			if(current) valueStr=formatSIMDRegister(current.value<YMMWord>(),xymmDisplayMode_,xymmIntMode_);
-			else valueStr=current.toHexString();
-			register_view_items_[itemNumber]->setText(0, QString("YMM%1: %2").arg(i, padding).arg(valueStr));
-			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
-		}
-	} else if(has_xmm_) {
-		for(std::size_t i = 0; i < MAX_XMM_REGS_COUNT; ++i) {
-			const Register current = state.xmm_register(i);
-			const Register prev    = last_state_.xmm_register(i);
-			register_view_items_[itemNumber]->setHidden(!current);
-			QString valueStr;
-			if(current) valueStr=formatSIMDRegister(current.value<XMMWord>(),xymmDisplayMode_,xymmIntMode_);
-			else valueStr=current.toHexString();
-			register_view_items_[itemNumber]->setText(0, QString("XMM%1: %2").arg(i, padding).arg(valueStr));
-			register_view_items_[itemNumber++]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
-		}
-	}
-	if(has_xmm_) {
-	    const Register current = state["mxcsr"];
-		if(current) {
-			const Register prev    = last_state_["mxcsr"];
-			const auto value = current.value<edb::value32>();
-
-			mxcsr_exceptions_mask_->setText(0,"Exception mask   :"+getExceptionMaskString(value>>7));
-			mxcsr_exceptions_mask_->setForeground(0, QBrush((prev.value<edb::value32>()&(0x3f<<7))!=(value&(0x3f<<7))? Qt::red : palette.text()));
-
-			mxcsr_exceptions_active_->setText(0,"Exceptions active:"+getActiveExceptionsString(value));
-			mxcsr_exceptions_active_->setForeground(0, QBrush((prev.value<edb::value32>()&0x3f)!=(value&0x3f)? Qt::red : palette.text()));
-
-			mxcsr_daz_->setText(0,QString("DAZ: ")+((value&0x0040)?"on":"off"));
-			mxcsr_daz_->setForeground(0, QBrush((prev.value<edb::value32>()&0x0040)!=(value&0x0040)? Qt::red : palette.text()));
-			mxcsr_ftz_->setText(0,QString("FTZ: ")+((value&0x8000)?"on":"off"));
-			mxcsr_ftz_->setForeground(0, QBrush((prev.value<edb::value32>()&0x8000)!=(value&0x8000)? Qt::red : palette.text()));
-
-			static constexpr const int MXCSR_RC_LOW_BIT_POS=13;
-			static constexpr const uint32_t MXCSR_RC_BITS=3<<MXCSR_RC_LOW_BIT_POS;
-			mxcsr_rc_->setText(0,"RC: "+getRoundingMode((value&MXCSR_RC_BITS)>>MXCSR_RC_LOW_BIT_POS));
-			mxcsr_rc_->setForeground(0, QBrush((value&MXCSR_RC_BITS) != (prev.value<edb::value32>()&MXCSR_RC_BITS) ? Qt::red : palette.text()));
-
-			register_view_items_[itemNumber]->setText(0, QString("MXCSR: %1").arg(current.toHexString()));
-			register_view_items_[itemNumber]->setForeground(0, QBrush((current != prev) ? Qt::red : palette.text()));
-		} else {
-			mxcsr_exceptions_mask_->setText(0,"???");
-			mxcsr_exceptions_active_->setText(0,"???");
-			mxcsr_ftz_->setText(0,"???");
-			mxcsr_daz_->setText(0,"???");
-			mxcsr_rc_->setText(0,"???");
-		}
-		++itemNumber;
-	}
-
-	last_state_ = state;
+void ArchProcessor::just_attached() {
+	just_attached_=true;
 }
 
 //------------------------------------------------------------------------------
@@ -1478,175 +1272,13 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 	return ret;
 }
 
-void ArchProcessor::setupMMXRegisterMenu(QMenu& menu) {
-	{
-		const auto displayModeMapper = new QSignalMapper(&menu);
-		if(mmxDisplayMode_!=SIMDDisplayMode::Bytes) {
-			const auto action = menu.addAction(tr("View MMX as &bytes"),displayModeMapper,SLOT(map()));
-			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Bytes));
-		}
-		if(mmxDisplayMode_!=SIMDDisplayMode::Words) {
-			const auto action = menu.addAction(tr("View MMX as &words"),displayModeMapper,SLOT(map()));
-			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Words));
-		}
-		if(mmxDisplayMode_!=SIMDDisplayMode::Dwords) {
-			const auto action = menu.addAction(tr("View MMX as &doublewords"),displayModeMapper,SLOT(map()));
-			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Dwords));
-		}
-		if(mmxDisplayMode_!=SIMDDisplayMode::Qwords) {
-			const auto action = menu.addAction(tr("View MMX as &quadwords"),displayModeMapper,SLOT(map()));
-			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Qwords));
-		}
-		connect(displayModeMapper,SIGNAL(mapped(int)),this,SLOT(setMMXDisplayMode(int)));
-	}
-
-	menu.addSeparator();
-
-	{
-		const auto intModeMapper = new QSignalMapper(&menu);
-		if(mmxIntMode_!=IntDisplayMode::Hex) {
-			const auto action = menu.addAction(tr("View integers as &hexadecimal"),intModeMapper,SLOT(map()));
-			intModeMapper->setMapping(action,static_cast<int>(IntDisplayMode::Hex));
-		}
-		if(mmxIntMode_!=IntDisplayMode::Signed) {
-			const auto action = menu.addAction(tr("View integers as &signed decimal"),intModeMapper,SLOT(map()));
-			intModeMapper->setMapping(action,static_cast<int>(IntDisplayMode::Signed));
-		}
-		if(mmxIntMode_!=IntDisplayMode::Unsigned) {
-			const auto action = menu.addAction(tr("View integers as &unsigned decimal"),intModeMapper,SLOT(map()));
-			intModeMapper->setMapping(action,static_cast<int>(IntDisplayMode::Unsigned));
-		}
-		connect(intModeMapper,SIGNAL(mapped(int)),this,SLOT(setMMXIntMode(int)));
-	}
-}
-
-void ArchProcessor::setMMXIntMode(int mode) {
-	mmxIntMode_=static_cast<IntDisplayMode>(mode);
-}
-
-void ArchProcessor::setMMXDisplayMode(int mode) {
-	mmxDisplayMode_=static_cast<SIMDDisplayMode>(mode);
-}
-
-void ArchProcessor::setupSSEAVXRegisterMenu(QMenu& menu, const QString& extType) {
-	{
-		const auto displayModeMapper = new QSignalMapper(&menu);
-		if(xymmDisplayMode_!=SIMDDisplayMode::Bytes) {
-			const auto action = menu.addAction(tr("View %1 as &bytes").arg(extType),displayModeMapper,SLOT(map()));
-			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Bytes));
-		}
-		if(xymmDisplayMode_!=SIMDDisplayMode::Words) {
-			const auto action = menu.addAction(tr("View %1 as &words").arg(extType),displayModeMapper,SLOT(map()));
-			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Words));
-		}
-		if(xymmDisplayMode_!=SIMDDisplayMode::Dwords) {
-			const auto action = menu.addAction(tr("View %1 as &doublewords").arg(extType),displayModeMapper,SLOT(map()));
-			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Dwords));
-		}
-		if(xymmDisplayMode_!=SIMDDisplayMode::Qwords) {
-			const auto action = menu.addAction(tr("View %1 as &quadwords").arg(extType),displayModeMapper,SLOT(map()));
-			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Qwords));
-		}
-
-		menu.addSeparator();
-
-		if(xymmDisplayMode_!=SIMDDisplayMode::Floats32) {
-			const auto action = menu.addAction(tr("View %1 as &32-bit floats").arg(extType),displayModeMapper,SLOT(map()));
-			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Floats32));
-		}
-		if(xymmDisplayMode_!=SIMDDisplayMode::Floats64) {
-			const auto action = menu.addAction(tr("View %1 as &64-bit floats").arg(extType),displayModeMapper,SLOT(map()));
-			displayModeMapper->setMapping(action,static_cast<int>(SIMDDisplayMode::Floats64));
-		}
-		connect(displayModeMapper,SIGNAL(mapped(int)),this,SLOT(setSSEAVXDisplayMode(int)));
-	}
-
-	if(xymmDisplayMode_!=SIMDDisplayMode::Floats32 && xymmDisplayMode_!=SIMDDisplayMode::Floats64) {
-
-		menu.addSeparator();
-
-		const auto intModeMapper = new QSignalMapper(&menu);
-		if(xymmIntMode_!=IntDisplayMode::Hex) {
-			const auto action = menu.addAction(tr("View integers as &hexadecimal"),intModeMapper,SLOT(map()));
-			intModeMapper->setMapping(action,static_cast<int>(IntDisplayMode::Hex));
-		}
-		if(xymmIntMode_!=IntDisplayMode::Signed) {
-			const auto action = menu.addAction(tr("View integers as &signed decimal"),intModeMapper,SLOT(map()));
-			intModeMapper->setMapping(action,static_cast<int>(IntDisplayMode::Signed));
-		}
-		if(xymmIntMode_!=IntDisplayMode::Unsigned) {
-			const auto action = menu.addAction(tr("View integers as &unsigned decimal"),intModeMapper,SLOT(map()));
-			intModeMapper->setMapping(action,static_cast<int>(IntDisplayMode::Unsigned));
-		}
-		connect(intModeMapper,SIGNAL(mapped(int)),this,SLOT(setSSEAVXIntMode(int)));
-	}
-}
-
-void ArchProcessor::setSSEAVXIntMode(int mode) {
-	xymmIntMode_=static_cast<IntDisplayMode>(mode);
-}
-
-void ArchProcessor::setSSEAVXDisplayMode(int mode) {
-	xymmDisplayMode_=static_cast<SIMDDisplayMode>(mode);
-}
-
-void ArchProcessor::setFPUDisplayMode(int mode) {
-	fpuDisplayMode_=static_cast<FPUDisplayMode>(mode);
-}
-
-void ArchProcessor::setFPUOrderMode(int mode) {
-	fpuOrderMode_=static_cast<FPUOrderMode>(mode);
-}
-
-void ArchProcessor::setupFPURegisterMenu(QMenu& menu) {
-	{
-		const auto displayModeMapper = new QSignalMapper(&menu);
-		if(fpuDisplayMode_!=FPUDisplayMode::Hex) {
-			const auto action = menu.addAction(tr("View FPU as raw &hex values"),displayModeMapper,SLOT(map()));
-			displayModeMapper->setMapping(action,static_cast<int>(FPUDisplayMode::Hex));
-		}
-		if(fpuDisplayMode_!=FPUDisplayMode::Float) {
-			const auto action = menu.addAction(tr("View FPU as 80-bit &floats"),displayModeMapper,SLOT(map()));
-			displayModeMapper->setMapping(action,static_cast<int>(FPUDisplayMode::Float));
-		}
-		connect(displayModeMapper,SIGNAL(mapped(int)),this,SLOT(setFPUDisplayMode(int)));
-	}
-
-	menu.addSeparator();
-
-	{
-		const auto orderModeMapper = new QSignalMapper(&menu);
-		if(fpuOrderMode_!=FPUOrderMode::Stack) {
-			const auto action = menu.addAction(tr("View FPU as &stack of ST(i) registers"),orderModeMapper,SLOT(map()));
-			orderModeMapper->setMapping(action,static_cast<int>(FPUOrderMode::Stack));
-		}
-		if(fpuOrderMode_!=FPUOrderMode::Independent) {
-			const auto action = menu.addAction(tr("View FPU as &independent Ri registers"),orderModeMapper,SLOT(map()));
-			orderModeMapper->setMapping(action,static_cast<int>(FPUOrderMode::Independent));
-		}
-		connect(orderModeMapper,SIGNAL(mapped(int)),this,SLOT(setFPUOrderMode(int)));
-	}
-}
-
-std::unique_ptr<QMenu> ArchProcessor::register_item_context_menu(const Register& reg) {
-	std::unique_ptr<QMenu> menu(new QMenu());
-
-	if(reg.type()==Register::TYPE_SIMD && reg.name().startsWith("mm")) {
-		setupMMXRegisterMenu(*menu);
-		return menu;
-	}
-	if(reg.type()==Register::TYPE_SIMD && reg.name().startsWith("xmm")) {
-		setupSSEAVXRegisterMenu(*menu,"SSE");
-		return menu;
-	}
-	if(reg.type()==Register::TYPE_SIMD && reg.name().startsWith("ymm")) {
-		setupSSEAVXRegisterMenu(*menu,"AVX");
-		return menu;
-	}
-	if(reg.type()==Register::TYPE_FPU) {
-		setupFPURegisterMenu(*menu);
-		return menu;
-	}
-
-	return nullptr;
+//------------------------------------------------------------------------------
+// Name: register_view_model
+// Desc:
+//------------------------------------------------------------------------------
+RegisterViewModelBase::Model& ArchProcessor::get_register_view_model() const {
+    static RegisterViewModel model(has_mmx_*RegisterViewModel::CPUFeatureBits::MMX |
+								   has_xmm_*RegisterViewModel::CPUFeatureBits::SSE |
+								   has_ymm_*RegisterViewModel::CPUFeatureBits::AVX);
+    return model;
 }

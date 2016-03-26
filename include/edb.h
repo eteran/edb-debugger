@@ -54,6 +54,9 @@ class QString;
 
 struct ExpressionError;
 
+namespace RegisterViewModelBase
+{ class Model; }
+
 namespace edb {
 
 struct Prototype;
@@ -211,6 +214,7 @@ EDB_EXPORT size_t    selected_stack_size();
 
 EDB_EXPORT address_t selected_data_address();
 EDB_EXPORT size_t    selected_data_size();
+
 }
 }
 

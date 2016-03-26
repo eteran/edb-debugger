@@ -79,6 +79,8 @@ HEADERS += \
 	Register.h \
 	RegisterListWidget.h \
 	RegisterViewDelegate.h \
+	RegisterViewModelBase.h \
+	RegisterViewModel.h \
 	ShiftBuffer.h \
 	State.h \
 	Symbol.h \
@@ -158,6 +160,8 @@ SOURCES += \
 	Register.cpp \
 	RegisterListWidget.cpp \
 	RegisterViewDelegate.cpp \
+	RegisterViewModelBase.cpp \
+	RegisterViewModel.cpp \
 	State.cpp \
 	SymbolManager.cpp \
 	SyntaxHighlighter.cpp \
