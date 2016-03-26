@@ -650,81 +650,38 @@ void ValueField::copyToClipboard() const
 	QApplication::clipboard()->setText(text());
 }
 
-void ValueField::decrement()
+template<typename Op>
+void changeGPR(QModelIndex const& index,
+					   RegisterViewModelBase::Model* const model,
+					   Op const& change)
 {
 	if(index.parent().data().toString()!=GPRCategoryName)
 		return;
-
 	using RegisterViewModelBase::Model;
 	auto byteArr=index.data(Model::RawValueRole).toByteArray();
 	if(byteArr.isEmpty()) return;
 	std::uint64_t value(0);
 	assert(byteArr.size()<=int(sizeof value));
 	std::memcpy(&value,byteArr.constData(),byteArr.size());
-	--value;
+	value=change(value);
 	std::memcpy(byteArr.data(),&value,byteArr.size());
-	model()->setData(index,byteArr,Model::RawValueRole);
+	model->setData(index,byteArr,Model::RawValueRole);
 }
+
+void ValueField::decrement()
+{ changeGPR(index,model(),[](std::uint64_t v){return v-1;}); }
 
 void ValueField::increment()
-{
-	if(index.parent().data().toString()!=GPRCategoryName)
-		return;
-
-	using RegisterViewModelBase::Model;
-	auto byteArr=index.data(Model::RawValueRole).toByteArray();
-	if(byteArr.isEmpty()) return;
-	std::uint64_t value(0);
-	assert(byteArr.size()<=int(sizeof value));
-	std::memcpy(&value,byteArr.constData(),byteArr.size());
-	++value;
-	std::memcpy(byteArr.data(),&value,byteArr.size());
-	model()->setData(index,byteArr,Model::RawValueRole);
-}
+{ changeGPR(index,model(),[](std::uint64_t v){return v+1;}); }
 
 void ValueField::invert()
-{
-	if(index.parent().data().toString()!=GPRCategoryName)
-		return;
-
-	using RegisterViewModelBase::Model;
-	auto byteArr=index.data(Model::RawValueRole).toByteArray();
-	if(byteArr.isEmpty()) return;
-	std::uint64_t value(0);
-	assert(byteArr.size()<=int(sizeof value));
-	std::memcpy(&value,byteArr.constData(),byteArr.size());
-	value=~value;
-	std::memcpy(byteArr.data(),&value,byteArr.size());
-	model()->setData(index,byteArr,Model::RawValueRole);
-}
+{ changeGPR(index,model(),[](std::uint64_t v){return ~v;}); }
 
 void ValueField::setZero()
-{
-	if(index.parent().data().toString()!=GPRCategoryName)
-		return;
-
-	using RegisterViewModelBase::Model;
-	auto byteArr=index.data(Model::RawValueRole).toByteArray();
-	if(byteArr.isEmpty()) return;
-	std::uint64_t value(0);
-	assert(byteArr.size()<=int(sizeof value));
-	std::memcpy(byteArr.data(),&value,byteArr.size());
-	model()->setData(index,byteArr,Model::RawValueRole);
-}
+{ changeGPR(index,model(),[](int){return 0;}); }
 
 void ValueField::setToOne()
-{
-	if(index.parent().data().toString()!=GPRCategoryName)
-		return;
-
-	using RegisterViewModelBase::Model;
-	auto byteArr=index.data(Model::RawValueRole).toByteArray();
-	if(byteArr.isEmpty()) return;
-	std::uint64_t value(1);
-	assert(byteArr.size()<=int(sizeof value));
-	std::memcpy(byteArr.data(),&value,byteArr.size());
-	model()->setData(index,byteArr,Model::RawValueRole);
-}
+{ changeGPR(index,model(),[](int){return 1;}); }
 
 // -------------------------------- FPUValueField impl ---------------------------------
 
