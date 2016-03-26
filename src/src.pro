@@ -33,9 +33,6 @@ HEADERS += \
 	DebuggerInternal.h \
 	DialogArguments.h \
 	DialogAttach.h \
-	DialogEditFPU.h \
-	DialogEditGPR.h \
-	DialogEditSIMDRegister.h \
 	DialogInputBinaryString.h \
 	DialogInputValue.h \
 	DialogMemoryRegions.h \
@@ -46,9 +43,7 @@ HEADERS += \
 	DialogThreads.h \
 	Expression.h \
 	FixedFontSelector.h \
-	Float80Edit.h \
 	FloatX.h \
-	GPREdit.h \
 	HexStringValidator.h \
 	IAnalyzer.h \
 	IBinary.h \
@@ -129,9 +124,6 @@ SOURCES += \
 	Debugger.cpp \
 	DialogArguments.cpp \
 	DialogAttach.cpp \
-	DialogEditFPU.cpp \
-	DialogEditGPR.cpp \
-	DialogEditSIMDRegister.cpp \
 	DialogInputBinaryString.cpp \
 	DialogInputValue.cpp \
 	DialogMemoryRegions.cpp \
@@ -141,10 +133,8 @@ SOURCES += \
 	DialogAbout.cpp \
 	DialogThreads.cpp \
 	FixedFontSelector.cpp \
-	Float80Edit.cpp \
 	FloatX.cpp \
 	Function.cpp \
-	GPREdit.cpp \
 	HexStringValidator.cpp \
 	Instruction.cpp \
 	LineEdit.cpp \
