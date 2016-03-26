@@ -114,9 +114,11 @@ void Configuration::read_settings() {
 	QString cacheDirectory = QDesktopServices::storageLocation(QDesktopServices::CacheLocation);
 #endif
 	QString defaultSymbolPath = QString("%1/%2").arg(cacheDirectory, "symbols");
+	QString defaultSessionPath = QString("%1/%2").arg(cacheDirectory, "sessions");
+	
 	symbol_path  = settings.value("directory.symbol.path", defaultSymbolPath).value<QString>();
 	plugin_path  = settings.value("directory.plugin.path", default_plugin_path).value<QString>();
-	session_path = settings.value("directory.session.path", QString()).value<QString>();	
+	session_path = settings.value("directory.session.path", defaultSessionPath).value<QString>();	
 	settings.endGroup();
 
 	settings.beginGroup("Exceptions");
