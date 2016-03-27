@@ -1620,7 +1620,7 @@ RegisterGroup* createFPULastOp(RegisterViewModelBase::Model* model,QWidget* pare
 	QPersistentModelIndex const FSRIndex=findModelRegister(catIndex,FSR_NAME,MODEL_VALUE_COLUMN);
 	QPersistentModelIndex const FCRIndex=findModelRegister(catIndex,FCR_NAME,MODEL_VALUE_COLUMN);
 	bool fopRarelyUpdated=FOPIsIncompatible();
-	const auto FOPFormatter=[FOPIndex,FSRIndex,FCRIndex,FIPIndex,fopRarelyUpdated](QString const& str)
+	const auto FOPFormatter=[FOPIndex,FSRIndex,FCRIndex,FIPIndex,fopRarelyUpdated](QString const& str) -> QString
 	{
 		if(str.isEmpty() || str[0]=='?') return str;
 
