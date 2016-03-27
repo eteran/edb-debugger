@@ -1084,9 +1084,12 @@ QList<QAction*> Debugger::getCurrentRegisterContextMenuItems() const {
 	QList<QAction*> allActions;
 	const auto reg=active_register();
 	if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP)) {
-		QList<QAction*> actions{registerFollowInDumpAction_,
-								registerFollowInDumpTabAction_,
-								registerFollowInStackAction_};
+
+		QList<QAction*> actions;
+		actions << registerFollowInDumpAction_;
+		actions << registerFollowInDumpTabAction_;
+		actions << registerFollowInStackAction_;
+
 		allActions.append(actions);
 	}
 	allActions.append(get_plugin_context_menu_items(&IPlugin::register_context_menu));
