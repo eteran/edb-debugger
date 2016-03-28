@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>27</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_help">
@@ -129,11 +129,6 @@
          <pointsize>9</pointsize>
         </font>
        </property>
-       <column>
-        <property name="text">
-         <string>1</string>
-        </property>
-       </column>
       </widget>
      </item>
     </layout>
@@ -193,8 +188,7 @@
   </widget>
   <action name="action_Open">
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-open.png</normaloff>:/debugger/images/edb22-action-open.png</iconset>
+    <iconset theme="document-open"/>
    </property>
    <property name="text">
     <string>&amp;Open</string>
@@ -209,6 +203,9 @@
    </property>
   </action>
   <action name="actionE_xit">
+   <property name="icon">
+    <iconset theme="application-exit"/>
+   </property>
    <property name="text">
     <string>E&amp;xit</string>
    </property>
@@ -318,6 +315,9 @@
    </property>
   </action>
   <action name="action_About">
+   <property name="icon">
+    <iconset theme="help-about"/>
+   </property>
    <property name="text">
     <string>&amp;About</string>
    </property>
@@ -325,6 +325,9 @@
   <action name="action_Help">
    <property name="enabled">
     <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="help-contents"/>
    </property>
    <property name="text">
     <string>&amp;Help</string>
@@ -410,6 +413,9 @@
    </property>
   </action>
   <action name="action_Recent_Files">
+   <property name="icon">
+    <iconset theme="document-open-recent"/>
+   </property>
    <property name="text">
     <string>&amp;Recent Files</string>
    </property>

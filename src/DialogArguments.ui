@@ -34,8 +34,7 @@
         <string>+</string>
        </property>
        <property name="icon">
-        <iconset resource="debugger.qrc">
-         <normaloff>:/debugger/images/edb16-action-add.png</normaloff>:/debugger/images/edb16-action-add.png</iconset>
+        <iconset theme="list-add"/>
        </property>
       </widget>
      </item>
@@ -45,8 +44,7 @@
         <string>-</string>
        </property>
        <property name="icon">
-        <iconset resource="debugger.qrc">
-         <normaloff>:/debugger/images/edb16-action-remove.png</normaloff>:/debugger/images/edb16-action-remove.png</iconset>
+        <iconset theme="list-remove"/>
        </property>
       </widget>
      </item>
@@ -69,8 +67,7 @@
         <string>+</string>
        </property>
        <property name="icon">
-        <iconset resource="debugger.qrc">
-         <normaloff>:/debugger/images/edb16-action-arrow-up.png</normaloff>:/debugger/images/edb16-action-arrow-up.png</iconset>
+        <iconset theme="go-up"/>
        </property>
       </widget>
      </item>
@@ -80,8 +77,7 @@
         <string>-</string>
        </property>
        <property name="icon">
-        <iconset resource="debugger.qrc">
-         <normaloff>:/debugger/images/edb16-action-arrow-down.png</normaloff>:/debugger/images/edb16-action-arrow-down.png</iconset>
+        <iconset theme="go-down"/>
        </property>
       </widget>
      </item>
