@@ -337,6 +337,9 @@
    </property>
   </action>
   <action name="action_Configure_Debugger">
+   <property name="icon">
+    <iconset theme="configure"/>
+   </property>
    <property name="text">
     <string>&amp;Preferences</string>
    </property>
