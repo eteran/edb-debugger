@@ -86,7 +86,7 @@ void DialogOptions::addOptionsPage(QWidget *page) {
 		layout->addWidget(toolbox_, 0, 0, 1, 1);
 	}
 
-	toolbox_->addItem(page, QIcon(":/debugger/images/edb32-preferences-plugin.png"), page->windowTitle());
+	toolbox_->addItem(page, QIcon::fromTheme("preferences-plugin", QIcon(":/debugger/images/edb32-preferences-plugin.png")), page->windowTitle());
 }
 
 //------------------------------------------------------------------------------
