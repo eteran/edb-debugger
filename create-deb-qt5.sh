@@ -10,7 +10,7 @@ trap "rm -rf $TEMP_DIR" EXIT
 # Build edb
 mkdir -p $BUILD_DIR
 pushd $BUILD_DIR
-cmake $SOURCE_DIR
+cmake -DQT_VERSION=Qt5 $SOURCE_DIR
 if ! make -j8; then
 	echo "Compiling error. Exiting..."
 	exit 1
@@ -29,13 +29,8 @@ fi
 INSTALL_SIZE=$(du -b -s $DEB_DIR | cut -f1)
 VERSION=$($BUILD_DIR/edb --dump-version 2> /dev/null)
 
-if [ ! -z $(ldd $BUILD_DIR/edb | grep "libQt5") ]; then
-	#TODO(eteran): figure out the proper deps for Qt5 on Ubuntu/Debian
-	DEPENDS="libqt5core5a (>= 5.0.0), libqt5gui5 (>= 5.0.0)"
-else
-	DEPENDS="libqtcore4 (>= 4.6.0), libqtgui4 (>= 4.6.0)"
-fi
-
+#TODO(eteran): figure out the proper deps for Qt5 on Ubuntu/Debian
+DEPENDS="libqt5core5a (>= 5.0.0), libqt5gui5 (>= 5.0.0), libcapstone3"
 
 # Create the meta-data dir
 mkdir -p $DEB_DIR/DEBIAN
@@ -45,7 +40,7 @@ mkdir -p $DEB_DIR/DEBIAN
 find $DEB_DIR -type f | xargs md5sum > $DEB_DIR/DEBIAN/md5sums
 
 # Generating Debian control file
-echo "Package: edb-debugger
+echo "Package: edb-debugger-qt5
 Version: $VERSION
 Architecture: $ARCH
 Maintainer: Evan Teran
@@ -65,4 +60,4 @@ Description: Graphical debugger and disassembler for ELF binaries
  plugins." > $DEB_DIR/DEBIAN/control
 
 # Generate package
-dpkg-deb -b $DEB_DIR $SOURCE_DIR/edb-debugger_${VERSION}_${ARCH}.deb
+dpkg-deb -b $DEB_DIR $SOURCE_DIR/edb-debugger-qt5_${VERSION}_${ARCH}.deb
