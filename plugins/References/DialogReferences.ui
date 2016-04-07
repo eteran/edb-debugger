@@ -7,7 +7,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>275</width>
+    <width>281</width>
     <height>305</height>
    </rect>
   </property>
@@ -58,6 +58,9 @@
        <property name="text">
         <string>&amp;Close</string>
        </property>
+       <property name="icon">
+        <iconset theme="dialog-close"/>
+       </property>
       </widget>
      </item>
      <item>
@@ -67,6 +70,9 @@
        </property>
        <property name="text">
         <string>&amp;Help</string>
+       </property>
+       <property name="icon">
+        <iconset theme="help-browser"/>
        </property>
       </widget>
      </item>
@@ -87,6 +93,9 @@
       <widget class="QPushButton" name="btnFind">
        <property name="text">
         <string>&amp;Find</string>
+       </property>
+       <property name="icon">
+        <iconset theme="edit-find"/>
        </property>
        <property name="default">
         <bool>true</bool>

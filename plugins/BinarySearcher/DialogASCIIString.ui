@@ -56,6 +56,9 @@
        <property name="text">
         <string>&amp;Close</string>
        </property>
+       <property name="icon">
+        <iconset theme="dialog-close"/>
+       </property>
       </widget>
      </item>
      <item>
@@ -65,6 +68,9 @@
        </property>
        <property name="text">
         <string>&amp;Help</string>
+       </property>
+       <property name="icon">
+        <iconset theme="help-browser"/>
        </property>
       </widget>
      </item>
@@ -85,6 +91,9 @@
       <widget class="QPushButton" name="btnFind">
        <property name="text">
         <string>&amp;Find</string>
+       </property>
+       <property name="icon">
+        <iconset theme="edit-find"/>
        </property>
        <property name="default">
         <bool>true</bool>

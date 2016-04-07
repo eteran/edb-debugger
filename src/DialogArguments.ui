@@ -95,9 +95,7 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="debugger.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

@@ -61,8 +61,8 @@
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset resource="../../src/debugger.qrc">
-              <normaloff>:/debugger/images/edb22-action-open.png</normaloff>:/debugger/images/edb22-action-open.png</iconset>
+             <iconset theme="document-open">
+             </iconset>
             </property>
             <property name="arrowType">
              <enum>Qt::NoArrow</enum>
@@ -153,8 +153,8 @@
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset resource="../../src/debugger.qrc">
-              <normaloff>:/debugger/images/edb22-action-open.png</normaloff>:/debugger/images/edb22-action-open.png</iconset>
+             <iconset theme="document-open">
+             </iconset>
             </property>
            </widget>
           </item>
@@ -195,6 +195,10 @@
         <widget class="QPushButton" name="btnRefreshThreads">
          <property name="text">
           <string>Refresh</string>
+         </property>
+         <property name="icon">
+          <iconset theme="view-refresh">
+          </iconset>
          </property>
         </widget>
        </item>
@@ -253,6 +257,10 @@
         <widget class="QPushButton" name="btnRefreshModules">
          <property name="text">
           <string>Refresh</string>
+         </property>
+         <property name="icon">
+          <iconset theme="view-refresh">
+          </iconset>
          </property>
         </widget>
        </item>
@@ -328,6 +336,10 @@
         <widget class="QPushButton" name="btnRefreshMemory">
          <property name="text">
           <string>Refresh</string>
+         </property>
+         <property name="icon">
+          <iconset theme="view-refresh">
+          </iconset>
          </property>
         </widget>
        </item>
@@ -408,6 +420,10 @@
           <widget class="QPushButton" name="btnRefreshEnvironment">
            <property name="text">
             <string>Refresh</string>
+           </property>
+           <property name="icon">
+            <iconset theme="view-refresh">
+            </iconset>
            </property>
           </widget>
          </item>
@@ -495,6 +511,10 @@
            <property name="text">
             <string>Refresh</string>
            </property>
+           <property name="icon">
+            <iconset theme="view-refresh">
+            </iconset>
+           </property>
           </widget>
          </item>
         </layout>
@@ -551,9 +571,7 @@
    </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../src/debugger.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>
