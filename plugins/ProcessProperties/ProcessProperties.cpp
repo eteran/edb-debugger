@@ -37,7 +37,7 @@ ProcessProperties::ProcessProperties() : menu_(0), dialog_(0) {
 // Desc:
 //------------------------------------------------------------------------------
 ProcessProperties::~ProcessProperties() {
-	delete dialog_;
+//	delete dialog_;
 }
 
 //------------------------------------------------------------------------------
