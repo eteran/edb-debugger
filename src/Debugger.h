@@ -151,6 +151,11 @@ private:
 	void toggle_flag(int);
 
 	void run_to_this_line(bool pass_signal);
+	
+private Q_SLOTS:
+	// the manually connected general slots
+	void mnuModifyBytes();	
+	
 private Q_SLOTS:
 	// the manually connected CPU slots
 	void mnuCPUEditComment();
@@ -344,7 +349,6 @@ private:
 	QAction *dumpFollowInCPUAction_;
 	QAction *dumpFollowInDumpAction_;
 	QAction *dumpFollowInStackAction_;
-	QAction *dumpEditBytesAction_;
 	QAction *dumpSaveToFileAction_;
 	QAction *registerFollowInDumpAction_;
 	QAction *registerFollowInDumpTabAction_;
@@ -352,7 +356,6 @@ private:
 	QAction *stackFollowInCPUAction_;
 	QAction *stackFollowInDumpAction_;
 	QAction *stackFollowInStackAction_;
-	QAction *stackEditBytesAction_;
 	QAction *stackGotoRSPAction_;
 	QAction *stackGotoRBPAction_;
 	QAction *stackPushAction_;

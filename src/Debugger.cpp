@@ -305,9 +305,10 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 
 	// CPU Shortcuts
 	gotoAddressAction_           = createAction(tr("&Goto Address"),                                 QKeySequence(tr("Ctrl+G")),   SLOT(goto_triggered()));
+	editBytesAction_             = createAction(tr("&Edit Bytes"),                                   QKeySequence(tr("Ctrl+E")),   SLOT(mnuModifyBytes()));
+		
 	editCommentAction_           = createAction(tr("Add &Comment"),                                  QKeySequence(tr(";")),        SLOT(mnuCPUEditComment()));
 	removeCommentAction_         = createAction(tr("Remove Comment"),                                QKeySequence(),               SLOT(mnuCPURemoveComment()));
-	editBytesAction_             = createAction(tr("&Edit Bytes"),                                   QKeySequence(tr("Ctrl+E")),   SLOT(mnuCPUModify()));
 	toggleBreakpointAction_      = createAction(tr("&Toggle Breakpoint"),                            QKeySequence(tr("F2")),       SLOT(mnuCPUToggleBreakpoint()));
 	conditionalBreakpointAction_ = createAction(tr("Add &Conditional Breakpoint"),                   QKeySequence(tr("Shift+F2")), SLOT(mnuCPUAddConditionalBreakpoint()));
 	runToThisLineAction_         = createAction(tr("R&un to this Line"),                             QKeySequence(tr("F4")),       SLOT(mnuCPURunToThisLine()));
@@ -333,7 +334,6 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	dumpFollowInCPUAction_       = createAction(tr("Follow Address In &CPU"),                        QKeySequence(),               SLOT(mnuDumpFollowInCPU()));
 	dumpFollowInDumpAction_      = createAction(tr("Follow Address In &Dump"),                       QKeySequence(),               SLOT(mnuDumpFollowInDump()));
 	dumpFollowInStackAction_     = createAction(tr("Follow Address In &Stack"),                      QKeySequence(),               SLOT(mnuDumpFollowInStack()));
-	dumpEditBytesAction_         = createAction(tr("&Edit Bytes"),                                   QKeySequence(),               SLOT(mnuDumpModify()));
 	dumpSaveToFileAction_        = createAction(tr("&Save To File"),                                 QKeySequence(),               SLOT(mnuDumpSaveToFile()));
 	
 	// Register View Shortcuts
@@ -345,7 +345,6 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	stackFollowInCPUAction_   = createAction(tr("Follow Address In &CPU"),   QKeySequence(), SLOT(mnuStackFollowInCPU()));
 	stackFollowInDumpAction_  = createAction(tr("Follow Address In &Dump"),  QKeySequence(), SLOT(mnuStackFollowInDump()));
 	stackFollowInStackAction_ = createAction(tr("Follow Address In &Stack"), QKeySequence(), SLOT(mnuStackFollowInStack()));
-	stackEditBytesAction_     = createAction(tr("&Edit Bytes"),              QKeySequence(), SLOT(mnuStackModify()));
 	
 	// these get updated when we attach/run a new process, so it's OK to hard code them here	
 #if defined(EDB_X86_64)
@@ -1691,7 +1690,7 @@ void Debugger::mnuStackContextMenu(const QPoint &pos) {
 	menu->addAction(stackGotoRBPAction_);
 
 	menu->addSeparator();
-	menu->addAction(stackEditBytesAction_);
+	menu->addAction(editBytesAction_);
 	menu->addSeparator();
 	menu->addAction(stackPushAction_);
 	menu->addAction(stackPopAction_);
@@ -1726,7 +1725,7 @@ void Debugger::mnuDumpContextMenu(const QPoint &pos) {
 	menu->addAction(dumpFollowInStackAction_);
 	menu->addAction(gotoAddressAction_);
 	menu->addSeparator();
-	menu->addAction(dumpEditBytesAction_);
+	menu->addAction(editBytesAction_);
 	menu->addSeparator();
 	menu->addAction(dumpSaveToFileAction_);
 
@@ -1990,6 +1989,25 @@ void Debugger::modify_bytes(const T &hexview) {
 		if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"), size)) {
 			edb::v1::modify_bytes(address, size, bytes, 0x00);
 		}
+	}
+}
+
+
+//------------------------------------------------------------------------------
+// Name: mnuDumpModify
+// Desc:
+//------------------------------------------------------------------------------
+void Debugger::mnuModifyBytes() {
+
+
+	QWidget *const focusedWidget = QApplication::focusWidget();
+	if(focusedWidget == ui.cpuView) {
+		mnuCPUModify();
+	} else if(focusedWidget == stack_view_.get()) {
+		mnuStackModify();
+	} else {
+		// not CPU or Stack, assume one of the data views..
+		mnuDumpModify();
 	}
 }
 
