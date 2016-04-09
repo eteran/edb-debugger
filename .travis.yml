@@ -41,14 +41,16 @@ install:
     - if [ "$QT_BASE" = "55" ]; then sudo apt-get install -qq qt55base qt55xmlpatterns; source /opt/qt55/bin/qt55-env.sh; fi
 
 before_script:
-    - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" == "48" ]; then qmake -spec unsupported/linux-clang CONFIG+=warn_off QMAKE_CXXFLAGS+='-isystem /usr/include/qt4 -Wall -Wextra -Wno-missing-braces'; fi
-    - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" != "48" ]; then qmake -spec linux-clang; fi
-    - if [ "$CXX" != "clang++" ]; then qmake; fi
+    - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" == "48" ]; then mkdir build && cd build && export CC=/usr/bin/clang && export CXX=/usr/bin/clang++ && cmake -DQT_VERSION=Qt4 ..; fi
+    - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" != "48" ]; then mkdir build && cd build && export CC=/usr/bin/clang && export CXX=/usr/bin/clang++ && cmake -DQT_VERSION=Qt5 ..; fi
+    - if [ "$CXX" != "clang++" ] && [ "$QT_BASE" == "48" ]; then mkdir build && cd build && cmake -DQT_VERSION=Qt4 .. ; fi
+    - if [ "$CXX" != "clang++" ] && [ "$QT_BASE" != "48" ]; then mkdir build && cd build && cmake -DQT_VERSION=Qt5 .. ; fi
 
 script:
     - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" == "48" ]; then make; fi
     - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" != "48" ]; then /bin/true; fi
-    - if [ "$CXX" != "clang++" ]; then make; fi
+    - if [ "$CXX" != "clang++" ] && [ "$QT_BASE" == "48" ]; then make; fi
+    - if [ "$CXX" != "clang++" ] && [ "$QT_BASE" != "48" ]; then make; fi
 
 branches:
     only:
@@ -66,3 +68,4 @@ addons:
             - libboost-dev
             - gcc-4.8
             - g++-4.8
+            - cmake
