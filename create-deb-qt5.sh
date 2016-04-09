@@ -52,12 +52,12 @@ Section: devel
 Priority: extra
 Description: Graphical debugger and disassembler for ELF binaries
  EDB (Evan's Debugger) is a modular and modern disassembler and debugger for
- binary ELF files based on ptrace API and edisasm lib. EDB is very similar to
- OllyDbg, a famous freeware debugger for PE (Portable Executable) files. The
- intent of EDB is to debug binaries without source code. It's possible to set
- conditional and inconditional breakpoints, display memory stack, processor
- registers state and more. The power of EDB can be increased with many
- plugins." > $DEB_DIR/DEBIAN/control
+ binary ELF files based on ptrace API and the capstone disassembly library. 
+ EDB is very similar to OllyDbg, a famous freeware debugger for PE 
+ (Portable Executable) files. The intent of EDB is to debug binaries without 
+ source code. It's possible to set conditional and inconditional breakpoints, 
+ display memory stack, processor registers state and more. The power of EDB can 
+ be increased with many plugins." > $DEB_DIR/DEBIAN/control
 
 # Generate package
 dpkg-deb -b $DEB_DIR $SOURCE_DIR/edb-debugger-qt5_${VERSION}_${ARCH}.deb
