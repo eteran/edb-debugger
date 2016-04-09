@@ -19,6 +19,7 @@ env:
         - QT_BASE=55
 
 sudo: required
+dist: trusty
 
 before_install:
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
