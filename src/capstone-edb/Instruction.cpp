@@ -147,6 +147,15 @@ void adjustInstructionText(Capstone::cs_insn& insn)
 	strcpy(insn.op_str,operands.toStdString().c_str());
 }
 
+void stripMemorySizes(char* op_str)
+{
+	QString operands(op_str);
+
+	operands.replace(QRegExp("(\\b.?(mm)?word|byte)\\b( ptr)? "),"");
+
+	strcpy(op_str,operands.toStdString().c_str());
+}
+
 Instruction::Instruction(const void* first, const void* last, uint64_t rva) noexcept
 {
 	assert(capstoneInitialized);
@@ -261,6 +270,17 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 			}
 
 			operands_.push_back(operand);
+		}
+
+		// Remove extraneous size specification as in 'mov eax, dword [ecx]'
+		if(activeFormatter.options().syntax==Formatter::SyntaxIntel)
+		{
+			if(operand_count()==2 && operands_[0].size()==operands_[1].size() &&
+					(operands_[0].general_type()==Operand::TYPE_REGISTER && operands_[1].general_type()==Operand::TYPE_EXPRESSION ||
+					 operands_[1].general_type()==Operand::TYPE_REGISTER && operands_[0].general_type()==Operand::TYPE_EXPRESSION))
+			{
+				stripMemorySizes(insn_.op_str);
+			}
 		}
 	}
 	else
