@@ -142,6 +142,7 @@ void adjustInstructionText(Capstone::cs_insn& insn)
 	operands.replace(" - ","-");
 
 	operands.replace(QRegExp("\\bxword "),"tbyte ");
+	operands.replace(QRegExp("(word|byte) ptr "),"\\1 ");
 
 	strcpy(insn.op_str,operands.toStdString().c_str());
 }
