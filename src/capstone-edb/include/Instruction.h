@@ -167,6 +167,7 @@ public:
 	uint64_t rva() const { return rva_; }
 	std::string mnemonic() const;
 	uint32_t prefix() const { return prefix_; }
+	Capstone::cs_insn const& cs_insn() const { return insn_; }
 	// Capstone doesn't provide any easy way to get total prefix length,
 	// so this is currently unimplemented
 	//std::size_t prefix_size() const;
