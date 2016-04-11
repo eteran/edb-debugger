@@ -134,7 +134,7 @@ void SyntaxHighlighter::create_rules() {
 
 	// pointer modifiers
 	rules_.append(HighlightingRule(
-		"\\b(t?byte|([xyz]mm|[qdf]?)word) ptr\\b",
+		"\\b(t?byte|([xyz]mm|[qdf]?)word)( ptr)?\\b",
 		QColor(settings.value("theme.ptr.foreground", "darkGreen").value<QString>()),
 		QColor(settings.value("theme.ptr.background", "transparent").value<QString>()),
 		settings.value("theme.ptr.weight", QFont::Normal).value<int>(),

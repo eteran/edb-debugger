@@ -254,12 +254,6 @@ void DialogAssembler::on_buttonBox_accepted() {
 		}
 
 
-		const QFile file(command_line[0]);
-		if(command_line[0].isEmpty() || !file.exists()) {
-			QMessageBox::warning(this, tr("Couldn't Find Assembler"), tr("Failed to locate your assembler."));
-			return;
-		}
-
 		QTemporaryFile source_file(QString("%1/edb_asm_temp_%2_XXXXXX.%3").arg(QDir::tempPath()).arg(getpid()).arg(asm_ext));
 		if(!source_file.open()) {
 			QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary source file."));
@@ -333,6 +327,13 @@ void DialogAssembler::on_buttonBox_accepted() {
 			ui->assembly->setFocus(Qt::OtherFocusReason);
 			ui->assembly->lineEdit()->selectAll();
 		}
+		else if(process.error()==QProcess::FailedToStart)
+		{
+			QMessageBox::warning(this, tr("Couldn't Launch Assembler"), tr("Failed to start your assembler."));
+			return;
+		}
+
+
 
 	}
 }

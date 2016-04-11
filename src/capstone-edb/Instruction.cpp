@@ -61,6 +61,11 @@ bool init(bool amd64)
 	return true;
 }
 
+int Operand::size() const
+{
+	return owner_->cs_insn().detail->x86.operands[numberInInstruction_].size;
+}
+
 void Instruction::fillPrefix()
 {
 	// FIXME: Capstone seems to be unable to correctly report prefixes for
@@ -137,8 +142,18 @@ void adjustInstructionText(Capstone::cs_insn& insn)
 	operands.replace(" - ","-");
 
 	operands.replace(QRegExp("\\bxword "),"tbyte ");
+	operands.replace(QRegExp("(word|byte) ptr "),"\\1 ");
 
 	strcpy(insn.op_str,operands.toStdString().c_str());
+}
+
+void stripMemorySizes(char* op_str)
+{
+	QString operands(op_str);
+
+	operands.replace(QRegExp("(\\b.?(mm)?word|byte)\\b( ptr)? "),"");
+
+	strcpy(op_str,operands.toStdString().c_str());
 }
 
 Instruction::Instruction(const void* first, const void* last, uint64_t rva) noexcept
@@ -163,13 +178,13 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 		if((operation()==Operation::X86_INS_LCALL||operation()==Operation::X86_INS_LJMP) &&
 				ops[0].type==Capstone::X86_OP_IMM)
 		{
-			assert(operand_count()==2);
+			assert(cs_insn_operand_count()==2);
 			Operand operand(this,0);
 			operand.type_=Operand::TYPE_ABSOLUTE;
 			operand.abs_.seg=ops[0].imm;
 			operand.abs_.offset=ops[1].imm;
 		}
-		else for(std::size_t i=0;i<operand_count();++i)
+		else for(std::size_t i=0;i<cs_insn_operand_count();++i)
 		{
 			Operand operand(this,i);
 			switch(ops[i].type)
@@ -256,6 +271,17 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 
 			operands_.push_back(operand);
 		}
+
+		// Remove extraneous size specification as in 'mov eax, dword [ecx]'
+		if(activeFormatter.options().syntax==Formatter::SyntaxIntel)
+		{
+			if(operand_count()==2 && operands_[0].size()==operands_[1].size() &&
+					(operands_[0].general_type()==Operand::TYPE_REGISTER && operands_[1].general_type()==Operand::TYPE_EXPRESSION ||
+					 operands_[1].general_type()==Operand::TYPE_REGISTER && operands_[0].general_type()==Operand::TYPE_EXPRESSION))
+			{
+				stripMemorySizes(insn_.op_str);
+			}
+		}
 	}
 	else
 	{
@@ -284,9 +310,17 @@ const uint8_t* Instruction::bytes() const
 	return insn_.bytes;
 }
 
-std::size_t Instruction::operand_count() const
+std::size_t Instruction::cs_insn_operand_count() const
 {
 	return insn_.detail->x86.op_count;
+}
+
+std::size_t Instruction::operand_count() const
+{
+	std::size_t count=operands_.size();
+	for(const auto& op : operands_)
+		if(!op.valid()) --count;
+	return count;
 }
 
 std::size_t Instruction::size() const

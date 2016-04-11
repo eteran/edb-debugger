@@ -22,4 +22,15 @@
 		]]>
 	</template>
 	</assembler>
+	<assembler name="fasm">
+		<executable command_line="fasm %IN% %OUT%" extension="asm" />
+		<template>
+		<![CDATA[
+		use%BITS%
+		ORG %ADDRESS%
+
+		%INSTRUCTION%
+		]]>
+	</template>
+	</assembler>
 </assemblers>
