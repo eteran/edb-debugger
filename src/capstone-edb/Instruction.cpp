@@ -168,13 +168,13 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 		if((operation()==Operation::X86_INS_LCALL||operation()==Operation::X86_INS_LJMP) &&
 				ops[0].type==Capstone::X86_OP_IMM)
 		{
-			assert(operand_count()==2);
+			assert(cs_insn_operand_count()==2);
 			Operand operand(this,0);
 			operand.type_=Operand::TYPE_ABSOLUTE;
 			operand.abs_.seg=ops[0].imm;
 			operand.abs_.offset=ops[1].imm;
 		}
-		else for(std::size_t i=0;i<operand_count();++i)
+		else for(std::size_t i=0;i<cs_insn_operand_count();++i)
 		{
 			Operand operand(this,i);
 			switch(ops[i].type)
@@ -289,9 +289,17 @@ const uint8_t* Instruction::bytes() const
 	return insn_.bytes;
 }
 
-std::size_t Instruction::operand_count() const
+std::size_t Instruction::cs_insn_operand_count() const
 {
 	return insn_.detail->x86.op_count;
+}
+
+std::size_t Instruction::operand_count() const
+{
+	std::size_t count=operands_.size();
+	for(const auto& op : operands_)
+		if(!op.valid()) --count;
+	return count;
 }
 
 std::size_t Instruction::size() const
