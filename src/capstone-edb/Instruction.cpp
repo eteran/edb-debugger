@@ -61,6 +61,11 @@ bool init(bool amd64)
 	return true;
 }
 
+int Operand::size() const
+{
+	return owner_->cs_insn().detail->x86.operands[numberInInstruction_].size;
+}
+
 void Instruction::fillPrefix()
 {
 	// FIXME: Capstone seems to be unable to correctly report prefixes for

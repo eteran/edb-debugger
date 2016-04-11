@@ -107,6 +107,7 @@ public:
 	const expression_t expression() const { return expr_; }
 	Instruction* owner() const { return owner_; }
 	Register reg() const { return reg_; }
+	int size() const;
 	Operand(Instruction* instr, std::size_t numberInInstruction) : owner_(instr), numberInInstruction_(numberInInstruction) {}
 	Operand(){}
 private:
