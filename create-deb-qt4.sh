@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 SOURCE_DIR=$PWD
 TEMP_DIR=$(mktemp -d)
