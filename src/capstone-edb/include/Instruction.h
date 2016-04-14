@@ -107,6 +107,7 @@ public:
 	const expression_t expression() const { return expr_; }
 	Instruction* owner() const { return owner_; }
 	Register reg() const { return reg_; }
+	int size() const;
 	Operand(Instruction* instr, std::size_t numberInInstruction) : owner_(instr), numberInInstruction_(numberInInstruction) {}
 	Operand(){}
 private:
@@ -167,6 +168,7 @@ public:
 	uint64_t rva() const { return rva_; }
 	std::string mnemonic() const;
 	uint32_t prefix() const { return prefix_; }
+	Capstone::cs_insn const& cs_insn() const { return insn_; }
 	// Capstone doesn't provide any easy way to get total prefix length,
 	// so this is currently unimplemented
 	//std::size_t prefix_size() const;
@@ -229,6 +231,8 @@ public:
 	bool is_fpu_taking_bcd() const;
 
 private:
+	std::size_t cs_insn_operand_count() const; // may be not equal to operand_count()
+
 	Capstone::cs_insn insn_;
 	Capstone::cs_detail detail_;
 	bool valid_=false;
