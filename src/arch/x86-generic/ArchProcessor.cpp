@@ -654,11 +654,16 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								const edb::value16 value(target);
 								QString valueStr;
 								if(inst.is_fpu_taking_integer())
+								{
+									valueStr=util::formatInt(value,NumberDisplayMode::Signed);
 									// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
 									// even across values in analysis view about its use of 0x prefix
 									// Use of hexadecimal format here is pretty much pointless since the number here is
 									// expected to be used in usual numeric computations, not as address or similar
-									valueStr=util::formatInt(value,NumberDisplayMode::Signed)+" (decimal)";
+									const std::int16_t signedValue=value;
+									if(signedValue>9 || signedValue<-9)
+										valueStr+=" (decimal)";
+								}
 								else
 									valueStr="0x"+value.toHexString();
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
@@ -671,11 +676,16 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								if(inst.is_fpu_taking_float())
 									valueStr=formatFloat(value);
 								else if(inst.is_fpu_taking_integer())
+								{
+									valueStr=util::formatInt(value,NumberDisplayMode::Signed);
 									// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
 									// even across values in analysis view about its use of 0x prefix
 									// Use of hexadecimal format here is pretty much pointless since the number here is
 									// expected to be used in usual numeric computations, not as address or similar
-									valueStr=util::formatInt(value,NumberDisplayMode::Signed)+" (decimal)";
+									const std::int32_t signedValue=value;
+									if(signedValue>9 || signedValue<-9)
+										valueStr+=" (decimal)";
+								}
 								else
 									valueStr="0x"+value.toHexString();
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
@@ -688,11 +698,16 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								if(inst.is_fpu_taking_float())
 									valueStr=formatFloat(value);
 								else if(inst.is_fpu_taking_integer())
+								{
+									valueStr=util::formatInt(value,NumberDisplayMode::Signed);
 									// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
 									// even across values in analysis view about its use of 0x prefix
 									// Use of hexadecimal format here is pretty much pointless since the number here is
 									// expected to be used in usual numeric computations, not as address or similar
-									valueStr=util::formatInt(value,NumberDisplayMode::Signed)+" (decimal)";
+									const std::int64_t signedValue=value;
+									if(signedValue>9 || signedValue<-9)
+										valueStr+=" (decimal)";
+								}
 								else
 									valueStr="0x"+value.toHexString();
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
