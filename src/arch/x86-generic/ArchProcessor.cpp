@@ -612,6 +612,23 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 	}
 }
 
+bool isFPU_BCD(edb::Operand const& operand) {
+
+	const auto op=operand.owner()->operation();
+	return op==edb::Instruction::Operation::X86_INS_FBLD ||
+		   op==edb::Instruction::Operation::X86_INS_FBSTP;
+}
+
+QString formatBCD(edb::value80 const& v) {
+
+	auto hex=v.toHexString();
+	// Low bytes which contain 18 digits must be decimal. If not, return the raw hex value.
+	if(hex.mid(2).contains(QRegExp("[A-Fa-f]")))
+		return "0x"+hex;
+	hex.replace(QRegExp("^..0*"),"");
+	return (v.negative() ? '-'+hex : hex)+" (BCD)";
+}
+
 //------------------------------------------------------------------------------
 // Name: analyze_operands
 // Desc:
@@ -733,7 +750,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							case edb::Operand::TYPE_EXPRESSION80:
 							{
 								const edb::value80 value(target);
-								const QString valueStr = inst.is_fpu() ? formatFloat(value) : "0x"+value.toHexString();
+								const QString valueStr = inst.is_fpu() ? isFPU_BCD(operand) ? formatBCD(value) : formatFloat(value) : "0x"+value.toHexString();
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
 								break;
 							}
