@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QRegExp>
 #include <stdexcept>
+#include "Util.h"
 
 namespace CapstoneEDB {
 
@@ -599,6 +600,37 @@ bool Instruction::is_fpu_taking_bcd() const
 
 	const auto ro=(modrm>>3)&7;
 	return detail_.x86.opcode[0]==0xdf && (ro==4||ro==6);
+}
+
+bool Instruction::is_simd() const
+{
+	const Capstone::x86_insn_group simdGroups[]=
+	{
+		Capstone::X86_GRP_3DNOW,
+		Capstone::X86_GRP_AVX,
+		Capstone::X86_GRP_AVX2,
+		Capstone::X86_GRP_AVX512,
+		Capstone::X86_GRP_FMA,
+		Capstone::X86_GRP_FMA4,
+		Capstone::X86_GRP_MMX,
+		Capstone::X86_GRP_SSE1,
+		Capstone::X86_GRP_SSE2,
+		Capstone::X86_GRP_SSE3,
+		Capstone::X86_GRP_SSE41,
+		Capstone::X86_GRP_SSE42,
+		Capstone::X86_GRP_SSE4A,
+		Capstone::X86_GRP_SSSE3,
+		Capstone::X86_GRP_XOP,
+		Capstone::X86_GRP_CDI,
+		Capstone::X86_GRP_ERI,
+		Capstone::X86_GRP_PFI,
+		Capstone::X86_GRP_VLX,
+		Capstone::X86_GRP_NOVLX,
+	};
+	for(auto g=0;g<cs_insn().detail->groups_count;++g)
+		if(util::contains(simdGroups,cs_insn().detail->groups[g]))
+			return true;
+	return false;
 }
 
 void Formatter::setOptions(const Formatter::FormatOptions& options)

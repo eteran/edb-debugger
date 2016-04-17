@@ -229,6 +229,8 @@ public:
 	bool is_fpu_taking_integer() const;
 	// Check that instruction is an FPU instruction, one of operands of which is a packed BCD
 	bool is_fpu_taking_bcd() const;
+	// Check that instruction comes from any SIMD ISA extension
+	bool is_simd() const;
 
 private:
 	std::size_t cs_insn_operand_count() const; // may be not equal to operand_count()
