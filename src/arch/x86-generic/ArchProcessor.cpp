@@ -681,6 +681,8 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								valueString=formatFloat(reg.value<edb::value80>());
 							else if(operand.is_SIMD_PS())
 								valueString=formatPackedFloat<edb::value32>(reg.rawData(),reg.bitSize()/8);
+							else if(operand.is_SIMD_PD())
+								valueString=formatPackedFloat<edb::value64>(reg.rawData(),reg.bitSize()/8);
 							else
 								valueString = reg.toHexString();
 						}
@@ -738,6 +740,8 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								}
 								else if(operand.is_SIMD_PS())
 									valueStr=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value64));
+								else if(operand.is_SIMD_PD())
+									valueStr=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value64));
 								else
 									valueStr="0x"+value.toHexString();
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
@@ -777,6 +781,8 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								QString valueString;
 								if(operand.is_SIMD_PS())
 									valueString=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value128));
+								else if(operand.is_SIMD_PD())
+									valueString=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value128));
 								else
 									valueString="0x"+edb::value128(target).toHexString();
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueString);
@@ -787,6 +793,8 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								QString valueString;
 								if(operand.is_SIMD_PS())
 									valueString=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value256));
+								else if(operand.is_SIMD_PD())
+									valueString=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value256));
 								else
 									valueString="0x"+edb::value256(target).toHexString();
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueString);
