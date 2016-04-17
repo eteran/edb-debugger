@@ -750,4 +750,14 @@ std::string Formatter::register_name(const Operand::Register reg) const
 	return str;
 }
 
+bool Operand::is_simd_register() const
+{
+	if(general_type()!=TYPE_REGISTER) return false;
+	const auto reg=this->reg();
+	if(Capstone::X86_REG_MM0 <=reg && reg<=Capstone::X86_REG_MM7) return true;
+	if(Capstone::X86_REG_XMM0<=reg && reg<=Capstone::X86_REG_XMM31) return true;
+	if(Capstone::X86_REG_YMM0<=reg && reg<=Capstone::X86_REG_YMM31) return true;
+	if(Capstone::X86_REG_ZMM0<=reg && reg<=Capstone::X86_REG_ZMM31) return true;
+	return false;
+}
 }

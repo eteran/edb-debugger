@@ -110,6 +110,8 @@ public:
 	int size() const;
 	Operand(Instruction* instr, std::size_t numberInInstruction) : owner_(instr), numberInInstruction_(numberInInstruction) {}
 	Operand(){}
+	// Checks whether operand is a SIMD data register (MMX,XMM,YMM etc., but not e.g. kN)
+	bool is_simd_register() const;
 private:
 	union {
 		Register     reg_;
