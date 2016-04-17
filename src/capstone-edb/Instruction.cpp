@@ -915,4 +915,148 @@ bool Operand::is_SIMD_PS() const
 	}
 }
 
+bool Operand::is_SIMD_PD() const
+{
+	if(!owner()->is_simd()) return false;
+	if(general_type()==TYPE_REGISTER && !is_simd_register()) return false;
+
+	const auto operation=owner()->operation();
+	switch(operation)
+	{
+	case Instruction::Operation::X86_INS_ADDPD:
+	case Instruction::Operation::X86_INS_VADDPD:
+	case Instruction::Operation::X86_INS_ADDSUBPD:
+	case Instruction::Operation::X86_INS_VADDSUBPD:
+	case Instruction::Operation::X86_INS_ANDNPD:
+	case Instruction::Operation::X86_INS_VANDNPD:
+	case Instruction::Operation::X86_INS_ANDPD:
+	case Instruction::Operation::X86_INS_VANDPD:
+	case Instruction::Operation:: X86_INS_BLENDPD:   // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation::X86_INS_VBLENDPD:   // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation:: X86_INS_CMPPD:     // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation::X86_INS_VCMPPD:     // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation:: X86_INS_DIVPD:
+	case Instruction::Operation::X86_INS_VDIVPD:
+	case Instruction::Operation:: X86_INS_DPPD:      // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation::X86_INS_VDPPD:      // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation:: X86_INS_MOVAPD:
+	case Instruction::Operation::X86_INS_VMOVAPD:
+	case Instruction::Operation:: X86_INS_ORPD:
+	case Instruction::Operation::X86_INS_VORPD:
+	case Instruction::Operation:: X86_INS_XORPD:
+	case Instruction::Operation::X86_INS_VXORPD:
+	case Instruction::Operation:: X86_INS_HADDPD:
+	case Instruction::Operation::X86_INS_VHADDPD:
+	case Instruction::Operation:: X86_INS_HSUBPD:
+	case Instruction::Operation::X86_INS_VHSUBPD:
+	case Instruction::Operation:: X86_INS_MAXPD:
+	case Instruction::Operation::X86_INS_VMAXPD:
+	case Instruction::Operation:: X86_INS_MINPD:
+	case Instruction::Operation::X86_INS_VMINPD:
+	case Instruction::Operation:: X86_INS_MOVHPD:
+	case Instruction::Operation::X86_INS_VMOVHPD:
+	case Instruction::Operation:: X86_INS_MOVLPD:
+	case Instruction::Operation::X86_INS_VMOVLPD:
+	case Instruction::Operation:: X86_INS_MOVMSKPD: // GPR isn't a SIMD reg, so ok
+	case Instruction::Operation::X86_INS_VMOVMSKPD: // GPR isn't a SIMD reg, so ok
+	case Instruction::Operation:: X86_INS_MOVNTPD:
+	case Instruction::Operation::X86_INS_VMOVNTPD:
+	case Instruction::Operation:: X86_INS_MOVUPD:
+	case Instruction::Operation::X86_INS_VMOVUPD:
+	case Instruction::Operation:: X86_INS_MULPD:
+	case Instruction::Operation::X86_INS_VMULPD:
+	case Instruction::Operation:: X86_INS_ROUNDPD: // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation::X86_INS_VROUNDPD: // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation:: X86_INS_SHUFPD:  // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation::X86_INS_VSHUFPD:  // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation:: X86_INS_SQRTPD:
+	case Instruction::Operation::X86_INS_VSQRTPD:
+	case Instruction::Operation:: X86_INS_SUBPD:
+	case Instruction::Operation::X86_INS_VSUBPD:
+	case Instruction::Operation:: X86_INS_UNPCKHPD:
+	case Instruction::Operation::X86_INS_VUNPCKHPD:
+	case Instruction::Operation:: X86_INS_UNPCKLPD:
+	case Instruction::Operation::X86_INS_VUNPCKLPD:
+	case Instruction::Operation::X86_INS_VBLENDMPD:
+	case Instruction::Operation::X86_INS_VCOMPRESSPD:
+	case Instruction::Operation::X86_INS_VEXP2PD:
+	case Instruction::Operation::X86_INS_VEXPANDPD:
+	case Instruction::Operation::X86_INS_VFMADD132PD:
+	case Instruction::Operation::X86_INS_VFMADD213PD:
+	case Instruction::Operation::X86_INS_VFMADD231PD:
+	case Instruction::Operation::X86_INS_VFMADDPD: 		 // FMA4 (AMD). XMM/YMM/mem operands only (?)
+	case Instruction::Operation::X86_INS_VFMADDSUB132PD:
+	case Instruction::Operation::X86_INS_VFMADDSUB213PD:
+	case Instruction::Operation::X86_INS_VFMADDSUB231PD:
+	case Instruction::Operation::X86_INS_VFMADDSUBPD:
+	case Instruction::Operation::X86_INS_VFMSUB132PD:
+	case Instruction::Operation::X86_INS_VFMSUBADD132PD:
+	case Instruction::Operation::X86_INS_VFMSUBADD213PD:
+	case Instruction::Operation::X86_INS_VFMSUBADD231PD:
+	case Instruction::Operation::X86_INS_VFMSUBADDPD: 	 // FMA4 (AMD). Seems to have only XMM/YMM/mem operands (?)
+	case Instruction::Operation::X86_INS_VFMSUBPD: 		 // FMA4?
+	case Instruction::Operation::X86_INS_VFMSUB213PD:
+	case Instruction::Operation::X86_INS_VFMSUB231PD:
+	case Instruction::Operation::X86_INS_VFNMADD132PD:
+	case Instruction::Operation::X86_INS_VFNMADDPD: 		 // FMA4?
+	case Instruction::Operation::X86_INS_VFNMADD213PD:
+	case Instruction::Operation::X86_INS_VFNMADD231PD:
+	case Instruction::Operation::X86_INS_VFNMSUB132PD:
+	case Instruction::Operation::X86_INS_VFNMSUBPD: 		 // FMA4?
+	case Instruction::Operation::X86_INS_VFNMSUB213PD:
+	case Instruction::Operation::X86_INS_VFNMSUB231PD:
+	case Instruction::Operation::X86_INS_VFRCZPD:
+	case Instruction::Operation::X86_INS_VGATHERDPD: 	// FIXME: vsib?
+	case Instruction::Operation::X86_INS_VGATHERPF0DPD: // FIXME: vsib?
+	case Instruction::Operation::X86_INS_VGATHERPF0QPD: // FIXME: vsib?
+	case Instruction::Operation::X86_INS_VGATHERPF1DPD: // FIXME: vsib?
+	case Instruction::Operation::X86_INS_VGATHERPF1QPD: // FIXME: vsib?
+	case Instruction::Operation::X86_INS_VGATHERQPD: 	// FIXME: vsib?
+	case Instruction::Operation::X86_INS_VRCP14PD:
+	case Instruction::Operation::X86_INS_VRCP28PD:
+	case Instruction::Operation::X86_INS_VRNDSCALEPD:
+	case Instruction::Operation::X86_INS_VRSQRT14PD:
+	case Instruction::Operation::X86_INS_VRSQRT28PD:
+	case Instruction::Operation::X86_INS_VSCATTERDPD: 	 // FIXME: vsib?
+	case Instruction::Operation::X86_INS_VSCATTERPF0DPD: // FIXME: vsib?
+	case Instruction::Operation::X86_INS_VSCATTERPF0QPD: // FIXME: vsib?
+	case Instruction::Operation::X86_INS_VSCATTERPF1DPD: // FIXME: vsib?
+	case Instruction::Operation::X86_INS_VSCATTERPF1QPD: // FIXME: vsib?
+	case Instruction::Operation::X86_INS_VSCATTERQPD: 	 // FIXME: vsib?
+	case Instruction::Operation::X86_INS_VTESTPD:
+		return true;
+	case Instruction::Operation:: X86_INS_CVTDQ2PD:
+	case Instruction::Operation::X86_INS_VCVTDQ2PD:
+	case Instruction::Operation:: X86_INS_CVTPS2PD:
+	case Instruction::Operation::X86_INS_VCVTPS2PD:
+	case Instruction::Operation::X86_INS_CVTPI2PD:
+	case Instruction::Operation::X86_INS_VCVTUDQ2PD:
+		return numberInInstruction_==0;
+	case Instruction::Operation::X86_INS_VCVTPD2PS:
+	case Instruction::Operation::X86_INS_VCVTPD2DQ:
+		return numberInInstruction_==1;
+	case Instruction::Operation:: X86_INS_BLENDVPD: // third operand is mask
+		return numberInInstruction_!=2;
+	case Instruction::Operation::X86_INS_VBLENDVPD: // fourth operand is mask
+		return numberInInstruction_!=3;
+	case Instruction::Operation::X86_INS_VMASKMOVPD:// second (but not third) operand is mask
+		return numberInInstruction_!=1;
+	case Instruction::Operation::X86_INS_VPERMI2PD: // first operand is indices
+		return numberInInstruction_!=0;
+	case Instruction::Operation::X86_INS_VPERMT2PD: // second operand is indices
+		return numberInInstruction_!=1;
+	case Instruction::Operation::X86_INS_VPERMILPD: // third operand is control (can be [xyz]mm register or imm8)
+		return numberInInstruction_!=2;
+	case Instruction::Operation::X86_INS_VPERMPD: // if third operand is not imm8, then second is indices (always in VPERMPS)
+		assert(owner()->operand_count()==3);
+		if(owner()->operands()[2].general_type()!=TYPE_IMMEDIATE)
+			return numberInInstruction_!=1;
+		else return true;
+	case Instruction::Operation::X86_INS_VPERMIL2PD: // XOP (AMD). Fourth operand is selector (?)
+		return numberInInstruction_!=3;
+	default:
+		return false;
+	}
+}
+
 }
