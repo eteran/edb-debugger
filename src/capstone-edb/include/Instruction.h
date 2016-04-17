@@ -112,6 +112,7 @@ public:
 	Operand(){}
 	// Checks whether operand is a SIMD data register (MMX,XMM,YMM etc., but not e.g. kN)
 	bool is_simd_register() const;
+	bool is_SIMD_PS() const;
 private:
 	union {
 		Register     reg_;
