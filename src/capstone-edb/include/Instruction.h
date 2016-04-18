@@ -114,6 +114,7 @@ public:
 	bool is_simd_register() const;
 	bool is_SIMD_PS() const;
 	bool is_SIMD_PD() const;
+	bool is_SIMD_SS() const;
 private:
 	union {
 		Register     reg_;

@@ -910,6 +910,25 @@ bool Operand::is_SIMD_PS() const
 		return numberInInstruction_!=1;
 	case Instruction::Operation::X86_INS_VPERMIL2PS: // XOP (AMD). Fourth operand is selector
 		return numberInInstruction_!=3;
+	case Instruction::Operation::X86_INS_VRCPSS:
+	case Instruction::Operation::X86_INS_VRCP14SS: // FIXME: k1 number in instruction - ?
+	case Instruction::Operation::X86_INS_VRCP28SS: // FIXME: k1 number in instruction - ?
+	case Instruction::Operation::X86_INS_VROUNDSS:
+	case Instruction::Operation::X86_INS_VRSQRTSS:
+	case Instruction::Operation::X86_INS_VSQRTSS:
+	case Instruction::Operation::X86_INS_VRNDSCALESS: // FIXME: k1 number in instruction - ?
+	case Instruction::Operation::X86_INS_VRSQRT14SS:  // FIXME: k1 number in instruction - ?
+	case Instruction::Operation::X86_INS_VRSQRT28SS:  // FIXME: k1 number in instruction - ?
+	case Instruction::Operation::X86_INS_VCVTSD2SS:
+	case Instruction::Operation::X86_INS_VCVTSI2SS:
+	case Instruction::Operation::X86_INS_VCVTUSI2SS:
+	// These are SS, but high PS are copied from second operand to first.
+	// I.e. second operand is PS, and thus first one (destination) is also PS.
+	// Only third operand is actually SS.
+		return numberInInstruction_<2;
+	case Instruction::Operation::X86_INS_VBROADCASTSS: // dest is PS, src is SS
+		return numberInInstruction_==0;
+
 	default:
 		return false;
 	}
@@ -1054,6 +1073,87 @@ bool Operand::is_SIMD_PD() const
 		else return true;
 	case Instruction::Operation::X86_INS_VPERMIL2PD: // XOP (AMD). Fourth operand is selector (?)
 		return numberInInstruction_!=3;
+	default:
+		return false;
+	}
+}
+
+bool Operand::is_SIMD_SS() const
+{
+	if(!owner()->is_simd()) return false;
+	if(general_type()==TYPE_REGISTER && !is_simd_register()) return false;
+
+	const auto operation=owner()->operation();
+	switch(operation)
+	{
+	case Instruction::Operation:: X86_INS_ADDSS:
+	case Instruction::Operation::X86_INS_VADDSS:
+	case Instruction::Operation:: X86_INS_CMPSS: // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation::X86_INS_VCMPSS: // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation:: X86_INS_COMISS:
+	case Instruction::Operation::X86_INS_VCOMISS:
+	case Instruction::Operation:: X86_INS_DIVSS:
+	case Instruction::Operation::X86_INS_VDIVSS:
+	case Instruction::Operation:: X86_INS_UCOMISS:
+	case Instruction::Operation::X86_INS_VUCOMISS:
+	case Instruction::Operation:: X86_INS_MAXSS:
+	case Instruction::Operation::X86_INS_VMAXSS:
+	case Instruction::Operation:: X86_INS_MINSS:
+	case Instruction::Operation::X86_INS_VMINSS:
+	case Instruction::Operation:: X86_INS_MOVNTSS: // SSE4a (AMD)
+	case Instruction::Operation:: X86_INS_MOVSS:
+	case Instruction::Operation::X86_INS_VMOVSS:
+	case Instruction::Operation:: X86_INS_MULSS:
+	case Instruction::Operation::X86_INS_VMULSS:
+	case Instruction::Operation:: X86_INS_RCPSS:   // SS, unlike VEX-encoded version
+	case Instruction::Operation:: X86_INS_RSQRTSS: // SS, unlike VEX-encoded version
+	case Instruction::Operation:: X86_INS_ROUNDSS: // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation:: X86_INS_SQRTSS:  // SS, unlike VEX-encoded version
+	case Instruction::Operation:: X86_INS_SUBSS:
+	case Instruction::Operation::X86_INS_VSUBSS:
+	case Instruction::Operation::X86_INS_VFMADD213SS:
+	case Instruction::Operation::X86_INS_VFMADD132SS:
+	case Instruction::Operation::X86_INS_VFMADD231SS:
+	case Instruction::Operation::X86_INS_VFMADDSS: 		// AMD?
+	case Instruction::Operation::X86_INS_VFMSUB213SS:
+	case Instruction::Operation::X86_INS_VFMSUB132SS:
+	case Instruction::Operation::X86_INS_VFMSUB231SS:
+	case Instruction::Operation::X86_INS_VFMSUBSS: 		// AMD?
+	case Instruction::Operation::X86_INS_VFNMADD213SS:
+	case Instruction::Operation::X86_INS_VFNMADD132SS:
+	case Instruction::Operation::X86_INS_VFNMADD231SS:
+	case Instruction::Operation::X86_INS_VFNMADDSS: 	// AMD?
+	case Instruction::Operation::X86_INS_VFNMSUB213SS:
+	case Instruction::Operation::X86_INS_VFNMSUB132SS:
+	case Instruction::Operation::X86_INS_VFNMSUB231SS:
+	case Instruction::Operation::X86_INS_VFNMSUBSS: 	// AMD?
+	case Instruction::Operation::X86_INS_VFRCZSS: 		// AMD?
+		return true;
+
+	case Instruction::Operation:: X86_INS_CVTSD2SS: // SS, unlike VEX-encoded version
+	case Instruction::Operation:: X86_INS_CVTSI2SS: // SS, unlike VEX-encoded version
+		return numberInInstruction_==0;
+	case Instruction::Operation::X86_INS_VCVTSD2SS:
+	case Instruction::Operation::X86_INS_VCVTSI2SS:
+	case Instruction::Operation::X86_INS_VCVTUSI2SS:
+	// These instructions are SS, but high PS are copied from second operand to first,
+	// so second operand is PS, thus first too. Third operand is not SS by its meaning.
+		return false;
+	case Instruction::Operation::X86_INS_VRCPSS:
+	case Instruction::Operation::X86_INS_VRCP14SS:	  // FIXME: k1 number in instruction - ?
+	case Instruction::Operation::X86_INS_VRCP28SS:	  // FIXME: k1 number in instruction - ?
+	case Instruction::Operation::X86_INS_VROUNDSS:
+	case Instruction::Operation::X86_INS_VRSQRTSS:
+	case Instruction::Operation::X86_INS_VSQRTSS:
+	case Instruction::Operation::X86_INS_VRNDSCALESS: // FIXME: k1 number in instruction - ?
+	case Instruction::Operation::X86_INS_VRSQRT14SS:  // FIXME: k1 number in instruction - ?
+	case Instruction::Operation::X86_INS_VRSQRT28SS:  // FIXME: k1 number in instruction - ?
+	// These are SS, but high PS are copied from second operand to first.
+	// I.e. second operand is PS, and thus first one (destination) is also PS.
+	// Only third operand is actually SS.
+		return numberInInstruction_==2;
+	case Instruction::Operation::X86_INS_VBROADCASTSS: // dest is PS, src is SS
+		return numberInInstruction_==1;
 	default:
 		return false;
 	}
