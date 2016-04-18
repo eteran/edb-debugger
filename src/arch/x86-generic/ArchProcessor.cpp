@@ -658,7 +658,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 
 			if(operand.valid()) {
 
-				const QString temp_operand = QString::fromStdString(edb::v1::formatter().to_string(operand));
+				QString temp_operand = QString::fromStdString(edb::v1::formatter().to_string(operand));
 
 				switch(operand.general_type()) {
 				case edb::Operand::TYPE_REL:
@@ -679,6 +679,11 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						else {
 							if(reg.type()==Register::TYPE_FPU && reg.bitSize()==80)
 								valueString=formatFloat(reg.value<edb::value80>());
+							else if(operand.is_SIMD_SS())
+							{
+								valueString=formatFloat(reg.value<edb::value32>());
+								temp_operand+="_ss";
+							}
 							else if(operand.is_SIMD_PS())
 								valueString=formatPackedFloat<edb::value32>(reg.rawData(),reg.bitSize()/8);
 							else if(operand.is_SIMD_PD())
@@ -725,7 +730,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							{
 								const edb::value32 value(target);
 								QString valueStr;
-								if(inst.is_fpu_taking_float())
+								if(inst.is_fpu_taking_float() || operand.is_SIMD_SS())
 									valueStr=formatFloat(value);
 								else if(inst.is_fpu_taking_integer())
 								{
