@@ -765,6 +765,7 @@ bool Operand::is_SIMD_PS() const
 {
 	if(!owner()->is_simd()) return false;
 	if(general_type()==TYPE_REGISTER && !is_simd_register()) return false;
+	if(general_type()==TYPE_IMMEDIATE) return false;
 
 	const auto operation=owner()->operation();
 	// FIXME: won't work correctly with AT&T syntax
@@ -938,6 +939,7 @@ bool Operand::is_SIMD_PD() const
 {
 	if(!owner()->is_simd()) return false;
 	if(general_type()==TYPE_REGISTER && !is_simd_register()) return false;
+	if(general_type()==TYPE_IMMEDIATE) return false;
 
 	const auto operation=owner()->operation();
 	switch(operation)
@@ -1082,6 +1084,7 @@ bool Operand::is_SIMD_SS() const
 {
 	if(!owner()->is_simd()) return false;
 	if(general_type()==TYPE_REGISTER && !is_simd_register()) return false;
+	if(general_type()==TYPE_IMMEDIATE) return false;
 
 	const auto operation=owner()->operation();
 	switch(operation)
