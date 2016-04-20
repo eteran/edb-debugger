@@ -1089,8 +1089,16 @@ bool Operand::is_SIMD_PD() const
 	case Instruction::Operation::X86_INS_CVTPI2PD:
 	case Instruction::Operation::X86_INS_VCVTUDQ2PD:
 		return number==0;
-	case Instruction::Operation::X86_INS_VCVTPD2PS:
+	case Instruction::Operation:: X86_INS_CVTPD2DQ:
 	case Instruction::Operation::X86_INS_VCVTPD2DQ:
+	case Instruction::Operation:: X86_INS_CVTPD2PI:
+	case Instruction::Operation:: X86_INS_CVTPD2PS:
+	case Instruction::Operation::X86_INS_VCVTPD2PS:
+	case Instruction::Operation::X86_INS_VCVTPD2DQX: // FIXME: what's this?
+	case Instruction::Operation::X86_INS_VCVTPD2PSX: // FIXME: what's this?
+	//case Instruction::Operation::X86_INS_VCVTPD2QQ: // FIXME: Capstone seems to not support it
+	case Instruction::Operation::X86_INS_VCVTPD2UDQ:
+	//case Instruction::Operation::X86_INS_VCVTPD2UQQ: // FIXME: Capstone seems to not support it
 		return number==1;
 	case Instruction::Operation:: X86_INS_BLENDVPD: // third operand is mask
 		return number!=2;
