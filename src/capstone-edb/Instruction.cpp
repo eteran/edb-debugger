@@ -1184,6 +1184,13 @@ bool Operand::is_SIMD_SS() const
 	case Instruction::Operation::X86_INS_VFRCZSS: 		// AMD?
 		return true;
 
+	case Instruction::Operation::X86_INS_VCVTSS2SD:
+		return number==2;
+	case Instruction::Operation:: X86_INS_CVTSS2SD:
+	case Instruction::Operation:: X86_INS_CVTSS2SI:
+	case Instruction::Operation::X86_INS_VCVTSS2SI:
+	case Instruction::Operation::X86_INS_VCVTSS2USI:
+		return number==1;
 	case Instruction::Operation:: X86_INS_CVTSD2SS: // SS, unlike VEX-encoded version
 	case Instruction::Operation:: X86_INS_CVTSI2SS: // SS, unlike VEX-encoded version
 		return number==0;
