@@ -116,6 +116,7 @@ public:
 	bool is_SIMD_PD() const;
 	bool is_SIMD_SS() const;
 private:
+	bool apriori_not_simd() const;
 	union {
 		Register     reg_;
 		expression_t expr_;
