@@ -26,10 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 LineEdit::LineEdit(QWidget *parent) : QLineEdit(parent), clear_button_(new QToolButton(this)) {
 
-	QPixmap pixmap(":/debugger/images/edb16-edit-clean.png");
-
-	clear_button_->setIcon(QIcon(pixmap));
-	clear_button_->setIconSize(pixmap.size());
+	clear_button_->setIcon(QIcon::fromTheme("edit-clear", QIcon(QPixmap(":/debugger/images/edb16-edit-clean.png"))));
 	clear_button_->setCursor(Qt::ArrowCursor);
 	clear_button_->setStyleSheet("QToolButton { border: none; padding: 0px; }");
 	clear_button_->hide();
@@ -51,7 +48,7 @@ LineEdit::LineEdit(QWidget *parent) : QLineEdit(parent), clear_button_(new QTool
 void LineEdit::resizeEvent(QResizeEvent *) {
     QSize sz = clear_button_->sizeHint();
     const int frameWidth = style()->pixelMetric(QStyle::PM_DefaultFrameWidth);
-    clear_button_->move(rect().right() - frameWidth - sz.width(), (rect().bottom() + 1 - sz.height())/2);
+    clear_button_->move(rect().right() - frameWidth - sz.width(), (rect().bottom() + 1 - sz.height()) / 2);
 }
 
 //------------------------------------------------------------------------------
