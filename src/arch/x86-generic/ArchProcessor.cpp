@@ -684,6 +684,11 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								valueString=formatFloat(reg.value<edb::value32>());
 								temp_operand+="_ss";
 							}
+							else if(operand.is_SIMD_SD())
+							{
+								valueString=formatFloat(reg.value<edb::value64>());
+								temp_operand+="_sd";
+							}
 							else if(operand.is_SIMD_PS())
 								valueString=formatPackedFloat<edb::value32>(reg.rawData(),reg.bitSize()/8);
 							else if(operand.is_SIMD_PD())
@@ -756,7 +761,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							{
 								const edb::value64 value(target);
 								QString valueStr;
-								if(inst.is_fpu_taking_float())
+								if(inst.is_fpu_taking_float() || operand.is_SIMD_SS())
 									valueStr=formatFloat(value);
 								else if(inst.is_fpu_taking_integer())
 								{
