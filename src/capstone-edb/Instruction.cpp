@@ -773,9 +773,8 @@ bool Operand::is_SIMD_PS() const
 {
 	if(apriori_not_simd()) return false;
 
-	const auto operation=owner()->operation();
 	// FIXME: won't work correctly with AT&T syntax
-	switch(operation)
+	switch(owner()->operation())
 	{
 	case Instruction::Operation:: X86_INS_ADDPS:
 	case Instruction::Operation::X86_INS_VADDPS:
@@ -945,8 +944,7 @@ bool Operand::is_SIMD_PD() const
 {
 	if(apriori_not_simd()) return false;
 
-	const auto operation=owner()->operation();
-	switch(operation)
+	switch(owner()->operation())
 	{
 	case Instruction::Operation::X86_INS_ADDPD:
 	case Instruction::Operation::X86_INS_VADDPD:
@@ -1088,8 +1086,7 @@ bool Operand::is_SIMD_SS() const
 {
 	if(apriori_not_simd()) return false;
 
-	const auto operation=owner()->operation();
-	switch(operation)
+	switch(owner()->operation())
 	{
 	case Instruction::Operation:: X86_INS_ADDSS:
 	case Instruction::Operation::X86_INS_VADDSS:
