@@ -115,6 +115,7 @@ public:
 	bool is_SIMD_PS() const;
 	bool is_SIMD_PD() const;
 	bool is_SIMD_SS() const;
+	bool is_SIMD_SD() const;
 private:
 	bool apriori_not_simd() const;
 	std::size_t simdOperandNormalizedNumberInInstruction() const;

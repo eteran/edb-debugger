@@ -1111,6 +1111,22 @@ bool Operand::is_SIMD_PD() const
 		else return true;
 	case Instruction::Operation::X86_INS_VPERMIL2PD: // XOP (AMD). Fourth operand is selector (?)
 		return number!=3;
+	case Instruction::Operation::X86_INS_VRCP14SD:
+	case Instruction::Operation::X86_INS_VRCP28SD:
+	case Instruction::Operation::X86_INS_VROUNDSD:
+	case Instruction::Operation::X86_INS_VSQRTSD:
+	case Instruction::Operation::X86_INS_VRNDSCALESD:
+	case Instruction::Operation::X86_INS_VRSQRT14SD:
+	case Instruction::Operation::X86_INS_VRSQRT28SD:
+	case Instruction::Operation::X86_INS_VCVTSS2SD:
+	case Instruction::Operation::X86_INS_VCVTSI2SD:
+	case Instruction::Operation::X86_INS_VCVTUSI2SD:
+	// These are SD, but high PD are copied from second operand to first.
+	// I.e. second operand is PD, and thus first one (destination) is also PD.
+	// Only third operand is actually SD.
+		return number<2;
+	case Instruction::Operation::X86_INS_VBROADCASTSD: // dest is PD, src is SD
+		return number==0;
 	default:
 		return false;
 	}
@@ -1191,6 +1207,83 @@ bool Operand::is_SIMD_SS() const
 	// Only third operand is actually SS.
 		return number==2;
 	case Instruction::Operation::X86_INS_VBROADCASTSS: // dest is PS, src is SS
+		return number==1;
+	default:
+		return false;
+	}
+}
+
+bool Operand::is_SIMD_SD() const
+{
+	if(apriori_not_simd()) return false;
+
+	const auto number=simdOperandNormalizedNumberInInstruction();
+
+	switch(owner()->operation())
+	{
+	case Instruction::Operation:: X86_INS_ADDSD:
+	case Instruction::Operation::X86_INS_VADDSD:
+	case Instruction::Operation:: X86_INS_CMPSD: // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation::X86_INS_VCMPSD: // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation:: X86_INS_COMISD:
+	case Instruction::Operation::X86_INS_VCOMISD:
+	case Instruction::Operation:: X86_INS_DIVSD:
+	case Instruction::Operation::X86_INS_VDIVSD:
+	case Instruction::Operation:: X86_INS_UCOMISD:
+	case Instruction::Operation::X86_INS_VUCOMISD:
+	case Instruction::Operation:: X86_INS_MAXSD:
+	case Instruction::Operation::X86_INS_VMAXSD:
+	case Instruction::Operation:: X86_INS_MINSD:
+	case Instruction::Operation::X86_INS_VMINSD:
+	case Instruction::Operation:: X86_INS_MOVNTSD: // SSE4a (AMD)
+	case Instruction::Operation:: X86_INS_MOVSD:
+	case Instruction::Operation::X86_INS_VMOVSD:
+	case Instruction::Operation:: X86_INS_MULSD:
+	case Instruction::Operation::X86_INS_VMULSD:
+	case Instruction::Operation:: X86_INS_ROUNDSD: // imm8 isn't a SIMD reg, so ok
+	case Instruction::Operation:: X86_INS_SQRTSD:  // SD, unlike VEX-encoded version
+	case Instruction::Operation:: X86_INS_SUBSD:
+	case Instruction::Operation::X86_INS_VSUBSD:
+	case Instruction::Operation::X86_INS_VFMADD213SD:
+	case Instruction::Operation::X86_INS_VFMADD132SD:
+	case Instruction::Operation::X86_INS_VFMADD231SD:
+	case Instruction::Operation::X86_INS_VFMADDSD: 		// AMD?
+	case Instruction::Operation::X86_INS_VFMSUB213SD:
+	case Instruction::Operation::X86_INS_VFMSUB132SD:
+	case Instruction::Operation::X86_INS_VFMSUB231SD:
+	case Instruction::Operation::X86_INS_VFMSUBSD: 		// AMD?
+	case Instruction::Operation::X86_INS_VFNMADD213SD:
+	case Instruction::Operation::X86_INS_VFNMADD132SD:
+	case Instruction::Operation::X86_INS_VFNMADD231SD:
+	case Instruction::Operation::X86_INS_VFNMADDSD: 	// AMD?
+	case Instruction::Operation::X86_INS_VFNMSUB213SD:
+	case Instruction::Operation::X86_INS_VFNMSUB132SD:
+	case Instruction::Operation::X86_INS_VFNMSUB231SD:
+	case Instruction::Operation::X86_INS_VFNMSUBSD: 	// AMD?
+	case Instruction::Operation::X86_INS_VFRCZSD: 		// AMD?
+		return true;
+
+	case Instruction::Operation:: X86_INS_CVTSS2SD: // SD, unlike VEX-encoded version
+	case Instruction::Operation:: X86_INS_CVTSI2SD: // SD, unlike VEX-encoded version
+		return number==0;
+	case Instruction::Operation::X86_INS_VCVTSS2SD:
+	case Instruction::Operation::X86_INS_VCVTSI2SD:
+	case Instruction::Operation::X86_INS_VCVTUSI2SD:
+	// These instructions are SD, but high PD are copied from second operand to first,
+	// so second operand is PD, thus first too. Third operand is not SD by its meaning.
+		return false;
+	case Instruction::Operation::X86_INS_VRCP14SD:
+	case Instruction::Operation::X86_INS_VRCP28SD:
+	case Instruction::Operation::X86_INS_VROUNDSD:
+	case Instruction::Operation::X86_INS_VSQRTSD:
+	case Instruction::Operation::X86_INS_VRNDSCALESD:
+	case Instruction::Operation::X86_INS_VRSQRT14SD:
+	case Instruction::Operation::X86_INS_VRSQRT28SD:
+	// These are SD, but high PD are copied from second operand to first.
+	// I.e. second operand is PD, and thus first one (destination) is also PD.
+	// Only third operand is actually SD.
+		return number==2;
+	case Instruction::Operation::X86_INS_VBROADCASTSD: // dest is PD, src is SD
 		return number==1;
 	default:
 		return false;
