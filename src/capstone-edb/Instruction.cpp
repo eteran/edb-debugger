@@ -769,11 +769,43 @@ bool Operand::apriori_not_simd() const
 	return false;
 }
 
+bool KxRegisterPresent(Instruction const& insn)
+{
+	for(std::size_t i=0;i<insn.operand_count();++i)
+	{
+		const auto op=insn.operands()[i];
+		if(op.general_type()==Operand::TYPE_REGISTER &&
+			Capstone::X86_REG_K0 <= op.reg() && op.reg()<=Capstone::X86_REG_K7)
+			return true;
+	}
+	return false;
+}
+
+std::size_t Operand::simdOperandNormalizedNumberInInstruction() const
+{
+	assert(!apriori_not_simd());
+
+	std::size_t number=numberInInstruction_;
+
+	const auto operandCount=owner()->operand_count();
+	// normalized number is according to Intel order
+	if(activeFormatter.options().syntax==Formatter::SyntaxATT)
+	{
+		assert(number<operandCount);
+		number=operandCount-1-number;
+	}
+	if(number>0 && KxRegisterPresent(*owner()))
+		--number;
+
+	return number;
+}
+
 bool Operand::is_SIMD_PS() const
 {
 	if(apriori_not_simd()) return false;
 
-	// FIXME: won't work correctly with AT&T syntax
+	const auto number=simdOperandNormalizedNumberInInstruction();
+
 	switch(owner()->operation())
 	{
 	case Instruction::Operation:: X86_INS_ADDPS:
@@ -897,43 +929,43 @@ bool Operand::is_SIMD_PS() const
 	case Instruction::Operation::X86_INS_CVTPI2PS:
 	case Instruction::Operation::X86_INS_VCVTPH2PS:
 	case Instruction::Operation::X86_INS_VCVTUDQ2PS:
-		return numberInInstruction_==0;
+		return number==0;
 	case Instruction::Operation::X86_INS_CVTPS2PD:
 	case Instruction::Operation::X86_INS_VCVTPS2PD:
-		return numberInInstruction_==1;
+		return number==1;
 	case Instruction::Operation::X86_INS_BLENDVPS:  // third operand (<XMM0> in docs) is mask
-		return numberInInstruction_!=2;
+		return number!=2;
 	case Instruction::Operation::X86_INS_VBLENDVPS: // fourth operand (xmm4 in docs) is mask
-		return numberInInstruction_!=3;
+		return number!=3;
 	case Instruction::Operation::X86_INS_VMASKMOVPS:// second (but not third) operand is mask
-		return numberInInstruction_!=1;
+		return number!=1;
 	case Instruction::Operation::X86_INS_VPERMI2PS: // first operand is indices
-		return numberInInstruction_!=0;
+		return number!=0;
 	case Instruction::Operation::X86_INS_VPERMILPS: // third operand is control (can be [xyz]mm register or imm8)
-		return numberInInstruction_!=2;
+		return number!=2;
 	case Instruction::Operation::X86_INS_VPERMT2PS: // second operand is indices
 	case Instruction::Operation::X86_INS_VPERMPS:   // second operand is indices
-		return numberInInstruction_!=1;
+		return number!=1;
 	case Instruction::Operation::X86_INS_VPERMIL2PS: // XOP (AMD). Fourth operand is selector
-		return numberInInstruction_!=3;
+		return number!=3;
 	case Instruction::Operation::X86_INS_VRCPSS:
-	case Instruction::Operation::X86_INS_VRCP14SS: // FIXME: k1 number in instruction - ?
-	case Instruction::Operation::X86_INS_VRCP28SS: // FIXME: k1 number in instruction - ?
+	case Instruction::Operation::X86_INS_VRCP14SS:
+	case Instruction::Operation::X86_INS_VRCP28SS:
 	case Instruction::Operation::X86_INS_VROUNDSS:
 	case Instruction::Operation::X86_INS_VRSQRTSS:
 	case Instruction::Operation::X86_INS_VSQRTSS:
-	case Instruction::Operation::X86_INS_VRNDSCALESS: // FIXME: k1 number in instruction - ?
-	case Instruction::Operation::X86_INS_VRSQRT14SS:  // FIXME: k1 number in instruction - ?
-	case Instruction::Operation::X86_INS_VRSQRT28SS:  // FIXME: k1 number in instruction - ?
+	case Instruction::Operation::X86_INS_VRNDSCALESS:
+	case Instruction::Operation::X86_INS_VRSQRT14SS:
+	case Instruction::Operation::X86_INS_VRSQRT28SS:
 	case Instruction::Operation::X86_INS_VCVTSD2SS:
 	case Instruction::Operation::X86_INS_VCVTSI2SS:
 	case Instruction::Operation::X86_INS_VCVTUSI2SS:
 	// These are SS, but high PS are copied from second operand to first.
 	// I.e. second operand is PS, and thus first one (destination) is also PS.
 	// Only third operand is actually SS.
-		return numberInInstruction_<2;
+		return number<2;
 	case Instruction::Operation::X86_INS_VBROADCASTSS: // dest is PS, src is SS
-		return numberInInstruction_==0;
+		return number==0;
 
 	default:
 		return false;
@@ -943,6 +975,8 @@ bool Operand::is_SIMD_PS() const
 bool Operand::is_SIMD_PD() const
 {
 	if(apriori_not_simd()) return false;
+
+	const auto number=simdOperandNormalizedNumberInInstruction();
 
 	switch(owner()->operation())
 	{
@@ -1054,29 +1088,29 @@ bool Operand::is_SIMD_PD() const
 	case Instruction::Operation::X86_INS_VCVTPS2PD:
 	case Instruction::Operation::X86_INS_CVTPI2PD:
 	case Instruction::Operation::X86_INS_VCVTUDQ2PD:
-		return numberInInstruction_==0;
+		return number==0;
 	case Instruction::Operation::X86_INS_VCVTPD2PS:
 	case Instruction::Operation::X86_INS_VCVTPD2DQ:
-		return numberInInstruction_==1;
+		return number==1;
 	case Instruction::Operation:: X86_INS_BLENDVPD: // third operand is mask
-		return numberInInstruction_!=2;
+		return number!=2;
 	case Instruction::Operation::X86_INS_VBLENDVPD: // fourth operand is mask
-		return numberInInstruction_!=3;
+		return number!=3;
 	case Instruction::Operation::X86_INS_VMASKMOVPD:// second (but not third) operand is mask
-		return numberInInstruction_!=1;
+		return number!=1;
 	case Instruction::Operation::X86_INS_VPERMI2PD: // first operand is indices
-		return numberInInstruction_!=0;
+		return number!=0;
 	case Instruction::Operation::X86_INS_VPERMT2PD: // second operand is indices
-		return numberInInstruction_!=1;
+		return number!=1;
 	case Instruction::Operation::X86_INS_VPERMILPD: // third operand is control (can be [xyz]mm register or imm8)
-		return numberInInstruction_!=2;
+		return number!=2;
 	case Instruction::Operation::X86_INS_VPERMPD: // if third operand is not imm8, then second is indices (always in VPERMPS)
 		assert(owner()->operand_count()==3);
 		if(owner()->operands()[2].general_type()!=TYPE_IMMEDIATE)
-			return numberInInstruction_!=1;
+			return number!=1;
 		else return true;
 	case Instruction::Operation::X86_INS_VPERMIL2PD: // XOP (AMD). Fourth operand is selector (?)
-		return numberInInstruction_!=3;
+		return number!=3;
 	default:
 		return false;
 	}
@@ -1085,6 +1119,8 @@ bool Operand::is_SIMD_PD() const
 bool Operand::is_SIMD_SS() const
 {
 	if(apriori_not_simd()) return false;
+
+	const auto number=simdOperandNormalizedNumberInInstruction();
 
 	switch(owner()->operation())
 	{
@@ -1134,7 +1170,7 @@ bool Operand::is_SIMD_SS() const
 
 	case Instruction::Operation:: X86_INS_CVTSD2SS: // SS, unlike VEX-encoded version
 	case Instruction::Operation:: X86_INS_CVTSI2SS: // SS, unlike VEX-encoded version
-		return numberInInstruction_==0;
+		return number==0;
 	case Instruction::Operation::X86_INS_VCVTSD2SS:
 	case Instruction::Operation::X86_INS_VCVTSI2SS:
 	case Instruction::Operation::X86_INS_VCVTUSI2SS:
@@ -1142,20 +1178,20 @@ bool Operand::is_SIMD_SS() const
 	// so second operand is PS, thus first too. Third operand is not SS by its meaning.
 		return false;
 	case Instruction::Operation::X86_INS_VRCPSS:
-	case Instruction::Operation::X86_INS_VRCP14SS:	  // FIXME: k1 number in instruction - ?
-	case Instruction::Operation::X86_INS_VRCP28SS:	  // FIXME: k1 number in instruction - ?
+	case Instruction::Operation::X86_INS_VRCP14SS:
+	case Instruction::Operation::X86_INS_VRCP28SS:
 	case Instruction::Operation::X86_INS_VROUNDSS:
 	case Instruction::Operation::X86_INS_VRSQRTSS:
 	case Instruction::Operation::X86_INS_VSQRTSS:
-	case Instruction::Operation::X86_INS_VRNDSCALESS: // FIXME: k1 number in instruction - ?
-	case Instruction::Operation::X86_INS_VRSQRT14SS:  // FIXME: k1 number in instruction - ?
-	case Instruction::Operation::X86_INS_VRSQRT28SS:  // FIXME: k1 number in instruction - ?
+	case Instruction::Operation::X86_INS_VRNDSCALESS:
+	case Instruction::Operation::X86_INS_VRSQRT14SS:
+	case Instruction::Operation::X86_INS_VRSQRT28SS:
 	// These are SS, but high PS are copied from second operand to first.
 	// I.e. second operand is PS, and thus first one (destination) is also PS.
 	// Only third operand is actually SS.
-		return numberInInstruction_==2;
+		return number==2;
 	case Instruction::Operation::X86_INS_VBROADCASTSS: // dest is PS, src is SS
-		return numberInInstruction_==1;
+		return number==1;
 	default:
 		return false;
 	}

@@ -117,6 +117,7 @@ public:
 	bool is_SIMD_SS() const;
 private:
 	bool apriori_not_simd() const;
+	std::size_t simdOperandNormalizedNumberInInstruction() const;
 	union {
 		Register     reg_;
 		expression_t expr_;
