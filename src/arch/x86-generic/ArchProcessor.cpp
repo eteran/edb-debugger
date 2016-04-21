@@ -131,7 +131,11 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state,
 				if(!!baseR)
 					base=baseR.valueAsAddress();
 				if(!!indexR)
+				{
+					if(indexR.type()!=Register::TYPE_GPR)
+						return ret; // TODO: add support for VSIB addressing
 					index=indexR.valueAsAddress();
+				}
 
 				// This only makes sense for x86_64, but doesn't hurt on x86
 				if(op.expression().base == edb::Operand::Register::X86_REG_RIP) {
