@@ -655,10 +655,10 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						break;
 					}
 				case edb::Operand::TYPE_EXPRESSION:
-					do {
+					{
 						bool ok;
 						const edb::address_t effective_address = get_effective_address(operand, state,ok);
-						if(!ok) return;
+						if(!ok) continue;
 						edb::value256 target;
 
 						if(process->read_bytes(effective_address, &target, sizeof(target))) {
@@ -736,7 +736,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						} else {
 							ret << QString("%1 = [%2] = ?").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
 						}
-					} while(0);
+					}
 					break;
 				default:
 					break;
