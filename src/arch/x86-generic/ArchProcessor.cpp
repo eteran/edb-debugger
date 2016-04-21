@@ -128,10 +128,27 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state,
 				edb::address_t base  = 0;
 				edb::address_t index = 0;
 
-				if(!!baseR)
+				if(!baseR)
+				{
+					if(op.expression().base!=edb::Operand::Register::X86_REG_INVALID)
+						return ret; // register is valid, but failed to be acquired from state
+				}
+				else
+				{
 					base=baseR.valueAsAddress();
-				if(!!indexR)
+				}
+
+				if(!indexR)
+				{
+					if(op.expression().index!=edb::Operand::Register::X86_REG_INVALID)
+						return ret; // register is valid, but failed to be acquired from state
+				}
+				else
+				{
+					if(indexR.type()!=Register::TYPE_GPR)
+						return ret; // TODO: add support for VSIB addressing
 					index=indexR.valueAsAddress();
+				}
 
 				// This only makes sense for x86_64, but doesn't hurt on x86
 				if(op.expression().base == edb::Operand::Register::X86_REG_RIP) {
@@ -638,10 +655,10 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						break;
 					}
 				case edb::Operand::TYPE_EXPRESSION:
-					do {
+					{
 						bool ok;
 						const edb::address_t effective_address = get_effective_address(operand, state,ok);
-						if(!ok) return;
+						if(!ok) continue;
 						edb::value256 target;
 
 						if(process->read_bytes(effective_address, &target, sizeof(target))) {
@@ -734,7 +751,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						} else {
 							ret << QString("%1 = [%2] = ?").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
 						}
-					} while(0);
+					}
 					break;
 				default:
 					break;
