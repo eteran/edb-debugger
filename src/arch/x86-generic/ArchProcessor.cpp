@@ -128,9 +128,22 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state,
 				edb::address_t base  = 0;
 				edb::address_t index = 0;
 
-				if(!!baseR)
+				if(!baseR)
+				{
+					if(op.expression().base!=edb::Operand::Register::X86_REG_INVALID)
+						return ret; // register is valid, but failed to be acquired from state
+				}
+				else
+				{
 					base=baseR.valueAsAddress();
-				if(!!indexR)
+				}
+
+				if(!indexR)
+				{
+					if(op.expression().index!=edb::Operand::Register::X86_REG_INVALID)
+						return ret; // register is valid, but failed to be acquired from state
+				}
+				else
 				{
 					if(indexR.type()!=Register::TYPE_GPR)
 						return ret; // TODO: add support for VSIB addressing
