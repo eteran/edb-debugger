@@ -903,25 +903,32 @@ bool Operand::is_SIMD_PS() const
 	case Instruction::Operation::X86_INS_VFNMSUB231PS:
 	case Instruction::Operation::X86_INS_VFNMSUBPS:		 // FMA4?
 	case Instruction::Operation::X86_INS_VFRCZPS:
-	case Instruction::Operation::X86_INS_VGATHERDPS:	 // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VGATHERPF0DPS:	 // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VGATHERPF0QPS:	 // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VGATHERPF1DPS:	 // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VGATHERPF1QPS:	 // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VGATHERQPS:	 // FIXME: vsib?
 	case Instruction::Operation::X86_INS_VRCP14PS:
 	case Instruction::Operation::X86_INS_VRCP28PS:
 	case Instruction::Operation::X86_INS_VRNDSCALEPS:
 	case Instruction::Operation::X86_INS_VRSQRT14PS:
 	case Instruction::Operation::X86_INS_VRSQRT28PS:
-	case Instruction::Operation::X86_INS_VSCATTERDPS: 	 // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VSCATTERPF0DPS: // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VSCATTERPF0QPS: // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VSCATTERPF1DPS: // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VSCATTERPF1QPS: // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VSCATTERQPS: 	 // FIXME: vsib?
 	case Instruction::Operation::X86_INS_VTESTPS:
 		return true;
+
+	case Instruction::Operation::X86_INS_VGATHERDPS:
+	case Instruction::Operation::X86_INS_VGATHERQPS:
+	// second operand is VSIB, it's not quite PS;
+	// third operand, if present (VEX-encoded version) is mask
+		return number==0;
+	case Instruction::Operation::X86_INS_VGATHERPF0DPS:
+	case Instruction::Operation::X86_INS_VGATHERPF0QPS:
+	case Instruction::Operation::X86_INS_VGATHERPF1DPS:
+	case Instruction::Operation::X86_INS_VGATHERPF1QPS:
+	case Instruction::Operation::X86_INS_VSCATTERPF0DPS:
+	case Instruction::Operation::X86_INS_VSCATTERPF0QPS:
+	case Instruction::Operation::X86_INS_VSCATTERPF1DPS:
+	case Instruction::Operation::X86_INS_VSCATTERPF1QPS:
+		return false; // VSIB is not quite PS
+	case Instruction::Operation::X86_INS_VSCATTERDPS:
+	case Instruction::Operation::X86_INS_VSCATTERQPS:
+		return number==1; // first operand is VSIB, it's not quite PS
+
 	case Instruction::Operation:: X86_INS_CVTDQ2PS:
 	case Instruction::Operation::X86_INS_VCVTDQ2PS:
 	case Instruction::Operation:: X86_INS_CVTPD2PS:
@@ -1070,25 +1077,32 @@ bool Operand::is_SIMD_PD() const
 	case Instruction::Operation::X86_INS_VFNMSUB213PD:
 	case Instruction::Operation::X86_INS_VFNMSUB231PD:
 	case Instruction::Operation::X86_INS_VFRCZPD:
-	case Instruction::Operation::X86_INS_VGATHERDPD: 	// FIXME: vsib?
-	case Instruction::Operation::X86_INS_VGATHERPF0DPD: // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VGATHERPF0QPD: // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VGATHERPF1DPD: // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VGATHERPF1QPD: // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VGATHERQPD: 	// FIXME: vsib?
 	case Instruction::Operation::X86_INS_VRCP14PD:
 	case Instruction::Operation::X86_INS_VRCP28PD:
 	case Instruction::Operation::X86_INS_VRNDSCALEPD:
 	case Instruction::Operation::X86_INS_VRSQRT14PD:
 	case Instruction::Operation::X86_INS_VRSQRT28PD:
-	case Instruction::Operation::X86_INS_VSCATTERDPD: 	 // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VSCATTERPF0DPD: // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VSCATTERPF0QPD: // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VSCATTERPF1DPD: // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VSCATTERPF1QPD: // FIXME: vsib?
-	case Instruction::Operation::X86_INS_VSCATTERQPD: 	 // FIXME: vsib?
 	case Instruction::Operation::X86_INS_VTESTPD:
 		return true;
+
+	case Instruction::Operation::X86_INS_VGATHERDPD:
+	case Instruction::Operation::X86_INS_VGATHERQPD:
+	// second operand is VSIB, it's not quite PD;
+	// third operand, if present (VEX-encoded version) is mask
+		return number==0;
+	case Instruction::Operation::X86_INS_VGATHERPF0DPD:
+	case Instruction::Operation::X86_INS_VGATHERPF0QPD:
+	case Instruction::Operation::X86_INS_VGATHERPF1DPD:
+	case Instruction::Operation::X86_INS_VGATHERPF1QPD:
+	case Instruction::Operation::X86_INS_VSCATTERPF0DPD:
+	case Instruction::Operation::X86_INS_VSCATTERPF0QPD:
+	case Instruction::Operation::X86_INS_VSCATTERPF1DPD:
+	case Instruction::Operation::X86_INS_VSCATTERPF1QPD:
+		return false; // VSIB is not quite PD
+	case Instruction::Operation::X86_INS_VSCATTERDPD:
+	case Instruction::Operation::X86_INS_VSCATTERQPD:
+		return number==1; // first operand is VSIB, it's not quite PD
+
 	case Instruction::Operation:: X86_INS_CVTDQ2PD:
 	case Instruction::Operation::X86_INS_VCVTDQ2PD:
 	case Instruction::Operation:: X86_INS_CVTPS2PD:
