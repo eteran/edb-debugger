@@ -612,6 +612,37 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 	}
 }
 
+bool isFPU_BCD(edb::Operand const& operand) {
+
+	const auto op=operand.owner()->operation();
+	return op==edb::Instruction::Operation::X86_INS_FBLD ||
+		   op==edb::Instruction::Operation::X86_INS_FBSTP;
+}
+
+QString formatBCD(edb::value80 const& v) {
+
+	auto hex=v.toHexString();
+	// Low bytes which contain 18 digits must be decimal. If not, return the raw hex value.
+	if(hex.mid(2).contains(QRegExp("[A-Fa-f]")))
+		return "0x"+hex;
+	hex.replace(QRegExp("^..0*"),"");
+	return (v.negative() ? '-'+hex : hex)+" (BCD)";
+}
+
+template<typename ValueType>
+QString formatPackedFloat(const char* data,std::size_t size) {
+
+	QString str;
+	for(std::size_t offset=0;offset<size;offset+=sizeof(ValueType)) {
+
+		ValueType value;
+		std::memcpy(&value,data+offset,sizeof value);
+		if(!str.isEmpty()) str+=", ";
+		str+=formatFloat(value);
+	}
+	return size==sizeof(ValueType) ? str : '{'+str+'}';
+}
+
 //------------------------------------------------------------------------------
 // Name: analyze_operands
 // Desc:
@@ -627,7 +658,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 
 			if(operand.valid()) {
 
-				const QString temp_operand = QString::fromStdString(edb::v1::formatter().to_string(operand));
+				QString temp_operand = QString::fromStdString(edb::v1::formatter().to_string(operand));
 
 				switch(operand.general_type()) {
 				case edb::Operand::TYPE_REL:
@@ -648,6 +679,20 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						else {
 							if(reg.type()==Register::TYPE_FPU && reg.bitSize()==80)
 								valueString=formatFloat(reg.value<edb::value80>());
+							else if(operand.is_SIMD_SS())
+							{
+								valueString=formatFloat(reg.value<edb::value32>());
+								temp_operand+="_ss";
+							}
+							else if(operand.is_SIMD_SD())
+							{
+								valueString=formatFloat(reg.value<edb::value64>());
+								temp_operand+="_sd";
+							}
+							else if(operand.is_SIMD_PS())
+								valueString=formatPackedFloat<edb::value32>(reg.rawData(),reg.bitSize()/8);
+							else if(operand.is_SIMD_PD())
+								valueString=formatPackedFloat<edb::value64>(reg.rawData(),reg.bitSize()/8);
 							else
 								valueString = reg.toHexString();
 						}
@@ -690,7 +735,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							{
 								const edb::value32 value(target);
 								QString valueStr;
-								if(inst.is_fpu_taking_float())
+								if(inst.is_fpu_taking_float() || operand.is_SIMD_SS())
 									valueStr=formatFloat(value);
 								else if(inst.is_fpu_taking_integer())
 								{
@@ -703,6 +748,10 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 									if(signedValue>9 || signedValue<-9)
 										valueStr+=" (decimal)";
 								}
+								else if(operand.is_SIMD_PS())
+									valueStr=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value64));
+								else if(operand.is_SIMD_PD())
+									valueStr=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value64));
 								else
 									valueStr="0x"+value.toHexString();
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
@@ -712,7 +761,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							{
 								const edb::value64 value(target);
 								QString valueStr;
-								if(inst.is_fpu_taking_float())
+								if(inst.is_fpu_taking_float() || operand.is_SIMD_SS())
 									valueStr=formatFloat(value);
 								else if(inst.is_fpu_taking_integer())
 								{
@@ -733,16 +782,34 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							case edb::Operand::TYPE_EXPRESSION80:
 							{
 								const edb::value80 value(target);
-								const QString valueStr = inst.is_fpu() ? formatFloat(value) : "0x"+value.toHexString();
+								const QString valueStr = inst.is_fpu() ? isFPU_BCD(operand) ? formatBCD(value) : formatFloat(value) : "0x"+value.toHexString();
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
 								break;
 							}
 							case edb::Operand::TYPE_EXPRESSION128:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value128(target).toHexString());
+							{
+								QString valueString;
+								if(operand.is_SIMD_PS())
+									valueString=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value128));
+								else if(operand.is_SIMD_PD())
+									valueString=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value128));
+								else
+									valueString="0x"+edb::value128(target).toHexString();
+								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueString);
 								break;
+							}
 							case edb::Operand::TYPE_EXPRESSION256:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value256(target).toHexString());
+							{
+								QString valueString;
+								if(operand.is_SIMD_PS())
+									valueString=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value256));
+								else if(operand.is_SIMD_PD())
+									valueString=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value256));
+								else
+									valueString="0x"+edb::value256(target).toHexString();
+								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueString);
 								break;
+							}
 							default:
 								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address))
 																  .arg(QString("<Error: unexpected size; low bytes form %2>").arg(target.toHexString()));

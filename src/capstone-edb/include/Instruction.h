@@ -110,7 +110,15 @@ public:
 	int size() const;
 	Operand(Instruction* instr, std::size_t numberInInstruction) : owner_(instr), numberInInstruction_(numberInInstruction) {}
 	Operand(){}
+	// Checks whether operand is a SIMD data register (MMX,XMM,YMM etc., but not e.g. kN)
+	bool is_simd_register() const;
+	bool is_SIMD_PS() const;
+	bool is_SIMD_PD() const;
+	bool is_SIMD_SS() const;
+	bool is_SIMD_SD() const;
 private:
+	bool apriori_not_simd() const;
+	std::size_t simdOperandNormalizedNumberInInstruction() const;
 	union {
 		Register     reg_;
 		expression_t expr_;
@@ -229,6 +237,8 @@ public:
 	bool is_fpu_taking_integer() const;
 	// Check that instruction is an FPU instruction, one of operands of which is a packed BCD
 	bool is_fpu_taking_bcd() const;
+	// Check that instruction comes from any SIMD ISA extension
+	bool is_simd() const;
 
 private:
 	std::size_t cs_insn_operand_count() const; // may be not equal to operand_count()
