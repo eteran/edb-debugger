@@ -875,9 +875,11 @@ bool Operand::is_SIMD_PS() const
 	case Instruction::Operation:: X86_INS_UNPCKLPS:
 	case Instruction::Operation::X86_INS_VUNPCKLPS:
 	case Instruction::Operation::X86_INS_VBLENDMPS:
+#if CS_API_MAJOR>=4
 	case Instruction::Operation::X86_INS_VCOMPRESSPS:
 	case Instruction::Operation::X86_INS_VEXP2PS:
 	case Instruction::Operation::X86_INS_VEXPANDPS:
+#endif
 	case Instruction::Operation::X86_INS_VFMADD132PS:
 	case Instruction::Operation::X86_INS_VFMADD213PS:
 	case Instruction::Operation::X86_INS_VFMADD231PS:
@@ -1049,9 +1051,11 @@ bool Operand::is_SIMD_PD() const
 	case Instruction::Operation:: X86_INS_UNPCKLPD:
 	case Instruction::Operation::X86_INS_VUNPCKLPD:
 	case Instruction::Operation::X86_INS_VBLENDMPD:
+#if CS_API_MAJOR>=4
 	case Instruction::Operation::X86_INS_VCOMPRESSPD:
 	case Instruction::Operation::X86_INS_VEXP2PD:
 	case Instruction::Operation::X86_INS_VEXPANDPD:
+#endif
 	case Instruction::Operation::X86_INS_VFMADD132PD:
 	case Instruction::Operation::X86_INS_VFMADD213PD:
 	case Instruction::Operation::X86_INS_VFMADD231PD:
