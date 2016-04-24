@@ -263,8 +263,6 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 					else
 						operand.expr_.segment=Operand::Segment::DS;
 				}
-			case Capstone::X86_OP_FP: // FIXME: what instructions have this?
-				break;
 			case Capstone::X86_OP_INVALID:
 				break;
 			}
@@ -276,8 +274,8 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 		if(activeFormatter.options().syntax==Formatter::SyntaxIntel)
 		{
 			if(operand_count()==2 && operands_[0].size()==operands_[1].size() &&
-					(operands_[0].general_type()==Operand::TYPE_REGISTER && operands_[1].general_type()==Operand::TYPE_EXPRESSION ||
-					 operands_[1].general_type()==Operand::TYPE_REGISTER && operands_[0].general_type()==Operand::TYPE_EXPRESSION))
+					((operands_[0].general_type()==Operand::TYPE_REGISTER && operands_[1].general_type()==Operand::TYPE_EXPRESSION) ||
+					 (operands_[1].general_type()==Operand::TYPE_REGISTER && operands_[0].general_type()==Operand::TYPE_EXPRESSION)))
 			{
 				stripMemorySizes(insn_.op_str);
 			}
