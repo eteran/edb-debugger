@@ -39,6 +39,7 @@ private Q_SLOTS:
 	void on_txtAscii_textEdited(const QString &);
 	void on_txtHex_textEdited(const QString &);
 	void on_txtUTF16_textEdited(const QString &);
+	void on_keepSize_stateChanged();
 
 public:
 	void setMaxLength(int n);
@@ -46,7 +47,16 @@ public:
 	void setValue(const QByteArray &);
 
 private:
-	 Ui::BinaryStringWidget *const ui;
+	void setEntriesMaxLength(int n);
+
+	Ui::BinaryStringWidget *const ui;
+	enum class Mode
+	{
+	    LengthLimited, // obeys setMaxLength()
+	    MemoryEditing  // obeys user's choice in keepSize checkbox
+	} mode;
+	int requestedMaxLength;
+	int valueOriginalLength;
 };
 
 #endif

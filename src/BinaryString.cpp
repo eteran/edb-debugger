@@ -22,23 +22,52 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_BinaryString.h"
 
+static const auto charHexLength=3; // "hh "
+// magic numerator from Qt defaults
+static const auto UNLIMITED_MAX_LENGTH=32767/charHexLength;
+
+//------------------------------------------------------------------------------
+// Name: setEntriesMaxLength
+// Desc:
+//------------------------------------------------------------------------------
+void BinaryString::setEntriesMaxLength(int n) {
+
+	ui->txtAscii->setMaxLength(n);
+	ui->txtUTF16->setMaxLength(n / 2);
+	ui->txtHex->setMaxLength(n * charHexLength);
+}
+
 //------------------------------------------------------------------------------
 // Name: setMaxLength
 // Desc:
 //------------------------------------------------------------------------------
 void BinaryString::setMaxLength(int n) {
-	ui->txtAscii->setMaxLength(n);
-	ui->txtUTF16->setMaxLength(n / 2);
-	ui->txtHex->setMaxLength(n * 3);
+	requestedMaxLength=n;
+	if(n) {
+		mode=Mode::LengthLimited;
+		ui->keepSize->hide();
+	} else {
+		mode=Mode::MemoryEditing;
+		n=UNLIMITED_MAX_LENGTH;
+		ui->keepSize->show();
+	}
+	setEntriesMaxLength(n);
 }
 
 //------------------------------------------------------------------------------
 // Name: BinaryString
 // Desc: constructor
 //------------------------------------------------------------------------------
-BinaryString::BinaryString(QWidget *parent) : QWidget(parent), ui(new Ui::BinaryStringWidget) {
+BinaryString::BinaryString(QWidget *parent) : QWidget(parent),
+											  ui(new Ui::BinaryStringWidget),
+											  mode(Mode::MemoryEditing),
+											  requestedMaxLength(0),
+											  valueOriginalLength(0)
+{
 	ui->setupUi(this);
 	ui->txtHex->setValidator(new HexStringValidator(this));
+	ui->keepSize->setFocusPolicy(Qt::TabFocus);
+	connect(ui->keepSize,SIGNAL(stateChanged(int)),this,SLOT(on_keepSize_stateChanged()));
 }
 
 //------------------------------------------------------------------------------
@@ -47,6 +76,23 @@ BinaryString::BinaryString(QWidget *parent) : QWidget(parent), ui(new Ui::Binary
 //------------------------------------------------------------------------------
 BinaryString::~BinaryString() {
 	delete ui;
+}
+
+//------------------------------------------------------------------------------
+// Name: on_keepSize_stateChanged
+// Desc:
+//------------------------------------------------------------------------------
+void BinaryString::on_keepSize_stateChanged() {
+
+	if(mode!=Mode::MemoryEditing) return;
+
+	// There's a comment in get_binary_string_from_user(), that max length must be set before value.
+	// FIXME: do we need this here? What does "truncate incorrectly" mean there?
+	// NOTE: not doing this for now
+	if(ui->keepSize->checkState()==Qt::Unchecked)
+		setEntriesMaxLength(UNLIMITED_MAX_LENGTH);
+	else
+		setEntriesMaxLength(valueOriginalLength);
 }
 
 //------------------------------------------------------------------------------
@@ -166,6 +212,8 @@ QByteArray BinaryString::value() const {
 //------------------------------------------------------------------------------
 void BinaryString::setValue(const QByteArray &data) {
 
+	valueOriginalLength=data.size();
+	on_keepSize_stateChanged();
 	const QString temp = QString::fromLatin1(data.data(), data.size());
 
 	ui->txtAscii->setText(temp);
