@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "OptionsPage.h"
 #include <QSettings>
+#include <QFileDialog>
 #include "demangle.h"
 
 #include "ui_OptionsPage.h"
@@ -24,31 +25,48 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace BinaryInfo
 {
 
-OptionsPage::OptionsPage(QWidget* parent) : QWidget(parent), ui(new Ui::OptionsPage)
-{
+OptionsPage::OptionsPage(QWidget* parent) : QWidget(parent), ui(new Ui::OptionsPage) {
 	ui->setupUi(this);
 }
 
-OptionsPage::~OptionsPage()
-{
+OptionsPage::~OptionsPage() {
 	delete ui;
 }
 
-void OptionsPage::showEvent(QShowEvent*)
-{
+void OptionsPage::showEvent(QShowEvent*) {
+
 	QSettings settings;
-	if(DEMANGLING_SUPPORTED)
+
+	if(DEMANGLING_SUPPORTED) {
 		ui->checkBox->setChecked(settings.value("BinaryInfo/demangling_enabled", true).toBool());
-	else
-	{
+	} else {
 		ui->checkBox->setEnabled(false);
 		ui->checkBox->setChecked(false);
 	}
+
+	ui->txtDebugDir->setText(settings.value("BinaryInfo/debug_info_path", "/usr/lib/debug").toString());
 }
 
-void OptionsPage::on_checkBox_toggled(bool checked)
-{
-	QSettings().setValue("BinaryInfo/demangling_enabled", checked);
+void OptionsPage::on_checkBox_toggled(bool checked) {
+	QSettings settings;
+	settings.setValue("BinaryInfo/demangling_enabled", checked);	
+}
+
+void OptionsPage::on_txtDebugDir_textChanged(const QString &text) {
+	QSettings settings;
+	settings.setValue("BinaryInfo/debug_info_path", text);	
+}
+
+void OptionsPage::on_btnDebugDir_clicked() {
+	QString dir = QFileDialog::getExistingDirectory(
+		this,
+		tr("Choose a directory"),
+		QString(),
+		QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+	if(!dir.isNull()) {
+		ui->txtDebugDir->setText(dir);
+	}
 }
 
 }

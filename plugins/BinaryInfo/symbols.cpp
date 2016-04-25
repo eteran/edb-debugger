@@ -42,8 +42,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace BinaryInfo {
 namespace {
 
-const QString debugInfoPath = "/usr/lib/debug";
-
 struct elf32_model {
 	typedef quint32    address_t;
 
@@ -485,6 +483,8 @@ bool generate_symbols(const QString &filename, std::ostream &os) {
 		const QByteArray md5 = edb::v1::get_file_md5(filename);
 		os << md5.toHex().data() << ' ' << qPrintable(QFileInfo(filename).absoluteFilePath()) << '\n';
 
+		const QString debugInfoPath = QSettings().value("BinaryInfo/debug_info_path", "/usr/lib/debug").toString();
+	
 		std::shared_ptr<QFile> debugFile;
 		if(!debugInfoPath.isEmpty()) {
 			debugFile = std::make_shared<QFile>(QString("%1/%2.debug").arg(debugInfoPath, filename));

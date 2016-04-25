@@ -40,6 +40,8 @@ public:
 
 public Q_SLOTS:
 	void on_checkBox_toggled(bool checked = false);
+	void on_txtDebugDir_textChanged(const QString &text);
+	void on_btnDebugDir_clicked();
 
 private:
 	Ui::OptionsPage* const ui;
