@@ -488,6 +488,8 @@ bool generate_symbols(const QString &filename, std::ostream &os) {
 		std::shared_ptr<QFile> debugFile;
 		if(!debugInfoPath.isEmpty()) {
 			debugFile = std::make_shared<QFile>(QString("%1/%2.debug").arg(debugInfoPath, filename));
+			if(!debugFile->exists()) // systems such as Ubuntu don't have .debug suffix, try without it
+				debugFile = std::make_shared<QFile>(QString("%1/%2").arg(debugInfoPath, filename));
 		}
 		
 		return generate_symbols_internal(file, debugFile, os); 
