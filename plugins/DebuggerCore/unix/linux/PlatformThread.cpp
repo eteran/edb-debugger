@@ -324,9 +324,7 @@ void PlatformThread::get_state(State *state) {
 			X86XState xstate;
 			iovec iov={&xstate,sizeof(xstate)};
 			ptraceStatus=ptrace(PTRACE_GETREGSET, tid_, NT_X86_XSTATE, &iov);
-			if(ptraceStatus!=-1) {
-				state_impl->fillFrom(xstate,iov.iov_len);
-			} else {
+			if(ptraceStatus==-1 || !state_impl->fillFrom(xstate,iov.iov_len)) {
 
 				// No XSTATE available, get just floating point and SSE registers
 				static bool getFPXRegsSupported=(EDB_IS_32_BIT ? true : false);
