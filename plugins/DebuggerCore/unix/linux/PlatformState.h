@@ -457,7 +457,7 @@ private:
 	void fillFrom(const UserFPRegsStructX86& regs);
 	void fillFrom(const UserFPRegsStructX86_64& regs);
 	void fillFrom(const UserFPXRegsStructX86& regs);
-	void fillFrom(const X86XState& regs, std::size_t sizeFromKernel);
+	bool fillFrom(const X86XState& regs, std::size_t sizeFromKernel);
 
 	void fillStruct(UserRegsStructX86& regs) const;
 	void fillStruct(UserRegsStructX86_64& regs) const;

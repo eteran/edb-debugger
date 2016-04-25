@@ -362,11 +362,11 @@ void PlatformState::fillFrom(const PrStatus_X86_64& regs)
 	x86.segRegBasesFilled[X86::GS]=true;
 }
 
-void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) {
+bool PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) {
 	if(sizeFromKernel<X86XState::AVX_SIZE) {
 		// Shouldn't ever happen. If AVX isn't supported, the ptrace call will fail.
 		qDebug() << "Size of X86_XSTATE returned from the kernel appears less than expected: " << sizeFromKernel;
-		return;
+		return false;
 	}
 
 	avx.xcr0=regs.xcr0;
@@ -452,6 +452,7 @@ void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) 
 			avx.xmmFilledAMD64=true;
 		}
 	}
+	return true;
 }
 
 void PlatformState::fillStruct(UserRegsStructX86& regs) const
