@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <QSettings>
 #include <iostream>
+#include <memory>
 
 #include "elf/elf_types.h"
 #include "elf/elf_header.h"
@@ -40,6 +41,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BinaryInfo {
 namespace {
+
+const QString debugInfoPath = "/usr/lib/debug";
+
 struct elf32_model {
 	typedef quint32    address_t;
 
@@ -165,7 +169,7 @@ the symbol is local; if uppercase, the symbol is global (external).
 "U" The symbol is undefined.
 
 "u" The  symbol  is  a unique global symbol.  This is a GNU extension to the standard set of ELF symbol bindings.  For such a symbol
-	the dynamic linker will make sure that in the entire process_symbols there is just one symbol with this name and type in use.
+	the dynamic linker will make sure that in the entire process there is just one symbol with this name and type in use.
 
 "V"
 "v" The symbol is a weak object.  When a weak defined symbol is linked with a normal defined symbol, the normal  defined  symbol  is
@@ -186,7 +190,7 @@ the symbol is local; if uppercase, the symbol is global (external).
 
 
 template <class M>
-QList<typename M::symbol> collect_symbols(const void *p, size_t size) {
+void collect_symbols(const void *p, size_t size, QList<typename M::symbol> &symbols) {
 	Q_UNUSED(size);
 
 	typedef typename M::address_t            address_t;
@@ -208,7 +212,6 @@ QList<typename M::symbol> collect_symbols(const void *p, size_t size) {
 	address_t plt_address = 0;
 	address_t got_address = 0;
 	QSet<address_t> plt_addresses;
-	QList<symbol>   symbols;
 
 	// collect special section addresses
 	for(const elf_section_header_t *section = sections_begin; section != sections_end; ++section) {
@@ -378,26 +381,92 @@ QList<typename M::symbol> collect_symbols(const void *p, size_t size) {
 			break;
 		}
 	}
-
-	return symbols;
 }
 
-template <class M>
-void process_symbols(const void *p, size_t size, std::ostream &os) {
-
-	typedef typename M::symbol symbol;
-
-	QList<symbol> symbols = collect_symbols<M>(p, size);
-
+//--------------------------------------------------------------------------
+// Name: output_symbols
+// Desc: outputs the symbols to OS ensuring uniqueness and adding any 
+//       needed demangling
+//--------------------------------------------------------------------------
+template <class Symbol>
+void output_symbols(QList<Symbol> &symbols, std::ostream &os) {
 	qSort(symbols.begin(), symbols.end());
 	auto new_end = std::unique(symbols.begin(), symbols.end());
 	const auto demanglingEnabled = QSettings().value("BinaryInfo/demangling_enabled", true).toBool();
 	for(auto it = symbols.begin(); it != new_end; ++it) {
-		if(demanglingEnabled)
-			it->name=demangle(it->name);
+		if(demanglingEnabled) {
+			it->name = demangle(it->name);
+		}
 		os << qPrintable(it->to_string()) << '\n';
 	}
 }
+
+
+//--------------------------------------------------------------------------
+// Name: generate_symbols_internal
+// Desc:
+//--------------------------------------------------------------------------
+bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, std::ostream &os) {
+	if(auto file_ptr = reinterpret_cast<void *>(file.map(0, file.size(), QFile::NoOptions))) {
+		if(is_elf64(file_ptr)) {
+		
+			typedef typename elf64_model::symbol symbol;
+			QList<symbol> symbols;
+			
+			collect_symbols<elf64_model>(file_ptr, file.size(), symbols);
+
+			// if there was a debug file
+			if(debugFile) {
+				// and we sucessfully opened it
+				if(debugFile->open(QIODevice::ReadOnly)) {
+
+					// map it and include it with the symbols
+					if(auto debug_ptr = reinterpret_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
+
+						// this should never fail... but just being sure
+						if(is_elf64(debug_ptr)) {
+							collect_symbols<elf64_model>(debug_ptr, debugFile->size(), symbols);
+						}
+					}
+				}
+			}			
+
+			output_symbols(symbols, os);
+			return true;
+		} else if(is_elf32(file_ptr)) {
+		
+			typedef typename elf32_model::symbol symbol;
+			QList<symbol> symbols;				
+
+			collect_symbols<elf32_model>(file_ptr, file.size(), symbols);			
+
+			// if there was a debug file
+			if(debugFile) {
+				// and we sucessfully opened it
+				if(debugFile->open(QIODevice::ReadOnly)) {
+
+					// map it and include it with the symbols
+					if(auto debug_ptr = reinterpret_cast<void *>(debugFile->map(0, debugFile->size(), QFile::NoOptions))) {
+
+						// this should never fail... but just being sure
+						if(is_elf32(debug_ptr)) {
+							collect_symbols<elf32_model>(debug_ptr, debugFile->size(), symbols);
+						}
+					}
+				}
+			}			
+			
+			output_symbols(symbols, os);
+			return true;
+		} else {
+			qDebug() << "unknown file type";
+		}
+	}
+	
+	return false;
+}
+
+
 }
 
 //--------------------------------------------------------------------------
@@ -416,18 +485,14 @@ bool generate_symbols(const QString &filename, std::ostream &os) {
 		const QByteArray md5 = edb::v1::get_file_md5(filename);
 		os << md5.toHex().data() << ' ' << qPrintable(QFileInfo(filename).absoluteFilePath()) << '\n';
 
-		if(auto file_ptr = reinterpret_cast<void *>(file.map(0, file.size(), QFile::NoOptions))) {
-			if(is_elf64(file_ptr)) {
-				process_symbols<elf64_model>(file_ptr, file.size(), os);
-				return true;
-			} else if(is_elf32(file_ptr)) {
-				process_symbols<elf32_model>(file_ptr, file.size(), os);
-				return true;
-			} else {
-				qDebug() << "unknown file type";
-			}
+		std::shared_ptr<QFile> debugFile;
+		if(!debugInfoPath.isEmpty()) {
+			debugFile = std::make_shared<QFile>(QString("%1/%2.debug").arg(debugInfoPath, filename));
 		}
+		
+		return generate_symbols_internal(file, debugFile, os); 
 	}
+	
 	return false;
 }
 }
