@@ -1021,6 +1021,14 @@ int PlatformState::fpu_stack_pointer() const {
 //------------------------------------------------------------------------------
 edb::value80 PlatformState::fpu_register(size_t n) const {
 	assert(fpuIndexValid(n));
+	if(!x87.filled) {
+		edb::value80 v;
+		const std::uint64_t mant=0x0badbad1bad1bad1;
+		const std::uint16_t exp=0x0bad;
+		std::memcpy(&v,&mant,sizeof mant);
+		std::memcpy(reinterpret_cast<char*>(&v)+sizeof mant,&exp,sizeof exp);
+		return v;
+	}
 	return x87.R[n];
 }
 
