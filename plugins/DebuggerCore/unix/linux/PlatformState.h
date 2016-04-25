@@ -248,7 +248,8 @@ struct X86XState
 		FEATURE_AVX512  = FEATURE_K|FEATURE_ZMM_H|FEATURE_ZMM,
 	};
 	// Possible sizes of X86_XSTATE
-	static constexpr std::size_t SSE_SIZE=576;
+	static constexpr std::size_t XSAVE_NONEXTENDED_SIZE=576;
+	static constexpr std::size_t SSE_SIZE=XSAVE_NONEXTENDED_SIZE;
 	static constexpr std::size_t AVX_SIZE=832;
 	static constexpr std::size_t BNDREGS_SIZE=1024;
 	static constexpr std::size_t BNDCFG_SIZE=1088;

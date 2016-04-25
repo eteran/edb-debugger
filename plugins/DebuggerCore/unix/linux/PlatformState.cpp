@@ -363,8 +363,8 @@ void PlatformState::fillFrom(const PrStatus_X86_64& regs)
 }
 
 bool PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) {
-	if(sizeFromKernel<X86XState::AVX_SIZE) {
-		// Shouldn't ever happen. If AVX isn't supported, the ptrace call will fail.
+	if(sizeFromKernel<X86XState::XSAVE_NONEXTENDED_SIZE) {
+		// Shouldn't ever happen. XSAVE area must at least have an XSAVE header.
 		qDebug() << "Size of X86_XSTATE returned from the kernel appears less than expected: " << sizeFromKernel;
 		return false;
 	}
