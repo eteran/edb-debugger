@@ -365,7 +365,7 @@ void PlatformState::fillFrom(const PrStatus_X86_64& regs)
 void PlatformState::fillFrom(const X86XState& regs, std::size_t sizeFromKernel) {
 	if(sizeFromKernel<X86XState::AVX_SIZE) {
 		// Shouldn't ever happen. If AVX isn't supported, the ptrace call will fail.
-		qDebug() << "Size of X86_XSTATE returned from the kernel appears less than expected";
+		qDebug() << "Size of X86_XSTATE returned from the kernel appears less than expected: " << sizeFromKernel;
 		return;
 	}
 
