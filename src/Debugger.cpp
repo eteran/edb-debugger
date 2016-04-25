@@ -1968,8 +1968,8 @@ void Debugger::mnuCPUModify() {
 		const bool ok = process->read_bytes(address, buf, size);
 		if(ok) {
 			QByteArray bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), size);
-			if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"), size)) {
-				edb::v1::modify_bytes(address, size, bytes, 0x00);
+			if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"))) {
+				edb::v1::modify_bytes(address, bytes.size(), bytes, 0x00);
 			}
 		}
 	}
@@ -1983,11 +1983,10 @@ template <class T>
 void Debugger::modify_bytes(const T &hexview) {
 	if(hexview) {
 		const edb::address_t address = hexview->selectedBytesAddress();
-		const unsigned int size      = hexview->selectedBytesSize();
 		QByteArray bytes             = hexview->selectedBytes();
 
-		if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"), size)) {
-			edb::v1::modify_bytes(address, size, bytes, 0x00);
+		if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"))) {
+			edb::v1::modify_bytes(address, bytes.size(), bytes, 0x00);
 		}
 	}
 }

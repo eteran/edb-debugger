@@ -108,9 +108,8 @@ EDB_EXPORT bool eval_expression(const QString &expression, address_t *value);
 EDB_EXPORT bool get_value_from_user(Register &value, const QString &title);
 EDB_EXPORT bool get_value_from_user(Register &value);
 
-// ask the user for a binary string via an input box
-EDB_EXPORT bool get_binary_string_from_user(QByteArray &value, const QString &title, int max_length);
-EDB_EXPORT bool get_binary_string_from_user(QByteArray &value, const QString &title);
+// ask the user for a binary string via an input box (max_length forces maximum length, setting it to 0 removes the restriction)
+EDB_EXPORT bool get_binary_string_from_user(QByteArray &value, const QString &title, int max_length=0);
 
 // determine if the given address is the starting point of an string, if so, s will contain it
 // (formatted with C-style escape chars, so foundLength will have the original length of the string in chars).

@@ -535,14 +535,6 @@ bool get_value_from_user(Register &value, const QString &title) {
 // Name: get_binary_string_from_user
 // Desc:
 //------------------------------------------------------------------------------
-bool get_binary_string_from_user(QByteArray &value, const QString &title) {
-	return get_binary_string_from_user(value, title, 10);
-}
-
-//------------------------------------------------------------------------------
-// Name: get_binary_string_from_user
-// Desc:
-//------------------------------------------------------------------------------
 bool get_binary_string_from_user(QByteArray &value, const QString &title, int max_length) {
 	static auto dlg = new DialogInputBinaryString(debugger_ui);
 
