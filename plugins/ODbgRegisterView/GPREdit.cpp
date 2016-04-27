@@ -89,7 +89,7 @@ void GPREdit::updateGPRValue(std::uint64_t& gpr) const
 	switch(format)
 	{
 	case Format::Hex:
-		value=text().toLongLong(&ok,16);
+		value=text().toULongLong(&ok,16);
 		break;
 	case Format::Signed:
 		value=text().toLongLong(&ok);
