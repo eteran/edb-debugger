@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRegExp>
 #include <stdexcept>
 #include "Util.h"
+#include <sstream>
 
 namespace CapstoneEDB {
 
@@ -647,7 +648,18 @@ std::string Formatter::to_string(const Instruction& instruction) const
 {
 	if(!instruction) return "(bad)";
 
-	std::string str(std::string(instruction.insn_.mnemonic)+" "+instruction.insn_.op_str);
+	enum
+	{
+		tab1Size=8,
+		tab2Size=11,
+	};
+	std::ostringstream s;
+	s << instruction.insn_.mnemonic;
+	const auto pos = s.tellp();
+	const auto pad = pos<tab1Size ? tab1Size-pos : pos<tab2Size ? tab2Size-pos : 1;
+	s << std::string(pad,' ');
+	s << instruction.insn_.op_str;
+	auto str = s.str();
 	checkCapitalize(str);
 	return str;
 }
