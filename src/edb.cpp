@@ -1254,10 +1254,18 @@ address_t current_data_view_address() {
 //------------------------------------------------------------------------------
 void set_status(const QString &message, int timeoutMillisecs) {
 	ui()->ui.statusbar->showMessage(message, timeoutMillisecs);
+	// FIXME: For some reason, despite showMessage() calls repaint, there's some
+	// hysteresis in actual look of the status bar: in a busy loop of calls to set_status()
+	// it updates to previous content. In some cases it even doesn't actually update.
+	// This happens at least on Qt 4.
+	// Manual call to repaint makes it show the correct text immediately.
+	ui()->ui.statusbar->repaint();
 }
 
 void clear_status() {
 	ui()->ui.statusbar->clearMessage();
+	// FIXME: same comment applies as in set_status()
+	ui()->ui.statusbar->repaint();
 }
 
 //------------------------------------------------------------------------------
