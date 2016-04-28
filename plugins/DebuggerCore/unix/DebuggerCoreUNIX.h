@@ -42,7 +42,7 @@ public:
 	virtual ~DebuggerCoreUNIX() {}
 
 protected:
-	void execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args);
+	QString execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args);
 
 public:
 	virtual QMap<long, QString> exceptions() const;

@@ -222,9 +222,11 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 
 //------------------------------------------------------------------------------
 // Name: execute_process
-// Desc:
+// Desc: tries to execute the process, returns error string on error
 //------------------------------------------------------------------------------
-void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
+QString DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
+
+	QString errorString="internal error";
 	// change to the desired working directory
 	if(::chdir(qPrintable(cwd)) == 0) {
 
@@ -255,6 +257,7 @@ void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, 
 		// space no longer exists!
 		// if we get here...execv failed!
 		if(ret == -1) {
+			errorString=QObject::tr("execv() failed: %1").arg(strerror(errno));
 			p = argv_pointers;
 			while(*p) {
 				delete [] *p++;
@@ -262,6 +265,7 @@ void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, 
 			delete [] argv_pointers;
 		}
 	}
+	return errorString;
 }
 
 //------------------------------------------------------------------------------

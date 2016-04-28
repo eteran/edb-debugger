@@ -29,8 +29,8 @@ public:
 	virtual ~DebuggerCoreBase();
 
 public:
-	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args);
-	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
+	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args) override;
+	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
 
 public:
 	virtual BreakpointList backup_breakpoints() const;
