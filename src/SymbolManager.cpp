@@ -293,14 +293,14 @@ void SymbolManager::set_label(edb::address_t address, const QString &label) {
 // Name: find_address_name
 // Desc:
 //------------------------------------------------------------------------------
-QString SymbolManager::find_address_name(edb::address_t address) {
+QString SymbolManager::find_address_name(edb::address_t address,bool prefixed) {
 	auto it = labels_.find(address);
 	if(it != labels_.end()) {
 		return it.value();
 	}
 
 	if(const Symbol::pointer sym = find(address)) {
-		return sym->name;
+		return prefixed ? sym->name : sym->name_no_prefix;
 	}
 
 	return QString();
