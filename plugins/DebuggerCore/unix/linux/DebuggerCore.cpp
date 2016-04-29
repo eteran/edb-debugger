@@ -319,7 +319,7 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 			}
 
 			if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
-				qDebug("[warning] new thread [%d] received an event besides SIGSTOP", static_cast<int>(new_tid));
+				qDebug("handle_event(): [warning] new thread [%d] received an event besides SIGSTOP: status=0x%x", static_cast<int>(new_tid),thread_status);
 			}
 			
 			newThread->status_ = thread_status;
@@ -387,7 +387,7 @@ void DebuggerCore::stop_threads() {
 						thread_ptr->status_ = thread_status;
 
 						if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
-							qDebug("[warning] paused thread [%d] received an event besides SIGSTOP", tid);
+							qDebug("stop_threads(): [warning] paused thread [%d] received an event besides SIGSTOP: status=0x%x", tid,thread_status);
 						}
 					}
 				}
