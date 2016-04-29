@@ -107,6 +107,7 @@ void Configuration::read_settings() {
 	small_int_as_decimal  = settings.value("disassembly.small_int_as_decimal.enabled", false).value<bool>();
 	tab_between_mnemonic_and_operands=settings.value("disassembly.tab_between_mnemonic_and_operands.enabled", false).value<bool>();
 	show_local_module_name_in_jump_targets = settings.value("disassembly.show_local_module_name_in_jump_targets.enabled", true).value<bool>();
+	simplify_rip_relative_targets = settings.value("disassembly.simplify_rip_relative_targets.enabled", true).value<bool>();
 	settings.endGroup();
 
 	settings.beginGroup("Directories");
@@ -144,6 +145,7 @@ void Configuration::read_settings() {
 	options.smallNumFormat = small_int_as_decimal  ? CapstoneEDB::Formatter::SmallNumAsDec : CapstoneEDB::Formatter::SmallNumAsHex;
 	options.syntax=static_cast<CapstoneEDB::Formatter::Syntax>(syntax);
 	options.tabBetweenMnemonicAndOperands=tab_between_mnemonic_and_operands;
+	options.simplifyRIPRelativeTargets=simplify_rip_relative_targets;
 	edb::v1::formatter().setOptions(options);	
 }
 
@@ -191,6 +193,7 @@ void Configuration::write_settings() {
 	settings.setValue("disassembly.small_int_as_decimal.enabled", small_int_as_decimal);
 	settings.setValue("disassembly.tab_between_mnemonic_and_operands.enabled", tab_between_mnemonic_and_operands);
 	settings.setValue("disassembly.show_local_module_name_in_jump_targets.enabled", show_local_module_name_in_jump_targets);
+	settings.setValue("disassembly.simplify_rip_relative_targets.enabled", simplify_rip_relative_targets);
 	settings.endGroup();
 
 	settings.beginGroup("Directories");

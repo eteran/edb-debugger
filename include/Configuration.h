@@ -76,6 +76,7 @@ public:
 	bool              small_int_as_decimal;
 	bool			  tab_between_mnemonic_and_operands;
 	bool			  show_local_module_name_in_jump_targets;
+	bool			  simplify_rip_relative_targets;
 
 	// directories tab
 	QString           symbol_path;

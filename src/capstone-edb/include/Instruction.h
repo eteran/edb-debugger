@@ -279,6 +279,7 @@ public:
 		Capitalization    capitalization;
 		SmallNumberFormat smallNumFormat;
 		bool 			  tabBetweenMnemonicAndOperands;
+		bool			  simplifyRIPRelativeTargets;
 	};
 public:
 	std::string to_string(const Instruction&) const;
@@ -288,7 +289,7 @@ public:
 	FormatOptions options() const { return options_; }
 	void setOptions(const FormatOptions& options);
 private:
-	FormatOptions options_={SyntaxIntel,LowerCase,SmallNumAsDec,false};
+	FormatOptions options_={SyntaxIntel,LowerCase,SmallNumAsDec,false,true};
 
 	void checkCapitalize(std::string& str,bool canContainHex=true) const;
 };

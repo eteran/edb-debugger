@@ -554,6 +554,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="chkSimplifyRIPRelativeTargets">
+         <property name="text">
+          <string>Show RIP-relative targets as [rel TargetAddress] instead of [rip+Displacement]</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="chkSyntaxHighlighting">
          <property name="text">
           <string>Enable syntax highlighting</string>

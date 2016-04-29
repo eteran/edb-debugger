@@ -146,7 +146,7 @@ void adjustInstructionText(Capstone::cs_insn& insn)
 	operands.replace(QRegExp("\\bxword "),"tbyte ");
 	operands.replace(QRegExp("(word|byte) ptr "),"\\1 ");
 
-	if(isAMD64 && (insn.detail->x86.modrm&0xc7)==0x05)
+	if(activeFormatter.options().simplifyRIPRelativeTargets && isAMD64 && (insn.detail->x86.modrm&0xc7)==0x05)
 	{
 		QRegExp ripRel("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b");
 		operands.replace(ripRel,"rel 0x"+QString::number(insn.detail->x86.disp+insn.address+insn.size,16));
