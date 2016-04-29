@@ -204,6 +204,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui->signalsMessageBoxEnable->setChecked(config.enable_signals_message_box);
 
 	ui->chkTabBetweenMnemonicAndOperands->setChecked(config.tab_between_mnemonic_and_operands);
+	ui->chkShowLocalModuleName->setChecked(config.show_local_module_name_in_jump_targets);
 }
 
 //------------------------------------------------------------------------------
@@ -221,6 +222,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	}
 
 	config.tab_between_mnemonic_and_operands=ui->chkTabBetweenMnemonicAndOperands->isChecked();
+	config.show_local_module_name_in_jump_targets=ui->chkShowLocalModuleName->isChecked();
 
 	if(ui->rdoDetach->isChecked()) {
 		config.close_behavior = Configuration::Detach;

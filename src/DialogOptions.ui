@@ -547,6 +547,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="chkShowLocalModuleName">
+         <property name="text">
+          <string>Show local module name in jump targets</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="chkSyntaxHighlighting">
          <property name="text">
           <string>Enable syntax highlighting</string>

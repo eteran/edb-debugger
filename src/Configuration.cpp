@@ -106,6 +106,7 @@ void Configuration::read_settings() {
 	uppercase_disassembly = settings.value("disassembly.uppercase.enabled", false).value<bool>();
 	small_int_as_decimal  = settings.value("disassembly.small_int_as_decimal.enabled", false).value<bool>();
 	tab_between_mnemonic_and_operands=settings.value("disassembly.tab_between_mnemonic_and_operands.enabled", false).value<bool>();
+	show_local_module_name_in_jump_targets = settings.value("disassembly.show_local_module_name_in_jump_targets.enabled", true).value<bool>();
 	settings.endGroup();
 
 	settings.beginGroup("Directories");
@@ -189,6 +190,7 @@ void Configuration::write_settings() {
 	settings.setValue("disassembly.uppercase.enabled", uppercase_disassembly);
 	settings.setValue("disassembly.small_int_as_decimal.enabled", small_int_as_decimal);
 	settings.setValue("disassembly.tab_between_mnemonic_and_operands.enabled", tab_between_mnemonic_and_operands);
+	settings.setValue("disassembly.show_local_module_name_in_jump_targets.enabled", show_local_module_name_in_jump_targets);
 	settings.endGroup();
 
 	settings.beginGroup("Directories");
