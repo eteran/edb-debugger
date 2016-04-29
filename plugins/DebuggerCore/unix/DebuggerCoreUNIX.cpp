@@ -246,11 +246,14 @@ void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, 
 
 		*p = 0;
 
-		const int ret = execvp(argv_pointers[0], argv_pointers);
+		// NOTE: it's a bad idea to use execvp and similar functions searching in
+		// $PATH. At least on Linux, if the file is corrupted/unsupported, they
+		// instead appear to launch shell
+		const int ret = execv(argv_pointers[0], argv_pointers);
 
 		// should be no need to cleanup, the process which allocated all that
 		// space no longer exists!
-		// if we get here...execvp failed!
+		// if we get here...execv failed!
 		if(ret == -1) {
 			p = argv_pointers;
 			while(*p) {
