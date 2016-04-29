@@ -535,9 +535,11 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 
 		//return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
 
+		const bool syntax_highlighting_enabled=edb::v1::config().syntax_highlighting_enabled;
 
 		if(is_filling) {
-			painter.setPen(filling_dis_color);
+			if(is_filling && syntax_highlighting_enabled)
+				painter.setPen(filling_dis_color);
 			opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
 
 			painter.drawText(
@@ -565,13 +567,17 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 
 			opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
 
-			painter.setPen(default_dis_color);
+			if(syntax_highlighting_enabled)
+				painter.setPen(default_dis_color);
 			QTextDocument doc;
 			doc.setDefaultFont(font());
 			doc.setDocumentMargin(0);
 			doc.setPlainText(opcode);
 			highlighter_->setDocument(&doc);
-			draw_rich_text(&painter, x, y, doc);
+			if(syntax_highlighting_enabled)
+				draw_rich_text(&painter, x, y, doc);
+			else
+				painter.drawText(x, y, opcode.length() * font_width_, line_height, Qt::AlignVCenter, opcode);
 		}
 
 	} else {
@@ -600,26 +606,25 @@ QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instructio
 
 	switch(inst.size()) {
 	case 1:
-		painter.setPen(data_dis_color);
 		qsnprintf(byte_buffer, sizeof(byte_buffer), "db 0x%02x", buf[0] & 0xff);
 		break;
 	case 2:
-		painter.setPen(data_dis_color);
 		qsnprintf(byte_buffer, sizeof(byte_buffer), "dw 0x%02x%02x", buf[1] & 0xff, buf[0] & 0xff);
 		break;
 	case 4:
-		painter.setPen(data_dis_color);
 		qsnprintf(byte_buffer, sizeof(byte_buffer), "dd 0x%02x%02x%02x%02x", buf[3] & 0xff, buf[2] & 0xff, buf[1] & 0xff, buf[0] & 0xff);
 		break;
 	case 8:
-		painter.setPen(data_dis_color);
 		qsnprintf(byte_buffer, sizeof(byte_buffer), "dq 0x%02x%02x%02x%02x%02x%02x%02x%02x", buf[7] & 0xff, buf[6] & 0xff, buf[5] & 0xff, buf[4] & 0xff, buf[3] & 0xff, buf[2] & 0xff, buf[1] & 0xff, buf[0] & 0xff);
 		break;
 	default:
 		// we tried...didn't we?
-		painter.setPen(invalid_dis_color);
+		if(edb::v1::config().syntax_highlighting_enabled)
+			painter.setPen(invalid_dis_color);
 		return tr("invalid");
 	}
+	if(edb::v1::config().syntax_highlighting_enabled)
+		painter.setPen(data_dis_color);
 	return byte_buffer;
 }
 
