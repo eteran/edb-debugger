@@ -620,7 +620,9 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 
 		// do the actual exec
 		const QString error=execute_process(path, cwd, args);
+#if defined __GNUG__ && __GNUC__ >= 5 || !defined __GNUG__ || defined __clang__
 		static_assert(std::is_trivially_copyable<QChar>::value,"Can't copy string of QChar to shared memory");
+#endif
 		std::memcpy(sharedMem,error.constData(),std::min(sizeof(QChar)*error.size(),sharedMemSize-sizeof(QChar)/*prevent overwriting of last null*/));
 
 		// we should never get here!
