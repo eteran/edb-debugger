@@ -266,9 +266,14 @@ void DialogAssembler::on_buttonBox_accepted() {
 			return;
 		}
 
-		asm_code.replace("%BITS%", std::to_string(edb::v1::debugger_core->pointer_size()*8).c_str());
-		asm_code.replace("%ADDRESS%", edb::v1::format_pointer(address_));
-		asm_code.replace("%INSTRUCTION%",  nasm_syntax);
+		const QString bitsStr=std::to_string(edb::v1::debugger_core->pointer_size()*8).c_str();
+		const QString addrStr=edb::v1::format_pointer(address_);
+		static const auto bitsTag="%BITS%";
+		static const auto addrTag="%ADDRESS%";
+		static const auto insnTag="%INSTRUCTION%";
+		asm_code.replace(bitsTag, bitsStr);
+		asm_code.replace(addrTag, addrStr);
+		asm_code.replace(insnTag, nasm_syntax);
 
 		source_file.write(asm_code.toLatin1());
 		source_file.close();
@@ -282,6 +287,9 @@ void DialogAssembler::on_buttonBox_accepted() {
 		for(auto &arg : arguments) {
 			arg.replace("%OUT%",  output_file.fileName());
 			arg.replace("%IN%",   source_file.fileName());
+			arg.replace(bitsTag, bitsStr);
+			arg.replace(addrTag, addrStr);
+			arg.replace(insnTag, nasm_syntax);
 		}
 
 		qDebug() << "RUNNING ASM TOOL: " << program << arguments;
