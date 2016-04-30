@@ -20,7 +20,7 @@
 	
 		%INSTRUCTION%
 		]]>
-	</template>
+		</template>
 	</assembler>
 	<assembler name="fasm">
 		<executable command_line="fasm %IN% %OUT%" extension="asm" />
@@ -31,6 +31,6 @@
 
 		%INSTRUCTION%
 		]]>
-	</template>
+		</template>
 	</assembler>
 </assemblers>
