@@ -67,6 +67,7 @@ BinaryString::BinaryString(QWidget *parent) : QWidget(parent),
 	ui->setupUi(this);
 	ui->txtHex->setValidator(new HexStringValidator(this));
 	ui->keepSize->setFocusPolicy(Qt::TabFocus);
+	ui->txtHex->setFocus(Qt::OtherFocusReason);
 	connect(ui->keepSize,SIGNAL(stateChanged(int)),this,SLOT(on_keepSize_stateChanged()));
 }
 
