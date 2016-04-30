@@ -62,6 +62,12 @@ DialogAssembler::~DialogAssembler() {
 	delete ui;
 }
 
+#if QT_VERSION >= 0x50000
+static QString toHtmlEscaped(QString const& str) { return str.toHtmlEscaped(); }
+#else
+static QString toHtmlEscaped(QString const& str) { return Qt::escape(str); }
+#endif
+
 QDomDocument getAssemblerDescription() {
 
 	const QString assembler = QSettings().value("Assembler/helper", "yasm").toString();
@@ -72,7 +78,7 @@ QDomDocument getAssemblerDescription() {
 		QXmlQuery query;
 		QString assembler_xml;
 		query.setFocus(&file);
-		query.setQuery(QString("assemblers/assembler[@name='%1']").arg(Qt::escape(assembler)));
+		query.setQuery(QString("assemblers/assembler[@name='%1']").arg(toHtmlEscaped(assembler)));
 		if (query.isValid()) {
 			query.evaluateTo(&assembler_xml);
 		}
