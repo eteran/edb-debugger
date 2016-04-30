@@ -74,6 +74,7 @@ public:
 	bool              zeros_are_filling;
 	bool              uppercase_disassembly;
 	bool              small_int_as_decimal;
+	bool			  tab_between_mnemonic_and_operands;
 
 	// directories tab
 	QString           symbol_path;

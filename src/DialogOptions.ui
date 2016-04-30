@@ -540,6 +540,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="chkTabBetweenMnemonicAndOperands">
+         <property name="text">
+          <string>Tab between mnemonic and operands</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="chkSyntaxHighlighting">
          <property name="text">
           <string>Enable syntax highlighting</string>

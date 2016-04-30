@@ -657,10 +657,18 @@ std::string Formatter::to_string(const Instruction& instruction) const
 	s << instruction.insn_.mnemonic;
 	if(instruction.operand_count()>0) // prevent addition of trailing whitespace
 	{
-		const auto pos = s.tellp();
-		const auto pad = pos<tab1Size ? tab1Size-pos : pos<tab2Size ? tab2Size-pos : 1;
-		s << std::string(pad,' ');
+		if(options_.tabBetweenMnemonicAndOperands)
+		{
+			const auto pos = s.tellp();
+			const auto pad = pos<tab1Size ? tab1Size-pos : pos<tab2Size ? tab2Size-pos : 1;
+			s << std::string(pad,' ');
+		}
+		else s << ' ';
 		s << instruction.insn_.op_str;
+	}
+	else
+	{
+		assert(instruction.insn_.op_str[0]==0);
 	}
 	auto str = s.str();
 	checkCapitalize(str);

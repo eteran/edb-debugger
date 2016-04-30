@@ -105,6 +105,7 @@ void Configuration::read_settings() {
 	zeros_are_filling     = settings.value("disassembly.zeros_are_filling.enabled", true).value<bool>();
 	uppercase_disassembly = settings.value("disassembly.uppercase.enabled", false).value<bool>();
 	small_int_as_decimal  = settings.value("disassembly.small_int_as_decimal.enabled", false).value<bool>();
+	tab_between_mnemonic_and_operands=settings.value("disassembly.tab_between_mnemonic_and_operands.enabled", false).value<bool>();
 	settings.endGroup();
 
 	settings.beginGroup("Directories");
@@ -141,6 +142,7 @@ void Configuration::read_settings() {
 	options.capitalization = uppercase_disassembly ? CapstoneEDB::Formatter::UpperCase : CapstoneEDB::Formatter::LowerCase;
 	options.smallNumFormat = small_int_as_decimal  ? CapstoneEDB::Formatter::SmallNumAsDec : CapstoneEDB::Formatter::SmallNumAsHex;
 	options.syntax=static_cast<CapstoneEDB::Formatter::Syntax>(syntax);
+	options.tabBetweenMnemonicAndOperands=tab_between_mnemonic_and_operands;
 	edb::v1::formatter().setOptions(options);	
 }
 
@@ -186,6 +188,7 @@ void Configuration::write_settings() {
 	settings.setValue("disassembly.zeros_are_filling.enabled", zeros_are_filling);
 	settings.setValue("disassembly.uppercase.enabled", uppercase_disassembly);
 	settings.setValue("disassembly.small_int_as_decimal.enabled", small_int_as_decimal);
+	settings.setValue("disassembly.tab_between_mnemonic_and_operands.enabled", tab_between_mnemonic_and_operands);
 	settings.endGroup();
 
 	settings.beginGroup("Directories");
