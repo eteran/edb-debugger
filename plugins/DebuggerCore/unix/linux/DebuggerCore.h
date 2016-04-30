@@ -57,7 +57,7 @@ public:
 	virtual void kill();
 	virtual void get_state(State *state);
 	virtual void set_state(const State &state);
-	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty);
+	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
 	
 public:
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const;

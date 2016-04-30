@@ -70,8 +70,9 @@ public:
 public:
 	// basic process management
 	virtual bool attach(edb::pid_t pid) = 0;
-	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args) = 0;
-	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
+	// These two functions return empty string on success, string with error description on error
+	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args) = 0;
+	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
 	virtual IDebugEvent::const_pointer wait_debug_event(int msecs) = 0;
 	virtual void detach() = 0;
 	virtual void kill() = 0;
