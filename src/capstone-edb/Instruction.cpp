@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRegExp>
 #include <stdexcept>
 #include "Util.h"
+#include <sstream>
 
 namespace CapstoneEDB {
 
@@ -144,6 +145,12 @@ void adjustInstructionText(Capstone::cs_insn& insn)
 
 	operands.replace(QRegExp("\\bxword "),"tbyte ");
 	operands.replace(QRegExp("(word|byte) ptr "),"\\1 ");
+
+	if(activeFormatter.options().simplifyRIPRelativeTargets && isAMD64 && (insn.detail->x86.modrm&0xc7)==0x05)
+	{
+		QRegExp ripRel("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b");
+		operands.replace(ripRel,"rel 0x"+QString::number(insn.detail->x86.disp+insn.address+insn.size,16));
+	}
 
 	strcpy(insn.op_str,operands.toStdString().c_str());
 }
@@ -646,8 +653,30 @@ void Formatter::setOptions(const Formatter::FormatOptions& options)
 std::string Formatter::to_string(const Instruction& instruction) const
 {
 	if(!instruction) return "(bad)";
-
-	std::string str(std::string(instruction.insn_.mnemonic)+" "+instruction.insn_.op_str);
+	
+	enum
+	{
+		tab1Size=8,
+		tab2Size=11,
+	};
+	std::ostringstream s;
+	s << instruction.insn_.mnemonic;
+	if(instruction.operand_count()>0) // prevent addition of trailing whitespace
+	{
+		if(options_.tabBetweenMnemonicAndOperands)
+		{
+			const auto pos = s.tellp();
+			const auto pad = pos<tab1Size ? tab1Size-pos : pos<tab2Size ? tab2Size-pos : 1;
+			s << std::string(pad,' ');
+		}
+		else s << ' ';
+		s << instruction.insn_.op_str;
+	}
+	else
+	{
+		assert(instruction.insn_.op_str[0]==0);
+	}
+	auto str = s.str();
 	checkCapitalize(str);
 	return str;
 }

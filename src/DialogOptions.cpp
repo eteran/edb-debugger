@@ -202,6 +202,10 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui->chkAddressColon->setChecked(config.show_address_separator);
 
 	ui->signalsMessageBoxEnable->setChecked(config.enable_signals_message_box);
+
+	ui->chkTabBetweenMnemonicAndOperands->setChecked(config.tab_between_mnemonic_and_operands);
+	ui->chkShowLocalModuleName->setChecked(config.show_local_module_name_in_jump_targets);
+	ui->chkSimplifyRIPRelativeTargets->setChecked(config.simplify_rip_relative_targets);
 }
 
 //------------------------------------------------------------------------------
@@ -217,6 +221,10 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	} else if(ui->rdoSytntaxATT->isChecked()) {
 		config.syntax = Configuration::ATT;
 	}
+
+	config.tab_between_mnemonic_and_operands=ui->chkTabBetweenMnemonicAndOperands->isChecked();
+	config.show_local_module_name_in_jump_targets=ui->chkShowLocalModuleName->isChecked();
+	config.simplify_rip_relative_targets=ui->chkSimplifyRIPRelativeTargets->isChecked();
 
 	if(ui->rdoDetach->isChecked()) {
 		config.close_behavior = Configuration::Detach;
@@ -265,6 +273,8 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	options.capitalization = config.uppercase_disassembly ? CapstoneEDB::Formatter::UpperCase : CapstoneEDB::Formatter::LowerCase;
 	options.smallNumFormat = config.small_int_as_decimal  ? CapstoneEDB::Formatter::SmallNumAsDec : CapstoneEDB::Formatter::SmallNumAsHex;
 	options.syntax=static_cast<CapstoneEDB::Formatter::Syntax>(config.syntax);
+	options.tabBetweenMnemonicAndOperands=config.tab_between_mnemonic_and_operands;
+	options.simplifyRIPRelativeTargets=config.simplify_rip_relative_targets;
 	edb::v1::formatter().setOptions(options);
 
 	config.enable_signals_message_box = ui->signalsMessageBoxEnable->isChecked();

@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "ISymbolManager.h"
 #include "Instruction.h"
+#include "MemoryRegions.h"
 #include "SyntaxHighlighter.h"
 #include "Util.h"
 
@@ -520,6 +521,13 @@ void QDisassemblyView::scrollTo(edb::address_t address) {
 	verticalScrollBar()->setValue(address - address_offset_);
 }
 
+bool targetIsLocal(edb::address_t targetAddress,edb::address_t insnAddress) {
+
+	const auto insnRegion=edb::v1::memory_regions().find_region(insnAddress);
+	const auto targetRegion=edb::v1::memory_regions().find_region(targetAddress);
+	return insnRegion->compare(targetRegion)==0;
+}
+
 //------------------------------------------------------------------------------
 // Name: draw_instruction
 // Desc:
@@ -557,7 +565,9 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 					if(oper.general_type() == edb::Operand::TYPE_REL) {
 						const edb::address_t target = oper.relative_target();
 
-						const QString sym = edb::v1::symbol_manager().find_address_name(target);
+						const bool showLocalModuleNames=edb::v1::config().show_local_module_name_in_jump_targets;
+						const bool prefixed=showLocalModuleNames || !targetIsLocal(target,inst.rva());
+						const QString sym = edb::v1::symbol_manager().find_address_name(target,prefixed);
 						if(!sym.isEmpty()) {
 							opcode.append(QString(" <%2>").arg(sym));
 						}

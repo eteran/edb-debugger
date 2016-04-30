@@ -518,7 +518,7 @@
        <item>
         <widget class="QCheckBox" name="chkZerosAreFilling">
          <property name="text">
-          <string>Instruction &quot;add byte ptr[eax], al&quot; (0x00 0x00) is &quot;Filling&quot; on x86</string>
+          <string>Instruction &quot;add [eax], al&quot; (0x00 0x00) is &quot;Filling&quot; on x86</string>
          </property>
         </widget>
        </item>
@@ -536,6 +536,27 @@
          </property>
          <property name="text">
           <string>Display small integers in decimal</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkTabBetweenMnemonicAndOperands">
+         <property name="text">
+          <string>Tab between mnemonic and operands</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkShowLocalModuleName">
+         <property name="text">
+          <string>Show local module name in jump targets</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkSimplifyRIPRelativeTargets">
+         <property name="text">
+          <string>Show RIP-relative targets as [rel TargetAddress] instead of [rip+Displacement]</string>
          </property>
         </widget>
        </item>
