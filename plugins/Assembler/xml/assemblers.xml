@@ -10,6 +10,16 @@
 		%INSTRUCTION%
 		]]>
 		</template>
+		<operand_sizes
+			byte="byte"
+			word="word"
+			dword="dword"
+			qword="qword"
+			tbyte="tword"
+			xmmword="oword"
+			ymmword="yword"
+			zmmword="zword"
+		/>
 	</assembler>
 	<assembler name="nasm">
 		<executable command_line="/usr/bin/nasm -f bin %IN% -o %OUT%" extension="asm" />
@@ -20,7 +30,17 @@
 	
 		%INSTRUCTION%
 		]]>
-	</template>
+		</template>
+		<operand_sizes
+			byte="byte"
+			word="word"
+			dword="dword"
+			qword="qword"
+			tbyte="tword"
+			xmmword="oword"
+			ymmword="yword"
+			zmmword="zword"
+		/>
 	</assembler>
 	<assembler name="fasm">
 		<executable command_line="fasm %IN% %OUT%" extension="asm" />
@@ -31,6 +51,51 @@
 
 		%INSTRUCTION%
 		]]>
-	</template>
+		</template>
+		<operand_sizes
+			byte="byte"
+			word="word"
+			dword="dword"
+			qword="qword"
+			tbyte="tbyte"
+			xmmword="xword"
+			ymmword="yword"
+			zmmword="zword"
+		/>
+	</assembler>
+	<assembler name="gas (Intel syntax)">
+		<executable command_line="sh -c &quot;[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64; as --%BITS% -o %OUT%.o %IN% &amp;&amp; ld -m $FORMAT -Ttext %ADDRESS% --oformat binary -o %OUT% %OUT%.o&quot;"
+					extension="s" />
+		<template>
+		<![CDATA[
+		.section .text
+		.globl _start
+		.intel_syntax noprefix
+		_start:
+		%INSTRUCTION%
+		]]>
+		</template>
+		<operand_sizes
+			byte="byte ptr"
+			word="word ptr"
+			dword="dword ptr"
+			qword="qword ptr"
+			tbyte="tbyte ptr"
+			xmmword="xmmword ptr"
+			ymmword="ymmword ptr"
+			zmmword="zmmword ptr"
+		/>
+	</assembler>
+	<assembler name="gas (AT&amp;T syntax)">
+		<executable command_line="sh -c &quot;[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64; as --%BITS% -o %OUT%.o %IN% &amp;&amp; ld -m $FORMAT -Ttext %ADDRESS% --oformat binary -o %OUT% %OUT%.o&quot;"
+					extension="s" />
+		<template>
+		<![CDATA[
+		.section .text
+		.globl _start
+		_start:
+		%INSTRUCTION%
+		]]>
+		</template>
 	</assembler>
 </assemblers>
