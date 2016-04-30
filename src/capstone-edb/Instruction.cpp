@@ -647,7 +647,7 @@ void Formatter::setOptions(const Formatter::FormatOptions& options)
 std::string Formatter::to_string(const Instruction& instruction) const
 {
 	if(!instruction) return "(bad)";
-
+	
 	enum
 	{
 		tab1Size=8,
@@ -655,10 +655,13 @@ std::string Formatter::to_string(const Instruction& instruction) const
 	};
 	std::ostringstream s;
 	s << instruction.insn_.mnemonic;
-	const auto pos = s.tellp();
-	const auto pad = pos<tab1Size ? tab1Size-pos : pos<tab2Size ? tab2Size-pos : 1;
-	s << std::string(pad,' ');
-	s << instruction.insn_.op_str;
+	if(instruction.operand_count()>0) // prevent addition of trailing whitespace
+	{
+		const auto pos = s.tellp();
+		const auto pad = pos<tab1Size ? tab1Size-pos : pos<tab2Size ? tab2Size-pos : 1;
+		s << std::string(pad,' ');
+		s << instruction.insn_.op_str;
+	}
 	auto str = s.str();
 	checkCapitalize(str);
 	return str;
