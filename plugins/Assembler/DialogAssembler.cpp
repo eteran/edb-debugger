@@ -196,6 +196,43 @@ DialogAssembler::~DialogAssembler() {
 	delete ui;
 }
 
+QDomDocument getAssemblerDescription() {
+
+	const QString assembler = QSettings().value("Assembler/helper", "yasm").toString();
+
+	QFile file(":/debugger/Assembler/xml/assemblers.xml");
+	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+
+		QXmlQuery query;
+		QString assembler_xml;
+		query.setFocus(&file);
+		query.setQuery(QString("assemblers/assembler[@name='%1']").arg(Qt::escape(assembler)));
+		if (query.isValid()) {
+			query.evaluateTo(&assembler_xml);
+		}
+
+		QDomDocument xml;
+		xml.setContent(assembler_xml);
+		return xml;
+	}
+	return {};
+}
+
+QString fixupSyntax(QString insn) {
+	
+	const auto asmRoot=getAssemblerDescription().documentElement();
+	if(asmRoot.isNull()) return insn;
+	const auto opSizes=asmRoot.firstChildElement("operand_sizes");
+	if(opSizes.isNull()) return insn;
+	static const QString sizes[]={"byte","word","dword","qword","tbyte","xmmword","ymmword","zmmword"};
+	for(auto size : sizes) {
+		const auto replacement=opSizes.attribute(size);
+		if(!replacement.isEmpty())
+			insn.replace(QRegExp("\\b"+size+"\\b"),replacement);
+	}
+	return insn;
+}
+
 //------------------------------------------------------------------------------
 // Name: set_address
 // Desc:
@@ -208,7 +245,7 @@ void DialogAssembler::set_address(edb::address_t address) {
 	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 		edb::Instruction inst(buffer, buffer + size, address);
 		if(inst) {
-			ui->assembly->setEditText(QString::fromStdString(edb::v1::formatter().to_string(inst)));
+			ui->assembly->setEditText(fixupSyntax(edb::v1::formatter().to_string(inst).c_str()));
 			instruction_size_ = inst.size();
 		}
 	}
@@ -222,24 +259,8 @@ void DialogAssembler::on_buttonBox_accepted() {
 
 	const QString nasm_syntax = normalizeAssembly(ui->assembly->currentText().trimmed());
 
-	QSettings settings;
-	const QString assembler = settings.value("Assembler/helper", "yasm").toString();
-
-	QFile file(":/debugger/Assembler/xml/assemblers.xml");
-	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-
-		QXmlQuery query;
-		QString assembler_xml;
-		query.setFocus(&file);
-		query.setQuery(QString("assemblers/assembler[@name='%1']").arg(Qt::escape(assembler)));
-		if (query.isValid()) {
-			query.evaluateTo(&assembler_xml);
-		}
-		file.close();
-
-		QDomDocument xml;
-		xml.setContent(assembler_xml);
-		QDomElement asm_root       = xml.documentElement();
+	const auto asm_root=getAssemblerDescription().documentElement();
+	if(!asm_root.isNull()) {
 		QDomElement asm_executable = asm_root.firstChildElement("executable");
 		QDomElement asm_template   = asm_root.firstChildElement("template");
 
