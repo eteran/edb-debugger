@@ -43,140 +43,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ui_DialogAssembler.h"
 
 namespace Assembler {
-namespace {
-
-//------------------------------------------------------------------------------
-// Name: normalizeAssembly
-// Desc: attempts to fix up the incomming assembly to best match what
-//------------------------------------------------------------------------------
-QString normalizeAssembly(const QString &assembly) {
-	static const QString mnemonic_regex   = "([a-z][a-z0-9]*)";
-	static const QString register_regex   = "((?:(?:e|r)?(?:ax|bx|cx|dx|bp|sp|si|di|ip))|(?:[abcd](?:l|h))|(?:sp|bp|si|di)l|(?:[cdefgs]s)|(?:[xyz]?mm[0-7])|r(?:8|9|(?:1[0-5]))[dwb]?)";
-	static const QString constant_regex   = "((?:0[0-7]*)|(?:0x[0-9a-f]+)|(?:[1-9][0-9]*))";
-
-	static const QString pointer_regex    = "(?:(t?byte|(?:[xyz]mm|[qdf]?)word)(?:\\s+ptr)?)?";
-	static const QString segment_regex    = "([csdefg]s)";
-	static const QString expression_regex = QString("(%1\\s*(?:\\s+%2\\s*:\\s*)?\\[(\\s*(?:(?:%3(?:\\s*\\+\\s*%3(?:\\s*\\*\\s*%4)?)?(?:\\s*\\+\\s*%4)?)|(?:(?:%3(?:\\s*\\*\\s*%4)?)(?:\\s*\\+\\s*%4)?)|(?:%4)\\s*))\\])").arg(pointer_regex, segment_regex, register_regex, constant_regex);
-
-	static const QString operand_regex    = QString("((?:%1)|(?:%2)|(?:%3))").arg(register_regex, constant_regex, expression_regex);
-
-	static const QString assembly_regex   = QString("%1(?:\\s+%2\\s*(?:\\s*,\\s*%2\\s*(?:\\s*,\\s*%2\\s*)?)?)?").arg(mnemonic_regex, operand_regex);
-
-// [                 OFFSET]
-// [     INDEX             ]
-// [     INDEX      +OFFSET]
-// [     INDEX*SCALE       ]
-// [     INDEX*SCALE+OFFSET]
-// [BASE                   ]
-// [BASE            +OFFSET]
-// [BASE+INDEX             ]
-// [BASE+INDEX      +OFFSET]
-// [BASE+INDEX*SCALE       ]
-// [BASE+INDEX*SCALE+OFFSET]
-// -------------------------
-// [((BASE(\+INDEX(\*SCALE)?)?(\+OFFSET)?)|((INDEX(\*SCALE)?)(\+OFFSET)?)|(OFFSET))]
-
-
-	QRegExp regex(assembly_regex, Qt::CaseInsensitive, QRegExp::RegExp2);
-
-	if(regex.exactMatch(assembly)) {
-		const QStringList list = regex.capturedTexts();
-
-
-/*
-[0]  -> whole match
-[1]  -> mnemonic
-
-[2]  -> whole operand 1
-[3]  -> operand 1 (REGISTER)
-[4]  -> operand 1 (IMMEDIATE)
-[5]  -> operand 1 (EXPRESSION)
-[6]  -> operand 1 pointer (EXPRESSION)
-[7]  -> operand 1 segment (EXPRESSION)
-[8]  -> operand 1 internal expression (EXPRESSION)
-[9]  -> operand 1 base (EXPRESSION)
-[10] -> operand 1 index (EXPRESSION)
-[11] -> operand 1 scale (EXPRESSION)
-[12] -> operand 1 displacement (EXPRESSION)
-[13] -> operand 1 index (EXPRESSION) (version 2)
-[14] -> operand 1 scale (EXPRESSION) (version 2)
-[15] -> operand 1 displacement (EXPRESSION) (version 2)
-[16] -> operand 1 displacement (EXPRESSION) (version 3)
-
-[17] -> whole operand 2
-[18] -> operand 2 (REGISTER)
-[19] -> operand 2 (IMMEDIATE)
-[20] -> operand 2 (EXPRESSION)
-[21] -> operand 2 pointer (EXPRESSION)
-[22] -> operand 2 segment (EXPRESSION)
-[23] -> operand 2 internal expression (EXPRESSION)
-[24] -> operand 2 base (EXPRESSION)
-[25] -> operand 2 index (EXPRESSION)
-[26] -> operand 2 scale (EXPRESSION)
-[27] -> operand 2 displacement (EXPRESSION)
-[28] -> operand 2 index (EXPRESSION) (version 2)
-[29] -> operand 2 scale (EXPRESSION) (version 2)
-[30] -> operand 2 displacement (EXPRESSION) (version 2)
-[31] -> operand 2 displacement (EXPRESSION) (version 3)
-
-[32] -> whole operand 3
-[33] -> operand 3 (REGISTER)
-[34] -> operand 3 (IMMEDIATE)
-[35] -> operand 3 (EXPRESSION)
-[36] -> operand 3 pointer (EXPRESSION)
-[37] -> operand 3 segment (EXPRESSION)
-[38] -> operand 3 internal expression (EXPRESSION)
-[39] -> operand 3 base (EXPRESSION)
-[40] -> operand 3 index (EXPRESSION)
-[41] -> operand 3 scale (EXPRESSION)
-[42] -> operand 3 displacement (EXPRESSION)
-[43] -> operand 3 index (EXPRESSION) (version 2)
-[44] -> operand 3 scale (EXPRESSION) (version 2)
-[45] -> operand 3 displacement (EXPRESSION) (version 2)
-[46] -> operand 3 displacement (EXPRESSION) (version 3)
-*/
-
-		int operand_count = 0;
-		if(!list[2].isEmpty()) {
-			++operand_count;
-		}
-
-		if(!list[17].isEmpty()) {
-			++operand_count;
-		}
-
-		if(!list[32].isEmpty()) {
-			++operand_count;
-		}
-
-		QStringList operands;
-
-		for(int i = 0; i < operand_count; ++i) {
-
-			int offset = 15 * i;
-
-			if(!list[3 + offset].isEmpty()) {
-				operands << list[3 + offset];
-			} else if(!list[4 + offset].isEmpty()) {
-				operands << list[4 + offset];
-			} else if(!list[5 + offset].isEmpty()) {
-				if(!list[7 + offset].isEmpty()) {
-					operands << QString("%1 [%2:%3]").arg(list[6 + offset], list[7 + offset], list[8 + offset]);
-				} else {
-					operands << QString("%1 [%2]").arg(list[6 + offset], list[8 + offset]);
-				}
-			}
-		}
-
-		return list[1] + ' ' + operands.join(",");
-	} else {
-		// if the regex failed, just assume that it might be able to be handled...
-		return assembly;
-	}
-}
-
-}
-
 //------------------------------------------------------------------------------
 // Name: DialogAssembler
 // Desc: constructor
@@ -257,7 +123,7 @@ void DialogAssembler::set_address(edb::address_t address) {
 //------------------------------------------------------------------------------
 void DialogAssembler::on_buttonBox_accepted() {
 
-	const QString nasm_syntax = normalizeAssembly(ui->assembly->currentText().trimmed());
+	const QString nasm_syntax = ui->assembly->currentText().trimmed();
 
 	const auto asm_root=getAssemblerDescription().documentElement();
 	if(!asm_root.isNull()) {
