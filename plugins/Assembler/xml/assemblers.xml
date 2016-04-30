@@ -46,4 +46,16 @@
 		]]>
 		</template>
 	</assembler>
+	<assembler name="gas (AT&amp;T syntax)">
+		<executable command_line="sh -c &quot;[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64; as --%BITS% -o %OUT%.o %IN% &amp;&amp; ld -m $FORMAT -Ttext %ADDRESS% --oformat binary -o %OUT% %OUT%.o&quot;"
+					extension="s" />
+		<template>
+		<![CDATA[
+		.section .text
+		.globl _start
+		_start:
+		%INSTRUCTION%
+		]]>
+		</template>
+	</assembler>
 </assemblers>
