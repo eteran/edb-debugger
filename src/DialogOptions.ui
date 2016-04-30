@@ -518,7 +518,7 @@
        <item>
         <widget class="QCheckBox" name="chkZerosAreFilling">
          <property name="text">
-          <string>Instruction &quot;add byte ptr[eax], al&quot; (0x00 0x00) is &quot;Filling&quot; on x86</string>
+          <string>Instruction &quot;add [eax], al&quot; (0x00 0x00) is &quot;Filling&quot; on x86</string>
          </property>
         </widget>
        </item>
