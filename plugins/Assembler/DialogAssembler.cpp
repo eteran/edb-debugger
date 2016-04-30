@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "string_hash.h"
 
+#include <QTextDocument>
 #include <QMessageBox>
 #include <QDebug>
 #include <QProcess>
@@ -230,7 +231,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 		QXmlQuery query;
 		QString assembler_xml;
 		query.setFocus(&file);
-		query.setQuery(QString("assemblers/assembler[@name='%1']").arg(assembler));
+		query.setQuery(QString("assemblers/assembler[@name='%1']").arg(Qt::escape(assembler)));
 		if (query.isValid()) {
 			query.evaluateTo(&assembler_xml);
 		}
