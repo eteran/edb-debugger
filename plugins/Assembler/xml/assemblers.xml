@@ -67,9 +67,14 @@
 		<executable command_line="sh -c &quot;
 		[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64;
 		asmOut=`mktemp %OUT%.o.XXXXXXXX`;
-		as --%BITS% -o $asmOut %IN% &amp;&amp;
-		 ld -m $FORMAT -Ttext %ADDRESS% --oformat binary -o %OUT% $asmOut;
-		rm $asmOut
+		linkerScript=`mktemp %OUT%.ld.XXXXXXXX`;
+		if [ -z $asmOut ] || [ -z $linkerScript ]; then exit 1; fi;
+		echo 'SECTIONS { . = %ADDRESS%; .text . : SUBALIGN(0) { *(.text) } }' &gt; $linkerScript &amp;&amp;
+		 as --%BITS% -o $asmOut %IN% &amp;&amp;
+		 ld -m $FORMAT -T $linkerScript --oformat binary -o %OUT% $asmOut;
+		RESULT=$?;
+		rm -f $asmOut $linkerScript;
+		exit $RESULT
 		&quot;"
 					extension="s" />
 		<template>
@@ -97,9 +102,14 @@
 		<executable command_line="sh -c &quot;
 		[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64;
 		asmOut=`mktemp %OUT%.o.XXXXXXXX`;
-		as --%BITS% -o $asmOut %IN% &amp;&amp;
-		 ld -m $FORMAT -Ttext %ADDRESS% --oformat binary -o %OUT% $asmOut;
-		rm $asmOut
+		linkerScript=`mktemp %OUT%.ld.XXXXXXXX`;
+		if [ -z $asmOut ] || [ -z $linkerScript ]; then exit 1; fi;
+		echo 'SECTIONS { . = %ADDRESS%; .text . : SUBALIGN(0) { *(.text) } }' &gt; $linkerScript &amp;&amp;
+		 as --%BITS% -o $asmOut %IN% &amp;&amp;
+		 ld -m $FORMAT -T $linkerScript --oformat binary -o %OUT% $asmOut;
+		RESULT=$?;
+		rm -f $asmOut $linkerScript;
+		exit $RESULT
 		&quot;"
 					extension="s" />
 		<template>
