@@ -35,7 +35,8 @@ public:
 
 	enum CloseBehavior {
 		Detach,
-		Terminate
+		Kill,
+		KillIfLaunchedDetachIfAttached
 	};
 
 	enum InitialBreakpoint {

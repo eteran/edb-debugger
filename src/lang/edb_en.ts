@@ -918,7 +918,7 @@
     </message>
     <message>
         <location filename="../DialogOptions.ui" line="56"/>
-        <source>Terminate Debugged Application</source>
+        <source>Kill Debugged Application</source>
         <translation></translation>
     </message>
     <message>

@@ -58,6 +58,7 @@ public:
 	virtual void get_state(State *state);
 	virtual void set_state(const State &state);
 	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
+	virtual MeansOfCapture last_means_of_capture() override;
 	
 public:
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const;
@@ -113,6 +114,7 @@ private:
 	const edb::seg_reg_t USER_CS_32;
 	const edb::seg_reg_t USER_CS_64;
 	const edb::seg_reg_t USER_SS;
+	MeansOfCapture	 lastMeansOfCapture=MeansOfCapture::NeverCaptured;
 };
 
 }

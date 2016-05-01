@@ -163,7 +163,8 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui->rdoSytntaxIntel->setChecked(config.syntax != Configuration::ATT);
 
 	ui->rdoDetach->setChecked(config.close_behavior == Configuration::Detach);
-	ui->rdoKill->setChecked(config.close_behavior != Configuration::Detach);
+	ui->rdoKill->setChecked(config.close_behavior == Configuration::Kill);
+	ui->rdoReverseCapture->setChecked(config.close_behavior == Configuration::KillIfLaunchedDetachIfAttached);
 
 	ui->rdoBPEntry->setChecked(config.initial_breakpoint == Configuration::EntryPoint);
 	ui->rdoBPMain->setChecked(config.initial_breakpoint != Configuration::EntryPoint);
@@ -229,7 +230,9 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	if(ui->rdoDetach->isChecked()) {
 		config.close_behavior = Configuration::Detach;
 	} else if(ui->rdoKill->isChecked()) {
-		config.close_behavior = Configuration::Terminate;
+		config.close_behavior = Configuration::Kill;
+	} else if(ui->rdoReverseCapture->isChecked()) {
+		config.close_behavior = Configuration::KillIfLaunchedDetachIfAttached;
 	}
 
 	config.stack_font            = ui->stackFont->currentFont().toString();

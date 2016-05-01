@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DebuggerCoreBase.h"
 #include "Breakpoint.h"
+#include "Configuration.h"
+#include "edb.h"
 
 namespace DebuggerCore {
 
@@ -92,6 +94,31 @@ void DebuggerCoreBase::remove_breakpoint(edb::address_t address) {
 		auto it = breakpoints_.find(address);
 		if(it != breakpoints_.end()) {
 			breakpoints_.erase(it);
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: end_debug_session
+// Desc: Ends debug session, detaching from or killing debuggee according to
+//		 user preferences
+//------------------------------------------------------------------------------
+void DebuggerCoreBase::end_debug_session() {
+	if(attached()) {
+		switch(edb::v1::config().close_behavior)
+		{
+		case Configuration::Detach:
+			detach();
+			break;
+		case Configuration::Kill:
+			kill();
+			break;
+		case Configuration::KillIfLaunchedDetachIfAttached:
+			if(last_means_of_capture()==MeansOfCapture::Launch)
+				kill();
+			else
+				detach();
+			break;
 		}
 	}
 }

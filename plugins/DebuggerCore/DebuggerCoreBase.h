@@ -31,6 +31,13 @@ public:
 public:
 	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args) override;
 	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
+	enum class MeansOfCapture
+	{
+		NeverCaptured,
+		Attach,
+		Launch
+	};
+	virtual MeansOfCapture last_means_of_capture() = 0;
 
 public:
 	virtual BreakpointList backup_breakpoints() const;
@@ -38,6 +45,7 @@ public:
 	virtual IBreakpoint::pointer find_breakpoint(edb::address_t address);
 	virtual void clear_breakpoints();
 	virtual void remove_breakpoint(edb::address_t address);
+	virtual void end_debug_session() override;
 
 public:
 	virtual edb::pid_t pid() const;

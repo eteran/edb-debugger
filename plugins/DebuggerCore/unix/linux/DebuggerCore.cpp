@@ -201,7 +201,7 @@ std::size_t DebuggerCore::pointer_size() const {
 // Desc: destructor
 //------------------------------------------------------------------------------
 DebuggerCore::~DebuggerCore() {
-	detach();
+	end_debug_session();
 }
 
 //------------------------------------------------------------------------------
@@ -455,7 +455,9 @@ bool DebuggerCore::attach_thread(edb::tid_t tid) {
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::attach(edb::pid_t pid) {
-	detach();
+	end_debug_session();
+
+	lastMeansOfCapture=MeansOfCapture::Attach;
 	
 	// create this, so the threads created can refer to it
 	process_ = new PlatformProcess(this, pid);
@@ -593,7 +595,9 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 
 	static const QString statusOK{};
 
-	detach();
+	end_debug_session();
+
+	lastMeansOfCapture=MeansOfCapture::Launch;
 
 	static constexpr std::size_t sharedMemSize=4096;
 	const auto sharedMem=static_cast<QChar*>(::mmap(nullptr,sharedMemSize,PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANONYMOUS,-1,0));
@@ -658,7 +662,7 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 
 			// the very first event should be a STOP of type SIGTRAP
 			if(!WIFSTOPPED(status) || WSTOPSIG(status) != SIGTRAP) {
-				detach();
+				end_debug_session();
 				return QObject::tr("First event after waitpid() should be a STOP of type SIGTRAP, but wasn't, instead status=0x%1")
 											.arg(status,0,16)+(childError.isEmpty()?"":QObject::tr(".\nError returned by child:\n%1.").arg(childError));
 			}
@@ -667,15 +671,15 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 
 			// enable following clones (threads)
 			if(ptrace_set_options(pid, PTRACE_O_TRACECLONE) == -1) {
-				const auto strerr=strerror(errno); // NOTE: must be called before detach, otherwise errno can change
-				detach();
+				const auto strerr=strerror(errno); // NOTE: must be called before end_debug_session, otherwise errno can change
+				end_debug_session();
 				return QObject::tr("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: %1").arg(strerr);
 			}
 			
 #ifdef PTRACE_O_EXITKILL
 			if(ptrace_set_options(pid, PTRACE_O_EXITKILL) == -1) {
-				const auto strerr=strerror(errno); // NOTE: must be called before detach, otherwise errno can change
-				detach();
+				const auto strerr=strerror(errno); // NOTE: must be called before end_debug_session, otherwise errno can change
+				end_debug_session();
 				return QObject::tr("[DebuggerCore] failed to set PTRACE_O_EXITKILL: %1").arg(strerr);
 			}
 #endif
@@ -704,6 +708,15 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 		} while(0);
 		break;
 	}
+}
+
+
+//------------------------------------------------------------------------------
+// Name: last_means_of_capture
+// Desc: Returns how the last process was captured to debug
+//------------------------------------------------------------------------------
+DebuggerCore::MeansOfCapture DebuggerCore::last_means_of_capture() {
+	return lastMeansOfCapture;
 }
 
 //------------------------------------------------------------------------------
