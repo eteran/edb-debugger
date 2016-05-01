@@ -64,7 +64,18 @@
 		/>
 	</assembler>
 	<assembler name="gas (Intel syntax)">
-		<executable command_line="sh -c &quot;[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64; as --%BITS% -o %OUT%.o %IN% &amp;&amp; ld -m $FORMAT -Ttext %ADDRESS% --oformat binary -o %OUT% %OUT%.o&quot;"
+		<executable command_line="sh -c &quot;
+		[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64;
+		asmOut=`mktemp %OUT%.o.XXXXXXXX`;
+		linkerScript=`mktemp %OUT%.ld.XXXXXXXX`;
+		if [ -z $asmOut ] || [ -z $linkerScript ]; then exit 1; fi;
+		echo 'SECTIONS { . = %ADDRESS%; .text . : SUBALIGN(0) { *(.text) } }' &gt; $linkerScript &amp;&amp;
+		 as --%BITS% -o $asmOut %IN% &amp;&amp;
+		 ld -m $FORMAT -T $linkerScript --oformat binary -o %OUT% $asmOut;
+		RESULT=$?;
+		rm -f $asmOut $linkerScript;
+		exit $RESULT
+		&quot;"
 					extension="s" />
 		<template>
 		<![CDATA[
@@ -87,7 +98,19 @@
 		/>
 	</assembler>
 	<assembler name="gas (AT&amp;T syntax)">
-		<executable command_line="sh -c &quot;[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64; as --%BITS% -o %OUT%.o %IN% &amp;&amp; ld -m $FORMAT -Ttext %ADDRESS% --oformat binary -o %OUT% %OUT%.o&quot;"
+		<!-- command lines are identical for Intel and AT&T syntax, only source is different -->
+		<executable command_line="sh -c &quot;
+		[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64;
+		asmOut=`mktemp %OUT%.o.XXXXXXXX`;
+		linkerScript=`mktemp %OUT%.ld.XXXXXXXX`;
+		if [ -z $asmOut ] || [ -z $linkerScript ]; then exit 1; fi;
+		echo 'SECTIONS { . = %ADDRESS%; .text . : SUBALIGN(0) { *(.text) } }' &gt; $linkerScript &amp;&amp;
+		 as --%BITS% -o $asmOut %IN% &amp;&amp;
+		 ld -m $FORMAT -T $linkerScript --oformat binary -o %OUT% $asmOut;
+		RESULT=$?;
+		rm -f $asmOut $linkerScript;
+		exit $RESULT
+		&quot;"
 					extension="s" />
 		<template>
 		<![CDATA[
