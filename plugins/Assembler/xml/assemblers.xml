@@ -64,7 +64,13 @@
 		/>
 	</assembler>
 	<assembler name="gas (Intel syntax)">
-		<executable command_line="sh -c &quot;[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64; as --%BITS% -o %OUT%.o %IN% &amp;&amp; ld -m $FORMAT -Ttext %ADDRESS% --oformat binary -o %OUT% %OUT%.o&quot;"
+		<executable command_line="sh -c &quot;
+		[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64;
+		asmOut=`mktemp %OUT%.o.XXXXXXXX`;
+		as --%BITS% -o $asmOut %IN% &amp;&amp;
+		 ld -m $FORMAT -Ttext %ADDRESS% --oformat binary -o %OUT% $asmOut;
+		rm $asmOut
+		&quot;"
 					extension="s" />
 		<template>
 		<![CDATA[
@@ -87,7 +93,14 @@
 		/>
 	</assembler>
 	<assembler name="gas (AT&amp;T syntax)">
-		<executable command_line="sh -c &quot;[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64; as --%BITS% -o %OUT%.o %IN% &amp;&amp; ld -m $FORMAT -Ttext %ADDRESS% --oformat binary -o %OUT% %OUT%.o&quot;"
+		<!-- command lines are identical for Intel and AT&T syntax, only source is different -->
+		<executable command_line="sh -c &quot;
+		[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64;
+		asmOut=`mktemp %OUT%.o.XXXXXXXX`;
+		as --%BITS% -o $asmOut %IN% &amp;&amp;
+		 ld -m $FORMAT -Ttext %ADDRESS% --oformat binary -o %OUT% $asmOut;
+		rm $asmOut
+		&quot;"
 					extension="s" />
 		<template>
 		<![CDATA[
