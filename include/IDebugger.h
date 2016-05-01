@@ -76,6 +76,7 @@ public:
 	virtual IDebugEvent::const_pointer wait_debug_event(int msecs) = 0;
 	virtual void detach() = 0;
 	virtual void kill() = 0;
+	virtual void end_debug_session() = 0;
 	virtual void get_state(State *state) = 0;	
 	virtual void set_state(const State &state) = 0;
 

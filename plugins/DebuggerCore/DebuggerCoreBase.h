@@ -38,6 +38,7 @@ public:
 	virtual IBreakpoint::pointer find_breakpoint(edb::address_t address);
 	virtual void clear_breakpoints();
 	virtual void remove_breakpoint(edb::address_t address);
+	virtual void end_debug_session() override;
 
 public:
 	virtual edb::pid_t pid() const;

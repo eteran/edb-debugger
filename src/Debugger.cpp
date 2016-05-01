@@ -397,7 +397,8 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 //------------------------------------------------------------------------------
 Debugger::~Debugger() {
 
-	detach_from_process((edb::v1::config().close_behavior == Configuration::Kill) ? KILL_ON_DETACH : NO_KILL_ON_DETACH);
+	if(const auto& dc=edb::v1::debugger_core)
+		dc->end_debug_session();
 
 	// kill our xterm and wait for it to die
 	tty_proc_->kill();
@@ -990,7 +991,6 @@ void Debugger::dropEvent(QDropEvent* event) {
 		if(!s.isEmpty()) {
 			Q_ASSERT(edb::v1::debugger_core);
 
-			detach_from_process(KILL_ON_DETACH);
 			common_open(s, QList<QByteArray>());
 		}
 	}
@@ -2886,8 +2886,6 @@ void Debugger::open_file(const QString &s) {
 	if(!s.isEmpty()) {
 		last_open_directory_ = QFileInfo(s).canonicalFilePath();
 
-		detach_from_process(NO_KILL_ON_DETACH);
-
 		execute(s, arguments_dialog_->arguments());
 	}
 }
@@ -2926,8 +2924,6 @@ void Debugger::attach(edb::pid_t pid) {
 	}
 
 
-	detach_from_process(NO_KILL_ON_DETACH);
-	
 	if(edb::v1::debugger_core->attach(pid)) {
 
 		working_directory_ = edb::v1::debugger_core->process()->current_working_directory();
