@@ -53,7 +53,7 @@
           <item>
            <widget class="QRadioButton" name="rdoKill">
             <property name="text">
-             <string>Terminate Debugged Application</string>
+             <string>Kill Debugged Application</string>
             </property>
            </widget>
           </item>

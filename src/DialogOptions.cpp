@@ -229,7 +229,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	if(ui->rdoDetach->isChecked()) {
 		config.close_behavior = Configuration::Detach;
 	} else if(ui->rdoKill->isChecked()) {
-		config.close_behavior = Configuration::Terminate;
+		config.close_behavior = Configuration::Kill;
 	}
 
 	config.stack_font            = ui->stackFont->currentFont().toString();

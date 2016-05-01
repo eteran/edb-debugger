@@ -397,7 +397,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 //------------------------------------------------------------------------------
 Debugger::~Debugger() {
 
-	detach_from_process((edb::v1::config().close_behavior == Configuration::Terminate) ? KILL_ON_DETACH : NO_KILL_ON_DETACH);
+	detach_from_process((edb::v1::config().close_behavior == Configuration::Kill) ? KILL_ON_DETACH : NO_KILL_ON_DETACH);
 
 	// kill our xterm and wait for it to die
 	tty_proc_->kill();
