@@ -456,6 +456,8 @@ bool DebuggerCore::attach_thread(edb::tid_t tid) {
 //------------------------------------------------------------------------------
 bool DebuggerCore::attach(edb::pid_t pid) {
 	end_debug_session();
+
+	lastMeansOfCapture=MeansOfCapture::Attach;
 	
 	// create this, so the threads created can refer to it
 	process_ = new PlatformProcess(this, pid);
@@ -595,6 +597,8 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 
 	end_debug_session();
 
+	lastMeansOfCapture=MeansOfCapture::Launch;
+
 	static constexpr std::size_t sharedMemSize=4096;
 	const auto sharedMem=static_cast<QChar*>(::mmap(nullptr,sharedMemSize,PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANONYMOUS,-1,0));
 	std::memset(sharedMem,0,sharedMemSize);
@@ -704,6 +708,15 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 		} while(0);
 		break;
 	}
+}
+
+
+//------------------------------------------------------------------------------
+// Name: last_means_of_capture
+// Desc: Returns how the last process was captured to debug
+//------------------------------------------------------------------------------
+DebuggerCore::MeansOfCapture DebuggerCore::last_means_of_capture() {
+	return lastMeansOfCapture;
 }
 
 //------------------------------------------------------------------------------

@@ -113,6 +113,12 @@ void DebuggerCoreBase::end_debug_session() {
 		case Configuration::Kill:
 			kill();
 			break;
+		case Configuration::KillIfLaunchedDetachIfAttached:
+			if(last_means_of_capture()==MeansOfCapture::Launch)
+				kill();
+			else
+				detach();
+			break;
 		}
 	}
 }

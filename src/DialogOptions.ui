@@ -57,6 +57,13 @@
             </property>
            </widget>
           </item>
+          <item>
+           <widget class="QRadioButton" name="rdoReverseCapture">
+            <property name="text">
+             <string>Detach If Debugged Application Was Attached To, Kill If Launched</string>
+            </property>
+           </widget>
+          </item>
          </layout>
         </widget>
        </item>
