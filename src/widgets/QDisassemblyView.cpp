@@ -896,14 +896,16 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
 				const edb::address_t target = inst.operands()[0].relative_target();
 
-				painter.drawText(
-					l2 + font_width_ + (font_width_ / 2),
-					y,
-					font_width_,
-					line_height,
-					Qt::AlignVCenter,
-					QString((target > address) ? QChar(0x2304) : QChar(0x2303))
-					);
+				if(target!=inst.rva()) {
+					painter.drawText(
+						l2 + font_width_ + (font_width_ / 2),
+						y,
+						font_width_,
+						line_height,
+						Qt::AlignVCenter,
+						QString((target > address) ? QChar(0x2304) : QChar(0x2303))
+						);
+				}
 			}
 		}
 
