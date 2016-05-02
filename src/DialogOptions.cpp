@@ -206,6 +206,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 
 	ui->chkTabBetweenMnemonicAndOperands->setChecked(config.tab_between_mnemonic_and_operands);
 	ui->chkShowLocalModuleName->setChecked(config.show_local_module_name_in_jump_targets);
+	ui->chkShowSymbolicAddresses->setChecked(config.show_symbolic_addresses);
 	ui->chkSimplifyRIPRelativeTargets->setChecked(config.simplify_rip_relative_targets);
 }
 
@@ -225,6 +226,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 
 	config.tab_between_mnemonic_and_operands=ui->chkTabBetweenMnemonicAndOperands->isChecked();
 	config.show_local_module_name_in_jump_targets=ui->chkShowLocalModuleName->isChecked();
+	config.show_symbolic_addresses=ui->chkShowSymbolicAddresses->isChecked();
 	config.simplify_rip_relative_targets=ui->chkSimplifyRIPRelativeTargets->isChecked();
 
 	if(ui->rdoDetach->isChecked()) {

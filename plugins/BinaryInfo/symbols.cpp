@@ -369,7 +369,20 @@ void collect_symbols(const void *p, size_t size, QList<typename M::symbol> &symb
 							symbol sym;
 							sym.address = symbol_tab[i].st_value;
 							sym.size    = symbol_tab[i].st_size;
-							sym.name    = QString("$sym_%1").arg(edb::v1::format_pointer(symbol_tab[i].st_value));
+							for(const elf_section_header_t *section = sections_begin; section != sections_end; ++section) {
+								if(sym.address>=section->sh_addr && sym.address+sym.size<=section->sh_addr+section->sh_size) {
+									const std::int64_t offset=sym.address-section->sh_addr;
+									const QString hexPrefix=std::abs(offset)>9?"0x":"";
+									const QString offsetStr=offset ? "+"+hexPrefix+QString::number(offset,16) : "";
+									const QString sectionName(&section_strings[section->sh_name]);
+									if(!sectionName.isEmpty()) {
+										sym.name = QString(sectionName+offsetStr);
+										break;
+									}
+								}
+							}
+							if(sym.name.isEmpty())
+								sym.name = QString("$sym_%1").arg(edb::v1::format_pointer(symbol_tab[i].st_value));
 							sym.type    = (M::elf_st_type(symbol_tab[i].st_info) == STT_FUNC ? 'T' : 'D');
 							symbols.push_back(sym);
 						}

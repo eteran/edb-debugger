@@ -560,16 +560,28 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 		} else {
 
 			if(is_call(inst) || is_jump(inst)) {
-				if(inst.operand_count() != 0) {
+				if(inst.operand_count() == 1) {
 					const edb::Operand &oper = inst.operands()[0];
 					if(oper.general_type() == edb::Operand::TYPE_REL) {
+
+						const bool showSymbolicAddresses=edb::v1::config().show_symbolic_addresses;
+
+						static const QRegExp addrPattern("0x[0-9a-fA-F]+");
 						const edb::address_t target = oper.relative_target();
 
 						const bool showLocalModuleNames=edb::v1::config().show_local_module_name_in_jump_targets;
 						const bool prefixed=showLocalModuleNames || !targetIsLocal(target,inst.rva());
-						const QString sym = edb::v1::symbol_manager().find_address_name(target,prefixed);
+						QString sym = edb::v1::symbol_manager().find_address_name(target,prefixed);
+						if(sym.isEmpty() && target==inst.size()+inst.rva())
+							sym=(showSymbolicAddresses?"<":"")+QString("next instruction")+(showSymbolicAddresses?">":"");
+						else if(sym.isEmpty() && target==inst.rva())
+							sym=showSymbolicAddresses ? "$" : "current instruction";
+
 						if(!sym.isEmpty()) {
-							opcode.append(QString(" <%2>").arg(sym));
+							if(showSymbolicAddresses)
+								opcode.replace(addrPattern,sym);
+							else
+								opcode.append(QString(" <%2>").arg(sym));
 						}
 					}
 				}
@@ -884,14 +896,16 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
 				const edb::address_t target = inst.operands()[0].relative_target();
 
-				painter.drawText(
-					l2 + font_width_ + (font_width_ / 2),
-					y,
-					font_width_,
-					line_height,
-					Qt::AlignVCenter,
-					QString((target > address) ? QChar(0x2304) : QChar(0x2303))
-					);
+				if(target!=inst.rva()) {
+					painter.drawText(
+						l2 + font_width_ + (font_width_ / 2),
+						y,
+						font_width_,
+						line_height,
+						Qt::AlignVCenter,
+						QString((target > address) ? QChar(0x2304) : QChar(0x2303))
+						);
+				}
 			}
 		}
 

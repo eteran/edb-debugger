@@ -561,6 +561,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="chkShowSymbolicAddresses">
+         <property name="text">
+          <string>Show symbolic addresses</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="chkSimplifyRIPRelativeTargets">
          <property name="text">
           <string>Show RIP-relative targets as [rel TargetAddress] instead of [rip+Displacement]</string>
