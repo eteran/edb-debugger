@@ -568,20 +568,20 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 
 						static const QRegExp addrPattern("0x[0-9a-fA-F]+");
 						const edb::address_t target = oper.relative_target();
-						if(showSymbolicAddresses && target==inst.size()+inst.rva()) {
-							opcode.replace(addrPattern,"<next instruction>");
-						} else if(showSymbolicAddresses && target==inst.rva()) {
-							opcode.replace(addrPattern,"$");
-						} else {
-							const bool showLocalModuleNames=edb::v1::config().show_local_module_name_in_jump_targets;
-							const bool prefixed=showLocalModuleNames || !targetIsLocal(target,inst.rva());
-							const QString sym = edb::v1::symbol_manager().find_address_name(target,prefixed);
-							if(!sym.isEmpty()) {
-								if(showSymbolicAddresses)
-									opcode.replace(addrPattern,sym);
-								else
-									opcode.append(QString(" <%2>").arg(sym));
-							}
+
+						const bool showLocalModuleNames=edb::v1::config().show_local_module_name_in_jump_targets;
+						const bool prefixed=showLocalModuleNames || !targetIsLocal(target,inst.rva());
+						QString sym = edb::v1::symbol_manager().find_address_name(target,prefixed);
+						if(sym.isEmpty() && target==inst.size()+inst.rva())
+							sym=(showSymbolicAddresses?"<":"")+QString("next instruction")+(showSymbolicAddresses?">":"");
+						else if(sym.isEmpty() && target==inst.rva())
+							sym=showSymbolicAddresses ? "$" : "current instruction";
+
+						if(!sym.isEmpty()) {
+							if(showSymbolicAddresses)
+								opcode.replace(addrPattern,sym);
+							else
+								opcode.append(QString(" <%2>").arg(sym));
 						}
 					}
 				}
