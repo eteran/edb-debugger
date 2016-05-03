@@ -525,7 +525,7 @@ bool targetIsLocal(edb::address_t targetAddress,edb::address_t insnAddress) {
 
 	const auto insnRegion=edb::v1::memory_regions().find_region(insnAddress);
 	const auto targetRegion=edb::v1::memory_regions().find_region(targetAddress);
-	return insnRegion->compare(targetRegion)==0;
+	return !insnRegion->name().isEmpty() && targetRegion && insnRegion->name()==targetRegion->name();
 }
 
 //------------------------------------------------------------------------------
