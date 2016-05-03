@@ -132,29 +132,40 @@ int instruction_size(const quint8 *buffer, std::size_t size) {
 // Name: length_disasm_back
 // Desc:
 //------------------------------------------------------------------------------
-size_t length_disasm_back(const quint8 *buf, size_t size) {
+size_t length_disasm_back(const quint8 *buf,const size_t bufSize,const size_t curInstOffset) {
 
-	quint8 tmp[edb::Instruction::MAX_SIZE * 2];
-	Q_ASSERT(size <= sizeof(tmp));
-
-	std::size_t offs = 0;
-
-	memcpy(tmp, buf, size);
-
-	while(offs < edb::Instruction::MAX_SIZE) {
-
-		const edb::Instruction inst(tmp + offs, tmp + sizeof(tmp), 0);
-		if(!inst) {
-			return 0;
-		}
-
-		const size_t cmdsize = inst.size();
-		offs += cmdsize;
-
-		if(offs == edb::Instruction::MAX_SIZE) {
-			return cmdsize;
+	// stage 1: try to find longest instruction which ends exactly before current one
+	size_t finalSize=0;
+	for(size_t offs = curInstOffset-1;offs!=size_t(-1);--offs) {
+		const edb::Instruction inst(buf+offs, buf+curInstOffset, 0);
+		if(inst && offs+inst.size()==curInstOffset) {
+			finalSize=inst.size();
 		}
 	}
+	if(finalSize) return finalSize;
+
+	// stage2: try to find a combination of previous instruction + new current instruction
+	// such that it would end exactly at the end of original current instruction
+	// we still want previous instruction to be the longest possible
+	const edb::Instruction originalCurrentInst(buf+curInstOffset,buf+bufSize,0);
+	for(size_t offs = curInstOffset-1;offs!=size_t(-1);--offs) {
+		const edb::Instruction instPrev(buf+offs, buf+curInstOffset,0);
+		if(!instPrev) continue;
+		const edb::Instruction instNewCur(buf+offs+instPrev.size(),buf+bufSize,0);
+		if(instNewCur && offs+instPrev.size()+instNewCur.size()==curInstOffset+originalCurrentInst.size()) {
+			finalSize=curInstOffset-offs;
+		}
+	}
+	if(finalSize) return finalSize;
+
+	// stage 3: try to make sure the invalid single-byte won't eat the next line becoming
+	// a valid instruction: we want exactly one _new_ line above
+	for(size_t offs = curInstOffset-1;offs!=size_t(-1);--offs) {
+		const edb::Instruction inst(buf+offs, buf+bufSize, 0);
+		// all next bytes start with valid insturctions, and this one is one invalid byte
+		if(!inst) return curInstOffset-offs;
+	}
+	// all our tries were fruitless, return failure
 	return 0;
 }
 
@@ -298,19 +309,23 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 
 
 		// fall back on the old heuristic
-		quint8 buf[edb::Instruction::MAX_SIZE];
+		// iteration goal: to get exactly one new line above current instruction line
+		static const auto instSize=edb::Instruction::MAX_SIZE;
+		quint8 buf[instSize*2];
 
-		int buf_size = sizeof(buf);
+		int prevInstBytesSize=instSize, curInstBytesSize=instSize;
 		if(region_) {
-			buf_size = qMin<edb::address_t>((current_address - region_->base()), sizeof(buf));
+			prevInstBytesSize = qMin<edb::address_t>((current_address - region_->base()), prevInstBytesSize);
 		}
 
-		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address - buf_size, buf, &buf_size)) {
+		if(!edb::v1::get_instruction_bytes(address_offset_+current_address-prevInstBytesSize,buf,&prevInstBytesSize) ||
+		   !edb::v1::get_instruction_bytes(address_offset_+current_address,buf+prevInstBytesSize,&curInstBytesSize)) {
 			current_address -= 1;
 			break;
 		}
+		const auto buf_size=prevInstBytesSize+curInstBytesSize;
 
-		const size_t size = length_disasm_back(buf, buf_size);
+		const size_t size = length_disasm_back(buf, buf_size, prevInstBytesSize);
 		if(!size) {
 			current_address -= 1;
 			break;
