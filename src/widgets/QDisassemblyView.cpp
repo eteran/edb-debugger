@@ -876,11 +876,12 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			Qt::AlignVCenter,
 			address_buffer);
 
+		const auto group=hasFocus() ? QPalette::Active : QPalette::Inactive;
 		// draw the data bytes
 		if(selectedAddress() != address) {
-			painter.setPen(palette().text().color());
+			painter.setPen(palette().color(group,QPalette::Text));
 		} else {
-			painter.setPen(palette().highlightedText().color());
+			painter.setPen(palette().color(group,QPalette::HighlightedText));
 		}
 
 		painter.drawText(
