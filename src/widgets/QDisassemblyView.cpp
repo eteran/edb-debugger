@@ -377,23 +377,28 @@ edb::address_t QDisassemblyView::following_instructions(edb::address_t current_a
 //------------------------------------------------------------------------------
 void QDisassemblyView::wheelEvent(QWheelEvent *e) {
 
+	const int dy = e->delta();
+	const int scroll_count = dy / 120;
+
+	// Ctrl+Wheel scrolls by single bytes
 	if(e->modifiers() & Qt::ControlModifier) {
+		edb::address_t address = verticalScrollBar()->value();
+		verticalScrollBar()->setValue(address - scroll_count);
 		e->accept();
 		return;
 	}
 
-	const int dy = qAbs(e->delta());
-	const int scroll_count = dy / 120;
+	const int abs_scroll_count = qAbs(scroll_count);
 
 	if(e->delta() > 0) {
 		// scroll up
 		edb::address_t address = verticalScrollBar()->value();
-		address = previous_instructions(address, scroll_count);
+		address = previous_instructions(address, abs_scroll_count);
 		verticalScrollBar()->setValue(address);
 	} else {
 		// scroll down
 		edb::address_t address = verticalScrollBar()->value();
-		address = following_instructions(address, scroll_count);
+		address = following_instructions(address, abs_scroll_count);
 		verticalScrollBar()->setValue(address);
 	}
 }
