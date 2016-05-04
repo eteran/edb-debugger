@@ -969,7 +969,9 @@ void updateGPRs(RegisterViewModel& model, const State& state, bool is64Bit) {
 				const auto origAX=state["orig_rax"].valueAsSignedInteger();
 				if(origAX!=-1)
 					comment="orig: "+edb::value64(origAX).toHexString();
-			} else comment=gprComment(reg);
+			}
+			if(comment.isEmpty())
+				comment=gprComment(reg);
 			model.updateGPR(i,reg.value<edb::value64>(),comment);
 		}
 	} else {
@@ -981,7 +983,9 @@ void updateGPRs(RegisterViewModel& model, const State& state, bool is64Bit) {
 				const auto origAX=state["orig_eax"].valueAsSignedInteger();
 				if(origAX!=-1)
 					comment="orig: "+edb::value32(origAX).toHexString();
-			} else comment=gprComment(reg);
+			}
+			if(comment.isEmpty())
+				comment=gprComment(reg);
 			model.updateGPR(i,reg.value<edb::value32>(),comment);
 		}
 	}
