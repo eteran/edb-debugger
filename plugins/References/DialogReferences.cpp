@@ -65,9 +65,15 @@ void DialogReferences::showEvent(QShowEvent *) {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogReferences::do_find() {
-	bool ok;
-	const edb::address_t address   = edb::v1::string_to_address(ui->txtAddress->text(), &ok);
+	bool ok = false;
+	edb::address_t address;
 	const edb::address_t page_size = edb::v1::debugger_core->page_size();
+	
+	const QString text = ui->txtAddress->text();
+	if(!text.isEmpty()) {
+		ok = edb::v1::eval_expression(text, &address);
+	}	
+	
 
 	if(ok) {
 		edb::v1::memory_regions().sync();
