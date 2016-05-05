@@ -101,10 +101,21 @@ void SymbolManager::load_symbol_file(const QString &filename, edb::address_t bas
 // Desc:
 //------------------------------------------------------------------------------
 const Symbol::pointer SymbolManager::find(const QString &name) const {
+
 	auto it = symbols_by_name_.find(name);
 	if(it != symbols_by_name_.end()) {
 		return it.value();
 	}
+	
+	// slow path... look for any symbol which matches the name, but skipping the prefix
+	// we can make this faster later at the cost of yet another hash table if we 
+	// feel the need
+	for(auto &&symbol : symbols_) {
+		if(symbol->name_no_prefix == name) {
+			return symbol;
+		}
+	}
+	
 	return Symbol::pointer();
 }
 
@@ -165,8 +176,6 @@ void SymbolManager::add_symbol(const Symbol::pointer &symbol) {
 bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename, bool allow_retry) {
 
 	// TODO(eteran): support filename starting with "http://" being fetched from a web server
-	// TODO(eteran): support symbol files with paths so we can deal with binaries that have
-	//       conflicting names in different directories
 
 	std::ifstream file(qPrintable(f));
 	if(file) {

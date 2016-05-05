@@ -728,7 +728,14 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 	const Register reg = state.value(s);
 	*ok = reg;
 	if(!*ok) {
+		const Symbol::pointer sym = edb::v1::symbol_manager().find(s);
+		if(sym) {
+			*ok = true;
+			return sym->address;
+		}
+
 		*err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
+		return 0;
 	}
 
 	// FIXME: should this really return segment base, not selector?
