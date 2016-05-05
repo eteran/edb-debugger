@@ -191,6 +191,7 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 			operand.type_=Operand::TYPE_ABSOLUTE;
 			operand.abs_.seg=ops[0].imm;
 			operand.abs_.offset=ops[1].imm;
+			operands_.push_back(operand);
 		}
 		else for(std::size_t i=0;i<cs_insn_operand_count();++i)
 		{
