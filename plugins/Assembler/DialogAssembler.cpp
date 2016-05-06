@@ -200,7 +200,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 				QByteArray bytes = output_file.readAll();
 				const int replacement_size = bytes.size();
 
-				if(replacement_size <= instruction_size_) {
+				if(replacement_size!=0 && replacement_size <= instruction_size_) {
 					if(ui->fillWithNOPs->isChecked()) {
 						// TODO: get system independent nop-code
 						if(!edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x90)) {
@@ -211,6 +211,11 @@ void DialogAssembler::on_buttonBox_accepted() {
 							return;
 						}
 					}
+				} else if(replacement_size==0) {
+					const auto stderr=process.readAllStandardError();
+					QMessageBox::warning(this, tr("Error In Code"), tr("Got zero bytes from the assembler")+
+																	(stderr.isEmpty()?"":tr(", here's what it has to say:\n\n")+stderr));
+					return;
 				} else {
 					if(ui->keepSize->isChecked()) {
 						QMessageBox::warning(this, tr("Error In Code"), tr("New instruction is too big to fit."));
