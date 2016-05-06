@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#define _LARGEFILE64_SOURCE
 #include "PlatformProcess.h"
 #include "DebuggerCore.h"
 #include "PlatformCommon.h"
@@ -35,6 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/mman.h>
 #include <sys/ptrace.h>
 #include <sys/types.h>
+#include <unistd.h>
 #include <pwd.h>
 #include <elf.h>
 
@@ -204,6 +206,24 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(cor
 PlatformProcess::~PlatformProcess() {
 }
 
+//------------------------------------------------------------------------------
+// Name: seek_addr
+// Desc: seeks memory file to given address, taking possible negativity of the
+// address into account
+//------------------------------------------------------------------------------
+void seek_addr(QFile& file, edb::address_t address) {
+	if(address <= UINT64_MAX/2) {
+		file.seek(address);
+	} else {
+		const int fd=file.handle();
+		// Seek in two parts to avoid specifying negative offset: off64_t is a signed type
+		const off64_t halfAddressTruncated=address>>1;
+		lseek64(fd,halfAddressTruncated,SEEK_SET);
+		const off64_t secondHalfAddress=address-halfAddressTruncated;
+		lseek64(fd,secondHalfAddress,SEEK_CUR);
+	}
+}
+
 
 //------------------------------------------------------------------------------
 // Name: read_bytes
@@ -241,7 +261,7 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
 		if(memory_file.open(QIODevice::ReadOnly)) {
 
-			memory_file.seek(address);
+			seek_addr(memory_file,address);
 			read = memory_file.read(reinterpret_cast<char *>(buf), len);
 			if(read == 0 || read == quint64(-1))
 				return 0;
@@ -283,7 +303,7 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 		// NOTE: If buffered, it may not report any write errors, behaving as if it succeeded
 		if(!PROC_PID_MEM_WRITE_BROKEN && memory_file.open(QIODevice::WriteOnly|QIODevice::Unbuffered)) {
 
-			memory_file.seek(address);
+			seek_addr(memory_file,address);
 			written = memory_file.write(reinterpret_cast<const char *>(buf), len);
 			if(written == 0 || written == quint64(-1)) {
 				return 0;
@@ -563,7 +583,7 @@ long PlatformProcess::read_data(edb::address_t address, bool *ok) const {
 		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
 		if(memory_file.open(QIODevice::ReadOnly)) {
 
-			memory_file.seek(address);
+			seek_addr(memory_file,address);
 			long value;
 			if(memory_file.read(reinterpret_cast<char*>(&value), sizeof(long))==sizeof(long)) {
 				*ok=true;
@@ -595,7 +615,7 @@ bool PlatformProcess::write_data(edb::address_t address, long value) {
 		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
 		if(memory_file.open(QIODevice::WriteOnly|QIODevice::Unbuffered)) { // If buffered, it may not report any errors as if it succeeded
 
-			memory_file.seek(address);
+			seek_addr(memory_file,address);
 			if(memory_file.write(reinterpret_cast<char*>(&value), sizeof(long))==sizeof(long))
 				return true;
 		}
