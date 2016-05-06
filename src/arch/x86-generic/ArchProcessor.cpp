@@ -1241,10 +1241,10 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 					origAX=state["orig_rax"].valueAsSignedInteger();
 				else
 					origAX=state["orig_eax"].valueAsSignedInteger();
-				const std::int64_t rax=state.gp_register(rAX).valueAsSignedInteger();
+				const std::uint64_t rax=state.gp_register(rAX).valueAsSignedInteger();
 				static const int ERESTARTSYS=512;
 				// both EINTR and ERESTARTSYS can be present in any nonzero combination to mean interrupted syscall
-				if(origAX!=-1 && (-rax)&(EINTR|ERESTARTSYS)) {
+				if(origAX!=-1 && rax>=-4095UL && (-rax)&(EINTR|ERESTARTSYS)) {
 					analyze_syscall(state, inst, ret, origAX);
 					if(ret.size() && ret.back().startsWith("SYSCALL"))
 						ret.back()="Interrupted "+ret.back();
