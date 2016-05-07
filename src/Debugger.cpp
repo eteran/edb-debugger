@@ -1234,7 +1234,7 @@ void Debugger::step_over(F1 run_func, F2 step_func) {
 template <class F>
 void Debugger::follow_memory(edb::address_t address, F follow_func) {
 	if(!follow_func(address)) {
-		QMessageBox::information(this,
+		QMessageBox::critical(this,
 			tr("No Memory Found"),
 			tr("There appears to be no memory at that location (<strong>%1</strong>)").arg(edb::v1::format_pointer(address)));
 	}
@@ -1248,7 +1248,7 @@ void Debugger::follow_register_in_dump(bool tabbed) {
 	bool ok;
 	const edb::address_t address = get_follow_register(&ok);
 	if(ok && !edb::v1::dump_data(address, tabbed)) {
-		QMessageBox::information(this,
+		QMessageBox::critical(this,
 			tr("No Memory Found"),
 			tr("There appears to be no memory at that location (<strong>%1</strong>)").arg(edb::v1::format_pointer(address)));
 	}
@@ -1385,7 +1385,7 @@ edb::address_t Debugger::get_follow_address(const T &hexview, bool *ok) {
 		}
 	}
 
-	QMessageBox::information(this,
+	QMessageBox::critical(this,
 		tr("Invalid Selection"),
 		tr("Please select %1 bytes to use this function.").arg(pointer_size));
 
@@ -2849,7 +2849,7 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 		set_initial_breakpoint(s);
 		ret = true;
 	} else {
-		QMessageBox::information(
+		QMessageBox::critical(
 			this,
 			tr("Could Not Open"),
 			tr("Failed to open and attach to process:\n%1.").arg(errorString));
@@ -2895,7 +2895,7 @@ void Debugger::attach(edb::pid_t pid) {
 	edb::pid_t current_pid = getpid();
 	while(current_pid != 0) {
 		if(current_pid == pid) {
-			QMessageBox::information(
+			QMessageBox::critical(
 				this,
 				tr("Attach"),
 				tr("You may not debug a process which is a parent of the edb process."));
@@ -2907,7 +2907,7 @@ void Debugger::attach(edb::pid_t pid) {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		if(pid == process->pid()) {
-			QMessageBox::information(
+			QMessageBox::critical(
 				this,
 				tr("Attach"),
 				tr("You are already debugging that process!"));
@@ -2929,7 +2929,7 @@ void Debugger::attach(edb::pid_t pid) {
 		arguments_dialog_->set_arguments(args);
 		attachComplete();
 	} else {
-		QMessageBox::information(this, tr("Attach"), tr("Failed to attach to process, please check privileges and try again."));
+		QMessageBox::critical(this, tr("Attach"), tr("Failed to attach to process, please check privileges and try again."));
 	}
 
 	update_gui();

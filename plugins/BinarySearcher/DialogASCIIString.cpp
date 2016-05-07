@@ -96,7 +96,7 @@ void DialogASCIIString::do_find() {
 							stack_ptr += edb::v1::pointer_size();
 						}
 					} catch(const std::bad_alloc &) {
-						QMessageBox::information(0, tr("Memroy Allocation Error"),
+						QMessageBox::critical(0, tr("Memroy Allocation Error"),
 							tr("Unable to satisfy memory allocation request for search string."));
 					}
 				}

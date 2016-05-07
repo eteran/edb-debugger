@@ -483,7 +483,7 @@ void DialogHeap::do_find() {
 
 		// ok, I give up
 		if(start_address == 0 || end_address == 0) {
-			QMessageBox::information(this, tr("Could not calculate heap bounds"), tr("Failed to calculate the bounds of the heap."));
+			QMessageBox::critical(this, tr("Could not calculate heap bounds"), tr("Failed to calculate the bounds of the heap."));
 			return;
 		}	
 

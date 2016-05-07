@@ -94,7 +94,7 @@ void DialogStrings::do_find() {
 	QString str;
 
 	if(sel.size() == 0) {
-		QMessageBox::information(
+		QMessageBox::critical(
 			this,
 			tr("No Region Selected"),
 			tr("You must select a region which is to be scanned for strings."));

@@ -244,7 +244,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 		if(temp_address != 0) {
 			set_permissions(read, write, execute, temp_address);
 		} else {
-			QMessageBox::information(
+			QMessageBox::critical(
 				0,
 				tr("No Suitable Address Found"),
 				tr("This feature relies on running shellcode in the debugged process, no executable memory region was found. Unfortunately, this means that no more region permission changes can be made (it also means that there is nothing the process can continue to do since it cannot execute at all)."));
@@ -367,7 +367,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 					}
 				}
 			} catch(const std::bad_alloc &) {
-				QMessageBox::information(
+				QMessageBox::critical(
 					0,
 					tr("Memory Allocation Error"),
 					tr("Unable to satisfy memory allocation request for backup code."));

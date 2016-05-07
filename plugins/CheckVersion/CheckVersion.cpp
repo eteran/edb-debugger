@@ -154,7 +154,7 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 	
 	if(QNetworkReply::NoError != reply->error()) {
 		if(!initial_check_) {
-			QMessageBox::information(
+			QMessageBox::critical(
 				0,
 				tr("An Error Occured"),
 				reply->errorString());
