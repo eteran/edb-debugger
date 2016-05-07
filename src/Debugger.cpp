@@ -2916,7 +2916,8 @@ void Debugger::attach(edb::pid_t pid) {
 	}
 
 
-	if(edb::v1::debugger_core->attach(pid)) {
+	const auto errorStr=edb::v1::debugger_core->attach(pid);
+	if(errorStr.isEmpty()) {
 
 		working_directory_ = edb::v1::debugger_core->process()->current_working_directory();
 
@@ -2929,7 +2930,7 @@ void Debugger::attach(edb::pid_t pid) {
 		arguments_dialog_->set_arguments(args);
 		attachComplete();
 	} else {
-		QMessageBox::critical(this, tr("Attach"), tr("Failed to attach to process, please check privileges and try again."));
+		QMessageBox::critical(this, tr("Attach"), tr("Failed to attach to process: %1").arg(errorStr));
 	}
 
 	update_gui();

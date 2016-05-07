@@ -52,7 +52,7 @@ public:
 	virtual edb::address_t page_size() const;
 	virtual bool has_extension(quint64 ext) const;
 	virtual IDebugEvent::const_pointer wait_debug_event(int msecs);
-	virtual bool attach(edb::pid_t pid);
+	virtual QString attach(edb::pid_t pid) override;
 	virtual void detach();
 	virtual void kill();
 	virtual void get_state(State *state);
@@ -96,7 +96,7 @@ private:
 	void reset();
 	void stop_threads();
 	IDebugEvent::const_pointer handle_event(edb::tid_t tid, int status);
-	bool attach_thread(edb::tid_t tid);
+	int attach_thread(edb::tid_t tid);
 	void detectDebuggeeBitness();
 	
 private:

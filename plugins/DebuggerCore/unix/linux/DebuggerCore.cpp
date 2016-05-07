@@ -419,14 +419,15 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 
 //------------------------------------------------------------------------------
 // Name: attach_thread
-// Desc:
+// Desc: returns 0 if successful, errno if failed
 //------------------------------------------------------------------------------
-bool DebuggerCore::attach_thread(edb::tid_t tid) {
+int DebuggerCore::attach_thread(edb::tid_t tid) {
 	if(ptrace(PTRACE_ATTACH, tid, 0, 0) == 0) {
 		// I *think* that the PTRACE_O_TRACECLONE is only valid on
 		// stopped threads
 		int status;
-		if(native::waitpid(tid, &status, __WALL) > 0) {
+		const auto ret=native::waitpid(tid, &status, __WALL);
+		if(ret > 0) {
 
 			auto newThread            = std::make_shared<PlatformThread>(this, process_, tid);
 			newThread->status_        = status;
@@ -444,17 +445,24 @@ bool DebuggerCore::attach_thread(edb::tid_t tid) {
 				qDebug("[DebuggerCore] failed to set PTRACE_O_EXITKILL: [%d] %s", tid, strerror(errno));
 			}
 #endif
+			return 0;
 		}
-		return true;
+		else if(ret==-1) {
+			return errno;
+		}
+		else return -1; // unknown error
 	}
-	return false;
+	else return errno;
 }
 
 //------------------------------------------------------------------------------
 // Name: attach
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerCore::attach(edb::pid_t pid) {
+QString DebuggerCore::attach(edb::pid_t pid) {
+
+	static const QString statusOK{};
+
 	end_debug_session();
 
 	lastMeansOfCapture=MeansOfCapture::Attach;
@@ -462,6 +470,9 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 	// create this, so the threads created can refer to it
 	process_ = new PlatformProcess(this, pid);
 
+	int lastErr=attach_thread(pid); // Fail early if we are going to
+	if(lastErr) return std::strerror(lastErr);
+	lastErr=-2;
 	bool attached;
 	do {
 		attached = false;
@@ -471,8 +482,12 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 			// when we are attaching. I wish that linux had an atomic way to do this
 			// all in one shot
 			const edb::tid_t tid = s.toUInt();
-			if(!threads_.contains(tid) && attach_thread(tid)) {
-				attached = true;
+			if(!threads_.contains(tid)) {
+				const auto errnum=attach_thread(tid);
+				if(errnum==0)
+					attached = true;
+				else
+					lastErr=errnum;
 			}
 		}
 	} while(attached);
@@ -483,13 +498,13 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 		active_thread_  = pid;
 		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());		
 		detectDebuggeeBitness();
-		return true;
+		return statusOK;
 	} else {
 		delete process_;
 		process_ = nullptr;
 	}
 
-	return false;
+	return std::strerror(lastErr);
 }
 
 //------------------------------------------------------------------------------
