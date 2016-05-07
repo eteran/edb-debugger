@@ -58,6 +58,7 @@ public:
 
 public:
 	operator void*() const       { return reinterpret_cast<void*>(valid()); }
+	bool valid() const { return type_ != TYPE_INVALID; }
 
 	Type type() const            { return type_; }
 	QString name() const         { return name_; }
@@ -100,9 +101,6 @@ public:
 	}
 
 	QString toHexString() const;
-
-private:
-	bool valid() const { return type_ != TYPE_INVALID; }
 
 private:
 	QString    name_;
