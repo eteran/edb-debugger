@@ -206,7 +206,7 @@ void Analyzer::goto_function_start() {
 		return;
 	}
 
-	QMessageBox::information(
+	QMessageBox::critical(
 		0,
 		tr("Goto Function Start"),
 		tr("The selected instruction is not inside of a known function. Have you run an analysis of this region?"));
@@ -226,7 +226,7 @@ void Analyzer::goto_function_end() {
 		return;
 	}
 
-	QMessageBox::information(
+	QMessageBox::critical(
 		0,
 		tr("Goto Function End"),
 		tr("The selected instruction is not inside of a known function. Have you run an analysis of this region?"));

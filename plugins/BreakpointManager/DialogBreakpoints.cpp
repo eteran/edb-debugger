@@ -130,7 +130,7 @@ void DialogBreakpoints::on_btnAdd_clicked() {
 			updateList();
 
 		} else {
-			QMessageBox::information(this, tr("Error In Address Expression!"), err.what());
+			QMessageBox::critical(this, tr("Error In Address Expression!"), err.what());
 		}
 	}
 }
@@ -233,7 +233,7 @@ void DialogBreakpoints::on_btnImport_clicked() {
 	//Open the file; fail if error or it doesn't exist.
 	QFile file(file_name);
 	if (!file.open(QIODevice::ReadOnly)) {
-		QMessageBox::information(this, tr("Error Opening File"), tr("Unable to open breakpoint file: %1").arg(file_name));
+		QMessageBox::critical(this, tr("Error Opening File"), tr("Unable to open breakpoint file: %1").arg(file_name));
 		return;
 	}
 
@@ -288,7 +288,7 @@ void DialogBreakpoints::on_btnImport_clicked() {
 
 	//Report any errors to the user
 	if (errors.size() > 0) {
-		QMessageBox::information(this, tr("Invalid Breakpoints"), tr("The following breakpoints were not made:\n%1").arg(errors.join("")));
+		QMessageBox::warning(this, tr("Invalid Breakpoints"), tr("The following breakpoints were not made:\n%1").arg(errors.join("")));
 	}
 
 	//Report breakpoints successfully made
@@ -319,7 +319,7 @@ void DialogBreakpoints::on_btnExport_clicked() {
 
 	//If there are no breakpoints, fail
 	if (export_list.isEmpty()) {
-		QMessageBox::information(this, tr("No Breakpoints"), tr("There are no breakpoints to export."));
+		QMessageBox::critical(this, tr("No Breakpoints"), tr("There are no breakpoints to export."));
 		return;
 	}
 

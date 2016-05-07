@@ -215,7 +215,7 @@ void DialogBacktrace::on_pushButtonReturnTo_clicked()
 	//If we didn't get a valid address, then fail.
 	//TODO: Make sure "ok" actually signifies success of getting an address...
 	if (!ok) {
-		QMessageBox::information(this, tr("Error"), tr("Could not return to 0x%1").arg(QString::number(address, 16)));
+		QMessageBox::critical(this, tr("Error"), tr("Could not return to 0x%1").arg(QString::number(address, 16)));
 		return;
 	}
 	

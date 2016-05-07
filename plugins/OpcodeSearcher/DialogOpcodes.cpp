@@ -724,7 +724,7 @@ void DialogOpcodes::do_find() {
 	const QModelIndexList sel = selModel->selectedRows();
 
 	if(sel.size() == 0) {
-		QMessageBox::information(
+		QMessageBox::critical(
 			this,
 			tr("No Region Selected"),
 			tr("You must select a region which is to be scanned for the desired opcode."));

@@ -113,7 +113,7 @@ void HardwareBreakpoints::setupBreakpoints() {
 			}
 
 			if(!ok[Register1] && !ok[Register2] && !ok[Register3] && !ok[Register4]) {
-				QMessageBox::information(
+				QMessageBox::critical(
 					0,
 					tr("Address Error"),
 					tr("An address expression provided does not appear to be valid"));
@@ -132,13 +132,13 @@ void HardwareBreakpoints::setupBreakpoints() {
 					
 					switch(status) {
 					case AlignmentError:
-						QMessageBox::information(
+						QMessageBox::critical(
 							0,
 							tr("Address Alignment Error"),
 							tr("Hardware read/write breakpoint address must be aligned to breakpoint size."));					
 						return;
 					case SizeError:
-					QMessageBox::information(
+					QMessageBox::critical(
 						0,
 						tr("BP Size Error"),
 						tr("Hardware read/write breakpoints cannot be 8-bytes in a 32-bit debuggee."));					
@@ -425,7 +425,7 @@ void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t addre
 				setBreakpointState(&state, index, { true, address, 1, 3 });
 				break;
 			default:
-				QMessageBox::information(nullptr, tr("Invalid Selection Size"), tr("Please select 1, 2, 4, or 8 bytes for this type of hardward breakpoint"));
+				QMessageBox::critical(nullptr, tr("Invalid Selection Size"), tr("Please select 1, 2, 4, or 8 bytes for this type of hardward breakpoint"));
 				return;
 			}
 
@@ -474,7 +474,7 @@ void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t a
 				setBreakpointState(&state, index, { true, address, 2, 3 });
 				break;
 			default:
-				QMessageBox::information(nullptr, tr("Invalid Selection Size"), tr("Please select 1, 2, 4, or 8 bytes for this type of hardward breakpoint"));
+				QMessageBox::critical(nullptr, tr("Invalid Selection Size"), tr("Please select 1, 2, 4, or 8 bytes for this type of hardward breakpoint"));
 				return;
 			}
 

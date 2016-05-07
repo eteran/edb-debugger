@@ -411,7 +411,7 @@ IBreakpoint::pointer create_breakpoint(address_t address) {
 
 
 	} else {
-		QMessageBox::information(
+		QMessageBox::critical(
 			0,
 			QT_TRANSLATE_NOOP("edb", "Error Setting Breakpoint"),
 			QT_TRANSLATE_NOOP("edb", "Sorry, but setting a breakpoint which is not in a valid region is not allowed."));
@@ -486,7 +486,7 @@ bool eval_expression(const QString &expression, address_t *value) {
 		*value = address;
 		return true;
 	} else {
-		QMessageBox::information(debugger_ui, QT_TRANSLATE_NOOP("edb", "Error In Expression!"), err.what());
+		QMessageBox::critical(debugger_ui, QT_TRANSLATE_NOOP("edb", "Error In Expression!"), err.what());
 		return false;
 	}
 }
@@ -1326,7 +1326,7 @@ QVector<quint8> read_pages(address_t address, size_t page_count) {
 
 
 			} catch(const std::bad_alloc &) {
-				QMessageBox::information(0,
+				QMessageBox::critical(0,
 					QT_TRANSLATE_NOOP("edb", "Memroy Allocation Error"),
 					QT_TRANSLATE_NOOP("edb", "Unable to satisfy memory allocation request for requested region->"));
 			}
