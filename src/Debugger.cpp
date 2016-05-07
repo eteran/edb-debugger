@@ -2841,26 +2841,18 @@ void Debugger::setup_data_views() {
 bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 
 	bool ret = false;
-	if(!QFile(s).exists()) {
+	tty_file_ = create_tty();		
+
+	const QString errorString=edb::v1::debugger_core->open(s, working_directory_, args, tty_file_);
+	if(errorString.isEmpty()) {
+		attachComplete();			
+		set_initial_breakpoint(s);
+		ret = true;
+	} else {
 		QMessageBox::information(
 			this,
 			tr("Could Not Open"),
-			tr("The specified file (%1) does not appear to exist, please check privileges and try again.").arg(s));
-	} else {
-
-		tty_file_ = create_tty();		
-
-		const QString errorString=edb::v1::debugger_core->open(s, working_directory_, args, tty_file_);
-		if(errorString.isEmpty()) {
-			attachComplete();			
-			set_initial_breakpoint(s);
-			ret = true;
-		} else {
-			QMessageBox::information(
-				this,
-				tr("Could Not Open"),
-				tr("Failed to open and attach to process:\n%1.").arg(errorString));
-		}
+			tr("Failed to open and attach to process:\n%1.").arg(errorString));
 	}
 
 	update_gui();
