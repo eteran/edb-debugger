@@ -57,8 +57,8 @@ public:
 	bool operator!=(const Register &rhs) const;
 
 public:
-	operator void*() const       { return reinterpret_cast<void*>(valid()); }
 	bool valid() const { return type_ != TYPE_INVALID; }
+	explicit operator bool() const { return valid(); }
 
 	Type type() const            { return type_; }
 	QString name() const         { return name_; }
