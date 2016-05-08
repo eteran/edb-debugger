@@ -1216,6 +1216,37 @@ void ArchProcessor::just_attached() {
 	just_attached_=true;
 }
 
+bool falseSyscallReturn(State const& state, std::int64_t origAX) {
+	// Prevent reporting of returns from execve() when the process has just launched
+	if(EDB_IS_32_BIT && origAX==11) {
+		return state.gp_register(rAX).valueAsInteger()==0 &&
+			   state.gp_register(rCX).valueAsInteger()==0 &&
+			   state.gp_register(rDX).valueAsInteger()==0 &&
+			   state.gp_register(rBX).valueAsInteger()==0 &&
+			   state.gp_register(rBP).valueAsInteger()==0 &&
+			   state.gp_register(rSI).valueAsInteger()==0 &&
+			   state.gp_register(rDI).valueAsInteger()==0;
+	}
+	else if(EDB_IS_64_BIT && origAX==59) {
+		return state.gp_register(rAX).valueAsInteger()==0 &&
+			   state.gp_register(rCX).valueAsInteger()==0 &&
+			   state.gp_register(rDX).valueAsInteger()==0 &&
+			   state.gp_register(rBX).valueAsInteger()==0 &&
+			   state.gp_register(rBP).valueAsInteger()==0 &&
+			   state.gp_register(rSI).valueAsInteger()==0 &&
+			   state.gp_register(rDI).valueAsInteger()==0 &&
+			   state.gp_register(R8 ).valueAsInteger()==0 &&
+			   state.gp_register(R9 ).valueAsInteger()==0 &&
+			   state.gp_register(R10).valueAsInteger()==0 &&
+			   state.gp_register(R11).valueAsInteger()==0 &&
+			   state.gp_register(R12).valueAsInteger()==0 &&
+			   state.gp_register(R13).valueAsInteger()==0 &&
+			   state.gp_register(R14).valueAsInteger()==0 &&
+			   state.gp_register(R15).valueAsInteger()==0;
+	}
+	return false;
+}
+
 //------------------------------------------------------------------------------
 // Name: update_instruction_info
 // Desc:
@@ -1243,7 +1274,8 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 					origAX=state["orig_eax"].valueAsSignedInteger();
 				const std::uint64_t rax=state.gp_register(rAX).valueAsSignedInteger();
 				static const int ERESTARTSYS=512;
-				if(origAX!=-1) {
+
+				if(origAX!=-1 && !falseSyscallReturn(state,origAX)) {
 					analyze_syscall(state, inst, ret, origAX);
 					const auto err = rax>=-4095UL ? -rax : 0;
 					if(ret.size() && ret.back().startsWith("SYSCALL")) {
