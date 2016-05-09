@@ -726,7 +726,7 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 	State state;
 	debugger_core->get_state(&state);
 	const Register reg = state.value(s);
-	*ok = reg;
+	*ok = reg.valid();
 	if(!*ok) {
 		const Symbol::pointer sym = edb::v1::symbol_manager().find(s);
 		if(sym) {
