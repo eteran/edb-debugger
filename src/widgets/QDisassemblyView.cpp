@@ -563,7 +563,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 
 		//return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
 
-		const bool syntax_highlighting_enabled=edb::v1::config().syntax_highlighting_enabled;
+		const bool syntax_highlighting_enabled=edb::v1::config().syntax_highlighting_enabled && inst.rva()!=selectedAddress();
 
 		if(is_filling) {
 			if(is_filling && syntax_highlighting_enabled)
