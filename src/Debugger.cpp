@@ -375,7 +375,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 
 	// setup the recent file manager
 	ui.action_Recent_Files->setMenu(recent_file_manager_->create_menu());
-	connect(recent_file_manager_, SIGNAL(file_selected(const QString &)), SLOT(open_file(const QString &)));
+	connect(recent_file_manager_, SIGNAL(file_selected(const QString &,const QList<QByteArray>&)), SLOT(open_file(const QString &,const QList<QByteArray>&)));
 
 	// make us the default event handler
 	edb::v1::set_debug_event_handler(this);
@@ -2810,7 +2810,9 @@ void Debugger::on_action_Restart_triggered() {
 			common_open(s, args);
 		}
 	} else {
-		common_open(recent_file_manager_->most_recent(), QList<QByteArray>()/* TODO: pass saved args */);
+		const auto file=recent_file_manager_->most_recent();
+		if(common_open(file.first, file.second))
+			arguments_dialog_->set_arguments(file.second);
 	}
 }
 
@@ -2870,7 +2872,7 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 //------------------------------------------------------------------------------
 void Debugger::execute(const QString &program, const QList<QByteArray> &args) {
 	if(common_open(program, args)) {
-		recent_file_manager_->add_file(program);
+		recent_file_manager_->add_file(program,args);
 		arguments_dialog_->set_arguments(args);
 	}
 }
@@ -2879,11 +2881,11 @@ void Debugger::execute(const QString &program, const QList<QByteArray> &args) {
 // Name: open_file
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::open_file(const QString &s) {
+void Debugger::open_file(const QString &s,const QList<QByteArray> &a) {
 	if(!s.isEmpty()) {
 		last_open_directory_ = QFileInfo(s).canonicalFilePath();
 
-		execute(s, arguments_dialog_->arguments());
+		execute(s, a);
 	}
 }
 
@@ -2985,7 +2987,7 @@ void Debugger::on_action_Open_triggered() {
 		arguments_dialog_->set_arguments(dialog->arguments());
 		const QString filename = dialog->selectedFiles().front();
 		working_directory_ = dialog->workingDirectory();
-		open_file(filename);
+		open_file(filename,dialog->arguments());
 	}
 }
 

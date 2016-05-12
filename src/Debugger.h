@@ -211,7 +211,7 @@ private Q_SLOTS:
 private Q_SLOTS:
 	void goto_triggered();
 	void next_debug_event();
-	void open_file(const QString &s);
+	void open_file(const QString &s,const QList<QByteArray> &a);
 	void tab_context_menu(int index, const QPoint &pos);
 	void tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status);
 
