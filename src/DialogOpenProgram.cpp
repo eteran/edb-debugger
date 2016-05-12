@@ -33,10 +33,14 @@ DialogOpenProgram::DialogOpenProgram(QWidget* parent,const QString& caption, con
 	{
 		setFileMode(QFileDialog::ExistingFile);
 		const int rowCount=layout->rowCount();
-		QPushButton* const browseDirButton(new QPushButton(tr("Browse..."),this));
-		layout->addWidget(new QLabel(tr("Program arguments:"),this),rowCount,0);
+		QPushButton* const browseDirButton(new QPushButton(tr("&Browse..."),this));
+		const auto argsLabel=new QLabel(tr("Program &arguments:"),this);
+		argsLabel->setBuddy(argsEdit);
+		layout->addWidget(argsLabel,rowCount,0);
 		layout->addWidget(argsEdit,rowCount,1);
-		layout->addWidget(new QLabel(tr("Working directory:"),this),rowCount+1,0);
+		const auto workDirLabel=new QLabel(tr("Working &directory:"),this);
+		workDirLabel->setBuddy(workDir);
+		layout->addWidget(workDirLabel,rowCount+1,0);
 		layout->addWidget(workDir,rowCount+1,1);
 		layout->addWidget(browseDirButton,rowCount+1,2);
 
