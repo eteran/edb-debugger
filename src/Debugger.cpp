@@ -2982,6 +2982,14 @@ void Debugger::on_action_Open_triggered() {
 	static auto* dialog = new DialogOpenProgram(this,
 												tr("Choose a file"),
 												last_open_directory_);
+	// Set a sensible default dir
+	if(recent_file_manager_->entry_count()>0)
+	{
+		const auto file=recent_file_manager_->most_recent();
+		const QDir dir=QFileInfo(file.first).dir();
+		if(dir.exists())
+			dialog->setDirectory(dir);
+	}
 	if(dialog->exec() == QDialog::Accepted) {
 
 		arguments_dialog_->set_arguments(dialog->arguments());
