@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QGridLayout>
 #include <QDebug>
+#include "edb.h"
 
 DialogOpenProgram::DialogOpenProgram(QWidget* parent,const QString& caption, const QString& directory,const QString& filter)
 	: QFileDialog(parent,caption,directory,filter),
@@ -57,7 +58,7 @@ void DialogOpenProgram::browsePressed()
 
 QList<QByteArray> DialogOpenProgram::arguments() const
 {
-	const QStringList args=argsEdit->text().split(' ');
+	const QStringList args=edb::v1::parse_command_line(argsEdit->text());
 	QList<QByteArray> ret;
 	for(auto arg : args)
 		ret << arg.toLocal8Bit();
