@@ -464,7 +464,7 @@ void Debugger::update_menu_state(GUI_STATE state) {
 		break;
 	case TERMINATED:
 		ui.actionRun_Until_Return->setEnabled(false);
-		ui.action_Restart->setEnabled(false);
+		ui.action_Restart->setEnabled(recent_file_manager_->entry_count()>0);
 		ui.action_Run->setEnabled(false);
 		ui.action_Pause->setEnabled(false);
 		ui.action_Step_Into->setEnabled(false);
@@ -829,6 +829,8 @@ void Debugger::setup_ui() {
 	ui.menu_View->addAction(ui.dataDock     ->toggleViewAction());
 	ui.menu_View->addAction(ui.stackDock    ->toggleViewAction());
 	ui.menu_View->addAction(ui.toolBar      ->toggleViewAction());
+
+	ui.action_Restart->setEnabled(recent_file_manager_->entry_count()>0);
 
 	// make sure our widgets use custom context menus
 	ui.registerList->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -2793,19 +2795,22 @@ void Debugger::set_initial_breakpoint(const QString &s) {
 void Debugger::on_action_Restart_triggered() {
 
 	Q_ASSERT(edb::v1::debugger_core);
-	Q_ASSERT(edb::v1::debugger_core->process());
+	if(edb::v1::debugger_core->process()) {
 
-	working_directory_     = edb::v1::debugger_core->process()->current_working_directory();
-	QList<QByteArray> args = edb::v1::debugger_core->process()->arguments();
-	const QString s        = edb::v1::debugger_core->process()->executable();
+		working_directory_     = edb::v1::debugger_core->process()->current_working_directory();
+		QList<QByteArray> args = edb::v1::debugger_core->process()->arguments();
+		const QString s        = edb::v1::debugger_core->process()->executable();
 
-	if(!args.empty()) {
-		args.removeFirst();
-	}
+		if(!args.empty()) {
+			args.removeFirst();
+		}
 
-	if(!s.isEmpty()) {
-		detach_from_process(KILL_ON_DETACH);
-		common_open(s, args);
+		if(!s.isEmpty()) {
+			detach_from_process(KILL_ON_DETACH);
+			common_open(s, args);
+		}
+	} else {
+		common_open(recent_file_manager_->most_recent(), QList<QByteArray>()/* TODO: pass saved args */);
 	}
 }
 
