@@ -39,12 +39,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <climits>
 #include <cmath>
 #include <memory>
+#include <cstring>
 
 #include "FloatX.h"
 #include "RegisterViewModel.h"
 
 #ifdef Q_OS_LINUX
 #include <asm/unistd.h>
+#include "errno-names-linux.h"
 #endif
 
 namespace {
@@ -104,6 +106,18 @@ typedef edb::value512 ZMMWord;
 template<typename T>
 std::string register_name(const T& val) {
 	return edb::v1::formatter().register_name(val);
+}
+
+QString syscallErrName(edb::reg_t err) {
+#ifdef Q_OS_LINUX
+	if(err>UINT32_MAX) return "";
+	std::size_t index=-std::uint32_t(err);
+	if(index>=sizeof errnoNames/sizeof*errnoNames) return "";
+	if(errnoNames[index]) return errnoNames[index];
+    return "";
+#else
+	return "";
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -968,7 +982,12 @@ void updateGPRs(RegisterViewModel& model, const State& state, bool is64Bit) {
 			if(i==0) {
 				const auto origAX=state["orig_rax"].valueAsSignedInteger();
 				if(origAX!=-1)
+				{
 					comment="orig: "+edb::value64(origAX).toHexString();
+					const auto errName=syscallErrName(reg.valueAsInteger());
+					if(!errName.isEmpty())
+						comment="-"+errName+"; "+comment;
+				}
 			}
 			if(comment.isEmpty())
 				comment=gprComment(reg);
@@ -982,7 +1001,12 @@ void updateGPRs(RegisterViewModel& model, const State& state, bool is64Bit) {
 			if(i==0) {
 				const auto origAX=state["orig_eax"].valueAsSignedInteger();
 				if(origAX!=-1)
+				{
 					comment="orig: "+edb::value32(origAX).toHexString();
+					const auto errName=syscallErrName(reg.valueAsInteger());
+					if(!errName.isEmpty())
+						comment="-"+errName+"; "+comment;
+				}
 			}
 			if(comment.isEmpty())
 				comment=gprComment(reg);
@@ -1273,20 +1297,41 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 				else
 					origAX=state["orig_eax"].valueAsSignedInteger();
 				const std::uint64_t rax=state.gp_register(rAX).valueAsSignedInteger();
-				static const int ERESTARTSYS=512;
-
 				if(origAX!=-1 && !falseSyscallReturn(state,origAX)) {
+					// FIXME: this all doesn't work correctly when we're on the first instruction of a signal handler
+					// The registers there don't correspond to arguments of the syscall, and it's not correct to say the
+					// debuggee _returned_ from the syscall, since it's just interrupted the syscall to handle the signal
 					analyze_syscall(state, inst, ret, origAX);
+#ifdef Q_OS_LINUX
+					enum {
+						// restart if no handler or if SA_RESTART is set, can be seen when interrupting e.g. waitpid
+						ERESTARTSYS=512,
+						// restart unconditionally
+						ERESTARTNOINTR=513,
+						// restart if no handler
+						ERESTARTNOHAND=514,
+						// restart by sys_restart_syscall, can be seen when interrupting e.g. nanosleep
+						ERESTART_RESTARTBLOCK=516,
+					};
 					const auto err = rax>=-4095UL ? -rax : 0;
+					const bool interrupted = err==EINTR ||
+											 err==ERESTARTSYS ||
+											 err==ERESTARTNOINTR ||
+											 err==ERESTARTNOHAND ||
+											 err==ERESTART_RESTARTBLOCK;
+
 					if(ret.size() && ret.back().startsWith("SYSCALL")) {
-						// both EINTR and ERESTARTSYS can be present in any nonzero combination to mean interrupted syscall
-						if(err&(EINTR|ERESTARTSYS))
+						if(interrupted)
 							ret.back()="Interrupted "+ret.back();
 						else
 							ret.back()="Returned from "+ret.back();
 					}
-					if(err&ERESTARTSYS)
+					// FIXME: actually only ERESTARTNOINTR guarantees reexecution. But it seems the other ERESTART* signals
+					// won't go into user space, so whatever the state of signal handlers, the tracee should never appear
+					// to see these signals. So I guess it's OK to assume that tha syscall _will_ be restarted by the kernel.
+					if(interrupted && err!=EINTR)
 						ret << QString("Syscall will be restarted on next step/run");
+#endif
 				}
 
 				// figure out the instruction type and display some information about it
