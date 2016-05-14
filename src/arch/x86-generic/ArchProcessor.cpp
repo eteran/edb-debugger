@@ -39,12 +39,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <climits>
 #include <cmath>
 #include <memory>
+#include <cstring>
 
 #include "FloatX.h"
 #include "RegisterViewModel.h"
 
 #ifdef Q_OS_LINUX
 #include <asm/unistd.h>
+#include "errno-names-linux.h"
 #endif
 
 namespace {
@@ -104,6 +106,18 @@ typedef edb::value512 ZMMWord;
 template<typename T>
 std::string register_name(const T& val) {
 	return edb::v1::formatter().register_name(val);
+}
+
+QString syscallErrName(edb::reg_t err) {
+#ifdef Q_OS_LINUX
+	if(err>UINT32_MAX) return "";
+	std::size_t index=-std::uint32_t(err);
+	if(index>=sizeof errnoNames/sizeof*errnoNames) return "";
+	if(errnoNames[index]) return errnoNames[index];
+    return "";
+#else
+	return "";
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -968,7 +982,12 @@ void updateGPRs(RegisterViewModel& model, const State& state, bool is64Bit) {
 			if(i==0) {
 				const auto origAX=state["orig_rax"].valueAsSignedInteger();
 				if(origAX!=-1)
+				{
 					comment="orig: "+edb::value64(origAX).toHexString();
+					const auto errName=syscallErrName(reg.valueAsInteger());
+					if(!errName.isEmpty())
+						comment="-"+errName+"; "+comment;
+				}
 			}
 			if(comment.isEmpty())
 				comment=gprComment(reg);
@@ -982,7 +1001,12 @@ void updateGPRs(RegisterViewModel& model, const State& state, bool is64Bit) {
 			if(i==0) {
 				const auto origAX=state["orig_eax"].valueAsSignedInteger();
 				if(origAX!=-1)
+				{
 					comment="orig: "+edb::value32(origAX).toHexString();
+					const auto errName=syscallErrName(reg.valueAsInteger());
+					if(!errName.isEmpty())
+						comment="-"+errName+"; "+comment;
+				}
 			}
 			if(comment.isEmpty())
 				comment=gprComment(reg);
