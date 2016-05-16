@@ -98,6 +98,7 @@ void Configuration::read_settings() {
 	tty_command          = settings.value("debugger.terminal.command", "/usr/bin/xterm").value<QString>();
 	remove_stale_symbols = settings.value("debugger.remove_stale_symbols.enabled", true).value<bool>();
 	disableASLR			 = settings.value("debugger.disableASLR.enabled", false).value<bool>();
+	disableLazyBinding	 = settings.value("debugger.disableLazyBinding.enabled", false).value<bool>();
 	settings.endGroup();
 
 	settings.beginGroup("Disassembly");
@@ -186,6 +187,7 @@ void Configuration::write_settings() {
 	settings.setValue("debugger.terminal.command", tty_command);
 	settings.setValue("debugger.remove_stale_symbols.enabled", remove_stale_symbols);
 	settings.setValue("debugger.disableASLR.enabled", disableASLR);
+	settings.setValue("debugger.disableLazyBinding.enabled", disableLazyBinding);
 	settings.endGroup();
 
 	settings.beginGroup("Disassembly");

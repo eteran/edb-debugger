@@ -648,6 +648,9 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 				perror("Failed to disable ASLR");
 		}
 
+		if(edb::v1::config().disableLazyBinding && setenv("LD_BIND_NOW","1",true)==-1)
+			perror("Failed to disable lazy binding");
+
 		// do the actual exec
 		const QString error=execute_process(path, cwd, args);
 #if defined __GNUG__ && __GNUC__ >= 5 || !defined __GNUG__ || \
