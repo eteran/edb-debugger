@@ -97,6 +97,7 @@ void Configuration::read_settings() {
 	tty_enabled          = settings.value("debugger.terminal.enabled", true).value<bool>();
 	tty_command          = settings.value("debugger.terminal.command", "/usr/bin/xterm").value<QString>();
 	remove_stale_symbols = settings.value("debugger.remove_stale_symbols.enabled", true).value<bool>();
+	disableASLR			 = settings.value("debugger.disableASLR.enabled", false).value<bool>();
 	settings.endGroup();
 
 	settings.beginGroup("Disassembly");
@@ -184,6 +185,7 @@ void Configuration::write_settings() {
 	settings.setValue("debugger.terminal.enabled", tty_enabled);
 	settings.setValue("debugger.terminal.command", tty_command);
 	settings.setValue("debugger.remove_stale_symbols.enabled", remove_stale_symbols);
+	settings.setValue("debugger.disableASLR.enabled", disableASLR);
 	settings.endGroup();
 
 	settings.beginGroup("Disassembly");

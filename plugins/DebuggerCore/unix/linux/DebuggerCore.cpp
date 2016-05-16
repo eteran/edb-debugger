@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DebuggerCore.h"
 #include "edb.h"
+#include "Configuration.h"
 #include "MemoryRegions.h"
 #include "PlatformEvent.h"
 #include "PlatformRegion.h"
@@ -43,6 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cpuid.h>
 #include <sys/ptrace.h>
 #include <sys/mman.h>
+#include <sys/personality.h>
 
 // doesn't always seem to be defined in the headers
 
@@ -635,6 +637,15 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 			Q_UNUSED(std_out);
 			Q_UNUSED(std_in);
 			Q_UNUSED(std_err);
+		}
+
+		if(edb::v1::config().disableASLR) {
+			const auto curPers=::personality(UINT32_MAX);
+			// This shouldn't fail, but let's at least perror if it does anyway
+			if(curPers==-1)
+				perror("Failed to get current personality");
+			else if(::personality(curPers|ADDR_NO_RANDOMIZE)==-1)
+				perror("Failed to disable ASLR");
 		}
 
 		// do the actual exec

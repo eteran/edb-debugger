@@ -67,6 +67,7 @@ public:
 	bool              find_main;
 	bool              tty_enabled;
 	bool              remove_stale_symbols;
+	bool			  disableASLR;
 	QString           tty_command;
 
 	// disassembly tab
