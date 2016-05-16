@@ -362,6 +362,20 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="chkDisableASLR">
+         <property name="text">
+          <string>Disable Address Space Layout Randomization (ASLR)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkDisableLazyBinding">
+         <property name="text">
+          <string>Disable lazy binding of dynamic symbols</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <layout class="QHBoxLayout">
          <item>
           <widget class="QLabel" name="label_5">
