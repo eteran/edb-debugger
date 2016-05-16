@@ -108,10 +108,10 @@ std::string register_name(const T& val) {
 	return edb::v1::formatter().register_name(val);
 }
 
-QString syscallErrName(edb::reg_t err) {
+template<typename T>
+QString syscallErrName(T err) {
 #ifdef Q_OS_LINUX
-	if(err>UINT32_MAX) return "";
-	std::size_t index=-std::uint32_t(err);
+	std::size_t index=-err;
 	if(index>=sizeof errnoNames/sizeof*errnoNames) return "";
 	if(errnoNames[index]) return errnoNames[index];
     return "";
@@ -984,7 +984,7 @@ void updateGPRs(RegisterViewModel& model, const State& state, bool is64Bit) {
 				if(origAX!=-1)
 				{
 					comment="orig: "+edb::value64(origAX).toHexString();
-					const auto errName=syscallErrName(reg.valueAsInteger());
+					const auto errName=syscallErrName(reg.value<edb::value64>());
 					if(!errName.isEmpty())
 						comment="-"+errName+"; "+comment;
 				}
@@ -1003,7 +1003,7 @@ void updateGPRs(RegisterViewModel& model, const State& state, bool is64Bit) {
 				if(origAX!=-1)
 				{
 					comment="orig: "+edb::value32(origAX).toHexString();
-					const auto errName=syscallErrName(reg.valueAsInteger());
+					const auto errName=syscallErrName(reg.value<edb::value32>());
 					if(!errName.isEmpty())
 						comment="-"+errName+"; "+comment;
 				}
