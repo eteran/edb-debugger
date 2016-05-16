@@ -1375,6 +1375,8 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 
 		// eliminate duplicates
 		ret = QStringList::fromSet(ret.toSet());
+		// elimination of duplicates left ret in a strange order, make it easier to follow
+		ret.sort();
 	}
 	return ret;
 }
