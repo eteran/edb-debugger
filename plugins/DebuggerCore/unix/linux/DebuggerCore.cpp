@@ -60,6 +60,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PTRACE_O_TRACECLONE (1 << PTRACE_EVENT_CLONE)
 #endif
 
+#ifndef PTRACE_O_EXITKILL
+#define PTRACE_O_EXITKILL	(1 << 20)
+#endif
+
 namespace DebuggerCore {
 
 namespace {
@@ -442,11 +446,9 @@ int DebuggerCore::attach_thread(edb::tid_t tid) {
 				qDebug("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: [%d] %s", tid, strerror(errno));
 			}
 			
-#ifdef PTRACE_O_EXITKILL
 			if(ptrace_set_options(tid, PTRACE_O_EXITKILL) == -1) {
 				qDebug("[DebuggerCore] failed to set PTRACE_O_EXITKILL: [%d] %s", tid, strerror(errno));
 			}
-#endif
 			return 0;
 		}
 		else if(ret==-1) {
