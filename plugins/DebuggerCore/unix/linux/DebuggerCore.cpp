@@ -446,8 +446,12 @@ int DebuggerCore::attach_thread(edb::tid_t tid) {
 				qDebug("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: [%d] %s", tid, strerror(errno));
 			}
 			
-			if(ptrace_set_options(tid, PTRACE_O_EXITKILL) == -1) {
-				qDebug("[DebuggerCore] failed to set PTRACE_O_EXITKILL: [%d] %s", tid, strerror(errno));
+			if(edb::v1::config().close_behavior==Configuration::Kill ||
+			   (edb::v1::config().close_behavior==Configuration::KillIfLaunchedDetachIfAttached &&
+				  last_means_of_capture()==MeansOfCapture::Launch)) {
+				if(ptrace_set_options(tid, PTRACE_O_EXITKILL) == -1) {
+					qDebug("[DebuggerCore] failed to set PTRACE_O_EXITKILL: [%d] %s", tid, strerror(errno));
+				}
 			}
 			return 0;
 		}
