@@ -1,6 +1,7 @@
 #ifndef FLOAT_X_H_20151108
 #define FLOAT_X_H_20151108
 
+#include <cmath>
 #include <type_traits>
 #include <QValidator>
 #include <Types.h>
