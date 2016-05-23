@@ -1,4 +1,5 @@
 #include "GPREdit.h"
+#include <cmath>
 #include <cstring>
 #include <QApplication>
 #include <QRegExpValidator>
