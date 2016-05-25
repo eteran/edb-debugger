@@ -6,6 +6,7 @@
 #include "Util.h"
 
 #include <algorithm>
+#include <numeric>
 #include <boost/range/adaptor/reversed.hpp>
 #include <cstdint>
 #include <QBrush>
