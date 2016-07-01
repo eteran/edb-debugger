@@ -707,9 +707,9 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 			
 #ifdef PTRACE_O_EXITKILL
 			if(ptrace_set_options(pid, PTRACE_O_EXITKILL) == -1) {
-				const auto strerr=strerror(errno); // NOTE: must be called before end_debug_session, otherwise errno can change
-				end_debug_session();
-				return QObject::tr("[DebuggerCore] failed to set PTRACE_O_EXITKILL: %1").arg(strerr);
+				const auto strerr=strerror(errno); // NOTE: must be called before any other syscall, otherwise errno can change
+				// Don't consider the error fatal: the option is only supported since Linux 3.8
+				qDebug() << "[DebuggerCore] failed to set PTRACE_O_EXITKILL:" << strerr;
 			}
 #endif
 
