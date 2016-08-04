@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Breakpoint.h"
 #include "Configuration.h"
 #include "edb.h"
+#include <QtDebug>
 
 namespace DebuggerCore {
 
@@ -54,15 +55,20 @@ void DebuggerCoreBase::clear_breakpoints() {
 //------------------------------------------------------------------------------
 IBreakpoint::pointer DebuggerCoreBase::add_breakpoint(edb::address_t address) {
 
-	if(attached()) {
-		if(!find_breakpoint(address)) {
-			IBreakpoint::pointer bp(new Breakpoint(address));
-			breakpoints_[address] = bp;
-			return bp;
+	try {
+		if(attached()) {
+			if(!find_breakpoint(address)) {
+				IBreakpoint::pointer bp(new Breakpoint(address));
+				breakpoints_[address] = bp;
+				return bp;
+			}
 		}
+	
+		return IBreakpoint::pointer();
+	} catch(const breakpoint_creation_error &e) {
+		qDebug() << "Failed to create breakpoint";
+		return IBreakpoint::pointer();
 	}
-
-	return IBreakpoint::pointer();
 }
 
 //------------------------------------------------------------------------------
