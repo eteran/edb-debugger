@@ -26,7 +26,7 @@ public:
 	Status() {
 	}
 	
-	Status(const QString &message) : errorMessage_(message) {
+	explicit Status(const QString &message) : errorMessage_(message) {
 	}
 	
 	Status(const Status &)            = default;
@@ -53,7 +53,7 @@ public:
 	Result(const QString &message, const T &value) : status_(message), value_(value) {
 	}
 
-	Result(const T &value) : value_(value) {
+	explicit Result(const T &value) : value_(value) {
 	}
 	
 	Result(const Result &)            = default;
@@ -67,6 +67,7 @@ public:
 	bool failed() const            { return !succeeded(); }
 	explicit operator bool() const { return succeeded(); };
 	QString errorMessage() const   { return status_.toString(); }
+	T value() const                { return value_; }
 	
 private:
 	Status status_;
