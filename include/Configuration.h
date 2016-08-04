@@ -43,23 +43,30 @@ public:
 		EntryPoint,
 		MainSymbol
 	};
+	
+	enum StartupWindowLocation {
+		SystemDefault,
+		Centered,
+		Restore
+	};
 
 public:
 	// general tab
 	CloseBehavior     close_behavior;
 
 	// appearance tab
-	bool              show_address_separator;
-	QString           stack_font;
-	QString           registers_font;
-	QString           disassembly_font;
-	QString           data_font;
-	bool              data_show_address;
-	bool              data_show_hex;
-	bool              data_show_ascii;
-	bool              data_show_comments;
-	int               data_word_width;
-	int               data_row_width;
+	bool                  show_address_separator;
+	QString               stack_font;
+	QString               registers_font;
+	QString               disassembly_font;
+	QString               data_font;
+	bool                  data_show_address;
+	bool                  data_show_hex;
+	bool                  data_show_ascii;
+	bool                  data_show_comments;
+	int                   data_word_width;
+	int                   data_row_width;
+	StartupWindowLocation startup_window_location;
 
 	// debugging tab
 	InitialBreakpoint initial_breakpoint;

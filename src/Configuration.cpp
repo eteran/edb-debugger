@@ -76,17 +76,17 @@ void Configuration::read_settings() {
 	settings.endGroup();
 
 	settings.beginGroup("Appearance");
-	stack_font             = settings.value("appearance.stack.font", default_font).value<QString>();
-	data_font              = settings.value("appearance.data.font", default_font).value<QString>();
-	registers_font         = settings.value("appearance.registers.font", default_font).value<QString>();
-	disassembly_font       = settings.value("appearance.disassembly.font", default_font).value<QString>();
-	data_show_address      = settings.value("appearance.data.show_address.enabled", true).value<bool>();
-	data_show_hex          = settings.value("appearance.data.show_hex.enabled", true).value<bool>();
-	data_show_ascii        = settings.value("appearance.data.show_ascii.enabled", true).value<bool>();
-	data_show_comments     = settings.value("appearance.data.show_comments.enabled", true).value<bool>();
-	data_word_width        = settings.value("appearance.data.word_width", 1).value<int>();
-	data_row_width         = settings.value("appearance.data.row_width", 16).value<int>();
-	show_address_separator = settings.value("appearance.address_colon.enabled", true).value<bool>();
+	stack_font              = settings.value("appearance.stack.font", default_font).value<QString>();
+	data_font               = settings.value("appearance.data.font", default_font).value<QString>();
+	registers_font          = settings.value("appearance.registers.font", default_font).value<QString>();
+	disassembly_font        = settings.value("appearance.disassembly.font", default_font).value<QString>();
+	data_show_address       = settings.value("appearance.data.show_address.enabled", true).value<bool>();
+	data_show_hex           = settings.value("appearance.data.show_hex.enabled", true).value<bool>();
+	data_show_ascii         = settings.value("appearance.data.show_ascii.enabled", true).value<bool>();
+	data_show_comments      = settings.value("appearance.data.show_comments.enabled", true).value<bool>();
+	data_word_width         = settings.value("appearance.data.word_width", 1).value<int>();
+	data_row_width          = settings.value("appearance.data.row_width", 16).value<int>();
+	show_address_separator  = settings.value("appearance.address_colon.enabled", true).value<bool>();
 	settings.endGroup();
 
 	settings.beginGroup("Debugging");
@@ -131,6 +131,14 @@ void Configuration::read_settings() {
 	settings.beginGroup("Exceptions");
 	enable_signals_message_box=settings.value("signals.show_message_box.enabled", true).value<bool>();
 	settings.endGroup();
+	
+	settings.beginGroup("Window");
+	startup_window_location = static_cast<StartupWindowLocation>(settings.value("window.startup_window_location", SystemDefault).value<uint>());
+	settings.endGroup();
+	
+	if(startup_window_location < 0 || startup_window_location > 2) {
+		startup_window_location = SystemDefault;
+	}
 
 	// normalize values
 	if(data_word_width != 1 && data_word_width != 2 && data_word_width != 4 && data_word_width != 8) {
@@ -175,7 +183,7 @@ void Configuration::write_settings() {
 	settings.setValue("appearance.data.show_comments.enabled", data_show_comments);
 	settings.setValue("appearance.data.word_width", data_word_width);
 	settings.setValue("appearance.data.row_width", data_row_width);
-	settings.setValue("appearance.address_colon.enabled", show_address_separator);
+	settings.setValue("appearance.address_colon.enabled", show_address_separator);	
 	settings.endGroup();
 
 	settings.beginGroup("Debugging");
@@ -211,4 +219,8 @@ void Configuration::write_settings() {
 	settings.beginGroup("Exceptions");
 	settings.setValue("signals.show_message_box.enabled", enable_signals_message_box);
 	settings.endGroup();
+
+	settings.beginGroup("Window");	
+	settings.setValue("window.startup_window_location", startup_window_location);
+	settings.endGroup();	
 }

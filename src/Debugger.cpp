@@ -47,6 +47,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "QJsonParseError.h"
 
 #include <QCloseEvent>
+#include <QDesktopWidget>
 #include <QDir>
 #include <QDragEnterEvent>
 #include <QDropEvent>
@@ -889,6 +890,8 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	settings.setValue("window.state", state);
 	settings.setValue("window.width", width());
 	settings.setValue("window.height", height());
+	settings.setValue("window.x", x());
+	settings.setValue("window.y", y());
 	settings.setValue("window.stack.show_address.enabled", stack_view_->showAddress());
 	settings.setValue("window.stack.show_hex.enabled", stack_view_->showHexDump());
 	settings.setValue("window.stack.show_ascii.enabled", stack_view_->showAsciiDump());
@@ -913,11 +916,14 @@ void Debugger::closeEvent(QCloseEvent *event) {
 // Desc: triggered on show, restores window state
 //------------------------------------------------------------------------------
 void Debugger::showEvent(QShowEvent *) {
+
 	QSettings settings;
 	settings.beginGroup("Window");
 	const QByteArray state = settings.value("window.state").value<QByteArray>();
 	const int width        = settings.value("window.width", -1).value<int>();
 	const int height       = settings.value("window.height", -1).value<int>();
+	const int x            = settings.value("window.x", -1).value<int>();
+	const int y            = settings.value("window.y", -1).value<int>();
 
 	if(width != -1) {
 		resize(width, size().height());
@@ -926,7 +932,28 @@ void Debugger::showEvent(QShowEvent *) {
 	if(height != -1) {
 		resize(size().width(), height);
 	}
-
+	
+	const Configuration &config = edb::v1::config();
+	switch(config.startup_window_location) {
+	case Configuration::SystemDefault:
+		break;
+	case Configuration::Centered:
+		{
+			QDesktopWidget desktop;
+			QRect sg = desktop.screenGeometry();
+			int x = (sg.width() - this->width()) / 2;
+			int y = (sg.height() - this->height()) / 2;
+			move(x, y);	
+		}
+		break;
+	case Configuration::Restore:
+		if(x != -1 && y != -1) {
+			move(x, y);
+		}
+		break;
+	}
+	
+	
 	stack_view_->setShowAddress(settings.value("window.stack.show_address.enabled", true).value<bool>());
 	stack_view_->setShowHexDump(settings.value("window.stack.show_hex.enabled", true).value<bool>());
 	stack_view_->setShowAsciiDump(settings.value("window.stack.show_ascii.enabled", true).value<bool>());
@@ -936,11 +963,11 @@ void Debugger::showEvent(QShowEvent *) {
 
 	{
 		int word_width = settings.value("window.stack.word_width", edb::v1::pointer_size()).value<int>();
-		auto_stack_word_width_=(word_width<0);
+		auto_stack_word_width_ = (word_width < 0);
 		if(auto_stack_word_width_)
-			stack_word_width_=edb::v1::pointer_size();
+			stack_word_width_ = edb::v1::pointer_size();
 		else
-			stack_word_width_=word_width;
+			stack_word_width_ = word_width;
 	}
 
 	// normalize values
