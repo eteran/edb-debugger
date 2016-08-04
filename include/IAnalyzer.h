@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Function.h"
 #include "IRegion.h"
 #include "Types.h"
+#include "Status.h"
 
 #include <QSet>
 #include <QHash>
@@ -46,7 +47,7 @@ public:
 	virtual FunctionMap functions(const IRegion::pointer &region) const = 0;
 	virtual FunctionMap functions() const = 0;
 	virtual QSet<edb::address_t> specified_functions() const { return QSet<edb::address_t>(); }
-	virtual edb::address_t find_containing_function(edb::address_t address, bool *ok) const = 0;
+	virtual Result<edb::address_t> find_containing_function(edb::address_t address) const = 0;
 	virtual void analyze(const IRegion::pointer &region) = 0;
 	virtual void invalidate_analysis() = 0;
 	virtual void invalidate_analysis(const IRegion::pointer &region) = 0;

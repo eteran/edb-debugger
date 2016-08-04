@@ -796,15 +796,13 @@ void Analyzer::invalidate_analysis() {
 // Name: find_containing_function
 // Desc: returns the entry point of the function which contains <address>
 //------------------------------------------------------------------------------
-edb::address_t Analyzer::find_containing_function(edb::address_t address, bool *ok) const {
-	Q_ASSERT(ok);
+Result<edb::address_t> Analyzer::find_containing_function(edb::address_t address) const {
 
 	Function function;
-	*ok = find_containing_function(address, &function);
-	if(*ok) {
-		return function.entry_address();
+	if(find_containing_function(address, &function)) {
+		return Result<edb::address_t>(function.entry_address());
 	} else {
-		return 0;
+		return Result<edb::address_t>(tr("Containing Function Not Found"), -1);
 	}
 }
 
@@ -813,7 +811,6 @@ edb::address_t Analyzer::find_containing_function(edb::address_t address, bool *
 // Desc:
 //------------------------------------------------------------------------------
 bool Analyzer::will_return(edb::address_t address) const {
-
 
 	const QList<Symbol::pointer> symbols = edb::v1::symbol_manager().symbols();
 	for(const Symbol::pointer &symbol: symbols) {

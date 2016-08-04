@@ -272,37 +272,40 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 			const IAnalyzer::AddressCategory cat = analyzer->category(address);
 
 			// find the containing function
-			bool ok;
-			address = analyzer->find_containing_function(address, &ok);
+			Result<edb::address_t> function_address = analyzer->find_containing_function(address);
 
-			if(ok && cat != IAnalyzer::ADDRESS_FUNC_START) {
+			if(function_address && cat != IAnalyzer::ADDRESS_FUNC_START) {
+			
+				edb::address_t function_start = *function_address;
 
 				// disassemble from function start until the NEXT address is where we started
-				while(true) {
+				while(true) {				
 					quint8 buf[edb::Instruction::MAX_SIZE];
 
 					int buf_size = sizeof(buf);
 					if(region_) {
-						buf_size = qMin<edb::address_t>((address - region_->base()), sizeof(buf));
+						buf_size = qMin<edb::address_t>((function_start - region_->base()), sizeof(buf));
 					}
 
-					if(edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
-						const edb::Instruction inst(buf, buf + buf_size, address);
+					if(edb::v1::get_instruction_bytes(function_start, buf, &buf_size)) {
+						const edb::Instruction inst(buf, buf + buf_size, function_start);
 						if(!inst) {
 							break;
 						}
 
 						// if the NEXT address would be our target, then
 						// we are at the previous instruction!
-						if(address + inst.size() >= current_address + address_offset_) {
+						if(function_start + inst.size() >= current_address + address_offset_) {
 							break;
 						}
 
-						address += inst.size();
+						function_start += inst.size();
+					} else {
+						break;
 					}
 				}
 
-				current_address = (address - address_offset_);
+				current_address = (function_start - address_offset_);
 				continue;
 			}
 		}
