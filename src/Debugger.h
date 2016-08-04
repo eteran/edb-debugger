@@ -276,6 +276,7 @@ private:
 
 	template <class F>
 	QList<QAction*> get_plugin_context_menu_items(const F &f) const;
+
 	template <class F, class T>
 	void add_plugin_context_menu(const T &menu, const F &f);
 
