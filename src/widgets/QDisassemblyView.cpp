@@ -1085,31 +1085,28 @@ edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
 // Name: get_instruction_size
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::get_instruction_size(edb::address_t address, bool *ok, quint8 *buf, int *size) const {
+Result<int> QDisassemblyView::get_instruction_size(edb::address_t address, quint8 *buf, int *size) const {
 
-	Q_ASSERT(ok);
 	Q_ASSERT(buf);
 	Q_ASSERT(size);
 
-	int ret = 0;
 
-	if(*size < 0) {
-		*ok = false;
-	} else {
-		*ok = edb::v1::get_instruction_bytes(address, buf, size);
+	if(*size >= 0) {
+		bool ok = edb::v1::get_instruction_bytes(address, buf, size);
 
-		if(*ok) {
-			ret = instruction_size(buf, *size);
+		if(ok) {
+			return Result<int>(instruction_size(buf, *size));
 		}
 	}
-	return ret;
+	
+	return Result<int>(tr("Failed to get instruciton size"), 0);
 }
 
 //------------------------------------------------------------------------------
 // Name: get_instruction_size
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::get_instruction_size(edb::address_t address, bool *ok) const {
+Result<int> QDisassemblyView::get_instruction_size(edb::address_t address) const {
 
 	Q_ASSERT(region_);
 
@@ -1126,7 +1123,7 @@ int QDisassemblyView::get_instruction_size(edb::address_t address, bool *ok) con
 		}
 	}
 
-	return get_instruction_size(address, ok, buf, &buf_size);
+	return get_instruction_size(address, buf, &buf_size);
 }
 
 //------------------------------------------------------------------------------
@@ -1143,9 +1140,9 @@ edb::address_t QDisassemblyView::address_from_coord(int x, int y) const {
 	for(int i = 0; i < line; ++i) {
 		bool ok;
 
-		int size = get_instruction_size(address_offset_ + address, &ok);
-		if(ok) {
-			address += (size != 0) ? size : 1;
+		Result<int> size = get_instruction_size(address_offset_ + address);
+		if(size) {
+			address += (*size != 0) ? *size : 1;
 		} else {
 			address += 1;
 		}
@@ -1326,11 +1323,11 @@ void QDisassemblyView::setSelectedAddress(edb::address_t address) {
 
 	if(region_) {
 		bool ok;
-		const int size = get_instruction_size(address, &ok);
+		const Result<int> size = get_instruction_size(address);
 
-		if(ok) {
+		if(size) {
 			selected_instruction_address_ = address;
-			selected_instruction_size_    = size;
+			selected_instruction_size_    = *size;
 		} else {
 			selected_instruction_address_ = 0;
 			selected_instruction_size_    = 0;
