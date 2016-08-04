@@ -23,6 +23,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QString>
 #include <memory>
+#include <exception>
+
+class breakpoint_creation_error : public std::exception {
+	const char *what() const noexcept {
+		return "breakpoint_creation_error";
+	}
+};
 
 class QByteArray;
 

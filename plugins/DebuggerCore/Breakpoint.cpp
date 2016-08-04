@@ -31,7 +31,9 @@ const quint8 BreakpointInstruction = 0xcc;
 // Desc: constructor
 //------------------------------------------------------------------------------
 Breakpoint::Breakpoint(edb::address_t address) : original_byte_(0xff), address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false) {
-	enable();
+	if(!enable()) {
+		throw breakpoint_creation_error();
+	}
 }
 
 //------------------------------------------------------------------------------
