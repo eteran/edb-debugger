@@ -3032,10 +3032,8 @@ void Debugger::on_action_Attach_triggered() {
 
 	if(dlg->exec() == QDialog::Accepted) {
 		if(dlg) {
-			bool ok;
-			const edb::pid_t pid = dlg->selected_pid(&ok);
-			if(ok) {
-				attach(pid);
+			if(const Result<edb::pid_t> pid = dlg->selected_pid()) {
+				attach(*pid);
 			}
 		}
 	}

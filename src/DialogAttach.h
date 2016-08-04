@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIALOG_ATTACH_20091218_H_
 
 #include "Types.h"
+#include "Status.h"
 #include <QDialog>
 
 class ProcessModel;
@@ -45,7 +46,7 @@ public Q_SLOTS:
 	void on_filter_textChanged(const QString &filter);
 
 public:
-	edb::pid_t selected_pid(bool *ok) const;
+	Result<edb::pid_t> selected_pid() const;
 
 private:
 	Ui::DialogAttach *const ui;

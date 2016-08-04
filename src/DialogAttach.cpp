@@ -147,19 +147,15 @@ void DialogAttach::on_filter_uid_clicked(bool checked) {
 // Name: selected_pid
 // Desc:
 //------------------------------------------------------------------------------
-edb::pid_t DialogAttach::selected_pid(bool *ok) const {
-
-	Q_ASSERT(ok);
+Result<edb::pid_t> DialogAttach::selected_pid() const {
 
 	const QItemSelectionModel *const selModel = ui->processes_table->selectionModel();
 	const QModelIndexList sel = selModel->selectedRows();
 
 	if(sel.size() == 1) {
 		const QModelIndex index = process_name_filter_->mapToSource(process_pid_filter_->mapToSource(sel[0]));
-		*ok = true;
-		return process_model_->data(index, Qt::UserRole).toUInt();
+		return Result<edb::pid_t>(process_model_->data(index, Qt::UserRole).toUInt());
 	}
-
-	*ok = false;
-	return 0;
+	
+	return Result<edb::pid_t>(tr("No Selection"), 0);
 }
