@@ -28,12 +28,13 @@ Dependency                                  | Version Required
 [Qt](http://www.qt.io/)                     | >= 4.6
 [Boost](http://boost.org) (Headers Only)    | >= 1.35
 [Capstone](http://www.capstone-engine.org/) | >= 3.0
+[Graphviz] (http://www.graphviz.org/)       | >= 2.38.0 (Optional)
 
 Many distributions already have packages that satisify these.
 
 Once you have the necessary dependencies installed, there are two options for compiling:
 
-### CMake (Recommended)
+### CMake
 
 If you plan to just run edb out of the build directory, it's as simple as this:
 
@@ -51,27 +52,6 @@ If you would like to properly install edb on the system for all users, it's only
 	$ make
 	$ make install
 	$ edb
-
-### QMake (Planned to be phased out once cmake based building is proven reliable)
-
-	$ qmake
-	$ make
-
-This will build the debugger along with all included plugins. On certain 
-systems your qmake may be named slightly differently. For example, some distributions 
-name the Qt4 version of qmake as `qmake-qt4`.
-
-If you are planning on doing a make install, you likely want to specify the 
-default plugin path, here's how you would do that.
-
-	$ qmake -makefile DEFAULT_PLUGIN_PATH="/usr/lib/edb/"
-	$ make
-
-Also you can specify the install prefix like this:
-
-	$ qmake PREFIX=/usr/
-	$ make
-
 
 Installing
 ----------
