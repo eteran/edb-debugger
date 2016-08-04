@@ -1386,12 +1386,9 @@ void Debugger::mnuRegisterFollowInStack() {
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-edb::address_t Debugger::get_follow_address(const T &hexview, bool *ok) {
+Result<edb::address_t> Debugger::get_follow_address(const T &hexview) {
 
 	Q_ASSERT(hexview);
-	Q_ASSERT(ok);
-
-	*ok = false;
 
 	const size_t pointer_size = edb::v1::pointer_size();
 
@@ -1402,8 +1399,7 @@ edb::address_t Debugger::get_follow_address(const T &hexview, bool *ok) {
 			edb::address_t d(0);
 			std::memcpy(&d, data.data(), pointer_size);
 
-			*ok = true;
-			return d;
+			return Result<edb::address_t>(d);
 		}
 	}
 
@@ -1411,7 +1407,7 @@ edb::address_t Debugger::get_follow_address(const T &hexview, bool *ok) {
 		tr("Invalid Selection"),
 		tr("Please select %1 bytes to use this function.").arg(pointer_size));
 
-	return 0;
+	return Result<edb::address_t>(tr("Invalid Selection"), 0);
 }
 
 //------------------------------------------------------------------------------
@@ -1420,10 +1416,9 @@ edb::address_t Debugger::get_follow_address(const T &hexview, bool *ok) {
 //------------------------------------------------------------------------------
 template <class T>
 void Debugger::follow_in_stack(const T &hexview) {
-	bool ok;
-	const edb::address_t address = get_follow_address(hexview, &ok);
-	if(ok) {
-		follow_memory(address, [](edb::address_t address) {
+
+	if(const Result<edb::address_t> address = get_follow_address(hexview)) {
+		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::dump_stack(address);
 		});
 	}
@@ -1435,10 +1430,9 @@ void Debugger::follow_in_stack(const T &hexview) {
 //------------------------------------------------------------------------------
 template <class T>
 void Debugger::follow_in_dump(const T &hexview) {
-	bool ok;
-	const edb::address_t address = get_follow_address(hexview, &ok);
-	if(ok) {
-		follow_memory(address, [](edb::address_t address) {
+
+	if(const Result<edb::address_t> address = get_follow_address(hexview)) {
+		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::dump_data(address);
 		});
 	}
@@ -1450,10 +1444,9 @@ void Debugger::follow_in_dump(const T &hexview) {
 //------------------------------------------------------------------------------
 template <class T>
 void Debugger::follow_in_cpu(const T &hexview) {
-	bool ok;
-	const edb::address_t address = get_follow_address(hexview, &ok);
-	if(ok) {
-		follow_memory(address, [](edb::address_t address) {
+	
+	if(const Result<edb::address_t> address = get_follow_address(hexview)) {
+		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::jump_to_address(address);
 		});
 	}

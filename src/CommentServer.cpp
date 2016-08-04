@@ -66,13 +66,8 @@ void CommentServer::clear() {
 // Name: resolve_function_call
 // Desc:
 //------------------------------------------------------------------------------
-QString CommentServer::resolve_function_call(QHexView::address_t address, bool *ok) const {
+Result<QString> CommentServer::resolve_function_call(QHexView::address_t address) const {
 	
-	Q_ASSERT(ok);
-	QString ret;
-
-	*ok = false;
-
 	// ok, we now want to locate the instruction before this one
 	// so we need to look back a few bytes
 	quint8 buffer[edb::Instruction::MAX_SIZE];
@@ -84,42 +79,39 @@ QString CommentServer::resolve_function_call(QHexView::address_t address, bool *
 				edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
 				if(is_call(inst)) {
 					const QString symname = edb::v1::find_function_symbol(address);
+					
 					if(!symname.isEmpty()) {
-						ret = tr("return to %1 <%2>").arg(edb::v1::format_pointer(address)).arg(symname);
+						Result<QString>(tr("return to %1 <%2>").arg(edb::v1::format_pointer(address)).arg(symname));
 					} else {
-						ret = tr("return to %1").arg(edb::v1::format_pointer(address));
+						Result<QString>(tr("return to %1").arg(edb::v1::format_pointer(address)));
 					}
-					*ok = true;
-					break;
 				}
 			}
 		}
 	}
 
-	return ret;
+	return Result<QString>(tr("Failed to resolve function call"), tr(""));
 }
 
 //------------------------------------------------------------------------------
 // Name: resolve_string
 // Desc:
 //------------------------------------------------------------------------------
-QString CommentServer::resolve_string(QHexView::address_t address, bool *ok) const {
-
-	Q_ASSERT(ok);
+Result<QString> CommentServer::resolve_string(QHexView::address_t address) const {
 
 	const int min_string_length = edb::v1::config().min_string_length;
-	QString ret;
-	*ok = false;
+	const int max_string_length = 256;
 
 	int stringLen;
 	QString temp;
-	if((*ok = edb::v1::get_ascii_string_at_address(address, temp, min_string_length, 256, stringLen))) {
-		ret = tr("ASCII \"%1\"").arg(temp);
-	} else if((*ok = edb::v1::get_utf16_string_at_address(address, temp, min_string_length, 256, stringLen))) {
-		ret = tr("UTF16 \"%1\"").arg(temp);
+	
+	if(bool ok = edb::v1::get_ascii_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
+		return Result<QString>(tr("ASCII \"%1\"").arg(temp));
+	} else if(bool ok = edb::v1::get_utf16_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
+		return Result<QString>(tr("UTF16 \"%1\"").arg(temp));
 	}
 
-	return ret;
+	return Result<QString>(tr("Failed to resolve string"), tr(""));
 }
 
 //------------------------------------------------------------------------------
@@ -128,8 +120,6 @@ QString CommentServer::resolve_string(QHexView::address_t address, bool *ok) con
 //------------------------------------------------------------------------------
 QString CommentServer::comment(QHexView::address_t address, int size) const {
 
-	QString ret;
-	
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		// if the view is currently looking at words which are a pointer in size
 		// then see if it points to anything...
@@ -139,17 +129,17 @@ QString CommentServer::comment(QHexView::address_t address, int size) const {
 
 				auto it = custom_comments_.find(value);
 				if(it != custom_comments_.end()) {
-					ret = it.value();
+					return it.value();
 				} else {
-					bool ok;
-					ret = resolve_function_call(value, &ok);
-					if(!ok) {
-						ret = resolve_string(value, &ok);
+					if(Result<QString> ret = resolve_function_call(value)) {
+						return *ret;
+					} else if(Result<QString> ret = resolve_string(value)) {
+						return *ret;
 					}
 				}
 			}
 		}
 	}
 
-	return ret;
+	return QString();
 }

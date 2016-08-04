@@ -273,7 +273,7 @@ private:
 	void follow_memory(edb::address_t address, F follow_func);
 
 	template <class T>
-	edb::address_t get_follow_address(const T &hexview, bool *ok);
+	Result<edb::address_t> get_follow_address(const T &hexview);
 
 	template <class F>
 	QList<QAction*> get_plugin_context_menu_items(const F &f) const;
