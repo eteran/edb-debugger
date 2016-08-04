@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIALOGBACKTRACE_H
 
 #include "CallStack.h"
+#include "Status.h"
 
 #include <QDialog>
 #include <QTableWidget>
@@ -41,7 +42,7 @@ public:
 private:
 	bool is_ret(const QTableWidgetItem *item);
 	bool is_ret(int column);
-	edb::address_t address_from_table(bool *ok, const QTableWidgetItem *item);
+	Result<edb::address_t> address_from_table(const QTableWidgetItem *item);
 
 public Q_SLOTS:
 	void populate_table();

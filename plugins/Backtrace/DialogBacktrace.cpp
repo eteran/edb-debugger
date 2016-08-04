@@ -174,10 +174,9 @@ void DialogBacktrace::on_pushButtonClose_clicked() {
 // Desc: Jumps to the double-clicked address in the CPU/Disassembly view.
 //------------------------------------------------------------------------------
 void DialogBacktrace::on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem *item) {
-	bool ok;
-	edb::address_t address = address_from_table(&ok, item);
-	if (ok) {
-		edb::v1::jump_to_address(address);
+
+	if (Result<edb::address_t> address = address_from_table(item)) {
+		edb::v1::jump_to_address(*address);
 	}
 }
 
@@ -210,12 +209,12 @@ void DialogBacktrace::on_pushButtonReturnTo_clicked()
 	if (!is_ret(item)) { return; }
 
 	bool ok;
-	edb::address_t address = address_from_table(&ok, item);
+	Result<edb::address_t> address = address_from_table(item);
 
 	//If we didn't get a valid address, then fail.
 	//TODO: Make sure "ok" actually signifies success of getting an address...
-	if (!ok) {
-		QMessageBox::critical(this, tr("Error"), tr("Could not return to 0x%1").arg(QString::number(address, 16)));
+	if (!address) {
+		QMessageBox::critical(this, tr("Error"), tr("Could not return to 0x%1").arg(QString::number(*address, 16)));
 		return;
 	}
 	
@@ -223,15 +222,15 @@ void DialogBacktrace::on_pushButtonReturnTo_clicked()
 
 		//Now that we got the address, we can run.  First check if bp @ that address
 		//already exists.
-		IBreakpoint::pointer bp = edb::v1::debugger_core->find_breakpoint(address);
+		IBreakpoint::pointer bp = edb::v1::debugger_core->find_breakpoint(*address);
 		if (bp) {
 			process->resume(edb::DEBUG_CONTINUE);
 			return;
 		}
 
 		//Using the non-debugger_core version ensures bp is set in a valid region
-		edb::v1::create_breakpoint(address);
-		bp = edb::v1::debugger_core->find_breakpoint(address);
+		edb::v1::create_breakpoint(*address);
+		bp = edb::v1::debugger_core->find_breakpoint(*address);
 		if (bp) {
 			bp->set_internal(true);
 			bp->set_one_time(true);
@@ -267,12 +266,17 @@ bool DialogBacktrace::is_ret(int column) {
 // Desc: Returns the edb::address_t represented by the given *item and sets *ok
 //			to true if successful or false, otherwise.
 //------------------------------------------------------------------------------
-edb::address_t DialogBacktrace::address_from_table(bool *ok, const QTableWidgetItem *item) {
+Result<edb::address_t> DialogBacktrace::address_from_table(const QTableWidgetItem *item) {
 	QString addr_text = item->text();
 	Expression<edb::address_t> expr(addr_text, edb::v1::get_variable, edb::v1::get_value);
 	ExpressionError err;
-	const edb::address_t address = expr.evaluate_expression(ok, &err);
-	return address;
+	bool ok;
+	const edb::address_t address = expr.evaluate_expression(&ok, &err);
+	if(ok) {
+		return Result<edb::address_t>(address);
+	} else {
+		return Result<edb::address_t>(err.what(), 0);
+	}
 }
 
 }
