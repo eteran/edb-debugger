@@ -50,7 +50,7 @@ public:
 	Result() {
 	}
 	
-	Result(const QString &message, const T &value) : Status(message), value_(value) {
+	Result(const QString &message, const T &value) : status_(message), value_(value) {
 	}
 
 	Result(const T &value) : value_(value) {
