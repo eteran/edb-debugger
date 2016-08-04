@@ -763,31 +763,29 @@ void Debugger::finish_plugin_setup() {
 // Name: get_goto_expression
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t Debugger::get_goto_expression(bool *ok) {
-
-	Q_ASSERT(ok);
+Result<edb::address_t> Debugger::get_goto_expression() {
 
 	edb::address_t address;
-	*ok = edb::v1::get_expression_from_user(tr("Goto Address"), tr("Address:"), &address);
-	return *ok ? address : edb::address_t(0);
+	bool ok = edb::v1::get_expression_from_user(tr("Goto Address"), tr("Address:"), &address);
+	if(ok) {
+		return Result<edb::address_t>(address);
+	} else {
+		return Result<edb::address_t>(tr("No Address"), 0);
+	}
 }
 
 //------------------------------------------------------------------------------
 // Name: get_follow_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::reg_t Debugger::get_follow_register(bool *ok) const {
+Result<edb::reg_t> Debugger::get_follow_register() const {
 
-	Q_ASSERT(ok);
+	const auto reg = active_register();
+	if(!reg || reg.bitSize() > 8 * sizeof(edb::address_t)) {
+		Result<edb::reg_t>(tr("No Value"), 0);
+	}
 
-	*ok = false;
-
-	const auto reg=active_register();
-	if(!reg || reg.bitSize()>8*sizeof(edb::address_t))
-		return 0;
-
-	*ok = true;
-	return reg.valueAsAddress();
+	return Result<edb::reg_t>(reg.valueAsAddress());
 }
 
 
@@ -1274,12 +1272,13 @@ void Debugger::follow_memory(edb::address_t address, F follow_func) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::follow_register_in_dump(bool tabbed) {
-	bool ok;
-	const edb::address_t address = get_follow_register(&ok);
-	if(ok && !edb::v1::dump_data(address, tabbed)) {
-		QMessageBox::critical(this,
-			tr("No Memory Found"),
-			tr("There appears to be no memory at that location (<strong>%1</strong>)").arg(edb::v1::format_pointer(address)));
+
+	if(const Result<edb::address_t> address = get_follow_register()) {
+		if(!edb::v1::dump_data(*address, tabbed)) {
+			QMessageBox::critical(this,
+				tr("No Memory Found"),
+				tr("There appears to be no memory at that location (<strong>%1</strong>)").arg(edb::v1::format_pointer(address)));
+		}
 	}
 }
 
@@ -1336,10 +1335,9 @@ void Debugger::mnuCPUJumpToEIP() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUJumpToAddress() {
-	bool ok;
-	const edb::address_t address = get_goto_expression(&ok);
-	if(ok) {
-		follow_memory(address, [](edb::address_t address) {
+
+	if(const Result<edb::address_t> address = get_goto_expression()) {
+		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::jump_to_address(address);
 		});
 	}
@@ -1350,10 +1348,8 @@ void Debugger::mnuCPUJumpToAddress() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuDumpGotoAddress() {
-    bool ok;
-	const edb::address_t address = get_goto_expression(&ok);
-	if(ok) {
-		follow_memory(address, [](edb::address_t address) {
+	if(const Result<edb::address_t> address = get_goto_expression()) {
+		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::dump_data(address);
 		});
 	}
@@ -1364,10 +1360,8 @@ void Debugger::mnuDumpGotoAddress() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuStackGotoAddress() {
-    bool ok;
-	const edb::address_t address = get_goto_expression(&ok);
-	if(ok) {
-		follow_memory(address, [](edb::address_t address) {
+	if(const Result<edb::address_t> address = get_goto_expression()) {
+		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::dump_stack(address);
 		});
 	}
@@ -1378,10 +1372,9 @@ void Debugger::mnuStackGotoAddress() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuRegisterFollowInStack() {
-	bool ok;
-	const edb::address_t address = get_follow_register(&ok);
-	if(ok) {
-		follow_memory(address, [](edb::address_t address) {
+
+	if(const Result<edb::address_t> address = get_follow_register()) {
+		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::dump_stack(address);
 		});
 	}

@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Debugger.h"
 #include "IDebugEventHandler.h"
 #include "QHexView"
+#include "Status.h"
 #include "edb.h"
 
 class DialogArguments;
@@ -236,8 +237,8 @@ private:
 	edb::EVENT_STATUS handle_event_terminated(const IDebugEvent::const_pointer &event);
 	edb::EVENT_STATUS handle_trap();
 	edb::EVENT_STATUS resume_status(bool pass_exception);
-	edb::address_t get_goto_expression(bool *ok);
-	edb::reg_t get_follow_register(bool *ok) const;
+	Result<edb::address_t> get_goto_expression();
+	Result<edb::reg_t> get_follow_register() const;
 	void apply_default_fonts();
 	void apply_default_show_separator();
 	void cleanup_debugger();
