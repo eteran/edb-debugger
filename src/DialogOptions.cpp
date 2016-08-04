@@ -210,6 +210,10 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui->chkShowLocalModuleName->setChecked(config.show_local_module_name_in_jump_targets);
 	ui->chkShowSymbolicAddresses->setChecked(config.show_symbolic_addresses);
 	ui->chkSimplifyRIPRelativeTargets->setChecked(config.simplify_rip_relative_targets);
+	
+	ui->rdoPlaceDefault ->setChecked(config.startup_window_location == Configuration::SystemDefault);
+	ui->rdoPlaceCentered->setChecked(config.startup_window_location == Configuration::Centered);
+	ui->rdoPlaceRestore ->setChecked(config.startup_window_location == Configuration::Restore);
 }
 
 //------------------------------------------------------------------------------
@@ -287,6 +291,15 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	edb::v1::formatter().setOptions(options);
 
 	config.enable_signals_message_box = ui->signalsMessageBoxEnable->isChecked();
+
+	if(ui->rdoPlaceDefault ->isChecked()) {
+		config.startup_window_location = Configuration::SystemDefault;
+	} else if(ui->rdoPlaceCentered->isChecked()) {
+		config.startup_window_location = Configuration::Centered;
+	} else if(ui->rdoPlaceRestore ->isChecked()) {
+		config.startup_window_location = Configuration::Restore;
+	}
+
 
 	event->accept();
 }

@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>681</width>
-    <height>434</height>
+    <height>501</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,10 +27,7 @@
       <attribute name="title">
        <string>General</string>
       </attribute>
-      <layout class="QVBoxLayout">
-       <property name="spacing">
-        <number>6</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
@@ -61,6 +58,36 @@
            <widget class="QRadioButton" name="rdoReverseCapture">
             <property name="text">
              <string>Detach If Debugged Application Was Attached To, Kill If Launched</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="title">
+          <string>Window Placement On Startup</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QRadioButton" name="rdoPlaceDefault">
+            <property name="text">
+             <string>System Default</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="rdoPlaceCentered">
+            <property name="text">
+             <string>Centered on Desktop</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="rdoPlaceRestore">
+            <property name="text">
+             <string>Restore Previous Location</string>
             </property>
            </widget>
           </item>
@@ -462,6 +489,8 @@
         </spacer>
        </item>
       </layout>
+      <zorder>chkDisableASLR</zorder>
+      <zorder>chkDisableLazyBinding</zorder>
       <zorder>groupBox_2</zorder>
       <zorder>chkWarnDataBreakpoint</zorder>
       <zorder>chkFindMain</zorder>
