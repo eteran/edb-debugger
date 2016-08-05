@@ -81,9 +81,9 @@ Result<QString> CommentServer::resolve_function_call(QHexView::address_t address
 					const QString symname = edb::v1::find_function_symbol(address);
 					
 					if(!symname.isEmpty()) {
-						Result<QString>(tr("return to %1 <%2>").arg(edb::v1::format_pointer(address)).arg(symname));
+						return edb::v1::make_result(tr("return to %1 <%2>").arg(edb::v1::format_pointer(address)).arg(symname));
 					} else {
-						Result<QString>(tr("return to %1").arg(edb::v1::format_pointer(address)));
+						return edb::v1::make_result(tr("return to %1").arg(edb::v1::format_pointer(address)));
 					}
 				}
 			}
@@ -106,9 +106,9 @@ Result<QString> CommentServer::resolve_string(QHexView::address_t address) const
 	QString temp;
 	
 	if(bool ok = edb::v1::get_ascii_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
-		return Result<QString>(tr("ASCII \"%1\"").arg(temp));
+		return edb::v1::make_result(tr("ASCII \"%1\"").arg(temp));
 	} else if(bool ok = edb::v1::get_utf16_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
-		return Result<QString>(tr("UTF16 \"%1\"").arg(temp));
+		return edb::v1::make_result(tr("UTF16 \"%1\"").arg(temp));
 	}
 
 	return Result<QString>(tr("Failed to resolve string"), tr(""));

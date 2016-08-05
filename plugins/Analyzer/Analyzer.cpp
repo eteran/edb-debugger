@@ -800,7 +800,7 @@ Result<edb::address_t> Analyzer::find_containing_function(edb::address_t address
 
 	Function function;
 	if(find_containing_function(address, &function)) {
-		return Result<edb::address_t>(function.entry_address());
+		return edb::v1::make_result(function.entry_address());
 	} else {
 		return Result<edb::address_t>(tr("Containing Function Not Found"), -1);
 	}

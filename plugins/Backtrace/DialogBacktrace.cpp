@@ -273,7 +273,7 @@ Result<edb::address_t> DialogBacktrace::address_from_table(const QTableWidgetIte
 	bool ok;
 	const edb::address_t address = expr.evaluate_expression(&ok, &err);
 	if(ok) {
-		return Result<edb::address_t>(address);
+		return edb::v1::make_result(address);
 	} else {
 		return Result<edb::address_t>(err.what(), 0);
 	}
