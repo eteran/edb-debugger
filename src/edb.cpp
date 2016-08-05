@@ -1189,10 +1189,17 @@ QStringList parse_command_line(const QString &cmdline) {
 // Name: string_to_address
 // Desc:
 //------------------------------------------------------------------------------
-address_t string_to_address(const QString &s, bool *ok) {
+Result<address_t> string_to_address(const QString &s) {
 	QString hex(s);
 	hex.replace("0x","");
-	return edb::address_t::fromHexString(hex.left(2*sizeof(edb::address_t)),ok);
+	
+	bool ok;
+	address_t r = edb::address_t::fromHexString(hex.left(2*sizeof(edb::address_t)), &ok);
+	if(ok) {
+		return Result<address_t>(r);
+	}
+	
+	return Result<address_t>(QLatin1String("Error converting string to address"), 0);
 }
 
 //------------------------------------------------------------------------------

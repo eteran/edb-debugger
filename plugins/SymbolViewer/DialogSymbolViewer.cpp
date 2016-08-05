@@ -65,17 +65,15 @@ DialogSymbolViewer::~DialogSymbolViewer() {
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::on_listView_doubleClicked(const QModelIndex &index) {
 
-	bool ok;
 	const QString s = index.data().toString();
-	const edb::address_t addr = edb::v1::string_to_address(s.split(":")[0], &ok);
 
-	if(ok) {
-		const Symbol::pointer sym = edb::v1::symbol_manager().find(addr);
+	if(const Result<edb::address_t> addr = edb::v1::string_to_address(s.split(":")[0])) {
+		const Symbol::pointer sym = edb::v1::symbol_manager().find(*addr);
 
 		if(sym && sym->is_code()) {
-			edb::v1::jump_to_address(addr);
+			edb::v1::jump_to_address(*addr);
 		} else {
-			edb::v1::dump_data(addr, false);
+			edb::v1::dump_data(*addr, false);
 		}
 	}
 }
@@ -89,22 +87,23 @@ void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &po
 	const QModelIndex index = ui->listView->indexAt(pos);
 	if(index.isValid()) {
 
-		bool ok;
 		const QString s = index.data().toString();
-		const edb::address_t addr = edb::v1::string_to_address(s.split(":")[0], &ok);
+		
+		if(const Result<edb::address_t> addr = edb::v1::string_to_address(s.split(":")[0])) {
 
-		QMenu menu;
-		QAction *const action1 = menu.addAction(tr("&Follow In Disassembly"), this, SLOT(mnuFollowInCPU()));
-		QAction *const action2 = menu.addAction(tr("&Follow In Dump"), this, SLOT(mnuFollowInDump()));
-		QAction *const action3 = menu.addAction(tr("&Follow In Dump (New Tab)"), this, SLOT(mnuFollowInDumpNewTab()));
-		QAction *const action4 = menu.addAction(tr("&Follow In Stack"), this, SLOT(mnuFollowInStack()));
+			QMenu menu;
+			QAction *const action1 = menu.addAction(tr("&Follow In Disassembly"), this, SLOT(mnuFollowInCPU()));
+			QAction *const action2 = menu.addAction(tr("&Follow In Dump"), this, SLOT(mnuFollowInDump()));
+			QAction *const action3 = menu.addAction(tr("&Follow In Dump (New Tab)"), this, SLOT(mnuFollowInDumpNewTab()));
+			QAction *const action4 = menu.addAction(tr("&Follow In Stack"), this, SLOT(mnuFollowInStack()));
 
-		action1->setData(addr);
-		action2->setData(addr);
-		action3->setData(addr);
-		action4->setData(addr);
+			action1->setData(*addr);
+			action2->setData(*addr);
+			action3->setData(*addr);
+			action4->setData(*addr);
 
-		menu.exec(ui->listView->mapToGlobal(pos));
+			menu.exec(ui->listView->mapToGlobal(pos));
+		}
 	}
 }
 

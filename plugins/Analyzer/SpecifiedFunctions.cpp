@@ -60,11 +60,9 @@ SpecifiedFunctions::~SpecifiedFunctions() {
 //------------------------------------------------------------------------------
 void SpecifiedFunctions::on_function_list_doubleClicked(const QModelIndex &index) {
 
-	bool ok;
 	const QString s = index.data().toString();
-	const edb::address_t addr = edb::v1::string_to_address(s, &ok);
-	if(ok) {
-		edb::v1::jump_to_address(addr);
+	if(const Result<edb::address_t> addr = edb::v1::string_to_address(s)) {
+		edb::v1::jump_to_address(*addr);
 	}
 }
 

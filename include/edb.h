@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IBreakpoint.h"
 #include "Types.h"
 #include "Register.h"
+#include "Status.h"
 
 #include <QMap>
 #include <QList>
@@ -188,7 +189,7 @@ EDB_EXPORT QByteArray get_md5(const QVector<quint8> &bytes);
 
 EDB_EXPORT QString symlink_target(const QString &s);
 EDB_EXPORT QStringList parse_command_line(const QString &cmdline);
-EDB_EXPORT address_t string_to_address(const QString &s, bool *ok);
+EDB_EXPORT Result<address_t> string_to_address(const QString &s);
 EDB_EXPORT QString format_bytes(const QByteArray &x);
 EDB_EXPORT QString format_bytes(quint8 byte);
 EDB_EXPORT QString format_pointer(address_t p);

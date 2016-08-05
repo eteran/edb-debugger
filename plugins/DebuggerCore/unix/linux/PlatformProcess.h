@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PLATOFORM_PROCESS_20150517_H_
 
 #include "IProcess.h"
+#include "Status.h"
 
 namespace DebuggerCore {
 
