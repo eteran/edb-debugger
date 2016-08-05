@@ -63,12 +63,12 @@ public:
 	Result& operator=(Result &&)      = default;
 	
 public:
-	T operator*() const            { return value_; }
+	T operator*() const            { Q_ASSERT(succeeded()); return value_; }
 	bool succeeded() const         { return status_.success(); }
 	bool failed() const            { return !succeeded(); }
 	explicit operator bool() const { return succeeded(); };
 	QString errorMessage() const   { return status_.toString(); }
-	T value() const                { return value_; }
+	T value() const                { Q_ASSERT(succeeded()); return value_; }
 	
 private:
 	Status status_;
