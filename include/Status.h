@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define STATUS_20160803_H_
 
 #include "API.h"
+#include <QString>
 
 class EDB_EXPORT Status {
 public:
