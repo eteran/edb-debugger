@@ -215,6 +215,11 @@ EDB_EXPORT size_t    selected_stack_size();
 EDB_EXPORT address_t selected_data_address();
 EDB_EXPORT size_t    selected_data_size();
 
+template <class T>
+Result<T> make_result(T value) {
+	return Result<T>(value);
+}
+
 }
 }
 
