@@ -1095,7 +1095,7 @@ Result<int> QDisassemblyView::get_instruction_size(edb::address_t address, quint
 		bool ok = edb::v1::get_instruction_bytes(address, buf, size);
 
 		if(ok) {
-			return Result<int>(instruction_size(buf, *size));
+			return edb::v1::make_result(instruction_size(buf, *size));
 		}
 	}
 	

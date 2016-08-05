@@ -768,7 +768,7 @@ Result<edb::address_t> Debugger::get_goto_expression() {
 	edb::address_t address;
 	bool ok = edb::v1::get_expression_from_user(tr("Goto Address"), tr("Address:"), &address);
 	if(ok) {
-		return Result<edb::address_t>(address);
+		return edb::v1::make_result(address);
 	} else {
 		return Result<edb::address_t>(tr("No Address"), 0);
 	}
@@ -782,10 +782,10 @@ Result<edb::reg_t> Debugger::get_follow_register() const {
 
 	const auto reg = active_register();
 	if(!reg || reg.bitSize() > 8 * sizeof(edb::address_t)) {
-		Result<edb::reg_t>(tr("No Value"), 0);
+		return Result<edb::reg_t>(tr("No Value"), 0);
 	}
 
-	return Result<edb::reg_t>(reg.valueAsAddress());
+	return edb::v1::make_result<edb::reg_t>(reg.valueAsAddress());
 }
 
 
@@ -1399,7 +1399,7 @@ Result<edb::address_t> Debugger::get_follow_address(const T &hexview) {
 			edb::address_t d(0);
 			std::memcpy(&d, data.data(), pointer_size);
 
-			return Result<edb::address_t>(d);
+			return edb::v1::make_result(d);
 		}
 	}
 

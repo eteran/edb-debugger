@@ -1196,7 +1196,7 @@ Result<address_t> string_to_address(const QString &s) {
 	bool ok;
 	address_t r = edb::address_t::fromHexString(hex.left(2*sizeof(edb::address_t)), &ok);
 	if(ok) {
-		return Result<address_t>(r);
+		return edb::v1::make_result(r);
 	}
 	
 	return Result<address_t>(QLatin1String("Error converting string to address"), 0);
