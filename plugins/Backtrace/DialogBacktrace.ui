@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>483</width>
-    <height>274</height>
+    <width>850</width>
+    <height>280</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -59,6 +59,9 @@
        <property name="text">
         <string>&amp;Return To</string>
        </property>
+       <property name="icon">
+        <iconset theme="edit-undo"/>
+       </property>
       </widget>
      </item>
      <item>
@@ -67,7 +70,9 @@
         <string>&amp;Close</string>
        </property>
        <property name="icon">
-        <iconset theme="dialog-close"/>
+        <iconset theme="dialog-close">
+         <normaloff/>
+        </iconset>
        </property>
       </widget>
      </item>

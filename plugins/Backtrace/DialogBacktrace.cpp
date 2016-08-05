@@ -18,20 +18,52 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogBacktrace.h"
 #include "CallStack.h"
-#include "Expression.h"
 #include "IBreakpoint.h"
 #include "IDebugger.h"
+#include "ISymbolManager.h"
 #include "ui_DialogBacktrace.h"
-
 #include <QTableWidget>
-#include <QMessageBox>
-
-//Default values in the table
-#define FIRST_ROW 0
-#define CALLER_COLUMN 0
-#define RETURN_COLUMN 1
 
 namespace Backtrace {
+namespace {
+
+//Default values in the table
+const int FIRST_ROW     = 0;
+const int CALLER_COLUMN = 0;
+const int RETURN_COLUMN = 1;
+
+//------------------------------------------------------------------------------
+// Name: address_from_table
+// Desc: Returns the edb::address_t represented by the given *item and sets *ok
+//			to true if successful or false, otherwise.
+//------------------------------------------------------------------------------
+edb::address_t address_from_table(const QTableWidgetItem *item) {
+	return static_cast<edb::address_t>(item->data(Qt::UserRole).value<qulonglong>());
+}
+
+//------------------------------------------------------------------------------
+// Name: is_ret (column number version)
+// Desc: Returns true if the column number is the one dedicated to return addresses.
+//       Returns false otherwise.
+//------------------------------------------------------------------------------
+bool is_ret(int column) {
+	return column == RETURN_COLUMN;
+}
+
+//------------------------------------------------------------------------------
+// Name: is_ret (QTableWidgetItem version)
+// Desc: Returns true if the selected item is in the column for return addresses.
+//       Returns false otherwise.
+//------------------------------------------------------------------------------
+bool is_ret(const QTableWidgetItem *item) {
+	if (!item) {
+		return false;
+	}
+	
+	return is_ret(item->column());
+}
+
+}
 
 //------------------------------------------------------------------------------
 // Name: DialogBacktrace
@@ -48,7 +80,6 @@ DialogBacktrace::DialogBacktrace(QWidget *parent) : QDialog(parent), ui(new Ui::
 	ui->setupUi(this);
 	table_ = ui->tableWidgetCallStack;
 	
-	
 	table_->verticalHeader()->hide();
 #if QT_VERSION >= 0x050000
 	table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -64,32 +95,16 @@ DialogBacktrace::~DialogBacktrace() {
 //------------------------------------------------------------------------------
 // Name: showEvent
 // Desc: Ensures the column sizes are correct, connects the sig/slot for
-//			syncing with the Debugger UI, then populates the Call Stack table.
+//       syncing with the Debugger UI, then populates the Call Stack table.
 //------------------------------------------------------------------------------
 void DialogBacktrace::showEvent(QShowEvent *) {
-	resizeEvent(NULL);
 
 	//Sync with the Debugger UI.
-	connect(edb::v1::debugger_ui, SIGNAL(gui_updated()),
-			this, SLOT(populate_table()));
+	connect(edb::v1::debugger_ui, SIGNAL(gui_updated()), this, SLOT(populate_table()));
 
 	//Populate the tabel with our call stack info.
 	populate_table();
-}
-
-//------------------------------------------------------------------------------
-// Name: resizeEvent
-// Desc: Stretches columns to the table width so that they get equal size.
-//------------------------------------------------------------------------------
-void DialogBacktrace::resizeEvent(QResizeEvent *) {
-	//Because on first open of plugin, there is a Resize followed by Show.
-	//We want the opposite, so block the first Resize and let Show call this.
-	static bool first_time = true;
-	if (first_time) {
-		first_time = false;
-		return;
-	}
-
+	
 	table_->horizontalHeader()->resizeSections(QHeaderView::Stretch);
 }
 
@@ -126,10 +141,22 @@ void DialogBacktrace::populate_table() {
 
 		//Put them in the table: create string from address and set item flags.
 		for (int j = 0; j < stack_entry.size() && j < table_->columnCount(); j++) {
+		
+			edb::address_t address = stack_entry.at(j);
+
+			Symbol::pointer near_symbol = edb::v1::symbol_manager().find_near_symbol(address);
 
 			//Turn the address into a string prefixed with "0x"
 			auto item = new QTableWidgetItem;
-			item->setText(QString("0x%1").arg(QString::number(stack_entry.at(j), 16)));
+			item->setData(Qt::UserRole, static_cast<qlonglong>(address));
+			
+			if(near_symbol) {
+				QString function = near_symbol->name;
+				int offset = address - near_symbol->address;;
+				item->setText(QString("0x%1 <%2+%3>").arg(QString::number(address, 16)).arg(function).arg(offset));
+			} else {
+				item->setText(QString("0x%1").arg(QString::number(address, 16)));
+			}
 
 			//Remove all flags (namely Edit), then put the flags that we want.
 			Qt::ItemFlags flags = Qt::NoItemFlags;
@@ -157,8 +184,7 @@ void DialogBacktrace::populate_table() {
 //			populate_table() is not called unnecessarily.
 //------------------------------------------------------------------------------
 void DialogBacktrace::hideEvent(QHideEvent *) {
-	disconnect(edb::v1::debugger_ui, SIGNAL(gui_updated()),
-			   this, SLOT(populate_table()));
+	disconnect(edb::v1::debugger_ui, SIGNAL(gui_updated()), this, SLOT(populate_table()));
 }
 
 //------------------------------------------------------------------------------
@@ -174,10 +200,7 @@ void DialogBacktrace::on_pushButtonClose_clicked() {
 // Desc: Jumps to the double-clicked address in the CPU/Disassembly view.
 //------------------------------------------------------------------------------
 void DialogBacktrace::on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem *item) {
-
-	if (Result<edb::address_t> address = address_from_table(item)) {
-		edb::v1::jump_to_address(*address);
-	}
+	edb::v1::jump_to_address(address_from_table(item));
 }
 
 //------------------------------------------------------------------------------
@@ -202,80 +225,32 @@ void DialogBacktrace::on_tableWidgetCallStack_cellClicked(int row, int column)
 // Desc: Ensures that the selected item is a return address.  If so, sets a
 //			breakpoint at that address and continues execution.
 //------------------------------------------------------------------------------
-void DialogBacktrace::on_pushButtonReturnTo_clicked()
-{
+void DialogBacktrace::on_pushButtonReturnTo_clicked() {
+
 	//Make sure our current item is in the RETURN_COLUMN
 	QTableWidgetItem *item = table_->currentItem();
-	if (!is_ret(item)) { return; }
-
-	bool ok;
-	Result<edb::address_t> address = address_from_table(item);
-
-	//If we didn't get a valid address, then fail.
-	//TODO: Make sure "ok" actually signifies success of getting an address...
-	if (!address) {
-		QMessageBox::critical(this, tr("Error"), tr("Could not return to 0x%1").arg(QString::number(*address, 16)));
+	if (!is_ret(item)) {
 		return;
 	}
-	
+
+	edb::address_t address = address_from_table(item);
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
-		//Now that we got the address, we can run.  First check if bp @ that address
-		//already exists.
-		IBreakpoint::pointer bp = edb::v1::debugger_core->find_breakpoint(*address);
-		if (bp) {
+		// Now that we got the address, we can run.  First check if bp @ that address
+		// already exists.
+		if (IBreakpoint::pointer bp = edb::v1::debugger_core->find_breakpoint(address)) {
 			process->resume(edb::DEBUG_CONTINUE);
 			return;
 		}
 
-		//Using the non-debugger_core version ensures bp is set in a valid region
-		edb::v1::create_breakpoint(*address);
-		bp = edb::v1::debugger_core->find_breakpoint(*address);
-		if (bp) {
+		// Using the non-debugger_core version ensures bp is set in a valid region
+		edb::v1::create_breakpoint(address);
+		if (IBreakpoint::pointer bp = edb::v1::debugger_core->find_breakpoint(address)) {
 			bp->set_internal(true);
 			bp->set_one_time(true);
 			process->resume(edb::DEBUG_CONTINUE);
-			return;
 		}
-	}
-
-
-}
-
-//------------------------------------------------------------------------------
-// Name: is_ret (QTableWidgetItem version)
-// Desc: Returns true if the selected item is in the column for return addresses.
-//			Returns false otherwise.
-//------------------------------------------------------------------------------
-bool DialogBacktrace::is_ret(const QTableWidgetItem *item) {
-	if (!item) { return false; }
-	return item->column() == RETURN_COLUMN;
-}
-
-//------------------------------------------------------------------------------
-// Name: is_ret (column number version)
-// Desc: Returns true if the column number is the one dedicated to return addresses.
-//			Returns false otherwise.
-//------------------------------------------------------------------------------
-bool DialogBacktrace::is_ret(int column) {
-	return column == RETURN_COLUMN;
-}
-
-//------------------------------------------------------------------------------
-// Name: address_from_table
-// Desc: Returns the edb::address_t represented by the given *item and sets *ok
-//			to true if successful or false, otherwise.
-//------------------------------------------------------------------------------
-Result<edb::address_t> DialogBacktrace::address_from_table(const QTableWidgetItem *item) {
-	QString addr_text = item->text();
-	Expression<edb::address_t> expr(addr_text, edb::v1::get_variable, edb::v1::get_value);
-	ExpressionError err;
-	bool ok;
-	const edb::address_t address = expr.evaluate_expression(&ok, &err);
-	if(ok) {
-		return edb::v1::make_result(address);
-	} else {
-		return Result<edb::address_t>(err.what(), 0);
 	}
 }
 
