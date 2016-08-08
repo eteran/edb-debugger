@@ -4,7 +4,6 @@ cache: apt
 
 compiler:
     - gcc
-    - clang
 
 env:
     global:
@@ -17,6 +16,8 @@ env:
         - QT_BASE=53
         - QT_BASE=54
         - QT_BASE=55
+        - QT_BASE=56
+        - QT_BASE=57
 
 sudo: required
 
@@ -28,6 +29,8 @@ before_install:
     - if [ "$QT_BASE" = "53" ]; then sudo add-apt-repository ppa:beineri/opt-qt532 -y; fi
     - if [ "$QT_BASE" = "54" ]; then sudo add-apt-repository ppa:beineri/opt-qt542 -y; fi
     - if [ "$QT_BASE" = "55" ]; then sudo add-apt-repository ppa:beineri/opt-qt551 -y; fi
+    - if [ "$QT_BASE" = "56" ]; then sudo add-apt-repository ppa:beineri/opt-qt561 -y; fi
+    - if [ "$QT_BASE" = "57" ]; then sudo add-apt-repository ppa:beineri/opt-qt57 -y; fi
     - sudo apt-get update -qq
     - ./travis_install_capstone.sh
 
@@ -39,6 +42,8 @@ install:
     - if [ "$QT_BASE" = "53" ]; then sudo apt-get install -qq qt53base qt53xmlpatterns; source /opt/qt53/bin/qt53-env.sh; fi
     - if [ "$QT_BASE" = "54" ]; then sudo apt-get install -qq qt54base qt54xmlpatterns; source /opt/qt54/bin/qt54-env.sh; fi
     - if [ "$QT_BASE" = "55" ]; then sudo apt-get install -qq qt55base qt55xmlpatterns; source /opt/qt55/bin/qt55-env.sh; fi
+    - if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base qt56xmlpatterns; source /opt/qt56/bin/qt56-env.sh; fi
+    - if [ "$QT_BASE" = "57" ]; then sudo apt-get install -qq qt57base qt57xmlpatterns; source /opt/qt57/bin/qt57-env.sh; fi
 
 before_script:
     - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" == "48" ]; then qmake -spec unsupported/linux-clang CONFIG+=warn_off QMAKE_CXXFLAGS+='-isystem /usr/include/qt4 -Wall -Wextra -Wno-missing-braces'; fi
