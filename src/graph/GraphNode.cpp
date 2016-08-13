@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPainter>
 #include <QPainterPath>
 #include <QAbstractTextDocumentLayout>
+#include <cmath>
 
 namespace {
 
@@ -101,7 +102,7 @@ GraphNode::~GraphNode() {
 //------------------------------------------------------------------------------
 QRectF GraphNode::boundingRect() const {
 	const int weight = 2;
-	const int width = ::log2(weight) * BorderScaleFactor;
+	const int width = std::log2(weight) * BorderScaleFactor;
 	return picture_.boundingRect().adjusted(-width, -width, +width, +width);
 }
 

@@ -33,6 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWheelEvent>
 #include <graphviz/gvc.h>
 #include <graphviz/cgraph.h>
+#include <cmath>
 
 namespace {
 
