@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class EDB_EXPORT Status {
 public:
-	Status() : errorMessage_(QLatin1String("Unknown Error")) {
+	Status() {
 	}
 	
 	explicit Status(const QString &message) : errorMessage_(message) {
