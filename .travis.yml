@@ -68,3 +68,4 @@ addons:
             - libboost-dev
             - gcc-4.8
             - g++-4.8
+            - cmake
