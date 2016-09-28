@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SOURCE_DIR=$PWD
+SOURCE_DIR=$PWD/../../
 TEMP_DIR=$(mktemp -d)
 BUILD_DIR=$TEMP_DIR/build
 DEB_DIR=$BUILD_DIR/deb
