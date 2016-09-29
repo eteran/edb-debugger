@@ -29,6 +29,7 @@ before_install:
     - if [ "$QT_BASE" = "55" ]; then sudo add-apt-repository ppa:beineri/opt-qt551 -y; fi
     - if [ "$QT_BASE" = "56" ]; then sudo add-apt-repository ppa:beineri/opt-qt561 -y; fi
     - sudo apt-get update -qq
+    - ./travis_install_capstone.sh
 
 install:
     - if [ "$QT_BASE" = "48" ]; then sudo apt-get install -qq qt4-qmake libqt4-gui libqt4-core libqt4-dev; fi
@@ -59,11 +60,9 @@ addons:
         sources:
             - ubuntu-toolchain-r-test
             - kalakris-cmake
-            - cybersec-pantobuntu-tools-v2
         packages:
             - build-essential
             - libboost-dev
             - gcc-4.8
             - g++-4.8
             - cmake
-            - libcapstone-dev
