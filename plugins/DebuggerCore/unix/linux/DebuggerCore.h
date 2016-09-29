@@ -115,6 +115,8 @@ private:
 	const edb::seg_reg_t     USER_CS_64;
 	const edb::seg_reg_t     USER_SS;
 	MeansOfCapture	         lastMeansOfCapture = MeansOfCapture::NeverCaptured;
+	bool                     proc_mem_write_broken_;
+	bool                     proc_mem_read_broken_;
 };
 
 }

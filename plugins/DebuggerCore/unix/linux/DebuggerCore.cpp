@@ -31,6 +31,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "State.h"
 #include "string_hash.h"
 
+// auto-generated
+#include "procPidMemWrites.h"
+
 #include <QDebug>
 #include <QDir>
 
@@ -146,6 +149,9 @@ DebuggerCore::DebuggerCore() :
 {
 	qDebug() << "EDB is in" << (edbIsIn64BitSegment?"64":"32") << "bit segment";
 	qDebug() << "OS is" << (osIs64Bit?"64":"32") << "bit";
+	
+	proc_mem_write_broken_ = PROC_PID_MEM_WRITE_BROKEN;
+	proc_mem_read_broken_  = PROC_PID_MEM_READ_BROKEN;
 }
 
 //------------------------------------------------------------------------------

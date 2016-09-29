@@ -40,9 +40,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <pwd.h>
 #include <elf.h>
 
-// auto-generated
-#include "procPidMemWrites.h"
-
 namespace DebuggerCore {
 namespace {
 
@@ -261,7 +258,7 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 
 
 		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-		if(!PROC_PID_MEM_READ_BROKEN && memory_file.open(QIODevice::ReadOnly)) {
+		if(!core_->proc_mem_read_broken_ && memory_file.open(QIODevice::ReadOnly)) {
 
 			seek_addr(memory_file, address);
 			read = memory_file.read(ptr, len);
@@ -320,7 +317,7 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 	
 		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
 		// NOTE: If buffered, it may not report any write errors, behaving as if it succeeded
-		if(!PROC_PID_MEM_WRITE_BROKEN && memory_file.open(QIODevice::WriteOnly|QIODevice::Unbuffered)) {
+		if(!core_->proc_mem_write_broken_ && memory_file.open(QIODevice::WriteOnly|QIODevice::Unbuffered)) {
 
 			seek_addr(memory_file,address);
 			written = memory_file.write(reinterpret_cast<const char *>(buf), len);
