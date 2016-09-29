@@ -166,6 +166,7 @@ std::string printRegs(Capstone::csh csh,const uint16_t* regsBuffer, std::size_t 
 	return string;
 }
 
+#if CS_API_MAJOR>=4
 std::string printXOP_CC(Capstone::x86_xop_cc cc)
 {
 	using namespace Capstone;
@@ -185,6 +186,7 @@ std::string printXOP_CC(Capstone::x86_xop_cc cc)
 	if(found==codes.end()) return toHex(cc);
 	return found->second;
 }
+#endif
 
 std::string printSSE_CC(Capstone::x86_sse_cc cc)
 {
@@ -266,6 +268,7 @@ std::string printAVX_RM(Capstone::x86_avx_rm cc)
 	return found->second;
 }
 
+#if CS_API_MAJOR>=4
 std::vector<std::string> getChangedEFLAGSNames(std::uint64_t efl)
 {
 	std::vector<std::string> flags;
@@ -321,6 +324,7 @@ std::vector<std::string> getChangedEFLAGSNames(std::uint64_t efl)
 	if(efl) flags.emplace_back(toHex(efl));
 	return flags;
 }
+#endif
 
 std::string printOpType(Capstone::x86_op_type const& op)
 {
@@ -353,6 +357,7 @@ std::string printAVX_Bcast(Capstone::x86_avx_bcast bc)
 	return found->second;
 }
 
+#if CS_API_MAJOR>=4
 std::string printAccessMode(unsigned mode)
 {
 	std::ostringstream str;
@@ -369,6 +374,7 @@ std::string printAccessMode(unsigned mode)
 	if(string.empty()) return "none";
 	return string;
 }
+#endif
 
 InstructionDialog::InstructionDialog(QWidget* parent)
 	: QDialog(parent)
@@ -444,8 +450,10 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 			add({"index",printReg(disasm->handle(),insn->detail->x86.sib_index,true).c_str()},sib);
 			add({"scale",std::to_string(+insn->detail->x86.sib_scale).c_str()},sib);
 			add({"base",printReg(disasm->handle(),insn->detail->x86.sib_base,true).c_str()},sib);
+#if CS_API_MAJOR>=4
 			if(insn->detail->x86.xop_cc)
 				add({"XOP condition",printXOP_CC(insn->detail->x86.xop_cc).c_str()});
+#endif
 			if(insn->detail->x86.sse_cc)
 				add({"SSE condition",printSSE_CC(insn->detail->x86.sse_cc).c_str()});
 			if(insn->detail->x86.avx_cc)
@@ -453,11 +461,13 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 			add({"SAE",insn->detail->x86.avx_sae?"yes":"no"});
 			if(insn->detail->x86.avx_rm)
 			add({"AVX rounding",printAVX_RM(insn->detail->x86.avx_rm).c_str()});
+#if CS_API_MAJOR>=4
 			const auto changedEflagsNames=getChangedEFLAGSNames(insn->detail->x86.eflags);
 			add({"EFLAGS"});
 			auto*const eflags=tree->topLevelItem(tree->topLevelItemCount()-1);
 			for(auto efl : changedEflagsNames)
 				add({efl.c_str()},eflags);
+#endif
 			add({"Operands"});
 			auto*const operands=tree->topLevelItem(tree->topLevelItemCount()-1);
 			for(int op=0;op<insn->detail->x86.op_count;++op)
@@ -475,16 +485,18 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 					add({"Immediate",toHex(operand.imm).c_str()},curOpItem);
 					break;
 				case Capstone::X86_OP_MEM:
-					add({"Segment",printReg(disasm->handle(),operand.mem.segment,true).c_str()},curOpItem);
-					add({"Base",printReg(disasm->handle(),operand.mem.base,true).c_str()},curOpItem);
-					add({"Index",printReg(disasm->handle(),operand.mem.index,true).c_str()},curOpItem);
+					add({"Segment",printReg(disasm->handle(),static_cast<Capstone::x86_reg>(operand.mem.segment),true).c_str()},curOpItem);
+					add({"Base",printReg(disasm->handle(),static_cast<Capstone::x86_reg>(operand.mem.base),true).c_str()},curOpItem);
+					add({"Index",printReg(disasm->handle(),static_cast<Capstone::x86_reg>(operand.mem.index),true).c_str()},curOpItem);
 					add({"Scale",std::to_string(operand.mem.scale).c_str()},curOpItem);
 					add({"Displacement",toHex(operand.mem.disp,true).c_str()},curOpItem);
 					break;
 				default: break;
 				}
 				add({"Size",(std::to_string(operand.size*8)+" bit").c_str()},curOpItem);
+#if CS_API_MAJOR>=4
 				add({"Access",printAccessMode(operand.access).c_str()},curOpItem);
+#endif
 				if(operand.avx_bcast)
 					add({"AVX Broadcast",printAVX_Bcast(operand.avx_bcast).c_str()},curOpItem);
 				add({"AVX opmask",(operand.avx_zero_opmask ? "zeroing" : "merging")},curOpItem);
