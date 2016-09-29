@@ -20,19 +20,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // TODO(eteran): research usage of process_vm_readv, process_vm_writev
 
 #include "DebuggerCore.h"
-#include "edb.h"
 #include "Configuration.h"
+#include "FeatureDetect.h"
 #include "MemoryRegions.h"
+#include "PlatformCommon.h"
 #include "PlatformEvent.h"
+#include "PlatformProcess.h"
 #include "PlatformRegion.h"
 #include "PlatformState.h"
-#include "PlatformProcess.h"
-#include "PlatformCommon.h"
 #include "State.h"
+#include "edb.h"
 #include "string_hash.h"
-
-// auto-generated
-#include "procPidMemWrites.h"
 
 #include <QDebug>
 #include <QDir>
@@ -130,14 +128,7 @@ bool os64Bit(bool edbIsIn64BitSegment) {
 	return osIs64Bit;
 }
 
-//------------------------------------------------------------------------------
-// Name: detect_proc_access
-// Desc: detects whether or not reads/writes through /proc/<pid>/mem work
-//       correctly
-//------------------------------------------------------------------------------
-void detect_proc_access(bool *read_broken, bool *write_broken) {
 
-}
 
 
 }
@@ -159,9 +150,12 @@ DebuggerCore::DebuggerCore() :
 	qDebug() << "EDB is in" << (edbIsIn64BitSegment?"64":"32") << "bit segment";
 	qDebug() << "OS is" << (osIs64Bit?"64":"32") << "bit";
 	
-	proc_mem_write_broken_ = PROC_PID_MEM_WRITE_BROKEN;
-	proc_mem_read_broken_  = PROC_PID_MEM_READ_BROKEN;
-	detect_proc_access(&proc_mem_read_broken_, &proc_mem_write_broken_);
+	proc_mem_write_broken_ = false;
+	proc_mem_read_broken_  = false;
+	
+	feature::detect_proc_access(&proc_mem_read_broken_, &proc_mem_write_broken_);
+	qDebug() << "Detect that read /proc/<pid>/mem works  = " << !proc_mem_read_broken_;
+	qDebug() << "Detect that write /proc/<pid>/mem works = " << !proc_mem_write_broken_;
 }
 
 //------------------------------------------------------------------------------

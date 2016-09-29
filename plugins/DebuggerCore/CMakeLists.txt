@@ -41,37 +41,8 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		"unix/linux"
 	)
 
-
-	if (NOT ASSUME_PROC_PID_MEM_WRITE_BROKEN)
-		SET(ASSUME_PROC_PID_MEM_WRITE_BROKEN "Detect" CACHE STRING "How to detect whether or not writes through /proc/<pid>/mem work")
-		SET_PROPERTY(CACHE ASSUME_PROC_PID_MEM_WRITE_BROKEN PROPERTY STRINGS Detect Yes No)
-	endif()
-	
-	
-	if(${ASSUME_PROC_PID_MEM_WRITE_BROKEN} STREQUAL "Yes")	
-		set(PROC_TEST_FLAG "--assume-bad")
-	endif()
-	
-	if(${ASSUME_PROC_PID_MEM_WRITE_BROKEN} STREQUAL "No")		
-		set(PROC_TEST_FLAG "--assume-good")	
-	endif()	
-	
-	if(${ASSUME_PROC_PID_MEM_WRITE_BROKEN} STREQUAL "Detect")
-		set(PROC_TEST_FLAG "")	
-	endif()
-
-	# Tool for detecting broken proc/<self>/mem writes
-	add_executable(proc-pid-mem-write unix/linux/detect/proc-pid-mem-write.cpp)
-
-	add_custom_command(
-		OUTPUT ${PROJECT_BINARY_DIR}/procPidMemWrites.h
-		COMMAND ${PROJECT_BINARY_DIR}/proc-pid-mem-write ${CMAKE_CURRENT_BINARY_DIR}/procPidMemWrites.h ${PROC_TEST_FLAG}
-		DEPENDS proc-pid-mem-write
-	)
-
 	set(DebuggerCore_SRCS
 		${DebuggerCore_SRCS}
-		${PROJECT_BINARY_DIR}/procPidMemWrites.h
 		unix/linux/DebuggerCore.cpp
 		unix/linux/DebuggerCore.h
 		unix/linux/PlatformCommon.cpp
@@ -86,6 +57,8 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		unix/linux/PlatformState.h
 		unix/linux/PlatformThread.cpp
 		unix/linux/PlatformThread.h	
+		unix/linux/FeatureDetect.cpp
+		unix/linux/FeatureDetect.h
 	)
 endif()
 
