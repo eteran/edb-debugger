@@ -61,9 +61,6 @@ Basic installation is simple, you may run
 	$ make install
 
 In which case the plugins will be installed in `/usr/local/lib/edb` and the binaries
-will be installed in `/usr/local/bin/` or, if you've specified `PREFIX`, then it'll be
-used instead of `/usr/local/`. Finally, as described above, if you are doing a 
-`make install`, you probably want to specify a default plugin path, this is done during 
-the qmake process.
+will be installed in `/usr/local/bin/`.
 
 ![Analytics](https://www.google-analytics.com/collect?v=1&tid=UA-2958870-1&ds=web&t=pageview&dl=https%3A%2F%2Fgithub.com%2Feteran%2Fedb-debugger&dh=github.com&dp=%2Feteran%2Fedb-debugger&cid=555)
