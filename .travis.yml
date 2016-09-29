@@ -59,7 +59,7 @@ addons:
         sources:
             - ubuntu-toolchain-r-test
             - kalakris-cmake
-			- cybersec-pantobuntu-tools-v2
+            - cybersec-pantobuntu-tools-v2
         packages:
             - build-essential
             - libboost-dev
