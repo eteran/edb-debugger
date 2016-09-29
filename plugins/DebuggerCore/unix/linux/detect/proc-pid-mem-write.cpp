@@ -75,10 +75,10 @@ bool headerUpToDate(std::string const &line) {
 	return fileStr == line;
 }
 
-void writeHeader(bool broken, Method method) {
+void writeHeader(bool read_broken, bool write_broken, Method method) {
 	std::ostringstream line;
 	
-	line << "#define PROC_PID_MEM_WRITE_BROKEN " << std::boolalpha << broken;
+	line << "#define PROC_PID_MEM_WRITE_BROKEN " << std::boolalpha << write_broken;
 	
 	switch(method) {
 	case Detected:
@@ -95,7 +95,23 @@ void writeHeader(bool broken, Method method) {
 	line << "\n";
 	
 	
+	line << "#define PROC_PID_MEM_READ_BROKEN " << std::boolalpha << read_broken;
 	
+	switch(method) {
+	case Detected:
+		line << " /* Method = Detected */";
+		break;
+	case UserSet:
+		line << " /* Method = User Set */";
+		break;
+	case TestFailed:
+		line << " /* Method = Failed To Test */";
+		break;
+	}
+	
+	line << "\n";
+
+
 	if (headerUpToDate(line.str())) {
 		return;
 	}
@@ -160,7 +176,7 @@ bool detectAndWriteHeader(std::string progName) {
 		{
 			file.read(&buf, sizeof(buf));
 			if (!file) {
-				perror((progName + ": failed to read data from child's memory, won't even try to write").c_str());
+				writeHeader(true, true, Detected);
 				killChild(pid, progName);
 				return false;
 			}
@@ -176,9 +192,9 @@ bool detectAndWriteHeader(std::string progName) {
 		{
 			file.write(&buf, sizeof(buf));
 			if (!file) {
-				writeHeader(true, Detected);
+				writeHeader(false, true, Detected);
 			} else {
-				writeHeader(false, Detected);
+				writeHeader(false, false, Detected);
 			}
 		}
 		killChild(pid, progName);
@@ -197,11 +213,11 @@ int main(int argc, char **argv) {
 			abort();
 		} else if(strcmp(argv[2], "--assume-bad") == 0) {
 			headerName = argv[1];
-			writeHeader(true, UserSet);
+			writeHeader(false, true, UserSet);
 			return 0;
 		} else if(strcmp(argv[2], "--assume-good") == 0) {
 			headerName = argv[1];
-			writeHeader(false, UserSet);
+			writeHeader(false, false, UserSet);
 			return 0;
 		}
 	}
@@ -218,6 +234,6 @@ int main(int argc, char **argv) {
 
 	if (!detectAndWriteHeader(argv[0])) {
 		std::cerr << "Warning: failed to detect whether write to /proc/PID/mem is broken. Assuming it's not.\n";
-		writeHeader(false, TestFailed);
+		writeHeader(false, false, TestFailed);
 	}
 }
