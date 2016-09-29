@@ -10,7 +10,6 @@ env:
         - MAKEFLAGS="-j2"
     matrix:
         - QT_BASE=48
-        - QT_BASE=50
         - QT_BASE=51
         - QT_BASE=52
         - QT_BASE=53
@@ -43,8 +42,8 @@ install:
     - if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base qt56xmlpatterns; source /opt/qt56/bin/qt56-env.sh; fi
 
 before_script:
-    - if [ "$QT_BASE" == "48" ]; then mkdir build && cd build && cmake ..; fi
-    - if [ "$QT_BASE" != "48" ]; then mkdir build && cd build && cmake ..; fi
+    - if [ "$QT_BASE" == "48" ]; then mkdir build && cd build && cmake -DQT_VERSION=Qt4 ..; fi
+    - if [ "$QT_BASE" != "48" ]; then mkdir build && cd build && cmake -DQT_VERSION=Qt5 ..; fi
 
 script:
     - make
