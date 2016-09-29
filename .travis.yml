@@ -45,8 +45,8 @@ install:
 before_script:
     - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" == "48" ]; then qmake -spec unsupported/linux-clang CONFIG+=warn_off QMAKE_CXXFLAGS+='-isystem /usr/include/qt4 -Wall -Wextra -Wno-missing-braces'; fi
     - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" != "48" ]; then qmake -spec linux-clang; fi
-    - if [ "$CXX" != "clang++" ] && [ "$QT_BASE" == "48" ]; then qmake'; fi
-    - if [ "$CXX" != "clang++" ] && [ "$QT_BASE" != "48" ]; then mkdir build && cd build && cmake ..'; fi
+    - if [ "$CXX" != "clang++" ] && [ "$QT_BASE" == "48" ]; then qmake; fi
+    - if [ "$CXX" != "clang++" ] && [ "$QT_BASE" != "48" ]; then mkdir build && cd build && cmake ..; fi
 
 script:
     - if [ "$CXX" = "clang++" ] && [ "$QT_BASE" == "48" ]; then make; fi
