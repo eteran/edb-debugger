@@ -103,18 +103,18 @@ private:
 	typedef QHash<edb::tid_t, PlatformThread::pointer> threadmap_t;
 
 private:
-	threadmap_t      threads_;
-	QSet<edb::tid_t> waited_threads_;
-	edb::tid_t       active_thread_;
+	threadmap_t              threads_;
+	QSet<edb::tid_t>         waited_threads_;
+	edb::tid_t               active_thread_;
 	std::unique_ptr<IBinary> binary_info_;
-	IProcess         *process_;
-	std::size_t      pointer_size_;
-	const bool       edbIsIn64BitSegment;
-	const bool       osIs64Bit;
-	const edb::seg_reg_t USER_CS_32;
-	const edb::seg_reg_t USER_CS_64;
-	const edb::seg_reg_t USER_SS;
-	MeansOfCapture	 lastMeansOfCapture=MeansOfCapture::NeverCaptured;
+	IProcess                *process_;
+	std::size_t              pointer_size_;
+	const bool               edbIsIn64BitSegment;
+	const bool               osIs64Bit;
+	const edb::seg_reg_t     USER_CS_32;
+	const edb::seg_reg_t     USER_CS_64;
+	const edb::seg_reg_t     USER_SS;
+	MeansOfCapture	         lastMeansOfCapture = MeansOfCapture::NeverCaptured;
 };
 
 }
