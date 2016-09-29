@@ -120,22 +120,26 @@ void writeHeader(bool read_broken, bool write_broken, Method method) {
 	file << line.str();
 }
 
-void killChild(int pid, std::string const &progName) {
+void killChild(int pid) {
 	if (kill(pid, SIGKILL) == -1) {
-		perror((progName + ": warning: failed to kill child").c_str());
+		perror("failed to kill child");
 	}
 }
 
-bool detectAndWriteHeader(std::string progName) {
+bool detectAndWriteHeader() {
 	switch (pid_t pid = fork()) {
 	case 0:
-		if (ptrace(PTRACE_TRACEME) < 0) {
-			perror((progName + ": child: PTRACE_TRACEME failed").c_str());
+		if (ptrace(PTRACE_TRACEME, 0, 0, 0) < 0) {
+			perror("child: PTRACE_TRACEME failed");
 			abort();
 		}
 
-		execl(progName.c_str(), progName.c_str(), "/dev/null", "--child", nullptr);
-		perror((progName + "child: execl() returned").c_str());
+		// force a signal		
+		raise(SIGCONT);
+
+		for (;;) {
+			sleep(10);
+		}
 		abort();
 
 	case -1:
@@ -145,30 +149,30 @@ bool detectAndWriteHeader(std::string progName) {
 	default: {
 		int status;
 		if (waitpid(pid, &status, __WALL) == -1) {
-			perror((progName + ": parent: waitpid failed").c_str());
-			killChild(pid, progName);
+			perror("parent: waitpid failed");
+			killChild(pid);
 			return false;
 		}
-
-		if (!WIFSTOPPED(status) || WSTOPSIG(status) != SIGTRAP) {
-			std::cerr << progName << ": unexpected status returned by waitpid: 0x" << std::hex << status << "\n";
-			killChild(pid, progName);
+		
+		if (!WIFSTOPPED(status) || WSTOPSIG(status) != SIGCONT) {
+			std::cerr << "unexpected status returned by waitpid: 0x" << std::hex << status << "\n";
+			killChild(pid);
 			return false;
 		}
 
 		File file("/proc/" + std::to_string(pid) + "/mem");
 		if (!file) {
-			perror((progName + ": failed to open memory file").c_str());
-			killChild(pid, progName);
+			perror("failed to open memory file");
+			killChild(pid);
 			return false;
 		}
 
 		const auto pageAlignMask = ~(sysconf(_SC_PAGESIZE) - 1);
-		const auto addr = reinterpret_cast<std::size_t>(&detectAndWriteHeader) & pageAlignMask;
+		const auto addr = reinterpret_cast<uintptr_t>(&detectAndWriteHeader) & pageAlignMask;
 		file.seekp(addr);
 		if (!file) {
-			perror((progName + ": failed to seek to address to read").c_str());
-			killChild(pid, progName);
+			perror("failed to seek to address to read");
+			killChild(pid);
 			return false;
 		}
 
@@ -177,15 +181,15 @@ bool detectAndWriteHeader(std::string progName) {
 			file.read(&buf, sizeof(buf));
 			if (!file) {
 				writeHeader(true, true, Detected);
-				killChild(pid, progName);
+				killChild(pid);
 				return false;
 			}
 		}
 
 		file.seekp(addr);
 		if (!file) {
-			perror((progName + ": failed to seek to address to write").c_str());
-			killChild(pid, progName);
+			perror("failed to seek to address to write");
+			killChild(pid);
 			return false;
 		}
 
@@ -197,7 +201,7 @@ bool detectAndWriteHeader(std::string progName) {
 				writeHeader(false, false, Detected);
 			}
 		}
-		killChild(pid, progName);
+		killChild(pid);
 		return true;
 	}
 	}
@@ -206,12 +210,7 @@ bool detectAndWriteHeader(std::string progName) {
 int main(int argc, char **argv) {
 	
 	if (argc == 3) {		
-		if(strcmp(argv[2], "--child") == 0) {		
-			for (;;) {
-				sleep(10);
-			}
-			abort();
-		} else if(strcmp(argv[2], "--assume-bad") == 0) {
+		if(strcmp(argv[2], "--assume-bad") == 0) {
 			headerName = argv[1];
 			writeHeader(false, true, UserSet);
 			return 0;
@@ -232,7 +231,7 @@ int main(int argc, char **argv) {
 	
 	
 
-	if (!detectAndWriteHeader(argv[0])) {
+	if (!detectAndWriteHeader()) {
 		std::cerr << "Warning: failed to detect whether write to /proc/PID/mem is broken. Assuming it's not.\n";
 		writeHeader(false, false, TestFailed);
 	}

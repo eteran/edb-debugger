@@ -130,6 +130,15 @@ bool os64Bit(bool edbIsIn64BitSegment) {
 	return osIs64Bit;
 }
 
+//------------------------------------------------------------------------------
+// Name: detect_proc_access
+// Desc: detects whether or not reads/writes through /proc/<pid>/mem work
+//       correctly
+//------------------------------------------------------------------------------
+void detect_proc_access(bool *read_broken, bool *write_broken) {
+
+}
+
 
 }
 
@@ -152,6 +161,7 @@ DebuggerCore::DebuggerCore() :
 	
 	proc_mem_write_broken_ = PROC_PID_MEM_WRITE_BROKEN;
 	proc_mem_read_broken_  = PROC_PID_MEM_READ_BROKEN;
+	detect_proc_access(&proc_mem_read_broken_, &proc_mem_write_broken_);
 }
 
 //------------------------------------------------------------------------------
