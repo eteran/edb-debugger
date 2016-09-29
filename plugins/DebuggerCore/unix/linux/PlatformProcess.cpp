@@ -237,6 +237,8 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 	Q_ASSERT(buf);
 	Q_ASSERT(core_->process_ == this);
 	
+	auto ptr = reinterpret_cast<char *>(buf);
+	
 	if(len != 0) {
 
 		// small reads take the fast path
@@ -244,14 +246,14 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 
 			auto it = core_->breakpoints_.find(address);
 			if(it != core_->breakpoints_.end()) {
-				*reinterpret_cast<char *>(buf) = (*it)->original_byte();
+				*ptr = (*it)->original_byte();
 				return 1;
 			}
 
 			bool ok;
 			quint8 x = read_byte(address, &ok);
 			if(ok) {
-				*reinterpret_cast<char *>(buf) = x;
+				*ptr = x;
 				return 1;
 			}
 			return 0;
@@ -259,21 +261,38 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 
 
 		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-		if(memory_file.open(QIODevice::ReadOnly)) {
+		if(!PROC_PID_MEM_READ_BROKEN && memory_file.open(QIODevice::ReadOnly)) {
 
-			seek_addr(memory_file,address);
-			read = memory_file.read(reinterpret_cast<char *>(buf), len);
-			if(read == 0 || read == quint64(-1))
+			seek_addr(memory_file, address);
+			read = memory_file.read(ptr, len);
+			if(read == 0 || read == quint64(-1)) {
 				return 0;
-
-			for(const IBreakpoint::pointer &bp: core_->breakpoints_) {
-				if(bp->address() >= address && bp->address() < (address + read)) {
-					// show the original bytes in the buffer..
-					reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_byte();
-				}
 			}
 
 			memory_file.close();
+		} else {
+			for(std::size_t index = 0; index < len; ++index) {
+			
+				// read a byte, if we failed, we are done
+				bool ok;
+				const quint8 x = read_byte(address + index, &ok);
+				if(!ok) {
+					break;
+				}
+
+				// store it
+				reinterpret_cast<char*>(buf)[index] = x;
+				
+				++read;
+			}
+		}
+
+		// replace any breakpoints		
+		for(const IBreakpoint::pointer &bp: core_->breakpoints_) {
+			if(bp->address() >= address && bp->address() < (address + read)) {
+				// show the original bytes in the buffer..
+				ptr[bp->address() - address] = bp->original_byte();
+			}
 		}
 	}
 
