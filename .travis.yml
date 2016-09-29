@@ -63,8 +63,8 @@ os:
 addons:
     apt:
         sources:
-            ubuntu-toolchain-r-test
-            kalakris-cmake
+            - ubuntu-toolchain-r-test
+            - kalakris-cmake
         packages:
             - build-essential
             - libboost-dev
