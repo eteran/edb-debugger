@@ -9,12 +9,23 @@ include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX11.cmake")
 set(PluginName "DebuggerCore")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+
+set(UI_FILES
+	unix/linux/DialogMemoryAccess.ui
+)
+
+endif()
+
 if(Qt5Core_FOUND)
     find_package(Qt5 5.0.0 REQUIRED Widgets)
+	qt5_wrap_ui(UI_H ${UI_FILES})
 else(Qt5Core_FOUND)
 	find_package(Qt4 4.6.0 QUIET REQUIRED QtCore QtGui)
 	include(${QT_USE_FILE})
+	qt4_wrap_ui(UI_H ${UI_FILES})
 endif()
+
 
 set(DebuggerCore_SRCS
 	Breakpoint.cpp
@@ -59,6 +70,8 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		unix/linux/PlatformThread.h	
 		unix/linux/FeatureDetect.cpp
 		unix/linux/FeatureDetect.h
+		unix/linux/DialogMemoryAccess.cpp
+		unix/linux/DialogMemoryAccess.h
 	)
 endif()
 

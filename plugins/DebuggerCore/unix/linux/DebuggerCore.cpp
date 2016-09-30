@@ -28,12 +28,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformProcess.h"
 #include "PlatformRegion.h"
 #include "PlatformState.h"
+#include "DialogMemoryAccess.h"
 #include "State.h"
 #include "edb.h"
 #include "string_hash.h"
 
 #include <QDebug>
 #include <QDir>
+#include <QSettings>
 
 #include <cerrno>
 #include <cstring>
@@ -156,6 +158,21 @@ DebuggerCore::DebuggerCore() :
 	feature::detect_proc_access(&proc_mem_read_broken_, &proc_mem_write_broken_);
 	qDebug() << "Detect that read /proc/<pid>/mem works  = " << !proc_mem_read_broken_;
 	qDebug() << "Detect that write /proc/<pid>/mem works = " << !proc_mem_write_broken_;
+	
+	if(proc_mem_read_broken_ || proc_mem_write_broken_) {
+	
+		QSettings settings;
+		const bool warn = settings.value("DebuggerCore/warn_on_broken_proc_mem.enabled", true).toBool();
+		if(warn) {	
+			auto *dialog = new DialogMemoryAccess(0);
+			dialog->exec();
+			
+			settings.setValue("DebuggerCore/warn_on_broken_proc_mem.enabled", dialog->warnNextTime());
+			
+			delete dialog;
+		}
+	}
+	
 }
 
 //------------------------------------------------------------------------------

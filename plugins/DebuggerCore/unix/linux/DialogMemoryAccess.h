@@ -16,15 +16,29 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef FEATURE_DETECT_H_
-#define FEATURE_DETECT_H_
+#ifndef DIALOG_MEMORY_ACCESS_20160930_H_
+#define DIALOG_MEMORY_ACCESS_20160930_H_
+
+#include <QDialog>
 
 namespace DebuggerCore {
-namespace feature {
 
-bool detect_proc_access(bool *read_broken, bool *write_broken);
+namespace Ui { class DialogMemoryAccess; }
 
-}
+class DialogMemoryAccess : public QDialog {
+	Q_OBJECT
+
+public:
+	DialogMemoryAccess(QWidget *parent = 0);
+	virtual ~DialogMemoryAccess();
+	
+public:
+	bool warnNextTime() const;
+	
+private:
+	 Ui::DialogMemoryAccess *const ui;
+};
+
 }
 
 #endif

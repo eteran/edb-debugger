@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <fcntl.h>
 #include <unistd.h>
 
+namespace DebuggerCore {
 namespace feature {
 namespace {
 
@@ -169,4 +170,5 @@ bool detect_proc_access(bool *read_broken, bool *write_broken) {
 
 }
 
+}
 }
