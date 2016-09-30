@@ -86,6 +86,9 @@ namespace {
 }
 
 namespace edb {
+
+const char version[] = "0.9.22";
+
 namespace internal {
 
 //------------------------------------------------------------------------------

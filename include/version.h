@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define VERSION_20061109_H_
 
 namespace edb {
-	static const char version[] = "0.9.22";
+extern const char version[];
 }
 
 #endif
