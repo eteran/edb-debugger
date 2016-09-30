@@ -72,10 +72,11 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		unix/linux/FeatureDetect.h
 		unix/linux/DialogMemoryAccess.cpp
 		unix/linux/DialogMemoryAccess.h
+		${UI_H}
 	)
 endif()
 
-add_library(${PluginName} SHARED ${DebuggerCore_SRCS})
+add_library(${PluginName} SHARED ${DebuggerCore_SRCS} )
 
 if(Qt5Core_FOUND)
 	target_link_libraries(${PluginName} Qt5::Widgets)
