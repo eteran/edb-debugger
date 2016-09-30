@@ -1,5 +1,6 @@
 
 #include "FeatureDetect.h"
+#include "version.h"
 
 #include <iostream>
 #include <iomanip>
@@ -108,7 +109,7 @@ bool detect_proc_access(bool *read_broken, bool *write_broken) {
 		}
 
 		const auto pageAlignMask = ~(sysconf(_SC_PAGESIZE) - 1);
-		const auto addr = reinterpret_cast<uintptr_t>(&detect_proc_access) & pageAlignMask;
+		const auto addr = reinterpret_cast<uintptr_t>(&edb::version) & pageAlignMask;
 		file.seekp(addr);
 		if (!file) {
 			perror("failed to seek to address to read");
