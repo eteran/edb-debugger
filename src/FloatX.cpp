@@ -261,9 +261,13 @@ QString formatFloat(Float value)
 	case FloatValueClass::PseudoDenormal:
 		{
 			assert(sizeof value==10);
-			// Convert to supported value as the CPU would. Otherwise glibc takes it wrong.
-			const uint16_t exponent=value.negative()?0x8001:0x0001;
-			std::memcpy(reinterpret_cast<char*>(&value)+8,&exponent,sizeof exponent);
+			
+			// keeps compiler happy?
+			if(sizeof(value) == 10) {
+				// Convert to supported value as the CPU would. Otherwise glibc takes it wrong.
+				const uint16_t exponent=value.negative()?0x8001:0x0001;
+				std::memcpy(reinterpret_cast<char*>(&value)+8,&exponent,sizeof exponent);
+			}
 		}
 		// fall through
 	case FloatValueClass::Normal:
