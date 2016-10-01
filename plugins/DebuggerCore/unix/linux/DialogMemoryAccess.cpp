@@ -23,6 +23,7 @@ namespace DebuggerCore {
 
 DialogMemoryAccess::DialogMemoryAccess(QWidget *parent) : QDialog(parent), ui(new Ui::DialogMemoryAccess) {
 	ui->setupUi(this);
+	adjustSize();
 	setFixedSize(width(), height());
 }
 
