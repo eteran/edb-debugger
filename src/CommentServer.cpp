@@ -105,9 +105,9 @@ Result<QString> CommentServer::resolve_string(QHexView::address_t address) const
 	int stringLen;
 	QString temp;
 	
-	if(bool ok = edb::v1::get_ascii_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
+	if(edb::v1::get_ascii_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
 		return edb::v1::make_result(tr("ASCII \"%1\"").arg(temp));
-	} else if(bool ok = edb::v1::get_utf16_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
+	} else if(edb::v1::get_utf16_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
 		return edb::v1::make_result(tr("UTF16 \"%1\"").arg(temp));
 	}
 

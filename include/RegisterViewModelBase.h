@@ -475,10 +475,10 @@ public:
 	CategoryType* insert(QString const& name);
 	SIMDCategory* insertSIMD(QString const& name,
 				 			 std::vector<NumberDisplayMode> const& validFormats);
-	int childCount() const override;
-	RegisterViewItem* child(int row) override;
-	QVariant data(int column) const;
-	QByteArray rawValue() const override;
+	virtual int childCount() const override;
+	virtual RegisterViewItem* child(int row) override;
+	virtual QVariant data(int column) const override;
+	virtual QByteArray rawValue() const override;
 
 	friend class Model;
 };

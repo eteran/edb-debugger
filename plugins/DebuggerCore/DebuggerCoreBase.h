@@ -26,11 +26,11 @@ namespace DebuggerCore {
 class DebuggerCoreBase : public QObject, public IDebugger {
 public:
 	DebuggerCoreBase();
-	virtual ~DebuggerCoreBase();
+	virtual ~DebuggerCoreBase() override;
 
 public:
 	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args) override;
-	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
+	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override = 0;
 	enum class MeansOfCapture
 	{
 		NeverCaptured,
@@ -40,11 +40,11 @@ public:
 	virtual MeansOfCapture last_means_of_capture() = 0;
 
 public:
-	virtual BreakpointList backup_breakpoints() const;
-	virtual IBreakpoint::pointer add_breakpoint(edb::address_t address);
-	virtual IBreakpoint::pointer find_breakpoint(edb::address_t address);
-	virtual void clear_breakpoints();
-	virtual void remove_breakpoint(edb::address_t address);
+	virtual BreakpointList backup_breakpoints() const override;
+	virtual IBreakpoint::pointer add_breakpoint(edb::address_t address) override;
+	virtual IBreakpoint::pointer find_breakpoint(edb::address_t address) override;
+	virtual void clear_breakpoints() override;
+	virtual void remove_breakpoint(edb::address_t address) override;
 	virtual void end_debug_session() override;
 
 public:

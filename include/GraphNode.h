@@ -43,7 +43,7 @@ public:
 public:
     enum { Type = UserType + 2 };
 
-    int type() const {
+    virtual int type() const override{
         // Enable the use of qgraphicsitem_cast with this item.
         return Type;
     }

@@ -1138,7 +1138,6 @@ edb::address_t QDisassemblyView::address_from_coord(int x, int y) const {
 
 	// add up all the instructions sizes up to the line we want
 	for(int i = 0; i < line; ++i) {
-		bool ok;
 
 		Result<int> size = get_instruction_size(address_offset_ + address);
 		if(size) {
@@ -1322,7 +1321,6 @@ edb::address_t QDisassemblyView::selectedAddress() const {
 void QDisassemblyView::setSelectedAddress(edb::address_t address) {
 
 	if(region_) {
-		bool ok;
 		const Result<int> size = get_instruction_size(address);
 
 		if(size) {

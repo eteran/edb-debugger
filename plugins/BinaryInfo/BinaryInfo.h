@@ -40,16 +40,16 @@ public:
 	BinaryInfo();
 
 private:
-	virtual void private_init();
+	virtual void private_init() override;
 	virtual QWidget* options_page() override;
 
 public:
-	virtual QMenu *menu(QWidget *parent = 0);
-	virtual QString extra_arguments() const;
-	virtual ArgumentStatus parse_arguments(QStringList &args);
+	virtual QMenu *menu(QWidget *parent = 0) override;
+	virtual QString extra_arguments() const override;
+	virtual ArgumentStatus parse_arguments(QStringList &args) override;
 	
 public:
-	virtual bool generate_symbol_file(const QString &filename, const QString &symbol_file);
+	virtual bool generate_symbol_file(const QString &filename, const QString &symbol_file) override;
 
 public Q_SLOTS:
 	void explore_header();

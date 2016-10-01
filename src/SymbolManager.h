@@ -30,18 +30,18 @@ public:
 	SymbolManager();
 
 public:
-	virtual const QList<Symbol::pointer> symbols() const;
-	virtual const Symbol::pointer find(const QString &name) const;
-	virtual const Symbol::pointer find(edb::address_t address) const;
-	virtual const Symbol::pointer find_near_symbol(edb::address_t address) const;
-	virtual void add_symbol(const Symbol::pointer &symbol);
-	virtual void clear();
-	virtual void load_symbol_file(const QString &filename, edb::address_t base);
-	virtual void set_symbol_generator(ISymbolGenerator *generator);
-	virtual void set_label(edb::address_t address, const QString &label);
+	virtual const QList<Symbol::pointer> symbols() const override;
+	virtual const Symbol::pointer find(const QString &name) const override;
+	virtual const Symbol::pointer find(edb::address_t address) const override;
+	virtual const Symbol::pointer find_near_symbol(edb::address_t address) const override;
+	virtual void add_symbol(const Symbol::pointer &symbol) override;
+	virtual void clear() override;
+	virtual void load_symbol_file(const QString &filename, edb::address_t base) override;
+	virtual void set_symbol_generator(ISymbolGenerator *generator) override;
+	virtual void set_label(edb::address_t address, const QString &label) override;
 	virtual QString find_address_name(edb::address_t address,bool prefixed=true) override;
-	virtual QHash<edb::address_t, QString> labels() const;
-	virtual QList<QString> files() const;
+	virtual QHash<edb::address_t, QString> labels() const override;
+	virtual QList<QString> files() const override;
 
 private:
 	bool process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename, bool allow_retry);

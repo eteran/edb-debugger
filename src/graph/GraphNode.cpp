@@ -219,7 +219,7 @@ void GraphNode::drawLabel(const QString &text) {
 	doc.setDefaultFont(font);
 	doc.setDocumentMargin(0);
 	doc.setPlainText(text);
-	auto highligher = new SyntaxHighlighter(&doc);
+	new SyntaxHighlighter(&doc);
 	doc.drawContents(&painter, textBoundingRect);
 #else
 	painter.drawText(textBoundingRect.adjusted(-2, -2, +2, +2), Qt::AlignLeft | Qt::AlignTop, text);
