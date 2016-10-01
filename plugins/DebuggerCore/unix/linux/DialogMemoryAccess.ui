@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>720</width>
-    <height>360</height>
+    <width>713</width>
+    <height>500</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,13 +20,10 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;EDB has detected that on this kernel, access to debugee memory does not work through &lt;span style=&quot; font-family:'Courier New,courier';&quot;&gt;/proc/&amp;lt;pid&amp;gt;/mem&lt;/span&gt;. If you have a &lt;span style=&quot; font-weight:600;&quot;&gt;grsecurity&lt;/span&gt; enabled kernel, this may bbe the cause.&lt;/p&gt;&lt;p&gt;EDB has a fallback method of accessing debugee memory, but it may have a negative impact on performance. If you experience poor performance, please file a bug report at &lt;a href=&quot;http://github.com/eteran/edb-debugger/issues&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;http://github.com/eteran/edb-debugger/issues&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;EDB has detected that on this kernel, access to debugee memory &lt;br/&gt;does not work through &lt;span style=&quot; font-family:'Courier New,courier';&quot;&gt;/proc/&amp;lt;pid&amp;gt;/mem&lt;/span&gt;. &lt;/p&gt;&lt;p&gt;Possible causes include: &lt;/p&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;EDB's feature detection has a bug&lt;/li&gt;&lt;/ul&gt;&lt;ul style=&quot;margin-top: 0px; margin-bottom: 0px; margin-left: 0px; margin-right: 0px; -qt-list-indent: 1;&quot;&gt;&lt;li style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The kernel is older and restricts writes to &lt;span style=&quot; font-family:'Courier New,courier';&quot;&gt;/proc/&amp;lt;pid&amp;gt;/mem&lt;/span&gt;&lt;/li&gt;&lt;li style=&quot; margin-top:0px; margin-bottom:0px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;The kernel has &lt;span style=&quot; font-weight:600;&quot;&gt;grsecurity&lt;/span&gt; enabled&lt;/li&gt;&lt;/ul&gt;&lt;p&gt;EDB has a fallback method of accessing debugee memory, &lt;br/&gt;but it may have a negative impact on performance. &lt;br/&gt;If you experience poor performance, please file a bug report at:&lt;/p&gt;&lt;p&gt;&lt;a href=&quot;http://github.com/eteran/edb-debugger/issues&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;http://github.com/eteran/edb-debugger/issues&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="textFormat">
       <enum>Qt::RichText</enum>
-     </property>
-     <property name="wordWrap">
-      <bool>true</bool>
      </property>
      <property name="openExternalLinks">
       <bool>false</bool>
