@@ -568,8 +568,9 @@ QString Debugger::create_tty() {
 						qDebug() << "A Timeout occured while attempting to get the TTY of the terminal sub-process";
 						break;
 					default:
-						read(fd, buf, sizeof(buf));						
-						result_tty = QString(buf).trimmed();			
+						if(read(fd, buf, sizeof(buf)) != -1) {
+							result_tty = QString(buf).trimmed();
+						}
 						break;
 					}
 
