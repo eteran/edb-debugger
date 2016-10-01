@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>658</width>
-    <height>339</height>
+    <width>720</width>
+    <height>360</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -20,7 +20,7 @@
    <item>
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>EDB has detected that on this kernel, access to debugee memory does not work through /proc/&lt;pid&gt;/mem. EDB has a fallback method of accessing debugee memory, but it may have a negative impact on performance. If you experience poor performance, please file a bug report at &lt;a href=&quot;http://github.com/eteran/edb-debugger/issues&quot;&gt;http://github.com/eteran/edb-debugger/issues&lt;/a&gt;.</string>
+      <string>&lt;html&gt;&lt;head/&gt;&lt;body&gt;&lt;p&gt;EDB has detected that on this kernel, access to debugee memory does not work through &lt;span style=&quot; font-family:'Courier New,courier';&quot;&gt;/proc/&amp;lt;pid&amp;gt;/mem&lt;/span&gt;. If you have a &lt;span style=&quot; font-weight:600;&quot;&gt;grsecurity&lt;/span&gt; enabled kernel, this may bbe the cause.&lt;/p&gt;&lt;p&gt;EDB has a fallback method of accessing debugee memory, but it may have a negative impact on performance. If you experience poor performance, please file a bug report at &lt;a href=&quot;http://github.com/eteran/edb-debugger/issues&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;http://github.com/eteran/edb-debugger/issues&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
      </property>
      <property name="textFormat">
       <enum>Qt::RichText</enum>
