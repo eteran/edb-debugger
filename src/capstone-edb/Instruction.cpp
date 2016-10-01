@@ -272,8 +272,6 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 					else
 						operand.expr_.segment=Operand::Segment::DS;
 				}
-			case Capstone::X86_OP_FP:
-				break;
 			case Capstone::X86_OP_INVALID:
 				break;
 			default:
