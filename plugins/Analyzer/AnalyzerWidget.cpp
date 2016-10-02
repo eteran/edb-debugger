@@ -35,8 +35,11 @@ namespace Analyzer {
 // Name:
 //------------------------------------------------------------------------------
 AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), mouse_pressed_(false) {
-	setMinimumHeight(20);
-	setMaximumHeight(20);
+
+	QFontMetrics fm(font());
+
+	setMinimumHeight(fm.lineSpacing());
+	setMaximumHeight(fm.lineSpacing());
 	QSizePolicy policy;
 
 	policy.setHorizontalPolicy(QSizePolicy::Expanding);
@@ -89,9 +92,8 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 			}
 
 			if(functions.isEmpty()) {
-				const QString s(tr("No Analysis Found For This Region"));
-				painter.setPen(QPen(Qt::white));
-				painter.drawText((width() - fm.width(s)) / 2, height() - 4, s);
+		    	painter.setPen(QPen(Qt::white));
+	    		painter.drawText(rect(), Qt::AlignCenter, tr("No Analysis Found For This Region"));
 			} else {
 				if(auto scroll_area = qobject_cast<QAbstractScrollArea*>(edb::v1::disassembly_widget())) {
 					if(QScrollBar *scrollbar = scroll_area->verticalScrollBar()) {
@@ -104,7 +106,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 						painter.setFont(QFont("Lucida Sans Unicode", 16));
 	#endif
 						painter.setPen(QPen(Qt::yellow));
-						painter.drawText(offset - fm.width(QChar(0x25b4)) / 2, height(), triangle);
+						painter.drawText(offset - fm.width(triangle) / 2, height(), triangle);
 	#ifdef Q_OS_WIN32
 						painter.setFont(f);
 	#endif
@@ -112,14 +114,12 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 				}
 			}
 		} else {
-			const QString s(tr("No Analysis Found For This Region"));
-			painter.setPen(QPen(Qt::white));
-			painter.drawText((width() - fm.width(s)) / 2, height() - 4, s);
+	    	painter.setPen(QPen(Qt::white));
+    		painter.drawText(rect(), Qt::AlignCenter, tr("No Analysis Found For This Region"));
 		}
 	} else {
-			const QString s(tr("No Analysis Found For This Region"));
-			painter.setPen(QPen(Qt::white));
-			painter.drawText((width() - fm.width(s)) / 2, height() - 4, s);
+	    painter.setPen(QPen(Qt::white));
+    	painter.drawText(rect(), Qt::AlignCenter, tr("No Analysis Found For This Region"));
 	}
 }
 
