@@ -750,7 +750,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	QPainter painter(viewport());
 
-	const int line_height = qMax(this->line_height(), breakpoint_icon_.height());
+	const int line_height = this->line_height();
 	int viewable_lines    = viewport()->height() / line_height;
 	int current_line      = verticalScrollBar()->value();
 	int row_index         = 0;
@@ -975,7 +975,21 @@ void QDisassemblyView::setFont(const QFont &f) {
 	// recalculate all of our metrics/offsets
 	const QFontMetricsF metrics(f);
 	font_width_  = metrics.width('X');
-	font_height_ = metrics.height();
+	font_height_ = metrics.lineSpacing();
+
+#if 1
+    const float halfW  = font_width_  / 2.0;
+    const float halfH  = font_height_ / 2.0;
+    const float radius = qMin(halfW, halfH) / 2.0;
+
+    breakpoint_icon_ = QPixmap(font_width_, font_height_);
+    breakpoint_icon_.fill(Qt::transparent);
+    QPainter painter(&breakpoint_icon_);
+    painter.setBrush(Qt::red);
+    painter.setPen(Qt::red);
+    painter.setRenderHint(QPainter::Antialiasing);
+    painter.drawEllipse(QPointF(halfW, halfH), radius, radius);
+#endif
 
 	updateScrollbars();
 }
@@ -993,7 +1007,7 @@ void QDisassemblyView::resizeEvent(QResizeEvent *) {
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::line_height() const {
-	return qMax(font_height_, current_address_icon_.height());
+	return qMax(qMax(font_height_, current_address_icon_.height()), breakpoint_icon_.height());
 }
 
 //------------------------------------------------------------------------------
