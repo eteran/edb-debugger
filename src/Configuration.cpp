@@ -45,6 +45,14 @@ Configuration::~Configuration() {
 }
 
 //------------------------------------------------------------------------------
+// Name: sendChangeNotification
+// Desc: emits the settingsUpdated signal
+//------------------------------------------------------------------------------
+void Configuration::sendChangeNotification() {
+	Q_EMIT settingsUpdated();
+}
+
+//------------------------------------------------------------------------------
 // Name: read_settings
 // Desc: read in the options from the file
 //------------------------------------------------------------------------------

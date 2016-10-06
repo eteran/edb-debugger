@@ -301,7 +301,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	}
 
 
-	Q_EMIT config.settingsUpdated();
+	config.sendChangeNotification();
 
 
 	event->accept();

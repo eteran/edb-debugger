@@ -29,6 +29,10 @@ public:
 	Configuration(QObject *parent = 0);
 	virtual ~Configuration() override;
     
+    
+public:
+	void sendChangeNotification();
+    
 Q_SIGNALS:
 	void settingsUpdated();
 
