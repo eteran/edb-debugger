@@ -1007,7 +1007,7 @@ void QDisassemblyView::resizeEvent(QResizeEvent *) {
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::line_height() const {
-	return qMax(qMax(font_height_, current_address_icon_.height()), breakpoint_icon_.height());
+	return std::max({font_height_, current_address_icon_.height(), breakpoint_icon_.height()});
 }
 
 //------------------------------------------------------------------------------
