@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: Configuration
 // Desc: constructor
 //------------------------------------------------------------------------------
-Configuration::Configuration() {
+Configuration::Configuration(QObject *parent) : QObject(parent) {
 	read_settings();
 }
 

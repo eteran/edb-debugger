@@ -21,11 +21,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "API.h"
 #include <QString>
+#include <QObject>
 
-class EDB_EXPORT Configuration {
+class EDB_EXPORT Configuration : public QObject {
+	Q_OBJECT
 public:
-	Configuration();
-	~Configuration();
+	Configuration(QObject *parent = 0);
+	virtual ~Configuration() override;
+    
+Q_SIGNALS:
+	void settingsUpdated();
 
 public:
 	enum Syntax {

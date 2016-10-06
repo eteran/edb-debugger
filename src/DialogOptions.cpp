@@ -301,6 +301,9 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	}
 
 
+	Q_EMIT config.settingsUpdated();
+
+
 	event->accept();
 }
 

@@ -101,6 +101,7 @@ private Q_SLOTS:
 	void modelUpdated();
 	void copyAllRegisters();
 	void copyRegisterToClipboard() const;
+    void settingsUpdated();
 };
 
 class Canvas : public QWidget
