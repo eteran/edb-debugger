@@ -32,14 +32,14 @@ before_install:
     - ./travis_install_capstone.sh
 
 install:
-    - if [ "$QT_BASE" = "48" ]; then sudo apt-get install -qq libxcb-sync0 qt4-qmake libqt4-gui libqt4-core libqt4-dev; fi
-    - if [ "$QT_BASE" = "50" ]; then sudo apt-get install -qq libxcb-sync0 qtbase  qtxmlpatterns; source /opt/qt5/bin/qt5-env.sh; fi
-    - if [ "$QT_BASE" = "51" ]; then sudo apt-get install -qq libxcb-sync0 qt51base qt51xmlpatterns; source /opt/qt51/bin/qt51-env.sh; fi
-    - if [ "$QT_BASE" = "52" ]; then sudo apt-get install -qq libxcb-sync0 libxcb-sync0 qt52base qt52xmlpatterns; source /opt/qt52/bin/qt52-env.sh; fi
-    - if [ "$QT_BASE" = "53" ]; then sudo apt-get install -qq libxcb-sync0 qt53base qt53xmlpatterns; source /opt/qt53/bin/qt53-env.sh; fi
-    - if [ "$QT_BASE" = "54" ]; then sudo apt-get install -qq libxcb-sync0 qt54base qt54xmlpatterns; source /opt/qt54/bin/qt54-env.sh; fi
-    - if [ "$QT_BASE" = "55" ]; then sudo apt-get install -qq libxcb-sync0 qt55base qt55xmlpatterns; source /opt/qt55/bin/qt55-env.sh; fi
-    - if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq libxcb-sync0 qt56base qt56xmlpatterns; source /opt/qt56/bin/qt56-env.sh; fi
+    - if [ "$QT_BASE" = "48" ]; then sudo apt-get install -qq qt4-qmake libqt4-gui libqt4-core libqt4-dev; fi
+    - if [ "$QT_BASE" = "50" ]; then sudo apt-get install -qq qtbase  qtxmlpatterns; source /opt/qt5/bin/qt5-env.sh; fi
+    - if [ "$QT_BASE" = "51" ]; then sudo apt-get install -qq qt51base qt51xmlpatterns; source /opt/qt51/bin/qt51-env.sh; fi
+    - if [ "$QT_BASE" = "52" ]; then sudo apt-get install -qq qt52base qt52xmlpatterns; source /opt/qt52/bin/qt52-env.sh; fi
+    - if [ "$QT_BASE" = "53" ]; then sudo apt-get install -qq qt53base qt53xmlpatterns; source /opt/qt53/bin/qt53-env.sh; fi
+    - if [ "$QT_BASE" = "54" ]; then sudo apt-get install -qq qt54base qt54xmlpatterns; source /opt/qt54/bin/qt54-env.sh; fi
+    - if [ "$QT_BASE" = "55" ]; then sudo apt-get install -qq qt55base qt55xmlpatterns; source /opt/qt55/bin/qt55-env.sh; fi
+    - if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base qt56xmlpatterns; source /opt/qt56/bin/qt56-env.sh; fi
 
 before_script:
     - if [ "$QT_BASE" == "48" ]; then mkdir build && cd build && cmake -DQT_VERSION=Qt4 ..; fi
@@ -55,6 +55,7 @@ script:
     - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/1/linuxdeployqt-1-x86_64.AppImage"
     - chmod a+x linuxdeployqt-1-x86_64.AppImage
     - unset LD_LIBRARY_PATH
+    - ./linuxdeployqt-1-x86_64.AppImage ./build/edb -bundle-non-qt-libs # Need 2 runs for older Qt versions?!
     - ./linuxdeployqt-1-x86_64.AppImage ./build/edb -appimage -verbose=2
     - curl --upload-file $(ls build*.AppImage) https://transfer.sh/edb-qt$QT_BASE.git.$(git rev-parse --short HEAD)-x86_64.AppImage # Replace with your deployment mechanism
 
@@ -77,3 +78,4 @@ addons:
             - gcc-4.8
             - g++-4.8
             - cmake
+            - libxcb-sync0 
