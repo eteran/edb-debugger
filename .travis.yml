@@ -58,6 +58,7 @@ script:
 branches:
     only:
         - master
+        - patch-1
 
 os:
     - linux
