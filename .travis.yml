@@ -9,12 +9,12 @@ env:
     global:
         - MAKEFLAGS="-j2"
     matrix:
-        - QT_BASE=48
-        - QT_BASE=51
-        - QT_BASE=52
-        - QT_BASE=53
-        - QT_BASE=54
-        - QT_BASE=55
+        #- QT_BASE=48
+        #- QT_BASE=51
+        #- QT_BASE=52
+        #- QT_BASE=53
+        #- QT_BASE=54
+        #- QT_BASE=55
         - QT_BASE=56
 
 sudo: required
@@ -47,6 +47,13 @@ before_script:
 
 script:
     - make
+    - find .
+    - cd ..
+    - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/1/linuxdeployqt-1-x86_64.AppImage"
+    - chmod a+x linuxdeployqt-1-x86_64.AppImage
+    - unset LD_LIBRARY_PATH
+    - ./linuxdeployqt-1-x86_64.AppImage ./build/edb-debugger -appimage -verbose=2
+    - curl --upload-file $(ls build*.AppImage) https://transfer.sh/edb-debugger.AppImage # Replace with your deployment mechanism
 
 branches:
     only:
