@@ -9,12 +9,12 @@ env:
     global:
         - MAKEFLAGS="-j2"
     matrix:
-        #- QT_BASE=48
-        #- QT_BASE=51
-        #- QT_BASE=52
-        #- QT_BASE=53
-        #- QT_BASE=54
-        #- QT_BASE=55
+        - QT_BASE=48
+        - QT_BASE=51
+        - QT_BASE=52
+        - QT_BASE=53
+        - QT_BASE=54
+        - QT_BASE=55
         - QT_BASE=56
 
 sudo: required
@@ -54,7 +54,7 @@ script:
     - chmod a+x linuxdeployqt-1-x86_64.AppImage
     - unset LD_LIBRARY_PATH
     - ./linuxdeployqt-1-x86_64.AppImage ./build/edb -appimage -verbose=2
-    - curl --upload-file $(ls build*.AppImage) https://transfer.sh/edb-debugger.AppImage # Replace with your deployment mechanism
+    - curl --upload-file $(ls build*.AppImage) https://transfer.sh/edb-qt$QT_BASE.git.$(git rev-parse --short HEAD)-x86_64.AppImage # Replace with your deployment mechanism
 
 branches:
     only:
