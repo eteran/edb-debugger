@@ -56,7 +56,6 @@ script:
     - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/1/linuxdeployqt-1-x86_64.AppImage"
     - chmod a+x linuxdeployqt-1-x86_64.AppImage
     - unset LD_LIBRARY_PATH
-    - ./linuxdeployqt-1-x86_64.AppImage ./build/edb -bundle-non-qt-libs # Need 2 runs for older Qt versions?!
     - ./linuxdeployqt-1-x86_64.AppImage ./build/edb -appimage -verbose=2
     - curl --upload-file $(ls build*.AppImage) https://transfer.sh/edb-qt$QT_BASE.git.$(git rev-parse --short HEAD)-x86_64.AppImage # Replace with your deployment mechanism
     - fi
