@@ -47,7 +47,6 @@ before_script:
 
 script:
     - make
-    - if [ "$QT_BASE" = "56" ]; then
     - cd ..
     - cp ./src/images/edb.png ./build
     - cp ./edb.desktop ./build
@@ -58,7 +57,6 @@ script:
     - unset LD_LIBRARY_PATH
     - ./linuxdeployqt-1-x86_64.AppImage ./build/edb -appimage -verbose=2
     - curl --upload-file $(ls build*.AppImage) https://transfer.sh/edb-qt$QT_BASE.git.$(git rev-parse --short HEAD)-x86_64.AppImage # Replace with your deployment mechanism
-    - fi
     
 branches:
     only:
