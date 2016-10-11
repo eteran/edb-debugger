@@ -60,16 +60,7 @@ public:
 		TYPE_INVALID       = 0x00000000,
 		TYPE_REGISTER      = 0x00000100,
 		TYPE_IMMEDIATE     = 0x00000200,
-		TYPE_IMMEDIATE8    = 0x00000201,
-		TYPE_IMMEDIATE16   = 0x00000202,
-		TYPE_IMMEDIATE32   = 0x00000203,
-		TYPE_IMMEDIATE64   = 0x00000204,
 		TYPE_REL           = 0x00000300,
-		// XXX: To determine relative operand size with capstone, we'd have to implement
-		//      additional mini-disassembler on top of it. No native way is provided.
-		//TYPE_REL8          = 0x00000301,
-		//TYPE_REL16         = 0x00000302,
-		//TYPE_REL32         = 0x00000303,
 		TYPE_EXPRESSION    = 0x00000400,
 		TYPE_EXPRESSION8   = 0x00000401,
 		TYPE_EXPRESSION16  = 0x00000402,
@@ -307,12 +298,41 @@ private:
 // NOTE(eteran): moved into the namespace, it'll be found by ADL, so we're all good :-)
 //               so it may not be necessary to remove these after all. Sometimes free
 //               functions can allow more flexibility in the API.
-inline bool is_call(const CapstoneEDB::Instruction& insn) { return insn.is_call(); }
-inline bool is_jump(const CapstoneEDB::Instruction& insn) { return insn.is_jump(); }
-inline bool is_ret(const CapstoneEDB::Instruction& insn) { return insn.is_ret(); }
-inline bool is_terminator(const CapstoneEDB::Instruction& insn) { return insn.is_terminator(); }
-inline bool is_conditional_jump(const CapstoneEDB::Instruction& insn) { return insn.is_conditional_jump(); }
-inline bool is_unconditional_jump(const CapstoneEDB::Instruction& insn) { return insn.is_unconditional_jump(); }
+inline bool is_call(const CapstoneEDB::Instruction& insn) {
+	return insn.is_call();
+}
+
+inline bool is_jump(const CapstoneEDB::Instruction& insn) {
+	return insn.is_jump();
+}
+
+inline bool is_ret(const CapstoneEDB::Instruction& insn) {
+	return insn.is_ret();
+}
+
+inline bool is_terminator(const CapstoneEDB::Instruction& insn) {
+	return insn.is_terminator();
+}
+
+inline bool is_conditional_jump(const CapstoneEDB::Instruction& insn) {
+	return insn.is_conditional_jump();
+}
+
+inline bool is_unconditional_jump(const CapstoneEDB::Instruction& insn) {
+	return insn.is_unconditional_jump();
+}
+
+inline bool is_register(const CapstoneEDB::Operand &operand) {
+	return operand.general_type() == Operand::TYPE_REGISTER;
+}
+
+inline bool is_expression(const CapstoneEDB::Operand &operand) {
+	return operand.general_type() == Operand::TYPE_EXPRESSION;
+}
+
+inline bool is_immediate(const CapstoneEDB::Operand &operand) {
+	return operand.general_type() == Operand::TYPE_IMMEDIATE;
+}
 
 }
 

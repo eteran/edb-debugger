@@ -203,17 +203,10 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 				  )
 				{
 					operand.type_=Operand::TYPE_REL;
-					break;
+				} else {                
+	                operand.type_=Operand::TYPE_IMMEDIATE;
 				}
-				switch(ops[i].size)
-				{
-				case 1: operand.type_=Operand::TYPE_IMMEDIATE8;  break;
-				case 2: operand.type_=Operand::TYPE_IMMEDIATE16; break;
-				case 4: operand.type_=Operand::TYPE_IMMEDIATE32; break;
-				case 8: operand.type_=Operand::TYPE_IMMEDIATE64; break;
-				default:operand.type_=Operand::TYPE_IMMEDIATE;   break;
-				}
-				break;
+                break;
 			case Capstone::X86_OP_MEM:
 				switch(ops[i].size)
 				{
