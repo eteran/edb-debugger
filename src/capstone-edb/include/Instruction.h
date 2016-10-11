@@ -62,7 +62,6 @@ public:
 		TYPE_IMMEDIATE     = 0x00000200,
 		TYPE_REL           = 0x00000300,
 		TYPE_EXPRESSION    = 0x00000400,
-		TYPE_MASK          = 0xffffff00
 	};
     
 	enum DisplacementType {
