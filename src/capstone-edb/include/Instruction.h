@@ -102,7 +102,7 @@ public:
 	int32_t displacement() const { return expr_.displacement; }
 	int64_t immediate() const { return imm_; } // FIXME: do we really want it signed?
 	bool valid() const { return type_!=TYPE_INVALID; }
-	operator void*() const { return reinterpret_cast<void*>(valid()); }
+    explicit operator bool() const { return valid(); }
 	const absolute_t absolute() const { return abs_; }
 	const expression_t expression() const { return expr_; }
 	Instruction* owner() const { return owner_; }
