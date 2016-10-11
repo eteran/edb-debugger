@@ -173,7 +173,7 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 		adjustInstructionText(insn_);
 		fillPrefix();
 		Capstone::cs_x86_op* ops=insn_.detail->x86.operands;
-		for(std::size_t i=0;i<cs_insn_operand_count();++i)
+		for(std::size_t i=0;i<operand_count();++i)
 		{
 			Operand operand(this,i);
 			switch(ops[i].type)
@@ -274,17 +274,9 @@ const uint8_t* Instruction::bytes() const
 	return insn_.bytes;
 }
 
-std::size_t Instruction::cs_insn_operand_count() const
-{
-	return insn_.detail->x86.op_count;
-}
-
 std::size_t Instruction::operand_count() const
 {
-	std::size_t count=operands_.size();
-	for(const auto& op : operands_)
-		if(!op.valid()) --count;
-	return count;
+	return insn_.detail->x86.op_count;
 }
 
 std::size_t Instruction::size() const

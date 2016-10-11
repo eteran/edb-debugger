@@ -231,8 +231,6 @@ public:
 	bool is_simd() const;
 
 private:
-	std::size_t cs_insn_operand_count() const; // may be not equal to operand_count()
-
 	Capstone::cs_insn insn_;
 	Capstone::cs_detail detail_;
 	bool valid_=false;
