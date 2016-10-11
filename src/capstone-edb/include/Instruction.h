@@ -37,8 +37,11 @@ class Formatter;
 
 class Operand
 {
+	friend class Instruction;
+	friend class Formatter;
 public:
 	using Register=Capstone::x86_reg;
+    
 	struct Segment { // not enum class because we want to use this as array index etc.
 		enum Reg : std::size_t
 		{
@@ -52,6 +55,7 @@ public:
 			REG_INVALID=std::size_t(-1)
 		};
 	};
+    
 	enum Type {
 		TYPE_INVALID       = 0x00000000,
 		TYPE_REGISTER      = 0x00000100,
@@ -79,64 +83,77 @@ public:
 		TYPE_ABSOLUTE      = 0x00000500,
 		TYPE_MASK          = 0xffffff00
 	};
+    
 	enum DisplacementType {
 		DISP_NONE,
 		DISP_PRESENT // XXX: Just to avoid changing API too early. DispType should actually be a bool.
 	};
+    
 	struct absolute_t {
 		uint16_t seg=0;
 		uint32_t offset=0;
 	};
+    
 	struct expression_t {
 
-		Segment::Reg     segment=Segment::REG_INVALID;
-		DisplacementType displacement_type=DISP_NONE;
-		Register         base=Register::X86_REG_INVALID;
-		Register         index=Register::X86_REG_INVALID;
-		int32_t          displacement=0;
-		uint8_t          scale=0;
+		Segment::Reg     segment           = Segment::REG_INVALID;
+		DisplacementType displacement_type = DISP_NONE;
+		Register         base              = Register::X86_REG_INVALID;
+		Register         index             = Register::X86_REG_INVALID;
+		int32_t          displacement      = 0;
+		uint8_t          scale             = 0;
 	};
-	Type general_type() const { return static_cast<Type>(complete_type() & ~0xff); }
-	Type complete_type() const { return type_; }
+    
+public:
+	Operand(Instruction* instr, std::size_t numberInInstruction);    
+	Operand(){}
+
+public:
 	uint64_t relative_target() const { return imm_; };
-	int32_t displacement() const { return expr_.displacement; }
-	int64_t immediate() const { return imm_; } // FIXME: do we really want it signed?
+	int32_t displacement() const     { return expr_.displacement; }
+	int64_t immediate() const        { return imm_; } // FIXME: do we really want it signed?
+	absolute_t absolute() const      { return abs_; }
+	expression_t expression() const  { return expr_; }
+	Register reg() const             { return reg_; }
+    
+public:
 	bool valid() const { return type_!=TYPE_INVALID; }
     explicit operator bool() const { return valid(); }
-	const absolute_t absolute() const { return abs_; }
-	const expression_t expression() const { return expr_; }
 	Instruction* owner() const { return owner_; }
-	Register reg() const { return reg_; }
 	int size() const;
-	Operand(Instruction* instr, std::size_t numberInInstruction) : owner_(instr), numberInInstruction_(numberInInstruction) {}
-	Operand(){}
+	Type complete_type() const { return type_; }
+	Type general_type() const { return static_cast<Type>(complete_type() & ~0xff); }
+
 	// Checks whether operand is a SIMD data register (MMX,XMM,YMM etc., but not e.g. kN)
 	bool is_simd_register() const;
 	bool is_SIMD_PS() const;
 	bool is_SIMD_PD() const;
 	bool is_SIMD_SS() const;
 	bool is_SIMD_SD() const;
+    
 private:
 	bool apriori_not_simd() const;
 	std::size_t simdOperandNormalizedNumberInInstruction() const;
+    
+private:
 	union {
 		Register     reg_;
 		expression_t expr_;
 		absolute_t   abs_;
-		int64_t imm_;
+		int64_t      imm_;
 	};
-	Instruction* owner_=nullptr;
-	Type         type_=TYPE_INVALID;
+    
+	Instruction* owner_ = nullptr;
+	Type         type_  = TYPE_INVALID;
 	std::size_t numberInInstruction_;
-
-	friend class Instruction;
-	friend class Formatter;
 };
 
-class Formatter;
+
 
 class Instruction
 {
+	friend class Operand;
+    friend class Formatter;
 public:
 	using Operation=Capstone::x86_insn;
 	enum Prefix {
@@ -164,6 +181,8 @@ public:
 	Instruction(const void* first, const void* end, uint64_t rva) throw();
 	Instruction(const Instruction&);
 	Instruction& operator=(const Instruction&);
+    
+public:
 	bool valid() const { return valid_; }
 	operator void*() const { return reinterpret_cast<void*>(valid()); }
 	const uint8_t* bytes() const;
@@ -250,8 +269,6 @@ private:
 	std::vector<Operand> operands_;
 
 	void fillPrefix();
-
-	friend class Formatter;
 };
 
 class Formatter

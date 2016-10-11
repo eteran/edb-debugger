@@ -63,6 +63,9 @@ bool init(bool amd64)
 	return true;
 }
 
+Operand::Operand(Instruction* instr, std::size_t numberInInstruction) : owner_(instr), numberInInstruction_(numberInInstruction) {
+}
+
 int Operand::size() const
 {
 	return owner_->cs_insn().detail->x86.operands[numberInInstruction_].size;
