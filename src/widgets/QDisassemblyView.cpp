@@ -585,7 +585,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 			if(is_call(inst) || is_jump(inst)) {
 				if(inst.operand_count() == 1) {
 					const edb::Operand &oper = inst.operands()[0];
-					if(oper.general_type() == edb::Operand::TYPE_REL) {
+					if(oper.type() == edb::Operand::TYPE_REL) {
 
 						const bool showSymbolicAddresses=edb::v1::config().show_symbolic_addresses;
 
@@ -917,7 +917,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 		// for relative jumps draw the jump direction indicators
 		if(is_jump(inst)) {
-			if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
+			if(inst.operands()[0].type() == edb::Operand::TYPE_REL) {
 				const edb::address_t target = inst.operands()[0].relative_target();
 
 				if(target!=inst.rva()) {

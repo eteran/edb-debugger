@@ -131,7 +131,7 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state,
 	// TODO: get registers by index, not string! too slow
 	
 	if(op.valid()) {
-		switch(op.general_type()) {
+		switch(op.type()) {
 		case edb::Operand::TYPE_REGISTER:
 			ret = state[QString::fromStdString(edb::v1::formatter().to_string(op))].valueAsAddress();
 			break;
@@ -545,7 +545,7 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 			const QString temp_operand             = QString::fromStdString(edb::v1::formatter().to_string(operand));
 			QString temp;
 
-			switch(operand.general_type()) {
+			switch(operand.type()) {
 			case edb::Operand::TYPE_REL:
 				do {
 					int offset;
@@ -670,7 +670,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 
 				QString temp_operand = QString::fromStdString(edb::v1::formatter().to_string(operand));
 
-				switch(operand.general_type()) {
+				switch(operand.type()) {
 				case edb::Operand::TYPE_REL:
 					do {
 #if 0
@@ -856,7 +856,7 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 			if(is_jump(inst)) {
 				const edb::Operand &operand = inst.operands()[0];
 
-				if(operand.general_type() == edb::Operand::TYPE_REL) {
+				if(operand.type() == edb::Operand::TYPE_REL) {
 					const edb::address_t target = operand.relative_target();
 
 					if(target == address) {
@@ -1409,7 +1409,7 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 
 		case edb::Instruction::Operation::X86_INS_LEA:
 			if(operands[0].valid() && operands[1].valid()) {
-				if(operands[0].general_type() == edb::Operand::TYPE_REGISTER && operands[1].general_type() == edb::Operand::TYPE_EXPRESSION) {
+				if(operands[0].type() == edb::Operand::TYPE_REGISTER && operands[1].type() == edb::Operand::TYPE_EXPRESSION) {
 
 					edb::Operand::Register reg1;
 					edb::Operand::Register reg2;
@@ -1434,7 +1434,7 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 
 		case edb::Instruction::Operation::X86_INS_MOV:
 			if(operands[0].valid() && operands[1].valid()) {
-				if(operands[0].general_type() == edb::Operand::TYPE_REGISTER && operands[1].general_type() == edb::Operand::TYPE_REGISTER) {
+				if(operands[0].type() == edb::Operand::TYPE_REGISTER && operands[1].type() == edb::Operand::TYPE_REGISTER) {
 					ret = operands[0].reg() == operands[1].reg();
 				}
 			}

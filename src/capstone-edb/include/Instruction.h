@@ -97,8 +97,7 @@ public:
     explicit operator bool() const { return valid(); }
 	Instruction* owner() const { return owner_; }
 	int size() const;
-	Type complete_type() const { return type_; }
-	Type general_type() const { return static_cast<Type>(complete_type() & ~0xff); }
+	Type type() const { return type_; }
 
 	// Checks whether operand is a SIMD data register (MMX,XMM,YMM etc., but not e.g. kN)
 	bool is_simd_register() const;
@@ -313,15 +312,15 @@ inline bool is_unconditional_jump(const CapstoneEDB::Instruction& insn) {
 }
 
 inline bool is_register(const CapstoneEDB::Operand &operand) {
-	return operand.general_type() == Operand::TYPE_REGISTER;
+	return operand.type() == Operand::TYPE_REGISTER;
 }
 
 inline bool is_expression(const CapstoneEDB::Operand &operand) {
-	return operand.general_type() == Operand::TYPE_EXPRESSION;
+	return operand.type() == Operand::TYPE_EXPRESSION;
 }
 
 inline bool is_immediate(const CapstoneEDB::Operand &operand) {
-	return operand.general_type() == Operand::TYPE_IMMEDIATE;
+	return operand.type() == Operand::TYPE_IMMEDIATE;
 }
 
 }

@@ -247,8 +247,8 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 		if(activeFormatter.options().syntax==Formatter::SyntaxIntel)
 		{
 			if(operand_count()==2 && operands_[0].size()==operands_[1].size() &&
-					((operands_[0].general_type()==Operand::TYPE_REGISTER && operands_[1].general_type()==Operand::TYPE_EXPRESSION) ||
-					 (operands_[1].general_type()==Operand::TYPE_REGISTER && operands_[0].general_type()==Operand::TYPE_EXPRESSION)))
+					((operands_[0].type()==Operand::TYPE_REGISTER && operands_[1].type()==Operand::TYPE_EXPRESSION) ||
+					 (operands_[1].type()==Operand::TYPE_REGISTER && operands_[0].type()==Operand::TYPE_EXPRESSION)))
 			{
 				stripMemorySizes(insn_.op_str);
 			}
@@ -744,7 +744,7 @@ std::string Formatter::register_name(const Operand::Register reg) const
 
 bool Operand::is_simd_register() const
 {
-	if(general_type()!=TYPE_REGISTER) return false;
+	if(type()!=TYPE_REGISTER) return false;
 	const auto reg=this->reg();
 	if(Capstone::X86_REG_MM0 <=reg && reg<=Capstone::X86_REG_MM7) return true;
 	if(Capstone::X86_REG_XMM0<=reg && reg<=Capstone::X86_REG_XMM31) return true;
@@ -756,8 +756,8 @@ bool Operand::is_simd_register() const
 bool Operand::apriori_not_simd() const
 {
 	if(!owner()->is_simd()) return true;
-	if(general_type()==TYPE_REGISTER && !is_simd_register()) return true;
-	if(general_type()==TYPE_IMMEDIATE) return true;
+	if(type()==TYPE_REGISTER && !is_simd_register()) return true;
+	if(type()==TYPE_IMMEDIATE) return true;
 	return false;
 }
 
@@ -766,7 +766,7 @@ bool KxRegisterPresent(Instruction const& insn)
 	for(std::size_t i=0;i<insn.operand_count();++i)
 	{
 		const auto op=insn.operands()[i];
-		if(op.general_type()==Operand::TYPE_REGISTER &&
+		if(op.type()==Operand::TYPE_REGISTER &&
 			Capstone::X86_REG_K0 <= op.reg() && op.reg()<=Capstone::X86_REG_K7)
 			return true;
 	}
@@ -1131,7 +1131,7 @@ bool Operand::is_SIMD_PD() const
 		return number!=2;
 	case Instruction::Operation::X86_INS_VPERMPD: // if third operand is not imm8, then second is indices (always in VPERMPS)
 		assert(owner()->operand_count()==3);
-		if(owner()->operands()[2].general_type()!=TYPE_IMMEDIATE)
+		if(owner()->operands()[2].type()!=TYPE_IMMEDIATE)
 			return number!=1;
 		else return true;
 	case Instruction::Operation::X86_INS_VPERMIL2PD: // XOP (AMD). Fourth operand is selector (?)

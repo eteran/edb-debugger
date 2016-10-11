@@ -117,8 +117,8 @@ void DialogReferences::do_find() {
 								// instructions of the form: mov [ADDR], 0xNNNNNNNN
 								Q_ASSERT(inst.operand_count() == 2);
 
-								if(inst.operands()[0].general_type() == edb::Operand::TYPE_EXPRESSION) {
-									if(inst.operands()[1].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[1].immediate()) == address) {
+								if(inst.operands()[0].type() == edb::Operand::TYPE_EXPRESSION) {
+									if(inst.operands()[1].type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[1].immediate()) == address) {
 										auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 										item->setData(TypeRole, 'C');
 										item->setData(AddressRole, addr);
@@ -131,7 +131,7 @@ void DialogReferences::do_find() {
 								// instructions of the form: push 0xNNNNNNNN
 								Q_ASSERT(inst.operand_count() == 1);
 
-								if(inst.operands()[0].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[0].immediate()) == address) {
+								if(inst.operands()[0].type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[0].immediate()) == address) {
 									auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 									item->setData(TypeRole, 'C');
 									item->setData(AddressRole, addr);
@@ -140,7 +140,7 @@ void DialogReferences::do_find() {
 								break;
 							default:
 								if(is_jump(inst) || is_call(inst)) {
-									if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
+									if(inst.operands()[0].type() == edb::Operand::TYPE_REL) {
 										if(inst.operands()[0].relative_target() == address) {
 											auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 											item->setData(TypeRole, 'C');
