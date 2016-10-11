@@ -267,13 +267,6 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 		insn_.id=Capstone::X86_INS_INVALID;
 		std::strcpy(insn_.mnemonic,"(bad)");
 	}
-
-	// TODO: this is ugly. We should store only the operands we have, and
-	//       demand that the user code checks bounds of its indexes.
-	//       Something like removing operands() method and providing operand(size_t index).
-	// Fill the rest with invalid operands
-	while(operands_.size()<MAX_OPERANDS)
-		operands_.push_back(Operand());
 }
 
 const uint8_t* Instruction::bytes() const

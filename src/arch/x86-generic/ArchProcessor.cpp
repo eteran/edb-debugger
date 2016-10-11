@@ -662,9 +662,12 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 	Q_UNUSED(inst);
 	
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		for(std::size_t j = 0; j < edb::Instruction::MAX_OPERANDS; ++j) {
+    
+    	const edb::Operand *const operands = inst.operands();
+    
+		for(std::size_t j = 0; j < inst.operand_count(); ++j) {
 
-			const edb::Operand &operand = inst.operands()[j];
+			const edb::Operand &operand = operands[j];
 
 			if(operand.valid()) {
 
@@ -1395,12 +1398,9 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 
 	// fetch the operands
 	if(inst) {
-		const edb::Operand operands[edb::Instruction::MAX_OPERANDS] = {
-			inst.operands()[0],
-			inst.operands()[1],
-			inst.operands()[2]
-		};
-
+    
+    	const edb::Operand *const operands = inst.operands();
+    
 		switch(inst.operation()) {
 		case edb::Instruction::Operation::X86_INS_NOP:
 		case edb::Instruction::Operation::X86_INS_INT3:
@@ -1408,6 +1408,9 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 			break;
 
 		case edb::Instruction::Operation::X86_INS_LEA:
+        
+        	Q_ASSERT(inst.operand_count() >= 2);
+        
 			if(operands[0].valid() && operands[1].valid()) {
 				if(operands[0].type() == edb::Operand::TYPE_REGISTER && operands[1].type() == edb::Operand::TYPE_EXPRESSION) {
 
@@ -1433,6 +1436,9 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 			break;
 
 		case edb::Instruction::Operation::X86_INS_MOV:
+        
+        	Q_ASSERT(inst.operand_count() >= 2);
+        
 			if(operands[0].valid() && operands[1].valid()) {
 				if(operands[0].type() == edb::Operand::TYPE_REGISTER && operands[1].type() == edb::Operand::TYPE_REGISTER) {
 					ret = operands[0].reg() == operands[1].reg();

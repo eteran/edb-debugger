@@ -83,7 +83,6 @@ public:
     
 public:
 	Operand(Instruction* instr, std::size_t numberInInstruction);    
-	Operand(){}
 
 public:
 	uint64_t relative_target() const { return imm_; };
