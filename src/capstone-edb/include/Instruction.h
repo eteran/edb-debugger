@@ -151,8 +151,6 @@ public:
 		PREFIX_ES               = 0x00000800,
 		PREFIX_FS               = 0x00001000,
 		PREFIX_GS               = 0x00002000,
-		PREFIX_BRANCH_NOT_TAKEN = 0x00004000,
-		PREFIX_BRANCH_TAKEN     = 0x00008000,
 
 		PREFIX_OPERAND          = 0x00010000,
 		PREFIX_ADDRESS          = 0x01000000

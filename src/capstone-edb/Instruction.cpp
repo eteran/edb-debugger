@@ -100,19 +100,6 @@ void Instruction::fillPrefix()
 	if(prefixes[3]==Capstone::X86_PREFIX_ADDRSIZE)
 		prefix_|=PREFIX_ADDRESS;
 
-	if(is_conditional_jump())
-	{
-		if(prefix_&PREFIX_DS)
-		{
-			prefix_&=~PREFIX_DS;
-			prefix_|=PREFIX_BRANCH_TAKEN;
-		}
-		if(prefix_&PREFIX_CS)
-		{
-			prefix_&=~PREFIX_CS;
-			prefix_|=PREFIX_BRANCH_NOT_TAKEN;
-		}
-	}
 }
 
 Instruction& Instruction::operator=(const Instruction& other)
