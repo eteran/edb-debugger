@@ -208,18 +208,7 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 				}
                 break;
 			case Capstone::X86_OP_MEM:
-				switch(ops[i].size)
-				{
-				case 1:  operand.type_=Operand::TYPE_EXPRESSION8;   break;
-				case 2:  operand.type_=Operand::TYPE_EXPRESSION16;  break;
-				case 4:  operand.type_=Operand::TYPE_EXPRESSION32;  break;
-				case 6:  operand.type_=Operand::TYPE_EXPRESSION48;  break;
-				case 8:  operand.type_=Operand::TYPE_EXPRESSION64;  break;
-				case 10: operand.type_=Operand::TYPE_EXPRESSION80;  break;
-				case 16: operand.type_=Operand::TYPE_EXPRESSION128; break;
-				case 32: operand.type_=Operand::TYPE_EXPRESSION256; break;
-				case 64: operand.type_=Operand::TYPE_EXPRESSION512; break;
-				}
+                operand.type_ = Operand::TYPE_EXPRESSION;
                 operand.expr_.displacement=ops[i].mem.disp; // FIXME: truncation or wrong type chosen by capstone?..
 				if(ops[i].mem.disp!=0) // FIXME: this doesn't catch zero-valued existing displacements!
 					operand.expr_.displacement_type=Operand::DISP_PRESENT;

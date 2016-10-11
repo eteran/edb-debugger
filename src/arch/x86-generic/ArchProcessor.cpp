@@ -717,11 +717,12 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						edb::value256 target;
 
 						if(process->read_bytes(effective_address, &target, sizeof(target))) {
-							switch(operand.complete_type()) {
-							case edb::Operand::TYPE_EXPRESSION8:
+                        
+                        	switch(operand.size()) {
+							case 1:
 								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value8(target).toHexString());
 								break;
-							case edb::Operand::TYPE_EXPRESSION16:
+							case 2:
 							{
 								const edb::value16 value(target);
 								QString valueStr;
@@ -741,7 +742,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
 								break;
 							}
-							case edb::Operand::TYPE_EXPRESSION32:
+							case 4:
 							{
 								const edb::value32 value(target);
 								QString valueStr;
@@ -767,7 +768,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
 								break;
 							}
-							case edb::Operand::TYPE_EXPRESSION64:
+							case 8:
 							{
 								const edb::value64 value(target);
 								QString valueStr;
@@ -789,14 +790,14 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
 								break;
 							}
-							case edb::Operand::TYPE_EXPRESSION80:
+							case 10:
 							{
 								const edb::value80 value(target);
 								const QString valueStr = inst.is_fpu() ? isFPU_BCD(operand) ? formatBCD(value) : formatFloat(value) : "0x"+value.toHexString();
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
 								break;
 							}
-							case edb::Operand::TYPE_EXPRESSION128:
+							case 16:
 							{
 								QString valueString;
 								if(operand.is_SIMD_PS())
@@ -808,7 +809,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueString);
 								break;
 							}
-							case edb::Operand::TYPE_EXPRESSION256:
+							case 32:
 							{
 								QString valueString;
 								if(operand.is_SIMD_PS())
