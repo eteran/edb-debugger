@@ -156,15 +156,18 @@ void stripMemorySizes(char* op_str)
 
 Operand Instruction::fromCapstoneOperand(Capstone::cs_x86_op *ops, int i) {
 
+
+	Capstone::cs_x86_op &op = ops[i];
+
 	Operand operand(this,i);
-	switch(ops[i].type)
+	switch(op.type)
 	{
 	case Capstone::X86_OP_REG:
 		operand.type_=Operand::TYPE_REGISTER;
-		operand.reg_=ops[i].reg;
+		operand.reg_=op.reg;
 		break;
 	case Capstone::X86_OP_IMM:
-		operand.imm_=ops[i].imm;
+		operand.imm_=op.imm;
 		/* Operands can be relative in the following cases:
 			* all versions of loop* instruction: E0, E1, E2 (always rel8)
 			* some unconditional jumps: EB (rel8), E9 (rel16, rel32)
@@ -190,13 +193,13 @@ Operand Instruction::fromCapstoneOperand(Capstone::cs_x86_op *ops, int i) {
         break;
 	case Capstone::X86_OP_MEM:
         operand.type_ = Operand::TYPE_EXPRESSION;
-        operand.expr_.displacement=ops[i].mem.disp; // FIXME: truncation or wrong type chosen by capstone?..
-		if(ops[i].mem.disp!=0) // FIXME: this doesn't catch zero-valued existing displacements!
+        operand.expr_.displacement=op.mem.disp; // FIXME: truncation or wrong type chosen by capstone?..
+		if(op.mem.disp!=0) // FIXME: this doesn't catch zero-valued existing displacements!
 			operand.expr_.displacement_type=Operand::DISP_PRESENT;
-		operand.expr_.base =static_cast<Operand::Register>(ops[i].mem.base);
-		operand.expr_.index=static_cast<Operand::Register>(ops[i].mem.index);
-		operand.expr_.scale=ops[i].mem.scale;
-		switch(ops[i].mem.segment)
+		operand.expr_.base =static_cast<Operand::Register>(op.mem.base);
+		operand.expr_.index=static_cast<Operand::Register>(op.mem.index);
+		operand.expr_.scale=op.mem.scale;
+		switch(op.mem.segment)
 		{
 		case Capstone::X86_REG_ES: operand.expr_.segment=Operand::Segment::ES; break;
 		case Capstone::X86_REG_CS: operand.expr_.segment=Operand::Segment::CS; break;
@@ -251,9 +254,9 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 		// Remove extraneous size specification as in 'mov eax, dword [ecx]'
 		if(activeFormatter.options().syntax==Formatter::SyntaxIntel)
 		{
-			if(operand_count()==2 && operands_[0].size()==operands_[1].size() &&
-					((operands_[0].type()==Operand::TYPE_REGISTER && operands_[1].type()==Operand::TYPE_EXPRESSION) ||
-					 (operands_[1].type()==Operand::TYPE_REGISTER && operands_[0].type()==Operand::TYPE_EXPRESSION)))
+			if(operand_count() == 2 && operands_[0].size() == ops[1].size &&
+					((ops[0].type == Capstone::X86_OP_REG && ops[1].type == Capstone::X86_OP_MEM) ||
+					 (ops[1].type == Capstone::X86_OP_REG && ops[0].type == Capstone::X86_OP_MEM)))
 			{
 				stripMemorySizes(insn_.op_str);
 			}
