@@ -181,10 +181,6 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state,
 				}
 			} while(0);
 			break;
-		case edb::Operand::TYPE_ABSOLUTE:
-			// TODO: find out segment base for op.absolute().seg, otherwise this isn't going to be useful
-			ret = op.absolute().offset;
-			break;
 		case edb::Operand::TYPE_IMMEDIATE:
 			break;
 		case edb::Operand::TYPE_REL:

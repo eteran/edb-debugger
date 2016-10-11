@@ -89,11 +89,7 @@ public:
 		DISP_PRESENT // XXX: Just to avoid changing API too early. DispType should actually be a bool.
 	};
     
-	struct absolute_t {
-		uint16_t seg=0;
-		uint32_t offset=0;
-	};
-    
+   
 	struct expression_t {
 
 		Segment::Reg     segment           = Segment::REG_INVALID;
@@ -112,7 +108,6 @@ public:
 	uint64_t relative_target() const { return imm_; };
 	int32_t displacement() const     { return expr_.displacement; }
 	int64_t immediate() const        { return imm_; } // FIXME: do we really want it signed?
-	absolute_t absolute() const      { return abs_; }
 	expression_t expression() const  { return expr_; }
 	Register reg() const             { return reg_; }
     
@@ -139,7 +134,6 @@ private:
 	union {
 		Register     reg_;
 		expression_t expr_;
-		absolute_t   abs_;
 		int64_t      imm_;
 	};
     

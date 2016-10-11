@@ -173,17 +173,7 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 		adjustInstructionText(insn_);
 		fillPrefix();
 		Capstone::cs_x86_op* ops=insn_.detail->x86.operands;
-		if((operation()==Operation::X86_INS_LCALL||operation()==Operation::X86_INS_LJMP) &&
-				ops[0].type==Capstone::X86_OP_IMM)
-		{
-			assert(cs_insn_operand_count()==2);
-			Operand operand(this,0);
-			operand.type_=Operand::TYPE_ABSOLUTE;
-			operand.abs_.seg=ops[0].imm;
-			operand.abs_.offset=ops[1].imm;
-			operands_.push_back(operand);
-		}
-		else for(std::size_t i=0;i<cs_insn_operand_count();++i)
+		for(std::size_t i=0;i<cs_insn_operand_count();++i)
 		{
 			Operand operand(this,i);
 			switch(ops[i].type)
