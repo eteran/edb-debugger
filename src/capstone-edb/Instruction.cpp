@@ -154,11 +154,81 @@ void stripMemorySizes(char* op_str)
 	strcpy(op_str,operands.toStdString().c_str());
 }
 
+Operand Instruction::fromCapstoneOperand(Capstone::cs_x86_op *ops, int i) {
+
+	Operand operand(this,i);
+	switch(ops[i].type)
+	{
+	case Capstone::X86_OP_REG:
+		operand.type_=Operand::TYPE_REGISTER;
+		operand.reg_=ops[i].reg;
+		break;
+	case Capstone::X86_OP_IMM:
+		operand.imm_=ops[i].imm;
+		/* Operands can be relative in the following cases:
+			* all versions of loop* instruction: E0, E1, E2 (always rel8)
+			* some unconditional jumps: EB (rel8), E9 (rel16, rel32)
+			* all conditional jumps have relative arguments (rel8, rel16, rel32)
+			* some call instructions: E8 (rel16, rel32)
+			* xbegin: C7 F8 (rel16, rel32)
+		*/
+		if(operation()==Operation::X86_INS_LOOP   ||
+		   operation()==Operation::X86_INS_LOOPE  ||
+		   operation()==Operation::X86_INS_LOOPNE ||
+		   operation()==Operation::X86_INS_XBEGIN ||
+		   is_conditional_jump() ||
+		   (((operation()==Operation::X86_INS_JMP ||
+			  operation()==Operation::X86_INS_CALL) && (insn_.detail->x86.opcode[0]==0xEB ||
+														insn_.detail->x86.opcode[0]==0xE9 ||
+														insn_.detail->x86.opcode[0]==0xE8)))
+		  )
+		{
+			operand.type_=Operand::TYPE_REL;
+		} else {                
+	        operand.type_=Operand::TYPE_IMMEDIATE;
+		}
+        break;
+	case Capstone::X86_OP_MEM:
+        operand.type_ = Operand::TYPE_EXPRESSION;
+        operand.expr_.displacement=ops[i].mem.disp; // FIXME: truncation or wrong type chosen by capstone?..
+		if(ops[i].mem.disp!=0) // FIXME: this doesn't catch zero-valued existing displacements!
+			operand.expr_.displacement_type=Operand::DISP_PRESENT;
+		operand.expr_.base =static_cast<Operand::Register>(ops[i].mem.base);
+		operand.expr_.index=static_cast<Operand::Register>(ops[i].mem.index);
+		operand.expr_.scale=ops[i].mem.scale;
+		switch(ops[i].mem.segment)
+		{
+		case Capstone::X86_REG_ES: operand.expr_.segment=Operand::Segment::ES; break;
+		case Capstone::X86_REG_CS: operand.expr_.segment=Operand::Segment::CS; break;
+		case Capstone::X86_REG_SS: operand.expr_.segment=Operand::Segment::SS; break;
+		case Capstone::X86_REG_DS: operand.expr_.segment=Operand::Segment::DS; break;
+		case Capstone::X86_REG_FS: operand.expr_.segment=Operand::Segment::FS; break;
+		case Capstone::X86_REG_GS: operand.expr_.segment=Operand::Segment::GS; break;
+		default: operand.expr_.segment=Operand::Segment::REG_INVALID; break;
+		}
+		if(operand.expr_.segment==Operand::Segment::REG_INVALID && !isAMD64)
+		{
+			if(operand.expr_.base==Capstone::X86_REG_BP ||
+			   operand.expr_.base==Capstone::X86_REG_EBP ||
+			   operand.expr_.base==Capstone::X86_REG_ESP)
+				operand.expr_.segment=Operand::Segment::SS;
+			else
+				operand.expr_.segment=Operand::Segment::DS;
+		}
+	case Capstone::X86_OP_INVALID:
+		break;
+	default:
+		break;
+	}
+
+    return operand;
+}
+
 Instruction::Instruction(const void* first, const void* last, uint64_t rva) noexcept
 {
 	assert(capstoneInitialized);
-    const uint8_t* codeBegin=static_cast<const uint8_t*>(first);
-    const uint8_t* codeEnd=static_cast<const uint8_t*>(last);
+    auto codeBegin = static_cast<const uint8_t*>(first);
+    auto codeEnd   = static_cast<const uint8_t*>(last);
 	rva_=rva;
 	firstByte_=codeBegin[0];
 
@@ -173,74 +243,9 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 		adjustInstructionText(insn_);
 		fillPrefix();
 		Capstone::cs_x86_op* ops=insn_.detail->x86.operands;
-		for(std::size_t i=0;i<operand_count();++i)
-		{
-			Operand operand(this,i);
-			switch(ops[i].type)
-			{
-			case Capstone::X86_OP_REG:
-				operand.type_=Operand::TYPE_REGISTER;
-				operand.reg_=ops[i].reg;
-				break;
-			case Capstone::X86_OP_IMM:
-				operand.imm_=ops[i].imm;
-				/* Operands can be relative in the following cases:
-					* all versions of loop* instruction: E0, E1, E2 (always rel8)
-					* some unconditional jumps: EB (rel8), E9 (rel16, rel32)
-					* all conditional jumps have relative arguments (rel8, rel16, rel32)
-					* some call instructions: E8 (rel16, rel32)
-					* xbegin: C7 F8 (rel16, rel32)
-				*/
-				if(operation()==Operation::X86_INS_LOOP   ||
-				   operation()==Operation::X86_INS_LOOPE  ||
-				   operation()==Operation::X86_INS_LOOPNE ||
-				   operation()==Operation::X86_INS_XBEGIN ||
-				   is_conditional_jump() ||
-				   (((operation()==Operation::X86_INS_JMP ||
-					  operation()==Operation::X86_INS_CALL) && (insn_.detail->x86.opcode[0]==0xEB ||
-																insn_.detail->x86.opcode[0]==0xE9 ||
-																insn_.detail->x86.opcode[0]==0xE8)))
-				  )
-				{
-					operand.type_=Operand::TYPE_REL;
-				} else {                
-	                operand.type_=Operand::TYPE_IMMEDIATE;
-				}
-                break;
-			case Capstone::X86_OP_MEM:
-                operand.type_ = Operand::TYPE_EXPRESSION;
-                operand.expr_.displacement=ops[i].mem.disp; // FIXME: truncation or wrong type chosen by capstone?..
-				if(ops[i].mem.disp!=0) // FIXME: this doesn't catch zero-valued existing displacements!
-					operand.expr_.displacement_type=Operand::DISP_PRESENT;
-				operand.expr_.base =static_cast<Operand::Register>(ops[i].mem.base);
-				operand.expr_.index=static_cast<Operand::Register>(ops[i].mem.index);
-				operand.expr_.scale=ops[i].mem.scale;
-				switch(ops[i].mem.segment)
-				{
-				case Capstone::X86_REG_ES: operand.expr_.segment=Operand::Segment::ES; break;
-				case Capstone::X86_REG_CS: operand.expr_.segment=Operand::Segment::CS; break;
-				case Capstone::X86_REG_SS: operand.expr_.segment=Operand::Segment::SS; break;
-				case Capstone::X86_REG_DS: operand.expr_.segment=Operand::Segment::DS; break;
-				case Capstone::X86_REG_FS: operand.expr_.segment=Operand::Segment::FS; break;
-				case Capstone::X86_REG_GS: operand.expr_.segment=Operand::Segment::GS; break;
-				default: operand.expr_.segment=Operand::Segment::REG_INVALID; break;
-				}
-				if(operand.expr_.segment==Operand::Segment::REG_INVALID && !isAMD64)
-				{
-					if(operand.expr_.base==Capstone::X86_REG_BP ||
-					   operand.expr_.base==Capstone::X86_REG_EBP ||
-					   operand.expr_.base==Capstone::X86_REG_ESP)
-						operand.expr_.segment=Operand::Segment::SS;
-					else
-						operand.expr_.segment=Operand::Segment::DS;
-				}
-			case Capstone::X86_OP_INVALID:
-				break;
-			default:
-				break;
-			}
-
-			operands_.push_back(operand);
+        
+		for(std::size_t i=0;i<operand_count();++i) {
+			operands_.push_back(fromCapstoneOperand(ops, i));
 		}
 
 		// Remove extraneous size specification as in 'mov eax, dword [ecx]'

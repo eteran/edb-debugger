@@ -231,6 +231,9 @@ public:
 	bool is_simd() const;
 
 private:
+	Operand fromCapstoneOperand(Capstone::cs_x86_op *ops, int i);
+
+private:
 	Capstone::cs_insn insn_;
 	Capstone::cs_detail detail_;
 	bool valid_=false;
