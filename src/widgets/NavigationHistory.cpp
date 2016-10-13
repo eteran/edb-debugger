@@ -1,5 +1,4 @@
 #include "NavigationHistory.h"
-#include <QDebug>
 
 NavigationHistory::NavigationHistory(int count)
 {

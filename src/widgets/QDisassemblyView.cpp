@@ -262,7 +262,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
                         return;
                     }
                     const edb::Operand &oper = inst.operands()[0];
-                    if(oper.general_type() == edb::Operand::TYPE_REL) {
+                    if(oper.type() == edb::Operand::TYPE_REL) {
                         const edb::address_t target = oper.relative_target();
                         edb::v1::jump_to_address(target);
                     }
