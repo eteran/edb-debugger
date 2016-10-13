@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define QDISASSEMBLYVIEW_20061101_H_
 
 #include "IRegion.h"
+#include "NavigationHistory.h"
 #include "Types.h"
 #include "Status.h"
 #include <QAbstractScrollArea>
@@ -126,6 +127,7 @@ private:
 	bool                              selecting_address_;
 	bool                              show_address_separator_;
 	QHash<edb::address_t, QString>    comments_;
+        NavigationHistory                 history_;
 };
 
 #endif
