@@ -26,21 +26,20 @@ namespace edb {
 
 namespace detail {
 
-template<std::size_t N, std::size_t n>
-constexpr typename std::enable_if<N<=9 && n==0,
-uint64_t>::type string_hash(const char (&)[N]) { return 0; }
+template <std::size_t N, std::size_t n>
+constexpr typename std::enable_if<N <= 9 && n == 0, uint64_t>::type string_hash(const char (&)[N]) {
+	return 0;
+}
 
-template<std::size_t N, std::size_t n=N-1>
-constexpr typename std::enable_if<N<=9 && n!=0,
-uint64_t>::type string_hash(const char (&array)[N]) {
-	return string_hash<N,n-1>(array) | ((array[n-1]&0xffull)<<(8*(n-1)));
+template <std::size_t N, std::size_t n=N-1>
+constexpr typename std::enable_if<N <= 9 && n != 0, uint64_t>::type string_hash(const char (&array)[N]) {
+	return string_hash<N, n - 1>(array) | ((array[n - 1] & 0xffull) << (8 * (n - 1)));
 }
 
 }
 
-template<std::size_t N>
-constexpr typename std::enable_if<N<=9,
-uint64_t>::type string_hash(const char (&array)[N]) {
+template <std::size_t N>
+constexpr typename std::enable_if<N <= 9, uint64_t>::type string_hash(const char (&array)[N]) {
 	return detail::string_hash(array);
 }
 
