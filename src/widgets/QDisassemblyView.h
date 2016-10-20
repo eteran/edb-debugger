@@ -114,8 +114,9 @@ private:
 	edb::address_t                    address_offset_;
 	edb::address_t                    selected_instruction_address_;
 	edb::address_t                    current_address_;
-	int                               font_height_; // height of a character in this font
+	qreal                             font_height_; // height of a character in this font
 	qreal                             font_width_;  // width of a character in this font
+    qreal                             icon_width_;
 	int                               line1_;
 	int                               line2_;
 	int                               line3_;
