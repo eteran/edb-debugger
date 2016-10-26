@@ -33,13 +33,13 @@ before_install:
 
 install:
     - if [ "$QT_BASE" = "48" ]; then sudo apt-get install -qq qt4-qmake libqt4-gui libqt4-core libqt4-dev; fi
-    - if [ "$QT_BASE" = "50" ]; then sudo apt-get install -qq qtbase  qtxmlpatterns; source /opt/qt5/bin/qt5-env.sh; fi
-    - if [ "$QT_BASE" = "51" ]; then sudo apt-get install -qq qt51base qt51xmlpatterns; source /opt/qt51/bin/qt51-env.sh; fi
-    - if [ "$QT_BASE" = "52" ]; then sudo apt-get install -qq qt52base qt52xmlpatterns; source /opt/qt52/bin/qt52-env.sh; fi
-    - if [ "$QT_BASE" = "53" ]; then sudo apt-get install -qq qt53base qt53xmlpatterns; source /opt/qt53/bin/qt53-env.sh; fi
-    - if [ "$QT_BASE" = "54" ]; then sudo apt-get install -qq qt54base qt54xmlpatterns; source /opt/qt54/bin/qt54-env.sh; fi
-    - if [ "$QT_BASE" = "55" ]; then sudo apt-get install -qq qt55base qt55xmlpatterns; source /opt/qt55/bin/qt55-env.sh; fi
-    - if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base qt56xmlpatterns; source /opt/qt56/bin/qt56-env.sh; fi
+    - if [ "$QT_BASE" = "50" ]; then sudo apt-get install -qq qtbase  qtxmlpatterns qtsvg; source /opt/qt5/bin/qt5-env.sh; fi
+    - if [ "$QT_BASE" = "51" ]; then sudo apt-get install -qq qt51base qt51xmlpatterns qt51svg; source /opt/qt51/bin/qt51-env.sh; fi
+    - if [ "$QT_BASE" = "52" ]; then sudo apt-get install -qq qt52base qt52xmlpatterns qt52svg; source /opt/qt52/bin/qt52-env.sh; fi
+    - if [ "$QT_BASE" = "53" ]; then sudo apt-get install -qq qt53base qt53xmlpatterns qt53svg; source /opt/qt53/bin/qt53-env.sh; fi
+    - if [ "$QT_BASE" = "54" ]; then sudo apt-get install -qq qt54base qt54xmlpatterns qt54svg; source /opt/qt54/bin/qt54-env.sh; fi
+    - if [ "$QT_BASE" = "55" ]; then sudo apt-get install -qq qt55base qt55xmlpatterns qt55svg; source /opt/qt55/bin/qt55-env.sh; fi
+    - if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base qt56xmlpatterns qt56svg; source /opt/qt56/bin/qt56-env.sh; fi
 
 before_script:
     - if [ "$QT_BASE" == "48" ]; then mkdir build && cd build && cmake -DQT_VERSION=Qt4 ..; fi
