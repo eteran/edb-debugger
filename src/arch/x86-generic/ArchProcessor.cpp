@@ -359,20 +359,22 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 		"r8",
 		"r9" } :
 	std::vector<const char*>{} );
+    
+	static const QString prefix(QLatin1String("!"));
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		// we will always be removing the last 2 chars '+0' from the string as well
 		// as chopping the region prefix we like to prepend to symbols
 		QString func_name;
-		const int colon_index = symname.indexOf("::");
+		const int colon_index = symname.indexOf(prefix);
 
 		if(colon_index != -1) {
-			func_name = symname.left(symname.length() - 2).mid(colon_index + 2);
+			func_name = symname.left(symname.length() - 2).mid(colon_index + prefix.size());
 		}
 
 		// safe not to check for -1, it means 'rest of string' for the mid function
 		func_name = func_name.mid(0, func_name.indexOf("@"));
-
+        
 		if(const edb::Prototype *const info = edb::v1::get_function_info(func_name)) {
 
 			QStringList arguments;
@@ -550,6 +552,7 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 				do {
 					int offset;
 					const QString symname = edb::v1::find_function_symbol(effective_address, QString(), &offset);
+                    
 					if(!symname.isEmpty()) {
 						ret << QString("%1 = %2 <%3>").arg(temp_operand, edb::v1::format_pointer(effective_address), symname);
 
@@ -707,7 +710,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							else if(operand.is_SIMD_PD())
 								valueString=formatPackedFloat<edb::value64>(reg.rawData(),reg.bitSize()/8);
 							else
-								valueString = reg.toHexString();
+								valueString = "0x" + reg.toHexString();
 						}
 						ret << QString("%1 = %2").arg(temp_operand).arg(valueString);
 						break;
