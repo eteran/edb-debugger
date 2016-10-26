@@ -231,19 +231,56 @@ QDisassemblyView::~QDisassemblyView() {
 // Name: keyPressEvent
 //------------------------------------------------------------------------------
 void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
-	if (event->matches(QKeySequence::MoveToStartOfDocument)) {
-		verticalScrollBar()->setValue(0);
-	} else if (event->matches(QKeySequence::MoveToEndOfDocument)) {
-		verticalScrollBar()->setValue(verticalScrollBar()->maximum());
-	} else if (event->matches(QKeySequence::MoveToNextLine)) {
-		scrollbar_action_triggered(QAbstractSlider::SliderSingleStepAdd);
-	} else if (event->matches(QKeySequence::MoveToPreviousLine)) {
-		scrollbar_action_triggered(QAbstractSlider::SliderSingleStepSub);
-	} else if (event->matches(QKeySequence::MoveToNextPage)) {
-		scrollbar_action_triggered(QAbstractSlider::SliderPageStepAdd);
-	} else if (event->matches(QKeySequence::MoveToPreviousPage)) {
-		scrollbar_action_triggered(QAbstractSlider::SliderPageStepSub);
-	}
+    if (event->matches(QKeySequence::MoveToStartOfDocument)) {
+        verticalScrollBar()->setValue(0);
+    } else if (event->matches(QKeySequence::MoveToEndOfDocument)) {
+        verticalScrollBar()->setValue(verticalScrollBar()->maximum());
+    } else if (event->matches(QKeySequence::MoveToNextLine)) {
+        const edb::address_t next_address = following_instructions(selectedAddress()-address_offset_, 1) + address_offset_;
+        if (!addressShown(next_address))
+            scrollTo(next_address);
+        setSelectedAddress(next_address);
+    } else if (event->matches(QKeySequence::MoveToPreviousLine)) {
+        const edb::address_t prev_address = previous_instructions(selectedAddress()-address_offset_, 1) + address_offset_;
+        if (!addressShown(prev_address))
+            scrollTo(prev_address);
+        setSelectedAddress(prev_address);
+    } else if (event->matches(QKeySequence::MoveToNextPage)) {
+        scrollbar_action_triggered(QAbstractSlider::SliderPageStepAdd);
+    } else if (event->matches(QKeySequence::MoveToPreviousPage)) {
+        scrollbar_action_triggered(QAbstractSlider::SliderPageStepSub);
+    } else if (event->key() == Qt::Key_Return) {
+        const edb::address_t address = selectedAddress();
+        if (address == 0)
+            return;
+        quint8 buf[edb::Instruction::MAX_SIZE + 1];
+        int buf_size = sizeof(buf);
+        if (edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
+            edb::Instruction inst(buf, buf + buf_size, address);
+            if (inst) {
+                if(is_call(inst) || is_jump(inst)) {
+                    if(inst.operand_count() != 1) {
+                        return;
+                    }
+                    const edb::Operand &oper = inst.operands()[0];
+                    if(oper.type() == edb::Operand::TYPE_REL) {
+                        const edb::address_t target = oper.relative_target();
+                        edb::v1::jump_to_address(target);
+                    }
+                }
+            }
+        }
+    } else if (event->key() == Qt::Key_Minus) {
+        edb::address_t prev_addr = history_.getPrev();
+        if (prev_addr != 0) {
+            edb::v1::jump_to_address(prev_addr);
+        }
+    } else if (event->key() == Qt::Key_Plus) {
+        edb::address_t next_addr = history_.getNext();
+        if (next_addr != 0) {
+            edb::v1::jump_to_address(next_addr);
+        }
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -1344,6 +1381,7 @@ edb::address_t QDisassemblyView::selectedAddress() const {
 void QDisassemblyView::setSelectedAddress(edb::address_t address) {
 
 	if(region_) {
+                history_.add(address);
 		const Result<int> size = get_instruction_size(address);
 
 		if(size) {

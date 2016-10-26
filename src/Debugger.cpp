@@ -2330,6 +2330,7 @@ void Debugger::do_jump_to_address(edb::address_t address, const IRegion::pointer
 	if(scrollTo && !ui.cpuView->addressShown(address)) {
 		ui.cpuView->scrollTo(address);
 	}
+        ui.cpuView->setSelectedAddress(address);
 }
 
 //------------------------------------------------------------------------------

@@ -95,6 +95,7 @@ set(edb_SRCS
 	SymbolManager.cpp
 	ThreadsModel.cpp
 	widgets/LineEdit.cpp
+	widgets/NavigationHistory.cpp
 	widgets/QDisassemblyView.cpp
 	widgets/RegisterListWidget.cpp
 	widgets/RegisterViewDelegate.cpp
