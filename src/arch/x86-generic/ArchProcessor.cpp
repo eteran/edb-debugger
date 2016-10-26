@@ -351,15 +351,20 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 	 * calling convention, additional arguments are pushed onto the stack and
 	 * the return value is stored in RAX.
 	 */
-	const std::vector<const char *> parameter_registers = ( debuggeeIs64Bit() ? std::vector<const char*>{
-		"rdi",
-		"rsi",
-		"rdx",
-		"rcx",
-		"r8",
-		"r9" } :
-	std::vector<const char*>{} );
+	static const std::vector<const char *> parameter_registers_x64 = {
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "r8",
+        "r9"
+	};
     
+	static const std::vector<const char *> parameter_registers_x86 = {
+	};
+
+	const std::vector<const char *> &parameter_registers = (debuggeeIs64Bit() ? parameter_registers_x64 : parameter_registers_x86);
+
 	static const QString prefix(QLatin1String("!"));
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
