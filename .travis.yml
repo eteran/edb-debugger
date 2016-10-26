@@ -47,6 +47,8 @@ before_script:
 
 script:
     - make
+
+after_success:
     - cd ..
     - cp ./src/images/edb.png ./build
     - cp ./edb.desktop ./build
