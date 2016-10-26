@@ -197,7 +197,7 @@ endif()
 add_executable(edb ${edb_INCLUDES} ${edb_SRCS})
 
 if(Qt5Core_DIR)
-	target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt5::Widgets Qt5::Xml Qt5::XmlPatterns Qt4::Svg ${GRAPHVIZ_LIBRARIES})
+	target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt5::Widgets Qt5::Xml Qt5::XmlPatterns Qt5::Svg ${GRAPHVIZ_LIBRARIES})
 elseif(NOT Qt5Core_DIR)
 	target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt4::QtGui Qt4::QtXml Qt4::QtXmlPatterns Qt4::QtSvg ${GRAPHVIZ_LIBRARIES})
 endif()
