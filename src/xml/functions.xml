@@ -462,4 +462,8 @@ P4FILE = "FILE *"
 		<argument type="PFvvE" name="rtld_fini" />
 		<argument type="Pv" name="stack_end" />
 	</function>
+    
+    <function type="Pv" name="_dl_start"> <!-- return type is really ElfW(Addr) "-->
+    	<argument type="Pv" name="arg" />
+    </function>
 </functions>
