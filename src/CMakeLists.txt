@@ -75,6 +75,7 @@ set(edb_SRCS
 	DialogPlugins.cpp
 	DialogThreads.cpp
 	edb.cpp
+	ExpressionDialog.cpp
 	FixedFontSelector.cpp
 	FloatX.cpp
 	Function.cpp
