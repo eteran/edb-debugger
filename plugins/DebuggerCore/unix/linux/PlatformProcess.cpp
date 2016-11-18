@@ -78,23 +78,24 @@ void set_ok(bool &ok, long value) {
 }
 
 QStringList split_max(const QString &str, const int &maxparts) {
-	QList<int> idxs;
-	int idx = 0;
+	int prev_idx = 0, idx = 0;
 	QStringList items;
-	idxs << 0;
 	for (const QChar &c : str) {
-		if (c == ' ')
-			idxs << idx;
+		if (c == ' ') {
+			if (prev_idx < idx) {
+				if (items.size() < maxparts - 1)
+					items << str.mid(prev_idx, idx - prev_idx);
+				else {
+					items << str.right(str.size() - prev_idx);
+					break;
+				}
+			}
+			prev_idx = idx + 1;
+		}
 		++idx;
 	}
-	idxs << str.size();
-	for (int i = 0; i < idxs.size() - 1; i++) {
-		if (idxs[i+1] - idxs[i] > 1) {
-			if (items.size() < maxparts - 1)
-				items << str.mid(idxs[i], idxs[i+1] - idxs[i]);
-			else
-				items << str.right(str.size() - idxs[i]);
-		}
+	if (prev_idx < str.size() && items.size() < maxparts) {
+		items << str.right(str.size() - prev_idx);
 	}
 	return items;
 }
