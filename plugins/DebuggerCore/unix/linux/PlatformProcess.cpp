@@ -601,6 +601,12 @@ long PlatformProcess::ptrace_peek(edb::address_t address, bool *ok) const {
 	Q_ASSERT(ok);
 	Q_ASSERT(core_->process_ == this);
 
+	if (EDB_IS_32_BIT && address > 0xffffffffULL) {
+		// 32 bit ptrace can't handle such long addresses
+		*ok = false;
+		return 0;
+	}
+
 	errno = 0;
 	// NOTE: on some Linux systems ptrace prototype has ellipsis instead of third and fourth arguments
 	// Thus we can't just pass address as is on IA32 systems: it'd put 64 bit integer on stack and cause UB
@@ -617,6 +623,11 @@ long PlatformProcess::ptrace_peek(edb::address_t address, bool *ok) const {
 bool PlatformProcess::ptrace_poke(edb::address_t address, long value) {
 
 	Q_ASSERT(core_->process_ == this);
+
+	if (EDB_IS_32_BIT && address > 0xffffffffULL) {
+		// 32 bit ptrace can't handle such long addresses
+		return 0;
+	}
 
 	// NOTE: on some Linux systems ptrace prototype has ellipsis instead of third and fourth arguments
 	// Thus we can't just pass address as is on IA32 systems: it'd put 64 bit integer on stack and cause UB
