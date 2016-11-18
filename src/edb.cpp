@@ -35,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "State.h"
 #include "SymbolManager.h"
 #include "version.h"
+#include "ExpressionDialog.h"
 
 #include <QAction>
 #include <QAtomicPointer>
@@ -43,15 +44,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDomDocument>
 #include <QFile>
 #include <QFileInfo>
-#include <QInputDialog>
 #include <QMessageBox>
-#include <QLabel>
 #include <QCoreApplication>
-
 #include <cctype>
 
 IDebugger *edb::v1::debugger_core = 0;
 QWidget   *edb::v1::debugger_ui   = 0;
+
 
 namespace {
 
@@ -500,48 +499,14 @@ bool eval_expression(const QString &expression, address_t *value) {
 // Desc:
 //------------------------------------------------------------------------------
 bool get_expression_from_user(const QString &title, const QString prompt, address_t *value) {
-
     bool retval = false;
+    ExpressionDialog *inputDialog = new ExpressionDialog(title, prompt);
 
-    QInputDialog *inputDialog = new QInputDialog(debugger_ui);
-    QString label = inputDialog->labelText(); // need for create layout
-    inputDialog->setWindowTitle(title);
-    inputDialog->setLabelText(prompt);
-
-    QHash<edb::address_t, QString> labels = edb::v1::symbol_manager().labels();
-    QList<Symbol::pointer> symbols = edb::v1::symbol_manager().symbols();
-
-    QList<QString> allLabels;
-
-    for(const Symbol::pointer &sym: symbols)
+    if(inputDialog->exec())
     {
-        allLabels.append(sym->name_no_prefix);
+        *value = inputDialog->getAddress();
+        retval = true;
     }
-    allLabels.append(edb::v1::symbol_manager().labels().values());
-
-
-    QCompleter *completer = new QCompleter(allLabels);
-    QLineEdit *lineEdit = inputDialog->findChild<QLineEdit*>();
-    if (lineEdit)
-    {
-        lineEdit->setCompleter(completer);
-        if(inputDialog->exec())
-        {
-            QString text = inputDialog->textValue();
-            edb::address_t resAddr = labels.key(text);
-
-            if (resAddr)
-            {
-                *value = resAddr;
-                retval = true;
-            }
-            else
-            {
-                retval = eval_expression(text, value);
-            }
-        }
-    }
-    allLabels.clear();
     delete inputDialog;
     return retval;
 }
