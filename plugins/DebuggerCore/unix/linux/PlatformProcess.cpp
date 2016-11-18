@@ -204,6 +204,8 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(cor
 			if (!core_->proc_mem_write_broken_) {
 				rw_mem_file_ = memory_file;
 			}
+		} else {
+			delete memory_file;
 		}
 	}
 }
