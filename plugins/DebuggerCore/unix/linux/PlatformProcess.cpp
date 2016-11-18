@@ -77,6 +77,29 @@ void set_ok(bool &ok, long value) {
 	ok = (value != -1) || (errno == 0);
 }
 
+QStringList split_max(const QString &str, const int &maxparts) {
+	int prev_idx = 0, idx = 0;
+	QStringList items;
+	for (const QChar &c : str) {
+		if (c == ' ') {
+			if (prev_idx < idx) {
+				if (items.size() < maxparts - 1)
+					items << str.mid(prev_idx, idx - prev_idx);
+				else {
+					items << str.right(str.size() - prev_idx);
+					break;
+				}
+			}
+			prev_idx = idx + 1;
+		}
+		++idx;
+	}
+	if (prev_idx < str.size() && items.size() < maxparts) {
+		items << str.right(str.size() - prev_idx);
+	}
+	return items;
+}
+	
 //------------------------------------------------------------------------------
 // Name: process_map_line
 // Desc: parses the data from a line of a memory map file
@@ -89,7 +112,7 @@ IRegion::pointer process_map_line(const QString &line) {
 	IRegion::permissions_t permissions;
 	QString name;
 
-	const QStringList items = line.split(" ", QString::SkipEmptyParts);
+	const QStringList items = split_max(line, 6);
 	if(items.size() >= 3) {
 		bool ok;
 		const QStringList bounds = items[0].split("-");
