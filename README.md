@@ -15,7 +15,7 @@ Cloning
 
 When cloning the repo, please use git's `--recursive` flag to ensure that the sub-modules will be properly cloned and updated to the correct versions. Here is an example:
 
-`git clone --recursive git@github.com:eteran/edb-debugger.git`
+`git clone --recursive https://github.com/eteran/edb-debugger.git`
 
 Compiling
 ---------
