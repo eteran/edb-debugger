@@ -215,8 +215,22 @@ QList<Module> loaded_modules_(const IProcess* process, const std::unique_ptr<IBi
 // Name: PlatformProcess
 // Desc: 
 //------------------------------------------------------------------------------
-PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(core), pid_(pid) {
-
+PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(core), pid_(pid), ro_mem_file_(0), rw_mem_file_(0) {
+	if (!core_->proc_mem_read_broken_) {
+		QFile* memory_file = new QFile(QString("/proc/%1/mem").arg(pid_));
+		auto flags = QIODevice::ReadOnly | QIODevice::Unbuffered;
+		if (!core_->proc_mem_write_broken_) {
+			flags |= QIODevice::WriteOnly;
+		}
+		if (memory_file->open(flags)) {
+			ro_mem_file_ = memory_file;
+			if (!core_->proc_mem_write_broken_) {
+				rw_mem_file_ = memory_file;
+			}
+		} else {
+			delete memory_file;
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -224,6 +238,9 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(cor
 // Desc: 
 //------------------------------------------------------------------------------
 PlatformProcess::~PlatformProcess() {
+	if (ro_mem_file_) {
+		delete ro_mem_file_;
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -256,9 +273,9 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 
 	Q_ASSERT(buf);
 	Q_ASSERT(core_->process_ == this);
-	
+
 	auto ptr = reinterpret_cast<char *>(buf);
-	
+
 	if(len != 0) {
 
 		// small reads take the fast path
@@ -270,39 +287,43 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 				return 1;
 			}
 
-			bool ok;
-			quint8 x = read_byte(address, &ok);
-			if(ok) {
-				*ptr = x;
-				return 1;
+			if(ro_mem_file_) {
+				seek_addr(*ro_mem_file_, address);
+				read = ro_mem_file_->read(ptr, 1);
+				if (read == 1) {
+					return 1;
+				}
+				return 0;
+			} else {
+				bool ok;
+				quint8 x = read_byte_via_ptrace(address, &ok);
+				if(ok) {
+					*ptr = x;
+					return 1;
+				}
+				return 0;
 			}
-			return 0;
 		}
 
-
-		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-		if(!core_->proc_mem_read_broken_ && memory_file.open(QIODevice::ReadOnly)) {
-
-			seek_addr(memory_file, address);
-			read = memory_file.read(ptr, len);
+		if(ro_mem_file_) {
+			seek_addr(*ro_mem_file_, address);
+			read = ro_mem_file_->read(ptr, len);
 			if(read == 0 || read == quint64(-1)) {
 				return 0;
 			}
-
-			memory_file.close();
 		} else {
 			for(std::size_t index = 0; index < len; ++index) {
-			
+
 				// read a byte, if we failed, we are done
 				bool ok;
-				const quint8 x = read_byte(address + index, &ok);
+				const quint8 x = read_byte_via_ptrace(address + index, &ok);
 				if(!ok) {
 					break;
 				}
 
 				// store it
 				reinterpret_cast<char*>(buf)[index] = x;
-				
+
 				++read;
 			}
 		}
@@ -327,33 +348,21 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 	quint64 written = 0;
 
 	Q_ASSERT(buf);
-	Q_ASSERT(core_->process_ == this);	
-	
-	if(len != 0) {
-	
-		// small writes take the fast path
-		if(len == 1) {
-			bool ok;
-			write_byte(address, *reinterpret_cast<const char *>(buf), &ok);
-			return ok ? 1 : 0;		
-		}
-	
-		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-		// NOTE: If buffered, it may not report any write errors, behaving as if it succeeded
-		if(!core_->proc_mem_write_broken_ && memory_file.open(QIODevice::WriteOnly|QIODevice::Unbuffered)) {
+	Q_ASSERT(core_->process_ == this);
 
-			seek_addr(memory_file,address);
-			written = memory_file.write(reinterpret_cast<const char *>(buf), len);
+	if(len != 0) {
+		if(rw_mem_file_) {
+			seek_addr(*rw_mem_file_,address);
+			written = rw_mem_file_->write(reinterpret_cast<const char *>(buf), len);
 			if(written == 0 || written == quint64(-1)) {
 				return 0;
 			}
-
-			memory_file.close();
 		}
 		else {
+			// TODO write whole words at a time using ptrace_poke.
 			for(std::size_t byteIndex=0;byteIndex<len;++byteIndex) {
 				bool ok=false;
-				write_byte(address+byteIndex, *(reinterpret_cast<const char*>(buf)+byteIndex), &ok);
+				write_byte_via_ptrace(address+byteIndex, *(reinterpret_cast<const char*>(buf)+byteIndex), &ok);
 				if(!ok) return written;
 				++written;
 			}
@@ -536,7 +545,7 @@ QList<IRegion::pointer> PlatformProcess::regions() const {
 // Name: read_byte
 // Desc: the base implementation of reading a byte
 //------------------------------------------------------------------------------
-quint8 PlatformProcess::read_byte(edb::address_t address, bool *ok) const {
+quint8 PlatformProcess::read_byte_via_ptrace(edb::address_t address, bool *ok) const {
 	// TODO(eteran): assert that we are paused
 
 	Q_ASSERT(ok);
@@ -557,7 +566,7 @@ quint8 PlatformProcess::read_byte(edb::address_t address, bool *ok) const {
 	const edb::address_t addressShift = nBytesToNextPage < EDB_WORDSIZE ? EDB_WORDSIZE - nBytesToNextPage : 0;
 	address -= addressShift;
 
-	const long value = read_data(address, ok);
+	const long value = ptrace_peek(address, ok);
 
 	if(*ok) {
 		quint8 result;
@@ -573,11 +582,11 @@ quint8 PlatformProcess::read_byte(edb::address_t address, bool *ok) const {
 
 //------------------------------------------------------------------------------
 // Name: write_byte
-// Desc: writes a single byte at a given address
+// Desc: writes a single byte at a given address via ptrace API.
 // Note: assumes the this will not trample any breakpoints, must be handled
 //       in calling code!
 //------------------------------------------------------------------------------
-void PlatformProcess::write_byte(edb::address_t address, quint8 value, bool *ok) {
+void PlatformProcess::write_byte_via_ptrace(edb::address_t address, quint8 value, bool *ok) {
 	// TODO(eteran): assert that we are paused
 
 	Q_ASSERT(ok);
@@ -595,40 +604,29 @@ void PlatformProcess::write_byte(edb::address_t address, quint8 value, bool *ok)
 	const edb::address_t addressShift = nBytesToNextPage < EDB_WORDSIZE ? EDB_WORDSIZE - nBytesToNextPage : 0;
 	address -= addressShift;
 
-	long word = read_data(address, ok);
+	long word = ptrace_peek(address, ok);
 	if(!*ok) return;
 
 	// We aren't interested in `value` as in number, it's just a buffer, so no endianness magic.
 	// Just have to compensate for `addressShift` when writing it.
 	std::memcpy(reinterpret_cast<char*>(&word)+addressShift,&value,sizeof value);
 
-	*ok = write_data(address, word);
+	*ok = ptrace_poke(address, word);
 }
 
 //------------------------------------------------------------------------------
-// Name: read_data
+// Name: ptrace_peek
 // Desc:
 // Note: this will fail on newer versions of linux if called from a
 //       different thread than the one which attached to process
 //------------------------------------------------------------------------------
-long PlatformProcess::read_data(edb::address_t address, bool *ok) const {
-
+long PlatformProcess::ptrace_peek(edb::address_t address, bool *ok) const {
 	Q_ASSERT(ok);
 	Q_ASSERT(core_->process_ == this);
 
-	if(EDB_IS_32_BIT && address>0xffffffffULL) {
-		// 32 bit ptrace can't handle such long addresses, try reading /proc/$PID/mem
-		// FIXME: this is slow. Try keeping the file open, not reopening it on each read.
-		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-		if(memory_file.open(QIODevice::ReadOnly)) {
-
-			seek_addr(memory_file,address);
-			long value;
-			if(memory_file.read(reinterpret_cast<char*>(&value), sizeof(long))==sizeof(long)) {
-				*ok=true;
-				return value;
-			}
-		}
+	if (EDB_IS_32_BIT && address > 0xffffffffULL) {
+		// 32 bit ptrace can't handle such long addresses
+		*ok = false;
 		return 0;
 	}
 
@@ -642,24 +640,18 @@ long PlatformProcess::read_data(edb::address_t address, bool *ok) const {
 }
 
 //------------------------------------------------------------------------------
-// Name: write_data
+// Name: ptrace_poke
 // Desc:
 //------------------------------------------------------------------------------
-bool PlatformProcess::write_data(edb::address_t address, long value) {
+bool PlatformProcess::ptrace_poke(edb::address_t address, long value) {
 
 	Q_ASSERT(core_->process_ == this);
 
-	if(EDB_IS_32_BIT && address>0xffffffffULL) {
+	if (EDB_IS_32_BIT && address > 0xffffffffULL) {
 		// 32 bit ptrace can't handle such long addresses
-		QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-		if(memory_file.open(QIODevice::WriteOnly|QIODevice::Unbuffered)) { // If buffered, it may not report any errors as if it succeeded
-
-			seek_addr(memory_file,address);
-			if(memory_file.write(reinterpret_cast<char*>(&value), sizeof(long))==sizeof(long))
-				return true;
-		}
-		return false;
+		return 0;
 	}
+
 	// NOTE: on some Linux systems ptrace prototype has ellipsis instead of third and fourth arguments
 	// Thus we can't just pass address as is on IA32 systems: it'd put 64 bit integer on stack and cause UB
 	auto nativeAddress=reinterpret_cast<const void* const>(address.toUint());
@@ -675,11 +667,11 @@ QList<IThread::pointer> PlatformProcess::threads() const {
 	Q_ASSERT(core_->process_ == this);
 
 	QList<IThread::pointer> threadList;
-	
+
 	for(auto &thread : core_->threads_) {
 		threadList.push_back(thread);
 	}
-	
+
 	return threadList;
 }
 
