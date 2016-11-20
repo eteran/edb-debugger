@@ -989,18 +989,25 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			QString immed_string;
 			for (unsigned int op_idx = 0; op_idx < op_count; op_idx++) {
 				auto oper = inst.operands()[op_idx];
-				edb::address_t address = 0;
+				edb::address_t ascii_address = 0;
 				if (oper.type() == edb::Operand::TYPE_REL || oper.type() == edb::Operand::TYPE_IMMEDIATE) {
-					address = oper.relative_target();
-				} else if (oper.type() == edb::Operand::TYPE_EXPRESSION) {
-					// TODO Interact with capstone to evaluate operand's displacement
+					ascii_address = oper.relative_target();
+				} else if (
+					oper.type() == edb::Operand::TYPE_EXPRESSION &&
+					oper.expression().displacement_type == edb::Operand::DISP_PRESENT)
+				{
+					if (oper.expression().base == edb::Operand::Register::X86_REG_RIP) {
+						ascii_address += address + oper.owner()->size() + oper.expression().displacement;
+					} else if (oper.expression().displacement > 0) {
+						ascii_address = oper.expression().displacement;
+					}
 				}
 
-				if (address > 0x10000) { // FIXME use page size
+				if (ascii_address > 0x10000ULL) { // FIXME use page size
 					QString string_param;
 					int string_length;
 
-					if (edb::v1::get_ascii_string_at_address(address, string_param, edb::v1::config().min_string_length, 256, string_length)) {
+					if (edb::v1::get_ascii_string_at_address(ascii_address, string_param, edb::v1::config().min_string_length, 256, string_length)) {
 						immed_string.append(
 							QString("ASCII \"%1\" ").arg(string_param)
 						);
