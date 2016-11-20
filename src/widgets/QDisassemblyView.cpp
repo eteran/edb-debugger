@@ -980,12 +980,12 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		QString comment = comments_.value(address, QString(""));
 		if (!comment.isEmpty()) {
 			painter.drawText(
-						l3 + font_width_ + (font_width_ / 2),
-						y,
-						comment.length() * font_width_,
-						line_height,
-						Qt::AlignCenter,
-						comment);
+				l3 + font_width_ + (font_width_ / 2),
+				y,
+				comment.length() * font_width_,
+				line_height,
+				Qt::AlignCenter,
+				comment);
 		}
 
 		y += line_height;
