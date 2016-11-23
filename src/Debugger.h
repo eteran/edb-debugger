@@ -322,8 +322,6 @@ private:
 	QString                                          working_directory_;
 	QString                                          program_executable_;
 	bool                                             stack_view_locked_;
-	bool                                             auto_stack_word_width_;
-	int                                              stack_word_width_;
 	IDebugEvent::const_pointer                       last_event_;
 	QLabel *                                         status_;
 #ifdef Q_OS_UNIX

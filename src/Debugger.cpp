@@ -289,9 +289,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 		timer_(new QTimer(this)),
 		recent_file_manager_(new RecentFileManager(this)),
 		stack_comment_server_(new CommentServer),
-		stack_view_locked_(false),
-		auto_stack_word_width_(true),
-		stack_word_width_(edb::v1::pointer_size())
+		stack_view_locked_(false)
 #ifdef Q_OS_UNIX
 		,debug_pointer_(0)
 #endif
@@ -864,6 +862,10 @@ void Debugger::setup_ui() {
 void Debugger::setup_stack_view() {
 
 	stack_view_ = std::make_shared<QHexView>();
+    
+	stack_view_->setUserConfigRowWidth(false);
+	stack_view_->setUserConfigWordWidth(false);
+    
 	ui.stackDock->setWidget(stack_view_.get());
 
 	// setup the context menu
@@ -895,17 +897,10 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	settings.setValue("window.stack.show_hex.enabled", stack_view_->showHexDump());
 	settings.setValue("window.stack.show_ascii.enabled", stack_view_->showAsciiDump());
 	settings.setValue("window.stack.show_comments.enabled", stack_view_->showComments());
-	settings.setValue("window.stack.row_width", stack_view_->rowWidth());
-	if(auto_stack_word_width_)
-		settings.setValue("window.stack.word_width", -1);
-	else
-		settings.setValue("window.stack.word_width", stack_view_->wordWidth());
-		
-	
+
 	QByteArray dissassemblyState = ui.cpuView->saveState();
 	settings.setValue("window.disassembly.state", dissassemblyState);
-	
-	
+		
 	settings.endGroup();
 	event->accept();
 }
@@ -958,28 +953,11 @@ void Debugger::showEvent(QShowEvent *) {
 	stack_view_->setShowAsciiDump(settings.value("window.stack.show_ascii.enabled", true).value<bool>());
 	stack_view_->setShowComments(settings.value("window.stack.show_comments.enabled", true).value<bool>());
 
-	int row_width = settings.value("window.stack.row_width", 1).value<int>();
-
-	{
-		int word_width = settings.value("window.stack.word_width", edb::v1::pointer_size()).value<int>();
-		auto_stack_word_width_ = (word_width < 0);
-		if(auto_stack_word_width_)
-			stack_word_width_ = edb::v1::pointer_size();
-		else
-			stack_word_width_ = word_width;
-	}
-
-	// normalize values
-	if(stack_word_width_ != 1 && stack_word_width_ != 2 && stack_word_width_ != 4 && stack_word_width_ != 8) {
-		stack_word_width_ = edb::v1::pointer_size();
-	}
-
-	if(row_width != 1 && row_width != 2 && row_width != 4 && row_width != 8 && row_width != 16) {
-		row_width = 1;
-	}
+	int row_width  = 1;
+	int word_width = edb::v1::pointer_size();
 
 	stack_view_->setRowWidth(row_width);
-	stack_view_->setWordWidth(stack_word_width_);
+	stack_view_->setWordWidth(word_width);
 	
 	
 	QByteArray disassemblyState = settings.value("window.disassembly.state").value<QByteArray>();
@@ -2851,9 +2829,7 @@ void Debugger::setup_data_views() {
 	}
 
 	// Update stack word width
-	if(auto_stack_word_width_)
-		stack_word_width_=edb::v1::pointer_size();
-	stack_view_->setWordWidth(stack_word_width_);
+	stack_view_->setWordWidth(edb::v1::pointer_size());
 }
 
 //------------------------------------------------------------------------------
