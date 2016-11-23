@@ -25,24 +25,40 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BinaryInfo {
 
+class ELFBinaryException : public std::exception {
+	enum reasonEnum {
+		INVALID_ARGUMENTS = 1,
+		READ_FAILURE = 2,
+		INVALID_ELF = 3,
+		INVALID_ARCHITECTURE = 4
+	};
+	public:
+		ELFBinaryException(reasonEnum reason);
+	public:
+		virtual const char * what();
+
+	private:
+		reasonEnum reason_;
+};
+
+
 template<typename elfxx_header> class ELFXX : public IBinary {
 	public:
 		ELFXX(const IRegion::pointer &region);
 		virtual ~ELFXX();
 	public:
 		virtual bool native() const;
-		virtual bool validate_header();
 		virtual edb::address_t calculate_main();
 		virtual edb::address_t debug_pointer();
 		virtual edb::address_t entry_point();
 		virtual size_t header_size() const;
 		virtual const void *header() const;
-	private:
-		void read_header();
 
 	private:
+		void validate_header();
 		IRegion::pointer region_;
-		elfxx_header *   header_;
+		elfxx_header header_;
+		edb::address_t base_address_;
 };
 
 typedef ELFXX<elf32_header> ELF32;
