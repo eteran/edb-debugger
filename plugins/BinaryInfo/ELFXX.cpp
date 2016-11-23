@@ -32,8 +32,16 @@ ELFXX<elfxx_header>::~ELFXX() {
 //------------------------------------------------------------------------------
 template<typename elfxx_header>
 size_t ELFXX<elfxx_header>::header_size() const {
-	// TODO include size of other headers as well
-	return sizeof(elfxx_header);
+	if (header_) {
+		size_t size = header_->e_ehsize;
+		// Do the program headers immediately follow the ELF header?
+		if (size == header_->e_phoff) {
+			size += header_->e_phentsize * header_->e_phnum;
+		}
+		return size;
+	} else {
+		return sizeof(elfxx_header);
+	}
 }
 
 
