@@ -78,7 +78,7 @@ bool ELF64::native() const {
 edb::address_t ELF64::entry_point() {
 	read_header();
 	if(header_) {
-		return header_->e_entry;
+		return header_->e_entry + region_->start();
 	}
 	return 0;
 }
