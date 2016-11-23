@@ -18,8 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BinaryInfo.h"
 #include "DialogHeader.h"
-#include "ELF32.h"
-#include "ELF64.h"
+#include "ELFXX.h"
 #include "IBinary.h"
 #include "ISymbolManager.h"
 #include "PE32.h"

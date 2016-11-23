@@ -16,37 +16,38 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ELF64_20070718_H_
-#define ELF64_20070718_H_
+#ifndef ELF32_20070718_H_
+#define ELF32_20070718_H_
 
 #include "IBinary.h"
 #include "elf_binary.h"
 
+
 namespace BinaryInfo {
 
-class ELF64 : public IBinary {
-public:
-	ELF64(const IRegion::pointer &region);
-	virtual ~ELF64();
+template<typename elfxx_header> class ELFXX : public IBinary {
+	public:
+		ELFXX(const IRegion::pointer &region);
+		virtual ~ELFXX();
+	public:
+		virtual bool native() const;
+		virtual bool validate_header();
+		virtual edb::address_t calculate_main();
+		virtual edb::address_t debug_pointer();
+		virtual edb::address_t entry_point();
+		virtual size_t header_size() const;
+		virtual const void *header() const;
+	private:
+		void read_header();
 
-public:
-	virtual bool native() const;
-	virtual bool validate_header();
-	virtual edb::address_t calculate_main();
-	virtual edb::address_t debug_pointer();
-	virtual edb::address_t entry_point();
-	virtual size_t header_size() const;
-	virtual const void *header() const;
-
-private:
-	void read_header();
-
-private:
-	IRegion::pointer region_;
-	elf64_header *   header_;
+	private:
+		IRegion::pointer region_;
+		elfxx_header *   header_;
 };
 
-}
+typedef ELFXX<elf32_header> ELF32;
+typedef ELFXX<elf64_header> ELF64;
+
+};
 
 #endif
-

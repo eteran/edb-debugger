@@ -18,8 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogHeader.h"
 #include "edb.h"
-#include "ELF32.h"
-#include "ELF64.h"
+#include "ELFXX.h"
 #include "MemoryRegions.h"
 #include "PE32.h"
 #include <QMessageBox>
