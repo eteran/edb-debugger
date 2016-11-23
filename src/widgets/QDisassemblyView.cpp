@@ -870,13 +870,10 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			}
 		} else
 
-#if 1
 		// highlight header of binary
 		if(binary_info && address >= region_->start() && address - region_->start() < binary_info->header_size()) {
 			painter.fillRect(0, y, width(), line_height, QBrush(Qt::lightGray));
-		} else
-#endif
-		if(row_index & 1) {
+		} else if(row_index & 1) {
 			// draw alternating line backgrounds
 			painter.fillRect(0, y, width(), line_height, alternated_base_color);
 		}
@@ -980,12 +977,54 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		QString comment = comments_.value(address, QString(""));
 		if (!comment.isEmpty()) {
 			painter.drawText(
-						l3 + font_width_ + (font_width_ / 2),
-						y,
-						comment.length() * font_width_,
-						line_height,
-						Qt::AlignCenter,
-						comment);
+				l3 + font_width_ + (font_width_ / 2),
+				y,
+				comment.length() * font_width_,
+				line_height,
+				Qt::AlignCenter,
+				comment);
+		} else if (inst && !is_jump(inst) && !is_call(inst)) {
+			// draw ascii representations of immediate constants
+			unsigned int op_count = inst.operand_count();
+			QString immed_string;
+			for (unsigned int op_idx = 0; op_idx < op_count; op_idx++) {
+				auto oper = inst.operands()[op_idx];
+				edb::address_t ascii_address = 0;
+				if (oper.type() == edb::Operand::TYPE_REL || oper.type() == edb::Operand::TYPE_IMMEDIATE) {
+					ascii_address = oper.relative_target();
+				} else if (
+					oper.type() == edb::Operand::TYPE_EXPRESSION &&
+					oper.expression().index == edb::Operand::Register::X86_REG_INVALID &&
+					oper.expression().displacement_type == edb::Operand::DISP_PRESENT)
+				{
+					if (oper.expression().base == edb::Operand::Register::X86_REG_RIP) {
+						ascii_address += address + oper.owner()->size() + oper.expression().displacement;
+					} else if (oper.expression().base == edb::Operand::Register::X86_REG_INVALID && oper.expression().displacement > 0) {
+						ascii_address = oper.expression().displacement;
+					}
+				}
+
+				if (ascii_address > 0x10000ULL) { // FIXME use page size
+					QString string_param;
+					int string_length;
+
+					if (edb::v1::get_ascii_string_at_address(ascii_address, string_param, edb::v1::config().min_string_length, 256, string_length)) {
+						immed_string.append(
+							QString("ASCII \"%1\" ").arg(string_param)
+						);
+					}
+				}
+			}
+			if (immed_string.length()) {
+				painter.drawText(
+					l3 + font_width_ + (font_width_ / 2),
+					y,
+					immed_string.length() * font_width_,
+					line_height,
+					Qt::AlignCenter,
+					immed_string
+				);
+			}
 		}
 
 		y += line_height;
