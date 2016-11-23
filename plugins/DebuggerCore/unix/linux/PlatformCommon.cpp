@@ -59,7 +59,7 @@ int get_user_stat(const QString &path, struct user_stat *user_stat) {
 		const QString line = in.readLine();
 		if(!line.isNull()) {
 			char ch;
-			r = sscanf(qPrintable(line), "%d %c%255[0-9a-zA-Z_ #~/-]%c %c %d %d %d %d %d %u %llu %llu %llu %llu %llu %llu %lld %lld %lld %lld %lld %lld %llu %llu %lld %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %d %d %u %u %llu %llu %lld",
+			r = sscanf(qPrintable(line), "%d %c%255[0-9a-zA-Z_ #~/-\\.]%c %c %d %d %d %d %d %u %llu %llu %llu %llu %llu %llu %lld %lld %lld %lld %lld %lld %llu %llu %lld %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %d %d %u %u %llu %llu %lld",
 					&user_stat->pid,
 					&ch, // consume the (
 					user_stat->comm,
