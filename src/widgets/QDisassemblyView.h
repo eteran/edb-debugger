@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAbstractSlider>
 #include <QCache>
 #include <QPixmap>
+#include <QSvgRenderer>
 #include <QSet>
 
 class IAnalyzer;
@@ -107,9 +108,6 @@ private:
 
 private:
 	IRegion::pointer                  region_;
-	QCache<edb::address_t, uint8_t *> page_cache_;
-	QPixmap                           breakpoint_icon_;
-	QPixmap                           current_address_icon_;
 	QSet<edb::address_t>              show_addresses_;
 	SyntaxHighlighter *const          highlighter_;
 	edb::address_t                    address_offset_;
@@ -117,7 +115,8 @@ private:
 	edb::address_t                    current_address_;
 	qreal                             font_height_; // height of a character in this font
 	qreal                             font_width_;  // width of a character in this font
-    qreal                             icon_width_;
+	qreal                             icon_width_;
+	qreal                             icon_height_;
 	int                               line1_;
 	int                               line2_;
 	int                               line3_;
@@ -128,7 +127,9 @@ private:
 	bool                              selecting_address_;
 	bool                              show_address_separator_;
 	QHash<edb::address_t, QString>    comments_;
-        NavigationHistory                 history_;
+	NavigationHistory                 history_;
+	QSvgRenderer                      breakpoint_renderer_;
+	QSvgRenderer                      current_renderer_;
 };
 
 #endif

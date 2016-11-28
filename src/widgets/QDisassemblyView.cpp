@@ -31,7 +31,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QAbstractItemDelegate>
 #include <QAbstractTextDocumentLayout>
 #include <QApplication>
-#include <QSvgRenderer>
 #include <QDebug>
 #include <QMouseEvent>
 #include <QPainter>
@@ -209,7 +208,9 @@ QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(paren
 		moving_line1_(false),
 		moving_line2_(false),
 		moving_line3_(false),
-		selecting_address_(false) {
+		selecting_address_(false),
+        breakpoint_renderer_(QLatin1String(":/debugger/images/breakpoint.svg")),
+        current_renderer_(QLatin1String(":/debugger/images/arrow-right.svg")) {
 
 	setShowAddressSeparator(true);
 
@@ -884,9 +885,9 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 		// draw breakpoint icon or eip indicator
 		if(address == current_address_) {
-			painter.drawPixmap(1, y + 1, current_address_icon_);
+        	current_renderer_.render(&painter, QRectF(1, y + 1, icon_width_, icon_height_));
 		} else if(edb::v1::find_breakpoint(address) != 0) {
-			painter.drawPixmap(1, y + 1, breakpoint_icon_);
+        	breakpoint_renderer_.render(&painter, QRectF(1, y + 1, icon_width_, icon_height_));
 
 			// TODO:
 			/*
@@ -1056,25 +1057,9 @@ void QDisassemblyView::setFont(const QFont &f) {
     
     // NOTE(eteran): we let the icons be a bit wider than the font itself, since things
     // like arrows don't tend to have square bounds. A ratio of 2:1 seems to look pretty 
-    // good on my setup. 
-    current_address_icon_ = QPixmap(font_width_ * 2, font_height_);
-    breakpoint_icon_      = QPixmap(font_width_ * 2, font_height_);
-    
-    {
-	    QSvgRenderer renderer(QLatin1String(":/debugger/images/arrow-right.svg"));
-		current_address_icon_.fill(Qt::transparent);
-	    QPainter painter(&current_address_icon_);
-	    renderer.render(&painter);
-	}
-    
-    {
-	    QSvgRenderer renderer(QLatin1String(":/debugger/images/breakpoint.svg"));
-        breakpoint_icon_.fill(Qt::transparent);
-	    QPainter painter(&breakpoint_icon_);
-	    renderer.render(&painter);
-	}
-    
-    icon_width_ = std::max(breakpoint_icon_.width(), current_address_icon_.width());
+    // good on my setup.     
+    icon_width_  = font_width_ * 2;
+    icon_height_ = font_height_;
       
 	updateScrollbars();
 }
@@ -1092,7 +1077,7 @@ void QDisassemblyView::resizeEvent(QResizeEvent *) {
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::line_height() const {
-	return std::max({font_height_, static_cast<qreal>(current_address_icon_.height()), static_cast<qreal>(breakpoint_icon_.height())});
+	return std::max({font_height_, icon_height_});
 }
 
 //------------------------------------------------------------------------------
