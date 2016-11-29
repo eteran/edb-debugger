@@ -29,10 +29,9 @@ add_library(${PluginName} SHARED
 	demangle.h
 	DialogHeader.cpp
 	DialogHeader.h
+	ELFXX.cpp
 	ELF32.cpp
-	ELF32.h
 	ELF64.cpp
-	ELF64.h
 	elf_binary.h
 	OptionsPage.cpp
 	OptionsPage.h

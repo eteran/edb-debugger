@@ -16,7 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include "ELF32.h"
+#include "ELFXX.h"
 #include "ByteShiftArray.h"
 #include "IDebugger.h"
 #include "Util.h"
@@ -34,79 +34,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BinaryInfo {
 
-//------------------------------------------------------------------------------
-// Name: ELF32
-// Desc: constructor
-//------------------------------------------------------------------------------
-ELF32::ELF32(const IRegion::pointer &region) : region_(region), header_(0) {
-}
-
-//------------------------------------------------------------------------------
-// Name: ~ELF32
-// Desc: deconstructor
-//------------------------------------------------------------------------------
-ELF32::~ELF32() {
-	delete header_;
-}
-
-//------------------------------------------------------------------------------
-// Name: validate_header
-// Desc: returns true if this file matches this particular info class
-//------------------------------------------------------------------------------
-bool ELF32::validate_header() {
-	read_header();
-	if(header_) {
-		if(std::memcmp(header_->e_ident, ELFMAG, SELFMAG) == 0) {
-			return header_->e_ident[EI_CLASS] == ELFCLASS32;
-		}
-	}
-	return false;
-}
 
 //------------------------------------------------------------------------------
 // Name: nativ
 // Desc: returns true if this binary is native to the arch edb was built for
 //------------------------------------------------------------------------------
+template<>
 bool ELF32::native() const {
 	return edb::v1::debugger_core->cpu_type() == edb::string_hash("x86");
-}
-
-//------------------------------------------------------------------------------
-// Name: entry_point
-// Desc: returns the entry point if any of the binary
-//------------------------------------------------------------------------------
-edb::address_t ELF32::entry_point() {
-	read_header();
-	if(header_) {
-		return header_->e_entry;
-	}
-	return 0;
-}
-
-//------------------------------------------------------------------------------
-// Name: read_header
-// Desc: reads in enough of the file to get the header
-//------------------------------------------------------------------------------
-void ELF32::read_header() {
-	if(!header_) {
-		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(region_) {
-				header_ = new elf32_header;
-		
-				if(!process->read_bytes(region_->start(), header_, sizeof(elf32_header))) {
-					std::memset(header_, 0, sizeof(elf32_header));
-				}
-			}
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: header_size
-// Desc: returns the number of bytes in this executable's header
-//------------------------------------------------------------------------------
-size_t ELF32::header_size() const {
-	return sizeof(elf32_header);
 }
 
 //------------------------------------------------------------------------------
@@ -114,6 +49,7 @@ size_t ELF32::header_size() const {
 // Desc: attempts to locate the ELF debug pointer in the target process and
 //       returns it, 0 of not found
 //------------------------------------------------------------------------------
+template<>
 edb::address_t ELF32::debug_pointer() {
 	read_header();
 	if(region_) {
@@ -141,7 +77,7 @@ edb::address_t ELF32::debug_pointer() {
 							return 0;
 						}
 					}
-			
+
 				}
 			}
 		}
@@ -153,6 +89,7 @@ edb::address_t ELF32::debug_pointer() {
 // Name: calculate_main
 // Desc: uses a heuristic to locate "main"
 //------------------------------------------------------------------------------
+template<>
 edb::address_t ELF32::calculate_main() {
 
 	edb::address_t entry_point = this->entry_point();
@@ -183,13 +120,4 @@ edb::address_t ELF32::calculate_main() {
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: header
-// Desc: returns a copy of the file header or NULL if the region wasn't a valid,
-//       known binary type
-//------------------------------------------------------------------------------
-const void *ELF32::header() const {
-	return header_;
-}
-
-}
+};
