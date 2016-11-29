@@ -17,6 +17,9 @@
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
+     <widget class="QLabel" name="cpuRegionLabel" />
+    </item>
+    <item>
      <widget class="QDisassemblyView" name="cpuView" native="true"/>
     </item>
     <item>

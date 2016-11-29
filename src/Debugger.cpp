@@ -2267,7 +2267,6 @@ void Debugger::update_tab_caption(const std::shared_ptr<QHexView> &view, edb::ad
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::update_data(const DataViewInfo::pointer &v) {
-
 	Q_ASSERT(v);
 
 	const std::shared_ptr<QHexView> &view = v->view;
@@ -2356,7 +2355,6 @@ IRegion::pointer Debugger::update_cpu_view(const State &state) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::update_data_views() {
-
 	// update all data views with the current region data
 	for(const DataViewInfo::pointer &info: data_regions_) {
 
@@ -2366,6 +2364,24 @@ void Debugger::update_data_views() {
 		} else {
 			clear_data(info);
 		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+
+void Debugger::on_cpuView_regionChanged() {
+	const IRegion::pointer region = edb::v1::current_cpu_view_region();
+	if (region && region->size() != 0) {
+		ui.cpuRegionLabel->setText(QString("CPU: [%1-%2] %3").arg(
+			QString::number(region->start(), 16),
+			QString::number(region->end(), 16),
+			region->name().split(QDir::separator()).last()
+		));
+	} else {
+		ui.cpuRegionLabel->setText("CPU");
 	}
 }
 
@@ -2384,13 +2400,13 @@ void Debugger::refresh_gui() {
 
 	if(edb::v1::debugger_core) {
 		State state;
-				
+
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(IThread::pointer thread = process->current_thread()) {					
+			if(IThread::pointer thread = process->current_thread()) {
 				thread->get_state(&state);
 			}
 		}
-		
+
 		list_model_->setStringList(edb::v1::arch_processor().update_instruction_info(state.instruction_pointer()));
 	}
 }
@@ -2400,12 +2416,11 @@ void Debugger::refresh_gui() {
 // Desc: updates all the different displays
 //------------------------------------------------------------------------------
 void Debugger::update_gui() {
-
 	if(edb::v1::debugger_core) {
-		
+
 		State state;
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(IThread::pointer thread = process->current_thread()) {				
+			if(IThread::pointer thread = process->current_thread()) {
 				thread->get_state(&state);
 			}
 		}
