@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMouseEvent>
 #include <QPainter>
 #include <QScrollBar>
+#include <QDir>
 
 namespace Analyzer {
 
@@ -66,61 +67,64 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 	painter.fillRect(0, 0, width(), height(), QBrush(Qt::black));
 	QFontMetrics fm(font());
 
-	if(const IRegion::pointer region = edb::v1::current_cpu_view_region()) {
-		if(region->size() != 0) {
-			const auto byte_width = static_cast<float>(width()) / region->size();
-
-			const QSet<edb::address_t> specified_functions = edb::v1::analyzer()->specified_functions();
-
-			const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
-			for(auto it = functions.begin(); it != functions.end(); ++it) {
-				const Function &f = it.value();
-
-				const int first_offset = (f.entry_address() - region->start()) * byte_width;
-				const int last_offset  = (f.end_address() - region->start()) * byte_width;
-
-				if(!specified_functions.contains(f.entry_address())) {
-					painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkGreen));
-				} else {
-					painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkRed));
-				}
-			}
-
-			// highlight header of binary (probably not going to be too noticeable but just in case)
-			if(auto binary_info = edb::v1::get_binary_info(region)) {
-				painter.fillRect(0, 0, binary_info->header_size() * byte_width, height(), QBrush(Qt::darkBlue));
-			}
-
-			if(functions.isEmpty()) {
-		    	painter.setPen(QPen(Qt::white));
-	    		painter.drawText(rect(), Qt::AlignCenter, tr("No Analysis Found For This Region"));
-			} else {
-				if(auto scroll_area = qobject_cast<QAbstractScrollArea*>(edb::v1::disassembly_widget())) {
-					if(QScrollBar *scrollbar = scroll_area->verticalScrollBar()) {
-						const int offset = (scrollbar->value()) * byte_width;
-
-						const QString triangle(QChar(0x25b4));
-
-	#ifdef Q_OS_WIN32
-						const QFont f = painter.font();
-						painter.setFont(QFont("Lucida Sans Unicode", 16));
-	#endif
-						painter.setPen(QPen(Qt::yellow));
-						painter.drawText(offset - fm.width(triangle) / 2, height(), triangle);
-	#ifdef Q_OS_WIN32
-						painter.setFont(f);
-	#endif
-					}
-				}
-			}
-		} else {
-	    	painter.setPen(QPen(Qt::white));
-    		painter.drawText(rect(), Qt::AlignCenter, tr("No Analysis Found For This Region"));
-		}
-	} else {
-	    painter.setPen(QPen(Qt::white));
-    	painter.drawText(rect(), Qt::AlignCenter, tr("No Analysis Found For This Region"));
+	const IRegion::pointer region = edb::v1::current_cpu_view_region();
+	if (!region || region->size() == 0) {
+		return;
 	}
+
+	const auto byte_width = static_cast<float>(width()) / region->size();
+
+	const QSet<edb::address_t> specified_functions = edb::v1::analyzer()->specified_functions();
+
+	const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
+	for(auto it = functions.begin(); it != functions.end(); ++it) {
+		const Function &f = it.value();
+
+		const int first_offset = (f.entry_address() - region->start()) * byte_width;
+		const int last_offset  = (f.end_address() - region->start()) * byte_width;
+
+		if(!specified_functions.contains(f.entry_address())) {
+			painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkGreen));
+		} else {
+			painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkRed));
+		}
+	}
+
+	// highlight header of binary (probably not going to be too noticeable but just in case)
+	if(auto binary_info = edb::v1::get_binary_info(region)) {
+		painter.fillRect(0, 0, binary_info->header_size() * byte_width, height(), QBrush(Qt::darkBlue));
+	}
+
+
+	if(!functions.isEmpty()) {
+		if(auto scroll_area = qobject_cast<QAbstractScrollArea*>(edb::v1::disassembly_widget())) {
+			if(QScrollBar *scrollbar = scroll_area->verticalScrollBar()) {
+				const int offset = (scrollbar->value()) * byte_width;
+
+				const QString triangle(QChar(0x25b4));
+
+#ifdef Q_OS_WIN32
+				const QFont f = painter.font();
+				painter.setFont(QFont("Lucida Sans Unicode", 16));
+#endif
+				painter.setPen(QPen(Qt::yellow));
+				painter.drawText(offset - fm.width(triangle) / 2, height(), triangle);
+#ifdef Q_OS_WIN32
+				painter.setFont(f);
+#endif
+			}
+		}
+	}
+	else {
+		painter.setPen(QPen(Qt::white));
+		painter.drawText(rect(), Qt::AlignCenter,
+			QString("%1: %2").arg(
+				region->name().split(QDir::separator()).last(),
+				tr("No Analysis Found")
+			)
+		);
+	}
+
 }
 
 //------------------------------------------------------------------------------
