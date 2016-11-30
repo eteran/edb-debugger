@@ -618,13 +618,13 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 			const char             *message;
 			std::function<void()> function;
 		} analysis_steps[] = {
-			{ "identifying executable headers...",                       std::bind(&Analyzer::ident_header,            this, &region_data) },
-			{ "adding entry points to the list...",                      std::bind(&Analyzer::bonus_entry_point,       this, &region_data) },
-			{ "attempting to add 'main' to the list...",                 std::bind(&Analyzer::bonus_main,              this, &region_data) },
-			{ "attempting to add functions with symbols to the list...", std::bind(&Analyzer::bonus_symbols,           this, &region_data) },
-			{ "attempting to add marked functions to the list...",       std::bind(&Analyzer::bonus_marked_functions,  this, &region_data) },
-			{ "attempting to collect functions with fuzzy analysis...",  std::bind(&Analyzer::collect_fuzzy_functions, this, &region_data) },
-			{ "collecting basic blocks...",                              std::bind(&Analyzer::collect_functions,       this, &region_data) },
+			{ "identifying executable headers...",                       [this, &region_data]() { ident_header(&region_data);            } },
+			{ "adding entry points to the list...",                      [this, &region_data]() { bonus_entry_point(&region_data);       } },
+			{ "attempting to add 'main' to the list...",                 [this, &region_data]() { bonus_main(&region_data);              } },
+			{ "attempting to add functions with symbols to the list...", [this, &region_data]() { bonus_symbols(&region_data);           } },
+			{ "attempting to add marked functions to the list...",       [this, &region_data]() { bonus_marked_functions(&region_data);  } },
+			{ "attempting to collect functions with fuzzy analysis...",  [this, &region_data]() { collect_fuzzy_functions(&region_data); } },
+			{ "collecting basic blocks...",                              [this, &region_data]() { collect_functions(&region_data);       } },
 		};
 
 		const int total_steps = sizeof(analysis_steps) / sizeof(analysis_steps[0]);
