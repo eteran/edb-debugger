@@ -89,19 +89,29 @@ edb::address_t ELF64::calculate_main() {
 
 	edb::address_t entry_point = this->entry_point();
 
-	ByteShiftArray ba(13);
+	ByteShiftArray ba(14);
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		for(int i = 0; i < 50; ++i) {
 			quint8 byte;
 			if(process->read_bytes(entry_point + i, &byte, sizeof(byte))) {
 				ba << byte;
 
-				if(ba.size() >= 13) {
+				edb::address_t address = 0;
 
+				if(ba.size() >= 13) {
 					// beginning of a call preceeded by a 64-bit mov and followed by a hlt
 					if(ba[0] == 0x48 && ba[1] == 0xc7 && ba[7] == 0xe8 && ba[12] == 0xf4) {
 						// Seems that this 64-bit mov still has a 32-bit immediate
-						auto address = *reinterpret_cast<const edb::address_t *>(ba.data() + 3) & 0xffffffff;
+						address = *reinterpret_cast<const edb::address_t *>(ba.data() + 3) & 0xffffffff;
+					}
+
+					// same heuristic except for PIC binaries
+					else if (ba.size() >= 14 && ba[0] == 0x48 && ba[1] == 0x8d && ba[2] == 0x3d && ba[7] == 0xFF && ba[8] == 0x15 && ba[13] == 0xf4) {
+						auto rel = *reinterpret_cast<const edb::address_t *>(ba.data() + 3) & 0xffffffff;
+						// ba[0] is entry_point + i - 13. instruction is 7 bytes long.
+						address = rel + entry_point + i - 13 + 7;
+					}
+					if (address) {
 						// TODO: make sure that this address resides in an executable region
 						qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
 						return address;
