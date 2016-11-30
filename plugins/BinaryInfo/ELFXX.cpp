@@ -75,9 +75,11 @@ ELFXX<elfxx_header>::ELFXX(const IRegion::pointer &region) : region_(region) {
 			<< QString::number(region_->start(), 16);
 		base_address_ = region->start();
 	} else {
+#if 0
 		qDebug()
 			<< "binary base address is" << QString::number(lowest, 16)
 			<< "and loaded at" << QString::number(region_->start(), 16);
+#endif
 		base_address_ = lowest;
 	}
 }
