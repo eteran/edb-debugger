@@ -50,31 +50,28 @@ bool ELF64::native() const {
 //------------------------------------------------------------------------------
 template<>
 edb::address_t ELF64::debug_pointer() {
-	read_header();
-	if(region_) {
-		if(IProcess *process = edb::v1::debugger_core->process()) {
-			const edb::address_t section_offset = header_->e_phoff;
-			const std::size_t count             = header_->e_phnum;
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		const edb::address_t section_offset = header_.e_phoff;
+		const std::size_t count             = header_.e_phnum;
 
-			elf64_phdr section_header;
-			for(std::size_t i = 0; i < count; ++i) {
-				if(process->read_bytes(region_->start() + (section_offset + i * sizeof(elf64_phdr)), &section_header, sizeof(elf64_phdr))) {
-					if(section_header.p_type == PT_DYNAMIC) {
-						try {
-							QVector<quint8> buf(section_header.p_memsz);
-							if(process->read_bytes(section_header.p_vaddr, &buf[0], section_header.p_memsz)) {
-								auto dynamic = reinterpret_cast<elf64_dyn *>(&buf[0]);
-								while(dynamic->d_tag != DT_NULL) {
-									if(dynamic->d_tag == DT_DEBUG) {
-										return dynamic->d_un.d_val;
-									}
-									++dynamic;
+		elf64_phdr section_header;
+		for(std::size_t i = 0; i < count; ++i) {
+			if(process->read_bytes(region_->start() + (section_offset + i * sizeof(elf64_phdr)), &section_header, sizeof(elf64_phdr))) {
+				if(section_header.p_type == PT_DYNAMIC) {
+					try {
+						QVector<quint8> buf(section_header.p_memsz);
+						if(process->read_bytes(section_header.p_vaddr, &buf[0], section_header.p_memsz)) {
+							auto dynamic = reinterpret_cast<elf64_dyn *>(&buf[0]);
+							while(dynamic->d_tag != DT_NULL) {
+								if(dynamic->d_tag == DT_DEBUG) {
+									return dynamic->d_un.d_val;
 								}
+								++dynamic;
 							}
-						} catch(const std::bad_alloc &) {
-							qDebug() << "[Elf64::debug_pointer] no more memory";
-							return 0;
 						}
+					} catch(const std::bad_alloc &) {
+						qDebug() << "[Elf64::debug_pointer] no more memory";
+						return 0;
 					}
 				}
 			}

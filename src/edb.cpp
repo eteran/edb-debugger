@@ -46,6 +46,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QMessageBox>
 #include <QCoreApplication>
+#include <QDebug>
 #include <cctype>
 
 IDebugger *edb::v1::debugger_core = 0;
@@ -811,12 +812,23 @@ bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
 //------------------------------------------------------------------------------
 std::unique_ptr<IBinary> get_binary_info(const IRegion::pointer &region) {
 	for(IBinary::create_func_ptr_t f: g_BinaryInfoList) {
-		std::unique_ptr<IBinary> p((*f)(region));
-
-		if(p->validate_header()) {
+		try {
+			std::unique_ptr<IBinary> p((*f)(region));
+			// reorder the list to put this successful plugin
+			// in front.
+			if (g_BinaryInfoList[0] != f) {
+				g_BinaryInfoList.removeOne(f);
+				g_BinaryInfoList.push_front(f);
+			}
 			return p;
+
+		} catch (std::exception e) {
+			// let's just ignore it...
 		}
 	}
+
+	qDebug() << "Failed to find any binary parser for region"
+		<< QString::number(region->start(), 16);
 
 	return nullptr;
 }
@@ -909,6 +921,7 @@ IRegion::pointer primary_data_region() {
 		}
 	}
 
+	qDebug() << "primary data region not found!";
 	return IRegion::pointer();
 }
 
@@ -930,8 +943,6 @@ IRegion::pointer primary_code_region() {
 			}
 		}
 	}
-
-	return IRegion::pointer();
 #else
 	const QString process_executable = debugger_core->process_exe(debugger_core->pid());
 
@@ -942,8 +953,9 @@ IRegion::pointer primary_code_region() {
 			return region;
 		}
 	}
-	return IRegion::pointer();
 #endif
+	return IRegion::pointer();
+	qDebug() << "primary code region not found!";
 }
 
 //------------------------------------------------------------------------------

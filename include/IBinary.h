@@ -30,7 +30,6 @@ public:
 
 public:
 	virtual bool native() const = 0;
-	virtual bool validate_header() = 0;
 	virtual edb::address_t calculate_main() = 0;
 	virtual edb::address_t entry_point() = 0;
 	virtual size_t header_size() const = 0;

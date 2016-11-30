@@ -194,8 +194,8 @@ enum {
 
 #define EM_ALPHA	0x9026
 
+struct elf32_phdr;
 struct elf32_header {
-	struct elf32_phdr;
 	typedef elf32_phdr elf_phdr;
 	enum { ELFCLASS = ELFCLASS32 };
 
@@ -215,8 +215,8 @@ struct elf32_header {
 	elf32_half	e_shstrndx;		/* Section header string table index */
 };
 
+struct elf64_phdr;
 struct elf64_header {
-	struct elf64_phdr;
 	typedef elf64_phdr elf_phdr;
 	enum { ELFCLASS = ELFCLASS64 };
 
