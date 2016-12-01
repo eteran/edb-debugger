@@ -525,8 +525,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 	for(auto it = basic_blocks.begin(); it != basic_blocks.end(); ++it) {
 		qDebug("%s:", qPrintable(it.key().toPointerString()));
 
-		for(auto j = it.value().begin(); j != it.value().end(); ++j) {
-			const instruction_pointer &inst = *j;
+		for(auto &&inst : it.value()) {
 			qDebug("\t%s: %s", qPrintable(edb::address_t(inst->rva()).toPointerString()), edb::v1::formatter().to_string(*inst).c_str());
 		}
 	}
