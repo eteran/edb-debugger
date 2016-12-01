@@ -24,6 +24,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BinaryInfo {
 
+class PEBinaryException : public std::exception {
+	public:
+	enum reasonEnum {
+		INVALID_ARGUMENTS = 1,
+		READ_FAILURE = 2,
+		INVALID_PE = 3,
+		INVALID_ARCHITECTURE = 4
+	};
+		PEBinaryException(reasonEnum reason);
+
+		virtual const char * what();
+
+	private:
+		reasonEnum reason_;
+};
+
 class PE32 : public IBinary {
 public:
 	PE32(const IRegion::pointer &region);
@@ -39,6 +55,8 @@ public:
 
 private:
 	IRegion::pointer region_;
+	IMAGE_DOS_HEADER dos_;
+	IMAGE_NT_HEADERS32 pe_;
 };
 
 }

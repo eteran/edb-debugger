@@ -827,9 +827,10 @@ std::unique_ptr<IBinary> get_binary_info(const IRegion::pointer &region) {
 		}
 	}
 
+#if 0
 	qDebug() << "Failed to find any binary parser for region"
 		<< QString::number(region->start(), 16);
-
+#endif
 	return nullptr;
 }
 

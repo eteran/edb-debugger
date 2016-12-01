@@ -16,17 +16,55 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "edb.h"
+#include "IDebugger.h"
 #include "PE32.h"
 #include "string_hash.h"
 #include "pe_binary.h"
+#include <QDebug>
 
 namespace BinaryInfo {
+
+PEBinaryException::PEBinaryException(reasonEnum reason): reason_(reason) {}
+const char * PEBinaryException::what() { return "TODO"; }
 
 //------------------------------------------------------------------------------
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
 PE32::PE32(const IRegion::pointer &region) : region_(region) {
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+	const WORD dos_magic = 0x5A4D;
+	const LONG pe_magic = 0x00004550;
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+	const WORD dos_magic = 0x4D5A;
+	const LONG pe_magic = 0x50450000;
+#endif
+
+	if (!region_) {
+		throw PEBinaryException(PEBinaryException::reasonEnum::INVALID_ARGUMENTS);
+	}
+	IProcess *process = edb::v1::debugger_core->process();
+
+	if (!process) {
+		throw PEBinaryException(PEBinaryException::reasonEnum::READ_FAILURE);
+	}
+
+	if (!process->read_bytes(region_->start(), &dos_, sizeof(dos_))) {
+		throw PEBinaryException(PEBinaryException::reasonEnum::READ_FAILURE);
+	}
+
+	if (dos_.e_magic != dos_magic || dos_.e_lfanew == 0) {
+		throw PEBinaryException(PEBinaryException::reasonEnum::INVALID_PE);
+	}
+
+	if (!process->read_bytes(region_->start() + dos_.e_lfanew, &pe_, sizeof(pe_))) {
+		throw PEBinaryException(PEBinaryException::reasonEnum::READ_FAILURE);
+	}
+
+	if (pe_.Signature != pe_magic) {
+		throw PEBinaryException(PEBinaryException::reasonEnum::INVALID_PE);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -41,7 +79,7 @@ PE32::~PE32() {
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t PE32::entry_point() {
-	return 0;
+	return region_->start() + pe_.OptionalHeader.AddressOfEntryPoint;
 }
 
 //------------------------------------------------------------------------------
@@ -73,7 +111,7 @@ edb::address_t PE32::debug_pointer() {
 // Desc:
 //------------------------------------------------------------------------------
 size_t PE32::header_size() const {
-	return 0;
+	return sizeof(pe_) + dos_.e_lfanew;
 }
 
 //------------------------------------------------------------------------------
