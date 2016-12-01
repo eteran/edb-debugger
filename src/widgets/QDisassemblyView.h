@@ -79,6 +79,7 @@ public Q_SLOTS:
 	void clear();
 	void update();
 	void setShowAddressSeparator(bool value);
+	void resetColumns();
 
 private Q_SLOTS:
 	void scrollbar_action_triggered(int action);

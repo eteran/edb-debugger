@@ -1554,6 +1554,13 @@ void Debugger::mnuStackPop() {
 void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	QMenu menu;
 
+
+	auto displayMenu = new QMenu(tr("Display"));
+	displayMenu->addAction(QIcon::fromTheme(QString::fromUtf8("view-restore")), tr("Restore Column Defaults"), ui.cpuView, SLOT(resetColumns()));
+	
+	menu.addMenu(displayMenu);
+	menu.addSeparator();
+
 	menu.addAction(editCommentAction_);
 	menu.addAction(removeCommentAction_);
 	menu.addSeparator();
