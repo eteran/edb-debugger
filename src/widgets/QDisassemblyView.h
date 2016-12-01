@@ -105,6 +105,9 @@ private:
 	void draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int inst_size, IAnalyzer *analyzer);
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);
+	void get_reljmp_addresses(edb::address_t &start, edb::address_t &end);
+	edb::Instruction disassemble_at_address(edb::address_t address);
+
 
 private:
 	IRegion::pointer                  region_;
