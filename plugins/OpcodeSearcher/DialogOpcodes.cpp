@@ -196,7 +196,7 @@ void DialogOpcodes::test_deref_reg_to_ip(const OpcodeData &data, edb::address_t 
 		case edb::Instruction::Operation::X86_INS_CALL:
 			if(op1.type() == edb::Operand::TYPE_EXPRESSION) {
 
-				if(op1.expression().displacement_type == edb::Operand::DISP_NONE) {
+				if(!op1.expression().displacement_present) {
 
 					if(op1.expression().base == REG && op1.expression().index == edb::Operand::Register::X86_REG_INVALID && op1.expression().scale == 1) {
 						add_result((QList<edb::Instruction>() << inst), start_address);
@@ -259,7 +259,7 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 
 								if(op2.type() == edb::Operand::TYPE_EXPRESSION) {
 
-									if(op2.expression().displacement_type == edb::Operand::DISP_NONE) {
+									if(!op2.expression().displacement_present) {
 
 										if(op2.expression().base == STACK_REG && op2.expression().index == edb::Operand::Register::X86_REG_INVALID) {
 											add_result((QList<edb::Instruction>() << inst << inst2), start_address);
@@ -308,7 +308,7 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 			case edb::Instruction::Operation::X86_INS_JMP:
 				if(op1.type() == edb::Operand::TYPE_EXPRESSION) {
 
-					if(op1.expression().displacement_type == edb::Operand::DISP_NONE) {
+					if(!op1.expression().displacement_present) {
 
 						if(op1.expression().base == STACK_REG && op1.expression().index == edb::Operand::Register::X86_REG_INVALID) {
 							add_result((QList<edb::Instruction>() << inst), start_address);

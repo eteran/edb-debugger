@@ -25,7 +25,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace CapstoneEDB {
 
-bool init(bool amd64);
+enum class Architecture {
+	ARCH_X86,
+	ARCH_AMD64
+};
+
+bool init(Architecture arch);
 bool isX86_64();
 
 namespace Capstone {
@@ -63,21 +68,14 @@ public:
 		TYPE_REL           = 0x00000300,
 		TYPE_EXPRESSION    = 0x00000400,
 	};
-    
-	enum DisplacementType {
-		DISP_NONE,
-		DISP_PRESENT // XXX: Just to avoid changing API too early. DispType should actually be a bool.
-	};
-    
-   
-	struct expression_t {
 
-		Segment::Reg     segment           = Segment::REG_INVALID;
-		DisplacementType displacement_type = DISP_NONE;
-		Register         base              = Register::X86_REG_INVALID;
-		Register         index             = Register::X86_REG_INVALID;
-		int32_t          displacement      = 0;
-		uint8_t          scale             = 0;
+	struct expression_t {
+		Segment::Reg     segment              = Segment::REG_INVALID;
+		bool             displacement_present = false;
+		Register         base                 = Register::X86_REG_INVALID;
+		Register         index                = Register::X86_REG_INVALID;
+		int32_t          displacement         = 0;
+		uint8_t          scale                = 0;
 	};
     
 public:

@@ -29,32 +29,43 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace CapstoneEDB {
 
-static bool capstoneInitialized=false;
-static Capstone::csh csh=0;
-static Formatter activeFormatter;
+namespace {
 
-bool isAMD64=false;
+Architecture capstoneArch = Architecture::ARCH_X86;
+bool capstoneInitialized  = false;
+Capstone::csh csh         = 0;
+Formatter activeFormatter;
 
-bool isX86_64() { return isAMD64; }
+}
 
-// TODO(eteran): I'm not the biggest fan (though I sometimes do it too) of APIs 
-//               which take booleans, you end up having to check the headers to
-//               know what true/false mean. Since we are going the capstone route,
-//               let's go all in and make this take an enum specifying the mode
-//               it'll be more clear from the call site
-bool init(bool amd64)
-{
-	isAMD64=amd64;
-    if(capstoneInitialized)
+bool isX86_64() { return capstoneArch == Architecture::ARCH_AMD64; }
+
+bool init(Architecture arch) {
+
+	capstoneArch = arch;
+
+	if(capstoneInitialized) {
 		Capstone::cs_close(&csh);
-	capstoneInitialized=false;
+	}
 
-	Capstone::cs_mode mode=Capstone::CS_MODE_32;
-	if(amd64) mode=Capstone::CS_MODE_64;
-	Capstone::cs_err result=Capstone::cs_open(Capstone::CS_ARCH_X86, mode, &csh);
-	if(result!=Capstone::CS_ERR_OK)
+	capstoneInitialized = false;
+
+	const Capstone::cs_err result = [arch]() {
+		switch(arch) {
+		case Architecture::ARCH_AMD64:
+			return Capstone::cs_open(Capstone::CS_ARCH_X86, Capstone::CS_MODE_64, &csh);
+		case Architecture::ARCH_X86:
+			return Capstone::cs_open(Capstone::CS_ARCH_X86, Capstone::CS_MODE_32, &csh);
+		default:
+			return Capstone::CS_ERR_ARCH;
+		}
+	}();
+
+	if(result != Capstone::CS_ERR_OK) {
 		return false;
-    capstoneInitialized=true;
+	}
+
+    capstoneInitialized = true;
 
 	Capstone::cs_option(csh, Capstone::CS_OPT_DETAIL, Capstone::CS_OPT_ON);
 
@@ -107,22 +118,22 @@ void Instruction::fillPrefix()
 
 Instruction& Instruction::operator=(const Instruction& other)
 {
-	insn_=other.insn_;
-	detail_=other.detail_;
-	valid_=other.valid_;
-	rva_=other.rva_;
-	firstByte_=other.firstByte_;
-	prefix_=other.prefix_;
-	operands_=other.operands_;
+	insn_      = other.insn_;
+	detail_    = other.detail_;
+	valid_     = other.valid_;
+	rva_       = other.rva_;
+	firstByte_ = other.firstByte_;
+	prefix_    = other.prefix_;
+	operands_  = other.operands_;
+	
 	// Update pointer after replacement
-	insn_.detail=&detail_;
-
+	insn_.detail = &detail_;
 	return *this;
 }
 
 Instruction::Instruction(const Instruction& other)
 {
-	*this=other;
+	*this = other;
 }
 
 void adjustInstructionText(Capstone::cs_insn& insn)
@@ -136,7 +147,7 @@ void adjustInstructionText(Capstone::cs_insn& insn)
 	operands.replace(QRegExp("\\bxword "),"tbyte ");
 	operands.replace(QRegExp("(word|byte) ptr "),"\\1 ");
 
-	if(activeFormatter.options().simplifyRIPRelativeTargets && isAMD64 && (insn.detail->x86.modrm&0xc7)==0x05)
+	if(activeFormatter.options().simplifyRIPRelativeTargets && isX86_64() && (insn.detail->x86.modrm&0xc7)==0x05)
 	{
 		QRegExp ripRel("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b");
 		operands.replace(ripRel,"rel 0x"+QString::number(insn.detail->x86.disp+insn.address+insn.size,16));
@@ -195,7 +206,7 @@ Operand Instruction::fromCapstoneOperand(Capstone::cs_x86_op *ops, int i) {
         operand.type_ = Operand::TYPE_EXPRESSION;
         operand.expr_.displacement=op.mem.disp; // FIXME: truncation or wrong type chosen by capstone?..
 		if(op.mem.disp!=0) // FIXME: this doesn't catch zero-valued existing displacements!
-			operand.expr_.displacement_type=Operand::DISP_PRESENT;
+			operand.expr_.displacement_present = true;
 		operand.expr_.base =static_cast<Operand::Register>(op.mem.base);
 		operand.expr_.index=static_cast<Operand::Register>(op.mem.index);
 		operand.expr_.scale=op.mem.scale;
@@ -209,7 +220,7 @@ Operand Instruction::fromCapstoneOperand(Capstone::cs_x86_op *ops, int i) {
 		case Capstone::X86_REG_GS: operand.expr_.segment=Operand::Segment::GS; break;
 		default: operand.expr_.segment=Operand::Segment::REG_INVALID; break;
 		}
-		if(operand.expr_.segment==Operand::Segment::REG_INVALID && !isAMD64)
+		if(operand.expr_.segment==Operand::Segment::REG_INVALID && !isX86_64())
 		{
 			if(operand.expr_.base==Capstone::X86_REG_BP ||
 			   operand.expr_.base==Capstone::X86_REG_EBP ||
@@ -247,6 +258,9 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 		fillPrefix();
 		Capstone::cs_x86_op* ops=insn_.detail->x86.operands;
         
+		
+		operands_.reserve(operand_count());
+		
 		for(std::size_t i=0;i<operand_count();++i) {
 			operands_.push_back(fromCapstoneOperand(ops, i));
 		}

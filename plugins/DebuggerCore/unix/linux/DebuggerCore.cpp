@@ -595,14 +595,14 @@ void DebuggerCore::detectDebuggeeBitness() {
 		if(cs==USER_CS_32) {
 			if(pointer_size_==sizeof(quint64)) {
 				qDebug() << "Debuggee is now 32 bit";
-				CapstoneEDB::init(false);
+				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_X86);
 			}
 			pointer_size_=sizeof(quint32);
 			return;
 		} else if(cs==USER_CS_64) {
 			if(pointer_size_==sizeof(quint32)) {
 				qDebug() << "Debuggee is now 64 bit";
-				CapstoneEDB::init(true);
+				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_AMD64);
 			}
 			pointer_size_=sizeof(quint64);
 			return;

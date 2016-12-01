@@ -158,7 +158,7 @@ void Configuration::read_settings() {
 	}
 	
 	// Init capstone to some default settings
-	CapstoneEDB::init(EDB_IS_64_BIT);
+	CapstoneEDB::init(EDB_IS_64_BIT ? CapstoneEDB::Architecture::ARCH_AMD64 : CapstoneEDB::Architecture::ARCH_X86);
 	CapstoneEDB::Formatter::FormatOptions options = edb::v1::formatter().options();
 	options.capitalization = uppercase_disassembly ? CapstoneEDB::Formatter::UpperCase : CapstoneEDB::Formatter::LowerCase;
 	options.smallNumFormat = small_int_as_decimal  ? CapstoneEDB::Formatter::SmallNumAsDec : CapstoneEDB::Formatter::SmallNumAsHex;

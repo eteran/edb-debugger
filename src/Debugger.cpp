@@ -2943,7 +2943,7 @@ void Debugger::attachComplete() {
 	
 	test_native_binary();
 	
-	CapstoneEDB::init(edb::v1::debuggeeIs64Bit());
+	CapstoneEDB::init(edb::v1::debuggeeIs64Bit() ? CapstoneEDB::Architecture::ARCH_AMD64 : CapstoneEDB::Architecture::ARCH_X86);
 	setup_data_views();
 	
 	QString ip   = edb::v1::debugger_core->instruction_pointer().toUpper();
