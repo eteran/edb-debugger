@@ -141,25 +141,25 @@ void Plugin::removeDock(QWidget* whatToRemove)
 
 void Plugin::expandLSDown(bool checked) const
 {
-	if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
+	if(const auto mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
 		mainWindow->setCorner(Qt::BottomLeftCorner,checked ? Qt::LeftDockWidgetArea : Qt::BottomDockWidgetArea);
 }
 
 void Plugin::expandRSDown(bool checked) const
 {
-	if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
+	if(const auto mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
 		mainWindow->setCorner(Qt::BottomRightCorner,checked ? Qt::RightDockWidgetArea : Qt::BottomDockWidgetArea);
 }
 
 void Plugin::expandLSUp(bool checked) const
 {
-	if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
+	if(const auto mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
 		mainWindow->setCorner(Qt::TopLeftCorner,checked ? Qt::LeftDockWidgetArea : Qt::TopDockWidgetArea);
 }
 
 void Plugin::expandRSUp(bool checked) const
 {
-	if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
+	if(const auto mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
 		mainWindow->setCorner(Qt::TopRightCorner,checked ? Qt::RightDockWidgetArea : Qt::TopDockWidgetArea);
 }
 
@@ -167,7 +167,7 @@ QMenu* Plugin::menu(QWidget* parent)
 {
 	if(!menu_)
 	{
-		menu_ = new QMenu("OllyDbg-like Register View", parent);
+		menu_ = new QMenu(tr("OllyDbg-like Register View"), parent);
 		{
 			const auto newRegisterView=new QAction(tr("New Register View"),menu_);
 			connect(newRegisterView,SIGNAL(triggered()),this,SLOT(createRegisterView()));
