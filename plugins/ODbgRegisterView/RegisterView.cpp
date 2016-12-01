@@ -46,12 +46,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define VALID_VARIANT(VARIANT) ([]{static_assert(std::is_same<const typename std::remove_reference<decltype(VARIANT)>::type,const QVariant>::value,"Wrong type passed to VALID_VARIANT");}(),\
 								assert((VARIANT).isValid()),(VARIANT))
+
 #define VALID_INDEX(INDEX) ([]{static_assert(std::is_same<const typename std::remove_reference<decltype(INDEX)>::type,const QModelIndex>::value|| \
 											 std::is_same<const typename std::remove_reference<decltype(INDEX)>::type,const QPersistentModelIndex>::value,"Wrong type passed to VALID_INDEX");}(),\
 							assert((INDEX).isValid()),(INDEX))
-#define CHECKED_CAST(TYPE,PARENT) (assert(dynamic_cast<TYPE*>(PARENT)),static_cast<TYPE*>(PARENT))
+
 
 namespace ODbgRegisterView {
+
+template <class T, class P>
+T* checked_cast(P p) {
+	assert(dynamic_cast<T*>(p));
+	return static_cast<T*>(p);
+}
+
 
 // TODO: rFLAGS menu: Set Condition (O,P,NAE etc. - see ODB)
 // TODO: FSR: Set Condition: G,L,E,Unordered
@@ -286,7 +294,7 @@ ODBRegView* FieldWidget::regView() const
 
 RegisterGroup* FieldWidget::group() const
 {
-	return CHECKED_CAST(RegisterGroup,parentWidget());
+	return checked_cast<RegisterGroup>(parentWidget());
 }
 
 VolatileNameField::VolatileNameField(int fieldWidth,
@@ -870,7 +878,7 @@ void RegisterGroup::mousePressEvent(QMouseEvent* event)
 
 ODBRegView* RegisterGroup::regView() const
 {
-	return CHECKED_CAST(ODBRegView,  parent() // canvas
+	return checked_cast<ODBRegView>(parent() // canvas
 								   ->parent() // viewport
 								   ->parent() // regview
 								   );
