@@ -703,12 +703,36 @@ bool Analyzer::find_containing_function(edb::address_t address, Function *functi
 
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
 		const FunctionMap &funcs = functions(region);
+		
+#ifdef USE_MAP
+		auto it = funcs.lowerBound(address);
+		if(it != funcs.end()) {
+		
+			// handle the case of an exact match
+			const Function &f1 = *it;		
+			if(address == f1.entry_address()) {
+				*function = f1;
+				return true;
+			}		
+		
+			// if no exact match, then it will be the first function that had an 
+			// address that is too high, so let's back up one and see if the address
+			// is in range
+			const Function &f = *std::prev(it);	
+			if(address >= f.entry_address() && address <= f.end_address()) {
+				*function = f;
+				return true;
+			}
+		}
+		
+#else
 		for(const Function &f: funcs) {
 			if(address >= f.entry_address() && address <= f.end_address()) {
 				*function = f;
 				return true;
 			}
 		}
+#endif
 	}
 	return false;
 }

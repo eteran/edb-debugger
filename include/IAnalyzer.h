@@ -25,14 +25,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Status.h"
 
 #include <QSet>
+
+//#define USE_MAP
+
+#ifdef USE_MAP
+#include <QMap>
+#else
 #include <QHash>
+#endif
 
 class IAnalyzer {
 public:
 	virtual ~IAnalyzer() {}
 
 public:
+#ifdef USE_MAP
+	typedef QMap<edb::address_t, Function> FunctionMap;
+#else
 	typedef QHash<edb::address_t, Function> FunctionMap;
+#endif
 
 public:
 	enum AddressCategory {
