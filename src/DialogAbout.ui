@@ -111,7 +111,9 @@ Contributors
 Ruslan Kabatsayev &lt;https://github.com/10110111&gt;
 Fernando Mercês &lt;http://mentebinaria.com.br&gt;
 Nicoleau Fabien
-&quot;Northern-Lights&quot; &lt;https://github.com/Northern-Lights&gt;</string>
+&quot;Northern-Lights&quot; &lt;https://github.com/Northern-Lights&gt;
+Aaron Opfer
+</string>
          </property>
          <property name="textInteractionFlags">
           <set>Qt::LinksAccessibleByMouse|Qt::TextSelectableByMouse</set>
