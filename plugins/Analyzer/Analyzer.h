@@ -104,7 +104,7 @@ private:
 		QSet<edb::address_t>              known_functions;
 		QSet<edb::address_t>              fuzzy_functions;
 		
-		QHash<edb::address_t, Function>   functions;
+		FunctionMap                       functions;
 		QHash<edb::address_t, BasicBlock> basic_blocks;
 			
 		QByteArray                        md5;
