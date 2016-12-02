@@ -811,22 +811,20 @@ Result<edb::address_t> Analyzer::find_containing_function(edb::address_t address
 //------------------------------------------------------------------------------
 bool Analyzer::will_return(edb::address_t address) const {
 
-	const QList<Symbol::pointer> symbols = edb::v1::symbol_manager().symbols();
-	for(const Symbol::pointer &symbol: symbols) {
-		if(symbol->address == address) {
-			const QString symname = symbol->name_no_prefix;
-			const QString func_name = symname.mid(0, symname.indexOf("@"));
+	const Symbol::pointer symbol = edb::v1::symbol_manager().find(address);
+	if(symbol) {
+		const QString symname = symbol->name_no_prefix;
+		const QString func_name = symname.mid(0, symname.indexOf("@"));
 
-			if(func_name == "__assert_fail" || func_name == "abort" || func_name == "_exit" || func_name == "_Exit" || func_name == "_dl_signal_error" || func_name == "_dl_signal_cerror") {
-				return false;
-			}
+		if(func_name == "__assert_fail" || func_name == "abort" || func_name == "_exit" || func_name == "_Exit" || func_name == "_dl_signal_error" || func_name == "_dl_signal_cerror") {
+			return false;
+		}
 
 #ifdef Q_OS_LINUX
-			if(func_name == "_Unwind_Resume") {
-				return false;
-			}
-#endif
+		if(func_name == "_Unwind_Resume") {
+			return false;
 		}
+#endif
 	}
 
 
