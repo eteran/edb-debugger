@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogBinaryString.h"
-#include "ByteShiftArray.h"
 #include "edb.h"
 #include "IDebugger.h"
 #include "MemoryRegions.h"
@@ -59,16 +58,13 @@ void DialogBinaryString::do_find() {
 
 	const int sz = b.size();
 	if(sz != 0) {
-		ByteShiftArray bsa(sz);
-
 		edb::v1::memory_regions().sync();
 		const QList<IRegion::pointer> regions = edb::v1::memory_regions().regions();
 		const edb::address_t page_size = edb::v1::debugger_core->page_size();
 
 		int i = 0;
 		for(const IRegion::pointer &region: regions) {
-
-			bsa.clear();
+			const auto region_size = region->size();
 
 			// a short circut for speading things up
 			if(ui->chkSkipNoAccess->isChecked() && !region->accessible()) {
@@ -76,22 +72,18 @@ void DialogBinaryString::do_find() {
 				continue;
 			}
 
-			const size_t page_count     = region->size() / page_size;
+			const size_t page_count     = region_size / page_size;
 			const QVector<quint8> pages = edb::v1::read_pages(region->start(), page_count);
-			
+
 			if(!pages.isEmpty()) {
 
 				const quint8 *p = &pages[0];
-				const quint8 *const pages_end = &pages[0] + region->size();
-				
-				QString temp;
-				while(p != pages_end) {
-					// shift in the next byte
-					bsa << *p;
+				const quint8 *const pages_end = &pages[0] + region_size - sz;
 
+				while(p < pages_end) {
 					// compare values..
-					if(std::memcmp(bsa.data(), b.constData(), sz) == 0) {
-						const edb::address_t addr = (p - &pages[0] + region->start()) - sz + 1;
+					if(std::memcmp(p, b.constData(), sz) == 0) {
+						const edb::address_t addr = p - &pages[0] + region->start();
 						const edb::address_t align = 1 << (ui->cmbAlignment->currentIndex() + 1);
 
 						if(!ui->chkAlignment->isChecked() || (addr % align) == 0) {
@@ -101,7 +93,10 @@ void DialogBinaryString::do_find() {
 						}
 					}
 
-					ui->progressBar->setValue(util::percentage(i, regions.size(), p - &pages[0], region->size()));
+					// update progress bar every 64KB
+					if (quint64(p) & 0xFFFF == 0) {
+						ui->progressBar->setValue(util::percentage(i, regions.size(), p - &pages[0], region_size));
+					}
 
 					++p;
 				}
