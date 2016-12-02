@@ -390,7 +390,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 
 	// results
 	QHash<edb::address_t, BasicBlock> basic_blocks;
-	QHash<edb::address_t, Function>   functions;
+	FunctionMap                       functions;
 
 	// push all known functions onto a stack
 	QStack<edb::address_t> known_functions;
