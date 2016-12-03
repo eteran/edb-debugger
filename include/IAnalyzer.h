@@ -25,25 +25,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Status.h"
 
 #include <QSet>
-
-//#define USE_MAP
-
-#ifdef USE_MAP
-#include <QMap>
-#else
 #include <QHash>
-#endif
 
 class IAnalyzer {
 public:
 	virtual ~IAnalyzer() {}
 
 public:
-#ifdef USE_MAP
-	typedef QMap<edb::address_t, Function> FunctionMap;
-#else
 	typedef QHash<edb::address_t, Function> FunctionMap;
-#endif
 
 public:
 	enum AddressCategory {
@@ -55,10 +44,12 @@ public:
 
 public:
 	virtual AddressCategory category(edb::address_t address) const = 0;
+	virtual AddressCategory category(edb::address_t address, edb::address_t address_hint) const = 0;
 	virtual FunctionMap functions(const IRegion::pointer &region) const = 0;
 	virtual FunctionMap functions() const = 0;
 	virtual QSet<edb::address_t> specified_functions() const { return QSet<edb::address_t>(); }
 	virtual Result<edb::address_t> find_containing_function(edb::address_t address) const = 0;
+	virtual Result<edb::address_t> find_containing_function(edb::address_t address, edb::address_t hint_address) const = 0;
 	virtual void analyze(const IRegion::pointer &region) = 0;
 	virtual void invalidate_analysis() = 0;
 	virtual void invalidate_analysis(const IRegion::pointer &region) = 0;

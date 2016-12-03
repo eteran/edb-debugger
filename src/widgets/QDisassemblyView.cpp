@@ -304,6 +304,9 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_address, int count) {
 
 	IAnalyzer *const analyzer = edb::v1::analyzer();
+	
+	static edb::address_t last_found_function = 0;
+	
 
 	for(int i = 0; i < count; ++i) {
 
@@ -318,44 +321,47 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 		if(analyzer) {
 			edb::address_t address = address_offset_ + current_address;
 
-			const IAnalyzer::AddressCategory cat = analyzer->category(address);
-
 			// find the containing function
-			Result<edb::address_t> function_address = analyzer->find_containing_function(address);
-
-			if(function_address && cat != IAnalyzer::ADDRESS_FUNC_START) {
+			if(Result<edb::address_t> function_address = analyzer->find_containing_function(address, last_found_function)) {
 			
-				edb::address_t function_start = *function_address;
+				const IAnalyzer::AddressCategory cat = analyzer->category(address, last_found_function);
+			
+				last_found_function = *function_address;
+			
+				if(cat != IAnalyzer::ADDRESS_FUNC_START) {
 
-				// disassemble from function start until the NEXT address is where we started
-				while(true) {				
-					quint8 buf[edb::Instruction::MAX_SIZE];
+					edb::address_t function_start = *function_address;
 
-					int buf_size = sizeof(buf);
-					if(region_) {
-						buf_size = qMin<edb::address_t>((function_start - region_->base()), sizeof(buf));
-					}
+					// disassemble from function start until the NEXT address is where we started
+					while(true) {				
+						quint8 buf[edb::Instruction::MAX_SIZE];
 
-					if(edb::v1::get_instruction_bytes(function_start, buf, &buf_size)) {
-						const edb::Instruction inst(buf, buf + buf_size, function_start);
-						if(!inst) {
-							break;
+						int buf_size = sizeof(buf);
+						if(region_) {
+							buf_size = qMin<edb::address_t>((function_start - region_->base()), sizeof(buf));
 						}
 
-						// if the NEXT address would be our target, then
-						// we are at the previous instruction!
-						if(function_start + inst.size() >= current_address + address_offset_) {
+						if(edb::v1::get_instruction_bytes(function_start, buf, &buf_size)) {
+							const edb::Instruction inst(buf, buf + buf_size, function_start);
+							if(!inst) {
+								break;
+							}
+
+							// if the NEXT address would be our target, then
+							// we are at the previous instruction!
+							if(function_start + inst.size() >= current_address + address_offset_) {
+								break;
+							}
+
+							function_start += inst.size();
+						} else {
 							break;
 						}
-
-						function_start += inst.size();
-					} else {
-						break;
 					}
+
+					current_address = (function_start - address_offset_);
+					continue;
 				}
-
-				current_address = (function_start - address_offset_);
-				continue;
 			}
 		}
 
@@ -730,6 +736,8 @@ void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t a
 	Q_ASSERT(analyzer);
 	painter.setPen(QPen(palette().shadow().color(), 2));
 
+	// TODO(eteran): do some hinting here too!
+	
 	const IAnalyzer::AddressCategory cat = analyzer->category(address);
 	const int line_height = this->line_height();
 	const int x = l2 + font_width_;

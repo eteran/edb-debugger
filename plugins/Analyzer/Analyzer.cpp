@@ -658,6 +658,25 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 // Name: category
 // Desc:
 //------------------------------------------------------------------------------
+IAnalyzer::AddressCategory Analyzer::category(edb::address_t address, edb::address_t address_hint) const {
+
+	Function func;
+	if(find_containing_function(address, address_hint, &func)) {
+		if(address == func.entry_address()) {
+			return ADDRESS_FUNC_START;
+		} else if(address == func.end_address()) {
+			return ADDRESS_FUNC_END;
+		} else {
+			return ADDRESS_FUNC_BODY;
+		}
+	}
+	return ADDRESS_FUNC_UNKNOWN;
+}
+
+//------------------------------------------------------------------------------
+// Name: category
+// Desc:
+//------------------------------------------------------------------------------
 IAnalyzer::AddressCategory Analyzer::category(edb::address_t address) const {
 
 	Function func;
@@ -704,35 +723,45 @@ bool Analyzer::find_containing_function(edb::address_t address, Function *functi
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
 		const FunctionMap &funcs = functions(region);
 		
-#ifdef USE_MAP
-		auto it = funcs.lowerBound(address);
-		if(it != funcs.end()) {
-		
-			// handle the case of an exact match
-			const Function &f1 = *it;		
-			if(address == f1.entry_address()) {
-				*function = f1;
-				return true;
-			}		
-		
-			// if no exact match, then it will be the first function that had an 
-			// address that is too high, so let's back up one and see if the address
-			// is in range
-			const Function &f = *std::prev(it);	
-			if(address >= f.entry_address() && address <= f.end_address()) {
-				*function = f;
-				return true;
-			}
-		}
-		
-#else
 		for(const Function &f: funcs) {
 			if(address >= f.entry_address() && address <= f.end_address()) {
 				*function = f;
 				return true;
 			}
 		}
-#endif
+	}
+	return false;
+}
+
+//------------------------------------------------------------------------------
+// Name: find_containing_function
+// Desc:
+//------------------------------------------------------------------------------
+bool Analyzer::find_containing_function(edb::address_t address, edb::address_t hint_address, Function *function) const {
+
+	Q_ASSERT(function);
+
+	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
+		const FunctionMap &funcs = functions(region);
+		
+		// first try a direct lookup, which should be fast due to QHash data structure
+		auto it = funcs.find(hint_address);
+		if(it != funcs.end()) {
+			const Function &f = *it;
+			if(address >= f.entry_address() && address <= f.end_address()) {			
+				*function = f;
+				return true;
+			}			
+			
+		}
+		
+		// wasn't found, try the brute force way..
+		for(const Function &f: funcs) {
+			if(address >= f.entry_address() && address <= f.end_address()) {
+				*function = f;
+				return true;
+			}
+		}
 	}
 	return false;
 }
@@ -823,6 +852,21 @@ Result<edb::address_t> Analyzer::find_containing_function(edb::address_t address
 
 	Function function;
 	if(find_containing_function(address, &function)) {
+		return edb::v1::make_result(function.entry_address());
+	} else {
+		return Result<edb::address_t>(tr("Containing Function Not Found"), -1);
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: find_containing_function
+// Desc: returns the entry point of the function which contains <address>
+//       will first look at <hint_address> to see if it is a function entrypoint
+//       that contains <address>
+//------------------------------------------------------------------------------
+Result<edb::address_t> Analyzer::find_containing_function(edb::address_t address, edb::address_t hint_address) const {
+	Function function;
+	if(find_containing_function(address, hint_address, &function)) {
 		return edb::v1::make_result(function.entry_address());
 	} else {
 		return Result<edb::address_t>(tr("Containing Function Not Found"), -1);
