@@ -735,10 +735,10 @@ QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instructio
 void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int inst_size, IAnalyzer *analyzer) {
 	Q_ASSERT(analyzer);
 	painter.setPen(QPen(palette().shadow().color(), 2));
-
-	// TODO(eteran): do some hinting here too!
 	
-	const IAnalyzer::AddressCategory cat = analyzer->category(address);
+	static edb::address_t last_found_function = 0;
+
+	const IAnalyzer::AddressCategory cat = analyzer->category(address, last_found_function);
 	const int line_height = this->line_height();
 	const int x = l2 + font_width_;
 
@@ -761,9 +761,13 @@ void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t a
 			y + line_height
 			);
 
+		// we just rendered an opening bracket
+		// we have a very good chance that the next instruction will also be in this function
+		last_found_function = address;
+
 		break;
 	case IAnalyzer::ADDRESS_FUNC_BODY:
-		if(analyzer->category(address + inst_size - 1) == IAnalyzer::ADDRESS_FUNC_END) {
+		if(analyzer->category(address + inst_size - 1, last_found_function) == IAnalyzer::ADDRESS_FUNC_END) {
 			goto do_end;
 		} else {
 
