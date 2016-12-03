@@ -136,5 +136,5 @@ const void *ELFXX<elfxx_header>::header() const {
 template class ELFXX<elf32_header>;
 template class ELFXX<elf64_header>;
 
-};
+}
 

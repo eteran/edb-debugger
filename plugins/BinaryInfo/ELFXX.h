@@ -64,6 +64,6 @@ template<typename elfxx_header> class ELFXX : public IBinary {
 typedef ELFXX<elf32_header> ELF32;
 typedef ELFXX<elf64_header> ELF64;
 
-};
+}
 
 #endif
