@@ -126,4 +126,4 @@ edb::address_t ELF64::calculate_main() {
 	return 0;
 }
 
-};
+}

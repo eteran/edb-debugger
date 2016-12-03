@@ -94,7 +94,7 @@ void DialogBinaryString::do_find() {
 					}
 
 					// update progress bar every 64KB
-					if (quint64(p) & 0xFFFF == 0) {
+					if ((quint64(p) & 0xFFFF) == 0) {
 						ui->progressBar->setValue(util::percentage(i, regions.size(), p - &pages[0], region_size));
 					}
 
