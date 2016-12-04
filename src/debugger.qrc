@@ -25,6 +25,7 @@
     
     <file>images/arrow-up.svg</file>
     <file>images/arrow-right.svg</file>
+    <file>images/arrow-right-red.svg</file>
     <file>images/breakpoint.svg</file>
   </qresource>
 </RCC>

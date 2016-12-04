@@ -103,13 +103,13 @@ private:
 	int line2() const;
 	int line3() const;
 	int line_height() const;
-	void draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int inst_size, IAnalyzer *analyzer);
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);
+	void paint_line_bg(QPainter &painter, QBrush brush, int line, int num_lines = 1);
 
 private:
 	IRegion::pointer                  region_;
-	QSet<edb::address_t>              show_addresses_;
+	QVector<edb::address_t>           show_addresses_;
 	SyntaxHighlighter *const          highlighter_;
 	edb::address_t                    address_offset_;
 	edb::address_t                    selected_instruction_address_;
@@ -131,6 +131,7 @@ private:
 	NavigationHistory                 history_;
 	QSvgRenderer                      breakpoint_renderer_;
 	QSvgRenderer                      current_renderer_;
+	QSvgRenderer                      current_bp_renderer_;
 };
 
 #endif
