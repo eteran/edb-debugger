@@ -117,4 +117,4 @@ edb::address_t ELF32::calculate_main() {
 	return 0;
 }
 
-};
+}
