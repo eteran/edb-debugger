@@ -808,6 +808,59 @@ void QDisassemblyView::draw_function_markers(QPainter &painter, edb::address_t a
 }
 
 //------------------------------------------------------------------------------
+// Name: disassemble_at_address
+// Desc: Given a region and an address, returns the instruction at address.
+//------------------------------------------------------------------------------
+
+edb::Instruction QDisassemblyView::disassemble_at_address(edb::address_t address) {
+	IAnalyzer *const analyzer = edb::v1::analyzer();
+	quint8 buf[edb::Instruction::MAX_SIZE + 1];
+
+	// do the longest read we can while still not passing the region end
+	int buf_size = qMin<edb::address_t>((region_->end() - address), sizeof(buf));
+
+	// read in the bytes...
+	if(!edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
+		// if the read failed, let's pretend that we were able to read a
+		// single 0xff byte so that we have _something_ to display.
+		buf_size = 1;
+		*buf = 0xff;
+	}
+
+	// disassemble the instruction, if it happens that the next byte is the start of a known function
+	// then we should treat this like a one byte instruction
+	edb::Instruction inst(buf, buf + buf_size, address);
+	if(analyzer && (analyzer->category(address + 1) == IAnalyzer::ADDRESS_FUNC_START)) {
+		edb::Instruction(buf, buf + 1, address).swap(inst);
+	}
+
+	return inst;
+}
+
+//------------------------------------------------------------------------------
+// Name: get_reljmp_addresses
+// Desc: If selectedAddress() is a reljmp, returns the address of the jump
+// destination and the address of the jump instruction in order they appear in
+// memory.
+//------------------------------------------------------------------------------
+
+void QDisassemblyView::get_reljmp_addresses(edb::address_t &start, edb::address_t &end) {
+	start = end = 0;
+	const edb::address_t address = selectedAddress();
+	edb::Instruction inst = disassemble_at_address(address);
+	if(is_jump(inst) && inst.operands()[0].type() == edb::Operand::TYPE_REL) {
+		const edb::address_t target = inst.operands()[0].relative_target();
+		if (address > target) {
+			start = target;
+			end = address;
+		} else if (address < target) {
+			start = address;
+			end = target;
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
 // Name: paintEvent
 // Desc:
 //------------------------------------------------------------------------------
@@ -824,7 +877,6 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	const int l2          = line2();
 	const int l3          = line3();
 
-
 	if(!region_) {
 		return;
 	}
@@ -834,6 +886,9 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	if(region_size == 0) {
 		return;
 	}
+
+	edb::address_t reljmp_start, reljmp_end;
+	get_reljmp_addresses(reljmp_start, reljmp_end);
 
 	show_addresses_.clear();
 	show_addresses_.insert(address_offset_ + current_line);
@@ -863,25 +918,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	while(viewable_lines >= 0 && current_line < region_size) {
 		const edb::address_t address = address_offset_ + current_line;
 
-		quint8 buf[edb::Instruction::MAX_SIZE + 1];
-
-		// do the longest read we can while still not passing the region end
-		int buf_size = qMin<edb::address_t>((region_->end() - address), sizeof(buf));
-
-		// read in the bytes...
-		if(!edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
-			// if the read failed, let's pretend that we were able to read a
-			// single 0xff byte so that we have _something_ to display.
-			buf_size = 1;
-			*buf = 0xff;
-		}
-
-		// disassemble the instruction, if it happens that the next byte is the start of a known function
-		// then we should treat this like a one byte instruction
-		edb::Instruction inst(buf, buf + buf_size, address);
-		if(analyzer && (analyzer->category(address + 1) == IAnalyzer::ADDRESS_FUNC_START)) {
-			edb::Instruction(buf, buf + 1, address).swap(inst);
-		}
+		edb::Instruction inst = disassemble_at_address(address);
 
 		const int inst_size = inst.size();
 
@@ -977,8 +1014,39 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			}
 		}
 
+		if (address >= reljmp_start && address <= reljmp_end) {
+			const bool is_start = address == reljmp_start;
+			const bool is_end = address == reljmp_end;
+			const int x = l2 + font_width_ + font_width_ / 2;
+			if (is_start || is_end) {
+				// half of a horizontal
+				painter.drawLine(
+					x,
+					y + line_height / 2,
+					x + (font_width_ / 2),
+					y + line_height / 2
+				);
+
+				// half of a vertical
+				painter.drawLine(
+					x,
+					y + line_height / 2,
+					x,
+					y + (is_end ? 0 : line_height)
+				);
+			} else {
+				// vertical line
+				painter.drawLine(
+					x,
+					y,
+					x,
+					y + line_height
+				);
+			}
+		}
+
 		// for relative jumps draw the jump direction indicators
-		if(is_jump(inst)) {
+		if (is_jump(inst)) {
 			if(inst.operands()[0].type() == edb::Operand::TYPE_REL) {
 				const edb::address_t target = inst.operands()[0].relative_target();
 
