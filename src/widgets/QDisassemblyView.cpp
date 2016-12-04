@@ -571,6 +571,10 @@ void QDisassemblyView::setRegion(const IRegion::pointer &r) {
 		region_ = r;
 		updateScrollbars();
 		Q_EMIT regionChanged();
+
+		if(line1_ != 0 && line1_ < auto_line1()) {
+			line1_ = 0;
+		}
 	}
 	update();
 }
