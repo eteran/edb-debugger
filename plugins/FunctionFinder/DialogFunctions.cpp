@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "IAnalyzer.h"
 #include "MemoryRegions.h"
+#include "ISymbolManager.h"
 #ifdef ENABLE_GRAPH
 #include "GraphWidget.h"
 #include "GraphNode.h"
@@ -163,6 +164,12 @@ void DialogFunctions::do_find() {
 					case Function::FUNCTION_STANDARD:
 						ui->tableWidget->setItem(row, 4, new QTableWidgetItem(tr("Standard Function")));
 						break;
+					}
+					
+					
+					QString symbol_name = edb::v1::symbol_manager().find_address_name(info.entry_address());
+					if(!symbol_name.isEmpty()) {
+						ui->tableWidget->setItem(row, 5, new QTableWidgetItem(symbol_name));
 					}
 				}
 			}
