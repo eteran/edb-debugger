@@ -132,6 +132,7 @@ private:
 	QSvgRenderer                      breakpoint_renderer_;
 	QSvgRenderer                      current_renderer_;
 	QSvgRenderer                      current_bp_renderer_;
+	QVector<quint8>                   instruction_buffer_;
 };
 
 #endif

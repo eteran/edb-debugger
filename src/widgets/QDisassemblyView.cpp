@@ -786,12 +786,10 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 
 	{ // DISASSEMBLE STEP
-		int bufsize = std::min(
-			edb::Instruction::MAX_SIZE * lines_to_render,
-			size_t(region_->end() - start_address)
-		);
+		int bufsize      = instruction_buffer_.size();
+		quint8 *inst_buf = &instruction_buffer_[0];
 
-		quint8 inst_buf[bufsize];
+
 
 		if (!edb::v1::get_instruction_bytes(start_address, inst_buf, &bufsize)) {
 			qDebug() << "Failed to read" << bufsize << "bytes from" << QString::number(start_address, 16);
@@ -1142,6 +1140,11 @@ void QDisassemblyView::setFont(const QFont &f) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::resizeEvent(QResizeEvent *) {
 	updateScrollbars();
+	
+	const int line_height = this->line_height();
+	unsigned int lines_to_render = 1 + (viewport()->height() / line_height);
+
+	instruction_buffer_.resize(edb::Instruction::MAX_SIZE * lines_to_render);
 }
 
 //------------------------------------------------------------------------------
