@@ -928,10 +928,11 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 				const edb::address_t target = inst.operands()[0].relative_target();
 
 				if(target!=inst.rva()) {
+					const auto x = l2 + font_width_ + font_width_ / 2;
 					painter.drawText(
-						l2 + font_width_ + (font_width_ / 2),
+						x,
 						line * line_height,
-						font_width_,
+						l3-x,
 						line_height,
 						Qt::AlignVCenter,
 						QString((target > inst.rva()) ? QChar(0x2304) : QChar(0x2303))
@@ -957,7 +958,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		painter.setPen(palette().color(group,QPalette::Text));
 
 		for (unsigned int line = 0; line < lines_to_render; line++) {
-		
+
 			auto inst = instructions[line];
 			if (selected_line != line) {
 				painter_lambda(inst, line);
@@ -972,8 +973,8 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	{ // FUNCTION MARKER RENDERING
 		IAnalyzer *const analyzer = edb::v1::analyzer();
-		if (analyzer) {
-			const int x = l2 + font_width_;
+		const int x = l2 + font_width_;
+		if (analyzer && l3-x > font_width_ / 2) {
 			painter.setPen(QPen(palette().shadow().color(), 2));
 			int next_line = 0;
 			analyzer->for_funcs_in_range(show_addresses_[0], show_addresses_[lines_to_render-1], [&](const Function* func) {
@@ -989,7 +990,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 						painter.drawLine(
 							x,
 							y + line_height / 2,
-							l2 + (font_width_ / 2) + font_width_,
+							x + font_width_ / 2,
 							y + line_height / 2
 						);
 
