@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -159,7 +159,7 @@ namespace {
 		DWORD needed;
 		GetTokenInformation(hToken, TokenOwner, NULL, 0, &needed);
 
-		if(TOKEN_OWNER *owner = static_cast<TOKEN_OWNER *>(malloc(needed))) {
+		if(auto owner = static_cast<TOKEN_OWNER *>(malloc(needed))) {
 			if(GetTokenInformation(hToken, TokenOwner, owner, needed, &needed)) {
 				WCHAR user[MAX_PATH];
 				WCHAR domain[MAX_PATH];
@@ -322,14 +322,14 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 
 			if(propagate) {
 				// normal event
-				PlatformEvent *const e = new PlatformEvent;
+				auto e = std::make_shared<PlatformEvent>();
 				e->event = de;
-				return IDebugEvent::const_pointer(e);
+				return e;
 			}
 			resume(edb::DEBUG_EXCEPTION_NOT_HANDLED);
 		}
 	}
-	return IDebugEvent::const_pointer();
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -363,10 +363,10 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 		memset(buf, 0xff, len);
 		SIZE_T bytes_read = 0;
         if(ReadProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_read)) {
-			Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
-				// TODO: handle if breakponts have a size more than 1!
+			for(const IBreakpoint::pointer &bp: breakpoints_) {
+
 				if(bp->address() >= address && bp->address() < address + bytes_read) {
-					reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_bytes()[0];
+					reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_byte();
 				}
 			}
             return true;
@@ -516,7 +516,7 @@ void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
 	Q_ASSERT(state);
 
-	PlatformState *state_impl = static_cast<PlatformState *>(state->impl_);
+	auto state_impl = static_cast<PlatformState *>(state->impl_);
 
 	if(attached() && state_impl) {
 
@@ -556,7 +556,7 @@ void DebuggerCore::set_state(const State &state) {
 
 	// TODO: assert that we are paused
 
-	PlatformState *state_impl = static_cast<PlatformState *>(state.impl_);
+	auto state_impl = static_cast<PlatformState *>(state.impl_);
 
 	if(attached()) {
 		state_impl->context_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
@@ -603,14 +603,14 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 	// Set up command line
 	QString command_str = '\"' + QFileInfo(path).canonicalPath() + '\"'; // argv[0] = full path (explorer style)
 	if(!args.isEmpty()) {
-		Q_FOREACH(QByteArray arg, args) {
+		for(QByteArray arg: args) {
 			command_str += " ";
 			command_str += arg;
 		}
 	}
 
 	// CreateProcessW wants a writable copy of the command line :<
-	wchar_t* command_path = new wchar_t[command_str.length() + sizeof(wchar_t)];
+	auto command_path = new wchar_t[command_str.length() + sizeof(wchar_t)];
     wcscpy_s(command_path, command_str.length() + 1, command_str.utf16());
 
 	if(CreateProcessW(
@@ -659,8 +659,8 @@ int DebuggerCore::sys_pointer_size() const {
 // Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
-	QMap<edb::pid_t, Process> ret;
+QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, ProcessInfo> ret;
 
 	HANDLE handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if(handle != INVALID_HANDLE_VALUE) {
@@ -675,7 +675,7 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 
 		if(Process32First(handle, &lppe)) {
 			do {
-				Process pi;
+				ProcessInfo pi;
 				pi.pid = lppe.th32ProcessID;
 				pi.uid = 0; // TODO
 				pi.name = QString::fromWCharArray(lppe.szExeFile);
@@ -797,7 +797,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 	if(pid_ != 0) {
 		if(HANDLE ph = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid_)) {
 			edb::address_t addr = 0;
-			LPVOID last_base    = reinterpret_cast<LPVOID>(-1);
+			auto last_base    = reinterpret_cast<LPVOID>(-1);
 
 			Q_FOREVER {
 				MEMORY_BASIC_INFORMATION info;
@@ -811,10 +811,10 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 
 				if(info.State == MEM_COMMIT) {
 
-					const edb::address_t start = reinterpret_cast<edb::address_t>(info.BaseAddress);
-					const edb::address_t end   = reinterpret_cast<edb::address_t>(info.BaseAddress) + info.RegionSize;
-					const edb::address_t base  = reinterpret_cast<edb::address_t>(info.AllocationBase);
-					const QString name         = QString();
+					const auto start   = reinterpret_cast<edb::address_t>(info.BaseAddress);
+					const auto end     = reinterpret_cast<edb::address_t>(info.BaseAddress) + info.RegionSize;
+					const auto base    = reinterpret_cast<edb::address_t>(info.AllocationBase);
+					const QString name = QString();
 					const IRegion::permissions_t permissions = info.Protect; // let IRegion::pointer handle permissions and modifiers
 
 					if(info.Type == MEM_IMAGE) {
@@ -822,7 +822,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 					}
 					// get stack addresses, PEB, TEB, etc. and set name accordingly
 
-					regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
+					regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
 				}
 
 				addr += info.RegionSize;
@@ -941,14 +941,6 @@ quint64 DebuggerCore::cpu_type() const {
 #elif defined(EDB_X86_64)
 	return edb::string_hash<'x', '8', '6', '-', '6', '4'>::value;
 #endif
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QWidget *DebuggerCore::create_register_view() const {
-	return 0;
 }
 
 //------------------------------------------------------------------------------

@@ -60,6 +60,9 @@
        <property name="text">
         <string>&amp;Close</string>
        </property>
+       <property name="icon">
+        <iconset theme="dialog-close"/>
+       </property>
       </widget>
      </item>
      <item>
@@ -69,6 +72,9 @@
        </property>
        <property name="text">
         <string>&amp;Help</string>
+       </property>
+       <property name="icon">
+        <iconset theme="help-browser"/>
        </property>
       </widget>
      </item>
@@ -89,6 +95,9 @@
       <widget class="QPushButton" name="refresh_button">
        <property name="text">
         <string>&amp;Refresh</string>
+       </property>
+       <property name="icon">
+        <iconset theme="view-refresh"/>
        </property>
       </widget>
      </item>

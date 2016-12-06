@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,13 +22,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RegionBuffer.h"
 #include "IRegion.h"
-#include <QSharedPointer>
+#include <memory>
 
 class QHexView;
 
 class DataViewInfo {
 public:
-	typedef QSharedPointer<DataViewInfo> pointer;
+	typedef std::shared_ptr<DataViewInfo> pointer;
 public:
 	explicit DataViewInfo(const IRegion::pointer &r);
 	~DataViewInfo();
@@ -39,7 +39,7 @@ private:
 public:
 	IRegion::pointer         region;
 	RegionBuffer *const      stream;
-	QSharedPointer<QHexView> view;
+	std::shared_ptr<QHexView> view;
 
 public:
 	void update();

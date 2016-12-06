@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogAttach.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "ProcessModel.h"
 #include "Types.h"
 #include "edb.h"
@@ -40,6 +40,24 @@ int getuid() {
 #include <unistd.h>
 #endif
 
+namespace {
+
+//------------------------------------------------------------------------------
+// Name: isNumeric
+// Desc: returns true if the string only contains decimal digits
+//------------------------------------------------------------------------------
+bool isNumeric(const QString &s) {
+	for(QChar ch: s) {
+		if(!ch.isDigit()) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
+}
+
 //------------------------------------------------------------------------------
 // Name: DialogAttach
 // Desc: constructor
@@ -48,15 +66,18 @@ DialogAttach::DialogAttach(QWidget *parent) : QDialog(parent), ui(new Ui::Dialog
 	ui->setupUi(this);
 
 	process_model_ = new ProcessModel(this);
-	process_filter_ = new QSortFilterProxyModel(this);
+	
+	process_name_filter_ = new QSortFilterProxyModel(this);
+	process_name_filter_->setSourceModel(process_model_);
+	process_name_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	process_name_filter_->setFilterKeyColumn(2);
 
-	process_filter_->setSourceModel(process_model_);
-	process_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
-	process_filter_->setFilterKeyColumn(2);
+	process_pid_filter_ = new QSortFilterProxyModel(this);
+	process_pid_filter_->setSourceModel(process_name_filter_);
+	process_pid_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	process_pid_filter_->setFilterKeyColumn(0);
 
-	ui->processes_table->setModel(process_filter_);
-
-	connect(ui->filter, SIGNAL(textChanged(const QString &)), process_filter_, SLOT(setFilterFixedString(const QString &)));
+	ui->processes_table->setModel(process_pid_filter_);
 }
 
 //------------------------------------------------------------------------------
@@ -68,6 +89,21 @@ DialogAttach::~DialogAttach() {
 }
 
 //------------------------------------------------------------------------------
+// Name: on_filter_textChanged
+// Desc:
+//------------------------------------------------------------------------------
+void DialogAttach::on_filter_textChanged(const QString &filter) {
+	
+	if(isNumeric(filter)) {
+		process_pid_filter_->setFilterFixedString(filter);
+		process_name_filter_->setFilterFixedString(QString());
+	} else {
+		process_name_filter_->setFilterFixedString(filter);
+		process_pid_filter_->setFilterFixedString(QString());	
+	}
+}
+
+//------------------------------------------------------------------------------
 // Name: update_list
 // Desc:
 //------------------------------------------------------------------------------
@@ -76,14 +112,14 @@ void DialogAttach::update_list() {
 	process_model_->clear();
 
 	if(edb::v1::debugger_core) {
-		QMap<edb::pid_t, Process> procs = edb::v1::debugger_core->enumerate_processes();
+		QMap<edb::pid_t, IProcess::pointer> procs = edb::v1::debugger_core->enumerate_processes();
 
 		const edb::uid_t user_id = getuid();
 		const bool filterUID = ui->filter_uid->isChecked();
 
-		Q_FOREACH(const Process &process_info, procs) {
-			if(!filterUID || process_info.uid == user_id) {
-				process_model_->addProcess(process_info);
+		for(const IProcess::pointer &process: procs) {
+			if(!filterUID || process->uid() == user_id) {
+				process_model_->addProcess(process);
 			}
 		}
 	}
@@ -111,19 +147,15 @@ void DialogAttach::on_filter_uid_clicked(bool checked) {
 // Name: selected_pid
 // Desc:
 //------------------------------------------------------------------------------
-edb::pid_t DialogAttach::selected_pid(bool *ok) const {
-
-	Q_ASSERT(ok);
+Result<edb::pid_t> DialogAttach::selected_pid() const {
 
 	const QItemSelectionModel *const selModel = ui->processes_table->selectionModel();
 	const QModelIndexList sel = selModel->selectedRows();
 
 	if(sel.size() == 1) {
-		const QModelIndex index = process_filter_->mapToSource(sel[0]);
-		*ok = true;
-		return process_model_->data(index, Qt::UserRole).toUInt();
+		const QModelIndex index = process_name_filter_->mapToSource(process_pid_filter_->mapToSource(sel[0]));
+		return edb::v1::make_result<edb::pid_t>(process_model_->data(index, Qt::UserRole).toUInt());
 	}
-
-	*ok = false;
-	return 0;
+	
+	return Result<edb::pid_t>(tr("No Selection"), 0);
 }

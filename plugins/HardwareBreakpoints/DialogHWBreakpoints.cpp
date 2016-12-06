@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,18 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogHWBreakpoints.h"
 #include "edb.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
+#include "libHardwareBreakpoints.h"
 #include "State.h"
 
-#include <QRegExpValidator>
-
 #include "ui_DialogHWBreakpoints.h"
-
-#if defined(EDB_X86)
-	#define MAX_HEX "8"
-#elif defined(EDB_X86_64)
-	#define MAX_HEX "16"
-#endif
 
 namespace HardwareBreakpoints {
 
@@ -44,11 +37,6 @@ DialogHWBreakpoints::DialogHWBreakpoints(QWidget *parent) : QDialog(parent), ui(
 	connect(ui->cmbType2, SIGNAL(currentIndexChanged(int)), this, SLOT(type2IndexChanged(int)));
 	connect(ui->cmbType3, SIGNAL(currentIndexChanged(int)), this, SLOT(type3IndexChanged(int)));
 	connect(ui->cmbType4, SIGNAL(currentIndexChanged(int)), this, SLOT(type4IndexChanged(int)));
-
-	ui->txtBP1->setValidator(new QRegExpValidator(QRegExp("[A-Fa-f0-9]{0," MAX_HEX "}"), this));
-	ui->txtBP2->setValidator(new QRegExpValidator(QRegExp("[A-Fa-f0-9]{0," MAX_HEX "}"), this));
-	ui->txtBP3->setValidator(new QRegExpValidator(QRegExp("[A-Fa-f0-9]{0," MAX_HEX "}"), this));
-	ui->txtBP4->setValidator(new QRegExpValidator(QRegExp("[A-Fa-f0-9]{0," MAX_HEX "}"), this));
 }
 
 //------------------------------------------------------------------------------
@@ -100,31 +88,41 @@ void DialogHWBreakpoints::showEvent(QShowEvent *event) {
 
 	State state;
 	edb::v1::debugger_core->get_state(&state);
+	
+	
+	const BreakpointState bp_state1 = breakpointState(&state, Register1);
+	const BreakpointState bp_state2 = breakpointState(&state, Register2);
+	const BreakpointState bp_state3 = breakpointState(&state, Register3);
+	const BreakpointState bp_state4 = breakpointState(&state, Register4);
+	
+	ui->chkBP1->setChecked(bp_state1.enabled);
+	ui->chkBP2->setChecked(bp_state2.enabled);
+	ui->chkBP3->setChecked(bp_state3.enabled);
+	ui->chkBP4->setChecked(bp_state4.enabled);
+	
 
-	const bool bp1_enabled = (state.debug_register(7) & 0x00000001) != 0;
-	const bool bp2_enabled = (state.debug_register(7) & 0x00000004) != 0;
-	const bool bp3_enabled = (state.debug_register(7) & 0x00000010) != 0;
-	const bool bp4_enabled = (state.debug_register(7) & 0x00000040) != 0;
-
-	ui->chkBP1->setChecked(bp1_enabled);
-	ui->chkBP2->setChecked(bp2_enabled);
-	ui->chkBP3->setChecked(bp3_enabled);
-	ui->chkBP4->setChecked(bp4_enabled);
-
-	if(bp1_enabled) {
-		ui->txtBP1->setText(edb::v1::format_pointer(state.debug_register(0)));
+	if(bp_state1.enabled) {
+		ui->txtBP1->setText(bp_state1.addr.toPointerString());
+		ui->cmbSize1->setCurrentIndex(bp_state1.size);
+		ui->cmbType1->setCurrentIndex(bp_state1.type);
 	}
 
-	if(bp2_enabled) {
-		ui->txtBP2->setText(edb::v1::format_pointer(state.debug_register(1)));
+	if(bp_state2.enabled) {
+		ui->txtBP2->setText(bp_state2.addr.toPointerString());
+		ui->cmbSize2->setCurrentIndex(bp_state2.size);
+		ui->cmbType2->setCurrentIndex(bp_state2.type);		
 	}
 
-	if(bp3_enabled) {
-		ui->txtBP3->setText(edb::v1::format_pointer(state.debug_register(2)));
+	if(bp_state3.enabled) {
+		ui->txtBP3->setText(bp_state3.addr.toPointerString());
+		ui->cmbSize3->setCurrentIndex(bp_state3.size);
+		ui->cmbType3->setCurrentIndex(bp_state3.type);		
 	}
 
-	if(bp4_enabled) {
-		ui->txtBP4->setText(edb::v1::format_pointer(state.debug_register(3)));
+	if(bp_state4.enabled) {
+		ui->txtBP4->setText(bp_state4.addr.toPointerString());
+		ui->cmbSize4->setCurrentIndex(bp_state4.size);
+		ui->cmbType4->setCurrentIndex(bp_state4.type);		
 	}
 }
 

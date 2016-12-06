@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -42,7 +42,7 @@ DialogArguments::~DialogArguments() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogArguments::on_btnAdd_clicked() {
-	QListWidgetItem *p = new QListWidgetItem(tr("New Argument"), ui->listWidget);
+	auto p = new QListWidgetItem(tr("New Argument"), ui->listWidget);
 	p->setFlags(p->flags() | Qt::ItemIsEditable);
 }
 
@@ -74,7 +74,7 @@ void DialogArguments::set_arguments(const QList<QByteArray> &args) {
 	ui->listWidget->clear();
 	
 	QStringList l;
-	Q_FOREACH(const QByteArray &ba, args) {
+	for(const QByteArray &ba: args) {
 		l << QString::fromUtf8(ba.constData());
 	}
 	

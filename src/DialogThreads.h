@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,6 +26,7 @@ namespace Ui { class DialogThreads; }
 
 class ThreadsModel;
 class QSortFilterProxyModel;
+class QModelIndex;
 
 class DialogThreads : public QDialog {
 	Q_OBJECT
@@ -33,8 +34,9 @@ public:
 	DialogThreads(QWidget *parent = 0, Qt::WindowFlags f = 0);
 	virtual ~DialogThreads();
 
-public:
-	edb::tid_t selected_thread();
+private Q_SLOTS:
+	void on_thread_table_doubleClicked(const QModelIndex &index);
+	void updateThreads();
 
 public:
 	void showEvent(QShowEvent *);

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -93,7 +93,7 @@ void SyntaxHighlighter::create_rules() {
 
 	// expression brackets
 	rules_.append(HighlightingRule(
-		"([\\[\\]])",
+		"([\\(\\)\\[\\]])",
 		QColor(settings.value("theme.brackets.foreground", "blue").value<QString>()),
 		QColor(settings.value("theme.brackets.background", "transparent").value<QString>()),
 		settings.value("theme.brackets.weight", QFont::Normal).value<int>(),
@@ -114,7 +114,7 @@ void SyntaxHighlighter::create_rules() {
 	// registers
 	// TODO: support ST(N)
 	rules_.append(HighlightingRule(
-		"\\b(((e|r)?(ax|bx|cx|dx|bp|sp|si|di|ip))|([abcd](l|h))|(sp|bp|si|di)l|([cdefgs]s)|(x?mm[0-7])|r(8|9|(1[0-5]))[dwb]?)\\b",
+		"\\b(((e|r)?(ax|bx|cx|dx|bp|sp|si|di|ip))|([abcd](l|h))|(sp|bp|si|di)l|([cdefgs]s)|[xyz]?mm([0-9]|[12][0-9]|3[01])|r(8|9|(1[0-5]))[dwb]?)\\b",		
 		QColor(settings.value("theme.register.foreground", "red").value<QString>()),
 		QColor(settings.value("theme.register.background", "transparent").value<QString>()),
 		settings.value("theme.register.weight", QFont::Bold).value<int>(),
@@ -134,7 +134,7 @@ void SyntaxHighlighter::create_rules() {
 
 	// pointer modifiers
 	rules_.append(HighlightingRule(
-		"\\b(t?byte|(xmm|[qdf]?)word) ptr\\b",
+		"\\b(t?byte|([xyz]mm|[qdf]?)word)( ptr)?\\b",
 		QColor(settings.value("theme.ptr.foreground", "darkGreen").value<QString>()),
 		QColor(settings.value("theme.ptr.background", "transparent").value<QString>()),
 		settings.value("theme.ptr.weight", QFont::Normal).value<int>(),
@@ -155,17 +155,18 @@ void SyntaxHighlighter::create_rules() {
 
 	// flow control
 	rules_.append(HighlightingRule(
-		"\\b(jmp|jn?[blopsz]|jn?[bl]e|jcez|loopn?[ez])\\b",
+		"\\b(l?jmp[bswlqt]?|loopn?[ez]|(jn?(a|ae|b|be|c|e|g|ge|l|le|o|p|s|z)|j(pe|po|cxz|ecxz)))\\b",
 		QColor(settings.value("theme.flow_ctrl.foreground", "blue").value<QString>()),
 		QColor(settings.value("theme.flow_ctrl.background", "yellow").value<QString>()),
 		settings.value("theme.flow_ctrl.weight", QFont::Normal).value<int>(),
 		settings.value("theme.flow_ctrl.italic", false).value<bool>(),
 		settings.value("theme.flow_ctrl.underline", false).value<bool>()
 		));
+		
 
 	// function call
 	rules_.append(HighlightingRule(
-		"\\b(call|retn?)\\b",
+		"\\b(call|ret[nf]?)[bswlqt]?\\b",
 		QColor(settings.value("theme.function.foreground", "blue").value<QString>()),
 		QColor(settings.value("theme.function.background", "yellow").value<QString>()),
 		settings.value("theme.function.weight", QFont::Normal).value<int>(),
@@ -185,7 +186,7 @@ void SyntaxHighlighter::create_rules() {
 
 	// comparison
 	rules_.append(HighlightingRule(
-		"\\b(cmp|test)\\b",
+		"\\b(cmp|test)[bswlqt]?\\b",
 		QColor(settings.value("theme.comparison.foreground", "blue").value<QString>()),
 		QColor(settings.value("theme.comparison.background", "transparent").value<QString>()),
 		settings.value("theme.comparison.weight", QFont::Normal).value<int>(),
@@ -196,7 +197,7 @@ void SyntaxHighlighter::create_rules() {
 
 	// data transfer
 	rules_.append(HighlightingRule(
-		"\\b(c?movs[bw]|lea|xchg|mov([zs]x?)?)\\b",
+		"\\b(c?movs[bw]|lea|xchg|mov([zs]x?)?)[bswlqt]?\\b",
 		QColor(settings.value("theme.data_xfer.foreground", "blue").value<QString>()),
 		QColor(settings.value("theme.data_xfer.background", "transparent").value<QString>()),
 		settings.value("theme.data_xfer.weight", QFont::Normal).value<int>(),
@@ -206,7 +207,7 @@ void SyntaxHighlighter::create_rules() {
 
 	// arithmetic
 	rules_.append(HighlightingRule(
-		"\\b(add|sub|i?mul|i?div|neg|adc|sbb|inc|dec)\\b",
+		"\\b(add|sub|i?mul|i?div|neg|adc|sbb|inc|dec)[bswlqt]?\\b",
 		QColor(settings.value("theme.arithmetic.foreground", "blue").value<QString>()),
 		QColor(settings.value("theme.arithmetic.background", "transparent").value<QString>()),
 		settings.value("theme.arithmetic.weight", QFont::Normal).value<int>(),
@@ -216,7 +217,7 @@ void SyntaxHighlighter::create_rules() {
 
 	// logic
 	rules_.append(HighlightingRule(
-		"\\b(and|x?or|not)\\b",
+		"\\b(and|x?or|not)[bswlqt]?\\b",
 		QColor(settings.value("theme.logic.foreground", "blue").value<QString>()),
 		QColor(settings.value("theme.logic.background", "transparent").value<QString>()),
 		settings.value("theme.logic.weight", QFont::Normal).value<int>(),
@@ -226,7 +227,7 @@ void SyntaxHighlighter::create_rules() {
 
 	// shift
 	rules_.append(HighlightingRule(
-		"\\b(sh|sa|sc|ro)[rl]\\b",
+		"\\b(sh|sa|sc|ro)[rl][bswlqt]?\\b",
 		QColor(settings.value("theme.shift.foreground", "blue").value<QString>()),
 		QColor(settings.value("theme.shift.background", "transparent").value<QString>()),
 		settings.value("theme.shift.weight", QFont::Normal).value<int>(),
@@ -250,7 +251,7 @@ void SyntaxHighlighter::create_rules() {
 // Desc:
 //------------------------------------------------------------------------------
 void SyntaxHighlighter::highlightBlock(const QString &text) {
-	Q_FOREACH(const HighlightingRule &rule, rules_) {
+	for(const HighlightingRule &rule: rules_) {
 		int index = rule.pattern.indexIn(text);
 		while(index >= 0) {
 			const int length = rule.pattern.matchedLength();

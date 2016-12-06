@@ -1,9 +1,6 @@
 /*
-Copyright (C) 2009 - 2014 Evan Teran
-                          eteran@alum.rit.edu
-
-Copyright (C) 2009        Arvin Schnell
-                          aschnell@suse.de
+Copyright (C) 2015 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,63 +19,63 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef GRAPHWIDGET_20090903_H_
 #define GRAPHWIDGET_20090903_H_
 
-#include "API.h"
-#include <QRectF>
 #include <QGraphicsView>
+#include <QMap>
+#include <QString>
+#include <graphviz/cgraph.h>
+#include <graphviz/gvcext.h>
 
 class QGraphicsScene;
 class QContextMenuEvent;
 class QMouseEvent;
+class QLabel;
+class GraphNode;
 
-#include <graphviz/gvc.h>
-
-class EDB_EXPORT GraphWidget : public QGraphicsView {
+class GraphWidget : public QGraphicsView {
 	Q_OBJECT
+	Q_DISABLE_COPY(GraphWidget)
 
 private:
 	friend class GraphNode;
 	friend class GraphEdge;
 
 public:
-	GraphWidget(const QString& filename, const QString& layout, QWidget* parent = 0);
-	GraphWidget(GVC_t *gvc, graph_t *graph, const QString& layout, QWidget* parent = 0);
-
-	~GraphWidget();
+	GraphWidget(QWidget* parent = 0);
+	virtual ~GraphWidget() override;
 
 public:
-	void render_graph(const QString& filename, const QString& layout);
-	void render_graph(GVC_t *gvc, graph_t *graph, const QString& layout);
-	void clear_graph();
+	void clear();
+	void layout();
+
+public Q_SLOTS:
+	void setScale(qreal factor);
+	void setHUDNotification(const QString &s, int duration = 1000);
 
 Q_SIGNALS:
 	void backgroundContextMenuEvent(QContextMenuEvent* event);
-	void nodeContextMenuEvent(QContextMenuEvent* event, const QString& name);
-	void nodeDoubleClickEvent(QMouseEvent* event, const QString& name);
+	void nodeContextMenuEvent(QContextMenuEvent* event, GraphNode *node);
+	void nodeDoubleClickEvent(QMouseEvent* event, GraphNode *node);
+	void zoomEvent(qreal factor, qreal currentScale);
 
 protected:
-	void keyPressEvent(QKeyEvent* event);
-	void wheelEvent(QWheelEvent* event);
-	void contextMenuEvent(QContextMenuEvent* event);
-	void mouseDoubleClickEvent(QMouseEvent* event);
+	virtual void keyPressEvent(QKeyEvent* event) override;
+	virtual void keyReleaseEvent(QKeyEvent *event) override;
+	virtual void wheelEvent(QWheelEvent* event) override;
+	virtual void contextMenuEvent(QContextMenuEvent* event) override;
+	virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
+	
+private:
+	void setGraphAttribute(const QString name, const QString value);
+	void setNodeAttribute(const QString name, const QString value);
+	void setEdgeAttribute(const QString name, const QString value);
 
 private:
-	void render_node(graph_t *graph, node_t *node);
-	void render_edge(edge_t *edge);
-	void render_sub_graph(graph_t *graph);
-
-private:
-	void render_label(const graph_t *graph);
-	void scale_view(qreal scaleFactor);
-
-	QPointF gToQ(const pointf& p, bool upside_down = true) const;
-	QPointF gToQ(const point& p, bool upside_down = true) const;
-
-	QColor aggetToQColor(void *obj, const char *name, const QColor& fallback) const;
-	Qt::PenStyle aggetToQPenStyle(void *obj, const char *name, const Qt::PenStyle fallback) const;
-
-private:
-	QRectF          graph_rect_;
-	QGraphicsScene *scene_;
+	bool                  inLayout_;
+	QLayout              *HUDLayout_;
+	QLabel               *HUDLabel_;
+	GVC_t                *context_;
+	Agraph_t             *graph_;
 };
 
 #endif
+

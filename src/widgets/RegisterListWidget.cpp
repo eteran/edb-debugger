@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: RegisterListWidget
 // Desc:
 //------------------------------------------------------------------------------
-RegisterListWidget::RegisterListWidget(QWidget *parent) : QTreeWidget(parent) {
+RegisterListWidget::RegisterListWidget(QWidget *parent) : QTreeView(parent) {
 
 	// set the delegate
 	setItemDelegate(new RegisterViewDelegate(this, this));
@@ -34,60 +34,36 @@ RegisterListWidget::RegisterListWidget(QWidget *parent) : QTreeWidget(parent) {
 	// hide the exapander, since we provide our own
 	setRootIsDecorated(false);
 
-	setColumnCount(1);
 	header()->hide();
-#if QT_VERSION >= 0x050000
-	header()->setSectionResizeMode(QHeaderView::Stretch);
-#else
-	header()->setResizeMode(QHeaderView::Stretch);
+
+#if QT_VERSION<QT_VERSION_CHECK(5,0,0)
+#define setSectionResizeMode setResizeMode
 #endif
-	
-	connect(this, SIGNAL(itemPressed(QTreeWidgetItem *, int)), SLOT(handleMousePress(QTreeWidgetItem *)));
+	header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
-//------------------------------------------------------------------------------
-// Name: ~RegisterListWidget
-// Desc:
-//------------------------------------------------------------------------------
-RegisterListWidget::~RegisterListWidget() {
-
+void RegisterListWidget::mousePressEvent(QMouseEvent* event)
+{
+	const auto index=indexAt(event->pos());
+	if(index.isValid() && !model()->parent(index).isValid())
+		setExpanded(index,!isExpanded(index)); // toggle expanded state of category item
+	else
+		QTreeView::mousePressEvent(event);
 }
 
-//------------------------------------------------------------------------------
-// Name: handleMousePress
-// Desc:
-//------------------------------------------------------------------------------
-void RegisterListWidget::handleMousePress(QTreeWidgetItem *item) {
-	if(isCategory(item)) {
-	    setItemExpanded(item, !isItemExpanded(item));
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: mouseDoubleClickEvent
-// Desc:
-//------------------------------------------------------------------------------
-void RegisterListWidget::mouseDoubleClickEvent(QMouseEvent *event) {
-	if(QTreeWidgetItem *const p = itemAt(event->pos())) {
-		Q_EMIT itemDoubleClicked(p, 0);
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: addCategory
-// Desc:
-//------------------------------------------------------------------------------
-QTreeWidgetItem *RegisterListWidget::addCategory(const QString &name) {
-	QTreeWidgetItem *const cat = new QTreeWidgetItem(this);
-	cat->setText(0, name);
-	setItemExpanded(cat, true);
-	return cat;
-}
 
 //------------------------------------------------------------------------------
 // Name: isCategory
 // Desc:
 //------------------------------------------------------------------------------
-bool RegisterListWidget::isCategory(QTreeWidgetItem *item) const {
-	return item && !item->parent();
+void RegisterListWidget::setModel(QAbstractItemModel* model) {
+	QTreeView::setModel(model);
+	reset();
+}
+
+void RegisterListWidget::reset()
+{
+	QTreeView::reset();
+	for(int row=0;row<model()->rowCount();++row)
+		setFirstColumnSpanned(row,QModelIndex(),true);
 }

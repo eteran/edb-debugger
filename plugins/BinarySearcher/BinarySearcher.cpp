@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -62,7 +62,7 @@ QList<QAction *> BinarySearcher::stack_context_menu() {
 
 	QList<QAction *> ret;
 
-	QAction *const action_find = new QAction(tr("&Find ASCII String"), this);
+	auto action_find = new QAction(tr("&Find ASCII String"), this);
 	connect(action_find, SIGNAL(triggered()), this, SLOT(mnuStackFindASCII()));
 	ret << action_find;
 
@@ -74,7 +74,7 @@ QList<QAction *> BinarySearcher::stack_context_menu() {
 // Desc:
 //------------------------------------------------------------------------------
 void BinarySearcher::show_menu() {
-	static QDialog *const dialog = new DialogBinaryString(edb::v1::debugger_ui);
+	static auto dialog = new DialogBinaryString(edb::v1::debugger_ui);
 	dialog->show();
 }
 
@@ -83,7 +83,7 @@ void BinarySearcher::show_menu() {
 // Desc:
 //------------------------------------------------------------------------------
 void BinarySearcher::mnuStackFindASCII() {
-	static QDialog *const dialog = new DialogASCIIString(edb::v1::debugger_ui);
+	static auto dialog = new DialogASCIIString(edb::v1::debugger_ui);
 	dialog->show();
 }
 

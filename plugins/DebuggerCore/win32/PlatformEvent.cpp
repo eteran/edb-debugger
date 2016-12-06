@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -43,7 +43,7 @@ PlatformEvent *PlatformEvent::clone() const {
 IDebugEvent::Message PlatformEvent::error_description() const {
 	Q_ASSERT(is_error());
 
-	edb::address_t fault_address = static_cast<edb::address_t>(-1);
+	auto fault_address = static_cast<edb::address_t>(-1);
 	if(event.dwDebugEventCode == EXCEPTION_DEBUG_EVENT) {
 		fault_address = (edb::address_t)(event.u.Exception.ExceptionRecord.ExceptionInformation[1]);
 	}

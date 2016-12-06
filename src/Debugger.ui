@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>21</height>
+     <height>22</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_help">
@@ -114,7 +114,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="registersDock">
    <property name="windowTitle">
-    <string>Registers</string>
+    <string>Register Tree</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>2</number>
@@ -129,11 +129,6 @@
          <pointsize>9</pointsize>
         </font>
        </property>
-       <column>
-        <property name="text">
-         <string>1</string>
-        </property>
-       </column>
       </widget>
      </item>
     </layout>
@@ -188,15 +183,18 @@
    <addaction name="action_Pause"/>
    <addaction name="action_Step_Into"/>
    <addaction name="action_Step_Over"/>
+   <addaction name="actionStep_Out"/>
    <addaction name="action_Run"/>
   </widget>
   <action name="action_Open">
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-open.png</normaloff>:/debugger/images/edb22-action-open.png</iconset>
+    <iconset theme="document-open"/>
    </property>
    <property name="text">
     <string>&amp;Open</string>
+   </property>
+   <property name="shortcut">
+    <string>F3</string>
    </property>
   </action>
   <action name="action_Attach">
@@ -205,8 +203,14 @@
    </property>
   </action>
   <action name="actionE_xit">
+   <property name="icon">
+    <iconset theme="application-exit"/>
+   </property>
    <property name="text">
     <string>E&amp;xit</string>
+   </property>
+   <property name="shortcut">
+    <string>Alt+X</string>
    </property>
   </action>
   <action name="action_Memory_Regions">
@@ -262,6 +266,9 @@
    <property name="text">
     <string>&amp;Restart</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+F2</string>
+   </property>
   </action>
   <action name="action_Detach">
    <property name="enabled">
@@ -308,13 +315,19 @@
    </property>
   </action>
   <action name="action_About">
+   <property name="icon">
+    <iconset theme="help-about"/>
+   </property>
    <property name="text">
     <string>&amp;About</string>
    </property>
   </action>
   <action name="action_Help">
    <property name="enabled">
-    <bool>false</bool>
+    <bool>true</bool>
+   </property>
+   <property name="icon">
+    <iconset theme="help-contents"/>
    </property>
    <property name="text">
     <string>&amp;Help</string>
@@ -323,18 +336,10 @@
     <string>F1</string>
    </property>
   </action>
-  <action name="action_Toggle_Breakpoint">
-   <property name="enabled">
-    <bool>false</bool>
-   </property>
-   <property name="text">
-    <string>&amp;Toggle Breakpoint</string>
-   </property>
-   <property name="shortcut">
-    <string>F2</string>
-   </property>
-  </action>
   <action name="action_Configure_Debugger">
+   <property name="icon">
+    <iconset theme="configure"/>
+   </property>
    <property name="text">
     <string>&amp;Preferences</string>
    </property>
@@ -360,6 +365,9 @@
    </property>
    <property name="text">
     <string>Run &amp;Until Return</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+F9</string>
    </property>
   </action>
   <action name="action_Step_Into_Pass_Signal_To_Application">
@@ -408,6 +416,9 @@
    </property>
   </action>
   <action name="action_Recent_Files">
+   <property name="icon">
+    <iconset theme="document-open-recent"/>
+   </property>
    <property name="text">
     <string>&amp;Recent Files</string>
    </property>
@@ -438,11 +449,26 @@
     <string>Ctrl+T</string>
    </property>
   </action>
+  <action name="actionStep_Out">
+   <property name="enabled">
+    <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="debugger.qrc">
+     <normaloff>:/debugger/images/edb22-action-stepout.png</normaloff>:/debugger/images/edb22-action-stepout.png</iconset>
+   </property>
+   <property name="text">
+    <string>Step &amp;Out</string>
+   </property>
+   <property name="toolTip">
+    <string>Step Out</string>
+   </property>
+  </action>
  </widget>
  <customwidgets>
   <customwidget>
    <class>RegisterListWidget</class>
-   <extends>QTreeWidget</extends>
+   <extends>QTreeView</extends>
    <header>RegisterListWidget.h</header>
   </customwidget>
   <customwidget>

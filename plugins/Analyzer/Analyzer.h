@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -63,16 +63,21 @@ private:
 
 public:
 	virtual AddressCategory category(edb::address_t address) const;
+	virtual AddressCategory category(edb::address_t address, edb::address_t address_hint) const;
 	virtual FunctionMap functions(const IRegion::pointer &region) const;
+	virtual FunctionMap functions() const;
 	virtual QSet<edb::address_t> specified_functions() const { return specified_functions_; }
-	virtual edb::address_t find_containing_function(edb::address_t address, bool *ok) const;
+	virtual Result<edb::address_t> find_containing_function(edb::address_t address) const;
+	virtual Result<edb::address_t> find_containing_function(edb::address_t address, edb::address_t hint_address) const;
 	virtual void analyze(const IRegion::pointer &region);
 	virtual void invalidate_analysis();
 	virtual void invalidate_analysis(const IRegion::pointer &region);
+	virtual bool for_funcs_in_range(const edb::address_t start, const edb::address_t end, std::function<bool(const Function*)> functor) const;
 
 private:
 	QByteArray md5_region(const IRegion::pointer &region) const;
 	bool find_containing_function(edb::address_t address, Function *function) const;
+	bool find_containing_function(edb::address_t address, edb::address_t hint_address, Function *function) const;
 	bool is_thunk(edb::address_t address) const;
 	bool will_return(edb::address_t address) const;
 	void bonus_entry_point(RegionData *data) const;
@@ -102,10 +107,10 @@ private:
 	struct RegionData {
 		QSet<edb::address_t>              known_functions;
 		QSet<edb::address_t>              fuzzy_functions;
-		
-		QHash<edb::address_t, Function>   functions;
+
+		FunctionMap                       functions;
 		QHash<edb::address_t, BasicBlock> basic_blocks;
-			
+
 		QByteArray                        md5;
 		bool                              fuzzy;
 		IRegion::pointer                  region;

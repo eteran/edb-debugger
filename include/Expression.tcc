@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2013 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -535,7 +535,14 @@ void Expression<T>::get_token() {
 				// it must be a variable, get its name
 				QString temp_string;
 
-				while(expression_ptr_ != expression_.end() && !is_delim(*expression_ptr_)) {
+				while(expression_ptr_ != expression_.end()) {
+					// so the expression: "VAR !" ... is kinda nonsense
+					// AND we want to allow a name to have a "!" in the middle of it
+					// since we want to support symbols with module notation
+					if(is_delim(*expression_ptr_) && *expression_ptr_ != '!') {
+						break;
+					}
+					
 					temp_string += *expression_ptr_++;
 				}
 

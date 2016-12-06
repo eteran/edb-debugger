@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,10 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QtPlugin>
 #include <QList>
+#include <QVariantMap>
 
 class QMenu;
 class QAction;
-class QByteArray;
 
 class IPlugin {
 public:
@@ -49,8 +49,8 @@ public:
 	virtual QWidget *options_page() { return 0; }
 
 public:
-	virtual QByteArray save_state() const          { return QByteArray(); }
-	virtual void restore_state(const QByteArray &) { }
+	virtual QVariantMap save_state() const          { return QVariantMap(); }
+	virtual void restore_state(const QVariantMap &) { }
 
 public:
 	enum ArgumentStatus {
@@ -68,7 +68,7 @@ public:
 	// return ARG_SUCCESS if the normal execution should continue
 	// return ARG_ERROR   if we should show usage and exit
 	// return ARG_EXIT    if you processed the arguments and we should terminate successfully
-	virtual ArgumentStatus parse_argments(QStringList &) { return ARG_SUCCESS; }
+	virtual ArgumentStatus parse_arguments(QStringList &) { return ARG_SUCCESS; }
 
 protected:
 	// optional init, overload this to have edb run it after loading the plugin

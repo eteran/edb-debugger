@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ namespace DumpState {
 namespace Ui { class OptionsPage; }
 
 class OptionsPage : public QWidget {
-	Q_OBJECT;
+	Q_OBJECT
 
 public:
 	OptionsPage(QWidget *parent = 0);
@@ -38,6 +38,7 @@ public:
 public Q_SLOTS:
 	void on_instructionsBeforeIP_valueChanged(int i);
 	void on_instructionsAfterIP_valueChanged(int i);
+	void on_colorizeOutput_toggled(bool value);
 
 private:
 	Ui::OptionsPage *const ui;

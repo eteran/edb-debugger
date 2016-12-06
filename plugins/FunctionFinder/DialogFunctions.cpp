@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,8 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "IAnalyzer.h"
 #include "MemoryRegions.h"
+#include "ISymbolManager.h"
+#ifdef ENABLE_GRAPH
+#include "GraphWidget.h"
+#include "GraphNode.h"
+#include "GraphEdge.h"
+#endif
 #include <QDialog>
 #include <QHeaderView>
+#include <QMenu>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 
@@ -48,6 +55,12 @@ DialogFunctions::DialogFunctions(QWidget *parent) : QDialog(parent), ui(new Ui::
 
 	filter_model_ = new QSortFilterProxyModel(this);
 	connect(ui->txtSearch, SIGNAL(textChanged(const QString &)), filter_model_, SLOT(setFilterFixedString(const QString &)));
+	
+#ifdef ENABLE_GRAPH
+	ui->btnGraph->setEnabled(true);
+#else
+	ui->btnGraph->setEnabled(false);
+#endif	
 }
 
 //------------------------------------------------------------------------------
@@ -94,11 +107,11 @@ void DialogFunctions::do_find() {
 		const QModelIndexList sel = selModel->selectedRows();
 
 		if(sel.size() == 0) {
-			QMessageBox::information(this, tr("No Region Selected"), tr("You must select a region which is to be scanned for functions."));
+			QMessageBox::critical(this, tr("No Region Selected"), tr("You must select a region which is to be scanned for functions."));
 			return;
 		}
 
-		QObject *const analyzer_object = dynamic_cast<QObject *>(analyzer);
+		auto analyzer_object = dynamic_cast<QObject *>(analyzer);
 
 		if(analyzer_object) {
 			connect(analyzer_object, SIGNAL(update_progress(int)), ui->progressBar, SLOT(setValue(int)));
@@ -107,24 +120,24 @@ void DialogFunctions::do_find() {
 		ui->tableWidget->setRowCount(0);
 		ui->tableWidget->setSortingEnabled(false);
 
-		Q_FOREACH(const QModelIndex &selected_item, sel) {
+		for(const QModelIndex &selected_item: sel) {
 
 			const QModelIndex index = filter_model_->mapToSource(selected_item);
 
 			// do the search for this region!
-			if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
+			if(auto region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
 				analyzer->analyze(region);
 
 				const IAnalyzer::FunctionMap &results = analyzer->functions(region);
 
-				Q_FOREACH(const Function &info, results) {
+				for(const Function &info: results) {
 
 					const int row = ui->tableWidget->rowCount();
 					ui->tableWidget->insertRow(row);
 
 					// entry point
-					QTableWidgetItem *const p = new QTableWidgetItem(edb::v1::format_pointer(info.entry_address()));
+					auto p = new QTableWidgetItem(edb::v1::format_pointer(info.entry_address()));
 					p->setData(Qt::UserRole, info.entry_address());
 					ui->tableWidget->setItem(row, 0, p);
 
@@ -132,14 +145,14 @@ void DialogFunctions::do_find() {
 					if(info.reference_count() >= MIN_REFCOUNT) {
 						ui->tableWidget->setItem(row, 1, new QTableWidgetItem(edb::v1::format_pointer(info.end_address())));
 
-						QTableWidgetItem *const size_item = new QTableWidgetItem;
+						auto size_item = new QTableWidgetItem;
 						size_item->setData(Qt::DisplayRole, info.end_address() - info.entry_address() + 1);
 
 						ui->tableWidget->setItem(row, 2, size_item);
 					}
 
 					// reference count
-					QTableWidgetItem *const itemCount = new QTableWidgetItem;
+					auto itemCount = new QTableWidgetItem;
 					itemCount->setData(Qt::DisplayRole, info.reference_count());
 					ui->tableWidget->setItem(row, 3, itemCount);
 
@@ -151,6 +164,12 @@ void DialogFunctions::do_find() {
 					case Function::FUNCTION_STANDARD:
 						ui->tableWidget->setItem(row, 4, new QTableWidgetItem(tr("Standard Function")));
 						break;
+					}
+					
+					
+					QString symbol_name = edb::v1::symbol_manager().find_address_name(info.entry_address());
+					if(!symbol_name.isEmpty()) {
+						ui->tableWidget->setItem(row, 5, new QTableWidgetItem(symbol_name));
 					}
 				}
 			}
@@ -173,6 +192,102 @@ void DialogFunctions::on_btnFind_clicked() {
 	do_find();
 	ui->progressBar->setValue(100);
 	ui->btnFind->setEnabled(true);
+}
+
+//------------------------------------------------------------------------------
+// Name: on_btnGraph_clicked
+// Desc:
+//------------------------------------------------------------------------------
+void DialogFunctions::on_btnGraph_clicked() {
+
+	// this code is not ery pretty...
+	// but it works!
+
+#ifdef ENABLE_GRAPH
+
+	qDebug("[FunctionFinder] Constructing Graph...");
+
+	QList<QTableWidgetItem *> items = ui->tableWidget->selectedItems();
+	
+	// each column counts as an item	
+	if(items.size() == ui->tableWidget->columnCount()) {
+		if(QTableWidgetItem *item = items[0]) {
+			const edb::address_t addr = item->data(Qt::UserRole).toULongLong();
+			if(IAnalyzer *const analyzer = edb::v1::analyzer()) {
+				const IAnalyzer::FunctionMap &functions = analyzer->functions();
+				
+				
+				auto it = functions.find(addr);
+				if(it != functions.end()) {
+					Function f = *it;
+					
+					auto graph = new GraphWidget(nullptr);
+					graph->setAttribute(Qt::WA_DeleteOnClose);
+					
+					QMap<edb::address_t, GraphNode *> nodes;
+					
+					// first create all of the nodes
+					for(const BasicBlock &bb : f) {				
+						auto node = new GraphNode(graph, bb.toString(), Qt::lightGray);
+						nodes.insert(bb.first_address(), node);
+					}
+					
+					// then connect them!
+					for(const BasicBlock &bb : f) {
+					
+					
+						if(!bb.empty()) {
+						
+							auto term = bb.back();							
+							auto inst = *term;
+							
+							if(is_unconditional_jump(inst)) {
+
+								Q_ASSERT(inst.operand_count() >= 1);
+								const edb::Operand &op = inst.operands()[0];
+
+								// TODO: we need some heuristic for detecting when this is
+								//       a call/ret -> jmp optimization
+								if(op.type() == edb::Operand::TYPE_REL) {
+									const edb::address_t ea = op.relative_target();
+									
+									auto from = nodes.find(bb.first_address());
+									auto to = nodes.find(ea);
+									if(to != nodes.end() && from != nodes.end()) {
+										new GraphEdge(from.value(), to.value(), Qt::black);
+									}
+								}
+							} else if(is_conditional_jump(inst)) {
+
+								Q_ASSERT(inst.operand_count() == 1);
+								const edb::Operand &op = inst.operands()[0];
+
+								if(op.type() == edb::Operand::TYPE_REL) {
+								
+									auto from = nodes.find(bb.first_address());
+									
+									auto to_taken = nodes.find(op.relative_target());
+									if(to_taken != nodes.end() && from != nodes.end()) {
+										new GraphEdge(from.value(), to_taken.value(), Qt::green);
+									}
+									
+									auto to_skipped = nodes.find(inst.rva() + inst.size());
+									if(to_taken != nodes.end() && from != nodes.end()) {
+										new GraphEdge(from.value(), to_skipped.value(), Qt::red);
+									}																
+								}
+							} else if(is_terminator(inst)) {
+							}
+						}
+					}					
+					
+					graph->layout();
+					graph->show();
+				}
+			}
+		}
+	}
+#endif
 }
 
 }

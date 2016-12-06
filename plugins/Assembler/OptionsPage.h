@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,7 +26,7 @@ namespace Assembler {
 namespace Ui { class OptionsPage; }
 
 class OptionsPage : public QWidget {
-	Q_OBJECT;
+	Q_OBJECT
 
 public:
 	OptionsPage(QWidget *parent = 0);
@@ -36,8 +36,7 @@ public:
 	virtual void showEvent(QShowEvent *event);
 
 public Q_SLOTS:
-	virtual void on_assemblerPath_editTextChanged(const QString &text);
-	virtual void on_toolButton_clicked();
+	virtual void on_assemblerName_currentIndexChanged(const QString &text);
 	
 private:
 	Ui::OptionsPage *const ui;

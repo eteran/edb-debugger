@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ private Q_SLOTS:
 	void on_txtAscii_textEdited(const QString &);
 	void on_txtHex_textEdited(const QString &);
 	void on_txtUTF16_textEdited(const QString &);
+	void on_keepSize_stateChanged();
 
 public:
 	void setMaxLength(int n);
@@ -46,7 +47,16 @@ public:
 	void setValue(const QByteArray &);
 
 private:
-	 Ui::BinaryStringWidget *const ui;
+	void setEntriesMaxLength(int n);
+
+	Ui::BinaryStringWidget *const ui;
+	enum class Mode
+	{
+	    LengthLimited, // obeys setMaxLength()
+	    MemoryEditing  // obeys user's choice in keepSize checkbox
+	} mode;
+	int requestedMaxLength;
+	int valueOriginalLength;
 };
 
 #endif

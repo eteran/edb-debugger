@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: RegisterViewDelegate
 // Desc:
 //------------------------------------------------------------------------------
-RegisterViewDelegate::RegisterViewDelegate(QTreeView *view, QWidget *parent) : QItemDelegate(parent), view_(view) {
+RegisterViewDelegate::RegisterViewDelegate(QTreeView *view, QWidget *parent) : QStyledItemDelegate(parent), view_(view) {
 }
 
 //------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ void RegisterViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 		view_->style()->drawItemText(painter, textrect, Qt::AlignCenter, option.palette, view_->isEnabled(), text);
 
 	} else {
-		QItemDelegate::paint(painter, option, index);
+		QStyledItemDelegate::paint(painter, option, index);
 	}
 }
 
@@ -86,5 +86,12 @@ void RegisterViewDelegate::paint(QPainter *painter, const QStyleOptionViewItem &
 // Desc:
 //------------------------------------------------------------------------------
 QSize RegisterViewDelegate::sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const {
-    return QItemDelegate::sizeHint(opt, index) + QSize(2, 2);
+	const auto defaultHint=QStyledItemDelegate::sizeHint(opt, index) + QSize(2, 2);
+	if(!index.model()->parent(index).isValid()) {
+		QStyleOptionButton optButton;
+		optButton.rect.setSize(opt.fontMetrics.size(Qt::TextShowMnemonic,"X"));
+		const auto buttonHint=view_->style()->sizeFromContents(QStyle::CT_PushButton,&optButton,optButton.rect.size());
+		return QSize(defaultHint.width(),buttonHint.height());
+	}
+	else return defaultHint;
 }

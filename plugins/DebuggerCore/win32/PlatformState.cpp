@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -322,14 +322,14 @@ long double PlatformState::fpu_register(int n) const {
 
 	if(n >= 0 && n <= 7) {
 #if defined(EDB_X86)
-		const uint8_t* p = reinterpret_cast<const uint8_t*>(&context_.FloatSave.RegisterArea[n*10]);
+		auto p = reinterpret_cast<const uint8_t*>(&context_.FloatSave.RegisterArea[n*10]);
 		if(sizeof(long double) == 10) { // can we check this at compile time?
 			ret = *(reinterpret_cast<const long double*>(p));
 		} else {
 			ret = read_float80(p);
 		}
 #elif defined(EDB_X86_64)
-		const uint8_t* p = reinterpret_cast<const uint8_t*>(&context_.FltSave.FloatRegisters[n]);
+		auto p = reinterpret_cast<const uint8_t*>(&context_.FltSave.FloatRegisters[n]);
 		if(sizeof(long double) == 10) {
 			ret = *(reinterpret_cast<const long double*>(p));
 		} else {
@@ -350,10 +350,10 @@ quint64 PlatformState::mmx_register(int n) const {
 	if(n >= 0 && n <= 7) {
 #if defined(EDB_X86)
 		// MMX registers are an alias to the lower 64-bits of the FPU regs
-		const quint64* p = reinterpret_cast<const quint64*>(&context_.FloatSave.RegisterArea[n*10]);
+		auto p = reinterpret_cast<const quint64*>(&context_.FloatSave.RegisterArea[n*10]);
 		ret = *p; // little endian!
 #elif defined(EDB_X86_64)
-		const quint64* p = reinterpret_cast<const quint64*>(&context_.FltSave.FloatRegisters[n]);
+		auto p = reinterpret_cast<const quint64*>(&context_.FltSave.FloatRegisters[n]);
 		ret = *p;
 #endif
 	}
@@ -369,13 +369,13 @@ QByteArray PlatformState::xmm_register(int n) const {
 
 #if defined(EDB_X86)
 	if(n >= 0 && n <= 7) {
-		const char* p = reinterpret_cast<const char*>(&context_.ExtendedRegisters[(10+n)*16]);
+		auto p = reinterpret_cast<const char*>(&context_.ExtendedRegisters[(10+n)*16]);
 		ret = QByteArray(p, 16);
 		std::reverse(ret.begin(), ret.end()); //little endian!
 	}
 #elif defined(EDB_X86_64)
 	if(n >= 0 && n <= 15) {
-		const char* p = reinterpret_cast<const char*>(&context_.FltSave.XmmRegisters[n]);
+		auto p = reinterpret_cast<const char*>(&context_.FltSave.XmmRegisters[n]);
 		ret = QByteArray(p, sizeof(M128A));
 		std::reverse(ret.begin(), ret.end());
 	}

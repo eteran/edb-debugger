@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>598</width>
-    <height>387</height>
+    <width>681</width>
+    <height>501</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -27,10 +27,7 @@
       <attribute name="title">
        <string>General</string>
       </attribute>
-      <layout class="QVBoxLayout">
-       <property name="spacing">
-        <number>6</number>
-       </property>
+      <layout class="QVBoxLayout" name="verticalLayout_6">
        <item>
         <widget class="QGroupBox" name="groupBox_3">
          <property name="title">
@@ -53,7 +50,44 @@
           <item>
            <widget class="QRadioButton" name="rdoKill">
             <property name="text">
-             <string>Terminate Debugged Application</string>
+             <string>Kill Debugged Application</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="rdoReverseCapture">
+            <property name="text">
+             <string>Detach If Debugged Application Was Attached To, Kill If Launched</string>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
+       </item>
+       <item>
+        <widget class="QGroupBox" name="groupBox_6">
+         <property name="title">
+          <string>Window Placement On Startup</string>
+         </property>
+         <layout class="QVBoxLayout" name="verticalLayout_5">
+          <item>
+           <widget class="QRadioButton" name="rdoPlaceDefault">
+            <property name="text">
+             <string>System Default</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="rdoPlaceCentered">
+            <property name="text">
+             <string>Centered on Desktop</string>
+            </property>
+           </widget>
+          </item>
+          <item>
+           <widget class="QRadioButton" name="rdoPlaceRestore">
+            <property name="text">
+             <string>Restore Previous Location</string>
             </property>
            </widget>
           </item>
@@ -257,9 +291,9 @@
        <item row="1" column="1">
         <layout class="QVBoxLayout" name="verticalLayout_2">
          <item>
-          <widget class="QCheckBox" name="chkAddressSemicolon">
+          <widget class="QCheckBox" name="chkAddressColon">
            <property name="text">
-            <string>Show Semicolon in Addresses</string>
+            <string>Show Colons in Addresses</string>
            </property>
            <property name="checked">
             <bool>true</bool>
@@ -300,7 +334,7 @@
       <attribute name="title">
        <string>Debugging</string>
       </attribute>
-      <layout class="QVBoxLayout">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
         <widget class="QGroupBox" name="groupBox_2">
          <property name="title">
@@ -344,6 +378,27 @@
         <widget class="QCheckBox" name="chkFindMain">
          <property name="text">
           <string>Use heuristic to find &quot;main&quot; symbol when it is not found in symbol file</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkDeleteStaleSymbols">
+         <property name="text">
+          <string>Delete Stale Symbol Files</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkDisableASLR">
+         <property name="text">
+          <string>Disable Address Space Layout Randomization (ASLR)</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkDisableLazyBinding">
+         <property name="text">
+          <string>Disable lazy binding of dynamic symbols</string>
          </property>
         </widget>
        </item>
@@ -434,12 +489,26 @@
         </spacer>
        </item>
       </layout>
+      <zorder>chkDisableASLR</zorder>
+      <zorder>chkDisableLazyBinding</zorder>
+      <zorder>groupBox_2</zorder>
+      <zorder>chkWarnDataBreakpoint</zorder>
+      <zorder>chkFindMain</zorder>
+      <zorder>groupBox_4</zorder>
+      <zorder>chkDeleteStaleSymbols</zorder>
      </widget>
      <widget class="QWidget" name="tab_6">
       <attribute name="title">
        <string>Signals/Exceptions</string>
       </attribute>
       <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QCheckBox" name="signalsMessageBoxEnable">
+         <property name="text">
+          <string>Alert about signals with a message box</string>
+         </property>
+        </widget>
+       </item>
        <item>
         <widget class="QLabel" name="label_8">
          <property name="text">
@@ -486,7 +555,7 @@
           <item>
            <widget class="QRadioButton" name="rdoSytntaxATT">
             <property name="enabled">
-             <bool>false</bool>
+             <bool>true</bool>
             </property>
             <property name="text">
              <string>AT&amp;&amp;T</string>
@@ -499,7 +568,7 @@
        <item>
         <widget class="QCheckBox" name="chkZerosAreFilling">
          <property name="text">
-          <string>Instruction &quot;add byte ptr[eax], al&quot; (0x00 0x00) is &quot;Filling&quot; on x86</string>
+          <string>Instruction &quot;add [eax], al&quot; (0x00 0x00) is &quot;Filling&quot; on x86</string>
          </property>
         </widget>
        </item>
@@ -507,6 +576,51 @@
         <widget class="QCheckBox" name="chkUppercase">
          <property name="text">
           <string>Disassemble in uppercase</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkSmallIntAsDecimal">
+         <property name="enabled">
+          <bool>false</bool>
+         </property>
+         <property name="text">
+          <string>Display small integers in decimal</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkTabBetweenMnemonicAndOperands">
+         <property name="text">
+          <string>Tab between mnemonic and operands</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkShowLocalModuleName">
+         <property name="text">
+          <string>Show local module name in jump targets</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkShowSymbolicAddresses">
+         <property name="text">
+          <string>Show symbolic addresses</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkSimplifyRIPRelativeTargets">
+         <property name="text">
+          <string>Show RIP-relative targets as [rel TargetAddress] instead of [rip+Displacement]</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkSyntaxHighlighting">
+         <property name="text">
+          <string>Enable syntax highlighting</string>
          </property>
         </widget>
        </item>

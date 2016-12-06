@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -56,11 +56,11 @@ DialogPlugins::~DialogPlugins() {
 //------------------------------------------------------------------------------
 void DialogPlugins::showEvent(QShowEvent *) {
 
-	QHash<QString, QObject *> plugins = edb::v1::plugin_list();
+	QMap<QString, QObject *> plugins = edb::v1::plugin_list();
 
 	plugin_model_->clear();
 
-	for(QHash<QString, QObject *>::iterator it = plugins.begin(); it != plugins.end(); ++it) {
+	for(auto it = plugins.begin(); it != plugins.end(); ++it) {
 
 		const QString filename = it.key();
 		QString plugin_name;

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DumpState.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "Instruction.h"
 #include "OptionsPage.h"
 #include "State.h"
@@ -39,10 +39,68 @@ namespace {
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-std::string hex_string(T value) {
-	std::stringstream ss;
-	ss << std::hex << std::setw(sizeof(T) * 2) << std::setfill('0') <<  static_cast<edb::reg_t>(value);
-	return ss.str();
+std::string hex_string(const T& value) {
+	return value.toHexString().toStdString();
+}
+
+static const char *const Reset  = "\x1B[0m";
+static const char *const Red    = "\x1B[91m";
+static const char *const Yellow = "\x1B[93m";
+static const char *const Cyan   = "\x1B[96m";
+static const char *const Blue   = "\x1B[94m";
+static const char *const Green  = "\x1B[92m";
+static const char *const Purple = "\x1B[95m";
+	
+
+//------------------------------------------------------------------------------
+// Name: format_register
+// Desc:
+//------------------------------------------------------------------------------
+template <class T>
+std::string format_register(const T& value) {
+
+	QSettings settings;
+	const int colorize = settings.value("DumpState/colorize", true).toBool();
+
+	if(colorize) {
+		return Blue + hex_string(value) + Reset;
+	} else {
+		return hex_string(value);
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: format_segment
+// Desc:
+//------------------------------------------------------------------------------
+template <class T>
+std::string format_segment(const T& value) {
+
+	QSettings settings;
+	const int colorize = settings.value("DumpState/colorize", true).toBool();
+
+	if(colorize) {
+		return Green + hex_string(value) + Reset;
+	} else {
+		return hex_string(value);
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: format_address
+// Desc:
+//------------------------------------------------------------------------------
+template <class T>
+std::string format_address(const T& value) {
+
+	QSettings settings;
+	const int colorize = settings.value("DumpState/colorize", true).toBool();
+
+	if(colorize) {
+		return Purple + hex_string(value) + Reset;
+	} else {
+		return hex_string(value);
+	}
 }
 
 }
@@ -92,9 +150,9 @@ void DumpState::dump_code(const State &state) {
 	for(int i = 0; i < instructions_to_print + 1; ++i) {
 		quint8 buf[edb::Instruction::MAX_SIZE];
 		if(const int size = edb::v1::get_instruction_bytes(address, buf)) {
-			edb::Instruction inst(buf, buf + size, address, std::nothrow);
+			edb::Instruction inst(buf, buf + size, address);
 			if(inst) {
-				std::cout << ((address == ip) ? "> " : "  ") << hex_string(address) << ": " << to_string(inst) << "\n";
+				std::cout << ((address == ip) ? "> " : "  ") << hex_string(address) << ": " << edb::v1::formatter().to_string(inst) << "\n";
 			} else {
 				break;
 			}
@@ -110,78 +168,87 @@ void DumpState::dump_code(const State &state) {
 // Desc:
 //------------------------------------------------------------------------------
 void DumpState::dump_registers(const State &state) {
-#if defined(EDB_X86)
-	std::cout << "     eax:" << hex_string(state["eax"].value<edb::reg_t>());
-	std::cout << " ebx:" << hex_string(state["ebx"].value<edb::reg_t>());
-	std::cout << "  ecx:" << hex_string(state["ecx"].value<edb::reg_t>());
-	std::cout << "  edx:" << hex_string(state["edx"].value<edb::reg_t>());
-	std::cout << "     eflags:" << hex_string(state["eflags"].value<edb::reg_t>());
-	std::cout << "\n";
-	std::cout << "     esi:" << hex_string(state["esi"].value<edb::reg_t>());
-	std::cout << " edi:" << hex_string(state["edi"].value<edb::reg_t>());
-	std::cout << "  esp:" << hex_string(state["esp"].value<edb::reg_t>());
-	std::cout << "  ebp:" << hex_string(state["ebp"].value<edb::reg_t>());
-	std::cout << "     eip:" << hex_string(state.instruction_pointer());
-	std::cout << "\n";
-	std::cout << "     cs:" << hex_string<quint16>(state["cs"].value<edb::reg_t>());
-	std::cout << "  ds:" << hex_string<quint16>(state["ds"].value<edb::reg_t>());
-	std::cout << "  es:" << hex_string<quint16>(state["es"].value<edb::reg_t>());
-	std::cout << "  fs:" << hex_string<quint16>(state["fs"].value<edb::reg_t>());
-	std::cout << "  gs:" << hex_string<quint16>(state["gs"].value<edb::reg_t>());
-	std::cout << "  ss:" << hex_string<quint16>(state["ss"].value<edb::reg_t>());
-	std::cout << "    ";
-	std::cout << ((state["eflags"].value<edb::reg_t>() & (1 << 11)) != 0 ? 'O' : 'o') << ' ';
-	std::cout << ((state["eflags"].value<edb::reg_t>() & (1 << 10)) != 0 ? 'D' : 'd') << ' ';
-	std::cout << ((state["eflags"].value<edb::reg_t>() & (1 <<  9)) != 0 ? 'I' : 'i') << ' ';
-	std::cout << ((state["eflags"].value<edb::reg_t>() & (1 <<  8)) != 0 ? 'T' : 't') << ' ';
-	std::cout << ((state["eflags"].value<edb::reg_t>() & (1 <<  7)) != 0 ? 'S' : 's') << ' ';
-	std::cout << ((state["eflags"].value<edb::reg_t>() & (1 <<  6)) != 0 ? 'Z' : 'z') << ' ';
-	std::cout << ((state["eflags"].value<edb::reg_t>() & (1 <<  4)) != 0 ? 'A' : 'a') << ' ';
-	std::cout << ((state["eflags"].value<edb::reg_t>() & (1 <<  2)) != 0 ? 'P' : 'p') << ' ';
-	std::cout << ((state["eflags"].value<edb::reg_t>() & (1 <<  0)) != 0 ? 'C' : 'c');
-	std::cout << "\n";
-#elif defined(EDB_X86_64)
-	std::cout << "     rax:" << hex_string(state["rax"].value<edb::reg_t>());
-	std::cout << " rbx:" << hex_string(state["rbx"].value<edb::reg_t>());
-	std::cout << "  rcx:" << hex_string(state["rcx"].value<edb::reg_t>());
-	std::cout << "  rdx:" << hex_string(state["rdx"].value<edb::reg_t>());
-	std::cout << "     rflags:" << hex_string(state["rflags"].value<edb::reg_t>());
-	std::cout << "\n";
-	std::cout << "     rsi:" << hex_string(state["rsi"].value<edb::reg_t>());
-	std::cout << " rdi:" << hex_string(state["rdi"].value<edb::reg_t>());
-	std::cout << "  rsp:" << hex_string(state["rsp"].value<edb::reg_t>());
-	std::cout << "  rbp:" << hex_string(state["rbp"].value<edb::reg_t>());
-	std::cout << "        rip:" << hex_string(state.instruction_pointer());
-	std::cout << "\n";
-	std::cout << "      r8:" << hex_string(state["r8"].value<edb::reg_t>());
-	std::cout << "  r9:" << hex_string(state["r9"].value<edb::reg_t>());
-	std::cout << "  r10:" << hex_string(state["r10"].value<edb::reg_t>());
-	std::cout << "  r11:" << hex_string(state["r11"].value<edb::reg_t>());
-	std::cout << "           ";
-	std::cout << ((state["rflags"].value<edb::reg_t>() & (1 << 11)) != 0 ? 'O' : 'o') << ' ';
-	std::cout << ((state["rflags"].value<edb::reg_t>() & (1 << 10)) != 0 ? 'D' : 'd') << ' ';
-	std::cout << ((state["rflags"].value<edb::reg_t>() & (1 <<  9)) != 0 ? 'I' : 'i') << ' ';
-	std::cout << ((state["rflags"].value<edb::reg_t>() & (1 <<  8)) != 0 ? 'T' : 't') << ' ';
-	std::cout << ((state["rflags"].value<edb::reg_t>() & (1 <<  7)) != 0 ? 'S' : 's') << ' ';
-	std::cout << ((state["rflags"].value<edb::reg_t>() & (1 <<  6)) != 0 ? 'Z' : 'z') << ' ';
-	std::cout << ((state["rflags"].value<edb::reg_t>() & (1 <<  4)) != 0 ? 'A' : 'a') << ' ';
-	std::cout << ((state["rflags"].value<edb::reg_t>() & (1 <<  2)) != 0 ? 'P' : 'p') << ' ';
-	std::cout << ((state["rflags"].value<edb::reg_t>() & (1 <<  0)) != 0 ? 'C' : 'c');
-	std::cout << "\n";
-	std::cout << "     r12:" << hex_string(state["r12"].value<edb::reg_t>());
-	std::cout << " r13:" << hex_string(state["r13"].value<edb::reg_t>());
-	std::cout << "  r14:" << hex_string(state["r14"].value<edb::reg_t>());
-	std::cout << "  r15:" << hex_string(state["r15"].value<edb::reg_t>());
-	std::cout << "\n";
-	std::cout << "      cs:" << hex_string<quint16>(state["cs"].value<edb::reg_t>());
-	std::cout << "  ds:" << hex_string<quint16>(state["ds"].value<edb::reg_t>());
-	std::cout << "   es:" << hex_string<quint16>(state["es"].value<edb::reg_t>());
-	std::cout << "   fs:" << hex_string<quint16>(state["fs"].value<edb::reg_t>());
-	std::cout << "\n";
-	std::cout << "      gs:" << hex_string<quint16>(state["gs"].value<edb::reg_t>());
-	std::cout << "  ss:" << hex_string<quint16>(state["ss"].value<edb::reg_t>());
-	std::cout << "\n";
-#endif
+
+	using std::cout;
+	if(edb::v1::debuggeeIs32Bit()) { // TODO: check if state itself is 32 bit, not current debuggee. Generally it's not the same.
+		cout << "     eax:" <<    format_register(state["eax"]);
+		cout << " ecx:" <<        format_register(state["ecx"]);
+		cout << "  edx:" <<       format_register(state["edx"]);
+		cout << "  ebx:" <<       format_register(state["ebx"]);
+		cout << "     eflags:" << format_register(state["eflags"]);
+		cout << "\n";
+		cout << "     esp:" << format_register(state["esp"]);
+		cout << " ebp:" <<     format_register(state["ebp"]);
+		cout << "  esi:" <<    format_register(state["esi"]);
+		cout << "  edi:" <<    format_register(state["edi"]);
+		cout << "     eip:" << format_register(state["eip"]);
+		cout << "\n";
+		cout << "     es:" << format_segment(state["es"]);
+		cout << "  cs:" <<    format_segment(state["cs"]);
+		cout << "  ss:" <<    format_segment(state["ss"]);
+		cout << "  ds:" <<    format_segment(state["ds"]);
+		cout << "  fs:" <<    format_segment(state["fs"]);
+		cout << "  gs:" <<    format_segment(state["gs"]);
+		cout << "    ";
+		const Register eflagsR=state["eflags"];
+		if(eflagsR) {
+			const auto eflags=eflagsR.value<edb::value32>();
+			cout << ((eflags & (1 << 11)) != 0 ? 'O' : 'o') << ' ';
+			cout << ((eflags & (1 << 10)) != 0 ? 'D' : 'd') << ' ';
+			cout << ((eflags & (1 <<  9)) != 0 ? 'I' : 'i') << ' ';
+			cout << ((eflags & (1 <<  8)) != 0 ? 'T' : 't') << ' ';
+			cout << ((eflags & (1 <<  7)) != 0 ? 'S' : 's') << ' ';
+			cout << ((eflags & (1 <<  6)) != 0 ? 'Z' : 'z') << ' ';
+			cout << ((eflags & (1 <<  4)) != 0 ? 'A' : 'a') << ' ';
+			cout << ((eflags & (1 <<  2)) != 0 ? 'P' : 'p') << ' ';
+			cout << ((eflags & (1 <<  0)) != 0 ? 'C' : 'c');
+		}
+		cout << "\n";
+	} else {
+		cout << "     rax:" <<    format_register(state["rax"]);
+		cout << " rcx:" <<        format_register(state["rcx"]);
+		cout << "  rdx:" <<       format_register(state["rdx"]);
+		cout << "  rbx:" <<       format_register(state["rbx"]);
+		cout << "     rflags:" << format_register(state["rflags"]);
+		cout << "\n";
+		cout << "     rsp:" <<    format_register(state["rsp"]);
+		cout << " rbp:" <<        format_register(state["rbp"]);
+		cout << "  rsi:" <<       format_register(state["rsi"]);
+		cout << "  rdi:" <<       format_register(state["rdi"]);
+		cout << "        rip:" << format_register(state["rip"]);
+		cout << "\n";
+		cout << "      r8:" << format_register(state["r8"]);
+		cout << "  r9:" <<     format_register(state["r9"]);
+		cout << "  r10:" <<    format_register(state["r10"]);
+		cout << "  r11:" <<    format_register(state["r11"]);
+		cout << "           ";
+		const Register rflagsR=state["rflags"];
+		if(rflagsR) {
+			const auto rflags=rflagsR.value<edb::value32>();
+			cout << ((rflags & (1 << 11)) != 0 ? 'O' : 'o') << ' ';
+			cout << ((rflags & (1 << 10)) != 0 ? 'D' : 'd') << ' ';
+			cout << ((rflags & (1 <<  9)) != 0 ? 'I' : 'i') << ' ';
+			cout << ((rflags & (1 <<  8)) != 0 ? 'T' : 't') << ' ';
+			cout << ((rflags & (1 <<  7)) != 0 ? 'S' : 's') << ' ';
+			cout << ((rflags & (1 <<  6)) != 0 ? 'Z' : 'z') << ' ';
+			cout << ((rflags & (1 <<  4)) != 0 ? 'A' : 'a') << ' ';
+			cout << ((rflags & (1 <<  2)) != 0 ? 'P' : 'p') << ' ';
+			cout << ((rflags & (1 <<  0)) != 0 ? 'C' : 'c');
+		}
+		cout << "\n";
+		cout << "     r12:" << format_register(state["r12"]);
+		cout << " r13:" <<     format_register(state["r13"]);
+		cout << "  r14:" <<    format_register(state["r14"]);
+		cout << "  r15:" <<    format_register(state["r15"]);
+		cout << "\n";
+		cout << "     es:" << format_segment(state["es"]);
+		cout << "  cs:" <<    format_segment(state["cs"]);
+		cout << "  ss:" <<    format_segment(state["ss"]);
+		cout << "  ds:" <<    format_segment(state["ds"]);
+		cout << "  fs:" <<    format_segment(state["fs"]);
+		cout << "  gs:" <<    format_segment(state["gs"]);
+		cout << "\n";
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -189,29 +256,32 @@ void DumpState::dump_registers(const State &state) {
 // Desc:
 //------------------------------------------------------------------------------
 void DumpState::dump_lines(edb::address_t address, int lines) {
-	for(int i = 0; i < lines; ++i) {
-		quint8 buf[16];
-		if(edb::v1::debugger_core->read_bytes(address, buf, sizeof(buf))) {
-			std::cout << hex_string(address) << " : ";
+	
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		for(int i = 0; i < lines; ++i) {
+			edb::value8 buf[16];
+			if(process->read_bytes(address, buf, sizeof(buf))) {
+				std::cout << hex_string(address) << " : ";
 
-			for(int j = 0x00; j < 0x04; ++j) std::cout << hex_string(buf[j]) << " ";
-			std::cout << " ";
-			for(int j = 0x04; j < 0x08; ++j) std::cout << hex_string(buf[j]) << " ";
-			std::cout << "- ";
-			for(int j = 0x08; j < 0x0c; ++j) std::cout << hex_string(buf[j]) << " ";
-			std::cout << " ";
-			for(int j = 0x0c; j < 0x10; ++j) std::cout << hex_string(buf[j]) << " ";
+				for(int j = 0x00; j < 0x04; ++j) std::cout << hex_string(buf[j]) << " ";
+				std::cout << " ";
+				for(int j = 0x04; j < 0x08; ++j) std::cout << hex_string(buf[j]) << " ";
+				std::cout << "- ";
+				for(int j = 0x08; j < 0x0c; ++j) std::cout << hex_string(buf[j]) << " ";
+				std::cout << " ";
+				for(int j = 0x0c; j < 0x10; ++j) std::cout << hex_string(buf[j]) << " ";
 
-			for(int j = 0; j < 16; ++j) {
-				const quint8 ch = buf[j];
-				std::cout << ((std::isprint(ch) || (std::isspace(ch) && (ch != '\f' && ch != '\t' && ch != '\r' && ch != '\n') && ch < 0x80)) ? static_cast<char>(ch) : '.');
+				for(int j = 0; j < 16; ++j) {
+					const quint8 ch = buf[j];
+					std::cout << ((std::isprint(ch) || (std::isspace(ch) && (ch != '\f' && ch != '\t' && ch != '\r' && ch != '\n' && ch != '\x0b') && ch < 0x80)) ? static_cast<char>(ch) : '.');
+				}
+
+				std::cout << "\n";
+			} else {
+				break;
 			}
-
-			std::cout << "\n";
-		} else {
-			break;
+			address += 16;
 		}
-		address += 16;
 	}
 }
 
@@ -237,20 +307,24 @@ void DumpState::dump_data(edb::address_t address) {
 //------------------------------------------------------------------------------
 void DumpState::show_menu() {
 
-	State state;
-	edb::v1::debugger_core->get_state(&state);
-
-	std::cout << "------------------------------------------------------------------------------\n";
-	dump_registers(state);
-	std::cout << "[" << hex_string<quint16>(state["ss"].value<edb::reg_t>()) << ":" << hex_string(state.stack_pointer()) << "]---------------------------------------------------------[stack]\n";
-	dump_stack(state);
-
-	const edb::address_t data_address = edb::v1::current_data_view_address();
-	std::cout << "[" << hex_string<quint16>(state["ds"].value<edb::reg_t>()) << ":" << hex_string(data_address) << "]---------------------------------------------------------[ data]\n";
-	dump_data(data_address);
-	std::cout << "[" << hex_string<quint16>(state["cs"].value<edb::reg_t>()) << ":" << hex_string(state.instruction_pointer()) << "]---------------------------------------------------------[ code]\n";
-	dump_code(state);
-	std::cout << "------------------------------------------------------------------------------\n";
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		if(IThread::pointer thread = process->current_thread()) {
+			State state;
+			thread->get_state(&state);
+		
+			std::cout << "------------------------------------------------------------------------------\n";
+			dump_registers(state);
+			std::cout << "[" << format_segment(state["ss"]) << ":" << format_address(state.stack_pointer()) << "]---------------------------------------------------------[stack]\n";
+			dump_stack(state);
+		
+			const edb::address_t data_address = edb::v1::current_data_view_address();
+			std::cout << "[" << format_segment(state["ds"]) << ":" << format_address(data_address) << "]---------------------------------------------------------[ data]\n";
+			dump_data(data_address);
+			std::cout << "[" << format_segment(state["cs"]) << ":" << format_address(state.instruction_pointer()) << "]---------------------------------------------------------[ code]\n";
+			dump_code(state);
+			std::cout << "------------------------------------------------------------------------------\n";
+		}
+	}
 }
 
 //------------------------------------------------------------------------------

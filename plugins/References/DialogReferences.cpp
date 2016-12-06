@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogReferences.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "MemoryRegions.h"
 #include "Util.h"
 #include "edb.h"
@@ -65,20 +65,26 @@ void DialogReferences::showEvent(QShowEvent *) {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogReferences::do_find() {
-	bool ok;
-	const edb::address_t address   = edb::v1::string_to_address(ui->txtAddress->text(), &ok);
+	bool ok = false;
+	edb::address_t address;
 	const edb::address_t page_size = edb::v1::debugger_core->page_size();
+	
+	const QString text = ui->txtAddress->text();
+	if(!text.isEmpty()) {
+		ok = edb::v1::eval_expression(text, &address);
+	}	
+	
 
 	if(ok) {
 		edb::v1::memory_regions().sync();
 		const QList<IRegion::pointer> regions = edb::v1::memory_regions().regions();
 
 		int i = 0;
-		Q_FOREACH(const IRegion::pointer &region, regions) {
+		for(const IRegion::pointer &region: regions) {
 			// a short circut for speading things up
 			if(region->accessible() || !ui->chkSkipNoAccess->isChecked()) {
 
-				const size_t page_count     = region->size() / page_size;
+				const edb::address_t page_count = region->size() / page_size;
 				const QVector<quint8> pages = edb::v1::read_pages(region->start(), page_count);
 
 				if(!pages.isEmpty()) {
@@ -87,45 +93,33 @@ void DialogReferences::do_find() {
 
 					while(p != pages_end) {
 
-						if(static_cast<std::size_t>(pages_end - p) < sizeof(edb::address_t)) {
+						if(pages_end - p < edb::v1::pointer_size()) {
 							break;
 						}
 
 						const edb::address_t addr = p - &pages[0] + region->start();
 
-						edb::address_t test_address;
-						memcpy(&test_address, p, sizeof(edb::address_t));
+						edb::address_t test_address(0);
+						memcpy(&test_address, p, edb::v1::pointer_size());
 
 						if(test_address == address) {
-							QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
+							auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 							item->setData(TypeRole, 'D');
 							item->setData(AddressRole, addr);
 							ui->listWidget->addItem(item);
 						}
 
-						edb::Instruction inst(p, pages_end, addr, std::nothrow);
+						edb::Instruction inst(p, pages_end, addr);
 
 						if(inst) {
-							switch(inst.type()) {
-							case edb::Instruction::OP_JMP:
-							case edb::Instruction::OP_CALL:
-							case edb::Instruction::OP_JCC:
-								if(inst.operands()[0].general_type() == edb::Operand::TYPE_REL) {
-									if(inst.operands()[0].relative_target() == address) {
-										QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
-										item->setData(TypeRole, 'C');
-										item->setData(AddressRole, addr);
-										ui->listWidget->addItem(item);
-									}
-								}
-								break;
-							case edb::Instruction::OP_MOV:
+							switch(inst.operation()) {
+							case edb::Instruction::Operation::X86_INS_MOV:
 								// instructions of the form: mov [ADDR], 0xNNNNNNNN
 								Q_ASSERT(inst.operand_count() == 2);
 
-								if(inst.operands()[0].general_type() == edb::Operand::TYPE_EXPRESSION) {
-									if(inst.operands()[1].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[1].immediate()) == address) {
-										QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
+								if(inst.operands()[0].type() == edb::Operand::TYPE_EXPRESSION) {
+									if(inst.operands()[1].type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[1].immediate()) == address) {
+										auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 										item->setData(TypeRole, 'C');
 										item->setData(AddressRole, addr);
 										ui->listWidget->addItem(item);
@@ -133,29 +127,39 @@ void DialogReferences::do_find() {
 								}
 
 								break;
-							case edb::Instruction::OP_PUSH:
+							case edb::Instruction::Operation::X86_INS_PUSH:
 								// instructions of the form: push 0xNNNNNNNN
 								Q_ASSERT(inst.operand_count() == 1);
 
-								if(inst.operands()[0].general_type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[0].immediate()) == address) {
-									QListWidgetItem *const item = new QListWidgetItem(edb::v1::format_pointer(addr));
+								if(inst.operands()[0].type() == edb::Operand::TYPE_IMMEDIATE && static_cast<edb::address_t>(inst.operands()[0].immediate()) == address) {
+									auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 									item->setData(TypeRole, 'C');
 									item->setData(AddressRole, addr);
 									ui->listWidget->addItem(item);
 								}
 								break;
 							default:
+								if(is_jump(inst) || is_call(inst)) {
+									if(inst.operands()[0].type() == edb::Operand::TYPE_REL) {
+										if(inst.operands()[0].relative_target() == address) {
+											auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
+											item->setData(TypeRole, 'C');
+											item->setData(AddressRole, addr);
+											ui->listWidget->addItem(item);
+										}
+									}								
+								}
 								break;
 							}
 						}
 
-						emit updateProgress(util::percentage(i, regions.size(), p - &pages[0], region->size()));
+						Q_EMIT updateProgress(util::percentage(i, regions.size(), p - &pages[0], region->size()));
 						++p;
 					}
 				}
 
 			} else {
-				emit updateProgress(util::percentage(i, regions.size()));
+				Q_EMIT updateProgress(util::percentage(i, regions.size()));
 			}
 			++i;
 		}

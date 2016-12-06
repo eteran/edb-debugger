@@ -15,6 +15,13 @@
    <string>Process Properties</string>
   </property>
   <layout class="QGridLayout" name="gridLayout_7">
+   <item row="1" column="0">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
+   </item>
    <item row="0" column="0">
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
@@ -54,8 +61,8 @@
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset resource="../../src/debugger.qrc">
-              <normaloff>:/debugger/images/edb22-action-open.png</normaloff>:/debugger/images/edb22-action-open.png</iconset>
+             <iconset theme="document-open">
+             </iconset>
             </property>
             <property name="arrowType">
              <enum>Qt::NoArrow</enum>
@@ -146,8 +153,8 @@
              <string>...</string>
             </property>
             <property name="icon">
-             <iconset resource="../../src/debugger.qrc">
-              <normaloff>:/debugger/images/edb22-action-open.png</normaloff>:/debugger/images/edb22-action-open.png</iconset>
+             <iconset theme="document-open">
+             </iconset>
             </property>
            </widget>
           </item>
@@ -170,6 +177,63 @@
       <attribute name="title">
        <string>Threads</string>
       </attribute>
+      <layout class="QGridLayout" name="gridLayout_5">
+       <item row="0" column="0">
+        <spacer name="horizontalSpacer_5">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>604</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+       <item row="0" column="1">
+        <widget class="QPushButton" name="btnRefreshThreads">
+         <property name="text">
+          <string>Refresh</string>
+         </property>
+         <property name="icon">
+          <iconset theme="view-refresh">
+          </iconset>
+         </property>
+        </widget>
+       </item>
+       <item row="1" column="0" colspan="2">
+        <widget class="QTableView" name="threadTable">
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
+         <property name="editTriggers">
+          <set>QAbstractItemView::NoEditTriggers</set>
+         </property>
+         <property name="alternatingRowColors">
+          <bool>true</bool>
+         </property>
+         <property name="selectionMode">
+          <enum>QAbstractItemView::SingleSelection</enum>
+         </property>
+         <property name="selectionBehavior">
+          <enum>QAbstractItemView::SelectRows</enum>
+         </property>
+         <property name="sortingEnabled">
+          <bool>true</bool>
+         </property>
+         <attribute name="horizontalHeaderStretchLastSection">
+          <bool>true</bool>
+         </attribute>
+         <attribute name="verticalHeaderVisible">
+          <bool>false</bool>
+         </attribute>
+        </widget>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tab_6">
       <attribute name="title">
@@ -194,10 +258,20 @@
          <property name="text">
           <string>Refresh</string>
          </property>
+         <property name="icon">
+          <iconset theme="view-refresh">
+          </iconset>
+         </property>
         </widget>
        </item>
        <item row="1" column="0" colspan="2">
         <widget class="QTableWidget" name="tableModules">
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
@@ -263,10 +337,20 @@
          <property name="text">
           <string>Refresh</string>
          </property>
+         <property name="icon">
+          <iconset theme="view-refresh">
+          </iconset>
+         </property>
         </widget>
        </item>
        <item row="1" column="0" colspan="3">
         <widget class="QTableWidget" name="tableMemory">
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
@@ -337,6 +421,10 @@
            <property name="text">
             <string>Refresh</string>
            </property>
+           <property name="icon">
+            <iconset theme="view-refresh">
+            </iconset>
+           </property>
           </widget>
          </item>
         </layout>
@@ -357,6 +445,12 @@
        </item>
        <item>
         <widget class="QTableWidget" name="tableEnvironment">
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
@@ -417,12 +511,22 @@
            <property name="text">
             <string>Refresh</string>
            </property>
+           <property name="icon">
+            <iconset theme="view-refresh">
+            </iconset>
+           </property>
           </widget>
          </item>
         </layout>
        </item>
        <item>
         <widget class="QTableWidget" name="tableHandles">
+         <property name="font">
+          <font>
+           <family>Monospace</family>
+           <pointsize>8</pointsize>
+          </font>
+         </property>
          <property name="editTriggers">
           <set>QAbstractItemView::NoEditTriggers</set>
          </property>
@@ -465,18 +569,9 @@
      </widget>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Close</set>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
- <resources>
-  <include location="../../src/debugger.qrc"/>
- </resources>
+ <resources/>
  <connections>
   <connection>
    <sender>buttonBox</sender>

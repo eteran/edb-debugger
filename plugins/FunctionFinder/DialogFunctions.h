@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,6 +39,7 @@ public:
 public Q_SLOTS:
 	void on_btnFind_clicked();
 	void on_tableWidget_cellDoubleClicked (int row, int column);
+	void on_btnGraph_clicked();
 
 private:
 	virtual void showEvent(QShowEvent *event);

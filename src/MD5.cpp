@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -104,7 +104,7 @@ MD5::MD5(const void *message, std::size_t n) : length_(0), message_block_index_(
 	h_[2] = 0x98badcfe;
 	h_[3] = 0x10325476;
 
-	const quint8 *message_ptr = static_cast<const quint8 *>(message);
+	auto message_ptr = static_cast<const quint8 *>(message);
 
 	while(n-- && !corrupted_) {
 		message_block_[message_block_index_++] = *message_ptr++;
@@ -282,7 +282,7 @@ void MD5::process_message_block() {
 	quint32 c = h_[2];
 	quint32 d = h_[3];
 
-	const quint32 *const x = reinterpret_cast<const quint32 *>(message_block_);
+	const auto x = reinterpret_cast<const quint32 *>(message_block_);
 
 	/* Round 1 */
 	FF(a, b, c, d, x[ 0], S11, 0xd76aa478); /* 1 */

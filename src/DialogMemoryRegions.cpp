@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogMemoryRegions.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "edb.h"
 #include "MemoryRegions.h"
 
@@ -73,7 +73,7 @@ void DialogMemoryRegions::showEvent(QShowEvent *) {
 void DialogMemoryRegions::on_regions_table_customContextMenuRequested(const QPoint &pos) {
 
 	QMenu menu;
-	QMenu *const access_menu = new QMenu(tr("Set Access"), this);
+	auto access_menu = new QMenu(tr("Set Access"), this);
 	access_menu->addAction(tr("No Access"), this, SLOT(set_access_none()));   // ---
 	access_menu->addAction(tr("Read Only"), this, SLOT(set_access_r()));      // r--
 	access_menu->addAction(tr("Write Only"), this, SLOT(set_access_w()));     // -w-

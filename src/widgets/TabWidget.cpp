@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -63,6 +63,6 @@ void TabWidget::mousePressEvent(QMouseEvent *event) {
 
 	const int tab = tabBar()->tabAt(event->pos());
 	if(tab != -1) {
-		emit customContextMenuRequested(tab, event->pos());
+		Q_EMIT customContextMenuRequested(tab, event->pos());
 	}
 }

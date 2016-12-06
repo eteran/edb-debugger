@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,18 +18,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BinaryInfo.h"
 #include "DialogHeader.h"
-#include "ELF32.h"
-#include "ELF64.h"
+#include "ELFXX.h"
 #include "IBinary.h"
 #include "ISymbolManager.h"
 #include "PE32.h"
 #include "edb.h"
 #include "symbols.h"
+#include "OptionsPage.h"
 
 #include <QDebug>
 #include <QMenu>
 
 #include <fstream>
+#include <memory>
 
 namespace BinaryInfo {
 namespace {
@@ -38,24 +39,24 @@ namespace {
 // Name: create_binary_info_elf32
 // Desc:
 //------------------------------------------------------------------------------
-IBinary *create_binary_info_elf32(const IRegion::pointer &region) {
-	return new ELF32(region);
+std::unique_ptr<IBinary> create_binary_info_elf32(const IRegion::pointer &region) {
+	return std::unique_ptr<IBinary>(new ELF32(region));
 }
 
 //------------------------------------------------------------------------------
 // Name: create_binary_info_elf64
 // Desc:
 //------------------------------------------------------------------------------
-IBinary *create_binary_info_elf64(const IRegion::pointer &region) {
-	return new ELF64(region);
+std::unique_ptr<IBinary> create_binary_info_elf64(const IRegion::pointer &region) {
+	return std::unique_ptr<IBinary>(new ELF64(region));
 }
 
 //------------------------------------------------------------------------------
 // Name: create_binary_info_pe32
 // Desc:
 //------------------------------------------------------------------------------
-IBinary *create_binary_info_pe32(const IRegion::pointer &region) {
-	return new PE32(region);
+std::unique_ptr<IBinary> create_binary_info_pe32(const IRegion::pointer &region) {
+	return std::unique_ptr<IBinary>(new PE32(region));
 }
 
 }
@@ -76,6 +77,10 @@ void BinaryInfo::private_init() {
 	edb::v1::register_binary_info(create_binary_info_elf64);
 	edb::v1::register_binary_info(create_binary_info_pe32);
 	edb::v1::symbol_manager().set_symbol_generator(this);
+}
+
+QWidget* BinaryInfo::options_page() {
+	return new OptionsPage;
 }
 
 //------------------------------------------------------------------------------
@@ -99,7 +104,7 @@ QMenu *BinaryInfo::menu(QWidget *parent) {
 // Desc:
 //------------------------------------------------------------------------------
 void BinaryInfo::explore_header() {
-	static QDialog *dialog = new DialogHeader(edb::v1::debugger_ui);
+	static auto dialog = new DialogHeader(edb::v1::debugger_ui);
 	dialog->show();
 }
 
@@ -112,10 +117,10 @@ QString BinaryInfo::extra_arguments() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: parse_argments
+// Name: parse_arguments
 // Desc:
 //------------------------------------------------------------------------------
-IPlugin::ArgumentStatus BinaryInfo::parse_argments(QStringList &args) {
+IPlugin::ArgumentStatus BinaryInfo::parse_arguments(QStringList &args) {
 
 	if(args.size() == 3 && args[1] == "--symbols") {
 		generate_symbols(args[2]);

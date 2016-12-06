@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -94,17 +94,17 @@ void DialogStrings::do_find() {
 	QString str;
 
 	if(sel.size() == 0) {
-		QMessageBox::information(
+		QMessageBox::critical(
 			this,
 			tr("No Region Selected"),
 			tr("You must select a region which is to be scanned for strings."));
 	}
 
-	Q_FOREACH(const QModelIndex &selected_item, sel) {
+	for(const QModelIndex &selected_item: sel) {
 
 		const QModelIndex index = filter_model_->mapToSource(selected_item);
 
-		if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
+		if(auto region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
 			edb::address_t start_address     = region->start();
 			const edb::address_t end_address = region->end();
@@ -116,7 +116,7 @@ void DialogStrings::do_find() {
 				int string_length = 0;
 				bool ok = edb::v1::get_ascii_string_at_address(start_address, str, min_string_length, 256, string_length);
 				if(ok) {
-					QListWidgetItem *const item = new QListWidgetItem(QString("%1: [ASCII] %2").arg(edb::v1::format_pointer(start_address)).arg(str));
+					auto item = new QListWidgetItem(QString("%1: [ASCII] %2").arg(edb::v1::format_pointer(start_address)).arg(str));
 					item->setData(Qt::UserRole, start_address);
 					ui->listWidget->addItem(item);
 				} else {
@@ -125,7 +125,7 @@ void DialogStrings::do_find() {
 						string_length = 0;
 						ok = edb::v1::get_utf16_string_at_address(start_address, str, min_string_length, 256, string_length);
 						if(ok) {
-							QListWidgetItem *const item = new QListWidgetItem(QString("%1: [UTF16] %2").arg(edb::v1::format_pointer(start_address)).arg(str));
+							auto item = new QListWidgetItem(QString("%1: [UTF16] %2").arg(edb::v1::format_pointer(start_address)).arg(str));
 							item->setData(Qt::UserRole, start_address);
 							ui->listWidget->addItem(item);
 						}

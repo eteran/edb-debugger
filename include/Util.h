@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,7 +19,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef UTIL_20061126_H_
 #define UTIL_20061126_H_
 
+#include <QString>
+#include <sstream>
+#include <iomanip>
+#include <type_traits>
+#include <cstddef>
+#include <array>
+#include <algorithm>
+#include <iostream>
+#include <cstdlib>
+#include "FloatX.h"
+
+enum class NumberDisplayMode {
+	Hex,
+	Signed,
+	Unsigned,
+	Float
+};
+
 namespace util {
+
+// Until EDB switches to C++14, this will be useful
+template<typename T, typename ...Args>
+std::unique_ptr<T> make_unique( Args&& ...args )
+{
+    return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) );
+}
 
 //------------------------------------------------------------------------------
 // Name: percentage
@@ -28,7 +53,7 @@ namespace util {
 inline int percentage(int regions_finished, int regions_total, int bytes_done, int bytes_total) {
 
 	// how much percent does each region account for?
-	const double region_step      = 1.0 / static_cast<double>(regions_total) * 100;
+	const auto region_step      = 1.0 / static_cast<double>(regions_total) * 100;
 
 	// how many regions are done?
 	const double regions_complete = region_step * regions_finished;
@@ -47,6 +72,97 @@ inline int percentage(int bytes_done, int bytes_total) {
 	return percentage(0, 1, bytes_done, bytes_total);
 }
 
+template<typename T> typename std::enable_if<std::is_floating_point<T>::value,
+QString>::type toString(T value, int precision) {
+	std::ostringstream ss;
+	ss << std::setprecision(precision) << value;
+	return QString::fromStdString(ss.str());
 }
+
+inline void markMemory(void* memory, std::size_t size)
+{
+	char* p=reinterpret_cast<char*>(memory);
+	// Fill memory with 0xbad1bad1 marker
+	for(std::size_t i=0;i<size;++i)
+		p[i]=i&1 ? 0xba : 0xd1;
+}
+
+template<typename T, typename... Tail>
+constexpr auto make_array(T head, Tail...tail) -> std::array<T,1+sizeof...(Tail)>
+{ return std::array<T,1+sizeof...(Tail)>{head,tail...}; }
+
+template<typename Container, typename Element>
+bool contains(const Container& container, const Element& element)
+{ return std::find(std::begin(container),std::end(container),element)!=std::end(container); }
+
+template<typename Stream>
+void print(Stream& str){ str << "\n"; }
+template<typename Stream, typename Arg0, typename...Args>
+void print(Stream& str, const Arg0& arg0, const Args&...args)
+{
+	str << arg0;
+	print(str,args...);
+}
+#define EDB_PRINT_AND_DIE(...) { util::print(std::cerr,__FILE__,":",__LINE__,": ",Q_FUNC_INFO,": Fatal error: ",__VA_ARGS__); std::abort(); }
+
+// Returns a string of `AsType`s ordered from highest in SIMD register to lowest
+template<typename AsType, typename T>
+typename std::enable_if<std::is_floating_point<AsType>::value,
+QString>::type packedFloatsToString(const T& value)
+{
+    auto p=reinterpret_cast<const char*>(&value);
+    const std::size_t elementCount=sizeof value/sizeof(AsType);
+    QString result;
+    for(std::size_t i=elementCount-1;i!=std::size_t(-1);--i)
+    {
+		edb::detail::SizedValue<sizeof(AsType)*8> v;
+        std::memcpy(&v,&p[i*sizeof(AsType)],sizeof(AsType));
+
+		static const int spacing=1;
+        static const int fieldWidth=maxPrintedLength<AsType>()+spacing;
+		result += formatFloat(v).rightJustified(fieldWidth);
+    }
+    return result;
+}
+
+template<typename T>
+QString formatInt(T value, NumberDisplayMode mode)
+{
+	switch(mode)
+	{
+	case NumberDisplayMode::Hex:
+		return value.toHexString();
+	case NumberDisplayMode::Signed:
+		return value.signedToString();
+	case NumberDisplayMode::Unsigned:
+		return value.unsignedToString();
+	default:
+		EDB_PRINT_AND_DIE("Unexpected integer display mode ",(long)mode);
+	}
+}
+
+template<typename AsType, typename T>
+typename std::enable_if<std::is_integral<AsType>::value,
+QString>::type packedIntsToString(const T& value,NumberDisplayMode mode)
+{
+    auto p=reinterpret_cast<const char*>(&value);
+    const std::size_t elementCount=sizeof value/sizeof(AsType);
+    QString result;
+    for(std::size_t i=elementCount-1;i!=std::size_t(-1);--i)
+    {
+		edb::detail::SizedValue<sizeof(AsType)*8> v;
+        std::memcpy(&v,&p[i*sizeof(AsType)],sizeof(AsType));
+
+		static const int spacing=1;
+		static const int decimalLength=maxPrintedLength<AsType>();
+        const int fieldWidth=(mode==NumberDisplayMode::Hex ? sizeof(AsType)*2 : decimalLength)+spacing;
+		result += formatInt(v,mode).rightJustified(fieldWidth);
+    }
+    return result;
+}
+
+}
+
+#define BIT_LENGTH(expr) (8*sizeof(expr))
 
 #endif

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,13 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogProcessProperties.h"
 #include "edb.h"
-#include "IDebuggerCore.h"
+#include "IDebugger.h"
 #include "MemoryRegions.h"
 #include "Configuration.h"
 #include "ISymbolManager.h"
 #include "DialogStrings.h"
 #include "Symbol.h"
 
+#include <QDateTime>
 #include <QDebug>
 #include <QDesktopServices>
 #include <QDir>
@@ -47,14 +48,18 @@ namespace {
 
 QString size_to_string(size_t n) {
 
-	if(n < 1000) {
+	static constexpr size_t KiB = 1024;
+	static constexpr size_t MiB = KiB * 1024;
+	static constexpr size_t GiB = MiB * 1024;
+	
+	if(n < KiB) {
 		return QString::number(n);
-	} else if(n < 1000000) {
-		return QString::number(n / 1000) + " KiB";
-	} else if(n < 1000000000) {
-		return QString::number(n / 1000000) + " MiB";
+	} else if(n < MiB) {
+		return QString::number(n / KiB) + " KiB";
+	} else if(n < GiB) {
+		return QString::number(n / MiB) + " MiB";
 	} else {
-		return QString::number(n / 1000000) + " GiB";
+		return QString::number(n / GiB) + " GiB";
 	}
 }
 
@@ -277,11 +282,20 @@ DialogProcessProperties::DialogProcessProperties(QWidget *parent) : QDialog(pare
 #if QT_VERSION >= 0x050000
 	ui->tableModules->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	ui->tableMemory->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	ui->threadTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 #else
 	ui->tableModules->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 	ui->tableMemory->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
+	ui->threadTable->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
 #endif
 
+	threads_model_ = new ThreadsModel(this);
+	threads_filter_ = new QSortFilterProxyModel(this);
+	
+	threads_filter_->setSourceModel(threads_model_);
+	threads_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
+	
+	ui->threadTable->setModel(threads_filter_);
 }
 
 //------------------------------------------------------------------------------
@@ -293,22 +307,25 @@ DialogProcessProperties::~DialogProcessProperties() {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: updateGeneralPage
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateGeneralPage() {
 	if(edb::v1::debugger_core) {
-	    if(const edb::pid_t pid = edb::v1::debugger_core->pid()) {
-	        const QString exe            = edb::v1::debugger_core->process_exe(pid);
-	        const QString cwd            = edb::v1::debugger_core->process_cwd(pid);
-	        const edb::pid_t parent_pid  = edb::v1::debugger_core->parent_pid(pid);
-	        const QString parent_exe     = edb::v1::debugger_core->process_exe(parent_pid);
-	        const QList<QByteArray> args = edb::v1::debugger_core->process_args(pid);
+	    if(IProcess *process = edb::v1::debugger_core->process()) {
+	        const QString exe            = process->executable();
+	        const QString cwd            = process->current_working_directory();
+			
+			std::shared_ptr<IProcess> parent = process->parent();
+	        const edb::pid_t parent_pid  = parent ? parent->pid() : 0;
+	        const QString parent_exe     = parent ? parent->executable() : QString();
+			
+	        const QList<QByteArray> args = process->arguments();
 
 			ui->editImage->setText(exe);
 			ui->editCommand->setText(QString());
 			ui->editCurrentDirectory->setText(cwd);
-			ui->editStarted->setText(edb::v1::debugger_core->process_start(pid).toString("yyyy-MM-dd hh:mm:ss.z"));
+			ui->editStarted->setText(process->start_time().toString("yyyy-MM-dd hh:mm:ss.z"));
 			if(parent_pid) {
 				ui->editParent->setText(QString("%1 (%2)").arg(parent_exe).arg(parent_pid));
 			} else {
@@ -325,7 +342,7 @@ void DialogProcessProperties::updateGeneralPage() {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: updateModulePage
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateModulePage() {
@@ -333,21 +350,23 @@ void DialogProcessProperties::updateModulePage() {
 	ui->tableModules->clearContents();
 	ui->tableModules->setRowCount(0);
 	if(edb::v1::debugger_core) {
-		const QList<Module> modules = edb::v1::debugger_core->loaded_modules();
-		ui->tableModules->setSortingEnabled(false);
-		Q_FOREACH(const Module &m, modules) {
-			const int row = ui->tableModules->rowCount();
-			ui->tableModules->insertRow(row);
-			ui->tableModules->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(m.base_address)));
-			ui->tableModules->setItem(row, 1, new QTableWidgetItem(m.name));
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+			const QList<Module> modules = process->loaded_modules();
+			ui->tableModules->setSortingEnabled(false);
+			for(const Module &m: modules) {
+				const int row = ui->tableModules->rowCount();
+				ui->tableModules->insertRow(row);
+				ui->tableModules->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(m.base_address)));
+				ui->tableModules->setItem(row, 1, new QTableWidgetItem(m.name));
+			}
+			ui->tableModules->setSortingEnabled(true);
 		}
-		ui->tableModules->setSortingEnabled(true);
 	}
 
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: updateMemoryPage
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateMemoryPage() {
@@ -361,7 +380,7 @@ void DialogProcessProperties::updateMemoryPage() {
 		ui->tableMemory->setSortingEnabled(false);
 
 
-		Q_FOREACH(const IRegion::pointer &r, regions) {
+		for(const IRegion::pointer &r: regions) {
 			const int row = ui->tableMemory->rowCount();
 			ui->tableMemory->insertRow(row);
 			ui->tableMemory->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(r->start()))); // address
@@ -377,7 +396,7 @@ void DialogProcessProperties::updateMemoryPage() {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: on_txtSearchEnvironment_textChanged
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_txtSearchEnvironment_textChanged(const QString &text) {
@@ -385,7 +404,7 @@ void DialogProcessProperties::on_txtSearchEnvironment_textChanged(const QString 
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: updateEnvironmentPage
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
@@ -398,26 +417,28 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 	const QString lower_filter = filter.toLower();
 
 #ifdef Q_OS_LINUX
-	QFile proc_environ(QString("/proc/%1/environ").arg(edb::v1::debugger_core->pid()));
-	if(proc_environ.open(QIODevice::ReadOnly)) {
-		QByteArray env = proc_environ.readAll();
-		char *p = env.data();
-		char *ptr = p;
-		while(ptr != p + env.size()) {
-			const QString env = QString::fromUtf8(ptr);
-			const QString env_name  = env.mid(0, env.indexOf("="));
-			const QString env_value = env.mid(env.indexOf("=") + 1);
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		QFile proc_environ(QString("/proc/%1/environ").arg(process->pid()));
+		if(proc_environ.open(QIODevice::ReadOnly)) {
+			QByteArray env = proc_environ.readAll();
+			char *p = env.data();
+			char *ptr = p;
+			while(ptr != p + env.size()) {
+				const QString env = QString::fromUtf8(ptr);
+				const QString env_name  = env.mid(0, env.indexOf("="));
+				const QString env_value = env.mid(env.indexOf("=") + 1);
 
-			if(lower_filter.isEmpty() || env_name.toLower().contains(lower_filter)) {
-				const int row = ui->tableEnvironment->rowCount();
-				ui->tableEnvironment->insertRow(row);
-				ui->tableEnvironment->setItem(row, 0, new QTableWidgetItem(env_name));
-			    ui->tableEnvironment->setItem(row, 1, new QTableWidgetItem(env_value));
+				if(lower_filter.isEmpty() || env_name.toLower().contains(lower_filter)) {
+					const int row = ui->tableEnvironment->rowCount();
+					ui->tableEnvironment->insertRow(row);
+					ui->tableEnvironment->setItem(row, 0, new QTableWidgetItem(env_name));
+			    	ui->tableEnvironment->setItem(row, 1, new QTableWidgetItem(env_value));
+				}
+
+				ptr += qstrlen(ptr) + 1;
 			}
 
-			ptr += qstrlen(ptr) + 1;
 		}
-
 	}
 #endif
 
@@ -425,7 +446,7 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: updateHandles
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::updateHandles() {
@@ -434,11 +455,10 @@ void DialogProcessProperties::updateHandles() {
 	ui->tableHandles->setRowCount(0);
 
 #ifdef Q_OS_LINUX
-	const edb::pid_t pid = edb::v1::debugger_core->pid();
-	if(pid != -1) {
-		QDir dir(QString("/proc/%1/fd/").arg(pid));
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		QDir dir(QString("/proc/%1/fd/").arg(process->pid()));
 		const QFileInfoList entries = dir.entryInfoList(QStringList() << "[0-9]*");
-		Q_FOREACH(const QFileInfo &info, entries) {
+		for(const QFileInfo &info: entries) {
 			if(info.isSymLink()) {
 				QString symlink(info.symLinkTarget());
 				const QString type(file_type(symlink));
@@ -457,7 +477,7 @@ void DialogProcessProperties::updateHandles() {
 				ui->tableHandles->insertRow(row);
 
 
-				QTableWidgetItem *const itemFD = new QTableWidgetItem;
+				auto itemFD = new QTableWidgetItem;
 				itemFD->setData(Qt::DisplayRole, info.fileName().toUInt());
 
 				ui->tableHandles->setItem(row, 0, new QTableWidgetItem(type));
@@ -481,39 +501,43 @@ void DialogProcessProperties::showEvent(QShowEvent *) {
 	updateMemoryPage();
 	updateModulePage();
 	updateHandles();
+	updateThreads();
 	updateEnvironmentPage(ui->txtSearchEnvironment->text());
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: on_btnParent_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnParent_clicked() {
 
 	if(edb::v1::debugger_core) {
-		const edb::pid_t pid        = edb::v1::debugger_core->pid();
-		const edb::pid_t parent_pid = edb::v1::debugger_core->parent_pid(pid);
-		const QString parent_exe    = edb::v1::debugger_core->process_exe(parent_pid);
-		QFileInfo info(parent_exe);
-		QDir dir = info.absoluteDir();
-		QDesktopServices::openUrl(QUrl(QString("file:///%1").arg(dir.absolutePath()), QUrl::TolerantMode));
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+		
+			std::shared_ptr<IProcess> parent = process->parent();
+	        const QString parent_exe     = parent ? parent->executable() : QString();					
+
+			QFileInfo info(parent_exe);
+			QDir dir = info.absoluteDir();
+			QDesktopServices::openUrl(QUrl(tr("file:///%1").arg(dir.absolutePath()), QUrl::TolerantMode));
+		}
 	}
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: on_btnImage_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnImage_clicked() {
 	if(edb::v1::debugger_core) {
 		QFileInfo info(ui->editImage->text());
 		QDir dir = info.absoluteDir();
-		QDesktopServices::openUrl(QUrl(QString("file:///%1").arg(dir.absolutePath()), QUrl::TolerantMode));
+		QDesktopServices::openUrl(QUrl(tr("file:///%1").arg(dir.absolutePath()), QUrl::TolerantMode));
 	}
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: on_btnRefreshEnvironment_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnRefreshEnvironment_clicked() {
@@ -521,7 +545,7 @@ void DialogProcessProperties::on_btnRefreshEnvironment_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: on_btnRefreshHandles_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnRefreshHandles_clicked() {
@@ -529,13 +553,51 @@ void DialogProcessProperties::on_btnRefreshHandles_clicked() {
 }
 
 //------------------------------------------------------------------------------
-// Name:
+// Name: on_btnStrings_clicked
 // Desc:
 //------------------------------------------------------------------------------
 void DialogProcessProperties::on_btnStrings_clicked() {
 
-	static QDialog *dialog = new DialogStrings(edb::v1::debugger_ui);
+	static auto dialog = new DialogStrings(edb::v1::debugger_ui);
 	dialog->show();
+}
+
+//------------------------------------------------------------------------------
+// Name: on_btnRefreshMemory_clicked
+// Desc:
+//------------------------------------------------------------------------------
+void DialogProcessProperties::on_btnRefreshMemory_clicked() {
+	updateMemoryPage();
+}
+
+//------------------------------------------------------------------------------
+// Name: on_btnRefreshThreads_clicked
+// Desc:
+//------------------------------------------------------------------------------
+void DialogProcessProperties::on_btnRefreshThreads_clicked() {
+	updateThreads();
+}
+
+//------------------------------------------------------------------------------
+// Name: updateThreads
+// Desc:
+//------------------------------------------------------------------------------
+void DialogProcessProperties::updateThreads() {
+	threads_model_->clear();
+
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+	
+		IThread::pointer current = process->current_thread();
+	
+		for(IThread::pointer thread : process->threads()) {
+
+			if(thread == current) {
+				threads_model_->addThread(thread, true);
+			} else {
+				threads_model_->addThread(thread, false);
+			}		
+		}
+	}
 }
 
 }

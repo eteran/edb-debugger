@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -41,10 +41,10 @@ public:
 	virtual void clear() = 0;
 	virtual void load_symbol_file(const QString &filename, edb::address_t base) = 0;
 	virtual void set_symbol_generator(ISymbolGenerator *generator) = 0;
-	virtual void set_symbol_path(const QString &symbol_directory) = 0;
 	virtual void set_label(edb::address_t address, const QString &label) = 0;
-	virtual QString find_address_name(edb::address_t address) = 0;
+	virtual QString find_address_name(edb::address_t address, bool prefixed=true) = 0;
 	virtual QHash<edb::address_t, QString> labels() const = 0;
+	virtual QList<QString> files() const = 0;
 };
 
 #endif

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,11 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define QDISASSEMBLYVIEW_20061101_H_
 
 #include "IRegion.h"
+#include "NavigationHistory.h"
 #include "Types.h"
+#include "Status.h"
 #include <QAbstractScrollArea>
 #include <QAbstractSlider>
 #include <QCache>
 #include <QPixmap>
+#include <QSvgRenderer>
 #include <QSet>
 
 class IAnalyzer;
@@ -47,6 +50,7 @@ protected:
 	virtual void mouseReleaseEvent(QMouseEvent *event);
 	virtual void paintEvent(QPaintEvent *event);
 	virtual void wheelEvent(QWheelEvent *e);
+	virtual void keyPressEvent(QKeyEvent *event);
 
 public:
 	IRegion::pointer region() const;
@@ -54,6 +58,16 @@ public:
 	edb::address_t addressFromPoint(const QPoint &pos) const;
 	edb::address_t selectedAddress() const;
 	int selectedSize() const;
+	void add_comment(edb::address_t address, QString comment);
+	int remove_comment(edb::address_t address);
+	QString get_comment(edb::address_t address);
+	void clear_comments();
+	void setSelectedAddress(edb::address_t address);
+	QByteArray saveState() const;
+	void restoreState(const QByteArray &stateBuffer);
+
+Q_SIGNALS:
+	void signal_updated();
 
 public Q_SLOTS:
 	void setFont(const QFont &f);
@@ -63,8 +77,9 @@ public Q_SLOTS:
 	void setRegion(const IRegion::pointer &r);
 	void setCurrentAddress(edb::address_t address);
 	void clear();
-	void repaint();
+	void update();
 	void setShowAddressSeparator(bool value);
+	void resetColumns();
 
 private Q_SLOTS:
 	void scrollbar_action_triggered(int action);
@@ -75,37 +90,34 @@ signals:
 
 private:
 	QString formatAddress(edb::address_t address) const;
-	QString format_instruction_bytes(const edb::Instruction &inst) const;
-	QString format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, const QFontMetricsF &metrics) const;
 	QString format_invalid_instruction_bytes(const edb::Instruction &inst, QPainter &painter) const;
 	edb::address_t address_from_coord(int x, int y) const;
 	edb::address_t previous_instructions(edb::address_t current_address, int count);
 	edb::address_t following_instructions(edb::address_t current_address, int count);
 	int address_length() const;
 	int auto_line1() const;
-	int draw_instruction(QPainter &painter, const edb::Instruction &inst, bool upper, int y, int line_height, int l2, int l3) const;
-	int get_instruction_size(edb::address_t address, bool *ok) const;
-	int get_instruction_size(edb::address_t address, bool *ok, quint8 *buf, int *size) const;
+	int draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l2, int l3) const;
+	Result<int> get_instruction_size(edb::address_t address) const;
+	Result<int> get_instruction_size(edb::address_t address, quint8 *buf, int *size) const;
 	int line1() const;
 	int line2() const;
 	int line3() const;
 	int line_height() const;
-	void draw_function_markers(QPainter &painter, edb::address_t address, int l2, int y, int inst_size, IAnalyzer *analyzer);
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);
+	void paint_line_bg(QPainter &painter, QBrush brush, int line, int num_lines = 1);
 
 private:
 	IRegion::pointer                  region_;
-	QCache<edb::address_t, uint8_t *> page_cache_;
-	QPixmap                           breakpoint_icon_;
-	QPixmap                           current_address_icon_;
-	QSet<edb::address_t>              show_addresses_;
+	QVector<edb::address_t>           show_addresses_;
 	SyntaxHighlighter *const          highlighter_;
 	edb::address_t                    address_offset_;
 	edb::address_t                    selected_instruction_address_;
 	edb::address_t                    current_address_;
-	int                               font_height_; // height of a character in this font
+	qreal                             font_height_; // height of a character in this font
 	qreal                             font_width_;  // width of a character in this font
+	qreal                             icon_width_;
+	qreal                             icon_height_;
 	int                               line1_;
 	int                               line2_;
 	int                               line3_;
@@ -113,7 +125,14 @@ private:
 	bool                              moving_line1_;
 	bool                              moving_line2_;
 	bool                              moving_line3_;
+	bool                              selecting_address_;
 	bool                              show_address_separator_;
+	QHash<edb::address_t, QString>    comments_;
+	NavigationHistory                 history_;
+	QSvgRenderer                      breakpoint_renderer_;
+	QSvgRenderer                      current_renderer_;
+	QSvgRenderer                      current_bp_renderer_;
+	QVector<quint8>                   instruction_buffer_;
 };
 
 #endif

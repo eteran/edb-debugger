@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,12 +22,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "API.h"
 #include "Types.h"
 #include <QString>
-#include <QSharedPointer>
+#include <memory>
 
 class EDB_EXPORT IDebugEvent {
 public:
-	typedef QSharedPointer<IDebugEvent>       pointer;
-	typedef QSharedPointer<const IDebugEvent> const_pointer;
+	typedef std::shared_ptr<IDebugEvent>       pointer;
+	typedef std::shared_ptr<const IDebugEvent> const_pointer;
 
 public:
 	enum REASON {
@@ -43,7 +43,7 @@ public:
 	};
 
 	struct Message {
-		Message(const QString &c, const QString &m) : caption(c), message(m) {
+		Message(const QString &c, const QString &m, const QString &s) : caption(c), message(m), statusMessage(s) {
 		}
 
 		Message() {
@@ -51,6 +51,7 @@ public:
 
 		QString caption;
 		QString message;
+		QString statusMessage;
 	};
 	
 public:

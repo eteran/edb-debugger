@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,26 +17,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Register.h"
+#include "Util.h"
 
 //------------------------------------------------------------------------------
 // Name: Register
 // Desc:
 //------------------------------------------------------------------------------
-Register::Register() : value_(0), type_(TYPE_INVALID) {
+Register::Register() :
+	name_("<unknown>"),
+	type_(TYPE_INVALID),
+	bitSize_(0) {
+	util::markMemory(&value_,sizeof(value_));
 }
 
 //------------------------------------------------------------------------------
 // Name: Register
 // Desc:
 //------------------------------------------------------------------------------
-Register::Register(const QString &name, edb::reg_t value, Type type) : name_(name), value_(value), type_(type) {
-}
-
-//------------------------------------------------------------------------------
-// Name: Register
-// Desc:
-//------------------------------------------------------------------------------
-Register::Register(const Register &other) : name_(other.name_), value_(other.value_), type_(other.type_) {
+Register::Register(const Register &other)
+	: name_(other.name_),
+	  value_(other.value_),
+	  type_(other.type_),
+	  bitSize_(other.bitSize_) {
 }
 
 //------------------------------------------------------------------------------
@@ -48,6 +50,7 @@ Register &Register::operator=(const Register &rhs) {
 		name_         = rhs.name_;
 		value_        = rhs.value_;
 		type_         = rhs.type_;
+		bitSize_      = rhs.bitSize_;
 	}
 	return *this;
 }
@@ -60,8 +63,14 @@ bool Register::operator==(const Register &rhs) const {
 	if(!valid() && !rhs.valid()) {
 		return true;
 	} else {
-		return name_ == rhs.name_ && value_ == rhs.value_ && type_ == rhs.type_;
+		return name_ == rhs.name_ && value_ == rhs.value_ && type_ == rhs.type_ && bitSize_ == rhs.bitSize_;
 	}
+}
+
+QString Register::toHexString() const {
+	if(!valid()) return "<undefined>";
+	if(bitSize_%8) return QObject::tr("(Error: bad register length %1 bits)").arg(bitSize_);
+	return value_.toHexString().right(bitSize_/4); // TODO: trimming should be moved to valueXX::toHexString()
 }
 
 //------------------------------------------------------------------------------

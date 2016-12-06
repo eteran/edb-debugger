@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DebuggerCoreBase.h"
-#include "X86Breakpoint.h"
+#include "Breakpoint.h"
+#include "Configuration.h"
+#include "edb.h"
+#include <QtDebug>
 
 namespace DebuggerCore {
 
@@ -25,7 +28,7 @@ namespace DebuggerCore {
 // Name: DebuggerCoreBase
 // Desc: constructor
 //------------------------------------------------------------------------------
-DebuggerCoreBase::DebuggerCoreBase() : active_thread_(0), pid_(0) {
+DebuggerCoreBase::DebuggerCoreBase() : pid_(0) {
 }
 
 //------------------------------------------------------------------------------
@@ -52,15 +55,20 @@ void DebuggerCoreBase::clear_breakpoints() {
 //------------------------------------------------------------------------------
 IBreakpoint::pointer DebuggerCoreBase::add_breakpoint(edb::address_t address) {
 
-	if(attached()) {
-		if(!find_breakpoint(address)) {
-			IBreakpoint::pointer bp(new X86Breakpoint(address));
-			breakpoints_[address] = bp;
-			return bp;
+	try {
+		if(attached()) {
+			if(!find_breakpoint(address)) {
+				IBreakpoint::pointer bp(new Breakpoint(address));
+				breakpoints_[address] = bp;
+				return bp;
+			}
 		}
+	
+		return IBreakpoint::pointer();
+	} catch(const breakpoint_creation_error &e) {
+		qDebug() << "Failed to create breakpoint";
+		return IBreakpoint::pointer();
 	}
-
-	return IBreakpoint::pointer();
 }
 
 //------------------------------------------------------------------------------
@@ -69,7 +77,7 @@ IBreakpoint::pointer DebuggerCoreBase::add_breakpoint(edb::address_t address) {
 //------------------------------------------------------------------------------
 IBreakpoint::pointer DebuggerCoreBase::find_breakpoint(edb::address_t address) {
 	if(attached()) {
-		const BreakpointList::const_iterator it = breakpoints_.find(address);
+		auto it = breakpoints_.find(address);
 		if(it != breakpoints_.end()) {
 			return it.value();
 		}
@@ -87,11 +95,36 @@ IBreakpoint::pointer DebuggerCoreBase::find_breakpoint(edb::address_t address) {
 //------------------------------------------------------------------------------
 void DebuggerCoreBase::remove_breakpoint(edb::address_t address) {
 
-	// TODO: assert paused
+	// TODO(eteran): assert paused
 	if(attached()) {
-		const BreakpointList::iterator it = breakpoints_.find(address);
+		auto it = breakpoints_.find(address);
 		if(it != breakpoints_.end()) {
 			breakpoints_.erase(it);
+		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: end_debug_session
+// Desc: Ends debug session, detaching from or killing debuggee according to
+//		 user preferences
+//------------------------------------------------------------------------------
+void DebuggerCoreBase::end_debug_session() {
+	if(attached()) {
+		switch(edb::v1::config().close_behavior)
+		{
+		case Configuration::Detach:
+			detach();
+			break;
+		case Configuration::Kill:
+			kill();
+			break;
+		case Configuration::KillIfLaunchedDetachIfAttached:
+			if(last_means_of_capture()==MeansOfCapture::Launch)
+				kill();
+			else
+				detach();
+			break;
 		}
 	}
 }
@@ -109,7 +142,7 @@ DebuggerCoreBase::BreakpointList DebuggerCoreBase::backup_breakpoints() const {
 // Name: open
 // Desc: executes the given program
 //------------------------------------------------------------------------------
-bool DebuggerCoreBase::open(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
+QString DebuggerCoreBase::open(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
 	return open(path, cwd, args, QString());
 }
 
@@ -127,37 +160,6 @@ edb::pid_t DebuggerCoreBase::pid() const {
 //------------------------------------------------------------------------------
 bool DebuggerCoreBase::attached() const {
 	return pid() != 0;
-}
-
-//------------------------------------------------------------------------------
-// Name: thread_ids
-// Desc:
-//------------------------------------------------------------------------------
-QList<edb::tid_t> DebuggerCoreBase::thread_ids() const {
-	return QList<edb::tid_t>();
-}
-
-//------------------------------------------------------------------------------
-// Name: active_thread
-// Desc:
-//------------------------------------------------------------------------------
-edb::tid_t DebuggerCoreBase::active_thread() const {
-	return active_thread_;
-}
-
-//------------------------------------------------------------------------------
-// Name: set_active_thread
-// Desc:
-//------------------------------------------------------------------------------
-void DebuggerCoreBase::set_active_thread(edb::tid_t) {
-}
-
-//------------------------------------------------------------------------------
-// Name: breakpoint_size
-// Desc:
-//------------------------------------------------------------------------------
-int DebuggerCoreBase::breakpoint_size() const {
-	return X86Breakpoint::size;
 }
 
 }

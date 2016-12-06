@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -49,6 +49,7 @@ void OptionsPage::showEvent(QShowEvent *event) {
 	QSettings settings;
 	ui->instructionsBeforeIP->setValue(settings.value("DumpState/instructions_before_ip", 0).toInt());
 	ui->instructionsAfterIP->setValue(settings.value("DumpState/instructions_after_ip", 5).toInt());
+	ui->colorizeOutput->setChecked(settings.value("DumpState/colorize", true).toBool());
 }
 
 //------------------------------------------------------------------------------
@@ -67,6 +68,15 @@ void OptionsPage::on_instructionsBeforeIP_valueChanged(int i) {
 void OptionsPage::on_instructionsAfterIP_valueChanged(int i) {
 	QSettings settings;
 	settings.setValue("DumpState/instructions_after_ip", i);
+}
+
+//------------------------------------------------------------------------------
+// Name: on_colorizeOutput_toggled
+// Desc:
+//------------------------------------------------------------------------------
+void OptionsPage::on_colorizeOutput_toggled(bool value) {
+	QSettings settings;
+	settings.setValue("DumpState/colorize", value);
 }
 
 }

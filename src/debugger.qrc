@@ -22,5 +22,10 @@
 	<file>images/edb32-preferences-plugin.png</file>
 	<file>xml/functions.xml</file>
 	<file>xml/syscalls.xml</file>
+    
+    <file>images/arrow-up.svg</file>
+    <file>images/arrow-right.svg</file>
+    <file>images/arrow-right-red.svg</file>
+    <file>images/breakpoint.svg</file>
   </qresource>
 </RCC>

@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2014 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2014 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ProcessModel.h"
-#include "Process.h"
+#include "IProcess.h"
 #include <QtAlgorithms>
 
 ProcessModel::ProcessModel(QObject *parent) : QAbstractItemModel(parent) {
@@ -94,11 +94,11 @@ int ProcessModel::rowCount(const QModelIndex &parent) const {
 	return items_.size();
 }
 
-void ProcessModel::addProcess(const Process &process) {
+void ProcessModel::addProcess(const IProcess::pointer &process) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
 	const Item item = {
-		process.pid, process.uid, process.user, process.name
+		process->pid(), process->uid(), process->user(), process->name()
 	};
 	items_.push_back(item);
 	endInsertRows();

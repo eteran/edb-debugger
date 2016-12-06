@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2014 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2014 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,8 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 #include <QString>
 #include "Types.h"
-
-class Process;
+#include "IProcess.h"
 
 class ProcessModel : public QAbstractItemModel {
 	Q_OBJECT
@@ -50,7 +49,7 @@ public:
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
 public:
-	void addProcess(const Process &process);
+	void addProcess(const IProcess::pointer &process);
 	void clear();
 
 private:

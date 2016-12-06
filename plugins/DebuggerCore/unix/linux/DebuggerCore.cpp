@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -17,19 +17,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
-// TODO: research usage of process_vm_readv, process_vm_writev
+// TODO(eteran): research usage of process_vm_readv, process_vm_writev
 
 #include "DebuggerCore.h"
-#include "edb.h"
+#include "Configuration.h"
+#include "FeatureDetect.h"
 #include "MemoryRegions.h"
+#include "PlatformCommon.h"
 #include "PlatformEvent.h"
+#include "PlatformProcess.h"
 #include "PlatformRegion.h"
 #include "PlatformState.h"
+#include "DialogMemoryAccess.h"
 #include "State.h"
+#include "edb.h"
 #include "string_hash.h"
 
 #include <QDebug>
 #include <QDir>
+#include <QSettings>
 
 #include <cerrno>
 #include <cstring>
@@ -38,27 +44,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
 #endif
 
-#include <asm/ldt.h>
-#include <pwd.h>
-#include <link.h>
 #include <cpuid.h>
-#include <sys/mman.h>
 #include <sys/ptrace.h>
-#include <sys/user.h>
-#include <sys/wait.h>
-
-#if defined(__NR_process_vm_readv) || defined(__NR_process_vm_writev)
-#include <sys/uio.h>
-#endif
+#include <sys/mman.h>
+#include <sys/personality.h>
 
 // doesn't always seem to be defined in the headers
-#ifndef PTRACE_GET_THREAD_AREA
-#define PTRACE_GET_THREAD_AREA static_cast<__ptrace_request>(25)
-#endif
-
-#ifndef PTRACE_SET_THREAD_AREA
-#define PTRACE_SET_THREAD_AREA static_cast<__ptrace_request>(26)
-#endif
 
 #ifndef PTRACE_GETSIGINFO
 #define PTRACE_GETSIGINFO static_cast<__ptrace_request>(0x4202)
@@ -72,43 +63,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PTRACE_O_TRACECLONE (1 << PTRACE_EVENT_CLONE)
 #endif
 
+#ifndef PTRACE_O_EXITKILL
+#define PTRACE_O_EXITKILL	(1 << 20)
+#endif
+
 namespace DebuggerCore {
 
 namespace {
+
+const edb::address_t PageSize = 0x1000;
 
 //------------------------------------------------------------------------------
 // Name: is_numeric
 // Desc: returns true if the string only contains decimal digits
 //------------------------------------------------------------------------------
 bool is_numeric(const QString &s) {
-	Q_FOREACH(QChar ch, s) {
+	for(QChar ch: s) {
 		if(!ch.isDigit()) {
 			return false;
 		}
 	}
 
 	return true;
-}
-
-//------------------------------------------------------------------------------
-// Name: resume_code
-// Desc:
-//------------------------------------------------------------------------------
-int resume_code(int status) {
-
-	if(WIFSTOPPED(status) && WSTOPSIG(status) == SIGSTOP) {
-		return 0;
-	}
-
-	if(WIFSIGNALED(status)) {
-		return WTERMSIG(status);
-	}
-
-	if(WIFSTOPPED(status)) {
-		return WSTOPSIG(status);
-	}
-
-	return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -123,161 +99,38 @@ bool is_clone_event(int status) {
 	return false;
 }
 
-//------------------------------------------------------------------------------
-// Name: process_map_line
-// Desc: parses the data from a line of a memory map file
-//------------------------------------------------------------------------------
-IRegion::pointer process_map_line(const QString &line) {
-
-	edb::address_t start;
-	edb::address_t end;
-	edb::address_t base;
-	IRegion::permissions_t permissions;
-	QString name;
-
-	const QStringList items = line.split(" ", QString::SkipEmptyParts);
-	if(items.size() >= 3) {
-		bool ok;
-		const QStringList bounds = items[0].split("-");
-		if(bounds.size() == 2) {
-			start = bounds[0].toULongLong(&ok, 16);
-			if(ok) {
-				end = bounds[1].toULongLong(&ok, 16);
-				if(ok) {
-					base = items[2].toULongLong(&ok, 16);
-					if(ok) {
-						const QString perms = items[1];
-						permissions = 0;
-						if(perms[0] == 'r') permissions |= PROT_READ;
-						if(perms[1] == 'w') permissions |= PROT_WRITE;
-						if(perms[2] == 'x') permissions |= PROT_EXEC;
-
-						if(items.size() >= 6) {
-							name = items[5];
-						}
-
-						return IRegion::pointer(new PlatformRegion(start, end, base, name, permissions));
-					}
-				}
-			}
-		}
-	}
-	return IRegion::pointer();
+bool in64BitSegment() {
+	bool edbIsIn64BitSegment;
+	// Check that we're running in 64 bit segment: this can be in cases
+	// of LP64 and ILP32 programming models, so we can't rely on sizeof(void*)
+	asm(R"(
+		   .byte 0x33,0xc0 # XOR EAX,EAX
+		   .byte 0x48      # DEC EAX for 32 bit, REX prefix for 64 bit
+		   .byte 0xff,0xc0 # INC EAX for 32 bit, INC RAX due to REX.W in 64 bit
+		 )":"=a"(edbIsIn64BitSegment));
+	return edbIsIn64BitSegment;
 }
 
-struct user_stat {
-/* 01 */ int pid;
-/* 02 */ char comm[256];
-/* 03 */ char state;
-/* 04 */ int ppid;
-/* 05 */ int pgrp;
-/* 06 */ int session;
-/* 07 */ int tty_nr;
-/* 08 */ int tpgid;
-/* 09 */ unsigned flags;
-/* 10 */ unsigned long minflt;
-/* 11 */ unsigned long cminflt;
-/* 12 */ unsigned long majflt;
-/* 13 */ unsigned long cmajflt;
-/* 14 */ unsigned long utime;
-/* 15 */ unsigned long stime;
-/* 16 */ long cutime;
-/* 17 */ long cstime;
-/* 18 */ long priority;
-/* 19 */ long nice;
-/* 20 */ long num_threads;
-/* 21 */ long itrealvalue;
-/* 22 */ unsigned long long starttime;
-/* 23 */ unsigned long vsize;
-/* 24 */ long rss;
-/* 25 */ unsigned long rsslim;
-/* 26 */ unsigned long startcode;
-/* 27 */ unsigned long endcode;
-/* 28 */ unsigned long startstack;
-/* 29 */ unsigned long kstkesp;
-/* 30 */ unsigned long kstkeip;
-/* 31 */ unsigned long signal;
-/* 32 */ unsigned long blocked;
-/* 33 */ unsigned long sigignore;
-/* 34 */ unsigned long sigcatch;
-/* 35 */ unsigned long wchan;
-/* 36 */ unsigned long nswap;
-/* 37 */ unsigned long cnswap;
-/* 38 */ int exit_signal;
-/* 39 */ int processor;
-/* 40 */ unsigned rt_priority;
-/* 41 */ unsigned policy;
-/* 42 */ unsigned long long delayacct_blkio_ticks;
-/* 43 */ unsigned long guest_time;
-/* 44 */ long cguest_time;
-};
-
-//------------------------------------------------------------------------------
-// Name: get_user_stat
-// Desc: gets the contents of /proc/<pid>/stat and returns the number of elements
-//       successfully parsed
-//------------------------------------------------------------------------------
-int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
-
-	Q_ASSERT(user_stat);
-
-	int r = -1;
-	QFile file(QString("/proc/%1/stat").arg(pid));
-	if(file.open(QIODevice::ReadOnly)) {
-		QTextStream in(&file);
-		const QString line = in.readLine();
-		if(!line.isNull()) {
-			r = sscanf(qPrintable(line), "%d %255s %c %d %d %d %d %d %u %lu %lu %lu %lu %lu %lu %ld %ld %ld %ld %ld %ld %llu %lu %ld %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %lu %d %d %u %u %llu %lu %ld",
-					&user_stat->pid,
-					user_stat->comm,
-					&user_stat->state,
-					&user_stat->ppid,
-					&user_stat->pgrp,
-					&user_stat->session,
-					&user_stat->tty_nr,
-					&user_stat->tpgid,
-					&user_stat->flags,
-					&user_stat->minflt,
-					&user_stat->cminflt,
-					&user_stat->majflt,
-					&user_stat->cmajflt,
-					&user_stat->utime,
-					&user_stat->stime,
-					&user_stat->cutime,
-					&user_stat->cstime,
-					&user_stat->priority,
-					&user_stat->nice,
-					&user_stat->num_threads,
-					&user_stat->itrealvalue,
-					&user_stat->starttime,
-					&user_stat->vsize,
-					&user_stat->rss,
-					&user_stat->rsslim,
-					&user_stat->startcode,
-					&user_stat->endcode,
-					&user_stat->startstack,
-					&user_stat->kstkesp,
-					&user_stat->kstkeip,
-					&user_stat->signal,
-					&user_stat->blocked,
-					&user_stat->sigignore,
-					&user_stat->sigcatch,
-					&user_stat->wchan,
-					&user_stat->nswap,
-					&user_stat->cnswap,
-					&user_stat->exit_signal,
-					&user_stat->processor,
-					&user_stat->rt_priority,
-					&user_stat->policy,
-					&user_stat->delayacct_blkio_ticks,
-					&user_stat->guest_time,
-					&user_stat->cguest_time);
-		}
-		file.close();
+bool os64Bit(bool edbIsIn64BitSegment) {
+	bool osIs64Bit;
+	if(edbIsIn64BitSegment)
+		osIs64Bit=true;
+	else {
+		// We want to be really sure the OS is 32 bit, so we can't rely on such easy
+		// to (even unintentionally) fake mechanisms as uname(2) (e.g. see setarch(8))
+		asm(R"(.intel_syntax noprefix
+			   mov eax,cs
+			   cmp ax,0x23 # this value is set for 32-bit processes on 64-bit kernel
+			   mov ah,0    # not sure this is really needed: usually the compiler will do
+						   # MOVZX EAX,AL, but we have to be certain the result is correct
+			   sete al
+			   .att_syntax # restore default syntax
+			   )":"=a"(osIs64Bit));
 	}
-
-	return r;
+	return osIs64Bit;
 }
+
+
 
 
 }
@@ -286,14 +139,40 @@ int get_user_stat(edb::pid_t pid, struct user_stat *user_stat) {
 // Name: DebuggerCore
 // Desc: constructor
 //------------------------------------------------------------------------------
-DebuggerCore::DebuggerCore() : binary_info_(0) {
-#if defined(_SC_PAGESIZE)
-	page_size_ = sysconf(_SC_PAGESIZE);
-#elif defined(_SC_PAGE_SIZE)
-	page_size_ = sysconf(_SC_PAGE_SIZE);
-#else
-	page_size_ = PAGE_SIZE;
-#endif
+DebuggerCore::DebuggerCore() : 
+	binary_info_(nullptr),
+	process_(0),
+	pointer_size_(sizeof(void*)),
+	edbIsIn64BitSegment(in64BitSegment()),
+	osIs64Bit(os64Bit(edbIsIn64BitSegment)),
+	USER_CS_32(osIs64Bit?0x23:0x73),
+	USER_CS_64(osIs64Bit?0x33:0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
+	USER_SS(osIs64Bit?0x2b:0x7b)
+{
+	qDebug() << "EDB is in" << (edbIsIn64BitSegment?"64":"32") << "bit segment";
+	qDebug() << "OS is" << (osIs64Bit?"64":"32") << "bit";
+	
+	proc_mem_write_broken_ = true;
+	proc_mem_read_broken_  = true;
+	
+	feature::detect_proc_access(&proc_mem_read_broken_, &proc_mem_write_broken_);
+	qDebug() << "Detect that read /proc/<pid>/mem works  = " << !proc_mem_read_broken_;
+	qDebug() << "Detect that write /proc/<pid>/mem works = " << !proc_mem_write_broken_;
+	
+	if(proc_mem_read_broken_ || proc_mem_write_broken_) {
+	
+		QSettings settings;
+		const bool warn = settings.value("DebuggerCore/warn_on_broken_proc_mem.enabled", true).toBool();
+		if(warn) {	
+			auto *dialog = new DialogMemoryAccess(0);
+			dialog->exec();
+			
+			settings.setValue("DebuggerCore/warn_on_broken_proc_mem.enabled", dialog->warnNextTime());
+			
+			delete dialog;
+		}
+	}
+	
 }
 
 //------------------------------------------------------------------------------
@@ -302,9 +181,11 @@ DebuggerCore::DebuggerCore() : binary_info_(0) {
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
 
-
-
-#if defined(EDB_X86)
+	const auto mmxHash=edb::string_hash("MMX");
+	const auto xmmHash=edb::string_hash("XMM");
+	const auto ymmHash=edb::string_hash("YMM");
+	if(EDB_IS_64_BIT && (ext==xmmHash || ext==mmxHash))
+		return true;
 
 	quint32 eax;
 	quint32 ebx;
@@ -313,24 +194,27 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 	__cpuid(1, eax, ebx, ecx, edx);
 
 	switch(ext) {
-	case edb::string_hash<'M', 'M', 'X'>::value:
+	case mmxHash:
 		return (edx & bit_MMX);
-	case edb::string_hash<'X', 'M', 'M'>::value:
-		//return (edx & bit_SSE);
+	case xmmHash:
+		return (edx & bit_SSE);
+	case ymmHash:
+	{
+		// Check OSXSAVE and AVX feature flags
+		if((ecx&0x18000000)!=0x18000000)
+			return false;
+		// Get XCR0, must be exactly after OSXSAVE feature check, otherwise #UD
+		asm volatile("xgetbv" : "=a"(eax),"=d"(edx) : "c"(0));
+		// Check that the OS has enabled XMM and YMM state support
+		if((eax&0x6)!=0x6)
+			return false;
+		return true;
+	}
 	default:
 		return false;
 	}
 
 	return false;
-#elif defined(EDB_X86_64)
-	switch(ext) {
-	case edb::string_hash<'M', 'M', 'X'>::value:
-	case edb::string_hash<'X', 'M', 'M'>::value:
-		return true;
-	default:
-		return false;
-	}
-#endif
 }
 
 //------------------------------------------------------------------------------
@@ -338,7 +222,11 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 // Desc: returns the size of a page on this system
 //------------------------------------------------------------------------------
 edb::address_t DebuggerCore::page_size() const {
-	return page_size_;
+	return PageSize;
+}
+
+std::size_t DebuggerCore::pointer_size() const {
+	return pointer_size_;
 }
 
 //------------------------------------------------------------------------------
@@ -346,7 +234,7 @@ edb::address_t DebuggerCore::page_size() const {
 // Desc: destructor
 //------------------------------------------------------------------------------
 DebuggerCore::~DebuggerCore() {
-	detach();
+	end_debug_session();
 }
 
 //------------------------------------------------------------------------------
@@ -371,10 +259,16 @@ long DebuggerCore::ptrace_traceme() {
 // Desc:
 //------------------------------------------------------------------------------
 long DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
-	Q_ASSERT(waited_threads_.contains(tid));
-	Q_ASSERT(tid != 0);
-	waited_threads_.remove(tid);
-	return ptrace(PTRACE_CONT, tid, 0, status);
+	// TODO(eteran): perhaps address this at a higher layer?
+	//               I would like to not have these events show up 
+	//               in the first place if we aren't stopped on this TID :-(
+	if(waited_threads_.contains(tid)) {
+		Q_ASSERT(waited_threads_.contains(tid));
+		Q_ASSERT(tid != 0);
+		waited_threads_.remove(tid);
+		return ptrace(PTRACE_CONT, tid, 0, status);
+	}
+	return -1;
 }
 
 //------------------------------------------------------------------------------
@@ -382,10 +276,16 @@ long DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
 // Desc:
 //------------------------------------------------------------------------------
 long DebuggerCore::ptrace_step(edb::tid_t tid, long status) {
-	Q_ASSERT(waited_threads_.contains(tid));
-	Q_ASSERT(tid != 0);
-	waited_threads_.remove(tid);
-	return ptrace(PTRACE_SINGLESTEP, tid, 0, status);
+	// TODO(eteran): perhaps address this at a higher layer?
+	//               I would like to not have these events show up 
+	//               in the first place if we aren't stopped on this TID :-(
+	if(waited_threads_.contains(tid)) {
+		Q_ASSERT(waited_threads_.contains(tid));
+		Q_ASSERT(tid != 0);
+		waited_threads_.remove(tid);
+		return ptrace(PTRACE_SINGLESTEP, tid, 0, status);
+	}
+	return -1;
 }
 
 //------------------------------------------------------------------------------
@@ -428,7 +328,7 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 		// if this wasn't, then we should silently
 		// procceed.
 		if(!threads_.empty()) {
-			return IDebugEvent::const_pointer();
+			return nullptr;
 		}
 	}
 
@@ -438,8 +338,11 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 		unsigned long new_tid;
 		if(ptrace_get_event_message(tid, &new_tid) != -1) {
 
-			const thread_info info = { 0, thread_info::THREAD_STOPPED };
-			threads_.insert(new_tid, info);
+			auto newThread            = std::make_shared<PlatformThread>(this, process_, new_tid);
+			newThread->status_        = 0;
+			newThread->signal_status_ = PlatformThread::Stopped;
+
+			threads_.insert(new_tid, newThread);
 
 			int thread_status = 0;
 			if(!waited_threads_.contains(new_tid)) {
@@ -449,21 +352,34 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 			}
 
 			if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
-				qDebug("[warning] new thread [%d] received an event besides SIGSTOP", static_cast<int>(new_tid));
+				qDebug("handle_event(): [warning] new thread [%d] received an event besides SIGSTOP: status=0x%x", static_cast<int>(new_tid),thread_status);
+			}
+			
+			newThread->status_ = thread_status;
+
+			// copy the hardware debug registers from the current thread to the new thread
+			if(process_) {
+				if(auto thread = process_->current_thread()) {
+					for(int i = 0; i < 8; ++i) {
+						auto new_thread = std::static_pointer_cast<PlatformThread>(newThread);
+						auto old_thread = std::static_pointer_cast<PlatformThread>(thread);
+						new_thread->set_debug_register(i, old_thread->get_debug_register(i));
+					}
+				}
 			}
 
-			// TODO: what the heck do we do if this isn't a SIGSTOP?
-			ptrace_continue(new_tid, resume_code(thread_status));
+			// TODO(eteran): what the heck do we do if this isn't a SIGSTOP?
+			newThread->resume();
 		}
 
 		ptrace_continue(tid, 0);
-		return IDebugEvent::const_pointer();
+		return nullptr;
 	}
 
 	// normal event
 
 
-	PlatformEvent *const e = new PlatformEvent;
+	auto e = std::make_shared<PlatformEvent>();
 
 	e->pid_    = pid();
 	e->tid_    = tid;
@@ -472,12 +388,15 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 		// TODO: handle no info?
 	}
 
-	active_thread_       = tid;
-	event_thread_        = tid;
-	threads_[tid].status = status;
+	active_thread_ = tid;
+	
+	auto it = threads_.find(tid);
+	if(it != threads_.end()) {
+		it.value()->status_ = status;
+	}
 
 	stop_threads();
-	return IDebugEvent::const_pointer(e);
+	return e;
 }
 
 //------------------------------------------------------------------------------
@@ -485,19 +404,25 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::stop_threads() {
-	for(threadmap_t::iterator it = threads_.begin(); it != threads_.end(); ++it) {
-		if(!waited_threads_.contains(it.key())) {
-			const edb::tid_t tid = it.key();
+	if(process_) {
+		for(auto &thread: process_->threads()) {
+			const edb::tid_t tid = thread->tid();
 
-			syscall(SYS_tgkill, pid(), tid, SIGSTOP);
+			if(!waited_threads_.contains(tid)) {
+			
+				if(auto thread_ptr = std::static_pointer_cast<PlatformThread>(thread)) {
+			
+					thread->stop();
 
-			int thread_status;
-			if(native::waitpid(tid, &thread_status, __WALL) > 0) {
-				waited_threads_.insert(tid);
-				it->status = thread_status;
+					int thread_status;
+					if(native::waitpid(tid, &thread_status, __WALL) > 0) {
+						waited_threads_.insert(tid);
+						thread_ptr->status_ = thread_status;
 
-				if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
-					qDebug("[warning] paused thread [%d] received an event besides SIGSTOP", tid);
+						if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
+							qDebug("stop_threads(): [warning] paused thread [%d] received an event besides SIGSTOP: status=0x%x", tid,thread_status);
+						}
+					}
 				}
 			}
 		}
@@ -511,115 +436,93 @@ void DebuggerCore::stop_threads() {
 //------------------------------------------------------------------------------
 IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 
-	if(attached()) {
+	if(process_) {
 		if(!native::wait_for_sigchld(msecs)) {
-			Q_FOREACH(edb::tid_t thread, thread_ids()) {
+			for(auto thread : process_->threads()) {
 				int status;
-				const edb::tid_t tid = native::waitpid(thread, &status, __WALL | WNOHANG);
+				const edb::tid_t tid = native::waitpid(thread->tid(), &status, __WALL | WNOHANG);
 				if(tid > 0) {
 					return handle_event(tid, status);
 				}
 			}
 		}
 	}
-	return IDebugEvent::const_pointer();
-}
-
-//------------------------------------------------------------------------------
-// Name: read_data
-// Desc:
-// Note: this will fail on newer versions of linux if called from a
-//       different thread than the one which attached to process
-//------------------------------------------------------------------------------
-long DebuggerCore::read_data(edb::address_t address, bool *ok) {
-
-	Q_ASSERT(ok);
-
-	errno = 0;
-	const long v = ptrace(PTRACE_PEEKTEXT, pid(), address, 0);
-	SET_OK(*ok, v);
-	return v;
-}
-
-//------------------------------------------------------------------------------
-// Name: read_pages
-// Desc:
-//------------------------------------------------------------------------------
-bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
-
-	const std::size_t len = count * page_size();
-
-	QFile memory_file(QString("/proc/%1/mem").arg(pid_));
-	if(memory_file.open(QIODevice::ReadOnly)) {
-
-		memory_file.seek(address);
-		const qint64 n = memory_file.read(reinterpret_cast<char *>(buf), len);
-
-		// TODO: handle if breakponts have a size more than 1!
-		Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
-			if(bp->address() >= address && bp->address() < (address + n)) {
-				// show the original bytes in the buffer..
-				reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_bytes()[0];
-			}
-		}
-
-		memory_file.close();
-	}
-
-	return true;
-}
-
-
-//------------------------------------------------------------------------------
-// Name: write_data
-// Desc:
-//------------------------------------------------------------------------------
-bool DebuggerCore::write_data(edb::address_t address, long value) {
-	return ptrace(PTRACE_POKETEXT, pid(), address, value) != -1;
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
 // Name: attach_thread
-// Desc:
+// Desc: returns 0 if successful, errno if failed
 //------------------------------------------------------------------------------
-bool DebuggerCore::attach_thread(edb::tid_t tid) {
+int DebuggerCore::attach_thread(edb::tid_t tid) {
 	if(ptrace(PTRACE_ATTACH, tid, 0, 0) == 0) {
 		// I *think* that the PTRACE_O_TRACECLONE is only valid on
-		// on stopped threads
+		// stopped threads
 		int status;
-		if(native::waitpid(tid, &status, __WALL) > 0) {
+		const auto ret=native::waitpid(tid, &status, __WALL);
+		if(ret > 0) {
 
-			const thread_info info = { status, thread_info::THREAD_STOPPED };
-			threads_[tid] = info;
+			auto newThread            = std::make_shared<PlatformThread>(this, process_, tid);
+			newThread->status_        = status;
+			newThread->signal_status_ = PlatformThread::Stopped;
+
+			threads_[tid] = newThread;
 
 			waited_threads_.insert(tid);
 			if(ptrace_set_options(tid, PTRACE_O_TRACECLONE) == -1) {
 				qDebug("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: [%d] %s", tid, strerror(errno));
 			}
+			
+			if(edb::v1::config().close_behavior==Configuration::Kill ||
+			   (edb::v1::config().close_behavior==Configuration::KillIfLaunchedDetachIfAttached &&
+				  last_means_of_capture()==MeansOfCapture::Launch)) {
+				if(ptrace_set_options(tid, PTRACE_O_EXITKILL) == -1) {
+					qDebug("[DebuggerCore] failed to set PTRACE_O_EXITKILL: [%d] %s", tid, strerror(errno));
+				}
+			}
+			return 0;
 		}
-		return true;
+		else if(ret==-1) {
+			return errno;
+		}
+		else return -1; // unknown error
 	}
-	return false;
+	else return errno;
 }
 
 //------------------------------------------------------------------------------
 // Name: attach
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerCore::attach(edb::pid_t pid) {
-	detach();
+QString DebuggerCore::attach(edb::pid_t pid) {
 
+	static const QString statusOK{};
+
+	end_debug_session();
+
+	lastMeansOfCapture=MeansOfCapture::Attach;
+	
+	// create this, so the threads created can refer to it
+	process_ = new PlatformProcess(this, pid);
+
+	int lastErr=attach_thread(pid); // Fail early if we are going to
+	if(lastErr) return std::strerror(lastErr);
+	lastErr=-2;
 	bool attached;
 	do {
 		attached = false;
 		QDir proc_directory(QString("/proc/%1/task/").arg(pid));
-		Q_FOREACH(QString s, proc_directory.entryList(QDir::NoDotAndDotDot | QDir::Dirs)) {
+		for(const QString &s: proc_directory.entryList(QDir::NoDotAndDotDot | QDir::Dirs)) {
 			// this can get tricky if the threads decide to spawn new threads
 			// when we are attaching. I wish that linux had an atomic way to do this
 			// all in one shot
 			const edb::tid_t tid = s.toUInt();
-			if(!threads_.contains(tid) && attach_thread(tid)) {
-				attached = true;
+			if(!threads_.contains(tid)) {
+				const auto errnum=attach_thread(tid);
+				if(errnum==0)
+					attached = true;
+				else
+					lastErr=errnum;
 			}
 		}
 	} while(attached);
@@ -628,12 +531,15 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 	if(!threads_.empty()) {
 		pid_            = pid;
 		active_thread_  = pid;
-		event_thread_   = pid;
-		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
-		return true;
+		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());		
+		detectDebuggeeBitness();
+		return statusOK;
+	} else {
+		delete process_;
+		process_ = nullptr;
 	}
 
-	return false;
+	return std::strerror(lastErr);
 }
 
 //------------------------------------------------------------------------------
@@ -641,17 +547,18 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::detach() {
-	if(attached()) {
+	if(process_) {
 
 		stop_threads();
 
 		clear_breakpoints();
 
-		Q_FOREACH(edb::tid_t thread, thread_ids()) {
-			if(ptrace(PTRACE_DETACH, thread, 0, 0) == 0) {
-				native::waitpid(thread, 0, __WALL);
-			}
+		for(auto thread: process_->threads()) {
+			ptrace(PTRACE_DETACH, thread->tid(), 0, 0);
 		}
+		
+		delete process_;
+		process_ = nullptr;
 
 		reset();
 	}
@@ -665,65 +572,40 @@ void DebuggerCore::kill() {
 	if(attached()) {
 		clear_breakpoints();
 
-		ptrace(PTRACE_KILL, pid(), 0, 0);
+		::kill(pid(), SIGKILL);
 
 		// TODO: do i need to actually do this wait?
 		native::waitpid(pid(), 0, __WALL);
+
+		delete process_;
+		process_ = 0;
 
 		reset();
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: pause
-// Desc: stops *all* threads of a process
-//------------------------------------------------------------------------------
-void DebuggerCore::pause() {
-	if(attached()) {
-		// belive it or not, I belive that this is sufficient for all threads
-		// this is because in the debug event handler above, a SIGSTOP is sent
-		// to all threads when any event arrives, so no need to explicitly do
-		// it here. We just need any thread to stop. So we'll just target the
-		// pid() which will send it to any one of the threads in the process.
-		::kill(pid(), SIGSTOP);
-	}
-}
+void DebuggerCore::detectDebuggeeBitness() {
 
-//------------------------------------------------------------------------------
-// Name: resume
-// Desc:
-//------------------------------------------------------------------------------
-void DebuggerCore::resume(edb::EVENT_STATUS status) {
-	// TODO: assert that we are paused
-
-	if(attached()) {
-		if(status != edb::DEBUG_STOP) {
-			const edb::tid_t tid = active_thread();
-			const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(threads_[tid].status) : 0;
-			ptrace_continue(tid, code);
-
-			// resume the other threads passing the signal they originally reported had
-			for(threadmap_t::const_iterator it = threads_.begin(); it != threads_.end(); ++it) {
-				if(waited_threads_.contains(it.key())) {
-					ptrace_continue(it.key(), resume_code(it->status));
-				}
+	const size_t offset=EDB_IS_64_BIT ?
+						offsetof(UserRegsStructX86_64, cs) :
+						offsetof(UserRegsStructX86,   xcs);
+	errno=0;
+	const edb::seg_reg_t cs=ptrace(PTRACE_PEEKUSER, active_thread_, offset, 0);
+	if(!errno) {
+		if(cs==USER_CS_32) {
+			if(pointer_size_==sizeof(quint64)) {
+				qDebug() << "Debuggee is now 32 bit";
+				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_X86);
 			}
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: step
-// Desc:
-//------------------------------------------------------------------------------
-void DebuggerCore::step(edb::EVENT_STATUS status) {
-	// TODO: assert that we are paused
-
-	if(attached()) {
-		if(status != edb::DEBUG_STOP) {
-			const edb::tid_t tid = active_thread();
-			const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(threads_[tid].status) : 0;
-			ptrace_step(tid, code);
+			pointer_size_=sizeof(quint32);
+			return;
+		} else if(cs==USER_CS_64) {
+			if(pointer_size_==sizeof(quint32)) {
+				qDebug() << "Debuggee is now 64 bit";
+				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_AMD64);
+			}
+			pointer_size_=sizeof(quint64);
+			return;
 		}
 	}
 }
@@ -733,46 +615,10 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::get_state(State *state) {
-	// TODO: assert that we are paused
-
-	if(PlatformState *const state_impl = static_cast<PlatformState *>(state->impl_)) {
-		if(attached()) {
-			if(ptrace(PTRACE_GETREGS, active_thread(), 0, &state_impl->regs_) != -1) {
-			#if defined(EDB_X86)
-				struct user_desc desc;
-				std::memset(&desc, 0, sizeof(desc));
-
-				if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->regs_.xgs / LDT_ENTRY_SIZE), &desc) != -1) {
-					state_impl->gs_base = desc.base_addr;
-				} else {
-					state_impl->gs_base = 0;
-				}
-
-				if(ptrace(PTRACE_GET_THREAD_AREA, active_thread(), (state_impl->regs_.xfs / LDT_ENTRY_SIZE), &desc) != -1) {
-					state_impl->fs_base = desc.base_addr;
-				} else {
-					state_impl->fs_base = 0;
-				}
-			#elif defined(EDB_X86_64)
-			#endif
-			}
-
-			// floating point registers
-			if(ptrace(PTRACE_GETFPREGS, active_thread(), 0, &state_impl->fpregs_) != -1) {
-			}
-
-			// debug registers
-			state_impl->dr_[0] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[0]), 0);
-			state_impl->dr_[1] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[1]), 0);
-			state_impl->dr_[2] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[2]), 0);
-			state_impl->dr_[3] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[3]), 0);
-			state_impl->dr_[4] = 0;
-			state_impl->dr_[5] = 0;
-			state_impl->dr_[6] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[6]), 0);
-			state_impl->dr_[7] = ptrace(PTRACE_PEEKUSER, active_thread(), offsetof(struct user, u_debugreg[7]), 0);
-
-		} else {
-			state_impl->clear();
+	// TODO: assert that we are paused	
+	if(process_) {
+		if(IThread::pointer thread = process_->current_thread()) {
+			thread->get_state(state);
 		}
 	}
 }
@@ -784,22 +630,9 @@ void DebuggerCore::get_state(State *state) {
 void DebuggerCore::set_state(const State &state) {
 
 	// TODO: assert that we are paused
-
-
-	if(attached()) {
-
-		if(PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_)) {
-			ptrace(PTRACE_SETREGS, active_thread(), 0, &state_impl->regs_);
-
-			// debug registers
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[0]), state_impl->dr_[0]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[1]), state_impl->dr_[1]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[2]), state_impl->dr_[2]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[3]), state_impl->dr_[3]);
-			//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[4]), state_impl->dr_[4]);
-			//ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[5]), state_impl->dr_[5]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[6]), state_impl->dr_[6]);
-			ptrace(PTRACE_POKEUSER, active_thread(), offsetof(struct user, u_debugreg[7]), state_impl->dr_[7]);
+	if(process_) {
+		if(IThread::pointer thread = process_->current_thread()) {
+			thread->set_state(state);
 		}
 	}
 }
@@ -808,12 +641,21 @@ void DebuggerCore::set_state(const State &state) {
 // Name: open
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
-	detach();
-	pid_t pid;
+QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 
-	switch(pid = fork()) {
+	static const QString statusOK{};
+
+	end_debug_session();
+
+	lastMeansOfCapture=MeansOfCapture::Launch;
+
+	static constexpr std::size_t sharedMemSize=4096;
+	const auto sharedMem=static_cast<QChar*>(::mmap(nullptr,sharedMemSize,PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANONYMOUS,-1,0));
+	std::memset(sharedMem,0,sharedMemSize);
+
+	switch(pid_t pid = fork()) {
 	case 0:
+	{
 		// we are in the child now...
 
 		// set ourselves (the child proc) up to be traced
@@ -830,72 +672,113 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			Q_UNUSED(std_err);
 		}
 
+		if(edb::v1::config().disableASLR) {
+			const auto curPers=::personality(UINT32_MAX);
+			// This shouldn't fail, but let's at least perror if it does anyway
+			if(curPers==-1)
+				perror("Failed to get current personality");
+			else if(::personality(curPers|ADDR_NO_RANDOMIZE)==-1)
+				perror("Failed to disable ASLR");
+		}
+
+		if(edb::v1::config().disableLazyBinding && setenv("LD_BIND_NOW","1",true)==-1)
+			perror("Failed to disable lazy binding");
+
 		// do the actual exec
-		execute_process(path, cwd, args);
+		const QString error=execute_process(path, cwd, args);
+#if defined __GNUG__ && __GNUC__ >= 5 || !defined __GNUG__ || \
+		defined __clang__ && __clang_major__*100+__clang_minor__>=306
+		static_assert(std::is_trivially_copyable<QChar>::value,"Can't copy string of QChar to shared memory");
+#endif
+		std::memcpy(sharedMem,error.constData(),std::min(sizeof(QChar)*error.size(),sharedMemSize-sizeof(QChar)/*prevent overwriting of last null*/));
 
 		// we should never get here!
 		abort();
 		break;
+	}
 	case -1:
 		// error! for some reason we couldn't fork
 		reset();
-		return false;
+		return QObject::tr("Failed to fork");
 	default:
 		// parent
 		do {
 			reset();
 
 			int status;
-			if(native::waitpid(pid, &status, __WALL) == -1) {
-				return false;
-			}
+			const auto wpidRet=native::waitpid(pid, &status, __WALL);
+			const QString childError(sharedMem);
+			::munmap(sharedMem,sharedMemSize);
+
+			if(wpidRet == -1)
+				return QObject::tr("waitpid() failed: %1").arg(std::strerror(errno))+(childError.isEmpty()?"":QObject::tr(".\nError returned by child:\n%1.").arg(childError));
+
+			if(WIFEXITED(status))
+				return QObject::tr("The child unexpectedly exited with code %1. Error returned by child:\n%2").arg(WEXITSTATUS(status)).arg(childError);
+			if(WIFSIGNALED(status))
+				return QObject::tr("The child was unexpectedly killed by signal %1. Error returned by child:\n%2").arg(WTERMSIG(status)).arg(childError);
+
+			// This happens when exec failed, but just in case it's something another return some description.
+			if(WIFSTOPPED(status) && WSTOPSIG(status) == SIGABRT)
+				return childError.isEmpty() ? QObject::tr("The child unexpectedly aborted") : childError;
 
 			// the very first event should be a STOP of type SIGTRAP
 			if(!WIFSTOPPED(status) || WSTOPSIG(status) != SIGTRAP) {
-				detach();
-				return false;
+				end_debug_session();
+				return QObject::tr("First event after waitpid() should be a STOP of type SIGTRAP, but wasn't, instead status=0x%1")
+											.arg(status,0,16)+(childError.isEmpty()?"":QObject::tr(".\nError returned by child:\n%1.").arg(childError));
 			}
 
 			waited_threads_.insert(pid);
 
 			// enable following clones (threads)
 			if(ptrace_set_options(pid, PTRACE_O_TRACECLONE) == -1) {
-				qDebug("[DebuggerCore] failed to set PTRACE_SETOPTIONS: %s", strerror(errno));
-				detach();
-				return false;
+				const auto strerr=strerror(errno); // NOTE: must be called before end_debug_session, otherwise errno can change
+				end_debug_session();
+				return QObject::tr("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: %1").arg(strerr);
 			}
+			
+#ifdef PTRACE_O_EXITKILL
+			if(ptrace_set_options(pid, PTRACE_O_EXITKILL) == -1) {
+				const auto strerr=strerror(errno); // NOTE: must be called before any other syscall, otherwise errno can change
+				// Don't consider the error fatal: the option is only supported since Linux 3.8
+				qDebug() << "[DebuggerCore] failed to set PTRACE_O_EXITKILL:" << strerr;
+			}
+#endif
 
 			// setup the first event data for the primary thread
 			waited_threads_.insert(pid);
+			
+			// create the process
+			process_ = new PlatformProcess(this, pid);
+			
 
-			const thread_info info = { status, thread_info::THREAD_STOPPED };
-			threads_[pid]   = info;
+			// the PID == primary TID
+			auto newThread            = std::make_shared<PlatformThread>(this, process_, pid);
+			newThread->status_        = status;
+			newThread->signal_status_ = PlatformThread::Stopped;
+			
+			threads_[pid]   = newThread;
 
 			pid_            = pid;
-			active_thread_  = pid;
-			event_thread_   = pid;
+			active_thread_   = pid;
 			binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
-			return true;
+			detectDebuggeeBitness();
+
+			return statusOK;
 		} while(0);
 		break;
 	}
 }
 
+
 //------------------------------------------------------------------------------
-// Name: set_active_thread
-// Desc:
+// Name: last_means_of_capture
+// Desc: Returns how the last process was captured to debug
 //------------------------------------------------------------------------------
-void DebuggerCore::set_active_thread(edb::tid_t tid) {
-	if(threads_.contains(tid)) {
-#if 0
-		active_thread_ = tid;
-#else
-		qDebug("[DebuggerCore::set_active_thread] not implemented yet");
-#endif
-	} else {
-		qDebug("[DebuggerCore] warning, attempted to set invalid thread as active: %d", tid);
-	}
+DebuggerCore::MeansOfCapture DebuggerCore::last_means_of_capture() {
+	return lastMeansOfCapture;
 }
 
 //------------------------------------------------------------------------------
@@ -905,11 +788,9 @@ void DebuggerCore::set_active_thread(edb::tid_t tid) {
 void DebuggerCore::reset() {
 	threads_.clear();
 	waited_threads_.clear();
-	active_thread_ = 0;
 	pid_           = 0;
-	event_thread_  = 0;
-	delete binary_info_;
-	binary_info_   = 0;
+	active_thread_ = 0;
+	binary_info_   = nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -924,58 +805,28 @@ IState *DebuggerCore::create_state() const {
 // Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
-	QMap<edb::pid_t, Process> ret;
+QMap<edb::pid_t, IProcess::pointer> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, IProcess::pointer> ret;
 
 	QDir proc_directory("/proc/");
 	QFileInfoList entries = proc_directory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);
 
-	Q_FOREACH(const QFileInfo &info, entries) {
+	for(const QFileInfo &info: entries) {
 		const QString filename = info.fileName();
 		if(is_numeric(filename)) {
-
 			const edb::pid_t pid = filename.toULong();
-			Process process_info;
-
-			struct user_stat user_stat;
-			const int n = get_user_stat(pid, &user_stat);
-			if(n >= 2) {
-				process_info.name = user_stat.comm;
-
-				// remove silly '(' and ')'
-				process_info.name = process_info.name.mid(1);
-				process_info.name.chop(1);
-			}
-
-			process_info.pid = pid;
-			process_info.uid = info.ownerId();
-
-			if(const struct passwd *const pwd = ::getpwuid(process_info.uid)) {
-				process_info.user = pwd->pw_name;
-			}
-
-			ret.insert(process_info.pid, process_info);
+			
+			// NOTE(eteran): the const_cast is reasonable here.
+			// While we don't want THIS function to mutate the DebuggerCore object
+			// we do want the associated PlatformProcess to be able to trigger
+			// non-const operations in the future, at least hypothetically.
+			ret.insert(pid, std::make_shared<PlatformProcess>(const_cast<DebuggerCore*>(this), pid));
 		}
 	}
 
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QString DebuggerCore::process_exe(edb::pid_t pid) const {
-	return edb::v1::symlink_target(QString("/proc/%1/exe").arg(pid));
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QString DebuggerCore::process_cwd(edb::pid_t pid) const {
-	return edb::v1::symlink_target(QString("/proc/%1/cwd").arg(pid));
-}
 
 //------------------------------------------------------------------------------
 // Name:
@@ -994,255 +845,22 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 
 //------------------------------------------------------------------------------
 // Name:
-// Desc:
-//------------------------------------------------------------------------------
-QList<IRegion::pointer> DebuggerCore::memory_regions() const {
-	QList<IRegion::pointer> regions;
-
-	if(pid_ != 0) {
-		const QString map_file(QString("/proc/%1/maps").arg(pid_));
-
-		QFile file(map_file);
-        if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-
-			QTextStream in(&file);
-			QString line = in.readLine();
-
-			while(!line.isNull()) {
-				if(IRegion::pointer region = process_map_line(line)) {
-					regions.push_back(region);
-				}
-				line = in.readLine();
-			}
-		}
-	}
-
-	return regions;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
-
-	QList<QByteArray> ret;
-
-	if(pid != 0) {
-		const QString command_line_file(QString("/proc/%1/cmdline").arg(pid));
-		QFile file(command_line_file);
-
-		if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-			QTextStream in(&file);
-
-			QByteArray s;
-			QChar ch;
-
-			while(in.status() == QTextStream::Ok) {
-				in >> ch;
-				if(ch == '\0') {
-					if(!s.isEmpty()) {
-						ret << s;
-					}
-					s.clear();
-				} else {
-					s += ch;
-				}
-			}
-
-			if(!s.isEmpty()) {
-				ret << s;
-			}
-		}
-	}
-	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-edb::address_t DebuggerCore::process_code_address() const {
-	struct user_stat user_stat;
-	int n = get_user_stat(pid(), &user_stat);
-	if(n >= 26) {
-		return user_stat.startcode;
-	}
-	return 0;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-edb::address_t DebuggerCore::process_data_address() const {
-	struct user_stat user_stat;
-	int n = get_user_stat(pid(), &user_stat);
-	if(n >= 27) {
-		return user_stat.endcode + 1; // endcode == startdata ?
-	}
-	return 0;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QList<Module> DebuggerCore::loaded_modules() const {
-	QList<Module> ret;
-
-	if(binary_info_) {
-		struct r_debug dynamic_info;
-		if(const edb::address_t debug_pointer = binary_info_->debug_pointer()) {
-			if(edb::v1::debugger_core->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
-				if(dynamic_info.r_map) {
-
-					edb::address_t link_address = reinterpret_cast<edb::address_t>(dynamic_info.r_map);
-
-					while(link_address) {
-
-						struct link_map map;
-						if(edb::v1::debugger_core->read_bytes(link_address, &map, sizeof(map))) {
-							char path[PATH_MAX];
-							if(!edb::v1::debugger_core->read_bytes(reinterpret_cast<edb::address_t>(map.l_name), &path, sizeof(path))) {
-								path[0] = '\0';
-							}
-
-							if(map.l_addr) {
-								Module module;
-								module.name         = path;
-								module.base_address = map.l_addr;
-								ret.push_back(module);
-							}
-
-							link_address = reinterpret_cast<edb::address_t>(map.l_next);
-						} else {
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	// fallback
-	if(ret.isEmpty()) {
-		const QList<IRegion::pointer> r = edb::v1::memory_regions().regions();
-		QSet<QString> found_modules;
-
-		Q_FOREACH(const IRegion::pointer &region, r) {
-
-			// we assume that modules will be listed by absolute path
-			if(region->name().startsWith("/")) {
-				if(!found_modules.contains(region->name())) {
-					Module module;
-					module.name         = region->name();
-					module.base_address = region->start();
-					found_modules.insert(region->name());
-					ret.push_back(module);
-				}
-			}
-		}
-	}
-
-	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
-	QFileInfo info(QString("/proc/%1/stat").arg(pid));
-	return info.created();
-}
-
-#if 0
-#ifdef __NR_process_vm_readv
-	bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len) {
-
-		if(pid_ != 0) {
-			struct iovec local[1];
-			struct iovec remote[1];
-
-			local[0].iov_base  = buf;
-			local[0].iov_len   = len;
-			remote[0].iov_base = reinterpret_cast<void *>(address);
-			remote[0].iov_len  = len;
-
-			const ssize_t n = syscall(__NR_process_vm_readv, (long)pid_, local, 1, remote, 1, 0);
-
-			if(n > 0) {
-				// TODO: handle if breakponts have a size more than 1!
-				Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
-					if(bp->address() >= address && bp->address() < (address + n)) {
-						// show the original bytes in the buffer..
-						reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_bytes()[0];
-					}
-				}
-				return true;
-			}
-		}
-
-		return false;
-	}
-#endif
-
-#ifdef __NR_process_vm_writev
-	bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
-		if(pid_ != 0) {
-			struct iovec local[1];
-			struct iovec remote[1];
-
-			local[0].iov_base  = const_cast<void *>(buf);
-			local[0].iov_len   = len;
-			remote[0].iov_base = reinterpret_cast<void *>(address);
-			remote[0].iov_len  = len;
-
-			const ssize_t n = syscall(__NR_process_vm_writev, (long)pid_, local, 1, remote, 1, 0);
-
-			if(n > 0) {
-				return true;
-			}
-		}
-
-		return false;
-	}
-#endif
-#endif
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
+// Desc: Returns EDB's native CPU type
 //------------------------------------------------------------------------------
 quint64 DebuggerCore::cpu_type() const {
-#ifdef EDB_X86
-	return edb::string_hash<'x', '8', '6'>::value;
-#elif defined(EDB_X86_64)
-	return edb::string_hash<'x', '8', '6', '-', '6', '4'>::value;
-#endif
+	if(EDB_IS_32_BIT)
+		return edb::string_hash("x86");
+	else
+		return edb::string_hash("x86-64");
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QWidget *DebuggerCore::create_register_view() const {
-	return 0;
-}
 
 //------------------------------------------------------------------------------
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::format_pointer(edb::address_t address) const {
-	char buf[32];
-#ifdef EDB_X86
-	qsnprintf(buf, sizeof(buf), "%08x", address);
-#elif defined(EDB_X86_64)
-	qsnprintf(buf, sizeof(buf), "%016llx", address);
-#endif
-	return buf;
+	return address.toPointerString();
 }
 
 //------------------------------------------------------------------------------
@@ -1250,11 +868,10 @@ QString DebuggerCore::format_pointer(edb::address_t address) const {
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::stack_pointer() const {
-#ifdef EDB_X86
-	return "esp";
-#elif defined(EDB_X86_64)
-	return "rsp";
-#endif
+	if(edb::v1::debuggeeIs32Bit())
+		return "esp";
+	else
+		return "rsp";
 }
 
 //------------------------------------------------------------------------------
@@ -1262,11 +879,10 @@ QString DebuggerCore::stack_pointer() const {
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::frame_pointer() const {
-#ifdef EDB_X86
-	return "ebp";
-#elif defined(EDB_X86_64)
-	return "rbp";
-#endif
+	if(edb::v1::debuggeeIs32Bit())
+		return "ebp";
+	else
+		return "rbp";
 }
 
 //------------------------------------------------------------------------------
@@ -1274,11 +890,29 @@ QString DebuggerCore::frame_pointer() const {
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::instruction_pointer() const {
-#ifdef EDB_X86
-	return "eip";
-#elif defined(EDB_X86_64)
-	return "rip";
-#endif
+	if(edb::v1::debuggeeIs32Bit())
+		return "eip";
+	else
+		return "rip";
+}
+
+//------------------------------------------------------------------------------
+// Name: flag_register
+// Desc: Returns the name of the flag register as a QString.
+//------------------------------------------------------------------------------
+QString DebuggerCore::flag_register() const {
+	if(edb::v1::debuggeeIs32Bit())
+		return "eflags";
+	else
+		return "rflags";
+}
+
+//------------------------------------------------------------------------------
+// Name: process
+// Desc: 
+//------------------------------------------------------------------------------
+IProcess *DebuggerCore::process() const {
+	return process_;
 }
 
 #if QT_VERSION < 0x050000

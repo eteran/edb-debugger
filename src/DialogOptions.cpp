@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -86,7 +86,7 @@ void DialogOptions::addOptionsPage(QWidget *page) {
 		layout->addWidget(toolbox_, 0, 0, 1, 1);
 	}
 
-	toolbox_->addItem(page, QIcon(":/debugger/images/edb32-preferences-plugin.png"), page->windowTitle());
+	toolbox_->addItem(page, QIcon::fromTheme("preferences-plugin", QIcon(":/debugger/images/edb32-preferences-plugin.png")), page->windowTitle());
 }
 
 //------------------------------------------------------------------------------
@@ -163,16 +163,23 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui->rdoSytntaxIntel->setChecked(config.syntax != Configuration::ATT);
 
 	ui->rdoDetach->setChecked(config.close_behavior == Configuration::Detach);
-	ui->rdoKill->setChecked(config.close_behavior != Configuration::Detach);
+	ui->rdoKill->setChecked(config.close_behavior == Configuration::Kill);
+	ui->rdoReverseCapture->setChecked(config.close_behavior == Configuration::KillIfLaunchedDetachIfAttached);
 
 	ui->rdoBPEntry->setChecked(config.initial_breakpoint == Configuration::EntryPoint);
 	ui->rdoBPMain->setChecked(config.initial_breakpoint != Configuration::EntryPoint);
 
 	ui->chkTTY->setChecked(config.tty_enabled);
 	ui->txtTTY->setText(config.tty_command);
+	
+	ui->chkDeleteStaleSymbols->setChecked(config.remove_stale_symbols);
+	ui->chkDisableASLR->setChecked(config.disableASLR);
+	ui->chkDisableLazyBinding->setChecked(config.disableLazyBinding);
 
 	ui->chkZerosAreFilling->setChecked(config.zeros_are_filling);
 	ui->chkUppercase->setChecked(config.uppercase_disassembly);
+	ui->chkSmallIntAsDecimal->setChecked(config.small_int_as_decimal);
+	ui->chkSyntaxHighlighting->setChecked(config.syntax_highlighting_enabled);
 
 	ui->chkFindMain->setChecked(config.find_main);
 	ui->chkWarnDataBreakpoint->setChecked(config.warn_on_no_exec_bp);
@@ -195,7 +202,18 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui->cmbDataWordWidth->setCurrentIndex(width_to_index(config.data_word_width));
 	ui->cmbDataRowWidth->setCurrentIndex(width_to_index(config.data_row_width));
 
-	ui->chkAddressSemicolon->setChecked(config.show_address_separator);
+	ui->chkAddressColon->setChecked(config.show_address_separator);
+
+	ui->signalsMessageBoxEnable->setChecked(config.enable_signals_message_box);
+
+	ui->chkTabBetweenMnemonicAndOperands->setChecked(config.tab_between_mnemonic_and_operands);
+	ui->chkShowLocalModuleName->setChecked(config.show_local_module_name_in_jump_targets);
+	ui->chkShowSymbolicAddresses->setChecked(config.show_symbolic_addresses);
+	ui->chkSimplifyRIPRelativeTargets->setChecked(config.simplify_rip_relative_targets);
+	
+	ui->rdoPlaceDefault ->setChecked(config.startup_window_location == Configuration::SystemDefault);
+	ui->rdoPlaceCentered->setChecked(config.startup_window_location == Configuration::Centered);
+	ui->rdoPlaceRestore ->setChecked(config.startup_window_location == Configuration::Restore);
 }
 
 //------------------------------------------------------------------------------
@@ -212,10 +230,17 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 		config.syntax = Configuration::ATT;
 	}
 
+	config.tab_between_mnemonic_and_operands=ui->chkTabBetweenMnemonicAndOperands->isChecked();
+	config.show_local_module_name_in_jump_targets=ui->chkShowLocalModuleName->isChecked();
+	config.show_symbolic_addresses=ui->chkShowSymbolicAddresses->isChecked();
+	config.simplify_rip_relative_targets=ui->chkSimplifyRIPRelativeTargets->isChecked();
+
 	if(ui->rdoDetach->isChecked()) {
 		config.close_behavior = Configuration::Detach;
 	} else if(ui->rdoKill->isChecked()) {
-		config.close_behavior = Configuration::Terminate;
+		config.close_behavior = Configuration::Kill;
+	} else if(ui->rdoReverseCapture->isChecked()) {
+		config.close_behavior = Configuration::KillIfLaunchedDetachIfAttached;
 	}
 
 	config.stack_font            = ui->stackFont->currentFont().toString();
@@ -224,8 +249,14 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.disassembly_font      = ui->disassemblyFont->currentFont().toString();
 	config.tty_command           = ui->txtTTY->text();
 	config.tty_enabled           = ui->chkTTY->isChecked();
+	config.remove_stale_symbols  = ui->chkDeleteStaleSymbols->isChecked();
+	config.disableASLR			 = ui->chkDisableASLR->isChecked();
+	config.disableLazyBinding	 = ui->chkDisableLazyBinding->isChecked();
+	
 	config.zeros_are_filling     = ui->chkZerosAreFilling->isChecked();
 	config.uppercase_disassembly = ui->chkUppercase->isChecked();
+	config.small_int_as_decimal  = ui->chkSmallIntAsDecimal->isChecked();
+	config.syntax_highlighting_enabled = ui->chkSyntaxHighlighting->isChecked();
 
 	config.symbol_path           = ui->txtSymbolDir->text();
 	config.plugin_path           = ui->txtPluginDir->text();
@@ -240,7 +271,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.warn_on_no_exec_bp     = ui->chkWarnDataBreakpoint->isChecked();
 	config.find_main              = ui->chkFindMain->isChecked();
 
-	config.show_address_separator = ui->chkAddressSemicolon->isChecked();
+	config.show_address_separator = ui->chkAddressColon->isChecked();
 
 	config.min_string_length      = ui->spnMinString->value();
 
@@ -250,6 +281,28 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.data_show_comments = ui->chkDataShowComments->isChecked();
 	config.data_word_width    = 1 << ui->cmbDataWordWidth->currentIndex();
 	config.data_row_width     = 1 << ui->cmbDataRowWidth->currentIndex();
+	
+	CapstoneEDB::Formatter::FormatOptions options = edb::v1::formatter().options();
+	options.capitalization = config.uppercase_disassembly ? CapstoneEDB::Formatter::UpperCase : CapstoneEDB::Formatter::LowerCase;
+	options.smallNumFormat = config.small_int_as_decimal  ? CapstoneEDB::Formatter::SmallNumAsDec : CapstoneEDB::Formatter::SmallNumAsHex;
+	options.syntax=static_cast<CapstoneEDB::Formatter::Syntax>(config.syntax);
+	options.tabBetweenMnemonicAndOperands=config.tab_between_mnemonic_and_operands;
+	options.simplifyRIPRelativeTargets=config.simplify_rip_relative_targets;
+	edb::v1::formatter().setOptions(options);
+
+	config.enable_signals_message_box = ui->signalsMessageBoxEnable->isChecked();
+
+	if(ui->rdoPlaceDefault ->isChecked()) {
+		config.startup_window_location = Configuration::SystemDefault;
+	} else if(ui->rdoPlaceCentered->isChecked()) {
+		config.startup_window_location = Configuration::Centered;
+	} else if(ui->rdoPlaceRestore ->isChecked()) {
+		config.startup_window_location = Configuration::Restore;
+	}
+
+
+	config.sendChangeNotification();
+
 
 	event->accept();
 }

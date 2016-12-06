@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -39,7 +39,10 @@ public Q_SLOTS:
 	
 public:
 	void set_address(edb::address_t address);
-	
+
+public:
+	virtual void showEvent(QShowEvent *event) override;
+
 private:
 	 Ui::DialogAssembler *const ui;
 	 edb::address_t             address_;

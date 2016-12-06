@@ -1,0 +1,81 @@
+language: cpp
+
+cache: apt
+
+compiler:
+    - gcc
+
+env:
+    global:
+        - MAKEFLAGS="-j2"
+    matrix:
+        - QT_BASE=48
+        - QT_BASE=51
+        - QT_BASE=52
+        - QT_BASE=53
+        - QT_BASE=54
+        - QT_BASE=55
+        - QT_BASE=56
+
+sudo: required
+
+before_install:
+    - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-4.8 90
+    - if [ "$QT_BASE" = "50" ]; then sudo add-apt-repository ppa:beineri/opt-qt502 -y; fi
+    - if [ "$QT_BASE" = "51" ]; then sudo add-apt-repository ppa:beineri/opt-qt511 -y; fi
+    - if [ "$QT_BASE" = "52" ]; then sudo add-apt-repository ppa:beineri/opt-qt521 -y; fi
+    - if [ "$QT_BASE" = "53" ]; then sudo add-apt-repository ppa:beineri/opt-qt532 -y; fi
+    - if [ "$QT_BASE" = "54" ]; then sudo add-apt-repository ppa:beineri/opt-qt542 -y; fi
+    - if [ "$QT_BASE" = "55" ]; then sudo add-apt-repository ppa:beineri/opt-qt551 -y; fi
+    - if [ "$QT_BASE" = "56" ]; then sudo add-apt-repository ppa:beineri/opt-qt562 -y; fi
+    - sudo apt-get update -qq
+    - ./travis_install_capstone.sh
+
+install:
+    - if [ "$QT_BASE" = "48" ]; then sudo apt-get install -qq qt4-qmake libqt4-gui libqt4-core libqt4-dev; fi
+    - if [ "$QT_BASE" = "50" ]; then sudo apt-get install -qq qtbase  qtxmlpatterns qtsvg; source /opt/qt5/bin/qt5-env.sh; fi
+    - if [ "$QT_BASE" = "51" ]; then sudo apt-get install -qq qt51base qt51xmlpatterns qt51svg; source /opt/qt51/bin/qt51-env.sh; fi
+    - if [ "$QT_BASE" = "52" ]; then sudo apt-get install -qq qt52base qt52xmlpatterns qt52svg; source /opt/qt52/bin/qt52-env.sh; fi
+    - if [ "$QT_BASE" = "53" ]; then sudo apt-get install -qq qt53base qt53xmlpatterns qt53svg; source /opt/qt53/bin/qt53-env.sh; fi
+    - if [ "$QT_BASE" = "54" ]; then sudo apt-get install -qq qt54base qt54xmlpatterns qt54svg; source /opt/qt54/bin/qt54-env.sh; fi
+    - if [ "$QT_BASE" = "55" ]; then sudo apt-get install -qq qt55base qt55xmlpatterns qt55svg; source /opt/qt55/bin/qt55-env.sh; fi
+    - if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base qt56xmlpatterns qt56svg; source /opt/qt56/bin/qt56-env.sh; fi
+
+before_script:
+    - if [ "$QT_BASE" == "48" ]; then mkdir build && cd build && cmake -DQT_VERSION=Qt4 ..; fi
+    - if [ "$QT_BASE" != "48" ]; then mkdir build && cd build && cmake -DQT_VERSION=Qt5 ..; fi
+
+script:
+    - make
+
+after_success:
+    - cd ..
+    - cp ./src/images/edb.png ./build
+    - cp ./edb.desktop ./build
+    - find .
+    - rm -rf build/src
+    - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/1/linuxdeployqt-1-x86_64.AppImage"
+    - chmod a+x linuxdeployqt-1-x86_64.AppImage
+    - unset LD_LIBRARY_PATH
+    - ./linuxdeployqt-1-x86_64.AppImage ./build/edb -appimage -verbose=2
+    - curl --upload-file $(ls build*.AppImage) https://transfer.sh/edb-qt$QT_BASE.git.$(git rev-parse --short HEAD)-x86_64.AppImage # Replace with your deployment mechanism
+    
+branches:
+    only:
+        - master
+        - patch-1
+
+os:
+    - linux
+
+addons:
+    apt:
+        sources:
+            - ubuntu-toolchain-r-test
+            - kalakris-cmake
+        packages:
+            - build-essential
+            - libboost-dev
+            - gcc-4.8
+            - g++-4.8
+            - cmake

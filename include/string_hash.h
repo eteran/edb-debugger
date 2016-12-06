@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,22 +19,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef STRING_HASH_20110823_H_
 #define STRING_HASH_20110823_H_
 
-#include <QtGlobal>
+#include <cstdint>
+#include <type_traits>
 
 namespace edb {
 
-template <char Ch1, char Ch2 = '\0', char Ch3 = '\0', char Ch4 = '\0', char Ch5 = '\0', char Ch6 = '\0', char Ch7 = '\0', char Ch8 = '\0'>
-struct string_hash {
-	static const quint64 value = 
-		(static_cast<quint64>(Ch1) << 56) | 
-		(static_cast<quint64>(Ch2) << 48) | 
-		(static_cast<quint64>(Ch3) << 40) | 
-		(static_cast<quint64>(Ch4) << 32) | 
-		(static_cast<quint64>(Ch5) << 24) | 
-		(static_cast<quint64>(Ch6) << 16) | 
-		(static_cast<quint64>(Ch7) << 8)  | 
-		(Ch8);
-};
+namespace detail {
+
+template <std::size_t N, std::size_t n>
+constexpr typename std::enable_if<N <= 9 && n == 0, uint64_t>::type string_hash(const char (&)[N]) {
+	return 0;
+}
+
+template <std::size_t N, std::size_t n=N-1>
+constexpr typename std::enable_if<N <= 9 && n != 0, uint64_t>::type string_hash(const char (&array)[N]) {
+	return string_hash<N, n - 1>(array) | ((array[n - 1] & 0xffull) << (8 * (n - 1)));
+}
+
+}
+
+template <std::size_t N>
+constexpr typename std::enable_if<N <= 9, uint64_t>::type string_hash(const char (&array)[N]) {
+	return detail::string_hash(array);
+}
 
 }
 

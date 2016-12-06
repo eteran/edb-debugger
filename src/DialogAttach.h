@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIALOG_ATTACH_20091218_H_
 
 #include "Types.h"
-#include "Process.h"
+#include "Status.h"
 #include <QDialog>
 
 class ProcessModel;
@@ -43,14 +43,16 @@ private:
 
 public Q_SLOTS:
 	void on_filter_uid_clicked(bool checked);
+	void on_filter_textChanged(const QString &filter);
 
 public:
-	edb::pid_t selected_pid(bool *ok) const;
+	Result<edb::pid_t> selected_pid() const;
 
 private:
 	Ui::DialogAttach *const ui;
 	ProcessModel          *process_model_;
-	QSortFilterProxyModel *process_filter_;
+	QSortFilterProxyModel *process_name_filter_;
+	QSortFilterProxyModel *process_pid_filter_;
 };
 
 #endif

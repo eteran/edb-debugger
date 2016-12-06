@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -48,6 +48,10 @@ public:
 public:
 	virtual QMenu *menu(QWidget *parent = 0);
 	virtual QList<QAction *> cpu_context_menu();
+	
+public:
+	virtual QVariantMap save_state() const;
+	virtual void restore_state(const QVariantMap &);
 
 public Q_SLOTS:
 	void add_bookmark_menu();

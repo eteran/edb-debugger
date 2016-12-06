@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -101,18 +101,18 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 		if(!timeout) {
 			if(tid > 0) {
 				// normal event
-				PlatformEvent *const e = new PlatformEvent;
+				auto e = std::make_shared<PlatformEvent>();
 				e->pid    = pid();
 				e->tid    = tid;
 				e->status = status;
 
 				active_thread_       = tid;
 				threads_[tid].status = status;
-				return IDebugEvent::const_pointer(e);
+				return e;
 			}
 		}
 	}
-	return IDebugEvent::const_pointer();
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -175,7 +175,7 @@ void DebuggerCore::detach() {
 		// TODO: do i need to stop each thread first, and wait for them?
 
 		clear_breakpoints();
-		for(threadmap_t::const_iterator it = threads_.begin(); it != threads_.end(); ++it) {
+		for(auto it = threads_.begin(); it != threads_.end(); ++it) {
 			ptrace(PT_DETACH, it.key(), 0, 0);
 		}
 
@@ -204,7 +204,7 @@ void DebuggerCore::kill() {
 //------------------------------------------------------------------------------
 void DebuggerCore::pause() {
 	if(attached()) {
-		for(threadmap_t::const_iterator it = threads_.begin(); it != threads_.end(); ++it) {
+		for(auto it = threads_.begin(); it != threads_.end(); ++it) {
 			::kill(it.key(), SIGSTOP);
 		}
 	}
@@ -251,7 +251,7 @@ void DebuggerCore::get_state(State *state) {
 	Q_ASSERT(state);
 
 	// TODO: assert that we are paused
-	PlatformState *const state_impl = static_cast<PlatformState *>(state->impl_);
+	auto state_impl = static_cast<PlatformState *>(state->impl_);
 
 	if(attached()) {
 
@@ -370,7 +370,7 @@ void DebuggerCore::get_state(State *state) {
 void DebuggerCore::set_state(const State &state) {
 
 	// TODO: assert that we are paused
-	PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_);
+	auto state_impl = static_cast<PlatformState *>(state.impl_);
 
 	if(attached()) {
 
@@ -533,19 +533,19 @@ IState *DebuggerCore::create_state() const {
 // Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
-	QMap<edb::pid_t, Process> ret;
+QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, ProcessInfo> ret;
 
 	static const int name[] = { CTL_KERN, KERN_PROC, KERN_PROC_ALL, 0 };
 	size_t length = 0;
 
 	sysctl(const_cast<int*>(name), (sizeof(name) / sizeof(*name)) - 1, 0, &length, 0, 0);
-	struct kinfo_proc *proc_info = static_cast<struct kinfo_proc*>(malloc(length));
+	auto proc_info = static_cast<struct kinfo_proc*>(malloc(length));
 	sysctl(const_cast<int*>(name), (sizeof(name) / sizeof(*name)) - 1, proc_info, &length, 0, 0);
 
 	size_t count = length / sizeof(struct kinfo_proc);
 	for(size_t i = 0; i < count; ++i) {
-		Process procInfo;
+		ProcessInfo procInfo;
 		procInfo.pid  = proc_info[i].kp_proc.p_pid;
 		procInfo.uid  = proc_info[i].kp_eproc.e_ucred.cr_uid;
 		procInfo.name = proc_info[i].kp_proc.p_comm;
@@ -635,7 +635,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 					((info.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
 					((info.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
 
-				regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
+				regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
 
 				/*
 				printf("%016llx-%016llx %8uK %c%c%c/%c%c%c %11s %6s %10s uwir=%hu sub=%u\n",
@@ -730,14 +730,6 @@ quint64 DebuggerCore::cpu_type() const {
 #elif defined(EDB_X86_64)
 	return edb::string_hash<'x', '8', '6', '-', '6', '4'>::value;
 #endif
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QWidget *DebuggerCore::create_register_view() const {
-	return 0;
 }
 
 //------------------------------------------------------------------------------

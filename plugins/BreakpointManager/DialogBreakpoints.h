@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -38,9 +38,12 @@ public Q_SLOTS:
 	void on_btnRemove_clicked();
 	void on_btnCondition_clicked();
 	void on_tableWidget_cellDoubleClicked(int row, int col);
+    void on_btnImport_clicked();
+    void on_btnExport_clicked();
 
 private:
 	virtual void showEvent(QShowEvent *event);
+	virtual void hideEvent(QHideEvent *event);
 
 private:
 	 Ui::DialogBreakpoints *const ui;

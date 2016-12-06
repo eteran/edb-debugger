@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,8 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogHeader.h"
 #include "edb.h"
-#include "ELF32.h"
-#include "ELF64.h"
+#include "ELFXX.h"
 #include "MemoryRegions.h"
 #include "PE32.h"
 #include <QMessageBox>
@@ -33,7 +32,7 @@ namespace {
 template <class T>
 QTreeWidgetItem *create_elf_magic(const T *header) {
 
-	QTreeWidgetItem *const item = new QTreeWidgetItem;
+	auto item = new QTreeWidgetItem;
 
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Magic"));
 	item->setText(1, QString("0x%1, %2, %3, %4")
@@ -49,7 +48,7 @@ QTreeWidgetItem *create_elf_magic(const T *header) {
 template <class T>
 QTreeWidgetItem *create_elf_class(const T *header) {
 
-	QTreeWidgetItem *const item = new QTreeWidgetItem;
+	auto item = new QTreeWidgetItem;
 
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Class"));
 	switch(header->e_ident[EI_CLASS]) {
@@ -69,7 +68,7 @@ QTreeWidgetItem *create_elf_class(const T *header) {
 template <class T>
 QTreeWidgetItem *create_elf_data(const T *header) {
 
-	QTreeWidgetItem *const item = new QTreeWidgetItem;
+	auto item = new QTreeWidgetItem;
 
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Data"));
 	switch(header->e_ident[EI_DATA]) {
@@ -89,7 +88,7 @@ QTreeWidgetItem *create_elf_data(const T *header) {
 template <class T>
 QTreeWidgetItem *create_elf_version(const T *header) {
 
-	QTreeWidgetItem *const item = new QTreeWidgetItem;
+	auto item = new QTreeWidgetItem;
 
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Version"));
 	switch(header->e_ident[EI_VERSION]) {
@@ -106,7 +105,7 @@ QTreeWidgetItem *create_elf_version(const T *header) {
 template <class T>
 QTreeWidgetItem *create_elf_abi(const T *header) {
 
-	QTreeWidgetItem *const item = new QTreeWidgetItem;
+	auto item = new QTreeWidgetItem;
 
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "ABI"));
 	switch(header->e_ident[EI_OSABI]) {
@@ -164,7 +163,7 @@ QTreeWidgetItem *create_elf_abi(const T *header) {
 template <class T>
 QTreeWidgetItem *create_elf_abi_version(const T *header) {
 
-	QTreeWidgetItem *const item = new QTreeWidgetItem;
+	auto item = new QTreeWidgetItem;
 
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "ABI Version"));
 	item->setText(1, QString("%1").arg(header->e_ident[EI_MAG0], 0, 10));
@@ -175,7 +174,7 @@ QTreeWidgetItem *create_elf_abi_version(const T *header) {
 template <class T>
 QTreeWidgetItem *create_elf_type(const T *header) {
 
-	QTreeWidgetItem *const item = new QTreeWidgetItem;
+	auto item = new QTreeWidgetItem;
 
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Type"));
 
@@ -205,7 +204,7 @@ QTreeWidgetItem *create_elf_type(const T *header) {
 template <class T>
 QTreeWidgetItem *create_elf_machine(const T *header) {
 
-	QTreeWidgetItem *const item = new QTreeWidgetItem;
+	auto item = new QTreeWidgetItem;
 
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Machine"));
 
@@ -442,7 +441,7 @@ QTreeWidgetItem *create_elf_machine(const T *header) {
 template <class T>
 QTreeWidgetItem *create_elf_object_version(const T *header) {
 
-	QTreeWidgetItem *const item = new QTreeWidgetItem;
+	auto item = new QTreeWidgetItem;
 
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Object File Version"));
 	item->setText(1, QString("%1").arg(header->e_version, 0, 10));
@@ -453,7 +452,7 @@ QTreeWidgetItem *create_elf_object_version(const T *header) {
 template <class T>
 QTreeWidgetItem *create_elf_entry_point(const T *header) {
 
-	QTreeWidgetItem *const item = new QTreeWidgetItem;
+	auto item = new QTreeWidgetItem;
 
 	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Entry Point"));
 	item->setText(1, QString("%1").arg(header->e_entry, 0, 16));
@@ -524,24 +523,24 @@ void DialogHeader::on_btnExplore_clicked() {
 	const QModelIndexList sel = selModel->selectedRows();
 
 	if(sel.size() == 0) {
-		QMessageBox::information(
+		QMessageBox::critical(
 			this,
 			tr("No Region Selected"),
 			tr("You must select a region which is to be scanned for executable headers."));
 	} else {
 
-		Q_FOREACH(const QModelIndex &selected_item, sel) {
+		for(const QModelIndex &selected_item: sel) {
 
 			const QModelIndex index = filter_model_->mapToSource(selected_item);
-			if(const IRegion::pointer region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
+			if(auto region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
 
-				if(IBinary *binary_info = edb::v1::get_binary_info(region)) {
+				if(auto binary_info = edb::v1::get_binary_info(region)) {
 
-					if(ELF32 *const elf32 = dynamic_cast<ELF32 *>(binary_info)) {
+					if(auto elf32 = dynamic_cast<ELF32 *>(binary_info.get())) {
 
-						const elf32_header *const header = reinterpret_cast<const elf32_header *>(elf32->header());
+						auto header = reinterpret_cast<const elf32_header *>(elf32->header());
 
-						QTreeWidgetItem *root = new QTreeWidgetItem;
+						auto root = new QTreeWidgetItem;
 						root->setText(0, tr("ELF32"));
 
 						root->addChild(create_elf_magic(header));
@@ -558,11 +557,11 @@ void DialogHeader::on_btnExplore_clicked() {
 						ui->treeWidget->insertTopLevelItem(0, root);
 					}
 
-					if(ELF64 *const elf64 = dynamic_cast<ELF64 *>(binary_info)) {
+					if(auto elf64 = dynamic_cast<ELF64 *>(binary_info.get())) {
 
-						const elf64_header *const header = reinterpret_cast<const elf64_header *>(elf64->header());
+						auto header = reinterpret_cast<const elf64_header *>(elf64->header());
 
-						QTreeWidgetItem *root = new QTreeWidgetItem;
+						auto root = new QTreeWidgetItem;
 						root->setText(0, tr("ELF64"));
 
 						root->addChild(create_elf_magic(header));
@@ -579,17 +578,15 @@ void DialogHeader::on_btnExplore_clicked() {
 						ui->treeWidget->insertTopLevelItem(0, root);
 					}
 
-					if(PE32 *const pe32 = dynamic_cast<PE32 *>(binary_info)) {
+					if(auto pe32 = dynamic_cast<PE32 *>(binary_info.get())) {
 						Q_UNUSED(pe32);
 					#if 0
-						const pe32_header *const header = reinterpret_cast<const pe32_header *>(pe32->header());
+						auto header = reinterpret_cast<const pe32_header *>(pe32->header());
 					#endif
-						QTreeWidgetItem *root = new QTreeWidgetItem;
+						auto root = new QTreeWidgetItem;
 						root->setText(0, tr("PE32"));
 						ui->treeWidget->insertTopLevelItem(0, root);
 					}
-
-					delete binary_info;
 				}
 			}
 		}

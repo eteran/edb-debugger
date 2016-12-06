@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -36,7 +36,7 @@ class DialogHeap : public QDialog {
 
 public:
 	DialogHeap(QWidget *parent = 0);
-	virtual ~DialogHeap();
+	virtual ~DialogHeap() override;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();
@@ -44,12 +44,14 @@ public Q_SLOTS:
 	void on_tableView_doubleClicked(const QModelIndex & index);
 
 private:
-	virtual void showEvent(QShowEvent *event);
+	virtual void showEvent(QShowEvent *event) override;
 
 private:
 	void get_library_names(QString *libcName, QString *ldName) const;
+	template<class Addr>
 	void collect_blocks(edb::address_t start_address, edb::address_t end_address);
 	void detect_pointers();
+	template<class Addr>
 	void do_find();
 	void process_potential_pointer(const QHash<edb::address_t, edb::address_t> &targets, Result &result);
 

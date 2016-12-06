@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,8 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
-#include <QScopedPointer>
 #include <QTableWidgetItem>
+#include <memory>
 
 #include "ui_Bookmarks.h"
 
@@ -90,7 +90,7 @@ void BookmarkWidget::on_btnAdd_clicked() {
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::on_btnDel_clicked() {
-	QScopedPointer<QTableWidgetItem> item(ui->tableWidget->takeItem(ui->tableWidget->currentRow(), 0));
+	std::unique_ptr<QTableWidgetItem> item(ui->tableWidget->takeItem(ui->tableWidget->currentRow(), 0));
 	ui->tableWidget->removeRow(ui->tableWidget->currentRow());
 	if(item) {
 		const edb::address_t address = item->data(Qt::UserRole).toULongLong();
@@ -114,7 +114,7 @@ void BookmarkWidget::on_btnClear_clicked() {
 //------------------------------------------------------------------------------
 void BookmarkWidget::add_address(edb::address_t address) {
 	if(!entries_.contains(address)) {
-		QTableWidgetItem *const new_item = new QTableWidgetItem(edb::v1::format_pointer(address));
+		auto new_item = new QTableWidgetItem(edb::v1::format_pointer(address));
 		new_item->setData(Qt::UserRole, address);
 		const int row = ui->tableWidget->rowCount();
 		ui->tableWidget->setRowCount(row + 1);
@@ -130,7 +130,7 @@ void BookmarkWidget::add_address(edb::address_t address) {
 //------------------------------------------------------------------------------
 void BookmarkWidget::shortcut(int index) {
 	if(ui->tableWidget->item(index, 0)) {
-		emit on_tableWidget_cellDoubleClicked(index, 0);
+		Q_EMIT on_tableWidget_cellDoubleClicked(index, 0);
 	}
 }
 

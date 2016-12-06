@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -26,30 +26,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCore {
 
-class PlatformEvent : IDebugEvent {
+class PlatformEvent : public IDebugEvent {
 	Q_DECLARE_TR_FUNCTIONS(PlatformEvent)
 	friend class DebuggerCore;
 
 public:
 	PlatformEvent();
+	
+private:
+	PlatformEvent(const PlatformEvent &) = default;
+	PlatformEvent& operator=(const PlatformEvent &) = default;
 
 public:
-	virtual PlatformEvent *clone() const;
-	
+	virtual IDebugEvent *clone() const override;
+
 public:
-	virtual Message error_description() const;
-	virtual REASON reason() const;
-	virtual TRAP_REASON trap_reason() const;
-	virtual bool exited() const;
-	virtual bool is_error() const;
-	virtual bool is_kill() const;
-	virtual bool is_stop() const;
-	virtual bool is_trap() const;
-	virtual bool stopped() const;
-	virtual bool terminated() const;
-	virtual edb::pid_t process() const;
-	virtual edb::tid_t thread() const;
-	virtual int code() const;
+	virtual Message error_description() const override;
+	virtual REASON reason() const override;
+	virtual TRAP_REASON trap_reason() const override;
+	virtual bool exited() const override;
+	virtual bool is_error() const override;
+	virtual bool is_kill() const override;
+	virtual bool is_stop() const override;
+	virtual bool is_trap() const override;
+	virtual bool stopped() const override;
+	virtual bool terminated() const override;
+	virtual edb::pid_t process() const override;
+	virtual edb::tid_t thread() const override;
+	virtual int code() const override;
+
+private:
+	static IDebugEvent::Message createUnexpectedSignalMessage(const QString &name, int number);
 
 private:
 	siginfo_t  siginfo_;

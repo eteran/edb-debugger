@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,16 +22,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 
 #include <QString>
-#include <QSharedPointer>
+#include <memory>
+#include <exception>
+
+class breakpoint_creation_error : public std::exception {
+	const char *what() const noexcept {
+		return "breakpoint_creation_error";
+	}
+};
 
 class QByteArray;
 
 class IBreakpoint {
 public:
-	typedef QSharedPointer<IBreakpoint> pointer;
+	typedef std::shared_ptr<IBreakpoint> pointer;
+	
+protected:
+	IBreakpoint() : tag(0) {}
 	
 public:
-	IBreakpoint() : tag(0) {}
 	virtual ~IBreakpoint() {}
 
 public:
@@ -40,7 +49,7 @@ public:
 	virtual bool enabled() const = 0;
 	virtual bool one_time() const = 0;
 	virtual bool internal() const = 0;
-	virtual QByteArray original_bytes() const = 0;
+	virtual quint8 original_byte() const = 0;
 
 public:
 	virtual bool enable() = 0;

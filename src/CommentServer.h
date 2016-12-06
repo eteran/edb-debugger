@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define COMMENTSERVER_20070427_H_
 
 #include "QHexView"
+#include "Status.h"
 #include <QHash>
 #include <QObject>
 
@@ -36,8 +37,8 @@ public:
 	virtual void clear();
 
 private:
-	QString resolve_function_call(QHexView::address_t address, bool *ok) const;
-	QString resolve_string(QHexView::address_t address, bool *ok) const;
+	Result<QString> resolve_function_call(QHexView::address_t address) const;
+	Result<QString> resolve_string(QHexView::address_t address) const;
 
 private:
 	QHash<quint64, QString> custom_comments_;

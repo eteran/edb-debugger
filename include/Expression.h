@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define EXPRESSION_20070402_H_
 
 #include <QString>
-#include <boost/function.hpp>
+#include <functional>
 
 struct ExpressionError {
 public:
@@ -44,10 +44,10 @@ public:
 	explicit ExpressionError(ERROR_MSG type) : error_(type) {
 	}
 
-	~ExpressionError() throw() {
+	~ExpressionError() noexcept {
 	}
 
-	const char *what() const throw() {
+	const char *what() const noexcept {
 		switch(error_) {
 		case SYNTAX:
 			return "Syntax Error";
@@ -79,8 +79,8 @@ private:
 template <class T>
 class Expression {
 public:
-	typedef boost::function<T(const QString&, bool*, ExpressionError*)> variable_getter_t;
-	typedef boost::function<T(T, bool*, ExpressionError*)>              memory_reader_t;
+	typedef std::function<T(const QString&, bool*, ExpressionError*)> variable_getter_t;
+	typedef std::function<T(T, bool*, ExpressionError*)>              memory_reader_t;
 
 public:
 	Expression(const QString &s, variable_getter_t vg, memory_reader_t mr);
@@ -146,7 +146,7 @@ private:
 	}
 
 public:
-	T evaluate_expression(bool *ok, ExpressionError *error) throw() {
+	T evaluate_expression(bool *ok, ExpressionError *error) noexcept {
 	
 		Q_ASSERT(ok);
 		Q_ASSERT(error);

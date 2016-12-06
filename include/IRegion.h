@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,11 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 #include "API.h"
-#include <QSharedPointer>
+#include <QString>
+#include <memory>
 
 class EDB_EXPORT IRegion {
 public:
-	typedef QSharedPointer<IRegion> pointer;
+	typedef std::shared_ptr<IRegion> pointer;
 	typedef quint32                 permissions_t;
 
 public:

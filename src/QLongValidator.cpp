@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -84,15 +84,15 @@ QValidator::State QLongValidator::validate(QString &input, int &pos) const {
 		return QValidator::Acceptable;
 	}
 
-	if(input.length() == 1 && input == "-") {
+	if(input == "-") {
 		return QValidator::Intermediate;
 	}
 
 	bool ok;
-	const value_type temp = input.toLong(&ok);
+	const value_type temp = input.toLongLong(&ok);
 	if(!ok) {
 		return QValidator::Invalid;
 	}
 
-	return (temp >= bottom() && temp <= top()) ? QValidator::Acceptable : QValidator::Intermediate;
+	return (temp >= bottom() && temp <= top()) ? QValidator::Acceptable : QValidator::Invalid;
 }

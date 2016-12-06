@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2012 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2012 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 Copyright (C) 1995-2003,2004,2005,2006,2007,2008,2009,2010,2011
                    Free Software Foundation, Inc.
@@ -29,39 +29,6 @@ enum {
 	EI_NIDENT = 16
 };
 
-struct elf32_header {
-	unsigned char	e_ident[EI_NIDENT];	/* Magic number and other info */
-	elf32_half	e_type;			/* Object file type */
-	elf32_half	e_machine;		/* Architecture */
-	elf32_word	e_version;		/* Object file version */
-	elf32_addr	e_entry;		/* Entry point virtual address */
-	elf32_off	e_phoff;		/* Program header table file offset */
-	elf32_off	e_shoff;		/* Section header table file offset */
-	elf32_word	e_flags;		/* Processor-specific flags */
-	elf32_half	e_ehsize;		/* ELF header size in bytes */
-	elf32_half	e_phentsize;		/* Program header table entry size */
-	elf32_half	e_phnum;		/* Program header table entry count */
-	elf32_half	e_shentsize;		/* Section header table entry size */
-	elf32_half	e_shnum;		/* Section header table entry count */
-	elf32_half	e_shstrndx;		/* Section header string table index */
-};
-
-struct elf64_header {
-	unsigned char	e_ident[EI_NIDENT];	/* Magic number and other info */
-	elf64_half	e_type;			/* Object file type */
-	elf64_half	e_machine;		/* Architecture */
-	elf64_word	e_version;		/* Object file version */
-	elf64_addr	e_entry;		/* Entry point virtual address */
-	elf64_off	e_phoff;		/* Program header table file offset */
-	elf64_off	e_shoff;		/* Section header table file offset */
-	elf64_word	e_flags;		/* Processor-specific flags */
-	elf64_half	e_ehsize;		/* ELF header size in bytes */
-	elf64_half	e_phentsize;		/* Program header table entry size */
-	elf64_half	e_phnum;		/* Program header table entry count */
-	elf64_half	e_shentsize;		/* Section header table entry size */
-	elf64_half	e_shnum;		/* Section header table entry count */
-	elf64_half	e_shstrndx;		/* Section header string table index */
-};
 
 /* Fields in the e_ident array.  The EI_* macros are indices into the
    array.  The macros under each EI_* macro are the values the byte
@@ -226,5 +193,47 @@ struct elf64_header {
    chances of collision with official or non-GNU unofficial values.  */
 
 #define EM_ALPHA	0x9026
+
+struct elf32_phdr;
+struct elf32_header {
+	typedef elf32_phdr elf_phdr;
+	enum { ELFCLASS = ELFCLASS32 };
+
+	unsigned char	e_ident[EI_NIDENT];	/* Magic number and other info */
+	elf32_half	e_type;			/* Object file type */
+	elf32_half	e_machine;		/* Architecture */
+	elf32_word	e_version;		/* Object file version */
+	elf32_addr	e_entry;		/* Entry point virtual address */
+	elf32_off	e_phoff;		/* Program header table file offset */
+	elf32_off	e_shoff;		/* Section header table file offset */
+	elf32_word	e_flags;		/* Processor-specific flags */
+	elf32_half	e_ehsize;		/* ELF header size in bytes */
+	elf32_half	e_phentsize;		/* Program header table entry size */
+	elf32_half	e_phnum;		/* Program header table entry count */
+	elf32_half	e_shentsize;		/* Section header table entry size */
+	elf32_half	e_shnum;		/* Section header table entry count */
+	elf32_half	e_shstrndx;		/* Section header string table index */
+};
+
+struct elf64_phdr;
+struct elf64_header {
+	typedef elf64_phdr elf_phdr;
+	enum { ELFCLASS = ELFCLASS64 };
+
+	unsigned char	e_ident[EI_NIDENT];	/* Magic number and other info */
+	elf64_half	e_type;			/* Object file type */
+	elf64_half	e_machine;		/* Architecture */
+	elf64_word	e_version;		/* Object file version */
+	elf64_addr	e_entry;		/* Entry point virtual address */
+	elf64_off	e_phoff;		/* Program header table file offset */
+	elf64_off	e_shoff;		/* Section header table file offset */
+	elf64_word	e_flags;		/* Processor-specific flags */
+	elf64_half	e_ehsize;		/* ELF header size in bytes */
+	elf64_half	e_phentsize;		/* Program header table entry size */
+	elf64_half	e_phnum;		/* Program header table entry count */
+	elf64_half	e_shentsize;		/* Section header table entry size */
+	elf64_half	e_shnum;		/* Section header table entry count */
+	elf64_half	e_shstrndx;		/* Section header string table index */
+};
 
 #endif

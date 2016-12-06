@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCoreUNIX.h"
 #include "edb.h"
 
+#include <QProcess>
 #include <QStringList>
 #include <cerrno>
 #include <climits>
@@ -32,42 +33,53 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/wait.h>
 #include <unistd.h>
 
-#define EDB_WORDSIZE sizeof(long)
+#ifdef __linux__
+#include <linux/version.h>
+// being very conservative for now, technicall this could be 
+// as low as 2.6.22
+#if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,0)
+#define USE_SIGTIMEDWAIT
+#endif
+#endif
 
 namespace DebuggerCore {
 
+#if !defined(USE_SIGTIMEDWAIT)
 namespace {
 
 int selfpipe[2];
-void (*old_sigchld_handler)(int sig, siginfo_t *, void *);
+struct sigaction old_action;
 
 //------------------------------------------------------------------------------
 // Name: sigchld_handler
 // Desc:
 //------------------------------------------------------------------------------
 void sigchld_handler(int sig, siginfo_t *info, void *p) {
+
 	if(sig == SIGCHLD) {
 		native::write(selfpipe[1], " ", sizeof(char));
 	}
 
-	if(old_sigchld_handler) {
-		old_sigchld_handler(sig, info, p);
-	}
+    // load as volatile
+    volatile struct sigaction *vsa = &old_action;
+
+    if (old_action.sa_flags & SA_SIGINFO) {
+        void (*oldAction)(int, siginfo_t *, void *) = vsa->sa_sigaction;
+
+        if (oldAction) {
+            oldAction(sig, info, p);
+		}
+    } else {
+        void (*oldAction)(int) = vsa->sa_handler;
+
+        if (oldAction && oldAction != SIG_IGN) {
+            oldAction(sig);
+		}
+    }
 }
 
 }
-
-//------------------------------------------------------------------------------
-// Name: execvp
-// Desc: execvp, but handles being interrupted
-//------------------------------------------------------------------------------
-int native::execvp(const char *file, char *const argv[]) {
-	int ret;
-	do {
-		ret = ::execvp(file, argv);
-	} while(ret == -1 && errno == EINTR);
-	return ret;
-}
+#endif
 
 //------------------------------------------------------------------------------
 // Name: read
@@ -140,7 +152,7 @@ int native::select_ex(int nfds, fd_set *readfds, fd_set *writefds, fd_set *excep
 // Desc:
 //------------------------------------------------------------------------------
 bool native::wait_for_sigchld(int msecs) {
-
+#if !defined(USE_SIGTIMEDWAIT)
 	fd_set rfds;
     FD_ZERO(&rfds);
     FD_SET(selfpipe[0], &rfds);
@@ -155,24 +167,19 @@ bool native::wait_for_sigchld(int msecs) {
 	}
 
 	return false;
-}
+#else
+	sigset_t mask;
+	siginfo_t info;
+	struct timespec ts;
+    ts.tv_sec  = (msecs / 1000);
+    ts.tv_nsec = (msecs % 1000) * 1000000;
 
-//------------------------------------------------------------------------------
-// Name: waitpid_timeout
-// Desc:
-//------------------------------------------------------------------------------
-pid_t native::waitpid_timeout(pid_t pid, int *status, int options, int msecs, bool *timeout) {
 
-	Q_ASSERT(pid > 0);
-	Q_ASSERT(timeout);
-
-	*timeout = wait_for_sigchld(msecs);
-
-	if(!*timeout) {
-		return native::waitpid(pid, status, options | WNOHANG);
-	}
-
-	return -1;
+	sigemptyset(&mask);
+	sigaddset(&mask, SIGCHLD);
+	
+	return sigtimedwait(&mask, &info, &ts) == SIGCHLD;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -180,6 +187,16 @@ pid_t native::waitpid_timeout(pid_t pid, int *status, int options, int msecs, bo
 // Desc:
 //------------------------------------------------------------------------------
 DebuggerCoreUNIX::DebuggerCoreUNIX() {
+#if !defined(USE_SIGTIMEDWAIT)
+#if QT_VERSION >= 0x050000
+	// HACK(eteran): so, the first time we create a QProcess, it will hook SIGCHLD
+	//               unfortunately, in Qt5 it doesn't seem to call our handler
+	//               so we do this to force it to hook BEFORE we do, letting us
+	//               get the first crack at the signal, then we call the one that
+	//               Qt installed.
+	auto p = new QProcess(0);
+	p->start("/bin/true");
+#endif
 
 	// create a pipe and make it non-blocking
 	int r = ::pipe(selfpipe);
@@ -189,256 +206,32 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 	::fcntl(selfpipe[1], F_SETFL, ::fcntl(selfpipe[1], F_GETFL) | O_NONBLOCK);
 
 	// setup a signal handler
-	struct sigaction new_action;
-	struct sigaction old_action;
-
-	std::memset(&new_action, 0, sizeof(new_action));
-	std::memset(&old_action, 0, sizeof(old_action));
+	struct sigaction new_action = {};
+	
 
 	new_action.sa_sigaction = sigchld_handler;
 	new_action.sa_flags     = SA_RESTART | SA_SIGINFO;
+	sigemptyset(&new_action.sa_mask);
 
 	sigaction(SIGCHLD, &new_action, &old_action);
-
-	old_sigchld_handler = old_action.sa_sigaction;
-}
-
-
-//------------------------------------------------------------------------------
-// Name: write_byte
-// Desc: writes a single byte at a given address
-// Note: assumes the this will not trample any breakpoints, must be handled
-//       in calling code!
-//------------------------------------------------------------------------------
-void DebuggerCoreUNIX::write_byte(edb::address_t address, quint8 value, bool *ok) {
-	write_byte_base(address, value, ok);
-}
-
-//------------------------------------------------------------------------------
-// Name: read_byte
-// Desc: reads a single bytes at a given address
-//------------------------------------------------------------------------------
-quint8 DebuggerCoreUNIX::read_byte(edb::address_t address, bool *ok) {
-
-	// TODO: handle if breakponts have a size more than 1!
-	const quint8 ret = read_byte_base(address, ok);
-
-	if(ok) {
-		if(const IBreakpoint::pointer bp = find_breakpoint(address)) {
-			return bp->original_bytes()[0];
-		}
-	}
-
-	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name: write_byte_base
-// Desc: the base implementation of writing a byte
-//------------------------------------------------------------------------------
-void DebuggerCoreUNIX::write_byte_base(edb::address_t address, quint8 value, bool *ok) {
-	// TODO: assert that we are paused
-
-	Q_ASSERT(ok);
-
-	*ok = false;
-	if(attached()) {
-		long v;
-		long mask;
-		// page_size() - 1 will always be 0xf* because pagesizes
-		// are always 0x10*, so the masking works
-		// range of a is [1..n] where n=pagesize, and we have to adjust
-		// if a < wordsize
-		const edb::address_t a = page_size() - (address & (page_size() - 1));
-
-		v = value;
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-		if(a < EDB_WORDSIZE) {
-			address -= (EDB_WORDSIZE - a);                       // LE + BE
-			mask = ~(0xffUL << (CHAR_BIT * (EDB_WORDSIZE - a))); // LE
-			v <<= CHAR_BIT * (EDB_WORDSIZE - a);                 // LE
-		} else {
-			mask = ~0xffUL; // LE
-		}
-#else /* BIG ENDIAN */
-		if(a < EDB_WORDSIZE) {
-			address -= (EDB_WORDSIZE - a);            // LE + BE
-			mask = ~(0xffUL << (CHAR_BIT * (a - 1))); // BE
-			v <<= CHAR_BIT * (a - 1);                 // BE
-		} else {
-			mask = ~(0xffUL << (CHAR_BIT * (EDB_WORDSIZE - 1))); // BE
-			v <<= CHAR_BIT * (EDB_WORDSIZE - 1);                 // BE
-		}
-#endif
-
-		v |= (read_data(address, ok) & mask);
-		if(*ok) {
-			*ok = write_data(address, v);
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: read_byte_base
-// Desc: the base implementation of reading a byte
-//------------------------------------------------------------------------------
-quint8 DebuggerCoreUNIX::read_byte_base(edb::address_t address, bool *ok) {
-	// TODO: assert that we are paused
-
-	Q_ASSERT(ok);
-
-	*ok = false;
-	errno = -1;
-	if(attached()) {
-		// if this spot is unreadable, then just return 0xff, otherwise
-		// continue as normal.
-
-		// page_size() - 1 will always be 0xf* because pagesizes
-		// are always 0x10*, so the masking works
-		// range of a is [1..n] where n=pagesize, and we have to adjust
-		// if a < wordsize
-		const edb::address_t a = page_size() - (address & (page_size() - 1));
-
-		if(a < EDB_WORDSIZE) {
-			address -= (EDB_WORDSIZE - a); // LE + BE
-		}
-
-		long value = read_data(address, ok);
-
-		if(*ok) {
-#if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
-			if(a < EDB_WORDSIZE) {
-				value >>= CHAR_BIT * (EDB_WORDSIZE - a); // LE
-			}
 #else
-			if(a < EDB_WORDSIZE) {
-				value >>= CHAR_BIT * (a - 1);            // BE
-			} else {
-				value >>= CHAR_BIT * (EDB_WORDSIZE - 1); // BE
-			}
+	// TODO(eteran): the man pages mention blocking the signal was want to catch
+	//               but I'm not if it is necessary for this use case...
 #endif
-			return value & 0xff;
-		}
-	}
-
-	return 0xff;
-}
-
-//------------------------------------------------------------------------------
-// Name: read_pages
-// Desc: reads <count> pages from the process starting at <address>
-// Note: buf's size must be >= count * page_size()
-// Note: address should be page aligned.
-//------------------------------------------------------------------------------
-bool DebuggerCoreUNIX::read_pages(edb::address_t address, void *buf, std::size_t count) {
-
-	Q_ASSERT(buf);
-
-	if(!attached()) {
-		return false;
-	}
-
-	if((address & (page_size() - 1)) == 0) {
-		const edb::address_t orig_address = address;
-		long *ptr                         = reinterpret_cast<long *>(buf);
-		quint8 *const orig_ptr            = reinterpret_cast<quint8 *>(buf);
-
-		const edb::address_t end_address  = orig_address + page_size() * count;
-
-		for(std::size_t c = 0; c < count; ++c) {
-			for(edb::address_t i = 0; i < page_size(); i += EDB_WORDSIZE) {
-				bool ok;
-				const long v = read_data(address, &ok);
-				if(!ok) {
-					return false;
-				}
-
-				*ptr++ = v;
-				address += EDB_WORDSIZE;
-			}
-		}
-
-		// TODO: handle if breakponts have a size more than 1!
-		Q_FOREACH(const IBreakpoint::pointer &bp, breakpoints_) {
-			if(bp->address() >= orig_address && bp->address() < end_address) {
-				// show the original bytes in the buffer..
-				orig_ptr[bp->address() - orig_address] = bp->original_bytes()[0];
-			}
-		}
-	}
-
-	return true;
-}
-
-//------------------------------------------------------------------------------
-// Name: read_bytes
-// Desc: reads <len> bytes into <buf> starting at <address>
-// Note: if the read failed, the part of the buffer that could not be read will
-//       be filled with 0xff bytes
-//------------------------------------------------------------------------------
-bool DebuggerCoreUNIX::read_bytes(edb::address_t address, void *buf, std::size_t len) {
-
-	Q_ASSERT(buf);
-
-	if(!attached()) {
-		return false;
-	}
-
-	if(len != 0) {
-		bool ok;
-		quint8 *p = reinterpret_cast<quint8 *>(buf);
-		quint8 ch = read_byte(address, &ok);
-
-		while(ok && len) {
-			*p++ = ch;
-			if(--len) {
-				++address;
-				ch = read_byte(address, &ok);
-			}
-		}
-
-		if(!ok) {
-			while(len--) {
-				*p++ = 0xff;
-			}
-		}
-	}
-
-	return true;
-}
-
-//------------------------------------------------------------------------------
-// Name: write_bytes
-// Desc: writes <len> bytes from <buf> starting at <address>
-//------------------------------------------------------------------------------
-bool DebuggerCoreUNIX::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
-
-	Q_ASSERT(buf);
-
-	bool ok = false;
-	if(attached()) {
-		const quint8 *p = reinterpret_cast<const quint8 *>(buf);
-
-		while(len--) {
-			write_byte(address++, *p++, &ok);
-			if(!ok) {
-				break;
-			}
-		}
-	}
-	return ok;
 }
 
 //------------------------------------------------------------------------------
 // Name: execute_process
-// Desc:
+// Desc: tries to execute the process, returns error string on error
 //------------------------------------------------------------------------------
-void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
+QString DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
+
+	QString errorString="internal error";
 	// change to the desired working directory
 	if(::chdir(qPrintable(cwd)) == 0) {
 
 		// allocate space for all the arguments
-		char **const argv_pointers = new char *[args.count() + 2];
+		auto argv_pointers = new char *[args.count() + 2];
 
 		char **p = argv_pointers;
 
@@ -455,12 +248,16 @@ void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, 
 
 		*p = 0;
 
-		const int ret = native::execvp(argv_pointers[0], argv_pointers);
+		// NOTE: it's a bad idea to use execvp and similar functions searching in
+		// $PATH. At least on Linux, if the file is corrupted/unsupported, they
+		// instead appear to launch shell
+		const int ret = execv(argv_pointers[0], argv_pointers);
 
 		// should be no need to cleanup, the process which allocated all that
 		// space no longer exists!
-		// if we get here...execvp failed!
+		// if we get here...execv failed!
 		if(ret == -1) {
+			errorString=QObject::tr("execv() failed: %1").arg(strerror(errno));
 			p = argv_pointers;
 			while(*p) {
 				delete [] *p++;
@@ -468,14 +265,7 @@ void DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, 
 			delete [] argv_pointers;
 		}
 	}
-}
-
-//------------------------------------------------------------------------------
-// Name: pointer_size
-// Desc: returns the size of a pointer on this arch
-//------------------------------------------------------------------------------
-int DebuggerCoreUNIX::pointer_size() const {
-	return sizeof(void *);
+	return errorString;
 }
 
 //------------------------------------------------------------------------------
@@ -484,6 +274,7 @@ int DebuggerCoreUNIX::pointer_size() const {
 //------------------------------------------------------------------------------
 QMap<long, QString> DebuggerCoreUNIX::exceptions() const {
 	QMap<long, QString> exceptions;
+
 
 	#ifdef SIGABRT
 		exceptions[SIGABRT] = "SIGABRT";
@@ -575,7 +366,15 @@ QMap<long, QString> DebuggerCoreUNIX::exceptions() const {
 	#ifdef SIGRTMAX
 		exceptions[SIGRTMAX] = "SIGRTMAX";
 	#endif
-
+	#ifdef SIGIO
+		exceptions[SIGIO] = "SIGIO";
+	#endif
+	#ifdef SIGSTKFLT
+		exceptions[SIGSTKFLT] = "SIGSTKFLT";
+	#endif
+	#ifdef SIGWINCH
+		exceptions[SIGWINCH] = "SIGWINCH";
+	#endif
 	return exceptions;
 }
 

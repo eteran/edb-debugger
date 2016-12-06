@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -52,6 +52,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCore {
 
 namespace {
+
+void SET_OK(bool &ok, long value) {
+	ok = (value != -1) || (errno == 0);
+}
+
 int resume_code(int status) {
 	if(WIFSIGNALED(status)) {
 		return WTERMSIG(status);
@@ -205,7 +210,7 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 			if(tid > 0) {
 
 				// normal event
-				PlatformEvent *const e = new PlatformEvent;
+				auto e = std::make_shared<PlatformEvent>();
 
 				e->pid    = pid();
 				e->tid    = tid;
@@ -234,11 +239,11 @@ IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
 
 				active_thread_       = tid;
 				threads_[tid].status = status;
-				return IDebugEvent::const_pointer(e);
+				return e;
 			}
 		}
 	}
-	return IDebugEvent::const_pointer();
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -319,7 +324,7 @@ void DebuggerCore::kill() {
 //------------------------------------------------------------------------------
 void DebuggerCore::pause() {
 	if(attached()) {
-		for(threadmap_t::const_iterator it = threads_.begin(); it != threads_.end(); ++it) {
+		for(auto it = threads_.begin(); it != threads_.end(); ++it) {
 			::kill(it.key(), SIGSTOP);
 		}
 	}
@@ -366,7 +371,7 @@ void DebuggerCore::get_state(State *state) {
 	Q_ASSERT(state);
 
 	// TODO: assert that we are paused
-	PlatformState *const state_impl = static_cast<PlatformState *>(state->impl_);
+	auto state_impl = static_cast<PlatformState *>(state->impl_);
 
 	if(attached()) {
 		if(ptrace(PT_GETREGS, active_thread(), reinterpret_cast<char*>(&state_impl->regs_), 0) != -1) {
@@ -392,7 +397,7 @@ void DebuggerCore::get_state(State *state) {
 void DebuggerCore::set_state(const State &state) {
 
 	// TODO: assert that we are paused
-	PlatformState *const state_impl = static_cast<PlatformState *>(state.impl_);
+	auto state_impl = static_cast<PlatformState *>(state.impl_);
 
 	if(attached()) {
 		ptrace(PT_SETREGS, active_thread(), reinterpret_cast<char*>(&state_impl->regs_), 0);
@@ -487,8 +492,8 @@ IState *DebuggerCore::create_state() const {
 // Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
-	QMap<edb::pid_t, Process> ret;
+QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, ProcessInfo> ret;
 
 	char ebuffer[_POSIX2_LINE_MAX];
 	int numprocs;
@@ -496,7 +501,7 @@ QMap<edb::pid_t, Process> DebuggerCore::enumerate_processes() const {
 	if(kvm_t *const kaccess = kvm_openfiles(NULL, NULL, NULL, O_RDONLY, ebuffer)) {
 		if(struct kinfo_proc *const kprocaccess = kvm_getprocs(kaccess, KERN_PROC_ALL, 0, sizeof *kprocaccess, &numprocs)) {
 			for(int i = 0; i < numprocs; ++i) {
-				Process procInfo;
+				ProcessInfo procInfo;
 				procInfo.pid  = kprocaccess[i].p_pid;
 				procInfo.uid  = kprocaccess[i].p_uid;
 				procInfo.name = kprocaccess[i].p_comm;
@@ -597,7 +602,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 					((e->protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
 					((e->protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
 
-				regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
+				regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
 			}
 
 do_unload:
@@ -617,7 +622,7 @@ do_unload:
 						((e.protection & VM_PROT_WRITE)   ? PROT_WRITE : 0) |
 						((e.protection & VM_PROT_EXECUTE) ? PROT_EXEC  : 0);
 
-					regions.push_back(IRegion::pointer(new PlatformRegion(start, end, base, name, permissions)));
+					regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
 					kvm_read(kd, (u_long)e.next, &e, sizeof(e));
 				}
 			}
@@ -705,14 +710,6 @@ quint64 DebuggerCore::cpu_type() const {
 #elif defined(EDB_X86_64)
 	return edb::string_hash<'x', '8', '6', '-', '6', '4'>::value;
 #endif
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QWidget *DebuggerCore::create_register_view() const {
-	return 0;
 }
 
 //------------------------------------------------------------------------------

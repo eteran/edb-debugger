@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 #include "Types.h"
+#include "Register.h"
 
 namespace Ui { class DialogInputValue; }
 
@@ -38,10 +39,12 @@ public Q_SLOTS:
 
 public:
 	edb::reg_t value() const;
-	void set_value(edb::reg_t value);
+	void set_value(Register &reg);
 
 private:
 	Ui::DialogInputValue *const ui;
+	edb::reg_t mask;
+	std::size_t valueLength;
 };
 
 #endif

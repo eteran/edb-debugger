@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -182,7 +182,7 @@ void ResultViewModel::sort(int column, Qt::SortOrder order) {
 		}
 	}
 
-	emit dataChanged(createIndex(0, 0, static_cast<void *>(0)), createIndex(-1, -1, static_cast<void *>(0)));
+	Q_EMIT dataChanged(createIndex(0, 0, static_cast<void *>(0)), createIndex(-1, -1, static_cast<void *>(0)));
 }
 
 //------------------------------------------------------------------------------

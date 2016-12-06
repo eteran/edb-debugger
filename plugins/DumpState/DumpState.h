@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -55,7 +55,7 @@ private:
 	void dump_stack(const State &state);
 	void dump_data(edb::address_t address);
 	void dump_lines(edb::address_t address, int lines);
-
+	
 private:
 	QMenu * menu_;
 };

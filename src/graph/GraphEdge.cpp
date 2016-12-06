@@ -1,9 +1,6 @@
 /*
-Copyright (C) 2009 - 2014 Evan Teran
-                          eteran@alum.rit.edu
-
-Copyright (C) 2009        Arvin Schnell
-                          aschnell@suse.de
+Copyright (C) 2015 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,66 +18,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "GraphEdge.h"
 #include "GraphWidget.h"
+#include "GraphNode.h"
+
+#include <QtDebug>
+#include <QGraphicsPolygonItem>
 #include <QPainter>
 
+namespace {
+
+const int LineThickness  = 2;
+const int EdgeZValue     = 1;
+
 //------------------------------------------------------------------------------
-// Name: GraphEdge
+// Name: createArrow
 // Desc:
 //------------------------------------------------------------------------------
-GraphEdge::GraphEdge(const GraphWidget *graph, const bezier &bz, const QColor &color) : QGraphicsPathItem(make_bezier(bz, graph)) {
-	QPainter painter(&picture_);
+QPolygonF createArrow(QLineF line, int size) {
+	// we want a short line at the END of this line
+	line = QLineF(line.p2(), line.p1());
+	line.setLength(size);
+	line = QLineF(line.p2(), line.p1());
 
-	if(bz.sflag) {
-		draw_arrow(QLineF(graph->gToQ(bz.list[0]), graph->gToQ(bz.sp)), color, &painter);
-	}
-
-	if(bz.eflag) {
-		draw_arrow(QLineF(graph->gToQ(bz.list[bz.size-1]), graph->gToQ(bz.ep)), color, &painter);
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: boundingRect
-// Desc:
-//------------------------------------------------------------------------------
-QRectF GraphEdge::boundingRect() const {
-	return QGraphicsPathItem::boundingRect().united(picture_.boundingRect());
-}
-
-//------------------------------------------------------------------------------
-// Name: paint
-// Desc:
-//------------------------------------------------------------------------------
-void GraphEdge::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
-	painter->save();
-	QGraphicsPathItem::paint(painter, option, widget);
-	painter->restore();
-	picture_.play(painter);
-}
-
-//------------------------------------------------------------------------------
-// Name: make_bezier
-// Desc:
-//------------------------------------------------------------------------------
-QPainterPath GraphEdge::make_bezier(const bezier &bezier, const GraphWidget *graph) const {
-	QPainterPath path;
-	path.moveTo(graph->gToQ(bezier.list[0]));
-	
-	for(int i = 1; i < bezier.size - 1; i += 3) {
-		path.cubicTo(
-			graph->gToQ(bezier.list[i+0]),
-			graph->gToQ(bezier.list[i+1]),
-			graph->gToQ(bezier.list[i+2]));
-	}
-
-	return path;
-}
-
-//------------------------------------------------------------------------------
-// Name: draw_arrow
-// Desc:
-//------------------------------------------------------------------------------
-void GraphEdge::draw_arrow(const QLineF &line, const QColor &color, QPainter *painter) const {
 	QLineF n(line.normalVector());
 	QPointF o(n.dx() / 3.0, n.dy() / 3.0);
 
@@ -88,13 +46,190 @@ void GraphEdge::draw_arrow(const QLineF &line, const QColor &color, QPainter *pa
 	polygon.append(line.p1() + o);
 	polygon.append(line.p2());
 	polygon.append(line.p1() - o);
+	return polygon;
+}
 
-	QPen pen(color);
-	pen.setWidthF(1.0);
-	painter->setPen(pen);
+}
 
-	QBrush brush(color);
-	painter->setBrush(brush);
+//------------------------------------------------------------------------------
+// Name: GraphEdge
+// Desc:
+//------------------------------------------------------------------------------
+GraphEdge::GraphEdge(GraphNode *from, GraphNode *to, const QColor &color, QGraphicsItem *parent) : QGraphicsItemGroup(parent), from_(from), to_(to), graph_(from->graph_), color_(color) {
 
-	painter->drawPolygon(polygon);
+	setFlag(QGraphicsItem::ItemHasNoContents, true);
+
+	Q_ASSERT(from->graph_ == to->graph_);
+
+	// we don't want this object to interfere with the line's events
+	setAcceptHoverEvents(false);
+
+
+	from_->addEdge(this);
+	to_->addEdge(this);
+
+	graph_->scene()->addItem(this);
+	
+	edge_ = agedge(graph_->graph_, from->node_, to->node_, nullptr, true);
+}
+
+//------------------------------------------------------------------------------
+// Name: ~GraphEdge
+// Desc:
+//------------------------------------------------------------------------------
+GraphEdge::~GraphEdge() {
+
+	from_->removeEdge(this);
+	to_->removeEdge(this);
+
+	clear();
+}
+
+//------------------------------------------------------------------------------
+// Name: from
+// Desc:
+//------------------------------------------------------------------------------
+GraphNode *GraphEdge::from() const {
+	return from_;
+}
+
+//------------------------------------------------------------------------------
+// Name: to
+// Desc:
+//------------------------------------------------------------------------------
+GraphNode *GraphEdge::to() const {
+	return to_;
+}
+
+//------------------------------------------------------------------------------
+// Name: GraphEdge
+// Desc:
+//------------------------------------------------------------------------------
+void GraphEdge::clear() {
+	const QList<QGraphicsItem *> items = childItems();
+	qDeleteAll(items);
+}
+
+//------------------------------------------------------------------------------
+// Name: shortenLineToNode
+// Desc:
+//------------------------------------------------------------------------------
+QLineF GraphEdge::shortenLineToNode(QLineF line) {
+	QRectF nodeRect = to_->sceneBoundingRect();
+
+	// get the 4 lines tha tmake up the rect
+	const QLineF polyLines[4] = {
+		QLineF(nodeRect.topLeft(),     nodeRect.bottomLeft()),
+		QLineF(nodeRect.topLeft(),     nodeRect.topRight()),
+		QLineF(nodeRect.topRight(),    nodeRect.bottomRight()),
+		QLineF(nodeRect.bottomRight(), nodeRect.bottomLeft())
+	};
+
+	// for any that intersect, shorten the line appropriately
+	for(int i = 0; i < 4; ++i) {
+		QPointF intersectPoint;
+		QLineF::IntersectType intersectType = polyLines[i].intersect(line, &intersectPoint);
+		if (intersectType == QLineF::BoundedIntersection) {
+			line.setP2(intersectPoint);
+		}
+	}
+
+	return line;
+}
+
+//------------------------------------------------------------------------------
+// Name: createLineSegment
+// Desc:
+//------------------------------------------------------------------------------
+QGraphicsLineItem *GraphEdge::createLineSegment(const QLineF &line, const QPen &pen) {
+	auto l = new QGraphicsLineItem(line, this);
+	l->setPen(pen);
+	l->setAcceptHoverEvents(true);
+	l->setZValue(EdgeZValue);
+	return l;
+}
+
+//------------------------------------------------------------------------------
+// Name: createLineSegment
+// Desc:
+//------------------------------------------------------------------------------
+QGraphicsLineItem *GraphEdge::createLineSegment(const QPointF &p1, const QPointF &p2, const QPen &pen) {
+	return createLineSegment(QLineF(p1, p2), pen);
+}
+
+//------------------------------------------------------------------------------
+// Name: createLine
+// Desc:
+//------------------------------------------------------------------------------
+void GraphEdge::createLine() {
+	clear();
+
+	const QPointF p1 = from_->sceneBoundingRect().center();
+	const QPointF p2 = to_->sceneBoundingRect().center();
+	const QPen pen(lineColor(), lineThickness(), Qt::SolidLine, Qt::RoundCap);
+	const QLineF line = shortenLineToNode(QLineF(p1, p2));
+	auto segment = createLineSegment(line, pen);
+	addToGroup(segment);
+	addArrowHead(line);
+}
+
+//------------------------------------------------------------------------------
+// Name: syncState
+// Desc:
+//------------------------------------------------------------------------------
+void GraphEdge::syncState() {
+	createLine();
+}
+
+//------------------------------------------------------------------------------
+// Name: addArrowHead
+// Desc:
+//------------------------------------------------------------------------------
+QGraphicsPolygonItem *GraphEdge::addArrowHead(const QLineF &line, int lineThickness, const QColor &color, int ZValue) {
+
+	const int arrowHeadSize = qMax(lineThickness * 5, 20);
+
+	QPolygonF arrow = createArrow(line, arrowHeadSize);
+	auto arrowHead = new QGraphicsPolygonItem(this);
+	arrowHead->setPolygon(arrow);
+	arrowHead->setPen(QPen(color));
+	arrowHead->setBrush(QBrush(color));
+	arrowHead->setZValue(ZValue);
+	addToGroup(arrowHead);
+	return arrowHead;
+}
+
+//------------------------------------------------------------------------------
+// Name: addArrowHead
+// Desc:
+//------------------------------------------------------------------------------
+QGraphicsPolygonItem *GraphEdge::addArrowHead(const QLineF &line) {
+	return addArrowHead(line, lineThickness(), lineColor(), EdgeZValue);
+}
+
+//------------------------------------------------------------------------------
+// Name: updateLines
+// Desc: replaces all of the lines with a single straight line
+//------------------------------------------------------------------------------
+void GraphEdge::updateLines() {
+
+	if(!childItems().empty()) {
+		createLine();
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: lineThickness
+// Desc:
+//------------------------------------------------------------------------------
+int GraphEdge::lineThickness() const {
+	return LineThickness;
+}
+
+//------------------------------------------------------------------------------
+// Name: lineColor
+// Desc:
+//------------------------------------------------------------------------------
+QColor GraphEdge::lineColor() const {
+	return color_;
 }

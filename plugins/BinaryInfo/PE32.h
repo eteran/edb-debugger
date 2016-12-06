@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -24,6 +24,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BinaryInfo {
 
+class PEBinaryException : public std::exception {
+	public:
+	enum reasonEnum {
+		INVALID_ARGUMENTS = 1,
+		READ_FAILURE = 2,
+		INVALID_PE = 3,
+		INVALID_ARCHITECTURE = 4
+	};
+		PEBinaryException(reasonEnum reason);
+
+		virtual const char * what();
+
+	private:
+		reasonEnum reason_;
+};
+
 class PE32 : public IBinary {
 public:
 	PE32(const IRegion::pointer &region);
@@ -31,15 +47,16 @@ public:
 
 public:
 	virtual bool native() const;
-	virtual bool validate_header();
 	virtual edb::address_t calculate_main();
 	virtual edb::address_t debug_pointer();
 	virtual edb::address_t entry_point();
 	virtual size_t header_size() const;
 	virtual const void *header() const;
-	
+
 private:
 	IRegion::pointer region_;
+	IMAGE_DOS_HEADER dos_;
+	IMAGE_NT_HEADERS32 pe_;
 };
 
 }

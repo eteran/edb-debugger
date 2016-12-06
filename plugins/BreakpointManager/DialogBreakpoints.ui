@@ -15,6 +15,16 @@
    <string>Breakpoint Manager</string>
   </property>
   <layout class="QGridLayout">
+   <item row="4" column="1">
+    <widget class="QPushButton" name="btnImport">
+     <property name="text">
+      <string>&amp;Import Breakpoints</string>
+     </property>
+     <property name="icon">
+      <iconset theme="document-import"/>
+     </property>
+    </widget>
+   </item>
    <item row="2" column="1">
     <widget class="QPushButton" name="btnCondition">
      <property name="text">
@@ -22,7 +32,7 @@
      </property>
     </widget>
    </item>
-   <item row="3" column="1">
+   <item row="6" column="1">
     <spacer>
      <property name="orientation">
       <enum>Qt::Vertical</enum>
@@ -35,10 +45,13 @@
      </property>
     </spacer>
    </item>
-   <item row="4" column="1">
+   <item row="7" column="1">
     <widget class="QPushButton" name="okButton">
      <property name="text">
       <string>&amp;Close</string>
+     </property>
+     <property name="icon">
+      <iconset theme="dialog-close"/>
      </property>
      <property name="default">
       <bool>true</bool>
@@ -50,6 +63,9 @@
      <property name="text">
       <string>&amp;Remove Breakpoint</string>
      </property>
+     <property name="icon">
+      <iconset theme="list-remove"/>
+     </property>
     </widget>
    </item>
    <item row="0" column="1">
@@ -57,9 +73,12 @@
      <property name="text">
       <string>&amp;Add Breakpoint</string>
      </property>
+     <property name="icon">
+      <iconset theme="list-add"/>
+     </property>
     </widget>
    </item>
-   <item row="0" column="0" rowspan="5">
+   <item row="0" column="0" rowspan="8">
     <widget class="QTableWidget" name="tableWidget">
      <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
@@ -106,6 +125,29 @@
      </column>
     </widget>
    </item>
+   <item row="3" column="1">
+    <spacer name="verticalSpacer">
+     <property name="orientation">
+      <enum>Qt::Vertical</enum>
+     </property>
+     <property name="sizeHint" stdset="0">
+      <size>
+       <width>20</width>
+       <height>40</height>
+      </size>
+     </property>
+    </spacer>
+   </item>
+   <item row="5" column="1">
+    <widget class="QPushButton" name="btnExport">
+     <property name="text">
+      <string>&amp;Export Breakpoints</string>
+     </property>
+     <property name="icon">
+      <iconset theme="document-export"/>
+     </property>
+    </widget>
+   </item>
   </layout>
  </widget>
  <tabstops>
@@ -124,8 +166,8 @@
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>798</x>
-     <y>259</y>
+     <x>793</x>
+     <y>254</y>
     </hint>
     <hint type="destinationlabel">
      <x>516</x>
@@ -134,4 +176,8 @@
    </hints>
   </connection>
  </connections>
+ <slots>
+  <slot>on_btnImport_clicked()</slot>
+  <slot>on_btnExport_clicked()</slot>
+ </slots>
 </ui>

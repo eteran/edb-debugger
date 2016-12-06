@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -21,20 +21,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DebuggerCoreBase.h"
 #include <QList>
-
-#define SET_OK(ok, v) do { (ok) = ((v) != -1) || (errno == 0); } while(0)
+#include <cerrno>
 
 namespace DebuggerCore {
 
 namespace native {
-	int execvp(const char *file, char *const argv[]);
-	int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
-	int select_ex(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, quint64 msecs);
-	pid_t waitpid(pid_t pid, int *status, int options);
-	pid_t waitpid_timeout(pid_t pid, int *status, int options, int msecs, bool *timeout);
-	ssize_t read(int fd, void *buf, size_t count);
-	ssize_t write(int fd, const void *buf, size_t count);
-	bool wait_for_sigchld(int msecs);
+
+int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
+int select_ex(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, quint64 msecs);
+pid_t waitpid(pid_t pid, int *status, int options);
+ssize_t read(int fd, void *buf, size_t count);
+ssize_t write(int fd, const void *buf, size_t count);
+bool wait_for_sigchld(int msecs);
+
 }
 
 class DebuggerCoreUNIX : public DebuggerCoreBase {
@@ -43,22 +42,10 @@ public:
 	virtual ~DebuggerCoreUNIX() {}
 
 protected:
-	quint8 read_byte(edb::address_t address, bool *ok);      // TODO: remind me why these aren't const...
-	quint8 read_byte_base(edb::address_t address, bool *ok); // TODO: remind me why these aren't const...
-	void execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args);
-	void write_byte(edb::address_t address, quint8 value, bool *ok);      // TODO: remind me why these aren't const...
-	void write_byte_base(edb::address_t address, quint8 value, bool *ok); // TODO: remind me why these aren't const...
+	QString execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args);
 
 public:
-	virtual bool read_pages(edb::address_t address, void *buf, std::size_t count);      // TODO: remind me why these aren't const...
-	virtual bool read_bytes(edb::address_t address, void *buf, std::size_t len);        // TODO: remind me why these aren't const...
-	virtual bool write_bytes(edb::address_t address, const void *buf, std::size_t len); // TODO: remind me why these aren't const...
-	virtual int pointer_size() const;
 	virtual QMap<long, QString> exceptions() const;
-
-protected:
-	virtual long read_data(edb::address_t address, bool *ok) = 0;
-	virtual bool write_data(edb::address_t address, long value) = 0;
 };
 
 }

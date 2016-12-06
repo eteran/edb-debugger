@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -34,7 +34,7 @@ public:
 public:
 	virtual qint64 readData(char * data, qint64 maxSize);
 	virtual qint64 writeData(const char*, qint64);
-	virtual qint64 size() const       { return region_ ? region_->size() : 0; }
+	virtual qint64 size() const       { return region_ ? region_->size().toUint() : 0; }
 	virtual bool isSequential() const { return false; }
 
 private:

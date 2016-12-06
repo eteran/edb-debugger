@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="utf-8"?>
+<assemblers>
+	<assembler name="yasm">
+		<executable command_line="/usr/bin/yasm -f bin %IN% -o %OUT%" extension="asm" />
+		<template>
+		<![CDATA[
+		[BITS %BITS%]
+		[SECTION .text vstart=%ADDRESS% valign=1]
+	
+		%INSTRUCTION%
+		]]>
+		</template>
+		<operand_sizes
+			byte="byte"
+			word="word"
+			dword="dword"
+			qword="qword"
+			tbyte="tword"
+			xmmword="oword"
+			ymmword="yword"
+			zmmword="zword"
+		/>
+	</assembler>
+	<assembler name="nasm">
+		<executable command_line="/usr/bin/nasm -f bin %IN% -o %OUT%" extension="asm" />
+		<template>
+		<![CDATA[
+		[BITS %BITS%]
+		ORG %ADDRESS%
+	
+		%INSTRUCTION%
+		]]>
+		</template>
+		<operand_sizes
+			byte="byte"
+			word="word"
+			dword="dword"
+			qword="qword"
+			tbyte="tword"
+			xmmword="oword"
+			ymmword="yword"
+			zmmword="zword"
+		/>
+	</assembler>
+	<assembler name="fasm">
+		<executable command_line="fasm %IN% %OUT%" extension="asm" />
+		<template>
+		<![CDATA[
+		use%BITS%
+		ORG %ADDRESS%
+
+		%INSTRUCTION%
+		]]>
+		</template>
+		<operand_sizes
+			byte="byte"
+			word="word"
+			dword="dword"
+			qword="qword"
+			tbyte="tbyte"
+			xmmword="xword"
+			ymmword="yword"
+			zmmword="zword"
+		/>
+	</assembler>
+	<assembler name="gas (Intel syntax)">
+		<executable command_line="sh -c &quot;
+		[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64;
+		asmOut=`mktemp %OUT%.o.XXXXXXXX`;
+		linkerScript=`mktemp %OUT%.ld.XXXXXXXX`;
+		if [ -z $asmOut ] || [ -z $linkerScript ]; then exit 1; fi;
+		echo 'SECTIONS { . = %ADDRESS%; .text . : SUBALIGN(0) { *(.text) } }' &gt; $linkerScript &amp;&amp;
+		 as --%BITS% -o $asmOut %IN% &amp;&amp;
+		 ld -m $FORMAT -T $linkerScript --oformat binary -o %OUT% $asmOut;
+		RESULT=$?;
+		rm -f $asmOut $linkerScript;
+		exit $RESULT
+		&quot;"
+					extension="s" />
+		<template>
+		<![CDATA[
+		.section .text
+		.globl _start
+		.intel_syntax noprefix
+		_start:
+		%INSTRUCTION%
+		]]>
+		</template>
+		<operand_sizes
+			byte="byte ptr"
+			word="word ptr"
+			dword="dword ptr"
+			qword="qword ptr"
+			tbyte="tbyte ptr"
+			xmmword="xmmword ptr"
+			ymmword="ymmword ptr"
+			zmmword="zmmword ptr"
+		/>
+	</assembler>
+	<assembler name="gas (AT&amp;T syntax)">
+		<!-- command lines are identical for Intel and AT&T syntax, only source is different -->
+		<executable command_line="sh -c &quot;
+		[ %BITS% = 32 ] &amp;&amp; FORMAT=elf_i386 || FORMAT=elf_x86_64;
+		asmOut=`mktemp %OUT%.o.XXXXXXXX`;
+		linkerScript=`mktemp %OUT%.ld.XXXXXXXX`;
+		if [ -z $asmOut ] || [ -z $linkerScript ]; then exit 1; fi;
+		echo 'SECTIONS { . = %ADDRESS%; .text . : SUBALIGN(0) { *(.text) } }' &gt; $linkerScript &amp;&amp;
+		 as --%BITS% -o $asmOut %IN% &amp;&amp;
+		 ld -m $FORMAT -T $linkerScript --oformat binary -o %OUT% $asmOut;
+		RESULT=$?;
+		rm -f $asmOut $linkerScript;
+		exit $RESULT
+		&quot;"
+					extension="s" />
+		<template>
+		<![CDATA[
+		.section .text
+		.globl _start
+		_start:
+		%INSTRUCTION%
+		]]>
+		</template>
+	</assembler>
+</assemblers>

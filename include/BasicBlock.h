@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -23,14 +23,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 
 #include <QVector>
-#include <QSharedPointer>
+#include <memory>
 #include <iterator>
 
-typedef QSharedPointer<edb::Instruction> instruction_pointer;
+class QString;
+
+typedef std::shared_ptr<edb::Instruction> instruction_pointer;
 
 class EDB_EXPORT BasicBlock {
 public:
-	typedef QSharedPointer<BasicBlock>                   pointer;
+	typedef std::shared_ptr<BasicBlock>                   pointer;
 
 public:
 	typedef size_t                                       size_type;
@@ -76,6 +78,9 @@ public:
 
 public:
 	void swap(BasicBlock &other);
+	
+public:
+	QString toString() const;
 	
 public:
 	size_type byte_size() const;

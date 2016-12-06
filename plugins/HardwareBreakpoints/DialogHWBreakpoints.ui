@@ -91,6 +91,11 @@
        <string>4 Bytes</string>
       </property>
      </item>
+     <item>
+      <property name="text">
+       <string>8 Bytes</string>
+      </property>
+     </item>	 
     </widget>
    </item>
    <item row="1" column="4">
@@ -155,6 +160,11 @@
        <string>4 Bytes</string>
       </property>
      </item>
+     <item>
+      <property name="text">
+       <string>8 Bytes</string>
+      </property>
+     </item>	 
     </widget>
    </item>
    <item row="2" column="4">
@@ -219,6 +229,11 @@
        <string>4 Bytes</string>
       </property>
      </item>
+     <item>
+      <property name="text">
+       <string>8 Bytes</string>
+      </property>
+     </item>	 
     </widget>
    </item>
    <item row="3" column="4">
@@ -283,6 +298,11 @@
        <string>4 Bytes</string>
       </property>
      </item>
+     <item>
+      <property name="text">
+       <string>8 Bytes</string>
+      </property>
+     </item>	 
     </widget>
    </item>
    <item row="4" column="4">

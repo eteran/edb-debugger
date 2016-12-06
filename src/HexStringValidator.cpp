@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2014 Evan Teran
-                          eteran@alum.rit.edu
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -35,7 +35,7 @@ void HexStringValidator::fixup(QString &input) const {
 	QString temp;
 	int index = 0;
 
-	Q_FOREACH(QChar ch, input) {
+	for(QChar ch: input) {
 		const int c = ch.toLatin1();
 		if(c < 0x80 && std::isxdigit(c)) {
 
