@@ -752,8 +752,11 @@ void QDisassemblyView::paint_line_bg(QPainter& painter, QBrush brush, int line, 
 //------------------------------------------------------------------------------
 
 void QDisassemblyView::paintEvent(QPaintEvent *) {
+#if 0
 	QElapsedTimer timer;
 	timer.start();
+#endif
+
 	QPainter painter(viewport());
 
 	const int line_height = this->line_height();
@@ -1105,7 +1108,9 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		painter.drawLine(l2, 0, l2, height());
 		painter.drawLine(l3, 0, l3, height());
 	}
+#if 0
 	qDebug() << "paint:" << timer.elapsed() << "ms";
+#endif
 }
 
 //------------------------------------------------------------------------------
