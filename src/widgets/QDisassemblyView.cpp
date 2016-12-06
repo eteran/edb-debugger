@@ -628,11 +628,13 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 
 		//return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
 
-		const bool syntax_highlighting_enabled=edb::v1::config().syntax_highlighting_enabled && inst.rva()!=selectedAddress();
+		const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled && inst.rva() != selectedAddress();
 
 		if(is_filling) {
-			if(is_filling && syntax_highlighting_enabled)
+			if(is_filling && syntax_highlighting_enabled) {
 				painter.setPen(filling_dis_color);
+			}
+
 			opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
 
 			painter.drawText(
@@ -674,8 +676,10 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 
 			opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
 
-			if(syntax_highlighting_enabled)
+			if(syntax_highlighting_enabled) {
 				painter.setPen(default_dis_color);
+			}
+
 			QTextDocument doc;
 			doc.setDefaultFont(font());
 			doc.setDocumentMargin(0);
@@ -953,6 +957,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		painter.setPen(palette().color(group,QPalette::Text));
 
 		for (unsigned int line = 0; line < lines_to_render; line++) {
+		
 			auto inst = instructions[line];
 			if (selected_line != line) {
 				painter_lambda(inst, line);
@@ -1095,6 +1100,11 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	{ // DISASSEMBLY RENDERING
 		for (unsigned int line = 0; line < lines_to_render; line++) {
+		
+			if (selected_line == line) {
+				painter.setPen(palette().color(group,QPalette::HighlightedText));
+			}
+		
 			draw_instruction(painter, instructions[line], line * line_height, line_height, l2, l3);
 		}
 	}
