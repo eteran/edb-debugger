@@ -72,6 +72,7 @@ public:
 	virtual void analyze(const IRegion::pointer &region);
 	virtual void invalidate_analysis();
 	virtual void invalidate_analysis(const IRegion::pointer &region);
+	virtual bool for_funcs_in_range(const edb::address_t start, const edb::address_t end, std::function<bool(const Function*)> functor) const;
 
 private:
 	QByteArray md5_region(const IRegion::pointer &region) const;
@@ -106,10 +107,10 @@ private:
 	struct RegionData {
 		QSet<edb::address_t>              known_functions;
 		QSet<edb::address_t>              fuzzy_functions;
-		
+
 		FunctionMap                       functions;
 		QHash<edb::address_t, BasicBlock> basic_blocks;
-			
+
 		QByteArray                        md5;
 		bool                              fuzzy;
 		IRegion::pointer                  region;

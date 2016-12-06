@@ -32,7 +32,7 @@ public:
 	virtual ~IAnalyzer() {}
 
 public:
-	typedef QHash<edb::address_t, Function> FunctionMap;
+	typedef QMap<edb::address_t, Function> FunctionMap;
 
 public:
 	enum AddressCategory {
@@ -53,6 +53,7 @@ public:
 	virtual void analyze(const IRegion::pointer &region) = 0;
 	virtual void invalidate_analysis() = 0;
 	virtual void invalidate_analysis(const IRegion::pointer &region) = 0;
+	virtual bool for_funcs_in_range(const edb::address_t start, const edb::address_t end, std::function<bool(const Function*)> functor) const = 0;
 };
 
 #endif

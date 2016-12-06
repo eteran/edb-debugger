@@ -767,6 +767,40 @@ bool Analyzer::find_containing_function(edb::address_t address, edb::address_t h
 }
 
 //------------------------------------------------------------------------------
+// Name: for_funcs_in_range
+// Desc: Calls functor once for every function that exists between the start and
+// end addresses. This includes functions whose bodies include the start address.
+// start and end must reside in the same region. If the functor returns false,
+// iteration is halted. Return value is true if all functions were iterated,
+// false if the iteration was halted early.
+//------------------------------------------------------------------------------
+bool Analyzer::for_funcs_in_range(const edb::address_t start, const edb::address_t end, std::function<bool(const Function*)> functor) const {
+	if (IRegion::pointer region = edb::v1::memory_regions().find_region(start)) {
+		const FunctionMap &funcs = functions(region);
+		auto it = funcs.lowerBound(start - 4096);
+
+		while (it != funcs.end()) {
+			auto f_start = it->entry_address();
+			auto f_end = it->end_address();
+
+			// Only works if FunctionMap is a QMap
+			if (f_start > end) {
+				return true;
+			}
+			// ranges overlap: http://stackoverflow.com/a/3269471
+			if (f_start <= end && start <= f_end) {
+				if (!functor(&(*it))) {
+					return false;
+				}
+			}
+
+			++it;
+		}
+	}
+	return true;
+}
+
+//------------------------------------------------------------------------------
 // Name: md5_region
 // Desc: returns a byte array representing the MD5 of a region
 //------------------------------------------------------------------------------

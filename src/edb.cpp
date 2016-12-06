@@ -585,6 +585,38 @@ Configuration &config() {
 }
 
 //------------------------------------------------------------------------------
+// Name: get_human_string_at_address
+// Desc: attempts to create a summary of the content at address appropriate for
+// display in a user interface.
+// Note: strings are comprised of printable characters and whitespace.
+// Note: found_length is needed because we replace characters which need an
+//       escape char with the escape sequence (thus the resultant string may be
+//       longer than the original). found_length is the original length.
+//------------------------------------------------------------------------------
+
+bool get_human_string_at_address(address_t address, QString &s) {
+	bool ret = false;
+	if (address > 0x10000ULL) { // FIXME use page size
+		QString string_param;
+		int string_length;
+
+		if (get_ascii_string_at_address(address, string_param, edb::v1::config().min_string_length, 256, string_length)) {
+			ret = true;
+			s.append(
+				QString("ASCII \"%1\" ").arg(string_param)
+			);
+		} else if (get_utf16_string_at_address(address, string_param, edb::v1::config().min_string_length, 256, string_length)) {
+			ret = true;
+			s.append(
+				QString("UTF16 \"%1\" ").arg(string_param)
+			);
+		}
+	}
+	return ret;
+}
+
+
+//------------------------------------------------------------------------------
 // Name: get_ascii_string_at_address
 // Desc: attempts to get a string at a given address whose length is >= min_length
 //       and < max_length
