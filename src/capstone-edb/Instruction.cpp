@@ -1121,7 +1121,7 @@ bool Operand::is_SIMD_PD() const
 	case Instruction::Operation::X86_INS_VPERMILPD: // third operand is control (can be [xyz]mm register or imm8)
 		return number!=2;
 	case Instruction::Operation::X86_INS_VPERMPD: // if third operand is not imm8, then second is indices (always in VPERMPS)
-		assert(owner()->operand_count()==3);
+		assert(owner_->operand_count()==3);
 		if(owner_->operands()[2].type()!=TYPE_IMMEDIATE)
 			return number!=1;
 		else return true;
