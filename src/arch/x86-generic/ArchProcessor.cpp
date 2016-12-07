@@ -173,16 +173,16 @@ edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Op
 
 
 				std::size_t segRegIndex = op.expression().segment;
-				if(segRegIndex != edb::Operand::Segment::REG_INVALID) {
+				if(segRegIndex != edb::Operand::Segment::X86_REG_INVALID) {
 				
 					const Register segBase = [&segRegIndex, &state](){
 						switch(segRegIndex) {
-						case edb::Operand::Segment::ES: return state[QLatin1String("es_base")];
-						case edb::Operand::Segment::CS:	return state[QLatin1String("cs_base")];
-						case edb::Operand::Segment::SS:	return state[QLatin1String("ss_base")];
-						case edb::Operand::Segment::DS:	return state[QLatin1String("ds_base")];
-						case edb::Operand::Segment::FS:	return state[QLatin1String("fs_base")];
-						case edb::Operand::Segment::GS:	return state[QLatin1String("gs_base")];
+						case edb::Operand::Segment::X86_REG_ES: return state[QLatin1String("es_base")];
+						case edb::Operand::Segment::X86_REG_CS:	return state[QLatin1String("cs_base")];
+						case edb::Operand::Segment::X86_REG_SS:	return state[QLatin1String("ss_base")];
+						case edb::Operand::Segment::X86_REG_DS:	return state[QLatin1String("ds_base")];
+						case edb::Operand::Segment::X86_REG_FS:	return state[QLatin1String("fs_base")];
+						case edb::Operand::Segment::X86_REG_GS:	return state[QLatin1String("gs_base")];
 						default:
 							return Register();
 						}

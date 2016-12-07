@@ -209,27 +209,18 @@ Operand Instruction::fromCapstoneOperand(Capstone::cs_x86_op *ops, int i) {
 		operand.expr_.base         = static_cast<Operand::Register>(op.mem.base);
 		operand.expr_.index        = static_cast<Operand::Register>(op.mem.index);
 		operand.expr_.scale        = op.mem.scale;
-		
-		switch(op.mem.segment)
+		operand.expr_.segment      = static_cast<Operand::Segment>(op.mem.segment);
+			
+		if(operand.expr_.segment == Capstone::X86_REG_INVALID && !isX86_64())
 		{
-		case Capstone::X86_REG_ES: operand.expr_.segment=Operand::Segment::ES; break;
-		case Capstone::X86_REG_CS: operand.expr_.segment=Operand::Segment::CS; break;
-		case Capstone::X86_REG_SS: operand.expr_.segment=Operand::Segment::SS; break;
-		case Capstone::X86_REG_DS: operand.expr_.segment=Operand::Segment::DS; break;
-		case Capstone::X86_REG_FS: operand.expr_.segment=Operand::Segment::FS; break;
-		case Capstone::X86_REG_GS: operand.expr_.segment=Operand::Segment::GS; break;
-		default: operand.expr_.segment=Operand::Segment::REG_INVALID; break;
+			if(operand.expr_.base==Capstone::X86_REG_BP || operand.expr_.base==Capstone::X86_REG_EBP || operand.expr_.base==Capstone::X86_REG_ESP) {
+				operand.expr_.segment = Capstone::X86_REG_DS;
+			} else {
+				operand.expr_.segment = Capstone::X86_REG_DS;
+			}
 		}
+		break;
 		
-		if(operand.expr_.segment==Operand::Segment::REG_INVALID && !isX86_64())
-		{
-			if(operand.expr_.base==Capstone::X86_REG_BP ||
-			   operand.expr_.base==Capstone::X86_REG_EBP ||
-			   operand.expr_.base==Capstone::X86_REG_ESP)
-				operand.expr_.segment=Operand::Segment::SS;
-			else
-				operand.expr_.segment=Operand::Segment::DS;
-		}
 	case Capstone::X86_OP_INVALID:
 		break;
 	default:
