@@ -124,7 +124,7 @@ QString syscallErrName(T err) {
 // Name: get_effective_address
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t get_effective_address(const edb::Operand &op, const State &state, bool& ok) {
+edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool& ok) {
 	edb::address_t ret = 0;
 	ok=false;
 
@@ -166,7 +166,7 @@ edb::address_t get_effective_address(const edb::Operand &op, const State &state,
 
 				// This only makes sense for x86_64, but doesn't hurt on x86
 				if(op.expression().base == edb::Operand::Register::X86_REG_RIP) {
-					base += op.owner()->size();
+					base += inst.size();
 				}
 
 				ret = base + index * op.expression().scale + op.displacement();
@@ -547,7 +547,7 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 		if(operand.valid()) {
 		
 			bool ok;
-			const edb::address_t effective_address = get_effective_address(operand, state,ok);
+			const edb::address_t effective_address = get_effective_address(inst, operand, state,ok);
 			if(!ok) return;
 			const QString temp_operand             = QString::fromStdString(edb::v1::formatter().to_string(operand));
 			QString temp;
@@ -630,11 +630,11 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 	}
 }
 
-bool isFPU_BCD(edb::Operand const& operand) {
+bool isFPU_BCD(const edb::Instruction &inst) {
 
-	const auto op=operand.owner()->operation();
-	return op==edb::Instruction::Operation::X86_INS_FBLD ||
-		   op==edb::Instruction::Operation::X86_INS_FBSTP;
+	const auto op = inst.operation();
+	return op == edb::Instruction::Operation::X86_INS_FBLD ||
+		   op == edb::Instruction::Operation::X86_INS_FBSTP;
 }
 
 QString formatBCD(edb::value80 const& v) {
@@ -723,7 +723,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 				case edb::Operand::TYPE_EXPRESSION:
 					{
 						bool ok;
-						const edb::address_t effective_address = get_effective_address(operand, state,ok);
+						const edb::address_t effective_address = get_effective_address(inst, operand, state,ok);
 						if(!ok) continue;
 						edb::value256 target;
 
@@ -804,7 +804,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							case 10:
 							{
 								const edb::value80 value(target);
-								const QString valueStr = inst.is_fpu() ? isFPU_BCD(operand) ? formatBCD(value) : formatFloat(value) : "0x"+value.toHexString();
+								const QString valueStr = inst.is_fpu() ? isFPU_BCD(inst) ? formatBCD(value) : formatFloat(value) : "0x"+value.toHexString();
 								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
 								break;
 							}

@@ -91,7 +91,7 @@ public:
 public:
 	bool valid() const { return type_!=TYPE_INVALID; }
     explicit operator bool() const { return valid(); }
-	Instruction* owner() const { return owner_; }
+
 	int size() const;
 	Type type() const { return type_; }
 
@@ -148,21 +148,21 @@ public:
 	static constexpr const std::size_t MAX_OPERANDS = 3;
 
 public:
-	Instruction(const void* first, const void* end, uint64_t rva) noexcept;
+	Instruction(const void* first, const void* end, uint64_t rva) noexcept;	
 	Instruction(const Instruction&);
 	Instruction& operator=(const Instruction&);
     
 public:
-	bool valid() const { return valid_; }
-	explicit operator bool () const { return valid(); }
+	bool valid() const                       { return valid_; }
+	explicit operator bool () const          { return valid(); }
 	const uint8_t* bytes() const;
 	std::size_t operand_count() const;
-	const operand_type* operands() const { return operands_.data(); }
+	const operand_type* operands() const     { return operands_.data(); }
 	void swap(Instruction &other);
-	std::size_t size() const;
-	uint64_t rva() const { return rva_; }
+	std::size_t size() const                 { return insn_.size; }
+	uint64_t rva() const                     { return insn_.address; }
 	std::string mnemonic() const;
-	uint32_t prefix() const { return prefix_; }
+	uint32_t prefix() const                  { return prefix_; }
 	Capstone::cs_insn const& cs_insn() const { return insn_; }
 	// Capstone doesn't provide any easy way to get total prefix length,
 	// so this is currently unimplemented
@@ -231,12 +231,11 @@ private:
 	Operand fromCapstoneOperand(Capstone::cs_x86_op *ops, int i);
 
 private:
-	Capstone::cs_insn insn_;
+	Capstone::cs_insn   insn_;
 	Capstone::cs_detail detail_;
-	bool valid_=false;
-	uint64_t rva_=0;
-	uint8_t firstByte_=0;
-	uint32_t prefix_=0;
+	bool valid_        = false;
+	uint8_t firstByte_ = 0;
+	uint32_t prefix_   = 0;
 	std::vector<Operand> operands_;
 
 	void fillPrefix();

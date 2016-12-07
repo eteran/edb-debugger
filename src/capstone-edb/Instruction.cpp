@@ -121,7 +121,6 @@ Instruction& Instruction::operator=(const Instruction& other)
 	insn_      = other.insn_;
 	detail_    = other.detail_;
 	valid_     = other.valid_;
-	rva_       = other.rva_;
 	firstByte_ = other.firstByte_;
 	prefix_    = other.prefix_;
 	operands_  = other.operands_;
@@ -243,7 +242,7 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 	assert(capstoneInitialized);
     auto codeBegin = static_cast<const uint8_t*>(first);
     auto codeEnd   = static_cast<const uint8_t*>(last);
-	rva_=rva;
+	
 	firstByte_=codeBegin[0];
 
 	Capstone::cs_insn* insn=nullptr;
@@ -299,11 +298,6 @@ const uint8_t* Instruction::bytes() const
 std::size_t Instruction::operand_count() const
 {
 	return insn_.detail->x86.op_count;
-}
-
-std::size_t Instruction::size() const
-{
-	return insn_.size;
 }
 
 Instruction::Operation Instruction::operation() const
@@ -712,18 +706,18 @@ std::string Formatter::to_string(const Operand& operand) const
 
 	std::string str;
 
-	std::size_t totalOperands=operand.owner()->operand_count();
+	std::size_t totalOperands=operand.owner_->operand_count();
 	if(operand.type_==Operand::TYPE_REGISTER)
 		str=register_name(operand.reg());
 	else if(totalOperands==1)
-		str=operand.owner()->insn_.op_str;
+		str=operand.owner_->insn_.op_str;
 	else
 	{
 		// Capstone doesn't provide a way to get operand string, so we try
 		// to extract it from the formatted all-operands string
 		try
 		{
-			const auto operands=toOperands(operand.owner()->insn_.op_str);
+			const auto operands=toOperands(operand.owner_->insn_.op_str);
 			if(operands.size()<=operand.numberInInstruction_)
 				throw std::logic_error("got less than "+std::to_string(operand.numberInInstruction_)+" operands");
 			str=operands[operand.numberInInstruction_];
@@ -762,7 +756,7 @@ bool Operand::is_simd_register() const
 
 bool Operand::apriori_not_simd() const
 {
-	if(!owner()->is_simd()) return true;
+	if(!owner_->is_simd()) return true;
 	if(type()==TYPE_REGISTER && !is_simd_register()) return true;
 	if(type()==TYPE_IMMEDIATE) return true;
 	return false;
@@ -786,14 +780,14 @@ std::size_t Operand::simdOperandNormalizedNumberInInstruction() const
 
 	std::size_t number=numberInInstruction_;
 
-	const auto operandCount=owner()->operand_count();
+	const auto operandCount=owner_->operand_count();
 	// normalized number is according to Intel order
 	if(activeFormatter.options().syntax==Formatter::SyntaxATT)
 	{
 		assert(number<operandCount);
 		number=operandCount-1-number;
 	}
-	if(number>0 && KxRegisterPresent(*owner()))
+	if(number>0 && KxRegisterPresent(*owner_))
 		--number;
 
 	return number;
@@ -805,7 +799,7 @@ bool Operand::is_SIMD_PS() const
 
 	const auto number=simdOperandNormalizedNumberInInstruction();
 
-	switch(owner()->operation())
+	switch(owner_->operation())
 	{
 	case Instruction::Operation:: X86_INS_ADDPS:
 	case Instruction::Operation::X86_INS_VADDPS:
@@ -993,7 +987,7 @@ bool Operand::is_SIMD_PD() const
 
 	const auto number=simdOperandNormalizedNumberInInstruction();
 
-	switch(owner()->operation())
+	switch(owner_->operation())
 	{
 	case Instruction::Operation::X86_INS_ADDPD:
 	case Instruction::Operation::X86_INS_VADDPD:
@@ -1138,7 +1132,7 @@ bool Operand::is_SIMD_PD() const
 		return number!=2;
 	case Instruction::Operation::X86_INS_VPERMPD: // if third operand is not imm8, then second is indices (always in VPERMPS)
 		assert(owner()->operand_count()==3);
-		if(owner()->operands()[2].type()!=TYPE_IMMEDIATE)
+		if(owner_->operands()[2].type()!=TYPE_IMMEDIATE)
 			return number!=1;
 		else return true;
 	case Instruction::Operation::X86_INS_VPERMIL2PD: // XOP (AMD). Fourth operand is selector (?)
@@ -1170,7 +1164,7 @@ bool Operand::is_SIMD_SS() const
 
 	const auto number=simdOperandNormalizedNumberInInstruction();
 
-	switch(owner()->operation())
+	switch(owner_->operation())
 	{
 	case Instruction::Operation:: X86_INS_ADDSS:
 	case Instruction::Operation::X86_INS_VADDSS:
@@ -1258,7 +1252,7 @@ bool Operand::is_SIMD_SD() const
 
 	const auto number=simdOperandNormalizedNumberInInstruction();
 
-	switch(owner()->operation())
+	switch(owner_->operation())
 	{
 	case Instruction::Operation:: X86_INS_ADDSD:
 	case Instruction::Operation::X86_INS_VADDSD:
