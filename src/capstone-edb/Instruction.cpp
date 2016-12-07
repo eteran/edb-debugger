@@ -75,11 +75,8 @@ bool init(Architecture arch) {
 }
 
 Operand::Operand(Instruction* instr, std::size_t numberInInstruction) : owner_(instr), numberInInstruction_(numberInInstruction) {
-}
+	operand_ = &owner_->cs_insn().detail->x86.operands[numberInInstruction_];
 
-int Operand::size() const
-{
-	return owner_->cs_insn().detail->x86.operands[numberInInstruction_].size;
 }
 
 void Instruction::fillPrefix()

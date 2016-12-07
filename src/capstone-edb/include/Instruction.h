@@ -78,7 +78,7 @@ public:
 	bool valid() const { return type_!=TYPE_INVALID; }
     explicit operator bool() const { return valid(); }
 
-	int size() const;
+	int size() const  { return operand_->size; }
 	Type type() const { return type_; }
 
 	// Checks whether operand is a SIMD data register (MMX,XMM,YMM etc., but not e.g. kN)
@@ -102,6 +102,9 @@ private:
 	Instruction* owner_ = nullptr;
 	Type         type_  = TYPE_INVALID;
 	std::size_t numberInInstruction_;
+	
+	
+	Capstone::cs_x86_op *operand_;
 };
 
 
