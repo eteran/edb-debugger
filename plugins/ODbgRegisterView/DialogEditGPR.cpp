@@ -1,3 +1,4 @@
+
 #include "DialogEditGPR.h"
 #include <QDebug>
 #include <QRegExp>

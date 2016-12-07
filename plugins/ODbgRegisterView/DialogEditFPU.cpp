@@ -1,3 +1,4 @@
+
 #include "DialogEditFPU.h"
 #include "Float80Edit.h"
 #include <QDebug>
@@ -15,7 +16,7 @@
 
 DialogEditFPU::DialogEditFPU(QWidget* parent)
 	: QDialog(parent),
-	  floatEntry(new Float80Edit(this)),
+	  floatEntry(new ODbgRegisterView::Float80Edit(this)),
 	  hexEntry(new QLineEdit(this))
 {
 	setWindowTitle(tr("Modify Register"));

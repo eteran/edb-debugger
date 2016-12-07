@@ -1,8 +1,11 @@
+
 #ifndef FLOAT_80_EDIT_H_20151031
 #define FLOAT_80_EDIT_H_20151031
 
 #include <QLineEdit>
 #include "Types.h"
+
+namespace ODbgRegisterView {
 
 class Float80Edit : public QLineEdit
 {
@@ -16,5 +19,7 @@ protected:
 Q_SIGNALS:
 	void defocussed();
 };
+
+}
 
 #endif

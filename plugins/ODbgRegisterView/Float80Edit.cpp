@@ -1,7 +1,10 @@
+
 #include "Float80Edit.h"
 #include "FloatX.h"
 #include <QValidator>
 #include <QApplication>
+
+namespace ODbgRegisterView {
 
 Float80Edit::Float80Edit(QWidget* parent)
 	: QLineEdit(parent)
@@ -25,3 +28,4 @@ void Float80Edit::focusOutEvent(QFocusEvent* e)
 	Q_EMIT defocussed();
 }
 
+}

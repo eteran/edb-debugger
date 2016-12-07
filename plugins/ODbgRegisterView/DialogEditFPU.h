@@ -5,7 +5,10 @@
 #include <QLineEdit>
 #include "Register.h"
 
+
+namespace ODbgRegisterView {
 class Float80Edit;
+}
 
 class DialogEditFPU : public QDialog
 {
@@ -15,7 +18,7 @@ class DialogEditFPU : public QDialog
 	Register reg;
 
 	edb::value80 value_;
-	Float80Edit* const floatEntry;
+	ODbgRegisterView::Float80Edit* const floatEntry;
 	QLineEdit* const hexEntry;
 public:
 	DialogEditFPU(QWidget* parent=nullptr);
