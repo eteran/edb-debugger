@@ -922,7 +922,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		const int bytes_width = l2 - l1 - font_width_ / 2;
 		const auto metrics = painter.fontMetrics();
 
-		auto painter_lambda = [&](edb::Instruction inst, int line) {
+		auto painter_lambda = [&](const edb::Instruction &inst, int line) {
 			// for relative jumps draw the jump direction indicators
 			if(is_jump(inst) && inst.operands()[0].type() == edb::Operand::TYPE_REL) {
 				const edb::address_t target = inst.operands()[0].relative_target();
@@ -959,7 +959,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 		for (unsigned int line = 0; line < lines_to_render; line++) {
 
-			auto inst = instructions[line];
+			auto &&inst = instructions[line];
 			if (selected_line != line) {
 				painter_lambda(inst, line);
 			}
@@ -1060,7 +1060,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			auto address = show_addresses_[line];
 
 			QString annotation = comments_.value(address, QString(""));
-			auto inst = instructions[line];
+			auto && inst = instructions[line];
 			if (annotation.isEmpty() && inst && !is_jump(inst) && !is_call(inst)) {
 				// draw ascii representations of immediate constants
 				unsigned int op_count = inst.operand_count();
