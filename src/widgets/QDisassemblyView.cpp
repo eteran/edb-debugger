@@ -1072,7 +1072,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 					} else if (
 						oper.type() == edb::Operand::TYPE_EXPRESSION &&
 						oper.expression().index == edb::Operand::Register::X86_REG_INVALID &&
-						oper.expression().displacement_present)
+						oper.expression().displacement != 0)
 					{
 						if (oper.expression().base == edb::Operand::Register::X86_REG_RIP) {
 							ascii_address += address + inst.size() + oper.expression().displacement;

@@ -171,11 +171,23 @@ edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Op
 
 				ret = base + index * op.expression().scale + op.displacement();
 
-				std::size_t segRegIndex=op.expression().segment;
-				if(segRegIndex!=edb::Operand::Segment::REG_INVALID) {
-					static constexpr const char segInitials[]="ecsdfg";
-					Q_ASSERT(segRegIndex<sizeof(segInitials));
-					const Register segBase=state[segInitials[segRegIndex]+QString("s_base")];
+
+				std::size_t segRegIndex = op.expression().segment;
+				if(segRegIndex != edb::Operand::Segment::REG_INVALID) {
+				
+					const Register segBase = [&segRegIndex, &state](){
+						switch(segRegIndex) {
+						case edb::Operand::Segment::ES: return state[QLatin1String("es_base")];
+						case edb::Operand::Segment::CS:	return state[QLatin1String("cs_base")];
+						case edb::Operand::Segment::SS:	return state[QLatin1String("ss_base")];
+						case edb::Operand::Segment::DS:	return state[QLatin1String("ds_base")];
+						case edb::Operand::Segment::FS:	return state[QLatin1String("fs_base")];
+						case edb::Operand::Segment::GS:	return state[QLatin1String("gs_base")];
+						default:
+							return Register();
+						}
+					}();
+				
 					if(!segBase) return 0; // no way to reliably compute address
 					ret += segBase.valueAsAddress();
 				}

@@ -173,11 +173,12 @@ Operand Instruction::fromCapstoneOperand(Capstone::cs_x86_op *ops, int i) {
 	switch(op.type)
 	{
 	case Capstone::X86_OP_REG:
-		operand.type_=Operand::TYPE_REGISTER;
-		operand.reg_=op.reg;
+		operand.type_ = Operand::TYPE_REGISTER;
+		operand.reg_  = op.reg;
 		break;
+
 	case Capstone::X86_OP_IMM:
-		operand.imm_=op.imm;
+		operand.imm_ = op.imm;
 		/* Operands can be relative in the following cases:
 			* all versions of loop* instruction: E0, E1, E2 (always rel8)
 			* some unconditional jumps: EB (rel8), E9 (rel16, rel32)
@@ -196,19 +197,19 @@ Operand Instruction::fromCapstoneOperand(Capstone::cs_x86_op *ops, int i) {
 														insn_.detail->x86.opcode[0]==0xE8)))
 		  )
 		{
-			operand.type_=Operand::TYPE_REL;
+			operand.type_ = Operand::TYPE_REL;
 		} else {                
-	        operand.type_=Operand::TYPE_IMMEDIATE;
+	        operand.type_ = Operand::TYPE_IMMEDIATE;
 		}
         break;
+		
 	case Capstone::X86_OP_MEM:
-        operand.type_ = Operand::TYPE_EXPRESSION;
-        operand.expr_.displacement=op.mem.disp; // FIXME: truncation or wrong type chosen by capstone?..
-		if(op.mem.disp!=0) // FIXME: this doesn't catch zero-valued existing displacements!
-			operand.expr_.displacement_present = true;
-		operand.expr_.base =static_cast<Operand::Register>(op.mem.base);
-		operand.expr_.index=static_cast<Operand::Register>(op.mem.index);
-		operand.expr_.scale=op.mem.scale;
+		operand.type_              = Operand::TYPE_EXPRESSION;
+		operand.expr_.displacement = op.mem.disp; // FIXME: truncation or wrong type chosen by capstone?..
+		operand.expr_.base         = static_cast<Operand::Register>(op.mem.base);
+		operand.expr_.index        = static_cast<Operand::Register>(op.mem.index);
+		operand.expr_.scale        = op.mem.scale;
+		
 		switch(op.mem.segment)
 		{
 		case Capstone::X86_REG_ES: operand.expr_.segment=Operand::Segment::ES; break;
@@ -219,6 +220,7 @@ Operand Instruction::fromCapstoneOperand(Capstone::cs_x86_op *ops, int i) {
 		case Capstone::X86_REG_GS: operand.expr_.segment=Operand::Segment::GS; break;
 		default: operand.expr_.segment=Operand::Segment::REG_INVALID; break;
 		}
+		
 		if(operand.expr_.segment==Operand::Segment::REG_INVALID && !isX86_64())
 		{
 			if(operand.expr_.base==Capstone::X86_REG_BP ||

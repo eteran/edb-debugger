@@ -71,7 +71,7 @@ public:
 
 	struct expression_t {
 		Segment::Reg     segment              = Segment::REG_INVALID;
-		bool             displacement_present = false;
+
 		Register         base                 = Register::X86_REG_INVALID;
 		Register         index                = Register::X86_REG_INVALID;
 		int32_t          displacement         = 0;
