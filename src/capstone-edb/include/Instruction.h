@@ -148,13 +148,13 @@ public:
 	static constexpr const std::size_t MAX_OPERANDS = 3;
 
 public:
-	Instruction(const void* first, const void* end, uint64_t rva) throw();
+	Instruction(const void* first, const void* end, uint64_t rva) noexcept;
 	Instruction(const Instruction&);
 	Instruction& operator=(const Instruction&);
     
 public:
 	bool valid() const { return valid_; }
-	operator void*() const { return reinterpret_cast<void*>(valid()); }
+	explicit operator bool () const { return valid(); }
 	const uint8_t* bytes() const;
 	std::size_t operand_count() const;
 	const operand_type* operands() const { return operands_.data(); }
