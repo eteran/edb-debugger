@@ -850,6 +850,10 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 				}
 			}
 		}
+		if (selected_line < lines_to_render) {
+			paint_line_bg(painter, palette().color(group, QPalette::Highlight), selected_line);
+		}
+
 	}
 
 	{ // SYMBOL NAMES
@@ -885,14 +889,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			auto address = show_addresses_[line];
 
 			const bool has_breakpoint = (edb::v1::find_breakpoint(address) != 0);
-			const bool is_selected = line == selected_line;
 			const bool is_eip = address == current_address_;
-
-			if (is_selected) {
-				paint_line_bg(
-					painter, palette().color(group, QPalette::Highlight), line
-				);
-			}
 
 			QSvgRenderer* icon = nullptr;
 			if (is_eip) {
