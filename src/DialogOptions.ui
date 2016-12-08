@@ -573,6 +573,13 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="chkRegisterBadges">
+         <property name="text">
+          <string>Show when registers are pointing to a visible address</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QCheckBox" name="chkUppercase">
          <property name="text">
           <string>Disassemble in uppercase</string>

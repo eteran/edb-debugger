@@ -106,6 +106,7 @@ private:
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);
 	void paint_line_bg(QPainter &painter, QBrush brush, int line, int num_lines = 1);
+	bool get_line_of_address(edb::address_t addr, unsigned int& line) const;
 
 private:
 	IRegion::pointer                  region_;
