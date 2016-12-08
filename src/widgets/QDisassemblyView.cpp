@@ -673,6 +673,8 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 				// create the text layout	
 				QTextLayout textLayout(opcode, painter.font());
 
+				textLayout.setTextOption(QTextOption(QTextOption ()));
+
 				textLayout.beginLayout();
 
 				// generate the lines one at a time
