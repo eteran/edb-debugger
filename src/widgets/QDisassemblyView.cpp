@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
+Copyright (C) 2006 - 2016 Evan Teran
                           evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
@@ -29,14 +29,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Util.h"
 
 #include <QAbstractItemDelegate>
-#include <QAbstractTextDocumentLayout>
 #include <QApplication>
 #include <QDebug>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPixmap>
 #include <QScrollBar>
-#include <QTextDocument>
 #include <QTextLayout>
 #include <QToolTip>
 #include <QtGlobal>
@@ -58,19 +56,6 @@ const QColor filling_dis_color = Qt::gray;
 const QColor default_dis_color = Qt::blue;
 const QColor invalid_dis_color = Qt::blue;
 const QColor data_dis_color    = Qt::blue;
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-void draw_rich_text(QPainter *painter, int x, int y, const QTextDocument &text) {
-	painter->save();
-	painter->translate(x, y);
-	QAbstractTextDocumentLayout::PaintContext context;
-	context.palette.setColor(QPalette::Text, painter->pen().color());
-	text.documentLayout()->draw(painter, context);
-	painter->restore();
-}
 
 struct show_separator_tag {};
 
@@ -680,15 +665,38 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 				painter.setPen(default_dis_color);
 			}
 
-			QTextDocument doc;
-			doc.setDefaultFont(font());
-			doc.setDocumentMargin(0);
-			doc.setPlainText(opcode);
-			highlighter_->setDocument(&doc);
-			if(syntax_highlighting_enabled)
-				draw_rich_text(&painter, x, y, doc);
-			else
-				painter.drawText(x, y, opcode.length() * font_width_, line_height, Qt::AlignVCenter, opcode);
+
+			QRectF rectangle(x, y, opcode.length() * font_width_, line_height);
+
+			if(syntax_highlighting_enabled) {
+
+				// create the text layout	
+				QTextLayout textLayout(opcode, painter.font());
+
+				textLayout.beginLayout();
+
+				// generate the lines one at a time
+				// setting the positions as we go
+				Q_FOREVER {
+					QTextLine line = textLayout.createLine();
+
+					if (!line.isValid()) {
+						break;
+					}
+
+					line.setPosition(QPoint(0, 0));
+				}
+
+				textLayout.endLayout();
+
+				textLayout.clearAdditionalFormats();
+				textLayout.setAdditionalFormats(highlighter_->highlightBlock(opcode));	
+
+				// now the render the text at the location given
+				textLayout.draw(&painter, QPoint(x, y), QVector<QTextLayout::FormatRange>(), rectangle);
+			} else {
+				painter.drawText(rectangle, Qt::AlignVCenter, opcode);
+			}
 		}
 
 	} else {
@@ -756,10 +764,10 @@ void QDisassemblyView::paint_line_bg(QPainter& painter, QBrush brush, int line, 
 //------------------------------------------------------------------------------
 
 void QDisassemblyView::paintEvent(QPaintEvent *) {
-#if 0
+
 	QElapsedTimer timer;
 	timer.start();
-#endif
+
 
 	QPainter painter(viewport());
 
@@ -1114,9 +1122,11 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		painter.drawLine(l2, 0, l2, height());
 		painter.drawLine(l3, 0, l3, height());
 	}
-#if 0
-	qDebug() << "paint:" << timer.elapsed() << "ms";
-#endif
+
+	const int renderTime = timer.elapsed();
+	if(renderTime > 50) {
+		qDebug() << "Painting took longer than desired: " << renderTime << "ms";
+	}
 }
 
 //------------------------------------------------------------------------------

@@ -1,5 +1,5 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
+Copyright (C) 2006 - 2016 Evan Teran
                           evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
@@ -19,32 +19,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SYNTAX_HIGHLIGHTER_H
 #define SYNTAX_HIGHLIGHTER_H
 
-#include <QList>
+#include <QVector>
 #include <QRegExp>
 #include <QSyntaxHighlighter>
 #include <QTextCharFormat>
+#include <QTextLayout>
 
-class QTextDocument;
-
-#if QT_VERSION < 0x050000
-class QTextEdit;
-#endif
-
-class SyntaxHighlighter : public QSyntaxHighlighter {
+class SyntaxHighlighter : public QObject {
 	Q_OBJECT
 
 public:
-	SyntaxHighlighter(QObject *parent);
-	SyntaxHighlighter(QTextDocument *parent);
-#if QT_VERSION < 0x050000
-	SyntaxHighlighter(QTextEdit *parent);
-#endif
+	SyntaxHighlighter(QObject *parent = 0);
 
 private:
 	void create_rules();
 
-protected:
-	void highlightBlock(const QString &text);
+public:
+	QList<QTextLayout::FormatRange> highlightBlock(const QString &text);
 
 private:
 	struct HighlightingRule {
@@ -55,7 +46,7 @@ private:
 		QTextCharFormat format;
 	};
 
-	QList<HighlightingRule> rules_;
+	QVector<HighlightingRule> rules_;
 };
 
 #endif
