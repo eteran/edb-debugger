@@ -27,6 +27,8 @@ add_library(${PluginName} SHARED
 	Backtrace.h
 	DialogBacktrace.cpp
 	DialogBacktrace.h
+	CallStack.cpp
+	CallStack.h
 	${UI_H}
 )
 

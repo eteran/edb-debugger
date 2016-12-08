@@ -1,6 +1,6 @@
 /*
 Copyright (C) 2015	Armen Boursalian
-					aboursalian@gmail.com
+                    aboursalian@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 
 #include <QList>
-#include <QtCore/qglobal.h>
+#include <QtGlobal>
 
 class CallStack
 {
@@ -32,10 +32,10 @@ public:
 
 //Struct that holds the caller and return addresses.
 public:
-	typedef struct stack_frame_t {
+	struct stack_frame {
 		edb::address_t ret;
 		edb::address_t caller;
-	} stack_frame;
+	};
 
 private:
 	void get_call_stack();

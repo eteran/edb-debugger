@@ -58,7 +58,6 @@ set(edb_SRCS
 	BasicBlock.cpp
 	BinaryString.cpp
 	ByteShiftArray.cpp
-	CallStack.cpp
 	capstone-edb/Instruction.cpp
 	CommentServer.cpp
 	Configuration.cpp
@@ -119,7 +118,6 @@ set(edb_INCLUDES
 	${PROJECT_SOURCE_DIR}/include/BasicBlock.h
 	${PROJECT_SOURCE_DIR}/include/BinaryString.h
 	${PROJECT_SOURCE_DIR}/include/ByteShiftArray.h
-	${PROJECT_SOURCE_DIR}/include/CallStack.h
 	${PROJECT_SOURCE_DIR}/include/Configuration.h
 	${PROJECT_SOURCE_DIR}/include/edb.h
 	${PROJECT_SOURCE_DIR}/include/Expression.h
