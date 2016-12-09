@@ -603,7 +603,7 @@ bool targetIsLocal(edb::address_t targetAddress,edb::address_t insnAddress) {
 // Name: draw_instruction
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l2, int l3) const {
+int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l2, int l3, bool selected) const {
 
 	const bool is_filling = edb::v1::arch_processor().is_filling(inst);
 	int x                 = font_width_ + font_width_ + l2 + (font_width_ / 2);
@@ -614,7 +614,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 
 		//return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
 
-		const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled && inst.rva() != selectedAddress();
+		const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled && !selected;
 
 		if(is_filling) {
 			if(is_filling && syntax_highlighting_enabled) {
@@ -723,6 +723,10 @@ QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instructio
 	char byte_buffer[32];
 	const quint8 *const buf = inst.bytes();
 
+	if(edb::v1::config().syntax_highlighting_enabled) {
+		painter.setPen(invalid_dis_color);
+	}
+
 	switch(inst.size()) {
 	case 1:
 		qsnprintf(byte_buffer, sizeof(byte_buffer), "db 0x%02x", buf[0] & 0xff);
@@ -738,12 +742,9 @@ QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instructio
 		break;
 	default:
 		// we tried...didn't we?
-		if(edb::v1::config().syntax_highlighting_enabled)
-			painter.setPen(invalid_dis_color);
 		return tr("invalid");
 	}
-	if(edb::v1::config().syntax_highlighting_enabled)
-		painter.setPen(data_dis_color);
+
 	return byte_buffer;
 }
 
@@ -1193,12 +1194,16 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	{ // DISASSEMBLY RENDERING
 		for (unsigned int line = 0; line < lines_to_render; line++) {
-		
+
+			// we set the pen here to sensible defaults for the case where it doesn't get overridden by
+			// syntax highlighting
 			if (selected_line == line) {
-				painter.setPen(palette().color(group,QPalette::HighlightedText));
+				painter.setPen(palette().color(group, QPalette::HighlightedText));
+				draw_instruction(painter, instructions[line], line * line_height, line_height, l2, l3, true);
+			} else {
+				painter.setPen(palette().color(group, QPalette::Text));
+				draw_instruction(painter, instructions[line], line * line_height, line_height, l2, l3, false);
 			}
-		
-			draw_instruction(painter, instructions[line], line * line_height, line_height, l2, l3);
 		}
 	}
 
