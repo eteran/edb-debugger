@@ -64,7 +64,7 @@ public:
 		uint8_t          scale                = 0;
 	};
     
-public:
+private:
 	Operand(Instruction* instr, std::size_t numberInInstruction);    
 
 public:
