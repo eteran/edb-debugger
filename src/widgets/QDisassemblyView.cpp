@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "MemoryRegions.h"
 #include "SyntaxHighlighter.h"
 #include "Util.h"
+#include "State.h"
 
 #include <QAbstractItemDelegate>
 #include <QApplication>
@@ -758,6 +759,24 @@ void QDisassemblyView::paint_line_bg(QPainter& painter, QBrush brush, int line, 
 }
 
 //------------------------------------------------------------------------------
+// Name: get_line_of_address
+// Desc: A helper function which sets line to the line on which addr appears,
+// or returns false if that line does not appear to exist.
+//------------------------------------------------------------------------------
+
+bool QDisassemblyView::get_line_of_address(edb::address_t addr, unsigned int &line) const {
+	if (addr >= show_addresses_[0] && addr <= show_addresses_[show_addresses_.size()-1]) {
+		int pos = std::find(show_addresses_.begin(), show_addresses_.end(), addr) - show_addresses_.begin();
+		if (pos < show_addresses_.size()) { // address was found
+			line = pos;
+			return true;
+		}
+	}
+	line = 0;
+	return false;
+}
+
+//------------------------------------------------------------------------------
 // Name: paintEvent
 // Desc:
 //------------------------------------------------------------------------------
@@ -795,12 +814,12 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	unsigned int selected_line = 65535; // can't accidentally hit this
 	const auto group= hasFocus() ? QPalette::Active : QPalette::Inactive;
 
+	// This represents extra space allocated between x=0 and x=line1
+	unsigned int preline1_x_offset = 0;
 
 	{ // DISASSEMBLE STEP
 		int bufsize      = instruction_buffer_.size();
 		quint8 *inst_buf = &instruction_buffer_[0];
-
-
 
 		if (!edb::v1::get_instruction_bytes(start_address, inst_buf, &bufsize)) {
 			qDebug() << "Failed to read" << bufsize << "bytes from" << QString::number(start_address, 16);
@@ -863,6 +882,73 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	}
 
+	if(edb::v1::config().show_register_badges) { // REGISTER BADGES
+		preline1_x_offset += font_width_ * 5;
+		State state;
+		edb::v1::debugger_core->get_state(&state);
+
+		const unsigned int badge_x = 1;
+
+		std::vector<QString> badge_labels(lines_to_render);
+		{
+			unsigned int reg_num = 0;
+			Register reg;
+			reg = state.gp_register(reg_num);
+
+			while (reg.valid()) {
+				// Does addr appear here?
+				edb::address_t addr = reg.valueAsAddress();
+				unsigned int line;
+
+				if (get_line_of_address(addr, line)) {
+					if (!badge_labels[line].isEmpty()) {
+						badge_labels[line].append(", ");
+					}
+					badge_labels[line].append(reg.name());
+				}
+
+				// what about [addr]?
+				if(IProcess *process = edb::v1::debugger_core->process()) {
+					if (process->read_bytes(addr, &addr, edb::v1::pointer_size())) {
+						if (get_line_of_address(addr, line)) {
+							if (!badge_labels[line].isEmpty()) {
+								badge_labels[line].append(", ");
+							}
+							badge_labels[line].append("[" + reg.name() + "]");
+						}
+					}
+				}
+
+				reg = state.gp_register(++reg_num);
+			}
+		}
+
+		painter.setPen(Qt::white);
+		for (unsigned int line = 0; line < lines_to_render; line++) {
+			if (!badge_labels[line].isEmpty()) {
+				QRect bounds(badge_x, line * line_height, badge_labels[line].length() * font_width_ + font_width_/2, line_height);
+
+				// draw a rectangle + box around text
+				QPainterPath path;
+				path.addRect(bounds);
+				path.moveTo(bounds.x() + bounds.width(), bounds.y()); // top right
+				const unsigned int largest_x = bounds.x() + bounds.width() + bounds.height()/2;
+				path.lineTo(largest_x, bounds.y() + bounds.height()/2); // triangle point
+				path.lineTo(bounds.x() + bounds.width(), bounds.y() + bounds.height()); // bottom right
+				painter.fillPath(path, Qt::blue);
+
+				painter.drawText(
+					badge_x + font_width_/4,
+					line * line_height,
+					font_width_ * badge_labels[line].size(),
+					line_height,
+					Qt::AlignVCenter,
+					(edb::v1::config().uppercase_disassembly ? badge_labels[line].toUpper() : badge_labels[line])
+				);
+			}
+		}
+	}
+
 	{ // SYMBOL NAMES
 		painter.setPen(palette().color(group,QPalette::Text));
 		const int x = auto_line1();
@@ -891,7 +977,9 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		const QPen address_pen(Qt::red);
 		painter.setPen(address_pen);
 
-		const auto addr_width = l1 - icon_width_ - 1;
+		const auto icon_x = preline1_x_offset + 1;
+		const auto addr_x = icon_x + icon_width_;
+		const auto addr_width = l1 - addr_x;
 		for (unsigned int line = 0; line < lines_to_render; line++) {
 			auto address = show_addresses_[line];
 
@@ -906,13 +994,13 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			}
 
 			if (icon) {
-				icon->render(&painter, QRectF(1, line*line_height + 1, icon_width_, icon_height_));
+				icon->render(&painter, QRectF(icon_x, line*line_height + 1, icon_width_, icon_height_));
 			}
 
 			const QString address_buffer = formatAddress(address);
 			// draw the address
 			painter.drawText(
-				icon_width_ + 1,
+				addr_x,
 				line * line_height,
 				addr_width,
 				line_height,
@@ -1193,7 +1281,7 @@ void QDisassemblyView::updateScrollbars() {
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::auto_line1() const {
-	const unsigned int elements = address_length();
+	const unsigned int elements = address_length() + (edb::v1::config().show_register_badges ? 5 : 0);
 	return (elements * font_width_) + (font_width_ / 2) + icon_width_ + 1;
 }
 
@@ -1449,25 +1537,25 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 		const int x_pos = event->x();
 
 		if(moving_line1_) {
-			if(x_pos > icon_width_ && x_pos + font_width_ < line2()) {
-				if(line2_ == 0) {
-					line2_ = line2();
-				}
-				line1_ = x_pos;
+			if(line2_ == 0) {
+				line2_ = line2();
 			}
+			const int min_line1 = icon_width_ + font_width_ * 5;
+			const int max_line1 = line2() - font_width_;
+			line1_ = std::min(std::max(min_line1, x_pos), max_line1);
 			update();
 		} else if(moving_line2_) {
-			if(x_pos > line1() + font_width_ + font_width_/2 && x_pos + 1 < line3()) {
-				if(line3_ == 0) {
-					line3_ = line3();
-				}
-				line2_ = x_pos;
+			if(line3_ == 0) {
+				line3_ = line3();
 			}
+			const int min_line2 = line1() + font_width_ + font_width_/2;
+			const int max_line2 = line3() - font_width_;
+			line2_ = std::min(std::max(min_line2, x_pos), max_line2);
 			update();
 		} else if(moving_line3_) {
-			if(x_pos > line2() + font_width_ && x_pos + 1 < width() - (verticalScrollBar()->width() + 3)) {
-				line3_ = x_pos;
-			}
+			const int min_line3 = line2() + font_width_;
+			const int max_line3 = width() - 1 - (verticalScrollBar()->width() + 3);
+			line3_ = std::min(std::max(min_line3, x_pos), max_line3);
 			update();
 		} else {
 			if(near_line(x_pos, line1()) || near_line(x_pos, line2()) || near_line(x_pos, line3())) {
