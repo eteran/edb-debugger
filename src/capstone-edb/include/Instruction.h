@@ -83,14 +83,14 @@ public:
 
 	// Checks whether operand is a SIMD data register (MMX,XMM,YMM etc., but not e.g. kN)
 	bool is_simd_register() const;
-	bool is_SIMD_PS() const;
-	bool is_SIMD_PD() const;
-	bool is_SIMD_SS() const;
-	bool is_SIMD_SD() const;
+	bool is_SIMD_PS(const Instruction &inst) const;
+	bool is_SIMD_PD(const Instruction &inst) const;
+	bool is_SIMD_SS(const Instruction &inst) const;
+	bool is_SIMD_SD(const Instruction &inst) const;
     
 private:
-	bool apriori_not_simd() const;
-	std::size_t simdOperandNormalizedNumberInInstruction() const;
+	bool apriori_not_simd(const Instruction &inst) const;
+	std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &inst) const;
     
 private:
 	union {

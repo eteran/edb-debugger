@@ -712,19 +712,19 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						else {
 							if(reg.type()==Register::TYPE_FPU && reg.bitSize()==80)
 								valueString=formatFloat(reg.value<edb::value80>());
-							else if(operand.is_SIMD_SS())
+							else if(operand.is_SIMD_SS(inst))
 							{
 								valueString=formatFloat(reg.value<edb::value32>());
 								temp_operand+="_ss";
 							}
-							else if(operand.is_SIMD_SD())
+							else if(operand.is_SIMD_SD(inst))
 							{
 								valueString=formatFloat(reg.value<edb::value64>());
 								temp_operand+="_sd";
 							}
-							else if(operand.is_SIMD_PS())
+							else if(operand.is_SIMD_PS(inst))
 								valueString=formatPackedFloat<edb::value32>(reg.rawData(),reg.bitSize()/8);
-							else if(operand.is_SIMD_PD())
+							else if(operand.is_SIMD_PD(inst))
 								valueString=formatPackedFloat<edb::value64>(reg.rawData(),reg.bitSize()/8);
 							else
 								valueString = "0x" + reg.toHexString();
@@ -769,7 +769,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							{
 								const edb::value32 value(target);
 								QString valueStr;
-								if(inst.is_fpu_taking_float() || operand.is_SIMD_SS())
+								if(inst.is_fpu_taking_float() || operand.is_SIMD_SS(inst))
 									valueStr=formatFloat(value);
 								else if(inst.is_fpu_taking_integer())
 								{
@@ -782,9 +782,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 									if(signedValue>9 || signedValue<-9)
 										valueStr+=" (decimal)";
 								}
-								else if(operand.is_SIMD_PS())
+								else if(operand.is_SIMD_PS(inst))
 									valueStr=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value64));
-								else if(operand.is_SIMD_PD())
+								else if(operand.is_SIMD_PD(inst))
 									valueStr=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value64));
 								else
 									valueStr="0x"+value.toHexString();
@@ -795,7 +795,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							{
 								const edb::value64 value(target);
 								QString valueStr;
-								if(inst.is_fpu_taking_float() || operand.is_SIMD_SS())
+								if(inst.is_fpu_taking_float() || operand.is_SIMD_SS(inst))
 									valueStr=formatFloat(value);
 								else if(inst.is_fpu_taking_integer())
 								{
@@ -823,9 +823,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							case 16:
 							{
 								QString valueString;
-								if(operand.is_SIMD_PS())
+								if(operand.is_SIMD_PS(inst))
 									valueString=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value128));
-								else if(operand.is_SIMD_PD())
+								else if(operand.is_SIMD_PD(inst))
 									valueString=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value128));
 								else
 									valueString="0x"+edb::value128(target).toHexString();
@@ -835,9 +835,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							case 32:
 							{
 								QString valueString;
-								if(operand.is_SIMD_PS())
+								if(operand.is_SIMD_PS(inst))
 									valueString=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value256));
-								else if(operand.is_SIMD_PD())
+								else if(operand.is_SIMD_PD(inst))
 									valueString=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value256));
 								else
 									valueString="0x"+edb::value256(target).toHexString();

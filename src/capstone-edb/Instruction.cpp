@@ -75,7 +75,7 @@ bool init(Architecture arch) {
 }
 
 Operand::Operand(Instruction* instr, std::size_t numberInInstruction) : owner_(instr), numberInInstruction_(numberInInstruction) {
-	operand_ = &owner_->cs_insn().detail->x86.operands[numberInInstruction_];
+	operand_ = &instr->cs_insn().detail->x86.operands[numberInInstruction_];
 
 }
 
@@ -744,9 +744,9 @@ bool Operand::is_simd_register() const
 	return false;
 }
 
-bool Operand::apriori_not_simd() const
+bool Operand::apriori_not_simd(const Instruction &inst) const
 {
-	if(!owner_->is_simd()) return true;
+	if(!inst.is_simd()) return true;
 	if(type()==TYPE_REGISTER && !is_simd_register()) return true;
 	if(type()==TYPE_IMMEDIATE) return true;
 	return false;
@@ -764,32 +764,32 @@ bool KxRegisterPresent(Instruction const& insn)
 	return false;
 }
 
-std::size_t Operand::simdOperandNormalizedNumberInInstruction() const
+std::size_t Operand::simdOperandNormalizedNumberInInstruction(const Instruction &inst) const
 {
-	assert(!apriori_not_simd());
+	assert(!apriori_not_simd(inst));
 
 	std::size_t number=numberInInstruction_;
 
-	const auto operandCount=owner_->operand_count();
+	const auto operandCount = inst.operand_count();
 	// normalized number is according to Intel order
 	if(activeFormatter.options().syntax==Formatter::SyntaxATT)
 	{
 		assert(number<operandCount);
 		number=operandCount-1-number;
 	}
-	if(number>0 && KxRegisterPresent(*owner_))
+	if(number>0 && KxRegisterPresent(inst))
 		--number;
 
 	return number;
 }
 
-bool Operand::is_SIMD_PS() const
+bool Operand::is_SIMD_PS(const Instruction &inst) const
 {
-	if(apriori_not_simd()) return false;
+	if(apriori_not_simd(inst)) return false;
 
-	const auto number=simdOperandNormalizedNumberInInstruction();
+	const auto number=simdOperandNormalizedNumberInInstruction(inst);
 
-	switch(owner_->operation())
+	switch(inst.operation())
 	{
 	case Instruction::Operation:: X86_INS_ADDPS:
 	case Instruction::Operation::X86_INS_VADDPS:
@@ -971,13 +971,13 @@ bool Operand::is_SIMD_PS() const
 	}
 }
 
-bool Operand::is_SIMD_PD() const
+bool Operand::is_SIMD_PD(const Instruction &inst) const
 {
-	if(apriori_not_simd()) return false;
+	if(apriori_not_simd(inst)) return false;
 
-	const auto number=simdOperandNormalizedNumberInInstruction();
+	const auto number=simdOperandNormalizedNumberInInstruction(inst);
 
-	switch(owner_->operation())
+	switch(inst.operation())
 	{
 	case Instruction::Operation::X86_INS_ADDPD:
 	case Instruction::Operation::X86_INS_VADDPD:
@@ -1121,8 +1121,8 @@ bool Operand::is_SIMD_PD() const
 	case Instruction::Operation::X86_INS_VPERMILPD: // third operand is control (can be [xyz]mm register or imm8)
 		return number!=2;
 	case Instruction::Operation::X86_INS_VPERMPD: // if third operand is not imm8, then second is indices (always in VPERMPS)
-		assert(owner_->operand_count()==3);
-		if(owner_->operands()[2].type()!=TYPE_IMMEDIATE)
+		assert(inst.operand_count()==3);
+		if(inst.operands()[2].type()!=TYPE_IMMEDIATE)
 			return number!=1;
 		else return true;
 	case Instruction::Operation::X86_INS_VPERMIL2PD: // XOP (AMD). Fourth operand is selector (?)
@@ -1148,13 +1148,13 @@ bool Operand::is_SIMD_PD() const
 	}
 }
 
-bool Operand::is_SIMD_SS() const
+bool Operand::is_SIMD_SS(const Instruction &inst) const
 {
-	if(apriori_not_simd()) return false;
+	if(apriori_not_simd(inst)) return false;
 
-	const auto number=simdOperandNormalizedNumberInInstruction();
+	const auto number=simdOperandNormalizedNumberInInstruction(inst);
 
-	switch(owner_->operation())
+	switch(inst.operation())
 	{
 	case Instruction::Operation:: X86_INS_ADDSS:
 	case Instruction::Operation::X86_INS_VADDSS:
@@ -1236,13 +1236,13 @@ bool Operand::is_SIMD_SS() const
 	}
 }
 
-bool Operand::is_SIMD_SD() const
+bool Operand::is_SIMD_SD(const Instruction &inst) const
 {
-	if(apriori_not_simd()) return false;
+	if(apriori_not_simd(inst)) return false;
 
-	const auto number=simdOperandNormalizedNumberInInstruction();
+	const auto number=simdOperandNormalizedNumberInInstruction(inst);
 
-	switch(owner_->operation())
+	switch(inst.operation())
 	{
 	case Instruction::Operation:: X86_INS_ADDSD:
 	case Instruction::Operation::X86_INS_VADDSD:
