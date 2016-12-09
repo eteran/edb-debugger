@@ -243,9 +243,9 @@ void SyntaxHighlighter::create_rules() {
 // Name: highlightBlock
 // Desc:
 //------------------------------------------------------------------------------
-QList<QTextLayout::FormatRange> SyntaxHighlighter::highlightBlock(const QString &text) {
+QVector<QTextLayout::FormatRange> SyntaxHighlighter::highlightBlock(const QString &text) {
 	
-	QList<QTextLayout::FormatRange> ranges;
+	QVector<QTextLayout::FormatRange> ranges;
 	
 	for(const HighlightingRule &rule: rules_) {
 		int index = rule.pattern.indexIn(text);

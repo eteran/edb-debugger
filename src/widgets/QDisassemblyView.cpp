@@ -691,11 +691,8 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 
 				textLayout.endLayout();
 
-				textLayout.clearAdditionalFormats();
-				textLayout.setAdditionalFormats(highlighter_->highlightBlock(opcode));	
-
 				// now the render the text at the location given
-				textLayout.draw(&painter, QPoint(x, y), QVector<QTextLayout::FormatRange>(), rectangle);
+				textLayout.draw(&painter, QPoint(x, y), highlighter_->highlightBlock(opcode), rectangle);
 			} else {
 				painter.drawText(rectangle, Qt::AlignVCenter, opcode);
 			}

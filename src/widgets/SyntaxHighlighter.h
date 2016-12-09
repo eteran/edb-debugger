@@ -35,7 +35,7 @@ private:
 	void create_rules();
 
 public:
-	QList<QTextLayout::FormatRange> highlightBlock(const QString &text);
+	QVector<QTextLayout::FormatRange> highlightBlock(const QString &text);
 
 private:
 	struct HighlightingRule {
