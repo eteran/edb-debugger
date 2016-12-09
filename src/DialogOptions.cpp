@@ -177,6 +177,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui->chkDisableLazyBinding->setChecked(config.disableLazyBinding);
 
 	ui->chkZerosAreFilling->setChecked(config.zeros_are_filling);
+	ui->chkRegisterBadges->setChecked(config.show_register_badges);
 	ui->chkUppercase->setChecked(config.uppercase_disassembly);
 	ui->chkSmallIntAsDecimal->setChecked(config.small_int_as_decimal);
 	ui->chkSyntaxHighlighting->setChecked(config.syntax_highlighting_enabled);
@@ -254,6 +255,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.disableLazyBinding	 = ui->chkDisableLazyBinding->isChecked();
 	
 	config.zeros_are_filling     = ui->chkZerosAreFilling->isChecked();
+	config.show_register_badges = ui->chkRegisterBadges->isChecked();
 	config.uppercase_disassembly = ui->chkUppercase->isChecked();
 	config.small_int_as_decimal  = ui->chkSmallIntAsDecimal->isChecked();
 	config.syntax_highlighting_enabled = ui->chkSyntaxHighlighting->isChecked();
