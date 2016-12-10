@@ -93,8 +93,25 @@ void Plugin::createRegisterView(QString const& settingsGroup)
 
 		mainWindow->addDockWidget(Qt::RightDockWidgetArea, regViewDockWidget);
 
+#if 0
 		if(QDockWidget* registersDock  = mainWindow->findChild<QDockWidget*>("registersDock"))
 			mainWindow->tabifyDockWidget(registersDock, regViewDockWidget);
+#else
+			QList<QDockWidget *> dockWidgets = mainWindow->findChildren<QDockWidget *>();
+			for(QDockWidget *widget : dockWidgets) {
+				if(widget != regViewDockWidget) {
+					if(mainWindow->dockWidgetArea(widget) == Qt::RightDockWidgetArea) {
+						mainWindow->tabifyDockWidget(widget, regViewDockWidget);
+
+						// place the new doc widget OVER the one we tabbed with
+						// register view is important...
+						regViewDockWidget->show();
+						regViewDockWidget->raise();
+						break;
+					}
+				}
+			}
+#endif
 
 		Q_ASSERT(menu_);
 		const auto removeDockAction=new QAction(tr("Remove %1").arg(regViewDockWidget->windowTitle()),menu_);

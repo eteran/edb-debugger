@@ -40,9 +40,9 @@ Bookmarks::Bookmarks() : QObject(0), menu_(0), signal_mapper_(0), bookmark_widge
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *Bookmarks::menu(QWidget *parent) {
-	
+
 	Q_ASSERT(parent);
-	
+
 	if(!menu_) {
 
 		// if we are dealing with a main window (and we are...)
@@ -58,12 +58,22 @@ QMenu *Bookmarks::menu(QWidget *parent) {
 
 			// add it to the dock
 			main_window->addDockWidget(Qt::RightDockWidgetArea, dock_widget);
-			
-			if(QDockWidget *registersDock  = main_window->findChild<QDockWidget *>("registersDock")) {			
-				main_window->tabifyDockWidget(registersDock, dock_widget);
-				registersDock->show();
-				registersDock->raise();				
+
+
+			QList<QDockWidget *> dockWidgets = main_window->findChildren<QDockWidget *>();
+			for(QDockWidget *widget : dockWidgets) {
+				if(widget != dock_widget) {
+					if(main_window->dockWidgetArea(widget) == Qt::RightDockWidgetArea) {
+						main_window->tabifyDockWidget(widget, dock_widget);
+
+						// place the new doc widget UNDER the one we tabbed with
+						widget->show();
+						widget->raise();
+						break;
+					}
+				}
 			}
+
 
 			// make the menu and add the show/hide toggle for the widget
 			menu_ = new QMenu(tr("Bookmarks"), parent);
@@ -132,7 +142,7 @@ QVariantMap Bookmarks::save_state() const {
 	for(edb::address_t addr: bookmark_widget_->entries()) {
 		addresses.push_back(addr.toHexString());
 	}
-	
+
 	state["bookmarks"] = addresses;
 	return state;
 }
@@ -142,7 +152,7 @@ QVariantMap Bookmarks::save_state() const {
 // Desc:
 //------------------------------------------------------------------------------
 void Bookmarks::restore_state(const QVariantMap &state) {
-	
+
 	QVariantList addresses = state["bookmarks"].toList();
 	for(auto addr: addresses) {
 		edb::address_t address = edb::address_t::fromHexString(addr.toString());

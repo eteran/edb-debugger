@@ -380,8 +380,10 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	edb::v1::set_debug_event_handler(this);
 
 	// enable the arch processor
+#if 0
 	ui.registerList->setModel(&edb::v1::arch_processor().get_register_view_model());
 	edb::v1::arch_processor().setup_register_view();
+#endif
 
 	// default the working directory to ours
 	working_directory_ = QDir().absolutePath();
@@ -823,7 +825,9 @@ void Debugger::setup_ui() {
 	ui.statusbar->insertPermanentWidget(0, status_);
 
 	// add toggles for the dock windows
+#if 0
 	ui.menu_View->addAction(ui.registersDock->toggleViewAction());
+#endif
 	ui.menu_View->addAction(ui.dataDock     ->toggleViewAction());
 	ui.menu_View->addAction(ui.stackDock    ->toggleViewAction());
 	ui.menu_View->addAction(ui.toolBar      ->toggleViewAction());
@@ -831,7 +835,9 @@ void Debugger::setup_ui() {
 	ui.action_Restart->setEnabled(recent_file_manager_->entry_count()>0);
 
 	// make sure our widgets use custom context menus
+#if 0
 	ui.registerList->setContextMenuPolicy(Qt::CustomContextMenu);
+#endif
 	ui.cpuView     ->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// set the listbox to about 4 lines
@@ -1025,7 +1031,9 @@ void Debugger::apply_default_fonts() {
 	}
 
 	if(font.fromString(config.registers_font)) {
+#if 0
 		ui.registerList->setFont(font);
+#endif
 	}
 
 	if(font.fromString(config.disassembly_font)) {

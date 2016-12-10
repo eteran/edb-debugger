@@ -112,6 +112,7 @@
    <addaction name="menu_help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
+<!--  
   <widget class="QDockWidget" name="registersDock">
    <property name="windowTitle">
     <string>Register Tree</string>
@@ -134,6 +135,7 @@
     </layout>
    </widget>
   </widget>
+-->
   <widget class="QDockWidget" name="dataDock">
    <property name="windowTitle">
     <string>Data Dump</string>
