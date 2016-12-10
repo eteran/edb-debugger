@@ -135,6 +135,7 @@ public Q_SLOTS:
 	void on_action_Threads_triggered();
 	void on_cpuView_breakPointToggled(edb::address_t);
 	void on_cpuView_customContextMenuRequested(const QPoint &);
+	void on_cpuView_regionChanged();
 	QList<QAction*> getCurrentRegisterContextMenuItems() const;
 	Register active_register() const;
 
@@ -152,6 +153,7 @@ private:
 	void toggle_flag(int);
 
 	void run_to_this_line(bool pass_signal);
+	void update_cpu_region_label();
 	
 private Q_SLOTS:
 	// the manually connected general slots
