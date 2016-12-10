@@ -1147,10 +1147,14 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		auto x_pos = l3 + font_width_ + (font_width_ / 2);
 		auto comment_width = width() - x_pos;
 
-		painter.setPen(palette().color(group, QPalette::Text));
-
 		for (unsigned int line = 0; line < lines_to_render; line++) {
 			auto address = show_addresses_[line];
+
+			if (selected_line == line) {
+				painter.setPen(palette().color(group, QPalette::HighlightedText));
+			} else {
+				painter.setPen(palette().color(group, QPalette::Text));
+			}
 
 			QString annotation = comments_.value(address, QString(""));
 			auto && inst = instructions[line];
