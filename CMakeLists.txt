@@ -26,7 +26,7 @@ set(TARGET_VERSION_PATCH 22)
 set_property(GLOBAL PROPERTY VERSION ${TARGET_VERSION_MAJOR}.${TARGET_VERSION_MINOR}.${TARGET_VERSION_PATCH})
 
 
-# TODO(eteran): how lowe can we make this
+# TODO(eteran): how low can we make this
 pkg_check_modules(GRAPHVIZ libgvc>=2.38.0)
 if(${GRAPHVIZ_FOUND})
 	include_directories(${GRAPHVIZ_INCLUDE_DIRS})
@@ -47,6 +47,12 @@ endif()
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64"))
 	include_directories("include/arch/x86-generic")
 endif()
+
+if(CMAKE_COMPILER_IS_GNUCC)
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -pedantic")
+	set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -W -Wall -pedantic")
+endif()
+
 
 add_subdirectory(src)
 add_subdirectory(plugins)
