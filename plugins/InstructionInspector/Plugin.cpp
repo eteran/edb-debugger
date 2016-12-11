@@ -531,14 +531,19 @@ QString normalizeOBJDUMP(QString const& text,int bits)
 	return addr+"   "+bytes+"   "+disasm;
 }
 
-std::string runOBJDUMP(std::vector<std::uint8_t> bytes, edb::address_t address)
+std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t address)
 {
 	const std::string processName="objdump";
 	const auto bits=edb::v1::debuggeeIs32Bit() ? 32 : 64;
 	QTemporaryFile binary(QDir::tempPath()+"/edb_insn_inspector_temp_XXXXXX.bin");
 	if(!binary.open()) return "; Failed to create binary file";
-	if(binary.write(reinterpret_cast<const char*>(bytes.data()),bytes.size())!=bytes.size())
+
+	const int size = bytes.size();
+
+	if(binary.write(reinterpret_cast<const char*>(bytes.data()), size) != size) {
 		return "; Failed to write to binary file";
+	}
+
 	binary.close();
 	QProcess process;
 	process.start(processName.c_str(),
@@ -607,14 +612,19 @@ QString normalizeNDISASM(QString const& text,int bits)
 	return addr+"   "+bytes.trimmed()+"   "+disasm.trimmed();
 }
 
-std::string runNDISASM(std::vector<std::uint8_t> bytes, edb::address_t address)
+std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t address)
 {
 	const std::string processName="ndisasm";
 	const auto bits=edb::v1::debuggeeIs32Bit() ? 32 : 64;
 	QTemporaryFile binary(QDir::tempPath()+"/edb_insn_inspector_temp_XXXXXX.bin");
 	if(!binary.open()) return "; Failed to create binary file";
-	if(binary.write(reinterpret_cast<const char*>(bytes.data()),bytes.size())!=bytes.size())
+
+	const int size = bytes.size();
+
+	if(binary.write(reinterpret_cast<const char*>(bytes.data()), size) != size) {
 		return "; Failed to write to binary file";
+	}
+
 	binary.close();
 	QProcess process;
 	process.start(processName.c_str(),{"-o",address.toPointerString(),"-b",std::to_string(bits).c_str(),binary.fileName()});
@@ -707,7 +717,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address)
 				const auto pageSize=4096u;
 				const edb::value32 fileAddr=(insnAddr&~(pageSize-1))-pageSize;
 
-				fileData.programHeader=Elf32_Phdr 
+				fileData.programHeader=Elf32_Phdr
 				{
 					PT_LOAD,
 					0, // start of file is beginning of segment
@@ -794,7 +804,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address)
 				const auto pageSize=4096ull;
 				const edb::value64 fileAddr=(insnAddr&~(pageSize-1))-pageSize;
 
-				fileData.programHeader=Elf64_Phdr 
+				fileData.programHeader=Elf64_Phdr
 				{
 					PT_LOAD,
 					PF_R|PF_X, // NOTE: This field is placed differently than in Elf32_Phdr!!!
