@@ -63,10 +63,10 @@ void DialogASCIIString::do_find() {
 	if(sz != 0) {
 
 		edb::v1::memory_regions().sync();
-		
+
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(IThread::pointer thread = process->current_thread()) {		
-		
+			if(IThread::pointer thread = process->current_thread()) {
+
 				State state;
 				thread->get_state(&state);
 				edb::address_t stack_ptr = state.stack_pointer();

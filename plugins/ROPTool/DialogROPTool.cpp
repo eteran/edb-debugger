@@ -316,7 +316,7 @@ void DialogROPTool::add_gadget(QList<edb::Instruction> instructions) {
 			auto item = new QStandardItem(QString("%1: %2").arg(edb::v1::format_pointer(inst1.rva()), instruction_string));
 
 			item->setData(static_cast<qulonglong>(inst1.rva()), Qt::UserRole);
-			
+
 			// TODO: make this look for 1st non-NOP
 			set_gadget_role(item, inst1);
 

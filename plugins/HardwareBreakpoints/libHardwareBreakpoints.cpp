@@ -56,14 +56,14 @@ BreakpointStatus validateBreakpoint(const BreakpointState &bp_state) {
 // Name: breakpointState
 //------------------------------------------------------------------------------
 BreakpointState breakpointState(const State *state, int num) {
-	
+
 	Q_ASSERT(num < RegisterCount);
-	
+
 	const int N1 = 16 + (num * 4);
-	const int N2 = 18 + (num * 4);	
-	
+	const int N2 = 18 + (num * 4);
+
 	BreakpointState bp_state;
-	
+
 	// enabled
 	switch(num) {
 	case Register1: bp_state.enabled = (state->debug_register(7) & 0x00000001) != 0; break;
@@ -71,10 +71,10 @@ BreakpointState breakpointState(const State *state, int num) {
 	case Register3: bp_state.enabled = (state->debug_register(7) & 0x00000010) != 0; break;
 	case Register4: bp_state.enabled = (state->debug_register(7) & 0x00000040) != 0; break;
 	}
-	
+
 	// address
 	bp_state.addr = state->debug_register(num);
-	
+
 	// type
 	switch((state->debug_register(7) >> N1) & 0x03) {
 	case 0x00:
@@ -82,15 +82,15 @@ BreakpointState breakpointState(const State *state, int num) {
 		break;
 	case 0x01:
 		bp_state.type = 1;
-		break;	
+		break;
 	case 0x03:
 		bp_state.type = 2;
-		break;	
+		break;
 	default:
 		bp_state.type = -1;
 		Q_ASSERT(0 && "Internal Error");
 	}
-	
+
 	// size
 	switch((state->debug_register(7) >> N2) & 0x03) {
 	case 0x00:
@@ -98,14 +98,14 @@ BreakpointState breakpointState(const State *state, int num) {
 		break;
 	case 0x01:
 		bp_state.size = 1;
-		break;	
+		break;
 	case 0x03:
 		bp_state.size = 2;
-		break;	
+		break;
 	case 0x02:
 		bp_state.size = 3;
 	}
-	
+
 	return bp_state;
 }
 

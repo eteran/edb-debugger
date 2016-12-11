@@ -69,7 +69,7 @@ GraphEdge::GraphEdge(GraphNode *from, GraphNode *to, const QColor &color, QGraph
 	to_->addEdge(this);
 
 	graph_->scene()->addItem(this);
-	
+
 	edge_ = agedge(graph_->graph_, from->node_, to->node_, nullptr, true);
 }
 

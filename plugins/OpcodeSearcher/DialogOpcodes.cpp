@@ -89,8 +89,8 @@ void DialogOpcodes::showEvent(QShowEvent *) {
 	ui->tableView->setModel(filter_model_);
 	ui->progressBar->setValue(0);
 	ui->listWidget->clear();
-	
-	
+
+
 	ui->comboBox->clear();
 	if(edb::v1::debuggeeIs64Bit()) {
 		ui->comboBox->addItem("RAX -> RIP", 1);
@@ -249,7 +249,7 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 					edb::Instruction inst2(p, last, 0);
 					if(inst2) {
 						const edb::Operand &op2 = inst2.operands()[0];
-						
+
 						if(is_ret(inst2)) {
 							add_result((QList<edb::Instruction>() << inst << inst2), start_address);
 						} else {
@@ -349,7 +349,7 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 
 			default:
 				break;
-			}		
+			}
 		}
 	}
 }

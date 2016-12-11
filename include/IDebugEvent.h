@@ -53,10 +53,10 @@ public:
 		QString message;
 		QString statusMessage;
 	};
-	
+
 public:
 	virtual ~IDebugEvent() {}
-	
+
 public:
 	virtual IDebugEvent *clone() const = 0;
 

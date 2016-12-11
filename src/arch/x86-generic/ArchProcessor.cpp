@@ -129,7 +129,7 @@ edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Op
 	ok=false;
 
 	// TODO: get registers by index, not string! too slow
-	
+
 	if(op.valid()) {
 		switch(op.type()) {
 		case edb::Operand::TYPE_REGISTER:
@@ -174,7 +174,7 @@ edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Op
 
 				std::size_t segRegIndex = op.expression().segment;
 				if(segRegIndex != edb::Operand::Segment::X86_REG_INVALID) {
-				
+
 					const Register segBase = [&segRegIndex, &state](){
 						switch(segRegIndex) {
 						case edb::Operand::Segment::X86_REG_ES: return state[QLatin1String("es_base")];
@@ -187,7 +187,7 @@ edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Op
 							return Register();
 						}
 					}();
-				
+
 					if(!segBase) return 0; // no way to reliably compute address
 					ret += segBase.valueAsAddress();
 				}
@@ -296,7 +296,7 @@ QString format_char(int pointer_level, edb::address_t arg, QChar type) {
 			return format_integer(pointer_level, arg, type);
 		}
 	}
-	
+
 	return "?";
 }
 
@@ -371,7 +371,7 @@ void resolve_function_parameters(const State &state, const QString &symname, int
         "r8",
         "r9"
 	};
-    
+
 	static const std::vector<const char *> parameter_registers_x86 = {
 	};
 
@@ -391,7 +391,7 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 
 		// safe not to check for -1, it means 'rest of string' for the mid function
 		func_name = func_name.mid(0, func_name.indexOf("@"));
-        
+
 		if(const edb::Prototype *const info = edb::v1::get_function_info(func_name)) {
 
 			QStringList arguments;
@@ -537,7 +537,7 @@ void analyze_return(const State &state, const edb::Instruction &inst, QStringLis
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		edb::address_t return_address(0);
 		process->read_bytes(state.stack_pointer(), &return_address, edb::v1::pointer_size());
-	
+
 		const QString symname = edb::v1::find_function_symbol(return_address);
 		if(!symname.isEmpty()) {
 			ret << ArchProcessor::tr("return to %1 <%2>").arg(edb::v1::format_pointer(return_address)).arg(symname);
@@ -557,7 +557,7 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 		const edb::Operand &operand = inst.operands()[0];
 
 		if(operand.valid()) {
-		
+
 			bool ok;
 			const edb::address_t effective_address = get_effective_address(inst, operand, state,ok);
 			if(!ok) return;
@@ -569,7 +569,7 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 				do {
 					int offset;
 					const QString symname = edb::v1::find_function_symbol(effective_address, QString(), &offset);
-                    
+
 					if(!symname.isEmpty()) {
 						ret << QString("%1 = %2 <%3>").arg(temp_operand, edb::v1::format_pointer(effective_address), symname);
 
@@ -680,11 +680,11 @@ QString formatPackedFloat(const char* data,std::size_t size) {
 void analyze_operands(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
 	Q_UNUSED(inst);
-	
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-    
+
     	const edb::Operand *const operands = inst.operands();
-    
+
 		for(std::size_t j = 0; j < inst.operand_count(); ++j) {
 
 			const edb::Operand &operand = operands[j];
@@ -740,7 +740,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						edb::value256 target;
 
 						if(process->read_bytes(effective_address, &target, sizeof(target))) {
-                        
+
                         	switch(operand.size()) {
 							case 1:
 								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value8(target).toHexString());
@@ -1235,7 +1235,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	// doesn't find a way to get full 64-bit state for such process
 	const bool is64Bit=ip.bitSize()==64;
 	Q_ASSERT(is64Bit || ip.bitSize()==32);
-	
+
 	model.setCPUMode(is64Bit ? RegisterViewModel::CPUMode::AMD64 : RegisterViewModel::CPUMode::IA32);
 	updateGPRs(model,state,is64Bit);
 	updateGeneralStatusRegs(model,state,is64Bit,default_region_name);
@@ -1418,9 +1418,9 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 
 	// fetch the operands
 	if(inst) {
-    
+
     	const edb::Operand *const operands = inst.operands();
-    
+
 		switch(inst.operation()) {
 		case edb::Instruction::Operation::X86_INS_NOP:
 		case edb::Instruction::Operation::X86_INS_INT3:
@@ -1428,9 +1428,9 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 			break;
 
 		case edb::Instruction::Operation::X86_INS_LEA:
-        
+
         	Q_ASSERT(inst.operand_count() >= 2);
-        
+
 			if(operands[0].valid() && operands[1].valid()) {
 				if(operands[0].type() == edb::Operand::TYPE_REGISTER && operands[1].type() == edb::Operand::TYPE_EXPRESSION) {
 
@@ -1456,9 +1456,9 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 			break;
 
 		case edb::Instruction::Operation::X86_INS_MOV:
-        
+
         	Q_ASSERT(inst.operand_count() >= 2);
-        
+
 			if(operands[0].valid() && operands[1].valid()) {
 				if(operands[0].type() == edb::Operand::TYPE_REGISTER && operands[1].type() == edb::Operand::TYPE_REGISTER) {
 					ret = operands[0].reg() == operands[1].reg();

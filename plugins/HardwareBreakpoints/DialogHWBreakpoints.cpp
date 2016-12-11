@@ -88,18 +88,18 @@ void DialogHWBreakpoints::showEvent(QShowEvent *event) {
 
 	State state;
 	edb::v1::debugger_core->get_state(&state);
-	
-	
+
+
 	const BreakpointState bp_state1 = breakpointState(&state, Register1);
 	const BreakpointState bp_state2 = breakpointState(&state, Register2);
 	const BreakpointState bp_state3 = breakpointState(&state, Register3);
 	const BreakpointState bp_state4 = breakpointState(&state, Register4);
-	
+
 	ui->chkBP1->setChecked(bp_state1.enabled);
 	ui->chkBP2->setChecked(bp_state2.enabled);
 	ui->chkBP3->setChecked(bp_state3.enabled);
 	ui->chkBP4->setChecked(bp_state4.enabled);
-	
+
 
 	if(bp_state1.enabled) {
 		ui->txtBP1->setText(bp_state1.addr.toPointerString());
@@ -110,19 +110,19 @@ void DialogHWBreakpoints::showEvent(QShowEvent *event) {
 	if(bp_state2.enabled) {
 		ui->txtBP2->setText(bp_state2.addr.toPointerString());
 		ui->cmbSize2->setCurrentIndex(bp_state2.size);
-		ui->cmbType2->setCurrentIndex(bp_state2.type);		
+		ui->cmbType2->setCurrentIndex(bp_state2.type);
 	}
 
 	if(bp_state3.enabled) {
 		ui->txtBP3->setText(bp_state3.addr.toPointerString());
 		ui->cmbSize3->setCurrentIndex(bp_state3.size);
-		ui->cmbType3->setCurrentIndex(bp_state3.type);		
+		ui->cmbType3->setCurrentIndex(bp_state3.type);
 	}
 
 	if(bp_state4.enabled) {
 		ui->txtBP4->setText(bp_state4.addr.toPointerString());
 		ui->cmbSize4->setCurrentIndex(bp_state4.size);
-		ui->cmbType4->setCurrentIndex(bp_state4.type);		
+		ui->cmbType4->setCurrentIndex(bp_state4.type);
 	}
 }
 

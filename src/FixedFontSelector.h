@@ -28,10 +28,10 @@ class FixedFontSelector : public QWidget {
 public:
 	FixedFontSelector(QWidget *parent = 0);
 	virtual ~FixedFontSelector();
-	
+
 public:
 	QFont currentFont();
-	
+
 public Q_SLOTS:
 	void setCurrentFont(const QFont &font);
 	void setCurrentFont(const QString &font);

@@ -121,7 +121,7 @@ Instruction& Instruction::operator=(const Instruction& other)
 	firstByte_ = other.firstByte_;
 	prefix_    = other.prefix_;
 	operands_  = other.operands_;
-	
+
 	// Update pointer after replacement
 	insn_.detail = &detail_;
 	return *this;
@@ -195,11 +195,11 @@ Operand Instruction::fromCapstoneOperand(Capstone::cs_x86_op *ops, int i) {
 		  )
 		{
 			operand.type_ = Operand::TYPE_REL;
-		} else {                
+		} else {
 	        operand.type_ = Operand::TYPE_IMMEDIATE;
 		}
         break;
-		
+
 	case Capstone::X86_OP_MEM:
 		operand.type_              = Operand::TYPE_EXPRESSION;
 		operand.expr_.displacement = op.mem.disp; // FIXME: truncation or wrong type chosen by capstone?..
@@ -207,7 +207,7 @@ Operand Instruction::fromCapstoneOperand(Capstone::cs_x86_op *ops, int i) {
 		operand.expr_.index        = static_cast<Operand::Register>(op.mem.index);
 		operand.expr_.scale        = op.mem.scale;
 		operand.expr_.segment      = static_cast<Operand::Segment>(op.mem.segment);
-			
+
 		if(operand.expr_.segment == Capstone::X86_REG_INVALID && !isX86_64())
 		{
 			if(operand.expr_.base==Capstone::X86_REG_BP || operand.expr_.base==Capstone::X86_REG_EBP || operand.expr_.base==Capstone::X86_REG_ESP) {
@@ -217,7 +217,7 @@ Operand Instruction::fromCapstoneOperand(Capstone::cs_x86_op *ops, int i) {
 			}
 		}
 		break;
-		
+
 	case Capstone::X86_OP_INVALID:
 		break;
 	default:
@@ -232,7 +232,7 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 	assert(capstoneInitialized);
     auto codeBegin = static_cast<const uint8_t*>(first);
     auto codeEnd   = static_cast<const uint8_t*>(last);
-	
+
 	firstByte_=codeBegin[0];
 
 	Capstone::cs_insn* insn=nullptr;
@@ -246,10 +246,10 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 		adjustInstructionText(insn_);
 		fillPrefix();
 		Capstone::cs_x86_op* ops=insn_.detail->x86.operands;
-        
-		
+
+
 		operands_.reserve(operand_count());
-		
+
 		for(std::size_t i=0;i<operand_count();++i) {
 			operands_.push_back(fromCapstoneOperand(ops, i));
 		}
@@ -609,7 +609,7 @@ void Formatter::setOptions(const Formatter::FormatOptions& options)
 std::string Formatter::to_string(const Instruction& instruction) const
 {
 	if(!instruction) return "(bad)";
-	
+
 	enum
 	{
 		tab1Size=8,

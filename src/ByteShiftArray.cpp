@@ -39,7 +39,7 @@ void ByteShiftArray::swap(ByteShiftArray &other) {
 // Desc: shifts data left one byte and shifts in a 0
 //------------------------------------------------------------------------------
 ByteShiftArray &ByteShiftArray::shl() {
-	
+
 	if(data_.size() == max_size_) {
 		for(int i = 1; i < data_.size(); ++i) {
 			data_[i - 1] = data_[i];

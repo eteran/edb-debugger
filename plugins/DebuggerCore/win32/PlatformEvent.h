@@ -33,7 +33,7 @@ public:
 
 public:
 	virtual PlatformEvent *clone() const;
-	
+
 public:
 	virtual Message error_description() const;
 	virtual REASON reason() const;
@@ -48,7 +48,7 @@ public:
 	virtual edb::pid_t process() const;
 	virtual edb::tid_t thread() const;
 	virtual int code() const;
-	
+
 private:
 	DEBUG_EVENT event;
 };

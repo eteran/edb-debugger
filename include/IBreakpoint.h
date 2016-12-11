@@ -36,10 +36,10 @@ class QByteArray;
 class IBreakpoint {
 public:
 	typedef std::shared_ptr<IBreakpoint> pointer;
-	
+
 protected:
 	IBreakpoint() : tag(0) {}
-	
+
 public:
 	virtual ~IBreakpoint() {}
 
@@ -61,7 +61,7 @@ public:
 public:
 	QString condition;
 	quint64 tag;
-	
+
 };
 
 #endif

@@ -101,7 +101,7 @@ public:
 
 Q_SIGNALS:
 	void gui_updated();
-	
+
 	// TODO(eteran): maybe this is better off as a single event
 	//               with a type passed?
 	void debugEvent();
@@ -152,11 +152,11 @@ private:
 	void toggle_flag(int);
 
 	void run_to_this_line(bool pass_signal);
-	
+
 private Q_SLOTS:
 	// the manually connected general slots
-	void mnuModifyBytes();	
-	
+	void mnuModifyBytes();
+
 private Q_SLOTS:
 	// the manually connected CPU slots
 	void mnuCPUEditComment();

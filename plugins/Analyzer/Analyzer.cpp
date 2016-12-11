@@ -105,11 +105,11 @@ QMenu *Analyzer::menu(QWidget *parent) {
 	if(!menu_) {
 		menu_ = new QMenu(tr("Analyzer"), parent);
 		menu_->addAction(tr("Show &Specified Functions"), this, SLOT(show_specified()));
-				
+
 		if(edb::v1::debugger_core) {
 			menu_->addAction(tr("&Analyze %1's Region").arg(edb::v1::debugger_core->instruction_pointer().toUpper()), this, SLOT(do_ip_analysis()), QKeySequence(tr("Ctrl+A")));
 		}
-		
+
 		menu_->addAction(tr("&Analyze Viewed Region"), this, SLOT(do_view_analysis()), QKeySequence(tr("Ctrl+Shift+A")));
 
 		// if we are dealing with a main window (and we are...)
@@ -161,7 +161,7 @@ void Analyzer::do_ip_analysis() {
 		if(IThread::pointer thread = process->current_thread()) {
 			State state;
 			thread->get_state(&state);
-		
+
 			const edb::address_t address = state.instruction_pointer();
 			if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
 				do_analysis(region);
@@ -449,7 +449,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 								// skip over ones which are: "call <label>; label:"
 								if(ea != address + inst.size()) {
 									known_functions.push(ea);
-									
+
 									if(!will_return(ea)) {
 										break;
 									}
@@ -465,7 +465,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 								// to see if we can know what the target is
 							}
 
-							
+
 						} else if(is_unconditional_jump(inst)) {
 
 							Q_ASSERT(inst.operand_count() >= 1);
@@ -476,7 +476,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							if(op.type() == edb::Operand::TYPE_REL) {
 								const edb::address_t ea = op.relative_target();
 
-								
+
 								if(functions.contains(ea)) {
 									functions[ea].add_reference();
 								} else if((ea - function_address) > 0x2000u) {
@@ -722,7 +722,7 @@ bool Analyzer::find_containing_function(edb::address_t address, Function *functi
 
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
 		const FunctionMap &funcs = functions(region);
-		
+
 		for(const Function &f: funcs) {
 			if(address >= f.entry_address() && address <= f.end_address()) {
 				*function = f;
@@ -743,18 +743,18 @@ bool Analyzer::find_containing_function(edb::address_t address, edb::address_t h
 
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
 		const FunctionMap &funcs = functions(region);
-		
+
 		// first try a direct lookup, which should be fast due to QHash data structure
 		auto it = funcs.find(hint_address);
 		if(it != funcs.end()) {
 			const Function &f = *it;
-			if(address >= f.entry_address() && address <= f.end_address()) {			
+			if(address >= f.entry_address() && address <= f.end_address()) {
 				*function = f;
 				return true;
-			}			
-			
+			}
+
 		}
-		
+
 		// wasn't found, try the brute force way..
 		for(const Function &f: funcs) {
 			if(address >= f.entry_address() && address <= f.end_address()) {

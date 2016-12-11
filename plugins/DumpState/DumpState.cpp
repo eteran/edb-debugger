@@ -50,7 +50,7 @@ static const char *const Cyan   = "\x1B[96m";
 static const char *const Blue   = "\x1B[94m";
 static const char *const Green  = "\x1B[92m";
 static const char *const Purple = "\x1B[95m";
-	
+
 
 //------------------------------------------------------------------------------
 // Name: format_register
@@ -256,7 +256,7 @@ void DumpState::dump_registers(const State &state) {
 // Desc:
 //------------------------------------------------------------------------------
 void DumpState::dump_lines(edb::address_t address, int lines) {
-	
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		for(int i = 0; i < lines; ++i) {
 			edb::value8 buf[16];
@@ -311,12 +311,12 @@ void DumpState::show_menu() {
 		if(IThread::pointer thread = process->current_thread()) {
 			State state;
 			thread->get_state(&state);
-		
+
 			std::cout << "------------------------------------------------------------------------------\n";
 			dump_registers(state);
 			std::cout << "[" << format_segment(state["ss"]) << ":" << format_address(state.stack_pointer()) << "]---------------------------------------------------------[stack]\n";
 			dump_stack(state);
-		
+
 			const edb::address_t data_address = edb::v1::current_data_view_address();
 			std::cout << "[" << format_segment(state["ds"]) << ":" << format_address(data_address) << "]---------------------------------------------------------[ data]\n";
 			dump_data(data_address);

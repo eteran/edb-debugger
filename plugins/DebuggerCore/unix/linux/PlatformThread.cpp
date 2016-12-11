@@ -59,7 +59,7 @@ namespace DebuggerCore {
 
 //------------------------------------------------------------------------------
 // Name: fillSegmentBases
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 void PlatformThread::fillSegmentBases(PlatformState* state) {
 
@@ -88,7 +88,7 @@ void PlatformThread::fillSegmentBases(PlatformState* state) {
 
 //------------------------------------------------------------------------------
 // Name: fillStateFromPrStatus
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 bool PlatformThread::fillStateFromPrStatus(PlatformState* state) {
 
@@ -128,7 +128,7 @@ bool PlatformThread::fillStateFromPrStatus(PlatformState* state) {
 
 //------------------------------------------------------------------------------
 // Name: fillStateFromSimpleRegs
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 bool PlatformThread::fillStateFromSimpleRegs(PlatformState* state) {
 
@@ -148,7 +148,7 @@ bool PlatformThread::fillStateFromSimpleRegs(PlatformState* state) {
 
 //------------------------------------------------------------------------------
 // Name: PlatformThread
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 PlatformThread::PlatformThread(DebuggerCore *core, IProcess *process, edb::tid_t tid) : core_(core), process_(process), tid_(tid) {
 	assert(process);
@@ -156,23 +156,23 @@ PlatformThread::PlatformThread(DebuggerCore *core, IProcess *process, edb::tid_t
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 PlatformThread::~PlatformThread() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 edb::tid_t PlatformThread::tid() const {
 	return tid_;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 QString PlatformThread::name() const  {
 	struct user_stat thread_stat;
@@ -180,13 +180,13 @@ QString PlatformThread::name() const  {
 	if(n >= 2) {
 		return thread_stat.comm;
 	}
-	
+
 	return QString();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 int PlatformThread::priority() const  {
 	struct user_stat thread_stat;
@@ -194,13 +194,13 @@ int PlatformThread::priority() const  {
 	if(n >= 30) {
 		return thread_stat.priority;
 	}
-	
+
 	return 0;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 edb::address_t PlatformThread::instruction_pointer() const  {
 	struct user_stat thread_stat;
@@ -208,13 +208,13 @@ edb::address_t PlatformThread::instruction_pointer() const  {
 	if(n >= 18) {
 		return thread_stat.kstkeip;
 	}
-	
+
 	return 0;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 QString PlatformThread::runState() const  {
 	struct user_stat thread_stat;
@@ -229,41 +229,41 @@ QString PlatformThread::runState() const  {
 			break;
 		case 'D':
 			return tr("%1 (Disk Sleep)").arg(thread_stat.state);
-			break;		
+			break;
 		case 'T':
 			return tr("%1 (Stopped)").arg(thread_stat.state);
-			break;		
+			break;
 		case 't':
 			return tr("%1 (Tracing Stop)").arg(thread_stat.state);
-			break;		
+			break;
 		case 'Z':
 			return tr("%1 (Zombie)").arg(thread_stat.state);
-			break;		
+			break;
 		case 'X':
 		case 'x':
 			return tr("%1 (Dead)").arg(thread_stat.state);
 			break;
 		case 'W':
 			return tr("%1 (Waking/Paging)").arg(thread_stat.state);
-			break;			
+			break;
 		case 'K':
 			return tr("%1 (Wakekill)").arg(thread_stat.state);
-			break;		
+			break;
 		case 'P':
 			return tr("%1 (Parked)").arg(thread_stat.state);
-			break;		
+			break;
 		default:
 			return tr("%1").arg(thread_stat.state);
-			break;		
-		} 
+			break;
+		}
 	}
-	
+
 	return tr("Unknown");
 }
 
 //------------------------------------------------------------------------------
 // Name: step
-// Desc: steps this thread one instruction, passing the signal that stopped it 
+// Desc: steps this thread one instruction, passing the signal that stopped it
 //       (unless the signal was SIGSTOP)
 //------------------------------------------------------------------------------
 void PlatformThread::step() {
@@ -272,7 +272,7 @@ void PlatformThread::step() {
 
 //------------------------------------------------------------------------------
 // Name: step
-// Desc: steps this thread one instruction, passing the signal that stopped it 
+// Desc: steps this thread one instruction, passing the signal that stopped it
 //       (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
 //------------------------------------------------------------------------------
 void PlatformThread::step(edb::EVENT_STATUS status) {
@@ -282,16 +282,16 @@ void PlatformThread::step(edb::EVENT_STATUS status) {
 
 //------------------------------------------------------------------------------
 // Name: resume
-// Desc: resumes this thread, passing the signal that stopped it 
+// Desc: resumes this thread, passing the signal that stopped it
 //       (unless the signal was SIGSTOP)
-//------------------------------------------------------------------------------	
+//------------------------------------------------------------------------------
 void PlatformThread::resume() {
 	core_->ptrace_continue(tid_, resume_code(status_));
 }
 
 //------------------------------------------------------------------------------
 // Name: resume
-// Desc: resumes this thread , passing the signal that stopped it 
+// Desc: resumes this thread , passing the signal that stopped it
 //       (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
 //------------------------------------------------------------------------------
 void PlatformThread::resume(edb::EVENT_STATUS status) {
@@ -360,7 +360,7 @@ void PlatformThread::get_state(State *state) {
 void PlatformThread::set_state(const State &state) {
 
 	// TODO: assert that we are paused
-	
+
 	if(auto state_impl = static_cast<PlatformState *>(state.impl_)) {
 		bool setPrStatusDone=false;
 		if(EDB_IS_32_BIT && state_impl->is64Bit()) {

@@ -67,7 +67,7 @@ void CommentServer::clear() {
 // Desc:
 //------------------------------------------------------------------------------
 Result<QString> CommentServer::resolve_function_call(QHexView::address_t address) const {
-	
+
 	// ok, we now want to locate the instruction before this one
 	// so we need to look back a few bytes
 	quint8 buffer[edb::Instruction::MAX_SIZE];
@@ -79,7 +79,7 @@ Result<QString> CommentServer::resolve_function_call(QHexView::address_t address
 				edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
 				if(is_call(inst)) {
 					const QString symname = edb::v1::find_function_symbol(address);
-					
+
 					if(!symname.isEmpty()) {
 						return edb::v1::make_result(tr("return to %1 <%2>").arg(edb::v1::format_pointer(address)).arg(symname));
 					} else {
@@ -104,7 +104,7 @@ Result<QString> CommentServer::resolve_string(QHexView::address_t address) const
 
 	int stringLen;
 	QString temp;
-	
+
 	if(edb::v1::get_ascii_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
 		return edb::v1::make_result(tr("ASCII \"%1\"").arg(temp));
 	} else if(edb::v1::get_utf16_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {

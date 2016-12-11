@@ -122,33 +122,33 @@ void HardwareBreakpoints::setupBreakpoints() {
 
 			for(int i = 0; i < RegisterCount; ++i) {
 				if(ok[i]) {
-				
+
 					const BreakpointStatus status = validateBreakpoint({
-						enabled_[i]->isChecked(), 
-						addr[i], 
-						types_[i]->currentIndex(), 
+						enabled_[i]->isChecked(),
+						addr[i],
+						types_[i]->currentIndex(),
 						sizes_[i]->currentIndex()
 					});
-					
+
 					switch(status) {
 					case AlignmentError:
 						QMessageBox::critical(
 							0,
 							tr("Address Alignment Error"),
-							tr("Hardware read/write breakpoint address must be aligned to breakpoint size."));					
+							tr("Hardware read/write breakpoint address must be aligned to breakpoint size."));
 						return;
 					case SizeError:
 					QMessageBox::critical(
 						0,
 						tr("BP Size Error"),
-						tr("Hardware read/write breakpoints cannot be 8-bytes in a 32-bit debuggee."));					
+						tr("Hardware read/write breakpoints cannot be 8-bytes in a 32-bit debuggee."));
 						return;
 					case Valid:
 						break;
 					}
 				}
 			}
-			
+
 			// we want to be enabled, if we aren't already hooked,
 			// hook it
 			if(!old_event_handler_) {
@@ -163,12 +163,12 @@ void HardwareBreakpoints::setupBreakpoints() {
 				for(int i = 0; i < RegisterCount; ++i) {
 					if(ok[i]) {
 						setBreakpointState(
-							&state, 
-							i, 
+							&state,
+							i,
 							{
-								enabled_[i]->isChecked(), 
-								addr[i], 
-								types_[i]->currentIndex(), 
+								enabled_[i]->isChecked(),
+								addr[i],
+								types_[i]->currentIndex(),
 								sizes_[i]->currentIndex()
 							}
 							);
@@ -356,7 +356,7 @@ QList<QAction *> HardwareBreakpoints::cpu_context_menu() {
 
 //------------------------------------------------------------------------------
 // Name: setExecuteBP
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 void HardwareBreakpoints::setExecuteBP(int index, bool inUse) {
 	// we want to be enabled, if we aren't already hooked,
@@ -389,7 +389,7 @@ void HardwareBreakpoints::setExecuteBP(int index, bool inUse) {
 
 //------------------------------------------------------------------------------
 // Name: setWriteBP
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t address, int size) {
 	// we want to be enabled, if we aren't already hooked,
@@ -397,7 +397,7 @@ void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t addre
 	if(!old_event_handler_) {
 		old_event_handler_ = edb::v1::set_debug_event_handler(this);
 	}
-	
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
 		if(inUse) {
@@ -438,7 +438,7 @@ void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t addre
 
 //------------------------------------------------------------------------------
 // Name: setReadWriteBP
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t address, int size) {
 	// we want to be enabled, if we aren't already hooked,
@@ -446,7 +446,7 @@ void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t a
 	if(!old_event_handler_) {
 		old_event_handler_ = edb::v1::set_debug_event_handler(this);
 	}
-	
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
 		if(inUse) {

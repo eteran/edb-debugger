@@ -38,7 +38,7 @@ class Bookmarks : public QObject, public IPlugin {
 #endif
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
-	
+
 	Q_PROPERTY(QVariantList addresses READ addresses)
 
 
@@ -48,7 +48,7 @@ public:
 public:
 	virtual QMenu *menu(QWidget *parent = 0);
 	virtual QList<QAction *> cpu_context_menu();
-	
+
 public:
 	virtual QVariantMap save_state() const;
 	virtual void restore_state(const QVariantMap &);

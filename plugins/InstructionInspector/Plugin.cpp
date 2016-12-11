@@ -707,7 +707,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address)
 				const auto pageSize=4096u;
 				const edb::value32 fileAddr=(insnAddr&~(pageSize-1))-pageSize;
 
-				fileData.programHeader=Elf32_Phdr 
+				fileData.programHeader=Elf32_Phdr
 				{
 					PT_LOAD,
 					0, // start of file is beginning of segment
@@ -794,7 +794,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address)
 				const auto pageSize=4096ull;
 				const edb::value64 fileAddr=(insnAddr&~(pageSize-1))-pageSize;
 
-				fileData.programHeader=Elf64_Phdr 
+				fileData.programHeader=Elf64_Phdr
 				{
 					PT_LOAD,
 					PF_R|PF_X, // NOTE: This field is placed differently than in Elf32_Phdr!!!

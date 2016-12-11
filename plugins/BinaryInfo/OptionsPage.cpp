@@ -49,12 +49,12 @@ void OptionsPage::showEvent(QShowEvent*) {
 
 void OptionsPage::on_checkBox_toggled(bool checked) {
 	QSettings settings;
-	settings.setValue("BinaryInfo/demangling_enabled", checked);	
+	settings.setValue("BinaryInfo/demangling_enabled", checked);
 }
 
 void OptionsPage::on_txtDebugDir_textChanged(const QString &text) {
 	QSettings settings;
-	settings.setValue("BinaryInfo/debug_info_path", text);	
+	settings.setValue("BinaryInfo/debug_info_path", text);
 }
 
 void OptionsPage::on_btnDebugDir_clicked() {

@@ -56,7 +56,7 @@ private:
 	bool                                   show_path_notice_;
 	QHash<edb::address_t, QString>         labels_;
 	QHash<QString, edb::address_t>         labels_by_name_;
-	
+
 };
 
 #endif

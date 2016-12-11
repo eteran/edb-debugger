@@ -39,7 +39,7 @@ class State;
 class IDebugger {
 public:
 	typedef QHash<edb::address_t, IBreakpoint::pointer> BreakpointList;
-	
+
 public:
 	virtual ~IDebugger() {}
 
@@ -50,23 +50,23 @@ public:
 	virtual quint64             cpu_type() const = 0;
 	virtual bool                has_extension(quint64 ext) const = 0;
 	virtual QMap<long, QString> exceptions() const = 0;
-	
+
 public:
 	// important register names
 	virtual QString stack_pointer() const = 0;
 	virtual QString frame_pointer() const = 0;
 	virtual QString instruction_pointer() const = 0;
 	virtual QString flag_register() const = 0;
-	
+
 public:
 	// data output
 	virtual QString format_pointer(edb::address_t address) const = 0;
-	
+
 public:
 	// general process data
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const = 0;
-	virtual QMap<edb::pid_t, IProcess::pointer> enumerate_processes() const = 0;	
-	
+	virtual QMap<edb::pid_t, IProcess::pointer> enumerate_processes() const = 0;
+
 public:
 	// basic process management
 	// These three functions return empty string on success, string with error description on error
@@ -77,7 +77,7 @@ public:
 	virtual void detach() = 0;
 	virtual void kill() = 0;
 	virtual void end_debug_session() = 0;
-	virtual void get_state(State *state) = 0;	
+	virtual void get_state(State *state) = 0;
 	virtual void set_state(const State &state) = 0;
 
 public:

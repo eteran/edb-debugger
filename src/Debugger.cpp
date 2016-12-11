@@ -305,7 +305,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	// CPU Shortcuts
 	gotoAddressAction_           = createAction(tr("&Goto Address"),                                 QKeySequence(tr("Ctrl+G")),   SLOT(goto_triggered()));
 	editBytesAction_             = createAction(tr("&Edit Bytes"),                                   QKeySequence(tr("Ctrl+E")),   SLOT(mnuModifyBytes()));
-		
+
 	editCommentAction_           = createAction(tr("Add &Comment"),                                  QKeySequence(tr(";")),        SLOT(mnuCPUEditComment()));
 	removeCommentAction_         = createAction(tr("Remove Comment"),                                QKeySequence(),               SLOT(mnuCPURemoveComment()));
 	toggleBreakpointAction_      = createAction(tr("&Toggle Breakpoint"),                            QKeySequence(tr("F2")),       SLOT(mnuCPUToggleBreakpoint()));
@@ -319,7 +319,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	followConstantInDumpAction_  = createAction(tr("Follow Constant In &Dump"),                      QKeySequence(),               SLOT(mnuCPUFollowInDump()));
 	followConstantInStackAction_ = createAction(tr("Follow Constant In &Stack"),                     QKeySequence(),               SLOT(mnuCPUFollowInStack()));
 	followAction_                = createAction(tr("&Follow"),                                       QKeySequence(),               SLOT(mnuCPUFollow()));
-	
+
 	// these get updated when we attach/run a new process, so it's OK to hard code them here
 #if defined(EDB_X86_64)
 	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("RIP"),        QKeySequence(tr("Ctrl+*")),   SLOT(mnuCPUSetEIP()));
@@ -328,13 +328,13 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("EIP"),        QKeySequence(tr("Ctrl+*")),   SLOT(mnuCPUSetEIP()));
 	gotoRIPAction_               = createAction(tr("&Goto %1").arg("EIP"),                           QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
 #endif
-	
+
 	// Data Dump Shorcuts
 	dumpFollowInCPUAction_       = createAction(tr("Follow Address In &CPU"),                        QKeySequence(),               SLOT(mnuDumpFollowInCPU()));
 	dumpFollowInDumpAction_      = createAction(tr("Follow Address In &Dump"),                       QKeySequence(),               SLOT(mnuDumpFollowInDump()));
 	dumpFollowInStackAction_     = createAction(tr("Follow Address In &Stack"),                      QKeySequence(),               SLOT(mnuDumpFollowInStack()));
 	dumpSaveToFileAction_        = createAction(tr("&Save To File"),                                 QKeySequence(),               SLOT(mnuDumpSaveToFile()));
-	
+
 	// Register View Shortcuts
 	registerFollowInDumpAction_    = createAction(tr("&Follow In Dump"),           QKeySequence(), SLOT(mnuRegisterFollowInDump()));
 	registerFollowInDumpTabAction_ = createAction(tr("&Follow In Dump (New Tab)"), QKeySequence(), SLOT(mnuRegisterFollowInDumpNewTab()));
@@ -344,8 +344,8 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	stackFollowInCPUAction_   = createAction(tr("Follow Address In &CPU"),   QKeySequence(), SLOT(mnuStackFollowInCPU()));
 	stackFollowInDumpAction_  = createAction(tr("Follow Address In &Dump"),  QKeySequence(), SLOT(mnuStackFollowInDump()));
 	stackFollowInStackAction_ = createAction(tr("Follow Address In &Stack"), QKeySequence(), SLOT(mnuStackFollowInStack()));
-	
-	// these get updated when we attach/run a new process, so it's OK to hard code them here	
+
+	// these get updated when we attach/run a new process, so it's OK to hard code them here
 #if defined(EDB_X86_64)
 	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("RSP"),       QKeySequence(), SLOT(mnuStackGotoESP()));
 	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("RBP"),       QKeySequence(), SLOT(mnuStackGotoEBP()));
@@ -358,13 +358,13 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	stackPopAction_     = createAction(tr("P&op %1").arg("DWORD"),     QKeySequence(), SLOT(mnuStackPop()));
 #endif
 
-	
+
 	// set these to have no meaningful "data" (yet)
 	followConstantInDumpAction_->setData(qlonglong(0));
 	followConstantInStackAction_->setData(qlonglong(0));
 	followAction_->setData(qlonglong(0));
-	
-	
+
+
 
 	setAcceptDrops(true);
 
@@ -545,8 +545,8 @@ QString Debugger::create_tty() {
 			tty_proc_->start(tty_command, proc_args);
 
 			if(tty_proc_->waitForStarted(3000)) {
-			
-			
+
+
 				// try to read from the pipe, but with a 2 second timeout
 				int fd = open(qPrintable(temp_pipe), O_RDWR);
 				if(fd != -1) {
@@ -683,13 +683,13 @@ void Debugger::create_data_tab() {
 	hexview->setRowWidth(config.data_row_width);
 	hexview->setWordWidth(config.data_word_width);
 	hexview->setShowAddressSeparator(config.show_address_separator);
-	
+
 	// Setup data views according to debuggee bitness
 	if(edb::v1::debuggeeIs64Bit()) {
 		hexview->setAddressSize(QHexView::Address64);
 	} else {
 		hexview->setAddressSize(QHexView::Address32);
-	}	
+	}
 
 	// set the default font
 	QFont dump_font;
@@ -868,10 +868,10 @@ void Debugger::setup_ui() {
 void Debugger::setup_stack_view() {
 
 	stack_view_ = std::make_shared<QHexView>();
-    
+
 	stack_view_->setUserConfigRowWidth(false);
 	stack_view_->setUserConfigWordWidth(false);
-    
+
 	ui.stackDock->setWidget(stack_view_.get());
 
 	// setup the context menu
@@ -906,7 +906,7 @@ void Debugger::closeEvent(QCloseEvent *event) {
 
 	QByteArray dissassemblyState = ui.cpuView->saveState();
 	settings.setValue("window.disassembly.state", dissassemblyState);
-		
+
 	settings.endGroup();
 	event->accept();
 }
@@ -932,7 +932,7 @@ void Debugger::showEvent(QShowEvent *) {
 	if(height != -1) {
 		resize(size().width(), height);
 	}
-	
+
 	const Configuration &config = edb::v1::config();
 	switch(config.startup_window_location) {
 	case Configuration::SystemDefault:
@@ -943,7 +943,7 @@ void Debugger::showEvent(QShowEvent *) {
 			QRect sg = desktop.screenGeometry();
 			int x = (sg.width() - this->width()) / 2;
 			int y = (sg.height() - this->height()) / 2;
-			move(x, y);	
+			move(x, y);
 		}
 		break;
 	case Configuration::Restore:
@@ -952,8 +952,8 @@ void Debugger::showEvent(QShowEvent *) {
 		}
 		break;
 	}
-	
-	
+
+
 	stack_view_->setShowAddress(settings.value("window.stack.show_address.enabled", true).value<bool>());
 	stack_view_->setShowHexDump(settings.value("window.stack.show_hex.enabled", true).value<bool>());
 	stack_view_->setShowAsciiDump(settings.value("window.stack.show_ascii.enabled", true).value<bool>());
@@ -964,8 +964,8 @@ void Debugger::showEvent(QShowEvent *) {
 
 	stack_view_->setRowWidth(row_width);
 	stack_view_->setWordWidth(word_width);
-	
-	
+
+
 	QByteArray disassemblyState = settings.value("window.disassembly.state").value<QByteArray>();
 	ui.cpuView->restoreState(disassemblyState);
 
@@ -1125,7 +1125,7 @@ void Debugger::toggle_flag(int pos)
 
 	// Get the state and get the flag register
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {	
+		if(IThread::pointer thread = process->current_thread()) {
 			State state;
 			thread->get_state(&state);
 			edb::reg_t flags = state.flags();
@@ -1162,7 +1162,7 @@ void Debugger::on_cpuView_breakPointToggled(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_About_triggered() {
-	
+
 	QPointer<DialogAbout> dlg = new DialogAbout(this);
 	dlg->exec();
 	delete dlg;
@@ -1431,7 +1431,7 @@ void Debugger::follow_in_dump(const T &hexview) {
 //------------------------------------------------------------------------------
 template <class T>
 void Debugger::follow_in_cpu(const T &hexview) {
-	
+
 	if(const Result<edb::address_t> address = get_follow_address(hexview)) {
 		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::jump_to_address(address);
@@ -1519,7 +1519,7 @@ void Debugger::mnuStackPush() {
 	Register value(edb::v1::debuggeeIs32Bit()?
 					   make_Register("",edb::value32(0),Register::TYPE_GPR):
 					   make_Register("",edb::value64(0),Register::TYPE_GPR));
-					   
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		if(IThread::pointer thread = process->current_thread()) {
 			State state;
@@ -1565,7 +1565,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 	auto displayMenu = new QMenu(tr("Display"));
 	displayMenu->addAction(QIcon::fromTheme(QString::fromUtf8("view-restore")), tr("Restore Column Defaults"), ui.cpuView, SLOT(resetColumns()));
-	
+
 	menu.addMenu(displayMenu);
 	menu.addSeparator();
 
@@ -1612,7 +1612,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 						if(inst.operands()[i].type() == edb::Operand::TYPE_IMMEDIATE) {
 							menu.addAction(followConstantInDumpAction_);
 							menu.addAction(followConstantInStackAction_);
-							
+
 							followConstantInDumpAction_->setData(static_cast<qlonglong>(inst.operands()[i].immediate()));
 							followConstantInStackAction_->setData(static_cast<qlonglong>(inst.operands()[i].immediate()));
 						}
@@ -1696,7 +1696,7 @@ void Debugger::mnuStackContextMenu(const QPoint &pos) {
 	menu->addSeparator();
 	menu->addAction(stackFollowInCPUAction_);
 	menu->addAction(stackFollowInDumpAction_);
-	menu->addAction(stackFollowInStackAction_);	
+	menu->addAction(stackFollowInStackAction_);
 	menu->addAction(gotoAddressAction_);
 	menu->addAction(stackGotoRSPAction_);
 	menu->addAction(stackGotoRBPAction_);
@@ -2399,13 +2399,13 @@ void Debugger::refresh_gui() {
 
 	if(edb::v1::debugger_core) {
 		State state;
-				
+
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(IThread::pointer thread = process->current_thread()) {					
+			if(IThread::pointer thread = process->current_thread()) {
 				thread->get_state(&state);
 			}
 		}
-		
+
 		list_model_->setStringList(edb::v1::arch_processor().update_instruction_info(state.instruction_pointer()));
 	}
 }
@@ -2417,10 +2417,10 @@ void Debugger::refresh_gui() {
 void Debugger::update_gui() {
 
 	if(edb::v1::debugger_core) {
-		
+
 		State state;
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(IThread::pointer thread = process->current_thread()) {				
+			if(IThread::pointer thread = process->current_thread()) {
 				thread->get_state(&state);
 			}
 		}
@@ -2462,9 +2462,9 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 
 	edb::v1::clear_status();
 	Q_ASSERT(edb::v1::debugger_core);
-	
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {	
+		if(IThread::pointer thread = process->current_thread()) {
 
 			// if necessary pass the trap to the application, otherwise just resume
 			// as normal
@@ -2474,7 +2474,7 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 			IBreakpoint::pointer bp;
 			if(!forced) {
 				State state;
-				thread->get_state(&state);			
+				thread->get_state(&state);
 				bp = edb::v1::debugger_core->find_breakpoint(state.instruction_pointer());
 				if(bp) {
 					bp->disable();
@@ -2625,7 +2625,7 @@ void Debugger::cleanup_debugger() {
 
 	Q_ASSERT(!data_regions_.isEmpty());
 	data_regions_.first()->region = IRegion::pointer();
-	
+
 	Q_EMIT(detachEvent());
 
 	setWindowTitle(tr("edb"));
@@ -2701,7 +2701,7 @@ void Debugger::set_initial_debugger_state() {
 
 	update_menu_state(PAUSED);
 	timer_->start(0);
-	
+
 	edb::v1::symbol_manager().clear();
 	edb::v1::memory_regions().sync();
 
@@ -2854,11 +2854,11 @@ void Debugger::setup_data_views() {
 bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 
 	bool ret = false;
-	tty_file_ = create_tty();		
+	tty_file_ = create_tty();
 
 	const QString errorString=edb::v1::debugger_core->open(s, working_directory_, args, tty_file_);
 	if(errorString.isEmpty()) {
-		attachComplete();			
+		attachComplete();
 		set_initial_breakpoint(s);
 		ret = true;
 	} else {
@@ -2955,17 +2955,17 @@ void Debugger::attach(edb::pid_t pid) {
 //------------------------------------------------------------------------------
 void Debugger::attachComplete() {
 	set_initial_debugger_state();
-	
+
 	test_native_binary();
-	
+
 	CapstoneEDB::init(edb::v1::debuggeeIs64Bit() ? CapstoneEDB::Architecture::ARCH_AMD64 : CapstoneEDB::Architecture::ARCH_X86);
 	setup_data_views();
-	
+
 	QString ip   = edb::v1::debugger_core->instruction_pointer().toUpper();
 	QString sp   = edb::v1::debugger_core->stack_pointer().toUpper();
 	QString bp   = edb::v1::debugger_core->frame_pointer().toUpper();
 	QString word = edb::v1::debuggeeIs64Bit() ? "QWORD" : "DWORD";
-	
+
 	setRIPAction_      ->setText(tr("&Set %1 to this Instruction").arg(ip));
 	gotoRIPAction_     ->setText(tr("&Goto %1").arg(ip));
 	stackGotoRSPAction_->setText(tr("Goto %1").arg(sp));
@@ -3322,43 +3322,43 @@ void Debugger::next_debug_event() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::save_session(const QString &session_file) {
-	
+
 	QVariantMap plugin_data;
 	QVariantMap session_data;
-	
+
 	for(QObject *plugin: edb::v1::plugin_list()) {
 		if(auto p = qobject_cast<IPlugin *>(plugin)) {
 			if(const QMetaObject *const meta = plugin->metaObject()) {
-				QString name    = meta->className();				
+				QString name    = meta->className();
 				QVariantMap data = p->save_state();
-				
-				if(!data.empty()) {				
+
+				if(!data.empty()) {
 					plugin_data[name] = data;
 				}
 			}
 		}
 	}
-	
+
 	session_data["version"]     = SessionFileVersion;
 	session_data["id"]          = SessionFileIdString; // just so we can sanity check things
-	
-	
+
+
 #if QT_VERSION < 0x040700
 	session_data["timestamp"]   = QDateTime::currentDateTime().toUTC();
 #else
 	session_data["timestamp"]   = QDateTime::currentDateTimeUtc();
 #endif
 	session_data["plugin-data"] = plugin_data;
-	
-	
+
+
 	auto object = QJsonObject::fromVariantMap(session_data);
 	QJsonDocument doc(object);
-	
+
 	QByteArray json = doc.toJson();
 	QFile file(session_file);
-	
+
 	if(file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-		file.write(json);	
+		file.write(json);
 	}
 }
 
@@ -3367,9 +3367,9 @@ void Debugger::save_session(const QString &session_file) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::load_session(const QString &session_file) {
-	
+
 	QFile file(session_file);
-	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {	
+	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		QByteArray json = file.readAll();
 		QJsonParseError error;
 		auto doc = QJsonDocument::fromJson(json, &error);
@@ -3382,7 +3382,7 @@ void Debugger::load_session(const QString &session_file) {
 
 			return;
 		}
-		
+
 		if(!doc.isObject()) {
 			QMessageBox::warning(
 				this,
@@ -3390,16 +3390,16 @@ void Debugger::load_session(const QString &session_file) {
 				tr("Session file is invalid. Not an object.")
 				);
 
-			return;		
+			return;
 		}
-		
+
 		QJsonObject object = doc.object();
 		QVariantMap session_data = object.toVariantMap();
-		
+
 		QString id  = session_data["id"].toString();
 		QString ts  = session_data["timestamp"].toString();
 		int version = session_data["version"].toInt();
-		
+
 		if(id != SessionFileIdString || version > SessionFileVersion) {
 			QMessageBox::warning(
 				this,
@@ -3407,9 +3407,9 @@ void Debugger::load_session(const QString &session_file) {
 				tr("Session file is invalid.")
 				);
 
-			return;			
+			return;
 		}
-		
+
 		QVariantMap plugin_data = session_data["plugin-data"].toMap();
 		for(auto it = plugin_data.begin(); it != plugin_data.end(); ++it) {
 
@@ -3418,15 +3418,15 @@ void Debugger::load_session(const QString &session_file) {
 					if(const QMetaObject *const meta = plugin->metaObject()) {
 						QString name     = meta->className();
 						QVariantMap data = it.value().toMap();
-						
-						if(name == it.key()) {			
+
+						if(name == it.key()) {
 							p->restore_state(data);
 							break;
 						}
 					}
 				}
-			}		
-		}		
+			}
+		}
 	}
 }
 

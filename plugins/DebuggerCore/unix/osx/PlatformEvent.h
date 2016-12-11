@@ -33,7 +33,7 @@ public:
 
 public:
 	virtual PlatformEvent *clone() const;
-	
+
 public:
 	virtual Message error_description() const;
 	virtual REASON reason() const;

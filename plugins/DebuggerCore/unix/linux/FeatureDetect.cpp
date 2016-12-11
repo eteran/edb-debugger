@@ -93,7 +93,7 @@ bool detect_proc_access(bool *read_broken, bool *write_broken) {
 			abort();
 		}
 
-		// force a signal		
+		// force a signal
 		raise(SIGCONT);
 
 		for (;;) {
@@ -112,7 +112,7 @@ bool detect_proc_access(bool *read_broken, bool *write_broken) {
 			kill_child(pid);
 			return false;
 		}
-		
+
 		if (!WIFSTOPPED(status) || WSTOPSIG(status) != SIGCONT) {
 			std::cerr << "unexpected status returned by waitpid: 0x" << std::hex << status << "\n";
 			kill_child(pid);
@@ -157,10 +157,10 @@ bool detect_proc_access(bool *read_broken, bool *write_broken) {
 			file.write(&buf, sizeof(buf));
 			if (!file) {
 				*read_broken  = false;
-				*write_broken = true;			
+				*write_broken = true;
 			} else {
 				*read_broken  = false;
-				*write_broken = false;			
+				*write_broken = false;
 			}
 		}
 		kill_child(pid);
