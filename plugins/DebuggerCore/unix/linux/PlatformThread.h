@@ -34,7 +34,7 @@ class PlatformThread : public IThread {
 	friend class DebuggerCore;
 public:
 	typedef std::shared_ptr<PlatformThread> pointer;
-	
+
 public:
 	enum SignalStatus {
 		Stopped,
@@ -44,38 +44,38 @@ public:
 public:
 	PlatformThread(DebuggerCore *core, IProcess *process, edb::tid_t tid);
 	virtual ~PlatformThread() override;
-	
+
 private:
 	PlatformThread(const PlatformThread &) = delete;
 	PlatformThread& operator=(const PlatformThread &) = delete;
-	
+
 public:
 	virtual edb::tid_t tid() const override;
 	virtual QString name() const override;
 	virtual int priority() const override;
 	virtual edb::address_t instruction_pointer() const override;
 	virtual QString runState() const override;
-	
+
 public:
-	virtual void get_state(State *state) override;	
+	virtual void get_state(State *state) override;
 	virtual void set_state(const State &state) override;
-	
+
 public:
 	virtual void step() override;
-	virtual void step(edb::EVENT_STATUS status) override;	
+	virtual void step(edb::EVENT_STATUS status) override;
 	virtual void resume() override;
 	virtual void resume(edb::EVENT_STATUS status) override;
 	virtual void stop() override;
-	
+
 private:
 	void fillSegmentBases(PlatformState* state);
 	bool fillStateFromPrStatus(PlatformState* state);
 	bool fillStateFromSimpleRegs(PlatformState* state);
-	
+
 private:
 	unsigned long get_debug_register(std::size_t n);
 	long set_debug_register(std::size_t n, long value);
-	
+
 private:
 	DebuggerCore *const core_;
 	IProcess *const     process_;

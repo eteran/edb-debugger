@@ -51,7 +51,7 @@ public:
 	Register();
 	Register(const Register &other);
 	Register &operator=(const Register &rhs);
-	
+
 public:
 	bool operator==(const Register &rhs) const;
 	bool operator!=(const Register &rhs) const;
@@ -64,7 +64,7 @@ public:
 	QString name() const         { return name_; }
 	std::size_t bitSize() const  { return bitSize_; }
 	const char* rawData() const { return reinterpret_cast<const char*>(&value_); }
-	
+
 	template <class T>
 	T value() const              { return T(value_); }
 	// Return the value, zero-extended to address_t to be usable in address calculations

@@ -63,7 +63,7 @@ IBreakpoint::pointer DebuggerCoreBase::add_breakpoint(edb::address_t address) {
 				return bp;
 			}
 		}
-	
+
 		return IBreakpoint::pointer();
 	} catch(const breakpoint_creation_error &e) {
 		qDebug() << "Failed to create breakpoint";

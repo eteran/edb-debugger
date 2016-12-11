@@ -68,12 +68,12 @@ void DialogReferences::do_find() {
 	bool ok = false;
 	edb::address_t address;
 	const edb::address_t page_size = edb::v1::debugger_core->page_size();
-	
+
 	const QString text = ui->txtAddress->text();
 	if(!text.isEmpty()) {
 		ok = edb::v1::eval_expression(text, &address);
-	}	
-	
+	}
+
 
 	if(ok) {
 		edb::v1::memory_regions().sync();
@@ -147,7 +147,7 @@ void DialogReferences::do_find() {
 											item->setData(AddressRole, addr);
 											ui->listWidget->addItem(item);
 										}
-									}								
+									}
 								}
 								break;
 							}

@@ -396,7 +396,7 @@ void collect_symbols(const void *p, size_t size, QList<typename M::symbol> &symb
 
 //--------------------------------------------------------------------------
 // Name: output_symbols
-// Desc: outputs the symbols to OS ensuring uniqueness and adding any 
+// Desc: outputs the symbols to OS ensuring uniqueness and adding any
 //       needed demangling
 //--------------------------------------------------------------------------
 template <class Symbol>
@@ -420,10 +420,10 @@ void output_symbols(QList<Symbol> &symbols, std::ostream &os) {
 bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, std::ostream &os) {
 	if(auto file_ptr = reinterpret_cast<void *>(file.map(0, file.size(), QFile::NoOptions))) {
 		if(is_elf64(file_ptr)) {
-		
+
 			typedef typename elf64_model::symbol symbol;
 			QList<symbol> symbols;
-			
+
 			collect_symbols<elf64_model>(file_ptr, file.size(), symbols);
 
 			// if there was a debug file
@@ -440,16 +440,16 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 						}
 					}
 				}
-			}			
+			}
 
 			output_symbols(symbols, os);
 			return true;
 		} else if(is_elf32(file_ptr)) {
-		
-			typedef typename elf32_model::symbol symbol;
-			QList<symbol> symbols;				
 
-			collect_symbols<elf32_model>(file_ptr, file.size(), symbols);			
+			typedef typename elf32_model::symbol symbol;
+			QList<symbol> symbols;
+
+			collect_symbols<elf32_model>(file_ptr, file.size(), symbols);
 
 			// if there was a debug file
 			if(debugFile) {
@@ -465,15 +465,15 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 						}
 					}
 				}
-			}			
-			
+			}
+
 			output_symbols(symbols, os);
 			return true;
 		} else {
 			qDebug() << "unknown file type";
 		}
 	}
-	
+
 	return false;
 }
 
@@ -497,17 +497,17 @@ bool generate_symbols(const QString &filename, std::ostream &os) {
 		os << md5.toHex().data() << ' ' << qPrintable(QFileInfo(filename).absoluteFilePath()) << '\n';
 
 		const QString debugInfoPath = QSettings().value("BinaryInfo/debug_info_path", "/usr/lib/debug").toString();
-	
+
 		std::shared_ptr<QFile> debugFile;
 		if(!debugInfoPath.isEmpty()) {
 			debugFile = std::make_shared<QFile>(QString("%1/%2.debug").arg(debugInfoPath, filename));
 			if(!debugFile->exists()) // systems such as Ubuntu don't have .debug suffix, try without it
 				debugFile = std::make_shared<QFile>(QString("%1/%2").arg(debugInfoPath, filename));
 		}
-		
-		return generate_symbols_internal(file, debugFile, os); 
+
+		return generate_symbols_internal(file, debugFile, os);
 	}
-	
+
 	return false;
 }
 }

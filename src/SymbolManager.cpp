@@ -73,19 +73,19 @@ void SymbolManager::load_symbol_file(const QString &filename, edb::address_t bas
 	QDir().mkpath(symbol_directory);
 
 	QFileInfo info(filename);
-	
+
 	if(info.exists() && info.isReadable()) {
-	
+
 		if(info.isRelative()) {
 			info.makeAbsolute();
 		}
-	
+
 		const QString path = QString("%1/%2").arg(symbol_directory, info.absolutePath());
 		const QString name = info.fileName();
-		
+
 		// ensure that the sub-directory exists
 		QDir().mkpath(path);
-		
+
 		if(!symbol_files_.contains(info.absoluteFilePath())) {
 			const QString map_file = QString("%1/%2.map").arg(path, name);
 
@@ -106,16 +106,16 @@ const Symbol::pointer SymbolManager::find(const QString &name) const {
 	if(it != symbols_by_name_.end()) {
 		return it.value();
 	}
-	
+
 	// slow path... look for any symbol which matches the name, but skipping the prefix
-	// we can make this faster later at the cost of yet another hash table if we 
+	// we can make this faster later at the cost of yet another hash table if we
 	// feel the need
 	for(auto &&symbol : symbols_) {
 		if(symbol->name_no_prefix == name) {
 			return symbol;
 		}
 	}
-	
+
 	return Symbol::pointer();
 }
 

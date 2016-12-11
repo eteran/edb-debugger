@@ -33,10 +33,10 @@ class DialogAssembler : public QDialog {
 public:
 	DialogAssembler(QWidget *parent = 0);
 	virtual ~DialogAssembler();
-	
+
 public Q_SLOTS:
 	void on_buttonBox_accepted();
-	
+
 public:
 	void set_address(edb::address_t address);
 

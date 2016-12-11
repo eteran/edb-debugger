@@ -27,14 +27,14 @@ public:
 	ShiftBuffer() {
 		qFill(buffer_, buffer_ + N, 0);
 	}
-	
+
 	~ShiftBuffer() {
 	}
-	
+
 	ShiftBuffer(const ShiftBuffer &other) {
 		qCopy(other.buffer_, other.buffer_ + N, buffer_);
 	}
-	
+
 	ShiftBuffer &operator=(const ShiftBuffer &rhs) {
 		ShiftBuffer(rhs).swap(*this);
 		return *this;
@@ -47,19 +47,19 @@ public:
 		}
 		buffer_[N - 1] = 0;
 	}
-	
+
 	void shr() {
 		for(size_t i = N - 1; i > 0; --i) {
 			buffer_[i] = buffer_[i - 1];
 		}
 		buffer_[0] = 0;
 	}
-	
+
 public:
 	size_t size() const {
 		return N;
 	}
-	
+
 public:
 	const quint8 *begin() const { return buffer_; }
 	const quint8 *end() const   { return buffer_ + N; }
@@ -70,18 +70,18 @@ public:
 	quint8 operator[](size_t n) const {
 		return buffer_[n];
 	}
-	
+
 	quint8 &operator[](size_t n) {
 		return buffer_[n];
 	}
-	
+
 public:
 	void swap(ShiftBuffer &other) {
 		for(size_t i = 0; i < N; ++i) {
 			qSwap(buffer_[i], other.buffer_[i]);
 		}
 	}
-	
+
 private:
 	quint8 buffer_[N];
 };

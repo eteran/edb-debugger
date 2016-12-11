@@ -88,7 +88,7 @@ void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &po
 	if(index.isValid()) {
 
 		const QString s = index.data().toString();
-		
+
 		if(const Result<edb::address_t> addr = edb::v1::string_to_address(s.split(":")[0])) {
 
 			QMenu menu;

@@ -87,7 +87,7 @@ public:
 
 public:
 	virtual QString format_pointer(edb::address_t address) const;
-	
+
 public:
 	// NOTE: win32 only stuff here!
 	edb::address_t start_address;

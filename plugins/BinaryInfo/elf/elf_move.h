@@ -24,24 +24,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "elf/elf_types.h"
 
-// Move records.  
+// Move records.
 struct elf32_move {
-	elf32_xword m_value;  // Symbol value.  
-	elf32_word m_info;    // Size and index.  
-	elf32_word m_poffset; // Symbol offset.  
-	elf32_half m_repeat;  // Repeat count.  
-	elf32_half m_stride;  // Stride info.  
+	elf32_xword m_value;  // Symbol value.
+	elf32_word m_info;    // Size and index.
+	elf32_word m_poffset; // Symbol offset.
+	elf32_half m_repeat;  // Repeat count.
+	elf32_half m_stride;  // Stride info.
 };
 
 struct elf64_move {
-	elf64_xword m_value;   // Symbol value.  
-	elf64_xword m_info;    // Size and index.  
-	elf64_xword m_poffset; // Symbol offset.  
-	elf64_half m_repeat;   // Repeat count.  
-	elf64_half m_stride;   // Stride info.  
+	elf64_xword m_value;   // Symbol value.
+	elf64_xword m_info;    // Size and index.
+	elf64_xword m_poffset; // Symbol offset.
+	elf64_half m_repeat;   // Repeat count.
+	elf64_half m_stride;   // Stride info.
 };
 
-// Macro to construct move records.  
+// Macro to construct move records.
 #define ELF32_M_SYM(info)       ((info) >> 8)
 #define ELF32_M_SIZE(info)      ((unsigned char) (info))
 #define ELF32_M_INFO(sym, size) (((sym) << 8) + (unsigned char) (size))

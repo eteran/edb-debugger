@@ -72,7 +72,7 @@ public:
 	const quint32 *digest() const {
 		return h_;
 	}
-	
+
 	bool result(quint32 *message_digest_array) const;
 	void swap(MD5 &other);
 	QString to_string() const;

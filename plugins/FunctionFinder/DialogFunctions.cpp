@@ -44,7 +44,7 @@ namespace FunctionFinder {
 //------------------------------------------------------------------------------
 DialogFunctions::DialogFunctions(QWidget *parent) : QDialog(parent), ui(new Ui::DialogFunctions) {
 	ui->setupUi(this);
-	
+
 #if QT_VERSION >= 0x050000
 	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -55,12 +55,12 @@ DialogFunctions::DialogFunctions(QWidget *parent) : QDialog(parent), ui(new Ui::
 
 	filter_model_ = new QSortFilterProxyModel(this);
 	connect(ui->txtSearch, SIGNAL(textChanged(const QString &)), filter_model_, SLOT(setFilterFixedString(const QString &)));
-	
+
 #ifdef ENABLE_GRAPH
 	ui->btnGraph->setEnabled(true);
 #else
 	ui->btnGraph->setEnabled(false);
-#endif	
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -165,8 +165,8 @@ void DialogFunctions::do_find() {
 						ui->tableWidget->setItem(row, 4, new QTableWidgetItem(tr("Standard Function")));
 						break;
 					}
-					
-					
+
+
 					QString symbol_name = edb::v1::symbol_manager().find_address_name(info.entry_address());
 					if(!symbol_name.isEmpty()) {
 						ui->tableWidget->setItem(row, 5, new QTableWidgetItem(symbol_name));
@@ -208,39 +208,39 @@ void DialogFunctions::on_btnGraph_clicked() {
 	qDebug("[FunctionFinder] Constructing Graph...");
 
 	QList<QTableWidgetItem *> items = ui->tableWidget->selectedItems();
-	
-	// each column counts as an item	
+
+	// each column counts as an item
 	if(items.size() == ui->tableWidget->columnCount()) {
 		if(QTableWidgetItem *item = items[0]) {
 			const edb::address_t addr = item->data(Qt::UserRole).toULongLong();
 			if(IAnalyzer *const analyzer = edb::v1::analyzer()) {
 				const IAnalyzer::FunctionMap &functions = analyzer->functions();
-				
-				
+
+
 				auto it = functions.find(addr);
 				if(it != functions.end()) {
 					Function f = *it;
-					
+
 					auto graph = new GraphWidget(nullptr);
 					graph->setAttribute(Qt::WA_DeleteOnClose);
-					
+
 					QMap<edb::address_t, GraphNode *> nodes;
-					
+
 					// first create all of the nodes
-					for(const BasicBlock &bb : f) {				
+					for(const BasicBlock &bb : f) {
 						auto node = new GraphNode(graph, bb.toString(), Qt::lightGray);
 						nodes.insert(bb.first_address(), node);
 					}
-					
+
 					// then connect them!
 					for(const BasicBlock &bb : f) {
-					
-					
+
+
 						if(!bb.empty()) {
-						
-							auto term = bb.back();							
+
+							auto term = bb.back();
 							auto inst = *term;
-							
+
 							if(is_unconditional_jump(inst)) {
 
 								Q_ASSERT(inst.operand_count() >= 1);
@@ -250,7 +250,7 @@ void DialogFunctions::on_btnGraph_clicked() {
 								//       a call/ret -> jmp optimization
 								if(op.type() == edb::Operand::TYPE_REL) {
 									const edb::address_t ea = op.relative_target();
-									
+
 									auto from = nodes.find(bb.first_address());
 									auto to = nodes.find(ea);
 									if(to != nodes.end() && from != nodes.end()) {
@@ -263,24 +263,24 @@ void DialogFunctions::on_btnGraph_clicked() {
 								const edb::Operand &op = inst.operands()[0];
 
 								if(op.type() == edb::Operand::TYPE_REL) {
-								
+
 									auto from = nodes.find(bb.first_address());
-									
+
 									auto to_taken = nodes.find(op.relative_target());
 									if(to_taken != nodes.end() && from != nodes.end()) {
 										new GraphEdge(from.value(), to_taken.value(), Qt::green);
 									}
-									
+
 									auto to_skipped = nodes.find(inst.rva() + inst.size());
 									if(to_taken != nodes.end() && from != nodes.end()) {
 										new GraphEdge(from.value(), to_skipped.value(), Qt::red);
-									}																
+									}
 								}
 							} else if(is_terminator(inst)) {
 							}
 						}
-					}					
-					
+					}
+
 					graph->layout();
 					graph->show();
 				}

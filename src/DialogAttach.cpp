@@ -66,7 +66,7 @@ DialogAttach::DialogAttach(QWidget *parent) : QDialog(parent), ui(new Ui::Dialog
 	ui->setupUi(this);
 
 	process_model_ = new ProcessModel(this);
-	
+
 	process_name_filter_ = new QSortFilterProxyModel(this);
 	process_name_filter_->setSourceModel(process_model_);
 	process_name_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
@@ -93,13 +93,13 @@ DialogAttach::~DialogAttach() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogAttach::on_filter_textChanged(const QString &filter) {
-	
+
 	if(isNumeric(filter)) {
 		process_pid_filter_->setFilterFixedString(filter);
 		process_name_filter_->setFilterFixedString(QString());
 	} else {
 		process_name_filter_->setFilterFixedString(filter);
-		process_pid_filter_->setFilterFixedString(QString());	
+		process_pid_filter_->setFilterFixedString(QString());
 	}
 }
 
@@ -156,6 +156,6 @@ Result<edb::pid_t> DialogAttach::selected_pid() const {
 		const QModelIndex index = process_name_filter_->mapToSource(process_pid_filter_->mapToSource(sel[0]));
 		return edb::v1::make_result<edb::pid_t>(process_model_->data(index, Qt::UserRole).toUInt());
 	}
-	
+
 	return Result<edb::pid_t>(tr("No Selection"), 0);
 }

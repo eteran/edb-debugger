@@ -99,7 +99,7 @@ QStringList split_max(const QString &str, const int &maxparts) {
 	}
 	return items;
 }
-	
+
 //------------------------------------------------------------------------------
 // Name: process_map_line
 // Desc: parses the data from a line of a memory map file
@@ -213,7 +213,7 @@ QList<Module> loaded_modules_(const IProcess* process, const std::unique_ptr<IBi
 
 //------------------------------------------------------------------------------
 // Name: PlatformProcess
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(core), pid_(pid), ro_mem_file_(0), rw_mem_file_(0) {
 	if (!core_->proc_mem_read_broken_) {
@@ -235,7 +235,7 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(cor
 
 //------------------------------------------------------------------------------
 // Name: ~PlatformProcess
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 PlatformProcess::~PlatformProcess() {
 	if (ro_mem_file_) {
@@ -328,7 +328,7 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 			}
 		}
 
-		// replace any breakpoints		
+		// replace any breakpoints
 		for(const IBreakpoint::pointer &bp: core_->breakpoints_) {
 			if(bp->address() >= address && bp->address() < (address + read)) {
 				// show the original bytes in the buffer..
@@ -385,8 +385,8 @@ std::size_t PlatformProcess::read_pages(edb::address_t address, void *buf, std::
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 QDateTime PlatformProcess::start_time() const {
 	QFileInfo info(QString("/proc/%1/stat").arg(pid_));
@@ -394,8 +394,8 @@ QDateTime PlatformProcess::start_time() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 QList<QByteArray> PlatformProcess::arguments() const {
 	QList<QByteArray> ret;
@@ -431,32 +431,32 @@ QList<QByteArray> PlatformProcess::arguments() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 QString PlatformProcess::current_working_directory() const {
 	return edb::v1::symlink_target(QString("/proc/%1/cwd").arg(pid_));
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 QString PlatformProcess::executable() const {
 	return edb::v1::symlink_target(QString("/proc/%1/exe").arg(pid_));
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 edb::pid_t PlatformProcess::pid() const {
 	return pid_;
 }
 
 //------------------------------------------------------------------------------
-// Name: 
-// Desc: 
+// Name:
+// Desc:
 //------------------------------------------------------------------------------
 IProcess::pointer PlatformProcess::parent() const {
 
@@ -510,15 +510,15 @@ QList<IRegion::pointer> PlatformProcess::regions() const {
 		std::ifstream mf(map_file.toStdString());
 		size_t newHash = 0;
 		std::string line;
-		
+
 		while(std::getline(mf,line)) {
 			boost::hash_combine(newHash, line);
 		}
-			
+
 		if(totalHash == newHash) {
 			return regions;
 		}
-		
+
 		totalHash = newHash;
 		regions.clear();
 	}
@@ -691,29 +691,29 @@ IThread::pointer PlatformProcess::current_thread() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 edb::uid_t PlatformProcess::uid() const {
-	
+
 	const QFileInfo info(QString("/proc/%1").arg(pid_));
 	return info.ownerId();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QString PlatformProcess::user() const {
 	if(const struct passwd *const pwd = ::getpwuid(uid())) {
 		return pwd->pw_name;
 	}
-	
+
 	return QString();
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 // Desc:
 //------------------------------------------------------------------------------
 QString PlatformProcess::name() const {
@@ -722,7 +722,7 @@ QString PlatformProcess::name() const {
 	if(n >= 2) {
 		return user_stat.comm;
 	}
-	
+
 	return QString();
 }
 
@@ -761,13 +761,13 @@ void PlatformProcess::resume(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 	Q_ASSERT(core_->process_ == this);
 
-	if(status != edb::DEBUG_STOP) {			
+	if(status != edb::DEBUG_STOP) {
 		if(IThread::pointer thread = current_thread()) {
 			thread->resume(status);
 
 			// resume the other threads passing the signal they originally reported had
 			for(auto &other_thread : threads()) {
-				if(core_->waited_threads_.contains(other_thread->tid())) {	
+				if(core_->waited_threads_.contains(other_thread->tid())) {
 					other_thread->resume();
 				}
 			}
@@ -783,7 +783,7 @@ void PlatformProcess::step(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 	Q_ASSERT(core_->process_ == this);
 
-	if(status != edb::DEBUG_STOP) {			
+	if(status != edb::DEBUG_STOP) {
 		if(IThread::pointer thread = current_thread()) {
 			thread->step(status);
 		}

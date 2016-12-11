@@ -48,7 +48,7 @@ Agnode_t *_agnode(Agraph_t *g, QString name) {
 /// Directly use agsafeset which always works, contrarily to agset
 int _agset(void *object, QString attr, QString value) {
 	return agsafeset(
-		object, 
+		object,
 		attr.toLocal8Bit().data(),
 		value.toLocal8Bit().data(),
 		value.toLocal8Bit().data());
@@ -70,12 +70,12 @@ GraphNode::GraphNode(GraphWidget *graph, const QString &text, const QColor &colo
 	setZValue(NodeZValue);
 
 	drawLabel(text);
-	
+
 	graph->scene()->addItem(this);
 
 	QString name = QString("Node%1").arg(reinterpret_cast<uintptr_t>(this));
 	node_ = _agnode(graph->graph_, name);
-		
+
 	_agset(node_, "fixedsize", "0");
 	_agset(node_, "width",  QString("%1").arg(boundingRect().width()  / 96.0));
 	_agset(node_, "height", QString("%1").arg(boundingRect().height() / 96.0));
@@ -114,9 +114,9 @@ void GraphNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
 	Q_UNUSED(option);
 	Q_UNUSED(widget);
-	
+
 	painter->save();
-	
+
 	// draw border
 	painter->setPen(BorderColor);
 	painter->setBrush(BorderColor);
@@ -129,14 +129,14 @@ void GraphNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option,
 
 	if(isSelected()) {
 		painter->setPen(QPen(Qt::DashLine));
-		painter->drawRect(boundingRect().adjusted(+4, +4, -4, -4));	
+		painter->drawRect(boundingRect().adjusted(+4, +4, -4, -4));
 	}
 
 	// draw contents
 	painter->restore();
 	picture_.play(painter);
-	
-	
+
+
 }
 
 //------------------------------------------------------------------------------
@@ -197,23 +197,23 @@ void GraphNode::drawLabel(const QString &text) {
 	}
 
 	painter.setFont(font);
-	
+
 	// just to calculate the proper bounding box
 	QRectF textBoundingRect;
 	painter.drawText(QRectF(), Qt::AlignLeft | Qt::AlignTop, text, &textBoundingRect);
-	
+
 	// set some reasonable minimums
 	if(textBoundingRect.width() < NodeWidth) {
 		textBoundingRect.setWidth(NodeWidth);
 	}
-	
+
 	if(textBoundingRect.height() < NodeHeight) {
 		textBoundingRect.setHeight(NodeHeight);
 	}
 
 	// set the bounding box and then really draw it
 	picture_.setBoundingRect(textBoundingRect.adjusted(-2, -2, +2, +2).toRect());
-		
+
 #if 1
 	QTextDocument doc;
 	doc.setDefaultFont(font);

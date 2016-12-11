@@ -28,7 +28,7 @@ QTextCharFormat createRule(const QBrush &foreground, const QBrush &background, i
 	format.setFontWeight(weight);
 	format.setFontItalic(italic);
 	format.setFontUnderline(underline);
-	return format;	
+	return format;
 }
 
 }
@@ -54,10 +54,10 @@ SyntaxHighlighter::HighlightingRule::HighlightingRule() {
 // Desc:
 //------------------------------------------------------------------------------
 SyntaxHighlighter::HighlightingRule::HighlightingRule(const QString &regex, const QBrush &foreground, const QBrush &background, int weight, bool italic, bool underline) : pattern(regex) {
-	
+
 	pattern.setCaseSensitivity(Qt::CaseInsensitive);
 	format = createRule(foreground, background, weight, italic, underline);
-	
+
 }
 
 //------------------------------------------------------------------------------
@@ -68,7 +68,7 @@ void SyntaxHighlighter::create_rules() {
 
 	// TODO: make these rules be implemented in a portable way
 	// right now things are very much hard coded
-	
+
 	// TODO: support segments
 
 	QSettings settings;
@@ -107,7 +107,7 @@ void SyntaxHighlighter::create_rules() {
 	// registers
 	// TODO: support ST(N)
 	rules_.push_back(HighlightingRule(
-		"\\b(((e|r)?(ax|bx|cx|dx|bp|sp|si|di|ip))|([abcd](l|h))|(sp|bp|si|di)l|([cdefgs]s)|[xyz]?mm([0-9]|[12][0-9]|3[01])|r(8|9|(1[0-5]))[dwb]?)\\b",		
+		"\\b(((e|r)?(ax|bx|cx|dx|bp|sp|si|di|ip))|([abcd](l|h))|(sp|bp|si|di)l|([cdefgs]s)|[xyz]?mm([0-9]|[12][0-9]|3[01])|r(8|9|(1[0-5]))[dwb]?)\\b",
 		QColor(settings.value("theme.register.foreground", "red").value<QString>()),
 		QColor(settings.value("theme.register.background", "transparent").value<QString>()),
 		settings.value("theme.register.weight", QFont::Bold).value<int>(),
@@ -155,7 +155,7 @@ void SyntaxHighlighter::create_rules() {
 		settings.value("theme.flow_ctrl.italic", false).value<bool>(),
 		settings.value("theme.flow_ctrl.underline", false).value<bool>()
 		));
-		
+
 
 	// function call
 	rules_.push_back(HighlightingRule(
@@ -244,14 +244,14 @@ void SyntaxHighlighter::create_rules() {
 // Desc:
 //------------------------------------------------------------------------------
 QVector<QTextLayout::FormatRange> SyntaxHighlighter::highlightBlock(const QString &text) {
-	
+
 	QVector<QTextLayout::FormatRange> ranges;
-	
+
 	for(const HighlightingRule &rule: rules_) {
 		int index = rule.pattern.indexIn(text);
 		while(index >= 0) {
 			const int length = rule.pattern.matchedLength();
-			
+
 			QTextLayout::FormatRange range;
 
 			range.format = rule.format;
@@ -259,10 +259,10 @@ QVector<QTextLayout::FormatRange> SyntaxHighlighter::highlightBlock(const QStrin
 			range.length = length;
 
 			ranges.push_back(range);
-			
+
 			index = rule.pattern.indexIn(text, index + length);
 		}
 	}
-	
+
 	return ranges;
 }

@@ -261,7 +261,7 @@ QString formatFloat(Float value)
 	case FloatValueClass::PseudoDenormal:
 		{
 			assert(sizeof value==10);
-			
+
 			// keeps compiler happy?
 			if(sizeof(value) == 10) {
 				// Convert to supported value as the CPU would. Otherwise glibc takes it wrong.

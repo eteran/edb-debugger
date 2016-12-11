@@ -43,20 +43,20 @@ public:
 	typedef QVector<instruction_pointer>::const_iterator const_iterator;
 	typedef std::reverse_iterator<iterator>              reverse_iterator;
 	typedef std::reverse_iterator<const_iterator>        const_reverse_iterator;
-	
+
 public:
 	BasicBlock();
 	BasicBlock(const BasicBlock &other);
 	BasicBlock &operator=(const BasicBlock &rhs);
 	~BasicBlock();
-	
+
 public:
 	void push_back(const instruction_pointer &inst);
-	
+
 public:
 	reference operator[](size_type pos);
 	const_reference operator[](size_type pos) const;
-	
+
 	const_reference back() const;
 	const_reference front() const;
 	reference back();
@@ -71,17 +71,17 @@ public:
 	iterator end();
 	reverse_iterator rbegin();
 	reverse_iterator rend();
-	
+
 public:
 	size_type size() const;
 	bool empty() const;
 
 public:
 	void swap(BasicBlock &other);
-	
+
 public:
 	QString toString() const;
-	
+
 public:
 	size_type byte_size() const;
 	edb::address_t first_address() const;

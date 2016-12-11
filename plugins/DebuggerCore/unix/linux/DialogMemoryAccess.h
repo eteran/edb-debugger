@@ -31,10 +31,10 @@ class DialogMemoryAccess : public QDialog {
 public:
 	DialogMemoryAccess(QWidget *parent = 0);
 	virtual ~DialogMemoryAccess();
-	
+
 public:
 	bool warnNextTime() const;
-	
+
 private:
 	 Ui::DialogMemoryAccess *const ui;
 };

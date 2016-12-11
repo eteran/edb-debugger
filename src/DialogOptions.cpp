@@ -156,7 +156,7 @@ void DialogOptions::on_btnPluginDir_clicked() {
 void DialogOptions::showEvent(QShowEvent *event) {
 
 	QDialog::showEvent(event);
-	
+
 	const Configuration &config = edb::v1::config();
 
 	ui->rdoSytntaxATT->setChecked(config.syntax == Configuration::ATT);
@@ -171,7 +171,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 
 	ui->chkTTY->setChecked(config.tty_enabled);
 	ui->txtTTY->setText(config.tty_command);
-	
+
 	ui->chkDeleteStaleSymbols->setChecked(config.remove_stale_symbols);
 	ui->chkDisableASLR->setChecked(config.disableASLR);
 	ui->chkDisableLazyBinding->setChecked(config.disableLazyBinding);
@@ -191,7 +191,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui->dataFont->setCurrentFont(config.data_font);
 	ui->registerFont->setCurrentFont(config.registers_font);
 	ui->disassemblyFont->setCurrentFont(config.disassembly_font);
-	
+
 	ui->txtSymbolDir->setText(config.symbol_path);
 	ui->txtPluginDir->setText(config.plugin_path);
 	ui->txtSessionDir->setText(config.session_path);
@@ -211,7 +211,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui->chkShowLocalModuleName->setChecked(config.show_local_module_name_in_jump_targets);
 	ui->chkShowSymbolicAddresses->setChecked(config.show_symbolic_addresses);
 	ui->chkSimplifyRIPRelativeTargets->setChecked(config.simplify_rip_relative_targets);
-	
+
 	ui->rdoPlaceDefault ->setChecked(config.startup_window_location == Configuration::SystemDefault);
 	ui->rdoPlaceCentered->setChecked(config.startup_window_location == Configuration::Centered);
 	ui->rdoPlaceRestore ->setChecked(config.startup_window_location == Configuration::Restore);
@@ -253,7 +253,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.remove_stale_symbols  = ui->chkDeleteStaleSymbols->isChecked();
 	config.disableASLR			 = ui->chkDisableASLR->isChecked();
 	config.disableLazyBinding	 = ui->chkDisableLazyBinding->isChecked();
-	
+
 	config.zeros_are_filling     = ui->chkZerosAreFilling->isChecked();
 	config.show_register_badges = ui->chkRegisterBadges->isChecked();
 	config.uppercase_disassembly = ui->chkUppercase->isChecked();
@@ -283,7 +283,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.data_show_comments = ui->chkDataShowComments->isChecked();
 	config.data_word_width    = 1 << ui->cmbDataWordWidth->currentIndex();
 	config.data_row_width     = 1 << ui->cmbDataRowWidth->currentIndex();
-	
+
 	CapstoneEDB::Formatter::FormatOptions options = edb::v1::formatter().options();
 	options.capitalization = config.uppercase_disassembly ? CapstoneEDB::Formatter::UpperCase : CapstoneEDB::Formatter::LowerCase;
 	options.smallNumFormat = config.small_int_as_decimal  ? CapstoneEDB::Formatter::SmallNumAsDec : CapstoneEDB::Formatter::SmallNumAsHex;

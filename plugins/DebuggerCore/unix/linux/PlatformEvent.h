@@ -32,7 +32,7 @@ class PlatformEvent : public IDebugEvent {
 
 public:
 	PlatformEvent();
-	
+
 private:
 	PlatformEvent(const PlatformEvent &) = default;
 	PlatformEvent& operator=(const PlatformEvent &) = default;

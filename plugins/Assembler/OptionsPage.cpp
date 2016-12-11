@@ -32,16 +32,16 @@ namespace Assembler {
 //------------------------------------------------------------------------------
 OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsPage) {
 	ui->setupUi(this);
-	
-	
+
+
 	QSettings settings;
 	const QString name = settings.value("Assembler/helper", "yasm").toString();
-	
-	
+
+
 	ui->assemblerName->clear();
-	
+
 	QFile file(":/debugger/Assembler/xml/assemblers.xml");
-	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {	
+	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		QDomDocument xml;
 		xml.setContent(&file);
 		QDomElement root = xml.documentElement();
@@ -51,7 +51,7 @@ OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsP
 			ui->assemblerName->addItem(name);
 		}
 	}
-	
+
 
 
 

@@ -35,12 +35,12 @@ DialogThreads::DialogThreads(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 
 	threads_model_ = new ThreadsModel(this);
 	threads_filter_ = new QSortFilterProxyModel(this);
-	
+
 	threads_filter_->setSourceModel(threads_model_);
 	threads_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
-	
+
 	ui->thread_table->setModel(threads_filter_);
-	
+
 	connect(edb::v1::debugger_ui, SIGNAL(debugEvent()), this, SLOT(updateThreads()));
 	connect(edb::v1::debugger_ui, SIGNAL(detachEvent()), this, SLOT(updateThreads()));
 	connect(edb::v1::debugger_ui, SIGNAL(attachEvent()), this, SLOT(updateThreads()));
@@ -67,7 +67,7 @@ void DialogThreads::showEvent(QShowEvent *) {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogThreads::on_thread_table_doubleClicked(const QModelIndex &index) {
-	
+
 	const QModelIndex internal_index = threads_filter_->mapToSource(index);
 	if(auto item = reinterpret_cast<ThreadsModel::Item *>(internal_index.internalPointer())) {
 		if(IThread::pointer thread = item->thread) {
@@ -82,17 +82,17 @@ void DialogThreads::on_thread_table_doubleClicked(const QModelIndex &index) {
 //------------------------------------------------------------------------------
 void DialogThreads::updateThreads() {
 	threads_model_->clear();
-	
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		IThread::pointer current = process->current_thread();
-		
+
 		for(IThread::pointer thread : process->threads()) {
 
 			if(thread == current) {
 				threads_model_->addThread(thread, true);
 			} else {
 				threads_model_->addThread(thread, false);
-			}		
+			}
 		}
 	}
 

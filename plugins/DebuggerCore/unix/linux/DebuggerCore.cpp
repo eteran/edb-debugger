@@ -139,7 +139,7 @@ bool os64Bit(bool edbIsIn64BitSegment) {
 // Name: DebuggerCore
 // Desc: constructor
 //------------------------------------------------------------------------------
-DebuggerCore::DebuggerCore() : 
+DebuggerCore::DebuggerCore() :
 	binary_info_(nullptr),
 	process_(0),
 	pointer_size_(sizeof(void*)),
@@ -151,28 +151,28 @@ DebuggerCore::DebuggerCore() :
 {
 	qDebug() << "EDB is in" << (edbIsIn64BitSegment?"64":"32") << "bit segment";
 	qDebug() << "OS is" << (osIs64Bit?"64":"32") << "bit";
-	
+
 	proc_mem_write_broken_ = true;
 	proc_mem_read_broken_  = true;
-	
+
 	feature::detect_proc_access(&proc_mem_read_broken_, &proc_mem_write_broken_);
 	qDebug() << "Detect that read /proc/<pid>/mem works  = " << !proc_mem_read_broken_;
 	qDebug() << "Detect that write /proc/<pid>/mem works = " << !proc_mem_write_broken_;
-	
+
 	if(proc_mem_read_broken_ || proc_mem_write_broken_) {
-	
+
 		QSettings settings;
 		const bool warn = settings.value("DebuggerCore/warn_on_broken_proc_mem.enabled", true).toBool();
-		if(warn) {	
+		if(warn) {
 			auto *dialog = new DialogMemoryAccess(0);
 			dialog->exec();
-			
+
 			settings.setValue("DebuggerCore/warn_on_broken_proc_mem.enabled", dialog->warnNextTime());
-			
+
 			delete dialog;
 		}
 	}
-	
+
 }
 
 //------------------------------------------------------------------------------
@@ -260,7 +260,7 @@ long DebuggerCore::ptrace_traceme() {
 //------------------------------------------------------------------------------
 long DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
 	// TODO(eteran): perhaps address this at a higher layer?
-	//               I would like to not have these events show up 
+	//               I would like to not have these events show up
 	//               in the first place if we aren't stopped on this TID :-(
 	if(waited_threads_.contains(tid)) {
 		Q_ASSERT(waited_threads_.contains(tid));
@@ -277,7 +277,7 @@ long DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
 //------------------------------------------------------------------------------
 long DebuggerCore::ptrace_step(edb::tid_t tid, long status) {
 	// TODO(eteran): perhaps address this at a higher layer?
-	//               I would like to not have these events show up 
+	//               I would like to not have these events show up
 	//               in the first place if we aren't stopped on this TID :-(
 	if(waited_threads_.contains(tid)) {
 		Q_ASSERT(waited_threads_.contains(tid));
@@ -354,7 +354,7 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 			if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
 				qDebug("handle_event(): [warning] new thread [%d] received an event besides SIGSTOP: status=0x%x", static_cast<int>(new_tid),thread_status);
 			}
-			
+
 			newThread->status_ = thread_status;
 
 			// copy the hardware debug registers from the current thread to the new thread
@@ -389,7 +389,7 @@ IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status
 	}
 
 	active_thread_ = tid;
-	
+
 	auto it = threads_.find(tid);
 	if(it != threads_.end()) {
 		it.value()->status_ = status;
@@ -409,9 +409,9 @@ void DebuggerCore::stop_threads() {
 			const edb::tid_t tid = thread->tid();
 
 			if(!waited_threads_.contains(tid)) {
-			
+
 				if(auto thread_ptr = std::static_pointer_cast<PlatformThread>(thread)) {
-			
+
 					thread->stop();
 
 					int thread_status;
@@ -472,7 +472,7 @@ int DebuggerCore::attach_thread(edb::tid_t tid) {
 			if(ptrace_set_options(tid, PTRACE_O_TRACECLONE) == -1) {
 				qDebug("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: [%d] %s", tid, strerror(errno));
 			}
-			
+
 			if(edb::v1::config().close_behavior==Configuration::Kill ||
 			   (edb::v1::config().close_behavior==Configuration::KillIfLaunchedDetachIfAttached &&
 				  last_means_of_capture()==MeansOfCapture::Launch)) {
@@ -501,7 +501,7 @@ QString DebuggerCore::attach(edb::pid_t pid) {
 	end_debug_session();
 
 	lastMeansOfCapture=MeansOfCapture::Attach;
-	
+
 	// create this, so the threads created can refer to it
 	process_ = new PlatformProcess(this, pid);
 
@@ -531,7 +531,7 @@ QString DebuggerCore::attach(edb::pid_t pid) {
 	if(!threads_.empty()) {
 		pid_            = pid;
 		active_thread_  = pid;
-		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());		
+		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 		detectDebuggeeBitness();
 		return statusOK;
 	} else {
@@ -556,7 +556,7 @@ void DebuggerCore::detach() {
 		for(auto thread: process_->threads()) {
 			ptrace(PTRACE_DETACH, thread->tid(), 0, 0);
 		}
-		
+
 		delete process_;
 		process_ = nullptr;
 
@@ -615,7 +615,7 @@ void DebuggerCore::detectDebuggeeBitness() {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::get_state(State *state) {
-	// TODO: assert that we are paused	
+	// TODO: assert that we are paused
 	if(process_) {
 		if(IThread::pointer thread = process_->current_thread()) {
 			thread->get_state(state);
@@ -737,7 +737,7 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 				end_debug_session();
 				return QObject::tr("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: %1").arg(strerr);
 			}
-			
+
 #ifdef PTRACE_O_EXITKILL
 			if(ptrace_set_options(pid, PTRACE_O_EXITKILL) == -1) {
 				const auto strerr=strerror(errno); // NOTE: must be called before any other syscall, otherwise errno can change
@@ -748,16 +748,16 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 
 			// setup the first event data for the primary thread
 			waited_threads_.insert(pid);
-			
+
 			// create the process
 			process_ = new PlatformProcess(this, pid);
-			
+
 
 			// the PID == primary TID
 			auto newThread            = std::make_shared<PlatformThread>(this, process_, pid);
 			newThread->status_        = status;
 			newThread->signal_status_ = PlatformThread::Stopped;
-			
+
 			threads_[pid]   = newThread;
 
 			pid_            = pid;
@@ -815,7 +815,7 @@ QMap<edb::pid_t, IProcess::pointer> DebuggerCore::enumerate_processes() const {
 		const QString filename = info.fileName();
 		if(is_numeric(filename)) {
 			const edb::pid_t pid = filename.toULong();
-			
+
 			// NOTE(eteran): the const_cast is reasonable here.
 			// While we don't want THIS function to mutate the DebuggerCore object
 			// we do want the associated PlatformProcess to be able to trigger
@@ -909,7 +909,7 @@ QString DebuggerCore::flag_register() const {
 
 //------------------------------------------------------------------------------
 // Name: process
-// Desc: 
+// Desc:
 //------------------------------------------------------------------------------
 IProcess *DebuggerCore::process() const {
 	return process_;

@@ -48,13 +48,13 @@ public:
 	void set_mask_bit(quint32 mask, bool value) {
 
 		beginResetModel();
-		
+
 		if(value) {
 			mask_ |= mask;
 		} else {
 			mask_ &= ~mask;
 		}
-		
+
 		endResetModel();
 	}
 

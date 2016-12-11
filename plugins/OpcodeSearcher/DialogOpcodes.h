@@ -61,7 +61,7 @@ private:
 
 	template <edb::Operand::Register REG>
 	void test_reg_to_ip(const OpcodeData &data, edb::address_t start_address);
-	
+
 	template <edb::Operand::Register REG>
 	void test_deref_reg_to_ip(const OpcodeData &data, edb::address_t start_address);
 

@@ -59,7 +59,7 @@ bool is_ret(const QTableWidgetItem *item) {
 	if (!item) {
 		return false;
 	}
-	
+
 	return is_ret(item->column());
 }
 
@@ -79,7 +79,7 @@ bool is_ret(const QTableWidgetItem *item) {
 DialogBacktrace::DialogBacktrace(QWidget *parent) : QDialog(parent), ui(new Ui::DialogBacktrace) {
 	ui->setupUi(this);
 	table_ = ui->tableWidgetCallStack;
-	
+
 	table_->verticalHeader()->hide();
 #if QT_VERSION >= 0x050000
 	table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -104,7 +104,7 @@ void DialogBacktrace::showEvent(QShowEvent *) {
 
 	//Populate the tabel with our call stack info.
 	populate_table();
-	
+
 	table_->horizontalHeader()->resizeSections(QHeaderView::Stretch);
 }
 
@@ -141,7 +141,7 @@ void DialogBacktrace::populate_table() {
 
 		//Put them in the table: create string from address and set item flags.
 		for (int j = 0; j < stack_entry.size() && j < table_->columnCount(); j++) {
-		
+
 			edb::address_t address = stack_entry.at(j);
 
 			Symbol::pointer near_symbol = edb::v1::symbol_manager().find_near_symbol(address);
@@ -149,7 +149,7 @@ void DialogBacktrace::populate_table() {
 			//Turn the address into a string prefixed with "0x"
 			auto item = new QTableWidgetItem;
 			item->setData(Qt::UserRole, static_cast<qlonglong>(address));
-			
+
 			if(near_symbol) {
 				QString function = near_symbol->name;
 				int offset = address - near_symbol->address;;

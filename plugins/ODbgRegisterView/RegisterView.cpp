@@ -1105,10 +1105,10 @@ ODBRegView::ODBRegView(QString const& settingsGroup, QWidget* parent)
 	  dialogEditFPU(new DialogEditFPU(this))
 {
 	setObjectName("ODBRegView");
-    
-    
+
+
     connect(&edb::v1::config(), SIGNAL(settingsUpdated()), this, SLOT(settingsUpdated()));
-    
+
 
 	{
 		// TODO: get some signal to change font on the fly
@@ -1201,7 +1201,7 @@ void ODBRegView::copyAllRegisters()
 				const auto f2Pos=fieldPos(f2);
 				if(f1Pos.y()<f2Pos.y()) return true;
 				if(f1Pos.y()>f2Pos.y()) return false;
-				return f1Pos.x()<f2Pos.x(); 
+				return f1Pos.x()<f2Pos.x();
 			});
 
 	QString text;
@@ -1676,7 +1676,7 @@ RegisterGroup* createFPULastOp(RegisterViewModelBase::Model* model,QWidget* pare
 		if(rawFIP.isEmpty()) return str;
 		edb::address_t fip(0);
 		assert(rawFIP.size()<=long(sizeof fip));
-		std::memcpy(&fip,rawFIP.constData(),rawFIP.size());	
+		std::memcpy(&fip,rawFIP.constData(),rawFIP.size());
 
 		const auto excMask=fcr&0x3f;
 		const auto excActive=fsr&0x3f;

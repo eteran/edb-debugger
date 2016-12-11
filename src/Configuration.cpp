@@ -131,20 +131,20 @@ void Configuration::read_settings() {
 #endif
 	QString defaultSymbolPath = QString("%1/%2").arg(cacheDirectory, "symbols");
 	QString defaultSessionPath = QString("%1/%2").arg(cacheDirectory, "sessions");
-	
+
 	symbol_path  = settings.value("directory.symbol.path", defaultSymbolPath).value<QString>();
 	plugin_path  = settings.value("directory.plugin.path", default_plugin_path).value<QString>();
-	session_path = settings.value("directory.session.path", defaultSessionPath).value<QString>();	
+	session_path = settings.value("directory.session.path", defaultSessionPath).value<QString>();
 	settings.endGroup();
 
 	settings.beginGroup("Exceptions");
 	enable_signals_message_box=settings.value("signals.show_message_box.enabled", true).value<bool>();
 	settings.endGroup();
-	
+
 	settings.beginGroup("Window");
 	startup_window_location = static_cast<StartupWindowLocation>(settings.value("window.startup_window_location", SystemDefault).value<uint>());
 	settings.endGroup();
-	
+
 	if(startup_window_location < 0 || startup_window_location > 2) {
 		startup_window_location = SystemDefault;
 	}
@@ -157,7 +157,7 @@ void Configuration::read_settings() {
 	if(data_row_width != 1 && data_row_width != 2 && data_row_width != 4 && data_row_width != 8 && data_row_width != 16) {
 		data_row_width = 16;
 	}
-	
+
 	// Init capstone to some default settings
 	CapstoneEDB::init(EDB_IS_64_BIT ? CapstoneEDB::Architecture::ARCH_AMD64 : CapstoneEDB::Architecture::ARCH_X86);
 	CapstoneEDB::Formatter::FormatOptions options = edb::v1::formatter().options();
@@ -166,7 +166,7 @@ void Configuration::read_settings() {
 	options.syntax=static_cast<CapstoneEDB::Formatter::Syntax>(syntax);
 	options.tabBetweenMnemonicAndOperands=tab_between_mnemonic_and_operands;
 	options.simplifyRIPRelativeTargets=simplify_rip_relative_targets;
-	edb::v1::formatter().setOptions(options);	
+	edb::v1::formatter().setOptions(options);
 }
 
 //------------------------------------------------------------------------------
@@ -192,7 +192,7 @@ void Configuration::write_settings() {
 	settings.setValue("appearance.data.show_comments.enabled", data_show_comments);
 	settings.setValue("appearance.data.word_width", data_word_width);
 	settings.setValue("appearance.data.row_width", data_row_width);
-	settings.setValue("appearance.address_colon.enabled", show_address_separator);	
+	settings.setValue("appearance.address_colon.enabled", show_address_separator);
 	settings.endGroup();
 
 	settings.beginGroup("Debugging");
@@ -229,7 +229,7 @@ void Configuration::write_settings() {
 	settings.setValue("signals.show_message_box.enabled", enable_signals_message_box);
 	settings.endGroup();
 
-	settings.beginGroup("Window");	
+	settings.beginGroup("Window");
 	settings.setValue("window.startup_window_location", startup_window_location);
-	settings.endGroup();	
+	settings.endGroup();
 }

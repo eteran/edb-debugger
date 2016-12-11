@@ -27,7 +27,7 @@ namespace DebuggerCore {
 
 class PlatformRegion : public IRegion {
 	Q_DECLARE_TR_FUNCTIONS(PlatformRegion)
-	
+
 public:
 	PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions);
 	virtual ~PlatformRegion();
@@ -46,14 +46,14 @@ public:
 	virtual void set_permissions(bool read, bool write, bool execute);
 	virtual void set_start(edb::address_t address);
 	virtual void set_end(edb::address_t address);
-	
+
 public:
 	virtual edb::address_t start() const;
 	virtual edb::address_t end() const;
 	virtual edb::address_t base() const;
 	virtual QString name() const;
 	virtual permissions_t permissions() const;
-	
+
 private:
 	edb::address_t start_;
 	edb::address_t end_;

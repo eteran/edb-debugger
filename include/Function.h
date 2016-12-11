@@ -46,14 +46,14 @@ public:
 	explicit Function(edb::address_t address);
 	Function(const Function &other);
 	Function &operator=(const Function &rhs);
-	
+
 public:
 	void insert(const BasicBlock &bb);
 	void add_reference();
 	Type type() const;
 	void set_type(Type t);
 
-public:	
+public:
 	const_reference back() const;
 	const_reference front() const;
 	reference back();
@@ -72,16 +72,16 @@ public:
 public:
 	bool empty() const;
 	size_type size() const;
-	
+
 public:
 	edb::address_t entry_address() const;
 	edb::address_t end_address() const;
 	edb::address_t last_instruction() const;
 	int reference_count() const;
-	
+
 public:
 	void swap(Function &other);
-	
+
 private:
 	edb::address_t                   address_;
 	int                              reference_count_;

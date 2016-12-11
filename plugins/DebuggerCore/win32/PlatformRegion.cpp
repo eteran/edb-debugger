@@ -108,7 +108,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 		if(VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start()), size(), prot, &prev_prot)) {
 			permissions_ = prot;
 		}
-		
+
 		CloseHandle(ph);
 	}
 }

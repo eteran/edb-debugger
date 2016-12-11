@@ -63,7 +63,7 @@ protected:
 	virtual void wheelEvent(QWheelEvent* event) override;
 	virtual void contextMenuEvent(QContextMenuEvent* event) override;
 	virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
-	
+
 private:
 	void setGraphAttribute(const QString name, const QString value);
 	void setNodeAttribute(const QString name, const QString value);

@@ -55,7 +55,7 @@ private:
 	void dump_stack(const State &state);
 	void dump_data(edb::address_t address);
 	void dump_lines(edb::address_t address, int lines);
-	
+
 private:
 	QMenu * menu_;
 };

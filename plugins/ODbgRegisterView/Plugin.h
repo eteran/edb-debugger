@@ -39,7 +39,7 @@ class Plugin : public QObject, public IPlugin {
 	Q_CLASSINFO("email", "b7.10110111@gmail.com")
 
 	void setupDocks();
-	
+
 public:
 	Plugin();
 	virtual QMenu* menu(QWidget* parent = 0) override;
