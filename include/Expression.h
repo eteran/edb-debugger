@@ -147,10 +147,10 @@ private:
 
 public:
 	T evaluate_expression(bool *ok, ExpressionError *error) noexcept {
-	
+
 		Q_ASSERT(ok);
 		Q_ASSERT(error);
-	
+
 		try {
 			*ok = true;
 			return evaluate_expression();

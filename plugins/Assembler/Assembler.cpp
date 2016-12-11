@@ -79,7 +79,7 @@ void Assembler::show_dialog() {
 	if(!dialog_) {
 		dialog_ = new DialogAssembler(edb::v1::debugger_ui);
 	}
-	
+
 	const edb::address_t address = edb::v1::cpu_selected_address();
 	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
 		if(auto d = qobject_cast<DialogAssembler *>(dialog_)) {

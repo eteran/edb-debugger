@@ -70,12 +70,12 @@ QVariant ThreadsModel::data(const QModelIndex &index, int role) const {
 						return QString("%1 <%2>").arg(edb::v1::format_pointer(item.thread->instruction_pointer())).arg(symname);
 					} else {
 						return QString("%1").arg(edb::v1::format_pointer(item.thread->instruction_pointer()));
-					}				
+					}
 				}
 			case 3:
 				return item.thread->runState();
 			case 4:
-				return item.thread->name();								
+				return item.thread->name();
 			}
 		} else if(role == Qt::UserRole) {
 			return item.thread->tid();
@@ -96,9 +96,9 @@ QVariant ThreadsModel::headerData(int section, Qt::Orientation orientation, int 
 		case 2:
 			return tr("Instruction Pointer");
 		case 3:
-			return tr("State");			
+			return tr("State");
 		case 4:
-			return tr("Name");			
+			return tr("Name");
 		}
 	}
 

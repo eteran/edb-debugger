@@ -26,21 +26,21 @@ class EDB_EXPORT Status {
 public:
 	Status() {
 	}
-	
+
 	explicit Status(const QString &message) : errorMessage_(message) {
 	}
-	
+
 	Status(const Status &)            = default;
 	Status& operator=(const Status &) = default;
 	Status(Status &&)                 = default;
 	Status& operator=(Status &&)      = default;
-	
+
 public:
 	bool success() const           { return errorMessage_.isEmpty(); }
 	bool failure() const           { return !success(); }
 	explicit operator bool() const { return success(); };
 	QString toString() const       { return errorMessage_; }
-	
+
 private:
 	QString errorMessage_;
 };
@@ -50,18 +50,18 @@ class EDB_EXPORT Result {
 public:
 	Result() {
 	}
-	
+
 	Result(const QString &message, const T &value) : status_(message), value_(value) {
 	}
 
 	explicit Result(const T &value) : value_(value) {
 	}
-	
+
 	Result(const Result &)            = default;
 	Result& operator=(const Result &) = default;
 	Result(Result &&)                 = default;
 	Result& operator=(Result &&)      = default;
-	
+
 public:
 	T operator*() const            { Q_ASSERT(succeeded()); return value_; }
 	bool succeeded() const         { return status_.success(); }
@@ -69,7 +69,7 @@ public:
 	explicit operator bool() const { return succeeded(); };
 	QString errorMessage() const   { return status_.toString(); }
 	T value() const                { Q_ASSERT(succeeded()); return value_; }
-	
+
 private:
 	Status status_;
 	T      value_;

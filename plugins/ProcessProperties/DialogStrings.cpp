@@ -120,7 +120,7 @@ void DialogStrings::do_find() {
 					item->setData(Qt::UserRole, start_address);
 					ui->listWidget->addItem(item);
 				} else {
-				
+
 					if(ui->search_unicode->isChecked()) {
 						string_length = 0;
 						ok = edb::v1::get_utf16_string_at_address(start_address, str, min_string_length, 256, string_length);

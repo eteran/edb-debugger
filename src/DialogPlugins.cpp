@@ -32,13 +32,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 DialogPlugins::DialogPlugins(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogPlugins) {
 	ui->setupUi(this);
-	
+
 	plugin_model_  = new PluginModel(this);
 	plugin_filter_ = new QSortFilterProxyModel(this);
-	
+
 	plugin_filter_->setSourceModel(plugin_model_);
 	plugin_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
-	
+
 	ui->plugins_table->setModel(plugin_filter_);
 }
 
@@ -81,7 +81,7 @@ void DialogPlugins::showEvent(QShowEvent *) {
 				url = meta->classInfo(url_index).value();
 			}
 		}
-		
+
 		plugin_model_->addPlugin(filename, plugin_name, author, url);
 	}
 

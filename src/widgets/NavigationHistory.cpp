@@ -13,7 +13,7 @@ void NavigationHistory::add(edb::address_t address)
         list_.removeFirst();
         --pos_;
     }
-    
+
     if (!list_.isEmpty())
     {
         if (lastop_ == LASTOP_PREV && address == list_.at(pos_))
@@ -26,7 +26,7 @@ void NavigationHistory::add(edb::address_t address)
                 return;
         }
     }
-    
+
     pos_ = list_.size();
     list_.append(address);
     lastop_ = LASTOP_NONE;
@@ -38,7 +38,7 @@ edb::address_t NavigationHistory::getNext()
     {
         return (edb::address_t)0;
     }
-    
+
     if (pos_ != (list_.size() - 1))
     {
         ++pos_;
@@ -46,7 +46,7 @@ edb::address_t NavigationHistory::getNext()
 
     lastop_ = LASTOP_NEXT;
     return list_.at(pos_);
-    
+
 }
 
 edb::address_t NavigationHistory::getPrev()
@@ -55,12 +55,12 @@ edb::address_t NavigationHistory::getPrev()
     {
         return (edb::address_t)0;
     }
-    
+
     if (pos_ != 0)
     {
         --pos_;
     }
-    
+
     lastop_ = LASTOP_PREV;
     return list_.at(pos_);
 }

@@ -39,7 +39,7 @@ class AnalyzerWidget;
 
 class Analyzer : public QObject, public IAnalyzer, public IPlugin {
 	Q_OBJECT
-	
+
 #if QT_VERSION >= 0x050000
 	Q_PLUGIN_METADATA(IID "edb.IPlugin/1.0")
 #endif
@@ -49,7 +49,7 @@ class Analyzer : public QObject, public IAnalyzer, public IPlugin {
 
 private:
 	struct RegionData;
-	
+
 public:
 	Analyzer();
 

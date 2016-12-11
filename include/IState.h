@@ -70,7 +70,7 @@ public:
 public:
 	// MMX
 	virtual Register mmx_register(std::size_t n) const = 0;
-	
+
 public:
 	// SSE
 	virtual Register xmm_register(std::size_t n) const = 0;

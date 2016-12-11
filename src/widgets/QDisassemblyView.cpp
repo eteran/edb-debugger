@@ -218,7 +218,7 @@ QDisassemblyView::~QDisassemblyView() {
 }
 
 //------------------------------------------------------------------------------
-// Name: 
+// Name:
 //------------------------------------------------------------------------------
 void QDisassemblyView::resetColumns() {
 	line1_ = 0;
@@ -293,9 +293,9 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_address, int count) {
 
 	IAnalyzer *const analyzer = edb::v1::analyzer();
-	
+
 	static edb::address_t last_found_function = 0;
-	
+
 
 	for(int i = 0; i < count; ++i) {
 
@@ -312,17 +312,17 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 
 			// find the containing function
 			if(Result<edb::address_t> function_address = analyzer->find_containing_function(address, last_found_function)) {
-			
+
 				const IAnalyzer::AddressCategory cat = analyzer->category(address, last_found_function);
-			
+
 				last_found_function = *function_address;
-			
+
 				if(cat != IAnalyzer::ADDRESS_FUNC_START) {
 
 					edb::address_t function_start = *function_address;
 
 					// disassemble from function start until the NEXT address is where we started
-					while(true) {				
+					while(true) {
 						quint8 buf[edb::Instruction::MAX_SIZE];
 
 						int buf_size = sizeof(buf);
@@ -671,7 +671,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 
 			if(syntax_highlighting_enabled) {
 
-				// create the text layout	
+				// create the text layout
 				QTextLayout textLayout(opcode, painter.font());
 
 				textLayout.setTextOption(QTextOption(Qt::AlignVCenter));
@@ -1238,13 +1238,13 @@ void QDisassemblyView::setFont(const QFont &f) {
 	const QFontMetricsF metrics(f);
 	font_width_  = metrics.width('X');
 	font_height_ = metrics.lineSpacing();
-    
+
     // NOTE(eteran): we let the icons be a bit wider than the font itself, since things
-    // like arrows don't tend to have square bounds. A ratio of 2:1 seems to look pretty 
-    // good on my setup.     
+    // like arrows don't tend to have square bounds. A ratio of 2:1 seems to look pretty
+    // good on my setup.
     icon_width_  = font_width_ * 2;
     icon_height_ = font_height_;
-      
+
 	updateScrollbars();
 }
 
@@ -1254,7 +1254,7 @@ void QDisassemblyView::setFont(const QFont &f) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::resizeEvent(QResizeEvent *) {
 	updateScrollbars();
-	
+
 	const int line_height = this->line_height();
 	unsigned int lines_to_render = 1 + (viewport()->height() / line_height);
 
@@ -1371,7 +1371,7 @@ Result<int> QDisassemblyView::get_instruction_size(edb::address_t address, quint
 			return edb::v1::make_result(instruction_size(buf, *size));
 		}
 	}
-	
+
 	return Result<int>(tr("Failed to get instruciton size"), 0);
 }
 

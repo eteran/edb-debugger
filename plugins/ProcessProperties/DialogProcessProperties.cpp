@@ -51,7 +51,7 @@ QString size_to_string(size_t n) {
 	static constexpr size_t KiB = 1024;
 	static constexpr size_t MiB = KiB * 1024;
 	static constexpr size_t GiB = MiB * 1024;
-	
+
 	if(n < KiB) {
 		return QString::number(n);
 	} else if(n < MiB) {
@@ -291,10 +291,10 @@ DialogProcessProperties::DialogProcessProperties(QWidget *parent) : QDialog(pare
 
 	threads_model_ = new ThreadsModel(this);
 	threads_filter_ = new QSortFilterProxyModel(this);
-	
+
 	threads_filter_->setSourceModel(threads_model_);
 	threads_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
-	
+
 	ui->threadTable->setModel(threads_filter_);
 }
 
@@ -315,11 +315,11 @@ void DialogProcessProperties::updateGeneralPage() {
 	    if(IProcess *process = edb::v1::debugger_core->process()) {
 	        const QString exe            = process->executable();
 	        const QString cwd            = process->current_working_directory();
-			
+
 			std::shared_ptr<IProcess> parent = process->parent();
 	        const edb::pid_t parent_pid  = parent ? parent->pid() : 0;
 	        const QString parent_exe     = parent ? parent->executable() : QString();
-			
+
 	        const QList<QByteArray> args = process->arguments();
 
 			ui->editImage->setText(exe);
@@ -513,9 +513,9 @@ void DialogProcessProperties::on_btnParent_clicked() {
 
 	if(edb::v1::debugger_core) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-		
+
 			std::shared_ptr<IProcess> parent = process->parent();
-	        const QString parent_exe     = parent ? parent->executable() : QString();					
+	        const QString parent_exe     = parent ? parent->executable() : QString();
 
 			QFileInfo info(parent_exe);
 			QDir dir = info.absoluteDir();
@@ -586,16 +586,16 @@ void DialogProcessProperties::updateThreads() {
 	threads_model_->clear();
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-	
+
 		IThread::pointer current = process->current_thread();
-	
+
 		for(IThread::pointer thread : process->threads()) {
 
 			if(thread == current) {
 				threads_model_->addThread(thread, true);
 			} else {
 				threads_model_->addThread(thread, false);
-			}		
+			}
 		}
 	}
 }

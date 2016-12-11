@@ -72,12 +72,12 @@ QList<QByteArray> DialogArguments::arguments() const {
 //------------------------------------------------------------------------------
 void DialogArguments::set_arguments(const QList<QByteArray> &args) {
 	ui->listWidget->clear();
-	
+
 	QStringList l;
 	for(const QByteArray &ba: args) {
 		l << QString::fromUtf8(ba.constData());
 	}
-	
+
 	ui->listWidget->addItems(l);
 }
 

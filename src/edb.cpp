@@ -420,7 +420,7 @@ IBreakpoint::pointer create_breakpoint(address_t address) {
 			QT_TRANSLATE_NOOP("edb", "Error Setting Breakpoint"),
 			QT_TRANSLATE_NOOP("edb", "Sorry, but setting a breakpoint which is not in a valid region is not allowed."));
 	}
-	
+
 	return bp;
 }
 
@@ -1243,13 +1243,13 @@ QStringList parse_command_line(const QString &cmdline) {
 Result<address_t> string_to_address(const QString &s) {
 	QString hex(s);
 	hex.replace("0x","");
-	
+
 	bool ok;
 	address_t r = edb::address_t::fromHexString(hex.left(2*sizeof(edb::address_t)), &ok);
 	if(ok) {
 		return edb::v1::make_result(r);
 	}
-	
+
 	return Result<address_t>(QLatin1String("Error converting string to address"), 0);
 }
 
@@ -1429,7 +1429,7 @@ address_t selected_stack_address() {
 			return hexview->selectedBytesAddress();
 		}
 	}
-	
+
 	return static_cast<address_t>(-1);
 }
 
@@ -1443,7 +1443,7 @@ size_t selected_stack_size() {
 			return hexview->selectedBytesSize();
 		}
 	}
-	
+
 	return 0;
 }
 
@@ -1457,7 +1457,7 @@ address_t selected_data_address() {
 			return hexview->selectedBytesAddress();
 		}
 	}
-	
+
 	return static_cast<address_t>(-1);
 }
 
@@ -1471,7 +1471,7 @@ size_t selected_data_size() {
 			return hexview->selectedBytesSize();
 		}
 	}
-	
+
 	return 0;
 }
 

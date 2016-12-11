@@ -91,7 +91,7 @@ QDomDocument getAssemblerDescription() {
 }
 
 QString fixupSyntax(QString insn) {
-	
+
 	const auto asmRoot=getAssemblerDescription().documentElement();
 	if(asmRoot.isNull()) return insn;
 	const auto opSizes=asmRoot.firstChildElement("operand_sizes");

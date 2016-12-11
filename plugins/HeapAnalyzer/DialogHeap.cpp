@@ -154,12 +154,12 @@ void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeap::get_library_names(QString *libcName, QString *ldName) const {
-	
+
 	Q_ASSERT(libcName);
 	Q_ASSERT(ldName);
-	
+
 	if(edb::v1::debugger_core) {
-		if(IProcess *process = edb::v1::debugger_core->process()) {	
+		if(IProcess *process = edb::v1::debugger_core->process()) {
 			const QList<Module> libs = process->loaded_modules();
 
 			for(const Module &module: libs) {
@@ -200,7 +200,7 @@ void DialogHeap::get_library_names(QString *libcName, QString *ldName) const {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeap::process_potential_pointer(const QHash<edb::address_t, edb::address_t> &targets, Result &result) {
-	
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		if(result.data.isEmpty()) {
 			edb::address_t pointer(0);
@@ -398,14 +398,14 @@ edb::address_t DialogHeap::find_heap_start_heuristic(edb::address_t end_address,
 	edb::address_t test_addr(0);
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		process->read_bytes(heap_symbol, &test_addr, edb::v1::pointer_size());
-	
+
 		if(test_addr != edb::v1::debugger_core->page_size()) {
 			return 0;
 		}
-	
+
 		return start_address;
 	}
-	
+
 	return 0;
 }
 
@@ -431,7 +431,7 @@ void DialogHeap::do_find() {
 		if(s) {
 			end_address = s->address;
 		} else {
-			qDebug() << "[Heap Analyzer] __curbrk symbol not found in libc, falling back on heuristic! This may or may not work.";	
+			qDebug() << "[Heap Analyzer] __curbrk symbol not found in libc, falling back on heuristic! This may or may not work.";
 		}
 
 		s = edb::v1::symbol_manager().find(ldName + "::__curbrk");
@@ -455,7 +455,7 @@ void DialogHeap::do_find() {
 
 			// read the contents of those symbols
 			process->read_bytes(end_address, &end_address, edb::v1::pointer_size());
-			process->read_bytes(start_address, &start_address, edb::v1::pointer_size());	
+			process->read_bytes(start_address, &start_address, edb::v1::pointer_size());
 		}
 
 		// just assume it's the bounds of the [heap] memory region for now
@@ -485,7 +485,7 @@ void DialogHeap::do_find() {
 		if(start_address == 0 || end_address == 0) {
 			QMessageBox::critical(this, tr("Could not calculate heap bounds"), tr("Failed to calculate the bounds of the heap."));
 			return;
-		}	
+		}
 
 	#else
 		#error "Unsupported Platform"
@@ -551,7 +551,7 @@ void DialogHeap::on_btnGraph_clicked() {
 
 		while(!result_stack.isEmpty()) {
 			const Result *const result = result_stack.pop();
-			
+
 			GraphNode *node;
 			if(result->type == tr("Busy")) {
 				node = new GraphNode(graph, edb::v1::format_pointer(result->block), Qt::lightGray);

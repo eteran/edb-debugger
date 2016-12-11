@@ -42,7 +42,7 @@ class DebuggerCore : public DebuggerCoreUNIX {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 	friend class PlatformProcess;
 	friend class PlatformThread;
-	
+
 public:
 	DebuggerCore();
 	virtual ~DebuggerCore() override;
@@ -59,7 +59,7 @@ public:
 	virtual void set_state(const State &state) override;
 	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
 	virtual MeansOfCapture last_means_of_capture() override;
-	
+
 public:
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const override;
 
@@ -80,7 +80,7 @@ public:
 
 public:
 	virtual QString format_pointer(edb::address_t address) const override;
-	
+
 public:
 	virtual IProcess *process() const override;
 
@@ -98,7 +98,7 @@ private:
 	IDebugEvent::const_pointer handle_event(edb::tid_t tid, int status);
 	int attach_thread(edb::tid_t tid);
 	void detectDebuggeeBitness();
-	
+
 private:
 	typedef QHash<edb::tid_t, PlatformThread::pointer> threadmap_t;
 

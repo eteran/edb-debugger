@@ -218,6 +218,6 @@ QString BasicBlock::toString() const {
 		const instruction_pointer &inst = *it;
 		ts << edb::address_t(inst->rva()).toPointerString() << ": " << edb::v1::formatter().to_string(*inst).c_str() << "\n";
 	}
-	
+
 	return text;
 }

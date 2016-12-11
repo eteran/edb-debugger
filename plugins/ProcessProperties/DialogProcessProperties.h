@@ -43,7 +43,7 @@ public Q_SLOTS:
 	void on_btnRefreshThreads_clicked();
 	void on_btnRefreshMemory_clicked();
 	void on_txtSearchEnvironment_textChanged(const QString &text);
-	
+
 private:
 	void updateGeneralPage();
 	void updateMemoryPage();
@@ -51,14 +51,14 @@ private:
 	void updateHandles();
 	void updateThreads();
 	void updateEnvironmentPage(const QString &filter);
-	
+
 private:
 	virtual void showEvent(QShowEvent *event);
 
 private:
 	Ui::DialogProcessProperties *const ui;
 	ThreadsModel          *threads_model_;
-	QSortFilterProxyModel *threads_filter_;	
+	QSortFilterProxyModel *threads_filter_;
 };
 
 }

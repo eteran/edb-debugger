@@ -62,7 +62,7 @@ public:
 	// optional, command line argument processing
 	// return a string to add to "--help"
 	virtual QString extra_arguments() const        { return QString(); }
-	
+
 	// take actions based on the command line arguments
 	// you *may* remove arguments which are exclusively yours
 	// return ARG_SUCCESS if the normal execution should continue

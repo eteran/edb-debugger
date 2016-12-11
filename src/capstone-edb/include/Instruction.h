@@ -47,7 +47,7 @@ class Operand
 public:
 	using Register = Capstone::x86_reg;
 	using Segment  = Capstone::x86_reg; // NOTE(eteran): this is a bit wider of an enum than I'd prefer, but it's what capstone uses
-  
+
 	enum Type {
 		TYPE_INVALID       = 0x00000000,
 		TYPE_REGISTER      = 0x00000100,
@@ -63,9 +63,9 @@ public:
 		int32_t          displacement         = 0;
 		uint8_t          scale                = 0;
 	};
-    
+
 private:
-	Operand(Instruction* instr, std::size_t numberInInstruction);    
+	Operand(Instruction* instr, std::size_t numberInInstruction);
 
 public:
 	uint64_t relative_target() const { return imm_; };
@@ -73,7 +73,7 @@ public:
 	int64_t immediate() const        { return imm_; } // FIXME: do we really want it signed?
 	expression_t expression() const  { return expr_; }
 	Register reg() const             { return reg_; }
-    
+
 public:
 	bool valid() const { return type_!=TYPE_INVALID; }
     explicit operator bool() const { return valid(); }
@@ -87,23 +87,23 @@ public:
 	bool is_SIMD_PD(const Instruction &inst) const;
 	bool is_SIMD_SS(const Instruction &inst) const;
 	bool is_SIMD_SD(const Instruction &inst) const;
-    
+
 private:
 	bool apriori_not_simd(const Instruction &inst) const;
 	std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &inst) const;
-    
+
 private:
 	union {
 		Register     reg_;
 		expression_t expr_;
 		int64_t      imm_;
 	};
-    
+
 	Instruction* owner_ = nullptr;
 	Type         type_  = TYPE_INVALID;
 	std::size_t numberInInstruction_;
-	
-	
+
+
 	Capstone::cs_x86_op *operand_;
 };
 
@@ -137,10 +137,10 @@ public:
 	static constexpr const std::size_t MAX_OPERANDS = 3;
 
 public:
-	Instruction(const void* first, const void* end, uint64_t rva) noexcept;	
+	Instruction(const void* first, const void* end, uint64_t rva) noexcept;
 	Instruction(const Instruction&);
 	Instruction& operator=(const Instruction&);
-    
+
 public:
 	bool valid() const                       { return valid_; }
 	explicit operator bool () const          { return valid(); }

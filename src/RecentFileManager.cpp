@@ -174,9 +174,9 @@ void RecentFileManager::add_file(const QString &file, const QList<QByteArray> &a
 
 	QFileInfo fi(file);
 	QString path = fi.absoluteFilePath();
-	
+
 	// update recent file list, we remove all entries for this file (if any)
-	// and then push the file on the front, ensuring that the recently run 
+	// and then push the file on the front, ensuring that the recently run
 	// entries are higher in the list
 	file_list_.erase(std::remove_if(file_list_.begin(),file_list_.end(),
 				[&path](RecentFile const& file){return file.first==path;}),file_list_.end());

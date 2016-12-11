@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #ifdef __linux__
 #include <linux/version.h>
-// being very conservative for now, technicall this could be 
+// being very conservative for now, technicall this could be
 // as low as 2.6.22
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,0)
 #define USE_SIGTIMEDWAIT
@@ -177,7 +177,7 @@ bool native::wait_for_sigchld(int msecs) {
 
 	sigemptyset(&mask);
 	sigaddset(&mask, SIGCHLD);
-	
+
 	return sigtimedwait(&mask, &info, &ts) == SIGCHLD;
 #endif
 }
@@ -207,7 +207,7 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 
 	// setup a signal handler
 	struct sigaction new_action = {};
-	
+
 
 	new_action.sa_sigaction = sigchld_handler;
 	new_action.sa_flags     = SA_RESTART | SA_SIGINFO;

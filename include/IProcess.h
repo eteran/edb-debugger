@@ -49,8 +49,8 @@ public:
 	virtual edb::uid_t              uid() const = 0;
 	virtual QString                 user() const = 0;
 	virtual QString                 name() const = 0;
-	virtual QList<Module>           loaded_modules() const = 0;	
-	
+	virtual QList<Module>           loaded_modules() const = 0;
+
 public:
 	// only legal to call when attached
 	virtual QList<IThread::pointer> threads() const = 0;
@@ -60,7 +60,7 @@ public:
 	virtual std::size_t             read_pages(edb::address_t address, void *buf, size_t count) const = 0;
 	virtual void                    pause() = 0;
 	virtual void                    resume(edb::EVENT_STATUS status) = 0;
-	virtual void                    step(edb::EVENT_STATUS status) = 0;	
+	virtual void                    step(edb::EVENT_STATUS status) = 0;
 };
 
 #endif

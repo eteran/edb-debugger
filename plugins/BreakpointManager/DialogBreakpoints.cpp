@@ -248,11 +248,11 @@ void DialogBreakpoints::on_btnImport_clicked() {
 
 		//Get the address
 		QString line = file.readLine();
-		
+
 		if(line.isNull()) {
 			break;
 		}
-		
+
 		bool ok;
 		int base = 16;
 		edb::address_t address = line.toULong(&ok, base);

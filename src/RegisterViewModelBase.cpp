@@ -628,7 +628,7 @@ bool RegisterItem<T>::setValue(Register const& reg)
 	assert(reg.bitSize()==8*sizeof(T));
 	return setDebuggeeRegister<T>(reg.name(),reg.value<T>(),value_);
 }
-	
+
 template<typename T>
 bool RegisterItem<T>::setValue(QByteArray const& newValue)
 {

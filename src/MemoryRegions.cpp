@@ -54,7 +54,7 @@ void MemoryRegions::sync() {
 	beginResetModel();
 
 	QList<IRegion::pointer> regions;
-	
+
 	if(edb::v1::debugger_core) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 			regions = process->regions();

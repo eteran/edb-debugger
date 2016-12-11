@@ -37,7 +37,7 @@ public:
 
 public Q_SLOTS:
 	virtual void on_assemblerName_currentIndexChanged(const QString &text);
-	
+
 private:
 	Ui::OptionsPage *const ui;
 };
