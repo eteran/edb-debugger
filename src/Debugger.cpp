@@ -303,19 +303,17 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	connect(ui.tabWidget, SIGNAL(customContextMenuRequested(int, const QPoint &)), this, SLOT(tab_context_menu(int, const QPoint &)));
 
 	// CPU Shortcuts
-	gotoAddressAction_           = createAction(tr("&Goto Address"),                                 QKeySequence(tr("Ctrl+G")),   SLOT(goto_triggered()));
-	editBytesAction_             = createAction(tr("&Edit Bytes"),                                   QKeySequence(tr("Ctrl+E")),   SLOT(mnuModifyBytes()));
+	gotoAddressAction_           = createAction(tr("&Goto Expression..."),                           QKeySequence(tr("Ctrl+G")),   SLOT(goto_triggered()));
 
-	editCommentAction_           = createAction(tr("Add &Comment"),                                  QKeySequence(tr(";")),        SLOT(mnuCPUEditComment()));
-	removeCommentAction_         = createAction(tr("Remove Comment"),                                QKeySequence(),               SLOT(mnuCPURemoveComment()));
+	editCommentAction_           = createAction(tr("Add &Comment..."),                               QKeySequence(tr(";")),        SLOT(mnuCPUEditComment()));
 	toggleBreakpointAction_      = createAction(tr("&Toggle Breakpoint"),                            QKeySequence(tr("F2")),       SLOT(mnuCPUToggleBreakpoint()));
 	conditionalBreakpointAction_ = createAction(tr("Add &Conditional Breakpoint"),                   QKeySequence(tr("Shift+F2")), SLOT(mnuCPUAddConditionalBreakpoint()));
 	runToThisLineAction_         = createAction(tr("R&un to this Line"),                             QKeySequence(tr("F4")),       SLOT(mnuCPURunToThisLine()));
 	runToLinePassAction_         = createAction(tr("Run to this Line (Pass Signal To Application)"), QKeySequence(tr("Shift+F4")), SLOT(mnuCPURunToThisLinePassSignal()));
+	editBytesAction_             = createAction(tr("Binary &Edit..."),                               QKeySequence(tr("Ctrl+E")),   SLOT(mnuModifyBytes()));
 	fillWithZerosAction_         = createAction(tr("&Fill with 00's"),                               QKeySequence(),               SLOT(mnuCPUFillZero()));
 	fillWithNOPsAction_          = createAction(tr("Fill with &NOPs"),                               QKeySequence(),               SLOT(mnuCPUFillNop()));
-	removeBreakpointAction_      = createAction(tr("&Remove Breakpoint"),                            QKeySequence(),               SLOT(mnuCPURemoveBreakpoint()));
-	setAddressLabelAction_       = createAction(tr("Set Address &Label"),                            QKeySequence(tr(":")),        SLOT(mnuCPULabelAddress()));
+	setAddressLabelAction_       = createAction(tr("Set &Label..."),                                 QKeySequence(tr(":")),        SLOT(mnuCPULabelAddress()));
 	followConstantInDumpAction_  = createAction(tr("Follow Constant In &Dump"),                      QKeySequence(),               SLOT(mnuCPUFollowInDump()));
 	followConstantInStackAction_ = createAction(tr("Follow Constant In &Stack"),                     QKeySequence(),               SLOT(mnuCPUFollowInStack()));
 	followAction_                = createAction(tr("&Follow"),                                       QKeySequence(),               SLOT(mnuCPUFollow()));
@@ -767,7 +765,7 @@ void Debugger::finish_plugin_setup() {
 Result<edb::address_t> Debugger::get_goto_expression() {
 
 	edb::address_t address;
-	bool ok = edb::v1::get_expression_from_user(tr("Goto Address"), tr("Address:"), &address);
+	bool ok = edb::v1::get_expression_from_user(tr("Goto Expression"), tr("Expression:"), &address);
 	if(ok) {
 		return edb::v1::make_result(address);
 	} else {
@@ -1562,19 +1560,19 @@ void Debugger::mnuStackPop() {
 void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	QMenu menu;
 
-
 	auto displayMenu = new QMenu(tr("Display"));
 	displayMenu->addAction(QIcon::fromTheme(QString::fromUtf8("view-restore")), tr("Restore Column Defaults"), ui.cpuView, SLOT(resetColumns()));
 
+	auto editMenu = new QMenu(tr("&Edit"));
+	editMenu->addAction(editBytesAction_);
+	editMenu->addAction(fillWithZerosAction_);
+	editMenu->addAction(fillWithNOPsAction_);
+
 	menu.addMenu(displayMenu);
-	menu.addSeparator();
+	menu.addMenu(editMenu);
 
 	menu.addAction(editCommentAction_);
-	menu.addAction(removeCommentAction_);
-	menu.addSeparator();
-
 	menu.addAction(setAddressLabelAction_);
-	menu.addSeparator();
 
 	menu.addAction(gotoAddressAction_);
 	menu.addAction(gotoRIPAction_);
@@ -1627,13 +1625,9 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 	menu.addAction(runToThisLineAction_);
 	menu.addAction(runToLinePassAction_);
 	menu.addSeparator();
-	menu.addAction(editBytesAction_);
-	menu.addAction(fillWithZerosAction_);
-	menu.addAction(fillWithNOPsAction_);
 	menu.addSeparator();
 	menu.addAction(toggleBreakpointAction_);
 	menu.addAction(conditionalBreakpointAction_);
-	menu.addAction(removeBreakpointAction_);
 
 	add_plugin_context_menu(&menu, &IPlugin::cpu_context_menu);
 

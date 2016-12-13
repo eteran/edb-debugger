@@ -331,7 +331,6 @@ private:
 private:
 	QAction *gotoAddressAction_;
 	QAction *editCommentAction_;
-	QAction *removeCommentAction_;
 	QAction *editBytesAction_;
 	QAction *toggleBreakpointAction_;
 	QAction *conditionalBreakpointAction_;
@@ -339,7 +338,6 @@ private:
 	QAction *runToLinePassAction_;
 	QAction *fillWithZerosAction_;
 	QAction *fillWithNOPsAction_;
-	QAction *removeBreakpointAction_;
 	QAction *setAddressLabelAction_;
 	QAction *followConstantInDumpAction_;
 	QAction *followConstantInStackAction_;
