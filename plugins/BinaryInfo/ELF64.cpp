@@ -107,7 +107,8 @@ edb::address_t ELF64::calculate_main() {
 
 					// same heuristic except for PIC binaries
 					else if (ba.size() >= 14 && ba[0] == 0x48 && ba[1] == 0x8d && ba[2] == 0x3d && ba[7] == 0xFF && ba[8] == 0x15 && ba[13] == 0xf4) {
-						auto rel = *reinterpret_cast<const edb::address_t *>(ba.data() + 3) & 0xffffffff;
+						// It's signed relative!
+						auto rel = *reinterpret_cast<const qint32 *>(ba.data() + 3);
 						// ba[0] is entry_point + i - 13. instruction is 7 bytes long.
 						address = rel + entry_point + i - 13 + 7;
 					}
