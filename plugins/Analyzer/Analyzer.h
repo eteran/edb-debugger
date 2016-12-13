@@ -63,12 +63,10 @@ private:
 
 public:
 	virtual AddressCategory category(edb::address_t address) const;
-	virtual AddressCategory category(edb::address_t address, edb::address_t address_hint) const;
 	virtual FunctionMap functions(const IRegion::pointer &region) const;
 	virtual FunctionMap functions() const;
 	virtual QSet<edb::address_t> specified_functions() const { return specified_functions_; }
 	virtual Result<edb::address_t> find_containing_function(edb::address_t address) const;
-	virtual Result<edb::address_t> find_containing_function(edb::address_t address, edb::address_t hint_address) const;
 	virtual void analyze(const IRegion::pointer &region);
 	virtual void invalidate_analysis();
 	virtual void invalidate_analysis(const IRegion::pointer &region);
@@ -77,7 +75,6 @@ public:
 private:
 	QByteArray md5_region(const IRegion::pointer &region) const;
 	bool find_containing_function(edb::address_t address, Function *function) const;
-	bool find_containing_function(edb::address_t address, edb::address_t hint_address, Function *function) const;
 	bool is_thunk(edb::address_t address) const;
 	bool will_return(edb::address_t address) const;
 	void bonus_entry_point(RegionData *data) const;

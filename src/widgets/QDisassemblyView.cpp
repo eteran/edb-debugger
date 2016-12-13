@@ -294,9 +294,6 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 
 	IAnalyzer *const analyzer = edb::v1::analyzer();
 
-	static edb::address_t last_found_function = 0;
-
-
 	for(int i = 0; i < count; ++i) {
 
 		// If we have an analyzer, and the current address is within a function
@@ -311,14 +308,9 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 			edb::address_t address = address_offset_ + current_address;
 
 			// find the containing function
-			if(Result<edb::address_t> function_address = analyzer->find_containing_function(address, last_found_function)) {
+			if(Result<edb::address_t> function_address = analyzer->find_containing_function(address)) {
 
-				const IAnalyzer::AddressCategory cat = analyzer->category(address, last_found_function);
-
-				last_found_function = *function_address;
-
-				if(cat != IAnalyzer::ADDRESS_FUNC_START) {
-
+				if(address != *function_address) {
 					edb::address_t function_start = *function_address;
 
 					// disassemble from function start until the NEXT address is where we started
