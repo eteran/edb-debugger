@@ -207,11 +207,9 @@ void DialogFunctions::on_btnGraph_clicked() {
 
 	qDebug("[FunctionFinder] Constructing Graph...");
 
-	QList<QTableWidgetItem *> items = ui->tableWidget->selectedItems();
-
-	// each column counts as an item
-	if(items.size() == ui->tableWidget->columnCount()) {
-		if(QTableWidgetItem *item = items[0]) {
+	QModelIndexList indexList = ui->tableWidget->selectionModel()->selectedIndexes();
+	if (indexList.size() >= 1) {
+		if (QTableWidgetItem *item = ui->tableWidget->item(indexList[0].row(), 0)) {
 			const edb::address_t addr = item->data(Qt::UserRole).toULongLong();
 			if(IAnalyzer *const analyzer = edb::v1::analyzer()) {
 				const IAnalyzer::FunctionMap &functions = analyzer->functions();
