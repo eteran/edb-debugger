@@ -548,7 +548,7 @@ void QDisassemblyView::setRegion(const IRegion::pointer &r) {
 	// We also check for !r here because we want to be able to reset the
 	// the region to nothing. It's fairly harmless to reset an already
 	// reset region, so we don't bother check that condition
-	if((r && r->compare(region_) != 0) || (!r)) {
+	if((r && !r->equals(region_)) || (!r)) {
 		region_ = r;
 		updateScrollbars();
 		Q_EMIT regionChanged();

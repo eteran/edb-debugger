@@ -60,22 +60,17 @@ public:
 		return address >= start() && address < end();
 	}
 
-	int compare(const IRegion::pointer &other) const {
+	bool equals(const IRegion::pointer &other) const {
 
 		if(!other) {
-			return -1;
+			return false;
 		}
 
-		if(start()        == other->start() &&
-			end()         == other->end() &&
-			base()        == other->base() &&
-			name()        == other->name() &&
-			permissions() == other->permissions()) {
-
-			return 0;
-		}
-
-		return 1;
+		return start()       == other->start() &&
+			   end()         == other->end() &&
+			   base()        == other->base() &&
+			   name()        == other->name() &&
+			   permissions() == other->permissions();
 	}
 };
 

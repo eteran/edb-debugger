@@ -3200,7 +3200,7 @@ bool Debugger::dump_stack(edb::address_t address, bool scroll_to) {
 				thread->get_state(&state);
 				stack_view_->setColdZoneEnd(state.stack_pointer());
 
-				if(scroll_to || stack_view_info_.region->compare(last_region)) {
+				if(scroll_to || stack_view_info_.region->equals(last_region)) {
 					stack_view_->scrollTo(address - stack_view_info_.region->start());
 				}
 				return true;
