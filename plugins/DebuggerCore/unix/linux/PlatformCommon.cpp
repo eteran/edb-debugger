@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformCommon.h"
 #include <QFile>
 #include <QTextStream>
+#include <QRegExp>
+#include <QtDebug>
 #include <sys/wait.h>
 
 namespace DebuggerCore {
@@ -58,6 +60,67 @@ int get_user_stat(const QString &path, struct user_stat *user_stat) {
 		QTextStream in(&file);
 		const QString line = in.readLine();
 		if(!line.isNull()) {
+
+#if 1
+			QRegExp regex(QLatin1String(R"(^(-?[0-9]+) \((.+)\) (.) (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) ([0-9]+) ([0-9]+) (-?[0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) (-?[0-9]+) (-?[0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) (-?[0-9]+))"));
+			int n = regex.indexIn(line);
+			if(n != -1) {
+				const QStringList &fields = regex.capturedTexts();
+
+				switch(regex.captureCount()) {
+				default:
+				case 44: user_stat->cguest_time           = fields[44].toLongLong();  // "%lld"
+				case 43: user_stat->guest_time            = fields[43].toULongLong(); // "%llu"
+				case 42: user_stat->delayacct_blkio_ticks = fields[42].toULongLong(); // "%llu"
+				case 41: user_stat->policy                = fields[41].toUInt();      // "%u"
+				case 40: user_stat->rt_priority           = fields[40].toUInt();      // "%u"
+				case 39: user_stat->processor             = fields[39].toInt();       // "%d"
+				case 38: user_stat->exit_signal           = fields[38].toInt();       // "%d"
+				case 37: user_stat->cnswap                = fields[37].toULongLong(); // "%llu"
+				case 36: user_stat->nswap                 = fields[36].toULongLong(); // "%llu"
+				case 35: user_stat->wchan                 = fields[35].toULongLong(); // "%llu"
+				case 34: user_stat->sigcatch              = fields[34].toULongLong(); // "%llu"
+				case 33: user_stat->sigignore             = fields[33].toULongLong(); // "%llu"
+				case 32: user_stat->blocked               = fields[32].toULongLong(); // "%llu"
+				case 31: user_stat->signal                = fields[31].toULongLong(); // "%llu"
+				case 30: user_stat->kstkeip               = fields[30].toULongLong(); // "%llu"
+				case 29: user_stat->kstkesp               = fields[29].toULongLong(); // "%llu"
+				case 28: user_stat->startstack            = fields[28].toULongLong(); // "%llu"
+				case 27: user_stat->endcode               = fields[27].toULongLong(); // "%llu"
+				case 26: user_stat->startcode             = fields[26].toULongLong(); // "%llu"
+				case 25: user_stat->rsslim                = fields[25].toULongLong(); // "%llu"
+				case 24: user_stat->rss                   = fields[24].toLongLong();  // "%lld"
+				case 23: user_stat->vsize                 = fields[23].toULongLong(); // "%llu"
+				case 22: user_stat->starttime             = fields[22].toULongLong(); // "%llu"
+				case 21: user_stat->itrealvalue           = fields[21].toLongLong();  // "%lld"
+				case 20: user_stat->num_threads           = fields[20].toLongLong();  // "%lld"
+				case 19: user_stat->nice                  = fields[19].toLongLong();  // "%lld"
+				case 18: user_stat->priority              = fields[18].toLongLong();  // "%lld"
+				case 17: user_stat->cstime                = fields[17].toLongLong();  // "%lld"
+				case 16: user_stat->cutime                = fields[16].toLongLong();  // "%lld"
+				case 15: user_stat->stime                 = fields[15].toULongLong(); // "%llu"
+				case 14: user_stat->utime                 = fields[14].toULongLong(); // "%llu"
+				case 13: user_stat->cmajflt               = fields[13].toULongLong(); // "%llu"
+				case 12: user_stat->majflt                = fields[12].toULongLong(); // "%llu"
+				case 11: user_stat->cminflt               = fields[11].toULongLong(); // "%llu"
+				case 10: user_stat->minflt                = fields[10].toULongLong(); // "%llu"
+				case  9: user_stat->flags                 = fields[9].toUInt();       // "%u"
+				case  8: user_stat->tpgid                 = fields[8].toInt();        // "%d"
+				case  7: user_stat->tty_nr                = fields[7].toInt();        // "%d"
+				case  6: user_stat->session               = fields[6].toInt();        // "%d"
+				case  5: user_stat->pgrp                  = fields[5].toInt();        // "%d"
+				case  4: user_stat->ppid                  = fields[4].toInt();        // "%d"
+				case  3: user_stat->state                 = fields[3][0].toLatin1();  // "%c"
+				case  2: snprintf(user_stat->comm, sizeof(user_stat->comm), "%s", qPrintable(fields[2]));
+				case  1: user_stat->pid                   = fields[1].toInt();        // "%d"
+					break;
+				case  0:
+					qDebug() << "Warning: Failed to read any fields from /proc/<pid>/stat";
+				}
+
+				return regex.captureCount();
+			}
+#else
 			char ch;
 			r = sscanf(qPrintable(line), "%d %c%255[0-9a-zA-Z_- #~/\\.]%c %c %d %d %d %d %d %u %llu %llu %llu %llu %llu %llu %lld %lld %lld %lld %lld %lld %llu %llu %lld %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %llu %d %d %u %u %llu %llu %lld",
 					&user_stat->pid,
@@ -106,6 +169,7 @@ int get_user_stat(const QString &path, struct user_stat *user_stat) {
 					&user_stat->delayacct_blkio_ticks,
 					&user_stat->guest_time,
 					&user_stat->cguest_time);
+#endif
 		}
 		file.close();
 	}
