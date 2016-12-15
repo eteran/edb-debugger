@@ -412,7 +412,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 			QStack<edb::address_t> blocks;
 			blocks.push(function_address);
 
-			Function func(function_address);
+			Function func;
 
 			// process are basic blocks that are known
 			while(!blocks.empty()) {

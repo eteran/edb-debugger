@@ -43,7 +43,6 @@ public:
 
 public:
 	Function();
-	explicit Function(edb::address_t address);
 	Function(const Function &other);
 	Function &operator=(const Function &rhs);
 

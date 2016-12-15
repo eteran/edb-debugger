@@ -28,13 +28,6 @@ Function::Function() : reference_count_(0), type_(FUNCTION_STANDARD) {
 //------------------------------------------------------------------------------
 // Name: Function
 //------------------------------------------------------------------------------
-Function::Function(edb::address_t address) : reference_count_(1), type_(FUNCTION_STANDARD) {
-
-}
-
-//------------------------------------------------------------------------------
-// Name: Function
-//------------------------------------------------------------------------------
 Function::Function(const Function &other) : reference_count_(other.reference_count_), type_(other.type_), blocks_(other.blocks_) {
 }
 
