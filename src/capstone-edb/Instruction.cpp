@@ -132,35 +132,6 @@ Instruction::Instruction(const Instruction& other)
 	*this = other;
 }
 
-void adjustInstructionText(Capstone::cs_insn& insn)
-{
-	QString operands(insn.op_str);
-
-	// Remove extra spaces
-	operands.replace(" + ","+");
-	operands.replace(" - ","-");
-
-	operands.replace(QRegExp("\\bxword "),"tbyte ");
-	operands.replace(QRegExp("(word|byte) ptr "),"\\1 ");
-
-	if(activeFormatter.options().simplifyRIPRelativeTargets && isX86_64() && (insn.detail->x86.modrm&0xc7)==0x05)
-	{
-		QRegExp ripRel("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b");
-		operands.replace(ripRel,"rel 0x"+QString::number(insn.detail->x86.disp+insn.address+insn.size,16));
-	}
-
-	strcpy(insn.op_str,operands.toStdString().c_str());
-}
-
-void stripMemorySizes(char* op_str)
-{
-	QString operands(op_str);
-
-	operands.replace(QRegExp("(\\b.?(mm)?word|byte)\\b( ptr)? "),"");
-
-	strcpy(op_str,operands.toStdString().c_str());
-}
-
 Operand Instruction::fromCapstoneOperand(Capstone::cs_x86_op *ops, int i) {
 
 
@@ -243,7 +214,7 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 		std::memcpy(&detail_,insn->detail, sizeof detail_);
 		insn_.detail=&detail_;
 		Capstone::cs_free(insn,1);
-		adjustInstructionText(insn_);
+
 		fillPrefix();
 		Capstone::cs_x86_op* ops=insn_.detail->x86.operands;
 
@@ -252,17 +223,6 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 
 		for(std::size_t i=0;i<operand_count();++i) {
 			operands_.push_back(fromCapstoneOperand(ops, i));
-		}
-
-		// Remove extraneous size specification as in 'mov eax, dword [ecx]'
-		if(activeFormatter.options().syntax==Formatter::SyntaxIntel)
-		{
-			if(operand_count() == 2 && operands_[0].size() == ops[1].size &&
-					((ops[0].type == Capstone::X86_OP_REG && ops[1].type == Capstone::X86_OP_MEM) ||
-					 (ops[1].type == Capstone::X86_OP_REG && ops[0].type == Capstone::X86_OP_MEM)))
-			{
-				stripMemorySizes(insn_.op_str);
-			}
 		}
 	}
 	else
@@ -594,6 +554,35 @@ bool Instruction::is_simd() const
 	return false;
 }
 
+QString Formatter::adjustInstructionText(const Instruction& instruction) const
+{
+	const Capstone::cs_insn& insn = instruction.cs_insn();
+	QString operands(insn.op_str);
+
+	// Remove extra spaces
+	operands.replace(" + ","+");
+	operands.replace(" - ","-");
+
+	operands.replace(QRegExp("\\bxword "),"tbyte ");
+	operands.replace(QRegExp("(word|byte) ptr "),"\\1 ");
+
+	if(activeFormatter.options().simplifyRIPRelativeTargets && isX86_64() && (insn.detail->x86.modrm&0xc7)==0x05)
+	{
+		QRegExp ripRel("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b");
+		operands.replace(ripRel,"rel 0x"+QString::number(insn.detail->x86.disp+insn.address+insn.size,16));
+	}
+
+	Capstone::cs_x86_op* ops=insn.detail->x86.operands;
+
+	if(instruction.operand_count() == 2 && instruction.operands()[0].size() == ops[1].size &&
+			((ops[0].type == Capstone::X86_OP_REG && ops[1].type == Capstone::X86_OP_MEM) ||
+			 (ops[1].type == Capstone::X86_OP_REG && ops[0].type == Capstone::X86_OP_MEM)))
+	{
+		operands.replace(QRegExp("(\\b.?(mm)?word|byte)\\b( ptr)? "),"");
+	}
+	return operands;
+}
+
 void Formatter::setOptions(const Formatter::FormatOptions& options)
 {
 	assert(capstoneInitialized);
@@ -616,7 +605,7 @@ std::string Formatter::to_string(const Instruction& instruction) const
 		tab2Size=11,
 	};
 	std::ostringstream s;
-	s << instruction.insn_.mnemonic;
+	s << instruction.cs_insn().mnemonic;
 	if(instruction.operand_count()>0) // prevent addition of trailing whitespace
 	{
 		if(options_.tabBetweenMnemonicAndOperands)
@@ -626,11 +615,11 @@ std::string Formatter::to_string(const Instruction& instruction) const
 			s << std::string(pad,' ');
 		}
 		else s << ' ';
-		s << instruction.insn_.op_str;
+		s << adjustInstructionText(instruction).toStdString();
 	}
 	else
 	{
-		assert(instruction.insn_.op_str[0]==0);
+		assert(instruction.cs_insn().op_str[0]==0);
 	}
 	auto str = s.str();
 	checkCapitalize(str);
@@ -700,14 +689,14 @@ std::string Formatter::to_string(const Operand& operand) const
 	if(operand.type_==Operand::TYPE_REGISTER)
 		str=register_name(operand.reg());
 	else if(totalOperands==1)
-		str=operand.owner_->insn_.op_str;
+		str=operand.owner_->cs_insn().op_str;
 	else
 	{
 		// Capstone doesn't provide a way to get operand string, so we try
 		// to extract it from the formatted all-operands string
 		try
 		{
-			const auto operands=toOperands(operand.owner_->insn_.op_str);
+			const auto operands=toOperands(operand.owner_->cs_insn().op_str);
 			if(operands.size()<=operand.numberInInstruction_)
 				throw std::logic_error("got less than "+std::to_string(operand.numberInInstruction_)+" operands");
 			str=operands[operand.numberInInstruction_];

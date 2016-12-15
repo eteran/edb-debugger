@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 #include <vector>
 #include <cstdint>
+#include <QString>
 
 namespace CapstoneEDB {
 
@@ -112,7 +113,6 @@ private:
 class Instruction
 {
 	friend class Operand;
-    friend class Formatter;
 public:
 	using Operation=Capstone::x86_insn;
 	enum Prefix {
@@ -266,6 +266,8 @@ private:
 	FormatOptions options_={SyntaxIntel,LowerCase,SmallNumAsDec,false,true};
 
 	void checkCapitalize(std::string& str,bool canContainHex=true) const;
+	QString adjustInstructionText(const Instruction& instruction) const;
+
 };
 
 // TODO: move into Instruction class and remove from global scope
