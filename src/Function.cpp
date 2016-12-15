@@ -21,21 +21,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 // Name: Function
 //------------------------------------------------------------------------------
-Function::Function() : address_(0), reference_count_(0), type_(FUNCTION_STANDARD) {
+Function::Function() : reference_count_(0), type_(FUNCTION_STANDARD) {
 
 }
 
 //------------------------------------------------------------------------------
 // Name: Function
 //------------------------------------------------------------------------------
-Function::Function(edb::address_t address) : address_(address), reference_count_(1), type_(FUNCTION_STANDARD) {
+Function::Function(edb::address_t address) : reference_count_(1), type_(FUNCTION_STANDARD) {
 
 }
 
 //------------------------------------------------------------------------------
 // Name: Function
 //------------------------------------------------------------------------------
-Function::Function(const Function &other) : address_(other.address_), reference_count_(other.reference_count_), type_(other.type_), blocks_(other.blocks_) {
+Function::Function(const Function &other) : reference_count_(other.reference_count_), type_(other.type_), blocks_(other.blocks_) {
 }
 
 //------------------------------------------------------------------------------
@@ -50,7 +50,6 @@ Function &Function::operator=(const Function &rhs) {
 // Name: swap
 //------------------------------------------------------------------------------
 void Function::swap(Function &other) {
-	qSwap(address_, other.address_);
 	qSwap(reference_count_, other.reference_count_);
 	qSwap(type_, other.type_);
 	qSwap(blocks_, other.blocks_);

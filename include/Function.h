@@ -83,7 +83,6 @@ public:
 	void swap(Function &other);
 
 private:
-	edb::address_t                   address_;
 	int                              reference_count_;
 	Type                             type_;
 	QMap<edb::address_t, BasicBlock> blocks_;
