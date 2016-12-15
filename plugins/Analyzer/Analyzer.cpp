@@ -521,6 +521,18 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 		}
 	}
 
+#if 0
+	qDebug() << "----------Basic Blocks----------";
+	for(auto it = basic_blocks.begin(); it != basic_blocks.end(); ++it) {
+		qDebug("%s:", qPrintable(it.key().toPointerString()));
+
+		for(auto &&inst : it.value()) {
+			qDebug("\t%s: %s", qPrintable(edb::address_t(inst->rva()).toPointerString()), edb::v1::formatter().to_string(*inst).c_str());
+		}
+	}
+	qDebug() << "----------Basic Blocks----------";
+#endif
+
 	qSwap(data->basic_blocks, basic_blocks);
 	qSwap(data->functions, functions);
 }
