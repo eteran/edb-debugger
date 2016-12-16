@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPainter>
 #include <QScrollBar>
 #include <QDir>
+#include <QElapsedTimer>
 
 namespace Analyzer {
 
@@ -60,6 +61,8 @@ AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(par
 // Name:
 //------------------------------------------------------------------------------
 void AnalyzerWidget::paintEvent(QPaintEvent *event) {
+	QElapsedTimer timer;
+	timer.start();
 
 	Q_UNUSED(event);
 
@@ -125,6 +128,10 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 		);
 	}
 
+	const int renderTime = timer.elapsed();
+	if(renderTime > 8) {
+		qDebug() << "AnalyzerWidget: Painting took longer than desired: " << renderTime << "ms";
+	}
 }
 
 //------------------------------------------------------------------------------
