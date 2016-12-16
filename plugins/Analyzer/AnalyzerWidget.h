@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include <QWidget>
+#include <QPixmap>
 
 namespace Analyzer {
 
@@ -33,6 +34,8 @@ protected:
 
 private:
 	bool mouse_pressed_;
+	QPixmap* cache_;
+	int cache_num_funcs_;
 };
 
 }
