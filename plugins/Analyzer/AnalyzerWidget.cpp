@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPainter>
 #include <QScrollBar>
 #include <QDir>
+#include <QElapsedTimer>
 
 namespace Analyzer {
 
@@ -60,45 +61,56 @@ AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(par
 // Name:
 //------------------------------------------------------------------------------
 void AnalyzerWidget::paintEvent(QPaintEvent *event) {
+	QElapsedTimer timer;
+	timer.start();
 
 	Q_UNUSED(event);
-
-	QPainter painter(this);
-	painter.fillRect(0, 0, width(), height(), QBrush(Qt::black));
-	QFontMetrics fm(font());
 
 	const IRegion::pointer region = edb::v1::current_cpu_view_region();
 	if (!region || region->size() == 0) {
 		return;
 	}
 
+	const QSet<edb::address_t> specified_functions = edb::v1::analyzer()->specified_functions();
+	const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
 	const auto byte_width = static_cast<float>(width()) / region->size();
 
-	const QSet<edb::address_t> specified_functions = edb::v1::analyzer()->specified_functions();
+	if (!cache_ || width() != cache_->width() || height() != cache_->height() || cache_num_funcs_ != functions.size()) {
+		if (cache_) {
+			delete cache_;
+		}
+		cache_ = new QPixmap(width(), height());
+		cache_num_funcs_ = functions.size();
 
-	const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
-	for(auto it = functions.begin(); it != functions.end(); ++it) {
-		const Function &f = it.value();
+		QPainter painter(cache_);
+		painter.fillRect(0, 0, width(), height(), QBrush(Qt::black));
 
-		const int first_offset = (f.entry_address() - region->start()) * byte_width;
-		const int last_offset  = (f.end_address() - region->start()) * byte_width;
+		for(auto it = functions.begin(); it != functions.end(); ++it) {
+			const Function &f = it.value();
 
-		if(!specified_functions.contains(f.entry_address())) {
-			painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkGreen));
-		} else {
-			painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkRed));
+			const int first_offset = (f.entry_address() - region->start()) * byte_width;
+			const int last_offset  = (f.end_address() - region->start()) * byte_width;
+
+			if(!specified_functions.contains(f.entry_address())) {
+				painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkGreen));
+			} else {
+				painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkRed));
+			}
+		}
+
+		// highlight header of binary (probably not going to be too noticeable but just in case)
+		if(auto binary_info = edb::v1::get_binary_info(region)) {
+			painter.fillRect(0, 0, binary_info->header_size() * byte_width, height(), QBrush(Qt::darkBlue));
 		}
 	}
 
-	// highlight header of binary (probably not going to be too noticeable but just in case)
-	if(auto binary_info = edb::v1::get_binary_info(region)) {
-		painter.fillRect(0, 0, binary_info->header_size() * byte_width, height(), QBrush(Qt::darkBlue));
-	}
-
+	QPainter painter(this);
+	painter.drawPixmap(0, 0, *cache_);
 
 	if(!functions.isEmpty()) {
 		if(auto scroll_area = qobject_cast<QAbstractScrollArea*>(edb::v1::disassembly_widget())) {
 			if(QScrollBar *scrollbar = scroll_area->verticalScrollBar()) {
+				QFontMetrics fm(font());
 				const int offset = (scrollbar->value()) * byte_width;
 
 				const QString triangle(QChar(0x25b4));
@@ -125,6 +137,10 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 		);
 	}
 
+	const int renderTime = timer.elapsed();
+	if(renderTime > 8) {
+		qDebug() << "AnalyzerWidget: Painting took longer than desired: " << renderTime << "ms";
+	}
 }
 
 //------------------------------------------------------------------------------
