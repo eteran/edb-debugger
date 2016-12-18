@@ -36,7 +36,7 @@ namespace Analyzer {
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), mouse_pressed_(false) {
+AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), mouse_pressed_(false), cache_(nullptr) {
 
 	QFontMetrics fm(font());
 
