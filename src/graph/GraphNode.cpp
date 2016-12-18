@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "GraphWidget.h"
 #include "GraphEdge.h"
 #include "SyntaxHighlighter.h"
+#include "edb.h"
+#include "Configuration.h"
 
 #include <QtDebug>
 #include <QGraphicsColorizeEffect>
@@ -182,6 +184,8 @@ void GraphNode::removeEdge(GraphEdge *edge) {
 //------------------------------------------------------------------------------
 void GraphNode::drawLabel(const QString &text) {
 
+	const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled;
+
 	QPainter painter(&picture_);
 	painter.setBrush(QBrush(color_));
 	painter.setPen(TextColor);
@@ -198,11 +202,12 @@ void GraphNode::drawLabel(const QString &text) {
 
 	painter.setFont(font);
 
-	// just to calculate the proper bounding box
-	QRectF textBoundingRect;
-	painter.drawText(QRectF(), Qt::AlignLeft | Qt::AlignTop, text, &textBoundingRect);
+	QFontMetricsF fm(painter.font());
 
-	// set some reasonable minimums
+	// just to calculate the proper bounding box
+	QRectF textBoundingRect = fm.boundingRect(QRectF(), Qt::AlignLeft | Qt::AlignTop, text);
+
+		// set some reasonable minimums
 	if(textBoundingRect.width() < NodeWidth) {
 		textBoundingRect.setWidth(NodeWidth);
 	}
@@ -211,19 +216,44 @@ void GraphNode::drawLabel(const QString &text) {
 		textBoundingRect.setHeight(NodeHeight);
 	}
 
-	// set the bounding box and then really draw it
-	picture_.setBoundingRect(textBoundingRect.adjusted(-2, -2, +2, +2).toRect());
+	QRectF adjustedBoundingBox = textBoundingRect.adjusted(-2, -2, +2, +2);
 
-#if 1
-	QTextDocument doc;
-	doc.setDefaultFont(font);
-	doc.setDocumentMargin(0);
-	doc.setPlainText(text);
-	new SyntaxHighlighter(&doc);
-	doc.drawContents(&painter, textBoundingRect);
-#else
-	painter.drawText(textBoundingRect.adjusted(-2, -2, +2, +2), Qt::AlignLeft | Qt::AlignTop, text);
-#endif
+	// set the bounding box and then really draw it
+	picture_.setBoundingRect(adjustedBoundingBox.toRect());
+
+	if(syntax_highlighting_enabled) {
+
+		// create the text layout
+		QTextLayout textLayout(text, painter.font());
+
+		textLayout.setTextOption(QTextOption(Qt::AlignLeft | Qt::AlignTop));
+
+		textLayout.beginLayout();
+
+		int y = 0;
+		QStringList lines = text.split(QLatin1Char('\n'));
+		for(const QString &l : lines) {
+			QTextLine line = textLayout.createLine();
+
+			if (!line.isValid()) {
+				break;
+			}
+
+			line.setNumColumns(l.length());
+			line.setPosition(QPoint(0, y));
+			y += fm.lineSpacing();
+
+
+		}
+
+		textLayout.endLayout();
+
+		// now the render the text at the location given
+		SyntaxHighlighter highlighter;
+		textLayout.draw(&painter, adjustedBoundingBox.topLeft(), highlighter.highlightBlock(text), adjustedBoundingBox);
+	} else {
+		painter.drawText(adjustedBoundingBox, Qt::AlignLeft | Qt::AlignTop, text);
+	}
 }
 
 //------------------------------------------------------------------------------
