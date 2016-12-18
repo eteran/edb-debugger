@@ -698,7 +698,9 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 					textLayout.endLayout();
 
 					map = new QPixmap(opcode.length() * font_width_, line_height);
+#if QT_VERSION >= 0x050000
 					map->setDevicePixelRatio(devicePixelRatio());
+#endif
 					map->fill(Qt::transparent);
 					QPainter cache_painter(map);
 
