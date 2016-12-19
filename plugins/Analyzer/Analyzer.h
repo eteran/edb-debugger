@@ -73,7 +73,6 @@ public:
 	virtual bool for_funcs_in_range(const edb::address_t start, const edb::address_t end, std::function<bool(const Function*)> functor) const;
 
 private:
-	QByteArray md5_region(const IRegion::pointer &region) const;
 	bool find_containing_function(edb::address_t address, Function *function) const;
 	bool is_thunk(edb::address_t address) const;
 	bool will_return(edb::address_t address) const;
@@ -111,6 +110,9 @@ private:
 		QByteArray                        md5;
 		bool                              fuzzy;
 		IRegion::pointer                  region;
+
+		// a copy of the whole region
+		QVector<quint8>                   memory;
 	};
 
 	QMenu                             *menu_;

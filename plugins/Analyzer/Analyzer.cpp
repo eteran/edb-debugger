@@ -550,33 +550,35 @@ void Analyzer::collect_fuzzy_functions(RegionData *data) {
 
 		QHash<edb::address_t, int> fuzzy_functions;
 
+		quint8 *const first = &data->memory[0];
+		quint8 *const last  = &data->memory[data->memory.size()];
+		quint8 *p           = first;
+
 		// fuzzy_functions, known_functions
 		for(edb::address_t addr = data->region->start(); addr != data->region->end(); ++addr) {
+			const edb::Instruction inst(p, last, addr);
+			if(inst) {
+				if(is_call(inst)) {
 
-			quint8 buf[edb::Instruction::MAX_SIZE];
-			if(const int buf_size = edb::v1::get_instruction_bytes(addr, buf)) {
-				const edb::Instruction inst(buf, buf + buf_size, addr);
-				if(inst) {
-					if(is_call(inst)) {
+					// note the destination and move on
+					// we special case some simple things.
+					// also this is an opportunity to find call tables.
+					const edb::Operand &op = inst.operands()[0];
+					if(op.type() == edb::Operand::TYPE_REL) {
+						const edb::address_t ea = op.relative_target();
 
-						// note the destination and move on
-						// we special case some simple things.
-						// also this is an opportunity to find call tables.
-						const edb::Operand &op = inst.operands()[0];
-						if(op.type() == edb::Operand::TYPE_REL) {
-							const edb::address_t ea = op.relative_target();
+						// skip over ones which are: "call <label>; label:"
+						if(ea != addr + inst.size()) {
 
-							// skip over ones which are: "call <label>; label:"
-							if(ea != addr + inst.size()) {
-
-								if(!data->known_functions.contains(ea)) {
-									fuzzy_functions[ea]++;
-								}
+							if(!data->known_functions.contains(ea)) {
+								fuzzy_functions[ea]++;
 							}
 						}
 					}
 				}
 			}
+
+			++p;
 		}
 
 		// transfer results to data->fuzzy_functions
@@ -600,8 +602,14 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 	RegionData &region_data = analysis_info_[region->start()];
 
 	QSettings settings;
-	const bool fuzzy          = settings.value("Analyzer/fuzzy_logic_functions.enabled", true).toBool();
-	const QByteArray md5      = md5_region(region);
+	const bool fuzzy = settings.value("Analyzer/fuzzy_logic_functions.enabled", true).toBool();
+
+	const edb::address_t page_size = edb::v1::debugger_core->page_size();
+	const size_t page_count        = region->size() / page_size;
+
+	QVector<quint8> memory = edb::v1::read_pages(region->start(), page_count);
+
+	const QByteArray md5      = (!memory.isEmpty()) ? edb::v1::get_md5(memory) : QByteArray();
 	const QByteArray prev_md5 = region_data.md5;
 
 	if(md5 != prev_md5 || fuzzy != region_data.fuzzy) {
@@ -611,6 +619,7 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 		region_data.fuzzy_functions.clear();
 		region_data.known_functions.clear();
 
+		region_data.memory = memory;
 		region_data.region = region;
 		region_data.md5    = md5;
 		region_data.fuzzy  = fuzzy;
@@ -766,25 +775,6 @@ bool Analyzer::for_funcs_in_range(const edb::address_t start, const edb::address
 	}
 	return true;
 }
-
-//------------------------------------------------------------------------------
-// Name: md5_region
-// Desc: returns a byte array representing the MD5 of a region
-//------------------------------------------------------------------------------
-QByteArray Analyzer::md5_region(const IRegion::pointer &region) const{
-
-	const edb::address_t page_size = edb::v1::debugger_core->page_size();
-	const size_t page_count        = region->size() / page_size;
-
-	const QVector<quint8> pages = edb::v1::read_pages(region->start(), page_count);
-	if(!pages.isEmpty()) {
-		return edb::v1::get_md5(pages);
-	}
-
-
-	return QByteArray();
-}
-
 
 //------------------------------------------------------------------------------
 // Name: bonus_entry_point
