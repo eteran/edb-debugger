@@ -837,7 +837,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	unsigned int preline1_x_offset = 0;
 
 	{ // DISASSEMBLE STEP
-		int bufsize      = instruction_buffer_.size();
+		int bufsize = instruction_buffer_.size();
 		quint8 *inst_buf = &instruction_buffer_[0];
 
 		if (!edb::v1::get_instruction_bytes(start_address, inst_buf, &bufsize)) {
@@ -848,9 +848,10 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		instructions.reserve(lines_to_render);
 		show_addresses_.reserve(lines_to_render);
 
+		const int max_offset = std::min(int(region_->end() - start_address), bufsize);
 		unsigned int line = 0;
 		int offset = 0;
-		while (line < lines_to_render && offset < bufsize) {
+		while (line < lines_to_render && offset < max_offset) {
 			edb::address_t address = start_address + offset;
 			instructions.emplace_back(
 				&inst_buf[offset], // instruction bytes
@@ -861,9 +862,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			if (address == selectedAddress()) {
 				selected_line = line;
 			}
-			// FIXME
-			// disassemble the instruction, if it happens that the next byte is the start of a known function
-			// then we should treat this like a one byte instruction
+
 			offset += instructions[line].size();
 			line++;
 		}
