@@ -96,7 +96,7 @@ private:
 	edb::address_t following_instructions(edb::address_t current_address, int count);
 	int address_length() const;
 	int auto_line1() const;
-	int draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l2, int l3, bool selected) const;
+	int draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l2, int l3, bool selected);
 	Result<int> get_instruction_size(edb::address_t address) const;
 	Result<int> get_instruction_size(edb::address_t address, quint8 *buf, int *size) const;
 	int line1() const;
@@ -134,6 +134,7 @@ private:
 	QSvgRenderer                      current_renderer_;
 	QSvgRenderer                      current_bp_renderer_;
 	QVector<quint8>                   instruction_buffer_;
+	QCache<QString, QPixmap>          syntax_cache_;
 };
 
 #endif

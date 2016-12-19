@@ -199,7 +199,8 @@ QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(paren
 		selecting_address_(false),
         breakpoint_renderer_(QLatin1String(":/debugger/images/breakpoint.svg")),
         current_renderer_(QLatin1String(":/debugger/images/arrow-right.svg")),
-        current_bp_renderer_(QLatin1String(":/debugger/images/arrow-right-red.svg")) {
+        current_bp_renderer_(QLatin1String(":/debugger/images/arrow-right-red.svg")),
+	syntax_cache_(256) {
 
 	setShowAddressSeparator(true);
 
@@ -606,11 +607,12 @@ bool targetIsLocal(edb::address_t targetAddress,edb::address_t insnAddress) {
 // Name: draw_instruction
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l2, int l3, bool selected) const {
+int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l2, int l3, bool selected) {
 
 	const bool is_filling = edb::v1::arch_processor().is_filling(inst);
 	int x                 = font_width_ + font_width_ + l2 + (font_width_ / 2);
 	const int ret         = inst.size();
+	const int inst_pixel_width = l3 - x;
 
 	if(inst) {
 		QString opcode = QString::fromStdString(edb::v1::formatter().to_string(inst));
@@ -624,7 +626,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 				painter.setPen(filling_dis_color);
 			}
 
-			opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
+			opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, inst_pixel_width);
 
 			painter.drawText(
 				x,
@@ -663,41 +665,54 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 				}
 			}
 
-			opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
+			opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, inst_pixel_width);
 
 			if(syntax_highlighting_enabled) {
 				painter.setPen(default_dis_color);
 			}
 
 
-			QRectF rectangle(x, y, opcode.length() * font_width_, line_height);
 
 			if(syntax_highlighting_enabled) {
+				QPixmap* map = syntax_cache_[opcode];
+				if (map == nullptr) {
+					// create the text layout
+					QTextLayout textLayout(opcode, painter.font());
 
-				// create the text layout
-				QTextLayout textLayout(opcode, painter.font());
+					textLayout.setTextOption(QTextOption(Qt::AlignVCenter));
 
-				textLayout.setTextOption(QTextOption(Qt::AlignVCenter));
+					textLayout.beginLayout();
 
-				textLayout.beginLayout();
+					// generate the lines one at a time
+					// setting the positions as we go
+					Q_FOREVER {
+						QTextLine line = textLayout.createLine();
 
-				// generate the lines one at a time
-				// setting the positions as we go
-				Q_FOREVER {
-					QTextLine line = textLayout.createLine();
+						if (!line.isValid()) {
+							break;
+						}
 
-					if (!line.isValid()) {
-						break;
+						line.setPosition(QPoint(0, 0));
 					}
 
-					line.setPosition(QPoint(0, 0));
+					textLayout.endLayout();
+
+#if QT_VERSION >= 0x050000
+					map = new QPixmap(QSize(opcode.length() * font_width_, line_height) * devicePixelRatio());
+					map->setDevicePixelRatio(devicePixelRatio());
+#else
+					map = new QPixmap(opcode.length() * font_width_, line_height);
+#endif
+					map->fill(Qt::transparent);
+					QPainter cache_painter(map);
+
+					// now the render the text at the location given
+					textLayout.draw(&cache_painter, QPoint(0, 0), highlighter_->highlightBlock(opcode));
+					syntax_cache_.insert(opcode, map);
 				}
-
-				textLayout.endLayout();
-
-				// now the render the text at the location given
-				textLayout.draw(&painter, QPoint(x, y), highlighter_->highlightBlock(opcode), rectangle);
+				painter.drawPixmap(x, y, *map);
 			} else {
+				QRectF rectangle(x, y, opcode.length() * font_width_, line_height);
 				painter.drawText(rectangle, Qt::AlignVCenter, opcode);
 			}
 		}
