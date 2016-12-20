@@ -128,6 +128,7 @@ private:
 	bool                              moving_line3_;
 	bool                              selecting_address_;
 	bool                              show_address_separator_;
+	bool                              partial_last_line_;
 	QHash<edb::address_t, QString>    comments_;
 	NavigationHistory                 history_;
 	QSvgRenderer                      breakpoint_renderer_;

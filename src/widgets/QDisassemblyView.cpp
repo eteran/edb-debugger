@@ -238,7 +238,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		verticalScrollBar()->setValue(verticalScrollBar()->maximum());
 	} else if (event->matches(QKeySequence::MoveToNextLine)) {
 		const int idx = show_addresses_.indexOf(selectedAddress());
-		if (idx > 0 && idx < show_addresses_.size()-1) {
+		if (idx > 0 && idx < show_addresses_.size()-1-partial_last_line_) {
 			setSelectedAddress(show_addresses_[idx + 1]);
 		} else {
 			const edb::address_t next_address = following_instructions(selectedAddress()-address_offset_, 1) + address_offset_;
@@ -536,7 +536,10 @@ void QDisassemblyView::update() {
 // Desc: returns true if a given address is in the visible range
 //------------------------------------------------------------------------------
 bool QDisassemblyView::addressShown(edb::address_t address) const {
-	return show_addresses_.contains(address);
+	const auto idx = show_addresses_.indexOf(address);
+	// if the last line is only partially rendered, consider it outside the
+	// viewport.
+	return (idx > 0 && idx < show_addresses_.size() - 1 - partial_last_line_);
 }
 
 //------------------------------------------------------------------------------
@@ -808,7 +811,15 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	QPainter painter(viewport());
 
 	const int line_height = this->line_height();
-	unsigned int lines_to_render = 1 + (viewport()->height() / line_height);
+	unsigned int lines_to_render = viewport()->height() / line_height;
+	// Possibly render another instruction just outside the viewport
+	if (viewport()->height() % line_height > 0) {
+		lines_to_render++;
+		partial_last_line_ = true;
+	} else {
+		partial_last_line_ = false;
+	}
+
 	const edb::address_t start_address = address_offset_ + verticalScrollBar()->value();
 	const int l1 = line1();
 	const int l2 = line2();
@@ -865,6 +876,12 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			offset += instructions[line].size();
 			line++;
 		}
+		Q_ASSERT(line <= lines_to_render);
+		if (lines_to_render != line) {
+			lines_to_render = line;
+			partial_last_line_ = false;
+		}
+
 		lines_to_render = line;
 		end_address += offset;
 	}
