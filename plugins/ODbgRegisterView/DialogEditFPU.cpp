@@ -14,6 +14,8 @@
 #include <iostream>
 #include <iomanip>
 
+namespace ODbgRegisterView {
+
 DialogEditFPU::DialogEditFPU(QWidget* parent)
 	: QDialog(parent),
 	  floatEntry(new ODbgRegisterView::Float80Edit(this)),
@@ -142,4 +144,6 @@ void DialogEditFPU::onFloatEdited(const QString& str)
 	const auto value=readFloat(str,ok);
 	if(ok) value_=edb::value80(value);
 	updateHexEntry();
+}
+
 }

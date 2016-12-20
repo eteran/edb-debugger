@@ -17,6 +17,8 @@
 
 class GPREdit;
 
+namespace ODbgRegisterView {
+
 class DialogEditGPR : public QDialog
 {
 	Q_OBJECT
@@ -73,5 +75,7 @@ public:
 private Q_SLOTS:
     void onTextEdited(const QString&);
 };
+
+}
 
 #endif

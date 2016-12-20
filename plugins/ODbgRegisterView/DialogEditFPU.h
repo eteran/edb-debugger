@@ -8,7 +8,6 @@
 
 namespace ODbgRegisterView {
 class Float80Edit;
-}
 
 class DialogEditFPU : public QDialog
 {
@@ -30,5 +29,8 @@ private Q_SLOTS:
 	void updateFloatEntry();
 	void updateHexEntry();
 };
+
+}
+
 
 #endif

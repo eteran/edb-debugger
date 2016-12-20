@@ -21,6 +21,10 @@ class QRegExpValidator;
 class QULongValidator;
 class QLongValidator;
 class QValidator;
+
+
+namespace ODbgRegisterView {
+
 class NumberEdit;
 
 class DialogEditSIMDRegister : public QDialog
@@ -117,5 +121,7 @@ private slots:
 	void onSignedToggled(bool checked);
 	void onUnsignedToggled(bool checked);
 };
+
+}
 
 #endif

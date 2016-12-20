@@ -11,6 +11,8 @@
 #include <type_traits>
 #include <limits>
 
+namespace ODbgRegisterView {
+
 class NumberEdit : public QLineEdit
 {
 	int naturalWidthInChars=17; // default roughly as in QLineEdit
@@ -43,6 +45,8 @@ public:
 		return QSize(customWidth,baseHint.height()).expandedTo(QApplication::globalStrut());
 	}
 };
+
+
 
 template<std::size_t numEntries>
 void DialogEditSIMDRegister::setupEntries(const QString& label, std::array<NumberEdit*,numEntries>& entries, int row, const char* slot, int naturalWidthInChars)
@@ -492,4 +496,6 @@ Register DialogEditSIMDRegister::value() const
 	Register out(reg);
 	out.setValueFrom(value_);
 	return out;
+}
+
 }

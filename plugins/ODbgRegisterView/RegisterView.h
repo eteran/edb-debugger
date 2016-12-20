@@ -28,12 +28,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RegisterViewModelBase.h"
 
 class QSettings;
-class DialogEditGPR;
-class DialogEditSIMDRegister;
-class DialogEditFPU;
 
 namespace ODbgRegisterView {
 
+class DialogEditSIMDRegister;
+class DialogEditGPR;
+class DialogEditFPU;
 class RegisterGroup;
 class FieldWidget;
 class ValueField;

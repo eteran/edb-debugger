@@ -11,6 +11,8 @@
 #include <tuple>
 #include "GPREdit.h"
 
+namespace ODbgRegisterView {
+
 DialogEditGPR::DialogEditGPR(QWidget* parent)
 	: QDialog(parent)
 {
@@ -271,3 +273,4 @@ void DialogEditGPR::onTextEdited(const QString&)
 	updateAllEntriesExcept(edit);
 }
 
+}
