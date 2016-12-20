@@ -115,6 +115,18 @@ size_t PE32::header_size() const {
 }
 
 //------------------------------------------------------------------------------
+// Name: headers
+// Desc: returns a list of all headers in this binary
+//------------------------------------------------------------------------------
+QVector<IBinary::Header> PE32::headers() const {
+	QVector<Header> results;
+
+	results.push_back({0, sizeof(pe_) + dos_.e_lfanew});
+	 
+	return results;
+}
+
+//------------------------------------------------------------------------------
 // Name: header
 // Desc: returns a copy of the file header or NULL if the region wasn't a valid,
 //       known binary type

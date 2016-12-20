@@ -52,6 +52,7 @@ public:
 	virtual edb::address_t entry_point();
 	virtual size_t header_size() const;
 	virtual const void *header() const;
+	virtual QVector<Header> headers() const;
 
 private:
 	IRegion::pointer region_;

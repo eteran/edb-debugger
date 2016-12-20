@@ -23,8 +23,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IRegion.h"
 #include "Types.h"
 #include <memory>
+#include <QVector>
+#include <QPair>
 
 class EDB_EXPORT IBinary {
+public:
+	struct Header {
+		edb::address_t address;
+		size_t         size;
+		// TODO(eteran): maybe label/type/etc...
+	};
 public:
 	virtual ~IBinary() {}
 
@@ -34,6 +42,7 @@ public:
 	virtual edb::address_t entry_point() = 0;
 	virtual size_t header_size() const = 0;
 	virtual const void *header() const = 0;
+	virtual QVector<Header> headers() const = 0;
 
 public:
 	// optional, and platform specific:

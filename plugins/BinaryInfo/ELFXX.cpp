@@ -101,6 +101,20 @@ size_t ELFXX<elfxx_header>::header_size() const {
 	return size;
 }
 
+//------------------------------------------------------------------------------
+// Name: headers
+// Desc: returns a list of all headers in this binary
+//------------------------------------------------------------------------------
+template <typename elfxx_header>
+QVector<IBinary::Header> ELFXX<elfxx_header>::headers() const {
+	QVector<Header> results;
+
+	results.push_back({0, header_.e_ehsize});
+	results.push_back({header_.e_phoff, static_cast<size_t>(header_.e_phentsize * header_.e_phnum) });
+	 
+	return results;
+}
+
 template<typename elfxx_header>
 void ELFXX<elfxx_header>::validate_header() {
 	if(std::memcmp(header_.e_ident, ELFMAG, SELFMAG) != 0) {
