@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_DialogHWBreakpoints.h"
 
-namespace HardwareBreakpoints {
+namespace HardwareBreakpointsPlugin {
 
 //------------------------------------------------------------------------------
 // Name: DialogHWBreakpoints

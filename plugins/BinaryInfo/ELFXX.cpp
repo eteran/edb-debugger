@@ -17,7 +17,7 @@
 #include <link.h>
 #endif
 
-namespace BinaryInfo {
+namespace BinaryInfoPlugin {
 
 
 ELFBinaryException::ELFBinaryException(reasonEnum reason): reason_(reason) {}

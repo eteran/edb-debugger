@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 #include <QKeySequence>
 
-namespace Backtrace {
+namespace BacktracePlugin {
 
 Backtrace::Backtrace() : menu_(0), dialog_(0)
 {

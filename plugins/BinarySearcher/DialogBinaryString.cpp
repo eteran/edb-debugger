@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_DialogBinaryString.h"
 
-namespace BinarySearcher {
+namespace BinarySearcherPlugin {
 
 //------------------------------------------------------------------------------
 // Name: DialogBinaryString

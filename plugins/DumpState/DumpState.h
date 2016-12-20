@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QMenu;
 class State;
 
-namespace DumpState {
+namespace DumpStatePlugin {
 
 class DumpState : public QObject, public IPlugin {
 	Q_OBJECT

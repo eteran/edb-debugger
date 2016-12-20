@@ -26,8 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QSortFilterProxyModel;
 
-
-namespace HeapAnalyzer {
+namespace HeapAnalyzerPlugin {
 
 namespace Ui { class DialogHeap; }
 

@@ -42,7 +42,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_DialogAssembler.h"
 
-namespace Assembler {
+namespace AssemblerPlugin {
+
 //------------------------------------------------------------------------------
 // Name: DialogAssembler
 // Desc: constructor

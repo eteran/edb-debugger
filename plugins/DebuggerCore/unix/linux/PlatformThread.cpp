@@ -55,7 +55,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PTRACE_SETREGSET static_cast<__ptrace_request>(0x4205)
 #endif
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 //------------------------------------------------------------------------------
 // Name: fillSegmentBases

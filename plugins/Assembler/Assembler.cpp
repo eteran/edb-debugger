@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 #include <QAction>
 
-namespace Assembler {
+namespace AssemblerPlugin {
 
 //------------------------------------------------------------------------------
 // Name: Assembler

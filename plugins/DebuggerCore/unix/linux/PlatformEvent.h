@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCoreApplication>
 #include <signal.h> // for the SIG* definitions
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 class PlatformEvent : public IDebugEvent {
 	Q_DECLARE_TR_FUNCTIONS(PlatformEvent)

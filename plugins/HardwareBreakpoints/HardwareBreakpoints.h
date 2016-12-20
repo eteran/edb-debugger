@@ -30,7 +30,7 @@ class QCheckBox;
 class QComboBox;
 class QLineEdit;
 
-namespace HardwareBreakpoints {
+namespace HardwareBreakpointsPlugin {
 
 class HardwareBreakpoints : public QObject, public IPlugin, public IDebugEventHandler {
 	Q_OBJECT

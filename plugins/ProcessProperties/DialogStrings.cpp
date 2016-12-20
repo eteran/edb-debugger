@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_DialogStrings.h"
 
-namespace ProcessProperties {
+namespace ProcessPropertiesPlugin {
 
 //------------------------------------------------------------------------------
 // Name: DialogStrings

@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_OptionsPage.h"
 
-namespace BinaryInfo
+namespace BinaryInfoPlugin
 {
 
 OptionsPage::OptionsPage(QWidget* parent) : QWidget(parent), ui(new Ui::OptionsPage) {

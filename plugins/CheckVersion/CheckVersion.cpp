@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSettings>
 #include <QUrl>
 
-namespace CheckVersion {
+namespace CheckVersionPlugin {
 
 //------------------------------------------------------------------------------
 // Name: CheckVersion

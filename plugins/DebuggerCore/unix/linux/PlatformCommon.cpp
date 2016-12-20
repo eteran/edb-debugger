@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtDebug>
 #include <sys/wait.h>
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 //------------------------------------------------------------------------------
 // Name: resume_code

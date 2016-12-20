@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>CheckVersion::OptionsPage</class>
+ <class>CheckVersionPlugin::OptionsPage</class>
  <widget class="QWidget" name="OptionsPage">
   <property name="geometry">
    <rect>

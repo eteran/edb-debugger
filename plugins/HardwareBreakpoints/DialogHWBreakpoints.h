@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 
-namespace HardwareBreakpoints {
+namespace HardwareBreakpointsPlugin {
 
 namespace Ui { class DialogHWBreakpoints; }
 

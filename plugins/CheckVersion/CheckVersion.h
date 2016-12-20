@@ -26,7 +26,7 @@ class QNetworkReply;
 class QNetworkAccessManager;
 class QUrl;
 
-namespace CheckVersion {
+namespace CheckVersionPlugin {
 
 class CheckVersion : public QObject, public IPlugin {
 	Q_OBJECT

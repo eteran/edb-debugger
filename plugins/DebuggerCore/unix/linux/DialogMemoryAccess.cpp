@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogMemoryAccess.h"
 #include "ui_DialogMemoryAccess.h"
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 DialogMemoryAccess::DialogMemoryAccess(QWidget *parent) : QDialog(parent), ui(new Ui::DialogMemoryAccess) {
 	ui->setupUi(this);

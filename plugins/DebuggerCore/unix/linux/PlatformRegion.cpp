@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/mman.h>
 #include <asm/unistd.h>
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 namespace {
 

@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogHeap.h"
 #include <QMenu>
 
-namespace HeapAnalyzer {
+namespace HeapAnalyzerPlugin {
 
 //------------------------------------------------------------------------------
 // Name: HeapAnalyzer

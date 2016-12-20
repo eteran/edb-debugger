@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRegExp>
 #include <QDebug>
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 constexpr const char* PlatformState::AVX::mxcsrName;
 constexpr const char* PlatformState::X86::IP64Name;

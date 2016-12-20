@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QMenu;
 
-namespace BinaryInfo {
+namespace BinaryInfoPlugin {
 
 class BinaryInfo : public QObject, public IPlugin, public ISymbolGenerator {
 	Q_OBJECT

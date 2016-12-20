@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <author>Evan Teran</author>
- <class>References::DialogReferences</class>
+ <class>ReferencesPlugin::DialogReferences</class>
  <widget class="QDialog" name="DialogReferences">
   <property name="geometry">
    <rect>

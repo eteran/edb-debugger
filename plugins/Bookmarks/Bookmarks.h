@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QSignalMapper;
 
-namespace Bookmarks {
+namespace BookmarksPlugin {
 
 class BookmarkWidget;
 

@@ -48,7 +48,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_DialogHeap.h"
 
-namespace HeapAnalyzer {
+namespace HeapAnalyzerPlugin {
 
 #define PREV_INUSE     0x1
 #define IS_MMAPPED     0x2

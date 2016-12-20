@@ -42,7 +42,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 #endif
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 #if !defined(USE_SIGTIMEDWAIT)
 namespace {

@@ -27,7 +27,7 @@ class QPoint;
 class QSortFilterProxyModel;
 class QStringListModel;
 
-namespace SymbolViewer {
+namespace SymbolViewerPlugin {
 
 namespace Ui { class DialogSymbolViewer; }
 

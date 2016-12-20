@@ -26,7 +26,7 @@ class QStringListModel;
 class QSortFilterProxyModel;
 class QModelIndex;
 
-namespace BinaryInfo {
+namespace BinaryInfoPlugin {
 
 namespace Ui { class DialogHeader; }
 

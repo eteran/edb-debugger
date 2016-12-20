@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogROPTool.h"
 #include <QMenu>
 
-namespace ROPTool {
+namespace ROPToolPlugin {
 
 //------------------------------------------------------------------------------
 // Name: ROPTool

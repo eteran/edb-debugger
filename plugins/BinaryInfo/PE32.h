@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IBinary.h"
 #include "pe_binary.h"
 
-namespace BinaryInfo {
+namespace BinaryInfoPlugin {
 
 class PEBinaryException : public std::exception {
 	public:

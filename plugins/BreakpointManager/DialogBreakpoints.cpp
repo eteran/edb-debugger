@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_DialogBreakpoints.h"
 
-namespace BreakpointManager {
+namespace BreakpointManagerPlugin {
 
 //------------------------------------------------------------------------------
 // Name: DialogBreakpoints

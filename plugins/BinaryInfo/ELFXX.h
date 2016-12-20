@@ -23,22 +23,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "elf_binary.h"
 
 
-namespace BinaryInfo {
+namespace BinaryInfoPlugin {
 
 class ELFBinaryException : public std::exception {
+public:
 	enum reasonEnum {
 		INVALID_ARGUMENTS = 1,
 		READ_FAILURE = 2,
 		INVALID_ELF = 3,
 		INVALID_ARCHITECTURE = 4
 	};
-	public:
-		ELFBinaryException(reasonEnum reason);
-	public:
-		virtual const char * what();
+public:
+	ELFBinaryException(reasonEnum reason);
+public:
+	virtual const char * what();
 
-	private:
-		reasonEnum reason_;
+private:
+	reasonEnum reason_;
 };
 
 

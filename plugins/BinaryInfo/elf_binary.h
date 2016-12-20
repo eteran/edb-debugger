@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELF_BINARY_20121007_H_
 #define ELF_BINARY_20121007_H_
 
-namespace BinaryInfo {
+namespace BinaryInfoPlugin {
 
 #include "elf/elf_types.h"
 #include "elf/elf_header.h"

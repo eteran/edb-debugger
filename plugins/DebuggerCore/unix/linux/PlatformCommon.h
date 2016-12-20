@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QString;
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 struct user_stat {
 /* 01 */ int pid;

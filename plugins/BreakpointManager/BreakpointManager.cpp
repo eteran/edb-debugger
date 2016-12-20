@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 #include <QKeySequence>
 
-namespace BreakpointManager {
+namespace BreakpointManagerPlugin {
 
 //------------------------------------------------------------------------------
 // Name: BreakpointManager

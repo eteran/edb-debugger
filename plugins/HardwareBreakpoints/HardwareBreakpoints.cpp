@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #error "Unsupported Platform"
 #endif
 
-namespace HardwareBreakpoints {
+namespace HardwareBreakpointsPlugin {
 
 //------------------------------------------------------------------------------
 // Name: HardwareBreakpoints

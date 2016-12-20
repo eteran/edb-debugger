@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef FEATURE_DETECT_H_
 #define FEATURE_DETECT_H_
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 namespace feature {
 
 bool detect_proc_access(bool *read_broken, bool *write_broken);

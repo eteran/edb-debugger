@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QSortFilterProxyModel;
 class QListWidgetItem;
 
-namespace ProcessProperties {
+namespace ProcessPropertiesPlugin {
 
 namespace Ui { class DialogStrings; }
 

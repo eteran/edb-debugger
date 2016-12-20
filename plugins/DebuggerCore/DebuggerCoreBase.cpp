@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include <QtDebug>
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 //------------------------------------------------------------------------------
 // Name: DebuggerCoreBase

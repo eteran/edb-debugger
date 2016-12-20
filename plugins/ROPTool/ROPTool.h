@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QMenu;
 class QDialog;
 
-namespace ROPTool {
+namespace ROPToolPlugin {
 
 class ROPTool : public QObject, public IPlugin {
 	Q_OBJECT

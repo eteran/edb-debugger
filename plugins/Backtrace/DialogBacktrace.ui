@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>Backtrace::DialogBacktrace</class>
+ <class>BacktracePlugin::DialogBacktrace</class>
  <widget class="QDialog" name="DialogBacktrace">
   <property name="geometry">
    <rect>

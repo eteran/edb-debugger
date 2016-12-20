@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "elf/elf_shdr.h"
 #include "elf/elf_syminfo.h"
 
-namespace BinaryInfo {
+namespace BinaryInfoPlugin {
 namespace {
 
 struct elf32_model {

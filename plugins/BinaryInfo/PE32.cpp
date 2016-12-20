@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "pe_binary.h"
 #include <QDebug>
 
-namespace BinaryInfo {
+namespace BinaryInfoPlugin {
 
 PEBinaryException::PEBinaryException(reasonEnum reason): reason_(reason) {}
 const char * PEBinaryException::what() { return "TODO"; }

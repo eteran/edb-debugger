@@ -36,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #define MIN_REFCOUNT 2
 
-namespace FunctionFinder {
+namespace FunctionFinderPlugin {
 
 //------------------------------------------------------------------------------
 // Name: DialogFunctions

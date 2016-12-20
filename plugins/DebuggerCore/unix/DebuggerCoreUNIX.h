@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 #include <cerrno>
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 namespace native {
 

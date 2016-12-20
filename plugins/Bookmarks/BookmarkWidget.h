@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include "Types.h"
 
-namespace Bookmarks {
+namespace BookmarksPlugin {
 
 namespace Ui { class Bookmarks; }
 

@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QSortFilterProxyModel;
 class IAnalyzer;
 
-namespace FunctionFinder {
+namespace FunctionFinderPlugin {
 
 namespace Ui { class DialogFunctions; }
 

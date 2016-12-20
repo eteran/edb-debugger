@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>DebuggerCore::DialogMemoryAccess</class>
+ <class>DebuggerCorePlugin::DialogMemoryAccess</class>
  <widget class="QDialog" name="DialogMemoryAccess">
   <property name="geometry">
    <rect>

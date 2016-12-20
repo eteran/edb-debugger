@@ -30,7 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class IBinary;
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 class DebuggerCore : public DebuggerCoreUNIX {
 	Q_OBJECT

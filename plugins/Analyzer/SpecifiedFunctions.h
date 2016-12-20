@@ -25,7 +25,7 @@ class QStringListModel;
 class QSortFilterProxyModel;
 class QModelIndex;
 
-namespace Analyzer {
+namespace AnalyzerPlugin {
 
 namespace Ui { class SpecifiedFunctions; }
 

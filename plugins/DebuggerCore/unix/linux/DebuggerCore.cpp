@@ -67,7 +67,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PTRACE_O_EXITKILL	(1 << 20)
 #endif
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 namespace {
 

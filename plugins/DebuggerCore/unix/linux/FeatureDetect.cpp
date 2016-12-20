@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <fcntl.h>
 #include <unistd.h>
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 namespace feature {
 namespace {
 

@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <fstream>
 #include <memory>
 
-namespace BinaryInfo {
+namespace BinaryInfoPlugin {
 namespace {
 
 //------------------------------------------------------------------------------

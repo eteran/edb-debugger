@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QSortFilterProxyModel;
 class QListWidgetItem;
 
-namespace OpcodeSearcher {
+namespace OpcodeSearcherPlugin {
 
 namespace Ui { class DialogOpcodes; }
 

@@ -32,7 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_DialogOpcodes.h"
 
-namespace OpcodeSearcher {
+namespace OpcodeSearcherPlugin {
 
 namespace {
 #if defined(EDB_X86)

@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 #include "IRegion.h"
 
-namespace Assembler {
+namespace AssemblerPlugin {
 
 namespace Ui { class DialogAssembler; }
 

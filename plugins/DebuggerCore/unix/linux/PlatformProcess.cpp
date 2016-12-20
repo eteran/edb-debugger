@@ -40,13 +40,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <pwd.h>
 #include <elf.h>
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 namespace {
 
 // Used as size of ptrace word
 #define EDB_WORDSIZE sizeof(long)
 
-namespace BinaryInfo {
+
+// TODO(eteran): this inter-plugin dependency is terrible :-/
+namespace BinaryInfoPlugin {
 // Bitness-templated version of struct r_debug defined in link.h
 template<class Addr>
 struct r_debug
@@ -151,7 +153,7 @@ QList<Module> loaded_modules_(const IProcess* process, const std::unique_ptr<IBi
 	QList<Module> ret;
 
 	if(binary_info_) {
-		BinaryInfo::r_debug<Addr> dynamic_info;
+		BinaryInfoPlugin::r_debug<Addr> dynamic_info;
 		if(const edb::address_t debug_pointer = binary_info_->debug_pointer()) {
 			if(process) {
 				if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
@@ -161,7 +163,7 @@ QList<Module> loaded_modules_(const IProcess* process, const std::unique_ptr<IBi
 
 						while(link_address) {
 
-							BinaryInfo::link_map<Addr> map;
+							BinaryInfoPlugin::link_map<Addr> map;
 							if(process->read_bytes(link_address, &map, sizeof(map))) {
 								char path[PATH_MAX];
 								if(!process->read_bytes(edb::address_t::fromZeroExtended(map.l_name), &path, sizeof(path))) {

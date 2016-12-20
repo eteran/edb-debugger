@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_DialogHeader.h"
 
-namespace BinaryInfo {
+namespace BinaryInfoPlugin {
 namespace {
 
 template <class T>

@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogFunctions.h"
 #include <QMenu>
 
-namespace FunctionFinder {
+namespace FunctionFinderPlugin {
 
 //------------------------------------------------------------------------------
 // Name: FunctionFinder

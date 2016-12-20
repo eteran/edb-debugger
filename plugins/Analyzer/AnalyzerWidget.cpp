@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDir>
 #include <QElapsedTimer>
 
-namespace Analyzer {
+namespace AnalyzerPlugin {
 
 //------------------------------------------------------------------------------
 // Name:

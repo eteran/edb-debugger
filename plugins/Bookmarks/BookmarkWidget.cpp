@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_Bookmarks.h"
 
-namespace Bookmarks {
+namespace BookmarksPlugin {
 
 //------------------------------------------------------------------------------
 // Name: BookmarkWidget

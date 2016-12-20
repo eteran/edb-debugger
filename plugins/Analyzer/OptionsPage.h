@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 
-namespace Analyzer {
+namespace AnalyzerPlugin {
 
 namespace Ui { class OptionsPage; }
 

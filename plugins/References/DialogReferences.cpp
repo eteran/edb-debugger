@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_DialogReferences.h"
 
-namespace References {
+namespace ReferencesPlugin {
 
 enum Role {
 	TypeRole    = Qt::UserRole + 0,

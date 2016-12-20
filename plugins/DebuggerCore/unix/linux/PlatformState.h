@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/user.h>
 #include "edb.h"
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 using std::size_t;
 

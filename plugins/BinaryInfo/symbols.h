@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QString;
 #include <iostream>
 
-namespace BinaryInfo {
+namespace BinaryInfoPlugin {
 bool generate_symbols(const QString &filename, std::ostream &os = std::cout);
 }
 

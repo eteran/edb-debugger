@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QPixmap>
 
-namespace Analyzer {
+namespace AnalyzerPlugin {
 
 class AnalyzerWidget : public QWidget {
 	Q_OBJECT

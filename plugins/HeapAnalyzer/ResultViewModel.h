@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 #include "Types.h"
 
-namespace HeapAnalyzer {
+namespace HeapAnalyzerPlugin {
 
 struct Result {
 	Result() : block(0), size(0) {

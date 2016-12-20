@@ -28,17 +28,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class IState;
 class QString;
 
-namespace DebuggerCore {
-	class DebuggerCore;
-	class PlatformThread;
+namespace DebuggerCorePlugin {
+
+class DebuggerCore;
+class PlatformThread;
+
 }
 
 class EDB_EXPORT State {
 
-	// I don't like needing to do this
+	// TODO(eteran): I don't like needing to do this
 	// need to revisit the IState/State/PlatformState stuff...
-	friend class DebuggerCore::DebuggerCore;
-	friend class DebuggerCore::PlatformThread;
+	friend class DebuggerCorePlugin::DebuggerCore;
+	friend class DebuggerCorePlugin::PlatformThread;
 
 public:
 	State &operator=(const State &other);

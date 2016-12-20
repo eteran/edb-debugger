@@ -33,7 +33,7 @@ class QSortFilterProxyModel;
 class QStandardItem;
 class QStandardItemModel;
 
-namespace ROPTool {
+namespace ROPToolPlugin {
 
 class ResultFilterProxy;
 

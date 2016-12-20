@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "edb.h"
 
-namespace HardwareBreakpoints {
+namespace HardwareBreakpointsPlugin {
 
 constexpr const int Register1	  = 0;
 constexpr const int Register2	  = 1;
