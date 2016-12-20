@@ -109,8 +109,8 @@ template <typename elfxx_header>
 QVector<IBinary::Header> ELFXX<elfxx_header>::headers() const {
 	QVector<Header> results;
 
-	results.push_back({0, header_.e_ehsize});
-	results.push_back({header_.e_phoff, static_cast<size_t>(header_.e_phentsize * header_.e_phnum) });
+	results.push_back({region_->start(), header_.e_ehsize});
+	results.push_back({region_->start() + header_.e_phoff, static_cast<size_t>(header_.e_phentsize * header_.e_phnum) });
 	 
 	return results;
 }

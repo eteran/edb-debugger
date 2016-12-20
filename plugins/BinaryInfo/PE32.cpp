@@ -121,7 +121,7 @@ size_t PE32::header_size() const {
 QVector<IBinary::Header> PE32::headers() const {
 	QVector<Header> results;
 
-	results.push_back({0, sizeof(pe_) + dos_.e_lfanew});
+	results.push_back({region_->start(), sizeof(pe_) + dos_.e_lfanew});
 	 
 	return results;
 }
