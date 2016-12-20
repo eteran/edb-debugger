@@ -197,7 +197,6 @@ QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(paren
 		moving_line2_(false),
 		moving_line3_(false),
 		selecting_address_(false),
-		clear_cache_(false),
 		breakpoint_renderer_(QLatin1String(":/debugger/images/breakpoint.svg")),
 		current_renderer_(QLatin1String(":/debugger/images/arrow-right.svg")),
 		current_bp_renderer_(QLatin1String(":/debugger/images/arrow-right-red.svg")),
