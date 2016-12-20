@@ -1247,6 +1247,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 // Desc: overloaded version of setFont, calculates font metrics for later
 //------------------------------------------------------------------------------
 void QDisassemblyView::setFont(const QFont &f) {
+	syntax_cache_.clear();
 
 	// TODO: assert that we are using a fixed font & find out if we care?
 	QAbstractScrollArea::setFont(f);
