@@ -1796,8 +1796,8 @@ void Debugger::mnuCPUEditComment() {
 	bool got_text;
 	const QString comment = QInputDialog::getText(
 				this,
-				QString("Edit Comment"),
-				QString("Comment:"),
+				tr("Edit Comment"),
+				tr("Comment:"),
 				QLineEdit::Normal,
 				ui.cpuView->get_comment(address),
 				&got_text);
