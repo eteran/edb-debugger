@@ -186,9 +186,9 @@ QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(paren
 		address_offset_(0),
 		selected_instruction_address_(0),
 		current_address_(0),
-        font_height_(0),
-        font_width_(0.0),
-        icon_width_(0.0),
+		font_height_(0),
+		font_width_(0.0),
+		icon_width_(0.0),
 		line1_(0),
 		line2_(0),
 		line3_(0),
@@ -197,10 +197,11 @@ QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(paren
 		moving_line2_(false),
 		moving_line3_(false),
 		selecting_address_(false),
-        breakpoint_renderer_(QLatin1String(":/debugger/images/breakpoint.svg")),
-        current_renderer_(QLatin1String(":/debugger/images/arrow-right.svg")),
-        current_bp_renderer_(QLatin1String(":/debugger/images/arrow-right-red.svg")),
-	syntax_cache_(256) {
+		clear_cache_(false),
+		breakpoint_renderer_(QLatin1String(":/debugger/images/breakpoint.svg")),
+		current_renderer_(QLatin1String(":/debugger/images/arrow-right.svg")),
+		current_bp_renderer_(QLatin1String(":/debugger/images/arrow-right-red.svg")),
+		syntax_cache_(256) {
 
 	setShowAddressSeparator(true);
 
@@ -209,6 +210,7 @@ QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(paren
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
 	connect(verticalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(scrollbar_action_triggered(int)));
+	connect(&edb::v1::config(), SIGNAL(settingsUpdated()), this, SLOT(settingsUpdated()));
 }
 
 //------------------------------------------------------------------------------
@@ -216,6 +218,14 @@ QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(paren
 // Desc:
 //------------------------------------------------------------------------------
 QDisassemblyView::~QDisassemblyView() {
+}
+
+//------------------------------------------------------------------------------
+// Name:
+//------------------------------------------------------------------------------
+void QDisassemblyView::settingsUpdated() {
+	syntax_cache_.clear();
+	update();
 }
 
 //------------------------------------------------------------------------------
@@ -674,6 +684,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 
 
 			if(syntax_highlighting_enabled) {
+
 				QPixmap* map = syntax_cache_[opcode];
 				if (map == nullptr) {
 					// create the text layout
@@ -771,7 +782,6 @@ QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instructio
 // Desc: A helper function for painting a rectangle representing a background
 // color of one or more lines in the disassembly view.
 //------------------------------------------------------------------------------
-
 void QDisassemblyView::paint_line_bg(QPainter& painter, QBrush brush, int line, int num_lines) {
 	const auto lh = line_height();
 	painter.fillRect(0, lh*line, width(), lh*num_lines, brush);
@@ -782,7 +792,6 @@ void QDisassemblyView::paint_line_bg(QPainter& painter, QBrush brush, int line, 
 // Desc: A helper function which sets line to the line on which addr appears,
 // or returns false if that line does not appear to exist.
 //------------------------------------------------------------------------------
-
 bool QDisassemblyView::get_line_of_address(edb::address_t addr, unsigned int &line) const {
 	if (addr >= show_addresses_[0] && addr <= show_addresses_[show_addresses_.size()-1]) {
 		int pos = std::find(show_addresses_.begin(), show_addresses_.end(), addr) - show_addresses_.begin();
@@ -799,12 +808,10 @@ bool QDisassemblyView::get_line_of_address(edb::address_t addr, unsigned int &li
 // Name: paintEvent
 // Desc:
 //------------------------------------------------------------------------------
-
 void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	QElapsedTimer timer;
 	timer.start();
-
 
 	QPainter painter(viewport());
 

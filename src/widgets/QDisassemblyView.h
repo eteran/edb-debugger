@@ -83,8 +83,9 @@ public Q_SLOTS:
 
 private Q_SLOTS:
 	void scrollbar_action_triggered(int action);
+	void settingsUpdated();
 
-signals:
+Q_SIGNALS:
 	void breakPointToggled(edb::address_t address);
 	void regionChanged();
 
