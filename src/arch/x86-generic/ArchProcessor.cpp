@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "Instruction.h"
 #include "Prototype.h"
-#include "RegisterListWidget.h"
 #include "State.h"
 #include "Util.h"
 #include "edb.h"

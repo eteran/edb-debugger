@@ -30,7 +30,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QMenu;
 class QByteArray;
 class QString;
-class RegisterListWidget;
 class State;
 
 class ArchProcessor : public QObject {

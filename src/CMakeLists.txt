@@ -97,7 +97,6 @@ set(edb_SRCS
 	widgets/LineEdit.cpp
 	widgets/NavigationHistory.cpp
 	widgets/QDisassemblyView.cpp
-	widgets/RegisterListWidget.cpp
 	widgets/RegisterViewDelegate.cpp
 	widgets/SyntaxHighlighter.cpp
 	widgets/TabWidget.cpp

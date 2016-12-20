@@ -112,30 +112,6 @@
    <addaction name="menu_help"/>
   </widget>
   <widget class="QStatusBar" name="statusbar"/>
-<!--  
-  <widget class="QDockWidget" name="registersDock">
-   <property name="windowTitle">
-    <string>Register Tree</string>
-   </property>
-   <attribute name="dockWidgetArea">
-    <number>2</number>
-   </attribute>
-   <widget class="QWidget" name="dockWidgetContents_3">
-    <layout class="QGridLayout">
-     <item row="0" column="0">
-      <widget class="RegisterListWidget" name="registerList">
-       <property name="font">
-        <font>
-         <family>Monospace</family>
-         <pointsize>9</pointsize>
-        </font>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </widget>
-  </widget>
--->
   <widget class="QDockWidget" name="dataDock">
    <property name="windowTitle">
     <string>Data Dump</string>
@@ -468,11 +444,6 @@
   </action>
  </widget>
  <customwidgets>
-  <customwidget>
-   <class>RegisterListWidget</class>
-   <extends>QTreeView</extends>
-   <header>RegisterListWidget.h</header>
-  </customwidget>
   <customwidget>
    <class>QDisassemblyView</class>
    <extends>QWidget</extends>
