@@ -396,8 +396,12 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 //------------------------------------------------------------------------------
 Debugger::~Debugger() {
 
-	if(const auto& dc=edb::v1::debugger_core)
+	if(const auto& dc = edb::v1::debugger_core) {
 		dc->end_debug_session();
+	}
+
+	// ensure that the detach event fires
+	Q_EMIT(detachEvent());
 
 	// kill our xterm and wait for it to die
 	tty_proc_->kill();
@@ -889,6 +893,7 @@ void Debugger::setup_stack_view() {
 // Desc: triggered on main window close, saves window state
 //------------------------------------------------------------------------------
 void Debugger::closeEvent(QCloseEvent *event) {
+
 	QSettings settings;
 	const QByteArray state = saveState();
 	settings.beginGroup("Window");
