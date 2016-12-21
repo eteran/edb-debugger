@@ -16,16 +16,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogEditGPR.h"
-#include <QDebug>
-#include <QRegExp>
-#include <QApplication>
-#include <QLineEdit>
-#include <cstring>
-#include <type_traits>
-#include <map>
-#include <cmath>
-#include <tuple>
 #include "GPREdit.h"
+#include <QApplication>
+#include <QGridLayout>
+#include <QDialogButtonBox>
+#include <QDebug>
+#include <cmath>
+#include <cstring>
+#include <tuple>
+#include <type_traits>
+
 
 namespace ODbgRegisterView {
 

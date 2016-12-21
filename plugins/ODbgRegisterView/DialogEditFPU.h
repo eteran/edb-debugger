@@ -18,12 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOG_EDIT_FPU_H_20151031
 #define DIALOG_EDIT_FPU_H_20151031
 
+#include "Register.h"
 #include <QDialog>
 #include <QLineEdit>
-#include "Register.h"
-
 
 namespace ODbgRegisterView {
+
 class Float80Edit;
 
 class DialogEditFPU : public QDialog

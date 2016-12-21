@@ -16,17 +16,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogEditSIMDRegister.h"
-#include <QRegExpValidator>
-#include <QRegExp>
-#include <QApplication>
-#include <QLineEdit>
-#include <QDebug>
-#include "QULongValidator.h"
-#include "QLongValidator.h"
 #include "FloatX.h"
+#include "QLongValidator.h"
+#include "QULongValidator.h"
+#include <QApplication>
+#include <QRadioButton>
+#include <QGridLayout>
+#include <QDebug>
+#include <QLineEdit>
+#include <QRegExp>
+#include <QRegExpValidator>
 #include <cstring>
-#include <type_traits>
 #include <limits>
+#include <type_traits>
 
 namespace ODbgRegisterView {
 

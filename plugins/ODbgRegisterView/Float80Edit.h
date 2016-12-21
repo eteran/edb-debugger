@@ -18,8 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef FLOAT_80_EDIT_H_20151031
 #define FLOAT_80_EDIT_H_20151031
 
-#include <QLineEdit>
 #include "Types.h"
+#include <QLineEdit>
 
 namespace ODbgRegisterView {
 

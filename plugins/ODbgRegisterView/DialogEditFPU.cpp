@@ -18,17 +18,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogEditFPU.h"
 #include "Float80Edit.h"
 #include <QDebug>
-#include <QValidator>
-#include <QRegExp>
-#include <QLabel>
 #include <QDialogButtonBox>
 #include <QGridLayout>
+#include <QLabel>
+#include <QRegExp>
 #include <QVBoxLayout>
-#include <cstring>
-#include <cmath>
 #include <array>
-#include <iostream>
+#include <cmath>
+#include <cstring>
 #include <iomanip>
+#include <iostream>
 
 namespace ODbgRegisterView {
 

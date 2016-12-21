@@ -18,20 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOG_EDIT_GPR_H_20151011
 #define DIALOG_EDIT_GPR_H_20151011
 
+#include "Register.h"
 #include <QDialog>
-#include <QDialogButtonBox>
-#include <QGridLayout>
-#include <QHBoxLayout>
 #include <QLabel>
-#include <QRadioButton>
-#include <QSpacerItem>
-#include <QVBoxLayout>
 #include <array>
-#include <string>
 #include <cstddef>
 #include <cstdint>
-#include "Register.h"
-
 
 namespace ODbgRegisterView {
 

@@ -16,33 +16,32 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "RegisterView.h"
-#include <QMouseEvent>
-#include <QLabel>
-#include <QApplication>
-#include <QMessageBox>
-#include <QPainter>
-#include <QStyle>
-#include <QStyleOptionViewItem>
-#include <QVBoxLayout>
-#include <QStyleFactory>
-#include <QAction>
-#include <QMenu>
-#include <QSignalMapper>
-#include <QSettings>
-#include <QClipboard>
-#include <QShortcut>
-#include <algorithm>
-#include <unordered_map>
-#include <QDebug>
-#include <iostream>
-#include "RegisterViewModelBase.h"
-#include "edb.h"
 #include "Configuration.h"
-#include "State.h"
+#include "DialogEditFPU.h"
 #include "DialogEditGPR.h"
 #include "DialogEditSIMDRegister.h"
-#include "DialogEditFPU.h"
+#include "RegisterViewModelBase.h"
+#include "State.h"
+#include "edb.h"
+#include <QAction>
+#include <QApplication>
+#include <QClipboard>
+#include <QDebug>
+#include <QLabel>
+#include <QMenu>
+#include <QMouseEvent>
+#include <QPainter>
+#include <QSettings>
+#include <QShortcut>
+#include <QSignalMapper>
+#include <QStyle>
+#include <QStyleFactory>
+#include <QStyleOptionViewItem>
+#include <QVBoxLayout>
+#include <algorithm>
+#include <iostream>
 #include <type_traits>
+#include <unordered_map>
 
 #define VALID_VARIANT(VARIANT) ([]{static_assert(std::is_same<const typename std::remove_reference<decltype(VARIANT)>::type,const QVariant>::value,"Wrong type passed to VALID_VARIANT");}(),\
 								assert((VARIANT).isValid()),(VARIANT))

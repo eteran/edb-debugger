@@ -21,10 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IPlugin.h"
 #include <vector>
 
-class QMainWindow;
-class QDockWidget;
-class QSettings;
-
 namespace ODbgRegisterView {
 
 class ODBRegView;

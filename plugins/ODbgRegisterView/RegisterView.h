@@ -18,16 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ODBG_REGISTER_VIEW_H_20151230
 #define ODBG_REGISTER_VIEW_H_20151230
 
+#include "RegisterViewModelBase.h"
+#include <QLabel>
+#include <QPersistentModelIndex>
 #include <QScrollArea>
 #include <QString>
-#include <QLabel>
-#include <array>
-#include <deque>
-#include <QPersistentModelIndex>
 #include <functional>
-#include "RegisterViewModelBase.h"
-
-class QSettings;
 
 namespace ODbgRegisterView {
 

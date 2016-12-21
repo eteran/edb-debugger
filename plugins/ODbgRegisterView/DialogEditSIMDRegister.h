@@ -18,27 +18,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOG_EDIT_MMX_H_20151010
 #define DIALOG_EDIT_MMX_H_20151010
 
+#include "Register.h"
+#include "RegisterViewModelBase.h"
+#include "Util.h"
 #include <QDialog>
 #include <QDialogButtonBox>
-#include <QGridLayout>
-#include <QHBoxLayout>
 #include <QLabel>
-#include <QRadioButton>
-#include <QSpacerItem>
-#include <QVBoxLayout>
 #include <array>
-#include <string>
 #include <cstddef>
 #include <cstdint>
-#include <Register.h>
-#include "Util.h"
-#include "RegisterViewModelBase.h"
 
 class QRegExpValidator;
 class QULongValidator;
 class QLongValidator;
 class QValidator;
-
+class QHBoxLayout;
+class QRadioButton;
 
 namespace ODbgRegisterView {
 

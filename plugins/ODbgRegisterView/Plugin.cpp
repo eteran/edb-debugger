@@ -16,15 +16,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Plugin.h"
+#include "ArchProcessor.h"
+#include "RegisterView.h"
 #include "edb.h"
+#include <QDebug>
 #include <QDockWidget>
 #include <QMainWindow>
 #include <QMenu>
 #include <QSettings>
 #include <QSignalMapper>
-#include "RegisterView.h"
-#include "ArchProcessor.h"
-#include <QDebug>
 
 namespace ODbgRegisterView
 {

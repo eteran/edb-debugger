@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Float80Edit.h"
 #include "FloatX.h"
-#include <QValidator>
 #include <QApplication>
 
 namespace ODbgRegisterView {
