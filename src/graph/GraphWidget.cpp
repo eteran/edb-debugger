@@ -38,13 +38,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace {
 
 const int ScenePadding   = 30000;
-const float NodeDistance = 100.0;
 const float ZoomFactor   = 1.2;
 const float MinimumZoom  = 0.001;
 const float MaximumZoom  = 8.000;
-const int NodeZValue     = 1;
 const int NodeWidth      = 100;
-const int NodeHeight     = 50;
 }
 
 namespace {

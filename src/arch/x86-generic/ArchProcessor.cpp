@@ -81,18 +81,15 @@ enum SegmentRegisterIndex {
 };
 
 static constexpr size_t MAX_DEBUG_REGS_COUNT=8;
-static constexpr size_t MAX_SEGMENT_REGS_COUNT=6;
 static constexpr size_t GPR32_COUNT=8;
 static constexpr size_t GPR64_COUNT=16;
 static constexpr size_t SSE32_COUNT=GPR32_COUNT;
 static constexpr size_t SSE64_COUNT=GPR64_COUNT;
 static constexpr size_t AVX32_COUNT=SSE32_COUNT;
 static constexpr size_t AVX64_COUNT=SSE64_COUNT;
-static constexpr size_t MAX_GPR_COUNT=GPR64_COUNT;
 static constexpr size_t MAX_FPU_REGS_COUNT=8;
 static constexpr size_t MAX_MMX_REGS_COUNT=MAX_FPU_REGS_COUNT;
-static constexpr size_t XMM_REGS_COUNT=MAX_GPR_COUNT;
-static constexpr size_t YMM_REGS_COUNT=MAX_GPR_COUNT;
+
 using edb::v1::debuggeeIs32Bit;
 using edb::v1::debuggeeIs64Bit;
 int func_param_regs_count() { return debuggeeIs32Bit() ? 0 : 6; }
