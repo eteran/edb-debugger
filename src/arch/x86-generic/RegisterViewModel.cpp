@@ -29,6 +29,7 @@ static constexpr const std::size_t SSE_REG_COUNT32=8;
 static constexpr const std::size_t SSE_REG_COUNT64=16;
 static constexpr const std::size_t AVX_REG_COUNT32=8;
 static constexpr const std::size_t AVX_REG_COUNT64=16;
+static constexpr const std::size_t DBG_REG_COUNT=8;
 enum
 {
 	RIP_ROW, EIP_ROW=RIP_ROW,
