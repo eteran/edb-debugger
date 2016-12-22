@@ -50,6 +50,10 @@ class QLabel;
 
 #include "ui_Debugger.h"
 
+#if defined(Q_OS_LINUX)
+#include <link.h>
+#endif
+
 class Debugger : public QMainWindow, public IDebugEventHandler {
 	Q_OBJECT
 	Q_DISABLE_COPY(Debugger)
@@ -324,8 +328,11 @@ private:
 	bool                                             stack_view_locked_;
 	IDebugEvent::const_pointer                       last_event_;
 	QLabel *                                         status_;
-#ifdef Q_OS_UNIX
+
+#if defined(Q_OS_LINUX)
 	edb::address_t                                   debug_pointer_;
+	r_debug                                          dynamic_info_;
+	bool                                             dynamic_info_bp_set_;
 #endif
 
 private:

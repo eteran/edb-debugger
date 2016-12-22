@@ -72,10 +72,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 #include <cstring>
 
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-#include <link.h>
-#endif
-
 #if defined(Q_OS_UNIX)
 #include <signal.h>
 #endif
@@ -94,9 +90,10 @@ namespace {
 const int     SessionFileVersion  = 1;
 const QString SessionFileIdString = "edb-session";
 
-const quint64 initial_bp_tag  = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
-const quint64 stepover_bp_tag = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
+const quint64 initial_bp_tag    = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
+const quint64 stepover_bp_tag   = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
 const quint64 run_to_cursor_tag = Q_UINT64_C(0x474f544f48455245); // "GOTOHERE" in hex
+const quint64 ld_loader_tag     = Q_UINT64_C(0x4c49424556454e54); // "LIBEVENT" in hex
 
 //--------------------------------------------------------------------------
 // Name: is_instruction_ret
@@ -291,7 +288,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 		stack_comment_server_(new CommentServer),
 		stack_view_locked_(false)
 #ifdef Q_OS_UNIX
-		,debug_pointer_(0)
+		,debug_pointer_(0), dynamic_info_{}, dynamic_info_bp_set_(false)
 #endif
 {
 	setup_ui();
@@ -2079,6 +2076,42 @@ edb::EVENT_STATUS Debugger::handle_trap() {
 		state.set_instruction_pointer(previous_ip);
 		edb::v1::debugger_core->set_state(state);
 
+#if defined(Q_OS_LINUX)
+		// test if we have hit our internal LD hook BP. If so, read in the r_debug
+		// struct so we can get the state, then we can just resume
+
+		// TODO(eteran): add an option to let the user stop of debug events
+		if(bp->internal() && bp->tag == ld_loader_tag) {
+			if(dynamic_info_bp_set_) {
+
+				if(IProcess *process = edb::v1::debugger_core->process()) {
+					if(debug_pointer_) {
+						const bool ok = process->read_bytes(debug_pointer_, &dynamic_info_, sizeof(dynamic_info_));
+						if(ok) {
+
+							switch(dynamic_info_.r_state) {
+							case r_debug::RT_CONSISTENT:
+								// TODO(eteran): enable this once we are confident
+#if 0
+								edb::v1::memory_regions().sync();
+#endif
+								break;
+							case r_debug::RT_ADD:
+								//qDebug("LIBRARY LOAD EVENT");
+								break;
+							case r_debug::RT_DELETE:
+								//qDebug("LIBRARY UNLOAD EVENT");
+								break;
+							}
+						}
+					}
+				}
+			}
+
+			return edb::DEBUG_CONTINUE_BP;
+		}
+#endif
+
 		const QString condition = bp->condition;
 
 		// handle conditional breakpoints
@@ -2715,8 +2748,10 @@ void Debugger::set_initial_debugger_state() {
 	reenable_breakpoint_run_  = nullptr;
 	reenable_breakpoint_step_ = nullptr;
 
-#ifdef Q_OS_UNIX
+#ifdef Q_OS_LINUX
 	debug_pointer_ = 0;
+	memset(&dynamic_info_, 0, sizeof(dynamic_info_));
+	dynamic_info_bp_set_ = false;
 #endif
 
 	IProcess *process = edb::v1::debugger_core->process();
@@ -3266,30 +3301,32 @@ void Debugger::next_debug_event() {
 
 		last_event_ = e;
 
-		// TODO(eteran): figure out a way to do this less often, if they map an obscene
-		// number of regions, this really slows things down
+		// TODO(eteran): disable this in favor of only doing it on library load events
+		//               once we are confident. We should be able to just enclose it inside
+		//               an "if(!dynamic_info_bp_set_) {" test (since we still want to
+		//               do this when the hook isn't set.
 		edb::v1::memory_regions().sync();
 
-		// TODO(eteran): make the system use this information, this is huge! it will
-		// allow us to have restorable breakpoints...even in libraries!
-#if defined(Q_OS_UNIX) && !defined(Q_OS_MAC)
-		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(!debug_pointer_ && binary_info_) {
-				if((debug_pointer_ = binary_info_->debug_pointer()) != 0) {
-					r_debug dynamic_info;
-					const bool ok = process->read_bytes(debug_pointer_, &dynamic_info, sizeof(dynamic_info));
-					if(ok) {
-					#if 0
-						qDebug("READ DYNAMIC INFO! %p", dynamic_info.r_brk);
-					#endif
+#if defined(Q_OS_LINUX)
+		if(!dynamic_info_bp_set_) {
+			if(IProcess *process = edb::v1::debugger_core->process()) {
+				if(debug_pointer_ == 0 && binary_info_) {
+					if((debug_pointer_ = binary_info_->debug_pointer()) != 0) {
+						const bool ok = process->read_bytes(debug_pointer_, &dynamic_info_, sizeof(dynamic_info_));
+						if(ok) {
+							// TODO(eteran): this is equivalent to ld-2.23.so!_dl_debug_state
+							// maybe we should prefer setting this by symbol if possible?
+							if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(dynamic_info_.r_brk)) {
+								bp->set_internal(true);
+								bp->tag = ld_loader_tag;
+								dynamic_info_bp_set_ = true;
+							}
+						}
 					}
-				}
 
+				}
 			}
 		}
-	#if 0
-		qDebug("DEBUG POINTER: %p", debug_pointer_);
-	#endif
 #endif
 
 		Q_EMIT debugEvent();
