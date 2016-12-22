@@ -34,19 +34,16 @@ class Plugin : public QObject, public IPlugin {
 	Q_CLASSINFO("author", "Ruslan Kabatsayev")
 	Q_CLASSINFO("email", "b7.10110111@gmail.com")
 
-	void setupDocks();
-
 public:
 	Plugin();
-	virtual QMenu* menu(QWidget* parent = 0) override;
-	virtual QList<QAction*> cpu_context_menu() override;
-private:
-	QMenu* menu_;
-	std::vector<ODBRegView*> registerViews_;
-	std::vector<QAction*> menuDeleteRegViewActions_;
+	virtual QMenu *menu(QWidget *parent = 0) override;
+	virtual QList<QAction *> cpu_context_menu() override;
 
-	void createRegisterView(QString const& settingsGroup);
+private:
+	void setupDocks();
+	void createRegisterView(QString const &settingsGroup);
 	void renumerateDocks() const;
+
 private Q_SLOTS:
 	void createRegisterView();
 	void saveState() const;
@@ -54,7 +51,12 @@ private Q_SLOTS:
 	void expandRSDown(bool checked) const;
 	void expandLSUp(bool checked) const;
 	void expandLSDown(bool checked) const;
-	void removeDock(QWidget*);
+	void removeDock(QWidget *);
+
+private:
+	QMenu *                   menu_;
+	std::vector<ODBRegView *> registerViews_;
+	std::vector<QAction *>    menuDeleteRegViewActions_;
 };
 
 }

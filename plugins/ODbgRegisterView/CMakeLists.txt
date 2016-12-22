@@ -27,6 +27,7 @@ add_library(${PluginName} SHARED
 	RegisterView.cpp
 	RegisterView.h
 	DialogEditSIMDRegister.cpp
+	NumberEdit.cpp
 )
 
 if(Qt5Core_FOUND)

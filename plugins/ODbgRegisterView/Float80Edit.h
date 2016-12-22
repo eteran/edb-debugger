@@ -23,15 +23,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-class Float80Edit : public QLineEdit
-{
+class Float80Edit : public QLineEdit {
 	Q_OBJECT
+
 public:
-	Float80Edit(QWidget* parent=0);
+	Float80Edit(QWidget *parent = 0);
 	void setValue(edb::value80 input);
-	QSize sizeHint() const override;
+
+public:
+	virtual QSize sizeHint() const override;
+
 protected:
-	void focusOutEvent(QFocusEvent* e) override;
+	virtual void focusOutEvent(QFocusEvent *e) override;
+
 Q_SIGNALS:
 	void defocussed();
 };

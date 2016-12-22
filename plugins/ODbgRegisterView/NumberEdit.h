@@ -19,39 +19,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-class GPREdit : public QLineEdit {
+class NumberEdit : public QLineEdit {
 	Q_OBJECT
+public:
+	NumberEdit(int column, int colSpan, QWidget *parent = nullptr);
+	virtual ~NumberEdit() override;
 
 public:
-	enum class Format {
-		Hex,
-		Signed,
-		Unsigned,
-		Character
-	};
+	int column() const;
+	int colSpan() const;
+	void setNaturalWidthInChars(int nChars);
 
 public:
-	GPREdit(std::size_t offsetInInteger, std::size_t integerSize, Format format, QWidget *parent = nullptr);
-
-public:
-	void setGPRValue(std::uint64_t gprValue);
-	void updateGPRValue(std::uint64_t &gpr) const;
-
-	virtual QSize minimumSizeHint() const override {
-		return sizeHint();
-	}
-
+	virtual QSize minimumSizeHint() const override;
 	virtual QSize sizeHint() const override;
 
 private:
-	void setupFormat(Format newFormat);
-
-private:
-	int           naturalWidthInChars;
-	std::size_t   integerSize;
-	std::size_t   offsetInInteger;
-	Format        format;
-	std::uint64_t signBit;
+	int naturalWidthInChars = 17; // default roughly as in QLineEdit
+	int column_;
+	int colSpan_;
 };
 
 }

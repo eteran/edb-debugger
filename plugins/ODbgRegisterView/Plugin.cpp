@@ -26,215 +26,198 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSettings>
 #include <QSignalMapper>
 
-namespace ODbgRegisterView
-{
+namespace ODbgRegisterView {
+namespace {
 
-Plugin::Plugin()
-	: QObject(0),
-	  menu_(0)
-{
-	connect(QCoreApplication::instance(),SIGNAL(aboutToQuit()),this,SLOT(saveState()));
+const QString pluginName             = "ODbgRegisterView";
+const QString dockName               = QObject::tr("Registers");
+const QString dockNameSuffixTemplate = " <%1>";
+const QString dockObjectNameTemplate = QString(pluginName + "-%1");
+const QString VIEW                   = "views";
+
 }
 
-const QString pluginName="ODbgRegisterView";
-const QString dockName=QObject::tr("Registers");
-const QString dockNameSuffixTemplate=" <%1>";
-const QString dockObjectNameTemplate=QString(pluginName+"-%1");
-const QString VIEW="views";
+Plugin::Plugin() : QObject(0), menu_(0) {
+	connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(saveState()));
+}
 
-void Plugin::setupDocks()
-{
+
+void Plugin::setupDocks() {
 	QSettings settings;
 	settings.beginGroup(pluginName);
-	if(settings.value(VIEW+"/size").isValid())
-	{
-		const int size=settings.beginReadArray(VIEW);
-		for(int i=0;i<size;++i)
-		{
+
+	if (settings.value(VIEW + "/size").isValid()) {
+		const int size = settings.beginReadArray(VIEW);
+		for (int i = 0; i < size; ++i) {
 			settings.setArrayIndex(i);
 			createRegisterView(settings.group());
 		}
+	} else {
+		createRegisterView();
 	}
-	else createRegisterView();
 }
 
-void Plugin::saveState() const
-{
-	QSettings settings;
-	const int size=registerViews_.size();
-	const auto arrayKey=pluginName+"/"+VIEW;
+void Plugin::saveState() const {
+	QSettings  settings;
+	const int  size     = registerViews_.size();
+	const auto arrayKey = pluginName + "/" + VIEW;
 	settings.remove(arrayKey);
-	settings.beginWriteArray(arrayKey,size);
-	for(int i=0;i<size;++i)
-	{
+	settings.beginWriteArray(arrayKey, size);
+	for (int i = 0; i < size; ++i) {
 		settings.setArrayIndex(i);
 		registerViews_[i]->saveState(settings.group());
 	}
 }
 
-void Plugin::createRegisterView()
-{
+void Plugin::createRegisterView() {
 	createRegisterView("");
 }
 
-void Plugin::createRegisterView(QString const& settingsGroup)
-{
-	if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
-	{
-		const auto regView=new ODBRegView(settingsGroup,mainWindow);
+void Plugin::createRegisterView(QString const &settingsGroup) {
+
+	if (auto *const mainWindow = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
+		const auto regView = new ODBRegView(settingsGroup, mainWindow);
 		registerViews_.emplace_back(regView);
 		regView->setModel(&edb::v1::arch_processor().get_register_view_model());
 
-		const QString suffix=registerViews_.size()>1 ? dockNameSuffixTemplate.arg(registerViews_.size()) : "";
-		auto* const regViewDockWidget = new QDockWidget(dockName+suffix, mainWindow);
-		const auto viewNumber=registerViews_.size();
+		const QString suffix            = registerViews_.size() > 1 ? dockNameSuffixTemplate.arg(registerViews_.size()) : "";
+		auto *const   regViewDockWidget = new QDockWidget(dockName + suffix, mainWindow);
+		const auto    viewNumber        = registerViews_.size();
 		regViewDockWidget->setObjectName(dockObjectNameTemplate.arg(viewNumber));
 		regViewDockWidget->setWidget(regView);
 
 		mainWindow->addDockWidget(Qt::RightDockWidgetArea, regViewDockWidget);
 
-#if 0
-		if(QDockWidget* registersDock  = mainWindow->findChild<QDockWidget*>("registersDock"))
-			mainWindow->tabifyDockWidget(registersDock, regViewDockWidget);
-#else
-			QList<QDockWidget *> dockWidgets = mainWindow->findChildren<QDockWidget *>();
-			for(QDockWidget *widget : dockWidgets) {
-				if(widget != regViewDockWidget) {
-					if(mainWindow->dockWidgetArea(widget) == Qt::RightDockWidgetArea) {
-						mainWindow->tabifyDockWidget(widget, regViewDockWidget);
+		QList<QDockWidget *> dockWidgets = mainWindow->findChildren<QDockWidget *>();
+		for (QDockWidget *widget : dockWidgets) {
+			if (widget != regViewDockWidget) {
+				if (mainWindow->dockWidgetArea(widget) == Qt::RightDockWidgetArea) {
+					mainWindow->tabifyDockWidget(widget, regViewDockWidget);
 
-						// place the new doc widget OVER the one we tabbed with
-						// register view is important...
-						regViewDockWidget->show();
-						regViewDockWidget->raise();
-						break;
-					}
+					// place the new doc widget OVER the one we tabbed with
+					// register view is important...
+					regViewDockWidget->show();
+					regViewDockWidget->raise();
+					break;
 				}
 			}
-#endif
+		}
+
 
 		Q_ASSERT(menu_);
-		const auto removeDockAction=new QAction(tr("Remove %1").arg(regViewDockWidget->windowTitle()),menu_);
-		const auto removeDockMapper=new QSignalMapper(menu_);
-		removeDockMapper->setMapping(removeDockAction,regViewDockWidget);
-		connect(removeDockAction,SIGNAL(triggered()),removeDockMapper,SLOT(map()));
-		connect(removeDockMapper,SIGNAL(mapped(QWidget*)),this,SLOT(removeDock(QWidget*)));
+		const auto removeDockAction = new QAction(tr("Remove %1").arg(regViewDockWidget->windowTitle()), menu_);
+		const auto removeDockMapper = new QSignalMapper(menu_);
+		removeDockMapper->setMapping(removeDockAction, regViewDockWidget);
+		connect(removeDockAction, SIGNAL(triggered()), removeDockMapper, SLOT(map()));
+		connect(removeDockMapper, SIGNAL(mapped(QWidget *)), this, SLOT(removeDock(QWidget *)));
 		menuDeleteRegViewActions_.emplace_back(removeDockAction);
 		menu_->addAction(removeDockAction);
 	}
 }
 
-void Plugin::renumerateDocks() const
-{
-	for(std::size_t i=0;i<registerViews_.size();++i)
-	{
-		const auto view=registerViews_[i];
-		Q_ASSERT(dynamic_cast<QDockWidget*>(view->parentWidget()));
-		const auto dock=view->parentWidget();
-		dock->setObjectName(dockObjectNameTemplate.arg(i+1));
-		dock->setWindowTitle(dockName+(i ? dockNameSuffixTemplate.arg(i+1) : ""));
+void Plugin::renumerateDocks() const {
+	for (std::size_t i = 0; i < registerViews_.size(); ++i) {
+		const auto view = registerViews_[i];
+		Q_ASSERT(dynamic_cast<QDockWidget *>(view->parentWidget()));
+		const auto dock = view->parentWidget();
+		dock->setObjectName(dockObjectNameTemplate.arg(i + 1));
+		dock->setWindowTitle(dockName + (i ? dockNameSuffixTemplate.arg(i + 1) : ""));
 	}
 }
 
-void Plugin::removeDock(QWidget* whatToRemove)
-{
-	Q_ASSERT(dynamic_cast<QDockWidget*>(whatToRemove));
-	const auto dockToRemove=static_cast<QDockWidget*>(whatToRemove);
+void Plugin::removeDock(QWidget *whatToRemove) {
+	Q_ASSERT(dynamic_cast<QDockWidget *>(whatToRemove));
+	const auto dockToRemove = static_cast<QDockWidget *>(whatToRemove);
 
-	auto& views(registerViews_);
-	const auto viewIter=std::find(views.begin(),views.end(),dockToRemove->widget());
+	auto &     views(registerViews_);
+	const auto viewIter = std::find(views.begin(), views.end(), dockToRemove->widget());
 
-	const auto viewIndex=viewIter-views.begin();
-	const auto action=menuDeleteRegViewActions_[viewIndex];
+	const auto viewIndex = viewIter - views.begin();
+	const auto action    = menuDeleteRegViewActions_[viewIndex];
 
 	whatToRemove->deleteLater();
 	action->deleteLater();
 	menu_->removeAction(action);
 	views.erase(viewIter);
-	menuDeleteRegViewActions_.erase(viewIndex+menuDeleteRegViewActions_.begin());
+	menuDeleteRegViewActions_.erase(viewIndex + menuDeleteRegViewActions_.begin());
 
 	renumerateDocks();
 }
 
-void Plugin::expandLSDown(bool checked) const
-{
-	if(const auto mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
-		mainWindow->setCorner(Qt::BottomLeftCorner,checked ? Qt::LeftDockWidgetArea : Qt::BottomDockWidgetArea);
+void Plugin::expandLSDown(bool checked) const {
+	if (const auto mainWindow = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
+		mainWindow->setCorner(Qt::BottomLeftCorner, checked ? Qt::LeftDockWidgetArea : Qt::BottomDockWidgetArea);
+	}
 }
 
-void Plugin::expandRSDown(bool checked) const
-{
-	if(const auto mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
-		mainWindow->setCorner(Qt::BottomRightCorner,checked ? Qt::RightDockWidgetArea : Qt::BottomDockWidgetArea);
+void Plugin::expandRSDown(bool checked) const {
+	if (const auto mainWindow = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
+		mainWindow->setCorner(Qt::BottomRightCorner, checked ? Qt::RightDockWidgetArea : Qt::BottomDockWidgetArea);
+	}
 }
 
-void Plugin::expandLSUp(bool checked) const
-{
-	if(const auto mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
-		mainWindow->setCorner(Qt::TopLeftCorner,checked ? Qt::LeftDockWidgetArea : Qt::TopDockWidgetArea);
+void Plugin::expandLSUp(bool checked) const {
+	if (const auto mainWindow = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
+		mainWindow->setCorner(Qt::TopLeftCorner, checked ? Qt::LeftDockWidgetArea : Qt::TopDockWidgetArea);
+	}
 }
 
-void Plugin::expandRSUp(bool checked) const
-{
-	if(const auto mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
-		mainWindow->setCorner(Qt::TopRightCorner,checked ? Qt::RightDockWidgetArea : Qt::TopDockWidgetArea);
+void Plugin::expandRSUp(bool checked) const {
+	if (const auto mainWindow = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
+		mainWindow->setCorner(Qt::TopRightCorner, checked ? Qt::RightDockWidgetArea : Qt::TopDockWidgetArea);
+	}
 }
 
-QMenu* Plugin::menu(QWidget* parent)
-{
-	if(!menu_)
-	{
+QMenu *Plugin::menu(QWidget *parent) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("OllyDbg-like Register View"), parent);
 		{
-			const auto newRegisterView=new QAction(tr("New Register View"),menu_);
-			connect(newRegisterView,SIGNAL(triggered()),this,SLOT(createRegisterView()));
+			const auto newRegisterView = new QAction(tr("New Register View"), menu_);
+			connect(newRegisterView, SIGNAL(triggered()), this, SLOT(createRegisterView()));
 			menu_->addAction(newRegisterView);
 		}
 		// FIXME: setChecked calls currently don't really work, since at this stage mainWindow hasn't yet restored its state
-		if(auto* const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))
-		{
+		if (auto *const mainWindow = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
 			{
-				const auto expandLeftSideUp=new QAction(tr("Expand Left-Hand Side Dock Up"),menu_);
+				const auto expandLeftSideUp = new QAction(tr("Expand Left-Hand Side Dock Up"), menu_);
 				expandLeftSideUp->setCheckable(true);
-				expandLeftSideUp->setChecked(mainWindow->corner(Qt::TopLeftCorner)==Qt::LeftDockWidgetArea);
-				connect(expandLeftSideUp,SIGNAL(toggled(bool)),this,SLOT(expandLSUp(bool)));
+				expandLeftSideUp->setChecked(mainWindow->corner(Qt::TopLeftCorner) == Qt::LeftDockWidgetArea);
+				connect(expandLeftSideUp, SIGNAL(toggled(bool)), this, SLOT(expandLSUp(bool)));
 				menu_->addAction(expandLeftSideUp);
 			}
 			{
-				const auto expandLeftSideDown=new QAction(tr("Expand Left-Hand Side Dock Down"),menu_);
+				const auto expandLeftSideDown = new QAction(tr("Expand Left-Hand Side Dock Down"), menu_);
 				expandLeftSideDown->setCheckable(true);
-				expandLeftSideDown->setChecked(mainWindow->corner(Qt::BottomLeftCorner)==Qt::LeftDockWidgetArea);
-				connect(expandLeftSideDown,SIGNAL(toggled(bool)),this,SLOT(expandLSDown(bool)));
+				expandLeftSideDown->setChecked(mainWindow->corner(Qt::BottomLeftCorner) == Qt::LeftDockWidgetArea);
+				connect(expandLeftSideDown, SIGNAL(toggled(bool)), this, SLOT(expandLSDown(bool)));
 				menu_->addAction(expandLeftSideDown);
 			}
 			{
-				const auto expandRightSideUp=new QAction(tr("Expand Right-Hand Side Dock Up"),menu_);
+				const auto expandRightSideUp = new QAction(tr("Expand Right-Hand Side Dock Up"), menu_);
 				expandRightSideUp->setCheckable(true);
-				expandRightSideUp->setChecked(mainWindow->corner(Qt::TopRightCorner)==Qt::RightDockWidgetArea);
-				connect(expandRightSideUp,SIGNAL(toggled(bool)),this,SLOT(expandRSUp(bool)));
+				expandRightSideUp->setChecked(mainWindow->corner(Qt::TopRightCorner) == Qt::RightDockWidgetArea);
+				connect(expandRightSideUp, SIGNAL(toggled(bool)), this, SLOT(expandRSUp(bool)));
 				menu_->addAction(expandRightSideUp);
 			}
 			{
-				const auto expandRightSideDown=new QAction(tr("Expand Right-Hand Side Dock Down"),menu_);
+				const auto expandRightSideDown = new QAction(tr("Expand Right-Hand Side Dock Down"), menu_);
 				expandRightSideDown->setCheckable(true);
-				expandRightSideDown->setChecked(mainWindow->corner(Qt::BottomRightCorner)==Qt::RightDockWidgetArea);
-				connect(expandRightSideDown,SIGNAL(toggled(bool)),this,SLOT(expandRSDown(bool)));
+				expandRightSideDown->setChecked(mainWindow->corner(Qt::BottomRightCorner) == Qt::RightDockWidgetArea);
+				connect(expandRightSideDown, SIGNAL(toggled(bool)), this, SLOT(expandRSDown(bool)));
 				menu_->addAction(expandRightSideDown);
 			}
 			menu_->addSeparator();
 		}
 
 		setupDocks();
-
 	}
 
 	return menu_;
 }
 
-QList<QAction*> Plugin::cpu_context_menu()
-{
+QList<QAction *> Plugin::cpu_context_menu() {
 
-	QList<QAction*> ret;
+	QList<QAction *> ret;
 
 	return ret;
 }
@@ -242,5 +225,4 @@ QList<QAction*> Plugin::cpu_context_menu()
 #if QT_VERSION < 0x050000
 Q_EXPORT_PLUGIN2(ODbgRegisterView, Plugin)
 #endif
-
 }

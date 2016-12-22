@@ -34,16 +34,12 @@ class RegisterGroup;
 class FieldWidget;
 class ValueField;
 
-class ODBRegView : public QScrollArea
-{
+class ODBRegView : public QScrollArea {
 	Q_OBJECT
 
-	RegisterViewModelBase::Model* model_=nullptr;
 public:
-	struct RegisterGroupType
-	{
-		enum T
-		{
+	struct RegisterGroupType {
+		enum T {
 			GPR,
 			rIP,
 			ExpandedEFL,
@@ -60,172 +56,184 @@ public:
 
 			NUM_GROUPS
 		} value;
-		RegisterGroupType(T v):value(v){}
-		explicit RegisterGroupType(int v):value(static_cast<T>(v)){}
-		operator T() const {return value;}
+
+		RegisterGroupType(T v) : value(v) {
+		}
+
+		explicit RegisterGroupType(int v) : value(static_cast<T>(v)) {
+		}
+
+		operator T() const {
+			return value;
+		}
 	};
+
 private:
 	std::vector<RegisterGroupType> visibleGroupTypes;
-	QList<QAction*> menuItems;
-	DialogEditGPR* dialogEditGPR;
-	DialogEditSIMDRegister* dialogEditSIMDReg;
-	DialogEditFPU* dialogEditFPU;
+	QList<QAction *>               menuItems;
+	DialogEditGPR *                dialogEditGPR;
+	DialogEditSIMDRegister *       dialogEditSIMDReg;
+	DialogEditFPU *                dialogEditFPU;
 
-	RegisterGroup* makeGroup(RegisterGroupType type);
+	RegisterGroup *makeGroup(RegisterGroupType type);
+
 public:
-	ODBRegView(QString const& settings, QWidget* parent=nullptr);
-	void setModel(RegisterViewModelBase::Model* model);
-	QList<ValueField*> valueFields() const;
-	QList<FieldWidget*> fields() const;
-	void showMenu(QPoint const& position,QList<QAction*>const& additionalItems={}) const;
-	void saveState(QString const& settings) const;
-	void groupHidden(RegisterGroup* group);
-	DialogEditGPR* gprEditDialog() const;
-	DialogEditSIMDRegister* simdEditDialog() const;
-	DialogEditFPU* fpuEditDialog() const;
-	void selectAField();
-private:
-	ValueField* selectedField() const;
-	void updateFieldsPalette();
-	void keyPressEvent(QKeyEvent* event) override;
-    void mousePressEvent(QMouseEvent* event) override;
+	ODBRegView(QString const &settings, QWidget *parent = nullptr);
+	void setModel(RegisterViewModelBase::Model *model);
+	QList<ValueField *>  valueFields() const;
+	QList<FieldWidget *> fields() const;
+	void showMenu(QPoint const &position, QList<QAction *> const &additionalItems = {}) const;
+	void saveState(QString const &settings) const;
+	void groupHidden(RegisterGroup *group);
+	DialogEditGPR *         gprEditDialog() const;
+	DialogEditSIMDRegister *simdEditDialog() const;
+	DialogEditFPU *         fpuEditDialog() const;
+	void                    selectAField();
 
-	QList<RegisterGroup*> groups;
+private:
+	ValueField *selectedField() const;
+	void        updateFieldsPalette();
+	void keyPressEvent(QKeyEvent *event) override;
+	void mousePressEvent(QMouseEvent *event) override;
+
+private:
+	QList<RegisterGroup *> groups;
+
 private Q_SLOTS:
 	void fieldSelected();
 	void modelReset();
 	void modelUpdated();
 	void copyAllRegisters();
 	void copyRegisterToClipboard() const;
-    void settingsUpdated();
+	void settingsUpdated();
+
+private:
+	RegisterViewModelBase::Model *model_ = nullptr;
 };
 
-class Canvas : public QWidget
-{
+class Canvas : public QWidget {
 public:
-	Canvas(QWidget* parent=nullptr);
+	Canvas(QWidget *parent = nullptr);
+
 protected:
-    void mousePressEvent(QMouseEvent* event) override;
+	void mousePressEvent(QMouseEvent *event) override;
 };
 
-class FieldWidget : public QLabel
-{
+class FieldWidget : public QLabel {
 	Q_OBJECT
 
 	void init(int fieldWidth);
+
 protected:
 	QPersistentModelIndex index;
-	int fieldWidth_;
+	int                   fieldWidth_;
 
-	ODBRegView* regView() const;
-	RegisterGroup* group() const;
+	ODBRegView *   regView() const;
+	RegisterGroup *group() const;
+
 public:
-	FieldWidget(int fieldWidth,QModelIndex const& index,QWidget* parent=nullptr);
-	FieldWidget(int fieldWidth,QString const& fixedText,QWidget* parent=nullptr);
-	FieldWidget(QString const& fixedText,QWidget* parent=nullptr);
+	FieldWidget(int fieldWidth, QModelIndex const &index, QWidget *parent = nullptr);
+	FieldWidget(int fieldWidth, QString const &fixedText, QWidget *parent = nullptr);
+	FieldWidget(QString const &fixedText, QWidget *parent = nullptr);
 	virtual QString text() const;
-	int lineNumber() const;
-	int columnNumber() const;
-	int fieldWidth() const;
+	int             lineNumber() const;
+	int             columnNumber() const;
+	int             fieldWidth() const;
+
 public Q_SLOTS:
 	virtual void adjustToData();
 };
 
-class VolatileNameField : public FieldWidget
-{
+class VolatileNameField : public FieldWidget {
 	std::function<QString()> valueFormatter;
+
 public:
-	VolatileNameField(int fieldWidth, std::function<QString()> const& valueFormatter,QWidget* parent=nullptr);
+	VolatileNameField(int fieldWidth, std::function<QString()> const &valueFormatter, QWidget *parent = nullptr);
 	QString text() const override;
 };
 
-class ValueField : public FieldWidget
-{
+class ValueField : public FieldWidget {
 	Q_OBJECT
 
-	bool selected_=false;
-	bool hovered_=false;
+private:
+	bool                            selected_ = false;
+	bool                            hovered_  = false;
 	std::function<QString(QString)> valueFormatter;
 
 	// For GPR
-	QAction* setToZeroAction=nullptr;
-	QAction* setToOneAction=nullptr;
+	QAction *setToZeroAction = nullptr;
+	QAction *setToOneAction  = nullptr;
+
 protected:
-	QList<QAction*> menuItems;
+	QList<QAction *> menuItems;
 
 private:
-	void init();
+	void   init();
 	QColor fgColorForChangedField() const;
-	void editNormalReg(QModelIndex const& indexToEdit, QModelIndex const& clickedIndex) const;
+	void editNormalReg(QModelIndex const &indexToEdit, QModelIndex const &clickedIndex) const;
+
 protected:
-	RegisterViewModelBase::Model* model() const;
-	bool changed() const;
+	RegisterViewModelBase::Model *model() const;
+	bool                          changed() const;
 
-	void enterEvent(QEvent*) override;
-	void leaveEvent(QEvent*) override;
-	void mousePressEvent(QMouseEvent* event) override;
-	void mouseDoubleClickEvent(QMouseEvent* event) override;
-	void paintEvent(QPaintEvent* event) override;
+	void enterEvent(QEvent *) override;
+	void leaveEvent(QEvent *) override;
+	void mousePressEvent(QMouseEvent *event) override;
+	void mouseDoubleClickEvent(QMouseEvent *event) override;
+	void paintEvent(QPaintEvent *event) override;
 
-	ValueField* bestNeighbor(std::function<bool(QPoint const& neighborPos,
-												ValueField const*curResult,
-												QPoint const& selfPos)>const& firstIsBetter) const;
+	ValueField *bestNeighbor(std::function<bool(QPoint const &neighborPos, ValueField const *curResult, QPoint const &selfPos)> const &firstIsBetter) const;
+
 public:
-	ValueField(int fieldWidth,
-			   QModelIndex const& index,
-			   QWidget* parent=nullptr,
-			   std::function<QString(QString const&)> const& valueFormatter=[](QString const&s){return s;}
-			   );
-	ValueField* up() const;
-	ValueField* down() const;
-	ValueField* left() const;
-	ValueField* right() const;
+	ValueField(int fieldWidth, QModelIndex const &index, QWidget *parent = nullptr, std::function<QString(QString const &)> const &valueFormatter = [](QString const &s) { return s; });
+	ValueField *up() const;
+	ValueField *down() const;
+	ValueField *left() const;
+	ValueField *right() const;
 
 	bool isSelected() const;
-	void showMenu(QPoint const& position);
-	QString text() const override;
+	void showMenu(QPoint const &position);
+	QString     text() const override;
 	QModelIndex regIndex() const;
+
 public Q_SLOTS:
-	void defaultAction();
-	void pushFPUStack();
-	void popFPUStack();
-	void adjustToData() override;
-	void select();
-	void unselect();
+	void         defaultAction();
+	void         pushFPUStack();
+	void         popFPUStack();
+	void         adjustToData() override;
+	void         select();
+	void         unselect();
 	virtual void updatePalette();
-	void copyToClipboard() const;
-	void setZero();
-	void setToOne();
-	void increment();
-	void decrement();
-	void invert();
+	void         copyToClipboard() const;
+	void         setZero();
+	void         setToOne();
+	void         increment();
+	void         decrement();
+	void         invert();
+
 Q_SIGNALS:
 	void selected();
 };
 
-class FPUValueField : public ValueField
-{
+class FPUValueField : public ValueField {
 	Q_OBJECT
+
+private:
 	int showAsRawActionIndex;
 	int showAsFloatActionIndex;
 
-	FieldWidget* commentWidget;
-	int row;
-	int column;
+	FieldWidget *commentWidget;
+	int          row;
+	int          column;
 
 	QPersistentModelIndex tagValueIndex;
 
-	bool groupDigits=false;
+	bool groupDigits = false;
+
 public:
 	// Will add itself and commentWidget to the group and renew their positions as needed
-	FPUValueField(int fieldWidth,
-				  QModelIndex const& regValueIndex,
-				  QModelIndex const& tagValueIndex,
-				  RegisterGroup* group,
-				  FieldWidget* commentWidget,
-				  int row,
-				  int column
-				  );
+	FPUValueField(int fieldWidth, QModelIndex const &regValueIndex, QModelIndex const &tagValueIndex, RegisterGroup *group, FieldWidget *commentWidget, int row, int column);
+
 public Q_SLOTS:
 	void showFPUAsRaw();
 	void showFPUAsFloat();
@@ -233,51 +241,47 @@ public Q_SLOTS:
 	void updatePalette() override;
 };
 
-struct BitFieldDescription
-{
-	int textWidth;
+struct BitFieldDescription {
+	int                  textWidth;
 	std::vector<QString> valueNames;
 	std::vector<QString> setValueTexts;
-	std::function<bool(unsigned,unsigned)>const valueEqualComparator;
-	BitFieldDescription(int textWidth,
-						std::vector<QString>const& valueNames,
-						std::vector<QString>const& setValueTexts,
-						std::function<bool(unsigned,unsigned)>const& valueEqualComparator=[](unsigned a,unsigned b){return a==b;});
+	std::function<bool(unsigned, unsigned)> const valueEqualComparator;
+	BitFieldDescription(int textWidth, std::vector<QString> const &valueNames, std::vector<QString> const &setValueTexts, std::function<bool(unsigned, unsigned)> const &valueEqualComparator = [](unsigned a, unsigned b) { return a == b; });
 };
 
-class BitFieldFormatter
-{
-	std::vector<QString> valueNames;
+class BitFieldFormatter {
 public:
-	BitFieldFormatter(BitFieldDescription const& bfd);
-	QString operator()(QString const& text);
+	BitFieldFormatter(BitFieldDescription const &bfd);
+	QString operator()(QString const &text);
+
+private:
+	std::vector<QString> valueNames;
 };
 
-class MultiBitFieldWidget : public ValueField
-{
+class MultiBitFieldWidget : public ValueField {
 	Q_OBJECT
 
-	QList<QAction*> valueActions;
-	std::function<bool(unsigned,unsigned)> equal;
 public:
-	MultiBitFieldWidget( QModelIndex const& index,
-					BitFieldDescription const& bfd,
-					QWidget* parent=nullptr);
+	MultiBitFieldWidget(QModelIndex const &index, BitFieldDescription const &bfd, QWidget *parent = nullptr);
+
 public Q_SLOTS:
 	void setValue(int value);
 	void adjustToData() override;
+
+private:
+	QList<QAction *> valueActions;
+	std::function<bool(unsigned, unsigned)> equal;
 };
 
-class SIMDValueManager : public QObject
-{
+class SIMDValueManager : public QObject {
 	Q_OBJECT
+private:
 	QPersistentModelIndex regIndex;
-	int lineInGroup;
-	QList<ValueField*> elements;
-	QList<QAction*> menuItems;
-	NumberDisplayMode intMode;
-	enum MenuItemNumbers
-	{
+	int                   lineInGroup;
+	QList<ValueField *>   elements;
+	QList<QAction *>      menuItems;
+	NumberDisplayMode     intMode;
+	enum MenuItemNumbers {
 		VIEW_AS_BYTES,
 		VIEW_AS_WORDS,
 		VIEW_AS_DWORDS,
@@ -293,55 +297,57 @@ class SIMDValueManager : public QObject
 		MENU_ITEMS_COUNT
 	};
 
-	using Model=RegisterViewModelBase::Model;
-	Model* model() const;
-	RegisterGroup* group() const;
+	using Model = RegisterViewModelBase::Model;
+	Model *            model() const;
+	RegisterGroup *    group() const;
 	Model::ElementSize currentSize() const;
-	NumberDisplayMode currentFormat() const;
-	void setupMenu();
-	void updateMenu();
-	void fillGroupMenu();
+	NumberDisplayMode  currentFormat() const;
+	void               setupMenu();
+	void               updateMenu();
+	void               fillGroupMenu();
+
 public:
-	SIMDValueManager(int lineInGroup,
-					 QModelIndex const& nameIndex,
-					 RegisterGroup* parent=nullptr);
+	SIMDValueManager(int lineInGroup, QModelIndex const &nameIndex, RegisterGroup *parent = nullptr);
+
 public Q_SLOTS:
 	void displayFormatChanged();
+
 private Q_SLOTS:
 	void showAsInt(int size);
 	void showAsFloat(int size);
 	void setIntFormat(int format);
 };
 
-class RegisterGroup : public QWidget
-{
+class RegisterGroup : public QWidget {
 	Q_OBJECT
+	friend SIMDValueManager;
 
-	QList<QAction*> menuItems;
-	QString name;
+private:
+	QList<QAction *> menuItems;
+	QString          name;
 
-	int lineAfterLastField() const;
-	ODBRegView* regView() const;
+	int         lineAfterLastField() const;
+	ODBRegView *regView() const;
 
 public:
-	RegisterGroup(QString const& name, QWidget* parent=nullptr);
-	QList<FieldWidget*> fields() const;
-	QList<ValueField*> valueFields() const;
-	void setIndices(QList<QModelIndex> const& indices);
-	void insert(int line, int column, FieldWidget* widget);
+	RegisterGroup(QString const &name, QWidget *parent = nullptr);
+	QList<FieldWidget *> fields() const;
+	QList<ValueField *>  valueFields() const;
+	void setIndices(QList<QModelIndex> const &indices);
+	void insert(int line, int column, FieldWidget *widget);
 	// Insert, but without moving to its place
-	void insert(FieldWidget* widget);
-	void setupPositionAndSize(int line, int column, FieldWidget* widget);
-	void appendNameValueComment(QModelIndex const& nameIndex,QString const& tooltip="",bool insertComment=true);
-	void showMenu(QPoint const& position,QList<QAction*>const& additionalItems={}) const;
+	void insert(FieldWidget *widget);
+	void setupPositionAndSize(int line, int column, FieldWidget *widget);
+	void appendNameValueComment(QModelIndex const &nameIndex, QString const &tooltip = "", bool insertComment = true);
+	void showMenu(QPoint const &position, QList<QAction *> const &additionalItems = {}) const;
 	QMargins getFieldMargins() const;
+
 protected:
-	void mousePressEvent(QMouseEvent* event) override;
+	void mousePressEvent(QMouseEvent *event) override;
+
 public Q_SLOTS:
 	void adjustWidth();
 	void hideAndReport();
-
-	friend SIMDValueManager;
 };
 
 }
