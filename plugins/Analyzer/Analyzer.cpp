@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "State.h"
 #include "Util.h"
 #include "edb.h"
+#include "Configuration.h"
 
 #include <QCoreApplication>
 #include <QHash>
@@ -600,6 +601,7 @@ void Analyzer::analyze(const IRegion::pointer &region) {
 	t.start();
 
 	RegionData &region_data = analysis_info_[region->start()];
+	qDebug() << "[Analyzer] Region name:" << region->name();
 
 	QSettings settings;
 	const bool fuzzy = settings.value("Analyzer/fuzzy_logic_functions.enabled", true).toBool();
@@ -873,6 +875,63 @@ bool Analyzer::will_return(edb::address_t address) const {
 
 
 	return true;
+}
+
+//------------------------------------------------------------------------------
+// Name: get_analysis_path
+// Desc:
+//------------------------------------------------------------------------------
+
+QString Analyzer::get_analysis_path(const IRegion::pointer &region) const {
+	if (region->name().isEmpty()) {
+		return QString();
+	}
+
+	QString session_path = edb::v1::config().session_path;
+	if(session_path.isEmpty()) {
+		return QString();
+	}
+
+	// We need the base address of this region. However, this region might not
+	// be the same region that has the header. For instance, on Windows the
+	// PE header is not in the same region as the ELF header. The binary might
+	// also have multiple code sections.
+	edb::address_t base_address = 0;
+	edb::address_t loaded_address = 0;
+	{
+		QList<IRegion::pointer> regions = edb::v1::memory_regions().regions();
+		bool base_addr_found = false;
+		for(const IRegion::pointer iregion: regions) {
+			if (iregion->name() == region->name()) {
+				if(auto binary_info = edb::v1::get_binary_info(iregion)) {
+					base_address = binary_info->base_address();
+					loaded_address = iregion->start();
+					base_addr_found = true;
+					break;
+				}
+			}
+		}
+
+		if (!base_addr_found) {
+			return QString();
+		}
+	}
+
+	QFileInfo info(region->name());
+
+	if(info.isRelative()) {
+		info.makeAbsolute();
+	}
+
+	const QString path = QString("%1/%2").arg(session_path, info.absolutePath());
+	const QString name = info.fileName();
+
+	// ensure that the sub-directory exists
+	QDir().mkpath(path);
+
+	return QString(QLatin1String("%1/%2"".Analysis.%3")).arg(path, name, QString::number(
+		region->start() - loaded_address + base_address, 16
+	));
 }
 
 #if QT_VERSION < 0x050000

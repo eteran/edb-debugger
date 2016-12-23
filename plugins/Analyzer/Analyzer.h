@@ -87,6 +87,7 @@ private:
 	void invalidate_dynamic_analysis(const IRegion::pointer &region);
 	void set_function_types(FunctionMap *results);
 	void set_function_types_helper(Function &function) const;
+	QString get_analysis_path(const IRegion::pointer &region) const;
 
 Q_SIGNALS:
 	void update_progress(int);

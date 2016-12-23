@@ -55,6 +55,7 @@ template<typename elfxx_header> class ELFXX : public IBinary {
 		virtual size_t header_size() const;
 		virtual const void *header() const;
 		virtual QVector<Header> headers() const;
+		virtual edb::address_t base_address() const;
 
 	private:
 		void validate_header();
