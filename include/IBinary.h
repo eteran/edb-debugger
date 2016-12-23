@@ -43,6 +43,7 @@ public:
 	virtual size_t header_size() const = 0;
 	virtual const void *header() const = 0;
 	virtual QVector<Header> headers() const = 0;
+	virtual edb::address_t base_address() const = 0;
 
 public:
 	// optional, and platform specific:
