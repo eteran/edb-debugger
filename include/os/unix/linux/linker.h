@@ -17,6 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 
+#ifndef LINKER_20170103_H_
+#define LINKER_20170103_H_
+
 namespace edb {
 namespace linux {
 
@@ -45,3 +48,5 @@ struct link_map {
 
 }
 }
+
+#endif
