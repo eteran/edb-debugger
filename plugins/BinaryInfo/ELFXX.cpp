@@ -13,12 +13,7 @@
 #include <cstring>
 #include <cstdint>
 
-#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
-#include <link.h>
-#endif
-
 namespace BinaryInfoPlugin {
-
 
 ELFBinaryException::ELFBinaryException(reasonEnum reason): reason_(reason) {}
 const char * ELFBinaryException::what() { return "TODO"; }
