@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformRegion.h"
 #include "MemoryRegions.h"
 #include "edb.h"
+#include "linker.h"
 
 #include <QByteArray>
 #include <QFile>
@@ -45,35 +46,6 @@ namespace {
 
 // Used as size of ptrace word
 #define EDB_WORDSIZE sizeof(long)
-
-
-// TODO(eteran): this inter-plugin dependency is terrible :-/
-namespace BinaryInfoPlugin {
-// Bitness-templated version of struct r_debug defined in link.h
-template<class Addr>
-struct r_debug
-{
-	int r_version;
-	Addr r_map; // struct link_map*
-	Addr r_brk;
-	enum {
-		RT_CONSISTENT,
-		RT_ADD,
-		RT_DELETE
-	} r_state;
-	Addr r_ldbase;
-};
-
-// Bitness-templated version of struct link_map defined in link.h
-template<class Addr>
-struct link_map
-{
-	Addr l_addr;
-	Addr l_name; // char*
-	Addr l_ld; // ElfW(Dyn)*
-	Addr l_next, l_prev; // struct link_map*
-};
-}
 
 void set_ok(bool &ok, long value) {
 	ok = (value != -1) || (errno == 0);
@@ -153,7 +125,7 @@ QList<Module> loaded_modules_(const IProcess* process, const std::unique_ptr<IBi
 	QList<Module> ret;
 
 	if(binary_info_) {
-		BinaryInfoPlugin::r_debug<Addr> dynamic_info;
+		edb::linux::r_debug<Addr> dynamic_info;
 		if(const edb::address_t debug_pointer = binary_info_->debug_pointer()) {
 			if(process) {
 				if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
@@ -163,7 +135,7 @@ QList<Module> loaded_modules_(const IProcess* process, const std::unique_ptr<IBi
 
 						while(link_address) {
 
-							BinaryInfoPlugin::link_map<Addr> map;
+							edb::linux::link_map<Addr> map;
 							if(process->read_bytes(link_address, &map, sizeof(map))) {
 								char path[PATH_MAX];
 								if(!process->read_bytes(edb::address_t::fromZeroExtended(map.l_name), &path, sizeof(path))) {

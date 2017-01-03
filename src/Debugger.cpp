@@ -83,36 +83,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <fcntl.h>
 #endif
 
+#if defined(Q_OS_LINUX)
+#include "linker.h"
+#endif
+
+
 #include "RegisterViewModelBase.h"
 
 namespace {
 
-#if defined(Q_OS_LINUX)
-
-// Bitness-templated version of struct r_debug defined in link.h
-template <class Addr>
-struct r_debug {
-	int r_version;
-	Addr r_map; // struct link_map*
-	Addr r_brk;
-	enum {
-		RT_CONSISTENT,
-		RT_ADD,
-		RT_DELETE
-	} r_state;
-	Addr r_ldbase;
-};
-
-// Bitness-templated version of struct link_map defined in link.h
-template <class Addr>
-struct link_map {
-	Addr l_addr;
-	Addr l_name; // char*
-	Addr l_ld; // ElfW(Dyn)*
-	Addr l_next, l_prev; // struct link_map*
-};
-
-#endif
 
 const int     SessionFileVersion  = 1;
 const QString SessionFileIdString = "edb-session";
@@ -126,7 +105,7 @@ const quint64 ld_loader_tag     = Q_UINT64_C(0x4c49424556454e54); // "LIBEVENT" 
 
 template <class Addr>
 void handle_library_event(IProcess *process, edb::address_t debug_pointer) {
-	r_debug<Addr> dynamic_info;
+	edb::linux::r_debug<Addr> dynamic_info;
 	const bool ok = process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info));
 	if(ok) {
 
@@ -137,16 +116,16 @@ void handle_library_event(IProcess *process, edb::address_t debug_pointer) {
 		// TODO(eteran): find a way to get the name reliably
 
 		switch(dynamic_info.r_state) {
-		case r_debug<Addr>::RT_CONSISTENT:
+		case edb::linux::r_debug<Addr>::RT_CONSISTENT:
 			// TODO(eteran): enable this once we are confident
 	#if 0
 			edb::v1::memory_regions().sync();
 	#endif
 			break;
-		case r_debug<Addr>::RT_ADD:
+		case edb::linux::r_debug<Addr>::RT_ADD:
 			//qDebug("LIBRARY LOAD EVENT");
 			break;
-		case r_debug<Addr>::RT_DELETE:
+		case edb::linux::r_debug<Addr>::RT_DELETE:
 			//qDebug("LIBRARY UNLOAD EVENT");
 			break;
 		}
@@ -156,10 +135,10 @@ void handle_library_event(IProcess *process, edb::address_t debug_pointer) {
 template <class Addr>
 edb::address_t find_linker_hook_address(IProcess *process, edb::address_t debug_pointer) {
 
-	r_debug<Addr> dynamic_info;
+	edb::linux::r_debug<Addr> dynamic_info;
 	const bool ok = process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info));
 	if(ok) {
-		return dynamic_info.r_brk;
+		return edb::address_t::fromZeroExtended(dynamic_info.r_brk);
 	}
 
 	return 0;

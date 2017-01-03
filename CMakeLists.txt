@@ -48,6 +48,10 @@ if(UNIX)
 	include_directories("include/os/unix")
 endif()
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+	include_directories("include/os/unix/linux")
+endif()
+
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64"))
 	include_directories("include/arch/x86-generic")
 endif()
