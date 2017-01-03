@@ -19,11 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "BookmarkWidget.h"
 #include "edb.h"
 #include "Expression.h"
+#include "BookmarksModel.h"
 #include <QInputDialog>
 #include <QMenu>
 #include <QMessageBox>
 #include <QTableWidgetItem>
-#include <memory>
 
 #include "ui_Bookmarks.h"
 
@@ -35,6 +35,9 @@ namespace BookmarksPlugin {
 //------------------------------------------------------------------------------
 BookmarkWidget::BookmarkWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), ui(new Ui::Bookmarks) {
 	ui->setupUi(this);
+
+	model_ = new BookmarksModel(this);
+	ui->tableView->setModel(model_);
 }
 
 //------------------------------------------------------------------------------
@@ -46,30 +49,29 @@ BookmarkWidget::~BookmarkWidget() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_tableWidget_cellDoubleClicked
+// Name: on_tableView_doubleClicked
 // Desc:
 //------------------------------------------------------------------------------
-void BookmarkWidget::on_tableWidget_cellDoubleClicked(int row, int col) {
-	switch(col) {
-	case 0: //address
-		if(QTableWidgetItem *const address_item = ui->tableWidget->item(row, 0)) {
-			const edb::address_t addr = address_item->data(Qt::UserRole).toULongLong();
-			edb::v1::jump_to_address(addr);
-		}
-		break;
-	case 1: //comment
-		{
-			QString old_comment;
-			if(QTableWidgetItem *const comment_item = ui->tableWidget->item(row, 1)) {
-				 old_comment = comment_item->text();
+void BookmarkWidget::on_tableView_doubleClicked(const QModelIndex &index) {
+
+	if(auto item = static_cast<BookmarksModel::Bookmark *>(index.internalPointer())) {
+		switch(index.column()) {
+		case 0: //address
+			edb::v1::jump_to_address(item->address);
+			break;
+		case 1: // type
+			break;
+		case 2: //comment
+			{
+				QString old_comment = item->comment;
+				bool ok;
+				const QString new_comment = QInputDialog::getText(ui->tableView, tr("Comment"), tr("Set Comment:"), QLineEdit::Normal, old_comment, &ok);
+				if(ok) {
+					model_->setComment(index, new_comment);
+				}
 			}
-			bool ok;
-			const QString new_comment = QInputDialog::getText(ui->tableWidget, tr("Comment"), tr("Set Comment:"), QLineEdit::Normal, old_comment, &ok);
-			if(ok) {
-				ui->tableWidget->setItem(row, 1, new QTableWidgetItem(new_comment));
-			}
+			break;
 		}
-		break;
 	}
 }
 
@@ -90,11 +92,13 @@ void BookmarkWidget::on_btnAdd_clicked() {
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::on_btnDel_clicked() {
-	std::unique_ptr<QTableWidgetItem> item(ui->tableWidget->takeItem(ui->tableWidget->currentRow(), 0));
-	ui->tableWidget->removeRow(ui->tableWidget->currentRow());
-	if(item) {
-		const edb::address_t address = item->data(Qt::UserRole).toULongLong();
-		entries_.remove(address);
+
+	const QItemSelectionModel *const selModel = ui->tableView->selectionModel();
+	const QModelIndexList selections = selModel->selectedRows();
+
+	if(selections.size() == 1) {
+		QModelIndex index = selections[0];
+		model_->deleteBookmark(index);
 	}
 }
 
@@ -103,9 +107,7 @@ void BookmarkWidget::on_btnDel_clicked() {
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::on_btnClear_clicked() {
-	ui->tableWidget->clearContents();
-	ui->tableWidget->setRowCount(0);
-	entries_.clear();
+	model_->clearBookmarks();
 }
 
 //------------------------------------------------------------------------------
@@ -113,14 +115,19 @@ void BookmarkWidget::on_btnClear_clicked() {
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::add_address(edb::address_t address) {
-	if(!entries_.contains(address)) {
-		auto new_item = new QTableWidgetItem(edb::v1::format_pointer(address));
-		new_item->setData(Qt::UserRole, address);
-		const int row = ui->tableWidget->rowCount();
-		ui->tableWidget->setRowCount(row + 1);
-		ui->tableWidget->setItem(row, 0, new_item);
-		ui->tableWidget->resizeColumnToContents(0);
-		entries_.insert(address);
+
+	QVector<BookmarksModel::Bookmark> &bookmarks = model_->bookmarks();
+	auto it = std::find_if(bookmarks.begin(), bookmarks.end(), [address](const BookmarksModel::Bookmark &bookmark) {
+		return bookmark.address == address;
+	});
+
+
+	if(it == bookmarks.end()) {
+		BookmarksModel::Bookmark bookmark = {
+			address, BookmarksModel::Bookmark::Code, QString()
+		};
+
+		model_->addBookmark(bookmark);
 	}
 }
 
@@ -129,16 +136,18 @@ void BookmarkWidget::add_address(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 void BookmarkWidget::shortcut(int index) {
-	if(ui->tableWidget->item(index, 0)) {
-		Q_EMIT on_tableWidget_cellDoubleClicked(index, 0);
+
+	QVector<BookmarksModel::Bookmark> &bookmarks = model_->bookmarks();
+	if(index < bookmarks.size()) {
+		edb::v1::jump_to_address(bookmarks[index].address);
 	}
 }
 
 //------------------------------------------------------------------------------
-// Name: on_tableWidget_customContextMenuRequested
+// Name: on_tableView_customContextMenuRequested
 // Desc:
 //------------------------------------------------------------------------------
-void BookmarkWidget::on_tableWidget_customContextMenuRequested(const QPoint &pos) {
+void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) {
 
 	QMenu menu;
 	QAction *const actionAdd     = menu.addAction(tr("&Add Address"));
@@ -146,7 +155,7 @@ void BookmarkWidget::on_tableWidget_customContextMenuRequested(const QPoint &pos
 	QAction *const actionClear   = menu.addAction(tr("&Clear"));
 	menu.addSeparator();
 	QAction *const actionComment = menu.addAction(tr("&Set Comment"));
-	QAction *const chosen = menu.exec(ui->tableWidget->mapToGlobal(pos));
+	QAction *const chosen = menu.exec(ui->tableView->mapToGlobal(pos));
 
 	if(chosen == actionAdd) {
 		on_btnAdd_clicked();
@@ -155,18 +164,38 @@ void BookmarkWidget::on_tableWidget_customContextMenuRequested(const QPoint &pos
 	} else if(chosen == actionClear) {
 		on_btnClear_clicked();
 	} else if(chosen == actionComment) {
-		bool ok;
 
-		QString current_comment;
-		if(QTableWidgetItem *const item = ui->tableWidget->item(ui->tableWidget->currentRow(), 1)) {
-			current_comment = item->text();
-		}
+		const QItemSelectionModel *const selModel = ui->tableView->selectionModel();
+		const QModelIndexList selections = selModel->selectedRows();
 
-	    const QString text = QInputDialog::getText(ui->tableWidget, tr("Comment"), tr("Set Comment:"), QLineEdit::Normal, current_comment, &ok);
-		if(ok) {
-			ui->tableWidget->setItem(ui->tableWidget->currentRow(), 1, new QTableWidgetItem(text));
+		if(selections.size() == 1) {
+			QModelIndex index = selections[0];
+
+			if(auto item = static_cast<BookmarksModel::Bookmark *>(index.internalPointer())) {
+				QString old_comment = item->comment;
+				bool ok;
+				const QString new_comment = QInputDialog::getText(ui->tableView, tr("Comment"), tr("Set Comment:"), QLineEdit::Normal, old_comment, &ok);
+				if(ok) {
+					model_->setComment(index, new_comment);
+				}
+			}
 		}
 	}
+}
+
+//------------------------------------------------------------------------------
+// Name: entries
+// Desc:
+//------------------------------------------------------------------------------
+QList<edb::address_t> BookmarkWidget::entries() const {
+	QVector<BookmarksModel::Bookmark> &bookmarks = model_->bookmarks();
+	QList<edb::address_t> results;
+	std::transform(bookmarks.begin(), bookmarks.end(), std::back_inserter(results), [](const BookmarksModel::Bookmark &bookmark) {
+		return bookmark.address;
+	});
+
+	return results;
+
 }
 
 }

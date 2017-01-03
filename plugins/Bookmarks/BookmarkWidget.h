@@ -20,10 +20,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define BOOKMARKWIDGET_20101207_H_
 
 #include <QWidget>
-#include <QSet>
 #include "Types.h"
 
+class QModelIndex;
+
 namespace BookmarksPlugin {
+
+class BookmarksModel;
 
 namespace Ui { class Bookmarks; }
 
@@ -38,17 +41,17 @@ public Q_SLOTS:
 	void on_btnAdd_clicked();
 	void on_btnDel_clicked();
 	void on_btnClear_clicked();
-	void on_tableWidget_cellDoubleClicked(int row, int col);
-	void on_tableWidget_customContextMenuRequested(const QPoint &pos);
+	void on_tableView_doubleClicked(const QModelIndex &index);
+	void on_tableView_customContextMenuRequested(const QPoint &pos);
 	void shortcut(int index);
 
 public:
 	void add_address(edb::address_t address);
-	QList<edb::address_t> entries() const { return entries_.toList(); }
+	QList<edb::address_t> entries() const;
 
 private:
-	Ui::Bookmarks *      ui;
-	QSet<edb::address_t> entries_;
+	Ui::Bookmarks  *ui;
+	BookmarksModel *model_;
 };
 
 }

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>306</width>
-    <height>193</height>
+    <width>342</width>
+    <height>227</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -15,12 +15,12 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" colspan="3">
-    <widget class="QTableWidget" name="tableWidget">
+    <widget class="QTableView" name="tableView">
      <property name="contextMenuPolicy">
       <enum>Qt::CustomContextMenu</enum>
      </property>
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
+     <property name="alternatingRowColors">
+      <bool>true</bool>
      </property>
      <property name="selectionMode">
       <enum>QAbstractItemView::SingleSelection</enum>
@@ -28,28 +28,12 @@
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
      </property>
-     <property name="wordWrap">
-      <bool>false</bool>
-     </property>
-     <property name="cornerButtonEnabled">
-      <bool>false</bool>
-     </property>
      <attribute name="horizontalHeaderStretchLastSection">
       <bool>true</bool>
      </attribute>
      <attribute name="verticalHeaderVisible">
       <bool>false</bool>
      </attribute>
-     <column>
-      <property name="text">
-       <string>Address</string>
-      </property>
-     </column>
-     <column>
-      <property name="text">
-       <string>Comment</string>
-      </property>
-     </column>
     </widget>
    </item>
    <item row="1" column="0">
@@ -58,7 +42,8 @@
       <string>Add</string>
      </property>
      <property name="icon">
-      <iconset theme="list-add"/>
+      <iconset theme="list-add">
+       <normaloff>.</normaloff>.</iconset>
      </property>
     </widget>
    </item>
@@ -68,7 +53,8 @@
       <string>Del</string>
      </property>
      <property name="icon">
-      <iconset theme="list-remove"/>
+      <iconset theme="list-remove">
+       <normaloff>.</normaloff>.</iconset>
      </property>
     </widget>
    </item>
@@ -78,7 +64,8 @@
       <string>Clear</string>
      </property>
      <property name="icon">
-      <iconset theme="edit-clear-list"/>
+      <iconset theme="edit-clear-list">
+       <normaloff>.</normaloff>.</iconset>
      </property>
     </widget>
    </item>

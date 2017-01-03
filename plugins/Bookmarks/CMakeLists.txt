@@ -20,13 +20,15 @@ else(Qt5Core_FOUND)
 	qt4_wrap_ui(UI_H ${UI_FILES})
 endif()
 
-# we put the header files from the include directory here 
+# we put the header files from the include directory here
 # too so automoc can "just work"
 add_library(${PluginName} SHARED
 	Bookmarks.cpp
 	Bookmarks.h
 	BookmarkWidget.cpp
 	BookmarkWidget.h
+	BookmarksModel.cpp
+	BookmarksModel.h
 	${UI_H}
 )
 
