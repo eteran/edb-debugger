@@ -175,6 +175,8 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui->chkDeleteStaleSymbols->setChecked(config.remove_stale_symbols);
 	ui->chkDisableASLR->setChecked(config.disableASLR);
 	ui->chkDisableLazyBinding->setChecked(config.disableLazyBinding);
+	
+	ui->chkBreakOnLibraryLoad->setChecked(config.break_on_library_load);
 
 	ui->chkZerosAreFilling->setChecked(config.zeros_are_filling);
 	ui->chkRegisterBadges->setChecked(config.show_register_badges);
@@ -253,6 +255,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.remove_stale_symbols  = ui->chkDeleteStaleSymbols->isChecked();
 	config.disableASLR			 = ui->chkDisableASLR->isChecked();
 	config.disableLazyBinding	 = ui->chkDisableLazyBinding->isChecked();
+	config.break_on_library_load = ui->chkBreakOnLibraryLoad->isChecked();
 
 	config.zeros_are_filling     = ui->chkZerosAreFilling->isChecked();
 	config.show_register_badges = ui->chkRegisterBadges->isChecked();

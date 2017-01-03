@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>681</width>
-    <height>501</height>
+    <height>516</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -40,7 +40,7 @@
           <item>
            <widget class="QRadioButton" name="rdoDetach">
             <property name="text">
-             <string>Detach From Debugged Application</string>
+             <string>&amp;Detach From Debugged Application</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -50,14 +50,14 @@
           <item>
            <widget class="QRadioButton" name="rdoKill">
             <property name="text">
-             <string>Kill Debugged Application</string>
+             <string>&amp;Kill Debugged Application</string>
             </property>
            </widget>
           </item>
           <item>
            <widget class="QRadioButton" name="rdoReverseCapture">
             <property name="text">
-             <string>Detach If Debugged Application Was Attached To, Kill If Launched</string>
+             <string>Detach If Debugged Application Was Attached &amp;To, Kill If Launched</string>
             </property>
            </widget>
           </item>
@@ -73,7 +73,7 @@
           <item>
            <widget class="QRadioButton" name="rdoPlaceDefault">
             <property name="text">
-             <string>System Default</string>
+             <string>S&amp;ystem Default</string>
             </property>
            </widget>
           </item>
@@ -87,7 +87,7 @@
           <item>
            <widget class="QRadioButton" name="rdoPlaceRestore">
             <property name="text">
-             <string>Restore Previous Location</string>
+             <string>Restore Previous &amp;Location</string>
             </property>
            </widget>
           </item>
@@ -403,11 +403,18 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="chkBreakOnLibraryLoad">
+         <property name="text">
+          <string>Break on Library Load Events</string>
+         </property>
+        </widget>
+       </item>
+       <item>
         <layout class="QHBoxLayout">
          <item>
           <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>Minimum length for string detection</string>
+            <string>Minimum &amp;length for string detection</string>
            </property>
            <property name="buddy">
             <cstring>spnMinString</cstring>
@@ -451,7 +458,7 @@
           <item row="1" column="0">
            <widget class="QLabel" name="label">
             <property name="text">
-             <string>Terminal Program:</string>
+             <string>&amp;Terminal Program:</string>
             </property>
             <property name="buddy">
              <cstring>txtTTY</cstring>
@@ -496,6 +503,7 @@
       <zorder>chkFindMain</zorder>
       <zorder>groupBox_4</zorder>
       <zorder>chkDeleteStaleSymbols</zorder>
+      <zorder>chkBreakOnLibraryLoad</zorder>
      </widget>
      <widget class="QWidget" name="tab_6">
       <attribute name="title">

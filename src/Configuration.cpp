@@ -98,15 +98,16 @@ void Configuration::read_settings() {
 	settings.endGroup();
 
 	settings.beginGroup("Debugging");
-	initial_breakpoint   = static_cast<InitialBreakpoint>(settings.value("debugger.initial_breakpoint", MainSymbol).value<uint>());
-	warn_on_no_exec_bp   = settings.value("debugger.BP_NX_warn.enabled", true).value<bool>();
-	find_main            = settings.value("debugger.find_main.enabled", true).value<bool>();
-	min_string_length    = settings.value("debugger.string_min", 4).value<uint>();
-	tty_enabled          = settings.value("debugger.terminal.enabled", true).value<bool>();
-	tty_command          = settings.value("debugger.terminal.command", "/usr/bin/xterm").value<QString>();
-	remove_stale_symbols = settings.value("debugger.remove_stale_symbols.enabled", true).value<bool>();
-	disableASLR			 = settings.value("debugger.disableASLR.enabled", false).value<bool>();
-	disableLazyBinding	 = settings.value("debugger.disableLazyBinding.enabled", false).value<bool>();
+	initial_breakpoint    = static_cast<InitialBreakpoint>(settings.value("debugger.initial_breakpoint", MainSymbol).value<uint>());
+	warn_on_no_exec_bp    = settings.value("debugger.BP_NX_warn.enabled", true).value<bool>();
+	find_main             = settings.value("debugger.find_main.enabled", true).value<bool>();
+	min_string_length     = settings.value("debugger.string_min", 4).value<uint>();
+	tty_enabled           = settings.value("debugger.terminal.enabled", true).value<bool>();
+	tty_command           = settings.value("debugger.terminal.command", "/usr/bin/xterm").value<QString>();
+	remove_stale_symbols  = settings.value("debugger.remove_stale_symbols.enabled", true).value<bool>();
+	disableASLR           = settings.value("debugger.disableASLR.enabled", false).value<bool>();
+	disableLazyBinding    = settings.value("debugger.disableLazyBinding.enabled", false).value<bool>();
+	break_on_library_load = settings.value("debugger.break_on_library_load_event.enabled", false).value<bool>();
 	settings.endGroup();
 
 	settings.beginGroup("Disassembly");
@@ -205,6 +206,7 @@ void Configuration::write_settings() {
 	settings.setValue("debugger.remove_stale_symbols.enabled", remove_stale_symbols);
 	settings.setValue("debugger.disableASLR.enabled", disableASLR);
 	settings.setValue("debugger.disableLazyBinding.enabled", disableLazyBinding);
+	settings.setValue("debugger.break_on_library_load_event.enabled", break_on_library_load);
 	settings.endGroup();
 
 	settings.beginGroup("Disassembly");

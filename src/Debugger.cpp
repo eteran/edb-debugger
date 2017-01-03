@@ -87,6 +87,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
+#if defined(Q_OS_LINUX)
+
+// Bitness-templated version of struct r_debug defined in link.h
+template <class Addr>
+struct r_debug {
+	int r_version;
+	Addr r_map; // struct link_map*
+	Addr r_brk;
+	enum {
+		RT_CONSISTENT,
+		RT_ADD,
+		RT_DELETE
+	} r_state;
+	Addr r_ldbase;
+};
+
+// Bitness-templated version of struct link_map defined in link.h
+template <class Addr>
+struct link_map {
+	Addr l_addr;
+	Addr l_name; // char*
+	Addr l_ld; // ElfW(Dyn)*
+	Addr l_next, l_prev; // struct link_map*
+};
+
+#endif
+
 const int     SessionFileVersion  = 1;
 const QString SessionFileIdString = "edb-session";
 
@@ -94,6 +121,49 @@ const quint64 initial_bp_tag    = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" 
 const quint64 stepover_bp_tag   = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
 const quint64 run_to_cursor_tag = Q_UINT64_C(0x474f544f48455245); // "GOTOHERE" in hex
 const quint64 ld_loader_tag     = Q_UINT64_C(0x4c49424556454e54); // "LIBEVENT" in hex
+
+
+
+template <class Addr>
+void handle_library_event(IProcess *process, edb::address_t debug_pointer) {
+	r_debug<Addr> dynamic_info;
+	const bool ok = process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info));
+	if(ok) {
+
+		// NOTE(eteran): at least on my system, the name of
+		//               what is being loaded is either in
+		//               r8 or r13 depending on which event
+		//               we are looking at.
+		// TODO(eteran): find a way to get the name reliably
+
+		switch(dynamic_info.r_state) {
+		case r_debug<Addr>::RT_CONSISTENT:
+			// TODO(eteran): enable this once we are confident
+	#if 0
+			edb::v1::memory_regions().sync();
+	#endif
+			break;
+		case r_debug<Addr>::RT_ADD:
+			//qDebug("LIBRARY LOAD EVENT");
+			break;
+		case r_debug<Addr>::RT_DELETE:
+			//qDebug("LIBRARY UNLOAD EVENT");
+			break;
+		}
+	}
+}
+
+template <class Addr>
+edb::address_t find_linker_hook_address(IProcess *process, edb::address_t debug_pointer) {
+
+	r_debug<Addr> dynamic_info;
+	const bool ok = process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info));
+	if(ok) {
+		return dynamic_info.r_brk;
+	}
+
+	return 0;
+}
 
 //--------------------------------------------------------------------------
 // Name: is_instruction_ret
@@ -288,7 +358,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 		stack_comment_server_(new CommentServer),
 		stack_view_locked_(false)
 #ifdef Q_OS_UNIX
-		,debug_pointer_(0), dynamic_info_{}, dynamic_info_bp_set_(false)
+		,debug_pointer_(0), dynamic_info_bp_set_(false)
 #endif
 {
 	setup_ui();
@@ -2068,7 +2138,7 @@ edb::EVENT_STATUS Debugger::handle_trap() {
 	IBreakpoint::pointer bp = edb::v1::find_breakpoint(previous_ip);
 	if(bp && bp->enabled()) {
 
-		// TODO: check if the breakpoint was corrupted
+		// TODO: check if the breakpoint was corrupted?
 		bp->hit();
 
 		// back up eip the size of a breakpoint, since we executed a breakpoint
@@ -2078,37 +2148,27 @@ edb::EVENT_STATUS Debugger::handle_trap() {
 
 #if defined(Q_OS_LINUX)
 		// test if we have hit our internal LD hook BP. If so, read in the r_debug
-		// struct so we can get the state, then we can just resume
-
+		// struct so we can get the state, then we can just resume		
 		// TODO(eteran): add an option to let the user stop of debug events
 		if(bp->internal() && bp->tag == ld_loader_tag) {
-			if(dynamic_info_bp_set_) {
 
+			if(dynamic_info_bp_set_) {
 				if(IProcess *process = edb::v1::debugger_core->process()) {
 					if(debug_pointer_) {
-						const bool ok = process->read_bytes(debug_pointer_, &dynamic_info_, sizeof(dynamic_info_));
-						if(ok) {
-
-							switch(dynamic_info_.r_state) {
-							case r_debug::RT_CONSISTENT:
-								// TODO(eteran): enable this once we are confident
-#if 0
-								edb::v1::memory_regions().sync();
-#endif
-								break;
-							case r_debug::RT_ADD:
-								//qDebug("LIBRARY LOAD EVENT");
-								break;
-							case r_debug::RT_DELETE:
-								//qDebug("LIBRARY UNLOAD EVENT");
-								break;
-							}
+						if(edb::v1::debuggeeIs32Bit()) {
+							handle_library_event<uint32_t>(process, debug_pointer_);
+						} else {
+							handle_library_event<uint64_t>(process, debug_pointer_);
 						}
 					}
 				}
 			}
 
-			return edb::DEBUG_CONTINUE_BP;
+			if(edb::v1::config().break_on_library_load) {
+				return edb::DEBUG_STOP;
+			} else {
+				return edb::DEBUG_CONTINUE_BP;
+			}
 		}
 #endif
 
@@ -2750,7 +2810,6 @@ void Debugger::set_initial_debugger_state() {
 
 #ifdef Q_OS_LINUX
 	debug_pointer_ = 0;
-	memset(&dynamic_info_, 0, sizeof(dynamic_info_));
 	dynamic_info_bp_set_ = false;
 #endif
 
@@ -3312,18 +3371,20 @@ void Debugger::next_debug_event() {
 			if(IProcess *process = edb::v1::debugger_core->process()) {
 				if(debug_pointer_ == 0 && binary_info_) {
 					if((debug_pointer_ = binary_info_->debug_pointer()) != 0) {
-						const bool ok = process->read_bytes(debug_pointer_, &dynamic_info_, sizeof(dynamic_info_));
-						if(ok) {
+						edb::address_t r_brk = edb::v1::debuggeeIs32Bit() ?
+							find_linker_hook_address<uint32_t>(process, debug_pointer_) :
+							find_linker_hook_address<uint64_t>(process, debug_pointer_);
+
+						if(r_brk) {
 							// TODO(eteran): this is equivalent to ld-2.23.so!_dl_debug_state
 							// maybe we should prefer setting this by symbol if possible?
-							if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(dynamic_info_.r_brk)) {
+							if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(r_brk)) {
 								bp->set_internal(true);
 								bp->tag = ld_loader_tag;
 								dynamic_info_bp_set_ = true;
 							}
 						}
 					}
-
 				}
 			}
 		}

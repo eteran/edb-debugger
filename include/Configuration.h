@@ -83,21 +83,22 @@ public:
 	bool              find_main;
 	bool              tty_enabled;
 	bool              remove_stale_symbols;
-	bool			  disableASLR;
-	bool			  disableLazyBinding;
+	bool              disableASLR;
+	bool              disableLazyBinding;
+	bool              break_on_library_load;
 	QString           tty_command;
 
 	// disassembly tab
 	Syntax            syntax;
 	bool show_register_badges;
-	bool 			  syntax_highlighting_enabled;
+	bool              syntax_highlighting_enabled;
 	bool              zeros_are_filling;
 	bool              uppercase_disassembly;
 	bool              small_int_as_decimal;
-	bool			  tab_between_mnemonic_and_operands;
-	bool			  show_local_module_name_in_jump_targets;
-	bool			  show_symbolic_addresses;
-	bool			  simplify_rip_relative_targets;
+	bool              tab_between_mnemonic_and_operands;
+	bool              show_local_module_name_in_jump_targets;
+	bool              show_symbolic_addresses;
+	bool              simplify_rip_relative_targets;
 
 	// directories tab
 	QString           symbol_path;
@@ -107,7 +108,7 @@ public:
 	int               min_string_length;
 
 	// Exceptions tab
-	bool			  enable_signals_message_box;
+	bool              enable_signals_message_box;
 
 protected:
 	void read_settings();
