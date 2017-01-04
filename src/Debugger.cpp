@@ -2931,6 +2931,9 @@ void Debugger::setup_data_views() {
 //------------------------------------------------------------------------------
 bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 
+	// ensure that the previous running process (if any) is dealth with...
+	detach_from_process(KILL_ON_DETACH);
+
 	bool ret = false;
 	tty_file_ = create_tty();
 
