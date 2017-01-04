@@ -442,6 +442,12 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 //------------------------------------------------------------------------------
 Debugger::~Debugger() {
 
+	// make sure sessions still get recorded even if they just close us
+	const QString filename = session_filename();
+	if(!filename.isEmpty()) {
+		save_session(filename);
+	}
+
 	if(const auto& dc = edb::v1::debugger_core) {
 		dc->end_debug_session();
 	}
