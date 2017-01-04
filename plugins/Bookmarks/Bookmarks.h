@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IPlugin.h"
 #include "Types.h"
+#include "BookmarksModel.h"
 #include <QSet>
 #include <QVariantList>
 
@@ -39,9 +40,6 @@ class Bookmarks : public QObject, public IPlugin {
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
-	Q_PROPERTY(QVariantList addresses READ addresses)
-
-
 public:
 	Bookmarks();
 
@@ -55,9 +53,6 @@ public:
 
 public Q_SLOTS:
 	void add_bookmark_menu();
-
-public:
-	QVariantList addresses() const;
 
 private:
 	QMenu *              menu_;

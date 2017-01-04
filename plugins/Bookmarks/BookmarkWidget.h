@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QWidget>
 #include "Types.h"
+#include "BookmarksModel.h"
 
 class QModelIndex;
 
@@ -46,8 +47,8 @@ public Q_SLOTS:
 	void shortcut(int index);
 
 public:
-	void add_address(edb::address_t address);
-	QList<edb::address_t> entries() const;
+	void add_address(edb::address_t address, const QString &type = QString(), const QString &comment = QString());
+	QList<BookmarksModel::Bookmark> entries() const;
 
 private:
 	Ui::Bookmarks  *ui;

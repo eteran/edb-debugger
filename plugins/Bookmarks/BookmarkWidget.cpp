@@ -135,7 +135,7 @@ void BookmarkWidget::on_btnClear_clicked() {
 // Name: add_address
 // Desc:
 //------------------------------------------------------------------------------
-void BookmarkWidget::add_address(edb::address_t address) {
+void BookmarkWidget::add_address(edb::address_t address, const QString &type, const QString &comment) {
 
 	QVector<BookmarksModel::Bookmark> &bookmarks = model_->bookmarks();
 	auto it = std::find_if(bookmarks.begin(), bookmarks.end(), [address](const BookmarksModel::Bookmark &bookmark) {
@@ -145,7 +145,7 @@ void BookmarkWidget::add_address(edb::address_t address) {
 
 	if(it == bookmarks.end()) {
 		BookmarksModel::Bookmark bookmark = {
-			address, BookmarksModel::Bookmark::Code, QString()
+			address, BookmarksModel::BookmarkStringToType(type), comment
 		};
 
 		model_->addBookmark(bookmark);
@@ -242,15 +242,9 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 // Name: entries
 // Desc:
 //------------------------------------------------------------------------------
-QList<edb::address_t> BookmarkWidget::entries() const {
+QList<BookmarksModel::Bookmark> BookmarkWidget::entries() const {
 	QVector<BookmarksModel::Bookmark> &bookmarks = model_->bookmarks();
-	QList<edb::address_t> results;
-	std::transform(bookmarks.begin(), bookmarks.end(), std::back_inserter(results), [](const BookmarksModel::Bookmark &bookmark) {
-		return bookmark.address;
-	});
-
-	return results;
-
+	return bookmarks.toList();
 }
 
 }

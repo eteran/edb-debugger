@@ -112,19 +112,6 @@ QList<QAction *> Bookmarks::cpu_context_menu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: addresses
-// Desc:
-//------------------------------------------------------------------------------
-QVariantList Bookmarks::addresses() const {
-	QVariantList r;
-	QList<edb::address_t> a = bookmark_widget_->entries();
-	for(edb::address_t x: a) {
-		r.push_back(x);
-	}
-	return r;
-}
-
-//------------------------------------------------------------------------------
 // Name: add_bookmark_menu
 // Desc:
 //------------------------------------------------------------------------------
@@ -138,12 +125,18 @@ void Bookmarks::add_bookmark_menu() {
 //------------------------------------------------------------------------------
 QVariantMap Bookmarks::save_state() const {
 	QVariantMap  state;
-	QVariantList addresses;
-	for(edb::address_t addr: bookmark_widget_->entries()) {
-		addresses.push_back(addr.toHexString());
+	QVariantList bookmarks;
+	for(auto bookmark : bookmark_widget_->entries()) {
+	
+		QVariantMap entry;
+		entry["address"] = bookmark.address.toHexString();
+		entry["type"]    = BookmarksModel::BookmarkTypeToString(bookmark.type);
+		entry["comment"] = bookmark.comment;
+	
+		bookmarks.push_back(entry);
 	}
 
-	state["bookmarks"] = addresses;
+	state["bookmarks"] = bookmarks;
 	return state;
 }
 
@@ -153,11 +146,18 @@ QVariantMap Bookmarks::save_state() const {
 //------------------------------------------------------------------------------
 void Bookmarks::restore_state(const QVariantMap &state) {
 
-	QVariantList addresses = state["bookmarks"].toList();
-	for(auto addr: addresses) {
-		edb::address_t address = edb::address_t::fromHexString(addr.toString());
-		qDebug() << "Adding Address: " << address.toHexString();
-		bookmark_widget_->add_address(address);
+	QVariantList bookmarks = state["bookmarks"].toList();
+	for(auto entry : bookmarks) {
+		auto bookmark = entry.value<QVariantMap>();
+	
+	
+		edb::address_t address = edb::address_t::fromHexString(bookmark["address"].toString());
+		QString type           = bookmark["type"].toString();
+		QString comment        = bookmark["comment"].toString();
+		
+		qDebug() << "Restoring bookmark with address: " << address.toHexString();
+		
+		bookmark_widget_->add_address(address, type, comment);
 	}
 
 }
