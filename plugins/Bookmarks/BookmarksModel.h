@@ -71,7 +71,7 @@ public:
 	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
 	virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
-public:
+public Q_SLOTS:
 	void addBookmark(const Bookmark &r);
 	void clearBookmarks();
 	void deleteBookmark(const QModelIndex &index);

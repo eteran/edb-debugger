@@ -38,6 +38,8 @@ BookmarkWidget::BookmarkWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(par
 
 	model_ = new BookmarksModel(this);
 	ui->tableView->setModel(model_);
+
+	connect(edb::v1::debugger_ui, SIGNAL(detachEvent()), model_, SLOT(clearBookmarks()));
 }
 
 //------------------------------------------------------------------------------
