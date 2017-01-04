@@ -45,7 +45,8 @@ QVariant BookmarksModel::headerData(int section, Qt::Orientation orientation, in
 	if(role == Qt::DisplayRole && orientation == Qt::Horizontal) {
 		switch(section) {
 		case 0: return tr("Address");
-		case 1: return tr("Comment");
+		case 1: return tr("Type");
+		case 2: return tr("Comment");
 		}
 	}
 
@@ -67,7 +68,13 @@ QVariant BookmarksModel::data(const QModelIndex &index, int role) const {
 	if(role == Qt::DisplayRole) {
 		switch(index.column()) {
 		case 0:  return edb::v1::format_pointer(bookmark.address);
-		case 1:  return bookmark.comment;
+		case 1:
+			switch(bookmark.type) {
+			case Bookmark::Code:  return tr("Code");
+			case Bookmark::Data:  return tr("Data");
+			case Bookmark::Stack: return tr("Stack");
+			}
+		case 2:  return bookmark.comment;
 		default: return QVariant();
 		}
 	}
@@ -107,7 +114,7 @@ QModelIndex BookmarksModel::index(int row, int column, const QModelIndex &parent
 		return QModelIndex();
 	}
 
-	if(column >= 2) {
+	if(column >= 3) {
 		return QModelIndex();
 	}
 
@@ -142,7 +149,7 @@ int BookmarksModel::rowCount(const QModelIndex &parent) const {
 //------------------------------------------------------------------------------
 int BookmarksModel::columnCount(const QModelIndex &parent) const {
 	Q_UNUSED(parent);
-	return 2;
+	return 3;
 }
 
 //------------------------------------------------------------------------------
@@ -159,7 +166,23 @@ void BookmarksModel::setComment(const QModelIndex &index, const QString &comment
 
 	bookmark.comment = comment;
 	Q_EMIT dataChanged(index, index);
+}
 
+//------------------------------------------------------------------------------
+// Name: setComment
+// Desc:
+//------------------------------------------------------------------------------
+void BookmarksModel::setType(const QModelIndex &index, const QString &type) {
+
+	if(!index.isValid()) {
+		return;
+	}
+
+	Bookmark &bookmark = bookmarks_[index.row()];
+
+	bookmark.type = BookmarkStringToType(type);
+
+	Q_EMIT dataChanged(index, index);
 }
 
 //------------------------------------------------------------------------------

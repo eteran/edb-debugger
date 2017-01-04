@@ -31,11 +31,33 @@ class BookmarksModel : public QAbstractItemModel {
 public:
 	struct Bookmark {
 		edb::address_t address;
-		enum {
+		enum Type {
 			Code, Data, Stack
 		}              type;
 		QString        comment;
 	};
+
+	static QString BookmarkTypeToString(Bookmark::Type type) {
+		switch(type) {
+		case Bookmark::Code:  return tr("Code");
+		case Bookmark::Data:  return tr("Data");
+		case Bookmark::Stack: return tr("Stack");
+		}
+
+		return tr("Code");
+	}
+
+	static Bookmark::Type BookmarkStringToType(const QString &type) {
+		if(type == tr("Code")) {
+			return Bookmark::Code;
+		} else if(type == tr("Data")) {
+			return Bookmark::Data;
+		} else if(type == tr("Stack")) {
+			return Bookmark::Stack;
+		}
+
+		return Bookmark::Code;
+	}
 
 public:
 	BookmarksModel(QObject *parent = 0);
@@ -54,6 +76,7 @@ public:
 	void clearBookmarks();
 	void deleteBookmark(const QModelIndex &index);
 	void setComment(const QModelIndex &index, const QString &comment);
+	void setType(const QModelIndex &index, const QString &type);
 
 
 public:

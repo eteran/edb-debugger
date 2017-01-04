@@ -57,9 +57,30 @@ void BookmarkWidget::on_tableView_doubleClicked(const QModelIndex &index) {
 	if(auto item = static_cast<BookmarksModel::Bookmark *>(index.internalPointer())) {
 		switch(index.column()) {
 		case 0: //address
-			edb::v1::jump_to_address(item->address);
+			switch(item->type) {
+			case BookmarksModel::Bookmark::Code:
+				edb::v1::jump_to_address(item->address);
+				break;
+			case BookmarksModel::Bookmark::Data:
+				edb::v1::dump_data(item->address);
+				break;
+			case BookmarksModel::Bookmark::Stack:
+				edb::v1::dump_stack(item->address);
+				break;
+			}
 			break;
 		case 1: // type
+			{
+				QString old_type = BookmarksModel::BookmarkTypeToString(item->type);
+				QStringList items;
+				items << tr("Code") << tr("Data") << tr("Stack");
+
+				bool ok;
+				const QString new_type = QInputDialog::getItem(ui->tableView, tr("Comment"), tr("Set Type:"), items, items.indexOf(old_type), false, &ok);
+				if(ok) {
+					model_->setType(index, new_type);
+				}
+			}
 			break;
 		case 2: //comment
 			{
@@ -139,7 +160,19 @@ void BookmarkWidget::shortcut(int index) {
 
 	QVector<BookmarksModel::Bookmark> &bookmarks = model_->bookmarks();
 	if(index < bookmarks.size()) {
-		edb::v1::jump_to_address(bookmarks[index].address);
+		BookmarksModel::Bookmark *item = &bookmarks[index];
+
+		switch(item->type) {
+		case BookmarksModel::Bookmark::Code:
+			edb::v1::jump_to_address(item->address);
+			break;
+		case BookmarksModel::Bookmark::Data:
+			edb::v1::dump_data(item->address);
+			break;
+		case BookmarksModel::Bookmark::Stack:
+			edb::v1::dump_stack(item->address);
+			break;
+		}
 	}
 }
 
@@ -155,6 +188,7 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 	QAction *const actionClear   = menu.addAction(tr("&Clear"));
 	menu.addSeparator();
 	QAction *const actionComment = menu.addAction(tr("&Set Comment"));
+	QAction *const actionType    = menu.addAction(tr("Set &Type"));
 	QAction *const chosen = menu.exec(ui->tableView->mapToGlobal(pos));
 
 	if(chosen == actionAdd) {
@@ -177,6 +211,27 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 				const QString new_comment = QInputDialog::getText(ui->tableView, tr("Comment"), tr("Set Comment:"), QLineEdit::Normal, old_comment, &ok);
 				if(ok) {
 					model_->setComment(index, new_comment);
+				}
+			}
+		}
+	} else if(chosen == actionType) {
+		const QItemSelectionModel *const selModel = ui->tableView->selectionModel();
+		const QModelIndexList selections = selModel->selectedRows();
+
+		if(selections.size() == 1) {
+			QModelIndex index = selections[0];
+
+			if(auto item = static_cast<BookmarksModel::Bookmark *>(index.internalPointer())) {
+
+
+				QString old_type = BookmarksModel::BookmarkTypeToString(item->type);
+				QStringList items;
+				items << tr("Code") << tr("Data") << tr("Stack");
+
+				bool ok;
+				const QString new_type = QInputDialog::getItem(ui->tableView, tr("Comment"), tr("Set Type:"), items, items.indexOf(old_type), false, &ok);
+				if(ok) {
+					model_->setType(index, new_type);
 				}
 			}
 		}
