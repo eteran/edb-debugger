@@ -441,20 +441,6 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 // Desc:
 //------------------------------------------------------------------------------
 Debugger::~Debugger() {
-
-	// make sure sessions still get recorded even if they just close us
-	const QString filename = session_filename();
-	if(!filename.isEmpty()) {
-		save_session(filename);
-	}
-
-	if(const auto& dc = edb::v1::debugger_core) {
-		dc->end_debug_session();
-	}
-
-	// ensure that the detach event fires
-	Q_EMIT(detachEvent());
-
 	// kill our xterm and wait for it to die
 	tty_proc_->kill();
 	tty_proc_->waitForFinished(3000);
@@ -945,6 +931,19 @@ void Debugger::setup_stack_view() {
 // Desc: triggered on main window close, saves window state
 //------------------------------------------------------------------------------
 void Debugger::closeEvent(QCloseEvent *event) {
+
+	// make sure sessions still get recorded even if they just close us
+	const QString filename = session_filename();
+	if(!filename.isEmpty()) {
+		save_session(filename);
+	}
+
+	if(const auto& dc = edb::v1::debugger_core) {
+		dc->end_debug_session();
+	}
+
+	// ensure that the detach event fires so that everyone who cases will be notified
+	Q_EMIT(detachEvent());
 
 	QSettings settings;
 	const QByteArray state = saveState();
@@ -2133,7 +2132,7 @@ edb::EVENT_STATUS Debugger::handle_trap() {
 
 #if defined(Q_OS_LINUX)
 		// test if we have hit our internal LD hook BP. If so, read in the r_debug
-		// struct so we can get the state, then we can just resume		
+		// struct so we can get the state, then we can just resume
 		// TODO(eteran): add an option to let the user stop of debug events
 		if(bp->internal() && bp->tag == ld_loader_tag) {
 
@@ -3408,6 +3407,8 @@ void Debugger::next_debug_event() {
 //------------------------------------------------------------------------------
 void Debugger::save_session(const QString &session_file) {
 
+	qDebug("Saving session file");
+
 	QVariantMap plugin_data;
 	QVariantMap session_data;
 
@@ -3494,6 +3495,8 @@ void Debugger::load_session(const QString &session_file) {
 
 			return;
 		}
+
+		qDebug("Loading session file");
 
 		QVariantMap plugin_data = session_data["plugin-data"].toMap();
 		for(auto it = plugin_data.begin(); it != plugin_data.end(); ++it) {
