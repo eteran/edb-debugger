@@ -212,8 +212,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-run.png</normaloff>:/debugger/images/edb22-action-run.png</iconset>
+    <iconset theme="debug-run"/>
    </property>
    <property name="text">
     <string>&amp;Run</string>
@@ -227,8 +226,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-break.png</normaloff>:/debugger/images/edb22-action-break.png</iconset>
+    <iconset theme="process-stop"/>
    </property>
    <property name="text">
     <string>&amp;Pause</string>
@@ -267,8 +265,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-stepi.png</normaloff>:/debugger/images/edb22-action-stepi.png</iconset>
+    <iconset theme="debug-step-into"/>
    </property>
    <property name="text">
     <string>&amp;Step Into</string>
@@ -282,8 +279,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-stepoveri.png</normaloff>:/debugger/images/edb22-action-stepoveri.png</iconset>
+    <iconset theme="debug-step-instruction"/>
    </property>
    <property name="text">
     <string>&amp;Step Over</string>
@@ -353,8 +349,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-stepi.png</normaloff>:/debugger/images/edb22-action-stepi.png</iconset>
+    <iconset theme="debug-step-instruction"/>
    </property>
    <property name="text">
     <string>&amp;Step Into (Pass Signal To Application)</string>
@@ -368,8 +363,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-stepover.png</normaloff>:/debugger/images/edb22-action-stepover.png</iconset>
+    <iconset theme="debug-step-over"/>
    </property>
    <property name="text">
     <string>&amp;Step Over (Pass Signal To Application)</string>
@@ -383,8 +377,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-run.png</normaloff>:/debugger/images/edb22-action-run.png</iconset>
+    <iconset theme="debug-run"/>
    </property>
    <property name="text">
     <string>&amp;Run (Pass Signal To Application)</string>
@@ -432,8 +425,7 @@
     <bool>false</bool>
    </property>
    <property name="icon">
-    <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-stepout.png</normaloff>:/debugger/images/edb22-action-stepout.png</iconset>
+    <iconset theme="debug-step-out"/>
    </property>
    <property name="text">
     <string>Step &amp;Out</string>
