@@ -247,9 +247,9 @@ void DialogBreakpoints::on_btnImport_clicked() {
 	Q_FOREVER {
 
 		//Get the address
-		QString line = file.readLine();
+		QString line = file.readLine().trimmed();
 
-		if(line.isNull()) {
+		if(line.isEmpty()) {
 			break;
 		}
 
