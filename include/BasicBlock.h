@@ -48,7 +48,7 @@ public:
 	BasicBlock();
 	BasicBlock(const BasicBlock &other);
 	BasicBlock &operator=(const BasicBlock &rhs);
-	~BasicBlock();
+	~BasicBlock() = default;
 
 public:
 	void push_back(const instruction_pointer &inst);

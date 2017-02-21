@@ -172,7 +172,7 @@ void BinaryString::on_txtHex_textEdited(const QString &text) {
 
 	for(const QString &s: list1) {
 
-		const quint8 ch = s.toUInt(0, 16);
+		const quint8 ch = s.toUInt(nullptr, 16);
 
 #if Q_BYTE_ORDER == Q_LITTLE_ENDIAN
 		utf16Char = (utf16Char >> 8) | (ch << 8);
@@ -201,7 +201,7 @@ QByteArray BinaryString::value() const {
 	const QStringList list1 = ui->txtHex->text().split(" ", QString::SkipEmptyParts);
 
 	for(const QString &i: list1) {
-		ret += static_cast<quint8>(i.toUInt(0, 16));
+		ret += static_cast<quint8>(i.toUInt(nullptr, 16));
 	}
 
 	return ret;
