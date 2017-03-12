@@ -521,6 +521,22 @@ void Expression<T>::get_token() {
 				token_.set(">", Token::GT, Token::OPERATOR);
 			}
 			break;
+		case '"':
+			++expression_ptr_;
+			// Begin a quoted string
+			{
+				QString temp_string;
+
+				while (expression_ptr_ != expression_.end() && *expression_ptr_ != '"') {
+					temp_string += *expression_ptr_++;
+				}
+				if (expression_ptr_ == expression_.end()) {
+					token_.set("\"" + temp_string, Token::NONE, Token::VARIABLE);
+				} else {
+					token_.set(temp_string, Token::NONE, Token::VARIABLE);
+				}
+			}
+			break;
 		default:
 			// is it a numerical constant?
 			if(expression_ptr_->isDigit()) {
