@@ -386,7 +386,7 @@ QList<QByteArray> PlatformProcess::arguments() const {
 
 			while(in.status() == QTextStream::Ok) {
 				in >> ch;
-				if(ch == '\0') {
+				if(ch.isNull()) {
 					if(!s.isEmpty()) {
 						ret << s;
 					}
