@@ -13,6 +13,8 @@ complete documentation see the [wiki](https://github.com/eteran/edb-debugger/wik
 Cloning
 -------
 
+[![Join the chat at https://gitter.im/eteran/edb-debugger](https://badges.gitter.im/eteran/edb-debugger.svg)](https://gitter.im/eteran/edb-debugger?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+
 When cloning the repo, please use git's `--recursive` flag to ensure that the sub-modules will be properly cloned and updated to the correct versions. Here is an example:
 
 `git clone --recursive https://github.com/eteran/edb-debugger.git`
