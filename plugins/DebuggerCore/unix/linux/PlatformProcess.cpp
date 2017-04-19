@@ -125,7 +125,7 @@ QList<Module> loaded_modules_(const IProcess* process, const std::unique_ptr<IBi
 	QList<Module> ret;
 
 	if(binary_info_) {
-		edb::linux::r_debug<Addr> dynamic_info;
+		edb::linux_struct::r_debug<Addr> dynamic_info;
 		if(const edb::address_t debug_pointer = binary_info_->debug_pointer()) {
 			if(process) {
 				if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
@@ -135,7 +135,7 @@ QList<Module> loaded_modules_(const IProcess* process, const std::unique_ptr<IBi
 
 						while(link_address) {
 
-							edb::linux::link_map<Addr> map;
+							edb::linux_struct::link_map<Addr> map;
 							if(process->read_bytes(link_address, &map, sizeof(map))) {
 								char path[PATH_MAX];
 								if(!process->read_bytes(edb::address_t::fromZeroExtended(map.l_name), &path, sizeof(path))) {

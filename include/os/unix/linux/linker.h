@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define LINKER_20170103_H_
 
 namespace edb {
-namespace linux {
+namespace linux_struct {
 
 // Bitness-templated version of struct r_debug defined in link.h
 template <class Addr>
