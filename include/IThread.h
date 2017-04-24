@@ -26,7 +26,7 @@ class State;
 
 class IThread {
 public:
-	virtual ~IThread() {}
+	virtual ~IThread() = default;
 
 public:
 	virtual edb::tid_t tid() const = 0;

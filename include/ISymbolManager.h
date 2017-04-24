@@ -30,7 +30,7 @@ class ISymbolGenerator;
 
 class EDB_EXPORT ISymbolManager {
 public:
-	virtual ~ISymbolManager() {}
+	virtual ~ISymbolManager() = default;
 
 public:
 	virtual const QList<std::shared_ptr<Symbol>> symbols() const = 0;

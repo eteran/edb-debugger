@@ -26,7 +26,7 @@ class QString;
 
 class EDB_EXPORT ISymbolGenerator {
 public:
-	virtual ~ISymbolGenerator() {}
+	virtual ~ISymbolGenerator() = default;
 
 public:
 	virtual bool generate_symbol_file(const QString &filename, const QString &symbol_file) = 0;

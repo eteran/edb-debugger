@@ -39,7 +39,7 @@ bool wait_for_sigchld(int msecs);
 class DebuggerCoreUNIX : public DebuggerCoreBase {
 public:
 	DebuggerCoreUNIX();
-	virtual ~DebuggerCoreUNIX() {}
+	virtual ~DebuggerCoreUNIX() = default;
 
 protected:
 	QString execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args);

@@ -51,7 +51,7 @@ public:
 	};
 
 public:
-	virtual ~IDebugEvent() {}
+	virtual ~IDebugEvent() = default;
 
 public:
 	virtual IDebugEvent *clone() const = 0;

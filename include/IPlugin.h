@@ -28,7 +28,7 @@ class QAction;
 
 class IPlugin {
 public:
-	virtual ~IPlugin() {}
+	virtual ~IPlugin() = default;
 
 public:
 	void init() {

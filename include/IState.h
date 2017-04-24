@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class EDB_EXPORT IState {
 public:
-	virtual ~IState() {}
+	virtual ~IState() = default;
 
 public:
 	virtual IState *clone() const = 0;

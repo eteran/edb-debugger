@@ -29,7 +29,7 @@ public:
 	typedef quint32                 permissions_t;
 
 public:
-	virtual ~IRegion() {}
+	virtual ~IRegion() = default;
 
 public:
 	virtual IRegion *clone() const = 0;

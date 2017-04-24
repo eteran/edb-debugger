@@ -29,7 +29,7 @@ public:
 public:
 	explicit QLongValidator(QObject *parent = 0);
 	QLongValidator(value_type minimum, value_type maximum, QObject *parent = 0);
-	virtual ~QLongValidator() {}
+	virtual ~QLongValidator() = default;
 
 public:
 	value_type bottom() const;

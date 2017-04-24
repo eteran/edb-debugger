@@ -34,7 +34,7 @@ public:
 		// TODO(eteran): maybe label/type/etc...
 	};
 public:
-	virtual ~IBinary() {}
+	virtual ~IBinary() = default;
 
 public:
 	virtual bool native() const = 0;

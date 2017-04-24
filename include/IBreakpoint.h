@@ -38,7 +38,7 @@ protected:
 	IBreakpoint() : tag(0) {}
 
 public:
-	virtual ~IBreakpoint() {}
+	virtual ~IBreakpoint() = default;
 
 public:
 	virtual edb::address_t address() const = 0;

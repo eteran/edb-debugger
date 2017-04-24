@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class IDebugEventHandler {
 public:
-	virtual ~IDebugEventHandler() {}
+	virtual ~IDebugEventHandler() = default;
 
 public:
 	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<const IDebugEvent> &event) = 0;

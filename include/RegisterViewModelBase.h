@@ -191,7 +191,7 @@ public:
 	QString name() const { return name_; }
 	virtual int row() const { Q_ASSERT(row_!=-1); return row_; }
 	virtual bool changed() const { return false; };
-	virtual ~RegisterViewItem(){}
+	virtual ~RegisterViewItem()= default;
 	virtual RegisterViewItem* child(int /*row*/) { return nullptr; }
 	virtual int childCount() const { return 0; }
 	virtual QVariant data(int /*column*/) const { return QVariant(); }

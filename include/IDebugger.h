@@ -40,7 +40,7 @@ public:
 	typedef QHash<edb::address_t, std::shared_ptr<IBreakpoint>> BreakpointList;
 
 public:
-	virtual ~IDebugger() {}
+	virtual ~IDebugger() = default;
 
 public:
 	// system properties

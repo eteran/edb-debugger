@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class IAnalyzer {
 public:
-	virtual ~IAnalyzer() {}
+	virtual ~IAnalyzer() = default;
 
 public:
 	typedef QMap<edb::address_t, Function> FunctionMap;

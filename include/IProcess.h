@@ -31,7 +31,7 @@ class QString;
 
 class IProcess {
 public:
-	virtual ~IProcess() {}
+	virtual ~IProcess() = default;
 
 public:
 	// legal to call when not attached
