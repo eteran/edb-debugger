@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DEBUGGERCORE_20090529_H_
 #define DEBUGGERCORE_20090529_H_
 
+#include <Qobject>
 #include "DebuggerCoreUNIX.h"
 #include "PlatformState.h"
 #include "PlatformThread.h"
