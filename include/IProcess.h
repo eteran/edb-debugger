@@ -35,30 +35,30 @@ public:
 
 public:
 	// legal to call when not attached
-	virtual QDateTime               start_time() const = 0;
-	virtual QList<QByteArray>       arguments() const = 0;
-	virtual QString                 current_working_directory() const = 0;
-	virtual QString                 executable() const = 0;
-	virtual edb::pid_t              pid() const = 0;
-	virtual std::shared_ptr<IProcess>                 parent() const = 0;
-	virtual edb::address_t          code_address() const = 0;
-	virtual edb::address_t          data_address() const = 0;
+	virtual QDateTime                       start_time() const = 0;
+	virtual QList<QByteArray>               arguments() const = 0;
+	virtual QString                         current_working_directory() const = 0;
+	virtual QString                         executable() const = 0;
+	virtual edb::pid_t                      pid() const = 0;
+	virtual std::shared_ptr<IProcess>       parent() const = 0;
+	virtual edb::address_t                  code_address() const = 0;
+	virtual edb::address_t                  data_address() const = 0;
 	virtual QList<std::shared_ptr<IRegion>> regions() const = 0;
-	virtual edb::uid_t              uid() const = 0;
-	virtual QString                 user() const = 0;
-	virtual QString                 name() const = 0;
-	virtual QList<Module>           loaded_modules() const = 0;
+	virtual edb::uid_t                      uid() const = 0;
+	virtual QString                         user() const = 0;
+	virtual QString                         name() const = 0;
+	virtual QList<Module>                   loaded_modules() const = 0;
 
 public:
 	// only legal to call when attached
 	virtual QList<std::shared_ptr<IThread>> threads() const = 0;
 	virtual std::shared_ptr<IThread>        current_thread() const = 0;
-	virtual std::size_t             write_bytes(edb::address_t address, const void *buf, size_t len) = 0;
-	virtual std::size_t             read_bytes(edb::address_t address, void *buf, size_t len) const = 0;
-	virtual std::size_t             read_pages(edb::address_t address, void *buf, size_t count) const = 0;
-	virtual void                    pause() = 0;
-	virtual void                    resume(edb::EVENT_STATUS status) = 0;
-	virtual void                    step(edb::EVENT_STATUS status) = 0;
+	virtual std::size_t                     write_bytes(edb::address_t address, const void *buf, size_t len) = 0;
+	virtual std::size_t                     read_bytes(edb::address_t address, void *buf, size_t len) const = 0;
+	virtual std::size_t                     read_pages(edb::address_t address, void *buf, size_t count) const = 0;
+	virtual void                            pause() = 0;
+	virtual void                            resume(edb::EVENT_STATUS status) = 0;
+	virtual void                            step(edb::EVENT_STATUS status) = 0;
 };
 
 #endif
