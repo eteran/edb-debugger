@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Expression.h"
 #include "IAnalyzer.h"
 #include "IBinary.h"
+#include "IBreakpoint.h"
 #include "IDebugEvent.h"
 #include "IDebugger.h"
 #include "IPlugin.h"

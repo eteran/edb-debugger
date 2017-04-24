@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ARCHPROCESSOR_20070312_H_
 #define ARCHPROCESSOR_20070312_H_
 
-#include "State.h"
 #include "Types.h"
 #include <QCoreApplication>
 #include <QStringList>

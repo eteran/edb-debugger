@@ -21,10 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "API.h"
 #include "IBinary.h"
-#include "IRegion.h"
-#include "IBreakpoint.h"
 #include "Types.h"
-#include "Register.h"
 #include "Status.h"
 
 #include <QMap>
@@ -38,13 +35,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class ArchProcessor;
 class Configuration;
 class IAnalyzer;
-class IBinary;
 class IDebugEventHandler;
 class IDebugger;
+class IBreakpoint;
 class IPlugin;
+class IRegion;
 class ISymbolManager;
 class MemoryRegions;
 class State;
+class Register;
 
 class QAbstractScrollArea;
 class QByteArray;

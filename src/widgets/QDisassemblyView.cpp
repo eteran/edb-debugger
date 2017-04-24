@@ -1266,11 +1266,16 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 void QDisassemblyView::setFont(const QFont &f) {
 	syntax_cache_.clear();
 
+	QFont newFont(f);
+
+	// NOTE(eteran): fix for #414 ?
+	newFont.setStyleStrategy(QFont::ForceIntegerMetrics);
+
 	// TODO: assert that we are using a fixed font & find out if we care?
-	QAbstractScrollArea::setFont(f);
+	QAbstractScrollArea::setFont(newFont);
 
 	// recalculate all of our metrics/offsets
-	const QFontMetricsF metrics(f);
+	const QFontMetricsF metrics(newFont);
 	font_width_  = metrics.width('X');
 	font_height_ = metrics.lineSpacing();
 

@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Expression.h"
 #include "Prototype.h"
 #include "IDebugger.h"
+#include "IBreakpoint.h"
 #include "IPlugin.h"
 #include "IProcess.h"
 #include "MD5.h"

@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogBreakpoints.h"
 #include "Expression.h"
 #include "IDebugger.h"
+#include "IBreakpoint.h"
 #include "edb.h"
 #include "MemoryRegions.h"
 
