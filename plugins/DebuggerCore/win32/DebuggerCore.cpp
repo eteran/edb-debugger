@@ -276,7 +276,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 // Desc: waits for a debug event, secs is a timeout (but is not yet respected)
 //       ok will be set to false if the timeout expires
 //------------------------------------------------------------------------------
-IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
+std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 	if(attached()) {
 		DEBUG_EVENT de;
 		while(WaitForDebugEvent(&de, msecs == 0 ? INFINITE : msecs)) {
@@ -363,7 +363,7 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 		memset(buf, 0xff, len);
 		SIZE_T bytes_read = 0;
         if(ReadProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_read)) {
-			for(const IBreakpoint::pointer &bp: breakpoints_) {
+			for(const std::shared_ptr<IBreakpoint> &bp: breakpoints_) {
 
 				if(bp->address() >= address && bp->address() < address + bytes_read) {
 					reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_byte();
@@ -791,8 +791,8 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QList<IRegion::pointer> DebuggerCore::memory_regions() const {
-	QList<IRegion::pointer> regions;
+QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
+	QList<std::shared_ptr<IRegion>> regions;
 
 	if(pid_ != 0) {
 		if(HANDLE ph = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid_)) {
@@ -815,7 +815,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 					const auto end     = reinterpret_cast<edb::address_t>(info.BaseAddress) + info.RegionSize;
 					const auto base    = reinterpret_cast<edb::address_t>(info.AllocationBase);
 					const QString name = QString();
-					const IRegion::permissions_t permissions = info.Protect; // let IRegion::pointer handle permissions and modifiers
+					const IRegion::permissions_t permissions = info.Protect; // let std::shared_ptr<IRegion> handle permissions and modifiers
 
 					if(info.Type == MEM_IMAGE) {
 						// set region.name to the module name

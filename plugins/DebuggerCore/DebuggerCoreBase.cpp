@@ -53,36 +53,36 @@ void DebuggerCoreBase::clear_breakpoints() {
 // Desc: creates a new breakpoint
 //       (only if there isn't already one at the given address)
 //------------------------------------------------------------------------------
-IBreakpoint::pointer DebuggerCoreBase::add_breakpoint(edb::address_t address) {
+std::shared_ptr<IBreakpoint> DebuggerCoreBase::add_breakpoint(edb::address_t address) {
 
 	try {
 		if(attached()) {
 			if(!find_breakpoint(address)) {
-				IBreakpoint::pointer bp(new Breakpoint(address));
+				std::shared_ptr<IBreakpoint> bp(new Breakpoint(address));
 				breakpoints_[address] = bp;
 				return bp;
 			}
 		}
 
-		return IBreakpoint::pointer();
+		return std::shared_ptr<IBreakpoint>();
 	} catch(const breakpoint_creation_error &e) {
 		qDebug() << "Failed to create breakpoint";
-		return IBreakpoint::pointer();
+		return std::shared_ptr<IBreakpoint>();
 	}
 }
 
 //------------------------------------------------------------------------------
 // Name: find_breakpoint
-// Desc: returns the breakpoint at the given address or IBreakpoint::pointer()
+// Desc: returns the breakpoint at the given address or std::shared_ptr<IBreakpoint>()
 //------------------------------------------------------------------------------
-IBreakpoint::pointer DebuggerCoreBase::find_breakpoint(edb::address_t address) {
+std::shared_ptr<IBreakpoint> DebuggerCoreBase::find_breakpoint(edb::address_t address) {
 	if(attached()) {
 		auto it = breakpoints_.find(address);
 		if(it != breakpoints_.end()) {
 			return it.value();
 		}
 	}
-	return IBreakpoint::pointer();
+	return std::shared_ptr<IBreakpoint>();
 }
 
 

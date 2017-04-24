@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "CallStack.h"
 #include "IBreakpoint.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "ISymbolManager.h"
 #include "ui_DialogBacktrace.h"
 #include <QTableWidget>
@@ -144,7 +145,7 @@ void DialogBacktrace::populate_table() {
 
 			edb::address_t address = stack_entry.at(j);
 
-			Symbol::pointer near_symbol = edb::v1::symbol_manager().find_near_symbol(address);
+			std::shared_ptr<Symbol> near_symbol = edb::v1::symbol_manager().find_near_symbol(address);
 
 			//Turn the address into a string prefixed with "0x"
 			auto item = new QTableWidgetItem;
@@ -239,14 +240,14 @@ void DialogBacktrace::on_pushButtonReturnTo_clicked() {
 
 		// Now that we got the address, we can run.  First check if bp @ that address
 		// already exists.
-		if (IBreakpoint::pointer bp = edb::v1::debugger_core->find_breakpoint(address)) {
+		if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->find_breakpoint(address)) {
 			process->resume(edb::DEBUG_CONTINUE);
 			return;
 		}
 
 		// Using the non-debugger_core version ensures bp is set in a valid region
 		edb::v1::create_breakpoint(address);
-		if (IBreakpoint::pointer bp = edb::v1::debugger_core->find_breakpoint(address)) {
+		if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->find_breakpoint(address)) {
 			bp->set_internal(true);
 			bp->set_one_time(true);
 			process->resume(edb::DEBUG_CONTINUE);

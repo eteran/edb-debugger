@@ -39,7 +39,7 @@ namespace {
 // Name: create_binary_info_elf32
 // Desc:
 //------------------------------------------------------------------------------
-std::unique_ptr<IBinary> create_binary_info_elf32(const IRegion::pointer &region) {
+std::unique_ptr<IBinary> create_binary_info_elf32(const std::shared_ptr<IRegion> &region) {
 	return std::unique_ptr<IBinary>(new ELF32(region));
 }
 
@@ -47,7 +47,7 @@ std::unique_ptr<IBinary> create_binary_info_elf32(const IRegion::pointer &region
 // Name: create_binary_info_elf64
 // Desc:
 //------------------------------------------------------------------------------
-std::unique_ptr<IBinary> create_binary_info_elf64(const IRegion::pointer &region) {
+std::unique_ptr<IBinary> create_binary_info_elf64(const std::shared_ptr<IRegion> &region) {
 	return std::unique_ptr<IBinary>(new ELF64(region));
 }
 
@@ -55,7 +55,7 @@ std::unique_ptr<IBinary> create_binary_info_elf64(const IRegion::pointer &region
 // Name: create_binary_info_pe32
 // Desc:
 //------------------------------------------------------------------------------
-std::unique_ptr<IBinary> create_binary_info_pe32(const IRegion::pointer &region) {
+std::unique_ptr<IBinary> create_binary_info_pe32(const std::shared_ptr<IRegion> &region) {
 	return std::unique_ptr<IBinary>(new PE32(region));
 }
 

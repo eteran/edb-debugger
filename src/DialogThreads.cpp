@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogThreads.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "ThreadsModel.h"
 #include "edb.h"
 
@@ -70,7 +71,7 @@ void DialogThreads::on_thread_table_doubleClicked(const QModelIndex &index) {
 
 	const QModelIndex internal_index = threads_filter_->mapToSource(index);
 	if(auto item = reinterpret_cast<ThreadsModel::Item *>(internal_index.internalPointer())) {
-		if(IThread::pointer thread = item->thread) {
+		if(std::shared_ptr<IThread> thread = item->thread) {
 			edb::v1::jump_to_address(thread->instruction_pointer());
 		}
 	}
@@ -84,9 +85,9 @@ void DialogThreads::updateThreads() {
 	threads_model_->clear();
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		IThread::pointer current = process->current_thread();
+		std::shared_ptr<IThread> current = process->current_thread();
 
-		for(IThread::pointer thread : process->threads()) {
+		for(std::shared_ptr<IThread> thread : process->threads()) {
 
 			if(thread == current) {
 				threads_model_->addThread(thread, true);

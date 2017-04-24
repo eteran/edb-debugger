@@ -32,8 +32,6 @@ class PlatformState;
 class PlatformThread : public IThread {
 	Q_DECLARE_TR_FUNCTIONS(PlatformThread)
 	friend class DebuggerCore;
-public:
-	typedef std::shared_ptr<PlatformThread> pointer;
 
 public:
 	enum SignalStatus {

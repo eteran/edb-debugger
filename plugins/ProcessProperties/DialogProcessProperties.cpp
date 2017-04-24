@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogProcessProperties.h"
 #include "edb.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "MemoryRegions.h"
 #include "Configuration.h"
 #include "ISymbolManager.h"
@@ -376,11 +377,11 @@ void DialogProcessProperties::updateMemoryPage() {
 
 	if(edb::v1::debugger_core) {
 		edb::v1::memory_regions().sync();
-		const QList<IRegion::pointer> regions = edb::v1::memory_regions().regions();
+		const QList<std::shared_ptr<IRegion>> regions = edb::v1::memory_regions().regions();
 		ui->tableMemory->setSortingEnabled(false);
 
 
-		for(const IRegion::pointer &r: regions) {
+		for(const std::shared_ptr<IRegion> &r: regions) {
 			const int row = ui->tableMemory->rowCount();
 			ui->tableMemory->insertRow(row);
 			ui->tableMemory->setItem(row, 0, new QTableWidgetItem(edb::v1::format_pointer(r->start()))); // address
@@ -587,9 +588,9 @@ void DialogProcessProperties::updateThreads() {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
-		IThread::pointer current = process->current_thread();
+		std::shared_ptr<IThread> current = process->current_thread();
 
-		for(IThread::pointer thread : process->threads()) {
+		for(std::shared_ptr<IThread> thread : process->threads()) {
 
 			if(thread == current) {
 				threads_model_->addThread(thread, true);

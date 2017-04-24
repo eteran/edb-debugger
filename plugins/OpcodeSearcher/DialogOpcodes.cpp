@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogOpcodes.h"
 #include "ByteShiftArray.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "MemoryRegions.h"
 #include "ShiftBuffer.h"
 #include "Util.h"
@@ -735,7 +736,7 @@ void DialogOpcodes::do_find() {
 
 				const QModelIndex index = filter_model_->mapToSource(selected_item);
 
-				if(auto region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
+				if(auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
 
 					edb::address_t start_address     = region->start();
 					edb::address_t address           = region->start();

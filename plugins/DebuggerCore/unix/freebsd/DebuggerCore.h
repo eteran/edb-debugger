@@ -37,7 +37,7 @@ public:
 public:
 	virtual edb::address_t page_size() const;
 	virtual bool has_extension(quint64 ext) const;
-	virtual IDebugEvent::const_pointer wait_debug_event(int msecs);
+	virtual std::shared_ptr<const IDebugEvent> wait_debug_event(int msecs);
 	virtual bool attach(edb::pid_t pid);
 	virtual void detach();
 	virtual void kill();
@@ -55,7 +55,7 @@ public:
 	virtual void set_active_thread(edb::tid_t);
 
 public:
-	virtual QList<IRegion::pointer> memory_regions() const;
+	virtual QList<std::shared_ptr<IRegion>> memory_regions() const;
 	virtual edb::address_t process_code_address() const;
 	virtual edb::address_t process_data_address() const;
 

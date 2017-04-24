@@ -42,7 +42,7 @@ class PEBinaryException : public std::exception {
 
 class PE32 : public IBinary {
 public:
-	PE32(const IRegion::pointer &region);
+	PE32(const std::shared_ptr<IRegion> &region);
 	virtual ~PE32();
 
 public:
@@ -56,7 +56,7 @@ public:
 	virtual edb::address_t base_address() const;
 
 private:
-	IRegion::pointer region_;
+	std::shared_ptr<IRegion> region_;
 	IMAGE_DOS_HEADER dos_;
 	IMAGE_NT_HEADERS32 pe_;
 };

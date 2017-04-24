@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Prototype.h"
 #include "IDebugger.h"
 #include "IPlugin.h"
+#include "IProcess.h"
 #include "MD5.h"
 #include "MemoryRegions.h"
 #include "QHexView"
@@ -76,7 +77,7 @@ namespace {
 
 		bool ret = false;
 		*offset = 0;
-		const Symbol::pointer s = edb::v1::symbol_manager().find_near_symbol(address);
+		const std::shared_ptr<Symbol> s = edb::v1::symbol_manager().find_near_symbol(address);
 		if(s) {
 			*value = s->name;
 			*offset = address - s->address;
@@ -194,7 +195,7 @@ address_t cpu_selected_address() {
 // Name: current_cpu_view_region
 // Desc:
 //------------------------------------------------------------------------------
-IRegion::pointer current_cpu_view_region() {
+std::shared_ptr<IRegion> current_cpu_view_region() {
 	return ui()->ui.cpuView->region();
 }
 
@@ -348,7 +349,7 @@ bool dump_data(address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 void set_breakpoint_condition(address_t address, const QString &condition) {
-	IBreakpoint::pointer bp = find_breakpoint(address);
+	std::shared_ptr<IBreakpoint> bp = find_breakpoint(address);
 	if(bp) {
 		bp->condition = condition;
 	}
@@ -360,7 +361,7 @@ void set_breakpoint_condition(address_t address, const QString &condition) {
 //------------------------------------------------------------------------------
 QString get_breakpoint_condition(address_t address) {
 	QString ret;
-	IBreakpoint::pointer bp = find_breakpoint(address);
+	std::shared_ptr<IBreakpoint> bp = find_breakpoint(address);
 	if(bp) {
 		ret = bp->condition;
 	}
@@ -373,12 +374,12 @@ QString get_breakpoint_condition(address_t address) {
 // Name: create_breakpoint
 // Desc: adds a breakpoint at a given address
 //------------------------------------------------------------------------------
-IBreakpoint::pointer create_breakpoint(address_t address) {
+std::shared_ptr<IBreakpoint> create_breakpoint(address_t address) {
 
-	IBreakpoint::pointer bp;
+	std::shared_ptr<IBreakpoint> bp;
 
 	memory_regions().sync();
-	if(IRegion::pointer region = memory_regions().find_region(address)) {
+	if(std::shared_ptr<IRegion> region = memory_regions().find_region(address)) {
 		int ret = QMessageBox::Yes;
 
 		if(!region->executable() && config().warn_on_no_exec_bp) {
@@ -430,7 +431,7 @@ IBreakpoint::pointer create_breakpoint(address_t address) {
 //------------------------------------------------------------------------------
 address_t enable_breakpoint(address_t address) {
 	if(address != 0) {
-		IBreakpoint::pointer bp = find_breakpoint(address);
+		std::shared_ptr<IBreakpoint> bp = find_breakpoint(address);
 		if(bp && bp->enable()) {
 			return address;
 		}
@@ -444,7 +445,7 @@ address_t enable_breakpoint(address_t address) {
 //------------------------------------------------------------------------------
 address_t disable_breakpoint(address_t address) {
 	if(address != 0) {
-		IBreakpoint::pointer bp = find_breakpoint(address);
+		std::shared_ptr<IBreakpoint> bp = find_breakpoint(address);
 		if(bp && bp->disable()) {
 			return address;
 		}
@@ -767,7 +768,7 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 	const Register reg = state.value(s);
 	*ok = reg.valid();
 	if(!*ok) {
-		const Symbol::pointer sym = edb::v1::symbol_manager().find(s);
+		const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(s);
 		if(sym) {
 			*ok = true;
 			return sym->address;
@@ -842,7 +843,7 @@ bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
 //       or NULL if none-found.
 // Note: the caller is responsible for deleting the object!
 //------------------------------------------------------------------------------
-std::unique_ptr<IBinary> get_binary_info(const IRegion::pointer &region) {
+std::unique_ptr<IBinary> get_binary_info(const std::shared_ptr<IRegion> &region) {
 	for(IBinary::create_func_ptr_t f: g_BinaryInfoList) {
 		try {
 			std::unique_ptr<IBinary> p((*f)(region));
@@ -877,7 +878,7 @@ address_t locate_main_function() {
 		if(IProcess *process = debugger_core->process()) {
 			const address_t address = process->code_address();
 			memory_regions().sync();
-			if(IRegion::pointer region = memory_regions().find_region(address)) {
+			if(std::shared_ptr<IRegion> region = memory_regions().find_region(address)) {
 				if(auto binfo = get_binary_info(region)) {
 					const address_t main_func = binfo->calculate_main();
 					if(main_func != 0) {
@@ -942,20 +943,20 @@ const Prototype *get_function_info(const QString &function) {
 // Note: make sure that memory regions has been sync'd first or you will likely
 //       get a null-region result
 //------------------------------------------------------------------------------
-IRegion::pointer primary_data_region() {
+std::shared_ptr<IRegion> primary_data_region() {
 
 	if(debugger_core) {
 		if(IProcess *process = debugger_core->process()) {
 			const address_t address = process->data_address();
 			memory_regions().sync();
-			if(IRegion::pointer region = memory_regions().find_region(address)) {
+			if(std::shared_ptr<IRegion> region = memory_regions().find_region(address)) {
 				return region;
 			}
 		}
 	}
 
 	qDebug() << "primary data region not found!";
-	return IRegion::pointer();
+	return std::shared_ptr<IRegion>();
 }
 
 //------------------------------------------------------------------------------
@@ -964,14 +965,14 @@ IRegion::pointer primary_data_region() {
 // Note: make sure that memory regions has been sync'd first or you will likely
 //       get a null-region result
 //------------------------------------------------------------------------------
-IRegion::pointer primary_code_region() {
+std::shared_ptr<IRegion> primary_code_region() {
 
 #if defined(Q_OS_LINUX)
 	if(debugger_core) {
 		if(IProcess *process = debugger_core->process()) {
 			const address_t address = process->code_address();
 			memory_regions().sync();
-			if(IRegion::pointer region = memory_regions().find_region(address)) {
+			if(std::shared_ptr<IRegion> region = memory_regions().find_region(address)) {
 				return region;
 			}
 		}
@@ -980,14 +981,14 @@ IRegion::pointer primary_code_region() {
 	const QString process_executable = debugger_core->process_exe(debugger_core->pid());
 
 	memory_regions().sync();
-	const QList<IRegion::pointer> r = memory_regions().regions();
-	for(const IRegion::pointer &region: r) {
+	const QList<std::shared_ptr<IRegion>> r = memory_regions().regions();
+	for(const std::shared_ptr<IRegion> &region: r) {
 		if(region->executable() && region->name() == process_executable) {
 			return region;
 		}
 	}
 #endif
-	return IRegion::pointer();
+	return std::shared_ptr<IRegion>();
 	qDebug() << "primary code region not found!";
 }
 
@@ -1038,7 +1039,7 @@ quint32 edb_version() {
 bool overwrite_check(address_t address, unsigned int size) {
 	bool firstConflict = true;
 	for(address_t addr = address; addr != (address + size); ++addr) {
-		IBreakpoint::pointer bp = find_breakpoint(addr);
+		std::shared_ptr<IBreakpoint> bp = find_breakpoint(addr);
 
 		if(bp && bp->enabled()) {
 			if(firstConflict) {
@@ -1337,11 +1338,11 @@ void clear_status() {
 // Name: find_breakpoint
 // Desc:
 //------------------------------------------------------------------------------
-IBreakpoint::pointer find_breakpoint(address_t address) {
+std::shared_ptr<IBreakpoint> find_breakpoint(address_t address) {
 	if(debugger_core) {
 		return debugger_core->find_breakpoint(address);
 	}
-	return IBreakpoint::pointer();
+	return std::shared_ptr<IBreakpoint>();
 }
 
 //------------------------------------------------------------------------------

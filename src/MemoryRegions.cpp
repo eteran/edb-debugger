@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IDebugger.h"
 #include "ISymbolManager.h"
+#include "IProcess.h"
 #include "MemoryRegions.h"
 #include "edb.h"
 
@@ -53,12 +54,12 @@ void MemoryRegions::sync() {
 
 	beginResetModel();
 
-	QList<IRegion::pointer> regions;
+	QList<std::shared_ptr<IRegion>> regions;
 
 	if(edb::v1::debugger_core) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 			regions = process->regions();
-			for(const IRegion::pointer &region: regions) {
+			for(const std::shared_ptr<IRegion> &region: regions) {
 				// if the region has a name, is mapped starting
 				// at the beginning of the file, and is executable, sounds
 				// like a module mapping!
@@ -82,14 +83,14 @@ void MemoryRegions::sync() {
 // Name: find_region
 // Desc:
 //------------------------------------------------------------------------------
-IRegion::pointer MemoryRegions::find_region(edb::address_t address) const {
+std::shared_ptr<IRegion> MemoryRegions::find_region(edb::address_t address) const {
 
-	for(const IRegion::pointer &i: regions_) {
+	for(const std::shared_ptr<IRegion> &i: regions_) {
 		if(i->contains(address)) {
 			return i;
 		}
 	}
-	return IRegion::pointer();
+	return std::shared_ptr<IRegion>();
 }
 
 //------------------------------------------------------------------------------
@@ -100,7 +101,7 @@ QVariant MemoryRegions::data(const QModelIndex &index, int role) const {
 
 	if(index.isValid() && role == Qt::DisplayRole) {
 
-		const IRegion::pointer &region = regions_[index.row()];
+		const std::shared_ptr<IRegion> &region = regions_[index.row()];
 
 		switch(index.column()) {
 		case 0: return edb::v1::format_pointer(region->start());
@@ -124,7 +125,7 @@ QModelIndex MemoryRegions::index(int row, int column, const QModelIndex &parent)
 		return QModelIndex();
 	}
 
-	return createIndex(row, column, const_cast<IRegion::pointer *>(&regions_[row]));
+	return createIndex(row, column, const_cast<std::shared_ptr<IRegion> *>(&regions_[row]));
 }
 
 //------------------------------------------------------------------------------

@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "edb.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "PE32.h"
 #include "string_hash.h"
 #include "pe_binary.h"
@@ -32,7 +33,7 @@ const char * PEBinaryException::what() { return "TODO"; }
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-PE32::PE32(const IRegion::pointer &region) : region_(region) {
+PE32::PE32(const std::shared_ptr<IRegion> &region) : region_(region) {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
 	const WORD dos_magic = 0x5A4D;
 	const LONG pe_magic = 0x00004550;

@@ -44,13 +44,13 @@ public:
 
 public:
 	virtual AddressCategory category(edb::address_t address) const = 0;
-	virtual FunctionMap functions(const IRegion::pointer &region) const = 0;
+	virtual FunctionMap functions(const std::shared_ptr<IRegion> &region) const = 0;
 	virtual FunctionMap functions() const = 0;
 	virtual QSet<edb::address_t> specified_functions() const { return QSet<edb::address_t>(); }
 	virtual Result<edb::address_t> find_containing_function(edb::address_t address) const = 0;
-	virtual void analyze(const IRegion::pointer &region) = 0;
+	virtual void analyze(const std::shared_ptr<IRegion> &region) = 0;
 	virtual void invalidate_analysis() = 0;
-	virtual void invalidate_analysis(const IRegion::pointer &region) = 0;
+	virtual void invalidate_analysis(const std::shared_ptr<IRegion> &region) = 0;
 	virtual bool for_funcs_in_range(const edb::address_t start, const edb::address_t end, std::function<bool(const Function*)> functor) const = 0;
 };
 

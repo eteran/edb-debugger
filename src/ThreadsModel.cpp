@@ -115,7 +115,7 @@ int ThreadsModel::rowCount(const QModelIndex &parent) const {
 	return items_.size();
 }
 
-void ThreadsModel::addThread(const IThread::pointer &thread, bool current) {
+void ThreadsModel::addThread(const std::shared_ptr<IThread> &thread, bool current) {
 	beginInsertRows(QModelIndex(), rowCount(), rowCount());
 
 	const Item item = {

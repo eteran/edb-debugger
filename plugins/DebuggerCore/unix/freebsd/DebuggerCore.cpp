@@ -103,7 +103,7 @@ DebuggerCore::~DebuggerCore() {
 // Desc: waits for a debug event, msecs is a timeout
 //      it will return false if an error or timeout occurs
 //------------------------------------------------------------------------------
-IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
+std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 	if(attached()) {
 		int status;
 		bool timeout;
@@ -450,8 +450,8 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QList<IRegion::pointer> DebuggerCore::memory_regions() const {
-	QList<IRegion::pointer> regions;
+QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
+	QList<std::shared_ptr<IRegion>> regions;
 
 	if(pid_ != 0) {
 		char buffer[PATH_MAX] = {};

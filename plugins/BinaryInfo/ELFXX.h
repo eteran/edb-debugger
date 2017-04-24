@@ -45,7 +45,7 @@ private:
 
 template<typename elfxx_header> class ELFXX : public IBinary {
 	public:
-		ELFXX(const IRegion::pointer &region);
+		ELFXX(const std::shared_ptr<IRegion> &region);
 		virtual ~ELFXX();
 	public:
 		virtual bool native() const;
@@ -59,7 +59,7 @@ template<typename elfxx_header> class ELFXX : public IBinary {
 
 	private:
 		void validate_header();
-		IRegion::pointer region_;
+		std::shared_ptr<IRegion> region_;
 		elfxx_header header_;
 		edb::address_t base_address_;
 };

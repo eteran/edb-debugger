@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "edb.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "ISymbolManager.h"
 #include "MemoryRegions.h"
 #include "Util.h"
@@ -427,7 +428,7 @@ void DialogHeap::do_find() {
 
 		get_library_names(&libcName, &ldName);
 	#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
-		Symbol::pointer s = edb::v1::symbol_manager().find(libcName + "::__curbrk");
+		std::shared_ptr<Symbol> s = edb::v1::symbol_manager().find(libcName + "::__curbrk");
 		if(s) {
 			end_address = s->address;
 		} else {
@@ -461,8 +462,8 @@ void DialogHeap::do_find() {
 		// just assume it's the bounds of the [heap] memory region for now
 		if(start_address == 0 || end_address == 0) {
 
-			const QList<IRegion::pointer> &regions = edb::v1::memory_regions().regions();
-			for(IRegion::pointer region: regions) {
+			const QList<std::shared_ptr<IRegion>> &regions = edb::v1::memory_regions().regions();
+			for(std::shared_ptr<IRegion> region: regions) {
 
 				if(region->name() == "[heap]") {
 

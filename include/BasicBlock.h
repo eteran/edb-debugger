@@ -32,9 +32,6 @@ typedef std::shared_ptr<edb::Instruction> instruction_pointer;
 
 class EDB_EXPORT BasicBlock {
 public:
-	typedef std::shared_ptr<BasicBlock>                   pointer;
-
-public:
 	typedef size_t                                       size_type;
 	typedef instruction_pointer                          value_type;
 	typedef instruction_pointer                         &reference;

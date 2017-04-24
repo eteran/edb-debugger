@@ -28,16 +28,14 @@ class QHexView;
 
 class DataViewInfo {
 public:
-	typedef std::shared_ptr<DataViewInfo> pointer;
-public:
-	explicit DataViewInfo(const IRegion::pointer &r);
+	explicit DataViewInfo(const std::shared_ptr<IRegion> &r);
 	~DataViewInfo();
 
 private:
 	Q_DISABLE_COPY(DataViewInfo)
 
 public:
-	IRegion::pointer         region;
+	std::shared_ptr<IRegion>         region;
 	RegionBuffer *const      stream;
 	std::shared_ptr<QHexView> view;
 

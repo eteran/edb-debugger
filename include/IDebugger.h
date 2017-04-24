@@ -19,26 +19,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IDEBUGGER_20061101_H_
 #define IDEBUGGER_20061101_H_
 
-#include "IBreakpoint.h"
-#include "IDebugEvent.h"
-#include "IRegion.h"
-#include "IProcess.h"
-#include "Module.h"
+#include "Types.h"
 
 #include <QByteArray>
 #include <QHash>
 #include <QMap>
 #include <QString>
-#include <QVector>
 #include <QtPlugin>
 
+#include <memory>
+
 class IState;
-class QString;
 class State;
+class IBreakpoint;
+class IDebugEvent;
+class IProcess;
 
 class IDebugger {
 public:
-	typedef QHash<edb::address_t, IBreakpoint::pointer> BreakpointList;
+	typedef QHash<edb::address_t, std::shared_ptr<IBreakpoint>> BreakpointList;
 
 public:
 	virtual ~IDebugger() {}
@@ -65,7 +64,7 @@ public:
 public:
 	// general process data
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const = 0;
-	virtual QMap<edb::pid_t, IProcess::pointer> enumerate_processes() const = 0;
+	virtual QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerate_processes() const = 0;
 
 public:
 	// basic process management
@@ -73,7 +72,7 @@ public:
 	virtual QString attach(edb::pid_t pid) = 0;
 	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args) = 0;
 	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
-	virtual IDebugEvent::const_pointer wait_debug_event(int msecs) = 0;
+	virtual std::shared_ptr<const IDebugEvent> wait_debug_event(int msecs) = 0;
 	virtual void detach() = 0;
 	virtual void kill() = 0;
 	virtual void end_debug_session() = 0;
@@ -83,8 +82,8 @@ public:
 public:
 	// basic breakpoint managment
 	virtual BreakpointList       backup_breakpoints() const = 0;
-	virtual IBreakpoint::pointer add_breakpoint(edb::address_t address) = 0;
-	virtual IBreakpoint::pointer find_breakpoint(edb::address_t address) = 0;
+	virtual std::shared_ptr<IBreakpoint> add_breakpoint(edb::address_t address) = 0;
+	virtual std::shared_ptr<IBreakpoint> find_breakpoint(edb::address_t address) = 0;
 	virtual void                 clear_breakpoints() = 0;
 	virtual void                 remove_breakpoint(edb::address_t address) = 0;
 

@@ -35,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugEvent.h"
 #include "IDebugger.h"
 #include "IPlugin.h"
+#include "IProcess.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"
 #include "QHexView"
@@ -170,7 +171,7 @@ public:
 	// Name: pass_back_to_debugger
 	// Desc: Makes the previous handler the event handler again and deletes this.
 	//--------------------------------------------------------------------------
-	virtual edb::EVENT_STATUS pass_back_to_debugger(const IDebugEvent::const_pointer &event) {
+	virtual edb::EVENT_STATUS pass_back_to_debugger(const std::shared_ptr<const IDebugEvent> &event) {
 		edb::EVENT_STATUS status = previous_handler_->handle_event(event);
 		edb::v1::set_debug_event_handler(previous_handler_);
 		delete this;
@@ -181,7 +182,7 @@ public:
 	// Name: handle_event
 	//--------------------------------------------------------------------------
 	//TODO: Need to handle stop/pause button
-	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event) {
+	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<const IDebugEvent> &event) {
 
 
 		State state;
@@ -214,7 +215,7 @@ public:
 
 			//Check the previous byte for 0xcc to see if it was an actual breakpoint
 			edb::address_t prev_address = address - 1;
-			IBreakpoint::pointer bp = edb::v1::find_breakpoint(prev_address);
+			std::shared_ptr<IBreakpoint> bp = edb::v1::find_breakpoint(prev_address);
 
 			//If there was a bp there, then we hit a block terminator as part of our RunUntilRet
 			//algorithm, or it is a user-set breakpoint.
@@ -277,13 +278,13 @@ public:
 									QString(inst.mnemonic().c_str())).arg(
 									address, 0, 16);
 					//If we already had a breakpoint there, then just continue.
-					if (IBreakpoint::pointer bp = edb::v1::debugger_core->find_breakpoint(address)) {
+					if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->find_breakpoint(address)) {
 						qDebug() << QString("Already a breakpoint at terminator 0x%1").arg(address, 0, 16);
 						return edb::DEBUG_CONTINUE;
 					}
 
 					//Otherwise, attempt to set a breakpoint there and continue.
-					if (IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(address)) {
+					if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->add_breakpoint(address)) {
 						qDebug() << QString("Setting breakpoint at terminator 0x%1").arg(address, 0, 16);
 						bp->set_internal(true);
 						bp->set_one_time(true); //If the 0xcc get's rm'd on next event, then
@@ -330,7 +331,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 		del_tab_(0),
 		tty_proc_(new QProcess(this)),
 		gui_state_(TERMINATED),
-		stack_view_info_(IRegion::pointer()),
+		stack_view_info_(std::shared_ptr<IRegion>()),
 		arguments_dialog_(new DialogArguments),
 		timer_(new QTimer(this)),
 		recent_file_manager_(new RecentFileManager(this)),
@@ -655,7 +656,7 @@ int Debugger::current_tab() const {
 // Name: current_data_view_info
 // Desc:
 //------------------------------------------------------------------------------
-DataViewInfo::pointer Debugger::current_data_view_info() const {
+std::shared_ptr<DataViewInfo> Debugger::current_data_view_info() const {
 	return data_regions_[current_tab()];
 }
 
@@ -677,7 +678,7 @@ void Debugger::delete_data_tab() {
 	// get a pointer to the info we need (before removing it from the list!)
 	// this seems redundant to current_data_view_info(), but we need the
 	// index too, so may as well waste one line to avoid duplicate work
-	DataViewInfo::pointer info = data_regions_[current];
+	std::shared_ptr<DataViewInfo> info = data_regions_[current];
 
 	// remove it from the list
 	data_regions_.remove(current);
@@ -694,7 +695,7 @@ void Debugger::create_data_tab() {
 	const int current = current_tab();
 
 	// duplicate the current region
-	auto new_data_view = std::make_shared<DataViewInfo>((current != -1) ? data_regions_[current]->region : IRegion::pointer());
+	auto new_data_view = std::make_shared<DataViewInfo>((current != -1) ? data_regions_[current]->region : std::shared_ptr<IRegion>());
 
 	auto hexview = std::make_shared<QHexView>();
 
@@ -1095,7 +1096,7 @@ void Debugger::apply_default_fonts() {
 	}
 
 	if(font.fromString(config.data_font)) {
-		for(const DataViewInfo::pointer &data_view: data_regions_) {
+		for(const std::shared_ptr<DataViewInfo> &data_view: data_regions_) {
 			data_view->view->setFont(font);
 		}
 	}
@@ -1179,7 +1180,7 @@ void Debugger::toggle_flag(int pos)
 
 	// Get the state and get the flag register
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 			State state;
 			thread->get_state(&state);
 			edb::reg_t flags = state.flags();
@@ -1231,7 +1232,7 @@ void Debugger::apply_default_show_separator() {
 
 	ui.cpuView->setShowAddressSeparator(show);
 	stack_view_->setShowAddressSeparator(show);
-	for(const DataViewInfo::pointer &data_view: data_regions_) {
+	for(const std::shared_ptr<DataViewInfo> &data_view: data_regions_) {
 		data_view->view->setShowAddressSeparator(show);
 	}
 }
@@ -1267,7 +1268,7 @@ template <class F1, class F2>
 void Debugger::step_over(F1 run_func, F2 step_func) {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 			State state;
 			thread->get_state(&state);
 
@@ -1279,7 +1280,7 @@ void Debugger::step_over(F1 run_func, F2 step_func) {
 
 					// add a temporary breakpoint at the instruction just
 					// after the call
-					if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(ip + inst.size())) {
+					if(std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->add_breakpoint(ip + inst.size())) {
 						bp->set_internal(true);
 						bp->set_one_time(true);
 						bp->tag = stepover_bp_tag;
@@ -1329,7 +1330,7 @@ void Debugger::follow_register_in_dump(bool tabbed) {
 //------------------------------------------------------------------------------
 void Debugger::mnuStackGotoESP() {
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 			State state;
 			thread->get_state(&state);
 			follow_memory(state.stack_pointer(), [](edb::address_t address) {
@@ -1345,7 +1346,7 @@ void Debugger::mnuStackGotoESP() {
 //------------------------------------------------------------------------------
 void Debugger::mnuStackGotoEBP() {
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 			State state;
 			thread->get_state(&state);
 			follow_memory(state.frame_pointer(), [](edb::address_t address) {
@@ -1361,7 +1362,7 @@ void Debugger::mnuStackGotoEBP() {
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUJumpToEIP() {
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 			State state;
 			thread->get_state(&state);
 			follow_memory(state.instruction_pointer(), [](edb::address_t address) {
@@ -1575,7 +1576,7 @@ void Debugger::mnuStackPush() {
 					   make_Register("",edb::value64(0),Register::TYPE_GPR));
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 			State state;
 			thread->get_state(&state);
 
@@ -1599,7 +1600,7 @@ void Debugger::mnuStackPush() {
 //------------------------------------------------------------------------------
 void Debugger::mnuStackPop() {
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 			State state;
 			thread->get_state(&state);
 			edb::v1::pop_value(&state);
@@ -1893,7 +1894,7 @@ void Debugger::mnuCPURemoveComment() {
 //------------------------------------------------------------------------------
 void Debugger::run_to_this_line(bool pass_signal) {
 	const edb::address_t address = ui.cpuView->selectedAddress();
-	IBreakpoint::pointer bp = edb::v1::find_breakpoint(address);
+	std::shared_ptr<IBreakpoint> bp = edb::v1::find_breakpoint(address);
 	if(!bp) {
 		bp = edb::v1::create_breakpoint(address);
 		if(!bp) return;
@@ -2003,7 +2004,7 @@ void Debugger::mnuCPULabelAddress() {
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUSetEIP() {
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 			const edb::address_t address = ui.cpuView->selectedAddress();
 			State state;
 			thread->get_state(&state);
@@ -2119,7 +2120,7 @@ edb::EVENT_STATUS Debugger::handle_trap() {
 
 	// look it up in our breakpoint list, make sure it is one of OUR int3s!
 	// if it is, we need to backup EIP and pause ourselves
-	IBreakpoint::pointer bp = edb::v1::find_breakpoint(previous_ip);
+	std::shared_ptr<IBreakpoint> bp = edb::v1::find_breakpoint(previous_ip);
 	if(bp && bp->enabled()) {
 
 		// TODO: check if the breakpoint was corrupted?
@@ -2180,7 +2181,7 @@ edb::EVENT_STATUS Debugger::handle_trap() {
 // Name: handle_event_stopped
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::handle_event_stopped(const IDebugEvent::const_pointer &event) {
+edb::EVENT_STATUS Debugger::handle_event_stopped(const std::shared_ptr<const IDebugEvent> &event) {
 
 	// ok we just came in from a stop, we need to test some things,
 	// generally, we will want to check if it was a step, if it was, was it
@@ -2259,7 +2260,7 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const IDebugEvent::const_pointe
 // Name: handle_event_terminated
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::handle_event_terminated(const IDebugEvent::const_pointer &event) {
+edb::EVENT_STATUS Debugger::handle_event_terminated(const std::shared_ptr<const IDebugEvent> &event) {
 	on_action_Detach_triggered();
 	QMessageBox::information(
 		this,
@@ -2273,7 +2274,7 @@ edb::EVENT_STATUS Debugger::handle_event_terminated(const IDebugEvent::const_poi
 // Name: handle_event_exited
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::handle_event_exited(const IDebugEvent::const_pointer &event) {
+edb::EVENT_STATUS Debugger::handle_event_exited(const std::shared_ptr<const IDebugEvent> &event) {
 	on_action_Detach_triggered();
 	QMessageBox::information(
 		this,
@@ -2287,7 +2288,7 @@ edb::EVENT_STATUS Debugger::handle_event_exited(const IDebugEvent::const_pointer
 // Name: handle_event
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::handle_event(const IDebugEvent::const_pointer &event) {
+edb::EVENT_STATUS Debugger::handle_event(const std::shared_ptr<const IDebugEvent> &event) {
 
 	Q_ASSERT(edb::v1::debugger_core);
 
@@ -2332,7 +2333,7 @@ edb::EVENT_STATUS Debugger::handle_event(const IDebugEvent::const_pointer &event
 // Name: debug_event_handler
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::debug_event_handler(const IDebugEvent::const_pointer &event) {
+edb::EVENT_STATUS Debugger::debug_event_handler(const std::shared_ptr<const IDebugEvent> &event) {
 	IDebugEventHandler *const handler = edb::v1::debug_event_handler();
 	Q_ASSERT(handler);
 	return handler->handle_event(event);
@@ -2357,7 +2358,7 @@ void Debugger::update_tab_caption(const std::shared_ptr<QHexView> &view, edb::ad
 // Name: update_data
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::update_data(const DataViewInfo::pointer &v) {
+void Debugger::update_data(const std::shared_ptr<DataViewInfo> &v) {
 
 	Q_ASSERT(v);
 
@@ -2374,7 +2375,7 @@ void Debugger::update_data(const DataViewInfo::pointer &v) {
 // Name: clear_data
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::clear_data(const DataViewInfo::pointer &v) {
+void Debugger::clear_data(const std::shared_ptr<DataViewInfo> &v) {
 
 	Q_ASSERT(v);
 
@@ -2392,7 +2393,7 @@ void Debugger::clear_data(const DataViewInfo::pointer &v) {
 // Name: do_jump_to_address
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::do_jump_to_address(edb::address_t address, const IRegion::pointer &r, bool scrollTo) {
+void Debugger::do_jump_to_address(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scrollTo) {
 
 	ui.cpuView->setAddressOffset(r->start());
 	ui.cpuView->setRegion(r);
@@ -2406,7 +2407,7 @@ void Debugger::do_jump_to_address(edb::address_t address, const IRegion::pointer
 // Name: update_disassembly
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::update_disassembly(edb::address_t address, const IRegion::pointer &r) {
+void Debugger::update_disassembly(edb::address_t address, const std::shared_ptr<IRegion> &r) {
 	ui.cpuView->setCurrentAddress(address);
 	do_jump_to_address(address, r, true);
 	list_model_->setStringList(edb::v1::arch_processor().update_instruction_info(address));
@@ -2427,18 +2428,18 @@ void Debugger::update_stack_view(const State &state) {
 // Name: update_cpu_view
 // Desc:
 //------------------------------------------------------------------------------
-IRegion::pointer Debugger::update_cpu_view(const State &state) {
+std::shared_ptr<IRegion> Debugger::update_cpu_view(const State &state) {
 
 	const edb::address_t address = state.instruction_pointer();
 
-	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
+	if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().find_region(address)) {
 		update_disassembly(address, region);
 		return region;
 	} else {
 		ui.cpuView->clear();
 		ui.cpuView->scrollTo(0);
 		list_model_->setStringList(QStringList());
-		return IRegion::pointer();
+		return std::shared_ptr<IRegion>();
 	}
 }
 
@@ -2449,7 +2450,7 @@ IRegion::pointer Debugger::update_cpu_view(const State &state) {
 void Debugger::update_data_views() {
 
 	// update all data views with the current region data
-	for(const DataViewInfo::pointer &info: data_regions_) {
+	for(const std::shared_ptr<DataViewInfo> &info: data_regions_) {
 
 		// make sure the regions are still valid..
 		if(info->region && edb::v1::memory_regions().find_region(info->region->start())) {
@@ -2469,7 +2470,7 @@ void Debugger::refresh_gui() {
 	ui.cpuView->update();
 	stack_view_->update();
 
-	for(const DataViewInfo::pointer &info: data_regions_) {
+	for(const std::shared_ptr<DataViewInfo> &info: data_regions_) {
 		info->view->update();
 	}
 
@@ -2477,7 +2478,7 @@ void Debugger::refresh_gui() {
 		State state;
 
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(IThread::pointer thread = process->current_thread()) {
+			if(std::shared_ptr<IThread> thread = process->current_thread()) {
 				thread->get_state(&state);
 			}
 		}
@@ -2496,7 +2497,7 @@ void Debugger::update_gui() {
 
 		State state;
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(IThread::pointer thread = process->current_thread()) {
+			if(std::shared_ptr<IThread> thread = process->current_thread()) {
 				thread->get_state(&state);
 			}
 		}
@@ -2504,7 +2505,7 @@ void Debugger::update_gui() {
 		update_data_views();
 		update_stack_view(state);
 
-		if(const IRegion::pointer region = update_cpu_view(state)) {
+		if(const std::shared_ptr<IRegion> region = update_cpu_view(state)) {
 			edb::v1::arch_processor().update_register_view(region->name(), state);
 		} else {
 			edb::v1::arch_processor().update_register_view(QString(), state);
@@ -2540,14 +2541,14 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 	Q_ASSERT(edb::v1::debugger_core);
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 
 			// if necessary pass the trap to the application, otherwise just resume
 			// as normal
 			const edb::EVENT_STATUS status = resume_status(pass_exception == PASS_EXCEPTION);
 
 			// if we are on a breakpoint, disable it
-			IBreakpoint::pointer bp;
+			std::shared_ptr<IBreakpoint> bp;
 			if(!forced) {
 				State state;
 				thread->get_state(&state);
@@ -2700,7 +2701,7 @@ void Debugger::cleanup_debugger() {
 	ui.tabWidget->setData(0, QString());
 
 	Q_ASSERT(!data_regions_.isEmpty());
-	data_regions_.first()->region = IRegion::pointer();
+	data_regions_.first()->region = std::shared_ptr<IRegion>();
 
 	Q_EMIT(detachEvent());
 
@@ -2849,7 +2850,7 @@ void Debugger::set_initial_breakpoint(const QString &s) {
 
 	if(edb::v1::config().initial_breakpoint == Configuration::MainSymbol) {
 		const QString mainSymbol = QFileInfo(s).fileName() + "!main";
-		const Symbol::pointer sym = edb::v1::symbol_manager().find(mainSymbol);
+		const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(mainSymbol);
 
 		if(sym) {
 			entryPoint = sym->address;
@@ -2865,7 +2866,7 @@ void Debugger::set_initial_breakpoint(const QString &s) {
 	}
 
 	if(entryPoint != 0) {
-		if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(entryPoint)) {
+		if(std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->add_breakpoint(entryPoint)) {
 			bp->set_one_time(true);
 			bp->set_internal(true);
 			bp->tag = initial_bp_tag;
@@ -2910,12 +2911,12 @@ void Debugger::setup_data_views() {
 	// Setup data views according to debuggee bitness
 	if(edb::v1::debuggeeIs64Bit()) {
 		stack_view_->setAddressSize(QHexView::Address64);
-		for(const DataViewInfo::pointer &data_view: data_regions_) {
+		for(const std::shared_ptr<DataViewInfo> &data_view: data_regions_) {
 			data_view->view->setAddressSize(QHexView::Address64);
 		}
 	} else {
 		stack_view_->setAddressSize(QHexView::Address32);
-		for(const DataViewInfo::pointer &data_view: data_regions_) {
+		for(const std::shared_ptr<DataViewInfo> &data_view: data_regions_) {
 			data_view->view->setAddressSize(QHexView::Address32);
 		}
 	}
@@ -3204,7 +3205,7 @@ void Debugger::on_action_Plugins_triggered() {
 //------------------------------------------------------------------------------
 bool Debugger::jump_to_address(edb::address_t address) {
 
-	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
+	if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().find_region(address)) {
 		do_jump_to_address(address, region, true);
 		return true;
 	}
@@ -3218,13 +3219,13 @@ bool Debugger::jump_to_address(edb::address_t address) {
 //------------------------------------------------------------------------------
 bool Debugger::dump_data_range(edb::address_t address, edb::address_t end_address, bool new_tab) {
 
-	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
+	if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().find_region(address)) {
 		if(new_tab) {
 			mnuDumpCreateTab();
 		}
 
-		if(DataViewInfo::pointer info = current_data_view_info()) {
-			info->region = IRegion::pointer(region->clone());
+		if(std::shared_ptr<DataViewInfo> info = current_data_view_info()) {
+			info->region = std::shared_ptr<IRegion>(region->clone());
 
 			if(info->region->contains(end_address)) {
 				info->region->set_end(end_address);
@@ -3248,12 +3249,12 @@ bool Debugger::dump_data_range(edb::address_t address, edb::address_t end_addres
 //------------------------------------------------------------------------------
 bool Debugger::dump_data(edb::address_t address, bool new_tab) {
 
-	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
+	if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().find_region(address)) {
 		if(new_tab) {
 			mnuDumpCreateTab();
 		}
 
-		DataViewInfo::pointer info = current_data_view_info();
+		std::shared_ptr<DataViewInfo> info = current_data_view_info();
 
 		if(info) {
 			info->region = region;
@@ -3271,7 +3272,7 @@ bool Debugger::dump_data(edb::address_t address, bool new_tab) {
 // Desc:
 //------------------------------------------------------------------------------
 bool Debugger::dump_stack(edb::address_t address, bool scroll_to) {
-	const IRegion::pointer last_region = stack_view_info_.region;
+	const std::shared_ptr<IRegion> last_region = stack_view_info_.region;
 	stack_view_info_.region = edb::v1::memory_regions().find_region(address);
 
 
@@ -3280,7 +3281,7 @@ bool Debugger::dump_stack(edb::address_t address, bool scroll_to) {
 		stack_view_info_.update();
 
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(IThread::pointer thread = process->current_thread()) {
+			if(std::shared_ptr<IThread> thread = process->current_thread()) {
 
 				State state;
 				thread->get_state(&state);
@@ -3343,7 +3344,7 @@ void Debugger::next_debug_event() {
 
 	Q_ASSERT(edb::v1::debugger_core);
 
-	if(IDebugEvent::const_pointer e = edb::v1::debugger_core->wait_debug_event(10)) {
+	if(std::shared_ptr<const IDebugEvent> e = edb::v1::debugger_core->wait_debug_event(10)) {
 
 		last_event_ = e;
 
@@ -3365,7 +3366,7 @@ void Debugger::next_debug_event() {
 						if(r_brk) {
 							// TODO(eteran): this is equivalent to ld-2.23.so!_dl_debug_state
 							// maybe we should prefer setting this by symbol if possible?
-							if(IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(r_brk)) {
+							if(std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->add_breakpoint(r_brk)) {
 								bp->set_internal(true);
 								bp->tag = ld_loader_tag;
 								dynamic_info_bp_set_ = true;

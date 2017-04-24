@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "HardwareBreakpoints.h"
 #include "edb.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "DialogHWBreakpoints.h"
 #include "State.h"
 
@@ -155,7 +156,7 @@ void HardwareBreakpoints::setupBreakpoints() {
 				old_event_handler_ = edb::v1::set_debug_event_handler(this);
 			}
 
-			for(IThread::pointer thread : process->threads()) {
+			for(std::shared_ptr<IThread> thread : process->threads()) {
 				State state;
 				thread->get_state(&state);
 
@@ -180,7 +181,7 @@ void HardwareBreakpoints::setupBreakpoints() {
 
 		} else {
 
-			for(IThread::pointer thread : process->threads()) {
+			for(std::shared_ptr<IThread> thread : process->threads()) {
 				State state;
 				thread->get_state(&state);
 				state.set_debug_register(7, 0);
@@ -215,12 +216,12 @@ void HardwareBreakpoints::show_menu() {
 // Desc: this hooks the debug event handler so we can make the breakpoints
 //       able to be resumed
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS HardwareBreakpoints::handle_event(const IDebugEvent::const_pointer &event) {
+edb::EVENT_STATUS HardwareBreakpoints::handle_event(const std::shared_ptr<const IDebugEvent> &event) {
 
 	if(event->stopped() && event->is_trap()) {
 
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(IThread::pointer thread = process->current_thread()) {
+			if(std::shared_ptr<IThread> thread = process->current_thread()) {
 				// check DR6 to see if it was a HW BP event
 				// if so, set the resume flag
 				State state;
@@ -376,7 +377,7 @@ void HardwareBreakpoints::setExecuteBP(int index, bool inUse) {
 
 		edb::address_t address = edb::v1::cpu_selected_address();
 
-		for(IThread::pointer thread : process->threads()) {
+		for(std::shared_ptr<IThread> thread : process->threads()) {
 			State state;
 			thread->get_state(&state);
 			setBreakpointState(&state, index, { true, address, 0, 0 });
@@ -407,7 +408,7 @@ void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t addre
 			}
 		}
 
-		for(IThread::pointer thread : process->threads()) {
+		for(std::shared_ptr<IThread> thread : process->threads()) {
 			State state;
 			thread->get_state(&state);
 
@@ -456,7 +457,7 @@ void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t a
 			}
 		}
 
-		for(IThread::pointer thread : process->threads()) {
+		for(std::shared_ptr<IThread> thread : process->threads()) {
 			State state;
 			thread->get_state(&state);
 

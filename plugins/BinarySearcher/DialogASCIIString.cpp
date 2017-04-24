@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogASCIIString.h"
 #include "edb.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "MemoryRegions.h"
 #include "State.h"
 #include "Util.h"
@@ -65,13 +66,13 @@ void DialogASCIIString::do_find() {
 		edb::v1::memory_regions().sync();
 
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(IThread::pointer thread = process->current_thread()) {
+			if(std::shared_ptr<IThread> thread = process->current_thread()) {
 
 				State state;
 				thread->get_state(&state);
 				edb::address_t stack_ptr = state.stack_pointer();
 
-				if(IRegion::pointer region = edb::v1::memory_regions().find_region(stack_ptr)) {
+				if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().find_region(stack_ptr)) {
 
 					edb::address_t count = (region->end() - stack_ptr) / edb::v1::pointer_size();
 					stack_ptr = region->start();

@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DataViewInfo
 // Desc:
 //------------------------------------------------------------------------------
-DataViewInfo::DataViewInfo(const IRegion::pointer &r) : region(r), stream(new RegionBuffer(r)) {
+DataViewInfo::DataViewInfo(const std::shared_ptr<IRegion> &r) : region(r), stream(new RegionBuffer(r)) {
 }
 
 //------------------------------------------------------------------------------

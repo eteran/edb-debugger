@@ -26,8 +26,6 @@ class State;
 
 class IThread {
 public:
-	typedef std::shared_ptr<IThread> pointer;
-public:
 	virtual ~IThread() {}
 
 public:

@@ -26,10 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class EDB_EXPORT IDebugEvent {
 public:
-	typedef std::shared_ptr<IDebugEvent>       pointer;
-	typedef std::shared_ptr<const IDebugEvent> const_pointer;
-
-public:
 	enum REASON {
 		EVENT_EXITED,     // exited normally
 		EVENT_TERMINATED, // terminated by event

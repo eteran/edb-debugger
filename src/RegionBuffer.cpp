@@ -19,12 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RegionBuffer.h"
 #include "edb.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 
 //------------------------------------------------------------------------------
 // Name: RegionBuffer
 // Desc:
 //------------------------------------------------------------------------------
-RegionBuffer::RegionBuffer(const IRegion::pointer &region) : QIODevice(), region_(region) {
+RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region) : QIODevice(), region_(region) {
 	setOpenMode(QIODevice::ReadOnly);
 }
 
@@ -32,7 +33,7 @@ RegionBuffer::RegionBuffer(const IRegion::pointer &region) : QIODevice(), region
 // Name: RegionBuffer
 // Desc:
 //------------------------------------------------------------------------------
-RegionBuffer::RegionBuffer(const IRegion::pointer &region, QObject *parent) : QIODevice(parent), region_(region) {
+RegionBuffer::RegionBuffer(const std::shared_ptr<IRegion> &region, QObject *parent) : QIODevice(parent), region_(region) {
 	setOpenMode(QIODevice::ReadOnly);
 }
 
@@ -40,7 +41,7 @@ RegionBuffer::RegionBuffer(const IRegion::pointer &region, QObject *parent) : QI
 // Name: set_region
 // Desc:
 //------------------------------------------------------------------------------
-void RegionBuffer::set_region(const IRegion::pointer &region) {
+void RegionBuffer::set_region(const std::shared_ptr<IRegion> &region) {
 	region_ = region;
 	reset();
 }

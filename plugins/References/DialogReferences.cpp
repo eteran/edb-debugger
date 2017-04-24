@@ -77,10 +77,10 @@ void DialogReferences::do_find() {
 
 	if(ok) {
 		edb::v1::memory_regions().sync();
-		const QList<IRegion::pointer> regions = edb::v1::memory_regions().regions();
+		const QList<std::shared_ptr<IRegion>> regions = edb::v1::memory_regions().regions();
 
 		int i = 0;
-		for(const IRegion::pointer &region: regions) {
+		for(const std::shared_ptr<IRegion> &region: regions) {
 			// a short circut for speading things up
 			if(region->accessible() || !ui->chkSkipNoAccess->isChecked()) {
 

@@ -1,7 +1,26 @@
+/*
+Copyright (C) 2006 - 2015 Evan Teran
+                          evan.teran@gmail.com
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 2 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+*/
+
 #include "ELFXX.h"
 #include "elf/elf_phdr.h"
 #include "ByteShiftArray.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "Util.h"
 #include "edb.h"
 #include "string_hash.h"
@@ -19,7 +38,7 @@ ELFBinaryException::ELFBinaryException(reasonEnum reason): reason_(reason) {}
 const char * ELFBinaryException::what() { return "TODO"; }
 
 template<typename elfxx_header>
-ELFXX<elfxx_header>::ELFXX(const IRegion::pointer &region) : region_(region) {
+ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region) : region_(region) {
 	if (!region_) {
 		throw ELFBinaryException(ELFBinaryException::reasonEnum::INVALID_ARGUMENTS);
 	}

@@ -125,7 +125,7 @@ void DialogFunctions::do_find() {
 			const QModelIndex index = filter_model_->mapToSource(selected_item);
 
 			// do the search for this region!
-			if(auto region = *reinterpret_cast<const IRegion::pointer *>(index.internalPointer())) {
+			if(auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
 
 				analyzer->analyze(region);
 

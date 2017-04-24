@@ -66,7 +66,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 
 	Q_UNUSED(event);
 
-	const IRegion::pointer region = edb::v1::current_cpu_view_region();
+	const std::shared_ptr<IRegion> region = edb::v1::current_cpu_view_region();
 	if (!region || region->size() == 0) {
 		return;
 	}
@@ -150,7 +150,7 @@ void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
 
 	mouse_pressed_ = true;
 
-	if(const IRegion::pointer region = edb::v1::current_cpu_view_region()) {
+	if(const std::shared_ptr<IRegion> region = edb::v1::current_cpu_view_region()) {
 		const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
 		if(region->size() != 0 && !functions.empty()) {
 			const auto byte_width = static_cast<float>(width()) / region->size();

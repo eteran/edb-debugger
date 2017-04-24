@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "IDebugger.h"
 #include "Instruction.h"
+#include "IProcess.h"
 #include "edb.h"
 
 #include <QString>

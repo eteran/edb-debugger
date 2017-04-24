@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SpecifiedFunctions.h"
 #include "IBinary.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "ISymbolManager.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"
@@ -70,7 +71,7 @@ const int MIN_REFCOUNT = 2;
 // Name: module_entry_point
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t module_entry_point(const IRegion::pointer &region) {
+edb::address_t module_entry_point(const std::shared_ptr<IRegion> &region) {
 
 	edb::address_t entry = 0;
 	if(auto binary_info = edb::v1::get_binary_info(region)) {
@@ -161,12 +162,12 @@ void Analyzer::show_specified() {
 //------------------------------------------------------------------------------
 void Analyzer::do_ip_analysis() {
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 			State state;
 			thread->get_state(&state);
 
 			const edb::address_t address = state.instruction_pointer();
-			if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
+			if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().find_region(address)) {
 				do_analysis(region);
 			}
 		}
@@ -188,7 +189,7 @@ void Analyzer::do_view_analysis() {
 void Analyzer::mark_function_start() {
 
 	const edb::address_t address = edb::v1::cpu_selected_address();
-	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
+	if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().find_region(address)) {
 		qDebug("Added %s to the list of known functions",qPrintable(address.toPointerString()));
 		specified_functions_.insert(address);
 		invalidate_dynamic_analysis(region);
@@ -261,7 +262,7 @@ QList<QAction *> Analyzer::cpu_context_menu() {
 // Name: do_analysis
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::do_analysis(const IRegion::pointer &region) {
+void Analyzer::do_analysis(const std::shared_ptr<IRegion> &region) {
 	if(region && region->size() != 0) {
 		QProgressDialog progress(tr("Performing Analysis"), 0, 0, 100, edb::v1::debugger_ui);
 		connect(this, SIGNAL(update_progress(int)), &progress, SLOT(setValue(int)));
@@ -299,9 +300,9 @@ void Analyzer::bonus_symbols(RegionData *data) {
 	Q_ASSERT(data);
 
 	// give bonus if we have a symbol for the address
-	const QList<Symbol::pointer> symbols = edb::v1::symbol_manager().symbols();
+	const QList<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().symbols();
 
-	for(const Symbol::pointer &sym: symbols) {
+	for(const std::shared_ptr<Symbol> &sym: symbols) {
 		const edb::address_t addr = sym->address;
 
 		if(data->region->contains(addr) && sym->is_code()) {
@@ -597,7 +598,7 @@ void Analyzer::collect_fuzzy_functions(RegionData *data) {
 // Name: analyze
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::analyze(const IRegion::pointer &region) {
+void Analyzer::analyze(const std::shared_ptr<IRegion> &region) {
 
 	QTime t;
 	t.start();
@@ -692,7 +693,7 @@ IAnalyzer::AddressCategory Analyzer::category(edb::address_t address) const {
 // Name: functions
 // Desc:
 //------------------------------------------------------------------------------
-IAnalyzer::FunctionMap Analyzer::functions(const IRegion::pointer &region) const {
+IAnalyzer::FunctionMap Analyzer::functions(const std::shared_ptr<IRegion> &region) const {
 	return analysis_info_[region->start()].functions;
 }
 
@@ -716,7 +717,7 @@ bool Analyzer::find_containing_function(edb::address_t address, Function *functi
 
 	Q_ASSERT(function);
 
-	if(IRegion::pointer region = edb::v1::memory_regions().find_region(address)) {
+	if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().find_region(address)) {
 		const FunctionMap &funcs = functions(region);
 
 		// upperBound returns the first item that is >= address here, or end().
@@ -755,7 +756,7 @@ bool Analyzer::find_containing_function(edb::address_t address, Function *functi
 // false if the iteration was halted early.
 //------------------------------------------------------------------------------
 bool Analyzer::for_funcs_in_range(const edb::address_t start, const edb::address_t end, std::function<bool(const Function*)> functor) const {
-	if (IRegion::pointer region = edb::v1::memory_regions().find_region(start)) {
+	if (std::shared_ptr<IRegion> region = edb::v1::memory_regions().find_region(start)) {
 		const FunctionMap &funcs = functions(region);
 		auto it = funcs.lowerBound(start - 4096);
 
@@ -808,7 +809,7 @@ void Analyzer::bonus_entry_point(RegionData *data) const {
 // Name: invalidate_analysis
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::invalidate_analysis(const IRegion::pointer &region) {
+void Analyzer::invalidate_analysis(const std::shared_ptr<IRegion> &region) {
 	invalidate_dynamic_analysis(region);
 	for(const edb::address_t addr: specified_functions_) {
 		if(addr >= region->start() && addr < region->end()) {
@@ -821,7 +822,7 @@ void Analyzer::invalidate_analysis(const IRegion::pointer &region) {
 // Name: invalidate_dynamic_analysis
 // Desc:
 //------------------------------------------------------------------------------
-void Analyzer::invalidate_dynamic_analysis(const IRegion::pointer &region) {
+void Analyzer::invalidate_dynamic_analysis(const std::shared_ptr<IRegion> &region) {
 
 	RegionData info;
 	info.region = region;
@@ -859,7 +860,7 @@ Result<edb::address_t> Analyzer::find_containing_function(edb::address_t address
 //------------------------------------------------------------------------------
 bool Analyzer::will_return(edb::address_t address) const {
 
-	const Symbol::pointer symbol = edb::v1::symbol_manager().find(address);
+	const std::shared_ptr<Symbol> symbol = edb::v1::symbol_manager().find(address);
 	if(symbol) {
 		const QString symname = symbol->name_no_prefix;
 		const QString func_name = symname.mid(0, symname.indexOf("@"));
@@ -884,7 +885,7 @@ bool Analyzer::will_return(edb::address_t address) const {
 // Desc:
 //------------------------------------------------------------------------------
 
-QString Analyzer::get_analysis_path(const IRegion::pointer &region) const {
+QString Analyzer::get_analysis_path(const std::shared_ptr<IRegion> &region) const {
 	if (region->name().isEmpty()) {
 		return QString();
 	}
@@ -901,9 +902,9 @@ QString Analyzer::get_analysis_path(const IRegion::pointer &region) const {
 	edb::address_t base_address = 0;
 	edb::address_t loaded_address = 0;
 	{
-		QList<IRegion::pointer> regions = edb::v1::memory_regions().regions();
+		QList<std::shared_ptr<IRegion>> regions = edb::v1::memory_regions().regions();
 		bool base_addr_found = false;
-		for(const IRegion::pointer iregion: regions) {
+		for(const std::shared_ptr<IRegion> iregion: regions) {
 			if (iregion->name() == region->name()) {
 				if(auto binary_info = edb::v1::get_binary_info(iregion)) {
 					base_address = binary_info->base_address();

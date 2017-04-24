@@ -25,11 +25,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class RegionBuffer : public QIODevice {
 	Q_OBJECT
 public:
-	RegionBuffer(const IRegion::pointer &region);
-	RegionBuffer(const IRegion::pointer &region, QObject *parent);
+	RegionBuffer(const std::shared_ptr<IRegion> &region);
+	RegionBuffer(const std::shared_ptr<IRegion> &region, QObject *parent);
 
 public:
-	void set_region(const IRegion::pointer &region);
+	void set_region(const std::shared_ptr<IRegion> &region);
 
 public:
 	virtual qint64 readData(char * data, qint64 maxSize);
@@ -38,7 +38,7 @@ public:
 	virtual bool isSequential() const { return false; }
 
 private:
-	IRegion::pointer region_;
+	std::shared_ptr<IRegion> region_;
 };
 
 #endif

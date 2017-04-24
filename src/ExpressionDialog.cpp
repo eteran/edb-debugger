@@ -30,10 +30,10 @@ ExpressionDialog::ExpressionDialog(const QString &title, const QString prompt) :
 	connect(&expression_, SIGNAL(textChanged(const QString&)), this, SLOT(on_text_changed(const QString&)));
 	expression_.selectAll();
 
-	QList<Symbol::pointer> symbols = edb::v1::symbol_manager().symbols();
+	QList<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().symbols();
 	QList<QString> allLabels;
 
-	for(const Symbol::pointer &sym: symbols)
+	for(const std::shared_ptr<Symbol> &sym: symbols)
 	{
 		allLabels.append(sym->name_no_prefix);
 	}

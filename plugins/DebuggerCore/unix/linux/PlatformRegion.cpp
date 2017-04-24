@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "IDebugger.h"
 #include "State.h"
+#include "IProcess.h"
 #include "IDebugEventHandler.h"
 #include <QMessageBox>
 #include <sys/mman.h>
@@ -62,7 +63,7 @@ public:
 	bool restore();
 
 public:
-	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event);
+	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<const IDebugEvent> &event);
 
 public:
 	QAtomicInt             lock_;
@@ -93,7 +94,7 @@ template <size_t N>
 bool BackupInfo<N>::backup() {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 			thread->get_state(&state_);
 		}
 		return process->read_bytes(address_, buffer_, N);
@@ -110,7 +111,7 @@ template <size_t N>
 bool BackupInfo<N>::restore() {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 			thread->set_state(state_);
 		}
 
@@ -125,7 +126,7 @@ bool BackupInfo<N>::restore() {
 // Desc:
 //------------------------------------------------------------------------------
 template <size_t N>
-edb::EVENT_STATUS BackupInfo<N>::handle_event(const IDebugEvent::const_pointer &event) {
+edb::EVENT_STATUS BackupInfo<N>::handle_event(const std::shared_ptr<const IDebugEvent> &event) {
 	Q_UNUSED(event);
 
 	lock_.testAndSetRelease(1, 0);
@@ -214,10 +215,10 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 	edb::address_t temp_address        = 0;
 	int count                          = 0;
 	int ret                            = QMessageBox::Yes;
-	const QList<IRegion::pointer> &regions = edb::v1::memory_regions().regions();
+	const QList<std::shared_ptr<IRegion>> &regions = edb::v1::memory_regions().regions();
 
 	// search for an executable region to run our shell code
-	for(const IRegion::pointer &region: regions) {
+	for(const std::shared_ptr<IRegion> &region: regions) {
 		if(region->executable()) {
 			if(temp_address == 0) {
 				temp_address = region->start();
@@ -231,7 +232,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 
 	if(executable() && count == 1 && !execute) {
 		ret = QMessageBox::question(0,
-			tr("Removing Execute Permissions On Last Executable IRegion::pointer"),
+			tr("Removing Execute Permissions On Last Executable std::shared_ptr<IRegion>"),
 			tr("You are about to remove execute permissions from the last executable region. Because of the need "
 			"to run code in the process to change permissions, there will be no way to undo this. In addition, "
 			"the process will no longer be able to run as it will have no execute permissions in any regions. "
@@ -329,7 +330,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 	// end nowhere near portable code
 	typedef BackupInfo<sizeof(shellcode)> BI;
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 			try {
 				BI backup_info(temp_address, perms, this);
 

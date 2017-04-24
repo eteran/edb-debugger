@@ -313,7 +313,7 @@ long DebuggerCore::ptrace_get_event_message(edb::tid_t tid, unsigned long *messa
 // Name: handle_event
 // Desc:
 //------------------------------------------------------------------------------
-IDebugEvent::const_pointer DebuggerCore::handle_event(edb::tid_t tid, int status) {
+std::shared_ptr<const IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int status) {
 
 	// note that we have waited on this thread
 	waited_threads_.insert(tid);
@@ -434,7 +434,7 @@ void DebuggerCore::stop_threads() {
 // Desc: waits for a debug event, msecs is a timeout
 //      it will return false if an error or timeout occurs
 //------------------------------------------------------------------------------
-IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
+std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 
 	if(process_) {
 		if(!native::wait_for_sigchld(msecs)) {
@@ -617,7 +617,7 @@ void DebuggerCore::detectDebuggeeBitness() {
 void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
 	if(process_) {
-		if(IThread::pointer thread = process_->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process_->current_thread()) {
 			thread->get_state(state);
 		}
 	}
@@ -631,7 +631,7 @@ void DebuggerCore::set_state(const State &state) {
 
 	// TODO: assert that we are paused
 	if(process_) {
-		if(IThread::pointer thread = process_->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process_->current_thread()) {
 			thread->set_state(state);
 		}
 	}
@@ -805,8 +805,8 @@ IState *DebuggerCore::create_state() const {
 // Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, IProcess::pointer> DebuggerCore::enumerate_processes() const {
-	QMap<edb::pid_t, IProcess::pointer> ret;
+QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, std::shared_ptr<IProcess>> ret;
 
 	QDir proc_directory("/proc/");
 	QFileInfoList entries = proc_directory.entryInfoList(QDir::Dirs | QDir::NoDotAndDotDot);

@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ELFXX.h"
 #include "ByteShiftArray.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "Util.h"
 #include "edb.h"
 #include "string_hash.h"

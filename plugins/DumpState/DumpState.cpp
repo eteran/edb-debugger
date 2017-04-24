@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DumpState.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "Instruction.h"
 #include "OptionsPage.h"
 #include "State.h"
@@ -308,7 +309,7 @@ void DumpState::dump_data(edb::address_t address) {
 void DumpState::show_menu() {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 			State state;
 			thread->get_state(&state);
 

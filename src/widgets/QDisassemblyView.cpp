@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IAnalyzer.h"
 #include "ArchProcessor.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "ISymbolManager.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"
@@ -554,7 +555,7 @@ void QDisassemblyView::setCurrentAddress(edb::address_t address) {
 // Name: setRegion
 // Desc: sets the memory region we are viewing
 //------------------------------------------------------------------------------
-void QDisassemblyView::setRegion(const IRegion::pointer &r) {
+void QDisassemblyView::setRegion(const std::shared_ptr<IRegion> &r) {
 
 	// You may wonder when we use r's compare instead of region_
 	// well, the compare function will test if the parameter is NULL
@@ -580,7 +581,7 @@ void QDisassemblyView::setRegion(const IRegion::pointer &r) {
 // Desc: clears the display
 //------------------------------------------------------------------------------
 void QDisassemblyView::clear() {
-	setRegion(IRegion::pointer());
+	setRegion(std::shared_ptr<IRegion>());
 }
 
 //------------------------------------------------------------------------------
@@ -1655,7 +1656,7 @@ int QDisassemblyView::selectedSize() const {
 // Name: region
 // Desc:
 //------------------------------------------------------------------------------
-IRegion::pointer QDisassemblyView::region() const {
+std::shared_ptr<IRegion> QDisassemblyView::region() const {
 	return region_;
 }
 

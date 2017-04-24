@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "CallStack.h"
 #include "edb.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "IState.h"
 #include "State.h"
 #include "MemoryRegions.h"
@@ -46,7 +47,7 @@ void CallStack::get_call_stack() {
 	 */
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(IThread::pointer thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 
 			//Get the frame & stack pointers.
 			State state;
@@ -64,7 +65,7 @@ void CallStack::get_call_stack() {
 			//Make sure frame pointer is pointing in the same region as stack pointer.
 			//If not, then it's being used as a GPR, and we don't have enough info.
 			//This assumes the stack pointer is always pointing somewhere in the stack.
-			IRegion::pointer region_rsp, region_rbp;
+			std::shared_ptr<IRegion> region_rsp, region_rbp;
 			edb::v1::memory_regions().sync();
 			region_rsp = edb::v1::memory_regions().find_region(rsp);
 			region_rbp = edb::v1::memory_regions().find_region(rbp);

@@ -100,7 +100,7 @@ void SymbolManager::load_symbol_file(const QString &filename, edb::address_t bas
 // Name: find
 // Desc:
 //------------------------------------------------------------------------------
-const Symbol::pointer SymbolManager::find(const QString &name) const {
+const std::shared_ptr<Symbol> SymbolManager::find(const QString &name) const {
 
 	auto it = symbols_by_name_.find(name);
 	if(it != symbols_by_name_.end()) {
@@ -116,23 +116,23 @@ const Symbol::pointer SymbolManager::find(const QString &name) const {
 		}
 	}
 
-	return Symbol::pointer();
+	return std::shared_ptr<Symbol>();
 }
 
 //------------------------------------------------------------------------------
 // Name: find
 // Desc:
 //------------------------------------------------------------------------------
-const Symbol::pointer SymbolManager::find(edb::address_t address) const {
+const std::shared_ptr<Symbol> SymbolManager::find(edb::address_t address) const {
 	auto it = symbols_by_address_.find(address);
-	return (it != symbols_by_address_.end()) ? it.value() : Symbol::pointer();
+	return (it != symbols_by_address_.end()) ? it.value() : std::shared_ptr<Symbol>();
 }
 
 //------------------------------------------------------------------------------
 // Name: find_near_symbol
 // Desc:
 //------------------------------------------------------------------------------
-const Symbol::pointer SymbolManager::find_near_symbol(edb::address_t address) const {
+const std::shared_ptr<Symbol> SymbolManager::find_near_symbol(edb::address_t address) const {
 
 	auto it = symbols_by_address_.lowerBound(address);
 	if(it != symbols_by_address_.end()) {
@@ -141,26 +141,26 @@ const Symbol::pointer SymbolManager::find_near_symbol(edb::address_t address) co
 		if(address != it.value()->address) {
 			// not safe to backup!, return early
 			if(it == symbols_by_address_.begin()) {
-				return Symbol::pointer();
+				return std::shared_ptr<Symbol>();
 			}
 			--it;
 		}
 
-		if(const Symbol::pointer sym = it.value()) {
+		if(const std::shared_ptr<Symbol> sym = it.value()) {
 			if(address >= sym->address && address < sym->address + sym->size) {
 				return sym;
 			}
 		}
 	}
 
-	return Symbol::pointer();
+	return std::shared_ptr<Symbol>();
 }
 
 //------------------------------------------------------------------------------
 // Name: add_symbol
 // Desc:
 //------------------------------------------------------------------------------
-void SymbolManager::add_symbol(const Symbol::pointer &symbol) {
+void SymbolManager::add_symbol(const std::shared_ptr<Symbol> &symbol) {
 	Q_ASSERT(symbol);
 	symbols_.push_back(symbol);
 	symbols_by_address_[symbol->address] = symbol;
@@ -260,7 +260,7 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 // Name: symbols
 // Desc:
 //------------------------------------------------------------------------------
-const QList<Symbol::pointer> SymbolManager::symbols() const {
+const QList<std::shared_ptr<Symbol>> SymbolManager::symbols() const {
 	return symbols_;
 }
 
@@ -308,7 +308,7 @@ QString SymbolManager::find_address_name(edb::address_t address,bool prefixed) {
 		return it.value();
 	}
 
-	if(const Symbol::pointer sym = find(address)) {
+	if(const std::shared_ptr<Symbol> sym = find(address)) {
 		return prefixed ? sym->name : sym->name_no_prefix;
 	}
 

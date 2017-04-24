@@ -95,13 +95,13 @@ void DialogMemoryRegions::on_regions_table_customContextMenuRequested(const QPoi
 // Name: selected_region
 // Desc:
 //------------------------------------------------------------------------------
-IRegion::pointer DialogMemoryRegions::selected_region() const {
+std::shared_ptr<IRegion> DialogMemoryRegions::selected_region() const {
 	const QItemSelectionModel *const selModel = ui->regions_table->selectionModel();
 	const QModelIndexList sel = selModel->selectedRows();
-	IRegion::pointer ret;
+	std::shared_ptr<IRegion> ret;
 	if(sel.size() == 1) {
 		const QModelIndex index = filter_model_->mapToSource(sel[0]);
-		ret = *reinterpret_cast<IRegion::pointer *>(index.internalPointer());
+		ret = *reinterpret_cast<std::shared_ptr<IRegion> *>(index.internalPointer());
 	}
 
 	return ret;
@@ -112,7 +112,7 @@ IRegion::pointer DialogMemoryRegions::selected_region() const {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::set_permissions(bool read, bool write, bool execute) {
-	if(IRegion::pointer region = selected_region()) {
+	if(std::shared_ptr<IRegion> region = selected_region()) {
 		region->set_permissions(read, write, execute);
 		edb::v1::memory_regions().sync();
 	}
@@ -187,7 +187,7 @@ void DialogMemoryRegions::set_access_rwx() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::view_in_cpu() {
-	if(IRegion::pointer region = selected_region()) {
+	if(std::shared_ptr<IRegion> region = selected_region()) {
 		edb::v1::jump_to_address(region->start());
 	}
 }
@@ -197,7 +197,7 @@ void DialogMemoryRegions::view_in_cpu() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::view_in_stack() {
-	if(IRegion::pointer region = selected_region()) {
+	if(std::shared_ptr<IRegion> region = selected_region()) {
 		edb::v1::dump_stack(region->start(), true);
 	}
 }
@@ -207,7 +207,7 @@ void DialogMemoryRegions::view_in_stack() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::view_in_dump() {
-	if(IRegion::pointer region = selected_region()) {
+	if(std::shared_ptr<IRegion> region = selected_region()) {
 		edb::v1::dump_data(region->start(), true);
 	}
 }
@@ -218,7 +218,7 @@ void DialogMemoryRegions::view_in_dump() {
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::on_regions_table_doubleClicked(const QModelIndex &index) {
 	Q_UNUSED(index);
-	if(IRegion::pointer region = selected_region()) {
+	if(std::shared_ptr<IRegion> region = selected_region()) {
 		edb::v1::dump_data(region->start(), true);
 	}
 }

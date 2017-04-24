@@ -41,13 +41,13 @@ public:
 	virtual ~MemoryRegions();
 
 public:
-	IRegion::pointer find_region(edb::address_t address) const;
-	const QList<IRegion::pointer> &regions() const { return regions_; }
+	std::shared_ptr<IRegion> find_region(edb::address_t address) const;
+	const QList<std::shared_ptr<IRegion>> &regions() const { return regions_; }
 	void clear();
 	void sync();
 
 private:
-	QList<IRegion::pointer> regions_;
+	QList<std::shared_ptr<IRegion>> regions_;
 };
 
 #endif

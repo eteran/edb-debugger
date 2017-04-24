@@ -29,7 +29,7 @@ class ThreadsModel : public QAbstractItemModel {
 
 public:
 	struct Item {
-		IThread::pointer thread;
+		std::shared_ptr<IThread> thread;
 		bool             current;
 	};
 
@@ -46,7 +46,7 @@ public:
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
 public:
-	void addThread(const IThread::pointer &thread, bool current);
+	void addThread(const std::shared_ptr<IThread> &thread, bool current);
 	void clear();
 
 private:

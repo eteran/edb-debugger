@@ -51,7 +51,7 @@ public:
 	virtual std::size_t pointer_size() const override;
 	virtual edb::address_t page_size() const override;
 	virtual bool has_extension(quint64 ext) const override;
-	virtual IDebugEvent::const_pointer wait_debug_event(int msecs) override;
+	virtual std::shared_ptr<const IDebugEvent> wait_debug_event(int msecs) override;
 	virtual QString attach(edb::pid_t pid) override;
 	virtual void detach() override;
 	virtual void kill() override;
@@ -70,7 +70,7 @@ public:
 	virtual quint64 cpu_type() const override;
 
 private:
-	virtual QMap<edb::pid_t, IProcess::pointer> enumerate_processes() const override;
+	virtual QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerate_processes() const override;
 
 public:
 	virtual QString stack_pointer() const override;
@@ -95,12 +95,12 @@ private:
 private:
 	void reset();
 	void stop_threads();
-	IDebugEvent::const_pointer handle_event(edb::tid_t tid, int status);
+	std::shared_ptr<const IDebugEvent> handle_event(edb::tid_t tid, int status);
 	int attach_thread(edb::tid_t tid);
 	void detectDebuggeeBitness();
 
 private:
-	typedef QHash<edb::tid_t, PlatformThread::pointer> threadmap_t;
+	typedef QHash<edb::tid_t, std::shared_ptr<PlatformThread>> threadmap_t;
 
 private:
 	threadmap_t              threads_;

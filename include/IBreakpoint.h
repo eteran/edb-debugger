@@ -34,9 +34,6 @@ class breakpoint_creation_error : public std::exception {
 class QByteArray;
 
 class IBreakpoint {
-public:
-	typedef std::shared_ptr<IBreakpoint> pointer;
-
 protected:
 	IBreakpoint() : tag(0) {}
 

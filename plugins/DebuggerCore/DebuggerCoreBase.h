@@ -41,8 +41,8 @@ public:
 
 public:
 	virtual BreakpointList backup_breakpoints() const override;
-	virtual IBreakpoint::pointer add_breakpoint(edb::address_t address) override;
-	virtual IBreakpoint::pointer find_breakpoint(edb::address_t address) override;
+	virtual std::shared_ptr<IBreakpoint> add_breakpoint(edb::address_t address) override;
+	virtual std::shared_ptr<IBreakpoint> find_breakpoint(edb::address_t address) override;
 	virtual void clear_breakpoints() override;
 	virtual void remove_breakpoint(edb::address_t address) override;
 	virtual void end_debug_session() override;

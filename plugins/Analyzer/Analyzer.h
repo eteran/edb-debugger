@@ -63,13 +63,13 @@ private:
 
 public:
 	virtual AddressCategory category(edb::address_t address) const;
-	virtual FunctionMap functions(const IRegion::pointer &region) const;
+	virtual FunctionMap functions(const std::shared_ptr<IRegion> &region) const;
 	virtual FunctionMap functions() const;
 	virtual QSet<edb::address_t> specified_functions() const { return specified_functions_; }
 	virtual Result<edb::address_t> find_containing_function(edb::address_t address) const;
-	virtual void analyze(const IRegion::pointer &region);
+	virtual void analyze(const std::shared_ptr<IRegion> &region);
 	virtual void invalidate_analysis();
-	virtual void invalidate_analysis(const IRegion::pointer &region);
+	virtual void invalidate_analysis(const std::shared_ptr<IRegion> &region);
 	virtual bool for_funcs_in_range(const edb::address_t start, const edb::address_t end, std::function<bool(const Function*)> functor) const;
 
 private:
@@ -82,12 +82,12 @@ private:
 	void bonus_symbols(RegionData *data);
 	void collect_functions(RegionData *data);
 	void collect_fuzzy_functions(RegionData *data);
-	void do_analysis(const IRegion::pointer &region);
+	void do_analysis(const std::shared_ptr<IRegion> &region);
 	void ident_header(Analyzer::RegionData *data);
-	void invalidate_dynamic_analysis(const IRegion::pointer &region);
+	void invalidate_dynamic_analysis(const std::shared_ptr<IRegion> &region);
 	void set_function_types(FunctionMap *results);
 	void set_function_types_helper(Function &function) const;
-	QString get_analysis_path(const IRegion::pointer &region) const;
+	QString get_analysis_path(const std::shared_ptr<IRegion> &region) const;
 
 Q_SIGNALS:
 	void update_progress(int);
@@ -110,7 +110,7 @@ private:
 
 		QByteArray                        md5;
 		bool                              fuzzy;
-		IRegion::pointer                  region;
+		std::shared_ptr<IRegion>                  region;
 
 		// a copy of the whole region
 		QVector<quint8>                   memory;

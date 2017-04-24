@@ -81,11 +81,11 @@ EDB_EXPORT ArchProcessor &arch_processor();
 EDB_EXPORT QAbstractScrollArea *disassembly_widget();
 
 // breakpoint managment
-EDB_EXPORT IBreakpoint::pointer find_breakpoint(address_t address);
+EDB_EXPORT std::shared_ptr<IBreakpoint> find_breakpoint(address_t address);
 EDB_EXPORT QString get_breakpoint_condition(address_t address);
 EDB_EXPORT address_t disable_breakpoint(address_t address);
 EDB_EXPORT address_t enable_breakpoint(address_t address);
-EDB_EXPORT IBreakpoint::pointer create_breakpoint(address_t address);
+EDB_EXPORT std::shared_ptr<IBreakpoint> create_breakpoint(address_t address);
 EDB_EXPORT void remove_breakpoint(address_t address);
 EDB_EXPORT void set_breakpoint_condition(address_t address, const QString &condition);
 EDB_EXPORT void toggle_breakpoint(address_t address);
@@ -120,9 +120,9 @@ EDB_EXPORT bool get_utf16_string_at_address(address_t address, QString &s, int m
 // Combination of get_ascii/utf16_at_address using current user configuration. May perform more analysis types in the future
 EDB_EXPORT bool get_human_string_at_address(address_t address, QString &s);
 
-EDB_EXPORT IRegion::pointer current_cpu_view_region();
-EDB_EXPORT IRegion::pointer primary_code_region();
-EDB_EXPORT IRegion::pointer primary_data_region();
+EDB_EXPORT std::shared_ptr<IRegion> current_cpu_view_region();
+EDB_EXPORT std::shared_ptr<IRegion> primary_code_region();
+EDB_EXPORT std::shared_ptr<IRegion> primary_data_region();
 
 // configuration
 EDB_EXPORT QPointer<QDialog> dialog_options();
@@ -163,7 +163,7 @@ EDB_EXPORT int get_instruction_bytes(address_t address, quint8 (&buffer)[N]) {
 
 EDB_EXPORT QString disassemble_address(address_t address);
 
-EDB_EXPORT std::unique_ptr<IBinary> get_binary_info(const IRegion::pointer &region);
+EDB_EXPORT std::unique_ptr<IBinary> get_binary_info(const std::shared_ptr<IRegion> &region);
 EDB_EXPORT const Prototype *get_function_info(const QString &function);
 
 EDB_EXPORT address_t locate_main_function();

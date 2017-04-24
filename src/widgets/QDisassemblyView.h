@@ -53,7 +53,7 @@ protected:
 	virtual void keyPressEvent(QKeyEvent *event);
 
 public:
-	IRegion::pointer region() const;
+	std::shared_ptr<IRegion> region() const;
 	bool addressShown(edb::address_t address) const;
 	edb::address_t addressFromPoint(const QPoint &pos) const;
 	edb::address_t selectedAddress() const;
@@ -74,7 +74,7 @@ public Q_SLOTS:
 	void resizeEvent(QResizeEvent *event);
 	void scrollTo(edb::address_t address);
 	void setAddressOffset(edb::address_t address);
-	void setRegion(const IRegion::pointer &r);
+	void setRegion(const std::shared_ptr<IRegion> &r);
 	void setCurrentAddress(edb::address_t address);
 	void clear();
 	void update();
@@ -109,7 +109,7 @@ private:
 	bool get_line_of_address(edb::address_t addr, unsigned int& line) const;
 
 private:
-	IRegion::pointer                  region_;
+	std::shared_ptr<IRegion>                  region_;
 	QVector<edb::address_t>           show_addresses_;
 	SyntaxHighlighter *const          highlighter_;
 	edb::address_t                    address_offset_;

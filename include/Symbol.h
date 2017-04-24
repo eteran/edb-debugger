@@ -26,9 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class EDB_EXPORT Symbol {
 public:
-	typedef std::shared_ptr<Symbol> pointer;
-
-public:
 	QString        file;
 	QString        name;
 	QString        name_no_prefix;

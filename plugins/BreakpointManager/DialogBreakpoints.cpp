@@ -83,7 +83,7 @@ void DialogBreakpoints::updateList() {
 
 	const IDebugger::BreakpointList breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
 
-	for(const IBreakpoint::pointer &bp: breakpoint_state) {
+	for(const std::shared_ptr<IBreakpoint> &bp: breakpoint_state) {
 
 		//Skip if it's an internal bp; we don't want to insert a row for it.
 		if (bp->internal()) {
@@ -163,8 +163,8 @@ void DialogBreakpoints::on_btnAddFunction_clicked() {
     bool ok;
     const QString text = QInputDialog::getText(this, tr("Add Breakpoint On Library Function"), tr("Function Name:"), QLineEdit::Normal, QString(), &ok);
 	if(ok && !text.isEmpty()) {
-		const QList<Symbol::pointer> syms = edb::v1::symbol_manager().symbols();
-		for(const Symbol::pointer &current: syms) {
+		const QList<std::shared_ptr<Symbol>> syms = edb::v1::symbol_manager().symbols();
+		for(const std::shared_ptr<Symbol> &current: syms) {
 			if(current.name_no_prefix == text) {
 				edb::v1::create_breakpoint(current.address);
 			}
@@ -266,7 +266,7 @@ void DialogBreakpoints::on_btnImport_clicked() {
 		//If there's an issue with the line or address isn't in any region,
 		//add to error list and skip.
 		edb::v1::memory_regions().sync();
-		IRegion::pointer p = edb::v1::memory_regions().find_region(address);
+		std::shared_ptr<IRegion> p = edb::v1::memory_regions().find_region(address);
 		if (!p) {
 			errors.append(line);
 			continue;
@@ -279,7 +279,7 @@ void DialogBreakpoints::on_btnImport_clicked() {
 
 		//If the line was converted to an address, try to create the breakpoint.
 		//Access debugger_core directly to avoid many possible error windows by edb::v1::create_breakpoint()
-		if (const IBreakpoint::pointer bp = edb::v1::debugger_core->add_breakpoint(address)) {
+		if (const std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->add_breakpoint(address)) {
 			count++;
 		} else{
 			errors.append(line);
@@ -311,7 +311,7 @@ void DialogBreakpoints::on_btnExport_clicked() {
 	QList<edb::address_t> export_list;
 
 	//Go through our breakpoints and add for export if not one-time and not internal.
-	for(const IBreakpoint::pointer bp: breakpoint_state) {
+	for(const std::shared_ptr<IBreakpoint> bp: breakpoint_state) {
 		if (!bp->one_time() && !bp->internal()) {
 			export_list.append(bp->address());
 		}

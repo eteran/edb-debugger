@@ -112,12 +112,12 @@ void DialogAttach::update_list() {
 	process_model_->clear();
 
 	if(edb::v1::debugger_core) {
-		QMap<edb::pid_t, IProcess::pointer> procs = edb::v1::debugger_core->enumerate_processes();
+		QMap<edb::pid_t, std::shared_ptr<IProcess>> procs = edb::v1::debugger_core->enumerate_processes();
 
 		const edb::uid_t user_id = getuid();
 		const bool filterUID = ui->filter_uid->isChecked();
 
-		for(const IProcess::pointer &process: procs) {
+		for(const std::shared_ptr<IProcess> &process: procs) {
 			if(!filterUID || process->uid() == user_id) {
 				process_model_->addProcess(process);
 			}

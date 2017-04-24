@@ -85,17 +85,17 @@ private:
 	};
 
 public:
-	DataViewInfo::pointer current_data_view_info() const;
+	std::shared_ptr<DataViewInfo> current_data_view_info() const;
 	bool dump_data(edb::address_t address, bool new_tab);
 	bool dump_data_range(edb::address_t address, edb::address_t end_address, bool new_tab);
 	bool dump_stack(edb::address_t address, bool scroll_to);
 	bool jump_to_address(edb::address_t address);
 	int current_tab() const;
 	void attach(edb::pid_t pid);
-	void clear_data(const DataViewInfo::pointer &v);
+	void clear_data(const std::shared_ptr<DataViewInfo> &v);
 	void execute(const QString &s, const QList<QByteArray> &args);
 	void refresh_gui();
-	void update_data(const DataViewInfo::pointer &v);
+	void update_data(const std::shared_ptr<DataViewInfo> &v);
 	void update_gui();
 	QLabel *statusLabel() const;
 
@@ -223,18 +223,18 @@ private:
 	virtual void dropEvent(QDropEvent* event);
 
 public:
-	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event);
+	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<const IDebugEvent> &event);
 
 private:
-	IRegion::pointer update_cpu_view(const State &state);
+	std::shared_ptr<IRegion> update_cpu_view(const State &state);
 	QString create_tty();
 	QString session_filename() const;
 	bool breakpoint_condition_true(const QString &condition);
 	bool common_open(const QString &s, const QList<QByteArray> &args);
-	edb::EVENT_STATUS debug_event_handler(const IDebugEvent::const_pointer &event);
-	edb::EVENT_STATUS handle_event_exited(const IDebugEvent::const_pointer &event);
-	edb::EVENT_STATUS handle_event_stopped(const IDebugEvent::const_pointer &event);
-	edb::EVENT_STATUS handle_event_terminated(const IDebugEvent::const_pointer &event);
+	edb::EVENT_STATUS debug_event_handler(const std::shared_ptr<const IDebugEvent> &event);
+	edb::EVENT_STATUS handle_event_exited(const std::shared_ptr<const IDebugEvent> &event);
+	edb::EVENT_STATUS handle_event_stopped(const std::shared_ptr<const IDebugEvent> &event);
+	edb::EVENT_STATUS handle_event_terminated(const std::shared_ptr<const IDebugEvent> &event);
 	edb::EVENT_STATUS handle_trap();
 	edb::EVENT_STATUS resume_status(bool pass_exception);
 	Result<edb::address_t> get_goto_expression();
@@ -246,7 +246,7 @@ private:
 	void create_data_tab();
 	void delete_data_tab();
 	void detach_from_process(DETACH_ACTION kill);
-	void do_jump_to_address(edb::address_t address, const IRegion::pointer &r, bool scroll_to);
+	void do_jump_to_address(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scroll_to);
 	void finish_plugin_setup();
 	void follow_register_in_dump(bool tabbed);
 	void load_session(const QString &session_file);
@@ -261,7 +261,7 @@ private:
 	void test_native_binary();
 	void setup_data_views();
 	void update_data_views();
-	void update_disassembly(edb::address_t address, const IRegion::pointer &r);
+	void update_disassembly(edb::address_t address, const std::shared_ptr<IRegion> &r);
 	void update_menu_state(GUI_STATE state);
 	void update_stack_view(const State &state);
 	void update_tab_caption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end);
@@ -305,7 +305,7 @@ private:
 	QProcess *                                       tty_proc_;
 	GUI_STATE                                        gui_state_;
 	QString                                          tty_file_;
-	QVector<DataViewInfo::pointer>                   data_regions_;
+	QVector<std::shared_ptr<DataViewInfo>>                   data_regions_;
 	DataViewInfo                                     stack_view_info_;
 	std::shared_ptr<QHexView>                         stack_view_;
 	QStringListModel *                               list_model_;
@@ -314,15 +314,15 @@ private:
 	RecentFileManager *                              recent_file_manager_;
 
 	QSharedPointer<QHexView::CommentServerInterface> stack_comment_server_;
-	IBreakpoint::pointer                             reenable_breakpoint_run_;
-	IBreakpoint::pointer                             reenable_breakpoint_step_;
+	std::shared_ptr<IBreakpoint>                             reenable_breakpoint_run_;
+	std::shared_ptr<IBreakpoint>                             reenable_breakpoint_step_;
 	std::unique_ptr<IBinary>                         binary_info_;
 
 	QString                                          last_open_directory_;
 	QString                                          working_directory_;
 	QString                                          program_executable_;
 	bool                                             stack_view_locked_;
-	IDebugEvent::const_pointer                       last_event_;
+	std::shared_ptr<const IDebugEvent>                       last_event_;
 	QLabel *                                         status_;
 
 #if defined(Q_OS_LINUX)

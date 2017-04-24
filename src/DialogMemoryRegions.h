@@ -52,7 +52,7 @@ private Q_SLOTS:
 	void view_in_dump();
 
 private:
-	IRegion::pointer selected_region() const;
+	std::shared_ptr<IRegion> selected_region() const;
 	void set_permissions(bool read, bool write, bool execute);
 
 private:

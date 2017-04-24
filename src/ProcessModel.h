@@ -49,7 +49,7 @@ public:
 	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const;
 
 public:
-	void addProcess(const IProcess::pointer &process);
+	void addProcess(const std::shared_ptr<IProcess> &process);
 	void clear();
 
 private:

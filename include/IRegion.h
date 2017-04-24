@@ -26,7 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class EDB_EXPORT IRegion {
 public:
-	typedef std::shared_ptr<IRegion> pointer;
 	typedef quint32                 permissions_t;
 
 public:
@@ -60,7 +59,7 @@ public:
 		return address >= start() && address < end();
 	}
 
-	bool equals(const IRegion::pointer &other) const {
+	bool equals(const std::shared_ptr<IRegion> &other) const {
 
 		if(!other) {
 			return false;

@@ -49,7 +49,7 @@ public:
 
 public:
 	virtual QMenu *menu(QWidget *parent = 0);
-	virtual edb::EVENT_STATUS handle_event(const IDebugEvent::const_pointer &event);
+	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<const IDebugEvent> &event);
 	virtual QList<QAction *> cpu_context_menu();
 	virtual QList<QAction *> stack_context_menu();
 	virtual QList<QAction *> data_context_menu();

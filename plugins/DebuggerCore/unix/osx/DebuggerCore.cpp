@@ -92,7 +92,7 @@ edb::address_t DebuggerCore::page_size() const {
 // Desc: waits for a debug event, secs is a timeout (but is not yet respected)
 //       ok will be set to false if the timeout expires
 //------------------------------------------------------------------------------
-IDebugEvent::const_pointer DebuggerCore::wait_debug_event(int msecs) {
+std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 	if(attached()) {
 		int status;
 		bool timeout;
@@ -589,7 +589,7 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QList<IRegion::pointer> DebuggerCore::memory_regions() const {
+QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 
 #if 0
     static const char * inheritance_strings[] = {
@@ -601,13 +601,13 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 	};
 #endif
 
-	QList<IRegion::pointer> regions;
+	QList<std::shared_ptr<IRegion>> regions;
 	if(pid_ != 0) {
 		task_t the_task;
 		kern_return_t kr = task_for_pid(mach_task_self(), pid_, &the_task);
 		if(kr != KERN_SUCCESS) {
 			qDebug("task_for_pid failed");
-            return QList<IRegion::pointer>();
+            return QList<std::shared_ptr<IRegion>>();
 		}
 
 		vm_size_t vmsize;
@@ -658,7 +658,7 @@ QList<IRegion::pointer> DebuggerCore::memory_regions() const {
 				if(the_task != MACH_PORT_NULL) {
 					mach_port_deallocate(mach_task_self(), the_task);
 				}
-                return QList<IRegion::pointer>();
+                return QList<std::shared_ptr<IRegion>>();
 			}
 		} while(kr != KERN_INVALID_ADDRESS);
 

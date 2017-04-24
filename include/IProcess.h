@@ -31,8 +31,6 @@ class QString;
 
 class IProcess {
 public:
-	typedef std::shared_ptr<IProcess> pointer;
-public:
 	virtual ~IProcess() {}
 
 public:
@@ -42,10 +40,10 @@ public:
 	virtual QString                 current_working_directory() const = 0;
 	virtual QString                 executable() const = 0;
 	virtual edb::pid_t              pid() const = 0;
-	virtual pointer                 parent() const = 0;
+	virtual std::shared_ptr<IProcess>                 parent() const = 0;
 	virtual edb::address_t          code_address() const = 0;
 	virtual edb::address_t          data_address() const = 0;
-	virtual QList<IRegion::pointer> regions() const = 0;
+	virtual QList<std::shared_ptr<IRegion>> regions() const = 0;
 	virtual edb::uid_t              uid() const = 0;
 	virtual QString                 user() const = 0;
 	virtual QString                 name() const = 0;
@@ -53,8 +51,8 @@ public:
 
 public:
 	// only legal to call when attached
-	virtual QList<IThread::pointer> threads() const = 0;
-	virtual IThread::pointer        current_thread() const = 0;
+	virtual QList<std::shared_ptr<IThread>> threads() const = 0;
+	virtual std::shared_ptr<IThread>        current_thread() const = 0;
 	virtual std::size_t             write_bytes(edb::address_t address, const void *buf, size_t len) = 0;
 	virtual std::size_t             read_bytes(edb::address_t address, void *buf, size_t len) const = 0;
 	virtual std::size_t             read_pages(edb::address_t address, void *buf, size_t count) const = 0;

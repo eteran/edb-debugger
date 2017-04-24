@@ -78,7 +78,7 @@ QStringList split_max(const QString &str, const int &maxparts) {
 // Name: process_map_line
 // Desc: parses the data from a line of a memory map file
 //------------------------------------------------------------------------------
-IRegion::pointer process_map_line(const QString &line) {
+std::shared_ptr<IRegion> process_map_line(const QString &line) {
 
 	edb::address_t start;
 	edb::address_t end;
@@ -162,10 +162,10 @@ QList<Module> loaded_modules_(const IProcess* process, const std::unique_ptr<IBi
 
 	// fallback
 	if(ret.isEmpty()) {
-		const QList<IRegion::pointer> r = edb::v1::memory_regions().regions();
+		const QList<std::shared_ptr<IRegion>> r = edb::v1::memory_regions().regions();
 		QSet<QString> found_modules;
 
-		for(const IRegion::pointer &region: r) {
+		for(const std::shared_ptr<IRegion> &region: r) {
 
 			// we assume that modules will be listed by absolute path
 			if(region->name().startsWith("/")) {
@@ -303,7 +303,7 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 		}
 
 		// replace any breakpoints
-		for(const IBreakpoint::pointer &bp: core_->breakpoints_) {
+		for(const std::shared_ptr<IBreakpoint> &bp: core_->breakpoints_) {
 			if(bp->address() >= address && bp->address() < (address + read)) {
 				// show the original bytes in the buffer..
 				ptr[bp->address() - address] = bp->original_byte();
@@ -432,7 +432,7 @@ edb::pid_t PlatformProcess::pid() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-IProcess::pointer PlatformProcess::parent() const {
+std::shared_ptr<IProcess> PlatformProcess::parent() const {
 
 	struct user_stat user_stat;
 	int n = get_user_stat(pid_, &user_stat);
@@ -473,8 +473,8 @@ edb::address_t PlatformProcess::data_address() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QList<IRegion::pointer> PlatformProcess::regions() const {
-	static QList<IRegion::pointer> regions;
+QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
+	static QList<std::shared_ptr<IRegion>> regions;
 	static size_t totalHash = 0;
 
 	const QString map_file(QString("/proc/%1/maps").arg(pid_));
@@ -505,7 +505,7 @@ QList<IRegion::pointer> PlatformProcess::regions() const {
 		QString line = in.readLine();
 
 		while(!line.isNull()) {
-			if(IRegion::pointer region = process_map_line(line)) {
+			if(std::shared_ptr<IRegion> region = process_map_line(line)) {
 				regions.push_back(region);
 			}
 			line = in.readLine();
@@ -636,11 +636,11 @@ bool PlatformProcess::ptrace_poke(edb::address_t address, long value) {
 // Name: threads
 // Desc:
 //------------------------------------------------------------------------------
-QList<IThread::pointer> PlatformProcess::threads() const {
+QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
 
 	Q_ASSERT(core_->process_ == this);
 
-	QList<IThread::pointer> threadList;
+	QList<std::shared_ptr<IThread>> threadList;
 
 	for(auto &thread : core_->threads_) {
 		threadList.push_back(thread);
@@ -653,7 +653,7 @@ QList<IThread::pointer> PlatformProcess::threads() const {
 // Name: current_thread
 // Desc:
 //------------------------------------------------------------------------------
-IThread::pointer PlatformProcess::current_thread() const {
+std::shared_ptr<IThread> PlatformProcess::current_thread() const {
 
 	Q_ASSERT(core_->process_ == this);
 
@@ -661,7 +661,7 @@ IThread::pointer PlatformProcess::current_thread() const {
 	if(it != core_->threads_.end()) {
 		return it.value();
 	}
-	return IThread::pointer();
+	return std::shared_ptr<IThread>();
 }
 
 //------------------------------------------------------------------------------
@@ -736,7 +736,7 @@ void PlatformProcess::resume(edb::EVENT_STATUS status) {
 	Q_ASSERT(core_->process_ == this);
 
 	if(status != edb::DEBUG_STOP) {
-		if(IThread::pointer thread = current_thread()) {
+		if(std::shared_ptr<IThread> thread = current_thread()) {
 			thread->resume(status);
 
 			// resume the other threads passing the signal they originally reported had
@@ -758,7 +758,7 @@ void PlatformProcess::step(edb::EVENT_STATUS status) {
 	Q_ASSERT(core_->process_ == this);
 
 	if(status != edb::DEBUG_STOP) {
-		if(IThread::pointer thread = current_thread()) {
+		if(std::shared_ptr<IThread> thread = current_thread()) {
 			thread->step(status);
 		}
 	}

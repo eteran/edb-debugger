@@ -33,11 +33,11 @@ public:
 	virtual ~ISymbolManager() {}
 
 public:
-	virtual const QList<Symbol::pointer> symbols() const = 0;
-	virtual const Symbol::pointer find(const QString &name) const = 0;
-	virtual const Symbol::pointer find(edb::address_t address) const = 0;
-	virtual const Symbol::pointer find_near_symbol(edb::address_t address) const = 0;
-	virtual void add_symbol(const Symbol::pointer &symbol) = 0;
+	virtual const QList<std::shared_ptr<Symbol>> symbols() const = 0;
+	virtual const std::shared_ptr<Symbol> find(const QString &name) const = 0;
+	virtual const std::shared_ptr<Symbol> find(edb::address_t address) const = 0;
+	virtual const std::shared_ptr<Symbol> find_near_symbol(edb::address_t address) const = 0;
+	virtual void add_symbol(const std::shared_ptr<Symbol> &symbol) = 0;
 	virtual void clear() = 0;
 	virtual void load_symbol_file(const QString &filename, edb::address_t base) = 0;
 	virtual void set_symbol_generator(ISymbolGenerator *generator) = 0;
