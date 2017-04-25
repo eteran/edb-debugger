@@ -496,10 +496,10 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 
 	end_debug_session();
 
-	lastMeansOfCapture=MeansOfCapture::Attach;
+	lastMeansOfCapture = MeansOfCapture::Attach;
 
 	// create this, so the threads created can refer to it
-	process_ = new PlatformProcess(this, pid);
+	auto newProcess = new PlatformProcess(this, pid);
 
 	int lastErr = attach_thread(pid); // Fail early if we are going to
 	if(lastErr) {
@@ -518,10 +518,10 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 			const edb::tid_t tid = s.toUInt();
 			if(!threads_.contains(tid)) {
 				const auto errnum=attach_thread(tid);
-				if(errnum==0)
+				if(errnum == 0)
 					attached = true;
 				else
-					lastErr=errnum;
+					lastErr = errnum;
 			}
 		}
 	} while(attached);
@@ -532,12 +532,11 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 		active_thread_  = pid;
 		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 		detectDebuggeeBitness();
+		process_ = newProcess;
 		return Status();
-	} else {
-		delete process_;
-		process_ = nullptr;
 	}
 
+	delete newProcess;
 	return Status(std::strerror(lastErr));
 }
 
