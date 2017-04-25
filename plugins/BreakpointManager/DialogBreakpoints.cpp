@@ -312,7 +312,7 @@ void DialogBreakpoints::on_btnExport_clicked() {
 	QList<edb::address_t> export_list;
 
 	//Go through our breakpoints and add for export if not one-time and not internal.
-	for(const std::shared_ptr<IBreakpoint> bp: breakpoint_state) {
+	for(const std::shared_ptr<IBreakpoint> &bp: breakpoint_state) {
 		if (!bp->one_time() && !bp->internal()) {
 			export_list.append(bp->address());
 		}

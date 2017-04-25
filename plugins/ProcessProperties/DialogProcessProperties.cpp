@@ -380,7 +380,6 @@ void DialogProcessProperties::updateMemoryPage() {
 		const QList<std::shared_ptr<IRegion>> regions = edb::v1::memory_regions().regions();
 		ui->tableMemory->setSortingEnabled(false);
 
-
 		for(const std::shared_ptr<IRegion> &r: regions) {
 			const int row = ui->tableMemory->rowCount();
 			ui->tableMemory->insertRow(row);
@@ -516,7 +515,7 @@ void DialogProcessProperties::on_btnParent_clicked() {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 
 			std::shared_ptr<IProcess> parent = process->parent();
-	        const QString parent_exe     = parent ? parent->executable() : QString();
+	        const QString parent_exe = parent ? parent->executable() : QString();
 
 			QFileInfo info(parent_exe);
 			QDir dir = info.absoluteDir();
@@ -590,7 +589,7 @@ void DialogProcessProperties::updateThreads() {
 
 		std::shared_ptr<IThread> current = process->current_thread();
 
-		for(std::shared_ptr<IThread> thread : process->threads()) {
+		for(std::shared_ptr<IThread> &thread : process->threads()) {
 
 			if(thread == current) {
 				threads_model_->addThread(thread, true);

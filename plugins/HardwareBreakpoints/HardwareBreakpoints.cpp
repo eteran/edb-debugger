@@ -164,7 +164,7 @@ void HardwareBreakpoints::setupBreakpoints() {
 				old_event_handler_ = edb::v1::set_debug_event_handler(this);
 			}
 
-			for(std::shared_ptr<IThread> thread : process->threads()) {
+			for(std::shared_ptr<IThread> &thread : process->threads()) {
 				State state;
 				thread->get_state(&state);
 
@@ -187,7 +187,7 @@ void HardwareBreakpoints::setupBreakpoints() {
 
 		} else {
 
-			for(std::shared_ptr<IThread> thread : process->threads()) {
+			for(std::shared_ptr<IThread> &thread : process->threads()) {
 				State state;
 				thread->get_state(&state);
 				state.set_debug_register(7, 0);
@@ -391,7 +391,7 @@ void HardwareBreakpoints::setExecuteBP(int index, bool inUse) {
 
 		edb::address_t address = edb::v1::cpu_selected_address();
 
-		for(std::shared_ptr<IThread> thread : process->threads()) {
+		for(std::shared_ptr<IThread> &thread : process->threads()) {
 			State state;
 			thread->get_state(&state);
 			setBreakpointState(&state, index, { true, address, 0, 0 });
@@ -430,7 +430,7 @@ void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t addre
 			}
 		}
 
-		for(std::shared_ptr<IThread> thread : process->threads()) {
+		for(std::shared_ptr<IThread> &thread : process->threads()) {
 			State state;
 			thread->get_state(&state);
 
@@ -487,7 +487,7 @@ void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t a
 			}
 		}
 
-		for(std::shared_ptr<IThread> thread : process->threads()) {
+		for(std::shared_ptr<IThread> &thread : process->threads()) {
 			State state;
 			thread->get_state(&state);
 

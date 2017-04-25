@@ -428,15 +428,14 @@ void DialogHeap::do_find() {
 
 		get_library_names(&libcName, &ldName);
 	#if defined(Q_OS_LINUX) || defined(Q_OS_FREEBSD) || defined(Q_OS_OPENBSD)
-		std::shared_ptr<Symbol> s = edb::v1::symbol_manager().find(libcName + "::__curbrk");
-		if(s) {
+
+		if(std::shared_ptr<Symbol> s = edb::v1::symbol_manager().find(libcName + "::__curbrk")) {
 			end_address = s->address;
 		} else {
 			qDebug() << "[Heap Analyzer] __curbrk symbol not found in libc, falling back on heuristic! This may or may not work.";
 		}
 
-		s = edb::v1::symbol_manager().find(ldName + "::__curbrk");
-		if(s) {
+		if(std::shared_ptr<Symbol> s = edb::v1::symbol_manager().find(ldName + "::__curbrk")) {
 			start_address = s->address;
 		} else {
 
@@ -463,7 +462,7 @@ void DialogHeap::do_find() {
 		if(start_address == 0 || end_address == 0) {
 
 			const QList<std::shared_ptr<IRegion>> &regions = edb::v1::memory_regions().regions();
-			for(std::shared_ptr<IRegion> region: regions) {
+			for(const std::shared_ptr<IRegion> &region: regions) {
 
 				if(region->name() == "[heap]") {
 

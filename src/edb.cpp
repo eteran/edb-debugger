@@ -350,8 +350,8 @@ bool dump_data(address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 void set_breakpoint_condition(address_t address, const QString &condition) {
-	std::shared_ptr<IBreakpoint> bp = find_breakpoint(address);
-	if(bp) {
+
+	if(std::shared_ptr<IBreakpoint> bp = find_breakpoint(address)) {
 		bp->condition = condition;
 	}
 }
@@ -362,8 +362,8 @@ void set_breakpoint_condition(address_t address, const QString &condition) {
 //------------------------------------------------------------------------------
 QString get_breakpoint_condition(address_t address) {
 	QString ret;
-	std::shared_ptr<IBreakpoint> bp = find_breakpoint(address);
-	if(bp) {
+
+	if(std::shared_ptr<IBreakpoint> bp = find_breakpoint(address)) {
 		ret = bp->condition;
 	}
 
@@ -769,8 +769,7 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 	const Register reg = state.value(s);
 	*ok = reg.valid();
 	if(!*ok) {
-		const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(s);
-		if(sym) {
+		if(const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(s)) {
 			*ok = true;
 			return sym->address;
 		}
