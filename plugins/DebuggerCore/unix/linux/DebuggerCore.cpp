@@ -492,9 +492,7 @@ int DebuggerCore::attach_thread(edb::tid_t tid) {
 // Name: attach
 // Desc:
 //------------------------------------------------------------------------------
-QString DebuggerCore::attach(edb::pid_t pid) {
-
-	static const QString statusOK{};
+Status DebuggerCore::attach(edb::pid_t pid) {
 
 	end_debug_session();
 
@@ -503,9 +501,12 @@ QString DebuggerCore::attach(edb::pid_t pid) {
 	// create this, so the threads created can refer to it
 	process_ = new PlatformProcess(this, pid);
 
-	int lastErr=attach_thread(pid); // Fail early if we are going to
-	if(lastErr) return std::strerror(lastErr);
-	lastErr=-2;
+	int lastErr = attach_thread(pid); // Fail early if we are going to
+	if(lastErr) {
+		return Status(std::strerror(lastErr));
+	}
+
+	lastErr = -2;
 	bool attached;
 	do {
 		attached = false;
@@ -531,13 +532,13 @@ QString DebuggerCore::attach(edb::pid_t pid) {
 		active_thread_  = pid;
 		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 		detectDebuggeeBitness();
-		return statusOK;
+		return Status();
 	} else {
 		delete process_;
 		process_ = nullptr;
 	}
 
-	return std::strerror(lastErr);
+	return Status(std::strerror(lastErr));
 }
 
 //------------------------------------------------------------------------------
@@ -639,9 +640,7 @@ void DebuggerCore::set_state(const State &state) {
 // Name: open
 // Desc:
 //------------------------------------------------------------------------------
-QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
-
-	static const QString statusOK{};
+Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 
 	end_debug_session();
 
@@ -683,12 +682,14 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 			perror("Failed to disable lazy binding");
 
 		// do the actual exec
-		const QString error=execute_process(path, cwd, args);
+		const Status status = execute_process(path, cwd, args);
+
 #if defined __GNUG__ && __GNUC__ >= 5 || !defined __GNUG__ || \
 		defined __clang__ && __clang_major__*100+__clang_minor__>=306
 		static_assert(std::is_trivially_copyable<QChar>::value,"Can't copy string of QChar to shared memory");
 #endif
-		std::memcpy(sharedMem,error.constData(),std::min(sizeof(QChar)*error.size(),sharedMemSize-sizeof(QChar)/*prevent overwriting of last null*/));
+		QString error = status.toString();
+		std::memcpy(sharedMem, error.constData(), std::min(sizeof(QChar) * error.size(), sharedMemSize-sizeof(QChar)/*prevent overwriting of last null*/));
 
 		// we should never get here!
 		abort();
@@ -697,7 +698,7 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 	case -1:
 		// error! for some reason we couldn't fork
 		reset();
-		return QObject::tr("Failed to fork");
+		return Status(tr("Failed to fork"));
 	default:
 		// parent
 		do {
@@ -709,22 +710,22 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 			::munmap(sharedMem,sharedMemSize);
 
 			if(wpidRet == -1)
-				return QObject::tr("waitpid() failed: %1").arg(std::strerror(errno))+(childError.isEmpty()?"":QObject::tr(".\nError returned by child:\n%1.").arg(childError));
+				return Status(tr("waitpid() failed: %1").arg(std::strerror(errno))+(childError.isEmpty()?"" : tr(".\nError returned by child:\n%1.").arg(childError)));
 
 			if(WIFEXITED(status))
-				return QObject::tr("The child unexpectedly exited with code %1. Error returned by child:\n%2").arg(WEXITSTATUS(status)).arg(childError);
+				return Status(tr("The child unexpectedly exited with code %1. Error returned by child:\n%2").arg(WEXITSTATUS(status)).arg(childError));
 			if(WIFSIGNALED(status))
-				return QObject::tr("The child was unexpectedly killed by signal %1. Error returned by child:\n%2").arg(WTERMSIG(status)).arg(childError);
+				return Status(tr("The child was unexpectedly killed by signal %1. Error returned by child:\n%2").arg(WTERMSIG(status)).arg(childError));
 
 			// This happens when exec failed, but just in case it's something another return some description.
 			if(WIFSTOPPED(status) && WSTOPSIG(status) == SIGABRT)
-				return childError.isEmpty() ? QObject::tr("The child unexpectedly aborted") : childError;
+				return Status(childError.isEmpty() ? tr("The child unexpectedly aborted") : childError);
 
 			// the very first event should be a STOP of type SIGTRAP
 			if(!WIFSTOPPED(status) || WSTOPSIG(status) != SIGTRAP) {
 				end_debug_session();
-				return QObject::tr("First event after waitpid() should be a STOP of type SIGTRAP, but wasn't, instead status=0x%1")
-											.arg(status,0,16)+(childError.isEmpty()?"":QObject::tr(".\nError returned by child:\n%1.").arg(childError));
+				return Status(tr("First event after waitpid() should be a STOP of type SIGTRAP, but wasn't, instead status=0x%1")
+											.arg(status,0,16)+(childError.isEmpty() ? "" : tr(".\nError returned by child:\n%1.").arg(childError)));
 			}
 
 			waited_threads_.insert(pid);
@@ -733,7 +734,7 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 			if(ptrace_set_options(pid, PTRACE_O_TRACECLONE) == -1) {
 				const auto strerr=strerror(errno); // NOTE: must be called before end_debug_session, otherwise errno can change
 				end_debug_session();
-				return QObject::tr("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: %1").arg(strerr);
+				return Status(tr("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: %1").arg(strerr));
 			}
 
 #ifdef PTRACE_O_EXITKILL
@@ -764,7 +765,7 @@ QString DebuggerCore::open(const QString &path, const QString &cwd, const QList<
 
 			detectDebuggeeBitness();
 
-			return statusOK;
+			return Status();
 		} while(0);
 		break;
 	}

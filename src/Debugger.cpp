@@ -2938,8 +2938,7 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 	bool ret = false;
 	tty_file_ = create_tty();
 
-	const QString errorString=edb::v1::debugger_core->open(s, working_directory_, args, tty_file_);
-	if(errorString.isEmpty()) {
+	if(const Status status = edb::v1::debugger_core->open(s, working_directory_, args, tty_file_)) {
 		attachComplete();
 		set_initial_breakpoint(s);
 		ret = true;
@@ -2947,7 +2946,7 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 		QMessageBox::critical(
 			this,
 			tr("Could Not Open"),
-			tr("Failed to open and attach to process:\n%1.").arg(errorString));
+			tr("Failed to open and attach to process:\n%1.").arg(status.toString()));
 	}
 
 	update_gui();
@@ -3011,8 +3010,7 @@ void Debugger::attach(edb::pid_t pid) {
 	}
 
 
-	const auto errorStr=edb::v1::debugger_core->attach(pid);
-	if(errorStr.isEmpty()) {
+	if(const auto status = edb::v1::debugger_core->attach(pid)) {
 
 		working_directory_ = edb::v1::debugger_core->process()->current_working_directory();
 
@@ -3025,7 +3023,7 @@ void Debugger::attach(edb::pid_t pid) {
 		arguments_dialog_->set_arguments(args);
 		attachComplete();
 	} else {
-		QMessageBox::critical(this, tr("Attach"), tr("Failed to attach to process: %1").arg(errorStr));
+		QMessageBox::critical(this, tr("Attach"), tr("Failed to attach to process: %1").arg(status.toString()));
 	}
 
 	update_gui();

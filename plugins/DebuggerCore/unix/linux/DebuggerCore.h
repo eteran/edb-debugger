@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 
 class IBinary;
+class Status;
 
 namespace DebuggerCorePlugin {
 
@@ -53,12 +54,12 @@ public:
 	virtual edb::address_t page_size() const override;
 	virtual bool has_extension(quint64 ext) const override;
 	virtual std::shared_ptr<const IDebugEvent> wait_debug_event(int msecs) override;
-	virtual QString attach(edb::pid_t pid) override;
+	virtual Status attach(edb::pid_t pid) override;
 	virtual void detach() override;
 	virtual void kill() override;
 	virtual void get_state(State *state) override;
 	virtual void set_state(const State &state) override;
-	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
+	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
 	virtual MeansOfCapture last_means_of_capture() override;
 
 public:

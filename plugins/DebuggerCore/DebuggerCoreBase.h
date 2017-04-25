@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IDebugger.h"
 
+class Status;
+
 namespace DebuggerCorePlugin {
 
 class DebuggerCoreBase : public QObject, public IDebugger {
@@ -29,8 +31,8 @@ public:
 	virtual ~DebuggerCoreBase() override;
 
 public:
-	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args) override;
-	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override = 0;
+	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args) override;
+	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override = 0;
 	enum class MeansOfCapture
 	{
 		NeverCaptured,

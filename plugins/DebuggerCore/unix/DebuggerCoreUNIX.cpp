@@ -224,9 +224,10 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 // Name: execute_process
 // Desc: tries to execute the process, returns error string on error
 //------------------------------------------------------------------------------
-QString DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
+Status DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args) {
 
-	QString errorString="internal error";
+	QString errorString = "internal error";
+	
 	// change to the desired working directory
 	if(::chdir(qPrintable(cwd)) == 0) {
 
@@ -265,7 +266,10 @@ QString DebuggerCoreUNIX::execute_process(const QString &path, const QString &cw
 			delete [] argv_pointers;
 		}
 	}
-	return errorString;
+	
+	// frankly, any return is technically an error I think
+	// this is only executed from a fork
+	return Status(errorString);
 }
 
 //------------------------------------------------------------------------------

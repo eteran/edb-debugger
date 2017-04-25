@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class IState;
 class State;
+class Status;
 class IBreakpoint;
 class IDebugEvent;
 class IProcess;
@@ -69,9 +70,9 @@ public:
 public:
 	// basic process management
 	// These three functions return empty string on success, string with error description on error
-	virtual QString attach(edb::pid_t pid) = 0;
-	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args) = 0;
-	virtual QString open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
+	virtual Status attach(edb::pid_t pid) = 0;
+	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args) = 0;
+	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
 	virtual std::shared_ptr<const IDebugEvent> wait_debug_event(int msecs) = 0;
 	virtual void detach() = 0;
 	virtual void kill() = 0;

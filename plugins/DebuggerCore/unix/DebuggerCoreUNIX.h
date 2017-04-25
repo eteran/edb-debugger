@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 #include <cerrno>
 
+class Status;
+
 namespace DebuggerCorePlugin {
 
 namespace native {
@@ -42,7 +44,7 @@ public:
 	virtual ~DebuggerCoreUNIX() = default;
 
 protected:
-	QString execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args);
+	Status execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args);
 
 public:
 	virtual QMap<long, QString> exceptions() const;
