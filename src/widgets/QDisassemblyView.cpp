@@ -608,6 +608,46 @@ bool targetIsLocal(edb::address_t targetAddress,edb::address_t insnAddress) {
 }
 
 //------------------------------------------------------------------------------
+// Name: instructionString
+// Desc:
+//------------------------------------------------------------------------------
+QString QDisassemblyView::instructionString(const edb::Instruction &inst) const {
+    QString opcode = QString::fromStdString(edb::v1::formatter().to_string(inst));
+
+    if(is_call(inst) || is_jump(inst)) {
+        if(inst.operand_count() == 1) {
+            const edb::Operand &oper = inst.operands()[0];
+            if(oper.type() == edb::Operand::TYPE_REL) {
+
+                const bool showSymbolicAddresses=edb::v1::config().show_symbolic_addresses;
+
+                static const QRegExp addrPattern(QLatin1String("0x[0-9a-fA-F]+"));
+                const edb::address_t target = oper.relative_target();
+
+                const bool showLocalModuleNames=edb::v1::config().show_local_module_name_in_jump_targets;
+                const bool prefixed=showLocalModuleNames || !targetIsLocal(target,inst.rva());
+                QString sym = edb::v1::symbol_manager().find_address_name(target, prefixed);
+
+                if(sym.isEmpty() && target == inst.size() + inst.rva()) {
+                    sym = showSymbolicAddresses ? tr("<next instruction>") : tr("next instruction");
+                } else if(sym.isEmpty() && target == inst.rva()) {
+                    sym = showSymbolicAddresses ? tr("$") : tr("current instruction");
+                }
+
+                if(!sym.isEmpty()) {
+                    if(showSymbolicAddresses)
+                        opcode.replace(addrPattern, sym);
+                    else
+                        opcode.append(QString(" <%2>").arg(sym));
+                }
+            }
+        }
+    }
+
+    return opcode;
+}
+
+//------------------------------------------------------------------------------
 // Name: draw_instruction
 // Desc:
 //------------------------------------------------------------------------------
@@ -619,14 +659,12 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 	const int inst_pixel_width = l3 - x;
 
 	if(inst) {
-		QString opcode = QString::fromStdString(edb::v1::formatter().to_string(inst));
-
-		//return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
+        QString opcode = instructionString(inst);
 
 		const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled && !selected;
 
 		if(is_filling) {
-			if(is_filling && syntax_highlighting_enabled) {
+            if(syntax_highlighting_enabled) {
 				painter.setPen(filling_dis_color);
 			}
 
@@ -641,47 +679,21 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 				opcode);
 		} else {
 
-			if(is_call(inst) || is_jump(inst)) {
-				if(inst.operand_count() == 1) {
-					const edb::Operand &oper = inst.operands()[0];
-					if(oper.type() == edb::Operand::TYPE_REL) {
-
-						const bool showSymbolicAddresses=edb::v1::config().show_symbolic_addresses;
-
-						static const QRegExp addrPattern(QLatin1String("0x[0-9a-fA-F]+"));
-						const edb::address_t target = oper.relative_target();
-
-						const bool showLocalModuleNames=edb::v1::config().show_local_module_name_in_jump_targets;
-						const bool prefixed=showLocalModuleNames || !targetIsLocal(target,inst.rva());
-						QString sym = edb::v1::symbol_manager().find_address_name(target, prefixed);
-
-						if(sym.isEmpty() && target == inst.size() + inst.rva()) {
-							sym = showSymbolicAddresses ? tr("<next instruction>") : tr("next instruction");
-						} else if(sym.isEmpty() && target == inst.rva()) {
-							sym = showSymbolicAddresses ? tr("$") : tr("current instruction");
-						}
-
-						if(!sym.isEmpty()) {
-							if(showSymbolicAddresses)
-								opcode.replace(addrPattern, sym);
-							else
-								opcode.append(QString(" <%2>").arg(sym));
-						}
-					}
-				}
-			}
+            // NOTE(eteran): do this early, so that elided text still gets the part shown
+            // properly highlighted
+            QVector<QTextLayout::FormatRange> highlightData;
+            if(syntax_highlighting_enabled) {
+                highlightData = highlighter_->highlightBlock(opcode);
+            }
 
 			opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, inst_pixel_width);
 
 			if(syntax_highlighting_enabled) {
 				painter.setPen(default_dis_color);
-			}
 
+                QPixmap* map = syntax_cache_[opcode];
+                if (!map) {
 
-
-			if(syntax_highlighting_enabled) {
-				QPixmap* map = syntax_cache_[opcode];
-				if (map == nullptr) {
 					// create the text layout
 					QTextLayout textLayout(opcode, painter.font());
 
@@ -713,7 +725,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 					QPainter cache_painter(map);
 
 					// now the render the text at the location given
-					textLayout.draw(&cache_painter, QPoint(0, 0), highlighter_->highlightBlock(opcode));
+                    textLayout.draw(&cache_painter, QPoint(0, 0), highlightData);
 					syntax_cache_.insert(opcode, map);
 				}
 				painter.drawPixmap(x, y, *map);
@@ -1507,11 +1519,11 @@ bool QDisassemblyView::event(QEvent *event) {
 					const QString byte_buffer = format_instruction_bytes(inst);
 
 					if((line1() + byte_buffer.size() * font_width_) > line2()) {
-						QToolTip::showText(helpEvent->globalPos(), byte_buffer);
+                        QToolTip::showText(helpEvent->globalPos(), byte_buffer);
 						show = true;
-					}
+                    }
 				}
-			}
+            }
 
 			if(!show) {
 				QToolTip::showText(QPoint(), QString());
