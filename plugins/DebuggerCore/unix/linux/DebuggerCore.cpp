@@ -503,6 +503,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 
 	int lastErr = attach_thread(pid); // Fail early if we are going to
 	if(lastErr) {
+		delete newProcess;
 		return Status(std::strerror(lastErr));
 	}
 
