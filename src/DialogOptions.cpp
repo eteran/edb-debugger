@@ -181,7 +181,6 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui->chkZerosAreFilling->setChecked(config.zeros_are_filling);
 	ui->chkRegisterBadges->setChecked(config.show_register_badges);
 	ui->chkUppercase->setChecked(config.uppercase_disassembly);
-	ui->chkSmallIntAsDecimal->setChecked(config.small_int_as_decimal);
 	ui->chkSyntaxHighlighting->setChecked(config.syntax_highlighting_enabled);
 
 	ui->chkFindMain->setChecked(config.find_main);
@@ -260,7 +259,6 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.zeros_are_filling     = ui->chkZerosAreFilling->isChecked();
 	config.show_register_badges = ui->chkRegisterBadges->isChecked();
 	config.uppercase_disassembly = ui->chkUppercase->isChecked();
-	config.small_int_as_decimal  = ui->chkSmallIntAsDecimal->isChecked();
 	config.syntax_highlighting_enabled = ui->chkSyntaxHighlighting->isChecked();
 
 	config.symbol_path           = ui->txtSymbolDir->text();

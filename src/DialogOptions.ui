@@ -553,7 +553,7 @@
           <item>
            <widget class="QRadioButton" name="rdoSytntaxIntel">
             <property name="text">
-             <string>Intel</string>
+             <string>Inte&amp;l</string>
             </property>
             <property name="checked">
              <bool>true</bool>
@@ -566,7 +566,7 @@
              <bool>true</bool>
             </property>
             <property name="text">
-             <string>AT&amp;&amp;T</string>
+             <string>AT&amp;&amp;&amp;T</string>
             </property>
            </widget>
           </item>
@@ -591,16 +591,6 @@
         <widget class="QCheckBox" name="chkUppercase">
          <property name="text">
           <string>Disassemble in uppercase</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QCheckBox" name="chkSmallIntAsDecimal">
-         <property name="enabled">
-          <bool>false</bool>
-         </property>
-         <property name="text">
-          <string>Display small integers in decimal</string>
          </property>
         </widget>
        </item>
