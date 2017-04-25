@@ -1,5 +1,6 @@
 include(CheckCXXCompilerFlag)
 if( CMAKE_MAJOR_VERSION>3 OR ( CMAKE_MAJOR_VERSION==3 AND CMAKE_MINOR_VERSION>=1))
+	set(CMAKE_EXTENSIONS OFF)
 	set(CMAKE_CXX_STANDARD 11)
 else()
 	check_cxx_compiler_flag("-std=c++11" COMPILER_SUPPORTS_CXX11)
