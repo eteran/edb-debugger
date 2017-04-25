@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace BinaryInfoPlugin {
 
 ELFBinaryException::ELFBinaryException(reasonEnum reason): reason_(reason) {}
-const char * ELFBinaryException::what() { return "TODO"; }
+const char * ELFBinaryException::what() const noexcept { return "TODO"; }
 
 template<typename elfxx_header>
 ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region) : region_(region) {

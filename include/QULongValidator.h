@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstdint>
 
 class QULongValidator : public QValidator {
+	Q_OBJECT
 public:
 	typedef std::uint64_t value_type;
 

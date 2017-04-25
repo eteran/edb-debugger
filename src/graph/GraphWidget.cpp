@@ -330,7 +330,7 @@ void GraphWidget::setScale(qreal factor) {
 	const qreal f = std::sqrt(matrix().determinant());
 	factor = qBound(MinimumZoom / f, factor, MaximumZoom / f);
 	scale(factor, factor);
-	zoomEvent(factor, f);
+	Q_EMIT zoomEvent(factor, f);
 }
 
 //------------------------------------------------------------------------------

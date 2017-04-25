@@ -61,7 +61,7 @@ QValidator::State HexStringValidator::validate(QString &input, int &pos) const {
 		// (if any was deleted) was a space? and special case this?
 		// as to not have the minor bug in this case?
 
-		const int char_pos = pos - input.left(pos).count(' ');
+		const int char_pos = pos - input.leftRef(pos).count(' ');
 		int chars          = 0;
 		fixup(input);
 

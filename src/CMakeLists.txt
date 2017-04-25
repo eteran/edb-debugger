@@ -20,6 +20,7 @@ set(UI_FILES
 		FixedFontSelector.ui
 		DialogPlugins.ui
 		DialogThreads.ui)
+
 set(RC_FILES debugger.qrc)
 
 if(Qt5Core_DIR)
@@ -149,6 +150,9 @@ set(edb_INCLUDES
 	${PROJECT_SOURCE_DIR}/include/ThreadsModel.h
 	${PROJECT_SOURCE_DIR}/include/Types.h
 	${PROJECT_SOURCE_DIR}/include/version.h
+	${PROJECT_SOURCE_DIR}/include/QLongValidator.h
+	${PROJECT_SOURCE_DIR}/include/QULongValidator.h
+	${PROJECT_SOURCE_DIR}/include/HexStringValidator.h
 	qjson4/QJsonArray.h
 	qjson4/QJsonDocument.h
 	qjson4/QJsonObject.h

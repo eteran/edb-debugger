@@ -36,7 +36,7 @@ public:
 public:
 	ELFBinaryException(reasonEnum reason);
 public:
-	virtual const char * what();
+	virtual const char * what() const noexcept override;
 
 private:
 	reasonEnum reason_;

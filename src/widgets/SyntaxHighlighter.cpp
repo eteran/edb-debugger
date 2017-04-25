@@ -77,165 +77,165 @@ void SyntaxHighlighter::create_rules() {
 	// comma
 	rules_.push_back(HighlightingRule(
 		"(,)",
-		QColor(settings.value("theme.brackets.foreground", "blue").value<QString>()),
-		QColor(settings.value("theme.brackets.background", "transparent").value<QString>()),
-		settings.value("theme.brackets.weight", QFont::Normal).value<int>(),
-		settings.value("theme.brackets.italic", false).value<bool>(),
-		settings.value("theme.brackets.underline", false).value<bool>()
+		QColor(settings.value("theme.brackets.foreground", "blue").toString()),
+		QColor(settings.value("theme.brackets.background", "transparent").toString()),
+		settings.value("theme.brackets.weight", QFont::Normal).toInt(),
+		settings.value("theme.brackets.italic", false).toBool(),
+		settings.value("theme.brackets.underline", false).toBool()
 		));
 
 	// expression brackets
 	rules_.push_back(HighlightingRule(
 		"([\\(\\)\\[\\]])",
-		QColor(settings.value("theme.brackets.foreground", "blue").value<QString>()),
-		QColor(settings.value("theme.brackets.background", "transparent").value<QString>()),
-		settings.value("theme.brackets.weight", QFont::Normal).value<int>(),
-		settings.value("theme.brackets.italic", false).value<bool>(),
-		settings.value("theme.brackets.underline", false).value<bool>()
+		QColor(settings.value("theme.brackets.foreground", "blue").toString()),
+		QColor(settings.value("theme.brackets.background", "transparent").toString()),
+		settings.value("theme.brackets.weight", QFont::Normal).toInt(),
+		settings.value("theme.brackets.italic", false).toBool(),
+		settings.value("theme.brackets.underline", false).toBool()
 		));
 
 	// math operators
 	rules_.push_back(HighlightingRule(
 		"\\b([\\+\\-\\*])\\b",
-		QColor(settings.value("theme.operator.foreground", "blue").value<QString>()),
-		QColor(settings.value("theme.operator.background", "transparent").value<QString>()),
-		settings.value("theme.operator.weight", QFont::Normal).value<int>(),
-		settings.value("theme.operator.italic", false).value<bool>(),
-		settings.value("theme.operator.underline", false).value<bool>()
+		QColor(settings.value("theme.operator.foreground", "blue").toString()),
+		QColor(settings.value("theme.operator.background", "transparent").toString()),
+		settings.value("theme.operator.weight", QFont::Normal).toInt(),
+		settings.value("theme.operator.italic", false).toBool(),
+		settings.value("theme.operator.underline", false).toBool()
 		));
 
 	// registers
 	// TODO: support ST(N)
 	rules_.push_back(HighlightingRule(
 		"\\b(((e|r)?(ax|bx|cx|dx|bp|sp|si|di|ip))|([abcd](l|h))|(sp|bp|si|di)l|([cdefgs]s)|[xyz]?mm([0-9]|[12][0-9]|3[01])|r(8|9|(1[0-5]))[dwb]?)\\b",
-		QColor(settings.value("theme.register.foreground", "red").value<QString>()),
-		QColor(settings.value("theme.register.background", "transparent").value<QString>()),
-		settings.value("theme.register.weight", QFont::Bold).value<int>(),
-		settings.value("theme.register.italic", false).value<bool>(),
-		settings.value("theme.register.underline", false).value<bool>()
+		QColor(settings.value("theme.register.foreground", "red").toString()),
+		QColor(settings.value("theme.register.background", "transparent").toString()),
+		settings.value("theme.register.weight", QFont::Bold).toInt(),
+		settings.value("theme.register.italic", false).toBool(),
+		settings.value("theme.register.underline", false).toBool()
 		));
 
 	// constants
 	rules_.push_back(HighlightingRule(
 		"\\b((0[0-7]*)|(0(x|X)[0-9a-fA-F]+)|([1-9][0-9]*))\\b",
-		QColor(settings.value("theme.constant.foreground", "black").value<QString>()),
-		QColor(settings.value("theme.constant.background", "transparent").value<QString>()),
-		settings.value("theme.constant.weight", QFont::Normal).value<int>(),
-		settings.value("theme.constant.italic", false).value<bool>(),
-		settings.value("theme.constant.underline", false).value<bool>()
+		QColor(settings.value("theme.constant.foreground", "black").toString()),
+		QColor(settings.value("theme.constant.background", "transparent").toString()),
+		settings.value("theme.constant.weight", QFont::Normal).toInt(),
+		settings.value("theme.constant.italic", false).toBool(),
+		settings.value("theme.constant.underline", false).toBool()
 		));
 
 	// pointer modifiers
 	rules_.push_back(HighlightingRule(
 		"\\b(t?byte|([xyz]mm|[qdf]?)word)( ptr)?\\b",
-		QColor(settings.value("theme.ptr.foreground", "darkGreen").value<QString>()),
-		QColor(settings.value("theme.ptr.background", "transparent").value<QString>()),
-		settings.value("theme.ptr.weight", QFont::Normal).value<int>(),
-		settings.value("theme.ptr.italic", false).value<bool>(),
-		settings.value("theme.ptr.underline", false).value<bool>()
+		QColor(settings.value("theme.ptr.foreground", "darkGreen").toString()),
+		QColor(settings.value("theme.ptr.background", "transparent").toString()),
+		settings.value("theme.ptr.weight", QFont::Normal).toInt(),
+		settings.value("theme.ptr.italic", false).toBool(),
+		settings.value("theme.ptr.underline", false).toBool()
 		));
 
 	// prefix
 	rules_.push_back(HighlightingRule(
 		"\\b(lock|rep(ne)?)\\b",
-		QColor(settings.value("theme.prefix.foreground", "black").value<QString>()),
-		QColor(settings.value("theme.prefix.background", "transparent").value<QString>()),
-		settings.value("theme.prefix.weight", QFont::Bold).value<int>(),
-		settings.value("theme.prefix.italic", false).value<bool>(),
-		settings.value("theme.prefix.underline", false).value<bool>()
+		QColor(settings.value("theme.prefix.foreground", "black").toString()),
+		QColor(settings.value("theme.prefix.background", "transparent").toString()),
+		settings.value("theme.prefix.weight", QFont::Bold).toInt(),
+		settings.value("theme.prefix.italic", false).toBool(),
+		settings.value("theme.prefix.underline", false).toBool()
 		));
 
 
 	// flow control
 	rules_.push_back(HighlightingRule(
 		"\\b(l?jmp[bswlqt]?|loopn?[ez]|(jn?(a|ae|b|be|c|e|g|ge|l|le|o|p|s|z)|j(pe|po|cxz|ecxz)))\\b",
-		QColor(settings.value("theme.flow_ctrl.foreground", "blue").value<QString>()),
-		QColor(settings.value("theme.flow_ctrl.background", "yellow").value<QString>()),
-		settings.value("theme.flow_ctrl.weight", QFont::Normal).value<int>(),
-		settings.value("theme.flow_ctrl.italic", false).value<bool>(),
-		settings.value("theme.flow_ctrl.underline", false).value<bool>()
+		QColor(settings.value("theme.flow_ctrl.foreground", "blue").toString()),
+		QColor(settings.value("theme.flow_ctrl.background", "yellow").toString()),
+		settings.value("theme.flow_ctrl.weight", QFont::Normal).toInt(),
+		settings.value("theme.flow_ctrl.italic", false).toBool(),
+		settings.value("theme.flow_ctrl.underline", false).toBool()
 		));
 
 
 	// function call
 	rules_.push_back(HighlightingRule(
 		"\\b(call|ret[nf]?)[bswlqt]?\\b",
-		QColor(settings.value("theme.function.foreground", "blue").value<QString>()),
-		QColor(settings.value("theme.function.background", "yellow").value<QString>()),
-		settings.value("theme.function.weight", QFont::Normal).value<int>(),
-		settings.value("theme.function.italic", false).value<bool>(),
-		settings.value("theme.function.underline", false).value<bool>()
+		QColor(settings.value("theme.function.foreground", "blue").toString()),
+		QColor(settings.value("theme.function.background", "yellow").toString()),
+		settings.value("theme.function.weight", QFont::Normal).toInt(),
+		settings.value("theme.function.italic", false).toBool(),
+		settings.value("theme.function.underline", false).toBool()
 		));
 
 	// stack operations
 	rules_.push_back(HighlightingRule(
 		"\\b(pushf?|popf?|enter|leave)\\b",
-		QColor(settings.value("theme.stack.foreground", "blue").value<QString>()),
-		QColor(settings.value("theme.stack.background", "transparent").value<QString>()),
-		settings.value("theme.stack.weight", QFont::Normal).value<int>(),
-		settings.value("theme.stack.italic", false).value<bool>(),
-		settings.value("theme.stack.underline", false).value<bool>()
+		QColor(settings.value("theme.stack.foreground", "blue").toString()),
+		QColor(settings.value("theme.stack.background", "transparent").toString()),
+		settings.value("theme.stack.weight", QFont::Normal).toInt(),
+		settings.value("theme.stack.italic", false).toBool(),
+		settings.value("theme.stack.underline", false).toBool()
 		));
 
 	// comparison
 	rules_.push_back(HighlightingRule(
 		"\\b(cmp|test)[bswlqt]?\\b",
-		QColor(settings.value("theme.comparison.foreground", "blue").value<QString>()),
-		QColor(settings.value("theme.comparison.background", "transparent").value<QString>()),
-		settings.value("theme.comparison.weight", QFont::Normal).value<int>(),
-		settings.value("theme.comparison.italic", false).value<bool>(),
-		settings.value("theme.comparison.underline", false).value<bool>()
+		QColor(settings.value("theme.comparison.foreground", "blue").toString()),
+		QColor(settings.value("theme.comparison.background", "transparent").toString()),
+		settings.value("theme.comparison.weight", QFont::Normal).toInt(),
+		settings.value("theme.comparison.italic", false).toBool(),
+		settings.value("theme.comparison.underline", false).toBool()
 		));
 
 
 	// data transfer
 	rules_.push_back(HighlightingRule(
 		"\\b(c?movs[bw]|lea|xchg|mov([zs]x?)?)[bswlqt]?\\b",
-		QColor(settings.value("theme.data_xfer.foreground", "blue").value<QString>()),
-		QColor(settings.value("theme.data_xfer.background", "transparent").value<QString>()),
-		settings.value("theme.data_xfer.weight", QFont::Normal).value<int>(),
-		settings.value("theme.data_xfer.italic", false).value<bool>(),
-		settings.value("theme.data_xfer.underline", false).value<bool>()
+		QColor(settings.value("theme.data_xfer.foreground", "blue").toString()),
+		QColor(settings.value("theme.data_xfer.background", "transparent").toString()),
+		settings.value("theme.data_xfer.weight", QFont::Normal).toInt(),
+		settings.value("theme.data_xfer.italic", false).toBool(),
+		settings.value("theme.data_xfer.underline", false).toBool()
 		));
 
 	// arithmetic
 	rules_.push_back(HighlightingRule(
 		"\\b(add|sub|i?mul|i?div|neg|adc|sbb|inc|dec)[bswlqt]?\\b",
-		QColor(settings.value("theme.arithmetic.foreground", "blue").value<QString>()),
-		QColor(settings.value("theme.arithmetic.background", "transparent").value<QString>()),
-		settings.value("theme.arithmetic.weight", QFont::Normal).value<int>(),
-		settings.value("theme.arithmetic.italic", false).value<bool>(),
-		settings.value("theme.arithmetic.underline", false).value<bool>()
+		QColor(settings.value("theme.arithmetic.foreground", "blue").toString()),
+		QColor(settings.value("theme.arithmetic.background", "transparent").toString()),
+		settings.value("theme.arithmetic.weight", QFont::Normal).toInt(),
+		settings.value("theme.arithmetic.italic", false).toBool(),
+		settings.value("theme.arithmetic.underline", false).toBool()
 		));
 
 	// logic
 	rules_.push_back(HighlightingRule(
 		"\\b(and|x?or|not)[bswlqt]?\\b",
-		QColor(settings.value("theme.logic.foreground", "blue").value<QString>()),
-		QColor(settings.value("theme.logic.background", "transparent").value<QString>()),
-		settings.value("theme.logic.weight", QFont::Normal).value<int>(),
-		settings.value("theme.logic.italic", false).value<bool>(),
-		settings.value("theme.logic.underline", false).value<bool>()
+		QColor(settings.value("theme.logic.foreground", "blue").toString()),
+		QColor(settings.value("theme.logic.background", "transparent").toString()),
+		settings.value("theme.logic.weight", QFont::Normal).toInt(),
+		settings.value("theme.logic.italic", false).toBool(),
+		settings.value("theme.logic.underline", false).toBool()
 		));
 
 	// shift
 	rules_.push_back(HighlightingRule(
 		"\\b(sh|sa|sc|ro)[rl][bswlqt]?\\b",
-		QColor(settings.value("theme.shift.foreground", "blue").value<QString>()),
-		QColor(settings.value("theme.shift.background", "transparent").value<QString>()),
-		settings.value("theme.shift.weight", QFont::Normal).value<int>(),
-		settings.value("theme.shift.italic", false).value<bool>(),
-		settings.value("theme.shift.underline", false).value<bool>()
+		QColor(settings.value("theme.shift.foreground", "blue").toString()),
+		QColor(settings.value("theme.shift.background", "transparent").toString()),
+		settings.value("theme.shift.weight", QFont::Normal).toInt(),
+		settings.value("theme.shift.italic", false).toBool(),
+		settings.value("theme.shift.underline", false).toBool()
 		));
 
 	// system
 	rules_.push_back(HighlightingRule(
 		"\\b(sti|cli|hlt|in|out|sysenter|sysexit|syscall|sysret|int)\\b",
-		QColor(settings.value("theme.system.foreground", "blue").value<QString>()),
-		QColor(settings.value("theme.system.background", "transparent").value<QString>()),
-		settings.value("theme.system.weight", QFont::Bold).value<int>(),
-		settings.value("theme.system.italic", false).value<bool>(),
-		settings.value("theme.system.underline", false).value<bool>()
+		QColor(settings.value("theme.system.foreground", "blue").toString()),
+		QColor(settings.value("theme.system.background", "transparent").toString()),
+		settings.value("theme.system.weight", QFont::Bold).toInt(),
+		settings.value("theme.system.italic", false).toBool(),
+		settings.value("theme.system.underline", false).toBool()
 		));
 }
 

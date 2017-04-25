@@ -40,6 +40,7 @@ class ResultFilterProxy;
 namespace Ui { class DialogROPTool; }
 
 class ResultFilterProxy : public QSortFilterProxyModel {
+	Q_OBJECT
 public:
 	ResultFilterProxy(QObject *parent = 0) : QSortFilterProxyModel(parent), mask_(0) {
 	}

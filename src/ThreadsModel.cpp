@@ -67,7 +67,7 @@ QVariant ThreadsModel::data(const QModelIndex &index, int role) const {
 					const QString symname = edb::v1::find_function_symbol(item.thread->instruction_pointer(), default_region_name);
 
 					if(!symname.isEmpty()) {
-						return QString("%1 <%2>").arg(edb::v1::format_pointer(item.thread->instruction_pointer())).arg(symname);
+						return QString("%1 <%2>").arg(edb::v1::format_pointer(item.thread->instruction_pointer()), symname);
 					} else {
 						return QString("%1").arg(edb::v1::format_pointer(item.thread->instruction_pointer()));
 					}

@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QValidator>
 
 class HexStringValidator : public QValidator {
+	Q_OBJECT
 public:
 	HexStringValidator(QObject * parent);
 

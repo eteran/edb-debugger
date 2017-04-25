@@ -62,9 +62,9 @@ public:
 	virtual bool isPaused() const override;
 
 public:
-	virtual std::size_t write_bytes(edb::address_t address, const void *buf, size_t len);
-	virtual std::size_t read_bytes(edb::address_t address, void *buf, size_t len) const;
-	virtual std::size_t read_pages(edb::address_t address, void *buf, size_t count) const;
+	virtual std::size_t write_bytes(edb::address_t address, const void *buf, size_t len) override;
+	virtual std::size_t read_bytes(edb::address_t address, void *buf, size_t len) const override;
+	virtual std::size_t read_pages(edb::address_t address, void *buf, size_t count) const override;
 
 private:
 	bool ptrace_poke(edb::address_t address, long value);

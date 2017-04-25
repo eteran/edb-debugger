@@ -87,7 +87,7 @@ void DialogThreads::updateThreads() {
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		std::shared_ptr<IThread> current = process->current_thread();
 
-		for(std::shared_ptr<IThread> thread : process->threads()) {
+		for(std::shared_ptr<IThread> &thread : process->threads()) {
 
 			if(thread == current) {
 				threads_model_->addThread(thread, true);

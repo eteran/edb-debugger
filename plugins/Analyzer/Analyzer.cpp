@@ -904,7 +904,7 @@ QString Analyzer::get_analysis_path(const std::shared_ptr<IRegion> &region) cons
 	{
 		QList<std::shared_ptr<IRegion>> regions = edb::v1::memory_regions().regions();
 		bool base_addr_found = false;
-		for(const std::shared_ptr<IRegion> iregion: regions) {
+		for(const std::shared_ptr<IRegion> &iregion: regions) {
 			if (iregion->name() == region->name()) {
 				if(auto binary_info = edb::v1::get_binary_info(iregion)) {
 					base_address = binary_info->base_address();

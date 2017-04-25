@@ -789,7 +789,7 @@ FlagsRegister<StoredType>::FlagsRegister(QString const& name,
 										 std::vector<BitFieldDescription> const& bitFields)
 			   : SimpleRegister<StoredType>(name)
 {
-	for(auto field : bitFields)
+	for(auto &field : bitFields)
 	{
 		fields.emplace_back(field);
 		fields.back().init(this,fields.size()-1);

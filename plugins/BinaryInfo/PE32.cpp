@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace BinaryInfoPlugin {
 
 PEBinaryException::PEBinaryException(reasonEnum reason): reason_(reason) {}
-const char * PEBinaryException::what() { return "TODO"; }
+const char * PEBinaryException::what() const noexcept { return "TODO"; }
 
 //------------------------------------------------------------------------------
 // Name:

@@ -60,7 +60,7 @@ QList<QByteArray> DialogOpenProgram::arguments() const
 {
 	const QStringList args=edb::v1::parse_command_line(argsEdit->text());
 	QList<QByteArray> ret;
-	for(auto arg : args)
+	for(const QString &arg : args)
 		ret << arg.toLocal8Bit();
 	return ret;
 }

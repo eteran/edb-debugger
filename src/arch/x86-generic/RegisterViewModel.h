@@ -6,6 +6,9 @@
 
 class RegisterViewModel : public RegisterViewModelBase::Model
 {
+	Q_OBJECT
+
+private:
 	// Relying on categories being there for the whole lifetime of the model
 	RegisterViewModelBase::Category* gprs32;
 	RegisterViewModelBase::Category* gprs64;

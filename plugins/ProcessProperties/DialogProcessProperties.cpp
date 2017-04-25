@@ -428,7 +428,7 @@ void DialogProcessProperties::updateEnvironmentPage(const QString &filter) {
 				const QString env_name  = env.mid(0, env.indexOf("="));
 				const QString env_value = env.mid(env.indexOf("=") + 1);
 
-				if(lower_filter.isEmpty() || env_name.toLower().contains(lower_filter)) {
+				if(lower_filter.isEmpty() || env_name.contains(lower_filter, Qt::CaseInsensitive)) {
 					const int row = ui->tableEnvironment->rowCount();
 					ui->tableEnvironment->insertRow(row);
 					ui->tableEnvironment->setItem(row, 0, new QTableWidgetItem(env_name));

@@ -73,7 +73,7 @@ struct elf32_model {
 		}
 
 		QString to_string() const {
-			return QString("%1 %2 %3 %4").arg(edb::value32(address).toHexString()).arg(edb::value32(size).toHexString()).arg(type).arg(name);
+			return QString("%1 %2 %3 %4").arg(edb::value32(address).toHexString(), edb::value32(size).toHexString()).arg(type).arg(name);
 		}
 	};
 };
@@ -110,7 +110,7 @@ struct elf64_model {
 		}
 
 		QString to_string() const {
-			return QString("%1 %2 %3 %4").arg(edb::value64(address).toHexString()).arg(edb::value32(size).toHexString()).arg(type).arg(name);
+			return QString("%1 %2 %3 %4").arg(edb::value64(address).toHexString(), edb::value32(size).toHexString()).arg(type).arg(name);
 		}
 	};
 };

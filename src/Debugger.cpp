@@ -945,7 +945,7 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	}
 
 	// ensure that the detach event fires so that everyone who cases will be notified
-	Q_EMIT(detachEvent());
+	Q_EMIT detachEvent();
 
 	QSettings settings;
 	const QByteArray state = saveState();
@@ -975,11 +975,11 @@ void Debugger::showEvent(QShowEvent *) {
 
 	QSettings settings;
 	settings.beginGroup("Window");
-	const QByteArray state = settings.value("window.state").value<QByteArray>();
-	const int width        = settings.value("window.width", -1).value<int>();
-	const int height       = settings.value("window.height", -1).value<int>();
-	const int x            = settings.value("window.x", -1).value<int>();
-	const int y            = settings.value("window.y", -1).value<int>();
+	const QByteArray state = settings.value("window.state").toByteArray();
+	const int width        = settings.value("window.width", -1).toInt();
+	const int height       = settings.value("window.height", -1).toInt();
+	const int x            = settings.value("window.x", -1).toInt();
+	const int y            = settings.value("window.y", -1).toInt();
 
 	if(width != -1) {
 		resize(width, size().height());
@@ -1010,10 +1010,10 @@ void Debugger::showEvent(QShowEvent *) {
 	}
 
 
-	stack_view_->setShowAddress(settings.value("window.stack.show_address.enabled", true).value<bool>());
-	stack_view_->setShowHexDump(settings.value("window.stack.show_hex.enabled", true).value<bool>());
-	stack_view_->setShowAsciiDump(settings.value("window.stack.show_ascii.enabled", true).value<bool>());
-	stack_view_->setShowComments(settings.value("window.stack.show_comments.enabled", true).value<bool>());
+	stack_view_->setShowAddress(settings.value("window.stack.show_address.enabled", true).toBool());
+	stack_view_->setShowHexDump(settings.value("window.stack.show_hex.enabled", true).toBool());
+	stack_view_->setShowAsciiDump(settings.value("window.stack.show_ascii.enabled", true).toBool());
+	stack_view_->setShowComments(settings.value("window.stack.show_comments.enabled", true).toBool());
 
 	int row_width  = 1;
 	int word_width = edb::v1::pointer_size();
@@ -1022,7 +1022,7 @@ void Debugger::showEvent(QShowEvent *) {
 	stack_view_->setWordWidth(word_width);
 
 
-	QByteArray disassemblyState = settings.value("window.disassembly.state").value<QByteArray>();
+	QByteArray disassemblyState = settings.value("window.disassembly.state").toByteArray();
 	ui.cpuView->restoreState(disassemblyState);
 
 	settings.endGroup();
@@ -1040,7 +1040,8 @@ void Debugger::dragEnterEvent(QDragEnterEvent* event) {
 	// make sure it's only one file
 	if(mimeData->hasUrls() && mimeData->urls().size() == 1) {
 		// extract the local path of the file
-		QUrl url = mimeData->urls()[0].toLocalFile();
+		QList<QUrl> urls = mimeData->urls();
+		QUrl url = urls[0].toLocalFile();
 		if(!url.isEmpty()) {
 			event->accept();
 		}
@@ -1055,7 +1056,8 @@ void Debugger::dropEvent(QDropEvent* event) {
 	const QMimeData* mimeData = event->mimeData();
 
 	if(mimeData->hasUrls() && mimeData->urls().size() == 1) {
-		const QString s = mimeData->urls()[0].toLocalFile();
+		QList<QUrl> urls = mimeData->urls();
+		const QString s = urls[0].toLocalFile();
 		if(!s.isEmpty()) {
 			Q_ASSERT(edb::v1::debugger_core);
 
@@ -2704,7 +2706,7 @@ void Debugger::cleanup_debugger() {
 	Q_ASSERT(!data_regions_.isEmpty());
 	data_regions_.first()->region = std::shared_ptr<IRegion>();
 
-	Q_EMIT(detachEvent());
+	Q_EMIT detachEvent();
 
 	setWindowTitle(tr("edb"));
 
@@ -3053,7 +3055,7 @@ void Debugger::attachComplete() {
 	stackPushAction_   ->setText(tr("&Push %1").arg(word));
 	stackPopAction_    ->setText(tr("P&op %1").arg(word));
 
-	Q_EMIT(attachEvent());
+	Q_EMIT attachEvent();
 }
 
 //------------------------------------------------------------------------------
@@ -3079,7 +3081,8 @@ void Debugger::on_action_Open_triggered() {
 	if(dialog->exec() == QDialog::Accepted) {
 
 		arguments_dialog_->set_arguments(dialog->arguments());
-		const QString filename = dialog->selectedFiles().front();
+		QStringList files = dialog->selectedFiles();
+		const QString filename = files.front();
 		working_directory_ = dialog->workingDirectory();
 		open_file(filename,dialog->arguments());
 	}

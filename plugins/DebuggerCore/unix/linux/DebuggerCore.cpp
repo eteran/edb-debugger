@@ -436,7 +436,7 @@ std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 
 	if(process_) {
 		if(!native::wait_for_sigchld(msecs)) {
-			for(auto thread : process_->threads()) {
+			for(auto &thread : process_->threads()) {
 				int status;
 				const edb::tid_t tid = native::waitpid(thread->tid(), &status, __WALL | WNOHANG);
 				if(tid > 0) {
@@ -552,7 +552,7 @@ void DebuggerCore::detach() {
 
 		clear_breakpoints();
 
-		for(auto thread: process_->threads()) {
+		for(auto &thread: process_->threads()) {
 			ptrace(PTRACE_DETACH, thread->tid(), 0, 0);
 		}
 

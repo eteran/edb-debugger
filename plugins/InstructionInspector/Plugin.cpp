@@ -566,7 +566,7 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 		const auto output=QString::fromUtf8(process.readAllStandardOutput()).split('\n');
 		const auto addrStr=address.toHexString().toLower().replace(QRegExp("^0+"),"");
 		QString result;
-		for(auto line : output)
+		for(auto &line : output)
 		{
 			if(line.contains(QRegExp("^ *"+addrStr+":\t[^\t]+\t")))
 			{
@@ -606,7 +606,7 @@ QString normalizeNDISASM(QString const& text,int bits)
 	{
 		if(!line.contains(QRegExp("^ +-[0-9a-fA-F]+$"))) return text+" ; unexpected format 2";
 		line=line.trimmed();
-		bytes+=line.right(line.size()-1); // remove leading '-'
+		bytes+=line.rightRef(line.size()-1); // remove leading '-'
 	}
 	bytes.replace(QRegExp("(..)"),"\\1 ");
 	return addr+"   "+bytes.trimmed()+"   "+disasm.trimmed();
@@ -636,7 +636,7 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 
 		auto output=QString::fromUtf8(process.readAllStandardOutput()).split('\n');
 		QString result=output.takeFirst();
-		for(auto line : output)
+		for(auto &line : output)
 		{
 			if(line.contains(QRegExp("^ +-[0-9a-fA-F]+$")))
 				result+="\n"+line;

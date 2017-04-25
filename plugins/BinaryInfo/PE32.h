@@ -34,7 +34,7 @@ class PEBinaryException : public std::exception {
 	};
 		PEBinaryException(reasonEnum reason);
 
-		virtual const char * what();
+		virtual const char * what() const noexcept override;
 
 	private:
 		reasonEnum reason_;

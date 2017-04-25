@@ -278,7 +278,7 @@ QString format_char(int pointer_level, edb::address_t arg, QChar type) {
 				int string_length;
 
 				if(edb::v1::get_ascii_string_at_address(arg, string_param, edb::v1::config().min_string_length, 256, string_length)) {
-					return QString("<%1> \"%2\"").arg(edb::v1::format_pointer(arg)).arg(string_param);
+					return QString("<%1> \"%2\"").arg(edb::v1::format_pointer(arg), string_param);
 				} else {
 					char character;
 					process->read_bytes(arg, &character, sizeof(character));
@@ -393,7 +393,7 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 
 			QStringList arguments;
 			int i = 0;
-			for(edb::Argument argument: info->arguments) {
+			for(const edb::Argument &argument: info->arguments) {
 
 				Register arg;
 				if(i+1 > func_param_regs_count()) {
@@ -537,7 +537,7 @@ void analyze_return(const State &state, const edb::Instruction &inst, QStringLis
 
 		const QString symname = edb::v1::find_function_symbol(return_address);
 		if(!symname.isEmpty()) {
-			ret << ArchProcessor::tr("return to %1 <%2>").arg(edb::v1::format_pointer(return_address)).arg(symname);
+			ret << ArchProcessor::tr("return to %1 <%2>").arg(edb::v1::format_pointer(return_address), symname);
 		} else {
 			ret << ArchProcessor::tr("return to %1").arg(edb::v1::format_pointer(return_address));
 		}
@@ -726,7 +726,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							else
 								valueString = "0x" + reg.toHexString();
 						}
-						ret << QString("%1 = %2").arg(temp_operand).arg(valueString);
+						ret << QString("%1 = %2").arg(temp_operand, valueString);
 						break;
 					}
 				case edb::Operand::TYPE_EXPRESSION:
@@ -740,7 +740,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 
                         	switch(operand.size()) {
 							case 1:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(edb::value8(target).toHexString());
+								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::value8(target).toHexString());
 								break;
 							case 2:
 							{
@@ -759,7 +759,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								}
 								else
 									valueStr="0x"+value.toHexString();
-								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
+								ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
 								break;
 							}
 							case 4:
@@ -785,7 +785,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 									valueStr=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value64));
 								else
 									valueStr="0x"+value.toHexString();
-								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
+								ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
 								break;
 							}
 							case 8:
@@ -807,14 +807,14 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								}
 								else
 									valueStr="0x"+value.toHexString();
-								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
+								ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
 								break;
 							}
 							case 10:
 							{
 								const edb::value80 value(target);
 								const QString valueStr = inst.is_fpu() ? isFPU_BCD(inst) ? formatBCD(value) : formatFloat(value) : "0x"+value.toHexString();
-								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueStr);
+								ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
 								break;
 							}
 							case 16:
@@ -826,7 +826,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 									valueString=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value128));
 								else
 									valueString="0x"+edb::value128(target).toHexString();
-								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueString);
+								ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueString);
 								break;
 							}
 							case 32:
@@ -838,16 +838,19 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 									valueString=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value256));
 								else
 									valueString="0x"+edb::value256(target).toHexString();
-								ret << QString("%1 = [%2] = %3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address)).arg(valueString);
+								ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueString);
 								break;
 							}
 							default:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand).arg(edb::v1::format_pointer(effective_address))
-																  .arg(QString("<Error: unexpected size; low bytes form %2>").arg(target.toHexString()));
+								ret << QString("%1 = [%2] = 0x%3").arg(
+									temp_operand, 
+									edb::v1::format_pointer(effective_address), 
+									QString("<Error: unexpected size; low bytes form %2>").arg(target.toHexString())
+									);
 								break;
 							}
 						} else {
-							ret << QString("%1 = [%2] = ?").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
+							ret << QString("%1 = [%2] = ?").arg(temp_operand, edb::v1::format_pointer(effective_address));
 						}
 					}
 					break;
@@ -1170,7 +1173,7 @@ void updateFPURegs(RegisterViewModel& model, const State& state) {
 			const auto value=FOP.value<edb::value16>();
 			// Yes, FOP is a big-endian view of the instruction
 			const auto comment=value>0x7ff ? QString("?!!") :
-								QObject::tr("Insn: %1 %2").arg((edb::value8(value>>8)+0xd8).toHexString()).arg(edb::value8(value).toHexString());
+								QObject::tr("Insn: %1 %2").arg((edb::value8(value>>8)+0xd8).toHexString(), edb::value8(value).toHexString());
 			model.updateFOP(value,comment);
 		}
 		else model.invalidateFOP();

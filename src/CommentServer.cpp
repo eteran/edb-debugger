@@ -82,7 +82,7 @@ Result<QString> CommentServer::resolve_function_call(QHexView::address_t address
 					const QString symname = edb::v1::find_function_symbol(address);
 
 					if(!symname.isEmpty()) {
-						return edb::v1::make_result(tr("return to %1 <%2>").arg(edb::v1::format_pointer(address)).arg(symname));
+						return edb::v1::make_result(tr("return to %1 <%2>").arg(edb::v1::format_pointer(address), symname));
 					} else {
 						return edb::v1::make_result(tr("return to %1").arg(edb::v1::format_pointer(address)));
 					}
