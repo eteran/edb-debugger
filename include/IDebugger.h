@@ -45,11 +45,13 @@ public:
 
 public:
 	// system properties
-	virtual edb::address_t      page_size() const = 0;
-	virtual std::size_t         pointer_size() const = 0;
-	virtual quint64             cpu_type() const = 0;
-	virtual bool                has_extension(quint64 ext) const = 0;
-	virtual QMap<long, QString> exceptions() const = 0;
+    virtual edb::address_t           page_size() const = 0;
+    virtual std::size_t              pointer_size() const = 0;
+    virtual quint64                  cpu_type() const = 0;
+    virtual bool                     has_extension(quint64 ext) const = 0;
+    virtual QMap<qlonglong, QString> exceptions() const = 0;
+    virtual QString                  exceptionName(qlonglong value) = 0;
+    virtual qlonglong                exceptionValue(const QString &name) = 0;
 
 public:
 	// important register names

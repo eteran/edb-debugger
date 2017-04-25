@@ -2229,14 +2229,20 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const std::shared_ptr<const IDe
 	default:
 		{
 			Q_ASSERT(edb::v1::debugger_core);
-			QMap<long, QString> known_exceptions = edb::v1::debugger_core->exceptions();
+            QMap<qlonglong, QString> known_exceptions = edb::v1::debugger_core->exceptions();
 			auto it = known_exceptions.find(event->code());
-			QString exception_name;
+
 			if(it != known_exceptions.end()) {
-				exception_name = it.value();
+
+                const Configuration &config = edb::v1::config();
+                if(config.ignored_exceptions.contains(it.key())) {
+                    return edb::DEBUG_EXCEPTION_NOT_HANDLED;
+                }
+
+                QString exception_name = it.value();
 
 				edb::v1::set_status(tr("%1 signal received. Shift+Step/Run to pass to program, Step/Run to ignore").arg(exception_name),0);
-				if(edb::v1::config().enable_signals_message_box) {
+                if(config.enable_signals_message_box) {
 					QMessageBox::information(this, tr("Debug Event"),
 						tr(
 						"<p>The debugged application has received a debug event-> <strong>%1 (%2)</strong></p>"

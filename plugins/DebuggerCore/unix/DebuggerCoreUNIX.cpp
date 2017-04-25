@@ -43,6 +43,116 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 namespace DebuggerCorePlugin {
+namespace {
+
+struct Exception {
+    qlonglong value;
+    QString   name;
+} Exceptions[] = {
+#ifdef SIGABRT
+    { SIGABRT, "SIGABRT" },
+#endif
+#ifdef SIGALRM
+    { SIGALRM, "SIGALRM" },
+#endif
+#ifdef SIGVTALRM
+    { SIGVTALRM, "SIGVTALRM" },
+#endif
+#ifdef SIGPROF
+    { SIGPROF, "SIGPROF" },
+#endif
+#ifdef SIGBUS
+    { SIGBUS, "SIGBUS" },
+#endif
+#ifdef SIGCHLD
+    { SIGCHLD, "SIGCHLD" },
+#endif
+#ifdef SIGCONT
+    { SIGCONT, "SIGCONT" },
+#endif
+#ifdef SIGFPE
+    { SIGFPE, "SIGFPE" },
+#endif
+#ifdef SIGHUP
+    { SIGHUP, "SIGHUP" },
+#endif
+#ifdef SIGILL
+    { SIGILL, "SIGILL" },
+#endif
+#ifdef SIGINT
+    { SIGINT, "SIGINT" },
+#endif
+#ifdef SIGKILL
+    { SIGKILL, "SIGKILL" },
+#endif
+#ifdef SIGPIPE
+    { SIGPIPE, "SIGPIPE" },
+#endif
+#ifdef SIGQUIT
+    { SIGQUIT, "SIGQUIT" },
+#endif
+#ifdef SIGSEGV
+    { SIGSEGV, "SIGSEGV" },
+#endif
+#ifdef SIGSTOP
+    { SIGSTOP, "SIGSTOP" },
+#endif
+#ifdef SIGTERM
+    { SIGTERM, "SIGTERM" },
+#endif
+#ifdef SIGTSTP
+    { SIGTSTP, "SIGTSTP" },
+#endif
+#ifdef SIGTTIN
+    { SIGTTIN, "SIGTTIN" },
+#endif
+#ifdef SIGTTOU
+    { SIGTTOU, "SIGTTOU" },
+#endif
+#ifdef SIGUSR1
+    { SIGUSR1, "SIGUSR1" },
+#endif
+#ifdef SIGUSR2
+    { SIGUSR2, "SIGUSR2" },
+#endif
+#ifdef SIGPOLL
+    { SIGPOLL, "SIGPOLL" },
+#endif
+#ifdef SIGSYS
+    { SIGSYS, "SIGSYS" },
+#endif
+#ifdef SIGTRAP
+    { SIGTRAP, "SIGTRAP" },
+#endif
+#ifdef SIGURG
+    { SIGURG, "SIGURG" },
+#endif
+#ifdef SIGXCPU
+    { SIGXCPU, "SIGXCPU" },
+#endif
+#ifdef SIGXFSZ
+    { SIGXFSZ, "SIGXFSZ" },
+#endif
+#ifdef SIGRTMIN
+    { SIGRTMIN, "SIGRTMIN" },
+#endif
+#ifdef SIGRTMAX
+    { SIGRTMAX, "SIGRTMAX" },
+#endif
+#ifdef SIGIO
+    { SIGIO, "SIGIO" },
+#endif
+#ifdef SIGSTKFLT
+    { SIGSTKFLT, "SIGSTKFLT" },
+#endif
+#ifdef SIGWINCH
+    { SIGWINCH, "SIGWINCH" },
+#endif
+};
+
+
+
+}
 
 #if !defined(USE_SIGTIMEDWAIT)
 namespace {
@@ -57,7 +167,7 @@ struct sigaction old_action;
 void sigchld_handler(int sig, siginfo_t *info, void *p) {
 
 	if(sig == SIGCHLD) {
-		native::write(selfpipe[1], " ", sizeof(char));
+        native::write(selfpipe[1, " ", sizeof(char));
 	}
 
     // load as volatile
@@ -276,109 +386,38 @@ Status DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QMap<long, QString> DebuggerCoreUNIX::exceptions() const {
-	QMap<long, QString> exceptions;
+QString DebuggerCoreUNIX::exceptionName(qlonglong value) {
+    for(Exception e : Exceptions) {
+        if(value == e.value) {
+            return e.name;
+        }
+    }
+    return QString();
+}
 
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+qlonglong DebuggerCoreUNIX::exceptionValue(const QString &name) {
+    for(Exception e : Exceptions) {
+        if(name == e.name) {
+            return e.value;
+        }
+    }
+    return -1;
+}
 
-	#ifdef SIGABRT
-		exceptions[SIGABRT] = "SIGABRT";
-	#endif
-	#ifdef SIGALRM
-		exceptions[SIGALRM] = "SIGALRM";
-	#endif
-	#ifdef SIGVTALRM
-		exceptions[SIGVTALRM] = "SIGVTALRM";
-	#endif
-	#ifdef SIGPROF
-		exceptions[SIGPROF] = "SIGPROF";
-	#endif
-	#ifdef SIGBUS
-		exceptions[SIGBUS] = "SIGBUS";
-	#endif
-	#ifdef SIGCHLD
-		exceptions[SIGCHLD] = "SIGCHLD";
-	#endif
-	#ifdef SIGCONT
-		exceptions[SIGCONT] = "SIGCONT";
-	#endif
-	#ifdef SIGFPE
-		exceptions[SIGFPE] = "SIGFPE";
-	#endif
-	#ifdef SIGHUP
-		exceptions[SIGHUP] = "SIGHUP";
-	#endif
-	#ifdef SIGILL
-		exceptions[SIGILL] = "SIGILL";
-	#endif
-	#ifdef SIGINT
-		exceptions[SIGINT] = "SIGINT";
-	#endif
-	#ifdef SIGKILL
-		exceptions[SIGKILL] = "SIGKILL";
-	#endif
-	#ifdef SIGPIPE
-		exceptions[SIGPIPE] = "SIGPIPE";
-	#endif
-	#ifdef SIGQUIT
-		exceptions[SIGQUIT] = "SIGQUIT";
-	#endif
-	#ifdef SIGSEGV
-		exceptions[SIGSEGV] = "SIGSEGV";
-	#endif
-	#ifdef SIGSTOP
-		exceptions[SIGSTOP] = "SIGSTOP";
-	#endif
-	#ifdef SIGTERM
-		exceptions[SIGTERM] = "SIGTERM";
-	#endif
-	#ifdef SIGTSTP
-		exceptions[SIGTSTP] = "SIGTSTP";
-	#endif
-	#ifdef SIGTTIN
-		exceptions[SIGTTIN] = "SIGTTIN";
-	#endif
-	#ifdef SIGTTOU
-		exceptions[SIGTTOU] = "SIGTTOU";
-	#endif
-	#ifdef SIGUSR1
-		exceptions[SIGUSR1] = "SIGUSR1";
-	#endif
-	#ifdef SIGUSR2
-		exceptions[SIGUSR2] = "SIGUSR2";
-	#endif
-	#ifdef SIGPOLL
-		exceptions[SIGPOLL] = "SIGPOLL";
-	#endif
-	#ifdef SIGSYS
-		exceptions[SIGSYS] = "SIGSYS";
-	#endif
-	#ifdef SIGTRAP
-		exceptions[SIGTRAP] = "SIGTRAP";
-	#endif
-	#ifdef SIGURG
-		exceptions[SIGURG] = "SIGURG";
-	#endif
-	#ifdef SIGXCPU
-		exceptions[SIGXCPU] = "SIGXCPU";
-	#endif
-	#ifdef SIGXFSZ
-		exceptions[SIGXFSZ] = "SIGXFSZ";
-	#endif
-	#ifdef SIGRTMIN
-		exceptions[SIGRTMIN] = "SIGRTMIN";
-	#endif
-	#ifdef SIGRTMAX
-		exceptions[SIGRTMAX] = "SIGRTMAX";
-	#endif
-	#ifdef SIGIO
-		exceptions[SIGIO] = "SIGIO";
-	#endif
-	#ifdef SIGSTKFLT
-		exceptions[SIGSTKFLT] = "SIGSTKFLT";
-	#endif
-	#ifdef SIGWINCH
-		exceptions[SIGWINCH] = "SIGWINCH";
-	#endif
+//------------------------------------------------------------------------------
+// Name:
+// Desc:
+//------------------------------------------------------------------------------
+QMap<qlonglong, QString> DebuggerCoreUNIX::exceptions() const {
+
+    QMap<qlonglong, QString> exceptions;
+    for(Exception e : Exceptions) {
+        exceptions[e.value] = e.name;
+    }
 	return exceptions;
 }
 

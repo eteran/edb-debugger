@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogOptions.h"
 #include "edb.h"
+#include "IDebugger.h"
 #include "Configuration.h"
 
 #include <QFontDialog>
@@ -216,6 +217,23 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	ui->rdoPlaceDefault ->setChecked(config.startup_window_location == Configuration::SystemDefault);
 	ui->rdoPlaceCentered->setChecked(config.startup_window_location == Configuration::Centered);
 	ui->rdoPlaceRestore ->setChecked(config.startup_window_location == Configuration::Restore);
+	
+	ui->listIgnoredExceptions->clear();
+	if(edb::v1::debugger_core) {
+        QMap<qlonglong, QString> known_exceptions = edb::v1::debugger_core->exceptions();
+		
+		for(auto it = known_exceptions.begin(); it != known_exceptions.end(); ++it) {
+			auto item = new QListWidgetItem(*it, ui->listIgnoredExceptions);
+			item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
+
+            if(config.ignored_exceptions.contains(it.key())) {
+                item->setCheckState(Qt::Checked);
+            } else {
+                item->setCheckState(Qt::Unchecked);
+            }
+            item->setData(Qt::UserRole, it.key());
+		}	
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -303,10 +321,15 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 		config.startup_window_location = Configuration::Restore;
 	}
 
+    config.ignored_exceptions.clear();
+    for(int i = 0; i < ui->listIgnoredExceptions->count(); ++i) {
+        auto item = ui->listIgnoredExceptions->item(i);
+        if(item->checkState() == Qt::Checked) {
+            config.ignored_exceptions.push_back(item->data(Qt::UserRole).toLongLong());
+        }
+    }
 
 	config.sendChangeNotification();
-
-
 	event->accept();
 }
 

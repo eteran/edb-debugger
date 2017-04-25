@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "API.h"
 #include <QString>
 #include <QObject>
+#include <QVector>
 
 class EDB_EXPORT Configuration : public QObject {
 	Q_OBJECT
@@ -109,6 +110,7 @@ public:
 
 	// Exceptions tab
 	bool              enable_signals_message_box;
+    QList<qlonglong>  ignored_exceptions;
 
 protected:
 	void read_settings();

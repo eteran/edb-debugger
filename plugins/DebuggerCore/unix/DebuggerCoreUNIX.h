@@ -47,7 +47,9 @@ protected:
 	Status execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args);
 
 public:
-	virtual QMap<long, QString> exceptions() const;
+    virtual QMap<qlonglong, QString> exceptions() const;
+    virtual QString                  exceptionName(qlonglong value);
+    virtual qlonglong                exceptionValue(const QString &name);
 };
 
 }

@@ -139,7 +139,15 @@ void Configuration::read_settings() {
 	settings.endGroup();
 
 	settings.beginGroup("Exceptions");
-	enable_signals_message_box=settings.value("signals.show_message_box.enabled", true).toBool();
+	enable_signals_message_box = settings.value("signals.show_message_box.enabled", true).toBool();
+	
+	auto temp_ignored_exceptions = settings.value("signals.ignore_list", QVariantList()).toList();
+
+    ignored_exceptions.clear();
+    for(QVariant exception : temp_ignored_exceptions) {
+        ignored_exceptions.push_back(exception.toLongLong());
+    }
+
 	settings.endGroup();
 
 	settings.beginGroup("Window");
@@ -229,6 +237,13 @@ void Configuration::write_settings() {
 
 	settings.beginGroup("Exceptions");
 	settings.setValue("signals.show_message_box.enabled", enable_signals_message_box);
+	QVariantList temp_ignored_exceptions;
+
+    for(qlonglong exception : ignored_exceptions) {
+        temp_ignored_exceptions.push_back(exception);
+    }
+	
+	settings.setValue("signals.ignore_list", temp_ignored_exceptions);
 	settings.endGroup();
 
 	settings.beginGroup("Window");
