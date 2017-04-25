@@ -336,7 +336,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 		arguments_dialog_(new DialogArguments),
 		timer_(new QTimer(this)),
 		recent_file_manager_(new RecentFileManager(this)),
-		stack_comment_server_(new CommentServer),
+        comment_server_(new CommentServer),
 		stack_view_locked_(false)
 #ifdef Q_OS_UNIX
 		,debug_pointer_(0), dynamic_info_bp_set_(false)
@@ -713,6 +713,9 @@ void Debugger::create_data_tab() {
 		hexview->setAddressOffset(0);
 	}
 
+    // NOTE(eteran): for issue #522, allow comments in data view when single word width
+    hexview->setCommentServer(comment_server_);
+
 	hexview->setData(new_data_view->stream);
 
 	const Configuration &config = edb::v1::config();
@@ -867,9 +870,6 @@ void Debugger::setup_ui() {
 	ui.statusbar->insertPermanentWidget(0, status_);
 
 	// add toggles for the dock windows
-#if 0
-	ui.menu_View->addAction(ui.registersDock->toggleViewAction());
-#endif
 	ui.menu_View->addAction(ui.dataDock     ->toggleViewAction());
 	ui.menu_View->addAction(ui.stackDock    ->toggleViewAction());
 	ui.menu_View->addAction(ui.toolBar      ->toggleViewAction());
@@ -877,9 +877,6 @@ void Debugger::setup_ui() {
 	ui.action_Restart->setEnabled(recent_file_manager_->entry_count()>0);
 
 	// make sure our widgets use custom context menus
-#if 0
-	ui.registerList->setContextMenuPolicy(Qt::CustomContextMenu);
-#endif
 	ui.cpuView     ->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	// set the listbox to about 4 lines
@@ -925,7 +922,7 @@ void Debugger::setup_stack_view() {
 	stack_view_info_.view = stack_view_;
 
 	// setup the comment server for the stack viewer
-	stack_view_->setCommentServer(stack_comment_server_);
+    stack_view_->setCommentServer(comment_server_);
 }
 
 //------------------------------------------------------------------------------
@@ -2826,9 +2823,9 @@ void Debugger::set_initial_debugger_state() {
 	// create our binary info object for the primary code module
 	binary_info_ = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
-	stack_comment_server_->clear();
+    comment_server_->clear();
 	if(binary_info_) {
-		stack_comment_server_->set_comment(binary_info_->entry_point(), "<entry point>");
+        comment_server_->set_comment(binary_info_->entry_point(), "<entry point>");
 	}
 }
 

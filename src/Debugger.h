@@ -313,7 +313,7 @@ private:
 	QTimer *                                         timer_;
 	RecentFileManager *                              recent_file_manager_;
 
-	QSharedPointer<QHexView::CommentServerInterface> stack_comment_server_;
+	QSharedPointer<QHexView::CommentServerInterface> comment_server_;
 	std::shared_ptr<IBreakpoint>                             reenable_breakpoint_run_;
 	std::shared_ptr<IBreakpoint>                             reenable_breakpoint_step_;
 	std::unique_ptr<IBinary>                         binary_info_;
