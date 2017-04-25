@@ -28,7 +28,7 @@ Dependency                                  | Version Required
 [Qt](http://www.qt.io/)                     | >= 4.6
 [Boost](http://boost.org) (Headers Only)    | >= 1.35
 [Capstone](http://www.capstone-engine.org/) | >= 3.0
-[Graphviz] (http://www.graphviz.org/)       | >= 2.38.0 (Optional)
+[Graphviz](http://www.graphviz.org/)        | >= 2.38.0 (Optional)
 
 Many distributions already have packages that satisify these.
 
