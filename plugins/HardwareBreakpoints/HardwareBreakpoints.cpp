@@ -96,6 +96,14 @@ void HardwareBreakpoints::setupBreakpoints() {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
+		if(!process->isPaused()) {
+			QMessageBox::warning(
+				nullptr,
+				tr("Process Not Paused"),
+				tr("Unable to update hardware breakpoints because the process does not appear to be currently paused. Please suspend the process."));
+			return;
+		}
+
 		const bool enabled =
 			enabled_[Register1]->isChecked() ||
 			enabled_[Register2]->isChecked() ||
@@ -115,7 +123,7 @@ void HardwareBreakpoints::setupBreakpoints() {
 
 			if(!ok[Register1] && !ok[Register2] && !ok[Register3] && !ok[Register4]) {
 				QMessageBox::critical(
-					0,
+					nullptr,
 					tr("Address Error"),
 					tr("An address expression provided does not appear to be valid"));
 				return;
@@ -134,13 +142,13 @@ void HardwareBreakpoints::setupBreakpoints() {
 					switch(status) {
 					case AlignmentError:
 						QMessageBox::critical(
-							0,
+							nullptr,
 							tr("Address Alignment Error"),
 							tr("Hardware read/write breakpoint address must be aligned to breakpoint size."));
 						return;
 					case SizeError:
 					QMessageBox::critical(
-						0,
+						nullptr,
 						tr("BP Size Error"),
 						tr("Hardware read/write breakpoints cannot be 8-bytes in a 32-bit debuggee."));
 						return;
@@ -160,7 +168,6 @@ void HardwareBreakpoints::setupBreakpoints() {
 				State state;
 				thread->get_state(&state);
 
-
 				for(int i = 0; i < RegisterCount; ++i) {
 					if(ok[i]) {
 						setBreakpointState(
@@ -171,8 +178,7 @@ void HardwareBreakpoints::setupBreakpoints() {
 								addr[i],
 								types_[i]->currentIndex(),
 								sizes_[i]->currentIndex()
-							}
-							);
+							});
 					}
 				}
 
@@ -368,6 +374,14 @@ void HardwareBreakpoints::setExecuteBP(int index, bool inUse) {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
+		if(!process->isPaused()) {
+			QMessageBox::warning(
+				nullptr,
+				tr("Process Not Paused"),
+				tr("Unable to update hardware breakpoints because the process does not appear to be currently paused. Please suspend the process."));
+			return;
+		}
+
 		if(inUse) {
 			QMessageBox::StandardButton button = QMessageBox::question(nullptr, tr("Breakpoint Already In Use"), tr("This breakpoint is already being used. Do you want to replace it?"), QMessageBox::Yes | QMessageBox::Cancel);
 			if(button != QMessageBox::Yes) {
@@ -400,6 +414,14 @@ void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t addre
 	}
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
+
+		if(!process->isPaused()) {
+			QMessageBox::warning(
+				nullptr,
+				tr("Process Not Paused"),
+				tr("Unable to update hardware breakpoints because the process does not appear to be currently paused. Please suspend the process."));
+			return;
+		}
 
 		if(inUse) {
 			QMessageBox::StandardButton button = QMessageBox::question(nullptr, tr("Breakpoint Already In Use"), tr("This breakpoint is already being used. Do you want to replace it?"), QMessageBox::Yes | QMessageBox::Cancel);
@@ -449,6 +471,14 @@ void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t a
 	}
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
+
+		if(!process->isPaused()) {
+			QMessageBox::warning(
+				nullptr,
+				tr("Process Not Paused"),
+				tr("Unable to update hardware breakpoints because the process does not appear to be currently paused. Please suspend the process."));
+			return;
+		}
 
 		if(inUse) {
 			QMessageBox::StandardButton button = QMessageBox::question(nullptr, tr("Breakpoint Already In Use"), tr("This breakpoint is already being used. Do you want to replace it?"), QMessageBox::Yes | QMessageBox::Cancel);

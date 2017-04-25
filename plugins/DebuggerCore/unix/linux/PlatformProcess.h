@@ -39,26 +39,27 @@ private:
 	PlatformProcess& operator=(const PlatformProcess &) = delete;
 
 public:
-	virtual QDateTime               start_time() const;
-	virtual QList<QByteArray>       arguments() const;
-	virtual QString                 current_working_directory() const;
-	virtual QString                 executable() const;
-	virtual edb::pid_t              pid() const;
-	virtual std::shared_ptr<IProcess>       parent() const;
-	virtual edb::address_t          code_address() const;
-	virtual edb::address_t          data_address() const;
-	virtual QList<std::shared_ptr<IRegion>> regions() const;
-	virtual QList<std::shared_ptr<IThread>> threads() const;
-	virtual std::shared_ptr<IThread>        current_thread() const;
-	virtual edb::uid_t              uid() const;
-	virtual QString                 user() const;
-	virtual QString                 name() const;
-	virtual QList<Module>           loaded_modules() const;
+	virtual QDateTime                       start_time() const override;
+	virtual QList<QByteArray>               arguments() const override;
+	virtual QString                         current_working_directory() const override;
+	virtual QString                         executable() const override;
+	virtual edb::pid_t                      pid() const override;
+	virtual std::shared_ptr<IProcess>       parent() const override;
+	virtual edb::address_t                  code_address() const override;
+	virtual edb::address_t                  data_address() const override;
+	virtual QList<std::shared_ptr<IRegion>> regions() const override;
+	virtual QList<std::shared_ptr<IThread>> threads() const override;
+	virtual std::shared_ptr<IThread>        current_thread() const override;
+	virtual edb::uid_t                      uid() const override;
+	virtual QString                         user() const override;
+	virtual QString                         name() const override;
+	virtual QList<Module>                   loaded_modules() const override;
 
 public:
-	virtual void                    pause();
-	virtual void                    resume(edb::EVENT_STATUS status);
-	virtual void                    step(edb::EVENT_STATUS status);
+	virtual void pause() override;
+	virtual void resume(edb::EVENT_STATUS status) override;
+	virtual void step(edb::EVENT_STATUS status) override;
+	virtual bool isPaused() const override;
 
 public:
 	virtual std::size_t write_bytes(edb::address_t address, const void *buf, size_t len);

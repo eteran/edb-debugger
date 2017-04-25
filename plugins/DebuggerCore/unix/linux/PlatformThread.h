@@ -65,6 +65,9 @@ public:
 	virtual void resume(edb::EVENT_STATUS status) override;
 	virtual void stop() override;
 
+public:
+	virtual bool isPaused() const override;
+
 private:
 	void fillSegmentBases(PlatformState* state);
 	bool fillStateFromPrStatus(PlatformState* state);

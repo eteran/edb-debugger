@@ -45,6 +45,9 @@ public:
 	virtual void resume() = 0;
 	virtual void resume(edb::EVENT_STATUS status) = 0;
 	virtual void stop() = 0;
+
+public:
+	virtual bool isPaused() const = 0;
 };
 
 #endif

@@ -765,4 +765,18 @@ void PlatformProcess::step(edb::EVENT_STATUS status) {
 	}
 }
 
+//------------------------------------------------------------------------------
+// Name: isPaused
+// Desc: returns true if ALL threads are currently in the debugger's wait list
+//------------------------------------------------------------------------------
+bool PlatformProcess::isPaused() const {
+	for(auto &thread : threads()) {
+		if(!thread->isPaused()) {
+			return false;
+		}
+	}
+
+	return true;
+}
+
 }

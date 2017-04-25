@@ -309,14 +309,14 @@ void PlatformThread::get_state(State *state) {
 	core_->detectDebuggeeBitness();
 
 	if(auto state_impl = static_cast<PlatformState *>(state->impl_)) {
-	
+
 		// State must be cleared before filling to zero all presence flags, otherwise something
 		// may remain not updated. Also, this way we'll mark all the unfilled values.
 		state_impl->clear();
 
 		if(EDB_IS_64_BIT) {
 			// 64-bit GETREGS call always returns 64-bit state, so use it
-			fillStateFromSimpleRegs(state_impl); 
+			fillStateFromSimpleRegs(state_impl);
 		} else if(!fillStateFromPrStatus(state_impl)) {
 			// if EDB is 32 bit, use GETREGSET so that we get 64-bit state for 64-bit debuggee
 			fillStateFromSimpleRegs(state_impl);
@@ -326,16 +326,16 @@ void PlatformThread::get_state(State *state) {
 		// First try to get full XSTATE
 		X86XState xstate;
 		struct iovec iov = { &xstate, sizeof(xstate) };
-		
+
 		long status = ptrace(PTRACE_GETREGSET, tid_, NT_X86_XSTATE, &iov);
-		
+
 		if(status == -1 || !state_impl->fillFrom(xstate,iov.iov_len)) {
 
 			// No XSTATE available, get just floating point and SSE registers
 			static bool getFPXRegsSupported = EDB_IS_32_BIT;
-			
+
 			UserFPXRegsStructX86 fpxregs;
-			
+
 			// This should be automatically optimized out on amd64. If not, not a big deal.
 			// Avoiding conditional compilation to facilitate syntax error checking
 			if(getFPXRegsSupported) {
@@ -349,7 +349,7 @@ void PlatformThread::get_state(State *state) {
 				//                on x86_64 FPREGS already contain SSE state
 				struct user_fpregs_struct fpregs;
 				status = ptrace(PTRACE_GETFPREGS, tid_, 0, &fpregs);
-				
+
 				if(status != -1) {
 					state_impl->fillFrom(fpregs);
 				} else {
@@ -380,7 +380,7 @@ void PlatformThread::set_state(const State &state) {
 			// Try to set 64-bit state
 			PrStatus_X86_64 prstat64;
 			state_impl->fillStruct(prstat64);
-	
+
 			struct iovec prstat_iov = { &prstat64, sizeof(prstat64) };
 			if(ptrace(PTRACE_SETREGSET, tid_, NT_PRSTATUS, &prstat_iov) != -1) {
 				setPrStatusDone = true;
@@ -388,7 +388,7 @@ void PlatformThread::set_state(const State &state) {
 				perror("PTRACE_SETREGSET failed");
 			}
 		}
-		
+
 		// Fallback to setting 32-bit set
 		if(!setPrStatusDone) {
 			struct user_regs_struct regs;
@@ -403,7 +403,7 @@ void PlatformThread::set_state(const State &state) {
 
 		// hope for the best, adjust for reality
 		static bool xsaveSupported = true;
-		
+
 		if(xsaveSupported) {
 			X86XState xstate;
 			const auto size = state_impl->fillStruct(xstate);
@@ -412,7 +412,7 @@ void PlatformThread::set_state(const State &state) {
 				xsaveSupported = false;
 			}
 		}
-		
+
 		// If xsave/xrstor appears unsupported, fallback to fxrstor
 		// NOTE: it's not "else", it's an independent check for possibly modified flag
 		if(!xsaveSupported) {
@@ -422,7 +422,7 @@ void PlatformThread::set_state(const State &state) {
 				state_impl->fillStruct(fpxregs);
 				setFPXRegsSupported = (ptrace(PTRACE_SETFPXREGS, tid_, 0, &fpxregs) != -1);
 			}
-			
+
 			if(!setFPXRegsSupported) {
 				// No SETFPXREGS: on x86 this means SSE is not supported
 				//                on x86_64 FPREGS already contain SSE state
@@ -461,6 +461,14 @@ void PlatformThread::stop() {
 	syscall(SYS_tgkill, process_->pid(), tid_, SIGSTOP);
 	// TODO(eteran): should this just be this?
 	//::kill(tid_, SIGSTOP);
+}
+
+//------------------------------------------------------------------------------
+// Name: isPaused
+// Desc: returns true if this thread is currently in the debugger's wait list
+//------------------------------------------------------------------------------
+bool PlatformThread::isPaused() const {
+	return core_->waited_threads_.contains(tid_);
 }
 
 
