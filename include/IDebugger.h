@@ -71,7 +71,6 @@ public:
 
 public:
 	// basic process management
-	// These three functions return empty string on success, string with error description on error
 	virtual Status attach(edb::pid_t pid) = 0;
 	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args) = 0;
 	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
@@ -84,11 +83,11 @@ public:
 
 public:
 	// basic breakpoint managment
-	virtual BreakpointList       backup_breakpoints() const = 0;
+	virtual BreakpointList               backup_breakpoints() const = 0;
 	virtual std::shared_ptr<IBreakpoint> add_breakpoint(edb::address_t address) = 0;
 	virtual std::shared_ptr<IBreakpoint> find_breakpoint(edb::address_t address) = 0;
-	virtual void                 clear_breakpoints() = 0;
-	virtual void                 remove_breakpoint(edb::address_t address) = 0;
+	virtual void                         clear_breakpoints() = 0;
+	virtual void                         remove_breakpoint(edb::address_t address) = 0;
 
 public:
 	virtual IState *create_state() const = 0;
@@ -98,6 +97,6 @@ public:
 	virtual IProcess *process() const = 0;
 };
 
-Q_DECLARE_INTERFACE(IDebugger, "EDB.IDebugger/1.0")
+Q_DECLARE_INTERFACE(IDebugger, "edb.IDebugger/1.0")
 
 #endif

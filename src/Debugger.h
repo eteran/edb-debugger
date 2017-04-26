@@ -62,6 +62,13 @@ public:
 	virtual ~Debugger();
 
 private:
+
+	enum class ResumeFlag {
+		None   = 0,
+		Forced = 1,
+	};
+	Q_DECLARE_FLAGS(ResumeFlags, ResumeFlag)
+
 	enum DEBUG_MODE {
 		MODE_STEP,
 		MODE_TRACE,
@@ -151,7 +158,7 @@ public Q_SLOTS:
 private:
 	void toggle_flag(int);
 
-	void run_to_this_line(bool pass_signal);
+	void run_to_this_line(EXCEPTION_RESUME pass_signal);
 
 private Q_SLOTS:
 	// the manually connected general slots
@@ -250,7 +257,7 @@ private:
 	void finish_plugin_setup();
 	void follow_register_in_dump(bool tabbed);
 	void load_session(const QString &session_file);
-	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced);
+	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, ResumeFlags flags);
 	void save_session(const QString &session_file);
 	void set_debugger_caption(const QString &appname);
 	void set_initial_breakpoint(const QString &s);

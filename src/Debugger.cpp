@@ -1892,7 +1892,7 @@ void Debugger::mnuCPURemoveComment() {
 // Name: run_to_this_line
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::run_to_this_line(bool pass_signal) {
+void Debugger::run_to_this_line(EXCEPTION_RESUME pass_signal) {
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	std::shared_ptr<IBreakpoint> bp = edb::v1::find_breakpoint(address);
 	if(!bp) {
@@ -1902,10 +1902,8 @@ void Debugger::run_to_this_line(bool pass_signal) {
 		bp->set_internal(true);
 		bp->tag = run_to_cursor_tag;
 	}
-    if(pass_signal)
-		resume_execution(PASS_EXCEPTION, MODE_RUN, false);
-	else
-		resume_execution(IGNORE_EXCEPTION, MODE_RUN, false);
+
+	resume_execution(pass_signal, MODE_RUN, ResumeFlag::None);
 }
 
 //------------------------------------------------------------------------------
@@ -1913,7 +1911,7 @@ void Debugger::run_to_this_line(bool pass_signal) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuCPURunToThisLinePassSignal() {
-	run_to_this_line(true);
+	run_to_this_line(PASS_EXCEPTION);
 }
 
 //------------------------------------------------------------------------------
@@ -1921,7 +1919,7 @@ void Debugger::mnuCPURunToThisLinePassSignal() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuCPURunToThisLine() {
-	run_to_this_line(false);
+	run_to_this_line(IGNORE_EXCEPTION);
 }
 
 //------------------------------------------------------------------------------
@@ -1940,11 +1938,18 @@ void Debugger::mnuCPUToggleBreakpoint() {
 void Debugger::mnuCPUAddConditionalBreakpoint() {
 	bool ok;
 	const edb::address_t address = ui.cpuView->selectedAddress();
-	const QString condition = QInputDialog::getText(this, tr("Set Breakpoint Condition"), tr("Expression:"), QLineEdit::Normal, QString(), &ok);
+	const QString condition = QInputDialog::getText(
+	                              this,
+	                              tr("Set Breakpoint Condition"),
+	                              tr("Expression:"),
+	                              QLineEdit::Normal,
+	                              QString(),
+	                              &ok);
 	if(ok) {
-		edb::v1::create_breakpoint(address);
-		if(!condition.isEmpty()) {
-			edb::v1::set_breakpoint_condition(address, condition);
+		if(std::shared_ptr<IBreakpoint> bp = edb::v1::create_breakpoint(address)) {
+			if(!condition.isEmpty()) {
+				bp->condition = condition;
+			}
 		}
 	}
 }
@@ -2541,7 +2546,7 @@ edb::EVENT_STATUS Debugger::resume_status(bool pass_exception) {
 // Name: resume_execution
 // Desc: resumes execution, handles the situation of being on a breakpoint as well
 //------------------------------------------------------------------------------
-void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, bool forced) {
+void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, ResumeFlags flags) {
 
 	edb::v1::clear_status();
 	Q_ASSERT(edb::v1::debugger_core);
@@ -2555,7 +2560,7 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 
 			// if we are on a breakpoint, disable it
 			std::shared_ptr<IBreakpoint> bp;
-			if(!forced) {
+			if(!(flags & ResumeFlag::Forced)) {
 				State state;
 				thread->get_state(&state);
 				bp = edb::v1::debugger_core->find_breakpoint(state.instruction_pointer());
@@ -2589,7 +2594,7 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_Run_Pass_Signal_To_Application_triggered() {
-	resume_execution(PASS_EXCEPTION, MODE_RUN, false);
+	resume_execution(PASS_EXCEPTION, MODE_RUN, ResumeFlag::None);
 }
 
 //------------------------------------------------------------------------------
@@ -2597,7 +2602,7 @@ void Debugger::on_action_Run_Pass_Signal_To_Application_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_Step_Into_Pass_Signal_To_Application_triggered() {
-	resume_execution(PASS_EXCEPTION, MODE_STEP, false);
+	resume_execution(PASS_EXCEPTION, MODE_STEP, ResumeFlag::None);
 }
 
 //------------------------------------------------------------------------------
@@ -2605,7 +2610,7 @@ void Debugger::on_action_Step_Into_Pass_Signal_To_Application_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_Run_triggered() {
-	resume_execution(IGNORE_EXCEPTION, MODE_RUN, false);
+	resume_execution(IGNORE_EXCEPTION, MODE_RUN, ResumeFlag::None);
 }
 
 //------------------------------------------------------------------------------
@@ -2613,7 +2618,7 @@ void Debugger::on_action_Run_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_Step_Into_triggered() {
-	resume_execution(IGNORE_EXCEPTION, MODE_STEP, false);
+	resume_execution(IGNORE_EXCEPTION, MODE_STEP, ResumeFlag::None);
 }
 
 //------------------------------------------------------------------------------
@@ -3392,16 +3397,16 @@ void Debugger::next_debug_event() {
 			update_menu_state(edb::v1::debugger_core->process() ? PAUSED : TERMINATED);
 			break;
 		case edb::DEBUG_CONTINUE:
-			resume_execution(IGNORE_EXCEPTION, MODE_RUN, true);
+			resume_execution(IGNORE_EXCEPTION, MODE_RUN, ResumeFlag::Forced);
 			break;
 		case edb::DEBUG_CONTINUE_BP:
-			resume_execution(IGNORE_EXCEPTION, MODE_RUN, false);
+			resume_execution(IGNORE_EXCEPTION, MODE_RUN, ResumeFlag::None);
 			break;
 		case edb::DEBUG_CONTINUE_STEP:
-			resume_execution(IGNORE_EXCEPTION, MODE_STEP, true);
+			resume_execution(IGNORE_EXCEPTION, MODE_STEP, ResumeFlag::Forced);
 			break;
 		case edb::DEBUG_EXCEPTION_NOT_HANDLED:
-			resume_execution(PASS_EXCEPTION, MODE_RUN, true);
+			resume_execution(PASS_EXCEPTION, MODE_RUN, ResumeFlag::Forced);
 			break;
 		}
 	}
