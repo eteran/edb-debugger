@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class EDB_EXPORT IRegion {
 public:
-	typedef quint32                 permissions_t;
+	using permissions_t = quint32;
 
 public:
 	virtual ~IRegion() = default;

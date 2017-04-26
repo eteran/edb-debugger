@@ -356,7 +356,7 @@ Status DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd
 			++p;
 		}
 
-		*p = '\0';
+		*p = nullptr;
 
 		// NOTE: it's a bad idea to use execvp and similar functions searching in
 		// $PATH. At least on Linux, if the file is corrupted/unsupported, they

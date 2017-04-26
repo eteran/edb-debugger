@@ -144,7 +144,7 @@ void Configuration::read_settings() {
 	auto temp_ignored_exceptions = settings.value("signals.ignore_list", QVariantList()).toList();
 
     ignored_exceptions.clear();
-    for(QVariant exception : temp_ignored_exceptions) {
+	for(QVariant &exception : temp_ignored_exceptions) {
         ignored_exceptions.push_back(exception.toLongLong());
     }
 

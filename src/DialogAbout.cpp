@@ -29,7 +29,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 DialogAbout::DialogAbout(QWidget *parent) : QDialog(parent), ui(new Ui::DialogAbout) {
 	ui->setupUi(this);
-	ui->labelVersion->setText(tr("Version: %1<br>\nCompiled: %2<br>\nGit Commit: <a href=\"https://github.com/eteran/edb-debugger/commit/%3\">%3</a>").arg(edb::version).arg(__DATE__).arg(TOSTRING(GIT_BRANCH)));
+	ui->labelVersion->setText(tr("Version: %1<br>\n"
+	                             "Compiled: %2<br>\n"
+	                             "Git Commit: <a href=\"https://github.com/eteran/edb-debugger/commit/%3\">%3</a>").arg(edb::version, __DATE__, TOSTRING(GIT_BRANCH)));
 }
 
 //------------------------------------------------------------------------------
