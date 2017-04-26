@@ -332,7 +332,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 		del_tab_(0),
 		tty_proc_(new QProcess(this)),
 		gui_state_(TERMINATED),
-		stack_view_info_(std::shared_ptr<IRegion>()),
+		stack_view_info_(nullptr),
 		arguments_dialog_(new DialogArguments),
 		timer_(new QTimer(this)),
 		recent_file_manager_(new RecentFileManager(this)),
@@ -696,7 +696,7 @@ void Debugger::create_data_tab() {
 	const int current = current_tab();
 
 	// duplicate the current region
-	auto new_data_view = std::make_shared<DataViewInfo>((current != -1) ? data_regions_[current]->region : std::shared_ptr<IRegion>());
+	auto new_data_view = std::make_shared<DataViewInfo>((current != -1) ? data_regions_[current]->region : nullptr);
 
 	auto hexview = std::make_shared<QHexView>();
 
@@ -2445,7 +2445,7 @@ std::shared_ptr<IRegion> Debugger::update_cpu_view(const State &state) {
 		ui.cpuView->clear();
 		ui.cpuView->scrollTo(0);
 		list_model_->setStringList(QStringList());
-		return std::shared_ptr<IRegion>();
+		return nullptr;
 	}
 }
 
@@ -2707,7 +2707,7 @@ void Debugger::cleanup_debugger() {
 	ui.tabWidget->setData(0, QString());
 
 	Q_ASSERT(!data_regions_.isEmpty());
-	data_regions_.first()->region = std::shared_ptr<IRegion>();
+	data_regions_.first()->region = nullptr;
 
 	Q_EMIT detachEvent();
 

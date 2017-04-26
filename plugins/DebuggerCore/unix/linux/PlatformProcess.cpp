@@ -662,7 +662,7 @@ std::shared_ptr<IThread> PlatformProcess::current_thread() const {
 	if(it != core_->threads_.end()) {
 		return it.value();
 	}
-	return std::shared_ptr<IThread>();
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------

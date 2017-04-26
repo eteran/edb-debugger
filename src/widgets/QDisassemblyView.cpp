@@ -581,7 +581,7 @@ void QDisassemblyView::setRegion(const std::shared_ptr<IRegion> &r) {
 // Desc: clears the display
 //------------------------------------------------------------------------------
 void QDisassemblyView::clear() {
-	setRegion(std::shared_ptr<IRegion>());
+	setRegion(nullptr);
 }
 
 //------------------------------------------------------------------------------

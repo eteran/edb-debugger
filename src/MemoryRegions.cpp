@@ -90,7 +90,7 @@ std::shared_ptr<IRegion> MemoryRegions::find_region(edb::address_t address) cons
 			return i;
 		}
 	}
-	return std::shared_ptr<IRegion>();
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------

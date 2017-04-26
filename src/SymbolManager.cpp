@@ -116,7 +116,7 @@ const std::shared_ptr<Symbol> SymbolManager::find(const QString &name) const {
 		}
 	}
 
-	return std::shared_ptr<Symbol>();
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -125,7 +125,7 @@ const std::shared_ptr<Symbol> SymbolManager::find(const QString &name) const {
 //------------------------------------------------------------------------------
 const std::shared_ptr<Symbol> SymbolManager::find(edb::address_t address) const {
 	auto it = symbols_by_address_.find(address);
-	return (it != symbols_by_address_.end()) ? it.value() : std::shared_ptr<Symbol>();
+	return (it != symbols_by_address_.end()) ? it.value() : nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -141,7 +141,7 @@ const std::shared_ptr<Symbol> SymbolManager::find_near_symbol(edb::address_t add
 		if(address != it.value()->address) {
 			// not safe to backup!, return early
 			if(it == symbols_by_address_.begin()) {
-				return std::shared_ptr<Symbol>();
+				return nullptr;
 			}
 			--it;
 		}
@@ -153,7 +153,7 @@ const std::shared_ptr<Symbol> SymbolManager::find_near_symbol(edb::address_t add
 		}
 	}
 
-	return std::shared_ptr<Symbol>();
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------

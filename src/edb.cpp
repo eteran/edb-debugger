@@ -956,7 +956,7 @@ std::shared_ptr<IRegion> primary_data_region() {
 	}
 
 	qDebug() << "primary data region not found!";
-	return std::shared_ptr<IRegion>();
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -988,7 +988,7 @@ std::shared_ptr<IRegion> primary_code_region() {
 		}
 	}
 #endif
-	return std::shared_ptr<IRegion>();
+	return nullptr;
 	qDebug() << "primary code region not found!";
 }
 
@@ -1342,7 +1342,7 @@ std::shared_ptr<IBreakpoint> find_breakpoint(address_t address) {
 	if(debugger_core) {
 		return debugger_core->find_breakpoint(address);
 	}
-	return std::shared_ptr<IBreakpoint>();
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
