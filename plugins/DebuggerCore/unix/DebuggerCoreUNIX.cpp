@@ -325,7 +325,7 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 	sigaction(SIGCHLD, &new_action, &old_action);
 #else
 	// TODO(eteran): the man pages mention blocking the signal was want to catch
-	//               but I'm not if it is necessary for this use case...
+	//               but I'm not sure if it is necessary for this use case...
 #endif
 }
 
@@ -356,7 +356,7 @@ Status DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd
 			++p;
 		}
 
-		*p = 0;
+		*p = '\0';
 
 		// NOTE: it's a bad idea to use execvp and similar functions searching in
 		// $PATH. At least on Linux, if the file is corrupted/unsupported, they
@@ -367,7 +367,7 @@ Status DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd
 		// space no longer exists!
 		// if we get here...execv failed!
 		if(ret == -1) {
-			errorString=QObject::tr("execv() failed: %1").arg(strerror(errno));
+			errorString = QObject::tr("execv() failed: %1").arg(strerror(errno));
 			p = argv_pointers;
 			while(*p) {
 				delete [] *p++;

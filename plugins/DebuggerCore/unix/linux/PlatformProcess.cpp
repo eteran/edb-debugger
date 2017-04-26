@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformProcess.h"
 #include "DebuggerCore.h"
 #include "IBreakpoint.h"
+#include "PlatformThread.h"
 #include "PlatformCommon.h"
 #include "PlatformRegion.h"
 #include "MemoryRegions.h"

@@ -21,18 +21,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QObject>
 #include "DebuggerCoreUNIX.h"
-#include "PlatformState.h"
-#include "PlatformThread.h"
 #include <QHash>
 #include <QSet>
 #include <csignal>
-#include <sys/syscall.h>   /* For SYS_xxx definitions */
 #include <unistd.h>
 
 class IBinary;
 class Status;
 
 namespace DebuggerCorePlugin {
+
+class PlatformThread;
 
 class DebuggerCore : public DebuggerCoreUNIX {
 	Q_OBJECT

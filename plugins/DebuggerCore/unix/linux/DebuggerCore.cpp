@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DebuggerCore.h"
 #include "Configuration.h"
+#include "DialogMemoryAccess.h"
+#include "edb.h"
 #include "FeatureDetect.h"
 #include "MemoryRegions.h"
 #include "PlatformCommon.h"
@@ -28,9 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformProcess.h"
 #include "PlatformRegion.h"
 #include "PlatformState.h"
-#include "DialogMemoryAccess.h"
+#include "PlatformThread.h"
 #include "State.h"
-#include "edb.h"
 #include "string_hash.h"
 
 #include <QDebug>
@@ -121,9 +122,10 @@ bool in64BitSegment() {
 
 bool os64Bit(bool edbIsIn64BitSegment) {
 	bool osIs64Bit;
-	if(edbIsIn64BitSegment)
-		osIs64Bit=true;
-	else {
+
+	if(edbIsIn64BitSegment) {
+		osIs64Bit = true;
+	} else {
 		// We want to be really sure the OS is 32 bit, so we can't rely on such easy
 		// to (even unintentionally) fake mechanisms as uname(2) (e.g. see setarch(8))
 		asm(R"(.intel_syntax noprefix
@@ -135,6 +137,7 @@ bool os64Bit(bool edbIsIn64BitSegment) {
 			   .att_syntax # restore default syntax
 			   )":"=a"(osIs64Bit));
 	}
+
 	return osIs64Bit;
 }
 
@@ -145,17 +148,16 @@ bool os64Bit(bool edbIsIn64BitSegment) {
 // Desc: constructor
 //------------------------------------------------------------------------------
 DebuggerCore::DebuggerCore() :
-	binary_info_(nullptr),
 	process_(0),
 	pointer_size_(sizeof(void*)),
 	edbIsIn64BitSegment(in64BitSegment()),
 	osIs64Bit(os64Bit(edbIsIn64BitSegment)),
-	USER_CS_32(osIs64Bit?0x23:0x73),
-	USER_CS_64(osIs64Bit?0x33:0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
-	USER_SS(osIs64Bit?0x2b:0x7b)
+    USER_CS_32(osIs64Bit ? 0x23 : 0x73),
+    USER_CS_64(osIs64Bit ? 0x33 : 0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
+    USER_SS(osIs64Bit    ? 0x2b : 0x7b)
 {
-	qDebug() << "EDB is in" << (edbIsIn64BitSegment?"64":"32") << "bit segment";
-	qDebug() << "OS is" << (osIs64Bit?"64":"32") << "bit";
+	qDebug() << "EDB is in" << (edbIsIn64BitSegment ? "64" : "32") << "bit segment";
+	qDebug() << "OS is" << (osIs64Bit ? "64" : "32") << "bit";
 
 	proc_mem_write_broken_ = true;
 	proc_mem_read_broken_  = true;
@@ -169,7 +171,7 @@ DebuggerCore::DebuggerCore() :
 		QSettings settings;
 		const bool warn = settings.value("DebuggerCore/warn_on_broken_proc_mem.enabled", true).toBool();
 		if(warn) {
-			auto *dialog = new DialogMemoryAccess(0);
+			auto dialog = new DialogMemoryAccess(0);
 			dialog->exec();
 
 			settings.setValue("DebuggerCore/warn_on_broken_proc_mem.enabled", dialog->warnNextTime());
@@ -186,11 +188,13 @@ DebuggerCore::DebuggerCore() :
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
 
-	const auto mmxHash=edb::string_hash("MMX");
-	const auto xmmHash=edb::string_hash("XMM");
-	const auto ymmHash=edb::string_hash("YMM");
-	if(EDB_IS_64_BIT && (ext==xmmHash || ext==mmxHash))
+	const auto mmxHash = edb::string_hash("MMX");
+	const auto xmmHash = edb::string_hash("XMM");
+	const auto ymmHash = edb::string_hash("YMM");
+
+	if(EDB_IS_64_BIT && (ext == xmmHash || ext == mmxHash)) {
 		return true;
+	}
 
 	quint32 eax;
 	quint32 ebx;
@@ -206,13 +210,17 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 	case ymmHash:
 	{
 		// Check OSXSAVE and AVX feature flags
-		if((ecx&0x18000000)!=0x18000000)
+		if((ecx & 0x18000000) != 0x18000000) {
 			return false;
+		}
+
 		// Get XCR0, must be exactly after OSXSAVE feature check, otherwise #UD
 		asm volatile("xgetbv" : "=a"(eax),"=d"(edx) : "c"(0));
+
 		// Check that the OS has enabled XMM and YMM state support
-		if((eax&0x6)!=0x6)
+		if((eax & 0x6) != 0x6) {
 			return false;
+		}
 		return true;
 	}
 	default:
@@ -416,8 +424,6 @@ std::shared_ptr<const IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, in
 	}
 
 	// normal event
-
-
 	auto e = std::make_shared<PlatformEvent>();
 
 	e->pid_    = pid();

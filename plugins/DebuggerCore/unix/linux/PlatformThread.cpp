@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PlatformThread.h"
-#include "PlatformState.h"
-#include "PlatformCommon.h"
-#include "IProcess.h"
 #include "DebuggerCore.h"
-#include "State.h"
+#include "IProcess.h"
+#include "PlatformCommon.h"
+#include "PlatformState.h"
 #include <QtDebug>
+#include "State.h"
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
@@ -32,7 +32,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <elf.h>
 #include <linux/uio.h>
 #include <sys/ptrace.h>
+#include <sys/syscall.h>   /* For SYS_xxx definitions */
 #include <sys/user.h>
+
 
 // doesn't always seem to be defined in the headers
 #ifndef PTRACE_GET_THREAD_AREA
