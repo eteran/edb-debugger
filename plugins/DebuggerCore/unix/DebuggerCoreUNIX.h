@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DEBUGGERCOREUNIX_20090529_H_
 
 #include "DebuggerCoreBase.h"
-#include <QList>
 #include <cerrno>
 
 class Status;

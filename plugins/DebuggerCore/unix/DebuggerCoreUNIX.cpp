@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCoreUNIX.h"
 #include "edb.h"
 
+#include <QtGlobal>
 #include <QProcess>
 #include <QStringList>
 #include <cerrno>
@@ -33,9 +34,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/wait.h>
 #include <unistd.h>
 
-#ifdef __linux__
+#ifdef Q_OS_LINUX
 #include <linux/version.h>
-// being very conservative for now, technicall this could be
+// being very conservative for now, technically this could be
 // as low as 2.6.22
 #if LINUX_VERSION_CODE >= KERNEL_VERSION(3,0,0)
 #define USE_SIGTIMEDWAIT
@@ -150,8 +151,6 @@ struct Exception {
 #endif
 };
 
-
-
 }
 
 #if !defined(USE_SIGTIMEDWAIT)
@@ -167,7 +166,7 @@ struct sigaction old_action;
 void sigchld_handler(int sig, siginfo_t *info, void *p) {
 
 	if(sig == SIGCHLD) {
-        native::write(selfpipe[1, " ", sizeof(char));
+		native::write(selfpipe[1], " ", sizeof(char));
 	}
 
     // load as volatile
