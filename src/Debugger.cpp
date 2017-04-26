@@ -3349,7 +3349,7 @@ void Debugger::next_debug_event() {
 
 	Q_ASSERT(edb::v1::debugger_core);
 
-	if(std::shared_ptr<const IDebugEvent> e = edb::v1::debugger_core->wait_debug_event(10)) {
+	if(std::shared_ptr<IDebugEvent> e = edb::v1::debugger_core->wait_debug_event(10)) {
 
 		last_event_ = e;
 
