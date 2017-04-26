@@ -58,16 +58,16 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::add_breakpoint(edb::address_t add
 	try {
 		if(attached()) {
 			if(!find_breakpoint(address)) {
-				std::shared_ptr<IBreakpoint> bp(new Breakpoint(address));
+				auto bp = std::make_shared<Breakpoint>(address);
 				breakpoints_[address] = bp;
 				return bp;
 			}
 		}
 
-		return std::shared_ptr<IBreakpoint>();
+		return nullptr;
 	} catch(const breakpoint_creation_error &e) {
 		qDebug() << "Failed to create breakpoint";
-		return std::shared_ptr<IBreakpoint>();
+		return nullptr;
 	}
 }
 
@@ -82,7 +82,7 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::find_breakpoint(edb::address_t ad
 			return it.value();
 		}
 	}
-	return std::shared_ptr<IBreakpoint>();
+	return nullptr;
 }
 
 
@@ -119,10 +119,11 @@ void DebuggerCoreBase::end_debug_session() {
 			kill();
 			break;
 		case Configuration::KillIfLaunchedDetachIfAttached:
-            if(last_means_of_capture() == MeansOfCapture::Launch)
+			if(last_means_of_capture() == MeansOfCapture::Launch) {
 				kill();
-			else
+			} else {
 				detach();
+			}
 			break;
 		}
 	}
