@@ -356,7 +356,7 @@ long DebuggerCore::ptraceOptions() const {
 // Name: handle_event
 // Desc:
 //------------------------------------------------------------------------------
-std::shared_ptr<const IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int status) {
+std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int status) {
 
 	// note that we have waited on this thread
 	waited_threads_.insert(tid);
@@ -479,7 +479,7 @@ void DebuggerCore::stop_threads() {
 // Desc: waits for a debug event, msecs is a timeout
 //      it will return false if an error or timeout occurs
 //------------------------------------------------------------------------------
-std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
+std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 
 	if(process_) {
 		if(!native::wait_for_sigchld(msecs)) {

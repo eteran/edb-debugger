@@ -52,7 +52,7 @@ public:
 	virtual std::size_t pointer_size() const override;
 	virtual edb::address_t page_size() const override;
 	virtual bool has_extension(quint64 ext) const override;
-	virtual std::shared_ptr<const IDebugEvent> wait_debug_event(int msecs) override;
+	virtual std::shared_ptr<IDebugEvent> wait_debug_event(int msecs) override;
 	virtual Status attach(edb::pid_t pid) override;
 	virtual void detach() override;
 	virtual void kill() override;
@@ -96,7 +96,7 @@ private:
 private:
 	void reset();
 	void stop_threads();
-	std::shared_ptr<const IDebugEvent> handle_event(edb::tid_t tid, int status);
+	std::shared_ptr<IDebugEvent> handle_event(edb::tid_t tid, int status);
 	int attach_thread(edb::tid_t tid);
     void detectDebuggeeBitness();
     long ptraceOptions() const;
