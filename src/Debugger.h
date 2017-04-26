@@ -63,7 +63,7 @@ public:
 
 private:
 
-	enum class ResumeFlag {
+	enum ResumeFlag {
 		None   = 0,
 		Forced = 1,
 	};
