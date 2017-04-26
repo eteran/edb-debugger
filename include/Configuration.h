@@ -86,7 +86,7 @@ public:
 	bool              remove_stale_symbols;
 	bool              disableASLR;
 	bool              disableLazyBinding;
-	bool              break_on_library_load;
+    bool              break_on_library_load;
 	QString           tty_command;
 
 	// disassembly tab

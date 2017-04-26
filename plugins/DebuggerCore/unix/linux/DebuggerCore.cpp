@@ -67,6 +67,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PTRACE_O_EXITKILL	(1 << 20)
 #endif
 
+#ifndef PTRACE_O_TRACEEXIT
+#define PTRACE_O_TRACEEXIT	(1 << PTRACE_EVENT_EXIT)
+#endif
+
 namespace DebuggerCorePlugin {
 
 namespace {
@@ -92,11 +96,15 @@ bool is_numeric(const QString &s) {
 // Desc:
 //------------------------------------------------------------------------------
 bool is_clone_event(int status) {
-	if(WIFSTOPPED(status) && WSTOPSIG(status) == SIGTRAP) {
-		return (((status >> 16) & 0xffff) == PTRACE_EVENT_CLONE);
-	}
+    return (status >> 8 == (SIGTRAP | (PTRACE_EVENT_CLONE << 8)));
+}
 
-	return false;
+//------------------------------------------------------------------------------
+// Name: is_exit_trace_event
+// Desc:
+//------------------------------------------------------------------------------
+bool is_exit_trace_event(int status) {
+    return (status >> 8 == (SIGTRAP | (PTRACE_EVENT_EXIT << 8)));
 }
 
 bool in64BitSegment() {
@@ -129,9 +137,6 @@ bool os64Bit(bool edbIsIn64BitSegment) {
 	}
 	return osIs64Bit;
 }
-
-
-
 
 }
 
@@ -308,6 +313,38 @@ long DebuggerCore::ptrace_get_event_message(edb::tid_t tid, unsigned long *messa
 }
 
 //------------------------------------------------------------------------------
+// Name: desired_ptrace_options
+// Desc:
+//------------------------------------------------------------------------------
+long DebuggerCore::ptraceOptions() const {
+
+    // we want to trace clone (thread) creation events
+    long options = PTRACE_O_TRACECLONE;
+
+    // if applicable, we want an auto SIGKILL sent to the child
+    // process and its threads
+    switch(edb::v1::config().close_behavior) {
+    case Configuration::Kill:
+        options |= PTRACE_O_EXITKILL;
+        break;
+    case Configuration::KillIfLaunchedDetachIfAttached:
+        if(last_means_of_capture() == MeansOfCapture::Launch) {
+            options |= PTRACE_O_EXITKILL;
+        }
+        break;
+    default:
+        break;
+    }
+
+#if 0
+    // TODO(eteran): research this option for issue #46
+    options |= PTRACE_O_TRACEEXIT;
+#endif
+
+    return options;
+}
+
+//------------------------------------------------------------------------------
 // Name: handle_event
 // Desc:
 //------------------------------------------------------------------------------
@@ -329,6 +366,10 @@ std::shared_ptr<const IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, in
 			return nullptr;
 		}
 	}
+
+    if(is_exit_trace_event(status)) {
+
+    }
 
 	// was it a thread create event?
 	if(is_clone_event(status)) {
@@ -457,7 +498,7 @@ int DebuggerCore::attach_thread(edb::tid_t tid) {
 		// I *think* that the PTRACE_O_TRACECLONE is only valid on
 		// stopped threads
 		int status;
-		const auto ret=native::waitpid(tid, &status, __WALL);
+        const auto ret = native::waitpid(tid, &status, __WALL);
 		if(ret > 0) {
 
 			auto newThread            = std::make_shared<PlatformThread>(this, process_, tid);
@@ -467,25 +508,22 @@ int DebuggerCore::attach_thread(edb::tid_t tid) {
 			threads_[tid] = newThread;
 
 			waited_threads_.insert(tid);
-			if(ptrace_set_options(tid, PTRACE_O_TRACECLONE) == -1) {
-				qDebug("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: [%d] %s", tid, strerror(errno));
-			}
 
-			if(edb::v1::config().close_behavior==Configuration::Kill ||
-			   (edb::v1::config().close_behavior==Configuration::KillIfLaunchedDetachIfAttached &&
-				  last_means_of_capture()==MeansOfCapture::Launch)) {
-				if(ptrace_set_options(tid, PTRACE_O_EXITKILL) == -1) {
-					qDebug("[DebuggerCore] failed to set PTRACE_O_EXITKILL: [%d] %s", tid, strerror(errno));
-				}
-			}
+            const long options = ptraceOptions();
+
+            if(ptrace_set_options(tid, options) == -1) {
+                qDebug("[DebuggerCore] failed to set ptrace options: [%d] %s", tid, strerror(errno));
+            }
+
 			return 0;
-		}
-		else if(ret==-1) {
+        } else if(ret==-1) {
 			return errno;
-		}
-		else return -1; // unknown error
-	}
-	else return errno;
+        } else {
+            return -1; // unknown error
+        }
+    } else {
+        return errno;
+    }
 }
 
 //------------------------------------------------------------------------------
@@ -499,11 +537,12 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 	lastMeansOfCapture = MeansOfCapture::Attach;
 
 	// create this, so the threads created can refer to it
-	auto newProcess = new PlatformProcess(this, pid);
+    process_ = new PlatformProcess(this, pid);
 
 	int lastErr = attach_thread(pid); // Fail early if we are going to
 	if(lastErr) {
-		delete newProcess;
+        delete process_;
+        process_ = nullptr;
 		return Status(std::strerror(lastErr));
 	}
 
@@ -518,7 +557,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 			// all in one shot
 			const edb::tid_t tid = s.toUInt();
 			if(!threads_.contains(tid)) {
-				const auto errnum=attach_thread(tid);
+                const auto errnum = attach_thread(tid);
 				if(errnum == 0)
 					attached = true;
 				else
@@ -533,11 +572,11 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 		active_thread_  = pid;
 		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 		detectDebuggeeBitness();
-		process_ = newProcess;
 		return Status();
 	}
 
-	delete newProcess;
+    delete process_;
+    process_ = nullptr;
 	return Status(std::strerror(lastErr));
 }
 
@@ -644,7 +683,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 	end_debug_session();
 
-	lastMeansOfCapture=MeansOfCapture::Launch;
+    lastMeansOfCapture = MeansOfCapture::Launch;
 
 	static constexpr std::size_t sharedMemSize=4096;
 	const auto sharedMem=static_cast<QChar*>(::mmap(nullptr,sharedMemSize,PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANONYMOUS,-1,0));
@@ -670,22 +709,23 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 		}
 
 		if(edb::v1::config().disableASLR) {
-			const auto curPers=::personality(UINT32_MAX);
+            const auto curPers = ::personality(UINT32_MAX);
 			// This shouldn't fail, but let's at least perror if it does anyway
-			if(curPers==-1)
+            if(curPers == -1) {
 				perror("Failed to get current personality");
-			else if(::personality(curPers|ADDR_NO_RANDOMIZE)==-1)
+            } else if(::personality(curPers | ADDR_NO_RANDOMIZE) == -1) {
 				perror("Failed to disable ASLR");
+            }
 		}
 
-		if(edb::v1::config().disableLazyBinding && setenv("LD_BIND_NOW","1",true)==-1)
+        if(edb::v1::config().disableLazyBinding && setenv("LD_BIND_NOW", "1",true) == -1) {
 			perror("Failed to disable lazy binding");
+        }
 
 		// do the actual exec
 		const Status status = execute_process(path, cwd, args);
 
-#if defined __GNUG__ && __GNUC__ >= 5 || !defined __GNUG__ || \
-		defined __clang__ && __clang_major__*100+__clang_minor__>=306
+#if defined __GNUG__ && __GNUC__ >= 5 || !defined __GNUG__ || defined __clang__ && __clang_major__*100+__clang_minor__>=306
 		static_assert(std::is_trivially_copyable<QChar>::value,"Can't copy string of QChar to shared memory");
 #endif
 		QString error = status.toString();
@@ -705,21 +745,26 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 			reset();
 
 			int status;
-			const auto wpidRet=native::waitpid(pid, &status, __WALL);
+            const auto wpidRet = native::waitpid(pid, &status, __WALL);
 			const QString childError(sharedMem);
-			::munmap(sharedMem,sharedMemSize);
+            ::munmap(sharedMem, sharedMemSize);
 
-			if(wpidRet == -1)
+            if(wpidRet == -1) {
 				return Status(tr("waitpid() failed: %1").arg(std::strerror(errno))+(childError.isEmpty()?"" : tr(".\nError returned by child:\n%1.").arg(childError)));
+            }
 
-			if(WIFEXITED(status))
+            if(WIFEXITED(status)) {
 				return Status(tr("The child unexpectedly exited with code %1. Error returned by child:\n%2").arg(WEXITSTATUS(status)).arg(childError));
-			if(WIFSIGNALED(status))
+            }
+
+            if(WIFSIGNALED(status)) {
 				return Status(tr("The child was unexpectedly killed by signal %1. Error returned by child:\n%2").arg(WTERMSIG(status)).arg(childError));
+            }
 
 			// This happens when exec failed, but just in case it's something another return some description.
-			if(WIFSTOPPED(status) && WSTOPSIG(status) == SIGABRT)
+            if(WIFSTOPPED(status) && WSTOPSIG(status) == SIGABRT) {
 				return Status(childError.isEmpty() ? tr("The child unexpectedly aborted") : childError);
+            }
 
 			// the very first event should be a STOP of type SIGTRAP
 			if(!WIFSTOPPED(status) || WSTOPSIG(status) != SIGTRAP) {
@@ -728,29 +773,19 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 											.arg(status,0,16)+(childError.isEmpty() ? "" : tr(".\nError returned by child:\n%1.").arg(childError)));
 			}
 
-			waited_threads_.insert(pid);
+            waited_threads_.insert(pid);
 
-			// enable following clones (threads)
-			if(ptrace_set_options(pid, PTRACE_O_TRACECLONE) == -1) {
-				const auto strerr=strerror(errno); // NOTE: must be called before end_debug_session, otherwise errno can change
-				end_debug_session();
-				return Status(tr("[DebuggerCore] failed to set PTRACE_O_TRACECLONE: %1").arg(strerr));
-			}
+            const long options = ptraceOptions();
 
-#ifdef PTRACE_O_EXITKILL
-			if(ptrace_set_options(pid, PTRACE_O_EXITKILL) == -1) {
-				const auto strerr=strerror(errno); // NOTE: must be called before any other syscall, otherwise errno can change
-				// Don't consider the error fatal: the option is only supported since Linux 3.8
-				qDebug() << "[DebuggerCore] failed to set PTRACE_O_EXITKILL:" << strerr;
-			}
-#endif
+            // enable following clones (threads) and other options we are concerned with
+            if(ptrace_set_options(pid, options) == -1) {
+                const auto strerr = strerror(errno); // NOTE: must be called before end_debug_session, otherwise errno can change
+                end_debug_session();
+                return Status(tr("[DebuggerCore] failed to set ptrace options: %1").arg(strerr));
+            }
 
-			// setup the first event data for the primary thread
-			waited_threads_.insert(pid);
-
-			// create the process
+            // create the process
 			process_ = new PlatformProcess(this, pid);
-
 
 			// the PID == primary TID
 			auto newThread            = std::make_shared<PlatformThread>(this, process_, pid);
@@ -760,7 +795,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 			threads_[pid]   = newThread;
 
 			pid_            = pid;
-			active_thread_   = pid;
+            active_thread_  = pid;
 			binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
 			detectDebuggeeBitness();
@@ -776,7 +811,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 // Name: last_means_of_capture
 // Desc: Returns how the last process was captured to debug
 //------------------------------------------------------------------------------
-DebuggerCore::MeansOfCapture DebuggerCore::last_means_of_capture() {
+DebuggerCore::MeansOfCapture DebuggerCore::last_means_of_capture() const {
 	return lastMeansOfCapture;
 }
 

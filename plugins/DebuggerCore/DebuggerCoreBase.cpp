@@ -111,8 +111,7 @@ void DebuggerCoreBase::remove_breakpoint(edb::address_t address) {
 //------------------------------------------------------------------------------
 void DebuggerCoreBase::end_debug_session() {
 	if(attached()) {
-		switch(edb::v1::config().close_behavior)
-		{
+        switch(edb::v1::config().close_behavior) {
 		case Configuration::Detach:
 			detach();
 			break;
@@ -120,7 +119,7 @@ void DebuggerCoreBase::end_debug_session() {
 			kill();
 			break;
 		case Configuration::KillIfLaunchedDetachIfAttached:
-			if(last_means_of_capture()==MeansOfCapture::Launch)
+            if(last_means_of_capture() == MeansOfCapture::Launch)
 				kill();
 			else
 				detach();

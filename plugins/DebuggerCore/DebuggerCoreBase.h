@@ -39,7 +39,7 @@ public:
 		Attach,
 		Launch
 	};
-	virtual MeansOfCapture last_means_of_capture() = 0;
+    virtual MeansOfCapture last_means_of_capture() const = 0;
 
 public:
 	virtual BreakpointList backup_breakpoints() const override;

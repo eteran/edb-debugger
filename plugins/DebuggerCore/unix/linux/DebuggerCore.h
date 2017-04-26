@@ -60,7 +60,7 @@ public:
 	virtual void get_state(State *state) override;
 	virtual void set_state(const State &state) override;
 	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
-	virtual MeansOfCapture last_means_of_capture() override;
+    virtual MeansOfCapture last_means_of_capture() const override;
 
 public:
 	virtual edb::pid_t parent_pid(edb::pid_t pid) const override;
@@ -99,7 +99,8 @@ private:
 	void stop_threads();
 	std::shared_ptr<const IDebugEvent> handle_event(edb::tid_t tid, int status);
 	int attach_thread(edb::tid_t tid);
-	void detectDebuggeeBitness();
+    void detectDebuggeeBitness();
+    long ptraceOptions() const;
 
 private:
 	typedef QHash<edb::tid_t, std::shared_ptr<PlatformThread>> threadmap_t;
