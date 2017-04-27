@@ -162,7 +162,7 @@ size_t length_disasm_back(const quint8 *buf,const size_t bufSize,const size_t cu
 // Name: format_instruction_bytes
 // Desc:
 //------------------------------------------------------------------------------
-QString format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, const QFontMetricsF &metrics) {
+QString format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, const QFontMetrics &metrics) {
 	const QString byte_buffer =
 	edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.size()));
 	return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
@@ -602,9 +602,9 @@ void QDisassemblyView::scrollTo(edb::address_t address) {
 
 bool targetIsLocal(edb::address_t targetAddress,edb::address_t insnAddress) {
 
-	const auto insnRegion=edb::v1::memory_regions().find_region(insnAddress);
-	const auto targetRegion=edb::v1::memory_regions().find_region(targetAddress);
-	return !insnRegion->name().isEmpty() && targetRegion && insnRegion->name()==targetRegion->name();
+	const auto insnRegion   = edb::v1::memory_regions().find_region(insnAddress);
+	const auto targetRegion = edb::v1::memory_regions().find_region(targetAddress);
+	return !insnRegion->name().isEmpty() && targetRegion && insnRegion->name() == targetRegion->name();
 }
 
 //------------------------------------------------------------------------------
@@ -1287,9 +1287,9 @@ void QDisassemblyView::setFont(const QFont &f) {
 	QAbstractScrollArea::setFont(newFont);
 
 	// recalculate all of our metrics/offsets
-	const QFontMetricsF metrics(newFont);
+	const QFontMetrics metrics(newFont);
 	font_width_  = metrics.width('X');
-	font_height_ = metrics.lineSpacing();
+	font_height_ = metrics.lineSpacing() + 1;
 
     // NOTE(eteran): we let the icons be a bit wider than the font itself, since things
     // like arrows don't tend to have square bounds. A ratio of 2:1 seems to look pretty
