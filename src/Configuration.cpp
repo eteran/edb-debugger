@@ -117,7 +117,7 @@ void Configuration::read_settings() {
 	uppercase_disassembly = settings.value("disassembly.uppercase.enabled", false).toBool();
 	small_int_as_decimal  = settings.value("disassembly.small_int_as_decimal.enabled", false).toBool();
 	tab_between_mnemonic_and_operands=settings.value("disassembly.tab_between_mnemonic_and_operands.enabled", false).toBool();
-	show_register_badges = settings.value("disassembly.show_register_badges.enabled", true).toBool();
+	show_register_badges  = settings.value("disassembly.show_register_badges.enabled", true).toBool();
 	show_local_module_name_in_jump_targets = settings.value("disassembly.show_local_module_name_in_jump_targets.enabled", true).toBool();
 	show_symbolic_addresses = settings.value("disassembly.show_symbolic_addresses.enabled", true).toBool();
 	simplify_rip_relative_targets = settings.value("disassembly.simplify_rip_relative_targets.enabled", true).toBool();
@@ -227,6 +227,7 @@ void Configuration::write_settings() {
 	settings.setValue("disassembly.show_local_module_name_in_jump_targets.enabled", show_local_module_name_in_jump_targets);
 	settings.setValue("disassembly.show_symbolic_addresses.enabled", show_symbolic_addresses);
 	settings.setValue("disassembly.simplify_rip_relative_targets.enabled", simplify_rip_relative_targets);
+	settings.setValue("disassembly.show_register_badges.enabled", show_register_badges);
 	settings.endGroup();
 
 	settings.beginGroup("Directories");

@@ -91,7 +91,7 @@ public:
 
 	// disassembly tab
 	Syntax            syntax;
-	bool show_register_badges;
+	bool              show_register_badges;
 	bool              syntax_highlighting_enabled;
 	bool              zeros_are_filling;
 	bool              uppercase_disassembly;
