@@ -231,7 +231,7 @@ private:
 	virtual void dropEvent(QDropEvent* event);
 
 public:
-	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<const IDebugEvent> &event);
+	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event);
 
 private:
 	std::shared_ptr<IRegion> update_cpu_view(const State &state);
@@ -239,10 +239,10 @@ private:
 	QString session_filename() const;
 	bool breakpoint_condition_true(const QString &condition);
 	bool common_open(const QString &s, const QList<QByteArray> &args);
-	edb::EVENT_STATUS debug_event_handler(const std::shared_ptr<const IDebugEvent> &event);
-	edb::EVENT_STATUS handle_event_exited(const std::shared_ptr<const IDebugEvent> &event);
-	edb::EVENT_STATUS handle_event_stopped(const std::shared_ptr<const IDebugEvent> &event);
-	edb::EVENT_STATUS handle_event_terminated(const std::shared_ptr<const IDebugEvent> &event);
+	edb::EVENT_STATUS debug_event_handler(const std::shared_ptr<IDebugEvent> &event);
+	edb::EVENT_STATUS handle_event_exited(const std::shared_ptr<IDebugEvent> &event);
+	edb::EVENT_STATUS handle_event_stopped(const std::shared_ptr<IDebugEvent> &event);
+	edb::EVENT_STATUS handle_event_terminated(const std::shared_ptr<IDebugEvent> &event);
 	edb::EVENT_STATUS handle_trap();
 	edb::EVENT_STATUS resume_status(bool pass_exception);
 	Result<edb::address_t> get_goto_expression();

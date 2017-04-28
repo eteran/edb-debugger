@@ -65,7 +65,7 @@ public:
 	bool restore();
 
 public:
-	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<const IDebugEvent> &event);
+	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event);
 
 public:
 	QAtomicInt             lock_;
@@ -128,7 +128,7 @@ bool BackupInfo<N>::restore() {
 // Desc:
 //------------------------------------------------------------------------------
 template <size_t N>
-edb::EVENT_STATUS BackupInfo<N>::handle_event(const std::shared_ptr<const IDebugEvent> &event) {
+edb::EVENT_STATUS BackupInfo<N>::handle_event(const std::shared_ptr<IDebugEvent> &event) {
 	Q_UNUSED(event);
 
 	lock_.testAndSetRelease(1, 0);

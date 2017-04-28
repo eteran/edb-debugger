@@ -224,7 +224,7 @@ void HardwareBreakpoints::show_menu() {
 // Desc: this hooks the debug event handler so we can make the breakpoints
 //       able to be resumed
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS HardwareBreakpoints::handle_event(const std::shared_ptr<const IDebugEvent> &event) {
+edb::EVENT_STATUS HardwareBreakpoints::handle_event(const std::shared_ptr<IDebugEvent> &event) {
 
 	if(event->stopped() && event->is_trap()) {
 

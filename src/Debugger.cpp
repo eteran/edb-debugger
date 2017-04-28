@@ -173,7 +173,7 @@ public:
 	// Name: pass_back_to_debugger
 	// Desc: Makes the previous handler the event handler again and deletes this.
 	//--------------------------------------------------------------------------
-	virtual edb::EVENT_STATUS pass_back_to_debugger(const std::shared_ptr<const IDebugEvent> &event) {
+	virtual edb::EVENT_STATUS pass_back_to_debugger(const std::shared_ptr<IDebugEvent> &event) {
 		edb::EVENT_STATUS status = previous_handler_->handle_event(event);
 		edb::v1::set_debug_event_handler(previous_handler_);
 		delete this;
@@ -184,7 +184,7 @@ public:
 	// Name: handle_event
 	//--------------------------------------------------------------------------
 	//TODO: Need to handle stop/pause button
-	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<const IDebugEvent> &event) {
+	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) {
 
 
 		State state;
@@ -2187,7 +2187,7 @@ edb::EVENT_STATUS Debugger::handle_trap() {
 // Name: handle_event_stopped
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::handle_event_stopped(const std::shared_ptr<const IDebugEvent> &event) {
+edb::EVENT_STATUS Debugger::handle_event_stopped(const std::shared_ptr<IDebugEvent> &event) {
 
 	// ok we just came in from a stop, we need to test some things,
 	// generally, we will want to check if it was a step, if it was, was it
@@ -2272,7 +2272,7 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const std::shared_ptr<const IDe
 // Name: handle_event_terminated
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::handle_event_terminated(const std::shared_ptr<const IDebugEvent> &event) {
+edb::EVENT_STATUS Debugger::handle_event_terminated(const std::shared_ptr<IDebugEvent> &event) {
 	on_action_Detach_triggered();
 	QMessageBox::information(
 		this,
@@ -2286,7 +2286,7 @@ edb::EVENT_STATUS Debugger::handle_event_terminated(const std::shared_ptr<const 
 // Name: handle_event_exited
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::handle_event_exited(const std::shared_ptr<const IDebugEvent> &event) {
+edb::EVENT_STATUS Debugger::handle_event_exited(const std::shared_ptr<IDebugEvent> &event) {
 	on_action_Detach_triggered();
 	QMessageBox::information(
 		this,
@@ -2300,7 +2300,7 @@ edb::EVENT_STATUS Debugger::handle_event_exited(const std::shared_ptr<const IDeb
 // Name: handle_event
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::handle_event(const std::shared_ptr<const IDebugEvent> &event) {
+edb::EVENT_STATUS Debugger::handle_event(const std::shared_ptr<IDebugEvent> &event) {
 
 	Q_ASSERT(edb::v1::debugger_core);
 
@@ -2345,7 +2345,7 @@ edb::EVENT_STATUS Debugger::handle_event(const std::shared_ptr<const IDebugEvent
 // Name: debug_event_handler
 // Desc:
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::debug_event_handler(const std::shared_ptr<const IDebugEvent> &event) {
+edb::EVENT_STATUS Debugger::debug_event_handler(const std::shared_ptr<IDebugEvent> &event) {
 	IDebugEventHandler *const handler = edb::v1::debug_event_handler();
 	Q_ASSERT(handler);
 	return handler->handle_event(event);
