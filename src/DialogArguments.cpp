@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogArguments.h"
+
 #include <QListWidgetItem>
 
 #include "ui_DialogArguments.h"

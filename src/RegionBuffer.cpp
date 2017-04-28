@@ -17,9 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "RegionBuffer.h"
-#include "edb.h"
 #include "IDebugger.h"
 #include "IProcess.h"
+#include "edb.h"
 
 //------------------------------------------------------------------------------
 // Name: RegionBuffer

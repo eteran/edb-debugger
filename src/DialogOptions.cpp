@@ -17,16 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogOptions.h"
-#include "edb.h"
-#include "IDebugger.h"
 #include "Configuration.h"
+#include "IDebugger.h"
+#include "edb.h"
 
-#include <QFontDialog>
+#include <QCloseEvent>
+#include <QDebug>
 #include <QFileDialog>
 #include <QFont>
-#include <QCloseEvent>
+#include <QFontDialog>
 #include <QToolBox>
-#include <QDebug>
 
 #include "ui_DialogOptions.h"
 

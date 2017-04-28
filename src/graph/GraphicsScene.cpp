@@ -17,8 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "GraphicsScene.h"
-#include <QtDebug>
+
 #include <QGraphicsSceneHelpEvent>
+#include <QtDebug>
 
 //------------------------------------------------------------------------------
 // Name: GraphicsScene

@@ -18,12 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Configuration.h"
 #include "edb.h"
+
 #include <QCoreApplication>
 #include <QDesktopServices>
-#include <QtDebug>
-#include <QSettings>
 #include <QDir>
 #include <QFont>
+#include <QSettings>
+#include <QtDebug>
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)

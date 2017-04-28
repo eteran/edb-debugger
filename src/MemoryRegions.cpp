@@ -17,10 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "IDebugger.h"
-#include "ISymbolManager.h"
 #include "IProcess.h"
-#include "MemoryRegions.h"
 #include "IRegion.h"
+#include "ISymbolManager.h"
+#include "MemoryRegions.h"
 #include "edb.h"
 
 #include <QDebug>

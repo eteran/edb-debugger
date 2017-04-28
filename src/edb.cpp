@@ -21,35 +21,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "BinaryString.h"
 #include "Configuration.h"
 #include "Debugger.h"
+#include "Debugger.h"
 #include "DialogInputBinaryString.h"
 #include "DialogInputValue.h"
 #include "DialogOptions.h"
-#include "Debugger.h"
 #include "Expression.h"
-#include "Prototype.h"
-#include "IRegion.h"
-#include "IDebugger.h"
+#include "ExpressionDialog.h"
 #include "IBreakpoint.h"
+#include "IDebugger.h"
 #include "IPlugin.h"
 #include "IProcess.h"
+#include "IRegion.h"
 #include "MD5.h"
 #include "MemoryRegions.h"
+#include "Prototype.h"
 #include "QHexView"
 #include "State.h"
 #include "Symbol.h"
 #include "SymbolManager.h"
 #include "version.h"
-#include "ExpressionDialog.h"
 
 #include <QAction>
 #include <QAtomicPointer>
 #include <QByteArray>
 #include <QCompleter>
+#include <QCoreApplication>
 #include <QDomDocument>
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
-#include <QCoreApplication>
+
 #include <QDebug>
 #include <cctype>
 

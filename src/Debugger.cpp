@@ -46,12 +46,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "QJsonParseError.h"
 #include "RecentFileManager.h"
 #include "RegionBuffer.h"
+#include "RegisterViewModelBase.h"
 #include "State.h"
 #include "Symbol.h"
 #include "SymbolManager.h"
 #include "edb.h"
 
+#if defined(Q_OS_LINUX)
+#include "linker.h"
+#endif
+
 #include <QCloseEvent>
+#include <QDateTime>
+#include <QDesktopServices>
 #include <QDesktopWidget>
 #include <QDir>
 #include <QDragEnterEvent>
@@ -60,6 +67,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileInfo>
 #include <QHBoxLayout>
 #include <QInputDialog>
+#include <QLabel>
 #include <QMessageBox>
 #include <QMimeData>
 #include <QSettings>
@@ -70,9 +78,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QUrl>
 #include <QVector>
 #include <QtDebug>
-#include <QDateTime>
-#include <QDesktopServices>
-#include <QLabel>
 
 #include <memory>
 #include <cstring>
@@ -87,13 +92,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 #include <fcntl.h>
 #endif
-
-#if defined(Q_OS_LINUX)
-#include "linker.h"
-#endif
-
-
-#include "RegisterViewModelBase.h"
 
 namespace {
 

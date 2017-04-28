@@ -17,22 +17,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "GraphWidget.h"
-#include "GraphNode.h"
 #include "GraphEdge.h"
+#include "GraphNode.h"
 #include "GraphicsScene.h"
 
 #include <QAbstractAnimation>
 #include <QDebug>
-#include <QPropertyAnimation>
 #include <QGraphicsOpacityEffect>
 #include <QGraphicsSceneMouseEvent>
 #include <QHBoxLayout>
 #include <QKeyEvent>
 #include <QLabel>
+#include <QPropertyAnimation>
 #include <QScrollBar>
 #include <QWheelEvent>
-#include <graphviz/gvc.h>
+
 #include <graphviz/cgraph.h>
+#include <graphviz/gvc.h>
+
 #include <cmath>
 
 namespace {

@@ -17,11 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogAbout.h"
-#include "ui_DialogAbout.h"
 #include "version.h"
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
+
+#include "ui_DialogAbout.h"
 
 //------------------------------------------------------------------------------
 // Name: DialogAbout

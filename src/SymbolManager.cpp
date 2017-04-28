@@ -23,14 +23,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Symbol.h"
 #include "edb.h"
 
-#include <QFile>
 #include <QDir>
-#include <QtDebug>
-#include <QProcess>
+#include <QFile>
 #include <QMessageBox>
-#include <istream>
+#include <QProcess>
+#include <QtDebug>
+
 #include <fstream>
 #include <iostream>
+#include <istream>
 
 //------------------------------------------------------------------------------
 // Name: SymbolManager

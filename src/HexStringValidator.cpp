@@ -17,7 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "HexStringValidator.h"
+
 #include <QString>
+
 #include <cctype> // for std::isxdigit
 
 //------------------------------------------------------------------------------

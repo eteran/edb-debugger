@@ -22,8 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Symbol.h"
 #include "edb.h"
 
-#include <QPushButton>
 #include <QCompleter>
+#include <QPushButton>
 
 ExpressionDialog::ExpressionDialog(const QString &title, const QString prompt) : QDialog(edb::v1::debugger_ui),
 	layout_(this),

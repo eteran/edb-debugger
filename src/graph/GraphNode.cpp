@@ -17,17 +17,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "GraphNode.h"
-#include "GraphWidget.h"
+#include "Configuration.h"
 #include "GraphEdge.h"
+#include "GraphWidget.h"
 #include "SyntaxHighlighter.h"
 #include "edb.h"
-#include "Configuration.h"
 
-#include <QtDebug>
+#include <QAbstractTextDocumentLayout>
 #include <QGraphicsColorizeEffect>
 #include <QPainter>
 #include <QPainterPath>
-#include <QAbstractTextDocumentLayout>
+#include <QtDebug>
+
 #include <cmath>
 
 namespace {

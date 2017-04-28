@@ -18,10 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ArchProcessor.h"
 #include "Configuration.h"
+#include "FloatX.h"
 #include "IDebugger.h"
-#include "Instruction.h"
 #include "IProcess.h"
+#include "Instruction.h"
 #include "Prototype.h"
+#include "RegisterViewModel.h"
 #include "State.h"
 #include "Util.h"
 #include "edb.h"
@@ -31,18 +33,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 #include <QDomDocument>
 #include <QFile>
-#include <QVector>
-#include <QXmlQuery>
 #include <QMenu>
 #include <QSignalMapper>
+#include <QVector>
+#include <QXmlQuery>
 
 #include <climits>
 #include <cmath>
 #include <memory>
 #include <cstring>
-
-#include "FloatX.h"
-#include "RegisterViewModel.h"
 
 #ifdef Q_OS_LINUX
 #include <asm/unistd.h>

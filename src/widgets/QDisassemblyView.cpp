@@ -43,6 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTextLayout>
 #include <QToolTip>
 #include <QtGlobal>
+
 #include <algorithm>
 #include <climits>
 

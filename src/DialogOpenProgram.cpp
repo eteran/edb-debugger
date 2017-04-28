@@ -16,12 +16,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogOpenProgram.h"
+#include "edb.h"
+
+#include <QDebug>
+#include <QGridLayout>
 #include <QLabel>
 #include <QLineEdit>
 #include <QPushButton>
-#include <QGridLayout>
-#include <QDebug>
-#include "edb.h"
 
 DialogOpenProgram::DialogOpenProgram(QWidget* parent,const QString& caption, const QString& directory,const QString& filter)
 	: QFileDialog(parent,caption,directory,filter),

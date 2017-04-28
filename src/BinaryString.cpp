@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "BinaryString.h"
 #include "HexStringValidator.h"
+
 #include <QStringList>
 
 #include "ui_BinaryString.h"

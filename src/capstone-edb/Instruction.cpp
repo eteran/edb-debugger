@@ -15,17 +15,19 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <Instruction.h>
-#include <cassert>
-#include <algorithm>
-#include <cstring>
-#include <cctype>
+#include "Instruction.h"
+#include "Util.h"
+
+#include <QRegExp>
 #include <QString>
 #include <QStringList>
-#include <QRegExp>
-#include <stdexcept>
-#include "Util.h"
+
+#include <algorithm>
+#include <cassert>
+#include <cctype>
+#include <cstring>
 #include <sstream>
+#include <stdexcept>
 
 namespace CapstoneEDB {
 

@@ -17,12 +17,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "GraphEdge.h"
-#include "GraphWidget.h"
 #include "GraphNode.h"
+#include "GraphWidget.h"
 
-#include <QtDebug>
 #include <QGraphicsPolygonItem>
 #include <QPainter>
+#include <QtDebug>
 
 namespace {
 

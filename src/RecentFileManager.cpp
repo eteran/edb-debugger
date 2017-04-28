@@ -18,10 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RecentFileManager.h"
 
-#include <QSettings>
 #include <QAction>
-#include <QMenu>
 #include <QFileInfo>
+#include <QMenu>
+#include <QSettings>
+
 #include <algorithm>
 
 namespace {
