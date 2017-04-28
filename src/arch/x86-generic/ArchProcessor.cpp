@@ -944,7 +944,7 @@ ArchProcessor::ArchProcessor() {
 		has_mmx_ = edb::v1::debugger_core->has_extension(edb::string_hash("MMX"));
 		has_xmm_ = edb::v1::debugger_core->has_extension(edb::string_hash("XMM"));
 		has_ymm_ = edb::v1::debugger_core->has_extension(edb::string_hash("YMM"));
-		connect(edb::v1::debugger_ui, SIGNAL(attachEvent()), this, SLOT(just_attached()));
+		connect(edb::v1::debugger_ui, SIGNAL(attachEvent()), this, SLOT(justAttached()));
 	} else {
 		has_mmx_ = false;
 		has_xmm_ = false;
@@ -1255,7 +1255,7 @@ void ArchProcessor::about_to_resume() {
 	getModel().saveValues();
 }
 
-void ArchProcessor::just_attached() {
+void ArchProcessor::justAttached() {
 	just_attached_=true;
 }
 

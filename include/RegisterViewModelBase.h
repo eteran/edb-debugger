@@ -9,8 +9,7 @@
 Q_DECLARE_METATYPE(std::vector<NumberDisplayMode>)
 Q_DECLARE_METATYPE(Register)
 
-namespace RegisterViewModelBase
-{
+namespace RegisterViewModelBase {
 
 class RegisterViewItem;
 class AbstractRegisterItem;

@@ -43,12 +43,12 @@ void BinaryString::setEntriesMaxLength(int n) {
 // Desc:
 //------------------------------------------------------------------------------
 void BinaryString::setMaxLength(int n) {
-	requestedMaxLength=n;
+	requestedMaxLength_=n;
 	if(n) {
-		mode=Mode::LengthLimited;
+		mode_=Mode::LengthLimited;
 		ui->keepSize->hide();
 	} else {
-		mode=Mode::MemoryEditing;
+		mode_=Mode::MemoryEditing;
 		n=UNLIMITED_MAX_LENGTH;
 		ui->keepSize->show();
 	}
@@ -61,9 +61,9 @@ void BinaryString::setMaxLength(int n) {
 //------------------------------------------------------------------------------
 BinaryString::BinaryString(QWidget *parent) : QWidget(parent),
 											  ui(new Ui::BinaryStringWidget),
-											  mode(Mode::MemoryEditing),
-											  requestedMaxLength(0),
-											  valueOriginalLength(0)
+											  mode_(Mode::MemoryEditing),
+											  requestedMaxLength_(0),
+											  valueOriginalLength_(0)
 {
 	ui->setupUi(this);
 	ui->txtHex->setValidator(new HexStringValidator(this));
@@ -86,7 +86,7 @@ BinaryString::~BinaryString() {
 //------------------------------------------------------------------------------
 void BinaryString::on_keepSize_stateChanged() {
 
-	if(mode!=Mode::MemoryEditing) return;
+	if(mode_!=Mode::MemoryEditing) return;
 
 	// There's a comment in get_binary_string_from_user(), that max length must be set before value.
 	// FIXME: do we need this here? What does "truncate incorrectly" mean there?
@@ -94,7 +94,7 @@ void BinaryString::on_keepSize_stateChanged() {
 	if(ui->keepSize->checkState()==Qt::Unchecked)
 		setEntriesMaxLength(UNLIMITED_MAX_LENGTH);
 	else
-		setEntriesMaxLength(valueOriginalLength);
+		setEntriesMaxLength(valueOriginalLength_);
 }
 
 //------------------------------------------------------------------------------
@@ -214,7 +214,7 @@ QByteArray BinaryString::value() const {
 //------------------------------------------------------------------------------
 void BinaryString::setValue(const QByteArray &data) {
 
-	valueOriginalLength=data.size();
+	valueOriginalLength_=data.size();
 	on_keepSize_stateChanged();
 	const QString temp = QString::fromLatin1(data.data(), data.size());
 

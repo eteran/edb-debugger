@@ -52,22 +52,21 @@ private:
 		Stack, // ST(i)
 		Independent // Ri
 	};
+
 private:
 	void setupFPURegisterMenu(QMenu& menu);
 	void setupMMXRegisterMenu(QMenu& menu);
 	void setupSSEAVXRegisterMenu(QMenu& menu, const QString& extType);
-	void update_fpu_view(int& itemNumber, const State &state, const QPalette& palette) const;
 	QString getRoundingMode(unsigned modeBits) const;
 
 private:
-	bool just_attached_=true;
-
+	bool just_attached_ = true;
 	bool has_mmx_;
 	bool has_xmm_;
 	bool has_ymm_;
 
 private Q_SLOTS:
-	void just_attached();
+	void justAttached();
 };
 
 #endif

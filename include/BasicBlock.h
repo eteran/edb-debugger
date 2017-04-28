@@ -79,9 +79,9 @@ public:
 	QString toString() const;
 
 public:
-	size_type byte_size() const;
-	edb::address_t first_address() const;
-	edb::address_t last_address() const;
+	size_type byteSize() const;
+	edb::address_t firstAddress() const;
+	edb::address_t lastAddress() const;
 
 private:
 	QVector<instruction_pointer> instructions_;

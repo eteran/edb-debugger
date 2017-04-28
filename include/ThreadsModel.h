@@ -31,7 +31,7 @@ class ThreadsModel : public QAbstractItemModel {
 public:
 	struct Item {
 		std::shared_ptr<IThread> thread;
-		bool             current;
+		bool                     current;
 	};
 
 public:

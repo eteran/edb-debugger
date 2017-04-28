@@ -30,7 +30,6 @@ public:
 	Configuration(QObject *parent = 0);
 	virtual ~Configuration() override;
 
-
 public:
 	void sendChangeNotification();
 
@@ -113,8 +112,8 @@ public:
     QList<qlonglong>  ignored_exceptions;
 
 protected:
-	void read_settings();
-	void write_settings();
+	void readSettings();
+	void writeSettings();
 };
 
 #endif

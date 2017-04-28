@@ -34,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Desc: constructor
 //------------------------------------------------------------------------------
 Configuration::Configuration(QObject *parent) : QObject(parent) {
-	read_settings();
+	readSettings();
 }
 
 //------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ Configuration::Configuration(QObject *parent) : QObject(parent) {
 // Desc: destructor
 //------------------------------------------------------------------------------
 Configuration::~Configuration() {
-	write_settings();
+	writeSettings();
 }
 
 //------------------------------------------------------------------------------
@@ -57,7 +57,7 @@ void Configuration::sendChangeNotification() {
 // Name: read_settings
 // Desc: read in the options from the file
 //------------------------------------------------------------------------------
-void Configuration::read_settings() {
+void Configuration::readSettings() {
 
 #ifdef Q_OS_WIN32
 	const QString default_font = QFont("Courier New", 8).toString();
@@ -183,7 +183,7 @@ void Configuration::read_settings() {
 // Name: write_settings
 // Desc: writes the options to the file
 //------------------------------------------------------------------------------
-void Configuration::write_settings() {
+void Configuration::writeSettings() {
 
 	QSettings settings;
 

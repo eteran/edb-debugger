@@ -50,8 +50,9 @@ class QString;
 
 struct ExpressionError;
 
-namespace RegisterViewModelBase
-{ class Model; }
+namespace RegisterViewModelBase {
+class Model;
+}
 
 namespace edb {
 

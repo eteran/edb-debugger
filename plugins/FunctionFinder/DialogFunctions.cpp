@@ -227,7 +227,7 @@ void DialogFunctions::on_btnGraph_clicked() {
 					// first create all of the nodes
 					for(const BasicBlock &bb : f) {
 						auto node = new GraphNode(graph, bb.toString(), Qt::lightGray);
-						nodes.insert(bb.first_address(), node);
+						nodes.insert(bb.firstAddress(), node);
 					}
 
 					// then connect them!
@@ -249,7 +249,7 @@ void DialogFunctions::on_btnGraph_clicked() {
 								if(op.type() == edb::Operand::TYPE_REL) {
 									const edb::address_t ea = op.relative_target();
 
-									auto from = nodes.find(bb.first_address());
+									auto from = nodes.find(bb.firstAddress());
 									auto to = nodes.find(ea);
 									if(to != nodes.end() && from != nodes.end()) {
 										new GraphEdge(from.value(), to.value(), Qt::black);
@@ -262,7 +262,7 @@ void DialogFunctions::on_btnGraph_clicked() {
 
 								if(op.type() == edb::Operand::TYPE_REL) {
 
-									auto from = nodes.find(bb.first_address());
+									auto from = nodes.find(bb.firstAddress());
 
 									auto to_taken = nodes.find(op.relative_target());
 									if(to_taken != nodes.end() && from != nodes.end()) {

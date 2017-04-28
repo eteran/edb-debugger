@@ -52,21 +52,21 @@ void Function::swap(Function &other) {
 // Name: insert
 //------------------------------------------------------------------------------
 void Function::insert(const BasicBlock &bb) {
-	blocks_[bb.first_address()] = bb;
+	blocks_[bb.firstAddress()] = bb;
 }
 
 //------------------------------------------------------------------------------
 // Name: entry_address
 //------------------------------------------------------------------------------
 edb::address_t Function::entry_address() const {
-	return front().first_address();
+	return front().firstAddress();
 }
 
 //------------------------------------------------------------------------------
 // Name: end_address
 //------------------------------------------------------------------------------
 edb::address_t Function::end_address() const {
-	return back().last_address() - 1;
+	return back().lastAddress() - 1;
 }
 
 //------------------------------------------------------------------------------
