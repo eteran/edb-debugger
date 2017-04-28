@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "MemoryRegions.h"
 #include "State.h"
+#include "IRegion.h"
+#include "Function.h"
 #include <QAbstractScrollArea>
 #include <QDebug>
 #include <QFontMetrics>

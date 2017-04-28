@@ -17,14 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogProcessProperties.h"
-#include "edb.h"
+#include "Configuration.h"
+#include "DialogStrings.h"
 #include "IDebugger.h"
 #include "IProcess.h"
-#include "MemoryRegions.h"
-#include "Configuration.h"
+#include "IRegion.h"
 #include "ISymbolManager.h"
-#include "DialogStrings.h"
+#include "MemoryRegions.h"
+#include "Module.h"
 #include "Symbol.h"
+#include "edb.h"
 
 #include <QDateTime>
 #include <QDebug>

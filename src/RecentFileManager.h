@@ -19,10 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef RECENTFILEMANAGER_20070430_H_
 #define RECENTFILEMANAGER_20070430_H_
 
-#include <QStringList>
-#include <QWidget>
 #include <QByteArray>
 #include <QMetaType>
+#include <QWidget>
 #include <utility>
 
 class QMenu;
@@ -32,7 +31,7 @@ class QString;
 class RecentFileManager : public QWidget {
 	Q_OBJECT
 public:
-	using RecentFile=std::pair<QString,QList<QByteArray>>;
+	using RecentFile = std::pair<QString, QList<QByteArray>>;
 public:
 	RecentFileManager(QWidget * parent = 0, Qt::WindowFlags f = 0);
 	virtual ~RecentFileManager();
@@ -56,7 +55,7 @@ private:
 
 private:
 	QList<RecentFile> file_list_;
-	QMenu *     menu_;
+	QMenu *           menu_;
 };
 
 Q_DECLARE_METATYPE(RecentFileManager::RecentFile)

@@ -19,9 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOGINPUTVALUE_20061101_H_
 #define DIALOGINPUTVALUE_20061101_H_
 
-#include <QDialog>
 #include "Types.h"
-#include "Register.h"
+
+#include <QDialog>
+
+class Register;
+
 
 namespace Ui { class DialogInputValue; }
 

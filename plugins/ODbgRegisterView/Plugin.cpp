@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ArchProcessor.h"
 #include "RegisterView.h"
 #include "edb.h"
+
+#include <QCoreApplication>
 #include <QDebug>
 #include <QDockWidget>
 #include <QMainWindow>

@@ -20,7 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIALOGMEMORYREGIONS_20061101_H_
 
 #include <QDialog>
-#include "IRegion.h"
+
+#include <memory>
+
+class IRegion;
 
 class QSortFilterProxyModel;
 class QModelIndex;

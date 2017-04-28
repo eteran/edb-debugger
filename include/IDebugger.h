@@ -19,22 +19,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IDEBUGGER_20061101_H_
 #define IDEBUGGER_20061101_H_
 
+#include "OSTypes.h"
 #include "Types.h"
-
 #include <QByteArray>
 #include <QHash>
 #include <QMap>
 #include <QString>
 #include <QtPlugin>
-
 #include <memory>
 
-class IState;
-class State;
-class Status;
 class IBreakpoint;
 class IDebugEvent;
 class IProcess;
+class IState;
+class State;
+class Status;
 
 class IDebugger {
 public:

@@ -17,7 +17,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ThreadsModel.h"
+#include "IThread.h"
 #include "edb.h"
+
 #include <QtAlgorithms>
 
 ThreadsModel::ThreadsModel(QObject *parent) : QAbstractItemModel(parent) {

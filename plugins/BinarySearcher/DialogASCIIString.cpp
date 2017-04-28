@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "IDebugger.h"
 #include "IProcess.h"
+#include "IRegion.h"
+#include "IThread.h"
 #include "MemoryRegions.h"
 #include "State.h"
 #include "Util.h"

@@ -17,14 +17,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "PlatformRegion.h"
-
-#include "MemoryRegions.h"
-#include "edb.h"
-#include "IDebugger.h"
-#include "State.h"
-#include "IProcess.h"
 #include "IDebugEventHandler.h"
+#include "IDebugger.h"
+#include "IProcess.h"
+#include "IThread.h"
+#include "MemoryRegions.h"
+#include "State.h"
+#include "edb.h"
+
 #include <QMessageBox>
+
 #include <sys/mman.h>
 #include <asm/unistd.h>
 

@@ -19,11 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REGISTER_20100329_H_
 #define REGISTER_20100329_H_
 
-#include "Types.h"
 #include "API.h"
+#include "Types.h"
 #include "Util.h"
-#include <cstring>
 #include <QString>
+#include <cstring>
 #include <type_traits>
 
 class Register;
@@ -103,9 +103,9 @@ public:
 	QString toHexString() const;
 
 private:
-	QString    name_;
-	StoredType value_;
-	Type       type_;
+	QString     name_;
+	StoredType  value_;
+	Type        type_;
 	std::size_t bitSize_;
 
 	template<std::size_t bitSize, typename ValueType, typename Type>

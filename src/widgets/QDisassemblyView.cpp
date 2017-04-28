@@ -17,22 +17,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "QDisassemblyView.h"
-#include "Configuration.h"
-#include "edb.h"
-#include "IAnalyzer.h"
 #include "ArchProcessor.h"
+#include "Configuration.h"
+#include "Function.h"
+#include "IAnalyzer.h"
 #include "IDebugger.h"
 #include "IProcess.h"
+#include "IRegion.h"
 #include "ISymbolManager.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"
+#include "State.h"
 #include "SyntaxHighlighter.h"
 #include "Util.h"
-#include "State.h"
+#include "edb.h"
 
 #include <QAbstractItemDelegate>
 #include <QApplication>
 #include <QDebug>
+#include <QElapsedTimer>
 #include <QMouseEvent>
 #include <QPainter>
 #include <QPixmap>
@@ -40,9 +43,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTextLayout>
 #include <QToolTip>
 #include <QtGlobal>
-#include <climits>
-#include <QElapsedTimer>
 #include <algorithm>
+#include <climits>
 
 namespace {
 

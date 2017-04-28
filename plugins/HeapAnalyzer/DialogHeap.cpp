@@ -18,12 +18,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogHeap.h"
 #include "Configuration.h"
-#include "edb.h"
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "ISymbolManager.h"
 #include "MemoryRegions.h"
+#include "Module.h"
+#include "Symbol.h"
+#include "IRegion.h"
 #include "Util.h"
+#include "edb.h"
+
+#ifdef ENABLE_GRAPH
+#include "GraphWidget.h"
+#include "GraphNode.h"
+#include "GraphEdge.h"
+#endif
+
 #include <QFileInfo>
 #include <QHeaderView>
 #include <QMessageBox>
@@ -34,12 +44,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtDebug>
 #include <algorithm>
 #include <functional>
-
-#ifdef ENABLE_GRAPH
-#include "GraphWidget.h"
-#include "GraphNode.h"
-#include "GraphEdge.h"
-#endif
 
 #if QT_VERSION >= 0x050000
 #include <QtConcurrent>

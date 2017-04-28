@@ -20,9 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define BYTESHIFTARRAY_20060825_H_
 
 #include "API.h"
-
-#include <cstddef>
 #include <QVector>
+#include <cstddef>
 
 class EDB_EXPORT ByteShiftArray {
 	Q_DISABLE_COPY(ByteShiftArray)

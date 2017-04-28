@@ -21,10 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "API.h"
 #include "Types.h"
-
 #include <QVector>
-#include <memory>
 #include <iterator>
+#include <memory>
 
 class QString;
 

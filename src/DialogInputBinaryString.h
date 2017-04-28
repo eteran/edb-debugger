@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 
-class QLineEdit;
 class BinaryString;
 
 namespace Ui { class DialogInputBinaryString; }

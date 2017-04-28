@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ISTATE_20110315_H_
 #define ISTATE_20110315_H_
 
-#include "Types.h"
 #include "API.h"
 #include "Register.h"
+#include "Types.h"
 
 // TODO(eteran): This file is still too taylored to x86 and family
 // we should develop a better abstraction model at some point

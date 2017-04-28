@@ -20,9 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define CONFIGURATION_20061031_H_
 
 #include "API.h"
-#include <QString>
 #include <QObject>
-#include <QVector>
+#include <QString>
+#include <QList>
 
 class EDB_EXPORT Configuration : public QObject {
 	Q_OBJECT

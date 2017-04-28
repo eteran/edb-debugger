@@ -19,16 +19,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef UTIL_20061126_H_
 #define UTIL_20061126_H_
 
-#include <QString>
-#include <sstream>
-#include <iomanip>
-#include <type_traits>
-#include <cstddef>
-#include <array>
-#include <algorithm>
-#include <iostream>
-#include <cstdlib>
 #include "FloatX.h"
+#include <QString>
+#include <algorithm>
+#include <array>
+#include <cstddef>
+#include <cstdlib>
+#include <cstring>
+#include <iomanip>
+#include <iostream>
+#include <memory>
+#include <sstream>
+#include <type_traits>
 
 enum class NumberDisplayMode {
 	Hex,
@@ -72,8 +74,7 @@ inline int percentage(int bytes_done, int bytes_total) {
 	return percentage(0, 1, bytes_done, bytes_total);
 }
 
-template<typename T> typename std::enable_if<std::is_floating_point<T>::value,
-QString>::type toString(T value, int precision) {
+template<typename T> typename std::enable_if<std::is_floating_point<T>::value, QString>::type toString(T value, int precision) {
 	std::ostringstream ss;
 	ss << std::setprecision(precision) << value;
 	return QString::fromStdString(ss.str());
@@ -107,8 +108,7 @@ void print(Stream& str, const Arg0& arg0, const Args&...args)
 
 // Returns a string of `AsType`s ordered from highest in SIMD register to lowest
 template<typename AsType, typename T>
-typename std::enable_if<std::is_floating_point<AsType>::value,
-QString>::type packedFloatsToString(const T& value)
+typename std::enable_if<std::is_floating_point<AsType>::value, QString>::type packedFloatsToString(const T& value)
 {
     auto p=reinterpret_cast<const char*>(&value);
     const std::size_t elementCount=sizeof value/sizeof(AsType);
@@ -142,8 +142,7 @@ QString formatInt(T value, NumberDisplayMode mode)
 }
 
 template<typename AsType, typename T>
-typename std::enable_if<std::is_integral<AsType>::value,
-QString>::type packedIntsToString(const T& value,NumberDisplayMode mode)
+typename std::enable_if<std::is_integral<AsType>::value, QString>::type packedIntsToString(const T& value,NumberDisplayMode mode)
 {
     auto p=reinterpret_cast<const char*>(&value);
     const std::size_t elementCount=sizeof value/sizeof(AsType);

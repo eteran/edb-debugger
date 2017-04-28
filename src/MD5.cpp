@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "MD5.h"
 
+#include <QString>
+
 #include <algorithm>
 #include <climits>
 #include <cstring>

@@ -23,6 +23,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IBinary.h"
 #include "IDebugger.h"
 #include "IProcess.h"
+#include "IThread.h"
+#include "Function.h"
 #include "ISymbolManager.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"

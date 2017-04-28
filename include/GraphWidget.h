@@ -20,16 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define GRAPHWIDGET_20090903_H_
 
 #include <QGraphicsView>
-#include <QMap>
-#include <QString>
 #include <graphviz/cgraph.h>
 #include <graphviz/gvcext.h>
 
-class QGraphicsScene;
-class QContextMenuEvent;
-class QMouseEvent;
-class QLabel;
 class GraphNode;
+class QContextMenuEvent;
+class QGraphicsScene;
+class QLabel;
+class QMouseEvent;
+class QString;
 
 class GraphWidget : public QGraphicsView {
 	Q_OBJECT

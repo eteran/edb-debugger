@@ -1,12 +1,10 @@
 #ifndef REGISTER_VIEW_MODEL_H_20151206
 #define REGISTER_VIEW_MODEL_H_20151206
 
+#include "Register.h"
 #include <QAbstractItemModel>
-#include <memory>
 #include <deque>
 #include <vector>
-#include "Util.h"
-#include "Register.h"
 
 Q_DECLARE_METATYPE(std::vector<NumberDisplayMode>)
 Q_DECLARE_METATYPE(Register)

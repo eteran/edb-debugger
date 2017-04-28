@@ -20,19 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define STATE_20060715_H_
 
 #include "API.h"
-#include "Register.h"
 #include "Types.h"
 
-#include <QMetaType>
-
 class IState;
+class Register;
 class QString;
 
 namespace DebuggerCorePlugin {
-
 class DebuggerCore;
 class PlatformThread;
-
 }
 
 class EDB_EXPORT State {

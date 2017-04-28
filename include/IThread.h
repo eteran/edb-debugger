@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ITHREAD_20150529_H_
 
 #include "Types.h"
-#include <memory>
+#include "OSTypes.h"
 
 class State;
 

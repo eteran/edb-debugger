@@ -19,13 +19,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IANALYZER_20080630_H_
 #define IANALYZER_20080630_H_
 
-#include "Function.h"
-#include "IRegion.h"
 #include "Types.h"
-#include "Status.h"
-
+#include "Function.h"
 #include <QSet>
-#include <QHash>
+#include <memory>
+
+class IRegion;
+
+template <class T>
+class Result;
 
 class IAnalyzer {
 public:

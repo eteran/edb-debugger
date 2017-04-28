@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "Instruction.h"
+#include "Register.h"
+#include "IThread.h"
 #include "OptionsPage.h"
 #include "State.h"
 #include "Util.h"

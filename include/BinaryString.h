@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define BINARYSTRING_20060821_H_
 
 #include "API.h"
-
 #include <QWidget>
 
 namespace Ui { class BinaryStringWidget; }

@@ -26,8 +26,10 @@ class QObject;
 
 namespace edb {
 namespace internal {
-	bool register_plugin(const QString &filename, QObject *plugin);
-	void load_function_db();
+
+bool register_plugin(const QString &filename, QObject *plugin);
+void load_function_db();
+
 }
 }
 

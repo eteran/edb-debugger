@@ -20,8 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define FUNCTION_20130830_H_
 
 #include "API.h"
-#include "Types.h"
 #include "BasicBlock.h"
+#include "Types.h"
 #include <QMap>
 
 class EDB_EXPORT Function {

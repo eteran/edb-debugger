@@ -1,10 +1,12 @@
+
 #ifndef FLOAT_X_H_20151108
 #define FLOAT_X_H_20151108
 
-#include <cmath>
-#include <type_traits>
+#include "Types.h"
 #include <QValidator>
-#include <Types.h>
+#include <cmath>
+#include <limits>
+#include <type_traits>
 
 template<typename Float>
 Float readFloat(const QString& strInput,bool& ok);

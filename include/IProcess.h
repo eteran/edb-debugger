@@ -19,13 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IPROCESS_20150516_H_
 #define IPROCESS_20150516_H_
 
-#include "IRegion.h"
-#include "IThread.h"
-#include "Module.h"
+#include "OSTypes.h"
 #include "Types.h"
 #include <QList>
 #include <memory>
 
+class IRegion;
+class IThread;
+class Module;
 class QDateTime;
 class QString;
 

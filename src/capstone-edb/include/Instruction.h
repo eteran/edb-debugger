@@ -18,11 +18,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef INSTRUCTION_20150908_H
 #define INSTRUCTION_20150908_H
 
-#include <string>
-#include <memory>
-#include <vector>
 #include <cstdint>
-#include <QString>
+#include <string>
+#include <vector>
+
+class QString;
 
 namespace CapstoneEDB {
 

@@ -22,8 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "ISymbolManager.h"
-#include "ui_DialogBacktrace.h"
+#include "Symbol.h"
+
 #include <QTableWidget>
+
+#include "ui_DialogBacktrace.h"
 
 namespace BacktracePlugin {
 namespace {

@@ -20,25 +20,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QFileDialog>
 #include <QList>
-#include <QByteArray>
 
 class QLineEdit;
+class QByteArray;
 
-class DialogOpenProgram : public QFileDialog
-{
+class DialogOpenProgram : public QFileDialog {
 	Q_OBJECT // This also enables QFileDialog::DontUseNativeDialog, so that we get Qt dialog on any platform
 
-	QLineEdit* argsEdit;
-	QLineEdit* workDir;
 public:
 	DialogOpenProgram(QWidget* parent=0,
 					  const QString& caption=QString(),
 					  const QString& directory=QString(),
 					  const QString& filter=QString());
+	
+public:				  
 	QList<QByteArray> arguments() const;
 	QString workingDirectory() const;
+	
 private Q_SLOTS:
 	void browsePressed();
+	
+private:
+	QLineEdit *argsEdit;
+	QLineEdit *workDir;
 };
 
 #endif

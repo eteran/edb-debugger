@@ -19,12 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DEBUGGERMAIN_20090811_H_
 #define DEBUGGERMAIN_20090811_H_
 
-#include "DataViewInfo.h"
 #include "Debugger.h"
+#include "DataViewInfo.h"
 #include "IDebugEventHandler.h"
+#include "OSTypes.h"
 #include "QHexView"
-#include "Status.h"
-#include "edb.h"
+
+template <class T>
+class Result;
 
 class DialogArguments;
 class IBinary;
@@ -45,7 +47,6 @@ class QLabel;
 #include <QProcess>
 #include <QVector>
 
-#include <cstring>
 #include <memory>
 
 #include "ui_Debugger.h"
@@ -312,24 +313,24 @@ private:
 	QProcess *                                       tty_proc_;
 	GUI_STATE                                        gui_state_;
 	QString                                          tty_file_;
-	QVector<std::shared_ptr<DataViewInfo>>                   data_regions_;
+	QVector<std::shared_ptr<DataViewInfo>>           data_regions_;
 	DataViewInfo                                     stack_view_info_;
-	std::shared_ptr<QHexView>                         stack_view_;
+	std::shared_ptr<QHexView>                        stack_view_;
 	QStringListModel *                               list_model_;
 	DialogArguments *                                arguments_dialog_;
 	QTimer *                                         timer_;
 	RecentFileManager *                              recent_file_manager_;
 
 	QSharedPointer<QHexView::CommentServerInterface> comment_server_;
-	std::shared_ptr<IBreakpoint>                             reenable_breakpoint_run_;
-	std::shared_ptr<IBreakpoint>                             reenable_breakpoint_step_;
+	std::shared_ptr<IBreakpoint>                     reenable_breakpoint_run_;
+	std::shared_ptr<IBreakpoint>                     reenable_breakpoint_step_;
 	std::unique_ptr<IBinary>                         binary_info_;
 
 	QString                                          last_open_directory_;
 	QString                                          working_directory_;
 	QString                                          program_executable_;
 	bool                                             stack_view_locked_;
-	std::shared_ptr<const IDebugEvent>                       last_event_;
+	std::shared_ptr<const IDebugEvent>               last_event_;
 	QLabel *                                         status_;
 
 #if defined(Q_OS_LINUX)

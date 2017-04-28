@@ -21,11 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "API.h"
 #include "Types.h"
-#include "Symbol.h"
-#include <QList>
+#include <memory>
 #include <QHash>
+#include <QList>
 
 class QString;
+class Symbol;
 class ISymbolGenerator;
 
 class EDB_EXPORT ISymbolManager {

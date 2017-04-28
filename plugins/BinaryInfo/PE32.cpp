@@ -16,10 +16,11 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "PE32.h"
 #include "edb.h"
 #include "IDebugger.h"
 #include "IProcess.h"
-#include "PE32.h"
+#include "IRegion.h"
 #include "string_hash.h"
 #include "pe_binary.h"
 #include <QDebug>

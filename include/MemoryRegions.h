@@ -21,9 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "API.h"
 #include "Types.h"
-#include "IRegion.h"
 #include <QAbstractItemModel>
 #include <QList>
+
+class IRegion;
+
 
 class EDB_EXPORT MemoryRegions : public QAbstractItemModel {
 	Q_OBJECT

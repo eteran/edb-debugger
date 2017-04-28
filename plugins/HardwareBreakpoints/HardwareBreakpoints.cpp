@@ -20,8 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "IDebugger.h"
 #include "IProcess.h"
+#include "IDebugEvent.h"
 #include "DialogHWBreakpoints.h"
 #include "State.h"
+#include "IThread.h"
 
 #include <QMenu>
 #include <QDialog>

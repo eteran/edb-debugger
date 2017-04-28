@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define FIXED_FONT_SELECTOR_H_
 
 #include <QWidget>
+
 #include "ui_FixedFontSelector.h"
 
 class FixedFontSelector : public QWidget {

@@ -20,8 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define MD5_20070328_H_
 
 #include <QtGlobal>
-#include <QString>
 #include <cstddef>
+
+class QString;
 
 class MD5 {
 public:

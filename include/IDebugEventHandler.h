@@ -20,7 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define IDEBUG_EVENT_HANDLER_20061101_H_
 
 #include "Types.h"
-#include "IDebugEvent.h"
+#include <memory>
+
+class IDebugEvent;
 
 class IDebugEventHandler {
 public:

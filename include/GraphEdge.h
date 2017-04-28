@@ -19,10 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef GRAPH_EDGE_20090903_H_
 #define GRAPH_EDGE_20090903_H_
 
-#include <QGraphicsItemGroup>
 #include <QColor>
-#include <graphviz/gvc.h>
+#include <QGraphicsItemGroup>
 #include <graphviz/cgraph.h>
+#include <graphviz/gvc.h>
 
 class GraphWidget;
 class GraphNode;

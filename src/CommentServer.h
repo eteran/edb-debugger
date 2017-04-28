@@ -21,8 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "QHexView"
 #include "Status.h"
+
 #include <QHash>
 #include <QObject>
+#include <QString>
 
 class CommentServer : public QObject, public QHexView::CommentServerInterface {
 	Q_OBJECT

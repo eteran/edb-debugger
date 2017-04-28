@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PLATFORM_COMMON_20151011_H_
 
 #include "edb.h"
+#include "OSTypes.h"
 
 class QString;
 

@@ -21,34 +21,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "API.h"
 #include "IBinary.h"
-#include "Types.h"
 #include "Status.h"
-
+#include "Types.h"
 #include <QMap>
-#include <QList>
 #include <QPointer>
 #include <QStringList>
 #include <QVector>
-
 #include <memory>
 
 class ArchProcessor;
 class Configuration;
 class IAnalyzer;
+class IBreakpoint;
 class IDebugEventHandler;
 class IDebugger;
-class IBreakpoint;
 class IPlugin;
 class IRegion;
 class ISymbolManager;
 class MemoryRegions;
-class State;
 class Register;
+class State;
 
 class QAbstractScrollArea;
 class QByteArray;
 class QDialog;
-class QFileInfo;
 class QWidget;
 class QString;
 
@@ -65,7 +61,7 @@ namespace v1 {
 
 // some useful objects
 EDB_EXPORT extern IDebugger *debugger_core;
-EDB_EXPORT extern QWidget       *debugger_ui;
+EDB_EXPORT extern QWidget   *debugger_ui;
 
 // the symbol mananger
 EDB_EXPORT ISymbolManager &symbol_manager();

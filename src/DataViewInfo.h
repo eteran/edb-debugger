@@ -19,12 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DATAVIEWINFO_20100101_H_
 #define DATAVIEWINFO_20100101_H_
 
-
-#include "RegionBuffer.h"
-#include "IRegion.h"
 #include <memory>
 
+#include <QtGlobal>
+
 class QHexView;
+class RegionBuffer;
+class IRegion;
 
 class DataViewInfo {
 public:
@@ -35,8 +36,8 @@ private:
 	Q_DISABLE_COPY(DataViewInfo)
 
 public:
-	std::shared_ptr<IRegion>         region;
-	RegionBuffer *const      stream;
+	std::shared_ptr<IRegion>  region;
+	RegionBuffer *const       stream;
 	std::shared_ptr<QHexView> view;
 
 public:

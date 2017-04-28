@@ -20,9 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define IDEBUGEVENT_20121005_H_
 
 #include "API.h"
-#include "Types.h"
+#include "OSTypes.h"
 #include <QString>
-#include <memory>
 
 class EDB_EXPORT IDebugEvent {
 public:

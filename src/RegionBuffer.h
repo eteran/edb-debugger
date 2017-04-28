@@ -19,8 +19,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef REGION_BUFFER_20101111_H_
 #define REGION_BUFFER_20101111_H_
 
-#include <QIODevice>
 #include "IRegion.h"
+
+#include <QIODevice>
+
+#include <memory>
+
+class IRegion;
 
 class RegionBuffer : public QIODevice {
 	Q_OBJECT

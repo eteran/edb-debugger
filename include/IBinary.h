@@ -20,11 +20,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define IBINARY_20070718_H_
 
 #include "API.h"
-#include "IRegion.h"
 #include "Types.h"
-#include <memory>
 #include <QVector>
-#include <QPair>
+#include <memory>
+
+class IRegion;
 
 class EDB_EXPORT IBinary {
 public:

@@ -20,10 +20,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SYMBOLMANAGER_20060814_H_
 
 #include "ISymbolManager.h"
+
 #include <QHash>
 #include <QMap>
 #include <QSet>
-#include <QString>
+
+class QString;
 
 class SymbolManager : public ISymbolManager {
 public:

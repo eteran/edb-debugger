@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DialogInputValue.h"
 #include "QULongValidator.h"
 #include "QLongValidator.h"
+#include "Register.h"
 #include "edb.h"
 
 #include <QRegExpValidator>

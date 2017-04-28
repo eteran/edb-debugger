@@ -19,9 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOG_ATTACH_20091218_H_
 #define DIALOG_ATTACH_20091218_H_
 
-#include "Types.h"
-#include "Status.h"
+#include "OSTypes.h"
+
 #include <QDialog>
+
+template <class T>
+class Result;
 
 class ProcessModel;
 class QSortFilterProxyModel;

@@ -19,19 +19,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef TYPES_20071127_H_
 #define TYPES_20071127_H_
 
-#include "OSTypes.h"
-#include <cstdint>
 #include <QString>
 #include <QVariant>
-#include <type_traits>
-#include <cstring>
 #include <array>
-#include <sstream>
-#include <iomanip>
 #include <cassert>
 #include <cstddef>
+#include <cstdint>
+#include <cstring>
+#include <iomanip>
 #include <limits>
-#include <map>
+#include <sstream>
+#include <type_traits>
 #include <vector>
 
 class Register;

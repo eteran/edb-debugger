@@ -20,10 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define STRING_HASH_20110823_H_
 
 #include <cstdint>
+#include <cstddef>
 #include <type_traits>
 
 namespace edb {
-
 namespace detail {
 
 template <std::size_t N, std::size_t n>

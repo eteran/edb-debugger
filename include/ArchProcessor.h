@@ -19,16 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ARCHPROCESSOR_20070312_H_
 #define ARCHPROCESSOR_20070312_H_
 
-#include "Types.h"
-#include <QCoreApplication>
-#include <QStringList>
-#include <QObject>
-#include <vector>
 #include "RegisterViewModelBase.h"
+#include "Types.h"
+#include <QObject>
 
-class QMenu;
 class QByteArray;
+class QMenu;
 class QString;
+class QStringList;
 class State;
 
 class ArchProcessor : public QObject {

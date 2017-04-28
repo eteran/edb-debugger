@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "API.h"
 #include "Types.h"
 #include <QString>
-#include <memory>
 
 class EDB_EXPORT Symbol {
 public:

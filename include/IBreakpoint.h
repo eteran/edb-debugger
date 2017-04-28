@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 
 #include <QString>
-#include <memory>
 #include <exception>
 
 class breakpoint_creation_error : public std::exception {

@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogMemoryRegions.h"
 #include "IDebugger.h"
+#include "IRegion.h"
 #include "edb.h"
 #include "MemoryRegions.h"
 

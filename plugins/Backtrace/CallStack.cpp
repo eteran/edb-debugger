@@ -17,15 +17,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "CallStack.h"
-#include "edb.h"
+#include "Expression.h"
 #include "IDebugger.h"
 #include "IProcess.h"
+#include "IRegion.h"
 #include "IState.h"
-#include "State.h"
+#include "IThread.h"
 #include "MemoryRegions.h"
-#include "Expression.h"
+#include "State.h"
+#include "edb.h"
 
-//TODO: This may be specific to x86... Maybe abstract this in the future.
+// TODO: This may be specific to x86... Maybe abstract this in the future.
 CallStack::CallStack()
 {
 	get_call_stack();

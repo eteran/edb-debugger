@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "IDebugger.h"
 #include "ISymbolManager.h"
+#include "Symbol.h"
 #include "Util.h"
 #include "edb.h"
 

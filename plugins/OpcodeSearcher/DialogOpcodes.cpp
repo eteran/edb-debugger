@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ByteShiftArray.h"
 #include "IDebugger.h"
 #include "IProcess.h"
+#include "IRegion.h"
 #include "MemoryRegions.h"
 #include "ShiftBuffer.h"
 #include "Util.h"

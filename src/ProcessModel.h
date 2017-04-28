@@ -19,11 +19,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PROCESS_MODEL_H_
 #define PROCESS_MODEL_H_
 
+#include "OSTypes.h"
+
 #include <QAbstractItemModel>
-#include <QVector>
 #include <QString>
-#include "Types.h"
-#include "IProcess.h"
+#include <QVector>
+
+#include <memory>
+
+class IProcess;
 
 class ProcessModel : public QAbstractItemModel {
 	Q_OBJECT

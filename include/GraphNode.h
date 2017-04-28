@@ -19,12 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef GRAPH_NODE_20090903_H_
 #define GRAPH_NODE_20090903_H_
 
-#include <QSet>
-#include <QStack>
 #include <QGraphicsItem>
 #include <QPicture>
-#include <graphviz/gvc.h>
+#include <QSet>
 #include <graphviz/cgraph.h>
+#include <graphviz/gvc.h>
 
 class QVariant;
 

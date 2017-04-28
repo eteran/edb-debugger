@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace Ui { class DialogThreads; }
 
 #include <QDialog>
-#include "Types.h"
 
 class ThreadsModel;
 class QSortFilterProxyModel;
