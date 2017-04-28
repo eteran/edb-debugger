@@ -157,9 +157,9 @@ void DialogBacktrace::populate_table() {
 			if(near_symbol) {
 				QString function = near_symbol->name;
 				int offset = address - near_symbol->address;;
-				item->setText(QString("0x%1 <%2+%3>").arg(QString::number(address, 16)).arg(function).arg(offset));
+				item->setText(tr("0x%1 <%2+%3>").arg(QString::number(address, 16)).arg(function).arg(offset));
 			} else {
-				item->setText(QString("0x%1").arg(QString::number(address, 16)));
+				item->setText(tr("0x%1").arg(QString::number(address, 16)));
 			}
 
 			//Remove all flags (namely Edit), then put the flags that we want.

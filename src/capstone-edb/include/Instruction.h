@@ -243,18 +243,13 @@ public:
 		LowerCase
 	};
 
-	enum SmallNumberFormat {
-		SmallNumAsHex,
-		SmallNumAsDec
-	};
-
 	struct FormatOptions {
 		Syntax            syntax;
 		Capitalization    capitalization;
-		SmallNumberFormat smallNumFormat;
 		bool 			  tabBetweenMnemonicAndOperands;
 		bool			  simplifyRIPRelativeTargets;
 	};
+
 public:
 	std::string to_string(const Instruction&) const;
 	std::string to_string(const Operand&) const;
@@ -263,7 +258,7 @@ public:
 	FormatOptions options() const { return options_; }
 	void setOptions(const FormatOptions& options);
 private:
-	FormatOptions options_={SyntaxIntel,LowerCase,SmallNumAsDec,false,true};
+	FormatOptions options_ = { SyntaxIntel, LowerCase, false, true };
 
 	void checkCapitalize(std::string& str,bool canContainHex=true) const;
 	QString adjustInstructionText(const Instruction& instruction) const;

@@ -928,13 +928,13 @@ QString Analyzer::get_analysis_path(const std::shared_ptr<IRegion> &region) cons
 		info.makeAbsolute();
 	}
 
-	const QString path = QString("%1/%2").arg(session_path, info.absolutePath());
+	auto path          = tr("%1/%2").arg(session_path, info.absolutePath());
 	const QString name = info.fileName();
 
 	// ensure that the sub-directory exists
 	QDir().mkpath(path);
 
-	return QString(QLatin1String("%1/%2"".Analysis.%3")).arg(path, name, QString::number(
+	return tr("%1/%2"".Analysis.%3").arg(path, name, QString::number(
 		region->start() - loaded_address + base_address, 16
 	));
 }

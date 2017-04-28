@@ -305,7 +305,6 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 
 	CapstoneEDB::Formatter::FormatOptions options = edb::v1::formatter().options();
 	options.capitalization = config.uppercase_disassembly ? CapstoneEDB::Formatter::UpperCase : CapstoneEDB::Formatter::LowerCase;
-	options.smallNumFormat = config.small_int_as_decimal  ? CapstoneEDB::Formatter::SmallNumAsDec : CapstoneEDB::Formatter::SmallNumAsHex;
 	options.syntax=static_cast<CapstoneEDB::Formatter::Syntax>(config.syntax);
 	options.tabBetweenMnemonicAndOperands=config.tab_between_mnemonic_and_operands;
 	options.simplifyRIPRelativeTargets=config.simplify_rip_relative_targets;

@@ -113,7 +113,7 @@ void CheckVersion::set_proxy(const QUrl &url) {
 
 #ifdef Q_OS_LINUX
 	Q_UNUSED(url);
-	QString proxy_str = QString::fromUtf8(qgetenv("HTTP_PROXY"));
+	auto proxy_str = QString::fromUtf8(qgetenv("HTTP_PROXY"));
 	if(proxy_str.isEmpty()) {
 		proxy_str = QString::fromUtf8(qgetenv("http_proxy"));
 	}
