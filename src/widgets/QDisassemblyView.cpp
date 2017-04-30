@@ -383,7 +383,7 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 		const size_t size = length_disasm_back(buf, buf_size, prevInstBytesSize);
 		if(!size) {
 			current_address -= 1;
-			break;
+			continue;
 		}
 
 		current_address -= size;
