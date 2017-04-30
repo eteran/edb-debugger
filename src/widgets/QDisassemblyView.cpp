@@ -296,6 +296,12 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		if (next_addr != 0) {
 			edb::v1::jump_to_address(next_addr);
 		}
+	} else if (event->key() == Qt::Key_Down && (event->modifiers() & Qt::ControlModifier)) {
+		const edb::address_t address = verticalScrollBar()->value();
+		verticalScrollBar()->setValue(address+1);
+	} else if (event->key() == Qt::Key_Up && (event->modifiers() & Qt::ControlModifier)) {
+		const edb::address_t address = verticalScrollBar()->value();
+		verticalScrollBar()->setValue(address-1);
 	}
 }
 
@@ -383,7 +389,7 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 		const size_t size = length_disasm_back(buf, buf_size, prevInstBytesSize);
 		if(!size) {
 			current_address -= 1;
-			break;
+			continue;
 		}
 
 		current_address -= size;
@@ -1314,6 +1320,10 @@ void QDisassemblyView::resizeEvent(QResizeEvent *) {
 	unsigned int lines_to_render = 1 + (viewport()->height() / line_height);
 
 	instruction_buffer_.resize(edb::Instruction::MAX_SIZE * lines_to_render);
+
+	// Make PageUp/PageDown scroll through the whole page, but leave the line at
+	// the top/bottom visible
+	verticalScrollBar()->setPageStep(lines_to_render-1);
 }
 
 //------------------------------------------------------------------------------
