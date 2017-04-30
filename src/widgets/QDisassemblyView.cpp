@@ -296,6 +296,12 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		if (next_addr != 0) {
 			edb::v1::jump_to_address(next_addr);
 		}
+	} else if (event->key() == Qt::Key_Down && (event->modifiers() & Qt::ControlModifier)) {
+		const edb::address_t address = verticalScrollBar()->value();
+		verticalScrollBar()->setValue(address+1);
+	} else if (event->key() == Qt::Key_Up && (event->modifiers() & Qt::ControlModifier)) {
+		const edb::address_t address = verticalScrollBar()->value();
+		verticalScrollBar()->setValue(address-1);
 	}
 }
 
