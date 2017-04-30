@@ -110,10 +110,13 @@ private:
 	void updateSelectedAddress(QMouseEvent *event);
 	void paint_line_bg(QPainter &painter, QBrush brush, int line, int num_lines = 1);
 	bool get_line_of_address(edb::address_t addr, unsigned int& line) const;
+	unsigned updateDisassembly(unsigned lines_to_render);
+	unsigned getSelectedLineNumber() const;
 
 private:
 	std::shared_ptr<IRegion>          region_;
 	QVector<edb::address_t>           show_addresses_;
+	std::vector<CapstoneEDB::Instruction> instructions_;
 	SyntaxHighlighter *const          highlighter_;
 	edb::address_t                    address_offset_;
 	edb::address_t                    selected_instruction_address_;
