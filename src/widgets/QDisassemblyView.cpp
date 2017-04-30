@@ -867,6 +867,17 @@ unsigned QDisassemblyView::updateDisassembly(unsigned lines_to_render)
 	return lines_to_render;
 }
 
+unsigned QDisassemblyView::getSelectedLineNumber() const
+{
+	unsigned int selected_line = 65535; // can't accidentally hit this
+	for(unsigned line=0;line<instructions_.size();++line) {
+		if (instructions_[line].rva() == selectedAddress()) {
+			selected_line = line;
+		}
+	}
+	return selected_line;
+}
+
 //------------------------------------------------------------------------------
 // Name: paintEvent
 // Desc:
@@ -910,13 +921,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	unsigned int preline1_x_offset = 0;
 
 	lines_to_render=updateDisassembly(lines_to_render);
-
-	unsigned int selected_line = 65535; // can't accidentally hit this
-	for(unsigned line=0;line<instructions_.size();++line) {
-		if (instructions_[line].rva() == selectedAddress()) {
-			selected_line = line;
-		}
-	}
+	const auto selected_line=getSelectedLineNumber();
 
 	{ // HEADER & ALTERNATION BACKGROUND PAINTING STEP
 		// paint the header gray
