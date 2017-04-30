@@ -1320,6 +1320,10 @@ void QDisassemblyView::resizeEvent(QResizeEvent *) {
 	unsigned int lines_to_render = 1 + (viewport()->height() / line_height);
 
 	instruction_buffer_.resize(edb::Instruction::MAX_SIZE * lines_to_render);
+
+	// Make PageUp/PageDown scroll through the whole page, but leave the line at
+	// the top/bottom visible
+	verticalScrollBar()->setPageStep(lines_to_render-1);
 }
 
 //------------------------------------------------------------------------------
