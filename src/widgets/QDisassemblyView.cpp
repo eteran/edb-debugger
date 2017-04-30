@@ -821,6 +821,53 @@ bool QDisassemblyView::get_line_of_address(edb::address_t addr, unsigned int &li
 }
 
 //------------------------------------------------------------------------------
+// Name: updateDisassembly
+// Desc: Updates instructions_, show_addresses_, partial_last_line_
+//		 Returns update for number of lines_to_render
+//------------------------------------------------------------------------------
+unsigned QDisassemblyView::updateDisassembly(unsigned lines_to_render)
+{
+	instructions_.clear();
+	show_addresses_.clear();
+
+	int bufsize = instruction_buffer_.size();
+	quint8 *inst_buf = &instruction_buffer_[0];
+	const edb::address_t start_address = address_offset_ + verticalScrollBar()->value();
+
+	if (!edb::v1::get_instruction_bytes(start_address, inst_buf, &bufsize)) {
+		qDebug() << "Failed to read" << bufsize << "bytes from" << QString::number(start_address, 16);
+		lines_to_render = 0;
+	}
+
+	instructions_.reserve(lines_to_render);
+	show_addresses_.reserve(lines_to_render);
+
+	const int max_offset = std::min(int(region_->end() - start_address), bufsize);
+	unsigned int line = 0;
+	int offset = 0;
+	while (line < lines_to_render && offset < max_offset) {
+		edb::address_t address = start_address + offset;
+		instructions_.emplace_back(
+			&inst_buf[offset], // instruction bytes
+			&inst_buf[bufsize], // end of buffer
+			address // address of instruction
+		);
+		show_addresses_.push_back(address);
+
+		offset += instructions_[line].size();
+		line++;
+	}
+	Q_ASSERT(line <= lines_to_render);
+	if (lines_to_render != line) {
+		lines_to_render = line;
+		partial_last_line_ = false;
+	}
+
+	lines_to_render = line;
+	return lines_to_render;
+}
+
+//------------------------------------------------------------------------------
 // Name: paintEvent
 // Desc:
 //------------------------------------------------------------------------------
@@ -842,7 +889,6 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		partial_last_line_ = false;
 	}
 
-	const edb::address_t start_address = address_offset_ + verticalScrollBar()->value();
 	const int l1 = line1();
 	const int l2 = line2();
 	const int l3 = line3();
@@ -857,55 +903,19 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		return;
 	}
 
-	std::vector<edb::Instruction> instructions;
-	show_addresses_.clear();
-
-	edb::address_t end_address = start_address;
 	const auto binary_info = edb::v1::get_binary_info(region_);
-	unsigned int selected_line = 65535; // can't accidentally hit this
 	const auto group= hasFocus() ? QPalette::Active : QPalette::Inactive;
 
 	// This represents extra space allocated between x=0 and x=line1
 	unsigned int preline1_x_offset = 0;
 
-	{ // DISASSEMBLE STEP
-		int bufsize = instruction_buffer_.size();
-		quint8 *inst_buf = &instruction_buffer_[0];
+	lines_to_render=updateDisassembly(lines_to_render);
 
-		if (!edb::v1::get_instruction_bytes(start_address, inst_buf, &bufsize)) {
-			qDebug() << "Failed to read" << bufsize << "bytes from" << QString::number(start_address, 16);
-			lines_to_render = 0;
+	unsigned int selected_line = 65535; // can't accidentally hit this
+	for(unsigned line=0;line<instructions_.size();++line) {
+		if (instructions_[line].rva() == selectedAddress()) {
+			selected_line = line;
 		}
-
-		instructions.reserve(lines_to_render);
-		show_addresses_.reserve(lines_to_render);
-
-		const int max_offset = std::min(int(region_->end() - start_address), bufsize);
-		unsigned int line = 0;
-		int offset = 0;
-		while (line < lines_to_render && offset < max_offset) {
-			edb::address_t address = start_address + offset;
-			instructions.emplace_back(
-				&inst_buf[offset], // instruction bytes
-				&inst_buf[bufsize], // end of buffer
-				address // address of instruction
-			);
-			show_addresses_.push_back(address);
-			if (address == selectedAddress()) {
-				selected_line = line;
-			}
-
-			offset += instructions[line].size();
-			line++;
-		}
-		Q_ASSERT(line <= lines_to_render);
-		if (lines_to_render != line) {
-			lines_to_render = line;
-			partial_last_line_ = false;
-		}
-
-		lines_to_render = line;
-		end_address += offset;
 	}
 
 	{ // HEADER & ALTERNATION BACKGROUND PAINTING STEP
@@ -1107,7 +1117,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 		for (unsigned int line = 0; line < lines_to_render; line++) {
 
-			auto &&inst = instructions[line];
+			auto &&inst = instructions_[line];
 			if (selected_line != line) {
 				painter_lambda(inst, line);
 			}
@@ -1115,7 +1125,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 		if (selected_line < lines_to_render) {
 			painter.setPen(palette().color(group,QPalette::HighlightedText));
-			painter_lambda(instructions[selected_line], selected_line);
+			painter_lambda(instructions_[selected_line], selected_line);
 		}
 	}
 
@@ -1162,7 +1172,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 				// find the end and draw the other corner
 				for (end_line = start_line; end_line < lines_to_render; end_line++) {
-					auto adjusted_end_addr = show_addresses_[end_line] + instructions[end_line].size() - 1;
+					auto adjusted_end_addr = show_addresses_[end_line] + instructions_[end_line].size() - 1;
 					if (adjusted_end_addr == end_addr) {
 						auto y = end_line * line_height;
 						// half of a vertical
@@ -1212,7 +1222,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			}
 
 			QString annotation = comments_.value(address, QString(""));
-			auto && inst = instructions[line];
+			auto && inst = instructions_[line];
 			if (annotation.isEmpty() && inst && !is_jump(inst) && !is_call(inst)) {
 				// draw ascii representations of immediate constants
 				unsigned int op_count = inst.operand_count();
@@ -1258,10 +1268,10 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			// syntax highlighting
 			if (selected_line == line) {
 				painter.setPen(palette().color(group, QPalette::HighlightedText));
-				draw_instruction(painter, instructions[line], line * line_height, line_height, l2, l3, true);
+				draw_instruction(painter, instructions_[line], line * line_height, line_height, l2, l3, true);
 			} else {
 				painter.setPen(palette().color(group, QPalette::Text));
-				draw_instruction(painter, instructions[line], line * line_height, line_height, l2, l3, false);
+				draw_instruction(painter, instructions_[line], line * line_height, line_height, l2, l3, false);
 			}
 		}
 	}
