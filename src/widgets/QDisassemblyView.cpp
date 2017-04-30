@@ -261,10 +261,15 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 				scrollTo(prev_address);
 			setSelectedAddress(prev_address);
 		}
-	} else if (event->matches(QKeySequence::MoveToNextPage)) {
-		scrollbar_action_triggered(QAbstractSlider::SliderPageStepAdd);
-	} else if (event->matches(QKeySequence::MoveToPreviousPage)) {
-		scrollbar_action_triggered(QAbstractSlider::SliderPageStepSub);
+	} else if (event->matches(QKeySequence::MoveToNextPage) || event->matches(QKeySequence::MoveToPreviousPage)) {
+		const auto selectedLine=getSelectedLineNumber();
+		if(event->matches(QKeySequence::MoveToNextPage))
+			scrollbar_action_triggered(QAbstractSlider::SliderPageStepAdd);
+		else
+			scrollbar_action_triggered(QAbstractSlider::SliderPageStepSub);
+		updateDisassembly(instructions_.size());
+		if(unsigned(show_addresses_.size())>selectedLine)
+			setSelectedAddress(show_addresses_[selectedLine]);
 	} else if (event->key() == Qt::Key_Return) {
 		const edb::address_t address = selectedAddress();
 		if (address == 0)
