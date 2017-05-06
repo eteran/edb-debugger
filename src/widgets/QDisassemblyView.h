@@ -125,6 +125,7 @@ private:
 	int                               font_width_;  // width of a character in this font
 	int                               icon_width_;
 	int                               icon_height_;
+	int                               line0_;
 	int                               line1_;
 	int                               line2_;
 	int                               line3_;
