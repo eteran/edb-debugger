@@ -819,7 +819,7 @@ address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 
 //------------------------------------------------------------------------------
 // Name: get_instruction_bytes
-// Desc: attempts to read at most size bytes, but will retry using smaller sizes as needed
+// Desc: attempts to read at most size bytes.
 //------------------------------------------------------------------------------
 bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
 
@@ -828,13 +828,10 @@ bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
 	Q_ASSERT(*size >= 0);
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		bool ok = process->read_bytes(address, buf, *size);
-
-		while(!ok && *size) {
-			ok = process->read_bytes(address, buf, --(*size));
+		*size = process->read_bytes(address, buf, *size);
+		if (*size) {
+			return true;
 		}
-
-		return ok;
 	}
 
 	return false;
