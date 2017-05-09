@@ -175,10 +175,13 @@ void DialogEditGPR::setupEntriesAndLabels() {
 	case 8:
 		hideColumn(GPR8H_COL);
 		hideColumn(GPR16_COL);
+		/* fallthrough */
 	case 16:
 		hideColumn(GPR32_COL);
+		/* fallthrough */
 	case 32:
 		hideColumn(GPR64_COL);
+		/* fallthrough */
 	case 64:
 		break;
 	default:
