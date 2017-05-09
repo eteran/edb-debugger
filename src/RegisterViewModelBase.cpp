@@ -246,6 +246,7 @@ QVariant Model::data(QModelIndex const& index, int role) const
 			return {};
 		const auto ret=item->rawValue();
 		if(ret.size()) return ret;
+		return {};
 	}
 	case ChosenSIMDSizeRole:
 	{
