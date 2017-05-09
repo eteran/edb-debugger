@@ -42,8 +42,8 @@ install:
     - if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base qt56xmlpatterns qt56svg; source /opt/qt56/bin/qt56-env.sh; fi
 
 before_script:
-    - if [ "$QT_BASE" == "48" ]; then mkdir build && cd build && cmake -DQT_VERSION=Qt4 ..; fi
-    - if [ "$QT_BASE" != "48" ]; then mkdir build && cd build && cmake -DQT_VERSION=Qt5 ..; fi
+    - if [ "$QT_BASE" == "48" ]; then mkdir build && cd build && CXX=g++-4.8 CC=gcc-4.8 cmake -DQT_VERSION=Qt4 ..; fi
+    - if [ "$QT_BASE" != "48" ]; then mkdir build && cd build && CXX=g++-4.8 CC=gcc-4.8 cmake -DQT_VERSION=Qt5 ..; fi
 
 script:
     - make
