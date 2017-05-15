@@ -905,10 +905,6 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		partial_last_line_ = false;
 	}
 
-	const int l1 = line1();
-	const int l2 = line2();
-	const int l3 = line3();
-
 	if(!region_) {
 		return;
 	}
@@ -923,7 +919,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	const auto group= hasFocus() ? QPalette::Active : QPalette::Inactive;
 
 	// This represents extra space allocated between x=0 and x=line1
-	unsigned int preline1_x_offset = 0;
+	unsigned int l0 = 0;
 
 	lines_to_render=updateDisassembly(lines_to_render);
 	const auto selected_line=getSelectedLineNumber();
@@ -959,7 +955,6 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	}
 
 	if(edb::v1::config().show_register_badges) { // REGISTER BADGES
-		preline1_x_offset += font_width_ * 5;
 		State state;
 		edb::v1::debugger_core->get_state(&state);
 
@@ -1009,6 +1004,9 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 				path.addRect(bounds);
 				path.moveTo(bounds.x() + bounds.width(), bounds.y()); // top right
 				const unsigned int largest_x = bounds.x() + bounds.width() + bounds.height()/2;
+				if (largest_x > l0) {
+					l0 = largest_x;
+				}
 				path.lineTo(largest_x, bounds.y() + bounds.height()/2); // triangle point
 				path.lineTo(bounds.x() + bounds.width(), bounds.y() + bounds.height()); // bottom right
 				painter.fillPath(path, Qt::blue);
@@ -1025,9 +1023,14 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		}
 	}
 
+	line0_ = l0;
+	const int l1 = line1() + l0;
+	const int l2 = line2() + l0;
+	const int l3 = line3() + l0;
+
 	{ // SYMBOL NAMES
 		painter.setPen(palette().color(group,QPalette::Text));
-		const int x = auto_line1();
+		const int x = l0 + auto_line1();
 		const int width = l1 - x;
 		if (width > 0) {
 			for (unsigned int line = 0; line < lines_to_render; line++) {
@@ -1053,7 +1056,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		const QPen address_pen(Qt::red);
 		painter.setPen(address_pen);
 
-		const auto icon_x = preline1_x_offset + 1;
+		const auto icon_x = l0 + 1;
 		const auto addr_x = icon_x + icon_width_;
 		const auto addr_width = l1 - addr_x;
 		for (unsigned int line = 0; line < lines_to_render; line++) {
@@ -1088,6 +1091,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	{ // INSTRUCTION BYTES AND RELJMP INDICATOR RENDERING
 		const int bytes_width = l2 - l1 - font_width_ / 2;
+		const auto x = l0 + font_width_ + font_width_ / 2;
 		const auto metrics = painter.fontMetrics();
 
 		auto painter_lambda = [&](const edb::Instruction &inst, int line) {
@@ -1096,7 +1100,6 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 				const edb::address_t target = inst.operands()[0].relative_target();
 
 				if(target!=inst.rva()) {
-					const auto x = l2 + font_width_ + font_width_ / 2;
 					painter.drawText(
 						x,
 						line * line_height,
@@ -1375,7 +1378,7 @@ void QDisassemblyView::updateScrollbars() {
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::auto_line1() const {
-	const unsigned int elements = address_length() + (edb::v1::config().show_register_badges ? 5 : 0);
+	const unsigned int elements = address_length();
 	return (elements * font_width_) + (font_width_ / 2) + icon_width_ + 1;
 }
 
@@ -1602,14 +1605,14 @@ void QDisassemblyView::updateSelectedAddress(QMouseEvent *event) {
 // Desc:
 //------------------------------------------------------------------------------
 void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
-
+	const int event_x = event->x() - line0_;
 	if(region_) {
 		if(event->button() == Qt::LeftButton) {
-			if(near_line(event->x(), line1())) {
+			if(near_line(event_x, line1())) {
 				moving_line1_ = true;
-			} else if(near_line(event->x(), line2())) {
+			} else if(near_line(event_x, line2())) {
 				moving_line2_ = true;
-			} else if(near_line(event->x(), line3())) {
+			} else if(near_line(event_x, line3())) {
 				moving_line3_ = true;
 			} else {
 				updateSelectedAddress(event);
@@ -1628,7 +1631,7 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 
 	if(region_) {
-		const int x_pos = event->x();
+		const int x_pos = event->x() - line0_;
 
 		if(moving_line1_) {
 			if(line2_ == 0) {
