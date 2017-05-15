@@ -1091,7 +1091,6 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	{ // INSTRUCTION BYTES AND RELJMP INDICATOR RENDERING
 		const int bytes_width = l2 - l1 - font_width_ / 2;
-		const auto x = l0 + font_width_ + font_width_ / 2;
 		const auto metrics = painter.fontMetrics();
 
 		auto painter_lambda = [&](const edb::Instruction &inst, int line) {
@@ -1099,11 +1098,11 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			if(is_jump(inst) && inst.operands()[0].type() == edb::Operand::TYPE_REL) {
 				const edb::address_t target = inst.operands()[0].relative_target();
 
-				if(target!=inst.rva()) {
+				if(target != inst.rva()) {
 					painter.drawText(
-						x,
+						l2,
 						line * line_height,
-						l3-x,
+						l3 - l2,
 						line_height,
 						Qt::AlignVCenter,
 						QString((target > inst.rva()) ? QChar(0x2304) : QChar(0x2303))
