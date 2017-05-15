@@ -305,6 +305,10 @@ inline bool is_immediate(const CapstoneEDB::Operand &operand) {
 	return operand.type() == Operand::TYPE_IMMEDIATE;
 }
 
+inline bool is_relative(const CapstoneEDB::Operand &operand) {
+	return operand.type() == Operand::TYPE_REL;
+}
+
 }
 
 

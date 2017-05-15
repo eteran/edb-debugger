@@ -1650,13 +1650,13 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 
 				if(is_call(inst) || is_jump(inst)) {
-					if(inst.operands()[0].type() == edb::Operand::TYPE_REL) {
+					if(is_relative(inst.operands()[0])) {
 						menu.addAction(followAction_);
 						followAction_->setData(static_cast<qlonglong>(inst.operands()[0].relative_target()));
 					}
 
 					/*
-					if(inst.operands()[0].type() == edb::Operand::TYPE_EXPRESSION) {
+					if(is_expression(inst.operands()[0])) {
 						if(inst.operands()[0].expression().base == edb::Operand::REG_RIP && inst.operands()[0].expression().index == edb::Operand::REG_NULL && inst.operands()[0].expression().scale == 1) {
 							menu.addAction(followAction_);
 							followAction_->setData(static_cast<qlonglong>(address + inst.operands()[0].displacement()));
@@ -1665,7 +1665,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 					*/
 				} else {
 					for(std::size_t i = 0; i < inst.operand_count(); ++i) {
-						if(inst.operands()[i].type() == edb::Operand::TYPE_IMMEDIATE) {
+						if(is_immediate(inst.operands()[i])) {
 							menu.addAction(followConstantInDumpAction_);
 							menu.addAction(followConstantInStackAction_);
 

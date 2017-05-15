@@ -246,7 +246,7 @@ void DialogFunctions::on_btnGraph_clicked() {
 
 								// TODO: we need some heuristic for detecting when this is
 								//       a call/ret -> jmp optimization
-								if(op.type() == edb::Operand::TYPE_REL) {
+								if(is_relative(op)) {
 									const edb::address_t ea = op.relative_target();
 
 									auto from = nodes.find(bb.firstAddress());
@@ -260,7 +260,7 @@ void DialogFunctions::on_btnGraph_clicked() {
 								Q_ASSERT(inst.operand_count() == 1);
 								const edb::Operand &op = inst.operands()[0];
 
-								if(op.type() == edb::Operand::TYPE_REL) {
+								if(is_relative(op)) {
 
 									auto from = nodes.find(bb.firstAddress());
 

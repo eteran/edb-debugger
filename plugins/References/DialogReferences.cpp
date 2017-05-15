@@ -140,7 +140,7 @@ void DialogReferences::do_find() {
 								break;
 							default:
 								if(is_jump(inst) || is_call(inst)) {
-									if(inst.operands()[0].type() == edb::Operand::TYPE_REL) {
+									if(is_relative(inst.operands()[0])) {
 										if(inst.operands()[0].relative_target() == address) {
 											auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 											item->setData(TypeRole, 'C');

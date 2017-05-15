@@ -449,7 +449,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							// we special case some simple things.
 							// also this is an opportunity to find call tables.
 							const edb::Operand &op = inst.operands()[0];
-							if(op.type() == edb::Operand::TYPE_REL) {
+							if(is_relative(op)) {
 								const edb::address_t ea = op.relative_target();
 
 								// skip over ones which are: "call <label>; label:"
@@ -460,10 +460,10 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 										break;
 									}
 								}
-							} else if(op.type() == edb::Operand::TYPE_EXPRESSION) {
+							} else if(is_expression(op)) {
 								// looks like: "call [...]", if it is of the form, call [C + REG]
 								// then it may be a jump table using REG as an offset
-							} else if(op.type() == edb::Operand::TYPE_REGISTER) {
+							} else if(is_register(op)) {
 								// looks like: "call <reg>", this is this may be a callback
 								// if we can use analysis to determine that it's a constant
 								// we can figure it out...
@@ -479,7 +479,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 
 							// TODO: we need some heuristic for detecting when this is
 							//       a call/ret -> jmp optimization
-							if(op.type() == edb::Operand::TYPE_REL) {
+							if(is_relative(op)) {
 								const edb::address_t ea = op.relative_target();
 
 
@@ -497,7 +497,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							Q_ASSERT(inst.operand_count() == 1);
 							const edb::Operand &op = inst.operands()[0];
 
-							if(op.type() == edb::Operand::TYPE_REL) {
+							if(is_relative(op)) {
 								blocks.push(op.relative_target());
 								blocks.push(address + inst.size());
 							}
@@ -570,7 +570,7 @@ void Analyzer::collect_fuzzy_functions(RegionData *data) {
 					// we special case some simple things.
 					// also this is an opportunity to find call tables.
 					const edb::Operand &op = inst.operands()[0];
-					if(op.type() == edb::Operand::TYPE_REL) {
+					if(is_relative(op)) {
 						const edb::address_t ea = op.relative_target();
 
 						// skip over ones which are: "call <label>; label:"
