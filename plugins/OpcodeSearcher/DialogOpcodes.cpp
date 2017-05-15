@@ -196,7 +196,7 @@ void DialogOpcodes::test_deref_reg_to_ip(const OpcodeData &data, edb::address_t 
 		switch(inst.operation()) {
 		case edb::Instruction::Operation::X86_INS_JMP:
 		case edb::Instruction::Operation::X86_INS_CALL:
-			if(op1.type() == edb::Operand::TYPE_EXPRESSION) {
+			if(is_expression(op1)) {
 
 				if(op1.expression().displacement == 0) {
 
@@ -235,7 +235,7 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 		switch(inst.operation()) {
 		case edb::Instruction::Operation::X86_INS_JMP:
 		case edb::Instruction::Operation::X86_INS_CALL:
-			if(op1.type() == edb::Operand::TYPE_REGISTER) {
+			if(is_register(op1)) {
 				if(op1.reg() == REG) {
 					add_result((QList<edb::Instruction>() << inst), start_address);
 					return;
@@ -244,7 +244,7 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 			break;
 
 		case edb::Instruction::Operation::X86_INS_PUSH:
-			if(op1.type() == edb::Operand::TYPE_REGISTER) {
+			if(is_register(op1)) {
 				if(op1.reg() == REG) {
 
 					p += inst.size();
@@ -259,7 +259,7 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 							case edb::Instruction::Operation::X86_INS_JMP:
 							case edb::Instruction::Operation::X86_INS_CALL:
 
-								if(op2.type() == edb::Operand::TYPE_EXPRESSION) {
+								if(is_expression(op2)) {
 
 									if(op2.expression().displacement == 0) {
 
@@ -308,7 +308,7 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 			switch(inst.operation()) {
 			case edb::Instruction::Operation::X86_INS_CALL:
 			case edb::Instruction::Operation::X86_INS_JMP:
-				if(op1.type() == edb::Operand::TYPE_EXPRESSION) {
+				if(is_expression(op1)) {
 
 					if(op1.expression().displacement == 0) {
 
@@ -325,7 +325,7 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 				}
 				break;
 			case edb::Instruction::Operation::X86_INS_POP:
-				if(op1.type() == edb::Operand::TYPE_REGISTER) {
+				if(is_register(op1)) {
 
 					p += inst.size();
 					edb::Instruction inst2(p, last, 0);
@@ -335,7 +335,7 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 						case edb::Instruction::Operation::X86_INS_JMP:
 						case edb::Instruction::Operation::X86_INS_CALL:
 
-							if(op2.type() == edb::Operand::TYPE_REGISTER) {
+							if(is_register(op2)) {
 
 								if(op1.reg() == op2.reg()) {
 									add_result((QList<edb::Instruction>() << inst << inst2), start_address);
@@ -372,7 +372,7 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 		switch(inst.operation()) {
 		case edb::Instruction::Operation::X86_INS_POP:
 
-			if(op1.type() != edb::Operand::TYPE_REGISTER || op1.reg() != STACK_REG) {
+			if(!is_register(op1) || op1.reg() != STACK_REG) {
 				p += inst.size();
 				edb::Instruction inst2(p, last, 0);
 				if(inst2) {
@@ -385,7 +385,7 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 		case edb::Instruction::Operation::X86_INS_JMP:
 		case edb::Instruction::Operation::X86_INS_CALL:
 
-			if(op1.type() == edb::Operand::TYPE_EXPRESSION) {
+			if(is_expression(op1)) {
 
 				if(op1.displacement() == 4) {
 					if(op1.expression().base == STACK_REG && op1.expression().index == edb::Operand::Register::X86_REG_INVALID) {
@@ -398,10 +398,10 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 			}
 			break;
 		case edb::Instruction::Operation::X86_INS_SUB:
-			if(op1.type() == edb::Operand::TYPE_REGISTER && op1.reg() == STACK_REG) {
+			if(is_register(op1) && op1.reg() == STACK_REG) {
 
 				const edb::Operand &op2 = inst.operands()[1];
-				if(op2.type() == edb::Operand::TYPE_IMMEDIATE) {
+				if(is_expression(op2)) {
 
 					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t))) {
 						p += inst.size();
@@ -417,10 +417,10 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 			break;
 
 		case edb::Instruction::Operation::X86_INS_ADD:
-			if(op1.type() == edb::Operand::TYPE_REGISTER && op1.reg() == STACK_REG) {
+			if(is_register(op1) && op1.reg() == STACK_REG) {
 
 				const edb::Operand &op2 = inst.operands()[1];
-				if(op2.type() == edb::Operand::TYPE_IMMEDIATE) {
+				if(is_expression(op2)) {
 
 					if(op2.immediate() == sizeof(edb::reg_t)) {
 						p += inst.size();
@@ -457,7 +457,7 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 		switch(inst.operation()) {
 		case edb::Instruction::Operation::X86_INS_POP:
 
-			if(op1.type() != edb::Operand::TYPE_REGISTER || op1.reg() != STACK_REG) {
+			if(!is_register(op1) || op1.reg() != STACK_REG) {
 				p += inst.size();
 				edb::Instruction inst2(p, last, 0);
 				if(inst2) {
@@ -465,7 +465,7 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 					switch(inst2.operation()) {
 					case edb::Instruction::Operation::X86_INS_POP:
 
-						if(op2.type() != edb::Operand::TYPE_REGISTER || op2.reg() != STACK_REG) {
+						if(!is_register(op2) || op2.reg() != STACK_REG) {
 							p += inst2.size();
 							edb::Instruction inst3(p, last, 0);
 							if(inst3) {
@@ -484,7 +484,7 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 
 		case edb::Instruction::Operation::X86_INS_JMP:
 		case edb::Instruction::Operation::X86_INS_CALL:
-			if(op1.type() == edb::Operand::TYPE_EXPRESSION) {
+			if(is_expression(op1)) {
 
 				if(op1.displacement() == (sizeof(edb::reg_t) * 2)) {
 					if(op1.expression().base == STACK_REG && op1.expression().index == edb::Operand::Register::X86_REG_INVALID) {
@@ -498,10 +498,10 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 			break;
 
 		case edb::Instruction::Operation::X86_INS_SUB:
-			if(op1.type() == edb::Operand::TYPE_REGISTER && op1.reg() == STACK_REG) {
+			if(is_register(op1) && op1.reg() == STACK_REG) {
 
 				const edb::Operand &op2 = inst.operands()[1];
-				if(op2.type() == edb::Operand::TYPE_IMMEDIATE) {
+				if(is_expression(op2)) {
 
 					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t) * 2)) {
 						p += inst.size();
@@ -517,10 +517,10 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 			break;
 
 		case edb::Instruction::Operation::X86_INS_ADD:
-			if(op1.type() == edb::Operand::TYPE_REGISTER && op1.reg() == STACK_REG) {
+			if(is_register(op1) && op1.reg() == STACK_REG) {
 
 				const edb::Operand &op2 = inst.operands()[1];
-				if(op2.type() == edb::Operand::TYPE_IMMEDIATE) {
+				if(is_expression(op2)) {
 
 					if(op2.immediate() == (sizeof(edb::reg_t) * 2)) {
 						p += inst.size();
@@ -557,7 +557,7 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 		switch(inst.operation()) {
 		case edb::Instruction::Operation::X86_INS_JMP:
 		case edb::Instruction::Operation::X86_INS_CALL:
-			if(op1.type() == edb::Operand::TYPE_EXPRESSION) {
+			if(is_expression(op1)) {
 
 				if(op1.displacement() == -static_cast<int>(sizeof(edb::reg_t))) {
 					if(op1.expression().base == STACK_REG && op1.expression().index == edb::Operand::Register::X86_REG_INVALID) {
@@ -571,10 +571,10 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 			break;
 
 		case edb::Instruction::Operation::X86_INS_SUB:
-			if(op1.type() == edb::Operand::TYPE_REGISTER && op1.reg() == STACK_REG) {
+			if(is_register(op1) && op1.reg() == STACK_REG) {
 
 				const edb::Operand &op2 = inst.operands()[1];
-				if(op2.type() == edb::Operand::TYPE_IMMEDIATE) {
+				if(is_expression(op2)) {
 
 					if(op2.immediate() == static_cast<int>(sizeof(edb::reg_t))) {
 						p += inst.size();
@@ -590,10 +590,10 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 			break;
 
 		case edb::Instruction::Operation::X86_INS_ADD:
-			if(op1.type() == edb::Operand::TYPE_REGISTER && op1.reg() == STACK_REG) {
+			if(is_register(op1) && op1.reg() == STACK_REG) {
 
 				const edb::Operand &op2 = inst.operands()[1];
-				if(op2.type() == edb::Operand::TYPE_IMMEDIATE) {
+				if(is_expression(op2)) {
 
 					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t))) {
 						p += inst.size();
