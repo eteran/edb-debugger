@@ -448,7 +448,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							// note the destination and move on
 							// we special case some simple things.
 							// also this is an opportunity to find call tables.
-							const edb::Operand &op = inst.operands()[0];
+							const edb::Operand &op = inst.operand(0);
 							if(is_relative(op)) {
 								const edb::address_t ea = op.relative_target();
 
@@ -475,7 +475,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 						} else if(is_unconditional_jump(inst)) {
 
 							Q_ASSERT(inst.operand_count() >= 1);
-							const edb::Operand &op = inst.operands()[0];
+							const edb::Operand &op = inst.operand(0);
 
 							// TODO: we need some heuristic for detecting when this is
 							//       a call/ret -> jmp optimization
@@ -495,7 +495,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 						} else if(is_conditional_jump(inst)) {
 
 							Q_ASSERT(inst.operand_count() == 1);
-							const edb::Operand &op = inst.operands()[0];
+							const edb::Operand &op = inst.operand(0);
 
 							if(is_relative(op)) {
 								blocks.push(op.relative_target());
@@ -569,7 +569,7 @@ void Analyzer::collect_fuzzy_functions(RegionData *data) {
 					// note the destination and move on
 					// we special case some simple things.
 					// also this is an opportunity to find call tables.
-					const edb::Operand &op = inst.operands()[0];
+					const edb::Operand &op = inst.operand(0);
 					if(is_relative(op)) {
 						const edb::address_t ea = op.relative_target();
 

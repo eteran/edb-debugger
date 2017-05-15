@@ -1650,27 +1650,27 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 
 				if(is_call(inst) || is_jump(inst)) {
-					if(is_relative(inst.operands()[0])) {
+					if(is_relative(inst.operand(0))) {
 						menu.addAction(followAction_);
-						followAction_->setData(static_cast<qlonglong>(inst.operands()[0].relative_target()));
+						followAction_->setData(static_cast<qlonglong>(inst.operand(0).relative_target()));
 					}
 
 					/*
-					if(is_expression(inst.operands()[0])) {
-						if(inst.operands()[0].expression().base == edb::Operand::REG_RIP && inst.operands()[0].expression().index == edb::Operand::REG_NULL && inst.operands()[0].expression().scale == 1) {
+					if(is_expression(inst.operand(0))) {
+						if(inst.operand(0).expression().base == edb::Operand::REG_RIP && inst.operand(0).expression().index == edb::Operand::REG_NULL && inst.operand(0).expression().scale == 1) {
 							menu.addAction(followAction_);
-							followAction_->setData(static_cast<qlonglong>(address + inst.operands()[0].displacement()));
+							followAction_->setData(static_cast<qlonglong>(address + inst.operand(0).displacement()));
 						}
 					}
 					*/
 				} else {
 					for(std::size_t i = 0; i < inst.operand_count(); ++i) {
-						if(is_immediate(inst.operands()[i])) {
+						if(is_immediate(inst.operand(i))) {
 							menu.addAction(followConstantInDumpAction_);
 							menu.addAction(followConstantInStackAction_);
 
-							followConstantInDumpAction_->setData(static_cast<qlonglong>(inst.operands()[i].immediate()));
-							followConstantInStackAction_->setData(static_cast<qlonglong>(inst.operands()[i].immediate()));
+							followConstantInDumpAction_->setData(static_cast<qlonglong>(inst.operand(i).immediate()));
+							followConstantInStackAction_->setData(static_cast<qlonglong>(inst.operand(i).immediate()));
 						}
 					}
 				}

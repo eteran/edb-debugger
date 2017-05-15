@@ -192,7 +192,7 @@ void DialogOpcodes::test_deref_reg_to_ip(const OpcodeData &data, edb::address_t 
 	edb::Instruction inst(p, last, 0);
 
 	if(inst) {
-		const edb::Operand &op1 = inst.operands()[0];
+		const edb::Operand &op1 = inst.operand(0);
 		switch(inst.operation()) {
 		case edb::Instruction::Operation::X86_INS_JMP:
 		case edb::Instruction::Operation::X86_INS_CALL:
@@ -231,7 +231,7 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 	edb::Instruction inst(p, last, 0);
 
 	if(inst) {
-		const edb::Operand &op1 = inst.operands()[0];
+		const edb::Operand &op1 = inst.operand(0);
 		switch(inst.operation()) {
 		case edb::Instruction::Operation::X86_INS_JMP:
 		case edb::Instruction::Operation::X86_INS_CALL:
@@ -250,7 +250,7 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 					p += inst.size();
 					edb::Instruction inst2(p, last, 0);
 					if(inst2) {
-						const edb::Operand &op2 = inst2.operands()[0];
+						const edb::Operand &op2 = inst2.operand(0);
 
 						if(is_ret(inst2)) {
 							add_result((QList<edb::Instruction>() << inst << inst2), start_address);
@@ -301,7 +301,7 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 	edb::Instruction inst(p, last, 0);
 
 	if(inst) {
-		const edb::Operand &op1 = inst.operands()[0];
+		const edb::Operand &op1 = inst.operand(0);
 		if(is_ret(inst)) {
 			add_result((QList<edb::Instruction>() << inst), start_address);
 		} else {
@@ -330,7 +330,7 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 					p += inst.size();
 					edb::Instruction inst2(p, last, 0);
 					if(inst2) {
-						const edb::Operand &op2 = inst2.operands()[0];
+						const edb::Operand &op2 = inst2.operand(0);
 						switch(inst2.operation()) {
 						case edb::Instruction::Operation::X86_INS_JMP:
 						case edb::Instruction::Operation::X86_INS_CALL:
@@ -368,7 +368,7 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 	edb::Instruction inst(p, last, 0);
 
 	if(inst) {
-		const edb::Operand &op1 = inst.operands()[0];
+		const edb::Operand &op1 = inst.operand(0);
 		switch(inst.operation()) {
 		case edb::Instruction::Operation::X86_INS_POP:
 
@@ -400,7 +400,7 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 		case edb::Instruction::Operation::X86_INS_SUB:
 			if(is_register(op1) && op1.reg() == STACK_REG) {
 
-				const edb::Operand &op2 = inst.operands()[1];
+				const edb::Operand &op2 = inst.operand(1);
 				if(is_expression(op2)) {
 
 					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t))) {
@@ -419,7 +419,7 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 		case edb::Instruction::Operation::X86_INS_ADD:
 			if(is_register(op1) && op1.reg() == STACK_REG) {
 
-				const edb::Operand &op2 = inst.operands()[1];
+				const edb::Operand &op2 = inst.operand(1);
 				if(is_expression(op2)) {
 
 					if(op2.immediate() == sizeof(edb::reg_t)) {
@@ -453,7 +453,7 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 	edb::Instruction inst(p, last, 0);
 
 	if(inst) {
-		const edb::Operand &op1 = inst.operands()[0];
+		const edb::Operand &op1 = inst.operand(0);
 		switch(inst.operation()) {
 		case edb::Instruction::Operation::X86_INS_POP:
 
@@ -461,7 +461,7 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 				p += inst.size();
 				edb::Instruction inst2(p, last, 0);
 				if(inst2) {
-					const edb::Operand &op2 = inst2.operands()[0];
+					const edb::Operand &op2 = inst2.operand(0);
 					switch(inst2.operation()) {
 					case edb::Instruction::Operation::X86_INS_POP:
 
@@ -500,7 +500,7 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 		case edb::Instruction::Operation::X86_INS_SUB:
 			if(is_register(op1) && op1.reg() == STACK_REG) {
 
-				const edb::Operand &op2 = inst.operands()[1];
+				const edb::Operand &op2 = inst.operand(1);
 				if(is_expression(op2)) {
 
 					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t) * 2)) {
@@ -519,7 +519,7 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 		case edb::Instruction::Operation::X86_INS_ADD:
 			if(is_register(op1) && op1.reg() == STACK_REG) {
 
-				const edb::Operand &op2 = inst.operands()[1];
+				const edb::Operand &op2 = inst.operand(1);
 				if(is_expression(op2)) {
 
 					if(op2.immediate() == (sizeof(edb::reg_t) * 2)) {
@@ -553,7 +553,7 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 	edb::Instruction inst(p, last, 0);
 
 	if(inst) {
-		const edb::Operand &op1 = inst.operands()[0];
+		const edb::Operand &op1 = inst.operand(0);
 		switch(inst.operation()) {
 		case edb::Instruction::Operation::X86_INS_JMP:
 		case edb::Instruction::Operation::X86_INS_CALL:
@@ -573,7 +573,7 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 		case edb::Instruction::Operation::X86_INS_SUB:
 			if(is_register(op1) && op1.reg() == STACK_REG) {
 
-				const edb::Operand &op2 = inst.operands()[1];
+				const edb::Operand &op2 = inst.operand(1);
 				if(is_expression(op2)) {
 
 					if(op2.immediate() == static_cast<int>(sizeof(edb::reg_t))) {
@@ -592,7 +592,7 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 		case edb::Instruction::Operation::X86_INS_ADD:
 			if(is_register(op1) && op1.reg() == STACK_REG) {
 
-				const edb::Operand &op2 = inst.operands()[1];
+				const edb::Operand &op2 = inst.operand(1);
 				if(is_expression(op2)) {
 
 					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t))) {

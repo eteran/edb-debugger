@@ -46,8 +46,8 @@ bool is_nop(const edb::Instruction &inst) {
 
 		// TODO: does this effect flags?
 		if(inst.operation() == edb::Instruction::Operation::X86_INS_MOV && inst.operand_count() == 2) {
-			if(is_register(inst.operands()[0]) && is_register(inst.operands()[1])) {
-				if(inst.operands()[0].reg() == inst.operands()[1].reg()) {
+			if(is_register(inst.operand(0)) && is_register(inst.operand(1))) {
+				if(inst.operand(0).reg() == inst.operand(1).reg()) {
 					return true;
 				}
 			}
@@ -56,8 +56,8 @@ bool is_nop(const edb::Instruction &inst) {
 
 		// TODO: does this effect flags?
 		if(inst.operation() == edb::Instruction::Operation::X86_INS_XCHG && inst.operand_count() == 2) {
-			if(is_register(inst.operands()[0]) && is_register(inst.operands()[1])) {
-				if(inst.operands()[0].reg() == inst.operands()[1].reg()) {
+			if(is_register(inst.operand(0)) && is_register(inst.operand(1))) {
+				if(inst.operand(0).reg() == inst.operand(1).reg()) {
 					return true;
 				}
 			}
@@ -388,7 +388,7 @@ void DialogROPTool::do_find() {
 							if(inst1) {
 								instruction_list << inst1;
 
-								if(inst1.operation() == edb::Instruction::Operation::X86_INS_INT && is_immediate(inst1.operands()[0]) && (inst1.operands()[0].immediate() & 0xff) == 0x80) {
+								if(inst1.operation() == edb::Instruction::Operation::X86_INS_INT && is_immediate(inst1.operand(0)) && (inst1.operand(0).immediate() & 0xff) == 0x80) {
 									add_gadget(instruction_list);
 								} else if(inst1.operation() == edb::Instruction::Operation::X86_INS_SYSENTER) {
 									add_gadget(instruction_list);
@@ -429,9 +429,9 @@ void DialogROPTool::do_find() {
 
 											instruction_list << inst3;
 
-											if(inst2.operand_count() == 1 && is_register(inst2.operands()[0])) {
-												if(inst3.operand_count() == 1 && is_register(inst3.operands()[0])) {
-													if(inst2.operands()[0].reg() == inst3.operands()[0].reg()) {
+											if(inst2.operand_count() == 1 && is_register(inst2.operand(0))) {
+												if(inst3.operand_count() == 1 && is_register(inst3.operand(0))) {
+													if(inst2.operand(0).reg() == inst3.operand(0).reg()) {
 														add_gadget(instruction_list);
 													}
 												}

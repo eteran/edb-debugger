@@ -242,7 +242,7 @@ void DialogFunctions::on_btnGraph_clicked() {
 							if(is_unconditional_jump(inst)) {
 
 								Q_ASSERT(inst.operand_count() >= 1);
-								const edb::Operand &op = inst.operands()[0];
+								const edb::Operand &op = inst.operand(0);
 
 								// TODO: we need some heuristic for detecting when this is
 								//       a call/ret -> jmp optimization
@@ -258,7 +258,7 @@ void DialogFunctions::on_btnGraph_clicked() {
 							} else if(is_conditional_jump(inst)) {
 
 								Q_ASSERT(inst.operand_count() == 1);
-								const edb::Operand &op = inst.operands()[0];
+								const edb::Operand &op = inst.operand(0);
 
 								if(is_relative(op)) {
 

@@ -147,6 +147,7 @@ public:
 	const uint8_t* bytes() const;
 	std::size_t operand_count() const;
 	const operand_type* operands() const     { return operands_.data(); }
+	const operand_type& operand(size_t n) const { return operands_[n]; }
 	void swap(Instruction &other);
 	std::size_t size() const                 { return insn_.size; }
 	uint64_t rva() const                     { return insn_.address; }

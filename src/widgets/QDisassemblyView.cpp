@@ -283,7 +283,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 					if(inst.operand_count() != 1) {
 						return;
 					}
-					const edb::Operand &oper = inst.operands()[0];
+					const edb::Operand &oper = inst.operand(0);
 					if(is_relative(oper)) {
 						const edb::address_t target = oper.relative_target();
 						edb::v1::jump_to_address(target);
@@ -630,7 +630,7 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 
     if(is_call(inst) || is_jump(inst)) {
         if(inst.operand_count() == 1) {
-            const edb::Operand &oper = inst.operands()[0];
+            const edb::Operand &oper = inst.operand(0);
             if(is_relative(oper)) {
 
                 const bool showSymbolicAddresses=edb::v1::config().show_symbolic_addresses;
@@ -1095,8 +1095,8 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 		auto painter_lambda = [&](const edb::Instruction &inst, int line) {
 			// for relative jumps draw the jump direction indicators
-			if(is_jump(inst) && is_relative(inst.operands()[0])) {
-				const edb::address_t target = inst.operands()[0].relative_target();
+			if(is_jump(inst) && is_relative(inst.operand(0))) {
+				const edb::address_t target = inst.operand(0).relative_target();
 
 				if(target != inst.rva()) {
 					painter.drawText(
@@ -1239,7 +1239,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 				// draw ascii representations of immediate constants
 				unsigned int op_count = inst.operand_count();
 				for (unsigned int op_idx = 0; op_idx < op_count; op_idx++) {
-					auto oper = inst.operands()[op_idx];
+					auto oper = inst.operand(op_idx);
 					edb::address_t ascii_address = 0;
 					if (is_relative(oper) || is_immediate(oper)) {
 						ascii_address = oper.relative_target();

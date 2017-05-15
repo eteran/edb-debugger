@@ -576,7 +576,7 @@ QString Formatter::adjustInstructionText(const Instruction& instruction) const
 
 	Capstone::cs_x86_op* ops=insn.detail->x86.operands;
 
-	if(instruction.operand_count() == 2 && instruction.operands()[0].size() == ops[1].size &&
+	if(instruction.operand_count() == 2 && instruction.operand(0).size() == ops[1].size &&
 			((ops[0].type == Capstone::X86_OP_REG && ops[1].type == Capstone::X86_OP_MEM) ||
 			 (ops[1].type == Capstone::X86_OP_REG && ops[0].type == Capstone::X86_OP_MEM)))
 	{
@@ -747,7 +747,7 @@ bool KxRegisterPresent(Instruction const& insn)
 {
 	for(std::size_t i=0;i<insn.operand_count();++i)
 	{
-		const auto op=insn.operands()[i];
+		const auto op=insn.operand(i);
 		if(op.type()==Operand::TYPE_REGISTER &&
 			Capstone::X86_REG_K0 <= op.reg() && op.reg()<=Capstone::X86_REG_K7)
 			return true;
@@ -1113,7 +1113,7 @@ bool Operand::is_SIMD_PD(const Instruction &inst) const
 		return number!=2;
 	case Instruction::Operation::X86_INS_VPERMPD: // if third operand is not imm8, then second is indices (always in VPERMPS)
 		assert(inst.operand_count()==3);
-		if(inst.operands()[2].type()!=TYPE_IMMEDIATE)
+		if(inst.operand(2).type()!=TYPE_IMMEDIATE)
 			return number!=1;
 		else return true;
 	case Instruction::Operation::X86_INS_VPERMIL2PD: // XOP (AMD). Fourth operand is selector (?)

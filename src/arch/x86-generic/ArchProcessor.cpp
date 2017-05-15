@@ -550,7 +550,7 @@ void analyze_return(const State &state, const edb::Instruction &inst, QStringLis
 void analyze_call(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		const edb::Operand &operand = inst.operands()[0];
+		const edb::Operand &operand = inst.operand(0);
 
 		if(operand.valid()) {
 
@@ -876,7 +876,7 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 		if(const int sz = edb::v1::get_instruction_bytes(addr, buffer)) {
 			edb::Instruction inst(buffer, buffer + sz, addr);
 			if(is_jump(inst)) {
-				const edb::Operand &operand = inst.operands()[0];
+				const edb::Operand &operand = inst.operand(0);
 
 				if(operand.type() == edb::Operand::TYPE_REL) {
 					const edb::address_t target = operand.relative_target();
@@ -1370,7 +1370,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 					analyze_call(state, inst, ret);
 				} else if(inst.is_int()) {
 				#ifdef Q_OS_LINUX
-				   if((inst.operands()[0].immediate() & 0xff) == 0x80) {
+				   if((inst.operand(0).immediate() & 0xff) == 0x80) {
 
 						analyze_syscall(state, inst, ret, state.gp_register(rAX).valueAsInteger());
 					} else {
