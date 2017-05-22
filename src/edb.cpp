@@ -79,15 +79,14 @@ namespace {
 		Q_ASSERT(value);
 		Q_ASSERT(offset);
 
-		bool ret = false;
-		*offset = 0;
-		const std::shared_ptr<Symbol> s = edb::v1::symbol_manager().find_near_symbol(address);
-		if(s) {
+		if(const std::shared_ptr<Symbol> s = edb::v1::symbol_manager().find_near_symbol(address)) {
 			*value = s->name;
 			*offset = address - s->address;
-			ret = true;
+			return true;
 		}
-		return ret;
+		
+		*offset = 0;
+		return false;
 	}
 }
 
@@ -807,7 +806,7 @@ address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 	*ok = false;
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		*ok = process->read_bytes(address, &ret, edb::v1::pointer_size());
+		*ok = process->read_bytes(address, &ret, pointer_size());
 
 		if(!*ok) {
 			*err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
