@@ -318,6 +318,33 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 }
 
 //------------------------------------------------------------------------------
+// Name: patch_bytes
+// Desc: same as write_bytes, except that it also records the original data
+//       that was found at the address being written to.
+// Note: unlike the read_bytes, write_bytes functions, this will not apply the
+//       write if we could not properly backup <len> bytes as requested.
+// Note: on the off chance that we can READ <len> bytes, but can't WRITE <len>
+//       bytes, we will return the number of bytes written, but record <len>
+//       bytes of patch data.
+//------------------------------------------------------------------------------
+std::size_t PlatformProcess::patch_bytes(edb::address_t address, const void *buf, size_t len) {
+	Q_ASSERT(buf);
+	Q_ASSERT(core_->process_ == this);
+
+	QByteArray orig_bytes;
+	orig_bytes.resize(len);
+
+	size_t read_ret = read_bytes(address, orig_bytes.data(), len);
+	if(read_ret != len) {
+		return 0;
+	}
+
+	patches_.insert(address, orig_bytes);
+
+	return write_bytes(address, buf, len);
+}
+
+//------------------------------------------------------------------------------
 // Name: write_bytes
 // Desc: writes <len> bytes from <buf> starting at <address>
 //------------------------------------------------------------------------------

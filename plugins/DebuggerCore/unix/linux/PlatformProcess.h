@@ -63,6 +63,7 @@ public:
 
 public:
 	virtual std::size_t write_bytes(edb::address_t address, const void *buf, size_t len) override;
+	virtual std::size_t patch_bytes(edb::address_t address, const void *buf, size_t len) override;
 	virtual std::size_t read_bytes(edb::address_t address, void *buf, size_t len) const override;
 	virtual std::size_t read_pages(edb::address_t address, void *buf, size_t count) const override;
 
@@ -73,10 +74,11 @@ private:
 	void write_byte_via_ptrace(edb::address_t address, quint8 value, bool *ok);
 
 private:
-	DebuggerCore* core_;
-	edb::pid_t    pid_;
-	QFile*        ro_mem_file_;
-	QFile*        rw_mem_file_;
+	DebuggerCore*                    core_;
+	edb::pid_t                       pid_;
+	QFile*                           ro_mem_file_;
+	QFile*                           rw_mem_file_;
+	QMap<edb::address_t, QByteArray> patches_;
 };
 
 }
