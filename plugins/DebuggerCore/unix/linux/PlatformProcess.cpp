@@ -332,6 +332,7 @@ std::size_t PlatformProcess::patch_bytes(edb::address_t address, const void *buf
 	Q_ASSERT(core_->process_ == this);
 
 	Patch patch;
+	patch.address = address;
 	patch.orig_bytes.resize(len);
 	patch.new_bytes = QByteArray(static_cast<const char *>(buf), len);
 
