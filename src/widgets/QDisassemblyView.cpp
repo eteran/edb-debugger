@@ -918,8 +918,6 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	const auto binary_info = edb::v1::get_binary_info(region_);
 	const auto group= hasFocus() ? QPalette::Active : QPalette::Inactive;
 
-	// This represents extra space allocated between x=0 and x=line1
-	unsigned int l0 = 0;
 
 	lines_to_render=updateDisassembly(lines_to_render);
 	const auto selected_line=getSelectedLineNumber();
@@ -954,7 +952,17 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	}
 
+	// This represents extra space allocated between x=0 and x=line1
+	unsigned int l0 = 0;
+
+
+
 	if(edb::v1::config().show_register_badges) { // REGISTER BADGES
+
+		// a reasonable guess for the width of a single register is 3 chars + overhead
+		// we do this to prevent "jumpiness"
+		l0 = (4 * font_width_ + font_width_/2);
+
 		State state;
 		edb::v1::debugger_core->get_state(&state);
 
