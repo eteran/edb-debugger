@@ -331,15 +331,16 @@ std::size_t PlatformProcess::patch_bytes(edb::address_t address, const void *buf
 	Q_ASSERT(buf);
 	Q_ASSERT(core_->process_ == this);
 
-	QByteArray orig_bytes;
-	orig_bytes.resize(len);
+	Patch patch;
+	patch.orig_bytes.resize(len);
+	patch.new_bytes = QByteArray(static_cast<const char *>(buf), len);
 
-	size_t read_ret = read_bytes(address, orig_bytes.data(), len);
+	size_t read_ret = read_bytes(address, patch.orig_bytes.data(), len);
 	if(read_ret != len) {
 		return 0;
 	}
 
-	patches_.insert(address, orig_bytes);
+	patches_.insert(address, patch);
 
 	return write_bytes(address, buf, len);
 }
@@ -806,6 +807,14 @@ bool PlatformProcess::isPaused() const {
 	}
 
 	return true;
+}
+
+//------------------------------------------------------------------------------
+// Name: patches
+// Desc: returns any patches applied to this process
+//------------------------------------------------------------------------------
+QMap<edb::address_t, Patch> PlatformProcess::patches() const {
+	return patches_;
 }
 
 }
