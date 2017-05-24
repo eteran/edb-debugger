@@ -215,9 +215,7 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(cor
 // Desc:
 //------------------------------------------------------------------------------
 PlatformProcess::~PlatformProcess() {
-	if (ro_mem_file_) {
-		delete ro_mem_file_;
-	}
+	delete ro_mem_file_;
 }
 
 //------------------------------------------------------------------------------
