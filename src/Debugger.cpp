@@ -2772,8 +2772,8 @@ void Debugger::detach_from_process(DETACH_ACTION kill) {
 	program_executable_.clear();
 
 	if(edb::v1::debugger_core) {
-	if(kill == KILL_ON_DETACH) edb::v1::debugger_core->kill();
-	else                       edb::v1::debugger_core->detach();
+		if(kill == KILL_ON_DETACH) edb::v1::debugger_core->kill();
+		else                       edb::v1::debugger_core->detach();
 	}
 
 	last_event_ = nullptr;
