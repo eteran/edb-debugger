@@ -618,8 +618,7 @@ void DebuggerCore::kill() {
 
 		::kill(pid(), SIGKILL);
 
-		// TODO: do i need to actually do this wait?
-		native::waitpid(pid(), 0, __WALL);
+		while(native::waitpid(-1, 0, __WALL) != pid());
 
 		delete process_;
 		process_ = 0;
