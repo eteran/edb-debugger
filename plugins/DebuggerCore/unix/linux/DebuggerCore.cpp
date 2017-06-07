@@ -621,7 +621,7 @@ void DebuggerCore::kill() {
 		while(native::waitpid(-1, 0, __WALL) != pid());
 
 		delete process_;
-		process_ = 0;
+		process_ = nullptr;
 
 		reset();
 	}
