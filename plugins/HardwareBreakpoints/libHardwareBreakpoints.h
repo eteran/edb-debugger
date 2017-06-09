@@ -23,11 +23,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace HardwareBreakpointsPlugin {
 
-constexpr const int Register1	  = 0;
-constexpr const int Register2	  = 1;
-constexpr const int Register3	  = 2;
-constexpr const int Register4	  = 3;
-constexpr const int RegisterCount = 4;
+constexpr int Register1 	= 0;
+constexpr int Register2 	= 1;
+constexpr int Register3 	= 2;
+constexpr int Register4 	= 3;
+constexpr int RegisterCount = 4;
 
 struct BreakpointState {
 	bool           enabled;

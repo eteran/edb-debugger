@@ -133,8 +133,8 @@ public:
 	};
 	typedef Operand operand_type;
 public:
-	static constexpr const std::size_t MAX_SIZE=15;
-	static constexpr const std::size_t MAX_OPERANDS = 3;
+	static constexpr std::size_t MAX_SIZE=15;
+	static constexpr std::size_t MAX_OPERANDS = 3;
 
 public:
 	Instruction(const void* first, const void* end, uint64_t rva) noexcept;

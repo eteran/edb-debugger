@@ -131,9 +131,9 @@ namespace detail
 template<unsigned mantissaLength,typename FloatHolder>
 FloatValueClass ieeeClassify(FloatHolder value)
 {
-	constexpr auto static expLength=8*sizeof value-mantissaLength-1;
-	constexpr auto static expMax=(1u<<expLength)-1;
-	constexpr auto static QNaN_mask=1ull<<(mantissaLength-1);
+	static constexpr auto expLength=8*sizeof value-mantissaLength-1;
+	static constexpr auto expMax=(1u<<expLength)-1;
+	static constexpr auto QNaN_mask=1ull<<(mantissaLength-1);
 	const auto mantissa=value&((1ull<<mantissaLength)-1);
 	const auto exponent=(value>>mantissaLength)&expMax;
 	if(exponent==expMax)
@@ -168,11 +168,11 @@ FloatValueClass floatType(edb::value64 value)
 
 FloatValueClass floatType(edb::value80 value)
 {
-	constexpr auto static mantissaLength=64;
-	constexpr auto static expLength=8*sizeof value-mantissaLength-1;
-	constexpr auto static integerBitOnly=1ull<<(mantissaLength-1);
-	constexpr auto static QNaN_mask=3ull<<(mantissaLength-2);
-	constexpr auto static expMax=(1u<<expLength)-1;
+	static constexpr auto mantissaLength=64;
+	static constexpr auto expLength=8*sizeof value-mantissaLength-1;
+	static constexpr auto integerBitOnly=1ull<<(mantissaLength-1);
+	static constexpr auto QNaN_mask=3ull<<(mantissaLength-2);
+	static constexpr auto expMax=(1u<<expLength)-1;
 
 	const auto exponent=value.exponent();
 	const auto mantissa=value.mantissa();

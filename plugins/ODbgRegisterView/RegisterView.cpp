@@ -54,7 +54,7 @@ namespace {
 // TODO: all TODOs scattered around sources
 // TODO: "Undo" action, which returns to the state after last stopping of debuggee (visible only if register has been modified by the user)
 
-const constexpr auto registerGroupTypeNames = util::make_array<const char *>("GPR", "rIP", "ExpandedEFL", "Segment", "EFL", "FPUData", "FPUWords", "FPULastOp", "Debug", "MMX", "SSEData", "AVXData", "MXCSR");
+constexpr auto registerGroupTypeNames = util::make_array<const char *>("GPR", "rIP", "ExpandedEFL", "Segment", "EFL", "FPUData", "FPUWords", "FPULastOp", "Debug", "MMX", "SSEData", "AVXData", "MXCSR");
 static_assert(registerGroupTypeNames.size() == ODBRegView::RegisterGroupType::NUM_GROUPS, "Mismatch between number of register group types and names");
 
 const QString SETTINGS_GROUPS_ARRAY_NODE = "visibleGroups";
@@ -180,7 +180,7 @@ const BitFieldDescription fpuTagDescription{
 	}
 };
 
-const constexpr unsigned FPU_TAG_EMPTY = 3;
+constexpr unsigned FPU_TAG_EMPTY = 3;
 
 const BitFieldDescription roundControlDescription{
 	4,

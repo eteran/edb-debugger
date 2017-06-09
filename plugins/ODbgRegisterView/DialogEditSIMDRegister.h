@@ -43,7 +43,7 @@ class DialogEditSIMDRegister : public QDialog {
 	Q_OBJECT
 
 private:
-	static constexpr const int numBytes = 256 / 8;
+	static constexpr int numBytes = 256 / 8;
 
 	enum EntriesRows {
 		BYTE_INDICES_ROW,

@@ -24,14 +24,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #if INTPTR_MAX == INT32_MAX
 #define EDB_X86
-static constexpr const bool EDB_IS_64_BIT = false;
-static constexpr const bool EDB_IS_32_BIT = true;
+static constexpr bool EDB_IS_64_BIT = false;
+static constexpr bool EDB_IS_32_BIT = true;
 
 #elif INTPTR_MAX == INT64_MAX
 
 #define EDB_X86_64
-static constexpr const bool EDB_IS_64_BIT = true;
-static constexpr const bool EDB_IS_32_BIT = false;
+static constexpr bool EDB_IS_64_BIT = true;
+static constexpr bool EDB_IS_32_BIT = false;
 #endif
 
 namespace edb {
