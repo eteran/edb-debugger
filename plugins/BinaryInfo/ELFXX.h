@@ -22,46 +22,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IBinary.h"
 #include "elf_binary.h"
 
-
 namespace BinaryInfoPlugin {
 
-class ELFBinaryException : public std::exception {
+template <class elfxx_header>
+class ELFXX : public IBinary {
 public:
-	enum reasonEnum {
-		INVALID_ARGUMENTS = 1,
-		READ_FAILURE = 2,
-		INVALID_ELF = 3,
-		INVALID_ARCHITECTURE = 4
-	};
+	ELFXX(const std::shared_ptr<IRegion> &region);
+	virtual ~ELFXX();
 public:
-	ELFBinaryException(reasonEnum reason);
-public:
-	virtual const char * what() const noexcept override;
+	virtual bool native() const;
+	virtual edb::address_t calculate_main();
+	virtual edb::address_t debug_pointer();
+	virtual edb::address_t entry_point();
+	virtual size_t header_size() const;
+	virtual const void *header() const;
+	virtual QVector<Header> headers() const;
+	virtual edb::address_t base_address() const;
 
 private:
-	reasonEnum reason_;
-};
+	void validate_header();
 
-
-template<typename elfxx_header> class ELFXX : public IBinary {
-	public:
-		ELFXX(const std::shared_ptr<IRegion> &region);
-		virtual ~ELFXX();
-	public:
-		virtual bool native() const;
-		virtual edb::address_t calculate_main();
-		virtual edb::address_t debug_pointer();
-		virtual edb::address_t entry_point();
-		virtual size_t header_size() const;
-		virtual const void *header() const;
-		virtual QVector<Header> headers() const;
-		virtual edb::address_t base_address() const;
-
-	private:
-		void validate_header();
-		std::shared_ptr<IRegion> region_;
-		elfxx_header header_;
-		edb::address_t base_address_;
+private:
+	std::shared_ptr<IRegion> region_;
+	elfxx_header             header_;
+	edb::address_t           base_address_;
+	QVector<Header>          headers_;
 };
 
 typedef ELFXX<elf32_header> ELF32;
