@@ -521,7 +521,7 @@ void DialogProcessProperties::on_btnParent_clicked() {
 
 			QFileInfo info(parent_exe);
 			QDir dir = info.absoluteDir();
-			QDesktopServices::openUrl(QUrl(tr("file:///%1").arg(dir.absolutePath()), QUrl::TolerantMode));
+			QDesktopServices::openUrl(QUrl(tr("file://%1").arg(dir.absolutePath()), QUrl::TolerantMode));
 		}
 	}
 }
@@ -534,7 +534,7 @@ void DialogProcessProperties::on_btnImage_clicked() {
 	if(edb::v1::debugger_core) {
 		QFileInfo info(ui->editImage->text());
 		QDir dir = info.absoluteDir();
-		QDesktopServices::openUrl(QUrl(tr("file:///%1").arg(dir.absolutePath()), QUrl::TolerantMode));
+		QDesktopServices::openUrl(QUrl(tr("file://%1").arg(dir.absolutePath()), QUrl::TolerantMode));
 	}
 }
 
