@@ -35,7 +35,7 @@
    <item row="1" column="2" rowspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Gadets to Display</string>
+      <string>Gadgets to Display</string>
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
