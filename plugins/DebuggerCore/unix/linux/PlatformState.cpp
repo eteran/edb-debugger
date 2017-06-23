@@ -959,7 +959,7 @@ Register PlatformState::instruction_pointer_register() const {
 // Desc: returns what is conceptually the frame pointer for this platform
 //------------------------------------------------------------------------------
 edb::address_t PlatformState::frame_pointer() const {
-	return stack_pointer();
+	return gp_register(X86::RBP).valueAsAddress();
 }
 
 //------------------------------------------------------------------------------
