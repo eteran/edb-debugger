@@ -29,6 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <iostream>
 
+#include "EntryGridKeyUpDownEventFilter.h"
+
 namespace ODbgRegisterView {
 namespace {
 
@@ -94,6 +96,9 @@ DialogEditFPU::DialogEditFPU(QWidget *parent) : QDialog(parent), floatEntry(new 
 	hexEntry->setValidator(new QRegExpValidator(QRegExp("[0-9a-fA-F ]{,20}"), this));
 	connect(floatEntry, SIGNAL(defocussed()), this, SLOT(updateFloatEntry()));
 
+	hexEntry->installEventFilter(this);
+	floatEntry->installEventFilter(this);
+
 	const auto okCancel = new QDialogButtonBox(this);
 	okCancel->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
 	connect(okCancel, SIGNAL(accepted()), this, SLOT(accept()));
@@ -113,6 +118,10 @@ void DialogEditFPU::updateFloatEntry() {
 
 void DialogEditFPU::updateHexEntry() {
 	hexEntry->setText(value_.toHexString());
+}
+
+bool DialogEditFPU::eventFilter(QObject* obj, QEvent* event) {
+	return entryGridKeyUpDownEventFilter(this,obj,event);
 }
 
 void DialogEditFPU::set_value(const Register &newReg) {

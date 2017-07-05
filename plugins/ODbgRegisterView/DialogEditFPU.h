@@ -40,6 +40,8 @@ private Q_SLOTS:
 	void updateFloatEntry();
 	void updateHexEntry();
 
+protected:
+	bool eventFilter(QObject*, QEvent*) override;
 private:
 	static_assert(sizeof(long double) >= 10, "This class will only work with true 80-bit long double");
 	Register reg;
