@@ -72,6 +72,8 @@ private:
 		ENTRY_ROWS       = ROW_AFTER_ENTRIES - FIRST_ENTRY_ROW
 	};
 
+protected:
+	bool eventFilter(QObject*, QEvent*) override;
 private:
 	void updateAllEntriesExcept(GPREdit *notUpdated);
 	void hideColumn(Column col);

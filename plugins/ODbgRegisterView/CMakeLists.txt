@@ -28,6 +28,7 @@ add_library(${PluginName} SHARED
 	RegisterView.h
 	DialogEditSIMDRegister.cpp
 	NumberEdit.cpp
+	EntryGridKeyUpDownEventFilter.cpp
 )
 
 if(Qt5Core_FOUND)

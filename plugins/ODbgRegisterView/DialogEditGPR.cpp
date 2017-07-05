@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <tuple>
 #include <type_traits>
 
+#include "EntryGridKeyUpDownEventFilter.h"
+
 namespace ODbgRegisterView {
 
 DialogEditGPR::DialogEditGPR(QWidget *parent) : QDialog(parent) {
@@ -63,6 +65,7 @@ DialogEditGPR::DialogEditGPR(QWidget *parent) : QDialog(parent) {
 				auto &entry = this->entry(static_cast<Row>(FIRST_ENTRY_ROW + f), static_cast<Column>(FIRST_ENTRY_COL + c));
 				entry       = new GPREdit(offsetsInInteger[c], integerSizes[c], formats[f], this);
 				connect(entry, SIGNAL(textEdited(const QString &)), this, SLOT(onTextEdited(const QString &)));
+				entry->installEventFilter(this);
 				allContentsGrid->addWidget(entry, FIRST_ENTRY_ROW + f, FIRST_ENTRY_COL + c);
 			}
 		}
@@ -73,6 +76,7 @@ DialogEditGPR::DialogEditGPR(QWidget *parent) : QDialog(parent) {
 		auto &charHigh = entry(CHAR_ROW, GPR8H_COL);
 		charHigh       = new GPREdit(1, 1, GPREdit::Format::Character, this);
 		connect(charHigh, SIGNAL(textEdited(const QString &)), this, SLOT(onTextEdited(const QString &)));
+		charHigh->installEventFilter(this);
 		allContentsGrid->addWidget(charHigh, CHAR_ROW, GPR8H_COL);
 	}
 
@@ -81,6 +85,7 @@ DialogEditGPR::DialogEditGPR(QWidget *parent) : QDialog(parent) {
 		auto &charLow = entry(CHAR_ROW, GPR8L_COL);
 		charLow       = new GPREdit(0, 1, GPREdit::Format::Character, this);
 		connect(charLow, SIGNAL(textEdited(const QString &)), this, SLOT(onTextEdited(const QString &)));
+		charLow->installEventFilter(this);
 		allContentsGrid->addWidget(charLow, CHAR_ROW, GPR8L_COL);
 	}
 
@@ -267,6 +272,10 @@ void DialogEditGPR::setupFocus() {
 			break;
 		}
 	}
+}
+
+bool DialogEditGPR::eventFilter(QObject* obj, QEvent* event) {
+	return entryGridKeyUpDownEventFilter(this,obj,event);
 }
 
 void DialogEditGPR::set_value(const Register &newReg) {
