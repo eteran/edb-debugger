@@ -74,6 +74,8 @@ public:
 	void set_current_element(RegisterViewModelBase::Model::ElementSize size, NumberDisplayMode format, int elementIndex);
 	Register value() const;
 
+protected:
+	bool eventFilter(QObject*, QEvent*) override;
 private:
 	template <std::size_t numEntries>
 	void setupEntries(const QString &label, std::array<NumberEdit *, numEntries> &entries, int row, const char *slot, int naturalWidthInChars);

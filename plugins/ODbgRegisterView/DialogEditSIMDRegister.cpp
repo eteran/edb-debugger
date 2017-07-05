@@ -27,9 +27,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRadioButton>
 #include <QRegExp>
 #include <QRegExpValidator>
+#include <QKeyEvent>
 #include <cstring>
 #include <limits>
 #include <type_traits>
+
+#include "EntryGridKeyUpDownEventFilter.h"
 
 namespace ODbgRegisterView {
 
@@ -45,6 +48,7 @@ void DialogEditSIMDRegister::setupEntries(const QString &label, std::array<Numbe
 		entry                   = new NumberEdit(ENTRIES_FIRST_COL + bytesPerEntry * (numEntries - 1 - entryIndex), bytesPerEntry, this);
 		entry->setNaturalWidthInChars(naturalWidthInChars);
 		connect(entry, SIGNAL(textEdited(const QString &)), this, slot);
+		entry->installEventFilter(this);
 	}
 }
 
@@ -285,6 +289,10 @@ void DialogEditSIMDRegister::hideRows(EntriesRows rowToHide) {
 			item->widget()->hide();
 		}
 	}
+}
+
+bool DialogEditSIMDRegister::eventFilter(QObject* obj, QEvent* event) {
+	return entryGridKeyUpDownEventFilter(this,obj,event);
 }
 
 void DialogEditSIMDRegister::set_value(const Register &newReg) {
