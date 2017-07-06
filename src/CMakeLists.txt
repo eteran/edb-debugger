@@ -177,6 +177,20 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 	)
 endif()
 
+if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
+        set(edb_INCLUDES
+                ${edb_INCLUDES}
+                ${PROJECT_SOURCE_DIR}/include/arch/arm-generic/ArchTypes.h
+                ${PROJECT_SOURCE_DIR}/include/arch/arm-generic/Instruction.h
+        )
+         
+        set(edb_SRCS
+                ${edb_SRCS}
+                arch/arm-generic/ArchProcessor.cpp
+                arch/arm-generic/RegisterViewModel.cpp
+        )
+endif()
+
 if(${GRAPHVIZ_FOUND})
 	set(edb_INCLUDES
 		${edb_INCLUDES}

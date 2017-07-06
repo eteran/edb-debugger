@@ -266,6 +266,7 @@ void State::set_debug_register(size_t n, edb::reg_t value) {
 	}
 }
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 //------------------------------------------------------------------------------
 // Name: fpu_stack_pointer
 // Desc:
@@ -375,6 +376,7 @@ Register State::ymm_register(std::size_t n) const {
 	}
 	return Register();
 }
+#endif
 
 //------------------------------------------------------------------------------
 // Name: gp_register

@@ -45,7 +45,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
 #endif
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 #include <cpuid.h>
+#endif
+
 #include <sys/ptrace.h>
 #include <sys/mman.h>
 #include <sys/personality.h>
@@ -148,14 +151,14 @@ bool os64Bit(bool edbIsIn64BitSegment) {
 // Desc: constructor
 //------------------------------------------------------------------------------
 DebuggerCore::DebuggerCore() :
-	process_(0),
+	process_(nullptr),
 	pointer_size_(sizeof(void*)),
 	edbIsIn64BitSegment(in64BitSegment()),
 	osIs64Bit(os64Bit(edbIsIn64BitSegment)),
-    USER_CS_32(osIs64Bit ? 0x23 : 0x73),
-    USER_CS_64(osIs64Bit ? 0x33 : 0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
-    USER_SS(osIs64Bit    ? 0x2b : 0x7b)
-{
+	USER_CS_32(osIs64Bit ? 0x23 : 0x73),
+	USER_CS_64(osIs64Bit ? 0x33 : 0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
+	USER_SS(osIs64Bit    ? 0x2b : 0x7b) {
+
 	qDebug() << "EDB is in" << (edbIsIn64BitSegment ? "64" : "32") << "bit segment";
 	qDebug() << "OS is" << (osIs64Bit ? "64" : "32") << "bit";
 
