@@ -46,6 +46,8 @@ struct SpecialValues<float>
 	static constexpr std::array<std::uint8_t,4> negativeQNaN{{0,0,0xc0,0xff}};
 };
 
+
+#if defined(EDB_X86) || defined(EDB_X86_64)
 template<>
 struct SpecialValues<long double>
 {
@@ -60,6 +62,7 @@ struct SpecialValues<long double>
 	static constexpr std::array<std::uint8_t,10> positiveQNaN{{0,0,0,0,0,0,0,0xc0,0xff,0x7f}};
 	static constexpr std::array<std::uint8_t,10> negativeQNaN{{0,0,0,0,0,0,0,0xc0,0xff,0xff}};
 };
+#endif
 
 constexpr std::array<std::uint8_t,4> SpecialValues<float>::positiveInf;
 constexpr std::array<std::uint8_t,4> SpecialValues<float>::negativeInf;
@@ -75,12 +78,14 @@ constexpr std::array<std::uint8_t,8> SpecialValues<double>::negativeSNaN;
 constexpr std::array<std::uint8_t,8> SpecialValues<double>::positiveQNaN;
 constexpr std::array<std::uint8_t,8> SpecialValues<double>::negativeQNaN;
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 constexpr std::array<std::uint8_t,10> SpecialValues<long double>::positiveInf;
 constexpr std::array<std::uint8_t,10> SpecialValues<long double>::negativeInf;
 constexpr std::array<std::uint8_t,10> SpecialValues<long double>::positiveSNaN;
 constexpr std::array<std::uint8_t,10> SpecialValues<long double>::negativeSNaN;
 constexpr std::array<std::uint8_t,10> SpecialValues<long double>::positiveQNaN;
 constexpr std::array<std::uint8_t,10> SpecialValues<long double>::negativeQNaN;
+#endif
 
 template<typename Float>
 Float readFloat(const QString& strInput,bool& ok)
@@ -124,7 +129,11 @@ Float readFloat(const QString& strInput,bool& ok)
 
 template float readFloat<float>(const QString& strInput,bool& ok);
 template double readFloat<double>(const QString& strInput,bool& ok);
+
+
+#if defined(EDB_X86) || defined(EDB_X86_64)
 template long double readFloat<long double>(const QString& strInput,bool& ok);
+#endif
 
 namespace detail
 {
