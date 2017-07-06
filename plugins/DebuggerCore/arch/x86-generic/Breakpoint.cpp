@@ -24,14 +24,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCorePlugin {
 
 namespace {
-const quint8 BreakpointInstruction = 0xcc;
+constexpr quint8 BreakpointInstruction = 0xcc;
 }
 
 //------------------------------------------------------------------------------
 // Name: Breakpoint
 // Desc: constructor
 //------------------------------------------------------------------------------
-Breakpoint::Breakpoint(edb::address_t address) : original_byte_(0xff), address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false) {
+Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false) {
+	
+	std::fill(original_bytes_.begin(), original_bytes_.end(), 0xff);
+	
 	if(!enable()) {
 		throw breakpoint_creation_error();
 	}
@@ -52,9 +55,9 @@ Breakpoint::~Breakpoint() {
 bool Breakpoint::enable() {
 	if(!enabled()) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			quint8 prev[1];
-			if(process->read_bytes(address(), prev, 1)) {
-				original_byte_ = prev[0];
+			std::array<quint8, 1> prev;
+			if(process->read_bytes(address(), &prev[0], 1)) {
+				original_bytes_ = prev;
 				if(process->write_bytes(address(), &BreakpointInstruction, 1)) {
 					enabled_ = true;
 					return true;
@@ -72,7 +75,7 @@ bool Breakpoint::enable() {
 bool Breakpoint::disable() {
 	if(enabled()) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(process->write_bytes(address(), &original_byte_, 1)) {
+			if(process->write_bytes(address(), &original_bytes_[0], 1)) {
 				enabled_ = false;
 				return true;
 			}

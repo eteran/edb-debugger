@@ -1257,6 +1257,31 @@ Result<address_t> string_to_address(const QString &s) {
 // Name: format_bytes
 // Desc:
 //------------------------------------------------------------------------------
+QString format_bytes(const uint8_t *buffer, size_t count) {
+	QString bytes;
+
+	if(count != 0) {
+		bytes.reserve(count * 4);
+
+		auto it = buffer;
+
+		char buf[4];
+		qsnprintf(buf, sizeof(buf), "%02x", *it++ & 0xff);
+		bytes += buf;
+
+		while(it != buffer + count) {
+			qsnprintf(buf, sizeof(buf), " %02x", *it++ & 0xff);
+			bytes += buf;
+		}
+	}
+
+	return bytes;
+}
+
+//------------------------------------------------------------------------------
+// Name: format_bytes
+// Desc:
+//------------------------------------------------------------------------------
 QString format_bytes(const QByteArray &x) {
 	QString bytes;
 

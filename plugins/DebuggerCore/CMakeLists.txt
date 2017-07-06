@@ -28,8 +28,6 @@ endif()
 
 
 set(DebuggerCore_SRCS
-	Breakpoint.cpp
-	Breakpoint.h
 	DebuggerCoreBase.cpp
 	DebuggerCoreBase.h
 )
@@ -73,6 +71,16 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		unix/linux/DialogMemoryAccess.cpp
 		unix/linux/DialogMemoryAccess.h
 		${UI_H}
+	)
+endif()
+
+if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64"))
+	include_directories("arch/x86-generic")
+	
+	set(DebuggerCore_SRCS
+		${DebuggerCore_SRCS}
+		arch/x86-generic/Breakpoint.cpp
+		arch/x86-generic/Breakpoint.h
 	)
 endif()
 
