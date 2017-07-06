@@ -58,7 +58,7 @@ bool Breakpoint::enable() {
 			std::array<quint8, 4> prev;
 			if(process->read_bytes(address(), &prev[0], prev.size())) {
 				original_bytes_ = prev;
-				if(process->write_bytes(address(), &BreakpointInstruction, BreakpointInstruction.size())) {
+				if(process->write_bytes(address(), &BreakpointInstruction[0], BreakpointInstruction.size())) {
 					enabled_ = true;
 					return true;
 				}
