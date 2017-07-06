@@ -36,7 +36,6 @@ static constexpr bool EDB_IS_32_BIT = false;
 
 namespace edb {
 
-typedef value16                   seg_reg_t;
 typedef CapstoneEDB::Instruction  Instruction;
 typedef Instruction::operand_type Operand;
 
