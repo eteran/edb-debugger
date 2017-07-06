@@ -57,6 +57,7 @@ public:
 	// GP
 	virtual Register gp_register(size_t n) const = 0;
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 public:
 	// FPU
 	virtual int fpu_stack_pointer() const = 0;
@@ -77,6 +78,7 @@ public:
 public:
 	// AVX
 	virtual Register ymm_register(std::size_t n) const = 0;
+#endif
 };
 
 #endif
