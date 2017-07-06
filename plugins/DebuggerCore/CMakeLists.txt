@@ -84,6 +84,17 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 	)
 endif()
 
+if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
+        include_directories("arch/arm-generic")
+
+        set(DebuggerCore_SRCS
+                ${DebuggerCore_SRCS}
+                arch/arm-generic/Breakpoint.cpp
+                arch/arm-generic/Breakpoint.h
+        )
+
+endif()
+
 add_library(${PluginName} SHARED ${DebuggerCore_SRCS} )
 
 if(Qt5Core_FOUND)
