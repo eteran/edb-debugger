@@ -56,6 +56,10 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 	include_directories("include/arch/x86-generic")
 endif()
 
+if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
+	include_directories("include/arch/arm-generic")
+endif()
+
 if(CMAKE_COMPILER_IS_GNUCC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -pedantic -Wunused")
 	set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -W -Wall -pedantic -Wunused")
