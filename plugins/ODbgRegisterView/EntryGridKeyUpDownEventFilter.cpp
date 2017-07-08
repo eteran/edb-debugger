@@ -45,7 +45,7 @@ bool entryGridKeyUpDownEventFilter(QWidget* parent, QObject* obj, QEvent* event)
 	const auto x=pos.x();
 	const auto bestNeighbor=*std::min_element(neighbors.begin(),neighbors.end(), [x](QLineEdit*a,QLineEdit*b)
 			{ return std::abs(x - a->x()) < std::abs(x - b->x()); });
-	bestNeighbor->setFocus(Qt::OtherFocusReason);
+	bestNeighbor->setFocus(Qt::TabFocusReason);
 	return true;
 }
 }
