@@ -550,79 +550,67 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 			const QString temp_operand             = QString::fromStdString(edb::v1::formatter().to_string(operand));
 			QString temp;
 
-			switch(operand.type()) {
-			case edb::Operand::TYPE_REL:
-				do {
-					int offset;
-					const QString symname = edb::v1::find_function_symbol(effective_address, QString(), &offset);
+			if(is_relative(operand)) {
+				int offset;
+				const QString symname = edb::v1::find_function_symbol(effective_address, QString(), &offset);
 
-					if(!symname.isEmpty()) {
-						ret << QString("%1 = %2 <%3>").arg(temp_operand, edb::v1::format_pointer(effective_address), symname);
+				if(!symname.isEmpty()) {
+					ret << QString("%1 = %2 <%3>").arg(temp_operand, edb::v1::format_pointer(effective_address), symname);
 
-						if(offset == 0) {
-							if(is_call(inst)) {
-								resolve_function_parameters(state, symname, 0, ret);
-							} else {
-								resolve_function_parameters(state, symname, 4, ret);
-							}
-						}
-
-					} else {
-#if 0
-						ret << QString("%1 = %2").arg(temp_operand, edb::v1::format_pointer(effective_address));
-#endif
-					}
-				} while(0);
-				break;
-			case edb::Operand::TYPE_REGISTER:
-				do {
-					int offset;
-					const QString symname = edb::v1::find_function_symbol(effective_address, QString(), &offset);
-					if(!symname.isEmpty()) {
-						ret << QString("%1 = %2 <%3>").arg(temp_operand, edb::v1::format_pointer(effective_address), symname);
-
-						if(offset == 0) {
-							if(is_call(inst)) {
-								resolve_function_parameters(state, symname, 0, ret);
-							} else {
-								resolve_function_parameters(state, symname, 4, ret);
-							}
-						}
-
-					} else {
-						ret << QString("%1 = %2").arg(temp_operand, edb::v1::format_pointer(effective_address));
-					}
-				} while(0);
-				break;
-
-			case edb::Operand::TYPE_EXPRESSION:
-			default:
-				do {
-					edb::address_t target(0);
-
-					if(process->read_bytes(effective_address, &target, edb::v1::pointer_size())) {
-						int offset;
-						const QString symname = edb::v1::find_function_symbol(target, QString(), &offset);
-						if(!symname.isEmpty()) {
-							ret << QString("%1 = [%2] = %3 <%4>").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::v1::format_pointer(target), symname);
-
-							if(offset == 0) {
-								if(is_call(inst)) {
-									resolve_function_parameters(state, symname, 0, ret);
-								} else {
-									resolve_function_parameters(state, symname, 4, ret);
-								}
-							}
-
+					if(offset == 0) {
+						if(is_call(inst)) {
+							resolve_function_parameters(state, symname, 0, ret);
 						} else {
-							ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::v1::format_pointer(target));
+							resolve_function_parameters(state, symname, 4, ret);
 						}
-					} else {
-						// could not read from the address
-						ret << QString("%1 = [%2] = ?").arg(temp_operand, edb::v1::format_pointer(effective_address));
 					}
-				} while(0);
-				break;
+
+				} else {
+#if 0
+					ret << QString("%1 = %2").arg(temp_operand, edb::v1::format_pointer(effective_address));
+#endif
+				}
+			} else if(is_register(operand)) {
+				int offset;
+				const QString symname = edb::v1::find_function_symbol(effective_address, QString(), &offset);
+				if(!symname.isEmpty()) {
+					ret << QString("%1 = %2 <%3>").arg(temp_operand, edb::v1::format_pointer(effective_address), symname);
+
+					if(offset == 0) {
+						if(is_call(inst)) {
+							resolve_function_parameters(state, symname, 0, ret);
+						} else {
+							resolve_function_parameters(state, symname, 4, ret);
+						}
+					}
+
+				} else {
+					ret << QString("%1 = %2").arg(temp_operand, edb::v1::format_pointer(effective_address));
+				}
+			} else if(is_expression(operand)) {
+				edb::address_t target(0);
+
+				if(process->read_bytes(effective_address, &target, edb::v1::pointer_size())) {
+					int offset;
+					const QString symname = edb::v1::find_function_symbol(target, QString(), &offset);
+					if(!symname.isEmpty()) {
+						ret << QString("%1 = [%2] = %3 <%4>").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::v1::format_pointer(target), symname);
+
+						if(offset == 0) {
+							if(is_call(inst)) {
+								resolve_function_parameters(state, symname, 0, ret);
+							} else {
+								resolve_function_parameters(state, symname, 4, ret);
+							}
+						}
+
+					} else {
+						ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::v1::format_pointer(target));
+					}
+				} else {
+					// could not read from the address
+					ret << QString("%1 = [%2] = ?").arg(temp_operand, edb::v1::format_pointer(effective_address));
+				}
 			}
 		}
 	}
@@ -868,7 +856,7 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 			if(is_jump(inst)) {
 				const edb::Operand &operand = inst.operand(0);
 
-				if(operand.type() == edb::Operand::TYPE_REL) {
+				if(is_relative(operand)) {
 					const edb::address_t target = operand.relative_target();
 
 					if(target == address) {
