@@ -111,6 +111,7 @@ bool is_exit_trace_event(int status) {
     return (status >> 8 == (SIGTRAP | (PTRACE_EVENT_EXIT << 8)));
 }
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 bool in64BitSegment() {
 	bool edbIsIn64BitSegment;
 	// Check that we're running in 64 bit segment: this can be in cases
@@ -143,6 +144,7 @@ bool os64Bit(bool edbIsIn64BitSegment) {
 
 	return osIs64Bit;
 }
+#endif
 
 }
 
@@ -153,11 +155,16 @@ bool os64Bit(bool edbIsIn64BitSegment) {
 DebuggerCore::DebuggerCore() :
 	process_(nullptr),
 	pointer_size_(sizeof(void*)),
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	edbIsIn64BitSegment(in64BitSegment()),
 	osIs64Bit(os64Bit(edbIsIn64BitSegment)),
 	USER_CS_32(osIs64Bit ? 0x23 : 0x73),
 	USER_CS_64(osIs64Bit ? 0x33 : 0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
-	USER_SS(osIs64Bit    ? 0x2b : 0x7b) {
+	USER_SS(osIs64Bit    ? 0x2b : 0x7b),
+#endif
+	lastMeansOfCapture(MeansOfCapture::NeverCaptured)
+	
+	 {
 
 	qDebug() << "EDB is in" << (edbIsIn64BitSegment ? "64" : "32") << "bit segment";
 	qDebug() << "OS is" << (osIs64Bit ? "64" : "32") << "bit";
@@ -191,9 +198,10 @@ DebuggerCore::DebuggerCore() :
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
 
-	const auto mmxHash = edb::string_hash("MMX");
-	const auto xmmHash = edb::string_hash("XMM");
-	const auto ymmHash = edb::string_hash("YMM");
+#if defined(EDB_X86) || defined(EDB_X86_64)
+	static constexpr auto mmxHash = edb::string_hash("MMX");
+	static constexpr auto xmmHash = edb::string_hash("XMM");
+	static constexpr auto ymmHash = edb::string_hash("YMM");
 
 	if(EDB_IS_64_BIT && (ext == xmmHash || ext == mmxHash)) {
 		return true;
@@ -218,7 +226,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 		}
 
 		// Get XCR0, must be exactly after OSXSAVE feature check, otherwise #UD
-		asm volatile("xgetbv" : "=a"(eax),"=d"(edx) : "c"(0));
+		__asm__ __volatile__("xgetbv" : "=a"(eax),"=d"(edx) : "c"(0));
 
 		// Check that the OS has enabled XMM and YMM state support
 		if((eax & 0x6) != 0x6) {
@@ -229,7 +237,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 	default:
 		return false;
 	}
-
+#endif
 	return false;
 }
 

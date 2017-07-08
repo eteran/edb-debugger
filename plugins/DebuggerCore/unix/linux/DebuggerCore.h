@@ -111,11 +111,13 @@ private:
 	std::unique_ptr<IBinary> binary_info_;
 	IProcess                *process_;
 	std::size_t              pointer_size_;
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const bool               edbIsIn64BitSegment;
 	const bool               osIs64Bit;
 	const edb::seg_reg_t     USER_CS_32;
 	const edb::seg_reg_t     USER_CS_64;
 	const edb::seg_reg_t     USER_SS;
+#endif
 	MeansOfCapture	         lastMeansOfCapture = MeansOfCapture::NeverCaptured;
 	bool                     proc_mem_write_broken_;
 	bool                     proc_mem_read_broken_;
