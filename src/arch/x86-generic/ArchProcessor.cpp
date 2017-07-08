@@ -667,172 +667,160 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 
 				QString temp_operand = QString::fromStdString(edb::v1::formatter().to_string(operand));
 
-				switch(operand.type()) {
-				case edb::Operand::TYPE_REL:
-					do {
+				if(is_relative(operand)) {
 #if 0
-						bool ok;
-						const edb::address_t effective_address = get_effective_address(operand, state,ok);
-						if(!ok) return;
-						ret << QString("%1 = %2").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
+					bool ok;
+					const edb::address_t effective_address = get_effective_address(operand, state,ok);
+					if(!ok) return;
+					ret << QString("%1 = %2").arg(temp_operand).arg(edb::v1::format_pointer(effective_address));
 #endif
-					} while(0);
-					break;
-				case edb::Operand::TYPE_REGISTER:
-					{
-						Register reg=state[QString::fromStdString(edb::v1::formatter().to_string(operand))];
-						QString valueString;
-						if(!reg) valueString = ArchProcessor::tr("(Error: obtained invalid register value from State)");
-						else {
-							if(reg.type()==Register::TYPE_FPU && reg.bitSize()==80)
-								valueString=formatFloat(reg.value<edb::value80>());
-							else if(operand.is_SIMD_SS(inst))
+				} else if(is_register(operand)) {
+					Register reg=state[QString::fromStdString(edb::v1::formatter().to_string(operand))];
+					QString valueString;
+					if(!reg) valueString = ArchProcessor::tr("(Error: obtained invalid register value from State)");
+					else {
+						if(reg.type()==Register::TYPE_FPU && reg.bitSize()==80)
+							valueString=formatFloat(reg.value<edb::value80>());
+						else if(operand.is_SIMD_SS(inst))
+						{
+							valueString=formatFloat(reg.value<edb::value32>());
+							temp_operand+="_ss";
+						}
+						else if(operand.is_SIMD_SD(inst))
+						{
+							valueString=formatFloat(reg.value<edb::value64>());
+							temp_operand+="_sd";
+						}
+						else if(operand.is_SIMD_PS(inst))
+							valueString=formatPackedFloat<edb::value32>(reg.rawData(),reg.bitSize()/8);
+						else if(operand.is_SIMD_PD(inst))
+							valueString=formatPackedFloat<edb::value64>(reg.rawData(),reg.bitSize()/8);
+						else
+							valueString = "0x" + reg.toHexString();
+					}
+					ret << QString("%1 = %2").arg(temp_operand, valueString);
+				} else if(is_expression(operand)) {
+					bool ok;
+					const edb::address_t effective_address = get_effective_address(inst, operand, state,ok);
+					if(!ok) continue;
+					edb::value256 target;
+
+					if(process->read_bytes(effective_address, &target, sizeof(target))) {
+
+                        switch(operand.size()) {
+						case 1:
+							ret << QString("%1 = [%2] = 0x%3").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::value8(target).toHexString());
+							break;
+						case 2:
+						{
+							const edb::value16 value(target);
+							QString valueStr;
+							if(inst.is_fpu_taking_integer())
 							{
-								valueString=formatFloat(reg.value<edb::value32>());
-								temp_operand+="_ss";
+								valueStr=util::formatInt(value,NumberDisplayMode::Signed);
+								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
+								// even across values in analysis view about its use of 0x prefix
+								// Use of hexadecimal format here is pretty much pointless since the number here is
+								// expected to be used in usual numeric computations, not as address or similar
+								const std::int16_t signedValue=value;
+								if(signedValue>9 || signedValue<-9)
+									valueStr+=" (decimal)";
 							}
-							else if(operand.is_SIMD_SD(inst))
+							else
+								valueStr="0x"+value.toHexString();
+							ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
+							break;
+						}
+						case 4:
+						{
+							const edb::value32 value(target);
+							QString valueStr;
+							if(inst.is_fpu_taking_float() || operand.is_SIMD_SS(inst))
+								valueStr=formatFloat(value);
+							else if(inst.is_fpu_taking_integer())
 							{
-								valueString=formatFloat(reg.value<edb::value64>());
-								temp_operand+="_sd";
+								valueStr=util::formatInt(value,NumberDisplayMode::Signed);
+								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
+								// even across values in analysis view about its use of 0x prefix
+								// Use of hexadecimal format here is pretty much pointless since the number here is
+								// expected to be used in usual numeric computations, not as address or similar
+								const std::int32_t signedValue=value;
+								if(signedValue>9 || signedValue<-9)
+									valueStr+=" (decimal)";
 							}
 							else if(operand.is_SIMD_PS(inst))
-								valueString=formatPackedFloat<edb::value32>(reg.rawData(),reg.bitSize()/8);
+								valueStr=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value64));
 							else if(operand.is_SIMD_PD(inst))
-								valueString=formatPackedFloat<edb::value64>(reg.rawData(),reg.bitSize()/8);
+								valueStr=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value64));
 							else
-								valueString = "0x" + reg.toHexString();
+								valueStr="0x"+value.toHexString();
+							ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
+							break;
 						}
-						ret << QString("%1 = %2").arg(temp_operand, valueString);
-						break;
-					}
-				case edb::Operand::TYPE_EXPRESSION:
-					{
-						bool ok;
-						const edb::address_t effective_address = get_effective_address(inst, operand, state,ok);
-						if(!ok) continue;
-						edb::value256 target;
-
-						if(process->read_bytes(effective_address, &target, sizeof(target))) {
-
-                        	switch(operand.size()) {
-							case 1:
-								ret << QString("%1 = [%2] = 0x%3").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::value8(target).toHexString());
-								break;
-							case 2:
+						case 8:
+						{
+							const edb::value64 value(target);
+							QString valueStr;
+							if(inst.is_fpu_taking_float() || operand.is_SIMD_SS(inst))
+								valueStr=formatFloat(value);
+							else if(inst.is_fpu_taking_integer())
 							{
-								const edb::value16 value(target);
-								QString valueStr;
-								if(inst.is_fpu_taking_integer())
-								{
-									valueStr=util::formatInt(value,NumberDisplayMode::Signed);
-									// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
-									// even across values in analysis view about its use of 0x prefix
-									// Use of hexadecimal format here is pretty much pointless since the number here is
-									// expected to be used in usual numeric computations, not as address or similar
-									const std::int16_t signedValue=value;
-									if(signedValue>9 || signedValue<-9)
-										valueStr+=" (decimal)";
-								}
-								else
-									valueStr="0x"+value.toHexString();
-								ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
-								break;
+								valueStr=util::formatInt(value,NumberDisplayMode::Signed);
+								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
+								// even across values in analysis view about its use of 0x prefix
+								// Use of hexadecimal format here is pretty much pointless since the number here is
+								// expected to be used in usual numeric computations, not as address or similar
+								const std::int64_t signedValue=value;
+								if(signedValue>9 || signedValue<-9)
+									valueStr+=" (decimal)";
 							}
-							case 4:
-							{
-								const edb::value32 value(target);
-								QString valueStr;
-								if(inst.is_fpu_taking_float() || operand.is_SIMD_SS(inst))
-									valueStr=formatFloat(value);
-								else if(inst.is_fpu_taking_integer())
-								{
-									valueStr=util::formatInt(value,NumberDisplayMode::Signed);
-									// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
-									// even across values in analysis view about its use of 0x prefix
-									// Use of hexadecimal format here is pretty much pointless since the number here is
-									// expected to be used in usual numeric computations, not as address or similar
-									const std::int32_t signedValue=value;
-									if(signedValue>9 || signedValue<-9)
-										valueStr+=" (decimal)";
-								}
-								else if(operand.is_SIMD_PS(inst))
-									valueStr=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value64));
-								else if(operand.is_SIMD_PD(inst))
-									valueStr=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value64));
-								else
-									valueStr="0x"+value.toHexString();
-								ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
-								break;
-							}
-							case 8:
-							{
-								const edb::value64 value(target);
-								QString valueStr;
-								if(inst.is_fpu_taking_float() || operand.is_SIMD_SS(inst))
-									valueStr=formatFloat(value);
-								else if(inst.is_fpu_taking_integer())
-								{
-									valueStr=util::formatInt(value,NumberDisplayMode::Signed);
-									// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
-									// even across values in analysis view about its use of 0x prefix
-									// Use of hexadecimal format here is pretty much pointless since the number here is
-									// expected to be used in usual numeric computations, not as address or similar
-									const std::int64_t signedValue=value;
-									if(signedValue>9 || signedValue<-9)
-										valueStr+=" (decimal)";
-								}
-								else
-									valueStr="0x"+value.toHexString();
-								ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
-								break;
-							}
-							case 10:
-							{
-								const edb::value80 value(target);
-								const QString valueStr = inst.is_fpu() ? isFPU_BCD(inst) ? formatBCD(value) : formatFloat(value) : "0x"+value.toHexString();
-								ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
-								break;
-							}
-							case 16:
-							{
-								QString valueString;
-								if(operand.is_SIMD_PS(inst))
-									valueString=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value128));
-								else if(operand.is_SIMD_PD(inst))
-									valueString=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value128));
-								else
-									valueString="0x"+edb::value128(target).toHexString();
-								ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueString);
-								break;
-							}
-							case 32:
-							{
-								QString valueString;
-								if(operand.is_SIMD_PS(inst))
-									valueString=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value256));
-								else if(operand.is_SIMD_PD(inst))
-									valueString=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value256));
-								else
-									valueString="0x"+edb::value256(target).toHexString();
-								ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueString);
-								break;
-							}
-							default:
-								ret << QString("%1 = [%2] = 0x%3").arg(
-									temp_operand,
-									edb::v1::format_pointer(effective_address),
-									QString("<Error: unexpected size; low bytes form %2>").arg(target.toHexString())
-									);
-								break;
-							}
-						} else {
-							ret << QString("%1 = [%2] = ?").arg(temp_operand, edb::v1::format_pointer(effective_address));
+							else
+								valueStr="0x"+value.toHexString();
+							ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
+							break;
 						}
+						case 10:
+						{
+							const edb::value80 value(target);
+							const QString valueStr = inst.is_fpu() ? isFPU_BCD(inst) ? formatBCD(value) : formatFloat(value) : "0x"+value.toHexString();
+							ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
+							break;
+						}
+						case 16:
+						{
+							QString valueString;
+							if(operand.is_SIMD_PS(inst))
+								valueString=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value128));
+							else if(operand.is_SIMD_PD(inst))
+								valueString=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value128));
+							else
+								valueString="0x"+edb::value128(target).toHexString();
+							ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueString);
+							break;
+						}
+						case 32:
+						{
+							QString valueString;
+							if(operand.is_SIMD_PS(inst))
+								valueString=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value256));
+							else if(operand.is_SIMD_PD(inst))
+								valueString=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value256));
+							else
+								valueString="0x"+edb::value256(target).toHexString();
+							ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueString);
+							break;
+						}
+						default:
+							ret << QString("%1 = [%2] = 0x%3").arg(
+								temp_operand,
+								edb::v1::format_pointer(effective_address),
+								QString("<Error: unexpected size; low bytes form %2>").arg(target.toHexString())
+								);
+							break;
+						}
+					} else {
+						ret << QString("%1 = [%2] = ?").arg(temp_operand, edb::v1::format_pointer(effective_address));
 					}
-					break;
-				default:
-					break;
 				}
 			}
 		}
