@@ -156,9 +156,7 @@ public:
 	std::string mnemonic() const;
 	uint32_t prefix() const                  { return prefix_; }
 	Capstone::cs_insn const& cs_insn() const { return insn_; }
-	// Capstone doesn't provide any easy way to get total prefix length,
-	// so this is currently unimplemented
-	//std::size_t prefix_size() const;
+
 	enum ConditionCode : uint8_t {
 		CC_UNCONDITIONAL=0x10, // value must be higher than 0xF
 		CC_CXZ,
@@ -317,3 +315,4 @@ inline bool is_relative(const CapstoneEDB::Operand &operand) {
 
 
 #endif
+	
