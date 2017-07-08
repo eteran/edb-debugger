@@ -28,7 +28,9 @@ namespace CapstoneEDB {
 
 enum class Architecture {
 	ARCH_X86,
-	ARCH_AMD64
+	ARCH_AMD64,
+	ARCH_ARM32,
+	ARCH_ARM64
 };
 
 bool init(Architecture arch);

@@ -644,6 +644,7 @@ void DebuggerCore::kill() {
 
 void DebuggerCore::detectDebuggeeBitness() {
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	const size_t offset=EDB_IS_64_BIT ?
 						offsetof(UserRegsStructX86_64, cs) :
 						offsetof(UserRegsStructX86,   xcs);
@@ -666,6 +667,15 @@ void DebuggerCore::detectDebuggeeBitness() {
 			return;
 		}
 	}
+#elif defined(EDB_ARM32)
+	CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32);
+	pointer_size_ = sizeof(quint32);
+#elif defined(EDB_ARM64)
+	CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM64);
+	pointer_size_ = sizeof(quint64);
+#else
+	#error "Unsupported Architecture"
+#endif
 }
 
 //------------------------------------------------------------------------------

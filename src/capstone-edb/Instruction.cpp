@@ -58,6 +58,11 @@ bool init(Architecture arch) {
 			return Capstone::cs_open(Capstone::CS_ARCH_X86, Capstone::CS_MODE_64, &csh);
 		case Architecture::ARCH_X86:
 			return Capstone::cs_open(Capstone::CS_ARCH_X86, Capstone::CS_MODE_32, &csh);
+		case Architecture::ARCH_ARM32:
+			return Capstone::cs_open(Capstone::CS_ARCH_ARM, Capstone::CS_MODE_ARM, &csh);
+		case Architecture::ARCH_ARM64:
+			return Capstone::cs_open(Capstone::CS_ARCH_ARM64, Capstone::CS_MODE_ARM, &csh);
+		// TODO(eteran): support ARM THUMB
 		default:
 			return Capstone::CS_ERR_ARCH;
 		}
