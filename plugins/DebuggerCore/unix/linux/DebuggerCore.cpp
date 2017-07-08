@@ -199,7 +199,9 @@ DebuggerCore::DebuggerCore() :
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
-
+	
+	Q_UNUSED(ext);
+	
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	static constexpr auto mmxHash = edb::string_hash("MMX");
 	static constexpr auto xmmHash = edb::string_hash("XMM");
