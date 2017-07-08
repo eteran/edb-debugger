@@ -1397,7 +1397,7 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
         	Q_ASSERT(inst.operand_count() >= 2);
 
 			if(operands[0].valid() && operands[1].valid()) {
-				if(operands[0].type() == edb::Operand::TYPE_REGISTER && operands[1].type() == edb::Operand::TYPE_EXPRESSION) {
+				if(is_register(operands[0]) && is_expression(operands[1])) {
 
 					edb::Operand::Register reg1;
 					edb::Operand::Register reg2;
@@ -1409,10 +1409,10 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 
 							if(operands[1].expression().base == edb::Operand::Register::X86_REG_INVALID) {
 								reg2 = operands[1].expression().index;
-								ret = reg1 == reg2;
+								ret = (reg1 == reg2);
 							} else if(operands[1].expression().index == edb::Operand::Register::X86_REG_INVALID) {
 								reg2 = operands[1].expression().base;
-								ret = reg1 == reg2;
+								ret = (reg1 == reg2);
 							}
 						}
 					}
@@ -1425,7 +1425,7 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
         	Q_ASSERT(inst.operand_count() >= 2);
 
 			if(operands[0].valid() && operands[1].valid()) {
-				if(operands[0].type() == edb::Operand::TYPE_REGISTER && operands[1].type() == edb::Operand::TYPE_REGISTER) {
+				if(is_register(operands[0]) && is_register(operands[1])) {
 					ret = operands[0].reg() == operands[1].reg();
 				}
 			}
