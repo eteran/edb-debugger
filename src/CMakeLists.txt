@@ -153,6 +153,7 @@ set(edb_INCLUDES
 	${PROJECT_SOURCE_DIR}/include/QLongValidator.h
 	${PROJECT_SOURCE_DIR}/include/QULongValidator.h
 	${PROJECT_SOURCE_DIR}/include/HexStringValidator.h
+	${PROJECT_SOURCE_DIR}/include/Instruction.h		
 	qjson4/QJsonArray.h
 	qjson4/QJsonDocument.h
 	qjson4/QJsonObject.h
@@ -167,7 +168,6 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 	set(edb_INCLUDES
 		${edb_INCLUDES}
 		${PROJECT_SOURCE_DIR}/include/arch/x86-generic/ArchTypes.h
-		${PROJECT_SOURCE_DIR}/include/arch/x86-generic/Instruction.h		
 	)
 	
 	set(edb_SRCS
@@ -181,7 +181,6 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
         set(edb_INCLUDES
                 ${edb_INCLUDES}
                 ${PROJECT_SOURCE_DIR}/include/arch/arm-generic/ArchTypes.h
-                ${PROJECT_SOURCE_DIR}/include/arch/arm-generic/Instruction.h
         )
          
         set(edb_SRCS
