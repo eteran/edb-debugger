@@ -127,81 +127,71 @@ edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Op
 	// TODO: get registers by index, not string! too slow
 
 	if(op.valid()) {
-		switch(op.type()) {
-		case edb::Operand::TYPE_REGISTER:
+
+		if(is_register(op)) {
 			ret = state[QString::fromStdString(edb::v1::formatter().to_string(op))].valueAsAddress();
-			break;
-		case edb::Operand::TYPE_EXPRESSION:
-			do {
-				const Register baseR  = state[QString::fromStdString(register_name(op.expression().base))];
-				const Register indexR = state[QString::fromStdString(register_name(op.expression().index))];
-				edb::address_t base  = 0;
-				edb::address_t index = 0;
+		} else if(is_expression(op)) {
+			const Register baseR  = state[QString::fromStdString(register_name(op.expression().base))];
+			const Register indexR = state[QString::fromStdString(register_name(op.expression().index))];
+			edb::address_t base  = 0;
+			edb::address_t index = 0;
 
-				if(!baseR)
-				{
-					if(op.expression().base!=edb::Operand::Register::X86_REG_INVALID)
-						return ret; // register is valid, but failed to be acquired from state
-				}
-				else
-				{
-					base=baseR.valueAsAddress();
-				}
-
-				if(!indexR)
-				{
-					if(op.expression().index!=edb::Operand::Register::X86_REG_INVALID)
-						return ret; // register is valid, but failed to be acquired from state
-				}
-				else
-				{
-					if(indexR.type()!=Register::TYPE_GPR)
-						return ret; // TODO: add support for VSIB addressing
-					index=indexR.valueAsAddress();
-				}
-
-				// This only makes sense for x86_64, but doesn't hurt on x86
-				if(op.expression().base == edb::Operand::Register::X86_REG_RIP) {
-					base += inst.size();
-				}
-
-				ret = base + index * op.expression().scale + op.displacement();
-
-
-				std::size_t segRegIndex = op.expression().segment;
-				if(segRegIndex != edb::Operand::Segment::X86_REG_INVALID) {
-
-					const Register segBase = [&segRegIndex, &state](){
-						switch(segRegIndex) {
-						case edb::Operand::Segment::X86_REG_ES: return state[QLatin1String("es_base")];
-						case edb::Operand::Segment::X86_REG_CS:	return state[QLatin1String("cs_base")];
-						case edb::Operand::Segment::X86_REG_SS:	return state[QLatin1String("ss_base")];
-						case edb::Operand::Segment::X86_REG_DS:	return state[QLatin1String("ds_base")];
-						case edb::Operand::Segment::X86_REG_FS:	return state[QLatin1String("fs_base")];
-						case edb::Operand::Segment::X86_REG_GS:	return state[QLatin1String("gs_base")];
-						default:
-							return Register();
-						}
-					}();
-
-					if(!segBase) return 0; // no way to reliably compute address
-					ret += segBase.valueAsAddress();
-				}
-			} while(0);
-			break;
-		case edb::Operand::TYPE_IMMEDIATE:
-			break;
-		case edb::Operand::TYPE_REL:
+			if(!baseR)
 			{
-				const Register csBase = state["cs_base"];
-				if(!csBase) return 0; // no way to reliably compute address
-				ret = op.relative_target() + csBase.valueAsAddress();
-				break;
+				if(op.expression().base!=edb::Operand::Register::X86_REG_INVALID)
+					return ret; // register is valid, but failed to be acquired from state
 			}
-		default:
-			break;
+			else
+			{
+				base=baseR.valueAsAddress();
+			}
+
+			if(!indexR)
+			{
+				if(op.expression().index!=edb::Operand::Register::X86_REG_INVALID)
+					return ret; // register is valid, but failed to be acquired from state
+			}
+			else
+			{
+				if(indexR.type()!=Register::TYPE_GPR)
+					return ret; // TODO: add support for VSIB addressing
+				index=indexR.valueAsAddress();
+			}
+
+			// This only makes sense for x86_64, but doesn't hurt on x86
+			if(op.expression().base == edb::Operand::Register::X86_REG_RIP) {
+				base += inst.size();
+			}
+
+			ret = base + index * op.expression().scale + op.displacement();
+
+
+			std::size_t segRegIndex = op.expression().segment;
+			if(segRegIndex != edb::Operand::Segment::X86_REG_INVALID) {
+
+				const Register segBase = [&segRegIndex, &state](){
+					switch(segRegIndex) {
+					case edb::Operand::Segment::X86_REG_ES: return state[QLatin1String("es_base")];
+					case edb::Operand::Segment::X86_REG_CS:	return state[QLatin1String("cs_base")];
+					case edb::Operand::Segment::X86_REG_SS:	return state[QLatin1String("ss_base")];
+					case edb::Operand::Segment::X86_REG_DS:	return state[QLatin1String("ds_base")];
+					case edb::Operand::Segment::X86_REG_FS:	return state[QLatin1String("fs_base")];
+					case edb::Operand::Segment::X86_REG_GS:	return state[QLatin1String("gs_base")];
+					default:
+						return Register();
+					}
+				}();
+
+				if(!segBase) return 0; // no way to reliably compute address
+				ret += segBase.valueAsAddress();
+			}
+		} else if(is_relative(op)) {
+			const Register csBase = state["cs_base"];
+			if(!csBase) return 0; // no way to reliably compute address
+			ret = op.relative_target() + csBase.valueAsAddress();
 		}
 	}
+
 	ok=true;
 	ret.normalize();
 	return ret;
@@ -842,8 +832,8 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 							}
 							default:
 								ret << QString("%1 = [%2] = 0x%3").arg(
-									temp_operand, 
-									edb::v1::format_pointer(effective_address), 
+									temp_operand,
+									edb::v1::format_pointer(effective_address),
 									QString("<Error: unexpected size; low bytes form %2>").arg(target.toHexString())
 									);
 								break;
