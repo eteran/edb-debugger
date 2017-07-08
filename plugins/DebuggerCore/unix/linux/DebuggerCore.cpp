@@ -166,8 +166,10 @@ DebuggerCore::DebuggerCore() :
 	
 	 {
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	qDebug() << "EDB is in" << (edbIsIn64BitSegment ? "64" : "32") << "bit segment";
 	qDebug() << "OS is" << (osIs64Bit ? "64" : "32") << "bit";
+#endif
 
 	proc_mem_write_broken_ = true;
 	proc_mem_read_broken_  = true;
