@@ -54,7 +54,7 @@ void set_ok(bool &ok, long value) {
 	ok = (value != -1) || (errno == 0);
 }
 
-QStringList split_max(const QString &str, const int &maxparts) {
+QStringList split_max(const QString &str, int maxparts) {
 	int prev_idx = 0, idx = 0;
 	QStringList items;
 	for (const QChar &c : str) {
