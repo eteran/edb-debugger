@@ -65,25 +65,30 @@ namespace DebuggerCorePlugin {
 //------------------------------------------------------------------------------
 void PlatformThread::fillSegmentBases(PlatformState* state) {
 
-	struct user_desc desc;
-	std::memset(&desc, 0, sizeof(desc));
+	struct user_desc desc = {};
 
-	for(size_t sregIndex=0;sregIndex<state->seg_reg_count();++sregIndex) {
+	for(size_t sregIndex = 0; sregIndex < state->seg_reg_count(); ++sregIndex) {
 		const edb::seg_reg_t reg=state->x86.segRegs[sregIndex];
-		if(!reg) continue;
-		bool fromGDT=!(reg&0x04); // otherwise the selector picks descriptor from LDT
-		if(!fromGDT) continue;
+		if(!reg) {
+			continue;
+		}
+
+		bool fromGDT = !(reg & 0x04); // otherwise the selector picks descriptor from LDT
+		if(!fromGDT) {
+			continue;
+		}
+
 		if(ptrace(PTRACE_GET_THREAD_AREA, tid_, reg / LDT_ENTRY_SIZE, &desc) != -1) {
 			state->x86.segRegBases[sregIndex] = desc.base_addr;
-			state->x86.segRegBasesFilled[sregIndex]=true;
+			state->x86.segRegBasesFilled[sregIndex] = true;
 		}
 	}
-	for(size_t sregIndex=0;sregIndex<state->seg_reg_count();++sregIndex) {
-		const edb::seg_reg_t sreg=state->x86.segRegs[sregIndex];
-		if(sreg==core_->USER_CS_32||sreg==core_->USER_CS_64||sreg==core_->USER_SS ||
-				(state->is64Bit() && sregIndex<PlatformState::X86::FS)) {
+
+	for(size_t sregIndex = 0;sregIndex < state->seg_reg_count(); ++sregIndex) {
+		const edb::seg_reg_t sreg = state->x86.segRegs[sregIndex];
+		if(sreg == core_->USER_CS_32 || sreg == core_->USER_CS_64 || sreg == core_->USER_SS || (state->is64Bit() && sregIndex < PlatformState::X86::FS)) {
 			state->x86.segRegBases[sregIndex] = 0;
-			state->x86.segRegBasesFilled[sregIndex]=true;
+			state->x86.segRegBasesFilled[sregIndex] = true;
 		}
 	}
 }
@@ -94,38 +99,48 @@ void PlatformThread::fillSegmentBases(PlatformState* state) {
 //------------------------------------------------------------------------------
 bool PlatformThread::fillStateFromPrStatus(PlatformState* state) {
 
-	static bool prStatusSupported=true;
-	if(!prStatusSupported)
+	static bool prStatusSupported = true;
+
+	if(!prStatusSupported) {
 		return false;
+	}
 
-
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	PrStatus_X86_64 prstat64;
 
 	iovec prstat_iov = {&prstat64, sizeof(prstat64)};
 
 	if(ptrace(PTRACE_GETREGSET, tid_, NT_PRSTATUS, &prstat_iov) != -1) {
-		if(prstat_iov.iov_len==sizeof(prstat64)) {
+
+		switch(prstat_iov.iov_len) {
+		case sizeof(PrStatus_X86_64):
 			state->fillFrom(prstat64);
-		} else if(prstat_iov.iov_len==sizeof(PrStatus_X86)) {
+			break;
+		case sizeof(PrStatus_X86):
 			// In this case the actual structure returned is PrStatus_X86,
 			// so copy it to the correct container (reinterpret_cast would
 			// cause UB in any case). Good compiler should be able to optimize this out.
 			PrStatus_X86 prstat32;
-			std::memcpy(&prstat32,&prstat64,sizeof(prstat32));
+			std::memcpy(&prstat32, &prstat64, sizeof(prstat32));
 			state->fillFrom(prstat32);
-		} else {
-			prStatusSupported=false;
+			break;
+		default:
+			prStatusSupported = false;
 			qWarning() << "PTRACE_GETREGSET(NT_PRSTATUS) returned unexpected length " << prstat_iov.iov_len;
 			return false;
 		}
-	}
-	else {
-		prStatusSupported=false;
+	} else {
+		prStatusSupported = false;
 		perror("PTRACE_GETREGSET(NT_PRSTATUS) failed");
 		return false;
 	}
+
 	fillSegmentBases(state);
 	return true;
+#else
+	Q_UNUSED(state);
+	return false;
+#endif
 }
 
 //------------------------------------------------------------------------------
