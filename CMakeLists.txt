@@ -1,6 +1,14 @@
 cmake_minimum_required (VERSION 2.8)
 project (edb)
 
+
+
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/src/qjson4/.git" OR NOT EXISTS "${PROJECT_SOURCE_DIR}/src/qhexview/.git")
+	message(SEND_ERROR "The git submodules are not available. Please run:\ngit submodule update --init --recursive"
+)
+endif()
+
+
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif()
