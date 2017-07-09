@@ -93,7 +93,7 @@ struct UserRegsStructX86_64 {
 	uint64_t orig_rax;
 	uint64_t rip;
 	uint64_t cs;
-	uint64_t eflags;
+	uint64_t rflags;
 	uint64_t rsp;
 	uint64_t ss;
 	uint64_t fs_base;
