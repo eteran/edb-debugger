@@ -17,21 +17,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Analyzer.h"
-#include "OptionsPage.h"
 #include "AnalyzerWidget.h"
-#include "SpecifiedFunctions.h"
+#include "Configuration.h"
+#include "Function.h"
 #include "IBinary.h"
 #include "IDebugger.h"
 #include "IProcess.h"
-#include "IThread.h"
-#include "Function.h"
 #include "ISymbolManager.h"
+#include "IThread.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"
+#include "OptionsPage.h"
+#include "Prototype.h"
+#include "SpecifiedFunctions.h"
 #include "State.h"
 #include "Util.h"
 #include "edb.h"
-#include "Configuration.h"
 
 #include <QCoreApplication>
 #include <QDir>
@@ -866,16 +867,12 @@ bool Analyzer::will_return(edb::address_t address) const {
 	if(symbol) {
 		const QString symname = symbol->name_no_prefix;
 		const QString func_name = symname.mid(0, symname.indexOf("@"));
-
-		if(func_name == "__assert_fail" || func_name == "abort" || func_name == "_exit" || func_name == "_Exit" || func_name == "_dl_signal_error" || func_name == "_dl_signal_cerror") {
-			return false;
+		
+		if(const edb::Prototype *const info = edb::v1::get_function_info(func_name)) {
+			if(info->noreturn) {
+				return false;
+			}
 		}
-
-#ifdef Q_OS_LINUX
-		if(func_name == "_Unwind_Resume") {
-			return false;
-		}
-#endif
 	}
 
 

@@ -125,8 +125,9 @@ void load_function_db() {
 
 
 				Prototype func;
-				func.name = function.attribute("name");
-				func.type = function.attribute("type");
+				func.name     = function.attribute("name");
+				func.type     = function.attribute("type");
+				func.noreturn = function.attribute("noreturn", "false") == "true";
 
 				QDomElement argument = function.firstChildElement("argument");
 				for (; !argument.isNull(); argument = argument.nextSiblingElement("argument")) {

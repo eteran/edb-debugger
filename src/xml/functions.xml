@@ -15,7 +15,7 @@ we attempt to do something similar to the IA-64 name mangling system:
 	<ref-qualifier> ::= R           # & ref-qualifier
 	<ref-qualifier> ::= O           # && ref-qualifier
 
-	<builtin-type> 
+	<builtin-type>
 		::= v	# void
 		::= w	# wchar_t
 		::= b	# bool
@@ -47,11 +47,11 @@ we attempt to do something similar to the IA-64 name mangling system:
 		::= Dc # decltype(auto)
 		::= Dn # std::nullptr_t (i.e., decltype(nullptr))
 		::= u <source-name>	# vendor extended type
-		
+
 
 Generically:
 we support "u" for "size_t" for now
-            
+
 For example:
 
 PKc = "const char *"
@@ -86,7 +86,7 @@ P4FILE = "FILE *"
 	<!-- locale.h -->
 	<function name="setlocale" type="Pc"><argument type="i" name="category"/><argument type="PKc" name="locale"/></function>
 	<function name="localeconv" type="P5lconv"></function>
-	
+
 	<!-- math.h -->
 	<function name="abs" type="i"><argument type="i" name="n"/></function>
 	<function name="acos" type="d"><argument type="d" name="x"/></function>
@@ -284,7 +284,7 @@ P4FILE = "FILE *"
 	<!-- stdbool.h -->
 	<!-- stddef.h -->
 	<!-- stdint.h -->
-	<!-- stdio.h -->	
+	<!-- stdio.h -->
 	<function name="ctermid" type="Pc"><argument type="Pc" name="s" /></function>
 	<function name="fclose" type="i"><argument type="P4FILE" name="stream" /></function>
 	<function name="feof" type="i"><argument type="P4FILE" name="stream" /></function>
@@ -349,7 +349,7 @@ P4FILE = "FILE *"
 	void     rewind(FILE *);
 	void     setbuf(FILE *, char *);
 	-->
-	
+
 	<!-- string.h -->
 	<function name="memchr" type="Pv"><argument type="PKv" name="s1" /><argument type="i" name="ch" /><argument type="u" name="n" /></function>
 	<function name="memcmp" type="i"><argument type="PKv" name="s1" /><argument type="PKv" name="s2" /><argument type="u" name="s3" /></function>
@@ -380,7 +380,7 @@ P4FILE = "FILE *"
 	size_t   strxfrm(char *, const char *, size_t);
 	void    *memccpy(void *, const void *, int, size_t);
 	-->
-	
+
 	<!-- stdlib.h -->
 	<function type="Pc" name="getenv"><argument type="PKc" name="s" /></function>
 	<function type="Pc" name="mktemp"><argument type="Pc" name="s" /></function>
@@ -395,12 +395,12 @@ P4FILE = "FILE *"
 	<function type="i" name="system"><argument type="PKc" name="s" /></function>
 	<function type="i" name="unlockpt"><argument type="i" name="n" /></function>
 	<function type="i" name="unsetenv"><argument type="PKc" name="s" /></function>
-	<function type="v" name="_Exit"><argument type="i" name="x" /></function>
-	<function type="v" name="abort"></function>
-	<function type="v" name="exit"><argument type="i" name="x" /></function>
+	<function type="v" name="_Exit" noreturn="true" ><argument type="i" name="x" /></function>
+	<function type="v" name="abort" noreturn="true" ></function>
+	<function type="v" name="exit" noreturn="true" ><argument type="i" name="x" /></function>
 	<function type="i" name="atexit"><argument type="PFvv" name="function" /></function>
-	
-	
+
+
 	<!--
 	char         *initstate(unsigned, char *, size_t);
 	char         *l64a(long);
@@ -451,8 +451,48 @@ P4FILE = "FILE *"
 	void         *malloc(size_t);
 	void         *realloc(void *, size_t);
 	-->
+
+	<function type="v" name="_exit" noreturn="true" >
+		<argument type="i" name="x" />
+	</function>
+
+	<function type="v" name="__assert_fail" noreturn="true">
+		<argument type="PKc" name="assertion" />
+		<argument type="PKc" name="file" />
+		<argument type="j" name="line" />
+		<argument type="PKc" name="function" />
+	</function>
 	
+	<function type="v" name="__assert_fail_base" noreturn="true">
+		<argument type="PKc" name="fmt," />
+		<argument type="PKc" name="assertion" />
+		<argument type="PKc" name="file" />
+		<argument type="j" name="line" />
+		<argument type="PKc" name="function" />
+	</function>
 	
+	<function type="v" name="_dl_signal_error" noreturn="true">
+		<argument type="i" name="errcode," />
+		<argument type="PKc" name="objname," />
+		<argument type="PKc" name="occation," />
+		<argument type="PKc" name="errstring" />
+	</function>
+	
+	<function type="v" name="_dl_reloc_bad_type" noreturn="true">
+		<argument type="Pv" name="map" />
+		<argument type="j" name="type" />
+		<argument type="i" name="plt" />
+	</function>
+	
+	<function type="v" name="__stack_chk_fail" noreturn="true" ></function>
+
+	<function type="v" name="_dl_signal_cerror">
+		<argument type="i" name="errcode," />
+		<argument type="PKc" name="objname," />
+		<argument type="PKc" name="occation," />
+		<argument type="PKc" name="errstring" />
+	</function>
+
 	<function type="i" name="__libc_start_main">
 		<argument type="PFiiPPcS0_E" name="main" />
 		<argument type="i" name="argc" />
@@ -462,7 +502,11 @@ P4FILE = "FILE *"
 		<argument type="PFvvE" name="rtld_fini" />
 		<argument type="Pv" name="stack_end" />
 	</function>
-    
+	
+	<function type="v" name="_Unwind_Resume" noreturn="true">
+		<argument type="Pv" name="object" />
+	</function>
+
     <function type="Pv" name="_dl_start"> <!-- return type is really ElfW(Addr) "-->
     	<argument type="Pv" name="arg" />
     </function>

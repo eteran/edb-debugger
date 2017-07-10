@@ -33,6 +33,7 @@ struct EDB_EXPORT Argument {
 struct EDB_EXPORT Prototype {
 	QString           name;
 	QString           type;
+	bool              noreturn;
 	QVector<Argument> arguments;
 };
 
