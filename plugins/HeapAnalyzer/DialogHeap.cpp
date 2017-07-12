@@ -584,7 +584,7 @@ void DialogHeap::on_btnGraph_clicked() {
 		}
 #endif
 
-		for(const Result *result: result_map) {
+		Q_FOREACH(const Result *result, result_map) {
 			const edb::address_t addr = result->block;
 			if(nodes.contains(addr)) {
 				for(edb::address_t pointer: result->points_to) {

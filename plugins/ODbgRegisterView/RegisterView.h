@@ -112,6 +112,7 @@ private:
 };
 
 class Canvas : public QWidget {
+	Q_OBJECT
 public:
 	Canvas(QWidget *parent = nullptr);
 
@@ -145,6 +146,9 @@ public Q_SLOTS:
 };
 
 class VolatileNameField : public FieldWidget {
+	Q_OBJECT
+	
+private:
 	std::function<QString()> valueFormatter;
 
 public:

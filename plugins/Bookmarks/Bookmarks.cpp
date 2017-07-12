@@ -126,7 +126,7 @@ void Bookmarks::add_bookmark_menu() {
 QVariantMap Bookmarks::save_state() const {
 	QVariantMap  state;
 	QVariantList bookmarks;
-	for(auto bookmark : bookmark_widget_->entries()) {
+	for(auto &bookmark : bookmark_widget_->entries()) {
 	
 		QVariantMap entry;
 		entry["address"] = bookmark.address.toHexString();
@@ -147,7 +147,7 @@ QVariantMap Bookmarks::save_state() const {
 void Bookmarks::restore_state(const QVariantMap &state) {
 
 	QVariantList bookmarks = state["bookmarks"].toList();
-	for(auto entry : bookmarks) {
+	for(auto &entry : bookmarks) {
 		auto bookmark = entry.value<QVariantMap>();
 	
 	

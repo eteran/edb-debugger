@@ -324,6 +324,7 @@ void DialogProcessProperties::updateGeneralPage() {
 	        const QString parent_exe     = parent ? parent->executable() : QString();
 
 	        const QList<QByteArray> args = process->arguments();
+			Q_UNUSED(args);
 
 			ui->editImage->setText(exe);
 			ui->editCommand->setText(QString());

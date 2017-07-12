@@ -57,7 +57,7 @@ namespace {
 constexpr auto registerGroupTypeNames = util::make_array<const char *>("GPR", "rIP", "ExpandedEFL", "Segment", "EFL", "FPUData", "FPUWords", "FPULastOp", "Debug", "MMX", "SSEData", "AVXData", "MXCSR");
 static_assert(registerGroupTypeNames.size() == ODBRegView::RegisterGroupType::NUM_GROUPS, "Mismatch between number of register group types and names");
 
-const QString SETTINGS_GROUPS_ARRAY_NODE = "visibleGroups";
+const auto SETTINGS_GROUPS_ARRAY_NODE = QLatin1String("visibleGroups");
 
 const int MODEL_NAME_COLUMN    = RegisterViewModelBase::Model::NAME_COLUMN;
 const int MODEL_VALUE_COLUMN   = RegisterViewModelBase::Model::VALUE_COLUMN;
@@ -171,7 +171,7 @@ BitFieldDescription::BitFieldDescription(int textWidth, std::vector<QString> con
 
 namespace {
 
-const BitFieldDescription fpuTagDescription{
+const BitFieldDescription fpuTagDescription = {
 	7,
 	{ "valid", "zero", "special", "empty" },
 	{ QObject::tr("Tag as used"), "", "", QObject::tr("Tag as empty") },
@@ -182,25 +182,25 @@ const BitFieldDescription fpuTagDescription{
 
 constexpr unsigned FPU_TAG_EMPTY = 3;
 
-const BitFieldDescription roundControlDescription{
+const BitFieldDescription roundControlDescription = {
 	4,
 	{ "NEAR", "DOWN", "  UP", "ZERO" },
 	{ QObject::tr("Round to nearest"), QObject::tr("Round down"), QObject::tr("Round up"), QObject::tr("Round toward zero") }
 };
 
-const BitFieldDescription precisionControlDescription{
+const BitFieldDescription precisionControlDescription = {
 	2,
 	{ "24", "??", "53", "64" },
 	{ QObject::tr("Set 24-bit precision"), "", QObject::tr("Set 53-bit precision"), QObject::tr("Set 64-bit precision") }
 };
 
-const BitFieldDescription debugRWDescription{
+const BitFieldDescription debugRWDescription = {
 	5,
 	{ "EXEC", "WRITE", "  IO", " R/W" },
 	{ QObject::tr("Break on execution"), QObject::tr("Break on data write"), "", QObject::tr("Break on data read/write") }
 };
 
-const BitFieldDescription debugLenDescription{
+const BitFieldDescription debugLenDescription = {
 	1,
 	{ "1", "2", "8", "4" },
 	{ QObject::tr("Set 1-byte length"), QObject::tr("Set 2-byte length"), QObject::tr("Set 8-byte length"), QObject::tr("Set 4-byte length") }
@@ -346,7 +346,7 @@ RegisterViewModelBase::Model *ValueField::model() const {
 
 ValueField *ValueField::bestNeighbor(std::function<bool(QPoint const &, ValueField const *, QPoint const &)> const &firstIsBetter) const {
 	ValueField *result = nullptr;
-	for (const auto neighbor : regView()->valueFields()) {
+	Q_FOREACH(const auto neighbor, regView()->valueFields()) {
 		if (neighbor->isVisible() && firstIsBetter(fieldPos(neighbor), result, fieldPos(this)))
 			result = neighbor;
 	}
@@ -893,7 +893,7 @@ QList<FieldWidget *> RegisterGroup::fields() const {
 	const auto           children = this->children();
 	QList<FieldWidget *> fields;
 	for (const auto child : children) {
-		const auto field = dynamic_cast<FieldWidget *>(child);
+		const auto field = qobject_cast<FieldWidget *>(child);
 		if (field)
 			fields.append(field);
 	}
@@ -902,8 +902,8 @@ QList<FieldWidget *> RegisterGroup::fields() const {
 
 QList<ValueField *> RegisterGroup::valueFields() const {
 	QList<ValueField *> allValues;
-	for (const auto field : fields()) {
-		const auto value = dynamic_cast<ValueField *>(field);
+	Q_FOREACH(const auto field, fields()) {
+		const auto value = qobject_cast<ValueField *>(field);
 		if (value)
 			allValues.push_back(value);
 	}
@@ -938,13 +938,15 @@ void ODBRegView::mousePressEvent(QMouseEvent *event) {
 		return;
 	}
 
-	if (event->button() == Qt::LeftButton)
-		for (const auto field : valueFields())
+	if (event->button() == Qt::LeftButton) {
+		Q_FOREACH(const auto field, valueFields()) {
 			field->unselect();
+		}
+	}
 }
 
 void ODBRegView::fieldSelected() {
-	for (const auto field : valueFields())
+	Q_FOREACH(const auto field, valueFields())
 		if (sender() != field)
 			field->unselect();
 	ensureWidgetVisible(static_cast<QWidget *>(sender()), 0, 0);
@@ -974,7 +976,7 @@ void RegisterGroup::adjustWidth() {
 
 	int widthNeeded = 0;
 
-	for (const auto field : fields()) {
+	Q_FOREACH(const auto field, fields()) {
 		const auto widthToRequire = field->pos().x() + field->width();
 		if (widthToRequire > widthNeeded)
 			widthNeeded = widthToRequire;
@@ -1043,7 +1045,7 @@ ODBRegView::ODBRegView(QString const &settingsGroup, QWidget *parent) : QScrollA
 		visibleGroupTypes = {RegisterGroupType::GPR,       RegisterGroupType::rIP,   RegisterGroupType::ExpandedEFL, RegisterGroupType::Segment, RegisterGroupType::EFL,     RegisterGroupType::FPUData, RegisterGroupType::FPUWords,
 		                     RegisterGroupType::FPULastOp, RegisterGroupType::Debug, RegisterGroupType::MMX,         RegisterGroupType::SSEData, RegisterGroupType::AVXData, RegisterGroupType::MXCSR};
 	} else {
-		for (const auto grp : groupListV.toStringList()) {
+		Q_FOREACH(const auto &grp, groupListV.toStringList()) {
 			const auto group = findGroup(grp);
 			if (group >= RegisterGroupType::NUM_GROUPS) {
 				qWarning() << qPrintable(QString("Warning: failed to understand group %1").arg(group));
@@ -1892,7 +1894,7 @@ void ODBRegView::modelReset() {
 	widget()->hide(); // prevent flicker while groups are added to/removed from the layout
 
 	// not all groups may be in the layout, so delete them individually
-	for (const auto group : groups) {
+	Q_FOREACH(const auto group, groups) {
 		if (group) {
 			group->deleteLater();
 		}
@@ -1940,11 +1942,11 @@ void ODBRegView::modelReset() {
 }
 
 void ODBRegView::modelUpdated() {
-	for (const auto field : fields()) {
+	Q_FOREACH(const auto field, fields()) {
 		field->adjustToData();
 	}
 
-	for (const auto group : groups) {
+	Q_FOREACH(const auto group, groups) {
 		if (group) {
 			group->adjustWidth();
 		}
@@ -1976,12 +1978,12 @@ QList<ValueField *> ODBRegView::valueFields() const {
 }
 
 void ODBRegView::updateFieldsPalette() {
-	for (const auto field : valueFields())
+	Q_FOREACH(const auto field, valueFields())
 		field->updatePalette();
 }
 
 ValueField *ODBRegView::selectedField() const {
-	for (const auto field : valueFields()) {
+	Q_FOREACH(const auto field, valueFields()) {
 		if (field->isSelected()) {
 			return field;
 		}
@@ -2083,7 +2085,7 @@ void SIMDValueManager::setupMenu() {
 void SIMDValueManager::updateMenu() {
 	if (menuItems.isEmpty())
 		return;
-	for (auto item : menuItems)
+	Q_FOREACH(auto item, menuItems)
 		item->setVisible(true);
 
 	using RegisterViewModelBase::Model;
@@ -2138,7 +2140,7 @@ void SIMDValueManager::displayFormatChanged() {
 		intMode = newFormat;
 	}
 
-	for (const auto elem : elements) {
+	Q_FOREACH(const auto elem, elements) {
 		elem->deleteLater();
 	}
 

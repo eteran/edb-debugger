@@ -140,6 +140,8 @@ void DialogAssembler::on_buttonBox_accepted() {
 		const QString asm_name = asm_root.attribute("name");
 		const QString asm_cmd  = asm_executable.attribute("command_line");
 		const QString asm_ext  = asm_executable.attribute("extension");
+		Q_UNUSED(asm_name);
+		
 		QString asm_code       = asm_template.text();
 
 		QStringList command_line = edb::v1::parse_command_line(asm_cmd);
