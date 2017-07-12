@@ -47,8 +47,8 @@ namespace DebuggerCorePlugin {
 namespace {
 
 struct Exception {
-    qlonglong value;
-    QString   name;
+    qlonglong         value;
+	const char *const name;
 } Exceptions[] = {
 #ifdef SIGABRT
     { SIGABRT, "SIGABRT" },
