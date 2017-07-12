@@ -128,7 +128,7 @@ void RecentFileManager::update() {
 	if(menu_) {
 		menu_->clear();
 
-		for(const auto &file: file_list_) {
+		Q_FOREACH(const auto &file, file_list_) {
 			if(QAction *const action = menu_->addAction(format_entry(file), this, SLOT(item_selected()))) {
 				action->setData(QVariant::fromValue(file));
 			}

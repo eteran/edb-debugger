@@ -382,7 +382,10 @@ bool Model::setData(QModelIndex const& index, QVariant const& data, int role)
 		auto*const regItem=checked_cast<AbstractRegisterItem>(item);
 		assert(data.isValid());
 		assert(index.isValid());
-		const auto name=index.sibling(index.row(),NAME_COLUMN).data().toString();
+		const auto name = index.sibling(index.row(),NAME_COLUMN).data().toString();
+		
+		Q_UNUSED(name);
+		
 		const auto regVal=data.value<Register>();
 		assert(name.toLower()==regVal.name().toLower());
 		ok=regItem->setValue(regVal);
@@ -1268,9 +1271,9 @@ int FPURegister<FloatType>::valueMaxLength() const
 template class FPURegister<edb::value80>;
 
 // ---------------------------- SIMDCategory impl ------------------------------
-const QString settingsMainKey="RegisterViewModelBase";
-const QString settingsFormatKey="format";
-const QString settingsSIMDSizeKey="size";
+const auto settingsMainKey     = QLatin1String("RegisterViewModelBase");
+const auto settingsFormatKey   = QLatin1String("format");
+const auto settingsSIMDSizeKey = QLatin1String("size");
 
 SIMDCategory::SIMDCategory(QString const& name, int row,
 							std::vector<NumberDisplayMode> const& validFormats)

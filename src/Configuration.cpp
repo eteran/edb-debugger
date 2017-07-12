@@ -240,7 +240,7 @@ void Configuration::writeSettings() {
 	settings.setValue("signals.show_message_box.enabled", enable_signals_message_box);
 	QVariantList temp_ignored_exceptions;
 
-    for(qlonglong exception : ignored_exceptions) {
+    Q_FOREACH(qlonglong exception, ignored_exceptions) {
         temp_ignored_exceptions.push_back(exception);
     }
 	

@@ -60,7 +60,7 @@ void MemoryRegions::sync() {
 	if(edb::v1::debugger_core) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 			regions = process->regions();
-			for(const std::shared_ptr<IRegion> &region: regions) {
+			Q_FOREACH(const std::shared_ptr<IRegion> &region, regions) {
 				// if the region has a name, is mapped starting
 				// at the beginning of the file, and is executable, sounds
 				// like a module mapping!

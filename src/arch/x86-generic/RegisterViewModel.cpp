@@ -78,26 +78,25 @@ using SSEReg=RegisterViewModelBase::SIMDRegister<edb::value128>;
 using AVXReg=RegisterViewModelBase::SIMDRegister<edb::value256>;
 using MXCSR=RegisterViewModelBase::FlagsRegister<edb::value32>;
 
-std::vector<RegisterViewModelBase::BitFieldDescription> flagsDescription=
-{
-	{"CF",0, 1},
-	{"PF",2, 1},
-	{"AF",4, 1},
-	{"ZF",6, 1},
-	{"SF",7, 1},
-	{"TF",8, 1},
-	{"IF",9, 1},
-	{"DF",10,1},
-	{"OF",11,1},
+std::vector<RegisterViewModelBase::BitFieldDescription> flagsDescription = {
+	{QLatin1String("CF"),0, 1},
+	{QLatin1String("PF"),2, 1},
+	{QLatin1String("AF"),4, 1},
+	{QLatin1String("ZF"),6, 1},
+	{QLatin1String("SF"),7, 1},
+	{QLatin1String("TF"),8, 1},
+	{QLatin1String("IF"),9, 1},
+	{QLatin1String("DF"),10,1},
+	{QLatin1String("OF"),11,1},
 // these commented out system flags are always zeroed by the kernel before giving out to debugger
-//	{"IOPL",12,2},
-//	{"NT",14,1},
-	{"RF",16,1}, // is debugger-visibly set on e.g. CLI instruction segfault
-//	{"VM",17,1},
-	{"AC",18,1}, // this one can be set by the application and is visible to debugger
-//	{"VIF",19,1},
-//	{"VIP",20,1},
-	{"ID",21,1} // this one can be set by the application and is visible to debugger
+//	{QLatin1String("IOPL"),12,2},
+//	{QLatin1String("NT"),14,1},
+	{QLatin1String("RF"),16,1}, // is debugger-visibly set on e.g. CLI instruction segfault
+//	{QLatin1String("VM"),17,1},
+	{QLatin1String("AC"),18,1}, // this one can be set by the application and is visible to debugger
+//	{QLatin1String("VIF"),19,1},
+//	{QLatin1String("VIP"),20,1},
+	{QLatin1String("ID"),21,1} // this one can be set by the application and is visible to debugger
 };
 
 static const std::vector<QString> roundingStrings{QObject::tr("Rounding to nearest"),
@@ -105,74 +104,76 @@ static const std::vector<QString> roundingStrings{QObject::tr("Rounding to neare
 												  QObject::tr("Rounding up"),
 												  QObject::tr("Rounding toward zero")};
 
-std::vector<RegisterViewModelBase::BitFieldDescription> FCRDescription=
-{
-	{"IM",0, 1},
-	{"DM",1, 1},
-	{"ZM",2, 1},
-	{"OM",3, 1},
-	{"UM",4, 1},
-	{"PM",5, 1},
-	{"PC",8, 2,{QObject::tr("Single precision (24 bit complete mantissa)"),
-				QString(),
-				QObject::tr("Double precision (53 bit complete mantissa)"),
-				QObject::tr("Extended precision (64 bit mantissa)")}},
-	{"RC",10,2,roundingStrings},
-	{"X" ,12,1}
+std::vector<RegisterViewModelBase::BitFieldDescription> FCRDescription = {
+	{QLatin1String("IM"), 0, 1},
+	{QLatin1String("DM"), 1, 1},
+	{QLatin1String("ZM"), 2, 1},
+	{QLatin1String("OM"), 3, 1},
+	{QLatin1String("UM"), 4, 1},
+	{QLatin1String("PM"), 5, 1},
+	{QLatin1String("PC"), 8, 2, {
+		QObject::tr("Single precision (24 bit complete mantissa)"),
+		QString(),
+		QObject::tr("Double precision (53 bit complete mantissa)"),
+		QObject::tr("Extended precision (64 bit mantissa)")
+	}},
+	{QLatin1String("RC"), 10, 2, roundingStrings},
+	{QLatin1String("X") , 12, 1}
 };
 
-std::vector<RegisterViewModelBase::BitFieldDescription> FSRDescription=
-{
-	{"IE" ,0, 1},
-	{"DE" ,1, 1},
-	{"ZE" ,2, 1},
-	{"OE" ,3, 1},
-	{"UE" ,4, 1},
-	{"PE" ,5, 1},
-	{"SF" ,6, 1},
-	{"ES" ,7, 1},
-	{"C0" ,8, 1},
-	{"C1" ,9, 1},
-	{"C2" ,10,1},
-	{"TOP",11,3},
-	{"C3" ,14,1},
-	{"B"  ,15,1}
+std::vector<RegisterViewModelBase::BitFieldDescription> FSRDescription = {
+	{QLatin1String("IE") ,0, 1},
+	{QLatin1String("DE") ,1, 1},
+	{QLatin1String("ZE") ,2, 1},
+	{QLatin1String("OE") ,3, 1},
+	{QLatin1String("UE") ,4, 1},
+	{QLatin1String("PE") ,5, 1},
+	{QLatin1String("SF") ,6, 1},
+	{QLatin1String("ES") ,7, 1},
+	{QLatin1String("C0") ,8, 1},
+	{QLatin1String("C1") ,9, 1},
+	{QLatin1String("C2") ,10,1},
+	{QLatin1String("TOP"),11,3},
+	{QLatin1String("C3") ,14,1},
+	{QLatin1String("B")  ,15,1}
 };
 
-static const std::vector<QString> tagStrings{QObject::tr("Valid"),
-											 QObject::tr("Zero"),
-											 QObject::tr("Special"),
-											 QObject::tr("Empty")};
+static const std::vector<QString> tagStrings = {
+	QObject::tr("Valid"),
+	QObject::tr("Zero"),
+	QObject::tr("Special"),
+	QObject::tr("Empty")
+};
 
 std::vector<RegisterViewModelBase::BitFieldDescription> FTRDescription=
 {
-	{"T0",0, 2,tagStrings},
-	{"T1",2, 2,tagStrings},
-	{"T2",4, 2,tagStrings},
-	{"T3",6, 2,tagStrings},
-	{"T4",8, 2,tagStrings},
-	{"T5",10,2,tagStrings},
-	{"T6",12,2,tagStrings},
-	{"T7",14,2,tagStrings}
+	{QLatin1String("T0"), 0, 2, tagStrings},
+	{QLatin1String("T1"), 2, 2, tagStrings},
+	{QLatin1String("T2"), 4, 2, tagStrings},
+	{QLatin1String("T3"), 6, 2, tagStrings},
+	{QLatin1String("T4"), 8, 2, tagStrings},
+	{QLatin1String("T5"), 10,2, tagStrings},
+	{QLatin1String("T6"), 12,2, tagStrings},
+	{QLatin1String("T7"), 14,2, tagStrings}
 };
 
 std::vector<RegisterViewModelBase::BitFieldDescription> MXCSRDescription=
 {
-	{"IE" ,0,1},
-	{"DE" ,1,1},
-	{"ZE" ,2,1},
-	{"OE" ,3,1},
-	{"UE" ,4,1},
-	{"PE" ,5,1},
-	{"DAZ",6,1},
-	{"IM", 7,1},
-	{"DM", 8,1},
-	{"ZM", 9,1},
-	{"OM",10,1},
-	{"UM",11,1},
-	{"PM",12,1},
-	{"RC",13,2,roundingStrings},
-	{"FZ",15,1}
+	{QLatin1String("IE") , 0, 1},
+	{QLatin1String("DE") , 1, 1},
+	{QLatin1String("ZE") , 2, 1},
+	{QLatin1String("OE") , 3, 1},
+	{QLatin1String("UE") , 4, 1},
+	{QLatin1String("PE") , 5, 1},
+	{QLatin1String("DAZ"), 6, 1},
+	{QLatin1String("IM") , 7, 1},
+	{QLatin1String("DM") , 8, 1},
+	{QLatin1String("ZM") , 9, 1},
+	{QLatin1String("OM") ,10, 1},
+	{QLatin1String("UM") ,11, 1},
+	{QLatin1String("PM") ,12, 1},
+	{QLatin1String("RC") ,13, 2, roundingStrings},
+	{QLatin1String("FZ") ,15, 1}
 };
 
 std::vector<RegisterViewModelBase::BitFieldDescription> DR6Description=
@@ -199,26 +200,26 @@ static const std::vector<QString> DR7_LEN{QObject::tr("1 byte"),
 
 std::vector<RegisterViewModelBase::BitFieldDescription> DR7Description=
 {
-	{"L0",   0,1},
-	{"G0",   1,1},
-	{"L1",   2,1},
-	{"G1",   3,1},
-	{"L2",   4,1},
-	{"G2",   5,1},
-	{"L3",   6,1},
-	{"G3",   7,1},
-	{"LE",   8,1},
-	{"GE",   9,1},
-	{"RTM", 11,1},
-	{"GD",  13,1},
-	{"R/W0",16,2,DR7_RW},
-	{"LEN0",18,2,DR7_LEN},
-	{"R/W1",20,2,DR7_RW},
-	{"LEN1",22,2,DR7_LEN},
-	{"R/W2",24,2,DR7_RW},
-	{"LEN2",26,2,DR7_LEN},
-	{"R/W3",28,2,DR7_RW},
-	{"LEN3",30,2,DR7_LEN}
+	{QLatin1String("L0"),   0,1},
+	{QLatin1String("G0"),   1,1},
+	{QLatin1String("L1"),   2,1},
+	{QLatin1String("G1"),   3,1},
+	{QLatin1String("L2"),   4,1},
+	{QLatin1String("G2"),   5,1},
+	{QLatin1String("L3"),   6,1},
+	{QLatin1String("G3"),   7,1},
+	{QLatin1String("LE"),   8,1},
+	{QLatin1String("GE"),   9,1},
+	{QLatin1String("RTM"), 11,1},
+	{QLatin1String("GD"),  13,1},
+	{QLatin1String("R/W0"),16,2,DR7_RW},
+	{QLatin1String("LEN0"),18,2,DR7_LEN},
+	{QLatin1String("R/W1"),20,2,DR7_RW},
+	{QLatin1String("LEN1"),22,2,DR7_LEN},
+	{QLatin1String("R/W2"),24,2,DR7_RW},
+	{QLatin1String("LEN2"),26,2,DR7_LEN},
+	{QLatin1String("R/W3"),28,2,DR7_RW},
+	{QLatin1String("LEN3"),30,2,DR7_LEN}
 };
 
 }
@@ -299,13 +300,18 @@ void addDebugRegs(RegisterViewModelBase::Category* dbgRegs)
 	dbgRegs->addRegister(make_unique<typename Rs::FLAGS>(QString("DR7"),DR7Description));
 }
 
-static const std::vector<NumberDisplayMode> MMXFormats{NumberDisplayMode::Hex,
-													   NumberDisplayMode::Signed,
-													   NumberDisplayMode::Unsigned};
-static const std::vector<NumberDisplayMode> SSEAVXFormats{NumberDisplayMode::Hex,
-														  NumberDisplayMode::Signed,
-														  NumberDisplayMode::Unsigned,
-														  NumberDisplayMode::Float};
+static const std::vector<NumberDisplayMode> MMXFormats = {
+	NumberDisplayMode::Hex,
+	NumberDisplayMode::Signed,
+	NumberDisplayMode::Unsigned
+};
+
+static const std::vector<NumberDisplayMode> SSEAVXFormats = {
+	NumberDisplayMode::Hex,
+	NumberDisplayMode::Signed,
+	NumberDisplayMode::Unsigned,
+	NumberDisplayMode::Float
+};
 
 void addMMXRegs(RegisterViewModelBase::SIMDCategory* mmxRegs)
 {

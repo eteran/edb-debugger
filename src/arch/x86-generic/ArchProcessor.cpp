@@ -291,7 +291,6 @@ QString format_char(int pointer_level, edb::address_t arg, QChar type) {
 // Desc:
 //------------------------------------------------------------------------------
 QString format_argument(const QString &type, const Register& arg) {
-	QString param_text;
 
 	int pointer_level = 0;
 	for(QChar ch: type) {
@@ -467,16 +466,16 @@ bool is_jcc_taken(const State &state, edb::Instruction::ConditionCode cond) {
 	return is_jcc_taken(state.flags(),cond);
 }
 
-static QString jumpConditionMnemonics[]={
-										 "O", "NO",
-										 "B", "AE",
-										 "E", "NE",
-										 "BE", "A",
-										 "S", "NS",
-										 "P", "NP",
-										 "L", "GE",
-										 "LE", "G"
-										 };
+static QLatin1String jumpConditionMnemonics[] = {
+	QLatin1String("O"),  QLatin1String("NO"),
+	QLatin1String("B"),  QLatin1String("AE"),
+	QLatin1String("E"),  QLatin1String("NE"),
+	QLatin1String("BE"), QLatin1String("A"),
+	QLatin1String("S"),  QLatin1String("NS"),
+	QLatin1String("P"),  QLatin1String("NP"),
+	QLatin1String("L"),  QLatin1String("GE"),
+	QLatin1String("LE"), QLatin1String("G")
+};
 
 //------------------------------------------------------------------------------
 // Name: analyze_cmov
@@ -548,7 +547,7 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 			const edb::address_t effective_address = get_effective_address(inst, operand, state,ok);
 			if(!ok) return;
 			const QString temp_operand             = QString::fromStdString(edb::v1::formatter().to_string(operand));
-			QString temp;
+
 
 			if(is_relative(operand)) {
 				int offset;
@@ -872,9 +871,8 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 
 		QXmlQuery query;
-		QString res;
 		query.setFocus(&file);
-		const QString arch=debuggeeIs64Bit() ? "x86-64" : "x86";
+		const QString arch = debuggeeIs64Bit() ? "x86-64" : "x86";
 		query.setQuery(QString("syscalls[@version='1.0']/linux[@arch='"+arch+"']/syscall[index=%1]").arg(regAX));
 		if (query.isValid()) {
 			query.evaluateTo(&syscall_entry);
@@ -1186,11 +1184,10 @@ void updateSSEAVXRegs(RegisterViewModel& model, const State& state, bool hasSSE,
 // Desc:
 //------------------------------------------------------------------------------
 void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
-	const QPalette palette = QApplication::palette();
 
-	auto& model=getModel();
+	auto& model = getModel();
 
-	const auto ip=state.instruction_pointer_register();
+	const auto ip = state.instruction_pointer_register();
 
 	if(!ip) {
 		model.setCPUMode(RegisterViewModel::CPUMode::UNKNOWN);
@@ -1198,8 +1195,8 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	}
 	// FIXME: this function will crash for 32-bit process, jumped to 64-bit segment, if EDB
 	// doesn't find a way to get full 64-bit state for such process
-	const bool is64Bit=ip.bitSize()==64;
-	Q_ASSERT(is64Bit || ip.bitSize()==32);
+	const bool is64Bit = (ip.bitSize() == 64);
+	Q_ASSERT(is64Bit || ip.bitSize() == 32);
 
 	model.setCPUMode(is64Bit ? RegisterViewModel::CPUMode::AMD64 : RegisterViewModel::CPUMode::IA32);
 	updateGPRs(model,state,is64Bit);

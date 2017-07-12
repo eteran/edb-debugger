@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 FixedFontSelector::FixedFontSelector(QWidget *parent) : QWidget(parent) {
 	ui.setupUi(this);
 
-	for(int size: QFontDatabase::standardSizes()) {
+	Q_FOREACH(int size, QFontDatabase::standardSizes()) {
 		ui.fontSize->addItem(QString("%1").arg(size), size);
 	}
 }

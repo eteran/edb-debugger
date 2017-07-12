@@ -53,7 +53,7 @@ void load_plugins(const QString &directory) {
 	//               running from the build directory without further config
 	plugins_dir.cd(directory);
 
-	for(const QString &file_name: plugins_dir.entryList(QDir::Files)) {
+	Q_FOREACH(const QString &file_name, plugins_dir.entryList(QDir::Files)) {
 		if(QLibrary::isLibrary(file_name)) {
 			const QString full_path = plugins_dir.absoluteFilePath(file_name);
 			QPluginLoader loader(full_path);

@@ -96,8 +96,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace {
 
 
-const int     SessionFileVersion  = 1;
-const QString SessionFileIdString = "edb-session";
+const int  SessionFileVersion  = 1;
+const auto SessionFileIdString = QLatin1String("edb-session");
 
 const quint64 initial_bp_tag    = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
 const quint64 stepover_bp_tag   = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
@@ -1097,7 +1097,7 @@ void Debugger::apply_default_fonts() {
 	}
 
 	if(font.fromString(config.data_font)) {
-		for(const std::shared_ptr<DataViewInfo> &data_view: data_regions_) {
+		Q_FOREACH(const std::shared_ptr<DataViewInfo> &data_view, data_regions_) {
 			data_view->view->setFont(font);
 		}
 	}
@@ -1233,7 +1233,7 @@ void Debugger::apply_default_show_separator() {
 
 	ui.cpuView->setShowAddressSeparator(show);
 	stack_view_->setShowAddressSeparator(show);
-	for(const std::shared_ptr<DataViewInfo> &data_view: data_regions_) {
+	Q_FOREACH(const std::shared_ptr<DataViewInfo> &data_view, data_regions_) {
 		data_view->view->setShowAddressSeparator(show);
 	}
 }
@@ -2462,7 +2462,7 @@ std::shared_ptr<IRegion> Debugger::update_cpu_view(const State &state) {
 void Debugger::update_data_views() {
 
 	// update all data views with the current region data
-	for(const std::shared_ptr<DataViewInfo> &info: data_regions_) {
+	Q_FOREACH(const std::shared_ptr<DataViewInfo> &info, data_regions_) {
 
 		// make sure the regions are still valid..
 		if(info->region && edb::v1::memory_regions().find_region(info->region->start())) {
@@ -2482,7 +2482,7 @@ void Debugger::refresh_gui() {
 	ui.cpuView->update();
 	stack_view_->update();
 
-	for(const std::shared_ptr<DataViewInfo> &info: data_regions_) {
+	Q_FOREACH(const std::shared_ptr<DataViewInfo> &info, data_regions_) {
 		info->view->update();
 	}
 
@@ -2923,12 +2923,12 @@ void Debugger::setup_data_views() {
 	// Setup data views according to debuggee bitness
 	if(edb::v1::debuggeeIs64Bit()) {
 		stack_view_->setAddressSize(QHexView::Address64);
-		for(const std::shared_ptr<DataViewInfo> &data_view: data_regions_) {
+		Q_FOREACH(const std::shared_ptr<DataViewInfo> &data_view, data_regions_) {
 			data_view->view->setAddressSize(QHexView::Address64);
 		}
 	} else {
 		stack_view_->setAddressSize(QHexView::Address32);
-		for(const std::shared_ptr<DataViewInfo> &data_view: data_regions_) {
+		Q_FOREACH(const std::shared_ptr<DataViewInfo> &data_view, data_regions_) {
 			data_view->view->setAddressSize(QHexView::Address32);
 		}
 	}
@@ -3497,6 +3497,8 @@ void Debugger::load_session(const QString &session_file) {
 		QString id  = session_data["id"].toString();
 		QString ts  = session_data["timestamp"].toString();
 		int version = session_data["version"].toInt();
+		
+		Q_UNUSED(ts);
 
 		if(id != SessionFileIdString || version > SessionFileVersion) {
 			QMessageBox::warning(
