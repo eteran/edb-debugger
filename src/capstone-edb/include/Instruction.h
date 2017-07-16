@@ -118,22 +118,7 @@ class Instruction
 	friend class Operand;
 public:
 	using Operation = Capstone::x86_insn;
-	enum Prefix {
-		PREFIX_NONE             = 0x00000000,
-		PREFIX_LOCK             = 0x00000001,
-		PREFIX_REPNE            = 0x00000002,
-		PREFIX_REP              = 0x00000004,
 
-		PREFIX_CS               = 0x00000100,
-		PREFIX_SS               = 0x00000200,
-		PREFIX_DS               = 0x00000400,
-		PREFIX_ES               = 0x00000800,
-		PREFIX_FS               = 0x00001000,
-		PREFIX_GS               = 0x00002000,
-
-		PREFIX_OPERAND          = 0x00010000,
-		PREFIX_ADDRESS          = 0x01000000
-	};
 	typedef Operand operand_type;
 public:
 	static constexpr std::size_t MAX_SIZE=15;
@@ -157,7 +142,6 @@ public:
 	std::size_t size() const                 { return insn_.size; }
 	uint64_t rva() const                     { return insn_.address; }
 	std::string mnemonic() const;
-	uint32_t prefix() const                  { return prefix_; }
 	Capstone::cs_insn const& cs_insn() const { return insn_; }
 
 	enum ConditionCode : uint8_t {
@@ -228,10 +212,7 @@ private:
 	Capstone::cs_detail detail_;
 	bool valid_        = false;
 	uint8_t firstByte_ = 0;
-	uint32_t prefix_   = 0;
 	std::vector<Operand> operands_;
-
-	void fillPrefix();
 };
 
 class Formatter

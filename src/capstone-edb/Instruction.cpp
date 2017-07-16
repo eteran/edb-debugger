@@ -86,47 +86,12 @@ Operand::Operand(Instruction* instr, std::size_t numberInInstruction) : owner_(i
 
 }
 
-void Instruction::fillPrefix()
-{
-	// FIXME: Capstone seems to be unable to correctly report prefixes for
-	// instructions like F0 F3 2E 3E 75 fa, where e.g. F0 and F3 are put
-	// in the same slot, the same for 2E and 3E in this example.
-	const auto& prefixes=detail_.x86.prefix;
-
-	if(prefixes[0]==Capstone::X86_PREFIX_LOCK)
-		prefix_|=PREFIX_LOCK;
-	if(prefixes[0]==Capstone::X86_PREFIX_REP)
-		prefix_|=PREFIX_REP;
-	if(prefixes[0]==Capstone::X86_PREFIX_REPNE)
-		prefix_|=PREFIX_REPNE;
-
-	if(prefixes[1]==Capstone::X86_PREFIX_ES)
-		prefix_|=PREFIX_ES;
-	if(prefixes[1]==Capstone::X86_PREFIX_CS)
-		prefix_|=PREFIX_CS;
-	if(prefixes[1]==Capstone::X86_PREFIX_SS)
-		prefix_|=PREFIX_SS;
-	if(prefixes[1]==Capstone::X86_PREFIX_DS)
-		prefix_|=PREFIX_DS;
-	if(prefixes[1]==Capstone::X86_PREFIX_FS)
-		prefix_|=PREFIX_FS;
-	if(prefixes[1]==Capstone::X86_PREFIX_GS)
-		prefix_|=PREFIX_GS;
-
-	if(prefixes[2]==Capstone::X86_PREFIX_OPSIZE)
-		prefix_|=PREFIX_OPERAND;
-	if(prefixes[3]==Capstone::X86_PREFIX_ADDRSIZE)
-		prefix_|=PREFIX_ADDRESS;
-
-}
-
 Instruction& Instruction::operator=(const Instruction& other)
 {
 	insn_      = other.insn_;
 	detail_    = other.detail_;
 	valid_     = other.valid_;
 	firstByte_ = other.firstByte_;
-	prefix_    = other.prefix_;
 	operands_  = other.operands_;
 
 	// Update pointer after replacement
@@ -201,7 +166,6 @@ Instruction::Instruction(const void* first, const void* last, uint64_t rva) noex
 		insn_.detail=&detail_;
 		Capstone::cs_free(insn,1);
 
-		fillPrefix();
 		Capstone::cs_x86_op* ops=insn_.detail->x86.operands;
 
 
