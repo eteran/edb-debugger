@@ -1322,4 +1322,10 @@ bool Operand::is_relative() const {
 	return false;
 }
 
+bool is_repeat(const CapstoneEDB::Instruction &insn) {
+
+	const auto& prefixes = insn.cs_insn().detail->x86.prefix;
+	return (prefixes[0] == Capstone::X86_PREFIX_REP || prefixes[0] == Capstone::X86_PREFIX_REPNE);
+}
+
 }

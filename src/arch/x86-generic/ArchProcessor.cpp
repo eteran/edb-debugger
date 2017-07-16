@@ -1368,7 +1368,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 // Desc:
 //------------------------------------------------------------------------------
 bool ArchProcessor::can_step_over(const edb::Instruction &inst) const {
-	return inst && (is_call(inst) || (inst.prefix() & (edb::Instruction::PREFIX_REPNE | edb::Instruction::PREFIX_REP)));
+	return inst && (is_call(inst) || is_repeat(inst));
 }
 
 //------------------------------------------------------------------------------

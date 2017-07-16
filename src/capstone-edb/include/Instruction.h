@@ -309,6 +309,8 @@ inline bool is_relative(const CapstoneEDB::Operand &operand) {
 	return operand.is_relative();
 }
 
+
+bool is_repeat(const CapstoneEDB::Instruction &insn);
 }
 
 
