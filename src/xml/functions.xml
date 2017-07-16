@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-we attempt to do something similar to the IA-64 name mangling system:
+	we use a broken out version of the IA-64 name mangling system:
 
 	<type>
 		::= <CV-qualifiers> <type>
@@ -11,7 +11,7 @@ we attempt to do something similar to the IA-64 name mangling system:
 		::= G <type>	# imaginary (C 2000)
 		::= U <source-name> <type>	# vendor extended type qualifier
 
-	<CV-qualifiers> ::= [r] [V] [K] #(C99), volatile, const
+	<CV-qualifiers> ::= [r] [V] [K] #(C99) restrict, volatile, const
 	<ref-qualifier> ::= R           # & ref-qualifier
 	<ref-qualifier> ::= O           # && ref-qualifier
 
@@ -50,7 +50,7 @@ we attempt to do something similar to the IA-64 name mangling system:
 
 
 Generically:
-we support "u" for "size_t" for now
+we support "uZ" for "size_t" for now
 
 For example:
 
@@ -61,7 +61,15 @@ P4FILE = "FILE *"
 -->
 <functions version="1.0">
 	<!-- assert.h -->
+	<function type="v" name="__assert_fail" noreturn="true">
+		<argument type="PKc" name="assertion" />
+		<argument type="PKc" name="file" />
+		<argument type="j" name="line" />
+		<argument type="PKc" name="function" />
+	</function>
+
 	<!-- complex.h -->
+
 	<!-- ctype.h -->
 	<function name="isalnum" type="i"><argument type="i" name="c"/></function>
 	<function name="isalpha" type="i"><argument type="i" name="c"/></function>
@@ -77,12 +85,20 @@ P4FILE = "FILE *"
 	<function name="ispunct" type="i"><argument type="i" name="c"/></function>
 	<function name="tolower" type="i"><argument type="i" name="c"/></function>
 	<function name="toupper" type="i"><argument type="i" name="c"/></function>
+
 	<!-- errno.h -->
+	<function type="Pi" name="__errno_location"></function>
+
 	<!-- fenv.h -->
+
 	<!-- float.h -->
+
 	<!-- inttypes.h -->
+
 	<!-- iso646.h -->
+
 	<!-- limits.h -->
+
 	<!-- locale.h -->
 	<function name="setlocale" type="Pc"><argument type="i" name="category"/><argument type="PKc" name="locale"/></function>
 	<function name="localeconv" type="P5lconv"></function>
@@ -200,8 +216,8 @@ P4FILE = "FILE *"
 	<function name="nextafter" type="d"><argument type="d" name="x"/><argument type="d" name="y"/></function>
 	<function name="nextafterf" type="f"><argument type="f" name="x"/><argument type="f" name="y"/></function>
 	<function name="nextafterl" type="e"><argument type="e" name="x" /><argument type="e" name="y" /></function>
-	<function name="nexttoward" type="d"><argument type="d" name="x"/><argument type="e" name="y"/></function>
-	<function name="nexttowardf" type="f"><argument type="f" name="x"/><argument type="e" name="y"/></function>
+	<function name="nexttoward" type="d"><argument type="d" name="x"/><argument type="d" name="y"/></function>
+	<function name="nexttowardf" type="f"><argument type="f" name="x"/><argument type="f" name="y"/></function>
 	<function name="nexttowardl" type="e"><argument type="e" name="x" /><argument type="e" name="y" /></function>
 	<function name="pow" type="d"><argument type="d" name="x"/><argument type="d" name="y"/></function>
 	<function name="powf" type="f"><argument type="f" name="x"/><argument type="f" name="y"/></function>
@@ -351,26 +367,26 @@ P4FILE = "FILE *"
 	-->
 
 	<!-- string.h -->
-	<function name="memchr" type="Pv"><argument type="PKv" name="s1" /><argument type="i" name="ch" /><argument type="u" name="n" /></function>
-	<function name="memcmp" type="i"><argument type="PKv" name="s1" /><argument type="PKv" name="s2" /><argument type="u" name="s3" /></function>
-	<function name="memcpy" type="Pv"><argument type="Pv" name="dest" /><argument type="PKc" name="src" /><argument type="u" name="n" /></function>
-	<function name="memmove" type="Pv"><argument type="Pv" name="dest" /><argument type="PKc" name="src" /><argument type="u" name="n" /></function>
-	<function name="memset" type="Pv"><argument type="Pv" name="dest" /><argument type="i" name="ch" /><argument type="u" name="n" /></function>
+	<function name="memchr" type="Pv"><argument type="PKv" name="s1" /><argument type="i" name="ch" /><argument type="uZ" name="n" /></function>
+	<function name="memcmp" type="i"><argument type="PKv" name="s1" /><argument type="PKv" name="s2" /><argument type="uZ" name="s3" /></function>
+	<function name="memcpy" type="Pv"><argument type="Pv" name="dest" /><argument type="PKc" name="src" /><argument type="uZ" name="n" /></function>
+	<function name="memmove" type="Pv"><argument type="Pv" name="dest" /><argument type="PKc" name="src" /><argument type="uZ" name="n" /></function>
+	<function name="memset" type="Pv"><argument type="Pv" name="dest" /><argument type="i" name="ch" /><argument type="uZ" name="n" /></function>
 	<function name="strcat" type="Pc"><argument type="Pc" name="s1" /><argument type="PKc" name="s2" /></function>
 	<function name="strchr" type="Pc"><argument type="PKc" name="s1" /><argument type="i" name="ch" /></function>
 	<function name="strcmp" type="i"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /></function>
 	<function name="strcoll" type="i"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /></function>
 	<function name="strcpy" type="Pc"><argument type="Pc" name="s1" /><argument type="PKc" name="s2" /></function>
-	<function name="strcspn" type="u"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /></function>
+	<function name="strcspn" type="uZ"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /></function>
 	<function name="strdup" type="Pc"><argument type="PKc" name="s" /></function>
 	<function name="strerror" type="Pc"><argument type="i" name="n" /></function>
-	<function name="strlen" type="u"><argument type="PKc" name="s" /></function>
-	<function name="strncat" type="Pc"><argument type="Pc" name="s1" /><argument type="PKc" name="s2" /><argument type="u" name="s3" /></function>
-	<function name="strncmp" type="i"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /><argument type="u" name="s3" /></function>
-	<function name="strncpy" type="Pc"><argument type="Pc" name="s1" /><argument type="PKc" name="s2" /><argument type="u" name="s3" /></function>
+	<function name="strlen" type="uZ"><argument type="PKc" name="s" /></function>
+	<function name="strncat" type="Pc"><argument type="Pc" name="s1" /><argument type="PKc" name="s2" /><argument type="uZ" name="s3" /></function>
+	<function name="strncmp" type="i"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /><argument type="uZ" name="s3" /></function>
+	<function name="strncpy" type="Pc"><argument type="Pc" name="s1" /><argument type="PKc" name="s2" /><argument type="uZ" name="s3" /></function>
 	<function name="strpbrk" type="Pc"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /></function>
 	<function name="strrchr" type="Pc"><argument type="PKc" name="s" /><argument type="i" name="c" /></function>
-	<function name="strspn" type="u"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /></function>
+	<function name="strspn" type="uZ"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /></function>
 	<function name="strstr" type="Pc"><argument type="PKc" name="s1" /><argument type="PKc" name="s2" /></function>
 	<function name="strtok" type="Pc"><argument type="Pc" name="s1" /><argument type="PKc" name="s2" /></function>
 	<function name="strtok_r" type="Pc"><argument type="Pc" name="s1" /><argument type="PKc" name="s2" /><argument type="PPc" name="s3" /></function>
@@ -456,13 +472,7 @@ P4FILE = "FILE *"
 		<argument type="i" name="x" />
 	</function>
 
-	<function type="v" name="__assert_fail" noreturn="true">
-		<argument type="PKc" name="assertion" />
-		<argument type="PKc" name="file" />
-		<argument type="j" name="line" />
-		<argument type="PKc" name="function" />
-	</function>
-	
+
 	<function type="v" name="__assert_fail_base" noreturn="true">
 		<argument type="PKc" name="fmt," />
 		<argument type="PKc" name="assertion" />
@@ -470,20 +480,20 @@ P4FILE = "FILE *"
 		<argument type="j" name="line" />
 		<argument type="PKc" name="function" />
 	</function>
-	
+
 	<function type="v" name="_dl_signal_error" noreturn="true">
 		<argument type="i" name="errcode," />
 		<argument type="PKc" name="objname," />
 		<argument type="PKc" name="occation," />
 		<argument type="PKc" name="errstring" />
 	</function>
-	
+
 	<function type="v" name="_dl_reloc_bad_type" noreturn="true">
 		<argument type="Pv" name="map" />
 		<argument type="j" name="type" />
 		<argument type="i" name="plt" />
 	</function>
-	
+
 	<function type="v" name="__stack_chk_fail" noreturn="true" ></function>
 
 	<function type="v" name="_dl_signal_cerror">
@@ -502,7 +512,7 @@ P4FILE = "FILE *"
 		<argument type="PFvvE" name="rtld_fini" />
 		<argument type="Pv" name="stack_end" />
 	</function>
-	
+
 	<function type="v" name="_Unwind_Resume" noreturn="true">
 		<argument type="Pv" name="object" />
 	</function>
