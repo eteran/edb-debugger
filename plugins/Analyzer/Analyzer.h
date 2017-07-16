@@ -98,6 +98,7 @@ public Q_SLOTS:
 	void goto_function_start();
 	void goto_function_end();
 	void mark_function_start();
+	void show_xrefs();
 	void show_specified();
 
 private:
@@ -110,7 +111,7 @@ private:
 
 		QByteArray                        md5;
 		bool                              fuzzy;
-		std::shared_ptr<IRegion>                  region;
+		std::shared_ptr<IRegion>          region;
 
 		// a copy of the whole region
 		QVector<quint8>                   memory;

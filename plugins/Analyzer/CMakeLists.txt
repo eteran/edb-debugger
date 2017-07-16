@@ -10,7 +10,8 @@ set(PluginName "Analyzer")
 
 set(UI_FILES
 		OptionsPage.ui
-		SpecifiedFunctions.ui)
+		SpecifiedFunctions.ui
+		DialogXRefs.ui)
 
 if(Qt5Core_FOUND)
     find_package(Qt5 5.0.0 REQUIRED Widgets Concurrent)
@@ -32,6 +33,8 @@ add_library(${PluginName} SHARED
 	AnalyzerWidget.cpp
 	OptionsPage.cpp
 	SpecifiedFunctions.cpp
+	DialogXRefs.cpp
+	DialogXRefs.h
 	${UI_H}
 )
 

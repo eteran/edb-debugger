@@ -32,7 +32,7 @@ BasicBlock::BasicBlock() {
 //------------------------------------------------------------------------------
 // Name: BasicBlock
 //------------------------------------------------------------------------------
-BasicBlock::BasicBlock(const BasicBlock &other) : instructions_(other.instructions_) {
+BasicBlock::BasicBlock(const BasicBlock &other) : instructions_(other.instructions_), refs_(other.refs_) {
 
 }
 
@@ -49,6 +49,7 @@ BasicBlock &BasicBlock::operator=(const BasicBlock &rhs) {
 //------------------------------------------------------------------------------
 void BasicBlock::swap(BasicBlock &other) {
 	qSwap(instructions_, other.instructions_);
+	qSwap(refs_, other.refs_);
 }
 
 //------------------------------------------------------------------------------
@@ -214,4 +215,13 @@ QString BasicBlock::toString() const {
 	}
 
 	return text;
+}
+
+
+void BasicBlock::addRef(edb::address_t refsite, edb::address_t target) {
+	refs_.push_back(qMakePair(refsite, target));
+}
+
+QVector<QPair<edb::address_t, edb::address_t>> BasicBlock::refs() const {
+	return refs_;
 }

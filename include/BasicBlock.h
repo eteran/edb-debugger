@@ -48,6 +48,10 @@ public:
 
 public:
 	void push_back(const instruction_pointer &inst);
+	void addRef(edb::address_t refsite, edb::address_t target);
+	
+public:
+	QVector<QPair<edb::address_t, edb::address_t>> refs() const;
 
 public:
 	reference operator[](size_type pos);
@@ -84,7 +88,8 @@ public:
 	edb::address_t lastAddress() const;
 
 private:
-	QVector<instruction_pointer> instructions_;
+	QVector<instruction_pointer>                   instructions_;
+	QVector<QPair<edb::address_t, edb::address_t>> refs_;
 };
 
 #endif

@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Analyzer.h"
 #include "AnalyzerWidget.h"
 #include "Configuration.h"
+#include "DialogXRefs.h"
 #include "Function.h"
 #include "IBinary.h"
 #include "IDebugger.h"
@@ -193,10 +194,36 @@ void Analyzer::mark_function_start() {
 
 	const edb::address_t address = edb::v1::cpu_selected_address();
 	if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().find_region(address)) {
-		qDebug("Added %s to the list of known functions",qPrintable(address.toPointerString()));
+		qDebug("Added %s to the list of known functions", qPrintable(address.toPointerString()));
 		specified_functions_.insert(address);
 		invalidate_dynamic_analysis(region);
 	}
+}
+
+//------------------------------------------------------------------------------
+// Name: mark_function_start
+// Desc:
+//------------------------------------------------------------------------------
+void Analyzer::show_xrefs() {
+
+	const edb::address_t address = edb::v1::cpu_selected_address();
+	
+	auto dialog = new DialogXRefs(edb::v1::debugger_ui);
+	
+	for(const RegionData &data : analysis_info_) {
+		for(const BasicBlock &bb : data.basic_blocks) {	
+			QVector<QPair<edb::address_t, edb::address_t>> refs = bb.refs();
+			for(auto it = refs.begin(); it != refs.end(); ++it) {
+			
+				if(it->second == address) {					
+					dialog->addReference(*it);
+				}	
+			}
+		}
+	}
+	
+	dialog->setWindowTitle(tr("X-Refs For %1").arg(address.toPointerString()));
+	dialog->show();
 }
 
 //------------------------------------------------------------------------------
@@ -251,12 +278,15 @@ QList<QAction *> Analyzer::cpu_context_menu() {
 	auto action_goto_function_start = new QAction(tr("Goto Function Start"), this);
 	auto action_goto_function_end   = new QAction(tr("Goto Function End"), this);
 	auto action_mark_function_start = new QAction(tr("Mark As Function Start"), this);
+	auto action_xrefs               = new QAction(tr("Show X-Refs"), this);
 
-	connect(action_find, SIGNAL(triggered()), this, SLOT(do_view_analysis()));
+	connect(action_find, SIGNAL(triggered()),                this, SLOT(do_view_analysis()));
 	connect(action_goto_function_start, SIGNAL(triggered()), this, SLOT(goto_function_start()));
 	connect(action_goto_function_end, SIGNAL(triggered()),   this, SLOT(goto_function_end()));
 	connect(action_mark_function_start, SIGNAL(triggered()), this, SLOT(mark_function_start()));
-	ret << action_find << action_goto_function_start << action_goto_function_end << action_mark_function_start;
+	connect(action_xrefs, SIGNAL(triggered()),               this, SLOT(show_xrefs()));
+	
+	ret << action_find << action_goto_function_start << action_goto_function_end << action_mark_function_start << action_xrefs;
 
 	return ret;
 }
@@ -460,6 +490,9 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 									if(!will_return(ea)) {
 										break;
 									}
+									
+									block.addRef(address, ea);
+									
 								}
 							} else if(is_expression(op)) {
 								// looks like: "call [...]", if it is of the form, call [C + REG]
@@ -491,6 +524,8 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 								} else {
 									blocks.push(ea);
 								}
+								
+								block.addRef(address, ea);
 							}
 							break;
 						} else if(is_conditional_jump(inst)) {
@@ -499,8 +534,13 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							const edb::Operand &op = inst.operand(0);
 
 							if(is_immediate(op)) {
-								blocks.push(op.immediate());
+							
+								const edb::address_t ea = op.immediate();
+							
+								blocks.push(ea);
 								blocks.push(address + inst.size());
+								
+								block.addRef(address, ea);
 							}
 							break;
 						} else if(is_terminator(inst)) {
