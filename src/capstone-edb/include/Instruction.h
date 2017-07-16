@@ -55,7 +55,6 @@ public:
 		TYPE_INVALID       = 0x00000000,
 		TYPE_REGISTER      = 0x00000100,
 		TYPE_IMMEDIATE     = 0x00000200,
-		TYPE_REL           = 0x00000300,
 		TYPE_EXPRESSION    = 0x00000400,
 	};
 
@@ -90,6 +89,8 @@ public:
 	bool is_SIMD_PD(const Instruction &inst) const;
 	bool is_SIMD_SS(const Instruction &inst) const;
 	bool is_SIMD_SD(const Instruction &inst) const;
+	
+	bool is_relative() const;
 
 private:
 	bool apriori_not_simd(const Instruction &inst) const;
@@ -116,7 +117,7 @@ class Instruction
 {
 	friend class Operand;
 public:
-	using Operation=Capstone::x86_insn;
+	using Operation = Capstone::x86_insn;
 	enum Prefix {
 		PREFIX_NONE             = 0x00000000,
 		PREFIX_LOCK             = 0x00000001,
@@ -140,6 +141,8 @@ public:
 
 public:
 	Instruction(const void* first, const void* end, uint64_t rva) noexcept;
+
+public:
 	Instruction(const Instruction&);
 	Instruction& operator=(const Instruction&);
 
@@ -303,7 +306,7 @@ inline bool is_immediate(const CapstoneEDB::Operand &operand) {
 }
 
 inline bool is_relative(const CapstoneEDB::Operand &operand) {
-	return operand.type() == Operand::TYPE_REL;
+	return operand.is_relative();
 }
 
 }
