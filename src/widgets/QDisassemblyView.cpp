@@ -284,8 +284,8 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 						return;
 					}
 					const edb::Operand &oper = inst.operand(0);
-					if(is_relative(oper)) {
-						const edb::address_t target = oper.relative_target();
+					if(is_immediate(oper)) {
+						const edb::address_t target = oper.immediate();
 						edb::v1::jump_to_address(target);
 					}
 				}
@@ -631,12 +631,12 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
     if(is_call(inst) || is_jump(inst)) {
         if(inst.operand_count() == 1) {
             const edb::Operand &oper = inst.operand(0);
-            if(is_relative(oper)) {
+            if(is_immediate(oper)) {
 
                 const bool showSymbolicAddresses=edb::v1::config().show_symbolic_addresses;
 
                 static const QRegExp addrPattern(QLatin1String("0x[0-9a-fA-F]+"));
-                const edb::address_t target = oper.relative_target();
+                const edb::address_t target = oper.immediate();
 
                 const bool showLocalModuleNames=edb::v1::config().show_local_module_name_in_jump_targets;
                 const bool prefixed=showLocalModuleNames || !targetIsLocal(target,inst.rva());
@@ -1106,8 +1106,8 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 		auto painter_lambda = [&](const edb::Instruction &inst, int line) {
 			// for relative jumps draw the jump direction indicators
-			if(is_jump(inst) && is_relative(inst.operand(0))) {
-				const edb::address_t target = inst.operand(0).relative_target();
+			if(is_jump(inst) && is_immediate(inst.operand(0))) {
+				const edb::address_t target = inst.operand(0).immediate();
 
 				if(target != inst.rva()) {
 					painter.drawText(
@@ -1252,8 +1252,8 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 				for (unsigned int op_idx = 0; op_idx < op_count; op_idx++) {
 					auto oper = inst.operand(op_idx);
 					edb::address_t ascii_address = 0;
-					if (is_relative(oper) || is_immediate(oper)) {
-						ascii_address = oper.relative_target();
+					if (is_immediate(oper)) {
+						ascii_address = oper.immediate();
 					} else if (
 						is_expression(oper) &&
 						oper.expression().index == edb::Operand::Register::X86_REG_INVALID &&

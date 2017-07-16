@@ -246,8 +246,8 @@ void DialogFunctions::on_btnGraph_clicked() {
 
 								// TODO: we need some heuristic for detecting when this is
 								//       a call/ret -> jmp optimization
-								if(is_relative(op)) {
-									const edb::address_t ea = op.relative_target();
+								if(is_immediate(op)) {
+									const edb::address_t ea = op.immediate();
 
 									auto from = nodes.find(bb.firstAddress());
 									auto to = nodes.find(ea);
@@ -260,11 +260,11 @@ void DialogFunctions::on_btnGraph_clicked() {
 								Q_ASSERT(inst.operand_count() == 1);
 								const edb::Operand &op = inst.operand(0);
 
-								if(is_relative(op)) {
+								if(is_immediate(op)) {
 
 									auto from = nodes.find(bb.firstAddress());
 
-									auto to_taken = nodes.find(op.relative_target());
+									auto to_taken = nodes.find(op.immediate());
 									if(to_taken != nodes.end() && from != nodes.end()) {
 										new GraphEdge(from.value(), to_taken.value(), Qt::green);
 									}

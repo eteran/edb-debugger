@@ -1259,33 +1259,6 @@ bool Operand::is_SIMD_SD(const Instruction &inst) const
 	}
 }
 
-bool Operand::is_relative() const {
-
-	if(type() == Operand::TYPE_IMMEDIATE) {
-		/* Operands can be relative in the following cases:
-		 * all versions of loop* instruction: E0, E1, E2 (always rel8)
-		 * some unconditional jumps: EB (rel8), E9 (rel16, rel32)
-		 * all conditional jumps have relative arguments (rel8, rel16, rel32)
-		 * some call instructions: E8 (rel16, rel32)
-		 * xbegin: C7 F8 (rel16, rel32)
-		 */
-		 
-		auto operation = owner_->operation();
-		auto &insn     = owner_->cs_insn();
-		 
-		if(operation == Capstone::X86_INS_LOOP   ||
-		   operation == Capstone::X86_INS_LOOPE  ||
-		   operation == Capstone::X86_INS_LOOPNE ||
-		   operation == Capstone::X86_INS_XBEGIN ||
-		   owner_->is_conditional_jump() || 
-		   (((operation == Capstone::X86_INS_JMP || operation == Capstone::X86_INS_CALL) && (insn.detail->x86.opcode[0] == 0xEB || insn.detail->x86.opcode[0] == 0xE9 || insn.detail->x86.opcode[0] == 0xE8)))) {
-			return true;
-		}
-	}
-	
-	return false;
-}
-
 bool is_repeat(const CapstoneEDB::Instruction &insn) {
 
 	const auto& prefixes = insn.cs_insn().detail->x86.prefix;

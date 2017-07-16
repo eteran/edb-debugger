@@ -1650,9 +1650,9 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 
 				if(is_call(inst) || is_jump(inst)) {
-					if(is_relative(inst.operand(0))) {
+					if(is_immediate(inst.operand(0))) {
 						menu.addAction(followAction_);
-						followAction_->setData(static_cast<qlonglong>(inst.operand(0).relative_target()));
+						followAction_->setData(static_cast<qlonglong>(inst.operand(0).immediate()));
 					}
 
 					/*

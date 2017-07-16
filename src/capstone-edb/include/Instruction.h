@@ -70,7 +70,6 @@ private:
 	Operand(Instruction* instr, std::size_t numberInInstruction);
 
 public:
-	uint64_t relative_target() const { return imm_; };
 	int32_t displacement() const     { return expr_.displacement; }
 	int64_t immediate() const        { return imm_; } // FIXME: do we really want it signed?
 	expression_t expression() const  { return expr_; }
@@ -89,8 +88,6 @@ public:
 	bool is_SIMD_PD(const Instruction &inst) const;
 	bool is_SIMD_SS(const Instruction &inst) const;
 	bool is_SIMD_SD(const Instruction &inst) const;
-	
-	bool is_relative() const;
 
 private:
 	bool apriori_not_simd(const Instruction &inst) const;
@@ -285,11 +282,6 @@ inline bool is_expression(const CapstoneEDB::Operand &operand) {
 inline bool is_immediate(const CapstoneEDB::Operand &operand) {
 	return operand.type() == Operand::TYPE_IMMEDIATE;
 }
-
-inline bool is_relative(const CapstoneEDB::Operand &operand) {
-	return operand.is_relative();
-}
-
 
 bool is_repeat(const CapstoneEDB::Instruction &insn);
 }

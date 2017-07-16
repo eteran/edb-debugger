@@ -185,10 +185,10 @@ edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Op
 				if(!segBase) return 0; // no way to reliably compute address
 				ret += segBase.valueAsAddress();
 			}
-		} else if(is_relative(op)) {
+		} else if(is_immediate(op)) {
 			const Register csBase = state["cs_base"];
 			if(!csBase) return 0; // no way to reliably compute address
-			ret = op.relative_target() + csBase.valueAsAddress();
+			ret = op.immediate() + csBase.valueAsAddress();
 		}
 	}
 
@@ -549,7 +549,7 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 			const QString temp_operand             = QString::fromStdString(edb::v1::formatter().to_string(operand));
 
 
-			if(is_relative(operand)) {
+			if(is_immediate(operand)) {
 				int offset;
 				const QString symname = edb::v1::find_function_symbol(effective_address, QString(), &offset);
 
@@ -666,7 +666,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 
 				QString temp_operand = QString::fromStdString(edb::v1::formatter().to_string(operand));
 
-				if(is_relative(operand)) {
+				if(is_immediate(operand)) {
 #if 0
 					bool ok;
 					const edb::address_t effective_address = get_effective_address(operand, state,ok);
@@ -843,8 +843,8 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 			if(is_jump(inst)) {
 				const edb::Operand &operand = inst.operand(0);
 
-				if(is_relative(operand)) {
-					const edb::address_t target = operand.relative_target();
+				if(is_immediate(operand)) {
+					const edb::address_t target = operand.immediate();
 
 					if(target == address) {
 						ret << ArchProcessor::tr("possible jump from %1").arg(edb::v1::format_pointer(addr));

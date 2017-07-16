@@ -450,8 +450,8 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							// we special case some simple things.
 							// also this is an opportunity to find call tables.
 							const edb::Operand &op = inst.operand(0);
-							if(is_relative(op)) {
-								const edb::address_t ea = op.relative_target();
+							if(is_immediate(op)) {
+								const edb::address_t ea = op.immediate();
 
 								// skip over ones which are: "call <label>; label:"
 								if(ea != address + inst.size()) {
@@ -478,10 +478,10 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							Q_ASSERT(inst.operand_count() >= 1);
 							const edb::Operand &op = inst.operand(0);
 
-							// TODO: we need some heuristic for detecting when this is
-							//       a call/ret -> jmp optimization
-							if(is_relative(op)) {
-								const edb::address_t ea = op.relative_target();
+							// TODO(eteran): we need some heuristic for detecting when this is
+							//               a call/ret -> jmp optimization
+							if(is_immediate(op)) {
+								const edb::address_t ea = op.immediate();
 
 
 								if(functions.contains(ea)) {
@@ -498,8 +498,8 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							Q_ASSERT(inst.operand_count() == 1);
 							const edb::Operand &op = inst.operand(0);
 
-							if(is_relative(op)) {
-								blocks.push(op.relative_target());
+							if(is_immediate(op)) {
+								blocks.push(op.immediate());
 								blocks.push(address + inst.size());
 							}
 							break;
@@ -571,8 +571,8 @@ void Analyzer::collect_fuzzy_functions(RegionData *data) {
 					// we special case some simple things.
 					// also this is an opportunity to find call tables.
 					const edb::Operand &op = inst.operand(0);
-					if(is_relative(op)) {
-						const edb::address_t ea = op.relative_target();
+					if(is_immediate(op)) {
+						const edb::address_t ea = op.immediate();
 
 						// skip over ones which are: "call <label>; label:"
 						if(ea != addr + inst.size()) {
