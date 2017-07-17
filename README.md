@@ -30,7 +30,11 @@ Dependency                                  | Version Required
 [Capstone](http://www.capstone-engine.org/) | >= 3.0
 [Graphviz](http://www.graphviz.org/)        | >= 2.38.0 (Optional)
 
-Many distributions already have packages that satisify these.
+Many distributions already have packages that satisify these. For example this should install the dependencies on Ubuntu:
+
+```
+$ sudo apt-get install cmake build-essential libboost-dev libqt5xmlpatterns5-dev qtbase5-dev qt5-default libqt5svg5-dev libgraphviz-dev libcapstone-dev
+```
 
 Once you have the necessary dependencies installed, there are two options for compiling:
 
