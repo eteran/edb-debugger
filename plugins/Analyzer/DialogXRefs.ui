@@ -16,7 +16,13 @@
   </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="0" column="0" colspan="2">
-    <widget class="QListWidget" name="listReferences"/>
+    <widget class="QListWidget" name="listReferences">
+     <property name="font">
+      <font>
+       <family>Monospace</family>
+      </font>
+     </property>
+    </widget>
    </item>
    <item row="1" column="1">
     <widget class="QDialogButtonBox" name="buttonBox">
