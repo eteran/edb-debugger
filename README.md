@@ -30,7 +30,11 @@ Dependency                                  | Version Required
 [Capstone](http://www.capstone-engine.org/) | >= 3.0
 [Graphviz](http://www.graphviz.org/)        | >= 2.38.0 (Optional)
 
-Many distributions already have packages that satisify these.
+Many distributions already have packages that satisify these. The wiki contains examples for some popular distributions:
+
+* https://github.com/eteran/edb-debugger/wiki/Compiling-(Fedora)
+* https://github.com/eteran/edb-debugger/wiki/Compiling-(Ubuntu)
+* https://github.com/eteran/edb-debugger/wiki/Compiling-(Debian)
 
 Once you have the necessary dependencies installed, there are two options for compiling:
 
