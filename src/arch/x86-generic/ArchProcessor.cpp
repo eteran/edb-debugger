@@ -167,6 +167,22 @@ edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Op
 
 
 			std::size_t segRegIndex = op.expression().segment;
+
+			if(segRegIndex == edb::Operand::Segment::X86_REG_INVALID && !debuggeeIs64Bit()) {
+				switch(op.expression().base) {
+				case edb::Operand::Segment::X86_REG_BP:
+				case edb::Operand::Segment::X86_REG_SP:
+				case edb::Operand::Segment::X86_REG_EBP:
+				case edb::Operand::Segment::X86_REG_ESP:
+					segRegIndex = edb::Operand::Segment::X86_REG_SS;
+					break;
+				default:
+					segRegIndex = edb::Operand::Segment::X86_REG_DS;
+					break;
+				}
+			}
+
+
 			if(segRegIndex != edb::Operand::Segment::X86_REG_INVALID) {
 
 				const Register segBase = [&segRegIndex, &state](){
