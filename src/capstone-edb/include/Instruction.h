@@ -139,7 +139,10 @@ public:
 	std::size_t size() const                 { return insn_.size; }
 	uint64_t rva() const                     { return insn_.address; }
 	std::string mnemonic() const;
-	Capstone::cs_insn const& cs_insn() const { return insn_; }
+
+	const Capstone::cs_insn &cs_insn() const              { return insn_; }
+	const Capstone::cs_x86_op &cs_operand(size_t n) const { return insn_.detail->x86.operands[n]; }
+	const Capstone::cs_x86_op *cs_operands() const        { return insn_.detail->x86.operands; }
 
 	enum ConditionCode : uint8_t {
 		CC_UNCONDITIONAL=0x10, // value must be higher than 0xF
