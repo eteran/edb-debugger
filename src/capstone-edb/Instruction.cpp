@@ -129,15 +129,6 @@ Operand Instruction::fromCapstoneOperand(Capstone::cs_x86_op *ops, int i) {
 		operand.expr_.index        = static_cast<Operand::Register>(op.mem.index);
 		operand.expr_.scale        = op.mem.scale;
 		operand.expr_.segment      = static_cast<Operand::Segment>(op.mem.segment);
-
-		if(operand.expr_.segment == Capstone::X86_REG_INVALID && !isX86_64())
-		{
-			if(operand.expr_.base==Capstone::X86_REG_BP || operand.expr_.base==Capstone::X86_REG_EBP || operand.expr_.base==Capstone::X86_REG_ESP) {
-				operand.expr_.segment = Capstone::X86_REG_DS;
-			} else {
-				operand.expr_.segment = Capstone::X86_REG_DS;
-			}
-		}
 		break;
 
 	case Capstone::X86_OP_INVALID:
