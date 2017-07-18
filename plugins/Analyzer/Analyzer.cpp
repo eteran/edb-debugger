@@ -467,24 +467,24 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							break;
 						}
 
-						const edb::Instruction inst(buffer, buffer + buf_size, address);
-						if(!inst) {
+						auto inst = std::make_shared<edb::Instruction>(buffer, buffer + buf_size, address);
+						if(!inst->valid()) {
 							break;
 						}
 
-						block.push_back(std::make_shared<edb::Instruction>(inst));
+						block.push_back(inst);
 
-						if(is_call(inst)) {
+						if(is_call(*inst)) {
 
 							// note the destination and move on
 							// we special case some simple things.
 							// also this is an opportunity to find call tables.
-							const edb::Operand &op = inst.operand(0);
+							const edb::Operand &op = inst->operand(0);
 							if(is_immediate(op)) {
 								const edb::address_t ea = op.immediate();
 
 								// skip over ones which are: "call <label>; label:"
-								if(ea != address + inst.size()) {
+								if(ea != address + inst->size()) {
 									known_functions.push(ea);
 
 									if(!will_return(ea)) {
@@ -506,10 +506,10 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							}
 
 
-						} else if(is_unconditional_jump(inst)) {
+						} else if(is_unconditional_jump(*inst)) {
 
-							Q_ASSERT(inst.operand_count() >= 1);
-							const edb::Operand &op = inst.operand(0);
+							Q_ASSERT(inst->operand_count() >= 1);
+							const edb::Operand &op = inst->operand(0);
 
 							// TODO(eteran): we need some heuristic for detecting when this is
 							//               a call/ret -> jmp optimization
@@ -528,26 +528,26 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 								block.addRef(address, ea);
 							}
 							break;
-						} else if(is_conditional_jump(inst)) {
+						} else if(is_conditional_jump(*inst)) {
 
-							Q_ASSERT(inst.operand_count() == 1);
-							const edb::Operand &op = inst.operand(0);
+							Q_ASSERT(inst->operand_count() == 1);
+							const edb::Operand &op = inst->operand(0);
 
 							if(is_immediate(op)) {
 							
 								const edb::address_t ea = op.immediate();
 							
 								blocks.push(ea);
-								blocks.push(address + inst.size());
+								blocks.push(address + inst->size());
 								
 								block.addRef(address, ea);
 							}
 							break;
-						} else if(is_terminator(inst)) {
+						} else if(is_terminator(*inst)) {
 							break;
 						}
 
-						address += inst.size();
+						address += inst->size();
 					}
 
 					if(!block.empty()) {
