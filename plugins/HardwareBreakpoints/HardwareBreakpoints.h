@@ -91,7 +91,7 @@ private:
 
 private:
 	QMenu *              menu_;
-	QDialog *            dialog_;
+	QPointer<QDialog>    dialog_;
 	IDebugEventHandler * old_event_handler_;
 
 	QLineEdit *addresses_[4];

@@ -48,7 +48,7 @@ public Q_SLOTS:
 	void show_dialog();
 
 private:
-	QDialog *dialog_;
+	QPointer<QDialog> dialog_;
 };
 
 }
