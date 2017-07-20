@@ -119,7 +119,7 @@ void DialogAssembler::set_address(edb::address_t address) {
 		edb::Instruction inst(buffer, buffer + size, address);
 		if(inst) {
 			ui->assembly->setEditText(fixupSyntax(edb::v1::formatter().to_string(inst).c_str()).simplified());
-			instruction_size_ = inst.size();
+			instruction_size_ = inst.byte_size();
 		}
 	}
 }

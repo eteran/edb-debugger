@@ -181,7 +181,7 @@ BasicBlock::const_reference BasicBlock::back() const {
 BasicBlock::size_type BasicBlock::byteSize() const {
 	size_type n = 0;
 	for(const instruction_pointer &inst: instructions_) {
-		n += inst->size();
+		n += inst->byte_size();
 	}
 	return n;
 }
@@ -199,7 +199,7 @@ edb::address_t BasicBlock::firstAddress() const {
 //------------------------------------------------------------------------------
 edb::address_t BasicBlock::lastAddress() const {
 	Q_ASSERT(!empty());
-	return back()->rva() + back()->size();
+	return back()->rva() + back()->byte_size();
 }
 
 //------------------------------------------------------------------------------

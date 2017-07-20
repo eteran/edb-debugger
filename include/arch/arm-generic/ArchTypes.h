@@ -37,7 +37,7 @@ static constexpr bool EDB_IS_32_BIT = false;
 namespace edb {
 
 typedef CapstoneEDB::Instruction  Instruction;
-typedef Instruction::operand_type Operand;
+typedef CapstoneEDB::Operand      Operand;
 
 }
 

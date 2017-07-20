@@ -39,45 +39,44 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cctype>
 #include <algorithm>
 #include <elf.h>
+#include <capstone/capstone.h>
 
 namespace InstructionInspector
 {
 
-namespace Capstone { using namespace CapstoneEDB::Capstone; }
-// XXX: not using CapstoneEDB interface so as to be able to present raw output of Capstone without any tweaks
 class Disassembler
 {
-	Capstone::csh csh;
-	Capstone::cs_insn* insn=nullptr;
+	csh csh_;
+	cs_insn* insn_=nullptr;
 public:
 	struct InitFailure
 	{
-		Capstone::cs_err error;
+		cs_err error;
 	};
-	Disassembler(Capstone::cs_mode mode)
+	Disassembler(cs_mode mode)
 	{
-		Capstone::cs_err result=Capstone::cs_open(Capstone::CS_ARCH_X86, mode, &csh);
-		if(result!=Capstone::CS_ERR_OK)
+		cs_err result=cs_open(CS_ARCH_X86, mode, &csh_);
+		if(result!=CS_ERR_OK)
 			throw InitFailure{result};
-		Capstone::cs_option(csh, Capstone::CS_OPT_DETAIL, Capstone::CS_OPT_ON);
-		Capstone::cs_option(csh,Capstone::CS_OPT_SYNTAX, edb::v1::config().syntax==Configuration::Syntax::Intel?
-															Capstone::CS_OPT_SYNTAX_INTEL:
-															Capstone::CS_OPT_SYNTAX_ATT);
+		cs_option(csh_, CS_OPT_DETAIL, CS_OPT_ON);
+		cs_option(csh_,CS_OPT_SYNTAX, edb::v1::config().syntax==Configuration::Syntax::Intel?
+															CS_OPT_SYNTAX_INTEL:
+															CS_OPT_SYNTAX_ATT);
 	}
-	Capstone::cs_insn* disassemble(const std::uint8_t* buf, std::size_t size, edb::address_t address)
+	cs_insn* disassemble(const std::uint8_t* buf, std::size_t size, edb::address_t address)
 	{
-		if(insn) Capstone::cs_free(insn,1);
-		if(Capstone::cs_disasm(csh, buf, size, address, 1, &insn))
-			return insn;
+		if(insn_) cs_free(insn_,1);
+		if(cs_disasm(csh_, buf, size, address, 1, &insn_))
+			return insn_;
 		else
 			return nullptr;
 	}
 	~Disassembler()
 	{
-		if(insn) Capstone::cs_free(insn,1);
-		Capstone::cs_close(&csh);
+		if(insn_) cs_free(insn_,1);
+		cs_close(&csh_);
 	}
-	Capstone::csh handle() const { return csh; }
+	csh handle() const { return csh_; }
 };
 
 Plugin::Plugin() : QObject(nullptr), menuAction(new QAction("Inspect instruction (Capstone info)",this))
@@ -125,18 +124,18 @@ std::string uppercase(std::string text)
 	return text;
 }
 
-std::vector<std::string> getGroupNames(Capstone::csh csh,const Capstone::cs_insn* insn)
+std::vector<std::string> getGroupNames(csh csh,const cs_insn* insn_)
 {
 	std::vector<std::string> groupNames;
-	for(int g=0;g<insn->detail->groups_count;++g)
+	for(int g=0;g<insn_->detail->groups_count;++g)
 	{
-		const auto grp=insn->detail->groups[g];
+		const auto grp=insn_->detail->groups[g];
 		if(!grp)
 		{
 			groupNames.emplace_back("INVALID");
 			continue;
 		}
-		const auto groupName=Capstone::cs_group_name(csh,grp);
+		const auto groupName=cs_group_name(csh,grp);
 		if(groupName)
 			groupNames.emplace_back(uppercase(groupName));
 		else
@@ -145,7 +144,7 @@ std::vector<std::string> getGroupNames(Capstone::csh csh,const Capstone::cs_insn
 	return groupNames;
 }
 
-std::string printReg(Capstone::csh csh,const Capstone::x86_reg reg, bool canBeZero=false)
+std::string printReg(csh csh, int reg, bool canBeZero=false)
 {
 	if(!reg) return canBeZero ? "" : "INVALID";
 	const auto regName=cs_reg_name(csh,reg);
@@ -153,13 +152,13 @@ std::string printReg(Capstone::csh csh,const Capstone::x86_reg reg, bool canBeZe
 	else return toHex(reg);
 }
 
-std::string printRegs(Capstone::csh csh,const uint16_t* regsBuffer, std::size_t size)
+std::string printRegs(csh csh,const uint16_t* regsBuffer, std::size_t size)
 {
 	std::ostringstream str;
 	for(std::size_t r=0;r<size;++r)
 	{
 		if(!str.str().empty()) str << ",";
-		str << printReg(csh,static_cast<Capstone::x86_reg>(regsBuffer[r]));
+		str << printReg(csh, regsBuffer[r]);
 	}
 	const auto string=str.str();
 	if(string.empty()) return "(none)";
@@ -167,9 +166,8 @@ std::string printRegs(Capstone::csh csh,const uint16_t* regsBuffer, std::size_t 
 }
 
 #if CS_API_MAJOR>=4
-std::string printXOP_CC(Capstone::x86_xop_cc cc)
+std::string printXOP_CC(x86_xop_cc cc)
 {
-	using namespace Capstone;
 	const std::map<x86_xop_cc,const char*> codes
 	{
 		{X86_XOP_CC_INVALID,"INVALID"},
@@ -188,10 +186,9 @@ std::string printXOP_CC(Capstone::x86_xop_cc cc)
 }
 #endif
 
-std::string printSSE_CC(Capstone::x86_sse_cc cc)
+std::string printSSE_CC(x86_sse_cc cc)
 {
-	using namespace Capstone;
-	const std::map<Capstone::x86_sse_cc,const char*> codes
+	const std::map<x86_sse_cc,const char*> codes
 	{
 		{X86_SSE_CC_INVALID,"INVALID"},
 		{X86_SSE_CC_EQ,     "EQ"},
@@ -208,9 +205,8 @@ std::string printSSE_CC(Capstone::x86_sse_cc cc)
 	return found->second;
 }
 
-std::string printAVX_CC(Capstone::x86_avx_cc cc)
+std::string printAVX_CC(x86_avx_cc cc)
 {
-	using namespace Capstone;
 	const std::map<x86_avx_cc,const char*> codes
 	{
 		{X86_AVX_CC_INVALID,  "INVALID"},
@@ -252,9 +248,8 @@ std::string printAVX_CC(Capstone::x86_avx_cc cc)
 	return found->second;
 }
 
-std::string printAVX_RM(Capstone::x86_avx_rm cc)
+std::string printAVX_RM(x86_avx_rm cc)
 {
-	using namespace Capstone;
 	const std::map<x86_avx_rm,const char*> codes
 	{
 		{X86_AVX_RM_INVALID,"invalid"},
@@ -273,7 +268,7 @@ std::vector<std::string> getChangedEFLAGSNames(std::uint64_t efl)
 {
 	std::vector<std::string> flags;
 
-	using namespace Capstone;
+	
 	if(efl&X86_EFLAGS_MODIFY_AF   ) { flags.emplace_back("MODIFY_AF"   ); efl&=~X86_EFLAGS_MODIFY_AF   ; }
 	if(efl&X86_EFLAGS_MODIFY_CF   ) { flags.emplace_back("MODIFY_CF"   ); efl&=~X86_EFLAGS_MODIFY_CF   ; }
 	if(efl&X86_EFLAGS_MODIFY_SF   ) { flags.emplace_back("MODIFY_SF"   ); efl&=~X86_EFLAGS_MODIFY_SF   ; }
@@ -326,9 +321,9 @@ std::vector<std::string> getChangedEFLAGSNames(std::uint64_t efl)
 }
 #endif
 
-std::string printOpType(Capstone::x86_op_type const& op)
+std::string printOpType(x86_op_type const& op)
 {
-	using namespace Capstone;
+	
 	static const std::map<x86_op_type,const char*> types
 	{
 		{X86_OP_INVALID,"invalid"},
@@ -341,9 +336,9 @@ std::string printOpType(Capstone::x86_op_type const& op)
 	return found->second;
 }
 
-std::string printAVX_Bcast(Capstone::x86_avx_bcast bc)
+std::string printAVX_Bcast(x86_avx_bcast bc)
 {
-	using namespace Capstone;
+	
 	static const std::map<x86_avx_bcast,const char*> types
 	{
 		{X86_AVX_BCAST_INVALID,"invalid"},
@@ -362,7 +357,7 @@ std::string printAccessMode(unsigned mode)
 {
 	std::ostringstream str;
 
-	using namespace Capstone;
+	
 	if(mode&CS_AC_READ ) { if(!str.str().empty()) str << "+"; str << "read" ; mode&=~CS_AC_READ ; }
 	if(mode&CS_AC_WRITE) { if(!str.str().empty()) str << "+"; str << "write"; mode&=~CS_AC_WRITE; }
 	if(mode)
@@ -381,7 +376,7 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 {
 	setWindowTitle("Instruction Inspector");
 	address=edb::v1::cpu_selected_address();
-	const auto disasm=new Disassembler(edb::v1::debuggeeIs32Bit() ? Capstone::CS_MODE_32 : Capstone::CS_MODE_64);
+	const auto disasm=new Disassembler(edb::v1::debuggeeIs32Bit() ? CS_MODE_32 : CS_MODE_64);
 	disassembler_=disasm;
 
 	quint8 buffer[edb::Instruction::MAX_SIZE];
@@ -430,13 +425,13 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 				add({"Regs implicitly read"});
 				auto*const regsRead=tree->topLevelItem(tree->topLevelItemCount()-1);
 				for(int r=0;r<insn->detail->regs_read_count;++r)
-					add({printReg(disasm->handle(),static_cast<Capstone::x86_reg>(insn->detail->regs_read[r])).c_str()},regsRead);
+					add({printReg(disasm->handle(), insn->detail->regs_read[r]).c_str()},regsRead);
 			}
 			{
 				add({"Regs implicitly written"});
 				auto*const regsWritten=tree->topLevelItem(tree->topLevelItemCount()-1);
 				for(int r=0;r<insn->detail->regs_write_count;++r)
-					add({printReg(disasm->handle(),static_cast<Capstone::x86_reg>(insn->detail->regs_write[r])).c_str()},regsWritten);
+					add({printReg(disasm->handle(), insn->detail->regs_write[r]).c_str()},regsWritten);
 			}
 			add({"Prefixes",printBytes(insn->detail->x86.prefix,sizeof insn->detail->x86.prefix,false).c_str()});
 			add({"Opcode",printBytes(insn->detail->x86.opcode,sizeof insn->detail->x86.opcode).c_str()});
@@ -478,18 +473,18 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 				add({"Type",printOpType(operand.type).c_str()},curOpItem);
 				switch(operand.type)
 				{
-				case Capstone::X86_OP_REG:
+				case X86_OP_REG:
 					add({"Register",printReg(disasm->handle(),operand.reg).c_str()},curOpItem);
 					break;
-				case Capstone::X86_OP_IMM:
+				case X86_OP_IMM:
 					add({"Immediate",toHex(operand.imm).c_str()},curOpItem);
 					break;
-				case Capstone::X86_OP_MEM:
-					add({"Segment",printReg(disasm->handle(),static_cast<Capstone::x86_reg>(operand.mem.segment),true).c_str()},curOpItem);
-					add({"Base",printReg(disasm->handle(),static_cast<Capstone::x86_reg>(operand.mem.base),true).c_str()},curOpItem);
-					add({"Index",printReg(disasm->handle(),static_cast<Capstone::x86_reg>(operand.mem.index),true).c_str()},curOpItem);
-					add({"Scale",std::to_string(operand.mem.scale).c_str()},curOpItem);
-					add({"Displacement",toHex(operand.mem.disp,true).c_str()},curOpItem);
+				case X86_OP_MEM:
+					add({"Segment",      printReg(disasm->handle(), operand.mem.segment,true).c_str()}, curOpItem);
+					add({"Base",         printReg(disasm->handle(), operand.mem.base,   true).c_str()}, curOpItem);
+					add({"Index",        printReg(disasm->handle(), operand.mem.index,  true).c_str()}, curOpItem);
+					add({"Scale",        std::to_string(operand.mem.scale).c_str()}, curOpItem);
+					add({"Displacement", toHex(operand.mem.disp,true).c_str()},curOpItem);
 					break;
 				default: break;
 				}
@@ -951,7 +946,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address)
 
 void InstructionDialog::compareDisassemblers()
 {
-	const auto insn=static_cast<Capstone::cs_insn*>(insn_);
+	const auto insn=static_cast<cs_insn*>(insn_);
 	std::ostringstream message;
 	message << "capstone:\n";
 	if(insn) message << address.toHexString().toUpper().toStdString() << "   " << printBytes(insn->bytes,insn->size) << "   " << insn->mnemonic << " " << insn->op_str;

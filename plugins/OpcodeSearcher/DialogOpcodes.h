@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 #include <QList>
+#include <vector>
 
 class QSortFilterProxyModel;
 class QListWidgetItem;
@@ -44,6 +45,9 @@ public Q_SLOTS:
 	void on_listWidget_itemDoubleClicked(QListWidgetItem *);
 
 private:
+	using InstructionList = std::vector<edb::Instruction *>;
+
+private:
 	// we currently only support opcodes sequences up to 8 bytes big
 	union OpcodeData {
 		quint32 dword;
@@ -56,13 +60,13 @@ private:
 	void test_esp_add_regx2(const OpcodeData &data, edb::address_t start_address);
 	void test_esp_sub_regx1(const OpcodeData &data, edb::address_t start_address);
 	void do_find();
-	void add_result(QList<edb::Instruction> instructions, edb::address_t rva);
+	void add_result(const InstructionList &instructions, edb::address_t rva);
 	void run_tests(int classtype, const OpcodeData &opcode, edb::address_t address);
 
-	template <edb::Operand::Register REG>
+	template <int REG>
 	void test_reg_to_ip(const OpcodeData &data, edb::address_t start_address);
 
-	template <edb::Operand::Register REG>
+	template <int REG>
 	void test_deref_reg_to_ip(const OpcodeData &data, edb::address_t start_address);
 
 private:

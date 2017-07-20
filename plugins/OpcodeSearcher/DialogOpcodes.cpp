@@ -38,9 +38,9 @@ namespace OpcodeSearcherPlugin {
 
 namespace {
 #if defined(EDB_X86)
-const edb::Operand::Register STACK_REG = edb::Operand::Register::X86_REG_ESP;
+const int STACK_REG = X86_REG_ESP;
 #elif defined(EDB_X86_64)
-const edb::Operand::Register STACK_REG = edb::Operand::Register::X86_REG_RSP;
+const int STACK_REG = X86_REG_RSP;
 #endif
 }
 
@@ -160,17 +160,20 @@ void DialogOpcodes::showEvent(QShowEvent *) {
 // Name: add_result
 // Desc:
 //------------------------------------------------------------------------------
-void DialogOpcodes::add_result(QList<edb::Instruction> instructions, edb::address_t rva) {
-	if(!instructions.isEmpty()) {
-		const edb::Instruction inst1 = instructions.takeFirst();
+void DialogOpcodes::add_result(const InstructionList &instructions, edb::address_t rva) {
+	if(!instructions.empty()) {
+	
+		auto it = instructions.begin();
+		const edb::Instruction *inst1 = *it++;
 
 		QString instruction_string = QString("%1: %2").arg(
 			edb::v1::format_pointer(rva),
-			QString::fromStdString(edb::v1::formatter().to_string(inst1)));
+			QString::fromStdString(edb::v1::formatter().to_string(*inst1)));
 
 
-		for(const edb::Instruction &instruction: instructions) {
-			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().to_string(instruction))));
+		for(; it != instructions.end(); ++it) {
+			const edb::Instruction *inst = *it;
+			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().to_string(*inst))));
 		}
 
 		auto item = new QListWidgetItem(instruction_string);
@@ -184,7 +187,7 @@ void DialogOpcodes::add_result(QList<edb::Instruction> instructions, edb::addres
 // Name: test_deref_reg_to_ip
 // Desc:
 //------------------------------------------------------------------------------
-template <edb::Operand::Register REG>
+template <int REG>
 void DialogOpcodes::test_deref_reg_to_ip(const OpcodeData &data, edb::address_t start_address) {
 	const quint8 *p = data.data;
 	const quint8 *last = p + sizeof(data);
@@ -192,21 +195,21 @@ void DialogOpcodes::test_deref_reg_to_ip(const OpcodeData &data, edb::address_t 
 	edb::Instruction inst(p, last, 0);
 
 	if(inst) {
-		const edb::Operand &op1 = inst.operand(0);
+		const auto op1 = inst[0];
 		switch(inst.operation()) {
-		case edb::Instruction::Operation::X86_INS_JMP:
-		case edb::Instruction::Operation::X86_INS_CALL:
+		case X86_INS_JMP:
+		case X86_INS_CALL:
 			if(is_expression(op1)) {
 
-				if(op1.expression().displacement == 0) {
+				if(op1->mem.disp == 0) {
 
-					if(op1.expression().base == REG && op1.expression().index == edb::Operand::Register::X86_REG_INVALID && op1.expression().scale == 1) {
-						add_result((QList<edb::Instruction>() << inst), start_address);
+					if(op1->mem.base == REG && op1->mem.index == X86_REG_INVALID && op1->mem.scale == 1) {
+						add_result({ &inst }, start_address);
 						return;
 					}
 
-					if(op1.expression().index == REG && op1.expression().base == edb::Operand::Register::X86_REG_INVALID && op1.expression().scale == 1) {
-						add_result((QList<edb::Instruction>() << inst), start_address);
+					if(op1->mem.index == REG && op1->mem.base == X86_REG_INVALID && op1->mem.scale == 1) {
+						add_result({ &inst }, start_address);
 						return;
 					}
 				}
@@ -222,7 +225,7 @@ void DialogOpcodes::test_deref_reg_to_ip(const OpcodeData &data, edb::address_t 
 // Name: test_reg_to_ip
 // Desc:
 //------------------------------------------------------------------------------
-template <edb::Operand::Register REG>
+template <int REG>
 void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::address_t start_address) {
 
 	const quint8 *p = data.data;
@@ -231,45 +234,45 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 	edb::Instruction inst(p, last, 0);
 
 	if(inst) {
-		const edb::Operand &op1 = inst.operand(0);
+		const auto op1 = inst[0];
 		switch(inst.operation()) {
-		case edb::Instruction::Operation::X86_INS_JMP:
-		case edb::Instruction::Operation::X86_INS_CALL:
+		case X86_INS_JMP:
+		case X86_INS_CALL:
 			if(is_register(op1)) {
-				if(op1.reg() == REG) {
-					add_result((QList<edb::Instruction>() << inst), start_address);
+				if(op1->reg == REG) {
+					add_result({ &inst }, start_address);
 					return;
 				}
 			}
 			break;
 
-		case edb::Instruction::Operation::X86_INS_PUSH:
+		case X86_INS_PUSH:
 			if(is_register(op1)) {
-				if(op1.reg() == REG) {
+				if(op1->reg == REG) {
 
-					p += inst.size();
+					p += inst.byte_size();
 					edb::Instruction inst2(p, last, 0);
 					if(inst2) {
-						const edb::Operand &op2 = inst2.operand(0);
+						const auto op2 = inst2[0];
 
 						if(is_ret(inst2)) {
-							add_result((QList<edb::Instruction>() << inst << inst2), start_address);
+							add_result({ &inst, &inst2 }, start_address);
 						} else {
 							switch(inst2.operation()) {
-							case edb::Instruction::Operation::X86_INS_JMP:
-							case edb::Instruction::Operation::X86_INS_CALL:
+							case X86_INS_JMP:
+							case X86_INS_CALL:
 
 								if(is_expression(op2)) {
 
-									if(op2.expression().displacement == 0) {
+									if(op2->mem.disp == 0) {
 
-										if(op2.expression().base == STACK_REG && op2.expression().index == edb::Operand::Register::X86_REG_INVALID) {
-											add_result((QList<edb::Instruction>() << inst << inst2), start_address);
+										if(op2->mem.base == STACK_REG && op2->mem.index == X86_REG_INVALID) {
+											add_result({ &inst, &inst2 }, start_address);
 											return;
 										}
 
-										if(op2.expression().index == STACK_REG && op2.expression().base == edb::Operand::Register::X86_REG_INVALID) {
-											add_result((QList<edb::Instruction>() << inst << inst2), start_address);
+										if(op2->mem.index == STACK_REG && op2->mem.base == X86_REG_INVALID) {
+											add_result({ &inst, &inst2 }, start_address);
 											return;
 										}
 									}
@@ -301,44 +304,44 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 	edb::Instruction inst(p, last, 0);
 
 	if(inst) {
-		const edb::Operand &op1 = inst.operand(0);
+		const auto op1 = inst[0];
 		if(is_ret(inst)) {
-			add_result((QList<edb::Instruction>() << inst), start_address);
+			add_result({ &inst }, start_address);
 		} else {
 			switch(inst.operation()) {
-			case edb::Instruction::Operation::X86_INS_CALL:
-			case edb::Instruction::Operation::X86_INS_JMP:
+			case X86_INS_CALL:
+			case X86_INS_JMP:
 				if(is_expression(op1)) {
 
-					if(op1.expression().displacement == 0) {
+					if(op1->mem.disp == 0) {
 
-						if(op1.expression().base == STACK_REG && op1.expression().index == edb::Operand::Register::X86_REG_INVALID) {
-							add_result((QList<edb::Instruction>() << inst), start_address);
+						if(op1->mem.base == STACK_REG && op1->mem.index == X86_REG_INVALID) {
+							add_result({ &inst }, start_address);
 							return;
 						}
 
-						if(op1.expression().index == STACK_REG && op1.expression().base == edb::Operand::Register::X86_REG_INVALID) {
-							add_result((QList<edb::Instruction>() << inst), start_address);
+						if(op1->mem.index == STACK_REG && op1->mem.base == X86_REG_INVALID) {
+							add_result({ &inst }, start_address);
 							return;
 						}
 					}
 				}
 				break;
-			case edb::Instruction::Operation::X86_INS_POP:
+			case X86_INS_POP:
 				if(is_register(op1)) {
 
-					p += inst.size();
+					p += inst.byte_size();
 					edb::Instruction inst2(p, last, 0);
 					if(inst2) {
-						const edb::Operand &op2 = inst2.operand(0);
+						const auto op2 = inst2[0];
 						switch(inst2.operation()) {
-						case edb::Instruction::Operation::X86_INS_JMP:
-						case edb::Instruction::Operation::X86_INS_CALL:
+						case X86_INS_JMP:
+						case X86_INS_CALL:
 
 							if(is_register(op2)) {
 
-								if(op1.reg() == op2.reg()) {
-									add_result((QList<edb::Instruction>() << inst << inst2), start_address);
+								if(op1->reg == op2->reg) {
+									add_result({ &inst, &inst2 }, start_address);
 								}
 							}
 							break;
@@ -368,47 +371,47 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 	edb::Instruction inst(p, last, 0);
 
 	if(inst) {
-		const edb::Operand &op1 = inst.operand(0);
+		const auto op1 = inst[0];
 		switch(inst.operation()) {
-		case edb::Instruction::Operation::X86_INS_POP:
+		case X86_INS_POP:
 
-			if(!is_register(op1) || op1.reg() != STACK_REG) {
-				p += inst.size();
+			if(!is_register(op1) || op1->reg != STACK_REG) {
+				p += inst.byte_size();
 				edb::Instruction inst2(p, last, 0);
 				if(inst2) {
 					if(is_ret(inst2)) {
-						add_result((QList<edb::Instruction>() << inst << inst2), start_address);
+						add_result({ &inst, &inst2 }, start_address);
 					}
 				}
 			}
 			break;
-		case edb::Instruction::Operation::X86_INS_JMP:
-		case edb::Instruction::Operation::X86_INS_CALL:
+		case X86_INS_JMP:
+		case X86_INS_CALL:
 
 			if(is_expression(op1)) {
 
-				if(op1.displacement() == 4) {
-					if(op1.expression().base == STACK_REG && op1.expression().index == edb::Operand::Register::X86_REG_INVALID) {
-						add_result((QList<edb::Instruction>() << inst), start_address);
-					} else if(op1.expression().base == edb::Operand::Register::X86_REG_INVALID && op1.expression().index == STACK_REG && op1.expression().scale == 1) {
-						add_result((QList<edb::Instruction>() << inst), start_address);
+				if(op1->mem.disp == 4) {
+					if(op1->mem.base == STACK_REG && op1->mem.index == X86_REG_INVALID) {
+						add_result({ &inst }, start_address);
+					} else if(op1->mem.base == X86_REG_INVALID && op1->mem.index == STACK_REG && op1->mem.scale == 1) {
+						add_result({ &inst }, start_address);
 					}
 
 				}
 			}
 			break;
-		case edb::Instruction::Operation::X86_INS_SUB:
-			if(is_register(op1) && op1.reg() == STACK_REG) {
+		case X86_INS_SUB:
+			if(is_register(op1) && op1->reg == STACK_REG) {
 
-				const edb::Operand &op2 = inst.operand(1);
+				const auto op2 = inst[1];
 				if(is_expression(op2)) {
 
-					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t))) {
-						p += inst.size();
+					if(op2->imm == -static_cast<int>(sizeof(edb::reg_t))) {
+						p += inst.byte_size();
 						edb::Instruction inst2(p, last, 0);
 						if(inst2) {
 							if(is_ret(inst2)) {
-								add_result((QList<edb::Instruction>() << inst << inst2), start_address);
+								add_result({ &inst, &inst2 }, start_address);
 							}
 						}
 					}
@@ -416,18 +419,18 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 			}
 			break;
 
-		case edb::Instruction::Operation::X86_INS_ADD:
-			if(is_register(op1) && op1.reg() == STACK_REG) {
+		case X86_INS_ADD:
+			if(is_register(op1) && op1->reg == STACK_REG) {
 
-				const edb::Operand &op2 = inst.operand(1);
+				const auto op2 = inst[1];
 				if(is_expression(op2)) {
 
-					if(op2.immediate() == sizeof(edb::reg_t)) {
-						p += inst.size();
+					if(op2->imm == sizeof(edb::reg_t)) {
+						p += inst.byte_size();
 						edb::Instruction inst2(p, last, 0);
 						if(inst2) {
 							if(is_ret(inst2)) {
-								add_result((QList<edb::Instruction>() << inst << inst2), start_address);
+								add_result({ &inst, &inst2 }, start_address);
 							}
 						}
 					}
@@ -453,24 +456,24 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 	edb::Instruction inst(p, last, 0);
 
 	if(inst) {
-		const edb::Operand &op1 = inst.operand(0);
+		const auto op1 = inst[0];
 		switch(inst.operation()) {
-		case edb::Instruction::Operation::X86_INS_POP:
+		case X86_INS_POP:
 
-			if(!is_register(op1) || op1.reg() != STACK_REG) {
-				p += inst.size();
+			if(!is_register(op1) || op1->reg != STACK_REG) {
+				p += inst.byte_size();
 				edb::Instruction inst2(p, last, 0);
 				if(inst2) {
-					const edb::Operand &op2 = inst2.operand(0);
+					const auto op2 = inst2[0];
 					switch(inst2.operation()) {
-					case edb::Instruction::Operation::X86_INS_POP:
+					case X86_INS_POP:
 
-						if(!is_register(op2) || op2.reg() != STACK_REG) {
-							p += inst2.size();
+						if(!is_register(op2) || op2->reg != STACK_REG) {
+							p += inst2.byte_size();
 							edb::Instruction inst3(p, last, 0);
 							if(inst3) {
 								if(is_ret(inst3)) {
-									add_result((QList<edb::Instruction>() << inst << inst2 << inst3), start_address);
+									add_result({ &inst, &inst2, &inst3 }, start_address);
 								}
 							}
 						}
@@ -482,33 +485,33 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 			}
 			break;
 
-		case edb::Instruction::Operation::X86_INS_JMP:
-		case edb::Instruction::Operation::X86_INS_CALL:
+		case X86_INS_JMP:
+		case X86_INS_CALL:
 			if(is_expression(op1)) {
 
-				if(op1.displacement() == (sizeof(edb::reg_t) * 2)) {
-					if(op1.expression().base == STACK_REG && op1.expression().index == edb::Operand::Register::X86_REG_INVALID) {
-						add_result((QList<edb::Instruction>() << inst), start_address);
-					} else if(op1.expression().base == edb::Operand::Register::X86_REG_INVALID && op1.expression().index == STACK_REG && op1.expression().scale == 1) {
-						add_result((QList<edb::Instruction>() << inst), start_address);
+				if(op1->mem.disp == (sizeof(edb::reg_t) * 2)) {
+					if(op1->mem.base == STACK_REG && op1->mem.index == X86_REG_INVALID) {
+						add_result({ &inst }, start_address);
+					} else if(op1->mem.base == X86_REG_INVALID && op1->mem.index == STACK_REG && op1->mem.scale == 1) {
+						add_result({ &inst }, start_address);
 					}
 
 				}
 			}
 			break;
 
-		case edb::Instruction::Operation::X86_INS_SUB:
-			if(is_register(op1) && op1.reg() == STACK_REG) {
+		case X86_INS_SUB:
+			if(is_register(op1) && op1->reg == STACK_REG) {
 
-				const edb::Operand &op2 = inst.operand(1);
+				const auto op2 = inst[1];
 				if(is_expression(op2)) {
 
-					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t) * 2)) {
-						p += inst.size();
+					if(op2->imm == -static_cast<int>(sizeof(edb::reg_t) * 2)) {
+						p += inst.byte_size();
 						edb::Instruction inst2(p, last, 0);
 						if(inst2) {
 							if(is_ret(inst2)) {
-								add_result((QList<edb::Instruction>() << inst << inst2), start_address);
+								add_result({ &inst, &inst2 }, start_address);
 							}
 						}
 					}
@@ -516,18 +519,18 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 			}
 			break;
 
-		case edb::Instruction::Operation::X86_INS_ADD:
-			if(is_register(op1) && op1.reg() == STACK_REG) {
+		case X86_INS_ADD:
+			if(is_register(op1) && op1->reg == STACK_REG) {
 
-				const edb::Operand &op2 = inst.operand(1);
+				const auto op2 = inst[1];
 				if(is_expression(op2)) {
 
-					if(op2.immediate() == (sizeof(edb::reg_t) * 2)) {
-						p += inst.size();
+					if(op2->imm == (sizeof(edb::reg_t) * 2)) {
+						p += inst.byte_size();
 						edb::Instruction inst2(p, last, 0);
 						if(inst2) {
 							if(is_ret(inst2)) {
-								add_result((QList<edb::Instruction>() << inst << inst2), start_address);
+								add_result({ &inst, &inst2 }, start_address);
 							}
 						}
 					}
@@ -553,35 +556,35 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 	edb::Instruction inst(p, last, 0);
 
 	if(inst) {
-		const edb::Operand &op1 = inst.operand(0);
+		const auto op1 = inst[0];
 		switch(inst.operation()) {
-		case edb::Instruction::Operation::X86_INS_JMP:
-		case edb::Instruction::Operation::X86_INS_CALL:
+		case X86_INS_JMP:
+		case X86_INS_CALL:
 			if(is_expression(op1)) {
 
-				if(op1.displacement() == -static_cast<int>(sizeof(edb::reg_t))) {
-					if(op1.expression().base == STACK_REG && op1.expression().index == edb::Operand::Register::X86_REG_INVALID) {
-						add_result((QList<edb::Instruction>() << inst), start_address);
-					} else if(op1.expression().base == edb::Operand::Register::X86_REG_INVALID && op1.expression().index == STACK_REG && op1.expression().scale == 1) {
-						add_result((QList<edb::Instruction>() << inst), start_address);
+				if(op1->mem.disp == -static_cast<int>(sizeof(edb::reg_t))) {
+					if(op1->mem.base == STACK_REG && op1->mem.index == X86_REG_INVALID) {
+						add_result({ &inst }, start_address);
+					} else if(op1->mem.base == X86_REG_INVALID && op1->mem.index == STACK_REG && op1->mem.scale == 1) {
+						add_result({ &inst }, start_address);
 					}
 
 				}
 			}
 			break;
 
-		case edb::Instruction::Operation::X86_INS_SUB:
-			if(is_register(op1) && op1.reg() == STACK_REG) {
+		case X86_INS_SUB:
+			if(is_register(op1) && op1->reg == STACK_REG) {
 
-				const edb::Operand &op2 = inst.operand(1);
+				const auto op2 = inst[1];
 				if(is_expression(op2)) {
 
-					if(op2.immediate() == static_cast<int>(sizeof(edb::reg_t))) {
-						p += inst.size();
+					if(op2->imm == static_cast<int>(sizeof(edb::reg_t))) {
+						p += inst.byte_size();
 						edb::Instruction inst2(p, last, 0);
 						if(inst2) {
 							if(is_ret(inst2)) {
-								add_result((QList<edb::Instruction>() << inst << inst2), start_address);
+								add_result({ &inst, &inst2 }, start_address);
 							}
 						}
 					}
@@ -589,18 +592,18 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 			}
 			break;
 
-		case edb::Instruction::Operation::X86_INS_ADD:
-			if(is_register(op1) && op1.reg() == STACK_REG) {
+		case X86_INS_ADD:
+			if(is_register(op1) && op1->reg == STACK_REG) {
 
-				const edb::Operand &op2 = inst.operand(1);
+				const auto op2 = inst[1];
 				if(is_expression(op2)) {
 
-					if(op2.immediate() == -static_cast<int>(sizeof(edb::reg_t))) {
-						p += inst.size();
+					if(op2->imm == -static_cast<int>(sizeof(edb::reg_t))) {
+						p += inst.byte_size();
 						edb::Instruction inst2(p, last, 0);
 						if(inst2) {
 							if(is_ret(inst2)) {
-								add_result((QList<edb::Instruction>() << inst << inst2), start_address);
+								add_result({ &inst, &inst2 }, start_address);
 							}
 						}
 					}
@@ -622,60 +625,60 @@ void DialogOpcodes::run_tests(int classtype, const OpcodeData &opcode, edb::addr
 
 	switch(classtype) {
 #if defined(EDB_X86)
-	case 1: test_reg_to_ip<edb::Operand::Register::X86_REG_EAX>(opcode, address); break;
-	case 2: test_reg_to_ip<edb::Operand::Register::X86_REG_EBX>(opcode, address); break;
-	case 3: test_reg_to_ip<edb::Operand::Register::X86_REG_ECX>(opcode, address); break;
-	case 4: test_reg_to_ip<edb::Operand::Register::X86_REG_EDX>(opcode, address); break;
-	case 5: test_reg_to_ip<edb::Operand::Register::X86_REG_EBP>(opcode, address); break;
-	case 6: test_reg_to_ip<edb::Operand::Register::X86_REG_ESP>(opcode, address); break;
-	case 7: test_reg_to_ip<edb::Operand::Register::X86_REG_ESI>(opcode, address); break;
-	case 8: test_reg_to_ip<edb::Operand::Register::X86_REG_EDI>(opcode, address); break;
+	case 1: test_reg_to_ip<X86_REG_EAX>(opcode, address); break;
+	case 2: test_reg_to_ip<X86_REG_EBX>(opcode, address); break;
+	case 3: test_reg_to_ip<X86_REG_ECX>(opcode, address); break;
+	case 4: test_reg_to_ip<X86_REG_EDX>(opcode, address); break;
+	case 5: test_reg_to_ip<X86_REG_EBP>(opcode, address); break;
+	case 6: test_reg_to_ip<X86_REG_ESP>(opcode, address); break;
+	case 7: test_reg_to_ip<X86_REG_ESI>(opcode, address); break;
+	case 8: test_reg_to_ip<X86_REG_EDI>(opcode, address); break;
 #elif defined(EDB_X86_64)
-	case 1: test_reg_to_ip<edb::Operand::Register::X86_REG_RAX>(opcode, address); break;
-	case 2: test_reg_to_ip<edb::Operand::Register::X86_REG_RBX>(opcode, address); break;
-	case 3: test_reg_to_ip<edb::Operand::Register::X86_REG_RCX>(opcode, address); break;
-	case 4: test_reg_to_ip<edb::Operand::Register::X86_REG_RDX>(opcode, address); break;
-	case 5: test_reg_to_ip<edb::Operand::Register::X86_REG_RBP>(opcode, address); break;
-	case 6: test_reg_to_ip<edb::Operand::Register::X86_REG_RSP>(opcode, address); break;
-	case 7: test_reg_to_ip<edb::Operand::Register::X86_REG_RSI>(opcode, address); break;
-	case 8: test_reg_to_ip<edb::Operand::Register::X86_REG_RDI>(opcode, address); break;
-	case 9: test_reg_to_ip<edb::Operand::Register::X86_REG_R8>(opcode, address); break;
-	case 10: test_reg_to_ip<edb::Operand::Register::X86_REG_R9>(opcode, address); break;
-	case 11: test_reg_to_ip<edb::Operand::Register::X86_REG_R10>(opcode, address); break;
-	case 12: test_reg_to_ip<edb::Operand::Register::X86_REG_R11>(opcode, address); break;
-	case 13: test_reg_to_ip<edb::Operand::Register::X86_REG_R12>(opcode, address); break;
-	case 14: test_reg_to_ip<edb::Operand::Register::X86_REG_R13>(opcode, address); break;
-	case 15: test_reg_to_ip<edb::Operand::Register::X86_REG_R14>(opcode, address); break;
-	case 16: test_reg_to_ip<edb::Operand::Register::X86_REG_R15>(opcode, address); break;
+	case 1: test_reg_to_ip<X86_REG_RAX>(opcode, address); break;
+	case 2: test_reg_to_ip<X86_REG_RBX>(opcode, address); break;
+	case 3: test_reg_to_ip<X86_REG_RCX>(opcode, address); break;
+	case 4: test_reg_to_ip<X86_REG_RDX>(opcode, address); break;
+	case 5: test_reg_to_ip<X86_REG_RBP>(opcode, address); break;
+	case 6: test_reg_to_ip<X86_REG_RSP>(opcode, address); break;
+	case 7: test_reg_to_ip<X86_REG_RSI>(opcode, address); break;
+	case 8: test_reg_to_ip<X86_REG_RDI>(opcode, address); break;
+	case 9: test_reg_to_ip<X86_REG_R8>(opcode, address); break;
+	case 10: test_reg_to_ip<X86_REG_R9>(opcode, address); break;
+	case 11: test_reg_to_ip<X86_REG_R10>(opcode, address); break;
+	case 12: test_reg_to_ip<X86_REG_R11>(opcode, address); break;
+	case 13: test_reg_to_ip<X86_REG_R12>(opcode, address); break;
+	case 14: test_reg_to_ip<X86_REG_R13>(opcode, address); break;
+	case 15: test_reg_to_ip<X86_REG_R14>(opcode, address); break;
+	case 16: test_reg_to_ip<X86_REG_R15>(opcode, address); break;
 #endif
 
 	case 17:
 	#if defined(EDB_X86)
-		test_reg_to_ip<edb::Operand::Register::X86_REG_EAX>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_EBX>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_ECX>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_EDX>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_EBP>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_ESP>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_ESI>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_EDI>(opcode, address);
+		test_reg_to_ip<X86_REG_EAX>(opcode, address);
+		test_reg_to_ip<X86_REG_EBX>(opcode, address);
+		test_reg_to_ip<X86_REG_ECX>(opcode, address);
+		test_reg_to_ip<X86_REG_EDX>(opcode, address);
+		test_reg_to_ip<X86_REG_EBP>(opcode, address);
+		test_reg_to_ip<X86_REG_ESP>(opcode, address);
+		test_reg_to_ip<X86_REG_ESI>(opcode, address);
+		test_reg_to_ip<X86_REG_EDI>(opcode, address);
 	#elif defined(EDB_X86_64)
-		test_reg_to_ip<edb::Operand::Register::X86_REG_RAX>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_RBX>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_RCX>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_RDX>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_RBP>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_RSP>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_RSI>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_RDI>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_R8>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_R9>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_R10>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_R11>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_R12>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_R13>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_R14>(opcode, address);
-		test_reg_to_ip<edb::Operand::Register::X86_REG_R15>(opcode, address);
+		test_reg_to_ip<X86_REG_RAX>(opcode, address);
+		test_reg_to_ip<X86_REG_RBX>(opcode, address);
+		test_reg_to_ip<X86_REG_RCX>(opcode, address);
+		test_reg_to_ip<X86_REG_RDX>(opcode, address);
+		test_reg_to_ip<X86_REG_RBP>(opcode, address);
+		test_reg_to_ip<X86_REG_RSP>(opcode, address);
+		test_reg_to_ip<X86_REG_RSI>(opcode, address);
+		test_reg_to_ip<X86_REG_RDI>(opcode, address);
+		test_reg_to_ip<X86_REG_R8>(opcode, address);
+		test_reg_to_ip<X86_REG_R9>(opcode, address);
+		test_reg_to_ip<X86_REG_R10>(opcode, address);
+		test_reg_to_ip<X86_REG_R11>(opcode, address);
+		test_reg_to_ip<X86_REG_R12>(opcode, address);
+		test_reg_to_ip<X86_REG_R13>(opcode, address);
+		test_reg_to_ip<X86_REG_R14>(opcode, address);
+		test_reg_to_ip<X86_REG_R15>(opcode, address);
 	#endif
 		break;
 	case 18:
@@ -696,21 +699,21 @@ void DialogOpcodes::run_tests(int classtype, const OpcodeData &opcode, edb::addr
 		break;
 
 
-	case 22: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_RAX>(opcode, address); break;
-	case 23: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_RBX>(opcode, address); break;
-	case 24: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_RCX>(opcode, address); break;
-	case 25: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_RDX>(opcode, address); break;
-	case 26: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_RBP>(opcode, address); break;
-	case 28: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_RSI>(opcode, address); break;
-	case 29: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_RDI>(opcode, address); break;
-	case 30: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_R8>(opcode, address); break;
-	case 31: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_R9>(opcode, address); break;
-	case 32: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_R10>(opcode, address); break;
-	case 33: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_R11>(opcode, address); break;
-	case 34: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_R12>(opcode, address); break;
-	case 35: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_R13>(opcode, address); break;
-	case 36: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_R14>(opcode, address); break;
-	case 37: test_deref_reg_to_ip<edb::Operand::Register::X86_REG_R15>(opcode, address); break;
+	case 22: test_deref_reg_to_ip<X86_REG_RAX>(opcode, address); break;
+	case 23: test_deref_reg_to_ip<X86_REG_RBX>(opcode, address); break;
+	case 24: test_deref_reg_to_ip<X86_REG_RCX>(opcode, address); break;
+	case 25: test_deref_reg_to_ip<X86_REG_RDX>(opcode, address); break;
+	case 26: test_deref_reg_to_ip<X86_REG_RBP>(opcode, address); break;
+	case 28: test_deref_reg_to_ip<X86_REG_RSI>(opcode, address); break;
+	case 29: test_deref_reg_to_ip<X86_REG_RDI>(opcode, address); break;
+	case 30: test_deref_reg_to_ip<X86_REG_R8>(opcode, address); break;
+	case 31: test_deref_reg_to_ip<X86_REG_R9>(opcode, address); break;
+	case 32: test_deref_reg_to_ip<X86_REG_R10>(opcode, address); break;
+	case 33: test_deref_reg_to_ip<X86_REG_R11>(opcode, address); break;
+	case 34: test_deref_reg_to_ip<X86_REG_R12>(opcode, address); break;
+	case 35: test_deref_reg_to_ip<X86_REG_R13>(opcode, address); break;
+	case 36: test_deref_reg_to_ip<X86_REG_R14>(opcode, address); break;
+	case 37: test_deref_reg_to_ip<X86_REG_R15>(opcode, address); break;
 	}
 }
 

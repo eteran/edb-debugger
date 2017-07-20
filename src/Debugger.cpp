@@ -307,7 +307,7 @@ public:
 				return pass_back_to_debugger(event);
 			}
 
-			address += inst.size();
+			address += inst.byte_size();
 		}
 
 		//If we end up out here, we've got bigger problems. Pass it back to the debugger.
@@ -1281,7 +1281,7 @@ void Debugger::step_over(F1 run_func, F2 step_func) {
 
 					// add a temporary breakpoint at the instruction just
 					// after the call
-					if(std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->add_breakpoint(ip + inst.size())) {
+					if(std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->add_breakpoint(ip + inst.byte_size())) {
 						bp->set_internal(true);
 						bp->set_one_time(true);
 						bp->tag = stepover_bp_tag;
@@ -1650,9 +1650,9 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 
 				if(is_call(inst) || is_jump(inst)) {
-					if(is_immediate(inst.operand(0))) {
+					if(is_immediate(inst[0])) {
 						menu.addAction(followAction_);
-						followAction_->setData(static_cast<qlonglong>(inst.operand(0).immediate()));
+						followAction_->setData(static_cast<qlonglong>(inst[0]->imm));
 					}
 
 					/*
@@ -1665,12 +1665,12 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 					*/
 				} else {
 					for(std::size_t i = 0; i < inst.operand_count(); ++i) {
-						if(is_immediate(inst.operand(i))) {
+						if(is_immediate(inst[i])) {
 							menu.addAction(followConstantInDumpAction_);
 							menu.addAction(followConstantInStackAction_);
 
-							followConstantInDumpAction_->setData(static_cast<qlonglong>(inst.operand(i).immediate()));
-							followConstantInStackAction_->setData(static_cast<qlonglong>(inst.operand(i).immediate()));
+							followConstantInDumpAction_->setData(static_cast<qlonglong>(inst[i]->imm));
+							followConstantInStackAction_->setData(static_cast<qlonglong>(inst[i]->imm));
 						}
 					}
 				}

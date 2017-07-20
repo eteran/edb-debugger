@@ -479,12 +479,12 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							// note the destination and move on
 							// we special case some simple things.
 							// also this is an opportunity to find call tables.
-							const edb::Operand &op = inst->operand(0);
+							const auto op = inst->operand(0);
 							if(is_immediate(op)) {
-								const edb::address_t ea = op.immediate();
+								const edb::address_t ea = op->imm;
 
 								// skip over ones which are: "call <label>; label:"
-								if(ea != address + inst->size()) {
+								if(ea != address + inst->byte_size()) {
 									known_functions.push(ea);
 
 									if(!will_return(ea)) {
@@ -509,12 +509,12 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 						} else if(is_unconditional_jump(*inst)) {
 
 							Q_ASSERT(inst->operand_count() >= 1);
-							const edb::Operand &op = inst->operand(0);
+							const auto op = inst->operand(0);
 
 							// TODO(eteran): we need some heuristic for detecting when this is
 							//               a call/ret -> jmp optimization
 							if(is_immediate(op)) {
-								const edb::address_t ea = op.immediate();
+								const edb::address_t ea = op->imm;
 
 
 								if(functions.contains(ea)) {
@@ -531,14 +531,14 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 						} else if(is_conditional_jump(*inst)) {
 
 							Q_ASSERT(inst->operand_count() == 1);
-							const edb::Operand &op = inst->operand(0);
+							const auto op = inst->operand(0);
 
 							if(is_immediate(op)) {
 							
-								const edb::address_t ea = op.immediate();
+								const edb::address_t ea = op->imm;
 							
 								blocks.push(ea);
-								blocks.push(address + inst->size());
+								blocks.push(address + inst->byte_size());
 								
 								block.addRef(address, ea);
 							}
@@ -547,7 +547,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							break;
 						}
 
-						address += inst->size();
+						address += inst->byte_size();
 					}
 
 					if(!block.empty()) {
@@ -610,12 +610,12 @@ void Analyzer::collect_fuzzy_functions(RegionData *data) {
 					// note the destination and move on
 					// we special case some simple things.
 					// also this is an opportunity to find call tables.
-					const edb::Operand &op = inst.operand(0);
+					const auto op = inst[0];
 					if(is_immediate(op)) {
-						const edb::address_t ea = op.immediate();
+						const edb::address_t ea = op->imm;
 
 						// skip over ones which are: "call <label>; label:"
-						if(ea != addr + inst.size()) {
+						if(ea != addr + inst.byte_size()) {
 
 							if(!data->known_functions.contains(ea)) {
 								fuzzy_functions[ea]++;

@@ -26,6 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSet>
 #include <QList>
 #include <QSortFilterProxyModel>
+#include <vector>
+#include <memory>
 
 class QListWidgetItem;
 class QModelIndex;
@@ -67,7 +69,7 @@ protected:
 		}
 		return false;
 	}
-
+	
 private:
 	quint32 mask_;
 };
@@ -89,8 +91,11 @@ public Q_SLOTS:
 	void on_chkShowOther_stateChanged(int state);
 
 private:
+	using InstructionList = std::vector<std::shared_ptr<edb::Instruction>>;
+	
+private:
 	void do_find();
-	void add_gadget(QList<edb::Instruction> instructions);
+	void add_gadget(const InstructionList &instructions);
 	void set_gadget_role(QStandardItem *item, const edb::Instruction &inst1);
 
 private:

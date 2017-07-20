@@ -237,17 +237,17 @@ void DialogFunctions::on_btnGraph_clicked() {
 						if(!bb.empty()) {
 
 							auto term = bb.back();
-							auto inst = *term;
+							auto &inst = *term;
 
 							if(is_unconditional_jump(inst)) {
 
 								Q_ASSERT(inst.operand_count() >= 1);
-								const edb::Operand &op = inst.operand(0);
+								const auto op = inst[0];
 
 								// TODO: we need some heuristic for detecting when this is
 								//       a call/ret -> jmp optimization
 								if(is_immediate(op)) {
-									const edb::address_t ea = op.immediate();
+									const edb::address_t ea = op->imm;
 
 									auto from = nodes.find(bb.firstAddress());
 									auto to = nodes.find(ea);
@@ -258,18 +258,18 @@ void DialogFunctions::on_btnGraph_clicked() {
 							} else if(is_conditional_jump(inst)) {
 
 								Q_ASSERT(inst.operand_count() == 1);
-								const edb::Operand &op = inst.operand(0);
+								const auto op = inst[0];
 
 								if(is_immediate(op)) {
 
 									auto from = nodes.find(bb.firstAddress());
 
-									auto to_taken = nodes.find(op.immediate());
+									auto to_taken = nodes.find(op->imm);
 									if(to_taken != nodes.end() && from != nodes.end()) {
 										new GraphEdge(from.value(), to_taken.value(), Qt::green);
 									}
 
-									auto to_skipped = nodes.find(inst.rva() + inst.size());
+									auto to_skipped = nodes.find(inst.rva() + inst.byte_size());
 									if(to_taken != nodes.end() && from != nodes.end()) {
 										new GraphEdge(from.value(), to_skipped.value(), Qt::red);
 									}

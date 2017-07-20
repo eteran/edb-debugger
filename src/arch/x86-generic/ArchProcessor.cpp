@@ -126,19 +126,18 @@ edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Op
 
 	// TODO: get registers by index, not string! too slow
 
-	if(op.valid()) {
-
+	if(op) {
 		if(is_register(op)) {
 			ret = state[QString::fromStdString(edb::v1::formatter().to_string(op))].valueAsAddress();
 		} else if(is_expression(op)) {
-			const Register baseR  = state[QString::fromStdString(register_name(op.expression().base))];
-			const Register indexR = state[QString::fromStdString(register_name(op.expression().index))];
+			const Register baseR  = state[QString::fromStdString(register_name(op->mem.base))];
+			const Register indexR = state[QString::fromStdString(register_name(op->mem.index))];
 			edb::address_t base  = 0;
 			edb::address_t index = 0;
 
 			if(!baseR)
 			{
-				if(op.expression().base!=edb::Operand::Register::X86_REG_INVALID)
+				if(op->mem.base!=X86_REG_INVALID)
 					return ret; // register is valid, but failed to be acquired from state
 			}
 			else
@@ -148,7 +147,7 @@ edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Op
 
 			if(!indexR)
 			{
-				if(op.expression().index!=edb::Operand::Register::X86_REG_INVALID)
+				if(op->mem.index != X86_REG_INVALID)
 					return ret; // register is valid, but failed to be acquired from state
 			}
 			else
@@ -159,40 +158,139 @@ edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Op
 			}
 
 			// This only makes sense for x86_64, but doesn't hurt on x86
-			if(op.expression().base == edb::Operand::Register::X86_REG_RIP) {
-				base += inst.size();
+			if(op->mem.base == X86_REG_RIP) {
+				base += inst.byte_size();
 			}
 
-			ret = base + index * op.expression().scale + op.displacement();
+			ret = base + index * op->mem.scale + op->mem.disp;
 
 
-			std::size_t segRegIndex = op.expression().segment;
+			std::size_t segRegIndex = op->mem.segment;
 
-			if(segRegIndex == edb::Operand::Segment::X86_REG_INVALID && !debuggeeIs64Bit()) {
-				switch(op.expression().base) {
-				case edb::Operand::Segment::X86_REG_BP:
-				case edb::Operand::Segment::X86_REG_SP:
-				case edb::Operand::Segment::X86_REG_EBP:
-				case edb::Operand::Segment::X86_REG_ESP:
-					segRegIndex = edb::Operand::Segment::X86_REG_SS;
+			// handle implicit segments on 32-bit (capstone doesn't call them out explicitly)
+			if(segRegIndex == X86_REG_INVALID && !debuggeeIs64Bit()) {
+				switch(op->mem.base) {
+				case X86_REG_BP:
+				case X86_REG_SP:
+				case X86_REG_EBP:
+				case X86_REG_ESP:
+					segRegIndex = X86_REG_SS;
 					break;
 				default:
-					segRegIndex = edb::Operand::Segment::X86_REG_DS;
+					segRegIndex = X86_REG_DS;
 					break;
 				}
 			}
 
 
-			if(segRegIndex != edb::Operand::Segment::X86_REG_INVALID) {
+			if(segRegIndex != X86_REG_INVALID) {
 
 				const Register segBase = [&segRegIndex, &state](){
 					switch(segRegIndex) {
-					case edb::Operand::Segment::X86_REG_ES: return state[QLatin1String("es_base")];
-					case edb::Operand::Segment::X86_REG_CS:	return state[QLatin1String("cs_base")];
-					case edb::Operand::Segment::X86_REG_SS:	return state[QLatin1String("ss_base")];
-					case edb::Operand::Segment::X86_REG_DS:	return state[QLatin1String("ds_base")];
-					case edb::Operand::Segment::X86_REG_FS:	return state[QLatin1String("fs_base")];
-					case edb::Operand::Segment::X86_REG_GS:	return state[QLatin1String("gs_base")];
+					case X86_REG_ES: return state[QLatin1String("es_base")];
+					case X86_REG_CS:	return state[QLatin1String("cs_base")];
+					case X86_REG_SS:	return state[QLatin1String("ss_base")];
+					case X86_REG_DS:	return state[QLatin1String("ds_base")];
+					case X86_REG_FS:	return state[QLatin1String("fs_base")];
+					case X86_REG_GS:	return state[QLatin1String("gs_base")];
+					default:
+						return Register();
+					}
+				}();
+
+				if(!segBase) return 0; // no way to reliably compute address
+				ret += segBase.valueAsAddress();
+			}
+		} else if(is_immediate(op)) {
+			const Register csBase = state["cs_base"];
+			if(!csBase) return 0; // no way to reliably compute address
+			ret = op->imm + csBase.valueAsAddress();
+		}
+	}
+
+	ok=true;
+	ret.normalize();
+	return ret;
+}
+
+#if 0
+//------------------------------------------------------------------------------
+// Name: get_effective_address
+// Desc:
+//------------------------------------------------------------------------------
+edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool& ok) {
+	edb::address_t ret = 0;
+	ok=false;
+
+	// TODO: get registers by index, not string! too slow
+
+	if(op.valid()) {
+
+		if(is_register(op)) {
+			ret = state[QString::fromStdString(edb::v1::formatter().to_string(op))].valueAsAddress();
+		} else if(is_expression(op)) {
+			const Register baseR  = state[QString::fromStdString(register_name(op.mem.base))];
+			const Register indexR = state[QString::fromStdString(register_name(op.mem.index))];
+			edb::address_t base  = 0;
+			edb::address_t index = 0;
+
+			if(!baseR)
+			{
+				if(op.mem.base!=X86_REG_INVALID)
+					return ret; // register is valid, but failed to be acquired from state
+			}
+			else
+			{
+				base=baseR.valueAsAddress();
+			}
+
+			if(!indexR)
+			{
+				if(op.mem.index!=X86_REG_INVALID)
+					return ret; // register is valid, but failed to be acquired from state
+			}
+			else
+			{
+				if(indexR.type()!=Register::TYPE_GPR)
+					return ret; // TODO: add support for VSIB addressing
+				index=indexR.valueAsAddress();
+			}
+
+			// This only makes sense for x86_64, but doesn't hurt on x86
+			if(op.mem.base == X86_REG_RIP) {
+				base += inst.byte_size();
+			}
+
+			ret = base + index * op.mem.scale + op.displacement();
+
+
+			std::size_t segRegIndex = op.expression().segment;
+
+			if(segRegIndex == X86_REG_INVALID && !debuggeeIs64Bit()) {
+				switch(op.mem.base) {
+				case X86_REG_BP:
+				case X86_REG_SP:
+				case X86_REG_EBP:
+				case X86_REG_ESP:
+					segRegIndex = X86_REG_SS;
+					break;
+				default:
+					segRegIndex = X86_REG_DS;
+					break;
+				}
+			}
+
+
+			if(segRegIndex != X86_REG_INVALID) {
+
+				const Register segBase = [&segRegIndex, &state](){
+					switch(segRegIndex) {
+					case X86_REG_ES: return state[QLatin1String("es_base")];
+					case X86_REG_CS:	return state[QLatin1String("cs_base")];
+					case X86_REG_SS:	return state[QLatin1String("ss_base")];
+					case X86_REG_DS:	return state[QLatin1String("ds_base")];
+					case X86_REG_FS:	return state[QLatin1String("fs_base")];
+					case X86_REG_GS:	return state[QLatin1String("gs_base")];
 					default:
 						return Register();
 					}
@@ -212,6 +310,7 @@ edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Op
 	ret.normalize();
 	return ret;
 }
+#endif
 
 //------------------------------------------------------------------------------
 // Name: format_pointer
@@ -555,14 +654,13 @@ void analyze_return(const State &state, const edb::Instruction &inst, QStringLis
 void analyze_call(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		const edb::Operand &operand = inst.operand(0);
-
-		if(operand.valid()) {
+	
+		if(const auto operand = inst[0]) {
 
 			bool ok;
 			const edb::address_t effective_address = get_effective_address(inst, operand, state,ok);
 			if(!ok) return;
-			const QString temp_operand             = QString::fromStdString(edb::v1::formatter().to_string(operand));
+			const auto temp_operand = QString::fromStdString(edb::v1::formatter().to_string(operand));
 
 
 			if(is_immediate(operand)) {
@@ -627,6 +725,7 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 					ret << QString("%1 = [%2] = ?").arg(temp_operand, edb::v1::format_pointer(effective_address));
 				}
 			}
+
 		}
 	}
 }
@@ -634,8 +733,8 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 bool isFPU_BCD(const edb::Instruction &inst) {
 
 	const auto op = inst.operation();
-	return op == edb::Instruction::Operation::X86_INS_FBLD ||
-		   op == edb::Instruction::Operation::X86_INS_FBSTP;
+	return op == X86_INS_FBLD ||
+		   op == X86_INS_FBSTP;
 }
 
 QString formatBCD(edb::value80 const& v) {
@@ -672,13 +771,11 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
-    	const edb::Operand *const operands = inst.operands();
-
 		for(std::size_t j = 0; j < inst.operand_count(); ++j) {
 
-			const edb::Operand &operand = operands[j];
+			const auto operand = inst[j];
 
-			if(operand.valid()) {
+			if(operand) {
 
 				QString temp_operand = QString::fromStdString(edb::v1::formatter().to_string(operand));
 
@@ -696,19 +793,19 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 					else {
 						if(reg.type()==Register::TYPE_FPU && reg.bitSize()==80)
 							valueString=formatFloat(reg.value<edb::value80>());
-						else if(operand.is_SIMD_SS(inst))
+						else if(is_SIMD_SS(operand))
 						{
 							valueString=formatFloat(reg.value<edb::value32>());
 							temp_operand+="_ss";
 						}
-						else if(operand.is_SIMD_SD(inst))
+						else if(is_SIMD_SD(operand))
 						{
 							valueString=formatFloat(reg.value<edb::value64>());
 							temp_operand+="_sd";
 						}
-						else if(operand.is_SIMD_PS(inst))
+						else if(is_SIMD_PS(operand))
 							valueString=formatPackedFloat<edb::value32>(reg.rawData(),reg.bitSize()/8);
-						else if(operand.is_SIMD_PD(inst))
+						else if(is_SIMD_PD(operand))
 							valueString=formatPackedFloat<edb::value64>(reg.rawData(),reg.bitSize()/8);
 						else
 							valueString = "0x" + reg.toHexString();
@@ -722,7 +819,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 
 					if(process->read_bytes(effective_address, &target, sizeof(target))) {
 
-                        switch(operand.size()) {
+                        switch(operand->size) {
 						case 1:
 							ret << QString("%1 = [%2] = 0x%3").arg(temp_operand, edb::v1::format_pointer(effective_address), edb::value8(target).toHexString());
 							break;
@@ -730,7 +827,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						{
 							const edb::value16 value(target);
 							QString valueStr;
-							if(inst.is_fpu_taking_integer())
+							if(is_fpu_taking_integer(inst))
 							{
 								valueStr=util::formatInt(value,NumberDisplayMode::Signed);
 								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
@@ -750,9 +847,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						{
 							const edb::value32 value(target);
 							QString valueStr;
-							if(inst.is_fpu_taking_float() || operand.is_SIMD_SS(inst))
+							if(is_fpu_taking_float(inst) || is_SIMD_SS(operand))
 								valueStr=formatFloat(value);
-							else if(inst.is_fpu_taking_integer())
+							else if(is_fpu_taking_integer(inst))
 							{
 								valueStr=util::formatInt(value,NumberDisplayMode::Signed);
 								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
@@ -763,9 +860,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 								if(signedValue>9 || signedValue<-9)
 									valueStr+=" (decimal)";
 							}
-							else if(operand.is_SIMD_PS(inst))
+							else if(is_SIMD_PS(operand))
 								valueStr=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value64));
-							else if(operand.is_SIMD_PD(inst))
+							else if(is_SIMD_PD(operand))
 								valueStr=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value64));
 							else
 								valueStr="0x"+value.toHexString();
@@ -776,9 +873,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						{
 							const edb::value64 value(target);
 							QString valueStr;
-							if(inst.is_fpu_taking_float() || operand.is_SIMD_SS(inst))
+							if(is_fpu_taking_float(inst) || is_SIMD_SS(operand))
 								valueStr=formatFloat(value);
-							else if(inst.is_fpu_taking_integer())
+							else if(is_fpu_taking_integer(inst))
 							{
 								valueStr=util::formatInt(value,NumberDisplayMode::Signed);
 								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
@@ -797,16 +894,16 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						case 10:
 						{
 							const edb::value80 value(target);
-							const QString valueStr = inst.is_fpu() ? isFPU_BCD(inst) ? formatBCD(value) : formatFloat(value) : "0x"+value.toHexString();
+							const QString valueStr = is_fpu(inst) ? isFPU_BCD(inst) ? formatBCD(value) : formatFloat(value) : "0x"+value.toHexString();
 							ret << QString("%1 = [%2] = %3").arg(temp_operand, edb::v1::format_pointer(effective_address), valueStr);
 							break;
 						}
 						case 16:
 						{
 							QString valueString;
-							if(operand.is_SIMD_PS(inst))
+							if(is_SIMD_PS(operand))
 								valueString=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value128));
-							else if(operand.is_SIMD_PD(inst))
+							else if(is_SIMD_PD(operand))
 								valueString=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value128));
 							else
 								valueString="0x"+edb::value128(target).toHexString();
@@ -816,9 +913,9 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						case 32:
 						{
 							QString valueString;
-							if(operand.is_SIMD_PS(inst))
+							if(is_SIMD_PS(operand))
 								valueString=formatPackedFloat<edb::value32>(reinterpret_cast<const char*>(&target),sizeof(edb::value256));
-							else if(operand.is_SIMD_PD(inst))
+							else if(is_SIMD_PD(operand))
 								valueString=formatPackedFloat<edb::value64>(reinterpret_cast<const char*>(&target),sizeof(edb::value256));
 							else
 								valueString="0x"+edb::value256(target).toHexString();
@@ -857,10 +954,10 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 		if(const int sz = edb::v1::get_instruction_bytes(addr, buffer)) {
 			edb::Instruction inst(buffer, buffer + sz, addr);
 			if(is_jump(inst)) {
-				const edb::Operand &operand = inst.operand(0);
+				const auto operand = inst[0];
 
 				if(is_immediate(operand)) {
-					const edb::address_t target = operand.immediate();
+					const edb::address_t target = operand->imm;
 
 					if(target == address) {
 						ret << ArchProcessor::tr("possible jump from %1").arg(edb::v1::format_pointer(addr));
@@ -1334,22 +1431,22 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 
 				// figure out the instruction type and display some information about it
 				// TODO: handle SETcc, LOOPcc, REPcc OP
-				if(inst.is_conditional_move()) {
+				if(is_conditional_move(inst)) {
 
 					analyze_cmov(state, inst, ret);
 
-				} else if(inst.is_ret()) {
+				} else if(is_ret(inst)) {
 
 					analyze_return(state, inst, ret);
 
-				} else if(inst.is_jump() || inst.is_call()) {
+				} else if(is_jump(inst) || is_call(inst)) {
 
 					if(is_conditional_jump(inst))
 						analyze_jump(state, inst, ret);
 					analyze_call(state, inst, ret);
-				} else if(inst.is_int()) {
+				} else if(is_int(inst)) {
 				#ifdef Q_OS_LINUX
-				   if((inst.operand(0).immediate() & 0xff) == 0x80) {
+				   if((inst[0]->imm & 0xff) == 0x80) {
 
 						analyze_syscall(state, inst, ret, state.gp_register(rAX).valueAsInteger());
 					} else {
@@ -1357,7 +1454,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 						analyze_operands(state, inst, ret);
 					}
 				#endif
-				} else if (inst.is_syscall() || inst.is_sysenter()) {
+				} else if (is_syscall(inst) || is_sysenter(inst)) {
 
 					analyze_syscall(state, inst, ret, state.gp_register(rAX).valueAsInteger());
 
@@ -1397,50 +1494,44 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 	// fetch the operands
 	if(inst) {
 
-    	const edb::Operand *const operands = inst.operands();
-
 		switch(inst.operation()) {
-		case edb::Instruction::Operation::X86_INS_NOP:
-		case edb::Instruction::Operation::X86_INS_INT3:
+		case X86_INS_NOP:
+		case X86_INS_INT3:
 			ret = true;
 			break;
 
-		case edb::Instruction::Operation::X86_INS_LEA:
+		case X86_INS_LEA:
 
         	Q_ASSERT(inst.operand_count() >= 2);
 
-			if(operands[0].valid() && operands[1].valid()) {
-				if(is_register(operands[0]) && is_expression(operands[1])) {
+			if(is_register(inst[0]) && is_expression(inst[1])) {
 
-					edb::Operand::Register reg1;
-					edb::Operand::Register reg2;
+				int reg1;
+				int reg2;
 
-					reg1 = operands[0].reg();
+				reg1 = inst[0]->reg;
 
-					if(operands[1].expression().scale == 1) {
-						if(operands[1].expression().displacement == 0) {
+				if(inst[1]->mem.scale == 1) {
+					if(inst[1]->mem.disp == 0) {
 
-							if(operands[1].expression().base == edb::Operand::Register::X86_REG_INVALID) {
-								reg2 = operands[1].expression().index;
-								ret = (reg1 == reg2);
-							} else if(operands[1].expression().index == edb::Operand::Register::X86_REG_INVALID) {
-								reg2 = operands[1].expression().base;
-								ret = (reg1 == reg2);
-							}
+						if(inst[1]->mem.base == X86_REG_INVALID) {
+							reg2 = inst[1]->mem.index;
+							ret = (reg1 == reg2);
+						} else if(inst[1]->mem.index == X86_REG_INVALID) {
+							reg2 = inst[1]->mem.base;
+							ret = (reg1 == reg2);
 						}
 					}
 				}
 			}
 			break;
 
-		case edb::Instruction::Operation::X86_INS_MOV:
+		case X86_INS_MOV:
 
         	Q_ASSERT(inst.operand_count() >= 2);
 
-			if(operands[0].valid() && operands[1].valid()) {
-				if(is_register(operands[0]) && is_register(operands[1])) {
-					ret = operands[0].reg() == operands[1].reg();
-				}
+			if(is_register(inst[0]) && is_register(inst[1])) {
+				ret = (inst[0]->reg == inst[1]->reg);
 			}
 			break;
 
@@ -1450,11 +1541,11 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 
 		if(!ret) {
 			if(edb::v1::config().zeros_are_filling) {
-				ret = (QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.size()) == QByteArray::fromRawData("\x00\x00", 2));
+				ret = (QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.byte_size()) == QByteArray::fromRawData("\x00\x00", 2));
 			}
 		}
 	} else {
-		ret = (inst.size() == 1 && inst.bytes()[0] == 0x00);
+		ret = (inst.byte_size() == 1 && inst.bytes()[0] == 0x00);
 	}
 
 	return ret;

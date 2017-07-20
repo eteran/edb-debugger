@@ -18,278 +18,125 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef INSTRUCTION_20150908_H
 #define INSTRUCTION_20150908_H
 
+#include "Formatter.h"
+#include "Operand.h"
+#include <capstone/capstone.h>
 #include <cstdint>
 #include <string>
-#include <vector>
 
 class QString;
 
 namespace CapstoneEDB {
 
 enum class Architecture {
-	ARCH_X86,
-	ARCH_AMD64,
-	ARCH_ARM32,
+	ARCH_X86, 
+	ARCH_AMD64, 
+	ARCH_ARM32, 
 	ARCH_ARM64
 };
 
 bool init(Architecture arch);
 bool isX86_64();
 
-namespace Capstone {
-#include <capstone/capstone.h>
-}
-
 class Instruction;
 class Formatter;
 
-class Operand
-{
-	friend class Instruction;
+class Instruction {
 	friend class Formatter;
-public:
-	using Register = Capstone::x86_reg;
-	using Segment  = Capstone::x86_reg; // NOTE(eteran): this is a bit wider of an enum than I'd prefer, but it's what capstone uses
-
-	enum Type {
-		TYPE_INVALID       = 0x00000000,
-		TYPE_REGISTER      = 0x00000100,
-		TYPE_IMMEDIATE     = 0x00000200,
-		TYPE_EXPRESSION    = 0x00000400,
-	};
-
-	struct expression_t {
-		Segment          segment              = Segment::X86_REG_INVALID;
-		Register         base                 = Register::X86_REG_INVALID;
-		Register         index                = Register::X86_REG_INVALID;
-		int32_t          displacement         = 0;
-		uint8_t          scale                = 0;
-	};
-
-private:
-	Operand(Instruction* instr, std::size_t numberInInstruction);
-
-public:
-	int32_t displacement() const     { return expr_.displacement; }
-	int64_t immediate() const        { return imm_; } // FIXME: do we really want it signed?
-	expression_t expression() const  { return expr_; }
-	Register reg() const             { return reg_; }
-
-public:
-	bool valid() const { return type_!=TYPE_INVALID; }
-    explicit operator bool() const { return valid(); }
-
-	int size() const  { return operand_->size; }
-	Type type() const { return type_; }
-
-	// Checks whether operand is a SIMD data register (MMX,XMM,YMM etc., but not e.g. kN)
-	bool is_simd_register() const;
-	bool is_SIMD_PS(const Instruction &inst) const;
-	bool is_SIMD_PD(const Instruction &inst) const;
-	bool is_SIMD_SS(const Instruction &inst) const;
-	bool is_SIMD_SD(const Instruction &inst) const;
-
-private:
-	bool apriori_not_simd(const Instruction &inst) const;
-	std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &inst) const;
-
-private:
-	union {
-		Register     reg_;
-		expression_t expr_;
-		int64_t      imm_;
-	};
-
-	Instruction* owner_ = nullptr;
-	Type         type_  = TYPE_INVALID;
-	std::size_t numberInInstruction_;
-
-
-	Capstone::cs_x86_op *operand_;
-};
-
-
-
-class Instruction
-{
 	friend class Operand;
-public:
-	using Operation = Capstone::x86_insn;
-
-	typedef Operand operand_type;
-public:
-	static constexpr std::size_t MAX_SIZE=15;
-	static constexpr std::size_t MAX_OPERANDS = 3;
 
 public:
-	Instruction(const void* first, const void* end, uint64_t rva) noexcept;
+	static constexpr std::size_t MAX_SIZE = 15;
 
 public:
-	Instruction(const Instruction&);
-	Instruction& operator=(const Instruction&);
+	Instruction(const void *first, const void *end, uint64_t rva) noexcept;
+	Instruction(const Instruction &)            = delete;
+	Instruction &operator=(const Instruction &) = delete;
+	Instruction(Instruction &&);
+	Instruction &operator=(Instruction &&);
+	~Instruction();
 
 public:
-	bool valid() const                       { return valid_; }
-	explicit operator bool () const          { return valid(); }
-	const uint8_t* bytes() const;
-	std::size_t operand_count() const;
-	const operand_type* operands() const     { return operands_.data(); }
-	const operand_type& operand(size_t n) const { return operands_[n]; }
+	bool valid() const {
+		return insn_;
+	}
+	
+	explicit operator bool() const {
+		return valid();
+	}
+
+public:
+	int operation() const             { return insn_ ? insn_->id                   : 0;             }
+	std::size_t operand_count() const { return insn_ ? insn_->detail->x86.op_count : 0;             }
+	std::size_t byte_size() const     { return insn_ ? insn_->size                 : 1;             }
+	uint64_t rva() const              { return insn_ ? insn_->address              : 0;             }
+	std::string mnemonic() const      { return insn_ ? insn_->mnemonic             : std::string(); }
+	const uint8_t *bytes() const      { return insn_ ? insn_->bytes                : &byte0_;       }
+
+public:
+	Operand operator[](size_t n) const;
+	Operand operand(size_t n) const;
+
+public:
+	const cs_insn *cs_insn_x() const {
+		return insn_;
+	}
+
+public:
+	cs_insn *operator->()             { return insn_; }
+	const cs_insn *operator->() const { return insn_; }
+
+public:
 	void swap(Instruction &other);
-	std::size_t size() const                 { return insn_.size; }
-	uint64_t rva() const                     { return insn_.address; }
-	std::string mnemonic() const;
 
-	const Capstone::cs_insn &cs_insn() const              { return insn_; }
-	const Capstone::cs_x86_op &cs_operand(size_t n) const { return insn_.detail->x86.operands[n]; }
-	const Capstone::cs_x86_op *cs_operands() const        { return insn_.detail->x86.operands; }
-
+public:
 	enum ConditionCode : uint8_t {
-		CC_UNCONDITIONAL=0x10, // value must be higher than 0xF
+		CC_UNCONDITIONAL = 0x10, // value must be higher than 0xF
 		CC_CXZ,
 		CC_ECXZ,
 		CC_RCXZ,
 
-		CC_B  = 2,   CC_C  = CC_B,
-		CC_E  = 4,   CC_Z  = CC_E,
-		CC_NA = 6,   CC_BE = CC_NA,
-		CC_S  = 8,
-		CC_P  = 0xA, CC_PE = CC_P,
-		CC_L  = 0xC, CC_NGE= CC_L,
-		CC_LE = 0xE, CC_NG = CC_LE,
+		CC_B   = 2,
+		CC_C   = CC_B,
+		CC_E   = 4,
+		CC_Z   = CC_E,
+		CC_NA  = 6,
+		CC_BE  = CC_NA,
+		CC_S   = 8,
+		CC_P   = 0xA,
+		CC_PE  = CC_P,
+		CC_L   = 0xC,
+		CC_NGE = CC_L,
+		CC_LE  = 0xE,
+		CC_NG  = CC_LE,
 
-		CC_NB = CC_B |1, CC_AE  = CC_NB,
-		CC_NE = CC_E |1, CC_NZ  = CC_NE,
-		CC_A  = CC_NA|1, CC_NBE = CC_A,
-		CC_NS = CC_S |1,
-		CC_NP = CC_P |1, CC_PO  = CC_NP,
-		CC_NL = CC_L |1, CC_GE  = CC_NL,
-		CC_NLE= CC_LE|1, CC_G   = CC_NLE
+		CC_NB  = CC_B | 1,
+		CC_AE  = CC_NB,
+		CC_NE  = CC_E | 1,
+		CC_NZ  = CC_NE,
+		CC_A   = CC_NA | 1,
+		CC_NBE = CC_A,
+		CC_NS  = CC_S | 1,
+		CC_NP  = CC_P | 1,
+		CC_PO  = CC_NP,
+		CC_NL  = CC_L | 1,
+		CC_GE  = CC_NL,
+		CC_NLE = CC_LE | 1,
+		CC_G   = CC_NLE
 	};
+	
 	ConditionCode condition_code() const;
-	Operation operation() const;
-
-	// Check for any type of interrupt, including int3 etc.
-	bool is_interrupt() const;
-	// Check that instruction is int N (x86 0xCD N)
-	bool is_int() const;
-	// Check that instruction is call .*
-	bool is_call() const;
-	// Check that instruction is P5 sysenter
-	bool is_sysenter() const;
-	// Check that instruction is x86-64 syscall
-	bool is_syscall() const;
-	// Check that instruction is any type of return
+	
 	bool is_return() const;
-	// Check that instruction is retn (x86 0xC3)
-	bool is_ret() const;
-	// Check that instruction is any type of jump
 	bool is_jump() const;
-	bool is_nop() const;
-	bool is_halt() const;
-	bool is_conditional_jump() const;
-	bool is_unconditional_jump() const;
-	bool is_conditional_fpu_move() const;
-	bool is_conditional_gpr_move() const;
-	bool is_conditional_set() const;
-	bool is_conditional_move() const { return is_conditional_fpu_move() || is_conditional_gpr_move(); }
-	bool is_terminator() const;
-	bool is_fpu() const;
-	// Check that instruction is an FPU instruction, taking only floating-point operands
-	bool is_fpu_taking_float() const;
-	// Check that instruction is an FPU instruction, one of operands of which is an integer
-	bool is_fpu_taking_integer() const;
-	// Check that instruction is an FPU instruction, one of operands of which is a packed BCD
-	bool is_fpu_taking_bcd() const;
-	// Check that instruction comes from any SIMD ISA extension
-	bool is_simd() const;
 
 private:
-	Operand fromCapstoneOperand(Capstone::cs_x86_op *ops, int i);
-
-private:
-	Capstone::cs_insn   insn_;
-	Capstone::cs_detail detail_;
-	bool valid_        = false;
-	uint8_t firstByte_ = 0;
-	std::vector<Operand> operands_;
+	cs_insn *insn_;
+	uint8_t  byte0_ = 0;
 };
 
-class Formatter
-{
-public:
-	enum Syntax {
-		SyntaxIntel,
-		SyntaxATT
-	};
-
-	enum Capitalization {
-		UpperCase,
-		LowerCase
-	};
-
-	struct FormatOptions {
-		Syntax            syntax;
-		Capitalization    capitalization;
-		bool 			  tabBetweenMnemonicAndOperands;
-		bool			  simplifyRIPRelativeTargets;
-	};
-
-public:
-	std::string to_string(const Instruction&) const;
-	std::string to_string(const Operand&) const;
-	std::string register_name(const Operand::Register) const;
-
-	FormatOptions options() const { return options_; }
-	void setOptions(const FormatOptions& options);
-private:
-	FormatOptions options_ = { SyntaxIntel, LowerCase, false, true };
-
-	void checkCapitalize(std::string& str,bool canContainHex=true) const;
-	QString adjustInstructionText(const Instruction& instruction) const;
-
-};
-
-inline bool is_call(const CapstoneEDB::Instruction& insn) {
-	return insn.is_call();
 }
 
-inline bool is_jump(const CapstoneEDB::Instruction& insn) {
-	return insn.is_jump();
-}
-
-inline bool is_ret(const CapstoneEDB::Instruction& insn) {
-	return insn.is_ret();
-}
-
-inline bool is_terminator(const CapstoneEDB::Instruction& insn) {
-	return insn.is_terminator();
-}
-
-inline bool is_conditional_jump(const CapstoneEDB::Instruction& insn) {
-	return insn.is_conditional_jump();
-}
-
-inline bool is_unconditional_jump(const CapstoneEDB::Instruction& insn) {
-	return insn.is_unconditional_jump();
-}
-
-inline bool is_register(const CapstoneEDB::Operand &operand) {
-	return operand.type() == Operand::TYPE_REGISTER;
-}
-
-inline bool is_expression(const CapstoneEDB::Operand &operand) {
-	return operand.type() == Operand::TYPE_EXPRESSION;
-}
-
-inline bool is_immediate(const CapstoneEDB::Operand &operand) {
-	return operand.type() == Operand::TYPE_IMMEDIATE;
-}
-
-bool is_repeat(const CapstoneEDB::Instruction &insn);
-}
-
-
+#include "Inspection.h"
 
 #endif
-	

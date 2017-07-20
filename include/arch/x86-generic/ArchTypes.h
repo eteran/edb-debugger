@@ -38,7 +38,7 @@ namespace edb {
 
 typedef value16                   seg_reg_t;
 typedef CapstoneEDB::Instruction  Instruction;
-typedef Instruction::operand_type Operand;
+typedef CapstoneEDB::Operand      Operand;
 
 }
 

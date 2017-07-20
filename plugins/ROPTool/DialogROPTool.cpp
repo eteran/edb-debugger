@@ -38,16 +38,16 @@ namespace ROPToolPlugin {
 
 namespace {
 
-bool is_nop(const edb::Instruction &inst) {
+bool is_effective_nop(const edb::Instruction &inst) {
 	if(inst) {
-		if(inst.is_nop()) {
+		if(is_nop(inst)) {
 			return true;
 		}
 
 		// TODO: does this effect flags?
-		if(inst.operation() == edb::Instruction::Operation::X86_INS_MOV && inst.operand_count() == 2) {
-			if(is_register(inst.operand(0)) && is_register(inst.operand(1))) {
-				if(inst.operand(0).reg() == inst.operand(1).reg()) {
+		if(inst.operation() == X86_INS_MOV && inst.operand_count() == 2) {
+			if(is_register(inst[0]) && is_register(inst[1])) {
+				if(inst[0]->reg == inst[1]->reg) {
 					return true;
 				}
 			}
@@ -55,9 +55,9 @@ bool is_nop(const edb::Instruction &inst) {
 		}
 
 		// TODO: does this effect flags?
-		if(inst.operation() == edb::Instruction::Operation::X86_INS_XCHG && inst.operand_count() == 2) {
-			if(is_register(inst.operand(0)) && is_register(inst.operand(1))) {
-				if(inst.operand(0).reg() == inst.operand(1).reg()) {
+		if(inst.operation() == X86_INS_XCHG && inst.operand_count() == 2) {
+			if(is_register(inst[0]) && is_register(inst[1])) {
+				if(inst[0]->reg == inst[1]->reg) {
 					return true;
 				}
 			}
@@ -180,113 +180,113 @@ void DialogROPTool::on_chkShowOther_stateChanged(int state) {
 void DialogROPTool::set_gadget_role(QStandardItem *item, const edb::Instruction &inst1) {
 
 	switch(inst1.operation()) {
-	case edb::Instruction::Operation::X86_INS_ADD:
-	case edb::Instruction::Operation::X86_INS_ADC:
-	case edb::Instruction::Operation::X86_INS_SUB:
-	case edb::Instruction::Operation::X86_INS_SBB:
-	case edb::Instruction::Operation::X86_INS_IMUL:
-	case edb::Instruction::Operation::X86_INS_MUL:
-	case edb::Instruction::Operation::X86_INS_IDIV:
-	case edb::Instruction::Operation::X86_INS_DIV:
-	case edb::Instruction::Operation::X86_INS_INC:
-	case edb::Instruction::Operation::X86_INS_DEC:
-	case edb::Instruction::Operation::X86_INS_NEG:
-	case edb::Instruction::Operation::X86_INS_CMP:
-	case edb::Instruction::Operation::X86_INS_DAA:
-	case edb::Instruction::Operation::X86_INS_DAS:
-	case edb::Instruction::Operation::X86_INS_AAA:
-	case edb::Instruction::Operation::X86_INS_AAS:
-	case edb::Instruction::Operation::X86_INS_AAM:
-	case edb::Instruction::Operation::X86_INS_AAD:
+	case X86_INS_ADD:
+	case X86_INS_ADC:
+	case X86_INS_SUB:
+	case X86_INS_SBB:
+	case X86_INS_IMUL:
+	case X86_INS_MUL:
+	case X86_INS_IDIV:
+	case X86_INS_DIV:
+	case X86_INS_INC:
+	case X86_INS_DEC:
+	case X86_INS_NEG:
+	case X86_INS_CMP:
+	case X86_INS_DAA:
+	case X86_INS_DAS:
+	case X86_INS_AAA:
+	case X86_INS_AAS:
+	case X86_INS_AAM:
+	case X86_INS_AAD:
 		// ALU ops
 		item->setData(0x01, Qt::UserRole + 1);
 		break;
-	case edb::Instruction::Operation::X86_INS_PUSH:
-	case edb::Instruction::Operation::X86_INS_PUSHAW:
-	case edb::Instruction::Operation::X86_INS_PUSHAL:
-	case edb::Instruction::Operation::X86_INS_POP:
-	case edb::Instruction::Operation::X86_INS_POPAW:
-	case edb::Instruction::Operation::X86_INS_POPAL:
+	case X86_INS_PUSH:
+	case X86_INS_PUSHAW:
+	case X86_INS_PUSHAL:
+	case X86_INS_POP:
+	case X86_INS_POPAW:
+	case X86_INS_POPAL:
 		// stack ops
 		item->setData(0x02, Qt::UserRole + 1);
 		break;
-	case edb::Instruction::Operation::X86_INS_AND:
-	case edb::Instruction::Operation::X86_INS_OR:
-	case edb::Instruction::Operation::X86_INS_XOR:
-	case edb::Instruction::Operation::X86_INS_NOT:
-	case edb::Instruction::Operation::X86_INS_SAR:
-	case edb::Instruction::Operation::X86_INS_SAL:
-	case edb::Instruction::Operation::X86_INS_SHR:
-	case edb::Instruction::Operation::X86_INS_SHL:
-	case edb::Instruction::Operation::X86_INS_SHRD:
-	case edb::Instruction::Operation::X86_INS_SHLD:
-	case edb::Instruction::Operation::X86_INS_ROR:
-	case edb::Instruction::Operation::X86_INS_ROL:
-	case edb::Instruction::Operation::X86_INS_RCR:
-	case edb::Instruction::Operation::X86_INS_RCL:
-	case edb::Instruction::Operation::X86_INS_BT:
-	case edb::Instruction::Operation::X86_INS_BTS:
-	case edb::Instruction::Operation::X86_INS_BTR:
-	case edb::Instruction::Operation::X86_INS_BTC:
-	case edb::Instruction::Operation::X86_INS_BSF:
-	case edb::Instruction::Operation::X86_INS_BSR:
+	case X86_INS_AND:
+	case X86_INS_OR:
+	case X86_INS_XOR:
+	case X86_INS_NOT:
+	case X86_INS_SAR:
+	case X86_INS_SAL:
+	case X86_INS_SHR:
+	case X86_INS_SHL:
+	case X86_INS_SHRD:
+	case X86_INS_SHLD:
+	case X86_INS_ROR:
+	case X86_INS_ROL:
+	case X86_INS_RCR:
+	case X86_INS_RCL:
+	case X86_INS_BT:
+	case X86_INS_BTS:
+	case X86_INS_BTR:
+	case X86_INS_BTC:
+	case X86_INS_BSF:
+	case X86_INS_BSR:
 		// logic ops
 		item->setData(0x04, Qt::UserRole + 1);
 		break;
-	case edb::Instruction::Operation::X86_INS_MOV:
-	case edb::Instruction::Operation::X86_INS_MOVABS:
-	case edb::Instruction::Operation::X86_INS_CMOVA:
-	case edb::Instruction::Operation::X86_INS_CMOVAE:
-	case edb::Instruction::Operation::X86_INS_CMOVB:
-	case edb::Instruction::Operation::X86_INS_CMOVBE:
-	case edb::Instruction::Operation::X86_INS_CMOVE:
-	case edb::Instruction::Operation::X86_INS_CMOVG:
-	case edb::Instruction::Operation::X86_INS_CMOVGE:
-	case edb::Instruction::Operation::X86_INS_CMOVL:
-	case edb::Instruction::Operation::X86_INS_CMOVLE:
-	case edb::Instruction::Operation::X86_INS_CMOVNE:
-	case edb::Instruction::Operation::X86_INS_CMOVNO:
-	case edb::Instruction::Operation::X86_INS_CMOVNP:
-	case edb::Instruction::Operation::X86_INS_CMOVNS:
-	case edb::Instruction::Operation::X86_INS_CMOVO:
-	case edb::Instruction::Operation::X86_INS_CMOVP:
-	case edb::Instruction::Operation::X86_INS_CMOVS:
-	case edb::Instruction::Operation::X86_INS_XCHG:
-	case edb::Instruction::Operation::X86_INS_BSWAP:
-	case edb::Instruction::Operation::X86_INS_XADD:
-	case edb::Instruction::Operation::X86_INS_CMPXCHG:
-	case edb::Instruction::Operation::X86_INS_CWD:
-	case edb::Instruction::Operation::X86_INS_CDQ:
-	case edb::Instruction::Operation::X86_INS_CQO:
-	case edb::Instruction::Operation::X86_INS_CDQE:
-	case edb::Instruction::Operation::X86_INS_CBW:
-	case edb::Instruction::Operation::X86_INS_CWDE:
-	case edb::Instruction::Operation::X86_INS_MOVSX:
-	case edb::Instruction::Operation::X86_INS_MOVZX:
-	case edb::Instruction::Operation::X86_INS_MOVSXD:
-	case edb::Instruction::Operation::X86_INS_MOVBE:
-	case edb::Instruction::Operation::X86_INS_MOVSB:
-	case edb::Instruction::Operation::X86_INS_MOVSW:
-	case edb::Instruction::Operation::X86_INS_MOVSD:
-	case edb::Instruction::Operation::X86_INS_MOVSQ:
-	case edb::Instruction::Operation::X86_INS_CMPSB:
-	case edb::Instruction::Operation::X86_INS_CMPSW:
-	case edb::Instruction::Operation::X86_INS_CMPSD:
-	case edb::Instruction::Operation::X86_INS_CMPSQ:
-	case edb::Instruction::Operation::X86_INS_SCASB:
-	case edb::Instruction::Operation::X86_INS_SCASW:
-	case edb::Instruction::Operation::X86_INS_SCASD:
-	case edb::Instruction::Operation::X86_INS_SCASQ:
-	case edb::Instruction::Operation::X86_INS_LODSB:
-	case edb::Instruction::Operation::X86_INS_LODSW:
-	case edb::Instruction::Operation::X86_INS_LODSD:
-	case edb::Instruction::Operation::X86_INS_LODSQ:
-	case edb::Instruction::Operation::X86_INS_STOSB:
-	case edb::Instruction::Operation::X86_INS_STOSW:
-	case edb::Instruction::Operation::X86_INS_STOSD:
-	case edb::Instruction::Operation::X86_INS_STOSQ:
-	case edb::Instruction::Operation::X86_INS_CMPXCHG8B:
-	case edb::Instruction::Operation::X86_INS_CMPXCHG16B:
+	case X86_INS_MOV:
+	case X86_INS_MOVABS:
+	case X86_INS_CMOVA:
+	case X86_INS_CMOVAE:
+	case X86_INS_CMOVB:
+	case X86_INS_CMOVBE:
+	case X86_INS_CMOVE:
+	case X86_INS_CMOVG:
+	case X86_INS_CMOVGE:
+	case X86_INS_CMOVL:
+	case X86_INS_CMOVLE:
+	case X86_INS_CMOVNE:
+	case X86_INS_CMOVNO:
+	case X86_INS_CMOVNP:
+	case X86_INS_CMOVNS:
+	case X86_INS_CMOVO:
+	case X86_INS_CMOVP:
+	case X86_INS_CMOVS:
+	case X86_INS_XCHG:
+	case X86_INS_BSWAP:
+	case X86_INS_XADD:
+	case X86_INS_CMPXCHG:
+	case X86_INS_CWD:
+	case X86_INS_CDQ:
+	case X86_INS_CQO:
+	case X86_INS_CDQE:
+	case X86_INS_CBW:
+	case X86_INS_CWDE:
+	case X86_INS_MOVSX:
+	case X86_INS_MOVZX:
+	case X86_INS_MOVSXD:
+	case X86_INS_MOVBE:
+	case X86_INS_MOVSB:
+	case X86_INS_MOVSW:
+	case X86_INS_MOVSD:
+	case X86_INS_MOVSQ:
+	case X86_INS_CMPSB:
+	case X86_INS_CMPSW:
+	case X86_INS_CMPSD:
+	case X86_INS_CMPSQ:
+	case X86_INS_SCASB:
+	case X86_INS_SCASW:
+	case X86_INS_SCASD:
+	case X86_INS_SCASQ:
+	case X86_INS_LODSB:
+	case X86_INS_LODSW:
+	case X86_INS_LODSD:
+	case X86_INS_LODSQ:
+	case X86_INS_STOSB:
+	case X86_INS_STOSW:
+	case X86_INS_STOSD:
+	case X86_INS_STOSQ:
+	case X86_INS_CMPXCHG8B:
+	case X86_INS_CMPXCHG16B:
 		// data ops
 		item->setData(0x08, Qt::UserRole + 1);
 		break;
@@ -302,26 +302,29 @@ void DialogROPTool::set_gadget_role(QStandardItem *item, const edb::Instruction 
 // Name: add_gadget
 // Desc:
 //------------------------------------------------------------------------------
-void DialogROPTool::add_gadget(QList<edb::Instruction> instructions) {
+void DialogROPTool::add_gadget(const InstructionList &instructions) {
 
-	if(!instructions.isEmpty()) {
-		const edb::Instruction inst1 = instructions.takeFirst();
+	if(!instructions.empty()) {
+	
+		auto it = instructions.begin();
+		auto inst1 = *it++;
 
-		QString instruction_string = QString("%1").arg(QString::fromStdString(edb::v1::formatter().to_string(inst1)));
-		for(const edb::Instruction &instruction: instructions) {
-			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().to_string(instruction))));
+		QString instruction_string = QString("%1").arg(QString::fromStdString(edb::v1::formatter().to_string(*inst1)));
+		for(; it != instructions.end(); ++it) {
+			auto inst = *it;
+			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().to_string(*inst))));
 		}
 
 		if(!ui->checkUnique->isChecked() || !unique_results_.contains(instruction_string)) {
 			unique_results_.insert(instruction_string);
 
 			// found a gadget
-			auto item = new QStandardItem(QString("%1: %2").arg(edb::v1::format_pointer(inst1.rva()), instruction_string));
+			auto item = new QStandardItem(QString("%1: %2").arg(edb::v1::format_pointer(inst1->rva()), instruction_string));
 
-			item->setData(static_cast<qulonglong>(inst1.rva()), Qt::UserRole);
+			item->setData(static_cast<qulonglong>(inst1->rva()), Qt::UserRole);
 
 			// TODO: make this look for 1st non-NOP
-			set_gadget_role(item, inst1);
+			set_gadget_role(item, *inst1);
 
 			result_model_->insertRow(result_model_->rowCount(), item);
 		}
@@ -369,69 +372,71 @@ void DialogROPTool::do_find() {
 							const quint8 *const l = p + bsa.size();
 							edb::address_t    rva = start_address - bsa.size() + 1;
 
-							QList<edb::Instruction> instruction_list;
+							InstructionList instruction_list;
 
 							// eat up any NOPs in front...
 							Q_FOREVER {
-								edb::Instruction inst(p, l, rva);
-								if(!is_nop(inst)) {
+								auto inst = std::make_shared<edb::Instruction>(p, l, rva);
+								if(!is_effective_nop(*inst)) {
 									break;
 								}
 
-								instruction_list << inst;
-								p += inst.size();
-								rva += inst.size();
+								instruction_list.push_back(inst);
+								p   += inst->byte_size();
+								rva += inst->byte_size();
 							}
 
 
-							edb::Instruction inst1(p, l, rva);
-							if(inst1) {
-								instruction_list << inst1;
+							auto inst1 = std::make_shared<edb::Instruction>(p, l, rva);
+							if(inst1->valid()) {
+								instruction_list.push_back(inst1);
 
-								if(inst1.operation() == edb::Instruction::Operation::X86_INS_INT && is_immediate(inst1.operand(0)) && (inst1.operand(0).immediate() & 0xff) == 0x80) {
+								if(is_int(*inst1) && is_immediate(inst1->operand(0)) && (inst1->operand(0)->imm & 0xff) == 0x80) {
 									add_gadget(instruction_list);
-								} else if(inst1.operation() == edb::Instruction::Operation::X86_INS_SYSENTER) {
+								} else if(is_sysenter(*inst1)) {
 									add_gadget(instruction_list);
-								} else if(inst1.operation() == edb::Instruction::Operation::X86_INS_SYSCALL) {
+								} else if(is_syscall(*inst1)) {
 									add_gadget(instruction_list);
-								} else if(is_ret(inst1)) {
+								} else if(is_ret(*inst1)) {
 									ui->progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
 									++start_address;
 									continue;
 								} else {
 
-									p += inst1.size();
-									rva += inst1.size();
+									p   += inst1->byte_size();
+									rva += inst1->byte_size();
 
 									// eat up any NOPs in between...
 									Q_FOREVER {
-										edb::Instruction inst(p, l, rva);
-										if(!is_nop(inst)) {
+										auto inst = std::make_shared<edb::Instruction>(p, l, rva);
+										if(!is_effective_nop(*inst)) {
 											break;
 										}
 
-										instruction_list << inst;
-										p += inst.size();
-										rva += inst.size();
+										instruction_list.push_back(inst);
+										p   += inst->byte_size();
+										rva += inst->byte_size();
 									}
 
-									edb::Instruction inst2(p, l, rva);
-									if(is_ret(inst2)) {
-										instruction_list << inst2;
+									auto inst2 = std::make_shared<edb::Instruction>(p, l, rva);
+
+									if(is_ret(*inst2)) {
+										instruction_list.push_back(inst2);
 										add_gadget(instruction_list);
-									} else if(inst2 && inst2.operation() == edb::Instruction::Operation::X86_INS_POP) {
-										instruction_list << inst2;
-										p += inst2.size();
-										rva += inst2.size();
+									} else if(inst2->valid() && inst2->operation() == X86_INS_POP) {
+										instruction_list.push_back(inst2);
+										p   += inst2->byte_size();
+										rva += inst2->byte_size();
 
-										edb::Instruction inst3(p, l, rva);
-										if(inst3 && inst3.operation() == edb::Instruction::Operation::X86_INS_JMP) {
+										auto inst3 = std::make_shared<edb::Instruction>(p, l, rva);
+										
+										if(inst3->valid() && is_jump(*inst3)) {
 
-											instruction_list << inst3;
+											instruction_list.push_back(inst3);
 
-											if(inst2.operand_count() == 1 && is_register(inst2.operand(0))) {
-												if(inst3.operand_count() == 1 && is_register(inst3.operand(0))) {
-													if(inst2.operand(0).reg() == inst3.operand(0).reg()) {
+											if(inst2->operand_count() == 1 && is_register(inst2->operand(0))) {
+												if(inst3->operand_count() == 1 && is_register(inst3->operand(0))) {
+													if(inst2->operand(0)->reg == inst3->operand(0)->reg) {
 														add_gadget(instruction_list);
 													}
 												}

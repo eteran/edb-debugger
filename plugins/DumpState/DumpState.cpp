@@ -159,7 +159,7 @@ void DumpState::dump_code(const State &state) {
 			} else {
 				break;
 			}
-			address += inst.size();
+			address += inst.byte_size();
 		} else {
 			break;
 		}

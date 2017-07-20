@@ -60,6 +60,7 @@ set(edb_SRCS
 	BinaryString.cpp
 	ByteShiftArray.cpp
 	capstone-edb/Instruction.cpp
+	capstone-edb/Inspection.cpp
 	CommentServer.cpp
 	Configuration.cpp
 	DataViewInfo.cpp

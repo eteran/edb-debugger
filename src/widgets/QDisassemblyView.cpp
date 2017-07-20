@@ -117,7 +117,7 @@ bool near_line(int x, int linex) {
 //------------------------------------------------------------------------------
 int instruction_size(const quint8 *buffer, std::size_t size) {
 	edb::Instruction inst(buffer, buffer + size, 0);
-	return inst.size();
+	return inst.byte_size();
 }
 
 //------------------------------------------------------------------------------
@@ -130,8 +130,8 @@ size_t length_disasm_back(const quint8 *buf,const size_t bufSize,const size_t cu
 	size_t finalSize=0;
 	for(size_t offs = curInstOffset-1;offs!=size_t(-1);--offs) {
 		const edb::Instruction inst(buf+offs, buf+curInstOffset, 0);
-		if(inst && offs+inst.size()==curInstOffset) {
-			finalSize=inst.size();
+		if(inst && offs+inst.byte_size()==curInstOffset) {
+			finalSize=inst.byte_size();
 		}
 	}
 	if(finalSize) return finalSize;
@@ -143,8 +143,8 @@ size_t length_disasm_back(const quint8 *buf,const size_t bufSize,const size_t cu
 	for(size_t offs = curInstOffset-1;offs!=size_t(-1);--offs) {
 		const edb::Instruction instPrev(buf+offs, buf+curInstOffset,0);
 		if(!instPrev) continue;
-		const edb::Instruction instNewCur(buf+offs+instPrev.size(),buf+bufSize,0);
-		if(instNewCur && offs+instPrev.size()+instNewCur.size()==curInstOffset+originalCurrentInst.size()) {
+		const edb::Instruction instNewCur(buf+offs+instPrev.byte_size(),buf+bufSize,0);
+		if(instNewCur && offs+instPrev.byte_size()+instNewCur.byte_size()==curInstOffset+originalCurrentInst.byte_size()) {
 			finalSize=curInstOffset-offs;
 		}
 	}
@@ -165,18 +165,18 @@ size_t length_disasm_back(const quint8 *buf,const size_t bufSize,const size_t cu
 // Name: format_instruction_bytes
 // Desc:
 //------------------------------------------------------------------------------
-QString format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, const QFontMetrics &metrics) {
-	const QString byte_buffer =
-	edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.size()));
-	return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
+QString format_instruction_bytes(const edb::Instruction &inst) {
+	auto bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.byte_size());
+	return edb::v1::format_bytes(bytes);
 }
 
 //------------------------------------------------------------------------------
 // Name: format_instruction_bytes
 // Desc:
 //------------------------------------------------------------------------------
-QString format_instruction_bytes(const edb::Instruction &inst) {
-	return edb::v1::format_bytes(QByteArray::fromRawData(reinterpret_cast<const char *>(inst.bytes()), inst.size()));
+QString format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, const QFontMetrics &metrics) {
+	const QString byte_buffer = format_instruction_bytes(inst);
+	return metrics.elidedText(byte_buffer, Qt::ElideRight, maxStringPx);
 }
 
 }
@@ -283,9 +283,9 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 					if(inst.operand_count() != 1) {
 						return;
 					}
-					const edb::Operand &oper = inst.operand(0);
+					const auto oper = inst[0];
 					if(is_immediate(oper)) {
-						const edb::address_t target = oper.immediate();
+						const edb::address_t target = oper->imm;
 						edb::v1::jump_to_address(target);
 					}
 				}
@@ -357,11 +357,11 @@ edb::address_t QDisassemblyView::previous_instructions(edb::address_t current_ad
 
 							// if the NEXT address would be our target, then
 							// we are at the previous instruction!
-							if(function_start + inst.size() >= current_address + address_offset_) {
+							if(function_start + inst.byte_size() >= current_address + address_offset_) {
 								break;
 							}
 
-							function_start += inst.size();
+							function_start += inst.byte_size();
 						} else {
 							break;
 						}
@@ -426,7 +426,7 @@ edb::address_t QDisassemblyView::following_instructions(edb::address_t current_a
 		} else {
 			const edb::Instruction inst(buf, buf + buf_size, current_address);
 			if(inst) {
-				current_address += inst.size();
+				current_address += inst.byte_size();
 			} else {
 				current_address += 1;
 				break;
@@ -630,19 +630,19 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 
     if(is_call(inst) || is_jump(inst)) {
         if(inst.operand_count() == 1) {
-            const edb::Operand &oper = inst.operand(0);
+            const auto oper = inst[0];
             if(is_immediate(oper)) {
 
                 const bool showSymbolicAddresses=edb::v1::config().show_symbolic_addresses;
 
                 static const QRegExp addrPattern(QLatin1String("0x[0-9a-fA-F]+"));
-                const edb::address_t target = oper.immediate();
+                const edb::address_t target = oper->imm;
 
                 const bool showLocalModuleNames=edb::v1::config().show_local_module_name_in_jump_targets;
                 const bool prefixed=showLocalModuleNames || !targetIsLocal(target,inst.rva());
                 QString sym = edb::v1::symbol_manager().find_address_name(target, prefixed);
 
-                if(sym.isEmpty() && target == inst.size() + inst.rva()) {
+                if(sym.isEmpty() && target == inst.byte_size() + inst.rva()) {
                     sym = showSymbolicAddresses ? tr("<next instruction>") : tr("next instruction");
                 } else if(sym.isEmpty() && target == inst.rva()) {
                     sym = showSymbolicAddresses ? tr("$") : tr("current instruction");
@@ -669,7 +669,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 
 	const bool is_filling = edb::v1::arch_processor().is_filling(inst);
 	int x                 = font_width_ + font_width_ + l2 + (font_width_ / 2);
-	const int ret         = inst.size();
+	const int ret         = inst.byte_size();
 	const int inst_pixel_width = l3 - x;
 
 	if(inst) {
@@ -777,7 +777,7 @@ QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instructio
 		painter.setPen(invalid_dis_color);
 	}
 
-	switch(inst.size()) {
+	switch(inst.byte_size()) {
 	case 1:
 		qsnprintf(byte_buffer, sizeof(byte_buffer), "db 0x%02x", buf[0] & 0xff);
 		break;
@@ -858,8 +858,12 @@ unsigned QDisassemblyView::updateDisassembly(unsigned lines_to_render)
 			address // address of instruction
 		);
 		show_addresses_.push_back(address);
-
-		offset += instructions_[line].size();
+;
+		if(instructions_[line].valid()) {
+			offset += instructions_[line].byte_size();
+		} else {
+			++offset;
+		}
 		line++;
 	}
 	Q_ASSERT(line <= lines_to_render);
@@ -1106,8 +1110,8 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 		auto painter_lambda = [&](const edb::Instruction &inst, int line) {
 			// for relative jumps draw the jump direction indicators
-			if(is_jump(inst) && is_immediate(inst.operand(0))) {
-				const edb::address_t target = inst.operand(0).immediate();
+			if(is_jump(inst) && is_immediate(inst[0])) {
+				const edb::address_t target = inst[0]->imm;
 
 				if(target != inst.rva()) {
 					painter.drawText(
@@ -1195,7 +1199,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 				// find the end and draw the other corner
 				for (end_line = start_line; end_line < lines_to_render; end_line++) {
-					auto adjusted_end_addr = show_addresses_[end_line] + instructions_[end_line].size() - 1;
+					auto adjusted_end_addr = show_addresses_[end_line] + instructions_[end_line].byte_size() - 1;
 					if (adjusted_end_addr == end_addr) {
 						auto y = end_line * line_height;
 						// half of a vertical
@@ -1250,19 +1254,19 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 				// draw ascii representations of immediate constants
 				unsigned int op_count = inst.operand_count();
 				for (unsigned int op_idx = 0; op_idx < op_count; op_idx++) {
-					auto oper = inst.operand(op_idx);
+					auto oper = inst[op_idx];
 					edb::address_t ascii_address = 0;
 					if (is_immediate(oper)) {
-						ascii_address = oper.immediate();
+						ascii_address = oper->imm;
 					} else if (
 						is_expression(oper) &&
-						oper.expression().index == edb::Operand::Register::X86_REG_INVALID &&
-						oper.expression().displacement != 0)
+						oper->mem.index == X86_REG_INVALID &&
+						oper->mem.disp != 0)
 					{
-						if (oper.expression().base == edb::Operand::Register::X86_REG_RIP) {
-							ascii_address += address + inst.size() + oper.expression().displacement;
-						} else if (oper.expression().base == edb::Operand::Register::X86_REG_INVALID && oper.expression().displacement > 0) {
-							ascii_address = oper.expression().displacement;
+						if (oper->mem.base == X86_REG_RIP) {
+							ascii_address += address + inst.byte_size() + oper->mem.disp;
+						} else if (oper->mem.base == X86_REG_INVALID && oper->mem.disp > 0) {
+							ascii_address = oper->mem.disp;
 						}
 					}
 
