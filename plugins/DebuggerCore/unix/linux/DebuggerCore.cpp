@@ -166,19 +166,22 @@ DebuggerCore::DebuggerCore() :
 	
 	 {
 
+#if 0
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	qDebug() << "EDB is in" << (edbIsIn64BitSegment ? "64" : "32") << "bit segment";
 	qDebug() << "OS is" << (osIs64Bit ? "64" : "32") << "bit";
+#endif
 #endif
 
 	proc_mem_write_broken_ = true;
 	proc_mem_read_broken_  = true;
 
 	feature::detect_proc_access(&proc_mem_read_broken_, &proc_mem_write_broken_);
-	qDebug() << "Detect that read /proc/<pid>/mem works  = " << !proc_mem_read_broken_;
-	qDebug() << "Detect that write /proc/<pid>/mem works = " << !proc_mem_write_broken_;
 
 	if(proc_mem_read_broken_ || proc_mem_write_broken_) {
+
+		qDebug() << "Detect that read /proc/<pid>/mem works  = " << !proc_mem_read_broken_;
+		qDebug() << "Detect that write /proc/<pid>/mem works = " << !proc_mem_write_broken_;
 
 		QSettings settings;
 		const bool warn = settings.value("DebuggerCore/warn_on_broken_proc_mem.enabled", true).toBool();
