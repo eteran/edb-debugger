@@ -59,6 +59,10 @@ public:
 	// Mask to be applied to register values prior to comparing them.  Will
 	// typically be ((1 << nbytes) - 1), but some registers may have special
 	// comparison semantics.
+	//
+	// NOTE(eteran): there is a max of 64-bits on the mask, for larger registers
+	// we should set this to zero and let the consumer wory about which bits 
+	// are valid
 	std::uint64_t comparison_mask;
 };
 
