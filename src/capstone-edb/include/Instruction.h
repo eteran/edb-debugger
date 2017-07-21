@@ -69,7 +69,7 @@ public:
 	int operation() const             { return insn_ ? insn_->id                   : 0;             }
 	std::size_t operand_count() const { return insn_ ? insn_->detail->x86.op_count : 0;             }
 	std::size_t byte_size() const     { return insn_ ? insn_->size                 : 1;             }
-	uint64_t rva() const              { return insn_ ? insn_->address              : 0;             }
+	uint64_t rva() const              { return insn_ ? insn_->address              : rva_;          }
 	std::string mnemonic() const      { return insn_ ? insn_->mnemonic             : std::string(); }
 	const uint8_t *bytes() const      { return insn_ ? insn_->bytes                : &byte0_;       }
 
@@ -132,7 +132,11 @@ public:
 
 private:
 	cs_insn *insn_;
+	
+	// we have our own copies of this data so we can give something meaningful
+	// even during a failed disassembly
 	uint8_t  byte0_ = 0;
+	uint64_t rva_   = 0;
 };
 
 }

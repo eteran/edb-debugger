@@ -672,10 +672,10 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 	const int ret         = inst.byte_size();
 	const int inst_pixel_width = l3 - x;
 
+	const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled && !selected;
+
 	if(inst) {
         QString opcode = instructionString(inst);
-
-		const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled && !selected;
 
 		if(is_filling) {
             if(syntax_highlighting_enabled) {
@@ -750,6 +750,10 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 		}
 
 	} else {
+		if(syntax_highlighting_enabled) {
+			painter.setPen(invalid_dis_color);
+		}
+
 		QString asm_buffer = format_invalid_instruction_bytes(inst, painter);
 		asm_buffer = painter.fontMetrics().elidedText(asm_buffer, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
 
@@ -772,10 +776,6 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instruction &inst, QPainter &painter) const {
 	char byte_buffer[32];
 	const quint8 *const buf = inst.bytes();
-
-	if(edb::v1::config().syntax_highlighting_enabled) {
-		painter.setPen(invalid_dis_color);
-	}
 
 	switch(inst.byte_size()) {
 	case 1:

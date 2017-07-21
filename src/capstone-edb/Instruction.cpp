@@ -710,16 +710,19 @@ bool init(Architecture arch) {
 	return true;
 }
 
-Instruction::Instruction(Instruction &&other) : insn_(other.insn_), byte0_(other.byte0_) {
+Instruction::Instruction(Instruction &&other) : insn_(other.insn_), byte0_(other.byte0_), rva_(other.rva_) {
 	other.insn_  = nullptr;
 	other.byte0_ = 0;
+	other.rva_   = 0;
 }
 
 Instruction &Instruction::operator=(Instruction &&rhs) {
 	insn_      = rhs.insn_;
 	byte0_     = rhs.byte0_;
+	rva_       = rhs.rva_;
 	rhs.insn_  = nullptr;
 	rhs.byte0_ = 0;
+	rhs.rva_   = 0;
 	return *this;
 }
 
@@ -729,7 +732,7 @@ Instruction::~Instruction() {
 	}
 }
 
-Instruction::Instruction(const void *first, const void *last, uint64_t rva) noexcept {
+Instruction::Instruction(const void *first, const void *last, uint64_t rva) noexcept : rva_(rva) {
 	assert(capstoneInitialized);
 	auto codeBegin = static_cast<const uint8_t *>(first);
 	auto codeEnd   = static_cast<const uint8_t *>(last);
