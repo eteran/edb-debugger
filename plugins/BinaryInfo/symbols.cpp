@@ -245,6 +245,11 @@ void collect_symbols(const void *p, size_t size, QList<typename M::symbol> &symb
 
 					const int sym_index                = M::elf_r_sym(relocation[i].r_info);
 					const elf_section_header_t *linked = &sections_begin[section->sh_link];
+
+                    if(linked->sh_offset == 0) {
+                        continue;
+                    }
+
 					auto symbol_tab                    = reinterpret_cast<elf_symbol_t*>(base + linked->sh_offset);
 					auto string_tab                    = reinterpret_cast<const char*>(base + sections_begin[linked->sh_link].sh_offset);
 
@@ -278,6 +283,11 @@ void collect_symbols(const void *p, size_t size, QList<typename M::symbol> &symb
 
 					const int sym_index                = M::elf_r_sym(relocation[i].r_info);
 					const elf_section_header_t *linked = &sections_begin[section->sh_link];
+
+                    if(linked->sh_offset == 0) {
+                        continue;
+                    }
+
 					auto symbol_tab                    = reinterpret_cast<elf_symbol_t*>(base + linked->sh_offset);
 					auto string_tab                    = reinterpret_cast<const char*>(base + sections_begin[linked->sh_link].sh_offset);
 
