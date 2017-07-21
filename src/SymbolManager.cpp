@@ -179,6 +179,11 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 
 	// TODO(eteran): support filename starting with "http://" being fetched from a web server
 
+	QFile symbolFile(f);
+	if(symbolFile.size() == 0) {
+		symbolFile.remove();
+	}
+
 	std::ifstream file(qPrintable(f));
 	if(file) {
 		edb::v1::set_status(QObject::tr("Loading symbols: %1").arg(f),0);
@@ -199,7 +204,6 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 					qDebug() << "Your symbol file for" << library_filename << "appears to not match the actual file, perhaps you should rebuild your symbols?";
 					const Configuration &config = edb::v1::config();
 					if(config.remove_stale_symbols) {
-						QFile symbolFile(f);
 						symbolFile.remove();
 
 						if(allow_retry) {
