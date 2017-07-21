@@ -971,9 +971,10 @@ QString Analyzer::get_analysis_path(const std::shared_ptr<IRegion> &region) cons
 	// ensure that the sub-directory exists
 	QDir().mkpath(path);
 
-	return tr("%1/%2"".Analysis.%3").arg(path, name, QString::number(
-		region->start() - loaded_address + base_address, 16
-	));
+	return tr("%1/%2.Analysis.%3").arg(
+		path,
+		name,
+		QString::number(region->start() - loaded_address + base_address, 16));
 }
 
 #if QT_VERSION < 0x050000
