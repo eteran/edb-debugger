@@ -279,7 +279,7 @@ void PlatformState::fillFrom(const UserRegsStructX86_64 &regs) {
 	x86.GPRegs[X86::R14] = regs.r14;
 	x86.GPRegs[X86::R15] = regs.r15;
 	x86.orig_ax          = regs.orig_rax;
-	x86.flags            = regs.eflags;
+	x86.flags            = regs.rflags;
 	x86.IP               = regs.rip;
 	x86.segRegs[X86::ES] = regs.es;
 	x86.segRegs[X86::CS] = regs.cs;
@@ -549,7 +549,7 @@ void PlatformState::fillStruct(UserRegsStructX86_64 &regs) const {
 		regs.fs_base  = x86.segRegBases[X86::FS];
 		regs.gs_base  = x86.segRegBases[X86::GS];
 		regs.orig_rax = x86.orig_ax;
-		regs.eflags   = x86.flags;
+		regs.rflags   = x86.flags;
 		regs.rip      = x86.IP;
 	}
 }
