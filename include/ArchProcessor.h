@@ -48,18 +48,6 @@ public:
 	RegisterViewModelBase::Model& get_register_view_model() const;
 
 private:
-	enum class FPUOrderMode {
-		Stack, // ST(i)
-		Independent // Ri
-	};
-
-private:
-	void setupFPURegisterMenu(QMenu& menu);
-	void setupMMXRegisterMenu(QMenu& menu);
-	void setupSSEAVXRegisterMenu(QMenu& menu, const QString& extType);
-	QString getRoundingMode(unsigned modeBits) const;
-
-private:
 	bool just_attached_ = true;
 	bool has_mmx_;
 	bool has_xmm_;
