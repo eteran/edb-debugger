@@ -33,7 +33,7 @@ public:
 	bool valid() const                  { return operand_; }
 	explicit operator bool() const      { return valid();  }
 	const cs_x86_op *operator->() const { return operand_; }
-	const cs_x86_op *operand() const    { return operand_; }
+	const cs_x86_op *native() const     { return operand_; }
 	int index() const                   { return index_;   }
 
 public:

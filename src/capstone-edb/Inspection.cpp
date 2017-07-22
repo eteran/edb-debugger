@@ -43,10 +43,6 @@ bool is_syscall(const Instruction &insn) {
 	return insn && insn.operation() == X86_INS_SYSCALL;
 }
 
-bool is_return(const Instruction &insn) {
-	return insn.is_return();
-}
-
 bool is_interrupt(const Instruction &insn) {
 	if(!insn) return false;
 	const int op = insn.operation();
@@ -59,10 +55,6 @@ bool is_ret(const Instruction &insn) {
 
 bool is_int(const Instruction &insn) {
 	return insn && insn.operation() == X86_INS_INT;
-}
-
-bool is_jump(const Instruction &insn) {
-	return insn.is_jump();
 }
 
 bool is_nop(const Instruction &insn) {
@@ -184,7 +176,7 @@ bool is_conditional_move(const Instruction &insn) {
 bool is_fpu_taking_float(const Instruction &insn) {
 	if (!insn)
 		return false;
-		
+
 	if (!is_fpu(insn))
 		return false;
 
@@ -256,12 +248,32 @@ bool is_simd(const Instruction &insn) {
 		return false;
 
 	const x86_insn_group simdGroups[] = {
-	    X86_GRP_3DNOW, X86_GRP_AVX,   X86_GRP_AVX2,  X86_GRP_AVX512, X86_GRP_FMA, X86_GRP_FMA4, X86_GRP_MMX, X86_GRP_SSE1, X86_GRP_SSE2, X86_GRP_SSE3,
-	    X86_GRP_SSE41, X86_GRP_SSE42, X86_GRP_SSE4A, X86_GRP_SSSE3,  X86_GRP_XOP, X86_GRP_CDI,  X86_GRP_ERI, X86_GRP_PFI,  X86_GRP_VLX,  X86_GRP_NOVLX,
+		X86_GRP_3DNOW,
+		X86_GRP_AVX,
+		X86_GRP_AVX2,
+		X86_GRP_AVX512,
+		X86_GRP_FMA,
+		X86_GRP_FMA4,
+		X86_GRP_MMX,
+		X86_GRP_SSE1,
+		X86_GRP_SSE2,
+		X86_GRP_SSE3,
+		X86_GRP_SSE41,
+		X86_GRP_SSE42,
+		X86_GRP_SSE4A,
+		X86_GRP_SSSE3,
+		X86_GRP_XOP,
+		X86_GRP_CDI,
+		X86_GRP_ERI,
+		X86_GRP_PFI,
+		X86_GRP_VLX,
+		X86_GRP_NOVLX,
 	};
+
 	for (auto g = 0; g < insn->detail->groups_count; ++g)
 		if (util::contains(simdGroups, insn->detail->groups[g]))
 			return true;
+
 	return false;
 }
 

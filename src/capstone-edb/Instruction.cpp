@@ -16,12 +16,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "Instruction.h"
-#include "Util.h"
 
 #include <QRegExp>
 #include <QString>
 #include <QStringList>
 
+#include <vector>
 #include <algorithm>
 #include <cassert>
 #include <cctype>
@@ -40,40 +40,7 @@ bool         capstoneInitialized = false;
 csh          csh                 = 0;
 Formatter    activeFormatter;
 
-bool is_simd(const cs_insn *insn) {
-	constexpr x86_insn_group simdGroups[] = {
-	    X86_GRP_3DNOW,
-		X86_GRP_AVX,  
-		X86_GRP_AVX2, 
-		X86_GRP_AVX512,
-		X86_GRP_FMA,
-		X86_GRP_FMA4,
-		X86_GRP_MMX,
-		X86_GRP_SSE1,
-		X86_GRP_SSE2,
-		X86_GRP_SSE3,
-	    X86_GRP_SSE41,
-		X86_GRP_SSE42,
-		X86_GRP_SSE4A,
-		X86_GRP_SSSE3,
-		X86_GRP_XOP,
-		X86_GRP_CDI,
-		X86_GRP_ERI,
-		X86_GRP_PFI,
-		X86_GRP_VLX,
-		X86_GRP_NOVLX,
-	};
-
-	for (auto g = 0; g < insn->detail->groups_count; ++g) {
-		if (util::contains(simdGroups, insn->detail->groups[g])) {
-			return true;
-		}
-	}
-
-	return false;
-}
-
-bool is_simd_register(const cs_x86_op *operand) {
+bool is_simd_register(const Operand &operand) {
 
 	if (operand->type != X86_OP_REG)
 		return false;
@@ -91,7 +58,7 @@ bool is_simd_register(const cs_x86_op *operand) {
 	return false;
 }
 
-bool apriori_not_simd(const cs_insn *insn, const cs_x86_op *operand) {
+bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
 
 	if (!is_simd(insn))
 		return true;
@@ -102,27 +69,26 @@ bool apriori_not_simd(const cs_insn *insn, const cs_x86_op *operand) {
 	return false;
 }
 
-bool KxRegisterPresent(const cs_insn *insn) {
+bool KxRegisterPresent(const Instruction &insn) {
 
-	const auto operandCount = insn->detail->x86.op_count;
+	const auto operandCount = insn.operand_count();
 
 	for (std::size_t i = 0; i < operandCount; ++i) {
-
-		const auto op = insn->detail->x86.operands[i];
-
-		if (op.type == X86_OP_REG && X86_REG_K0 <= op.reg && op.reg <= X86_REG_K7) {
+		const auto op = insn[i];
+		if (op->type == X86_OP_REG && X86_REG_K0 <= op->reg && op->reg <= X86_REG_K7) {
 			return true;
 		}
 	}
+
 	return false;
 }
 
-std::size_t simdOperandNormalizedNumberInInstruction(const cs_insn *insn, const cs_x86_op *operand) {
+std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, const Operand &operand) {
 
 	assert(!apriori_not_simd(insn, operand));
 
-	std::size_t number       = std::distance((const cs_x86_op *)insn->detail->x86.operands, operand);
-	const auto  operandCount = insn->detail->x86.op_count;
+	std::size_t number       = operand.index();
+	const auto  operandCount = insn.operand_count();
 
 	// normalized number is according to Intel order
 	if (activeFormatter.options().syntax == Formatter::SyntaxATT) {
@@ -137,7 +103,336 @@ std::size_t simdOperandNormalizedNumberInInstruction(const cs_insn *insn, const 
 	return number;
 }
 
-bool is_SIMD_PS(const cs_insn *insn, const cs_x86_op *operand) {
+}
+
+bool isX86_64() {
+	return capstoneArch == Architecture::ARCH_AMD64;
+}
+
+bool init(Architecture arch) {
+
+	capstoneArch = arch;
+
+	if (capstoneInitialized) {
+		cs_close(&csh);
+	}
+
+	capstoneInitialized = false;
+
+	const cs_err result = [arch]() {
+		switch (arch) {
+		case Architecture::ARCH_AMD64:
+			return cs_open(CS_ARCH_X86, CS_MODE_64, &csh);
+		case Architecture::ARCH_X86:
+			return cs_open(CS_ARCH_X86, CS_MODE_32, &csh);
+		case Architecture::ARCH_ARM32:
+			return cs_open(CS_ARCH_ARM, CS_MODE_ARM, &csh);
+		case Architecture::ARCH_ARM64:
+			return cs_open(CS_ARCH_ARM64, CS_MODE_ARM, &csh);
+		// TODO(eteran): support ARM THUMB
+		default:
+			return CS_ERR_ARCH;
+		}
+	}();
+
+	if (result != CS_ERR_OK) {
+		return false;
+	}
+
+	capstoneInitialized = true;
+
+	cs_option(csh, CS_OPT_DETAIL, CS_OPT_ON);
+
+	// Set selected formatting options on reinit
+	activeFormatter.setOptions(activeFormatter.options());
+	return true;
+}
+
+Instruction::Instruction(Instruction &&other) : insn_(other.insn_), byte0_(other.byte0_), rva_(other.rva_) {
+	other.insn_  = nullptr;
+	other.byte0_ = 0;
+	other.rva_   = 0;
+}
+
+Instruction &Instruction::operator=(Instruction &&rhs) {
+	insn_      = rhs.insn_;
+	byte0_     = rhs.byte0_;
+	rva_       = rhs.rva_;
+	rhs.insn_  = nullptr;
+	rhs.byte0_ = 0;
+	rhs.rva_   = 0;
+	return *this;
+}
+
+Instruction::~Instruction() {
+	if (insn_) {
+		cs_free(insn_, 1);
+	}
+}
+
+Instruction::Instruction(const void *first, const void *last, uint64_t rva) noexcept : rva_(rva) {
+	assert(capstoneInitialized);
+	auto codeBegin = static_cast<const uint8_t *>(first);
+	auto codeEnd   = static_cast<const uint8_t *>(last);
+
+	byte0_ = codeBegin[0];
+
+	cs_insn *insn = nullptr;
+	if (first < last && cs_disasm(csh, codeBegin, codeEnd - codeBegin, rva, 1, &insn)) {
+		insn_ = insn;
+	} else {
+		insn_ = nullptr;
+	}
+}
+
+Operand Instruction::operator[](size_t n) const {
+	if (!valid())
+		return Operand();
+	if (n > operand_count())
+		return Operand();
+
+	return Operand(this, &insn_->detail->x86.operands[n], n);
+}
+
+Operand Instruction::operand(size_t n) const {
+	if (!valid())
+		return Operand();
+	if (n > operand_count())
+		return Operand();
+
+	return Operand(this, &insn_->detail->x86.operands[n], n);
+}
+
+Instruction::ConditionCode Instruction::condition_code() const {
+
+	switch (operation()) {
+	// J*CXZ
+	case X86_INS_JRCXZ:
+		return CC_RCXZ;
+	case X86_INS_JECXZ:
+		return CC_ECXZ;
+	case X86_INS_JCXZ:
+		return CC_CXZ;
+	// FPU conditional move
+	case X86_INS_FCMOVBE:
+		return CC_BE;
+	case X86_INS_FCMOVB:
+		return CC_B;
+	case X86_INS_FCMOVE:
+		return CC_E;
+	case X86_INS_FCMOVNBE:
+		return CC_NBE;
+	case X86_INS_FCMOVNB:
+		return CC_NB;
+	case X86_INS_FCMOVNE:
+		return CC_NE;
+	case X86_INS_FCMOVNU:
+		return CC_NP;
+	case X86_INS_FCMOVU:
+		return CC_P;
+	// TODO: handle LOOPcc, REPcc OP
+	default:
+		if (is_conditional_gpr_move(*this) || is_conditional_jump(*this) || is_conditional_set(*this)) {
+			const uint8_t *opcode = insn_->detail->x86.opcode;
+			if (opcode[0] == 0x0f)
+				return static_cast<ConditionCode>(opcode[1] & 0xf);
+			return static_cast<ConditionCode>(opcode[0] & 0xf);
+		}
+	}
+	return CC_UNCONDITIONAL;
+}
+
+void Instruction::swap(Instruction &other) {
+	using std::swap;
+	swap(insn_,  other.insn_);
+	swap(byte0_, other.byte0_);
+	swap(rva_,   other.rva_);
+}
+
+QString Formatter::adjustInstructionText(const Instruction &insn) const {
+
+	QString operands(insn->op_str);
+
+	// Remove extra spaces
+	operands.replace(" + ", "+");
+	operands.replace(" - ", "-");
+
+	operands.replace(QRegExp("\\bxword "), "tbyte ");
+	operands.replace(QRegExp("(word|byte) ptr "), "\\1 ");
+
+	if (activeFormatter.options().simplifyRIPRelativeTargets && isX86_64() && (insn->detail->x86.modrm & 0xc7) == 0x05) {
+		QRegExp ripRel("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b");
+		operands.replace(ripRel, "rel 0x" + QString::number(insn->detail->x86.disp + insn->address + insn->size, 16));
+	}
+
+	if (insn.operand_count() == 2 && ((insn[0]->type == X86_OP_REG && insn[1]->type == X86_OP_MEM) || (insn[1]->type == X86_OP_REG && insn[0]->type == X86_OP_MEM))) {
+		operands.replace(QRegExp("(\\b.?(mm)?word|byte)\\b( ptr)? "), "");
+	}
+	return operands;
+}
+
+void Formatter::setOptions(const Formatter::FormatOptions &options) {
+	assert(capstoneInitialized);
+
+	options_ = options;
+
+	if (options.syntax == SyntaxATT)
+		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_ATT);
+	else
+		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_INTEL);
+
+	activeFormatter = *this;
+}
+
+std::string Formatter::to_string(const Instruction &insn) const {
+
+	enum {
+		tab1Size = 8,
+		tab2Size = 11,
+	};
+
+	if (!insn) {
+		char buf[32];
+		if (options_.tabBetweenMnemonicAndOperands) {
+			snprintf(buf, sizeof(buf), "%-*s0x%02x", tab1Size, "db", insn.byte0_);
+		} else {
+			snprintf(buf, sizeof(buf), "db 0x%02x", insn.byte0_);
+		}
+
+		std::string str(buf);
+		checkCapitalize(str);
+		return str;
+	}
+
+
+	std::ostringstream s;
+	s << insn->mnemonic;
+	if (insn.operand_count() > 0) // prevent addition of trailing whitespace
+	{
+		if (options_.tabBetweenMnemonicAndOperands) {
+			const auto pos = s.tellp();
+			const auto pad = pos < tab1Size ? tab1Size - pos : pos < tab2Size ? tab2Size - pos : 1;
+			s << std::string(pad, ' ');
+		} else {
+			s << ' ';
+		}
+		s << adjustInstructionText(insn).toStdString();
+	} else {
+		assert(insn->op_str[0] == 0);
+	}
+
+	auto str = s.str();
+	checkCapitalize(str);
+	return str;
+}
+
+void Formatter::checkCapitalize(std::string &str, bool canContainHex) const {
+	if (options_.capitalization == UpperCase) {
+		std::transform(str.begin(), str.end(), str.begin(), ::toupper);
+		if (canContainHex) {
+			QString qstr = QString::fromStdString(str);
+			str          = qstr.replace(QRegExp("\\b0X([0-9A-F]+)\\b"), "0x\\1").toStdString();
+		}
+	}
+}
+
+std::vector<std::string> toOperands(QString str) {
+	// Remove any decorations: we want just operands themselves
+	str.replace(QRegExp(",?\\{[^}]*\\}"), "");
+	QStringList              betweenCommas = str.split(",");
+	std::vector<std::string> operands;
+	// Have to work around inconvenient AT&T syntax for SIB, that's why so complicated logic
+	for (auto it = betweenCommas.begin(); it != betweenCommas.end(); ++it) {
+		QString &current(*it);
+		// We've split operand string by commas, but there may be SIB scheme
+		// in the form (B,I,S) or (B) or (I,S). Let's find missing parts of it.
+		if (it->contains("(") && !it->contains(")")) {
+			std::logic_error matchFailed("failed to find matching ')'");
+			// the next part must exist and have continuation of SIB scheme
+			if (std::next(it) == betweenCommas.end())
+				throw matchFailed;
+			current += ",";
+			current += *(++it);
+			// This may still be not enough
+			if (current.contains("(") && !current.contains(")")) {
+				if (std::next(it) == betweenCommas.end())
+					throw matchFailed;
+				current += ",";
+				current += *(++it);
+			}
+			// The expected SIB string has at most three components.
+			// If we still haven't found closing parenthesis, we're screwed
+			if (current.contains("(") && !current.contains(")"))
+				throw matchFailed;
+		}
+		operands.push_back(current.trimmed().toStdString());
+	}
+
+	if (operands.size() > MAX_OPERANDS)
+		throw std::logic_error("got more than " + std::to_string(MAX_OPERANDS) + " operands");
+	return operands;
+}
+
+std::string Formatter::to_string(const Operand &operand) const {
+	if (!operand)
+		return "(bad)";
+
+	std::string str;
+
+	const Instruction &insn = *operand.owner();
+
+	const std::size_t totalOperands       = insn->detail->x86.op_count;
+	const std::size_t numberInInstruction = operand.index();
+
+	if (operand->type == X86_OP_REG) {
+		str = register_name(operand->reg);
+	} else if (totalOperands == 1) {
+		str = insn->op_str;
+	} else {
+		// Capstone doesn't provide a way to get operand string, so we try
+		// to extract it from the formatted all-operands string
+		try {
+			const auto operands = toOperands(insn->op_str);
+
+			if (operands.size() <= numberInInstruction) {
+				throw std::logic_error("got less than " + std::to_string(numberInInstruction) + " operands");
+			}
+
+			str = operands[numberInInstruction];
+		} catch (const std::logic_error &error) {
+			return std::string("(error splitting operands string: ") + error.what() + ")";
+		}
+	}
+
+	checkCapitalize(str);
+	return str;
+}
+
+std::string Formatter::register_name(int reg) const {
+	assert(capstoneInitialized);
+	const char *raw = cs_reg_name(csh, reg);
+	if (!raw)
+		return "(invalid register)";
+	std::string str(raw);
+	checkCapitalize(str, false);
+	return str;
+}
+
+bool KxRegisterPresent(Instruction const &insn) {
+	for (std::size_t i = 0; i < insn.operand_count(); ++i) {
+		const auto op = insn[i];
+
+		if (op->type == X86_OP_REG && X86_REG_K0 <= op->reg && op->reg <= X86_REG_K7)
+			return true;
+	}
+	return false;
+}
+
+
+bool is_SIMD_PS(const Operand &operand) {
+
+	const Instruction &insn = *operand.owner();
+
 	if (apriori_not_simd(insn, operand))
 		return false;
 
@@ -324,7 +619,10 @@ bool is_SIMD_PS(const cs_insn *insn, const cs_x86_op *operand) {
 	}
 }
 
-bool is_SIMD_PD(const cs_insn *insn, const cs_x86_op *operand) {
+bool is_SIMD_PD(const Operand &operand) {
+
+	const Instruction &insn = *operand.owner();
+
 	if (apriori_not_simd(insn, operand))
 		return false;
 
@@ -501,7 +799,10 @@ bool is_SIMD_PD(const cs_insn *insn, const cs_x86_op *operand) {
 	}
 }
 
-bool is_SIMD_SS(const cs_insn *insn, const cs_x86_op *operand) {
+bool is_SIMD_SS(const Operand &operand) {
+
+	const Instruction &insn = *operand.owner();
+
 	if (apriori_not_simd(insn, operand))
 		return false;
 
@@ -588,7 +889,10 @@ bool is_SIMD_SS(const cs_insn *insn, const cs_x86_op *operand) {
 	}
 }
 
-bool is_SIMD_SD(const cs_insn *insn, const cs_x86_op *operand) {
+bool is_SIMD_SD(const Operand &operand) {
+
+	const Instruction &insn = *operand.owner();
+
 	if (apriori_not_simd(insn, operand))
 		return false;
 
@@ -671,353 +975,14 @@ bool is_SIMD_SD(const cs_insn *insn, const cs_x86_op *operand) {
 	}
 }
 
+bool is_return(const Instruction &insn) {
+	if(!insn) return false;
+	return cs_insn_group(csh, insn.native(), X86_GRP_RET);
 }
 
-bool isX86_64() {
-	return capstoneArch == Architecture::ARCH_AMD64;
-}
-
-bool init(Architecture arch) {
-
-	capstoneArch = arch;
-
-	if (capstoneInitialized) {
-		cs_close(&csh);
-	}
-
-	capstoneInitialized = false;
-
-	const cs_err result = [arch]() {
-		switch (arch) {
-		case Architecture::ARCH_AMD64:
-			return cs_open(CS_ARCH_X86, CS_MODE_64, &csh);
-		case Architecture::ARCH_X86:
-			return cs_open(CS_ARCH_X86, CS_MODE_32, &csh);
-		case Architecture::ARCH_ARM32:
-			return cs_open(CS_ARCH_ARM, CS_MODE_ARM, &csh);
-		case Architecture::ARCH_ARM64:
-			return cs_open(CS_ARCH_ARM64, CS_MODE_ARM, &csh);
-		// TODO(eteran): support ARM THUMB
-		default:
-			return CS_ERR_ARCH;
-		}
-	}();
-
-	if (result != CS_ERR_OK) {
-		return false;
-	}
-
-	capstoneInitialized = true;
-
-	cs_option(csh, CS_OPT_DETAIL, CS_OPT_ON);
-
-	// Set selected formatting options on reinit
-	activeFormatter.setOptions(activeFormatter.options());
-	return true;
-}
-
-Instruction::Instruction(Instruction &&other) : insn_(other.insn_), byte0_(other.byte0_), rva_(other.rva_) {
-	other.insn_  = nullptr;
-	other.byte0_ = 0;
-	other.rva_   = 0;
-}
-
-Instruction &Instruction::operator=(Instruction &&rhs) {
-	insn_      = rhs.insn_;
-	byte0_     = rhs.byte0_;
-	rva_       = rhs.rva_;
-	rhs.insn_  = nullptr;
-	rhs.byte0_ = 0;
-	rhs.rva_   = 0;
-	return *this;
-}
-
-Instruction::~Instruction() {
-	if (insn_) {
-		cs_free(insn_, 1);
-	}
-}
-
-Instruction::Instruction(const void *first, const void *last, uint64_t rva) noexcept : rva_(rva) {
-	assert(capstoneInitialized);
-	auto codeBegin = static_cast<const uint8_t *>(first);
-	auto codeEnd   = static_cast<const uint8_t *>(last);
-
-	byte0_ = codeBegin[0];
-
-	cs_insn *insn = nullptr;
-	if (first < last && cs_disasm(csh, codeBegin, codeEnd - codeBegin, rva, 1, &insn)) {
-		insn_ = insn;
-	} else {
-		insn_ = nullptr;
-	}
-}
-
-Operand Instruction::operator[](size_t n) const {
-	if (!valid())
-		return Operand();
-	if (n > operand_count())
-		return Operand();
-
-	return Operand(this, &insn_->detail->x86.operands[n], n);
-}
-
-Operand Instruction::operand(size_t n) const {
-	if (!valid())
-		return Operand();
-	if (n > operand_count())
-		return Operand();
-
-	return Operand(this, &insn_->detail->x86.operands[n], n);
-}
-
-Instruction::ConditionCode Instruction::condition_code() const {
-
-	switch (operation()) {
-	// J*CXZ
-	case X86_INS_JRCXZ:
-		return CC_RCXZ;
-	case X86_INS_JECXZ:
-		return CC_ECXZ;
-	case X86_INS_JCXZ:
-		return CC_CXZ;
-	// FPU conditional move
-	case X86_INS_FCMOVBE:
-		return CC_BE;
-	case X86_INS_FCMOVB:
-		return CC_B;
-	case X86_INS_FCMOVE:
-		return CC_E;
-	case X86_INS_FCMOVNBE:
-		return CC_NBE;
-	case X86_INS_FCMOVNB:
-		return CC_NB;
-	case X86_INS_FCMOVNE:
-		return CC_NE;
-	case X86_INS_FCMOVNU:
-		return CC_NP;
-	case X86_INS_FCMOVU:
-		return CC_P;
-	// TODO: handle LOOPcc, REPcc OP
-	default:
-		if (is_conditional_gpr_move(*this) || is_conditional_jump(*this) || is_conditional_set(*this)) {
-			const uint8_t *opcode = insn_->detail->x86.opcode;
-			if (opcode[0] == 0x0f)
-				return static_cast<ConditionCode>(opcode[1] & 0xf);
-			return static_cast<ConditionCode>(opcode[0] & 0xf);
-		}
-	}
-	return CC_UNCONDITIONAL;
-}
-
-void Instruction::swap(Instruction &other) {
-	using std::swap;
-	swap(insn_,  other.insn_);
-	swap(byte0_, other.byte0_);
-	swap(rva_,   other.rva_);
-}
-
-QString Formatter::adjustInstructionText(const Instruction &insn) const {
-
-	QString operands(insn->op_str);
-
-	// Remove extra spaces
-	operands.replace(" + ", "+");
-	operands.replace(" - ", "-");
-
-	operands.replace(QRegExp("\\bxword "), "tbyte ");
-	operands.replace(QRegExp("(word|byte) ptr "), "\\1 ");
-
-	if (activeFormatter.options().simplifyRIPRelativeTargets && isX86_64() && (insn->detail->x86.modrm & 0xc7) == 0x05) {
-		QRegExp ripRel("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b");
-		operands.replace(ripRel, "rel 0x" + QString::number(insn->detail->x86.disp + insn->address + insn->size, 16));
-	}
-
-	if (insn.operand_count() == 2 && ((insn[0]->type == X86_OP_REG && insn[1]->type == X86_OP_MEM) || (insn[1]->type == X86_OP_REG && insn[0]->type == X86_OP_MEM))) {
-		operands.replace(QRegExp("(\\b.?(mm)?word|byte)\\b( ptr)? "), "");
-	}
-	return operands;
-}
-
-void Formatter::setOptions(const Formatter::FormatOptions &options) {
-	assert(capstoneInitialized);
-	options_ = options;
-	if (options.syntax == SyntaxATT)
-		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_ATT);
-	else
-		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_INTEL);
-	// FIXME: SmallNumberFormat is not yet supported
-	activeFormatter = *this;
-}
-
-std::string Formatter::to_string(const Instruction &insn) const {
-
-	enum {
-		tab1Size = 8,
-		tab2Size = 11,
-	};
-
-	if (!insn) {
-		char buf[32];
-		if (options_.tabBetweenMnemonicAndOperands) {
-			snprintf(buf, sizeof(buf), "db      0x%02x", insn.byte0_);
-		} else {
-			snprintf(buf, sizeof(buf), "db 0x%02x", insn.byte0_);
-		}
-
-		std::string str(buf);
-		checkCapitalize(str);
-		return str;
-	}
-
-
-	std::ostringstream s;
-	s << insn->mnemonic;
-	if (insn.operand_count() > 0) // prevent addition of trailing whitespace
-	{
-		if (options_.tabBetweenMnemonicAndOperands) {
-			const auto pos = s.tellp();
-			const auto pad = pos < tab1Size ? tab1Size - pos : pos < tab2Size ? tab2Size - pos : 1;
-			s << std::string(pad, ' ');
-		} else {
-			s << ' ';
-		}
-		s << adjustInstructionText(insn).toStdString();
-	} else {
-		assert(insn->op_str[0] == 0);
-	}
-
-	auto str = s.str();
-	checkCapitalize(str);
-	return str;
-}
-
-void Formatter::checkCapitalize(std::string &str, bool canContainHex) const {
-	if (options_.capitalization == UpperCase) {
-		std::transform(str.begin(), str.end(), str.begin(), ::toupper);
-		if (canContainHex) {
-			QString qstr = QString::fromStdString(str);
-			str          = qstr.replace(QRegExp("\\b0X([0-9A-F]+)\\b"), "0x\\1").toStdString();
-		}
-	}
-}
-
-std::vector<std::string> toOperands(QString str) {
-	// Remove any decorations: we want just operands themselves
-	str.replace(QRegExp(",?\\{[^}]*\\}"), "");
-	QStringList              betweenCommas = str.split(",");
-	std::vector<std::string> operands;
-	// Have to work around inconvenient AT&T syntax for SIB, that's why so complicated logic
-	for (auto it = betweenCommas.begin(); it != betweenCommas.end(); ++it) {
-		QString &current(*it);
-		// We've split operand string by commas, but there may be SIB scheme
-		// in the form (B,I,S) or (B) or (I,S). Let's find missing parts of it.
-		if (it->contains("(") && !it->contains(")")) {
-			std::logic_error matchFailed("failed to find matching ')'");
-			// the next part must exist and have continuation of SIB scheme
-			if (std::next(it) == betweenCommas.end())
-				throw matchFailed;
-			current += ",";
-			current += *(++it);
-			// This may still be not enough
-			if (current.contains("(") && !current.contains(")")) {
-				if (std::next(it) == betweenCommas.end())
-					throw matchFailed;
-				current += ",";
-				current += *(++it);
-			}
-			// The expected SIB string has at most three components.
-			// If we still haven't found closing parenthesis, we're screwed
-			if (current.contains("(") && !current.contains(")"))
-				throw matchFailed;
-		}
-		operands.push_back(current.trimmed().toStdString());
-	}
-
-	if (operands.size() > MAX_OPERANDS)
-		throw std::logic_error("got more than " + std::to_string(MAX_OPERANDS) + " operands");
-	return operands;
-}
-
-std::string Formatter::to_string(const Operand &operand) const {
-	if (!operand)
-		return "(bad)";
-
-	std::string str;
-
-	const Instruction &insn = *operand.owner();
-
-	const std::size_t totalOperands       = insn->detail->x86.op_count;
-	const std::size_t numberInInstruction = operand.index();
-
-	if (operand->type == X86_OP_REG) {
-		str = register_name(operand->reg);
-	} else if (totalOperands == 1) {
-		str = insn->op_str;
-	} else {
-		// Capstone doesn't provide a way to get operand string, so we try
-		// to extract it from the formatted all-operands string
-		try {
-			const auto operands = toOperands(insn->op_str);
-
-			if (operands.size() <= numberInInstruction) {
-				throw std::logic_error("got less than " + std::to_string(numberInInstruction) + " operands");
-			}
-
-			str = operands[numberInInstruction];
-		} catch (const std::logic_error &error) {
-			return std::string("(error splitting operands string: ") + error.what() + ")";
-		}
-	}
-
-	checkCapitalize(str);
-	return str;
-}
-
-std::string Formatter::register_name(int reg) const {
-	assert(capstoneInitialized);
-	const char *raw = cs_reg_name(csh, reg);
-	if (!raw)
-		return "(invalid register)";
-	std::string str(raw);
-	checkCapitalize(str, false);
-	return str;
-}
-
-bool KxRegisterPresent(Instruction const &insn) {
-	for (std::size_t i = 0; i < insn.operand_count(); ++i) {
-		const auto op = insn[i];
-
-		if (op->type == X86_OP_REG && X86_REG_K0 <= op->reg && op->reg <= X86_REG_K7)
-			return true;
-	}
-	return false;
-}
-
-bool is_SIMD_PS(const Operand &operand) {
-	return is_SIMD_PS(operand.owner()->native(), operand.operand());
-}
-
-bool is_SIMD_PD(const Operand &operand) {
-	return is_SIMD_PD(operand.owner()->native(), operand.operand());
-}
-
-bool is_SIMD_SS(const Operand &operand) {
-	return is_SIMD_SS(operand.owner()->native(), operand.operand());
-}
-
-bool is_SIMD_SD(const Operand &operand) {
-	return is_SIMD_SD(operand.owner()->native(), operand.operand());
-}
-
-bool Instruction::is_return() const {
-	if(!valid()) return false;
-	return cs_insn_group(csh, insn_, X86_GRP_RET);
-}
-
-bool Instruction::is_jump() const {
-	if(!valid()) return false;
-	return cs_insn_group(csh, insn_, X86_GRP_JUMP);
+bool is_jump(const Instruction &insn) {
+	if(!insn) return false;
+	return cs_insn_group(csh, insn.native(), X86_GRP_JUMP);
 }
 
 }

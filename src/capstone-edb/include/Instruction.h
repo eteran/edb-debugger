@@ -126,9 +126,6 @@ public:
 	};
 	
 	ConditionCode condition_code() const;
-	
-	bool is_return() const;
-	bool is_jump() const;
 
 private:
 	cs_insn *insn_;
