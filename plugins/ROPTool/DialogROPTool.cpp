@@ -38,36 +38,119 @@ namespace ROPToolPlugin {
 
 namespace {
 
-bool is_effective_nop(const edb::Instruction &inst) {
-	if(inst) {
-		if(is_nop(inst)) {
-			return true;
-		}
+// See issue #457, thanks mrexodia!
+bool isSafe64NopRegOp(const edb::Operand &op) {
 
-		// TODO: does this effect flags?
-		if(inst.operation() == X86_INS_MOV && inst.operand_count() == 2) {
-			if(is_register(inst[0]) && is_register(inst[1])) {
-				if(inst[0]->reg == inst[1]->reg) {
-					return true;
-				}
-			}
-
-		}
-
-		// TODO: does this effect flags?
-		if(inst.operation() == X86_INS_XCHG && inst.operand_count() == 2) {
-			if(is_register(inst[0]) && is_register(inst[1])) {
-				if(inst[0]->reg == inst[1]->reg) {
-					return true;
-				}
-			}
-
-		}
-
-		// TODO: support LEA reg, [reg]
-
+	if(op->type != X86_OP_REG) {
+		return true; // a non-register is safe
 	}
-	return false;
+
+	if(edb::v1::debuggeeIs64Bit()) {
+		switch(op->reg) {
+		case X86_REG_EAX:
+		case X86_REG_EBX:
+		case X86_REG_ECX:
+		case X86_REG_EDX:
+		case X86_REG_EBP:
+		case X86_REG_ESP:
+		case X86_REG_ESI:
+		case X86_REG_EDI:
+			return false; // 32 bit register modifications clear the high part of the 64 bit register
+		default:
+			return true; // all other registers are safe
+		}
+	} else {
+		return true;
+	}
+}
+
+bool is_effective_nop(const edb::Instruction &inst) {
+
+	if(!inst) {
+		return false;
+	}
+
+	// trivially a nop
+	if(is_nop(inst)) {
+		return true;
+	}
+
+	switch(inst->id) {
+	case X86_INS_NOP:
+	case X86_INS_PAUSE:
+	case X86_INS_FNOP:
+		// nop
+		return true;
+	case X86_INS_MOV:
+	case X86_INS_CMOVA:
+	case X86_INS_CMOVAE:
+	case X86_INS_CMOVB:
+	case X86_INS_CMOVBE:
+	case X86_INS_CMOVE:
+	case X86_INS_CMOVNE:
+	case X86_INS_CMOVG:
+	case X86_INS_CMOVGE:
+	case X86_INS_CMOVL:
+	case X86_INS_CMOVLE:
+	case X86_INS_CMOVO:
+	case X86_INS_CMOVNO:
+	case X86_INS_CMOVP:
+	case X86_INS_CMOVNP:
+	case X86_INS_CMOVS:
+	case X86_INS_CMOVNS:
+	case X86_INS_MOVAPS:
+	case X86_INS_MOVAPD:
+	case X86_INS_MOVUPS:
+	case X86_INS_MOVUPD:
+	case X86_INS_XCHG:
+		// mov edi, edi
+		return inst[0]->type == X86_OP_REG && inst[1]->type == X86_OP_REG && inst[0]->reg == inst[1]->reg && isSafe64NopRegOp(inst[0]);
+	case X86_INS_LEA:
+	{
+		// lea eax, [eax + 0]
+		auto reg = inst[0]->reg;
+		auto mem = inst[1]->mem;
+		return inst[0]->type == X86_OP_REG && inst[1]->type == X86_OP_MEM && mem.disp == 0 &&
+			((mem.index == X86_REG_INVALID && mem.base == reg) ||
+			(mem.index == reg && mem.base == X86_REG_INVALID && mem.scale == 1)) && isSafe64NopRegOp(inst[0]);
+	}
+	case X86_INS_JMP:
+	case X86_INS_JA:
+	case X86_INS_JAE:
+	case X86_INS_JB:
+	case X86_INS_JBE:
+	case X86_INS_JE:
+	case X86_INS_JNE:
+	case X86_INS_JG:
+	case X86_INS_JGE:
+	case X86_INS_JL:
+	case X86_INS_JLE:
+	case X86_INS_JO:
+	case X86_INS_JNO:
+	case X86_INS_JP:
+	case X86_INS_JNP:
+	case X86_INS_JS:
+	case X86_INS_JNS:
+	case X86_INS_JECXZ:
+	case X86_INS_JRCXZ:
+	case X86_INS_JCXZ:
+		// jmp 0
+		return inst[0]->type == X86_OP_IMM && inst[0]->imm == inst.rva() + inst.byte_size();
+	case X86_INS_SHL:
+	case X86_INS_SHR:
+	case X86_INS_ROL:
+	case X86_INS_ROR:
+	case X86_INS_SAR:
+	case X86_INS_SAL:
+		// shl eax, 0
+		return inst[1]->type == X86_OP_IMM && inst[1]->imm == 0 && isSafe64NopRegOp(inst[0]);
+	case X86_INS_SHLD:
+	case X86_INS_SHRD:
+		// shld eax, ebx, 0
+		return inst[2]->type == X86_OP_IMM && inst[2]->imm == 0 && isSafe64NopRegOp(inst[0]) && isSafe64NopRegOp(inst[1]);
+	default:
+		return false;
+	}
 }
 
 }
@@ -305,7 +388,7 @@ void DialogROPTool::set_gadget_role(QStandardItem *item, const edb::Instruction 
 void DialogROPTool::add_gadget(const InstructionList &instructions) {
 
 	if(!instructions.empty()) {
-	
+
 		auto it = instructions.begin();
 		auto inst1 = *it++;
 
@@ -429,7 +512,7 @@ void DialogROPTool::do_find() {
 										rva += inst2->byte_size();
 
 										auto inst3 = std::make_shared<edb::Instruction>(p, l, rva);
-										
+
 										if(inst3->valid() && is_jump(*inst3)) {
 
 											instruction_list.push_back(inst3);
