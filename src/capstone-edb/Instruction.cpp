@@ -40,22 +40,28 @@ bool         capstoneInitialized = false;
 csh          csh                 = 0;
 Formatter    activeFormatter;
 
-bool is_register(const cs_x86_op *operand) {
-	return operand && operand->type == X86_OP_REG;
-}
-
-bool is_expression(const cs_x86_op *operand) {
-	return operand && operand->type == X86_OP_MEM;
-}
-
-bool is_immediate(const cs_x86_op *operand) {
-	return operand && operand->type == X86_OP_IMM;
-}
-
 bool is_simd(const cs_insn *insn) {
-	const x86_insn_group simdGroups[] = {
-	    X86_GRP_3DNOW, X86_GRP_AVX,   X86_GRP_AVX2,  X86_GRP_AVX512, X86_GRP_FMA, X86_GRP_FMA4, X86_GRP_MMX, X86_GRP_SSE1, X86_GRP_SSE2, X86_GRP_SSE3,
-	    X86_GRP_SSE41, X86_GRP_SSE42, X86_GRP_SSE4A, X86_GRP_SSSE3,  X86_GRP_XOP, X86_GRP_CDI,  X86_GRP_ERI, X86_GRP_PFI,  X86_GRP_VLX,  X86_GRP_NOVLX,
+	constexpr x86_insn_group simdGroups[] = {
+	    X86_GRP_3DNOW,
+		X86_GRP_AVX,  
+		X86_GRP_AVX2, 
+		X86_GRP_AVX512,
+		X86_GRP_FMA,
+		X86_GRP_FMA4,
+		X86_GRP_MMX,
+		X86_GRP_SSE1,
+		X86_GRP_SSE2,
+		X86_GRP_SSE3,
+	    X86_GRP_SSE41,
+		X86_GRP_SSE42,
+		X86_GRP_SSE4A,
+		X86_GRP_SSSE3,
+		X86_GRP_XOP,
+		X86_GRP_CDI,
+		X86_GRP_ERI,
+		X86_GRP_PFI,
+		X86_GRP_VLX,
+		X86_GRP_NOVLX,
 	};
 
 	for (auto g = 0; g < insn->detail->groups_count; ++g) {
