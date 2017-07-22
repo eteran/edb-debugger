@@ -989,19 +989,19 @@ bool KxRegisterPresent(Instruction const &insn) {
 }
 
 bool is_SIMD_PS(const Operand &operand) {
-	return is_SIMD_PS(operand.owner()->cs_insn_x(), operand.operand());
+	return is_SIMD_PS(operand.owner()->native(), operand.operand());
 }
 
 bool is_SIMD_PD(const Operand &operand) {
-	return is_SIMD_PD(operand.owner()->cs_insn_x(), operand.operand());
+	return is_SIMD_PD(operand.owner()->native(), operand.operand());
 }
 
 bool is_SIMD_SS(const Operand &operand) {
-	return is_SIMD_SS(operand.owner()->cs_insn_x(), operand.operand());
+	return is_SIMD_SS(operand.owner()->native(), operand.operand());
 }
 
 bool is_SIMD_SD(const Operand &operand) {
-	return is_SIMD_SD(operand.owner()->cs_insn_x(), operand.operand());
+	return is_SIMD_SD(operand.owner()->native(), operand.operand());
 }
 
 bool Instruction::is_return() const {

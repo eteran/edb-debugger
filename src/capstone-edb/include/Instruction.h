@@ -78,7 +78,7 @@ public:
 	Operand operand(size_t n) const;
 
 public:
-	const cs_insn *cs_insn_x() const {
+	const cs_insn *native() const {
 		return insn_;
 	}
 
