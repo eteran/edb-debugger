@@ -46,8 +46,8 @@ examples for some popular distributions:
 * https://github.com/eteran/edb-debugger/wiki/Compiling-(Ubuntu)
 * https://github.com/eteran/edb-debugger/wiki/Compiling-(Debian)
 
-Once you have the necessary dependencies installed, there are two options for 
-compiling:
+Once you have the necessary dependencies installed, compilation is done with 
+`cmake`:
 
 ### CMake
 
