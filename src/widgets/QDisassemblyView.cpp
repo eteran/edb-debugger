@@ -674,128 +674,85 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 
 	const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled && !selected;
 
-	if(inst) {
-        QString opcode = instructionString(inst);
+    QString opcode = instructionString(inst);
 
-		if(is_filling) {
-            if(syntax_highlighting_enabled) {
-				painter.setPen(filling_dis_color);
-			}
-
-			opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, inst_pixel_width);
-
-			painter.drawText(
-				x,
-				y,
-				opcode.length() * font_width_,
-				line_height,
-				Qt::AlignVCenter,
-				opcode);
-		} else {
-
-            // NOTE(eteran): do this early, so that elided text still gets the part shown
-            // properly highlighted
-            QVector<QTextLayout::FormatRange> highlightData;
-            if(syntax_highlighting_enabled) {
-                highlightData = highlighter_->highlightBlock(opcode);
-            }
-
-			opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, inst_pixel_width);
-
-			if(syntax_highlighting_enabled) {
-				painter.setPen(default_dis_color);
-
-                QPixmap* map = syntax_cache_[opcode];
-                if (!map) {
-
-					// create the text layout
-					QTextLayout textLayout(opcode, painter.font());
-
-					textLayout.setTextOption(QTextOption(Qt::AlignVCenter));
-
-					textLayout.beginLayout();
-
-					// generate the lines one at a time
-					// setting the positions as we go
-					Q_FOREVER {
-						QTextLine line = textLayout.createLine();
-
-						if (!line.isValid()) {
-							break;
-						}
-
-						line.setPosition(QPoint(0, 0));
-					}
-
-					textLayout.endLayout();
-
-#if QT_VERSION >= 0x050000
-					map = new QPixmap(QSize(opcode.length() * font_width_, line_height) * devicePixelRatio());
-					map->setDevicePixelRatio(devicePixelRatio());
-#else
-					map = new QPixmap(opcode.length() * font_width_, line_height);
-#endif
-					map->fill(Qt::transparent);
-					QPainter cache_painter(map);
-
-					// now the render the text at the location given
-                    textLayout.draw(&cache_painter, QPoint(0, 0), highlightData);
-					syntax_cache_.insert(opcode, map);
-				}
-				painter.drawPixmap(x, y, *map);
-			} else {
-				QRectF rectangle(x, y, opcode.length() * font_width_, line_height);
-				painter.drawText(rectangle, Qt::AlignVCenter, opcode);
-			}
+	if(is_filling) {
+        if(syntax_highlighting_enabled) {
+			painter.setPen(filling_dis_color);
 		}
 
-	} else {
-		if(syntax_highlighting_enabled) {
-			painter.setPen(invalid_dis_color);
-		}
-
-		QString asm_buffer = format_invalid_instruction_bytes(inst, painter);
-		asm_buffer = painter.fontMetrics().elidedText(asm_buffer, Qt::ElideRight, (l3 - l2) - font_width_ * 2);
+		opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, inst_pixel_width);
 
 		painter.drawText(
 			x,
 			y,
-			asm_buffer.length() * font_width_,
+			opcode.length() * font_width_,
 			line_height,
 			Qt::AlignVCenter,
-			asm_buffer);
+			opcode);
+	} else {
+
+        // NOTE(eteran): do this early, so that elided text still gets the part shown
+        // properly highlighted
+        QVector<QTextLayout::FormatRange> highlightData;
+        if(syntax_highlighting_enabled) {
+            highlightData = highlighter_->highlightBlock(opcode);
+        }
+
+		opcode = painter.fontMetrics().elidedText(opcode, Qt::ElideRight, inst_pixel_width);
+
+		if(syntax_highlighting_enabled) {
+			if(!inst) {
+				painter.setPen(invalid_dis_color);
+			} else {
+				painter.setPen(default_dis_color);
+			}
+
+            QPixmap* map = syntax_cache_[opcode];
+            if (!map) {
+
+				// create the text layout
+				QTextLayout textLayout(opcode, painter.font());
+
+				textLayout.setTextOption(QTextOption(Qt::AlignVCenter));
+
+				textLayout.beginLayout();
+
+				// generate the lines one at a time
+				// setting the positions as we go
+				Q_FOREVER {
+					QTextLine line = textLayout.createLine();
+
+					if (!line.isValid()) {
+						break;
+					}
+
+					line.setPosition(QPoint(0, 0));
+				}
+
+				textLayout.endLayout();
+
+#if QT_VERSION >= 0x050000
+				map = new QPixmap(QSize(opcode.length() * font_width_, line_height) * devicePixelRatio());
+				map->setDevicePixelRatio(devicePixelRatio());
+#else
+				map = new QPixmap(opcode.length() * font_width_, line_height);
+#endif
+				map->fill(Qt::transparent);
+				QPainter cache_painter(map);
+
+				// now the render the text at the location given
+                textLayout.draw(&cache_painter, QPoint(0, 0), highlightData);
+				syntax_cache_.insert(opcode, map);
+			}
+			painter.drawPixmap(x, y, *map);
+		} else {
+			QRectF rectangle(x, y, opcode.length() * font_width_, line_height);
+			painter.drawText(rectangle, Qt::AlignVCenter, opcode);
+		}
 	}
 
 	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name: format_invalid_instruction_bytes
-// Desc:
-//------------------------------------------------------------------------------
-QString QDisassemblyView::format_invalid_instruction_bytes(const edb::Instruction &inst, QPainter &painter) const {
-	char byte_buffer[32];
-	const quint8 *const buf = inst.bytes();
-
-	switch(inst.byte_size()) {
-	case 1:
-		qsnprintf(byte_buffer, sizeof(byte_buffer), "db 0x%02x", buf[0] & 0xff);
-		break;
-	case 2:
-		qsnprintf(byte_buffer, sizeof(byte_buffer), "dw 0x%02x%02x", buf[1] & 0xff, buf[0] & 0xff);
-		break;
-	case 4:
-		qsnprintf(byte_buffer, sizeof(byte_buffer), "dd 0x%02x%02x%02x%02x", buf[3] & 0xff, buf[2] & 0xff, buf[1] & 0xff, buf[0] & 0xff);
-		break;
-	case 8:
-		qsnprintf(byte_buffer, sizeof(byte_buffer), "dq 0x%02x%02x%02x%02x%02x%02x%02x%02x", buf[7] & 0xff, buf[6] & 0xff, buf[5] & 0xff, buf[4] & 0xff, buf[3] & 0xff, buf[2] & 0xff, buf[1] & 0xff, buf[0] & 0xff);
-		break;
-	default:
-		// we tried...didn't we?
-		return tr("invalid");
-	}
-
-	return byte_buffer;
 }
 
 //------------------------------------------------------------------------------

@@ -806,13 +806,14 @@ Instruction::ConditionCode Instruction::condition_code() const {
 
 void Instruction::swap(Instruction &other) {
 	using std::swap;
-	swap(insn_, other.insn_);
+	swap(insn_,  other.insn_);
 	swap(byte0_, other.byte0_);
+	swap(rva_,   other.rva_);
 }
 
-QString Formatter::adjustInstructionText(const Instruction &instruction) const {
-	const cs_insn *insn = instruction.insn_;
-	QString        operands(insn->op_str);
+QString Formatter::adjustInstructionText(const Instruction &insn) const {
+
+	QString operands(insn->op_str);
 
 	// Remove extra spaces
 	operands.replace(" + ", "+");
@@ -826,9 +827,7 @@ QString Formatter::adjustInstructionText(const Instruction &instruction) const {
 		operands.replace(ripRel, "rel 0x" + QString::number(insn->detail->x86.disp + insn->address + insn->size, 16));
 	}
 
-	cs_x86_op *ops = insn->detail->x86.operands;
-
-	if (instruction.operand_count() == 2 && ((ops[0].type == X86_OP_REG && ops[1].type == X86_OP_MEM) || (ops[1].type == X86_OP_REG && ops[0].type == X86_OP_MEM))) {
+	if (insn.operand_count() == 2 && ((insn[0]->type == X86_OP_REG && insn[1]->type == X86_OP_MEM) || (insn[1]->type == X86_OP_REG && insn[0]->type == X86_OP_MEM))) {
 		operands.replace(QRegExp("(\\b.?(mm)?word|byte)\\b( ptr)? "), "");
 	}
 	return operands;
@@ -845,27 +844,38 @@ void Formatter::setOptions(const Formatter::FormatOptions &options) {
 	activeFormatter = *this;
 }
 
-std::string Formatter::to_string(const Instruction &instruction) const {
-	if (!instruction)
-		return "(bad)";
+std::string Formatter::to_string(const Instruction &insn) const {
 
 	enum {
 		tab1Size = 8,
 		tab2Size = 11,
 	};
+
+	if (!insn) {
+		char buf[32];
+		if (options_.tabBetweenMnemonicAndOperands) {
+			snprintf(buf, sizeof(buf), "db      0x%02x", insn.byte0_);			
+		} else {
+			snprintf(buf, sizeof(buf), "db 0x%02x", insn.byte0_);
+		}
+		return buf;
+	}
+
+
 	std::ostringstream s;
-	s << instruction->mnemonic;
-	if (instruction.operand_count() > 0) // prevent addition of trailing whitespace
+	s << insn->mnemonic;
+	if (insn.operand_count() > 0) // prevent addition of trailing whitespace
 	{
 		if (options_.tabBetweenMnemonicAndOperands) {
 			const auto pos = s.tellp();
 			const auto pad = pos < tab1Size ? tab1Size - pos : pos < tab2Size ? tab2Size - pos : 1;
 			s << std::string(pad, ' ');
-		} else
+		} else {
 			s << ' ';
-		s << adjustInstructionText(instruction).toStdString();
+		}
+		s << adjustInstructionText(insn).toStdString();
 	} else {
-		assert(instruction->op_str[0] == 0);
+		assert(insn->op_str[0] == 0);
 	}
 	auto str = s.str();
 	checkCapitalize(str);
