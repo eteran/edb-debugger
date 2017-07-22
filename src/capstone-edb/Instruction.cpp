@@ -854,11 +854,14 @@ std::string Formatter::to_string(const Instruction &insn) const {
 	if (!insn) {
 		char buf[32];
 		if (options_.tabBetweenMnemonicAndOperands) {
-			snprintf(buf, sizeof(buf), "db      0x%02x", insn.byte0_);			
+			snprintf(buf, sizeof(buf), "db      0x%02x", insn.byte0_);
 		} else {
 			snprintf(buf, sizeof(buf), "db 0x%02x", insn.byte0_);
 		}
-		return buf;
+
+		std::string str(buf);
+		checkCapitalize(str);
+		return str;
 	}
 
 
@@ -877,6 +880,7 @@ std::string Formatter::to_string(const Instruction &insn) const {
 	} else {
 		assert(insn->op_str[0] == 0);
 	}
+
 	auto str = s.str();
 	checkCapitalize(str);
 	return str;
