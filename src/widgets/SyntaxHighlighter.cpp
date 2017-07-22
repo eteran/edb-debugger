@@ -237,6 +237,16 @@ void SyntaxHighlighter::create_rules() {
 		settings.value("theme.system.italic", false).toBool(),
 		settings.value("theme.system.underline", false).toBool()
 		));
+
+	// data bytes
+	rules_.push_back(HighlightingRule(
+		"\\b(db|dw|dd|dq)\\b",
+		QColor(settings.value("theme.data.foreground", "black").toString()),
+		QColor(settings.value("theme.data.background", "transparent").toString()),
+		settings.value("theme.data.weight", QFont::Normal).toInt(),
+		settings.value("theme.data.italic", false).toBool(),
+		settings.value("theme.data.underline", false).toBool()
+		));
 }
 
 //------------------------------------------------------------------------------

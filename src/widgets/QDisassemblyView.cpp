@@ -740,6 +740,8 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 #endif
 				map->fill(Qt::transparent);
 				QPainter cache_painter(map);
+				cache_painter.setPen(painter.pen());
+				cache_painter.setFont(painter.font());
 
 				// now the render the text at the location given
                 textLayout.draw(&cache_painter, QPoint(0, 0), highlightData);
