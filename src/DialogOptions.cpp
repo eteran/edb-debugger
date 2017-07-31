@@ -160,6 +160,8 @@ void DialogOptions::showEvent(QShowEvent *event) {
 
 	const Configuration &config = edb::v1::config();
 
+    ui->chkHexOffsets->setChecked(config.function_offsets_in_hex);
+
 	ui->rdoSytntaxATT->setChecked(config.syntax == Configuration::ATT);
 	ui->rdoSytntaxIntel->setChecked(config.syntax != Configuration::ATT);
 
@@ -273,6 +275,8 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.disableASLR			 = ui->chkDisableASLR->isChecked();
 	config.disableLazyBinding	 = ui->chkDisableLazyBinding->isChecked();
 	config.break_on_library_load = ui->chkBreakOnLibraryLoad->isChecked();
+
+    config.function_offsets_in_hex = ui->chkHexOffsets->isChecked();
 
 	config.zeros_are_filling     = ui->chkZerosAreFilling->isChecked();
 	config.show_register_badges = ui->chkRegisterBadges->isChecked();

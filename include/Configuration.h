@@ -76,6 +76,7 @@ public:
 	int                   data_word_width;
 	int                   data_row_width;
 	StartupWindowLocation startup_window_location;
+    bool                  function_offsets_in_hex;
 
 	// debugging tab
 	InitialBreakpoint initial_breakpoint;

@@ -87,7 +87,7 @@
           <item>
            <widget class="QRadioButton" name="rdoPlaceRestore">
             <property name="text">
-             <string>Restore Previous &amp;Location</string>
+             <string>Restore Pre&amp;vious Location</string>
             </property>
            </widget>
           </item>
@@ -301,6 +301,13 @@
           </widget>
          </item>
          <item>
+          <widget class="QCheckBox" name="chkHexOffsets">
+           <property name="text">
+            <string>Show Function Offsets in Hexdecimal</string>
+           </property>
+          </widget>
+         </item>
+         <item>
           <spacer name="verticalSpacer">
            <property name="orientation">
             <enum>Qt::Vertical</enum>
@@ -315,7 +322,7 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item row="3" column="0" colspan="2">
         <spacer>
          <property name="orientation">
           <enum>Qt::Vertical</enum>

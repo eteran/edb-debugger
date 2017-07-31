@@ -732,7 +732,13 @@ QString find_function_symbol(address_t address, const QString &default_value, in
 	int off;
 
 	if(function_symbol_base(address, &symname, &off)) {
-		symname = QString("%1+%2").arg(symname).arg(off, 0, 16);
+
+        if(config().function_offsets_in_hex) {
+            symname = QString("%1+0x%2").arg(symname).arg(off, 0, 16);
+        } else {
+            symname = QString("%1+%2").arg(symname).arg(off, 0, 10);
+        }
+
 		if(offset) {
 			*offset = off;
 		}
