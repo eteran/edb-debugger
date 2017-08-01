@@ -381,7 +381,7 @@ std::string Formatter::to_string(const Operand &operand) const {
 
 	const Instruction &insn = *operand.owner();
 
-	const std::size_t totalOperands       = insn->detail->x86.op_count;
+	const std::size_t totalOperands       = insn.operand_count();
 	const std::size_t numberInInstruction = operand.index();
 
 	if (operand->type == X86_OP_REG) {
@@ -771,8 +771,8 @@ bool is_SIMD_PD(const Operand &operand) {
 	case X86_INS_VPERMILPD: // third operand is control (can be [xyz]mm register or imm8)
 		return number != 2;
 	case X86_INS_VPERMPD: // if third operand is not imm8, then second is indices (always in VPERMPS)
-		assert(insn->detail->x86.op_count == 3);
-		if (insn->detail->x86.operands[2].type != X86_OP_IMM)
+		assert(insn.operand_count() == 3);
+		if (insn[2]->type != X86_OP_IMM)
 			return number != 1;
 		else
 			return true;
