@@ -24,7 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCorePlugin {
 
 namespace {
-constexpr std::array<quint8, 4> BreakpointInstruction = { 0xFE, 0xDE, 0xFF, 0xE7 }; // UND
+constexpr std::array<quint8, 4> BreakpointInstructionARM_LE   = { 0xFE, 0xDE, 0xFF, 0xE7 }; // UND
+constexpr std::array<quint8, 2> BreakpointInstructionThumb_LE = { 0xBE, 0xBE };             // BKPT
 }
 
 //------------------------------------------------------------------------------
@@ -58,7 +59,7 @@ bool Breakpoint::enable() {
 			std::array<quint8, 4> prev;
 			if(process->read_bytes(address(), &prev[0], prev.size())) {
 				original_bytes_ = prev;
-				if(process->write_bytes(address(), &BreakpointInstruction[0], BreakpointInstruction.size())) {
+				if(process->write_bytes(address(), &BreakpointInstructionARM_LE[0], BreakpointInstructionARM_LE.size())) {
 					enabled_ = true;
 					return true;
 				}
