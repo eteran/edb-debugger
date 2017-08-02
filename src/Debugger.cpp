@@ -216,7 +216,9 @@ public:
 			}
 
 			//Check the previous byte for 0xcc to see if it was an actual breakpoint
+#if defined(EDB_X86_64) || defined(EDB_X86)
 			edb::address_t prev_address = address - 1;
+#endif
 			std::shared_ptr<IBreakpoint> bp = edb::v1::find_breakpoint(prev_address);
 
 			//If there was a bp there, then we hit a block terminator as part of our RunUntilRet
@@ -2122,7 +2124,9 @@ edb::EVENT_STATUS Debugger::handle_trap() {
 	State state;
 	edb::v1::debugger_core->get_state(&state);
 
+#if defined(EDB_X86_64) || defined(EDB_X86)
 	const edb::address_t previous_ip = state.instruction_pointer() - 1;
+#endif
 
 	// look it up in our breakpoint list, make sure it is one of OUR int3s!
 	// if it is, we need to backup EIP and pause ourselves
