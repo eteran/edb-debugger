@@ -1306,8 +1306,6 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 		model.setCPUMode(RegisterViewModel::CPUMode::UNKNOWN);
 		return;
 	}
-	// FIXME: this function will crash for 32-bit process, jumped to 64-bit segment, if EDB
-	// doesn't find a way to get full 64-bit state for such process
 	const bool is64Bit = (ip.bitSize() == 64);
 	Q_ASSERT(is64Bit || ip.bitSize() == 32);
 

@@ -22,6 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstdint>
 
 #include <QList>
+#include <QDebug>
+
+void invalidate(RegisterViewModelBase::Category* cat, int row, const char* nameToCheck=nullptr);
 
 namespace
 {
@@ -408,7 +411,12 @@ template<typename RegType, typename ValueType>
 void updateRegister(RegisterViewModelBase::Category* cat, int row, ValueType value, QString const& comment, const char* nameToCheck=0)
 {
 	const auto reg=cat->getRegister(row);
-	Q_ASSERT(dynamic_cast<RegType*>(reg));
+	if(!dynamic_cast<RegType*>(reg))
+	{
+		qWarning() << "Failed to update register " << reg->name() << ": failed to convert register passed to expected type " << typeid(RegType).name();
+		invalidate(cat,row,nameToCheck);
+		return;
+	}
 	Q_ASSERT(!nameToCheck || reg->name()==nameToCheck); Q_UNUSED(nameToCheck);
 	static_cast<RegType*>(reg)->update(value,comment);
 }
@@ -477,7 +485,7 @@ void RegisterViewModel::updateFSR(edb::value16 value, QString const& comment)
 	updateRegister<FPUWord>(getFPUcat(),FSR_ROW,value,comment,"FSR");
 }
 
-void invalidate(RegisterViewModelBase::Category* cat, int row, const char* nameToCheck=nullptr)
+void invalidate(RegisterViewModelBase::Category* cat, int row, const char* nameToCheck)
 {
 	if(!cat) return;
 	Q_ASSERT(row<cat->childCount());
@@ -615,7 +623,11 @@ void RegisterViewModel::updateAVXReg(std::size_t i, edb::value256 value, QString
 	RegisterViewModelBase::Category *sseCat, *avxCat;
 	unsigned avxRegMax;
 	std::tie(sseCat,avxCat,avxRegMax)=getSSEparams();
-	Q_ASSERT(i<avxRegMax);
+	if(i>=avxRegMax)
+	{
+		qWarning() << Q_FUNC_INFO << ": i>AVXmax";
+		return;
+	}
 	// update aliases
 	updateRegister<SSEReg>(sseCat,i,edb::value128(value),comment);
 	// update actual registers
