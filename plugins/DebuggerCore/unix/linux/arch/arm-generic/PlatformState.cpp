@@ -26,7 +26,11 @@ PlatformState::PlatformState()
 
 IState *PlatformState::clone() const
 {
-	return new PlatformState(); // FIXME: stub
+	auto*const copy=new PlatformState();
+	copy->pc=pc;
+	copy->sp=sp;
+	copy->filled=filled;
+	return copy;
 }
 
 QString PlatformState::flags_to_string() const
@@ -55,11 +59,11 @@ edb::address_t PlatformState::frame_pointer() const
 }
 edb::address_t PlatformState::instruction_pointer() const
 {
-	return 0; // FIXME: stub
+	return pc;
 }
 edb::address_t PlatformState::stack_pointer() const
 {
-	return 0; // FIXME: stub
+	return sp;
 }
 edb::reg_t PlatformState::debug_register(size_t n) const
 {
@@ -79,7 +83,7 @@ void PlatformState::clear()
 }
 bool PlatformState::empty() const
 {
-	return false; // FIXME: stub
+	return !filled; // FIXME: stub
 }
 void PlatformState::set_debug_register(size_t n, edb::reg_t value)
 {
@@ -105,4 +109,12 @@ Register PlatformState::gp_register(size_t n) const
 {
 	return Register(); // FIXME: stub
 }
+
+void PlatformState::fillFrom(user_regs const& regs)
+{
+	sp=regs.uregs[13];
+	pc=regs.uregs[15];
+	filled=true;
+}
+
 }
