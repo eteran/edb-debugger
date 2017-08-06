@@ -276,10 +276,12 @@ void Formatter::setOptions(const Formatter::FormatOptions &options) {
 
 	options_ = options;
 
+#if defined EDB_X86 || defined EDB_X86_64
 	if (options.syntax == SyntaxATT)
 		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_ATT);
 	else
 		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_INTEL);
+#endif
 
 	activeFormatter = *this;
 }
@@ -307,8 +309,11 @@ std::string Formatter::to_string(const Instruction &insn) const {
 
 	std::ostringstream s;
 	s << insn->mnemonic;
+	// FIXME(ARM): this should be unconditional, but stubbed out for now
+#if defined EDB_X86 || defined EDB_X86_64
 	if (insn.operand_count() > 0) // prevent addition of trailing whitespace
 	{
+#endif
 		if (options_.tabBetweenMnemonicAndOperands) {
 			const auto pos = s.tellp();
 			const auto pad = pos < tab1Size ? tab1Size - pos : pos < tab2Size ? tab2Size - pos : 1;
@@ -317,9 +322,12 @@ std::string Formatter::to_string(const Instruction &insn) const {
 			s << ' ';
 		}
 		s << adjustInstructionText(insn).toStdString();
+	// FIXME(ARM): this should be unconditional, but stubbed out for now
+#if defined EDB_X86 || defined EDB_X86_64
 	} else {
 		assert(insn->op_str[0] == 0);
 	}
+#endif
 
 	auto str = s.str();
 	checkCapitalize(str);

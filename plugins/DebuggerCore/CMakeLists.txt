@@ -62,9 +62,6 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		unix/linux/PlatformProcess.h
 		unix/linux/PlatformRegion.cpp
 		unix/linux/PlatformRegion.h
-		unix/linux/PlatformState.cpp
-		unix/linux/PlatformState.h
-		unix/linux/PlatformThread.cpp
 		unix/linux/PlatformThread.h	
 		unix/linux/FeatureDetect.cpp
 		unix/linux/FeatureDetect.h
@@ -82,6 +79,18 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 		arch/x86-generic/Breakpoint.cpp
 		arch/x86-generic/Breakpoint.h
 	)
+
+    if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+        include_directories("unix/linux/arch/x86-generic")
+
+        set(DebuggerCore_SRCS
+            ${DebuggerCore_SRCS}
+            unix/linux/arch/x86-generic/PlatformState.cpp
+            unix/linux/arch/x86-generic/PlatformState.h
+            unix/linux/arch/x86-generic/PlatformThread.cpp
+        )
+    endif()
+
 endif()
 
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
@@ -92,6 +101,17 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
                 arch/arm-generic/Breakpoint.cpp
                 arch/arm-generic/Breakpoint.h
         )
+
+        if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+            include_directories("unix/linux/arch/arm-generic")
+
+            set(DebuggerCore_SRCS
+                ${DebuggerCore_SRCS}
+                unix/linux/arch/arm-generic/PlatformState.cpp
+                unix/linux/arch/arm-generic/PlatformState.h
+                unix/linux/arch/arm-generic/PlatformThread.cpp
+            )
+        endif()
 
 endif()
 

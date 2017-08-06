@@ -30,8 +30,6 @@ namespace DebuggerCorePlugin {
 
 using std::size_t;
 
-#if defined(EDB_X86) || defined(EDB_X86_64)
-
 static constexpr size_t IA32_GPR_COUNT                  = 8;
 static constexpr size_t IA32_GPR_LOW_ADDRESSABLE_COUNT  = 4; // al,cl,dl,bl
 static constexpr size_t AMD64_GPR_COUNT                 = 16;
@@ -517,8 +515,6 @@ private:
 	void fillStruct(UserFPXRegsStructX86 &regs) const;
 	size_t fillStruct(X86XState &regs) const;
 };
-
-#endif
 
 }
 
