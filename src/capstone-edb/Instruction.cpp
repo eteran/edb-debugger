@@ -276,10 +276,12 @@ void Formatter::setOptions(const Formatter::FormatOptions &options) {
 
 	options_ = options;
 
+#if defined EDB_X86 || defined EDB_X86_64
 	if (options.syntax == SyntaxATT)
 		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_ATT);
 	else
 		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_INTEL);
+#endif
 
 	activeFormatter = *this;
 }

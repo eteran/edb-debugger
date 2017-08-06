@@ -218,6 +218,8 @@ public:
 			//Check the previous byte for 0xcc to see if it was an actual breakpoint
 #if defined(EDB_X86_64) || defined(EDB_X86)
 			edb::address_t prev_address = address - 1;
+#elif defined(EDB_ARM32)
+            edb::address_t prev_address = address - 4; // FIXME(ARM): Thumb?..
 #endif
 			std::shared_ptr<IBreakpoint> bp = edb::v1::find_breakpoint(prev_address);
 
@@ -376,6 +378,13 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 #elif defined(EDB_X86)
 	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("EIP"),        QKeySequence(tr("Ctrl+*")),   SLOT(mnuCPUSetEIP()));
 	gotoRIPAction_               = createAction(tr("&Goto %1").arg("EIP"),                           QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
+#elif defined(EDB_ARM32) || defined(EDB_ARM64)
+	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("PC"),         QKeySequence(tr("Ctrl+*")),   SLOT(mnuCPUSetEIP()));
+    setRIPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
+	gotoRIPAction_               = createAction(tr("&Goto %1").arg("PC"),                           QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
+    gotoRIPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
+#else
+#error "This doesn't initialize actions and will lead to crash"
 #endif
 
 	// Data Dump Shorcuts
@@ -405,6 +414,26 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("EBP"),       QKeySequence(), SLOT(mnuStackGotoEBP()));
 	stackPushAction_    = createAction(tr("&Push %1").arg("DWORD"),    QKeySequence(), SLOT(mnuStackPush()));
 	stackPopAction_     = createAction(tr("P&op %1").arg("DWORD"),     QKeySequence(), SLOT(mnuStackPop()));
+#elif defined(EDB_ARM32)
+	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("SP"),       QKeySequence(), SLOT(mnuStackGotoESP()));
+    stackGotoRSPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
+	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("FP"),       QKeySequence(), SLOT(mnuStackGotoEBP()));
+    stackGotoRBPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
+	stackPushAction_    = createAction(tr("&Push %1").arg("DWORD"),    QKeySequence(), SLOT(mnuStackPush()));
+    stackPushAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
+	stackPopAction_     = createAction(tr("P&op %1").arg("DWORD"),     QKeySequence(), SLOT(mnuStackPop()));
+    stackPopAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
+#elif defined(EDB_ARM64)
+	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("SP"),       QKeySequence(), SLOT(mnuStackGotoESP()));
+    stackGotoRSPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
+	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("FP"),       QKeySequence(), SLOT(mnuStackGotoEBP()));
+    stackGotoRBPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
+	stackPushAction_    = createAction(tr("&Push %1").arg("QWORD"),    QKeySequence(), SLOT(mnuStackPush()));
+    stackPushAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
+	stackPopAction_     = createAction(tr("P&op %1").arg("QWORD"),     QKeySequence(), SLOT(mnuStackPop()));
+    stackPopAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
+#else
+#error "This doesn't initialize actions and will lead to crash"
 #endif
 
 
@@ -2126,6 +2155,8 @@ edb::EVENT_STATUS Debugger::handle_trap() {
 
 #if defined(EDB_X86_64) || defined(EDB_X86)
 	const edb::address_t previous_ip = state.instruction_pointer() - 1;
+#elif defined(EDB_ARM32)
+	const edb::address_t previous_ip = state.instruction_pointer() - 4; // FIXME(ARM): Thumb?..
 #endif
 
 	// look it up in our breakpoint list, make sure it is one of OUR int3s!
@@ -3053,7 +3084,13 @@ void Debugger::attachComplete() {
 
 	test_native_binary();
 
+#if defined EDB_X86 || defined EDB_X86_64
 	CapstoneEDB::init(edb::v1::debuggeeIs64Bit() ? CapstoneEDB::Architecture::ARCH_AMD64 : CapstoneEDB::Architecture::ARCH_X86);
+#elif defined EDB_ARM32 || defined EDB_ARM64
+	CapstoneEDB::init(edb::v1::debuggeeIs64Bit() ? CapstoneEDB::Architecture::ARCH_ARM64 : CapstoneEDB::Architecture::ARCH_ARM32);
+#else
+#error "How to initialize Capstone?"
+#endif
 	setup_data_views();
 
 	QString ip   = edb::v1::debugger_core->instruction_pointer().toUpper();
