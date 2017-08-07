@@ -57,6 +57,12 @@ public:
 	void set_register(const Register &reg) override;
 	void set_register(const QString &name, edb::reg_t value) override;
 	Register gp_register(size_t n) const override;
+
+	void fillFrom(user_regs const& regs);
+private:
+	bool filled=false;
+	edb::address_t pc=0xbad1bad1bad1bad1u;
+	edb::address_t sp=0xbad1bad1bad1bad1u;
 };
 
 }

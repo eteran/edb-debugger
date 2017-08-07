@@ -75,6 +75,16 @@ bool PlatformThread::fillStateFromPrStatus(PlatformState* state) {
 //------------------------------------------------------------------------------
 bool PlatformThread::fillStateFromSimpleRegs(PlatformState* state) {
 
+	user_regs regs;
+	if(ptrace(PTRACE_GETREGS, tid_, 0, &regs) != -1) {
+
+		state->fillFrom(regs);
+		return true;
+	}
+	else {
+		perror("PTRACE_GETREGS failed");
+		return false;
+	}
 }
 
 
@@ -242,6 +252,7 @@ void PlatformThread::get_state(State *state) {
 
 	if(auto state_impl = static_cast<PlatformState *>(state->impl_)) {
 
+		fillStateFromSimpleRegs(state_impl);
 	}
 }
 
