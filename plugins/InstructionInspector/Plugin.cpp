@@ -51,13 +51,13 @@ class Disassembler
 public:
 	struct InitFailure
 	{
-		cs_err error;
+		const char* error;
 	};
 	Disassembler(cs_mode mode)
 	{
 		cs_err result=cs_open(CS_ARCH_X86, mode, &csh_);
 		if(result!=CS_ERR_OK)
-			throw InitFailure{result};
+			throw InitFailure{cs_strerror(result)};
 		cs_option(csh_, CS_OPT_DETAIL, CS_OPT_ON);
 		cs_option(csh_,CS_OPT_SYNTAX, edb::v1::config().syntax==Configuration::Syntax::Intel?
 															CS_OPT_SYNTAX_INTEL:
@@ -994,7 +994,7 @@ void Plugin::showDialog() const
 	{
 			QMessageBox::critical(edb::v1::debugger_ui,
 					"Capstone error",
-					"Failed to initialize Capstone, error code "+QString::number(ex.error));
+					QString("Failed to initialize Capstone: ")+ex.error);
 	}
 	catch(...){}
 }
