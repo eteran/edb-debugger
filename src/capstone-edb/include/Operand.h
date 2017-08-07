@@ -2,6 +2,7 @@
 #ifndef OPERAND_H_
 #define OPERAND_H_
 
+#include "ArchDefs.h"
 #include <capstone/capstone.h>
 
 namespace CapstoneEDB {
@@ -17,8 +18,14 @@ class Operand {
 	friend class Formatter;
 	friend class Instruction;
 
+#if defined EDB_X86 || defined EDB_X86_64
+	using op_type=cs_x86_op;
+#elif defined EDB_ARM32 || defined EDB_ARM64
+    using op_type=cs_arm_op;
+#endif
+
 private:
-	Operand(const Instruction *instruction, cs_x86_op *operand, size_t index) : owner_(instruction), operand_(operand), index_(index) {
+	Operand(const Instruction *instruction, op_type *operand, size_t index) : owner_(instruction), operand_(operand), index_(index) {
 	}
 
 public:
@@ -32,8 +39,8 @@ public:
 public:
 	bool valid() const                  { return operand_; }
 	explicit operator bool() const      { return valid();  }
-	const cs_x86_op *operator->() const { return operand_; }
-	const cs_x86_op *native() const     { return operand_; }
+	const op_type *operator->() const   { return operand_; }
+	const op_type *native() const       { return operand_; }
 	int index() const                   { return index_;   }
 
 public:
@@ -43,7 +50,7 @@ public:
 
 private:
 	const Instruction *owner_;
-	cs_x86_op *        operand_;
+	op_type *          operand_;
 	size_t             index_;
 };
 
