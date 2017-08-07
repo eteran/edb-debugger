@@ -55,7 +55,17 @@ public:
 	};
 	Disassembler(cs_mode mode)
 	{
-		cs_err result=cs_open(CS_ARCH_X86, mode, &csh_);
+		cs_err result=cs_open(
+#if defined EDB_X86 || defined EDB_X86_64
+							  CS_ARCH_X86
+#elif defined EDB_ARM32
+							  CS_ARCH_ARM
+#elif defined EDB_ARM64
+							  CS_ARCH_ARM64
+#else
+#	error "What to pass to capstone?"
+#endif
+							 , mode, &csh_);
 		if(result!=CS_ERR_OK)
 			throw InitFailure{cs_strerror(result)};
 		cs_option(csh_, CS_OPT_DETAIL, CS_OPT_ON);
@@ -376,7 +386,24 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 {
 	setWindowTitle("Instruction Inspector");
 	address=edb::v1::cpu_selected_address();
-	const auto disasm=new Disassembler(edb::v1::debuggeeIs32Bit() ? CS_MODE_32 : CS_MODE_64);
+	const cs_mode mode=
+#if defined EDB_X86 || defined EDB_X86_64
+					edb::v1::debuggeeIs32Bit() ? CS_MODE_32 : CS_MODE_64
+#elif defined EDB_ARM32 || defined EDB_ARM64
+					// FIXME(ARM): we also have possible values:
+					//	* CS_MODE_ARM,
+					//	* CS_MODE_THUMB,
+					//	* CS_MODE_MCLASS,
+					//	* CS_MODE_V8,
+					//	and need to select the right one. Also need to choose from
+					//	* CS_MODE_LITTLE_ENDIAN and
+					//	* CS_MODE_BIG_ENDIAN
+					static_cast<cs_mode>(CS_MODE_ARM|CS_MODE_LITTLE_ENDIAN)
+#else
+#	error "What value should mode have?"
+#endif
+                    ;
+	const auto disasm=new Disassembler(mode);
 	disassembler_=disasm;
 
 	quint8 buffer[edb::Instruction::MAX_SIZE];
