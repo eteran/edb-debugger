@@ -1,6 +1,8 @@
 /*
 Copyright (C) 2006 - 2015 Evan Teran
                           evan.teran@gmail.com
+Copyright (C) 2017 Ruslan Kabatsayev
+                   b7.10110111@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,18 +18,21 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ARCHTYPES_20071127_H_
-#define ARCHTYPES_20071127_H_
+#ifndef ARCH_DEFS_20170807_H_
+#define ARCH_DEFS_20170807_H_
 
-#include "ArchDefs.h"
-#include "Instruction.h"
-#include "Types.h"
+#include <cstdint>
 
-namespace edb {
+#if INTPTR_MAX == INT32_MAX
+#define EDB_ARM32
+static constexpr bool EDB_IS_64_BIT = false;
+static constexpr bool EDB_IS_32_BIT = true;
 
-typedef CapstoneEDB::Instruction  Instruction;
-typedef CapstoneEDB::Operand      Operand;
+#elif INTPTR_MAX == INT64_MAX
 
-}
+#define EDB_ARM64
+static constexpr bool EDB_IS_64_BIT = true;
+static constexpr bool EDB_IS_32_BIT = false;
+#endif
 
 #endif
