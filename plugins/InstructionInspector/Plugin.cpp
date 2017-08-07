@@ -460,6 +460,7 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 				for(int r=0;r<insn->detail->regs_write_count;++r)
 					add({printReg(disasm->handle(), insn->detail->regs_write[r]).c_str()},regsWritten);
 			}
+#if defined EDB_X86 || defined EDB_X86_64
 			add({"Prefixes",printBytes(insn->detail->x86.prefix,sizeof insn->detail->x86.prefix,false).c_str()});
 			add({"Opcode",printBytes(insn->detail->x86.opcode,sizeof insn->detail->x86.opcode).c_str()});
 			if(insn->detail->x86.rex)
@@ -523,6 +524,7 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 					add({"AVX Broadcast",printAVX_Bcast(operand.avx_bcast).c_str()},curOpItem);
 				add({"AVX opmask",(operand.avx_zero_opmask ? "zeroing" : "merging")},curOpItem);
 			}
+#endif
 		}
 		tree->expandAll();
 		tree->resizeColumnToContents(0);
