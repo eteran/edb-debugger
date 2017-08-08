@@ -767,22 +767,32 @@ Status PlatformProcess::pause() {
 // Name: resume
 // Desc: resumes ALL threads
 //------------------------------------------------------------------------------
-void PlatformProcess::resume(edb::EVENT_STATUS status) {
+Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 	Q_ASSERT(core_->process_ == this);
 
+	QString errorMessage;
+
 	if(status != edb::DEBUG_STOP) {
 		if(std::shared_ptr<IThread> thread = current_thread()) {
-			thread->resume(status);
+			const auto resumeStatus=thread->resume(status);
+			if(!resumeStatus)
+				errorMessage+=QObject::tr("Failed to resume process %1: %2\n").arg(pid_).arg(resumeStatus.toString());
 
 			// resume the other threads passing the signal they originally reported had
 			for(auto &other_thread : threads()) {
 				if(core_->waited_threads_.contains(other_thread->tid())) {
-					other_thread->resume();
+					const auto resumeStatus=other_thread->resume();
+					if(!resumeStatus)
+						errorMessage+=QObject::tr("Failed to resume process %1: %2\n").arg(pid_).arg(resumeStatus.toString());
 				}
 			}
 		}
 	}
+	if(errorMessage.isEmpty())
+		return Status::Ok;
+	qWarning() << errorMessage.toStdString().c_str();
+	return Status(errorMessage);
 }
 
 //------------------------------------------------------------------------------
