@@ -289,16 +289,21 @@ long DebuggerCore::ptrace_traceme() {
 // Name: ptrace_continue
 // Desc:
 //------------------------------------------------------------------------------
-long DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
+Status DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
 	// TODO(eteran): perhaps address this at a higher layer?
 	//               I would like to not have these events show up
 	//               in the first place if we aren't stopped on this TID :-(
 	if(waited_threads_.contains(tid)) {
 		Q_ASSERT(tid != 0);
 		waited_threads_.remove(tid);
-		return ptrace(PTRACE_CONT, tid, 0, status);
+		if(ptrace(PTRACE_CONT, tid, 0, status)==-1) {
+			const char*const strError=strerror(errno);
+			qWarning() << "Unable to continue thread" << tid << ": PTRACE_CONT failed:" << strError;
+			return Status(strError);
+		}
+		return Status::Ok;
 	}
-	return -1;
+	return Status(QObject::tr("ptrace_continue(): waited_threads_ doesn't contain tid %1").arg(tid));
 }
 
 //------------------------------------------------------------------------------
