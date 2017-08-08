@@ -86,7 +86,7 @@ public:
 	virtual IProcess *process() const override;
 
 private:
-	long ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo);
+	Status ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo);
 	Status ptrace_continue(edb::tid_t tid, long status);
 	Status ptrace_step(edb::tid_t tid, long status);
 	long ptrace_set_options(edb::tid_t tid, long options);

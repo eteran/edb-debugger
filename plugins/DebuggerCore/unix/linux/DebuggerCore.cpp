@@ -272,9 +272,14 @@ DebuggerCore::~DebuggerCore() {
 // Name: ptrace_getsiginfo
 // Desc:
 //------------------------------------------------------------------------------
-long DebuggerCore::ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo) {
+Status DebuggerCore::ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo) {
 	Q_ASSERT(siginfo != 0);
-	return ptrace(PTRACE_GETSIGINFO, tid, 0, siginfo);
+	if(ptrace(PTRACE_GETSIGINFO, tid, 0, siginfo)==-1) {
+		const char*const strError=strerror(errno);
+		qWarning() << "Unable to get signal info for thread" << tid << ": PTRACE_GETSIGINFO failed:" << strError;
+		return Status(strError);
+	}
+	return Status::Ok;
 }
 
 //------------------------------------------------------------------------------
@@ -457,7 +462,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 	e->pid_    = pid();
 	e->tid_    = tid;
 	e->status_ = status;
-	if(ptrace_getsiginfo(tid, &e->siginfo_) == -1) {
+	if(!ptrace_getsiginfo(tid, &e->siginfo_)) {
 		// TODO: handle no info?
 	}
 
