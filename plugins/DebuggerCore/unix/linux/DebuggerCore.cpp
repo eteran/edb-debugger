@@ -491,7 +491,10 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 // Name: stop_threads
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerCore::stop_threads() {
+Status DebuggerCore::stop_threads() {
+
+	QString errorMessage;
+
 	if(process_) {
 		for(auto &thread: process_->threads()) {
 			const edb::tid_t tid = thread->tid();
@@ -500,7 +503,9 @@ void DebuggerCore::stop_threads() {
 
 				if(auto thread_ptr = std::static_pointer_cast<PlatformThread>(thread)) {
 
-					thread->stop();
+					const auto stopStatus=thread->stop();
+					if(!stopStatus)
+						errorMessage+=QObject::tr("Failure to stop threads: %1\n").arg(stopStatus.toString());
 
 					int thread_status;
 					if(native::waitpid(tid, &thread_status, __WALL) > 0) {
@@ -508,13 +513,17 @@ void DebuggerCore::stop_threads() {
 						thread_ptr->status_ = thread_status;
 
 						if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
-							qDebug("stop_threads(): [warning] paused thread [%d] received an event besides SIGSTOP: status=0x%x", tid,thread_status);
+							qWarning("stop_threads(): paused thread [%d] received an event besides SIGSTOP: status=0x%x", tid,thread_status);
 						}
 					}
 				}
 			}
 		}
 	}
+	if(errorMessage.isEmpty())
+		return Status::Ok;
+	qWarning() << errorMessage.toStdString().c_str();
+	return Status(errorMessage);
 }
 
 //------------------------------------------------------------------------------

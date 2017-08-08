@@ -95,7 +95,7 @@ private:
 
 private:
 	void reset();
-	void stop_threads();
+	Status stop_threads();
 	std::shared_ptr<IDebugEvent> handle_event(edb::tid_t tid, int status);
 	int attach_thread(edb::tid_t tid);
     void detectDebuggeeBitness();
