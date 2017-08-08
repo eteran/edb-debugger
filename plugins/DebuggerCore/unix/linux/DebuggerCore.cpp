@@ -634,7 +634,8 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 // Name: detach
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerCore::detach() {
+Status DebuggerCore::detach() {
+	QString errorMessage;
 	if(process_) {
 
 		stop_threads();
@@ -642,7 +643,10 @@ void DebuggerCore::detach() {
 		clear_breakpoints();
 
 		for(auto &thread: process_->threads()) {
-			ptrace(PTRACE_DETACH, thread->tid(), 0, 0);
+			if(ptrace(PTRACE_DETACH, thread->tid(), 0, 0)==-1) {
+				const char*const strError=strerror(errno);
+				errorMessage+=QObject::tr("Unable to detach from thread %1: PTRACE_DETACH failed: %2\n").arg(thread->tid()).arg(strError);
+			}
 		}
 
 		delete process_;
@@ -650,6 +654,10 @@ void DebuggerCore::detach() {
 
 		reset();
 	}
+	if(errorMessage.isEmpty())
+		return Status::Ok;
+	qWarning() << errorMessage.toStdString().c_str();
+	return Status(errorMessage);
 }
 
 //------------------------------------------------------------------------------

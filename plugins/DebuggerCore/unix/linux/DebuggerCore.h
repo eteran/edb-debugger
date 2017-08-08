@@ -54,7 +54,7 @@ public:
 	virtual bool has_extension(quint64 ext) const override;
 	virtual std::shared_ptr<IDebugEvent> wait_debug_event(int msecs) override;
 	virtual Status attach(edb::pid_t pid) override;
-	virtual void detach() override;
+	virtual Status detach() override;
 	virtual void kill() override;
 	virtual void get_state(State *state) override;
 	virtual void set_state(const State &state) override;
