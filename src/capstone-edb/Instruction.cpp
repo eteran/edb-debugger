@@ -191,7 +191,13 @@ Operand Instruction::operator[](size_t n) const {
 	if (n > operand_count())
 		return Operand();
 
+#if defined EDB_X86 || defined EDB_X86_64
 	return Operand(this, &insn_->detail->x86.operands[n], n);
+#elif defined EDB_ARM32 || defined EDB_ARM64
+	return Operand(this, &insn_->detail->arm.operands[n], n);
+#else
+#	error "What to return here?"
+#endif
 }
 
 Operand Instruction::operand(size_t n) const {
@@ -200,11 +206,18 @@ Operand Instruction::operand(size_t n) const {
 	if (n > operand_count())
 		return Operand();
 
+#if defined EDB_X86 || defined EDB_X86_64
 	return Operand(this, &insn_->detail->x86.operands[n], n);
+#elif defined EDB_ARM32 || defined EDB_ARM64
+	return Operand(this, &insn_->detail->arm.operands[n], n);
+#else
+#	error "What to return here?"
+#endif
 }
 
 Instruction::ConditionCode Instruction::condition_code() const {
 
+#if defined EDB_X86 || defined EDB_X86_64
 	switch (operation()) {
 	// J*CXZ
 	case X86_INS_JRCXZ:
@@ -239,6 +252,8 @@ Instruction::ConditionCode Instruction::condition_code() const {
 			return static_cast<ConditionCode>(opcode[0] & 0xf);
 		}
 	}
+#endif
+	// FIXME(ARM): this is a stub
 	return CC_UNCONDITIONAL;
 }
 
@@ -260,6 +275,7 @@ QString Formatter::adjustInstructionText(const Instruction &insn) const {
 	operands.replace(QRegExp("\\bxword "), "tbyte ");
 	operands.replace(QRegExp("(word|byte) ptr "), "\\1 ");
 
+#if defined EDB_X86 || defined EDB_X86_64
 	if (activeFormatter.options().simplifyRIPRelativeTargets && isX86_64() && (insn->detail->x86.modrm & 0xc7) == 0x05) {
 		QRegExp ripRel("\\brip ?[+-] ?((0x)?[0-9a-fA-F]+)\\b");
 		operands.replace(ripRel, "rel 0x" + QString::number(insn->detail->x86.disp + insn->address + insn->size, 16));
@@ -268,6 +284,7 @@ QString Formatter::adjustInstructionText(const Instruction &insn) const {
 	if (insn.operand_count() == 2 && ((insn[0]->type == X86_OP_REG && insn[1]->type == X86_OP_MEM) || (insn[1]->type == X86_OP_REG && insn[0]->type == X86_OP_MEM))) {
 		operands.replace(QRegExp("(\\b.?(mm)?word|byte)\\b( ptr)? "), "");
 	}
+#endif
 	return operands;
 }
 
@@ -309,11 +326,8 @@ std::string Formatter::to_string(const Instruction &insn) const {
 
 	std::ostringstream s;
 	s << insn->mnemonic;
-	// FIXME(ARM): this should be unconditional, but stubbed out for now
-#if defined EDB_X86 || defined EDB_X86_64
 	if (insn.operand_count() > 0) // prevent addition of trailing whitespace
 	{
-#endif
 		if (options_.tabBetweenMnemonicAndOperands) {
 			const auto pos = s.tellp();
 			const auto pad = pos < tab1Size ? tab1Size - pos : pos < tab2Size ? tab2Size - pos : 1;
@@ -322,12 +336,9 @@ std::string Formatter::to_string(const Instruction &insn) const {
 			s << ' ';
 		}
 		s << adjustInstructionText(insn).toStdString();
-	// FIXME(ARM): this should be unconditional, but stubbed out for now
-#if defined EDB_X86 || defined EDB_X86_64
 	} else {
 		assert(insn->op_str[0] == 0);
 	}
-#endif
 
 	auto str = s.str();
 	checkCapitalize(str);

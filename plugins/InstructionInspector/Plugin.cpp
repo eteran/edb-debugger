@@ -51,13 +51,23 @@ class Disassembler
 public:
 	struct InitFailure
 	{
-		cs_err error;
+		const char* error;
 	};
 	Disassembler(cs_mode mode)
 	{
-		cs_err result=cs_open(CS_ARCH_X86, mode, &csh_);
+		cs_err result=cs_open(
+#if defined EDB_X86 || defined EDB_X86_64
+							  CS_ARCH_X86
+#elif defined EDB_ARM32
+							  CS_ARCH_ARM
+#elif defined EDB_ARM64
+							  CS_ARCH_ARM64
+#else
+#	error "What to pass to capstone?"
+#endif
+							 , mode, &csh_);
 		if(result!=CS_ERR_OK)
-			throw InitFailure{result};
+			throw InitFailure{cs_strerror(result)};
 		cs_option(csh_, CS_OPT_DETAIL, CS_OPT_ON);
 		cs_option(csh_,CS_OPT_SYNTAX, edb::v1::config().syntax==Configuration::Syntax::Intel?
 															CS_OPT_SYNTAX_INTEL:
@@ -376,7 +386,24 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 {
 	setWindowTitle("Instruction Inspector");
 	address=edb::v1::cpu_selected_address();
-	const auto disasm=new Disassembler(edb::v1::debuggeeIs32Bit() ? CS_MODE_32 : CS_MODE_64);
+	const cs_mode mode=
+#if defined EDB_X86 || defined EDB_X86_64
+					edb::v1::debuggeeIs32Bit() ? CS_MODE_32 : CS_MODE_64
+#elif defined EDB_ARM32 || defined EDB_ARM64
+					// FIXME(ARM): we also have possible values:
+					//	* CS_MODE_ARM,
+					//	* CS_MODE_THUMB,
+					//	* CS_MODE_MCLASS,
+					//	* CS_MODE_V8,
+					//	and need to select the right one. Also need to choose from
+					//	* CS_MODE_LITTLE_ENDIAN and
+					//	* CS_MODE_BIG_ENDIAN
+					static_cast<cs_mode>(CS_MODE_ARM|CS_MODE_LITTLE_ENDIAN)
+#else
+#	error "What value should mode have?"
+#endif
+                    ;
+	const auto disasm=new Disassembler(mode);
 	disassembler_=disasm;
 
 	quint8 buffer[edb::Instruction::MAX_SIZE];
@@ -433,6 +460,7 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 				for(int r=0;r<insn->detail->regs_write_count;++r)
 					add({printReg(disasm->handle(), insn->detail->regs_write[r]).c_str()},regsWritten);
 			}
+#if defined EDB_X86 || defined EDB_X86_64
 			add({"Prefixes",printBytes(insn->detail->x86.prefix,sizeof insn->detail->x86.prefix,false).c_str()});
 			add({"Opcode",printBytes(insn->detail->x86.opcode,sizeof insn->detail->x86.opcode).c_str()});
 			if(insn->detail->x86.rex)
@@ -496,6 +524,7 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 					add({"AVX Broadcast",printAVX_Bcast(operand.avx_bcast).c_str()},curOpItem);
 				add({"AVX opmask",(operand.avx_zero_opmask ? "zeroing" : "merging")},curOpItem);
 			}
+#endif
 		}
 		tree->expandAll();
 		tree->resizeColumnToContents(0);
@@ -994,7 +1023,7 @@ void Plugin::showDialog() const
 	{
 			QMessageBox::critical(edb::v1::debugger_ui,
 					"Capstone error",
-					"Failed to initialize Capstone, error code "+QString::number(ex.error));
+					QString("Failed to initialize Capstone: ")+ex.error);
 	}
 	catch(...){}
 }

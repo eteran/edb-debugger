@@ -41,6 +41,10 @@ namespace {
 const int STACK_REG = X86_REG_ESP;
 #elif defined(EDB_X86_64)
 const int STACK_REG = X86_REG_RSP;
+#elif defined EDB_ARM32
+const int STACK_REG = ARM_REG_SP;
+#elif defined EDB_ARM64
+const int STACK_REG = ARM64_REG_SP;
 #endif
 }
 
