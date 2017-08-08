@@ -56,7 +56,7 @@ public:
 	virtual QList<Module>                   loaded_modules() const override;
 
 public:
-	virtual void pause() override;
+	virtual Status pause() override;
 	virtual void resume(edb::EVENT_STATUS status) override;
 	virtual void step(edb::EVENT_STATUS status) override;
 	virtual bool isPaused() const override;
