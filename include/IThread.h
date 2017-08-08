@@ -45,7 +45,7 @@ public:
 	virtual Status step(edb::EVENT_STATUS status) = 0;
 	virtual Status resume() = 0;
 	virtual Status resume(edb::EVENT_STATUS status) = 0;
-	virtual void stop() = 0;
+	virtual Status stop() = 0;
 
 public:
 	virtual bool isPaused() const = 0;

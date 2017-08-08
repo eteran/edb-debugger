@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCore.h"
 #include "IProcess.h"
 #include "PlatformCommon.h"
+#include <QDebug>
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
@@ -186,10 +187,16 @@ Status PlatformThread::resume(edb::EVENT_STATUS status) {
 // Name: stop
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformThread::stop() {
-	syscall(SYS_tgkill, process_->pid(), tid_, SIGSTOP);
+Status PlatformThread::stop() {
+	if(syscall(SYS_tgkill, process_->pid(), tid_, SIGSTOP)==-1) {
+
+		const char*const strError=strerror(errno);
+		qWarning() << "Unable to stop thread" << tid_ << ": tgkill failed:" << strError;
+		return Status(strError);
+	}
 	// TODO(eteran): should this just be this?
 	//::kill(tid_, SIGSTOP);
+	return Status::Ok;
 }
 
 //------------------------------------------------------------------------------

@@ -63,7 +63,7 @@ public:
 	virtual Status step(edb::EVENT_STATUS status) override;
 	virtual Status resume() override;
 	virtual Status resume(edb::EVENT_STATUS status) override;
-	virtual void stop() override;
+	virtual Status stop() override;
 
 public:
 	virtual bool isPaused() const override;
