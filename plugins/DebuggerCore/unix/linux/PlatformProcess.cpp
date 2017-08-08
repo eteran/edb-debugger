@@ -799,13 +799,13 @@ Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 // Name: step
 // Desc: steps the currently active thread
 //------------------------------------------------------------------------------
-void PlatformProcess::step(edb::EVENT_STATUS status) {
+Status PlatformProcess::step(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 	Q_ASSERT(core_->process_ == this);
 
 	if(status != edb::DEBUG_STOP) {
 		if(std::shared_ptr<IThread> thread = current_thread()) {
-			thread->step(status);
+			return thread->step(status);
 		}
 	}
 }
