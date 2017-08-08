@@ -351,11 +351,16 @@ Status DebuggerCore::ptrace_set_options(edb::tid_t tid, long options) {
 // Name: ptrace_get_event_message
 // Desc:
 //------------------------------------------------------------------------------
-long DebuggerCore::ptrace_get_event_message(edb::tid_t tid, unsigned long *message) {
+Status DebuggerCore::ptrace_get_event_message(edb::tid_t tid, unsigned long *message) {
 	Q_ASSERT(waited_threads_.contains(tid));
 	Q_ASSERT(tid != 0);
 	Q_ASSERT(message != 0);
-	return ptrace(PTRACE_GETEVENTMSG, tid, 0, message);
+	if(ptrace(PTRACE_GETEVENTMSG, tid, 0, message)==-1) {
+		const char*const strError=strerror(errno);
+		qWarning() << "Unable to get event message for thread" << tid << ": PTRACE_GETEVENTMSG failed:" << strError;
+		return Status(strError);
+	}
+	return Status::Ok;
 }
 
 //------------------------------------------------------------------------------
@@ -421,7 +426,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 	if(is_clone_event(status)) {
 
 		unsigned long new_tid;
-		if(ptrace_get_event_message(tid, &new_tid) != -1) {
+		if(ptrace_get_event_message(tid, &new_tid)) {
 
 			auto newThread            = std::make_shared<PlatformThread>(this, process_, new_tid);
 			newThread->status_        = 0;

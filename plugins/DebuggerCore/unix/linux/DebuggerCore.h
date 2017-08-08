@@ -90,7 +90,7 @@ private:
 	Status ptrace_continue(edb::tid_t tid, long status);
 	Status ptrace_step(edb::tid_t tid, long status);
 	Status ptrace_set_options(edb::tid_t tid, long options);
-	long ptrace_get_event_message(edb::tid_t tid, unsigned long *message);
+	Status ptrace_get_event_message(edb::tid_t tid, unsigned long *message);
 	long ptrace_traceme();
 
 private:
