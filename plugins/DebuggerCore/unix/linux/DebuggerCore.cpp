@@ -596,7 +596,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 		active_thread_  = pid;
 		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 		detectDebuggeeBitness();
-		return Status();
+		return Status::Ok;
 	}
 
     delete process_;
@@ -833,7 +833,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 			detectDebuggeeBitness();
 
-			return Status();
+			return Status::Ok;
 		} while(0);
 		break;
 	}
