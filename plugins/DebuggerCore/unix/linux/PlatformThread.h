@@ -61,8 +61,8 @@ public:
 public:
 	virtual Status step() override;
 	virtual Status step(edb::EVENT_STATUS status) override;
-	virtual void resume() override;
-	virtual void resume(edb::EVENT_STATUS status) override;
+	virtual Status resume() override;
+	virtual Status resume(edb::EVENT_STATUS status) override;
 	virtual void stop() override;
 
 public:

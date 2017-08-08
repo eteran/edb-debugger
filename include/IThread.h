@@ -43,8 +43,8 @@ public:
 public:
 	virtual Status step() = 0;
 	virtual Status step(edb::EVENT_STATUS status) = 0;
-	virtual void resume() = 0;
-	virtual void resume(edb::EVENT_STATUS status) = 0;
+	virtual Status resume() = 0;
+	virtual Status resume(edb::EVENT_STATUS status) = 0;
 	virtual void stop() = 0;
 
 public:

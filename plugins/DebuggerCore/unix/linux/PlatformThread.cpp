@@ -168,8 +168,8 @@ Status PlatformThread::step(edb::EVENT_STATUS status) {
 // Desc: resumes this thread, passing the signal that stopped it
 //       (unless the signal was SIGSTOP)
 //------------------------------------------------------------------------------
-void PlatformThread::resume() {
-	core_->ptrace_continue(tid_, resume_code(status_));
+Status PlatformThread::resume() {
+	return core_->ptrace_continue(tid_, resume_code(status_));
 }
 
 //------------------------------------------------------------------------------
@@ -177,9 +177,9 @@ void PlatformThread::resume() {
 // Desc: resumes this thread , passing the signal that stopped it
 //       (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
 //------------------------------------------------------------------------------
-void PlatformThread::resume(edb::EVENT_STATUS status) {
+Status PlatformThread::resume(edb::EVENT_STATUS status) {
 	const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(status_) : 0;
-	core_->ptrace_continue(tid_, code);
+	return core_->ptrace_continue(tid_, code);
 }
 
 //------------------------------------------------------------------------------
