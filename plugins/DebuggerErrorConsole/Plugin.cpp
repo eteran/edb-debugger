@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include <QMenu>
 #include <QDebug>
-#include <QtGlobal>
 #include <QMainWindow>
 #include <QDockWidget>
 #include <QPlainTextEdit>
@@ -30,8 +29,14 @@ namespace DebuggerErrorConsole
 
 Plugin* Plugin::instance=nullptr;
 
-void Plugin::debugMessageIntercept(QtMsgType type, const char* message)
+#if QT_VERSION < 0x50000
+void Plugin::debugMessageIntercept(QtMsgType type, const char* message_)
 {
+	const QString message(message_);
+#else
+void Plugin::debugMessageIntercept(QtMsgType type, QMessageLogContext const&, QString const& message)
+{
+#endif
 	if(!instance) return;
 
 	QString text;
@@ -57,7 +62,7 @@ void Plugin::debugMessageIntercept(QtMsgType type, const char* message)
 	}
 	text+="  "+QString(message);
 	instance->textWidget_->appendPlainText(text);
-	std::cerr << message << "\n"; // this may be useful as a crash log
+	std::cerr << message.toUtf8().constData() << "\n"; // this may be useful as a crash log
 }
 
 Plugin::Plugin()
@@ -70,7 +75,11 @@ Plugin::Plugin()
 	font.setStyleHint(QFont::TypeWriter);
 	textWidget_->setFont(font);
 
+#if QT_VERSION < 0x50000
 	qInstallMsgHandler(debugMessageIntercept);
+#else
+	qInstallMessageHandler(debugMessageIntercept);
+#endif
 }
 
 Plugin::~Plugin()

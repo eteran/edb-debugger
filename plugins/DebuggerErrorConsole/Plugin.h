@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IPlugin.h"
 #include "edb.h"
 #include <QDialog>
+#include <QtGlobal>
 
 class QPlainTextEdit;
 
@@ -51,7 +52,11 @@ class Plugin : public QObject, public IPlugin
 	QMenu* menu_=nullptr;
 	static Plugin* instance;
 
-	static void debugMessageIntercept(QtMsgType type, const char* messge);
+#if QT_VERSION < 0x50000
+	static void debugMessageIntercept(QtMsgType type, const char* message_);
+#else
+	static void debugMessageIntercept(QtMsgType type, QMessageLogContext const&, QString const& message);
+#endif
 public:
 	Plugin();
 	~Plugin();
