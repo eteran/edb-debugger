@@ -300,12 +300,12 @@ Status DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
 	//               in the first place if we aren't stopped on this TID :-(
 	if(waited_threads_.contains(tid)) {
 		Q_ASSERT(tid != 0);
-		waited_threads_.remove(tid);
 		if(ptrace(PTRACE_CONT, tid, 0, status)==-1) {
 			const char*const strError=strerror(errno);
 			qWarning() << "Unable to continue thread" << tid << ": PTRACE_CONT failed:" << strError;
 			return Status(strError);
 		}
+		waited_threads_.remove(tid);
 		return Status::Ok;
 	}
 	return Status(QObject::tr("ptrace_continue(): waited_threads_ doesn't contain tid %1").arg(tid));
@@ -321,12 +321,12 @@ Status DebuggerCore::ptrace_step(edb::tid_t tid, long status) {
 	//               in the first place if we aren't stopped on this TID :-(
 	if(waited_threads_.contains(tid)) {
 		Q_ASSERT(tid != 0);
-		waited_threads_.remove(tid);
 		if(ptrace(PTRACE_SINGLESTEP, tid, 0, status)==-1) {
 			const char*const strError=strerror(errno);
 			qWarning() << "Unable to step thread" << tid << ": PTRACE_SINGLESTEP failed:" << strError;
 			return Status(strError);
 		}
+		waited_threads_.remove(tid);
 		return Status::Ok;
 	}
 	return Status(QObject::tr("ptrace_step(): waited_threads_ doesn't contain tid %1").arg(tid));
