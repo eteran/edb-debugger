@@ -82,7 +82,6 @@ set(edb_SRCS
 	Function.cpp
 	HexStringValidator.cpp
 	main.cpp
-	MD5.cpp
 	MemoryRegions.cpp
 	PluginModel.cpp
 	ProcessModel.cpp

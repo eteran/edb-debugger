@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SymbolManager.h"
 #include "Configuration.h"
 #include "ISymbolGenerator.h"
-#include "MD5.h"
 #include "Symbol.h"
 #include "edb.h"
 

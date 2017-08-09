@@ -32,7 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IPlugin.h"
 #include "IProcess.h"
 #include "IRegion.h"
-#include "MD5.h"
 #include "MemoryRegions.h"
 #include "Prototype.h"
 #include "QHexView"
@@ -50,6 +49,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFile>
 #include <QFileInfo>
 #include <QMessageBox>
+#include <QCryptographicHash>
 
 #include <QDebug>
 #include <cctype>
@@ -1121,10 +1121,8 @@ QByteArray get_md5(const QVector<quint8> &bytes) {
 // Desc:
 //------------------------------------------------------------------------------
 QByteArray get_md5(const void *p, size_t n) {
-	MD5 md5(p, n);
-
-	// make a deep copy because MD5 is about to go out of scope
-	return QByteArray(reinterpret_cast<const char *>(md5.digest()), 16);
+	auto b = QByteArray::fromRawData(reinterpret_cast<const char *>(p), n);
+	return QCryptographicHash::hash(b, QCryptographicHash::Md5);
 }
 
 //------------------------------------------------------------------------------
@@ -1137,8 +1135,9 @@ QByteArray get_file_md5(const QString &s) {
 	file.open(QIODevice::ReadOnly);
 	if(file.isOpen()) {
 		if(file.size() != 0) {
-			const QByteArray file_bytes = file.readAll();
-			return get_md5(file_bytes.data(), file_bytes.size());
+			QCryptographicHash hasher(QCryptographicHash::Md5);
+			hasher.addData(&file);
+			return hasher.result();
 		}
 	}
 
