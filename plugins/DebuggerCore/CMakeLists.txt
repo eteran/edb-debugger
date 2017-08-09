@@ -62,6 +62,7 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		unix/linux/PlatformProcess.h
 		unix/linux/PlatformRegion.cpp
 		unix/linux/PlatformRegion.h
+		unix/linux/PlatformThread.cpp
 		unix/linux/PlatformThread.h	
 		unix/linux/FeatureDetect.cpp
 		unix/linux/FeatureDetect.h

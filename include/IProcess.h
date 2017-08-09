@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "OSTypes.h"
 #include "Types.h"
 #include "Patch.h"
+#include "Status.h"
 #include <QList>
 #include <QMap>
 #include <memory>
@@ -60,9 +61,9 @@ public:
 	virtual std::size_t                      patch_bytes(edb::address_t address, const void *buf, size_t len) = 0;
 	virtual std::size_t                      read_bytes(edb::address_t address, void *buf, size_t len) const = 0;
 	virtual std::size_t                      read_pages(edb::address_t address, void *buf, size_t count) const = 0;
-	virtual void                             pause() = 0;
-	virtual void                             resume(edb::EVENT_STATUS status) = 0;
-	virtual void                             step(edb::EVENT_STATUS status) = 0;
+	virtual Status                           pause() = 0;
+	virtual Status                           resume(edb::EVENT_STATUS status) = 0;
+	virtual Status                           step(edb::EVENT_STATUS status) = 0;
 	virtual bool                             isPaused() const = 0;
 	virtual QMap<edb::address_t, Patch>      patches() const = 0;
 };

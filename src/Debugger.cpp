@@ -2609,13 +2609,26 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 
 			if(mode == MODE_STEP) {
 				reenable_breakpoint_step_ = bp;
-				thread->step(status);
+				const auto stepStatus=thread->step(status);
+				if(!stepStatus) {
+					QMessageBox::critical(this,tr("Error"),tr("Failed to step thread: %1").arg(stepStatus.toString()));
+					return;
+				}
 			} else if(mode == MODE_RUN) {
 				reenable_breakpoint_run_ = bp;
 				if(bp) {
-					thread->step(status);
+					const auto stepStatus=thread->step(status);
+					if(!stepStatus) {
+						QMessageBox::critical(this,tr("Error"),tr("Failed to step thread: %1").arg(stepStatus.toString()));
+						return;
+					}
 				} else {
-					process->resume(status);
+					const auto resumeStatus=process->resume(status);
+					if(!resumeStatus) {
+						QMessageBox::critical(this,tr("Error"),tr("Failed to resume process: %1").arg(resumeStatus.toString()));
+						return;
+					}
+					
 				}
 			}
 

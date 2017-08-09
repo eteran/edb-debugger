@@ -54,7 +54,7 @@ public:
 	virtual bool has_extension(quint64 ext) const override;
 	virtual std::shared_ptr<IDebugEvent> wait_debug_event(int msecs) override;
 	virtual Status attach(edb::pid_t pid) override;
-	virtual void detach() override;
+	virtual Status detach() override;
 	virtual void kill() override;
 	virtual void get_state(State *state) override;
 	virtual void set_state(const State &state) override;
@@ -86,16 +86,16 @@ public:
 	virtual IProcess *process() const override;
 
 private:
-	long ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo);
-	long ptrace_continue(edb::tid_t tid, long status);
-	long ptrace_step(edb::tid_t tid, long status);
-	long ptrace_set_options(edb::tid_t tid, long options);
-	long ptrace_get_event_message(edb::tid_t tid, unsigned long *message);
+	Status ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo);
+	Status ptrace_continue(edb::tid_t tid, long status);
+	Status ptrace_step(edb::tid_t tid, long status);
+	Status ptrace_set_options(edb::tid_t tid, long options);
+	Status ptrace_get_event_message(edb::tid_t tid, unsigned long *message);
 	long ptrace_traceme();
 
 private:
 	void reset();
-	void stop_threads();
+	Status stop_threads();
 	std::shared_ptr<IDebugEvent> handle_event(edb::tid_t tid, int status);
 	int attach_thread(edb::tid_t tid);
     void detectDebuggeeBitness();

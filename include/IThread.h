@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 #include "OSTypes.h"
+#include "Status.h"
 
 class State;
 
@@ -40,11 +41,11 @@ public:
 	virtual void set_state(const State &state) = 0;
 
 public:
-	virtual void step() = 0;
-	virtual void step(edb::EVENT_STATUS status) = 0;
-	virtual void resume() = 0;
-	virtual void resume(edb::EVENT_STATUS status) = 0;
-	virtual void stop() = 0;
+	virtual Status step() = 0;
+	virtual Status step(edb::EVENT_STATUS status) = 0;
+	virtual Status resume() = 0;
+	virtual Status resume(edb::EVENT_STATUS status) = 0;
+	virtual Status stop() = 0;
 
 public:
 	virtual bool isPaused() const = 0;

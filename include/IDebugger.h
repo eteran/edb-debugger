@@ -74,7 +74,7 @@ public:
 	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args) = 0;
 	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) = 0;
 	virtual std::shared_ptr<IDebugEvent> wait_debug_event(int msecs) = 0;
-	virtual void detach() = 0;
+	virtual Status detach() = 0;
 	virtual void kill() = 0;
 	virtual void end_debug_session() = 0;
 	virtual void get_state(State *state) = 0;

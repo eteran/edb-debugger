@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "linker.h"
 
+#include <QDebug>
 #include <QByteArray>
 #include <QFile>
 #include <QFileInfo>
@@ -748,48 +749,63 @@ QList<Module> PlatformProcess::loaded_modules() const {
 // Name: pause
 // Desc: stops *all* threads of a process
 //------------------------------------------------------------------------------
-void PlatformProcess::pause() {
+Status PlatformProcess::pause() {
 	// belive it or not, I belive that this is sufficient for all threads
 	// this is because in the debug event handler above, a SIGSTOP is sent
 	// to all threads when any event arrives, so no need to explicitly do
 	// it here. We just need any thread to stop. So we'll just target the
 	// pid_ which will send it to any one of the threads in the process.
-	::kill(pid_, SIGSTOP);
+	if(::kill(pid_, SIGSTOP)==-1) {
+		const char*const strError=strerror(errno);
+		qWarning() << "Unable to pause process" << pid_ << ": kill(SIGSTOP) failed:" << strError;
+		return Status(strError);
+	}
+	return Status::Ok;
 }
 
 //------------------------------------------------------------------------------
 // Name: resume
 // Desc: resumes ALL threads
 //------------------------------------------------------------------------------
-void PlatformProcess::resume(edb::EVENT_STATUS status) {
+Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 	Q_ASSERT(core_->process_ == this);
 
+	QString errorMessage;
+
 	if(status != edb::DEBUG_STOP) {
 		if(std::shared_ptr<IThread> thread = current_thread()) {
-			thread->resume(status);
+			const auto resumeStatus=thread->resume(status);
+			if(!resumeStatus)
+				errorMessage+=QObject::tr("Failed to resume process %1: %2\n").arg(pid_).arg(resumeStatus.toString());
 
 			// resume the other threads passing the signal they originally reported had
 			for(auto &other_thread : threads()) {
 				if(core_->waited_threads_.contains(other_thread->tid())) {
-					other_thread->resume();
+					const auto resumeStatus=other_thread->resume();
+					if(!resumeStatus)
+						errorMessage+=QObject::tr("Failed to resume process %1: %2\n").arg(pid_).arg(resumeStatus.toString());
 				}
 			}
 		}
 	}
+	if(errorMessage.isEmpty())
+		return Status::Ok;
+	qWarning() << errorMessage.toStdString().c_str();
+	return Status(errorMessage);
 }
 
 //------------------------------------------------------------------------------
 // Name: step
 // Desc: steps the currently active thread
 //------------------------------------------------------------------------------
-void PlatformProcess::step(edb::EVENT_STATUS status) {
+Status PlatformProcess::step(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 	Q_ASSERT(core_->process_ == this);
 
 	if(status != edb::DEBUG_STOP) {
 		if(std::shared_ptr<IThread> thread = current_thread()) {
-			thread->step(status);
+			return thread->step(status);
 		}
 	}
 }

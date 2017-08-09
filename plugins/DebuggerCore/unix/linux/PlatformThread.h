@@ -59,11 +59,11 @@ public:
 	virtual void set_state(const State &state) override;
 
 public:
-	virtual void step() override;
-	virtual void step(edb::EVENT_STATUS status) override;
-	virtual void resume() override;
-	virtual void resume(edb::EVENT_STATUS status) override;
-	virtual void stop() override;
+	virtual Status step() override;
+	virtual Status step(edb::EVENT_STATUS status) override;
+	virtual Status resume() override;
+	virtual Status resume(edb::EVENT_STATUS status) override;
+	virtual Status stop() override;
 
 public:
 	virtual bool isPaused() const override;

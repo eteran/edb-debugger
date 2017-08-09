@@ -24,7 +24,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class EDB_EXPORT Status {
 public:
-	Status() {
+	enum OkType { Ok };
+public:
+	Status(OkType) {
 	}
 
 	explicit Status(const QString &message) : errorMessage_(message) {
@@ -54,7 +56,7 @@ public:
 	Result(const QString &message, const T &value) : status_(message), value_(value) {
 	}
 
-	explicit Result(const T &value) : value_(value) {
+	explicit Result(const T &value) : status_(Status::Ok), value_(value) {
 	}
 
 	Result(const Result &)            = default;
