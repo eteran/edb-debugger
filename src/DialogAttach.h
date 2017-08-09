@@ -28,6 +28,7 @@ class Result;
 
 class ProcessModel;
 class QSortFilterProxyModel;
+class QModelIndex;
 
 namespace Ui { class DialogAttach; }
 
@@ -47,6 +48,7 @@ private:
 public Q_SLOTS:
 	void on_filter_uid_clicked(bool checked);
 	void on_filter_textChanged(const QString &filter);
+	void on_processes_table_doubleClicked(const QModelIndex &index);
 
 public:
 	Result<edb::pid_t> selected_pid() const;
