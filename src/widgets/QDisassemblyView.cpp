@@ -425,12 +425,7 @@ edb::address_t QDisassemblyView::following_instructions(edb::address_t current_a
 			break;
 		} else {
 			const edb::Instruction inst(buf, buf + buf_size, current_address);
-			if(inst) {
-				current_address += inst.byte_size();
-			} else {
-				current_address += 1;
-				break;
-			}
+			current_address += inst.byte_size();
 		}
 	}
 
