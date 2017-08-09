@@ -50,6 +50,7 @@ public:
 	virtual QList<std::shared_ptr<IRegion>> regions() const override;
 	virtual QList<std::shared_ptr<IThread>> threads() const override;
 	virtual std::shared_ptr<IThread>        current_thread() const override;
+	virtual void                            set_current_thread(IThread& thread) override;
 	virtual edb::uid_t                      uid() const override;
 	virtual QString                         user() const override;
 	virtual QString                         name() const override;
