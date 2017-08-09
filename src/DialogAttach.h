@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "OSTypes.h"
 
 #include <QDialog>
+#include <QTimer>
 
 template <class T>
 class Result;
@@ -42,7 +43,7 @@ public:
 private:
 	virtual void showEvent(QShowEvent *event);
 
-private:
+private Q_SLOTS:
 	void update_list();
 
 public Q_SLOTS:
@@ -58,6 +59,7 @@ private:
 	ProcessModel          *process_model_;
 	QSortFilterProxyModel *process_name_filter_;
 	QSortFilterProxyModel *process_pid_filter_;
+	QTimer updateTimer;
 };
 
 #endif
