@@ -808,6 +808,7 @@ Status PlatformProcess::step(edb::EVENT_STATUS status) {
 			return thread->step(status);
 		}
 	}
+	return Status::Ok;
 }
 
 //------------------------------------------------------------------------------
