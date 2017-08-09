@@ -219,6 +219,8 @@ public:
 #if defined(EDB_X86_64) || defined(EDB_X86)
 			edb::address_t prev_address = address - 1;
 #elif defined(EDB_ARM32)
+			                                           // NOTE(eteran): I think we need to look at the flags register to see the mode
+			                                           // then we will know how many bytes to reverse
             edb::address_t prev_address = address - 4; // FIXME(ARM): Thumb?..
 #endif
 			std::shared_ptr<IBreakpoint> bp = edb::v1::find_breakpoint(prev_address);
@@ -2156,6 +2158,8 @@ edb::EVENT_STATUS Debugger::handle_trap() {
 #if defined(EDB_X86_64) || defined(EDB_X86)
 	const edb::address_t previous_ip = state.instruction_pointer() - 1;
 #elif defined(EDB_ARM32)
+	                                                                    // NOTE(eteran): I think we need to look at the flags register to see the mode
+																		// then we will know how many bytes to reverse
 	const edb::address_t previous_ip = state.instruction_pointer() - 4; // FIXME(ARM): Thumb?..
 #endif
 
