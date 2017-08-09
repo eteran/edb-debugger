@@ -1136,7 +1136,7 @@ QByteArray get_file_md5(const QString &s) {
 	if(file.isOpen()) {
 		if(file.size() != 0) {
 			QCryptographicHash hasher(QCryptographicHash::Md5);
-			hasher.addData(&file);
+			hasher.addData(file.readAll());
 			return hasher.result();
 		}
 	}
