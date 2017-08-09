@@ -336,10 +336,15 @@ Status DebuggerCore::ptrace_step(edb::tid_t tid, long status) {
 // Name: ptrace_set_options
 // Desc:
 //------------------------------------------------------------------------------
-long DebuggerCore::ptrace_set_options(edb::tid_t tid, long options) {
+Status DebuggerCore::ptrace_set_options(edb::tid_t tid, long options) {
 	Q_ASSERT(waited_threads_.contains(tid));
 	Q_ASSERT(tid != 0);
-	return ptrace(PTRACE_SETOPTIONS, tid, 0, options);
+	if(ptrace(PTRACE_SETOPTIONS, tid, 0, options)==-1) {
+		const char*const strError=strerror(errno);
+		qWarning() << "Unable to set ptrace options for thread" << tid << ": PTRACE_SETOPTIONS failed:" << strError;
+		return Status(strError);
+	}
+	return Status::Ok;
 }
 
 //------------------------------------------------------------------------------
@@ -550,8 +555,9 @@ int DebuggerCore::attach_thread(edb::tid_t tid) {
 
             const long options = ptraceOptions();
 
-            if(ptrace_set_options(tid, options) == -1) {
-                qDebug("[DebuggerCore] failed to set ptrace options: [%d] %s", tid, strerror(errno));
+            const auto setoptStatus=ptrace_set_options(tid, options);
+			if(!setoptStatus)	{
+                qDebug() << "[DebuggerCore] failed to set ptrace options: ["<< tid <<"]" << setoptStatus.toString();
             }
 
 			return 0;
@@ -826,10 +832,10 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
             const long options = ptraceOptions();
 
             // enable following clones (threads) and other options we are concerned with
-            if(ptrace_set_options(pid, options) == -1) {
-                const auto strerr = strerror(errno); // NOTE: must be called before end_debug_session, otherwise errno can change
+			const auto setoptStatus=ptrace_set_options(pid, options);
+            if(!setoptStatus) {
                 end_debug_session();
-                return Status(tr("[DebuggerCore] failed to set ptrace options: %1").arg(strerr));
+                return Status(tr("[DebuggerCore] failed to set ptrace options: %1").arg(setoptStatus.toString()));
             }
 
             // create the process
