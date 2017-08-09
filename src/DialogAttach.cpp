@@ -109,6 +109,11 @@ void DialogAttach::on_filter_textChanged(const QString &filter) {
 //------------------------------------------------------------------------------
 void DialogAttach::update_list() {
 
+	if(isHidden()) {
+		updateTimer.stop();
+		return;
+	}
+
 	process_model_->clear();
 
 	if(edb::v1::debugger_core) {
@@ -132,6 +137,8 @@ void DialogAttach::update_list() {
 void DialogAttach::showEvent(QShowEvent *event) {
 	Q_UNUSED(event);
 	update_list();
+	connect(&updateTimer,SIGNAL(timeout()),this,SLOT(update_list()));
+	updateTimer.start(1000);
 }
 
 //------------------------------------------------------------------------------
@@ -141,6 +148,14 @@ void DialogAttach::showEvent(QShowEvent *event) {
 void DialogAttach::on_filter_uid_clicked(bool checked) {
 	Q_UNUSED(checked);
 	update_list();
+}
+
+//------------------------------------------------------------------------------
+// Name: on_processes_table_doubleClicked
+// Desc:
+//------------------------------------------------------------------------------
+void DialogAttach::on_processes_table_doubleClicked(const QModelIndex&) {
+	if(selected_pid()) accept();
 }
 
 //------------------------------------------------------------------------------

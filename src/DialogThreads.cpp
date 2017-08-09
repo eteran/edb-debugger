@@ -73,7 +73,10 @@ void DialogThreads::on_thread_table_doubleClicked(const QModelIndex &index) {
 	const QModelIndex internal_index = threads_filter_->mapToSource(index);
 	if(auto item = reinterpret_cast<ThreadsModel::Item *>(internal_index.internalPointer())) {
 		if(std::shared_ptr<IThread> thread = item->thread) {
-			edb::v1::jump_to_address(thread->instruction_pointer());
+			if(IProcess *process = edb::v1::debugger_core->process()) {
+				process->set_current_thread(*thread);
+				updateThreads();
+			}
 		}
 	}
 }

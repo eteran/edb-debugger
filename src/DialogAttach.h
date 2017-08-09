@@ -22,12 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "OSTypes.h"
 
 #include <QDialog>
+#include <QTimer>
 
 template <class T>
 class Result;
 
 class ProcessModel;
 class QSortFilterProxyModel;
+class QModelIndex;
 
 namespace Ui { class DialogAttach; }
 
@@ -41,12 +43,13 @@ public:
 private:
 	virtual void showEvent(QShowEvent *event);
 
-private:
+private Q_SLOTS:
 	void update_list();
 
 public Q_SLOTS:
 	void on_filter_uid_clicked(bool checked);
 	void on_filter_textChanged(const QString &filter);
+	void on_processes_table_doubleClicked(const QModelIndex &index);
 
 public:
 	Result<edb::pid_t> selected_pid() const;
@@ -56,6 +59,7 @@ private:
 	ProcessModel          *process_model_;
 	QSortFilterProxyModel *process_name_filter_;
 	QSortFilterProxyModel *process_pid_filter_;
+	QTimer updateTimer;
 };
 
 #endif

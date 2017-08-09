@@ -696,6 +696,15 @@ std::shared_ptr<IThread> PlatformProcess::current_thread() const {
 }
 
 //------------------------------------------------------------------------------
+// Name: set_current_thread
+// Desc:
+//------------------------------------------------------------------------------
+void PlatformProcess::set_current_thread(IThread& thread) {
+	core_->active_thread_=static_cast<PlatformThread*>(&thread)->tid();
+	edb::v1::update_ui();
+}
+
+//------------------------------------------------------------------------------
 // Name:
 // Desc:
 //------------------------------------------------------------------------------

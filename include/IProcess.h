@@ -57,6 +57,7 @@ public:
 	// only legal to call when attached
 	virtual QList<std::shared_ptr<IThread>>  threads() const = 0;
 	virtual std::shared_ptr<IThread>         current_thread() const = 0;
+	virtual void                             set_current_thread(IThread& thread) = 0;
 	virtual std::size_t                      write_bytes(edb::address_t address, const void *buf, size_t len) = 0;
 	virtual std::size_t                      patch_bytes(edb::address_t address, const void *buf, size_t len) = 0;
 	virtual std::size_t                      read_bytes(edb::address_t address, void *buf, size_t len) const = 0;
