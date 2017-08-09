@@ -24,7 +24,10 @@
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
-      <string>Filter</string>
+      <string>&amp;Filter</string>
+     </property>
+     <property name="buddy">
+      <cstring>filter</cstring>
      </property>
     </widget>
    </item>
@@ -34,7 +37,7 @@
    <item row="0" column="2">
     <widget class="QCheckBox" name="filter_uid">
      <property name="text">
-      <string>Only Show Entries For My UID</string>
+      <string>Only Show Entries For My &amp;UID</string>
      </property>
     </widget>
    </item>
