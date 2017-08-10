@@ -104,7 +104,6 @@ bool PlatformThread::fillStateFromPrStatus(PlatformState* state) {
 		return false;
 	}
 
-#if defined(EDB_X86) || defined(EDB_X86_64)
 	PrStatus_X86_64 prstat64;
 
 	iovec prstat_iov = {&prstat64, sizeof(prstat64)};
@@ -136,10 +135,6 @@ bool PlatformThread::fillStateFromPrStatus(PlatformState* state) {
 
 	fillSegmentBases(state);
 	return true;
-#else
-	Q_UNUSED(state);
-	return false;
-#endif
 }
 
 //------------------------------------------------------------------------------
