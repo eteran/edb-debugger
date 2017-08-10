@@ -505,7 +505,7 @@ Status DebuggerCore::stop_threads() {
 
 					const auto stopStatus=thread->stop();
 					if(!stopStatus)
-						errorMessage+=QObject::tr("Failure to stop threads: %1\n").arg(stopStatus.toString());
+						errorMessage+=QObject::tr("Failed to stop thread %1: %2\n").arg(tid).arg(stopStatus.toString());
 
 					int thread_status;
 					if(native::waitpid(tid, &thread_status, __WALL) > 0) {
