@@ -801,7 +801,7 @@ Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 	if(errorMessage.isEmpty())
 		return Status::Ok;
 	qWarning() << errorMessage.toStdString().c_str();
-	return Status(errorMessage);
+	return Status("\n"+errorMessage);
 }
 
 //------------------------------------------------------------------------------

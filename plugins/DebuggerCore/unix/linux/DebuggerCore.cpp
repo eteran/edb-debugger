@@ -523,7 +523,7 @@ Status DebuggerCore::stop_threads() {
 	if(errorMessage.isEmpty())
 		return Status::Ok;
 	qWarning() << errorMessage.toStdString().c_str();
-	return Status(errorMessage);
+	return Status("\n"+errorMessage);
 }
 
 //------------------------------------------------------------------------------
