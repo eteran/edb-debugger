@@ -396,6 +396,16 @@ long DebuggerCore::ptraceOptions() const {
 }
 
 //------------------------------------------------------------------------------
+// Name: handle_thread_exit
+// Desc:
+//------------------------------------------------------------------------------
+void DebuggerCore::handle_thread_exit(edb::tid_t tid, int status) {
+
+	threads_.remove(tid);
+	waited_threads_.remove(tid);
+}
+
+//------------------------------------------------------------------------------
 // Name: handle_event
 // Desc:
 //------------------------------------------------------------------------------
@@ -406,9 +416,8 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 
 	// was it a thread exit event?
 	if(WIFEXITED(status)) {
-		threads_.remove(tid);
-		waited_threads_.remove(tid);
 
+		handle_thread_exit(tid,status);
 		// if this was the last thread, return true
 		// so we report it to the user.
 		// if this wasn't, then we should silently
@@ -441,8 +450,14 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 				}
 			}
 
+			// A new thread could exit before we have fully created it, no event then since it can't be the last thread
+			if(WIFEXITED(thread_status)) {
+				handle_thread_exit(tid,thread_status);
+				return nullptr;
+			}
+
 			if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
-				qDebug("handle_event(): [warning] new thread [%d] received an event besides SIGSTOP: status=0x%x", static_cast<int>(new_tid),thread_status);
+				qWarning("handle_event(): new thread [%d] received an event besides SIGSTOP: status=0x%x", static_cast<int>(new_tid),thread_status);
 			}
 
 			newThread->status_ = thread_status;
@@ -505,14 +520,19 @@ Status DebuggerCore::stop_threads() {
 
 					const auto stopStatus=thread->stop();
 					if(!stopStatus)
-						errorMessage+=QObject::tr("Failure to stop threads: %1\n").arg(stopStatus.toString());
+						errorMessage+=QObject::tr("Failed to stop thread %1: %2\n").arg(tid).arg(stopStatus.toString());
 
 					int thread_status;
 					if(native::waitpid(tid, &thread_status, __WALL) > 0) {
 						waited_threads_.insert(tid);
 						thread_ptr->status_ = thread_status;
 
-						if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
+						// A thread could have exited between previous waitpid and the latest one...
+						if(WIFEXITED(thread_status)) {
+							handle_thread_exit(tid, thread_status);
+						}
+						// ..., otherwise it must have stopped.
+						else if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
 							qWarning("stop_threads(): paused thread [%d] received an event besides SIGSTOP: status=0x%x", tid,thread_status);
 						}
 					}
@@ -523,7 +543,7 @@ Status DebuggerCore::stop_threads() {
 	if(errorMessage.isEmpty())
 		return Status::Ok;
 	qWarning() << errorMessage.toStdString().c_str();
-	return Status(errorMessage);
+	return Status("\n"+errorMessage);
 }
 
 //------------------------------------------------------------------------------
@@ -679,7 +699,8 @@ void DebuggerCore::kill() {
 
 		::kill(pid(), SIGKILL);
 
-		while(native::waitpid(-1, 0, __WALL) != pid());
+		pid_t ret;
+		while((ret=native::waitpid(-1, 0, __WALL)) != pid() && ret!=-1);
 
 		delete process_;
 		process_ = nullptr;
