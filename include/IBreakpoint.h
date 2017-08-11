@@ -45,7 +45,6 @@ public:
 	virtual bool enabled() const = 0;
 	virtual bool one_time() const = 0;
 	virtual bool internal() const = 0;
-	virtual quint8 original_byte() const = 0;
 	virtual const quint8* original_bytes() const = 0;
 	virtual size_t size() const = 0;
 

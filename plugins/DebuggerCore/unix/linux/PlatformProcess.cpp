@@ -259,7 +259,7 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 
 			auto it = core_->breakpoints_.find(address);
 			if(it != core_->breakpoints_.end()) {
-				*ptr = (*it)->original_byte();
+				*ptr = (*it)->original_bytes()[0];
 				return 1;
 			}
 
