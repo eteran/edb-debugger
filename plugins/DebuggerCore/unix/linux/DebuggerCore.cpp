@@ -396,6 +396,16 @@ long DebuggerCore::ptraceOptions() const {
 }
 
 //------------------------------------------------------------------------------
+// Name: handle_thread_exit
+// Desc:
+//------------------------------------------------------------------------------
+void DebuggerCore::handle_thread_exit(edb::tid_t tid, int status) {
+
+	threads_.remove(tid);
+	waited_threads_.remove(tid);
+}
+
+//------------------------------------------------------------------------------
 // Name: handle_event
 // Desc:
 //------------------------------------------------------------------------------
@@ -406,9 +416,8 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 
 	// was it a thread exit event?
 	if(WIFEXITED(status)) {
-		threads_.remove(tid);
-		waited_threads_.remove(tid);
 
+		handle_thread_exit(tid,status);
 		// if this was the last thread, return true
 		// so we report it to the user.
 		// if this wasn't, then we should silently
@@ -439,6 +448,12 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 				if(native::waitpid(new_tid, &thread_status, __WALL) > 0) {
 					waited_threads_.insert(new_tid);
 				}
+			}
+
+			// A new thread could exit before we have fully created it, no event then since it can't be the last thread
+			if(WIFEXITED(thread_status)) {
+				handle_thread_exit(tid,thread_status);
+				return nullptr;
 			}
 
 			if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
@@ -512,7 +527,12 @@ Status DebuggerCore::stop_threads() {
 						waited_threads_.insert(tid);
 						thread_ptr->status_ = thread_status;
 
-						if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
+						// A thread could have exited between previous waitpid and the latest one...
+						if(WIFEXITED(thread_status)) {
+							handle_thread_exit(tid, thread_status);
+						}
+						// ..., otherwise it must have stopped.
+						else if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
 							qWarning("stop_threads(): paused thread [%d] received an event besides SIGSTOP: status=0x%x", tid,thread_status);
 						}
 					}
