@@ -35,7 +35,6 @@ public:
 	virtual bool enabled() const           override { return enabled_; }
 	virtual bool one_time() const          override { return one_time_; }
 	virtual bool internal() const          override { return internal_; }
-	virtual quint8 original_byte() const   override { return original_bytes_[0]; }
 	virtual size_t size() const            override { return original_bytes_.size(); }
 	virtual const quint8* original_bytes() const override { return &original_bytes_[0]; }
 
