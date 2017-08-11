@@ -306,9 +306,13 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 
 		// replace any breakpoints
 		Q_FOREACH(const std::shared_ptr<IBreakpoint> &bp, core_->breakpoints_) {
-			if(bp->address() >= address && bp->address() < (address + read)) {
-				// show the original bytes in the buffer..
-				ptr[bp->address() - address] = bp->original_byte();
+			auto*const bpBytes=bp->original_bytes();
+			const auto bpAddr=bp->address();
+			// show the original bytes in the buffer..
+			for(size_t i=0; i < bp->size(); ++i) {
+				if(bpAddr + i >= address && bpAddr + i < address + read) {
+					ptr[bpAddr + i - address] = bpBytes[i];
+				}
 			}
 		}
 	}
