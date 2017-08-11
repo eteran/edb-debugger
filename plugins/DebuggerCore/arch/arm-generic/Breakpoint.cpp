@@ -24,8 +24,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCorePlugin {
 
 namespace {
-constexpr std::array<quint8, 4> BreakpointInstructionARM_LE   = { 0xFE, 0xDE, 0xFF, 0xE7 }; // UND
-constexpr std::array<quint8, 2> BreakpointInstructionThumb_LE = { 0xBE, 0xBE };             // BKPT
+constexpr std::array<quint8, 4> BreakpointInstructionARM_LE    = { 0xf0, 0x01, 0xf0, 0xe7 }; // udf #0x10
+constexpr std::array<quint8, 2> BreakpointInstructionThumb_LE  = { 0x01, 0xde };             // udf #1
+// We have to sometimes use a 32-bit Thumb-2 breakpoint. For explanation how to
+// correctly use it see GDB's thumb_get_next_pcs_raw function and comments
+// around arm_linux_thumb2_le_breakpoint array.
+constexpr std::array<quint8, 4> BreakpointInstructionThumb2_LE = { 0xf0, 0xf7, 0x00, 0xa0 }; // udf.w #0
 }
 
 //------------------------------------------------------------------------------
