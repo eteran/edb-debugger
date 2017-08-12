@@ -196,6 +196,8 @@ void SyntaxHighlighter::create_rules() {
 		));
 
 #if defined EDB_X86 || defined EDB_X86_64
+	// FIXME(ARM): this is stubbed out
+
 	// stack operations
 	rules_.push_back(HighlightingRule(
 		"\\b(pushf?|popf?|enter|leave)\\b",
