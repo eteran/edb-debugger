@@ -125,11 +125,12 @@ bool init(Architecture arch) {
 			return cs_open(CS_ARCH_X86, CS_MODE_64, &csh);
 		case Architecture::ARCH_X86:
 			return cs_open(CS_ARCH_X86, CS_MODE_32, &csh);
-		case Architecture::ARCH_ARM32:
+		case Architecture::ARCH_ARM32_ARM:
 			return cs_open(CS_ARCH_ARM, CS_MODE_ARM, &csh);
+		case Architecture::ARCH_ARM32_THUMB:
+			return cs_open(CS_ARCH_ARM, CS_MODE_THUMB, &csh);
 		case Architecture::ARCH_ARM64:
 			return cs_open(CS_ARCH_ARM64, CS_MODE_ARM, &csh);
-		// TODO(eteran): support ARM THUMB
 		default:
 			return CS_ERR_ARCH;
 		}

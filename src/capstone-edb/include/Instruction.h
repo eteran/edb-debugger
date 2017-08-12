@@ -32,7 +32,8 @@ namespace CapstoneEDB {
 enum class Architecture {
 	ARCH_X86, 
 	ARCH_AMD64, 
-	ARCH_ARM32, 
+	ARCH_ARM32_ARM,
+	ARCH_ARM32_THUMB,
 	ARCH_ARM64
 };
 
