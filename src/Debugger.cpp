@@ -3101,13 +3101,6 @@ void Debugger::attachComplete() {
 
 	test_native_binary();
 
-#if defined EDB_X86 || defined EDB_X86_64
-	CapstoneEDB::init(edb::v1::debuggeeIs64Bit() ? CapstoneEDB::Architecture::ARCH_AMD64 : CapstoneEDB::Architecture::ARCH_X86);
-#elif defined EDB_ARM32 || defined EDB_ARM64
-	CapstoneEDB::init(edb::v1::debuggeeIs64Bit() ? CapstoneEDB::Architecture::ARCH_ARM64 : CapstoneEDB::Architecture::ARCH_ARM32);
-#else
-#error "How to initialize Capstone?"
-#endif
 	setup_data_views();
 
 	QString ip   = edb::v1::debugger_core->instruction_pointer().toUpper();
