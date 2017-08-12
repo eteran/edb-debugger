@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "ArchDefs.h"
 #include "SyntaxHighlighter.h"
 #include <QSettings>
 
@@ -107,7 +108,15 @@ void SyntaxHighlighter::create_rules() {
 	// registers
 	// TODO: support ST(N)
 	rules_.push_back(HighlightingRule(
+#if defined EDB_X86 || defined EDB_X86_64
 		"\\b(((e|r)?(ax|bx|cx|dx|bp|sp|si|di|ip))|([abcd](l|h))|(sp|bp|si|di)l|([cdefgs]s)|[xyz]?mm([0-9]|[12][0-9]|3[01])|r(8|9|(1[0-5]))[dwb]?)\\b",
+#elif defined EDB_ARM32
+		"\\b(r([0-9]|1[0-5])|sb|sl|fp|ip|sp|lr|pc|[sd][0-9]|[sdf]([12][0-9]|3[01])|q([0-9]|1[0-5]))\\b",
+#elif defined EDB_ARM64
+		"\\b([xw]([12]?[0-9]|3[01]))\\b"/* FIXME: stub, only GPRs here */,
+#else
+#error "What string should be here?"
+#endif
 		QColor(settings.value("theme.register.foreground", "red").toString()),
 		QColor(settings.value("theme.register.background", "transparent").toString()),
 		settings.value("theme.register.weight", QFont::Bold).toInt(),
@@ -117,6 +126,9 @@ void SyntaxHighlighter::create_rules() {
 
 	// constants
 	rules_.push_back(HighlightingRule(
+#if defined EDB_ARM32 || defined EDB_ARM64
+		"#?" /* concatenated with general number pattern */
+#endif
 		"\\b((0[0-7]*)|(0(x|X)[0-9a-fA-F]+)|([1-9][0-9]*))\\b",
 		QColor(settings.value("theme.constant.foreground", "black").toString()),
 		QColor(settings.value("theme.constant.background", "transparent").toString()),
@@ -125,6 +137,7 @@ void SyntaxHighlighter::create_rules() {
 		settings.value("theme.constant.underline", false).toBool()
 		));
 
+#if defined EDB_X86 || defined EDB_X86_64
 	// pointer modifiers
 	rules_.push_back(HighlightingRule(
 		"\\b(t?byte|([xyz]mm|[qdf]?)word)( ptr)?\\b",
@@ -237,6 +250,7 @@ void SyntaxHighlighter::create_rules() {
 		settings.value("theme.system.italic", false).toBool(),
 		settings.value("theme.system.underline", false).toBool()
 		));
+#endif
 
 	// data bytes
 	rules_.push_back(HighlightingRule(
