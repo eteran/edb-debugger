@@ -384,7 +384,6 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("PC"),         QKeySequence(tr("Ctrl+*")),   SLOT(mnuCPUSetEIP()));
     setRIPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
 	gotoRIPAction_               = createAction(tr("&Goto %1").arg("PC"),                           QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
-    gotoRIPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
 #else
 #error "This doesn't initialize actions and will lead to crash"
 #endif
@@ -418,7 +417,6 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	stackPopAction_     = createAction(tr("P&op %1").arg("DWORD"),     QKeySequence(), SLOT(mnuStackPop()));
 #elif defined(EDB_ARM32)
 	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("SP"),       QKeySequence(), SLOT(mnuStackGotoESP()));
-    stackGotoRSPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
 	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("FP"),       QKeySequence(), SLOT(mnuStackGotoEBP()));
     stackGotoRBPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
 	stackPushAction_    = createAction(tr("&Push %1").arg("DWORD"),    QKeySequence(), SLOT(mnuStackPush()));
