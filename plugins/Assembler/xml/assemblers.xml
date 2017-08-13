@@ -121,4 +121,32 @@
 		]]>
 		</template>
 	</assembler>
+	<assembler name="gas" arch="arm">
+		<executable command_line="sh -c &quot;
+		if [ %BITS% != 32 ]; then
+			echo 'Bad BITS: %BITS%' &gt;&amp;2;
+			exit 1;
+		fi;
+		asmOut=`mktemp %OUT%.out.XXXXXXXX`;
+		linkerScript=`mktemp %OUT%.ld.XXXXXXXX`;
+		linkedELF=`mktemp %OUT%.executable.XXXXXXXX`;
+		if [ -z $asmOut ] || [ -z $linkerScript ] || [ -z $linkedELF ]; then exit 1; fi;
+		echo 'SECTIONS { . = %ADDRESS%; .text . : SUBALIGN(0) { *(.text) } }' &gt; $linkerScript &amp;&amp;
+		 as -o $asmOut %IN% &amp;&amp;
+		 ld -T $linkerScript -o $linkedELF $asmOut &amp;&amp;
+		 objcopy -O binary $linkedELF %OUT%;
+		result=$?;
+		rm -f $asmOut $linkerScript $linkedELF;
+		exit $result
+		&quot;"
+					extension="s" />
+		<template>
+		<![CDATA[
+		.syntax unified
+		.arm		// FIXME: add support for Thumb
+		.fpu neon	// FIXME: is this OK in general?
+		%INSTRUCTION%
+		]]>
+		</template>
+	</assembler>
 </assemblers>
