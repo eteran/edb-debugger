@@ -997,12 +997,12 @@ bool is_SIMD_SD(const Operand &operand) {
 
 bool is_return(const Instruction &insn) {
 	if(!insn) return false;
-	return cs_insn_group(csh, insn.native(), X86_GRP_RET);
+	return cs_insn_group(csh, insn.native(), CS_GRP_RET);
 }
 
 bool is_jump(const Instruction &insn) {
 	if(!insn) return false;
-	return cs_insn_group(csh, insn.native(), X86_GRP_JUMP);
+	return cs_insn_group(csh, insn.native(), CS_GRP_JUMP);
 }
 
 }
