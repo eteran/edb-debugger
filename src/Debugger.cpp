@@ -1683,7 +1683,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 				if(is_call(inst) || is_jump(inst)) {
 					if(is_immediate(inst[0])) {
 						menu.addAction(followAction_);
-						followAction_->setData(static_cast<qlonglong>(inst[0]->imm));
+						followAction_->setData(static_cast<qlonglong>(util::to_unsigned(inst[0]->imm)));
 					}
 
 					/*
@@ -1700,8 +1700,8 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 							menu.addAction(followConstantInDumpAction_);
 							menu.addAction(followConstantInStackAction_);
 
-							followConstantInDumpAction_->setData(static_cast<qlonglong>(inst[i]->imm));
-							followConstantInStackAction_->setData(static_cast<qlonglong>(inst[i]->imm));
+							followConstantInDumpAction_->setData(static_cast<qlonglong>(util::to_unsigned(inst[i]->imm)));
+							followConstantInStackAction_->setData(static_cast<qlonglong>(util::to_unsigned(inst[i]->imm)));
 						}
 					}
 				}
