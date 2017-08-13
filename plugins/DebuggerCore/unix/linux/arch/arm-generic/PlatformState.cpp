@@ -20,6 +20,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
+const std::array<const char *, GPR_COUNT> PlatformState::GPR::GPRegNames = {
+	"r0",
+	"r1",
+	"r2",
+	"r3",
+	"r4",
+	"r5",
+	"r6",
+	"r7",
+	"r8",
+	"r9",
+	"r10",
+	"r11",
+	"r12",
+	"sp",
+	"lr",
+	"pc"
+};
+
 PlatformState::PlatformState()
 {
 }
@@ -27,9 +46,7 @@ PlatformState::PlatformState()
 IState *PlatformState::clone() const
 {
 	auto*const copy=new PlatformState();
-	copy->pc=pc;
-	copy->sp=sp;
-	copy->filled=filled;
+	copy->gpr=gpr;
 	return copy;
 }
 
@@ -47,23 +64,31 @@ Register PlatformState::value(const QString &reg) const
 }
 Register PlatformState::instruction_pointer_register() const
 {
+#ifdef EDB_ARM32
+	return gp_register(GPR::PC);
+#else
 	return Register();  // FIXME: stub
+#endif
 }
 Register PlatformState::flags_register() const
 {
+#ifdef EDB_ARM32
+	return make_Register<32>("cpsr", gpr.cpsr, Register::TYPE_GPR);
+#else
 	return Register();  // FIXME: stub
+#endif
 }
 edb::address_t PlatformState::frame_pointer() const
 {
-	return 0; // FIXME: stub
+	return gpr.GPRegs[GPR::FP];
 }
 edb::address_t PlatformState::instruction_pointer() const
 {
-	return pc;
+	return gpr.GPRegs[GPR::PC];
 }
 edb::address_t PlatformState::stack_pointer() const
 {
-	return sp;
+	return gpr.GPRegs[GPR::SP];
 }
 edb::reg_t PlatformState::debug_register(size_t n) const
 {
@@ -71,7 +96,7 @@ edb::reg_t PlatformState::debug_register(size_t n) const
 }
 edb::reg_t PlatformState::flags() const
 {
-	return 0; // FIXME: stub
+	return gpr.cpsr;
 }
 void PlatformState::adjust_stack(int bytes)
 {
@@ -79,11 +104,20 @@ void PlatformState::adjust_stack(int bytes)
 }
 void PlatformState::clear()
 {
-	// FIXME: stub
+	gpr.clear();
 }
 bool PlatformState::empty() const
 {
-	return !filled; // FIXME: stub
+	return gpr.empty();
+}
+bool PlatformState::GPR::empty() const
+{
+	return !filled;
+}
+void PlatformState::GPR::clear()
+{
+	util::markMemory(this, sizeof(*this));
+	filled=false;
 }
 void PlatformState::set_debug_register(size_t n, edb::reg_t value)
 {
@@ -107,14 +141,19 @@ void PlatformState::set_register(const QString &name, edb::reg_t value)
 }
 Register PlatformState::gp_register(size_t n) const
 {
+#ifdef EDB_ARM32
+	return make_Register<32>(gpr.GPRegNames[n], gpr.GPRegs[n], Register::TYPE_GPR);
+#else
 	return Register(); // FIXME: stub
+#endif
 }
 
 void PlatformState::fillFrom(user_regs const& regs)
 {
-	sp=regs.uregs[13];
-	pc=regs.uregs[15];
-	filled=true;
+	for(unsigned i=0;i<gpr.GPRegs.size();++i)
+		gpr.GPRegs[i]=regs.uregs[i];
+	gpr.cpsr=regs.uregs[16];
+	gpr.filled=true;
 }
 
 }
