@@ -1005,4 +1005,9 @@ bool is_jump(const Instruction &insn) {
 	return cs_insn_group(csh, insn.native(), CS_GRP_JUMP);
 }
 
+bool is_call(const Instruction &insn) {
+	if(!insn) return false;
+	return cs_insn_group(csh, insn.native(), CS_GRP_CALL);
+}
+
 }
