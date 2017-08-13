@@ -33,8 +33,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 }
 
 bool ArchProcessor::can_step_over(const edb::Instruction &inst) const {
-	Q_UNUSED(inst);
-	return false;
+	return inst && (is_call(inst) || is_interrupt(inst) || !modifies_pc(inst));
 }
 
 bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
