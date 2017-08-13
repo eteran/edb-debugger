@@ -48,6 +48,9 @@ std::unique_ptr<T> make_unique( Args&& ...args )
     return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) );
 }
 
+template<typename T>
+typename std::make_unsigned<T>::type to_unsigned(T x) { return x; }
+
 //------------------------------------------------------------------------------
 // Name: percentage
 // Desc: calculates how much of a multi-region byte search we have completed
