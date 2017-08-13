@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRegExp>
 #include <QString>
 #include <QStringList>
+#include <QDebug>
 
 #include <vector>
 #include <algorithm>
@@ -1009,5 +1010,28 @@ bool is_call(const Instruction &insn) {
 	if(!insn) return false;
 	return cs_insn_group(csh, insn.native(), CS_GRP_CALL);
 }
+
+bool modifies_pc(const Instruction &insn) {
+	const int PC=
+#if defined EDB_X86 || defined EDB_X86_64
+	X86_REG_EIP;
+#elif defined EDB_ARM32
+	ARM_REG_PC;
+#else
+#	error "Not implemented"
+#endif
+	cs_regs regs_read, regs_write;
+	uint8_t read_count, write_count;
+	const auto err=cs_regs_access(csh, insn.native(), regs_read, &read_count, regs_write, &write_count);
+	if(err!=CS_ERR_OK)
+	{
+		qWarning() << "cs_regs_access failed: error" << err;
+		return true;
+	}
+	for(const auto reg : regs_write)
+		if(reg==PC) return true;
+	return false;
+}
+
 
 }
