@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "ArchDefs.h"
 #include "OptionsPage.h"
 #include <QSettings>
 #include <QDebug>
@@ -40,6 +41,16 @@ OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsP
 
 	ui->assemblerName->clear();
 
+	const QString targetArch=
+#if defined EDB_X86 || defined EDB_X86_64
+			"x86"
+#elif defined EDB_ARM32
+			"arm"
+#elif defined EDB_ARM64
+			"aarch64"
+#endif
+			;
+
 	QFile file(":/debugger/Assembler/xml/assemblers.xml");
 	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		QDomDocument xml;
@@ -48,7 +59,9 @@ OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsP
 
 		for(QDomElement assembler = root.firstChildElement("assembler"); !assembler.isNull(); assembler = assembler.nextSiblingElement("assembler")) {
 			const QString name = assembler.attribute("name");
-			ui->assemblerName->addItem(name);
+			const auto arch=assembler.attribute("arch");
+			if(arch==targetArch)
+				ui->assemblerName->addItem(name);
 		}
 	}
 
