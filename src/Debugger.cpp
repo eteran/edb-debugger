@@ -440,9 +440,6 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	// set these to have no meaningful "data" (yet)
 	followConstantInDumpAction_->setData(qlonglong(0));
 	followConstantInStackAction_->setData(qlonglong(0));
-	followAction_->setData(qlonglong(0));
-
-
 
 	setAcceptDrops(true);
 
@@ -1683,7 +1680,6 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 				if(is_call(inst) || is_jump(inst)) {
 					if(is_immediate(inst[0])) {
 						menu.addAction(followAction_);
-						followAction_->setData(static_cast<qlonglong>(util::to_unsigned(inst[0]->imm)));
 					}
 
 					/*
@@ -1728,10 +1724,22 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUFollow() {
-	if(auto action = qobject_cast<QAction *>(sender())) {
-		const edb::address_t address = action->data().toULongLong();
-		follow_memory(address, edb::v1::jump_to_address);
-	}
+
+	const edb::address_t address = ui.cpuView->selectedAddress();
+	int size                     = ui.cpuView->selectedSize();
+	quint8 buffer[edb::Instruction::MAX_SIZE + 1];
+	if(!edb::v1::get_instruction_bytes(address, buffer, &size))
+		return;
+
+	const edb::Instruction inst(buffer, buffer + size, address);
+	if(!is_call(inst) && !is_jump(inst))
+		return;
+	if(!is_immediate(inst[0]))
+		return;
+
+	const edb::address_t addressToFollow=util::to_unsigned(inst[0]->imm);
+	if(auto action = qobject_cast<QAction *>(sender()))
+		follow_memory(addressToFollow, edb::v1::jump_to_address);
 }
 
 //------------------------------------------------------------------------------
