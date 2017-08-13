@@ -371,7 +371,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	setAddressLabelAction_       = createAction(tr("Set &Label..."),                                 QKeySequence(tr(":")),        SLOT(mnuCPULabelAddress()));
 	followConstantInDumpAction_  = createAction(tr("Follow Constant In &Dump"),                      QKeySequence(),               SLOT(mnuCPUFollowInDump()));
 	followConstantInStackAction_ = createAction(tr("Follow Constant In &Stack"),                     QKeySequence(),               SLOT(mnuCPUFollowInStack()));
-	followAction_                = createAction(tr("&Follow"),                                       QKeySequence(),               SLOT(mnuCPUFollow()));
+	followAction_                = createAction(tr("&Follow"),                                       QKeySequence(tr("Return")),   SLOT(mnuCPUFollow()));
 
 	// these get updated when we attach/run a new process, so it's OK to hard code them here
 #if defined(EDB_X86_64)
