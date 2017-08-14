@@ -217,6 +217,7 @@ public:
 
 			//Check the previous byte for 0xcc to see if it was an actual breakpoint
 #if defined(EDB_X86_64) || defined(EDB_X86)
+			// TODO(eteran): support multibyte breakpoints here
 			edb::address_t prev_address = address - 1;
 #elif defined(EDB_ARM32)
 			// Unlike x86, our ARM breakpoints are undefined instructions, leading to faults. Thus
@@ -2156,6 +2157,7 @@ edb::EVENT_STATUS Debugger::handle_trap() {
 	edb::v1::debugger_core->get_state(&state);
 
 #if defined(EDB_X86_64) || defined(EDB_X86)
+	// TODO(eteran): support multibyte breakpoints here
 	const edb::address_t previous_ip = state.instruction_pointer() - 1;
 #elif defined(EDB_ARM32)
 	// Unlike x86, our ARM breakpoints are undefined instructions, leading to faults. Thus
