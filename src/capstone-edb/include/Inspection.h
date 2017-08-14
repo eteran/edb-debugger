@@ -8,6 +8,7 @@ class Formatter;
 class Instruction;
 class Operand;
 
+bool modifies_pc(const Instruction &insn);
 bool is_call(const Instruction &insn);
 bool is_conditional_jump(const Instruction &insn);
 bool is_halt(const Instruction &insn);

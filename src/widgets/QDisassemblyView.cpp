@@ -270,27 +270,6 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		updateDisassembly(instructions_.size());
 		if(unsigned(show_addresses_.size())>selectedLine)
 			setSelectedAddress(show_addresses_[selectedLine]);
-	} else if (event->key() == Qt::Key_Return) {
-		const edb::address_t address = selectedAddress();
-		if (address == 0)
-			return;
-		quint8 buf[edb::Instruction::MAX_SIZE + 1];
-		int buf_size = sizeof(buf);
-		if (edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
-			edb::Instruction inst(buf, buf + buf_size, address);
-			if (inst) {
-				if(is_call(inst) || is_jump(inst)) {
-					if(inst.operand_count() != 1) {
-						return;
-					}
-					const auto oper = inst[0];
-					if(is_immediate(oper)) {
-						const edb::address_t target = oper->imm;
-						edb::v1::jump_to_address(target);
-					}
-				}
-			}
-		}
 	} else if (event->key() == Qt::Key_Minus) {
 		edb::address_t prev_addr = history_.getPrev();
 		if (prev_addr != 0) {

@@ -11,10 +11,6 @@ bool is_repeat(const Instruction &insn) {
 	return (prefixes[0] == X86_PREFIX_REP || prefixes[0] == X86_PREFIX_REPNE);
 }
 
-bool is_call(const Instruction &insn) {
-	return insn && insn.operation() == X86_INS_CALL;
-}
-
 bool is_terminator(const Instruction &insn) {
 	return is_halt(insn) || is_jump(insn) || is_return(insn);
 }
