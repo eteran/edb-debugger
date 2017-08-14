@@ -98,6 +98,8 @@ void DialogOpcodes::showEvent(QShowEvent *) {
 
 
 	ui->comboBox->clear();
+	
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	if(edb::v1::debuggeeIs64Bit()) {
 		ui->comboBox->addItem("RAX -> RIP", 1);
 		ui->comboBox->addItem("RBX -> RIP", 2);
@@ -158,6 +160,11 @@ void DialogOpcodes::showEvent(QShowEvent *) {
 		ui->comboBox->addItem("[ESI] -> EIP", 28);
 		ui->comboBox->addItem("[EDI] -> EIP", 29);
 	}
+#elif defined(EDB_ARM32)
+	// TODO(eteran): implement
+#elif defined(EDB_ARM64)
+	// TODO(eteran): implement
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -199,10 +206,9 @@ void DialogOpcodes::test_deref_reg_to_ip(const OpcodeData &data, edb::address_t 
 	edb::Instruction inst(p, last, 0);
 
 	if(inst) {
-		const auto op1 = inst[0];
-		switch(inst.operation()) {
-		case X86_INS_JMP:
-		case X86_INS_CALL:
+		
+		if(is_call(inst) || is_jump(inst)) {
+			const auto op1 = inst[0];
 			if(is_expression(op1)) {
 
 				if(op1->mem.disp == 0) {
@@ -218,9 +224,7 @@ void DialogOpcodes::test_deref_reg_to_ip(const OpcodeData &data, edb::address_t 
 					}
 				}
 			}
-			break;
-		default:
-			break;
+		
 		}
 	}
 }
@@ -238,60 +242,60 @@ void DialogOpcodes::test_reg_to_ip(const DialogOpcodes::OpcodeData &data, edb::a
 	edb::Instruction inst(p, last, 0);
 
 	if(inst) {
-		const auto op1 = inst[0];
-		switch(inst.operation()) {
-		case X86_INS_JMP:
-		case X86_INS_CALL:
+		if(is_call(inst) || is_jump(inst)) {
+			const auto op1 = inst[0];
 			if(is_register(op1)) {
 				if(op1->reg == REG) {
 					add_result({ &inst }, start_address);
 					return;
 				}
 			}
-			break;
+		} else {
+			const auto op1 = inst[0];
+			switch(inst.operation()) {
+			case X86_INS_PUSH:
+				if(is_register(op1)) {
+					if(op1->reg == REG) {
 
-		case X86_INS_PUSH:
-			if(is_register(op1)) {
-				if(op1->reg == REG) {
+						p += inst.byte_size();
+						edb::Instruction inst2(p, last, 0);
+						if(inst2) {
+							const auto op2 = inst2[0];
 
-					p += inst.byte_size();
-					edb::Instruction inst2(p, last, 0);
-					if(inst2) {
-						const auto op2 = inst2[0];
+							if(is_ret(inst2)) {
+								add_result({ &inst, &inst2 }, start_address);
+							} else {
+								switch(inst2.operation()) {
+								case X86_INS_JMP:
+								case X86_INS_CALL:
 
-						if(is_ret(inst2)) {
-							add_result({ &inst, &inst2 }, start_address);
-						} else {
-							switch(inst2.operation()) {
-							case X86_INS_JMP:
-							case X86_INS_CALL:
+									if(is_expression(op2)) {
 
-								if(is_expression(op2)) {
+										if(op2->mem.disp == 0) {
 
-									if(op2->mem.disp == 0) {
+											if(op2->mem.base == STACK_REG && op2->mem.index == X86_REG_INVALID) {
+												add_result({ &inst, &inst2 }, start_address);
+												return;
+											}
 
-										if(op2->mem.base == STACK_REG && op2->mem.index == X86_REG_INVALID) {
-											add_result({ &inst, &inst2 }, start_address);
-											return;
-										}
-
-										if(op2->mem.index == STACK_REG && op2->mem.base == X86_REG_INVALID) {
-											add_result({ &inst, &inst2 }, start_address);
-											return;
+											if(op2->mem.index == STACK_REG && op2->mem.base == X86_REG_INVALID) {
+												add_result({ &inst, &inst2 }, start_address);
+												return;
+											}
 										}
 									}
+									break;
+								default:
+									break;
 								}
-								break;
-							default:
-								break;
 							}
 						}
 					}
 				}
+				break;
+			default:
+				break;
 			}
-			break;
-		default:
-			break;
 		}
 	}
 }
@@ -311,10 +315,7 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 		const auto op1 = inst[0];
 		if(is_ret(inst)) {
 			add_result({ &inst }, start_address);
-		} else {
-			switch(inst.operation()) {
-			case X86_INS_CALL:
-			case X86_INS_JMP:
+		} else if(is_call(inst) || is_jump(inst)) {
 				if(is_expression(op1)) {
 
 					if(op1->mem.disp == 0) {
@@ -330,7 +331,8 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 						}
 					}
 				}
-				break;
+		} else {
+			switch(inst.operation()) {
 			case X86_INS_POP:
 				if(is_register(op1)) {
 
@@ -355,7 +357,6 @@ void DialogOpcodes::test_esp_add_0(const OpcodeData &data, edb::address_t start_
 					}
 				}
 				break;
-
 			default:
 				break;
 			}
@@ -376,74 +377,72 @@ void DialogOpcodes::test_esp_add_regx1(const OpcodeData &data, edb::address_t st
 
 	if(inst) {
 		const auto op1 = inst[0];
-		switch(inst.operation()) {
-		case X86_INS_POP:
+		if(is_call(inst) || is_jump(inst)) {
+				if(is_expression(op1)) {
 
-			if(!is_register(op1) || op1->reg != STACK_REG) {
-				p += inst.byte_size();
-				edb::Instruction inst2(p, last, 0);
-				if(inst2) {
-					if(is_ret(inst2)) {
-						add_result({ &inst, &inst2 }, start_address);
+					if(op1->mem.disp == 4) {
+						if(op1->mem.base == STACK_REG && op1->mem.index == X86_REG_INVALID) {
+							add_result({ &inst }, start_address);
+						} else if(op1->mem.base == X86_REG_INVALID && op1->mem.index == STACK_REG && op1->mem.scale == 1) {
+							add_result({ &inst }, start_address);
+						}
+
 					}
 				}
-			}
-			break;
-		case X86_INS_JMP:
-		case X86_INS_CALL:
+		} else { 		
+			switch(inst.operation()) {
+			case X86_INS_POP:
 
-			if(is_expression(op1)) {
-
-				if(op1->mem.disp == 4) {
-					if(op1->mem.base == STACK_REG && op1->mem.index == X86_REG_INVALID) {
-						add_result({ &inst }, start_address);
-					} else if(op1->mem.base == X86_REG_INVALID && op1->mem.index == STACK_REG && op1->mem.scale == 1) {
-						add_result({ &inst }, start_address);
+				if(!is_register(op1) || op1->reg != STACK_REG) {
+					p += inst.byte_size();
+					edb::Instruction inst2(p, last, 0);
+					if(inst2) {
+						if(is_ret(inst2)) {
+							add_result({ &inst, &inst2 }, start_address);
+						}
 					}
-
 				}
-			}
-			break;
-		case X86_INS_SUB:
-			if(is_register(op1) && op1->reg == STACK_REG) {
+				break;
+			case X86_INS_SUB:
+				if(is_register(op1) && op1->reg == STACK_REG) {
 
-				const auto op2 = inst[1];
-				if(is_expression(op2)) {
+					const auto op2 = inst[1];
+					if(is_expression(op2)) {
 
-					if(op2->imm == -static_cast<int>(sizeof(edb::reg_t))) {
-						p += inst.byte_size();
-						edb::Instruction inst2(p, last, 0);
-						if(inst2) {
-							if(is_ret(inst2)) {
-								add_result({ &inst, &inst2 }, start_address);
+						if(op2->imm == -static_cast<int>(sizeof(edb::reg_t))) {
+							p += inst.byte_size();
+							edb::Instruction inst2(p, last, 0);
+							if(inst2) {
+								if(is_ret(inst2)) {
+									add_result({ &inst, &inst2 }, start_address);
+								}
 							}
 						}
 					}
 				}
-			}
-			break;
+				break;
+			case X86_INS_ADD:
+				if(is_register(op1) && op1->reg == STACK_REG) {
 
-		case X86_INS_ADD:
-			if(is_register(op1) && op1->reg == STACK_REG) {
+					const auto op2 = inst[1];
+					if(is_expression(op2)) {
 
-				const auto op2 = inst[1];
-				if(is_expression(op2)) {
-
-					if(op2->imm == sizeof(edb::reg_t)) {
-						p += inst.byte_size();
-						edb::Instruction inst2(p, last, 0);
-						if(inst2) {
-							if(is_ret(inst2)) {
-								add_result({ &inst, &inst2 }, start_address);
+						if(op2->imm == sizeof(edb::reg_t)) {
+							p += inst.byte_size();
+							edb::Instruction inst2(p, last, 0);
+							if(inst2) {
+								if(is_ret(inst2)) {
+									add_result({ &inst, &inst2 }, start_address);
+								}
 							}
 						}
 					}
 				}
-			}
-			break;
+				break;
 
-		default:
-			break;
+			default:
+				break;
+			}
 		}
 	}
 }
@@ -461,36 +460,7 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 
 	if(inst) {
 		const auto op1 = inst[0];
-		switch(inst.operation()) {
-		case X86_INS_POP:
-
-			if(!is_register(op1) || op1->reg != STACK_REG) {
-				p += inst.byte_size();
-				edb::Instruction inst2(p, last, 0);
-				if(inst2) {
-					const auto op2 = inst2[0];
-					switch(inst2.operation()) {
-					case X86_INS_POP:
-
-						if(!is_register(op2) || op2->reg != STACK_REG) {
-							p += inst2.byte_size();
-							edb::Instruction inst3(p, last, 0);
-							if(inst3) {
-								if(is_ret(inst3)) {
-									add_result({ &inst, &inst2, &inst3 }, start_address);
-								}
-							}
-						}
-						break;
-					default:
-						break;
-					}
-				}
-			}
-			break;
-
-		case X86_INS_JMP:
-		case X86_INS_CALL:
+		if(is_call(inst) || is_jump(inst)) {
 			if(is_expression(op1)) {
 
 				if(op1->mem.disp == (sizeof(edb::reg_t) * 2)) {
@@ -502,48 +472,75 @@ void DialogOpcodes::test_esp_add_regx2(const OpcodeData &data, edb::address_t st
 
 				}
 			}
-			break;
+		} else {		
+			switch(inst.operation()) {
+			case X86_INS_POP:
 
-		case X86_INS_SUB:
-			if(is_register(op1) && op1->reg == STACK_REG) {
+				if(!is_register(op1) || op1->reg != STACK_REG) {
+					p += inst.byte_size();
+					edb::Instruction inst2(p, last, 0);
+					if(inst2) {
+						const auto op2 = inst2[0];
+						switch(inst2.operation()) {
+						case X86_INS_POP:
 
-				const auto op2 = inst[1];
-				if(is_expression(op2)) {
+							if(!is_register(op2) || op2->reg != STACK_REG) {
+								p += inst2.byte_size();
+								edb::Instruction inst3(p, last, 0);
+								if(inst3) {
+									if(is_ret(inst3)) {
+										add_result({ &inst, &inst2, &inst3 }, start_address);
+									}
+								}
+							}
+							break;
+						default:
+							break;
+						}
+					}
+				}
+				break;
+			case X86_INS_SUB:
+				if(is_register(op1) && op1->reg == STACK_REG) {
 
-					if(op2->imm == -static_cast<int>(sizeof(edb::reg_t) * 2)) {
-						p += inst.byte_size();
-						edb::Instruction inst2(p, last, 0);
-						if(inst2) {
-							if(is_ret(inst2)) {
-								add_result({ &inst, &inst2 }, start_address);
+					const auto op2 = inst[1];
+					if(is_expression(op2)) {
+
+						if(op2->imm == -static_cast<int>(sizeof(edb::reg_t) * 2)) {
+							p += inst.byte_size();
+							edb::Instruction inst2(p, last, 0);
+							if(inst2) {
+								if(is_ret(inst2)) {
+									add_result({ &inst, &inst2 }, start_address);
+								}
 							}
 						}
 					}
 				}
-			}
-			break;
+				break;
 
-		case X86_INS_ADD:
-			if(is_register(op1) && op1->reg == STACK_REG) {
+			case X86_INS_ADD:
+				if(is_register(op1) && op1->reg == STACK_REG) {
 
-				const auto op2 = inst[1];
-				if(is_expression(op2)) {
+					const auto op2 = inst[1];
+					if(is_expression(op2)) {
 
-					if(op2->imm == (sizeof(edb::reg_t) * 2)) {
-						p += inst.byte_size();
-						edb::Instruction inst2(p, last, 0);
-						if(inst2) {
-							if(is_ret(inst2)) {
-								add_result({ &inst, &inst2 }, start_address);
+						if(op2->imm == (sizeof(edb::reg_t) * 2)) {
+							p += inst.byte_size();
+							edb::Instruction inst2(p, last, 0);
+							if(inst2) {
+								if(is_ret(inst2)) {
+									add_result({ &inst, &inst2 }, start_address);
+								}
 							}
 						}
 					}
 				}
-			}
-			break;
+				break;
 
-		default:
-			break;
+			default:
+				break;
+			}
 		}
 	}
 }
@@ -561,9 +558,7 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 
 	if(inst) {
 		const auto op1 = inst[0];
-		switch(inst.operation()) {
-		case X86_INS_JMP:
-		case X86_INS_CALL:
+		if(is_call(inst) || is_jump(inst)) {
 			if(is_expression(op1)) {
 
 				if(op1->mem.disp == -static_cast<int>(sizeof(edb::reg_t))) {
@@ -574,49 +569,50 @@ void DialogOpcodes::test_esp_sub_regx1(const OpcodeData &data, edb::address_t st
 					}
 
 				}
-			}
-			break;
+			}		
+		} else {
+			switch(inst.operation()) {
+			case X86_INS_SUB:
+				if(is_register(op1) && op1->reg == STACK_REG) {
 
-		case X86_INS_SUB:
-			if(is_register(op1) && op1->reg == STACK_REG) {
+					const auto op2 = inst[1];
+					if(is_expression(op2)) {
 
-				const auto op2 = inst[1];
-				if(is_expression(op2)) {
-
-					if(op2->imm == static_cast<int>(sizeof(edb::reg_t))) {
-						p += inst.byte_size();
-						edb::Instruction inst2(p, last, 0);
-						if(inst2) {
-							if(is_ret(inst2)) {
-								add_result({ &inst, &inst2 }, start_address);
+						if(op2->imm == static_cast<int>(sizeof(edb::reg_t))) {
+							p += inst.byte_size();
+							edb::Instruction inst2(p, last, 0);
+							if(inst2) {
+								if(is_ret(inst2)) {
+									add_result({ &inst, &inst2 }, start_address);
+								}
 							}
 						}
 					}
 				}
-			}
-			break;
+				break;
 
-		case X86_INS_ADD:
-			if(is_register(op1) && op1->reg == STACK_REG) {
+			case X86_INS_ADD:
+				if(is_register(op1) && op1->reg == STACK_REG) {
 
-				const auto op2 = inst[1];
-				if(is_expression(op2)) {
+					const auto op2 = inst[1];
+					if(is_expression(op2)) {
 
-					if(op2->imm == -static_cast<int>(sizeof(edb::reg_t))) {
-						p += inst.byte_size();
-						edb::Instruction inst2(p, last, 0);
-						if(inst2) {
-							if(is_ret(inst2)) {
-								add_result({ &inst, &inst2 }, start_address);
+						if(op2->imm == -static_cast<int>(sizeof(edb::reg_t))) {
+							p += inst.byte_size();
+							edb::Instruction inst2(p, last, 0);
+							if(inst2) {
+								if(is_ret(inst2)) {
+									add_result({ &inst, &inst2 }, start_address);
+								}
 							}
 						}
 					}
 				}
-			}
-			break;
+				break;
 
-		default:
-			break;
+			default:
+				break;
+			}
 		}
 	}
 }
