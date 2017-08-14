@@ -735,7 +735,15 @@ void DebuggerCore::detectDebuggeeBitness() {
 		}
 	}
 #elif defined(EDB_ARM32)
-	CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32);
+	errno=0;
+	const auto cpsr=ptrace(PTRACE_PEEKUSER, active_thread_, sizeof(long)*16, 0L);
+	if(!errno) {
+		const bool thumb=cpsr&0x20;
+		if(thumb)
+			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_THUMB);
+		else
+			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_ARM);
+	}
 	pointer_size_ = sizeof(quint32);
 #elif defined(EDB_ARM64)
 	CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM64);

@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Plugin.h"
 #include "edb.h"
+#include "Util.h"
 #include "Configuration.h"
 #include <QMenu>
 #include <QDebug>
@@ -125,6 +126,14 @@ std::string toHex(unsigned long long x, bool Signed=false)
 	}
 	std::ostringstream str;
 	str << std::hex << (negative?"-":"") << "0x" << std::uppercase << x;
+	return str.str();
+}
+
+std::string toFloatString(double x)
+{
+	std::ostringstream str;
+	str.precision(17);
+	str << x;
 	return str.str();
 }
 
@@ -331,6 +340,32 @@ std::vector<std::string> getChangedEFLAGSNames(std::uint64_t efl)
 }
 #endif
 
+std::string printCond(arm_cc cc)
+{
+	static const std::map<arm_cc,const char*> types
+	{
+		{ARM_CC_INVALID, "invalid"},
+		{ARM_CC_EQ,      "EQ"},
+		{ARM_CC_NE,      "NE"},
+		{ARM_CC_HS,      "HS"},
+		{ARM_CC_LO,      "LO"},
+		{ARM_CC_MI,      "MI"},
+		{ARM_CC_PL,      "PL"},
+		{ARM_CC_VS,      "VS"},
+		{ARM_CC_VC,      "VC"},
+		{ARM_CC_HI,      "HI"},
+		{ARM_CC_LS,      "LS"},
+		{ARM_CC_GE,      "GE"},
+		{ARM_CC_LT,      "LT"},
+		{ARM_CC_GT,      "GT"},
+		{ARM_CC_LE,      "LE"},
+		{ARM_CC_AL,      "AL"},
+	};
+	const auto found=types.find(cc);
+	if(found==types.end()) return toHex(cc);
+	return found->second;
+}
+
 std::string printOpType(x86_op_type const& op)
 {
 	
@@ -340,6 +375,59 @@ std::string printOpType(x86_op_type const& op)
 		{X86_OP_REG,    "register"},
 		{X86_OP_IMM,    "immediate"},
 		{X86_OP_MEM,    "memory"},
+	};
+	const auto found=types.find(op);
+	if(found==types.end()) return toHex(op);
+	return found->second;
+}
+
+std::string printShiftType(arm_shifter const& op)
+{
+	static const std::map<arm_shifter,const char*> types
+	{
+		{ARM_SFT_INVALID,	"invalid"},
+		{ARM_SFT_ASR,		"ASR"},
+		{ARM_SFT_LSL,		"LSL"},
+		{ARM_SFT_LSR,		"LSR"},
+		{ARM_SFT_ROR,		"ROR"},
+		{ARM_SFT_RRX,		"RRX"},
+		{ARM_SFT_ASR_REG,	"ASR with register"},
+		{ARM_SFT_LSL_REG,	"LSL with register"},
+		{ARM_SFT_LSR_REG,	"LSR with register"},
+		{ARM_SFT_ROR_REG,	"ROR with register"},
+		{ARM_SFT_RRX_REG,	"RRX with register"},
+	};
+	const auto found=types.find(op);
+	if(found==types.end()) return toHex(op);
+	return found->second;
+}
+
+std::string printOpType(arm_setend_type const& op)
+{
+	static const std::map<arm_setend_type,const char*> types
+	{
+		{ARM_SETEND_INVALID,"invalid"},
+		{ARM_SETEND_BE,		"BE"},
+		{ARM_SETEND_LE,		"LE"},
+	};
+	const auto found=types.find(op);
+	if(found==types.end()) return toHex(op);
+	return found->second;
+}
+
+std::string printOpType(arm_op_type const& op)
+{
+	static const std::map<arm_op_type,const char*> types
+	{
+		{ARM_OP_INVALID,"invalid"},
+		{ARM_OP_REG,    "register"},
+		{ARM_OP_IMM,    "immediate"},
+		{ARM_OP_MEM,    "memory"},
+		{ARM_OP_FP,     "floating-point"},
+		{ARM_OP_CIMM,	"C-Immediate"},
+		{ARM_OP_PIMM,	"P-Immediate"},
+		{ARM_OP_SETEND,	"operand for SETEND"},
+		{ARM_OP_SYSREG,	"MSR/MSR special register"},
 	};
 	const auto found=types.find(op);
 	if(found==types.end()) return toHex(op);
@@ -523,6 +611,61 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 				if(operand.avx_bcast)
 					add({"AVX Broadcast",printAVX_Bcast(operand.avx_bcast).c_str()},curOpItem);
 				add({"AVX opmask",(operand.avx_zero_opmask ? "zeroing" : "merging")},curOpItem);
+			}
+#elif defined EDB_ARM32
+			add({"User mode regs",insn->detail->arm.usermode?"True":"False"});
+			add({"Vector size",std::to_string(insn->detail->arm.vector_size).c_str()});
+			// TODO: vector_data
+			// TODO: cps_mode
+			// TODO: cps_flag
+			add({"Condition",printCond(insn->detail->arm.cc).c_str()});
+			add({"Updates flags",insn->detail->arm.update_flags?"True":"False"});
+			add({"Write-back",insn->detail->arm.writeback?"True":"False"});
+			// TODO: mem_barrier
+			add({"Operands"});
+			auto*const operands=tree->topLevelItem(tree->topLevelItemCount()-1);
+			for(int op=0;op<insn->detail->arm.op_count;++op)
+			{
+				const auto& operand=insn->detail->arm.operands[op];
+				add({("#"+std::to_string(op+1)).c_str()},operands);
+				auto*const curOpItem=operands->child(op);
+				if(operand.vector_index!=-1)
+					add({"Vector index",std::to_string(operand.vector_index).c_str()},curOpItem);
+				if(operand.shift.type)
+				{
+					add({"Shift type",printShiftType(operand.shift.type).c_str()},curOpItem);
+					add({"Shift",std::to_string(operand.shift.value).c_str()},curOpItem);
+				}
+				add({"Type",printOpType(operand.type).c_str()},curOpItem);
+				switch(operand.type)
+				{
+				case ARM_OP_SYSREG:
+				case ARM_OP_REG:
+					add({"Register",printReg(disasm->handle(),operand.reg).c_str()},curOpItem);
+					break;
+				case ARM_OP_CIMM:
+				case ARM_OP_PIMM:
+				case ARM_OP_IMM:
+					add({"Immediate",toHex(util::to_unsigned(operand.imm)).c_str()},curOpItem);
+					break;
+				case ARM_OP_FP:
+					add({"Float",toFloatString(operand.fp).c_str()},curOpItem);
+					break;
+				case ARM_OP_MEM:
+					add({"Base",         printReg(disasm->handle(), operand.mem.base,   true).c_str()}, curOpItem);
+					add({"Index",        printReg(disasm->handle(), operand.mem.index,  true).c_str()}, curOpItem);
+					add({"Scale",        std::to_string(operand.mem.scale).c_str()}, curOpItem);
+					add({"Displacement", toHex(operand.mem.disp,true).c_str()},curOpItem);
+					add({"Left shift", 	 std::to_string(operand.mem.lshift).c_str()},curOpItem);
+					break;
+				case ARM_OP_SETEND:
+					add({"Type", printOpType(operand.setend).c_str()}, curOpItem);
+					break;
+				}
+				add({"Subtracted",operand.subtracted?"True":"False"},curOpItem);
+				add({"Access",printAccessMode(operand.access).c_str()},curOpItem);
+				if(operand.neon_lane!=-1)
+					add({"NEON lane",std::to_string(operand.neon_lane).c_str()},curOpItem);
 			}
 #endif
 		}

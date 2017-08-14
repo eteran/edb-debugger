@@ -371,7 +371,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	setAddressLabelAction_       = createAction(tr("Set &Label..."),                                 QKeySequence(tr(":")),        SLOT(mnuCPULabelAddress()));
 	followConstantInDumpAction_  = createAction(tr("Follow Constant In &Dump"),                      QKeySequence(),               SLOT(mnuCPUFollowInDump()));
 	followConstantInStackAction_ = createAction(tr("Follow Constant In &Stack"),                     QKeySequence(),               SLOT(mnuCPUFollowInStack()));
-	followAction_                = createAction(tr("&Follow"),                                       QKeySequence(),               SLOT(mnuCPUFollow()));
+	followAction_                = createAction(tr("&Follow"),                                       QKeySequence(tr("Return")),   SLOT(mnuCPUFollow()));
 
 	// these get updated when we attach/run a new process, so it's OK to hard code them here
 #if defined(EDB_X86_64)
@@ -384,7 +384,6 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("PC"),         QKeySequence(tr("Ctrl+*")),   SLOT(mnuCPUSetEIP()));
     setRIPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
 	gotoRIPAction_               = createAction(tr("&Goto %1").arg("PC"),                           QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
-    gotoRIPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
 #else
 #error "This doesn't initialize actions and will lead to crash"
 #endif
@@ -418,7 +417,6 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	stackPopAction_     = createAction(tr("P&op %1").arg("DWORD"),     QKeySequence(), SLOT(mnuStackPop()));
 #elif defined(EDB_ARM32)
 	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("SP"),       QKeySequence(), SLOT(mnuStackGotoESP()));
-    stackGotoRSPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
 	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("FP"),       QKeySequence(), SLOT(mnuStackGotoEBP()));
     stackGotoRBPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
 	stackPushAction_    = createAction(tr("&Push %1").arg("DWORD"),    QKeySequence(), SLOT(mnuStackPush()));
@@ -442,9 +440,6 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	// set these to have no meaningful "data" (yet)
 	followConstantInDumpAction_->setData(qlonglong(0));
 	followConstantInStackAction_->setData(qlonglong(0));
-	followAction_->setData(qlonglong(0));
-
-
 
 	setAcceptDrops(true);
 
@@ -1685,7 +1680,6 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 				if(is_call(inst) || is_jump(inst)) {
 					if(is_immediate(inst[0])) {
 						menu.addAction(followAction_);
-						followAction_->setData(static_cast<qlonglong>(inst[0]->imm));
 					}
 
 					/*
@@ -1702,8 +1696,8 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 							menu.addAction(followConstantInDumpAction_);
 							menu.addAction(followConstantInStackAction_);
 
-							followConstantInDumpAction_->setData(static_cast<qlonglong>(inst[i]->imm));
-							followConstantInStackAction_->setData(static_cast<qlonglong>(inst[i]->imm));
+							followConstantInDumpAction_->setData(static_cast<qlonglong>(util::to_unsigned(inst[i]->imm)));
+							followConstantInStackAction_->setData(static_cast<qlonglong>(util::to_unsigned(inst[i]->imm)));
 						}
 					}
 				}
@@ -1730,10 +1724,22 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUFollow() {
-	if(auto action = qobject_cast<QAction *>(sender())) {
-		const edb::address_t address = action->data().toULongLong();
-		follow_memory(address, edb::v1::jump_to_address);
-	}
+
+	const edb::address_t address = ui.cpuView->selectedAddress();
+	int size                     = ui.cpuView->selectedSize();
+	quint8 buffer[edb::Instruction::MAX_SIZE + 1];
+	if(!edb::v1::get_instruction_bytes(address, buffer, &size))
+		return;
+
+	const edb::Instruction inst(buffer, buffer + size, address);
+	if(!is_call(inst) && !is_jump(inst))
+		return;
+	if(!is_immediate(inst[0]))
+		return;
+
+	const edb::address_t addressToFollow=util::to_unsigned(inst[0]->imm);
+	if(auto action = qobject_cast<QAction *>(sender()))
+		follow_memory(addressToFollow, edb::v1::jump_to_address);
 }
 
 //------------------------------------------------------------------------------
@@ -3101,13 +3107,6 @@ void Debugger::attachComplete() {
 
 	test_native_binary();
 
-#if defined EDB_X86 || defined EDB_X86_64
-	CapstoneEDB::init(edb::v1::debuggeeIs64Bit() ? CapstoneEDB::Architecture::ARCH_AMD64 : CapstoneEDB::Architecture::ARCH_X86);
-#elif defined EDB_ARM32 || defined EDB_ARM64
-	CapstoneEDB::init(edb::v1::debuggeeIs64Bit() ? CapstoneEDB::Architecture::ARCH_ARM64 : CapstoneEDB::Architecture::ARCH_ARM32);
-#else
-#error "How to initialize Capstone?"
-#endif
 	setup_data_views();
 
 	QString ip   = edb::v1::debugger_core->instruction_pointer().toUpper();

@@ -16,6 +16,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#include "ArchDefs.h"
 #include "SyntaxHighlighter.h"
 #include <QSettings>
 
@@ -107,7 +108,15 @@ void SyntaxHighlighter::create_rules() {
 	// registers
 	// TODO: support ST(N)
 	rules_.push_back(HighlightingRule(
+#if defined EDB_X86 || defined EDB_X86_64
 		"\\b(((e|r)?(ax|bx|cx|dx|bp|sp|si|di|ip))|([abcd](l|h))|(sp|bp|si|di)l|([cdefgs]s)|[xyz]?mm([0-9]|[12][0-9]|3[01])|r(8|9|(1[0-5]))[dwb]?)\\b",
+#elif defined EDB_ARM32
+		"\\b(r([0-9]|1[0-5])|sb|sl|fp|ip|sp|lr|pc|[sd][0-9]|[sdf]([12][0-9]|3[01])|q([0-9]|1[0-5]))\\b",
+#elif defined EDB_ARM64
+		"\\b([xw]([12]?[0-9]|3[01]))\\b"/* FIXME: stub, only GPRs here */,
+#else
+#error "What string should be here?"
+#endif
 		QColor(settings.value("theme.register.foreground", "red").toString()),
 		QColor(settings.value("theme.register.background", "transparent").toString()),
 		settings.value("theme.register.weight", QFont::Bold).toInt(),
@@ -117,6 +126,9 @@ void SyntaxHighlighter::create_rules() {
 
 	// constants
 	rules_.push_back(HighlightingRule(
+#if defined EDB_ARM32 || defined EDB_ARM64
+		"#?" /* concatenated with general number pattern */
+#endif
 		"\\b((0[0-7]*)|(0(x|X)[0-9a-fA-F]+)|([1-9][0-9]*))\\b",
 		QColor(settings.value("theme.constant.foreground", "black").toString()),
 		QColor(settings.value("theme.constant.background", "transparent").toString()),
@@ -125,6 +137,7 @@ void SyntaxHighlighter::create_rules() {
 		settings.value("theme.constant.underline", false).toBool()
 		));
 
+#if defined EDB_X86 || defined EDB_X86_64
 	// pointer modifiers
 	rules_.push_back(HighlightingRule(
 		"\\b(t?byte|([xyz]mm|[qdf]?)word)( ptr)?\\b",
@@ -144,11 +157,20 @@ void SyntaxHighlighter::create_rules() {
 		settings.value("theme.prefix.italic", false).toBool(),
 		settings.value("theme.prefix.underline", false).toBool()
 		));
+#endif
 
 
 	// flow control
 	rules_.push_back(HighlightingRule(
+#if defined EDB_X86 || defined EDB_X86_64
 		"\\b(l?jmp[bswlqt]?|loopn?[ez]|(jn?(a|ae|b|be|c|e|g|ge|l|le|o|p|s|z)|j(pe|po|cxz|ecxz)))\\b",
+#elif defined EDB_ARM32 || defined EDB_ARM64
+		/* FIXME(ARM): there are also instructions like `add pc, pc, #5`, which
+		 *             should also be considered flow control */
+		"\\b(b(x|xj)?(eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le)?)\\b",
+#else
+#error "What string should be here?"
+#endif
 		QColor(settings.value("theme.flow_ctrl.foreground", "blue").toString()),
 		QColor(settings.value("theme.flow_ctrl.background", "yellow").toString()),
 		settings.value("theme.flow_ctrl.weight", QFont::Normal).toInt(),
@@ -159,13 +181,22 @@ void SyntaxHighlighter::create_rules() {
 
 	// function call
 	rules_.push_back(HighlightingRule(
+#if defined EDB_X86 || defined EDB_X86_64
 		"\\b(call|ret[nf]?)[bswlqt]?\\b",
+#elif defined EDB_ARM32 || defined EDB_ARM64
+		"\\b(b(l|lx)(eq|ne|cs|hs|cc|lo|mi|pl|vs|vc|hi|ls|ge|lt|gt|le)?)\\b",
+#else
+#error "What string should be here?"
+#endif
 		QColor(settings.value("theme.function.foreground", "blue").toString()),
 		QColor(settings.value("theme.function.background", "yellow").toString()),
 		settings.value("theme.function.weight", QFont::Normal).toInt(),
 		settings.value("theme.function.italic", false).toBool(),
 		settings.value("theme.function.underline", false).toBool()
 		));
+
+#if defined EDB_X86 || defined EDB_X86_64
+	// FIXME(ARM): this is stubbed out
 
 	// stack operations
 	rules_.push_back(HighlightingRule(
@@ -237,6 +268,7 @@ void SyntaxHighlighter::create_rules() {
 		settings.value("theme.system.italic", false).toBool(),
 		settings.value("theme.system.underline", false).toBool()
 		));
+#endif
 
 	// data bytes
 	rules_.push_back(HighlightingRule(

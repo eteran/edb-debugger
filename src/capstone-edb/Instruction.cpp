@@ -125,11 +125,12 @@ bool init(Architecture arch) {
 			return cs_open(CS_ARCH_X86, CS_MODE_64, &csh);
 		case Architecture::ARCH_X86:
 			return cs_open(CS_ARCH_X86, CS_MODE_32, &csh);
-		case Architecture::ARCH_ARM32:
+		case Architecture::ARCH_ARM32_ARM:
 			return cs_open(CS_ARCH_ARM, CS_MODE_ARM, &csh);
+		case Architecture::ARCH_ARM32_THUMB:
+			return cs_open(CS_ARCH_ARM, CS_MODE_THUMB, &csh);
 		case Architecture::ARCH_ARM64:
 			return cs_open(CS_ARCH_ARM64, CS_MODE_ARM, &csh);
-		// TODO(eteran): support ARM THUMB
 		default:
 			return CS_ERR_ARCH;
 		}
@@ -996,12 +997,40 @@ bool is_SIMD_SD(const Operand &operand) {
 
 bool is_return(const Instruction &insn) {
 	if(!insn) return false;
-	return cs_insn_group(csh, insn.native(), X86_GRP_RET);
+	return cs_insn_group(csh, insn.native(), CS_GRP_RET);
 }
 
 bool is_jump(const Instruction &insn) {
 	if(!insn) return false;
-	return cs_insn_group(csh, insn.native(), X86_GRP_JUMP);
+	return cs_insn_group(csh, insn.native(), CS_GRP_JUMP);
+}
+
+bool is_call(const Instruction &insn) {
+	if(!insn) return false;
+	return cs_insn_group(csh, insn.native(), CS_GRP_CALL);
+}
+
+bool modifies_pc(const Instruction &insn) {
+	if(is_call(insn) || is_jump(insn) || is_interrupt(insn))
+		return true;
+#if defined EDB_X86 || defined EDB_X86_64
+	return false;
+#elif defined EDB_ARM32
+	const auto& detail=*insn->detail;
+	for(uint8_t i=0;i<detail.regs_write_count;++i)
+		if(detail.regs_write[i]==ARM_REG_PC)
+			return true;
+	const auto& arm=detail.arm;
+	for(uint8_t i=0;i<arm.op_count;++i)
+	{
+		const auto& op=arm.operands[i];
+		if(op.access==CS_AC_WRITE && op.type==CS_OP_REG && op.reg==ARM_REG_PC)
+			return true;
+	}
+	return false;
+#else
+#	error "Not implemented"
+#endif
 }
 
 }
