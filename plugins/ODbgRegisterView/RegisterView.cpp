@@ -54,7 +54,21 @@ namespace {
 // TODO: all TODOs scattered around sources
 // TODO: "Undo" action, which returns to the state after last stopping of debuggee (visible only if register has been modified by the user)
 
-constexpr auto registerGroupTypeNames = util::make_array<const char *>("GPR", "rIP", "ExpandedEFL", "Segment", "EFL", "FPUData", "FPUWords", "FPULastOp", "Debug", "MMX", "SSEData", "AVXData", "MXCSR");
+constexpr auto registerGroupTypeNames = util::make_array<const char *>(
+		"GPR",
+		"rIP",
+		"ExpandedEFL",
+		"Segment",
+		"EFL",
+		"FPUData",
+		"FPUWords",
+		"FPULastOp",
+		"Debug",
+		"MMX",
+		"SSEData",
+		"AVXData",
+		"MXCSR"
+);
 static_assert(registerGroupTypeNames.size() == ODBRegView::RegisterGroupType::NUM_GROUPS, "Mismatch between number of register group types and names");
 
 const auto SETTINGS_GROUPS_ARRAY_NODE = QLatin1String("visibleGroups");
@@ -165,16 +179,33 @@ QString BitFieldFormatter::operator()(QString const &str) {
 
 // ----------------------- BitFieldDescription impl -------------------------
 
-BitFieldDescription::BitFieldDescription(int textWidth, std::vector<QString> const &valueNames, std::vector<QString> const &setValueTexts, std::function<bool(unsigned, unsigned)> const &valueEqualComparator)
-    : textWidth(textWidth), valueNames(valueNames), setValueTexts(setValueTexts), valueEqualComparator(valueEqualComparator) {
+BitFieldDescription::BitFieldDescription(int textWidth,
+										 std::vector<QString> const &valueNames,
+										 std::vector<QString> const &setValueTexts,
+										 std::function<bool(unsigned, unsigned)> const &valueEqualComparator)
+    : textWidth(textWidth),
+	  valueNames(valueNames),
+	  setValueTexts(setValueTexts),
+	  valueEqualComparator(valueEqualComparator)
+{
 }
 
 namespace {
 
 const BitFieldDescription fpuTagDescription = {
 	7,
-	{ "valid", "zero", "special", "empty" },
-	{ QObject::tr("Tag as used"), "", "", QObject::tr("Tag as empty") },
+	{
+		"valid",
+		"zero",
+		"special",
+		"empty"
+	},
+	{
+		QObject::tr("Tag as used"),
+		"",
+		"",
+		QObject::tr("Tag as empty")
+	},
 	[](unsigned a, unsigned b) {
 		return a == 3 || b == 3 ? a == b : true;
 	}
@@ -184,26 +215,66 @@ constexpr unsigned FPU_TAG_EMPTY = 3;
 
 const BitFieldDescription roundControlDescription = {
 	4,
-	{ "NEAR", "DOWN", "  UP", "ZERO" },
-	{ QObject::tr("Round to nearest"), QObject::tr("Round down"), QObject::tr("Round up"), QObject::tr("Round toward zero") }
+	{
+		"NEAR",
+		"DOWN",
+		"  UP",
+		"ZERO"
+	},
+	{
+		QObject::tr("Round to nearest"),
+		QObject::tr("Round down"),
+		QObject::tr("Round up"),
+		QObject::tr("Round toward zero")
+	}
 };
 
 const BitFieldDescription precisionControlDescription = {
 	2,
-	{ "24", "??", "53", "64" },
-	{ QObject::tr("Set 24-bit precision"), "", QObject::tr("Set 53-bit precision"), QObject::tr("Set 64-bit precision") }
+	{
+		"24",
+		"??",
+		"53",
+		"64"
+	},
+	{
+		QObject::tr("Set 24-bit precision"),
+		"",
+		QObject::tr("Set 53-bit precision"),
+		QObject::tr("Set 64-bit precision")
+	}
 };
 
 const BitFieldDescription debugRWDescription = {
 	5,
-	{ "EXEC", "WRITE", "  IO", " R/W" },
-	{ QObject::tr("Break on execution"), QObject::tr("Break on data write"), "", QObject::tr("Break on data read/write") }
+	{
+		"EXEC",
+		"WRITE",
+		"  IO",
+		" R/W"
+	},
+	{
+		QObject::tr("Break on execution"),
+		QObject::tr("Break on data write"),
+		"",
+		QObject::tr("Break on data read/write")
+	}
 };
 
 const BitFieldDescription debugLenDescription = {
 	1,
-	{ "1", "2", "8", "4" },
-	{ QObject::tr("Set 1-byte length"), QObject::tr("Set 2-byte length"), QObject::tr("Set 8-byte length"), QObject::tr("Set 4-byte length") }
+	{
+		"1",
+		"2",
+		"8",
+		"4"
+	},
+	{
+		QObject::tr("Set 1-byte length"),
+		QObject::tr("Set 2-byte length"),
+		QObject::tr("Set 8-byte length"),
+		QObject::tr("Set 4-byte length")
+	}
 };
 
 }
@@ -237,15 +308,30 @@ void FieldWidget::init(int const fieldWidth) {
 	setDisabled(true);
 }
 
-FieldWidget::FieldWidget(int const fieldWidth, QModelIndex const &index, QWidget *const parent) : QLabel("Fw???", parent), index(index), fieldWidth_(fieldWidth) {
+FieldWidget::FieldWidget(int const fieldWidth,
+						 QModelIndex const &index,
+						 QWidget *const parent)
+	: QLabel("Fw???", parent),
+	  index(index),
+	  fieldWidth_(fieldWidth)
+{
 	init(fieldWidth);
 }
 
-FieldWidget::FieldWidget(int const fieldWidth, QString const &fixedText, QWidget *const parent) : QLabel(fixedText, parent), fieldWidth_(fieldWidth) {
+FieldWidget::FieldWidget(int const fieldWidth,
+						 QString const &fixedText,
+						 QWidget *const parent)
+	: QLabel(fixedText, parent),
+	  fieldWidth_(fieldWidth)
+{
 	init(fieldWidth); // NOTE: fieldWidth!=fixedText.length() in general
 }
 
-FieldWidget::FieldWidget(QString const &fixedText, QWidget *const parent) : QLabel(fixedText, parent), fieldWidth_(fixedText.length()) {
+FieldWidget::FieldWidget(QString const &fixedText,
+						 QWidget *const parent)
+	: QLabel(fixedText, parent),
+	  fieldWidth_(fixedText.length())
+{
 	init(fixedText.length());
 }
 
@@ -273,7 +359,12 @@ RegisterGroup *FieldWidget::group() const {
 	return checked_cast<RegisterGroup>(parentWidget());
 }
 
-VolatileNameField::VolatileNameField(int fieldWidth, std::function<QString()> const &valueFormatter, QWidget *parent) : FieldWidget(fieldWidth, "", parent), valueFormatter(valueFormatter) {
+VolatileNameField::VolatileNameField(int fieldWidth,
+									 std::function<QString()> const &valueFormatter,
+									 QWidget *parent)
+	: FieldWidget(fieldWidth, "", parent),
+	  valueFormatter(valueFormatter)
+{
 }
 
 QString VolatileNameField::text() const {
@@ -281,7 +372,13 @@ QString VolatileNameField::text() const {
 }
 
 // --------------------- ValueField impl ----------------------------------
-ValueField::ValueField(int const fieldWidth, QModelIndex const &index, QWidget *const parent, std::function<QString(QString const &)> const &valueFormatter) : FieldWidget(fieldWidth, index, parent), valueFormatter(valueFormatter) {
+ValueField::ValueField(int const fieldWidth,
+					   QModelIndex const &index,
+					   QWidget *const parent,
+					   std::function<QString(QString const &)> const &valueFormatter)
+	: FieldWidget(fieldWidth, index, parent),
+	  valueFormatter(valueFormatter)
+{
 	setObjectName("ValueField");
 	setDisabled(false);
 	setMouseTracking(true);
@@ -344,7 +441,9 @@ RegisterViewModelBase::Model *ValueField::model() const {
 	return const_cast<Model *>(model);
 }
 
-ValueField *ValueField::bestNeighbor(std::function<bool(QPoint const &, ValueField const *, QPoint const &)> const &firstIsBetter) const {
+ValueField *ValueField::bestNeighbor(std::function<bool(QPoint const &,
+														ValueField const *,
+														QPoint const &)> const &firstIsBetter) const {
 	ValueField *result = nullptr;
 	Q_FOREACH(const auto neighbor, regView()->valueFields()) {
 		if (neighbor->isVisible() && firstIsBetter(fieldPos(neighbor), result, fieldPos(this)))
@@ -354,19 +453,27 @@ ValueField *ValueField::bestNeighbor(std::function<bool(QPoint const &, ValueFie
 }
 
 ValueField *ValueField::up() const {
-	return bestNeighbor([](QPoint const &nPos, ValueField const *up, QPoint const &fPos) { return nPos.y() < fPos.y() && (!up || distSqr(nPos, fPos) < distSqr(fieldPos(up), fPos)); });
+	return bestNeighbor([](QPoint const &nPos, ValueField const *up, QPoint const &fPos)
+						{ return nPos.y() < fPos.y() && (!up || distSqr(nPos, fPos) < distSqr(fieldPos(up), fPos)); }
+						);
 }
 
 ValueField *ValueField::down() const {
-	return bestNeighbor([](QPoint const &nPos, ValueField const *down, QPoint const &fPos) { return nPos.y() > fPos.y() && (!down || distSqr(nPos, fPos) < distSqr(fieldPos(down), fPos)); });
+	return bestNeighbor([](QPoint const &nPos, ValueField const *down, QPoint const &fPos)
+			{ return nPos.y() > fPos.y() && (!down || distSqr(nPos, fPos) < distSqr(fieldPos(down), fPos)); }
+						);
 }
 
 ValueField *ValueField::left() const {
-	return bestNeighbor([](QPoint const &nPos, ValueField const *left, QPoint const &fPos) { return nPos.y() == fPos.y() && nPos.x() < fPos.x() && (!left || left->x() < nPos.x()); });
+	return bestNeighbor([](QPoint const &nPos, ValueField const *left, QPoint const &fPos)
+						{ return nPos.y() == fPos.y() && nPos.x() < fPos.x() && (!left || left->x() < nPos.x()); }
+						);
 }
 
 ValueField *ValueField::right() const {
-	return bestNeighbor([](QPoint const &nPos, ValueField const *right, QPoint const &fPos) { return nPos.y() == fPos.y() && nPos.x() > fPos.x() && (!right || right->x() > nPos.x()); });
+	return bestNeighbor([](QPoint const &nPos, ValueField const *right, QPoint const &fPos)
+			{ return nPos.y() == fPos.y() && nPos.x() > fPos.x() && (!right || right->x() > nPos.x()); }
+						);
 }
 
 QString ValueField::text() const {
@@ -636,7 +743,13 @@ void ValueField::setToOne() {
 
 // -------------------------------- FPUValueField impl ---------------------------------
 
-FPUValueField::FPUValueField(int fieldWidth, QModelIndex const &regValueIndex, QModelIndex const &tagValueIndex, RegisterGroup *group, FieldWidget *commentWidget, int row, int column)
+FPUValueField::FPUValueField(int fieldWidth,
+							 QModelIndex const &regValueIndex,
+							 QModelIndex const &tagValueIndex,
+							 RegisterGroup *group,
+							 FieldWidget *commentWidget,
+							 int row,
+							 int column)
     : ValueField(fieldWidth, regValueIndex, group,
                  [this](QString const &str) {
 	                 if (str.length() != 20)
@@ -645,10 +758,8 @@ FPUValueField::FPUValueField(int fieldWidth, QModelIndex const &regValueIndex, Q
 		                 return str.left(4) + " " + str.mid(4, 8) + " " + str.right(8);
 	                 return str;
 	             }),
-      commentWidget(commentWidget), row(row), column(column), tagValueIndex(tagValueIndex) {
-
-
-
+      commentWidget(commentWidget), row(row), column(column), tagValueIndex(tagValueIndex)
+{
 	Q_ASSERT(group);
 	Q_ASSERT(commentWidget);
 	showAsRawActionIndex = menuItems.size();
@@ -719,7 +830,11 @@ void FPUValueField::updatePalette() {
 }
 
 // -------------------------------- MultiBitFieldWidget impl ---------------------------
-MultiBitFieldWidget::MultiBitFieldWidget(QModelIndex const &index, BitFieldDescription const &bfd, QWidget *parent) : ValueField(bfd.textWidth, index, parent, BitFieldFormatter(bfd)), equal(bfd.valueEqualComparator) {
+MultiBitFieldWidget::MultiBitFieldWidget(QModelIndex const &index,
+										 BitFieldDescription const &bfd,
+										 QWidget *parent)
+	: ValueField(bfd.textWidth, index, parent, BitFieldFormatter(bfd)), equal(bfd.valueEqualComparator)
+{
 	const auto mapper = new QSignalMapper(this);
 	connect(mapper, SIGNAL(mapped(int)), this, SLOT(setValue(int)));
 	menuItems.push_front(newActionSeparator(this));
@@ -774,7 +889,9 @@ void MultiBitFieldWidget::adjustToData() {
 }
 
 // -------------------------------- RegisterGroup impl ----------------------------
-RegisterGroup::RegisterGroup(QString const &name, QWidget *parent) : QWidget(parent), name(name) {
+RegisterGroup::RegisterGroup(QString const &name, QWidget *parent)
+	: QWidget(parent), name(name)
+{
 	setObjectName("RegisterGroup_" + name);
 
 	{
@@ -859,7 +976,9 @@ int RegisterGroup::lineAfterLastField() const {
 	return bottomField == fields.end() ? 0 : (*bottomField)->pos().y() / (*bottomField)->height() + 1;
 }
 
-void RegisterGroup::appendNameValueComment(QModelIndex const &nameIndex, QString const &tooltip, bool insertComment) {
+void RegisterGroup::appendNameValueComment(QModelIndex const &nameIndex,
+										   QString const &tooltip,
+										   bool insertComment) {
 
 	assert(nameIndex.isValid());
 
@@ -1011,7 +1130,12 @@ void ODBRegView::settingsUpdated() {
 #endif
 }
 
-ODBRegView::ODBRegView(QString const &settingsGroup, QWidget *parent) : QScrollArea(parent), dialogEditGPR(new DialogEditGPR(this)), dialogEditSIMDReg(new DialogEditSIMDRegister(this)), dialogEditFPU(new DialogEditFPU(this)) {
+ODBRegView::ODBRegView(QString const &settingsGroup, QWidget *parent)
+	: QScrollArea(parent),
+	  dialogEditGPR(new DialogEditGPR(this)),
+	  dialogEditSIMDReg(new DialogEditSIMDRegister(this)),
+	  dialogEditFPU(new DialogEditFPU(this))
+{
 	setObjectName("ODBRegView");
 
 	connect(&edb::v1::config(), SIGNAL(settingsUpdated()), this, SLOT(settingsUpdated()));
@@ -1042,8 +1166,21 @@ ODBRegView::ODBRegView(QString const &settingsGroup, QWidget *parent) : QScrollA
 	settings.beginGroup(settingsGroup);
 	const auto groupListV = settings.value(SETTINGS_GROUPS_ARRAY_NODE);
 	if (settings.group().isEmpty() || !groupListV.isValid()) {
-		visibleGroupTypes = {RegisterGroupType::GPR,       RegisterGroupType::rIP,   RegisterGroupType::ExpandedEFL, RegisterGroupType::Segment, RegisterGroupType::EFL,     RegisterGroupType::FPUData, RegisterGroupType::FPUWords,
-		                     RegisterGroupType::FPULastOp, RegisterGroupType::Debug, RegisterGroupType::MMX,         RegisterGroupType::SSEData, RegisterGroupType::AVXData, RegisterGroupType::MXCSR};
+		visibleGroupTypes = {
+			RegisterGroupType::GPR,
+			RegisterGroupType::rIP,
+			RegisterGroupType::ExpandedEFL,
+			RegisterGroupType::Segment,
+			RegisterGroupType::EFL,
+			RegisterGroupType::FPUData,
+			RegisterGroupType::FPUWords,
+			RegisterGroupType::FPULastOp,
+			RegisterGroupType::Debug,
+			RegisterGroupType::MMX,
+			RegisterGroupType::SSEData,
+			RegisterGroupType::AVXData,
+			RegisterGroupType::MXCSR,
+		};
 	} else {
 		Q_FOREACH(const auto &grp, groupListV.toStringList()) {
 			const auto group = findGroup(grp);
@@ -1159,7 +1296,9 @@ QModelIndex findModelCategory(RegisterViewModelBase::Model const *const model, Q
 }
 
 // TODO: switch from string-based search to enum-based one (add a new Role to model data)
-QModelIndex findModelRegister(QModelIndex categoryIndex, QString const &regToFind, int column = MODEL_NAME_COLUMN) {
+QModelIndex findModelRegister(QModelIndex categoryIndex,
+							  QString const &regToFind,
+							  int column = MODEL_NAME_COLUMN) {
 	const auto model = categoryIndex.model();
 	for (int row = 0; row < model->rowCount(categoryIndex); ++row) {
 		const auto regIndex = model->index(row, MODEL_NAME_COLUMN, categoryIndex);
@@ -1197,10 +1336,20 @@ void addPrecisionMode(RegisterGroup *const group, QModelIndex const &index, int 
 	precValueField->setToolTip(QObject::tr("Precision mode: effective mantissa length"));
 }
 
-void addPUOZDI(RegisterGroup *const group, QModelIndex const &excRegIndex, QModelIndex const &maskRegIndex, int const startRow, int const startColumn) {
+void addPUOZDI(RegisterGroup *const group,
+			   QModelIndex const &excRegIndex,
+			   QModelIndex const &maskRegIndex,
+			   int const startRow,
+			   int const startColumn) {
 	QString const exceptions = "PUOZDI";
-	std::unordered_map<char, QString> excNames = {{'P', QObject::tr("Precision")},        {'U', QObject::tr("Underflow")}, {'O', QObject::tr("Overflow")}, {'Z', QObject::tr("Zero Divide")}, {'D', QObject::tr("Denormalized Operand")},
-	                                              {'I', QObject::tr("Invalid Operation")}};
+	std::unordered_map<char, QString> excNames = {
+		{'P', QObject::tr("Precision")},
+		{'U', QObject::tr("Underflow")},
+		{'O', QObject::tr("Overflow")},
+		{'Z', QObject::tr("Zero Divide")},
+		{'D', QObject::tr("Denormalized Operand")},
+		{'I', QObject::tr("Invalid Operation")}
+	};
 	for (int exN = 0; exN < exceptions.length(); ++exN) {
 		QString const ex         = exceptions[exN];
 		const auto    exAbbrev   = ex + "E";
@@ -1258,9 +1407,16 @@ RegisterGroup *createExpandedEFL(RegisterViewModelBase::Model *model, QWidget *p
 	if (!regNameIndex.isValid())
 		return nullptr;
 	const auto group = new RegisterGroup(QObject::tr("Expanded EFL"), parent);
-	static const std::unordered_map<char, QString> flagTooltips = {{'C', QObject::tr("Carry flag") + " (CF)"},     {'P', QObject::tr("Parity flag") + " (PF)"},  {'A', QObject::tr("Auxiliary carry flag") + " (AF)"},
-	                                                               {'Z', QObject::tr("Zero flag") + " (ZF)"},      {'S', QObject::tr("Sign flag") + " (SF)"},    {'T', QObject::tr("Trap flag") + " (TF)"},
-	                                                               {'D', QObject::tr("Direction flag") + " (DF)"}, {'O', QObject::tr("Overflow flag") + " (OF)"}};
+	static const std::unordered_map<char, QString> flagTooltips = {
+		{'C', QObject::tr("Carry flag") + " (CF)"},
+		{'P', QObject::tr("Parity flag") + " (PF)"},
+		{'A', QObject::tr("Auxiliary carry flag") + " (AF)"},
+		{'Z', QObject::tr("Zero flag") + " (ZF)"},
+		{'S', QObject::tr("Sign flag") + " (SF)"},
+		{'T', QObject::tr("Trap flag") + " (TF)"},
+		{'D', QObject::tr("Direction flag") + " (DF)"},
+		{'O', QObject::tr("Overflow flag") + " (OF)"},
+	};
 	for (int row = 0, groupRow = 0; row < model->rowCount(regNameIndex); ++row) {
 		const auto flagNameIndex  = model->index(row, MODEL_NAME_COLUMN, regNameIndex);
 		const auto flagValueIndex = model->index(row, MODEL_VALUE_COLUMN, regNameIndex);
@@ -1992,7 +2148,14 @@ ValueField *ODBRegView::selectedField() const {
 	return nullptr;
 }
 
-SIMDValueManager::SIMDValueManager(int lineInGroup, QModelIndex const &nameIndex, RegisterGroup *parent) : QObject(parent), regIndex(nameIndex), lineInGroup(lineInGroup), intMode(NumberDisplayMode::Hex) {
+SIMDValueManager::SIMDValueManager(int lineInGroup,
+								   QModelIndex const &nameIndex,
+								   RegisterGroup *parent)
+	: QObject(parent),
+	  regIndex(nameIndex),
+	  lineInGroup(lineInGroup),
+	  intMode(NumberDisplayMode::Hex)
+{
 	setupMenu();
 
 	assert(nameIndex.isValid());
