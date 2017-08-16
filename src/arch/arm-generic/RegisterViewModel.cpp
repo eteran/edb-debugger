@@ -23,6 +23,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 using util::make_unique;
 using GPR=RegisterViewModelBase::SimpleRegister<edb::value32>;
+using CPSR=RegisterViewModelBase::FlagsRegister<edb::value32>;
+
+std::vector<RegisterViewModelBase::BitFieldDescription> cpsrDescription = {
+	{QLatin1String( "M" ),  0, 5},
+	{QLatin1String( "T" ),  5, 1},
+	{QLatin1String( "F" ),  6, 1},
+	{QLatin1String( "I" ),  7, 1},
+	{QLatin1String( "A" ),  8, 1},
+	{QLatin1String( "E" ),  9, 1},
+	{QLatin1String("GE" ), 16, 4},
+	{QLatin1String("ITa"), 20, 4},
+	{QLatin1String( "J" ), 24, 1},
+	{QLatin1String("ITb"), 25, 2},
+	{QLatin1String( "Q" ), 27, 1},
+	{QLatin1String( "V" ), 28, 1},
+	{QLatin1String( "C" ), 29, 1},
+	{QLatin1String( "Z" ), 30, 1},
+	{QLatin1String( "N" ), 31, 1},
+};
+
+enum
+{
+	CPSR_ROW,
+};
 
 QVariant RegisterViewModel::data(QModelIndex const& index, int role) const {
 	if(role==FixedLengthRole)
@@ -59,11 +83,18 @@ void addGPRs(RegisterViewModelBase::Category* gprs)
 	gprs->addRegister(make_unique<GPR>("PC"));
 }
 
+void addGenStatusRegs(RegisterViewModelBase::Category* cat)
+{
+	cat->addRegister(make_unique<CPSR>("CPSR",cpsrDescription));
+}
+
 RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject* parent)
 	: RegisterViewModelBase::Model(parent),
-	  gprs(addCategory(tr("General Purpose")))
+	  gprs(addCategory(tr("General Purpose"))),
+	  genStatusRegs(addCategory(tr("General Status")))
 {
 	addGPRs(gprs);
+	addGenStatusRegs(genStatusRegs);
 }
 
 void invalidate(RegisterViewModelBase::Category* cat, int row, const char* nameToCheck)
@@ -93,4 +124,9 @@ void RegisterViewModel::updateGPR(std::size_t i, edb::value32 val, QString const
 {
 	Q_ASSERT(int(i)<gprs->childCount());
 	updateRegister<GPR>(gprs,i,val,comment);
+}
+
+void RegisterViewModel::updateCPSR(edb::value32 val, QString const& comment)
+{
+	updateRegister<CPSR>(genStatusRegs,CPSR_ROW,val,comment);
 }

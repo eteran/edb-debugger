@@ -101,10 +101,78 @@ void updateGPRs(RegisterViewModel& model, State const& state, QString const& def
 	}
 }
 
+bool is_jcc_taken(const edb::reg_t cpsr, edb::Instruction::ConditionCode cond) {
+	const bool N = (cpsr & 0x80000000) != 0;
+	const bool Z = (cpsr & 0x40000000) != 0;
+	const bool C = (cpsr & 0x20000000) != 0;
+	const bool V = (cpsr & 0x10000000) != 0;
+
+	bool taken = false;
+	switch(cond & 0xe) {
+	case 0x0:
+		taken = Z;
+		break;
+	case 0x2:
+		taken = C;
+		break;
+	case 0x4:
+		taken = N;
+		break;
+	case 0x6:
+		taken = V;
+		break;
+	case 0x8:
+		taken = C && !Z;
+		break;
+	case 0xa:
+		taken = N == V;
+		break;
+	case 0xc:
+		taken = !Z && (N==V);
+		break;
+	case 0xe:
+		taken = true;
+		break;
+	}
+
+	if(cond & 1)
+		taken = !taken;
+
+	return taken;
+}
+
+static QLatin1String jumpConditionMnemonics[] = {
+	QLatin1String("EQ"),  QLatin1String("NE"),
+	QLatin1String("HS"),  QLatin1String("LO"),
+	QLatin1String("MI"),  QLatin1String("PL"),
+	QLatin1String("VS"),  QLatin1String("VC"),
+	QLatin1String("HI"),  QLatin1String("LS"),
+	QLatin1String("GE"),  QLatin1String("LT"),
+	QLatin1String("GT"),  QLatin1String("LE"),
+	QLatin1String("AL"),  QLatin1String("??"),
+};
+
+QString cpsrComment(edb::reg_t flags) {
+	QString comment="(";
+	for(int cond=0;cond<0x10-2;++cond) // we're not interested in AL or UNDEFINED conditions
+		if(is_jcc_taken(flags,static_cast<edb::Instruction::ConditionCode>(cond)))
+			comment+=jumpConditionMnemonics[cond]+',';
+	comment[comment.size()-1]=')';
+	return comment;
+}
+
+void updateCPSR(RegisterViewModel& model, State const& state) {
+	const auto flags=state.flags_register();
+	Q_ASSERT(!!flags);
+	const auto comment=cpsrComment(flags.valueAsInteger());
+	model.updateCPSR(flags.value<edb::value32>(),comment);
+}
+
 void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
 
 	auto& model = getModel();
 	updateGPRs(model,state,default_region_name);
+	updateCPSR(model,state);
 
 	if(just_attached_) {
 		model.saveValues();
