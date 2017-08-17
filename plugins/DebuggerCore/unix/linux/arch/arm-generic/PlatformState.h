@@ -28,6 +28,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
+using std::size_t;
+static constexpr size_t GPR_COUNT=16;
+
 class PlatformState : public IState {
 	friend class DebuggerCore;
 	friend class PlatformThread;
@@ -60,9 +63,25 @@ public:
 
 	void fillFrom(user_regs const& regs);
 private:
-	bool filled=false;
-	edb::address_t pc=0xbad1bad1bad1bad1u;
-	edb::address_t sp=0xbad1bad1bad1bad1u;
+	struct GPR {
+		enum NamedGPRIndex : size_t {
+			SB=9,  // historical name, but still printed by modern disassemblers
+			SL=10, // historical name, but still printed by modern disassemblers
+			FP=11, // conventionally, but much like rBP on x86
+			IP=12, // conventionally, intra-procedure scratch register
+			SP=13,
+			LR=14,
+			PC=15,
+		};
+		static const std::array<const char *, GPR_COUNT> GPRegNames;
+
+		bool filled=false;
+		std::array<edb::reg_t, GPR_COUNT> GPRegs;
+		edb::reg_t cpsr;
+	public:
+		void clear();
+		bool empty() const;
+	} gpr;
 };
 
 }

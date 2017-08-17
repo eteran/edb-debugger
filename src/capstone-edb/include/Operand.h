@@ -2,7 +2,6 @@
 #ifndef OPERAND_H_
 #define OPERAND_H_
 
-#include "ArchDefs.h"
 #include <capstone/capstone.h>
 
 namespace CapstoneEDB {

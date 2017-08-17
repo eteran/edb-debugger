@@ -1,8 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
-Copyright (C) 2017 Ruslan Kabatsayev
-                   b7.10110111@gmail.com
+Copyright (C) 2017 - 2017 Ruslan Kabatsayev
+                          b7.10110111@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,21 +16,33 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ARCH_DEFS_20170807_H_
-#define ARCH_DEFS_20170807_H_
+#ifndef SIMPLE_REG_VIEW_PLUGIN_H_20170815
+#define SIMPLE_REG_VIEW_PLUGIN_H_20170815
 
-#include <cstdint>
+#include "IPlugin.h"
+#include "Types.h"
 
-#if INTPTR_MAX == INT32_MAX
-#define EDB_ARM32
-static constexpr bool EDB_IS_64_BIT = false;
-static constexpr bool EDB_IS_32_BIT = true;
+namespace SimpleRegView
+{
 
-#elif INTPTR_MAX == INT64_MAX
+class RegView;
 
-#define EDB_ARM64
-static constexpr bool EDB_IS_64_BIT = true;
-static constexpr bool EDB_IS_32_BIT = false;
+class Plugin : public QObject, public IPlugin {
+	Q_OBJECT
+	Q_INTERFACES(IPlugin)
+#if QT_VERSION >= 0x050000
+	Q_PLUGIN_METADATA(IID "edb.IPlugin/1.0")
 #endif
+	Q_CLASSINFO("author", "Ruslan Kabatsayev")
+	Q_CLASSINFO("email", "b7.10110111@gmail.com")
+
+public:
+	Plugin();
+	QMenu* menu(QWidget*);
+private:
+	RegView* regView;
+};
+
+}
 
 #endif

@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef INSTRUCTION_20150908_H
 #define INSTRUCTION_20150908_H
 
-#include "ArchDefs.h"
 #include "Formatter.h"
 #include "Operand.h"
 #include <capstone/capstone.h>

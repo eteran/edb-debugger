@@ -299,6 +299,9 @@ void Formatter::setOptions(const Formatter::FormatOptions &options) {
 		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_ATT);
 	else
 		cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_INTEL);
+#elif defined EDB_ARM32 // FIXME(ARM): does this apply to AArch64?
+	// TODO: make this optional. Don't forget to reflect this in register view!
+	cs_option(csh, CS_OPT_SYNTAX, CS_OPT_SYNTAX_NOREGNAME);
 #endif
 
 	activeFormatter = *this;

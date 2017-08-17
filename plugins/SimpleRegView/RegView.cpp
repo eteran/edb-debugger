@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2017 - 2017 Ruslan Kabatsayev
+                          b7.10110111@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,18 +16,22 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ARCHTYPES_20071127_H_
-#define ARCHTYPES_20071127_H_
+#include "RegView.h"
+#include "edb.h"
+#include <QHeaderView>
 
-#include "Instruction.h"
-#include "Types.h"
+namespace SimpleRegView
+{
 
-namespace edb {
-
-typedef value16                   seg_reg_t;
-typedef CapstoneEDB::Instruction  Instruction;
-typedef CapstoneEDB::Operand      Operand;
-
+RegView::RegView(QWidget *parent)
+	: QTreeView(parent)
+{
+	header()->hide();
+#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
+#	define setSectionResizeMode setResizeMode
+#endif
+	header()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	setFont(QFont("Monospace"));
 }
 
-#endif
+}

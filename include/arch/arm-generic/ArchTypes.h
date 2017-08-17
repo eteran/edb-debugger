@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ARCHTYPES_20071127_H_
 #define ARCHTYPES_20071127_H_
 
-#include "ArchDefs.h"
 #include "Instruction.h"
 #include "Types.h"
 
