@@ -56,7 +56,9 @@ QVariant RegisterViewModel::data(QModelIndex const& index, int role) const {
 		const auto name=reg->data(NAME_COLUMN).toString();
 		if(index.column()==NAME_COLUMN && name.length()>=2)
 		{
-			if(name[0]=='r' && '0'<name[1] && name[1]<'9')
+			const auto nameLower=name.toLower();
+			if((nameLower[0]=='r' && '0'<=nameLower[1] && nameLower[1]<='9') ||
+					nameLower=="sp" || nameLower=="lr" || nameLower=="pc")
 				return 3;
 		}
 	}
