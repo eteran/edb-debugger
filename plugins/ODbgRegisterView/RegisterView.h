@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ODBG_REGISTER_VIEW_H_20151230
 
 #include "RegisterViewModelBase.h"
+#include "ValueField.h"
 #include <QLabel>
 #include <QPersistentModelIndex>
 #include <QScrollArea>
@@ -31,8 +32,6 @@ class DialogEditSIMDRegister;
 class DialogEditGPR;
 class DialogEditFPU;
 class RegisterGroup;
-class FieldWidget;
-class ValueField;
 
 class ODBRegView : public QScrollArea {
 	Q_OBJECT
@@ -120,31 +119,6 @@ protected:
 	void mousePressEvent(QMouseEvent *event) override;
 };
 
-class FieldWidget : public QLabel {
-	Q_OBJECT
-
-	void init(int fieldWidth);
-
-protected:
-	QPersistentModelIndex index;
-	int                   fieldWidth_;
-
-	ODBRegView *   regView() const;
-	RegisterGroup *group() const;
-
-public:
-	FieldWidget(int fieldWidth, QModelIndex const &index, QWidget *parent = nullptr);
-	FieldWidget(int fieldWidth, QString const &fixedText, QWidget *parent = nullptr);
-	FieldWidget(QString const &fixedText, QWidget *parent = nullptr);
-	virtual QString text() const;
-	int             lineNumber() const;
-	int             columnNumber() const;
-	int             fieldWidth() const;
-
-public Q_SLOTS:
-	virtual void adjustToData();
-};
-
 class VolatileNameField : public FieldWidget {
 	Q_OBJECT
 	
@@ -154,69 +128,6 @@ private:
 public:
 	VolatileNameField(int fieldWidth, std::function<QString()> const &valueFormatter, QWidget *parent = nullptr);
 	QString text() const override;
-};
-
-class ValueField : public FieldWidget {
-	Q_OBJECT
-
-private:
-	bool                            selected_ = false;
-	bool                            hovered_  = false;
-	std::function<QString(QString)> valueFormatter;
-
-	// For GPR
-	QAction *setToZeroAction = nullptr;
-	QAction *setToOneAction  = nullptr;
-
-protected:
-	QList<QAction *> menuItems;
-
-private:
-	void   init();
-	QColor fgColorForChangedField() const;
-	void editNormalReg(QModelIndex const &indexToEdit, QModelIndex const &clickedIndex) const;
-
-protected:
-	RegisterViewModelBase::Model *model() const;
-	bool                          changed() const;
-
-	void enterEvent(QEvent *) override;
-	void leaveEvent(QEvent *) override;
-	void mousePressEvent(QMouseEvent *event) override;
-	void mouseDoubleClickEvent(QMouseEvent *event) override;
-	void paintEvent(QPaintEvent *event) override;
-
-	ValueField *bestNeighbor(std::function<bool(QPoint const &neighborPos, ValueField const *curResult, QPoint const &selfPos)> const &firstIsBetter) const;
-
-public:
-	ValueField(int fieldWidth, QModelIndex const &index, QWidget *parent = nullptr, std::function<QString(QString const &)> const &valueFormatter = [](QString const &s) { return s; });
-	ValueField *up() const;
-	ValueField *down() const;
-	ValueField *left() const;
-	ValueField *right() const;
-
-	bool isSelected() const;
-	void showMenu(QPoint const &position);
-	QString     text() const override;
-	QModelIndex regIndex() const;
-
-public Q_SLOTS:
-	void         defaultAction();
-	void         pushFPUStack();
-	void         popFPUStack();
-	void         adjustToData() override;
-	void         select();
-	void         unselect();
-	virtual void updatePalette();
-	void         copyToClipboard() const;
-	void         setZero();
-	void         setToOne();
-	void         increment();
-	void         decrement();
-	void         invert();
-
-Q_SIGNALS:
-	void selected();
 };
 
 class FPUValueField : public ValueField {

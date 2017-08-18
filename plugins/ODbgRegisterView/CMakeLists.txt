@@ -24,8 +24,12 @@ add_library(${PluginName} SHARED
 	GPREdit.cpp
 	Plugin.cpp
 	Plugin.h
+	x86Groups.cpp
+	x86FPUValueField.cpp
 	RegisterView.cpp
 	RegisterView.h
+	ValueField.cpp
+	FieldWidget.cpp
 	DialogEditSIMDRegister.cpp
 	NumberEdit.cpp
 	EntryGridKeyUpDownEventFilter.cpp
