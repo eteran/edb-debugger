@@ -18,8 +18,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ValueField.h"
 #include "ODbgRV_Common.h"
 #include "ODbgRV_Util.h"
-#include "ODbgRV_x86Common.h"
-#include "DialogEditFPU.h"
+#if defined EDB_X86 || defined EDB_X86_64
+#	include "ODbgRV_x86Common.h"
+#	include "DialogEditFPU.h"
+#endif
 #include "DialogEditGPR.h"
 #include "DialogEditSIMDRegister.h"
 #include <QApplication>
@@ -72,10 +74,12 @@ ValueField::ValueField(int const fieldWidth,
 	menuItems.push_back(newAction(tr("&Copy to clipboard"), this, this, SLOT(copyToClipboard())));
 	menuItems.back()->setShortcut(copyFieldShortcut);
 
+#if defined EDB_X86 || defined EDB_X86_64
 	if (index.sibling(index.row(), MODEL_NAME_COLUMN).data().toString() == FSR_NAME) {
 		menuItems.push_back(newAction(tr("P&ush FPU stack"), this, this, SLOT(pushFPUStack())));
 		menuItems.push_back(newAction(tr("P&op FPU stack"), this, this, SLOT(popFPUStack())));
 	}
+#endif
 
 	if (index.parent().data().toString() == GPRCategoryName) {
 		// These should be above others, so prepending instead of appending
@@ -185,7 +189,9 @@ void ValueField::editNormalReg(QModelIndex const &indexToEdit, QModelIndex const
 			r = simdEdit->value();
 			model()->setData(indexToEdit, QVariant::fromValue(r), Model::ValueAsRegisterRole);
 		}
-	} else if (r.type() == Register::TYPE_FPU) {
+	}
+#if defined EDB_X86 || defined EDB_X86_64
+	else if (r.type() == Register::TYPE_FPU) {
 		const auto fpuEdit = regView()->fpuEditDialog();
 		fpuEdit->set_value(r);
 		if (fpuEdit->exec() == QDialog::Accepted) {
@@ -193,6 +199,7 @@ void ValueField::editNormalReg(QModelIndex const &indexToEdit, QModelIndex const
 			model()->setData(indexToEdit, QVariant::fromValue(r), Model::ValueAsRegisterRole);
 		}
 	}
+#endif
 }
 
 QModelIndex ValueField::regIndex() const {
@@ -349,6 +356,7 @@ void addToTOP(RegisterViewModelBase::Model *model, QModelIndex const &fsrIndex, 
 
 }
 
+#if defined EDB_X86 || defined EDB_X86_64
 void ValueField::pushFPUStack() {
 	assert(index.sibling(index.row(), MODEL_NAME_COLUMN).data().toString() == FSR_NAME);
 	addToTOP(model(), index, -1);
@@ -358,6 +366,7 @@ void ValueField::popFPUStack() {
 	assert(index.sibling(index.row(), MODEL_NAME_COLUMN).data().toString() == FSR_NAME);
 	addToTOP(model(), index, +1);
 }
+#endif
 
 void ValueField::copyToClipboard() const {
 	QApplication::clipboard()->setText(text());

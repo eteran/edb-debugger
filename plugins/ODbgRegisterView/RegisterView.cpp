@@ -18,10 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RegisterView.h"
 #include "ODbgRV_Util.h"
 #include "ODbgRV_Common.h"
-#include "x86Groups.h"
-#include "ODbgRV_x86Common.h"
+#if defined EDB_X86 || defined EDB_X86_64
+#	include "x86Groups.h"
+#	include "ODbgRV_x86Common.h"
+#	include "DialogEditFPU.h"
+#endif
 #include "Configuration.h"
-#include "DialogEditFPU.h"
 #include "DialogEditGPR.h"
 #include "DialogEditSIMDRegister.h"
 #include "RegisterViewModelBase.h"
@@ -51,6 +53,7 @@ namespace {
 // TODO: "Undo" action, which returns to the state after last stopping of debuggee (visible only if register has been modified by the user)
 
 constexpr auto registerGroupTypeNames = util::make_array<const char *>(
+#if defined EDB_X86 || defined EDB_X86_64
 		"GPR",
 		"rIP",
 		"ExpandedEFL",
@@ -64,6 +67,11 @@ constexpr auto registerGroupTypeNames = util::make_array<const char *>(
 		"SSEData",
 		"AVXData",
 		"MXCSR"
+#elif defined EDB_ARM32
+		"GPR"
+#else
+#	error "Not implemented"
+#endif
 );
 static_assert(registerGroupTypeNames.size() == ODBRegView::RegisterGroupType::NUM_GROUPS, "Mismatch between number of register group types and names");
 
@@ -421,7 +429,11 @@ ODBRegView::ODBRegView(QString const &settingsGroup, QWidget *parent)
 	: QScrollArea(parent),
 	  dialogEditGPR(new DialogEditGPR(this)),
 	  dialogEditSIMDReg(new DialogEditSIMDRegister(this)),
+#if defined EDB_X86 || defined EDB_X86_64
 	  dialogEditFPU(new DialogEditFPU(this))
+#else
+	  dialogEditFPU(nullptr)
+#endif
 {
 	setObjectName("ODBRegView");
 
@@ -454,6 +466,7 @@ ODBRegView::ODBRegView(QString const &settingsGroup, QWidget *parent)
 	const auto groupListV = settings.value(SETTINGS_GROUPS_ARRAY_NODE);
 	if (settings.group().isEmpty() || !groupListV.isValid()) {
 		visibleGroupTypes = {
+#if defined EDB_X86 || defined EDB_X86_64
 			RegisterGroupType::GPR,
 			RegisterGroupType::rIP,
 			RegisterGroupType::ExpandedEFL,
@@ -467,6 +480,11 @@ ODBRegView::ODBRegView(QString const &settingsGroup, QWidget *parent)
 			RegisterGroupType::SSEData,
 			RegisterGroupType::AVXData,
 			RegisterGroupType::MXCSR,
+#elif defined EDB_ARM32
+			RegisterGroupType::GPR,
+#else
+#	error "Not implemented"
+#endif
 		};
 	} else {
 		Q_FOREACH(const auto &grp, groupListV.toStringList()) {
@@ -602,6 +620,16 @@ RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {
 	QString groupName;
 
 	switch (type) {
+	case RegisterGroupType::GPR: {
+		groupName           = tr("GPRs");
+		const auto catIndex = findModelCategory(model_, GPRCategoryName);
+		if (!catIndex.isValid())
+			break;
+		for (int row = 0; row < model_->rowCount(catIndex); ++row)
+			nameValCommentIndices.emplace_back(model_->index(row, MODEL_NAME_COLUMN, catIndex));
+		break;
+	}
+#if defined EDB_X86 || defined EDB_X86_64
 	case RegisterGroupType::EFL:
 		return createEFL(model_, widget());
 	case RegisterGroupType::ExpandedEFL:
@@ -622,15 +650,6 @@ RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {
 		return createSIMDGroup(model_, widget(), "SSE", "XMM");
 	case RegisterGroupType::AVXData:
 		return createSIMDGroup(model_, widget(), "AVX", "YMM");
-	case RegisterGroupType::GPR: {
-		groupName           = tr("GPRs");
-		const auto catIndex = findModelCategory(model_, GPRCategoryName);
-		if (!catIndex.isValid())
-			break;
-		for (int row = 0; row < model_->rowCount(catIndex); ++row)
-			nameValCommentIndices.emplace_back(model_->index(row, MODEL_NAME_COLUMN, catIndex));
-		break;
-	}
 	case RegisterGroupType::Segment: {
 		groupName           = tr("Segment Registers");
 		const auto catIndex = findModelCategory(model_, "Segment");
@@ -649,6 +668,7 @@ RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {
 		nameValCommentIndices.emplace_back(findModelRegister(catIndex, "EIP"));
 		break;
 	}
+#endif
 	default:
 		qWarning() << "Warning: unexpected register group type requested in" << Q_FUNC_INFO;
 		return nullptr;
@@ -706,6 +726,7 @@ void ODBRegView::modelReset() {
 			groups.push_back(group);
 			if (!group)
 				continue;
+#if defined EDB_X86 || defined EDB_X86_64
 			if (groupType == RegisterGroupType::Segment || groupType == RegisterGroupType::ExpandedEFL) {
 				flagsAndSegments->addWidget(group);
 				if (!flagsAndSegsInserted) {
@@ -713,6 +734,7 @@ void ODBRegView::modelReset() {
 					flagsAndSegsInserted = true;
 				}
 			} else
+#endif
 				layout->addWidget(group);
 		} else
 			groups.push_back(nullptr);

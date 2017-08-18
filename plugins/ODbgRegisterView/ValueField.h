@@ -73,8 +73,10 @@ public:
 
 public Q_SLOTS:
 	void         defaultAction();
+#if defined EDB_X86 || defined EDB_X86_64
 	void         pushFPUStack();
 	void         popFPUStack();
+#endif
 	void         adjustToData() override;
 	void         select();
 	void         unselect();

@@ -39,6 +39,7 @@ class ODBRegView : public QScrollArea {
 public:
 	struct RegisterGroupType {
 		enum T {
+#if defined EDB_X86 || defined EDB_X86_64
 			GPR,
 			rIP,
 			ExpandedEFL,
@@ -52,6 +53,11 @@ public:
 			SSEData,
 			AVXData,
 			MXCSR,
+#elif defined EDB_ARM32
+			GPR,
+#else
+#	error "Not implemented"
+#endif
 
 			NUM_GROUPS
 		} value;
@@ -130,6 +136,7 @@ public:
 	QString text() const override;
 };
 
+#if defined EDB_X86 || defined EDB_X86_64
 class FPUValueField : public ValueField {
 	Q_OBJECT
 
@@ -155,6 +162,7 @@ public Q_SLOTS:
 	void displayFormatChanged();
 	void updatePalette() override;
 };
+#endif
 
 struct BitFieldDescription {
 	int                  textWidth;
