@@ -41,6 +41,7 @@ const std::array<const char *, GPR_COUNT> PlatformState::GPR::GPRegNames = {
 
 PlatformState::PlatformState()
 {
+	clear();
 }
 
 IState *PlatformState::clone() const
