@@ -56,6 +56,7 @@ public:
 #elif defined EDB_ARM32
 			GPR,
 			CPSR,
+			ExpandedCPSR,
 #else
 #	error "Not implemented"
 #endif

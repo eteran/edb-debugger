@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "armGroups.h"
 #include "ODbgRV_Util.h"
+#include <unordered_map>
 
 namespace ODbgRegisterView {
 
@@ -43,4 +44,62 @@ RegisterGroup *createCPSR(RegisterViewModelBase::Model *model, QWidget *parent)
 	return group;
 }
 
+RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *parent) {
+	using namespace RegisterViewModelBase;
+
+	const auto catIndex = findModelCategory(model, "General Status");
+	if (!catIndex.isValid())
+		return nullptr;
+	auto regNameIndex = findModelRegister(catIndex, "CPSR");
+	if (!regNameIndex.isValid())
+		return nullptr;
+	const auto   group     = new RegisterGroup(QObject::tr("Expanded CPSR"), parent);
+	static const std::unordered_map<char, QString> flagTooltips = {
+		{'N', QObject::tr("Negative result flag")},
+		{'Z', QObject::tr("Zero result flag")},
+		{'C', QObject::tr("Carry flag")},
+		{'V', QObject::tr("Overflow flag")},
+		{'Q', QObject::tr("Sticky saturation/overflow flag")},
+		{'J', QObject::tr("Jazelle state flag")},
+		{'E', QObject::tr("Big endian state flag")},
+		{'T', QObject::tr("Thumb state flag")},
+	};
+	// NOTE: NZCV is intended to align with corresponding name/value fields in FPSCR
+	for (int row = 0, groupCol = 28; row < model->rowCount(regNameIndex); ++row) {
+		const auto flagNameIndex  = model->index(row, MODEL_NAME_COLUMN, regNameIndex);
+		const auto flagValueIndex = model->index(row, MODEL_VALUE_COLUMN, regNameIndex);
+		const auto flagName       = model->data(flagNameIndex).toString().toUpper();
+		if (flagName.length() != 1)
+			continue;
+		static const int flagNameWidth = 1;
+		static const int valueWidth    = 1;
+		const char       name          = flagName[0].toLatin1();
+
+		switch (name) {
+		case 'N':
+		case 'Z':
+		case 'C':
+		case 'V':
+		case 'Q':
+		case 'J':
+		case 'E':
+		case 'T': {
+			const auto nameField = new FieldWidget(QChar(name), group);
+			group->insert(0, groupCol, nameField);
+			const auto valueField = new ValueField(valueWidth, flagValueIndex, group);
+			group->insert(1, groupCol, valueField);
+			groupCol-=2;
+
+			const auto tooltipStr = flagTooltips.at(name);
+			nameField->setToolTip(tooltipStr);
+			valueField->setToolTip(tooltipStr);
+
+			break;
+		}
+		default:
+			continue;
+		}
+	}
+	return group;
+}
 }

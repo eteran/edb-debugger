@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace ODbgRegisterView {
 
 RegisterGroup *createCPSR(RegisterViewModelBase::Model *model, QWidget *parent);
+RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *parent);
 
 }
 
