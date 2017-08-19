@@ -22,6 +22,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #	include "x86Groups.h"
 #	include "ODbgRV_x86Common.h"
 #	include "DialogEditFPU.h"
+#elif defined EDB_ARM32
+#	include "armGroups.h"
 #endif
 #include "Configuration.h"
 #include "DialogEditGPR.h"
@@ -68,7 +70,8 @@ constexpr auto registerGroupTypeNames = util::make_array<const char *>(
 		"AVXData",
 		"MXCSR"
 #elif defined EDB_ARM32
-		"GPR"
+		"GPR",
+		"CPSR"
 #else
 #	error "Not implemented"
 #endif
@@ -482,6 +485,7 @@ ODBRegView::ODBRegView(QString const &settingsGroup, QWidget *parent)
 			RegisterGroupType::MXCSR,
 #elif defined EDB_ARM32
 			RegisterGroupType::GPR,
+			RegisterGroupType::CPSR,
 #else
 #	error "Not implemented"
 #endif
@@ -668,6 +672,9 @@ RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {
 		nameValCommentIndices.emplace_back(findModelRegister(catIndex, "EIP"));
 		break;
 	}
+#elif defined EDB_ARM32
+	case RegisterGroupType::CPSR:
+		return createCPSR(model_, widget());
 #endif
 	default:
 		qWarning() << "Warning: unexpected register group type requested in" << Q_FUNC_INFO;

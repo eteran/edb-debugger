@@ -37,6 +37,12 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 		DialogEditFPU.cpp
 	)
 endif()
+if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
+	set(PluginSources
+		${PluginSources}
+		armGroups.cpp
+	)
+endif()
 
 # we put the header files from the include directory here
 # too so automoc can "just work"

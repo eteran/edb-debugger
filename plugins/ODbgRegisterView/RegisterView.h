@@ -55,6 +55,7 @@ public:
 			MXCSR,
 #elif defined EDB_ARM32
 			GPR,
+			CPSR,
 #else
 #	error "Not implemented"
 #endif
