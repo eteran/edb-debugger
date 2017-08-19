@@ -171,6 +171,13 @@ void updateCPSR(RegisterViewModel& model, State const& state) {
 void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
 
 	auto& model = getModel();
+	if(state.empty()) {
+		model.setCPUMode(RegisterViewModel::CPUMode::UNKNOWN);
+		return;
+	}
+
+	model.setCPUMode(RegisterViewModel::CPUMode::Defined);
+
 	updateGPRs(model,state,default_region_name);
 	updateCPSR(model,state);
 

@@ -132,3 +132,29 @@ void RegisterViewModel::updateCPSR(edb::value32 val, QString const& comment)
 {
 	updateRegister<CPSR>(genStatusRegs,CPSR_ROW,val,comment);
 }
+
+void RegisterViewModel::showAll()
+{
+	gprs->show();
+	genStatusRegs->show();
+}
+
+void RegisterViewModel::setCPUMode(CPUMode newMode)
+{
+	if(mode==newMode) return;
+
+	beginResetModel();
+	mode=newMode;
+	switch(newMode)
+	{
+	case CPUMode::UNKNOWN:
+		hideAll();
+		break;
+	case CPUMode::Defined:
+		showAll();
+		break;
+	default:
+		EDB_PRINT_AND_DIE("Invalid newMode value ",(long)newMode);
+	}
+	endResetModel();
+}
