@@ -97,6 +97,8 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject* parent)
 {
 	addGPRs(gprs);
 	addGenStatusRegs(genStatusRegs);
+
+	setCPUMode(CPUMode::UNKNOWN);
 }
 
 void invalidate(RegisterViewModelBase::Category* cat, int row, const char* nameToCheck)
