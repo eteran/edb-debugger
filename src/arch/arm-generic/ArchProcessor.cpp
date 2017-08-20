@@ -141,7 +141,7 @@ bool is_jcc_taken(const edb::reg_t cpsr, edb::Instruction::ConditionCode cond) {
 	return taken;
 }
 
-static QLatin1String jumpConditionMnemonics[] = {
+static const QLatin1String jumpConditionMnemonics[] = {
 	QLatin1String("EQ"),  QLatin1String("NE"),
 	QLatin1String("HS"),  QLatin1String("LO"),
 	QLatin1String("MI"),  QLatin1String("PL"),
@@ -171,6 +171,13 @@ void updateCPSR(RegisterViewModel& model, State const& state) {
 void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
 
 	auto& model = getModel();
+	if(state.empty()) {
+		model.setCPUMode(RegisterViewModel::CPUMode::UNKNOWN);
+		return;
+	}
+
+	model.setCPUMode(RegisterViewModel::CPUMode::Defined);
+
 	updateGPRs(model,state,default_region_name);
 	updateCPSR(model,state);
 

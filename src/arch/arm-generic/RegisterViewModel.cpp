@@ -32,10 +32,17 @@ std::vector<RegisterViewModelBase::BitFieldDescription> cpsrDescription = {
 	{QLatin1String( "I" ),  7, 1},
 	{QLatin1String( "A" ),  8, 1},
 	{QLatin1String( "E" ),  9, 1},
-	{QLatin1String("GE" ), 16, 4},
-	{QLatin1String("ITa"), 20, 4},
+	{QLatin1String("IT2"), 10, 1},
+	{QLatin1String("IT3"), 11, 1},
+	{QLatin1String("IT4"), 12, 1},
+	{QLatin1String("ITbcond"), 13, 3},
+	{QLatin1String("GE0" ),16, 1},
+	{QLatin1String("GE1" ),17, 1},
+	{QLatin1String("GE2" ),18, 1},
+	{QLatin1String("GE3" ),19, 1},
 	{QLatin1String( "J" ), 24, 1},
-	{QLatin1String("ITb"), 25, 2},
+	{QLatin1String("IT0"), 25, 1},
+	{QLatin1String("IT1"), 26, 1},
 	{QLatin1String( "Q" ), 27, 1},
 	{QLatin1String( "V" ), 28, 1},
 	{QLatin1String( "C" ), 29, 1},
@@ -56,7 +63,9 @@ QVariant RegisterViewModel::data(QModelIndex const& index, int role) const {
 		const auto name=reg->data(NAME_COLUMN).toString();
 		if(index.column()==NAME_COLUMN && name.length()>=2)
 		{
-			if(name[0]=='r' && '0'<name[1] && name[1]<'9')
+			const auto nameLower=name.toLower();
+			if((nameLower[0]=='r' && '0'<=nameLower[1] && nameLower[1]<='9') ||
+					nameLower=="sp" || nameLower=="lr" || nameLower=="pc")
 				return 3;
 		}
 	}
@@ -95,6 +104,8 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject* parent)
 {
 	addGPRs(gprs);
 	addGenStatusRegs(genStatusRegs);
+
+	setCPUMode(CPUMode::UNKNOWN);
 }
 
 void invalidate(RegisterViewModelBase::Category* cat, int row, const char* nameToCheck)
@@ -129,4 +140,30 @@ void RegisterViewModel::updateGPR(std::size_t i, edb::value32 val, QString const
 void RegisterViewModel::updateCPSR(edb::value32 val, QString const& comment)
 {
 	updateRegister<CPSR>(genStatusRegs,CPSR_ROW,val,comment);
+}
+
+void RegisterViewModel::showAll()
+{
+	gprs->show();
+	genStatusRegs->show();
+}
+
+void RegisterViewModel::setCPUMode(CPUMode newMode)
+{
+	if(mode==newMode) return;
+
+	beginResetModel();
+	mode=newMode;
+	switch(newMode)
+	{
+	case CPUMode::UNKNOWN:
+		hideAll();
+		break;
+	case CPUMode::Defined:
+		showAll();
+		break;
+	default:
+		EDB_PRINT_AND_DIE("Invalid newMode value ",(long)newMode);
+	}
+	endResetModel();
 }

@@ -15,21 +15,38 @@ else(Qt5Core_FOUND)
 	include(${QT_USE_FILE})
 endif()
 
-# we put the header files from the include directory here
-# too so automoc can "just work"
-add_library(${PluginName} SHARED
-	DialogEditFPU.cpp
+set(PluginSources
 	DialogEditGPR.cpp
-	Float80Edit.cpp
 	GPREdit.cpp
 	Plugin.cpp
 	Plugin.h
 	RegisterView.cpp
 	RegisterView.h
+	ValueField.cpp
+	FieldWidget.cpp
 	DialogEditSIMDRegister.cpp
 	NumberEdit.cpp
 	EntryGridKeyUpDownEventFilter.cpp
 )
+if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64"))
+	set(PluginSources
+		${PluginSources}
+		x86Groups.cpp
+		x86FPUValueField.cpp
+		Float80Edit.cpp
+		DialogEditFPU.cpp
+	)
+endif()
+if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
+	set(PluginSources
+		${PluginSources}
+		armGroups.cpp
+	)
+endif()
+
+# we put the header files from the include directory here
+# too so automoc can "just work"
+add_library(${PluginName} SHARED ${PluginSources})
 
 if(Qt5Core_FOUND)
 	target_link_libraries(${PluginName} Qt5::Widgets)
