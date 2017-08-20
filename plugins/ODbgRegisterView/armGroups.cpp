@@ -100,6 +100,30 @@ RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *
 			continue;
 		}
 	}
+	{
+		const auto geNameField = new FieldWidget(QLatin1String("GE"), group);
+		geNameField->setToolTip(QObject::tr("Greater than or Equal flags"));
+		group->insert(1, 1, geNameField);
+		for(int geIndex=3; geIndex>-1; --geIndex)
+		{
+			const int groupCol=4+2*(3-geIndex);
+			const auto tooltipStr=QString("GE%1").arg(geIndex);
+			{
+				const auto nameField = new FieldWidget(QString::number(geIndex), group);
+				group->insert(0, groupCol, nameField);
+				nameField->setToolTip(tooltipStr);
+			}
+			const auto indexInModel=findModelRegister(regNameIndex, QString("GE%1").arg(geIndex));
+			if(!indexInModel.isValid())
+				continue;
+			const auto valueIndex=indexInModel.sibling(indexInModel.row(), MODEL_VALUE_COLUMN);
+			if(!valueIndex.isValid())
+				continue;
+			const auto valueField = new ValueField(1, valueIndex, group);
+			group->insert(1, groupCol, valueField);
+			valueField->setToolTip(tooltipStr);
+		}
+	}
 	return group;
 }
 }
