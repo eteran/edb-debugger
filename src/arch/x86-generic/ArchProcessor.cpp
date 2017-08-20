@@ -581,7 +581,7 @@ bool is_jcc_taken(const State &state, edb::Instruction::ConditionCode cond) {
 	return is_jcc_taken(state.flags(),cond);
 }
 
-static QLatin1String jumpConditionMnemonics[] = {
+static const QLatin1String jumpConditionMnemonics[] = {
 	QLatin1String("O"),  QLatin1String("NO"),
 	QLatin1String("B"),  QLatin1String("AE"),
 	QLatin1String("E"),  QLatin1String("NE"),
