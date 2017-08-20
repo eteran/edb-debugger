@@ -132,10 +132,10 @@ RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *
 	{
 		const auto geNameField = new FieldWidget(QLatin1String("GE"), group);
 		geNameField->setToolTip(QObject::tr("Greater than or Equal flags"));
-		group->insert(1, 1, geNameField);
+		group->insert(1, 0, geNameField);
 		for(int geIndex=3; geIndex>-1; --geIndex)
 		{
-			const int groupCol=4+2*(3-geIndex);
+			const int groupCol=5+2*(3-geIndex);
 			const auto tooltipStr=QString("GE%1").arg(geIndex);
 			{
 				const auto nameField = new FieldWidget(QString::number(geIndex), group);
