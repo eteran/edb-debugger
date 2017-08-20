@@ -18,8 +18,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "armGroups.h"
 #include "ODbgRV_Util.h"
 #include <unordered_map>
+#include <QDebug>
 
 namespace ODbgRegisterView {
+
+namespace {
+
+const BitFieldDescription itBaseCondDescription = {
+	2,
+	{
+		"EQ",
+		"HS",
+		"MI",
+		"VS",
+		"HI",
+		"GE",
+		"GT",
+		"AL"
+	},
+	{
+		QObject::tr("Set EQ"),
+		QObject::tr("Set HS"),
+		QObject::tr("Set MI"),
+		QObject::tr("Set VS"),
+		QObject::tr("Set HI"),
+		QObject::tr("Set GE"),
+		QObject::tr("Set GT"),
+		QObject::tr("Set AL")
+	}
+};
+
+}
 
 RegisterGroup *createCPSR(RegisterViewModelBase::Model *model, QWidget *parent)
 {
@@ -122,6 +151,58 @@ RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *
 			const auto valueField = new ValueField(1, valueIndex, group);
 			group->insert(1, groupCol, valueField);
 			valueField->setToolTip(tooltipStr);
+		}
+	}
+	{
+		int column=0;
+		enum { labelRow=2, valueRow };
+		{
+			const auto itNameField = new FieldWidget(QLatin1String("IT"), group);
+			itNameField->setToolTip(QObject::tr("If-Then block state"));
+			group->insert(valueRow, column, itNameField);
+			column+=3;
+		}
+		{
+			// Using textual names for instructions numbering to avoid confusion between base-0 and base-1 counting
+			static const QString tooltips[]=
+			{
+				QObject::tr("Lowest bit of IT-block condition for first instruction"),
+				QObject::tr("Lowest bit of IT-block condition for second instruction"),
+				QObject::tr("Lowest bit of IT-block condition for third instruction"),
+				QObject::tr("Lowest bit of IT-block condition for fourth instruction"),
+				QObject::tr("Flag marking active four-instruction IT-block"),
+			};
+			for(int i=4; i>=0; --i, column+=2)
+			{
+				const auto nameIndex=findModelRegister(regNameIndex, QString("IT%1").arg(i));
+				const auto valueIndex=nameIndex.sibling(nameIndex.row(), MODEL_VALUE_COLUMN);
+				if(!valueIndex.isValid())
+					continue;
+				const auto valueField=new ValueField(valueRow, valueIndex, group);
+				group->insert(valueRow, column, valueField);
+				const auto tooltip = tooltips[4-i];
+				valueField->setToolTip(tooltip);
+				const auto nameField=new FieldWidget(QString::number(i), group);
+				group->insert(labelRow, column, nameField);
+				nameField->setToolTip(tooltip);
+			}
+		}
+		{
+			const auto itBaseCondNameIndex=findModelRegister(regNameIndex, QString("ITbcond").toUpper());
+			const auto itBaseCondValueIndex=itBaseCondNameIndex.sibling(itBaseCondNameIndex.row(), MODEL_VALUE_COLUMN);
+			if(itBaseCondValueIndex.isValid())
+			{
+				const auto itBaseCondField=new MultiBitFieldWidget(itBaseCondValueIndex, itBaseCondDescription, group);
+				group->insert(valueRow, column, itBaseCondField);
+				const auto tooltip=QObject::tr("IT base condition");
+				itBaseCondField->setToolTip(tooltip);
+				const auto labelField=new FieldWidget("BC", group);
+				group->insert(labelRow, column, labelField);
+				labelField->setToolTip(tooltip);
+			}
+			else
+				qWarning() << "Failed to find IT base condition index in the model";
+			column+=3;
 		}
 	}
 	return group;
