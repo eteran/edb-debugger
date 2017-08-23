@@ -178,7 +178,7 @@ RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *
 				const auto valueIndex=nameIndex.sibling(nameIndex.row(), MODEL_VALUE_COLUMN);
 				if(!valueIndex.isValid())
 					continue;
-				const auto valueField=new ValueField(valueRow, valueIndex, group);
+				const auto valueField=new ValueField(1, valueIndex, group);
 				group->insert(valueRow, column, valueField);
 				const auto tooltip = tooltips[4-i];
 				valueField->setToolTip(tooltip);
