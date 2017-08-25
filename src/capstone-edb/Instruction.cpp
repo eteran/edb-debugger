@@ -253,9 +253,30 @@ Instruction::ConditionCode Instruction::condition_code() const {
 			return static_cast<ConditionCode>(opcode[0] & 0xf);
 		}
 	}
-#endif
-	// FIXME(ARM): this is a stub
 	return CC_UNCONDITIONAL;
+#elif defined EDB_ARM32
+	switch(insn_->detail->arm.cc)
+	{
+	case ARM_CC_EQ: return CC_EQ;
+	case ARM_CC_NE: return CC_NE;
+	case ARM_CC_HS: return CC_HS;
+	case ARM_CC_LO: return CC_LO;
+	case ARM_CC_MI: return CC_MI;
+	case ARM_CC_PL: return CC_PL;
+	case ARM_CC_VS: return CC_VS;
+	case ARM_CC_VC: return CC_VC;
+	case ARM_CC_HI: return CC_HI;
+	case ARM_CC_LS: return CC_LS;
+	case ARM_CC_GE: return CC_GE;
+	case ARM_CC_LT: return CC_LT;
+	case ARM_CC_GT: return CC_GT;
+	case ARM_CC_LE: return CC_LE;
+	case ARM_CC_AL: return CC_AL;
+	default: return CC_AL;
+	}
+#else
+#	error "Not implemented"
+#endif
 }
 
 void Instruction::swap(Instruction &other) {

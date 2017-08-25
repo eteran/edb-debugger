@@ -101,6 +101,7 @@ public:
 
 public:
 	enum ConditionCode : uint8_t {
+#if defined EDB_X86 || defined EDB_X86_64
 		CC_UNCONDITIONAL = 0x10, // value must be higher than 0xF
 		CC_CXZ,
 		CC_ECXZ,
@@ -133,6 +134,25 @@ public:
 		CC_GE  = CC_NL,
 		CC_NLE = CC_LE | 1,
 		CC_G   = CC_NLE
+#elif defined EDB_ARM32
+		CC_EQ = 0,
+		CC_NE,
+		CC_HS,
+		CC_LO,
+		CC_MI,
+		CC_PL,
+		CC_VS,
+		CC_VC,
+		CC_HI,
+		CC_LS,
+		CC_GE,
+		CC_LT,
+		CC_GT,
+		CC_LE,
+		CC_AL,
+#else
+#	error "Not implemented"
+#endif
 	};
 	
 	ConditionCode condition_code() const;
