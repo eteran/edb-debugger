@@ -130,4 +130,28 @@ long PlatformThread::set_debug_register(std::size_t n, long value) {
 	return 0;
 }
 
+Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
+
+	return Status(QObject::tr("single-stepping is not yet implemented."));
+}
+
+//------------------------------------------------------------------------------
+// Name: step
+// Desc: steps this thread one instruction, passing the signal that stopped it
+//       (unless the signal was SIGSTOP)
+//------------------------------------------------------------------------------
+Status PlatformThread::step() {
+	return doStep(tid_, resume_code(status_));
+}
+
+//------------------------------------------------------------------------------
+// Name: step
+// Desc: steps this thread one instruction, passing the signal that stopped it
+//       (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
+//------------------------------------------------------------------------------
+Status PlatformThread::step(edb::EVENT_STATUS status) {
+	const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(status_) : 0;
+	return doStep(tid_, code);
+}
+
 }
