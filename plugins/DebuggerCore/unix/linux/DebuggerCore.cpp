@@ -499,6 +499,16 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 	}
 
 	stop_threads();
+#if defined EDB_ARM32
+	if(it != threads_.end()) {
+		const auto& thread=*it;
+		if(thread->singleStepBreakpoint) {
+
+			remove_breakpoint(thread->singleStepBreakpoint);
+			thread->singleStepBreakpoint=nullptr;
+		}
+	}
+#endif
 	return e;
 }
 
