@@ -87,6 +87,7 @@ int PlatformThread::priority() const  {
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t PlatformThread::instruction_pointer() const  {
+	// FIXME(ARM): doesn't work at least on ARM32
 	struct user_stat thread_stat;
 	int n = get_user_stat(QString("/proc/%1/task/%2/stat").arg(process_->pid()).arg(tid_), &thread_stat);
 	if(n >= 18) {
