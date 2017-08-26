@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtDebug>
 #include "State.h"
 #include "Types.h"
+#include "ArchProcessor.h"
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
@@ -177,10 +178,10 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 				case ARM_INS_B:
 				case ARM_INS_BL:
 				{
+					if(!edb::v1::arch_processor().is_executed(insn,state))
+						break;
 					if(opCount!=1)
 						return Status(QObject::tr("unexpected form of branch instruction with %1 operands.").arg(opCount));
-					if(insn.condition_code()!=edb::Instruction::CC_AL)
-						return Status(QObject::tr("conditional instructions aren't supported yet."));
 					const auto& op=insn.operand(0);
 					assert(op);
 					if(is_immediate(op))
