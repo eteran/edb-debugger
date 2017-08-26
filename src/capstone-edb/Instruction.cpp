@@ -351,18 +351,18 @@ std::string Formatter::to_string(const Instruction &insn) const {
 
 	std::ostringstream s;
 	s << insn->mnemonic;
+	std::string space=" ";
+	if (options_.tabBetweenMnemonicAndOperands) {
+		const auto pos = s.tellp();
+		const auto pad = pos < tab1Size ? tab1Size - pos : pos < tab2Size ? tab2Size - pos : 1;
+		space=std::string(pad, ' ');
+	}
 	if (insn.operand_count() > 0) // prevent addition of trailing whitespace
 	{
-		if (options_.tabBetweenMnemonicAndOperands) {
-			const auto pos = s.tellp();
-			const auto pad = pos < tab1Size ? tab1Size - pos : pos < tab2Size ? tab2Size - pos : 1;
-			s << std::string(pad, ' ');
-		} else {
-			s << ' ';
-		}
-		s << adjustInstructionText(insn).toStdString();
-	} else {
-		assert(insn->op_str[0] == 0);
+		s << space << adjustInstructionText(insn).toStdString();
+	} else if(insn->op_str[0] != 0) {
+		// This may happen for instructions like IT in Thumb-2: e.g. ITT NE
+		s << space << insn->op_str;
 	}
 
 	auto str = s.str();
