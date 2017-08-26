@@ -660,7 +660,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 		pid_            = pid;
 		active_thread_  = pid;
 		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
-		detectDebuggeeBitness();
+		detectCPUMode();
 		return Status::Ok;
 	}
 
@@ -719,7 +719,7 @@ void DebuggerCore::kill() {
 	}
 }
 
-void DebuggerCore::detectDebuggeeBitness() {
+void DebuggerCore::detectCPUMode() {
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	const size_t offset=EDB_IS_64_BIT ?
@@ -913,7 +913,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
             active_thread_  = pid;
 			binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
-			detectDebuggeeBitness();
+			detectCPUMode();
 
 			return Status::Ok;
 		} while(0);

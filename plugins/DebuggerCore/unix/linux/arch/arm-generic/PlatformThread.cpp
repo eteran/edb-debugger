@@ -95,7 +95,7 @@ bool PlatformThread::fillStateFromSimpleRegs(PlatformState* state) {
 void PlatformThread::get_state(State *state) {
 	// TODO: assert that we are paused
 
-	core_->detectDebuggeeBitness();
+	core_->detectCPUMode();
 
 	if(auto state_impl = static_cast<PlatformState *>(state->impl_)) {
 
