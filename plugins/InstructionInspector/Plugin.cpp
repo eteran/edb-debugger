@@ -689,7 +689,13 @@ struct NormalizeFailure{};
 QString normalizeOBJDUMP(QString const& text,int bits)
 {
 	auto parts=text.split('\t');
+#if defined EDB_X86 || defined EDB_X86_64
 	if(parts.size()!=3) return text+" ; unexpected format";
+#elif defined EDB_ARM32
+	if(parts.size()<3) return text+" ; unexpected format";
+#else
+	return text+" ; WARNING: InstructionInspector's normalization is not implemented for this arch";
+#endif
 	auto& addr=parts[0];
 	auto& bytes=parts[1];
 	auto& disasm=parts[2];
@@ -698,6 +704,15 @@ QString normalizeOBJDUMP(QString const& text,int bits)
 	addr=addr.left(addr.size()-1).rightJustified(bits/4,'0');
 	bytes=bytes.trimmed().toUpper();
 	disasm=disasm.trimmed().replace(QRegExp("  +")," ");
+#if defined EDB_ARM32
+	// ARM objdump prints instruction bytes as a word instead of separate bytes. We won't
+	// change this format, but will align the disassembly.
+	if(bytes.size()>2)
+		bytes=bytes.leftJustified(bytes.size()*3/2-1);
+	// operands and comments are separated by a one or more tabs on ARM
+	for(unsigned i=3;i<parts.size();++i)
+		disasm+=" "+parts[i];
+#endif
 	return addr+"   "+bytes+"   "+disasm;
 }
 
