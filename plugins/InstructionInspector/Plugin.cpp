@@ -719,11 +719,22 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 	process.start(processName.c_str(),
 							{
 							"-D",
-							"--insn-width=15",
 							"--target=binary",
+#if defined EDB_X86 || defined EDB_X86_64
+							"--insn-width=15",
 							"--architecture=i386"+QString(bits==64?":x86-64":""),
 							"-M",
 							"intel,intel-mnemonic",
+#elif defined EDB_ARM32
+							"--insn-width=4",
+							"-m",
+							"arm",
+							edb::v1::debugger_core->cpu_mode()==IDebugger::CPUMode::Thumb ?
+								"-Mforce-thumb" :
+								"-Mno-force-thumb",
+#else
+#	error "Not implemented"
+#endif
 							"--adjust-vma="+address.toPointerString(),
 							binary.fileName()
 							});
