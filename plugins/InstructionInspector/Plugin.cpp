@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "Util.h"
 #include "Configuration.h"
+#include "IDebugger.h"
 #include <QMenu>
 #include <QDebug>
 #include <QMessageBox>
@@ -486,7 +487,9 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 					//	and need to select the right one. Also need to choose from
 					//	* CS_MODE_LITTLE_ENDIAN and
 					//	* CS_MODE_BIG_ENDIAN
-					static_cast<cs_mode>(CS_MODE_ARM|CS_MODE_LITTLE_ENDIAN)
+					static_cast<cs_mode>(
+							(edb::v1::debugger_core->cpu_mode()==IDebugger::CPUMode::Thumb ? CS_MODE_THUMB : CS_MODE_ARM)|
+							CS_MODE_LITTLE_ENDIAN)
 #else
 #	error "What value should mode have?"
 #endif
