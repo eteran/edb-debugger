@@ -38,8 +38,6 @@ constexpr std::array<quint8, 4> BreakpointInstructionThumb2_LE = { 0xf0, 0xf7, 0
 //------------------------------------------------------------------------------
 Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false) {
 
-	std::fill(original_bytes_.begin(), original_bytes_.end(), 0xff);
-
 	if(!enable()) {
 		throw breakpoint_creation_error();
 	}
@@ -60,10 +58,20 @@ Breakpoint::~Breakpoint() {
 bool Breakpoint::enable() {
 	if(!enabled()) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			std::array<quint8, 4> prev;
-			if(process->read_bytes(address(), &prev[0], prev.size())) {
+			std::vector<quint8> prev(4);
+			prev.resize(process->read_bytes(address(), &prev[0], prev.size()));
+			if(prev.size()) {
 				original_bytes_ = prev;
-				if(process->write_bytes(address(), &BreakpointInstructionARM_LE[0], BreakpointInstructionARM_LE.size())) {
+
+				const quint8* bpBytes=&BreakpointInstructionARM_LE[0];
+				auto size=BreakpointInstructionARM_LE.size();
+				if(edb::v1::debugger_core->cpu_mode()==IDebugger::CPUMode::Thumb) {
+					bpBytes=&BreakpointInstructionThumb_LE[0];
+					size=BreakpointInstructionThumb_LE.size();
+					original_bytes_.resize(size);
+				}
+
+				if(process->write_bytes(address(), bpBytes, size)) {
 					enabled_ = true;
 					return true;
 				}
