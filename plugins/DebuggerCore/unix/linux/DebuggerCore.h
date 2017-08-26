@@ -44,6 +44,7 @@ class DebuggerCore : public DebuggerCoreUNIX {
 	friend class PlatformProcess;
 	friend class PlatformThread;
 
+	CPUMode cpu_mode() const override { return cpu_mode_; }
 public:
 	DebuggerCore();
 	virtual ~DebuggerCore() override;
@@ -122,6 +123,7 @@ private:
 	MeansOfCapture	         lastMeansOfCapture = MeansOfCapture::NeverCaptured;
 	bool                     proc_mem_write_broken_;
 	bool                     proc_mem_read_broken_;
+	CPUMode					 cpu_mode_=CPUMode::Unknown;
 };
 
 }

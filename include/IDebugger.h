@@ -43,10 +43,25 @@ public:
 	virtual ~IDebugger() = default;
 
 public:
+	enum class CPUMode {
+		Unknown,
+#if defined EDB_X86 || defined EDB_X86_64
+		x86_16,
+		x86_32,
+		x86_64,
+#elif defined EDB_ARM32 || defined EDB_ARM64
+		ARM32,
+		Thumb,
+		ARM64,
+#endif
+	};
+
+public:
 	// system properties
     virtual edb::address_t           page_size() const = 0;
     virtual std::size_t              pointer_size() const = 0;
     virtual quint64                  cpu_type() const = 0;
+	virtual CPUMode                  cpu_mode() const = 0;
     virtual bool                     has_extension(quint64 ext) const = 0;
     virtual QMap<qlonglong, QString> exceptions() const = 0;
     virtual QString                  exceptionName(qlonglong value) = 0;
