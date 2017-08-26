@@ -37,7 +37,6 @@ enum class Architecture {
 };
 
 bool init(Architecture arch);
-bool isX86_64();
 
 class Instruction;
 class Formatter;
