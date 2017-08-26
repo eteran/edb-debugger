@@ -786,6 +786,7 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 	return "; Unknown error while running "+processName;
 }
 
+#if defined EDB_X86 || defined EDB_X86_64
 QString normalizeNDISASM(QString const& text,int bits)
 {
 	auto lines=text.split('\n');
@@ -1143,6 +1144,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address)
 		return "; Failed to start "+processName;
 	return "; Unknown error while running "+processName;
 }
+#endif
 
 
 void InstructionDialog::compareDisassemblers()
@@ -1152,15 +1154,19 @@ void InstructionDialog::compareDisassemblers()
 	message << "capstone:\n";
 	if(insn) message << address.toHexString().toUpper().toStdString() << "   " << printBytes(insn->bytes,insn->size) << "   " << insn->mnemonic << " " << insn->op_str;
 	else message << address.toHexString().toUpper().toStdString() << "   " << printBytes(insnBytes.data(),1) << "   db " << toHex(insnBytes[0]);
+#if defined EDB_X86 || defined EDB_X86_64
 	message << "\n\n";
 	message << "ndisasm:\n";
 	message << runNDISASM(insnBytes,address);
+#endif
 	message << "\n\n";
 	message << "objdump:\n";
 	message << runOBJDUMP(insnBytes,address);
+#if defined EDB_X86 || defined EDB_X86_64
 	message << "\n\n";
 	message << "objconv:\n";
 	message << runOBJCONV(insnBytes,address);
+#endif
 
 	compareButton->deleteLater();
 	auto* const splitter=new QSplitter(this);
