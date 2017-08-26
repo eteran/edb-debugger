@@ -201,3 +201,8 @@ RegisterViewModelBase::Model& ArchProcessor::get_register_view_model() const {
 void ArchProcessor::justAttached() {
 	just_attached_=true;
 }
+
+bool ArchProcessor::is_executed(const edb::Instruction &inst, const State &state) const
+{
+	return is_jcc_taken(state.flags(), inst.condition_code());
+}

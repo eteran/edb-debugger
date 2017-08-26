@@ -1559,3 +1559,8 @@ RegisterViewModelBase::Model& ArchProcessor::get_register_view_model() const {
 								   has_ymm_*RegisterViewModel::CPUFeatureBits::AVX);
     return model;
 }
+
+bool ArchProcessor::is_executed(const edb::Instruction &inst, const State &state) const
+{
+	return is_jcc_taken(state, inst.condition_code());
+}
