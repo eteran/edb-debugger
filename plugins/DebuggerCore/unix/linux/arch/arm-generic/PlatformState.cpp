@@ -20,23 +20,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
-const std::array<const char *, GPR_COUNT> PlatformState::GPR::GPRegNames = {
-	"r0",
-	"r1",
-	"r2",
-	"r3",
-	"r4",
-	"r5",
-	"r6",
-	"r7",
-	"r8",
-	"r9",
-	"r10",
-	"r11",
-	"r12",
-	"sp",
-	"lr",
-	"pc"
+const std::array<PlatformState::GPR::RegNameVariants, GPR_COUNT> PlatformState::GPR::GPRegNames = {
+	RegNameVariants{"r0" ,"a1" },
+	RegNameVariants{"r1" ,"a2" },
+	RegNameVariants{"r2" ,"a3" },
+	RegNameVariants{"r3" ,"a4" },
+	RegNameVariants{"r4" ,"v1" },
+	RegNameVariants{"r5" ,"v2" },
+	RegNameVariants{"r6" ,"v3" },
+	RegNameVariants{"r7" ,"v4" },
+	RegNameVariants{"r8" ,"v5" },
+	RegNameVariants{"r9" ,"sb", "v6"},
+	RegNameVariants{"r10","sl", "v7"},
+	RegNameVariants{"r11","fp", "v8"},
+	RegNameVariants{"r12","ip", "v6"},
+	RegNameVariants{"sp" ,"r13"},
+	RegNameVariants{"lr" ,"r14"},
+	RegNameVariants{"pc" ,"r15"}
 };
 
 PlatformState::PlatformState()
@@ -59,9 +59,28 @@ QString PlatformState::flags_to_string(edb::reg_t flags) const
 {
 	return "flags string"; // FIXME: stub
 }
+
+auto PlatformState::findGPR(QString const& name) const -> decltype(gpr.GPRegNames.begin())
+{
+	return std::find_if(GPR::GPRegNames.begin(), GPR::GPRegNames.end(),
+						[&name](GPR::RegNameVariants const& variants)
+						{
+							for(const char*const var : variants)
+								if(var==name)
+									return true;
+							return false;
+						});
+}
+
 Register PlatformState::value(const QString &reg) const
 {
-	return Register();  // FIXME: stub
+	const auto name=reg.toLower();
+	if(name=="cpsr")
+		return flags_register();
+	const auto gprFoundIt=findGPR(name);
+	if(gprFoundIt!=GPR::GPRegNames.end())
+		return gp_register(gprFoundIt-GPR::GPRegNames.begin());
+	return Register();
 }
 Register PlatformState::instruction_pointer_register() const
 {
@@ -144,7 +163,8 @@ void PlatformState::set_register(const QString &name, edb::reg_t value)
 Register PlatformState::gp_register(size_t n) const
 {
 #ifdef EDB_ARM32
-	return make_Register<32>(gpr.GPRegNames[n], gpr.GPRegs[n], Register::TYPE_GPR);
+	assert(n<GPR::GPRegNames.size());
+	return make_Register<32>(gpr.GPRegNames[n].front(), gpr.GPRegs[n], Register::TYPE_GPR);
 #else
 	return Register(); // FIXME: stub
 #endif
