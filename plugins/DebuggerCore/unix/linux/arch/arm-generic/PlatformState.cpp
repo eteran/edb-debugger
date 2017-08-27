@@ -146,19 +146,37 @@ void PlatformState::set_debug_register(size_t n, edb::reg_t value)
 }
 void PlatformState::set_flags(edb::reg_t flags)
 {
-	// FIXME: stub
+	gpr.cpsr=flags;
 }
 void PlatformState::set_instruction_pointer(edb::address_t value)
 {
-	// FIXME: stub
+	gpr.GPRegs[GPR::PC]=value;
 }
 void PlatformState::set_register(const Register &reg)
 {
-	// FIXME: stub
+	if(!reg) return;
+	const auto name=reg.name().toLower();
+	if(name=="cpsr")
+	{
+		set_flags(reg.value<edb::reg_t>());
+		return;
+	}
+	const auto gprFoundIt=findGPR(name);
+	if(gprFoundIt!=GPR::GPRegNames.end())
+	{
+		const auto index=gprFoundIt-GPR::GPRegNames.begin();
+		assert(index<16);
+		gpr.GPRegs[index]=reg.value<edb::reg_t>();
+		return;
+	}
 }
 void PlatformState::set_register(const QString &name, edb::reg_t value)
 {
-	// FIXME: stub
+#ifdef EDB_ARM32
+	const QString regName = name.toLower();
+	set_register(make_Register<32>(regName, value, Register::TYPE_GPR));
+	// FIXME: this doesn't take into account any 64-bit registers - possibly FPU data?
+#endif
 }
 Register PlatformState::gp_register(size_t n) const
 {
