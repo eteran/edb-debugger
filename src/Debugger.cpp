@@ -383,7 +383,6 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	gotoRIPAction_               = createAction(tr("&Goto %1").arg("EIP"),                           QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
 	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("PC"),         QKeySequence(tr("Ctrl+*")),   SLOT(mnuCPUSetEIP()));
-    setRIPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
 	gotoRIPAction_               = createAction(tr("&Goto %1").arg("PC"),                           QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
 #else
 #error "This doesn't initialize actions and will lead to crash"
