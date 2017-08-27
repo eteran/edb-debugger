@@ -161,15 +161,15 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 		{
 
 			const auto op=insn.operation();
-			if(op==ARM_INS_BXJ)
-				return Status(QObject::tr("EDB doesn't yet support single-stepping into Jazelle state."));
-			if(op==ARM_INS_BX || op==ARM_INS_BLX)
-				return Status(QObject::tr("EDB doesn't yet support single-stepping into/out of Thumb state."));
-
 			edb::address_t addrAfterInsn=pc+insn.byte_size();
 
-			if(modifies_pc(insn))
+			if(modifies_pc(insn) && edb::v1::arch_processor().is_executed(insn,state))
 			{
+				if(op==ARM_INS_BXJ)
+					return Status(QObject::tr("EDB doesn't yet support single-stepping into Jazelle state."));
+				if(op==ARM_INS_BX || op==ARM_INS_BLX)
+					return Status(QObject::tr("EDB doesn't yet support single-stepping into/out of Thumb state."));
+
 				const auto opCount=insn.operand_count();
 				if(opCount==0)
 					return Status(QObject::tr("instruction %1 isn't supported yet.").arg(insn.mnemonic().c_str()));
@@ -178,8 +178,6 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 				case ARM_INS_B:
 				case ARM_INS_BL:
 				{
-					if(!edb::v1::arch_processor().is_executed(insn,state))
-						break;
 					if(opCount!=1)
 						return Status(QObject::tr("unexpected form of branch instruction with %1 operands.").arg(opCount));
 					const auto& op=insn.operand(0);
