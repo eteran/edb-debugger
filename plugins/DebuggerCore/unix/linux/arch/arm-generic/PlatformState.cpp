@@ -74,6 +74,7 @@ Register PlatformState::instruction_pointer_register() const
 Register PlatformState::flags_register() const
 {
 #ifdef EDB_ARM32
+	if(!gpr.filled) return Register();
 	return make_Register<32>("cpsr", gpr.cpsr, Register::TYPE_GPR);
 #else
 	return Register();  // FIXME: stub
