@@ -71,6 +71,8 @@ bool Breakpoint::enable() {
 					original_bytes_.resize(size);
 				}
 
+				// FIXME: we don't check whether this breakpoint will overlap any of the existing breakpoints
+
 				if(process->write_bytes(address(), bpBytes, size)) {
 					enabled_ = true;
 					return true;
