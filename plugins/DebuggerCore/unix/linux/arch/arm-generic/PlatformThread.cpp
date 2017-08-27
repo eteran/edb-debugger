@@ -113,6 +113,11 @@ void PlatformThread::set_state(const State &state) {
 
 	if(auto state_impl = static_cast<PlatformState *>(state.impl_)) {
 
+		user_regs regs;
+		state_impl->fillStruct(regs);
+		if(ptrace(PTRACE_SETREGS, tid_, 0, &regs) == -1) {
+			perror("PTRACE_SETREGS failed");
+		}
 	}
 }
 

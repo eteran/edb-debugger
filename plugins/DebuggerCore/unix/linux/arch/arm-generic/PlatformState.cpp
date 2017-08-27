@@ -196,4 +196,16 @@ void PlatformState::fillFrom(user_regs const& regs)
 	gpr.filled=true;
 }
 
+void PlatformState::fillStruct(user_regs& regs) const
+{
+	util::markMemory(&regs, sizeof(regs));
+	if(gpr.filled)
+	{
+		for(unsigned i=0;i<gpr.GPRegs.size();++i)
+			regs.uregs[i]=gpr.GPRegs[i];
+		regs.uregs[16]=gpr.cpsr;
+		// FIXME: uregs[17] is not filled
+	}
+}
+
 }

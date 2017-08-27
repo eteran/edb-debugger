@@ -63,6 +63,7 @@ public:
 	Register gp_register(size_t n) const override;
 
 	void fillFrom(user_regs const& regs);
+	void fillStruct(user_regs& regs) const;
 private:
 	struct GPR {
 		enum NamedGPRIndex : size_t {
