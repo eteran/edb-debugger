@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PLATFORM_THREAD_20151013_H_
 
 #include "IThread.h"
+#include "IBreakpoint.h"
+#include <memory>
 #include <QCoreApplication>
 
 class IProcess;
@@ -83,6 +85,12 @@ private:
 	edb::tid_t          tid_;
 	int                 status_;
 	SignalStatus        signal_status_;
+
+#if defined EDB_ARM32 || defined EDB_ARM64
+private:
+	Status doStep(edb::tid_t tid, long status);
+	std::shared_ptr<IBreakpoint> singleStepBreakpoint;
+#endif
 };
 
 }

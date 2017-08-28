@@ -46,7 +46,7 @@ public:
 	virtual void set_internal(bool value) override;
 
 private:
-	std::array<quint8, 4> original_bytes_;
+	std::vector<quint8> original_bytes_;
 	edb::address_t        address_;
 	quint64               hit_count_;
 	bool                  enabled_ ;

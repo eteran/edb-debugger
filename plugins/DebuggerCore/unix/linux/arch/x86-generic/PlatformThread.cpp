@@ -163,7 +163,7 @@ bool PlatformThread::fillStateFromSimpleRegs(PlatformState* state) {
 void PlatformThread::get_state(State *state) {
 	// TODO: assert that we are paused
 
-	core_->detectDebuggeeBitness();
+	core_->detectCPUMode();
 
 	if(auto state_impl = static_cast<PlatformState *>(state->impl_)) {
 
@@ -308,6 +308,25 @@ unsigned long PlatformThread::get_debug_register(std::size_t n) {
 //------------------------------------------------------------------------------
 long PlatformThread::set_debug_register(std::size_t n, long value) {
 	return ptrace(PTRACE_POKEUSER, tid_, offsetof(struct user, u_debugreg[n]), value);
+}
+
+//------------------------------------------------------------------------------
+// Name: step
+// Desc: steps this thread one instruction, passing the signal that stopped it
+//       (unless the signal was SIGSTOP)
+//------------------------------------------------------------------------------
+Status PlatformThread::step() {
+	return core_->ptrace_step(tid_, resume_code(status_));
+}
+
+//------------------------------------------------------------------------------
+// Name: step
+// Desc: steps this thread one instruction, passing the signal that stopped it
+//       (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
+//------------------------------------------------------------------------------
+Status PlatformThread::step(edb::EVENT_STATUS status) {
+	const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(status_) : 0;
+	return core_->ptrace_step(tid_, code);
 }
 
 }

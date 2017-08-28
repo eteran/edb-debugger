@@ -136,6 +136,20 @@ void DialogAssembler::on_buttonBox_accepted() {
 	if(!asm_root.isNull()) {
 		QDomElement asm_executable = asm_root.firstChildElement("executable");
 		QDomElement asm_template   = asm_root.firstChildElement("template");
+#ifdef EDB_ARM32
+		const auto mode=edb::v1::debugger_core->cpu_mode();
+		while(mode==IDebugger::CPUMode::ARM32 && asm_template.attribute("mode")!="arm" ||
+			  mode==IDebugger::CPUMode::Thumb && asm_template.attribute("mode")!="thumb")
+		{
+			asm_template=asm_template.nextSiblingElement("template");
+			if(asm_template.isNull())
+			{
+				QMessageBox::critical(this, tr("Error running assembler"),
+									  tr("Failed to locate source file template for current CPU mode"));
+				return;
+			}
+		}
+#endif
 
 		const QString asm_name = asm_root.attribute("name");
 		const QString asm_cmd  = asm_executable.attribute("command_line");

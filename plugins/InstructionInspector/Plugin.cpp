@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "Util.h"
 #include "Configuration.h"
+#include "IDebugger.h"
 #include <QMenu>
 #include <QDebug>
 #include <QMessageBox>
@@ -486,7 +487,9 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 					//	and need to select the right one. Also need to choose from
 					//	* CS_MODE_LITTLE_ENDIAN and
 					//	* CS_MODE_BIG_ENDIAN
-					static_cast<cs_mode>(CS_MODE_ARM|CS_MODE_LITTLE_ENDIAN)
+					static_cast<cs_mode>(
+							(edb::v1::debugger_core->cpu_mode()==IDebugger::CPUMode::Thumb ? CS_MODE_THUMB : CS_MODE_ARM)|
+							CS_MODE_LITTLE_ENDIAN)
 #else
 #	error "What value should mode have?"
 #endif
@@ -686,7 +689,13 @@ struct NormalizeFailure{};
 QString normalizeOBJDUMP(QString const& text,int bits)
 {
 	auto parts=text.split('\t');
+#if defined EDB_X86 || defined EDB_X86_64
 	if(parts.size()!=3) return text+" ; unexpected format";
+#elif defined EDB_ARM32
+	if(parts.size()<3) return text+" ; unexpected format";
+#else
+	return text+" ; WARNING: InstructionInspector's normalization is not implemented for this arch";
+#endif
 	auto& addr=parts[0];
 	auto& bytes=parts[1];
 	auto& disasm=parts[2];
@@ -695,6 +704,15 @@ QString normalizeOBJDUMP(QString const& text,int bits)
 	addr=addr.left(addr.size()-1).rightJustified(bits/4,'0');
 	bytes=bytes.trimmed().toUpper();
 	disasm=disasm.trimmed().replace(QRegExp("  +")," ");
+#if defined EDB_ARM32
+	// ARM objdump prints instruction bytes as a word instead of separate bytes. We won't
+	// change this format, but will align the disassembly.
+	if(bytes.size()>2)
+		bytes=bytes.leftJustified(bytes.size()*3/2-1);
+	// operands and comments are separated by a one or more tabs on ARM
+	for(unsigned i=3;i<parts.size();++i)
+		disasm+=" "+parts[i];
+#endif
 	return addr+"   "+bytes+"   "+disasm;
 }
 
@@ -716,11 +734,22 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 	process.start(processName.c_str(),
 							{
 							"-D",
-							"--insn-width=15",
 							"--target=binary",
+#if defined EDB_X86 || defined EDB_X86_64
+							"--insn-width=15",
 							"--architecture=i386"+QString(bits==64?":x86-64":""),
 							"-M",
 							"intel,intel-mnemonic",
+#elif defined EDB_ARM32
+							"--insn-width=4",
+							"-m",
+							"arm",
+							edb::v1::debugger_core->cpu_mode()==IDebugger::CPUMode::Thumb ?
+								"-Mforce-thumb" :
+								"-Mno-force-thumb",
+#else
+#	error "Not implemented"
+#endif
 							"--adjust-vma="+address.toPointerString(),
 							binary.fileName()
 							});
@@ -757,6 +786,7 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 	return "; Unknown error while running "+processName;
 }
 
+#if defined EDB_X86 || defined EDB_X86_64
 QString normalizeNDISASM(QString const& text,int bits)
 {
 	auto lines=text.split('\n');
@@ -1114,6 +1144,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address)
 		return "; Failed to start "+processName;
 	return "; Unknown error while running "+processName;
 }
+#endif
 
 
 void InstructionDialog::compareDisassemblers()
@@ -1123,15 +1154,19 @@ void InstructionDialog::compareDisassemblers()
 	message << "capstone:\n";
 	if(insn) message << address.toHexString().toUpper().toStdString() << "   " << printBytes(insn->bytes,insn->size) << "   " << insn->mnemonic << " " << insn->op_str;
 	else message << address.toHexString().toUpper().toStdString() << "   " << printBytes(insnBytes.data(),1) << "   db " << toHex(insnBytes[0]);
+#if defined EDB_X86 || defined EDB_X86_64
 	message << "\n\n";
 	message << "ndisasm:\n";
 	message << runNDISASM(insnBytes,address);
+#endif
 	message << "\n\n";
 	message << "objdump:\n";
 	message << runOBJDUMP(insnBytes,address);
+#if defined EDB_X86 || defined EDB_X86_64
 	message << "\n\n";
 	message << "objconv:\n";
 	message << runOBJCONV(insnBytes,address);
+#endif
 
 	compareButton->deleteLater();
 	auto* const splitter=new QSplitter(this);

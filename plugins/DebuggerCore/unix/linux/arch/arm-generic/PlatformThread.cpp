@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformState.h"
 #include <QtDebug>
 #include "State.h"
+#include "Types.h"
+#include "ArchProcessor.h"
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
@@ -93,7 +95,7 @@ bool PlatformThread::fillStateFromSimpleRegs(PlatformState* state) {
 void PlatformThread::get_state(State *state) {
 	// TODO: assert that we are paused
 
-	core_->detectDebuggeeBitness();
+	core_->detectCPUMode();
 
 	if(auto state_impl = static_cast<PlatformState *>(state->impl_)) {
 
@@ -128,6 +130,100 @@ unsigned long PlatformThread::get_debug_register(std::size_t n) {
 //------------------------------------------------------------------------------
 long PlatformThread::set_debug_register(std::size_t n, long value) {
 	return 0;
+}
+
+Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
+
+	State state;
+	get_state(&state);
+	if(state.empty()) return Status(QObject::tr("failed to get thread state."));
+	const auto pc=state.instruction_pointer();
+	const auto flags=state.flags();
+	enum {
+		CPSR_Tbit     = 1<<5,
+
+		CPSR_ITbits72 = 1<<10,
+		CPSR_ITmask72 = 0xfc00,
+
+		CPSR_Jbit     = 1<<24,
+
+		CPSR_ITbits10 = 1<<25,
+		CPSR_ITmask10 = 0x06000000,
+	};
+	if(flags & CPSR_Jbit)
+		return Status(QObject::tr("EDB doesn't yet support single-stepping in Jazelle state."));
+	if(flags&CPSR_Tbit && flags&(CPSR_ITmask10 | CPSR_ITmask72))
+		return Status(QObject::tr("EDB doesn't yet support single-stepping inside Thumb-2 IT-block."));
+	quint8 buffer[4];
+	if(const int size = edb::v1::get_instruction_bytes(pc, buffer))
+	{
+		if(const auto insn=edb::Instruction(buffer, buffer + size, pc))
+		{
+
+			const auto op=insn.operation();
+			edb::address_t addrAfterInsn=pc+insn.byte_size();
+
+			if(modifies_pc(insn) && edb::v1::arch_processor().is_executed(insn,state))
+			{
+				if(op==ARM_INS_BXJ)
+					return Status(QObject::tr("EDB doesn't yet support single-stepping into Jazelle state."));
+				if(op==ARM_INS_BX || op==ARM_INS_BLX)
+					return Status(QObject::tr("EDB doesn't yet support single-stepping into/out of Thumb state."));
+
+				const auto opCount=insn.operand_count();
+				if(opCount==0)
+					return Status(QObject::tr("instruction %1 isn't supported yet.").arg(insn.mnemonic().c_str()));
+				switch(op)
+				{
+				case ARM_INS_B:
+				case ARM_INS_BL:
+				{
+					if(opCount!=1)
+						return Status(QObject::tr("unexpected form of branch instruction with %1 operands.").arg(opCount));
+					const auto& op=insn.operand(0);
+					assert(op);
+					if(is_immediate(op))
+					{
+						addrAfterInsn=edb::address_t(util::to_unsigned(op->imm));
+						break;
+					}
+
+					return Status(QObject::tr("EDB doesn't yet support indirect branch instructions."));
+				}
+				default:
+					return Status(QObject::tr("instruction %1 modifies PC, but isn't a branch instruction known to EDB's single-stepper.").arg(insn.mnemonic().c_str()));
+				}
+			}
+
+			singleStepBreakpoint=core_->add_breakpoint(addrAfterInsn);
+			if(!singleStepBreakpoint)
+				return Status(QObject::tr("failed to set breakpoint at address %1.").arg(addrAfterInsn.toPointerString()));
+			singleStepBreakpoint->set_one_time(true); // TODO: don't forget to remove it once we've paused after this, even if the BP wasn't hit (e.g. due to an exception on current instruction)
+			singleStepBreakpoint->set_internal(true);
+			return core_->ptrace_continue(tid, status);
+		}
+		return Status(QObject::tr("failed to disassemble instruction at address %1.").arg(pc.toPointerString()));
+	}
+	return Status(QObject::tr("failed to get instruction bytes at address %1.").arg(pc.toPointerString()));
+}
+
+//------------------------------------------------------------------------------
+// Name: step
+// Desc: steps this thread one instruction, passing the signal that stopped it
+//       (unless the signal was SIGSTOP)
+//------------------------------------------------------------------------------
+Status PlatformThread::step() {
+	return doStep(tid_, resume_code(status_));
+}
+
+//------------------------------------------------------------------------------
+// Name: step
+// Desc: steps this thread one instruction, passing the signal that stopped it
+//       (unless the signal was SIGSTOP, or the passed status != DEBUG_EXCEPTION_NOT_HANDLED)
+//------------------------------------------------------------------------------
+Status PlatformThread::step(edb::EVENT_STATUS status) {
+	const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(status_) : 0;
+	return doStep(tid_, code);
 }
 
 }

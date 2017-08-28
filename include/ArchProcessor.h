@@ -40,6 +40,8 @@ public:
 	QStringList update_instruction_info(edb::address_t address);
 	bool can_step_over(const edb::Instruction &inst) const;
 	bool is_filling(const edb::Instruction &inst) const;
+	//! Checks whether potentially conditional instruction's condition is satisfied
+	bool is_executed(const edb::Instruction &inst, const State &state) const;
 	void reset();
 	void about_to_resume();
 	void setup_register_view();

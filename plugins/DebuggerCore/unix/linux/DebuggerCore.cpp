@@ -499,6 +499,16 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 	}
 
 	stop_threads();
+#if defined EDB_ARM32
+	if(it != threads_.end()) {
+		const auto& thread=*it;
+		if(thread->singleStepBreakpoint) {
+
+			remove_breakpoint(thread->singleStepBreakpoint);
+			thread->singleStepBreakpoint=nullptr;
+		}
+	}
+#endif
 	return e;
 }
 
@@ -650,7 +660,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 		pid_            = pid;
 		active_thread_  = pid;
 		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
-		detectDebuggeeBitness();
+		detectCPUMode();
 		return Status::Ok;
 	}
 
@@ -709,7 +719,7 @@ void DebuggerCore::kill() {
 	}
 }
 
-void DebuggerCore::detectDebuggeeBitness() {
+void DebuggerCore::detectCPUMode() {
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	const size_t offset=EDB_IS_64_BIT ?
@@ -721,6 +731,7 @@ void DebuggerCore::detectDebuggeeBitness() {
 		if(cs==USER_CS_32) {
 			if(pointer_size_==sizeof(quint64)) {
 				qDebug() << "Debuggee is now 32 bit";
+				cpu_mode_=CPUMode::x86_32;
 				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_X86);
 			}
 			pointer_size_=sizeof(quint32);
@@ -728,6 +739,7 @@ void DebuggerCore::detectDebuggeeBitness() {
 		} else if(cs==USER_CS_64) {
 			if(pointer_size_==sizeof(quint32)) {
 				qDebug() << "Debuggee is now 64 bit";
+				cpu_mode_=CPUMode::x86_64;
 				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_AMD64);
 			}
 			pointer_size_=sizeof(quint64);
@@ -740,12 +752,19 @@ void DebuggerCore::detectDebuggeeBitness() {
 	if(!errno) {
 		const bool thumb=cpsr&0x20;
 		if(thumb)
+		{
+			cpu_mode_=CPUMode::Thumb;
 			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_THUMB);
+		}
 		else
+		{
+			cpu_mode_=CPUMode::ARM32;
 			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_ARM);
+		}
 	}
 	pointer_size_ = sizeof(quint32);
 #elif defined(EDB_ARM64)
+	cpu_mode_=CPUMode::ARM64;
 	CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM64);
 	pointer_size_ = sizeof(quint64);
 #else
@@ -903,7 +922,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
             active_thread_  = pid;
 			binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
-			detectDebuggeeBitness();
+			detectCPUMode();
 
 			return Status::Ok;
 		} while(0);

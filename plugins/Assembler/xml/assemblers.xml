@@ -140,10 +140,18 @@
 		exit $result
 		&quot;"
 					extension="s" />
-		<template>
+		<template mode="arm">
 		<![CDATA[
 		.syntax unified
-		.arm		// FIXME: add support for Thumb
+		.arm
+		.fpu neon	// FIXME: is this OK in general?
+		%INSTRUCTION%
+		]]>
+		</template>
+		<template mode="thumb">
+		<![CDATA[
+		.syntax unified
+		.thumb
 		.fpu neon	// FIXME: is this OK in general?
 		%INSTRUCTION%
 		]]>
