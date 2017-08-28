@@ -24,12 +24,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCorePlugin {
 
 namespace {
-constexpr std::array<quint8, 4> BreakpointInstructionARM_LE    = { 0xf0, 0x01, 0xf0, 0xe7 }; // udf #0x10
-constexpr std::array<quint8, 2> BreakpointInstructionThumb_LE  = { 0x01, 0xde };             // udf #1
+const std::vector<quint8> BreakpointInstructionARM_LE    = { 0xf0, 0x01, 0xf0, 0xe7 }; // udf #0x10
+const std::vector<quint8> BreakpointInstructionThumb_LE  = { 0x01, 0xde };             // udf #1
 // We have to sometimes use a 32-bit Thumb-2 breakpoint. For explanation how to
 // correctly use it see GDB's thumb_get_next_pcs_raw function and comments
 // around arm_linux_thumb2_le_breakpoint array.
-constexpr std::array<quint8, 4> BreakpointInstructionThumb2_LE = { 0xf0, 0xf7, 0x00, 0xa0 }; // udf.w #0
+const std::vector<quint8> BreakpointInstructionThumb2_LE = { 0xf0, 0xf7, 0x00, 0xa0 }; // udf.w #0
 }
 
 //------------------------------------------------------------------------------
@@ -63,17 +63,19 @@ bool Breakpoint::enable() {
 			if(prev.size()) {
 				original_bytes_ = prev;
 
-				const quint8* bpBytes=&BreakpointInstructionARM_LE[0];
-				auto size=BreakpointInstructionARM_LE.size();
+				const std::vector<quint8>* bpBytes=nullptr;
 				if(edb::v1::debugger_core->cpu_mode()==IDebugger::CPUMode::Thumb) {
-					bpBytes=&BreakpointInstructionThumb_LE[0];
-					size=BreakpointInstructionThumb_LE.size();
-					original_bytes_.resize(size);
+					bpBytes=&BreakpointInstructionThumb_LE;
+				} else {
+					bpBytes=&BreakpointInstructionARM_LE;
 				}
+				assert(bpBytes);
+				assert(original_bytes_.size() >= bpBytes->size());
+				original_bytes_.resize(bpBytes->size());
 
 				// FIXME: we don't check whether this breakpoint will overlap any of the existing breakpoints
 
-				if(process->write_bytes(address(), bpBytes, size)) {
+				if(process->write_bytes(address(), bpBytes->data(), bpBytes->size())) {
 					enabled_ = true;
 					return true;
 				}
