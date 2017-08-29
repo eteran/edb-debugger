@@ -29,6 +29,16 @@ public:
 	enum class TypeId {
 		Automatic=IBreakpoint::TypeId::Automatic,
 		INT3,
+		INT1,
+		HLT,
+		CLI,
+		STI,
+		INSB,
+		INSD,
+		OUTSB,
+		OUTSD,
+		UD2,
+		UD0,
 
 		TYPE_COUNT
 	};

@@ -24,7 +24,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCorePlugin {
 
 namespace {
-const std::vector<quint8> BreakpointInstruction = { 0xcc };
+const std::vector<quint8> BreakpointInstructionINT3  = {0xcc};
+const std::vector<quint8> BreakpointInstructionINT1  = {0xf1};
+const std::vector<quint8> BreakpointInstructionHLT   = {0xf4};
+const std::vector<quint8> BreakpointInstructionCLI   = {0xfa};
+const std::vector<quint8> BreakpointInstructionSTI   = {0xfb};
+const std::vector<quint8> BreakpointInstructionINSB  = {0x6c};
+const std::vector<quint8> BreakpointInstructionINSD  = {0x6d};
+const std::vector<quint8> BreakpointInstructionOUTSB = {0x6e};
+const std::vector<quint8> BreakpointInstructionOUTSD = {0x6f};
+const std::vector<quint8> BreakpointInstructionUD2   = {0x0f, 0x0b};
+const std::vector<quint8> BreakpointInstructionUD0   = {0x0f, 0xff};
 }
 
 //------------------------------------------------------------------------------
@@ -43,6 +53,16 @@ auto Breakpoint::supported_types() -> std::vector<BreakpointType> {
 	std::vector<BreakpointType> types = {
 		makeBP(TypeId::Automatic,QObject::tr("Automatic")),
 		makeBP(TypeId::INT3 ,    QObject::tr("INT3")),
+		makeBP(TypeId::INT1 ,    QObject::tr("INT1 (ICEBP)")),
+		makeBP(TypeId::HLT  ,    QObject::tr("HLT")),
+		makeBP(TypeId::CLI  ,    QObject::tr("CLI")),
+		makeBP(TypeId::STI  ,    QObject::tr("STI")),
+		makeBP(TypeId::INSB ,    QObject::tr("INSB")),
+		makeBP(TypeId::INSD ,    QObject::tr("INSD")),
+		makeBP(TypeId::OUTSB,    QObject::tr("OUTSB")),
+		makeBP(TypeId::OUTSD,    QObject::tr("OUTSD")),
+		makeBP(TypeId::UD2  ,    QObject::tr("UD2 (2-byte)")),
+		makeBP(TypeId::UD0  ,    QObject::tr("UD0 (2-byte)")),
 	};
 	return types;
 }
@@ -79,10 +99,31 @@ Breakpoint::~Breakpoint() {
 bool Breakpoint::enable() {
 	if(!enabled()) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			std::vector<quint8> prev(1);
+			std::vector<quint8> prev(2);
 			if(process->read_bytes(address(), &prev[0], prev.size())) {
 				original_bytes_ = prev;
-				if(process->write_bytes(address(), &BreakpointInstruction[0], BreakpointInstruction.size())) {
+				const std::vector<quint8>* bpBytes=nullptr;
+				switch(type_)
+				{
+				case TypeId::Automatic:
+				case TypeId::INT3:  bpBytes=&BreakpointInstructionINT3;  break;
+				case TypeId::INT1:  bpBytes=&BreakpointInstructionINT1;  break;
+				case TypeId::HLT:   bpBytes=&BreakpointInstructionHLT;   break;
+				case TypeId::CLI:   bpBytes=&BreakpointInstructionCLI;   break;
+				case TypeId::STI:   bpBytes=&BreakpointInstructionSTI;   break;
+				case TypeId::INSB:  bpBytes=&BreakpointInstructionINSB;  break;
+				case TypeId::INSD:  bpBytes=&BreakpointInstructionINSD;  break;
+				case TypeId::OUTSB: bpBytes=&BreakpointInstructionOUTSB; break;
+				case TypeId::OUTSD: bpBytes=&BreakpointInstructionOUTSD; break;
+				case TypeId::UD2:   bpBytes=&BreakpointInstructionUD2;   break;
+				case TypeId::UD0:   bpBytes=&BreakpointInstructionUD0;   break;
+				default: return false;
+				}
+				assert(bpBytes);
+				assert(original_bytes_.size() >= bpBytes->size());
+				original_bytes_.resize(bpBytes->size());
+
+				if(process->write_bytes(address(), bpBytes->data(), bpBytes->size())) {
 					enabled_ = true;
 					return true;
 				}
