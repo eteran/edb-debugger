@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCorePlugin {
 
 namespace {
-constexpr std::array<quint8, 1> BreakpointInstruction = { 0xcc };
+const std::vector<quint8> BreakpointInstruction = { 0xcc };
 }
 
 //------------------------------------------------------------------------------
@@ -32,8 +32,6 @@ constexpr std::array<quint8, 1> BreakpointInstruction = { 0xcc };
 // Desc: constructor
 //------------------------------------------------------------------------------
 Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false) {
-
-	std::fill(original_bytes_.begin(), original_bytes_.end(), 0xff);
 
 	if(!enable()) {
 		throw breakpoint_creation_error();
@@ -55,7 +53,7 @@ Breakpoint::~Breakpoint() {
 bool Breakpoint::enable() {
 	if(!enabled()) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			std::array<quint8, 1> prev;
+			std::vector<quint8> prev(1);
 			if(process->read_bytes(address(), &prev[0], prev.size())) {
 				original_bytes_ = prev;
 				if(process->write_bytes(address(), &BreakpointInstruction[0], BreakpointInstruction.size())) {
