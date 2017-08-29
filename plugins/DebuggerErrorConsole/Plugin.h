@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QPlainTextEdit;
 
-namespace DebuggerErrorConsole
+namespace DebuggerErrorConsolePlugin
 {
 
 class DebuggerErrorConsole : public QDialog

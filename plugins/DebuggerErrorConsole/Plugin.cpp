@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPlainTextEdit>
 #include <iostream>
 
-namespace DebuggerErrorConsole
+namespace DebuggerErrorConsolePlugin
 {
 
 Plugin* Plugin::instance=nullptr;
@@ -45,7 +45,7 @@ void Plugin::debugMessageIntercept(QtMsgType type, QMessageLogContext const&, QS
 	case QtDebugMsg:
 		text+="DEBUG";
 		break;
-#if QT_VERSION>=0x55000
+#if QT_VERSION>=0x050500
 	case QtInfoMsg:
 		text+="INFO ";
 		break;
@@ -132,7 +132,7 @@ DebuggerErrorConsole::DebuggerErrorConsole(QWidget* parent)
 }
 
 #if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(DebuggerErrorConsole, Plugin)
+Q_EXPORT_PLUGIN2(Plugin, Plugin)
 #endif
 
 }
