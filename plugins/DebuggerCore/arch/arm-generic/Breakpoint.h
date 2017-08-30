@@ -26,8 +26,20 @@ namespace DebuggerCorePlugin {
 
 class Breakpoint : public IBreakpoint {
 public:
+	enum class TypeId {
+		Automatic,
+		ARM32,
+		Thumb2Byte,
+		Thumb4Byte,
+		UniversalThumbARM32,
+		ARM32BKPT,
+		ThumbBKPT,
+	};
+public:
 	Breakpoint(edb::address_t address);
 	virtual ~Breakpoint();
+	TypeId type() const { return type_; }
+	void set_type(TypeId type);
 
 public:
 	virtual edb::address_t address() const override { return address_; }
@@ -52,6 +64,7 @@ private:
 	bool                  enabled_ ;
 	bool                  one_time_;
 	bool                  internal_;
+	TypeId                type_;
 };
 
 }

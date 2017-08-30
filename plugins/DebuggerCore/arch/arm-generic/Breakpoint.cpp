@@ -42,8 +42,16 @@ const std::vector<quint8> BreakpointInstructionARM32BKPT_LE  = { 0x70, 0x00, 0x2
 // Name: Breakpoint
 // Desc: constructor
 //------------------------------------------------------------------------------
-Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false) {
+Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false), type_(TypeId::Automatic) {
 
+	if(!enable()) {
+		throw breakpoint_creation_error();
+	}
+}
+
+void Breakpoint::set_type(TypeId type) {
+	disable();
+	type_=type;
 	if(!enable()) {
 		throw breakpoint_creation_error();
 	}
@@ -70,10 +78,21 @@ bool Breakpoint::enable() {
 				original_bytes_ = prev;
 
 				const std::vector<quint8>* bpBytes=nullptr;
-				if(edb::v1::debugger_core->cpu_mode()==IDebugger::CPUMode::Thumb) {
-					bpBytes=&BreakpointInstructionThumb_LE;
-				} else {
-					bpBytes=&BreakpointInstructionARM_LE;
+				switch(type_)
+				{
+				case TypeId::Automatic:
+					if(edb::v1::debugger_core->cpu_mode()==IDebugger::CPUMode::Thumb) {
+						bpBytes=&BreakpointInstructionThumb_LE;
+					} else {
+						bpBytes=&BreakpointInstructionARM_LE;
+					}
+					break;
+				case TypeId::ARM32:               bpBytes=&BreakpointInstructionARM_LE; break;
+				case TypeId::Thumb2Byte:          bpBytes=&BreakpointInstructionThumb_LE; break;
+				case TypeId::Thumb4Byte:          bpBytes=&BreakpointInstructionThumb2_LE; break;
+				case TypeId::UniversalThumbARM32: bpBytes=&BreakpointInstructionUniversalThumbARM_LE; break;
+				case TypeId::ARM32BKPT:           bpBytes=&BreakpointInstructionARM32BKPT_LE; break;
+				case TypeId::ThumbBKPT:           bpBytes=&BreakpointInstructionThumbBKPT_LE; break;
 				}
 				assert(bpBytes);
 				assert(original_bytes_.size() >= bpBytes->size());
