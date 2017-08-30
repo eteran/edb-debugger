@@ -45,6 +45,7 @@ public:
 	virtual size_t size() const            override { return original_bytes_.size(); }
 	virtual const quint8* original_bytes() const override { return &original_bytes_[0]; }
 	virtual IBreakpoint::TypeId type() const override { return static_cast<IBreakpoint::TypeId>(type_); }
+	virtual size_t rewind_size() const override;
 
 	static std::vector<BreakpointType> supported_types();
 

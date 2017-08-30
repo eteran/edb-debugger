@@ -172,4 +172,10 @@ void Breakpoint::set_internal(bool value) {
 	internal_ = value;
 }
 
+size_t Breakpoint::rewind_size() const {
+	// We are currently using undefined instructions as breakpoints. They result in
+	// faults, so don't let instruction pointer past them.
+	return 0;
+}
+
 }

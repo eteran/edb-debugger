@@ -132,4 +132,10 @@ void Breakpoint::set_internal(bool value) {
 	internal_ = value;
 }
 
+size_t Breakpoint::rewind_size() const {
+	// TODO: make the logic more complete for multibyte breakpoints as well as for
+	// 		 those resulting in #GP, #UD etc. instead of the usual #BP.
+	return 1;
+}
+
 }
