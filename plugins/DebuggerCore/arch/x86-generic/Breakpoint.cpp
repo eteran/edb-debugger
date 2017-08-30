@@ -138,4 +138,8 @@ size_t Breakpoint::rewind_size() const {
 	return 1;
 }
 
+std::vector<size_t> Breakpoint::possible_rewind_sizes() {
+	return {1,0,2}; // e.g. int3/int1, cli/sti/hlt/etc., int 0x1/int 0x3
+}
+
 }

@@ -48,7 +48,7 @@ public:
 	virtual size_t rewind_size() const override;
 
 	static std::vector<BreakpointType> supported_types();
-
+	static std::vector<size_t> possible_rewind_sizes();
 
 public:
 	virtual bool enable() override;

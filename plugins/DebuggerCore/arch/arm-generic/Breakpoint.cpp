@@ -178,4 +178,8 @@ size_t Breakpoint::rewind_size() const {
 	return 0;
 }
 
+std::vector<size_t> Breakpoint::possible_rewind_sizes() {
+	return {0}; // Even BKPT stops before the instruction, let alone UDF
+}
+
 }

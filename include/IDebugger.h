@@ -100,6 +100,7 @@ public:
 	virtual BreakpointList               backup_breakpoints() const = 0;
 	virtual std::shared_ptr<IBreakpoint> add_breakpoint(edb::address_t address) = 0;
 	virtual std::shared_ptr<IBreakpoint> find_breakpoint(edb::address_t address) = 0;
+	virtual std::shared_ptr<IBreakpoint> find_triggered_breakpoint(edb::address_t address) = 0;
 	virtual void                         clear_breakpoints() = 0;
 	virtual void                         remove_breakpoint(edb::address_t address) = 0;
 	virtual std::vector<IBreakpoint::BreakpointType> supported_breakpoint_types() const = 0;

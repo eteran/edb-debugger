@@ -78,6 +78,7 @@ EDB_EXPORT QAbstractScrollArea *disassembly_widget();
 
 // breakpoint managment
 EDB_EXPORT std::shared_ptr<IBreakpoint> find_breakpoint(address_t address);
+EDB_EXPORT std::shared_ptr<IBreakpoint> find_triggered_breakpoint(address_t address);
 EDB_EXPORT QString get_breakpoint_condition(address_t address);
 EDB_EXPORT address_t disable_breakpoint(address_t address);
 EDB_EXPORT address_t enable_breakpoint(address_t address);
