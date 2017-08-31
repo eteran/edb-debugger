@@ -252,24 +252,32 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 
 			if(singleStepBreakpoint)
 				return Status(QObject::tr("internal EDB error: single-step breakpoint still present"));
-			singleStepBreakpoint=core_->add_breakpoint(addrAfterInsn);
-			if(!singleStepBreakpoint)
-				return Status(QObject::tr("failed to set breakpoint at address %1.").arg(addrAfterInsn.toPointerString()));
-			const auto bp=std::static_pointer_cast<Breakpoint>(singleStepBreakpoint);
-			if(targetMode!=core_->cpu_mode())
+			if(const auto oldBP=core_->find_breakpoint(addrAfterInsn))
 			{
-				switch(targetMode)
-				{
-				case IDebugger::CPUMode::ARM32:
-					bp->set_type(Breakpoint::TypeId::ARM32);
-					break;
-				case IDebugger::CPUMode::Thumb:
-					bp->set_type(Breakpoint::TypeId::Thumb2Byte);
-					break;
-				}
+				if(!oldBP->enabled())
+					return Status(QObject::tr("a disabled breakpoint is present at address %1, can't set one for single step.").arg(addrAfterInsn.toPointerString()));
 			}
-			singleStepBreakpoint->set_one_time(true); // TODO: don't forget to remove it once we've paused after this, even if the BP wasn't hit (e.g. due to an exception on current instruction)
-			singleStepBreakpoint->set_internal(true);
+			else
+			{
+				singleStepBreakpoint=core_->add_breakpoint(addrAfterInsn);
+				if(!singleStepBreakpoint)
+					return Status(QObject::tr("failed to set breakpoint at address %1.").arg(addrAfterInsn.toPointerString()));
+				const auto bp=std::static_pointer_cast<Breakpoint>(singleStepBreakpoint);
+				if(targetMode!=core_->cpu_mode())
+				{
+					switch(targetMode)
+					{
+					case IDebugger::CPUMode::ARM32:
+						bp->set_type(Breakpoint::TypeId::ARM32);
+						break;
+					case IDebugger::CPUMode::Thumb:
+						bp->set_type(Breakpoint::TypeId::Thumb2Byte);
+						break;
+					}
+				}
+				singleStepBreakpoint->set_one_time(true); // TODO: don't forget to remove it once we've paused after this, even if the BP wasn't hit (e.g. due to an exception on current instruction)
+				singleStepBreakpoint->set_internal(true);
+			}
 			return core_->ptrace_continue(tid, status);
 		}
 		return Status(QObject::tr("failed to disassemble instruction at address %1.").arg(pc.toPointerString()));
