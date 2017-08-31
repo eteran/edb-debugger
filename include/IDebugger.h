@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "OSTypes.h"
 #include "Types.h"
+#include "IBreakpoint.h"
 #include <QByteArray>
 #include <QHash>
 #include <QMap>
@@ -28,7 +29,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QtPlugin>
 #include <memory>
 
-class IBreakpoint;
 class IDebugEvent;
 class IProcess;
 class IState;
@@ -102,6 +102,7 @@ public:
 	virtual std::shared_ptr<IBreakpoint> find_breakpoint(edb::address_t address) = 0;
 	virtual void                         clear_breakpoints() = 0;
 	virtual void                         remove_breakpoint(edb::address_t address) = 0;
+	virtual std::vector<IBreakpoint::BreakpointType> supported_breakpoint_types() const = 0;
 
 public:
 	virtual IState *create_state() const = 0;

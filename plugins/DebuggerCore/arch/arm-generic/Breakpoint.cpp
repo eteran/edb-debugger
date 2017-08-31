@@ -49,12 +49,34 @@ Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0
 	}
 }
 
+auto Breakpoint::supported_types() -> std::vector<BreakpointType> {
+	const auto makeBP=[](TypeId id, QString const& s){ return BreakpointType{static_cast<IBreakpoint::TypeId>(id),s}; };
+	std::vector<BreakpointType> types = {
+		makeBP(TypeId::Automatic,QObject::tr("Automatic")),
+		makeBP(TypeId::ARM32,QObject::tr("Always ARM32 UDF")),
+		makeBP(TypeId::Thumb2Byte,QObject::tr("Always Thumb UDF")),
+		makeBP(TypeId::Thumb4Byte,QObject::tr("Always Thumb2 UDF.W")),
+		makeBP(TypeId::UniversalThumbARM32,QObject::tr("Universal ARM/Thumb UDF(+B .-2)")),
+		makeBP(TypeId::ARM32BKPT,QObject::tr("ARM32 BKPT (may be slow)")),
+		makeBP(TypeId::ThumbBKPT,QObject::tr("Thumb BKPT (may be slow)")),
+	};
+	return types;
+}
+
 void Breakpoint::set_type(TypeId type) {
 	disable();
 	type_=type;
 	if(!enable()) {
 		throw breakpoint_creation_error();
 	}
+}
+
+void Breakpoint::set_type(IBreakpoint::TypeId type_) {
+	const auto type=static_cast<TypeId>(type_);
+	disable();
+	if(type>=TypeId::TYPE_COUNT)
+		throw breakpoint_creation_error();
+	set_type(type);
 }
 
 //------------------------------------------------------------------------------

@@ -49,6 +49,8 @@ public:
 	virtual void remove_breakpoint(edb::address_t address) override;
 	virtual void end_debug_session() override;
 
+	virtual std::vector<IBreakpoint::BreakpointType> supported_breakpoint_types() const override;
+
 public:
 	virtual edb::pid_t pid() const;
 

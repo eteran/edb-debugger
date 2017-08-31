@@ -39,6 +39,15 @@ protected:
 public:
 	virtual ~IBreakpoint() = default;
 
+	enum class TypeId : int
+	{
+		Automatic, // should be the default if the user hasn't chosen anything other
+	};
+	struct BreakpointType {
+		TypeId type;
+		QString description;
+	};
+
 public:
 	virtual edb::address_t address() const = 0;
 	virtual quint64 hit_count() const = 0;
@@ -47,6 +56,7 @@ public:
 	virtual bool internal() const = 0;
 	virtual const quint8* original_bytes() const = 0;
 	virtual size_t size() const = 0;
+	virtual TypeId type() const = 0;
 
 public:
 	virtual bool enable() = 0;
@@ -54,6 +64,7 @@ public:
 	virtual void hit() = 0;
 	virtual void set_one_time(bool value) = 0;
 	virtual void set_internal(bool value) = 0;
+	virtual void set_type(TypeId type) = 0;
 
 public:
 	QString condition;

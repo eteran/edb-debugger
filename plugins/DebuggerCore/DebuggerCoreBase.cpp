@@ -162,4 +162,8 @@ bool DebuggerCoreBase::attached() const {
 	return pid() != 0;
 }
 
+auto DebuggerCoreBase::supported_breakpoint_types() const -> std::vector<IBreakpoint::BreakpointType> {
+	return Breakpoint::supported_types();
+}
+
 }

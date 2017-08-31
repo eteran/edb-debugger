@@ -31,11 +31,37 @@ const std::vector<quint8> BreakpointInstruction = { 0xcc };
 // Name: Breakpoint
 // Desc: constructor
 //------------------------------------------------------------------------------
-Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false) {
+Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false), type_(TypeId::Automatic) {
 
 	if(!enable()) {
 		throw breakpoint_creation_error();
 	}
+}
+
+auto Breakpoint::supported_types() -> std::vector<BreakpointType> {
+	const auto makeBP=[](TypeId id, QString const& s){ return BreakpointType{static_cast<IBreakpoint::TypeId>(id),s}; };
+	std::vector<BreakpointType> types = {
+		makeBP(TypeId::Automatic,QObject::tr("Automatic")),
+		makeBP(TypeId::INT3 ,    QObject::tr("INT3")),
+	};
+	return types;
+}
+
+
+void Breakpoint::set_type(TypeId type) {
+	disable();
+	type_=type;
+	if(!enable()) {
+		throw breakpoint_creation_error();
+	}
+}
+
+void Breakpoint::set_type(IBreakpoint::TypeId type_) {
+	const auto type=static_cast<TypeId>(type_);
+	disable();
+	if(type>=TypeId::TYPE_COUNT)
+		throw breakpoint_creation_error();
+	set_type(type);
 }
 
 //------------------------------------------------------------------------------
