@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define X86BREAKPOINT_20060720_H_
 
 #include "IBreakpoint.h"
+#include "Util.h"
 #include <array>
 
 namespace DebuggerCorePlugin {
@@ -42,6 +43,7 @@ public:
 
 		TYPE_COUNT
 	};
+	using Type=util::AbstractEnumData<IBreakpoint::TypeId, TypeId>;
 public:
 	Breakpoint(edb::address_t address);
 	virtual ~Breakpoint();
@@ -54,7 +56,7 @@ public:
 	virtual bool internal() const          override { return internal_; }
 	virtual size_t size() const            override { return original_bytes_.size(); }
 	virtual const quint8* original_bytes() const override { return &original_bytes_[0]; }
-	virtual IBreakpoint::TypeId type() const override { return static_cast<IBreakpoint::TypeId>(type_); }
+	virtual IBreakpoint::TypeId type() const override { return type_; }
 	virtual size_t rewind_size() const override;
 
 	static std::vector<BreakpointType> supported_types();
@@ -76,7 +78,7 @@ private:
 	bool                  enabled_ ;
 	bool                  one_time_;
 	bool                  internal_;
-	TypeId                type_;
+	Type                  type_;
 };
 
 }

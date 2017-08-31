@@ -50,15 +50,14 @@ Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0
 }
 
 auto Breakpoint::supported_types() -> std::vector<BreakpointType> {
-	const auto makeBP=[](TypeId id, QString const& s){ return BreakpointType{static_cast<IBreakpoint::TypeId>(id),s}; };
 	std::vector<BreakpointType> types = {
-		makeBP(TypeId::Automatic,QObject::tr("Automatic")),
-		makeBP(TypeId::ARM32,QObject::tr("Always ARM32 UDF")),
-		makeBP(TypeId::Thumb2Byte,QObject::tr("Always Thumb UDF")),
-		makeBP(TypeId::Thumb4Byte,QObject::tr("Always Thumb2 UDF.W")),
-		makeBP(TypeId::UniversalThumbARM32,QObject::tr("Universal ARM/Thumb UDF(+B .-2)")),
-		makeBP(TypeId::ARM32BKPT,QObject::tr("ARM32 BKPT (may be slow)")),
-		makeBP(TypeId::ThumbBKPT,QObject::tr("Thumb BKPT (may be slow)")),
+		BreakpointType{Type{TypeId::Automatic          },QObject::tr("Automatic")},
+		BreakpointType{Type{TypeId::ARM32              },QObject::tr("Always ARM32 UDF")},
+		BreakpointType{Type{TypeId::Thumb2Byte         },QObject::tr("Always Thumb UDF")},
+		BreakpointType{Type{TypeId::Thumb4Byte         },QObject::tr("Always Thumb2 UDF.W")},
+		BreakpointType{Type{TypeId::UniversalThumbARM32},QObject::tr("Universal ARM/Thumb UDF(+B .-2)")},
+		BreakpointType{Type{TypeId::ARM32BKPT          },QObject::tr("ARM32 BKPT (may be slow)")},
+		BreakpointType{Type{TypeId::ThumbBKPT          },QObject::tr("Thumb BKPT (may be slow)")},
 	};
 	return types;
 }
@@ -71,10 +70,9 @@ void Breakpoint::set_type(TypeId type) {
 	}
 }
 
-void Breakpoint::set_type(IBreakpoint::TypeId type_) {
-	const auto type=static_cast<TypeId>(type_);
+void Breakpoint::set_type(IBreakpoint::TypeId type) {
 	disable();
-	if(type>=TypeId::TYPE_COUNT)
+	if(Type{type}>=TypeId::TYPE_COUNT)
 		throw breakpoint_creation_error();
 	set_type(type);
 }
@@ -100,7 +98,7 @@ bool Breakpoint::enable() {
 				original_bytes_ = prev;
 
 				const std::vector<quint8>* bpBytes=nullptr;
-				switch(type_)
+				switch(TypeId{type_})
 				{
 				case TypeId::Automatic:
 					if(edb::v1::debugger_core->cpu_mode()==IDebugger::CPUMode::Thumb) {

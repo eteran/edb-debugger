@@ -49,20 +49,19 @@ Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0
 }
 
 auto Breakpoint::supported_types() -> std::vector<BreakpointType> {
-	const auto makeBP=[](TypeId id, QString const& s){ return BreakpointType{static_cast<IBreakpoint::TypeId>(id),s}; };
 	std::vector<BreakpointType> types = {
-		makeBP(TypeId::Automatic,QObject::tr("Automatic")),
-		makeBP(TypeId::INT3 ,    QObject::tr("INT3")),
-		makeBP(TypeId::INT1 ,    QObject::tr("INT1 (ICEBP)")),
-		makeBP(TypeId::HLT  ,    QObject::tr("HLT")),
-		makeBP(TypeId::CLI  ,    QObject::tr("CLI")),
-		makeBP(TypeId::STI  ,    QObject::tr("STI")),
-		makeBP(TypeId::INSB ,    QObject::tr("INSB")),
-		makeBP(TypeId::INSD ,    QObject::tr("INSD")),
-		makeBP(TypeId::OUTSB,    QObject::tr("OUTSB")),
-		makeBP(TypeId::OUTSD,    QObject::tr("OUTSD")),
-		makeBP(TypeId::UD2  ,    QObject::tr("UD2 (2-byte)")),
-		makeBP(TypeId::UD0  ,    QObject::tr("UD0 (2-byte)")),
+		BreakpointType{Type{TypeId::Automatic},QObject::tr("Automatic")},
+		BreakpointType{Type{TypeId::INT3     },QObject::tr("INT3")},
+		BreakpointType{Type{TypeId::INT1     },QObject::tr("INT1 (ICEBP)")},
+		BreakpointType{Type{TypeId::HLT      },QObject::tr("HLT")},
+		BreakpointType{Type{TypeId::CLI      },QObject::tr("CLI")},
+		BreakpointType{Type{TypeId::STI      },QObject::tr("STI")},
+		BreakpointType{Type{TypeId::INSB     },QObject::tr("INSB")},
+		BreakpointType{Type{TypeId::INSD     },QObject::tr("INSD")},
+		BreakpointType{Type{TypeId::OUTSB    },QObject::tr("OUTSB")},
+		BreakpointType{Type{TypeId::OUTSD    },QObject::tr("OUTSD")},
+		BreakpointType{Type{TypeId::UD2      },QObject::tr("UD2 (2-byte)")},
+		BreakpointType{Type{TypeId::UD0      },QObject::tr("UD0 (2-byte)")},
 	};
 	return types;
 }
@@ -76,10 +75,9 @@ void Breakpoint::set_type(TypeId type) {
 	}
 }
 
-void Breakpoint::set_type(IBreakpoint::TypeId type_) {
-	const auto type=static_cast<TypeId>(type_);
+void Breakpoint::set_type(IBreakpoint::TypeId type) {
 	disable();
-	if(type>=TypeId::TYPE_COUNT)
+	if(Type{type}>=TypeId::TYPE_COUNT)
 		throw breakpoint_creation_error();
 	set_type(type);
 }
@@ -103,7 +101,7 @@ bool Breakpoint::enable() {
 			if(process->read_bytes(address(), &prev[0], prev.size())) {
 				original_bytes_ = prev;
 				const std::vector<quint8>* bpBytes=nullptr;
-				switch(type_)
+				switch(TypeId{type_})
 				{
 				case TypeId::Automatic:
 				case TypeId::INT3:  bpBytes=&BreakpointInstructionINT3;  break;
