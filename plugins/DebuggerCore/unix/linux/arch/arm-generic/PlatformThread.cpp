@@ -254,6 +254,7 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 				return Status(QObject::tr("internal EDB error: single-step breakpoint still present"));
 			if(const auto oldBP=core_->find_breakpoint(addrAfterInsn))
 			{
+				// TODO: EDB should support overlapping breakpoints
 				if(!oldBP->enabled())
 					return Status(QObject::tr("a disabled breakpoint is present at address %1, can't set one for single step.").arg(addrAfterInsn.toPointerString()));
 			}
