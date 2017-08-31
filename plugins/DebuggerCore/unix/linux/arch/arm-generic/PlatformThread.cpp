@@ -250,6 +250,8 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 				}
 			}
 
+			if(singleStepBreakpoint)
+				return Status(QObject::tr("internal EDB error: single-step breakpoint still present"));
 			singleStepBreakpoint=core_->add_breakpoint(addrAfterInsn);
 			if(!singleStepBreakpoint)
 				return Status(QObject::tr("failed to set breakpoint at address %1.").arg(addrAfterInsn.toPointerString()));
