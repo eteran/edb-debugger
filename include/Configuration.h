@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define CONFIGURATION_20061031_H_
 
 #include "API.h"
+#include "IBreakpoint.h"
 #include <QObject>
 #include <QString>
 #include <QList>
@@ -87,6 +88,7 @@ public:
 	bool              disableASLR;
 	bool              disableLazyBinding;
     bool              break_on_library_load;
+	IBreakpoint::TypeId default_breakpoint_type;
 	QString           tty_command;
 
 	// disassembly tab

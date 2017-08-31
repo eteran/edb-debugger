@@ -75,4 +75,6 @@ public:
 
 };
 
+Q_DECLARE_METATYPE(IBreakpoint::TypeId);
+
 #endif

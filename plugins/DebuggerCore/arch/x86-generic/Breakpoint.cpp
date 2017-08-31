@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "edb.h"
+#include "Configuration.h"
 
 namespace DebuggerCorePlugin {
 
@@ -41,7 +42,7 @@ const std::vector<quint8> BreakpointInstructionUD0   = {0x0f, 0xff};
 // Name: Breakpoint
 // Desc: constructor
 //------------------------------------------------------------------------------
-Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false), type_(TypeId::Automatic) {
+Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false), type_(edb::v1::config().default_breakpoint_type) {
 
 	if(!enable()) {
 		throw breakpoint_creation_error();
