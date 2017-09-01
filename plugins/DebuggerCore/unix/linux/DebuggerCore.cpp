@@ -504,7 +504,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 		const auto& thread=*it;
 		if(thread->singleStepBreakpoint) {
 
-			remove_breakpoint(thread->singleStepBreakpoint);
+			remove_breakpoint(thread->singleStepBreakpoint->address());
 			thread->singleStepBreakpoint=nullptr;
 		}
 	}
