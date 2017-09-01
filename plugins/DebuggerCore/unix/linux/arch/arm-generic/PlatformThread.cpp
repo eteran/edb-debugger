@@ -181,6 +181,27 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 
 				switch(op)
 				{
+				case ARM_INS_POP:
+				{
+					int i=0;
+					for(;i<opCount;++i)
+					{
+						const auto operand=insn.operand(i);
+						if(is_register(operand) && operand->reg==ARM_REG_PC)
+						{
+							assert(operand->access==CS_AC_WRITE);
+							const auto sp=state.gp_register(PlatformState::GPR::SP);
+							if(!sp) return Status(QObject::tr("failed to get value of SP register"));
+							const auto addrSize=4; // The code here is ARM32-specific anyway...
+							if(process_->read_bytes(sp.valueAsAddress()+addrSize*i, &addrAfterInsn, addrSize)!=addrSize)
+								return Status(QObject::tr("failed to read thread stack"));
+							break;
+						}
+					}
+					if(i==opCount)
+						return Status(QObject::tr("internal EDB error: failed to locate PC in the instruction operand list"));
+					break;
+				}
 				case ARM_INS_BX:
 				case ARM_INS_BLX:
 				case ARM_INS_B:
