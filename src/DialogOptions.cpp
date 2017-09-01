@@ -236,6 +236,18 @@ void DialogOptions::showEvent(QShowEvent *event) {
             item->setData(Qt::UserRole, it.key());
 		}	
 	}
+
+	if(const auto core = edb::v1::debugger_core) {
+		const auto& bps = core->supported_breakpoint_types();
+		const auto combo=ui->cmbDefaultBreakpointType;
+		combo->clear();
+		const auto chosen=config.default_breakpoint_type;
+		for(const auto& type : bps) {
+			combo->addItem(type.description, QVariant::fromValue(type.type));
+			if(type.type==chosen)
+				combo->setCurrentIndex(combo->count()-1);
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -275,6 +287,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	config.disableASLR			 = ui->chkDisableASLR->isChecked();
 	config.disableLazyBinding	 = ui->chkDisableLazyBinding->isChecked();
 	config.break_on_library_load = ui->chkBreakOnLibraryLoad->isChecked();
+	config.default_breakpoint_type = ui->cmbDefaultBreakpointType->itemData(ui->cmbDefaultBreakpointType->currentIndex()).value<IBreakpoint::TypeId>();
 
     config.function_offsets_in_hex = ui->chkHexOffsets->isChecked();
 

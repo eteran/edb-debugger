@@ -1050,6 +1050,8 @@ bool modifies_pc(const Instruction &insn) {
 		const auto& op=arm.operands[i];
 		if(op.access==CS_AC_WRITE && op.type==CS_OP_REG && op.reg==ARM_REG_PC)
 			return true;
+		if(op.type==ARM_OP_MEM && insn.native()->detail->arm.writeback && op.mem.base==ARM_REG_PC)
+			return true;
 	}
 	return false;
 #else

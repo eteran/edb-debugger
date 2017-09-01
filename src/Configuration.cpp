@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFont>
 #include <QSettings>
 #include <QtDebug>
+#include <QDataStream>
 
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
@@ -53,11 +54,25 @@ void Configuration::sendChangeNotification() {
 	Q_EMIT settingsUpdated();
 }
 
+QDataStream& operator<<(QDataStream& s, IBreakpoint::TypeId const& id)
+{
+	return s << static_cast<int>(id);
+}
+
+QDataStream& operator>>(QDataStream& s, IBreakpoint::TypeId& id) {
+	int value=0;
+	s >> value;
+	id=static_cast<IBreakpoint::TypeId>(value);
+	return s;
+}
+
 //------------------------------------------------------------------------------
 // Name: read_settings
 // Desc: read in the options from the file
 //------------------------------------------------------------------------------
 void Configuration::readSettings() {
+
+	qRegisterMetaTypeStreamOperators<IBreakpoint::TypeId>("IBreakpoint::TypeId");
 
 #ifdef Q_OS_WIN32
 	const QString default_font = QFont("Courier New", 8).toString();
@@ -110,6 +125,8 @@ void Configuration::readSettings() {
 	disableASLR           = settings.value("debugger.disableASLR.enabled", false).toBool();
 	disableLazyBinding    = settings.value("debugger.disableLazyBinding.enabled", false).toBool();
 	break_on_library_load = settings.value("debugger.break_on_library_load_event.enabled", false).toBool();
+	default_breakpoint_type = settings.value("debugger.default_breakpoint_type",
+											 QVariant::fromValue(IBreakpoint::TypeId::Automatic)).value<IBreakpoint::TypeId>();
 	settings.endGroup();
 
 	settings.beginGroup("Disassembly");
@@ -225,6 +242,7 @@ void Configuration::writeSettings() {
 	settings.setValue("debugger.disableASLR.enabled", disableASLR);
 	settings.setValue("debugger.disableLazyBinding.enabled", disableLazyBinding);
 	settings.setValue("debugger.break_on_library_load_event.enabled", break_on_library_load);
+	settings.setValue("debugger.default_breakpoint_type", QVariant::fromValue(default_breakpoint_type));
 	settings.endGroup();
 
 	settings.beginGroup("Disassembly");

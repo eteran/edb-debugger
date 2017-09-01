@@ -1376,6 +1376,17 @@ std::shared_ptr<IBreakpoint> find_breakpoint(address_t address) {
 }
 
 //------------------------------------------------------------------------------
+// Name: find_triggered_breakpoint
+// Desc:
+//------------------------------------------------------------------------------
+std::shared_ptr<IBreakpoint> find_triggered_breakpoint(address_t address) {
+	if(debugger_core) {
+		return debugger_core->find_triggered_breakpoint(address);
+	}
+	return nullptr;
+}
+
+//------------------------------------------------------------------------------
 // Name: pointer_size
 // Desc:
 //------------------------------------------------------------------------------

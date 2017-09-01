@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include <cstddef>
 #include <sys/user.h>
+#include <vector>
 
 namespace DebuggerCorePlugin {
 
@@ -62,6 +63,7 @@ public:
 	Register gp_register(size_t n) const override;
 
 	void fillFrom(user_regs const& regs);
+	void fillStruct(user_regs& regs) const;
 private:
 	struct GPR {
 		enum NamedGPRIndex : size_t {
@@ -73,7 +75,8 @@ private:
 			LR=14,
 			PC=15,
 		};
-		static const std::array<const char *, GPR_COUNT> GPRegNames;
+		using RegNameVariants=std::vector<const char *>;
+		static const std::array<RegNameVariants, GPR_COUNT> GPRegNames;
 
 		bool filled=false;
 		std::array<edb::reg_t, GPR_COUNT> GPRegs;
@@ -82,6 +85,8 @@ private:
 		void clear();
 		bool empty() const;
 	} gpr;
+private:
+	auto findGPR(QString const& name) const -> decltype(gpr.GPRegNames.begin());
 };
 
 }

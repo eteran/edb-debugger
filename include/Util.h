@@ -41,6 +41,17 @@ enum class NumberDisplayMode {
 
 namespace util {
 
+// Used to interconvert between abstract enum defined in an interface and actual enumerators in implementation
+template<typename AbstractEnum, typename ConcreteEnum>
+class AbstractEnumData {
+	AbstractEnum data;
+public:
+	AbstractEnumData(AbstractEnum a) : data(a) {}
+	AbstractEnumData(ConcreteEnum c) : data(static_cast<AbstractEnum>(c)) {}
+	operator AbstractEnum() const { return data; }
+	operator ConcreteEnum() const { return static_cast<ConcreteEnum>(data); }
+};
+
 // Until EDB switches to C++14, this will be useful
 template<typename T, typename ...Args>
 std::unique_ptr<T> make_unique( Args&& ...args )

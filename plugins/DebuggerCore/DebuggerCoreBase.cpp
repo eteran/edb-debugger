@@ -87,6 +87,25 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::find_breakpoint(edb::address_t ad
 
 
 //------------------------------------------------------------------------------
+// Name: find_breakpoint
+// Desc: similarly to find_breakpoint, finds a breakpoint near given address. But
+// 		 unlike find_breakpoint, this function looks for a breakpoint which ends
+// 		 up at this address after being triggered, instead of just starting there.
+//------------------------------------------------------------------------------
+std::shared_ptr<IBreakpoint> DebuggerCoreBase::find_triggered_breakpoint(edb::address_t address) {
+	if(attached()) {
+		for(const auto size : Breakpoint::possible_rewind_sizes()) {
+			const auto bpAddr=address-size;
+			const auto bp=find_breakpoint(bpAddr);
+			if(bp && bp->address()==bpAddr)
+				return bp;
+		}
+	}
+	return nullptr;
+}
+
+
+//------------------------------------------------------------------------------
 // Name: remove_breakpoint
 // Desc: removes the breakpoint at the given address, this is a no-op if there
 //       is no breakpoint present.
@@ -160,6 +179,10 @@ edb::pid_t DebuggerCoreBase::pid() const {
 //------------------------------------------------------------------------------
 bool DebuggerCoreBase::attached() const {
 	return pid() != 0;
+}
+
+auto DebuggerCoreBase::supported_breakpoint_types() const -> std::vector<IBreakpoint::BreakpointType> {
+	return Breakpoint::supported_types();
 }
 
 }

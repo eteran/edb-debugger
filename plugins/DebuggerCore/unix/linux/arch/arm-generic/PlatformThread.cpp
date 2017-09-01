@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "State.h"
 #include "Types.h"
 #include "ArchProcessor.h"
+#include "Breakpoint.h"
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
@@ -113,6 +114,11 @@ void PlatformThread::set_state(const State &state) {
 
 	if(auto state_impl = static_cast<PlatformState *>(state.impl_)) {
 
+		user_regs regs;
+		state_impl->fillStruct(regs);
+		if(ptrace(PTRACE_SETREGS, tid_, 0, &regs) == -1) {
+			perror("PTRACE_SETREGS failed");
+		}
 	}
 }
 
@@ -163,31 +169,80 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 			const auto op=insn.operation();
 			edb::address_t addrAfterInsn=pc+insn.byte_size();
 
+			auto targetMode=core_->cpu_mode();
 			if(modifies_pc(insn) && edb::v1::arch_processor().is_executed(insn,state))
 			{
 				if(op==ARM_INS_BXJ)
 					return Status(QObject::tr("EDB doesn't yet support single-stepping into Jazelle state."));
-				if(op==ARM_INS_BX || op==ARM_INS_BLX)
-					return Status(QObject::tr("EDB doesn't yet support single-stepping into/out of Thumb state."));
 
 				const auto opCount=insn.operand_count();
 				if(opCount==0)
 					return Status(QObject::tr("instruction %1 isn't supported yet.").arg(insn.mnemonic().c_str()));
+
 				switch(op)
 				{
+				case ARM_INS_BX:
+				case ARM_INS_BLX:
 				case ARM_INS_B:
 				case ARM_INS_BL:
 				{
 					if(opCount!=1)
-						return Status(QObject::tr("unexpected form of branch instruction with %1 operands.").arg(opCount));
-					const auto& op=insn.operand(0);
-					assert(op);
-					if(is_immediate(op))
+						return Status(QObject::tr("unexpected form of instruction %1 with %2 operands.").arg(insn.mnemonic().c_str()).arg(opCount));
+					const auto& operand=insn.operand(0);
+					assert(operand);
+					if(is_immediate(operand))
 					{
-						addrAfterInsn=edb::address_t(util::to_unsigned(op->imm));
+						addrAfterInsn=edb::address_t(util::to_unsigned(operand->imm));
+						if(op==ARM_INS_BX || op==ARM_INS_BLX)
+						{
+							if(targetMode==IDebugger::CPUMode::ARM32)
+								targetMode=IDebugger::CPUMode::Thumb;
+							else
+								targetMode=IDebugger::CPUMode::ARM32;
+						}
 						break;
 					}
-
+					else if(is_register(operand))
+					{
+						// This may happen only with BX or BLX: B and BL require an immediate operand
+						int regIndex=ARM_REG_INVALID;
+						// NOTE: capstone registers are stupidly not in continuous order
+						switch(operand->reg)
+						{
+						case ARM_REG_R0:  regIndex=0; break;
+						case ARM_REG_R1:  regIndex=1; break;
+						case ARM_REG_R2:  regIndex=2; break;
+						case ARM_REG_R3:  regIndex=3; break;
+						case ARM_REG_R4:  regIndex=4; break;
+						case ARM_REG_R5:  regIndex=5; break;
+						case ARM_REG_R6:  regIndex=6; break;
+						case ARM_REG_R7:  regIndex=7; break;
+						case ARM_REG_R8:  regIndex=8; break;
+						case ARM_REG_R9:  regIndex=9; break;
+						case ARM_REG_R10: regIndex=10; break;
+						case ARM_REG_R11: regIndex=11; break;
+						case ARM_REG_R12: regIndex=12; break;
+						case ARM_REG_R13: regIndex=13; break;
+						case ARM_REG_R14: regIndex=14; break;
+						case ARM_REG_R15: regIndex=15; break;
+						default:
+							return Status(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg));
+						}
+						const auto reg=state.gp_register(regIndex);
+						if(!reg)
+							return Status(QObject::tr("failed to get register r%1.").arg(regIndex));
+						addrAfterInsn=reg.valueAsAddress();
+						if(regIndex==15) // PC
+							addrAfterInsn+=4;
+						if(addrAfterInsn&1)
+							targetMode=IDebugger::CPUMode::Thumb;
+						else
+							targetMode=IDebugger::CPUMode::ARM32;
+						addrAfterInsn&=~1;
+						if(addrAfterInsn&0x3 && targetMode==IDebugger::CPUMode::Thumb)
+							return Status(QObject::tr("won't try to set breakpoint at unaligned address"));
+						break;
+					}
 					return Status(QObject::tr("EDB doesn't yet support indirect branch instructions."));
 				}
 				default:
@@ -195,11 +250,35 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 				}
 			}
 
-			singleStepBreakpoint=core_->add_breakpoint(addrAfterInsn);
-			if(!singleStepBreakpoint)
-				return Status(QObject::tr("failed to set breakpoint at address %1.").arg(addrAfterInsn.toPointerString()));
-			singleStepBreakpoint->set_one_time(true); // TODO: don't forget to remove it once we've paused after this, even if the BP wasn't hit (e.g. due to an exception on current instruction)
-			singleStepBreakpoint->set_internal(true);
+			if(singleStepBreakpoint)
+				return Status(QObject::tr("internal EDB error: single-step breakpoint still present"));
+			if(const auto oldBP=core_->find_breakpoint(addrAfterInsn))
+			{
+				// TODO: EDB should support overlapping breakpoints
+				if(!oldBP->enabled())
+					return Status(QObject::tr("a disabled breakpoint is present at address %1, can't set one for single step.").arg(addrAfterInsn.toPointerString()));
+			}
+			else
+			{
+				singleStepBreakpoint=core_->add_breakpoint(addrAfterInsn);
+				if(!singleStepBreakpoint)
+					return Status(QObject::tr("failed to set breakpoint at address %1.").arg(addrAfterInsn.toPointerString()));
+				const auto bp=std::static_pointer_cast<Breakpoint>(singleStepBreakpoint);
+				if(targetMode!=core_->cpu_mode())
+				{
+					switch(targetMode)
+					{
+					case IDebugger::CPUMode::ARM32:
+						bp->set_type(Breakpoint::TypeId::ARM32);
+						break;
+					case IDebugger::CPUMode::Thumb:
+						bp->set_type(Breakpoint::TypeId::Thumb2Byte);
+						break;
+					}
+				}
+				singleStepBreakpoint->set_one_time(true); // TODO: don't forget to remove it once we've paused after this, even if the BP wasn't hit (e.g. due to an exception on current instruction)
+				singleStepBreakpoint->set_internal(true);
+			}
 			return core_->ptrace_continue(tid, status);
 		}
 		return Status(QObject::tr("failed to disassemble instruction at address %1.").arg(pc.toPointerString()));

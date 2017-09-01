@@ -72,6 +72,9 @@ protected:
 	template <class Data>
 	explicit ValueBase(const Data& data, std::size_t offset = 0) {
 		static_assert(sizeof(Data) >= sizeof(ValueType), "ValueBase can only be constructed from large enough variable");
+#if defined __GNUG__ && __GNUC__ >= 5 || !defined __GNUG__ || defined __clang__ && __clang_major__*100+__clang_minor__>=306
+		static_assert(std::is_trivially_copyable<Data>::value, "ValueBase can only be constructed from trivially copiable data");
+#endif
 
 		assert(sizeof(Data) - offset >= sizeof(ValueType)); // check bounds, this can't be done at compile time
 
