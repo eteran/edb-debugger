@@ -1342,7 +1342,7 @@ void Debugger::follow_register_in_dump(bool tabbed) {
 		if(!edb::v1::dump_data(*address, tabbed)) {
 			QMessageBox::critical(this,
 				tr("No Memory Found"),
-				tr("There appears to be no memory at that location (<strong>%1</strong>)").arg(edb::v1::format_pointer(address)));
+				tr("There appears to be no memory at that location (<strong>%1</strong>)").arg(edb::v1::format_pointer(address.value())));
 		}
 	}
 }
