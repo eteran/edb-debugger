@@ -297,10 +297,13 @@ public:
 						ret_address_ = address;
 						return edb::DEBUG_CONTINUE;
 					}
-
-					//If we get here, then we've got a problem... Coludn't set a breakpoint on
-					//a block terminator for some reason.
-					qDebug() << "Couldn't set a breakpoint on a block terminator...";
+					else {
+						QMessageBox::critical(edb::v1::debugger_ui,
+											  QObject::tr("Error running until return"),
+											  QObject::tr("Failed to set breakpoint on a block terminator at address %1.").
+														arg(address.toPointerString()));
+						return pass_back_to_debugger(event);
+					}
 				}
 			}
 
