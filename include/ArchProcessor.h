@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "RegisterViewModelBase.h"
 #include "Types.h"
+#include "Status.h"
 #include <QObject>
 
 class QByteArray;
@@ -42,6 +43,8 @@ public:
 	bool is_filling(const edb::Instruction &inst) const;
 	//! Checks whether potentially conditional instruction's condition is satisfied
 	bool is_executed(const edb::Instruction &inst, const State &state) const;
+	Result<edb::address_t> get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state) const;
+	edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool& ok) const;
 	void reset();
 	void about_to_resume();
 	void setup_register_view();
