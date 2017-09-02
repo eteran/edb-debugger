@@ -309,7 +309,10 @@ public:
 
 			//Invalid instruction or some other problem. Pass it back to the debugger.
 			else {
-				qDebug() << "Invalid instruction or something.";
+				QMessageBox::critical(edb::v1::debugger_ui,
+									  QObject::tr("Error running until return"),
+									  QObject::tr("Failed to disassemble instruction at address %1.").
+												arg(address.toPointerString()));
 				return pass_back_to_debugger(event);
 			}
 
@@ -317,7 +320,9 @@ public:
 		}
 
 		//If we end up out here, we've got bigger problems. Pass it back to the debugger.
-		qDebug() << "Stepped outside the loop.  Bad.";
+		QMessageBox::critical(edb::v1::debugger_ui,
+							  QObject::tr("Error running until return"),
+							  QObject::tr("Stepped outside the loop, address=%1.").arg(address.toPointerString()));
 		return pass_back_to_debugger(event);
 	}
 
