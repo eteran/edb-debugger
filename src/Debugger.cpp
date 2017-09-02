@@ -186,6 +186,8 @@ public:
 	//TODO: Need to handle stop/pause button
 	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) {
 
+		if(!event->is_trap())
+			return pass_back_to_debugger(event);
 
 		State state;
 		edb::v1::debugger_core->get_state(&state);
