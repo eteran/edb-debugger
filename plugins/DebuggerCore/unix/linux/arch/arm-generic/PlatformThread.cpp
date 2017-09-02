@@ -138,6 +138,33 @@ long PlatformThread::set_debug_register(std::size_t n, long value) {
 	return 0;
 }
 
+Result<int> capstoneRegToGPRIndex(int capstoneReg) {
+
+	int regIndex=-1;
+	// NOTE: capstone registers are stupidly not in continuous order
+	switch(capstoneReg)
+	{
+	case ARM_REG_R0:  regIndex=0; break;
+	case ARM_REG_R1:  regIndex=1; break;
+	case ARM_REG_R2:  regIndex=2; break;
+	case ARM_REG_R3:  regIndex=3; break;
+	case ARM_REG_R4:  regIndex=4; break;
+	case ARM_REG_R5:  regIndex=5; break;
+	case ARM_REG_R6:  regIndex=6; break;
+	case ARM_REG_R7:  regIndex=7; break;
+	case ARM_REG_R8:  regIndex=8; break;
+	case ARM_REG_R9:  regIndex=9; break;
+	case ARM_REG_R10: regIndex=10; break;
+	case ARM_REG_R11: regIndex=11; break;
+	case ARM_REG_R12: regIndex=12; break;
+	case ARM_REG_R13: regIndex=13; break;
+	case ARM_REG_R14: regIndex=14; break;
+	case ARM_REG_R15: regIndex=15; break;
+	default: return {};
+	}
+	return Result<int>{regIndex};
+}
+
 Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 
 	State state;
@@ -226,29 +253,11 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 					else if(is_register(operand))
 					{
 						// This may happen only with BX or BLX: B and BL require an immediate operand
-						int regIndex=ARM_REG_INVALID;
-						// NOTE: capstone registers are stupidly not in continuous order
-						switch(operand->reg)
-						{
-						case ARM_REG_R0:  regIndex=0; break;
-						case ARM_REG_R1:  regIndex=1; break;
-						case ARM_REG_R2:  regIndex=2; break;
-						case ARM_REG_R3:  regIndex=3; break;
-						case ARM_REG_R4:  regIndex=4; break;
-						case ARM_REG_R5:  regIndex=5; break;
-						case ARM_REG_R6:  regIndex=6; break;
-						case ARM_REG_R7:  regIndex=7; break;
-						case ARM_REG_R8:  regIndex=8; break;
-						case ARM_REG_R9:  regIndex=9; break;
-						case ARM_REG_R10: regIndex=10; break;
-						case ARM_REG_R11: regIndex=11; break;
-						case ARM_REG_R12: regIndex=12; break;
-						case ARM_REG_R13: regIndex=13; break;
-						case ARM_REG_R14: regIndex=14; break;
-						case ARM_REG_R15: regIndex=15; break;
-						default:
+						int regIndex=-1;
+						if(const auto result=capstoneRegToGPRIndex(operand->reg))
+							regIndex=result.value();
+						else
 							return Status(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg));
-						}
 						const auto reg=state.gp_register(regIndex);
 						if(!reg)
 							return Status(QObject::tr("failed to get register r%1.").arg(regIndex));
