@@ -242,9 +242,8 @@ public:
 				bp->disable();
 				edb::v1::debugger_core->remove_breakpoint(bp->address());
 			}
-
-			//No breakpoint if it was a syscall; continue.
 			else {
+				//No breakpoint if it was a syscall; continue.
 				return edb::DEBUG_CONTINUE;
 			}
 		}
@@ -256,9 +255,8 @@ public:
 				qDebug() << "Found ret; passing back to debugger";
 				return pass_back_to_debugger(event);
 			}
-
-			//If not a ret, then step so we can find the next block terminator.
 			else {
+				//If not a ret, then step so we can find the next block terminator.
 				qDebug() << "Not ret. Single-stepping";
 				return edb::DEBUG_CONTINUE_STEP;
 			}
@@ -306,9 +304,8 @@ public:
 					}
 				}
 			}
-
-			//Invalid instruction or some other problem. Pass it back to the debugger.
 			else {
+				//Invalid instruction or some other problem. Pass it back to the debugger.
 				QMessageBox::critical(edb::v1::debugger_ui,
 									  QObject::tr("Error running until return"),
 									  QObject::tr("Failed to disassemble instruction at address %1.").
@@ -1907,15 +1904,13 @@ void Debugger::mnuCPUEditComment() {
 	if (got_text && !comment.isEmpty()) {
 		ui.cpuView->add_comment(address, comment);
 	}
-
-	//If the user backspaced the comment, remove the comment since
-	//there's no need for a null string to take space in the hash.
 	else if (got_text && comment.isEmpty()) {
+		//If the user backspaced the comment, remove the comment since
+		//there's no need for a null string to take space in the hash.
 		ui.cpuView->remove_comment(address);
 	}
-
-	//The only other real case is that we didn't got_text.  No change.
 	else {
+		//The only other real case is that we didn't got_text.  No change.
 		return;
 	}
 
