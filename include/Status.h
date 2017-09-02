@@ -50,7 +50,7 @@ private:
 template <class T>
 class EDB_EXPORT Result {
 public:
-	Result() {
+	Result() : status_("Failure") {
 	}
 
 	Result(const QString &message, const T &value) : status_(message), value_(value) {
