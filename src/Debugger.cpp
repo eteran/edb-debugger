@@ -288,6 +288,7 @@ public:
 
 					//Otherwise, attempt to set a breakpoint there and continue.
 					if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->add_breakpoint(address)) {
+						own_breakpoints_.emplace_back(address,bp);
 						qDebug() << QString("Setting breakpoint at terminator 0x%1").arg(address, 0, 16);
 						bp->set_internal(true);
 						bp->set_one_time(true); //If the 0xcc get's rm'd on next event, then
@@ -323,7 +324,14 @@ public:
 		return pass_back_to_debugger(event);
 	}
 
+	~RunUntilRet() {
+		for(const auto& bp : own_breakpoints_)
+			if(!bp.second.expired())
+				edb::v1::debugger_core->remove_breakpoint(bp.first);
+	}
+
 private:
+	std::vector<std::pair<edb::address_t,std::weak_ptr<IBreakpoint>>> own_breakpoints_;
 	IDebugEventHandler *previous_handler_;
 	edb::address_t      last_call_return_;
 	edb::address_t      ret_address_;
