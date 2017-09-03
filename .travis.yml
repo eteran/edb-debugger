@@ -21,13 +21,13 @@ sudo: required
 
 before_install:
     - sudo update-alternatives --install /usr/bin/g++ g++ /usr/bin/g++-5 90
-    - if [ "$QT_BASE" = "50" ]; then sudo add-apt-repository ppa:beineri/opt-qt502 -y; fi
-    - if [ "$QT_BASE" = "51" ]; then sudo add-apt-repository ppa:beineri/opt-qt511 -y; fi
-    - if [ "$QT_BASE" = "52" ]; then sudo add-apt-repository ppa:beineri/opt-qt521 -y; fi
-    - if [ "$QT_BASE" = "53" ]; then sudo add-apt-repository ppa:beineri/opt-qt532 -y; fi
-    - if [ "$QT_BASE" = "54" ]; then sudo add-apt-repository ppa:beineri/opt-qt542 -y; fi
-    - if [ "$QT_BASE" = "55" ]; then sudo add-apt-repository ppa:beineri/opt-qt551 -y; fi
-    - if [ "$QT_BASE" = "56" ]; then sudo add-apt-repository ppa:beineri/opt-qt562 -y; fi
+    - if [ "$QT_BASE" = "50" ]; then sudo add-apt-repository ppa:beineri/opt-qt502-trusty -y; fi
+    - if [ "$QT_BASE" = "51" ]; then sudo add-apt-repository ppa:beineri/opt-qt511-trusty -y; fi
+    - if [ "$QT_BASE" = "52" ]; then sudo add-apt-repository ppa:beineri/opt-qt521-trusty -y; fi
+    - if [ "$QT_BASE" = "53" ]; then sudo add-apt-repository ppa:beineri/opt-qt532-trusty -y; fi
+    - if [ "$QT_BASE" = "54" ]; then sudo add-apt-repository ppa:beineri/opt-qt542-trusty -y; fi
+    - if [ "$QT_BASE" = "55" ]; then sudo add-apt-repository ppa:beineri/opt-qt551-trusty -y; fi
+    - if [ "$QT_BASE" = "56" ]; then sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y; fi
     - sudo apt-get update -qq
     - ./travis_install_capstone.sh
 
@@ -72,10 +72,9 @@ addons:
     apt:
         sources:
             - ubuntu-toolchain-r-test
-            - george-edison55/precise-backports
         packages:
             - build-essential
             - libboost-dev
             - gcc-5
             - g++-5
-            - cmake
+            - cmake3
