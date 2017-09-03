@@ -186,6 +186,8 @@ public:
 	//TODO: Need to handle stop/pause button
 	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) {
 
+		if(!event->is_trap())
+			return pass_back_to_debugger(event);
 
 		State state;
 		edb::v1::debugger_core->get_state(&state);
@@ -240,9 +242,8 @@ public:
 				bp->disable();
 				edb::v1::debugger_core->remove_breakpoint(bp->address());
 			}
-
-			//No breakpoint if it was a syscall; continue.
 			else {
+				//No breakpoint if it was a syscall; continue.
 				return edb::DEBUG_CONTINUE;
 			}
 		}
@@ -254,9 +255,8 @@ public:
 				qDebug() << "Found ret; passing back to debugger";
 				return pass_back_to_debugger(event);
 			}
-
-			//If not a ret, then step so we can find the next block terminator.
 			else {
+				//If not a ret, then step so we can find the next block terminator.
 				qDebug() << "Not ret. Single-stepping";
 				return edb::DEBUG_CONTINUE_STEP;
 			}
@@ -288,6 +288,7 @@ public:
 
 					//Otherwise, attempt to set a breakpoint there and continue.
 					if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->add_breakpoint(address)) {
+						own_breakpoints_.emplace_back(address,bp);
 						qDebug() << QString("Setting breakpoint at terminator 0x%1").arg(address, 0, 16);
 						bp->set_internal(true);
 						bp->set_one_time(true); //If the 0xcc get's rm'd on next event, then
@@ -295,16 +296,21 @@ public:
 						ret_address_ = address;
 						return edb::DEBUG_CONTINUE;
 					}
-
-					//If we get here, then we've got a problem... Coludn't set a breakpoint on
-					//a block terminator for some reason.
-					qDebug() << "Couldn't set a breakpoint on a block terminator...";
+					else {
+						QMessageBox::critical(edb::v1::debugger_ui,
+											  QObject::tr("Error running until return"),
+											  QObject::tr("Failed to set breakpoint on a block terminator at address %1.").
+														arg(address.toPointerString()));
+						return pass_back_to_debugger(event);
+					}
 				}
 			}
-
-			//Invalid instruction or some other problem. Pass it back to the debugger.
 			else {
-				qDebug() << "Invalid instruction or something.";
+				//Invalid instruction or some other problem. Pass it back to the debugger.
+				QMessageBox::critical(edb::v1::debugger_ui,
+									  QObject::tr("Error running until return"),
+									  QObject::tr("Failed to disassemble instruction at address %1.").
+												arg(address.toPointerString()));
 				return pass_back_to_debugger(event);
 			}
 
@@ -312,11 +318,20 @@ public:
 		}
 
 		//If we end up out here, we've got bigger problems. Pass it back to the debugger.
-		qDebug() << "Stepped outside the loop.  Bad.";
+		QMessageBox::critical(edb::v1::debugger_ui,
+							  QObject::tr("Error running until return"),
+							  QObject::tr("Stepped outside the loop, address=%1.").arg(address.toPointerString()));
 		return pass_back_to_debugger(event);
 	}
 
+	~RunUntilRet() {
+		for(const auto& bp : own_breakpoints_)
+			if(!bp.second.expired())
+				edb::v1::debugger_core->remove_breakpoint(bp.first);
+	}
+
 private:
+	std::vector<std::pair<edb::address_t,std::weak_ptr<IBreakpoint>>> own_breakpoints_;
 	IDebugEventHandler *previous_handler_;
 	edb::address_t      last_call_return_;
 	edb::address_t      ret_address_;
@@ -1897,15 +1912,13 @@ void Debugger::mnuCPUEditComment() {
 	if (got_text && !comment.isEmpty()) {
 		ui.cpuView->add_comment(address, comment);
 	}
-
-	//If the user backspaced the comment, remove the comment since
-	//there's no need for a null string to take space in the hash.
 	else if (got_text && comment.isEmpty()) {
+		//If the user backspaced the comment, remove the comment since
+		//there's no need for a null string to take space in the hash.
 		ui.cpuView->remove_comment(address);
 	}
-
-	//The only other real case is that we didn't got_text.  No change.
 	else {
+		//The only other real case is that we didn't got_text.  No change.
 		return;
 	}
 

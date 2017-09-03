@@ -46,7 +46,11 @@ class Instruction {
 	friend class Operand;
 
 public:
+#if defined EDB_X86 || defined EDB_X86_64
 	static constexpr std::size_t MAX_SIZE = 15;
+#elif defined EDB_ARM32 || defined EDB_ARM64
+	static constexpr std::size_t MAX_SIZE = 4;
+#endif
 
 public:
 	Instruction(const void *first, const void *end, uint64_t rva) noexcept;

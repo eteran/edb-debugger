@@ -499,6 +499,24 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 	}
 
 	stop_threads();
+
+	// Some breakpoint types result in SIGILL or SIGSEGV. We'll transform the
+	// event into breakpoint event if such a breakpoint has triggered.
+	if(it != threads_.end() && WIFSTOPPED(status)) {
+		const auto signo=WSTOPSIG(status);
+		if(signo==SIGILL || signo==SIGSEGV) {
+			// no need to peekuser for SIGILL, but have to for SIGSEGV
+			const auto address = signo==SIGILL ? edb::address_t::fromZeroExtended(e->siginfo_.si_addr)
+											   : (*it)->instruction_pointer();
+			if(edb::v1::find_triggered_breakpoint(address))
+			{
+				e->status_=SIGTRAP<<8|0x7f;
+				e->siginfo_.si_signo=SIGTRAP;
+				e->siginfo_.si_code=TRAP_BRKPT;
+			}
+		}
+	}
+
 #if defined EDB_ARM32
 	if(it != threads_.end()) {
 		const auto& thread=*it;
@@ -506,6 +524,9 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 
 			remove_breakpoint(thread->singleStepBreakpoint->address());
 			thread->singleStepBreakpoint=nullptr;
+
+			assert(e->siginfo_.si_signo==SIGTRAP); // signo must have already be converted to SIGTRAP if needed
+			e->siginfo_.si_code=TRAP_TRACE;
 		}
 	}
 #endif
