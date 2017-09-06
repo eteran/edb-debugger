@@ -269,7 +269,7 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 						else
 							targetMode=IDebugger::CPUMode::ARM32;
 						addrAfterInsn&=~1;
-						if(addrAfterInsn&0x3 && targetMode==IDebugger::CPUMode::Thumb)
+						if(addrAfterInsn&0x3 && targetMode!=IDebugger::CPUMode::Thumb)
 							return Status(QObject::tr("won't try to set breakpoint at unaligned address"));
 						break;
 					}
