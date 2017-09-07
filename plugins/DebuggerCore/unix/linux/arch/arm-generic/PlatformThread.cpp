@@ -238,7 +238,7 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 							return Status(QObject::tr("won't try to set breakpoint at unaligned address"));
 						break;
 					}
-					return Status(QObject::tr("EDB doesn't yet support indirect branch instructions."));
+					return Status(QObject::tr("bad operand for %1 instruction.").arg(insn.mnemonic().c_str()));
 				}
 				default:
 					return Status(QObject::tr("instruction %1 modifies PC, but isn't a branch instruction known to EDB's single-stepper.").arg(insn.mnemonic().c_str()));
