@@ -225,6 +225,8 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 					}
 					else if(is_register(operand))
 					{
+						if(operand->reg==ARM_REG_PC && (op==ARM_INS_BX || op==ARM_INS_BLX))
+							return Status(QObject::tr("unpredictable instruction"));
 						// This may happen only with BX or BLX: B and BL require an immediate operand
 						const auto result=edb::v1::arch_processor().get_effective_address(insn, operand, state);
 						if(!result) return Status(result.errorMessage());

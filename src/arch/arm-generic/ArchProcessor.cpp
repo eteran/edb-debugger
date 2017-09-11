@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "State.h"
 #include "Util.h"
 #include "edb.h"
+#include "IDebugger.h"
 
 #include <QMenu>
 
@@ -60,32 +61,55 @@ int capstoneRegToGPRIndex(int capstoneReg, bool& ok) {
 	return regIndex;
 }
 
+Result<edb::address_t> getOperandValueGPR(const edb::Instruction &insn, const edb::Operand &operand, const State &state) {
+
+	using ResultT=Result<edb::address_t>;
+	bool ok;
+	const auto regIndex=capstoneRegToGPRIndex(operand->reg, ok);
+	if(!ok) return ResultT(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg), 0);
+	const auto reg=state.gp_register(regIndex);
+	if(!reg)
+		return ResultT(QObject::tr("failed to get register r%1.").arg(regIndex), 0);
+	auto value=reg.valueAsAddress();
+	return ResultT(value);
+}
+
+
+// NOTE: this function shouldn't be used for operands other than those used as addresses.
+// E.g. for "STM Rn,{regs...}" this function shouldn't try to get the value of any of the {regs...}.
+// Also note that undefined instructions like "STM PC, {regs...}" aren't checked here.
 Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instruction &insn, const edb::Operand &operand, const State &state) const {
 
 	using ResultT=Result<edb::address_t>;
 	if(!operand || !insn) return ResultT(QObject::tr("operand is invalid"),0);
 
 	const auto op=insn.operation();
-	switch(op)
+	if(is_register(operand))
 	{
-	case ARM_INS_BX:
-	case ARM_INS_BLX:
-	case ARM_INS_B:
-	case ARM_INS_BL:
-		if(is_register(operand))
+		bool ok;
+		const auto regIndex=capstoneRegToGPRIndex(operand->reg, ok);
+		if(!ok) return ResultT(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg), 0);
+		const auto reg=state.gp_register(regIndex);
+		if(!reg) return ResultT(QObject::tr("failed to get register r%1.").arg(regIndex), 0);
+		auto value=reg.valueAsAddress();
+		if(regIndex==15)
 		{
-			bool ok;
-			const auto regIndex=capstoneRegToGPRIndex(operand->reg, ok);
-			if(!ok) return ResultT(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg), 0);
-			const auto reg=state.gp_register(regIndex);
-			if(!reg)
-				return ResultT(QObject::tr("failed to get register r%1.").arg(regIndex), 0);
-			auto value=reg.valueAsAddress();
-			if(regIndex==15) // PC
-				return ResultT(QObject::tr("unpredictable instruction"), 0);
-			return ResultT(value);
+			// Even if current state's PC weren't on this instruction, the instruction still refers to
+			// self, so use `insn` instead of `state` to get the value.
+			const auto cpuMode=edb::v1::debugger_core->cpu_mode();
+			switch(cpuMode)
+			{
+			case IDebugger::CPUMode::ARM32:
+				value=insn.rva()+8;
+				break;
+			case IDebugger::CPUMode::Thumb:
+				value=insn.rva()+4;
+				break;
+			default:
+				return ResultT(QObject::tr("calculating effective address in modes other than ARM and Thumb is not supported."), 0);
+			}
 		}
-		break;
+		return ResultT(value);
 	}
 
 	return ResultT(QObject::tr("getting effective address for operand %1 of instruction %2 is not implemented").arg(operand.index()+1).arg(insn.mnemonic().c_str()), 0);
