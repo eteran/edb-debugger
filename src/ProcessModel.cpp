@@ -55,14 +55,14 @@ QVariant ProcessModel::data(const QModelIndex &index, int role) const {
 		if(role == Qt::DisplayRole) {
 			switch(index.column()) {
 			case 0:
-				return item.pid;
+				return QVariant::fromValue(item.pid);
 			case 1:
 				return item.user;
 			case 2:
 				return item.name;
 			}
 		} else if(role == Qt::UserRole) {
-			return item.pid;
+			return QVariant::fromValue(item.pid);
 		}
 	}
 
