@@ -991,7 +991,7 @@ std::shared_ptr<IRegion> primary_code_region() {
 		}
 	}
 #else
-	const QString process_executable = debugger_core->process_exe(debugger_core->pid());
+	const QString process_executable = debugger_core->process()->name();
 
 	memory_regions().sync();
 	const QList<std::shared_ptr<IRegion>> r = memory_regions().regions();
