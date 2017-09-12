@@ -18,14 +18,13 @@ if (NOT QT_VERSION)
 	SET_PROPERTY(CACHE QT_VERSION PROPERTY STRINGS Qt5 Qt4) 
 endif()
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "{PROJECT_SOURCE_DIR}/cmake/Modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
 
 include("GNUInstallDirs")
 
 find_package(Boost 1.35 REQUIRED)
-find_package(PkgConfig REQUIRED)
 
-pkg_check_modules(CAPSTONE REQUIRED capstone>=3.0.4)
+find_package(Capstone REQUIRED)
 include_directories(${CAPSTONE_INCLUDE_DIRS})
 link_directories(${CAPSTONE_LIBRARY_DIRS})
 
@@ -36,12 +35,15 @@ set(TARGET_VERSION_PATCH 22)
 set_property(GLOBAL PROPERTY VERSION ${TARGET_VERSION_MAJOR}.${TARGET_VERSION_MINOR}.${TARGET_VERSION_PATCH})
 
 
+if (UNIX)
 # TODO(eteran): how low can we make this
-pkg_check_modules(GRAPHVIZ libgvc>=2.38.0)
-if(${GRAPHVIZ_FOUND})
-	include_directories(${GRAPHVIZ_INCLUDE_DIRS})
-	link_directories(${GRAPHVIZ_LIBRARY_DIRS})
-	add_definitions(-DENABLE_GRAPH)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(GRAPHVIZ libgvc>=2.38.0)
+  if(${GRAPHVIZ_FOUND})
+    include_directories(${GRAPHVIZ_INCLUDE_DIRS})
+    link_directories(${GRAPHVIZ_LIBRARY_DIRS})
+    add_definitions(-DENABLE_GRAPH)
+  endif()
 endif()
 
 if(${QT_VERSION} STREQUAL "Qt5")
