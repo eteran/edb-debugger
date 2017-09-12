@@ -140,6 +140,8 @@ long PlatformThread::set_debug_register(std::size_t n, long value) {
 
 Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 
+	const auto addrSize=4; // The code here is ARM32-specific anyway...
+
 	State state;
 	get_state(&state);
 	if(state.empty()) return Status(QObject::tr("failed to get thread state."));
@@ -181,6 +183,39 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 
 				switch(op)
 				{
+				case ARM_INS_LDR:
+				{
+					const auto destOperand=insn.operand(0);
+					if(!is_register(destOperand) || destOperand->reg!=ARM_REG_PC)
+						return Status(QObject::tr("instruction %1 with non-PC destination isn't supported yet.").arg(insn.mnemonic().c_str()));
+					const auto srcOperand=insn.operand(1);
+					if(!is_expression(srcOperand))
+						return Status(QObject::tr("unexpected type of second operand of LDR instruction."));
+					const auto effAddrR=edb::v1::arch_processor().get_effective_address(insn, srcOperand, state);
+					if(!effAddrR) return Status(effAddrR.errorMessage());
+
+					const auto effAddr=effAddrR.value();
+					if(process_->read_bytes(effAddr, &addrAfterInsn, addrSize)!=addrSize)
+						return Status(QObject::tr("failed to read memory referred to by LDR operand"));
+
+					// FIXME: for ARMv5 or below (without "T" in the name) bits [1:0] are simply ignored, without any mode change
+					if(addrAfterInsn&1)
+						targetMode=IDebugger::CPUMode::Thumb;
+					else
+						targetMode=IDebugger::CPUMode::ARM32;
+					switch(edb::v1::debugger_core->cpu_mode())
+					{
+					case IDebugger::CPUMode::Thumb:
+						addrAfterInsn&=-2;
+						break;
+					case IDebugger::CPUMode::ARM32:
+						addrAfterInsn&=-4;
+						break;
+					default:
+						return Status(QObject::tr("single-stepping LDR instruction in modes other than ARM or Thumb is not supported yet."));
+					}
+					break;
+				}
 				case ARM_INS_POP:
 				{
 					int i=0;
@@ -192,7 +227,6 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 							assert(operand->access==CS_AC_WRITE);
 							const auto sp=state.gp_register(PlatformState::GPR::SP);
 							if(!sp) return Status(QObject::tr("failed to get value of SP register"));
-							const auto addrSize=4; // The code here is ARM32-specific anyway...
 							if(process_->read_bytes(sp.valueAsAddress()+addrSize*i, &addrAfterInsn, addrSize)!=addrSize)
 								return Status(QObject::tr("failed to read thread stack"));
 							break;
