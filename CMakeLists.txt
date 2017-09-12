@@ -54,6 +54,8 @@ include_directories("include")
 
 if(UNIX)
 	include_directories("include/os/unix")
+elseif(WIN32)
+  include_directories("include/os/win32")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
