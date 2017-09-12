@@ -116,103 +116,6 @@ QString syscallErrName(T err) {
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: get_effective_address
-// Desc:
-//------------------------------------------------------------------------------
-edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool& ok) {
-	edb::address_t ret = 0;
-	ok=false;
-
-	// TODO: get registers by index, not string! too slow
-
-	if(op) {
-		if(is_register(op)) {
-			ret = state[QString::fromStdString(edb::v1::formatter().to_string(op))].valueAsAddress();
-		} else if(is_expression(op)) {
-			const Register baseR  = state[QString::fromStdString(register_name(op->mem.base))];
-			const Register indexR = state[QString::fromStdString(register_name(op->mem.index))];
-			edb::address_t base  = 0;
-			edb::address_t index = 0;
-
-			if(!baseR)
-			{
-				if(op->mem.base!=X86_REG_INVALID)
-					return ret; // register is valid, but failed to be acquired from state
-			}
-			else
-			{
-				base=baseR.valueAsAddress();
-			}
-
-			if(!indexR)
-			{
-				if(op->mem.index != X86_REG_INVALID)
-					return ret; // register is valid, but failed to be acquired from state
-			}
-			else
-			{
-				if(indexR.type()!=Register::TYPE_GPR)
-					return ret; // TODO: add support for VSIB addressing
-				index=indexR.valueAsAddress();
-			}
-
-			// This only makes sense for x86_64, but doesn't hurt on x86
-			if(op->mem.base == X86_REG_RIP) {
-				base += inst.byte_size();
-			}
-
-			ret = base + index * op->mem.scale + op->mem.disp;
-
-
-			std::size_t segRegIndex = op->mem.segment;
-
-			// handle implicit segments on 32-bit (capstone doesn't call them out explicitly)
-			if(segRegIndex == X86_REG_INVALID && !debuggeeIs64Bit()) {
-				switch(op->mem.base) {
-				case X86_REG_BP:
-				case X86_REG_SP:
-				case X86_REG_EBP:
-				case X86_REG_ESP:
-					segRegIndex = X86_REG_SS;
-					break;
-				default:
-					segRegIndex = X86_REG_DS;
-					break;
-				}
-			}
-
-
-			if(segRegIndex != X86_REG_INVALID) {
-
-				const Register segBase = [&segRegIndex, &state](){
-					switch(segRegIndex) {
-					case X86_REG_ES: return state[QLatin1String("es_base")];
-					case X86_REG_CS:	return state[QLatin1String("cs_base")];
-					case X86_REG_SS:	return state[QLatin1String("ss_base")];
-					case X86_REG_DS:	return state[QLatin1String("ds_base")];
-					case X86_REG_FS:	return state[QLatin1String("fs_base")];
-					case X86_REG_GS:	return state[QLatin1String("gs_base")];
-					default:
-						return Register();
-					}
-				}();
-
-				if(!segBase) return 0; // no way to reliably compute address
-				ret += segBase.valueAsAddress();
-			}
-		} else if(is_immediate(op)) {
-			const Register csBase = state["cs_base"];
-			if(!csBase) return 0; // no way to reliably compute address
-			ret = op->imm + csBase.valueAsAddress();
-		}
-	}
-
-	ok=true;
-	ret.normalize();
-	return ret;
-}
-
 #if 0
 //------------------------------------------------------------------------------
 // Name: get_effective_address
@@ -658,7 +561,7 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 		if(const auto operand = inst[0]) {
 
 			bool ok;
-			const edb::address_t effective_address = get_effective_address(inst, operand, state,ok);
+			const edb::address_t effective_address = edb::v1::arch_processor().get_effective_address(inst, operand, state,ok);
 			if(!ok) return;
 			const auto temp_operand = QString::fromStdString(edb::v1::formatter().to_string(operand));
 
@@ -813,7 +716,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 					ret << QString("%1 = %2").arg(temp_operand, valueString);
 				} else if(is_expression(operand)) {
 					bool ok;
-					const edb::address_t effective_address = get_effective_address(inst, operand, state,ok);
+					const edb::address_t effective_address = edb::v1::arch_processor().get_effective_address(inst, operand, state,ok);
 					if(!ok) continue;
 					edb::value256 target;
 
@@ -1010,6 +913,110 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 #endif
 }
 
+}
+
+//------------------------------------------------------------------------------
+// Name: get_effective_address
+// Desc:
+//------------------------------------------------------------------------------
+Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state) const {
+	using ResultT=Result<edb::address_t>;
+
+	edb::address_t ret = 0;
+	// TODO: get registers by index, not string! too slow
+
+	if(op) {
+		if(is_register(op)) {
+			ret = state[QString::fromStdString(edb::v1::formatter().to_string(op))].valueAsAddress();
+		} else if(is_expression(op)) {
+			const Register baseR  = state[QString::fromStdString(register_name(op->mem.base))];
+			const Register indexR = state[QString::fromStdString(register_name(op->mem.index))];
+			edb::address_t base  = 0;
+			edb::address_t index = 0;
+
+			if(!baseR)
+			{
+				if(op->mem.base!=X86_REG_INVALID)
+					return ResultT(QObject::tr("failed to acquire base register from state"),0);
+			}
+			else
+			{
+				base=baseR.valueAsAddress();
+			}
+
+			if(!indexR)
+			{
+				if(op->mem.index != X86_REG_INVALID)
+					return ResultT(QObject::tr("failed to acquire index register from state"),0);
+			}
+			else
+			{
+				if(indexR.type()!=Register::TYPE_GPR)
+					return ResultT(QObject::tr("only general-purpose register is supported as index register"),0);
+				index=indexR.valueAsAddress();
+			}
+
+			// This only makes sense for x86_64, but doesn't hurt on x86
+			if(op->mem.base == X86_REG_RIP) {
+				base += inst.byte_size();
+			}
+
+			ret = base + index * op->mem.scale + op->mem.disp;
+
+
+			std::size_t segRegIndex = op->mem.segment;
+
+			// handle implicit segments on 32-bit (capstone doesn't call them out explicitly)
+			if(segRegIndex == X86_REG_INVALID && !debuggeeIs64Bit()) {
+				switch(op->mem.base) {
+				case X86_REG_BP:
+				case X86_REG_SP:
+				case X86_REG_EBP:
+				case X86_REG_ESP:
+					segRegIndex = X86_REG_SS;
+					break;
+				default:
+					segRegIndex = X86_REG_DS;
+					break;
+				}
+			}
+
+
+			if(segRegIndex != X86_REG_INVALID) {
+
+				const Register segBase = [&segRegIndex, &state](){
+					switch(segRegIndex) {
+					case X86_REG_ES: return state[QLatin1String("es_base")];
+					case X86_REG_CS:	return state[QLatin1String("cs_base")];
+					case X86_REG_SS:	return state[QLatin1String("ss_base")];
+					case X86_REG_DS:	return state[QLatin1String("ds_base")];
+					case X86_REG_FS:	return state[QLatin1String("fs_base")];
+					case X86_REG_GS:	return state[QLatin1String("gs_base")];
+					default:
+						return Register();
+					}
+				}();
+
+				if(!segBase) return ResultT(QObject::tr("failed to obtain segment base"),0); // no way to reliably compute address
+				ret += segBase.valueAsAddress();
+			}
+		} else if(is_immediate(op)) {
+			const Register csBase = state["cs_base"];
+			if(!csBase) return ResultT(QObject::tr("failed to obtain CS segment base"),0); // no way to reliably compute address
+			ret = op->imm + csBase.valueAsAddress();
+		}
+	}
+
+	ret.normalize();
+	return ResultT(ret);
+}
+
+edb::address_t ArchProcessor::get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool& ok) const {
+
+	ok=false;
+	const auto result = get_effective_address(inst, op, state);
+	if(!result) return 0;
+	return result.value();
 }
 
 //------------------------------------------------------------------------------

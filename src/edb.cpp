@@ -415,6 +415,13 @@ std::shared_ptr<IBreakpoint> create_breakpoint(address_t address) {
 
 		if(ret == QMessageBox::Yes) {
 			bp = debugger_core->add_breakpoint(address);
+			if(!bp) {
+				QMessageBox::critical(
+						0,
+						QT_TRANSLATE_NOOP("edb", "Error Setting Breakpoint"),
+						QObject::tr("Failed to set breakpoint at address %1").arg(address.toPointerString()));
+				return bp;
+			}
 			repaint_cpu_view();
 		}
 

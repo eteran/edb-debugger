@@ -140,6 +140,8 @@ long PlatformThread::set_debug_register(std::size_t n, long value) {
 
 Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 
+	const auto addrSize=4; // The code here is ARM32-specific anyway...
+
 	State state;
 	get_state(&state);
 	if(state.empty()) return Status(QObject::tr("failed to get thread state."));
@@ -181,6 +183,39 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 
 				switch(op)
 				{
+				case ARM_INS_LDR:
+				{
+					const auto destOperand=insn.operand(0);
+					if(!is_register(destOperand) || destOperand->reg!=ARM_REG_PC)
+						return Status(QObject::tr("instruction %1 with non-PC destination isn't supported yet.").arg(insn.mnemonic().c_str()));
+					const auto srcOperand=insn.operand(1);
+					if(!is_expression(srcOperand))
+						return Status(QObject::tr("unexpected type of second operand of LDR instruction."));
+					const auto effAddrR=edb::v1::arch_processor().get_effective_address(insn, srcOperand, state);
+					if(!effAddrR) return Status(effAddrR.errorMessage());
+
+					const auto effAddr=effAddrR.value();
+					if(process_->read_bytes(effAddr, &addrAfterInsn, addrSize)!=addrSize)
+						return Status(QObject::tr("failed to read memory referred to by LDR operand"));
+
+					// FIXME: for ARMv5 or below (without "T" in the name) bits [1:0] are simply ignored, without any mode change
+					if(addrAfterInsn&1)
+						targetMode=IDebugger::CPUMode::Thumb;
+					else
+						targetMode=IDebugger::CPUMode::ARM32;
+					switch(edb::v1::debugger_core->cpu_mode())
+					{
+					case IDebugger::CPUMode::Thumb:
+						addrAfterInsn&=-2;
+						break;
+					case IDebugger::CPUMode::ARM32:
+						addrAfterInsn&=-4;
+						break;
+					default:
+						return Status(QObject::tr("single-stepping LDR instruction in modes other than ARM or Thumb is not supported yet."));
+					}
+					break;
+				}
 				case ARM_INS_POP:
 				{
 					int i=0;
@@ -192,7 +227,6 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 							assert(operand->access==CS_AC_WRITE);
 							const auto sp=state.gp_register(PlatformState::GPR::SP);
 							if(!sp) return Status(QObject::tr("failed to get value of SP register"));
-							const auto addrSize=4; // The code here is ARM32-specific anyway...
 							if(process_->read_bytes(sp.valueAsAddress()+addrSize*i, &addrAfterInsn, addrSize)!=addrSize)
 								return Status(QObject::tr("failed to read thread stack"));
 							break;
@@ -225,46 +259,22 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 					}
 					else if(is_register(operand))
 					{
+						if(operand->reg==ARM_REG_PC && (op==ARM_INS_BX || op==ARM_INS_BLX))
+							return Status(QObject::tr("unpredictable instruction"));
 						// This may happen only with BX or BLX: B and BL require an immediate operand
-						int regIndex=ARM_REG_INVALID;
-						// NOTE: capstone registers are stupidly not in continuous order
-						switch(operand->reg)
-						{
-						case ARM_REG_R0:  regIndex=0; break;
-						case ARM_REG_R1:  regIndex=1; break;
-						case ARM_REG_R2:  regIndex=2; break;
-						case ARM_REG_R3:  regIndex=3; break;
-						case ARM_REG_R4:  regIndex=4; break;
-						case ARM_REG_R5:  regIndex=5; break;
-						case ARM_REG_R6:  regIndex=6; break;
-						case ARM_REG_R7:  regIndex=7; break;
-						case ARM_REG_R8:  regIndex=8; break;
-						case ARM_REG_R9:  regIndex=9; break;
-						case ARM_REG_R10: regIndex=10; break;
-						case ARM_REG_R11: regIndex=11; break;
-						case ARM_REG_R12: regIndex=12; break;
-						case ARM_REG_R13: regIndex=13; break;
-						case ARM_REG_R14: regIndex=14; break;
-						case ARM_REG_R15: regIndex=15; break;
-						default:
-							return Status(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg));
-						}
-						const auto reg=state.gp_register(regIndex);
-						if(!reg)
-							return Status(QObject::tr("failed to get register r%1.").arg(regIndex));
-						addrAfterInsn=reg.valueAsAddress();
-						if(regIndex==15) // PC
-							addrAfterInsn+=4;
+						const auto result=edb::v1::arch_processor().get_effective_address(insn, operand, state);
+						if(!result) return Status(result.errorMessage());
+						addrAfterInsn=result.value();
 						if(addrAfterInsn&1)
 							targetMode=IDebugger::CPUMode::Thumb;
 						else
 							targetMode=IDebugger::CPUMode::ARM32;
 						addrAfterInsn&=~1;
-						if(addrAfterInsn&0x3 && targetMode==IDebugger::CPUMode::Thumb)
+						if(addrAfterInsn&0x3 && targetMode!=IDebugger::CPUMode::Thumb)
 							return Status(QObject::tr("won't try to set breakpoint at unaligned address"));
 						break;
 					}
-					return Status(QObject::tr("EDB doesn't yet support indirect branch instructions."));
+					return Status(QObject::tr("bad operand for %1 instruction.").arg(insn.mnemonic().c_str()));
 				}
 				default:
 					return Status(QObject::tr("instruction %1 modifies PC, but isn't a branch instruction known to EDB's single-stepper.").arg(insn.mnemonic().c_str()));
