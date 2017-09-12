@@ -23,6 +23,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/
 include("GNUInstallDirs")
 
 find_package(Boost 1.35 REQUIRED)
+include_directories(${Boost_INCLUDE_DIR})
 
 find_package(Capstone REQUIRED)
 include_directories(${CAPSTONE_INCLUDE_DIRS})
