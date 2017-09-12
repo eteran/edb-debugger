@@ -116,6 +116,33 @@ Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instructi
 		auto value=reg.valueAsAddress();
 		return adjustR15Value(insn, regIndex, value);
 	}
+	else if(is_expression(operand))
+	{
+		bool ok;
+		Register baseR, indexR;
+
+		const auto baseIndex = capstoneRegToGPRIndex(operand->mem.base , ok);
+		// base must be valid
+		if(!ok || !(baseR = state.gp_register(baseIndex)))
+			return ResultT(QObject::tr("failed to get register r%1.").arg(baseIndex), 0);
+
+		const auto indexIndex = capstoneRegToGPRIndex(operand->mem.index, ok);
+		if(ok) // index register may be irrelevant, only try to get it if its index is valid
+		{
+			if(!(indexR = state.gp_register(indexIndex)))
+				return ResultT(QObject::tr("failed to get register r%1.").arg(indexIndex), 0);
+		}
+
+		edb::address_t addr=baseR.valueAsAddress();
+		if(const auto adjustedRes=adjustR15Value(insn, baseIndex, addr))
+		{
+			addr = adjustedRes.value()+operand->mem.disp;
+			if(indexR)
+				addr += (indexR.valueAsAddress()*operand->mem.scale) << operand->mem.lshift;
+			return ResultT(addr);
+		}
+		else return adjustedRes;
+	}
 
 	return ResultT(QObject::tr("getting effective address for operand %1 of instruction %2 is not implemented").arg(operand.index()+1).arg(insn.mnemonic().c_str()), 0);
 }
