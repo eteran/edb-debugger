@@ -74,6 +74,28 @@ Result<edb::address_t> getOperandValueGPR(const edb::Instruction &insn, const ed
 	return ResultT(value);
 }
 
+Result<edb::address_t> adjustR15Value(const edb::Instruction &insn, const int regIndex, edb::address_t value) {
+
+	using ResultT=Result<edb::address_t>;
+	if(regIndex==15)
+	{
+		// Even if current state's PC weren't on this instruction, the instruction still refers to
+		// self, so use `insn` instead of `state` to get the value.
+		const auto cpuMode=edb::v1::debugger_core->cpu_mode();
+		switch(cpuMode)
+		{
+		case IDebugger::CPUMode::ARM32:
+			value=insn.rva()+8;
+			break;
+		case IDebugger::CPUMode::Thumb:
+			value=insn.rva()+4;
+			break;
+		default:
+			return ResultT(QObject::tr("calculating effective address in modes other than ARM and Thumb is not supported."), 0);
+		}
+	}
+	return ResultT(value);
+}
 
 // NOTE: this function shouldn't be used for operands other than those used as addresses.
 // E.g. for "STM Rn,{regs...}" this function shouldn't try to get the value of any of the {regs...}.
@@ -92,24 +114,7 @@ Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instructi
 		const auto reg=state.gp_register(regIndex);
 		if(!reg) return ResultT(QObject::tr("failed to get register r%1.").arg(regIndex), 0);
 		auto value=reg.valueAsAddress();
-		if(regIndex==15)
-		{
-			// Even if current state's PC weren't on this instruction, the instruction still refers to
-			// self, so use `insn` instead of `state` to get the value.
-			const auto cpuMode=edb::v1::debugger_core->cpu_mode();
-			switch(cpuMode)
-			{
-			case IDebugger::CPUMode::ARM32:
-				value=insn.rva()+8;
-				break;
-			case IDebugger::CPUMode::Thumb:
-				value=insn.rva()+4;
-				break;
-			default:
-				return ResultT(QObject::tr("calculating effective address in modes other than ARM and Thumb is not supported."), 0);
-			}
-		}
-		return ResultT(value);
+		return adjustR15Value(insn, regIndex, value);
 	}
 
 	return ResultT(QObject::tr("getting effective address for operand %1 of instruction %2 is not implemented").arg(operand.index()+1).arg(insn.mnemonic().c_str()), 0);
