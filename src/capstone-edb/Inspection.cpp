@@ -16,15 +16,15 @@ bool is_terminator(const Instruction &insn) {
 }
 
 bool is_register(const Operand &operand) {
-	return operand && operand->type == CS_OP_REG;
+	return operand && static_cast<cs_op_type>(operand->type) == CS_OP_REG;
 }
 
 bool is_expression(const Operand &operand) {
-	return operand && operand->type == CS_OP_MEM;
+	return operand && static_cast<cs_op_type>(operand->type) == CS_OP_MEM;
 }
 
 bool is_immediate(const Operand &operand) {
-	return operand && operand->type == CS_OP_IMM;
+	return operand && static_cast<cs_op_type>(operand->type) == CS_OP_IMM;
 }
 
 bool is_halt(const Instruction &insn) {
