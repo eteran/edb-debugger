@@ -286,7 +286,7 @@ edb::value80 State::fpu_register(size_t n) const {
 	if(impl_) {
 		return impl_->fpu_register(n);
 	}
-	return edb::value80(0.0L);
+	return edb::value80(std::array<std::uint8_t, 10>({ 0,0,0,0,0,0,0,0,0,0 }));
 }
 
 //------------------------------------------------------------------------------
