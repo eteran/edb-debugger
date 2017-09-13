@@ -181,6 +181,15 @@ Instruction::Instruction(const void *first, const void *last, uint64_t rva) noex
 	cs_insn *insn = nullptr;
 	if (first < last && cs_disasm(csh, codeBegin, codeEnd - codeBegin, rva, 1, &insn)) {
 		insn_ = insn;
+#if defined EDB_ARM32
+		if(insn_->detail->arm.op_count>=2)
+		{
+			// XXX: this is a work around capstone bug #1013
+			auto& op=insn_->detail->arm.operands[1];
+			if(op.type==ARM_OP_MEM && op.subtracted && op.mem.scale==1)
+				op.mem.scale=-1;
+		}
+#endif
 	} else {
 		insn_ = nullptr;
 	}
