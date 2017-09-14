@@ -22,7 +22,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "IProcess.h"
 
-class PlatformProcess : public IProcess {
-};
+namespace DebuggerCorePlugin {
+
+	class PlatformProcess : public IProcess {
+	};
+
+}
 
 #endif

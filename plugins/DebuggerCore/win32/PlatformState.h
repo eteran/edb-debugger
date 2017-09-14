@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Types.h"
 #include <windows.h>
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 class PlatformState : public IState {
 	friend class DebuggerCore;

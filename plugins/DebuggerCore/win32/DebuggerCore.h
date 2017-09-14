@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCoreBase.h"
 #include <QSet>
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 class DebuggerCore : public DebuggerCoreBase {
 	Q_OBJECT

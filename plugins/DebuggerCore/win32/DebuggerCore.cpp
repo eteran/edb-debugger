@@ -41,7 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma comment(lib, "Psapi.lib")
 #endif
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 typedef struct _LSA_UNICODE_STRING {
   USHORT Length;
