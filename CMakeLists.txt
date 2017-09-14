@@ -94,6 +94,9 @@ if(CMAKE_COMPILER_IS_GNUCC)
 	set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -W -Wall -pedantic -Wunused")
 endif()
 
+if(MSVC)
+  add_definitions(-DUNICODE -D_UNICODE)
+endif()
 
 add_subdirectory(src)
 add_subdirectory(plugins)
