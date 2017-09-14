@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DEBUGGERCORE_20090529_H_
 
 #include "DebuggerCoreBase.h"
+#include "IRegion.h"
+#include "Module.h"
 #include <QSet>
 
 namespace DebuggerCorePlugin {
