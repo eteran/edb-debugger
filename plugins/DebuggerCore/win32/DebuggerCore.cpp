@@ -362,7 +362,7 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 
 		memset(buf, 0xff, len);
 		SIZE_T bytes_read = 0;
-        if(ReadProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_read)) {
+        if(ReadProcessMemory(process_handle_, reinterpret_cast<LPCVOID>(address.toUint()), buf, len, &bytes_read)) {
 			for(const std::shared_ptr<IBreakpoint> &bp: breakpoints_) {
 
 				if(bp->address() >= address && bp->address() < address + bytes_read) {
@@ -389,7 +389,7 @@ bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::siz
 		}
 
 		SIZE_T bytes_written = 0;
-        return WriteProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_written);
+        return WriteProcessMemory(process_handle_, reinterpret_cast<LPVOID>(address.toUint()), buf, len, &bytes_written);
 	}
     return false;
 }
@@ -807,7 +807,7 @@ QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 
 			Q_FOREVER {
 				MEMORY_BASIC_INFORMATION info;
-				VirtualQueryEx(ph, reinterpret_cast<LPVOID>(addr), &info, sizeof(info));
+				VirtualQueryEx(ph, reinterpret_cast<LPVOID>(addr.toUint()), &info, sizeof(info));
 
 				if(last_base == info.BaseAddress) {
 					break;

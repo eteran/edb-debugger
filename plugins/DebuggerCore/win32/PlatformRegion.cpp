@@ -105,7 +105,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 		prot |= permissions_ & ~KNOWN_PERMISSIONS; // keep modifiers
 
 		DWORD prev_prot;
-		if(VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start()), size(), prot, &prev_prot)) {
+		if(VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start().toUint()), size(), prot, &prev_prot)) {
 			permissions_ = prot;
 		}
 
