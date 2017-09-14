@@ -25,9 +25,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDateTime>
 
+#include <TlHelp32.h>
+
 namespace DebuggerCorePlugin {
 
 	class PlatformProcess : public IProcess {
+
+	public:
+		PlatformProcess(const PROCESSENTRY32& pe);
 
 	public:
 		// legal to call when not attached
@@ -43,9 +48,7 @@ namespace DebuggerCorePlugin {
 		virtual QString                         executable() const {
 			qDebug("TODO: implement PlatformProcess::executable"); return "";
 		};
-		virtual edb::pid_t                      pid() const {
-			qDebug("TODO: implement PlatformProcess::pid"); return edb::pid_t();
-		};
+		virtual edb::pid_t                      pid() const;
 		virtual std::shared_ptr<IProcess>       parent() const {
 			qDebug("TODO: implement PlatformProcess::parent"); return std::shared_ptr<IProcess>();
 		};
@@ -61,12 +64,8 @@ namespace DebuggerCorePlugin {
 		virtual edb::uid_t                      uid() const {
 			qDebug("TODO: implement PlatformProcess::uid"); return edb::uid_t();
 		};
-		virtual QString                         user() const {
-			qDebug("TODO: implement PlatformProcess::user"); return "";
-		};
-		virtual QString                         name() const {
-			qDebug("TODO: implement PlatformProcess::name"); return "";
-		};
+		virtual QString                         user() const;
+		virtual QString                         name() const;
 		virtual QList<Module>                   loaded_modules() const {
 			qDebug("TODO: implement PlatformProcess::loaded_modules"); return QList<Module>();
 		};
@@ -109,6 +108,11 @@ namespace DebuggerCorePlugin {
 		virtual QMap<edb::address_t, Patch>      patches() const {
 			qDebug("TODO: implement PlatformProcess::patches"); return QMap<edb::address_t, Patch>();
 		};
+
+	private:
+		edb::pid_t _pid;
+		QString _name;
+		QString _user;
 
 	};
 
