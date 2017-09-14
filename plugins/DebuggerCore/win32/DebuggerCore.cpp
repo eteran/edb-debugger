@@ -295,8 +295,8 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 				break;
 			case CREATE_PROCESS_DEBUG_EVENT:
 				CloseHandle(de.u.CreateProcessInfo.hFile);
-				start_address = reinterpret_cast<edb::address_t>(de.u.CreateProcessInfo.lpStartAddress);
-				image_base    = reinterpret_cast<edb::address_t>(de.u.CreateProcessInfo.lpBaseOfImage);
+				start_address = edb::address_t(de.u.CreateProcessInfo.lpStartAddress);
+				image_base    = edb::address_t(de.u.CreateProcessInfo.lpBaseOfImage);
 				break;
 			case LOAD_DLL_DEBUG_EVENT:
 				CloseHandle(de.u.LoadDll.hFile);
@@ -817,9 +817,9 @@ QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 
 				if(info.State == MEM_COMMIT) {
 
-					const auto start   = reinterpret_cast<edb::address_t>(info.BaseAddress);
-					const auto end     = reinterpret_cast<edb::address_t>(info.BaseAddress) + info.RegionSize;
-					const auto base    = reinterpret_cast<edb::address_t>(info.AllocationBase);
+					const auto start   = edb::address_t(info.BaseAddress);
+					const auto end     = edb::address_t(info.BaseAddress) + info.RegionSize;
+					const auto base    = edb::address_t(info.AllocationBase);
 					const QString name = QString();
 					const IRegion::permissions_t permissions = info.Protect; // let std::shared_ptr<IRegion> handle permissions and modifiers
 
@@ -918,7 +918,7 @@ QList<Module> DebuggerCore::loaded_modules() const {
         if(Module32First(hModuleSnap, &me32)) {
 			do {
 				Module module;
-				module.base_address = reinterpret_cast<edb::address_t>(me32.modBaseAddr);
+				module.base_address = edb::address_t(me32.modBaseAddr);
 				module.name         = QString::fromWCharArray(me32.szModule);
 				ret.push_back(module);
 			} while(Module32Next(hModuleSnap, &me32));
