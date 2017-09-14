@@ -276,7 +276,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 // Desc: waits for a debug event, secs is a timeout (but is not yet respected)
 //       ok will be set to false if the timeout expires
 //------------------------------------------------------------------------------
-std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
+std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 	if(attached()) {
 		DEBUG_EVENT de;
 		while(WaitForDebugEvent(&de, msecs == 0 ? INFINITE : msecs)) {
@@ -398,7 +398,7 @@ bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::siz
 // Name: attach
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerCore::attach(edb::pid_t pid) {
+Status DebuggerCore::attach(edb::pid_t pid) {
 
 	detach();
 
@@ -409,21 +409,21 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 		if(DebugActiveProcess(pid)) {
 			process_handle_ = ph;
 			pid_            = pid;
-			return true;
+			return Status::Ok;
 		}
 		else {
 			CloseHandle(ph);
 		}
 	}
 
-	return false;
+	return Status("Error DebuggerCore::attach");
 }
 
 //------------------------------------------------------------------------------
 // Name: detach
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerCore::detach() {
+Status DebuggerCore::detach() {
 	if(attached()) {
 		clear_breakpoints();
 		// Make sure exceptions etc. are passed
@@ -436,6 +436,7 @@ void DebuggerCore::detach() {
 		image_base      = 0;
 		threads_.clear();
 	}
+	return Status::Ok;
 }
 
 //------------------------------------------------------------------------------
@@ -575,7 +576,7 @@ void DebuggerCore::set_state(const State &state) {
 // TODO: Don't inherit security descriptors from this process (default values)
 //       Is this even possible?
 //------------------------------------------------------------------------------
-bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
+Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 
 	Q_UNUSED(tty);
 
@@ -636,7 +637,12 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 	delete[] command_path;
 	FreeEnvironmentStringsW(env_block);
 
-	return ok;
+	if (ok) {
+		return Status::Ok;
+	}
+	else {
+		return Status("Error DebuggerCore::open");
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -659,8 +665,8 @@ int DebuggerCore::sys_pointer_size() const {
 // Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
-	QMap<edb::pid_t, ProcessInfo> ret;
+QMap<edb::pid_t, std::shared_ptr<IProcess> > DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, std::shared_ptr<IProcess> > ret;
 
 	HANDLE handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if(handle != INVALID_HANDLE_VALUE) {
@@ -891,8 +897,8 @@ edb::address_t DebuggerCore::process_data_address() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QMap<long, QString> DebuggerCore::exceptions() const {
-	QMap<long, QString> exceptions;
+QMap<qlonglong, QString> DebuggerCore::exceptions() const {
+	QMap<qlonglong, QString> exceptions;
 
 	return exceptions;
 }
