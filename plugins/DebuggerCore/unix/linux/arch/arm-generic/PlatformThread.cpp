@@ -196,7 +196,7 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 
 					const auto effAddr=effAddrR.value();
 					if(process_->read_bytes(effAddr, &addrAfterInsn, addrSize)!=addrSize)
-						return Status(QObject::tr("failed to read memory referred to by LDR operand"));
+						return Status(QObject::tr("failed to read memory referred to by LDR operand (address %1).").arg(effAddr.toPointerString()));
 
 					// FIXME: for ARMv5 or below (without "T" in the name) bits [1:0] are simply ignored, without any mode change
 					if(addrAfterInsn&1)

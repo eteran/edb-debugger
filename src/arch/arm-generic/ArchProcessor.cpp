@@ -26,7 +26,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 #include "IDebugger.h"
 
+#include <cstdint>
+
 #include <QMenu>
+
+using std::uint32_t;
 
 namespace {
 static constexpr size_t GPR_COUNT=16;
@@ -97,6 +101,42 @@ Result<edb::address_t> adjustR15Value(const edb::Instruction &insn, const int re
 	return ResultT(value);
 }
 
+uint32_t shift(uint32_t x, arm_shifter type, uint32_t shiftAmount, bool carryFlag)
+{
+    constexpr uint32_t highBit=1u<<31;
+	const auto N=shiftAmount;
+	switch(type)
+	{
+	case ARM_SFT_INVALID:
+		return x;
+	case ARM_SFT_ASR:
+	case ARM_SFT_ASR_REG:
+		assert(N>=1 && N<=32);
+		// NOTE: unlike on x86, shift by 32 bits on ARM is not a NOP: it sets all bits to sign bit
+		return N==32 ? -((x&highBit)>>31) : x>>N | ~(((x&highBit)>>N)-1);
+	case ARM_SFT_LSL:
+	case ARM_SFT_LSL_REG:
+		assert(N>=0 && N<=31);
+		return x<<N;
+	case ARM_SFT_LSR:
+	case ARM_SFT_LSR_REG:
+		// NOTE: unlike on x86, shift by 32 bits on ARM is not a NOP: it clears the value
+		return N==32 ? 0 : x>>N;
+	case ARM_SFT_ROR:
+	case ARM_SFT_ROR_REG:
+	{
+		assert(N>=1 && N<=31);
+		constexpr unsigned mask=8*sizeof x-1;
+		return x>>N | x<<((-N)&mask);
+	}
+	case ARM_SFT_RRX:
+	case ARM_SFT_RRX_REG:
+		return uint32_t(carryFlag)<<31 | x>>1;
+	}
+	assert(!"Must not reach here!");
+	return x;
+}
+
 // NOTE: this function shouldn't be used for operands other than those used as addresses.
 // E.g. for "STM Rn,{regs...}" this function shouldn't try to get the value of any of the {regs...}.
 // Also note that undefined instructions like "STM PC, {regs...}" aren't checked here.
@@ -119,7 +159,7 @@ Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instructi
 	else if(is_expression(operand))
 	{
 		bool ok;
-		Register baseR, indexR;
+		Register baseR, indexR, cpsrR;
 
 		const auto baseIndex = capstoneRegToGPRIndex(operand->mem.base , ok);
 		// base must be valid
@@ -133,12 +173,17 @@ Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instructi
 				return ResultT(QObject::tr("failed to get register r%1.").arg(indexIndex), 0);
 		}
 
+		cpsrR=state.flags_register();
+		if(!cpsrR && (operand->shift.type==ARM_SFT_RRX || operand->shift.type==ARM_SFT_RRX_REG))
+			return ResultT(QObject::tr("failed to get CPSR."), 0);
+		const bool C = cpsrR ? cpsrR.valueAsInteger()&0x20000000 : false;
+
 		edb::address_t addr=baseR.valueAsAddress();
 		if(const auto adjustedRes=adjustR15Value(insn, baseIndex, addr))
 		{
 			addr = adjustedRes.value()+operand->mem.disp;
 			if(indexR)
-				addr += (indexR.valueAsAddress()*operand->mem.scale) << operand->mem.lshift;
+				addr += operand->mem.scale*shift(indexR.valueAsAddress(), operand->shift.type, operand->shift.value, C);
 			return ResultT(addr);
 		}
 		else return adjustedRes;
