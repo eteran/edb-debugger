@@ -253,17 +253,17 @@ edb::address_t DebuggerCore::page_size() const {
 bool DebuggerCore::has_extension(quint64 ext) const {
 #if !defined(EDB_X86_64)
 	switch(ext) {
-	case edb::string_hash<'M', 'M', 'X'>::value:
+	case edb::string_hash("MMX"):
 		return IsProcessorFeaturePresent(PF_MMX_INSTRUCTIONS_AVAILABLE);
-	case edb::string_hash<'X', 'M', 'M'>::value:
+	case edb::string_hash("XMM"):
 		return IsProcessorFeaturePresent(PF_XMMI_INSTRUCTIONS_AVAILABLE);
 	default:
 		return false;
 	}
 #else
 	switch(ext) {
-	case edb::string_hash<'M', 'M', 'X'>::value:
-	case edb::string_hash<'X', 'M', 'M'>::value:
+	case edb::string_hash("MMX"):
+	case edb::string_hash("XMM"):
 		return true;
 	default:
 		return false;
@@ -943,9 +943,9 @@ QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 //------------------------------------------------------------------------------
 quint64 DebuggerCore::cpu_type() const {
 #ifdef EDB_X86
-	return edb::string_hash<'x', '8', '6'>::value;
+	return edb::string_hash("x86");
 #elif defined(EDB_X86_64)
-	return edb::string_hash<'x', '8', '6', '-', '6', '4'>::value;
+	return edb::string_hash("x86-64");
 #endif
 }
 
