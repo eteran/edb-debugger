@@ -70,9 +70,29 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		unix/linux/DialogMemoryAccess.h
 		${UI_H}
 	)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+
+  include_directories(
+    "win32"
+  )
+  
+  set(DebuggerCore_SRCS
+    ${DebuggerCore_SRCS}
+    win32/DebuggerCore.cpp
+    win32/DebuggerCore.h
+    win32/PlatformEvent.cpp
+    win32/PlatformEvent.h
+    win32/PlatformProcess.cpp
+    win32/PlatformProcess.h
+    win32/PlatformRegion.cpp
+    win32/PlatformRegion.h
+    win32/PlatformState.cpp
+    win32/PlatformState.h
+    ${UI_H}
+  )
 endif()
 
-if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64"))
+if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64"))
 	include_directories("arch/x86-generic")
 	
 	set(DebuggerCore_SRCS
