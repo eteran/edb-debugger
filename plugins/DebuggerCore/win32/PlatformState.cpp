@@ -288,7 +288,7 @@ edb::address_t PlatformState::stack_pointer() const {
 // Name: debug_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::reg_t PlatformState::debug_register(int n) const {
+edb::reg_t PlatformState::debug_register(size_t n) const {
 
 	switch(n) {
 	case 0: return context_.Dr0;
@@ -410,7 +410,7 @@ void PlatformState::clear() {
 // Name: set_debug_register
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::set_debug_register(int n, edb::reg_t value) {
+void PlatformState::set_debug_register(size_t n, edb::reg_t value) {
 	switch(n) {
 	case 0: context_.Dr0 = value; break;
 	case 1: context_.Dr1 = value; break;
