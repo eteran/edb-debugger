@@ -612,17 +612,17 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 	// CreateProcessW wants a writable copy of the command line :<
 	auto command_path = new wchar_t[command_str.length() + sizeof(wchar_t)];
-    wcscpy_s(command_path, command_str.length() + 1, command_str.utf16());
+    wcscpy_s(command_path, command_str.length() + 1, reinterpret_cast<const wchar_t*>(command_str.utf16()));
 
 	if(CreateProcessW(
-			path.utf16(), // exe
+			reinterpret_cast<const wchar_t*>(path.utf16()), // exe
 			command_path, // commandline
 			NULL,         // default security attributes
 			NULL,         // default thread security too
 			FALSE,        // inherit handles
 			CREATE_FLAGS,
 			env_block,    // environment data
-			tcwd.utf16(), // working directory
+			reinterpret_cast<const wchar_t*>(tcwd.utf16()), // working directory
 			&startup_info,
 			&process_info)) {
 
