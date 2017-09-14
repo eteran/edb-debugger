@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "MemoryRegions.h"
 #include "PlatformEvent.h"
+#include "PlatformProcess.h"
 #include "PlatformRegion.h"
 #include "PlatformState.h"
 #include "State.h"
@@ -148,36 +149,6 @@ namespace {
 	private:
 		HANDLE handle_;
 	};
-
-	QString get_user_token(HANDLE hProcess) {
-		QString ret;
-		HANDLE hToken;
-
-		if(!OpenProcessToken(hProcess, TOKEN_QUERY, &hToken)) {
-			return ret;
-		}
-
-		DWORD needed;
-		GetTokenInformation(hToken, TokenOwner, NULL, 0, &needed);
-
-		if(auto owner = static_cast<TOKEN_OWNER *>(malloc(needed))) {
-			if(GetTokenInformation(hToken, TokenOwner, owner, needed, &needed)) {
-				WCHAR user[MAX_PATH];
-				WCHAR domain[MAX_PATH];
-				DWORD user_sz   = MAX_PATH;
-				DWORD domain_sz = MAX_PATH;
-				SID_NAME_USE snu;
-
-				if(LookupAccountSid(NULL, owner->Owner, user, &user_sz, domain, &domain_sz, &snu) && snu == SidTypeUser) {
-					ret = QString::fromWCharArray(user);
-				}
-			}
-			free(owner);
-		}
-
-		CloseHandle(hToken);
-		return ret;
-	}
 
     /*
      * Required to debug and adjust the memory of a process owned by another account.
@@ -682,23 +653,9 @@ QMap<edb::pid_t, std::shared_ptr<IProcess> > DebuggerCore::enumerate_processes()
 
 		if(Process32First(handle, &lppe)) {
 			do {
-				ProcessInfo pi;
-				pi.pid = lppe.th32ProcessID;
-				pi.uid = 0; // TODO
-				pi.name = QString::fromWCharArray(lppe.szExeFile);
+				std::shared_ptr<PlatformProcess> pi = std::make_shared<PlatformProcess>(lppe);
 
-				if(HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, lppe.th32ProcessID)) {
-					BOOL wow64 = FALSE;
-					if(fnIsWow64Process && fnIsWow64Process(hProc, &wow64) && wow64) {
-						pi.name += " *32";
-					}
-
-					pi.user = get_user_token(hProc);
-
-					CloseHandle(hProc);
-				}
-
-				ret.insert(pi.pid, pi);
+				ret.insert(pi->pid(), pi);
 
 				std::memset(&lppe, 0, sizeof(lppe));
 				lppe.dwSize = sizeof(lppe);
