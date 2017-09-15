@@ -2,8 +2,6 @@ if (UNIX)
   find_package(PkgConfig REQUIRED)
 
   pkg_check_modules(CAPSTONE REQUIRED capstone>=3.0.4)
-  include_directories(${CAPSTONE_INCLUDE_DIRS})
-  link_directories(${CAPSTONE_LIBRARY_DIRS})
 elseif (WIN32)
 # CAPSTONE_SDK should be the path to a directory containing a subdirectory "include/capstone"
 # with all the include headers of capstone and another subdirectory "lib" with "capstone_dll.lib".
