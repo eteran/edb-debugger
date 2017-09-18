@@ -218,5 +218,6 @@ elseif(NOT Qt5Core_DIR)
 	target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt4::QtGui Qt4::QtXml Qt4::QtXmlPatterns Qt4::QtSvg ${GRAPHVIZ_LIBRARIES})
 endif()
 
+set_target_properties(edb PROPERTIES ENABLE_EXPORTS TRUE)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 install (TARGETS edb DESTINATION ${CMAKE_INSTALL_BINDIR})
