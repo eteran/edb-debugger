@@ -59,7 +59,7 @@ QVariant ThreadsModel::data(const QModelIndex &index, int role) const {
 				if(item.current) {
 					return tr("*%1").arg(item.thread->tid());
 				} else {
-					return item.thread->tid();
+					return QVariant::fromValue(item.thread->tid());
 				}
 			case 1:
 				return item.thread->priority();
@@ -80,7 +80,7 @@ QVariant ThreadsModel::data(const QModelIndex &index, int role) const {
 				return item.thread->name();
 			}
 		} else if(role == Qt::UserRole) {
-			return item.thread->tid();
+			return QVariant::fromValue(item.thread->tid());
 		}
 	}
 

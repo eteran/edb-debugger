@@ -52,12 +52,16 @@ public:
 	operator ConcreteEnum() const { return static_cast<ConcreteEnum>(data); }
 };
 
+#ifdef _MSC_VER
+using std::make_unique;
+#else
 // Until EDB switches to C++14, this will be useful
 template<typename T, typename ...Args>
 std::unique_ptr<T> make_unique( Args&& ...args )
 {
     return std::unique_ptr<T>( new T( std::forward<Args>(args)... ) );
 }
+#endif
 
 template<typename T>
 typename std::make_unsigned<T>::type to_unsigned(T x) { return x; }

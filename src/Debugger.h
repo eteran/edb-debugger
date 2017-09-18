@@ -51,6 +51,10 @@ class QLabel;
 
 #include "ui_Debugger.h"
 
+namespace {
+  class RunUntilRet;
+}
+
 class Debugger : public QMainWindow, public IDebugEventHandler {
 	Q_OBJECT
 	Q_DISABLE_COPY(Debugger)

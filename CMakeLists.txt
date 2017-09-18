@@ -18,14 +18,14 @@ if (NOT QT_VERSION)
 	SET_PROPERTY(CACHE QT_VERSION PROPERTY STRINGS Qt5 Qt4) 
 endif()
 
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "{PROJECT_SOURCE_DIR}/cmake/Modules/")
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
 
 include("GNUInstallDirs")
 
 find_package(Boost 1.35 REQUIRED)
-find_package(PkgConfig REQUIRED)
+include_directories(${Boost_INCLUDE_DIR})
 
-pkg_check_modules(CAPSTONE REQUIRED capstone>=3.0.4)
+find_package(Capstone REQUIRED)
 include_directories(${CAPSTONE_INCLUDE_DIRS})
 link_directories(${CAPSTONE_LIBRARY_DIRS})
 
@@ -36,12 +36,15 @@ set(TARGET_VERSION_PATCH 22)
 set_property(GLOBAL PROPERTY VERSION ${TARGET_VERSION_MAJOR}.${TARGET_VERSION_MINOR}.${TARGET_VERSION_PATCH})
 
 
+if (UNIX)
 # TODO(eteran): how low can we make this
-pkg_check_modules(GRAPHVIZ libgvc>=2.38.0)
-if(${GRAPHVIZ_FOUND})
-	include_directories(${GRAPHVIZ_INCLUDE_DIRS})
-	link_directories(${GRAPHVIZ_LIBRARY_DIRS})
-	add_definitions(-DENABLE_GRAPH)
+  find_package(PkgConfig REQUIRED)
+  pkg_check_modules(GRAPHVIZ libgvc>=2.38.0)
+  if(${GRAPHVIZ_FOUND})
+    include_directories(${GRAPHVIZ_INCLUDE_DIRS})
+    link_directories(${GRAPHVIZ_LIBRARY_DIRS})
+    add_definitions(-DENABLE_GRAPH)
+  endif()
 endif()
 
 if(${QT_VERSION} STREQUAL "Qt5")
@@ -52,6 +55,8 @@ include_directories("include")
 
 if(UNIX)
 	include_directories("include/os/unix")
+elseif(WIN32)
+  include_directories("include/os/win32")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -66,7 +71,7 @@ else()
 	message(SEND_ERROR "Unexpected bitness: \"sizeof(void*)=${CMAKE_SIZEOF_VOID_P}.\"")
 endif()
 
-if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64"))
+if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64"))
 	if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
 		add_definitions(-DEDB_X86)
 	elseif(${CMAKE_SIZEOF_VOID_P} EQUAL 8)

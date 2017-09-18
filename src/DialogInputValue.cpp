@@ -25,6 +25,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QRegExpValidator>
 #include <QDebug>
 
+#include <limits>
+
 #include "ui_DialogInputValue.h"
 
 //------------------------------------------------------------------------------
@@ -37,8 +39,8 @@ DialogInputValue::DialogInputValue(QWidget *parent) : QDialog(parent), ui(new Ui
 	// Apply some defaults
 	const QString regex = QString("[A-Fa-f0-9]{0,%1}").arg(16);
 	ui->hexInput->setValidator(new QRegExpValidator(QRegExp(regex), this));
-	ui->signedInput->setValidator(new QLongValidator(LONG_LONG_MIN, LONG_LONG_MAX, this));
-	ui->unsignedInput->setValidator(new QULongValidator(0, ULONG_LONG_MAX, this));
+	ui->signedInput->setValidator(new QLongValidator(std::numeric_limits<long long>::min(), std::numeric_limits<long long>::max(), this));
+	ui->unsignedInput->setValidator(new QULongValidator(0, std::numeric_limits<unsigned long long>::max(), this));
 }
 
 //------------------------------------------------------------------------------
