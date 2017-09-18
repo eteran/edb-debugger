@@ -144,6 +144,8 @@ else(Qt5Core_FOUND)
 	target_link_libraries(${PluginName} Qt4::QtGui)
 endif()
 
+target_link_libraries(${PluginName} edb)
+
 set(LIBRARY_OUTPUT_PATH    ${PROJECT_BINARY_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
