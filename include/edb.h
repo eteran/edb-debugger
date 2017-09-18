@@ -149,7 +149,7 @@ EDB_EXPORT IAnalyzer *analyzer();
 EDB_EXPORT bool get_instruction_bytes(address_t address, quint8 *buf, int *size);
 
 template <int N>
-EDB_EXPORT int get_instruction_bytes(address_t address, quint8 (&buffer)[N]) {
+int get_instruction_bytes(address_t address, quint8 (&buffer)[N]) {
 	int size = N;
 	if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
 		return size;
