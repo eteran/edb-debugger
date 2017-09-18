@@ -28,6 +28,9 @@ namespace DebuggerCorePlugin {
 
 class DebuggerCore : public DebuggerCoreBase {
 	Q_OBJECT
+#if QT_VERSION >= 0x050000
+    Q_PLUGIN_METADATA(IID "edb.IDebugger/1.0")
+#endif
 	Q_INTERFACES(IDebugger)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
