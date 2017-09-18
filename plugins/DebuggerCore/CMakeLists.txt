@@ -144,6 +144,7 @@ else(Qt5Core_FOUND)
 	target_link_libraries(${PluginName} Qt4::QtGui)
 endif()
 
+add_definitions(-DQT_PLUGIN)
 target_link_libraries(${PluginName} edb)
 
 set(LIBRARY_OUTPUT_PATH    ${PROJECT_BINARY_DIR})
