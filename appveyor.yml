@@ -32,3 +32,5 @@ before_build:
 
 build_script:
   - cmd: msbuild C:\projects\build\edb.sln /t:edb /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  - cmd: msbuild C:\projects\build\edb.sln /t:DebuggerCore /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
+  
