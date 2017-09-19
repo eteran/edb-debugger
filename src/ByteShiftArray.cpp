@@ -80,7 +80,8 @@ int ByteShiftArray::size() const {
 // Desc: returns and l-value version of an element in the byte array
 //------------------------------------------------------------------------------
 quint8 &ByteShiftArray::operator[](std::size_t i) {
-	return data_[i];
+	Q_ASSERT(i < INT_MAX);
+	return data_[static_cast<int>(i)];
 }
 
 //------------------------------------------------------------------------------
@@ -88,7 +89,8 @@ quint8 &ByteShiftArray::operator[](std::size_t i) {
 // Desc: returns and r-value version of an element in the byte array
 //------------------------------------------------------------------------------
 quint8 ByteShiftArray::operator[](std::size_t i) const {
-	return data_[i];
+	Q_ASSERT(i < INT_MAX);
+	return data_[static_cast<int>(i)];
 }
 
 //------------------------------------------------------------------------------
