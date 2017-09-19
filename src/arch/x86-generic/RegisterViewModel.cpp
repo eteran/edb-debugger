@@ -570,7 +570,7 @@ void RegisterViewModel::updateMMXReg(std::size_t i, edb::value64 value, QString 
 {
 	Q_ASSERT(i<MMX_REG_COUNT);
 	if(!mmxRegs->childCount()) return;
-	updateRegister<MMXReg>(mmxRegs,i,value,comment);
+	updateRegister<MMXReg>(mmxRegs, static_cast<int>(i), value, comment);
 }
 void RegisterViewModel::invalidateMMXReg(std::size_t i)
 {
@@ -609,7 +609,7 @@ void RegisterViewModel::updateSSEReg(std::size_t i, edb::value128 value, QString
 	std::tie(sseCat,avxCat,sseRegMax)=getSSEparams();
 	Q_ASSERT(i<sseRegMax);
 	if(!sseCat->childCount()) return;
-	updateRegister<SSEReg>(sseCat,i,value,comment);
+	updateRegister<SSEReg>(sseCat, static_cast<int>(i), value, comment);
 	// To avoid showing stale data in case this is called when AVX state is supported
 	if(avxCat->childCount()) invalidate(avxCat,i);
 }
@@ -636,9 +636,9 @@ void RegisterViewModel::updateAVXReg(std::size_t i, edb::value256 value, QString
 		return;
 	}
 	// update aliases
-	updateRegister<SSEReg>(sseCat,i,edb::value128(value),comment);
+	updateRegister<SSEReg>(sseCat, static_cast<int>(i), edb::value128(value), comment);
 	// update actual registers
-	updateRegister<AVXReg>(avxCat,i,value,comment);
+	updateRegister<AVXReg>(avxCat, static_cast<int>(i), value, comment);
 }
 void RegisterViewModel::invalidateAVXReg(std::size_t i)
 {
