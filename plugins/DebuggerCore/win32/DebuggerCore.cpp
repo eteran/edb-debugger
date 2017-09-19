@@ -21,11 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "MemoryRegions.h"
 #include "PlatformEvent.h"
+#include "PlatformProcess.h"
 #include "PlatformRegion.h"
 #include "PlatformState.h"
 #include "State.h"
 #include "string_hash.h"
 
+#include <QDateTime>
 #include <QDebug>
 #include <QStringList>
 #include <QFileInfo>
@@ -41,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma comment(lib, "Psapi.lib")
 #endif
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 typedef struct _LSA_UNICODE_STRING {
   USHORT Length;
@@ -148,36 +150,6 @@ namespace {
 		HANDLE handle_;
 	};
 
-	QString get_user_token(HANDLE hProcess) {
-		QString ret;
-		HANDLE hToken;
-
-		if(!OpenProcessToken(hProcess, TOKEN_QUERY, &hToken)) {
-			return ret;
-		}
-
-		DWORD needed;
-		GetTokenInformation(hToken, TokenOwner, NULL, 0, &needed);
-
-		if(auto owner = static_cast<TOKEN_OWNER *>(malloc(needed))) {
-			if(GetTokenInformation(hToken, TokenOwner, owner, needed, &needed)) {
-				WCHAR user[MAX_PATH];
-				WCHAR domain[MAX_PATH];
-				DWORD user_sz   = MAX_PATH;
-				DWORD domain_sz = MAX_PATH;
-				SID_NAME_USE snu;
-
-				if(LookupAccountSid(NULL, owner->Owner, user, &user_sz, domain, &domain_sz, &snu) && snu == SidTypeUser) {
-					ret = QString::fromWCharArray(user);
-				}
-			}
-			free(owner);
-		}
-
-		CloseHandle(hToken);
-		return ret;
-	}
-
     /*
      * Required to debug and adjust the memory of a process owned by another account.
      * OpenProcess quote (MSDN):
@@ -253,17 +225,17 @@ edb::address_t DebuggerCore::page_size() const {
 bool DebuggerCore::has_extension(quint64 ext) const {
 #if !defined(EDB_X86_64)
 	switch(ext) {
-	case edb::string_hash<'M', 'M', 'X'>::value:
+	case edb::string_hash("MMX"):
 		return IsProcessorFeaturePresent(PF_MMX_INSTRUCTIONS_AVAILABLE);
-	case edb::string_hash<'X', 'M', 'M'>::value:
+	case edb::string_hash("XMM"):
 		return IsProcessorFeaturePresent(PF_XMMI_INSTRUCTIONS_AVAILABLE);
 	default:
 		return false;
 	}
 #else
 	switch(ext) {
-	case edb::string_hash<'M', 'M', 'X'>::value:
-	case edb::string_hash<'X', 'M', 'M'>::value:
+	case edb::string_hash("MMX"):
+	case edb::string_hash("XMM"):
 		return true;
 	default:
 		return false;
@@ -276,7 +248,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 // Desc: waits for a debug event, secs is a timeout (but is not yet respected)
 //       ok will be set to false if the timeout expires
 //------------------------------------------------------------------------------
-std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
+std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 	if(attached()) {
 		DEBUG_EVENT de;
 		while(WaitForDebugEvent(&de, msecs == 0 ? INFINITE : msecs)) {
@@ -295,8 +267,8 @@ std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 				break;
 			case CREATE_PROCESS_DEBUG_EVENT:
 				CloseHandle(de.u.CreateProcessInfo.hFile);
-				start_address = reinterpret_cast<edb::address_t>(de.u.CreateProcessInfo.lpStartAddress);
-				image_base    = reinterpret_cast<edb::address_t>(de.u.CreateProcessInfo.lpBaseOfImage);
+				start_address = edb::address_t(de.u.CreateProcessInfo.lpStartAddress);
+				image_base    = edb::address_t(de.u.CreateProcessInfo.lpBaseOfImage);
 				break;
 			case LOAD_DLL_DEBUG_EVENT:
 				CloseHandle(de.u.LoadDll.hFile);
@@ -362,11 +334,11 @@ bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len
 
 		memset(buf, 0xff, len);
 		SIZE_T bytes_read = 0;
-        if(ReadProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_read)) {
+        if(ReadProcessMemory(process_handle_, reinterpret_cast<LPCVOID>(address.toUint()), buf, len, &bytes_read)) {
 			for(const std::shared_ptr<IBreakpoint> &bp: breakpoints_) {
 
 				if(bp->address() >= address && bp->address() < address + bytes_read) {
-					reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_byte();
+					reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_bytes()[0];
 				}
 			}
             return true;
@@ -389,7 +361,7 @@ bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::siz
 		}
 
 		SIZE_T bytes_written = 0;
-        return WriteProcessMemory(process_handle_, reinterpret_cast<void*>(address), buf, len, &bytes_written);
+        return WriteProcessMemory(process_handle_, reinterpret_cast<LPVOID>(address.toUint()), buf, len, &bytes_written);
 	}
     return false;
 }
@@ -398,7 +370,7 @@ bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::siz
 // Name: attach
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerCore::attach(edb::pid_t pid) {
+Status DebuggerCore::attach(edb::pid_t pid) {
 
 	detach();
 
@@ -409,21 +381,21 @@ bool DebuggerCore::attach(edb::pid_t pid) {
 		if(DebugActiveProcess(pid)) {
 			process_handle_ = ph;
 			pid_            = pid;
-			return true;
+			return Status::Ok;
 		}
 		else {
 			CloseHandle(ph);
 		}
 	}
 
-	return false;
+	return Status("Error DebuggerCore::attach");
 }
 
 //------------------------------------------------------------------------------
 // Name: detach
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerCore::detach() {
+Status DebuggerCore::detach() {
 	if(attached()) {
 		clear_breakpoints();
 		// Make sure exceptions etc. are passed
@@ -436,6 +408,7 @@ void DebuggerCore::detach() {
 		image_base      = 0;
 		threads_.clear();
 	}
+	return Status::Ok;
 }
 
 //------------------------------------------------------------------------------
@@ -575,7 +548,7 @@ void DebuggerCore::set_state(const State &state) {
 // TODO: Don't inherit security descriptors from this process (default values)
 //       Is this even possible?
 //------------------------------------------------------------------------------
-bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
+Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 
 	Q_UNUSED(tty);
 
@@ -611,17 +584,17 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 
 	// CreateProcessW wants a writable copy of the command line :<
 	auto command_path = new wchar_t[command_str.length() + sizeof(wchar_t)];
-    wcscpy_s(command_path, command_str.length() + 1, command_str.utf16());
+    wcscpy_s(command_path, command_str.length() + 1, reinterpret_cast<const wchar_t*>(command_str.utf16()));
 
 	if(CreateProcessW(
-			path.utf16(), // exe
+			reinterpret_cast<const wchar_t*>(path.utf16()), // exe
 			command_path, // commandline
 			NULL,         // default security attributes
 			NULL,         // default thread security too
 			FALSE,        // inherit handles
 			CREATE_FLAGS,
 			env_block,    // environment data
-			tcwd.utf16(), // working directory
+			reinterpret_cast<const wchar_t*>(tcwd.utf16()), // working directory
 			&startup_info,
 			&process_info)) {
 
@@ -636,7 +609,12 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 	delete[] command_path;
 	FreeEnvironmentStringsW(env_block);
 
-	return ok;
+	if (ok) {
+		return Status::Ok;
+	}
+	else {
+		return Status("Error DebuggerCore::open");
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -659,8 +637,8 @@ int DebuggerCore::sys_pointer_size() const {
 // Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
-	QMap<edb::pid_t, ProcessInfo> ret;
+QMap<edb::pid_t, std::shared_ptr<IProcess> > DebuggerCore::enumerate_processes() const {
+	QMap<edb::pid_t, std::shared_ptr<IProcess> > ret;
 
 	HANDLE handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if(handle != INVALID_HANDLE_VALUE) {
@@ -675,23 +653,9 @@ QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 
 		if(Process32First(handle, &lppe)) {
 			do {
-				ProcessInfo pi;
-				pi.pid = lppe.th32ProcessID;
-				pi.uid = 0; // TODO
-				pi.name = QString::fromWCharArray(lppe.szExeFile);
+				std::shared_ptr<PlatformProcess> pi = std::make_shared<PlatformProcess>(lppe);
 
-				if(HANDLE hProc = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, lppe.th32ProcessID)) {
-					BOOL wow64 = FALSE;
-					if(fnIsWow64Process && fnIsWow64Process(hProc, &wow64) && wow64) {
-						pi.name += " *32";
-					}
-
-					pi.user = get_user_token(hProc);
-
-					CloseHandle(hProc);
-				}
-
-				ret.insert(pi.pid, pi);
+				ret.insert(pi->pid(), pi);
 
 				std::memset(&lppe, 0, sizeof(lppe));
 				lppe.dwSize = sizeof(lppe);
@@ -801,7 +765,7 @@ QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 
 			Q_FOREVER {
 				MEMORY_BASIC_INFORMATION info;
-				VirtualQueryEx(ph, reinterpret_cast<LPVOID>(addr), &info, sizeof(info));
+				VirtualQueryEx(ph, reinterpret_cast<LPVOID>(addr.toUint()), &info, sizeof(info));
 
 				if(last_base == info.BaseAddress) {
 					break;
@@ -811,9 +775,9 @@ QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
 
 				if(info.State == MEM_COMMIT) {
 
-					const auto start   = reinterpret_cast<edb::address_t>(info.BaseAddress);
-					const auto end     = reinterpret_cast<edb::address_t>(info.BaseAddress) + info.RegionSize;
-					const auto base    = reinterpret_cast<edb::address_t>(info.AllocationBase);
+					const auto start   = edb::address_t(info.BaseAddress);
+					const auto end     = edb::address_t(info.BaseAddress) + info.RegionSize;
+					const auto base    = edb::address_t(info.AllocationBase);
 					const QString name = QString();
 					const IRegion::permissions_t permissions = info.Protect; // let std::shared_ptr<IRegion> handle permissions and modifiers
 
@@ -891,8 +855,8 @@ edb::address_t DebuggerCore::process_data_address() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QMap<long, QString> DebuggerCore::exceptions() const {
-	QMap<long, QString> exceptions;
+QMap<qlonglong, QString> DebuggerCore::exceptions() const {
+	QMap<qlonglong, QString> exceptions;
 
 	return exceptions;
 }
@@ -912,7 +876,7 @@ QList<Module> DebuggerCore::loaded_modules() const {
         if(Module32First(hModuleSnap, &me32)) {
 			do {
 				Module module;
-				module.base_address = reinterpret_cast<edb::address_t>(me32.modBaseAddr);
+				module.base_address = edb::address_t(me32.modBaseAddr);
 				module.name         = QString::fromWCharArray(me32.szModule);
 				ret.push_back(module);
 			} while(Module32Next(hModuleSnap, &me32));
@@ -937,9 +901,9 @@ QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
 //------------------------------------------------------------------------------
 quint64 DebuggerCore::cpu_type() const {
 #ifdef EDB_X86
-	return edb::string_hash<'x', '8', '6'>::value;
+	return edb::string_hash("x86");
 #elif defined(EDB_X86_64)
-	return edb::string_hash<'x', '8', '6', '-', '6', '4'>::value;
+	return edb::string_hash("x86-64");
 #endif
 }
 
