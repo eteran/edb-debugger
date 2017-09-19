@@ -21,11 +21,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "MemoryRegions.h"
 #include "edb.h"
 #include "IDebugger.h"
+#include "IProcess.h"
 #include "State.h"
 #include "IDebugEventHandler.h"
 #include <QMessageBox>
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
 namespace {
 
@@ -88,7 +89,7 @@ edb::address_t PlatformRegion::size() const {
 }
 
 void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
-	if(HANDLE ph = OpenProcess(PROCESS_VM_OPERATION, FALSE, edb::v1::debugger_core->pid())) {
+	if(HANDLE ph = OpenProcess(PROCESS_VM_OPERATION, FALSE, edb::v1::debugger_core->process()->pid())) {
 		DWORD prot = PAGE_NOACCESS;
 
 		switch((static_cast<int>(read) << 2) | (static_cast<int>(write) << 1) | (static_cast<int>(execute) << 0)) {
@@ -105,7 +106,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 		prot |= permissions_ & ~KNOWN_PERMISSIONS; // keep modifiers
 
 		DWORD prev_prot;
-		if(VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start()), size(), prot, &prev_prot)) {
+		if(VirtualProtectEx(ph, reinterpret_cast<LPVOID>(start().toUint()), size(), prot, &prev_prot)) {
 			permissions_ = prot;
 		}
 
