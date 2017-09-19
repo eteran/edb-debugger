@@ -84,7 +84,7 @@ public:
 		auto result = valueAsInteger();
 		// If MSB is set, sign extend the result
 		if(result & (1ll << (bitSize_ - 1))) {
-			result =- 1ll;
+			result = -1ll;
 			std::memcpy(&result, &value_, bitSize_ / 8);
 		}
 		return result;
