@@ -408,7 +408,7 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject* parent)
 }
 
 template<typename RegType, typename ValueType>
-void updateRegister(RegisterViewModelBase::Category* cat, int row, ValueType value, QString const& comment, const char* nameToCheck=0)
+void updateRegister(RegisterViewModelBase::Category* cat, int row, ValueType value, QString const& comment, const char* nameToCheck = nullptr)
 {
 	const auto reg=cat->getRegister(row);
 	if(!dynamic_cast<RegType*>(reg))
