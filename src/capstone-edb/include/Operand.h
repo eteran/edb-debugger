@@ -40,7 +40,7 @@ public:
 	explicit operator bool() const      { return valid();  }
 	const op_type *operator->() const   { return operand_; }
 	const op_type *native() const       { return operand_; }
-	int index() const                   { return index_;   }
+	size_t index() const                { return index_;   }
 
 public:
 	const Instruction *owner() const {
