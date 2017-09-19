@@ -424,13 +424,13 @@ void updateRegister(RegisterViewModelBase::Category* cat, int row, ValueType val
 void RegisterViewModel::updateGPR(std::size_t i, edb::value32 val, QString const& comment)
 {
 	Q_ASSERT(int(i)<gprs32->childCount());
-	updateRegister<GPR32>(gprs32,i,val,comment);
+	updateRegister<GPR32>(gprs32, static_cast<int>(i), val, comment);
 }
 
 void RegisterViewModel::updateGPR(std::size_t i, edb::value64 val, QString const& comment)
 {
 	Q_ASSERT(int(i)<gprs64->childCount());
-	updateRegister<GPR64>(gprs64,i,val,comment);
+	updateRegister<GPR64>(gprs64, static_cast<int>(i), val, comment);
 }
 
 void RegisterViewModel::updateIP(edb::value64 value,QString const& comment)
