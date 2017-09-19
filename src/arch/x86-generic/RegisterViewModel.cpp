@@ -474,7 +474,7 @@ void RegisterViewModel::updateFPUReg(std::size_t i, edb::value80 value, QString 
 {
 	const auto cat=getFPUcat();
 	Q_ASSERT(int(i)<cat->childCount());
-	updateRegister<FPUReg>(cat,i,value,comment);
+	updateRegister<FPUReg>(cat, static_cast<int>(i), value, comment);
 }
 
 void RegisterViewModel::updateFCR(edb::value16 value, QString const& comment)
