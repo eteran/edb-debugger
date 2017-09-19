@@ -460,7 +460,14 @@ void RegisterViewModel::updateSegReg(std::size_t i, edb::value16 value, QString 
 
 RegisterViewModelBase::FPUCategory* RegisterViewModel::getFPUcat() const
 {
-	return mode==CPUMode::IA32 ? fpuRegs32 : mode==CPUMode::AMD64 ? fpuRegs64 : 0;
+	switch(mode) {
+	case CPUMode::IA32:
+		return fpuRegs32;
+	case CPUMode::AMD64:
+		return fpuRegs64;
+	default:
+		return 0;
+	}
 }
 
 void RegisterViewModel::updateFPUReg(std::size_t i, edb::value80 value, QString const& comment)
