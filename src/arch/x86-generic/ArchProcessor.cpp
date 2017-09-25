@@ -311,6 +311,7 @@ QString format_char(int pointer_level, edb::address_t arg, QChar type) {
 //------------------------------------------------------------------------------
 QString format_argument(const QString &type, const Register& arg) {
 
+	if(!arg) return QObject::tr("(failed to get value)");
 	int pointer_level = 0;
 	for(QChar ch: type) {
 
