@@ -19,9 +19,9 @@ configuration:
   - Release
 
 install:
-  - ps: new-item -itemtype directory -path C:\capstone\sdk
-  - ps: new-item -itemtype directory -path C:\capstone\sdk\include\capstone
-  - ps: new-item -itemtype directory -path C:\capstone\sdk\lib
+  - ps: new-item -itemtype directory -path C:\capstone\sdk | out-null
+  - ps: new-item -itemtype directory -path C:\capstone\sdk\include\capstone | out-null
+  - ps: new-item -itemtype directory -path C:\capstone\sdk\lib | out-null
   - ps: "[Environment]::CurrentDirectory = 'C:\\capstone'"
   - ps: (new-object net.webclient).DownloadFile("https://github.com/aquynh/capstone/releases/download/3.0.5-rc2/${env:CAPSTONE_ARCHIVE}.zip", 'capstone.zip')
   - ps: expand-archive C:\capstone\capstone.zip -destinationpath C:\capstone
