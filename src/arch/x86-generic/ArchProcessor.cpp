@@ -241,29 +241,25 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 		return format_pointer(pointer_level, arg, type);
 	}
 
-	QString s;
-
 	switch(type.toLatin1()) {
-	case 'w': return s.sprintf("%u", static_cast<wchar_t>(arg));
-	case 'b': return s.sprintf("%d", static_cast<bool>(arg));
+	case 'w': return QString::number(static_cast<wchar_t>(arg));
+	case 'b': return arg ? "true" : "false";
 	case 'c':
 		if(arg < 0x80u && (std::isprint(arg) || std::isspace(arg))) {
-			return s.sprintf("'%c'", static_cast<char>(arg));
+			return QString("'%1'").arg(static_cast<char>(arg));
 		} else {
-			return s.sprintf("'\\x%02x'", static_cast<quint16>(arg));
+			return QString("'\\x%1'").arg(static_cast<quint16>(arg),2,16);
 		}
-
-
-	case 'a': return s.sprintf("%d", static_cast<signed char>(arg));
-	case 'h': return s.sprintf("%u", static_cast<unsigned char>(arg));
-	case 's': return s.sprintf("%d", static_cast<short>(arg));
-	case 't': return s.sprintf("%u", static_cast<unsigned short>(arg));
-	case 'i': return s.sprintf("%d", static_cast<int>(arg));
-	case 'j': return s.sprintf("%u", static_cast<unsigned int>(arg));
-	case 'l': return s.sprintf("%ld", static_cast<long>(arg));
-	case 'm': return s.sprintf("%lu", static_cast<unsigned long>(arg));
-	case 'x': return s.sprintf("%lld", static_cast<long long>(arg));
-	case 'y': return s.sprintf("%llu", static_cast<long unsigned long>(arg));
+	case 'a': return QString::number(static_cast<signed char>(arg));
+	case 'h': return QString::number(static_cast<unsigned char>(arg));
+	case 's': return QString::number(static_cast<short>(arg));
+	case 't': return QString::number(static_cast<unsigned short>(arg));
+	case 'i': return QString::number(static_cast<int>(arg));
+	case 'j': return QString::number(static_cast<unsigned int>(arg));
+	case 'l': return QString::number(static_cast<long>(arg));
+	case 'm': return QString::number(static_cast<unsigned long>(arg));
+	case 'x': return QString::number(static_cast<long long>(arg));
+	case 'y': return QString::number(static_cast<long unsigned long>(arg));
 	case 'n':
 	case 'o':
 	default:
