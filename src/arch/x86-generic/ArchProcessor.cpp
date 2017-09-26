@@ -242,7 +242,7 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 	}
 
 	switch(type.toLatin1()) {
-	case 'w': return QString::number(static_cast<wchar_t>(arg));
+	case 'w': return "0x"+QString::number(static_cast<wchar_t>(arg), 16);
 	case 'b': return arg ? "true" : "false";
 	case 'c':
 		if(arg < 0x80u && (std::isprint(arg) || std::isspace(arg))) {
@@ -250,16 +250,19 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 		} else {
 			return QString("'\\x%1'").arg(static_cast<quint16>(arg),2,16);
 		}
-	case 'a': return QString::number(static_cast<signed char>(arg));
-	case 'h': return QString::number(static_cast<unsigned char>(arg));
-	case 's': return QString::number(static_cast<short>(arg));
-	case 't': return QString::number(static_cast<unsigned short>(arg));
-	case 'i': return QString::number(static_cast<int>(arg));
-	case 'j': return QString::number(static_cast<unsigned int>(arg));
-	case 'l': return QString::number(static_cast<long>(arg));
-	case 'm': return QString::number(static_cast<unsigned long>(arg));
-	case 'x': return QString::number(static_cast<long long>(arg));
-	case 'y': return QString::number(static_cast<long unsigned long>(arg));
+	case 'a': // signed char; since we're formatting as hex, we want to avoid sign
+			  // extension done inside QString::number (happening due to the cast to
+			  // qlonglong inside QString::setNum, which used in QString::number).
+			  // Similarly for other shorter-than-long-long signed types.
+	case 'h': return "0x"+QString::number(static_cast<unsigned char>(arg), 16);
+	case 's':
+	case 't': return "0x"+QString::number(static_cast<unsigned short>(arg), 16);
+	case 'i':
+	case 'j': return "0x"+QString::number(static_cast<unsigned int>(arg), 16);
+	case 'l':
+	case 'm': return "0x"+QString::number(static_cast<unsigned long>(arg), 16);
+	case 'x': return "0x"+QString::number(static_cast<long long>(arg), 16);
+	case 'y': return "0x"+QString::number(static_cast<long unsigned long>(arg), 16);
 	case 'n':
 	case 'o':
 	default:
