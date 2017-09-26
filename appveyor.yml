@@ -1,13 +1,18 @@
 version: "{build}"
 
-image: Visual Studio 2017
-
-platform: x64
-
 environment:
-  BOOST_INCLUDEDIR: C:\Libraries\boost_1_64_0
   CAPSTONE_SDK: C:\capstone\sdk
-  QT_BASEDIR: C:\Qt\5.9.1\msvc2017_64
+  matrix:
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2017
+      BOOST_INCLUDEDIR: C:\Libraries\boost_1_64_0
+      CAPSTONE_ARCHIVE: capstone-3.0.5-rc2-win64
+      CMAKE_GENERATOR: Visual Studio 15 2017 Win64
+      QT_BASEDIR: C:\Qt\5.9.1\msvc2017_64
+    - APPVEYOR_BUILD_WORKER_IMAGE: Visual Studio 2015
+      BOOST_INCLUDEDIR: C:\Libraries\boost_1_63_0
+      CAPSTONE_ARCHIVE: capstone-3.0.5-rc2-win32
+      CMAKE_GENERATOR: Visual Studio 14 2015
+      QT_BASEDIR: C:\Qt\5.9.1\msvc2015
 
 configuration:
   - Debug
@@ -18,17 +23,17 @@ install:
   - ps: new-item -itemtype directory -path C:\capstone\sdk\include\capstone
   - ps: new-item -itemtype directory -path C:\capstone\sdk\lib
   - ps: "[Environment]::CurrentDirectory = 'C:\\capstone'"
-  - ps: (new-object net.webclient).DownloadFile('https://github.com/aquynh/capstone/releases/download/3.0.5-rc2/capstone-3.0.5-rc2-win64.zip', 'capstone.zip')
+  - ps: (new-object net.webclient).DownloadFile("https://github.com/aquynh/capstone/releases/download/3.0.5-rc2/${env:CAPSTONE_ARCHIVE}.zip", 'capstone.zip')
   - ps: expand-archive C:\capstone\capstone.zip -destinationpath C:\capstone
-  - ps: copy-item C:\capstone\capstone-3.0.5-rc2-win64\include\*.h C:\capstone\sdk\include\capstone
-  - ps: copy-item C:\capstone\capstone-3.0.5-rc2-win64\capstone.lib C:\capstone\sdk\lib\capstone_dll.lib
+  - ps: copy-item C:\capstone\${env:CAPSTONE_ARCHIVE}\include\*.h C:\capstone\sdk\include\capstone
+  - ps: copy-item C:\capstone\${env:CAPSTONE_ARCHIVE}\capstone.lib C:\capstone\sdk\lib\capstone_dll.lib
   
 before_build:
   - cmd: git submodule update --init
   - cmd: cd C:\projects
   - cmd: md build
   - cmd: cd build
-  - cmd: cmake -Wno-dev -G "Visual Studio 15 2017 Win64" -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_INCLUDEDIR="%BOOST_INCLUDEDIR%" -DCAPSTONE_SDK="%CAPSTONE_SDK%" -DQt5Core_DIR="%QT_BASEDIR%\lib\cmake\Qt5Core" -DQt5_DIR="%QT_BASEDIR%\lib\cmake\Qt5" ..\edb-debugger
+  - cmd: cmake -Wno-dev -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_INCLUDEDIR="%BOOST_INCLUDEDIR%" -DCAPSTONE_SDK="%CAPSTONE_SDK%" -DQt5Core_DIR="%QT_BASEDIR%\lib\cmake\Qt5Core" -DQt5_DIR="%QT_BASEDIR%\lib\cmake\Qt5" ..\edb-debugger
 
 build_script:
   - cmd: msbuild C:\projects\build\edb.sln /t:edb /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"
