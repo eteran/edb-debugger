@@ -49,6 +49,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "errno-names-linux.h"
 #endif
 
+namespace ILP32
+{
+std:: int32_t  toInt (std::uint64_t x) { return x; }
+std::uint32_t toUInt (std::uint64_t x) { return x; }
+std:: int32_t  toLong(std::uint64_t x) { return x; }
+std::uint32_t toULong(std::uint64_t x) { return x; }
+}
+namespace LP64
+{
+std:: int32_t  toInt (std::uint64_t x) { return x; }
+std::uint32_t toUInt (std::uint64_t x) { return x; }
+std:: int64_t  toLong(std::uint64_t x) { return x; }
+std::uint64_t toULong(std::uint64_t x) { return x; }
+}
+
 namespace {
 
 using std::size_t;
@@ -258,9 +273,9 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 	case 's':
 	case 't': return "0x"+QString::number(static_cast<unsigned short>(arg), 16);
 	case 'i':
-	case 'j': return "0x"+QString::number(static_cast<unsigned int>(arg), 16);
+	case 'j': return "0x"+QString::number(debuggeeIs32Bit() ? ILP32::toUInt(arg) : LP64::toUInt(arg), 16);
 	case 'l':
-	case 'm': return "0x"+QString::number(static_cast<unsigned long>(arg), 16);
+	case 'm': return "0x"+QString::number(debuggeeIs32Bit() ? ILP32::toULong(arg) : LP64::toULong(arg), 16);
 	case 'x': return "0x"+QString::number(static_cast<long long>(arg), 16);
 	case 'y': return "0x"+QString::number(static_cast<long unsigned long>(arg), 16);
 	case 'n':
