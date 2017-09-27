@@ -921,6 +921,11 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 		for (QDomElement argument = root.firstChildElement("argument"); !argument.isNull(); argument = argument.nextSiblingElement("argument")) {
 			const QString argument_type     = argument.attribute("type");
 			const QString argument_register = argument.attribute("register");
+			if(argument_register=="ebp" && inst.operation()==X86_INS_SYSENTER) {
+				// TODO: implement reading this argument from the stack
+				arguments << "EDB error: unimplemented";
+				continue;
+			}
 			arguments << format_argument(argument_type, state[argument_register]);
 		}
 
