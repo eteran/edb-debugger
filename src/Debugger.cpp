@@ -2270,7 +2270,6 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const std::shared_ptr<IDebugEve
 		return edb::DEBUG_STOP;
 	}
 
-
 	Q_ASSERT(edb::v1::debugger_core);
 	QMap<qlonglong, QString> known_exceptions = edb::v1::debugger_core->exceptions();
 	auto it = known_exceptions.find(event->code());
@@ -2304,7 +2303,6 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const std::shared_ptr<IDebugEve
 	}
 
 	return edb::DEBUG_STOP;
-
 }
 
 //------------------------------------------------------------------------------
