@@ -84,7 +84,7 @@ void Configuration::readSettings() {
 
 
 #ifdef DEFAULT_PLUGIN_PATH
-	const QString default_plugin_path = TOSTRING(DEFAULT_PLUGIN_PATH);
+	const QString default_plugin_path = DEFAULT_PLUGIN_PATH;
 #else
 	const QString edb_lib_dir=QCoreApplication::applicationDirPath()+(EDB_IS_64_BIT ? "/../lib64/edb" : "/../lib/edb");
 	const QString edb_binary_dir=QCoreApplication::applicationDirPath();

@@ -46,7 +46,7 @@ else()
 	set(GIT_BRANCH "Unknown")
 endif()
 add_definitions(-DGIT_BRANCH=${GIT_BRANCH})
-add_definitions(-DDEFAULT_PLUGIN_PATH=${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb)
+add_definitions(-DDEFAULT_PLUGIN_PATH=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb\")
 
 include_directories(
 	"capstone-edb"
