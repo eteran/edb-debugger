@@ -926,7 +926,26 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 				arguments << "EDB error: unimplemented";
 				continue;
 			}
-			arguments << format_argument(argument_type, state[argument_register]);
+			const auto reg=state[argument_register];
+			if(reg) {
+				arguments << format_argument(argument_type, reg);
+				continue;
+			}
+			else {
+				// If we failed, this may be a pair of reg32a:reg32b
+				const auto regs=argument_register.split(':');
+				if(regs.size()!=2 || regs[0].isEmpty() || regs[0][0]!='e' || regs[1].isEmpty() || regs[1][0]!='e') {
+					arguments << QObject::tr("(failed to obtain %1)").arg(argument_register);
+					continue;
+				}
+				const auto regHi=state[regs[0]], regLo=state[regs[1]];
+				if(!regHi || !regLo || regHi.bitSize()!=32 || regLo.bitSize()!=32) {
+					arguments << QObject::tr("(failed to obtain %1)").arg(argument_register);
+					continue;
+				}
+				const auto value=regHi.valueAsInteger() << 32 | regLo.valueAsInteger();
+				arguments << format_argument(argument_type, make_Register<64>(argument_register, value, Register::TYPE_GPR));
+			}
 		}
 
 		ret << ArchProcessor::tr("SYSCALL: %1(%2)").arg(root.attribute("name"), arguments.join(","));
