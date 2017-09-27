@@ -2270,49 +2270,41 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const std::shared_ptr<IDebugEve
 		return edb::DEBUG_STOP;
 	}
 
-	switch(event->code()) {
-#ifdef Q_OS_UNIX
-	case SIGCHLD:
-	case SIGPROF:
-		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
-#endif
-	default:
-		{
-			Q_ASSERT(edb::v1::debugger_core);
-            QMap<qlonglong, QString> known_exceptions = edb::v1::debugger_core->exceptions();
-			auto it = known_exceptions.find(event->code());
 
-			if(it != known_exceptions.end()) {
+	Q_ASSERT(edb::v1::debugger_core);
+	QMap<qlonglong, QString> known_exceptions = edb::v1::debugger_core->exceptions();
+	auto it = known_exceptions.find(event->code());
 
-                const Configuration &config = edb::v1::config();
-                if(config.ignored_exceptions.contains(it.key())) {
-                    return edb::DEBUG_EXCEPTION_NOT_HANDLED;
-                }
+	if(it != known_exceptions.end()) {
 
-                QString exception_name = it.value();
+    	const Configuration &config = edb::v1::config();
+    	if(config.ignored_exceptions.contains(it.key())) {
+        	return edb::DEBUG_EXCEPTION_NOT_HANDLED;
+    	}
 
-				edb::v1::set_status(tr("%1 signal received. Shift+Step/Run to pass to program, Step/Run to ignore").arg(exception_name),0);
-                if(config.enable_signals_message_box) {
-					QMessageBox::information(this, tr("Debug Event"),
-						tr(
-						"<p>The debugged application has received a debug event-> <strong>%1 (%2)</strong></p>"
-						"<p>If you would like to pass this event to the application press Shift+[F7/F8/F9]</p>"
-						"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event->code()).arg(exception_name));
-				}
-			} else {
-				edb::v1::set_status(tr("Signal received: %1. Shift+Step/Run to pass to program, Step/Run to ignore").arg(event->code()),0);
-				if(edb::v1::config().enable_signals_message_box) {
-					QMessageBox::information(this, tr("Debug Event"),
-						tr(
-						"<p>The debugged application has received a debug event-> <strong>%1</strong></p>"
-						"<p>If you would like to pass this event to the application press Shift+[F7/F8/F9]</p>"
-						"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event->code()));
-				}
-			}
+    	QString exception_name = it.value();
 
-			return edb::DEBUG_STOP;
+		edb::v1::set_status(tr("%1 signal received. Shift+Step/Run to pass to program, Step/Run to ignore").arg(exception_name),0);
+    	if(config.enable_signals_message_box) {
+			QMessageBox::information(this, tr("Debug Event"),
+				tr(
+				"<p>The debugged application has received a debug event-> <strong>%1 (%2)</strong></p>"
+				"<p>If you would like to pass this event to the application press Shift+[F7/F8/F9]</p>"
+				"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event->code()).arg(exception_name));
+		}
+	} else {
+		edb::v1::set_status(tr("Signal received: %1. Shift+Step/Run to pass to program, Step/Run to ignore").arg(event->code()),0);
+		if(edb::v1::config().enable_signals_message_box) {
+			QMessageBox::information(this, tr("Debug Event"),
+				tr(
+				"<p>The debugged application has received a debug event-> <strong>%1</strong></p>"
+				"<p>If you would like to pass this event to the application press Shift+[F7/F8/F9]</p>"
+				"<p>If you would like to ignore this event, press [F7/F8/F9]</p>").arg(event->code()));
 		}
 	}
+
+	return edb::DEBUG_STOP;
+
 }
 
 //------------------------------------------------------------------------------
