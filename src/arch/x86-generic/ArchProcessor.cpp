@@ -922,9 +922,17 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 			const QString argument_type     = argument.attribute("type");
 			const QString argument_register = argument.attribute("register");
 			if(argument_register=="ebp" && inst.operation()==X86_INS_SYSENTER) {
-				// TODO: implement reading this argument from the stack
-				arguments << "EDB error: unimplemented";
-				continue;
+				if(IProcess *process = edb::v1::debugger_core->process()) {
+					char buf[4];
+					if(process->read_bytes(state.stack_pointer(), buf, sizeof(buf))!=sizeof(buf)) {
+						arguments << QObject::tr("(failed to read [esp])");
+						continue;
+					}
+					std::uint32_t value;
+					std::memcpy(&value,buf,sizeof value);
+					arguments << format_argument(argument_type, make_Register<32>("[esp]", value, Register::TYPE_GPR));
+					continue;
+				}
 			}
 			const auto reg=state[argument_register];
 			if(reg) {
