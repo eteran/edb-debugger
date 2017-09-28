@@ -2105,31 +2105,75 @@
 		</syscall>
 		<syscall name="userfaultfd">
 			<index>374</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
+			<argument type="i" register="ebx"/>
 		</syscall>
 		<syscall name="membarrier">
 			<index>375</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
+			<argument type="i" register="ebx"/>
+			<argument type="i" register="ecx"/>
 		</syscall>
 		<syscall name="mlock2">
 			<index>376</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
 			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
-			<argument type="m" register="edx"/>
+			<argument type="j" register="ecx"/>
+			<argument type="i" register="edx"/>
 		</syscall>
-		<syscall name="socket_subcall">
-			<index>400</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
+		<syscall name="copy_file_range">
+			<index>377</index>
+			<argument type="i" register="ebx"/>
+			<argument type="P" register="ecx"/>
+			<argument type="i" register="edx"/>
+			<argument type="P" register="esi"/>
+			<argument type="j" register="edi"/>
+			<argument type="j" register="ebp"/>
+		</syscall>
+		<syscall name="preadv2">
+			<index>378</index>
 			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
+			<argument type="P" register="ecx"/>
 			<argument type="m" register="edx"/>
 			<argument type="m" register="esi"/>
 			<argument type="m" register="edi"/>
-			<argument type="m" register="ebp"/>
+			<argument type="i" register="ebp"/>
+		</syscall>
+		<syscall name="pwritev2">
+			<index>379</index>
+			<argument type="m" register="ebx"/>
+			<argument type="P" register="ecx"/>
+			<argument type="m" register="edx"/>
+			<argument type="m" register="esi"/>
+			<argument type="m" register="edi"/>
+			<argument type="i" register="ebp"/>
+		</syscall>
+		<syscall name="pkey_mprotect">
+			<index>380</index>
+			<argument type="m" register="ebx"/>
+			<argument type="j" register="ecx"/>
+			<argument type="m" register="edx"/>
+			<argument type="i" register="esi"/>
+		</syscall>
+		<syscall name="pkey_alloc">
+			<index>381</index>
+			<argument type="m" register="ebx"/>
+			<argument type="m" register="ecx"/>
+		</syscall>
+		<syscall name="pkey_free">
+			<index>382</index>
+			<argument type="i" register="ebx"/>
+		</syscall>
+		<syscall name="statx">
+			<index>383</index>
+			<argument type="i" register="ebx"/>
+			<argument type="Pc" register="ecx"/>
+			<argument type="j" register="edx"/>
+			<argument type="j" register="esi"/>
+			<argument type="P" register="edi"/>
+		</syscall>
+		<syscall name="arch_prctl">
+			<index>384</index>
+		<!-- This entry only lists parameters with generic types - unsigned long -->
+			<argument type="m" register="ebx"/>
+			<argument type="m" register="ecx"/>
 		</syscall>
 		<syscall name="socket">
 			<index>401</index>
@@ -2283,16 +2327,6 @@
 			<argument type="m" register="edx"/>
 			<argument type="m" register="esi"/>
 		</syscall>
-		<syscall name="ipc_subcall">
-			<index>421</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
-			<argument type="m" register="edx"/>
-			<argument type="m" register="esi"/>
-			<argument type="m" register="edi"/>
-			<argument type="m" register="ebp"/>
-		</syscall>
 		<syscall name="semop">
 			<index>422</index>
 			<argument type="i" register="ebx"/>
@@ -2319,66 +2353,6 @@
 			<argument type="j" register="edx"/>
 			<argument type="P" register="esi"/>
 		</syscall>
-		<syscall name="ipc_subcall">
-			<index>426</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
-			<argument type="m" register="edx"/>
-			<argument type="m" register="esi"/>
-			<argument type="m" register="edi"/>
-			<argument type="m" register="ebp"/>
-		</syscall>
-		<syscall name="ipc_subcall">
-			<index>427</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
-			<argument type="m" register="edx"/>
-			<argument type="m" register="esi"/>
-			<argument type="m" register="edi"/>
-			<argument type="m" register="ebp"/>
-		</syscall>
-		<syscall name="ipc_subcall">
-			<index>428</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
-			<argument type="m" register="edx"/>
-			<argument type="m" register="esi"/>
-			<argument type="m" register="edi"/>
-			<argument type="m" register="ebp"/>
-		</syscall>
-		<syscall name="ipc_subcall">
-			<index>429</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
-			<argument type="m" register="edx"/>
-			<argument type="m" register="esi"/>
-			<argument type="m" register="edi"/>
-			<argument type="m" register="ebp"/>
-		</syscall>
-		<syscall name="ipc_subcall">
-			<index>430</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
-			<argument type="m" register="edx"/>
-			<argument type="m" register="esi"/>
-			<argument type="m" register="edi"/>
-			<argument type="m" register="ebp"/>
-		</syscall>
-		<syscall name="ipc_subcall">
-			<index>431</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
-			<argument type="m" register="edx"/>
-			<argument type="m" register="esi"/>
-			<argument type="m" register="edi"/>
-			<argument type="m" register="ebp"/>
-		</syscall>
 		<syscall name="msgsnd">
 			<index>432</index>
 			<argument type="i" register="ebx"/>
@@ -2404,66 +2378,6 @@
 			<argument type="i" register="ebx"/>
 			<argument type="i" register="ecx"/>
 			<argument type="P" register="edx"/>
-		</syscall>
-		<syscall name="ipc_subcall">
-			<index>436</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
-			<argument type="m" register="edx"/>
-			<argument type="m" register="esi"/>
-			<argument type="m" register="edi"/>
-			<argument type="m" register="ebp"/>
-		</syscall>
-		<syscall name="ipc_subcall">
-			<index>437</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
-			<argument type="m" register="edx"/>
-			<argument type="m" register="esi"/>
-			<argument type="m" register="edi"/>
-			<argument type="m" register="ebp"/>
-		</syscall>
-		<syscall name="ipc_subcall">
-			<index>438</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
-			<argument type="m" register="edx"/>
-			<argument type="m" register="esi"/>
-			<argument type="m" register="edi"/>
-			<argument type="m" register="ebp"/>
-		</syscall>
-		<syscall name="ipc_subcall">
-			<index>439</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
-			<argument type="m" register="edx"/>
-			<argument type="m" register="esi"/>
-			<argument type="m" register="edi"/>
-			<argument type="m" register="ebp"/>
-		</syscall>
-		<syscall name="ipc_subcall">
-			<index>440</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
-			<argument type="m" register="edx"/>
-			<argument type="m" register="esi"/>
-			<argument type="m" register="edi"/>
-			<argument type="m" register="ebp"/>
-		</syscall>
-		<syscall name="ipc_subcall">
-			<index>441</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="ebx"/>
-			<argument type="m" register="ecx"/>
-			<argument type="m" register="edx"/>
-			<argument type="m" register="esi"/>
-			<argument type="m" register="edi"/>
-			<argument type="m" register="ebp"/>
 		</syscall>
 		<syscall name="shmat">
 			<index>442</index>
