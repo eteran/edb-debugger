@@ -2407,13 +2407,13 @@
 			<index>0</index>
 			<argument type="j" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="write">
 			<index>1</index>
 			<argument type="j" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="open">
 			<index>2</index>
@@ -2449,47 +2449,47 @@
 		<syscall name="lseek">
 			<index>8</index>
 			<argument type="j" register="rdi"/>
-			<argument type="l" register="rsi"/>
+			<argument type="x" register="rsi"/>
 			<argument type="j" register="rdx"/>
 		</syscall>
 		<syscall name="mmap">
 			<index>9</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
-			<argument type="m" register="r9"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
+			<argument type="y" register="r9"/>
 		</syscall>
 		<syscall name="mprotect">
 			<index>10</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="munmap">
 			<index>11</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
 		</syscall>
 		<syscall name="brk">
 			<index>12</index>
-			<argument type="m" register="rdi"/>
+			<argument type="y" register="rdi"/>
 		</syscall>
 		<syscall name="rt_sigaction">
 			<index>13</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
 			<argument type="P" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="y" register="r10"/>
 		</syscall>
 		<syscall name="rt_sigprocmask">
 			<index>14</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
 			<argument type="P" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="y" register="r10"/>
 		</syscall>
 		<syscall name="rt_sigreturn">
 			<index>15</index>
@@ -2498,33 +2498,33 @@
 			<index>16</index>
 			<argument type="j" register="rdi"/>
 			<argument type="j" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="pread64">
 			<index>17</index>
 			<argument type="j" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="l" register="r10"/>
+			<argument type="y" register="rdx"/>
+			<argument type="x" register="r10"/>
 		</syscall>
 		<syscall name="pwrite64">
 			<index>18</index>
 			<argument type="j" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="l" register="r10"/>
+			<argument type="y" register="rdx"/>
+			<argument type="x" register="r10"/>
 		</syscall>
 		<syscall name="readv">
 			<index>19</index>
-			<argument type="m" register="rdi"/>
+			<argument type="y" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="writev">
 			<index>20</index>
-			<argument type="m" register="rdi"/>
+			<argument type="y" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="access">
 			<index>21</index>
@@ -2548,34 +2548,34 @@
 		</syscall>
 		<syscall name="mremap">
 			<index>25</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="msync">
 			<index>26</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
 			<argument type="i" register="rdx"/>
 		</syscall>
 		<syscall name="mincore">
 			<index>27</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
 			<argument type="P" register="rdx"/>
 		</syscall>
 		<syscall name="madvise">
 			<index>28</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
 			<argument type="i" register="rdx"/>
 		</syscall>
 		<syscall name="shmget">
 			<index>29</index>
 			<argument type="i" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rsi"/>
 			<argument type="i" register="rdx"/>
 		</syscall>
 		<syscall name="shmat">
@@ -2630,7 +2630,7 @@
 			<argument type="i" register="rdi"/>
 			<argument type="i" register="rsi"/>
 			<argument type="P" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="y" register="r10"/>
 		</syscall>
 		<syscall name="socket">
 			<index>41</index>
@@ -2654,7 +2654,7 @@
 			<index>44</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 			<argument type="j" register="r10"/>
 			<argument type="P" register="r8"/>
 			<argument type="i" register="r9"/>
@@ -2663,7 +2663,7 @@
 			<index>45</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 			<argument type="j" register="r10"/>
 			<argument type="P" register="r8"/>
 			<argument type="P" register="r9"/>
@@ -2733,11 +2733,11 @@
 		</syscall>
 		<syscall name="clone">
 			<index>56</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
 			<argument type="P" register="rdx"/>
 			<argument type="P" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="fork">
 			<index>57</index>
@@ -2788,7 +2788,7 @@
 			<argument type="i" register="rdi"/>
 			<argument type="i" register="rsi"/>
 			<argument type="i" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="y" register="r10"/>
 		</syscall>
 		<syscall name="shmdt">
 			<index>67</index>
@@ -2803,15 +2803,15 @@
 			<index>69</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 			<argument type="i" register="r10"/>
 		</syscall>
 		<syscall name="msgrcv">
 			<index>70</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="l" register="r10"/>
+			<argument type="y" register="rdx"/>
+			<argument type="x" register="r10"/>
 			<argument type="i" register="r8"/>
 		</syscall>
 		<syscall name="msgctl">
@@ -2824,7 +2824,7 @@
 			<index>72</index>
 			<argument type="j" register="rdi"/>
 			<argument type="j" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="flock">
 			<index>73</index>
@@ -2842,12 +2842,12 @@
 		<syscall name="truncate">
 			<index>76</index>
 			<argument type="Pc" register="rdi"/>
-			<argument type="l" register="rsi"/>
+			<argument type="x" register="rsi"/>
 		</syscall>
 		<syscall name="ftruncate">
 			<index>77</index>
 			<argument type="j" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rsi"/>
 		</syscall>
 		<syscall name="getdents">
 			<index>78</index>
@@ -2858,7 +2858,7 @@
 		<syscall name="getcwd">
 			<index>79</index>
 			<argument type="Pc" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rsi"/>
 		</syscall>
 		<syscall name="chdir">
 			<index>80</index>
@@ -2964,10 +2964,10 @@
 		</syscall>
 		<syscall name="ptrace">
 			<index>101</index>
-			<argument type="l" register="rdi"/>
-			<argument type="l" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="x" register="rdi"/>
+			<argument type="x" register="rsi"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
 		</syscall>
 		<syscall name="getuid">
 			<index>102</index>
@@ -3082,14 +3082,14 @@
 		<syscall name="rt_sigpending">
 			<index>127</index>
 			<argument type="P" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rsi"/>
 		</syscall>
 		<syscall name="rt_sigtimedwait">
 			<index>128</index>
 			<argument type="P" register="rdi"/>
 			<argument type="P" register="rsi"/>
 			<argument type="P" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="y" register="r10"/>
 		</syscall>
 		<syscall name="rt_sigqueueinfo">
 			<index>129</index>
@@ -3100,7 +3100,7 @@
 		<syscall name="rt_sigsuspend">
 			<index>130</index>
 			<argument type="P" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rsi"/>
 		</syscall>
 		<syscall name="sigaltstack">
 			<index>131</index>
@@ -3144,8 +3144,8 @@
 		<syscall name="sysfs">
 			<index>139</index>
 			<argument type="i" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="getpriority">
 			<index>140</index>
@@ -3193,13 +3193,13 @@
 		</syscall>
 		<syscall name="mlock">
 			<index>149</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
 		</syscall>
 		<syscall name="munlock">
 			<index>150</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
 		</syscall>
 		<syscall name="mlockall">
 			<index>151</index>
@@ -3213,10 +3213,10 @@
 		</syscall>
 		<syscall name="modify_ldt">
 			<index>154</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="pivot_root">
 			<index>155</index>
@@ -3230,16 +3230,16 @@
 		<syscall name="prctl">
 			<index>157</index>
 			<argument type="i" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="arch_prctl">
 			<index>158</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
 		</syscall>
 		<syscall name="adjtimex">
 			<index>159</index>
@@ -3271,14 +3271,14 @@
 			<argument type="Pc" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
 			<argument type="Pc" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="y" register="r10"/>
 			<argument type="P" register="r8"/>
 		</syscall>
 		<syscall name="umount2">
 			<index>166</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
 		</syscall>
 		<syscall name="swapon">
 			<index>167</index>
@@ -3308,25 +3308,25 @@
 		</syscall>
 		<syscall name="iopl">
 			<index>172</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
 		</syscall>
 		<syscall name="ioperm">
 			<index>173</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
 			<argument type="i" register="rdx"/>
 		</syscall>
 		<syscall name="create_module">
 			<index>174</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
 		</syscall>
 		<syscall name="init_module">
 			<index>175</index>
 			<argument type="P" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rsi"/>
 			<argument type="Pc" register="rdx"/>
 		</syscall>
 		<syscall name="delete_module">
@@ -3336,17 +3336,17 @@
 		</syscall>
 		<syscall name="get_kernel_syms">
 			<index>177</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
 		</syscall>
 		<syscall name="query_module">
 			<index>178</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="quotactl">
 			<index>179</index>
@@ -3357,51 +3357,51 @@
 		</syscall>
 		<syscall name="nfsservctl">
 			<index>180</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="getpmsg">
 			<index>181</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="putpmsg">
 			<index>182</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="afs_syscall">
 			<index>183</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="tuxcall">
 			<index>184</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="security">
 			<index>185</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="gettid">
 			<index>186</index>
@@ -3409,15 +3409,15 @@
 		<syscall name="readahead">
 			<index>187</index>
 			<argument type="i" register="rdi"/>
-			<argument type="l" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="x" register="rsi"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="setxattr">
 			<index>188</index>
 			<argument type="Pc" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
 			<argument type="P" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="y" register="r10"/>
 			<argument type="i" register="r8"/>
 		</syscall>
 		<syscall name="lsetxattr">
@@ -3425,7 +3425,7 @@
 			<argument type="Pc" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
 			<argument type="P" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="y" register="r10"/>
 			<argument type="i" register="r8"/>
 		</syscall>
 		<syscall name="fsetxattr">
@@ -3433,7 +3433,7 @@
 			<argument type="i" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
 			<argument type="P" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="y" register="r10"/>
 			<argument type="i" register="r8"/>
 		</syscall>
 		<syscall name="getxattr">
@@ -3441,39 +3441,39 @@
 			<argument type="Pc" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
 			<argument type="P" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="y" register="r10"/>
 		</syscall>
 		<syscall name="lgetxattr">
 			<index>192</index>
 			<argument type="Pc" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
 			<argument type="P" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="y" register="r10"/>
 		</syscall>
 		<syscall name="fgetxattr">
 			<index>193</index>
 			<argument type="i" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
 			<argument type="P" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="y" register="r10"/>
 		</syscall>
 		<syscall name="listxattr">
 			<index>194</index>
 			<argument type="Pc" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="llistxattr">
 			<index>195</index>
 			<argument type="Pc" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="flistxattr">
 			<index>196</index>
 			<argument type="i" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="removexattr">
 			<index>197</index>
@@ -3522,8 +3522,8 @@
 		</syscall>
 		<syscall name="set_thread_area">
 			<index>205</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
 		</syscall>
 		<syscall name="io_setup">
 			<index>206</index>
@@ -3532,38 +3532,38 @@
 		</syscall>
 		<syscall name="io_destroy">
 			<index>207</index>
-			<argument type="m" register="rdi"/>
+			<argument type="y" register="rdi"/>
 		</syscall>
 		<syscall name="io_getevents">
 			<index>208</index>
-			<argument type="m" register="rdi"/>
-			<argument type="l" register="rsi"/>
-			<argument type="l" register="rdx"/>
+			<argument type="y" register="rdi"/>
+			<argument type="x" register="rsi"/>
+			<argument type="x" register="rdx"/>
 			<argument type="P" register="r10"/>
 			<argument type="P" register="r8"/>
 		</syscall>
 		<syscall name="io_submit">
 			<index>209</index>
-			<argument type="m" register="rdi"/>
-			<argument type="l" register="rsi"/>
+			<argument type="y" register="rdi"/>
+			<argument type="x" register="rsi"/>
 			<argument type="P" register="rdx"/>
 		</syscall>
 		<syscall name="io_cancel">
 			<index>210</index>
-			<argument type="m" register="rdi"/>
+			<argument type="y" register="rdi"/>
 			<argument type="P" register="rsi"/>
 			<argument type="P" register="rdx"/>
 		</syscall>
 		<syscall name="get_thread_area">
 			<index>211</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
 		</syscall>
 		<syscall name="lookup_dcookie">
 			<index>212</index>
 			<argument type="y" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="epoll_create">
 			<index>213</index>
@@ -3571,27 +3571,27 @@
 		</syscall>
 		<syscall name="epoll_ctl_old">
 			<index>214</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
 		</syscall>
 		<syscall name="epoll_wait_old">
 			<index>215</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
 		</syscall>
 		<syscall name="remap_file_pages">
 			<index>216</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="getdents64">
 			<index>217</index>
@@ -3616,8 +3616,8 @@
 		<syscall name="fadvise64">
 			<index>221</index>
 			<argument type="i" register="rdi"/>
-			<argument type="l" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="x" register="rsi"/>
+			<argument type="y" register="rdx"/>
 			<argument type="i" register="r10"/>
 		</syscall>
 		<syscall name="timer_create">
@@ -3699,35 +3699,35 @@
 		</syscall>
 		<syscall name="vserver">
 			<index>236</index>
-		<!-- This entry only lists parameters with generic types - unsigned long -->
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+		<!-- This entry only lists parameters with generic types - unsigned long long -->
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="mbind">
 			<index>237</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
 			<argument type="P" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="r8"/>
 			<argument type="j" register="r9"/>
 		</syscall>
 		<syscall name="set_mempolicy">
 			<index>238</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="get_mempolicy">
 			<index>239</index>
 			<argument type="P" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="mq_open">
 			<index>240</index>
@@ -3744,7 +3744,7 @@
 			<index>242</index>
 			<argument type="i" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 			<argument type="j" register="r10"/>
 			<argument type="P" register="r8"/>
 		</syscall>
@@ -3752,7 +3752,7 @@
 			<index>243</index>
 			<argument type="i" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 			<argument type="P" register="r10"/>
 			<argument type="P" register="r8"/>
 		</syscall>
@@ -3769,10 +3769,10 @@
 		</syscall>
 		<syscall name="kexec_load">
 			<index>246</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
 			<argument type="P" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="y" register="r10"/>
 		</syscall>
 		<syscall name="waitid">
 			<index>247</index>
@@ -3787,7 +3787,7 @@
 			<argument type="Pc" register="rdi"/>
 			<argument type="Pc" register="rsi"/>
 			<argument type="P" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="y" register="r10"/>
 			<argument type="i" register="r8"/>
 		</syscall>
 		<syscall name="request_key">
@@ -3800,10 +3800,10 @@
 		<syscall name="keyctl">
 			<index>250</index>
 			<argument type="i" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="ioprio_set">
 			<index>251</index>
@@ -3833,7 +3833,7 @@
 		<syscall name="migrate_pages">
 			<index>256</index>
 			<argument type="i" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rsi"/>
 			<argument type="P" register="rdx"/>
 			<argument type="P" register="r10"/>
 		</syscall>
@@ -3939,16 +3939,16 @@
 			<argument type="j" register="rsi"/>
 			<argument type="P" register="rdx"/>
 			<argument type="P" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="unshare">
 			<index>272</index>
-			<argument type="m" register="rdi"/>
+			<argument type="y" register="rdi"/>
 		</syscall>
 		<syscall name="set_robust_list">
 			<index>273</index>
 			<argument type="P" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rsi"/>
 		</syscall>
 		<syscall name="get_robust_list">
 			<index>274</index>
@@ -3962,34 +3962,34 @@
 			<argument type="P" register="rsi"/>
 			<argument type="i" register="rdx"/>
 			<argument type="P" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="r8"/>
 			<argument type="j" register="r9"/>
 		</syscall>
 		<syscall name="tee">
 			<index>276</index>
 			<argument type="i" register="rdi"/>
 			<argument type="i" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 			<argument type="j" register="r10"/>
 		</syscall>
 		<syscall name="sync_file_range">
 			<index>277</index>
 			<argument type="i" register="rdi"/>
-			<argument type="l" register="rsi"/>
-			<argument type="l" register="rdx"/>
+			<argument type="x" register="rsi"/>
+			<argument type="x" register="rdx"/>
 			<argument type="j" register="r10"/>
 		</syscall>
 		<syscall name="vmsplice">
 			<index>278</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 			<argument type="j" register="r10"/>
 		</syscall>
 		<syscall name="move_pages">
 			<index>279</index>
 			<argument type="i" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rsi"/>
 			<argument type="P" register="rdx"/>
 			<argument type="P" register="r10"/>
 			<argument type="P" register="r8"/>
@@ -4009,13 +4009,13 @@
 			<argument type="i" register="rdx"/>
 			<argument type="i" register="r10"/>
 			<argument type="P" register="r8"/>
-			<argument type="m" register="r9"/>
+			<argument type="y" register="r9"/>
 		</syscall>
 		<syscall name="signalfd">
 			<index>282</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 		</syscall>
 		<syscall name="timerfd_create">
 			<index>283</index>
@@ -4030,8 +4030,8 @@
 			<index>285</index>
 			<argument type="i" register="rdi"/>
 			<argument type="i" register="rsi"/>
-			<argument type="l" register="rdx"/>
-			<argument type="l" register="r10"/>
+			<argument type="x" register="rdx"/>
+			<argument type="x" register="r10"/>
 		</syscall>
 		<syscall name="timerfd_settime">
 			<index>286</index>
@@ -4056,7 +4056,7 @@
 			<index>289</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 			<argument type="i" register="r10"/>
 		</syscall>
 		<syscall name="eventfd2">
@@ -4085,19 +4085,19 @@
 		</syscall>
 		<syscall name="preadv">
 			<index>295</index>
-			<argument type="m" register="rdi"/>
+			<argument type="y" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="pwritev">
 			<index>296</index>
-			<argument type="m" register="rdi"/>
+			<argument type="y" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="rt_tgsigqueueinfo">
 			<index>297</index>
@@ -4112,7 +4112,7 @@
 			<argument type="i" register="rsi"/>
 			<argument type="i" register="rdx"/>
 			<argument type="i" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="recvmmsg">
 			<index>299</index>
@@ -4187,27 +4187,27 @@
 			<index>310</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 			<argument type="P" register="r10"/>
-			<argument type="m" register="r8"/>
-			<argument type="m" register="r9"/>
+			<argument type="y" register="r8"/>
+			<argument type="y" register="r9"/>
 		</syscall>
 		<syscall name="process_vm_writev">
 			<index>311</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 			<argument type="P" register="r10"/>
-			<argument type="m" register="r8"/>
-			<argument type="m" register="r9"/>
+			<argument type="y" register="r8"/>
+			<argument type="y" register="r9"/>
 		</syscall>
 		<syscall name="kcmp">
 			<index>312</index>
 			<argument type="i" register="rdi"/>
 			<argument type="i" register="rsi"/>
 			<argument type="i" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="finit_module">
 			<index>313</index>
@@ -4245,7 +4245,7 @@
 		<syscall name="getrandom">
 			<index>318</index>
 			<argument type="Pc" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rsi"/>
 			<argument type="j" register="rdx"/>
 		</syscall>
 		<syscall name="memfd_create">
@@ -4257,9 +4257,9 @@
 			<index>320</index>
 			<argument type="i" register="rdi"/>
 			<argument type="i" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdx"/>
 			<argument type="Pc" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="r8"/>
 		</syscall>
 		<syscall name="bpf">
 			<index>321</index>
@@ -4286,8 +4286,8 @@
 		</syscall>
 		<syscall name="mlock2">
 			<index>325</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
 			<argument type="i" register="rdx"/>
 		</syscall>
 		<syscall name="copy_file_range">
@@ -4296,38 +4296,38 @@
 			<argument type="P" register="rsi"/>
 			<argument type="i" register="rdx"/>
 			<argument type="P" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="r8"/>
 			<argument type="j" register="r9"/>
 		</syscall>
 		<syscall name="preadv2">
 			<index>327</index>
-			<argument type="m" register="rdi"/>
+			<argument type="y" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 			<argument type="i" register="r9"/>
 		</syscall>
 		<syscall name="pwritev2">
 			<index>328</index>
-			<argument type="m" register="rdi"/>
+			<argument type="y" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="y" register="rdx"/>
+			<argument type="y" register="r10"/>
+			<argument type="y" register="r8"/>
 			<argument type="i" register="r9"/>
 		</syscall>
 		<syscall name="pkey_mprotect">
 			<index>329</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
+			<argument type="y" register="rdx"/>
 			<argument type="i" register="r10"/>
 		</syscall>
 		<syscall name="pkey_alloc">
 			<index>330</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="y" register="rdi"/>
+			<argument type="y" register="rsi"/>
 		</syscall>
 		<syscall name="pkey_free">
 			<index>331</index>
