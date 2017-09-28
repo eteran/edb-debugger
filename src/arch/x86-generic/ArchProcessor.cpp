@@ -897,6 +897,9 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 	Q_UNUSED(state);
 
 #ifdef Q_OS_LINUX
+	const bool isX32=regAX & __X32_SYSCALL_BIT;
+	regAX &= ~__X32_SYSCALL_BIT;
+
 	QString syscall_entry;
 	QDomDocument syscall_xml;
 	QFile file(":/debugger/xml/syscalls.xml");
@@ -956,7 +959,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 			}
 		}
 
-		ret << ArchProcessor::tr("SYSCALL: %1(%2)").arg(root.attribute("name"), arguments.join(","));
+		ret << ArchProcessor::tr("SYSCALL: %1%2(%3)").arg(isX32?"x32:":"",root.attribute("name"), arguments.join(","));
 	}
 #endif
 }
