@@ -2454,6 +2454,7 @@
 		</syscall>
 		<syscall name="mmap">
 			<index>9</index>
+		<!-- This entry only lists parameters with generic types - unsigned long -->
 			<argument type="m" register="rdi"/>
 			<argument type="m" register="rsi"/>
 			<argument type="m" register="rdx"/>
@@ -4273,6 +4274,72 @@
 			<argument type="P" register="rdx"/>
 			<argument type="P" register="r10"/>
 			<argument type="i" register="r8"/>
+		</syscall>
+		<syscall name="userfaultfd">
+			<index>323</index>
+			<argument type="i" register="rdi"/>
+		</syscall>
+		<syscall name="membarrier">
+			<index>324</index>
+			<argument type="i" register="rdi"/>
+			<argument type="i" register="rsi"/>
+		</syscall>
+		<syscall name="mlock2">
+			<index>325</index>
+			<argument type="m" register="rdi"/>
+			<argument type="m" register="rsi"/>
+			<argument type="i" register="rdx"/>
+		</syscall>
+		<syscall name="copy_file_range">
+			<index>326</index>
+			<argument type="i" register="rdi"/>
+			<argument type="P" register="rsi"/>
+			<argument type="i" register="rdx"/>
+			<argument type="P" register="r10"/>
+			<argument type="m" register="r8"/>
+			<argument type="j" register="r9"/>
+		</syscall>
+		<syscall name="preadv2">
+			<index>327</index>
+			<argument type="m" register="rdi"/>
+			<argument type="P" register="rsi"/>
+			<argument type="m" register="rdx"/>
+			<argument type="m" register="r10"/>
+			<argument type="m" register="r8"/>
+			<argument type="i" register="r9"/>
+		</syscall>
+		<syscall name="pwritev2">
+			<index>328</index>
+			<argument type="m" register="rdi"/>
+			<argument type="P" register="rsi"/>
+			<argument type="m" register="rdx"/>
+			<argument type="m" register="r10"/>
+			<argument type="m" register="r8"/>
+			<argument type="i" register="r9"/>
+		</syscall>
+		<syscall name="pkey_mprotect">
+			<index>329</index>
+			<argument type="m" register="rdi"/>
+			<argument type="m" register="rsi"/>
+			<argument type="m" register="rdx"/>
+			<argument type="i" register="r10"/>
+		</syscall>
+		<syscall name="pkey_alloc">
+			<index>330</index>
+			<argument type="m" register="rdi"/>
+			<argument type="m" register="rsi"/>
+		</syscall>
+		<syscall name="pkey_free">
+			<index>331</index>
+			<argument type="i" register="rdi"/>
+		</syscall>
+		<syscall name="statx">
+			<index>332</index>
+			<argument type="i" register="rdi"/>
+			<argument type="Pc" register="rsi"/>
+			<argument type="j" register="rdx"/>
+			<argument type="j" register="r10"/>
+			<argument type="P" register="r8"/>
 		</syscall>
 	</linux>
 </syscalls>
