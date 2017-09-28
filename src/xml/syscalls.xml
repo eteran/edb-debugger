@@ -4356,19 +4356,19 @@
 			<index>514</index>
 			<argument type="j" register="rdi"/>
 			<argument type="j" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="j" register="rdx"/>
 		</syscall>
 		<syscall name="readv">
 			<index>515</index>
-			<argument type="m" register="rdi"/>
+			<argument type="j" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="j" register="rdx"/>
 		</syscall>
 		<syscall name="writev">
 			<index>516</index>
-			<argument type="m" register="rdi"/>
+			<argument type="j" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="j" register="rdx"/>
 		</syscall>
 		<syscall name="recvfrom">
 			<index>517</index>
@@ -4399,10 +4399,10 @@
 		</syscall>
 		<syscall name="ptrace">
 			<index>521</index>
-			<argument type="l" register="rdi"/>
-			<argument type="l" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="i" register="rdi"/>
+			<argument type="i" register="rsi"/>
+			<argument type="j" register="rdx"/>
+			<argument type="j" register="r10"/>
 		</syscall>
 		<syscall name="rt_sigpending">
 			<index>522</index>
@@ -4440,10 +4440,10 @@
 		</syscall>
 		<syscall name="kexec_load">
 			<index>528</index>
-			<argument type="m" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="j" register="rdi"/>
+			<argument type="j" register="rsi"/>
 			<argument type="P" register="rdx"/>
-			<argument type="m" register="r10"/>
+			<argument type="j" register="r10"/>
 		</syscall>
 		<syscall name="waitid">
 			<index>529</index>
@@ -4468,13 +4468,13 @@
 			<index>532</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="j" register="rdx"/>
 			<argument type="j" register="r10"/>
 		</syscall>
 		<syscall name="move_pages">
 			<index>533</index>
 			<argument type="i" register="rdi"/>
-			<argument type="m" register="rsi"/>
+			<argument type="j" register="rsi"/>
 			<argument type="P" register="rdx"/>
 			<argument type="P" register="r10"/>
 			<argument type="P" register="r8"/>
@@ -4482,19 +4482,19 @@
 		</syscall>
 		<syscall name="preadv">
 			<index>534</index>
-			<argument type="m" register="rdi"/>
+			<argument type="j" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="j" register="rdx"/>
+			<argument type="j" register="r10"/>
+			<argument type="j" register="r8"/>
 		</syscall>
 		<syscall name="pwritev">
 			<index>535</index>
-			<argument type="m" register="rdi"/>
+			<argument type="j" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="j" register="rdx"/>
+			<argument type="j" register="r10"/>
+			<argument type="j" register="r8"/>
 		</syscall>
 		<syscall name="rt_tgsigqueueinfo">
 			<index>536</index>
@@ -4522,19 +4522,19 @@
 			<index>539</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="j" register="rdx"/>
 			<argument type="P" register="r10"/>
-			<argument type="m" register="r8"/>
-			<argument type="m" register="r9"/>
+			<argument type="j" register="r8"/>
+			<argument type="j" register="r9"/>
 		</syscall>
 		<syscall name="process_vm_writev">
 			<index>540</index>
 			<argument type="i" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
+			<argument type="j" register="rdx"/>
 			<argument type="P" register="r10"/>
-			<argument type="m" register="r8"/>
-			<argument type="m" register="r9"/>
+			<argument type="j" register="r8"/>
+			<argument type="j" register="r9"/>
 		</syscall>
 		<syscall name="setsockopt">
 			<index>541</index>
@@ -4560,7 +4560,7 @@
 		<syscall name="io_submit">
 			<index>544</index>
 			<argument type="y" register="rdi"/>
-			<argument type="l" register="rsi"/>
+			<argument type="i" register="rsi"/>
 			<argument type="P" register="rdx"/>
 		</syscall>
 		<syscall name="execveat">
@@ -4573,20 +4573,20 @@
 		</syscall>
 		<syscall name="preadv2">
 			<index>546</index>
-			<argument type="m" register="rdi"/>
+			<argument type="j" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="j" register="rdx"/>
+			<argument type="j" register="r10"/>
+			<argument type="j" register="r8"/>
 			<argument type="i" register="r9"/>
 		</syscall>
 		<syscall name="pwritev2">
 			<index>547</index>
-			<argument type="m" register="rdi"/>
+			<argument type="j" register="rdi"/>
 			<argument type="P" register="rsi"/>
-			<argument type="m" register="rdx"/>
-			<argument type="m" register="r10"/>
-			<argument type="m" register="r8"/>
+			<argument type="j" register="rdx"/>
+			<argument type="j" register="r10"/>
+			<argument type="j" register="r8"/>
 			<argument type="i" register="r9"/>
 		</syscall>
 	</linux>
