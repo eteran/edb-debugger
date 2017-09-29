@@ -1067,6 +1067,7 @@ edb::address_t ArchProcessor::get_effective_address(const edb::Instruction &inst
 	ok=false;
 	const auto result = get_effective_address(inst, op, state);
 	if(!result) return 0;
+	ok=true;
 	return result.value();
 }
 
