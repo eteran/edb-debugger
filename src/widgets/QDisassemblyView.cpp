@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ISymbolManager.h"
 #include "Instruction.h"
 #include "MemoryRegions.h"
+#include "SessionManager.h"
 #include "State.h"
 #include "SyntaxHighlighter.h"
 #include "Util.h"
@@ -43,6 +44,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTextLayout>
 #include <QToolTip>
 #include <QtGlobal>
+
+#include <QDebug>
 
 #include <algorithm>
 #include <climits>
@@ -895,7 +898,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 
 	if(edb::v1::config().show_register_badges) { // REGISTER BADGES
-	
+
 		if(edb::v1::debugger_core->process()->isPaused()) {
 
 			// a reasonable guess for the width of a single register is 3 chars + overhead
@@ -1665,6 +1668,12 @@ std::shared_ptr<IRegion> QDisassemblyView::region() const {
 // Desc: Adds a comment to the comment hash.
 //------------------------------------------------------------------------------
 void QDisassemblyView::add_comment(edb::address_t address, QString comment) {
+	qDebug("Insert Comment");
+	Comment temp_comment = {
+		address,
+		comment
+	};
+	SessionManager::instance().add_comment(temp_comment);
 	comments_.insert(address, comment);
 }
 
@@ -1673,6 +1682,7 @@ void QDisassemblyView::add_comment(edb::address_t address, QString comment) {
 // Desc: Removes a comment from the comment hash and returns the number of comments removed.
 //------------------------------------------------------------------------------
 int QDisassemblyView::remove_comment(edb::address_t address) {
+	SessionManager::instance().remove_comment(address);
 	return comments_.remove(address);
 }
 
@@ -1726,6 +1736,19 @@ void QDisassemblyView::restoreState(const QByteArray &stateBuffer) {
 			line1_ = state.line1;
 			line2_ = state.line2;
 			line3_ = state.line3;
+		}
+	}
+}
+//------------------------------------------------------------------------------
+// Name: restoreComments
+// Desc:
+//------------------------------------------------------------------------------
+void QDisassemblyView::restoreComments(QVariantList &comments_data) {
+	qDebug("restoreComments");
+	for(auto it = comments_data.begin(); it != comments_data.end(); ++it) {
+		QVariantMap data = it->toMap();
+		if(const Result<edb::address_t> addr = edb::v1::string_to_address(data["address"].toString())) {
+			comments_.insert(*addr, data["comment"].toString());
 		}
 	}
 }

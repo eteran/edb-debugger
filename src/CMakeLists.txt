@@ -53,6 +53,7 @@ include_directories(
 	"qhexview"
 	"widgets"
 	"qjson4"
+	"session"
 )
 
 set(edb_SRCS
@@ -94,6 +95,8 @@ set(edb_SRCS
 	RegisterViewModelBase.cpp
 	State.cpp
 	SymbolManager.cpp
+	session/SessionManager.cpp
+	session/SessionError.cpp
 	ThreadsModel.cpp
 	widgets/LineEdit.cpp
 	widgets/NavigationHistory.cpp
@@ -153,7 +156,7 @@ set(edb_INCLUDES
 	${PROJECT_SOURCE_DIR}/include/QLongValidator.h
 	${PROJECT_SOURCE_DIR}/include/QULongValidator.h
 	${PROJECT_SOURCE_DIR}/include/HexStringValidator.h
-	${PROJECT_SOURCE_DIR}/include/Instruction.h		
+	${PROJECT_SOURCE_DIR}/include/Instruction.h
 	qjson4/QJsonArray.h
 	qjson4/QJsonDocument.h
 	qjson4/QJsonObject.h
@@ -161,7 +164,7 @@ set(edb_INCLUDES
 	qjson4/QJsonParser.h
 	qjson4/QJsonRoot.h
 	qjson4/QJsonValue.h
-	qjson4/QJsonValueRef.h	
+	qjson4/QJsonValueRef.h
 )
 
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64"))
@@ -169,7 +172,7 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 		${edb_INCLUDES}
 		${PROJECT_SOURCE_DIR}/include/arch/x86-generic/ArchTypes.h
 	)
-	
+
 	set(edb_SRCS
 		${edb_SRCS}
 		arch/x86-generic/ArchProcessor.cpp
@@ -182,7 +185,7 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
                 ${edb_INCLUDES}
                 ${PROJECT_SOURCE_DIR}/include/arch/arm-generic/ArchTypes.h
         )
-         
+
         set(edb_SRCS
                 ${edb_SRCS}
                 arch/arm-generic/ArchProcessor.cpp
@@ -208,7 +211,7 @@ if(${GRAPHVIZ_FOUND})
 	)
 endif()
 
-# we put the header files from the include directory here 
+# we put the header files from the include directory here
 # too so automoc can "just work"
 add_executable(edb ${edb_INCLUDES} ${edb_SRCS})
 
