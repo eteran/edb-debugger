@@ -2875,7 +2875,7 @@ void Debugger::set_initial_debugger_state() {
 			QMessageBox::warning(
 				this,
 				tr("Error Loading Session"),
-				tr(session_error.getErrorMessage().toUtf8().constData())
+				QT_TR_NOOP(session_error.getErrorMessage())
 			);
 		} else {
 			QVariantList comments_data;

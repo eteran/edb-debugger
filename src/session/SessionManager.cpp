@@ -42,23 +42,23 @@ SessionManager& SessionManager::instance() {
 //------------------------------------------------------------------------------
 bool SessionManager::load_session(const QString &session_file, SessionError& session_error) {
 
-  QFile file(session_file);
+	QFile file(session_file);
 	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		QByteArray json = file.readAll();
 		QJsonParseError error;
 		auto doc = QJsonDocument::fromJson(json, &error);
 		if(error.error != QJsonParseError::NoError) {
-      session_error.err = SessionError::UnknownError;
-      session_error.setErrorMessage(QString("An error occured while loading session JSON file. %1").arg(error.errorString()));
+	      session_error.err = SessionError::UnknownError;
+	      session_error.setErrorMessage(QString("An error occured while loading session JSON file. %1").arg(error.errorString()));
 
-			return false;
+		  return false;
 		}
 
 		if(!doc.isObject()) {
-      session_error.err = SessionError::NotAnObject;
-      session_error.setErrorMessage("Session file is invalid. Not an object.");
+	      session_error.err = SessionError::NotAnObject;
+	      session_error.setErrorMessage("Session file is invalid. Not an object.");
 
-			return false;
+		  return false;
 		}
 
 		QJsonObject object = doc.object();
@@ -71,17 +71,17 @@ bool SessionManager::load_session(const QString &session_file, SessionError& ses
 		Q_UNUSED(ts);
 
 		if(id != SessionFileIdString || version > SessionFileVersion) {
-      session_error.err = SessionError::InvalidSessionFile;
-      session_error.setErrorMessage("Session file is invalid.");
+	      session_error.err = SessionError::InvalidSessionFile;
+	      session_error.setErrorMessage("Session file is invalid.");
 
-			return false;
+		  return false;
 		}
 
 		qDebug("Loading session file");
-    load_plugin_data(); //First, load the plugin-data
-    return true;
+		load_plugin_data(); //First, load the plugin-data
+		return true;
 	}
-  return false;
+	return false;
 }
 
 //------------------------------------------------------------------------------
