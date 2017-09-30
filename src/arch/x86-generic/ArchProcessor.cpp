@@ -49,6 +49,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "errno-names-linux.h"
 #endif
 
+namespace ILP32
+{
+std:: int32_t  toInt (std::uint64_t x) { return x; }
+std::uint32_t toUInt (std::uint64_t x) { return x; }
+std:: int32_t  toLong(std::uint64_t x) { return x; }
+std::uint32_t toULong(std::uint64_t x) { return x; }
+}
+namespace LP64
+{
+std:: int32_t  toInt (std::uint64_t x) { return x; }
+std::uint32_t toUInt (std::uint64_t x) { return x; }
+std:: int64_t  toLong(std::uint64_t x) { return x; }
+std::uint64_t toULong(std::uint64_t x) { return x; }
+}
+
 namespace {
 
 using std::size_t;
@@ -241,29 +256,28 @@ QString format_integer(int pointer_level, edb::reg_t arg, QChar type) {
 		return format_pointer(pointer_level, arg, type);
 	}
 
-	QString s;
-
 	switch(type.toLatin1()) {
-	case 'w': return s.sprintf("%u", static_cast<wchar_t>(arg));
-	case 'b': return s.sprintf("%d", static_cast<bool>(arg));
+	case 'w': return "0x"+QString::number(static_cast<wchar_t>(arg), 16);
+	case 'b': return arg ? "true" : "false";
 	case 'c':
 		if(arg < 0x80u && (std::isprint(arg) || std::isspace(arg))) {
-			return s.sprintf("'%c'", static_cast<char>(arg));
+			return QString("'%1'").arg(static_cast<char>(arg));
 		} else {
-			return s.sprintf("'\\x%02x'", static_cast<quint16>(arg));
+			return QString("'\\x%1'").arg(static_cast<quint16>(arg),2,16);
 		}
-
-
-	case 'a': return s.sprintf("%d", static_cast<signed char>(arg));
-	case 'h': return s.sprintf("%u", static_cast<unsigned char>(arg));
-	case 's': return s.sprintf("%d", static_cast<short>(arg));
-	case 't': return s.sprintf("%u", static_cast<unsigned short>(arg));
-	case 'i': return s.sprintf("%d", static_cast<int>(arg));
-	case 'j': return s.sprintf("%u", static_cast<unsigned int>(arg));
-	case 'l': return s.sprintf("%ld", static_cast<long>(arg));
-	case 'm': return s.sprintf("%lu", static_cast<unsigned long>(arg));
-	case 'x': return s.sprintf("%lld", static_cast<long long>(arg));
-	case 'y': return s.sprintf("%llu", static_cast<long unsigned long>(arg));
+	case 'a': // signed char; since we're formatting as hex, we want to avoid sign
+			  // extension done inside QString::number (happening due to the cast to
+			  // qlonglong inside QString::setNum, which used in QString::number).
+			  // Similarly for other shorter-than-long-long signed types.
+	case 'h': return "0x"+QString::number(static_cast<unsigned char>(arg), 16);
+	case 's':
+	case 't': return "0x"+QString::number(static_cast<unsigned short>(arg), 16);
+	case 'i':
+	case 'j': return "0x"+QString::number(debuggeeIs32Bit() ? ILP32::toUInt(arg) : LP64::toUInt(arg), 16);
+	case 'l':
+	case 'm': return "0x"+QString::number(debuggeeIs32Bit() ? ILP32::toULong(arg) : LP64::toULong(arg), 16);
+	case 'x': return "0x"+QString::number(static_cast<long long>(arg), 16);
+	case 'y': return "0x"+QString::number(static_cast<long unsigned long>(arg), 16);
 	case 'n':
 	case 'o':
 	default:
@@ -311,6 +325,7 @@ QString format_char(int pointer_level, edb::address_t arg, QChar type) {
 //------------------------------------------------------------------------------
 QString format_argument(const QString &type, const Register& arg) {
 
+	if(!arg) return QObject::tr("(failed to get value)");
 	int pointer_level = 0;
 	for(QChar ch: type) {
 
@@ -882,6 +897,9 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 	Q_UNUSED(state);
 
 #ifdef Q_OS_LINUX
+	const bool isX32=regAX & __X32_SYSCALL_BIT;
+	regAX &= ~__X32_SYSCALL_BIT;
+
 	QString syscall_entry;
 	QDomDocument syscall_xml;
 	QFile file(":/debugger/xml/syscalls.xml");
@@ -906,10 +924,42 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 		for (QDomElement argument = root.firstChildElement("argument"); !argument.isNull(); argument = argument.nextSiblingElement("argument")) {
 			const QString argument_type     = argument.attribute("type");
 			const QString argument_register = argument.attribute("register");
-			arguments << format_argument(argument_type, state[argument_register]);
+			if(argument_register=="ebp" && inst.operation()==X86_INS_SYSENTER) {
+				if(IProcess *process = edb::v1::debugger_core->process()) {
+					char buf[4];
+					if(process->read_bytes(state.stack_pointer(), buf, sizeof(buf))!=sizeof(buf)) {
+						arguments << QObject::tr("(failed to read [esp])");
+						continue;
+					}
+					std::uint32_t value;
+					std::memcpy(&value,buf,sizeof value);
+					arguments << format_argument(argument_type, make_Register<32>("[esp]", value, Register::TYPE_GPR));
+					continue;
+				}
+			}
+			const auto reg=state[argument_register];
+			if(reg) {
+				arguments << format_argument(argument_type, reg);
+				continue;
+			}
+			else {
+				// If we failed, this may be a pair of reg32a:reg32b
+				const auto regs=argument_register.split(':');
+				if(regs.size()!=2 || regs[0].isEmpty() || regs[0][0]!='e' || regs[1].isEmpty() || regs[1][0]!='e') {
+					arguments << QObject::tr("(failed to obtain %1)").arg(argument_register);
+					continue;
+				}
+				const auto regHi=state[regs[0]], regLo=state[regs[1]];
+				if(!regHi || !regLo || regHi.bitSize()!=32 || regLo.bitSize()!=32) {
+					arguments << QObject::tr("(failed to obtain %1)").arg(argument_register);
+					continue;
+				}
+				const auto value=regHi.valueAsInteger() << 32 | regLo.valueAsInteger();
+				arguments << format_argument(argument_type, make_Register<64>(argument_register, value, Register::TYPE_GPR));
+			}
 		}
 
-		ret << ArchProcessor::tr("SYSCALL: %1(%2)").arg(root.attribute("name"), arguments.join(","));
+		ret << ArchProcessor::tr("SYSCALL: %1%2(%3)").arg(isX32?"x32:":"",root.attribute("name"), arguments.join(","));
 	}
 #endif
 }
@@ -1017,6 +1067,7 @@ edb::address_t ArchProcessor::get_effective_address(const edb::Instruction &inst
 	ok=false;
 	const auto result = get_effective_address(inst, op, state);
 	if(!result) return 0;
+	ok=true;
 	return result.value();
 }
 
