@@ -114,6 +114,8 @@ void DialogAttach::update_list() {
 		return;
 	}
 
+	const auto selectedPid = selected_pid();
+
 	process_model_->clear();
 
 	if(edb::v1::debugger_core) {
@@ -128,6 +130,15 @@ void DialogAttach::update_list() {
 			}
 		}
 	}
+
+	if(selectedPid) {
+		const auto pid=selectedPid.value();
+		const auto*const model=ui->processes_table->model();
+		for(int row = 0; row<model->rowCount(); ++row) {
+			if(model->index(row,0).data().toUInt()==pid)
+				ui->processes_table->selectRow(row);
+		}
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -137,10 +148,8 @@ void DialogAttach::update_list() {
 void DialogAttach::showEvent(QShowEvent *event) {
 	Q_UNUSED(event);
 	update_list();
-#if 0
 	connect(&updateTimer,SIGNAL(timeout()),this,SLOT(update_list()));
 	updateTimer.start(1000);
-#endif
 }
 
 //------------------------------------------------------------------------------
