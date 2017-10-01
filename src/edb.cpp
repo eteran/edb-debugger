@@ -1011,7 +1011,7 @@ std::shared_ptr<IRegion> primary_code_region() {
 //------------------------------------------------------------------------------
 void pop_value(State *state) {
 	Q_ASSERT(state);
-	state->adjust_stack(sizeof(reg_t));
+	state->adjust_stack(pointer_size());
 }
 
 //------------------------------------------------------------------------------
