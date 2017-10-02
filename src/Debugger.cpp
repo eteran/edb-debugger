@@ -2158,7 +2158,7 @@ bool Debugger::breakpoint_condition_true(const QString &condition) {
 // Name: handle_trap
 // Desc: returns true if we should resume as if this trap never happened
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::handle_trap() {
+edb::EVENT_STATUS Debugger::handle_trap(const std::shared_ptr<IDebugEvent> &event) {
 
 	// we just got a trap event, there are a few possible causes
 	// #1: we hit a 0xcc breakpoint, if so, then we want to stop
@@ -2170,7 +2170,9 @@ edb::EVENT_STATUS Debugger::handle_trap() {
 
 	// look it up in our breakpoint list, make sure it is one of OUR int3s!
 	// if it is, we need to backup EIP and pause ourselves
-	std::shared_ptr<IBreakpoint> bp = edb::v1::find_triggered_breakpoint(state.instruction_pointer());
+	const std::shared_ptr<IBreakpoint> bp = event->trap_reason()==IDebugEvent::TRAP_STEPPING ?
+												nullptr :
+												edb::v1::find_triggered_breakpoint(state.instruction_pointer());
 
 	if(bp && bp->enabled()) {
 
@@ -2262,7 +2264,7 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const std::shared_ptr<IDebugEve
 	}
 
 	if(event->is_trap()) {
-		return handle_trap();
+		return handle_trap(event);
 	}
 
 	if(event->is_stop()) {
