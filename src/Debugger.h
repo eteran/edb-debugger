@@ -240,7 +240,7 @@ private:
 	edb::EVENT_STATUS handle_event_exited(const std::shared_ptr<IDebugEvent> &event);
 	edb::EVENT_STATUS handle_event_stopped(const std::shared_ptr<IDebugEvent> &event);
 	edb::EVENT_STATUS handle_event_terminated(const std::shared_ptr<IDebugEvent> &event);
-	edb::EVENT_STATUS handle_trap();
+	edb::EVENT_STATUS handle_trap(const std::shared_ptr<IDebugEvent> &event);
 	edb::EVENT_STATUS resume_status(bool pass_exception);
 	Result<edb::address_t> get_goto_expression();
 	Result<edb::reg_t> get_follow_register() const;
