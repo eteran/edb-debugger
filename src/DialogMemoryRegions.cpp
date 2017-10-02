@@ -220,7 +220,11 @@ void DialogMemoryRegions::view_in_dump() {
 void DialogMemoryRegions::on_regions_table_doubleClicked(const QModelIndex &index) {
 	Q_UNUSED(index);
 	if(std::shared_ptr<IRegion> region = selected_region()) {
-		edb::v1::dump_data(region->start(), true);
+		if (region->executable()) {
+			edb::v1::jump_to_address(region->start());
+		} else {
+			edb::v1::dump_data(region->start(), true);
+		}
 	}
 }
 
