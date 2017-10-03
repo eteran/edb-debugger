@@ -278,9 +278,7 @@ double toFloatValue(edb::value64 value)
 
 long double toFloatValue(edb::value80 value)
 {
-	long double result;
-	std::memcpy(&result,&value,sizeof result);
-	return result;
+	return value.toFloatValue();
 }
 
 template<typename Float>
