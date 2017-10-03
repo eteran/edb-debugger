@@ -34,6 +34,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Register;
 
+#ifdef _MSC_VER
+extern "C" void __fastcall long_double_to_double(const void* src, double* dest);
+#endif
+
 namespace edb {
 
 enum EVENT_STATUS {
@@ -255,9 +259,15 @@ struct Value80 : public ValueBase<16,5> {
 	}
 
 	long double toFloatValue() const {
+#ifdef _MSC_VER
+		double d;
+		long_double_to_double(&value_, &d);
+		return d;
+#else
 		long double float80val;
 		std::memcpy(&float80val, &value_, sizeof(value_));
 		return float80val;
+#endif
 	}
 
 	QString toString() const {
