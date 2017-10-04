@@ -33,7 +33,7 @@ before_build:
   - cmd: cd C:\projects
   - cmd: md build
   - cmd: cd build
-  - cmd: cmake -Wno-dev -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=%configuration% -DBOOST_INCLUDEDIR="%BOOST_INCLUDEDIR%" -DCAPSTONE_SDK="%CAPSTONE_SDK%" -DQt5Core_DIR="%QT_BASEDIR%\lib\cmake\Qt5Core" -DQt5_DIR="%QT_BASEDIR%\lib\cmake\Qt5" ..\edb-debugger
+  - cmd: cmake -Wno-dev -G "%CMAKE_GENERATOR%" -DCMAKE_BUILD_TYPE=%configuration% -DCMAKE_INSTALL_PREFIX=C:\projects\install -DBOOST_INCLUDEDIR="%BOOST_INCLUDEDIR%" -DCAPSTONE_SDK="%CAPSTONE_SDK%" -DQt5Core_DIR="%QT_BASEDIR%\lib\cmake\Qt5Core" -DQt5_DIR="%QT_BASEDIR%\lib\cmake\Qt5" ..\edb-debugger
 
 build_script:
   - cmd: msbuild C:\projects\build\edb.sln /t:edb /logger:"C:\Program Files\AppVeyor\BuildAgent\Appveyor.MSBuildLogger.dll"

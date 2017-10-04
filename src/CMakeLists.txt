@@ -190,6 +190,19 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
         )
 endif()
 
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+
+  enable_language(ASM_MASM)
+  
+  set(CMAKE_ASM_MASM_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /safeseh")
+  
+  set(edb_SRCS
+    ${edb_SRCS}
+    LongDoubleX86.asm
+  )
+  
+endif()
+
 if(${GRAPHVIZ_FOUND})
 	set(edb_INCLUDES
 		${edb_INCLUDES}
