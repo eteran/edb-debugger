@@ -50,6 +50,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "State.h"
 #include "Symbol.h"
 #include "SymbolManager.h"
+#include "SessionManager.h"
+#include "SessionError.h"
 #include "edb.h"
 
 #if defined(Q_OS_LINUX)
@@ -94,10 +96,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #endif
 
 namespace {
-
-
-const int  SessionFileVersion  = 1;
-const auto SessionFileIdString = QLatin1String("edb-session");
 
 const quint64 initial_bp_tag    = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
 const quint64 stepover_bp_tag   = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
@@ -972,7 +970,7 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	// make sure sessions still get recorded even if they just close us
 	const QString filename = session_filename();
 	if(!filename.isEmpty()) {
-		save_session(filename);
+		SessionManager::instance().save_session(filename);
 	}
 
 	if(const auto& dc = edb::v1::debugger_core) {
@@ -2480,7 +2478,6 @@ void Debugger::update_stack_view(const State &state) {
 // Desc:
 //------------------------------------------------------------------------------
 std::shared_ptr<IRegion> Debugger::update_cpu_view(const State &state) {
-
 	const edb::address_t address = state.instruction_pointer();
 
 	if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().find_region(address)) {
@@ -2632,7 +2629,7 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 						QMessageBox::critical(this,tr("Error"),tr("Failed to resume process: %1").arg(resumeStatus.toString()));
 						return;
 					}
-					
+
 				}
 			}
 
@@ -2818,7 +2815,7 @@ void Debugger::detach_from_process(DETACH_ACTION kill) {
 
 	const QString filename = session_filename();
 	if(!filename.isEmpty()) {
-		save_session(filename);
+		SessionManager::instance().save_session(filename);
 	}
 
 	program_executable_.clear();
@@ -2875,7 +2872,18 @@ void Debugger::set_initial_debugger_state() {
 
 	const QString filename = session_filename();
 	if(!filename.isEmpty()) {
-		load_session(filename);
+		SessionError session_error;
+		if(!SessionManager::instance().load_session(filename, session_error)) {
+			QMessageBox::warning(
+				this,
+				tr("Error Loading Session"),
+				QT_TR_NOOP(session_error.getErrorMessage())
+			);
+		} else {
+			QVariantList comments_data;
+			SessionManager::instance().get_comments(comments_data);
+			ui.cpuView->restoreComments(comments_data);
+		}
 	}
 
 	// create our binary info object for the primary code module
@@ -3460,125 +3468,6 @@ void Debugger::next_debug_event() {
 		case edb::DEBUG_EXCEPTION_NOT_HANDLED:
 			resume_execution(PASS_EXCEPTION, MODE_RUN, ResumeFlag::Forced);
 			break;
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: save_session
-// Desc:
-//------------------------------------------------------------------------------
-void Debugger::save_session(const QString &session_file) {
-
-	qDebug("Saving session file");
-
-	QVariantMap plugin_data;
-	QVariantMap session_data;
-
-	for(QObject *plugin: edb::v1::plugin_list()) {
-		if(auto p = qobject_cast<IPlugin *>(plugin)) {
-			if(const QMetaObject *const meta = plugin->metaObject()) {
-				QString name    = meta->className();
-				QVariantMap data = p->save_state();
-
-				if(!data.empty()) {
-					plugin_data[name] = data;
-				}
-			}
-		}
-	}
-
-	session_data["version"]     = SessionFileVersion;
-	session_data["id"]          = SessionFileIdString; // just so we can sanity check things
-
-
-#if QT_VERSION < 0x040700
-	session_data["timestamp"]   = QDateTime::currentDateTime().toUTC();
-#else
-	session_data["timestamp"]   = QDateTime::currentDateTimeUtc();
-#endif
-	session_data["plugin-data"] = plugin_data;
-
-
-	auto object = QJsonObject::fromVariantMap(session_data);
-	QJsonDocument doc(object);
-
-	QByteArray json = doc.toJson();
-	QFile file(session_file);
-
-	if(file.open(QIODevice::WriteOnly | QIODevice::Text)) {
-		file.write(json);
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: load_session
-// Desc:
-//------------------------------------------------------------------------------
-void Debugger::load_session(const QString &session_file) {
-
-	QFile file(session_file);
-	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		QByteArray json = file.readAll();
-		QJsonParseError error;
-		auto doc = QJsonDocument::fromJson(json, &error);
-		if(error.error != QJsonParseError::NoError) {
-			QMessageBox::warning(
-				this,
-				tr("Error Loading Session"),
-				tr("An error occured while loading session JSON file. %1").arg(error.errorString())
-				);
-
-			return;
-		}
-
-		if(!doc.isObject()) {
-			QMessageBox::warning(
-				this,
-				tr("Error Loading Session"),
-				tr("Session file is invalid. Not an object.")
-				);
-
-			return;
-		}
-
-		QJsonObject object = doc.object();
-		QVariantMap session_data = object.toVariantMap();
-
-		QString id  = session_data["id"].toString();
-		QString ts  = session_data["timestamp"].toString();
-		int version = session_data["version"].toInt();
-		
-		Q_UNUSED(ts);
-
-		if(id != SessionFileIdString || version > SessionFileVersion) {
-			QMessageBox::warning(
-				this,
-				tr("Error Loading Session"),
-				tr("Session file is invalid.")
-				);
-
-			return;
-		}
-
-		qDebug("Loading session file");
-
-		QVariantMap plugin_data = session_data["plugin-data"].toMap();
-		for(auto it = plugin_data.begin(); it != plugin_data.end(); ++it) {
-
-			for(QObject *plugin: edb::v1::plugin_list()) {
-				if(auto p = qobject_cast<IPlugin *>(plugin)) {
-					if(const QMetaObject *const meta = plugin->metaObject()) {
-						QString name     = meta->className();
-						QVariantMap data = it.value().toMap();
-
-						if(name == it.key()) {
-							p->restore_state(data);
-							break;
-						}
-					}
-				}
-			}
 		}
 	}
 }

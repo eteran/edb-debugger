@@ -67,6 +67,7 @@ public:
 	void setSelectedAddress(edb::address_t address);
 	QByteArray saveState() const;
 	void restoreState(const QByteArray &stateBuffer);
+	void restoreComments(QVariantList &);
 
 Q_SIGNALS:
 	void signal_updated();

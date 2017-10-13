@@ -380,5 +380,11 @@ std::ostream&>::type operator<<(std::ostream& os, T val)
 	return os;
 }
 
+/* Comment Type */
+struct Comment {
+	edb::address_t 	address;
+	QString        	comment;
+};
+
 #include "ArchTypes.h"
 #endif
