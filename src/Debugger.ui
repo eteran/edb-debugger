@@ -40,7 +40,7 @@
      <x>0</x>
      <y>0</y>
      <width>800</width>
-     <height>22</height>
+     <height>30</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu_help">
@@ -114,7 +114,7 @@
   <widget class="QStatusBar" name="statusbar"/>
   <widget class="QDockWidget" name="dataDock">
    <property name="windowTitle">
-    <string>Data Dump</string>
+    <string>Data D&amp;ump</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>8</number>
@@ -136,7 +136,7 @@
   </widget>
   <widget class="QDockWidget" name="stackDock">
    <property name="windowTitle">
-    <string>Stack</string>
+    <string>Stac&amp;k</string>
    </property>
    <attribute name="dockWidgetArea">
     <number>8</number>
@@ -166,7 +166,8 @@
   </widget>
   <action name="action_Open">
    <property name="icon">
-    <iconset theme="document-open"/>
+    <iconset theme="document-open">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Open</string>
@@ -182,7 +183,8 @@
   </action>
   <action name="actionE_xit">
    <property name="icon">
-    <iconset theme="application-exit"/>
+    <iconset theme="application-exit">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>E&amp;xit</string>
@@ -192,6 +194,10 @@
    </property>
   </action>
   <action name="action_Memory_Regions">
+   <property name="icon">
+    <iconset resource="debugger.qrc">
+     <normaloff>:/debugger/images/places/64/icons8-memory-slot.png</normaloff>:/debugger/images/places/64/icons8-memory-slot.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Memory Regions</string>
    </property>
@@ -213,7 +219,7 @@
    </property>
    <property name="icon">
     <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-run.png</normaloff>:/debugger/images/edb22-action-run.png</iconset>
+     <normaloff>:/debugger/images/actions/64/icons8-circled-play.png</normaloff>:/debugger/images/actions/64/icons8-circled-play.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Run</string>
@@ -228,7 +234,7 @@
    </property>
    <property name="icon">
     <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-break.png</normaloff>:/debugger/images/edb22-action-break.png</iconset>
+     <normaloff>:/debugger/images/actions/64/icons8-pause-button.png</normaloff>:/debugger/images/actions/64/icons8-pause-button.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Pause</string>
@@ -241,8 +247,12 @@
    <property name="enabled">
     <bool>false</bool>
    </property>
+   <property name="icon">
+    <iconset resource="debugger.qrc">
+     <normaloff>:/debugger/images/actions/64/icons8-restart.png</normaloff>:/debugger/images/actions/64/icons8-restart.png</iconset>
+   </property>
    <property name="text">
-    <string>&amp;Restart</string>
+    <string>R&amp;estart</string>
    </property>
    <property name="shortcut">
     <string>Ctrl+F2</string>
@@ -268,7 +278,7 @@
    </property>
    <property name="icon">
     <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-stepi.png</normaloff>:/debugger/images/edb22-action-stepi.png</iconset>
+     <normaloff>:/debugger/images/actions/64/icons8-step-into.png</normaloff>:/debugger/images/actions/64/icons8-step-into.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Step Into</string>
@@ -283,10 +293,10 @@
    </property>
    <property name="icon">
     <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-stepoveri.png</normaloff>:/debugger/images/edb22-action-stepoveri.png</iconset>
+     <normaloff>:/debugger/images/actions/64/icons8-step-over.png</normaloff>:/debugger/images/actions/64/icons8-step-over.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Step Over</string>
+    <string>Step &amp;Over</string>
    </property>
    <property name="shortcut">
     <string>F8</string>
@@ -294,7 +304,8 @@
   </action>
   <action name="action_About">
    <property name="icon">
-    <iconset theme="help-about"/>
+    <iconset theme="help-about">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;About</string>
@@ -305,7 +316,8 @@
     <bool>true</bool>
    </property>
    <property name="icon">
-    <iconset theme="help-contents"/>
+    <iconset theme="help-contents">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Help</string>
@@ -316,7 +328,8 @@
   </action>
   <action name="action_Configure_Debugger">
    <property name="icon">
-    <iconset theme="configure"/>
+    <iconset theme="configure">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Preferences</string>
@@ -354,10 +367,10 @@
    </property>
    <property name="icon">
     <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-stepi.png</normaloff>:/debugger/images/edb22-action-stepi.png</iconset>
+     <normaloff>:/debugger/images/actions/64/icons8-step-into.png</normaloff>:/debugger/images/actions/64/icons8-step-into.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Step Into (Pass Signal To Application)</string>
+    <string>Step &amp;Into (Pass Signal To Application)</string>
    </property>
    <property name="shortcut">
     <string>Shift+F7</string>
@@ -369,10 +382,10 @@
    </property>
    <property name="icon">
     <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-stepover.png</normaloff>:/debugger/images/edb22-action-stepover.png</iconset>
+     <normaloff>:/debugger/images/actions/64/icons8-step-over.png</normaloff>:/debugger/images/actions/64/icons8-step-over.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Step Over (Pass Signal To Application)</string>
+    <string>Step O&amp;ver (Pass Signal To Application)</string>
    </property>
    <property name="shortcut">
     <string>Shift+F8</string>
@@ -384,10 +397,10 @@
    </property>
    <property name="icon">
     <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-run.png</normaloff>:/debugger/images/edb22-action-run.png</iconset>
+     <normaloff>:/debugger/images/actions/64/icons8-circled-play.png</normaloff>:/debugger/images/actions/64/icons8-circled-play.png</iconset>
    </property>
    <property name="text">
-    <string>&amp;Run (Pass Signal To Application)</string>
+    <string>Ru&amp;n (Pass Signal To Application)</string>
    </property>
    <property name="shortcut">
     <string>Shift+F9</string>
@@ -395,7 +408,8 @@
   </action>
   <action name="action_Recent_Files">
    <property name="icon">
-    <iconset theme="document-open-recent"/>
+    <iconset theme="document-open-recent">
+     <normaloff>.</normaloff>.</iconset>
    </property>
    <property name="text">
     <string>&amp;Recent Files</string>
@@ -409,6 +423,10 @@
   <action name="action_Kill">
    <property name="enabled">
     <bool>false</bool>
+   </property>
+   <property name="icon">
+    <iconset resource="debugger.qrc">
+     <normaloff>:/debugger/images/actions/64/icons8-close-program.png</normaloff>:/debugger/images/actions/64/icons8-close-program.png</iconset>
    </property>
    <property name="text">
     <string>&amp;Kill</string>
@@ -433,7 +451,7 @@
    </property>
    <property name="icon">
     <iconset resource="debugger.qrc">
-     <normaloff>:/debugger/images/edb22-action-stepout.png</normaloff>:/debugger/images/edb22-action-stepout.png</iconset>
+     <normaloff>:/debugger/images/actions/64/icons8-step-out.png</normaloff>:/debugger/images/actions/64/icons8-step-out.png</iconset>
    </property>
    <property name="text">
     <string>Step &amp;Out</string>

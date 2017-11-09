@@ -65,10 +65,17 @@ Git Commit: %3</string>
        <item row="0" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">
-          <string>&lt;p&gt;edb (Evan's Debugger) is designed to be an easy to use, modular, and cross platform debugger.&lt;/p&gt;
-&lt;p&gt;More information and updates can be found at &lt;a href=&quot;https://github.com/eteran/edb-debugger&quot;&gt;https://github.com/eteran/edb-debugger&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;You can also report bugs an feature requests at &lt;a href=&quot;https://github.com/eteran/edb-debugger/issues&quot;&gt;https://github.com/eteran/edb-debugger/issues&lt;/a&gt;&lt;/p&gt;
-&lt;p&gt;Written by &lt;a href=&quot;mailto:evan.teran@gmail.com&quot;&gt;Evan Teran&lt;/a&gt;.&lt;/p&gt;</string>
+          <string>&lt;!DOCTYPE HTML PUBLIC &quot;-//W3C//DTD HTML 4.0//EN&quot; &quot;http://www.w3.org/TR/REC-html40/strict.dtd&quot;&gt;
+&lt;html&gt;&lt;head&gt;&lt;meta name=&quot;qrichtext&quot; content=&quot;1&quot; /&gt;&lt;style type=&quot;text/css&quot;&gt;
+p, li { white-space: pre-wrap; }
+&lt;/style&gt;&lt;/head&gt;&lt;body style=&quot; font-family:'Noto Sans'; font-size:10pt; font-weight:400; font-style:normal;&quot;&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;edb (Evan's Debugger) is designed to be an easy to use, modular, and cross platform debugger.&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;More information and updates can be found at &lt;a href=&quot;https://github.com/eteran/edb-debugger&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;https://github.com/eteran/edb-debugger&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;You can also report bugs an feature requests at &lt;a href=&quot;https://github.com/eteran/edb-debugger/issues&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;https://github.com/eteran/edb-debugger/issues&lt;/span&gt;&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;Some icons provided by &lt;a href=&quot;https://icons8.com/license/&quot;&gt;https://icons8.com/license/&lt;/a&gt;&lt;/p&gt;
+
+
+&lt;p style=&quot; margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;&quot;&gt;Written by &lt;a href=&quot;mailto:evan.teran@gmail.com&quot;&gt;&lt;span style=&quot; text-decoration: underline; color:#2980b9;&quot;&gt;Evan Teran&lt;/span&gt;&lt;/a&gt;.&lt;/p&gt;&lt;/body&gt;&lt;/html&gt;</string>
          </property>
          <property name="textFormat">
           <enum>Qt::AutoText</enum>
