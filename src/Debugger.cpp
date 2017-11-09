@@ -163,7 +163,7 @@ public:
 	//--------------------------------------------------------------------------
 	// Name: RunUntilRet
 	//--------------------------------------------------------------------------
-	RunUntilRet() :previous_handler_(0), last_call_return_(0) {
+    RunUntilRet() :previous_handler_(nullptr), last_call_return_(0) {
 		previous_handler_ = edb::v1::set_debug_event_handler(this);
 	}
 
@@ -343,8 +343,8 @@ private:
 // Desc:
 //------------------------------------------------------------------------------
 Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
-		add_tab_(0),
-		del_tab_(0),
+        add_tab_(nullptr),
+        del_tab_(nullptr),
 		tty_proc_(new QProcess(this)),
 		gui_state_(TERMINATED),
 		stack_view_info_(nullptr),

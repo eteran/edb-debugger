@@ -9,17 +9,9 @@
         <file>images/edb16-addtab.png</file>
         <file>images/edb16-deltab.png</file>
         <file>images/edb22-action-break.png</file>
-        <file>images/edb22-action-open.png</file>
-        <file>images/edb22-action-run.png</file>
-        <file>images/edb22-action-stepi.png</file>
-        <file>images/edb22-action-stepout.png</file>
-        <file>images/edb22-action-stepoveri.png</file>
-        <file>images/edb22-action-stepover.png</file>
-        <file>images/edb22-action-step.png</file>
         <file>images/edb100-logo.png</file>
         <file>images/edb48-logo.png</file>
         <file>images/edb16-edit-clean.png</file>
-        <file>images/edb32-preferences-plugin.png</file>
         <file>xml/functions.xml</file>
         <file>xml/syscalls.xml</file>
         <file>images/arrow-up.svg</file>
@@ -35,5 +27,6 @@
         <file>images/places/64/icons8-memory-slot.png</file>
         <file>images/actions/64/icons8-thriller.png</file>
         <file>images/actions/64/icons8-close-program.png</file>
+        <file>images/places/64/icons8-plugin.png</file>
     </qresource>
 </RCC>

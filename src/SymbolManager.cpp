@@ -36,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: SymbolManager
 // Desc:
 //------------------------------------------------------------------------------
-SymbolManager::SymbolManager() : symbol_generator_(0), show_path_notice_(true) {
+SymbolManager::SymbolManager() : symbol_generator_(nullptr), show_path_notice_(true) {
 }
 
 

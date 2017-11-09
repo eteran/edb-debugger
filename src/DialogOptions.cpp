@@ -51,7 +51,7 @@ int width_to_index(int n) {
 // Name: DialogOptions
 // Desc:
 //------------------------------------------------------------------------------
-DialogOptions::DialogOptions(QWidget *parent) : QDialog(parent), ui(new Ui::DialogOptions), toolbox_(0) {
+DialogOptions::DialogOptions(QWidget *parent) : QDialog(parent), ui(new Ui::DialogOptions), toolbox_(nullptr) {
 	ui->setupUi(this);
 }
 
@@ -70,7 +70,7 @@ DialogOptions::~DialogOptions() {
 QString DialogOptions::font_from_dialog(const QString &default_font) {
 	QFont old_font;
 	old_font.fromString(default_font);
-	return QFontDialog::getFont(0, old_font, this).toString();
+    return QFontDialog::getFont(nullptr, old_font, this).toString();
 }
 
 //------------------------------------------------------------------------------
@@ -87,7 +87,7 @@ void DialogOptions::addOptionsPage(QWidget *page) {
 		layout->addWidget(toolbox_, 0, 0, 1, 1);
 	}
 
-	toolbox_->addItem(page, QIcon::fromTheme("preferences-plugin", QIcon(":/debugger/images/edb32-preferences-plugin.png")), page->windowTitle());
+    toolbox_->addItem(page, QIcon(":/debugger/images/places/64/icons8-plugin.png"), page->windowTitle());
 }
 
 //------------------------------------------------------------------------------

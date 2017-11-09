@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: State
 // Desc: constructor
 //------------------------------------------------------------------------------
-State::State() : impl_(edb::v1::debugger_core ? edb::v1::debugger_core->create_state() : 0) {
+State::State() : impl_(edb::v1::debugger_core ? edb::v1::debugger_core->create_state() : nullptr) {
 }
 
 //------------------------------------------------------------------------------
@@ -42,7 +42,7 @@ State::~State() {
 // Name: State
 // Desc:
 //------------------------------------------------------------------------------
-State::State(const State &other) : impl_(other.impl_ ? other.impl_->clone() : 0) {
+State::State(const State &other) : impl_(other.impl_ ? other.impl_->clone() : nullptr) {
 }
 
 //------------------------------------------------------------------------------

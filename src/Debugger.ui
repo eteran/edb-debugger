@@ -339,6 +339,9 @@
    <property name="text">
     <string>About &amp;QT</string>
    </property>
+   <property name="toolTip">
+    <string>About Qt</string>
+   </property>
   </action>
   <action name="action_Breakpoint_Manager">
    <property name="text">
@@ -433,6 +436,10 @@
    </property>
   </action>
   <action name="action_Plugins">
+   <property name="icon">
+    <iconset resource="debugger.qrc">
+     <normaloff>:/debugger/images/places/64/icons8-plugin.png</normaloff>:/debugger/images/places/64/icons8-plugin.png</iconset>
+   </property>
    <property name="text">
     <string>&amp;Plugins</string>
    </property>

@@ -33,7 +33,7 @@ const int MaxRecentFiles = 8;
 // Name: RecentFileManager
 // Desc: constructor
 //------------------------------------------------------------------------------
-RecentFileManager::RecentFileManager(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), menu_(0) {
+RecentFileManager::RecentFileManager(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), menu_(nullptr) {
 	QSettings settings;
 	settings.beginGroup("Recent");
 	const auto size=settings.beginReadArray("recent.files");
