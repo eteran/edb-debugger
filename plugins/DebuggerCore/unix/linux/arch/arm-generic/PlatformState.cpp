@@ -77,6 +77,8 @@ Register PlatformState::value(const QString &reg) const
 	const auto name=reg.toLower();
 	if(name=="cpsr")
 		return flags_register();
+	if(vfp.filled && name=="fpscr")
+		return make_Register<32>("fpscr", vfp.fpscr, Register::TYPE_FPU);
 	const auto gprFoundIt=findGPR(name);
 	if(gprFoundIt!=GPR::GPRegNames.end())
 		return gp_register(gprFoundIt-GPR::GPRegNames.begin());
