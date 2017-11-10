@@ -41,11 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // doesn't always seem to be defined in the headers
 #ifndef PTRACE_GET_THREAD_AREA
-#define PTRACE_GET_THREAD_AREA static_cast<__ptrace_request>(25)
-#endif
-
-#ifndef PTRACE_SET_THREAD_AREA
-#define PTRACE_SET_THREAD_AREA static_cast<__ptrace_request>(26)
+#define PTRACE_GET_THREAD_AREA static_cast<__ptrace_request>(22)
 #endif
 
 #ifndef PTRACE_GETSIGINFO
