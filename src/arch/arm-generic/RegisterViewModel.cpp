@@ -83,6 +83,7 @@ std::vector<RegisterViewModelBase::BitFieldDescription> fpscrDescription = {
 enum
 {
 	CPSR_ROW,
+	FPSCR_ROW=0,
 };
 
 QVariant RegisterViewModel::data(QModelIndex const& index, int role) const {
@@ -178,6 +179,11 @@ void RegisterViewModel::updateGPR(std::size_t i, edb::value32 val, QString const
 void RegisterViewModel::updateCPSR(edb::value32 val, QString const& comment)
 {
 	updateRegister<CPSR>(genStatusRegs,CPSR_ROW,val,comment);
+}
+
+void RegisterViewModel::updateFPSCR(edb::value32 val, QString const& comment)
+{
+	updateRegister<FPSCR>(vfpRegs,FPSCR_ROW,val,comment);
 }
 
 void RegisterViewModel::showAll()

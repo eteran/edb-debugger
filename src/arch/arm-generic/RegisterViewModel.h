@@ -46,6 +46,7 @@ public:
 	// Use dataUpdateFinished() to have dataChanged emitted.
 	void updateGPR(std::size_t i, edb::value32 val, QString const& comment=QString());
 	void updateCPSR(edb::value32 val, QString const& comment=QString());
+	void updateFPSCR(edb::value32 val, QString const& comment=QString());
 private:
 	void showAll();
 	CPUMode mode=static_cast<CPUMode>(-1);
