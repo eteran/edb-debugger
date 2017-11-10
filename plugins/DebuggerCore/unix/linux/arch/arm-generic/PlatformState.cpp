@@ -196,6 +196,14 @@ void PlatformState::fillFrom(user_regs const& regs)
 	gpr.filled=true;
 }
 
+void PlatformState::fillFrom(user_vfp const& regs)
+{
+	for(unsigned i=0;i<vfp.d.size();++i)
+		vfp.d[i]=regs.fpregs[i];
+	vfp.fpscr=regs.fpscr;
+	vfp.filled=true;
+}
+
 void PlatformState::fillStruct(user_regs& regs) const
 {
 	util::markMemory(&regs, sizeof(regs));

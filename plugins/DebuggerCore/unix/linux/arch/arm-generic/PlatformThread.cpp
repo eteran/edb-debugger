@@ -56,6 +56,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PTRACE_SETREGSET static_cast<__ptrace_request>(0x4205)
 #endif
 
+#ifndef PTRACE_GETWMMXREGS
+#define PTRACE_GETWMMXREGS static_cast<__ptrace_request>(18)
+#define PTRACE_SETWMMXREGS static_cast<__ptrace_request>(19)
+#endif
+
+#ifndef PTRACE_GETVFPREGS
+#define PTRACE_GETVFPREGS static_cast<__ptrace_request>(27)
+#define PTRACE_SETVFPREGS static_cast<__ptrace_request>(28)
+#endif
+
+#ifndef PTRACE_GETHBPREGS
+#define PTRACE_GETHBPREGS static_cast<__ptrace_request>(29)
+#define PTRACE_SETHBPREGS static_cast<__ptrace_request>(30)
+#endif
+
 namespace DebuggerCorePlugin {
 
 //------------------------------------------------------------------------------
@@ -86,6 +101,25 @@ bool PlatformThread::fillStateFromSimpleRegs(PlatformState* state) {
 }
 
 //------------------------------------------------------------------------------
+// Name: fillStateFromVFPRegs
+// Desc:
+//------------------------------------------------------------------------------
+bool PlatformThread::fillStateFromVFPRegs(PlatformState* state) {
+
+	user_vfp fpr;
+	if(ptrace(PTRACE_GETVFPREGS, tid_, 0, &fpr) != -1) {
+		for(unsigned i=0;i<sizeof fpr.fpregs/sizeof*fpr.fpregs;++i)
+			state->fillFrom(fpr);
+		return true;
+	}
+	else {
+		perror("PTRACE_GETVFPREGS failed");
+		return false;
+	}
+
+}
+
+//------------------------------------------------------------------------------
 // Name: get_state
 // Desc:
 //------------------------------------------------------------------------------
@@ -97,6 +131,7 @@ void PlatformThread::get_state(State *state) {
 	if(auto state_impl = static_cast<PlatformState *>(state->impl_)) {
 
 		fillStateFromSimpleRegs(state_impl);
+		fillStateFromVFPRegs(state_impl);
 	}
 }
 
