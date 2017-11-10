@@ -31,6 +31,7 @@ class RegisterViewModel : public RegisterViewModelBase::Model
 private:
 	RegisterViewModelBase::Category* gprs;
 	RegisterViewModelBase::Category* genStatusRegs;
+	RegisterViewModelBase::Category* vfpRegs;
 public:
 	enum class CPUMode
 	{

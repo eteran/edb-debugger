@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 using util::make_unique;
 using GPR=RegisterViewModelBase::SimpleRegister<edb::value32>;
 using CPSR=RegisterViewModelBase::FlagsRegister<edb::value32>;
+using FPSCR=RegisterViewModelBase::FlagsRegister<edb::value32>;
 
 std::vector<RegisterViewModelBase::BitFieldDescription> cpsrDescription = {
 	{QLatin1String( "M" ),  0, 5},
@@ -44,6 +45,35 @@ std::vector<RegisterViewModelBase::BitFieldDescription> cpsrDescription = {
 	{QLatin1String("IT0"), 25, 1},
 	{QLatin1String("IT1"), 26, 1},
 	{QLatin1String( "Q" ), 27, 1},
+	{QLatin1String( "V" ), 28, 1},
+	{QLatin1String( "C" ), 29, 1},
+	{QLatin1String( "Z" ), 30, 1},
+	{QLatin1String( "N" ), 31, 1},
+};
+
+static const std::vector<QString> roundingStrings{QObject::tr("Rounding to nearest"),
+												  QObject::tr("Rounding to Plus infinity"),
+												  QObject::tr("Rounding to Minus infinity"),
+												  QObject::tr("Rounding toward zero")};
+
+std::vector<RegisterViewModelBase::BitFieldDescription> fpscrDescription = {
+	{QLatin1String("IOC"), 0,  1},
+	{QLatin1String("DZC"), 1,  1},
+	{QLatin1String("OFC"), 2,  1},
+	{QLatin1String("UFC"), 3,  1},
+	{QLatin1String("IXC"), 4,  1},
+	{QLatin1String("IDC"), 7,  1},
+	{QLatin1String("IOE"), 8,  1},
+	{QLatin1String("DZE"), 9,  1},
+	{QLatin1String("OFE"), 10, 1},
+	{QLatin1String("UFE"), 11, 1},
+	{QLatin1String("IXE"), 12, 1},
+	{QLatin1String("IDE"), 15, 1},
+	{QLatin1String("LEN-1"), 16, 3},
+	{QLatin1String("STR"), 20, 2},
+	{QLatin1String( "RC"), 22, 2, roundingStrings},
+	{QLatin1String( "FZ"), 24, 1},
+	{QLatin1String( "DN"), 25, 1},
 	{QLatin1String( "V" ), 28, 1},
 	{QLatin1String( "C" ), 29, 1},
 	{QLatin1String( "Z" ), 30, 1},
@@ -97,13 +127,21 @@ void addGenStatusRegs(RegisterViewModelBase::Category* cat)
 	cat->addRegister(make_unique<CPSR>("CPSR",cpsrDescription));
 }
 
+void addVFPRegs(RegisterViewModelBase::Category* cat)
+{
+	cat->addRegister(make_unique<FPSCR>("FPSCR",fpscrDescription));
+	// TODO: add data registers: Sn, Dn, Qn...
+}
+
 RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject* parent)
 	: RegisterViewModelBase::Model(parent),
 	  gprs(addCategory(tr("General Purpose"))),
-	  genStatusRegs(addCategory(tr("General Status")))
+	  genStatusRegs(addCategory(tr("General Status"))),
+	  vfpRegs(addFPUCategory(tr("VFP")))
 {
 	addGPRs(gprs);
 	addGenStatusRegs(genStatusRegs);
+	addVFPRegs(vfpRegs);
 
 	setCPUMode(CPUMode::UNKNOWN);
 }
@@ -146,6 +184,7 @@ void RegisterViewModel::showAll()
 {
 	gprs->show();
 	genStatusRegs->show();
+	vfpRegs->show();
 }
 
 void RegisterViewModel::setCPUMode(CPUMode newMode)
