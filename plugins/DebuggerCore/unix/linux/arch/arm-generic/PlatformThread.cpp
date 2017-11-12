@@ -150,6 +150,12 @@ void PlatformThread::set_state(const State &state) {
 		if(ptrace(PTRACE_SETREGS, tid_, 0, &regs) == -1) {
 			perror("PTRACE_SETREGS failed");
 		}
+
+		user_vfp fpr;
+		state_impl->fillStruct(fpr);
+		if(ptrace(PTRACE_SETVFPREGS, tid_, 0, &fpr) == -1) {
+			perror("PTRACE_SETVFPREGS failed");
+		}
 	}
 }
 

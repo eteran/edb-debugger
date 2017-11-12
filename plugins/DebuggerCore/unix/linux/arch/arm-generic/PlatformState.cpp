@@ -163,6 +163,11 @@ void PlatformState::set_register(const Register &reg)
 		set_flags(reg.value<edb::reg_t>());
 		return;
 	}
+	if(name=="fpscr")
+	{
+		vfp.fpscr=reg.value<decltype(vfp.fpscr)>();
+		return;
+	}
 	const auto gprFoundIt=findGPR(name);
 	if(gprFoundIt!=GPR::GPRegNames.end())
 	{
@@ -215,6 +220,17 @@ void PlatformState::fillStruct(user_regs& regs) const
 			regs.uregs[i]=gpr.GPRegs[i];
 		regs.uregs[16]=gpr.cpsr;
 		// FIXME: uregs[17] is not filled
+	}
+}
+
+void PlatformState::fillStruct(user_vfp& regs) const
+{
+	util::markMemory(&regs, sizeof(regs));
+	if(vfp.filled)
+	{
+		for(unsigned i=0;i<vfp.d.size();++i)
+			regs.fpregs[i]=vfp.d[i];
+		regs.fpscr=vfp.fpscr;
 	}
 }
 
