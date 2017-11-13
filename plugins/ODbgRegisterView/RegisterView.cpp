@@ -72,7 +72,8 @@ constexpr auto registerGroupTypeNames = util::make_array<const char *>(
 #elif defined EDB_ARM32
 		"GPR",
 		"CPSR",
-		"ExpandedCPSR"
+		"ExpandedCPSR",
+		"FPSCR"
 #else
 #	error "Not implemented"
 #endif
@@ -488,6 +489,7 @@ ODBRegView::ODBRegView(QString const &settingsGroup, QWidget *parent)
 			RegisterGroupType::GPR,
 			RegisterGroupType::CPSR,
 			RegisterGroupType::ExpandedCPSR,
+			RegisterGroupType::FPSCR,
 #else
 #	error "Not implemented"
 #endif
@@ -679,6 +681,8 @@ RegisterGroup *ODBRegView::makeGroup(RegisterGroupType type) {
 		return createCPSR(model_, widget());
 	case RegisterGroupType::ExpandedCPSR:
 		return createExpandedCPSR(model_, widget());
+	case RegisterGroupType::FPSCR:
+		return createFPSCR(model_, widget());
 #endif
 	default:
 		qWarning() << "Warning: unexpected register group type requested in" << Q_FUNC_INFO;

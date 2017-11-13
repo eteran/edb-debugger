@@ -338,6 +338,26 @@ void updateCPSR(RegisterViewModel& model, State const& state) {
 	model.updateCPSR(flags.value<edb::value32>(),comment);
 }
 
+QString fpscrComment(edb::reg_t fpscr) {
+	const auto nzcv=fpscr>>28;
+	switch(nzcv)
+	{
+	case 2: return "(GT)";
+	case 3: return "(Unordered)";
+	case 6: return "(EQ)";
+	case 8: return "(LT)";
+	default: return "";
+	}
+}
+
+void updateVFP(RegisterViewModel& model, State const& state) {
+	const auto fpscr=state["fpscr"];
+	if(fpscr) {
+		const auto comment=fpscrComment(fpscr.valueAsInteger());
+		model.updateFPSCR(fpscr.value<edb::value32>(),comment);
+	}
+}
+
 void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
 
 	auto& model = getModel();
@@ -350,6 +370,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 
 	updateGPRs(model,state,default_region_name);
 	updateCPSR(model,state);
+	updateVFP(model,state);
 
 	if(just_attached_) {
 		model.saveValues();

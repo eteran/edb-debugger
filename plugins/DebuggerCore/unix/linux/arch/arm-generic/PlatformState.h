@@ -31,6 +31,13 @@ namespace DebuggerCorePlugin {
 
 using std::size_t;
 static constexpr size_t GPR_COUNT=16;
+static constexpr size_t VFPR_COUNT=32;
+
+struct user_vfp
+{
+	unsigned long long fpregs[32];
+	unsigned long fpscr;
+};
 
 class PlatformState : public IState {
 	friend class DebuggerCore;
@@ -63,7 +70,9 @@ public:
 	Register gp_register(size_t n) const override;
 
 	void fillFrom(user_regs const& regs);
+	void fillFrom(user_vfp const& regs);
 	void fillStruct(user_regs& regs) const;
+	void fillStruct(user_vfp& regs) const;
 private:
 	struct GPR {
 		enum NamedGPRIndex : size_t {
@@ -85,6 +94,11 @@ private:
 		void clear();
 		bool empty() const;
 	} gpr;
+	struct VFP {
+		std::array<edb::value64, VFPR_COUNT> d;
+		edb::value32 fpscr;
+		bool filled=false;
+	} vfp;
 private:
 	auto findGPR(QString const& name) const -> decltype(gpr.GPRegNames.begin());
 };

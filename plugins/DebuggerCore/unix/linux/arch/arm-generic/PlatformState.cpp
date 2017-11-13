@@ -77,6 +77,8 @@ Register PlatformState::value(const QString &reg) const
 	const auto name=reg.toLower();
 	if(name=="cpsr")
 		return flags_register();
+	if(vfp.filled && name=="fpscr")
+		return make_Register<32>("fpscr", vfp.fpscr, Register::TYPE_FPU);
 	const auto gprFoundIt=findGPR(name);
 	if(gprFoundIt!=GPR::GPRegNames.end())
 		return gp_register(gprFoundIt-GPR::GPRegNames.begin());
@@ -161,6 +163,11 @@ void PlatformState::set_register(const Register &reg)
 		set_flags(reg.value<edb::reg_t>());
 		return;
 	}
+	if(name=="fpscr")
+	{
+		vfp.fpscr=reg.value<decltype(vfp.fpscr)>();
+		return;
+	}
 	const auto gprFoundIt=findGPR(name);
 	if(gprFoundIt!=GPR::GPRegNames.end())
 	{
@@ -196,6 +203,14 @@ void PlatformState::fillFrom(user_regs const& regs)
 	gpr.filled=true;
 }
 
+void PlatformState::fillFrom(user_vfp const& regs)
+{
+	for(unsigned i=0;i<vfp.d.size();++i)
+		vfp.d[i]=regs.fpregs[i];
+	vfp.fpscr=regs.fpscr;
+	vfp.filled=true;
+}
+
 void PlatformState::fillStruct(user_regs& regs) const
 {
 	util::markMemory(&regs, sizeof(regs));
@@ -205,6 +220,17 @@ void PlatformState::fillStruct(user_regs& regs) const
 			regs.uregs[i]=gpr.GPRegs[i];
 		regs.uregs[16]=gpr.cpsr;
 		// FIXME: uregs[17] is not filled
+	}
+}
+
+void PlatformState::fillStruct(user_vfp& regs) const
+{
+	util::markMemory(&regs, sizeof(regs));
+	if(vfp.filled)
+	{
+		for(unsigned i=0;i<vfp.d.size();++i)
+			regs.fpregs[i]=vfp.d[i];
+		regs.fpscr=vfp.fpscr;
 	}
 }
 
