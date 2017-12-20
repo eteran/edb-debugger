@@ -74,9 +74,6 @@ public:
 	State                  state_;
 	quint8                 buffer_[N];
 	PlatformRegion *const  region_;
-
-public:
-	IDebugEventHandler *event_handler_;
 };
 
 //------------------------------------------------------------------------------
@@ -85,7 +82,7 @@ public:
 //------------------------------------------------------------------------------
 template <size_t N>
 BackupInfo<N>::BackupInfo(edb::address_t address, IRegion::permissions_t perms, PlatformRegion *region) :
-		lock_(1), address_(address), premissions_(perms), region_(region), event_handler_(0) {
+		lock_(1), address_(address), premissions_(perms), region_(region) {
 }
 
 //------------------------------------------------------------------------------
@@ -140,7 +137,7 @@ edb::EVENT_STATUS BackupInfo<N>::handle_event(const std::shared_ptr<IDebugEvent>
 	region_->permissions_ = perms();
 
 	// restore the event handler
-	edb::v1::set_debug_event_handler(event_handler_);
+	edb::v1::remove_debug_event_handler(this);
 
 	// really shouldn't matter since the return value isn't used at all
 	// we simply want tot catch the event and set the lock to 0
@@ -357,7 +354,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 						}
 
 						thread->set_state(state);
-						backup_info.event_handler_ = edb::v1::set_debug_event_handler(&backup_info);
+						edb::v1::add_debug_event_handler(&backup_info);
 
 						// run the system call instruction and wait for the trap
 						thread->step(edb::DEBUG_CONTINUE);

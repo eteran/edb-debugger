@@ -62,7 +62,7 @@ namespace {
 
 	typedef QList<IBinary::create_func_ptr_t> BinaryInfoList;
 
-	QAtomicPointer<IDebugEventHandler> g_DebugEventHandler = 0;
+	std::deque<IDebugEventHandler*>    g_DebugEventHandlers;
 	QAtomicPointer<IAnalyzer>          g_Analyzer          = 0;
 	QMap<QString, QObject *>           g_GeneralPlugins;
 	BinaryInfoList                     g_BinaryInfoList;
@@ -262,24 +262,48 @@ IAnalyzer *analyzer() {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_debug_event_handler
+// Name: execute_debug_event_handlers
 // Desc:
 //------------------------------------------------------------------------------
-IDebugEventHandler *set_debug_event_handler(IDebugEventHandler *p) {
-	Q_ASSERT(p);
-	return g_DebugEventHandler.fetchAndStoreAcquire(p);
+EVENT_STATUS execute_debug_event_handlers(const std::shared_ptr<IDebugEvent> &e) {
+
+	// if somehow no handler is run, then let's just assume we should stop...
+	EVENT_STATUS status = DEBUG_STOP;
+
+	// loop through all of the handlers, stopping when one thinks that it handled
+	// the event
+	for(auto it = g_DebugEventHandlers.begin(); it != g_DebugEventHandlers.end(); ++it) {
+		status = (*it)->handle_event(e);
+		if(status != DEBUG_NEXT_HANDLER) {
+			break;
+		}
+	}
+
+	// if this assert fails, the bottom handler (which is owned by us) did something terribly wrong :-/
+	Q_ASSERT(status != DEBUG_NEXT_HANDLER);
+	return status;
 }
 
 //------------------------------------------------------------------------------
-// Name: debug_event_handler
+// Name: add_debug_event_handler
 // Desc:
 //------------------------------------------------------------------------------
-IDebugEventHandler *debug_event_handler() {
-#if QT_VERSION >= 0x050000
-	return g_DebugEventHandler.load();
-#else
-	return g_DebugEventHandler;
-#endif
+void add_debug_event_handler(IDebugEventHandler *p) {
+	auto it = std::find(g_DebugEventHandlers.begin(), g_DebugEventHandlers.end(), p);
+	if(it == g_DebugEventHandlers.end()) {
+		g_DebugEventHandlers.push_front(p);
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: remove_debug_event_handler
+// Desc:
+//------------------------------------------------------------------------------
+void remove_debug_event_handler(IDebugEventHandler *p) {
+	auto it = std::find(g_DebugEventHandlers.begin(), g_DebugEventHandlers.end(), p);
+	if(it != g_DebugEventHandlers.end()) {
+		g_DebugEventHandlers.erase(it);
+	}
 }
 
 //------------------------------------------------------------------------------

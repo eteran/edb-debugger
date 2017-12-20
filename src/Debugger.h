@@ -236,7 +236,6 @@ private:
 	QString session_filename() const;
 	bool breakpoint_condition_true(const QString &condition);
 	bool common_open(const QString &s, const QList<QByteArray> &args);
-	edb::EVENT_STATUS debug_event_handler(const std::shared_ptr<IDebugEvent> &event);
 	edb::EVENT_STATUS handle_event_exited(const std::shared_ptr<IDebugEvent> &event);
 	edb::EVENT_STATUS handle_event_stopped(const std::shared_ptr<IDebugEvent> &event);
 	edb::EVENT_STATUS handle_event_terminated(const std::shared_ptr<IDebugEvent> &event);

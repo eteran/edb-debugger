@@ -163,19 +163,30 @@ public:
 	//--------------------------------------------------------------------------
 	// Name: RunUntilRet
 	//--------------------------------------------------------------------------
-    RunUntilRet() :previous_handler_(nullptr), last_call_return_(0) {
-		previous_handler_ = edb::v1::set_debug_event_handler(this);
+    RunUntilRet() : last_call_return_(0) {
+		edb::v1::add_debug_event_handler(this);
+	}
+
+	//--------------------------------------------------------------------------
+	// Name: ~RunUntilRet
+	//--------------------------------------------------------------------------
+	~RunUntilRet() {
+		edb::v1::remove_debug_event_handler(this);
+
+		for(const auto& bp : own_breakpoints_) {
+			if(!bp.second.expired()) {
+				edb::v1::debugger_core->remove_breakpoint(bp.first);
+			}
+		}
 	}
 
 	//--------------------------------------------------------------------------
 	// Name: pass_back_to_debugger
 	// Desc: Makes the previous handler the event handler again and deletes this.
 	//--------------------------------------------------------------------------
-	virtual edb::EVENT_STATUS pass_back_to_debugger(const std::shared_ptr<IDebugEvent> &event) {
-		edb::EVENT_STATUS status = previous_handler_->handle_event(event);
-		edb::v1::set_debug_event_handler(previous_handler_);
+	virtual edb::EVENT_STATUS pass_back_to_debugger() {
 		delete this;
-		return status;
+		return edb::DEBUG_NEXT_HANDLER;
 	}
 
 	//--------------------------------------------------------------------------
@@ -185,7 +196,7 @@ public:
 	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) {
 
 		if(!event->is_trap())
-			return pass_back_to_debugger(event);
+			return pass_back_to_debugger();
 
 		State state;
 		edb::v1::debugger_core->get_state(&state);
@@ -212,7 +223,7 @@ public:
 			if (reason == IDebugEvent::EVENT_EXITED || reason == IDebugEvent::EVENT_TERMINATED ||
 					address == 0) {
 				qDebug() << "The process is no longer running.";
-				return pass_back_to_debugger(event);
+				return pass_back_to_debugger();
 			}
 
 			//Check the previous byte for 0xcc to see if it was an actual breakpoint
@@ -234,7 +245,7 @@ public:
 				//If it wasn't internal, it was a user breakpoint. Pass back to Debugger.
 				if (!bp->internal()) {
 					qDebug() << "Previous was not an internal breakpoint.";
-					return pass_back_to_debugger(event);
+					return pass_back_to_debugger();
 				}
 				qDebug() << "Previous was an internal breakpoint.";
 				bp->disable();
@@ -251,7 +262,7 @@ public:
 			qDebug() << QString("On our terminator at 0x%1").arg(address, 0, 16);
 			if (is_instruction_ret(address)) {
 				qDebug() << "Found ret; passing back to debugger";
-				return pass_back_to_debugger(event);
+				return pass_back_to_debugger();
 			}
 			else {
 				//If not a ret, then step so we can find the next block terminator.
@@ -299,7 +310,7 @@ public:
 											  QObject::tr("Error running until return"),
 											  QObject::tr("Failed to set breakpoint on a block terminator at address %1.").
 														arg(address.toPointerString()));
-						return pass_back_to_debugger(event);
+						return pass_back_to_debugger();
 					}
 				}
 			}
@@ -309,7 +320,7 @@ public:
 									  QObject::tr("Error running until return"),
 									  QObject::tr("Failed to disassemble instruction at address %1.").
 												arg(address.toPointerString()));
-				return pass_back_to_debugger(event);
+				return pass_back_to_debugger();
 			}
 
 			address += inst.byte_size();
@@ -319,18 +330,11 @@ public:
 		QMessageBox::critical(edb::v1::debugger_ui,
 							  QObject::tr("Error running until return"),
 							  QObject::tr("Stepped outside the loop, address=%1.").arg(address.toPointerString()));
-		return pass_back_to_debugger(event);
-	}
-
-	~RunUntilRet() {
-		for(const auto& bp : own_breakpoints_)
-			if(!bp.second.expired())
-				edb::v1::debugger_core->remove_breakpoint(bp.first);
+		return pass_back_to_debugger();
 	}
 
 private:
 	std::vector<std::pair<edb::address_t,std::weak_ptr<IBreakpoint>>> own_breakpoints_;
-	IDebugEventHandler *previous_handler_;
 	edb::address_t      last_call_return_;
 	edb::address_t      ret_address_;
 };
@@ -459,7 +463,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	connect(recent_file_manager_, SIGNAL(file_selected(const QString &,const QList<QByteArray>&)), SLOT(open_file(const QString &,const QList<QByteArray>&)));
 
 	// make us the default event handler
-	edb::v1::set_debug_event_handler(this);
+	edb::v1::add_debug_event_handler(this);
 
 	// enable the arch processor
 #if 0
@@ -2379,16 +2383,6 @@ edb::EVENT_STATUS Debugger::handle_event(const std::shared_ptr<IDebugEvent> &eve
 }
 
 //------------------------------------------------------------------------------
-// Name: debug_event_handler
-// Desc:
-//------------------------------------------------------------------------------
-edb::EVENT_STATUS Debugger::debug_event_handler(const std::shared_ptr<IDebugEvent> &event) {
-	IDebugEventHandler *const handler = edb::v1::debug_event_handler();
-	Q_ASSERT(handler);
-	return handler->handle_event(event);
-}
-
-//------------------------------------------------------------------------------
 // Name: update_tab_caption
 // Desc:
 //------------------------------------------------------------------------------
@@ -3080,7 +3074,6 @@ void Debugger::attach(edb::pid_t pid) {
 		}
 	}
 
-
 	if(const auto status = edb::v1::debugger_core->attach(pid)) {
 
 		working_directory_ = edb::v1::debugger_core->process()->current_working_directory();
@@ -3186,7 +3179,6 @@ void Debugger::on_action_Memory_Regions_triggered() {
 
 	// TODO: we need a core concept of debugger capabilities which
 	// may restrict some actions
-
 	static QPointer<DialogMemoryRegions> dlg = new DialogMemoryRegions(this);
 	dlg->show();
 }
@@ -3345,8 +3337,6 @@ bool Debugger::dump_stack(edb::address_t address, bool scroll_to) {
 	const std::shared_ptr<IRegion> last_region = stack_view_info_.region;
 	stack_view_info_.region = edb::v1::memory_regions().find_region(address);
 
-
-
 	if(stack_view_info_.region) {
 		stack_view_info_.update();
 
@@ -3450,7 +3440,7 @@ void Debugger::next_debug_event() {
 
 		Q_EMIT debugEvent();
 
-		const edb::EVENT_STATUS status = debug_event_handler(e);
+		const edb::EVENT_STATUS status = edb::v1::execute_debug_event_handlers(e);
 		switch(status) {
 		case edb::DEBUG_STOP:
 			update_gui();

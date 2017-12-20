@@ -46,7 +46,7 @@ namespace HardwareBreakpointsPlugin {
 // Name: HardwareBreakpoints
 // Desc:
 //------------------------------------------------------------------------------
-HardwareBreakpoints::HardwareBreakpoints() : menu_(0), dialog_(0), old_event_handler_(0) {
+HardwareBreakpoints::HardwareBreakpoints() : menu_(0), dialog_(0) {
 	auto dialog = new DialogHWBreakpoints(edb::v1::debugger_ui);
 	dialog_ = dialog;
 
@@ -162,9 +162,7 @@ void HardwareBreakpoints::setupBreakpoints() {
 
 			// we want to be enabled, if we aren't already hooked,
 			// hook it
-			if(!old_event_handler_) {
-				old_event_handler_ = edb::v1::set_debug_event_handler(this);
-			}
+			edb::v1::add_debug_event_handler(this);
 
 			for(std::shared_ptr<IThread> &thread : process->threads()) {
 				State state;
@@ -197,10 +195,7 @@ void HardwareBreakpoints::setupBreakpoints() {
 			}
 
 			// we want to be disabled and we have hooked, so unhook
-			if(old_event_handler_) {
-				edb::v1::set_debug_event_handler(old_event_handler_);
-				old_event_handler_ = 0;
-			}
+			edb::v1::remove_debug_event_handler(this);
 		}
 	}
 
@@ -243,7 +238,7 @@ edb::EVENT_STATUS HardwareBreakpoints::handle_event(const std::shared_ptr<IDebug
 	}
 
 	// pass the event down the stack
-	return old_event_handler_->handle_event(event);
+	return edb::DEBUG_NEXT_HANDLER;
 }
 
 //------------------------------------------------------------------------------
@@ -370,9 +365,7 @@ QList<QAction *> HardwareBreakpoints::cpu_context_menu() {
 void HardwareBreakpoints::setExecuteBP(int index, bool inUse) {
 	// we want to be enabled, if we aren't already hooked,
 	// hook it
-	if(!old_event_handler_) {
-		old_event_handler_ = edb::v1::set_debug_event_handler(this);
-	}
+	edb::v1::add_debug_event_handler(this);
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
@@ -411,9 +404,7 @@ void HardwareBreakpoints::setExecuteBP(int index, bool inUse) {
 void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t address, int size) {
 	// we want to be enabled, if we aren't already hooked,
 	// hook it
-	if(!old_event_handler_) {
-		old_event_handler_ = edb::v1::set_debug_event_handler(this);
-	}
+	edb::v1::add_debug_event_handler(this);
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
@@ -468,9 +459,7 @@ void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t addre
 void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t address, int size) {
 	// we want to be enabled, if we aren't already hooked,
 	// hook it
-	if(!old_event_handler_) {
-		old_event_handler_ = edb::v1::set_debug_event_handler(this);
-	}
+	edb::v1::add_debug_event_handler(this);
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
