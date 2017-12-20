@@ -24,6 +24,7 @@ namespace ODbgRegisterView {
 
 RegisterGroup *createCPSR(RegisterViewModelBase::Model *model, QWidget *parent);
 RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *parent);
+RegisterGroup *createFPSCR(RegisterViewModelBase::Model *model, QWidget *parent);
 
 }
 

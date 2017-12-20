@@ -57,6 +57,7 @@ public:
 			GPR,
 			CPSR,
 			ExpandedCPSR,
+			FPSCR,
 #else
 #	error "Not implemented"
 #endif

@@ -48,6 +48,61 @@ const BitFieldDescription itBaseCondDescription = {
 	}
 };
 
+const BitFieldDescription fpscrSTRDescription = {
+	3,
+	{
+		" 1 ",
+		"D=1",
+		"D=2",
+		" 2 "
+	},
+	{
+		QObject::tr("Set stride to 1"),
+		"",
+		"",
+		QObject::tr("Set stride to 2")
+	}
+};
+
+const BitFieldDescription fpscrLENDescription = {
+	1,
+	{ // FPSCR[18:16] = LEN-1, while we want to show LEN value itself
+		"1",
+		"2",
+		"3",
+		"4",
+		"5",
+		"6",
+		"7",
+		"8"
+	},
+	{ // FIXME: this is ugly. Maybe edit it as a number?
+		QObject::tr("Set LEN to 1"),
+		QObject::tr("Set LEN to 2"),
+		QObject::tr("Set LEN to 3"),
+		QObject::tr("Set LEN to 4"),
+		QObject::tr("Set LEN to 5"),
+		QObject::tr("Set LEN to 6"),
+		QObject::tr("Set LEN to 7"),
+		QObject::tr("Set LEN to 8")
+	}
+};
+
+const BitFieldDescription roundControlDescription = {
+	4,
+	{
+		"NEAR",
+		"DOWN",
+		"  UP",
+		"ZERO"
+	},
+	{
+		QObject::tr("Round to nearest"),
+		QObject::tr("Round down"),
+		QObject::tr("Round up"),
+		QObject::tr("Round toward zero")
+	}
+};
 }
 
 RegisterGroup *createCPSR(RegisterViewModelBase::Model *model, QWidget *parent)
@@ -207,4 +262,172 @@ RegisterGroup *createExpandedCPSR(RegisterViewModelBase::Model *model, QWidget *
 	}
 	return group;
 }
+
+void addDXUOZI(RegisterGroup *const group,
+			   QModelIndex const &fpscrIndex,
+			   int const startRow,
+			   int const startColumn)
+{
+	static const QString exceptions = "DXUOZI";
+	static const std::unordered_map<char, QPair<QString,QString>> excNames = {
+		{'D', {"ID", QObject::tr("Input Denormal")}},
+		{'X', {"IX", QObject::tr("Inexact")}},
+		{'U', {"UF", QObject::tr("Underflow")}},
+		{'O', {"OF", QObject::tr("Overflow")}},
+		{'Z', {"DZ", QObject::tr("Zero Divide")}},
+		{'I', {"IO", QObject::tr("Invalid Operation")}}
+	};
+	for (int exN = 0; exN < exceptions.length(); ++exN) {
+		const QString ex = exceptions[exN];
+		const auto 	  excAbbrevStart = excNames.at(ex[0].toLatin1()).first;
+		const auto    exAbbrev   = excAbbrevStart + "C";
+		const auto    enabAbbrev = excAbbrevStart + "E";
+		const auto    excIndex   = VALID_INDEX(findModelRegister(fpscrIndex, exAbbrev));
+		const auto    enabIndex  = VALID_INDEX(findModelRegister(fpscrIndex, enabAbbrev));
+		const int     column     = startColumn + exN * 2;
+		const auto    nameField  = new FieldWidget(ex, group);
+		group->insert(startRow, column, nameField);
+		const auto excValueField = new ValueField(1, getValueIndex(excIndex), group);
+		group->insert(startRow + 1, column, excValueField);
+		const auto enabValueField = new ValueField(1, getValueIndex(enabIndex), group);
+		group->insert(startRow + 2, column, enabValueField);
+
+		const auto excName = excNames.at(ex[0].toLatin1()).second;
+		nameField->setToolTip(excName);
+		excValueField->setToolTip(excName + ' ' + QObject::tr("Exception flag") + " (" + exAbbrev + ")");
+		enabValueField->setToolTip(excName + ' ' + QObject::tr("Exception Enable flag") + " (" + enabAbbrev + ")");
+	}
+}
+
+
+RegisterGroup *createFPSCR(RegisterViewModelBase::Model *model, QWidget *parent)
+{
+	using namespace RegisterViewModelBase;
+
+	const auto catIndex = findModelCategory(model, "VFP");
+	if (!catIndex.isValid())
+		return nullptr;
+	const auto group     = new RegisterGroup("FSC", parent);
+	const QString fpscrName = "FSC";
+	const int fpscrRow = 0, nzcvLabelRow = fpscrRow;
+	const int nzcvRow = fpscrRow, nzcvValueRow = nzcvRow + 1;
+	int column = 0;
+
+	const auto fpscrLabelField = new FieldWidget(fpscrName, group);
+	fpscrLabelField->setToolTip(QObject::tr("Floating-point status and control register")+" (FPSCR)");
+	group->insert(fpscrRow, column, fpscrLabelField);
+	column += fpscrName.length() + 1;
+	const auto fpscrIndex      = findModelRegister(catIndex, "FPSCR", MODEL_VALUE_COLUMN);
+	const auto fpscrValueWidth = fpscrIndex.data(Model::FixedLengthRole).toInt();
+	assert(fpscrValueWidth > 0);
+	group->insert(fpscrRow, column, new ValueField(fpscrValueWidth, fpscrIndex, group));
+	column += fpscrValueWidth + 2;
+
+	{
+		static const std::unordered_map<char, QString> nzcvDescriptions = {
+			{'N', QObject::tr("LessThan flag")},
+			{'Z', QObject::tr("Equal operands flag")},
+			{'C', QObject::tr("GreaterThen/Equal/Unordered operands flag")},
+			{'V', QObject::tr("Unordered operands flag")}
+		};
+		static const QString nzcv="NZCV";
+		for (int i = 0; i < nzcv.length(); ++i) {
+			const auto flag       = nzcv[i];
+			const auto flagIndex  = VALID_INDEX(findModelRegister(fpscrIndex, flag, MODEL_VALUE_COLUMN));
+			const auto nameField  = new FieldWidget(flag, group);
+			group->insert(nzcvRow, column, nameField);
+			const auto flagValueField = new ValueField(1, getValueIndex(flagIndex), group);
+			group->insert(nzcvValueRow, column, flagValueField);
+
+			const auto descr = nzcvDescriptions.at(flag.toLatin1());
+			nameField->setToolTip(descr);
+			flagValueField->setToolTip(descr);
+			column += 2;
+		}
+	}
+
+	column += 1;
+	const auto excRow = fpscrRow + 1, enabRow = excRow + 1;
+	group->insert(excRow , column, new FieldWidget("Err", group));
+	group->insert(enabRow, column, new FieldWidget("Enab", group));
+	column += 5;
+	addDXUOZI(group, fpscrIndex, fpscrRow, column);
+	{
+		const int DXUOZIWidth = 6 * 2 - 1;
+		group->insert(nzcvValueRow, column + DXUOZIWidth + 1, new FieldWidget(0, getCommentIndex(fpscrIndex), group));
+	}
+
+	const QString dnName = "DN", fzName = "FZ", strName = "STR", lenName = "LEN";
+	{
+		column = fpscrName.length() - 1;
+		const auto strNameField = new FieldWidget(strName, group);
+		const auto strRow = excRow;
+		group->insert(strRow, column, strNameField);
+		const auto strIndex      = findModelRegister(fpscrIndex, "STR", MODEL_VALUE_COLUMN);
+		const auto strValueField = new MultiBitFieldWidget(strIndex, fpscrSTRDescription, group);
+		column += strName.length();
+		group->insert(strRow, column, strValueField);
+		const auto strTooltip = QObject::tr("Stride (distance between successive values in a vector)");
+		strNameField->setToolTip(strTooltip);
+		strValueField->setToolTip(strTooltip);
+		column += 3;
+	}
+	{
+		const auto fzNameField = new FieldWidget(fzName, group);
+		const auto fzRow = excRow;
+		group->insert(fzRow, column, fzNameField);
+		const auto fzIndex      = findModelRegister(fpscrIndex, "FZ", MODEL_VALUE_COLUMN);
+		const auto fzValueWidth = 1;
+		const auto fzValueField = new ValueField(fzValueWidth, fzIndex, group);
+		column += fzName.length() + 1;
+		group->insert(fzRow, column, fzValueField);
+		const auto fzTooltip = QObject::tr("Flush Denormals To Zero");
+		fzNameField->setToolTip(fzTooltip);
+		fzValueField->setToolTip(fzTooltip);
+	}
+	{
+		column = fpscrName.length() - 1;
+		const auto lenNameField = new FieldWidget(lenName, group);
+		const auto lenRow = enabRow;
+		group->insert(lenRow, column, lenNameField);
+		const auto lenIndex      = findModelRegister(fpscrIndex, "LEN-1", MODEL_VALUE_COLUMN);
+		const auto lenValueField = new MultiBitFieldWidget(lenIndex, fpscrLENDescription, group);
+		column += lenName.length() + 1;
+		group->insert(lenRow, column, lenValueField);
+		const auto lenTooltip = QObject::tr("Number of registers used by each vector");
+		lenNameField->setToolTip(lenTooltip);
+		lenValueField->setToolTip(lenTooltip);
+		column += 2;
+	}
+	{
+		const auto dnNameField = new FieldWidget(dnName, group);
+		const auto dnRow = enabRow;
+		group->insert(dnRow, column, dnNameField);
+		const auto dnIndex      = findModelRegister(fpscrIndex, "DN", MODEL_VALUE_COLUMN);
+		const auto dnValueWidth = 1;
+		const auto dnValueField = new ValueField(dnValueWidth, dnIndex, group);
+		column += dnName.length() + 1;
+		group->insert(dnRow, column, dnValueField);
+		const auto dnTooltip = QObject::tr("Enable default NaN mode");
+		dnNameField->setToolTip(dnTooltip);
+		dnValueField->setToolTip(dnTooltip);
+		column += 2;
+	}
+
+	{
+		column += 1;
+		const QString rndName = "Rnd";
+		const auto rndRow = enabRow;
+		group->insert(rndRow, column, new FieldWidget(rndName, group));
+		column += rndName.length() + 1;
+		const auto rndValueField = new MultiBitFieldWidget(
+										findModelRegister(fpscrIndex, "RC", MODEL_VALUE_COLUMN),
+										roundControlDescription, group);
+		group->insert(rndRow, column, rndValueField);
+		rndValueField->setToolTip(QObject::tr("Rounding mode"));
+	}
+
+	return group;
+}
+
 }
