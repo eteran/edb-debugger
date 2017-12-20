@@ -52,6 +52,7 @@ template <size_t N>
 class BackupInfo : public IDebugEventHandler {
 public:
 	BackupInfo(edb::address_t address, IRegion::permissions_t perms, PlatformRegion *region);
+	~BackupInfo();
 
 private:
 	Q_DISABLE_COPY(BackupInfo)
@@ -83,6 +84,17 @@ public:
 template <size_t N>
 BackupInfo<N>::BackupInfo(edb::address_t address, IRegion::permissions_t perms, PlatformRegion *region) :
 		lock_(1), address_(address), premissions_(perms), region_(region) {
+
+	edb::v1::add_debug_event_handler(this);
+}
+
+//------------------------------------------------------------------------------
+// Name: BackupInfo
+// Desc:
+//------------------------------------------------------------------------------
+template <size_t N>
+BackupInfo<N>::~BackupInfo() {
+	edb::v1::remove_debug_event_handler(this);
 }
 
 //------------------------------------------------------------------------------
@@ -135,9 +147,6 @@ edb::EVENT_STATUS BackupInfo<N>::handle_event(const std::shared_ptr<IDebugEvent>
 
 	// update permissions mask
 	region_->permissions_ = perms();
-
-	// restore the event handler
-	edb::v1::remove_debug_event_handler(this);
 
 	// really shouldn't matter since the return value isn't used at all
 	// we simply want tot catch the event and set the lock to 0
@@ -354,7 +363,6 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 						}
 
 						thread->set_state(state);
-						edb::v1::add_debug_event_handler(&backup_info);
 
 						// run the system call instruction and wait for the trap
 						thread->step(edb::DEBUG_CONTINUE);
