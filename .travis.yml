@@ -61,6 +61,7 @@ after_success:
     - find . -name "*.AppImage*"
     - mv $(ls edb*.AppImage) ./build/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage
     - curl --upload-file $(ls ./build/edb*.AppImage) https://transfer.sh/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage # Replace with your deployment mechanism
+    - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
     - bash upload.sh ./build/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage  # Needs Travis token of @eteran!
     - bash upload.sh ./build/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage.zsync
 
