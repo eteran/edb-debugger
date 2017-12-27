@@ -54,11 +54,14 @@ after_success:
     - cp ./edb.desktop ./build
     - find .
     - rm -rf build/src
-    - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/1/linuxdeployqt-1-x86_64.AppImage"
+    - #wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/1/linuxdeployqt-1-x86_64.AppImage" # Moved
+    - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/continuous/linuxdeployqt-continuous-x86_64.AppImage"
     - chmod a+x linuxdeployqt-1-x86_64.AppImage
     - unset LD_LIBRARY_PATH
-    - ./linuxdeployqt-1-x86_64.AppImage ./build/edb -appimage -verbose=2
+    - # ./linuxdeployqt-1-x86_64.AppImage ./build/edb -appimage -verbose=2 # Moved
+    - ./linuxdeployqt-continuous-x86_64.AppImage ./build/edb -appimage -verbose=2
     - curl --upload-file $(ls build*.AppImage) https://transfer.sh/edb-qt$QT_BASE.git.$(git rev-parse --short HEAD)-x86_64.AppImage # Replace with your deployment mechanism
+    - bash upload.sh edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage
     
 branches:
     only:
