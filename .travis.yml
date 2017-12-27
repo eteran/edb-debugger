@@ -59,6 +59,7 @@ after_success:
     - unset LD_LIBRARY_PATH
     - ./linuxdeployqt-continuous-x86_64.AppImage ./build/edb -appimage -verbose=2
     - find . -name "*.AppImage*"
+    - ls edb*.AppImage*
     - mv $(ls edb*.AppImage) ./build/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage
     - curl --upload-file $(ls ./build/edb*.AppImage) https://transfer.sh/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage # Replace with your deployment mechanism
     - wget -c https://github.com/probonopd/uploadtool/raw/master/upload.sh
