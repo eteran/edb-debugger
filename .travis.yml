@@ -28,7 +28,7 @@ before_install:
     - if [ "$QT_BASE" = "54" ]; then sudo add-apt-repository ppa:beineri/opt-qt542-trusty -y; fi
     - if [ "$QT_BASE" = "55" ]; then sudo add-apt-repository ppa:beineri/opt-qt551-trusty -y; fi
     - if [ "$QT_BASE" = "56" ]; then sudo add-apt-repository ppa:beineri/opt-qt562-trusty -y; fi
-    - sudo add-apt-repository ppa:ximion/packagekit
+    - sudo add-apt-repository ppa:ximion/packagekit -y
     - sudo apt-get update -qq
     - ./travis_install_capstone.sh
 
@@ -41,7 +41,7 @@ install:
     - if [ "$QT_BASE" = "54" ]; then sudo apt-get install -qq qt54base qt54xmlpatterns qt54svg; source /opt/qt54/bin/qt54-env.sh; fi
     - if [ "$QT_BASE" = "55" ]; then sudo apt-get install -qq qt55base qt55xmlpatterns qt55svg; source /opt/qt55/bin/qt55-env.sh; fi
     - if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base qt56xmlpatterns qt56svg; source /opt/qt56/bin/qt56-env.sh; fi
-    - sudo apt-get install appstream
+    - sudo apt-get -y install appstream
 
 before_script:
     - if [ "$QT_BASE" == "48" ]; then mkdir build && cd build && CXX=g++-5 CC=gcc-5 cmake -DQT_VERSION=Qt4 ..; fi
