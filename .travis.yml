@@ -60,9 +60,9 @@ after_success:
     - ./linuxdeployqt-continuous-x86_64.AppImage ./build/edb -appimage -verbose=2
     - pwd
     - find . -name "*.AppImage*"
-    - #mv $(ls ./build/*.AppImage) ./build/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage
-    - #curl --upload-file $(ls ./build/*.AppImage) https://transfer.sh/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage # Replace with your deployment mechanism
-    - #bash upload.sh ./build/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage
+    - mv $(ls edb*.AppImage) ./build/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage
+    - curl --upload-file $(ls ./build/edb*.AppImage) https://transfer.sh/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage # Replace with your deployment mechanism
+    - bash upload.sh ./build/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage  # Needs Travis token of @eteran!
     
 branches:
     only:
