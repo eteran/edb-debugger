@@ -58,12 +58,12 @@ after_success:
     - chmod a+x linuxdeployqt-continuous-x86_64.AppImage
     - unset LD_LIBRARY_PATH
     - ./linuxdeployqt-continuous-x86_64.AppImage ./build/edb -appimage -verbose=2
-    - pwd
     - find . -name "*.AppImage*"
     - mv $(ls edb*.AppImage) ./build/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage
     - curl --upload-file $(ls ./build/edb*.AppImage) https://transfer.sh/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage # Replace with your deployment mechanism
     - bash upload.sh ./build/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage  # Needs Travis token of @eteran!
-    
+    - bash upload.sh ./build/edb-qt$QT_BASE-continuous-git.$(git rev-parse --short HEAD)-x86_64.AppImage.zsync
+
 branches:
     only:
         - master
