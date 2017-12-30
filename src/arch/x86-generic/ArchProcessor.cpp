@@ -792,7 +792,7 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						{
 							const edb::value64 value(target);
 							QString valueStr;
-							if(is_fpu_taking_float(inst) || is_SIMD_SS(operand))
+							if(is_fpu_taking_float(inst) || is_SIMD_SD(operand))
 								valueStr=formatFloat(value);
 							else if(is_fpu_taking_integer(inst))
 							{
