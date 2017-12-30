@@ -727,7 +727,33 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						else if(is_SIMD_PD(operand))
 							valueString=formatPackedFloat<edb::value64>(reg.rawData(),reg.bitSize()/8);
 						else
-							valueString = "0x" + reg.toHexString();
+						{
+							const bool simdSI = is_SIMD_SI(operand);
+							const bool simdUSI = !simdSI && is_SIMD_USI(operand);
+							if((simdSI || simdUSI) && (reg.bitSize()==32 || reg.bitSize()==64))
+							{
+								const auto mode = simdUSI ? NumberDisplayMode::Unsigned : NumberDisplayMode::Signed;
+								std::int64_t signedValue;
+								if(reg.bitSize()==32)
+								{
+									signedValue=reg.value<edb::value32>();
+									valueString=util::formatInt(reg.value<edb::value32>(),mode);
+								}
+								else
+								{
+									signedValue=reg.value<edb::value64>();
+									valueString=util::formatInt(reg.value<edb::value64>(),mode);
+								}
+								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
+								// even across values in analysis view about its use of 0x prefix
+								// Use of hexadecimal format here is pretty much pointless since the number here is
+								// expected to be used in usual numeric computations, not as address or similar
+								if(signedValue>9 || signedValue<-9)
+									valueString+=" (decimal)";
+							}
+							else
+								valueString = "0x" + reg.toHexString();
+						}
 					}
 					ret << QString("%1 = %2").arg(temp_operand, valueString);
 				} else if(is_expression(operand)) {
@@ -765,12 +791,14 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						case 4:
 						{
 							const edb::value32 value(target);
+							const bool simdSI = is_SIMD_SI(operand);
+							const bool simdUSI = !simdSI && is_SIMD_USI(operand);
 							QString valueStr;
 							if(is_fpu_taking_float(inst) || is_SIMD_SS(operand))
 								valueStr=formatFloat(value);
-							else if(is_fpu_taking_integer(inst))
+							else if(is_fpu_taking_integer(inst) || simdSI || simdUSI)
 							{
-								valueStr=util::formatInt(value,NumberDisplayMode::Signed);
+								valueStr=util::formatInt(value,simdUSI ? NumberDisplayMode::Unsigned : NumberDisplayMode::Signed);
 								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
 								// even across values in analysis view about its use of 0x prefix
 								// Use of hexadecimal format here is pretty much pointless since the number here is
@@ -791,12 +819,14 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 						case 8:
 						{
 							const edb::value64 value(target);
+							const bool simdSI = is_SIMD_SI(operand);
+							const bool simdUSI = !simdSI && is_SIMD_USI(operand);
 							QString valueStr;
 							if(is_fpu_taking_float(inst) || is_SIMD_SD(operand))
 								valueStr=formatFloat(value);
-							else if(is_fpu_taking_integer(inst))
+							else if(is_fpu_taking_integer(inst) || simdSI || simdUSI)
 							{
-								valueStr=util::formatInt(value,NumberDisplayMode::Signed);
+								valueStr=util::formatInt(value,simdUSI ? NumberDisplayMode::Unsigned : NumberDisplayMode::Signed);
 								// FIXME: we have to explicitly say it's decimal because EDB is pretty inconsistent
 								// even across values in analysis view about its use of 0x prefix
 								// Use of hexadecimal format here is pretty much pointless since the number here is
