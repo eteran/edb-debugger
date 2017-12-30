@@ -83,9 +83,10 @@ bool KxRegisterPresent(const Instruction &insn) {
 	return false;
 }
 
-std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, const Operand &operand) {
+std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, const Operand &operand, bool canBeNonSIMD=false) {
 
-	assert(!apriori_not_simd(insn, operand));
+	if(!canBeNonSIMD)
+		assert(!apriori_not_simd(insn, operand));
 
 	std::size_t number       = operand.index();
 	const auto  operandCount = insn.operand_count();
@@ -1025,6 +1026,41 @@ bool is_SIMD_SD(const Operand &operand) {
 		return number == 1;
 	default:
 		return false;
+	}
+}
+
+bool is_SIMD_SI(const Operand &operand) {
+
+	const Instruction &insn = *operand.owner();
+	const auto number = simdOperandNormalizedNumberInInstruction(insn, operand, true);
+
+	switch (insn->id) {
+	case X86_INS_VCVTSI2SS:
+	case X86_INS_VCVTSI2SD:
+		return number==2;
+	case X86_INS_CVTSI2SS:
+	case X86_INS_CVTSI2SD:
+		return number==1;
+	case X86_INS_CVTSS2SI:
+	case X86_INS_VCVTSS2SI:
+	case X86_INS_CVTSD2SI:
+	case X86_INS_VCVTSD2SI:
+		return number==0;
+	}
+}
+
+bool is_SIMD_USI(const Operand &operand) {
+
+	const Instruction &insn = *operand.owner();
+	const auto number = simdOperandNormalizedNumberInInstruction(insn, operand, true);
+
+	switch (insn->id) {
+	case X86_INS_VCVTUSI2SS:
+	case X86_INS_VCVTUSI2SD:
+		return number==2;
+	case X86_INS_VCVTSS2USI:
+	case X86_INS_VCVTSD2USI:
+		return number==0;
 	}
 }
 
