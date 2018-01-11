@@ -71,6 +71,8 @@ bool is_SIMD_PD(const Operand &operand);
 bool is_SIMD_PS(const Operand &operand);
 bool is_SIMD_SD(const Operand &operand);
 bool is_SIMD_SS(const Operand &operand);
+bool is_SIMD_SI(const Operand &operand);
+bool is_SIMD_USI(const Operand &operand);
 
 }
 
