@@ -52,6 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/ptrace.h>
 #include <sys/mman.h>
 #include <sys/personality.h>
+#include <sys/wait.h>
 
 // doesn't always seem to be defined in the headers
 
