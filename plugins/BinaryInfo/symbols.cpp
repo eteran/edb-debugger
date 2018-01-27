@@ -202,6 +202,9 @@ void collect_symbols(const void *p, size_t size, QList<typename M::symbol> &symb
 	const auto base = reinterpret_cast<uintptr_t>(p);
 
 	const auto header                              = static_cast<const elf_header_t*>(p);
+	if (header->e_shnum == 0 || header->e_shentsize == 0) {
+		return;
+	}
 	const auto sections_begin                      = reinterpret_cast<elf_section_header_t*>(base + header->e_shoff);
 	const elf_section_header_t *const sections_end = sections_begin + header->e_shnum;
 	auto section_strings                           = reinterpret_cast<const char*>(base + sections_begin[header->e_shstrndx].sh_offset);
