@@ -234,8 +234,11 @@ QValidator::State FloatXValidator<Float>::validate(QString& input, int&) const
 	// OK, so we failed to read it or it is unfinished. Let's check whether it's intermediate or invalid.
 	QRegExp basicFormat("[+-]?[0-9]*\\.?[0-9]*(e([+-]?[0-9]*)?)?");
 	QRegExp specialFormat("[+-]?[sq]?nan|[+-]?inf",Qt::CaseInsensitive);
+	QRegExp hexfloatFormat("[+-]?0x[0-9a-f]*\\.?[0-9a-f]*(p([+-]?[0-9]*)?)?",Qt::CaseInsensitive);
 	QRegExp specialFormatUnfinished("[+-]?[sq]?(n(an?)?)?|[+-]?(i(nf?)?)?",Qt::CaseInsensitive);
 
+	if(hexfloatFormat.exactMatch(input))
+		return QValidator::Intermediate;
 	if(basicFormat.exactMatch(input))
 		return QValidator::Intermediate;
 	if(specialFormat.exactMatch(input))
