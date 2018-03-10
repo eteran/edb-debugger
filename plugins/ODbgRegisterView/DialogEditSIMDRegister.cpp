@@ -143,7 +143,7 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent) : QDialog(parent
 	}
 	setTabOrder(dwords.back(), qwords.front());
 
-	for (int qword = numBytes / 4 - 1; qword > 0; --qword) {
+	for (int qword = numBytes / 8 - 1; qword > 0; --qword) {
 		setTabOrder(qwords[qword], qwords[qword - 1]);
 	}
 	setTabOrder(qwords.back(), floats32.front());
@@ -153,7 +153,7 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent) : QDialog(parent
 	}
 	setTabOrder(floats32.back(), floats64.front());
 
-	for (int float64 = numBytes / 4 - 1; float64 > 0; --float64) {
+	for (int float64 = numBytes / 8 - 1; float64 > 0; --float64) {
 		setTabOrder(floats64[float64], floats64[float64 - 1]);
 	}
 	setTabOrder(floats64.front(), radioHex);
