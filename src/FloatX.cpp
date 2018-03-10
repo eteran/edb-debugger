@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "FloatX.h"
+#include "Util.h"
 
 #include <iomanip>
 #include <sstream>
@@ -96,23 +97,15 @@ Float readFloat(const QString& strInput,bool& ok)
 {
 	ok=false;
 	const QString str(strInput.toLower().trimmed());
-	std::istringstream stream(str.toStdString());
-	Float value;
-	stream >> value;
-	if(stream)
+	if(const auto value=util::fullStringToFloat<Float>(str.toStdString()))
 	{
-		// Check that no trailing chars are left
-		char c;
-		stream >> c;
-		if(!stream)
-		{
-			ok=true;
-			return value;
-		}
+		ok=true;
+		return *value;
 	}
+
 	// OK, so either it is invalid/unfinished, or it's some special value
 	// We still do want the user to be able to enter common special values
-
+	Float value;
 	if(str=="+snan"||str=="snan")
 		std::memcpy(&value,&SpecialValues<Float>::positiveSNaN,sizeof value);
 	else if(str=="-snan")
@@ -232,16 +225,12 @@ template<typename Float>
 QValidator::State FloatXValidator<Float>::validate(QString& input, int&) const
 {
 	if(input.isEmpty()) return QValidator::Intermediate;
-	std::istringstream str(input.toStdString());
-	Float value;
-	str >> std::noskipws >> value;
-	if(str)
-	{
-		// Check that no trailing chars are left
-		char c;
-		str >> c;
-		if(!str) return QValidator::Acceptable;
-	}
+
+	// The input may be in hex format. std::istream doesn't support extraction
+	// of hexfloat, but std::strto[f,d,ld] do. (see wg21.link/lwg2381)
+	if(const auto v=util::fullStringToFloat<Float>(input.toStdString()))
+		return QValidator::Acceptable;
+
 	// OK, so we failed to read it or it is unfinished. Let's check whether it's intermediate or invalid.
 	QRegExp basicFormat("[+-]?[0-9]*\\.?[0-9]*(e([+-]?[0-9]*)?)?");
 	QRegExp specialFormat("[+-]?[sq]?nan|[+-]?inf",Qt::CaseInsensitive);
