@@ -1046,6 +1046,8 @@ bool is_SIMD_SI(const Operand &operand) {
 	case X86_INS_CVTSD2SI:
 	case X86_INS_VCVTSD2SI:
 		return number==0;
+	default:
+		return false;
 	}
 }
 
@@ -1061,6 +1063,8 @@ bool is_SIMD_USI(const Operand &operand) {
 	case X86_INS_VCVTSS2USI:
 	case X86_INS_VCVTSD2USI:
 		return number==0;
+	default:
+		return false;
 	}
 }
 
