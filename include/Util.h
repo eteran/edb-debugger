@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 #include <sstream>
 #include <type_traits>
+#include <boost/optional.hpp>
 
 enum class NumberDisplayMode {
 	Hex,
@@ -176,6 +177,29 @@ typename std::enable_if<std::is_integral<AsType>::value, QString>::type packedIn
 		result += formatInt(v,mode).rightJustified(fieldWidth);
     }
     return result;
+}
+
+template<typename Float>
+boost::optional<Float> fullStringToFloat(std::string const& s)
+{
+	static_assert(std::is_same<Float, float>::value ||
+				  std::is_same<Float, double>::value ||
+				  std::is_same<Float, long double>::value,
+				  "Floating-point type not supported by this function");
+	try
+	{
+		std::size_t pos;
+		Float value;
+		if(std::is_same<Float, float>::value)
+			value=std::stof (s, &pos);
+		else if(std::is_same<Float, double>::value)
+			value=std::stod (s, &pos);
+		else
+			value=std::stold(s, &pos);
+		if(pos==s.size()) return value;
+	}
+	catch(std::exception&) {}
+	return boost::none;
 }
 
 }
