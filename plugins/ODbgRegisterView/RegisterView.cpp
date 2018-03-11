@@ -364,6 +364,16 @@ void ODBRegView::mousePressEvent(QMouseEvent *event) {
 	}
 }
 
+void ODBRegView::updateFont() {
+	QFont font;
+	if(!font.fromString(edb::v1::config().registers_font))
+	{
+		font = QFont("Monospace");
+		font.setStyleHint(QFont::TypeWriter);
+	}
+	setFont(font);
+}
+
 void ODBRegView::fieldSelected() {
 	Q_FOREACH(const auto field, valueFields())
 		if (sender() != field)
@@ -415,19 +425,11 @@ ODBRegView::RegisterGroupType findGroup(QString const &str) {
 }
 
 void ODBRegView::settingsUpdated() {
-	// TODO(eteran/ruslan): this slot is now triggered whenever the settings
-	// dialog is closed, so it's a good spot to update the fonts and anything
-	// else which may be effected by user config
-	// this half works, but doesn't update the spacing between items yet
-#if 0
-		QFont font;
-		if(!font.fromString(edb::v1::config().registers_font))
-		{
-			font = QFont("Monospace");
-			font.setStyleHint(QFont::TypeWriter);
-		}
-		setFont(font);
-#endif
+	// this slot is now triggered whenever the settings dialog is closed,
+	// so it's a good spot to update the fonts and anything else which
+	// may be affected by user config
+	updateFont();
+	modelReset();
 }
 
 ODBRegView::ODBRegView(QString const &settingsGroup, QWidget *parent)
@@ -444,16 +446,7 @@ ODBRegView::ODBRegView(QString const &settingsGroup, QWidget *parent)
 
 	connect(&edb::v1::config(), SIGNAL(settingsUpdated()), this, SLOT(settingsUpdated()));
 
-	{
-		// TODO: get some signal to change font on the fly
-		// NOTE: on getting this signal all the fields must be resized and moved
-		QFont font;
-		if (!font.fromString(edb::v1::config().registers_font)) {
-			font = QFont("Monospace");
-			font.setStyleHint(QFont::TypeWriter);
-		}
-		setFont(font);
-	}
+	updateFont();
 
 	const auto canvas = new Canvas(this);
 	setWidget(canvas);

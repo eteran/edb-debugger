@@ -103,6 +103,7 @@ private:
 	void        updateFieldsPalette();
 	void keyPressEvent(QKeyEvent *event) override;
 	void mousePressEvent(QMouseEvent *event) override;
+	void updateFont();
 
 private:
 	QList<RegisterGroup *> groups;
