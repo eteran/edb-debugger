@@ -486,6 +486,7 @@ Debugger::~Debugger() {
 	// kill our xterm and wait for it to die
 	tty_proc_->kill();
 	tty_proc_->waitForFinished(3000);
+	edb::v1::remove_debug_event_handler(this);
 }
 
 //------------------------------------------------------------------------------
