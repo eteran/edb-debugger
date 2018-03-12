@@ -37,7 +37,7 @@ namespace CheckVersionPlugin {
 // Name: CheckVersion
 // Desc:
 //------------------------------------------------------------------------------
-CheckVersion::CheckVersion() : menu_(0), network_(0), initial_check_(true) {
+CheckVersion::CheckVersion() : menu_(nullptr), network_(nullptr), initial_check_(true) {
 }
 
 //------------------------------------------------------------------------------
@@ -152,10 +152,10 @@ void CheckVersion::show_menu() {
 //------------------------------------------------------------------------------
 void CheckVersion::requestFinished(QNetworkReply *reply) {
 
-	if(QNetworkReply::NoError != reply->error()) {
+    if(reply->error() != QNetworkReply::NoError) {
 		if(!initial_check_) {
 			QMessageBox::critical(
-				0,
+                nullptr,
 				tr("An Error Occured"),
 				reply->errorString());
 		}
@@ -167,18 +167,20 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 
 		if(edb::v1::int_version(s) > edb::v1::edb_version()) {
 			QMessageBox::information(
-				0,
+                nullptr,
 				tr("New Version Available"),
 				tr("There is a newer version of edb available: <strong>%1</strong>").arg(s));
 		} else {
 			if(!initial_check_) {
 				QMessageBox::information(
-					0,
+                    nullptr,
 					tr("You are up to date"),
 					tr("You are running the latest version of edb"));
 			}
 		}
 	}
+
+    reply->deleteLater();
 	initial_check_ = false;
 }
 
