@@ -476,6 +476,12 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 
 	// let the plugins setup their menus
 	finish_plugin_setup();
+
+	// Make sure number formatting and reading code behaves predictably when using standard C++ facilities.
+	// NOTE: this should only be done after the plugins have finished loading, since some dynamic libraries
+	// (e.g. libkdecore), which are indirectly loaded by the plugins, re-set locale to "" once again. (This
+	// first time is QApplication.)
+	std::setlocale(LC_NUMERIC, "C");
 }
 
 //------------------------------------------------------------------------------
