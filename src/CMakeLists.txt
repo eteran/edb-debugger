@@ -65,6 +65,7 @@ set(edb_SRCS
 	CommentServer.cpp
 	Configuration.cpp
 	DataViewInfo.cpp
+	DebugEventHandlers.cpp
 	Debugger.cpp
 	DialogAbout.cpp
 	DialogArguments.cpp
