@@ -83,6 +83,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 #include <cstring>
+#include <clocale>
 
 #if defined(Q_OS_UNIX)
 #include <signal.h>
