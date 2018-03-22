@@ -3062,11 +3062,14 @@ void Debugger::attach(edb::pid_t pid) {
 	edb::pid_t current_pid = getpid();
 	while(current_pid != 0) {
 		if(current_pid == pid) {
-			QMessageBox::critical(
-				this,
-				tr("Attach"),
-				tr("You may not debug a process which is a parent of the edb process."));
-			return;
+
+            int ret = QMessageBox::question(this,
+                                            tr("Attaching to parent"),
+                                            tr("You are attempting to attach to a process which is a parent of edb, sometimes, this can lead to deadlocks. Do you want to proceed?"),
+                                            QMessageBox::Yes | QMessageBox::No);
+            if(ret == QMessageBox::No) {
+                return;
+            }
 		}
 		current_pid = edb::v1::debugger_core->parent_pid(current_pid);
 	}
