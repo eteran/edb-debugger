@@ -3067,7 +3067,7 @@ void Debugger::attach(edb::pid_t pid) {
                                             tr("Attaching to parent"),
                                             tr("You are attempting to attach to a process which is a parent of edb, sometimes, this can lead to deadlocks. Do you want to proceed?"),
                                             QMessageBox::Yes | QMessageBox::No);
-            if(ret == QMessageBox::No) {
+            if(ret != QMessageBox::Yes) {
                 return;
             }
 		}
