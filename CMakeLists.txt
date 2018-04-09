@@ -6,6 +6,11 @@ if(NOT EXISTS "${PROJECT_SOURCE_DIR}/src/qjson4/" OR NOT EXISTS "${PROJECT_SOURC
 )
 endif()
 
+option(ENABLE_ASAN      "Enable address santiziers")
+option(ENABLE_USAN      "Enable undefined santiziers")
+option(ENABLE_MSAN      "Enable memory santiziers")
+option(ENABLE_TSAN      "Enable thread santiziers")
+option(ENABLE_STL_DEBUG "Enable STL container debugging")
 
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
@@ -89,9 +94,36 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
 	include_directories("include/arch/arm-generic")
 endif()
 
-if(CMAKE_COMPILER_IS_GNUCC)
+if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU"))
+	if(ENABLE_ASAN)
+		set(CMAKE_CXX_FLAGS        "${CMAKE_CXX_FLAGS}        -fsanitize=address") # -fsanitize-address-use-after-scope
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
+	endif()
+
+	if(ENABLE_USAN)
+		set(CMAKE_CXX_FLAGS        "${CMAKE_CXX_FLAGS}        -fsanitize=undefined")
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=undefined")
+	endif()
+
+	if(ENABLE_TSAN)
+		set(CMAKE_CXX_FLAGS        "${CMAKE_CXX_FLAGS}        -fsanitize=thread")
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=thread")
+	endif()
+
+	if(ENABLE_MSAN)
+		set(CMAKE_CXX_FLAGS        "${CMAKE_CXX_FLAGS}        -fsanitize=memory")
+		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=memory")
+	endif()
+	
+	if(ENABLE_STL_DEBUG)
+		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_DEBUG")
+		set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -D_GLIBCXX_DEBUG")	
+	endif()
+	
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -pedantic -Wunused")
 	set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -W -Wall -pedantic -Wunused")
+	
+	
 endif()
 
 if(MSVC)

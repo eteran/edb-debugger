@@ -135,8 +135,9 @@ void DialogAttach::update_list() {
 		const auto pid=selectedPid.value();
 		const auto*const model=ui->processes_table->model();
 		for(int row = 0; row<model->rowCount(); ++row) {
-			if(model->index(row,0).data().toUInt()==pid)
+			if(static_cast<edb::pid_t>(model->index(row,0).data().toUInt()) == pid) {
 				ui->processes_table->selectRow(row);
+			}
 		}
 	}
 }

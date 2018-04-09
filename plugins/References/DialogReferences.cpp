@@ -141,7 +141,7 @@ void DialogReferences::do_find() {
 							default:
 								if(is_jump(inst) || is_call(inst)) {
 									if(is_immediate(inst[0])) {
-										if(inst[0]->imm == address) {
+										if(static_cast<edb::address_t>(inst[0]->imm) == address) {
 											auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 											item->setData(TypeRole, 'C');
 											item->setData(AddressRole, addr);

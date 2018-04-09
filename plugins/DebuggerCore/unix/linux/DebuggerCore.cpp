@@ -401,6 +401,7 @@ long DebuggerCore::ptraceOptions() const {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::handle_thread_exit(edb::tid_t tid, int status) {
+	Q_UNUSED(status);
 
 	threads_.remove(tid);
 	waited_threads_.remove(tid);

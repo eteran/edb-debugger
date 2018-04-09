@@ -1757,8 +1757,10 @@ void Debugger::mnuCPUFollow() {
 		return;
 
 	const edb::address_t addressToFollow=util::to_unsigned(inst[0]->imm);
-	if(auto action = qobject_cast<QAction *>(sender()))
+	if(auto action = qobject_cast<QAction *>(sender())) {
+		Q_UNUSED(action);
 		follow_memory(addressToFollow, edb::v1::jump_to_address);
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -3468,6 +3470,9 @@ void Debugger::next_debug_event() {
 			break;
 		case edb::DEBUG_EXCEPTION_NOT_HANDLED:
 			resume_execution(PASS_EXCEPTION, MODE_RUN, ResumeFlag::Forced);
+			break;
+		case edb::DEBUG_NEXT_HANDLER:
+			// NOTE(eteran): I don't think this is reachable...
 			break;
 		}
 	}

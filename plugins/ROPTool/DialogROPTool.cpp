@@ -135,7 +135,7 @@ bool is_effective_nop(const edb::Instruction &inst) {
 	case X86_INS_JRCXZ:
 	case X86_INS_JCXZ:
 		// jmp 0
-		return inst[0]->type == X86_OP_IMM && inst[0]->imm == inst.rva() + inst.byte_size();
+		return inst[0]->type == X86_OP_IMM && static_cast<edb::address_t>(inst[0]->imm) == inst.rva() + inst.byte_size();
 	case X86_INS_SHL:
 	case X86_INS_SHR:
 	case X86_INS_ROL:
