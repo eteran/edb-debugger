@@ -40,7 +40,7 @@ public:
 public:
 	bool success() const           { return errorMessage_.isEmpty(); }
 	bool failure() const           { return !success(); }
-	explicit operator bool() const { return success(); };
+    explicit operator bool() const { return success(); }
 	QString toString() const       { return errorMessage_; }
 
 private:
@@ -68,7 +68,7 @@ public:
 	T operator*() const            { Q_ASSERT(succeeded()); return value_; }
 	bool succeeded() const         { return status_.success(); }
 	bool failed() const            { return !succeeded(); }
-	explicit operator bool() const { return succeeded(); };
+    explicit operator bool() const { return succeeded(); }
 	QString errorMessage() const   { return status_.toString(); }
 	T value() const                { Q_ASSERT(succeeded()); return value_; }
 
