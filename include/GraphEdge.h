@@ -32,7 +32,7 @@ class GraphEdge : public QGraphicsItemGroup {
 	Q_DISABLE_COPY(GraphEdge)
 
 public:
-	GraphEdge(GraphNode *from, GraphNode *to, const QColor &color = Qt::black, QGraphicsItem *parent = 0);
+    GraphEdge(GraphNode *from, GraphNode *to, const QColor &color = Qt::black, QGraphicsItem *parent = nullptr);
 	virtual ~GraphEdge() override;
 
 public:

@@ -142,7 +142,7 @@ public:
 	QVariant data(QModelIndex const& index, int role=Qt::DisplayRole) const override;
 	bool setData(QModelIndex const& index, QVariant const& data, int role=Qt::EditRole) override;
 	Qt::ItemFlags flags(QModelIndex const& index) const override;
-	~Model();
+    ~Model() override;
 
 	void setActiveIndex(QModelIndex const& newActiveIndex);
 	QModelIndex activeIndex() const;
@@ -177,7 +177,7 @@ Q_SIGNALS:
 class RegisterViewItem
 {
 protected:
-	RegisterViewItem* parentItem=0;
+    RegisterViewItem* parentItem=nullptr;
 	int row_=-1;
 	QString name_;
 public:
@@ -187,7 +187,7 @@ public:
 	virtual RegisterViewItem* parent() const { return parentItem; }
 	QString name() const { return name_; }
 	virtual int row() const { Q_ASSERT(row_!=-1); return row_; }
-	virtual bool changed() const { return false; };
+    virtual bool changed() const { return false; }
 	virtual ~RegisterViewItem()= default;
 	virtual RegisterViewItem* child(int /*row*/) { return nullptr; }
 	virtual int childCount() const { return 0; }

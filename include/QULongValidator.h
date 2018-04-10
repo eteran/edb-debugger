@@ -28,8 +28,8 @@ public:
 	typedef std::uint64_t value_type;
 
 public:
-	explicit QULongValidator(QObject *parent = 0);
-	QULongValidator(value_type minimum, value_type maximum, QObject *parent = 0);
+    explicit QULongValidator(QObject *parent = nullptr);
+    QULongValidator(value_type minimum, value_type maximum, QObject *parent = nullptr);
 	virtual ~QULongValidator() = default;
 
 public:

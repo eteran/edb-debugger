@@ -14,7 +14,7 @@ Float readFloat(const QString& strInput, bool& ok);
 template <class Float>
 class FloatXValidator : public QValidator {
 public:
-	explicit FloatXValidator(QObject* parent = 0) : QValidator(parent) {}
+    explicit FloatXValidator(QObject* parent = nullptr) : QValidator(parent) {}
 	virtual QValidator::State validate(QString& input, int&) const override;
 };
 

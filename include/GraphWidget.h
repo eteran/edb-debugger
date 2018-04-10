@@ -39,7 +39,7 @@ private:
 	friend class GraphEdge;
 
 public:
-	GraphWidget(QWidget* parent = 0);
+    GraphWidget(QWidget* parent = nullptr);
 	virtual ~GraphWidget() override;
 
 public:

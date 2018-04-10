@@ -31,7 +31,7 @@ class EDB_EXPORT BinaryString : public QWidget {
 	Q_OBJECT
 
 public:
-	BinaryString(QWidget *parent = 0);
+    BinaryString(QWidget *parent = nullptr);
 	virtual ~BinaryString();
 
 private Q_SLOTS:

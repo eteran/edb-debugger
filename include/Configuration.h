@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class EDB_EXPORT Configuration : public QObject {
 	Q_OBJECT
 public:
-	Configuration(QObject *parent = 0);
+    Configuration(QObject *parent = nullptr);
 	virtual ~Configuration() override;
 
 public:

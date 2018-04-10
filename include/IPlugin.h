@@ -36,7 +36,7 @@ public:
 	}
 
 public:
-	virtual QMenu *menu(QWidget *parent = 0) = 0;
+    virtual QMenu *menu(QWidget *parent = nullptr) = 0;
 
 public:
 	// optional, overload these to have there contents added to a view's context menu
@@ -46,7 +46,7 @@ public:
 	virtual QList<QAction *> data_context_menu()     { return QList<QAction *>(); }
 
 	// optional, overload this to add a page to the options dialog
-	virtual QWidget *options_page() { return 0; }
+    virtual QWidget *options_page() { return nullptr; }
 
 public:
 	virtual QVariantMap save_state() const          { return QVariantMap(); }

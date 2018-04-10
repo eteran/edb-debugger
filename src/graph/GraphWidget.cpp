@@ -41,15 +41,15 @@ namespace {
 
 const int ScenePadding   = 30000;
 const float ZoomFactor   = 1.2;
-const float MinimumZoom  = 0.001;
-const float MaximumZoom  = 8.000;
+const float MinimumZoom  = 0.001f;
+const float MaximumZoom  = 8.000f;
 const int NodeWidth      = 100;
 }
 
 namespace {
 
 Agraph_t* _agopen(QString name, Agdesc_t kind) {
-    return agopen(name.toLocal8Bit().data(), kind, 0);
+    return agopen(name.toLocal8Bit().data(), kind, nullptr);
 }
 
 /// Add an alternative value parameter to the method for getting an object's attribute

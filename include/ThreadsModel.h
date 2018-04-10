@@ -35,7 +35,7 @@ public:
 	};
 
 public:
-	ThreadsModel(QObject *parent = 0);
+    ThreadsModel(QObject *parent = nullptr);
 	virtual ~ThreadsModel();
 
 public:

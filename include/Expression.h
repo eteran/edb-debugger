@@ -44,9 +44,6 @@ public:
 	explicit ExpressionError(ERROR_MSG type) : error_(type) {
 	}
 
-	~ExpressionError() noexcept {
-	}
-
 	const char *what() const noexcept {
 		switch(error_) {
 		case SYNTAX:
