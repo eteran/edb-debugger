@@ -54,8 +54,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDebug>
 #include <cctype>
 
-IDebugger *edb::v1::debugger_core = 0;
-QWidget   *edb::v1::debugger_ui   = 0;
+IDebugger *edb::v1::debugger_core = nullptr;
+QWidget   *edb::v1::debugger_ui   = nullptr;
 
 
 namespace {
@@ -63,7 +63,7 @@ namespace {
 	typedef QList<IBinary::create_func_ptr_t> BinaryInfoList;
 
 	DebugEventHandlers                 g_DebugEventHandlers;
-	QAtomicPointer<IAnalyzer>          g_Analyzer          = 0;
+    QAtomicPointer<IAnalyzer>          g_Analyzer          = nullptr;
 	QMap<QString, QObject *>           g_GeneralPlugins;
 	BinaryInfoList                     g_BinaryInfoList;
 	CapstoneEDB::Formatter             g_Formatter;
