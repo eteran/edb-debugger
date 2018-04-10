@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: MemoryRegions
 // Desc: constructor
 //------------------------------------------------------------------------------
-MemoryRegions::MemoryRegions() : QAbstractItemModel(0) {
+MemoryRegions::MemoryRegions() : QAbstractItemModel(nullptr) {
 }
 
 //------------------------------------------------------------------------------
