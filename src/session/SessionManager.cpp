@@ -43,45 +43,45 @@ SessionManager& SessionManager::instance() {
 bool SessionManager::load_session(const QString &session_file, SessionError& session_error) {
 
 	QFile file(session_file);
-	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		QByteArray json = file.readAll();
-		QJsonParseError error;
-		auto doc = QJsonDocument::fromJson(json, &error);
-		if(error.error != QJsonParseError::NoError) {
-	      session_error.err = SessionError::UnknownError;
-	      session_error.setErrorMessage(QString("An error occured while loading session JSON file. %1").arg(error.errorString()));
+    if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        session_error.err = SessionError::InvalidSessionFile;
+        session_error.setErrorMessage(tr("Failed to open session file. %1").arg(file.errorString()));
+        return false;
+    }
 
-		  return false;
-		}
+    QByteArray json = file.readAll();
+    QJsonParseError error;
+    auto doc = QJsonDocument::fromJson(json, &error);
+    if(error.error != QJsonParseError::NoError) {
+        session_error.err = SessionError::UnknownError;
+        session_error.setErrorMessage(tr("An error occured while loading session JSON file. %1").arg(error.errorString()));
+        return false;
+    }
 
-		if(!doc.isObject()) {
-	      session_error.err = SessionError::NotAnObject;
-	      session_error.setErrorMessage("Session file is invalid. Not an object.");
+    if(!doc.isObject()) {
+        session_error.err = SessionError::NotAnObject;
+        session_error.setErrorMessage(tr("Session file is invalid. Not an object."));
+        return false;
+    }
 
-		  return false;
-		}
+    QJsonObject object = doc.object();
+    session_data = object.toVariantMap();
 
-		QJsonObject object = doc.object();
-		session_data = object.toVariantMap();
+    QString id  = session_data["id"].toString();
+    QString ts  = session_data["timestamp"].toString();
+    int version = session_data["version"].toInt();
 
-		QString id  = session_data["id"].toString();
-		QString ts  = session_data["timestamp"].toString();
-		int version = session_data["version"].toInt();
+    Q_UNUSED(ts);
 
-		Q_UNUSED(ts);
+    if(id != SessionFileIdString || version > SessionFileVersion) {
+        session_error.err = SessionError::InvalidSessionFile;
+        session_error.setErrorMessage(tr("Session file is invalid."));
+        return false;
+    }
 
-		if(id != SessionFileIdString || version > SessionFileVersion) {
-	      session_error.err = SessionError::InvalidSessionFile;
-	      session_error.setErrorMessage("Session file is invalid.");
-
-		  return false;
-		}
-
-		qDebug("Loading session file");
-		load_plugin_data(); //First, load the plugin-data
-		return true;
-	}
-	return false;
+    qDebug("Loading session file");
+    load_plugin_data(); //First, load the plugin-data
+    return true;
 }
 
 //------------------------------------------------------------------------------
@@ -128,6 +128,7 @@ void SessionManager::save_session(const QString &session_file) {
 		file.write(json);
 	}
 }
+
 void SessionManager::load_plugin_data() {
 
   qDebug("Loading plugin-data");
@@ -157,6 +158,7 @@ void SessionManager::load_plugin_data() {
 void SessionManager::get_comments(QVariantList &data) {
   data = session_data["comments"].toList();
 }
+
 /**
 * Adds a comment to the session_data
 * @param Comment & (struct in Types.h)

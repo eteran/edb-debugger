@@ -24,8 +24,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QString>
 #include <QVariant>
+#include <QCoreApplication>
 
 class SessionManager {
+    Q_DECLARE_TR_FUNCTIONS(SessionManager)
+
 public:
   static SessionManager &instance();
   bool load_session(const QString &, SessionError&);
