@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <cstdint>
 #include <numeric>
+#include <memory>
 
 #include <boost/range/adaptor/reversed.hpp>
 
@@ -139,14 +140,14 @@ RegisterViewItem* CategoriesHolder::child(int visibleRow)
 template<typename CategoryType>
 CategoryType* CategoriesHolder::insert(QString const& name)
 {
-	categories.emplace_back(util::make_unique<CategoryType>(name,categories.size()));
+	categories.emplace_back(std::make_unique<CategoryType>(name,categories.size()));
 	return static_cast<CategoryType*>(categories.back().get());
 }
 
 SIMDCategory* CategoriesHolder::insertSIMD(QString const& name,
 										   std::vector<NumberDisplayMode> const& validFormats)
 {
-	auto cat=util::make_unique<SIMDCategory>(name,categories.size(),validFormats);
+	auto cat=std::make_unique<SIMDCategory>(name,categories.size(),validFormats);
 	auto ret=cat.get();
 	categories.emplace_back(std::move(cat));
 	return ret;
@@ -1058,7 +1059,7 @@ void SIMDSizedElementsContainer<StoredType>::addElement(Args&&... args)
 {
 	using Element=SIMDSizedElement<StoredType,SizeType>;
 
-	elements.emplace_back(util::make_unique<Element>(std::forward<Args>(args)...));
+	elements.emplace_back(std::make_unique<Element>(std::forward<Args>(args)...));
 }
 
 template<class StoredType>

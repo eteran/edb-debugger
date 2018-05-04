@@ -28,7 +28,6 @@ void invalidate(RegisterViewModelBase::Category* cat, int row, const char* nameT
 
 namespace
 {
-using util::make_unique;
 
 template<std::size_t bitSize> struct Regs;
 template<> struct Regs<32>
@@ -229,68 +228,68 @@ std::vector<RegisterViewModelBase::BitFieldDescription> DR7Description=
 
 void addGPRs32(RegisterViewModelBase::Category* gprs32)
 {
-	gprs32->addRegister(make_unique<Regs<32>::GPR>("EAX"));
-	gprs32->addRegister(make_unique<Regs<32>::GPR>("ECX"));
-	gprs32->addRegister(make_unique<Regs<32>::GPR>("EDX"));
-	gprs32->addRegister(make_unique<Regs<32>::GPR>("EBX"));
-	gprs32->addRegister(make_unique<Regs<32>::GPR>("ESP"));
-	gprs32->addRegister(make_unique<Regs<32>::GPR>("EBP"));
-	gprs32->addRegister(make_unique<Regs<32>::GPR>("ESI"));
-	gprs32->addRegister(make_unique<Regs<32>::GPR>("EDI"));
+	gprs32->addRegister(std::make_unique<Regs<32>::GPR>("EAX"));
+	gprs32->addRegister(std::make_unique<Regs<32>::GPR>("ECX"));
+	gprs32->addRegister(std::make_unique<Regs<32>::GPR>("EDX"));
+	gprs32->addRegister(std::make_unique<Regs<32>::GPR>("EBX"));
+	gprs32->addRegister(std::make_unique<Regs<32>::GPR>("ESP"));
+	gprs32->addRegister(std::make_unique<Regs<32>::GPR>("EBP"));
+	gprs32->addRegister(std::make_unique<Regs<32>::GPR>("ESI"));
+	gprs32->addRegister(std::make_unique<Regs<32>::GPR>("EDI"));
 }
 
 void addGPRs64(RegisterViewModelBase::Category* gprs64)
 {
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("RAX"));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("RCX"));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("RDX"));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("RBX"));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("RSP"));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("RBP"));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("RSI"));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("RDI"));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("R8" ));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("R9" ));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("R10"));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("R11"));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("R12"));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("R13"));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("R14"));
-	gprs64->addRegister(make_unique<Regs<64>::GPR>("R15"));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("RAX"));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("RCX"));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("RDX"));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("RBX"));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("RSP"));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("RBP"));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("RSI"));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("RDI"));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("R8" ));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("R9" ));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("R10"));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("R11"));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("R12"));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("R13"));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("R14"));
+	gprs64->addRegister(std::make_unique<Regs<64>::GPR>("R15"));
 }
 
 template<std::size_t bitSize>
 void addGenStatusRegs(RegisterViewModelBase::Category* cat)
 {
 	using Rs=Regs<bitSize>;
-	cat->addRegister(make_unique<typename Rs::IP>(Rs::namePrefix()+QString("IP")));
-	cat->addRegister(make_unique<typename Rs::FLAGS>(Rs::namePrefix()+QString("FLAGS"),flagsDescription));
+	cat->addRegister(std::make_unique<typename Rs::IP>(Rs::namePrefix()+QString("IP")));
+	cat->addRegister(std::make_unique<typename Rs::FLAGS>(Rs::namePrefix()+QString("FLAGS"),flagsDescription));
 }
 
 void addSegRegs(RegisterViewModelBase::Category* cat)
 {
-	cat->addRegister(make_unique<SegmentReg>("ES"));
-	cat->addRegister(make_unique<SegmentReg>("CS"));
-	cat->addRegister(make_unique<SegmentReg>("SS"));
-	cat->addRegister(make_unique<SegmentReg>("DS"));
-	cat->addRegister(make_unique<SegmentReg>("FS"));
-	cat->addRegister(make_unique<SegmentReg>("GS"));
+	cat->addRegister(std::make_unique<SegmentReg>("ES"));
+	cat->addRegister(std::make_unique<SegmentReg>("CS"));
+	cat->addRegister(std::make_unique<SegmentReg>("SS"));
+	cat->addRegister(std::make_unique<SegmentReg>("DS"));
+	cat->addRegister(std::make_unique<SegmentReg>("FS"));
+	cat->addRegister(std::make_unique<SegmentReg>("GS"));
 }
 
 template<std::size_t bitSize>
 void addFPURegs(RegisterViewModelBase::Category* fpuRegs)
 {
 	for(std::size_t i=0;i<FPU_REG_COUNT;++i)
-		fpuRegs->addRegister(make_unique<FPUReg>(QString("R%1").arg(i)));
-	fpuRegs->addRegister(make_unique<FPUWord>("FCR",FCRDescription));
-	fpuRegs->addRegister(make_unique<FPUWord>("FSR",FSRDescription));
-	fpuRegs->addRegister(make_unique<FPUWord>("FTR",FTRDescription));
-	fpuRegs->addRegister(make_unique<FOPCReg>("FOP"));
+		fpuRegs->addRegister(std::make_unique<FPUReg>(QString("R%1").arg(i)));
+	fpuRegs->addRegister(std::make_unique<FPUWord>("FCR",FCRDescription));
+	fpuRegs->addRegister(std::make_unique<FPUWord>("FSR",FSRDescription));
+	fpuRegs->addRegister(std::make_unique<FPUWord>("FTR",FTRDescription));
+	fpuRegs->addRegister(std::make_unique<FOPCReg>("FOP"));
 	using Rs=Regs<bitSize>;
-	fpuRegs->addRegister(make_unique<SegmentReg>("FIS"));
-	fpuRegs->addRegister(make_unique<typename Rs::IP>("FIP"));
-	fpuRegs->addRegister(make_unique<SegmentReg>("FDS"));
-	fpuRegs->addRegister(make_unique<typename Rs::IP>("FDP"));
+	fpuRegs->addRegister(std::make_unique<SegmentReg>("FIS"));
+	fpuRegs->addRegister(std::make_unique<typename Rs::IP>("FIP"));
+	fpuRegs->addRegister(std::make_unique<SegmentReg>("FDS"));
+	fpuRegs->addRegister(std::make_unique<typename Rs::IP>("FDP"));
 }
 
 template<std::size_t bitSize>
@@ -298,9 +297,9 @@ void addDebugRegs(RegisterViewModelBase::Category* dbgRegs)
 {
 	using Rs=Regs<bitSize>;
 	for(std::size_t i=0;i<4;++i)
-		dbgRegs->addRegister(make_unique<typename Rs::IP>(QString("DR%1").arg(i)));
-	dbgRegs->addRegister(make_unique<typename Rs::FLAGS>(QString("DR6"),DR6Description));
-	dbgRegs->addRegister(make_unique<typename Rs::FLAGS>(QString("DR7"),DR7Description));
+		dbgRegs->addRegister(std::make_unique<typename Rs::IP>(QString("DR%1").arg(i)));
+	dbgRegs->addRegister(std::make_unique<typename Rs::FLAGS>(QString("DR6"),DR6Description));
+	dbgRegs->addRegister(std::make_unique<typename Rs::FLAGS>(QString("DR7"),DR7Description));
 }
 
 static const std::vector<NumberDisplayMode> MMXFormats = {
@@ -321,21 +320,21 @@ void addMMXRegs(RegisterViewModelBase::SIMDCategory* mmxRegs)
 	using namespace RegisterViewModelBase;
 	// TODO: MMXReg should have possibility to be shown in byte/word/dword signed/unsigned/hex formats
 	for(std::size_t i=0;i<MMX_REG_COUNT;++i)
-		mmxRegs->addRegister(make_unique<MMXReg>(QString("MM%1").arg(i),MMXFormats));
+		mmxRegs->addRegister(std::make_unique<MMXReg>(QString("MM%1").arg(i),MMXFormats));
 }
 
 void addSSERegs(RegisterViewModelBase::SIMDCategory* sseRegs, unsigned regCount)
 {
 	for(std::size_t i=0;i<regCount;++i)
-		sseRegs->addRegister(make_unique<SSEReg>(QString("XMM%1").arg(i),SSEAVXFormats));
-	sseRegs->addRegister(make_unique<MXCSR>("MXCSR",MXCSRDescription));
+		sseRegs->addRegister(std::make_unique<SSEReg>(QString("XMM%1").arg(i),SSEAVXFormats));
+	sseRegs->addRegister(std::make_unique<MXCSR>("MXCSR",MXCSRDescription));
 }
 
 void addAVXRegs(RegisterViewModelBase::SIMDCategory* avxRegs, unsigned regCount)
 {
 	for(std::size_t i=0;i<regCount;++i)
-		avxRegs->addRegister(make_unique<AVXReg>(QString("YMM%1").arg(i),SSEAVXFormats));
-	avxRegs->addRegister(make_unique<MXCSR>("MXCSR",MXCSRDescription));
+		avxRegs->addRegister(std::make_unique<AVXReg>(QString("YMM%1").arg(i),SSEAVXFormats));
+	avxRegs->addRegister(std::make_unique<MXCSR>("MXCSR",MXCSRDescription));
 }
 
 QVariant RegisterViewModel::data(QModelIndex const& index, int role) const

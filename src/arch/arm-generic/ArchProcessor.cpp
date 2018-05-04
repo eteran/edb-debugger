@@ -381,7 +381,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 
 std::unique_ptr<QMenu> ArchProcessor::register_item_context_menu(const Register& reg) {
 	Q_UNUSED(reg);
-	return util::make_unique<QMenu>(nullptr);
+	return std::make_unique<QMenu>(nullptr);
 }
 
 RegisterViewModelBase::Model& ArchProcessor::get_register_view_model() const {

@@ -7,6 +7,7 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX14.cmake")
 set(PluginName "DebuggerCore")
+
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
@@ -139,3 +140,6 @@ target_link_libraries(${PluginName} edb)
 set(LIBRARY_OUTPUT_PATH    ${PROJECT_BINARY_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
+
+set_property(TARGET ${PluginName} PROPERTY CXX_EXTENSIONS OFF)
+set_property(TARGET ${PluginName} PROPERTY CXX_STANDARD 14)

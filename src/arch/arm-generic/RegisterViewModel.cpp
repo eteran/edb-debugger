@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RegisterViewModel.h"
 #include <QDebug>
 
-using util::make_unique;
 using GPR=RegisterViewModelBase::SimpleRegister<edb::value32>;
 using CPSR=RegisterViewModelBase::FlagsRegister<edb::value32>;
 using FPSCR=RegisterViewModelBase::FlagsRegister<edb::value32>;
@@ -105,32 +104,32 @@ QVariant RegisterViewModel::data(QModelIndex const& index, int role) const {
 
 void addGPRs(RegisterViewModelBase::Category* gprs)
 {
-	gprs->addRegister(make_unique<GPR>("R0"));
-	gprs->addRegister(make_unique<GPR>("R1"));
-	gprs->addRegister(make_unique<GPR>("R2"));
-	gprs->addRegister(make_unique<GPR>("R3"));
-	gprs->addRegister(make_unique<GPR>("R4"));
-	gprs->addRegister(make_unique<GPR>("R5"));
-	gprs->addRegister(make_unique<GPR>("R6"));
-	gprs->addRegister(make_unique<GPR>("R7"));
-	gprs->addRegister(make_unique<GPR>("R8"));
-	gprs->addRegister(make_unique<GPR>("R9"));
-	gprs->addRegister(make_unique<GPR>("R10"));
-	gprs->addRegister(make_unique<GPR>("R11"));
-	gprs->addRegister(make_unique<GPR>("R12"));
-	gprs->addRegister(make_unique<GPR>("SP"));
-	gprs->addRegister(make_unique<GPR>("LR"));
-	gprs->addRegister(make_unique<GPR>("PC"));
+	gprs->addRegister(std::make_unique<GPR>("R0"));
+	gprs->addRegister(std::make_unique<GPR>("R1"));
+	gprs->addRegister(std::make_unique<GPR>("R2"));
+	gprs->addRegister(std::make_unique<GPR>("R3"));
+	gprs->addRegister(std::make_unique<GPR>("R4"));
+	gprs->addRegister(std::make_unique<GPR>("R5"));
+	gprs->addRegister(std::make_unique<GPR>("R6"));
+	gprs->addRegister(std::make_unique<GPR>("R7"));
+	gprs->addRegister(std::make_unique<GPR>("R8"));
+	gprs->addRegister(std::make_unique<GPR>("R9"));
+	gprs->addRegister(std::make_unique<GPR>("R10"));
+	gprs->addRegister(std::make_unique<GPR>("R11"));
+	gprs->addRegister(std::make_unique<GPR>("R12"));
+	gprs->addRegister(std::make_unique<GPR>("SP"));
+	gprs->addRegister(std::make_unique<GPR>("LR"));
+	gprs->addRegister(std::make_unique<GPR>("PC"));
 }
 
 void addGenStatusRegs(RegisterViewModelBase::Category* cat)
 {
-	cat->addRegister(make_unique<CPSR>("CPSR",cpsrDescription));
+	cat->addRegister(std::make_unique<CPSR>("CPSR",cpsrDescription));
 }
 
 void addVFPRegs(RegisterViewModelBase::Category* cat)
 {
-	cat->addRegister(make_unique<FPSCR>("FPSCR",fpscrDescription));
+	cat->addRegister(std::make_unique<FPSCR>("FPSCR",fpscrDescription));
 	// TODO: add data registers: Sn, Dn, Qn...
 }
 

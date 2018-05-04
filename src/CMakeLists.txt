@@ -206,6 +206,9 @@ endif()
 # too so automoc can "just work"
 add_executable(edb ${edb_INCLUDES} ${edb_SRCS})
 
+set_property(TARGET edb PROPERTY CXX_EXTENSIONS OFF)
+set_property(TARGET edb PROPERTY CXX_STANDARD 14)
+
 target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt5::Widgets Qt5::Xml Qt5::XmlPatterns Qt5::Svg ${GRAPHVIZ_LIBRARIES})
 
 set_target_properties(edb PROPERTIES ENABLE_EXPORTS TRUE)
