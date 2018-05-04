@@ -41,9 +41,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Instruction.h"
 #include "MemoryRegions.h"
 #include "QHexView"
-#include "QJsonDocument.h"
-#include "QJsonObject.h"
-#include "QJsonParseError.h"
 #include "RecentFileManager.h"
 #include "RegionBuffer.h"
 #include "RegisterViewModelBase.h"
@@ -80,6 +77,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QUrl>
 #include <QVector>
 #include <QtDebug>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonParseError>
 
 #include <memory>
 #include <cstring>

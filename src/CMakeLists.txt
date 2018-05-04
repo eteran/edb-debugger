@@ -45,7 +45,6 @@ include_directories(
 	"capstone-edb"
 	"qhexview"
 	"widgets"
-	"qjson4"
 	"session"
 )
 
@@ -98,13 +97,6 @@ set(edb_SRCS
 	widgets/RegisterViewDelegate.cpp
 	widgets/SyntaxHighlighter.cpp
 	widgets/TabWidget.cpp
-	qjson4/QJsonArray.cpp
-	qjson4/QJsonDocument.cpp
-	qjson4/QJsonObject.cpp
-	qjson4/QJsonParseError.cpp
-	qjson4/QJsonParser.cpp
-	qjson4/QJsonValue.cpp
-	qjson4/QJsonValueRef.cpp
 	${RC_SRCS}
 	${UI_H}
 )
@@ -151,14 +143,6 @@ set(edb_INCLUDES
 	${PROJECT_SOURCE_DIR}/include/QULongValidator.h
 	${PROJECT_SOURCE_DIR}/include/HexStringValidator.h
 	${PROJECT_SOURCE_DIR}/include/Instruction.h
-	qjson4/QJsonArray.h
-	qjson4/QJsonDocument.h
-	qjson4/QJsonObject.h
-	qjson4/QJsonParseError.h
-	qjson4/QJsonParser.h
-	qjson4/QJsonRoot.h
-	qjson4/QJsonValue.h
-	qjson4/QJsonValueRef.h
 )
 
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64"))

@@ -18,15 +18,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SessionManager.h"
 #include "IPlugin.h"
-#include "QJsonDocument.h"
-#include "QJsonObject.h"
-#include "QJsonParseError.h"
 #include "edb.h"
 
 #include <QDateTime>
 #include <QDebug>
 #include <QFile>
 #include <QMessageBox>
+#include <QJsonDocument>
+#include <QJsonObject>
+#include <QJsonParseError>
 
 const int  SessionFileVersion  = 1;
 const auto SessionFileIdString = QLatin1String("edb-session");
