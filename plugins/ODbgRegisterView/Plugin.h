@@ -28,9 +28,7 @@ class ODBRegView;
 class Plugin : public QObject, public IPlugin {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
-#if QT_VERSION >= 0x050000
 	Q_PLUGIN_METADATA(IID "edb.IPlugin/1.0")
-#endif
 	Q_CLASSINFO("author", "Ruslan Kabatsayev")
 	Q_CLASSINFO("email", "b7.10110111@gmail.com")
 

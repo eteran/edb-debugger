@@ -29,14 +29,8 @@ namespace DebuggerErrorConsolePlugin
 
 Plugin* Plugin::instance=nullptr;
 
-#if QT_VERSION < 0x50000
-void Plugin::debugMessageIntercept(QtMsgType type, const char* message_)
-{
-	const QString message(message_);
-#else
 void Plugin::debugMessageIntercept(QtMsgType type, QMessageLogContext const&, QString const& message)
 {
-#endif
 	if(!instance) return;
 
 	QString text;
@@ -75,11 +69,7 @@ Plugin::Plugin()
 	font.setStyleHint(QFont::TypeWriter);
 	textWidget_->setFont(font);
 
-#if QT_VERSION < 0x50000
-	qInstallMsgHandler(debugMessageIntercept);
-#else
 	qInstallMessageHandler(debugMessageIntercept);
-#endif
 }
 
 Plugin::~Plugin()
@@ -130,9 +120,5 @@ DebuggerErrorConsole::DebuggerErrorConsole(QWidget* parent)
 	: QDialog(parent)
 {
 }
-
-#if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(Plugin, Plugin)
-#endif
 
 }

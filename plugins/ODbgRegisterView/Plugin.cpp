@@ -224,7 +224,4 @@ QList<QAction *> Plugin::cpu_context_menu() {
 	return ret;
 }
 
-#if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(ODbgRegisterView, Plugin)
-#endif
 }

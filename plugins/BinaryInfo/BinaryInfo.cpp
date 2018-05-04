@@ -146,8 +146,4 @@ bool BinaryInfo::generate_symbol_file(const QString &filename, const QString &sy
 	return false;
 }
 
-#if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(BinaryInfo, BinaryInfo)
-#endif
-
 }

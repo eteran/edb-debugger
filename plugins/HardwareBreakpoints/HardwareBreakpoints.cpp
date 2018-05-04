@@ -705,9 +705,5 @@ void HardwareBreakpoints::setCPUWriteBP(int index, bool inUse) {
 	setWriteBP(index, inUse, address, size);
 }
 
-#if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(HardwareBreakpoints, HardwareBreakpoints)
-#endif
-
 }
 

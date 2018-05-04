@@ -45,12 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 #include <functional>
 
-#if QT_VERSION >= 0x050000
 #include <QtConcurrent>
-#elif QT_VERSION >= 0x040800
-#include <QtConcurrentMap>
-#endif
-
 #include "ui_DialogHeap.h"
 
 namespace HeapAnalyzerPlugin {
@@ -110,11 +105,7 @@ DialogHeap::DialogHeap(QWidget *parent) : QDialog(parent), ui(new Ui::DialogHeap
 	ui->tableView->setModel(model_);
 
 	ui->tableView->verticalHeader()->hide();
-#if QT_VERSION >= 0x050000
 	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-#else
-	ui->tableView->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-#endif
 
 #ifdef ENABLE_GRAPH
 	ui->btnGraph->setEnabled(true);
@@ -256,16 +247,9 @@ void DialogHeap::detect_pointers() {
 		}
 	}
 
-#if QT_VERSION >= 0x040800
 	QtConcurrent::blockingMap(results, [this, targets](Result &result) {
 		process_potential_pointer(targets, result);
 	});
-
-#else
-	std::for_each(results.begin(), results.end(), [this, targets](Result &result) {
-		process_potential_pointer(targets, result);
-	});
-#endif
 
 	model_->update();
 }

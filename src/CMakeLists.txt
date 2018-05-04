@@ -1,6 +1,6 @@
 cmake_minimum_required (VERSION 2.8)
 include("GNUInstallDirs")
-include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX11.cmake")
+include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX14.cmake")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -23,17 +23,10 @@ set(UI_FILES
 
 set(RC_FILES debugger.qrc)
 
-if(Qt5Core_DIR)
-    find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns Svg)
-	qt5_wrap_ui(UI_H ${UI_FILES})
-	qt5_add_resources(RC_SRCS ${RC_FILES})
-elseif(NOT Qt5Core_DIR)
-	find_package(Qt4 4.6.0 REQUIRED QtCore QtGui QtXml QtXmlPatterns QtSvg)
-	include(${QT_USE_FILE})
-	qt4_wrap_ui(UI_H ${UI_FILES})
-	qt4_add_resources(RC_SRCS ${RC_FILES})
-endif()
 
+find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns Svg)
+qt5_wrap_ui(UI_H ${UI_FILES})
+qt5_add_resources(RC_SRCS ${RC_FILES})
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 	execute_process(
@@ -229,11 +222,7 @@ endif()
 # too so automoc can "just work"
 add_executable(edb ${edb_INCLUDES} ${edb_SRCS})
 
-if(Qt5Core_DIR)
-	target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt5::Widgets Qt5::Xml Qt5::XmlPatterns Qt5::Svg ${GRAPHVIZ_LIBRARIES})
-elseif(NOT Qt5Core_DIR)
-	target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt4::QtGui Qt4::QtXml Qt4::QtXmlPatterns Qt4::QtSvg ${GRAPHVIZ_LIBRARIES})
-endif()
+target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt5::Widgets Qt5::Xml Qt5::XmlPatterns Qt5::Svg ${GRAPHVIZ_LIBRARIES})
 
 set_target_properties(edb PROPERTIES ENABLE_EXPORTS TRUE)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})

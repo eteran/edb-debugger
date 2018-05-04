@@ -10,7 +10,7 @@ trap "rm -rf $TEMP_DIR" EXIT
 # Build edb
 mkdir -p $BUILD_DIR
 pushd $BUILD_DIR
-cmake -DQT_VERSION=Qt5 $SOURCE_DIR
+cmake $SOURCE_DIR
 if ! make -j8; then
 	echo "Compiling error. Exiting..."
 	exit 1

@@ -42,21 +42,15 @@ class Plugin : public QObject, public IPlugin
 {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
-#if QT_VERSION >= 0x050000
 	Q_PLUGIN_METADATA(IID "edb.IPlugin/1.0")
-#endif
 	Q_CLASSINFO("author", "Ruslan Kabatsayev")
 	Q_CLASSINFO("email", "b7.10110111@gmail.com")
 
 	QPlainTextEdit* textWidget_=nullptr;
 	QMenu* menu_=nullptr;
 	static Plugin* instance;
-
-#if QT_VERSION < 0x50000
-	static void debugMessageIntercept(QtMsgType type, const char* message_);
-#else
 	static void debugMessageIntercept(QtMsgType type, QMessageLogContext const&, QString const& message);
-#endif
+
 public:
 	Plugin();
 	~Plugin();

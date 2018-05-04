@@ -5,7 +5,7 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX11.cmake")
+include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX14.cmake")
 set(PluginName "DebuggerCore")
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
@@ -17,15 +17,8 @@ set(UI_FILES
 
 endif()
 
-if(Qt5Core_FOUND)
-    find_package(Qt5 5.0.0 REQUIRED Widgets)
-	qt5_wrap_ui(UI_H ${UI_FILES})
-else(Qt5Core_FOUND)
-	find_package(Qt4 4.6.0 QUIET REQUIRED QtCore QtGui)
-	include(${QT_USE_FILE})
-	qt4_wrap_ui(UI_H ${UI_FILES})
-endif()
-
+find_package(Qt5 5.0.0 REQUIRED Widgets)
+qt5_wrap_ui(UI_H ${UI_FILES})
 
 set(DebuggerCore_SRCS
 	DebuggerCoreBase.cpp
@@ -138,11 +131,7 @@ endif()
 
 add_library(${PluginName} SHARED ${DebuggerCore_SRCS} )
 
-if(Qt5Core_FOUND)
-	target_link_libraries(${PluginName} Qt5::Widgets)
-else(Qt5Core_FOUND)
-	target_link_libraries(${PluginName} Qt4::QtGui)
-endif()
+target_link_libraries(${PluginName} Qt5::Widgets)
 
 add_definitions(-DQT_PLUGIN)
 target_link_libraries(${PluginName} edb)

@@ -9,7 +9,6 @@ env:
     global:
         - MAKEFLAGS="-j2"
     matrix:
-        - QT_BASE=48
         - QT_BASE=51
         - QT_BASE=52
         - QT_BASE=53
@@ -32,7 +31,6 @@ before_install:
     - ./travis_install_capstone.sh
 
 install:
-    - if [ "$QT_BASE" = "48" ]; then sudo apt-get install -qq qt4-qmake libqt4-gui libqt4-core libqt4-dev; fi
     - if [ "$QT_BASE" = "50" ]; then sudo apt-get install -qq qtbase  qtxmlpatterns qtsvg; source /opt/qt5/bin/qt5-env.sh; fi
     - if [ "$QT_BASE" = "51" ]; then sudo apt-get install -qq qt51base qt51xmlpatterns qt51svg; source /opt/qt51/bin/qt51-env.sh; fi
     - if [ "$QT_BASE" = "52" ]; then sudo apt-get install -qq qt52base qt52xmlpatterns qt52svg; source /opt/qt52/bin/qt52-env.sh; fi
@@ -42,8 +40,7 @@ install:
     - if [ "$QT_BASE" = "56" ]; then sudo apt-get install -qq qt56base qt56xmlpatterns qt56svg; source /opt/qt56/bin/qt56-env.sh; fi
 
 before_script:
-    - if [ "$QT_BASE" == "48" ]; then mkdir build && cd build && CXX=g++-5 CC=gcc-5 cmake -DQT_VERSION=Qt4 ..; fi
-    - if [ "$QT_BASE" != "48" ]; then mkdir build && cd build && CXX=g++-5 CC=gcc-5 cmake -DQT_VERSION=Qt5 ..; fi
+    - mkdir build && cd build && CXX=g++-5 CC=gcc-5 cmake ..
 
 script:
     - make

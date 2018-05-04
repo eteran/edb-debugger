@@ -49,11 +49,7 @@ ValueField::ValueField(int const fieldWidth,
 
 // Set some known style to avoid e.g. Oxygen's label transition animations, which
 // break updating of colors such as "register changed" when single-stepping frequently
-#if QT_VERSION >= QT_VERSION_CHECK(5, 0, 0)
 #define FLAT_STYLE_NAME "fusion"
-#else
-#define FLAT_STYLE_NAME "plastique"
-#endif
 
 	if (!flatStyle)
 		flatStyle = QStyleFactory::create(FLAT_STYLE_NAME);
@@ -311,11 +307,9 @@ void ValueField::mouseDoubleClickEvent(QMouseEvent *event) {
 void ValueField::paintEvent(QPaintEvent *) {
 	const auto            regView = this->regView();
 	QPainter              painter(this);
-#if QT_VERSION >= 0x050000
+
 	QStyleOptionViewItem option;
-#else
-	QStyleOptionViewItemV4 option;
-#endif
+
 	option.rect                   = rect();
 	option.showDecorationSelected = true;
 	option.text                   = text();

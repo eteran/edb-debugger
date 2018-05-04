@@ -109,13 +109,7 @@ void SessionManager::save_session(const QString &session_file) {
 
 	session_data["version"]     = SessionFileVersion;
 	session_data["id"]          = SessionFileIdString; // just so we can sanity check things
-
-
-#if QT_VERSION < 0x040700
-	session_data["timestamp"]   = QDateTime::currentDateTime().toUTC();
-#else
 	session_data["timestamp"]   = QDateTime::currentDateTimeUtc();
-#endif
 	session_data["plugin-data"] = plugin_data;
 
 	auto object = QJsonObject::fromVariantMap(session_data);

@@ -184,8 +184,4 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 	initial_check_ = false;
 }
 
-#if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(CheckVersion, CheckVersion)
-#endif
-
 }

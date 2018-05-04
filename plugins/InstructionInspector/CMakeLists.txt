@@ -5,15 +5,10 @@ set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX11.cmake")
+include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX14.cmake")
 set(PluginName "InstructionInspector")
 
-if(Qt5Core_FOUND)
-    find_package(Qt5 5.0.0 REQUIRED Widgets)
-else(Qt5Core_FOUND)
-	find_package(Qt4 4.6.0 QUIET REQUIRED QtCore QtGui)
-	include(${QT_USE_FILE})
-endif()
+find_package(Qt5 5.0.0 REQUIRED Widgets)
 
 # we put the header files from the include directory here
 # too so automoc can "just work"
@@ -22,11 +17,7 @@ add_library(${PluginName} SHARED
 	Plugin.h
 )
 
-if(Qt5Core_FOUND)
-	target_link_libraries(${PluginName} Qt5::Widgets)
-else(Qt5Core_FOUND)
-	target_link_libraries(${PluginName} Qt4::QtGui)
-endif()
+target_link_libraries(${PluginName} Qt5::Widgets)
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)

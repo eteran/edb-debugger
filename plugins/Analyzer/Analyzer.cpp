@@ -52,18 +52,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <functional>
 #include <cstring>
 
-#if QT_VERSION >= 0x050000
 #ifdef QT_CONCURRENT_LIB
 #include <QtConcurrent>
 #endif
-#elif QT_VERSION >= 0x040800
-#include <QtConcurrentMap>
 
-#ifndef QT_NO_CONCURRENT
-#define QT_CONCURRENT_LIB
-#endif
-
-#endif
 
 namespace AnalyzerPlugin {
 
@@ -399,7 +391,7 @@ void Analyzer::set_function_types(FunctionMap *results) {
 	Q_ASSERT(results);
 
 	// give bonus if we have a symbol for the address
-#if QT_VERSION >= 0x040800 && defined(QT_CONCURRENT_LIB)
+#if defined(QT_CONCURRENT_LIB)
 	QtConcurrent::blockingMap(*results, [this](Function &function) {
 		set_function_types_helper(function);
 	});
@@ -976,9 +968,5 @@ QString Analyzer::get_analysis_path(const std::shared_ptr<IRegion> &region) cons
 		name,
 		QString::number(region->start() - loaded_address + base_address, 16));
 }
-
-#if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(Analyzer, Analyzer)
-#endif
 
 }

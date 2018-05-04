@@ -297,7 +297,7 @@ bool native::wait_for_sigchld(int msecs) {
 //------------------------------------------------------------------------------
 DebuggerCoreUNIX::DebuggerCoreUNIX() {
 #if !defined(USE_SIGTIMEDWAIT)
-#if QT_VERSION >= 0x050000
+
 	// HACK(eteran): so, the first time we create a QProcess, it will hook SIGCHLD
 	//               unfortunately, in Qt5 it doesn't seem to call our handler
 	//               so we do this to force it to hook BEFORE we do, letting us
@@ -305,7 +305,6 @@ DebuggerCoreUNIX::DebuggerCoreUNIX() {
 	//               Qt installed.
 	auto p = new QProcess(0);
 	p->start("/bin/true");
-#endif
 
 	// create a pipe and make it non-blocking
 	int r = ::pipe(selfpipe);

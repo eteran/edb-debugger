@@ -16,13 +16,6 @@ if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif()
 
-# if the user has not specified which version, we try to make Qt5 happen
-# if they have, we prefer their preference
-if (NOT QT_VERSION)
-	SET(QT_VERSION "Qt5" CACHE STRING "Version of Qt to use")
-	SET_PROPERTY(CACHE QT_VERSION PROPERTY STRINGS Qt5 Qt4) 
-endif()
-
 set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
 
 include("GNUInstallDirs")
@@ -52,9 +45,8 @@ if (UNIX)
   endif()
 endif()
 
-if(${QT_VERSION} STREQUAL "Qt5")
-	find_package(Qt5Core)
-endif()
+
+find_package(Qt5Core)
 
 include_directories("include")
 
@@ -122,8 +114,6 @@ if (("${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang") OR ("${CMAKE_CXX_COMPILER_ID}"
 	
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -pedantic -Wunused")
 	set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -W -Wall -pedantic -Wunused")
-	
-	
 endif()
 
 if(MSVC)

@@ -64,9 +64,4 @@ void Backtrace::show_menu() {
 	dialog_->show();
 }
 
-//Do we need this?  Wasn't included by default; I saw it in other plugins and added it.
-#if QT_VERSION < 0x050000
-Q_EXPORT_PLUGIN2(Backtrace, Backtrace)
-#endif
-
 }

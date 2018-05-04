@@ -27,9 +27,6 @@ RegView::RegView(QWidget *parent)
 	: QTreeView(parent)
 {
 	header()->hide();
-#if QT_VERSION < QT_VERSION_CHECK(5,0,0)
-#	define setSectionResizeMode setResizeMode
-#endif
 	header()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	setFont(QFont("Monospace"));
 }

@@ -499,11 +499,7 @@ bool generate_symbols(const QString &filename, std::ostream &os) {
 
 	QFile file(filename);
 	if(file.open(QIODevice::ReadOnly)) {
-#if QT_VERSION >= 0x040700
 		os << qPrintable(QDateTime::currentDateTimeUtc().toString(Qt::ISODate)) << " +0000" << '\n';
-#else
-		os << qPrintable(QDateTime::currentDateTime().toUTC().toString(Qt::ISODate)) << "+0000" << '\n';
-#endif
 		const QByteArray md5 = edb::v1::get_file_md5(filename);
 		os << md5.toHex().data() << ' ' << qPrintable(QFileInfo(filename).absoluteFilePath()) << '\n';
 

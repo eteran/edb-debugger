@@ -83,13 +83,8 @@ bool is_ret(const QTableWidgetItem *item) {
 DialogBacktrace::DialogBacktrace(QWidget *parent) : QDialog(parent), ui(new Ui::DialogBacktrace) {
 	ui->setupUi(this);
 	table_ = ui->tableWidgetCallStack;
-
 	table_->verticalHeader()->hide();
-#if QT_VERSION >= 0x050000
 	table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-#else
-	table_->horizontalHeader()->setResizeMode(QHeaderView::ResizeToContents);
-#endif
 }
 
 DialogBacktrace::~DialogBacktrace() {

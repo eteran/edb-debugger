@@ -63,11 +63,7 @@ DialogAssembler::~DialogAssembler() {
 	delete ui;
 }
 
-#if QT_VERSION >= 0x50000
 static QString toHtmlEscaped(QString const& str) { return str.toHtmlEscaped(); }
-#else
-static QString toHtmlEscaped(QString const& str) { return Qt::escape(str); }
-#endif
 
 QDomDocument getAssemblerDescription() {
 
