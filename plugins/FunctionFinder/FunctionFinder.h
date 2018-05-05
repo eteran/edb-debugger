@@ -29,6 +29,7 @@ namespace FunctionFinderPlugin {
 class FunctionFinder : public QObject, public IPlugin {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
+	Q_PLUGIN_METADATA(IID "edb.IPlugin/1.0")
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
