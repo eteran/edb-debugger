@@ -39,7 +39,7 @@ void Plugin::debugMessageIntercept(QtMsgType type, QMessageLogContext const&, QS
 	case QtDebugMsg:
 		text+="DEBUG";
 		break;
-#if QT_VERSION>=0x050500
+#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
 	case QtInfoMsg:
 		text+="INFO ";
 		break;
