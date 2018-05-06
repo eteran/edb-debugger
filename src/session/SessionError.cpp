@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "SessionError.h"
 
 QString SessionError::getErrorMessage() const {
-  return errorMessage;
+	return errorMessage;
 }
 
 void SessionError::setErrorMessage(const QString errMsg) {
-  errorMessage = errMsg;
+	errorMessage = errMsg;
 }

@@ -22,19 +22,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class SessionError {
 public:
-  enum _SessionError {
-    NoError = 0,
-    UnknownError = 1,
-    NotAnObject = 2,
-    InvalidSessionFile = 3,
-  };
+	enum ErrorCode {
+		NoError            = 0,
+		UnknownError       = 1,
+		NotAnObject        = 2,
+		InvalidSessionFile = 3,
+	};
+
 public:
-  QString getErrorMessage() const;
-  void setErrorMessage(const QString);
+	QString getErrorMessage() const;
+	void setErrorMessage(const QString);
+
 public:
-  _SessionError err = NoError;
+	ErrorCode err = NoError;
+
 private:
-  QString errorMessage = "";
+	QString errorMessage = "";
 };
 
 #endif
