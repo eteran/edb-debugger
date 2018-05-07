@@ -27,21 +27,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCoreApplication>
 
 class SessionManager {
-    Q_DECLARE_TR_FUNCTIONS(SessionManager)
+	Q_DECLARE_TR_FUNCTIONS(SessionManager)
 
 public:
-  static SessionManager &instance();
-  bool load_session(const QString &, SessionError&);
-  void save_session(const QString &);
-  void get_comments(QVariantList &);
-  void add_comment(Comment &);
-  void remove_comment(edb::address_t);
+	SessionManager() {}
+
+public:
+	SessionManager(const SessionManager &) = delete;
+	SessionManager& operator=(const SessionManager &) = delete;
+
+public:
+	static SessionManager &instance();
+  
+public:
+	bool load_session(const QString &, SessionError&);
+	void save_session(const QString &);
+	void get_comments(QVariantList &);
+	void add_comment(Comment &);
+	void remove_comment(edb::address_t);
+	
 private:
-  QVariantMap session_data;
-  SessionManager() {}
-  SessionManager( const SessionManager& );
-  SessionManager & operator = (const SessionManager &);
-  void load_plugin_data();
+	QVariantMap session_data;
+	void load_plugin_data();
 };
 
 #endif

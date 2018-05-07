@@ -32,8 +32,8 @@ const int  SessionFileVersion  = 1;
 const auto SessionFileIdString = QLatin1String("edb-session");
 
 SessionManager& SessionManager::instance() {
-  static SessionManager inst;
-  return inst;
+	static SessionManager inst;
+	return inst;
 }
 
 //------------------------------------------------------------------------------
@@ -126,32 +126,32 @@ void SessionManager::save_session(const QString &session_file) {
 
 void SessionManager::load_plugin_data() {
 
-  qDebug("Loading plugin-data");
+	qDebug("Loading plugin-data");
 
-  QVariantMap plugin_data = session_data["plugin-data"].toMap();
-  for(auto it = plugin_data.begin(); it != plugin_data.end(); ++it) {
+	QVariantMap plugin_data = session_data["plugin-data"].toMap();
+	for(auto it = plugin_data.begin(); it != plugin_data.end(); ++it) {
+		for(QObject *plugin: edb::v1::plugin_list()) {
+			if(auto p = qobject_cast<IPlugin *>(plugin)) {
+				if(const QMetaObject *const meta = plugin->metaObject()) {
+					QString name     = meta->className();
+					QVariantMap data = it.value().toMap();
 
-    for(QObject *plugin: edb::v1::plugin_list()) {
-      if(auto p = qobject_cast<IPlugin *>(plugin)) {
-        if(const QMetaObject *const meta = plugin->metaObject()) {
-          QString name     = meta->className();
-          QVariantMap data = it.value().toMap();
-
-          if(name == it.key()) {
-            p->restore_state(data);
-            break;
-          }
-        }
-      }
-    }
-  }
+					if(name == it.key()) {
+						p->restore_state(data);
+						break;
+					}
+				}
+			}
+		}
+	}
 }
+
 /**
 * Gets all comments from the session_data
 * @param QVariantList &
 */
 void SessionManager::get_comments(QVariantList &data) {
-  data = session_data["comments"].toList();
+	data = session_data["comments"].toList();
 }
 
 /**
@@ -159,44 +159,50 @@ void SessionManager::get_comments(QVariantList &data) {
 * @param Comment & (struct in Types.h)
 */
 void SessionManager::add_comment(Comment &c) {
-  QVariantList comments_data = session_data["comments"].toList();
-  QVariantMap comment;
-  comment["address"] = c.address.toHexString();
-  comment["comment"] = c.comment;
-  if(!comments_data.isEmpty()) {
-    //Check if we already have an entry with the same address and overwrite it
-    bool found_comment = false;
-    for(auto it = comments_data.begin(); it != comments_data.end(); ++it) {
-      QVariantMap data = it->toMap();
-      if(comment["address"] == data["address"]) {
-        qDebug("Found");
-        *it = comment;
-        found_comment = true;
-        break;
-      }
-    }
-    if(!found_comment) {
-      //We found no entry with the same address
-      comments_data.push_back(comment);
-    }
-  } else {
-    comments_data.push_back(comment);
-  }
-  session_data["comments"] = comments_data;
+
+	QVariantList comments_data = session_data["comments"].toList();
+	QVariantMap comment;
+	comment["address"] = c.address.toHexString();
+	comment["comment"] = c.comment;
+
+	if(!comments_data.isEmpty()) {
+		//Check if we already have an entry with the same address and overwrite it
+		bool found_comment = false;
+		for(auto it = comments_data.begin(); it != comments_data.end(); ++it) {
+			QVariantMap data = it->toMap();
+			if(comment["address"] == data["address"]) {
+				qDebug("Found");
+				*it = comment;
+				found_comment = true;
+				break;
+			}
+		}
+
+		if(!found_comment) {
+			//We found no entry with the same address
+			comments_data.push_back(comment);
+		}
+	} else {
+		comments_data.push_back(comment);
+	}
+	
+	session_data["comments"] = comments_data;
 }
+
 /**
 * Removes a comment from the session_data
 * @param edb::address_t
 */
 void SessionManager::remove_comment(edb::address_t address) {
-  QString hexAddressString = address.toHexString();
-  QVariantList comments_data = session_data["comments"].toList();
-  for(auto it = comments_data.begin(); it != comments_data.end(); ++it) {
-    QVariantMap data = it->toMap();
-    if(hexAddressString == data["address"]) {
-      comments_data.erase(it);
-      break;
-    }
-  }
-  session_data["comments"] = comments_data;
+	QString hexAddressString = address.toHexString();
+	QVariantList comments_data = session_data["comments"].toList();
+
+	for(auto it = comments_data.begin(); it != comments_data.end(); ++it) {
+		QVariantMap data = it->toMap();
+		if(hexAddressString == data["address"]) {
+			comments_data.erase(it);
+			break;
+		}
+	}
+	session_data["comments"] = comments_data;
 }
