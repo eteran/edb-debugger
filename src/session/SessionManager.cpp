@@ -45,9 +45,6 @@ bool SessionManager::load_session(const QString &session_file, SessionError& ses
 	QFile file(session_file);
 	if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
 		return true;
-		session_error.err = SessionError::InvalidSessionFile;
-		session_error.setErrorMessage(tr("Failed to open session file. %1").arg(file.errorString()));
-		return false;
 	}
 
 	QByteArray json = file.readAll();
