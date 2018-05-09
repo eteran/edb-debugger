@@ -1,6 +1,5 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.0)
 include("GNUInstallDirs")
-include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX14.cmake")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -38,15 +37,9 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 else()
 	set(GIT_BRANCH "Unknown")
 endif()
+
 add_definitions(-DGIT_BRANCH=${GIT_BRANCH})
 add_definitions(-DDEFAULT_PLUGIN_PATH=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb\")
-
-include_directories(
-	"capstone-edb"
-	"qhexview"
-	"widgets"
-	"session"
-)
 
 set(edb_SRCS
 	BasicBlock.cpp
@@ -210,6 +203,14 @@ set_property(TARGET edb PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET edb PROPERTY CXX_STANDARD 14)
 
 target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt5::Widgets Qt5::Xml Qt5::XmlPatterns Qt5::Svg ${GRAPHVIZ_LIBRARIES})
+
+target_include_directories (edb PRIVATE
+	"capstone-edb"
+	"qhexview"
+	"widgets"
+	"session"
+)
+
 
 set_target_properties(edb PROPERTIES ENABLE_EXPORTS TRUE)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})

@@ -1,11 +1,11 @@
-cmake_minimum_required (VERSION 2.8)
+cmake_minimum_required (VERSION 3.0)
 include("GNUInstallDirs")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
-include("${PROJECT_SOURCE_DIR}/cmake/EnableCXX14.cmake")
+
 set(PluginName "Backtrace")
 
 set(UI_FILES
