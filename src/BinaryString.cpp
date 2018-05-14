@@ -23,9 +23,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_BinaryString.h"
 
-static const auto charHexLength=3; // "hh "
+namespace {
+
+constexpr auto charHexLength = 3; // "hh "
+
 // magic numerator from Qt defaults
-static const auto UNLIMITED_MAX_LENGTH=32767/charHexLength;
+constexpr auto UNLIMITED_MAX_LENGTH = 32767 / charHexLength;
+
+}
 
 //------------------------------------------------------------------------------
 // Name: setEntriesMaxLength
@@ -220,4 +225,20 @@ void BinaryString::setValue(const QByteArray &data) {
 
 	ui->txtAscii->setText(temp);
 	on_txtAscii_textEdited(temp);
+}
+
+//------------------------------------------------------------------------------
+// Name: setShowKeepSize
+// Desc:
+//------------------------------------------------------------------------------
+void BinaryString::setShowKeepSize(bool visible) {
+	ui->keepSize->setVisible(visible);
+}
+
+//------------------------------------------------------------------------------
+// Name: showKeepSize
+// Desc:
+//------------------------------------------------------------------------------
+bool BinaryString::showKeepSize() const {
+	return ui->keepSize->isVisible();
 }

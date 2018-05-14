@@ -38,6 +38,9 @@ DialogBinaryString::DialogBinaryString(QWidget *parent) : QDialog(parent), ui(ne
 	ui->setupUi(this);
 	ui->progressBar->setValue(0);
 	ui->listWidget->clear();
+
+	// NOTE(eteran): address issue #574
+	ui->binaryString->setShowKeepSize(false);
 }
 
 //------------------------------------------------------------------------------

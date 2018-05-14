@@ -28,7 +28,7 @@ namespace BinarySearcherPlugin {
 // Name: BinarySearcher
 // Desc:
 //------------------------------------------------------------------------------
-BinarySearcher::BinarySearcher() : menu_(0) {
+BinarySearcher::BinarySearcher() : menu_(nullptr) {
 }
 
 //------------------------------------------------------------------------------

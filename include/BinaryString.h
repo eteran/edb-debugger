@@ -44,14 +44,16 @@ public:
 	void setMaxLength(int n);
 	QByteArray value() const;
 	void setValue(const QByteArray &);
+	void setShowKeepSize(bool visible);
+	bool showKeepSize() const;
 
 private:
 	void setEntriesMaxLength(int n);
 
 	Ui::BinaryStringWidget *const ui;
 	enum class Mode {
-	    LengthLimited, // obeys setMaxLength()
-	    MemoryEditing  // obeys user's choice in keepSize checkbox
+		LengthLimited, // obeys setMaxLength()
+		MemoryEditing  // obeys user's choice in keepSize checkbox
 	} mode_;
 
 	int requestedMaxLength_;
