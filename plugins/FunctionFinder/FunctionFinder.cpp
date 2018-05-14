@@ -27,7 +27,7 @@ namespace FunctionFinderPlugin {
 // Name: FunctionFinder
 // Desc:
 //------------------------------------------------------------------------------
-FunctionFinder::FunctionFinder() : menu_(0), dialog_(0) {
+FunctionFinder::FunctionFinder() : menu_(nullptr), dialog_(nullptr) {
 }
 
 //------------------------------------------------------------------------------

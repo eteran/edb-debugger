@@ -27,7 +27,7 @@ class DialogAbout : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogAbout(QWidget *parent = 0);
+	DialogAbout(QWidget *parent = nullptr);
 	virtual ~DialogAbout();
 
 private:

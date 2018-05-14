@@ -27,7 +27,7 @@ namespace HeapAnalyzerPlugin {
 // Name: HeapAnalyzer
 // Desc:
 //------------------------------------------------------------------------------
-HeapAnalyzer::HeapAnalyzer() : menu_(0), dialog_(0) {
+HeapAnalyzer::HeapAnalyzer() : menu_(nullptr), dialog_(nullptr) {
 }
 
 //------------------------------------------------------------------------------

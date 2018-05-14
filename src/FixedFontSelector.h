@@ -27,7 +27,7 @@ class FixedFontSelector : public QWidget {
 	Q_OBJECT
 
 public:
-	FixedFontSelector(QWidget *parent = 0);
+	FixedFontSelector(QWidget *parent = nullptr);
 	virtual ~FixedFontSelector();
 
 public:

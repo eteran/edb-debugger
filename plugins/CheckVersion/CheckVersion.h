@@ -40,7 +40,7 @@ public:
 	virtual ~CheckVersion();
 
 public:
-	virtual QMenu *menu(QWidget *parent = 0);
+	virtual QMenu *menu(QWidget *parent = nullptr);
 	virtual QWidget *options_page();
 
 public Q_SLOTS:

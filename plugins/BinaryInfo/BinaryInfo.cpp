@@ -65,7 +65,7 @@ std::unique_ptr<IBinary> create_binary_info_pe32(const std::shared_ptr<IRegion> 
 // Name: BinaryInfo
 // Desc:
 //------------------------------------------------------------------------------
-BinaryInfo::BinaryInfo() : menu_(0) {
+BinaryInfo::BinaryInfo() : menu_(nullptr) {
 }
 
 //------------------------------------------------------------------------------

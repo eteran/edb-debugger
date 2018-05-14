@@ -78,7 +78,7 @@ class DialogROPTool : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogROPTool(QWidget *parent = 0);
+	DialogROPTool(QWidget *parent = nullptr);
 	virtual ~DialogROPTool();
 
 public Q_SLOTS:

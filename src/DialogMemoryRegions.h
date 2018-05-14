@@ -33,7 +33,7 @@ namespace Ui { class DialogMemoryRegions; }
 class DialogMemoryRegions : public QDialog {
 	Q_OBJECT
 public:
-	DialogMemoryRegions(QWidget *parent = 0);
+	DialogMemoryRegions(QWidget *parent = nullptr);
 	virtual ~DialogMemoryRegions();
 
 private:

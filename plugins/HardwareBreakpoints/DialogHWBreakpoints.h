@@ -32,7 +32,7 @@ private:
 	friend class HardwareBreakpoints;
 
 public:
-	DialogHWBreakpoints(QWidget *parent = 0);
+	DialogHWBreakpoints(QWidget *parent = nullptr);
 	virtual ~DialogHWBreakpoints();
 
 private:

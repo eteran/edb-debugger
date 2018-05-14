@@ -31,7 +31,7 @@ class DialogProcessProperties : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogProcessProperties(QWidget *parent = 0);
+	DialogProcessProperties(QWidget *parent = nullptr);
 	virtual ~DialogProcessProperties();
 
 public Q_SLOTS:

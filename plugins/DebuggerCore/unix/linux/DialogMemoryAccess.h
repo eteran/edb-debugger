@@ -29,7 +29,7 @@ class DialogMemoryAccess : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogMemoryAccess(QWidget *parent = 0);
+	DialogMemoryAccess(QWidget *parent = nullptr);
 	virtual ~DialogMemoryAccess();
 
 public:

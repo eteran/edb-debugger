@@ -56,7 +56,7 @@ class Debugger : public QMainWindow, public IDebugEventHandler {
 	Q_DISABLE_COPY(Debugger)
 
 public:
-	Debugger(QWidget *parent = 0);
+	Debugger(QWidget *parent = nullptr);
 	virtual ~Debugger();
 
 private:

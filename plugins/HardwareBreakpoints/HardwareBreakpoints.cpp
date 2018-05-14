@@ -46,7 +46,7 @@ namespace HardwareBreakpointsPlugin {
 // Name: HardwareBreakpoints
 // Desc:
 //------------------------------------------------------------------------------
-HardwareBreakpoints::HardwareBreakpoints() : menu_(0), dialog_(0) {
+HardwareBreakpoints::HardwareBreakpoints() : menu_(nullptr), dialog_(nullptr) {
 	auto dialog = new DialogHWBreakpoints(edb::v1::debugger_ui);
 	dialog_ = dialog;
 

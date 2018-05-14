@@ -37,7 +37,7 @@ class DialogAttach : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogAttach(QWidget *parent = 0);
+	DialogAttach(QWidget *parent = nullptr);
 	virtual ~DialogAttach();
 
 private:

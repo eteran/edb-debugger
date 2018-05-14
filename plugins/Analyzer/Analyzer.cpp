@@ -83,7 +83,7 @@ edb::address_t module_entry_point(const std::shared_ptr<IRegion> &region) {
 // Name: Analyzer
 // Desc:
 //------------------------------------------------------------------------------
-Analyzer::Analyzer() : menu_(0), analyzer_widget_(0) {
+Analyzer::Analyzer() : menu_(nullptr), analyzer_widget_(nullptr) {
 }
 
 //------------------------------------------------------------------------------

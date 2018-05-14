@@ -37,7 +37,7 @@ class DialogOpcodes : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogOpcodes(QWidget *parent = 0);
+	DialogOpcodes(QWidget *parent = nullptr);
 	virtual ~DialogOpcodes();
 
 public Q_SLOTS:

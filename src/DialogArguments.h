@@ -27,7 +27,7 @@ class DialogArguments : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogArguments(QWidget *parent = 0);
+	DialogArguments(QWidget *parent = nullptr);
 	virtual ~DialogArguments();
 
 public Q_SLOTS:

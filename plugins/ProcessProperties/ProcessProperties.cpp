@@ -28,7 +28,7 @@ namespace ProcessPropertiesPlugin {
 // Name: ProcessProperties
 // Desc:
 //------------------------------------------------------------------------------
-ProcessProperties::ProcessProperties() : menu_(0), dialog_(0) {
+ProcessProperties::ProcessProperties() : menu_(nullptr), dialog_(nullptr) {
 	dialog_ = new DialogProcessProperties(edb::v1::debugger_ui);
 }
 

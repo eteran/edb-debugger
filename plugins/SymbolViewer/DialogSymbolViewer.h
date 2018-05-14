@@ -35,7 +35,7 @@ class DialogSymbolViewer : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogSymbolViewer(QWidget *parent = 0);
+	DialogSymbolViewer(QWidget *parent = nullptr);
 	virtual ~DialogSymbolViewer();
 
 public Q_SLOTS:

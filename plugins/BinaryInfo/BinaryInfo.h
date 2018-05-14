@@ -42,7 +42,7 @@ private:
 	virtual QWidget* options_page() override;
 
 public:
-	virtual QMenu *menu(QWidget *parent = 0) override;
+	virtual QMenu *menu(QWidget *parent = nullptr) override;
 	virtual QString extra_arguments() const override;
 	virtual ArgumentStatus parse_arguments(QStringList &args) override;
 

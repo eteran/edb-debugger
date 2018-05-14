@@ -32,7 +32,7 @@ class DialogInputValue : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogInputValue(QWidget *parent = 0);
+	DialogInputValue(QWidget *parent = nullptr);
 	virtual ~DialogInputValue();
 
 public Q_SLOTS:

@@ -32,7 +32,7 @@ namespace BookmarksPlugin {
 // Name: Bookmarks
 // Desc:
 //------------------------------------------------------------------------------
-Bookmarks::Bookmarks() : QObject(0), menu_(0), signal_mapper_(0), bookmark_widget_(0) {
+Bookmarks::Bookmarks() : QObject(nullptr), menu_(nullptr), signal_mapper_(nullptr), bookmark_widget_(nullptr) {
 }
 
 //------------------------------------------------------------------------------

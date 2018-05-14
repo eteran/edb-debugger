@@ -41,7 +41,7 @@ class QDisassemblyView : public QAbstractScrollArea {
 	Q_OBJECT
 
 public:
-	QDisassemblyView(QWidget *parent = 0);
+	QDisassemblyView(QWidget *parent = nullptr);
 	~QDisassemblyView();
 
 protected:

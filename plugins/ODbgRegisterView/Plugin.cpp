@@ -39,7 +39,7 @@ const auto VIEW                   = QLatin1String("views");
 
 }
 
-Plugin::Plugin() : QObject(0), menu_(0) {
+Plugin::Plugin() : QObject(nullptr), menu_(nullptr) {
 	connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(saveState()));
 }
 

@@ -30,7 +30,7 @@ class QModelIndex;
 class DialogThreads : public QDialog {
 	Q_OBJECT
 public:
-	DialogThreads(QWidget *parent = 0, Qt::WindowFlags f = 0);
+	DialogThreads(QWidget *parent = nullptr, Qt::WindowFlags f = 0);
 	virtual ~DialogThreads();
 
 private Q_SLOTS:

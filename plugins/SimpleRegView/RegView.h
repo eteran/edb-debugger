@@ -29,7 +29,7 @@ class RegView : public QTreeView
 {
 	Q_OBJECT
 public:
-	RegView(QWidget *parent = 0);
+	RegView(QWidget *parent = nullptr);
 };
 
 }

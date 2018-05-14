@@ -35,7 +35,7 @@ class BookmarkWidget : public QWidget {
 	Q_OBJECT
 
 public:
-	BookmarkWidget(QWidget *parent = 0, Qt::WindowFlags f = 0);
+	BookmarkWidget(QWidget *parent = nullptr, Qt::WindowFlags f = 0);
 	virtual ~BookmarkWidget();
 
 public Q_SLOTS:

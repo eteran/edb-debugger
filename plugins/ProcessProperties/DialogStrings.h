@@ -33,7 +33,7 @@ class DialogStrings : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogStrings(QWidget *parent = 0);
+	DialogStrings(QWidget *parent = nullptr);
 	virtual ~DialogStrings();
 
 public Q_SLOTS:

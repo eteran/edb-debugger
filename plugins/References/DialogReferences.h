@@ -33,7 +33,7 @@ class DialogReferences : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogReferences(QWidget *parent = 0);
+	DialogReferences(QWidget *parent = nullptr);
 	virtual ~DialogReferences();
 
 public Q_SLOTS:

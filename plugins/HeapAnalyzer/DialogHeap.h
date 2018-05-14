@@ -34,7 +34,7 @@ class DialogHeap : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogHeap(QWidget *parent = 0);
+	DialogHeap(QWidget *parent = nullptr);
 	virtual ~DialogHeap() override;
 
 public Q_SLOTS:

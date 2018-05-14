@@ -27,7 +27,7 @@ namespace ReferencesPlugin {
 // Name: References
 // Desc:
 //------------------------------------------------------------------------------
-References::References() : menu_(0), dialog_(0) {
+References::References() : menu_(nullptr), dialog_(nullptr) {
 }
 
 //------------------------------------------------------------------------------

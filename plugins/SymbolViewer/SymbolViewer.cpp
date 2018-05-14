@@ -27,7 +27,7 @@ namespace SymbolViewerPlugin {
 // Name: SymbolViewer
 // Desc:
 //------------------------------------------------------------------------------
-SymbolViewer::SymbolViewer() : menu_(0), dialog_(0) {
+SymbolViewer::SymbolViewer() : menu_(nullptr), dialog_(nullptr) {
 }
 
 //------------------------------------------------------------------------------

@@ -27,7 +27,7 @@ namespace OpcodeSearcherPlugin {
 // Name: OpcodeSearcher
 // Desc:
 //------------------------------------------------------------------------------
-OpcodeSearcher::OpcodeSearcher() : menu_(0), dialog_(0) {
+OpcodeSearcher::OpcodeSearcher() : menu_(nullptr), dialog_(nullptr) {
 }
 
 //------------------------------------------------------------------------------

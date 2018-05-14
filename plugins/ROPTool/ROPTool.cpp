@@ -27,7 +27,7 @@ namespace ROPToolPlugin {
 // Name: ROPTool
 // Desc:
 //------------------------------------------------------------------------------
-ROPTool::ROPTool() : menu_(0), dialog_(0) {
+ROPTool::ROPTool() : menu_(nullptr), dialog_(nullptr) {
 }
 
 //------------------------------------------------------------------------------

@@ -34,7 +34,7 @@ class DialogBacktrace : public QDialog {
 	Q_OBJECT
 
 public:
-	explicit DialogBacktrace(QWidget *parent = 0);
+	explicit DialogBacktrace(QWidget *parent = nullptr);
 	~DialogBacktrace();
 
 protected:

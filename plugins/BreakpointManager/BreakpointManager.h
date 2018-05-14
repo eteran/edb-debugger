@@ -38,7 +38,7 @@ public:
 	virtual ~BreakpointManager();
 
 public:
-	virtual QMenu *menu(QWidget *parent = 0);
+	virtual QMenu *menu(QWidget *parent = nullptr);
 
 public Q_SLOTS:
 	void show_menu();

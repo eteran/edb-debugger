@@ -38,7 +38,7 @@ public:
 	virtual ~BinarySearcher();
 
 public:
-	virtual QMenu *menu(QWidget *parent = 0);
+	virtual QMenu *menu(QWidget *parent = nullptr);
 	virtual QList<QAction *> stack_context_menu();
 
 public Q_SLOTS:

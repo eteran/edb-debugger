@@ -33,7 +33,7 @@ class DialogFunctions : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogFunctions(QWidget *parent = 0);
+	DialogFunctions(QWidget *parent = nullptr);
 	virtual ~DialogFunctions();
 
 public Q_SLOTS:

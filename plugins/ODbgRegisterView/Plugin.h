@@ -34,7 +34,7 @@ class Plugin : public QObject, public IPlugin {
 
 public:
 	Plugin();
-	virtual QMenu *menu(QWidget *parent = 0) override;
+	virtual QMenu *menu(QWidget *parent = nullptr) override;
 	virtual QList<QAction *> cpu_context_menu() override;
 
 private:

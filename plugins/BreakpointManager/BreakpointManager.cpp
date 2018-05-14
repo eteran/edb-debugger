@@ -28,7 +28,7 @@ namespace BreakpointManagerPlugin {
 // Name: BreakpointManager
 // Desc:
 //------------------------------------------------------------------------------
-BreakpointManager::BreakpointManager() : menu_(0), dialog_(0) {
+BreakpointManager::BreakpointManager() : menu_(nullptr), dialog_(nullptr) {
 }
 
 //------------------------------------------------------------------------------

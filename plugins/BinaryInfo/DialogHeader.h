@@ -34,7 +34,7 @@ class DialogHeader : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogHeader(QWidget *parent = 0);
+	DialogHeader(QWidget *parent = nullptr);
 	virtual ~DialogHeader();
 
 public Q_SLOTS:

@@ -112,7 +112,7 @@ std::string format_address(const T& value) {
 // Name: DumpState
 // Desc:
 //------------------------------------------------------------------------------
-DumpState::DumpState() : menu_(0) {
+DumpState::DumpState() : menu_(nullptr) {
 }
 
 //------------------------------------------------------------------------------

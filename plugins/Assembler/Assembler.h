@@ -38,7 +38,7 @@ public:
 	virtual ~Assembler();
 
 public:
-	virtual QMenu *menu(QWidget *parent = 0);
+	virtual QMenu *menu(QWidget *parent = nullptr);
 	virtual QList<QAction *> cpu_context_menu();
 	virtual QWidget *options_page();
 

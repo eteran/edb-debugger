@@ -28,7 +28,7 @@ class QToolBox;
 class DialogOptions : public QDialog {
 	Q_OBJECT
 public:
-	DialogOptions(QWidget *parent = 0);
+	DialogOptions(QWidget *parent = nullptr);
 	virtual ~DialogOptions();
 
 public Q_SLOTS:
