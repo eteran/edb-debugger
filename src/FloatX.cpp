@@ -22,6 +22,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <sstream>
 
+#ifdef HAVE_DOUBLE_CONVERSION
+#include <double-conversion/double-conversion.h>
+#endif
+
 template<typename T>
 struct SpecialValues;
 
@@ -297,6 +301,37 @@ QString formatFloat(Float value)
 	case FloatValueClass::Normal:
 	case FloatValueClass::Denormal:
 		{
+#ifdef HAVE_DOUBLE_CONVERSION
+			constexpr bool isDouble=std::is_same<Float, edb::value64>::value;
+			constexpr bool isFloat=std::is_same<Float, edb::value32>::value;
+			if(isDouble || isFloat)
+			{
+				using namespace double_conversion;
+				char buffer[64];
+				DoubleToStringConverter conv(DoubleToStringConverter::EMIT_POSITIVE_EXPONENT_SIGN, "inf", "nan", 'e', -4, isDouble ? 15 : 6, 0,0);
+				StringBuilder builder(buffer, sizeof buffer);
+				bool result=false;
+				if(isDouble)
+				{
+					double d;
+					std::memcpy(&d, &value, sizeof d);
+					result=conv.ToShortest(d, &builder);
+				}
+				else // isFloat
+				{
+					float f;
+					std::memcpy(&f, &value, sizeof f);
+					result=conv.ToShortestSingle(f, &builder);
+				}
+				if(result && builder.Finalize())
+				{
+					const QString result=buffer;
+					if(result.size()==1 && result[0].isDigit())
+						return result+".0"; // avoid printing small whole numbers as integers
+					return result;
+				}
+			}
+#endif
 			std::ostringstream ss;
 			ss << std::setprecision(std::numeric_limits<decltype(toFloatValue(value))>::max_digits10) << toFloatValue(value);
 			const auto result=QString::fromStdString(ss.str());
