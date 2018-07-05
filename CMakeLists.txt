@@ -54,6 +54,17 @@ else()
 	add_definitions("-DHAVE_DOUBLE_CONVERSION")
 endif()
 
+if(UNIX)
+	pkg_check_modules(GDTOA gdtoa)
+	if(NOT GDTOA_FOUND)
+		message(WARNING      "gdtoa package wasn't found. 80-bit floating-point values will be showed with max_digits10 digits of precision instead of shortest representation.")
+	else()
+		add_definitions("-DHAVE_GDTOA")
+		include_directories(${GDTOA_INCLUDE_DIRS})
+		link_directories(${GDTOA_LIBRARY_DIRS})
+	endif()
+endif()
+
 
 find_package(Qt5Core)
 
