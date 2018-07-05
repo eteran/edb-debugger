@@ -234,7 +234,7 @@ set_property(TARGET edb PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET edb PROPERTY CXX_STANDARD 14)
 set_target_properties(edb PROPERTIES ENABLE_EXPORTS 1)
 
-target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt5::Widgets Qt5::Xml Qt5::XmlPatterns Qt5::Svg ${GRAPHVIZ_LIBRARIES} ${DOUBLE_CONVERSION_LIBRARIES})
+target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt5::Widgets Qt5::Xml Qt5::XmlPatterns Qt5::Svg ${GRAPHVIZ_LIBRARIES} ${DOUBLE_CONVERSION_LIBRARIES} ${GDTOA_LIBRARIES})
 
 target_include_directories (edb PRIVATE
 	"capstone-edb"

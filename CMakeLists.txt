@@ -55,7 +55,6 @@ else()
 	add_definitions("-DHAVE_DOUBLE_CONVERSION")
 endif()
 
-
 find_package(Qt5Core)
 
 include_directories("include")
@@ -79,6 +78,7 @@ else()
 endif()
 
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64"))
+	set(CPU_TYPE "x86")
 	if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
 		add_definitions(-DEDB_X86)
 	elseif(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
@@ -88,6 +88,7 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 endif()
 
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
+	set(CPU_TYPE "arm")
 	if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
 		add_definitions(-DEDB_ARM32)
 	elseif(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
@@ -95,6 +96,18 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
 	endif()
 	include_directories("include/arch/arm-generic")
 endif()
+
+if(${CPU_TYPE} STREQUAL "x86")
+	pkg_check_modules(GDTOA gdtoa-desktop)
+	if(NOT GDTOA_FOUND)
+		message(WARNING "gdtoa-desktop package wasn't found. 80-bit floating-point values will be showed with max_digits10 digits of precision instead of shortest representation.")
+	else()
+		add_definitions("-DHAVE_GDTOA")
+		include_directories(${GDTOA_INCLUDE_DIRS})
+		link_directories(${GDTOA_LIBRARY_DIRS})
+	endif()
+endif()
+
 
 if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"))
 	if(ENABLE_ASAN)

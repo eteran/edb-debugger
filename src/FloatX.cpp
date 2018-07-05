@@ -25,6 +25,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifdef HAVE_DOUBLE_CONVERSION
 #include <double-conversion/double-conversion.h>
 #endif
+#ifdef HAVE_GDTOA
+#include <gdtoa-desktop.h>
+#endif
 
 template<typename T>
 struct SpecialValues;
@@ -330,6 +333,17 @@ QString formatFloat(Float value)
 						return result+".0"; // avoid printing small whole numbers as integers
 					return result;
 				}
+			}
+#endif
+#ifdef HAVE_GDTOA
+			if(std::is_same<Float, edb::value80>::value)
+			{
+				char buffer[64]={};
+				gdtoa_g_xfmt(buffer, &value, -1, sizeof buffer);
+				const QString result=buffer;
+				if(result.size()==1 && result[0].isDigit())
+					return result+".0"; // avoid printing small whole numbers as integers
+				return result;
 			}
 #endif
 			std::ostringstream ss;
