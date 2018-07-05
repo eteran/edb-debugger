@@ -177,6 +177,7 @@ boost::optional<Float> fullStringToFloat(std::string const& s)
 				  "Floating-point type not supported by this function");
 	try
 	{
+		// By default, use std::sto* to enable reading of hexfloat
 		std::size_t pos;
 		Float value;
 		if(std::is_same<Float, float>::value)
@@ -186,6 +187,22 @@ boost::optional<Float> fullStringToFloat(std::string const& s)
 		else
 			value=std::stold(s, &pos);
 		if(pos==s.size()) return value;
+	}
+	catch(std::out_of_range&)
+	{
+		// With g++, we may get here if value appears to be denormal.
+		// In this case we should at least support decimal denormals.
+		std::istringstream stream(s);
+		Float value;
+		stream >> value;
+		if(stream)
+		{
+			// Check that no trailing chars are left
+			char c;
+			stream >> c;
+			if(stream) return boost::none;
+			return value;
+		}
 	}
 	catch(std::exception&) {}
 	return boost::none;
