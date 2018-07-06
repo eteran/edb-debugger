@@ -175,36 +175,27 @@ boost::optional<Float> fullStringToFloat(std::string const& s)
 				  std::is_same<Float, double>::value ||
 				  std::is_same<Float, long double>::value,
 				  "Floating-point type not supported by this function");
-	try
+	// NOTE: Don't use std::istringstream: it doesn't support hexfloat.
+	//       Don't use std::sto{f,d,ld} either: they throw std::out_of_range on denormals.
+	//       Only std::strto{f,d,ld} are sane, for some definitions of sane...
+	const char*const str=s.c_str();
+	char* end;
+	Float value;
+	errno=0;
+	if(std::is_same<Float, float>::value)
+		value=std::strtof (str, &end);
+	else if(std::is_same<Float, double>::value)
+		value=std::strtod (str, &end);
+	else
+		value=std::strtold(str, &end);
+	if(errno)
 	{
-		// By default, use std::sto* to enable reading of hexfloat
-		std::size_t pos;
-		Float value;
-		if(std::is_same<Float, float>::value)
-			value=std::stof (s, &pos);
-		else if(std::is_same<Float, double>::value)
-			value=std::stod (s, &pos);
-		else
-			value=std::stold(s, &pos);
-		if(pos==s.size()) return value;
+		if((errno==ERANGE && (value==0 || std::isinf(value))) || errno!=ERANGE)
+			return boost::none;
 	}
-	catch(std::out_of_range&)
-	{
-		// With g++, we may get here if value appears to be denormal.
-		// In this case we should at least support decimal denormals.
-		std::istringstream stream(s);
-		Float value;
-		stream >> value;
-		if(stream)
-		{
-			// Check that no trailing chars are left
-			char c;
-			stream >> c;
-			if(stream) return boost::none;
-			return value;
-		}
-	}
-	catch(std::exception&) {}
+
+	if(end==str+s.size()) return value;
+
 	return boost::none;
 }
 
