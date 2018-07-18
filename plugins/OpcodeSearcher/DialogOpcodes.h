@@ -70,7 +70,7 @@ private:
 	void test_deref_reg_to_ip(const OpcodeData &data, edb::address_t start_address);
 
 private:
-    virtual void showEvent(QShowEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 
 private:
 	Ui::DialogOpcodes *const ui;

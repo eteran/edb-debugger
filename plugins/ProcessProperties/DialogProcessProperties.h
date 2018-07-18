@@ -53,7 +53,7 @@ private:
 	void updateEnvironmentPage(const QString &filter);
 
 private:
-    virtual void showEvent(QShowEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 
 private:
 	Ui::DialogProcessProperties *const ui;

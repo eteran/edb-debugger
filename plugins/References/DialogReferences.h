@@ -44,7 +44,7 @@ Q_SIGNALS:
 	void updateProgress(int);
 
 private:
-    virtual void showEvent(QShowEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 
 private:
 	void do_find();
