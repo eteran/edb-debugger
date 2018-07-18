@@ -15,7 +15,7 @@ template <class Float>
 class FloatXValidator : public QValidator {
 public:
     explicit FloatXValidator(QObject* parent = nullptr) : QValidator(parent) {}
-	virtual QValidator::State validate(QString& input, int&) const override;
+	QValidator::State validate(QString& input, int&) const override;
 };
 
 template <class Float>

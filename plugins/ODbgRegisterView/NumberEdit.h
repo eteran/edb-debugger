@@ -23,7 +23,7 @@ class NumberEdit : public QLineEdit {
 	Q_OBJECT
 public:
 	NumberEdit(int column, int colSpan, QWidget *parent = nullptr);
-	virtual ~NumberEdit() override;
+	~NumberEdit() override;
 
 public:
 	int column() const;
@@ -31,8 +31,8 @@ public:
 	void setNaturalWidthInChars(int nChars);
 
 public:
-	virtual QSize minimumSizeHint() const override;
-	virtual QSize sizeHint() const override;
+	QSize minimumSizeHint() const override;
+	QSize sizeHint() const override;
 
 private:
 	int naturalWidthInChars = 17; // default roughly as in QLineEdit

@@ -52,13 +52,13 @@ public:
 	QFont font() const;
 
 public:
-	virtual void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
-	virtual QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
-	virtual QRectF boundingRect() const override;
+	void paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) override;
+	QVariant itemChange(GraphicsItemChange change, const QVariant &value) override;
+	QRectF boundingRect() const override;
 
 protected:
-	virtual void hoverEnterEvent(QGraphicsSceneHoverEvent *e) override;
-	virtual void hoverLeaveEvent(QGraphicsSceneHoverEvent *e) override;
+	void hoverEnterEvent(QGraphicsSceneHoverEvent *e) override;
+	void hoverLeaveEvent(QGraphicsSceneHoverEvent *e) override;
 
 private:
 	void addEdge(GraphEdge *edge);

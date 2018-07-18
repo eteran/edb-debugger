@@ -245,7 +245,7 @@ class SimpleRegister : public RegisterItem<StoredType>
 public:
 	SimpleRegister(QString const& name) : RegisterItem<StoredType>(name) {}
 	virtual void update(StoredType const& newValue, QString const& newComment);
-	virtual int valueMaxLength() const override;
+	int valueMaxLength() const override;
 };
 
 struct BitFieldDescription
@@ -472,10 +472,10 @@ public:
 	CategoryType* insert(QString const& name);
 	SIMDCategory* insertSIMD(QString const& name,
 				 			 std::vector<NumberDisplayMode> const& validFormats);
-	virtual int childCount() const override;
-	virtual RegisterViewItem* child(int row) override;
-	virtual QVariant data(int column) const override;
-	virtual QByteArray rawValue() const override;
+	int childCount() const override;
+	RegisterViewItem* child(int row) override;
+	QVariant data(int column) const override;
+	QByteArray rawValue() const override;
 
 	friend class Model;
 };

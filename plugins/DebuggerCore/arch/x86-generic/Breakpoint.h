@@ -49,15 +49,15 @@ public:
     ~Breakpoint() override;
 
 public:
-	virtual edb::address_t address() const override { return address_; }
-	virtual quint64 hit_count() const      override { return hit_count_; }
-	virtual bool enabled() const           override { return enabled_; }
-	virtual bool one_time() const          override { return one_time_; }
-	virtual bool internal() const          override { return internal_; }
-	virtual size_t size() const            override { return original_bytes_.size(); }
-	virtual const quint8* original_bytes() const override { return &original_bytes_[0]; }
-	virtual IBreakpoint::TypeId type() const override { return type_; }
-	virtual size_t rewind_size() const override;
+	edb::address_t address() const override { return address_; }
+	quint64 hit_count() const      override { return hit_count_; }
+	bool enabled() const           override { return enabled_; }
+	bool one_time() const          override { return one_time_; }
+	bool internal() const          override { return internal_; }
+	size_t size() const            override { return original_bytes_.size(); }
+	const quint8* original_bytes() const override { return &original_bytes_[0]; }
+	IBreakpoint::TypeId type() const override { return type_; }
+	size_t rewind_size() const override;
 
 	static std::vector<BreakpointType> supported_types();
 	static std::vector<size_t> possible_rewind_sizes();

@@ -43,32 +43,32 @@ public:
 
 public:
 	PlatformThread(DebuggerCore *core, IProcess *process, edb::tid_t tid);
-	virtual ~PlatformThread() override;
+	~PlatformThread() override;
 
 private:
 	PlatformThread(const PlatformThread &) = delete;
 	PlatformThread& operator=(const PlatformThread &) = delete;
 
 public:
-	virtual edb::tid_t tid() const override;
-	virtual QString name() const override;
-	virtual int priority() const override;
-	virtual edb::address_t instruction_pointer() const override;
-	virtual QString runState() const override;
+	edb::tid_t tid() const override;
+	QString name() const override;
+	int priority() const override;
+	edb::address_t instruction_pointer() const override;
+	QString runState() const override;
 
 public:
-	virtual void get_state(State *state) override;
-	virtual void set_state(const State &state) override;
+	void get_state(State *state) override;
+	void set_state(const State &state) override;
 
 public:
-	virtual Status step() override;
-	virtual Status step(edb::EVENT_STATUS status) override;
-	virtual Status resume() override;
-	virtual Status resume(edb::EVENT_STATUS status) override;
-	virtual Status stop() override;
+	Status step() override;
+	Status step(edb::EVENT_STATUS status) override;
+	Status resume() override;
+	Status resume(edb::EVENT_STATUS status) override;
+	Status stop() override;
 
 public:
-	virtual bool isPaused() const override;
+	bool isPaused() const override;
 
 private:
 	void fillSegmentBases(PlatformState* state);

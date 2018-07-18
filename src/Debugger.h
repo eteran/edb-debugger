@@ -222,13 +222,13 @@ private Q_SLOTS:
 	void tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status);
 
 private:
-    virtual void closeEvent(QCloseEvent *event) override;
-    virtual void showEvent(QShowEvent *event) override;
-    virtual void dragEnterEvent(QDragEnterEvent* event) override;
-    virtual void dropEvent(QDropEvent* event) override;
+    void closeEvent(QCloseEvent *event) override;
+    void showEvent(QShowEvent *event) override;
+    void dragEnterEvent(QDragEnterEvent* event) override;
+    void dropEvent(QDropEvent* event) override;
 
 public:
-    virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) override;
+    edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) override;
 
 private:
 	std::shared_ptr<IRegion> update_cpu_view(const State &state);

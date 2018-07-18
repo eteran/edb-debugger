@@ -39,35 +39,35 @@ private:
 	PlatformProcess& operator=(const PlatformProcess &) = delete;
 
 public:
-	virtual QDateTime                       start_time() const override;
-	virtual QList<QByteArray>               arguments() const override;
-	virtual QString                         current_working_directory() const override;
-	virtual QString                         executable() const override;
-	virtual edb::pid_t                      pid() const override;
-	virtual std::shared_ptr<IProcess>       parent() const override;
-	virtual edb::address_t                  code_address() const override;
-	virtual edb::address_t                  data_address() const override;
-	virtual QList<std::shared_ptr<IRegion>> regions() const override;
-	virtual QList<std::shared_ptr<IThread>> threads() const override;
-	virtual std::shared_ptr<IThread>        current_thread() const override;
-	virtual void                            set_current_thread(IThread& thread) override;
-	virtual edb::uid_t                      uid() const override;
-	virtual QString                         user() const override;
-	virtual QString                         name() const override;
-	virtual QList<Module>                   loaded_modules() const override;
+	QDateTime                       start_time() const override;
+	QList<QByteArray>               arguments() const override;
+	QString                         current_working_directory() const override;
+	QString                         executable() const override;
+	edb::pid_t                      pid() const override;
+	std::shared_ptr<IProcess>       parent() const override;
+	edb::address_t                  code_address() const override;
+	edb::address_t                  data_address() const override;
+	QList<std::shared_ptr<IRegion>> regions() const override;
+	QList<std::shared_ptr<IThread>> threads() const override;
+	std::shared_ptr<IThread>        current_thread() const override;
+	void                            set_current_thread(IThread& thread) override;
+	edb::uid_t                      uid() const override;
+	QString                         user() const override;
+	QString                         name() const override;
+	QList<Module>                   loaded_modules() const override;
 
 public:
-	virtual Status pause() override;
-	virtual Status resume(edb::EVENT_STATUS status) override;
-	virtual Status step(edb::EVENT_STATUS status) override;
-	virtual bool isPaused() const override;
+	Status pause() override;
+	Status resume(edb::EVENT_STATUS status) override;
+	Status step(edb::EVENT_STATUS status) override;
+	bool isPaused() const override;
 
 public:
-	virtual std::size_t write_bytes(edb::address_t address, const void *buf, size_t len) override;
-	virtual std::size_t patch_bytes(edb::address_t address, const void *buf, size_t len) override;
-	virtual std::size_t read_bytes(edb::address_t address, void *buf, size_t len) const override;
-	virtual std::size_t read_pages(edb::address_t address, void *buf, size_t count) const override;
-	virtual QMap<edb::address_t, Patch> patches() const override;
+	std::size_t write_bytes(edb::address_t address, const void *buf, size_t len) override;
+	std::size_t patch_bytes(edb::address_t address, const void *buf, size_t len) override;
+	std::size_t read_bytes(edb::address_t address, void *buf, size_t len) const override;
+	std::size_t read_pages(edb::address_t address, void *buf, size_t count) const override;
+	QMap<edb::address_t, Patch> patches() const override;
 
 private:
 	bool ptrace_poke(edb::address_t address, long value);

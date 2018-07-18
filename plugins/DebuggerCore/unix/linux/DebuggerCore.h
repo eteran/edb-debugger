@@ -45,44 +45,44 @@ class DebuggerCore : public DebuggerCoreUNIX {
 	CPUMode cpu_mode() const override { return cpu_mode_; }
 public:
 	DebuggerCore();
-	virtual ~DebuggerCore() override;
+	~DebuggerCore() override;
 
 public:
-	virtual std::size_t pointer_size() const override;
-	virtual edb::address_t page_size() const override;
-	virtual bool has_extension(quint64 ext) const override;
-	virtual std::shared_ptr<IDebugEvent> wait_debug_event(int msecs) override;
-	virtual Status attach(edb::pid_t pid) override;
-	virtual Status detach() override;
-	virtual void kill() override;
-	virtual void get_state(State *state) override;
-	virtual void set_state(const State &state) override;
-	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
-    virtual MeansOfCapture last_means_of_capture() const override;
+	std::size_t pointer_size() const override;
+	edb::address_t page_size() const override;
+	bool has_extension(quint64 ext) const override;
+	std::shared_ptr<IDebugEvent> wait_debug_event(int msecs) override;
+	Status attach(edb::pid_t pid) override;
+	Status detach() override;
+	void kill() override;
+	void get_state(State *state) override;
+	void set_state(const State &state) override;
+	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
+    MeansOfCapture last_means_of_capture() const override;
 
 public:
-	virtual edb::pid_t parent_pid(edb::pid_t pid) const override;
+	edb::pid_t parent_pid(edb::pid_t pid) const override;
 
 public:
-	virtual IState *create_state() const override;
+	IState *create_state() const override;
 
 public:
-	virtual quint64 cpu_type() const override;
+	quint64 cpu_type() const override;
 
 private:
-	virtual QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerate_processes() const override;
+	QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerate_processes() const override;
 
 public:
-	virtual QString stack_pointer() const override;
-	virtual QString frame_pointer() const override;
-	virtual QString instruction_pointer() const override;
-	virtual QString flag_register() const override;
+	QString stack_pointer() const override;
+	QString frame_pointer() const override;
+	QString instruction_pointer() const override;
+	QString flag_register() const override;
 
 public:
-	virtual QString format_pointer(edb::address_t address) const override;
+	QString format_pointer(edb::address_t address) const override;
 
 public:
-	virtual IProcess *process() const override;
+	IProcess *process() const override;
 
 private:
 	Status ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo);

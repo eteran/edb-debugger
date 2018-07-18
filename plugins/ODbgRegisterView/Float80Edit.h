@@ -31,10 +31,10 @@ public:
 	void setValue(edb::value80 input);
 
 public:
-	virtual QSize sizeHint() const override;
+	QSize sizeHint() const override;
 
 protected:
-	virtual void focusOutEvent(QFocusEvent *e) override;
+	void focusOutEvent(QFocusEvent *e) override;
 
 Q_SIGNALS:
 	void defocussed();

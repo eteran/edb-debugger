@@ -38,22 +38,22 @@ private:
 	PlatformEvent& operator=(const PlatformEvent &) = default;
 
 public:
-	virtual IDebugEvent *clone() const override;
+	IDebugEvent *clone() const override;
 
 public:
-	virtual Message error_description() const override;
-	virtual REASON reason() const override;
-	virtual TRAP_REASON trap_reason() const override;
-	virtual bool exited() const override;
-	virtual bool is_error() const override;
-	virtual bool is_kill() const override;
-	virtual bool is_stop() const override;
-	virtual bool is_trap() const override;
-	virtual bool stopped() const override;
-	virtual bool terminated() const override;
-	virtual edb::pid_t process() const override;
-	virtual edb::tid_t thread() const override;
-	virtual int code() const override;
+	Message error_description() const override;
+	REASON reason() const override;
+	TRAP_REASON trap_reason() const override;
+	bool exited() const override;
+	bool is_error() const override;
+	bool is_kill() const override;
+	bool is_stop() const override;
+	bool is_trap() const override;
+	bool stopped() const override;
+	bool terminated() const override;
+	edb::pid_t process() const override;
+	edb::tid_t thread() const override;
+	int code() const override;
 
 private:
 	static IDebugEvent::Message createUnexpectedSignalMessage(const QString &name, int number);

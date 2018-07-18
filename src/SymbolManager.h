@@ -32,18 +32,18 @@ public:
 	SymbolManager();
 
 public:
-	virtual const QList<std::shared_ptr<Symbol>> symbols() const override;
-	virtual const std::shared_ptr<Symbol> find(const QString &name) const override;
-	virtual const std::shared_ptr<Symbol> find(edb::address_t address) const override;
-	virtual const std::shared_ptr<Symbol> find_near_symbol(edb::address_t address) const override;
-	virtual void add_symbol(const std::shared_ptr<Symbol> &symbol) override;
-	virtual void clear() override;
-	virtual void load_symbol_file(const QString &filename, edb::address_t base) override;
-	virtual void set_symbol_generator(ISymbolGenerator *generator) override;
-	virtual void set_label(edb::address_t address, const QString &label) override;
-	virtual QString find_address_name(edb::address_t address,bool prefixed=true) override;
-	virtual QHash<edb::address_t, QString> labels() const override;
-	virtual QList<QString> files() const override;
+	const QList<std::shared_ptr<Symbol>> symbols() const override;
+	const std::shared_ptr<Symbol> find(const QString &name) const override;
+	const std::shared_ptr<Symbol> find(edb::address_t address) const override;
+	const std::shared_ptr<Symbol> find_near_symbol(edb::address_t address) const override;
+	void add_symbol(const std::shared_ptr<Symbol> &symbol) override;
+	void clear() override;
+	void load_symbol_file(const QString &filename, edb::address_t base) override;
+	void set_symbol_generator(ISymbolGenerator *generator) override;
+	void set_label(edb::address_t address, const QString &label) override;
+	QString find_address_name(edb::address_t address,bool prefixed=true) override;
+	QHash<edb::address_t, QString> labels() const override;
+	QList<QString> files() const override;
 
 private:
 	bool process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename, bool allow_retry);

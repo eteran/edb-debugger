@@ -57,11 +57,11 @@ Q_SIGNALS:
 	void zoomEvent(qreal factor, qreal currentScale);
 
 protected:
-	virtual void keyPressEvent(QKeyEvent* event) override;
-	virtual void keyReleaseEvent(QKeyEvent *event) override;
-	virtual void wheelEvent(QWheelEvent* event) override;
-	virtual void contextMenuEvent(QContextMenuEvent* event) override;
-	virtual void mouseDoubleClickEvent(QMouseEvent* event) override;
+	void keyPressEvent(QKeyEvent* event) override;
+	void keyReleaseEvent(QKeyEvent *event) override;
+	void wheelEvent(QWheelEvent* event) override;
+	void contextMenuEvent(QContextMenuEvent* event) override;
+	void mouseDoubleClickEvent(QMouseEvent* event) override;
 
 private:
 	void setGraphAttribute(const QString name, const QString value);

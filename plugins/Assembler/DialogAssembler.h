@@ -41,7 +41,7 @@ public:
 	void set_address(edb::address_t address);
 
 public:
-	virtual void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 private:
 	 Ui::DialogAssembler *const ui;

@@ -64,12 +64,12 @@ public:
     ~BookmarksModel() override = default;
 
 public:
-	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-	virtual QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
-	virtual QModelIndex parent(const QModelIndex &index) const override;
-	virtual int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-	virtual int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-	virtual QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
+	QModelIndex parent(const QModelIndex &index) const override;
+	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
+	QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
 
 public Q_SLOTS:
 	void addBookmark(const Bookmark &r);

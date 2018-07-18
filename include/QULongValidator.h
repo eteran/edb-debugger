@@ -30,7 +30,7 @@ public:
 public:
     explicit QULongValidator(QObject *parent = nullptr);
     QULongValidator(value_type minimum, value_type maximum, QObject *parent = nullptr);
-    virtual ~QULongValidator() override = default;
+    ~QULongValidator() override = default;
 
 public:
 	value_type bottom() const;

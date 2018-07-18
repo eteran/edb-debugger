@@ -28,11 +28,11 @@ namespace DebuggerCorePlugin {
 class DebuggerCoreBase : public QObject, public IDebugger {
 public:
 	DebuggerCoreBase();
-	virtual ~DebuggerCoreBase() override;
+	~DebuggerCoreBase() override;
 
 public:
-	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args) override;
-	virtual Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override = 0;
+	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args) override;
+	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override = 0;
 	enum class MeansOfCapture
 	{
 		NeverCaptured,
@@ -42,15 +42,15 @@ public:
     virtual MeansOfCapture last_means_of_capture() const = 0;
 
 public:
-	virtual BreakpointList backup_breakpoints() const override;
-	virtual std::shared_ptr<IBreakpoint> add_breakpoint(edb::address_t address) override;
-	virtual std::shared_ptr<IBreakpoint> find_breakpoint(edb::address_t address) override;
-	virtual std::shared_ptr<IBreakpoint> find_triggered_breakpoint(edb::address_t address) override;
-	virtual void clear_breakpoints() override;
-	virtual void remove_breakpoint(edb::address_t address) override;
-	virtual void end_debug_session() override;
+	BreakpointList backup_breakpoints() const override;
+	std::shared_ptr<IBreakpoint> add_breakpoint(edb::address_t address) override;
+	std::shared_ptr<IBreakpoint> find_breakpoint(edb::address_t address) override;
+	std::shared_ptr<IBreakpoint> find_triggered_breakpoint(edb::address_t address) override;
+	void clear_breakpoints() override;
+	void remove_breakpoint(edb::address_t address) override;
+	void end_debug_session() override;
 
-	virtual std::vector<IBreakpoint::BreakpointType> supported_breakpoint_types() const override;
+	std::vector<IBreakpoint::BreakpointType> supported_breakpoint_types() const override;
 
 public:
 	virtual edb::pid_t pid() const;

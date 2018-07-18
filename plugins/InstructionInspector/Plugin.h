@@ -62,8 +62,8 @@ class Plugin : public QObject, public IPlugin
 
 public:
 	Plugin();
-	virtual QMenu* menu(QWidget* parent = 0) override;
-	virtual QList<QAction*> cpu_context_menu() override;
+	QMenu* menu(QWidget* parent = 0) override;
+	QList<QAction*> cpu_context_menu() override;
 private:
 	QAction* menuAction;
 private Q_SLOTS:

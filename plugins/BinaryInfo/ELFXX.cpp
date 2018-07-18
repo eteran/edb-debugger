@@ -41,28 +41,28 @@ class ELFBinaryException : public std::exception {
 
 class InvalidArguments : public ELFBinaryException {
 public:
-	virtual const char * what() const noexcept override {
+	const char * what() const noexcept override {
 		return "Invalid Arguments";
 	}
 };
 
 class ReadFailure : public ELFBinaryException {
 public:
-	virtual const char * what() const noexcept override {
+	const char * what() const noexcept override {
 		return "Read Failure";
 	}
 };
 
 class InvalidELF : public ELFBinaryException {
 public:
-	virtual const char * what() const noexcept override {
+	const char * what() const noexcept override {
 		return "Invalid ELF";
 	}
 };
 
 class InvalidArchitecture : public ELFBinaryException {
 public:
-	virtual const char * what() const noexcept override {
+	const char * what() const noexcept override {
 		return "Invalid Architecture";
 	}
 };
