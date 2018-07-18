@@ -35,8 +35,8 @@ class DialogSymbolViewer : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogSymbolViewer(QWidget *parent = nullptr);
-	virtual ~DialogSymbolViewer();
+    explicit DialogSymbolViewer(QWidget *parent = nullptr);
+    ~DialogSymbolViewer() override;
 
 public Q_SLOTS:
 	void on_listView_doubleClicked(const QModelIndex &index);
@@ -50,7 +50,7 @@ private Q_SLOTS:
 	void mnuFollowInCPU();
 
 private:
-	virtual void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
 
 private:
 	void do_find();

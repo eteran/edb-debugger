@@ -44,7 +44,7 @@ namespace Ui { class DialogROPTool; }
 class ResultFilterProxy : public QSortFilterProxyModel {
 	Q_OBJECT
 public:
-	ResultFilterProxy(QObject *parent = 0) : QSortFilterProxyModel(parent), mask_(0) {
+    explicit ResultFilterProxy(QObject *parent = nullptr) : QSortFilterProxyModel(parent), mask_(0) {
 	}
 
 public:
@@ -78,8 +78,8 @@ class DialogROPTool : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogROPTool(QWidget *parent = nullptr);
-	virtual ~DialogROPTool();
+    explicit DialogROPTool(QWidget *parent = nullptr);
+    ~DialogROPTool() override;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();
@@ -99,7 +99,7 @@ private:
 	void set_gadget_role(QStandardItem *item, const edb::Instruction &inst1);
 
 private:
-	virtual void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
 
 private:
 	Ui::DialogROPTool *const ui;

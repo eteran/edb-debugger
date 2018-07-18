@@ -33,8 +33,8 @@ class DialogReferences : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogReferences(QWidget *parent = nullptr);
-	virtual ~DialogReferences();
+    explicit DialogReferences(QWidget *parent = nullptr);
+    ~DialogReferences() override;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();
@@ -44,7 +44,7 @@ Q_SIGNALS:
 	void updateProgress(int);
 
 private:
-	virtual void showEvent(QShowEvent *event);
+    virtual void showEvent(QShowEvent *event) override;
 
 private:
 	void do_find();

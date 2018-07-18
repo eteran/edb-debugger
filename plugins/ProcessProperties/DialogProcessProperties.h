@@ -31,8 +31,8 @@ class DialogProcessProperties : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogProcessProperties(QWidget *parent = nullptr);
-	virtual ~DialogProcessProperties();
+    explicit DialogProcessProperties(QWidget *parent = nullptr);
+    ~DialogProcessProperties() override;
 
 public Q_SLOTS:
 	void on_btnParent_clicked();
@@ -53,7 +53,7 @@ private:
 	void updateEnvironmentPage(const QString &filter);
 
 private:
-	virtual void showEvent(QShowEvent *event);
+    virtual void showEvent(QShowEvent *event) override;
 
 private:
 	Ui::DialogProcessProperties *const ui;

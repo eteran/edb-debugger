@@ -33,15 +33,15 @@ class DialogStrings : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogStrings(QWidget *parent = nullptr);
-	virtual ~DialogStrings();
+    explicit DialogStrings(QWidget *parent = nullptr);
+    ~DialogStrings() override;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();
 	void on_listWidget_itemDoubleClicked(QListWidgetItem *);
 
 private:
-	virtual void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
 
 private:
 	void do_find();

@@ -123,7 +123,7 @@ private:
 class Canvas : public QWidget {
 	Q_OBJECT
 public:
-	Canvas(QWidget *parent = nullptr);
+    explicit Canvas(QWidget *parent = nullptr);
 
 protected:
 	void mousePressEvent(QMouseEvent *event) override;
@@ -178,7 +178,7 @@ struct BitFieldDescription {
 
 class BitFieldFormatter {
 public:
-	BitFieldFormatter(BitFieldDescription const &bfd);
+    explicit BitFieldFormatter(BitFieldDescription const &bfd);
 	QString operator()(QString const &text);
 
 private:

@@ -37,8 +37,8 @@ class DialogOpcodes : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogOpcodes(QWidget *parent = nullptr);
-	virtual ~DialogOpcodes();
+    explicit DialogOpcodes(QWidget *parent = nullptr);
+    ~DialogOpcodes() override;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();
@@ -70,7 +70,7 @@ private:
 	void test_deref_reg_to_ip(const OpcodeData &data, edb::address_t start_address);
 
 private:
-	virtual void showEvent(QShowEvent *event);
+    virtual void showEvent(QShowEvent *event) override;
 
 private:
 	Ui::DialogOpcodes *const ui;

@@ -517,7 +517,7 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 		struct Add
 		{
 			QTreeWidget*const tree;
-			Add(QTreeWidget* tree) : tree(tree) {}
+            explicit Add(QTreeWidget* tree) : tree(tree) {}
 			void operator()(QStringList const& sl,QTreeWidgetItem* parent=nullptr) const
 			{
 				tree->addTopLevelItem(new QTreeWidgetItem(parent,sl));
@@ -525,7 +525,7 @@ InstructionDialog::InstructionDialog(QWidget* parent)
 		}add(tree);
 		if(!insn)
 		{
-			add({"Bad instruction","Failed to disassemble instruction at address "+edb::v1::format_pointer(address)});
+            add({"Bad instruction","Failed to disassemble instruction at address "+edb::v1::format_pointer(address)});
 			add({"Bytes",printBytes(&insnBytes[0],insnBytes.size()).c_str()});
 		}
 		else
