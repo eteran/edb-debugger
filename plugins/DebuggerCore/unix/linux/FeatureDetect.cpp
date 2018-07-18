@@ -39,7 +39,7 @@ class File {
 	bool success;
 
 public:
-	File(const std::string &filename) {
+    explicit File(const std::string &filename) {
 		fd = ::open(filename.c_str(), O_RDWR);
 		success = fd != -1;
 	}

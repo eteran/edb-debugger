@@ -29,11 +29,11 @@ class OptionsPage : public QWidget {
 	Q_OBJECT
 
 public:
-	OptionsPage(QWidget *parent = nullptr);
-	virtual ~OptionsPage();
+    explicit OptionsPage(QWidget *parent = nullptr);
+    ~OptionsPage() override;
 
 public:
-	virtual void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
 
 public Q_SLOTS:
 	void on_instructionsBeforeIP_valueChanged(int i);

@@ -30,13 +30,13 @@ class CommentServer : public QObject, public QHexView::CommentServerInterface {
 	Q_OBJECT
 
 public:
-	CommentServer(QObject *parent = 0);
-	virtual ~CommentServer();
+    explicit CommentServer(QObject *parent = nullptr);
+    ~CommentServer() override;
 
 public:
-	virtual void set_comment(QHexView::address_t address, const QString &comment);
-	virtual QString comment(QHexView::address_t address, int size) const;
-	virtual void clear();
+    void set_comment(QHexView::address_t address, const QString &comment) override;
+    QString comment(QHexView::address_t address, int size) const override;
+    void clear() override;
 
 private:
 	Result<QString> resolve_function_call(QHexView::address_t address) const;

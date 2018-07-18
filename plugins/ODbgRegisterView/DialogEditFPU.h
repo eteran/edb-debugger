@@ -30,7 +30,7 @@ class DialogEditFPU : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogEditFPU(QWidget *parent = nullptr);
+    explicit DialogEditFPU(QWidget *parent = nullptr);
 	Register value() const;
 	void set_value(const Register &reg);
 

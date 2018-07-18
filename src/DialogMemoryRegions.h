@@ -33,11 +33,11 @@ namespace Ui { class DialogMemoryRegions; }
 class DialogMemoryRegions : public QDialog {
 	Q_OBJECT
 public:
-	DialogMemoryRegions(QWidget *parent = nullptr);
-	virtual ~DialogMemoryRegions();
+    explicit DialogMemoryRegions(QWidget *parent = nullptr);
+    ~DialogMemoryRegions() override;
 
 private:
-	virtual void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
 
 private Q_SLOTS:
 	void on_regions_table_customContextMenuRequested(const QPoint &pos);

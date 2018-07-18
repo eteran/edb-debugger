@@ -30,17 +30,17 @@ class IRegion;
 class RegionBuffer : public QIODevice {
 	Q_OBJECT
 public:
-	RegionBuffer(const std::shared_ptr<IRegion> &region);
+    explicit RegionBuffer(const std::shared_ptr<IRegion> &region);
 	RegionBuffer(const std::shared_ptr<IRegion> &region, QObject *parent);
 
 public:
 	void set_region(const std::shared_ptr<IRegion> &region);
 
 public:
-	virtual qint64 readData(char * data, qint64 maxSize);
-	virtual qint64 writeData(const char*, qint64);
-	virtual qint64 size() const       { return region_ ? region_->size().toUint() : 0; }
-	virtual bool isSequential() const { return false; }
+    qint64 readData(char * data, qint64 maxSize) override;
+    qint64 writeData(const char*, qint64) override;
+    qint64 size() const override       { return region_ ? region_->size().toUint() : 0; }
+    bool isSequential() const override { return false; }
 
 private:
 	std::shared_ptr<IRegion> region_;

@@ -32,16 +32,16 @@ class NavigationHistory {
 	};
 	
 public:
-    NavigationHistory(int count = 100);
+    explicit NavigationHistory(int count = 100);
     void add(edb::address_t address);
     edb::address_t getNext();
     edb::address_t getPrev();
 
 private:
     QList<edb::address_t> list_;
-    int pos_;
+    int pos_ = 0;
     int max_count_;
-    int lastop_;
+    LASTOP lastop_ = LASTOP_NONE;
 };
 
 #endif // NAVIGATIONHISTORY_H_

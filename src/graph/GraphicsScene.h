@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class GraphicsScene : public QGraphicsScene {
 	Q_OBJECT
 public:
-    GraphicsScene(QObject *parent = nullptr);
+    explicit GraphicsScene(QObject *parent = nullptr);
     GraphicsScene(const QRectF &sceneRect, QObject *parent = nullptr);
     GraphicsScene(qreal x, qreal y, qreal width, qreal height, QObject *parent = nullptr);
 	virtual ~GraphicsScene();

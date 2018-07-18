@@ -56,8 +56,8 @@ class Debugger : public QMainWindow, public IDebugEventHandler {
 	Q_DISABLE_COPY(Debugger)
 
 public:
-	Debugger(QWidget *parent = nullptr);
-	virtual ~Debugger();
+    explicit Debugger(QWidget *parent = nullptr);
+    ~Debugger() override;
 
 private:
 
@@ -222,13 +222,13 @@ private Q_SLOTS:
 	void tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status);
 
 private:
-	virtual void closeEvent(QCloseEvent *event);
-	virtual void showEvent(QShowEvent *event);
-	virtual void dragEnterEvent(QDragEnterEvent* event);
-	virtual void dropEvent(QDropEvent* event);
+    virtual void closeEvent(QCloseEvent *event) override;
+    virtual void showEvent(QShowEvent *event) override;
+    virtual void dragEnterEvent(QDragEnterEvent* event) override;
+    virtual void dropEvent(QDropEvent* event) override;
 
 public:
-	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event);
+    virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) override;
 
 private:
 	std::shared_ptr<IRegion> update_cpu_view(const State &state);

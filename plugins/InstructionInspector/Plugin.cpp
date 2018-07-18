@@ -55,7 +55,7 @@ public:
 	{
 		const char* error;
 	};
-	Disassembler(cs_mode mode)
+    explicit Disassembler(cs_mode mode)
 	{
 		cs_err result=cs_open(
 #if defined EDB_X86 || defined EDB_X86_64

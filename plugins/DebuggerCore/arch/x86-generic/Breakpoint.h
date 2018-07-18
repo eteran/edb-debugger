@@ -45,8 +45,8 @@ public:
 	};
 	using Type=util::AbstractEnumData<IBreakpoint::TypeId, TypeId>;
 public:
-	Breakpoint(edb::address_t address);
-	virtual ~Breakpoint();
+    explicit Breakpoint(edb::address_t address);
+    ~Breakpoint() override;
 
 public:
 	virtual edb::address_t address() const override { return address_; }
@@ -63,12 +63,12 @@ public:
 	static std::vector<size_t> possible_rewind_sizes();
 
 public:
-	virtual bool enable() override;
-	virtual bool disable() override;
-	virtual void hit() override;
-	virtual void set_one_time(bool value) override;
-	virtual void set_internal(bool value) override;
-	virtual void set_type(IBreakpoint::TypeId type) override;
+    bool enable() override;
+    bool disable() override;
+    void hit() override;
+    void set_one_time(bool value) override;
+    void set_internal(bool value) override;
+    void set_type(IBreakpoint::TypeId type) override;
 	void set_type(TypeId type);
 
 private:

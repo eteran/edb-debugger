@@ -29,8 +29,8 @@ class DialogInputBinaryString : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogInputBinaryString(QWidget *parent = nullptr);
-	virtual ~DialogInputBinaryString();
+    explicit DialogInputBinaryString(QWidget *parent = nullptr);
+    ~DialogInputBinaryString() override;
 
 public:
 	BinaryString *binary_string() const;

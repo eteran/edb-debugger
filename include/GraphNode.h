@@ -37,12 +37,12 @@ class GraphNode : public QGraphicsItem {
 	friend GraphEdge;
 public:
 	GraphNode(GraphWidget *graph, const QString &text, const QColor &color = Qt::white);
-	virtual ~GraphNode() override;
+    ~GraphNode() override;
 
 public:
     enum { Type = UserType + 2 };
 
-    virtual int type() const override{
+    int type() const override{
         // Enable the use of qgraphicsitem_cast with this item.
         return Type;
     }

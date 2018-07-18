@@ -16,7 +16,7 @@ class DialogXRefs : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogXRefs(QWidget *parent = nullptr);
+    explicit DialogXRefs(QWidget *parent = nullptr);
 	virtual ~DialogXRefs();
 
 public Q_SLOTS:

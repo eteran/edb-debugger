@@ -31,7 +31,7 @@ class DialogBinaryString : public QDialog {
 	Q_OBJECT
 
 public:
-    DialogBinaryString(QWidget *parent = nullptr);
+    explicit DialogBinaryString(QWidget *parent = nullptr);
 	virtual ~DialogBinaryString();
 
 public Q_SLOTS:

@@ -32,7 +32,7 @@ class EDB_EXPORT BinaryString : public QWidget {
 
 public:
     BinaryString(QWidget *parent = nullptr);
-	virtual ~BinaryString();
+    ~BinaryString() override;
 
 private Q_SLOTS:
 	void on_txtAscii_textEdited(const QString &);

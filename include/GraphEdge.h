@@ -33,7 +33,7 @@ class GraphEdge : public QGraphicsItemGroup {
 
 public:
     GraphEdge(GraphNode *from, GraphNode *to, const QColor &color = Qt::black, QGraphicsItem *parent = nullptr);
-	virtual ~GraphEdge() override;
+    ~GraphEdge() override;
 
 public:
     enum { Type = UserType + 3 };

@@ -28,11 +28,11 @@ class RegisterViewDelegate: public QStyledItemDelegate {
 	Q_DISABLE_COPY(RegisterViewDelegate)
 public:
     RegisterViewDelegate(QTreeView *view, QWidget *parent);
-	virtual ~RegisterViewDelegate();
+    ~RegisterViewDelegate() override = default;
 
 public:
-    virtual void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const;
-    virtual QSize sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const;
+    void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;
+    QSize sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const override;
 
 private:
     QTreeView *const view_;

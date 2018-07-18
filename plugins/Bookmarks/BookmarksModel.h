@@ -60,8 +60,8 @@ public:
 	}
 
 public:
-	BookmarksModel(QObject *parent = 0);
-	virtual ~BookmarksModel();
+    explicit BookmarksModel(QObject *parent = nullptr);
+    ~BookmarksModel() override = default;
 
 public:
 	virtual QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;

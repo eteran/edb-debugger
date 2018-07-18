@@ -126,14 +126,6 @@ ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region) : region_(reg
 }
 
 //------------------------------------------------------------------------------
-// Name: ~ELFXX
-// Desc: destructor
-//------------------------------------------------------------------------------
-template <class elfxx_header>
-ELFXX<elfxx_header>::~ELFXX() {
-}
-
-//------------------------------------------------------------------------------
 // Name: header_size
 // Desc: returns the number of bytes in this executable's header
 //------------------------------------------------------------------------------

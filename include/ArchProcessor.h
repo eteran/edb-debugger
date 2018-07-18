@@ -35,7 +35,7 @@ class ArchProcessor : public QObject {
 	Q_DISABLE_COPY(ArchProcessor)
 public:
 	ArchProcessor();
-	virtual ~ArchProcessor() = default;
+    ~ArchProcessor() override = default;
 
 public:
 	QStringList update_instruction_info(edb::address_t address);

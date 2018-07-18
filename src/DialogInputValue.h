@@ -32,8 +32,8 @@ class DialogInputValue : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogInputValue(QWidget *parent = nullptr);
-	virtual ~DialogInputValue();
+    explicit DialogInputValue(QWidget *parent = nullptr);
+    ~DialogInputValue() override;
 
 public Q_SLOTS:
 	void on_hexInput_textEdited(const QString &);

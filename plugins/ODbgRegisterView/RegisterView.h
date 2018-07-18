@@ -38,7 +38,7 @@ class ODBRegView : public QScrollArea {
 
 public:
 	struct RegisterGroupType {
-		enum T {
+        enum T : int {
 #if defined EDB_X86 || defined EDB_X86_64
 			GPR,
 			rIP,
@@ -65,7 +65,7 @@ public:
 			NUM_GROUPS
 		} value;
 
-		RegisterGroupType(T v) : value(v) {
+        RegisterGroupType(T v) : value(v) {
 		}
 
 		explicit RegisterGroupType(int v) : value(static_cast<T>(v)) {

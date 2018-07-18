@@ -510,7 +510,7 @@ bool eval_expression(const QString &expression, address_t *value) {
 // Name: get_expression_from_user
 // Desc:
 //------------------------------------------------------------------------------
-bool get_expression_from_user(const QString &title, const QString prompt, address_t *value) {
+bool get_expression_from_user(const QString &title, const QString &prompt, address_t *value) {
     bool retval = false;
     ExpressionDialog *inputDialog = new ExpressionDialog(title, prompt);
 
@@ -867,7 +867,7 @@ std::unique_ptr<IBinary> get_binary_info(const std::shared_ptr<IRegion> &region)
 			}
 			return p;
 
-		} catch (std::exception e) {
+        } catch (const std::exception &) {
 			// let's just ignore it...
 		}
 	}
@@ -1001,7 +1001,6 @@ std::shared_ptr<IRegion> primary_code_region() {
 	}
 #endif
 	return nullptr;
-	qDebug() << "primary code region not found!";
 }
 
 //------------------------------------------------------------------------------

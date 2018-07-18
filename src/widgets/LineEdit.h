@@ -27,7 +27,7 @@ class LineEdit : public QLineEdit {
 	Q_OBJECT
 
 public:
-	LineEdit(QWidget *parent = nullptr);
+    explicit LineEdit(QWidget *parent = nullptr);
 
 protected:
 	void resizeEvent(QResizeEvent *);

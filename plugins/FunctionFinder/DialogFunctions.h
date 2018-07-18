@@ -33,8 +33,8 @@ class DialogFunctions : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogFunctions(QWidget *parent = nullptr);
-	virtual ~DialogFunctions();
+    explicit DialogFunctions(QWidget *parent = nullptr);
+    ~DialogFunctions() override;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();
@@ -42,7 +42,7 @@ public Q_SLOTS:
 	void on_btnGraph_clicked();
 
 private:
-	virtual void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
 
 private:
 	void do_find();

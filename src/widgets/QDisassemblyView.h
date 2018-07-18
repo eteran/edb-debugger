@@ -28,6 +28,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPixmap>
 #include <QSvgRenderer>
 
+#include <memory>
+#include <vector>
+
 template <class T>
 class Result;
 
@@ -41,18 +44,18 @@ class QDisassemblyView : public QAbstractScrollArea {
 	Q_OBJECT
 
 public:
-	QDisassemblyView(QWidget *parent = nullptr);
-	~QDisassemblyView();
+    explicit QDisassemblyView(QWidget *parent = nullptr);
+    ~QDisassemblyView() override;
 
 protected:
-	virtual bool event(QEvent *event);
-	virtual void mouseDoubleClickEvent(QMouseEvent *event);
-	virtual void mouseMoveEvent(QMouseEvent *event);
-	virtual void mousePressEvent(QMouseEvent *event);
-	virtual void mouseReleaseEvent(QMouseEvent *event);
-	virtual void paintEvent(QPaintEvent *event);
-	virtual void wheelEvent(QWheelEvent *e);
-	virtual void keyPressEvent(QKeyEvent *event);
+    bool event(QEvent *event) override;
+    void mouseDoubleClickEvent(QMouseEvent *event) override;
+    void mouseMoveEvent(QMouseEvent *event) override;
+    void mousePressEvent(QMouseEvent *event) override;
+    void mouseReleaseEvent(QMouseEvent *event) override;
+    void paintEvent(QPaintEvent *event) override;
+    void wheelEvent(QWheelEvent *e) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 public:
 	std::shared_ptr<IRegion> region() const;
@@ -74,7 +77,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
 	void setFont(const QFont &f);
-	void resizeEvent(QResizeEvent *event);
+    void resizeEvent(QResizeEvent *event) override;
 	void scrollTo(edb::address_t address);
 	void setAddressOffset(edb::address_t address);
 	void setRegion(const std::shared_ptr<IRegion> &r);

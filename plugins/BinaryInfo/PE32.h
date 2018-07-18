@@ -32,7 +32,7 @@ class PEBinaryException : public std::exception {
 		INVALID_PE = 3,
 		INVALID_ARCHITECTURE = 4
 	};
-		PEBinaryException(reasonEnum reason);
+        explicit PEBinaryException(reasonEnum reason);
 
 		virtual const char * what() const noexcept override;
 
@@ -42,18 +42,18 @@ class PEBinaryException : public std::exception {
 
 class PE32 : public IBinary {
 public:
-	PE32(const std::shared_ptr<IRegion> &region);
-	virtual ~PE32();
+    explicit PE32(const std::shared_ptr<IRegion> &region);
+    ~PE32() override = default;
 
 public:
-	virtual bool native() const;
-	virtual edb::address_t calculate_main();
-	virtual edb::address_t debug_pointer();
-	virtual edb::address_t entry_point();
-	virtual size_t header_size() const;
-	virtual const void *header() const;
-	virtual QVector<Header> headers() const;
-	virtual edb::address_t base_address() const;
+    bool native() const override;
+    edb::address_t calculate_main() override;
+    edb::address_t debug_pointer() override;
+    edb::address_t entry_point() override;
+    size_t header_size() const override;
+    const void *header() const override;
+    QVector<Header> headers() const override;
+    edb::address_t base_address() const override;
 
 private:
 	std::shared_ptr<IRegion> region_;

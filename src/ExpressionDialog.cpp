@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCompleter>
 #include <QPushButton>
 
-ExpressionDialog::ExpressionDialog(const QString &title, const QString prompt) : QDialog(edb::v1::debugger_ui),
+ExpressionDialog::ExpressionDialog(const QString &title, const QString &prompt) : QDialog(edb::v1::debugger_ui),
 	layout_(this),
 	label_text_("Replace me"),
 	button_box_(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal)

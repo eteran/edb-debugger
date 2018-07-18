@@ -100,7 +100,7 @@ EDB_EXPORT bool dump_stack(address_t address);
 EDB_EXPORT bool jump_to_address(address_t address);
 
 // ask the user for a value in an expression form
-EDB_EXPORT bool get_expression_from_user(const QString &title, const QString prompt, address_t *value);
+EDB_EXPORT bool get_expression_from_user(const QString &title, const QString &prompt, address_t *value);
 EDB_EXPORT bool eval_expression(const QString &expression, address_t *value);
 
 // ask the user for a value suitable for a register via an input box

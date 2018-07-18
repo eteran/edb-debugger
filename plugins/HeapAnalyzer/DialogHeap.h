@@ -34,8 +34,8 @@ class DialogHeap : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogHeap(QWidget *parent = nullptr);
-	virtual ~DialogHeap() override;
+    explicit DialogHeap(QWidget *parent = nullptr);
+    ~DialogHeap() override;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();
@@ -43,7 +43,7 @@ public Q_SLOTS:
 	void on_tableView_doubleClicked(const QModelIndex & index);
 
 private:
-	virtual void showEvent(QShowEvent *event) override;
+    void showEvent(QShowEvent *event) override;
 
 private:
 	void get_library_names(QString *libcName, QString *ldName) const;

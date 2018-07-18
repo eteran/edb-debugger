@@ -30,15 +30,15 @@ class QModelIndex;
 class DialogThreads : public QDialog {
 	Q_OBJECT
 public:
-	DialogThreads(QWidget *parent = nullptr, Qt::WindowFlags f = 0);
-	virtual ~DialogThreads();
+    DialogThreads(QWidget *parent = nullptr, Qt::WindowFlags f = nullptr);
+    ~DialogThreads() override;
 
 private Q_SLOTS:
 	void on_thread_table_doubleClicked(const QModelIndex &index);
 	void updateThreads();
 
 public:
-	void showEvent(QShowEvent *);
+    void showEvent(QShowEvent *) override;
 
 private:
 	Ui::DialogThreads *const ui;

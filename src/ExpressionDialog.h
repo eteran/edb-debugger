@@ -31,7 +31,7 @@ class ExpressionDialog : public QDialog {
 	Q_OBJECT
 
 public:
-	ExpressionDialog(const QString &title, const QString prompt);
+    explicit ExpressionDialog(const QString &title, const QString &prompt);
 
 public:
 	edb::address_t getAddress();

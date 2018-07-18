@@ -28,7 +28,7 @@ class SyntaxHighlighter : public QObject {
 	Q_OBJECT
 
 public:
-	SyntaxHighlighter(QObject *parent = 0);
+    explicit SyntaxHighlighter(QObject *parent = nullptr);
 
 private:
 	void create_rules();

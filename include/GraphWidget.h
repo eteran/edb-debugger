@@ -40,7 +40,7 @@ private:
 
 public:
     GraphWidget(QWidget* parent = nullptr);
-	virtual ~GraphWidget() override;
+    ~GraphWidget() override;
 
 public:
 	void clear();

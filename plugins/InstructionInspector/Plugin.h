@@ -46,8 +46,8 @@ class InstructionDialog : public QDialog
 public:
 	struct DisassemblyFailure{};
 	struct InstructionReadFailure{};
-	InstructionDialog(QWidget* parent=nullptr);
-	~InstructionDialog();
+    explicit InstructionDialog(QWidget* parent=nullptr);
+    ~InstructionDialog() override;
 private Q_SLOTS:
 	void compareDisassemblers();
 };

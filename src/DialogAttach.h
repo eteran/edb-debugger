@@ -37,11 +37,11 @@ class DialogAttach : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogAttach(QWidget *parent = nullptr);
-	virtual ~DialogAttach();
+    explicit DialogAttach(QWidget *parent = nullptr);
+    ~DialogAttach() override;
 
 private:
-	virtual void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
 
 private Q_SLOTS:
 	void update_list();

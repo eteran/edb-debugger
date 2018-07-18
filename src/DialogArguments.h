@@ -27,8 +27,8 @@ class DialogArguments : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogArguments(QWidget *parent = nullptr);
-	virtual ~DialogArguments();
+    explicit DialogArguments(QWidget *parent = nullptr);
+    ~DialogArguments() override;
 
 public Q_SLOTS:
 	void on_btnAdd_clicked();

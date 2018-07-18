@@ -25,8 +25,8 @@ class TabWidget : public QTabWidget {
 	Q_OBJECT
 
 public:
-	TabWidget(QWidget *parent = nullptr);
-	virtual ~TabWidget();
+    explicit TabWidget(QWidget *parent = nullptr);
+    ~TabWidget() override = default;
 
 Q_SIGNALS:
 	void customContextMenuRequested(int, const QPoint &);
@@ -36,7 +36,7 @@ public:
 	QVariant data(int index) const;
 
 protected:
-	virtual void mousePressEvent(QMouseEvent *event);
+    void mousePressEvent(QMouseEvent *event) override;
 };
 
 #endif

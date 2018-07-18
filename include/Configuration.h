@@ -29,7 +29,7 @@ class EDB_EXPORT Configuration : public QObject {
 	Q_OBJECT
 public:
     Configuration(QObject *parent = nullptr);
-	virtual ~Configuration() override;
+    ~Configuration() override;
 
 public:
 	void sendChangeNotification();

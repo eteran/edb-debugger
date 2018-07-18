@@ -29,8 +29,8 @@ class DialogMemoryAccess : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogMemoryAccess(QWidget *parent = nullptr);
-	virtual ~DialogMemoryAccess();
+    explicit DialogMemoryAccess(QWidget *parent = nullptr);
+    ~DialogMemoryAccess() override;
 
 public:
 	bool warnNextTime() const;

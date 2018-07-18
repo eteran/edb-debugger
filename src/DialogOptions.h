@@ -28,19 +28,19 @@ class QToolBox;
 class DialogOptions : public QDialog {
 	Q_OBJECT
 public:
-	DialogOptions(QWidget *parent = nullptr);
-	virtual ~DialogOptions();
+    explicit DialogOptions(QWidget *parent = nullptr);
+    ~DialogOptions() override;
 
 public Q_SLOTS:
 	void on_btnSymbolDir_clicked();
 	void on_btnPluginDir_clicked();
 	void on_btnTTY_clicked();
 	void on_btnSessionDir_clicked();
-	void closeEvent(QCloseEvent *event);
-	void accept();
+    void closeEvent(QCloseEvent *event) override;
+    void accept() override;
 
 public:
-	virtual void showEvent(QShowEvent *event);
+    void showEvent(QShowEvent *event) override;
 	void addOptionsPage(QWidget *page);
 
 private:

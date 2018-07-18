@@ -18,10 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "NavigationHistory.h"
 
-NavigationHistory::NavigationHistory(int count)
-{
-    max_count_ = count;
-    pos_   = 0;
+NavigationHistory::NavigationHistory(int count) : max_count_(count) {
 }
 
 void NavigationHistory::add(edb::address_t address)
@@ -54,7 +51,7 @@ edb::address_t NavigationHistory::getNext()
 {
     if (list_.isEmpty())
     {
-        return (edb::address_t)0;
+        return edb::address_t(0);
     }
 
     if (pos_ != (list_.size() - 1))
@@ -71,7 +68,7 @@ edb::address_t NavigationHistory::getPrev()
 {
     if (list_.isEmpty())
     {
-        return (edb::address_t)0;
+        return edb::address_t(0);
     }
 
     if (pos_ != 0)

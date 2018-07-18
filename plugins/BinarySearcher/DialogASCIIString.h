@@ -31,7 +31,7 @@ class DialogASCIIString : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogASCIIString(QWidget *parent = nullptr);
+    explicit DialogASCIIString(QWidget *parent = nullptr);
 	virtual ~DialogASCIIString();
 
 public Q_SLOTS:

@@ -33,7 +33,7 @@ class DebuggerErrorConsole : public QDialog
 	Q_OBJECT
 
 public:
-	DebuggerErrorConsole(QWidget* parent=nullptr);
+    explicit DebuggerErrorConsole(QWidget* parent = nullptr);
 private Q_SLOTS:
 	void compareDisassemblers();
 };
@@ -53,8 +53,8 @@ class Plugin : public QObject, public IPlugin
 
 public:
 	Plugin();
-	~Plugin();
-	virtual QMenu* menu(QWidget* parent = 0) override;
+    ~Plugin() override;
+    QMenu* menu(QWidget* parent = nullptr) override;
 };
 
 }

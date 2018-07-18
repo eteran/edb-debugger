@@ -30,11 +30,11 @@ class DialogPlugins : public QDialog {
 	Q_OBJECT
 	Q_DISABLE_COPY(DialogPlugins)
 public:
-	DialogPlugins(QWidget *parent = nullptr, Qt::WindowFlags f = 0);
-	virtual ~DialogPlugins();
+    explicit DialogPlugins(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+    ~DialogPlugins() override;
 
 public:
-	void showEvent(QShowEvent *);
+    void showEvent(QShowEvent *) override;
 
 private:
 	Ui::DialogPlugins *const ui;

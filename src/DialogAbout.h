@@ -27,8 +27,8 @@ class DialogAbout : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogAbout(QWidget *parent = nullptr);
-	virtual ~DialogAbout();
+    explicit DialogAbout(QWidget *parent = nullptr);
+    ~DialogAbout() override;
 
 private:
 	Ui::DialogAbout *const ui;

@@ -27,17 +27,18 @@ namespace BinaryInfoPlugin {
 template <class elfxx_header>
 class ELFXX : public IBinary {
 public:
-	ELFXX(const std::shared_ptr<IRegion> &region);
-	virtual ~ELFXX();
+    explicit ELFXX(const std::shared_ptr<IRegion> &region);
+    ~ELFXX() override = default;
+
 public:
-	virtual bool native() const;
-	virtual edb::address_t calculate_main();
-	virtual edb::address_t debug_pointer();
-	virtual edb::address_t entry_point();
-	virtual size_t header_size() const;
-	virtual const void *header() const;
-	virtual QVector<Header> headers() const;
-	virtual edb::address_t base_address() const;
+    bool native() const override;
+    edb::address_t calculate_main() override;
+    edb::address_t debug_pointer() override;
+    edb::address_t entry_point() override;
+    size_t header_size() const override;
+    const void *header() const override;
+    QVector<Header> headers() const override;
+    edb::address_t base_address() const override;
 
 private:
 	void validate_header();
