@@ -290,11 +290,13 @@ void GraphWidget::keyPressEvent(QKeyEvent* event) {
 	case Qt::Key_Control:
 		if(!event->isAutoRepeat()) {
 			setDragMode(QGraphicsView::RubberBandDrag);
-			break;
 		}
+		break;
 	default:
-		QGraphicsView::keyPressEvent(event);
+		break;
 	}
+	
+	QGraphicsView::keyPressEvent(event);
 }
 
 //------------------------------------------------------------------------------
@@ -307,13 +309,13 @@ void GraphWidget::keyReleaseEvent(QKeyEvent *event) {
 	case Qt::Key_Control:
 		if(!event->isAutoRepeat()) {
 			setDragMode(QGraphicsView::ScrollHandDrag);
-			break;
 		}
+		break;
 	default:
-		QGraphicsView::keyPressEvent(event);
+		break;
 	}
 
-	QGraphicsView::keyPressEvent(event);
+	QGraphicsView::keyReleaseEvent(event);
 }
 
 //------------------------------------------------------------------------------
