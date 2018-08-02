@@ -37,7 +37,7 @@ public:
     edb::address_t entry_point() override;
     size_t header_size() const override;
     const void *header() const override;
-    QVector<Header> headers() const override;
+	std::vector<Header> headers() const override;
     edb::address_t base_address() const override;
 
 private:
@@ -47,7 +47,7 @@ private:
 	std::shared_ptr<IRegion> region_;
 	elfxx_header             header_;
 	edb::address_t           base_address_;
-	QVector<Header>          headers_;
+	std::vector<Header>      headers_;
 };
 
 using ELF32 = ELFXX<elf32_header>;

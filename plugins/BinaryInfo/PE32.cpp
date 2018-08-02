@@ -121,8 +121,8 @@ size_t PE32::header_size() const {
 // Name: headers
 // Desc: returns a list of all headers in this binary
 //------------------------------------------------------------------------------
-QVector<IBinary::Header> PE32::headers() const {
-	QVector<Header> results;
+std::vector<IBinary::Header> PE32::headers() const {
+	std::vector<Header> results;
 
 	results.push_back({region_->start(), sizeof(pe_) + dos_.e_lfanew});
 	 

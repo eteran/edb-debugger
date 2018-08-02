@@ -1438,7 +1438,7 @@ QVector<quint8> read_pages(address_t address, size_t page_count) {
 		}
 	}
 
-	return QVector<quint8>();
+	return {};
 }
 
 //------------------------------------------------------------------------------

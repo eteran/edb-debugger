@@ -48,6 +48,9 @@ bool ELF64::native() const {
 //------------------------------------------------------------------------------
 template<>
 edb::address_t ELF64::debug_pointer() {
+
+	// TODO(eteran): at some point this code stopped working!
+
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		const edb::address_t section_offset = header_.e_phoff;
 		const std::size_t count             = header_.e_phnum;
@@ -57,7 +60,9 @@ edb::address_t ELF64::debug_pointer() {
 			if(process->read_bytes(region_->start() + (section_offset + i * sizeof(elf64_phdr)), &section_header, sizeof(elf64_phdr))) {
 				if(section_header.p_type == PT_DYNAMIC) {
 					try {
-						QVector<quint8> buf(section_header.p_memsz);
+
+						auto buf = std::make_unique<uint8_t[]>(section_header.p_memsz);
+
 						if(process->read_bytes(section_header.p_vaddr, &buf[0], section_header.p_memsz)) {
 							auto dynamic = reinterpret_cast<elf64_dyn *>(&buf[0]);
 							while(dynamic->d_tag != DT_NULL) {

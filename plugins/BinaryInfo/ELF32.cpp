@@ -57,7 +57,9 @@ edb::address_t ELF32::debug_pointer() {
 			if(process->read_bytes(region_->start() + (section_offset + i * sizeof(elf32_phdr)), &section_header, sizeof(elf32_phdr))) {
 				if(section_header.p_type == PT_DYNAMIC) {
 					try {
-						QVector<quint8> buf(section_header.p_memsz);
+
+						auto buf = std::make_unique<uint8_t[]>(section_header.p_memsz);
+
 						if(process->read_bytes(section_header.p_vaddr, &buf[0], section_header.p_memsz)) {
 							auto dynamic = reinterpret_cast<elf32_dyn *>(&buf[0]);
 							while(dynamic->d_tag != DT_NULL) {

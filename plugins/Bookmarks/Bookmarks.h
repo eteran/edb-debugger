@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IPlugin.h"
 #include "Types.h"
 #include "BookmarksModel.h"
-#include <QSet>
 #include <QVariantList>
 
 class QSignalMapper;

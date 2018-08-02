@@ -31,6 +31,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 #include <vector>
 
+#include <boost/optional.hpp>
+
 template <class T>
 class Result;
 
@@ -56,28 +58,30 @@ protected:
     void paintEvent(QPaintEvent *event) override;
     void wheelEvent(QWheelEvent *e) override;
     void keyPressEvent(QKeyEvent *event) override;
+	void resizeEvent(QResizeEvent *event) override;
 
 public:
-	std::shared_ptr<IRegion> region() const;
+	QByteArray saveState() const;
+	QString get_comment(edb::address_t address);
 	bool addressShown(edb::address_t address) const;
 	edb::address_t addressFromPoint(const QPoint &pos) const;
 	edb::address_t selectedAddress() const;
-	int selectedSize() const;
-	void add_comment(edb::address_t address, QString comment);
 	int remove_comment(edb::address_t address);
-	QString get_comment(edb::address_t address);
+	int selectedSize() const;
+	std::shared_ptr<IRegion> region() const;
+	void add_comment(edb::address_t address, QString comment);
 	void clear_comments();
-	void setSelectedAddress(edb::address_t address);
-	QByteArray saveState() const;
-	void restoreState(const QByteArray &stateBuffer);
 	void restoreComments(QVariantList &);
+	void restoreState(const QByteArray &stateBuffer);
+	void setSelectedAddress(edb::address_t address);
 
 Q_SIGNALS:
 	void signal_updated();
+	void breakPointToggled(edb::address_t address);
+	void regionChanged();
 
 public Q_SLOTS:
-	void setFont(const QFont &f);
-    void resizeEvent(QResizeEvent *event) override;
+	void setFont(const QFont &f);    
 	void scrollTo(edb::address_t address);
 	void setAddressOffset(edb::address_t address);
 	void setRegion(const std::shared_ptr<IRegion> &r);
@@ -90,31 +94,27 @@ public Q_SLOTS:
 private Q_SLOTS:
 	void scrollbar_action_triggered(int action);
 
-signals:
-	void breakPointToggled(edb::address_t address);
-	void regionChanged();
-
 private:
 	QString formatAddress(edb::address_t address) const;
+	Result<int> get_instruction_size(edb::address_t address) const;
+	Result<int> get_instruction_size(edb::address_t address, quint8 *buf, int *size) const;
+	boost::optional<unsigned int> get_line_of_address(edb::address_t addr) const;
 	edb::address_t address_from_coord(int x, int y) const;
-	edb::address_t previous_instructions(edb::address_t current_address, int count);
 	edb::address_t following_instructions(edb::address_t current_address, int count);
+	edb::address_t previous_instructions(edb::address_t current_address, int count);
 	int address_length() const;
 	int auto_line1() const;
 	int draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l2, int l3, bool selected);
-    QString instructionString(const edb::Instruction &inst) const;
-	Result<int> get_instruction_size(edb::address_t address) const;
-	Result<int> get_instruction_size(edb::address_t address, quint8 *buf, int *size) const;
 	int line1() const;
 	int line2() const;
 	int line3() const;
 	int line_height() const;
+	unsigned getSelectedLineNumber() const;
+	unsigned updateDisassembly(unsigned lines_to_render);
+	void paint_line_bg(QPainter &painter, QBrush brush, int line, int num_lines = 1);
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);
-	void paint_line_bg(QPainter &painter, QBrush brush, int line, int num_lines = 1);
-	bool get_line_of_address(edb::address_t addr, unsigned int& line) const;
-	unsigned updateDisassembly(unsigned lines_to_render);
-	unsigned getSelectedLineNumber() const;
+	QString instructionString(const edb::Instruction &inst) const;
 
 private:
 	edb::address_t address_offset_               = 0;
@@ -139,14 +139,14 @@ private:
 	std::shared_ptr<IRegion>              region_;
 	QVector<edb::address_t>               show_addresses_;
 	std::vector<CapstoneEDB::Instruction> instructions_;
-	SyntaxHighlighter *const              highlighter_;
+	SyntaxHighlighter *                   highlighter_;
 	bool                                  show_address_separator_;
 	QHash<edb::address_t, QString>        comments_;
 	NavigationHistory                     history_;
 	QSvgRenderer                          breakpoint_renderer_;
 	QSvgRenderer                          current_renderer_;
 	QSvgRenderer                          current_bp_renderer_;
-	QVector<quint8>                       instruction_buffer_;
+	std::vector<quint8>                   instruction_buffer_;
 	QCache<QString, QPixmap>              syntax_cache_;
 };
 

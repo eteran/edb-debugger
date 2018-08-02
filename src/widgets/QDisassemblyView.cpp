@@ -731,16 +731,18 @@ void QDisassemblyView::paint_line_bg(QPainter& painter, QBrush brush, int line, 
 // Desc: A helper function which sets line to the line on which addr appears,
 // or returns false if that line does not appear to exist.
 //------------------------------------------------------------------------------
-bool QDisassemblyView::get_line_of_address(edb::address_t addr, unsigned int &line) const {
-	if (addr >= show_addresses_[0] && addr <= show_addresses_[show_addresses_.size()-1]) {
-		int pos = std::find(show_addresses_.begin(), show_addresses_.end(), addr) - show_addresses_.begin();
-		if (pos < show_addresses_.size()) { // address was found
-			line = pos;
-			return true;
+boost::optional<unsigned int> QDisassemblyView::get_line_of_address(edb::address_t addr) const {
+
+	if(!show_addresses_.isEmpty()) {
+		if (addr >= show_addresses_[0] && addr <= show_addresses_[show_addresses_.size() - 1]) {
+			int pos = std::find(show_addresses_.begin(), show_addresses_.end(), addr) - show_addresses_.begin();
+			if (pos < show_addresses_.size()) { // address was found
+				return pos;
+			}
 		}
 	}
-	line = 0;
-	return false;
+
+	return boost::none;
 }
 
 //------------------------------------------------------------------------------
@@ -899,23 +901,23 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 				while (reg.valid()) {
 					// Does addr appear here?
 					edb::address_t addr = reg.valueAsAddress();
-					unsigned int line;
 
-					if (get_line_of_address(addr, line)) {
-						if (!badge_labels[line].isEmpty()) {
-							badge_labels[line].append(", ");
+
+					if (boost::optional<unsigned int> line = get_line_of_address(addr)) {
+						if (!badge_labels[*line].isEmpty()) {
+							badge_labels[*line].append(", ");
 						}
-						badge_labels[line].append(reg.name());
+						badge_labels[*line].append(reg.name());
 					}
 
 					// what about [addr]?
 					if(IProcess *process = edb::v1::debugger_core->process()) {
 						if (process->read_bytes(addr, &addr, edb::v1::pointer_size())) {
-							if (get_line_of_address(addr, line)) {
-								if (!badge_labels[line].isEmpty()) {
-									badge_labels[line].append(", ");
+							if (boost::optional<unsigned int> line = get_line_of_address(addr)) {
+								if (!badge_labels[*line].isEmpty()) {
+									badge_labels[*line].append(", ");
 								}
-								badge_labels[line].append("[" + reg.name() + "]");
+								badge_labels[*line].append("[" + reg.name() + "]");
 							}
 						}
 					}
@@ -1078,7 +1080,9 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		if (analyzer && l3-x > font_width_ / 2) {
 			painter.setPen(QPen(palette().shadow().color(), 2));
 			int next_line = 0;
-			analyzer->for_funcs_in_range(show_addresses_[0], show_addresses_[lines_to_render-1], [&](const Function* func) {
+
+			if(lines_to_render != 0 && !show_addresses_.isEmpty()) {
+				analyzer->for_funcs_in_range(show_addresses_[0], show_addresses_[lines_to_render-1], [&](const Function* func) {
 				auto entry_addr = func->entry_address();
 				auto end_addr = func->end_address();
 				unsigned int start_line;
@@ -1147,7 +1151,8 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 				painter.drawLine(x, start_line*line_height, x, end_line*line_height);
 				return true;
 
-			});
+				});
+			}
 		}
 	}
 

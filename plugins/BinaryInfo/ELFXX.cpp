@@ -153,7 +153,7 @@ edb::address_t ELFXX<elfxx_header>::base_address() const {
 // Desc: returns a list of all headers in this binary
 //------------------------------------------------------------------------------
 template <class elfxx_header>
-QVector<IBinary::Header> ELFXX<elfxx_header>::headers() const {
+std::vector<IBinary::Header> ELFXX<elfxx_header>::headers() const {
 	return headers_;
 }
 

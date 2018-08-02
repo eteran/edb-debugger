@@ -98,17 +98,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
-const quint64 initial_bp_tag    = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
-const quint64 stepover_bp_tag   = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
-const quint64 run_to_cursor_tag = Q_UINT64_C(0x474f544f48455245); // "GOTOHERE" in hex
-const quint64 ld_loader_tag     = Q_UINT64_C(0x4c49424556454e54); // "LIBEVENT" in hex
-
-
+constexpr quint64 initial_bp_tag    = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
+constexpr quint64 stepover_bp_tag   = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
+constexpr quint64 run_to_cursor_tag = Q_UINT64_C(0x474f544f48455245); // "GOTOHERE" in hex
+constexpr quint64 ld_loader_tag     = Q_UINT64_C(0x4c49424556454e54); // "LIBEVENT" in hex
 
 template <class Addr>
 void handle_library_event(IProcess *process, edb::address_t debug_pointer) {
 	edb::linux_struct::r_debug<Addr> dynamic_info;
-	const bool ok = process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info));
+	const bool ok = (process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info)) == sizeof(dynamic_info));
 	if(ok) {
 
 		// NOTE(eteran): at least on my system, the name of

@@ -52,7 +52,7 @@ public:
     edb::address_t entry_point() override;
     size_t header_size() const override;
     const void *header() const override;
-    QVector<Header> headers() const override;
+	std::vector<Header> headers() const override;
     edb::address_t base_address() const override;
 
 private:

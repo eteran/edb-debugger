@@ -20,16 +20,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "demangle.h"
 #include "edb.h"
 
+#include <set>
+#include <iostream>
+#include <memory>
+
 #include <QDateTime>
 #include <QDebug>
 #include <QFile>
 #include <QFileInfo>
 #include <QList>
-#include <QSet>
 #include <QString>
 #include <QSettings>
-#include <iostream>
-#include <memory>
 
 #include "elf/elf_types.h"
 #include "elf/elf_header.h"
@@ -212,7 +213,7 @@ void collect_symbols(const void *p, size_t size, QList<typename M::symbol> &symb
 
 	address_t plt_address = 0;
 	address_t got_address = 0;
-	QSet<address_t> plt_addresses;
+	std::set<address_t> plt_addresses;
 
 	// collect special section addresses
 	for(const elf_section_header_t *section = sections_begin; section != sections_end; ++section) {
