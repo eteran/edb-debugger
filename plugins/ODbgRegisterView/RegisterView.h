@@ -108,8 +108,10 @@ private:
 private:
 	QList<RegisterGroup *> groups;
 
-private Q_SLOTS:
+public Q_SLOTS:
 	void fieldSelected();
+
+private Q_SLOTS:
 	void modelReset();
 	void modelUpdated();
 	void copyAllRegisters();

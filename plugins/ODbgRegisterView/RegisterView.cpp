@@ -234,7 +234,7 @@ QMargins RegisterGroup::getFieldMargins() const {
 
 void RegisterGroup::insert(FieldWidget *const widget) {
 	if (const auto value = qobject_cast<ValueField *>(widget)) {
-		connect(value, SIGNAL(selected()), regView(), SLOT(fieldSelected()));
+		connect(value, &ValueField::selected, regView(), &ODBRegView::fieldSelected);
 	}
 }
 
@@ -444,7 +444,7 @@ ODBRegView::ODBRegView(QString const &settingsGroup, QWidget *parent)
 {
 	setObjectName("ODBRegView");
 
-	connect(&edb::v1::config(), SIGNAL(settingsUpdated()), this, SLOT(settingsUpdated()));
+	connect(&edb::v1::config(), &Configuration::settingsUpdated, this, &ODBRegView::settingsUpdated);
 
 	updateFont();
 
@@ -498,7 +498,7 @@ ODBRegView::ODBRegView(QString const &settingsGroup, QWidget *parent)
 		}
 	}
 
-	connect(new QShortcut(copyFieldShortcut, this, 0, 0, Qt::WidgetShortcut), SIGNAL(activated()), this, SLOT(copyRegisterToClipboard()));
+	connect(new QShortcut(copyFieldShortcut, this, 0, 0, Qt::WidgetShortcut), &QShortcut::activated, this, &ODBRegView::copyRegisterToClipboard);
 }
 
 void ODBRegView::copyRegisterToClipboard() const {
@@ -584,8 +584,8 @@ void ODBRegView::saveState(QString const &settingsGroup) const {
 
 void ODBRegView::setModel(RegisterViewModelBase::Model *model) {
 	model_ = model;
-	connect(model, SIGNAL(modelReset()), this, SLOT(modelReset()));
-	connect(model, SIGNAL(dataChanged(QModelIndex const &, QModelIndex const &)), this, SLOT(modelUpdated()));
+	connect(model, &RegisterViewModelBase::Model::modelReset,  this, &ODBRegView::modelReset);
+	connect(model, &RegisterViewModelBase::Model::dataChanged, this, &ODBRegView::modelUpdated);
 	modelReset();
 }
 

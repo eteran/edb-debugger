@@ -99,16 +99,16 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent) : QDialog(parent
 	{
 		const auto hexSignRadiosLayout = new QVBoxLayout();
 		radioHex                       = new QRadioButton(tr("Hexadecimal"), this);
-		connect(radioHex, SIGNAL(toggled(bool)), this, SLOT(onHexToggled(bool)));
+		connect(radioHex, &QRadioButton::toggled, this, &DialogEditSIMDRegister::onHexToggled);
 		radioHex->setChecked(true); // must be after connecting of toggled()
 		hexSignRadiosLayout->addWidget(radioHex);
 
 		radioSigned = new QRadioButton(tr("Signed"), this);
-		connect(radioSigned, SIGNAL(toggled(bool)), this, SLOT(onSignedToggled(bool)));
+		connect(radioSigned, &QRadioButton::toggled, this, &DialogEditSIMDRegister::onSignedToggled);
 		hexSignRadiosLayout->addWidget(radioSigned);
 
 		radioUnsigned = new QRadioButton(tr("Unsigned"), this);
-		connect(radioUnsigned, SIGNAL(toggled(bool)), this, SLOT(onUnsignedToggled(bool)));
+		connect(radioUnsigned, &QRadioButton::toggled, this, &DialogEditSIMDRegister::onUnsignedToggled);
 		hexSignRadiosLayout->addWidget(radioUnsigned);
 
 		hexSignOKCancelLayout->addLayout(hexSignRadiosLayout);
@@ -119,8 +119,8 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent) : QDialog(parent
 		okCancelLayout->addItem(new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding));
 
 		okCancel = new QDialogButtonBox(QDialogButtonBox::Cancel | QDialogButtonBox::Ok, Qt::Horizontal, this);
-		connect(okCancel, SIGNAL(accepted()), this, SLOT(accept()));
-		connect(okCancel, SIGNAL(rejected()), this, SLOT(reject()));
+		connect(okCancel, &QDialogButtonBox::accepted, this, &DialogEditSIMDRegister::accept);
+		connect(okCancel, &QDialogButtonBox::rejected, this, &DialogEditSIMDRegister::reject);
 		okCancelLayout->addWidget(okCancel);
 
 		hexSignOKCancelLayout->addLayout(okCancelLayout);

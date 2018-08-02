@@ -149,7 +149,7 @@ void DialogAttach::update_list() {
 void DialogAttach::showEvent(QShowEvent *event) {
 	Q_UNUSED(event);
 	update_list();
-	connect(&updateTimer,SIGNAL(timeout()),this,SLOT(update_list()));
+	connect(&updateTimer, &QTimer::timeout, this, &DialogAttach::update_list);
 	updateTimer.start(1000);
 }
 

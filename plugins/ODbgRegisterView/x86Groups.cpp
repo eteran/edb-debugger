@@ -278,7 +278,7 @@ RegisterGroup *createFPUData(RegisterViewModelBase::Model *model, QWidget *paren
 				return QString("ST%1").arg(stI);
 			};
 			const auto field = new VolatileNameField(nameWidth, STiFormatter, group);
-			QObject::connect(model, SIGNAL(dataChanged(QModelIndex const &, QModelIndex const &)), field, SLOT(adjustToData()));
+			QObject::connect(model, &RegisterViewModelBase::Model::dataChanged, field, &VolatileNameField::adjustToData);
 			group->insert(row, column, field);
 			column += nameWidth + 1;
 		}

@@ -84,18 +84,21 @@ DialogEditFPU::DialogEditFPU(QWidget *parent) : QDialog(parent), floatEntry(new 
 
 	allContentsGrid->addWidget(floatEntry, 0, 1);
 	allContentsGrid->addWidget(hexEntry, 1, 1);
-	connect(floatEntry, SIGNAL(textEdited(const QString &)), this, SLOT(onFloatEdited(const QString &)));
-	connect(hexEntry, SIGNAL(textEdited(const QString &)), this, SLOT(onHexEdited(const QString &)));
+
+	connect(floatEntry, &Float80Edit::textEdited, this, &DialogEditFPU::onFloatEdited);
+	connect(hexEntry,   &QLineEdit::textEdited,   this, &DialogEditFPU::onHexEdited);
+
 	hexEntry->setValidator(new QRegExpValidator(QRegExp("[0-9a-fA-F ]{,20}"), this));
-	connect(floatEntry, SIGNAL(defocussed()), this, SLOT(updateFloatEntry()));
+	connect(floatEntry, &Float80Edit::defocussed, this, &DialogEditFPU::updateFloatEntry);
 
 	hexEntry->installEventFilter(this);
 	floatEntry->installEventFilter(this);
 
 	const auto okCancel = new QDialogButtonBox(this);
 	okCancel->setStandardButtons(QDialogButtonBox::Cancel | QDialogButtonBox::Ok);
-	connect(okCancel, SIGNAL(accepted()), this, SLOT(accept()));
-	connect(okCancel, SIGNAL(rejected()), this, SLOT(reject()));
+
+	connect(okCancel, &QDialogButtonBox::accepted, this, &DialogEditFPU::accept);
+	connect(okCancel, &QDialogButtonBox::rejected, this, &DialogEditFPU::reject);
 
 	const auto dialogLayout = new QVBoxLayout(this);
 	dialogLayout->addLayout(allContentsGrid);

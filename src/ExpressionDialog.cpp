@@ -32,8 +32,9 @@ ExpressionDialog::ExpressionDialog(const QString &title, const QString &prompt) 
 {
 	setWindowTitle(title);
 	label_text_.setText(prompt);
-	connect(&button_box_, SIGNAL(accepted()), this, SLOT(accept()));
-	connect(&button_box_, SIGNAL(rejected()), this, SLOT(reject()));
+
+	connect(&button_box_, &QDialogButtonBox::accepted, this, &ExpressionDialog::accept);
+	connect(&button_box_, &QDialogButtonBox::rejected, this, &ExpressionDialog::reject);
 
 	layout_.addWidget(&label_text_);
 	layout_.addWidget(&expression_);
@@ -47,7 +48,7 @@ ExpressionDialog::ExpressionDialog(const QString &title, const QString &prompt) 
 
 	setLayout(&layout_);
 
-	connect(&expression_, SIGNAL(textChanged(const QString&)), this, SLOT(on_text_changed(const QString&)));
+	connect(&expression_, &QLineEdit::textChanged, this, &ExpressionDialog::on_text_changed);
 	expression_.selectAll();
 
 	QList<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().symbols();

@@ -48,7 +48,7 @@ DialogFunctions::DialogFunctions(QWidget *parent) : QDialog(parent), ui(new Ui::
 	ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 	filter_model_ = new QSortFilterProxyModel(this);
-	connect(ui->txtSearch, SIGNAL(textChanged(const QString &)), filter_model_, SLOT(setFilterFixedString(const QString &)));
+	connect(ui->txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
 
 #ifdef ENABLE_GRAPH
 	ui->btnGraph->setEnabled(true);

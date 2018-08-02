@@ -395,7 +395,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	gotoRIPAction_               = createAction(tr("&Goto %1").arg("EIP"),                           QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
 	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("PC"),         QKeySequence(tr("Ctrl+*")),   SLOT(mnuCPUSetEIP()));
-	gotoRIPAction_               = createAction(tr("&Goto %1").arg("PC"),                           QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
+	gotoRIPAction_               = createAction(tr("&Goto %1").arg("PC"),                            QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
 #else
 #error "This doesn't initialize actions and will lead to crash"
 #endif
@@ -461,7 +461,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 
 	// setup the recent file manager
 	ui.action_Recent_Files->setMenu(recent_file_manager_->create_menu());
-	connect(recent_file_manager_, SIGNAL(file_selected(const QString &,const QList<QByteArray>&)), SLOT(open_file(const QString &,const QList<QByteArray>&)));
+	connect(recent_file_manager_, &RecentFileManager::file_selected, this, &Debugger::open_file);
 
 	// make us the default event handler
 	edb::v1::add_debug_event_handler(this);
@@ -752,7 +752,7 @@ void Debugger::create_data_tab() {
 
 	// setup the context menu
 	hexview->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(hexview.get(), SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(mnuDumpContextMenu(const QPoint &)));
+	connect(hexview.get(), &QHexView::customContextMenuRequested, this, &Debugger::mnuDumpContextMenu);
 
 	// show the initial data for this new view
 	if(new_data_view->region) {
@@ -846,7 +846,7 @@ void Debugger::finish_plugin_setup() {
 			for(QAction *action : actions) {
 				QKeySequence shortcut = action->shortcut();
 				if(!shortcut.isEmpty()) {
-					connect(new QShortcut(shortcut, this), SIGNAL(activated()), action, SLOT(trigger()));
+					connect(new QShortcut(shortcut, this), &QShortcut::activated, action, &QAction::trigger);
 				}
 			}
 		}
@@ -963,7 +963,7 @@ void Debugger::setup_stack_view() {
 
 	// setup the context menu
 	stack_view_->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(stack_view_.get(), SIGNAL(customContextMenuRequested(const QPoint &)), SLOT(mnuStackContextMenu(const QPoint &)));
+	connect(stack_view_.get(), &QHexView::customContextMenuRequested, this, &Debugger::mnuStackContextMenu);
 
 	// we placed a view in the designer, so just set it here
 	// this may get transitioned to heap allocated, we'll see
@@ -1171,8 +1171,8 @@ void Debugger::setup_tab_buttons() {
 	ui.tabWidget->setCornerWidget(add_tab_, Qt::TopLeftCorner);
 	ui.tabWidget->setCornerWidget(del_tab_, Qt::TopRightCorner);
 
-	connect(add_tab_, SIGNAL(clicked()), SLOT(mnuDumpCreateTab()));
-	connect(del_tab_, SIGNAL(clicked()), SLOT(mnuDumpDeleteTab()));
+	connect(add_tab_, &QToolButton::clicked, this, &Debugger::mnuDumpCreateTab);
+	connect(del_tab_, &QToolButton::clicked, this, &Debugger::mnuDumpDeleteTab);
 }
 
 //------------------------------------------------------------------------------
@@ -1825,7 +1825,7 @@ void Debugger::mnuStackContextMenu(const QPoint &pos) {
     action->setCheckable(true);
     action->setChecked(stack_view_locked_);
 	menu->addAction(action);
-	connect(action, SIGNAL(toggled(bool)), SLOT(mnuStackToggleLock(bool)));
+	connect(action, &QAction::toggled, this, &Debugger::mnuStackToggleLock);
 
 	add_plugin_context_menu(menu, &IPlugin::stack_context_menu);
 
@@ -3043,7 +3043,7 @@ void Debugger::execute(const QString &program, const QList<QByteArray> &args) {
 // Name: open_file
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::open_file(const QString &s,const QList<QByteArray> &a) {
+void Debugger::open_file(const QString &s, const QList<QByteArray> &a) {
 	if(!s.isEmpty()) {
 		last_open_directory_ = QFileInfo(s).canonicalFilePath();
 

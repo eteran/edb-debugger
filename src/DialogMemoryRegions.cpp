@@ -41,7 +41,8 @@ DialogMemoryRegions::DialogMemoryRegions(QWidget *parent) : QDialog(parent), ui(
 	ui->regions_table->verticalHeader()->hide();
 	ui->regions_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	filter_model_ = new QSortFilterProxyModel(this);
-	connect(ui->filter, SIGNAL(textChanged(const QString &)), filter_model_, SLOT(setFilterFixedString(const QString &)));
+
+	connect(ui->filter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
 }
 
 //------------------------------------------------------------------------------

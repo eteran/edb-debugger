@@ -49,7 +49,7 @@ DialogSymbolViewer::DialogSymbolViewer(QWidget *parent) : QDialog(parent), ui(ne
 	ui->listView->setModel(filter_model_);
 	ui->listView->setUniformItemSizes(true);
 
-	connect(ui->txtSearch, SIGNAL(textChanged(const QString &)), filter_model_, SLOT(setFilterFixedString(const QString &)));
+	connect(ui->txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
 }
 
 //------------------------------------------------------------------------------

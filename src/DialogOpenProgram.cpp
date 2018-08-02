@@ -46,7 +46,7 @@ DialogOpenProgram::DialogOpenProgram(QWidget* parent,const QString& caption, con
 		layout->addWidget(workDir,rowCount+1,1);
 		layout->addWidget(browseDirButton,rowCount+1,2);
 
-		connect(browseDirButton,SIGNAL(clicked()),this,SLOT(browsePressed()));
+		connect(browseDirButton, &QPushButton::clicked, this, &DialogOpenProgram::browsePressed);
 	}
 	else qWarning() << tr("Failed to setup program arguments and working directory entries for file open dialog, please report and be sure to tell your Qt version");
 }

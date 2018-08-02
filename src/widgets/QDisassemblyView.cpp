@@ -201,7 +201,7 @@ QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(paren
 	setMouseTracking(true);
 	setVerticalScrollBarPolicy(Qt::ScrollBarAlwaysOn);
 
-	connect(verticalScrollBar(), SIGNAL(actionTriggered(int)), this, SLOT(scrollbar_action_triggered(int)));
+	connect(verticalScrollBar(), &QScrollBar::actionTriggered, this, &QDisassemblyView::scrollbar_action_triggered);
 }
 
 //------------------------------------------------------------------------------

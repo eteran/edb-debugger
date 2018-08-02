@@ -210,7 +210,7 @@ void GraphWidget::setHUDNotification(const QString &s, int duration) {
 	animation->setEasingCurve(QEasingCurve::OutQuad);
 	animation->start(QAbstractAnimation::DeleteWhenStopped);
 
-	connect(animation, SIGNAL(finished()), HUDLabel_, SLOT(hide()));
+	connect(animation, &QPropertyAnimation::finished, HUDLabel_, &QLabel::hide);
 }
 
 //------------------------------------------------------------------------------

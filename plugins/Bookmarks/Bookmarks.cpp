@@ -105,7 +105,7 @@ QList<QAction *> Bookmarks::cpu_context_menu() {
 	QList<QAction *> ret;
 
 	auto action_bookmark = new QAction(tr("Add &Bookmark"), this);
-	connect(action_bookmark, SIGNAL(triggered()), this, SLOT(add_bookmark_menu()));
+	connect(action_bookmark, &QAction::triggered, this, &Bookmarks::add_bookmark_menu);
 	ret << action_bookmark;
 
 	return ret;

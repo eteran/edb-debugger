@@ -40,7 +40,7 @@ const auto VIEW                   = QLatin1String("views");
 }
 
 Plugin::Plugin() : QObject(nullptr), menu_(nullptr) {
-	connect(QCoreApplication::instance(), SIGNAL(aboutToQuit()), this, SLOT(saveState()));
+	connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &Plugin::saveState);
 }
 
 
@@ -184,28 +184,28 @@ QMenu *Plugin::menu(QWidget *parent) {
 				const auto expandLeftSideUp = new QAction(tr("Expand Left-Hand Side Dock Up"), menu_);
 				expandLeftSideUp->setCheckable(true);
 				expandLeftSideUp->setChecked(mainWindow->corner(Qt::TopLeftCorner) == Qt::LeftDockWidgetArea);
-				connect(expandLeftSideUp, SIGNAL(toggled(bool)), this, SLOT(expandLSUp(bool)));
+				connect(expandLeftSideUp, &QAction::toggled, this, &Plugin::expandLSUp);
 				menu_->addAction(expandLeftSideUp);
 			}
 			{
 				const auto expandLeftSideDown = new QAction(tr("Expand Left-Hand Side Dock Down"), menu_);
 				expandLeftSideDown->setCheckable(true);
 				expandLeftSideDown->setChecked(mainWindow->corner(Qt::BottomLeftCorner) == Qt::LeftDockWidgetArea);
-				connect(expandLeftSideDown, SIGNAL(toggled(bool)), this, SLOT(expandLSDown(bool)));
+				connect(expandLeftSideDown, &QAction::toggled, this, &Plugin::expandLSDown);
 				menu_->addAction(expandLeftSideDown);
 			}
 			{
 				const auto expandRightSideUp = new QAction(tr("Expand Right-Hand Side Dock Up"), menu_);
 				expandRightSideUp->setCheckable(true);
 				expandRightSideUp->setChecked(mainWindow->corner(Qt::TopRightCorner) == Qt::RightDockWidgetArea);
-				connect(expandRightSideUp, SIGNAL(toggled(bool)), this, SLOT(expandRSUp(bool)));
+				connect(expandRightSideUp, &QAction::toggled, this, &Plugin::expandRSUp);
 				menu_->addAction(expandRightSideUp);
 			}
 			{
 				const auto expandRightSideDown = new QAction(tr("Expand Right-Hand Side Dock Down"), menu_);
 				expandRightSideDown->setCheckable(true);
 				expandRightSideDown->setChecked(mainWindow->corner(Qt::BottomRightCorner) == Qt::RightDockWidgetArea);
-				connect(expandRightSideDown, SIGNAL(toggled(bool)), this, SLOT(expandRSDown(bool)));
+				connect(expandRightSideDown, &QAction::toggled, this, &Plugin::expandRSDown);
 				menu_->addAction(expandRightSideDown);
 			}
 			menu_->addSeparator();

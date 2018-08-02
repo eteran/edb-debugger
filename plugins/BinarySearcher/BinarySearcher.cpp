@@ -63,7 +63,7 @@ QList<QAction *> BinarySearcher::stack_context_menu() {
 	QList<QAction *> ret;
 
 	auto action_find = new QAction(tr("&Find ASCII String"), this);
-	connect(action_find, SIGNAL(triggered()), this, SLOT(mnuStackFindASCII()));
+	connect(action_find, &QAction::triggered, this, &BinarySearcher::mnuStackFindASCII);
 	ret << action_find;
 
 	return ret;

@@ -40,7 +40,7 @@ enum Role {
 //------------------------------------------------------------------------------
 DialogReferences::DialogReferences(QWidget *parent) : QDialog(parent), ui(new Ui::DialogReferences) {
 	ui->setupUi(this);
-	connect(this, SIGNAL(updateProgress(int)), ui->progressBar, SLOT(setValue(int)));
+	connect(this, &DialogReferences::updateProgress, ui->progressBar, &QProgressBar::setValue);
 }
 
 //------------------------------------------------------------------------------
