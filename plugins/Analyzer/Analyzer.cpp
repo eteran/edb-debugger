@@ -272,11 +272,11 @@ QList<QAction *> Analyzer::cpu_context_menu() {
 	auto action_mark_function_start = new QAction(tr("Mark As Function Start"), this);
 	auto action_xrefs               = new QAction(tr("Show X-Refs"), this);
 
-	connect(action_find, SIGNAL(triggered()),                this, SLOT(do_view_analysis()));
-	connect(action_goto_function_start, SIGNAL(triggered()), this, SLOT(goto_function_start()));
-	connect(action_goto_function_end, SIGNAL(triggered()),   this, SLOT(goto_function_end()));
-	connect(action_mark_function_start, SIGNAL(triggered()), this, SLOT(mark_function_start()));
-	connect(action_xrefs, SIGNAL(triggered()),               this, SLOT(show_xrefs()));
+	connect(action_find,                &QAction::triggered, this, &Analyzer::do_view_analysis);
+	connect(action_goto_function_start, &QAction::triggered, this, &Analyzer::goto_function_start);
+	connect(action_goto_function_end,   &QAction::triggered, this, &Analyzer::goto_function_end);
+	connect(action_mark_function_start, &QAction::triggered, this, &Analyzer::mark_function_start);
+	connect(action_xrefs,               &QAction::triggered, this, &Analyzer::show_xrefs);
 	
 	ret << action_find << action_goto_function_start << action_goto_function_end << action_mark_function_start << action_xrefs;
 
@@ -290,7 +290,7 @@ QList<QAction *> Analyzer::cpu_context_menu() {
 void Analyzer::do_analysis(const std::shared_ptr<IRegion> &region) {
 	if(region && region->size() != 0) {
 		QProgressDialog progress(tr("Performing Analysis"), 0, 0, 100, edb::v1::debugger_ui);
-		connect(this, SIGNAL(update_progress(int)), &progress, SLOT(setValue(int)));
+		connect(this, &Analyzer::update_progress, &progress, &QProgressDialog::setValue);
 		progress.show();
 		progress.setValue(0);
 		analyze(region);

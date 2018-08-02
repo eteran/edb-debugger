@@ -43,7 +43,7 @@ SpecifiedFunctions::SpecifiedFunctions(QWidget *parent) : QDialog(parent), ui(ne
 	filter_model_->setSourceModel(model_);
 	ui->function_list->setModel(filter_model_);
 
-	connect(ui->filter, SIGNAL(textChanged(const QString &) ), filter_model_, SLOT(setFilterFixedString(const QString &)));
+	connect(ui->filter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
 }
 
 //------------------------------------------------------------------------------

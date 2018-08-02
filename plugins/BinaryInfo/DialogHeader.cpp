@@ -486,7 +486,7 @@ DialogHeader::DialogHeader(QWidget *parent) : QDialog(parent), ui(new Ui::Dialog
 	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 	filter_model_ = new QSortFilterProxyModel(this);
-	connect(ui->txtSearch, SIGNAL(textChanged(const QString &)), filter_model_, SLOT(setFilterFixedString(const QString &)));
+	connect(ui->txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
 }
 
 //------------------------------------------------------------------------------

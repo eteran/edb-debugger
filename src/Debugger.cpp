@@ -365,10 +365,10 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	setup_ui();
 
 	// connect the timer to the debug event
-	connect(timer_, SIGNAL(timeout()), this, SLOT(next_debug_event()));
+	connect(timer_, &QTimer::timeout, this, &Debugger::next_debug_event);
 
 	// create a context menu for the tab bar as well
-	connect(ui.tabWidget, SIGNAL(customContextMenuRequested(int, const QPoint &)), this, SLOT(tab_context_menu(int, const QPoint &)));
+	connect(ui.tabWidget, &TabWidget::customContextMenuRequested, this, &Debugger::tab_context_menu);
 
 	// CPU Shortcuts
 	gotoAddressAction_           = createAction(tr("&Goto Expression..."),                           QKeySequence(tr("Ctrl+G")),   SLOT(goto_triggered()));

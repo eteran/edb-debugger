@@ -90,7 +90,7 @@ void CheckVersion::do_check() {
 
 	if(!network_) {
 		network_ = new QNetworkAccessManager(this);
-		connect(network_, SIGNAL(finished(QNetworkReply*)), this, SLOT(requestFinished(QNetworkReply*)));
+		connect(network_, &QNetworkAccessManager::finished, this, &CheckVersion::requestFinished);
 	}
 
 	//network_->abort(); //?
