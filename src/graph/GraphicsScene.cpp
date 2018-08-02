@@ -44,13 +44,6 @@ GraphicsScene::GraphicsScene(qreal x, qreal y, qreal width, qreal height, QObjec
 
 //------------------------------------------------------------------------------
 // Name: GraphicsScene
-// Desc: destructor
-//------------------------------------------------------------------------------
-GraphicsScene::~GraphicsScene() {
-}
-
-//------------------------------------------------------------------------------
-// Name: GraphicsScene
 // Desc: tooltip event propagator
 //------------------------------------------------------------------------------
 void GraphicsScene::helpEvent(QGraphicsSceneHelpEvent *helpEvent) {

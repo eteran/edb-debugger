@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SYNTAX_HIGHLIGHTER_H
 #define SYNTAX_HIGHLIGHTER_H
 
+#include <vector>
 #include <QVector>
 #include <QRegExp>
 #include <QTextCharFormat>
@@ -45,7 +46,7 @@ private:
 		QTextCharFormat format;
 	};
 
-	QVector<HighlightingRule> rules_;
+	std::vector<HighlightingRule> rules_;
 };
 
 #endif

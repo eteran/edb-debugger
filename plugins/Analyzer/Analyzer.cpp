@@ -204,7 +204,7 @@ void Analyzer::show_xrefs() {
 	
 	for(const RegionData &data : analysis_info_) {
 		for(const BasicBlock &bb : data.basic_blocks) {	
-			QVector<QPair<edb::address_t, edb::address_t>> refs = bb.refs();
+			std::vector<std::pair<edb::address_t, edb::address_t>> refs = bb.refs();
 			for(auto it = refs.begin(); it != refs.end(); ++it) {
 			
 				if(it->second == address) {					
@@ -572,8 +572,8 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 	qDebug() << "----------Basic Blocks----------";
 #endif
 
-	qSwap(data->basic_blocks, basic_blocks);
-	qSwap(data->functions, functions);
+	std::swap(data->basic_blocks, basic_blocks);
+	std::swap(data->functions, functions);
 }
 
 //------------------------------------------------------------------------------

@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "API.h"
 #include "BasicBlock.h"
 #include "Types.h"
-#include <QMap>
+#include <map>
 
 class EDB_EXPORT Function {
 public:
@@ -32,19 +32,19 @@ public:
 	};
 
 public:
-	typedef size_t                                             size_type;
-	typedef BasicBlock                                         value_type;
-	typedef BasicBlock                                        &reference;
-	typedef const BasicBlock                                  &const_reference;
-	typedef QMap<edb::address_t, BasicBlock>::iterator         iterator;
-	typedef QMap<edb::address_t, BasicBlock>::const_iterator   const_iterator;
-	typedef std::reverse_iterator<iterator>                    reverse_iterator;
-	typedef std::reverse_iterator<const_iterator>              const_reverse_iterator;
+	using size_type              = size_t;
+	using value_type             = BasicBlock;
+	using reference              = BasicBlock&;
+	using const_reference        = const BasicBlock&;
+	using iterator               = std::map<edb::address_t, BasicBlock>::iterator;
+	using const_iterator         = std::map<edb::address_t, BasicBlock>::const_iterator;
+	using reverse_iterator       = std::reverse_iterator<iterator>;
+	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 public:
-	Function();
-	Function(const Function &other);
-	Function &operator=(const Function &rhs);
+	Function()                               = default;
+	Function(const Function &other)          = default;
+	Function &operator=(const Function &rhs) = default;
 
 public:
 	void insert(const BasicBlock &bb);
@@ -82,9 +82,9 @@ public:
 	void swap(Function &other);
 
 private:
-	int                              reference_count_;
-	Type                             type_;
-	QMap<edb::address_t, BasicBlock> blocks_;
+	int                                  reference_count_ = 0;
+	Type                                 type_ = FUNCTION_STANDARD;
+	std::map<edb::address_t, BasicBlock> blocks_;
 };
 
 #endif

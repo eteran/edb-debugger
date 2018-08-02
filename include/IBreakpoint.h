@@ -34,15 +34,15 @@ class QByteArray;
 
 class IBreakpoint {
 protected:
-	IBreakpoint() : tag(0) {}
+	IBreakpoint() = default;
 
 public:
 	virtual ~IBreakpoint() = default;
 
-	enum class TypeId : int
-	{
+	enum class TypeId : int {
 		Automatic, // should be the default if the user hasn't chosen anything other
 	};
+
 	struct BreakpointType {
 		TypeId type;
 		QString description;
@@ -71,7 +71,7 @@ public:
 
 public:
 	QString condition;
-	quint64 tag;
+	quint64 tag = 0;
 
 };
 

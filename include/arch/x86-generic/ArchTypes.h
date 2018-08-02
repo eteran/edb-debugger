@@ -24,9 +24,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace edb {
 
-typedef value16                   seg_reg_t;
-typedef CapstoneEDB::Instruction  Instruction;
-typedef CapstoneEDB::Operand      Operand;
+using seg_reg_t   = value16;
+using Instruction = CapstoneEDB::Instruction;
+using Operand     = CapstoneEDB::Operand;
 
 }
 

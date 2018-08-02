@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QLongValidator : public QValidator {
 	Q_OBJECT
 public:
-	typedef std::int64_t value_type;
+	using value_type = std::int64_t;
 
 public:
     explicit QLongValidator(QObject *parent = nullptr);
@@ -41,8 +41,8 @@ public:
 	void setTop(value_type top);
 
 private:
-	value_type minimum_;
-	value_type maximum_;
+	value_type minimum_ = 0;
+	value_type maximum_ = 0;
 };
 
 #endif

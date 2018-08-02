@@ -69,11 +69,11 @@ private:
 	void setEdgeAttribute(const QString name, const QString value);
 
 private:
-	bool                  inLayout_;
-	QLayout              *HUDLayout_;
-	QLabel               *HUDLabel_;
-	GVC_t                *context_;
-	Agraph_t             *graph_;
+	bool      inLayout_  = false;
+	QLayout  *HUDLayout_ = nullptr;
+	QLabel   *HUDLabel_  = nullptr;
+	GVC_t    *context_;
+	Agraph_t *graph_;
 };
 
 #endif

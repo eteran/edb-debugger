@@ -3,7 +3,7 @@
 #define DIALOG_XREFS_H_
 
 #include <QDialog>
-#include <QPair>
+#include <utility>
 #include "edb.h"
 
 class QListWidgetItem;
@@ -23,7 +23,7 @@ public Q_SLOTS:
 	void on_listReferences_itemDoubleClicked(QListWidgetItem *item);
 	
 public:
-	void addReference(const QPair<edb::address_t, edb::address_t> &reference);
+	void addReference(const std::pair<edb::address_t, edb::address_t> &reference);
 
 private:
 	 Ui::DialogXRefs *const ui;

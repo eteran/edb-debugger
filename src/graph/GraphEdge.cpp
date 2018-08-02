@@ -26,8 +26,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
-const int LineThickness  = 2;
-const int EdgeZValue     = 1;
+constexpr int LineThickness  = 2;
+constexpr int EdgeZValue     = 1;
 
 //------------------------------------------------------------------------------
 // Name: createArrow
@@ -63,7 +63,6 @@ GraphEdge::GraphEdge(GraphNode *from, GraphNode *to, const QColor &color, QGraph
 
 	// we don't want this object to interfere with the line's events
 	setAcceptHoverEvents(false);
-
 
 	from_->addEdge(this);
 	to_->addEdge(this);

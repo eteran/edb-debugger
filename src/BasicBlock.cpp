@@ -23,33 +23,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTextStream>
 
 //------------------------------------------------------------------------------
-// Name: BasicBlock
-//------------------------------------------------------------------------------
-BasicBlock::BasicBlock() {
-
-}
-
-//------------------------------------------------------------------------------
-// Name: BasicBlock
-//------------------------------------------------------------------------------
-BasicBlock::BasicBlock(const BasicBlock &other) : instructions_(other.instructions_), refs_(other.refs_) {
-
-}
-
-//------------------------------------------------------------------------------
-// Name: operator=
-//------------------------------------------------------------------------------
-BasicBlock &BasicBlock::operator=(const BasicBlock &rhs) {
-	BasicBlock(rhs).swap(*this);
-	return *this;
-}
-
-//------------------------------------------------------------------------------
 // Name: swap
 //------------------------------------------------------------------------------
 void BasicBlock::swap(BasicBlock &other) {
-	qSwap(instructions_, other.instructions_);
-	qSwap(refs_, other.refs_);
+	std::swap(instructions_, other.instructions_);
+	std::swap(refs_, other.refs_);
 }
 
 //------------------------------------------------------------------------------
@@ -126,7 +104,7 @@ BasicBlock::size_type BasicBlock::size() const {
 // Name: empty
 //------------------------------------------------------------------------------
 bool BasicBlock::empty() const {
-	return instructions_.isEmpty();
+	return instructions_.empty();
 }
 
 //------------------------------------------------------------------------------
@@ -211,8 +189,7 @@ QString BasicBlock::toString() const {
 	QString text;
 	QTextStream ts(&text);
 
-	for(auto it = begin(); it != end(); ++it) {
-		const instruction_pointer &inst = *it;
+	for(const instruction_pointer &inst : instructions_) {
 		ts << edb::address_t(inst->rva()).toPointerString() << ": " << edb::v1::formatter().to_string(*inst).c_str() << "\n";
 	}
 
@@ -221,9 +198,9 @@ QString BasicBlock::toString() const {
 
 
 void BasicBlock::addRef(edb::address_t refsite, edb::address_t target) {
-	refs_.push_back(qMakePair(refsite, target));
+	refs_.push_back(std::make_pair(refsite, target));
 }
 
-QVector<QPair<edb::address_t, edb::address_t>> BasicBlock::refs() const {
+std::vector<std::pair<edb::address_t, edb::address_t>> BasicBlock::refs() const {
 	return refs_;
 }

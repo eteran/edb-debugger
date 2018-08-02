@@ -21,37 +21,39 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "API.h"
 #include "Types.h"
-#include <QVector>
 #include <iterator>
 #include <memory>
+#include <vector>
 
 class QString;
 
-typedef std::shared_ptr<edb::Instruction> instruction_pointer;
+using instruction_pointer = std::shared_ptr<edb::Instruction>;
 
 class EDB_EXPORT BasicBlock {
 public:
-	typedef size_t                                       size_type;
-	typedef instruction_pointer                          value_type;
-	typedef instruction_pointer                         &reference;
-	typedef const instruction_pointer                   &const_reference;
-	typedef QVector<instruction_pointer>::iterator       iterator;
-	typedef QVector<instruction_pointer>::const_iterator const_iterator;
-	typedef std::reverse_iterator<iterator>              reverse_iterator;
-	typedef std::reverse_iterator<const_iterator>        const_reverse_iterator;
+	using size_type              = size_t;
+	using value_type             = instruction_pointer;
+	using reference              = instruction_pointer&;
+	using const_reference        = const instruction_pointer&;
+	using iterator               = std::vector<instruction_pointer>::iterator;
+	using const_iterator         = std::vector<instruction_pointer>::const_iterator;
+	using reverse_iterator       = std::reverse_iterator<iterator>;
+	using const_reverse_iterator = std::reverse_iterator<const_iterator>;
 
 public:
-	BasicBlock();
-	BasicBlock(const BasicBlock &other);
-	BasicBlock &operator=(const BasicBlock &rhs);
-	~BasicBlock() = default;
+	BasicBlock()                                 = default;
+	BasicBlock(const BasicBlock &other)          = default;
+	BasicBlock &operator=(const BasicBlock &rhs) = default;
+	BasicBlock(BasicBlock &&other)               = default;
+	BasicBlock &operator=(BasicBlock &&rhs)      = default;
+	~BasicBlock()                                = default;
 
 public:
 	void push_back(const instruction_pointer &inst);
 	void addRef(edb::address_t refsite, edb::address_t target);
 	
 public:
-	QVector<QPair<edb::address_t, edb::address_t>> refs() const;
+	std::vector<std::pair<edb::address_t, edb::address_t>> refs() const;
 
 public:
 	reference operator[](size_type pos);
@@ -88,8 +90,8 @@ public:
 	edb::address_t lastAddress() const;
 
 private:
-	QVector<instruction_pointer>                   instructions_;
-	QVector<QPair<edb::address_t, edb::address_t>> refs_;
+	std::vector<instruction_pointer>                       instructions_;
+	std::vector<std::pair<edb::address_t, edb::address_t>> refs_;
 };
 
 #endif

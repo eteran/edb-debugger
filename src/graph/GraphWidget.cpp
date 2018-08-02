@@ -39,11 +39,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
-const int ScenePadding   = 30000;
-const float ZoomFactor   = 1.2;
-const float MinimumZoom  = 0.001f;
-const float MaximumZoom  = 8.000f;
-const int NodeWidth      = 100;
+constexpr int ScenePadding   = 30000;
+constexpr float ZoomFactor   = 1.2;
+constexpr float MinimumZoom  = 0.001f;
+constexpr float MaximumZoom  = 8.000f;
+constexpr int NodeWidth      = 100;
 }
 
 namespace {
@@ -107,7 +107,7 @@ QPointF centerToOrigin(const QPointF &p, qreal width, qreal height) {
 // Name: GraphWidget
 // Desc:
 //------------------------------------------------------------------------------
-GraphWidget::GraphWidget(QWidget *parent) : QGraphicsView(parent), inLayout_(false), HUDLayout_(nullptr), HUDLabel_(nullptr) {
+GraphWidget::GraphWidget(QWidget *parent) : QGraphicsView(parent) {
 
 #if 0
 	setViewport(new QGLWidget(QGLFormat(QGL::SampleBuffers)));

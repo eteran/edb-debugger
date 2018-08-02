@@ -35,7 +35,7 @@ public:
 	virtual ~IAnalyzer() = default;
 
 public:
-	typedef QMap<edb::address_t, Function> FunctionMap;
+	using FunctionMap = QMap<edb::address_t, Function>;
 
 public:
 	enum AddressCategory {
@@ -49,7 +49,7 @@ public:
 	virtual AddressCategory category(edb::address_t address) const = 0;
 	virtual FunctionMap functions(const std::shared_ptr<IRegion> &region) const = 0;
 	virtual FunctionMap functions() const = 0;
-	virtual QSet<edb::address_t> specified_functions() const { return QSet<edb::address_t>(); }
+	virtual QSet<edb::address_t> specified_functions() const { return {}; }
 	virtual Result<edb::address_t> find_containing_function(edb::address_t address) const = 0;
 	virtual void analyze(const std::shared_ptr<IRegion> &region) = 0;
 	virtual void invalidate_analysis() = 0;

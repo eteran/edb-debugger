@@ -117,35 +117,37 @@ private:
 	unsigned getSelectedLineNumber() const;
 
 private:
-	std::shared_ptr<IRegion>          region_;
-	QVector<edb::address_t>           show_addresses_;
+	edb::address_t address_offset_               = 0;
+	edb::address_t selected_instruction_address_ = 0;
+	edb::address_t current_address_              = 0;
+	int            font_height_                  = 0; // height of a character in this font
+	int            font_width_                   = 0; // width of a character in this font
+	int            icon_width_                   = 0;
+	int            icon_height_                  = 0;
+	int            line0_                        = 0;
+	int            line1_                        = 0;
+	int            line2_                        = 0;
+	int            line3_                        = 0;
+	int            selected_instruction_size_    = 0;
+	bool           moving_line1_                 = false;
+	bool           moving_line2_                 = false;
+	bool           moving_line3_                 = false;
+	bool           selecting_address_            = false;
+	bool           partial_last_line_            = false;
+
+private:
+	std::shared_ptr<IRegion>              region_;
+	QVector<edb::address_t>               show_addresses_;
 	std::vector<CapstoneEDB::Instruction> instructions_;
-	SyntaxHighlighter *const          highlighter_;
-	edb::address_t                    address_offset_;
-	edb::address_t                    selected_instruction_address_;
-	edb::address_t                    current_address_;
-	int                               font_height_; // height of a character in this font
-	int                               font_width_;  // width of a character in this font
-	int                               icon_width_;
-	int                               icon_height_;
-	int                               line0_;
-	int                               line1_;
-	int                               line2_;
-	int                               line3_;
-	int                               selected_instruction_size_;
-	bool                              moving_line1_;
-	bool                              moving_line2_;
-	bool                              moving_line3_;
-	bool                              selecting_address_;
-	bool                              show_address_separator_;
-	bool                              partial_last_line_;
-	QHash<edb::address_t, QString>    comments_;
-	NavigationHistory                 history_;
-	QSvgRenderer                      breakpoint_renderer_;
-	QSvgRenderer                      current_renderer_;
-	QSvgRenderer                      current_bp_renderer_;
-	QVector<quint8>                   instruction_buffer_;
-	QCache<QString, QPixmap>          syntax_cache_;
+	SyntaxHighlighter *const              highlighter_;
+	bool                                  show_address_separator_;
+	QHash<edb::address_t, QString>        comments_;
+	NavigationHistory                     history_;
+	QSvgRenderer                          breakpoint_renderer_;
+	QSvgRenderer                          current_renderer_;
+	QSvgRenderer                          current_bp_renderer_;
+	QVector<quint8>                       instruction_buffer_;
+	QCache<QString, QPixmap>              syntax_cache_;
 };
 
 #endif

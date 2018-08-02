@@ -30,8 +30,8 @@ ByteShiftArray::ByteShiftArray(int size) : max_size_(size) {
 // Desc:
 //------------------------------------------------------------------------------
 void ByteShiftArray::swap(ByteShiftArray &other) {
-	qSwap(data_,     other.data_);
-	qSwap(max_size_, other.max_size_);
+	std::swap(data_,     other.data_);
+	std::swap(max_size_, other.max_size_);
 }
 
 //------------------------------------------------------------------------------

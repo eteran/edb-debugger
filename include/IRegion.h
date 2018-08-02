@@ -47,7 +47,6 @@ public:
 	virtual void set_start(edb::address_t address) = 0;
 	virtual void set_end(edb::address_t address) = 0;
 
-
 public:
 	virtual edb::address_t start() const = 0;
 	virtual edb::address_t end() const = 0; // NOTE: is the address of one past the last byte of the region

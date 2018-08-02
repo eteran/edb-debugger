@@ -33,15 +33,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
-const int NodeZValue        = 1;
-const int NodeWidth         = 100;
-const int NodeHeight        = 50;
-const int LabelFontSize     = 10;
-const int BorderScaleFactor = 4;
-const QColor TextColor      = Qt::black;
-const QColor BorderColor    = Qt::blue;
-const QColor SelectColor    = Qt::lightGray;
-const QString NodeFont      = "Monospace";
+constexpr int NodeZValue        = 1;
+constexpr int NodeWidth         = 100;
+constexpr int NodeHeight        = 50;
+constexpr int LabelFontSize     = 10;
+constexpr int BorderScaleFactor = 4;
+const QColor TextColor          = Qt::black;
+const QColor BorderColor        = Qt::blue;
+const QColor SelectColor        = Qt::lightGray;
+const QString NodeFont          = "Monospace";
 
 
 Agnode_t *_agnode(Agraph_t *g, QString name) {
@@ -91,7 +91,7 @@ GraphNode::GraphNode(GraphWidget *graph, const QString &text, const QColor &colo
 //------------------------------------------------------------------------------
 GraphNode::~GraphNode() {
 
-	// we use Q_FOREACH because it operates on a *copy*
+	// NOTE(eteran): we use Q_FOREACH because it operates on a *copy*
 	// of the list, which is important because deleting an
 	// edge removes it from the list
 	Q_FOREACH(GraphEdge *const edge, edges_) {
@@ -104,7 +104,7 @@ GraphNode::~GraphNode() {
 // Desc:
 //------------------------------------------------------------------------------
 QRectF GraphNode::boundingRect() const {
-	const int weight = 2;
+	constexpr int weight = 2;
 	const int width = std::log2(weight) * BorderScaleFactor;
 	return picture_.boundingRect().adjusted(-width, -width, +width, +width);
 }

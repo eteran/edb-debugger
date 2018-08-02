@@ -43,15 +43,15 @@ namespace BinaryInfoPlugin {
 namespace {
 
 struct elf32_model {
-	typedef quint32    address_t;
+	using address_t            = quint32;
 
-	typedef elf32_header elf_header_t;
-	typedef elf32_shdr   elf_section_header_t;
-	typedef elf32_sym    elf_symbol_t;
-	typedef elf32_rela   elf_relocation_a_t;
-	typedef elf32_rel    elf_relocation_t;
+	using elf_header_t         = elf32_header;
+	using elf_section_header_t = elf32_shdr;
+	using elf_symbol_t         = elf32_sym;
+	using elf_relocation_a_t   = elf32_rela;
+	using elf_relocation_t     = elf32_rel;
 
-	static const int plt_entry_size = 0x10;
+	static constexpr int plt_entry_size = 0x10;
 
 	static quint32 elf_r_sym(quint32 x)               { return ELF32_R_SYM(x); }
 	static quint32 elf_r_type(quint32 x)              { return ELF32_R_TYPE(x); }
@@ -80,15 +80,15 @@ struct elf32_model {
 
 struct elf64_model {
 
-	typedef quint64    address_t;
+	using address_t = quint64;
 
-	typedef elf64_header elf_header_t;
-	typedef elf64_shdr   elf_section_header_t;
-	typedef elf64_sym    elf_symbol_t;
-	typedef elf64_rela   elf_relocation_a_t;
-	typedef elf64_rel    elf_relocation_t;
+	using elf_header_t         = elf64_header;
+	using elf_section_header_t = elf64_shdr;
+	using elf_symbol_t         = elf64_sym;
+	using elf_relocation_a_t   = elf64_rela;
+	using elf_relocation_t     = elf64_rel;
 
-	static const int plt_entry_size = 0x10;
+	static constexpr int plt_entry_size = 0x10;
 
 	static quint64 elf_r_sym(quint64 x)               { return ELF64_R_SYM(x); }
 	static quint64 elf_r_type(quint64 x)              { return ELF64_R_TYPE(x); }
@@ -191,13 +191,13 @@ template <class M>
 void collect_symbols(const void *p, size_t size, QList<typename M::symbol> &symbols) {
 	Q_UNUSED(size);
 
-	typedef typename M::address_t            address_t;
-	typedef typename M::elf_header_t         elf_header_t;
-	typedef typename M::elf_section_header_t elf_section_header_t;
-	typedef typename M::elf_symbol_t         elf_symbol_t;
-	typedef typename M::elf_relocation_a_t   elf_relocation_a_t;
-	typedef typename M::elf_relocation_t     elf_relocation_t;
-	typedef typename M::symbol               symbol;
+	using address_t            = typename M::address_t;
+	using elf_header_t         = typename M::elf_header_t;
+	using elf_section_header_t = typename M::elf_section_header_t;
+	using elf_symbol_t         = typename M::elf_symbol_t;
+	using elf_relocation_a_t   = typename M::elf_relocation_a_t;
+	using elf_relocation_t     = typename M::elf_relocation_t;
+	using symbol               = typename M::symbol;
 
 	const auto base = reinterpret_cast<uintptr_t>(p);
 
@@ -432,7 +432,7 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 	if(auto file_ptr = reinterpret_cast<void *>(file.map(0, file.size(), QFile::NoOptions))) {
 		if(is_elf64(file_ptr)) {
 
-			typedef typename elf64_model::symbol symbol;
+			using symbol = typename elf64_model::symbol;
 			QList<symbol> symbols;
 
 			collect_symbols<elf64_model>(file_ptr, file.size(), symbols);
@@ -457,7 +457,7 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 			return true;
 		} else if(is_elf32(file_ptr)) {
 
-			typedef typename elf32_model::symbol symbol;
+			using symbol = typename elf32_model::symbol;
 			QList<symbol> symbols;
 
 			collect_symbols<elf32_model>(file_ptr, file.size(), symbols);

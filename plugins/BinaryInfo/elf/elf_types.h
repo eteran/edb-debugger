@@ -22,49 +22,38 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELF_TYPES_20121007_H_
 #define ELF_TYPES_20121007_H_
 
-#if defined(_MSC_VER) && _MSC_VER < 1600
-  typedef unsigned __int8  uint8_t;
-  typedef unsigned __int16 uint16_t;
-  typedef unsigned __int32 uint32_t;
-  typedef unsigned __int64 uint64_t;
-  typedef __int8           int8_t;
-  typedef __int16          int16_t;
-  typedef __int32          int32_t;
-  typedef __int64          int64_t;
-#else
-	#include <stdint.h>
-#endif
+#include <cstdint>
 
 /* Type for a 16-bit quantity.  */
-typedef uint16_t elf32_half;
-typedef uint16_t elf64_half;
+using elf32_half = uint16_t;
+using elf64_half = uint16_t;
 
 /* Types for signed and unsigned 32-bit quantities.  */
-typedef uint32_t elf32_word;
-typedef int32_t  elf32_sword;
-typedef uint32_t elf64_word;
-typedef int32_t  elf64_sword;
+using elf32_word  = uint32_t;
+using elf32_sword = int32_t;
+using elf64_word  = uint32_t;
+using elf64_sword = int32_t;
 
 /* Types for signed and unsigned 64-bit quantities.  */
-typedef uint64_t elf32_xword;
-typedef int64_t  elf32_sxword;
-typedef uint64_t elf64_xword;
-typedef int64_t  elf64_sxword;
+using elf32_xword  = uint64_t;
+using elf32_sxword = int64_t;
+using elf64_xword  = uint64_t;
+using elf64_sxword = int64_t;
 
 /* Type of addresses.  */
-typedef uint32_t elf32_addr;
-typedef uint64_t elf64_addr;
+using elf32_addr = uint32_t;
+using elf64_addr = uint64_t;
 
 /* Type of file offsets.  */
-typedef uint32_t elf32_off;
-typedef uint64_t elf64_off;
+using elf32_off = uint32_t;
+using elf64_off = uint64_t;
 
 /* Type for section indices, which are 16-bit quantities.  */
-typedef uint16_t elf32_section;
-typedef uint16_t elf64_section;
+using elf32_section = uint16_t;
+using elf64_section = uint16_t;
 
 /* Type for version symbol information.  */
-typedef elf32_half elf32_versym;
-typedef elf64_half elf64_versym;
+using elf32_versym = elf32_half;
+using elf64_versym = elf64_half;
 
 #endif

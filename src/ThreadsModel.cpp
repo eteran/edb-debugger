@@ -25,9 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 ThreadsModel::ThreadsModel(QObject *parent) : QAbstractItemModel(parent) {
 }
 
-ThreadsModel::~ThreadsModel() {
-}
-
 QModelIndex ThreadsModel::index(int row, int column, const QModelIndex &parent) const {
 	Q_UNUSED(parent);
 

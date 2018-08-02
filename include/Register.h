@@ -28,12 +28,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Register;
 
-template<std::size_t bitSize=0, typename ValueType, typename Type>
+template <std::size_t bitSize = 0, typename ValueType, typename Type>
 Register make_Register(const QString &name, ValueType value, Type type);
 
 class EDB_EXPORT Register {
 public:
-	enum Type{
+	enum Type {
 		// groups, these catagories should remain as portable as possible
 		TYPE_INVALID = 0x0000,
 		TYPE_GPR     = 0x0001,
@@ -45,12 +45,12 @@ public:
 	};
 
 	// Expand when AVX-512 instructions and state are supported
-	typedef edb::value256 StoredType;
+	using StoredType = edb::value256;
 
 public:
 	Register();
-	Register(const Register &other);
-	Register &operator=(const Register &rhs);
+	Register(const Register &other)          = default;
+	Register &operator=(const Register &rhs) = default;
 
 public:
 	bool operator==(const Register &rhs) const;
@@ -60,13 +60,14 @@ public:
 	bool valid() const { return type_ != TYPE_INVALID; }
 	explicit operator bool() const { return valid(); }
 
-	Type type() const            { return type_; }
-	QString name() const         { return name_; }
-	std::size_t bitSize() const  { return bitSize_; }
+	Type type() const           { return type_; }
+	QString name() const        { return name_; }
+	std::size_t bitSize() const { return bitSize_; }
 	const char* rawData() const { return reinterpret_cast<const char*>(&value_); }
 
 	template <class T>
-	T value() const              { return T(value_); }
+	T value() const             { return T(value_); }
+
 	// Return the value, zero-extended to address_t to be usable in address calculations
 	edb::address_t valueAsAddress() const {
 		// This function only makes sense for GPRs

@@ -64,17 +64,12 @@ void BinaryString::setMaxLength(int n) {
 // Name: BinaryString
 // Desc: constructor
 //------------------------------------------------------------------------------
-BinaryString::BinaryString(QWidget *parent) : QWidget(parent),
-											  ui(new Ui::BinaryStringWidget),
-											  mode_(Mode::MemoryEditing),
-											  requestedMaxLength_(0),
-											  valueOriginalLength_(0)
-{
+BinaryString::BinaryString(QWidget *parent) : QWidget(parent), ui(new Ui::BinaryStringWidget) {
 	ui->setupUi(this);
 	ui->txtHex->setValidator(new HexStringValidator(this));
 	ui->keepSize->setFocusPolicy(Qt::TabFocus);
 	ui->txtHex->setFocus(Qt::OtherFocusReason);
-	connect(ui->keepSize,SIGNAL(stateChanged(int)),this,SLOT(on_keepSize_stateChanged()));
+	connect(ui->keepSize, SIGNAL(stateChanged(int)), this, SLOT(on_keepSize_stateChanged()));
 }
 
 //------------------------------------------------------------------------------
@@ -91,12 +86,12 @@ BinaryString::~BinaryString() {
 //------------------------------------------------------------------------------
 void BinaryString::on_keepSize_stateChanged() {
 
-	if(mode_!=Mode::MemoryEditing) return;
+	if(mode_ != Mode::MemoryEditing) return;
 
 	// There's a comment in get_binary_string_from_user(), that max length must be set before value.
 	// FIXME: do we need this here? What does "truncate incorrectly" mean there?
 	// NOTE: not doing this for now
-	if(ui->keepSize->checkState()==Qt::Unchecked)
+	if(ui->keepSize->checkState() == Qt::Unchecked)
 		setEntriesMaxLength(UNLIMITED_MAX_LENGTH);
 	else
 		setEntriesMaxLength(valueOriginalLength_);

@@ -33,8 +33,8 @@ class GraphEdge;
 class GraphNode : public QGraphicsItem {
 	Q_DISABLE_COPY(GraphNode)
 
-	friend GraphWidget;
-	friend GraphEdge;
+	friend class GraphWidget;
+	friend class GraphEdge;
 public:
 	GraphNode(GraphWidget *graph, const QString &text, const QColor &color = Qt::white);
     ~GraphNode() override;

@@ -19,20 +19,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SHIFT_BUFFER_20121017_H_
 #define SHIFT_BUFFER_20121017_H_
 
-#include <QtGlobal>
+#include <cstdint>
+#include <algorithm>
 
 template <size_t N>
 class ShiftBuffer {
 public:
 	ShiftBuffer() {
-		qFill(buffer_, buffer_ + N, 0);
+		std::fill(buffer_, buffer_ + N, 0);
 	}
 
-	~ShiftBuffer() {
-	}
+	~ShiftBuffer() = default;
 
 	ShiftBuffer(const ShiftBuffer &other) {
-		qCopy(other.buffer_, other.buffer_ + N, buffer_);
+		std::copy(other.buffer_, other.buffer_ + N, buffer_);
 	}
 
 	ShiftBuffer &operator=(const ShiftBuffer &rhs) {
@@ -61,29 +61,29 @@ public:
 	}
 
 public:
-	const quint8 *begin() const { return buffer_; }
-	const quint8 *end() const   { return buffer_ + N; }
-	quint8 *begin()             { return buffer_; }
-	quint8 *end()               { return buffer_ + N; }
+	const uint8_t *begin() const { return buffer_; }
+	const uint8_t *end() const   { return buffer_ + N; }
+	uint8_t *begin()             { return buffer_; }
+	uint8_t *end()               { return buffer_ + N; }
 
 public:
-	quint8 operator[](size_t n) const {
+	uint8_t operator[](size_t n) const {
 		return buffer_[n];
 	}
 
-	quint8 &operator[](size_t n) {
+	uint8_t &operator[](size_t n) {
 		return buffer_[n];
 	}
 
 public:
 	void swap(ShiftBuffer &other) {
 		for(size_t i = 0; i < N; ++i) {
-			qSwap(buffer_[i], other.buffer_[i]);
+			std::swap(buffer_[i], other.buffer_[i]);
 		}
 	}
 
 private:
-	quint8 buffer_[N];
+	uint8_t buffer_[N];
 };
 
 #endif

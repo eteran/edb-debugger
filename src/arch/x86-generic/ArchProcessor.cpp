@@ -56,6 +56,7 @@ std::uint32_t toUInt (std::uint64_t x) { return x; }
 std:: int32_t  toLong(std::uint64_t x) { return x; }
 std::uint32_t toULong(std::uint64_t x) { return x; }
 }
+
 namespace LP64
 {
 std:: int32_t  toInt (std::uint64_t x) { return x; }
@@ -96,26 +97,27 @@ enum SegmentRegisterIndex {
 	GS
 };
 
-static constexpr size_t MAX_DEBUG_REGS_COUNT=8;
-static constexpr size_t GPR32_COUNT=8;
-static constexpr size_t GPR64_COUNT=16;
-static constexpr size_t SSE32_COUNT=GPR32_COUNT;
-static constexpr size_t SSE64_COUNT=GPR64_COUNT;
-static constexpr size_t AVX32_COUNT=SSE32_COUNT;
-static constexpr size_t AVX64_COUNT=SSE64_COUNT;
-static constexpr size_t MAX_FPU_REGS_COUNT=8;
-static constexpr size_t MAX_MMX_REGS_COUNT=MAX_FPU_REGS_COUNT;
+constexpr size_t MAX_DEBUG_REGS_COUNT=8;
+constexpr size_t GPR32_COUNT=8;
+constexpr size_t GPR64_COUNT=16;
+constexpr size_t SSE32_COUNT=GPR32_COUNT;
+constexpr size_t SSE64_COUNT=GPR64_COUNT;
+constexpr size_t AVX32_COUNT=SSE32_COUNT;
+constexpr size_t AVX64_COUNT=SSE64_COUNT;
+constexpr size_t MAX_FPU_REGS_COUNT=8;
+constexpr size_t MAX_MMX_REGS_COUNT=MAX_FPU_REGS_COUNT;
 
 using edb::v1::debuggeeIs32Bit;
 using edb::v1::debuggeeIs64Bit;
+
 int func_param_regs_count() { return debuggeeIs32Bit() ? 0 : 6; }
 
-typedef edb::value64 MMWord;
-typedef edb::value128 XMMWord;
-typedef edb::value256 YMMWord;
-typedef edb::value512 ZMMWord;
+using MMWord  = edb::value64;
+using XMMWord = edb::value128;
+using YMMWord = edb::value256;
+using ZMMWord = edb::value512;
 
-template<typename T>
+template <typename T>
 std::string register_name(const T& val) {
 	return edb::v1::formatter().register_name(val);
 }

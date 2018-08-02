@@ -27,13 +27,13 @@ public:
     explicit GraphicsScene(QObject *parent = nullptr);
     GraphicsScene(const QRectF &sceneRect, QObject *parent = nullptr);
     GraphicsScene(qreal x, qreal y, qreal width, qreal height, QObject *parent = nullptr);
-	virtual ~GraphicsScene();
+	~GraphicsScene() override = default;
 
 Q_SIGNALS:
 	void itemHelpEvent(QGraphicsSceneHelpEvent *helpEvent, QGraphicsItem *item);
 
 protected:
-	virtual void helpEvent(QGraphicsSceneHelpEvent *helpEvent);
+	void helpEvent(QGraphicsSceneHelpEvent *helpEvent) override;
 };
 
 #endif

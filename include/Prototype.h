@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PROTOTYPE_20070320_H_
 
 #include "API.h"
-#include <QVector>
+#include <vector>
 #include <QString>
 
 namespace edb {
@@ -31,10 +31,10 @@ struct EDB_EXPORT Argument {
 };
 
 struct EDB_EXPORT Prototype {
-	QString           name;
-	QString           type;
-	bool              noreturn;
-	QVector<Argument> arguments;
+	QString               name;
+	QString               type;
+	bool                  noreturn;
+	std::vector<Argument> arguments;
 };
 
 }

@@ -59,11 +59,11 @@ struct WidgetState1 {
 	int line3;
 };
 
-const int default_byte_width   = 8;
-const QColor filling_dis_color = Qt::gray;
-const QColor default_dis_color = Qt::blue;
-const QColor invalid_dis_color = Qt::blue;
-const QColor data_dis_color    = Qt::blue;
+constexpr int default_byte_width = 8;
+const QColor filling_dis_color   = Qt::gray;
+const QColor default_dis_color   = Qt::blue;
+const QColor invalid_dis_color   = Qt::blue;
+const QColor data_dis_color      = Qt::blue;
 
 struct show_separator_tag {};
 
@@ -190,20 +190,6 @@ QString format_instruction_bytes(const edb::Instruction &inst, int maxStringPx, 
 //------------------------------------------------------------------------------
 QDisassemblyView::QDisassemblyView(QWidget * parent) : QAbstractScrollArea(parent),
 		highlighter_(new SyntaxHighlighter(this)),
-		address_offset_(0),
-		selected_instruction_address_(0),
-		current_address_(0),
-		font_height_(0),
-		font_width_(0.0),
-		icon_width_(0.0),
-		line1_(0),
-		line2_(0),
-		line3_(0),
-		selected_instruction_size_(0),
-		moving_line1_(false),
-		moving_line2_(false),
-		moving_line3_(false),
-		selecting_address_(false),
 		breakpoint_renderer_(QLatin1String(":/debugger/images/breakpoint.svg")),
 		current_renderer_(QLatin1String(":/debugger/images/arrow-right.svg")),
 		current_bp_renderer_(QLatin1String(":/debugger/images/arrow-right-red.svg")),
@@ -245,7 +231,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		verticalScrollBar()->setValue(verticalScrollBar()->maximum());
 	} else if (event->matches(QKeySequence::MoveToNextLine)) {
 		const int idx = show_addresses_.indexOf(selectedAddress());
-		if (idx > 0 && idx < show_addresses_.size()-1-partial_last_line_) {
+		if (idx > 0 && idx < show_addresses_.size() - 1 - partial_last_line_) {
 			setSelectedAddress(show_addresses_[idx + 1]);
 		} else {
 			const edb::address_t next_address = following_instructions(selectedAddress()-address_offset_, 1) + address_offset_;
@@ -890,8 +876,6 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	// This represents extra space allocated between x=0 and x=line1
 	unsigned int l0 = 0;
-
-
 
 	if(edb::v1::config().show_register_badges) { // REGISTER BADGES
 

@@ -37,7 +37,7 @@ class Status;
 
 class IDebugger {
 public:
-	typedef QHash<edb::address_t, std::shared_ptr<IBreakpoint>> BreakpointList;
+	using BreakpointList = QHash<edb::address_t, std::shared_ptr<IBreakpoint>>;
 
 public:
 	virtual ~IDebugger() = default;

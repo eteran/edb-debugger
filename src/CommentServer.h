@@ -31,7 +31,7 @@ class CommentServer : public QObject, public QHexView::CommentServerInterface {
 
 public:
     explicit CommentServer(QObject *parent = nullptr);
-    ~CommentServer() override;
+	~CommentServer() override = default;
 
 public:
     void set_comment(QHexView::address_t address, const QString &comment) override;

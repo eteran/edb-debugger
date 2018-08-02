@@ -19,33 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Function.h"
 
 //------------------------------------------------------------------------------
-// Name: Function
-//------------------------------------------------------------------------------
-Function::Function() : reference_count_(0), type_(FUNCTION_STANDARD) {
-
-}
-
-//------------------------------------------------------------------------------
-// Name: Function
-//------------------------------------------------------------------------------
-Function::Function(const Function &other) : reference_count_(other.reference_count_), type_(other.type_), blocks_(other.blocks_) {
-}
-
-//------------------------------------------------------------------------------
-// Name: operator=
-//------------------------------------------------------------------------------
-Function &Function::operator=(const Function &rhs) {
-	Function(rhs).swap(*this);
-	return *this;
-}
-
-//------------------------------------------------------------------------------
 // Name: swap
 //------------------------------------------------------------------------------
 void Function::swap(Function &other) {
-	qSwap(reference_count_, other.reference_count_);
-	qSwap(type_, other.type_);
-	qSwap(blocks_, other.blocks_);
+	std::swap(reference_count_, other.reference_count_);
+	std::swap(type_, other.type_);
+	std::swap(blocks_, other.blocks_);
 }
 
 //------------------------------------------------------------------------------
@@ -88,7 +67,7 @@ int Function::reference_count() const {
 //------------------------------------------------------------------------------
 Function::const_reference Function::back() const {
 	Q_ASSERT(!empty());
-	return *rbegin();
+	return rbegin()->second;
 }
 
 //------------------------------------------------------------------------------
@@ -96,7 +75,7 @@ Function::const_reference Function::back() const {
 //------------------------------------------------------------------------------
 Function::const_reference Function::front() const {
 	Q_ASSERT(!empty());
-	return *begin();
+	return begin()->second;
 }
 
 //------------------------------------------------------------------------------
@@ -104,7 +83,7 @@ Function::const_reference Function::front() const {
 //------------------------------------------------------------------------------
 Function::reference Function::back() {
 	Q_ASSERT(!empty());
-	return *rbegin();
+	return rbegin()->second;
 }
 
 //------------------------------------------------------------------------------
@@ -112,7 +91,7 @@ Function::reference Function::back() {
 //------------------------------------------------------------------------------
 Function::reference Function::front() {
 	Q_ASSERT(!empty());
-	return *begin();
+	return begin()->second;
 }
 
 //------------------------------------------------------------------------------
@@ -175,7 +154,7 @@ Function::reverse_iterator Function::rend() {
 // Name: empty
 //------------------------------------------------------------------------------
 bool Function::empty() const {
-	return blocks_.isEmpty();
+	return blocks_.empty();
 }
 
 //------------------------------------------------------------------------------

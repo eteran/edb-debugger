@@ -38,8 +38,7 @@ public:
 	};
 
 public:
-	ExpressionError() : error_(NONE) {
-	}
+	ExpressionError() = default;
 
 	explicit ExpressionError(ERROR_MSG type) : error_(type) {
 	}
@@ -69,26 +68,24 @@ public:
 		}
 	}
 private:
-	ERROR_MSG error_;
+	ERROR_MSG error_ = NONE;
 };
 
 
 template <class T>
 class Expression {
 public:
-	typedef std::function<T(const QString&, bool*, ExpressionError*)> variable_getter_t;
-	typedef std::function<T(T, bool*, ExpressionError*)>              memory_reader_t;
+	using variable_getter_t = std::function<T(const QString&, bool*, ExpressionError*)>;
+	using memory_reader_t   = std::function<T(T, bool*, ExpressionError*)>;
 
 public:
 	Expression(const QString &s, variable_getter_t vg, memory_reader_t mr);
-	~Expression() {}
+	~Expression() = default;
 
 private:
 	struct Token {
-		Token()                   : operator_(NONE), type_(UNKNOWN) { }
-		Token(const Token& other) : data_(other.data_), operator_(other.operator_), type_(other.type_) { }
-
-		QString data_;
+		Token() = default;
+		Token(const Token& other) = default;
 
 		enum Operator {
 			NONE,
@@ -116,20 +113,24 @@ private:
 			NE,
 			LOGICAL_AND,
 			LOGICAL_OR
-		} operator_;
+		};
 
 		enum Type {
 			UNKNOWN,
 			OPERATOR,
 			NUMBER,
 			VARIABLE
-		} type_;
+		};
 
 		void set(const QString &data, Operator oper, Type type) {
 			data_     = data;
 			operator_ = oper;
 			type_     = type;
 		}
+
+		QString data_;
+		Operator operator_ = NONE;
+		Type type_         = UNKNOWN;
 	};
 
 private:

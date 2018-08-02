@@ -38,10 +38,8 @@ public:
 	};
 
 	struct Message {
+		Message() = default;
 		Message(const QString &c, const QString &m, const QString &s) : caption(c), message(m), statusMessage(s) {
-		}
-
-		Message() {
 		}
 
 		QString caption;

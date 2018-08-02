@@ -36,7 +36,7 @@ public:
 
 public:
     ThreadsModel(QObject *parent = nullptr);
-    ~ThreadsModel() override;
+	~ThreadsModel() override = default;
 
 public:
     QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;

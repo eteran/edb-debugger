@@ -640,7 +640,7 @@ struct elf64_lib
 
 /* Entries found in sections of type SHT_MIPS_CONFLICT.  */
 
-typedef elf32_addr elf32_conflict;
+using elf32_conflict = elf32_addr;
 
 
 #if 0

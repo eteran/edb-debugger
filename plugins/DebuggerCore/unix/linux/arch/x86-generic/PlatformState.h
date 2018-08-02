@@ -52,9 +52,9 @@ static constexpr size_t MAX_YMM_REG_COUNT               = AMD64_YMM_REG_COUNT;
 static constexpr size_t MAX_ZMM_REG_COUNT               = AMD64_ZMM_REG_COUNT;
 
 #ifdef EDB_X86
-typedef struct user_regs_struct    UserRegsStructX86;
-typedef struct user_fpregs_struct  UserFPRegsStructX86;
-typedef struct user_fpxregs_struct UserFPXRegsStructX86;
+using UserRegsStructX86    = struct user_regs_struct;
+using UserFPRegsStructX86  = struct user_fpregs_struct;
+using UserFPXRegsStructX86 = struct user_fpxregs_struct;
 
 // Dummies to avoid missing compile-time checks for conversion code.
 // Actual layout is irrelevant since the code is not going to be executed
@@ -104,8 +104,8 @@ struct UserRegsStructX86_64 {
 
 #elif defined EDB_X86_64
 
-typedef user_regs_struct   UserRegsStructX86_64;
-typedef user_fpregs_struct UserFPRegsStructX86_64;
+using UserRegsStructX86_64   = user_regs_struct;
+using UserFPRegsStructX86_64 = user_fpregs_struct;
 
 // Dummies to avoid missing compile-time checks for conversion code
 // Actual layout is irrelevant since the code is not going to be executed

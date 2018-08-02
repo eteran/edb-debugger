@@ -52,7 +52,7 @@ public:
 	virtual edb::address_t debug_pointer() { return 0; }
 
 public:
-	typedef std::unique_ptr<IBinary> (*create_func_ptr_t)(const std::shared_ptr<IRegion> &);
+	using create_func_ptr_t = std::unique_ptr<IBinary> (*)(const std::shared_ptr<IRegion> &);
 };
 
 #endif

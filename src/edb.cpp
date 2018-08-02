@@ -60,7 +60,7 @@ QWidget   *edb::v1::debugger_ui   = nullptr;
 
 namespace {
 
-	typedef QList<IBinary::create_func_ptr_t> BinaryInfoList;
+    using BinaryInfoList = QList<IBinary::create_func_ptr_t>;
 
 	DebugEventHandlers                 g_DebugEventHandlers;
     QAtomicPointer<IAnalyzer>          g_Analyzer          = nullptr;

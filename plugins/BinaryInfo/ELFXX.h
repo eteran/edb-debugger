@@ -50,8 +50,8 @@ private:
 	QVector<Header>          headers_;
 };
 
-typedef ELFXX<elf32_header> ELF32;
-typedef ELFXX<elf64_header> ELF64;
+using ELF32 = ELFXX<elf32_header>;
+using ELF64 = ELFXX<elf64_header>;
 
 }
 

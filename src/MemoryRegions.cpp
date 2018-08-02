@@ -33,13 +33,6 @@ MemoryRegions::MemoryRegions() : QAbstractItemModel(nullptr) {
 }
 
 //------------------------------------------------------------------------------
-// Name: ~MemoryRegions
-// Desc: destructor
-//------------------------------------------------------------------------------
-MemoryRegions::~MemoryRegions() {
-}
-
-//------------------------------------------------------------------------------
 // Name: clear
 // Desc:
 //------------------------------------------------------------------------------
@@ -76,7 +69,7 @@ void MemoryRegions::sync() {
 	}
 
 
-	qSwap(regions_, regions);
+	std::swap(regions_, regions);
 	endResetModel();
 }
 

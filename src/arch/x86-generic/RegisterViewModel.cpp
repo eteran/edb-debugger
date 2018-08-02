@@ -37,6 +37,7 @@ template<> struct Regs<32>
 	using FLAGS=RegisterViewModelBase::FlagsRegister<edb::value32>;
 	static constexpr char namePrefix() { return 'E'; }
 };
+
 template<> struct Regs<64>
 {
 	using GPR=RegisterViewModelBase::SimpleRegister<edb::value64>;
@@ -45,13 +46,14 @@ template<> struct Regs<64>
 	static constexpr char namePrefix() { return 'R'; }
 };
 
-static constexpr std::size_t FPU_REG_COUNT=8;
-static constexpr std::size_t MMX_REG_COUNT=FPU_REG_COUNT;
-static constexpr std::size_t SSE_REG_COUNT32=8;
-static constexpr std::size_t SSE_REG_COUNT64=16;
-static constexpr std::size_t AVX_REG_COUNT32=8;
-static constexpr std::size_t AVX_REG_COUNT64=16;
-static constexpr std::size_t DBG_REG_COUNT=8;
+constexpr std::size_t FPU_REG_COUNT=8;
+constexpr std::size_t MMX_REG_COUNT=FPU_REG_COUNT;
+constexpr std::size_t SSE_REG_COUNT32=8;
+constexpr std::size_t SSE_REG_COUNT64=16;
+constexpr std::size_t AVX_REG_COUNT32=8;
+constexpr std::size_t AVX_REG_COUNT64=16;
+constexpr std::size_t DBG_REG_COUNT=8;
+
 enum
 {
 	RIP_ROW, EIP_ROW=RIP_ROW,

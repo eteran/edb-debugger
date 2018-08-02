@@ -193,7 +193,7 @@ enum {
 
 struct elf32_phdr;
 struct elf32_header {
-	typedef elf32_phdr elf_phdr;
+	using elf_phdr = elf32_phdr;
 	enum { ELFCLASS = ELFCLASS32 };
 
 	unsigned char	e_ident[EI_NIDENT];	/* Magic number and other info */
@@ -214,7 +214,7 @@ struct elf32_header {
 
 struct elf64_phdr;
 struct elf64_header {
-	typedef elf64_phdr elf_phdr;
+	using elf_phdr = elf64_phdr;
 	enum { ELFCLASS = ELFCLASS64 };
 
 	unsigned char	e_ident[EI_NIDENT];	/* Magic number and other info */

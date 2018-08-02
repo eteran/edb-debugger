@@ -50,7 +50,7 @@ State::State(const State &other) : impl_(other.impl_ ? other.impl_->clone() : nu
 // Desc:
 //------------------------------------------------------------------------------
 void State::swap(State &other) {
-	qSwap(impl_, other.impl_);
+	std::swap(impl_, other.impl_);
 }
 
 //------------------------------------------------------------------------------

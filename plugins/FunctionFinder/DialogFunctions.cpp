@@ -219,14 +219,15 @@ void DialogFunctions::on_btnGraph_clicked() {
 					QMap<edb::address_t, GraphNode *> nodes;
 
 					// first create all of the nodes
-					for(const BasicBlock &bb : f) {
+					for(const auto &pair : f) {
+						const BasicBlock &bb = pair.second;
 						auto node = new GraphNode(graph, bb.toString(), Qt::lightGray);
 						nodes.insert(bb.firstAddress(), node);
 					}
 
 					// then connect them!
-					for(const BasicBlock &bb : f) {
-
+					for(const auto &pair : f) {
+						const BasicBlock &bb = pair.second;
 
 						if(!bb.empty()) {
 

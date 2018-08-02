@@ -20,21 +20,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PE_BINARY_20121007_H_
 
 #include <stdint.h>
+
 #ifdef WIN32
 #include <Windows.h>
 #else
-typedef uint8_t  BYTE;
-typedef uint8_t  BOOLEAN;
-typedef int16_t  SHORT;
-typedef uint16_t WORD;
-typedef uint16_t USHORT;
-typedef int32_t  INT;
-typedef int32_t  LONG;
-typedef uint32_t DWORD;
-typedef uint32_t ULONG;
-typedef uint32_t UINT;
-typedef uint64_t ULONGLONG;
-typedef int64_t  LONGLONG;
+using BYTE      = uint8_t;
+using BOOLEAN   = uint8_t;
+using SHORT     = int16_t;
+using WORD      = uint16_t;
+using USHORT    = uint16_t;
+using INT       = int32_t;
+using LONG      = int32_t;
+using DWORD     = uint32_t;
+using ULONG     = uint32_t;
+using UINT      = uint32_t;
+using ULONGLONG = uint64_t;
+using LONGLONG  = int64_t;
 #define IMAGE_NUMBEROF_DIRECTORY_ENTRIES 16
 #endif
 

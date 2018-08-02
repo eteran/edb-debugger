@@ -24,8 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace edb {
 
-typedef CapstoneEDB::Instruction  Instruction;
-typedef CapstoneEDB::Operand      Operand;
+using Instruction = CapstoneEDB::Instruction;
+using Operand     = CapstoneEDB::Operand;
 
 }
 

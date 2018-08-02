@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: QULongValidator
 // Desc:
 //------------------------------------------------------------------------------
-QULongValidator::QULongValidator(QObject *parent) : QValidator(parent), minimum_(0), maximum_(0) {
+QULongValidator::QULongValidator(QObject *parent) : QValidator(parent) {
 }
 
 //------------------------------------------------------------------------------

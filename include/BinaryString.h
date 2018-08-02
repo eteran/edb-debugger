@@ -51,13 +51,15 @@ private:
 	void setEntriesMaxLength(int n);
 
 	Ui::BinaryStringWidget *const ui;
+
 	enum class Mode {
 		LengthLimited, // obeys setMaxLength()
 		MemoryEditing  // obeys user's choice in keepSize checkbox
-	} mode_;
+	};
 
-	int requestedMaxLength_;
-	int valueOriginalLength_;
+	Mode mode_               = Mode::MemoryEditing;
+	int requestedMaxLength_  = 0;
+	int valueOriginalLength_ = 0;
 };
 
 #endif

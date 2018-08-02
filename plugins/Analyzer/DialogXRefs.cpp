@@ -20,7 +20,7 @@ void DialogXRefs::on_listReferences_itemDoubleClicked(QListWidgetItem *item) {
 
 }
 
-void DialogXRefs::addReference(const QPair<edb::address_t, edb::address_t> &ref) {
+void DialogXRefs::addReference(const std::pair<edb::address_t, edb::address_t> &ref) {
 
 	int offset;
 	QString sym = edb::v1::find_function_symbol(ref.first, ref.first.toPointerString(), &offset);

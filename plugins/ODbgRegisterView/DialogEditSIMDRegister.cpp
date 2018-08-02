@@ -393,8 +393,9 @@ void DialogEditSIMDRegister::formatInteger(NumberEdit *const edit, Integer integ
 		edit->setText(QString("%1").arg(integer, 2 * sizeof integer, 16, QChar('0')));
 		break;
 	case NumberDisplayMode::Signed:
-		typedef typename std::remove_reference<Integer>::type Int;
-		typedef typename std::make_signed<Int>::type          Signed;
+		using Int    = typename std::remove_reference<Integer>::type;
+		using Signed = typename std::make_signed<Int>::type;
+
 		edit->setText(QString("%1").arg(static_cast<Signed>(integer)));
 		break;
 	case NumberDisplayMode::Unsigned:

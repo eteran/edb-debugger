@@ -102,7 +102,7 @@ private:
     long ptraceOptions() const;
 
 private:
-	typedef QHash<edb::tid_t, std::shared_ptr<PlatformThread>> threadmap_t;
+	using threadmap_t = QHash<edb::tid_t, std::shared_ptr<PlatformThread>>;
 
 private:
 	threadmap_t              threads_;

@@ -31,31 +31,6 @@ Register::Register() :
 }
 
 //------------------------------------------------------------------------------
-// Name: Register
-// Desc:
-//------------------------------------------------------------------------------
-Register::Register(const Register &other)
-	: name_(other.name_),
-	  value_(other.value_),
-	  type_(other.type_),
-	  bitSize_(other.bitSize_) {
-}
-
-//------------------------------------------------------------------------------
-// Name: operator=
-// Desc:
-//------------------------------------------------------------------------------
-Register &Register::operator=(const Register &rhs) {
-	if(this != &rhs) {
-		name_         = rhs.name_;
-		value_        = rhs.value_;
-		type_         = rhs.type_;
-		bitSize_      = rhs.bitSize_;
-	}
-	return *this;
-}
-
-//------------------------------------------------------------------------------
 // Name: operator==
 // Desc:
 //------------------------------------------------------------------------------

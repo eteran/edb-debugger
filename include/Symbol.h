@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "API.h"
 #include "Types.h"
 #include <QString>
+#include <cstdint>
 
 class EDB_EXPORT Symbol {
 public:
@@ -29,7 +30,7 @@ public:
 	QString        name;
 	QString        name_no_prefix;
 	edb::address_t address;
-	quint32        size;
+	uint32_t       size;
 	char           type;
 
 	bool is_code() const { return type == 't' || type == 'T' || type == 'P'; }

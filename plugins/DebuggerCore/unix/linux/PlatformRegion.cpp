@@ -336,7 +336,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 	}
 
 	// end nowhere near portable code
-	typedef BackupInfo<sizeof(shellcode)> BI;
+	using BI = BackupInfo<sizeof(shellcode)>;
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		if(std::shared_ptr<IThread> thread = process->current_thread()) {
 			try {

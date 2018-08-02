@@ -764,7 +764,7 @@ void Debugger::create_data_tab() {
     // NOTE(eteran): for issue #522, allow comments in data view when single word width
     hexview->setCommentServer(comment_server_);
 
-	hexview->setData(new_data_view->stream);
+	hexview->setData(new_data_view->stream.get());
 
 	const Configuration &config = edb::v1::config();
 

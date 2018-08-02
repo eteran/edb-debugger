@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QJsonObject>
 #include <QJsonParseError>
 
-const int  SessionFileVersion  = 1;
+constexpr int SessionFileVersion  = 1;
 const auto SessionFileIdString = QLatin1String("edb-session");
 
 SessionManager& SessionManager::instance() {

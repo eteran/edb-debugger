@@ -62,9 +62,9 @@ namespace {
 
 // NOTE: the details of this structure are 32/64-bit sensitive!
 
-template<class MallocChunkPtr>
+template <class MallocChunkPtr>
 struct malloc_chunk {
-	typedef MallocChunkPtr ULong; // ulong has the same size
+	using ULong = MallocChunkPtr; // ulong has the same size
 
 	ULong prev_size; /* Size of previous chunk (if free).  */
 	ULong size;      /* Size in bytes, including overhead. */

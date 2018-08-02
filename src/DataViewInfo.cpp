@@ -24,15 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DataViewInfo
 // Desc:
 //------------------------------------------------------------------------------
-DataViewInfo::DataViewInfo(const std::shared_ptr<IRegion> &r) : region(r), stream(new RegionBuffer(r)) {
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DataViewInfo
-// Desc:
-//------------------------------------------------------------------------------
-DataViewInfo::~DataViewInfo() {
-	delete stream;
+DataViewInfo::DataViewInfo(const std::shared_ptr<IRegion> &r) : region(r), stream(std::make_unique<RegionBuffer>(r)) {
 }
 
 //------------------------------------------------------------------------------
@@ -41,11 +33,10 @@ DataViewInfo::~DataViewInfo() {
 //------------------------------------------------------------------------------
 void DataViewInfo::update() {
 
-	Q_ASSERT(stream);
 	Q_ASSERT(view);
 
 	stream->set_region(region);
 	view->setAddressOffset(region->start());
-	view->setData(stream);
+	view->setData(stream.get());
 }
 

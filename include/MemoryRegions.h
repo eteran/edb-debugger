@@ -27,7 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class IRegion;
 
-
 class EDB_EXPORT MemoryRegions : public QAbstractItemModel {
 	Q_OBJECT
 
@@ -41,7 +40,7 @@ public:
 
 public:
 	MemoryRegions();
-    ~MemoryRegions() override;
+	~MemoryRegions() override = default;
 
 public:
 	std::shared_ptr<IRegion> find_region(edb::address_t address) const;
