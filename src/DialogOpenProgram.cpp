@@ -29,7 +29,9 @@ DialogOpenProgram::DialogOpenProgram(QWidget* parent,const QString& caption, con
 			  argsEdit(new QLineEdit(this)),
 			  workDir(new QLineEdit(QDir::currentPath(),this))
 {
-	QGridLayout* const layout=dynamic_cast<QGridLayout*>(this->layout());
+
+	auto layout = qobject_cast<QGridLayout*>(this->layout());
+
 	// We want to be sure that the layout is as we expect it
 	if(layout && layout->rowCount()==4 && layout->columnCount()==3)
 	{

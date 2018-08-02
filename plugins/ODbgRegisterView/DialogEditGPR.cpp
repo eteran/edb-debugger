@@ -295,7 +295,7 @@ Register DialogEditGPR::value() const {
 }
 
 void DialogEditGPR::onTextEdited(const QString &) {
-	GPREdit *edit = dynamic_cast<GPREdit *>(sender());
+	auto edit = dynamic_cast<GPREdit *>(sender());
 	edit->updateGPRValue(value_);
 	updateAllEntriesExcept(edit);
 }

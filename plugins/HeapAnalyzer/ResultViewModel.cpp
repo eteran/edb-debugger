@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ResultViewModel.h"
 #include "edb.h"
-#include <QtAlgorithms>
+#include <algorithm>
 
 namespace HeapAnalyzerPlugin {
 
@@ -168,21 +168,21 @@ void ResultViewModel::sort(int column, Qt::SortOrder order) {
 
 	if(order == Qt::AscendingOrder) {
 		switch(column) {
-		case 0: qSort(results_.begin(), results_.end(), BlockLess); break;
-		case 1: qSort(results_.begin(), results_.end(), SizeLess);  break;
-		case 2: qSort(results_.begin(), results_.end(), TypeLess);  break;
-		case 3: qSort(results_.begin(), results_.end(), DataLess);  break;
+		case 0: std::sort(results_.begin(), results_.end(), BlockLess); break;
+		case 1: std::sort(results_.begin(), results_.end(), SizeLess);  break;
+		case 2: std::sort(results_.begin(), results_.end(), TypeLess);  break;
+		case 3: std::sort(results_.begin(), results_.end(), DataLess);  break;
 		}
 	} else {
 		switch(column) {
-		case 0: qSort(results_.begin(), results_.end(), BlockGreater); break;
-		case 1: qSort(results_.begin(), results_.end(), SizeGreater);  break;
-		case 2: qSort(results_.begin(), results_.end(), TypeGreater);  break;
-		case 3: qSort(results_.begin(), results_.end(), DataGreater);  break;
+		case 0: std::sort(results_.begin(), results_.end(), BlockGreater); break;
+		case 1: std::sort(results_.begin(), results_.end(), SizeGreater);  break;
+		case 2: std::sort(results_.begin(), results_.end(), TypeGreater);  break;
+		case 3: std::sort(results_.begin(), results_.end(), DataGreater);  break;
 		}
 	}
 
-	Q_EMIT dataChanged(createIndex(0, 0, static_cast<void *>(0)), createIndex(-1, -1, static_cast<void *>(0)));
+	Q_EMIT dataChanged(createIndex(0, 0, nullptr), createIndex(-1, -1, nullptr));
 }
 
 //------------------------------------------------------------------------------

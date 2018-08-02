@@ -642,7 +642,7 @@ long PlatformProcess::ptrace_peek(edb::address_t address, bool *ok) const {
 	errno = 0;
 	// NOTE: on some Linux systems ptrace prototype has ellipsis instead of third and fourth arguments
 	// Thus we can't just pass address as is on IA32 systems: it'd put 64 bit integer on stack and cause UB
-	auto nativeAddress=reinterpret_cast<const void* const>(address.toUint());
+	auto nativeAddress = reinterpret_cast<const void*>(address.toUint());
 	const long v = ptrace(PTRACE_PEEKTEXT, pid_, nativeAddress, 0);
 	set_ok(*ok, v);
 	return v;
@@ -663,7 +663,7 @@ bool PlatformProcess::ptrace_poke(edb::address_t address, long value) {
 
 	// NOTE: on some Linux systems ptrace prototype has ellipsis instead of third and fourth arguments
 	// Thus we can't just pass address as is on IA32 systems: it'd put 64 bit integer on stack and cause UB
-	auto nativeAddress=reinterpret_cast<const void* const>(address.toUint());
+	auto nativeAddress = reinterpret_cast<const void*>(address.toUint());
 	return ptrace(PTRACE_POKETEXT, pid_, nativeAddress, value) != -1;
 }
 

@@ -323,21 +323,21 @@ QVariant Model::data(QModelIndex const& index, int role) const
 	}
 	case IsFPURegisterRole:
 	{
-		return !!dynamic_cast<GenericFPURegister const*>(item);
+		return !!dynamic_cast<const GenericFPURegister *>(item);
 	}
 	case IsBitFieldRole:
-		return !!dynamic_cast<BitFieldProperties const*>(item);
+		return !!dynamic_cast<const BitFieldProperties *>(item);
 	case IsSIMDElementRole:
-		return !!dynamic_cast<SIMDElement const*>(item);
+		return !!dynamic_cast<const SIMDElement *>(item);
 	case BitFieldOffsetRole:
 	{
-		const auto bitField=dynamic_cast<BitFieldProperties const*>(item);
+		const auto bitField = dynamic_cast<const BitFieldProperties *>(item);
 		if(!bitField) return {};
 		return bitField->offset();
 	}
 	case BitFieldLengthRole:
 	{
-		const auto bitField=dynamic_cast<BitFieldProperties const*>(item);
+		const auto bitField=dynamic_cast<const BitFieldProperties *>(item);
 		if(!bitField) return {};
 		return bitField->length();
 	}
