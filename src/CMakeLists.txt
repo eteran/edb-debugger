@@ -6,26 +6,7 @@ set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTORCC ON)
 
-set(UI_FILES
-		BinaryString.ui
-		Debugger.ui
-		DialogAbout.ui
-		DialogArguments.ui
-		DialogAttach.ui
-		DialogInputBinaryString.ui
-		DialogInputValue.ui
-		DialogMemoryRegions.ui
-		DialogOptions.ui
-		FixedFontSelector.ui
-		DialogPlugins.ui
-		DialogThreads.ui)
-
-set(RC_FILES debugger.qrc)
-
-
 find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns Svg)
-qt5_wrap_ui(UI_H ${UI_FILES})
-qt5_add_resources(RC_SRCS ${RC_FILES})
 
 if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 	execute_process(
@@ -44,27 +25,40 @@ add_definitions(-DDEFAULT_PLUGIN_PATH=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_
 set(edb_SRCS
 	BasicBlock.cpp
 	BinaryString.cpp
+	BinaryString.ui
 	ByteShiftArray.cpp
-	capstone-edb/Instruction.cpp
 	capstone-edb/Inspection.cpp
+	capstone-edb/Instruction.cpp
 	CommentServer.cpp
 	Configuration.cpp
 	DataViewInfo.cpp
 	DebugEventHandlers.cpp
 	Debugger.cpp
+	debugger.qrc
+	Debugger.ui
 	DialogAbout.cpp
+	DialogAbout.ui
 	DialogArguments.cpp
+	DialogArguments.ui
 	DialogAttach.cpp
+	DialogAttach.ui
 	DialogInputBinaryString.cpp
+	DialogInputBinaryString.ui
 	DialogInputValue.cpp
+	DialogInputValue.ui
 	DialogMemoryRegions.cpp
+	DialogMemoryRegions.ui
 	DialogOpenProgram.cpp
 	DialogOptions.cpp
+	DialogOptions.ui
 	DialogPlugins.cpp
+	DialogPlugins.ui
 	DialogThreads.cpp
+	DialogThreads.ui
 	edb.cpp
 	ExpressionDialog.cpp
 	FixedFontSelector.cpp
+	FixedFontSelector.ui
 	FloatX.cpp
 	Function.cpp
 	HexStringValidator.cpp
@@ -79,10 +73,10 @@ set(edb_SRCS
 	RegionBuffer.cpp
 	Register.cpp
 	RegisterViewModelBase.cpp
+	session/SessionError.cpp
+	session/SessionManager.cpp
 	State.cpp
 	SymbolManager.cpp
-	session/SessionManager.cpp
-	session/SessionError.cpp
 	ThreadsModel.cpp
 	widgets/LineEdit.cpp
 	widgets/NavigationHistory.cpp
@@ -90,11 +84,6 @@ set(edb_SRCS
 	widgets/RegisterViewDelegate.cpp
 	widgets/SyntaxHighlighter.cpp
 	widgets/TabWidget.cpp
-	${RC_SRCS}
-	${UI_H}
-)
-
-set(edb_INCLUDES
 	${PROJECT_SOURCE_DIR}/include/API.h
 	${PROJECT_SOURCE_DIR}/include/ArchProcessor.h
 	${PROJECT_SOURCE_DIR}/include/BasicBlock.h
@@ -105,12 +94,14 @@ set(edb_INCLUDES
 	${PROJECT_SOURCE_DIR}/include/Expression.h
 	${PROJECT_SOURCE_DIR}/include/FloatX.h
 	${PROJECT_SOURCE_DIR}/include/Function.h
+	${PROJECT_SOURCE_DIR}/include/HexStringValidator.h
 	${PROJECT_SOURCE_DIR}/include/IAnalyzer.h
 	${PROJECT_SOURCE_DIR}/include/IBinary.h
 	${PROJECT_SOURCE_DIR}/include/IBreakpoint.h
 	${PROJECT_SOURCE_DIR}/include/IDebugEvent.h
 	${PROJECT_SOURCE_DIR}/include/IDebugEventHandler.h
 	${PROJECT_SOURCE_DIR}/include/IDebugger.h
+	${PROJECT_SOURCE_DIR}/include/Instruction.h
 	${PROJECT_SOURCE_DIR}/include/IPlugin.h
 	${PROJECT_SOURCE_DIR}/include/IProcess.h
 	${PROJECT_SOURCE_DIR}/include/IRegion.h
@@ -123,6 +114,8 @@ set(edb_INCLUDES
 	${PROJECT_SOURCE_DIR}/include/os/unix/OSTypes.h
 	${PROJECT_SOURCE_DIR}/include/os/win32/OSTypes.h
 	${PROJECT_SOURCE_DIR}/include/Prototype.h
+	${PROJECT_SOURCE_DIR}/include/QLongValidator.h
+	${PROJECT_SOURCE_DIR}/include/QULongValidator.h
 	${PROJECT_SOURCE_DIR}/include/Register.h
 	${PROJECT_SOURCE_DIR}/include/RegisterViewModelBase.h
 	${PROJECT_SOURCE_DIR}/include/ShiftBuffer.h
@@ -132,59 +125,38 @@ set(edb_INCLUDES
 	${PROJECT_SOURCE_DIR}/include/ThreadsModel.h
 	${PROJECT_SOURCE_DIR}/include/Types.h
 	${PROJECT_SOURCE_DIR}/include/version.h
-	${PROJECT_SOURCE_DIR}/include/QLongValidator.h
-	${PROJECT_SOURCE_DIR}/include/QULongValidator.h
-	${PROJECT_SOURCE_DIR}/include/HexStringValidator.h
-	${PROJECT_SOURCE_DIR}/include/Instruction.h
 )
 
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64"))
-	set(edb_INCLUDES
-		${edb_INCLUDES}
-		${PROJECT_SOURCE_DIR}/include/arch/x86-generic/ArchTypes.h
-	)
-
 	set(edb_SRCS
 		${edb_SRCS}
 		arch/x86-generic/ArchProcessor.cpp
 		arch/x86-generic/RegisterViewModel.cpp
+		${PROJECT_SOURCE_DIR}/include/arch/x86-generic/ArchTypes.h
+
 	)
 endif()
 
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
-        set(edb_INCLUDES
-                ${edb_INCLUDES}
-                ${PROJECT_SOURCE_DIR}/include/arch/arm-generic/ArchTypes.h
-        )
-
-        set(edb_SRCS
-                ${edb_SRCS}
-                arch/arm-generic/ArchProcessor.cpp
-                arch/arm-generic/RegisterViewModel.cpp
-        )
+	set(edb_SRCS
+		${edb_SRCS}
+		arch/arm-generic/ArchProcessor.cpp
+		arch/arm-generic/RegisterViewModel.cpp
+		${PROJECT_SOURCE_DIR}/include/arch/arm-generic/ArchTypes.h
+	)
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+	enable_language(ASM_MASM)
+	set(CMAKE_ASM_MASM_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /safeseh")
 
-  enable_language(ASM_MASM)
-  
-  set(CMAKE_ASM_MASM_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /safeseh")
-  
-  set(edb_SRCS
-    ${edb_SRCS}
-    LongDoubleX86.asm
-  )
-  
+	set(edb_SRCS
+		${edb_SRCS}
+		LongDoubleX86.asm
+	)
 endif()
 
 if(${GRAPHVIZ_FOUND})
-	set(edb_INCLUDES
-		${edb_INCLUDES}
-		${PROJECT_SOURCE_DIR}/include/GraphWidget.h
-		${PROJECT_SOURCE_DIR}/include/GraphEdge.h
-		${PROJECT_SOURCE_DIR}/include/GraphNode.h
-	)
-
 	set(edb_SRCS
 		${edb_SRCS}
 		graph/GraphEdge.cpp
@@ -192,12 +164,13 @@ if(${GRAPHVIZ_FOUND})
 		graph/GraphicsScene.h
 		graph/GraphNode.cpp
 		graph/GraphWidget.cpp
+		${PROJECT_SOURCE_DIR}/include/GraphWidget.h
+		${PROJECT_SOURCE_DIR}/include/GraphEdge.h
+		${PROJECT_SOURCE_DIR}/include/GraphNode.h
 	)
 endif()
 
-# we put the header files from the include directory here
-# too so automoc can "just work"
-add_executable(edb ${edb_INCLUDES} ${edb_SRCS})
+add_executable(edb ${edb_SRCS})
 
 set_property(TARGET edb PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET edb PROPERTY CXX_STANDARD 14)
@@ -210,7 +183,6 @@ target_include_directories (edb PRIVATE
 	"widgets"
 	"session"
 )
-
 
 set_target_properties(edb PROPERTIES ENABLE_EXPORTS TRUE)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})

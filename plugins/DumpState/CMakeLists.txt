@@ -8,20 +8,14 @@ set(CMAKE_AUTORCC ON)
 
 set(PluginName "DumpState")
 
-set(UI_FILES
-		OptionsPage.ui)
-
 find_package(Qt5 5.0.0 REQUIRED Widgets)
-qt5_wrap_ui(UI_H ${UI_FILES})
 
-# we put the header files from the include directory here 
-# too so automoc can "just work"
 add_library(${PluginName} SHARED
 	DumpState.cpp
 	DumpState.h
 	OptionsPage.cpp
 	OptionsPage.h
-	${UI_H}
+	OptionsPage.ui
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets)

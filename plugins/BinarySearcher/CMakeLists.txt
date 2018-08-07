@@ -8,23 +8,17 @@ set(CMAKE_AUTORCC ON)
 
 set(PluginName "BinarySearcher")
 
-set(UI_FILES
-		DialogASCIIString.ui
-		DialogBinaryString.ui)
-
 find_package(Qt5 5.0.0 REQUIRED Widgets)
-qt5_wrap_ui(UI_H ${UI_FILES})
 
-# we put the header files from the include directory here 
-# too so automoc can "just work"
 add_library(${PluginName} SHARED
 	BinarySearcher.cpp
 	BinarySearcher.h
 	DialogASCIIString.cpp
 	DialogASCIIString.h
+	DialogASCIIString.ui
 	DialogBinaryString.cpp
 	DialogBinaryString.h
-	${UI_H}
+	DialogBinaryString.ui
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets)

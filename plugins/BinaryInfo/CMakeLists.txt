@@ -8,33 +8,27 @@ set(CMAKE_AUTORCC ON)
 
 set(PluginName "BinaryInfo")
 
-set(UI_FILES
-		OptionsPage.ui
-		DialogHeader.ui)
-
 find_package(Qt5 5.0.0 REQUIRED Widgets)
-qt5_wrap_ui(UI_H ${UI_FILES})
 
-# we put the header files from the include directory here 
-# too so automoc can "just work"
 add_library(${PluginName} SHARED
 	BinaryInfo.cpp
 	BinaryInfo.h
 	demangle.h
 	DialogHeader.cpp
 	DialogHeader.h
-	ELFXX.cpp
+	DialogHeader.ui
 	ELF32.cpp
 	ELF64.cpp
 	elf_binary.h
+	ELFXX.cpp
 	OptionsPage.cpp
 	OptionsPage.h
+	OptionsPage.ui
 	PE32.cpp
 	PE32.h
 	pe_binary.h
 	symbols.cpp
 	symbols.h
-	${UI_H}
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets)

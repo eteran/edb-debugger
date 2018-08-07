@@ -10,8 +10,6 @@ set(PluginName "DebuggerErrorConsole")
 
 find_package(Qt5 5.0.0 REQUIRED Widgets)
 
-# we put the header files from the include directory here
-# too so automoc can "just work"
 add_library(${PluginName} SHARED
 	Plugin.cpp
 	Plugin.h

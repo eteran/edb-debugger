@@ -8,26 +8,18 @@ set(CMAKE_AUTORCC ON)
 
 set(PluginName "Assembler")
 
-set(UI_FILES
-		DialogAssembler.ui
-		OptionsPage.ui)
-set(RC_FILES Assembler.qrc)
-
 find_package(Qt5 5.0.0 REQUIRED Widgets Xml XmlPatterns)
-qt5_wrap_ui(UI_H ${UI_FILES})
-qt5_add_resources(RC_SRCS ${RC_FILES})
 
-# we put the header files from the include directory here 
-# too so automoc can "just work"
 add_library(${PluginName} SHARED
 	Assembler.cpp
 	Assembler.h
+	Assembler.qrc
 	DialogAssembler.cpp
 	DialogAssembler.h
+	DialogAssembler.ui
 	OptionsPage.cpp
 	OptionsPage.h
-	${RC_SRCS}
-	${UI_H}
+	OptionsPage.ui
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets Qt5::Xml Qt5::XmlPatterns)

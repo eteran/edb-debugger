@@ -8,14 +8,8 @@ set(CMAKE_AUTORCC ON)
 
 set(PluginName "Bookmarks")
 
-set(UI_FILES
-		Bookmarks.ui)
-
 find_package(Qt5 5.0.0 REQUIRED Widgets)
-qt5_wrap_ui(UI_H ${UI_FILES})
 
-# we put the header files from the include directory here
-# too so automoc can "just work"
 add_library(${PluginName} SHARED
 	Bookmarks.cpp
 	Bookmarks.h
@@ -23,7 +17,7 @@ add_library(${PluginName} SHARED
 	BookmarkWidget.h
 	BookmarksModel.cpp
 	BookmarksModel.h
-	${UI_H}
+	Bookmarks.ui
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets)

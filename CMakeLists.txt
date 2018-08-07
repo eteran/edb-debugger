@@ -35,14 +35,13 @@ set_property(GLOBAL PROPERTY VERSION ${TARGET_VERSION_MAJOR}.${TARGET_VERSION_MI
 
 
 if (UNIX)
-# TODO(eteran): how low can we make this
-  find_package(PkgConfig REQUIRED)
-  pkg_check_modules(GRAPHVIZ libgvc>=2.38.0)
-  if(${GRAPHVIZ_FOUND})
-    include_directories(${GRAPHVIZ_INCLUDE_DIRS})
-    link_directories(${GRAPHVIZ_LIBRARY_DIRS})
-    add_definitions(-DENABLE_GRAPH)
-  endif()
+	find_package(PkgConfig REQUIRED)
+	pkg_check_modules(GRAPHVIZ libgvc>=2.38.0)
+	if(${GRAPHVIZ_FOUND})
+		include_directories(${GRAPHVIZ_INCLUDE_DIRS})
+		link_directories(${GRAPHVIZ_LIBRARY_DIRS})
+		add_definitions(-DENABLE_GRAPH)
+	endif()
 endif()
 
 
@@ -53,7 +52,7 @@ include_directories("include")
 if(UNIX)
 	include_directories("include/os/unix")
 elseif(WIN32)
-  include_directories("include/os/win32")
+	include_directories("include/os/win32")
 endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")

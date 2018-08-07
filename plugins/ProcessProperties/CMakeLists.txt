@@ -8,23 +8,17 @@ set(CMAKE_AUTORCC ON)
 
 set(PluginName "ProcessProperties")
 
-set(UI_FILES
-		DialogStrings.ui
-		DialogProcessProperties.ui)
-
 find_package(Qt5 5.0.0 REQUIRED Widgets Network)
-qt5_wrap_ui(UI_H ${UI_FILES})
 
-# we put the header files from the include directory here 
-# too so automoc can "just work"
 add_library(${PluginName} SHARED
 	DialogProcessProperties.cpp
 	DialogProcessProperties.h
+	DialogProcessProperties.ui
 	DialogStrings.cpp
 	DialogStrings.h
+	DialogStrings.ui
 	ProcessProperties.cpp
 	ProcessProperties.h
-	${UI_H}
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets Qt5::Network)

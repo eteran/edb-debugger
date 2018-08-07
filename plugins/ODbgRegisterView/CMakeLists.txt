@@ -12,17 +12,18 @@ find_package(Qt5 5.0.0 REQUIRED Widgets)
 
 set(PluginSources
 	DialogEditGPR.cpp
+	DialogEditSIMDRegister.cpp
+	EntryGridKeyUpDownEventFilter.cpp
+	FieldWidget.cpp
 	GPREdit.cpp
+	NumberEdit.cpp
 	Plugin.cpp
 	Plugin.h
 	RegisterView.cpp
 	RegisterView.h
 	ValueField.cpp
-	FieldWidget.cpp
-	DialogEditSIMDRegister.cpp
-	NumberEdit.cpp
-	EntryGridKeyUpDownEventFilter.cpp
 )
+
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64"))
 	set(PluginSources
 		${PluginSources}
@@ -32,6 +33,7 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 		DialogEditFPU.cpp
 	)
 endif()
+
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
 	set(PluginSources
 		${PluginSources}
@@ -39,8 +41,6 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
 	)
 endif()
 
-# we put the header files from the include directory here
-# too so automoc can "just work"
 add_library(${PluginName} SHARED ${PluginSources})
 
 target_link_libraries(${PluginName} Qt5::Widgets)

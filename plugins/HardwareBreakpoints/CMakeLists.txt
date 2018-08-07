@@ -8,22 +8,16 @@ set(CMAKE_AUTORCC ON)
 
 set(PluginName "HardwareBreakpoints")
 
-set(UI_FILES
-		DialogHWBreakpoints.ui)
-
 find_package(Qt5 5.0.0 REQUIRED Widgets)
-qt5_wrap_ui(UI_H ${UI_FILES})
 
-# we put the header files from the include directory here 
-# too so automoc can "just work"
 add_library(${PluginName} SHARED
 	DialogHWBreakpoints.cpp
 	DialogHWBreakpoints.h
+	DialogHWBreakpoints.ui
 	HardwareBreakpoints.cpp
 	HardwareBreakpoints.h
 	libHardwareBreakpoints.cpp
 	libHardwareBreakpoints.h
-	${UI_H}
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets)

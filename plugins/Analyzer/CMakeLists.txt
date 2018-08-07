@@ -8,28 +8,22 @@ set(CMAKE_AUTORCC ON)
 
 set(PluginName "Analyzer")
 
-set(UI_FILES
-		OptionsPage.ui
-		SpecifiedFunctions.ui
-		DialogXRefs.ui)
-
 find_package(Qt5 5.0.0 REQUIRED Widgets Concurrent)
-qt5_wrap_ui(UI_H ${UI_FILES})
 
-# we put the header files from the include directory here 
-# too so automoc can "just work"
 add_library(${PluginName} SHARED
-	Analyzer.h
-	AnalyzerWidget.h
-	OptionsPage.h
-	SpecifiedFunctions.h
 	Analyzer.cpp
+	Analyzer.h
 	AnalyzerWidget.cpp
-	OptionsPage.cpp
-	SpecifiedFunctions.cpp
+	AnalyzerWidget.h
 	DialogXRefs.cpp
 	DialogXRefs.h
-	${UI_H}
+	DialogXRefs.ui
+	OptionsPage.cpp
+	OptionsPage.h
+	OptionsPage.ui
+	SpecifiedFunctions.cpp
+	SpecifiedFunctions.h
+	SpecifiedFunctions.ui
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets Qt5::Concurrent)

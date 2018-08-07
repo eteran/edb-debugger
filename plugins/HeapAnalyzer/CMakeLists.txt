@@ -8,22 +8,16 @@ set(CMAKE_AUTORCC ON)
 
 set(PluginName "HeapAnalyzer")
 
-set(UI_FILES
-		DialogHeap.ui)
-
 find_package(Qt5 5.0.0 REQUIRED Widgets Concurrent)
-qt5_wrap_ui(UI_H ${UI_FILES})
 
-# we put the header files from the include directory here 
-# too so automoc can "just work"
 add_library(${PluginName} SHARED
 	DialogHeap.cpp
 	DialogHeap.h
+	DialogHeap.ui
 	HeapAnalyzer.cpp
 	HeapAnalyzer.h
 	ResultViewModel.cpp
 	ResultViewModel.h
-	${UI_H}
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets Qt5::Concurrent)

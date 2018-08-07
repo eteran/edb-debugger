@@ -10,16 +10,7 @@ set(PluginName "DebuggerCore")
 
 include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-
-set(UI_FILES
-	unix/linux/DialogMemoryAccess.ui
-)
-
-endif()
-
 find_package(Qt5 5.0.0 REQUIRED Widgets)
-qt5_wrap_ui(UI_H ${UI_FILES})
 
 set(DebuggerCore_SRCS
 	DebuggerCoreBase.cpp
@@ -48,6 +39,11 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		${DebuggerCore_SRCS}
 		unix/linux/DebuggerCore.cpp
 		unix/linux/DebuggerCore.h
+		unix/linux/DialogMemoryAccess.cpp
+		unix/linux/DialogMemoryAccess.h
+		unix/linux/DialogMemoryAccess.ui
+		unix/linux/FeatureDetect.cpp
+		unix/linux/FeatureDetect.h
 		unix/linux/PlatformCommon.cpp
 		unix/linux/PlatformCommon.h
 		unix/linux/PlatformEvent.cpp
@@ -58,32 +54,26 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		unix/linux/PlatformRegion.h
 		unix/linux/PlatformThread.cpp
 		unix/linux/PlatformThread.h	
-		unix/linux/FeatureDetect.cpp
-		unix/linux/FeatureDetect.h
-		unix/linux/DialogMemoryAccess.cpp
-		unix/linux/DialogMemoryAccess.h
-		${UI_H}
 	)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
-  include_directories(
-    "win32"
-  )
-  
-  set(DebuggerCore_SRCS
-    ${DebuggerCore_SRCS}
-    win32/DebuggerCore.cpp
-    win32/DebuggerCore.h
-    win32/PlatformEvent.cpp
-    win32/PlatformEvent.h
-    win32/PlatformProcess.cpp
-    win32/PlatformProcess.h
-    win32/PlatformRegion.cpp
-    win32/PlatformRegion.h
-    win32/PlatformState.cpp
-    win32/PlatformState.h
-    ${UI_H}
-  )
+	include_directories(
+		"win32"
+	)
+
+	set(DebuggerCore_SRCS
+		${DebuggerCore_SRCS}
+		win32/DebuggerCore.cpp
+		win32/DebuggerCore.h
+		win32/PlatformEvent.cpp
+		win32/PlatformEvent.h
+		win32/PlatformProcess.cpp
+		win32/PlatformProcess.h
+		win32/PlatformRegion.cpp
+		win32/PlatformRegion.h
+		win32/PlatformState.cpp
+		win32/PlatformState.h
+	)
 endif()
 
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64"))
