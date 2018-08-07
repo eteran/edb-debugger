@@ -129,6 +129,7 @@ set(edb_SRCS
 
 if(UNIX)
 	set(edb_SRCS
+		${edb_SRCS}
 		${PROJECT_SOURCE_DIR}/include/os/unix/OSTypes.h
 	)
 endif()
@@ -165,6 +166,7 @@ endif()
 
 if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
     set(edb_SRCS
+        ${edb_SRCS}
         ${PROJECT_SOURCE_DIR}/include/os/unix/linux/linker.h
     )
 endif()
