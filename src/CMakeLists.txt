@@ -84,6 +84,8 @@ set(edb_SRCS
 	widgets/RegisterViewDelegate.cpp
 	widgets/SyntaxHighlighter.cpp
 	widgets/TabWidget.cpp
+	${PROJECT_SOURCE_DIR}/include/Patch.h
+	${PROJECT_SOURCE_DIR}/include/Status.h
 	${PROJECT_SOURCE_DIR}/include/API.h
 	${PROJECT_SOURCE_DIR}/include/ArchProcessor.h
 	${PROJECT_SOURCE_DIR}/include/BasicBlock.h
@@ -111,8 +113,6 @@ set(edb_SRCS
 	${PROJECT_SOURCE_DIR}/include/IThread.h
 	${PROJECT_SOURCE_DIR}/include/MemoryRegions.h
 	${PROJECT_SOURCE_DIR}/include/Module.h
-	${PROJECT_SOURCE_DIR}/include/os/unix/OSTypes.h
-	${PROJECT_SOURCE_DIR}/include/os/win32/OSTypes.h
 	${PROJECT_SOURCE_DIR}/include/Prototype.h
 	${PROJECT_SOURCE_DIR}/include/QLongValidator.h
 	${PROJECT_SOURCE_DIR}/include/QULongValidator.h
@@ -126,6 +126,12 @@ set(edb_SRCS
 	${PROJECT_SOURCE_DIR}/include/Types.h
 	${PROJECT_SOURCE_DIR}/include/version.h
 )
+
+if(UNIX)
+	set(edb_SRCS
+		${PROJECT_SOURCE_DIR}/include/os/unix/OSTypes.h
+	)
+endif()
 
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64"))
 	set(edb_SRCS
@@ -153,7 +159,14 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 	set(edb_SRCS
 		${edb_SRCS}
 		LongDoubleX86.asm
+		${PROJECT_SOURCE_DIR}/include/os/win32/OSTypes.h
 	)
+endif()
+
+if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+    set(edb_SRCS
+        ${PROJECT_SOURCE_DIR}/include/os/unix/linux/linker.h
+    )
 endif()
 
 if(${GRAPHVIZ_FOUND})
