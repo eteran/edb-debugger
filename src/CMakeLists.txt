@@ -27,37 +27,51 @@ set(edb_SRCS
 	BinaryString.cpp
 	BinaryString.ui
 	ByteShiftArray.cpp
-	capstone-edb/Inspection.cpp
-	capstone-edb/Instruction.cpp
 	CommentServer.cpp
+	CommentServer.h
 	Configuration.cpp
 	DataViewInfo.cpp
+	DataViewInfo.h
 	DebugEventHandlers.cpp
+	DebugEventHandlers.h
 	Debugger.cpp
-	debugger.qrc
+	Debugger.h
+	DebuggerInternal.h
 	Debugger.ui
 	DialogAbout.cpp
+	DialogAbout.h
 	DialogAbout.ui
 	DialogArguments.cpp
+	DialogArguments.h
 	DialogArguments.ui
 	DialogAttach.cpp
+	DialogAttach.h
 	DialogAttach.ui
 	DialogInputBinaryString.cpp
+	DialogInputBinaryString.h
 	DialogInputBinaryString.ui
 	DialogInputValue.cpp
+	DialogInputValue.h
 	DialogInputValue.ui
 	DialogMemoryRegions.cpp
+	DialogMemoryRegions.h
 	DialogMemoryRegions.ui
 	DialogOpenProgram.cpp
+	DialogOpenProgram.h
 	DialogOptions.cpp
+	DialogOptions.h
 	DialogOptions.ui
 	DialogPlugins.cpp
+	DialogPlugins.h
 	DialogPlugins.ui
 	DialogThreads.cpp
+	DialogThreads.h
 	DialogThreads.ui
 	edb.cpp
 	ExpressionDialog.cpp
+	ExpressionDialog.h
 	FixedFontSelector.cpp
+	FixedFontSelector.h
 	FixedFontSelector.ui
 	FloatX.cpp
 	Function.cpp
@@ -65,27 +79,47 @@ set(edb_SRCS
 	main.cpp
 	MemoryRegions.cpp
 	PluginModel.cpp
+	PluginModel.h
 	ProcessModel.cpp
-	qhexview/qhexview.cpp
+	ProcessModel.h
 	QLongValidator.cpp
 	QULongValidator.cpp
 	RecentFileManager.cpp
+	RecentFileManager.h
 	RegionBuffer.cpp
+	RegionBuffer.h
 	Register.cpp
 	RegisterViewModelBase.cpp
-	session/SessionError.cpp
-	session/SessionManager.cpp
 	State.cpp
 	SymbolManager.cpp
+	SymbolManager.h
 	ThreadsModel.cpp
+	capstone-edb/Inspection.cpp
+	capstone-edb/Instruction.cpp
+	capstone-edb/include/Formatter.h
+	capstone-edb/include/Inspection.h
+	capstone-edb/include/Instruction.h
+	capstone-edb/include/Operand.h
+	qhexview/qhexview.cpp
+	qhexview/qhexview.h
+	qhexview/QHexView
+	session/SessionError.cpp
+	session/SessionError.h
+	session/SessionManager.cpp
+	session/SessionManager.h
 	widgets/LineEdit.cpp
+	widgets/LineEdit.h
 	widgets/NavigationHistory.cpp
+	widgets/NavigationHistory.h
 	widgets/QDisassemblyView.cpp
+	widgets/QDisassemblyView.h
 	widgets/RegisterViewDelegate.cpp
+	widgets/RegisterViewDelegate.h
 	widgets/SyntaxHighlighter.cpp
+	widgets/SyntaxHighlighter.h
 	widgets/TabWidget.cpp
-	${PROJECT_SOURCE_DIR}/include/Patch.h
-	${PROJECT_SOURCE_DIR}/include/Status.h
+	widgets/TabWidget.h
+	
 	${PROJECT_SOURCE_DIR}/include/API.h
 	${PROJECT_SOURCE_DIR}/include/ArchProcessor.h
 	${PROJECT_SOURCE_DIR}/include/BasicBlock.h
@@ -113,26 +147,23 @@ set(edb_SRCS
 	${PROJECT_SOURCE_DIR}/include/IThread.h
 	${PROJECT_SOURCE_DIR}/include/MemoryRegions.h
 	${PROJECT_SOURCE_DIR}/include/Module.h
+	${PROJECT_SOURCE_DIR}/include/Patch.h
 	${PROJECT_SOURCE_DIR}/include/Prototype.h
 	${PROJECT_SOURCE_DIR}/include/QLongValidator.h
 	${PROJECT_SOURCE_DIR}/include/QULongValidator.h
 	${PROJECT_SOURCE_DIR}/include/Register.h
+	${PROJECT_SOURCE_DIR}/include/RegisterRef.h
 	${PROJECT_SOURCE_DIR}/include/RegisterViewModelBase.h
 	${PROJECT_SOURCE_DIR}/include/ShiftBuffer.h
 	${PROJECT_SOURCE_DIR}/include/State.h
+	${PROJECT_SOURCE_DIR}/include/Status.h
 	${PROJECT_SOURCE_DIR}/include/string_hash.h
 	${PROJECT_SOURCE_DIR}/include/Symbol.h
 	${PROJECT_SOURCE_DIR}/include/ThreadsModel.h
 	${PROJECT_SOURCE_DIR}/include/Types.h
+	${PROJECT_SOURCE_DIR}/include/Util.h
 	${PROJECT_SOURCE_DIR}/include/version.h
 )
-
-if(UNIX)
-	set(edb_SRCS
-		${edb_SRCS}
-		${PROJECT_SOURCE_DIR}/include/os/unix/OSTypes.h
-	)
-endif()
 
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64"))
 	set(edb_SRCS
@@ -150,6 +181,13 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
 		arch/arm-generic/ArchProcessor.cpp
 		arch/arm-generic/RegisterViewModel.cpp
 		${PROJECT_SOURCE_DIR}/include/arch/arm-generic/ArchTypes.h
+	)
+endif()
+
+if(UNIX)
+	set(edb_SRCS
+		${edb_SRCS}
+		${PROJECT_SOURCE_DIR}/include/os/unix/OSTypes.h
 	)
 endif()
 
