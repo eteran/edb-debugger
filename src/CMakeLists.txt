@@ -36,8 +36,8 @@ set(edb_SRCS
 	DebugEventHandlers.h
 	Debugger.cpp
 	Debugger.h
-	DebuggerInternal.h
 	Debugger.ui
+	DebuggerInternal.h
 	DialogAbout.cpp
 	DialogAbout.h
 	DialogAbout.ui
@@ -67,7 +67,6 @@ set(edb_SRCS
 	DialogThreads.cpp
 	DialogThreads.h
 	DialogThreads.ui
-	edb.cpp
 	ExpressionDialog.cpp
 	ExpressionDialog.h
 	FixedFontSelector.cpp
@@ -76,7 +75,6 @@ set(edb_SRCS
 	FloatX.cpp
 	Function.cpp
 	HexStringValidator.cpp
-	main.cpp
 	MemoryRegions.cpp
 	PluginModel.cpp
 	PluginModel.h
@@ -94,6 +92,10 @@ set(edb_SRCS
 	SymbolManager.cpp
 	SymbolManager.h
 	ThreadsModel.cpp
+	debugger.qrc
+	edb.cpp
+	main.cpp
+
 	capstone-edb/Inspection.cpp
 	capstone-edb/Instruction.cpp
 	capstone-edb/include/Formatter.h
