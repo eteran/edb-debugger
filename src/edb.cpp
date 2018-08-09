@@ -1047,7 +1047,7 @@ quint32 edb_version() {
 // Name: overwrite_check
 // Desc:
 //------------------------------------------------------------------------------
-bool overwrite_check(address_t address, unsigned int size) {
+bool overwrite_check(address_t address, size_t size) {
 	bool firstConflict = true;
 	for(address_t addr = address; addr != (address + size); ++addr) {
 		std::shared_ptr<IBreakpoint> bp = find_breakpoint(addr);
@@ -1088,7 +1088,7 @@ void update_ui() {
 // Name: modify_bytes
 // Desc:
 //------------------------------------------------------------------------------
-bool modify_bytes(address_t address, unsigned int size, QByteArray &bytes, quint8 fill) {
+bool modify_bytes(address_t address, size_t size, QByteArray &bytes, quint8 fill) {
 
 	if(!edb::v1::overwrite_check(address, size)) {
 		return false;
