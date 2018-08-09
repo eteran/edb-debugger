@@ -59,15 +59,15 @@ private:
 	QWidget *options_page() override;
 
 public:
-	virtual AddressCategory category(edb::address_t address) const;
-	virtual FunctionMap functions(const std::shared_ptr<IRegion> &region) const;
-	virtual FunctionMap functions() const;
-	virtual QSet<edb::address_t> specified_functions() const { return specified_functions_; }
-	virtual Result<edb::address_t> find_containing_function(edb::address_t address) const;
-	virtual void analyze(const std::shared_ptr<IRegion> &region);
-	virtual void invalidate_analysis();
-	virtual void invalidate_analysis(const std::shared_ptr<IRegion> &region);
-	virtual bool for_funcs_in_range(const edb::address_t start, const edb::address_t end, std::function<bool(const Function*)> functor) const;
+	AddressCategory category(edb::address_t address) const override;
+	FunctionMap functions(const std::shared_ptr<IRegion> &region) const override;
+	FunctionMap functions() const override;
+	QSet<edb::address_t> specified_functions() const override { return specified_functions_; }
+	Result<edb::address_t> find_containing_function(edb::address_t address) const override;
+	void analyze(const std::shared_ptr<IRegion> &region) override;
+	void invalidate_analysis() override;
+	void invalidate_analysis(const std::shared_ptr<IRegion> &region) override;
+	bool for_funcs_in_range(const edb::address_t start, const edb::address_t end, std::function<bool(const Function*)> functor) const override;
 
 private:
 	bool find_containing_function(edb::address_t address, Function *function) const;
