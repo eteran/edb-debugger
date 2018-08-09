@@ -40,15 +40,15 @@ public:
 	~CheckVersion() override;
 
 public:
-	virtual QMenu *menu(QWidget *parent = nullptr);
-	virtual QWidget *options_page();
+	QMenu *menu(QWidget *parent = nullptr) override;
+	QWidget *options_page() override;
 
 public Q_SLOTS:
 	void show_menu();
 	void requestFinished(QNetworkReply *reply);
 
 protected:
-	virtual void private_init();
+	void private_init() override;
 
 private:
 	void do_check();

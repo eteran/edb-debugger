@@ -27,10 +27,10 @@ public:
 	AnalyzerWidget(QWidget *parent = nullptr, Qt::WindowFlags f = 0);
 
 protected:
-	virtual void paintEvent(QPaintEvent *event);
-	virtual void mousePressEvent(QMouseEvent *event);
-	virtual void mouseReleaseEvent(QMouseEvent *event);
-	virtual void mouseMoveEvent(QMouseEvent *event);
+	void paintEvent(QPaintEvent *event) override;
+	void mousePressEvent(QMouseEvent *event) override;
+	void mouseReleaseEvent(QMouseEvent *event) override;
+	void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
 	bool mouse_pressed_;

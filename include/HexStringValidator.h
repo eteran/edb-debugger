@@ -30,8 +30,8 @@ public:
 	HexStringValidator(QObject * parent);
 
 public:
-	virtual void fixup(QString &input) const;
-	virtual State validate(QString &input, int &pos) const;
+	void fixup(QString &input) const override;
+	State validate(QString &input, int &pos) const override;
 };
 
 #endif

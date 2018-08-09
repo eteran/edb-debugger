@@ -36,7 +36,7 @@ public:
 	value_type bottom() const;
 	value_type top() const;
     QValidator::State validate(QString &input, int &pos) const override;
-	virtual void setRange(value_type bottom, value_type top);
+	void setRange(value_type bottom, value_type top);
 	void setBottom(value_type bottom);
 	void setTop(value_type top);
 

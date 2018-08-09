@@ -33,26 +33,26 @@ public:
 	PlatformState();
 
 public:
-	virtual IState *clone() const;
+	IState *clone() const override;
 
 public:
-	virtual QString flags_to_string() const;
-	virtual QString flags_to_string(edb::reg_t flags) const;
-	virtual Register value(const QString &reg) const;
-	virtual edb::address_t frame_pointer() const;
-	virtual edb::address_t instruction_pointer() const;
-	virtual edb::address_t stack_pointer() const;
-	virtual edb::reg_t debug_register(int n) const;
-	virtual edb::reg_t flags() const;
-	virtual long double fpu_register(int n) const;
-	virtual void adjust_stack(int bytes);
-	virtual void clear();
-	virtual void set_debug_register(int n, edb::reg_t value);
-	virtual void set_flags(edb::reg_t flags);
-	virtual void set_instruction_pointer(edb::address_t value);
-	virtual void set_register(const QString &name, edb::reg_t value);
-	virtual quint64 mmx_register(int n) const;
-	virtual QByteArray xmm_register(int n) const;
+	QString flags_to_string() const override;
+	QString flags_to_string(edb::reg_t flags) const override;
+	Register value(const QString &reg) const override;
+	edb::address_t frame_pointer() const override;
+	edb::address_t instruction_pointer() const override;
+	edb::address_t stack_pointer() const override;
+	edb::reg_t debug_register(int n) const override;
+	edb::reg_t flags() const override;
+	long double fpu_register(int n) const override;
+	void adjust_stack(int bytes) override;
+	void clear() override;
+	void set_debug_register(int n, edb::reg_t value) override;
+	void set_flags(edb::reg_t flags) override;
+	void set_instruction_pointer(edb::address_t value) override;
+	void set_register(const QString &name, edb::reg_t value) override;
+	quint64 mmx_register(int n) const override;
+	QByteArray xmm_register(int n) const override;
 
 private:
 #if defined(EDB_X86)

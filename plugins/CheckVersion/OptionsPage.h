@@ -33,7 +33,7 @@ public:
 	~OptionsPage() override;
 
 public:
-	virtual void showEvent(QShowEvent *event);
+	void showEvent(QShowEvent *event) override;
 
 public Q_SLOTS:
 	void on_checkBox_toggled(bool checked);

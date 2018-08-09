@@ -35,57 +35,57 @@ public:
 	~DebuggerCore() override;
 
 public:
-	virtual edb::address_t page_size() const;
-	virtual bool has_extension(quint64 ext) const;
-	virtual std::shared_ptr<const IDebugEvent> wait_debug_event(int msecs);
-	virtual bool attach(edb::pid_t pid);
-	virtual void detach();
-	virtual void kill();
-	virtual void pause();
-	virtual void resume(edb::EVENT_STATUS status);
-	virtual void step(edb::EVENT_STATUS status);
-	virtual void get_state(State *state);
-	virtual void set_state(const State &state);
-	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty);
+	edb::address_t page_size() const override;
+	bool has_extension(quint64 ext) const override;
+	std::shared_ptr<const IDebugEvent> wait_debug_event(int msecs) override;
+	bool attach(edb::pid_t pid) override;
+	void detach() override;
+	void kill() override;
+	void pause() override;
+	void resume(edb::EVENT_STATUS status) override;
+	void step(edb::EVENT_STATUS status) override;
+	void get_state(State *state) override;
+	void set_state(const State &state) override;
+	bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
 
 public:
 	// thread support stuff (optional)
-	virtual QList<edb::tid_t> thread_ids() const { return threads_.keys(); }
-	virtual edb::tid_t active_thread() const     { return active_thread_; }
-	virtual void set_active_thread(edb::tid_t);
+	QList<edb::tid_t> thread_ids() const override { return threads_.keys(); }
+	edb::tid_t active_thread() const override     { return active_thread_; }
+	void set_active_thread(edb::tid_t) override;
 
 public:
-	virtual QList<std::shared_ptr<IRegion>> memory_regions() const;
-	virtual edb::address_t process_code_address() const;
-	virtual edb::address_t process_data_address() const;
+	QList<std::shared_ptr<IRegion>> memory_regions() const override;
+	edb::address_t process_code_address() const override;
+	edb::address_t process_data_address() const override;
 
 public:
-	virtual IState *create_state() const;
+	IState *create_state() const override;
 
 public:
 	// process properties
-	virtual QList<QByteArray> process_args(edb::pid_t pid) const;
-	virtual QString process_exe(edb::pid_t pid) const;
-	virtual QString process_cwd(edb::pid_t pid) const;
-	virtual edb::pid_t parent_pid(edb::pid_t pid) const;
-	virtual QDateTime process_start(edb::pid_t pid) const;
-	virtual quint64 cpu_type() const;
+	QList<QByteArray> process_args(edb::pid_t pid) const override;
+	QString process_exe(edb::pid_t pid) const override;
+	QString process_cwd(edb::pid_t pid) const override;
+	edb::pid_t parent_pid(edb::pid_t pid) const override;
+	QDateTime process_start(edb::pid_t pid) const override;
+	quint64 cpu_type() const override;
 
 private:
-	virtual QMap<edb::pid_t, ProcessInfo> enumerate_processes() const;
-	virtual QList<Module> loaded_modules() const;
+	QMap<edb::pid_t, ProcessInfo> enumerate_processes() const override;
+	QList<Module> loaded_modules() const override;
 
 public:
-	virtual QString stack_pointer() const;
-	virtual QString frame_pointer() const;
-	virtual QString instruction_pointer() const;
+	QString stack_pointer() const override;
+	QString frame_pointer() const override;
+	QString instruction_pointer() const override;
 
 public:
-	virtual QString format_pointer(edb::address_t address) const;
+	QString format_pointer(edb::address_t address) const override;
 
 private:
-	virtual long read_data(edb::address_t address, bool *ok);
-	virtual bool write_data(edb::address_t address, long value);
+	long read_data(edb::address_t address, bool *ok) override;
+	bool write_data(edb::address_t address, long value) override;
 
 private:
 	struct thread_info {

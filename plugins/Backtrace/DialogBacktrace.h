@@ -35,11 +35,11 @@ class DialogBacktrace : public QDialog {
 
 public:
 	explicit DialogBacktrace(QWidget *parent = nullptr);
-	~DialogBacktrace();
+	~DialogBacktrace() override;
 
 protected:
-	virtual void showEvent(QShowEvent *);
-	virtual void hideEvent(QHideEvent *);
+	void showEvent(QShowEvent *) override;
+	void hideEvent(QHideEvent *) override;
 
 public Q_SLOTS:
 	void populate_table();

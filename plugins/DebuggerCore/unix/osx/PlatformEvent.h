@@ -32,22 +32,22 @@ public:
 	PlatformEvent();
 
 public:
-	virtual PlatformEvent *clone() const;
+	PlatformEvent *clone() const override;
 
 public:
-	virtual Message error_description() const;
-	virtual REASON reason() const;
-	virtual TRAP_REASON trap_reason() const;
-	virtual bool exited() const;
-	virtual bool is_error() const;
-	virtual bool is_kill() const;
-	virtual bool is_stop() const;
-	virtual bool is_trap() const;
-	virtual bool terminated() const;
-	virtual bool stopped() const;
-	virtual edb::pid_t process() const;
-	virtual edb::tid_t thread() const;
-	virtual int code() const;
+	Message error_description() const override;
+	REASON reason() const override;
+	TRAP_REASON trap_reason() const override;
+	bool exited() const override;
+	bool is_error() const override;
+	bool is_kill() const override;
+	bool is_stop() const override;
+	bool is_trap() const override;
+	bool terminated() const override;
+	bool stopped() const override;
+	edb::pid_t process() const override;
+	edb::tid_t thread() const override;
+	int code() const override;
 
 private:
 	int        status;

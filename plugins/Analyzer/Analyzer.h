@@ -51,12 +51,12 @@ public:
 	Analyzer();
 
 public:
-    virtual QMenu *menu(QWidget *parent = nullptr);
-	virtual QList<QAction *> cpu_context_menu();
+    QMenu *menu(QWidget *parent = nullptr) override;
+	QList<QAction *> cpu_context_menu() override;
 
 private:
-	virtual void private_init();
-	virtual QWidget *options_page();
+	void private_init() override;
+	QWidget *options_page() override;
 
 public:
 	virtual AddressCategory category(edb::address_t address) const;

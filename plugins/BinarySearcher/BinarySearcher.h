@@ -38,8 +38,8 @@ public:
 	~BinarySearcher() override;
 
 public:
-	virtual QMenu *menu(QWidget *parent = nullptr);
-	virtual QList<QAction *> stack_context_menu();
+	QMenu *menu(QWidget *parent = nullptr) override;
+	QList<QAction *> stack_context_menu() override;
 
 public Q_SLOTS:
 	void show_menu();

@@ -41,12 +41,12 @@ public:
 	Bookmarks();
 
 public:
-	virtual QMenu *menu(QWidget *parent = nullptr);
-	virtual QList<QAction *> cpu_context_menu();
+	QMenu *menu(QWidget *parent = nullptr) override;
+	QList<QAction *> cpu_context_menu() override;
 
 public:
-	virtual QVariantMap save_state() const;
-	virtual void restore_state(const QVariantMap &);
+	QVariantMap save_state() const override;
+	void restore_state(const QVariantMap &) override;
 
 public Q_SLOTS:
 	void add_bookmark_menu();

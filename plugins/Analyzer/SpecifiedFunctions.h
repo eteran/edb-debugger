@@ -41,7 +41,7 @@ public Q_SLOTS:
 	void on_refresh_button_clicked();
 
 private:
-	virtual void showEvent(QShowEvent *event);
+	void showEvent(QShowEvent *event) override;
 
 private:
 	void do_find();

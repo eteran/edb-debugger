@@ -38,9 +38,9 @@ public:
 	~Assembler() override;
 
 public:
-	virtual QMenu *menu(QWidget *parent = nullptr);
-	virtual QList<QAction *> cpu_context_menu();
-	virtual QWidget *options_page();
+	QMenu *menu(QWidget *parent = nullptr) override;
+	QList<QAction *> cpu_context_menu() override;
+	QWidget *options_page() override;
 
 public Q_SLOTS:
 	void show_dialog();

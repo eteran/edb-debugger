@@ -36,26 +36,26 @@ public:
 	~PlatformRegion() override;
 
 public:
-	virtual IRegion *clone() const;
+	IRegion *clone() const override;
 
 public:
-	virtual bool accessible() const;
-	virtual bool readable() const;
-	virtual bool writable() const;
-	virtual bool executable() const;
-	virtual edb::address_t size() const;
+	bool accessible() const override;
+	bool readable() const override;
+	bool writable() const override;
+	bool executable() const override;
+	edb::address_t size() const override;
 
 public:
-	virtual void set_permissions(bool read, bool write, bool execute);
-	virtual void set_start(edb::address_t address);
-	virtual void set_end(edb::address_t address);
+	void set_permissions(bool read, bool write, bool execute) override;
+	void set_start(edb::address_t address) override;
+	void set_end(edb::address_t address) override;
 
 public:
-	virtual edb::address_t start() const;
-	virtual edb::address_t end() const;
-	virtual edb::address_t base() const;
-	virtual QString name() const;
-	virtual permissions_t permissions() const;
+	edb::address_t start() const override;
+	edb::address_t end() const override;
+	edb::address_t base() const override;
+	QString name() const override;
+	permissions_t permissions() const override;
 
 private:
 	edb::address_t start_;

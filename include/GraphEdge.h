@@ -50,8 +50,8 @@ public:
 	void syncState();
 
 public:
-	virtual int lineThickness() const;
-	virtual QColor lineColor() const;
+	int lineThickness() const;
+	QColor lineColor() const;
 
 public:
 	void updateLines();

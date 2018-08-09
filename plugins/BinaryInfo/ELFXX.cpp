@@ -36,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace BinaryInfoPlugin {
 
 class ELFBinaryException : public std::exception {
-	virtual const char *what() const noexcept = 0;
+	const char *what() const noexcept override = 0;
 };
 
 class InvalidArguments : public ELFBinaryException {

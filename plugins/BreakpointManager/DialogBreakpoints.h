@@ -42,8 +42,8 @@ public Q_SLOTS:
     void on_btnExport_clicked();
 
 private:
-	virtual void showEvent(QShowEvent *event);
-	virtual void hideEvent(QHideEvent *event);
+	void showEvent(QShowEvent *event) override;
+	void hideEvent(QHideEvent *event) override;
 
 private:
 	 Ui::DialogBreakpoints *const ui;

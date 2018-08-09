@@ -66,7 +66,7 @@ public:
 	bool restore();
 
 public:
-	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event);
+	edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) override;
 
 public:
 	QAtomicInt             lock_;

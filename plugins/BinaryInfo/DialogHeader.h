@@ -41,7 +41,7 @@ public Q_SLOTS:
 	void on_btnExplore_clicked();
 
 private:
-	virtual void showEvent(QShowEvent *event);
+	void showEvent(QShowEvent *event) override;
 
 private:
 	 Ui::DialogHeader *const ui;

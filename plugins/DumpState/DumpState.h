@@ -39,13 +39,13 @@ public:
 	~DumpState() override;
 
 public:
-	virtual QMenu *menu(QWidget *parent = nullptr);
+	QMenu *menu(QWidget *parent = nullptr) override;
 
 public Q_SLOTS:
 	void show_menu();
 
 private:
-	virtual QWidget *options_page();
+	QWidget *options_page() override;
 
 private:
 	void dump_code(const State &state);

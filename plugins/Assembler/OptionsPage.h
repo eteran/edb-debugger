@@ -33,10 +33,10 @@ public:
 	~OptionsPage() override;
 
 public:
-	virtual void showEvent(QShowEvent *event);
+	void showEvent(QShowEvent *event) override;
 
 public Q_SLOTS:
-	virtual void on_assemblerName_currentIndexChanged(const QString &text);
+	void on_assemblerName_currentIndexChanged(const QString &text);
 
 private:
 	Ui::OptionsPage *const ui;

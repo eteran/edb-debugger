@@ -38,7 +38,7 @@ public:
 	~FunctionFinder() override;
 
 public:
-	virtual QMenu *menu(QWidget *parent = nullptr);
+	QMenu *menu(QWidget *parent = nullptr) override;
 
 public Q_SLOTS:
 	void show_menu();
