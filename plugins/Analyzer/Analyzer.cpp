@@ -233,7 +233,7 @@ void Analyzer::goto_function_start() {
 	}
 
 	QMessageBox::critical(
-		0,
+	    nullptr,
 		tr("Goto Function Start"),
 		tr("The selected instruction is not inside of a known function. Have you run an analysis of this region?"));
 }
@@ -253,7 +253,7 @@ void Analyzer::goto_function_end() {
 	}
 
 	QMessageBox::critical(
-		0,
+	    nullptr,
 		tr("Goto Function End"),
 		tr("The selected instruction is not inside of a known function. Have you run an analysis of this region?"));
 }
@@ -289,7 +289,7 @@ QList<QAction *> Analyzer::cpu_context_menu() {
 //------------------------------------------------------------------------------
 void Analyzer::do_analysis(const std::shared_ptr<IRegion> &region) {
 	if(region && region->size() != 0) {
-		QProgressDialog progress(tr("Performing Analysis"), 0, 0, 100, edb::v1::debugger_ui);
+		QProgressDialog progress(tr("Performing Analysis"), nullptr, 0, 100, edb::v1::debugger_ui);
 		connect(this, &Analyzer::update_progress, &progress, &QProgressDialog::setValue);
 		progress.show();
 		progress.setValue(0);
