@@ -35,7 +35,7 @@ class OpcodeSearcher : public QObject, public IPlugin {
 
 public:
 	OpcodeSearcher();
-	virtual ~OpcodeSearcher();
+	~OpcodeSearcher() override;
 
 public:
 	virtual QMenu *menu(QWidget *parent = nullptr);

@@ -35,7 +35,7 @@ class HeapAnalyzer : public QObject, public IPlugin {
 
 public:
 	HeapAnalyzer();
-	virtual ~HeapAnalyzer();
+	~HeapAnalyzer() override;
 
 public:
 	virtual QMenu *menu(QWidget *parent = nullptr);

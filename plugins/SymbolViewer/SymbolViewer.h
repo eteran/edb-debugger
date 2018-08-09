@@ -35,7 +35,7 @@ class SymbolViewer : public QObject, public IPlugin {
 
 public:
 	SymbolViewer();
-	virtual ~SymbolViewer();
+	~SymbolViewer() override;
 
 public:
 	virtual QMenu *menu(QWidget *parent = nullptr);

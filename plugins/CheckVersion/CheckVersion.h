@@ -37,7 +37,7 @@ class CheckVersion : public QObject, public IPlugin {
 
 public:
 	CheckVersion();
-	virtual ~CheckVersion();
+	~CheckVersion() override;
 
 public:
 	virtual QMenu *menu(QWidget *parent = nullptr);

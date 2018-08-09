@@ -34,7 +34,7 @@ public:
 	using RecentFile = std::pair<QString, QList<QByteArray>>;
 public:
 	RecentFileManager(QWidget * parent = 0, Qt::WindowFlags f = 0);
-	virtual ~RecentFileManager();
+	~RecentFileManager() override;
 
 public:
 	void add_file(const QString &file, const QList<QByteArray> &args);

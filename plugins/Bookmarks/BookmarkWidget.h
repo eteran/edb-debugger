@@ -36,7 +36,7 @@ class BookmarkWidget : public QWidget {
 
 public:
 	BookmarkWidget(QWidget *parent = nullptr, Qt::WindowFlags f = 0);
-	virtual ~BookmarkWidget();
+	~BookmarkWidget() override;
 
 public Q_SLOTS:
 	void on_btnAdd_clicked();

@@ -32,7 +32,7 @@ class DebuggerCore : public DebuggerCoreUNIX {
 
 public:
 	DebuggerCore();
-	virtual ~DebuggerCore();
+	~DebuggerCore() override;
 
 public:
 	virtual edb::address_t page_size() const;

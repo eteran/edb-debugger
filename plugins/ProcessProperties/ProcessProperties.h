@@ -34,7 +34,7 @@ class ProcessProperties : public QObject, public IPlugin {
 
 public:
 	ProcessProperties();
-	virtual ~ProcessProperties();
+	~ProcessProperties() override;
 
 public:
 	virtual QMenu *menu(QWidget *parent = nullptr);

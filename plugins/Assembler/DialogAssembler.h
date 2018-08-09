@@ -32,7 +32,7 @@ class DialogAssembler : public QDialog {
 
 public:
     explicit DialogAssembler(QWidget *parent = nullptr);
-	virtual ~DialogAssembler();
+	~DialogAssembler() override;
 
 public Q_SLOTS:
 	void on_buttonBox_accepted();

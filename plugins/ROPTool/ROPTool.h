@@ -34,7 +34,7 @@ class ROPTool : public QObject, public IPlugin {
 
 public:
 	ROPTool();
-	virtual ~ROPTool();
+	~ROPTool() override;
 
 public:
 	virtual QMenu *menu(QWidget *parent = nullptr);

@@ -35,7 +35,7 @@ class BinarySearcher : public QObject, public IPlugin {
 
 public:
 	BinarySearcher();
-	virtual ~BinarySearcher();
+	~BinarySearcher() override;
 
 public:
 	virtual QMenu *menu(QWidget *parent = nullptr);

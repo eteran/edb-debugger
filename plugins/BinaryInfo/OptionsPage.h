@@ -33,7 +33,7 @@ class OptionsPage : public QWidget
 
 public:
     explicit OptionsPage(QWidget* parent = nullptr);
-	virtual ~OptionsPage();
+	~OptionsPage() override;
 
 public:
 	virtual void showEvent(QShowEvent* event);

@@ -32,7 +32,7 @@ class DialogBinaryString : public QDialog {
 
 public:
     explicit DialogBinaryString(QWidget *parent = nullptr);
-	virtual ~DialogBinaryString();
+	~DialogBinaryString() override;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();

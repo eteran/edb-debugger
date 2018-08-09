@@ -36,7 +36,7 @@ class Backtrace : public QObject, public IPlugin
 
 public:
 	Backtrace();
-	virtual ~Backtrace();
+	~Backtrace() override;
 
 public:
 	virtual QMenu *menu(QWidget *parent = nullptr);

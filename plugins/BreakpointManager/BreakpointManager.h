@@ -35,7 +35,7 @@ class BreakpointManager : public QObject, public IPlugin {
 
 public:
 	BreakpointManager();
-	virtual ~BreakpointManager();
+	~BreakpointManager() override;
 
 public:
 	virtual QMenu *menu(QWidget *parent = nullptr);

@@ -35,7 +35,7 @@ class DialogHeader : public QDialog {
 
 public:
     explicit DialogHeader(QWidget *parent = nullptr);
-	virtual ~DialogHeader();
+	~DialogHeader() override;
 
 public Q_SLOTS:
 	void on_btnExplore_clicked();

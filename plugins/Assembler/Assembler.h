@@ -35,7 +35,7 @@ class Assembler : public QObject, public IPlugin {
 
 public:
 	Assembler();
-	virtual ~Assembler();
+	~Assembler() override;
 
 public:
 	virtual QMenu *menu(QWidget *parent = nullptr);

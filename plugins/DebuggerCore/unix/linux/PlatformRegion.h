@@ -33,7 +33,7 @@ class PlatformRegion : public IRegion {
 
 public:
 	PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions);
-	virtual ~PlatformRegion();
+	~PlatformRegion() override;
 
 public:
 	virtual IRegion *clone() const;

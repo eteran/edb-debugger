@@ -36,7 +36,7 @@ class DumpState : public QObject, public IPlugin {
 
 public:
 	DumpState();
-	virtual ~DumpState();
+	~DumpState() override;
 
 public:
 	virtual QMenu *menu(QWidget *parent = nullptr);

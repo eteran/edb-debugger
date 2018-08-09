@@ -30,7 +30,7 @@ class DialogBreakpoints : public QDialog {
 
 public:
     explicit DialogBreakpoints(QWidget *parent = nullptr);
-	virtual ~DialogBreakpoints();
+	~DialogBreakpoints() override;
 
 public Q_SLOTS:
 	void updateList();

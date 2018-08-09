@@ -32,7 +32,7 @@ class DialogASCIIString : public QDialog {
 
 public:
     explicit DialogASCIIString(QWidget *parent = nullptr);
-	virtual ~DialogASCIIString();
+	~DialogASCIIString() override;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();

@@ -17,7 +17,7 @@ class DialogXRefs : public QDialog {
 
 public:
     explicit DialogXRefs(QWidget *parent = nullptr);
-	virtual ~DialogXRefs();
+	~DialogXRefs() override;
 
 public Q_SLOTS:
 	void on_listReferences_itemDoubleClicked(QListWidgetItem *item);

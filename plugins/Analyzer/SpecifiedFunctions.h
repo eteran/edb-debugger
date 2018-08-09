@@ -34,7 +34,7 @@ class SpecifiedFunctions : public QDialog {
 
 public:
     explicit SpecifiedFunctions(QWidget *parent = nullptr);
-	virtual ~SpecifiedFunctions();
+	~SpecifiedFunctions() override;
 
 public Q_SLOTS:
 	void on_function_list_doubleClicked(const QModelIndex &index);

@@ -35,7 +35,7 @@ class FunctionFinder : public QObject, public IPlugin {
 
 public:
 	FunctionFinder();
-	virtual ~FunctionFinder();
+	~FunctionFinder() override;
 
 public:
 	virtual QMenu *menu(QWidget *parent = nullptr);

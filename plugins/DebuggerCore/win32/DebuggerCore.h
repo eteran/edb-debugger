@@ -35,7 +35,7 @@ class DebuggerCore : public DebuggerCoreBase {
 
 public:
 	DebuggerCore();
-	virtual ~DebuggerCore();
+	~DebuggerCore() override;
 
 public:
 	virtual bool has_extension(quint64 ext) const;

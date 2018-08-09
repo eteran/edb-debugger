@@ -35,7 +35,7 @@ class References : public QObject, public IPlugin {
 
 public:
 	References();
-	virtual ~References();
+	~References() override;
 
 public:
     virtual QMenu *menu(QWidget *parent = nullptr);

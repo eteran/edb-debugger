@@ -32,7 +32,7 @@ class PlatformProcess : public IProcess {
 	friend class PlatformThread;
 public:
 	PlatformProcess(DebuggerCore *core, edb::pid_t pid);
-	virtual ~PlatformProcess();
+	~PlatformProcess() override;
 
 private:
 	PlatformProcess(const PlatformProcess &) = delete;
