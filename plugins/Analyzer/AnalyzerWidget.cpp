@@ -75,6 +75,8 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 
 	const QSet<edb::address_t> specified_functions = edb::v1::analyzer()->specified_functions();
 	const IAnalyzer::FunctionMap functions = edb::v1::analyzer()->functions(region);
+
+	// TODO(eteran): why cast to float?
 	const auto byte_width = static_cast<float>(width()) / region->size();
 
 	if (!cache_ || width() != cache_->width() || height() != cache_->height() || cache_num_funcs_ != functions.size()) {
@@ -139,7 +141,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 		);
 	}
 
-	const int renderTime = timer.elapsed();
+	const int64_t renderTime = timer.elapsed();
 	if(renderTime > 8) {
 		qDebug() << "AnalyzerWidget: Painting took longer than desired: " << renderTime << "ms";
 	}

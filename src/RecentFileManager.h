@@ -33,7 +33,7 @@ class RecentFileManager : public QWidget {
 public:
 	using RecentFile = std::pair<QString, QList<QByteArray>>;
 public:
-	RecentFileManager(QWidget * parent = 0, Qt::WindowFlags f = 0);
+	RecentFileManager(QWidget * parent = 0, Qt::WindowFlags f = Qt::WindowFlags());
 	~RecentFileManager() override;
 
 public:

@@ -24,7 +24,7 @@ namespace AnalyzerPlugin {
 class AnalyzerWidget : public QWidget {
 	Q_OBJECT
 public:
-	AnalyzerWidget(QWidget *parent = nullptr, Qt::WindowFlags f = 0);
+	AnalyzerWidget(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
 protected:
 	void paintEvent(QPaintEvent *event) override;
