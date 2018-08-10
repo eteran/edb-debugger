@@ -387,26 +387,24 @@ std::shared_ptr<IBreakpoint> create_breakpoint(address_t address) {
 
 		if(!region->executable() && config().warn_on_no_exec_bp) {
 			ret = QMessageBox::question(
-				0,
-				QT_TRANSLATE_NOOP("edb", "Suspicious breakpoint"),
-				QT_TRANSLATE_NOOP("edb",
-					"You want to place a breakpoint in a non-executable region.\n"
-					"An INT3 breakpoint set on data will not execute and may cause incorrect results or crashes.\n"
-					"Do you really want to set a breakpoint here?"),
-				QMessageBox::Yes, QMessageBox::No);
+			          nullptr,
+			          QT_TRANSLATE_NOOP("edb", "Suspicious breakpoint"),
+			          QT_TRANSLATE_NOOP("edb", "You want to place a breakpoint in a non-executable region.\n"
+			                                   "An INT3 breakpoint set on data will not execute and may cause incorrect results or crashes.\n"
+			                                   "Do you really want to set a breakpoint here?"),
+			          QMessageBox::Yes | QMessageBox::No);
 		} else {
 			quint8 buffer[Instruction::MAX_SIZE + 1];
 			if(const int size = get_instruction_bytes(address, buffer)) {
 				Instruction inst(buffer, buffer + size, address);
 				if(!inst) {
 					ret = QMessageBox::question(
-						0,
-						QT_TRANSLATE_NOOP("edb", "Suspicious breakpoint"),
-						QT_TRANSLATE_NOOP("edb",
-							"It looks like you may be setting an INT3 breakpoint on data.\n"
-							"An INT3 breakpoint set on data will not execute and may cause incorrect results or crashes.\n"
-							"Do you really want to set a breakpoint here?"),
-						QMessageBox::Yes, QMessageBox::No);
+					          nullptr,
+					          QT_TRANSLATE_NOOP("edb", "Suspicious breakpoint"),
+					          QT_TRANSLATE_NOOP("edb", "It looks like you may be setting an INT3 breakpoint on data.\n"
+					                                   "An INT3 breakpoint set on data will not execute and may cause incorrect results or crashes.\n"
+					                                   "Do you really want to set a breakpoint here?"),
+					          QMessageBox::Yes | QMessageBox::No);
 				}
 			}
 		}
@@ -416,9 +414,9 @@ std::shared_ptr<IBreakpoint> create_breakpoint(address_t address) {
 			bp = debugger_core->add_breakpoint(address);
 			if(!bp) {
 				QMessageBox::critical(
-						0,
-						QT_TRANSLATE_NOOP("edb", "Error Setting Breakpoint"),
-						QObject::tr("Failed to set breakpoint at address %1").arg(address.toPointerString()));
+				            nullptr,
+				            QT_TRANSLATE_NOOP("edb", "Error Setting Breakpoint"),
+				            QObject::tr("Failed to set breakpoint at address %1").arg(address.toPointerString()));
 				return bp;
 			}
 			repaint_cpu_view();
@@ -427,9 +425,9 @@ std::shared_ptr<IBreakpoint> create_breakpoint(address_t address) {
 
 	} else {
 		QMessageBox::critical(
-			0,
-			QT_TRANSLATE_NOOP("edb", "Error Setting Breakpoint"),
-			QT_TRANSLATE_NOOP("edb", "Sorry, but setting a breakpoint which is not in a valid region is not allowed."));
+		            nullptr,
+		            QT_TRANSLATE_NOOP("edb", "Error Setting Breakpoint"),
+		            QT_TRANSLATE_NOOP("edb", "Sorry, but setting a breakpoint which is not in a valid region is not allowed."));
 	}
 
 	return bp;
@@ -758,7 +756,7 @@ QString find_function_symbol(address_t address, const QString &default_value, in
 // Desc:
 //------------------------------------------------------------------------------
 QString find_function_symbol(address_t address, const QString &default_value) {
-	return find_function_symbol(address, default_value, 0);
+	return find_function_symbol(address, default_value, nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -766,7 +764,7 @@ QString find_function_symbol(address_t address, const QString &default_value) {
 // Desc:
 //------------------------------------------------------------------------------
 QString find_function_symbol(address_t address) {
-	return find_function_symbol(address, QString(), 0);
+	return find_function_symbol(address, QString(), nullptr);
 }
 
 //------------------------------------------------------------------------------
@@ -924,7 +922,7 @@ IPlugin *find_plugin_by_name(const QString &name) {
 			return qobject_cast<IPlugin *>(p);
 		}
 	}
-	return 0;
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -946,7 +944,7 @@ const Prototype *get_function_info(const QString &function) {
 		return &(it.value());
 	}
 
-	return 0;
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------
@@ -1055,11 +1053,10 @@ bool overwrite_check(address_t address, size_t size) {
 		if(bp && bp->enabled()) {
 			if(firstConflict) {
 				const int ret = QMessageBox::question(
-						0,
-						QT_TRANSLATE_NOOP("edb", "Overwritting breakpoint"),
-						QT_TRANSLATE_NOOP("edb", "You are attempting to modify bytes which overlap with a software breakpoint. Doing this will implicitly remove any breakpoints which are a conflict. Are you sure you want to do this?"),
-						QMessageBox::Yes,
-						QMessageBox::No);
+				                    nullptr,
+				                    QT_TRANSLATE_NOOP("edb", "Overwritting breakpoint"),
+				                    QT_TRANSLATE_NOOP("edb", "You are attempting to modify bytes which overlap with a software breakpoint. Doing this will implicitly remove any breakpoints which are a conflict. Are you sure you want to do this?"),
+				                    QMessageBox::Yes | QMessageBox::No);
 
 				if(ret == QMessageBox::No) {
 					return false;
@@ -1402,7 +1399,7 @@ int pointer_size() {
 	}
 
 	// default to sizeof the native pointer for sanity!
-	return sizeof(void*);
+	return sizeof(void *);
 }
 
 //------------------------------------------------------------------------------
@@ -1429,11 +1426,11 @@ QVector<quint8> read_pages(address_t address, size_t page_count) {
 					return pages;
 				}
 
-
 			} catch(const std::bad_alloc &) {
-				QMessageBox::critical(0,
-					QT_TRANSLATE_NOOP("edb", "Memroy Allocation Error"),
-					QT_TRANSLATE_NOOP("edb", "Unable to satisfy memory allocation request for requested region->"));
+				QMessageBox::critical(
+				            nullptr,
+				            QT_TRANSLATE_NOOP("edb", "Memroy Allocation Error"),
+				            QT_TRANSLATE_NOOP("edb", "Unable to satisfy memory allocation request for requested region->"));
 			}
 		}
 	}
@@ -1454,7 +1451,7 @@ QString disassemble_address(address_t address) {
 		}
 	}
 
-	return QString();
+	return {};
 }
 
 //------------------------------------------------------------------------------
@@ -1477,7 +1474,7 @@ address_t selected_stack_address() {
 		}
 	}
 
-	return static_cast<address_t>(-1);
+	return address_t(-1);
 }
 
 //------------------------------------------------------------------------------
@@ -1505,7 +1502,7 @@ address_t selected_data_address() {
 		}
 	}
 
-	return static_cast<address_t>(-1);
+	return address_t(-1);
 }
 
 //------------------------------------------------------------------------------
