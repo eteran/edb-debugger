@@ -112,7 +112,7 @@ private:
 	int following_instructions(int current_address, int count);
 	int following_instruction(int current_address);
 	int updateDisassembly(int lines_to_render);
-	unsigned getSelectedLineNumber() const;
+	int getSelectedLineNumber() const;
 	void paint_line_bg(QPainter &painter, QBrush brush, int line, int num_lines = 1);
 	void setAddressOffset(edb::address_t address);
 	void updateScrollbars();

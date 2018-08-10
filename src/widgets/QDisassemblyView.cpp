@@ -218,7 +218,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 			setSelectedAddress(new_address);
 		}
 	} else if (event->matches(QKeySequence::MoveToNextPage) || event->matches(QKeySequence::MoveToPreviousPage)) {
-		const auto selectedLine = getSelectedLineNumber();
+		const int selectedLine = getSelectedLineNumber();
 		if(event->matches(QKeySequence::MoveToNextPage)) {
 			scrollbar_action_triggered(QAbstractSlider::SliderPageStepAdd);
 		} else {
@@ -776,12 +776,12 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 	return lines_to_render;
 }
 
-unsigned QDisassemblyView::getSelectedLineNumber() const
-{
-	unsigned int selected_line = 65535; // can't accidentally hit this
-	for(unsigned line=0;line<instructions_.size();++line) {
+int QDisassemblyView::getSelectedLineNumber() const {
+
+	int selected_line = 65535; // can't accidentally hit this
+	for(size_t line = 0; line < instructions_.size(); ++line) {
 		if (instructions_[line].rva() == selectedAddress()) {
-			selected_line = line;
+			selected_line = static_cast<int>(line);
 		}
 	}
 	return selected_line;
@@ -813,14 +813,13 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		return;
 	}
 
-	const int region_size = region_->size();
-
+	const size_t region_size = region_->size();
 	if(region_size == 0) {
 		return;
 	}
 
 	const auto binary_info = edb::v1::get_binary_info(region_);
-	const auto group= hasFocus() ? QPalette::Active : QPalette::Inactive;
+	const auto group = hasFocus() ? QPalette::Active : QPalette::Inactive;
 
 
 	lines_to_render = updateDisassembly(lines_to_render);
@@ -870,7 +869,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			State state;
 			edb::v1::debugger_core->get_state(&state);
 
-			const unsigned int badge_x = 1;
+			const int badge_x = 1;
 
 			std::vector<QString> badge_labels(lines_to_render);
 			{
@@ -1388,9 +1387,6 @@ Result<int> QDisassemblyView::get_instruction_size(edb::address_t address) const
 
 	// do the longest read we can while still not crossing region end
 	int buf_size = sizeof(buf);
-
-	size_t end = region_->end();
-
 	if(region_->end() != 0 && address + buf_size > region_->end()) {
 
 		if(address <= region_->end()) {
@@ -1465,7 +1461,7 @@ bool QDisassemblyView::event(QEvent *event) {
 				quint8 buf[edb::Instruction::MAX_SIZE];
 
 				// do the longest read we can while still not passing the region end
-				int buf_size = std::min<edb::address_t>((region_->end() - address), sizeof(buf));
+				size_t buf_size = std::min<edb::address_t>((region_->end() - address), sizeof(buf));
 				if(edb::v1::get_instruction_bytes(address, buf, &buf_size)) {
 					const edb::Instruction inst(buf, buf + buf_size, address);
 					const QString byte_buffer = format_instruction_bytes(inst);
