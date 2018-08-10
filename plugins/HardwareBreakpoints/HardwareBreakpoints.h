@@ -69,6 +69,22 @@ private:
 	void set_write(int index);
 	void set_access(int index);
 
+private Q_SLOTS:
+	void set_write1();
+	void set_write2();
+	void set_write3();
+	void set_write4();
+
+	void set_access1();
+	void set_access2();
+	void set_access3();
+	void set_access4();
+
+	void set_exec1();
+	void set_exec2();
+	void set_exec3();
+	void set_exec4();
+
 private:
 	QMenu *menu_              = nullptr;
 	QPointer<QDialog> dialog_ = nullptr;

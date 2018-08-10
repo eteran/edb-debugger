@@ -246,15 +246,15 @@ edb::EVENT_STATUS HardwareBreakpoints::handle_event(const std::shared_ptr<IDebug
 QList<QAction *> HardwareBreakpoints::stack_context_menu() {
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
 
-	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), [this]() { set_access(Register1); });
-	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), [this]() { set_access(Register2); });
-	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), [this]() { set_access(Register3); });
-	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), [this]() { set_access(Register4); });
+	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(set_access_1));
+	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(set_access_2));
+	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(set_access_3));
+	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(set_access_4));
 
-	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), [this]() { set_write(Register1); });
-	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), [this]() { set_write(Register2); });
-	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), [this]() { set_write(Register3); });
-	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), [this]() { set_write(Register4); });
+	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(set_write_1));
+	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(set_write_2));
+	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(set_write_3));
+	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(set_write_4));
 
 	rw1->setData(1);
 	rw2->setData(1);
@@ -281,15 +281,15 @@ QList<QAction *> HardwareBreakpoints::stack_context_menu() {
 QList<QAction *> HardwareBreakpoints::data_context_menu() {
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
 
-	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), [this]() { set_access(Register1); });
-	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), [this]() { set_access(Register2); });
-	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), [this]() { set_access(Register3); });
-	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), [this]() { set_access(Register4); });
+	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(set_access_1));
+	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(set_access_2));
+	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(set_access_3));
+	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(set_access_4));
 
-	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), [this]() { set_write(Register1); });
-	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), [this]() { set_write(Register2); });
-	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), [this]() { set_write(Register3); });
-	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), [this]() { set_write(Register4); });
+	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(set_write_1));
+	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(set_write_2));
+	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(set_write_3));
+	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(set_write_4));
 
 	rw1->setData(2);
 	rw2->setData(2);
@@ -317,21 +317,20 @@ QList<QAction *> HardwareBreakpoints::data_context_menu() {
 QList<QAction *> HardwareBreakpoints::cpu_context_menu() {
 
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
-	auto ex1 = menu->addAction(tr("Hardware, On Execute #1"), [this]() { set_exec(Register1); });
-	auto ex2 = menu->addAction(tr("Hardware, On Execute #2"), [this]() { set_exec(Register2); });
-	auto ex3 = menu->addAction(tr("Hardware, On Execute #3"), [this]() { set_exec(Register3); });
-	auto ex4 = menu->addAction(tr("Hardware, On Execute #4"), [this]() { set_exec(Register4); });
+	auto ex1 = menu->addAction(tr("Hardware, On Execute #1"), this, SLOT(set_exec_1));
+	auto ex2 = menu->addAction(tr("Hardware, On Execute #2"), this, SLOT(set_exec_2));
+	auto ex3 = menu->addAction(tr("Hardware, On Execute #3"), this, SLOT(set_exec_3));
+	auto ex4 = menu->addAction(tr("Hardware, On Execute #4"), this, SLOT(set_exec_4));
 
-	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), [this]() { set_access(Register1); });
-	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), [this]() { set_access(Register2); });
-	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), [this]() { set_access(Register3); });
-	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), [this]() { set_access(Register4); });
+	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(set_access_1));
+	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(set_access_2));
+	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(set_access_3));
+	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(set_access_4));
 
-	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), [this]() { set_write(Register1); });
-	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), [this]() { set_write(Register2); });
-	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), [this]() { set_write(Register3); });
-	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), [this]() { set_write(Register4); });
-
+	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(set_write_1));
+	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(set_write_2));
+	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(set_write_3));
+	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(set_write_4));
 
 	ex1->setData(3);
 	ex2->setData(3);
@@ -621,6 +620,79 @@ void HardwareBreakpoints::setCPUWriteBP(int index, bool inUse) {
 	const edb::address_t address = edb::v1::cpu_selected_address();
 	const size_t         size    = 1;
 	setWriteBP(index, inUse, address, size);
+}
+
+//------------------------------------------------------------------------------
+// Name: set_exec1
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_exec1() {
+	set_exec(Register1);
+}
+ //------------------------------------------------------------------------------
+// Name: set_exec2
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_exec2() {
+	set_exec(Register2);
+}
+ //------------------------------------------------------------------------------
+// Name: set_exec3
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_exec3() {
+	set_exec(Register3);
+}
+ //------------------------------------------------------------------------------
+// Name: set_exec4
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_exec4() {
+	set_exec(Register4);
+}
+ //------------------------------------------------------------------------------
+// Name: set_access1
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_access1() {
+	set_access(Register1);
+}
+ //------------------------------------------------------------------------------
+// Name: set_access2
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_access2() {
+	set_access(Register2);
+}
+ //------------------------------------------------------------------------------
+// Name: set_access3
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_access3() {
+	set_access(Register3);
+}
+ //------------------------------------------------------------------------------
+// Name: set_access4
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_access4() {
+	set_access(Register4);
+}
+ //------------------------------------------------------------------------------
+// Name: set_write1
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_write1() {
+	set_write(Register1);
+}
+ //------------------------------------------------------------------------------
+// Name: set_write2
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_write2() {
+	set_write(Register2);
+}
+ //------------------------------------------------------------------------------
+// Name: set_write3
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_write3() {
+	set_write(Register3);
+}
+ //------------------------------------------------------------------------------
+// Name: set_write4
+//------------------------------------------------------------------------------
+void HardwareBreakpoints::set_write4() {
+	set_write(Register4);
 }
 
 }
