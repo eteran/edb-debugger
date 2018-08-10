@@ -848,6 +848,25 @@ bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
 }
 
 //------------------------------------------------------------------------------
+// Name: get_instruction_bytes
+// Desc: attempts to read at most size bytes.
+//------------------------------------------------------------------------------
+bool get_instruction_bytes(address_t address, quint8 *buf, size_t *size) {
+
+	Q_ASSERT(debugger_core);
+	Q_ASSERT(size);
+
+	if(IProcess *process = edb::v1::debugger_core->process()) {
+		*size = process->read_bytes(address, buf, *size);
+		if (*size) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+//------------------------------------------------------------------------------
 // Name: get_binary_info
 // Desc: gets an object which knows how to analyze the binary file provided
 //       or NULL if none-found.

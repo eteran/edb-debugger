@@ -223,22 +223,24 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 	} else if (event->matches(QKeySequence::MoveToEndOfDocument)) {
 		verticalScrollBar()->setValue(verticalScrollBar()->maximum());
 	} else if (event->matches(QKeySequence::MoveToNextLine)) {
-		const int idx = show_addresses_.indexOf(selectedAddress());
-		if (idx > 0 && idx < show_addresses_.size() - 1 - partial_last_line_) {
+		const edb::address_t selected = selectedAddress();
+		const int idx = show_addresses_.indexOf(selected);
+		if (selected != 0 && idx > 0 && idx < show_addresses_.size() - 1 - partial_last_line_) {
 			setSelectedAddress(show_addresses_[idx + 1]);
 		} else {
-			const edb::address_t next_address = following_instructions(selectedAddress() - address_offset_, 1) + address_offset_;
+			const edb::address_t next_address = following_instructions(selected - address_offset_, 1) + address_offset_;
 			if (!addressShown(next_address))
 				scrollTo(show_addresses_.size() > 1 ? show_addresses_[show_addresses_.size() / 3] : next_address);
 			setSelectedAddress(next_address);
 		}
 	} else if (event->matches(QKeySequence::MoveToPreviousLine)) {
-		const int idx = show_addresses_.indexOf(selectedAddress());
-		if (idx > 0) {
+		const edb::address_t selected = selectedAddress();
+		const int idx = show_addresses_.indexOf(selected);
+		if (selected != 0 && idx > 0) {
 			// we already know the previous instruction
 			setSelectedAddress(show_addresses_[idx - 1]);
 		} else {
-			const int prev_address = previous_instructions(selectedAddress() - address_offset_, 1) + address_offset_;
+			const int prev_address = previous_instructions(selected - address_offset_, 1) + address_offset_;
 			if (!addressShown(prev_address)) {
 				scrollTo(prev_address);
 			}
@@ -307,11 +309,11 @@ int QDisassemblyView::previous_instructions(int current_address, int count) {
 
 					// disassemble from function start until the NEXT address is where we started
 					while(true) {
-						quint8 buf[edb::Instruction::MAX_SIZE];
+						uint8_t buf[edb::Instruction::MAX_SIZE];
 
-						int buf_size = sizeof(buf);
+						size_t buf_size = sizeof(buf);
 						if(region_) {
-							buf_size = std::min<int>((function_start - region_->base()), sizeof(buf));
+							buf_size = std::min<size_t>((function_start - region_->base()), sizeof(buf));
 						}
 
 						if(edb::v1::get_instruction_bytes(function_start, buf, &buf_size)) {
@@ -344,9 +346,10 @@ int QDisassemblyView::previous_instructions(int current_address, int count) {
 		static constexpr auto instSize = edb::Instruction::MAX_SIZE;
 		quint8 buf[instSize*2];
 
-		int prevInstBytesSize = instSize, curInstBytesSize=instSize;
+		int prevInstBytesSize = instSize;
+		int curInstBytesSize  = instSize;
 		if(region_) {
-			prevInstBytesSize = std::min<int>((current_address - region_->base()), prevInstBytesSize);
+			prevInstBytesSize = std::min(current_address, prevInstBytesSize);
 		}
 
 		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address - prevInstBytesSize, buf, &prevInstBytesSize) ||
@@ -380,9 +383,9 @@ int QDisassemblyView::following_instructions(int current_address, int count) {
 		quint8 buf[edb::Instruction::MAX_SIZE + 1];
 
 		// do the longest read we can while still not passing the region end
-		int buf_size = sizeof(buf);
+		size_t buf_size = sizeof(buf);
 		if(region_) {
-			buf_size = std::min<int>((region_->end() - current_address), sizeof(buf));
+			buf_size = std::min<size_t>((region_->end() - current_address), sizeof(buf));
 		}
 
 		// read in the bytes...

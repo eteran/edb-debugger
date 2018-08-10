@@ -149,6 +149,7 @@ EDB_EXPORT IAnalyzer *analyzer();
 
 // reads up to size bytes from address (stores how many it could read in size)
 EDB_EXPORT bool get_instruction_bytes(address_t address, quint8 *buf, int *size);
+EDB_EXPORT bool get_instruction_bytes(address_t address, quint8 *buf, size_t *size);
 
 template <int N>
 int get_instruction_bytes(address_t address, quint8 (&buffer)[N]) {
