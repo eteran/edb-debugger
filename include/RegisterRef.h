@@ -13,8 +13,7 @@ namespace DebuggerCorePlugin {
 
 class RegisterRef {
 public:
-	constexpr RegisterRef() : name(nullptr), offset(0), nbytes(0), comparison_mask(0) {
-	}
+	constexpr RegisterRef() = default;
 
 	RegisterRef(const char *name_, std::size_t offset_, std::size_t nbytes_) : name(name_), offset(offset_), nbytes(nbytes_) {
 		comparison_mask = mask_for_nbytes(nbytes_);
@@ -48,13 +47,13 @@ public:
 
 public:
 	// The name of this register.
-	const char *name;
+	const char *name = nullptr;
 
 	// The offsetof the register in state structure.
-	std::size_t offset;
+	std::size_t offset = 0;
 
 	// The size of the register.  0 means we cannot read it.
-	std::size_t nbytes;
+	std::size_t nbytes = 0;
 
 	// Mask to be applied to register values prior to comparing them.  Will
 	// typically be ((1 << nbytes) - 1), but some registers may have special
@@ -63,7 +62,7 @@ public:
 	// NOTE(eteran): there is a max of 64-bits on the mask, for larger registers
 	// we should set this to zero and let the consumer wory about which bits 
 	// are valid
-	std::uint64_t comparison_mask;
+	std::uint64_t comparison_mask = 0;
 };
 
 }
