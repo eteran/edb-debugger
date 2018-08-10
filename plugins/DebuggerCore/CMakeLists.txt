@@ -53,7 +53,8 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		unix/linux/PlatformRegion.cpp
 		unix/linux/PlatformRegion.h
 		unix/linux/PlatformThread.cpp
-		unix/linux/PlatformThread.h	
+		unix/linux/PlatformThread.h
+		unix/linux/PrStatus.h
 	)
 elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 
