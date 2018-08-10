@@ -84,7 +84,7 @@ bool PlatformRegion::executable() const {
 	}
 }
 
-edb::address_t PlatformRegion::size() const {
+size_t PlatformRegion::size() const {
 	return end_ - start_;
 }
 
