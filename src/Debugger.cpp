@@ -369,78 +369,78 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	connect(ui.tabWidget, &TabWidget::customContextMenuRequested, this, &Debugger::tab_context_menu);
 
 	// CPU Shortcuts
-	gotoAddressAction_           = createAction(tr("&Goto Expression..."),                           QKeySequence(tr("Ctrl+G")),   SLOT(goto_triggered()));
+	gotoAddressAction_           = createAction(tr("&Goto Expression..."),                           QKeySequence(tr("Ctrl+G")),   &Debugger::goto_triggered);
 
-	editCommentAction_           = createAction(tr("Add &Comment..."),                               QKeySequence(tr(";")),        SLOT(mnuCPUEditComment()));
-	toggleBreakpointAction_      = createAction(tr("&Toggle Breakpoint"),                            QKeySequence(tr("F2")),       SLOT(mnuCPUToggleBreakpoint()));
-	conditionalBreakpointAction_ = createAction(tr("Add &Conditional Breakpoint"),                   QKeySequence(tr("Shift+F2")), SLOT(mnuCPUAddConditionalBreakpoint()));
-	runToThisLineAction_         = createAction(tr("R&un to this Line"),                             QKeySequence(tr("F4")),       SLOT(mnuCPURunToThisLine()));
-	runToLinePassAction_         = createAction(tr("Run to this Line (Pass Signal To Application)"), QKeySequence(tr("Shift+F4")), SLOT(mnuCPURunToThisLinePassSignal()));
-	editBytesAction_             = createAction(tr("Binary &Edit..."),                               QKeySequence(tr("Ctrl+E")),   SLOT(mnuModifyBytes()));
-	fillWithZerosAction_         = createAction(tr("&Fill with 00's"),                               QKeySequence(),               SLOT(mnuCPUFillZero()));
-	fillWithNOPsAction_          = createAction(tr("Fill with &NOPs"),                               QKeySequence(),               SLOT(mnuCPUFillNop()));
-	setAddressLabelAction_       = createAction(tr("Set &Label..."),                                 QKeySequence(tr(":")),        SLOT(mnuCPULabelAddress()));
-	followConstantInDumpAction_  = createAction(tr("Follow Constant In &Dump"),                      QKeySequence(),               SLOT(mnuCPUFollowInDump()));
-	followConstantInStackAction_ = createAction(tr("Follow Constant In &Stack"),                     QKeySequence(),               SLOT(mnuCPUFollowInStack()));
-	followAction_                = createAction(tr("&Follow"),                                       QKeySequence(tr("Return")),   SLOT(mnuCPUFollow()));
+	editCommentAction_           = createAction(tr("Add &Comment..."),                               QKeySequence(tr(";")),        &Debugger::mnuCPUEditComment);
+	toggleBreakpointAction_      = createAction(tr("&Toggle Breakpoint"),                            QKeySequence(tr("F2")),       &Debugger::mnuCPUToggleBreakpoint);
+	conditionalBreakpointAction_ = createAction(tr("Add &Conditional Breakpoint"),                   QKeySequence(tr("Shift+F2")), &Debugger::mnuCPUAddConditionalBreakpoint);
+	runToThisLineAction_         = createAction(tr("R&un to this Line"),                             QKeySequence(tr("F4")),       &Debugger::mnuCPURunToThisLine);
+	runToLinePassAction_         = createAction(tr("Run to this Line (Pass Signal To Application)"), QKeySequence(tr("Shift+F4")), &Debugger::mnuCPURunToThisLinePassSignal);
+	editBytesAction_             = createAction(tr("Binary &Edit..."),                               QKeySequence(tr("Ctrl+E")),   &Debugger::mnuModifyBytes);
+	fillWithZerosAction_         = createAction(tr("&Fill with 00's"),                               QKeySequence(),               &Debugger::mnuCPUFillZero);
+	fillWithNOPsAction_          = createAction(tr("Fill with &NOPs"),                               QKeySequence(),               &Debugger::mnuCPUFillNop);
+	setAddressLabelAction_       = createAction(tr("Set &Label..."),                                 QKeySequence(tr(":")),        &Debugger::mnuCPULabelAddress);
+	followConstantInDumpAction_  = createAction(tr("Follow Constant In &Dump"),                      QKeySequence(),               &Debugger::mnuCPUFollowInDump);
+	followConstantInStackAction_ = createAction(tr("Follow Constant In &Stack"),                     QKeySequence(),               &Debugger::mnuCPUFollowInStack);
+	followAction_                = createAction(tr("&Follow"),                                       QKeySequence(tr("Return")),   &Debugger::mnuCPUFollow);
 
 	// these get updated when we attach/run a new process, so it's OK to hard code them here
 #if defined(EDB_X86_64)
-	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("RIP"),        QKeySequence(tr("Ctrl+*")),   SLOT(mnuCPUSetEIP()));
-	gotoRIPAction_               = createAction(tr("&Goto %1").arg("RIP"),                           QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
+	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("RIP"),        QKeySequence(tr("Ctrl+*")),   &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_               = createAction(tr("&Goto %1").arg("RIP"),                           QKeySequence(tr("*")),        &Debugger::mnuCPUJumpToEIP);
 #elif defined(EDB_X86)
-	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("EIP"),        QKeySequence(tr("Ctrl+*")),   SLOT(mnuCPUSetEIP()));
-	gotoRIPAction_               = createAction(tr("&Goto %1").arg("EIP"),                           QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
+	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("EIP"),        QKeySequence(tr("Ctrl+*")),   &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_               = createAction(tr("&Goto %1").arg("EIP"),                           QKeySequence(tr("*")),        &Debugger::mnuCPUJumpToEIP);
 #elif defined(EDB_ARM32) || defined(EDB_ARM64)
-	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("PC"),         QKeySequence(tr("Ctrl+*")),   SLOT(mnuCPUSetEIP()));
-	gotoRIPAction_               = createAction(tr("&Goto %1").arg("PC"),                            QKeySequence(tr("*")),        SLOT(mnuCPUJumpToEIP()));
+	setRIPAction_                = createAction(tr("&Set %1 to this Instruction").arg("PC"),         QKeySequence(tr("Ctrl+*")),   &Debugger::mnuCPUSetEIP);
+	gotoRIPAction_               = createAction(tr("&Goto %1").arg("PC"),                            QKeySequence(tr("*")),        &Debugger::mnuCPUJumpToEIP);
 #else
 #error "This doesn't initialize actions and will lead to crash"
 #endif
 
 	// Data Dump Shorcuts
-	dumpFollowInCPUAction_       = createAction(tr("Follow Address In &CPU"),                        QKeySequence(),               SLOT(mnuDumpFollowInCPU()));
-	dumpFollowInDumpAction_      = createAction(tr("Follow Address In &Dump"),                       QKeySequence(),               SLOT(mnuDumpFollowInDump()));
-	dumpFollowInStackAction_     = createAction(tr("Follow Address In &Stack"),                      QKeySequence(),               SLOT(mnuDumpFollowInStack()));
-	dumpSaveToFileAction_        = createAction(tr("&Save To File"),                                 QKeySequence(),               SLOT(mnuDumpSaveToFile()));
+	dumpFollowInCPUAction_       = createAction(tr("Follow Address In &CPU"),                        QKeySequence(),               &Debugger::mnuDumpFollowInCPU);
+	dumpFollowInDumpAction_      = createAction(tr("Follow Address In &Dump"),                       QKeySequence(),               &Debugger::mnuDumpFollowInDump);
+	dumpFollowInStackAction_     = createAction(tr("Follow Address In &Stack"),                      QKeySequence(),               &Debugger::mnuDumpFollowInStack);
+	dumpSaveToFileAction_        = createAction(tr("&Save To File"),                                 QKeySequence(),               &Debugger::mnuDumpSaveToFile);
 
 	// Register View Shortcuts
-	registerFollowInDumpAction_    = createAction(tr("&Follow In Dump"),           QKeySequence(), SLOT(mnuRegisterFollowInDump()));
-	registerFollowInDumpTabAction_ = createAction(tr("&Follow In Dump (New Tab)"), QKeySequence(), SLOT(mnuRegisterFollowInDumpNewTab()));
-	registerFollowInStackAction_   = createAction(tr("&Follow In Stack"),          QKeySequence(), SLOT(mnuRegisterFollowInStack()));
+	registerFollowInDumpAction_    = createAction(tr("&Follow In Dump"),           QKeySequence(), &Debugger::mnuRegisterFollowInDump);
+	registerFollowInDumpTabAction_ = createAction(tr("&Follow In Dump (New Tab)"), QKeySequence(), &Debugger::mnuRegisterFollowInDumpNewTab);
+	registerFollowInStackAction_   = createAction(tr("&Follow In Stack"),          QKeySequence(), &Debugger::mnuRegisterFollowInStack);
 
 	// Stack View Shortcuts
-	stackFollowInCPUAction_   = createAction(tr("Follow Address In &CPU"),   QKeySequence(), SLOT(mnuStackFollowInCPU()));
-	stackFollowInDumpAction_  = createAction(tr("Follow Address In &Dump"),  QKeySequence(), SLOT(mnuStackFollowInDump()));
-	stackFollowInStackAction_ = createAction(tr("Follow Address In &Stack"), QKeySequence(), SLOT(mnuStackFollowInStack()));
+	stackFollowInCPUAction_   = createAction(tr("Follow Address In &CPU"),   QKeySequence(), &Debugger::mnuStackFollowInCPU);
+	stackFollowInDumpAction_  = createAction(tr("Follow Address In &Dump"),  QKeySequence(), &Debugger::mnuStackFollowInDump);
+	stackFollowInStackAction_ = createAction(tr("Follow Address In &Stack"), QKeySequence(), &Debugger::mnuStackFollowInStack);
 
 	// these get updated when we attach/run a new process, so it's OK to hard code them here
 #if defined(EDB_X86_64)
-	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("RSP"),       QKeySequence(), SLOT(mnuStackGotoESP()));
-	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("RBP"),       QKeySequence(), SLOT(mnuStackGotoEBP()));
-	stackPushAction_    = createAction(tr("&Push %1").arg("QWORD"),    QKeySequence(), SLOT(mnuStackPush()));
-	stackPopAction_     = createAction(tr("P&op %1").arg("QWORD"),     QKeySequence(), SLOT(mnuStackPop()));
+	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("RSP"),       QKeySequence(), &Debugger::mnuStackGotoESP);
+	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("RBP"),       QKeySequence(), &Debugger::mnuStackGotoEBP);
+	stackPushAction_    = createAction(tr("&Push %1").arg("QWORD"),    QKeySequence(), &Debugger::mnuStackPush);
+	stackPopAction_     = createAction(tr("P&op %1").arg("QWORD"),     QKeySequence(), &Debugger::mnuStackPop);
 #elif defined(EDB_X86)
-	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("ESP"),       QKeySequence(), SLOT(mnuStackGotoESP()));
-	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("EBP"),       QKeySequence(), SLOT(mnuStackGotoEBP()));
-	stackPushAction_    = createAction(tr("&Push %1").arg("DWORD"),    QKeySequence(), SLOT(mnuStackPush()));
-	stackPopAction_     = createAction(tr("P&op %1").arg("DWORD"),     QKeySequence(), SLOT(mnuStackPop()));
+	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("ESP"),       QKeySequence(), &Debugger::mnuStackGotoESP);
+	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("EBP"),       QKeySequence(), &Debugger::mnuStackGotoEBP);
+	stackPushAction_    = createAction(tr("&Push %1").arg("DWORD"),    QKeySequence(), &Debugger::mnuStackPush);
+	stackPopAction_     = createAction(tr("P&op %1").arg("DWORD"),     QKeySequence(), &Debugger::mnuStackPop);
 #elif defined(EDB_ARM32)
-	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("SP"),       QKeySequence(), SLOT(mnuStackGotoESP()));
-	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("FP"),       QKeySequence(), SLOT(mnuStackGotoEBP()));
+	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("SP"),       QKeySequence(), &Debugger::mnuStackGotoESP);
+	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("FP"),       QKeySequence(), &Debugger::mnuStackGotoEBP);
     stackGotoRBPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
-	stackPushAction_    = createAction(tr("&Push %1").arg("DWORD"),    QKeySequence(), SLOT(mnuStackPush()));
+	stackPushAction_    = createAction(tr("&Push %1").arg("DWORD"),    QKeySequence(), &Debugger::mnuStackPush);
     stackPushAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
-	stackPopAction_     = createAction(tr("P&op %1").arg("DWORD"),     QKeySequence(), SLOT(mnuStackPop()));
+	stackPopAction_     = createAction(tr("P&op %1").arg("DWORD"),     QKeySequence(), &Debugger::mnuStackPop);
     stackPopAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
 #elif defined(EDB_ARM64)
-	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("SP"),       QKeySequence(), SLOT(mnuStackGotoESP()));
+	stackGotoRSPAction_ = createAction(tr("Goto %1").arg("SP"),       QKeySequence(), &Debugger::mnuStackGotoESP);
     stackGotoRSPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
-	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("FP"),       QKeySequence(), SLOT(mnuStackGotoEBP()));
+	stackGotoRBPAction_ = createAction(tr("Goto %1").arg("FP"),       QKeySequence(), &Debugger::mnuStackGotoEBP);
     stackGotoRBPAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
-	stackPushAction_    = createAction(tr("&Push %1").arg("QWORD"),    QKeySequence(), SLOT(mnuStackPush()));
+	stackPushAction_    = createAction(tr("&Push %1").arg("QWORD"),    QKeySequence(), &Debugger::mnuStackPush);
     stackPushAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
-	stackPopAction_     = createAction(tr("P&op %1").arg("QWORD"),     QKeySequence(), SLOT(mnuStackPop()));
+	stackPopAction_     = createAction(tr("P&op %1").arg("QWORD"),     QKeySequence(), &Debugger::mnuStackPop);
     stackPopAction_->setDisabled(true); // FIXME(ARM): this just stubs it out since it likely won't really work
 #else
 #error "This doesn't initialize actions and will lead to crash"
@@ -494,15 +494,11 @@ Debugger::~Debugger() {
 	edb::v1::remove_debug_event_handler(this);
 }
 
-//------------------------------------------------------------------------------
-// Name: createAction
-// Desc:
-//------------------------------------------------------------------------------
-QAction *Debugger::createAction(const QString &text, const QKeySequence &keySequence, const char *slot) {
+QAction *Debugger::createAction(const QString &text, const QKeySequence &keySequence, void(Debugger::*slotPtr)()) {
 	auto action = new QAction(text, this);
 	action->setShortcut(keySequence);
 	addAction(action);
-	connect(action, SIGNAL(triggered()), this, slot);
+	connect(action, &QAction::triggered, this, slotPtr);
 	return action;
 }
 

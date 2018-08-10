@@ -269,7 +269,7 @@ private:
 	void update_menu_state(GUI_STATE state);
 	void update_stack_view(const State &state);
 	void update_tab_caption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end);
-	QAction *createAction(const QString &text, const QKeySequence &keySequence, const char *slot);
+	QAction *createAction(const QString &text, const QKeySequence &keySequence, void(Debugger::*slotPtr)());
 	void attachComplete();
 
 private:
