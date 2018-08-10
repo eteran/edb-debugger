@@ -2694,9 +2694,8 @@ void Debugger::on_action_Kill_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_Step_Over_Pass_Signal_To_Application_triggered() {
-	step_over(
-		std::bind(&Debugger::on_action_Run_Pass_Signal_To_Application_triggered, this),
-		std::bind(&Debugger::on_action_Step_Into_Pass_Signal_To_Application_triggered, this));
+	step_over([this]() { on_action_Run_Pass_Signal_To_Application_triggered(); },
+	          [this]() { on_action_Step_Into_Pass_Signal_To_Application_triggered(); });
 }
 
 //------------------------------------------------------------------------------
@@ -2704,9 +2703,8 @@ void Debugger::on_action_Step_Over_Pass_Signal_To_Application_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_Step_Over_triggered() {
-	step_over(
-		std::bind(&Debugger::on_action_Run_triggered, this),
-		std::bind(&Debugger::on_action_Step_Into_triggered, this));
+	step_over([this]() { on_action_Run_triggered(); },
+	          [this]() { on_action_Step_Into_triggered(); });
 }
 
 //------------------------------------------------------------------------------
@@ -2727,9 +2725,8 @@ void Debugger::on_actionRun_Until_Return_triggered() {
 
 	//Step over rather than resume in MODE_STEP so that we can avoid stepping into calls.
 	//TODO: If we are sitting on the call and it has a bp, it steps over for some reason...
-	step_over(
-				std::bind(&Debugger::on_action_Run_triggered, this),
-				std::bind(&Debugger::on_action_Step_Into_triggered, this));
+	step_over([this]() { on_action_Run_triggered(); },
+	          [this]() { on_action_Step_Into_triggered(); });
 }
 
 //------------------------------------------------------------------------------
@@ -3054,10 +3051,6 @@ void Debugger::open_file(const QString &s, const QList<QByteArray> &a) {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::attach(edb::pid_t pid) {
-
-	// TODO: we need a core concept of debugger capabilities which
-	// may restrict some actions
-
 #if defined(Q_OS_UNIX)
 	edb::pid_t current_pid = getpid();
 	while(current_pid != 0) {
@@ -3136,9 +3129,6 @@ void Debugger::attachComplete() {
 //------------------------------------------------------------------------------
 void Debugger::on_action_Open_triggered() {
 
-	// TODO: we need a core concept of debugger capabilities which
-	// may restrict some actions
-
 	static auto* dialog = new DialogOpenProgram(this,
 												tr("Choose a file"),
 												last_open_directory_);
@@ -3166,9 +3156,6 @@ void Debugger::on_action_Open_triggered() {
 //------------------------------------------------------------------------------
 void Debugger::on_action_Attach_triggered() {
 
-	// TODO: we need a core concept of debugger capabilities which
-	// may restrict some actions
-
 	QPointer<DialogAttach> dlg = new DialogAttach(this);
 
 	if(dlg->exec() == QDialog::Accepted) {
@@ -3187,9 +3174,6 @@ void Debugger::on_action_Attach_triggered() {
 // Desc: displays the memory regions dialog, and optionally dumps some data
 //------------------------------------------------------------------------------
 void Debugger::on_action_Memory_Regions_triggered() {
-
-	// TODO: we need a core concept of debugger capabilities which
-	// may restrict some actions
 	static QPointer<DialogMemoryRegions> dlg = new DialogMemoryRegions(this);
 	dlg->show();
 }
@@ -3200,9 +3184,6 @@ void Debugger::on_action_Memory_Regions_triggered() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_action_Threads_triggered() {
-
-	// TODO: we need a core concept of debugger capabilities which
-	// may restrict some actions
 	static QPointer<DialogThreads> dlg = new DialogThreads(this);
 	dlg->show();
 }

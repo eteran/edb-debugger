@@ -96,7 +96,7 @@ int start_debugger(edb::pid_t attach_pid, const QString &program, const QList<QB
 
 	if(!edb::v1::debugger_core) {
 		QMessageBox::warning(
-			0,
+		    nullptr,
 			QT_TRANSLATE_NOOP("edb", "edb Failed To Load A Necessary Plugin"),
 			QT_TRANSLATE_NOOP("edb",
 				"Failed to successfully load the debugger core plugin. Please make sure it exists and that the plugin path is correctly configured.\n"
@@ -105,7 +105,7 @@ int start_debugger(edb::pid_t attach_pid, const QString &program, const QList<QB
 		edb::v1::dialog_options()->exec();
 
 		QMessageBox::warning(
-			0,
+		    nullptr,
 			QT_TRANSLATE_NOOP("edb", "edb"),
 			QT_TRANSLATE_NOOP("edb", "edb will now close. If you were successful in specifying the location of the debugger core plugin, please run edb again.")
 			);
@@ -187,7 +187,7 @@ int main(int argc, char *argv[]) {
 	QApplication app(argc, argv);
 	QApplication::setWindowIcon(QIcon(":/debugger/images/edb48-logo.png"));
 
-	qsrand(std::time(0));
+	qsrand(std::time(nullptr));
 
 	// setup organization info so settings go in right place
 	QApplication::setOrganizationName("codef00.com");
@@ -217,7 +217,6 @@ int main(int argc, char *argv[]) {
 				break;
 			case IPlugin::ARG_EXIT:
 				std::exit(0);
-				break;
 			default:
 				break;
 			}

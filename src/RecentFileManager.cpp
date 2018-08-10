@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <algorithm>
 
 namespace {
-const int MaxRecentFiles = 8;
+constexpr int MaxRecentFiles = 8;
 }
 
 //------------------------------------------------------------------------------
@@ -36,22 +36,28 @@ const int MaxRecentFiles = 8;
 RecentFileManager::RecentFileManager(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), menu_(nullptr) {
 	QSettings settings;
 	settings.beginGroup("Recent");
-	const auto size=settings.beginReadArray("recent.files");
-	for(int i=0;i<size;++i)
-	{
-			settings.setArrayIndex(i);
-		const auto file=settings.value("file").toString();
-		if(file.isEmpty()) continue;
-		const auto size=settings.beginReadArray("arguments");
+	const auto size = settings.beginReadArray("recent.files");
+
+	for(int i = 0; i < size; ++i) {
+		settings.setArrayIndex(i);
+		const auto file = settings.value("file").toString();
+
+		if(file.isEmpty()) {
+			continue;
+		}
+
+		const auto size = settings.beginReadArray("arguments");
+
 		QList<QByteArray> args;
-		for(int i=0;i<size;++i)
-		{
+		for(int i = 0; i < size; ++i) {
 			settings.setArrayIndex(i);
 			args.push_back(settings.value("arg").toByteArray());
 		}
+
 		settings.endArray();
 		file_list_.push_back(std::make_pair(file,args));
 	}
+
 	settings.endArray();
 	settings.endGroup();
 }
@@ -63,21 +69,22 @@ RecentFileManager::RecentFileManager(QWidget *parent, Qt::WindowFlags f) : QWidg
 RecentFileManager::~RecentFileManager() {
 	QSettings settings;
 	settings.beginGroup("Recent");
-		settings.beginWriteArray("recent.files");
-		for(int i=0;i<file_list_.size();++i)
-		{
-			const auto& file=file_list_[i];
+	settings.beginWriteArray("recent.files");
+
+	for(int i = 0; i < file_list_.size(); ++i) {
+		const auto &file = file_list_[i];
+		settings.setArrayIndex(i);
+		settings.setValue("file", QVariant::fromValue(file.first ));
+		settings.beginWriteArray("arguments");
+
+		for(int i = 0; i < file.second.size(); ++i) {
 			settings.setArrayIndex(i);
-			settings.setValue("file",      QVariant::fromValue(file.first ));
-			settings.beginWriteArray("arguments");
-			for(int i=0;i<file.second.size();++i)
-			{
-				settings.setArrayIndex(i);
-				settings.setValue("arg",file.second[i]);
-			}
-			settings.endArray();
+			settings.setValue("arg", file.second[i]);
 		}
 		settings.endArray();
+	}
+
+	settings.endArray();
 	settings.endGroup();
 }
 
@@ -163,7 +170,7 @@ int RecentFileManager::entry_count() const {
 void RecentFileManager::item_selected() {
 	if(auto action = qobject_cast<QAction *>(sender())) {
 		const auto file = action->data().value<RecentFile>();
-		Q_EMIT file_selected(file.first,file.second);
+		Q_EMIT file_selected(file.first, file.second);
 	}
 }
 
@@ -179,8 +186,10 @@ void RecentFileManager::add_file(const QString &file, const QList<QByteArray> &a
 	// update recent file list, we remove all entries for this file (if any)
 	// and then push the file on the front, ensuring that the recently run
 	// entries are higher in the list
-	file_list_.erase(std::remove_if(file_list_.begin(),file_list_.end(),
-				[&path](RecentFile const& file){return file.first==path;}),file_list_.end());
+	file_list_.erase(std::remove_if(file_list_.begin(), file_list_.end(), [&path](RecentFile const& file){
+	    return file.first == path;
+	}), file_list_.end());
+
 	file_list_.push_front(std::make_pair(path,args));
 
 	// make sure we don't add more than the max

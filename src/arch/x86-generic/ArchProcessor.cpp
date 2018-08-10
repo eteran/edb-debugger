@@ -1003,7 +1003,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 // Desc:
 //------------------------------------------------------------------------------
 Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state) const {
-	using ResultT=Result<edb::address_t>;
+	using ResultT = Result<edb::address_t>;
 
 	edb::address_t ret = 0;
 	// TODO: get registers by index, not string! too slow
@@ -1019,7 +1019,7 @@ Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instructi
 
 			if(!baseR)
 			{
-				if(op->mem.base!=X86_REG_INVALID)
+				if(op->mem.base != X86_REG_INVALID)
 					return ResultT(QObject::tr("failed to acquire base register from state"),0);
 			}
 			else

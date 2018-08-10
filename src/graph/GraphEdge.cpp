@@ -186,7 +186,7 @@ void GraphEdge::syncState() {
 //------------------------------------------------------------------------------
 QGraphicsPolygonItem *GraphEdge::addArrowHead(const QLineF &line, int lineThickness, const QColor &color, int ZValue) {
 
-	const int arrowHeadSize = qMax(lineThickness * 5, 20);
+	const int arrowHeadSize = std::max(lineThickness * 5, 20);
 
 	QPolygonF arrow = createArrow(line, arrowHeadSize);
 	auto arrowHead = new QGraphicsPolygonItem(this);

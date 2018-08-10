@@ -33,7 +33,7 @@ class RecentFileManager : public QWidget {
 public:
 	using RecentFile = std::pair<QString, QList<QByteArray>>;
 public:
-	RecentFileManager(QWidget * parent = 0, Qt::WindowFlags f = Qt::WindowFlags());
+	RecentFileManager(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~RecentFileManager() override;
 
 public:
@@ -55,7 +55,7 @@ private:
 
 private:
 	QList<RecentFile> file_list_;
-	QMenu *           menu_;
+	QMenu *           menu_ = nullptr;
 };
 
 Q_DECLARE_METATYPE(RecentFileManager::RecentFile)
