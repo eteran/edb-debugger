@@ -565,10 +565,10 @@ quint8 PlatformProcess::read_byte_via_ptrace(edb::address_t address, bool *ok) c
 	// are always 0x10*, so the masking works
 	// range of nBytesToNextPage is [1..n] where n=pagesize, and we have to adjust
 	// if nByteToNextPage < wordsize
-	const edb::address_t nBytesToNextPage = core_->page_size() - (address & (core_->page_size() - 1));
+	const size_t nBytesToNextPage = core_->page_size() - (address & (core_->page_size() - 1));
 
 	// Avoid crossing page boundary, since next page may be unreadable
-	const edb::address_t addressShift = nBytesToNextPage < EDB_WORDSIZE ? EDB_WORDSIZE - nBytesToNextPage : 0;
+	const size_t addressShift = nBytesToNextPage < EDB_WORDSIZE ? EDB_WORDSIZE - nBytesToNextPage : 0;
 	address -= addressShift;
 
 	const long value = ptrace_peek(address, ok);
@@ -603,10 +603,10 @@ void PlatformProcess::write_byte_via_ptrace(edb::address_t address, quint8 value
 	// are always 0x10*, so the masking works
 	// range of nBytesToNextPage is [1..n] where n=pagesize, and we have to adjust
 	// if nBytesToNextPage < wordsize
-	const edb::address_t nBytesToNextPage = core_->page_size() - (address & (core_->page_size() - 1));
+	const size_t nBytesToNextPage = core_->page_size() - (address & (core_->page_size() - 1));
 
 	// Avoid crossing page boundary, since next page may be inaccessible
-	const edb::address_t addressShift = nBytesToNextPage < EDB_WORDSIZE ? EDB_WORDSIZE - nBytesToNextPage : 0;
+	const size_t addressShift = nBytesToNextPage < EDB_WORDSIZE ? EDB_WORDSIZE - nBytesToNextPage : 0;
 	address -= addressShift;
 
 	long word = ptrace_peek(address, ok);

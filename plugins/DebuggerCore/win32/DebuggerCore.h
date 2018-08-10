@@ -39,7 +39,7 @@ public:
 
 public:
 	bool has_extension(quint64 ext) const ;
-	edb::address_t page_size() const ;
+	size_t page_size() const ;
 	std::size_t pointer_size() const  {
 		return sizeof(void*);
 	};
@@ -131,7 +131,7 @@ private:
 	bool attached() { return DebuggerCoreBase::attached() && process_handle_ != 0; }
 
 private:
-	edb::address_t   page_size_;
+	size_t           page_size_;
 	HANDLE           process_handle_;
 	QSet<edb::tid_t> threads_;
 	edb::tid_t       active_thread_;

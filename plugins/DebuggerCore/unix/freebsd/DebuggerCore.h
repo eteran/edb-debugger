@@ -35,7 +35,7 @@ public:
 	~DebuggerCore() override;
 
 public:
-	virtual edb::address_t page_size() const;
+	virtual size_t page_size() const;
 	virtual bool has_extension(quint64 ext) const;
 	virtual std::shared_ptr<const IDebugEvent> wait_debug_event(int msecs);
 	virtual bool attach(edb::pid_t pid);

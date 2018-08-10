@@ -58,7 +58,7 @@ public:
 
 public:
 	// system properties
-    virtual edb::address_t           page_size() const = 0;
+	virtual std::size_t              page_size() const = 0;
     virtual std::size_t              pointer_size() const = 0;
     virtual quint64                  cpu_type() const = 0;
 	virtual CPUMode                  cpu_mode() const = 0;

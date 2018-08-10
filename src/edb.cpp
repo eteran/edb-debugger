@@ -1438,7 +1438,7 @@ QVector<quint8> read_pages(address_t address, size_t page_count) {
 	if(debugger_core) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 			try {
-				const address_t page_size = debugger_core->page_size();
+				const size_t page_size = debugger_core->page_size();
 				QVector<quint8> pages(page_count * page_size);
 
 				if(process->read_pages(address, pages.data(), page_count)) {

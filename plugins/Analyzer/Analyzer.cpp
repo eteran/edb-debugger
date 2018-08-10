@@ -637,8 +637,8 @@ void Analyzer::analyze(const std::shared_ptr<IRegion> &region) {
 	QSettings settings;
 	const bool fuzzy = settings.value("Analyzer/fuzzy_logic_functions.enabled", true).toBool();
 
-	const edb::address_t page_size = edb::v1::debugger_core->page_size();
-	const size_t page_count        = region->size() / page_size;
+	const size_t page_size  = edb::v1::debugger_core->page_size();
+	const size_t page_count = region->size() / page_size;
 
 	QVector<quint8> memory = edb::v1::read_pages(region->start(), page_count);
 

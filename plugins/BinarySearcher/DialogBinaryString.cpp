@@ -64,7 +64,7 @@ void DialogBinaryString::do_find() {
 	if(sz != 0) {
 		edb::v1::memory_regions().sync();
 		const QList<std::shared_ptr<IRegion>> regions = edb::v1::memory_regions().regions();
-		const edb::address_t page_size = edb::v1::debugger_core->page_size();
+		const size_t page_size = edb::v1::debugger_core->page_size();
 
 		int i = 0;
 		for(const std::shared_ptr<IRegion> &region: regions) {

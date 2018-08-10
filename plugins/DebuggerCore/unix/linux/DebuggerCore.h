@@ -49,7 +49,7 @@ public:
 
 public:
 	std::size_t pointer_size() const override;
-	edb::address_t page_size() const override;
+	size_t page_size() const override;
 	bool has_extension(quint64 ext) const override;
 	std::shared_ptr<IDebugEvent> wait_debug_event(int msecs) override;
 	Status attach(edb::pid_t pid) override;

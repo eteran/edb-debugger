@@ -67,7 +67,7 @@ void DialogReferences::showEvent(QShowEvent *) {
 void DialogReferences::do_find() {
 	bool ok = false;
 	edb::address_t address;
-	const edb::address_t page_size = edb::v1::debugger_core->page_size();
+	const size_t page_size = edb::v1::debugger_core->page_size();
 
 	const QString text = ui->txtAddress->text();
 	if(!text.isEmpty()) {
@@ -83,7 +83,7 @@ void DialogReferences::do_find() {
 			// a short circut for speading things up
 			if(region->accessible() || !ui->chkSkipNoAccess->isChecked()) {
 
-				const edb::address_t page_count = region->size() / page_size;
+				const size_t page_count = region->size() / page_size;
 				const QVector<quint8> pages = edb::v1::read_pages(region->start(), page_count);
 
 				if(!pages.isEmpty()) {

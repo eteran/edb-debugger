@@ -35,7 +35,7 @@ public:
 	~DebuggerCore() override;
 
 public:
-	edb::address_t page_size() const override;
+	size_t page_size() const override;
 	bool has_extension(quint64 ext) const override;
 	std::shared_ptr<const IDebugEvent> wait_debug_event(int msecs) override;
 	bool attach(edb::pid_t pid) override;
@@ -101,7 +101,7 @@ private:
 
 	typedef QHash<edb::tid_t, thread_info> threadmap_t;
 
-	edb::address_t page_size_;
+	size_t page_size_;
 	threadmap_t    threads_;
 };
 
