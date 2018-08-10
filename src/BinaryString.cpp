@@ -216,8 +216,8 @@ QByteArray BinaryString::value() const {
 //------------------------------------------------------------------------------
 void BinaryString::setValue(const QByteArray &data) {
 
-	valueOriginalLength_=data.size();
-	on_keepSize_stateChanged();
+	valueOriginalLength_ = data.size();
+	on_keepSize_stateChanged(ui->keepSize->checkState());
 	const QString temp = QString::fromLatin1(data.data(), data.size());
 
 	ui->txtAscii->setText(temp);
