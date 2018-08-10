@@ -111,7 +111,7 @@ QString format_address(T address, bool show_separator) {
 // Desc:
 //------------------------------------------------------------------------------
 bool near_line(int x, int linex) {
-	return qAbs(x - linex) < 3;
+	return std::abs(x - linex) < 3;
 }
 
 //------------------------------------------------------------------------------
@@ -187,11 +187,12 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		if (selected != 0 && idx > 0 && idx < show_addresses_.size() - 1 - partial_last_line_) {
 			setSelectedAddress(show_addresses_[idx + 1]);
 		} else {
-			const edb::address_t next_address = address_offset_ + following_instructions(selected - address_offset_, 1);
-			if(next_address >= region_->end()) {
+			const int current_offset = selected - address_offset_;
+			if(current_offset + 1 >= region_->size()) {
 				return ;
 			}
 
+			const edb::address_t next_address = address_offset_ + following_instructions(current_offset, 1);
 			if (!addressShown(next_address)) {
 				scrollTo(show_addresses_.size() > 1 ? show_addresses_[show_addresses_.size() / 3] : next_address);
 			}
@@ -205,8 +206,8 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 			// we already know the previous instruction
 			setSelectedAddress(show_addresses_[idx - 1]);
 		} else {
-			size_t current_offset = selected - address_offset_;
-			if(current_offset == 0) {
+			const int current_offset = selected - address_offset_;
+			if(current_offset <= 0) {
 				return;
 			}
 
@@ -394,7 +395,7 @@ void QDisassemblyView::wheelEvent(QWheelEvent *e) {
 		return;
 	}
 
-	const int abs_scroll_count = qAbs(scroll_count);
+	const int abs_scroll_count = std::abs(scroll_count);
 
 	if(e->delta() > 0) {
 		// scroll up
