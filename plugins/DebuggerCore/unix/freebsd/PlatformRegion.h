@@ -30,7 +30,7 @@ class PlatformRegion : public IRegion {
 
 public:
 	PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions);
-	~PlatformRegion() override;
+	~PlatformRegion() override = default;
 
 public:
 	IRegion *clone() const override;
@@ -40,7 +40,7 @@ public:
 	bool readable() const override;
 	bool writable() const override;
 	bool executable() const override;
-	edb::address_t size() const override;
+	size_t size() const override;
 
 public:
 	void set_permissions(bool read, bool write, bool execute) override;

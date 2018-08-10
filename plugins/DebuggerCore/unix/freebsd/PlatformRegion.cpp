@@ -32,9 +32,6 @@ namespace DebuggerCore {
 PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::address_t base, const QString &name, permissions_t permissions) : start_(start), end_(end), base_(base), name_(name), permissions_(permissions) {
 }
 
-PlatformRegion::~PlatformRegion() {
-}
-
 IRegion *PlatformRegion::clone() const {
 	return new PlatformRegion(start_, end_, base_, name_, permissions_);
 }
@@ -55,7 +52,7 @@ bool PlatformRegion::executable() const {
 	return (permissions_ & PROT_EXEC) != 0;
 }
 
-edb::address_t PlatformRegion::size() const {
+size_t PlatformRegion::size() const {
 	return end_ - start_;
 }
 

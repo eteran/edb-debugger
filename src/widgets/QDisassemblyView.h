@@ -47,7 +47,7 @@ class QDisassemblyView : public QAbstractScrollArea {
 
 public:
     explicit QDisassemblyView(QWidget *parent = nullptr);
-    ~QDisassemblyView() override;
+	~QDisassemblyView() override = default;
 
 protected:
     bool event(QEvent *event) override;
@@ -100,8 +100,8 @@ private:
 	Result<int> get_instruction_size(edb::address_t address, quint8 *buf, int *size) const;
 	boost::optional<unsigned int> get_line_of_address(edb::address_t addr) const;
 	edb::address_t address_from_coord(int x, int y) const;
-	edb::address_t following_instructions(edb::address_t current_address, int count);
-	edb::address_t previous_instructions(edb::address_t current_address, int count);
+	int following_instructions(int current_address, int count);
+	int previous_instructions(int current_address, int count);
 	int address_length() const;
 	int auto_line1() const;
 	int draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l2, int l3, bool selected);
@@ -110,7 +110,7 @@ private:
 	int line3() const;
 	int line_height() const;
 	unsigned getSelectedLineNumber() const;
-	unsigned updateDisassembly(unsigned lines_to_render);
+	int updateDisassembly(int lines_to_render);
 	void paint_line_bg(QPainter &painter, QBrush brush, int line, int num_lines = 1);
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);

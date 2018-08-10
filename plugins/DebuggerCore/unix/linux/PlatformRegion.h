@@ -43,7 +43,7 @@ public:
 	bool readable() const override;
 	bool writable() const override;
 	bool executable() const override;
-	edb::address_t size() const override;
+	size_t size() const override;
 
 public:
 	void set_permissions(bool read, bool write, bool execute) override;

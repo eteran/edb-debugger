@@ -202,7 +202,7 @@ bool PlatformRegion::executable() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t PlatformRegion::size() const {
+size_t PlatformRegion::size() const {
 	return end_ - start_;
 }
 

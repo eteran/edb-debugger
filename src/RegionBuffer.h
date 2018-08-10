@@ -39,7 +39,7 @@ public:
 public:
     qint64 readData(char * data, qint64 maxSize) override;
     qint64 writeData(const char*, qint64) override;
-    qint64 size() const override       { return region_ ? region_->size().toUint() : 0; }
+	qint64 size() const override       { return region_ ? region_->size() : 0; }
     bool isSequential() const override { return false; }
 
 private:

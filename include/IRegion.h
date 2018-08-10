@@ -40,7 +40,7 @@ public:
 	virtual bool readable() const = 0;
 	virtual bool writable() const = 0;
 	virtual bool executable() const = 0;
-	virtual edb::address_t size() const = 0;
+	virtual size_t size() const = 0;
 
 public:
 	virtual void set_permissions(bool read, bool write, bool execute) = 0;
