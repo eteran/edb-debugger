@@ -35,48 +35,48 @@ class DebuggerCore : public DebuggerCoreBase {
 
 public:
 	DebuggerCore();
-	~DebuggerCore() override;
+	~DebuggerCore() ;
 
 public:
-	bool has_extension(quint64 ext) const override;
-	edb::address_t page_size() const override;
-	std::size_t pointer_size() const override {
+	bool has_extension(quint64 ext) const ;
+	edb::address_t page_size() const ;
+	std::size_t pointer_size() const  {
 		return sizeof(void*);
 	};
-	std::shared_ptr<IDebugEvent> wait_debug_event(int msecs) override;
-	Status attach(edb::pid_t pid) override;
-	Status detach() override;
-	void kill() override;
-	void pause() override;
-	void resume(edb::EVENT_STATUS status) override;
-	void step(edb::EVENT_STATUS status) override;
-	void get_state(State *state) override;
-	void set_state(const State &state) override;
-	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
+	std::shared_ptr<IDebugEvent> wait_debug_event(int msecs) ;
+	Status attach(edb::pid_t pid) ;
+	Status detach() ;
+	void kill() ;
+	void pause() ;
+	void resume(edb::EVENT_STATUS status) ;
+	void step(edb::EVENT_STATUS status) ;
+	void get_state(State *state) ;
+	void set_state(const State &state) ;
+	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) ;
 
-	MeansOfCapture last_means_of_capture() const override {
+	MeansOfCapture last_means_of_capture() const  {
 		qDebug("TODO: Implement DebuggerCore::last_means_of_capture");
 		return MeansOfCapture::NeverCaptured;
 	}
 
-	bool read_pages(edb::address_t address, void *buf, std::size_t count) override;
-	bool read_bytes(edb::address_t address, void *buf, std::size_t len) override;
-	bool write_bytes(edb::address_t address, const void *buf, std::size_t len) override;
-	int sys_pointer_size() const override;
-	QMap<qlonglong, QString> exceptions() const override;
-	QString exceptionName(qlonglong value) override {
+	bool read_pages(edb::address_t address, void *buf, std::size_t count) ;
+	bool read_bytes(edb::address_t address, void *buf, std::size_t len) ;
+	bool write_bytes(edb::address_t address, const void *buf, std::size_t len) ;
+	int sys_pointer_size() const ;
+	QMap<qlonglong, QString> exceptions() const ;
+	QString exceptionName(qlonglong value)  {
 		qDebug("TODO: Implement DebuggerCore::exceptionName"); return "";
 	}
 	
-	qlonglong exceptionValue(const QString &name) override {
+	qlonglong exceptionValue(const QString &name)  {
 		qDebug("TODO: Implement DebuggerCore::exceptionValue"); return 0;
 	}
 
 public:
 	// thread support stuff (optional)
-	QList<edb::tid_t> thread_ids() const override   { return threads_.toList(); }
-	edb::tid_t active_thread() const override       { return active_thread_; }
-	void set_active_thread(edb::tid_t tid) override { Q_ASSERT(threads_.contains(tid)); active_thread_ = tid; }
+	QList<edb::tid_t> thread_ids() const    { return threads_.toList(); }
+	edb::tid_t active_thread() const        { return active_thread_; }
+	void set_active_thread(edb::tid_t tid)  { Q_ASSERT(threads_.contains(tid)); active_thread_ = tid; }
 
 public:
 	QList<std::shared_ptr<IRegion>> memory_regions() const;
@@ -85,39 +85,39 @@ public:
 
 public:
 	// process properties
-	QList<QByteArray> process_args(edb::pid_t pid) const override;
-	QString process_exe(edb::pid_t pid) const override;
-	QString process_cwd(edb::pid_t pid) const override;
-	edb::pid_t parent_pid(edb::pid_t pid) const override;
-	QDateTime process_start(edb::pid_t pid) const override;
-	quint64 cpu_type() const override;
+	QList<QByteArray> process_args(edb::pid_t pid) const ;
+	QString process_exe(edb::pid_t pid) const ;
+	QString process_cwd(edb::pid_t pid) const ;
+	edb::pid_t parent_pid(edb::pid_t pid) const ;
+	QDateTime process_start(edb::pid_t pid) const ;
+	quint64 cpu_type() const ;
 
-	CPUMode cpu_mode() const override {
+	CPUMode cpu_mode() const  {
 		qDebug("TODO: Implement DebuggerCore::cpu_mode");
 		return CPUMode::Unknown;
 	}
 
 public:
-	IState *create_state() const override;
+	IState *create_state() const ;
 
 private:
-	QMap<edb::pid_t, std::shared_ptr<IProcess> > enumerate_processes() const override;
-	QList<Module> loaded_modules() const override;
+	QMap<edb::pid_t, std::shared_ptr<IProcess> > enumerate_processes() const ;
+	QList<Module> loaded_modules() const ;
 
 public:
-	QString stack_pointer() const override;
-	QString frame_pointer() const override;
-	QString instruction_pointer() const override;
-	QString flag_register() const override {
+	QString stack_pointer() const ;
+	QString frame_pointer() const ;
+	QString instruction_pointer() const ;
+	QString flag_register() const  {
 		qDebug("TODO: Implement DebuggerCore::flag_register");
 		return "";
 	}
 
 public:
-	QString format_pointer(edb::address_t address) const override;
+	QString format_pointer(edb::address_t address) const ;
 
 public:
-	IProcess *process() const override {
+	IProcess *process() const  {
 		qDebug("TODO: Implement DebuggerCore::process");
 		return nullptr;
 	}
