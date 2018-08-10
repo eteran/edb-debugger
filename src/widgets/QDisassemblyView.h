@@ -82,8 +82,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
 	void setFont(const QFont &f);    
-	void scrollTo(edb::address_t address);
-	void setAddressOffset(edb::address_t address);
+	void scrollTo(edb::address_t address);	
 	void setRegion(const std::shared_ptr<IRegion> &r);
 	void setCurrentAddress(edb::address_t address);
 	void clear();
@@ -96,25 +95,28 @@ private Q_SLOTS:
 
 private:
 	QString formatAddress(edb::address_t address) const;
+	QString instructionString(const edb::Instruction &inst) const;
 	Result<int> get_instruction_size(edb::address_t address) const;
 	Result<int> get_instruction_size(edb::address_t address, quint8 *buf, int *size) const;
 	boost::optional<unsigned int> get_line_of_address(edb::address_t addr) const;
 	edb::address_t address_from_coord(int x, int y) const;
-	int following_instructions(int current_address, int count);
-	int previous_instructions(int current_address, int count);
 	int address_length() const;
 	int auto_line1() const;
-	int draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l2, int l3, bool selected);
+	int draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l2, int l3, bool selected);	
 	int line1() const;
 	int line2() const;
 	int line3() const;
 	int line_height() const;
-	unsigned getSelectedLineNumber() const;
+	int previous_instructions(int current_address, int count);
+	int previous_instruction(IAnalyzer *analyzer, int current_address);
+	int following_instructions(int current_address, int count);
+	int following_instruction(int current_address);
 	int updateDisassembly(int lines_to_render);
+	unsigned getSelectedLineNumber() const;
 	void paint_line_bg(QPainter &painter, QBrush brush, int line, int num_lines = 1);
+	void setAddressOffset(edb::address_t address);
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);
-	QString instructionString(const edb::Instruction &inst) const;
 
 private:
 	edb::address_t address_offset_               = 0;

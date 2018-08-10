@@ -2446,12 +2446,11 @@ void Debugger::clear_data(const std::shared_ptr<DataViewInfo> &v) {
 //------------------------------------------------------------------------------
 void Debugger::do_jump_to_address(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scrollTo) {
 
-	ui.cpuView->setAddressOffset(r->start());
 	ui.cpuView->setRegion(r);
 	if(scrollTo && !ui.cpuView->addressShown(address)) {
 		ui.cpuView->scrollTo(address);
 	}
-        ui.cpuView->setSelectedAddress(address);
+	ui.cpuView->setSelectedAddress(address);
 }
 
 //------------------------------------------------------------------------------

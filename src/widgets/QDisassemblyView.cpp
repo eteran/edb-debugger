@@ -124,47 +124,6 @@ int instruction_size(const quint8 *buffer, std::size_t size) {
 }
 
 //------------------------------------------------------------------------------
-// Name: length_disasm_back
-// Desc:
-//------------------------------------------------------------------------------
-size_t length_disasm_back(const quint8 *buf,const size_t bufSize,const size_t curInstOffset) {
-
-	// stage 1: try to find longest instruction which ends exactly before current one
-	size_t finalSize=0;
-	for(size_t offs = curInstOffset-1;offs!=size_t(-1);--offs) {
-		const edb::Instruction inst(buf+offs, buf+curInstOffset, 0);
-		if(inst && offs+inst.byte_size()==curInstOffset) {
-			finalSize=inst.byte_size();
-		}
-	}
-	if(finalSize) return finalSize;
-
-	// stage2: try to find a combination of previous instruction + new current instruction
-	// such that it would end exactly at the end of original current instruction
-	// we still want previous instruction to be the longest possible
-	const edb::Instruction originalCurrentInst(buf+curInstOffset,buf+bufSize,0);
-	for(size_t offs = curInstOffset-1;offs!=size_t(-1);--offs) {
-		const edb::Instruction instPrev(buf+offs, buf+curInstOffset,0);
-		if(!instPrev) continue;
-		const edb::Instruction instNewCur(buf+offs+instPrev.byte_size(),buf+bufSize,0);
-		if(instNewCur && offs+instPrev.byte_size()+instNewCur.byte_size()==curInstOffset+originalCurrentInst.byte_size()) {
-			finalSize=curInstOffset-offs;
-		}
-	}
-	if(finalSize) return finalSize;
-
-	// stage 3: try to make sure the invalid single-byte won't eat the next line becoming
-	// a valid instruction: we want exactly one _new_ line above
-	for(size_t offs = curInstOffset-1;offs!=size_t(-1);--offs) {
-		const edb::Instruction inst(buf+offs, buf+bufSize, 0);
-		// all next bytes start with valid insturctions, and this one is one invalid byte
-		if(!inst) return curInstOffset-offs;
-	}
-	// all our tries were fruitless, return failure
-	return 0;
-}
-
-//------------------------------------------------------------------------------
 // Name: format_instruction_bytes
 // Desc:
 //------------------------------------------------------------------------------
@@ -228,9 +187,15 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		if (selected != 0 && idx > 0 && idx < show_addresses_.size() - 1 - partial_last_line_) {
 			setSelectedAddress(show_addresses_[idx + 1]);
 		} else {
-			const edb::address_t next_address = following_instructions(selected - address_offset_, 1) + address_offset_;
-			if (!addressShown(next_address))
+			const edb::address_t next_address = address_offset_ + following_instructions(selected - address_offset_, 1);
+			if(next_address >= region_->end()) {
+				return ;
+			}
+
+			if (!addressShown(next_address)) {
 				scrollTo(show_addresses_.size() > 1 ? show_addresses_[show_addresses_.size() / 3] : next_address);
+			}
+
 			setSelectedAddress(next_address);
 		}
 	} else if (event->matches(QKeySequence::MoveToPreviousLine)) {
@@ -240,11 +205,16 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 			// we already know the previous instruction
 			setSelectedAddress(show_addresses_[idx - 1]);
 		} else {
-			const int prev_address = previous_instructions(selected - address_offset_, 1) + address_offset_;
-			if (!addressShown(prev_address)) {
-				scrollTo(prev_address);
+			size_t current_offset = selected - address_offset_;
+			if(current_offset == 0) {
+				return;
 			}
-			setSelectedAddress(prev_address);
+
+			const edb::address_t new_address = address_offset_ + previous_instructions(current_offset, 1);
+			if (!addressShown(new_address)) {
+				scrollTo(new_address);
+			}
+			setSelectedAddress(new_address);
 		}
 	} else if (event->matches(QKeySequence::MoveToNextPage) || event->matches(QKeySequence::MoveToPreviousPage)) {
 		const auto selectedLine = getSelectedLineNumber();
@@ -279,6 +249,86 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 
 //------------------------------------------------------------------------------
 // Name: previous_instructions
+// Desc: attempts to find the address of the instruction 1 instructions
+//       before <current_address>
+// Note: <current_address> is a 0 based value relative to the begining of the
+//       current region, not an absolute address within the program
+//------------------------------------------------------------------------------
+int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_address) {
+
+	// If we have an analyzer, and the current address is within a function
+	// then first we find the begining of that function.
+	// Then, we attempt to disassemble from there until we run into
+	// the address we were on (stopping one instruction early).
+	// this allows us to identify with good accuracy where the
+	// previous instruction was making upward scrolling more functional.
+	//
+	// If all else fails, fall back on the old heuristic which works "ok"
+	if(analyzer) {
+		edb::address_t address = address_offset_ + current_address;
+
+		// find the containing function
+		if(Result<edb::address_t> function_address = analyzer->find_containing_function(address)) {
+
+			if(address != *function_address) {
+				edb::address_t function_start = *function_address;
+
+				// disassemble from function start until the NEXT address is where we started
+				while(true) {
+					uint8_t buf[edb::Instruction::MAX_SIZE];
+
+					size_t buf_size = sizeof(buf);
+					if(region_) {
+						buf_size = std::min<size_t>((function_start - region_->base()), sizeof(buf));
+					}
+
+					if(edb::v1::get_instruction_bytes(function_start, buf, &buf_size)) {
+						const edb::Instruction inst(buf, buf + buf_size, function_start);
+						if(!inst) {
+							break;
+						}
+
+						// if the NEXT address would be our target, then
+						// we are at the previous instruction!
+						if(function_start + inst.byte_size() >= current_address + address_offset_) {
+							break;
+						}
+
+						function_start += inst.byte_size();
+					} else {
+						break;
+					}
+				}
+
+				current_address = (function_start - address_offset_);
+				return current_address;
+			}
+		}
+	}
+
+
+	// fall back on the old heuristic
+	// iteration goal: to get exactly one new line above current instruction line
+	edb::address_t address = address_offset_ + current_address;
+	for(int i = 1; i < edb::Instruction::MAX_SIZE; ++i) {
+		edb::address_t prev_address = address - i;
+		if(address >= address_offset_) {
+
+			uint8_t buf[edb::Instruction::MAX_SIZE];
+			int size = sizeof(buf);
+			Result<int> n = get_instruction_size(prev_address, buf, &size);
+			if(n && *n == i) {
+				return current_address - i;
+			}
+		}
+	}
+
+	// ensure that we make progress even if no instruction could be decoded
+	return current_address - 1;
+}
+
+//------------------------------------------------------------------------------
+// Name: previous_instructions
 // Desc: attempts to find the address of the instruction <count> instructions
 //       before <current_address>
 // Note: <current_address> is a 0 based value relative to the begining of the
@@ -289,86 +339,28 @@ int QDisassemblyView::previous_instructions(int current_address, int count) {
 	IAnalyzer *const analyzer = edb::v1::analyzer();
 
 	for(int i = 0; i < count; ++i) {
-
-		// If we have an analyzer, and the current address is within a function
-		// then first we find the begining of that function.
-		// Then, we attempt to disassemble from there until we run into
-		// the address we were on (stopping one instruction early).
-		// this allows us to identify with good accuracy where the
-		// previous instruction was making upward scrolling more functional.
-		//
-		// If all else fails, fall back on the old heuristic which works "ok"
-		if(analyzer) {
-			edb::address_t address = address_offset_ + current_address;
-
-			// find the containing function
-			if(Result<edb::address_t> function_address = analyzer->find_containing_function(address)) {
-
-				if(address != *function_address) {
-					edb::address_t function_start = *function_address;
-
-					// disassemble from function start until the NEXT address is where we started
-					while(true) {
-						uint8_t buf[edb::Instruction::MAX_SIZE];
-
-						size_t buf_size = sizeof(buf);
-						if(region_) {
-							buf_size = std::min<size_t>((function_start - region_->base()), sizeof(buf));
-						}
-
-						if(edb::v1::get_instruction_bytes(function_start, buf, &buf_size)) {
-							const edb::Instruction inst(buf, buf + buf_size, function_start);
-							if(!inst) {
-								break;
-							}
-
-							// if the NEXT address would be our target, then
-							// we are at the previous instruction!
-							if(function_start + inst.byte_size() >= current_address + address_offset_) {
-								break;
-							}
-
-							function_start += inst.byte_size();
-						} else {
-							break;
-						}
-					}
-
-					current_address = (function_start - address_offset_);
-					continue;
-				}
-			}
-		}
-
-
-		// fall back on the old heuristic
-		// iteration goal: to get exactly one new line above current instruction line
-		static constexpr auto instSize = edb::Instruction::MAX_SIZE;
-		quint8 buf[instSize*2];
-
-		int prevInstBytesSize = instSize;
-		int curInstBytesSize  = instSize;
-		if(region_) {
-			prevInstBytesSize = std::min(current_address, prevInstBytesSize);
-		}
-
-		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address - prevInstBytesSize, buf, &prevInstBytesSize) ||
-		   !edb::v1::get_instruction_bytes(address_offset_ + current_address, buf + prevInstBytesSize, &curInstBytesSize)) {
-			current_address -= 1;
-			break;
-		}
-		const auto buf_size=prevInstBytesSize+curInstBytesSize;
-
-		const size_t size = length_disasm_back(buf, buf_size, prevInstBytesSize);
-		if(!size) {
-			current_address -= 1;
-			continue;
-		}
-
-		current_address -= size;
+		current_address = previous_instruction(analyzer, current_address);
 	}
 
 	return current_address;
+}
+
+int QDisassemblyView::following_instruction(int current_address) {
+	quint8 buf[edb::Instruction::MAX_SIZE + 1];
+
+	// do the longest read we can while still not passing the region end
+	size_t buf_size = sizeof(buf);
+	if(region_) {
+		buf_size = std::min<size_t>((region_->end() - current_address), sizeof(buf));
+	}
+
+	// read in the bytes...
+	if(!edb::v1::get_instruction_bytes(address_offset_ + current_address, buf, &buf_size)) {
+		return current_address + 1;
+	} else {
+		const edb::Instruction inst(buf, buf + buf_size, current_address);
+		return current_address + inst.byte_size();
+	}
 }
 
 //------------------------------------------------------------------------------
@@ -379,23 +371,7 @@ int QDisassemblyView::previous_instructions(int current_address, int count) {
 int QDisassemblyView::following_instructions(int current_address, int count) {
 
 	for(int i = 0; i < count; ++i) {
-
-		quint8 buf[edb::Instruction::MAX_SIZE + 1];
-
-		// do the longest read we can while still not passing the region end
-		size_t buf_size = sizeof(buf);
-		if(region_) {
-			buf_size = std::min<size_t>((region_->end() - current_address), sizeof(buf));
-		}
-
-		// read in the bytes...
-		if(!edb::v1::get_instruction_bytes(address_offset_ + current_address, buf, &buf_size)) {
-			current_address += 1;
-			break;
-		} else {
-			const edb::Instruction inst(buf, buf + buf_size, current_address);
-			current_address += inst.byte_size();
-		}
+		current_address = following_instruction(current_address);
 	}
 
 	return current_address;
@@ -543,7 +519,8 @@ void QDisassemblyView::setRegion(const std::shared_ptr<IRegion> &r) {
 	// the region to nothing. It's fairly harmless to reset an already
 	// reset region, so we don't bother check that condition
 	if((r && !r->equals(region_)) || (!r)) {
-		region_ = r;
+		region_ = r;		
+		setAddressOffset(region_ ? region_->start() : edb::address_t(0));
 		updateScrollbars();
 		Q_EMIT regionChanged();
 
@@ -1410,6 +1387,9 @@ Result<int> QDisassemblyView::get_instruction_size(edb::address_t address) const
 
 	// do the longest read we can while still not crossing region end
 	int buf_size = sizeof(buf);
+
+	size_t end = region_->end();
+
 	if(region_->end() != 0 && address + buf_size > region_->end()) {
 
 		if(address <= region_->end()) {
