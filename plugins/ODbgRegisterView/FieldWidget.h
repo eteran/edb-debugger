@@ -35,17 +35,19 @@ protected:
 	QPersistentModelIndex index;
 	int                   fieldWidth_;
 
-	ODBRegView *   regView() const;
+	ODBRegView *regView() const;
 	RegisterGroup *group() const;
 
 public:
 	FieldWidget(int fieldWidth, QModelIndex const &index, QWidget *parent = nullptr);
 	FieldWidget(int fieldWidth, QString const &fixedText, QWidget *parent = nullptr);
 	FieldWidget(QString const &fixedText, QWidget *parent = nullptr);
+
+public:
 	virtual QString text() const;
-	int             lineNumber() const;
-	int             columnNumber() const;
-	int             fieldWidth() const;
+	int lineNumber() const;
+	int columnNumber() const;
+	int fieldWidth() const;
 
 public Q_SLOTS:
 	virtual void adjustToData();

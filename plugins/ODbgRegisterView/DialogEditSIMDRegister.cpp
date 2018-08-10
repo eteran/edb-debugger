@@ -373,13 +373,10 @@ std::uint64_t DialogEditSIMDRegister::readInteger(const NumberEdit *const edit) 
 	switch (intMode) {
 	case NumberDisplayMode::Hex:
 		return edit->text().toULongLong(&ok, 16);
-		break;
 	case NumberDisplayMode::Signed:
 		return edit->text().toLongLong(&ok);
-		break;
 	case NumberDisplayMode::Unsigned:
 		return edit->text().toULongLong(&ok);
-		break;
 	default:
 		Q_ASSERT("Unexpected integer display mode" && 0);
 		return 0xbadbadbadbadbad1;

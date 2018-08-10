@@ -23,9 +23,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace ODbgRegisterView {
 
 const QKeySequence copyFieldShortcut(Qt::CTRL | Qt::Key_C);
-const Qt::Key      setToZeroKey = Qt::Key_Z;
-const Qt::Key      decrementKey = Qt::Key_Minus;
-const Qt::Key      incrementKey = Qt::Key_Plus;
+constexpr Qt::Key      setToZeroKey = Qt::Key_Z;
+constexpr Qt::Key      decrementKey = Qt::Key_Minus;
+constexpr Qt::Key      incrementKey = Qt::Key_Plus;
 
 static constexpr auto GPRCategoryName = "General Purpose";
 

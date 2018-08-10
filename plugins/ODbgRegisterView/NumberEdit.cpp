@@ -7,9 +7,6 @@ namespace ODbgRegisterView {
 NumberEdit::NumberEdit(int column, int colSpan, QWidget *parent) : QLineEdit(parent), column_(column), colSpan_(colSpan) {
 }
 
-NumberEdit::~NumberEdit() {
-}
-
 int NumberEdit::column() const {
 	return column_;
 }

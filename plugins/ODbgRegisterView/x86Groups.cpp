@@ -130,7 +130,7 @@ void addPUOZDI(RegisterGroup *const group,
 			   int const startRow,
 			   int const startColumn) {
 	QString const exceptions = "PUOZDI";
-	std::unordered_map<char, QString> excNames = {
+	static const std::unordered_map<char, QString> excNames = {
 		{'P', QObject::tr("Precision")},
 		{'U', QObject::tr("Underflow")},
 		{'O', QObject::tr("Overflow")},

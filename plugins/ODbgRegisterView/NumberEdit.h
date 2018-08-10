@@ -23,7 +23,7 @@ class NumberEdit : public QLineEdit {
 	Q_OBJECT
 public:
 	NumberEdit(int column, int colSpan, QWidget *parent = nullptr);
-	~NumberEdit() override;
+	~NumberEdit() override = default;
 
 public:
 	int column() const;

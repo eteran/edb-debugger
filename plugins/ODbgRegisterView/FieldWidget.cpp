@@ -48,30 +48,15 @@ void FieldWidget::init(int const fieldWidth) {
 	setDisabled(true);
 }
 
-FieldWidget::FieldWidget(int const fieldWidth,
-						 QModelIndex const &index,
-						 QWidget *const parent)
-	: QLabel("Fw???", parent),
-	  index(index),
-	  fieldWidth_(fieldWidth)
-{
+FieldWidget::FieldWidget(int const fieldWidth, QModelIndex const &index, QWidget *const parent) : QLabel("Fw???", parent), index(index), fieldWidth_(fieldWidth) {
 	init(fieldWidth);
 }
 
-FieldWidget::FieldWidget(int const fieldWidth,
-						 QString const &fixedText,
-						 QWidget *const parent)
-	: QLabel(fixedText, parent),
-	  fieldWidth_(fieldWidth)
-{
+FieldWidget::FieldWidget(int const fieldWidth, QString const &fixedText, QWidget *const parent) : QLabel(fixedText, parent), fieldWidth_(fieldWidth) {
 	init(fieldWidth); // NOTE: fieldWidth!=fixedText.length() in general
 }
 
-FieldWidget::FieldWidget(QString const &fixedText,
-						 QWidget *const parent)
-	: QLabel(fixedText, parent),
-	  fieldWidth_(fixedText.length())
-{
+FieldWidget::FieldWidget(QString const &fixedText, QWidget *const parent) : QLabel(fixedText, parent),fieldWidth_(fixedText.length()) {
 	init(fixedText.length());
 }
 
