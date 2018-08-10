@@ -188,7 +188,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 			setSelectedAddress(show_addresses_[idx + 1]);
 		} else {
 			const int current_offset = selected - address_offset_;
-			if(current_offset + 1 >= region_->size()) {
+			if(current_offset + 1 >= static_cast<int>(region_->size())) {
 				return ;
 			}
 
@@ -226,7 +226,7 @@ void QDisassemblyView::keyPressEvent(QKeyEvent *event) {
 		}
 		updateDisassembly(instructions_.size());
 
-		if(unsigned(show_addresses_.size()) > selectedLine) {
+		if(show_addresses_.size() > selectedLine) {
 			setSelectedAddress(show_addresses_[selectedLine]);
 		}
 	} else if (event->key() == Qt::Key_Minus) {
@@ -311,7 +311,7 @@ int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_addr
 	// fall back on the old heuristic
 	// iteration goal: to get exactly one new line above current instruction line
 	edb::address_t address = address_offset_ + current_address;
-	for(int i = 1; i < edb::Instruction::MAX_SIZE; ++i) {
+	for(int i = 1; i < static_cast<int>(edb::Instruction::MAX_SIZE); ++i) {
 		edb::address_t prev_address = address - i;
 		if(address >= address_offset_) {
 
