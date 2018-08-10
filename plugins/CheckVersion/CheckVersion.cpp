@@ -37,14 +37,7 @@ namespace CheckVersionPlugin {
 // Name: CheckVersion
 // Desc:
 //------------------------------------------------------------------------------
-CheckVersion::CheckVersion() : menu_(nullptr), network_(nullptr), initial_check_(true) {
-}
-
-//------------------------------------------------------------------------------
-// Name: ~CheckVersion
-// Desc:
-//------------------------------------------------------------------------------
-CheckVersion::~CheckVersion() {
+CheckVersion::CheckVersion(QObject *parent) : QObject(parent) {
 }
 
 //------------------------------------------------------------------------------

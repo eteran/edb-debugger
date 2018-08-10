@@ -24,44 +24,43 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPlainTextEdit>
 #include <iostream>
 
-namespace DebuggerErrorConsolePlugin
-{
+namespace DebuggerErrorConsolePlugin {
 
-Plugin* Plugin::instance=nullptr;
+namespace {
+QPointer<Plugin> instance = nullptr;
+}
 
-void Plugin::debugMessageIntercept(QtMsgType type, QMessageLogContext const&, QString const& message)
-{
-	if(!instance) return;
+void Plugin::debugMessageIntercept(QtMsgType type, const QMessageLogContext &, const QString &message) {
 
-	QString text;
-	switch(type)
-	{
-	case QtDebugMsg:
-		text+="DEBUG";
-		break;
-#if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
-	case QtInfoMsg:
-		text+="INFO ";
-		break;
-#endif
-	case QtWarningMsg:
-		text+="WARN ";
-		break;
-	case QtCriticalMsg:
-		text+="ERROR";
-		break;
-	case QtFatalMsg:
-		text+="FATAL";
-		break;
+	if(!instance) {
+		return;
 	}
-	text+="  "+QString(message);
+
+	QString text = [type, &message]() {
+		switch(type) {
+		case QtDebugMsg:
+			return tr("DEBUG %1").arg(message);
+    #if QT_VERSION >= QT_VERSION_CHECK(5, 5, 0)
+		case QtInfoMsg:
+			return tr("INFO  %1").arg(message);
+    #endif
+		case QtWarningMsg:
+			return tr("WARN  %1").arg(message);
+		case QtCriticalMsg:
+			return tr("ERROR %1").arg(message);
+		case QtFatalMsg:
+			return tr("FATAL %1").arg(message);
+		default:
+			Q_UNREACHABLE();
+		}
+	}();
+
 	instance->textWidget_->appendPlainText(text);
 	std::cerr << message.toUtf8().constData() << "\n"; // this may be useful as a crash log
 }
 
-Plugin::Plugin()
-{
-	instance=this;
+Plugin::Plugin(QObject *parent) : QObject(parent) {
+	instance = this;
 
 	textWidget_ = new QPlainTextEdit;
 	textWidget_->setReadOnly(true);
@@ -72,18 +71,10 @@ Plugin::Plugin()
 	qInstallMessageHandler(debugMessageIntercept);
 }
 
-Plugin::~Plugin()
-{
-	instance=nullptr;
-}
-
-QMenu* Plugin::menu(QWidget* parent)
-{
-	if(!menu_)
-	{
-		if(auto*const mainWindow = qobject_cast<QMainWindow *>(edb::v1::debugger_ui))
-		{
-			auto*const dockWidget = new QDockWidget(tr("Debugger Error Console"), mainWindow);
+QMenu *Plugin::menu(QWidget* parent) {
+	if(!menu_) {
+		if(auto mainWindow = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
+			auto dockWidget = new QDockWidget(tr("Debugger Error Console"), mainWindow);
 			dockWidget->setObjectName(QString::fromUtf8("Debugger Error Console"));
 			dockWidget->setWidget(textWidget_);
 
@@ -93,21 +84,22 @@ QMenu* Plugin::menu(QWidget* parent)
 			menu_->addAction(dockWidget->toggleViewAction());
 
 			auto docks = mainWindow->findChildren<QDockWidget *>();
+
 			// We want to put it to the same area as Stack dock
 			// Stupid QList doesn't have a reverse iterator
-			for(auto it=docks.end()-1;;--it)
-			{
-				QDockWidget*const widget=*it;
-				if(widget!=dockWidget && mainWindow->dockWidgetArea(widget)==Qt::BottomDockWidgetArea)
-				{
-					mainWindow->tabifyDockWidget(widget, dockWidget);
+			for(auto it = docks.end() - 1 ;; --it) {
+				QDockWidget *const widget = *it;
 
+				if(widget != dockWidget && mainWindow->dockWidgetArea(widget) == Qt::BottomDockWidgetArea) {
+					mainWindow->tabifyDockWidget(widget, dockWidget);
 					widget->show();
 					widget->raise();
 					break;
 				}
-				if(it==docks.begin())
+
+				if(it == docks.begin()) {
 					break;
+				}
 			}
 
 		}
@@ -116,9 +108,7 @@ QMenu* Plugin::menu(QWidget* parent)
 }
 
 
-DebuggerErrorConsole::DebuggerErrorConsole(QWidget* parent)
-	: QDialog(parent)
-{
+DebuggerErrorConsole::DebuggerErrorConsole(QWidget* parent) : QDialog(parent) {
 }
 
 }

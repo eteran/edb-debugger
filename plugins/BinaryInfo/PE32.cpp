@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BinaryInfoPlugin {
 
-PEBinaryException::PEBinaryException(reasonEnum reason): reason_(reason) {}
+PEBinaryException::PEBinaryException(Reason reason): reason_(reason) {}
 const char * PEBinaryException::what() const noexcept { return "TODO"; }
 
 //------------------------------------------------------------------------------
@@ -36,36 +36,36 @@ const char * PEBinaryException::what() const noexcept { return "TODO"; }
 //------------------------------------------------------------------------------
 PE32::PE32(const std::shared_ptr<IRegion> &region) : region_(region) {
 #if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
-	const WORD dos_magic = 0x5A4D;
-	const LONG pe_magic = 0x00004550;
+	constexpr WORD dos_magic = 0x5A4D;
+	constexpr LONG pe_magic  = 0x00004550;
 #elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
-	const WORD dos_magic = 0x4D5A;
-	const LONG pe_magic = 0x50450000;
+	constexpr WORD dos_magic = 0x4D5A;
+	constexpr LONG pe_magic  = 0x50450000;
 #endif
 
 	if (!region_) {
-		throw PEBinaryException(PEBinaryException::reasonEnum::INVALID_ARGUMENTS);
+		throw PEBinaryException(PEBinaryException::Reason::INVALID_ARGUMENTS);
 	}
 	IProcess *process = edb::v1::debugger_core->process();
 
 	if (!process) {
-		throw PEBinaryException(PEBinaryException::reasonEnum::READ_FAILURE);
+		throw PEBinaryException(PEBinaryException::Reason::READ_FAILURE);
 	}
 
 	if (!process->read_bytes(region_->start(), &dos_, sizeof(dos_))) {
-		throw PEBinaryException(PEBinaryException::reasonEnum::READ_FAILURE);
+		throw PEBinaryException(PEBinaryException::Reason::READ_FAILURE);
 	}
 
 	if (dos_.e_magic != dos_magic || dos_.e_lfanew == 0) {
-		throw PEBinaryException(PEBinaryException::reasonEnum::INVALID_PE);
+		throw PEBinaryException(PEBinaryException::Reason::INVALID_PE);
 	}
 
 	if (!process->read_bytes(region_->start() + dos_.e_lfanew, &pe_, sizeof(pe_))) {
-		throw PEBinaryException(PEBinaryException::reasonEnum::READ_FAILURE);
+		throw PEBinaryException(PEBinaryException::Reason::READ_FAILURE);
 	}
 
 	if (pe_.Signature != pe_magic) {
-		throw PEBinaryException(PEBinaryException::reasonEnum::INVALID_PE);
+		throw PEBinaryException(PEBinaryException::Reason::INVALID_PE);
 	}
 }
 
@@ -122,20 +122,19 @@ size_t PE32::header_size() const {
 // Desc: returns a list of all headers in this binary
 //------------------------------------------------------------------------------
 std::vector<IBinary::Header> PE32::headers() const {
-	std::vector<Header> results;
-
-	results.push_back({region_->start(), sizeof(pe_) + dos_.e_lfanew});
-	 
+	std::vector<Header> results = {
+	    { region_->start(), sizeof(pe_) + dos_.e_lfanew }
+	};
 	return results;
 }
 
 //------------------------------------------------------------------------------
 // Name: header
-// Desc: returns a copy of the file header or NULL if the region wasn't a valid,
-//       known binary type
+// Desc: returns a copy of the file header or nullptr if the region wasn't a
+//       valid, known binary type
 //------------------------------------------------------------------------------
 const void *PE32::header() const {
-	return 0;
+	return nullptr;
 }
 
 }

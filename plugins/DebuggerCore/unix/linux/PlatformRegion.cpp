@@ -52,10 +52,10 @@ template <size_t N>
 class BackupInfo : public IDebugEventHandler {
 public:
 	BackupInfo(edb::address_t address, IRegion::permissions_t perms, PlatformRegion *region);
-	~BackupInfo();
+	~BackupInfo() override;
+	BackupInfo(const BackupInfo &)            = delete;
+	BackupInfo& operator=(const BackupInfo &) = delete;
 
-private:
-	Q_DISABLE_COPY(BackupInfo)
 
 public:
 	IRegion::permissions_t perms() const { return premissions_; }
@@ -69,7 +69,7 @@ public:
 	edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) override;
 
 public:
-	QAtomicInt             lock_;
+	QAtomicInt             lock_ = 1;
 	edb::address_t         address_;
 	IRegion::permissions_t premissions_;
 	State                  state_;
@@ -82,9 +82,7 @@ public:
 // Desc:
 //------------------------------------------------------------------------------
 template <size_t N>
-BackupInfo<N>::BackupInfo(edb::address_t address, IRegion::permissions_t perms, PlatformRegion *region) :
-		lock_(1), address_(address), premissions_(perms), region_(region) {
-
+BackupInfo<N>::BackupInfo(edb::address_t address, IRegion::permissions_t perms, PlatformRegion *region) : address_(address), premissions_(perms), region_(region) {
 	edb::v1::add_debug_event_handler(this);
 }
 
@@ -164,13 +162,6 @@ PlatformRegion::PlatformRegion(edb::address_t start, edb::address_t end, edb::ad
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-PlatformRegion::~PlatformRegion() {
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
 IRegion *PlatformRegion::clone() const {
 	return new PlatformRegion(start_, end_, base_, name_, permissions_);
 }
@@ -239,7 +230,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 	}
 
 	if(executable() && count == 1 && !execute) {
-		ret = QMessageBox::question(0,
+		ret = QMessageBox::question(nullptr,
 			tr("Removing Execute Permissions On Last Executable std::shared_ptr<IRegion>"),
 			tr("You are about to remove execute permissions from the last executable region. Because of the need "
 			"to run code in the process to change permissions, there will be no way to undo this. In addition, "
@@ -254,7 +245,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 			set_permissions(read, write, execute, temp_address);
 		} else {
 			QMessageBox::critical(
-				0,
+			    nullptr,
 				tr("No Suitable Address Found"),
 				tr("This feature relies on running shellcode in the debugged process, no executable memory region was found. Unfortunately, this means that no more region permission changes can be made (it also means that there is nothing the process can continue to do since it cannot execute at all)."));
 		}
@@ -376,7 +367,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 				}
 			} catch(const std::bad_alloc &) {
 				QMessageBox::critical(
-					0,
+				    nullptr,
 					tr("Memory Allocation Error"),
 					tr("Unable to satisfy memory allocation request for backup code."));
 			}

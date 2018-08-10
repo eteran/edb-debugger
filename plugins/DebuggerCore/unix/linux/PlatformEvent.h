@@ -31,10 +31,10 @@ class PlatformEvent : public IDebugEvent {
 	friend class DebuggerCore;
 
 public:
-	PlatformEvent();
+	PlatformEvent() = default;
 
 private:
-	PlatformEvent(const PlatformEvent &) = default;
+	PlatformEvent(const PlatformEvent &)            = default;
 	PlatformEvent& operator=(const PlatformEvent &) = default;
 
 public:
@@ -59,10 +59,10 @@ private:
 	static IDebugEvent::Message createUnexpectedSignalMessage(const QString &name, int number);
 
 private:
-	siginfo_t  siginfo_;
-	edb::pid_t pid_;
-	edb::tid_t tid_;
-	int        status_;
+	siginfo_t  siginfo_ = {};
+	edb::pid_t pid_     = 0;
+	edb::tid_t tid_     = 0;
+	int        status_  = 0;
 };
 
 }

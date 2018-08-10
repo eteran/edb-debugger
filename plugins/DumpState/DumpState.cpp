@@ -46,13 +46,13 @@ std::string hex_string(const T& value) {
 	return value.toHexString().toStdString();
 }
 
-static const char *const Reset  = "\x1B[0m";
-static const char *const Red    = "\x1B[91m";
-static const char *const Yellow = "\x1B[93m";
-static const char *const Cyan   = "\x1B[96m";
-static const char *const Blue   = "\x1B[94m";
-static const char *const Green  = "\x1B[92m";
-static const char *const Purple = "\x1B[95m";
+const char Reset[]  = "\x1B[0m";
+const char Red[]    = "\x1B[91m";
+const char Yellow[] = "\x1B[93m";
+const char Cyan[]   = "\x1B[96m";
+const char Blue[]   = "\x1B[94m";
+const char Green[]  = "\x1B[92m";
+const char Purple[] = "\x1B[95m";
 
 
 //------------------------------------------------------------------------------
@@ -112,14 +112,7 @@ std::string format_address(const T& value) {
 // Name: DumpState
 // Desc:
 //------------------------------------------------------------------------------
-DumpState::DumpState() : menu_(nullptr) {
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DumpState
-// Desc:
-//------------------------------------------------------------------------------
-DumpState::~DumpState() {
+DumpState::DumpState(QObject *parent) : QObject(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -225,7 +218,8 @@ void DumpState::dump_registers(const State &state) {
 		cout << "  r10:" <<    format_register(state["r10"]);
 		cout << "  r11:" <<    format_register(state["r11"]);
 		cout << "           ";
-		const Register rflagsR=state["rflags"];
+
+		const Register rflagsR = state["rflags"];
 		if(rflagsR) {
 			const auto rflags=rflagsR.value<edb::value32>();
 			cout << ((rflags & (1 << 11)) != 0 ? 'O' : 'o') << ' ';
@@ -238,6 +232,7 @@ void DumpState::dump_registers(const State &state) {
 			cout << ((rflags & (1 <<  2)) != 0 ? 'P' : 'p') << ' ';
 			cout << ((rflags & (1 <<  0)) != 0 ? 'C' : 'c');
 		}
+
 		cout << "\n";
 		cout << "     r12:" << format_register(state["r12"]);
 		cout << " r13:" <<     format_register(state["r13"]);

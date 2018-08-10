@@ -187,7 +187,7 @@ DebuggerCore::DebuggerCore() :
 		QSettings settings;
 		const bool warn = settings.value("DebuggerCore/warn_on_broken_proc_mem.enabled", true).toBool();
 		if(warn) {
-			auto dialog = new DialogMemoryAccess(0);
+			auto dialog = new DialogMemoryAccess(nullptr);
 			dialog->exec();
 
 			settings.setValue("DebuggerCore/warn_on_broken_proc_mem.enabled", dialog->warnNextTime());
@@ -246,7 +246,6 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 		return false;
 	}
 #endif
-	return false;
 }
 
 //------------------------------------------------------------------------------
@@ -274,7 +273,9 @@ DebuggerCore::~DebuggerCore() {
 // Desc:
 //------------------------------------------------------------------------------
 Status DebuggerCore::ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo) {
-	Q_ASSERT(siginfo != 0);
+
+	Q_ASSERT(siginfo);
+
 	if(ptrace(PTRACE_GETSIGINFO, tid, 0, siginfo)==-1) {
 		const char*const strError=strerror(errno);
 		qWarning() << "Unable to get signal info for thread" << tid << ": PTRACE_GETSIGINFO failed:" << strError;
@@ -301,7 +302,7 @@ Status DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
 	//               in the first place if we aren't stopped on this TID :-(
 	if(waited_threads_.contains(tid)) {
 		Q_ASSERT(tid != 0);
-		if(ptrace(PTRACE_CONT, tid, 0, status)==-1) {
+		if(ptrace(PTRACE_CONT, tid, 0, status) == -1) {
 			const char*const strError=strerror(errno);
 			qWarning() << "Unable to continue thread" << tid << ": PTRACE_CONT failed:" << strError;
 			return Status(strError);
@@ -355,7 +356,8 @@ Status DebuggerCore::ptrace_set_options(edb::tid_t tid, long options) {
 Status DebuggerCore::ptrace_get_event_message(edb::tid_t tid, unsigned long *message) {
 	Q_ASSERT(waited_threads_.contains(tid));
 	Q_ASSERT(tid != 0);
-	Q_ASSERT(message != 0);
+	Q_ASSERT(message);
+
 	if(ptrace(PTRACE_GETEVENTMSG, tid, 0, message)==-1) {
 		const char*const strError=strerror(errno);
 		qWarning() << "Unable to get event message for thread" << tid << ": PTRACE_GETEVENTMSG failed:" << strError;
@@ -733,7 +735,7 @@ void DebuggerCore::kill() {
 		::kill(pid(), SIGKILL);
 
 		pid_t ret;
-		while((ret=native::waitpid(-1, 0, __WALL)) != pid() && ret!=-1);
+		while((ret = native::waitpid(-1, nullptr, __WALL)) != pid() && ret != -1);
 
 		delete process_;
 		process_ = nullptr;

@@ -28,32 +28,34 @@ class QPushButton;
 class QVBoxLayout;
 class QTextBrowser;
 
-namespace InstructionInspector
-{
+namespace InstructionInspector {
 
-class InstructionDialog : public QDialog
-{
+class InstructionDialog : public QDialog {
 	Q_OBJECT
-
-	QTreeWidget* tree=nullptr;
-	QPushButton* compareButton=nullptr;
-	QVBoxLayout* vbox=nullptr;
-	QTextBrowser* disassemblies=nullptr;
-	void* insn_=nullptr;
-	void* disassembler_=nullptr;
-	edb::address_t address;
-	std::vector<std::uint8_t> insnBytes;
+	
 public:
-	struct DisassemblyFailure{};
-	struct InstructionReadFailure{};
-    explicit InstructionDialog(QWidget* parent=nullptr);
-    ~InstructionDialog() override;
+	struct DisassemblyFailure     {};
+	struct InstructionReadFailure {};
+
+public:
+	explicit InstructionDialog(QWidget *parent = nullptr);
+	~InstructionDialog() override;
+
 private Q_SLOTS:
 	void compareDisassemblers();
+	
+private:
+	QTreeWidget *             tree          = nullptr;
+	QPushButton *             compareButton = nullptr;
+	QVBoxLayout *             vbox          = nullptr;
+	QTextBrowser *            disassemblies = nullptr;
+	void *                    insn_         = nullptr;
+	void *                    disassembler_ = nullptr;
+	edb::address_t            address;
+	std::vector<std::uint8_t> insnBytes;
 };
 
-class Plugin : public QObject, public IPlugin
-{
+class Plugin : public QObject, public IPlugin {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
 	Q_PLUGIN_METADATA(IID "edb.IPlugin/1.0")
@@ -61,13 +63,15 @@ class Plugin : public QObject, public IPlugin
 	Q_CLASSINFO("email", "b7.10110111@gmail.com")
 
 public:
-	Plugin();
-	QMenu* menu(QWidget* parent = 0) override;
-	QList<QAction*> cpu_context_menu() override;
-private:
-	QAction* menuAction;
+	Plugin(QObject *parent = nullptr);
+	QMenu *menu(QWidget *parent = nullptr) override;
+	QList<QAction *> cpu_context_menu() override;
+
 private Q_SLOTS:
 	void showDialog() const;
+
+private:
+	QAction *menuAction;
 };
 
 }

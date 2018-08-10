@@ -77,12 +77,12 @@ void DialogBinaryString::do_find() {
 			}
 
 			const size_t page_count     = region_size / page_size;
-			const QVector<quint8> pages = edb::v1::read_pages(region->start(), page_count);
+			const QVector<uint8_t> pages = edb::v1::read_pages(region->start(), page_count);
 
 			if(!pages.isEmpty()) {
 
-				const quint8 *p = &pages[0];
-				const quint8 *const pages_end = &pages[0] + region_size - sz;
+				const uint8_t *p = &pages[0];
+				const uint8_t *const pages_end = &pages[0] + region_size - sz;
 
 				while(p < pages_end) {
 					// compare values..

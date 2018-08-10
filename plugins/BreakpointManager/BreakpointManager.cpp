@@ -28,7 +28,7 @@ namespace BreakpointManagerPlugin {
 // Name: BreakpointManager
 // Desc:
 //------------------------------------------------------------------------------
-BreakpointManager::BreakpointManager() : menu_(nullptr), dialog_(nullptr) {
+BreakpointManager::BreakpointManager(QObject *parent) : QObject(parent) {
 }
 
 //------------------------------------------------------------------------------

@@ -252,7 +252,7 @@ int native::select_ex(int nfds, fd_set *readfds, fd_set *writefds, fd_set *excep
 
 		return native::select(nfds, readfds, writefds, exceptfds, &tv);
 	} else {
-		return native::select(nfds, readfds, writefds, exceptfds, NULL);
+		return native::select(nfds, readfds, writefds, exceptfds, nullptr);
 	}
 }
 

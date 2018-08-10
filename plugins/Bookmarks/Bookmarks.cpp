@@ -32,7 +32,7 @@ namespace BookmarksPlugin {
 // Name: Bookmarks
 // Desc:
 //------------------------------------------------------------------------------
-Bookmarks::Bookmarks() : QObject(nullptr), menu_(nullptr), signal_mapper_(nullptr), bookmark_widget_(nullptr) {
+Bookmarks::Bookmarks(QObject *parent) : QObject(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -149,7 +149,6 @@ void Bookmarks::restore_state(const QVariantMap &state) {
 	QVariantList bookmarks = state["bookmarks"].toList();
 	for(auto &entry : bookmarks) {
 		auto bookmark = entry.value<QVariantMap>();
-	
 	
 		edb::address_t address = edb::address_t::fromHexString(bookmark["address"].toString());
 		QString type           = bookmark["type"].toString();

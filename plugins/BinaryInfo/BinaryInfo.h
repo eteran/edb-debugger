@@ -35,7 +35,7 @@ class BinaryInfo : public QObject, public IPlugin, public ISymbolGenerator {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	BinaryInfo();
+	BinaryInfo(QObject *parent = nullptr);
 
 private:
 	void private_init() override;
@@ -53,7 +53,7 @@ public Q_SLOTS:
 	void explore_header();
 
 private:
-	QMenu *menu_;
+	QMenu *menu_ = nullptr;
 };
 
 }

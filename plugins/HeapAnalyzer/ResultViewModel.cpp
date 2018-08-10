@@ -22,17 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace HeapAnalyzerPlugin {
 
-namespace {
-	bool BlockGreater(const Result &s1, const Result &s2) { return s1.block > s2.block; }
-	bool BlockLess(const Result &s1, const Result &s2)    { return s1.block < s2.block; }
-	bool DataGreater(const Result &s1, const Result &s2)  { return s1.data > s2.data; }
-	bool DataLess(const Result &s1, const Result &s2)     { return s1.data < s2.data; }
-	bool SizeGreater(const Result &s1, const Result &s2)  { return s1.size > s2.size; }
-	bool SizeLess(const Result &s1, const Result &s2)     { return s1.size < s2.size; }
-	bool TypeGreater(const Result &s1, const Result &s2)  { return s1.type > s2.type; }
-	bool TypeLess(const Result &s1, const Result &s2)     { return s1.type < s2.type; }
-}
-
 //------------------------------------------------------------------------------
 // Name: ResultViewModel
 // Desc:
@@ -168,17 +157,17 @@ void ResultViewModel::sort(int column, Qt::SortOrder order) {
 
 	if(order == Qt::AscendingOrder) {
 		switch(column) {
-		case 0: std::sort(results_.begin(), results_.end(), BlockLess); break;
-		case 1: std::sort(results_.begin(), results_.end(), SizeLess);  break;
-		case 2: std::sort(results_.begin(), results_.end(), TypeLess);  break;
-		case 3: std::sort(results_.begin(), results_.end(), DataLess);  break;
+		case 0: std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.block < s2.block; }); break;
+		case 1: std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.size < s2.size; });   break;
+		case 2: std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.type < s2.type; });   break;
+		case 3: std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2)  { return s1.data < s2.data; });  break;
 		}
 	} else {
 		switch(column) {
-		case 0: std::sort(results_.begin(), results_.end(), BlockGreater); break;
-		case 1: std::sort(results_.begin(), results_.end(), SizeGreater);  break;
-		case 2: std::sort(results_.begin(), results_.end(), TypeGreater);  break;
-		case 3: std::sort(results_.begin(), results_.end(), DataGreater);  break;
+		case 0: std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.block > s2.block; }); break;
+		case 1: std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.size > s2.size; });   break;
+		case 2: std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.type > s2.type; });   break;
+		case 3: std::sort(results_.begin(), results_.end(), [](const Result &s1, const Result &s2) { return s1.data > s2.data; });   break;
 		}
 	}
 

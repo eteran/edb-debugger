@@ -32,7 +32,7 @@ namespace AssemblerPlugin {
 // Name: Assembler
 // Desc:
 //------------------------------------------------------------------------------
-Assembler::Assembler() : dialog_(0) {
+Assembler::Assembler(QObject *parent) : QObject(parent) {
 }
 
 //------------------------------------------------------------------------------
@@ -66,7 +66,7 @@ QList<QAction *> Assembler::cpu_context_menu() {
 //------------------------------------------------------------------------------
 QMenu *Assembler::menu(QWidget *parent) {
 	Q_UNUSED(parent);
-	return 0;
+	return nullptr;
 }
 
 //------------------------------------------------------------------------------

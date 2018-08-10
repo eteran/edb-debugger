@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace BinaryInfoPlugin {
 
 //------------------------------------------------------------------------------
-// Name: nativ
+// Name: native
 // Desc: returns true if this binary is native to the arch edb was built for
 //------------------------------------------------------------------------------
 template<>

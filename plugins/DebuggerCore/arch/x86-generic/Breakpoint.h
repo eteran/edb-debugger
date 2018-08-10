@@ -74,10 +74,10 @@ public:
 private:
 	std::vector<quint8>   original_bytes_;
 	edb::address_t        address_;
-	quint64               hit_count_;
-	bool                  enabled_ ;
-	bool                  one_time_;
-	bool                  internal_;
+	quint64               hit_count_ = 0;
+	bool                  enabled_   = false;
+	bool                  one_time_  = false;
+	bool                  internal_  = false;
 	Type                  type_;
 };
 

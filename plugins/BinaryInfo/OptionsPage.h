@@ -21,14 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <memory>
 
-namespace BinaryInfoPlugin
-{
+namespace BinaryInfoPlugin {
 
-namespace Ui
-{ class OptionsPage; }
+namespace Ui { class OptionsPage; }
 
-class OptionsPage : public QWidget
-{
+class OptionsPage : public QWidget {
 	Q_OBJECT
 
 public:

@@ -48,23 +48,22 @@ struct elf64_syminfo
 #define SYMINFO_FLG_DIRECT	0x0001	/* Direct bound symbol */
 #define SYMINFO_FLG_PASSTHRU	0x0002	/* Pass-thru symbol for translator */
 #define SYMINFO_FLG_COPY	0x0004	/* Symbol is a copy-reloc */
-#define SYMINFO_FLG_LAZYLOAD	0x0008	/* Symbol bound to object to be lazy
-					   loaded */
+#define SYMINFO_FLG_LAZYLOAD	0x0008	/* Symbol bound to object to be lazy loaded */
+
 /* Syminfo version values.  */
-#define SYMINFO_NONE		0
-#define SYMINFO_CURRENT		1
-#define SYMINFO_NUM		2
+#define SYMINFO_NONE    0
+#define SYMINFO_CURRENT 1
+#define SYMINFO_NUM     2
 
 
 /* How to extract and insert information held in the st_info field.  */
-
-#define ELF32_ST_BIND(val)		(((unsigned char) (val)) >> 4)
-#define ELF32_ST_TYPE(val)		((val) & 0xf)
-#define ELF32_ST_INFO(bind, type)	(((bind) << 4) + ((type) & 0xf))
+#define ELF32_ST_BIND(val)        (((unsigned char) (val)) >> 4)
+#define ELF32_ST_TYPE(val)        ((val) & 0xf)
+#define ELF32_ST_INFO(bind, type) (((bind) << 4) + ((type) & 0xf))
 
 /* Both Elf32_Sym and Elf64_Sym use the same one-byte st_info field.  */
-#define ELF64_ST_BIND(val)		ELF32_ST_BIND (val)
-#define ELF64_ST_TYPE(val)		ELF32_ST_TYPE (val)
+#define ELF64_ST_BIND(val)		    ELF32_ST_BIND (val)
+#define ELF64_ST_TYPE(val)		    ELF32_ST_TYPE (val)
 #define ELF64_ST_INFO(bind, type)	ELF32_ST_INFO ((bind), (type))
 
 /* Legal values for ST_BIND subfield of st_info (symbol binding).  */

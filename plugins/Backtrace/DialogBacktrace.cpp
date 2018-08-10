@@ -31,15 +31,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace BacktracePlugin {
 namespace {
 
-//Default values in the table
-const int FIRST_ROW     = 0;
-const int CALLER_COLUMN = 0;
-const int RETURN_COLUMN = 1;
+// Default values in the table
+constexpr int FIRST_ROW     = 0;
+constexpr int RETURN_COLUMN = 1;
 
 //------------------------------------------------------------------------------
 // Name: address_from_table
 // Desc: Returns the edb::address_t represented by the given *item and sets *ok
-//			to true if successful or false, otherwise.
+//       to true if successful or false, otherwise.
 //------------------------------------------------------------------------------
 edb::address_t address_from_table(const QTableWidgetItem *item) {
 	return static_cast<edb::address_t>(item->data(Qt::UserRole).value<qulonglong>());
@@ -122,8 +121,8 @@ void DialogBacktrace::populate_table() {
 
 	//Get the call stack and populate the table with entries.
 	CallStack call_stack;
-	const int size = call_stack.size();
-	for (int i = 0; i < size; i++) {
+	const size_t size = call_stack.size();
+	for (size_t i = 0; i < size; i++) {
 
 		//Create the row to insert info
 		table_->insertRow(i);
@@ -142,7 +141,6 @@ void DialogBacktrace::populate_table() {
 		for (int j = 0; j < stack_entry.size() && j < table_->columnCount(); j++) {
 
 			edb::address_t address = stack_entry.at(j);
-
 			std::shared_ptr<Symbol> near_symbol = edb::v1::symbol_manager().find_near_symbol(address);
 
 			//Turn the address into a string prefixed with "0x"
@@ -150,8 +148,8 @@ void DialogBacktrace::populate_table() {
 			item->setData(Qt::UserRole, static_cast<qlonglong>(address));
 
 			if(near_symbol) {
-				QString function = near_symbol->name;
-				int offset = address - near_symbol->address;;
+				const QString function = near_symbol->name;
+				const uint64_t offset = address - near_symbol->address;;
 				item->setText(tr("0x%1 <%2+%3>").arg(QString::number(address, 16), function).arg(offset));
 			} else {
 				item->setText(tr("0x%1").arg(QString::number(address, 16)));

@@ -78,15 +78,15 @@ bool tcp_socket_prcoessor(QString *symlink, int sock, const QStringList &lst) {
 	if(lst.size() >= 13) {
 
 		bool ok;
-		const quint32 local_address = ntohl(lst[1].toUInt(&ok, 16));
+		const uint32_t local_address = ntohl(lst[1].toUInt(&ok, 16));
 		if(ok) {
-			const quint16 local_port = lst[2].toUInt(&ok, 16);
+			const uint16_t local_port = lst[2].toUInt(&ok, 16);
 			if(ok) {
-				const quint32 remote_address = ntohl(lst[3].toUInt(&ok, 16));
+				const uint32_t remote_address = ntohl(lst[3].toUInt(&ok, 16));
 				if(ok) {
-					const quint16 remote_port = lst[4].toUInt(&ok, 16);
+					const uint16_t remote_port = lst[4].toUInt(&ok, 16);
 					if(ok) {
-						const quint8 state = lst[5].toUInt(&ok, 16);
+						const uint8_t state = lst[5].toUInt(&ok, 16);
 						Q_UNUSED(state);
 						if(ok) {
 							const int inode = lst[13].toUInt(&ok, 10);
@@ -120,15 +120,15 @@ bool udp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 	if(lst.size() >= 13) {
 
 		bool ok;
-		const quint32 local_address = ntohl(lst[1].toUInt(&ok, 16));
+		const uint32_t local_address = ntohl(lst[1].toUInt(&ok, 16));
 		if(ok) {
-			const quint16 local_port = lst[2].toUInt(&ok, 16);
+			const uint16_t local_port = lst[2].toUInt(&ok, 16);
 			if(ok) {
-				const quint32 remote_address = ntohl(lst[3].toUInt(&ok, 16));
+				const uint32_t remote_address = ntohl(lst[3].toUInt(&ok, 16));
 				if(ok) {
-					const quint16 remote_port = lst[4].toUInt(&ok, 16);
+					const uint16_t remote_port = lst[4].toUInt(&ok, 16);
 					if(ok) {
-						const quint8 state = lst[5].toUInt(&ok, 16);
+						const uint8_t state = lst[5].toUInt(&ok, 16);
 						Q_UNUSED(state);
 						if(ok) {
 							const int inode = lst[13].toUInt(&ok, 10);
@@ -286,7 +286,7 @@ DialogProcessProperties::DialogProcessProperties(QWidget *parent) : QDialog(pare
 	ui->tableMemory->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	ui->threadTable->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	threads_model_ = new ThreadsModel(this);
+	threads_model_  = new ThreadsModel(this);
 	threads_filter_ = new QSortFilterProxyModel(this);
 
 	threads_filter_->setSourceModel(threads_model_);

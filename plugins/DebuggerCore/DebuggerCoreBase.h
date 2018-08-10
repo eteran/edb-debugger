@@ -27,19 +27,19 @@ namespace DebuggerCorePlugin {
 
 class DebuggerCoreBase : public QObject, public IDebugger {
 public:
-	DebuggerCoreBase();
-	~DebuggerCoreBase() override;
+	~DebuggerCoreBase() override = default;
 
 public:
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args) override;
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override = 0;
-	enum class MeansOfCapture
-	{
+
+	enum class MeansOfCapture {
 		NeverCaptured,
 		Attach,
 		Launch
 	};
-    virtual MeansOfCapture last_means_of_capture() const = 0;
+
+	virtual MeansOfCapture last_means_of_capture() const = 0;
 
 public:
 	BreakpointList backup_breakpoints() const override;
@@ -59,7 +59,7 @@ protected:
 	bool attached() const;
 
 protected:
-	edb::pid_t      pid_;
+	edb::pid_t      pid_ = 0;
 	BreakpointList  breakpoints_;
 };
 

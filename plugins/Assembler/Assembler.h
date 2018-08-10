@@ -34,7 +34,7 @@ class Assembler : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	Assembler();
+	Assembler(QObject *parent = nullptr);
 	~Assembler() override;
 
 public:
@@ -46,7 +46,7 @@ public Q_SLOTS:
 	void show_dialog();
 
 private:
-	QPointer<QDialog> dialog_;
+	QPointer<QDialog> dialog_ = nullptr;
 };
 
 }

@@ -34,7 +34,7 @@ class SymbolViewer : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	SymbolViewer();
+	SymbolViewer(QObject *parent = nullptr);
 	~SymbolViewer() override;
 
 public:
@@ -44,8 +44,8 @@ public Q_SLOTS:
 	void show_menu();
 
 private:
-	QMenu *   menu_;
-	QPointer<QDialog> dialog_;
+	QMenu *menu_              = nullptr;
+	QPointer<QDialog> dialog_ = nullptr;
 };
 
 }

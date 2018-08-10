@@ -61,6 +61,11 @@ int get_user_stat(const QString &path, struct user_stat *user_stat) {
 		const QString line = in.readLine();
 		if(!line.isNull()) {
 
+			// TODO(eteran): revisit this, I think that the best approach is
+			// use strrchr to search for the last ')' since none of the other fields
+			// will contain that character. Then use sscanf on the rest of the fields
+			// starting from that location!
+
 #if 1
 			QRegExp regex(QLatin1String(R"(^(-?[0-9]+) \((.+)\) (.) (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) (-?[0-9]+) ([0-9]+) ([0-9]+) (-?[0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) (-?[0-9]+) (-?[0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) ([0-9]+) (-?[0-9]+))"));
 			int n = regex.indexIn(line);

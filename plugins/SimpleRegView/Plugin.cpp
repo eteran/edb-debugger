@@ -26,14 +26,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace SimpleRegView
 {
 
-Plugin::Plugin() :
-	QObject(0),
-	regView(0)
-{
+Plugin::Plugin(QObject *parent) : QObject(parent), regView(nullptr) {
 }
 
-QMenu* Plugin::menu(QWidget*)
-{
+QMenu* Plugin::menu(QWidget*) {
 	if(regView) return nullptr;
 
 	if(auto*const mainWindow = qobject_cast<QMainWindow*>(edb::v1::debugger_ui))

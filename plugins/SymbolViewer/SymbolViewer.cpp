@@ -27,7 +27,7 @@ namespace SymbolViewerPlugin {
 // Name: SymbolViewer
 // Desc:
 //------------------------------------------------------------------------------
-SymbolViewer::SymbolViewer() : menu_(nullptr), dialog_(nullptr) {
+SymbolViewer::SymbolViewer(QObject *parent) : QObject(parent) {
 }
 
 //------------------------------------------------------------------------------

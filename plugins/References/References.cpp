@@ -27,7 +27,7 @@ namespace ReferencesPlugin {
 // Name: References
 // Desc:
 //------------------------------------------------------------------------------
-References::References() : menu_(nullptr), dialog_(nullptr) {
+References::References(QObject *parent) : QObject(parent) {
 }
 
 //------------------------------------------------------------------------------

@@ -43,10 +43,8 @@ public:
 
 public:
 	PlatformThread(DebuggerCore *core, IProcess *process, edb::tid_t tid);
-	~PlatformThread() override;
-
-private:
-	PlatformThread(const PlatformThread &) = delete;
+	~PlatformThread() override                        = default;
+	PlatformThread(const PlatformThread &)            = delete;
 	PlatformThread& operator=(const PlatformThread &) = delete;
 
 public:

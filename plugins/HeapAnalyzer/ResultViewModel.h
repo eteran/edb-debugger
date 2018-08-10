@@ -26,14 +26,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace HeapAnalyzerPlugin {
 
 struct Result {
-	Result() : block(0), size(0) {
-	}
-
+	Result() = default;
 	Result(edb::address_t block, edb::address_t size, const QString &type, const QString &data = QString()) : block(block), size(size), type(type), data(data) {
 	}
 
-	edb::address_t        block;
-	edb::address_t        size;
+	edb::address_t        block = 0;
+	edb::address_t        size  = 0;
 	QString               type;
 	QString               data;
 	QList<edb::address_t> points_to;

@@ -32,10 +32,8 @@ class PlatformProcess : public IProcess {
 	friend class PlatformThread;
 public:
 	PlatformProcess(DebuggerCore *core, edb::pid_t pid);
-	~PlatformProcess() override;
-
-private:
-	PlatformProcess(const PlatformProcess &) = delete;
+	~PlatformProcess() override                         = default;
+	PlatformProcess(const PlatformProcess &)            = delete;
 	PlatformProcess& operator=(const PlatformProcess &) = delete;
 
 public:
@@ -78,8 +76,8 @@ private:
 private:
 	DebuggerCore*               core_;
 	edb::pid_t                  pid_;
-	QFile*                      ro_mem_file_;
-	QFile*                      rw_mem_file_;
+	std::shared_ptr<QFile>      ro_mem_file_;
+	std::shared_ptr<QFile>      rw_mem_file_;
 	QMap<edb::address_t, Patch> patches_;
 };
 

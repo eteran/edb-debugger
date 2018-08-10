@@ -39,7 +39,7 @@ const auto VIEW                   = QLatin1String("views");
 
 }
 
-Plugin::Plugin() : QObject(nullptr), menu_(nullptr) {
+Plugin::Plugin(QObject *parent) : QObject(parent), menu_(nullptr) {
 	connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &Plugin::saveState);
 }
 

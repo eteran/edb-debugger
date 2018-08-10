@@ -25,20 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCorePlugin {
 
 //------------------------------------------------------------------------------
-// Name: DebuggerCoreBase
-// Desc: constructor
-//------------------------------------------------------------------------------
-DebuggerCoreBase::DebuggerCoreBase() : pid_(0) {
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DebuggerCoreBase
-// Desc: destructor
-//------------------------------------------------------------------------------
-DebuggerCoreBase::~DebuggerCoreBase() {
-}
-
-//------------------------------------------------------------------------------
 // Name: clear_breakpoints
 // Desc: removes all breakpoints
 //------------------------------------------------------------------------------
@@ -65,7 +51,7 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::add_breakpoint(edb::address_t add
 		}
 
 		return nullptr;
-	} catch(const breakpoint_creation_error &e) {
+	} catch(const breakpoint_creation_error &) {
 		qDebug() << "Failed to create breakpoint";
 		return nullptr;
 	}
@@ -95,10 +81,12 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::find_breakpoint(edb::address_t ad
 std::shared_ptr<IBreakpoint> DebuggerCoreBase::find_triggered_breakpoint(edb::address_t address) {
 	if(attached()) {
 		for(const auto size : Breakpoint::possible_rewind_sizes()) {
-			const auto bpAddr=address-size;
-			const auto bp=find_breakpoint(bpAddr);
-			if(bp && bp->address()==bpAddr)
+			const auto bpAddr = address-size;
+			const auto bp = find_breakpoint(bpAddr);
+
+			if(bp && bp->address() == bpAddr) {
 				return bp;
+			}
 		}
 	}
 	return nullptr;

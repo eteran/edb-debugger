@@ -225,7 +225,6 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 
 			if(auto item = static_cast<BookmarksModel::Bookmark *>(index.internalPointer())) {
 
-
 				QString old_type = BookmarksModel::BookmarkTypeToString(item->type);
 				QStringList items;
 				items << tr("Code") << tr("Data") << tr("Stack");

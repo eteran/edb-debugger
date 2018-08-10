@@ -74,7 +74,6 @@ void DialogReferences::do_find() {
 		ok = edb::v1::eval_expression(text, &address);
 	}
 
-
 	if(ok) {
 		edb::v1::memory_regions().sync();
 		const QList<std::shared_ptr<IRegion>> regions = edb::v1::memory_regions().regions();

@@ -46,7 +46,8 @@ namespace HardwareBreakpointsPlugin {
 // Name: HardwareBreakpoints
 // Desc:
 //------------------------------------------------------------------------------
-HardwareBreakpoints::HardwareBreakpoints() : menu_(nullptr), dialog_(nullptr) {
+HardwareBreakpoints::HardwareBreakpoints(QObject *parent) : QObject(parent) {
+
 	auto dialog = new DialogHWBreakpoints(edb::v1::debugger_ui);
 	dialog_ = dialog;
 
@@ -94,8 +95,6 @@ QMenu *HardwareBreakpoints::menu(QWidget *parent) {
 //------------------------------------------------------------------------------
 void HardwareBreakpoints::setupBreakpoints() {
 
-	// TODO: assert that we are paused
-
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
 		if(!process->isPaused()) {
@@ -116,7 +115,6 @@ void HardwareBreakpoints::setupBreakpoints() {
 
 			edb::address_t addr[RegisterCount];
 			bool ok[RegisterCount];
-
 
 			// evaluate all the expressions
 			for(int i = 0; i < RegisterCount; ++i) {
@@ -248,15 +246,15 @@ edb::EVENT_STATUS HardwareBreakpoints::handle_event(const std::shared_ptr<IDebug
 QList<QAction *> HardwareBreakpoints::stack_context_menu() {
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
 
-	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(set_access1()));
-	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(set_access2()));
-	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(set_access3()));
-	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(set_access4()));
+	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), [this]() { set_access(Register1); });
+	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), [this]() { set_access(Register2); });
+	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), [this]() { set_access(Register3); });
+	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), [this]() { set_access(Register4); });
 
-	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(set_write1()));
-	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(set_write2()));
-	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(set_write3()));
-	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(set_write4()));
+	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), [this]() { set_write(Register1); });
+	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), [this]() { set_write(Register2); });
+	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), [this]() { set_write(Register3); });
+	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), [this]() { set_write(Register4); });
 
 	rw1->setData(1);
 	rw2->setData(1);
@@ -283,15 +281,15 @@ QList<QAction *> HardwareBreakpoints::stack_context_menu() {
 QList<QAction *> HardwareBreakpoints::data_context_menu() {
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
 
-	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(set_access1()));
-	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(set_access2()));
-	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(set_access3()));
-	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(set_access4()));
+	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), [this]() { set_access(Register1); });
+	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), [this]() { set_access(Register2); });
+	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), [this]() { set_access(Register3); });
+	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), [this]() { set_access(Register4); });
 
-	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(set_write1()));
-	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(set_write2()));
-	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(set_write3()));
-	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(set_write4()));
+	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), [this]() { set_write(Register1); });
+	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), [this]() { set_write(Register2); });
+	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), [this]() { set_write(Register3); });
+	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), [this]() { set_write(Register4); });
 
 	rw1->setData(2);
 	rw2->setData(2);
@@ -319,20 +317,20 @@ QList<QAction *> HardwareBreakpoints::data_context_menu() {
 QList<QAction *> HardwareBreakpoints::cpu_context_menu() {
 
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
-	auto ex1 = menu->addAction(tr("Hardware, On Execute #1"), this, SLOT(set_exec1()));
-	auto ex2 = menu->addAction(tr("Hardware, On Execute #2"), this, SLOT(set_exec2()));
-	auto ex3 = menu->addAction(tr("Hardware, On Execute #3"), this, SLOT(set_exec3()));
-	auto ex4 = menu->addAction(tr("Hardware, On Execute #4"), this, SLOT(set_exec4()));
+	auto ex1 = menu->addAction(tr("Hardware, On Execute #1"), [this]() { set_exec(Register1); });
+	auto ex2 = menu->addAction(tr("Hardware, On Execute #2"), [this]() { set_exec(Register2); });
+	auto ex3 = menu->addAction(tr("Hardware, On Execute #3"), [this]() { set_exec(Register3); });
+	auto ex4 = menu->addAction(tr("Hardware, On Execute #4"), [this]() { set_exec(Register4); });
 
-	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(set_access1()));
-	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), this, SLOT(set_access2()));
-	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), this, SLOT(set_access3()));
-	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), this, SLOT(set_access4()));
+	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), [this]() { set_access(Register1); });
+	auto rw2 = menu->addAction(tr("Hardware, On Read/Write #2"), [this]() { set_access(Register2); });
+	auto rw3 = menu->addAction(tr("Hardware, On Read/Write #3"), [this]() { set_access(Register3); });
+	auto rw4 = menu->addAction(tr("Hardware, On Read/Write #4"), [this]() { set_access(Register4); });
 
-	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), this, SLOT(set_write1()));
-	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), this, SLOT(set_write2()));
-	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), this, SLOT(set_write3()));
-	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), this, SLOT(set_write4()));
+	auto wo1 = menu->addAction(tr("Hardware, On Write #1"), [this]() { set_write(Register1); });
+	auto wo2 = menu->addAction(tr("Hardware, On Write #2"), [this]() { set_write(Register2); });
+	auto wo3 = menu->addAction(tr("Hardware, On Write #3"), [this]() { set_write(Register3); });
+	auto wo4 = menu->addAction(tr("Hardware, On Write #4"), [this]() { set_write(Register4); });
 
 
 	ex1->setData(3);
@@ -401,7 +399,7 @@ void HardwareBreakpoints::setExecuteBP(int index, bool inUse) {
 // Name: setWriteBP
 // Desc:
 //------------------------------------------------------------------------------
-void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t address, int size) {
+void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t address, size_t size) {
 	// we want to be enabled, if we aren't already hooked,
 	// hook it
 	edb::v1::add_debug_event_handler(this);
@@ -456,7 +454,7 @@ void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t addre
 // Name: setReadWriteBP
 // Desc:
 //------------------------------------------------------------------------------
-void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t address, int size) {
+void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t address, size_t size) {
 	// we want to be enabled, if we aren't already hooked,
 	// hook it
 	edb::v1::add_debug_event_handler(this);
@@ -472,7 +470,11 @@ void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t a
 		}
 
 		if(inUse) {
-			QMessageBox::StandardButton button = QMessageBox::question(nullptr, tr("Breakpoint Already In Use"), tr("This breakpoint is already being used. Do you want to replace it?"), QMessageBox::Yes | QMessageBox::Cancel);
+			QMessageBox::StandardButton button = QMessageBox::question(
+			                                         nullptr,
+			                                         tr("Breakpoint Already In Use"),
+			                                         tr("This breakpoint is already being used. Do you want to replace it?"),
+			                                         QMessageBox::Yes | QMessageBox::Cancel);
 			if(button != QMessageBox::Yes) {
 				return;
 			}
@@ -565,90 +567,6 @@ void HardwareBreakpoints::set_access(int index) {
 			break;
 		}
 	}
-}
-
-//------------------------------------------------------------------------------
-// Name: set_exec1
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_exec1() {
-	set_exec(Register1);
-}
-
-//------------------------------------------------------------------------------
-// Name: set_exec2
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_exec2() {
-	set_exec(Register2);
-}
-
-//------------------------------------------------------------------------------
-// Name: set_exec3
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_exec3() {
-	set_exec(Register3);
-}
-
-//------------------------------------------------------------------------------
-// Name: set_exec4
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_exec4() {
-	set_exec(Register4);
-}
-
-//------------------------------------------------------------------------------
-// Name: set_access1
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_access1() {
-	set_access(Register1);
-}
-
-//------------------------------------------------------------------------------
-// Name: set_access2
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_access2() {
-	set_access(Register2);
-}
-
-//------------------------------------------------------------------------------
-// Name: set_access3
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_access3() {
-	set_access(Register3);
-}
-
-//------------------------------------------------------------------------------
-// Name: set_access4
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_access4() {
-	set_access(Register4);
-}
-
-//------------------------------------------------------------------------------
-// Name: set_write1
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_write1() {
-	set_write(Register1);
-}
-
-//------------------------------------------------------------------------------
-// Name: set_write2
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_write2() {
-	set_write(Register2);
-}
-
-//------------------------------------------------------------------------------
-// Name: set_write3
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_write3() {
-	set_write(Register3);
-}
-
-//------------------------------------------------------------------------------
-// Name: set_write4
-//------------------------------------------------------------------------------
-void HardwareBreakpoints::set_write4() {
-	set_write(Register4);
 }
 
 //------------------------------------------------------------------------------

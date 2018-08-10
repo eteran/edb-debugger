@@ -34,9 +34,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ui_DialogFunctions.h"
 
-#define MIN_REFCOUNT 2
-
 namespace FunctionFinderPlugin {
+namespace {
+
+constexpr int MIN_REFCOUNT = 2;
+
+}
 
 //------------------------------------------------------------------------------
 // Name: DialogFunctions

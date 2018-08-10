@@ -24,13 +24,6 @@ namespace DebuggerCorePlugin {
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-PlatformEvent::PlatformEvent() : pid_(0), tid_(0), status_(0) {
-	std::memset(&siginfo_, 0, sizeof(siginfo_t));
-}
-
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
 IDebugEvent *PlatformEvent::clone() const {
 	return new PlatformEvent(*this);
 }
@@ -54,7 +47,7 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 
 	auto fault_address = edb::address_t::fromZeroExtended(siginfo_.si_addr);
 
-	std::size_t debuggeePtrSize=edb::v1::pointer_size();
+	std::size_t debuggeePtrSize = edb::v1::pointer_size();
 	bool fullAddressKnown=debuggeePtrSize<=sizeof(void*);
 	const auto addressString=fault_address.toPointerString(fullAddressKnown);
 

@@ -44,7 +44,7 @@ namespace BinaryInfoPlugin {
 namespace {
 
 struct elf32_model {
-	using address_t            = quint32;
+	using address_t            = uint32_t;
 
 	using elf_header_t         = elf32_header;
 	using elf_section_header_t = elf32_shdr;
@@ -54,8 +54,8 @@ struct elf32_model {
 
 	static constexpr int plt_entry_size = 0x10;
 
-	static quint32 elf_r_sym(quint32 x)               { return ELF32_R_SYM(x); }
-	static quint32 elf_r_type(quint32 x)              { return ELF32_R_TYPE(x); }
+	static uint32_t elf_r_sym(uint32_t x)              { return ELF32_R_SYM(x); }
+	static uint32_t elf_r_type(uint32_t x)             { return ELF32_R_TYPE(x); }
 	static unsigned char elf_st_type(unsigned char x) { return ELF32_ST_TYPE(x); }
 	static unsigned char elf_st_bind(unsigned char x) { return ELF32_ST_BIND(x); }
 
@@ -66,11 +66,11 @@ struct elf32_model {
 		char      type;
 
 		bool operator<(const symbol &rhs) const {
-			return address < rhs.address || (address == rhs.address && name < rhs.name);
+			return std::tie(address, name) < std::tie(rhs.address, rhs.name);
 		}
 
 		bool operator==(const symbol &rhs) const {
-			return address == rhs.address && size == rhs.size && name == rhs.name && type == rhs.type;
+			return std::tie(address, name) == std::tie(rhs.address, rhs.name);
 		}
 
 		QString to_string() const {
@@ -81,7 +81,7 @@ struct elf32_model {
 
 struct elf64_model {
 
-	using address_t = quint64;
+	using address_t = uint64_t;
 
 	using elf_header_t         = elf64_header;
 	using elf_section_header_t = elf64_shdr;
@@ -91,8 +91,8 @@ struct elf64_model {
 
 	static constexpr int plt_entry_size = 0x10;
 
-	static quint64 elf_r_sym(quint64 x)               { return ELF64_R_SYM(x); }
-	static quint64 elf_r_type(quint64 x)              { return ELF64_R_TYPE(x); }
+	static uint64_t elf_r_sym(uint64_t x)              { return ELF64_R_SYM(x); }
+	static uint64_t elf_r_type(uint64_t x)             { return ELF64_R_TYPE(x); }
 	static unsigned char elf_st_type(unsigned char x) { return ELF64_ST_TYPE(x); }
 	static unsigned char elf_st_bind(unsigned char x) { return ELF64_ST_BIND(x); }
 
@@ -103,11 +103,11 @@ struct elf64_model {
 		char      type;
 
 		bool operator<(const symbol &rhs) const {
-			return address < rhs.address || (address == rhs.address && name < rhs.name);
+			return std::tie(address, name) < std::tie(rhs.address, rhs.name);
 		}
 
 		bool operator==(const symbol &rhs) const {
-			return address == rhs.address && size == rhs.size && name == rhs.name && type == rhs.type;
+			return std::tie(address, name) == std::tie(rhs.address, rhs.name);
 		}
 
 		QString to_string() const {
@@ -188,8 +188,8 @@ the symbol is local; if uppercase, the symbol is global (external).
 */
 
 
-template <class M>
-void collect_symbols(const void *p, size_t size, QList<typename M::symbol> &symbols) {
+template <class M, class Size>
+void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &symbols) {
 	Q_UNUSED(size);
 
 	using address_t            = typename M::address_t;
@@ -202,14 +202,13 @@ void collect_symbols(const void *p, size_t size, QList<typename M::symbol> &symb
 
 	const auto base = reinterpret_cast<uintptr_t>(p);
 
-	const auto header                              = static_cast<const elf_header_t*>(p);
+	const auto header = static_cast<const elf_header_t*>(p);
 	if (header->e_shnum == 0 || header->e_shentsize == 0) {
 		return;
 	}
 	const auto sections_begin                      = reinterpret_cast<elf_section_header_t*>(base + header->e_shoff);
 	const elf_section_header_t *const sections_end = sections_begin + header->e_shnum;
 	auto section_strings                           = reinterpret_cast<const char*>(base + sections_begin[header->e_shstrndx].sh_offset);
-
 
 	address_t plt_address = 0;
 	address_t got_address = 0;
@@ -412,8 +411,8 @@ void collect_symbols(const void *p, size_t size, QList<typename M::symbol> &symb
 //       needed demangling
 //--------------------------------------------------------------------------
 template <class Symbol>
-void output_symbols(QList<Symbol> &symbols, std::ostream &os) {
-	qSort(symbols.begin(), symbols.end());
+void output_symbols(std::vector<Symbol> &symbols, std::ostream &os) {
+	std::sort(symbols.begin(), symbols.end());
 	auto new_end = std::unique(symbols.begin(), symbols.end());
 	const auto demanglingEnabled = QSettings().value("BinaryInfo/demangling_enabled", true).toBool();
 	for(auto it = symbols.begin(); it != new_end; ++it) {
@@ -434,7 +433,7 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 		if(is_elf64(file_ptr)) {
 
 			using symbol = typename elf64_model::symbol;
-			QList<symbol> symbols;
+			std::vector<symbol> symbols;
 
 			collect_symbols<elf64_model>(file_ptr, file.size(), symbols);
 
@@ -459,7 +458,7 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 		} else if(is_elf32(file_ptr)) {
 
 			using symbol = typename elf32_model::symbol;
-			QList<symbol> symbols;
+			std::vector<symbol> symbols;
 
 			collect_symbols<elf32_model>(file_ptr, file.size(), symbols);
 

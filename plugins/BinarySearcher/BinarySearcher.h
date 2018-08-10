@@ -34,8 +34,8 @@ class BinarySearcher : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	BinarySearcher();
-	~BinarySearcher() override;
+	BinarySearcher(QObject *parent = nullptr);
+	~BinarySearcher() override = default;
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
@@ -46,7 +46,7 @@ public Q_SLOTS:
 	void mnuStackFindASCII();
 
 private:
-	QMenu *menu_;
+	QMenu *menu_ = nullptr;
 };
 
 }

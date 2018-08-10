@@ -39,11 +39,8 @@ class HardwareBreakpoints : public QObject, public IPlugin, public IDebugEventHa
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
-private:
-
-
 public:
-	HardwareBreakpoints();
+	HardwareBreakpoints(QObject *parent = nullptr);
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
@@ -54,26 +51,12 @@ public:
 
 public Q_SLOTS:
 	void show_menu();
-	void set_exec1();
-	void set_exec2();
-	void set_exec3();
-	void set_exec4();
-
-	void set_write1();
-	void set_write2();
-	void set_write3();
-	void set_write4();
-
-	void set_access1();
-	void set_access2();
-	void set_access3();
-	void set_access4();
 
 private:
 	void setupBreakpoints();
 	void setExecuteBP(int index, bool inUse);
-	void setReadWriteBP(int index, bool inUse, edb::address_t address, int size);
-	void setWriteBP(int index, bool inUse, edb::address_t address, int size);
+	void setReadWriteBP(int index, bool inUse, edb::address_t address, size_t size);
+	void setWriteBP(int index, bool inUse, edb::address_t address, size_t size);
 
 	void setDataReadWriteBP(int index, bool inUse);
 	void setDataWriteBP(int index, bool inUse);
@@ -86,10 +69,9 @@ private:
 	void set_write(int index);
 	void set_access(int index);
 
-
 private:
-	QMenu *              menu_;
-	QPointer<QDialog>    dialog_;
+	QMenu *menu_              = nullptr;
+	QPointer<QDialog> dialog_ = nullptr;
 
 	QLineEdit *addresses_[4];
 	QCheckBox *enabled_[4];

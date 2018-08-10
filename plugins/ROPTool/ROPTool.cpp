@@ -27,7 +27,7 @@ namespace ROPToolPlugin {
 // Name: ROPTool
 // Desc:
 //------------------------------------------------------------------------------
-ROPTool::ROPTool() : menu_(nullptr), dialog_(nullptr) {
+ROPTool::ROPTool(QObject *parent) : QObject(parent) {
 }
 
 //------------------------------------------------------------------------------

@@ -37,12 +37,12 @@ void OptionsPage::showEvent(QShowEvent*) {
 
 	QSettings settings;
 
-	if(DEMANGLING_SUPPORTED) {
-		ui->checkBox->setChecked(settings.value("BinaryInfo/demangling_enabled", true).toBool());
-	} else {
-		ui->checkBox->setEnabled(false);
-		ui->checkBox->setChecked(false);
-	}
+#ifdef DEMANGLING_SUPPORTED
+	ui->checkBox->setChecked(settings.value("BinaryInfo/demangling_enabled", true).toBool());
+#else
+	ui->checkBox->setEnabled(false);
+	ui->checkBox->setChecked(false);
+#endif
 
 	ui->txtDebugDir->setText(settings.value("BinaryInfo/debug_info_path", "/usr/lib/debug").toString());
 }

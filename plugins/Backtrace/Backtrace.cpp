@@ -25,9 +25,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BacktracePlugin {
 
-Backtrace::Backtrace() : menu_(nullptr), dialog_(nullptr)
-{
-
+//------------------------------------------------------------------------------
+// Name: Backtrace
+// Desc:
+//------------------------------------------------------------------------------
+Backtrace::Backtrace(QObject *parent) : QObject(parent) {
 }
 
 Backtrace::~Backtrace() {

@@ -20,18 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define CALLSTACK_H
 
 #include "edb.h"
+#include <deque>
 
-#include <QList>
-#include <QtGlobal>
-
-class CallStack
-{
+class CallStack {
 public:
 	CallStack();
-	~CallStack();
+	~CallStack() = default;
 
-//Struct that holds the caller and return addresses.
 public:
+	// Struct that holds the caller and return addresses.
 	struct stack_frame {
 		edb::address_t ret;
 		edb::address_t caller;
@@ -41,14 +38,14 @@ private:
 	void get_call_stack();
 
 public:
-	stack_frame *operator [](qint32 index);
-	int size();
+	stack_frame *operator [](size_t index);
+	size_t size() const;
 	stack_frame *top();
 	stack_frame *bottom();
 	void push(stack_frame frame);
 
 private:
-	QList<stack_frame> stack_frames_;
+	std::deque<stack_frame> stack_frames_;
 };
 
-#endif // CALLSTACK_H
+#endif

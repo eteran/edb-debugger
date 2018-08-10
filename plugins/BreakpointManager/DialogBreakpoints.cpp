@@ -92,7 +92,7 @@ void DialogBreakpoints::updateList() {
 		const edb::address_t address = bp->address();
 		const QString condition      = bp->condition;
 		const bool onetime           = bp->one_time();
-		const QString symname        = edb::v1::find_function_symbol(address, QString(), 0);
+		const QString symname        = edb::v1::find_function_symbol(address, QString(), nullptr);
 		const QString bytes          = edb::v1::format_bytes(bp->original_bytes(), bp->size());
 
 		auto item = new QTableWidgetItem(edb::v1::format_pointer(address));
@@ -220,7 +220,7 @@ void DialogBreakpoints::on_btnImport_clicked() {
 
 	//Let the user choose the file; get the file name.
 	QString home_directory	= QDir::homePath();
-	QString file_name		= QFileDialog::getOpenFileName(this, tr("Breakpoint Import File"), home_directory, NULL);
+	QString file_name		= QFileDialog::getOpenFileName(this, tr("Breakpoint Import File"), home_directory, nullptr);
 
 	if (file_name.isEmpty()) {
 		return;

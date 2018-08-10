@@ -27,7 +27,7 @@ namespace HeapAnalyzerPlugin {
 // Name: HeapAnalyzer
 // Desc:
 //------------------------------------------------------------------------------
-HeapAnalyzer::HeapAnalyzer() : menu_(nullptr), dialog_(nullptr) {
+HeapAnalyzer::HeapAnalyzer(QObject *parent) : QObject(parent) {
 }
 
 //------------------------------------------------------------------------------

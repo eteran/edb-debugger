@@ -48,7 +48,7 @@ public:
 	}
 
 public:
-	void set_mask_bit(quint32 mask, bool value) {
+	void set_mask_bit(uint32_t mask, bool value) {
 
 		beginResetModel();
 
@@ -71,7 +71,7 @@ protected:
 	}
 	
 private:
-	quint32 mask_;
+	uint32_t mask_;
 };
 
 class DialogROPTool : public QDialog {

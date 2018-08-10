@@ -38,7 +38,7 @@ class Bookmarks : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	Bookmarks();
+	Bookmarks(QObject *parent = nullptr);
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
@@ -52,9 +52,9 @@ public Q_SLOTS:
 	void add_bookmark_menu();
 
 private:
-	QMenu *              menu_;
-	QSignalMapper *      signal_mapper_;
-	BookmarkWidget *     bookmark_widget_;
+	QMenu *          menu_            = nullptr;
+	QSignalMapper *  signal_mapper_   = nullptr;
+	BookmarkWidget * bookmark_widget_ = nullptr;
 };
 
 }

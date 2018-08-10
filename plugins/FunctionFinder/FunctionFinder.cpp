@@ -27,7 +27,7 @@ namespace FunctionFinderPlugin {
 // Name: FunctionFinder
 // Desc:
 //------------------------------------------------------------------------------
-FunctionFinder::FunctionFinder() : menu_(nullptr), dialog_(nullptr) {
+FunctionFinder::FunctionFinder(QObject *parent) : QObject(parent) {
 }
 
 //------------------------------------------------------------------------------

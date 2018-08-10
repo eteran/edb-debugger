@@ -25,19 +25,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace BinaryInfoPlugin {
 
 class PEBinaryException : public std::exception {
-	public:
-	enum reasonEnum {
-		INVALID_ARGUMENTS = 1,
-		READ_FAILURE = 2,
-		INVALID_PE = 3,
+public:
+	enum Reason {
+		INVALID_ARGUMENTS    = 1,
+		READ_FAILURE         = 2,
+		INVALID_PE           = 3,
 		INVALID_ARCHITECTURE = 4
 	};
-        explicit PEBinaryException(reasonEnum reason);
 
-		const char * what() const noexcept override;
+public:
+	explicit PEBinaryException(Reason reason);
+	const char * what() const noexcept override;
 
-	private:
-		reasonEnum reason_;
+private:
+	Reason reason_;
 };
 
 class PE32 : public IBinary {

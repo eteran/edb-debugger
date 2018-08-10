@@ -48,7 +48,7 @@ private:
 	struct RegionData;
 
 public:
-	Analyzer();
+	Analyzer() = default;
 
 public:
     QMenu *menu(QWidget *parent = nullptr) override;
@@ -114,10 +114,10 @@ private:
 		QVector<quint8>                   memory;
 	};
 
-	QMenu                             *menu_;
+	QMenu                             *menu_ = nullptr;
+	AnalyzerWidget                    *analyzer_widget_ = nullptr;
 	QHash<edb::address_t, RegionData>  analysis_info_;
 	QSet<edb::address_t>               specified_functions_;
-	AnalyzerWidget                    *analyzer_widget_;
 };
 
 }

@@ -27,7 +27,7 @@ namespace OpcodeSearcherPlugin {
 // Name: OpcodeSearcher
 // Desc:
 //------------------------------------------------------------------------------
-OpcodeSearcher::OpcodeSearcher() : menu_(nullptr), dialog_(nullptr) {
+OpcodeSearcher::OpcodeSearcher(QObject *parent) : QObject(parent) {
 }
 
 //------------------------------------------------------------------------------

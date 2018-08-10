@@ -50,10 +50,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace HeapAnalyzerPlugin {
 
-#define PREV_INUSE     0x1
-#define IS_MMAPPED     0x2
-#define NON_MAIN_ARENA 0x4
-#define SIZE_BITS (PREV_INUSE|IS_MMAPPED|NON_MAIN_ARENA)
+constexpr int PREV_INUSE     = 0x1;
+constexpr int IS_MMAPPED     = 0x2;
+constexpr int NON_MAIN_ARENA = 0x4;
+
+constexpr int SIZE_BITS = (PREV_INUSE|IS_MMAPPED|NON_MAIN_ARENA);
 
 #define next_chunk(p, c) ((p) + ((c).chunk_size()))
 #define prev_chunk(p, c) ((p) - ((c).prev_size))

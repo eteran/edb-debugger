@@ -35,8 +35,8 @@ class DumpState : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	DumpState();
-	~DumpState() override;
+	DumpState(QObject *parent = nullptr);
+	~DumpState() override = default;
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
@@ -55,7 +55,7 @@ private:
 	void dump_lines(edb::address_t address, int lines);
 
 private:
-	QMenu * menu_;
+	QMenu * menu_ = nullptr;
 };
 
 }

@@ -43,13 +43,6 @@ PlatformThread::PlatformThread(DebuggerCore *core, IProcess *process, edb::tid_t
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-PlatformThread::~PlatformThread() {
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
 edb::tid_t PlatformThread::tid() const {
 	return tid_;
 }
@@ -108,38 +101,27 @@ QString PlatformThread::runState() const  {
 		switch(thread_stat.state) {           // 03
 		case 'R':
 			return tr("%1 (Running)").arg(thread_stat.state);
-			break;
 		case 'S':
 			return tr("%1 (Sleeping)").arg(thread_stat.state);
-			break;
 		case 'D':
 			return tr("%1 (Disk Sleep)").arg(thread_stat.state);
-			break;
 		case 'T':
 			return tr("%1 (Stopped)").arg(thread_stat.state);
-			break;
 		case 't':
 			return tr("%1 (Tracing Stop)").arg(thread_stat.state);
-			break;
 		case 'Z':
 			return tr("%1 (Zombie)").arg(thread_stat.state);
-			break;
 		case 'X':
 		case 'x':
 			return tr("%1 (Dead)").arg(thread_stat.state);
-			break;
 		case 'W':
 			return tr("%1 (Waking/Paging)").arg(thread_stat.state);
-			break;
 		case 'K':
 			return tr("%1 (Wakekill)").arg(thread_stat.state);
-			break;
 		case 'P':
 			return tr("%1 (Parked)").arg(thread_stat.state);
-			break;
 		default:
 			return tr("%1").arg(thread_stat.state);
-			break;
 		}
 	}
 

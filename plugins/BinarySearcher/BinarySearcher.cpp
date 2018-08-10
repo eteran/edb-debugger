@@ -24,18 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BinarySearcherPlugin {
 
-//------------------------------------------------------------------------------
-// Name: BinarySearcher
-// Desc:
-//------------------------------------------------------------------------------
-BinarySearcher::BinarySearcher() : menu_(nullptr) {
-}
-
-//------------------------------------------------------------------------------
-// Name: ~BinarySearcher
-// Desc:
-//------------------------------------------------------------------------------
-BinarySearcher::~BinarySearcher() {
+BinarySearcher::BinarySearcher(QObject *parent) : QObject(parent) {
 }
 
 //------------------------------------------------------------------------------

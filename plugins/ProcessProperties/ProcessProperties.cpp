@@ -28,7 +28,7 @@ namespace ProcessPropertiesPlugin {
 // Name: ProcessProperties
 // Desc:
 //------------------------------------------------------------------------------
-ProcessProperties::ProcessProperties() : menu_(nullptr), dialog_(nullptr) {
+ProcessProperties::ProcessProperties(QObject *parent) : QObject(parent) {
 	dialog_ = new DialogProcessProperties(edb::v1::debugger_ui);
 }
 
@@ -37,7 +37,9 @@ ProcessProperties::ProcessProperties() : menu_(nullptr), dialog_(nullptr) {
 // Desc:
 //------------------------------------------------------------------------------
 ProcessProperties::~ProcessProperties() {
-//	delete dialog_;
+#if 0
+	delete dialog_;
+#endif
 }
 
 //------------------------------------------------------------------------------

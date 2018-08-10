@@ -16,7 +16,10 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef _LARGEFILE64_SOURCE
 #define _LARGEFILE64_SOURCE
+#endif
+
 #include "PlatformProcess.h"
 #include "DebuggerCore.h"
 #include "IBreakpoint.h"
@@ -41,6 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/mman.h>
 #include <sys/ptrace.h>
 #include <sys/types.h>
+#include <linux/limits.h>
 #include <unistd.h>
 #include <pwd.h>
 #include <elf.h>
@@ -49,14 +53,15 @@ namespace DebuggerCorePlugin {
 namespace {
 
 // Used as size of ptrace word
-#define EDB_WORDSIZE sizeof(long)
+constexpr size_t EDB_WORDSIZE = sizeof(long);
 
 void set_ok(bool &ok, long value) {
 	ok = (value != -1) || (errno == 0);
 }
 
 QStringList split_max(const QString &str, int maxparts) {
-	int prev_idx = 0, idx = 0;
+	int prev_idx = 0;
+	int idx = 0;
 	QStringList items;
 	for (const QChar &c : str) {
 		if (c == ' ') {
@@ -193,9 +198,10 @@ QList<Module> loaded_modules_(const IProcess* process, const std::unique_ptr<IBi
 // Name: PlatformProcess
 // Desc:
 //------------------------------------------------------------------------------
-PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(core), pid_(pid), ro_mem_file_(0), rw_mem_file_(0) {
+PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(core), pid_(pid) {
 	if (!core_->proc_mem_read_broken_) {
-		QFile* memory_file = new QFile(QString("/proc/%1/mem").arg(pid_));
+		auto memory_file = std::make_shared<QFile>(QString("/proc/%1/mem").arg(pid_));
+
 		auto flags = QIODevice::ReadOnly | QIODevice::Unbuffered;
 		if (!core_->proc_mem_write_broken_) {
 			flags |= QIODevice::WriteOnly;
@@ -205,18 +211,8 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(cor
 			if (!core_->proc_mem_write_broken_) {
 				rw_mem_file_ = memory_file;
 			}
-		} else {
-			delete memory_file;
 		}
 	}
-}
-
-//------------------------------------------------------------------------------
-// Name: ~PlatformProcess
-// Desc:
-//------------------------------------------------------------------------------
-PlatformProcess::~PlatformProcess() {
-	delete ro_mem_file_;
 }
 
 //------------------------------------------------------------------------------
@@ -581,7 +577,7 @@ quint8 PlatformProcess::read_byte_via_ptrace(edb::address_t address, bool *ok) c
 		quint8 result;
 		// We aren't interested in `value` as in number, it's just a buffer, so no endianness magic.
 		// Just have to compensate for `addressShift` when reading it.
-		std::memcpy(&result,reinterpret_cast<const char*>(&value)+addressShift,sizeof result);
+		std::memcpy(&result, reinterpret_cast<const char*>(&value) + addressShift, sizeof(result));
 		return result;
 	}
 
@@ -614,11 +610,13 @@ void PlatformProcess::write_byte_via_ptrace(edb::address_t address, quint8 value
 	address -= addressShift;
 
 	long word = ptrace_peek(address, ok);
-	if(!*ok) return;
+	if(!*ok) {
+		return;
+	}
 
 	// We aren't interested in `value` as in number, it's just a buffer, so no endianness magic.
 	// Just have to compensate for `addressShift` when writing it.
-	std::memcpy(reinterpret_cast<char*>(&word)+addressShift,&value,sizeof value);
+	std::memcpy(reinterpret_cast<char*>(&word) + addressShift, &value, sizeof(value));
 
 	*ok = ptrace_poke(address, word);
 }
@@ -768,11 +766,12 @@ Status PlatformProcess::pause() {
 	// to all threads when any event arrives, so no need to explicitly do
 	// it here. We just need any thread to stop. So we'll just target the
 	// pid_ which will send it to any one of the threads in the process.
-	if(::kill(pid_, SIGSTOP)==-1) {
-		const char*const strError=strerror(errno);
+	if(::kill(pid_, SIGSTOP) == -1) {
+		const char *const strError = strerror(errno);
 		qWarning() << "Unable to pause process" << pid_ << ": kill(SIGSTOP) failed:" << strError;
 		return Status(strError);
 	}
+
 	return Status::Ok;
 }
 
@@ -790,20 +789,23 @@ Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 		if(std::shared_ptr<IThread> thread = current_thread()) {
 			const auto resumeStatus=thread->resume(status);
 			if(!resumeStatus)
-				errorMessage+=QObject::tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.toString());
+				errorMessage += QObject::tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.toString());
 
 			// resume the other threads passing the signal they originally reported had
 			for(auto &other_thread : threads()) {
 				if(core_->waited_threads_.contains(other_thread->tid())) {
 					const auto resumeStatus=other_thread->resume();
 					if(!resumeStatus)
-						errorMessage+=QObject::tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.toString());
+						errorMessage += QObject::tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.toString());
 				}
 			}
 		}
 	}
-	if(errorMessage.isEmpty())
+
+	if(errorMessage.isEmpty()) {
 		return Status::Ok;
+	}
+
 	qWarning() << errorMessage.toStdString().c_str();
 	return Status("\n"+errorMessage);
 }

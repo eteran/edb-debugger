@@ -30,10 +30,14 @@ class BookmarksModel : public QAbstractItemModel {
 
 public:
 	struct Bookmark {
-		edb::address_t address;
 		enum Type {
-			Code, Data, Stack
-		}              type;
+			Code,
+			Data,
+			Stack
+		};
+
+		edb::address_t address;
+		Type           type;
 		QString        comment;
 	};
 

@@ -26,8 +26,7 @@ class QDialog;
 
 namespace BacktracePlugin {
 
-class Backtrace : public QObject, public IPlugin
-{
+class Backtrace : public QObject, public IPlugin {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
 	Q_PLUGIN_METADATA(IID "edb.IPlugin/1.0")
@@ -35,7 +34,7 @@ class Backtrace : public QObject, public IPlugin
 	Q_CLASSINFO("url", "https://github.com/Northern-Lights")
 
 public:
-	Backtrace();
+	Backtrace(QObject *parent = nullptr);
 	~Backtrace() override;
 
 public:
@@ -45,9 +44,9 @@ public Q_SLOTS:
 	void show_menu();
 
 private:
-	QMenu	         *menu_;
-	QPointer<QDialog> dialog_;
+	QMenu	         *menu_   = nullptr;
+	QPointer<QDialog> dialog_ = nullptr;
 };
 
 }
-#endif // BACKTRACE_H
+#endif

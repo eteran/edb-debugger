@@ -36,19 +36,22 @@ namespace {
 
 long double readFloat(const QString &strInput, bool &ok) {
 	ok = false;
-	const QString      str(strInput.toLower().trimmed());
-	if(const auto value=util::fullStringToFloat<long double>(str.toStdString()))
-	{
+	const QString str(strInput.toLower().trimmed());
+
+	if(const auto value = util::fullStringToFloat<long double>(str.toStdString())) {
 		ok = true;
 		return *value;
 	}
+
 	// OK, so either it is invalid/unfinished, or it's some special value
 	// We still do want the user to be able to enter common special values
 	long double value;
+
 	static std::array<std::uint8_t, 10> positiveInf{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0x7f};
 	static std::array<std::uint8_t, 10> negativeInf{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0xff};
 	static std::array<std::uint8_t, 10> positiveSNaN{0, 0, 0, 0, 0, 0, 0, 0x90, 0xff, 0x7f};
 	static std::array<std::uint8_t, 10> negativeSNaN{0, 0, 0, 0, 0, 0, 0, 0x90, 0xff, 0xff};
+
 	// Indefinite values are used for QNaN
 	static std::array<std::uint8_t, 10> positiveQNaN{0, 0, 0, 0, 0, 0, 0, 0xc0, 0xff, 0x7f};
 	static std::array<std::uint8_t, 10> negativeQNaN{0, 0, 0, 0, 0, 0, 0, 0xc0, 0xff, 0xff};

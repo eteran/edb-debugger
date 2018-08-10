@@ -46,7 +46,7 @@ public:
 private:
 	 Ui::DialogAssembler *const ui;
 	 edb::address_t             address_;
-	 int                        instruction_size_;
+	 size_t                     instruction_size_;
 };
 
 }

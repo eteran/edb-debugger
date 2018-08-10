@@ -25,36 +25,37 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QPlainTextEdit;
 
-namespace DebuggerErrorConsolePlugin
-{
+namespace DebuggerErrorConsolePlugin {
 
-class DebuggerErrorConsole : public QDialog
-{
+class DebuggerErrorConsole : public QDialog {
 	Q_OBJECT
-
 public:
     explicit DebuggerErrorConsole(QWidget* parent = nullptr);
+
 private Q_SLOTS:
 	void compareDisassemblers();
 };
 
-class Plugin : public QObject, public IPlugin
-{
+class Plugin : public QObject, public IPlugin {
 	Q_OBJECT
 	Q_INTERFACES(IPlugin)
 	Q_PLUGIN_METADATA(IID "edb.IPlugin/1.0")
 	Q_CLASSINFO("author", "Ruslan Kabatsayev")
 	Q_CLASSINFO("email", "b7.10110111@gmail.com")
 
-	QPlainTextEdit* textWidget_=nullptr;
-	QMenu* menu_=nullptr;
-	static Plugin* instance;
-	static void debugMessageIntercept(QtMsgType type, QMessageLogContext const&, QString const& message);
+public:
+	Plugin(QObject *parent = nullptr);
+	~Plugin() override = default;
 
 public:
-	Plugin();
-    ~Plugin() override;
-    QMenu* menu(QWidget* parent = nullptr) override;
+	QMenu *menu(QWidget* parent = nullptr) override;
+
+private:
+	static void debugMessageIntercept(QtMsgType type, const QMessageLogContext&, QString const &message);
+
+private:
+	QPlainTextEdit* textWidget_ = nullptr;
+	QMenu* menu_                = nullptr;
 };
 
 }

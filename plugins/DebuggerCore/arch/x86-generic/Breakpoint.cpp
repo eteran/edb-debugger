@@ -42,7 +42,7 @@ const std::vector<quint8> BreakpointInstructionUD0   = {0x0f, 0xff};
 // Name: Breakpoint
 // Desc: constructor
 //------------------------------------------------------------------------------
-Breakpoint::Breakpoint(edb::address_t address) : address_(address), hit_count_(0), enabled_(false), one_time_(false), internal_(false), type_(edb::v1::config().default_breakpoint_type) {
+Breakpoint::Breakpoint(edb::address_t address) : address_(address), type_(edb::v1::config().default_breakpoint_type) {
 
     if(!this->enable()) {
 		throw breakpoint_creation_error();
@@ -70,7 +70,7 @@ auto Breakpoint::supported_types() -> std::vector<BreakpointType> {
 
 void Breakpoint::set_type(TypeId type) {
 	disable();
-	type_=type;
+	type_ = type;
 	if(!enable()) {
 		throw breakpoint_creation_error();
 	}
@@ -78,8 +78,11 @@ void Breakpoint::set_type(TypeId type) {
 
 void Breakpoint::set_type(IBreakpoint::TypeId type) {
 	disable();
-	if(Type{type}>=TypeId::TYPE_COUNT)
+
+	if(Type{type} >= TypeId::TYPE_COUNT) {
 		throw breakpoint_creation_error();
+	}
+
 	set_type(type);
 }
 
@@ -101,23 +104,24 @@ bool Breakpoint::enable() {
 			std::vector<quint8> prev(2);
 			if(process->read_bytes(address(), &prev[0], prev.size())) {
 				original_bytes_ = prev;
-				const std::vector<quint8>* bpBytes=nullptr;
-				switch(TypeId{type_})
-				{
+				const std::vector<quint8>* bpBytes = nullptr;
+
+				switch(TypeId{type_}) {
 				case TypeId::Automatic:
-				case TypeId::INT3:  bpBytes=&BreakpointInstructionINT3;  break;
-				case TypeId::INT1:  bpBytes=&BreakpointInstructionINT1;  break;
-				case TypeId::HLT:   bpBytes=&BreakpointInstructionHLT;   break;
-				case TypeId::CLI:   bpBytes=&BreakpointInstructionCLI;   break;
-				case TypeId::STI:   bpBytes=&BreakpointInstructionSTI;   break;
-				case TypeId::INSB:  bpBytes=&BreakpointInstructionINSB;  break;
-				case TypeId::INSD:  bpBytes=&BreakpointInstructionINSD;  break;
-				case TypeId::OUTSB: bpBytes=&BreakpointInstructionOUTSB; break;
-				case TypeId::OUTSD: bpBytes=&BreakpointInstructionOUTSD; break;
-				case TypeId::UD2:   bpBytes=&BreakpointInstructionUD2;   break;
-				case TypeId::UD0:   bpBytes=&BreakpointInstructionUD0;   break;
+				case TypeId::INT3:  bpBytes = &BreakpointInstructionINT3;  break;
+				case TypeId::INT1:  bpBytes = &BreakpointInstructionINT1;  break;
+				case TypeId::HLT:   bpBytes = &BreakpointInstructionHLT;   break;
+				case TypeId::CLI:   bpBytes = &BreakpointInstructionCLI;   break;
+				case TypeId::STI:   bpBytes = &BreakpointInstructionSTI;   break;
+				case TypeId::INSB:  bpBytes = &BreakpointInstructionINSB;  break;
+				case TypeId::INSD:  bpBytes = &BreakpointInstructionINSD;  break;
+				case TypeId::OUTSB: bpBytes = &BreakpointInstructionOUTSB; break;
+				case TypeId::OUTSD: bpBytes = &BreakpointInstructionOUTSD; break;
+				case TypeId::UD2:   bpBytes = &BreakpointInstructionUD2;   break;
+				case TypeId::UD0:   bpBytes = &BreakpointInstructionUD0;   break;
 				default: return false;
 				}
+
 				assert(bpBytes);
 				assert(original_bytes_.size() >= bpBytes->size());
 				original_bytes_.resize(bpBytes->size());

@@ -36,8 +36,8 @@ class CheckVersion : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	CheckVersion();
-	~CheckVersion() override;
+	CheckVersion(QObject *parent = nullptr);
+	~CheckVersion() override = default;
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
@@ -55,9 +55,9 @@ private:
 	void set_proxy(const QUrl &url);
 
 private:
-	QMenu                 *menu_;
-	QNetworkAccessManager *network_;
-	bool                   initial_check_;
+	QMenu                 *menu_          = nullptr;
+	QNetworkAccessManager *network_       = nullptr;
+	bool                   initial_check_ = true;
 };
 
 }

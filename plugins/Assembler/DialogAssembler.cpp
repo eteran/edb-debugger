@@ -133,15 +133,16 @@ void DialogAssembler::on_buttonBox_accepted() {
 		QDomElement asm_executable = asm_root.firstChildElement("executable");
 		QDomElement asm_template   = asm_root.firstChildElement("template");
 #ifdef EDB_ARM32
-		const auto mode=edb::v1::debugger_core->cpu_mode();
-		while(mode==IDebugger::CPUMode::ARM32 && asm_template.attribute("mode")!="arm" ||
-			  mode==IDebugger::CPUMode::Thumb && asm_template.attribute("mode")!="thumb")
-		{
-			asm_template=asm_template.nextSiblingElement("template");
-			if(asm_template.isNull())
-			{
-				QMessageBox::critical(this, tr("Error running assembler"),
-									  tr("Failed to locate source file template for current CPU mode"));
+		const auto mode = edb::v1::debugger_core->cpu_mode();
+		while(mode == IDebugger::CPUMode::ARM32 && asm_template.attribute("mode") != "arm" ||
+		      mode == IDebugger::CPUMode::Thumb && asm_template.attribute("mode") != "thumb") {
+
+			asm_template = asm_template.nextSiblingElement("template");
+			if(asm_template.isNull()) {
+				QMessageBox::critical(
+				            this,
+				            tr("Error running assembler"),
+				            tr("Failed to locate source file template for current CPU mode"));
 				return;
 			}
 		}
@@ -152,7 +153,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 		const QString asm_ext  = asm_executable.attribute("extension");
 		Q_UNUSED(asm_name);
 		
-		QString asm_code       = asm_template.text();
+		QString asm_code = asm_template.text();
 
 		QStringList command_line = edb::v1::parse_command_line(asm_cmd);
 		if(command_line.isEmpty()) {
@@ -211,9 +212,9 @@ void DialogAssembler::on_buttonBox_accepted() {
 				QMessageBox::warning(this, tr("Error In Code"), process.readAllStandardError());
 			} else {
 				QByteArray bytes = output_file.readAll();
-				const int replacement_size = bytes.size();
+				const size_t replacement_size = bytes.size();
 
-				if(replacement_size!=0 && replacement_size <= instruction_size_) {
+				if(replacement_size != 0 && replacement_size <= instruction_size_) {
 					if(ui->fillWithNOPs->isChecked()) {
 						// TODO: get system independent nop-code
 						if(!edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x90)) {
