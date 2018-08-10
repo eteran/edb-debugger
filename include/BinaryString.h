@@ -35,10 +35,10 @@ public:
     ~BinaryString() override;
 
 private Q_SLOTS:
-	void on_txtAscii_textEdited(const QString &);
-	void on_txtHex_textEdited(const QString &);
-	void on_txtUTF16_textEdited(const QString &);
-	void on_keepSize_stateChanged();
+	void on_txtAscii_textEdited(const QString &text);
+	void on_txtHex_textEdited(const QString &text);
+	void on_txtUTF16_textEdited(const QString &text);
+	void on_keepSize_stateChanged(int state);
 
 public:
 	void setMaxLength(int n);

@@ -69,7 +69,7 @@ BinaryString::BinaryString(QWidget *parent) : QWidget(parent), ui(new Ui::Binary
 	ui->txtHex->setValidator(new HexStringValidator(this));
 	ui->keepSize->setFocusPolicy(Qt::TabFocus);
 	ui->txtHex->setFocus(Qt::OtherFocusReason);
-	connect(ui->keepSize, SIGNAL(stateChanged(int)), this, SLOT(on_keepSize_stateChanged()));
+	connect(ui->keepSize, &QCheckBox::stateChanged, this, &BinaryString::on_keepSize_stateChanged);
 }
 
 //------------------------------------------------------------------------------
@@ -84,7 +84,9 @@ BinaryString::~BinaryString() {
 // Name: on_keepSize_stateChanged
 // Desc:
 //------------------------------------------------------------------------------
-void BinaryString::on_keepSize_stateChanged() {
+void BinaryString::on_keepSize_stateChanged(int state) {
+
+	Q_UNUSED(state);
 
 	if(mode_ != Mode::MemoryEditing) return;
 
