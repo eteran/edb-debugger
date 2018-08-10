@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PATCH_H_
 #define PATCH_H_
 
-#include "OSTypes.h"
+#include "Types.h"
 #include <QByteArray>
 
 struct Patch {
