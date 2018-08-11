@@ -183,7 +183,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 // Name: page_size
 // Desc: returns the size of a page on this system
 //------------------------------------------------------------------------------
-edb::address_t DebuggerCore::page_size() const {
+size_t DebuggerCore::page_size() const {
 	return page_size_;
 }
 
