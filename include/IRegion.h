@@ -59,7 +59,8 @@ public:
 		return address >= start() && address < end();
 	}
 
-	bool equals(const std::shared_ptr<IRegion> &other) const {
+	template <class Pointer>
+	bool equals(const Pointer &other) const {
 
 		if(!other) {
 			return false;
