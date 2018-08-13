@@ -32,13 +32,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <QSettings>
 
-#include "elf/elf_types.h"
-#include "elf/elf_header.h"
-#include "elf/elf_rela.h"
-#include "elf/elf_rel.h"
-#include "elf/elf_sym.h"
-#include "elf/elf_shdr.h"
-#include "elf/elf_syminfo.h"
+#include "libELF/elf_types.h"
+#include "libELF/elf_header.h"
+#include "libELF/elf_rela.h"
+#include "libELF/elf_rel.h"
+#include "libELF/elf_sym.h"
+#include "libELF/elf_shdr.h"
+#include "libELF/elf_syminfo.h"
 
 namespace BinaryInfoPlugin {
 namespace {

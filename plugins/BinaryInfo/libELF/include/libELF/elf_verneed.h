@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELF_VERNEED_20121007_H_
 #define ELF_VERNEED_20121007_H_
 
-#include "elf/elf_types.h"
+#include "elf_types.h"
 
 /* Version dependency section.  */
 struct elf32_verneed {

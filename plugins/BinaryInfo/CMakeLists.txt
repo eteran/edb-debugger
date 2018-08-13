@@ -19,22 +19,23 @@ add_library(${PluginName} SHARED
 	DialogHeader.ui
 	ELF32.cpp
 	ELF64.cpp
-	elf_binary.h
 	ELFXX.cpp
 	OptionsPage.cpp
 	OptionsPage.h
 	OptionsPage.ui
 	PE32.cpp
 	PE32.h
-	pe_binary.h
 	symbols.cpp
 	symbols.h
 )
 
-target_link_libraries(${PluginName} Qt5::Widgets)
+target_link_libraries(${PluginName} Qt5::Widgets PE ELF)
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
 
 set_property(TARGET ${PluginName} PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET ${PluginName} PROPERTY CXX_STANDARD 14)
+
+add_subdirectory(libELF)
+add_subdirectory(libPE)

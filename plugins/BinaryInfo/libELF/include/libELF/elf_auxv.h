@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELF_AUXV_20121007_H_
 #define ELF_AUXV_20121007_H_
 
-#include "elf/elf_types.h"
+#include "elf_types.h"
 
 /* Auxiliary vector.  */
 

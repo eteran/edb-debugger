@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ELFXX.h"
-#include "elf/elf_phdr.h"
+#include "libELF/elf_phdr.h"
 #include "ByteShiftArray.h"
 #include "IDebugger.h"
 #include "IProcess.h"

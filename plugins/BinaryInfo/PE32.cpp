@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IProcess.h"
 #include "IRegion.h"
 #include "string_hash.h"
-#include "pe_binary.h"
+#include "libPE/pe_binary.h"
 #include <QDebug>
 
 namespace BinaryInfoPlugin {

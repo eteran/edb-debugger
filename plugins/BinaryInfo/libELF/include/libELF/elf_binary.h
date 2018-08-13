@@ -24,22 +24,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BinaryInfoPlugin {
 
-#include "elf/elf_types.h"
-#include "elf/elf_header.h"
-#include "elf/elf_shdr.h"
-#include "elf/elf_sym.h"
-#include "elf/elf_syminfo.h"
-#include "elf/elf_rel.h"
-#include "elf/elf_rela.h"
-#include "elf/elf_phdr.h"
-#include "elf/elf_dyn.h"
-#include "elf/elf_verdef.h"
-#include "elf/elf_verdaux.h"
-#include "elf/elf_verneed.h"
-#include "elf/elf_vernaux.h"
-#include "elf/elf_auxv.h"
-#include "elf/elf_nhdr.h"
-#include "elf/elf_move.h"
+#include "elf_types.h"
+#include "elf_header.h"
+#include "elf_shdr.h"
+#include "elf_sym.h"
+#include "elf_syminfo.h"
+#include "elf_rel.h"
+#include "elf_rela.h"
+#include "elf_phdr.h"
+#include "elf_dyn.h"
+#include "elf_verdef.h"
+#include "elf_verdaux.h"
+#include "elf_verneed.h"
+#include "elf_vernaux.h"
+#include "elf_auxv.h"
+#include "elf_nhdr.h"
+#include "elf_move.h"
 
 /* Motorola 68k specific definitions.  */
 

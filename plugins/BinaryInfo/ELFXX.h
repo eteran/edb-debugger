@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define ELF32_20070718_H_
 
 #include "IBinary.h"
-#include "elf_binary.h"
+#include "libELF/elf_binary.h"
 
 namespace BinaryInfoPlugin {
 

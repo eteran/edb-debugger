@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PE32_20070718_H_
 
 #include "IBinary.h"
-#include "pe_binary.h"
+#include "libPE/pe_binary.h"
 
 namespace BinaryInfoPlugin {
 

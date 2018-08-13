@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELF_NHDR_20121007_H_
 #define ELF_NHDR_20121007_H_
 
-#include "elf/elf_types.h"
+#include "elf_types.h"
 
 /* Note section contents.  Each entry in the note section begins with
    a header of a fixed form.  */

@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELF_REL_20121007_H_
 #define ELF_REL_20121007_H_
 
-#include "elf/elf_types.h"
+#include "elf_types.h"
 
 // Relocation table entry without addend (in section of type SHT_REL).
 
