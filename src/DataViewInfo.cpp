@@ -27,6 +27,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 DataViewInfo::DataViewInfo(const std::shared_ptr<IRegion> &r) : region(r), stream(std::make_unique<RegionBuffer>(r)) {
 }
 
+DataViewInfo::DataViewInfo() : DataViewInfo(nullptr) {
+}
+
 //------------------------------------------------------------------------------
 // Name: update
 // Desc:

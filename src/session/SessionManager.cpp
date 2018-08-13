@@ -51,14 +51,14 @@ bool SessionManager::load_session(const QString &session_file, SessionError& ses
 	QJsonParseError error;
 	auto doc = QJsonDocument::fromJson(json, &error);
 	if(error.error != QJsonParseError::NoError) {
-		session_error.err = SessionError::UnknownError;
-		session_error.setErrorMessage(tr("An error occured while loading session JSON file. %1").arg(error.errorString()));
+		session_error.err          = SessionError::UnknownError;
+		session_error.errorMessage = tr("An error occured while loading session JSON file. %1").arg(error.errorString());
 		return false;
 	}
 
 	if(!doc.isObject()) {
-		session_error.err = SessionError::NotAnObject;
-		session_error.setErrorMessage(tr("Session file is invalid. Not an object."));
+		session_error.err          = SessionError::NotAnObject;
+		session_error.errorMessage = tr("Session file is invalid. Not an object.");
 		return false;
 	}
 
@@ -72,8 +72,8 @@ bool SessionManager::load_session(const QString &session_file, SessionError& ses
 	Q_UNUSED(ts);
 
 	if(id != SessionFileIdString || version > SessionFileVersion) {
-		session_error.err = SessionError::InvalidSessionFile;
-		session_error.setErrorMessage(tr("Session file is invalid."));
+		session_error.err          = SessionError::InvalidSessionFile;
+		session_error.errorMessage = tr("Session file is invalid.");
 		return false;
 	}
 

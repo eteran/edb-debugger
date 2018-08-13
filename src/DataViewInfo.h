@@ -29,6 +29,7 @@ class IRegion;
 class DataViewInfo {
 public:
 	explicit DataViewInfo(const std::shared_ptr<IRegion> &r);
+	DataViewInfo();
 	~DataViewInfo() = default;
 
 private:

@@ -40,9 +40,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace {
 
 constexpr int ScenePadding   = 30000;
-constexpr float ZoomFactor   = 1.2;
-constexpr float MinimumZoom  = 0.001f;
-constexpr float MaximumZoom  = 8.000f;
+constexpr qreal ZoomFactor   = 1.2;
+constexpr qreal MinimumZoom  = 0.001;
+constexpr qreal MaximumZoom  = 8.000;
 constexpr int NodeWidth      = 100;
 }
 

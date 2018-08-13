@@ -111,16 +111,16 @@ bool BasicBlock::empty() const {
 // Name: operator[]
 //------------------------------------------------------------------------------
 BasicBlock::reference BasicBlock::operator[](size_type pos) {
-	Q_ASSERT(pos < INT_MAX);
-	return instructions_[static_cast<int>(pos)];
+	Q_ASSERT(pos < instructions_.size());
+	return instructions_[pos];
 }
 
 //------------------------------------------------------------------------------
 // Name: operator[]
 //------------------------------------------------------------------------------
 BasicBlock::const_reference BasicBlock::operator[](size_type pos) const {
-	Q_ASSERT(pos < INT_MAX);
-	return instructions_[static_cast<int>(pos)];
+	Q_ASSERT(pos < instructions_.size());
+	return instructions_[pos];
 }
 
 //------------------------------------------------------------------------------

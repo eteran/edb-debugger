@@ -304,35 +304,35 @@ public:
 	Ui::Debugger ui;
 
 private:
-	QToolButton *                                    add_tab_;
-	QToolButton *                                    del_tab_;
-	QProcess *                                       tty_proc_;
-	GUI_STATE                                        gui_state_;
-	QString                                          tty_file_;
-	QVector<std::shared_ptr<DataViewInfo>>           data_regions_;
-	DataViewInfo                                     stack_view_info_;
-	std::shared_ptr<QHexView>                        stack_view_;
-	QStringListModel *                               list_model_;
-	DialogArguments *                                arguments_dialog_;
-	QTimer *                                         timer_;
-	RecentFileManager *                              recent_file_manager_;
-
-	std::shared_ptr<QHexView::CommentServerInterface> comment_server_;
-	std::shared_ptr<IBreakpoint>                     reenable_breakpoint_run_;
-	std::shared_ptr<IBreakpoint>                     reenable_breakpoint_step_;
-	std::unique_ptr<IBinary>                         binary_info_;
-
-	QString                                          last_open_directory_;
-	QString                                          working_directory_;
-	QString                                          program_executable_;
-	bool                                             stack_view_locked_;
-	std::shared_ptr<const IDebugEvent>               last_event_;
-	QLabel *                                         status_;
+	GUI_STATE           gui_state_           = TERMINATED;
+	QProcess           *tty_proc_            = nullptr;
+	DialogArguments    *arguments_dialog_    = nullptr;
+	QLabel             *status_              = nullptr;
+	QStringListModel   *list_model_          = nullptr;
+	QTimer             *timer_               = nullptr;
+	QToolButton        *add_tab_             = nullptr;
+	QToolButton        *del_tab_             = nullptr;
+	RecentFileManager  *recent_file_manager_ = nullptr;
+	bool                stack_view_locked_   = false;
 
 #if defined(Q_OS_LINUX)
-	edb::address_t                                   debug_pointer_;
-	bool                                             dynamic_info_bp_set_;
+	edb::address_t      debug_pointer_       = 0;
+	bool                dynamic_info_bp_set_ = false;
 #endif
+
+private:
+	DataViewInfo                                      stack_view_info_;
+	QString                                           last_open_directory_;
+	QString                                           program_executable_;
+	QString                                           tty_file_;
+	QString                                           working_directory_;
+	QVector<std::shared_ptr<DataViewInfo>>            data_regions_;
+	std::shared_ptr<IBreakpoint>                      reenable_breakpoint_run_;
+	std::shared_ptr<IBreakpoint>                      reenable_breakpoint_step_;
+	std::shared_ptr<QHexView::CommentServerInterface> comment_server_;
+	std::shared_ptr<QHexView>                         stack_view_;
+	std::shared_ptr<const IDebugEvent>                last_event_;
+	std::unique_ptr<IBinary>                          binary_info_;
 
 private:
 	QAction *gotoAddressAction_;

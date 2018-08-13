@@ -30,14 +30,8 @@ public:
 	};
 
 public:
-	QString getErrorMessage() const;
-	void setErrorMessage(const QString);
-
-public:
 	ErrorCode err = NoError;
-
-private:
-	QString errorMessage = "";
+	QString errorMessage;
 };
 
 #endif

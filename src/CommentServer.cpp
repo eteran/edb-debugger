@@ -53,8 +53,8 @@ void CommentServer::clear() {
 // or a SIB byte, etc
 // this is ignoring prefixes, fortunately, no calls have mandatory prefixes
 // TODO(eteran): this is an arch specific concept
-#define CALL_MAX_SIZE 7
-#define CALL_MIN_SIZE 2
+constexpr int CALL_MAX_SIZE = 7;
+constexpr int CALL_MIN_SIZE = 2;
 
 //------------------------------------------------------------------------------
 // Name: resolve_function_call
@@ -64,7 +64,7 @@ Result<QString> CommentServer::resolve_function_call(QHexView::address_t address
 
 	// ok, we now want to locate the instruction before this one
 	// so we need to look back a few bytes
-	quint8 buffer[edb::Instruction::MAX_SIZE];
+	uint8_t buffer[edb::Instruction::MAX_SIZE];
 
 	// TODO(eteran): portability warning, makes assumptions on the size of a call
 	if(IProcess *process = edb::v1::debugger_core->process()) {
@@ -117,7 +117,7 @@ QString CommentServer::comment(QHexView::address_t address, int size) const {
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		// if the view is currently looking at words which are a pointer in size
 		// then see if it points to anything...
-		if(size == edb::v1::pointer_size()) {
+		if(size == static_cast<int>(edb::v1::pointer_size())) {
 			edb::address_t value(0);
 			if(process->read_bytes(address, &value, edb::v1::pointer_size())) {
 

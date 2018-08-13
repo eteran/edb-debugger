@@ -20,25 +20,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Util.h"
 #include "IDebugEventHandler.h"
 
-DebugEventHandlers::DebugEventHandlers()
-	: current_handler_(nullptr)
-{}
-
 DebugEventHandlers::~DebugEventHandlers() {
-	if (current_handler_)
+	if (current_handler_) {
 		EDB_PRINT_AND_DIE("can not destroy debug events container while executing events");
+	}
 
-	if (!handlers_.empty())
+	if (!handlers_.empty()) {
 		EDB_PRINT_AND_DIE("some debug event handlers weren't property removed");
+	}
 }
 
 void DebugEventHandlers::add(IDebugEventHandler *handler) {
-	if (!handler)
+	if (!handler) {
 		EDB_PRINT_AND_DIE("event handler can not be nullptr");
+	}
 
-	for (auto i = handlers_.begin(), end = handlers_.end(); i != end; ++i)
-		if (*i == handler)
+	for (auto i = handlers_.begin(), end = handlers_.end(); i != end; ++i) {
+		if (*i == handler) {
 			EDB_PRINT_AND_DIE("the same event handler is added twice");
+		}
+	}
 
 	// DebugEventHandlers::add can be called inside DebugEventHandlers::execute.
 	// Let's insert the handler in front so it is not called on the
@@ -47,27 +48,33 @@ void DebugEventHandlers::add(IDebugEventHandler *handler) {
 }
 
 void DebugEventHandlers::remove(IDebugEventHandler *handler) {
-	if (!handler)
+	if (!handler) {
 		EDB_PRINT_AND_DIE("event handler can not be nullptr");
+	}
 
 	auto i = handlers_.begin();
-	for (auto end = handlers_.end(); i != end; ++i)
-		if (*i == handler)
+	for (auto end = handlers_.end(); i != end; ++i) {
+		if (*i == handler) {
 			break;
+		}
+	}
 
-	if (i == handlers_.end())
+	if (i == handlers_.end()) {
 		EDB_PRINT_AND_DIE("removal of an event that is not present");
+	}
 
 	// during execution only deletion of the current handler is supported
-	if (current_handler_ && current_handler_ != handler)
+	if (current_handler_ && current_handler_ != handler) {
 		EDB_PRINT_AND_DIE("removal of non-current event handler during execution");
+	}
 
 	handlers_.erase(i);
 }
 
 edb::EVENT_STATUS DebugEventHandlers::execute(const std::shared_ptr<IDebugEvent> &event) {
-	if (current_handler_)
+	if (current_handler_) {
 		EDB_PRINT_AND_DIE("recursive debug event execution is not allowed");
+	}
 
 	// if somehow no handler is run, then let's just assume we should stop...
 	edb::EVENT_STATUS status = edb::DEBUG_STOP;
@@ -83,8 +90,7 @@ edb::EVENT_STATUS DebugEventHandlers::execute(const std::shared_ptr<IDebugEvent>
 				break;
 			}
 		}
-	}
-	catch (...) {
+	} catch (...) {
 		// reset current_handler_ to nullptr even if an exception was thrown
 		current_handler_ = nullptr;
 		throw;
@@ -92,8 +98,9 @@ edb::EVENT_STATUS DebugEventHandlers::execute(const std::shared_ptr<IDebugEvent>
 	current_handler_ = nullptr;
 
 	// if this assert fails, the bottom handler (which is owned by us) did something terribly wrong :-/
-	if (status == edb::DEBUG_NEXT_HANDLER)
+	if (status == edb::DEBUG_NEXT_HANDLER) {
 		EDB_PRINT_AND_DIE("the last event handler returned DEBUG_NEXT_HANDLER");
+	}
 
 	return status;
 }

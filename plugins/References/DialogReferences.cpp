@@ -92,7 +92,7 @@ void DialogReferences::do_find() {
 
 					while(p != pages_end) {
 
-						if(pages_end - p < edb::v1::pointer_size()) {
+						if(pages_end - p < static_cast<int>(edb::v1::pointer_size())) {
 							break;
 						}
 

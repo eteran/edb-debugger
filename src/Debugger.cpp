@@ -346,19 +346,12 @@ private:
 // Desc:
 //------------------------------------------------------------------------------
 Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
-        add_tab_(nullptr),
-        del_tab_(nullptr),
-		tty_proc_(new QProcess(this)),
-		gui_state_(TERMINATED),
-		stack_view_info_(nullptr),
-		arguments_dialog_(new DialogArguments),
-		timer_(new QTimer(this)),
-		recent_file_manager_(new RecentFileManager(this)),
-        comment_server_(new CommentServer),
-		stack_view_locked_(false)
-#ifdef Q_OS_UNIX
-		,debug_pointer_(0), dynamic_info_bp_set_(false)
-#endif
+        tty_proc_(new QProcess(this)),
+        arguments_dialog_(new DialogArguments),
+        timer_(new QTimer(this)),
+        recent_file_manager_(new RecentFileManager(this)),
+        stack_view_info_(nullptr),
+        comment_server_(new CommentServer)
 {
 	setup_ui();
 
@@ -1479,7 +1472,7 @@ Result<edb::address_t> Debugger::get_follow_address(const T &hexview) {
 	if(hexview->hasSelectedText()) {
 		const QByteArray data = hexview->selectedBytes();
 
-		if(data.size() == edb::v1::pointer_size()) {
+		if(data.size() == static_cast<int>(edb::v1::pointer_size())) {
 			edb::address_t d(0);
 			std::memcpy(&d, data.data(), pointer_size);
 
@@ -2871,7 +2864,7 @@ void Debugger::set_initial_debugger_state() {
 			QMessageBox::warning(
 				this,
 				tr("Error Loading Session"),
-				QT_TR_NOOP(session_error.getErrorMessage())
+			    session_error.errorMessage
 			);
 		} else {
 			QVariantList comments_data;

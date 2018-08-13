@@ -44,4 +44,4 @@ private:
     LASTOP lastop_ = LASTOP_NONE;
 };
 
-#endif // NAVIGATIONHISTORY_H_
+#endif

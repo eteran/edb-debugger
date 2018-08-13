@@ -52,9 +52,9 @@ program termination (std::abort is called).
 */
 class DebugEventHandlers {
 public:
-	DebugEventHandlers();
-	DebugEventHandlers(DebugEventHandlers const&) = delete;
-	DebugEventHandlers& operator=(DebugEventHandlers const&) = delete;
+	DebugEventHandlers()                                      = default;
+	DebugEventHandlers(const DebugEventHandlers &)            = delete;
+	DebugEventHandlers& operator=(const DebugEventHandlers &) = delete;
 	~DebugEventHandlers();
 
 	void add(IDebugEventHandler *handler);
@@ -71,7 +71,7 @@ private:
 	the current handler that is being executed
 	nullptr means that none is being executed at the moment
 	*/
-	IDebugEventHandler* current_handler_;
+	IDebugEventHandler* current_handler_ = nullptr;
 };
 
 #endif
