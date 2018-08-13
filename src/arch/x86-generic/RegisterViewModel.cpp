@@ -467,7 +467,7 @@ RegisterViewModelBase::FPUCategory* RegisterViewModel::getFPUcat() const
 	case CPUMode::AMD64:
 		return fpuRegs64;
 	default:
-		return 0;
+		return nullptr;
 	}
 }
 
@@ -584,7 +584,8 @@ std::tuple<RegisterViewModelBase::Category* /*sse*/,
 		   RegisterViewModelBase::Category* /*avx*/,
 		   unsigned/*maxRegs*/> RegisterViewModel::getSSEparams() const
 {
-	RegisterViewModelBase::Category *sseCat=0, *avxCat=0;
+	RegisterViewModelBase::Category *sseCat = nullptr;
+	RegisterViewModelBase::Category *avxCat = nullptr;
 	unsigned sseRegMax=0;
 	switch(mode)
 	{
