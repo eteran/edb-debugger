@@ -32,7 +32,7 @@ public:
 public:
 	std::string to_string(const Instruction &) const;
 	std::string to_string(const Operand &) const;
-	std::string register_name(int) const;
+	std::string register_name(unsigned int) const;
 
 	FormatOptions options() const {
 		return options_;

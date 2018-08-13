@@ -383,7 +383,7 @@ void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end
 edb::address_t DialogHeap::find_heap_start_heuristic(edb::address_t end_address, size_t offset) const {
 	const edb::address_t start_address = end_address - offset;
 
-	const edb::address_t heap_symbol = start_address - 4*edb::v1::pointer_size();
+	const edb::address_t heap_symbol = start_address - 4 * edb::v1::pointer_size();
 
 	edb::address_t test_addr(0);
 	if(IProcess *process = edb::v1::debugger_core->process()) {

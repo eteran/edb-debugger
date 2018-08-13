@@ -204,7 +204,7 @@ EDB_EXPORT void set_cpu_selected_address(address_t address);
 EDB_EXPORT void set_status(const QString &message, int timeoutMillisecs=2000);
 EDB_EXPORT void clear_status();
 
-EDB_EXPORT int pointer_size();
+EDB_EXPORT size_t pointer_size();
 
 EDB_EXPORT QVector<quint8> read_pages(address_t address, size_t page_count);
 

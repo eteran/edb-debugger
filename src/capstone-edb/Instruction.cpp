@@ -462,7 +462,7 @@ std::string Formatter::to_string(const Operand &operand) const {
 	return str;
 }
 
-std::string Formatter::register_name(int reg) const {
+std::string Formatter::register_name(unsigned int reg) const {
 	assert(capstoneInitialized);
 	const char *raw = cs_reg_name(csh, reg);
 	if (!raw)
