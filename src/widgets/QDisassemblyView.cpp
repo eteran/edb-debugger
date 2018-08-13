@@ -311,7 +311,11 @@ int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_addr
 	// fall back on the old heuristic
 	// iteration goal: to get exactly one new line above current instruction line
 	edb::address_t address = address_offset_ + current_address;
+#if 0
 	for(int i = 1; i < static_cast<int>(edb::Instruction::MAX_SIZE); ++i) {
+#else
+	for(int i = static_cast<int>(edb::Instruction::MAX_SIZE); i > 0; --i) {
+#endif
 		edb::address_t prev_address = address - i;
 		if(address >= address_offset_) {
 
