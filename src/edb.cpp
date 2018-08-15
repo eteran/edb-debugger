@@ -510,13 +510,13 @@ bool eval_expression(const QString &expression, address_t *value) {
 //------------------------------------------------------------------------------
 bool get_expression_from_user(const QString &title, const QString &prompt, address_t *value) {
     bool retval = false;
-    ExpressionDialog *inputDialog = new ExpressionDialog(title, prompt);
+	ExpressionDialog *inputDialog = new ExpressionDialog(title, prompt, edb::v1::debugger_ui);
 
-    if(inputDialog->exec())
-    {
+	if(inputDialog->exec()) {
         *value = inputDialog->getAddress();
         retval = true;
     }
+
     delete inputDialog;
     return retval;
 }
@@ -798,6 +798,11 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 		return state["fs_base"].valueAsAddress();
 	} else if(reg.name() == "gs") {
 		return state["gs_base"].valueAsAddress();
+	}
+
+	if(reg.bitSize() >  8 * sizeof(edb::address_t)) {
+		*err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
+		return 0;
 	}
 
 	return reg.valueAsAddress();

@@ -34,7 +34,8 @@ public:
 		UNKNOWN_VARIABLE,
 		CANNOT_READ_MEMORY,
 		UNEXPECTED_OPERATOR,
-		UNEXPECTED_NUMBER
+		UNEXPECTED_NUMBER,
+		VARIABLE_LARGER_THAN_ADDRESS
 	};
 
 public:
@@ -63,6 +64,8 @@ public:
 			return "Unexpected Operator";
 		case UNEXPECTED_NUMBER:
 			return "Unexpected Numerical Constant";
+		case VARIABLE_LARGER_THAN_ADDRESS:
+			return "Variable Does Not Fit Into An Address. Is it an FPU Register?";
 		default:
 			return "Unknown Error";
 		}

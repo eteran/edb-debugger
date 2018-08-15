@@ -31,7 +31,7 @@ class ExpressionDialog : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit ExpressionDialog(const QString &title, const QString &prompt);
+	explicit ExpressionDialog(const QString &title, const QString &prompt, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
 public:
 	edb::address_t getAddress();
@@ -40,11 +40,11 @@ private Q_SLOTS:
 	void on_text_changed(const QString& text);
 	
 private:
-	QVBoxLayout      layout_;
-	QLabel           label_text_;
-	QLabel           label_error_;
-	QLineEdit        expression_;
-	QDialogButtonBox button_box_;
+	QVBoxLayout      *layout_;
+	QLabel           *label_text_;
+	QLabel           *label_error_;
+	QLineEdit        *expression_;
+	QDialogButtonBox *button_box_;
 	QPalette         palette_error_;
 	edb::address_t   last_address_;
 };

@@ -43,7 +43,7 @@ public:
 	void set_label(edb::address_t address, const QString &label) override;
 	QString find_address_name(edb::address_t address,bool prefixed=true) override;
 	QHash<edb::address_t, QString> labels() const override;
-	QList<QString> files() const override;
+	QStringList files() const override;
 
 private:
 	bool process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename, bool allow_retry);

@@ -333,6 +333,6 @@ QHash<edb::address_t, QString> SymbolManager::labels() const {
 // Name: files
 // Desc:
 //------------------------------------------------------------------------------
-QList<QString> SymbolManager::files() const {
+QStringList SymbolManager::files() const {
 	return symbols_by_file_.keys();
 }

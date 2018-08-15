@@ -25,43 +25,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QCompleter>
 #include <QPushButton>
 
-ExpressionDialog::ExpressionDialog(const QString &title, const QString &prompt) : QDialog(edb::v1::debugger_ui),
-	layout_(this),
-	label_text_("Replace me"),
-	button_box_(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal)
-{
+ExpressionDialog::ExpressionDialog(const QString &title, const QString &prompt, QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+
 	setWindowTitle(title);
-	label_text_.setText(prompt);
 
-	connect(&button_box_, &QDialogButtonBox::accepted, this, &ExpressionDialog::accept);
-	connect(&button_box_, &QDialogButtonBox::rejected, this, &ExpressionDialog::reject);
+	layout_      = new QVBoxLayout(this);
+	label_text_  = new QLabel(prompt, this);
+	label_error_ = new QLabel(this);
+	expression_  = new QLineEdit(this);
+	button_box_  = new QDialogButtonBox(QDialogButtonBox::Ok | QDialogButtonBox::Cancel, Qt::Horizontal, this);
 
-	layout_.addWidget(&label_text_);
-	layout_.addWidget(&expression_);
-	layout_.addWidget(&label_error_);
-	layout_.addWidget(&button_box_);
+	connect(button_box_, &QDialogButtonBox::accepted, this, &ExpressionDialog::accept);
+	connect(button_box_, &QDialogButtonBox::rejected, this, &ExpressionDialog::reject);
+
+	layout_->addWidget(label_text_);
+	layout_->addWidget(expression_);
+	layout_->addWidget(label_error_);
+	layout_->addWidget(button_box_);
 
 	palette_error_.setColor(QPalette::WindowText, Qt::red);
-	label_error_.setPalette(palette_error_);
+	label_error_->setPalette(palette_error_);
 
-	button_box_.button(QDialogButtonBox::Ok)->setEnabled(false);
+	button_box_->button(QDialogButtonBox::Ok)->setEnabled(false);
 
-	setLayout(&layout_);
+	setLayout(layout_);
 
-	connect(&expression_, &QLineEdit::textChanged, this, &ExpressionDialog::on_text_changed);
-	expression_.selectAll();
+	connect(expression_, &QLineEdit::textChanged, this, &ExpressionDialog::on_text_changed);
+	expression_->selectAll();
 
 	QList<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().symbols();
-	QList<QString> allLabels;
+	QStringList allLabels;
 
-	for(const std::shared_ptr<Symbol> &sym: symbols)
-	{
+	for(const std::shared_ptr<Symbol> &sym: symbols) {
 		allLabels.append(sym->name_no_prefix);
 	}
+
 	allLabels.append(edb::v1::symbol_manager().labels().values());
 
-	QCompleter *completer = new QCompleter(allLabels);
-	expression_.setCompleter(completer);
+	QCompleter *completer = new QCompleter(allLabels, this);
+	expression_->setCompleter(completer);
 	allLabels.clear();
 }
 
@@ -86,14 +88,14 @@ void ExpressionDialog::on_text_changed(const QString& text) {
 		if(ok) {
 			retval = true;
 		} else {
-			label_error_.setText(err.what());
+			label_error_->setText(err.what());
 			retval = false;
 		}
 	}
 
-	button_box_.button(QDialogButtonBox::Ok)->setEnabled(retval);
+	button_box_->button(QDialogButtonBox::Ok)->setEnabled(retval);
 	if (retval) {
-		label_error_.clear();
+		label_error_->clear();
 	}
 }
 
