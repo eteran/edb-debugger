@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SYMBOLMANAGER_20060814_H_
 
 #include "ISymbolManager.h"
-#include "QtHelper.h"
+#include <QCoreApplication>
 
 #include <QHash>
 #include <QMap>
@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QString;
 
 class SymbolManager : public ISymbolManager {
-	Q_DECLARE_NAMESPACE_TR(SymbolManager)
+	Q_DECLARE_TR_FUNCTIONS(SymbolManager)
 
 public:
 	SymbolManager() = default;

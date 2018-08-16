@@ -30,16 +30,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSignalMapper>
 
 namespace ODbgRegisterView {
-
-namespace {
 Q_DECLARE_NAMESPACE_TR(ODbgRegisterView)
 
+namespace {
 const auto pluginName             = QLatin1String("ODbgRegisterView");
 const auto dockName               = tr("Registers");
 const auto dockNameSuffixTemplate = QString(" <%1>");
 const auto dockObjectNameTemplate = QString(pluginName + "-%1");
 const auto VIEW                   = QLatin1String("views");
-
 }
 
 Plugin::Plugin(QObject *parent) : QObject(parent), menu_(nullptr) {
