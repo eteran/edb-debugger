@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Plugin.h"
 #include "ArchProcessor.h"
+#include "QtHelper.h"
 #include "RegisterView.h"
 #include "edb.h"
 
@@ -29,10 +30,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSignalMapper>
 
 namespace ODbgRegisterView {
+
 namespace {
+Q_DECLARE_NAMESPACE_TR(ODbgRegisterView)
 
 const auto pluginName             = QLatin1String("ODbgRegisterView");
-const auto dockName               = QObject::tr("Registers");
+const auto dockName               = tr("Registers");
 const auto dockNameSuffixTemplate = QString(" <%1>");
 const auto dockObjectNameTemplate = QString(pluginName + "-%1");
 const auto VIEW                   = QLatin1String("views");

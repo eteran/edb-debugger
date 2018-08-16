@@ -310,7 +310,7 @@ Status DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
 		waited_threads_.remove(tid);
 		return Status::Ok;
 	}
-	return Status(QObject::tr("ptrace_continue(): waited_threads_ doesn't contain tid %1").arg(tid));
+	return Status(tr("ptrace_continue(): waited_threads_ doesn't contain tid %1").arg(tid));
 }
 
 //------------------------------------------------------------------------------
@@ -331,7 +331,7 @@ Status DebuggerCore::ptrace_step(edb::tid_t tid, long status) {
 		waited_threads_.remove(tid);
 		return Status::Ok;
 	}
-	return Status(QObject::tr("ptrace_step(): waited_threads_ doesn't contain tid %1").arg(tid));
+	return Status(tr("ptrace_step(): waited_threads_ doesn't contain tid %1").arg(tid));
 }
 
 //------------------------------------------------------------------------------
@@ -555,7 +555,7 @@ Status DebuggerCore::stop_threads() {
 
 					const auto stopStatus=thread->stop();
 					if(!stopStatus)
-						errorMessage+=QObject::tr("Failed to stop thread %1: %2\n").arg(tid).arg(stopStatus.toString());
+						errorMessage+=tr("Failed to stop thread %1: %2\n").arg(tid).arg(stopStatus.toString());
 
 					int thread_status;
 					if(native::waitpid(tid, &thread_status, __WALL) > 0) {
@@ -709,7 +709,7 @@ Status DebuggerCore::detach() {
 		for(auto &thread: process_->threads()) {
 			if(ptrace(PTRACE_DETACH, thread->tid(), 0, 0)==-1) {
 				const char*const strError=strerror(errno);
-				errorMessage+=QObject::tr("Unable to detach from thread %1: PTRACE_DETACH failed: %2\n").arg(thread->tid()).arg(strError);
+				errorMessage+=tr("Unable to detach from thread %1: PTRACE_DETACH failed: %2\n").arg(thread->tid()).arg(strError);
 			}
 		}
 

@@ -789,14 +789,14 @@ Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 		if(std::shared_ptr<IThread> thread = current_thread()) {
 			const auto resumeStatus=thread->resume(status);
 			if(!resumeStatus)
-				errorMessage += QObject::tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.toString());
+				errorMessage += tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.toString());
 
 			// resume the other threads passing the signal they originally reported had
 			for(auto &other_thread : threads()) {
 				if(core_->waited_threads_.contains(other_thread->tid())) {
 					const auto resumeStatus=other_thread->resume();
 					if(!resumeStatus)
-						errorMessage += QObject::tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.toString());
+						errorMessage += tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.toString());
 				}
 			}
 		}

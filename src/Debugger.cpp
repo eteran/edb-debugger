@@ -158,6 +158,8 @@ bool is_instruction_ret(edb::address_t address) {
 }
 
 class RunUntilRet : public IDebugEventHandler {
+	Q_DECLARE_TR_FUNCTIONS(RunUntilRet)
+
 public:
 	//--------------------------------------------------------------------------
 	// Name: RunUntilRet
@@ -306,8 +308,8 @@ public:
 					}
 					else {
 						QMessageBox::critical(edb::v1::debugger_ui,
-											  QObject::tr("Error running until return"),
-											  QObject::tr("Failed to set breakpoint on a block terminator at address %1.").
+						                      tr("Error running until return"),
+						                      tr("Failed to set breakpoint on a block terminator at address %1.").
 														arg(address.toPointerString()));
 						return pass_back_to_debugger();
 					}
@@ -316,8 +318,8 @@ public:
 			else {
 				//Invalid instruction or some other problem. Pass it back to the debugger.
 				QMessageBox::critical(edb::v1::debugger_ui,
-									  QObject::tr("Error running until return"),
-									  QObject::tr("Failed to disassemble instruction at address %1.").
+				                      tr("Error running until return"),
+				                      tr("Failed to disassemble instruction at address %1.").
 												arg(address.toPointerString()));
 				return pass_back_to_debugger();
 			}
@@ -327,8 +329,8 @@ public:
 
 		//If we end up out here, we've got bigger problems. Pass it back to the debugger.
 		QMessageBox::critical(edb::v1::debugger_ui,
-							  QObject::tr("Error running until return"),
-							  QObject::tr("Stepped outside the loop, address=%1.").arg(address.toPointerString()));
+		                      tr("Error running until return"),
+		                      tr("Stepped outside the loop, address=%1.").arg(address.toPointerString()));
 		return pass_back_to_debugger();
 	}
 
@@ -2082,7 +2084,7 @@ void Debugger::mnuCPUModify() {
 		const bool ok = process->read_bytes(address, buf, size);
 		if(ok) {
 			QByteArray bytes = QByteArray::fromRawData(reinterpret_cast<const char *>(buf), size);
-			if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"))) {
+			if(edb::v1::get_binary_string_from_user(bytes, tr("Edit Binary String"))) {
 				edb::v1::modify_bytes(address, bytes.size(), bytes, 0x00);
 			}
 		}
@@ -2099,7 +2101,7 @@ void Debugger::modify_bytes(const T &hexview) {
 		const edb::address_t address = hexview->selectedBytesAddress();
 		QByteArray bytes             = hexview->selectedBytes();
 
-		if(edb::v1::get_binary_string_from_user(bytes, QT_TRANSLATE_NOOP("edb", "Edit Binary String"))) {
+		if(edb::v1::get_binary_string_from_user(bytes, tr("Edit Binary String"))) {
 			edb::v1::modify_bytes(address, bytes.size(), bytes, 0x00);
 		}
 	}

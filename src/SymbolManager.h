@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SYMBOLMANAGER_20060814_H_
 
 #include "ISymbolManager.h"
+#include "QtHelper.h"
 
 #include <QHash>
 #include <QMap>
@@ -28,8 +29,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QString;
 
 class SymbolManager : public ISymbolManager {
+	Q_DECLARE_NAMESPACE_TR(SymbolManager)
+
 public:
-	SymbolManager();
+	SymbolManager() = default;
 
 public:
 	const QList<std::shared_ptr<Symbol>> symbols() const override;
@@ -49,16 +52,15 @@ private:
 	bool process_symbol_file(const QString &f, edb::address_t base, const QString &library_filename, bool allow_retry);
 
 private:
-	QSet<QString>                          symbol_files_;
+	QSet<QString>                                  symbol_files_;
 	QList<std::shared_ptr<Symbol>>                 symbols_;
 	QMap<edb::address_t, std::shared_ptr<Symbol>>  symbols_by_address_;
 	QHash<QString, QList<std::shared_ptr<Symbol>>> symbols_by_file_;
 	QHash<QString, std::shared_ptr<Symbol>>        symbols_by_name_;
-	ISymbolGenerator                      *symbol_generator_;
-	bool                                   show_path_notice_;
-	QHash<edb::address_t, QString>         labels_;
-	QHash<QString, edb::address_t>         labels_by_name_;
-
+	QHash<edb::address_t, QString>                 labels_;
+	QHash<QString, edb::address_t>                 labels_by_name_;
+	ISymbolGenerator*                              symbol_generator_ = nullptr;
+	bool                                           show_path_notice_ = true;
 };
 
 #endif

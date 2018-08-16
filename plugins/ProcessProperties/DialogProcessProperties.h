@@ -53,6 +53,11 @@ private:
 	void updateEnvironmentPage(const QString &filter);
 
 private:
+#if defined(Q_OS_LINUX)
+	static QString file_type(const QString &filename);
+#endif
+
+private:
     void showEvent(QShowEvent *event) override;
 
 private:

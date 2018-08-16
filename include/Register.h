@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "API.h"
 #include "Types.h"
 #include "Util.h"
+#include <QCoreApplication>
 #include <QString>
 #include <cstring>
 #include <type_traits>
@@ -32,6 +33,8 @@ template <std::size_t bitSize = 0, typename ValueType, typename Type>
 Register make_Register(const QString &name, ValueType value, Type type);
 
 class EDB_EXPORT Register {
+	Q_DECLARE_TR_FUNCTIONS(Register)
+
 public:
 	enum Type {
 		// groups, these catagories should remain as portable as possible

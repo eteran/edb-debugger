@@ -250,25 +250,6 @@ QString process_socket_udp(QString *symlink) {
 
 	return process_socket_file("/proc/net/udp", symlink, socket_number, udp_socket_processor);
 }
-
-//------------------------------------------------------------------------------
-// Name: file_type
-// Desc:
-//------------------------------------------------------------------------------
-QString file_type(const QString &filename) {
-	const QFileInfo info(filename);
-	const QString basename(info.completeBaseName());
-
-	if(basename.startsWith("socket:")) {
-		return QT_TRANSLATE_NOOP("DialogProcessProperties", "Socket");
-	}
-
-	if(basename.startsWith("pipe:")) {
-		return QT_TRANSLATE_NOOP("DialogProcessProperties", "Pipe");
-	}
-
-	return QT_TRANSLATE_NOOP("DialogProcessProperties", "File");
-}
 #endif
 
 }
@@ -596,5 +577,26 @@ void DialogProcessProperties::updateThreads() {
 		}
 	}
 }
+
+#if defined(Q_OS_LINUX)
+//------------------------------------------------------------------------------
+// Name: file_type
+// Desc:
+//------------------------------------------------------------------------------
+QString DialogProcessProperties::file_type(const QString &filename) {
+	const QFileInfo info(filename);
+	const QString basename(info.completeBaseName());
+
+	if(basename.startsWith("socket:")) {
+		return tr("Socket");
+	}
+
+	if(basename.startsWith("pipe:")) {
+		return tr("Pipe");
+	}
+
+	return tr("File");
+}
+#endif
 
 }

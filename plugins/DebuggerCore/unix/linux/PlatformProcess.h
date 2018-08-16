@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IProcess.h"
 #include "Status.h"
 
+#include <QCoreApplication>
 #include <QFile>
 
 namespace DebuggerCorePlugin {
@@ -29,7 +30,9 @@ namespace DebuggerCorePlugin {
 class DebuggerCore;
 
 class PlatformProcess : public IProcess {
+	Q_DECLARE_TR_FUNCTIONS(PlatformProcess)
 	friend class PlatformThread;
+
 public:
 	PlatformProcess(DebuggerCore *core, edb::pid_t pid);
 	~PlatformProcess() override                         = default;

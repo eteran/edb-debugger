@@ -151,6 +151,7 @@ set(edb_SRCS
 	${PROJECT_SOURCE_DIR}/include/Module.h
 	${PROJECT_SOURCE_DIR}/include/Patch.h
 	${PROJECT_SOURCE_DIR}/include/Prototype.h
+	${PROJECT_SOURCE_DIR}/include/QtHelper.h
 	${PROJECT_SOURCE_DIR}/include/QLongValidator.h
 	${PROJECT_SOURCE_DIR}/include/QULongValidator.h
 	${PROJECT_SOURCE_DIR}/include/Register.h

@@ -33,14 +33,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <istream>
 
 //------------------------------------------------------------------------------
-// Name: SymbolManager
-// Desc:
-//------------------------------------------------------------------------------
-SymbolManager::SymbolManager() : symbol_generator_(nullptr), show_path_notice_(true) {
-}
-
-
-//------------------------------------------------------------------------------
 // Name: clear
 // Desc:
 //------------------------------------------------------------------------------
@@ -185,7 +177,7 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 
 	std::ifstream file(qPrintable(f));
 	if(file) {
-		edb::v1::set_status(QObject::tr("Loading symbols: %1").arg(f),0);
+		edb::v1::set_status(tr("Loading symbols: %1").arg(f),0);
 		edb::address_t sym_start;
 		edb::address_t sym_end;
 		std::string    sym_name;
@@ -250,7 +242,7 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 			}
 		}
 	} else if(symbol_generator_) {
-		edb::v1::set_status(QObject::tr("Auto-Generating Symbol File: %1").arg(f),0);
+		edb::v1::set_status(tr("Auto-Generating Symbol File: %1").arg(f),0);
 		bool generatedOK=symbol_generator_->generate_symbol_file(library_filename, f);
 		edb::v1::clear_status();
 		if(generatedOK) return false;
@@ -292,8 +284,8 @@ void SymbolManager::set_label(edb::address_t address, const QString &label) {
 		if(labels_by_name_.contains(label) && labels_by_name_[label] != address) {
 			QMessageBox::warning(
 				edb::v1::debugger_ui,
-				QT_TRANSLATE_NOOP("edb", "Duplicate Label"),
-				QT_TRANSLATE_NOOP("edb", "You are attempting to give two seperate addresses the same label, this is not supported.")
+			    tr("Duplicate Label"),
+			    tr("You are attempting to give two seperate addresses the same label, this is not supported.")
 				);
 			return;
 		}

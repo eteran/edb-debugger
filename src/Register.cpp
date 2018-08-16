@@ -43,8 +43,8 @@ bool Register::operator==(const Register &rhs) const {
 }
 
 QString Register::toHexString() const {
-	if(!valid()) return "<undefined>";
-	if(bitSize_%8) return QObject::tr("(Error: bad register length %1 bits)").arg(bitSize_);
+	if(!valid()) return tr("<undefined>");
+	if(bitSize_%8) return tr("(Error: bad register length %1 bits)").arg(bitSize_);
 	return value_.toHexString().right(bitSize_/4); // TODO: trimming should be moved to valueXX::toHexString()
 }
 

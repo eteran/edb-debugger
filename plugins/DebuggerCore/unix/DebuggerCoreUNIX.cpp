@@ -366,7 +366,7 @@ Status DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd
 		// space no longer exists!
 		// if we get here...execv failed!
 		if(ret == -1) {
-			errorString = QObject::tr("execv() failed: %1").arg(strerror(errno));
+			errorString = tr("execv() failed: %1").arg(strerror(errno));
 			p = argv_pointers;
 			while(*p) {
 				delete [] *p++;

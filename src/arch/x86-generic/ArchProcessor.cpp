@@ -1020,7 +1020,7 @@ Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instructi
 			if(!baseR)
 			{
 				if(op->mem.base != X86_REG_INVALID)
-					return ResultT(QObject::tr("failed to acquire base register from state"),0);
+					return ResultT(tr("failed to acquire base register from state"),0);
 			}
 			else
 			{
@@ -1030,12 +1030,12 @@ Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instructi
 			if(!indexR)
 			{
 				if(op->mem.index != X86_REG_INVALID)
-					return ResultT(QObject::tr("failed to acquire index register from state"),0);
+					return ResultT(tr("failed to acquire index register from state"),0);
 			}
 			else
 			{
 				if(indexR.type()!=Register::TYPE_GPR)
-					return ResultT(QObject::tr("only general-purpose register is supported as index register"),0);
+					return ResultT(tr("only general-purpose register is supported as index register"),0);
 				index=indexR.valueAsAddress();
 			}
 
