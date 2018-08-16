@@ -44,9 +44,9 @@ PlatformState::PlatformState()
 	clear();
 }
 
-IState *PlatformState::clone() const
+std::unique_ptr<IState> PlatformState::clone() const
 {
-	auto*const copy=new PlatformState();
+	auto copy = std::make_unique<PlatformState>();
 	copy->gpr=gpr;
 	return copy;
 }

@@ -35,7 +35,7 @@ State::State() : impl_(edb::v1::debugger_core ? edb::v1::debugger_core->create_s
 // Desc:
 //------------------------------------------------------------------------------
 State::~State() {
-	delete impl_;
+	// NOTE(eteran): we don't default this destructor so unique_ptr can work correctly
 }
 
 //------------------------------------------------------------------------------

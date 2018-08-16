@@ -32,7 +32,7 @@ public:
 	PlatformState();
 
 public:
-	IState *clone() const ;
+	std::unique_ptr<IState> clone() const ;
 
 public:
 	QString flags_to_string() const ;

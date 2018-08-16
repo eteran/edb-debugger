@@ -36,8 +36,8 @@ PlatformState::PlatformState() {
 // Name: PlatformState::clone
 // Desc: makes a copy of the state object
 //------------------------------------------------------------------------------
-IState *PlatformState::clone() const {
-	return new PlatformState(*this);
+std::unique_ptr<IState> PlatformState::clone() const {
+	return std::make_unique<PlatformState>(*this);
 }
 
 //------------------------------------------------------------------------------

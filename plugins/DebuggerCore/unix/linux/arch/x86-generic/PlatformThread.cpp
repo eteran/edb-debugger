@@ -165,7 +165,7 @@ void PlatformThread::get_state(State *state) {
 
 	core_->detectCPUMode();
 
-	if(auto state_impl = static_cast<PlatformState *>(state->impl_)) {
+	if(auto state_impl = static_cast<PlatformState *>(state->impl_.get())) {
 
 		// State must be cleared before filling to zero all presence flags, otherwise something
 		// may remain not updated. Also, this way we'll mark all the unfilled values.
@@ -230,7 +230,7 @@ void PlatformThread::set_state(const State &state) {
 
 	// TODO: assert that we are paused
 
-	if(auto state_impl = static_cast<PlatformState *>(state.impl_)) {
+	if(auto state_impl = static_cast<PlatformState *>(state.impl_.get())) {
 		bool setPrStatusDone = false;
 
 		if(EDB_IS_32_BIT && state_impl->is64Bit()) {

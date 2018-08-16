@@ -106,7 +106,7 @@ public:
 	virtual std::vector<IBreakpoint::BreakpointType> supported_breakpoint_types() const = 0;
 
 public:
-	virtual IState *create_state() const = 0;
+	virtual std::unique_ptr<IState> create_state() const = 0;
 
 public:
 	// NULL if not attached

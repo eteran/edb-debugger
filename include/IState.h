@@ -31,7 +31,7 @@ public:
 	virtual ~IState() = default;
 
 public:
-	virtual IState *clone() const = 0;
+	virtual std::unique_ptr<IState> clone() const = 0;
 
 public:
 	virtual QString flags_to_string() const = 0;

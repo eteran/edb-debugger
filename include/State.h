@@ -84,7 +84,7 @@ public:
 	Register operator[](const QString &reg) const;
 
 private:
-	IState *impl_;
+	std::unique_ptr<IState> impl_;
 };
 
 Q_DECLARE_METATYPE(State)

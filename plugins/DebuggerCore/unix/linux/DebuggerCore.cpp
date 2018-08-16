@@ -980,8 +980,8 @@ void DebuggerCore::reset() {
 // Name: create_state
 // Desc:
 //------------------------------------------------------------------------------
-IState *DebuggerCore::create_state() const {
-	return new PlatformState;
+std::unique_ptr<IState> DebuggerCore::create_state() const {
+	return std::make_unique<PlatformState>();
 }
 
 //------------------------------------------------------------------------------

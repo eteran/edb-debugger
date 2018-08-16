@@ -60,7 +60,7 @@ public:
 	edb::address_t process_data_address() const override;
 
 public:
-	IState *create_state() const override;
+	std::unique_ptr<IState> create_state() const override;
 
 public:
 	// process properties

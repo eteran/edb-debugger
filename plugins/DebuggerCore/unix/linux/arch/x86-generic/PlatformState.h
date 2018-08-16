@@ -230,7 +230,7 @@ public:
 	PlatformState();
 
 public:
-	IState *clone() const override;
+	std::unique_ptr<IState> clone() const override;
 
 public:
 	QString flags_to_string() const override;

@@ -98,7 +98,7 @@ public:
 	}
 
 public:
-	IState *create_state() const ;
+	std::unique_ptr<IState> create_state() const ;
 
 private:
 	QMap<edb::pid_t, std::shared_ptr<IProcess> > enumerate_processes() const ;

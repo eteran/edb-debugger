@@ -69,7 +69,7 @@ public:
 	quint64 cpu_type() const override;
 
 public:
-	IState *create_state() const override;
+	std::unique_ptr<IState> create_state() const override;
 
 private:
 	QMap<edb::pid_t, ProcessInfo> enumerate_processes() const override;

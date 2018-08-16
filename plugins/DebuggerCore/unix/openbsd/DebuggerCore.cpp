@@ -484,8 +484,8 @@ void DebuggerCore::set_active_thread(edb::tid_t tid) {
 // Name: create_state
 // Desc:
 //------------------------------------------------------------------------------
-IState *DebuggerCore::create_state() const {
-	return new PlatformState;
+std::unique_ptr<IState> DebuggerCore::create_state() const {
+	return std::make_unique<PlatformState>();
 }
 
 //------------------------------------------------------------------------------

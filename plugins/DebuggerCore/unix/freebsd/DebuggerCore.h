@@ -60,7 +60,7 @@ public:
 	virtual edb::address_t process_data_address() const;
 
 public:
-	virtual IState *create_state() const;
+	virtual std::unique_ptr<IState> create_state() const;
 
 public:
 	// process properties

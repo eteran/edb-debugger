@@ -47,7 +47,7 @@ public:
 	PlatformState();
 
 public:
-	IState *clone() const override;
+	std::unique_ptr<IState> clone() const override;
 
 	QString flags_to_string() const override;
 	QString flags_to_string(edb::reg_t flags) const override;
