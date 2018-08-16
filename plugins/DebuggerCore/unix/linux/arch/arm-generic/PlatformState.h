@@ -100,7 +100,7 @@ private:
 		bool filled=false;
 	} vfp;
 private:
-	auto findGPR(QString const& name) const -> decltype(gpr.GPRegNames.begin());
+	auto findGPR(const QString &name) const -> decltype(gpr.GPRegNames.begin());
 };
 
 }

@@ -339,7 +339,7 @@ void addAVXRegs(RegisterViewModelBase::SIMDCategory* avxRegs, unsigned regCount)
 	avxRegs->addRegister(std::make_unique<MXCSR>("MXCSR",MXCSRDescription));
 }
 
-QVariant RegisterViewModel::data(QModelIndex const& index, int role) const
+QVariant RegisterViewModel::data(const QModelIndex &index, int role) const
 {
 	if(role==FixedLengthRole)
 	{
@@ -409,7 +409,7 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject* parent)
 }
 
 template<typename RegType, typename ValueType>
-void updateRegister(RegisterViewModelBase::Category* cat, int row, ValueType value, QString const& comment, const char* nameToCheck = nullptr)
+void updateRegister(RegisterViewModelBase::Category* cat, int row, ValueType value, const QString &comment, const char* nameToCheck = nullptr)
 {
 	const auto reg=cat->getRegister(row);
 	if(!dynamic_cast<RegType*>(reg))
@@ -422,39 +422,39 @@ void updateRegister(RegisterViewModelBase::Category* cat, int row, ValueType val
 	static_cast<RegType*>(reg)->update(value,comment);
 }
 
-void RegisterViewModel::updateGPR(std::size_t i, edb::value32 val, QString const& comment)
+void RegisterViewModel::updateGPR(std::size_t i, edb::value32 val, const QString &comment)
 {
 	Q_ASSERT(int(i)<gprs32->childCount());
 	updateRegister<GPR32>(gprs32, static_cast<int>(i), val, comment);
 }
 
-void RegisterViewModel::updateGPR(std::size_t i, edb::value64 val, QString const& comment)
+void RegisterViewModel::updateGPR(std::size_t i, edb::value64 val, const QString &comment)
 {
 	Q_ASSERT(int(i)<gprs64->childCount());
 	updateRegister<GPR64>(gprs64, static_cast<int>(i), val, comment);
 }
 
-void RegisterViewModel::updateIP(edb::value64 value,QString const& comment)
+void RegisterViewModel::updateIP(edb::value64 value,const QString &comment)
 {
 	updateRegister<RIP>(genStatusRegs64,RIP_ROW,value,comment,"RIP");
 }
 
-void RegisterViewModel::updateIP(edb::value32 value,QString const& comment)
+void RegisterViewModel::updateIP(edb::value32 value,const QString &comment)
 {
 	updateRegister<EIP>(genStatusRegs32,EIP_ROW,value,comment,"EIP");
 }
 
-void RegisterViewModel::updateFlags(edb::value64 value, QString const& comment)
+void RegisterViewModel::updateFlags(edb::value64 value, const QString &comment)
 {
 	updateRegister<RFLAGS>(genStatusRegs64,RFLAGS_ROW,value,comment);
 }
 
-void RegisterViewModel::updateFlags(edb::value32 value, QString const& comment)
+void RegisterViewModel::updateFlags(edb::value32 value, const QString &comment)
 {
 	updateRegister<EFLAGS>(genStatusRegs32,EFLAGS_ROW,value,comment);
 }
 
-void RegisterViewModel::updateSegReg(std::size_t i, edb::value16 value, QString const& comment)
+void RegisterViewModel::updateSegReg(std::size_t i, edb::value16 value, const QString &comment)
 {
 	updateRegister<SegmentReg>(segRegs,i,value,comment);
 }
@@ -471,24 +471,24 @@ RegisterViewModelBase::FPUCategory* RegisterViewModel::getFPUcat() const
 	}
 }
 
-void RegisterViewModel::updateFPUReg(std::size_t i, edb::value80 value, QString const& comment)
+void RegisterViewModel::updateFPUReg(std::size_t i, edb::value80 value, const QString &comment)
 {
 	const auto cat=getFPUcat();
 	Q_ASSERT(int(i)<cat->childCount());
 	updateRegister<FPUReg>(cat, static_cast<int>(i), value, comment);
 }
 
-void RegisterViewModel::updateFCR(edb::value16 value, QString const& comment)
+void RegisterViewModel::updateFCR(edb::value16 value, const QString &comment)
 {
 	updateRegister<FPUWord>(getFPUcat(),FCR_ROW,value,comment,"FCR");
 }
 
-void RegisterViewModel::updateFTR(edb::value16 value, QString const& comment)
+void RegisterViewModel::updateFTR(edb::value16 value, const QString &comment)
 {
 	updateRegister<FPUWord>(getFPUcat(),FTR_ROW,value,comment,"FTR");
 }
 
-void RegisterViewModel::updateFSR(edb::value16 value, QString const& comment)
+void RegisterViewModel::updateFSR(edb::value16 value, const QString &comment)
 {
 	updateRegister<FPUWord>(getFPUcat(),FSR_ROW,value,comment,"FSR");
 }
@@ -523,51 +523,51 @@ void RegisterViewModel::invalidateFOP()
 	invalidate(getFPUcat(),FOP_ROW,"FOP");
 }
 
-void RegisterViewModel::updateFIP(edb::value32 value, QString const& comment)
+void RegisterViewModel::updateFIP(edb::value32 value, const QString &comment)
 {
 	updateRegister<EIP>(getFPUcat(),FIP_ROW,value,comment);
 }
-void RegisterViewModel::updateFIP(edb::value64 value, QString const& comment)
+void RegisterViewModel::updateFIP(edb::value64 value, const QString &comment)
 {
 	updateRegister<RIP>(getFPUcat(),FIP_ROW,value,comment);
 }
-void RegisterViewModel::updateFDP(edb::value32 value, QString const& comment)
+void RegisterViewModel::updateFDP(edb::value32 value, const QString &comment)
 {
 	updateRegister<EIP>(getFPUcat(),FDP_ROW,value,comment);
 }
-void RegisterViewModel::updateFDP(edb::value64 value, QString const& comment)
+void RegisterViewModel::updateFDP(edb::value64 value, const QString &comment)
 {
 	updateRegister<RIP>(getFPUcat(),FDP_ROW,value,comment);
 }
 
-void RegisterViewModel::updateFOP(edb::value16 value, QString const& comment)
+void RegisterViewModel::updateFOP(edb::value16 value, const QString &comment)
 {
 	updateRegister<FOPCReg>(getFPUcat(),FOP_ROW,value,comment);
 }
 
-void RegisterViewModel::updateFIS(edb::value16 value, QString const& comment)
+void RegisterViewModel::updateFIS(edb::value16 value, const QString &comment)
 {
 	updateRegister<SegmentReg>(getFPUcat(),FIS_ROW,value,comment,"FIS");
 }
-void RegisterViewModel::updateFDS(edb::value16 value, QString const& comment)
+void RegisterViewModel::updateFDS(edb::value16 value, const QString &comment)
 {
 	updateRegister<SegmentReg>(getFPUcat(),FDS_ROW,value,comment,"FDS");
 }
 
-void RegisterViewModel::updateDR(std::size_t i, edb::value32 value, QString const& comment)
+void RegisterViewModel::updateDR(std::size_t i, edb::value32 value, const QString &comment)
 {
 	Q_ASSERT(i<DBG_REG_COUNT);
 	if(i<4) updateRegister<EIP>(dbgRegs32,i,value,comment);
 	else if(i>=6) updateRegister<EFLAGS>(dbgRegs32,i-2,value,comment);
 }
-void RegisterViewModel::updateDR(std::size_t i, edb::value64 value, QString const& comment)
+void RegisterViewModel::updateDR(std::size_t i, edb::value64 value, const QString &comment)
 {
 	Q_ASSERT(i<DBG_REG_COUNT);
 	if(i<4) updateRegister<RIP>(dbgRegs64,i,value,comment);
 	else if(i>=6) updateRegister<RFLAGS>(dbgRegs64,i-2,value,comment);
 }
 
-void RegisterViewModel::updateMMXReg(std::size_t i, edb::value64 value, QString const& comment)
+void RegisterViewModel::updateMMXReg(std::size_t i, edb::value64 value, const QString &comment)
 {
 	Q_ASSERT(i<MMX_REG_COUNT);
 	if(!mmxRegs->childCount()) return;
@@ -604,7 +604,7 @@ std::tuple<RegisterViewModelBase::Category* /*sse*/,
 	return std::make_tuple(sseCat,avxCat,sseRegMax);
 }
 
-void RegisterViewModel::updateSSEReg(std::size_t i, edb::value128 value, QString const& comment)
+void RegisterViewModel::updateSSEReg(std::size_t i, edb::value128 value, const QString &comment)
 {
 	RegisterViewModelBase::Category *sseCat, *avxCat;
 	unsigned sseRegMax;
@@ -627,7 +627,7 @@ void RegisterViewModel::invalidateSSEReg(std::size_t i)
 	if(avxCat->childCount()) invalidate(avxCat,i);
 }
 
-void RegisterViewModel::updateAVXReg(std::size_t i, edb::value256 value, QString const& comment)
+void RegisterViewModel::updateAVXReg(std::size_t i, edb::value256 value, const QString &comment)
 {
 	RegisterViewModelBase::Category *sseCat, *avxCat;
 	unsigned avxRegMax;
@@ -654,7 +654,7 @@ void RegisterViewModel::invalidateAVXReg(std::size_t i)
 	invalidate(avxCat,i);
 }
 
-void RegisterViewModel::updateMXCSR(edb::value32 value, QString const& comment)
+void RegisterViewModel::updateMXCSR(edb::value32 value, const QString &comment)
 {
 	RegisterViewModelBase::Category *sseCat, *avxCat;
 	std::size_t avxRegMax;
