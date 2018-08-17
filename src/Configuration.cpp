@@ -54,7 +54,7 @@ void Configuration::sendChangeNotification() {
 	Q_EMIT settingsUpdated();
 }
 
-QDataStream& operator<<(QDataStream& s, IBreakpoint::TypeId const& id)
+QDataStream& operator<<(QDataStream& s, const IBreakpoint::TypeId &id)
 {
 	return s << static_cast<int>(id);
 }

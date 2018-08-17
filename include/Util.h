@@ -171,7 +171,7 @@ typename std::enable_if<std::is_integral<AsType>::value, QString>::type packedIn
 }
 
 template<typename Float>
-boost::optional<Float> fullStringToFloat(std::string const& s)
+boost::optional<Float> fullStringToFloat(const std::string &s)
 {
 	static_assert(std::is_same<Float, float>::value ||
 				  std::is_same<Float, double>::value ||

@@ -51,7 +51,7 @@ public:
 	QMenu *menu(QWidget* parent = nullptr) override;
 
 private:
-	static void debugMessageIntercept(QtMsgType type, const QMessageLogContext&, QString const &message);
+	static void debugMessageIntercept(QtMsgType type, const QMessageLogContext&, const QString &message);
 
 private:
 	QPlainTextEdit* textWidget_ = nullptr;

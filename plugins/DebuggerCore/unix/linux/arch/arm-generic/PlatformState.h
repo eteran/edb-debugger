@@ -69,10 +69,10 @@ public:
 	void set_register(const QString &name, edb::reg_t value) override;
 	Register gp_register(size_t n) const override;
 
-	void fillFrom(user_regs const& regs);
-	void fillFrom(user_vfp const& regs);
-	void fillStruct(user_regs& regs) const;
-	void fillStruct(user_vfp& regs) const;
+	void fillFrom(const user_regs &regs);
+	void fillFrom(const user_vfp &regs);
+	void fillStruct(user_regs &regs) const;
+	void fillStruct(user_vfp &regs) const;
 private:
 	struct GPR {
 		enum NamedGPRIndex : size_t {

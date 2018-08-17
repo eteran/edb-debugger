@@ -37,10 +37,10 @@ namespace {
 QStyle *flatStyle = nullptr;
 }
 
-ValueField::ValueField(int const fieldWidth,
-					   QModelIndex const &index,
-					   QWidget *const parent,
-					   std::function<QString(QString const &)> const &valueFormatter)
+ValueField::ValueField(int fieldWidth,
+                       const QModelIndex &index,
+                       QWidget *parent,
+                       const std::function<QString(const QString &)> &valueFormatter)
 	: FieldWidget(fieldWidth, index, parent),
 	  valueFormatter(valueFormatter)
 {
@@ -104,9 +104,7 @@ RegisterViewModelBase::Model *ValueField::model() const {
 	return const_cast<Model *>(model);
 }
 
-ValueField *ValueField::bestNeighbor(std::function<bool(QPoint const &,
-														ValueField const *,
-														QPoint const &)> const &firstIsBetter) const {
+ValueField *ValueField::bestNeighbor(const std::function<bool(const QPoint &, const ValueField *, const QPoint &)> &firstIsBetter) const {
 	ValueField *result = nullptr;
 	Q_FOREACH(const auto neighbor, regView()->valueFields()) {
 		if (neighbor->isVisible() && firstIsBetter(fieldPos(neighbor), result, fieldPos(this)))
@@ -116,25 +114,25 @@ ValueField *ValueField::bestNeighbor(std::function<bool(QPoint const &,
 }
 
 ValueField *ValueField::up() const {
-	return bestNeighbor([](QPoint const &nPos, ValueField const *up, QPoint const &fPos)
+	return bestNeighbor([](const QPoint &nPos, const ValueField *up, const QPoint &fPos)
 						{ return nPos.y() < fPos.y() && (!up || distSqr(nPos, fPos) < distSqr(fieldPos(up), fPos)); }
 						);
 }
 
 ValueField *ValueField::down() const {
-	return bestNeighbor([](QPoint const &nPos, ValueField const *down, QPoint const &fPos)
+	return bestNeighbor([](const QPoint &nPos, const ValueField *down, const QPoint &fPos)
 			{ return nPos.y() > fPos.y() && (!down || distSqr(nPos, fPos) < distSqr(fieldPos(down), fPos)); }
 						);
 }
 
 ValueField *ValueField::left() const {
-	return bestNeighbor([](QPoint const &nPos, ValueField const *left, QPoint const &fPos)
+	return bestNeighbor([](const QPoint &nPos, const ValueField *left, const QPoint &fPos)
 						{ return nPos.y() == fPos.y() && nPos.x() < fPos.x() && (!left || left->x() < nPos.x()); }
 						);
 }
 
 ValueField *ValueField::right() const {
-	return bestNeighbor([](QPoint const &nPos, ValueField const *right, QPoint const &fPos)
+	return bestNeighbor([](const QPoint &nPos, const ValueField *right, const QPoint &fPos)
 			{ return nPos.y() == fPos.y() && nPos.x() > fPos.x() && (!right || right->x() > nPos.x()); }
 						);
 }
@@ -157,7 +155,7 @@ bool ValueField::isSelected() const {
 	return selected_;
 }
 
-void ValueField::editNormalReg(QModelIndex const &indexToEdit, QModelIndex const &clickedIndex) const {
+void ValueField::editNormalReg(const QModelIndex &indexToEdit, const QModelIndex &clickedIndex) const {
 	using namespace RegisterViewModelBase;
 
 	const auto rV = model()->data(indexToEdit, Model::ValueAsRegisterRole);
@@ -282,7 +280,7 @@ void ValueField::select() {
 	updatePalette();
 }
 
-void ValueField::showMenu(QPoint const &position) {
+void ValueField::showMenu(const QPoint &position) {
 	group()->showMenu(position, menuItems);
 }
 
@@ -330,7 +328,7 @@ void ValueField::paintEvent(QPaintEvent *) {
 
 namespace {
 
-void addToTOP(RegisterViewModelBase::Model *model, QModelIndex const &fsrIndex, std::int16_t delta) {
+void addToTOP(RegisterViewModelBase::Model *model, const QModelIndex &fsrIndex, std::int16_t delta) {
 
 	using namespace RegisterViewModelBase;
 
@@ -370,7 +368,7 @@ void ValueField::copyToClipboard() const {
 namespace {
 
 template <typename Op>
-void changeGPR(QModelIndex const &index, RegisterViewModelBase::Model *const model, Op const &change) {
+void changeGPR(const QModelIndex &index, RegisterViewModelBase::Model *const model, const Op &change) {
 	if (index.parent().data().toString() != GPRCategoryName)
 		return;
 	using RegisterViewModelBase::Model;

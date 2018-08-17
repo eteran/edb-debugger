@@ -39,7 +39,7 @@ public:
 
 private:
 	void setupDocks();
-	void createRegisterView(QString const &settingsGroup);
+	void createRegisterView(const QString &settingsGroup);
 	void renumerateDocks() const;
 
 private Q_SLOTS:

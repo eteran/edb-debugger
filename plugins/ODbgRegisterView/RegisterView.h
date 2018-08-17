@@ -86,12 +86,12 @@ private:
 	RegisterGroup *makeGroup(RegisterGroupType type);
 
 public:
-	ODBRegView(QString const &settings, QWidget *parent = nullptr);
+	ODBRegView(const QString &settings, QWidget *parent = nullptr);
 	void setModel(RegisterViewModelBase::Model *model);
 	QList<ValueField *>  valueFields() const;
 	QList<FieldWidget *> fields() const;
-	void showMenu(QPoint const &position, QList<QAction *> const &additionalItems = {}) const;
-	void saveState(QString const &settings) const;
+	void showMenu(const QPoint &position, const QList<QAction *> &additionalItems = {}) const;
+	void saveState(const QString &settings) const;
 	void groupHidden(RegisterGroup *group);
 	DialogEditGPR *         gprEditDialog() const;
 	DialogEditSIMDRegister *simdEditDialog() const;
@@ -138,7 +138,7 @@ private:
 	std::function<QString()> valueFormatter;
 
 public:
-	VolatileNameField(int fieldWidth, std::function<QString()> const &valueFormatter, QWidget *parent = nullptr);
+	VolatileNameField(int fieldWidth, const std::function<QString()> &valueFormatter, QWidget *parent = nullptr);
 	QString text() const override;
 };
 
@@ -160,7 +160,7 @@ private:
 
 public:
 	// Will add itself and commentWidget to the group and renew their positions as needed
-	FPUValueField(int fieldWidth, QModelIndex const &regValueIndex, QModelIndex const &tagValueIndex, RegisterGroup *group, FieldWidget *commentWidget, int row, int column);
+	FPUValueField(int fieldWidth, const QModelIndex &regValueIndex, const QModelIndex &tagValueIndex, RegisterGroup *group, FieldWidget *commentWidget, int row, int column);
 
 public Q_SLOTS:
 	void showFPUAsRaw();
@@ -175,13 +175,13 @@ struct BitFieldDescription {
 	std::vector<QString> valueNames;
 	std::vector<QString> setValueTexts;
 	std::function<bool(unsigned, unsigned)> const valueEqualComparator;
-	BitFieldDescription(int textWidth, std::vector<QString> const &valueNames, std::vector<QString> const &setValueTexts, std::function<bool(unsigned, unsigned)> const &valueEqualComparator = [](unsigned a, unsigned b) { return a == b; });
+	BitFieldDescription(int textWidth, const std::vector<QString> &valueNames, const std::vector<QString> &setValueTexts, const std::function<bool(unsigned, unsigned)> &valueEqualComparator = [](unsigned a, unsigned b) { return a == b; });
 };
 
 class BitFieldFormatter {
 public:
-    explicit BitFieldFormatter(BitFieldDescription const &bfd);
-	QString operator()(QString const &text);
+	explicit BitFieldFormatter(const BitFieldDescription &bfd);
+	QString operator()(const QString &text);
 
 private:
 	std::vector<QString> valueNames;
@@ -191,7 +191,7 @@ class MultiBitFieldWidget : public ValueField {
 	Q_OBJECT
 
 public:
-	MultiBitFieldWidget(QModelIndex const &index, BitFieldDescription const &bfd, QWidget *parent = nullptr);
+	MultiBitFieldWidget(const QModelIndex &index, const BitFieldDescription &bfd, QWidget *parent = nullptr);
 
 public Q_SLOTS:
 	void setValue(int value);
@@ -236,7 +236,7 @@ private:
 	void               fillGroupMenu();
 
 public:
-	SIMDValueManager(int lineInGroup, QModelIndex const &nameIndex, RegisterGroup *parent = nullptr);
+	SIMDValueManager(int lineInGroup, const QModelIndex &nameIndex, RegisterGroup *parent = nullptr);
 
 public Q_SLOTS:
 	void displayFormatChanged();
@@ -259,16 +259,16 @@ private:
 	ODBRegView *regView() const;
 
 public:
-	RegisterGroup(QString const &name, QWidget *parent = nullptr);
+	RegisterGroup(const QString &name, QWidget *parent = nullptr);
 	QList<FieldWidget *> fields() const;
 	QList<ValueField *>  valueFields() const;
-	void setIndices(QList<QModelIndex> const &indices);
+	void setIndices(const QList<QModelIndex> &indices);
 	void insert(int line, int column, FieldWidget *widget);
 	// Insert, but without moving to its place
 	void insert(FieldWidget *widget);
 	void setupPositionAndSize(int line, int column, FieldWidget *widget);
-	void appendNameValueComment(QModelIndex const &nameIndex, QString const &tooltip = "", bool insertComment = true);
-	void showMenu(QPoint const &position, QList<QAction *> const &additionalItems = {}) const;
+	void appendNameValueComment(const QModelIndex &nameIndex, const QString &tooltip = "", bool insertComment = true);
+	void showMenu(const QPoint &position, const QList<QAction *> &additionalItems = {}) const;
 	QMargins getFieldMargins() const;
 
 protected:

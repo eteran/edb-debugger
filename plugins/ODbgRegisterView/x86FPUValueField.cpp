@@ -22,14 +22,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace ODbgRegisterView {
 
 FPUValueField::FPUValueField(int fieldWidth,
-							 QModelIndex const &regValueIndex,
-							 QModelIndex const &tagValueIndex,
+							 const QModelIndex &regValueIndex,
+							 const QModelIndex &tagValueIndex,
 							 RegisterGroup *group,
 							 FieldWidget *commentWidget,
 							 int row,
 							 int column)
     : ValueField(fieldWidth, regValueIndex, group,
-                 [this](QString const &str) {
+                 [this](const QString &str) {
 	                 if (str.length() != 20)
 		                 return str;
 	                 if (groupDigits)

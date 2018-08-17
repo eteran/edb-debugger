@@ -45,7 +45,7 @@ protected:
 private:
 	void   init();
 	QColor fgColorForChangedField() const;
-	void editNormalReg(QModelIndex const &indexToEdit, QModelIndex const &clickedIndex) const;
+	void editNormalReg(const QModelIndex &indexToEdit, const QModelIndex &clickedIndex) const;
 
 protected:
 	RegisterViewModelBase::Model *model() const;
@@ -57,17 +57,17 @@ protected:
 	void mouseDoubleClickEvent(QMouseEvent *event) override;
 	void paintEvent(QPaintEvent *event) override;
 
-	ValueField *bestNeighbor(std::function<bool(QPoint const &neighborPos, ValueField const *curResult, QPoint const &selfPos)> const &firstIsBetter) const;
+	ValueField *bestNeighbor(const std::function<bool(const QPoint &neighborPos, const ValueField *curResult, const QPoint &selfPos)> &firstIsBetter) const;
 
 public:
-	ValueField(int fieldWidth, QModelIndex const &index, QWidget *parent = nullptr, std::function<QString(QString const &)> const &valueFormatter = [](QString const &s) { return s; });
+	ValueField(int fieldWidth, const QModelIndex &index, QWidget *parent = nullptr, const std::function<QString(const QString &)> &valueFormatter = [](const QString &s) { return s; });
 	ValueField *up() const;
 	ValueField *down() const;
 	ValueField *left() const;
 	ValueField *right() const;
 
 	bool isSelected() const;
-	void showMenu(QPoint const &position);
+	void showMenu(const QPoint &position);
 	QString     text() const override;
 	QModelIndex regIndex() const;
 

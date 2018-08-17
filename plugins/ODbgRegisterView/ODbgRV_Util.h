@@ -65,11 +65,11 @@ inline QPoint fieldPos(const FieldWidget *const field) {
 }
 
 // Square of Euclidean distance between two points
-inline int distSqr(QPoint const &w1, QPoint const &w2) {
+inline int distSqr(const QPoint &w1, const QPoint &w2) {
 	return sqr(w1.x() - w2.x()) + sqr(w1.y() - w2.y());
 }
 
-inline QSize letterSize(QFont const &font) {
+inline QSize letterSize(const QFont &font) {
 	const QFontMetrics fontMetrics(font);
 	const int          width  = fontMetrics.width('w');
 	const int          height = fontMetrics.height();
@@ -82,20 +82,20 @@ inline QAction *newActionSeparator(QObject *parent) {
 	return sep;
 }
 
-inline QAction *newAction(QString const &text, QObject *parent, QObject *signalReceiver, const char *slot) {
+inline QAction *newAction(const QString &text, QObject *parent, QObject *signalReceiver, const char *slot) {
 	const auto action = new QAction(text, parent);
 	QObject::connect(action, SIGNAL(triggered()), signalReceiver, slot);
 	return action;
 }
 
-inline QAction *newAction(QString const &text, QObject *parent, QSignalMapper *mapper, int mapping) {
+inline QAction *newAction(const QString &text, QObject *parent, QSignalMapper *mapper, int mapping) {
 	const auto action = newAction(text, parent, mapper, SLOT(map()));
 	mapper->setMapping(action, mapping);
 	return action;
 }
 
 // TODO: switch from string-based search to enum-based one (add a new Role to model data)
-inline QModelIndex findModelCategory(RegisterViewModelBase::Model const *const model, QString const &catToFind) {
+inline QModelIndex findModelCategory(const  RegisterViewModelBase::Model *const model, const QString &catToFind) {
 	for (int row = 0; row < model->rowCount(); ++row) {
 		const auto cat = model->index(row, 0).data(MODEL_NAME_COLUMN);
 		if (cat.isValid() && cat.toString() == catToFind)
@@ -106,7 +106,7 @@ inline QModelIndex findModelCategory(RegisterViewModelBase::Model const *const m
 
 // TODO: switch from string-based search to enum-based one (add a new Role to model data)
 inline QModelIndex findModelRegister(QModelIndex categoryIndex,
-							  QString const &regToFind,
+                              const QString &regToFind,
 							  int column = MODEL_NAME_COLUMN) {
 	const auto model = categoryIndex.model();
 	for (int row = 0; row < model->rowCount(categoryIndex); ++row) {
@@ -121,12 +121,12 @@ inline QModelIndex findModelRegister(QModelIndex categoryIndex,
 	return QModelIndex();
 }
 
-inline QModelIndex getCommentIndex(QModelIndex const &nameIndex) {
+inline QModelIndex getCommentIndex(const QModelIndex &nameIndex) {
 	assert(nameIndex.isValid());
 	return nameIndex.sibling(nameIndex.row(), MODEL_COMMENT_COLUMN);
 }
 
-inline QModelIndex getValueIndex(QModelIndex const &nameIndex) {
+inline QModelIndex getValueIndex(const QModelIndex &nameIndex) {
 	assert(nameIndex.isValid());
 	return nameIndex.sibling(nameIndex.row(), MODEL_VALUE_COLUMN);
 }

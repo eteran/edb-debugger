@@ -658,7 +658,7 @@ bool isFPU_BCD(const edb::Instruction &inst) {
 		   op == X86_INS_FBSTP;
 }
 
-QString formatBCD(edb::value80 const& v) {
+QString formatBCD(const edb::value80 &v) {
 
 	auto hex=v.toHexString();
 	// Low bytes which contain 18 digits must be decimal. If not, return the raw hex value.
@@ -1424,7 +1424,7 @@ void ArchProcessor::justAttached() {
 	just_attached_=true;
 }
 
-bool falseSyscallReturn(State const& state, std::int64_t origAX) {
+bool falseSyscallReturn(const State &state, std::int64_t origAX) {
 	// Prevent reporting of returns from execve() when the process has just launched
 	if(EDB_IS_32_BIT && origAX==11) {
 		return state.gp_register(rAX).valueAsInteger()==0 &&

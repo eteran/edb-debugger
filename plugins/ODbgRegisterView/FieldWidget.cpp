@@ -39,7 +39,7 @@ int FieldWidget::columnNumber() const {
 	return fieldPos(this).x() / charSize.width();
 }
 
-void FieldWidget::init(int const fieldWidth) {
+void FieldWidget::init(int fieldWidth) {
 	setObjectName("FieldWidget");
 	const auto charSize = letterSize(font());
 	setFixedHeight(charSize.height());
@@ -48,15 +48,15 @@ void FieldWidget::init(int const fieldWidth) {
 	setDisabled(true);
 }
 
-FieldWidget::FieldWidget(int const fieldWidth, QModelIndex const &index, QWidget *const parent) : QLabel("Fw???", parent), index(index), fieldWidth_(fieldWidth) {
+FieldWidget::FieldWidget(int fieldWidth, const QModelIndex &index, QWidget *parent) : QLabel("Fw???", parent), index(index), fieldWidth_(fieldWidth) {
 	init(fieldWidth);
 }
 
-FieldWidget::FieldWidget(int const fieldWidth, QString const &fixedText, QWidget *const parent) : QLabel(fixedText, parent), fieldWidth_(fieldWidth) {
+FieldWidget::FieldWidget(int fieldWidth, const QString &fixedText, QWidget *parent) : QLabel(fixedText, parent), fieldWidth_(fieldWidth) {
 	init(fieldWidth); // NOTE: fieldWidth!=fixedText.length() in general
 }
 
-FieldWidget::FieldWidget(QString const &fixedText, QWidget *const parent) : QLabel(fixedText, parent),fieldWidth_(fixedText.length()) {
+FieldWidget::FieldWidget(const QString &fixedText, QWidget *parent) : QLabel(fixedText, parent),fieldWidth_(fixedText.length()) {
 	init(fixedText.length());
 }
 

@@ -472,7 +472,7 @@ std::string Formatter::register_name(unsigned int reg) const {
 	return str;
 }
 
-bool KxRegisterPresent(Instruction const &insn) {
+bool KxRegisterPresent(const Instruction &insn) {
 	for (std::size_t i = 0; i < insn.operand_count(); ++i) {
 		const auto op = insn[i];
 

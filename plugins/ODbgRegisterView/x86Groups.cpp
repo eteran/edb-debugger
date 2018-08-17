@@ -110,26 +110,26 @@ const BitFieldDescription debugLenDescription = {
 
 }
 
-void addRoundingMode(RegisterGroup *const group, QModelIndex const &index, int const row, int const column) {
+void addRoundingMode(RegisterGroup *group, const QModelIndex &index, int row, int column) {
 	assert(index.isValid());
 	const auto rndValueField = new MultiBitFieldWidget(index, roundControlDescription, group);
 	group->insert(row, column, rndValueField);
 	rndValueField->setToolTip(QObject::tr("Rounding mode"));
 }
 
-void addPrecisionMode(RegisterGroup *const group, QModelIndex const &index, int const row, int const column) {
+void addPrecisionMode(RegisterGroup *group, const QModelIndex &index, int row, int column) {
 	assert(index.isValid());
 	const auto precValueField = new MultiBitFieldWidget(index, precisionControlDescription, group);
 	group->insert(row, column, precValueField);
 	precValueField->setToolTip(QObject::tr("Precision mode: effective mantissa length"));
 }
 
-void addPUOZDI(RegisterGroup *const group,
-			   QModelIndex const &excRegIndex,
-			   QModelIndex const &maskRegIndex,
-			   int const startRow,
-			   int const startColumn) {
-	QString const exceptions = "PUOZDI";
+void addPUOZDI(RegisterGroup *group,
+			   const QModelIndex &excRegIndex,
+			   const QModelIndex &maskRegIndex,
+               int startRow,
+               int startColumn) {
+	const QString exceptions = "PUOZDI";
 	static const std::unordered_map<char, QString> excNames = {
 		{'P', QObject::tr("Precision")},
 		{'U', QObject::tr("Underflow")},
@@ -139,7 +139,7 @@ void addPUOZDI(RegisterGroup *const group,
 		{'I', QObject::tr("Invalid Operation")}
 	};
 	for (int exN = 0; exN < exceptions.length(); ++exN) {
-		QString const ex         = exceptions[exN];
+		const QString ex         = exceptions[exN];
 		const auto    exAbbrev   = ex + "E";
 		const auto    maskAbbrev = ex + "M";
 		const auto    excIndex   = VALID_INDEX(findModelRegister(excRegIndex, exAbbrev));
@@ -175,7 +175,7 @@ RegisterGroup *createEFL(RegisterViewModelBase::Model *model, QWidget *parent) {
 	const auto valueWidth = 8;
 	const auto valueIndex = nameIndex.sibling(nameIndex.row(), MODEL_VALUE_COLUMN);
 	column += nameWidth + 1;
-	group->insert(0, column, new ValueField(valueWidth, valueIndex, group, [](QString const &v) { return v.right(8); }));
+	group->insert(0, column, new ValueField(valueWidth, valueIndex, group, [](const QString &v) { return v.right(8); }));
 	const auto commentIndex = nameIndex.sibling(nameIndex.row(), MODEL_COMMENT_COLUMN);
 	column += valueWidth + 1;
 	group->insert(0, column, new FieldWidget(0, commentIndex, group));
@@ -454,7 +454,7 @@ RegisterGroup *createFPULastOp(RegisterViewModelBase::Model *model, QWidget *par
 	QPersistentModelIndex const FCRIndex         = findModelRegister(catIndex, FCR_NAME, MODEL_VALUE_COLUMN);
 	bool                        fopRarelyUpdated = FOPIsIncompatible();
 
-	const auto FOPFormatter = [FOPIndex, FSRIndex, FCRIndex, FIPIndex, fopRarelyUpdated](QString const &str) -> QString {
+	const auto FOPFormatter = [FOPIndex, FSRIndex, FCRIndex, FIPIndex, fopRarelyUpdated](const QString &str) -> QString {
 		if (str.isEmpty() || str[0] == '?')
 			return str;
 

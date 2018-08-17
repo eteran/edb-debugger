@@ -24,7 +24,7 @@ class FPUCategory;
 // `resultingValue` can differ from `value` if e.g. the kernel doesn't allow to flip some
 // bits of the register, like EFLAGS on x86.
 template <typename T>
-bool setDebuggeeRegister(const QString &name, T const &value, T &resultingValue);
+bool setDebuggeeRegister(const QString &name, const T &value, T &resultingValue);
 
 class Model : public QAbstractItemModel {
 	Q_OBJECT
@@ -149,7 +149,7 @@ public:
 	QModelIndex parent(const QModelIndex &index) const override;
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
 	QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
-	bool setData(const QModelIndex &index, QVariant const &data, int role = Qt::EditRole) override;
+	bool setData(const QModelIndex &index, const QVariant &data, int role = Qt::EditRole) override;
 	Qt::ItemFlags flags(const QModelIndex &index) const override;
 
 public:
@@ -170,7 +170,7 @@ protected:
 	// All categories are there to stay after they've been inserted
 	Category *addCategory(const QString &name);
 	FPUCategory *addFPUCategory(const QString &name);
-	SIMDCategory *addSIMDCategory(const QString &name, std::vector<NumberDisplayMode> const &validFormats);
+	SIMDCategory *addSIMDCategory(const QString &name, const std::vector<NumberDisplayMode> &validFormats);
 	void hide(Category *cat);
 	void show(Category *cat);
 	void hide(AbstractRegisterItem *reg);
@@ -252,8 +252,8 @@ public:
 	// clear all data, mark them unknown, both for current and previous states
 	virtual void invalidate()                      = 0;
 	virtual bool setValue(const QString &valueStr) = 0;
-	virtual bool setValue(QByteArray const &value) = 0;
-	virtual bool setValue(Register const &reg)     = 0;
+	virtual bool setValue(const QByteArray &value) = 0;
+	virtual bool setValue(const Register &reg)     = 0;
 };
 
 template <class StoredType>
@@ -290,7 +290,7 @@ public:
 	}
 
 public:
-	virtual void update(StoredType const &newValue, const QString &newComment);
+	virtual void update(const StoredType &newValue, const QString &newComment);
 	int valueMaxLength() const override;
 };
 
@@ -331,7 +331,7 @@ protected:
 	UnderlyingType prevValue() const;
 
 public:
-	BitFieldItem(BitFieldDescription const &descr);
+	BitFieldItem(const BitFieldDescription &descr);
 
 public:
 	QVariant data(int column) const override;
@@ -394,7 +394,7 @@ class SIMDSizedElement : public RegisterViewItem, public SIMDElement {
 	friend class SIMDFormatItem<StoredType, SizingType>;
 
 public:
-	SIMDSizedElement(const QString &name, std::vector<NumberDisplayMode> const &validFormats);
+	SIMDSizedElement(const QString &name, const std::vector<NumberDisplayMode> &validFormats);
 
 public:
 	QByteArray rawValue() const override;
@@ -415,14 +415,15 @@ private:
 };
 
 template <class StoredType> class SIMDSizedElementsContainer : public RegisterViewItem {
-	template <class SizeType, class... Args> void addElement(Args &&... args);
+	template <class SizeType, class... Args>
+	void addElement(Args &&... args);
 
 protected:
 	std::vector<std::unique_ptr<RegisterViewItem>> elements;
 
 public:
 	SIMDSizedElementsContainer(const QString &name, std::size_t size,
-	                           std::vector<NumberDisplayMode> const &validFormats);
+	                           const std::vector<NumberDisplayMode> &validFormats);
 	SIMDSizedElementsContainer(SIMDSizedElementsContainer &&other);
 	RegisterViewItem *child(int row) override;
 	int               childCount() const override;
@@ -440,7 +441,7 @@ protected:
 	SIMDCategory *category() const;
 
 public:
-	SIMDRegister(const QString &name, std::vector<NumberDisplayMode> const &validFormats);
+	SIMDRegister(const QString &name, const std::vector<NumberDisplayMode> &validFormats);
 	int               childCount() const override;
 	RegisterViewItem *child(int) override;
 	QVariant          data(int column) const override;
@@ -461,7 +462,7 @@ public:
 	int childCount() const override;
 	int valueMaxLength() const override;
 	void saveValue() override;
-	void update(FloatType const &newValue, const QString &newComment) override;
+	void update(const FloatType &newValue, const QString &newComment) override;
 
 protected:
 	FPUCategory *category() const;
@@ -497,7 +498,7 @@ private:
 
 class SIMDCategory : public Category {
 public:
-	SIMDCategory(const QString &name, int row, std::vector<NumberDisplayMode> const &validFormats);
+	SIMDCategory(const QString &name, int row, const std::vector<NumberDisplayMode> &validFormats);
 	~SIMDCategory();
 
 public:
@@ -507,7 +508,7 @@ public:
 	virtual void setChosenFormat(NumberDisplayMode newFormat);
 
 public:
-	std::vector<NumberDisplayMode> const &validFormats() const;
+	const std::vector<NumberDisplayMode> &validFormats() const;
 
 private:
 	bool                                 sizeChanged_   = false;
@@ -541,7 +542,7 @@ public:
 	template <typename CategoryType = Category>
 	CategoryType *insert(const QString &name);
 
-	SIMDCategory *insertSIMD(const QString &name, std::vector<NumberDisplayMode> const &validFormats);
+	SIMDCategory *insertSIMD(const QString &name, const std::vector<NumberDisplayMode> &validFormats);
 	int childCount() const override;
 	RegisterViewItem *child(int row) override;
 	QVariant data(int column) const override;

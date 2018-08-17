@@ -39,9 +39,9 @@ protected:
 	RegisterGroup *group() const;
 
 public:
-	FieldWidget(int fieldWidth, QModelIndex const &index, QWidget *parent = nullptr);
-	FieldWidget(int fieldWidth, QString const &fixedText, QWidget *parent = nullptr);
-	FieldWidget(QString const &fixedText, QWidget *parent = nullptr);
+	FieldWidget(int fieldWidth, const QModelIndex &index, QWidget *parent = nullptr);
+	FieldWidget(int fieldWidth, const QString &fixedText, QWidget *parent = nullptr);
+	FieldWidget(const QString &fixedText, QWidget *parent = nullptr);
 
 public:
 	virtual QString text() const;

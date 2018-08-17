@@ -463,7 +463,7 @@ std::string printOpType(const arm_setend_type &op) {
 	return found->second;
 }
 
-std::string printOpType(arm_op_type const &op) {
+std::string printOpType(const arm_op_type &op) {
 
 	static const std::map<arm_op_type, const char *> types{
 	    { ARM_OP_INVALID, "invalid" },
@@ -586,7 +586,7 @@ InstructionDialog::InstructionDialog(QWidget *parent) : QDialog(parent) {
 			explicit Add(QTreeWidget *tree) : tree_(tree) {
 			}
 			
-			void operator()(QStringList const &sl, QTreeWidgetItem *parent = nullptr) const {
+			void operator()(const QStringList &sl, QTreeWidgetItem *parent = nullptr) const {
 				tree_->addTopLevelItem(new QTreeWidgetItem(parent, sl));
 			}
 		} add(tree);
@@ -775,7 +775,7 @@ InstructionDialog::InstructionDialog(QWidget *parent) : QDialog(parent) {
 
 struct NormalizeFailure {};
 
-QString normalizeOBJDUMP(QString const &text, int bits) {
+QString normalizeOBJDUMP(const QString &text, int bits) {
 	auto parts = text.split('\t');
 #if defined EDB_X86 || defined EDB_X86_64
 	if (parts.size() != 3) return text + " ; unexpected format";
@@ -885,7 +885,7 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 }
 
 #if defined EDB_X86 || defined EDB_X86_64
-QString normalizeNDISASM(QString const &text, int bits) {
+QString normalizeNDISASM(const QString &text, int bits) {
 
 	auto lines = text.split('\n');
 	Q_ASSERT(!lines.isEmpty());
@@ -962,7 +962,7 @@ std::string runNDISASM(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 	return "; Unknown error while running " + processName;
 }
 
-std::pair<QString, std::size_t /*insnLength*/> normalizeOBJCONV(QString const &text, int bits) {
+std::pair<QString, std::size_t /*insnLength*/> normalizeOBJCONV(const QString &text, int bits) {
 
 	QRegExp expectedFormat("^ +([^;]+); ([0-9a-fA-F]+) _ (.*)");
 	if (expectedFormat.indexIn(text, 0) == -1) {

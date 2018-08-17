@@ -76,7 +76,7 @@ void Plugin::createRegisterView() {
 	createRegisterView("");
 }
 
-void Plugin::createRegisterView(QString const &settingsGroup) {
+void Plugin::createRegisterView(const QString &settingsGroup) {
 
 	if (auto *const mainWindow = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
 		const auto regView = new ODBRegView(settingsGroup, mainWindow);

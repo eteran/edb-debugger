@@ -48,7 +48,7 @@ T1 *checked_cast(T2 object) {
 namespace RegisterViewModelBase {
 
 template <typename T>
-bool setDebuggeeRegister(const QString &name, T const &value, T &resultingValue) {
+bool setDebuggeeRegister(const QString &name, const T &value, T &resultingValue) {
 
 	if (auto core = edb::v1::debugger_core) {
 		State state;
@@ -157,7 +157,7 @@ CategoryType *CategoriesHolder::insert(const QString &name) {
 	return static_cast<CategoryType *>(categories.back().get());
 }
 
-SIMDCategory *CategoriesHolder::insertSIMD(const QString &name, std::vector<NumberDisplayMode> const &validFormats) {
+SIMDCategory *CategoriesHolder::insertSIMD(const QString &name, const std::vector<NumberDisplayMode> &validFormats) {
 	auto cat = std::make_unique<SIMDCategory>(name, categories.size(), validFormats);
 	auto ret = cat.get();
 	categories.emplace_back(std::move(cat));
@@ -202,7 +202,7 @@ int Model::rowCount(const QModelIndex &parent) const {
 	return item->childCount();
 }
 
-int Model::columnCount(QModelIndex const &) const {
+int Model::columnCount(const QModelIndex &) const {
 	return 3; // all items reserve 3 columns: regName, value, comment
 }
 
@@ -271,21 +271,21 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 		return {};
 	}
 	case ChosenSIMDSizeRole:
-		if(auto simdCat = dynamic_cast<SIMDCategory const *>(item)) {
+		if(auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
 			return static_cast<int>(simdCat->chosenSize());
 		}
 
 		return {};
 
 	case ChosenSIMDFormatRole:
-		if(auto simdCat = dynamic_cast<SIMDCategory const *>(item)) {
+		if(auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
 			return static_cast<int>(simdCat->chosenFormat());
 		}
 
 		return {};
 
 	case ChosenSIMDSizeRowRole:
-		if(auto simdCat = dynamic_cast<SIMDCategory const *>(item)) {
+		if(auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
 			switch (simdCat->chosenSize()) {
 			case ElementSize::BYTE:
 				return BYTES_ROW;
@@ -301,13 +301,13 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 		return {};
 
 	case ChosenFPUFormatRole:
-		if (auto fpuCat = dynamic_cast<FPUCategory const *>(item)) {
+		if (auto fpuCat = dynamic_cast<const FPUCategory *>(item)) {
 			return static_cast<int>(fpuCat->chosenFormat());
 		}
 		return {};
 
 	case ChosenFPUFormatRowRole:
-		if (auto fpuCat = dynamic_cast<FPUCategory const *>(item)) {
+		if (auto fpuCat = dynamic_cast<const FPUCategory *>(item)) {
 			switch (fpuCat->chosenFormat()) {
 			case NumberDisplayMode::Float:
 				return FPU_FLOAT_ROW;
@@ -320,7 +320,7 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 		return {};
 
 	case ChosenSIMDFormatRowRole:
-		if(auto simdCat = dynamic_cast<SIMDCategory const *>(item)) {
+		if(auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
 			switch (simdCat->chosenFormat()) {
 			case NumberDisplayMode::Hex:
 				return SIMD_HEX_ROW;
@@ -335,7 +335,7 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 		return {};
 
 	case ValidSIMDFormatsRole:
-		if(auto simdCat = dynamic_cast<SIMDCategory const *>(item)) {
+		if(auto simdCat = dynamic_cast<const SIMDCategory *>(item)) {
 			return QVariant::fromValue(simdCat->validFormats());
 		}
 		return {};
@@ -398,7 +398,7 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 	return {};
 }
 
-bool Model::setData(const QModelIndex &index, QVariant const &data, int role) {
+bool Model::setData(const QModelIndex &index, const QVariant &data, int role) {
 	auto item             = getItem(index);
 	const auto valueIndex = index.sibling(index.row(), VALUE_COLUMN);
 	bool ok               = false;
@@ -513,7 +513,7 @@ Category *Model::addCategory(const QString &name) {
 	return rootItem->insert(name);
 }
 
-SIMDCategory *Model::addSIMDCategory(const QString &name, std::vector<NumberDisplayMode> const &validFormats) {
+SIMDCategory *Model::addSIMDCategory(const QString &name, const std::vector<NumberDisplayMode> &validFormats) {
 	return rootItem->insertSIMD(name, validFormats);
 }
 
@@ -674,13 +674,13 @@ QByteArray RegisterItem<T>::rawValue() const {
 }
 
 template <typename T>
-bool RegisterItem<T>::setValue(Register const &reg) {
+bool RegisterItem<T>::setValue(const Register &reg) {
 	assert(reg.bitSize() == 8 * sizeof(T));
 	return setDebuggeeRegister<T>(reg.name(), reg.value<T>(), value_);
 }
 
 template <typename T>
-bool RegisterItem<T>::setValue(QByteArray const &newValue) {
+bool RegisterItem<T>::setValue(const QByteArray &newValue) {
 	T value;
 	std::memcpy(&value, newValue.constData(), newValue.size());
 	return setDebuggeeRegister<T>(name(), value, value_);
@@ -740,7 +740,7 @@ template class SimpleRegister<edb::value256>;
 // ---------------- BitFieldItem impl -----------------------
 
 template <typename UnderlyingType>
-BitFieldItem<UnderlyingType>::BitFieldItem(BitFieldDescription const &descr) : RegisterViewItem(descr.name), offset_(descr.offset), length_(descr.length), explanations(descr.explanations) {
+BitFieldItem<UnderlyingType>::BitFieldItem(const BitFieldDescription &descr) : RegisterViewItem(descr.name), offset_(descr.offset), length_(descr.length), explanations(descr.explanations) {
 	Q_ASSERT(8 * sizeof(UnderlyingType) >= length_);
 	Q_ASSERT(explanations.size() == 0 || explanations.size() == 2u << (length_ - 1));
 }
@@ -817,7 +817,7 @@ unsigned BitFieldItem<UnderlyingType>::offset() const {
 // ---------------- FlagsRegister impl ------------------------
 
 template <typename StoredType>
-FlagsRegister<StoredType>::FlagsRegister(const QString &name, std::vector<BitFieldDescription> const &bitFields) : SimpleRegister<StoredType>(name) {
+FlagsRegister<StoredType>::FlagsRegister(const QString &name, const std::vector<BitFieldDescription> &bitFields) : SimpleRegister<StoredType>(name) {
 
 	for (auto &field : bitFields) {
 		fields.emplace_back(field);
@@ -881,7 +881,7 @@ typename std::enable_if<sizeof(SizingType) < sizeof(float), QString>::type toStr
 	return format == NumberDisplayMode::Float ? "(too small element width for float)" : util::formatInt(value, format);
 }
 
-QString toString(edb::value80 const &value, NumberDisplayMode format) {
+QString toString(const edb::value80 &value, NumberDisplayMode format) {
 	switch (format) {
 	case NumberDisplayMode::Float:
 		return formatFloat(value);
@@ -969,7 +969,7 @@ int SIMDFormatItem<StoredType, SizingType>::valueMaxLength() const {
 // --------------------- SIMDSizedElement  impl -------------------------
 
 template <class StoredType, class SizingType>
-SIMDSizedElement<StoredType, SizingType>::SIMDSizedElement(const QString &name, std::vector<NumberDisplayMode> const &validFormats) : RegisterViewItem(name) {
+SIMDSizedElement<StoredType, SizingType>::SIMDSizedElement(const QString &name, const std::vector<NumberDisplayMode> &validFormats) : RegisterViewItem(name) {
 
 	for (const auto format : validFormats) {
 		if (format != NumberDisplayMode::Float || sizeof(SizingType) >= sizeof(float)) {
@@ -1149,7 +1149,7 @@ bool SIMDSizedElementsContainer<StoredType>::changed() const {
 // --------------------- SIMDRegister impl -------------------------
 
 template <class StoredType>
-SIMDRegister<StoredType>::SIMDRegister(const QString &name, std::vector<NumberDisplayMode> const &validFormats) : SimpleRegister<StoredType>(name) {
+SIMDRegister<StoredType>::SIMDRegister(const QString &name, const std::vector<NumberDisplayMode> &validFormats) : SimpleRegister<StoredType>(name) {
 
 	static const auto sizeNames = util::make_array(
 	                                  QObject::tr("bytes"),
@@ -1218,7 +1218,7 @@ FPURegister<FloatType>::FPURegister(const QString &name) : SimpleRegister<FloatT
 }
 
 template <class FloatType>
-void FPURegister<FloatType>::update(FloatType const &newValue, const QString &newComment) {
+void FPURegister<FloatType>::update(const FloatType &newValue, const QString &newComment) {
 	SimpleRegister<FloatType>::update(newValue, newComment);
 }
 

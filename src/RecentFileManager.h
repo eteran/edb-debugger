@@ -51,7 +51,7 @@ Q_SIGNALS:
 
 private:
 	void update();
-	static QString format_entry(RecentFile const& file);
+	static QString format_entry(const RecentFile &file);
 
 private:
 	QList<RecentFile> file_list_;
