@@ -43,7 +43,7 @@ public:
 	virtual void load_symbol_file(const QString &filename, edb::address_t base) = 0;
 	virtual void set_symbol_generator(ISymbolGenerator *generator) = 0;
 	virtual void set_label(edb::address_t address, const QString &label) = 0;
-	virtual QString find_address_name(edb::address_t address, bool prefixed=true) = 0;
+	virtual QString find_address_name(edb::address_t address, bool prefixed = true) = 0;
 	virtual QHash<edb::address_t, QString> labels() const = 0;
 	virtual QStringList files() const = 0;
 };

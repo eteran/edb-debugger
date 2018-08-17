@@ -624,8 +624,8 @@ InstructionDialog::InstructionDialog(QWidget *parent) : QDialog(parent) {
 				}
 			}
 	#if defined EDB_X86 || defined EDB_X86_64
-			add({"Prefixes", printBytes(insn->detail->x86.prefix, sizeof insn->detail->x86.prefix, false).c_str()});
-			add({"Opcode",   printBytes(insn->detail->x86.opcode, sizeof insn->detail->x86.opcode).c_str()});
+			add({"Prefixes", printBytes(insn->detail->x86.prefix, sizeof(insn->detail->x86.prefix), false).c_str()});
+			add({"Opcode",   printBytes(insn->detail->x86.opcode, sizeof(insn->detail->x86.opcode)).c_str()});
 
 			if (insn->detail->x86.rex) { add({"REX", printBytes(&insn->detail->x86.rex, 1).c_str()}); }
 			
@@ -1066,7 +1066,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 				    0                                        // no fixed-size entries in this section
 				};
 				
-				binary.write(reinterpret_cast<const char *>(&fileData), sizeof fileData);
+				binary.write(reinterpret_cast<const char *>(&fileData), sizeof(fileData));
 				binary.seek(insnAddr - fileAddr);
 				binary.write(reinterpret_cast<const char *>(bytes.data()), bytes.size());
 			} else if (bits == 64) {
@@ -1145,7 +1145,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 				    0                                        // no fixed-size entries in this section
 				};
 				
-				binary.write(reinterpret_cast<const char *>(&fileData), sizeof fileData);
+				binary.write(reinterpret_cast<const char *>(&fileData), sizeof(fileData));
 				binary.seek(insnAddr - fileAddr);
 				binary.write(reinterpret_cast<const char *>(bytes.data()), bytes.size());
 			} else {

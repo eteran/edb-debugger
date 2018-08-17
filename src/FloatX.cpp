@@ -107,17 +107,17 @@ Float readFloat(const QString& strInput,bool& ok)
 	// We still do want the user to be able to enter common special values
 	Float value;
 	if(str=="+snan"||str=="snan")
-		std::memcpy(&value,&SpecialValues<Float>::positiveSNaN,sizeof value);
+		std::memcpy(&value,&SpecialValues<Float>::positiveSNaN,sizeof(value));
 	else if(str=="-snan")
-		std::memcpy(&value,&SpecialValues<Float>::negativeSNaN,sizeof value);
+		std::memcpy(&value,&SpecialValues<Float>::negativeSNaN,sizeof(value));
 	else if(str=="+qnan"||str=="qnan"||str=="nan")
-		std::memcpy(&value,&SpecialValues<Float>::positiveQNaN,sizeof value);
+		std::memcpy(&value,&SpecialValues<Float>::positiveQNaN,sizeof(value));
 	else if(str=="-qnan")
-		std::memcpy(&value,&SpecialValues<Float>::negativeQNaN,sizeof value);
+		std::memcpy(&value,&SpecialValues<Float>::negativeQNaN,sizeof(value));
 	else if(str=="+inf"||str=="inf")
-		std::memcpy(&value,&SpecialValues<Float>::positiveInf,sizeof value);
+		std::memcpy(&value,&SpecialValues<Float>::positiveInf,sizeof(value));
 	else if(str=="-inf")
-		std::memcpy(&value,&SpecialValues<Float>::negativeInf,sizeof value);
+		std::memcpy(&value,&SpecialValues<Float>::negativeInf,sizeof(value));
 	else return 0;
 
 	ok=true;
@@ -139,7 +139,7 @@ namespace detail
 template<unsigned mantissaLength,typename FloatHolder>
 FloatValueClass ieeeClassify(FloatHolder value)
 {
-	static constexpr auto expLength=8*sizeof value-mantissaLength-1;
+	static constexpr auto expLength=8*sizeof(value)-mantissaLength-1;
 	static constexpr auto expMax=(1u<<expLength)-1;
 	static constexpr auto QNaN_mask=1ull<<(mantissaLength-1);
 	const auto mantissa=value&((1ull<<mantissaLength)-1);
@@ -177,7 +177,7 @@ FloatValueClass floatType(edb::value64 value)
 FloatValueClass floatType(edb::value80 value)
 {
 	static constexpr auto mantissaLength=64;
-	static constexpr auto expLength=8*sizeof value-mantissaLength-1;
+	static constexpr auto expLength=8*sizeof(value)-mantissaLength-1;
 	static constexpr auto integerBitOnly=1ull<<(mantissaLength-1);
 	static constexpr auto QNaN_mask=3ull<<(mantissaLength-2);
 	static constexpr auto expMax=(1u<<expLength)-1;
@@ -257,14 +257,14 @@ template QValidator::State FloatXValidator<long double>::validate(QString& input
 float toFloatValue(edb::value32 value)
 {
 	float result;
-	std::memcpy(&result,&value,sizeof result);
+	std::memcpy(&result,&value,sizeof(result));
 	return result;
 }
 
 double toFloatValue(edb::value64 value)
 {
 	double result;
-	std::memcpy(&result,&value,sizeof result);
+	std::memcpy(&result,&value,sizeof(result));
 	return result;
 }
 
@@ -284,13 +284,13 @@ QString formatFloat(Float value)
 		return value.negative()?"-0.0":"0.0";
 	case FloatValueClass::PseudoDenormal:
 		{
-			assert(sizeof value==10);
+		    assert(sizeof(value) == 10);
 
 			// keeps compiler happy?
 			if(sizeof(value) == 10) {
 				// Convert to supported value as the CPU would. Otherwise glibc takes it wrong.
 				const uint16_t exponent=value.negative()?0x8001:0x0001;
-				std::memcpy(reinterpret_cast<char*>(&value)+8,&exponent,sizeof exponent);
+				std::memcpy(reinterpret_cast<char*>(&value) + 8, &exponent, sizeof(exponent));
 			}
 		}
 		// fall through

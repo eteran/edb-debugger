@@ -382,7 +382,7 @@ bool FOPIsIncompatible() {
 	             "fstenv %0\n"
 	             : "=m"(fenv)::"%st");
 	std::uint16_t fop;
-	std::memcpy(&fop, fenv + 18, sizeof fop);
+	std::memcpy(&fop, fenv + 18, sizeof(fop));
 	return fop == 0;
 }
 
@@ -485,7 +485,7 @@ RegisterGroup *createFPULastOp(RegisterViewModelBase::Model *model, QWidget *par
 		if (rawFIP.isEmpty())
 			return str;
 		edb::address_t fip(0);
-		assert(rawFIP.size() <= long(sizeof fip));
+		assert(rawFIP.size() <= long(sizeof(fip)));
 		std::memcpy(&fip, rawFIP.constData(), rawFIP.size());
 
 		const auto excMask           = fcr & 0x3f;

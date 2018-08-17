@@ -670,7 +670,7 @@ QByteArray RegisterItem<T>::rawValue() const {
 	if (!this->valueKnown_) {
 		return {};
 	}
-	return QByteArray(reinterpret_cast<const char *>(&this->value_), sizeof this->value_);
+	return QByteArray(reinterpret_cast<const char *>(&this->value_), sizeof(this->value_));
 }
 
 template <typename T>
@@ -801,7 +801,7 @@ QVariant BitFieldItem<UnderlyingType>::data(int column) const {
 template <typename UnderlyingType>
 QByteArray BitFieldItem<UnderlyingType>::rawValue() const {
 	const auto val = value();
-	return QByteArray(reinterpret_cast<const char *>(&val), sizeof val);
+	return QByteArray(reinterpret_cast<const char *>(&val), sizeof(val));
 }
 
 template <typename UnderlyingType>
@@ -1045,7 +1045,7 @@ QVariant SIMDSizedElement<StoredType, SizingType>::data(int column) const {
 template <class StoredType, class SizingType>
 QByteArray SIMDSizedElement<StoredType, SizingType>::rawValue() const {
 	const auto value = this->value();
-	return QByteArray(reinterpret_cast<const char *>(&value), sizeof value);
+	return QByteArray(reinterpret_cast<const char *>(&value), sizeof(value));
 }
 
 template <class StoredType, class SizingType>

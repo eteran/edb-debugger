@@ -238,7 +238,7 @@ void ValueField::adjustToData() {
 		if (byteArr.isEmpty())
 			return;
 		std::uint64_t value(0);
-		assert(byteArr.size() <= int(sizeof value));
+		assert(byteArr.size() <= int(sizeof(value)));
 		std::memcpy(&value, byteArr.constData(), byteArr.size());
 
 		setToOneAction->setVisible(value != 1u);
@@ -339,7 +339,7 @@ void addToTOP(RegisterViewModelBase::Model *model, const QModelIndex &fsrIndex, 
 		return;
 
 	std::uint16_t word(0);
-	assert(byteArr.size() == sizeof word);
+	assert(byteArr.size() == sizeof(word));
 	std::memcpy(&word, byteArr.constData(), byteArr.size());
 	const auto value = (word >> 11) & 7;
 	word             = (word & ~0x3800) | (((value + delta) & 7) << 11);
@@ -376,7 +376,7 @@ void changeGPR(const QModelIndex &index, RegisterViewModelBase::Model *const mod
 	if (byteArr.isEmpty())
 		return;
 	std::uint64_t value(0);
-	assert(byteArr.size() <= int(sizeof value));
+	assert(byteArr.size() <= int(sizeof(value)));
 	std::memcpy(&value, byteArr.constData(), byteArr.size());
 	value = change(value);
 	std::memcpy(byteArr.data(), &value, byteArr.size());

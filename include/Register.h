@@ -99,9 +99,9 @@ public:
 	}
 
 	template<typename T>
-	void setValueFrom(const T& source) {
-		assert(bitSize_<=8*sizeof source);
-		std::memcpy(&value_,&source,bitSize_/8);
+	void setValueFrom(const T &source) {
+		assert(bitSize_ <= 8 * sizeof(source));
+		std::memcpy(&value_, &source, bitSize_ / 8);
 	}
 
 	QString toHexString() const;
@@ -120,17 +120,17 @@ template<std::size_t bitSize_, typename ValueType, typename Type>
 Register make_Register(const QString &name, ValueType value, Type type)
 {
 	static_assert(std::is_same<Type,Register::Type>::value,"type must be Register::Type");
-	constexpr std::size_t bitSize=(bitSize_ ? bitSize_ : BIT_LENGTH(value));
-	static_assert(bitSize_%8==0,"Strange bit size");
+	constexpr std::size_t bitSize = (bitSize_ ? bitSize_ : BIT_LENGTH(value));
+	static_assert(bitSize_ % 8 == 0,"Strange bit size");
 
 	Register reg;
-	reg.name_=name;
-	reg.type_=type;
-	reg.bitSize_=bitSize;
+	reg.name_    = name;
+	reg.type_    = type;
+	reg.bitSize_ = bitSize;
 
-	constexpr std::size_t size=bitSize/8;
-	static_assert(size<=sizeof(ValueType),"ValueType appears smaller than size specified");
-	util::markMemory(&reg.value_,sizeof reg.value_);
+	constexpr std::size_t size = bitSize / 8;
+	static_assert(size <= sizeof(ValueType), "ValueType appears smaller than size specified");
+	util::markMemory(&reg.value_, sizeof(reg.value_));
 	std::memcpy(&reg.value_,&value,size);
 
 	return reg;

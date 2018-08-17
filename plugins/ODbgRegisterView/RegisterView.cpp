@@ -174,7 +174,7 @@ void MultiBitFieldWidget::adjustToData() {
 
 	const auto    byteArr = index.data(RegisterViewModelBase::Model::RawValueRole).toByteArray();
 	std::uint64_t word(0);
-	assert(unsigned(byteArr.size()) <= sizeof word);
+	assert(unsigned(byteArr.size()) <= sizeof(word));
 	std::memcpy(&word, byteArr.constData(), byteArr.size());
 
 	for (int value = 0; value < valueActions.size(); ++value) {

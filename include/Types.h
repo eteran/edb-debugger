@@ -95,7 +95,7 @@ protected:
 		auto target    = reinterpret_cast<char*>(&value_);
 
 		std::memcpy(target, dataStart, sizeof(data));
-		std::memset(target + sizeof data, 0, sizeof(value_) - sizeof(data));
+		std::memset(target + sizeof(data), 0, sizeof(value_) - sizeof(data));
 	}
 
 	ValueBase() = default;

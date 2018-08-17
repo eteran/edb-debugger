@@ -120,11 +120,11 @@ void print(Stream& str, const Arg0& arg0, const Args&...args)
 template<typename AsType, typename T>
 typename std::enable_if<std::is_floating_point<AsType>::value, QString>::type packedFloatsToString(const T& value)
 {
-    auto p=reinterpret_cast<const char*>(&value);
-    const std::size_t elementCount=sizeof value/sizeof(AsType);
+	auto p = reinterpret_cast<const char*>(&value);
+	const std::size_t elementCount = sizeof(value) / sizeof(AsType);
     QString result;
-    for(std::size_t i=elementCount-1;i!=std::size_t(-1);--i)
-    {
+
+	for(std::size_t i = elementCount - 1; i != std::size_t(-1); --i) {
 		edb::detail::SizedValue<sizeof(AsType)*8> v;
         std::memcpy(&v,&p[i*sizeof(AsType)],sizeof(AsType));
 
@@ -155,7 +155,7 @@ template<typename AsType, typename T>
 typename std::enable_if<std::is_integral<AsType>::value, QString>::type packedIntsToString(const T& value,NumberDisplayMode mode)
 {
     auto p=reinterpret_cast<const char*>(&value);
-    const std::size_t elementCount=sizeof value/sizeof(AsType);
+	const std::size_t elementCount=sizeof(value) / sizeof(AsType);
     QString result;
     for(std::size_t i=elementCount-1;i!=std::size_t(-1);--i)
     {

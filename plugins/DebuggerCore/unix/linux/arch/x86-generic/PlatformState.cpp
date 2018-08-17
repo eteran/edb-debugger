@@ -418,8 +418,8 @@ bool PlatformState::fillFrom(const X86XState &regs, size_t sizeFromKernel) {
 		x87.dataPtrOffset  = regs.fooff;
 
 		if (is64Bit()) {
-			std::memcpy(reinterpret_cast<char *>(&x87.instPtrOffset) + 4, &regs.fiseg, sizeof regs.fiseg);
-			std::memcpy(reinterpret_cast<char *>(&x87.dataPtrOffset) + 4, &regs.foseg, sizeof regs.foseg);
+			std::memcpy(reinterpret_cast<char *>(&x87.instPtrOffset) + 4, &regs.fiseg, sizeof(regs.fiseg));
+			std::memcpy(reinterpret_cast<char *>(&x87.dataPtrOffset) + 4, &regs.foseg, sizeof(regs.foseg));
 			x87.instPtrSelector = 0;
 			x87.dataPtrSelector = 0;
 		} else {
@@ -430,7 +430,7 @@ bool PlatformState::fillFrom(const X86XState &regs, size_t sizeFromKernel) {
 		x87.filled       = true;
 		x87.opCodeFilled = true;
 	} else {
-		std::memset(&x87, 0, sizeof x87);
+		std::memset(&x87, 0, sizeof(x87));
 		x87.controlWord  = regs.cwd; // this appears always present
 		x87.tagWord      = 0xffff;
 		x87.filled       = true;
@@ -634,7 +634,7 @@ void PlatformState::fillStruct(UserFPRegsStructX86_64 &regs) const {
 }
 
 void PlatformState::fillStruct(UserFPXRegsStructX86 &regs) const {
-	util::markMemory(&regs, sizeof regs);
+	util::markMemory(&regs, sizeof(regs));
 	if (x87.filled) {
 		regs.swd = x87.statusWord;
 		regs.twd = x87.reducedTagWord();
@@ -645,7 +645,7 @@ void PlatformState::fillStruct(UserFPXRegsStructX86 &regs) const {
 		regs.fos = x87.dataPtrSelector;
 		regs.fop = x87.opCode;
 		for (size_t n = 0; n < MAX_FPU_REG_COUNT; ++n) {
-			std::memcpy(reinterpret_cast<char *>(&regs.st_space) + 16 * x87.RIndexToSTIndex(n), &x87.R[n], sizeof x87.R[n]);
+			std::memcpy(reinterpret_cast<char *>(&regs.st_space) + 16 * x87.RIndexToSTIndex(n), &x87.R[n], sizeof(x87.R[n]));
 		}
 	}
 
@@ -658,9 +658,9 @@ void PlatformState::fillStruct(UserFPXRegsStructX86 &regs) const {
 }
 
 size_t PlatformState::fillStruct(X86XState &regs) const {
-	util::markMemory(&regs, sizeof regs);
+	util::markMemory(&regs, sizeof(regs));
 	// Zero out reserved bytes; set xstate_bv to 0
-	std::memset(regs.xstate_hdr_bytes, 0, sizeof regs.xstate_hdr_bytes);
+	std::memset(regs.xstate_hdr_bytes, 0, sizeof(regs.xstate_hdr_bytes));
 
 	regs.xcr0 = avx.xcr0;
 	if (x87.filled) {
@@ -680,7 +680,7 @@ size_t PlatformState::fillStruct(X86XState &regs) const {
 		regs.fop = x87.opCode;
 
 		for (size_t n = 0; n < MAX_FPU_REG_COUNT; ++n) {
-			std::memcpy(reinterpret_cast<char *>(&regs.st_space) + 16 * x87.RIndexToSTIndex(n), &x87.R[n], sizeof x87.R[n]);
+			std::memcpy(reinterpret_cast<char *>(&regs.st_space) + 16 * x87.RIndexToSTIndex(n), &x87.R[n], sizeof(x87.R[n]));
 		}
 
 		regs.xstate_bv |= X86XState::FEATURE_X87;
@@ -732,7 +732,7 @@ edb::value512 PlatformState::AVX::zmm(size_t index) const {
 
 void PlatformState::AVX::setXMM(size_t index, edb::value128 value) {
 	// leave upper part unchanged.
-	std::memcpy(&zmmStorage[index], &value, sizeof value);
+	std::memcpy(&zmmStorage[index], &value, sizeof(value));
 }
 
 void PlatformState::AVX::setYMM(size_t index, edb::value128 low, edb::value128 high) {
@@ -1118,8 +1118,8 @@ edb::value80 PlatformState::fpu_register(size_t n) const {
 		const std::uint64_t mant = 0x0badbad1bad1bad1;
 		const std::uint16_t exp  = 0x0bad;
 
-		std::memcpy(&v, &mant, sizeof mant);
-		std::memcpy(reinterpret_cast<char *>(&v) + sizeof mant, &exp, sizeof exp);
+		std::memcpy(&v, &mant, sizeof(mant));
+		std::memcpy(reinterpret_cast<char *>(&v) + sizeof(mant), &exp, sizeof(exp));
 		return v;
 	}
 
@@ -1271,6 +1271,8 @@ void PlatformState::set_register(const Register &reg) {
 	}
 
 	{
+		// TODO(eteran): these memcpy's which have the size set to the SOURCE and
+		// not the dest look suspicious/potentially dangerous
 		QRegExp MMx("^mm([0-7])$");
 		if (MMx.indexIn(regName) != -1) {
 			QChar digit = MMx.cap(1).at(0);
@@ -1279,9 +1281,9 @@ void PlatformState::set_register(const Register &reg) {
 			size_t i = digitChar - '0';
 			assert(mmxIndexValid(i));
 			const auto value = reg.value<edb::value64>();
-			std::memcpy(&x87.R[i], &value, sizeof value);
+			std::memcpy(&x87.R[i], &value, sizeof(value));
 			const uint16_t RiUpper = 0xffff;
-			std::memcpy(reinterpret_cast<char *>(&x87.R[i]) + sizeof value, &RiUpper, sizeof RiUpper);
+			std::memcpy(reinterpret_cast<char *>(&x87.R[i]) + sizeof(value), &RiUpper, sizeof(RiUpper));
 			return;
 		}
 	}
@@ -1295,7 +1297,7 @@ void PlatformState::set_register(const Register &reg) {
 			size_t i = digitChar - '0';
 			assert(fpuIndexValid(i));
 			const auto value = reg.value<edb::value80>();
-			std::memcpy(&x87.R[i], &value, sizeof value);
+			std::memcpy(&x87.R[i], &value, sizeof(value));
 			return;
 		}
 	}
@@ -1309,7 +1311,7 @@ void PlatformState::set_register(const Register &reg) {
 			size_t i = digitChar - '0';
 			assert(fpuIndexValid(i));
 			const auto value = reg.value<edb::value80>();
-			std::memcpy(&x87.st(i), &value, sizeof value);
+			std::memcpy(&x87.st(i), &value, sizeof(value));
 			return;
 		}
 	}
@@ -1321,7 +1323,7 @@ void PlatformState::set_register(const Register &reg) {
 			bool indexReadOK = false;
 			size_t i = XMMx.cap(1).toInt(&indexReadOK);
 			assert(indexReadOK && xmmIndexValid(i));
-			std::memcpy(&avx.zmmStorage[i], &value, sizeof value);
+			std::memcpy(&avx.zmmStorage[i], &value, sizeof(value));
 			return;
 
 		}
@@ -1334,7 +1336,7 @@ void PlatformState::set_register(const Register &reg) {
 			bool indexReadOK = false;
 			size_t i = YMMx.cap(1).toInt(&indexReadOK);
 			assert(indexReadOK && ymmIndexValid(i));
-			std::memcpy(&avx.zmmStorage[i], &value, sizeof value);
+			std::memcpy(&avx.zmmStorage[i], &value, sizeof(value));
 			return;
 		}
 	}

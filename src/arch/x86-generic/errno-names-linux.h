@@ -19,540 +19,542 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ERRNO_NAMES_LINUX_H_20160514
 #define ERRNO_NAMES_LINUX_H_20160514
 
+#include <array>
+
 namespace {
 
-const char* errnoNames[] = {
-0,                       /*  0  */
-"EPERM",                 /*  1  */
-"ENOENT",                /*  2  */
-"ESRCH",                 /*  3  */
-"EINTR",                 /*  4  */
-"EIO",                   /*  5  */
-"ENXIO",                 /*  6  */
-"E2BIG",                 /*  7  */
-"ENOEXEC",               /*  8  */
-"EBADF",                 /*  9  */
-"ECHILD",                /* 10  */
-"EAGAIN",                /* 11  */
-"ENOMEM",                /* 12  */
-"EACCES",                /* 13  */
-"EFAULT",                /* 14  */
-"ENOTBLK",               /* 15  */
-"EBUSY",                 /* 16  */
-"EEXIST",                /* 17  */
-"EXDEV",                 /* 18  */
-"ENODEV",                /* 19  */
-"ENOTDIR",               /* 20  */
-"EISDIR",                /* 21  */
-"EINVAL",                /* 22  */
-"ENFILE",                /* 23  */
-"EMFILE",                /* 24  */
-"ENOTTY",                /* 25  */
-"ETXTBSY",               /* 26  */
-"EFBIG",                 /* 27  */
-"ENOSPC",                /* 28  */
-"ESPIPE",                /* 29  */
-"EROFS",                 /* 30  */
-"EMLINK",                /* 31  */
-"EPIPE",                 /* 32  */
-"EDOM",                  /* 33  */
-"ERANGE",                /* 34  */
-"EDEADLK",               /* 35  */
-"ENAMETOOLONG",          /* 36  */
-"ENOLCK",                /* 37  */
-"ENOSYS",                /* 38  */
-"ENOTEMPTY",             /* 39  */
-"ELOOP",                 /* 40  */
-0,                       /* 41  */
-"ENOMSG",                /* 42  */
-"EIDRM",                 /* 43  */
-"ECHRNG",                /* 44  */
-"EL2NSYNC",              /* 45  */
-"EL3HLT",                /* 46  */
-"EL3RST",                /* 47  */
-"ELNRNG",                /* 48  */
-"EUNATCH",               /* 49  */
-"ENOCSI",                /* 50  */
-"EL2HLT",                /* 51  */
-"EBADE",                 /* 52  */
-"EBADR",                 /* 53  */
-"EXFULL",                /* 54  */
-"ENOANO",                /* 55  */
-"EBADRQC",               /* 56  */
-"EBADSLT",               /* 57  */
-0,                       /* 58  */
-"EBFONT",                /* 59  */
-"ENOSTR",                /* 60  */
-"ENODATA",               /* 61  */
-"ETIME",                 /* 62  */
-"ENOSR",                 /* 63  */
-"ENONET",                /* 64  */
-"ENOPKG",                /* 65  */
-"EREMOTE",               /* 66  */
-"ENOLINK",               /* 67  */
-"EADV",                  /* 68  */
-"ESRMNT",                /* 69  */
-"ECOMM",                 /* 70  */
-"EPROTO",                /* 71  */
-"EMULTIHOP",             /* 72  */
-"EDOTDOT",               /* 73  */
-"EBADMSG",               /* 74  */
-"EOVERFLOW",             /* 75  */
-"ENOTUNIQ",              /* 76  */
-"EBADFD",                /* 77  */
-"EREMCHG",               /* 78  */
-"ELIBACC",               /* 79  */
-"ELIBBAD",               /* 80  */
-"ELIBSCN",               /* 81  */
-"ELIBMAX",               /* 82  */
-"ELIBEXEC",              /* 83  */
-"EILSEQ",                /* 84  */
-"ERESTART",              /* 85  */
-"ESTRPIPE",              /* 86  */
-"EUSERS",                /* 87  */
-"ENOTSOCK",              /* 88  */
-"EDESTADDRREQ",          /* 89  */
-"EMSGSIZE",              /* 90  */
-"EPROTOTYPE",            /* 91  */
-"ENOPROTOOPT",           /* 92  */
-"EPROTONOSUPPORT",       /* 93  */
-"ESOCKTNOSUPPORT",       /* 94  */
-"EOPNOTSUPP",            /* 95  */
-"EPFNOSUPPORT",          /* 96  */
-"EAFNOSUPPORT",          /* 97  */
-"EADDRINUSE",            /* 98  */
-"EADDRNOTAVAIL",         /* 99  */
-"ENETDOWN",              /* 100 */
-"ENETUNREACH",           /* 101 */
-"ENETRESET",             /* 102 */
-"ECONNABORTED",          /* 103 */
-"ECONNRESET",            /* 104 */
-"ENOBUFS",               /* 105 */
-"EISCONN",               /* 106 */
-"ENOTCONN",              /* 107 */
-"ESHUTDOWN",             /* 108 */
-"ETOOMANYREFS",          /* 109 */
-"ETIMEDOUT",             /* 110 */
-"ECONNREFUSED",          /* 111 */
-"EHOSTDOWN",             /* 112 */
-"EHOSTUNREACH",          /* 113 */
-"EALREADY",              /* 114 */
-"EINPROGRESS",           /* 115 */
-"ESTALE",                /* 116 */
-"EUCLEAN",               /* 117 */
-"ENOTNAM",               /* 118 */
-"ENAVAIL",               /* 119 */
-"EISNAM",                /* 120 */
-"EREMOTEIO",             /* 121 */
-"EDQUOT",                /* 122 */
-"ENOMEDIUM",             /* 123 */
-"EMEDIUMTYPE",           /* 124 */
-"ECANCELED",             /* 125 */
-"ENOKEY",                /* 126 */
-"EKEYEXPIRED",           /* 127 */
-"EKEYREVOKED",           /* 128 */
-"EKEYREJECTED",          /* 129 */
-"EOWNERDEAD",            /* 130 */
-"ENOTRECOVERABLE",       /* 131 */
-0,                       /* 132 */
-0,                       /* 133 */
-0,                       /* 134 */
-0,                       /* 135 */
-0,                       /* 136 */
-0,                       /* 137 */
-0,                       /* 138 */
-0,                       /* 139 */
-0,                       /* 140 */
-0,                       /* 141 */
-0,                       /* 142 */
-0,                       /* 143 */
-0,                       /* 144 */
-0,                       /* 145 */
-0,                       /* 146 */
-0,                       /* 147 */
-0,                       /* 148 */
-0,                       /* 149 */
-0,                       /* 150 */
-0,                       /* 151 */
-0,                       /* 152 */
-0,                       /* 153 */
-0,                       /* 154 */
-0,                       /* 155 */
-0,                       /* 156 */
-0,                       /* 157 */
-0,                       /* 158 */
-0,                       /* 159 */
-0,                       /* 160 */
-0,                       /* 161 */
-0,                       /* 162 */
-0,                       /* 163 */
-0,                       /* 164 */
-0,                       /* 165 */
-0,                       /* 166 */
-0,                       /* 167 */
-0,                       /* 168 */
-0,                       /* 169 */
-0,                       /* 170 */
-0,                       /* 171 */
-0,                       /* 172 */
-0,                       /* 173 */
-0,                       /* 174 */
-0,                       /* 175 */
-0,                       /* 176 */
-0,                       /* 177 */
-0,                       /* 178 */
-0,                       /* 179 */
-0,                       /* 180 */
-0,                       /* 181 */
-0,                       /* 182 */
-0,                       /* 183 */
-0,                       /* 184 */
-0,                       /* 185 */
-0,                       /* 186 */
-0,                       /* 187 */
-0,                       /* 188 */
-0,                       /* 189 */
-0,                       /* 190 */
-0,                       /* 191 */
-0,                       /* 192 */
-0,                       /* 193 */
-0,                       /* 194 */
-0,                       /* 195 */
-0,                       /* 196 */
-0,                       /* 197 */
-0,                       /* 198 */
-0,                       /* 199 */
-0,                       /* 200 */
-0,                       /* 201 */
-0,                       /* 202 */
-0,                       /* 203 */
-0,                       /* 204 */
-0,                       /* 205 */
-0,                       /* 206 */
-0,                       /* 207 */
-0,                       /* 208 */
-0,                       /* 209 */
-0,                       /* 210 */
-0,                       /* 211 */
-0,                       /* 212 */
-0,                       /* 213 */
-0,                       /* 214 */
-0,                       /* 215 */
-0,                       /* 216 */
-0,                       /* 217 */
-0,                       /* 218 */
-0,                       /* 219 */
-0,                       /* 220 */
-0,                       /* 221 */
-0,                       /* 222 */
-0,                       /* 223 */
-0,                       /* 224 */
-0,                       /* 225 */
-0,                       /* 226 */
-0,                       /* 227 */
-0,                       /* 228 */
-0,                       /* 229 */
-0,                       /* 230 */
-0,                       /* 231 */
-0,                       /* 232 */
-0,                       /* 233 */
-0,                       /* 234 */
-0,                       /* 235 */
-0,                       /* 236 */
-0,                       /* 237 */
-0,                       /* 238 */
-0,                       /* 239 */
-0,                       /* 240 */
-0,                       /* 241 */
-0,                       /* 242 */
-0,                       /* 243 */
-0,                       /* 244 */
-0,                       /* 245 */
-0,                       /* 246 */
-0,                       /* 247 */
-0,                       /* 248 */
-0,                       /* 249 */
-0,                       /* 250 */
-0,                       /* 251 */
-0,                       /* 252 */
-0,                       /* 253 */
-0,                       /* 254 */
-0,                       /* 255 */
-0,                       /* 256 */
-0,                       /* 257 */
-0,                       /* 258 */
-0,                       /* 259 */
-0,                       /* 260 */
-0,                       /* 261 */
-0,                       /* 262 */
-0,                       /* 263 */
-0,                       /* 264 */
-0,                       /* 265 */
-0,                       /* 266 */
-0,                       /* 267 */
-0,                       /* 268 */
-0,                       /* 269 */
-0,                       /* 270 */
-0,                       /* 271 */
-0,                       /* 272 */
-0,                       /* 273 */
-0,                       /* 274 */
-0,                       /* 275 */
-0,                       /* 276 */
-0,                       /* 277 */
-0,                       /* 278 */
-0,                       /* 279 */
-0,                       /* 280 */
-0,                       /* 281 */
-0,                       /* 282 */
-0,                       /* 283 */
-0,                       /* 284 */
-0,                       /* 285 */
-0,                       /* 286 */
-0,                       /* 287 */
-0,                       /* 288 */
-0,                       /* 289 */
-0,                       /* 290 */
-0,                       /* 291 */
-0,                       /* 292 */
-0,                       /* 293 */
-0,                       /* 294 */
-0,                       /* 295 */
-0,                       /* 296 */
-0,                       /* 297 */
-0,                       /* 298 */
-0,                       /* 299 */
-0,                       /* 300 */
-0,                       /* 301 */
-0,                       /* 302 */
-0,                       /* 303 */
-0,                       /* 304 */
-0,                       /* 305 */
-0,                       /* 306 */
-0,                       /* 307 */
-0,                       /* 308 */
-0,                       /* 309 */
-0,                       /* 310 */
-0,                       /* 311 */
-0,                       /* 312 */
-0,                       /* 313 */
-0,                       /* 314 */
-0,                       /* 315 */
-0,                       /* 316 */
-0,                       /* 317 */
-0,                       /* 318 */
-0,                       /* 319 */
-0,                       /* 320 */
-0,                       /* 321 */
-0,                       /* 322 */
-0,                       /* 323 */
-0,                       /* 324 */
-0,                       /* 325 */
-0,                       /* 326 */
-0,                       /* 327 */
-0,                       /* 328 */
-0,                       /* 329 */
-0,                       /* 330 */
-0,                       /* 331 */
-0,                       /* 332 */
-0,                       /* 333 */
-0,                       /* 334 */
-0,                       /* 335 */
-0,                       /* 336 */
-0,                       /* 337 */
-0,                       /* 338 */
-0,                       /* 339 */
-0,                       /* 340 */
-0,                       /* 341 */
-0,                       /* 342 */
-0,                       /* 343 */
-0,                       /* 344 */
-0,                       /* 345 */
-0,                       /* 346 */
-0,                       /* 347 */
-0,                       /* 348 */
-0,                       /* 349 */
-0,                       /* 350 */
-0,                       /* 351 */
-0,                       /* 352 */
-0,                       /* 353 */
-0,                       /* 354 */
-0,                       /* 355 */
-0,                       /* 356 */
-0,                       /* 357 */
-0,                       /* 358 */
-0,                       /* 359 */
-0,                       /* 360 */
-0,                       /* 361 */
-0,                       /* 362 */
-0,                       /* 363 */
-0,                       /* 364 */
-0,                       /* 365 */
-0,                       /* 366 */
-0,                       /* 367 */
-0,                       /* 368 */
-0,                       /* 369 */
-0,                       /* 370 */
-0,                       /* 371 */
-0,                       /* 372 */
-0,                       /* 373 */
-0,                       /* 374 */
-0,                       /* 375 */
-0,                       /* 376 */
-0,                       /* 377 */
-0,                       /* 378 */
-0,                       /* 379 */
-0,                       /* 380 */
-0,                       /* 381 */
-0,                       /* 382 */
-0,                       /* 383 */
-0,                       /* 384 */
-0,                       /* 385 */
-0,                       /* 386 */
-0,                       /* 387 */
-0,                       /* 388 */
-0,                       /* 389 */
-0,                       /* 390 */
-0,                       /* 391 */
-0,                       /* 392 */
-0,                       /* 393 */
-0,                       /* 394 */
-0,                       /* 395 */
-0,                       /* 396 */
-0,                       /* 397 */
-0,                       /* 398 */
-0,                       /* 399 */
-0,                       /* 400 */
-0,                       /* 401 */
-0,                       /* 402 */
-0,                       /* 403 */
-0,                       /* 404 */
-0,                       /* 405 */
-0,                       /* 406 */
-0,                       /* 407 */
-0,                       /* 408 */
-0,                       /* 409 */
-0,                       /* 410 */
-0,                       /* 411 */
-0,                       /* 412 */
-0,                       /* 413 */
-0,                       /* 414 */
-0,                       /* 415 */
-0,                       /* 416 */
-0,                       /* 417 */
-0,                       /* 418 */
-0,                       /* 419 */
-0,                       /* 420 */
-0,                       /* 421 */
-0,                       /* 422 */
-0,                       /* 423 */
-0,                       /* 424 */
-0,                       /* 425 */
-0,                       /* 426 */
-0,                       /* 427 */
-0,                       /* 428 */
-0,                       /* 429 */
-0,                       /* 430 */
-0,                       /* 431 */
-0,                       /* 432 */
-0,                       /* 433 */
-0,                       /* 434 */
-0,                       /* 435 */
-0,                       /* 436 */
-0,                       /* 437 */
-0,                       /* 438 */
-0,                       /* 439 */
-0,                       /* 440 */
-0,                       /* 441 */
-0,                       /* 442 */
-0,                       /* 443 */
-0,                       /* 444 */
-0,                       /* 445 */
-0,                       /* 446 */
-0,                       /* 447 */
-0,                       /* 448 */
-0,                       /* 449 */
-0,                       /* 450 */
-0,                       /* 451 */
-0,                       /* 452 */
-0,                       /* 453 */
-0,                       /* 454 */
-0,                       /* 455 */
-0,                       /* 456 */
-0,                       /* 457 */
-0,                       /* 458 */
-0,                       /* 459 */
-0,                       /* 460 */
-0,                       /* 461 */
-0,                       /* 462 */
-0,                       /* 463 */
-0,                       /* 464 */
-0,                       /* 465 */
-0,                       /* 466 */
-0,                       /* 467 */
-0,                       /* 468 */
-0,                       /* 469 */
-0,                       /* 470 */
-0,                       /* 471 */
-0,                       /* 472 */
-0,                       /* 473 */
-0,                       /* 474 */
-0,                       /* 475 */
-0,                       /* 476 */
-0,                       /* 477 */
-0,                       /* 478 */
-0,                       /* 479 */
-0,                       /* 480 */
-0,                       /* 481 */
-0,                       /* 482 */
-0,                       /* 483 */
-0,                       /* 484 */
-0,                       /* 485 */
-0,                       /* 486 */
-0,                       /* 487 */
-0,                       /* 488 */
-0,                       /* 489 */
-0,                       /* 490 */
-0,                       /* 491 */
-0,                       /* 492 */
-0,                       /* 493 */
-0,                       /* 494 */
-0,                       /* 495 */
-0,                       /* 496 */
-0,                       /* 497 */
-0,                       /* 498 */
-0,                       /* 499 */
-0,                       /* 500 */
-0,                       /* 501 */
-0,                       /* 502 */
-0,                       /* 503 */
-0,                       /* 504 */
-0,                       /* 505 */
-0,                       /* 506 */
-0,                       /* 507 */
-0,                       /* 508 */
-0,                       /* 509 */
-0,                       /* 510 */
-0,                       /* 511 */
-"ERESTARTSYS",           /* 512 */
-"ERESTARTNOINTR",        /* 513 */
-"ERESTARTNOHAND",        /* 514 */
-"ENOIOCTLCMD",           /* 515 */
-"ERESTART_RESTARTBLOCK", /* 516 */
-0,                       /* 517 */
-0,                       /* 518 */
-0,                       /* 519 */
-0,                       /* 520 */
-"EBADHANDLE",            /* 521 */
-"ENOTSYNC",              /* 522 */
-"EBADCOOKIE",            /* 523 */
-"ENOTSUPP",              /* 524 */
-"ETOOSMALL",             /* 525 */
-"ESERVERFAULT",          /* 526 */
-"EBADTYPE",              /* 527 */
-"EJUKEBOX",              /* 528 */
-"EIOCBQUEUED",           /* 529 */
-"EIOCBRETRY",            /* 530 */
+std::array<const char *, 531> errnoNames = {
+    nullptr,                 /*  0  */
+    "EPERM",                 /*  1  */
+    "ENOENT",                /*  2  */
+    "ESRCH",                 /*  3  */
+    "EINTR",                 /*  4  */
+    "EIO",                   /*  5  */
+    "ENXIO",                 /*  6  */
+    "E2BIG",                 /*  7  */
+    "ENOEXEC",               /*  8  */
+    "EBADF",                 /*  9  */
+    "ECHILD",                /* 10  */
+    "EAGAIN",                /* 11  */
+    "ENOMEM",                /* 12  */
+    "EACCES",                /* 13  */
+    "EFAULT",                /* 14  */
+    "ENOTBLK",               /* 15  */
+    "EBUSY",                 /* 16  */
+    "EEXIST",                /* 17  */
+    "EXDEV",                 /* 18  */
+    "ENODEV",                /* 19  */
+    "ENOTDIR",               /* 20  */
+    "EISDIR",                /* 21  */
+    "EINVAL",                /* 22  */
+    "ENFILE",                /* 23  */
+    "EMFILE",                /* 24  */
+    "ENOTTY",                /* 25  */
+    "ETXTBSY",               /* 26  */
+    "EFBIG",                 /* 27  */
+    "ENOSPC",                /* 28  */
+    "ESPIPE",                /* 29  */
+    "EROFS",                 /* 30  */
+    "EMLINK",                /* 31  */
+    "EPIPE",                 /* 32  */
+    "EDOM",                  /* 33  */
+    "ERANGE",                /* 34  */
+    "EDEADLK",               /* 35  */
+    "ENAMETOOLONG",          /* 36  */
+    "ENOLCK",                /* 37  */
+    "ENOSYS",                /* 38  */
+    "ENOTEMPTY",             /* 39  */
+    "ELOOP",                 /* 40  */
+    nullptr,                 /* 41  */
+    "ENOMSG",                /* 42  */
+    "EIDRM",                 /* 43  */
+    "ECHRNG",                /* 44  */
+    "EL2NSYNC",              /* 45  */
+    "EL3HLT",                /* 46  */
+    "EL3RST",                /* 47  */
+    "ELNRNG",                /* 48  */
+    "EUNATCH",               /* 49  */
+    "ENOCSI",                /* 50  */
+    "EL2HLT",                /* 51  */
+    "EBADE",                 /* 52  */
+    "EBADR",                 /* 53  */
+    "EXFULL",                /* 54  */
+    "ENOANO",                /* 55  */
+    "EBADRQC",               /* 56  */
+    "EBADSLT",               /* 57  */
+    nullptr,                 /* 58  */
+    "EBFONT",                /* 59  */
+    "ENOSTR",                /* 60  */
+    "ENODATA",               /* 61  */
+    "ETIME",                 /* 62  */
+    "ENOSR",                 /* 63  */
+    "ENONET",                /* 64  */
+    "ENOPKG",                /* 65  */
+    "EREMOTE",               /* 66  */
+    "ENOLINK",               /* 67  */
+    "EADV",                  /* 68  */
+    "ESRMNT",                /* 69  */
+    "ECOMM",                 /* 70  */
+    "EPROTO",                /* 71  */
+    "EMULTIHOP",             /* 72  */
+    "EDOTDOT",               /* 73  */
+    "EBADMSG",               /* 74  */
+    "EOVERFLOW",             /* 75  */
+    "ENOTUNIQ",              /* 76  */
+    "EBADFD",                /* 77  */
+    "EREMCHG",               /* 78  */
+    "ELIBACC",               /* 79  */
+    "ELIBBAD",               /* 80  */
+    "ELIBSCN",               /* 81  */
+    "ELIBMAX",               /* 82  */
+    "ELIBEXEC",              /* 83  */
+    "EILSEQ",                /* 84  */
+    "ERESTART",              /* 85  */
+    "ESTRPIPE",              /* 86  */
+    "EUSERS",                /* 87  */
+    "ENOTSOCK",              /* 88  */
+    "EDESTADDRREQ",          /* 89  */
+    "EMSGSIZE",              /* 90  */
+    "EPROTOTYPE",            /* 91  */
+    "ENOPROTOOPT",           /* 92  */
+    "EPROTONOSUPPORT",       /* 93  */
+    "ESOCKTNOSUPPORT",       /* 94  */
+    "EOPNOTSUPP",            /* 95  */
+    "EPFNOSUPPORT",          /* 96  */
+    "EAFNOSUPPORT",          /* 97  */
+    "EADDRINUSE",            /* 98  */
+    "EADDRNOTAVAIL",         /* 99  */
+    "ENETDOWN",              /* 100 */
+    "ENETUNREACH",           /* 101 */
+    "ENETRESET",             /* 102 */
+    "ECONNABORTED",          /* 103 */
+    "ECONNRESET",            /* 104 */
+    "ENOBUFS",               /* 105 */
+    "EISCONN",               /* 106 */
+    "ENOTCONN",              /* 107 */
+    "ESHUTDOWN",             /* 108 */
+    "ETOOMANYREFS",          /* 109 */
+    "ETIMEDOUT",             /* 110 */
+    "ECONNREFUSED",          /* 111 */
+    "EHOSTDOWN",             /* 112 */
+    "EHOSTUNREACH",          /* 113 */
+    "EALREADY",              /* 114 */
+    "EINPROGRESS",           /* 115 */
+    "ESTALE",                /* 116 */
+    "EUCLEAN",               /* 117 */
+    "ENOTNAM",               /* 118 */
+    "ENAVAIL",               /* 119 */
+    "EISNAM",                /* 120 */
+    "EREMOTEIO",             /* 121 */
+    "EDQUOT",                /* 122 */
+    "ENOMEDIUM",             /* 123 */
+    "EMEDIUMTYPE",           /* 124 */
+    "ECANCELED",             /* 125 */
+    "ENOKEY",                /* 126 */
+    "EKEYEXPIRED",           /* 127 */
+    "EKEYREVOKED",           /* 128 */
+    "EKEYREJECTED",          /* 129 */
+    "EOWNERDEAD",            /* 130 */
+    "ENOTRECOVERABLE",       /* 131 */
+    nullptr,                 /* 132 */
+    nullptr,                 /* 133 */
+    nullptr,                 /* 134 */
+    nullptr,                 /* 135 */
+    nullptr,                 /* 136 */
+    nullptr,                 /* 137 */
+    nullptr,                 /* 138 */
+    nullptr,                 /* 139 */
+    nullptr,                 /* 140 */
+    nullptr,                 /* 141 */
+    nullptr,                 /* 142 */
+    nullptr,                 /* 143 */
+    nullptr,                 /* 144 */
+    nullptr,                 /* 145 */
+    nullptr,                 /* 146 */
+    nullptr,                 /* 147 */
+    nullptr,                 /* 148 */
+    nullptr,                 /* 149 */
+    nullptr,                 /* 150 */
+    nullptr,                 /* 151 */
+    nullptr,                 /* 152 */
+    nullptr,                 /* 153 */
+    nullptr,                 /* 154 */
+    nullptr,                 /* 155 */
+    nullptr,                 /* 156 */
+    nullptr,                 /* 157 */
+    nullptr,                 /* 158 */
+    nullptr,                 /* 159 */
+    nullptr,                 /* 160 */
+    nullptr,                 /* 161 */
+    nullptr,                 /* 162 */
+    nullptr,                 /* 163 */
+    nullptr,                 /* 164 */
+    nullptr,                 /* 165 */
+    nullptr,                 /* 166 */
+    nullptr,                 /* 167 */
+    nullptr,                 /* 168 */
+    nullptr,                 /* 169 */
+    nullptr,                 /* 170 */
+    nullptr,                 /* 171 */
+    nullptr,                 /* 172 */
+    nullptr,                 /* 173 */
+    nullptr,                 /* 174 */
+    nullptr,                 /* 175 */
+    nullptr,                 /* 176 */
+    nullptr,                 /* 177 */
+    nullptr,                 /* 178 */
+    nullptr,                 /* 179 */
+    nullptr,                 /* 180 */
+    nullptr,                 /* 181 */
+    nullptr,                 /* 182 */
+    nullptr,                 /* 183 */
+    nullptr,                 /* 184 */
+    nullptr,                 /* 185 */
+    nullptr,                 /* 186 */
+    nullptr,                 /* 187 */
+    nullptr,                 /* 188 */
+    nullptr,                 /* 189 */
+    nullptr,                 /* 190 */
+    nullptr,                 /* 191 */
+    nullptr,                 /* 192 */
+    nullptr,                 /* 193 */
+    nullptr,                 /* 194 */
+    nullptr,                 /* 195 */
+    nullptr,                 /* 196 */
+    nullptr,                 /* 197 */
+    nullptr,                 /* 198 */
+    nullptr,                 /* 199 */
+    nullptr,                 /* 200 */
+    nullptr,                 /* 201 */
+    nullptr,                 /* 202 */
+    nullptr,                 /* 203 */
+    nullptr,                 /* 204 */
+    nullptr,                 /* 205 */
+    nullptr,                 /* 206 */
+    nullptr,                 /* 207 */
+    nullptr,                 /* 208 */
+    nullptr,                 /* 209 */
+    nullptr,                 /* 210 */
+    nullptr,                 /* 211 */
+    nullptr,                 /* 212 */
+    nullptr,                 /* 213 */
+    nullptr,                 /* 214 */
+    nullptr,                 /* 215 */
+    nullptr,                 /* 216 */
+    nullptr,                 /* 217 */
+    nullptr,                 /* 218 */
+    nullptr,                 /* 219 */
+    nullptr,                 /* 220 */
+    nullptr,                 /* 221 */
+    nullptr,                 /* 222 */
+    nullptr,                 /* 223 */
+    nullptr,                 /* 224 */
+    nullptr,                 /* 225 */
+    nullptr,                 /* 226 */
+    nullptr,                 /* 227 */
+    nullptr,                 /* 228 */
+    nullptr,                 /* 229 */
+    nullptr,                 /* 230 */
+    nullptr,                 /* 231 */
+    nullptr,                 /* 232 */
+    nullptr,                 /* 233 */
+    nullptr,                 /* 234 */
+    nullptr,                 /* 235 */
+    nullptr,                 /* 236 */
+    nullptr,                 /* 237 */
+    nullptr,                 /* 238 */
+    nullptr,                 /* 239 */
+    nullptr,                 /* 240 */
+    nullptr,                 /* 241 */
+    nullptr,                 /* 242 */
+    nullptr,                 /* 243 */
+    nullptr,                 /* 244 */
+    nullptr,                 /* 245 */
+    nullptr,                 /* 246 */
+    nullptr,                 /* 247 */
+    nullptr,                 /* 248 */
+    nullptr,                 /* 249 */
+    nullptr,                 /* 250 */
+    nullptr,                 /* 251 */
+    nullptr,                 /* 252 */
+    nullptr,                 /* 253 */
+    nullptr,                 /* 254 */
+    nullptr,                 /* 255 */
+    nullptr,                 /* 256 */
+    nullptr,                 /* 257 */
+    nullptr,                 /* 258 */
+    nullptr,                 /* 259 */
+    nullptr,                 /* 260 */
+    nullptr,                 /* 261 */
+    nullptr,                 /* 262 */
+    nullptr,                 /* 263 */
+    nullptr,                 /* 264 */
+    nullptr,                 /* 265 */
+    nullptr,                 /* 266 */
+    nullptr,                 /* 267 */
+    nullptr,                 /* 268 */
+    nullptr,                 /* 269 */
+    nullptr,                 /* 270 */
+    nullptr,                 /* 271 */
+    nullptr,                 /* 272 */
+    nullptr,                 /* 273 */
+    nullptr,                 /* 274 */
+    nullptr,                 /* 275 */
+    nullptr,                 /* 276 */
+    nullptr,                 /* 277 */
+    nullptr,                 /* 278 */
+    nullptr,                 /* 279 */
+    nullptr,                 /* 280 */
+    nullptr,                 /* 281 */
+    nullptr,                 /* 282 */
+    nullptr,                 /* 283 */
+    nullptr,                 /* 284 */
+    nullptr,                 /* 285 */
+    nullptr,                 /* 286 */
+    nullptr,                 /* 287 */
+    nullptr,                 /* 288 */
+    nullptr,                 /* 289 */
+    nullptr,                 /* 290 */
+    nullptr,                 /* 291 */
+    nullptr,                 /* 292 */
+    nullptr,                 /* 293 */
+    nullptr,                 /* 294 */
+    nullptr,                 /* 295 */
+    nullptr,                 /* 296 */
+    nullptr,                 /* 297 */
+    nullptr,                 /* 298 */
+    nullptr,                 /* 299 */
+    nullptr,                 /* 300 */
+    nullptr,                 /* 301 */
+    nullptr,                 /* 302 */
+    nullptr,                 /* 303 */
+    nullptr,                 /* 304 */
+    nullptr,                 /* 305 */
+    nullptr,                 /* 306 */
+    nullptr,                 /* 307 */
+    nullptr,                 /* 308 */
+    nullptr,                 /* 309 */
+    nullptr,                 /* 310 */
+    nullptr,                 /* 311 */
+    nullptr,                 /* 312 */
+    nullptr,                 /* 313 */
+    nullptr,                 /* 314 */
+    nullptr,                 /* 315 */
+    nullptr,                 /* 316 */
+    nullptr,                 /* 317 */
+    nullptr,                 /* 318 */
+    nullptr,                 /* 319 */
+    nullptr,                 /* 320 */
+    nullptr,                 /* 321 */
+    nullptr,                 /* 322 */
+    nullptr,                 /* 323 */
+    nullptr,                 /* 324 */
+    nullptr,                 /* 325 */
+    nullptr,                 /* 326 */
+    nullptr,                 /* 327 */
+    nullptr,                 /* 328 */
+    nullptr,                 /* 329 */
+    nullptr,                 /* 330 */
+    nullptr,                 /* 331 */
+    nullptr,                 /* 332 */
+    nullptr,                 /* 333 */
+    nullptr,                 /* 334 */
+    nullptr,                 /* 335 */
+    nullptr,                 /* 336 */
+    nullptr,                 /* 337 */
+    nullptr,                 /* 338 */
+    nullptr,                 /* 339 */
+    nullptr,                 /* 340 */
+    nullptr,                 /* 341 */
+    nullptr,                 /* 342 */
+    nullptr,                 /* 343 */
+    nullptr,                 /* 344 */
+    nullptr,                 /* 345 */
+    nullptr,                 /* 346 */
+    nullptr,                 /* 347 */
+    nullptr,                 /* 348 */
+    nullptr,                 /* 349 */
+    nullptr,                 /* 350 */
+    nullptr,                 /* 351 */
+    nullptr,                 /* 352 */
+    nullptr,                 /* 353 */
+    nullptr,                 /* 354 */
+    nullptr,                 /* 355 */
+    nullptr,                 /* 356 */
+    nullptr,                 /* 357 */
+    nullptr,                 /* 358 */
+    nullptr,                 /* 359 */
+    nullptr,                 /* 360 */
+    nullptr,                 /* 361 */
+    nullptr,                 /* 362 */
+    nullptr,                 /* 363 */
+    nullptr,                 /* 364 */
+    nullptr,                 /* 365 */
+    nullptr,                 /* 366 */
+    nullptr,                 /* 367 */
+    nullptr,                 /* 368 */
+    nullptr,                 /* 369 */
+    nullptr,                 /* 370 */
+    nullptr,                 /* 371 */
+    nullptr,                 /* 372 */
+    nullptr,                 /* 373 */
+    nullptr,                 /* 374 */
+    nullptr,                 /* 375 */
+    nullptr,                 /* 376 */
+    nullptr,                 /* 377 */
+    nullptr,                 /* 378 */
+    nullptr,                 /* 379 */
+    nullptr,                 /* 380 */
+    nullptr,                 /* 381 */
+    nullptr,                 /* 382 */
+    nullptr,                 /* 383 */
+    nullptr,                 /* 384 */
+    nullptr,                 /* 385 */
+    nullptr,                 /* 386 */
+    nullptr,                 /* 387 */
+    nullptr,                 /* 388 */
+    nullptr,                 /* 389 */
+    nullptr,                 /* 390 */
+    nullptr,                 /* 391 */
+    nullptr,                 /* 392 */
+    nullptr,                 /* 393 */
+    nullptr,                 /* 394 */
+    nullptr,                 /* 395 */
+    nullptr,                 /* 396 */
+    nullptr,                 /* 397 */
+    nullptr,                 /* 398 */
+    nullptr,                 /* 399 */
+    nullptr,                 /* 400 */
+    nullptr,                 /* 401 */
+    nullptr,                 /* 402 */
+    nullptr,                 /* 403 */
+    nullptr,                 /* 404 */
+    nullptr,                 /* 405 */
+    nullptr,                 /* 406 */
+    nullptr,                 /* 407 */
+    nullptr,                 /* 408 */
+    nullptr,                 /* 409 */
+    nullptr,                 /* 410 */
+    nullptr,                 /* 411 */
+    nullptr,                 /* 412 */
+    nullptr,                 /* 413 */
+    nullptr,                 /* 414 */
+    nullptr,                 /* 415 */
+    nullptr,                 /* 416 */
+    nullptr,                 /* 417 */
+    nullptr,                 /* 418 */
+    nullptr,                 /* 419 */
+    nullptr,                 /* 420 */
+    nullptr,                 /* 421 */
+    nullptr,                 /* 422 */
+    nullptr,                 /* 423 */
+    nullptr,                 /* 424 */
+    nullptr,                 /* 425 */
+    nullptr,                 /* 426 */
+    nullptr,                 /* 427 */
+    nullptr,                 /* 428 */
+    nullptr,                 /* 429 */
+    nullptr,                 /* 430 */
+    nullptr,                 /* 431 */
+    nullptr,                 /* 432 */
+    nullptr,                 /* 433 */
+    nullptr,                 /* 434 */
+    nullptr,                 /* 435 */
+    nullptr,                 /* 436 */
+    nullptr,                 /* 437 */
+    nullptr,                 /* 438 */
+    nullptr,                 /* 439 */
+    nullptr,                 /* 440 */
+    nullptr,                 /* 441 */
+    nullptr,                 /* 442 */
+    nullptr,                 /* 443 */
+    nullptr,                 /* 444 */
+    nullptr,                 /* 445 */
+    nullptr,                 /* 446 */
+    nullptr,                 /* 447 */
+    nullptr,                 /* 448 */
+    nullptr,                 /* 449 */
+    nullptr,                 /* 450 */
+    nullptr,                 /* 451 */
+    nullptr,                 /* 452 */
+    nullptr,                 /* 453 */
+    nullptr,                 /* 454 */
+    nullptr,                 /* 455 */
+    nullptr,                 /* 456 */
+    nullptr,                 /* 457 */
+    nullptr,                 /* 458 */
+    nullptr,                 /* 459 */
+    nullptr,                 /* 460 */
+    nullptr,                 /* 461 */
+    nullptr,                 /* 462 */
+    nullptr,                 /* 463 */
+    nullptr,                 /* 464 */
+    nullptr,                 /* 465 */
+    nullptr,                 /* 466 */
+    nullptr,                 /* 467 */
+    nullptr,                 /* 468 */
+    nullptr,                 /* 469 */
+    nullptr,                 /* 470 */
+    nullptr,                 /* 471 */
+    nullptr,                 /* 472 */
+    nullptr,                 /* 473 */
+    nullptr,                 /* 474 */
+    nullptr,                 /* 475 */
+    nullptr,                 /* 476 */
+    nullptr,                 /* 477 */
+    nullptr,                 /* 478 */
+    nullptr,                 /* 479 */
+    nullptr,                 /* 480 */
+    nullptr,                 /* 481 */
+    nullptr,                 /* 482 */
+    nullptr,                 /* 483 */
+    nullptr,                 /* 484 */
+    nullptr,                 /* 485 */
+    nullptr,                 /* 486 */
+    nullptr,                 /* 487 */
+    nullptr,                 /* 488 */
+    nullptr,                 /* 489 */
+    nullptr,                 /* 490 */
+    nullptr,                 /* 491 */
+    nullptr,                 /* 492 */
+    nullptr,                 /* 493 */
+    nullptr,                 /* 494 */
+    nullptr,                 /* 495 */
+    nullptr,                 /* 496 */
+    nullptr,                 /* 497 */
+    nullptr,                 /* 498 */
+    nullptr,                 /* 499 */
+    nullptr,                 /* 500 */
+    nullptr,                 /* 501 */
+    nullptr,                 /* 502 */
+    nullptr,                 /* 503 */
+    nullptr,                 /* 504 */
+    nullptr,                 /* 505 */
+    nullptr,                 /* 506 */
+    nullptr,                 /* 507 */
+    nullptr,                 /* 508 */
+    nullptr,                 /* 509 */
+    nullptr,                 /* 510 */
+    nullptr,                 /* 511 */
+    "ERESTARTSYS",           /* 512 */
+    "ERESTARTNOINTR",        /* 513 */
+    "ERESTARTNOHAND",        /* 514 */
+    "ENOIOCTLCMD",           /* 515 */
+    "ERESTART_RESTARTBLOCK", /* 516 */
+    nullptr,                 /* 517 */
+    nullptr,                 /* 518 */
+    nullptr,                 /* 519 */
+    nullptr,                 /* 520 */
+    "EBADHANDLE",            /* 521 */
+    "ENOTSYNC",              /* 522 */
+    "EBADCOOKIE",            /* 523 */
+    "ENOTSUPP",              /* 524 */
+    "ETOOSMALL",             /* 525 */
+    "ESERVERFAULT",          /* 526 */
+    "EBADTYPE",              /* 527 */
+    "EJUKEBOX",              /* 528 */
+    "EIOCBQUEUED",           /* 529 */
+    "EIOCBRETRY",            /* 530 */
 };
 }
 

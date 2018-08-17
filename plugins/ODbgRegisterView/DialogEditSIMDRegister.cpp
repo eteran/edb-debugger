@@ -297,23 +297,23 @@ bool DialogEditSIMDRegister::eventFilter(QObject* obj, QEvent* event) {
 
 void DialogEditSIMDRegister::set_value(const Register &newReg) {
 	resetLayout();
-	assert(newReg.bitSize() <= 8 * sizeof value_);
+	assert(newReg.bitSize() <= 8 * sizeof(value_));
 	reg = newReg;
 	util::markMemory(&value_, value_.size());
 	if (QRegExp("mm[0-7]").exactMatch(reg.name())) {
 		const auto value = reg.value<edb::value64>();
-		std::memcpy(&value_, &value, sizeof value);
+		std::memcpy(&value_, &value, sizeof(value));
 		hideColumns(MMX_FIRST_COL);
 		// MMX registers are never used in float computations, so hide useless rows
 		hideRows(FLOATS32_ROW);
 		hideRows(FLOATS64_ROW);
 	} else if (QRegExp("xmm[0-9]+").exactMatch(reg.name())) {
 		const auto value = reg.value<edb::value128>();
-		std::memcpy(&value_, &value, sizeof value);
+		std::memcpy(&value_, &value, sizeof(value));
 		hideColumns(XMM_FIRST_COL);
 	} else if (QRegExp("ymm[0-9]+").exactMatch(reg.name())) {
 		const auto value = reg.value<edb::value256>();
-		std::memcpy(&value_, &value, sizeof value);
+		std::memcpy(&value_, &value, sizeof(value));
 		hideColumns(YMM_FIRST_COL);
 	} else
 		qCritical() << "DialogEditSIMDRegister::set_value(" << reg.name() << "): register type unsupported";
@@ -387,7 +387,7 @@ template <typename Integer>
 void DialogEditSIMDRegister::formatInteger(NumberEdit *const edit, Integer integer) const {
 	switch (intMode) {
 	case NumberDisplayMode::Hex:
-		edit->setText(QString("%1").arg(integer, 2 * sizeof integer, 16, QChar('0')));
+		edit->setText(QString("%1").arg(integer, 2 * sizeof(integer), 16, QChar('0')));
 		break;
 	case NumberDisplayMode::Signed:
 		using Int    = typename std::remove_reference<Integer>::type;

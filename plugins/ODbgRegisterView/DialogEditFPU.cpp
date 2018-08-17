@@ -57,17 +57,17 @@ long double readFloat(const QString &strInput, bool &ok) {
 	static std::array<std::uint8_t, 10> negativeQNaN{0, 0, 0, 0, 0, 0, 0, 0xc0, 0xff, 0xff};
 
 	if (str == "+snan" || str == "snan")
-		std::memcpy(&value, &positiveSNaN, sizeof value);
+		std::memcpy(&value, &positiveSNaN, sizeof(value));
 	else if (str == "-snan")
-		std::memcpy(&value, &negativeSNaN, sizeof value);
+		std::memcpy(&value, &negativeSNaN, sizeof(value));
 	else if (str == "+qnan" || str == "qnan" || str == "nan")
-		std::memcpy(&value, &positiveQNaN, sizeof value);
+		std::memcpy(&value, &positiveQNaN, sizeof(value));
 	else if (str == "-qnan")
-		std::memcpy(&value, &negativeQNaN, sizeof value);
+		std::memcpy(&value, &negativeQNaN, sizeof(value));
 	else if (str == "+inf" || str == "inf")
-		std::memcpy(&value, &positiveInf, sizeof value);
+		std::memcpy(&value, &positiveInf, sizeof(value));
 	else if (str == "-inf")
-		std::memcpy(&value, &negativeInf, sizeof value);
+		std::memcpy(&value, &negativeInf, sizeof(value));
 	else
 		return 0;
 
@@ -150,8 +150,8 @@ void DialogEditFPU::onHexEdited(const QString &input) {
 	auto       source    = byteArray.constData();
 	auto       dest      = reinterpret_cast<unsigned char *>(&value_);
 
-	for (std::size_t i = 0; i < sizeof value_; ++i) {
-		dest[i]        = source[sizeof value_ - i - 1];
+	for (std::size_t i = 0; i < sizeof(value_); ++i) {
+		dest[i]        = source[sizeof(value_) - i - 1];
 	}
 
 	updateFloatEntry();

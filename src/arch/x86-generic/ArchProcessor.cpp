@@ -122,16 +122,20 @@ std::string register_name(const T& val) {
 	return edb::v1::formatter().register_name(val);
 }
 
-template<typename T>
+template <typename T>
 QString syscallErrName(T err) {
 #ifdef Q_OS_LINUX
-	std::size_t index=-err;
-	if(index>=sizeof errnoNames/sizeof*errnoNames) return "";
-	if(errnoNames[index]) return errnoNames[index];
-    return "";
-#else
-	return "";
+	std::size_t index = -err;
+
+	if(index >= errnoNames.size()) {
+		return "";
+	}
+
+	if(errnoNames[index]) {
+		return errnoNames[index];
+	}
 #endif
+	return "";
 }
 
 #if 0
@@ -675,7 +679,7 @@ QString formatPackedFloat(const char* data,std::size_t size) {
 	for(std::size_t offset=0;offset<size;offset+=sizeof(ValueType)) {
 
 		ValueType value;
-		std::memcpy(&value,data+offset,sizeof value);
+		std::memcpy(&value,data+offset,sizeof(value));
 		if(!str.isEmpty()) str+=", ";
 		str+=formatFloat(value);
 	}
@@ -964,7 +968,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 						continue;
 					}
 					std::uint32_t value;
-					std::memcpy(&value,buf,sizeof value);
+					std::memcpy(&value,buf,sizeof(value));
 					arguments << format_argument(argument_type, make_Register<32>("[esp]", value, Register::TYPE_GPR));
 					continue;
 				}
