@@ -19,10 +19,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef QLONGVALIDATOR_20071128_H_
 #define QLONGVALIDATOR_20071128_H_
 
+#include "API.h"
 #include <QValidator>
 #include <cstdint>
 
-class QLongValidator : public QValidator {
+class EDB_EXPORT QLongValidator : public QValidator {
 	Q_OBJECT
 public:
 	using value_type = std::int64_t;

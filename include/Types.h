@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef TYPES_20071127_H_
 #define TYPES_20071127_H_
 
+#include "API.h"
 #include <QString>
 #include <QVariant>
 #include <array>
@@ -35,7 +36,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class Register;
 
 #ifdef _MSC_VER
-extern "C" void __fastcall long_double_to_double(const void* src, double* dest);
+extern "C" EDB_EXPORT void __fastcall long_double_to_double(const void* src, double* dest);
 #endif
 
 namespace edb {
@@ -60,7 +61,7 @@ template <> struct sized_uint<32> { using type = uint32_t; };
 template <> struct sized_uint<64> { using type = uint64_t; };
 
 template <int ElementWidth, int ElementCount>
-class ValueBase {
+class EDB_EXPORT ValueBase {
 	static_assert(ElementCount > 0, "ValueBase::value_ must be non-empty");
 
 protected:
@@ -118,7 +119,7 @@ public:
 };
 
 template <int N>
-class SizedValue : public ValueBase<N,1> {
+class EDB_EXPORT SizedValue : public ValueBase<N,1> {
 	static_assert((N % 8) == 0, "SizedValue must have multiple of 8 bits in size");
 
 public:
@@ -244,7 +245,7 @@ public:
 };
 
 // Not using long double because for e.g. x86_64 it has 128 bits.
-struct Value80 : public ValueBase<16,5> {
+struct EDB_EXPORT Value80 : public ValueBase<16,5> {
 	Value80() = default;
 
 	template <class Data>
@@ -285,7 +286,7 @@ struct Value80 : public ValueBase<16,5> {
 static constexpr int LargeSizedValueElementWidth = 64;
 
 template <int N>
-struct LargeSizedValue : public ValueBase<LargeSizedValueElementWidth, N / LargeSizedValueElementWidth> {
+struct EDB_EXPORT LargeSizedValue : public ValueBase<LargeSizedValueElementWidth, N / LargeSizedValueElementWidth> {
 	using BaseClass = ValueBase<LargeSizedValueElementWidth, N / LargeSizedValueElementWidth>;
 
 	static_assert(N % LargeSizedValueElementWidth == 0, "LargeSizedValue must have multiple of 64 bits in size");
@@ -335,7 +336,7 @@ static_assert(std::is_standard_layout<value8>::value &&
 			  std::is_standard_layout<value256>::value &&
               std::is_standard_layout<value512>::value, "Fixed-sized values are intended to have standard layout");
 
-class address_t : public value64 {
+class EDB_EXPORT address_t : public value64 {
 public:
 	QString toPointerString(bool createdFromNativePointer = true) const;
 	QString toHexString() const;

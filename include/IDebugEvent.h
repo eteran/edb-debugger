@@ -19,11 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IDEBUGEVENT_20121005_H_
 #define IDEBUGEVENT_20121005_H_
 
-#include "API.h"
 #include "OSTypes.h"
 #include <QString>
 
-class EDB_EXPORT IDebugEvent {
+class IDebugEvent {
 public:
 	enum REASON {
 		EVENT_EXITED,     // exited normally

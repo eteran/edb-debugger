@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <cstdint>
 
-class EDB_EXPORT Symbol {
+class Symbol {
 public:
 	QString        file;
 	QString        name;

@@ -19,13 +19,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef IREGION_20120709_H_
 #define IREGION_20120709_H_
 
-#include "API.h"
 #include "Types.h"
 #include <memory>
 
 class QString;
 
-class EDB_EXPORT IRegion {
+class IRegion {
 public:
 	using permissions_t = quint32;
 

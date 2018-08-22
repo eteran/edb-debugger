@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ARCHPROCESSOR_20070312_H_
 #define ARCHPROCESSOR_20070312_H_
 
+#include "API.h"
 #include "RegisterViewModelBase.h"
 #include "Types.h"
 #include "Status.h"
@@ -30,7 +31,7 @@ class QString;
 class QStringList;
 class State;
 
-class ArchProcessor : public QObject {
+class EDB_EXPORT ArchProcessor : public QObject {
 	Q_OBJECT
 	Q_DISABLE_COPY(ArchProcessor)
 public:

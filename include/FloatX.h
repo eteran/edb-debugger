@@ -2,6 +2,7 @@
 #ifndef FLOAT_X_H_20151108
 #define FLOAT_X_H_20151108
 
+#include "API.h"
 #include "Types.h"
 #include <QValidator>
 #include <cmath>
@@ -9,17 +10,17 @@
 #include <type_traits>
 
 template <class Float>
-Float readFloat(const QString& strInput, bool& ok);
+Float EDB_EXPORT readFloat(const QString& strInput, bool& ok);
 
 template <class Float>
-class FloatXValidator : public QValidator {
+class EDB_EXPORT FloatXValidator : public QValidator {
 public:
     explicit FloatXValidator(QObject* parent = nullptr) : QValidator(parent) {}
 	QValidator::State validate(QString& input, int&) const override;
 };
 
 template <class Float>
-QString formatFloat(Float value);
+QString EDB_EXPORT formatFloat(Float value);
 
 // Only class, nothing about sign
 enum class FloatValueClass {
@@ -33,9 +34,9 @@ enum class FloatValueClass {
 	Unsupported
 };
 
-FloatValueClass floatType(edb::value32 value);
-FloatValueClass floatType(edb::value64 value);
-FloatValueClass floatType(edb::value80 value);
+FloatValueClass EDB_EXPORT floatType(edb::value32 value);
+FloatValueClass EDB_EXPORT floatType(edb::value64 value);
+FloatValueClass EDB_EXPORT floatType(edb::value80 value);
 
 // This will work not only for floats, but also for integers
 template <class T>

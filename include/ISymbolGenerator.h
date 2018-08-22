@@ -20,11 +20,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef SYMBOL_GENERATOR_20130808_H_
 #define SYMBOL_GENERATOR_20130808_H_
 
-#include "API.h"
-
 class QString;
 
-class EDB_EXPORT ISymbolGenerator {
+class ISymbolGenerator {
 public:
 	virtual ~ISymbolGenerator() = default;
 

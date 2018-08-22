@@ -19,18 +19,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef PROTOTYPE_20070320_H_
 #define PROTOTYPE_20070320_H_
 
-#include "API.h"
 #include <vector>
 #include <QString>
 
 namespace edb {
 
-struct EDB_EXPORT Argument {
+struct Argument {
 	QString name;
 	QString type;
 };
 
-struct EDB_EXPORT Prototype {
+struct Prototype {
 	QString               name;
 	QString               type;
 	bool                  noreturn;

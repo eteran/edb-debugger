@@ -19,13 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef THREADS_MODEL_H_
 #define THREADS_MODEL_H_
 
+#include "API.h"
 #include <QAbstractItemModel>
 #include <QVector>
 #include <memory>
 
 class IThread;
 
-class ThreadsModel : public QAbstractItemModel {
+class EDB_EXPORT ThreadsModel : public QAbstractItemModel {
 	Q_OBJECT
 
 public:
