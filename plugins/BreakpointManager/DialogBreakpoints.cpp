@@ -96,7 +96,7 @@ void DialogBreakpoints::updateList() {
 		const QString bytes          = edb::v1::format_bytes(bp->original_bytes(), bp->size());
 
 		auto item = new QTableWidgetItem(edb::v1::format_pointer(address));
-        item->setData(Qt::UserRole, address.toUint());
+		item->setData(Qt::UserRole, address.toQVariant());
 
 		ui->tableWidget->setItem(row, 0, item);
 		ui->tableWidget->setItem(row, 1, new QTableWidgetItem(condition));

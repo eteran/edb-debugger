@@ -185,7 +185,7 @@ void DialogOpcodes::add_result(const InstructionList &instructions, edb::address
 
 		auto item = new QListWidgetItem(instruction_string);
 
-        item->setData(Qt::UserRole, rva.toUint());
+		item->setData(Qt::UserRole, rva.toQVariant());
 		ui->listWidget->addItem(item);
 	}
 }

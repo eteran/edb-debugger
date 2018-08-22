@@ -92,7 +92,7 @@ void DialogBinaryString::do_find() {
 
 						if(!ui->chkAlignment->isChecked() || (addr % align) == 0) {
 							auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
-                            item->setData(Qt::UserRole, addr.toUint());
+							item->setData(Qt::UserRole, addr.toQVariant());
 							ui->listWidget->addItem(item);
 						}
 					}

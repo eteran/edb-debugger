@@ -104,7 +104,7 @@ void DialogReferences::do_find() {
 						if(test_address == address) {
 							auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 							item->setData(TypeRole, 'D');
-                            item->setData(AddressRole, addr.toUint());
+							item->setData(AddressRole, addr.toQVariant());
 							ui->listWidget->addItem(item);
 						}
 
@@ -120,7 +120,7 @@ void DialogReferences::do_find() {
 									if(is_immediate(inst[1]) && static_cast<edb::address_t>(inst[1]->imm) == address) {
 										auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 										item->setData(TypeRole, 'C');
-                                        item->setData(AddressRole, addr.toUint());
+										item->setData(AddressRole, addr.toQVariant());
 										ui->listWidget->addItem(item);
 									}
 								}
@@ -133,7 +133,7 @@ void DialogReferences::do_find() {
 								if(is_immediate(inst[0]) && static_cast<edb::address_t>(inst[0]->imm) == address) {
 									auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 									item->setData(TypeRole, 'C');
-                                    item->setData(AddressRole, addr.toUint());
+									item->setData(AddressRole, addr.toQVariant());
 									ui->listWidget->addItem(item);
 								}
 								break;
@@ -143,7 +143,7 @@ void DialogReferences::do_find() {
 										if(static_cast<edb::address_t>(inst[0]->imm) == address) {
 											auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 											item->setData(TypeRole, 'C');
-                                            item->setData(AddressRole, addr.toUint());
+											item->setData(AddressRole, addr.toQVariant());
 											ui->listWidget->addItem(item);
 										}
 									}

@@ -135,15 +135,16 @@ void DialogFunctions::do_find() {
 
 					// entry point
 					auto p = new QTableWidgetItem(edb::v1::format_pointer(info.entry_address()));
-                    p->setData(Qt::UserRole, info.entry_address().toUint());
+					p->setData(Qt::UserRole, info.entry_address().toQVariant());
 					ui->tableWidget->setItem(row, 0, p);
 
 					// upper bound of the function
 					if(info.reference_count() >= MIN_REFCOUNT) {
 						ui->tableWidget->setItem(row, 1, new QTableWidgetItem(edb::v1::format_pointer(info.end_address())));
 
+						edb::address_t upperBound = info.end_address() - info.entry_address() + 1;
 						auto size_item = new QTableWidgetItem;
-                        size_item->setData(Qt::DisplayRole, info.end_address() - info.entry_address() + 1);
+						size_item->setData(Qt::DisplayRole, upperBound.toQVariant());
 
 						ui->tableWidget->setItem(row, 2, size_item);
 					}

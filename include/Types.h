@@ -177,7 +177,8 @@ public:
 	static SizedValue fromCString(const QString& str, bool* ok = nullptr)      { return fromString(str, ok, 0); }
 
 	operator InnerValueType() const { return this->value_[0]; }
-	operator QVariant() const { return QVariant::fromValue(this->value_[0]); }
+
+	QVariant toQVariant() const { return QVariant::fromValue(this->value_[0]); }
 
 	SizedValue signExtended(std::size_t valueLength) const {
 

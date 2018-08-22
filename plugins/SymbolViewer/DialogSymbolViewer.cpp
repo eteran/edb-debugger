@@ -99,10 +99,10 @@ void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &po
 			QAction *const action4 = menu.addAction(tr("&Follow In Stack"),          this, SLOT(mnuFollowInStack()));
 
             // TODO(eteran): add -> operator to Result, this is hidious...
-            action1->setData((*addr).toUint());
-            action2->setData((*addr).toUint());
-            action3->setData((*addr).toUint());
-            action4->setData((*addr).toUint());
+			action1->setData((*addr).toQVariant());
+			action2->setData((*addr).toQVariant());
+			action3->setData((*addr).toQVariant());
+			action4->setData((*addr).toQVariant());
 
 			menu.exec(ui->listView->mapToGlobal(pos));
 		}
