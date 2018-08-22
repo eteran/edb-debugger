@@ -489,7 +489,7 @@ void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
 	Q_ASSERT(state);
 
-	auto state_impl = static_cast<PlatformState *>(state->impl_);
+    auto state_impl = static_cast<PlatformState *>(state->impl_.get());
 
 	if(attached() && state_impl) {
 
@@ -529,7 +529,7 @@ void DebuggerCore::set_state(const State &state) {
 
 	// TODO: assert that we are paused
 
-	auto state_impl = static_cast<PlatformState *>(state.impl_);
+    auto state_impl = static_cast<PlatformState *>(state.impl_.get());
 
 	if(attached()) {
 		state_impl->context_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
