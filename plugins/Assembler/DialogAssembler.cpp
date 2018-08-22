@@ -162,13 +162,13 @@ void DialogAssembler::on_buttonBox_accepted() {
 		}
 
 
-		QTemporaryFile source_file(QString("%1/edb_asm_temp_%2_XXXXXX.%3").arg(QDir::tempPath()).arg(getpid()).arg(asm_ext));
+        QTemporaryFile source_file(QString("%1/edb_asm_temp_%2_XXXXXX.%3").arg(QDir::tempPath()).arg(QCoreApplication::applicationPid()).arg(asm_ext));
 		if(!source_file.open()) {
 			QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary source file."));
 			return;
 		}
 
-		QTemporaryFile output_file(QString("%1/edb_asm_temp_%2_XXXXXX.bin").arg(QDir::tempPath()).arg(getpid()));
+        QTemporaryFile output_file(QString("%1/edb_asm_temp_%2_XXXXXX.bin").arg(QDir::tempPath()).arg(QCoreApplication::applicationPid()));
 		if(!output_file.open()) {
 			QMessageBox::critical(this, tr("Error Creating File"), tr("Failed to create temporary object file."));
 			return;
@@ -226,9 +226,9 @@ void DialogAssembler::on_buttonBox_accepted() {
 						}
 					}
 				} else if(replacement_size==0) {
-					const auto stderr=process.readAllStandardError();
+                    const auto stdError = process.readAllStandardError();
 					QMessageBox::warning(this, tr("Error In Code"), tr("Got zero bytes from the assembler")+
-																	(stderr.isEmpty()?"":tr(", here's what it has to say:\n\n")+stderr));
+                                                                    (stdError.isEmpty()?"":tr(", here's what it has to say:\n\n")+stdError));
 					return;
 				} else {
 					if(ui->keepSize->isChecked()) {
