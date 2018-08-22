@@ -58,9 +58,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 IDebugger *edb::v1::debugger_core = nullptr;
 QWidget   *edb::v1::debugger_ui   = nullptr;
 
-
-
-
 namespace edb {
 
 Q_DECLARE_NAMESPACE_TR(edb)

@@ -2,6 +2,7 @@
 #ifndef FORMATTER_H_
 #define FORMATTER_H_
 
+#include "API.h"
 #include <string>
 class QString;
 
@@ -10,7 +11,7 @@ namespace CapstoneEDB {
 class Operand;
 class Instruction;
 
-class Formatter {
+class EDB_EXPORT Formatter {
 public:
 	enum Syntax {
 		SyntaxIntel, 

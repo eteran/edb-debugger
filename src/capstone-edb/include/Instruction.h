@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef INSTRUCTION_20150908_H
 #define INSTRUCTION_20150908_H
 
+#include "API.h"
 #include "Formatter.h"
 #include "Operand.h"
 #include <capstone/capstone.h>
@@ -41,7 +42,7 @@ bool init(Architecture arch);
 class Instruction;
 class Formatter;
 
-class Instruction {
+class EDB_EXPORT Instruction {
 	friend class Formatter;
 	friend class Operand;
 
