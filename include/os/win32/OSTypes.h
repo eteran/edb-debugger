@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define NOMINMAX
 #endif
 
-#include <windows.h>
+#include <Windows.h>
 
 namespace edb {
 	typedef DWORD pid_t;
