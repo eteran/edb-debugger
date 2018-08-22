@@ -18,7 +18,7 @@ add_library(${PluginName} SHARED
 	OptionsPage.ui
 )
 
-target_link_libraries(${PluginName} Qt5::Widgets Qt5::Network)
+target_link_libraries(${PluginName} Qt5::Widgets Qt5::Network edb)
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)

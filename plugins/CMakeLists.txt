@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 3.0)
 
+add_definitions(-DQT_PLUGIN)
+
 add_subdirectory(DebuggerCore)
 add_subdirectory(Analyzer)
 add_subdirectory(Assembler)

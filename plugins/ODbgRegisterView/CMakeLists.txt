@@ -57,7 +57,7 @@ endif()
 
 add_library(${PluginName} SHARED ${PluginSources})
 
-target_link_libraries(${PluginName} Qt5::Widgets)
+target_link_libraries(${PluginName} Qt5::Widgets edb)
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)

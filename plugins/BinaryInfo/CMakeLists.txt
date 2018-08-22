@@ -29,7 +29,7 @@ add_library(${PluginName} SHARED
 	symbols.h
 )
 
-target_link_libraries(${PluginName} Qt5::Widgets PE ELF)
+target_link_libraries(${PluginName} Qt5::Widgets PE ELF edb)
 
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)

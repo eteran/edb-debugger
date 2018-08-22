@@ -123,10 +123,7 @@ endif()
 
 add_library(${PluginName} SHARED ${DebuggerCore_SRCS} )
 
-target_link_libraries(${PluginName} Qt5::Widgets)
-
-add_definitions(-DQT_PLUGIN)
-target_link_libraries(${PluginName} edb)
+target_link_libraries(${PluginName} Qt5::Widgets edb)
 
 set(LIBRARY_OUTPUT_PATH    ${PROJECT_BINARY_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
