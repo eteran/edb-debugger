@@ -33,6 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTreeWidget>
 #include <QTreeWidgetItem>
 #include <QVBoxLayout>
+#include <QtGlobal>
 
 #include <algorithm>
 #include <cctype>
@@ -42,7 +43,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sstream>
 #include <utility>
 
+#ifdef Q_OS_UNIX
 #include <elf.h>
+#endif
+
 #include <capstone/capstone.h>
 
 namespace InstructionInspector {
@@ -991,6 +995,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 		}
 		
 		{
+#ifdef Q_OS_UNIX
 			if (bits == 32) {
 				struct FileData {
 					Elf32_Ehdr elfHeader;
@@ -1151,6 +1156,7 @@ std::string runOBJCONV(std::vector<std::uint8_t> bytes, edb::address_t address) 
 			} else {
 				return "; " + std::to_string(bits) + " bit?.. Not implemented.";
 			}
+#endif
 		}
 		
 		binary.close();

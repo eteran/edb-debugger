@@ -135,7 +135,7 @@ void DialogFunctions::do_find() {
 
 					// entry point
 					auto p = new QTableWidgetItem(edb::v1::format_pointer(info.entry_address()));
-					p->setData(Qt::UserRole, info.entry_address());
+                    p->setData(Qt::UserRole, info.entry_address().toUint());
 					ui->tableWidget->setItem(row, 0, p);
 
 					// upper bound of the function
@@ -143,7 +143,7 @@ void DialogFunctions::do_find() {
 						ui->tableWidget->setItem(row, 1, new QTableWidgetItem(edb::v1::format_pointer(info.end_address())));
 
 						auto size_item = new QTableWidgetItem;
-						size_item->setData(Qt::DisplayRole, info.end_address() - info.entry_address() + 1);
+                        size_item->setData(Qt::DisplayRole, info.end_address() - info.entry_address() + 1);
 
 						ui->tableWidget->setItem(row, 2, size_item);
 					}

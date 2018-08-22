@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Register.h"
 #include <QDialog>
+#include <QtGlobal>
 #include <QLineEdit>
 
 namespace ODbgRegisterView {
@@ -43,6 +44,7 @@ private Q_SLOTS:
 protected:
 	bool eventFilter(QObject*, QEvent*) override;
 private:
+	// NOTE(eteran): MSVC doesn't have an 80-bit long double, so this will fail :-/
 	static_assert(sizeof(long double) >= 10, "This class will only work with true 80-bit long double");
 	Register reg;
 
