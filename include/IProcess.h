@@ -29,9 +29,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class IRegion;
 class IThread;
-class Module;
 class QDateTime;
 class QString;
+struct Module;
 
 class IProcess {
 public:

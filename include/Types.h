@@ -61,7 +61,7 @@ template <> struct sized_uint<32> { using type = uint32_t; };
 template <> struct sized_uint<64> { using type = uint64_t; };
 
 template <int ElementWidth, int ElementCount>
-class EDB_EXPORT ValueBase {
+class ValueBase {
 	static_assert(ElementCount > 0, "ValueBase::value_ must be non-empty");
 
 protected:
@@ -119,7 +119,7 @@ public:
 };
 
 template <int N>
-class EDB_EXPORT SizedValue : public ValueBase<N,1> {
+class SizedValue : public ValueBase<N,1> {
 	static_assert((N % 8) == 0, "SizedValue must have multiple of 8 bits in size");
 
 public:
@@ -287,7 +287,7 @@ struct EDB_EXPORT Value80 : public ValueBase<16,5> {
 static constexpr int LargeSizedValueElementWidth = 64;
 
 template <int N>
-struct EDB_EXPORT LargeSizedValue : public ValueBase<LargeSizedValueElementWidth, N / LargeSizedValueElementWidth> {
+struct LargeSizedValue : public ValueBase<LargeSizedValueElementWidth, N / LargeSizedValueElementWidth> {
 	using BaseClass = ValueBase<LargeSizedValueElementWidth, N / LargeSizedValueElementWidth>;
 
 	static_assert(N % LargeSizedValueElementWidth == 0, "LargeSizedValue must have multiple of 64 bits in size");

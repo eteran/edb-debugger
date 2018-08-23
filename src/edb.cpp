@@ -62,6 +62,15 @@ namespace edb {
 
 Q_DECLARE_NAMESPACE_TR(edb)
 
+/*
+namespace detail {
+template class SizedValue<8>;
+template class SizedValue<16>;
+template class SizedValue<32>;
+template class SizedValue<64>;
+}
+*/
+
 namespace {
 
     using BinaryInfoList = QList<IBinary::create_func_ptr_t>;

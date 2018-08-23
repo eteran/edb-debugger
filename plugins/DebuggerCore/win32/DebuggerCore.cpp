@@ -32,8 +32,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringList>
 #include <QFileInfo>
 
-#include <windows.h>
-#include <tlhelp32.h>
+#include <Windows.h>
+#include <TlHelp32.h>
 #include <Psapi.h>
 
 #include <algorithm>
@@ -45,74 +45,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
-typedef struct _LSA_UNICODE_STRING {
-  USHORT Length;
-  USHORT MaximumLength;
-  PWSTR  Buffer;
-} LSA_UNICODE_STRING, *PLSA_UNICODE_STRING, UNICODE_STRING, *PUNICODE_STRING;
 
-typedef struct _PEB_LDR_DATA {
-  BYTE       Reserved1[8];
-  PVOID      Reserved2[3];
-  LIST_ENTRY InMemoryOrderModuleList;
-} PEB_LDR_DATA, *PPEB_LDR_DATA;
 
-typedef struct _RTL_USER_PROCESS_PARAMETERS {
-  BYTE           Reserved1[16];
-  PVOID          Reserved2[10];
-  UNICODE_STRING ImagePathName;
-  UNICODE_STRING CommandLine;
-} RTL_USER_PROCESS_PARAMETERS, *PRTL_USER_PROCESS_PARAMETERS;
 
-typedef VOID (NTAPI *PPS_POST_PROCESS_INIT_ROUTINE)(VOID);
 
-#ifdef Q_OS_WIN64
-typedef struct _PEB {
-    BYTE Reserved1[2];
-    BYTE BeingDebugged;
-    BYTE Reserved2[21];
-    PPEB_LDR_DATA LoaderData;
-    PRTL_USER_PROCESS_PARAMETERS ProcessParameters;
-    BYTE Reserved3[520];
-    PPS_POST_PROCESS_INIT_ROUTINE PostProcessInitRoutine;
-    BYTE Reserved4[136];
-    ULONG SessionId;
-} PEB, *PPEB;
-#else
-typedef struct _PEB {
-  BYTE                          Reserved1[2];
-  BYTE                          BeingDebugged;
-  BYTE                          Reserved2[1];
-  PVOID                         Reserved3[2];
-  PPEB_LDR_DATA                 Ldr;
-  PRTL_USER_PROCESS_PARAMETERS  ProcessParameters;
-  BYTE                          Reserved4[104];
-  PVOID                         Reserved5[52];
-  PPS_POST_PROCESS_INIT_ROUTINE PostProcessInitRoutine;
-  BYTE                          Reserved6[128];
-  PVOID                         Reserved7[1];
-  ULONG                         SessionId;
-} PEB, *PPEB;
-#endif
 
-typedef struct _PROCESS_BASIC_INFORMATION {
-    PVOID Reserved1;
-    PPEB PebBaseAddress;
-    PVOID Reserved2[2];
-    ULONG_PTR UniqueProcessId;
-    PVOID Reserved3;
-} PROCESS_BASIC_INFORMATION;
 
-typedef enum _PROCESSINFOCLASS {
-    ProcessBasicInformation = 0,
-    ProcessDebugPort = 7,
-    ProcessWow64Information = 26,
-    ProcessImageFileName = 27
 
-} PROCESSINFOCLASS;
 
 namespace {
-	typedef BOOL (WINAPI *LPFN_ISWOW64PROCESS) (HANDLE, PBOOL);
+    using LPFN_ISWOW64PROCESS = BOOL (WINAPI *) (HANDLE, PBOOL);
 	LPFN_ISWOW64PROCESS fnIsWow64Process;
 
 
@@ -143,7 +85,7 @@ namespace {
 
 	public:
 		operator void*() const {
-			return reinterpret_cast<void *>(handle_ != 0);
+			return reinterpret_cast<void *>(handle_ != nullptr);
 		}
 
 	private:
@@ -171,13 +113,13 @@ namespace {
         if(OpenProcessToken(process, TOKEN_ADJUST_PRIVILEGES, &token)) {
 
             LUID luid;
-            if(LookupPrivilegeValue(NULL, SE_DEBUG_NAME, &luid)) {
+			if(LookupPrivilegeValue(nullptr, SE_DEBUG_NAME, &luid)) {
                 TOKEN_PRIVILEGES tp;
                 tp.PrivilegeCount = 1;
                 tp.Privileges[0].Luid = luid;
                 tp.Privileges[0].Attributes = set ? SE_PRIVILEGE_ENABLED : 0;
 
-                ok = AdjustTokenPrivileges(token, false, &tp, NULL, NULL, NULL);
+				ok = AdjustTokenPrivileges(token, false, &tp, NULL, nullptr, nullptr);
             }
             CloseHandle(token);
         }
@@ -191,8 +133,11 @@ namespace {
 // Name: DebuggerCore
 // Desc: constructor
 //------------------------------------------------------------------------------
-DebuggerCore::DebuggerCore() : start_address(0), image_base(0), page_size_(0), process_handle_(0) {
+DebuggerCore::DebuggerCore() {
 	DebugSetProcessKillOnExit(false);
+
+	// resolve the "IsWow64Process" function since it may or may not exist
+	fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
 
 	SYSTEM_INFO sys_info;
 	GetSystemInfo(&sys_info);
@@ -251,7 +196,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 	if(attached()) {
 		DEBUG_EVENT de;
-		while(WaitForDebugEvent(&de, msecs == 0 ? INFINITE : msecs)) {
+		while(WaitForDebugEvent(&de, msecs == 0 ? INFINITE : static_cast<DWORD>(msecs))) {
 
 			Q_ASSERT(pid_ == de.dwProcessId);
 
@@ -266,19 +211,17 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 				threads_.remove(active_thread_);
 				break;
 			case CREATE_PROCESS_DEBUG_EVENT:
+				// TODO(eteran): should we be closing this handle?
 				CloseHandle(de.u.CreateProcessInfo.hFile);
-				start_address = edb::address_t::fromZeroExtended(de.u.CreateProcessInfo.lpStartAddress);
-				image_base    = edb::address_t::fromZeroExtended(de.u.CreateProcessInfo.lpBaseOfImage);
+				process_->start_address_ = edb::address_t::fromZeroExtended(de.u.CreateProcessInfo.lpStartAddress);
+				process_->image_base_    = edb::address_t::fromZeroExtended(de.u.CreateProcessInfo.lpBaseOfImage);
 				break;
 			case LOAD_DLL_DEBUG_EVENT:
 				CloseHandle(de.u.LoadDll.hFile);
 				break;
 			case EXIT_PROCESS_DEBUG_EVENT:
-				CloseHandle(process_handle_);
-				process_handle_ = 0;
+				process_        = nullptr;
 				pid_            = 0;
-				start_address   = 0;
-				image_base      = 0;
 				// handle_event_exited returns DEBUG_STOP, which in turn keeps the debugger from resuming the process
 				// However, this is needed to close all internal handles etc. and finish the debugging session
 				// So we do it manually here
@@ -305,68 +248,6 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 }
 
 //------------------------------------------------------------------------------
-// Name: read_pages
-// Desc: reads <count> pages from the process starting at <address>
-// Note: buf's size must be >= count * page_size()
-// Note: address MUST be page aligned.
-//------------------------------------------------------------------------------
-bool DebuggerCore::read_pages(edb::address_t address, void *buf, std::size_t count) {
-
-	Q_ASSERT(address % page_size() == 0);
-
-	return read_bytes(address, buf, page_size() * count);
-}
-
-//------------------------------------------------------------------------------
-// Name: read_bytes
-// Desc: reads <len> bytes into <buf> starting at <address>
-// Note: if the read failed, the part of the buffer that could not be read will
-//       be filled with 0xff bytes
-//------------------------------------------------------------------------------
-bool DebuggerCore::read_bytes(edb::address_t address, void *buf, std::size_t len) {
-
-	Q_ASSERT(buf);
-
-	if(attached()) {
-		if(len == 0) {
-			return true;
-		}
-
-		memset(buf, 0xff, len);
-		SIZE_T bytes_read = 0;
-        if(ReadProcessMemory(process_handle_, reinterpret_cast<LPCVOID>(address.toUint()), buf, len, &bytes_read)) {
-			for(const std::shared_ptr<IBreakpoint> &bp: breakpoints_) {
-
-				if(bp->address() >= address && bp->address() < address + bytes_read) {
-					reinterpret_cast<quint8 *>(buf)[bp->address() - address] = bp->original_bytes()[0];
-				}
-			}
-            return true;
-		}
-	}
-    return false;
-}
-
-//------------------------------------------------------------------------------
-// Name: write_bytes
-// Desc: writes <len> bytes from <buf> starting at <address>
-//------------------------------------------------------------------------------
-bool DebuggerCore::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
-
-	Q_ASSERT(buf);
-
-	if(attached()) {
-		if(len == 0) {
-			return true;
-		}
-
-		SIZE_T bytes_written = 0;
-        return WriteProcessMemory(process_handle_, reinterpret_cast<LPVOID>(address.toUint()), buf, len, &bytes_written);
-	}
-    return false;
-}
-
-//------------------------------------------------------------------------------
 // Name: attach
 // Desc:
 //------------------------------------------------------------------------------
@@ -379,8 +260,8 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 
 	if(HANDLE ph = OpenProcess(ACCESS, false, pid)) {
 		if(DebugActiveProcess(pid)) {
-			process_handle_ = ph;
-			pid_            = pid;
+			process_ = std::make_shared<PlatformProcess>(this, ph);
+			pid_     = pid;
 			return Status::Ok;
 		}
 		else {
@@ -401,11 +282,8 @@ Status DebuggerCore::detach() {
 		// Make sure exceptions etc. are passed
 		ContinueDebugEvent(pid(), active_thread(), DBG_CONTINUE);
 		DebugActiveProcessStop(pid());
-		CloseHandle(process_handle_);
-		process_handle_ = 0;
+		process_ = nullptr;
 		pid_            = 0;
-		start_address   = 0;
-		image_base      = 0;
 		threads_.clear();
 	}
 	return Status::Ok;
@@ -417,18 +295,8 @@ Status DebuggerCore::detach() {
 //------------------------------------------------------------------------------
 void DebuggerCore::kill() {
 	if(attached()) {
-		TerminateProcess(process_handle_, -1);
+		TerminateProcess(process_->handle_, -1);
 		detach();
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: pause
-// Desc: stops *all* threads of a process
-//------------------------------------------------------------------------------
-void DebuggerCore::pause() {
-	if(attached()) {
-		DebugBreakProcess(process_handle_);
 	}
 }
 
@@ -567,7 +435,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 	}
 
 	STARTUPINFO         startup_info = { 0 };
-	PROCESS_INFORMATION process_info = { 0 };
+	PROCESS_INFORMATION process_info = { nullptr };
 
 	const DWORD CREATE_FLAGS = DEBUG_PROCESS | DEBUG_ONLY_THIS_PROCESS | CREATE_UNICODE_ENVIRONMENT | CREATE_NEW_CONSOLE;
 
@@ -589,8 +457,8 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 	if(CreateProcessW(
 			reinterpret_cast<const wchar_t*>(path.utf16()), // exe
 			command_path, // commandline
-			NULL,         // default security attributes
-			NULL,         // default thread security too
+	        nullptr,         // default security attributes
+	        nullptr,         // default thread security too
 			FALSE,        // inherit handles
 			CREATE_FLAGS,
 			env_block,    // environment data
@@ -598,11 +466,14 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 			&startup_info,
 			&process_info)) {
 
-		pid_ = process_info.dwProcessId;
+		pid_           = process_info.dwProcessId;
 		active_thread_ = process_info.dwThreadId;
-		process_handle_ = process_info.hProcess; // has PROCESS_ALL_ACCESS
 		CloseHandle(process_info.hThread); // We don't need the thread handle
-		set_debug_privilege(process_handle_, false);
+		set_debug_privilege(process_info.hProcess, false);
+
+		//process_info.hProcess  has PROCESS_ALL_ACCESS
+		process_ = std::make_shared<PlatformProcess>(this, process_info.hProcess);
+
 		ok = true;
 	}
 
@@ -643,9 +514,6 @@ QMap<edb::pid_t, std::shared_ptr<IProcess> > DebuggerCore::enumerate_processes()
 	HANDLE handle = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
 	if(handle != INVALID_HANDLE_VALUE) {
 
-		// resolve the "IsWow64Process" function since it may or may not exist
-		fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
-
 		PROCESSENTRY32 lppe;
 
 		std::memset(&lppe, 0, sizeof(lppe));
@@ -653,7 +521,14 @@ QMap<edb::pid_t, std::shared_ptr<IProcess> > DebuggerCore::enumerate_processes()
 
 		if(Process32First(handle, &lppe)) {
 			do {
-				std::shared_ptr<PlatformProcess> pi = std::make_shared<PlatformProcess>(lppe);
+				// NOTE(eteran): the const_cast is reasonable here.
+				// While we don't want THIS function to mutate the DebuggerCore object
+				// we do want the associated PlatformProcess to be able to trigger
+				// non-const operations in the future, at least hypothetically.
+				auto pi = std::make_shared<PlatformProcess>(const_cast<DebuggerCore*>(this), lppe);
+				if(pi->handle_ == nullptr) {
+					continue;
+				}
 
 				ret.insert(pi->pid(), pi);
 
@@ -667,65 +542,6 @@ QMap<edb::pid_t, std::shared_ptr<IProcess> > DebuggerCore::enumerate_processes()
 	return ret;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QString DebuggerCore::process_exe(edb::pid_t pid) const {
-	QString ret;
-
-	// These functions don't work immediately after CreateProcess but only
-	// after basic initialization, usually after the system breakpoint
-	// The same applies to psapi/toolhelp, maybe using NtQueryXxxxxx is the way to go
-
-	typedef BOOL (WINAPI *QueryFullProcessImageNameWPtr)(
-	  HANDLE hProcess,
-	  DWORD dwFlags,
-	  LPWSTR lpExeName,
-	  PDWORD lpdwSize
-	);
-
-	HMODULE kernel32 = GetModuleHandleW(L"kernel32.dll");
-	QueryFullProcessImageNameWPtr QueryFullProcessImageNameWFunc = (QueryFullProcessImageNameWPtr)GetProcAddress(kernel32, "QueryFullProcessImageNameW");
-
-	wchar_t name[MAX_PATH] = L"";
-
-	if(QueryFullProcessImageNameWFunc/* && LOBYTE(GetVersion()) >= 6*/) { // Vista and up
-		const DWORD ACCESS = PROCESS_QUERY_LIMITED_INFORMATION;
-
-		if(HANDLE ph = OpenProcess(ACCESS, false, pid)) {
-			DWORD size = _countof(name);
-			if(QueryFullProcessImageNameWFunc(ph, 0, name, &size)) {
-				ret = QString::fromWCharArray(name);
-			}
-			CloseHandle(ph);
-		}
-	} else {
-		// Attempting to get an unknown privilege will fail unless we have
-		// debug privilege set, so 2 calls to OpenProcess
-		// (PROCESS_QUERY_LIMITED_INFORMATION is Vista and up)
-		const DWORD ACCESS = PROCESS_QUERY_INFORMATION | PROCESS_VM_READ;
-
-		if(HANDLE ph = OpenProcess(ACCESS, false, pid)) {
-			if(GetModuleFileNameExW(ph, NULL, name, _countof(name))) {
-				ret = QString::fromWCharArray(name);
-			}
-			CloseHandle(ph);
-		}
-	}
-
-	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QString DebuggerCore::process_cwd(edb::pid_t pid) const {
-    Q_UNUSED(pid);
-	// TODO: implement this
-	return QString();
-}
 
 //------------------------------------------------------------------------------
 // Name:
@@ -751,87 +567,6 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 	return parent;
 }
 
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
-	QList<std::shared_ptr<IRegion>> regions;
-
-	if(pid_ != 0) {
-		if(HANDLE ph = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid_)) {
-			edb::address_t addr = 0;
-			auto last_base    = reinterpret_cast<LPVOID>(-1);
-
-			Q_FOREVER {
-				MEMORY_BASIC_INFORMATION info;
-				VirtualQueryEx(ph, reinterpret_cast<LPVOID>(addr.toUint()), &info, sizeof(info));
-
-				if(last_base == info.BaseAddress) {
-					break;
-				}
-
-				last_base = info.BaseAddress;
-
-				if(info.State == MEM_COMMIT) {
-
-					const auto start   = edb::address_t::fromZeroExtended(info.BaseAddress);
-					const auto end     = edb::address_t::fromZeroExtended(info.BaseAddress) + info.RegionSize;
-					const auto base    = edb::address_t::fromZeroExtended(info.AllocationBase);
-					const QString name = QString();
-					const IRegion::permissions_t permissions = info.Protect; // let std::shared_ptr<IRegion> handle permissions and modifiers
-
-					if(info.Type == MEM_IMAGE) {
-						// set region.name to the module name
-					}
-					// get stack addresses, PEB, TEB, etc. and set name accordingly
-
-					regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
-				}
-
-				addr += info.RegionSize;
-			}
-
-			CloseHandle(ph);
-		}
-	}
-
-	return regions;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
-	QList<QByteArray> ret;
-	if(pid != 0) {
-
-       typedef NTSTATUS (*WINAPI ZwQueryInformationProcessPtr)(
-          HANDLE ProcessHandle,
-          PROCESSINFOCLASS ProcessInformationClass,
-          PVOID ProcessInformation,
-          ULONG ProcessInformationLength,
-          PULONG ReturnLength
-        );
-
-
-        HMODULE ntdll = GetModuleHandleW(L"ntdll.dll");
-        ZwQueryInformationProcessPtr ZwQueryInformationProcessFunc = (ZwQueryInformationProcessPtr)GetProcAddress(ntdll, "NtQueryInformationProcess");
-        PROCESS_BASIC_INFORMATION ProcessInfo;
-
-        if(ZwQueryInformationProcessFunc) {
-            if(HANDLE ph = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid_)) {
-                ULONG l;
-                NTSTATUS r = ZwQueryInformationProcessFunc(ph, ProcessBasicInformation, &ProcessInfo, sizeof(PROCESS_BASIC_INFORMATION), &l);
-
-                CloseHandle(ph);
-            }
-
-        }
-	}
-	return ret;
-}
 
 //------------------------------------------------------------------------------
 // Name:
@@ -955,6 +690,11 @@ QString DebuggerCore::instruction_pointer() const {
 #elif defined(EDB_X86_64)
 	return "rip";
 #endif
+}
+
+IProcess *DebuggerCore::process() const  {
+	qDebug("TODO: Implement DebuggerCore::process");
+	return process_.get();
 }
 
 }

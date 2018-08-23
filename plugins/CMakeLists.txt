@@ -6,7 +6,6 @@ add_subdirectory(DebuggerCore)
 add_subdirectory(Analyzer)
 add_subdirectory(Assembler)
 add_subdirectory(BinaryInfo)
-add_subdirectory(BinarySearcher)
 add_subdirectory(Bookmarks)
 add_subdirectory(BreakpointManager)
 add_subdirectory(CheckVersion)
@@ -16,7 +15,10 @@ add_subdirectory(ROPTool)
 add_subdirectory(References)
 add_subdirectory(SymbolViewer)
 add_subdirectory(Backtrace)
-
+add_subdirectory(DumpState)
+add_subdirectory(FunctionFinder)
+add_subdirectory(DebuggerErrorConsole)
+add_subdirectory(BinarySearcher)
 add_subdirectory(InstructionInspector)
 
 # NOTE(eteran): this is deprecated, will be removed at some point in the future...
@@ -33,9 +35,9 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 endif()
 
 if (NOT MSVC)
-    # TODO(eteran): having a hard time getting these to compile under MSVC
-    add_subdirectory(DumpState)
-    add_subdirectory(FunctionFinder)
-    add_subdirectory(ODbgRegisterView)
-    add_subdirectory(DebuggerErrorConsole)
+	# TODO(eteran): having a hard time getting these to compile under MSVC
+	add_subdirectory(ODbgRegisterView)
 endif()
+
+
+

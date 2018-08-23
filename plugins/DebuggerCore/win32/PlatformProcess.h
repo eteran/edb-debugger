@@ -21,42 +21,41 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define PLATOFORM_PROCESS_20150517_H_
 
 #include "IProcess.h"
+#include "DebuggerCore.h"
 #include "Module.h"
 
 #include <QDateTime>
 
 #include <TlHelp32.h>
 
+
+
 namespace DebuggerCorePlugin {
 
-class PlatformProcess : public IProcess {
+class DebuggerCore;
 
+class PlatformProcess : public IProcess {
+	friend class DebuggerCore;
 public:
-	PlatformProcess(const PROCESSENTRY32& pe);
+	PlatformProcess(DebuggerCore *core, const PROCESSENTRY32 &pe);
+	PlatformProcess(DebuggerCore *core, HANDLE handle);
+	~PlatformProcess() override;
 
 public:
 	// legal to call when not attached
-	QDateTime start_time() const override {
-		qDebug("TODO: implement PlatformProcess::start_time"); return QDateTime();
-	}
+	QDateTime start_time() const override;
 
-	QList<QByteArray> arguments() const override {
-		qDebug("TODO: implement PlatformProcess::arguments"); return QList<QByteArray>();
-	}
+	QList<QByteArray> arguments() const override;
 
 	QString current_working_directory() const override {
-		qDebug("TODO: implement PlatformProcess::current_working_directory"); return "";
+		qDebug("TODO: implement PlatformProcess::current_working_directory");
+		return "";
 	}
 
-	QString executable() const override {
-		qDebug("TODO: implement PlatformProcess::executable"); return "";
-	}
+	QString executable() const override;
 
 	edb::pid_t pid() const override;
-
-	std::shared_ptr<IProcess> parent() const override {
-		qDebug("TODO: implement PlatformProcess::parent"); return std::shared_ptr<IProcess>();
-	}
+	std::shared_ptr<IProcess> parent() const override;
 
 	edb::address_t code_address() const override {
 		qDebug("TODO: implement PlatformProcess::code_address"); return edb::address_t();
@@ -66,14 +65,9 @@ public:
 		qDebug("TODO: implement PlatformProcess::data_address"); return edb::address_t();
 	}
 
-	QList<std::shared_ptr<IRegion>> regions() const override {
-		qDebug("TODO: implement PlatformProcess::regions"); return QList<std::shared_ptr<IRegion>>();
-	}
+	QList<std::shared_ptr<IRegion>> regions() const override;
 
-	edb::uid_t uid() const override {
-		qDebug("TODO: implement PlatformProcess::uid"); return edb::uid_t();
-	}
-
+	edb::uid_t uid() const override;
 	QString user() const override;
 	QString name() const override;
 
@@ -94,40 +88,31 @@ public:
 	}
 
 	void set_current_thread(IThread& thread) override {
+		Q_UNUSED(thread);
 		qDebug("TODO: implement PlatformProcess::set_current_thread");
 	}
 
-	std::size_t write_bytes(edb::address_t address, const void *buf, size_t len) override {
-		qDebug("TODO: implement PlatformProcess::write_bytes");
-		return 0;
-	}
+	Status pause() override;
+	std::size_t write_bytes(edb::address_t address, const void *buf, size_t len) override;
+	std::size_t read_bytes(edb::address_t address, void *buf, size_t len) const override;
+	std::size_t read_pages(edb::address_t address, void *buf, size_t count) const override;
 
 	std::size_t patch_bytes(edb::address_t address, const void *buf, size_t len) override {
+		Q_UNUSED(address);
+		Q_UNUSED(buf);
+		Q_UNUSED(len);
 		qDebug("TODO: implement PlatformProcess::patch_bytes");
 		return 0;
 	}
 
-	std::size_t read_bytes(edb::address_t address, void *buf, size_t len) const override {
-		qDebug("TODO: implement PlatformProcess::read_bytes");
-		return 0;
-	}
-
-	std::size_t read_pages(edb::address_t address, void *buf, size_t count) const override {
-		qDebug("TODO: implement PlatformProcess::read_pages");
-		return 0;
-	}
-
-	Status pause() override {
-		qDebug("TODO: implement PlatformProcess::pause");
-		return Status("Not implemented");
-	}
-
 	Status resume(edb::EVENT_STATUS status) override {
+		Q_UNUSED(status);
 		qDebug("TODO: implement PlatformProcess::resume");
 		return Status("Not implemented");
 	}
 
 	Status step(edb::EVENT_STATUS status) override {
+		Q_UNUSED(status);
 		qDebug("TODO: implement PlatformProcess::step");
 		return Status("Not implemented");
 	}
@@ -136,15 +121,17 @@ public:
 		qDebug("TODO: implement PlatformProcess::isPaused"); return true;
 	}
 
-	QMap<edb::address_t, Patch> patches() const override {
-		qDebug("TODO: implement PlatformProcess::patches");
-		return QMap<edb::address_t, Patch>();
-	}
+	QMap<edb::address_t, Patch> patches() const override;
 
 private:
-	edb::pid_t _pid;
-	QString _name;
-	QString _user;
+	edb::address_t start_address_ = 0;
+	edb::address_t image_base_    = 0;
+	DebuggerCore*  core_          = nullptr;
+	HANDLE         handle_        = nullptr;
+	edb::pid_t     pid_;
+	QString        name_;
+	QString        user_;
+	QMap<edb::address_t, Patch> patches_;
 };
 	
 }

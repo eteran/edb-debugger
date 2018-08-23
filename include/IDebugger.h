@@ -109,7 +109,7 @@ public:
 	virtual std::unique_ptr<IState> create_state() const = 0;
 
 public:
-	// NULL if not attached
+	// nullptr if not attached
 	virtual IProcess *process() const = 0;
 };
 

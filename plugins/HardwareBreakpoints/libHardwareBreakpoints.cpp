@@ -120,28 +120,28 @@ void setBreakpointState(State *state, int num, const BreakpointState &bp_state) 
 
 
 	// default to disabled
-	state->set_debug_register(7, (state->debug_register(7) & ~(0x01 << (num * 2))));
+	state->set_debug_register(7, (state->debug_register(7) & ~(0x01ULL << (num * 2))));
 
 	if(bp_state.enabled) {
 		// set the address
 		state->set_debug_register(num, bp_state.addr);
 
 		// enable this breakpoint
-		state->set_debug_register(7, state->debug_register(7) | (0x01 << (num * 2)));
+		state->set_debug_register(7, state->debug_register(7) | (0x01ULL << (num * 2)));
 
 		// setup the type
 		switch(bp_state.type) {
 		case 2:
 			// read/write
-			state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N1)) | (0x03 << N1));
+			state->set_debug_register(7, (state->debug_register(7) & ~(0x03ULL << N1)) | (0x03ULL << N1));
 			break;
 		case 1:
 			// write
-			state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N1)) | (0x01 << N1));
+			state->set_debug_register(7, (state->debug_register(7) & ~(0x03ULL << N1)) | (0x01ULL << N1));
 			break;
 		case 0:
 			// execute
-			state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N1)) | (0x00 << N1));
+			state->set_debug_register(7, (state->debug_register(7) & ~(0x03ULL << N1)) | (0x00ULL << N1));
 			break;
 		}
 
@@ -151,23 +151,23 @@ void setBreakpointState(State *state, int num, const BreakpointState &bp_state) 
 			case 3:
 				// 8 bytes
 				Q_ASSERT(edb::v1::debuggeeIs64Bit());
-				state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N2)) | (0x02 << N2));
+				state->set_debug_register(7, (state->debug_register(7) & ~(0x03ULL << N2)) | (0x02ULL << N2));
 				break;
 			case 2:
 				// 4 bytes
-				state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N2)) | (0x03 << N2));
+				state->set_debug_register(7, (state->debug_register(7) & ~(0x03ULL << N2)) | (0x03ULL << N2));
 				break;
 			case 1:
 				// 2 bytes
-				state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N2)) | (0x01 << N2));
+				state->set_debug_register(7, (state->debug_register(7) & ~(0x03ULL << N2)) | (0x01ULL << N2));
 				break;
 			case 0:
 				// 1 byte
-				state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N2)) | (0x00 << N2));
+				state->set_debug_register(7, (state->debug_register(7) & ~(0x03ULL << N2)) | (0x00ULL << N2));
 				break;
 			}
 		} else {
-			state->set_debug_register(7, (state->debug_register(7) & ~(0x03 << N2)));
+			state->set_debug_register(7, (state->debug_register(7) & ~(0x03ULL << N2)));
 		}
 	}
 }

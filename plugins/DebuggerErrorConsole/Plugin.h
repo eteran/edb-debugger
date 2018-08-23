@@ -31,9 +31,6 @@ class DebuggerErrorConsole : public QDialog {
 	Q_OBJECT
 public:
     explicit DebuggerErrorConsole(QWidget* parent = nullptr);
-
-private Q_SLOTS:
-	void compareDisassemblers();
 };
 
 class Plugin : public QObject, public IPlugin {
