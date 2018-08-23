@@ -37,6 +37,7 @@ class DebuggerCore;
 class PlatformProcess : public IProcess {
 	friend class DebuggerCore;
 public:
+	PlatformProcess(DebuggerCore *core, edb::pid_t pid);
 	PlatformProcess(DebuggerCore *core, const PROCESSENTRY32 &pe);
 	PlatformProcess(DebuggerCore *core, HANDLE handle);
 	~PlatformProcess() override;
@@ -70,10 +71,7 @@ public:
 	edb::uid_t uid() const override;
 	QString user() const override;
 	QString name() const override;
-
-	QList<Module> loaded_modules() const override {
-		qDebug("TODO: implement PlatformProcess::loaded_modules"); return QList<Module>();
-	}
+	QList<Module> loaded_modules() const override;
 
 public:
 	// only legal to call when attached
@@ -124,12 +122,15 @@ public:
 	QMap<edb::address_t, Patch> patches() const override;
 
 private:
+	bool isWow64() const;
+
+private:
 	edb::address_t start_address_ = 0;
 	edb::address_t image_base_    = 0;
 	DebuggerCore*  core_          = nullptr;
 	HANDLE         handle_        = nullptr;
-	edb::pid_t     pid_;
-	QString        name_;
+	PROCESSENTRY32 processEntry_  = {};
+	edb::pid_t     pid_           = 0;
 	QString        user_;
 	QMap<edb::address_t, Patch> patches_;
 };

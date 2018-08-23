@@ -45,18 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
-
-
-
-
-
-
-
-
 namespace {
-    using LPFN_ISWOW64PROCESS = BOOL (WINAPI *) (HANDLE, PBOOL);
-	LPFN_ISWOW64PROCESS fnIsWow64Process;
-
 
 	class Win32Thread {
 	public:
@@ -136,9 +125,6 @@ namespace {
 DebuggerCore::DebuggerCore() {
 	DebugSetProcessKillOnExit(false);
 
-	// resolve the "IsWow64Process" function since it may or may not exist
-	fnIsWow64Process = (LPFN_ISWOW64PROCESS) GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
-
 	SYSTEM_INFO sys_info;
 	GetSystemInfo(&sys_info);
 	page_size_ = sys_info.dwPageSize;
@@ -198,7 +184,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 		DEBUG_EVENT de;
 		while(WaitForDebugEvent(&de, msecs == 0 ? INFINITE : static_cast<DWORD>(msecs))) {
 
-			Q_ASSERT(pid_ == de.dwProcessId);
+			Q_ASSERT(process_->pid() == de.dwProcessId);
 
 			active_thread_ = de.dwThreadId;
 			bool propagate = false;
@@ -221,7 +207,6 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 				break;
 			case EXIT_PROCESS_DEBUG_EVENT:
 				process_        = nullptr;
-				pid_            = 0;
 				// handle_event_exited returns DEBUG_STOP, which in turn keeps the debugger from resuming the process
 				// However, this is needed to close all internal handles etc. and finish the debugging session
 				// So we do it manually here
@@ -261,7 +246,6 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 	if(HANDLE ph = OpenProcess(ACCESS, false, pid)) {
 		if(DebugActiveProcess(pid)) {
 			process_ = std::make_shared<PlatformProcess>(this, ph);
-			pid_     = pid;
 			return Status::Ok;
 		}
 		else {
@@ -280,10 +264,9 @@ Status DebuggerCore::detach() {
 	if(attached()) {
 		clear_breakpoints();
 		// Make sure exceptions etc. are passed
-		ContinueDebugEvent(pid(), active_thread(), DBG_CONTINUE);
-		DebugActiveProcessStop(pid());
+		ContinueDebugEvent(process_->pid(), active_thread(), DBG_CONTINUE);
+		DebugActiveProcessStop(process_->pid());
 		process_ = nullptr;
-		pid_            = 0;
 		threads_.clear();
 	}
 	return Status::Ok;
@@ -312,7 +295,7 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 			// TODO: does this resume *all* threads?
 			// it does! (unless you manually paused one using SuspendThread)
 			ContinueDebugEvent(
-				pid(),
+			    process_->pid(),
 				active_thread(),
 				(status == edb::DEBUG_CONTINUE) ? (DBG_CONTINUE) : (DBG_EXCEPTION_NOT_HANDLED));
 		}
@@ -456,17 +439,16 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 	if(CreateProcessW(
 			reinterpret_cast<const wchar_t*>(path.utf16()), // exe
-			command_path, // commandline
+	        command_path,    // commandline
 	        nullptr,         // default security attributes
 	        nullptr,         // default thread security too
-			FALSE,        // inherit handles
+	        FALSE,           // inherit handles
 			CREATE_FLAGS,
-			env_block,    // environment data
+	        env_block,       // environment data
 			reinterpret_cast<const wchar_t*>(tcwd.utf16()), // working directory
 			&startup_info,
 			&process_info)) {
 
-		pid_           = process_info.dwProcessId;
 		active_thread_ = process_info.dwThreadId;
 		CloseHandle(process_info.hThread); // We don't need the thread handle
 		set_debug_privilege(process_info.hProcess, false);
@@ -482,8 +464,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 	if (ok) {
 		return Status::Ok;
-	}
-	else {
+	} else {
 		return Status("Error DebuggerCore::open");
 	}
 }
@@ -597,40 +578,6 @@ QMap<qlonglong, QString> DebuggerCore::exceptions() const {
 }
 
 //------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QList<Module> DebuggerCore::loaded_modules() const {
-
-	QList<Module> ret;
-    HANDLE hModuleSnap = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE, pid());
-	if(hModuleSnap != INVALID_HANDLE_VALUE) {
-		MODULEENTRY32 me32;
-		me32.dwSize = sizeof(me32);
-
-        if(Module32First(hModuleSnap, &me32)) {
-			do {
-				Module module;
-				module.base_address = edb::address_t::fromZeroExtended(me32.modBaseAddr);
-				module.name         = QString::fromWCharArray(me32.szModule);
-				ret.push_back(module);
-			} while(Module32Next(hModuleSnap, &me32));
-		}
-	}
-	CloseHandle(hModuleSnap);
-	return ret;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
-	qDebug() << "TODO: implement DebuggerCore::process_start";
-	return QDateTime();
-}
-
-//------------------------------------------------------------------------------
 // Name: cpu_type
 // Desc:
 //------------------------------------------------------------------------------
@@ -693,7 +640,6 @@ QString DebuggerCore::instruction_pointer() const {
 }
 
 IProcess *DebuggerCore::process() const  {
-	qDebug("TODO: Implement DebuggerCore::process");
 	return process_.get();
 }
 

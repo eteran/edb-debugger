@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace edb {
 	typedef DWORD pid_t;
-	typedef DWORD uid_t;
+    typedef DWORD uid_t; // TODO(eteran): I think this needs to be an SID to make any sense
 	typedef DWORD tid_t;
 }
 

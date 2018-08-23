@@ -83,7 +83,6 @@ public:
 public:
 	// process properties
 	edb::pid_t parent_pid(edb::pid_t pid) const override;
-	QDateTime process_start(edb::pid_t pid) const ;
 	quint64 cpu_type() const override ;
 
 	CPUMode cpu_mode() const  override{
@@ -96,7 +95,6 @@ public:
 
 private:
 	QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerate_processes() const override;
-	QList<Module> loaded_modules() const ;
 
 public:
 	QString stack_pointer() const override;
