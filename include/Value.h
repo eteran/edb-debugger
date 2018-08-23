@@ -9,7 +9,6 @@
 #include <cstring>
 #include <iomanip>
 #include <sstream>
-#include <vector>
 
 #include <QString>
 #include <QVariant>
