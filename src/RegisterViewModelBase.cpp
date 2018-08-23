@@ -367,7 +367,7 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 
 	case BitFieldOffsetRole:
 		if(auto bitField = dynamic_cast<const BitFieldProperties *>(item)) {
-			bitField->offset();
+			return bitField->offset();
 		}
 		return {};
 
