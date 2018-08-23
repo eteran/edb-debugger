@@ -52,14 +52,10 @@ public:
 
 	std::vector<IBreakpoint::BreakpointType> supported_breakpoint_types() const override;
 
-public:
-	virtual edb::pid_t pid() const;
-
 protected:
 	bool attached() const;
 
 protected:
-	edb::pid_t      pid_ = 0;
 	BreakpointList  breakpoints_;
 };
 

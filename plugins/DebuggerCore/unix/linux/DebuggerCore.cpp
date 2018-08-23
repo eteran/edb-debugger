@@ -488,7 +488,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 	// normal event
 	auto e = std::make_shared<PlatformEvent>();
 
-	e->pid_    = pid();
+	e->pid_    = process_->pid();
 	e->tid_    = tid;
 	e->status_ = status;
 	if(!ptrace_getsiginfo(tid, &e->siginfo_)) {
@@ -651,12 +651,11 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 	lastMeansOfCapture = MeansOfCapture::Attach;
 
 	// create this, so the threads created can refer to it
-    process_ = new PlatformProcess(this, pid);
+	process_ = std::make_shared<PlatformProcess>(this, pid);
 
 	int lastErr = attach_thread(pid); // Fail early if we are going to
 	if(lastErr) {
-        delete process_;
-        process_ = nullptr;
+		process_ = nullptr;
 		return Status(std::strerror(lastErr));
 	}
 
@@ -682,14 +681,12 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 
 
 	if(!threads_.empty()) {
-		pid_            = pid;
 		active_thread_  = pid;
 		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 		detectCPUMode();
 		return Status::Ok;
 	}
 
-    delete process_;
     process_ = nullptr;
 	return Status(std::strerror(lastErr));
 }
@@ -699,11 +696,11 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 // Desc:
 //------------------------------------------------------------------------------
 Status DebuggerCore::detach() {
+
 	QString errorMessage;
+
 	if(process_) {
-
 		stop_threads();
-
 		clear_breakpoints();
 
 		for(auto &thread: process_->threads()) {
@@ -713,13 +710,14 @@ Status DebuggerCore::detach() {
 			}
 		}
 
-		delete process_;
 		process_ = nullptr;
-
 		reset();
 	}
-	if(errorMessage.isEmpty())
+
+	if(errorMessage.isEmpty()) {
 		return Status::Ok;
+	}
+
 	qWarning() << errorMessage.toStdString().c_str();
 	return Status(errorMessage);
 }
@@ -732,14 +730,12 @@ void DebuggerCore::kill() {
 	if(attached()) {
 		clear_breakpoints();
 
-		::kill(pid(), SIGKILL);
+		::kill(process_->pid(), SIGKILL);
 
 		pid_t ret;
-		while((ret = native::waitpid(-1, nullptr, __WALL)) != pid() && ret != -1);
+		while((ret = native::waitpid(-1, nullptr, __WALL)) != process_->pid() && ret != -1);
 
-		delete process_;
 		process_ = nullptr;
-
 		reset();
 	}
 }
@@ -747,7 +743,7 @@ void DebuggerCore::kill() {
 void DebuggerCore::detectCPUMode() {
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	const size_t offset=EDB_IS_64_BIT ?
+	const size_t offset = EDB_IS_64_BIT ?
 						offsetof(UserRegsStructX86_64, cs) :
 						offsetof(UserRegsStructX86,   xcs);
 	errno=0;
@@ -934,7 +930,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
             }
 
             // create the process
-			process_ = new PlatformProcess(this, pid);
+			process_ = std::make_shared<PlatformProcess>(this, pid);
 
 			// the PID == primary TID
 			auto newThread            = std::make_shared<PlatformThread>(this, process_, pid);
@@ -943,7 +939,6 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 			threads_[pid]   = newThread;
 
-			pid_            = pid;
             active_thread_  = pid;
 			binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
@@ -971,7 +966,6 @@ DebuggerCore::MeansOfCapture DebuggerCore::last_means_of_capture() const {
 void DebuggerCore::reset() {
 	threads_.clear();
 	waited_threads_.clear();
-	pid_           = 0;
 	active_thread_ = 0;
 	binary_info_   = nullptr;
 }
@@ -1127,7 +1121,7 @@ QString DebuggerCore::flag_register() const {
 // Desc:
 //------------------------------------------------------------------------------
 IProcess *DebuggerCore::process() const {
-	return process_;
+	return process_.get();
 }
 
 }

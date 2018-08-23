@@ -153,20 +153,13 @@ Status DebuggerCoreBase::open(const QString &path, const QString &cwd, const QLi
 	return open(path, cwd, args, QString());
 }
 
-//------------------------------------------------------------------------------
-// Name: pid
-// Desc: returns the pid of the currently debugged process (0 if not attached)
-//------------------------------------------------------------------------------
-edb::pid_t DebuggerCoreBase::pid() const {
-	return pid_;
-}
 
 //------------------------------------------------------------------------------
 // Name: attached
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCoreBase::attached() const {
-	return pid() != 0;
+	return process() != nullptr;
 }
 
 auto DebuggerCoreBase::supported_breakpoint_types() const -> std::vector<IBreakpoint::BreakpointType> {

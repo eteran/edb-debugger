@@ -42,7 +42,7 @@ public:
 	};
 
 public:
-	PlatformThread(DebuggerCore *core, IProcess *process, edb::tid_t tid);
+	PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, edb::tid_t tid);
 	~PlatformThread() override                        = default;
 	PlatformThread(const PlatformThread &)            = delete;
 	PlatformThread& operator=(const PlatformThread &) = delete;
@@ -81,11 +81,11 @@ private:
 	long set_debug_register(std::size_t n, long value);
 
 private:
-	DebuggerCore *const core_;
-	IProcess *const     process_;
-	edb::tid_t          tid_;
-	int                 status_;
-	SignalStatus        signal_status_;
+	DebuggerCore *const       core_;
+	std::shared_ptr<IProcess> process_;
+	edb::tid_t                tid_;
+	int                       status_;
+	SignalStatus              signal_status_;
 
 #if defined EDB_ARM32 || defined EDB_ARM64
 private:

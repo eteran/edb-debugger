@@ -244,7 +244,7 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 	quint64 read = 0;
 
 	Q_ASSERT(buf);
-	Q_ASSERT(core_->process_ == this);
+	Q_ASSERT(core_->process_.get() == this);
 
 	auto ptr = reinterpret_cast<char *>(buf);
 
@@ -328,7 +328,7 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 //------------------------------------------------------------------------------
 std::size_t PlatformProcess::patch_bytes(edb::address_t address, const void *buf, size_t len) {
 	Q_ASSERT(buf);
-	Q_ASSERT(core_->process_ == this);
+	Q_ASSERT(core_->process_.get() == this);
 
 	Patch patch;
 	patch.address = address;
@@ -353,7 +353,7 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 	quint64 written = 0;
 
 	Q_ASSERT(buf);
-	Q_ASSERT(core_->process_ == this);
+	Q_ASSERT(core_->process_.get() == this);
 
 	if(len != 0) {
 		if(rw_mem_file_) {
@@ -385,7 +385,7 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 //------------------------------------------------------------------------------
 std::size_t PlatformProcess::read_pages(edb::address_t address, void *buf, std::size_t count) const {
 	Q_ASSERT(buf);
-	Q_ASSERT(core_->process_ == this);
+	Q_ASSERT(core_->process_.get() == this);
 	return read_bytes(address, buf, count * core_->page_size()) / core_->page_size();
 }
 
@@ -554,7 +554,7 @@ quint8 PlatformProcess::read_byte_via_ptrace(edb::address_t address, bool *ok) c
 	// TODO(eteran): assert that we are paused
 
 	Q_ASSERT(ok);
-	Q_ASSERT(core_->process_ == this);
+	Q_ASSERT(core_->process_.get() == this);
 
 	*ok = false;
 
@@ -595,7 +595,7 @@ void PlatformProcess::write_byte_via_ptrace(edb::address_t address, quint8 value
 	// TODO(eteran): assert that we are paused
 
 	Q_ASSERT(ok);
-	Q_ASSERT(core_->process_ == this);
+	Q_ASSERT(core_->process_.get() == this);
 
 	*ok = false;
 
@@ -629,7 +629,7 @@ void PlatformProcess::write_byte_via_ptrace(edb::address_t address, quint8 value
 //------------------------------------------------------------------------------
 long PlatformProcess::ptrace_peek(edb::address_t address, bool *ok) const {
 	Q_ASSERT(ok);
-	Q_ASSERT(core_->process_ == this);
+	Q_ASSERT(core_->process_.get() == this);
 
 	if (EDB_IS_32_BIT && address > 0xffffffffULL) {
 		// 32 bit ptrace can't handle such long addresses
@@ -652,7 +652,7 @@ long PlatformProcess::ptrace_peek(edb::address_t address, bool *ok) const {
 //------------------------------------------------------------------------------
 bool PlatformProcess::ptrace_poke(edb::address_t address, long value) {
 
-	Q_ASSERT(core_->process_ == this);
+	Q_ASSERT(core_->process_.get() == this);
 
 	if (EDB_IS_32_BIT && address > 0xffffffffULL) {
 		// 32 bit ptrace can't handle such long addresses
@@ -671,7 +671,7 @@ bool PlatformProcess::ptrace_poke(edb::address_t address, long value) {
 //------------------------------------------------------------------------------
 QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
 
-	Q_ASSERT(core_->process_ == this);
+	Q_ASSERT(core_->process_.get() == this);
 
 	QList<std::shared_ptr<IThread>> threadList;
 
@@ -688,7 +688,7 @@ QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
 //------------------------------------------------------------------------------
 std::shared_ptr<IThread> PlatformProcess::current_thread() const {
 
-	Q_ASSERT(core_->process_ == this);
+	Q_ASSERT(core_->process_.get() == this);
 
 	auto it = core_->threads_.find(core_->active_thread_);
 	if(it != core_->threads_.end()) {
@@ -781,7 +781,7 @@ Status PlatformProcess::pause() {
 //------------------------------------------------------------------------------
 Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
-	Q_ASSERT(core_->process_ == this);
+	Q_ASSERT(core_->process_.get() == this);
 
 	QString errorMessage;
 
@@ -816,7 +816,7 @@ Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 //------------------------------------------------------------------------------
 Status PlatformProcess::step(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
-	Q_ASSERT(core_->process_ == this);
+	Q_ASSERT(core_->process_.get() == this);
 
 	if(status != edb::DEBUG_STOP) {
 		if(std::shared_ptr<IThread> thread = current_thread()) {

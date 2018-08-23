@@ -34,7 +34,7 @@ namespace DebuggerCorePlugin {
 // Name: PlatformThread
 // Desc:
 //------------------------------------------------------------------------------
-PlatformThread::PlatformThread(DebuggerCore *core, IProcess *process, edb::tid_t tid) : core_(core), process_(process), tid_(tid) {
+PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, edb::tid_t tid) : core_(core), process_(process), tid_(tid) {
 	assert(process);
 	assert(core);
 }
