@@ -67,6 +67,8 @@ Plugin::Plugin(QObject *parent) : QObject(parent) {
 	QFont font("monospace");
 	font.setStyleHint(QFont::TypeWriter);
 	textWidget_->setFont(font);
+	textWidget_->setWordWrapMode(QTextOption::WrapMode::NoWrap);
+	textWidget_->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
 
 	qInstallMessageHandler(debugMessageIntercept);
 }
