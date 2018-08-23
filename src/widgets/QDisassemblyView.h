@@ -119,9 +119,9 @@ private:
 	void updateSelectedAddress(QMouseEvent *event);
 
 private:
-	edb::address_t address_offset_               = 0;
-	edb::address_t selected_instruction_address_ = 0;
-	edb::address_t current_address_              = 0;
+	edb::address_t address_offset_               { 0 };
+	edb::address_t selected_instruction_address_ { 0 };
+	edb::address_t current_address_              { 0 };
 	int            font_height_                  = 0; // height of a character in this font
 	int            font_width_                   = 0; // width of a character in this font
 	int            icon_width_                   = 0;

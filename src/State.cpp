@@ -104,7 +104,7 @@ edb::address_t State::instruction_pointer() const {
 	if(impl_) {
 		return impl_->instruction_pointer();
 	}
-	return 0;
+	return edb::address_t(0);
 }
 
 //------------------------------------------------------------------------------
@@ -115,7 +115,7 @@ edb::address_t State::stack_pointer() const {
 	if(impl_) {
 		return impl_->stack_pointer();
 	}
-	return 0;
+	return edb::address_t(0);
 }
 
 //------------------------------------------------------------------------------
@@ -126,7 +126,7 @@ edb::address_t State::frame_pointer() const {
 	if(impl_) {
 		return impl_->frame_pointer();
 	}
-	return 0;
+	return edb::address_t(0);
 }
 
 //------------------------------------------------------------------------------
@@ -148,7 +148,7 @@ edb::reg_t State::flags() const {
 	if(impl_) {
 		return impl_->flags();
 	}
-	return 0;
+	return edb::address_t(0);
 }
 
 //------------------------------------------------------------------------------
@@ -253,7 +253,7 @@ edb::reg_t State::debug_register(size_t n) const {
 	if(impl_) {
 		return impl_->debug_register(n);
 	}
-	return 0;
+	return edb::address_t(0);
 }
 
 //------------------------------------------------------------------------------

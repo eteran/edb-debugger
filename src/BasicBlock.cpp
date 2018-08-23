@@ -171,7 +171,7 @@ BasicBlock::size_type BasicBlock::byteSize() const {
 //------------------------------------------------------------------------------
 edb::address_t BasicBlock::firstAddress() const {
 	Q_ASSERT(!empty());
-	return front()->rva();
+	return edb::address_t(front()->rva());
 }
 
 //------------------------------------------------------------------------------
@@ -179,7 +179,7 @@ edb::address_t BasicBlock::firstAddress() const {
 //------------------------------------------------------------------------------
 edb::address_t BasicBlock::lastAddress() const {
 	Q_ASSERT(!empty());
-	return back()->rva() + back()->byte_size();
+	return edb::address_t(back()->rva() + back()->byte_size());
 }
 
 //------------------------------------------------------------------------------

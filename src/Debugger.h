@@ -316,7 +316,7 @@ private:
 	bool                stack_view_locked_   = false;
 
 #if defined(Q_OS_LINUX)
-	edb::address_t      debug_pointer_       = 0;
+	edb::address_t      debug_pointer_       { 0 };
 	bool                dynamic_info_bp_set_ = false;
 #endif
 

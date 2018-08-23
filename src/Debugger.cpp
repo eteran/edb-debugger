@@ -141,7 +141,7 @@ edb::address_t find_linker_hook_address(IProcess *process, edb::address_t debug_
 		return edb::address_t::fromZeroExtended(dynamic_info.r_brk);
 	}
 
-	return 0;
+	return edb::address_t(0);
 }
 
 //--------------------------------------------------------------------------
@@ -787,8 +787,8 @@ void Debugger::create_data_tab() {
 			edb::v1::format_pointer(new_data_view->region->end())));
 	} else {
 		ui.tabWidget->addTab(hexview.get(), tr("%1-%2").arg(
-			edb::v1::format_pointer(0),
-			edb::v1::format_pointer(0)));
+		    edb::v1::format_pointer(edb::address_t(0)),
+		    edb::v1::format_pointer(edb::address_t(0))));
 	}
 
 
@@ -853,7 +853,7 @@ Result<edb::address_t> Debugger::get_goto_expression() {
 	if(ok) {
 		return edb::v1::make_result(address);
 	} else {
-		return Result<edb::address_t>(tr("No Address"), 0);
+		return Result<edb::address_t>(tr("No Address"), edb::address_t(0));
 	}
 }
 
@@ -865,7 +865,7 @@ Result<edb::reg_t> Debugger::get_follow_register() const {
 
 	const auto reg = active_register();
 	if(!reg || reg.bitSize() > 8 * sizeof(edb::address_t)) {
-		return Result<edb::reg_t>(tr("No Value"), 0);
+		return Result<edb::reg_t>(tr("No Value"), edb::address_t(0));
 	}
 
 	return edb::v1::make_result<edb::reg_t>(reg.valueAsAddress());
