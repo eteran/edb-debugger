@@ -40,14 +40,6 @@ class ValueBase {
 protected:
 	using ValueType = std::array<typename sized_uint<ElementWidth>::type, ElementCount>;
 	ValueType value_;
-#if 1
-	explicit ValueBase(const std::vector<std::uint8_t>& data,std::size_t offset = 0) {
-		assert(data.size() - offset >= sizeof(ValueType)); // check bounds, this can't be done at compile time
-
-		auto dataStart = reinterpret_cast<const char*>(&data);
-		std::memcpy(&value_, dataStart + offset, sizeof(value_));
-	}
-#endif
 
 	template <class Data>
 	explicit ValueBase(const Data& data, std::size_t offset = 0) {
