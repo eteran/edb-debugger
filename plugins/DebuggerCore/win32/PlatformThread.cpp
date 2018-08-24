@@ -13,7 +13,7 @@ namespace DebuggerCorePlugin {
  */
 PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, edb::tid_t tid, CREATE_THREAD_DEBUG_INFO *CreateThread) : core_(core), process_(process), tid_(tid) {
 	info_ = *CreateThread;
-	handle_ = OpenThread(THREAD_QUERY_INFORMATION | THREAD_GET_CONTEXT | THREAD_SET_CONTEXT, FALSE, tid);
+	handle_ = OpenThread(THREAD_QUERY_INFORMATION | THREAD_GET_CONTEXT | THREAD_SET_CONTEXT | THREAD_SUSPEND_RESUME , FALSE, tid);
 }
 
 /**
