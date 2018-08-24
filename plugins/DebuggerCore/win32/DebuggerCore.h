@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace DebuggerCorePlugin {
 
 class PlatformProcess;
+class PlatformThread;
 
 class DebuggerCore : public DebuggerCoreBase {
 	Q_OBJECT
@@ -35,6 +36,8 @@ class DebuggerCore : public DebuggerCoreBase {
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
+	friend class PlatformProcess;
+	friend class PlatformThread;
 public:
 	DebuggerCore();
 	~DebuggerCore() override;
@@ -72,7 +75,7 @@ public:
 
 public:
 	// thread support stuff (optional)
-	QList<edb::tid_t> thread_ids() const    { return threads_.toList(); }
+	QList<edb::tid_t> thread_ids() const    { return threads_.keys(); }
 	edb::tid_t active_thread() const        { return active_thread_; }
 	void set_active_thread(edb::tid_t tid)  { Q_ASSERT(threads_.contains(tid)); active_thread_ = tid; }
 
@@ -112,10 +115,13 @@ public:
 	IProcess *process() const override;
 
 private:
-	size_t                           page_size_      = 0;
-	std::shared_ptr<PlatformProcess> process_;
-	QSet<edb::tid_t>                 threads_;
-	edb::tid_t                       active_thread_;
+	using threadmap_t = QHash<edb::tid_t, std::shared_ptr<PlatformThread>>;
+
+private:
+	size_t                    page_size_ = 0;
+	std::shared_ptr<IProcess> process_;
+	threadmap_t               threads_;
+	edb::tid_t                active_thread_;
 
 };
 

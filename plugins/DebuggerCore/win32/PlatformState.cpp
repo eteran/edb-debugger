@@ -499,4 +499,24 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 #endif
 }
 
+Register PlatformState::instruction_pointer_register() const {
+#if defined(EDB_X86_64)
+	    return make_Register("rip", context_.Rip, Register::TYPE_IP);
+#elif defined(EDB_X86)
+	    return make_Register("eip", context_.Eip, Register::TYPE_IP);
+    }
+#endif
+    return Register();
+}
+
+Register PlatformState::flags_register() const {
+#if defined(EDB_X86_64)
+	    return make_Register("rflags", context_.EFlags, Register::TYPE_IP);
+#elif defined(EDB_X86)
+	    return make_Register("eflags", context_.EFlags, Register::TYPE_IP);
+    }
+#endif
+    return Register();
+}
+
 }

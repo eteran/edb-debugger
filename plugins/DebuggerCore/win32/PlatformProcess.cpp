@@ -19,6 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PlatformProcess.h"
 #include "PlatformRegion.h"
+#include "PlatformThread.h"
+#include "edb.h"
 #include <processthreadsapi.h>
 
 namespace DebuggerCorePlugin {
@@ -524,6 +526,65 @@ QList<Module> PlatformProcess::loaded_modules() const {
 	}
 	CloseHandle(hModuleSnap);
 	return ret;
+}
+
+/**
+ * @brief PlatformProcess::threads
+ * @return
+ */
+QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
+
+	Q_ASSERT(core_->process_.get() == this);
+
+	QList<std::shared_ptr<IThread>> threadList;
+
+	for(auto &thread : core_->threads_) {
+		threadList.push_back(thread);
+	}
+
+	return threadList;
+}
+
+/**
+ * @brief PlatformProcess::current_thread
+ * @return
+ */
+std::shared_ptr<IThread> PlatformProcess::current_thread() const {
+
+	Q_ASSERT(core_->process_.get() == this);
+
+	auto it = core_->threads_.find(core_->active_thread_);
+	if(it != core_->threads_.end()) {
+		return it.value();
+	}
+	return nullptr;
+}
+
+void PlatformProcess::set_current_thread(IThread& thread) {
+	core_->active_thread_ = static_cast<PlatformThread*>(&thread)->tid();
+	edb::v1::update_ui();
+}
+
+Status PlatformProcess::step(edb::EVENT_STATUS status) {
+	// TODO: assert that we are paused
+	Q_ASSERT(core_->process_.get() == this);
+
+	if(status != edb::DEBUG_STOP) {
+		if(std::shared_ptr<IThread> thread = current_thread()) {
+			return thread->step(status);
+		}
+	}
+	return Status::Ok;
+}
+
+bool PlatformProcess::isPaused() const {
+	for(auto &thread : threads()) {
+		if(!thread->isPaused()) {
+			return false;
+		}
+	}
+
+	return true;
 }
 
 }

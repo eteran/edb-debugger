@@ -1167,8 +1167,12 @@ RegisterViewModel& getModel() {
 void updateGPRs(RegisterViewModel& model, const State& state, bool is64Bit) {
 	if(is64Bit) {
 		for(std::size_t i=0;i<GPR64_COUNT;++i) {
-			const auto reg=state.gp_register(i);
-			Q_ASSERT(!!reg); Q_ASSERT(reg.bitSize()==64);
+			const auto reg = state.gp_register(i);
+			if(!reg) {
+				continue;
+			}
+
+			Q_ASSERT(reg.bitSize()==64);
 			QString comment;
 			if(i==0) {
 				const auto origAX=state["orig_rax"].valueAsSignedInteger();
@@ -1186,8 +1190,11 @@ void updateGPRs(RegisterViewModel& model, const State& state, bool is64Bit) {
 		}
 	} else {
 		for(std::size_t i=0;i<GPR32_COUNT;++i) {
-			const auto reg=state.gp_register(i);
-			Q_ASSERT(!!reg); Q_ASSERT(reg.bitSize()==32);
+			const auto reg = state.gp_register(i);
+			if(!reg) {
+				continue;
+			}
+			Q_ASSERT(reg.bitSize()==32);
 			QString comment;
 			if(i==0) {
 				const auto origAX=state["orig_eax"].valueAsSignedInteger();

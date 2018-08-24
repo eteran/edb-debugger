@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformProcess.h"
 #include "PlatformRegion.h"
 #include "PlatformState.h"
+#include "PlatformThread.h"
 #include "State.h"
 #include "string_hash.h"
 
@@ -190,18 +191,25 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 			bool propagate = false;
 
 			switch(de.dwDebugEventCode) {
-			case CREATE_THREAD_DEBUG_EVENT:
-				threads_.insert(active_thread_);
+			case CREATE_THREAD_DEBUG_EVENT: {
+				auto newThread = std::make_shared<PlatformThread>(this, process_, de.dwThreadId, &de.u.CreateThread);
+				threads_.insert(active_thread_, newThread);
 				break;
+			}
 			case EXIT_THREAD_DEBUG_EVENT:
 				threads_.remove(active_thread_);
 				break;
-			case CREATE_PROCESS_DEBUG_EVENT:
+			case CREATE_PROCESS_DEBUG_EVENT: {
 				// TODO(eteran): should we be closing this handle?
 				CloseHandle(de.u.CreateProcessInfo.hFile);
+
+#if 0
+				// TODO(eteran): implement this
 				process_->start_address_ = edb::address_t::fromZeroExtended(de.u.CreateProcessInfo.lpStartAddress);
 				process_->image_base_    = edb::address_t::fromZeroExtended(de.u.CreateProcessInfo.lpBaseOfImage);
+#endif
 				break;
+			}
 			case LOAD_DLL_DEBUG_EVENT:
 				CloseHandle(de.u.LoadDll.hFile);
 				break;
@@ -277,8 +285,8 @@ Status DebuggerCore::detach() {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::kill() {
-	if(attached()) {
-		TerminateProcess(process_->handle_, -1);
+	if(auto p = static_cast<PlatformProcess *>(process_.get())) {
+		TerminateProcess(p->handle_, -1);
 		detach();
 	}
 }

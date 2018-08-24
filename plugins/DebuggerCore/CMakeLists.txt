@@ -74,6 +74,8 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 		win32/PlatformRegion.h
 		win32/PlatformState.cpp
 		win32/PlatformState.h
+		win32/PlatformThread.cpp
+		win32/PlatformThread.h
 	)
 endif()
 

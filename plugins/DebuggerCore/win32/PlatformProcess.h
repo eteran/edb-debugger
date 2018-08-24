@@ -75,21 +75,9 @@ public:
 
 public:
 	// only legal to call when attached
-	QList<std::shared_ptr<IThread>> threads() const override {
-		qDebug("TODO: implement PlatformProcess::threads");
-		return QList<std::shared_ptr<IThread>>();
-	}
-
-	std::shared_ptr<IThread> current_thread() const override {
-		qDebug("TODO: implement PlatformProcess::current_thread");
-		return std::shared_ptr<IThread>();
-	}
-
-	void set_current_thread(IThread& thread) override {
-		Q_UNUSED(thread);
-		qDebug("TODO: implement PlatformProcess::set_current_thread");
-	}
-
+	QList<std::shared_ptr<IThread>> threads() const override;
+	std::shared_ptr<IThread> current_thread() const override;
+	void set_current_thread(IThread& thread) override;
 	Status pause() override;
 	std::size_t write_bytes(edb::address_t address, const void *buf, size_t len) override;
 	std::size_t read_bytes(edb::address_t address, void *buf, size_t len) const override;
@@ -109,16 +97,8 @@ public:
 		return Status("Not implemented");
 	}
 
-	Status step(edb::EVENT_STATUS status) override {
-		Q_UNUSED(status);
-		qDebug("TODO: implement PlatformProcess::step");
-		return Status("Not implemented");
-	}
-
-	bool isPaused() const override {
-		qDebug("TODO: implement PlatformProcess::isPaused"); return true;
-	}
-
+	Status step(edb::EVENT_STATUS status) override;
+	bool isPaused() const override;
 	QMap<edb::address_t, Patch> patches() const override;
 
 private:
