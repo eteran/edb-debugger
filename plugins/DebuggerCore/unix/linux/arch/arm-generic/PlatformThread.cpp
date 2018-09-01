@@ -128,7 +128,7 @@ void PlatformThread::get_state(State *state) {
 
 	core_->detectCPUMode();
 
-	if(auto state_impl = static_cast<PlatformState *>(state->impl_)) {
+	if(auto state_impl = static_cast<PlatformState *>(state->impl_.get())) {
 
 		fillStateFromSimpleRegs(state_impl);
 		fillStateFromVFPRegs(state_impl);
@@ -143,7 +143,7 @@ void PlatformThread::set_state(const State &state) {
 
 	// TODO: assert that we are paused
 
-	if(auto state_impl = static_cast<PlatformState *>(state.impl_)) {
+	if(auto state_impl = static_cast<PlatformState *>(state.impl_.get())) {
 
 		user_regs regs;
 		state_impl->fillStruct(regs);
