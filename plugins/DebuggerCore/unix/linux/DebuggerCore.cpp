@@ -246,6 +246,7 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 		return false;
 	}
 #endif
+	return false;
 }
 
 //------------------------------------------------------------------------------

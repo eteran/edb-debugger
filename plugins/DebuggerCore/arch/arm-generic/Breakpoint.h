@@ -29,7 +29,7 @@ namespace DebuggerCorePlugin {
 class Breakpoint : public IBreakpoint {
 public:
 	enum class TypeId {
-		Automatic=IBreakpoint::TypeId::Automatic,
+		Automatic=static_cast<int>(IBreakpoint::TypeId::Automatic),
 		ARM32,
 		Thumb2Byte,
 		Thumb4Byte,
