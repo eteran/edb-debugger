@@ -92,8 +92,8 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 		for(auto it = functions.begin(); it != functions.end(); ++it) {
 			const Function &f = it.value();
 
-			const int first_offset = (f.entry_address() - region->start()) * byte_width;
-			const int last_offset  = (f.end_address() - region->start()) * byte_width;
+			const auto first_offset = static_cast<int>((f.entry_address() - region->start()) * byte_width);
+			const auto last_offset  = static_cast<int>((f.end_address() - region->start()) * byte_width);
 
 			if(!specified_functions.contains(f.entry_address())) {
 				painter.fillRect(first_offset, 0, last_offset - first_offset, height(), QBrush(Qt::darkGreen));
@@ -104,7 +104,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 
 		// highlight header of binary (probably not going to be too noticeable but just in case)
 		if(auto binary_info = edb::v1::get_binary_info(region)) {
-			painter.fillRect(0, 0, binary_info->header_size() * byte_width, height(), QBrush(Qt::darkBlue));
+			painter.fillRect(0, 0, static_cast<int>(binary_info->header_size() * byte_width), height(), QBrush(Qt::darkBlue));
 		}
 	}
 
@@ -115,7 +115,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 		if(auto scroll_area = qobject_cast<QAbstractScrollArea*>(edb::v1::disassembly_widget())) {
 			if(QScrollBar *scrollbar = scroll_area->verticalScrollBar()) {
 				QFontMetrics fm(font());
-				const int offset = (scrollbar->value()) * byte_width;
+				const int offset = static_cast<int>(scrollbar->value() * byte_width);
 
 				const QString triangle(QChar(0x25b4));
 
@@ -159,9 +159,10 @@ void AnalyzerWidget::mousePressEvent(QMouseEvent *event) {
 		if(region->size() != 0 && !functions.empty()) {
 			const auto byte_width = static_cast<float>(width()) / region->size();
 
-			edb::address_t start  = region->start();
-			edb::address_t end    = region->end();
-			// NOTE(eteran): this cast is NECESSARY
+			const edb::address_t start = region->start();
+			const edb::address_t end   = region->end();
+
+			// NOTE(eteran): this cast is NECESSARY because address_t + <float> == mess :-/
 			edb::address_t offset = start + static_cast<size_t>(event->x() / byte_width);
 
 			const edb::address_t address = qBound<edb::address_t>(start, offset, end - 1);

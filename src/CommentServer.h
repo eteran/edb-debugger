@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QObject>
 #include <QString>
 
-class CommentServer : public QObject, public QHexView::CommentServerInterface {
+class CommentServer : public QObject {
 	Q_OBJECT
 
 public:
@@ -34,9 +34,9 @@ public:
 	~CommentServer() override = default;
 
 public:
-    void set_comment(QHexView::address_t address, const QString &comment) override;
-    QString comment(QHexView::address_t address, int size) const override;
-    void clear() override;
+	void set_comment(QHexView::address_t address, const QString &comment);
+	QString comment(QHexView::address_t address, int size) const;
+	void clear();
 
 private:
 	Result<QString> resolve_function_call(QHexView::address_t address) const;

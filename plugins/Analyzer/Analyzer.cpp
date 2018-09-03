@@ -61,7 +61,7 @@ namespace AnalyzerPlugin {
 
 namespace {
 
-const int MIN_REFCOUNT = 2;
+constexpr int MIN_REFCOUNT = 2;
 
 //------------------------------------------------------------------------------
 // Name: module_entry_point

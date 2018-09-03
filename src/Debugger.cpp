@@ -353,7 +353,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
         timer_(new QTimer(this)),
         recent_file_manager_(new RecentFileManager(this)),
         stack_view_info_(nullptr),
-        comment_server_(new CommentServer)
+        comment_server_(std::make_shared<CommentServer>())
 {
 	setup_ui();
 
@@ -751,7 +751,7 @@ void Debugger::create_data_tab() {
 	}
 
     // NOTE(eteran): for issue #522, allow comments in data view when single word width
-    hexview->setCommentServer(comment_server_);
+	hexview->setCommentServer(comment_server_.get());
 
 	hexview->setData(new_data_view->stream.get());
 
@@ -959,7 +959,7 @@ void Debugger::setup_stack_view() {
 	stack_view_info_.view = stack_view_;
 
 	// setup the comment server for the stack viewer
-    stack_view_->setCommentServer(comment_server_);
+	stack_view_->setCommentServer(comment_server_.get());
 }
 
 //------------------------------------------------------------------------------

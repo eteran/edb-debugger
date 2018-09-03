@@ -34,6 +34,7 @@ class IBreakpoint;
 class IDebugEvent;
 class IPlugin;
 class RecentFileManager;
+class CommentServer;
 
 class QStringListModel;
 class QTimer;
@@ -329,7 +330,7 @@ private:
 	QVector<std::shared_ptr<DataViewInfo>>            data_regions_;
 	std::shared_ptr<IBreakpoint>                      reenable_breakpoint_run_;
 	std::shared_ptr<IBreakpoint>                      reenable_breakpoint_step_;
-	std::shared_ptr<QHexView::CommentServerInterface> comment_server_;
+	std::shared_ptr<CommentServer>                    comment_server_;
 	std::shared_ptr<QHexView>                         stack_view_;
 	std::shared_ptr<const IDebugEvent>                last_event_;
 	std::unique_ptr<IBinary>                          binary_info_;
