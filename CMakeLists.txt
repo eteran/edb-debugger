@@ -51,7 +51,7 @@ if(NOT double-conversion_FOUND)
 	message(WARNING "libdouble-conversion development package wasn't found. 32- and 64-bit floating-point values will be showed with max_digits10 digits of precision instead of shortest representation.")
 else()
 	message(STATUS "  Found double-conversion, version ${double-conversion_VERSION}")
-	set(DOUBLE_CONVERSION_LIBRARIES double-conversion::double-conversion)
+	set(DOUBLE_CONVERSION_LIBRARIES ${double-conversion_LIBRARIES})
 	add_definitions("-DHAVE_DOUBLE_CONVERSION")
 endif()
 
