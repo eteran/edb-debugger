@@ -1,5 +1,8 @@
 cmake_minimum_required (VERSION 3.0)
 project (edb CXX)
+if("${CMAKE_CXX_COMPILER_ID}" STREQUAL "GNU" AND "${CMAKE_CXX_COMPILER_VERSION}" VERSION_LESS 5.0)
+	message(FATAL_ERROR "Your g++ version is too old. At least 5.0 is required.")
+endif()
 
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/src/qhexview/")
 	message(SEND_ERROR "The git submodules are not available. Please run:\ngit submodule update --init --recursive"
