@@ -411,6 +411,62 @@ void DebuggerCore::handle_thread_exit(edb::tid_t tid, int status) {
 }
 
 //------------------------------------------------------------------------------
+// Name: handle_thread_create_event
+// Desc:
+//------------------------------------------------------------------------------
+std::shared_ptr<IDebugEvent> DebuggerCore::handle_thread_create_event(edb::tid_t tid, int status) {
+
+	Q_UNUSED(status);
+
+	unsigned long message;
+	if(ptrace_get_event_message(tid, &message)) {
+
+		auto new_tid = static_cast<edb::tid_t>(message);
+
+		auto newThread            = std::make_shared<PlatformThread>(this, process_, new_tid);
+		newThread->status_        = 0;
+		newThread->signal_status_ = PlatformThread::Stopped;
+
+		threads_.insert(new_tid, newThread);
+
+		int thread_status = 0;
+		if(!waited_threads_.contains(new_tid)) {
+			if(native::waitpid(new_tid, &thread_status, __WALL) > 0) {
+				waited_threads_.insert(new_tid);
+			}
+		}
+
+		// A new thread could exit before we have fully created it, no event then since it can't be the last thread
+		if(WIFEXITED(thread_status)) {
+			handle_thread_exit(tid, thread_status);
+			return nullptr;
+		}
+
+		if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
+			qWarning("handle_event(): new thread [%d] received an event besides SIGSTOP: status=0x%x", static_cast<int>(new_tid),thread_status);
+		}
+
+		newThread->status_ = thread_status;
+
+		// copy the hardware debug registers from the current thread to the new thread
+		if(process_) {
+			if(auto cur_thread = process_->current_thread()) {
+				for(int i = 0; i < 8; ++i) {
+					auto new_thread = std::static_pointer_cast<PlatformThread>(newThread);
+					auto old_thread = std::static_pointer_cast<PlatformThread>(cur_thread);
+					new_thread->set_debug_register(i, old_thread->get_debug_register(i));
+				}
+			}
+		}
+
+		newThread->resume();
+	}
+
+	ptrace_continue(tid, 0);
+	return nullptr;
+}
+
+//------------------------------------------------------------------------------
 // Name: handle_event
 // Desc:
 //------------------------------------------------------------------------------
@@ -423,7 +479,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 	if(WIFEXITED(status)) {
 
 		handle_thread_exit(tid,status);
-		// if this was the last thread, return true
+		// if this was the last thread, return nullptr
 		// so we report it to the user.
 		// if this wasn't, then we should silently
 		// procceed.
@@ -438,52 +494,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 
 	// was it a thread create event?
 	if(is_clone_event(status)) {
-
-		unsigned long new_tid;
-		if(ptrace_get_event_message(tid, &new_tid)) {
-
-			auto newThread            = std::make_shared<PlatformThread>(this, process_, new_tid);
-			newThread->status_        = 0;
-			newThread->signal_status_ = PlatformThread::Stopped;
-
-			threads_.insert(new_tid, newThread);
-
-			int thread_status = 0;
-			if(!waited_threads_.contains(new_tid)) {
-				if(native::waitpid(new_tid, &thread_status, __WALL) > 0) {
-					waited_threads_.insert(new_tid);
-				}
-			}
-
-			// A new thread could exit before we have fully created it, no event then since it can't be the last thread
-			if(WIFEXITED(thread_status)) {
-				handle_thread_exit(tid,thread_status);
-				return nullptr;
-			}
-
-			if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
-				qWarning("handle_event(): new thread [%d] received an event besides SIGSTOP: status=0x%x", static_cast<int>(new_tid),thread_status);
-			}
-
-			newThread->status_ = thread_status;
-
-			// copy the hardware debug registers from the current thread to the new thread
-			if(process_) {
-				if(auto thread = process_->current_thread()) {
-					for(int i = 0; i < 8; ++i) {
-						auto new_thread = std::static_pointer_cast<PlatformThread>(newThread);
-						auto old_thread = std::static_pointer_cast<PlatformThread>(thread);
-						new_thread->set_debug_register(i, old_thread->get_debug_register(i));
-					}
-				}
-			}
-
-			// TODO(eteran): what the heck do we do if this isn't a SIGSTOP?
-			newThread->resume();
-		}
-
-		ptrace_continue(tid, 0);
-		return nullptr;
+		return handle_thread_create_event(tid, status);
 	}
 
 	// normal event
@@ -508,30 +519,30 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 	// Some breakpoint types result in SIGILL or SIGSEGV. We'll transform the
 	// event into breakpoint event if such a breakpoint has triggered.
 	if(it != threads_.end() && WIFSTOPPED(status)) {
-		const auto signo=WSTOPSIG(status);
-		if(signo==SIGILL || signo==SIGSEGV) {
+		const auto signo = WSTOPSIG(status);
+		if(signo == SIGILL || signo == SIGSEGV) {
 			// no need to peekuser for SIGILL, but have to for SIGSEGV
-			const auto address = signo==SIGILL ? edb::address_t::fromZeroExtended(e->siginfo_.si_addr)
+			const auto address = signo == SIGILL ? edb::address_t::fromZeroExtended(e->siginfo_.si_addr)
 											   : (*it)->instruction_pointer();
-			if(edb::v1::find_triggered_breakpoint(address))
-			{
-				e->status_=SIGTRAP<<8|0x7f;
-				e->siginfo_.si_signo=SIGTRAP;
-				e->siginfo_.si_code=TRAP_BRKPT;
+
+			if(edb::v1::find_triggered_breakpoint(address)) {
+				e->status_ = SIGTRAP << 8 | 0x7f;
+				e->siginfo_.si_signo = SIGTRAP;
+				e->siginfo_.si_code  = TRAP_BRKPT;
 			}
 		}
 	}
 
 #if defined EDB_ARM32
 	if(it != threads_.end()) {
-		const auto& thread=*it;
+		const auto& thread = *it;
 		if(thread->singleStepBreakpoint) {
 
 			remove_breakpoint(thread->singleStepBreakpoint->address());
-			thread->singleStepBreakpoint=nullptr;
+			thread->singleStepBreakpoint = nullptr;
 
-			assert(e->siginfo_.si_signo==SIGTRAP); // signo must have already be converted to SIGTRAP if needed
-			e->siginfo_.si_code=TRAP_TRACE;
+			assert(e->siginfo_.si_signo == SIGTRAP); // signo must have already be converted to SIGTRAP if needed
+			e->siginfo_.si_code = TRAP_TRACE;
 		}
 	}
 #endif
