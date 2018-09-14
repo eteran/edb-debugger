@@ -222,7 +222,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 	
 	ui->listIgnoredExceptions->clear();
 	if(edb::v1::debugger_core) {
-        QMap<qlonglong, QString> known_exceptions = edb::v1::debugger_core->exceptions();
+		QMap<qlonglong, QString> known_exceptions = edb::v1::debugger_core->exceptions();
 		
 		for(auto it = known_exceptions.begin(); it != known_exceptions.end(); ++it) {
 			auto item = new QListWidgetItem(*it, ui->listIgnoredExceptions);
@@ -344,6 +344,10 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
             config.ignored_exceptions.push_back(item->data(Qt::UserRole).toLongLong());
         }
     }
+
+	if(auto core = edb::v1::debugger_core) {
+		core->set_ignored_exceptions(config.ignored_exceptions);
+	}
 
 	config.sendChangeNotification();
 	event->accept();

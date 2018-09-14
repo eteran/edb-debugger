@@ -60,13 +60,13 @@ public:
 public:
 	// system properties
 	virtual std::size_t              page_size() const = 0;
-    virtual std::size_t              pointer_size() const = 0;
-    virtual quint64                  cpu_type() const = 0;
+	virtual std::size_t              pointer_size() const = 0;
+	virtual quint64                  cpu_type() const = 0;
 	virtual CPUMode                  cpu_mode() const = 0;
-    virtual bool                     has_extension(quint64 ext) const = 0;
-    virtual QMap<qlonglong, QString> exceptions() const = 0;
-    virtual QString                  exceptionName(qlonglong value) = 0;
-    virtual qlonglong                exceptionValue(const QString &name) = 0;
+	virtual bool                     has_extension(quint64 ext) const = 0;
+	virtual QMap<qlonglong, QString> exceptions() const = 0;
+	virtual QString                  exceptionName(qlonglong value) = 0;
+	virtual qlonglong                exceptionValue(const QString &name) = 0;
 
 public:
 	// important register names
@@ -105,6 +105,9 @@ public:
 	virtual void                         clear_breakpoints() = 0;
 	virtual void                         remove_breakpoint(edb::address_t address) = 0;
 	virtual std::vector<IBreakpoint::BreakpointType> supported_breakpoint_types() const = 0;
+
+public:
+	virtual void set_ignored_exceptions(const QList<qlonglong> &exceptions) = 0;
 
 public:
 	virtual std::unique_ptr<IState> create_state() const = 0;

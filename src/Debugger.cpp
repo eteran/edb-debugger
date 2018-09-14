@@ -2279,12 +2279,9 @@ edb::EVENT_STATUS Debugger::handle_event_stopped(const std::shared_ptr<IDebugEve
 
 	if(it != known_exceptions.end()) {
 
-    	const Configuration &config = edb::v1::config();
-    	if(config.ignored_exceptions.contains(it.key())) {
-        	return edb::DEBUG_EXCEPTION_NOT_HANDLED;
-    	}
+		const Configuration &config = edb::v1::config();
 
-    	QString exception_name = it.value();
+		QString exception_name = it.value();
 
 		edb::v1::set_status(tr("%1 signal received. Shift+Step/Run to pass to program, Step/Run to ignore").arg(exception_name),0);
     	if(config.enable_signals_message_box) {
@@ -2602,23 +2599,23 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 
 			if(mode == MODE_STEP) {
 				reenable_breakpoint_step_ = bp;
-				const auto stepStatus=thread->step(status);
+				const auto stepStatus = thread->step(status);
 				if(!stepStatus) {
-					QMessageBox::critical(this,tr("Error"),tr("Failed to step thread: %1").arg(stepStatus.toString()));
+					QMessageBox::critical(this, tr("Error"), tr("Failed to step thread: %1").arg(stepStatus.toString()));
 					return;
 				}
 			} else if(mode == MODE_RUN) {
 				reenable_breakpoint_run_ = bp;
 				if(bp) {
-					const auto stepStatus=thread->step(status);
+					const auto stepStatus = thread->step(status);
 					if(!stepStatus) {
-						QMessageBox::critical(this,tr("Error"),tr("Failed to step thread: %1").arg(stepStatus.toString()));
+						QMessageBox::critical(this, tr("Error"), tr("Failed to step thread: %1").arg(stepStatus.toString()));
 						return;
 					}
 				} else {
-					const auto resumeStatus=process->resume(status);
+					const auto resumeStatus = process->resume(status);
 					if(!resumeStatus) {
-						QMessageBox::critical(this,tr("Error"),tr("Failed to resume process: %1").arg(resumeStatus.toString()));
+						QMessageBox::critical(this, tr("Error"), tr("Failed to resume process: %1").arg(resumeStatus.toString()));
 						return;
 					}
 

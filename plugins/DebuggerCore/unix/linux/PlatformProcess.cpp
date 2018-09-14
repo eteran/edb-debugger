@@ -702,7 +702,7 @@ std::shared_ptr<IThread> PlatformProcess::current_thread() const {
 // Desc:
 //------------------------------------------------------------------------------
 void PlatformProcess::set_current_thread(IThread& thread) {
-	core_->active_thread_=static_cast<PlatformThread*>(&thread)->tid();
+	core_->active_thread_ = static_cast<PlatformThread*>(&thread)->tid();
 	edb::v1::update_ui();
 }
 
@@ -780,23 +780,32 @@ Status PlatformProcess::pause() {
 // Desc: resumes ALL threads
 //------------------------------------------------------------------------------
 Status PlatformProcess::resume(edb::EVENT_STATUS status) {
+
+	// NOTE(eteran): OK, this is very tricky. When the user wants to resume
+	// while ignoring a signal (DEBUG_CONTINUE), we need to know which thread
+	// needs to have the signal ignored, and which need to have their signals
+	// passed during the resume
+
 	// TODO: assert that we are paused
 	Q_ASSERT(core_->process_.get() == this);
 
 	QString errorMessage;
 
 	if(status != edb::DEBUG_STOP) {
+
 		if(std::shared_ptr<IThread> thread = current_thread()) {
-			const auto resumeStatus=thread->resume(status);
-			if(!resumeStatus)
+			const auto resumeStatus = thread->resume(status);
+			if(!resumeStatus) {
 				errorMessage += tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.toString());
+			}
 
 			// resume the other threads passing the signal they originally reported had
 			for(auto &other_thread : threads()) {
 				if(core_->waited_threads_.contains(other_thread->tid())) {
 					const auto resumeStatus=other_thread->resume();
-					if(!resumeStatus)
+					if(!resumeStatus) {
 						errorMessage += tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.toString());
+					}
 				}
 			}
 		}
@@ -807,7 +816,7 @@ Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 	}
 
 	qWarning() << errorMessage.toStdString().c_str();
-	return Status("\n"+errorMessage);
+	return Status("\n" + errorMessage);
 }
 
 //------------------------------------------------------------------------------

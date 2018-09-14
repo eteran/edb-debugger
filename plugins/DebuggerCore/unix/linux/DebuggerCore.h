@@ -59,6 +59,7 @@ public:
 	void set_state(const State &state) override;
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
     MeansOfCapture last_means_of_capture() const override;
+	void set_ignored_exceptions(const QList<qlonglong> &exceptions) override;
 
 public:
 	edb::pid_t parent_pid(edb::pid_t pid) const override;
@@ -106,6 +107,7 @@ private:
 	using threadmap_t = QHash<edb::tid_t, std::shared_ptr<PlatformThread>>;
 
 private:
+	QList<qlonglong>          ignored_exceptions_;
 	threadmap_t               threads_;
 	QSet<edb::tid_t>          waited_threads_;
 	edb::tid_t                active_thread_;
@@ -121,8 +123,8 @@ private:
 #endif
 	CPUMode					  cpu_mode_ = CPUMode::Unknown;
 	MeansOfCapture	          lastMeansOfCapture = MeansOfCapture::NeverCaptured;
-	bool                      proc_mem_write_broken_;
-	bool                      proc_mem_read_broken_;
+	bool                      proc_mem_write_broken_ = false;
+	bool                      proc_mem_read_broken_  = false;
 
 };
 

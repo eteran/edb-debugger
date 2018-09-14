@@ -278,7 +278,7 @@ Status DebuggerCore::ptrace_getsiginfo(edb::tid_t tid, siginfo_t *siginfo) {
 	Q_ASSERT(siginfo);
 
 	if(ptrace(PTRACE_GETSIGINFO, tid, 0, siginfo)==-1) {
-		const char*const strError=strerror(errno);
+		const char *const strError = strerror(errno);
 		qWarning() << "Unable to get signal info for thread" << tid << ": PTRACE_GETSIGINFO failed:" << strError;
 		return Status(strError);
 	}
@@ -304,7 +304,7 @@ Status DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
 	if(waited_threads_.contains(tid)) {
 		Q_ASSERT(tid != 0);
 		if(ptrace(PTRACE_CONT, tid, 0, status) == -1) {
-			const char*const strError=strerror(errno);
+			const char *const strError = strerror(errno);
 			qWarning() << "Unable to continue thread" << tid << ": PTRACE_CONT failed:" << strError;
 			return Status(strError);
 		}
@@ -325,7 +325,7 @@ Status DebuggerCore::ptrace_step(edb::tid_t tid, long status) {
 	if(waited_threads_.contains(tid)) {
 		Q_ASSERT(tid != 0);
 		if(ptrace(PTRACE_SINGLESTEP, tid, 0, status)==-1) {
-			const char*const strError=strerror(errno);
+			const char *const strError = strerror(errno);
 			qWarning() << "Unable to step thread" << tid << ": PTRACE_SINGLESTEP failed:" << strError;
 			return Status(strError);
 		}
@@ -343,7 +343,7 @@ Status DebuggerCore::ptrace_set_options(edb::tid_t tid, long options) {
 	Q_ASSERT(waited_threads_.contains(tid));
 	Q_ASSERT(tid != 0);
 	if(ptrace(PTRACE_SETOPTIONS, tid, 0, options)==-1) {
-		const char*const strError=strerror(errno);
+		const char *const strError = strerror(errno);
 		qWarning() << "Unable to set ptrace options for thread" << tid << ": PTRACE_SETOPTIONS failed:" << strError;
 		return Status(strError);
 	}
@@ -360,7 +360,7 @@ Status DebuggerCore::ptrace_get_event_message(edb::tid_t tid, unsigned long *mes
 	Q_ASSERT(message);
 
 	if(ptrace(PTRACE_GETEVENTMSG, tid, 0, message)==-1) {
-		const char*const strError=strerror(errno);
+		const char *const strError = strerror(errno);
 		qWarning() << "Unable to get event message for thread" << tid << ": PTRACE_GETEVENTMSG failed:" << strError;
 		return Status(strError);
 	}
@@ -423,9 +423,8 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_thread_create_event(edb::tid_t
 
 		auto new_tid = static_cast<edb::tid_t>(message);
 
-		auto newThread            = std::make_shared<PlatformThread>(this, process_, new_tid);
-		newThread->status_        = 0;
-		newThread->signal_status_ = PlatformThread::Stopped;
+		auto newThread     = std::make_shared<PlatformThread>(this, process_, new_tid);
+		newThread->status_ = 0;
 
 		threads_.insert(new_tid, newThread);
 
@@ -507,7 +506,26 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 		// TODO: handle no info?
 	}
 
-	active_thread_ = tid;
+	// if necessary, just ignore this event
+	if(ignored_exceptions_.contains(e->code())) {
+		ptrace_continue(tid, resume_code(status));
+	}
+
+	/* NOTE(eteran): OK, so when we get an event, we generally want to stop
+	 * any other threads as well. So we will call stop_threads() below
+	 * which sends a SIGSTOP.
+	 *
+	 * We need to be very careful to avoid those future events causing the
+	 * active thread to be set, because we want it to remain set to the thread
+	 * which recieved the initial signal. This is all so that later when the
+	 * user clicks resume, that the correct active thread gets (or doesn't)
+	 * get signals, and the rest get resumed properly.
+	 *
+	 * To do this, we simply only alter the active_thread_ variable if this
+	 * event was the first we saw after a resume/run (phew!).*/
+	if(waited_threads_.size() == 1) {
+		active_thread_ = tid;
+	}
 
 	auto it = threads_.find(tid);
 	if(it != threads_.end()) {
@@ -565,12 +583,13 @@ Status DebuggerCore::stop_threads() {
 
 				if(auto thread_ptr = std::static_pointer_cast<PlatformThread>(thread)) {
 
-					const auto stopStatus=thread->stop();
-					if(!stopStatus)
-						errorMessage+=tr("Failed to stop thread %1: %2\n").arg(tid).arg(stopStatus.toString());
+					const auto stop_status = thread->stop();
+					if(!stop_status) {
+						errorMessage += tr("Failed to stop thread %1: %2\n").arg(tid).arg(stop_status.toString());
+					}
 
 					int thread_status;
-					if(native::waitpid(tid, &thread_status, __WALL) > 0) {
+					if(native::waitpid(thread->tid(), &thread_status, __WALL/* | WNOHANG*/) > 0) {
 						waited_threads_.insert(tid);
 						thread_ptr->status_ = thread_status;
 
@@ -587,16 +606,19 @@ Status DebuggerCore::stop_threads() {
 			}
 		}
 	}
-	if(errorMessage.isEmpty())
+
+	if(errorMessage.isEmpty()) {
 		return Status::Ok;
+	}
+
 	qWarning() << errorMessage.toStdString().c_str();
-	return Status("\n"+errorMessage);
+	return Status("\n" + errorMessage);
 }
 
 //------------------------------------------------------------------------------
 // Name: wait_debug_event
 // Desc: waits for a debug event, msecs is a timeout
-//      it will return false if an error or timeout occurs
+//       it will return nullptr if an error or timeout occurs
 //------------------------------------------------------------------------------
 std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 
@@ -626,9 +648,8 @@ int DebuggerCore::attach_thread(edb::tid_t tid) {
         const auto ret = native::waitpid(tid, &status, __WALL);
 		if(ret > 0) {
 
-			auto newThread            = std::make_shared<PlatformThread>(this, process_, tid);
-			newThread->status_        = status;
-			newThread->signal_status_ = PlatformThread::Stopped;
+			auto newThread     = std::make_shared<PlatformThread>(this, process_, tid);
+			newThread->status_ = status;
 
 			threads_[tid] = newThread;
 
@@ -636,7 +657,7 @@ int DebuggerCore::attach_thread(edb::tid_t tid) {
 
             const long options = ptraceOptions();
 
-            const auto setoptStatus=ptrace_set_options(tid, options);
+			const auto setoptStatus = ptrace_set_options(tid, options);
 			if(!setoptStatus)	{
                 qDebug() << "[DebuggerCore] failed to set ptrace options: ["<< tid <<"]" << setoptStatus.toString();
             }
@@ -717,8 +738,8 @@ Status DebuggerCore::detach() {
 
 		for(auto &thread: process_->threads()) {
 			if(ptrace(PTRACE_DETACH, thread->tid(), 0, 0)==-1) {
-				const char*const strError=strerror(errno);
-				errorMessage+=tr("Unable to detach from thread %1: PTRACE_DETACH failed: %2\n").arg(thread->tid()).arg(strError);
+				const char *const error = strerror(errno);
+				errorMessage+=tr("Unable to detach from thread %1: PTRACE_DETACH failed: %2\n").arg(thread->tid()).arg(error);
 			}
 		}
 
@@ -945,9 +966,8 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 			process_ = std::make_shared<PlatformProcess>(this, pid);
 
 			// the PID == primary TID
-			auto newThread            = std::make_shared<PlatformThread>(this, process_, pid);
-			newThread->status_        = status;
-			newThread->signal_status_ = PlatformThread::Stopped;
+			auto newThread     = std::make_shared<PlatformThread>(this, process_, pid);
+			newThread->status_ = status;
 
 			threads_[pid]   = newThread;
 
@@ -1134,6 +1154,14 @@ QString DebuggerCore::flag_register() const {
 //------------------------------------------------------------------------------
 IProcess *DebuggerCore::process() const {
 	return process_.get();
+}
+
+//------------------------------------------------------------------------------
+// Name: set_ignored_exceptions
+// Desc:
+//------------------------------------------------------------------------------
+void DebuggerCore::set_ignored_exceptions(const QList<qlonglong> &exceptions) {
+	ignored_exceptions_ = exceptions;
 }
 
 }

@@ -60,11 +60,12 @@ void load_plugins(const QString &directory) {
 			loader.setLoadHints(QLibrary::ExportExternalSymbolsHint);
 
 			if(QObject *const plugin = loader.instance()) {
-
-				// TODO: handle the case where we find more than one core plugin...
 				if(auto core_plugin = qobject_cast<IDebugger *>(plugin)) {
 					if(!edb::v1::debugger_core) {
 						edb::v1::debugger_core = core_plugin;
+
+						// load in the settings that the core needs
+						edb::v1::debugger_core->set_ignored_exceptions(edb::v1::config().ignored_exceptions);
 					}
 				} else if(qobject_cast<IPlugin *>(plugin)) {
 					if(edb::internal::register_plugin(full_path, plugin)) {

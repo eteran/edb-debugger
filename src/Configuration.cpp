@@ -163,7 +163,7 @@ void Configuration::readSettings() {
     ignored_exceptions.clear();
 	for(QVariant &exception : temp_ignored_exceptions) {
         ignored_exceptions.push_back(exception.toLongLong());
-    }
+	}
 
 	settings.endGroup();
 

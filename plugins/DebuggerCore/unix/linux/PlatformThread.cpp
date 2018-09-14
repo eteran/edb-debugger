@@ -152,12 +152,13 @@ Status PlatformThread::resume(edb::EVENT_STATUS status) {
 // Desc:
 //------------------------------------------------------------------------------
 Status PlatformThread::stop() {
-	if(syscall(SYS_tgkill, process_->pid(), tid_, SIGSTOP)==-1) {
+	if(syscall(SYS_tgkill, process_->pid(), tid_, SIGSTOP) == -1) {
 
-		const char*const strError=strerror(errno);
-		qWarning() << "Unable to stop thread" << tid_ << ": tgkill failed:" << strError;
-		return Status(strError);
+		const char *const error = strerror(errno);
+		qWarning() << "Unable to stop thread" << tid_ << ": tgkill failed:" << error;
+		return Status(error);
 	}
+
 	// TODO(eteran): should this just be this?
 	//::kill(tid_, SIGSTOP);
 	return Status::Ok;
