@@ -53,7 +53,7 @@ edb::tid_t PlatformThread::tid() const {
 //------------------------------------------------------------------------------
 QString PlatformThread::name() const  {
 	struct user_stat thread_stat;
-	int n = get_user_stat(QString("/proc/%1/task/%2/stat").arg(process_->pid()).arg(tid_), &thread_stat);
+	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
 	if(n >= 2) {
 		return thread_stat.comm;
 	}
@@ -67,8 +67,8 @@ QString PlatformThread::name() const  {
 //------------------------------------------------------------------------------
 int PlatformThread::priority() const  {
 	struct user_stat thread_stat;
-	int n = get_user_stat(QString("/proc/%1/task/%2/stat").arg(process_->pid()).arg(tid_), &thread_stat);
-	if(n >= 30) {
+	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
+	if(n >= 18) {
 		return thread_stat.priority;
 	}
 
@@ -82,8 +82,8 @@ int PlatformThread::priority() const  {
 edb::address_t PlatformThread::instruction_pointer() const  {
 	// FIXME(ARM): doesn't work at least on ARM32
 	struct user_stat thread_stat;
-	int n = get_user_stat(QString("/proc/%1/task/%2/stat").arg(process_->pid()).arg(tid_), &thread_stat);
-	if(n >= 18) {
+	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
+	if(n >= 30) {
 		return thread_stat.kstkeip;
 	}
 
@@ -96,7 +96,7 @@ edb::address_t PlatformThread::instruction_pointer() const  {
 //------------------------------------------------------------------------------
 QString PlatformThread::runState() const  {
 	struct user_stat thread_stat;
-	int n = get_user_stat(QString("/proc/%1/task/%2/stat").arg(process_->pid()).arg(tid_), &thread_stat);
+	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
 	if(n >= 3) {
 		switch(thread_stat.state) {           // 03
 		case 'R':

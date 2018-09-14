@@ -89,8 +89,9 @@ struct user_stat {
 /* 52 */ int exit_code;
 };
 
-int get_user_stat(const QString &path, struct user_stat *user_stat);
+int get_user_stat(const char *path, struct user_stat *user_stat);
 int get_user_stat(edb::pid_t pid, struct user_stat *user_stat);
+int get_user_task_stat(edb::pid_t pid, edb::tid_t tid, struct user_stat *user_stat);
 int resume_code(int status);
 
 }
