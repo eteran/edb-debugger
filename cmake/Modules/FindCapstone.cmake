@@ -16,7 +16,7 @@ elseif (WIN32)
   if (NOT CAPSTONE_INCLUDE_DIRS)
     message(SEND_ERROR "Include directory for Capstone not found. Please specify CAPSTONE_SDK.")
   endif()
-  set(CAPSTONE_LIBRARIES capstone_dll.lib)
+  set(CAPSTONE_LIBRARIES capstone_dll.lib libcapstone.dll)
   find_path(CAPSTONE_LIBRARY_DIRS
     ${CAPSTONE_LIBRARIES}
     PATHS ${CAPSTONE_SDK}/lib
