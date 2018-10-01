@@ -108,6 +108,11 @@ public:
 		return "";
 	}
 
+	void set_ignored_exceptions(const QList<qlonglong> &exceptions) override {
+		Q_UNUSED(exceptions);
+		qDebug("TODO: Implement DebuggerCore::set_ignored_exceptions");
+	}
+
 public:
 	QString format_pointer(edb::address_t address) const override;
 
