@@ -55,6 +55,11 @@ public:
 
 	QString executable() const override;
 
+	edb::address_t entry_point() const override {
+		qDebug("TODO: implement PlatformProcess::entry_point"); return edb::address_t();
+		return 0;
+	}
+
 	edb::pid_t pid() const override;
 	std::shared_ptr<IProcess> parent() const override;
 
