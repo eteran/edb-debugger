@@ -62,7 +62,7 @@
             </property>
             <property name="icon">
              <iconset theme="document-open">
-             </iconset>
+              <normaloff>.</normaloff>.</iconset>
             </property>
             <property name="arrowType">
              <enum>Qt::NoArrow</enum>
@@ -154,7 +154,7 @@
             </property>
             <property name="icon">
              <iconset theme="document-open">
-             </iconset>
+              <normaloff>.</normaloff>.</iconset>
             </property>
            </widget>
           </item>
@@ -162,16 +162,6 @@
         </widget>
        </item>
       </layout>
-     </widget>
-     <widget class="QWidget" name="tab_2">
-      <attribute name="title">
-       <string>Statistics</string>
-      </attribute>
-     </widget>
-     <widget class="QWidget" name="tab_3">
-      <attribute name="title">
-       <string>Performance</string>
-      </attribute>
      </widget>
      <widget class="QWidget" name="tab_4">
       <attribute name="title">
@@ -198,7 +188,7 @@
          </property>
          <property name="icon">
           <iconset theme="view-refresh">
-          </iconset>
+           <normaloff>.</normaloff>.</iconset>
          </property>
         </widget>
        </item>
@@ -260,7 +250,7 @@
          </property>
          <property name="icon">
           <iconset theme="view-refresh">
-          </iconset>
+           <normaloff>.</normaloff>.</iconset>
          </property>
         </widget>
        </item>
@@ -339,7 +329,7 @@
          </property>
          <property name="icon">
           <iconset theme="view-refresh">
-          </iconset>
+           <normaloff>.</normaloff>.</iconset>
          </property>
         </widget>
        </item>
@@ -423,7 +413,7 @@
            </property>
            <property name="icon">
             <iconset theme="view-refresh">
-            </iconset>
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>
@@ -513,7 +503,7 @@
            </property>
            <property name="icon">
             <iconset theme="view-refresh">
-            </iconset>
+             <normaloff>.</normaloff>.</iconset>
            </property>
           </widget>
          </item>

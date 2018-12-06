@@ -39,8 +39,6 @@ using LONGLONG  = int64_t;
 #define IMAGE_NUMBEROF_DIRECTORY_ENTRIES 16
 #endif
 
-namespace BinaryInfoPlugin {
-
 struct IMAGE_DOS_HEADER {
 	WORD e_magic; // "MZ"
 	WORD e_cblp;
@@ -156,7 +154,5 @@ struct IMAGE_NT_HEADERS64 {
 	IMAGE_FILE_HEADER       FileHeader;
 	IMAGE_OPTIONAL_HEADER64 OptionalHeader;
 };
-
-}
 
 #endif
