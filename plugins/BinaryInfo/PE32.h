@@ -48,8 +48,6 @@ public:
 
 public:
     bool native() const override;
-    edb::address_t calculate_main() override;
-    edb::address_t debug_pointer() override;
     edb::address_t entry_point() override;
     size_t header_size() const override;
     const void *header() const override;

@@ -922,17 +922,11 @@ address_t locate_main_function() {
 
 	if(debugger_core) {
 		if(IProcess *process = debugger_core->process()) {
-			const address_t address = process->code_address();
-			memory_regions().sync();
-			if(std::shared_ptr<IRegion> region = memory_regions().find_region(address)) {
-				if(auto binfo = get_binary_info(region)) {
-					const address_t main_func = binfo->calculate_main();
-					if(main_func != 0) {
-						return main_func;
-					} else {
-						return binfo->entry_point();
-					}
-				}
+			const address_t main_func = process->calculate_main();
+			if(main_func != 0) {
+				return main_func;
+			} else {
+				return process->entry_point();
 			}
 		}
 	}

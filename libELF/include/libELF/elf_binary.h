@@ -22,8 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ELF_BINARY_20121007_H_
 #define ELF_BINARY_20121007_H_
 
-namespace BinaryInfoPlugin {
-
 #include "elf_types.h"
 #include "elf_header.h"
 #include "elf_shdr.h"
@@ -1715,7 +1713,5 @@ using elf32_conflict = elf32_addr;
 
 
 #endif
-
-}
 
 #endif

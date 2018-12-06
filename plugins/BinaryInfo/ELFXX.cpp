@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Util.h"
 #include "edb.h"
 #include "string_hash.h"
-
+#include "MemoryRegions.h"
 
 #include <QDebug>
 #include <QVector>
@@ -103,17 +103,29 @@ ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region) : region_(reg
 	auto phdr_base = region_->start() + header_.e_phoff;
 	edb::address_t lowest = ULLONG_MAX;
 
-	// iterate all of the program headers
-	for (quint16 entry = 0; entry < header_.e_phnum; entry++) {
-	
-		if (!process->read_bytes(phdr_base + (phdr_size * entry), &phdr, sizeof(phdr_type))) {
-			qDebug() << "Failed to read program header";
-			base_address_ = region_->start();
-			return;
-		}
+	if(header_.e_type == ET_EXEC) {
 
-		if (phdr.p_type == PT_LOAD && phdr.p_vaddr < lowest) {
-			lowest = phdr.p_vaddr;
+		// iterate all of the program headers
+		for (quint16 entry = 0; entry < header_.e_phnum; ++entry) {
+
+			if (!process->read_bytes(phdr_base + (phdr_size * entry), &phdr, sizeof(phdr_type))) {
+				qDebug() << "Failed to read program header";
+				break;
+			}
+
+			if (phdr.p_type == PT_LOAD && phdr.p_vaddr < lowest) {
+				lowest = phdr.p_vaddr;
+				// NOTE(eteran): they are defined to be in ascending order of vaddr
+				break;
+			}
+		}
+	} else if(header_.e_type == ET_DYN) {
+
+		const QString process_executable = edb::v1::debugger_core->process()->name();
+		for(const std::shared_ptr<IRegion> &r : edb::v1::memory_regions().regions()) {
+			if(r->executable() && r->name() == region->name()) {
+				lowest = std::min(lowest, r->start());
+			}
 		}
 	}
 
@@ -178,7 +190,7 @@ void ELFXX<elfxx_header>::validate_header() {
 //------------------------------------------------------------------------------
 template <class elfxx_header>
 edb::address_t ELFXX<elfxx_header>::entry_point() {
-	return header_.e_entry + region_->start() - base_address_;
+	return header_.e_entry + base_address_;
 }
 
 //------------------------------------------------------------------------------

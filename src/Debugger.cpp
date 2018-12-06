@@ -2876,9 +2876,7 @@ void Debugger::set_initial_debugger_state() {
 	binary_info_ = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
     comment_server_->clear();
-	if(binary_info_) {
-        comment_server_->set_comment(binary_info_->entry_point(), "<entry point>");
-	}
+	comment_server_->set_comment(process->entry_point(), "<entry point>");
 }
 
 //------------------------------------------------------------------------------
@@ -2918,9 +2916,7 @@ void Debugger::set_initial_breakpoint(const QString &s) {
 	}
 
 	if(entryPoint == 0 || edb::v1::config().initial_breakpoint == Configuration::EntryPoint) {
-		if(binary_info_) {
-			entryPoint = binary_info_->entry_point();
-		}
+		entryPoint = edb::v1::debugger_core->process()->entry_point();
 	}
 
 	if(entryPoint != 0) {
@@ -3396,8 +3392,8 @@ void Debugger::next_debug_event() {
 #if defined(Q_OS_LINUX)
 		if(!dynamic_info_bp_set_) {
 			if(IProcess *process = edb::v1::debugger_core->process()) {
-				if(debug_pointer_ == 0 && binary_info_) {
-					if((debug_pointer_ = binary_info_->debug_pointer()) != 0) {
+				if(debug_pointer_ == 0) {
+					if((debug_pointer_ = process->debug_pointer()) != 0) {
 						edb::address_t r_brk = edb::v1::debuggeeIs32Bit() ?
 							find_linker_hook_address<uint32_t>(process, debug_pointer_) :
 							find_linker_hook_address<uint64_t>(process, debug_pointer_);

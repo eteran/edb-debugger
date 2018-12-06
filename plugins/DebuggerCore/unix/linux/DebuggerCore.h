@@ -111,7 +111,6 @@ private:
 	threadmap_t               threads_;
 	QSet<edb::tid_t>          waited_threads_;
 	edb::tid_t                active_thread_;
-	std::unique_ptr<IBinary>  binary_info_;
 	std::shared_ptr<IProcess> process_;
 	std::size_t               pointer_size_;
 #if defined(EDB_X86) || defined(EDB_X86_64)

@@ -38,18 +38,11 @@ public:
 
 public:
 	virtual bool native() const = 0;
-	virtual edb::address_t calculate_main() = 0;
 	virtual edb::address_t entry_point() = 0;
 	virtual size_t header_size() const = 0;
 	virtual const void *header() const = 0;
 	virtual std::vector<Header> headers() const = 0;
 	virtual edb::address_t base_address() const = 0;
-
-public:
-	// optional, and platform specific:
-	// if there is a structure in the target process which has debug data
-	// this should return a pointer to it
-	virtual edb::address_t debug_pointer() { return edb::address_t(0); }
 
 public:
 	using create_func_ptr_t = std::unique_ptr<IBinary> (*)(const std::shared_ptr<IRegion> &);

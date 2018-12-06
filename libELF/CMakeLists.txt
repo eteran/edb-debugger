@@ -8,6 +8,7 @@ target_include_directories(ELF
 )
 
 target_sources(ELF INTERFACE
+	${CMAKE_CURRENT_SOURCE_DIR}/include/libELF/elf_model.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/libELF/elf_auxv.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/libELF/elf_binary.h
 	${CMAKE_CURRENT_SOURCE_DIR}/include/libELF/elf_dyn.h

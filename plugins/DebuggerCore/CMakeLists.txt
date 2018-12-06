@@ -125,7 +125,7 @@ endif()
 
 add_library(${PluginName} SHARED ${DebuggerCore_SRCS} )
 
-target_link_libraries(${PluginName} Qt5::Widgets edb)
+target_link_libraries(${PluginName} Qt5::Widgets PE ELF edb)
 
 set(LIBRARY_OUTPUT_PATH    ${PROJECT_BINARY_DIR})
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})

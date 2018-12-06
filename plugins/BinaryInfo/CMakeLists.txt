@@ -36,6 +36,3 @@ install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
 
 set_property(TARGET ${PluginName} PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET ${PluginName} PROPERTY CXX_STANDARD 14)
-
-add_subdirectory(libELF)
-add_subdirectory(libPE)

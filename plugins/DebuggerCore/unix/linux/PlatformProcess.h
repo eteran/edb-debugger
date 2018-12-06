@@ -48,6 +48,7 @@ public:
 	std::shared_ptr<IProcess>       parent() const override;
 	edb::address_t                  code_address() const override;
 	edb::address_t                  data_address() const override;
+	edb::address_t                  entry_point() const override;
 	QList<std::shared_ptr<IRegion>> regions() const override;
 	QList<std::shared_ptr<IThread>> threads() const override;
 	std::shared_ptr<IThread>        current_thread() const override;
@@ -56,6 +57,10 @@ public:
 	QString                         user() const override;
 	QString                         name() const override;
 	QList<Module>                   loaded_modules() const override;
+
+public:
+	edb::address_t debug_pointer() const override;
+	edb::address_t calculate_main() const override;
 
 public:
 	Status pause() override;

@@ -196,11 +196,16 @@ QString BasicBlock::toString() const {
 	return text;
 }
 
-
+//------------------------------------------------------------------------------
+// Name: addRef
+//------------------------------------------------------------------------------
 void BasicBlock::addRef(edb::address_t refsite, edb::address_t target) {
 	refs_.push_back(std::make_pair(refsite, target));
 }
 
+//------------------------------------------------------------------------------
+// Name: refs
+//------------------------------------------------------------------------------
 std::vector<std::pair<edb::address_t, edb::address_t>> BasicBlock::refs() const {
 	return refs_;
 }

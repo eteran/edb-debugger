@@ -32,8 +32,6 @@ public:
 
 public:
     bool native() const override;
-    edb::address_t calculate_main() override;
-    edb::address_t debug_pointer() override;
     edb::address_t entry_point() override;
     size_t header_size() const override;
     const void *header() const override;
@@ -46,7 +44,7 @@ private:
 private:
 	std::shared_ptr<IRegion> region_;
 	elfxx_header             header_;
-	edb::address_t           base_address_;
+	edb::address_t           base_address_ { 0 };
 	std::vector<Header>      headers_;
 };
 

@@ -47,11 +47,16 @@ public:
 	virtual std::shared_ptr<IProcess>       parent() const = 0;
 	virtual edb::address_t                  code_address() const = 0;
 	virtual edb::address_t                  data_address() const = 0;
+	virtual edb::address_t                  entry_point() const = 0;
 	virtual QList<std::shared_ptr<IRegion>> regions() const = 0;
 	virtual edb::uid_t                      uid() const = 0;
 	virtual QString                         user() const = 0;
 	virtual QString                         name() const = 0;
 	virtual QList<Module>                   loaded_modules() const = 0;
+
+public:
+	virtual edb::address_t debug_pointer() const { return 0; }
+	virtual edb::address_t calculate_main() const { return 0; }
 
 public:
 	// only legal to call when attached

@@ -156,6 +156,8 @@ endif()
 
 add_subdirectory(src)
 add_subdirectory(plugins)
+add_subdirectory(libELF)
+add_subdirectory(libPE)
 
 install (FILES ${CMAKE_SOURCE_DIR}/edb.1 DESTINATION ${CMAKE_INSTALL_MANDIR}/man1)
 install (FILES ${CMAKE_SOURCE_DIR}/edb.desktop DESTINATION ${CMAKE_INSTALL_DATAROOTDIR}/applications/)

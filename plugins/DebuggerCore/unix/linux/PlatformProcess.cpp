@@ -26,10 +26,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformThread.h"
 #include "PlatformCommon.h"
 #include "PlatformRegion.h"
+#include "ByteShiftArray.h"
 #include "MemoryRegions.h"
 #include "Module.h"
 #include "edb.h"
 #include "linker.h"
+#include "libELF/elf_binary.h"
+#include "libELF/elf_model.h"
 
 #include <QDebug>
 #include <QByteArray>
@@ -130,38 +133,37 @@ std::shared_ptr<IRegion> process_map_line(const QString &line) {
 // Desc:
 //------------------------------------------------------------------------------
 template<class Addr>
-QList<Module> loaded_modules_(const IProcess* process, const std::unique_ptr<IBinary> &binary_info_) {
+QList<Module> get_loaded_modules(const IProcess* process) {
+
 	QList<Module> ret;
 
-	if(binary_info_) {
-		edb::linux_struct::r_debug<Addr> dynamic_info;
-		if(const edb::address_t debug_pointer = binary_info_->debug_pointer()) {
-			if(process) {
-				if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
-					if(dynamic_info.r_map) {
+	edb::linux_struct::r_debug<Addr> dynamic_info;
+	if(process) {
+		if(const edb::address_t debug_pointer = process->debug_pointer()) {
+			if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
+				if(dynamic_info.r_map) {
 
-						auto link_address = edb::address_t::fromZeroExtended(dynamic_info.r_map);
+					auto link_address = edb::address_t::fromZeroExtended(dynamic_info.r_map);
 
-						while(link_address) {
+					while(link_address) {
 
-							edb::linux_struct::link_map<Addr> map;
-							if(process->read_bytes(link_address, &map, sizeof(map))) {
-								char path[PATH_MAX];
-								if(!process->read_bytes(edb::address_t::fromZeroExtended(map.l_name), &path, sizeof(path))) {
-									path[0] = '\0';
-								}
-
-								if(map.l_addr) {
-									Module module;
-									module.name         = path;
-									module.base_address = map.l_addr;
-									ret.push_back(module);
-								}
-
-								link_address = edb::address_t::fromZeroExtended(map.l_next);
-							} else {
-								break;
+						edb::linux_struct::link_map<Addr> map;
+						if(process->read_bytes(link_address, &map, sizeof(map))) {
+							char path[PATH_MAX];
+							if(!process->read_bytes(edb::address_t::fromZeroExtended(map.l_name), &path, sizeof(path))) {
+								path[0] = '\0';
 							}
+
+							if(map.l_addr) {
+								Module module;
+								module.name         = path;
+								module.base_address = map.l_addr;
+								ret.push_back(module);
+							}
+
+							link_address = edb::address_t::fromZeroExtended(map.l_next);
+						} else {
+							break;
 						}
 					}
 				}
@@ -748,9 +750,9 @@ QString PlatformProcess::name() const {
 //------------------------------------------------------------------------------
 QList<Module> PlatformProcess::loaded_modules() const {
 	if(edb::v1::debuggeeIs64Bit()) {
-		return loaded_modules_<Elf64_Addr>(this, core_->binary_info_);
+		return get_loaded_modules<Elf64_Addr>(this);
 	} else if(edb::v1::debuggeeIs32Bit()) {
-		return loaded_modules_<Elf32_Addr>(this, core_->binary_info_);
+		return get_loaded_modules<Elf32_Addr>(this);
 	} else {
 		return QList<Module>();
 	}
@@ -855,6 +857,263 @@ bool PlatformProcess::isPaused() const {
 //------------------------------------------------------------------------------
 QMap<edb::address_t, Patch> PlatformProcess::patches() const {
 	return patches_;
+}
+
+/**
+ * @brief PlatformProcess::entry_point
+ * @return
+ */
+edb::address_t PlatformProcess::entry_point() const  {
+
+	QFile auxv(QString("/proc/%1/auxv").arg(pid_));
+	if(auxv.open(QIODevice::ReadOnly)) {
+
+		if(edb::v1::debuggeeIs64Bit()) {
+			elf64_auxv_t entry;
+			while(auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
+				if(entry.a_type == AT_ENTRY) {
+					return entry.a_un.a_val;
+				}
+			}
+		} else if(edb::v1::debuggeeIs32Bit()) {
+			elf32_auxv_t entry;
+			while(auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
+				if(entry.a_type == AT_ENTRY) {
+					return entry.a_un.a_val;
+				}
+			}
+		}
+	}
+
+	return edb::address_t{};
+}
+
+/**
+ * @brief get_program_headers
+ * @param process
+ * @param phdr_memaddr
+ * @param num_phdr
+ * @return
+ */
+bool get_program_headers(const IProcess *process, edb::address_t *phdr_memaddr, int *num_phdr) {
+
+	*phdr_memaddr = edb::address_t{};
+	*num_phdr = 0;
+
+	QFile auxv(QString("/proc/%1/auxv").arg(process->pid()));
+	if(auxv.open(QIODevice::ReadOnly)) {
+
+		if(edb::v1::debuggeeIs64Bit()) {
+			elf64_auxv_t entry;
+			while(auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
+				switch(entry.a_type) {
+				case AT_PHDR:
+					*phdr_memaddr = entry.a_un.a_val;
+					break;
+				case AT_PHNUM:
+					*num_phdr = entry.a_un.a_val;
+					break;
+				}
+			}
+		} else if(edb::v1::debuggeeIs32Bit()) {
+			elf32_auxv_t entry;
+			while(auxv.read(reinterpret_cast<char *>(&entry), sizeof(entry))) {
+				switch(entry.a_type) {
+				case AT_PHDR:
+					*phdr_memaddr = entry.a_un.a_val;
+					break;
+				case AT_PHNUM:
+					*num_phdr = entry.a_un.a_val;
+					break;
+				}
+			}
+		}
+	}
+
+	return (*phdr_memaddr != 0 && *num_phdr != 0);
+}
+
+/**
+ * @brief get_debug_pointer
+ * @param process
+ * @param phdr_memaddr
+ * @param count
+ * @param relocation
+ * @return
+ */
+template <class Model>
+edb::address_t get_debug_pointer(const IProcess *process, edb::address_t phdr_memaddr, int count, edb::address_t relocation) {
+
+	using elf_phdr = typename Model::elf_phdr;
+
+	elf_phdr phdr;
+	for(int i = 0; i < count; ++i) {
+		if(process->read_bytes(phdr_memaddr + i * sizeof(elf_phdr), &phdr, sizeof(elf_phdr))) {
+			if(phdr.p_type == PT_DYNAMIC) {
+				try {
+
+					auto buf = std::make_unique<uint8_t[]>(phdr.p_memsz);
+
+					if(process->read_bytes(phdr.p_vaddr + relocation, &buf[0], phdr.p_memsz)) {
+						auto dynamic = reinterpret_cast<typename Model::elf_dyn *>(&buf[0]);
+						while(dynamic->d_tag != DT_NULL) {
+							if(dynamic->d_tag == DT_DEBUG) {
+								return dynamic->d_un.d_val;
+							}
+							++dynamic;
+						}
+					}
+				} catch(const std::bad_alloc &) {
+					qDebug() << "[get_debug_pointer] no more memory";
+					return 0;
+				}
+			}
+		}
+	}
+
+	return 0;
+}
+
+/**
+ * @brief get_relocation
+ * @param process
+ * @param phdr_memaddr
+ * @param i
+ * @return
+ */
+template <class Model>
+edb::address_t get_relocation(const IProcess *process, edb::address_t phdr_memaddr, int i) {
+
+	using elf_phdr = typename Model::elf_phdr;
+
+	elf_phdr phdr;
+	if(process->read_bytes(phdr_memaddr + i * sizeof(elf_phdr), &phdr, sizeof(elf_phdr))) {
+		if (phdr.p_type == PT_PHDR) {
+			return phdr_memaddr - phdr.p_vaddr;
+		}
+	}
+
+	return -1;
+}
+
+/**
+ * attempts to locate the ELF debug pointer in the target process and returns
+ * it, 0 of not found
+ *
+ * @brief PlatformProcess::debug_pointer
+ * @return
+ */
+edb::address_t PlatformProcess::debug_pointer() const {
+
+	// NOTE(eteran): some of this code is from or inspired by code in
+	// gdb/gdbserver/linux-low.c
+
+	edb::address_t phdr_memaddr;
+	int num_phdr;
+
+	if(get_program_headers(this, &phdr_memaddr, &num_phdr)) {
+
+		/* Compute relocation: it is expected to be 0 for "regular" executables,
+		 * non-zero for PIE ones.  */
+		edb::address_t relocation = -1;
+		for (int i = 0; relocation == -1 && i < num_phdr; i++) {
+
+			if(edb::v1::debuggeeIs64Bit()) {
+				relocation = get_relocation<elf_model<64>>(this, phdr_memaddr, i);
+			} else if(edb::v1::debuggeeIs32Bit()) {
+				relocation = get_relocation<elf_model<32>>(this, phdr_memaddr, i);
+			}
+		}
+
+		if (relocation == -1) {
+			/* PT_PHDR is optional, but necessary for PIE in general.
+			 * Fortunately any real world executables, including PIE
+			 * executables, have always PT_PHDR present.  PT_PHDR is not
+			 * present in some shared libraries or in fpc (Free Pascal 2.4)
+			 * binaries but neither of those have a need for or present
+			 * DT_DEBUG anyway (fpc binaries are statically linked).
+			 *
+			 * Therefore if there exists DT_DEBUG there is always also PT_PHDR.
+			 *
+			 * GDB could find RELOCATION also from AT_ENTRY - e_entry.  */
+			return 0;
+		}
+
+		if(edb::v1::debuggeeIs64Bit()) {
+			return get_debug_pointer<elf_model<64>>(this, phdr_memaddr, num_phdr, relocation);
+		} else if(edb::v1::debuggeeIs32Bit()) {
+			return get_debug_pointer<elf_model<32>>(this, phdr_memaddr, num_phdr, relocation);
+		}
+	}
+
+	return edb::address_t{};
+}
+
+edb::address_t PlatformProcess::calculate_main() const {
+	if(edb::v1::debuggeeIs64Bit()) {
+		ByteShiftArray ba(14);
+
+		edb::address_t entry_point = this->entry_point();
+
+		for(int i = 0; i < 50; ++i) {
+			quint8 byte;
+			if(read_bytes(entry_point + i, &byte, sizeof(byte))) {
+				ba << byte;
+
+				edb::address_t address = 0;
+
+				if(ba.size() >= 13) {
+					// beginning of a call preceeded by a 64-bit mov and followed by a hlt
+					if(ba[0] == 0x48 && ba[1] == 0xc7 && ba[7] == 0xe8 && ba[12] == 0xf4) {
+						// Seems that this 64-bit mov still has a 32-bit immediate
+						address = *reinterpret_cast<const edb::address_t *>(ba.data() + 3) & 0xffffffff;
+					}
+
+					// same heuristic except for PIC binaries
+					else if (ba.size() >= 14 && ba[0] == 0x48 && ba[1] == 0x8d && ba[2] == 0x3d && ba[7] == 0xFF && ba[8] == 0x15 && ba[13] == 0xf4) {
+						// It's signed relative!
+						auto rel = *reinterpret_cast<const qint32 *>(ba.data() + 3);
+						// ba[0] is entry_point + i - 13. instruction is 7 bytes long.
+						address = rel + entry_point + i - 13 + 7;
+					}
+					if (address) {
+						// TODO: make sure that this address resides in an executable region
+						qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
+						return address;
+					}
+				}
+			} else {
+				break;
+			}
+		}
+	} else if(edb::v1::debuggeeIs32Bit()) {
+		ByteShiftArray ba(11);
+
+
+		edb::address_t entry_point = this->entry_point();
+
+		for(int i = 0; i < 50; ++i) {
+			quint8 byte;
+			if(read_bytes(entry_point + i, &byte, sizeof(byte))) {
+				ba << byte;
+
+				if(ba.size() >= 11) {
+					// beginning of a call preceeded by a push and followed by a hlt
+					if(ba[0] == 0x68 && ba[5] == 0xe8 && ba[10] == 0xf4) {
+						edb::address_t address(0);
+						std::memcpy(&address, ba.data() + 1, sizeof(uint32_t));
+						// TODO: make sure that this address resides in an executable region
+						qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
+						return address;
+					}
+				}
+			} else {
+				break;
+			}
+		}
+	}
+
+	return 0;
 }
 
 }

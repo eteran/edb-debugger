@@ -715,7 +715,6 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 
 	if(!threads_.empty()) {
 		active_thread_  = pid;
-		binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
 		detectCPUMode();
 		return Status::Ok;
 	}
@@ -972,8 +971,6 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 			threads_[pid]   = newThread;
 
             active_thread_  = pid;
-			binary_info_    = edb::v1::get_binary_info(edb::v1::primary_code_region());
-
 			detectCPUMode();
 
 			return Status::Ok;
@@ -999,7 +996,6 @@ void DebuggerCore::reset() {
 	threads_.clear();
 	waited_threads_.clear();
 	active_thread_ = 0;
-	binary_info_   = nullptr;
 }
 
 //------------------------------------------------------------------------------
