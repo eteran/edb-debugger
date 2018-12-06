@@ -74,15 +74,8 @@ PE32::PE32(const std::shared_ptr<IRegion> &region) : region_(region) {
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t PE32::entry_point() {
-	return region_->start() + pe_.OptionalHeader.AddressOfEntryPoint;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-edb::address_t PE32::base_address() const {
-	return pe_.OptionalHeader.ImageBase;
+	// TODO(eteran): relative to pe_.OptionalHeader.ImageBase;?
+	return pe_.OptionalHeader.AddressOfEntryPoint;
 }
 
 //------------------------------------------------------------------------------

@@ -20,6 +20,7 @@ add_library(${PluginName} SHARED
 	ELF32.cpp
 	ELF64.cpp
 	ELFXX.cpp
+	ELFXX.h
 	OptionsPage.cpp
 	OptionsPage.h
 	OptionsPage.ui

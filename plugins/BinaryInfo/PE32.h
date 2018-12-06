@@ -52,7 +52,6 @@ public:
     size_t header_size() const override;
     const void *header() const override;
 	std::vector<Header> headers() const override;
-    edb::address_t base_address() const override;
 
 private:
 	std::shared_ptr<IRegion> region_;

@@ -152,15 +152,6 @@ size_t ELFXX<elfxx_header>::header_size() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: base_address
-// Desc: returns the base address of the module
-//------------------------------------------------------------------------------
-template <class elfxx_header>
-edb::address_t ELFXX<elfxx_header>::base_address() const {
-	return base_address_;
-}
-
-//------------------------------------------------------------------------------
 // Name: headers
 // Desc: returns a list of all headers in this binary
 //------------------------------------------------------------------------------

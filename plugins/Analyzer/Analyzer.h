@@ -84,7 +84,6 @@ private:
 	void invalidate_dynamic_analysis(const std::shared_ptr<IRegion> &region);
 	void set_function_types(FunctionMap *results);
 	void set_function_types_helper(Function &function) const;
-	QString get_analysis_path(const std::shared_ptr<IRegion> &region) const;
 
 Q_SIGNALS:
 	void update_progress(int);
