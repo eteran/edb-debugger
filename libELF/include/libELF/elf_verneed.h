@@ -43,8 +43,10 @@ struct elf64_verneed {
 
 
 /* Legal values for vn_version (version revision).  */
-#define VER_NEED_NONE    0 /* No version */
-#define VER_NEED_CURRENT 1 /* Current version */
-#define VER_NEED_NUM     2 /* Given version number */
+enum {
+	VER_NEED_NONE    = 0, /* No version */
+	VER_NEED_CURRENT = 1, /* Current version */
+	VER_NEED_NUM     = 2  /* Given version number */
+};
 
 #endif

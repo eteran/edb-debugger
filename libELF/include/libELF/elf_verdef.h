@@ -46,20 +46,25 @@ struct elf64_verdef {
 	elf64_word vd_next;    /* Offset in bytes to next verdef entry */
 };
 
-
 /* Legal values for vd_version (version revision).  */
-#define VER_DEF_NONE    0 /* No version */
-#define VER_DEF_CURRENT 1 /* Current version */
-#define VER_DEF_NUM     2 /* Given version number */
+enum {
+	VER_DEF_NONE    = 0, /* No version */
+	VER_DEF_CURRENT = 1, /* Current version */
+	VER_DEF_NUM     = 2  /* Given version number */
+};
 
 /* Legal values for vd_flags (version information flags).  */
-#define VER_FLG_BASE 0x1 /* Version definition of file itself */
-#define VER_FLG_WEAK 0x2 /* Weak version identifier */
+enum {
+	VER_FLG_BASE = 0x1, /* Version definition of file itself */
+	VER_FLG_WEAK = 0x2  /* Weak version identifier */
+};
 
 /* Versym symbol index values.  */
-#define VER_NDX_LOCAL     0      /* Symbol is local.  */
-#define VER_NDX_GLOBAL    1      /* Symbol is global.  */
-#define VER_NDX_LORESERVE 0xff00 /* Beginning of reserved entries.  */
-#define VER_NDX_ELIMINATE 0xff01 /* Symbol is to be eliminated.  */
+enum {
+	VER_NDX_LOCAL     = 0,      /* Symbol is local.  */
+	VER_NDX_GLOBAL    = 1,      /* Symbol is global.  */
+	VER_NDX_LORESERVE = 0xff00, /* Beginning of reserved entries.  */
+	VER_NDX_ELIMINATE = 0xff01  /* Symbol is to be eliminated.  */
+};
 
 #endif

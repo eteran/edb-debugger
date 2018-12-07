@@ -27,14 +27,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 /* The syminfo section if available contains additional information about
    every dynamic symbol.  */
 
-struct elf32_syminfo
-{
+struct elf32_syminfo {
   elf32_half si_boundto; /* Direct bindings, symbol bound to */
   elf32_half si_flags;   /* Per symbol flags */
 };
 
-struct elf64_syminfo
-{
+struct elf64_syminfo {
   elf64_half si_boundto; /* Direct bindings, symbol bound to */
   elf64_half si_flags;   /* Per symbol flags */
 };

@@ -42,8 +42,11 @@ struct elf64_vernaux {
 	elf64_word vna_next;  /* Offset in bytes to next vernaux entry */
 };
 
-
 /* Legal values for vna_flags.  */
-#define VER_FLG_WEAK 0x2 /* Weak version identifier */
+#if 0
+enum {
+	VER_FLG_WEAK = 0x2 /* Weak version identifier */
+};
+#endif
 
 #endif

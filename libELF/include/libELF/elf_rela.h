@@ -25,30 +25,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "elf_types.h"
 
 /* Relocation table entry with addend (in section of type SHT_RELA).  */
-
-struct elf32_rela
-{
-  elf32_addr  r_offset; /* Address */
-  elf32_word  r_info;   /* Relocation type and symbol index */
-  elf32_sword r_addend; /* Addend */
+struct elf32_rela {
+	elf32_addr  r_offset; /* Address */
+	elf32_word  r_info;   /* Relocation type and symbol index */
+	elf32_sword r_addend; /* Addend */
 };
 
-struct elf64_rela
-{
-  elf64_addr   r_offset; /* Address */
-  elf64_xword  r_info;   /* Relocation type and symbol index */
-  elf64_sxword r_addend; /* Addend */
+struct elf64_rela {
+	elf64_addr   r_offset; /* Address */
+	elf64_xword  r_info;   /* Relocation type and symbol index */
+	elf64_sxword r_addend; /* Addend */
 };
 
 /* How to extract and insert information held in the r_info field.  */
-
 #define ELF32_R_SYM(val)        ((val) >> 8)
-#define ELF32_R_TYPE(val)       ((val) & 0xff)
-#define ELF32_R_INFO(sym, type) (((sym) << 8) + ((type) & 0xff))
+#define ELF32_R_TYPE(val)       ((val)&0xff)
+#define ELF32_R_INFO(sym, type) (((sym) << 8) + ((type)&0xff))
 
-#define ELF64_R_SYM(i)         ((i) >> 32)
-#define ELF64_R_TYPE(i)        ((i) & 0xffffffff)
-#define ELF64_R_INFO(sym,type) ((((elf64_xword) (sym)) << 32) + (type))
-
+#define ELF64_R_SYM(i)          ((i) >> 32)
+#define ELF64_R_TYPE(i)         ((i)&0xffffffff)
+#define ELF64_R_INFO(sym, type) ((((elf64_xword)(sym)) << 32) + (type))
 
 #endif
