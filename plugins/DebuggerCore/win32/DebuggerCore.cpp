@@ -44,78 +44,54 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #pragma comment(lib, "Psapi.lib")
 #endif
 
+/* NOTE(eteran): from the MSDN:
+ * Note that while reporting debug events, all threads within the reporting
+ * process are frozen. Debuggers are expected to use the SuspendThread and
+ * ResumeThread functions to limit the set of threads that can execute within a
+ * process. By suspending all threads in a process except for the one reporting
+ * a debug event, it is possible to "single step" a single thread. The other
+ * threads are not released by a continue operation if they are suspended.
+ */
+
 namespace DebuggerCorePlugin {
 
 namespace {
 
-	class Win32Thread {
-	public:
-		Win32Thread(DWORD dwDesiredAccess, BOOL bInheritHandle, DWORD dwThreadId) {
-			handle_ = OpenThread(dwDesiredAccess, bInheritHandle, dwThreadId);
+/*
+ * Required to debug and adjust the memory of a process owned by another account.
+ * OpenProcess quote (MSDN):
+ *   "If the caller has enabled the SeDebugPrivilege privilege, the requested access
+ *    is granted regardless of the contents of the security descriptor."
+ * Needed to open system processes (user SYSTEM)
+ *
+ * NOTE: You need to be admin to enable this privilege
+ * NOTE: You need to have the 'Debug programs' privilege set for the current user,
+ *       if the privilege is not present it can't be enabled!
+ * NOTE: Detectable by antidebug code (changes debuggee privileges too)
+ */
+bool set_debug_privilege(HANDLE process, bool set) {
+
+	HANDLE token;
+	bool ok = false;
+
+	//process must have PROCESS_QUERY_INFORMATION
+	if(OpenProcessToken(process, TOKEN_ADJUST_PRIVILEGES, &token)) {
+
+		LUID luid;
+		if(LookupPrivilegeValue(nullptr, SE_DEBUG_NAME, &luid)) {
+			TOKEN_PRIVILEGES tp;
+			tp.PrivilegeCount = 1;
+			tp.Privileges[0].Luid = luid;
+			tp.Privileges[0].Attributes = set ? SE_PRIVILEGE_ENABLED : 0;
+
+			ok = AdjustTokenPrivileges(token, false, &tp, NULL, nullptr, nullptr);
 		}
+		CloseHandle(token);
+	}
 
-		~Win32Thread() {
-			if(handle_) {
-				CloseHandle(handle_);
-			}
-		}
+	return ok;
+}
 
-	public:
-		BOOL GetThreadContext(LPCONTEXT lpContext) {
-			return ::GetThreadContext(handle_, lpContext);
-		}
-
-		BOOL SetThreadContext(const CONTEXT *lpContext) {
-			return ::SetThreadContext(handle_, lpContext);
-		}
-
-		BOOL GetThreadSelectorEntry(DWORD dwSelector, LPLDT_ENTRY lpSelectorEntry) {
-			return ::GetThreadSelectorEntry(handle_, dwSelector, lpSelectorEntry);
-		}
-
-	public:
-		operator void*() const {
-			return reinterpret_cast<void *>(handle_ != nullptr);
-		}
-
-	private:
-		HANDLE handle_;
-	};
-
-    /*
-     * Required to debug and adjust the memory of a process owned by another account.
-     * OpenProcess quote (MSDN):
-     *   "If the caller has enabled the SeDebugPrivilege privilege, the requested access
-     *    is granted regardless of the contents of the security descriptor."
-     * Needed to open system processes (user SYSTEM)
-     *
-     * NOTE: You need to be admin to enable this privilege
-     * NOTE: You need to have the 'Debug programs' privilege set for the current user,
-     *       if the privilege is not present it can't be enabled!
-     * NOTE: Detectable by antidebug code (changes debuggee privileges too)
-     */
-    bool set_debug_privilege(HANDLE process, bool set) {
-
-        HANDLE token;
-        bool ok = false;
-
-        //process must have PROCESS_QUERY_INFORMATION
-        if(OpenProcessToken(process, TOKEN_ADJUST_PRIVILEGES, &token)) {
-
-            LUID luid;
-			if(LookupPrivilegeValue(nullptr, SE_DEBUG_NAME, &luid)) {
-                TOKEN_PRIVILEGES tp;
-                tp.PrivilegeCount = 1;
-                tp.Privileges[0].Luid = luid;
-                tp.Privileges[0].Attributes = set ? SE_PRIVILEGE_ENABLED : 0;
-
-				ok = AdjustTokenPrivileges(token, false, &tp, NULL, nullptr, nullptr);
-            }
-            CloseHandle(token);
-        }
-
-        return ok;
-    }
 }
 
 
@@ -192,16 +168,20 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 
 			switch(de.dwDebugEventCode) {
 			case CREATE_THREAD_DEBUG_EVENT: {
-				auto newThread = std::make_shared<PlatformThread>(this, process_, de.dwThreadId, &de.u.CreateThread);
+				auto newThread = std::make_shared<PlatformThread>(this, process_, de.u.CreateThread.hThread);
 				threads_.insert(active_thread_, newThread);
 				break;
 			}
 			case EXIT_THREAD_DEBUG_EVENT:
 				threads_.remove(active_thread_);
 				break;
-			case CREATE_PROCESS_DEBUG_EVENT: {
-				// TODO(eteran): should we be closing this handle?
+			case CREATE_PROCESS_DEBUG_EVENT: {				
 				CloseHandle(de.u.CreateProcessInfo.hFile);
+
+				process_ = std::make_shared<PlatformProcess>(this, de.u.CreateProcessInfo.hProcess);
+
+				auto newThread = std::make_shared<PlatformThread>(this, process_, de.u.CreateProcessInfo.hThread);
+				threads_.insert(active_thread_, newThread);
 
 #if 0
 				// TODO(eteran): implement this
@@ -248,17 +228,9 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 
 	detach();
 
-	// These should be all the permissions we need
-	const DWORD ACCESS = PROCESS_TERMINATE | PROCESS_VM_OPERATION | PROCESS_VM_READ | PROCESS_VM_WRITE | PROCESS_QUERY_INFORMATION | PROCESS_SUSPEND_RESUME;
-
-	if(HANDLE ph = OpenProcess(ACCESS, false, pid)) {
-		if(DebugActiveProcess(pid)) {
-			process_ = std::make_shared<PlatformProcess>(this, ph);
-			return Status::Ok;
-		}
-		else {
-			CloseHandle(ph);
-		}
+	if(DebugActiveProcess(pid)) {
+		process_ = std::make_shared<PlatformProcess>(this, pid);
+		return Status::Ok;
 	}
 
 	return Status("Error DebuggerCore::attach");
@@ -299,46 +271,11 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 	// TODO: assert that we are paused
 
 	if(attached()) {
-		if(status != edb::DEBUG_STOP) {
-			// TODO: does this resume *all* threads?
-			// it does! (unless you manually paused one using SuspendThread)
-			ContinueDebugEvent(
-			    process_->pid(),
-				active_thread(),
-				(status == edb::DEBUG_CONTINUE) ? (DBG_CONTINUE) : (DBG_EXCEPTION_NOT_HANDLED));
-		}
+		process_->resume(status);
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: step
-// Desc:
-//------------------------------------------------------------------------------
-void DebuggerCore::step(edb::EVENT_STATUS status) {
-	// TODO: assert that we are paused
 
-	if(attached()) {
-		if(status != edb::DEBUG_STOP) {
-
-			Win32Thread thread(THREAD_QUERY_INFORMATION | THREAD_GET_CONTEXT | THREAD_SET_CONTEXT, FALSE, active_thread());
-			if(thread) {
-				CONTEXT context;
-				context.ContextFlags = CONTEXT_CONTROL;
-				thread.GetThreadContext(&context);
-				context.EFlags |= (1 << 8); // set the trap flag
-				thread.SetThreadContext(&context);
-
-				resume(status);
-				/*
-				ContinueDebugEvent(
-				pid(),
-				active_thread(),
-				(status == edb::DEBUG_CONTINUE) ? (DBG_CONTINUE) : (DBG_EXCEPTION_NOT_HANDLED));
-				*/
-			}
-		}
-	}
-}
 
 //------------------------------------------------------------------------------
 // Name: get_state
@@ -346,37 +283,10 @@ void DebuggerCore::step(edb::EVENT_STATUS status) {
 //------------------------------------------------------------------------------
 void DebuggerCore::get_state(State *state) {
 	// TODO: assert that we are paused
-	Q_ASSERT(state);
-
-    auto state_impl = static_cast<PlatformState *>(state->impl_.get());
-
-	if(attached() && state_impl) {
-
-
-		Win32Thread thread(THREAD_QUERY_INFORMATION | THREAD_GET_CONTEXT, FALSE, active_thread());
-
-		if(thread) {
-			state_impl->context_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
-			thread.GetThreadContext(&state_impl->context_);
-
-			state_impl->gs_base_ = 0;
-			state_impl->fs_base_ = 0;
-			// GetThreadSelectorEntry always returns false on x64
-			// on x64 gs_base == TEB, maybe we can use that somehow
-#if !defined(EDB_X86_64)
-			LDT_ENTRY ldt_entry;
-			if(thread.GetThreadSelectorEntry(state_impl->context_.SegGs, &ldt_entry)) {
-				state_impl->gs_base_ = ldt_entry.BaseLow | (ldt_entry.HighWord.Bits.BaseMid << 16) | (ldt_entry.HighWord.Bits.BaseHi << 24);
-			}
-
-			if(thread.GetThreadSelectorEntry(state_impl->context_.SegFs, &ldt_entry)) {
-				state_impl->fs_base_ = ldt_entry.BaseLow | (ldt_entry.HighWord.Bits.BaseMid << 16) | (ldt_entry.HighWord.Bits.BaseHi << 24);
-			}
-#endif
-
+	if(process_) {
+		if(std::shared_ptr<IThread> thread = process_->current_thread()) {
+			thread->get_state(state);
 		}
-	} else {
-		state->clear();
 	}
 }
 
@@ -385,21 +295,14 @@ void DebuggerCore::get_state(State *state) {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::set_state(const State &state) {
-
 	// TODO: assert that we are paused
-
-    auto state_impl = static_cast<PlatformState *>(state.impl_.get());
-
-	if(attached()) {
-		state_impl->context_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
-
-		Win32Thread thread(THREAD_SET_CONTEXT, FALSE, active_thread());
-
-		if(thread) {
-			thread.SetThreadContext(&state_impl->context_);
+	if(process_) {
+		if(std::shared_ptr<IThread> thread = process_->current_thread()) {
+			thread->set_state(state);
 		}
 	}
 }
+
 
 //------------------------------------------------------------------------------
 // Name: open
@@ -514,7 +417,7 @@ QMap<edb::pid_t, std::shared_ptr<IProcess> > DebuggerCore::enumerate_processes()
 				// While we don't want THIS function to mutate the DebuggerCore object
 				// we do want the associated PlatformProcess to be able to trigger
 				// non-const operations in the future, at least hypothetically.
-				auto pi = std::make_shared<PlatformProcess>(const_cast<DebuggerCore*>(this), lppe);
+				auto pi = std::make_shared<PlatformProcess>(const_cast<DebuggerCore*>(this), lppe.th32ProcessID);
 				if(pi->handle_ == nullptr) {
 					continue;
 				}
@@ -556,24 +459,6 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 	return parent;
 }
 
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-edb::address_t DebuggerCore::process_code_address() const {
-	qDebug() << "TODO: implement DebuggerCore::process_code_address";
-	return 0;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-edb::address_t DebuggerCore::process_data_address() const {
-	qDebug() << "TODO: implement DebuggerCore::process_data_address";
-	return 0;
-}
 
 //------------------------------------------------------------------------------
 // Name:

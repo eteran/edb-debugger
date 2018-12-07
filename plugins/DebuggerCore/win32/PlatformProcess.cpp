@@ -121,72 +121,8 @@ bool getProcessEntry(edb::pid_t pid, PROCESSENTRY32 *entry) {
  * @param core
  * @param pid
  */
-PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(core) {
-	pid_    = pid;
+PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(core), pid_(pid), debug_handle_(false) {
 	handle_ = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid_);
-	getProcessEntry(pid, &processEntry_);
-
-	if (handle_) {
-		HANDLE hToken;
-		if (OpenProcessToken(handle_, TOKEN_QUERY, &hToken)) {
-
-			DWORD needed;
-			GetTokenInformation(hToken, TokenOwner, nullptr, 0, &needed);
-
-			if (auto owner = static_cast<TOKEN_OWNER *>(std::malloc(needed))) {
-				if (GetTokenInformation(hToken, TokenOwner, owner, needed, &needed)) {
-					WCHAR user[MAX_PATH];
-					WCHAR domain[MAX_PATH];
-					DWORD user_sz = MAX_PATH;
-					DWORD domain_sz = MAX_PATH;
-					SID_NAME_USE snu;
-
-					if (LookupAccountSid(nullptr, owner->Owner, user, &user_sz, domain, &domain_sz, &snu) && snu == SidTypeUser) {
-						user_ = QString::fromWCharArray(user);
-					}
-				}
-				std::free(owner);
-			}
-
-			CloseHandle(hToken);
-		}
-	}
-}
-
-/**
- * @brief PlatformProcess::PlatformProcess
- * @param core
- * @param pe
- */
-PlatformProcess::PlatformProcess(DebuggerCore *core, const PROCESSENTRY32 &pe) : PlatformProcess(core, pe.th32ProcessID) {
-	pid_    = pe.th32ProcessID;
-	handle_ = OpenProcess(PROCESS_QUERY_INFORMATION, FALSE, pid_);
-
-	if (handle_) {
-		HANDLE hToken;
-		if (OpenProcessToken(handle_, TOKEN_QUERY, &hToken)) {
-
-			DWORD needed;
-			GetTokenInformation(hToken, TokenOwner, nullptr, 0, &needed);
-
-			if (auto owner = static_cast<TOKEN_OWNER *>(std::malloc(needed))) {
-				if (GetTokenInformation(hToken, TokenOwner, owner, needed, &needed)) {
-					WCHAR user[MAX_PATH];
-					WCHAR domain[MAX_PATH];
-					DWORD user_sz = MAX_PATH;
-					DWORD domain_sz = MAX_PATH;
-					SID_NAME_USE snu;
-
-					if (LookupAccountSid(nullptr, owner->Owner, user, &user_sz, domain, &domain_sz, &snu) && snu == SidTypeUser) {
-						user_ = QString::fromWCharArray(user);
-					}
-				}
-				std::free(owner);
-			}
-
-			CloseHandle(hToken);
-		}
-	}
 }
 
 /**
@@ -194,17 +130,15 @@ PlatformProcess::PlatformProcess(DebuggerCore *core, const PROCESSENTRY32 &pe) :
  * @param core
  * @param handle
  */
-PlatformProcess::PlatformProcess(DebuggerCore *core, HANDLE handle) : core_(core), handle_(handle) {
-
+PlatformProcess::PlatformProcess(DebuggerCore *core, HANDLE handle) : core_(core), handle_(handle), debug_handle_(true) {
 	pid_ = GetProcessId(handle_);
-	getProcessEntry(pid_, &processEntry_);
 }
 
 /**
  * @brief PlatformProcess::~PlatformProcess
  */
 PlatformProcess::~PlatformProcess()  {
-	if(handle_) {
+	if(!debug_handle_ && handle_ != nullptr) {
 		CloseHandle(handle_);
 	}
 }
@@ -217,6 +151,7 @@ bool PlatformProcess::isWow64() const {
 	BOOL wow64 = FALSE;
 	using LPFN_ISWOW64PROCESS = BOOL(WINAPI *) (HANDLE, PBOOL);
 	auto fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
+
 	if (fnIsWow64Process && fnIsWow64Process(handle_, &wow64) && wow64) {
 		return true;
 	}
@@ -260,7 +195,10 @@ edb::pid_t PlatformProcess::pid() const {
  */
 QString PlatformProcess::name() const {
 
-	QString name = QString::fromWCharArray(processEntry_.szExeFile);
+	PROCESSENTRY32 pEntry  = {};
+	getProcessEntry(pid_, &pEntry);
+
+	QString name = QString::fromWCharArray(pEntry.szExeFile);
 	if(isWow64()) {
 		name += " *32";
 	}
@@ -273,7 +211,33 @@ QString PlatformProcess::name() const {
  * @return
  */
 QString PlatformProcess::user() const {
-	return user_;
+
+	QString user;
+
+	HANDLE hToken;
+	if (OpenProcessToken(handle_, TOKEN_QUERY, &hToken)) {
+
+		DWORD needed;
+		GetTokenInformation(hToken, TokenOwner, nullptr, 0, &needed);
+
+		if (auto owner = static_cast<TOKEN_OWNER *>(std::malloc(needed))) {
+			if (GetTokenInformation(hToken, TokenOwner, owner, needed, &needed)) {
+				WCHAR user_buf[MAX_PATH];
+				WCHAR domain[MAX_PATH];
+				DWORD user_sz = MAX_PATH;
+				DWORD domain_sz = MAX_PATH;
+				SID_NAME_USE snu;
+
+				if (LookupAccountSid(nullptr, owner->Owner, user_buf, &user_sz, domain, &domain_sz, &snu) && snu == SidTypeUser) {
+					user = QString::fromWCharArray(user_buf);
+				}
+			}
+			std::free(owner);
+		}
+
+		CloseHandle(hToken);
+	}
+	return user;
 }
 
 /**

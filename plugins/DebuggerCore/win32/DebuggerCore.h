@@ -53,9 +53,10 @@ public:
 	Status detach() override;
 	void kill()override ;
 	void resume(edb::EVENT_STATUS status) ;
-	void step(edb::EVENT_STATUS status) ;
+
 	void get_state(State *state) override;
 	void set_state(const State &state) override;
+
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
 
 	MeansOfCapture last_means_of_capture() const override {
@@ -78,10 +79,6 @@ public:
 	QList<edb::tid_t> thread_ids() const    { return threads_.keys(); }
 	edb::tid_t active_thread() const        { return active_thread_; }
 	void set_active_thread(edb::tid_t tid)  { Q_ASSERT(threads_.contains(tid)); active_thread_ = tid; }
-
-public:
-	edb::address_t process_code_address() const;
-	edb::address_t process_data_address() const;
 
 public:
 	// process properties

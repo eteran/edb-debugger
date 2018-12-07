@@ -9,20 +9,9 @@ namespace DebuggerCorePlugin {
  * @brief PlatformThread::PlatformThread
  * @param core
  * @param process
- * @param tid
+ * @param hThread
  */
-PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, edb::tid_t tid, CREATE_THREAD_DEBUG_INFO *CreateThread) : core_(core), process_(process), tid_(tid) {
-	info_ = *CreateThread;
-	handle_ = OpenThread(THREAD_QUERY_INFORMATION | THREAD_GET_CONTEXT | THREAD_SET_CONTEXT | THREAD_SUSPEND_RESUME , FALSE, tid);
-}
-
-/**
- * @brief PlatformThread::~PlatformThread
- */
-PlatformThread::~PlatformThread() {
-	if(handle_) {
-		CloseHandle(handle_);
-	}
+PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, HANDLE hThread) : core_(core), process_(process), handle_(hThread) {
 }
 
 
@@ -31,7 +20,7 @@ PlatformThread::~PlatformThread() {
  * @return
  */
 edb::tid_t PlatformThread::tid() const {
-	return tid_;
+	return GetThreadId(handle_);
 }
 
 /**
@@ -39,7 +28,17 @@ edb::tid_t PlatformThread::tid() const {
  * @return
  */
 QString PlatformThread::name() const {
-	return tr("Thread: %1").arg(tid_);
+
+	WCHAR *data;
+	HRESULT hr = GetThreadDescription(handle_, &data);
+	if (SUCCEEDED(hr)) {
+		auto name = QString::fromWCharArray(data);
+		LocalFree(data);
+		return name;
+	}
+
+	return tr("Thread: %1").arg(tid());
+
 }
 
 /**
@@ -47,7 +46,7 @@ QString PlatformThread::name() const {
  * @return
  */
 int PlatformThread::priority() const {
-	return GetThreadPriority(info_.hThread);
+	return GetThreadPriority(handle_);
 }
 
 /**
@@ -55,7 +54,7 @@ int PlatformThread::priority() const {
  * @return
  */
 edb::address_t PlatformThread::instruction_pointer() const {
-return {};
+	return {};
 }
 
 /**
@@ -63,7 +62,7 @@ return {};
  * @return
  */
 QString PlatformThread::runState() const {
-return {};
+	return {};
 }
 
 /**
@@ -73,7 +72,22 @@ return {};
 void PlatformThread::get_state(State *state) {
 	if(auto p = static_cast<PlatformState *>(state->impl_.get())) {
 		p->context_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
-		GetThreadContext(info_.hThread, &p->context_);
+		GetThreadContext(handle_, &p->context_);
+
+		p->gs_base_ = 0;
+		p->fs_base_ = 0;
+		// GetThreadSelectorEntry always returns false on x64
+		// on x64 gs_base == TEB, maybe we can use that somehow
+#if !defined(EDB_X86_64) || 1
+		LDT_ENTRY ldt_entry;
+		if(GetThreadSelectorEntry(handle_, p->context_.SegGs, &ldt_entry)) {
+			p->gs_base_ = ldt_entry.BaseLow | (ldt_entry.HighWord.Bits.BaseMid << 16) | (ldt_entry.HighWord.Bits.BaseHi << 24);
+		}
+
+		if(GetThreadSelectorEntry(handle_, p->context_.SegFs, &ldt_entry)) {
+			p->fs_base_ = ldt_entry.BaseLow | (ldt_entry.HighWord.Bits.BaseMid << 16) | (ldt_entry.HighWord.Bits.BaseHi << 24);
+		}
+#endif
 	}
 }
 
@@ -83,7 +97,10 @@ void PlatformThread::get_state(State *state) {
  */
 void PlatformThread::set_state(const State &state) {
 	if(auto p = static_cast<const PlatformState *>(state.impl_.get())) {
-		SetThreadContext(info_.hThread, &p->context_);
+#if 0
+		p->context_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
+#endif
+		SetThreadContext(handle_, &p->context_);
 	}
 }
 
@@ -92,7 +109,14 @@ void PlatformThread::set_state(const State &state) {
  * @return
  */
 Status PlatformThread::step() {
-	return Status::Ok;
+
+	CONTEXT context;
+	context.ContextFlags = CONTEXT_CONTROL;
+	GetThreadContext(handle_, &context);
+	context.EFlags |= (1 << 8); // set the trap flag
+	SetThreadContext(handle_, &context);
+
+	return resume();
 }
 
 /**
@@ -101,7 +125,13 @@ Status PlatformThread::step() {
  * @return
  */
 Status PlatformThread::step(edb::EVENT_STATUS status) {
-	return Status::Ok;
+	CONTEXT context;
+	context.ContextFlags = CONTEXT_CONTROL;
+	GetThreadContext(handle_, &context);
+	context.EFlags |= (1 << 8); // set the trap flag
+	SetThreadContext(handle_, &context);
+
+	return resume(status);
 }
 
 /**
@@ -109,6 +139,7 @@ Status PlatformThread::step(edb::EVENT_STATUS status) {
  * @return
  */
 Status PlatformThread::resume() {
+	ContinueDebugEvent(process_->pid(), tid(), DBG_CONTINUE);
 	return Status::Ok;
 }
 
@@ -118,6 +149,10 @@ Status PlatformThread::resume() {
  * @return
  */
 Status PlatformThread::resume(edb::EVENT_STATUS status) {
+	ContinueDebugEvent(
+	    process_->pid(),
+	    tid(),
+	    (status == edb::DEBUG_CONTINUE) ? (DBG_CONTINUE) : (DBG_EXCEPTION_NOT_HANDLED));
 	return Status::Ok;
 }
 
@@ -126,6 +161,7 @@ Status PlatformThread::resume(edb::EVENT_STATUS status) {
  * @return
  */
 Status PlatformThread::stop() {
+	SuspendThread(handle_);
 	return Status::Ok;
 }
 

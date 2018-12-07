@@ -27,6 +27,8 @@ namespace ODbgRegisterView {
 
 class Float80Edit;
 
+// NOTE(eteran): MSVC doesn't have an 80-bit long double, so this will fail :-/
+#ifndef _MSC_VER
 class DialogEditFPU : public QDialog {
 	Q_OBJECT
 
@@ -43,8 +45,7 @@ private Q_SLOTS:
 
 protected:
 	bool eventFilter(QObject*, QEvent*) override;
-private:
-	// NOTE(eteran): MSVC doesn't have an 80-bit long double, so this will fail :-/
+private:	
 	static_assert(sizeof(long double) >= 10, "This class will only work with true 80-bit long double");
 	Register reg;
 
@@ -52,6 +53,7 @@ private:
 	ODbgRegisterView::Float80Edit *const floatEntry;
 	QLineEdit *const                     hexEntry;
 };
+#endif
 
 }
 

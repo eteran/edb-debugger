@@ -28,8 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <TlHelp32.h>
 
-
-
 namespace DebuggerCorePlugin {
 
 class DebuggerCore;
@@ -38,7 +36,6 @@ class PlatformProcess : public IProcess {
 	friend class DebuggerCore;
 public:
 	PlatformProcess(DebuggerCore *core, edb::pid_t pid);
-	PlatformProcess(DebuggerCore *core, const PROCESSENTRY32 &pe);
 	PlatformProcess(DebuggerCore *core, HANDLE handle);
 	~PlatformProcess() override;
 
@@ -114,10 +111,9 @@ private:
 	edb::address_t image_base_    = 0;
 	DebuggerCore*  core_          = nullptr;
 	HANDLE         handle_        = nullptr;
-	PROCESSENTRY32 processEntry_  = {};
 	edb::pid_t     pid_           = 0;
-	QString        user_;
 	QMap<edb::address_t, Patch> patches_;
+	bool debug_handle_            = false;
 };
 	
 }

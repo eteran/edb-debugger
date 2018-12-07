@@ -12,8 +12,8 @@ namespace DebuggerCorePlugin {
 class PlatformThread : public IThread {
 	Q_DECLARE_TR_FUNCTIONS(PlatformThread)
 public:
-	PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, edb::tid_t tid, CREATE_THREAD_DEBUG_INFO *CreateThread);
-	~PlatformThread() override;
+	PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, HANDLE hThread);
+	~PlatformThread() override = default;
 
 public:
 	edb::tid_t tid() const override;
@@ -39,8 +39,6 @@ public:
 private:
 	DebuggerCore *            core_;
 	std::shared_ptr<IProcess> process_;
-	edb::tid_t                tid_;
-	CREATE_THREAD_DEBUG_INFO  info_;
 	HANDLE                    handle_;
 };
 
