@@ -23,6 +23,7 @@ add_definitions(-DGIT_BRANCH=${GIT_BRANCH})
 add_definitions(-DDEFAULT_PLUGIN_PATH=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb\")
 
 set(edb_SRCS
+	Address.cpp
 	BasicBlock.cpp
 	BinaryString.cpp
 	BinaryString.ui
