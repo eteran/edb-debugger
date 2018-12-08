@@ -39,31 +39,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "libELF/elf_sym.h"
 #include "libELF/elf_shdr.h"
 #include "libELF/elf_syminfo.h"
+#include "libELF/elf_model.h"
 
 namespace BinaryInfoPlugin {
 namespace {
 
-struct elf32_model {
-	using address_t            = uint32_t;
+struct elf32_model : elf_model<32> {
 
-	using elf_header_t         = elf32_header;
-	using elf_section_header_t = elf32_shdr;
-	using elf_symbol_t         = elf32_sym;
-	using elf_relocation_a_t   = elf32_rela;
-	using elf_relocation_t     = elf32_rel;
+	static constexpr size_t plt_entry_size = 0x10;
 
-	static constexpr int plt_entry_size = 0x10;
-
-	static uint32_t elf_r_sym(uint32_t x)              { return ELF32_R_SYM(x); }
-	static uint32_t elf_r_type(uint32_t x)             { return ELF32_R_TYPE(x); }
-	static unsigned char elf_st_type(unsigned char x) { return ELF32_ST_TYPE(x); }
-	static unsigned char elf_st_bind(unsigned char x) { return ELF32_ST_BIND(x); }
+	static uint32_t elf_r_sym(uint32_t x)  { return ELF32_R_SYM(x); }
+	static uint32_t elf_r_type(uint32_t x) { return ELF32_R_TYPE(x); }
+	static uint8_t elf_st_type(uint8_t x)  { return ELF32_ST_TYPE(x); }
+	static uint8_t elf_st_bind(uint8_t x)  { return ELF32_ST_BIND(x); }
 
 	struct symbol {
-		address_t address;
-		size_t    size;
-		QString   name;
-		char      type;
+		elf_addr address;
+		size_t   size;
+		QString  name;
+		char     type;
 
 		bool operator<(const symbol &rhs) const {
 			return std::tie(address, name) < std::tie(rhs.address, rhs.name);
@@ -79,28 +73,20 @@ struct elf32_model {
 	};
 };
 
-struct elf64_model {
+struct elf64_model : elf_model<64> {
 
-	using address_t = uint64_t;
+	static constexpr size_t plt_entry_size = 0x10;
 
-	using elf_header_t         = elf64_header;
-	using elf_section_header_t = elf64_shdr;
-	using elf_symbol_t         = elf64_sym;
-	using elf_relocation_a_t   = elf64_rela;
-	using elf_relocation_t     = elf64_rel;
-
-	static constexpr int plt_entry_size = 0x10;
-
-	static uint64_t elf_r_sym(uint64_t x)              { return ELF64_R_SYM(x); }
-	static uint64_t elf_r_type(uint64_t x)             { return ELF64_R_TYPE(x); }
-	static unsigned char elf_st_type(unsigned char x) { return ELF64_ST_TYPE(x); }
-	static unsigned char elf_st_bind(unsigned char x) { return ELF64_ST_BIND(x); }
+	static uint64_t elf_r_sym(uint64_t x)  { return ELF64_R_SYM(x); }
+	static uint64_t elf_r_type(uint64_t x) { return ELF64_R_TYPE(x); }
+	static uint8_t elf_st_type(uint8_t x)  { return ELF64_ST_TYPE(x); }
+	static uint8_t elf_st_bind(uint8_t x)  { return ELF64_ST_BIND(x); }
 
 	struct symbol {
-		address_t address;
-		size_t    size;
-		QString   name;
-		char      type;
+		elf_addr address;
+		size_t   size;
+		QString  name;
+		char     type;
 
 		bool operator<(const symbol &rhs) const {
 			return std::tie(address, name) < std::tie(rhs.address, rhs.name);
@@ -192,30 +178,30 @@ template <class M, class Size>
 void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &symbols) {
 	Q_UNUSED(size);
 
-	using address_t            = typename M::address_t;
-	using elf_header_t         = typename M::elf_header_t;
-	using elf_section_header_t = typename M::elf_section_header_t;
-	using elf_symbol_t         = typename M::elf_symbol_t;
-	using elf_relocation_a_t   = typename M::elf_relocation_a_t;
-	using elf_relocation_t     = typename M::elf_relocation_t;
-	using symbol               = typename M::symbol;
+	using elf_addr   = typename M::elf_addr;
+	using elf_header = typename M::elf_header;
+	using elf_shdr   = typename M::elf_shdr;
+	using elf_sym    = typename M::elf_sym;
+	using elf_rela   = typename M::elf_rela;
+	using elf_rel    = typename M::elf_rel;
+	using symbol     = typename M::symbol;
 
 	const auto base = reinterpret_cast<uintptr_t>(p);
 
-	const auto header = static_cast<const elf_header_t*>(p);
+	const auto header = static_cast<const elf_header*>(p);
 	if (header->e_shnum == 0 || header->e_shentsize == 0) {
 		return;
 	}
-	const auto sections_begin                      = reinterpret_cast<elf_section_header_t*>(base + header->e_shoff);
-	const elf_section_header_t *const sections_end = sections_begin + header->e_shnum;
-	auto section_strings                           = reinterpret_cast<const char*>(base + sections_begin[header->e_shstrndx].sh_offset);
+	const auto sections_begin          = reinterpret_cast<elf_shdr*>(base + header->e_shoff);
+	const elf_shdr *const sections_end = sections_begin + header->e_shnum;
+	auto section_strings               = reinterpret_cast<const char*>(base + sections_begin[header->e_shstrndx].sh_offset);
 
-	address_t plt_address = 0;
-	address_t got_address = 0;
-	std::set<address_t> plt_addresses;
+	elf_addr plt_address = 0;
+	elf_addr got_address = 0;
+	std::set<elf_addr> plt_addresses;
 
 	// collect special section addresses
-	for(const elf_section_header_t *section = sections_begin; section != sections_end; ++section) {
+	for(const elf_shdr *section = sections_begin; section != sections_end; ++section) {
 		if(strcmp(&section_strings[section->sh_name], ".plt") == 0) {
 			plt_address = section->sh_addr;
 		} else if(strcmp(&section_strings[section->sh_name], ".got") == 0) {
@@ -224,8 +210,8 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 	}
 
 	// print out relocated symbols for special sections
-	for(const elf_section_header_t *section = sections_begin; section != sections_end; ++section) {
-		address_t base_address = 0;
+	for(const elf_shdr *section = sections_begin; section != sections_end; ++section) {
+		elf_addr base_address = 0;
 		if(strcmp(&section_strings[section->sh_name], ".rela.plt") == 0) {
 			base_address = plt_address;
 		} else if(strcmp(&section_strings[section->sh_name], ".rel.plt") == 0) {
@@ -241,8 +227,8 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 		switch(section->sh_type) {
 		case SHT_RELA:
 			{
-				int n = 0;
-				auto relocation = reinterpret_cast<elf_relocation_a_t*>(base + section->sh_offset);
+			    elf_addr n = 0;
+				auto relocation = reinterpret_cast<elf_rela*>(base + section->sh_offset);
 
                 if(section->sh_link == 0) {
                     break;
@@ -250,12 +236,12 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 
 				for(size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
 
-					const int sym_index                = M::elf_r_sym(relocation[i].r_info);
-					const elf_section_header_t *linked = &sections_begin[section->sh_link];
-					auto symbol_tab                    = reinterpret_cast<elf_symbol_t*>(base + linked->sh_offset);
+					const size_t sym_index             = M::elf_r_sym(relocation[i].r_info);
+					const elf_shdr *linked = &sections_begin[section->sh_link];
+					auto symbol_tab                    = reinterpret_cast<elf_sym*>(base + linked->sh_offset);
 					auto string_tab                    = reinterpret_cast<const char*>(base + sections_begin[linked->sh_link].sh_offset);
 
-					const address_t symbol_address = base_address + ++n * M::plt_entry_size;
+					const elf_addr symbol_address = base_address + ++n * M::plt_entry_size;
 
 					const char *sym_name = &section_strings[section->sh_name];
 					if(strlen(sym_name) > (sizeof(".rela.") - 1) && memcmp(sym_name, ".rela.", (sizeof(".rela.") - 1)) == 0) {
@@ -278,8 +264,8 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 			break;
 		case SHT_REL:
 			{
-				int n = 0;
-				auto relocation = reinterpret_cast<elf_relocation_t*>(base + section->sh_offset);
+			    elf_addr n = 0;
+				auto relocation = reinterpret_cast<elf_rel*>(base + section->sh_offset);
 
                 if(section->sh_link == 0) {
                     break;
@@ -287,12 +273,12 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 
 				for(size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
 
-					const int sym_index                = M::elf_r_sym(relocation[i].r_info);
-					const elf_section_header_t *linked = &sections_begin[section->sh_link];
-					auto symbol_tab                    = reinterpret_cast<elf_symbol_t*>(base + linked->sh_offset);
-					auto string_tab                    = reinterpret_cast<const char*>(base + sections_begin[linked->sh_link].sh_offset);
+					const size_t sym_index = M::elf_r_sym(relocation[i].r_info);
+					const elf_shdr *linked = &sections_begin[section->sh_link];
+					auto symbol_tab        = reinterpret_cast<elf_sym*>(base + linked->sh_offset);
+					auto string_tab        = reinterpret_cast<const char*>(base + sections_begin[linked->sh_link].sh_offset);
 
-					const address_t symbol_address = base_address + ++n * M::plt_entry_size;
+					const elf_addr symbol_address = base_address + ++n * M::plt_entry_size;
 
 					const char *sym_name = &section_strings[section->sh_name];
 					if(strlen(sym_name) > (sizeof(".rel.") - 1) && memcmp(sym_name, ".rel.", (sizeof(".rel.") - 1)) == 0) {
@@ -317,18 +303,18 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 	}
 
 	// collect regular symbols
-	for(const elf_section_header_t *section = sections_begin; section != sections_end; ++section) {
+	for(const elf_shdr *section = sections_begin; section != sections_end; ++section) {
 
 		switch(section->sh_type) {
 		case SHT_SYMTAB:
 		case SHT_DYNSYM:
 			{
-				auto symbol_tab = reinterpret_cast<elf_symbol_t*>(base + section->sh_offset);
+			    auto symbol_tab = reinterpret_cast<elf_sym*>(base + section->sh_offset);
 				auto string_tab = reinterpret_cast<const char*>(base + sections_begin[section->sh_link].sh_offset);
 
 				for(size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
 
-					const elf_section_header_t *related_section = 0;
+					const elf_shdr *related_section = nullptr;
 
 					if(symbol_tab[i].st_shndx != SHN_UNDEF && symbol_tab[i].st_shndx < SHN_LORESERVE) {
 						related_section = &sections_begin[symbol_tab[i].st_shndx];
@@ -355,18 +341,18 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 	}
 
 	// collect unnamed symbols
-	for(const elf_section_header_t *section = sections_begin; section != sections_end; ++section) {
+	for(const elf_shdr *section = sections_begin; section != sections_end; ++section) {
 
 		switch(section->sh_type) {
 		case SHT_SYMTAB:
 		case SHT_DYNSYM:
 			{
-				auto symbol_tab = reinterpret_cast<elf_symbol_t*>(base + section->sh_offset);
+			    auto symbol_tab = reinterpret_cast<elf_sym*>(base + section->sh_offset);
 				auto string_tab = reinterpret_cast<const char*>(base + sections_begin[section->sh_link].sh_offset);
 
 				for(size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
 
-					const elf_section_header_t *related_section = 0;
+					const elf_shdr *related_section = nullptr;
 
 					if(symbol_tab[i].st_shndx != SHN_UNDEF && symbol_tab[i].st_shndx < SHN_LORESERVE) {
 						related_section = &sections_begin[symbol_tab[i].st_shndx];
@@ -380,11 +366,12 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 							symbol sym;
 							sym.address = symbol_tab[i].st_value;
 							sym.size    = symbol_tab[i].st_size;
-							for(const elf_section_header_t *section = sections_begin; section != sections_end; ++section) {
-								if(sym.address>=section->sh_addr && sym.address+sym.size<=section->sh_addr+section->sh_size) {
-									const std::int64_t offset=sym.address-section->sh_addr;
-									const QString hexPrefix=std::abs(offset)>9?"0x":"";
-									const QString offsetStr=offset ? "+"+hexPrefix+QString::number(offset,16) : "";
+
+							for(const elf_shdr *section = sections_begin; section != sections_end; ++section) {
+								if(sym.address >= section->sh_addr && sym.address + sym.size <= section->sh_addr + section->sh_size) {
+									const std::int64_t offset = sym.address - section->sh_addr;
+									const QString hexPrefix = std::abs(offset) > 9 ? "0x" : "";
+									const QString offsetStr = offset ? "+" + hexPrefix + QString::number(offset, 16) : "";
 									const QString sectionName(&section_strings[section->sh_name]);
 									if(!sectionName.isEmpty()) {
 										sym.name = QString(sectionName+offsetStr);
@@ -392,9 +379,12 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 									}
 								}
 							}
-							if(sym.name.isEmpty())
+
+							if(sym.name.isEmpty()) {
 								sym.name = QString("$sym_%1").arg(edb::v1::format_pointer(symbol_tab[i].st_value));
-							sym.type    = (M::elf_st_type(symbol_tab[i].st_info) == STT_FUNC ? 'T' : 'D');
+							}
+
+							sym.type = (M::elf_st_type(symbol_tab[i].st_info) == STT_FUNC ? 'T' : 'D');
 							symbols.push_back(sym);
 						}
 					}
@@ -508,8 +498,9 @@ bool generate_symbols(const QString &filename, std::ostream &os) {
 		std::shared_ptr<QFile> debugFile;
 		if(!debugInfoPath.isEmpty()) {
 			debugFile = std::make_shared<QFile>(QString("%1/%2.debug").arg(debugInfoPath, filename));
-			if(!debugFile->exists()) // systems such as Ubuntu don't have .debug suffix, try without it
+			if(!debugFile->exists()) { // systems such as Ubuntu don't have .debug suffix, try without it
 				debugFile = std::make_shared<QFile>(QString("%1/%2").arg(debugInfoPath, filename));
+			}
 		}
 
 		return generate_symbols_internal(file, debugFile, os);
