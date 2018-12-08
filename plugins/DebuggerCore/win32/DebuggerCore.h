@@ -52,7 +52,6 @@ public:
 	Status attach(edb::pid_t pid) override;
 	Status detach() override;
 	void kill()override ;
-	void resume(edb::EVENT_STATUS status) ;
 
 	void get_state(State *state) override;
 	void set_state(const State &state) override;

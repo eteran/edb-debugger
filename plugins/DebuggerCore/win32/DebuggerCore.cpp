@@ -182,27 +182,23 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 
 				auto newThread = std::make_shared<PlatformThread>(this, process_, de.u.CreateProcessInfo.hThread);
 				threads_.insert(active_thread_, newThread);
-
-#if 0
-				// TODO(eteran): implement this
-				process_->start_address_ = edb::address_t::fromZeroExtended(de.u.CreateProcessInfo.lpStartAddress);
-				process_->image_base_    = edb::address_t::fromZeroExtended(de.u.CreateProcessInfo.lpBaseOfImage);
-#endif
 				break;
 			}
 			case LOAD_DLL_DEBUG_EVENT:
 				CloseHandle(de.u.LoadDll.hFile);
 				break;
 			case EXIT_PROCESS_DEBUG_EVENT:
+				process_->resume(edb::DEBUG_CONTINUE);
 				process_        = nullptr;
 				// handle_event_exited returns DEBUG_STOP, which in turn keeps the debugger from resuming the process
 				// However, this is needed to close all internal handles etc. and finish the debugging session
 				// So we do it manually here
-				resume(edb::DEBUG_CONTINUE);
 				propagate = true;
 				break;
 			case EXCEPTION_DEBUG_EVENT:
 				propagate = true;
+				break;
+			case RIP_EVENT:
 				break;
 			default:
 				break;
@@ -214,7 +210,8 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 				e->event = de;
 				return e;
 			}
-			resume(edb::DEBUG_EXCEPTION_NOT_HANDLED);
+
+			process_->resume(edb::DEBUG_EXCEPTION_NOT_HANDLED);
 		}
 	}
 	return nullptr;
@@ -262,19 +259,6 @@ void DebuggerCore::kill() {
 		detach();
 	}
 }
-
-//------------------------------------------------------------------------------
-// Name: resume
-// Desc:
-//------------------------------------------------------------------------------
-void DebuggerCore::resume(edb::EVENT_STATUS status) {
-	// TODO: assert that we are paused
-
-	if(attached()) {
-		process_->resume(status);
-	}
-}
-
 
 
 //------------------------------------------------------------------------------
@@ -504,6 +488,7 @@ QString DebuggerCore::stack_pointer() const {
 #ifdef EDB_X86
 	return "esp";
 #elif defined(EDB_X86_64)
+	// TODO(eteran): WOW64 support
 	return "rsp";
 #endif
 }
@@ -516,6 +501,7 @@ QString DebuggerCore::frame_pointer() const {
 #ifdef EDB_X86
 	return "ebp";
 #elif defined(EDB_X86_64)
+	// TODO(eteran): WOW64 support
 	return "rbp";
 #endif
 }
@@ -528,6 +514,7 @@ QString DebuggerCore::instruction_pointer() const {
 #ifdef EDB_X86
 	return "eip";
 #elif defined(EDB_X86_64)
+	// TODO(eteran): WOW64 support
 	return "rip";
 #endif
 }
