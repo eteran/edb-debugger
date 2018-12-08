@@ -30,7 +30,7 @@ class PlatformState : public IState {
 	friend class PlatformThread;
 
 public:
-	PlatformState();
+	PlatformState() = default;
 
 public:
 	std::unique_ptr<IState> clone() const override;
@@ -98,10 +98,22 @@ public:
 		qDebug("TODO: implement PlatformState::fpu_tag_word"); return edb::value16();
 	}
 
+public:
+	void getThreadState(HANDLE hThread, bool isWow64);
+	void setThreadState(HANDLE hThread) const;
+
 private:
-	CONTEXT        context_;
-	edb::address_t fs_base_;
-	edb::address_t gs_base_;
+#ifdef EDB_X86_64
+	union {
+		CONTEXT        context64_ = {};
+		WOW64_CONTEXT  context32_;
+	};
+	bool is_wow64_ = false;
+#else
+	CONTEXT        context32_;
+#endif
+	edb::address_t fs_base_ = 0;
+	edb::address_t gs_base_ = 0;
 };
 
 }

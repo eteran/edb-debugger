@@ -1,6 +1,7 @@
 
 #include "PlatformThread.h"
 #include "PlatformState.h"
+#include "PlatformProcess.h"
 #include "State.h"
 
 namespace DebuggerCorePlugin {
@@ -12,6 +13,7 @@ namespace DebuggerCorePlugin {
  * @param hThread
  */
 PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, HANDLE hThread) : core_(core), process_(process), handle_(hThread) {
+	is_wow64_ = static_cast<PlatformProcess *>(process.get())->isWow64();
 }
 
 
@@ -54,7 +56,24 @@ int PlatformThread::priority() const {
  * @return
  */
 edb::address_t PlatformThread::instruction_pointer() const {
-	return {};
+#if defined(EDB_X86)
+	CONTEXT context;
+	context.ContextFlags = CONTEXT_CONTROL;
+	GetThreadContext(handle_, &context);
+	return context.Eip;
+#elif defined(EDB_X86_64)
+	if(is_wow64_) {
+		WOW64_CONTEXT context;
+		context.ContextFlags = CONTEXT_CONTROL;
+		Wow64GetThreadContext(handle_, &context);
+		return context.Eip;
+	} else {
+		CONTEXT context;
+		context.ContextFlags = CONTEXT_CONTROL;
+		GetThreadContext(handle_, &context);
+		return context.Rip;
+	}
+#endif
 }
 
 /**
@@ -71,23 +90,7 @@ QString PlatformThread::runState() const {
  */
 void PlatformThread::get_state(State *state) {
 	if(auto p = static_cast<PlatformState *>(state->impl_.get())) {
-		p->context_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
-		GetThreadContext(handle_, &p->context_);
-
-		p->gs_base_ = 0;
-		p->fs_base_ = 0;
-		// GetThreadSelectorEntry always returns false on x64
-		// on x64 gs_base == TEB, maybe we can use that somehow
-#if !defined(EDB_X86_64) || 1
-		LDT_ENTRY ldt_entry;
-		if(GetThreadSelectorEntry(handle_, p->context_.SegGs, &ldt_entry)) {
-			p->gs_base_ = ldt_entry.BaseLow | (ldt_entry.HighWord.Bits.BaseMid << 16) | (ldt_entry.HighWord.Bits.BaseHi << 24);
-		}
-
-		if(GetThreadSelectorEntry(handle_, p->context_.SegFs, &ldt_entry)) {
-			p->fs_base_ = ldt_entry.BaseLow | (ldt_entry.HighWord.Bits.BaseMid << 16) | (ldt_entry.HighWord.Bits.BaseHi << 24);
-		}
-#endif
+		p->getThreadState(handle_, is_wow64_);
 	}
 }
 
@@ -97,10 +100,7 @@ void PlatformThread::get_state(State *state) {
  */
 void PlatformThread::set_state(const State &state) {
 	if(auto p = static_cast<const PlatformState *>(state.impl_.get())) {
-#if 0
-		p->context_.ContextFlags = CONTEXT_ALL; //CONTEXT_FULL | CONTEXT_DEBUG_REGISTERS | CONTEXT_FLOATING_POINT;
-#endif
-		SetThreadContext(handle_, &p->context_);
+		p->setThreadState(handle_);
 	}
 }
 
@@ -109,13 +109,29 @@ void PlatformThread::set_state(const State &state) {
  * @return
  */
 Status PlatformThread::step() {
-
+#if defined(EDB_X86)
 	CONTEXT context;
 	context.ContextFlags = CONTEXT_CONTROL;
 	GetThreadContext(handle_, &context);
 	context.EFlags |= (1 << 8); // set the trap flag
 	SetThreadContext(handle_, &context);
+#elif defined(EDB_X86_64)
+	if(is_wow64_) {
+		WOW64_CONTEXT context;
+		context.ContextFlags = CONTEXT_CONTROL;
+		Wow64GetThreadContext(handle_, &context);
+		context.EFlags |= (1 << 8); // set the trap flag
+		Wow64SetThreadContext(handle_, &context);
+	} else {
+		CONTEXT context;
+		context.ContextFlags = CONTEXT_CONTROL;
+		GetThreadContext(handle_, &context);
+		context.EFlags |= (1 << 8); // set the trap flag
+		SetThreadContext(handle_, &context);
+	}
+#endif
 
+	// TODO(eteran): suspend all threads but this one, then resume
 	return resume();
 }
 
@@ -125,12 +141,29 @@ Status PlatformThread::step() {
  * @return
  */
 Status PlatformThread::step(edb::EVENT_STATUS status) {
+#if defined(EDB_X86)
 	CONTEXT context;
 	context.ContextFlags = CONTEXT_CONTROL;
 	GetThreadContext(handle_, &context);
 	context.EFlags |= (1 << 8); // set the trap flag
 	SetThreadContext(handle_, &context);
+#elif defined(EDB_X86_64)
+	if(is_wow64_) {
+		WOW64_CONTEXT context;
+		context.ContextFlags = CONTEXT_CONTROL;
+		Wow64GetThreadContext(handle_, &context);
+		context.EFlags |= (1 << 8); // set the trap flag
+		Wow64SetThreadContext(handle_, &context);
+	} else {
+		CONTEXT context;
+		context.ContextFlags = CONTEXT_CONTROL;
+		GetThreadContext(handle_, &context);
+		context.EFlags |= (1 << 8); // set the trap flag
+		SetThreadContext(handle_, &context);
+	}
+#endif
 
+	// TODO(eteran): suspend all threads but this one, then resume
 	return resume(status);
 }
 

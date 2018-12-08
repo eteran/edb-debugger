@@ -34,6 +34,7 @@ class DebuggerCore;
 
 class PlatformProcess : public IProcess {
 	friend class DebuggerCore;
+	friend class PlatformThread;
 public:
 	PlatformProcess(DebuggerCore *core, edb::pid_t pid);
 	PlatformProcess(DebuggerCore *core, HANDLE handle);

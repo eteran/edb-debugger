@@ -148,13 +148,16 @@ PlatformProcess::~PlatformProcess()  {
  * @return
  */
 bool PlatformProcess::isWow64() const {
+#if defined(EDB_X86_64)
 	BOOL wow64 = FALSE;
-	using LPFN_ISWOW64PROCESS = BOOL(WINAPI *) (HANDLE, PBOOL);
-	auto fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
 
-	if (fnIsWow64Process && fnIsWow64Process(handle_, &wow64) && wow64) {
-		return true;
+	using LPFN_ISWOW64PROCESS = BOOL(WINAPI *) (HANDLE, PBOOL);
+	static auto fnIsWow64Process = (LPFN_ISWOW64PROCESS)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "IsWow64Process");
+
+	if (fnIsWow64Process && fnIsWow64Process(handle_, &wow64)) {
+		return wow64;
 	}
+#endif
 	return false;
 }
 
