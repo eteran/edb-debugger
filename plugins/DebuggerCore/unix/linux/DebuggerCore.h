@@ -55,8 +55,6 @@ public:
 	Status attach(edb::pid_t pid) override;
 	Status detach() override;
 	void kill() override;
-	void get_state(State *state) override;
-	void set_state(const State &state) override;
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
     MeansOfCapture last_means_of_capture() const override;
 	void set_ignored_exceptions(const QList<qlonglong> &exceptions) override;
@@ -78,9 +76,6 @@ public:
 	QString frame_pointer() const override;
 	QString instruction_pointer() const override;
 	QString flag_register() const override;
-
-public:
-	QString format_pointer(edb::address_t address) const override;
 
 public:
 	IProcess *process() const override;
@@ -107,6 +102,7 @@ private:
 	using threadmap_t = QHash<edb::tid_t, std::shared_ptr<PlatformThread>>;
 
 private:
+	// TODO(eteran): a few of these logically belong in PlatformProcess...
 	QList<qlonglong>          ignored_exceptions_;
 	threadmap_t               threads_;
 	QSet<edb::tid_t>          waited_threads_;
@@ -120,11 +116,10 @@ private:
 	const edb::seg_reg_t      USER_CS_64;
 	const edb::seg_reg_t      USER_SS;
 #endif
-	CPUMode					  cpu_mode_ = CPUMode::Unknown;
-	MeansOfCapture	          lastMeansOfCapture = MeansOfCapture::NeverCaptured;
+	CPUMode					  cpu_mode_              = CPUMode::Unknown;
+	MeansOfCapture	          lastMeansOfCapture     = MeansOfCapture::NeverCaptured;
 	bool                      proc_mem_write_broken_ = false;
 	bool                      proc_mem_read_broken_  = false;
-
 };
 
 }

@@ -63,7 +63,6 @@ public:
 	Status step(edb::EVENT_STATUS status) override;
 	Status resume() override;
 	Status resume(edb::EVENT_STATUS status) override;
-	Status stop() override;
 
 public:
 	bool isPaused() const override;

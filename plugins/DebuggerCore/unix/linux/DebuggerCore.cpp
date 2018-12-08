@@ -53,6 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/mman.h>
 #include <sys/personality.h>
 #include <sys/wait.h>
+#include <sys/syscall.h>   /* For SYS_xxx definitions */
 
 // doesn't always seem to be defined in the headers
 
@@ -583,9 +584,9 @@ Status DebuggerCore::stop_threads() {
 
 				if(auto thread_ptr = std::static_pointer_cast<PlatformThread>(thread)) {
 
-					const auto stop_status = thread->stop();
-					if(!stop_status) {
-						errorMessage += tr("Failed to stop thread %1: %2\n").arg(tid).arg(stop_status.toString());
+					if(syscall(SYS_tgkill, process_->pid(), thread->tid(), SIGSTOP) == -1) {
+						const char *const error = strerror(errno);
+						errorMessage += tr("Failed to stop thread %1: %2\n").arg(tid).arg(error);
 					}
 
 					int thread_status;
@@ -597,9 +598,10 @@ Status DebuggerCore::stop_threads() {
 						if(WIFEXITED(thread_status)) {
 							handle_thread_exit(tid, thread_status);
 						}
+
 						// ..., otherwise it must have stopped.
 						else if(!WIFSTOPPED(thread_status) || WSTOPSIG(thread_status) != SIGSTOP) {
-							qWarning("stop_threads(): paused thread [%d] received an event besides SIGSTOP: status=0x%x", tid,thread_status);
+							qWarning("stop_threads(): paused thread [%d] received an event besides SIGSTOP: status=0x%x", tid, thread_status);
 						}
 					}
 				}
@@ -611,7 +613,7 @@ Status DebuggerCore::stop_threads() {
 		return Status::Ok;
 	}
 
-	qWarning() << errorMessage.toStdString().c_str();
+	qWarning() << qPrintable(errorMessage);
 	return Status("\n" + errorMessage);
 }
 
@@ -826,33 +828,6 @@ void DebuggerCore::detectCPUMode() {
 }
 
 //------------------------------------------------------------------------------
-// Name: get_state
-// Desc:
-//------------------------------------------------------------------------------
-void DebuggerCore::get_state(State *state) {
-	// TODO: assert that we are paused
-	if(process_) {
-		if(std::shared_ptr<IThread> thread = process_->current_thread()) {
-			thread->get_state(state);
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: set_state
-// Desc:
-//------------------------------------------------------------------------------
-void DebuggerCore::set_state(const State &state) {
-
-	// TODO: assert that we are paused
-	if(process_) {
-		if(std::shared_ptr<IThread> thread = process_->current_thread()) {
-			thread->set_state(state);
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
 // Name: open
 // Desc:
 //------------------------------------------------------------------------------
@@ -862,9 +837,9 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
     lastMeansOfCapture = MeansOfCapture::Launch;
 
-	static constexpr std::size_t sharedMemSize=4096;
-	const auto sharedMem=static_cast<QChar*>(::mmap(nullptr,sharedMemSize,PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANONYMOUS,-1,0));
-	std::memset(sharedMem,0,sharedMemSize);
+	static constexpr std::size_t sharedMemSize = 4096;
+	const auto sharedMem = static_cast<QChar*>(::mmap(nullptr, sharedMemSize, PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANONYMOUS, -1, 0));
+	std::memset(sharedMem, 0, sharedMemSize);
 
 	switch(pid_t pid = fork()) {
 	case 0:
@@ -1019,7 +994,7 @@ QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerate_processes() 
 	for(const QFileInfo &info: entries) {
 		const QString filename = info.fileName();
 		if(is_numeric(filename)) {
-			const edb::pid_t pid = filename.toULong();
+			const edb::pid_t pid = filename.toInt();
 
 			// NOTE(eteran): the const_cast is reasonable here.
 			// While we don't want THIS function to mutate the DebuggerCore object
@@ -1054,10 +1029,11 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 //------------------------------------------------------------------------------
 quint64 DebuggerCore::cpu_type() const {
 #if defined EDB_X86 || defined EDB_X86_64
-	if(EDB_IS_32_BIT)
+	if(EDB_IS_32_BIT) {
 		return edb::string_hash("x86");
-	else
+	} else {
 		return edb::string_hash("x86-64");
+	}
 #elif defined EDB_ARM32
 	return edb::string_hash("arm");
 #elif defined EDB_ARM64
@@ -1067,25 +1043,17 @@ quint64 DebuggerCore::cpu_type() const {
 #endif
 }
 
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QString DebuggerCore::format_pointer(edb::address_t address) const {
-	return address.toPointerString();
-}
-
 //------------------------------------------------------------------------------
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCore::stack_pointer() const {
 #if defined EDB_X86 || defined EDB_X86_64
-	if(edb::v1::debuggeeIs32Bit())
+	if(edb::v1::debuggeeIs32Bit()) {
 		return "esp";
-	else
+	} else {
 		return "rsp";
+	}
 #elif defined EDB_ARM32 || defined EDB_ARM64
 	return "sp";
 #else
@@ -1099,10 +1067,11 @@ QString DebuggerCore::stack_pointer() const {
 //------------------------------------------------------------------------------
 QString DebuggerCore::frame_pointer() const {
 #if defined EDB_X86 || defined EDB_X86_64
-	if(edb::v1::debuggeeIs32Bit())
+	if(edb::v1::debuggeeIs32Bit()) {
 		return "ebp";
-	else
+	} else {
 		return "rbp";
+	}
 #elif defined EDB_ARM32 || defined EDB_ARM64
 	return "fp";
 #else
@@ -1116,10 +1085,11 @@ QString DebuggerCore::frame_pointer() const {
 //------------------------------------------------------------------------------
 QString DebuggerCore::instruction_pointer() const {
 #if defined EDB_X86 || defined EDB_X86_64
-	if(edb::v1::debuggeeIs32Bit())
+	if(edb::v1::debuggeeIs32Bit()) {
 		return "eip";
-	else
+	} else {
 		return "rip";
+	}
 #elif defined EDB_ARM32 || defined EDB_ARM64
 	return "pc";
 #else
@@ -1133,10 +1103,11 @@ QString DebuggerCore::instruction_pointer() const {
 //------------------------------------------------------------------------------
 QString DebuggerCore::flag_register() const {
 #if defined EDB_X86 || defined EDB_X86_64
-	if(edb::v1::debuggeeIs32Bit())
+	if(edb::v1::debuggeeIs32Bit()) {
 		return "eflags";
-	else
+	} else {
 		return "rflags";
+	}
 #elif defined EDB_ARM32 || defined EDB_ARM64
 	return "cpsr";
 #else

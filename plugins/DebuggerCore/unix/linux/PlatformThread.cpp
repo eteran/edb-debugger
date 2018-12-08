@@ -26,8 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
 #endif
 
-#include <sys/syscall.h>   /* For SYS_xxx definitions */
-
 namespace DebuggerCorePlugin {
 
 //------------------------------------------------------------------------------
@@ -145,23 +143,6 @@ Status PlatformThread::resume() {
 Status PlatformThread::resume(edb::EVENT_STATUS status) {
 	const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(status_) : 0;
 	return core_->ptrace_continue(tid_, code);
-}
-
-//------------------------------------------------------------------------------
-// Name: stop
-// Desc:
-//------------------------------------------------------------------------------
-Status PlatformThread::stop() {
-	if(syscall(SYS_tgkill, process_->pid(), tid_, SIGSTOP) == -1) {
-
-		const char *const error = strerror(errno);
-		qWarning() << "Unable to stop thread" << tid_ << ": tgkill failed:" << error;
-		return Status(error);
-	}
-
-	// TODO(eteran): should this just be this?
-	//::kill(tid_, SIGSTOP);
-	return Status::Ok;
 }
 
 //------------------------------------------------------------------------------
