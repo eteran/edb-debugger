@@ -196,141 +196,147 @@ public:
 	//TODO: Need to handle stop/pause button
 	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) {
 
-		if(!event->is_trap())
+		if(!event->is_trap()) {
 			return pass_back_to_debugger();
+		}
 
-		State state;
-		edb::v1::debugger_core->get_state(&state);
+		if(IProcess *process = edb::v1::debugger_core->process()) {
 
-		edb::address_t              address = state.instruction_pointer();
-		IDebugEvent::TRAP_REASON    trap_reason = event->trap_reason();
-		IDebugEvent::REASON         reason = event->reason();
+			State state;
+			process->current_thread()->get_state(&state);
 
-		qDebug() << QString("Event at address 0x%1").arg(address, 0, 16);
+			edb::address_t              address = state.instruction_pointer();
+			IDebugEvent::TRAP_REASON    trap_reason = event->trap_reason();
+			IDebugEvent::REASON         reason = event->reason();
 
-		/*
-		 * An IDebugEvent::TRAP_BREAKPOINT can happen for the following reasons:
-		 * 1. We hit a user-set breakpoint.
-		 * 2. We hit an internal breakpoint due to our RunUntilRet algorithm.
-		 * 3. We hit a syscall (this shouldn't be; it may be a ptrace bug).
-		 * 4. We have exited in some form or another.
-		 * First check for exit, then breakpoint (user-set, then internal; adjust for RIP in both cases),
-		 * then finally for the syscall bug.
-		 */
-		if (trap_reason == IDebugEvent::TRAP_BREAKPOINT) {
-			qDebug() << "Trap breakpoint";
+			qDebug() << QString("Event at address 0x%1").arg(address, 0, 16);
 
-			//Take care of exit/terminated conditions; address == 0 may suffice to catch all, but not 100% sure.
-			if (reason == IDebugEvent::EVENT_EXITED || reason == IDebugEvent::EVENT_TERMINATED ||
-					address == 0) {
-				qDebug() << "The process is no longer running.";
-				return pass_back_to_debugger();
-			}
+			/*
+			 * An IDebugEvent::TRAP_BREAKPOINT can happen for the following reasons:
+			 * 1. We hit a user-set breakpoint.
+			 * 2. We hit an internal breakpoint due to our RunUntilRet algorithm.
+			 * 3. We hit a syscall (this shouldn't be; it may be a ptrace bug).
+			 * 4. We have exited in some form or another.
+			 * First check for exit, then breakpoint (user-set, then internal; adjust for RIP in both cases),
+			 * then finally for the syscall bug.
+			 */
+			if (trap_reason == IDebugEvent::TRAP_BREAKPOINT) {
+				qDebug() << "Trap breakpoint";
 
-			//Check the previous byte for 0xcc to see if it was an actual breakpoint
-			std::shared_ptr<IBreakpoint> bp = edb::v1::find_triggered_breakpoint(address);
-
-			//If there was a bp there, then we hit a block terminator as part of our RunUntilRet
-			//algorithm, or it is a user-set breakpoint.
-			if(bp && bp->enabled()) { //Isn't it always enabled if trap_reason is breakpoint, anyway?
-
-				const edb::address_t prev_address = bp->address();
-
-				bp->hit();
-
-				//Adjust RIP since 1st byte was replaced with 0xcc and we are now 1 byte after it.
-				state.set_instruction_pointer(prev_address);
-				edb::v1::debugger_core->set_state(state);
-				address = prev_address;
-
-				//If it wasn't internal, it was a user breakpoint. Pass back to Debugger.
-				if (!bp->internal()) {
-					qDebug() << "Previous was not an internal breakpoint.";
+				//Take care of exit/terminated conditions; address == 0 may suffice to catch all, but not 100% sure.
+				if (reason == IDebugEvent::EVENT_EXITED || reason == IDebugEvent::EVENT_TERMINATED || address == 0) {
+					qDebug() << "The process is no longer running.";
 					return pass_back_to_debugger();
 				}
-				qDebug() << "Previous was an internal breakpoint.";
-				bp->disable();
-				edb::v1::debugger_core->remove_breakpoint(bp->address());
-			}
-			else {
-				//No breakpoint if it was a syscall; continue.
-				return edb::DEBUG_CONTINUE;
-			}
-		}
 
-		//If we are on our ret (or the instr after?), then ret.
-		if (address == ret_address_) {
-			qDebug() << QString("On our terminator at 0x%1").arg(address, 0, 16);
-			if (is_instruction_ret(address)) {
-				qDebug() << "Found ret; passing back to debugger";
-				return pass_back_to_debugger();
-			}
-			else {
-				//If not a ret, then step so we can find the next block terminator.
-				qDebug() << "Not ret. Single-stepping";
-				return edb::DEBUG_CONTINUE_STEP;
-			}
-		}
+				//Check the previous byte for 0xcc to see if it was an actual breakpoint
+				std::shared_ptr<IBreakpoint> bp = edb::v1::find_triggered_breakpoint(address);
 
-		//If we stepped (either because it was the first event or because we hit a jmp/jcc),
-		//then find the next block terminator and edb::DEBUG_CONTINUE.
-		//TODO: What if we started on a ret? Set bp, then the proc runs away?
-		quint8 buffer[edb::Instruction::MAX_SIZE];
-		while (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
+				//If there was a bp there, then we hit a block terminator as part of our RunUntilRet
+				//algorithm, or it is a user-set breakpoint.
+				if(bp && bp->enabled()) { //Isn't it always enabled if trap_reason is breakpoint, anyway?
 
-			//Get the instruction
-			edb::Instruction inst(buffer, buffer + size, 0);
-			qDebug() << QString("Scanning for terminator at 0x%1: found %2").arg(
-							address, 0, 16).arg(
-							inst.mnemonic().c_str());
+					const edb::address_t prev_address = bp->address();
 
-			//Check if it's a proper block terminator (ret/jmp/jcc/hlt)
-			if (inst) {
-				if (is_terminator(inst)) {
-					qDebug() << QString("Found terminator %1 at 0x%2").arg(
-									QString(inst.mnemonic().c_str())).arg(
-									address, 0, 16);
-					//If we already had a breakpoint there, then just continue.
-					if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->find_breakpoint(address)) {
-						qDebug() << QString("Already a breakpoint at terminator 0x%1").arg(address, 0, 16);
-						return edb::DEBUG_CONTINUE;
-					}
+					bp->hit();
 
-					//Otherwise, attempt to set a breakpoint there and continue.
-					if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->add_breakpoint(address)) {
-						own_breakpoints_.emplace_back(address,bp);
-						qDebug() << QString("Setting breakpoint at terminator 0x%1").arg(address, 0, 16);
-						bp->set_internal(true);
-						bp->set_one_time(true); //If the 0xcc get's rm'd on next event, then
-						                        //don't set it one time; we'll hande it manually
-						ret_address_ = address;
-						return edb::DEBUG_CONTINUE;
-					}
-					else {
-						QMessageBox::critical(edb::v1::debugger_ui,
-						                      tr("Error running until return"),
-						                      tr("Failed to set breakpoint on a block terminator at address %1.").
-														arg(address.toPointerString()));
+					//Adjust RIP since 1st byte was replaced with 0xcc and we are now 1 byte after it.
+					state.set_instruction_pointer(prev_address);
+					process->current_thread()->set_state(state);
+					address = prev_address;
+
+					//If it wasn't internal, it was a user breakpoint. Pass back to Debugger.
+					if (!bp->internal()) {
+						qDebug() << "Previous was not an internal breakpoint.";
 						return pass_back_to_debugger();
 					}
+					qDebug() << "Previous was an internal breakpoint.";
+					bp->disable();
+					edb::v1::debugger_core->remove_breakpoint(bp->address());
+				}
+				else {
+					//No breakpoint if it was a syscall; continue.
+					return edb::DEBUG_CONTINUE;
 				}
 			}
-			else {
-				//Invalid instruction or some other problem. Pass it back to the debugger.
-				QMessageBox::critical(edb::v1::debugger_ui,
-				                      tr("Error running until return"),
-				                      tr("Failed to disassemble instruction at address %1.").
-												arg(address.toPointerString()));
-				return pass_back_to_debugger();
+
+			//If we are on our ret (or the instr after?), then ret.
+			if (address == ret_address_) {
+				qDebug() << QString("On our terminator at 0x%1").arg(address, 0, 16);
+				if (is_instruction_ret(address)) {
+					qDebug() << "Found ret; passing back to debugger";
+					return pass_back_to_debugger();
+				}
+				else {
+					//If not a ret, then step so we can find the next block terminator.
+					qDebug() << "Not ret. Single-stepping";
+					return edb::DEBUG_CONTINUE_STEP;
+				}
 			}
 
-			address += inst.byte_size();
+			//If we stepped (either because it was the first event or because we hit a jmp/jcc),
+			//then find the next block terminator and edb::DEBUG_CONTINUE.
+			//TODO: What if we started on a ret? Set bp, then the proc runs away?
+			quint8 buffer[edb::Instruction::MAX_SIZE];
+			while (const int size = edb::v1::get_instruction_bytes(address, buffer)) {
+
+				//Get the instruction
+				edb::Instruction inst(buffer, buffer + size, 0);
+				qDebug() << QString("Scanning for terminator at 0x%1: found %2").arg(
+				                address, 0, 16).arg(
+				                inst.mnemonic().c_str());
+
+				//Check if it's a proper block terminator (ret/jmp/jcc/hlt)
+				if (inst) {
+					if (is_terminator(inst)) {
+						qDebug() << QString("Found terminator %1 at 0x%2").arg(
+						                QString(inst.mnemonic().c_str())).arg(
+						                address, 0, 16);
+						//If we already had a breakpoint there, then just continue.
+						if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->find_breakpoint(address)) {
+							qDebug() << QString("Already a breakpoint at terminator 0x%1").arg(address, 0, 16);
+							return edb::DEBUG_CONTINUE;
+						}
+
+						//Otherwise, attempt to set a breakpoint there and continue.
+						if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->add_breakpoint(address)) {
+							own_breakpoints_.emplace_back(address,bp);
+							qDebug() << QString("Setting breakpoint at terminator 0x%1").arg(address, 0, 16);
+							bp->set_internal(true);
+							bp->set_one_time(true); //If the 0xcc get's rm'd on next event, then
+							                        //don't set it one time; we'll hande it manually
+							ret_address_ = address;
+							return edb::DEBUG_CONTINUE;
+						}
+						else {
+							QMessageBox::critical(edb::v1::debugger_ui,
+							                      tr("Error running until return"),
+							                      tr("Failed to set breakpoint on a block terminator at address %1.").
+							                                arg(address.toPointerString()));
+							return pass_back_to_debugger();
+						}
+					}
+				}
+				else {
+					//Invalid instruction or some other problem. Pass it back to the debugger.
+					QMessageBox::critical(edb::v1::debugger_ui,
+					                      tr("Error running until return"),
+					                      tr("Failed to disassemble instruction at address %1.").
+					                                arg(address.toPointerString()));
+					return pass_back_to_debugger();
+				}
+
+				address += inst.byte_size();
+			}
+
+			//If we end up out here, we've got bigger problems. Pass it back to the debugger.
+			QMessageBox::critical(edb::v1::debugger_ui,
+			                      tr("Error running until return"),
+			                      tr("Stepped outside the loop, address=%1.").arg(address.toPointerString()));
+			return pass_back_to_debugger();
 		}
 
-		//If we end up out here, we've got bigger problems. Pass it back to the debugger.
-		QMessageBox::critical(edb::v1::debugger_ui,
-		                      tr("Error running until return"),
-		                      tr("Stepped outside the loop, address=%1.").arg(address.toPointerString()));
+		qDebug() << "The process is no longer running.";
 		return pass_back_to_debugger();
 	}
 
@@ -1169,17 +1175,23 @@ void Debugger::setup_tab_buttons() {
 // Desc:
 //------------------------------------------------------------------------------
 Register Debugger::active_register() const {
-	const auto& model=edb::v1::arch_processor().get_register_view_model();
-	const auto index=model.activeIndex();
-	if(!index.data(RegisterViewModelBase::Model::IsNormalRegisterRole).toBool())
+	const auto& model = edb::v1::arch_processor().get_register_view_model();
+	const auto index = model.activeIndex();
+	if(!index.data(RegisterViewModelBase::Model::IsNormalRegisterRole).toBool()) {
 		return {};
-	const auto regName=index.sibling(index.row(),RegisterViewModelBase::Model::NAME_COLUMN).data().toString();
-	if(regName.isEmpty()) return {};
-	if(auto*const dcore=edb::v1::debugger_core) {
-		State state;
-		// read
-		dcore->get_state(&state);
-		return state[regName];
+	}
+
+	const auto regName = index.sibling(index.row(), RegisterViewModelBase::Model::NAME_COLUMN).data().toString();
+	if(regName.isEmpty()) {
+		return {};
+	}
+
+	if(IDebugger *core = edb::v1::debugger_core) {
+		if(IProcess *process = core->process()) {
+			State state;
+			process->current_thread()->get_state(&state);
+			return state[regName];
+		}
 	}
 	return {};
 }
@@ -2166,8 +2178,11 @@ edb::EVENT_STATUS Debugger::handle_trap(const std::shared_ptr<IDebugEvent> &even
 	// #2: we did a step
 	// #3: we hit a 0xcc naturally in the program
 	// #4: we hit a hardware breakpoint!
+	IProcess *process = edb::v1::debugger_core->process();
+	Q_ASSERT(process);
+
 	State state;
-	edb::v1::debugger_core->get_state(&state);
+	process->current_thread()->get_state(&state);
 
 	// look it up in our breakpoint list, make sure it is one of OUR int3s!
 	// if it is, we need to backup EIP and pause ourselves
@@ -2185,7 +2200,7 @@ edb::EVENT_STATUS Debugger::handle_trap(const std::shared_ptr<IDebugEvent> &even
 		// back up eip the size of a breakpoint, since we executed a breakpoint
 		// instead of the real code that belongs there
 		state.set_instruction_pointer(previous_ip);
-		edb::v1::debugger_core->set_state(state);
+		process->current_thread()->set_state(state);
 
 #if defined(Q_OS_LINUX)
 		// test if we have hit our internal LD hook BP. If so, read in the r_debug
@@ -2194,13 +2209,11 @@ edb::EVENT_STATUS Debugger::handle_trap(const std::shared_ptr<IDebugEvent> &even
 		if(bp->internal() && bp->tag == ld_loader_tag) {
 
 			if(dynamic_info_bp_set_) {
-				if(IProcess *process = edb::v1::debugger_core->process()) {
-					if(debug_pointer_) {
-						if(edb::v1::debuggeeIs32Bit()) {
-							handle_library_event<uint32_t>(process, debug_pointer_);
-						} else {
-							handle_library_event<uint64_t>(process, debug_pointer_);
-						}
+				if(debug_pointer_) {
+					if(edb::v1::debuggeeIs32Bit()) {
+						handle_library_event<uint32_t>(process, debug_pointer_);
+					} else {
+						handle_library_event<uint64_t>(process, debug_pointer_);
 					}
 				}
 			}

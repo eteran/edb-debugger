@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IAnalyzer.h"
 #include "IDebugger.h"
 #include "IProcess.h"
+#include "IThread.h"
 #include "IRegion.h"
 #include "ISymbolManager.h"
 #include "Instruction.h"
@@ -871,7 +872,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			l0 = (4 * font_width_ + font_width_/2);
 
 			State state;
-			edb::v1::debugger_core->get_state(&state);
+			edb::v1::debugger_core->process()->current_thread()->get_state(&state);
 
 			const int badge_x = 1;
 

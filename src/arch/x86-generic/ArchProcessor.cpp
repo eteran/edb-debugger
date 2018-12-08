@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "FloatX.h"
 #include "IDebugger.h"
 #include "IProcess.h"
+#include "IThread.h"
 #include "Instruction.h"
 #include "Prototype.h"
 #include "RegisterViewModel.h"
@@ -1484,15 +1485,19 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 			if(inst) {
 
 				State state;
-				edb::v1::debugger_core->get_state(&state);
+				process->current_thread()->get_state(&state);
 
 				std::int64_t origAX;
-				if(debuggeeIs64Bit())
-					origAX=state["orig_rax"].valueAsSignedInteger();
-				else
-					origAX=state["orig_eax"].valueAsSignedInteger();
-				const std::uint64_t rax=state.gp_register(rAX).valueAsSignedInteger();
-				if(origAX!=-1 && !falseSyscallReturn(state,origAX)) {
+				if(debuggeeIs64Bit()) {
+					origAX = state["orig_rax"].valueAsSignedInteger();
+				} else {
+					origAX = state["orig_eax"].valueAsSignedInteger();
+				}
+
+				const std::uint64_t rax = state.gp_register(rAX).valueAsSignedInteger();
+
+				if(origAX != -1 && !falseSyscallReturn(state, origAX)) {
+
 					// FIXME: this all doesn't work correctly when we're on the first instruction of a signal handler
 					// The registers there don't correspond to arguments of the syscall, and it's not correct to say the
 					// debuggee _returned_ from the syscall, since it's just interrupted the syscall to handle the signal

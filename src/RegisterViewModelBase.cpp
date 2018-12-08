@@ -18,6 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "RegisterViewModelBase.h"
 #include "State.h"
+#include "IProcess.h"
+#include "IThread.h"
 #include "Types.h"
 #include "Util.h"
 #include "edb.h"
@@ -51,9 +53,14 @@ template <typename T>
 bool setDebuggeeRegister(const QString &name, const T &value, T &resultingValue) {
 
 	if (auto core = edb::v1::debugger_core) {
+
+
+		IProcess *process = core->process();
+		Q_ASSERT(process);
+
 		State state;
 		// read
-		core->get_state(&state);
+		process->current_thread()->get_state(&state);
 		auto reg = state[name];
 
 		if (!reg) {
@@ -74,10 +81,10 @@ bool setDebuggeeRegister(const QString &name, const T &value, T &resultingValue)
 
 		// write
 		state.set_register(reg);
-		core->set_state(state);
+		process->current_thread()->set_state(state);
 
 		// check
-		core->get_state(&state);
+		process->current_thread()->get_state(&state);
 		const auto resultReg = state[name];
 
 		if (!resultReg) {
@@ -387,7 +394,9 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 			State state;
 
 			// read
-			core->get_state(&state);
+			if(IProcess *process = core->process()) {
+				process->current_thread()->get_state(&state);
+			}
 			return QVariant::fromValue(state[name]);
 		}
 		break;

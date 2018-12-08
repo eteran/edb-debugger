@@ -31,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IDebugger.h"
 #include "IPlugin.h"
 #include "IProcess.h"
+#include "IThread.h"
 #include "IRegion.h"
 #include "MemoryRegions.h"
 #include "Prototype.h"
@@ -763,35 +764,41 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 	Q_ASSERT(ok);
 	Q_ASSERT(err);
 
-	State state;
-	debugger_core->get_state(&state);
-	const Register reg = state.value(s);
-	*ok = reg.valid();
-	if(!*ok) {
-		if(const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(s)) {
-			*ok = true;
-			return sym->address;
+	if(IProcess *process = debugger_core->process()) {
+
+		State state;
+		process->current_thread()->get_state(&state);
+		const Register reg = state.value(s);
+		*ok = reg.valid();
+		if(!*ok) {
+			if(const std::shared_ptr<Symbol> sym = edb::v1::symbol_manager().find(s)) {
+				*ok = true;
+				return sym->address;
+			}
+
+			*err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
+			return 0;
 		}
 
-		*err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
-		return 0;
+		// FIXME: should this really return segment base, not selector?
+		// FIXME: if it's really meant to return base, then need to check whether
+		//        State::operator[]() returned valid Register
+		if(reg.name() == "fs") {
+			return state["fs_base"].valueAsAddress();
+		} else if(reg.name() == "gs") {
+			return state["gs_base"].valueAsAddress();
+		}
+
+		if(reg.bitSize() >  8 * sizeof(edb::address_t)) {
+			*err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
+			return 0;
+		}
+
+		return reg.valueAsAddress();
 	}
 
-	// FIXME: should this really return segment base, not selector?
-	// FIXME: if it's really meant to return base, then need to check whether
-	//        State::operator[]() returned valid Register
-	if(reg.name() == "fs") {
-		return state["fs_base"].valueAsAddress();
-	} else if(reg.name() == "gs") {
-		return state["gs_base"].valueAsAddress();
-	}
-
-	if(reg.bitSize() >  8 * sizeof(edb::address_t)) {
-		*err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
-		return 0;
-	}
-
-	return reg.valueAsAddress();
+	*err = ExpressionError(ExpressionError::UNKNOWN_VARIABLE);
+	return 0;
 }
 
 //------------------------------------------------------------------------------
@@ -1336,10 +1343,7 @@ QString format_bytes(quint8 byte) {
 // Desc:
 //------------------------------------------------------------------------------
 QString format_pointer(address_t p) {
-	if(debugger_core) {
-		return debugger_core->format_pointer(p);
-	}
-	return QString();
+	return p.toPointerString();
 }
 
 //------------------------------------------------------------------------------
