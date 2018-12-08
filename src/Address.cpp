@@ -37,6 +37,9 @@ QString edb::address_t::toHexString() const {
 	}
 }
 
+/**
+ * @brief edb::address_t::normalize
+ */
 void edb::address_t::normalize() {
 	if (edb::v1::debuggeeIs32Bit()) {
 		value_[0] &= 0xffffffffull;
