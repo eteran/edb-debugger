@@ -36,9 +36,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "elf_vernaux.h"
 #include "elf_verneed.h"
 
-template <int> struct elf_model;
+template <int>
+struct elf_model;
 
-template <> struct elf_model<64> {
+template <>
+struct elf_model<64> {
 	// types
 	using elf_half    = elf64_half;
 	using elf_word    = elf64_word;
@@ -71,7 +73,8 @@ template <> struct elf_model<64> {
 	using elf_verneed = elf64_verneed;
 };
 
-template <> struct elf_model<32> {
+template <>
+struct elf_model<32> {
 	// types
 	using elf_half    = elf32_half;
 	using elf_word    = elf32_word;

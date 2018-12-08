@@ -26,28 +26,50 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 // Move records.
 struct elf32_move {
-	elf32_xword m_value;  // Symbol value.
-	elf32_word m_info;    // Size and index.
-	elf32_word m_poffset; // Symbol offset.
-	elf32_half m_repeat;  // Repeat count.
-	elf32_half m_stride;  // Stride info.
+	elf32_xword m_value;   // Symbol value.
+	elf32_word  m_info;    // Size and index.
+	elf32_word  m_poffset; // Symbol offset.
+	elf32_half  m_repeat;  // Repeat count.
+	elf32_half  m_stride;  // Stride info.
 };
 
 struct elf64_move {
 	elf64_xword m_value;   // Symbol value.
 	elf64_xword m_info;    // Size and index.
 	elf64_xword m_poffset; // Symbol offset.
-	elf64_half m_repeat;   // Repeat count.
-	elf64_half m_stride;   // Stride info.
+	elf64_half  m_repeat;  // Repeat count.
+	elf64_half  m_stride;  // Stride info.
 };
 
 // Macro to construct move records.
-#define ELF32_M_SYM(info)       ((info) >> 8)
-#define ELF32_M_SIZE(info)      ((unsigned char) (info))
-#define ELF32_M_INFO(sym, size) (((sym) << 8) + (unsigned char) (size))
+template <class T>
+constexpr T ELF32_M_SYM(T info) {
+	return info >> 8;
+}
 
-#define ELF64_M_SYM(info)       ELF32_M_SYM (info)
-#define ELF64_M_SIZE(info)      ELF32_M_SIZE (info)
-#define ELF64_M_INFO(sym, size) ELF32_M_INFO (sym, size)
+template <class T>
+constexpr auto ELF32_M_SIZE(T info) {
+	return static_cast<uint8_t>(info);
+}
+
+template <class T1, class T2>
+constexpr auto ELF32_M_INFO(T1 sym, T2 size) {
+	return (sym << 8) + static_cast<uint8_t>(size);
+}
+
+template <class T>
+constexpr T ELF64_M_SYM(T info) {
+	return ELF32_M_SYM(info);
+}
+
+template <class T>
+constexpr auto ELF64_M_SIZE(T info) {
+	return ELF32_M_SIZE(info);
+}
+
+template <class T1, class T2>
+constexpr auto ELF64_M_INFO(T1 sym, T2 size) {
+	return ELF32_M_INFO(sym, size);
+}
 
 #endif

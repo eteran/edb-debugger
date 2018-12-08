@@ -41,7 +41,6 @@ struct elf64_verneed {
 	elf64_word vn_next;    /* Offset in bytes to next verneed entry */
 };
 
-
 /* Legal values for vn_version (version revision).  */
 enum {
 	VER_NEED_NONE    = 0, /* No version */

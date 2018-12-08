@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "elf_types.h"
 
 // Relocation table entry without addend (in section of type SHT_REL).
-
 struct elf32_rel {
 	elf32_addr r_offset; /* Address */
 	elf32_word r_info;   /* Relocation type and symbol index */
@@ -35,7 +34,6 @@ struct elf32_rel {
    Elf64_Rela structures, so we'll leave them out until Novell (or
    whoever) gets their act together.  */
 /* The following, at least, is used on Sparc v9, MIPS, and Alpha.  */
-
 struct elf64_rel {
 	elf64_addr  r_offset; /* Address */
 	elf64_xword r_info;   /* Relocation type and symbol index */

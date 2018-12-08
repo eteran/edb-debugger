@@ -30,15 +30,15 @@ struct elf32_sym {
 	elf32_word    st_name;  // Symbol name (string tbl index)
 	elf32_addr    st_value; // Symbol value
 	elf32_word    st_size;  // Symbol size
-	unsigned char st_info;  // Symbol type and binding
-	unsigned char st_other; // Symbol visibility
+	uint8_t       st_info;  // Symbol type and binding
+	uint8_t       st_other; // Symbol visibility
 	elf32_section st_shndx; // Section index
 };
 
 struct elf64_sym {
 	elf64_word    st_name;  // Symbol name (string tbl index)
-	unsigned char st_info;  // Symbol type and binding
-	unsigned char st_other; // Symbol visibility
+	uint8_t       st_info;  // Symbol type and binding
+	uint8_t       st_other; // Symbol visibility
 	elf64_section st_shndx; // Section index
 	elf64_addr    st_value; // Symbol value
 	elf64_xword   st_size;  // Symbol size

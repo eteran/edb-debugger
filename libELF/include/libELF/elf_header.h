@@ -30,15 +30,17 @@ enum { EI_NIDENT = 16 };
 /* Fields in the e_ident array.  The EI_* macros are indices into the
    array.  The macros under each EI_* macro are the values the byte
    may have.  */
-#define EI_MAG0 0    /* File identification byte 0 index */
-#define EI_MAG1 1   /* File identification byte 1 index */
-#define EI_MAG2 2   /* File identification byte 2 index */
-#define EI_MAG3 3   /* File identification byte 3 index */
+enum {
+	EI_MAG0 = 0, /* File identification byte 0 index */
+	EI_MAG1 = 1, /* File identification byte 1 index */
+	EI_MAG2 = 2, /* File identification byte 2 index */
+	EI_MAG3 = 3, /* File identification byte 3 index */
+};
 
 #define ELFMAG0 0x7f /* Magic number byte 0 */
-#define ELFMAG1 'E' /* Magic number byte 1 */
-#define ELFMAG2 'L' /* Magic number byte 2 */
-#define ELFMAG3 'F' /* Magic number byte 3 */
+#define ELFMAG1 'E'  /* Magic number byte 1 */
+#define ELFMAG2 'L'  /* Magic number byte 2 */
+#define ELFMAG3 'F'  /* Magic number byte 3 */
 
 /* Conglomeration of the identification bytes, for easy testing as a word.  */
 #define ELFMAG "\177ELF"
@@ -51,13 +53,13 @@ enum {
 	ELFCLASS64   = 2, /* 64-bit objects */
 	ELFCLASSNUM  = 3,
 
-	EI_DATA      = 5, /* Data encoding byte index */
-	ELFDATANONE  = 0, /* Invalid data encoding */
-	ELFDATA2LSB  = 1, /* 2's complement, little endian */
-	ELFDATA2MSB  = 2, /* 2's complement, big endian */
-	ELFDATANUM   = 3,
+	EI_DATA     = 5, /* Data encoding byte index */
+	ELFDATANONE = 0, /* Invalid data encoding */
+	ELFDATA2LSB = 1, /* 2's complement, little endian */
+	ELFDATA2MSB = 2, /* 2's complement, big endian */
+	ELFDATANUM  = 3,
 
-	EI_VERSION   = 6, /* File version byte index */
+	EI_VERSION = 6, /* File version byte index */
 	                /* Value must be EV_CURRENT */
 };
 
@@ -198,20 +200,20 @@ struct elf32_header {
 	using elf_phdr = elf32_phdr;
 	enum { ELFCLASS = ELFCLASS32 };
 
-	unsigned char e_ident[EI_NIDENT]; /* Magic number and other info */
-	elf32_half    e_type;             /* Object file type */
-	elf32_half    e_machine;          /* Architecture */
-	elf32_word    e_version;          /* Object file version */
-	elf32_addr    e_entry;            /* Entry point virtual address */
-	elf32_off     e_phoff;            /* Program header table file offset */
-	elf32_off     e_shoff;            /* Section header table file offset */
-	elf32_word    e_flags;            /* Processor-specific flags */
-	elf32_half    e_ehsize;           /* ELF header size in bytes */
-	elf32_half    e_phentsize;        /* Program header table entry size */
-	elf32_half    e_phnum;            /* Program header table entry count */
-	elf32_half    e_shentsize;        /* Section header table entry size */
-	elf32_half    e_shnum;            /* Section header table entry count */
-	elf32_half    e_shstrndx;         /* Section header string table index */
+	uint8_t    e_ident[EI_NIDENT]; /* Magic number and other info */
+	elf32_half e_type;             /* Object file type */
+	elf32_half e_machine;          /* Architecture */
+	elf32_word e_version;          /* Object file version */
+	elf32_addr e_entry;            /* Entry point virtual address */
+	elf32_off  e_phoff;            /* Program header table file offset */
+	elf32_off  e_shoff;            /* Section header table file offset */
+	elf32_word e_flags;            /* Processor-specific flags */
+	elf32_half e_ehsize;           /* ELF header size in bytes */
+	elf32_half e_phentsize;        /* Program header table entry size */
+	elf32_half e_phnum;            /* Program header table entry count */
+	elf32_half e_shentsize;        /* Section header table entry size */
+	elf32_half e_shnum;            /* Section header table entry count */
+	elf32_half e_shstrndx;         /* Section header string table index */
 };
 
 struct elf64_phdr;
@@ -219,20 +221,20 @@ struct elf64_header {
 	using elf_phdr = elf64_phdr;
 	enum { ELFCLASS = ELFCLASS64 };
 
-	unsigned char e_ident[EI_NIDENT]; /* Magic number and other info */
-	elf64_half    e_type;             /* Object file type */
-	elf64_half    e_machine;          /* Architecture */
-	elf64_word    e_version;          /* Object file version */
-	elf64_addr    e_entry;            /* Entry point virtual address */
-	elf64_off     e_phoff;            /* Program header table file offset */
-	elf64_off     e_shoff;            /* Section header table file offset */
-	elf64_word    e_flags;            /* Processor-specific flags */
-	elf64_half    e_ehsize;           /* ELF header size in bytes */
-	elf64_half    e_phentsize;        /* Program header table entry size */
-	elf64_half    e_phnum;            /* Program header table entry count */
-	elf64_half    e_shentsize;        /* Section header table entry size */
-	elf64_half    e_shnum;            /* Section header table entry count */
-	elf64_half    e_shstrndx;         /* Section header string table index */
+	uint8_t    e_ident[EI_NIDENT]; /* Magic number and other info */
+	elf64_half e_type;             /* Object file type */
+	elf64_half e_machine;          /* Architecture */
+	elf64_word e_version;          /* Object file version */
+	elf64_addr e_entry;            /* Entry point virtual address */
+	elf64_off  e_phoff;            /* Program header table file offset */
+	elf64_off  e_shoff;            /* Section header table file offset */
+	elf64_word e_flags;            /* Processor-specific flags */
+	elf64_half e_ehsize;           /* ELF header size in bytes */
+	elf64_half e_phentsize;        /* Program header table entry size */
+	elf64_half e_phnum;            /* Program header table entry count */
+	elf64_half e_shentsize;        /* Section header table entry size */
+	elf64_half e_shnum;            /* Section header table entry count */
+	elf64_half e_shstrndx;         /* Section header string table index */
 };
 
 #endif

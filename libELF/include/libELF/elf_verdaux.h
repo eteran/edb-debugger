@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "elf_types.h"
 
 /* Auxialiary version information.  */
-
 struct elf32_verdaux {
 	elf32_word vda_name; /* Version or dependency names */
 	elf32_word vda_next; /* Offset in bytes to next verdaux entry */

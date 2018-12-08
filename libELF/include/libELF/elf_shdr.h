@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "elf_types.h"
 
 // Section header.
-
 struct elf32_shdr {
 	elf32_word sh_name;      /* Section name (string tbl index) */
 	elf32_word sh_type;      /* Section type */
@@ -110,20 +109,20 @@ enum {
 
 /* Legal values for sh_flags (section flags).  */
 enum {
-	SHF_WRITE            = (1 << 0),   /* Writable */
-	SHF_ALLOC            = (1 << 1),   /* Occupies memory during execution */
-	SHF_EXECINSTR        = (1 << 2),   /* Executable */
-	SHF_MERGE            = (1 << 4),   /* Might be merged */
-	SHF_STRINGS          = (1 << 5),   /* Contains nul-terminated strings */
-	SHF_INFO_LINK        = (1 << 6),   /* `sh_info' contains SHT index */
-	SHF_LINK_ORDER       = (1 << 7),   /* Preserve order after combining */
-	SHF_OS_NONCONFORMING = (1 << 8),   /* Non-standard OS specific handling required */
-	SHF_GROUP            = (1 << 9),   /* Section is member of a group.  */
-	SHF_TLS              = (1 << 10),  /* Section hold thread-local data.  */
+	SHF_WRITE            = (1U << 0),   /* Writable */
+	SHF_ALLOC            = (1U << 1),   /* Occupies memory during execution */
+	SHF_EXECINSTR        = (1U << 2),   /* Executable */
+	SHF_MERGE            = (1U << 4),   /* Might be merged */
+	SHF_STRINGS          = (1U << 5),   /* Contains nul-terminated strings */
+	SHF_INFO_LINK        = (1U << 6),   /* `sh_info' contains SHT index */
+	SHF_LINK_ORDER       = (1U << 7),   /* Preserve order after combining */
+	SHF_OS_NONCONFORMING = (1U << 8),   /* Non-standard OS specific handling required */
+	SHF_GROUP            = (1U << 9),   /* Section is member of a group.  */
+	SHF_TLS              = (1U << 10),  /* Section hold thread-local data.  */
 	SHF_MASKOS           = 0x0ff00000, /* OS-specific.  */
 	SHF_MASKPROC         = 0xf0000000, /* Processor-specific */
-	SHF_ORDERED          = (1 << 30),  /* Special ordering requirement (Solaris).  */
-	SHF_EXCLUDE          = (1 << 31),  /* Section is excluded unless referenced or allocated (Solaris).*/
+	SHF_ORDERED          = (1U << 30),  /* Special ordering requirement (Solaris).  */
+	SHF_EXCLUDE          = (1U << 31),  /* Section is excluded unless referenced or allocated (Solaris).*/
 };
 
 /* Section group handling.  */

@@ -60,14 +60,36 @@ enum {
 };
 
 /* How to extract and insert information held in the st_info field.  */
-#define ELF32_ST_BIND(val)        (((unsigned char)(val)) >> 4)
-#define ELF32_ST_TYPE(val)        ((val)&0xf)
-#define ELF32_ST_INFO(bind, type) (((bind) << 4) + ((type) & 0xf))
+template <class T>
+constexpr auto ELF32_ST_BIND(T val) {
+	return static_cast<uint8_t>(val) >> 4;
+}
+
+template <class T>
+constexpr uint8_t ELF32_ST_TYPE(T val) {
+	return val & 0xf;
+}
+
+template <class T1, class T2>
+constexpr auto ELF32_ST_INFO(T1 bind, T2 type) {
+	return (bind << 4) + (type & 0xf);
+}
 
 /* Both Elf32_Sym and Elf64_Sym use the same one-byte st_info field.  */
-#define ELF64_ST_BIND(val)        ELF32_ST_BIND(val)
-#define ELF64_ST_TYPE(val)        ELF32_ST_TYPE(val)
-#define ELF64_ST_INFO(bind, type) ELF32_ST_INFO((bind), (type))
+template <class T>
+constexpr uint8_t ELF64_ST_BIND(T val) {
+	return ELF32_ST_BIND(val);
+}
+
+template <class T>
+constexpr uint8_t ELF64_ST_TYPE(T val) {
+	return ELF32_ST_TYPE(val);
+}
+
+template <class T1, class T2>
+constexpr auto ELF64_ST_INFO(T1 bind, T2 type) {
+	return ELF32_ST_INFO(bind, type);
+}
 
 /* Legal values for ST_BIND subfield of st_info (symbol binding).  */
 enum {
@@ -108,10 +130,16 @@ enum {
 
 /* How to extract and insert information held in the st_other field.  */
 
-#define ELF32_ST_VISIBILITY(o) ((o) & 0x03)
+template <class T>
+constexpr T ELF32_ST_VISIBILITY(T o) {
+	return ((o) & 0x03);
+}
 
 /* For ELF64 the definitions are the same.  */
-#define ELF64_ST_VISIBILITY(o) ELF32_ST_VISIBILITY(o)
+template <class T>
+constexpr T ELF64_ST_VISIBILITY(T o) {
+	return ELF32_ST_VISIBILITY(o);
+}
 
 /* Symbol visibility specification encoded in the st_other field.  */
 enum {

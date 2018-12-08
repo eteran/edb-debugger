@@ -405,7 +405,6 @@ union elf32_gptab {
 };
 
 /* Entry found in sections of type SHT_MIPS_REGINFO.  */
-
 struct elf32_reginfo {
 	elf32_word  ri_gprmask;    /* General registers used */
 	elf32_word  ri_cprmask[4]; /* Coprocessor registers used */
@@ -413,10 +412,9 @@ struct elf32_reginfo {
 };
 
 /* Entries found in sections of type SHT_MIPS_OPTIONS.  */
-
 struct elf_options {
-	unsigned char kind;    /* Determines interpretation of the variable part of descriptor.  */
-	unsigned char size;    /* Size of descriptor, including header.  */
+	uint8_t       kind;    /* Determines interpretation of the variable part of descriptor.  */
+	uint8_t       size;    /* Size of descriptor, including header.  */
 	elf32_section section; /* Section header index of section affected, 0 for global options.  */
 	elf32_word    info;    /* Kind-specific information.  */
 };
@@ -543,62 +541,6 @@ enum {
 /* Special program header types.  */
 enum {
 	PF_MIPS_LOCAL = 0x10000000,
-};
-
-/* Legal values for d_tag field of Elf32_Dyn.  */
-enum {
-	DT_MIPS_RLD_VERSION           = 0x70000001, /* Runtime linker interface version */
-	DT_MIPS_TIME_STAMP            = 0x70000002, /* Timestamp */
-	DT_MIPS_ICHECKSUM             = 0x70000003, /* Checksum */
-	DT_MIPS_IVERSION              = 0x70000004, /* Version string (string tbl index) */
-	DT_MIPS_FLAGS                 = 0x70000005, /* Flags */
-	DT_MIPS_BASE_ADDRESS          = 0x70000006, /* Base address */
-	DT_MIPS_MSYM                  = 0x70000007,
-	DT_MIPS_CONFLICT              = 0x70000008, /* Address of CONFLICT section */
-	DT_MIPS_LIBLIST               = 0x70000009, /* Address of LIBLIST section */
-	DT_MIPS_LOCAL_GOTNO           = 0x7000000a, /* Number of local GOT entries */
-	DT_MIPS_CONFLICTNO            = 0x7000000b, /* Number of CONFLICT entries */
-	DT_MIPS_LIBLISTNO             = 0x70000010, /* Number of LIBLIST entries */
-	DT_MIPS_SYMTABNO              = 0x70000011, /* Number of DYNSYM entries */
-	DT_MIPS_UNREFEXTNO            = 0x70000012, /* First external DYNSYM */
-	DT_MIPS_GOTSYM                = 0x70000013, /* First GOT entry in DYNSYM */
-	DT_MIPS_HIPAGENO              = 0x70000014, /* Number of GOT page table entries */
-	DT_MIPS_RLD_MAP               = 0x70000016, /* Address of run time loader map.  */
-	DT_MIPS_DELTA_CLASS           = 0x70000017, /* Delta C++ class definition.  */
-	DT_MIPS_DELTA_CLASS_NO        = 0x70000018, /* Number of entries in DT_MIPS_DELTA_CLASS.  */
-	DT_MIPS_DELTA_INSTANCE        = 0x70000019, /* Delta C++ class instances.  */
-	DT_MIPS_DELTA_INSTANCE_NO     = 0x7000001a, /* Number of entries in DT_MIPS_DELTA_INSTANCE.  */
-	DT_MIPS_DELTA_RELOC           = 0x7000001b, /* Delta relocations.  */
-	DT_MIPS_DELTA_RELOC_NO        = 0x7000001c, /* Number of entries in DT_MIPS_DELTA_RELOC.  */
-	DT_MIPS_DELTA_SYM             = 0x7000001d, /* Delta symbols that Delta    relocations refer to.  */
-	DT_MIPS_DELTA_SYM_NO          = 0x7000001e, /* Number of entries in    DT_MIPS_DELTA_SYM.  */
-	DT_MIPS_DELTA_CLASSSYM        = 0x70000020, /* Delta symbols that hold the	class declaration.  */
-	DT_MIPS_DELTA_CLASSSYM_NO     = 0x70000021, /* Number of entries in DT_MIPS_DELTA_CLASSSYM.  */
-	DT_MIPS_CXX_FLAGS             = 0x70000022, /* Flags indicating for C++ flavor.  */
-	DT_MIPS_PIXIE_INIT            = 0x70000023,
-	DT_MIPS_SYMBOL_LIB            = 0x70000024,
-	DT_MIPS_LOCALPAGE_GOTIDX      = 0x70000025,
-	DT_MIPS_LOCAL_GOTIDX          = 0x70000026,
-	DT_MIPS_HIDDEN_GOTIDX         = 0x70000027,
-	DT_MIPS_PROTECTED_GOTIDX      = 0x70000028,
-	DT_MIPS_OPTIONS               = 0x70000029, /* Address of .options.  */
-	DT_MIPS_INTERFACE             = 0x7000002a, /* Address of .interface.  */
-	DT_MIPS_DYNSTR_ALIGN          = 0x7000002b,
-	DT_MIPS_INTERFACE_SIZE        = 0x7000002c, /* Size of the .interface section. */
-	DT_MIPS_RLD_TEXT_RESOLVE_ADDR = 0x7000002d, /* Address of rld_text_rsolve function stored in GOT.  */
-	DT_MIPS_PERF_SUFFIX           = 0x7000002e, /* Default suffix of dso to be added by rld on dlopen() calls.  */
-	DT_MIPS_COMPACT_SIZE          = 0x7000002f, /* (O32)Size of compact rel section. */
-	DT_MIPS_GP_VALUE              = 0x70000030, /* GP value for aux GOTs.  */
-	DT_MIPS_AUX_DYNAMIC           = 0x70000031, /* Address of aux .dynamic.  */
-
-	/* The address of .got.plt in an executable using the new non-PIC ABI.  */
-	DT_MIPS_PLTGOT                = 0x70000032,
-
-	/* The base of the PLT in an executable using the new non-PIC ABI if that
-	   PLT is writable.  For a non-writable PLT, this is omitted or has a zero
-	   value.  */
-	DT_MIPS_RWPLT                 = 0x70000034,
-	DT_MIPS_NUM   = 0x35,
 };
 
 /* Legal values for DT_MIPS_FLAGS Elf32_Dyn entry.  */
@@ -1245,7 +1187,8 @@ enum {
 	EF_ARM_LE8 = 0x00400000,
 };
 
-constexpr inline uint32_t EF_ARM_EABI_VERSION(uint32_t flags) {
+template <class T>
+constexpr T EF_ARM_EABI_VERSION(T flags) {
 	return flags & EF_ARM_EABIMASK;
 }
 
