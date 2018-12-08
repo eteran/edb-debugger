@@ -25,59 +25,118 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 namespace {
-typedef struct _LSA_UNICODE_STRING {
-	USHORT Length;
-	USHORT MaximumLength;
-	PWSTR  Buffer;
-} LSA_UNICODE_STRING, *PLSA_UNICODE_STRING, UNICODE_STRING, *PUNICODE_STRING;
 
-typedef struct _PEB_LDR_DATA {
-	BYTE       Reserved1[8];
-	PVOID      Reserved2[3];
-	LIST_ENTRY InMemoryOrderModuleList;
-} PEB_LDR_DATA, *PPEB_LDR_DATA;
+#pragma pack(push)
+#pragma pack(1)
+template <class T>
+struct LIST_ENTRY_T {
+	T Flink;
+	T Blink;
+};
 
-typedef struct _RTL_USER_PROCESS_PARAMETERS {
-	BYTE           Reserved1[16];
-	PVOID          Reserved2[10];
-	UNICODE_STRING ImagePathName;
-	UNICODE_STRING CommandLine;
-} RTL_USER_PROCESS_PARAMETERS, *PRTL_USER_PROCESS_PARAMETERS;
+template <class T>
+struct UNICODE_STRING_T {
+	union {
+		struct {
+			WORD Length;
+			WORD MaximumLength;
+		};
+		T dummy;
+	};
+	T _Buffer;
+};
 
-typedef VOID (NTAPI *PPS_POST_PROCESS_INIT_ROUTINE)(VOID);
+template <class T, class NGF, int A>
+struct _PEB_T {
+	union {
+		struct {
+			BYTE InheritedAddressSpace;
+			BYTE ReadImageFileExecOptions;
+			BYTE BeingDebugged;
+			BYTE _SYSTEM_DEPENDENT_01;
+		};
+		T dummy01;
+	};
+	T Mutant;
+	T ImageBaseAddress;
+	T Ldr;
+	T ProcessParameters;
+	T SubSystemData;
+	T ProcessHeap;
+	T FastPebLock;
+	T _SYSTEM_DEPENDENT_02;
+	T _SYSTEM_DEPENDENT_03;
+	T _SYSTEM_DEPENDENT_04;
+	union {
+		T KernelCallbackTable;
+		T UserSharedInfoPtr;
+	};
+	DWORD SystemReserved;
+	DWORD _SYSTEM_DEPENDENT_05;
+	T _SYSTEM_DEPENDENT_06;
+	T TlsExpansionCounter;
+	T TlsBitmap;
+	DWORD TlsBitmapBits[2];
+	T ReadOnlySharedMemoryBase;
+	T _SYSTEM_DEPENDENT_07;
+	T ReadOnlyStaticServerData;
+	T AnsiCodePageData;
+	T OemCodePageData;
+	T UnicodeCaseTableData;
+	DWORD NumberOfProcessors;
+	union {
+		DWORD NtGlobalFlag;
+		NGF dummy02;
+	};
+	LARGE_INTEGER CriticalSectionTimeout;
+	T HeapSegmentReserve;
+	T HeapSegmentCommit;
+	T HeapDeCommitTotalFreeThreshold;
+	T HeapDeCommitFreeBlockThreshold;
+	DWORD NumberOfHeaps;
+	DWORD MaximumNumberOfHeaps;
+	T ProcessHeaps;
+	T GdiSharedHandleTable;
+	T ProcessStarterHelper;
+	T GdiDCAttributeList;
+	T LoaderLock;
+	DWORD OSMajorVersion;
+	DWORD OSMinorVersion;
+	WORD OSBuildNumber;
+	WORD OSCSDVersion;
+	DWORD OSPlatformId;
+	DWORD ImageSubsystem;
+	DWORD ImageSubsystemMajorVersion;
+	T ImageSubsystemMinorVersion;
+	union {
+		T ImageProcessAffinityMask;
+		T ActiveProcessAffinityMask;
+	};
+	T GdiHandleBuffer[A];
+	T PostProcessInitRoutine;
+	T TlsExpansionBitmap;
+	DWORD TlsExpansionBitmapBits[32];
+	T SessionId;
+	ULARGE_INTEGER AppCompatFlags;
+	ULARGE_INTEGER AppCompatFlagsUser;
+	T pShimData;
+	T AppCompatInfo;
+	UNICODE_STRING_T<T> CSDVersion;
+	T ActivationContextData;
+	T ProcessAssemblyStorageMap;
+	T SystemDefaultActivationContextData;
+	T SystemAssemblyStorageMap;
+	T MinimumStackCommit;
+};
+#pragma pack(pop)
 
-#ifdef Q_OS_WIN64
-typedef struct _PEB {
-	BYTE Reserved1[2];
-	BYTE BeingDebugged;
-	BYTE Reserved2[21];
-	PPEB_LDR_DATA LoaderData;
-	PRTL_USER_PROCESS_PARAMETERS ProcessParameters;
-	BYTE Reserved3[520];
-	PPS_POST_PROCESS_INIT_ROUTINE PostProcessInitRoutine;
-	BYTE Reserved4[136];
-	ULONG SessionId;
-} PEB, *PPEB;
-#else
-typedef struct _PEB {
-	BYTE                          Reserved1[2];
-	BYTE                          BeingDebugged;
-	BYTE                          Reserved2[1];
-	PVOID                         Reserved3[2];
-	PPEB_LDR_DATA                 Ldr;
-	PRTL_USER_PROCESS_PARAMETERS  ProcessParameters;
-	BYTE                          Reserved4[104];
-	PVOID                         Reserved5[52];
-	PPS_POST_PROCESS_INIT_ROUTINE PostProcessInitRoutine;
-	BYTE                          Reserved6[128];
-	PVOID                         Reserved7[1];
-	ULONG                         SessionId;
-} PEB, *PPEB;
-#endif
+
+typedef _PEB_T<DWORD, DWORD64, 34> PEB32;
+typedef _PEB_T<DWORD64, DWORD, 30> PEB64;
 
 typedef struct _PROCESS_BASIC_INFORMATION {
 	PVOID Reserved1;
-	PPEB PebBaseAddress;
+	PVOID PebBaseAddress;
 	PVOID Reserved2[2];
 	ULONG_PTR UniqueProcessId;
 	PVOID Reserved3;
@@ -91,6 +150,7 @@ typedef enum _PROCESSINFOCLASS {
 } PROCESSINFOCLASS;
 
 bool getProcessEntry(edb::pid_t pid, PROCESSENTRY32 *entry) {
+
 	bool ret = false;
 	if(HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0)) {
 
@@ -466,6 +526,7 @@ QList<QByteArray> PlatformProcess::arguments() const  {
 		if(ZwQueryInformationProcessFunc) {
 			    ULONG l;
 				NTSTATUS r = ZwQueryInformationProcessFunc(handle_, ProcessBasicInformation, &ProcessInfo, sizeof(PROCESS_BASIC_INFORMATION), &l);
+				printf("TODO(eteran): implement this\n");
 		}
 	}
 	return ret;
