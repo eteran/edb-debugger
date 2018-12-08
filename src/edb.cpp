@@ -158,32 +158,6 @@ void load_function_db() {
 
 }
 
-QString address_t::toPointerString(bool createdFromNativePointer) const {
-	if(v1::debuggeeIs32Bit()) {
-		return "0x"+toHexString();
-	} else {
-		if(!createdFromNativePointer) // then we don't know value of upper dword
-			return "0x????????"+value32(value_[0]).toHexString();
-		else
-			return "0x"+toHexString();
-	}
-}
-QString address_t::toHexString() const {
-	if(v1::debuggeeIs32Bit()) {
-		if(value_[0]>0xffffffffull) {
-			// Make erroneous bits visible
-			QString string=value64::toHexString();
-			string.insert(8,"]");
-			return "["+string;
-		}
-		return value32(value_[0]).toHexString();
-	}
-	else return value64::toHexString();
-}
-void address_t::normalize() {
-	if(v1::debuggeeIs32Bit())
-		value_[0]&=0xffffffffull;
-}
 
 namespace v1 {
 
