@@ -661,7 +661,7 @@ int DebuggerCore::attach_thread(edb::tid_t tid) {
 
 			const auto setoptStatus = ptrace_set_options(tid, options);
 			if(!setoptStatus)	{
-                qDebug() << "[DebuggerCore] failed to set ptrace options: ["<< tid <<"]" << setoptStatus.toString();
+				qDebug() << "[DebuggerCore] failed to set ptrace options: ["<< tid <<"]" << setoptStatus.error();
             }
 
 			return 0;
@@ -880,7 +880,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 #if defined __GNUG__ && __GNUC__ >= 5 || !defined __GNUG__ || defined __clang__ && __clang_major__*100+__clang_minor__>=306
 		static_assert(std::is_trivially_copyable<QChar>::value,"Can't copy string of QChar to shared memory");
 #endif
-		QString error = status.toString();
+		QString error = status.error();
 		std::memcpy(sharedMem, error.constData(), std::min(sizeof(QChar) * error.size(), sharedMemSize-sizeof(QChar)/*prevent overwriting of last null*/));
 
 		// we should never get here!
@@ -933,7 +933,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 			const auto setoptStatus=ptrace_set_options(pid, options);
             if(!setoptStatus) {
                 end_debug_session();
-                return Status(tr("[DebuggerCore] failed to set ptrace options: %1").arg(setoptStatus.toString()));
+				return Status(tr("[DebuggerCore] failed to set ptrace options: %1").arg(setoptStatus.error()));
             }
 
             // create the process

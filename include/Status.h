@@ -23,7 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <boost/variant.hpp>
 
-
 class EDB_EXPORT Status {
 public:
 	enum OkType { Ok };
@@ -31,7 +30,7 @@ public:
 	Status(OkType) {
 	}
 
-	explicit Status(const QString &message) : errorMessage_(message) {
+	explicit Status(const QString &message) : error_(message) {
 	}
 
 	Status(const Status &)            = default;
@@ -40,54 +39,22 @@ public:
 	Status& operator=(Status &&)      = default;
 
 public:
-	bool success() const           { return errorMessage_.isEmpty(); }
+	bool success() const           { return error_.isEmpty(); }
 	bool failure() const           { return !success(); }
     explicit operator bool() const { return success(); }
-	QString toString() const       { return errorMessage_; }
+	QString error() const          { return error_; }
 
 private:
-	QString errorMessage_;
+	QString error_;
 };
-
-#if 0
-template <class T>
-class EDB_EXPORT Result {
-public:
-	Result() : status_("Failure") {
-	}
-
-	Result(const QString &message, const T &value) : status_(message), value_(value) {
-	}
-
-	explicit Result(const T &value) : status_(Status::Ok), value_(value) {
-	}
-
-	Result(const Result &)            = default;
-	Result& operator=(const Result &) = default;
-	Result(Result &&)                 = default;
-	Result& operator=(Result &&)      = default;
-
-public:
-	T operator*() const            { Q_ASSERT(succeeded()); return value_; }
-	bool succeeded() const         { return status_.success(); }
-	bool failed() const            { return !succeeded(); }
-    explicit operator bool() const { return succeeded(); }
-	QString errorMessage() const   { return status_.toString(); }
-	T value() const                { Q_ASSERT(succeeded()); return value_; }
-
-private:
-	Status status_;
-	T      value_;
-};
-#endif
 
 template <class E>
-class EDB_EXPORT Unexpected {
+class Unexpected {
 	template<class U, class Y>
 	friend class Expected;
 
 	template <class U>
-	friend Unexpected<U> make_unexpected(U &&);
+	friend Unexpected<typename std::decay<U>::type> make_unexpected(U &&);
 
 public:
 	Unexpected(const Unexpected &)            = default;
@@ -105,7 +72,7 @@ private:
 };
 
 template <class T, class E>
-class EDB_EXPORT Result {
+class Result {
 public:
 	template <class U>
 	Result(U &&value) : value_(std::forward<U>(value)) {
@@ -136,8 +103,8 @@ private:
 };
 
 template <class E>
-Unexpected<E> make_unexpected(E &&error) {
-	return Unexpected<E>(std::forward<E>(error));
+Unexpected<typename std::decay<E>::type> make_unexpected(E &&e) {
+  return Unexpected<typename std::decay<E>::type>(std::forward<E>(e));
 }
 
 

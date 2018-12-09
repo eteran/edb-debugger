@@ -2614,7 +2614,7 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 				reenable_breakpoint_step_ = bp;
 				const auto stepStatus = thread->step(status);
 				if(!stepStatus) {
-					QMessageBox::critical(this, tr("Error"), tr("Failed to step thread: %1").arg(stepStatus.toString()));
+					QMessageBox::critical(this, tr("Error"), tr("Failed to step thread: %1").arg(stepStatus.error()));
 					return;
 				}
 			} else if(mode == MODE_RUN) {
@@ -2622,13 +2622,13 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 				if(bp) {
 					const auto stepStatus = thread->step(status);
 					if(!stepStatus) {
-						QMessageBox::critical(this, tr("Error"), tr("Failed to step thread: %1").arg(stepStatus.toString()));
+						QMessageBox::critical(this, tr("Error"), tr("Failed to step thread: %1").arg(stepStatus.error()));
 						return;
 					}
 				} else {
 					const auto resumeStatus = process->resume(status);
 					if(!resumeStatus) {
-						QMessageBox::critical(this, tr("Error"), tr("Failed to resume process: %1").arg(resumeStatus.toString()));
+						QMessageBox::critical(this, tr("Error"), tr("Failed to resume process: %1").arg(resumeStatus.error()));
 						return;
 					}
 
@@ -3012,7 +3012,7 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 		QMessageBox::critical(
 			this,
 			tr("Could Not Open"),
-			tr("Failed to open and attach to process:\n%1.").arg(status.toString()));
+		    tr("Failed to open and attach to process:\n%1.").arg(status.error()));
 	}
 
 	update_gui();
@@ -3087,7 +3087,7 @@ void Debugger::attach(edb::pid_t pid) {
 		arguments_dialog_->set_arguments(args);
 		attachComplete();
 	} else {
-		QMessageBox::critical(this, tr("Attach"), tr("Failed to attach to process: %1").arg(status.toString()));
+		QMessageBox::critical(this, tr("Attach"), tr("Failed to attach to process: %1").arg(status.error()));
 	}
 
 	update_gui();
