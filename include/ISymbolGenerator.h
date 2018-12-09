@@ -27,7 +27,7 @@ public:
 	virtual ~ISymbolGenerator() = default;
 
 public:
-	virtual bool generate_symbol_file(const QString &filename, const QString &symbol_file) = 0;
+	virtual bool generateSymbolFile(const QString &filename, const QString &symbol_file) = 0;
 };
 
 #endif

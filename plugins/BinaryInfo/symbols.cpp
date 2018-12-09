@@ -236,10 +236,10 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 
 				for(size_t i = 0; i < section->sh_size / section->sh_entsize; ++i) {
 
-					const size_t sym_index             = M::elf_r_sym(relocation[i].r_info);
+					const size_t sym_index = M::elf_r_sym(relocation[i].r_info);
 					const elf_shdr *linked = &sections_begin[section->sh_link];
-					auto symbol_tab                    = reinterpret_cast<elf_sym*>(base + linked->sh_offset);
-					auto string_tab                    = reinterpret_cast<const char*>(base + sections_begin[linked->sh_link].sh_offset);
+					auto symbol_tab        = reinterpret_cast<elf_sym*>(base + linked->sh_offset);
+					auto string_tab        = reinterpret_cast<const char*>(base + sections_begin[linked->sh_link].sh_offset);
 
 					const elf_addr symbol_address = base_address + ++n * M::plt_entry_size;
 
@@ -259,7 +259,6 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 					sym.type    = 'P';
 					symbols.push_back(sym);
 				}
-
 			}
 			break;
 		case SHT_REL:
@@ -296,7 +295,6 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 					sym.type    = 'P';
 					symbols.push_back(sym);
 				}
-
 			}
 			break;
 		}
@@ -478,7 +476,6 @@ bool generate_symbols_internal(QFile &file, std::shared_ptr<QFile> &debugFile, s
 	return false;
 }
 
-
 }
 
 //--------------------------------------------------------------------------
@@ -508,4 +505,5 @@ bool generate_symbols(const QString &filename, std::ostream &os) {
 
 	return false;
 }
+
 }

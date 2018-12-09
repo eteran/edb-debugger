@@ -29,8 +29,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 namespace BinaryInfoPlugin {
 namespace {
 
-template <class T>
-QTreeWidgetItem *create_elf_magic(const T *header) {
+template <class Header>
+QTreeWidgetItem *create_elf_magic(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
@@ -45,8 +45,8 @@ QTreeWidgetItem *create_elf_magic(const T *header) {
 	return item;
 }
 
-template <class T>
-QTreeWidgetItem *create_elf_class(const T *header) {
+template <class Header>
+QTreeWidgetItem *create_elf_class(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
@@ -65,8 +65,8 @@ QTreeWidgetItem *create_elf_class(const T *header) {
 	return item;
 }
 
-template <class T>
-QTreeWidgetItem *create_elf_data(const T *header) {
+template <class Header>
+QTreeWidgetItem *create_elf_data(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
@@ -85,8 +85,8 @@ QTreeWidgetItem *create_elf_data(const T *header) {
 	return item;
 }
 
-template <class T>
-QTreeWidgetItem *create_elf_version(const T *header) {
+template <class Header>
+QTreeWidgetItem *create_elf_version(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
@@ -102,8 +102,8 @@ QTreeWidgetItem *create_elf_version(const T *header) {
 	return item;
 }
 
-template <class T>
-QTreeWidgetItem *create_elf_abi(const T *header) {
+template <class Header>
+QTreeWidgetItem *create_elf_abi(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
@@ -160,8 +160,8 @@ QTreeWidgetItem *create_elf_abi(const T *header) {
 	return item;
 }
 
-template <class T>
-QTreeWidgetItem *create_elf_abi_version(const T *header) {
+template <class Header>
+QTreeWidgetItem *create_elf_abi_version(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
@@ -171,8 +171,8 @@ QTreeWidgetItem *create_elf_abi_version(const T *header) {
 	return item;
 }
 
-template <class T>
-QTreeWidgetItem *create_elf_type(const T *header) {
+template <class Header>
+QTreeWidgetItem *create_elf_type(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
@@ -201,8 +201,8 @@ QTreeWidgetItem *create_elf_type(const T *header) {
 	return item;
 }
 
-template <class T>
-QTreeWidgetItem *create_elf_machine(const T *header) {
+template <class Header>
+QTreeWidgetItem *create_elf_machine(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
@@ -438,8 +438,8 @@ QTreeWidgetItem *create_elf_machine(const T *header) {
 	return item;
 }
 
-template <class T>
-QTreeWidgetItem *create_elf_object_version(const T *header) {
+template <class Header>
+QTreeWidgetItem *create_elf_object_version(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
@@ -449,8 +449,8 @@ QTreeWidgetItem *create_elf_object_version(const T *header) {
 	return item;
 }
 
-template <class T>
-QTreeWidgetItem *create_elf_entry_point(const T *header) {
+template <class Header>
+QTreeWidgetItem *create_elf_entry_point(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
@@ -460,26 +460,13 @@ QTreeWidgetItem *create_elf_entry_point(const T *header) {
 	return item;
 }
 
-
-#if 0
-	elf32_off  e_phoff;     /* Program header table file offset */
-	elf32_off  e_shoff;     /* Section header table file offset */
-	elf32_word e_flags;     /* Processor-specific flags */
-	elf32_half e_ehsize;    /* ELF header size in bytes */
-	elf32_half e_phentsize; /* Program header table entry size */
-	elf32_half e_phnum;     /* Program header table entry count */
-	elf32_half e_shentsize; /* Section header table entry size */
-	elf32_half e_shnum;     /* Section header table entry count */
-	elf32_half e_shstrndx;  /* Section header string table index */
-#endif
-
 }
 
 
-//------------------------------------------------------------------------------
-// Name: DialogHeader
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogHeader::DialogHeader
+ * @param parent
+ */
 DialogHeader::DialogHeader(QWidget *parent) : QDialog(parent), ui(new Ui::DialogHeader) {
 	ui->setupUi(this);
 	ui->tableView->verticalHeader()->hide();
@@ -489,18 +476,16 @@ DialogHeader::DialogHeader(QWidget *parent) : QDialog(parent), ui(new Ui::Dialog
 	connect(ui->txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
 }
 
-//------------------------------------------------------------------------------
-// Name: ~DialogHeader
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogHeader::~DialogHeader
+ */
 DialogHeader::~DialogHeader() {
 	delete ui;
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogHeader::showEvent
+ */
 void DialogHeader::showEvent(QShowEvent *) {
 	filter_model_->setFilterKeyColumn(3);
 	filter_model_->setSourceModel(&edb::v1::memory_regions());
@@ -508,10 +493,9 @@ void DialogHeader::showEvent(QShowEvent *) {
 	ui->treeWidget->clear();
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnExplore_clicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogHeader::on_btnExplore_clicked
+ */
 void DialogHeader::on_btnExplore_clicked() {
 	ui->treeWidget->clear();
 
@@ -588,4 +572,5 @@ void DialogHeader::on_btnExplore_clicked() {
 		}
 	}
 }
+
 }

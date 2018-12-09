@@ -35,7 +35,7 @@ public:
 
 public:
 	explicit PEBinaryException(Reason reason);
-	const char * what() const noexcept override;
+	const char *what() const noexcept override;
 
 private:
 	Reason reason_;

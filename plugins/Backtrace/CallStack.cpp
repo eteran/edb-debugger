@@ -80,19 +80,17 @@ void CallStack::get_call_stack() {
 				ExpressionError err;
 				edb::address_t possible_ret = edb::v1::get_value(addr, &ok, &err);
 
-				if(IProcess *process = edb::v1::debugger_core->process()) {
-					if(process->read_bytes(possible_ret - CALL_MAX_SIZE, buffer, sizeof(buffer))) {	// 0xfffff... if not a ptr.
-						for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
-							edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
+				if(process->read_bytes(possible_ret - CALL_MAX_SIZE, buffer, sizeof(buffer))) {	// 0xfffff... if not a ptr.
+					for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
+						edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
 
-							// If it's a call, then make a frame
-							if(is_call(inst)) {
-								stack_frame frame;
-								frame.ret    = possible_ret;
-								frame.caller = possible_ret - CALL_MAX_SIZE + i;
-								stack_frames_.push_back(frame);
-								break;
-							}
+						// If it's a call, then make a frame
+						if(is_call(inst)) {
+							stack_frame frame;
+							frame.ret    = possible_ret;
+							frame.caller = possible_ret - CALL_MAX_SIZE + i;
+							stack_frames_.push_back(frame);
+							break;
 						}
 					}
 				}

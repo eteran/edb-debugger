@@ -47,10 +47,10 @@ public:
 	ArgumentStatus parse_arguments(QStringList &args) override;
 
 public:
-	bool generate_symbol_file(const QString &filename, const QString &symbol_file) override;
+	bool generateSymbolFile(const QString &filename, const QString &symbol_file) override;
 
 public Q_SLOTS:
-	void explore_header();
+	void exploreHeader();
 
 private:
 	QMenu *menu_ = nullptr;

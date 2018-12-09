@@ -23,7 +23,9 @@ class QString;
 #include <iostream>
 
 namespace BinaryInfoPlugin {
+
 bool generate_symbols(const QString &filename, std::ostream &os = std::cout);
+
 }
 
 #endif
