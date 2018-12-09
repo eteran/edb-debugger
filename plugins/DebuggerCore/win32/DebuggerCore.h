@@ -53,9 +53,6 @@ public:
 	Status detach() override;
 	void kill()override ;
 
-	void get_state(State *state) override;
-	void set_state(const State &state) override;
-
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
 
 	MeansOfCapture last_means_of_capture() const override {
@@ -108,9 +105,6 @@ public:
 		Q_UNUSED(exceptions);
 		qDebug("TODO: Implement DebuggerCore::set_ignored_exceptions");
 	}
-
-public:
-	QString format_pointer(edb::address_t address) const override;
 
 public:
 	IProcess *process() const override;

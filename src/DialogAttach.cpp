@@ -174,7 +174,7 @@ void DialogAttach::on_processes_table_doubleClicked(const QModelIndex&) {
 // Name: selected_pid
 // Desc:
 //------------------------------------------------------------------------------
-Result<pid_t, QString> DialogAttach::selected_pid() const {
+Result<edb::pid_t, QString> DialogAttach::selected_pid() const {
 
 	const QItemSelectionModel *const selModel = ui->processes_table->selectionModel();
 	const QModelIndexList sel = selModel->selectedRows();
