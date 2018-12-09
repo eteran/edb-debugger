@@ -260,34 +260,6 @@ void DebuggerCore::kill() {
 	}
 }
 
-
-//------------------------------------------------------------------------------
-// Name: get_state
-// Desc:
-//------------------------------------------------------------------------------
-void DebuggerCore::get_state(State *state) {
-	// TODO: assert that we are paused
-	if(process_) {
-		if(std::shared_ptr<IThread> thread = process_->current_thread()) {
-			thread->get_state(state);
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: set_state
-// Desc:
-//------------------------------------------------------------------------------
-void DebuggerCore::set_state(const State &state) {
-	// TODO: assert that we are paused
-	if(process_) {
-		if(std::shared_ptr<IThread> thread = process_->current_thread()) {
-			thread->set_state(state);
-		}
-	}
-}
-
-
 //------------------------------------------------------------------------------
 // Name: open
 // Desc:
@@ -464,20 +436,6 @@ quint64 DebuggerCore::cpu_type() const {
 #elif defined(EDB_X86_64)
 	return edb::string_hash("x86-64");
 #endif
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QString DebuggerCore::format_pointer(edb::address_t address) const {
-	char buf[32];
-#ifdef EDB_X86
-	qsnprintf(buf, sizeof(buf), "%08x", address);
-#elif defined(EDB_X86_64)
-	qsnprintf(buf, sizeof(buf), "%016llx", address);
-#endif
-	return buf;
 }
 
 //------------------------------------------------------------------------------
