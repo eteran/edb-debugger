@@ -852,14 +852,14 @@ void Debugger::finish_plugin_setup() {
 // Name: get_goto_expression
 // Desc:
 //------------------------------------------------------------------------------
-Result<edb::address_t> Debugger::get_goto_expression() {
+Result<edb::address_t, QString> Debugger::get_goto_expression() {
 
 	edb::address_t address;
 	bool ok = edb::v1::get_expression_from_user(tr("Goto Expression"), tr("Expression:"), &address);
 	if(ok) {
-		return edb::v1::make_result(address);
+		return address;
 	} else {
-		return Result<edb::address_t>(tr("No Address"), edb::address_t(0));
+		return make_unexpected(tr("No Address"));
 	}
 }
 
@@ -867,14 +867,14 @@ Result<edb::address_t> Debugger::get_goto_expression() {
 // Name: get_follow_register
 // Desc:
 //------------------------------------------------------------------------------
-Result<edb::reg_t> Debugger::get_follow_register() const {
+Result<edb::reg_t, QString> Debugger::get_follow_register() const {
 
 	const auto reg = active_register();
 	if(!reg || reg.bitSize() > 8 * sizeof(edb::address_t)) {
-		return Result<edb::reg_t>(tr("No Value"), edb::address_t(0));
+		return make_unexpected(tr("No Value"));
 	}
 
-	return edb::v1::make_result<edb::reg_t>(reg.valueAsAddress());
+	return reg.valueAsAddress();
 }
 
 
@@ -1364,7 +1364,7 @@ void Debugger::follow_memory(edb::address_t address, F follow_func) {
 //------------------------------------------------------------------------------
 void Debugger::follow_register_in_dump(bool tabbed) {
 
-	if(const Result<edb::address_t> address = get_follow_register()) {
+	if(const Result<edb::address_t, QString> address = get_follow_register()) {
 		if(!edb::v1::dump_data(*address, tabbed)) {
 			QMessageBox::critical(this,
 				tr("No Memory Found"),
@@ -1427,7 +1427,7 @@ void Debugger::mnuCPUJumpToEIP() {
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUJumpToAddress() {
 
-	if(const Result<edb::address_t> address = get_goto_expression()) {
+	if(const Result<edb::address_t, QString> address = get_goto_expression()) {
 		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::jump_to_address(address);
 		});
@@ -1439,7 +1439,7 @@ void Debugger::mnuCPUJumpToAddress() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuDumpGotoAddress() {
-	if(const Result<edb::address_t> address = get_goto_expression()) {
+	if(const Result<edb::address_t, QString> address = get_goto_expression()) {
 		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::dump_data(address);
 		});
@@ -1451,7 +1451,7 @@ void Debugger::mnuDumpGotoAddress() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuStackGotoAddress() {
-	if(const Result<edb::address_t> address = get_goto_expression()) {
+	if(const Result<edb::address_t, QString> address = get_goto_expression()) {
 		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::dump_stack(address);
 		});
@@ -1464,7 +1464,7 @@ void Debugger::mnuStackGotoAddress() {
 //------------------------------------------------------------------------------
 void Debugger::mnuRegisterFollowInStack() {
 
-	if(const Result<edb::address_t> address = get_follow_register()) {
+	if(const Result<edb::address_t, QString> address = get_follow_register()) {
 		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::dump_stack(address);
 		});
@@ -1477,7 +1477,7 @@ void Debugger::mnuRegisterFollowInStack() {
 // Desc:
 //------------------------------------------------------------------------------
 template <class T>
-Result<edb::address_t> Debugger::get_follow_address(const T &hexview) {
+Result<edb::address_t, QString> Debugger::get_follow_address(const T &hexview) {
 
 	Q_ASSERT(hexview);
 
@@ -1486,11 +1486,11 @@ Result<edb::address_t> Debugger::get_follow_address(const T &hexview) {
 	if(hexview->hasSelectedText()) {
 		const QByteArray data = hexview->selectedBytes();
 
-		if(data.size() == static_cast<int>(edb::v1::pointer_size())) {
+		if(data.size() == static_cast<int>(pointer_size)) {
 			edb::address_t d(0);
 			std::memcpy(&d, data.data(), pointer_size);
 
-			return edb::v1::make_result(d);
+			return d;
 		}
 	}
 
@@ -1498,7 +1498,7 @@ Result<edb::address_t> Debugger::get_follow_address(const T &hexview) {
 		tr("Invalid Selection"),
 		tr("Please select %1 bytes to use this function.").arg(pointer_size));
 
-	return Result<edb::address_t>(tr("Invalid Selection"), 0);
+	return make_unexpected(tr("Invalid Selection"));
 }
 
 //------------------------------------------------------------------------------
@@ -1508,7 +1508,7 @@ Result<edb::address_t> Debugger::get_follow_address(const T &hexview) {
 template <class T>
 void Debugger::follow_in_stack(const T &hexview) {
 
-	if(const Result<edb::address_t> address = get_follow_address(hexview)) {
+	if(const Result<edb::address_t, QString> address = get_follow_address(hexview)) {
 		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::dump_stack(address);
 		});
@@ -1522,7 +1522,7 @@ void Debugger::follow_in_stack(const T &hexview) {
 template <class T>
 void Debugger::follow_in_dump(const T &hexview) {
 
-	if(const Result<edb::address_t> address = get_follow_address(hexview)) {
+	if(const Result<edb::address_t, QString> address = get_follow_address(hexview)) {
 		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::dump_data(address);
 		});
@@ -1536,7 +1536,7 @@ void Debugger::follow_in_dump(const T &hexview) {
 template <class T>
 void Debugger::follow_in_cpu(const T &hexview) {
 
-	if(const Result<edb::address_t> address = get_follow_address(hexview)) {
+	if(const Result<edb::address_t, QString> address = get_follow_address(hexview)) {
 		follow_memory(*address, [](edb::address_t address) {
 			return edb::v1::jump_to_address(address);
 		});
@@ -3156,7 +3156,7 @@ void Debugger::on_action_Attach_triggered() {
 
 	if(dlg->exec() == QDialog::Accepted) {
 		if(dlg) {
-			if(const Result<edb::pid_t> pid = dlg->selected_pid()) {
+			if(const Result<edb::pid_t, QString> pid = dlg->selected_pid()) {
 				attach(*pid);
 			}
 		}

@@ -192,7 +192,7 @@ EDB_EXPORT QByteArray get_md5(const QVector<quint8> &bytes);
 
 EDB_EXPORT QString symlink_target(const QString &s);
 EDB_EXPORT QStringList parse_command_line(const QString &cmdline);
-EDB_EXPORT Result<address_t> string_to_address(const QString &s);
+EDB_EXPORT Result<address_t, QString> string_to_address(const QString &s);
 EDB_EXPORT QString format_bytes(const QByteArray &x);
 EDB_EXPORT QString format_bytes(const uint8_t *buffer, size_t count);
 EDB_EXPORT QString format_bytes(quint8 byte);
@@ -218,11 +218,6 @@ EDB_EXPORT size_t    selected_stack_size();
 
 EDB_EXPORT address_t selected_data_address();
 EDB_EXPORT size_t    selected_data_size();
-
-template <class T>
-Result<T> make_result(T value) {
-	return Result<T>(value);
-}
 
 }
 }

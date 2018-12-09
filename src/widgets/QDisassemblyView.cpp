@@ -270,7 +270,7 @@ int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_addr
 		edb::address_t address = address_offset_ + current_address;
 
 		// find the containing function
-		if(Result<edb::address_t> function_address = analyzer->find_containing_function(address)) {
+		if(Result<edb::address_t, QString> function_address = analyzer->find_containing_function(address)) {
 
 			if(address != *function_address) {
 				edb::address_t function_start = *function_address;
@@ -322,7 +322,7 @@ int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_addr
 
 			uint8_t buf[edb::Instruction::MAX_SIZE];
 			int size = sizeof(buf);
-			Result<int> n = get_instruction_size(prev_address, buf, &size);
+			Result<int, QString> n = get_instruction_size(prev_address, buf, &size);
 			if(n && *n == i) {
 				return current_address - i;
 			}
@@ -1364,7 +1364,7 @@ edb::address_t QDisassemblyView::addressFromPoint(const QPoint &pos) const {
 // Name: get_instruction_size
 // Desc:
 //------------------------------------------------------------------------------
-Result<int> QDisassemblyView::get_instruction_size(edb::address_t address, quint8 *buf, int *size) const {
+Result<int, QString> QDisassemblyView::get_instruction_size(edb::address_t address, quint8 *buf, int *size) const {
 
 	Q_ASSERT(buf);
 	Q_ASSERT(size);
@@ -1373,18 +1373,18 @@ Result<int> QDisassemblyView::get_instruction_size(edb::address_t address, quint
 		bool ok = edb::v1::get_instruction_bytes(address, buf, size);
 
 		if(ok) {
-			return edb::v1::make_result(instruction_size(buf, *size));
+			return instruction_size(buf, *size);
 		}
 	}
 
-	return Result<int>(tr("Failed to get instruciton size"), 0);
+	return make_unexpected(tr("Failed to get instruciton size"));
 }
 
 //------------------------------------------------------------------------------
 // Name: get_instruction_size
 // Desc:
 //------------------------------------------------------------------------------
-Result<int> QDisassemblyView::get_instruction_size(edb::address_t address) const {
+Result<int, QString> QDisassemblyView::get_instruction_size(edb::address_t address) const {
 
 	Q_ASSERT(region_);
 
@@ -1417,7 +1417,7 @@ edb::address_t QDisassemblyView::address_from_coord(int x, int y) const {
 	// add up all the instructions sizes up to the line we want
 	for(int i = 0; i < line; ++i) {
 
-		Result<int> size = get_instruction_size(address_offset_ + address);
+		Result<int, QString> size = get_instruction_size(address_offset_ + address);
 		if(size) {
 			address += (*size != 0) ? *size : 1;
 		} else {
@@ -1600,7 +1600,7 @@ void QDisassemblyView::setSelectedAddress(edb::address_t address) {
 
 	if(region_) {
 		history_.add(address);
-		const Result<int> size = get_instruction_size(address);
+		const Result<int, QString> size = get_instruction_size(address);
 
 		if(size) {
 			selected_instruction_address_ = address;
@@ -1714,7 +1714,7 @@ void QDisassemblyView::restoreComments(QVariantList &comments_data) {
 	qDebug("restoreComments");
 	for(auto it = comments_data.begin(); it != comments_data.end(); ++it) {
 		QVariantMap data = it->toMap();
-		if(const Result<edb::address_t> addr = edb::v1::string_to_address(data["address"].toString())) {
+		if(const Result<edb::address_t, QString> addr = edb::v1::string_to_address(data["address"].toString())) {
 			comments_.insert(*addr, data["comment"].toString());
 		}
 	}

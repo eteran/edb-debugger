@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDialog>
 #include <QTimer>
 
-template <class T>
+template <class T, class E>
 class Result;
 
 class ProcessModel;
@@ -52,7 +52,7 @@ public Q_SLOTS:
 	void on_processes_table_doubleClicked(const QModelIndex &index);
 
 public:
-	Result<edb::pid_t> selected_pid() const;
+	Result<edb::pid_t, QString> selected_pid() const;
 
 private:
 	Ui::DialogAttach *const ui;

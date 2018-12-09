@@ -63,7 +63,7 @@ public:
 	FunctionMap functions(const std::shared_ptr<IRegion> &region) const override;
 	FunctionMap functions() const override;
 	QSet<edb::address_t> specified_functions() const override { return specified_functions_; }
-	Result<edb::address_t> find_containing_function(edb::address_t address) const override;
+	Result<edb::address_t, QString> find_containing_function(edb::address_t address) const override;
 	void analyze(const std::shared_ptr<IRegion> &region) override;
 	void invalidate_analysis() override;
 	void invalidate_analysis(const std::shared_ptr<IRegion> &region) override;

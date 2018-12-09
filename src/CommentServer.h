@@ -39,8 +39,8 @@ public:
 	void clear();
 
 private:
-	Result<QString> resolve_function_call(QHexView::address_t address) const;
-	Result<QString> resolve_string(QHexView::address_t address) const;
+	Result<QString, QString> resolve_function_call(QHexView::address_t address) const;
+	Result<QString, QString> resolve_string(QHexView::address_t address) const;
 
 private:
 	QHash<quint64, QString> custom_comments_;

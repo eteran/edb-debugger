@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <boost/optional.hpp>
 
-template <class T>
+template <class T, class E>
 class Result;
 
 class IRegion;
@@ -96,8 +96,8 @@ private Q_SLOTS:
 private:
 	QString formatAddress(edb::address_t address) const;
 	QString instructionString(const edb::Instruction &inst) const;
-	Result<int> get_instruction_size(edb::address_t address) const;
-	Result<int> get_instruction_size(edb::address_t address, quint8 *buf, int *size) const;
+	Result<int, QString> get_instruction_size(edb::address_t address) const;
+	Result<int, QString> get_instruction_size(edb::address_t address, quint8 *buf, int *size) const;
 	boost::optional<unsigned int> get_line_of_address(edb::address_t addr) const;
 	edb::address_t address_from_coord(int x, int y) const;
 	int address_length() const;

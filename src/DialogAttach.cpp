@@ -174,15 +174,15 @@ void DialogAttach::on_processes_table_doubleClicked(const QModelIndex&) {
 // Name: selected_pid
 // Desc:
 //------------------------------------------------------------------------------
-Result<edb::pid_t> DialogAttach::selected_pid() const {
+Result<pid_t, QString> DialogAttach::selected_pid() const {
 
 	const QItemSelectionModel *const selModel = ui->processes_table->selectionModel();
 	const QModelIndexList sel = selModel->selectedRows();
 
 	if(sel.size() == 1) {
 		const QModelIndex index = process_name_filter_->mapToSource(process_pid_filter_->mapToSource(sel[0]));
-		return edb::v1::make_result<edb::pid_t>(process_model_->data(index, Qt::UserRole).toUInt());
+		return process_model_->data(index, Qt::UserRole).toUInt();
 	}
 
-	return Result<edb::pid_t>(tr("No Selection"), 0);
+	return make_unexpected(tr("No Selection"));
 }

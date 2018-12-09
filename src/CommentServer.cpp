@@ -60,7 +60,7 @@ constexpr int CALL_MIN_SIZE = 2;
 // Name: resolve_function_call
 // Desc:
 //------------------------------------------------------------------------------
-Result<QString> CommentServer::resolve_function_call(QHexView::address_t address) const {
+Result<QString, QString> CommentServer::resolve_function_call(QHexView::address_t address) const {
 
 	// ok, we now want to locate the instruction before this one
 	// so we need to look back a few bytes
@@ -75,23 +75,23 @@ Result<QString> CommentServer::resolve_function_call(QHexView::address_t address
 					const QString symname = edb::v1::find_function_symbol(address);
 
 					if(!symname.isEmpty()) {
-						return edb::v1::make_result(tr("return to %1 <%2>").arg(edb::v1::format_pointer(address), symname));
+						return tr("return to %1 <%2>").arg(edb::v1::format_pointer(address), symname);
 					} else {
-						return edb::v1::make_result(tr("return to %1").arg(edb::v1::format_pointer(address)));
+						return tr("return to %1").arg(edb::v1::format_pointer(address));
 					}
 				}
 			}
 		}
 	}
 
-	return Result<QString>(tr("Failed to resolve function call"), tr(""));
+	return make_unexpected(tr("Failed to resolve function call"));
 }
 
 //------------------------------------------------------------------------------
 // Name: resolve_string
 // Desc:
 //------------------------------------------------------------------------------
-Result<QString> CommentServer::resolve_string(QHexView::address_t address) const {
+Result<QString, QString> CommentServer::resolve_string(QHexView::address_t address) const {
 
 	const int min_string_length = edb::v1::config().min_string_length;
 	const int max_string_length = 256;
@@ -100,12 +100,12 @@ Result<QString> CommentServer::resolve_string(QHexView::address_t address) const
 	QString temp;
 
 	if(edb::v1::get_ascii_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
-		return edb::v1::make_result(tr("ASCII \"%1\"").arg(temp));
+		return tr("ASCII \"%1\"").arg(temp);
 	} else if(edb::v1::get_utf16_string_at_address(address, temp, min_string_length, max_string_length, stringLen)) {
-		return edb::v1::make_result(tr("UTF16 \"%1\"").arg(temp));
+		return tr("UTF16 \"%1\"").arg(temp);
 	}
 
-	return Result<QString>(tr("Failed to resolve string"), tr(""));
+	return make_unexpected(tr("Failed to resolve string"));
 }
 
 //------------------------------------------------------------------------------
@@ -125,9 +125,9 @@ QString CommentServer::comment(QHexView::address_t address, int size) const {
 				if(it != custom_comments_.end()) {
 					return it.value();
 				} else {
-					if(Result<QString> ret = resolve_function_call(value)) {
+					if(Result<QString, QString> ret = resolve_function_call(value)) {
 						return *ret;
-					} else if(Result<QString> ret = resolve_string(value)) {
+					} else if(Result<QString, QString> ret = resolve_string(value)) {
 						return *ret;
 					}
 				}

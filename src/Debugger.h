@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "OSTypes.h"
 #include "QHexView"
 
-template <class T>
+template <class T, class E>
 class Result;
 
 class DialogArguments;
@@ -242,8 +242,8 @@ private:
 	edb::EVENT_STATUS handle_event_terminated(const std::shared_ptr<IDebugEvent> &event);
 	edb::EVENT_STATUS handle_trap(const std::shared_ptr<IDebugEvent> &event);
 	edb::EVENT_STATUS resume_status(bool pass_exception);
-	Result<edb::address_t> get_goto_expression();
-	Result<edb::reg_t> get_follow_register() const;
+	Result<edb::address_t, QString> get_goto_expression();
+	Result<edb::reg_t, QString> get_follow_register() const;
 	void apply_default_fonts();
 	void apply_default_show_separator();
 	void cleanup_debugger();
@@ -278,7 +278,7 @@ private:
 	void follow_memory(edb::address_t address, F follow_func);
 
 	template <class T>
-	Result<edb::address_t> get_follow_address(const T &hexview);
+	Result<edb::address_t, QString> get_follow_address(const T &hexview);
 
 	template <class F>
 	QList<QAction*> get_plugin_context_menu_items(const F &f) const;

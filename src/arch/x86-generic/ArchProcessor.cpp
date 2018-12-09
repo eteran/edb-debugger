@@ -1007,8 +1007,8 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 // Name: get_effective_address
 // Desc:
 //------------------------------------------------------------------------------
-Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state) const {
-	using ResultT = Result<edb::address_t>;
+Result<edb::address_t, QString> ArchProcessor::get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state) const {
+	using ResultT = Result<edb::address_t, QString>;
 
 	edb::address_t ret = 0;
 	// TODO: get registers by index, not string! too slow
@@ -1025,7 +1025,7 @@ Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instructi
 			if(!baseR)
 			{
 				if(op->mem.base != X86_REG_INVALID)
-					return ResultT(tr("failed to acquire base register from state"),0);
+					return make_unexpected(tr("failed to acquire base register from state"));
 			}
 			else
 			{
@@ -1035,12 +1035,12 @@ Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instructi
 			if(!indexR)
 			{
 				if(op->mem.index != X86_REG_INVALID)
-					return ResultT(tr("failed to acquire index register from state"),0);
+					return make_unexpected(tr("failed to acquire index register from state"));
 			}
 			else
 			{
 				if(indexR.type()!=Register::TYPE_GPR)
-					return ResultT(tr("only general-purpose register is supported as index register"),0);
+					return make_unexpected(tr("only general-purpose register is supported as index register"));
 				index=indexR.valueAsAddress();
 			}
 
@@ -1085,12 +1085,12 @@ Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instructi
 					}
 				}();
 
-				if(!segBase) return ResultT(QObject::tr("failed to obtain segment base"),0); // no way to reliably compute address
+				if(!segBase) return make_unexpected(QObject::tr("failed to obtain segment base")); // no way to reliably compute address
 				ret += segBase.valueAsAddress();
 			}
 		} else if(is_immediate(op)) {
 			const Register csBase = state["cs_base"];
-			if(!csBase) return ResultT(QObject::tr("failed to obtain CS segment base"),0); // no way to reliably compute address
+			if(!csBase) return make_unexpected(QObject::tr("failed to obtain CS segment base")); // no way to reliably compute address
 			ret = op->imm + csBase.valueAsAddress();
 		}
 	}

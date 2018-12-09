@@ -872,13 +872,13 @@ void Analyzer::invalidate_analysis() {
 // Name: find_containing_function
 // Desc: returns the entry point of the function which contains <address>
 //------------------------------------------------------------------------------
-Result<edb::address_t> Analyzer::find_containing_function(edb::address_t address) const {
+Result<edb::address_t, QString> Analyzer::find_containing_function(edb::address_t address) const {
 
 	Function function;
 	if(find_containing_function(address, &function)) {
-		return edb::v1::make_result(function.entry_address());
+		return function.entry_address();
 	} else {
-		return Result<edb::address_t>(tr("Containing Function Not Found"), -1);
+		return make_unexpected(tr("Containing Function Not Found"));
 	}
 }
 

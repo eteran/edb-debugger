@@ -1259,17 +1259,17 @@ QStringList parse_command_line(const QString &cmdline) {
 // Name: string_to_address
 // Desc:
 //------------------------------------------------------------------------------
-Result<address_t> string_to_address(const QString &s) {
+Result<address_t, QString> string_to_address(const QString &s) {
 	QString hex(s);
 	hex.replace("0x","");
 
 	bool ok;
 	address_t r = edb::address_t::fromHexString(hex.left(2*sizeof(edb::address_t)), &ok);
 	if(ok) {
-		return edb::v1::make_result(r);
+		return r;
 	}
 
-	return Result<address_t>(QLatin1String("Error converting string to address"), 0);
+	return make_unexpected(QObject::tr("Error converting string to address"));
 }
 
 //------------------------------------------------------------------------------

@@ -44,7 +44,7 @@ public:
 	bool is_filling(const edb::Instruction &inst) const;
 	//! Checks whether potentially conditional instruction's condition is satisfied
 	bool is_executed(const edb::Instruction &inst, const State &state) const;
-	Result<edb::address_t> get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state) const;
+	Result<edb::address_t, QString> get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state) const;
 	edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool& ok) const;
 	void reset();
 	void about_to_resume();
