@@ -38,7 +38,7 @@ class Bookmarks : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	Bookmarks(QObject *parent = nullptr);
+	explicit Bookmarks(QObject *parent = nullptr);
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;

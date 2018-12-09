@@ -33,7 +33,7 @@ class ProcessProperties : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	ProcessProperties(QObject *parent = nullptr);
+	explicit ProcessProperties(QObject *parent = nullptr);
 	~ProcessProperties() override;
 
 public:

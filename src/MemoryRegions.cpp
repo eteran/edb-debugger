@@ -79,11 +79,14 @@ void MemoryRegions::sync() {
 //------------------------------------------------------------------------------
 std::shared_ptr<IRegion> MemoryRegions::find_region(edb::address_t address) const {
 
-	for(const std::shared_ptr<IRegion> &i: regions_) {
-		if(i->contains(address)) {
-			return i;
-		}
+	auto it = std::find_if(regions_.begin(), regions_.end(), [address](const std::shared_ptr<IRegion> &region) {
+		return region->contains(address);
+	});
+
+	if(it != regions_.end()) {
+		return *it;
 	}
+
 	return nullptr;
 }
 

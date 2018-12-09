@@ -507,13 +507,14 @@ edb::address_t PlatformProcess::data_address() const {
 // Desc:
 //------------------------------------------------------------------------------
 QList<std::shared_ptr<IRegion>> PlatformProcess::regions() const {
-	static QList<std::shared_ptr<IRegion>> regions;
-	static size_t totalHash = 0;
 
+	static QList<std::shared_ptr<IRegion>> regions;
 	const QString map_file(QString("/proc/%1/maps").arg(pid_));
 
 	// hash the region file to see if it changed or not
 	{
+		static size_t totalHash = 0;
+
 		std::ifstream mf(map_file.toStdString());
 		size_t newHash = 0;
 		std::string line;
@@ -676,11 +677,8 @@ QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
 	Q_ASSERT(core_->process_.get() == this);
 
 	QList<std::shared_ptr<IThread>> threadList;
-
-	for(auto &thread : core_->threads_) {
-		threadList.push_back(thread);
-	}
-
+	threadList.reserve(core_->threads_.size());
+	std::copy(core_->threads_.begin(), core_->threads_.end(), std::back_inserter(threadList));
 	return threadList;
 }
 

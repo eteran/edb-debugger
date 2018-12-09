@@ -385,11 +385,15 @@ Status DebuggerCoreUNIX::execute_process(const QString &path, const QString &cwd
 // Desc:
 //------------------------------------------------------------------------------
 QString DebuggerCoreUNIX::exceptionName(qlonglong value) {
-    for(Exception e : Exceptions) {
-        if(value == e.value) {
-            return e.name;
-        }
-    }
+
+	auto it = std::find_if(std::begin(Exceptions), std::end(Exceptions), [value](Exception &ex) {
+	    return ex.value == value;
+    });
+
+	if(it != std::end(Exceptions)) {
+		return it->name;
+	}
+
     return QString();
 }
 
@@ -398,11 +402,15 @@ QString DebuggerCoreUNIX::exceptionName(qlonglong value) {
 // Desc:
 //------------------------------------------------------------------------------
 qlonglong DebuggerCoreUNIX::exceptionValue(const QString &name) {
-    for(Exception e : Exceptions) {
-        if(name == e.name) {
-            return e.value;
-        }
-    }
+
+	auto it = std::find_if(std::begin(Exceptions), std::end(Exceptions), [&name](Exception &ex) {
+	    return ex.name == name;
+    });
+
+	if(it != std::end(Exceptions)) {
+		return it->value;
+	}
+
     return -1;
 }
 

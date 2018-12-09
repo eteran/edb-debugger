@@ -33,7 +33,7 @@ class ROPTool : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	ROPTool(QObject *parent = nullptr);
+	explicit ROPTool(QObject *parent = nullptr);
 	~ROPTool() override;
 
 public:

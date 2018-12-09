@@ -35,7 +35,7 @@ class DumpState : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	DumpState(QObject *parent = nullptr);
+	explicit DumpState(QObject *parent = nullptr);
 	~DumpState() override = default;
 
 public:

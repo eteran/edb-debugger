@@ -36,7 +36,7 @@ class CheckVersion : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	CheckVersion(QObject *parent = nullptr);
+	explicit CheckVersion(QObject *parent = nullptr);
 	~CheckVersion() override = default;
 
 public:

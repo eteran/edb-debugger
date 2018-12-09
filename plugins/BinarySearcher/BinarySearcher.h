@@ -34,7 +34,7 @@ class BinarySearcher : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	BinarySearcher(QObject *parent = nullptr);
+	explicit BinarySearcher(QObject *parent = nullptr);
 	~BinarySearcher() override = default;
 
 public:

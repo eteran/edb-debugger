@@ -34,7 +34,7 @@ class Assembler : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	Assembler(QObject *parent = nullptr);
+	explicit Assembler(QObject *parent = nullptr);
 	~Assembler() override;
 
 public:

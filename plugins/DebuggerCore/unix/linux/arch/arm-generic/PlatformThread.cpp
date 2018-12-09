@@ -177,7 +177,7 @@ long PlatformThread::set_debug_register(std::size_t n, long value) {
 
 Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 
-	const auto addrSize=4; // The code here is ARM32-specific anyway...
+	constexpr auto addrSize = 4; // The code here is ARM32-specific anyway...
 
 	State state;
 	get_state(&state);

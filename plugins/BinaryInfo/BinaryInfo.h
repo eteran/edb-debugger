@@ -35,7 +35,7 @@ class BinaryInfo : public QObject, public IPlugin, public ISymbolGenerator {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	BinaryInfo(QObject *parent = nullptr);
+	explicit BinaryInfo(QObject *parent = nullptr);
 
 private:
 	void private_init() override;

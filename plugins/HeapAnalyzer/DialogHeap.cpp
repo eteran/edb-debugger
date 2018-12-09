@@ -451,22 +451,22 @@ void DialogHeap::do_find() {
 		if(start_address == 0 || end_address == 0) {
 
 			const QList<std::shared_ptr<IRegion>> &regions = edb::v1::memory_regions().regions();
-			for(const std::shared_ptr<IRegion> &region: regions) {
 
-				if(region->name() == "[heap]") {
+			auto it = std::find_if(regions.begin(), regions.end(), [](const std::shared_ptr<IRegion> &region) {
+				return region->name() == "[heap]";
+			});
 
-					qDebug() << "Found a memory region named '[heap]', assuming that it provides sane bounds";
+			if(it != regions.end()) {
+				qDebug() << "Found a memory region named '[heap]', assuming that it provides sane bounds";
 
-					if(start_address == 0) {
-						start_address = region->start();
-					}
-
-					if(end_address == 0) {
-						end_address = region->end();
-					}
-
-					break;
+				if(start_address == 0) {
+					start_address = (*it)->start();
 				}
+
+				if(end_address == 0) {
+					end_address = (*it)->end();
+				}
+
 			}
 		}
 

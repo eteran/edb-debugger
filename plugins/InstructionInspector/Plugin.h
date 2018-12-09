@@ -63,7 +63,7 @@ class Plugin : public QObject, public IPlugin {
 	Q_CLASSINFO("email", "b7.10110111@gmail.com")
 
 public:
-	Plugin(QObject *parent = nullptr);
+	explicit Plugin(QObject *parent = nullptr);
 	QMenu *menu(QWidget *parent = nullptr) override;
 	QList<QAction *> cpu_context_menu() override;
 

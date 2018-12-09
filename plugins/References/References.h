@@ -34,7 +34,7 @@ class References : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	References(QObject *parent = nullptr);
+	explicit References(QObject *parent = nullptr);
 	~References() override;
 
 public:

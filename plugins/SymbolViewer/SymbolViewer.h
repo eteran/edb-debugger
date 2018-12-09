@@ -34,7 +34,7 @@ class SymbolViewer : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	SymbolViewer(QObject *parent = nullptr);
+	explicit SymbolViewer(QObject *parent = nullptr);
 	~SymbolViewer() override;
 
 public:

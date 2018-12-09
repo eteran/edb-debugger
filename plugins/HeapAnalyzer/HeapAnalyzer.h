@@ -34,7 +34,7 @@ class HeapAnalyzer : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	HeapAnalyzer(QObject *parent = nullptr);
+	explicit HeapAnalyzer(QObject *parent = nullptr);
 	~HeapAnalyzer() override;
 
 public:

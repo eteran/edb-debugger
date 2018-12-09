@@ -754,9 +754,8 @@ void PlatformState::X86::clear() {
 	util::markMemory(this, sizeof(*this));
 	gpr32Filled = false;
 	gpr64Filled = false;
-	for (auto &base : segRegBasesFilled) {
-		base = false;
-	}
+
+	std::fill(segRegBasesFilled.begin(), segRegBasesFilled.end(), false);
 }
 
 bool PlatformState::X86::empty() const {

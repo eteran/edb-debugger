@@ -34,7 +34,7 @@ class Backtrace : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "https://github.com/Northern-Lights")
 
 public:
-	Backtrace(QObject *parent = nullptr);
+	explicit Backtrace(QObject *parent = nullptr);
 	~Backtrace() override;
 
 public:

@@ -34,7 +34,7 @@ class FunctionFinder : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	FunctionFinder(QObject *parent = nullptr);
+	explicit FunctionFinder(QObject *parent = nullptr);
 	~FunctionFinder() override;
 
 public:

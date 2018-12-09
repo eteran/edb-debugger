@@ -34,7 +34,7 @@ class BreakpointManager : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	BreakpointManager(QObject *parent = nullptr);
+	explicit BreakpointManager(QObject *parent = nullptr);
 	~BreakpointManager() override;
 
 public:
