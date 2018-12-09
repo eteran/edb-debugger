@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Register;
 
-template <std::size_t bitSize = 0, typename ValueType, typename Type>
+template <std::size_t BitSize = 0, typename ValueType, typename Type>
 Register make_Register(const QString &name, ValueType value, Type type);
 
 class EDB_EXPORT Register {
@@ -116,12 +116,12 @@ private:
 	friend Register make_Register(const QString &name, ValueType value, Type type);
 };
 
-template<std::size_t bitSize_, typename ValueType, typename Type>
+template<std::size_t BitSize, typename ValueType, typename Type>
 Register make_Register(const QString &name, ValueType value, Type type)
 {
-	static_assert(std::is_same<Type,Register::Type>::value,"type must be Register::Type");
-	constexpr std::size_t bitSize = (bitSize_ ? bitSize_ : BIT_LENGTH(value));
-	static_assert(bitSize_ % 8 == 0,"Strange bit size");
+	static_assert(std::is_same<Type,Register::Type>::value, "type must be Register::Type");
+	constexpr std::size_t bitSize = (BitSize ? BitSize : BIT_LENGTH(value));
+	static_assert(BitSize % 8 == 0, "Strange bit size");
 
 	Register reg;
 	reg.name_    = name;

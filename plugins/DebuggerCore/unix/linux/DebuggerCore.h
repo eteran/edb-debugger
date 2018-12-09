@@ -108,7 +108,7 @@ private:
 	QSet<edb::tid_t>          waited_threads_;
 	edb::tid_t                active_thread_;
 	std::shared_ptr<IProcess> process_;
-	std::size_t               pointer_size_;
+	std::size_t               pointer_size_ = sizeof(void*);
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	const bool                edbIsIn64BitSegment;
 	const bool                osIs64Bit;

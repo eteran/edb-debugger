@@ -154,18 +154,15 @@ bool os64Bit(bool edbIsIn64BitSegment) {
 // Name: DebuggerCore
 // Desc: constructor
 //------------------------------------------------------------------------------
-DebuggerCore::DebuggerCore() :
-	process_(nullptr),
-	pointer_size_(sizeof(void*)),
+DebuggerCore::DebuggerCore()
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	edbIsIn64BitSegment(in64BitSegment()),
-	osIs64Bit(os64Bit(edbIsIn64BitSegment)),
-	USER_CS_32(osIs64Bit ? 0x23 : 0x73),
-	USER_CS_64(osIs64Bit ? 0x33 : 0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
-	USER_SS(osIs64Bit    ? 0x2b : 0x7b),
+    :
+    edbIsIn64BitSegment(in64BitSegment()),
+    osIs64Bit(os64Bit(edbIsIn64BitSegment)),
+    USER_CS_32(osIs64Bit ? 0x23 : 0x73),
+    USER_CS_64(osIs64Bit ? 0x33 : 0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
+    USER_SS(osIs64Bit    ? 0x2b : 0x7b)
 #endif
-	lastMeansOfCapture(MeansOfCapture::NeverCaptured)
-	
 	 {
 
 #if 0
@@ -246,8 +243,9 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 	default:
 		return false;
 	}
-#endif
+#else
 	return false;
+#endif
 }
 
 //------------------------------------------------------------------------------
@@ -451,7 +449,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_thread_create_event(edb::tid_t
 		// copy the hardware debug registers from the current thread to the new thread
 		if(process_) {
 			if(auto cur_thread = process_->current_thread()) {
-				for(int i = 0; i < 8; ++i) {
+				for(size_t i = 0; i < 8; ++i) {
 					auto new_thread = std::static_pointer_cast<PlatformThread>(newThread);
 					auto old_thread = std::static_pointer_cast<PlatformThread>(cur_thread);
 					new_thread->set_debug_register(i, old_thread->get_debug_register(i));
@@ -703,7 +701,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 			// this can get tricky if the threads decide to spawn new threads
 			// when we are attaching. I wish that linux had an atomic way to do this
 			// all in one shot
-			const edb::tid_t tid = s.toUInt();
+			const edb::tid_t tid = s.toInt();
 			if(!threads_.contains(tid)) {
                 const auto errnum = attach_thread(tid);
 				if(errnum == 0)
@@ -870,7 +868,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
             }
 		}
 
-        if(edb::v1::config().disableLazyBinding && setenv("LD_BIND_NOW", "1",true) == -1) {
+		if(edb::v1::config().disableLazyBinding && setenv("LD_BIND_NOW", "1", true) == -1) {
 			perror("Failed to disable lazy binding");
         }
 
@@ -878,14 +876,13 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 		const Status status = execute_process(path, cwd, args);
 
 #if defined __GNUG__ && __GNUC__ >= 5 || !defined __GNUG__ || defined __clang__ && __clang_major__*100+__clang_minor__>=306
-		static_assert(std::is_trivially_copyable<QChar>::value,"Can't copy string of QChar to shared memory");
+		static_assert(std::is_trivially_copyable<QChar>::value, "Can't copy string of QChar to shared memory");
 #endif
 		QString error = status.error();
-		std::memcpy(sharedMem, error.constData(), std::min(sizeof(QChar) * error.size(), sharedMemSize-sizeof(QChar)/*prevent overwriting of last null*/));
+		std::memcpy(sharedMem, error.constData(), std::min(sizeof(QChar) * error.size(), sharedMemSize - sizeof(QChar) /*prevent overwriting of last null*/ ));
 
 		// we should never get here!
 		abort();
-		break;
 	}
 	case -1:
 		// error! for some reason we couldn't fork

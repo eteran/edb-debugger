@@ -203,6 +203,6 @@ boost::optional<Float> fullStringToFloat(const std::string &s)
 
 }
 
-#define BIT_LENGTH(expr) (8*sizeof(expr))
+#define BIT_LENGTH(expr) (8 * sizeof(expr))
 
 #endif
