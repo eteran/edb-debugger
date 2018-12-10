@@ -168,7 +168,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 
 			switch(de.dwDebugEventCode) {
 			case CREATE_THREAD_DEBUG_EVENT: {
-				auto newThread = std::make_shared<PlatformThread>(this, process_, de.u.CreateThread.hThread);
+				auto newThread = std::make_shared<PlatformThread>(this, process_, &de.u.CreateThread);
 				threads_.insert(active_thread_, newThread);
 				break;
 			}
@@ -180,7 +180,12 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 
 				process_ = std::make_shared<PlatformProcess>(this, de.u.CreateProcessInfo.hProcess);
 
-				auto newThread = std::make_shared<PlatformThread>(this, process_, de.u.CreateProcessInfo.hThread);
+				// fake a thread create event for the main thread..
+				CREATE_THREAD_DEBUG_INFO thread_info;
+				thread_info.hThread           = de.u.CreateProcessInfo.hThread;
+				thread_info.lpStartAddress    = de.u.CreateProcessInfo.lpStartAddress;
+				thread_info.lpThreadLocalBase = de.u.CreateProcessInfo.lpThreadLocalBase;
+				auto newThread = std::make_shared<PlatformThread>(this, process_, &thread_info);
 				threads_.insert(active_thread_, newThread);
 				break;
 			}

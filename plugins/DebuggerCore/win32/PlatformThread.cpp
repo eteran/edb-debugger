@@ -29,12 +29,12 @@ namespace DebuggerCorePlugin {
  * @param process
  * @param hThread
  */
-PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, HANDLE handle) : core_(core), process_(process) {
+PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, const CREATE_THREAD_DEBUG_INFO *info) : core_(core), process_(process) {
 	is_wow64_ = static_cast<PlatformProcess *>(process.get())->isWow64();
 
 	DuplicateHandle(
 	            GetCurrentProcess(),
-	            handle,
+	            info->hThread,
 	            GetCurrentProcess(),
 	            &hThread_,
 	            0,
@@ -156,7 +156,6 @@ Status PlatformThread::step() {
 	}
 #endif
 
-	// TODO(eteran): suspend all threads but this one, then resume
 	return resume();
 }
 
@@ -188,7 +187,6 @@ Status PlatformThread::step(edb::EVENT_STATUS status) {
 	}
 #endif
 
-	// TODO(eteran): suspend all threads but this one, then resume
 	return resume(status);
 }
 
@@ -197,6 +195,9 @@ Status PlatformThread::step(edb::EVENT_STATUS status) {
  * @return
  */
 Status PlatformThread::resume() {
+
+	// TODO(eteran): suspend the other threads, then basically just call process_->resume
+
 	ContinueDebugEvent(process_->pid(), tid(), DBG_CONTINUE);
 	return Status::Ok;
 }
@@ -207,6 +208,9 @@ Status PlatformThread::resume() {
  * @return
  */
 Status PlatformThread::resume(edb::EVENT_STATUS status) {
+
+	// TODO(eteran): suspend the other threads, then basically just call process_->resume
+
 	ContinueDebugEvent(
 	    process_->pid(),
 	    tid(),

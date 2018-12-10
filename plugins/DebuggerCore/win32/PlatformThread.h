@@ -30,7 +30,7 @@ namespace DebuggerCorePlugin {
 class PlatformThread : public IThread {
 	Q_DECLARE_TR_FUNCTIONS(PlatformThread)
 public:
-	PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, HANDLE hThread);
+	PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, const CREATE_THREAD_DEBUG_INFO *info);
 	~PlatformThread() override = default;
 
 public:
