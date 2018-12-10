@@ -56,12 +56,17 @@ edb::tid_t PlatformThread::tid() const {
  */
 QString PlatformThread::name() const {
 
-	WCHAR *data;
-	HRESULT hr = GetThreadDescription(hThread_, &data);
-	if (SUCCEEDED(hr)) {
-		auto name = QString::fromWCharArray(data);
-		LocalFree(data);
-		return name;
+	using GetThreadDescriptionType = HRESULT  (WINAPI *)(HANDLE,  PWSTR*);
+
+	static auto fnGetThreadDescription = (GetThreadDescriptionType)GetProcAddress(GetModuleHandle(TEXT("kernel32")), "GetThreadDescription");
+	if(fnGetThreadDescription) {
+		WCHAR *data;
+		HRESULT hr = fnGetThreadDescription(hThread_, &data);
+		if (SUCCEEDED(hr)) {
+			auto name = QString::fromWCharArray(data);
+			LocalFree(data);
+			return name;
+		}
 	}
 
 	return tr("Thread: %1").arg(tid());
