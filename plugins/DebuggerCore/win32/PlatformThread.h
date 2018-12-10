@@ -56,7 +56,7 @@ public:
 private:
 	DebuggerCore *            core_;
 	std::shared_ptr<IProcess> process_;
-	HANDLE                    handle_;
+	HANDLE                    hThread_;
 	bool                      is_wow64_;
 };
 

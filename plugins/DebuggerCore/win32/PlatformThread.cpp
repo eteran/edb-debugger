@@ -29,8 +29,17 @@ namespace DebuggerCorePlugin {
  * @param process
  * @param hThread
  */
-PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, HANDLE hThread) : core_(core), process_(process), handle_(hThread) {
+PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, HANDLE handle) : core_(core), process_(process) {
 	is_wow64_ = static_cast<PlatformProcess *>(process.get())->isWow64();
+
+	DuplicateHandle(
+	            GetCurrentProcess(),
+	            handle,
+	            GetCurrentProcess(),
+	            &hThread_,
+	            0,
+	            FALSE,
+	            DUPLICATE_SAME_ACCESS);
 }
 
 /**
@@ -38,7 +47,7 @@ PlatformThread::PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &pr
  * @return
  */
 edb::tid_t PlatformThread::tid() const {
-	return GetThreadId(handle_);
+	return GetThreadId(hThread_);
 }
 
 /**
@@ -48,7 +57,7 @@ edb::tid_t PlatformThread::tid() const {
 QString PlatformThread::name() const {
 
 	WCHAR *data;
-	HRESULT hr = GetThreadDescription(handle_, &data);
+	HRESULT hr = GetThreadDescription(hThread_, &data);
 	if (SUCCEEDED(hr)) {
 		auto name = QString::fromWCharArray(data);
 		LocalFree(data);
@@ -64,7 +73,7 @@ QString PlatformThread::name() const {
  * @return
  */
 int PlatformThread::priority() const {
-	return GetThreadPriority(handle_);
+	return GetThreadPriority(hThread_);
 }
 
 /**
@@ -75,18 +84,18 @@ edb::address_t PlatformThread::instruction_pointer() const {
 #if defined(EDB_X86)
 	CONTEXT context;
 	context.ContextFlags = CONTEXT_CONTROL;
-	GetThreadContext(handle_, &context);
+	GetThreadContext(hThread_, &context);
 	return context.Eip;
 #elif defined(EDB_X86_64)
 	if(is_wow64_) {
 		WOW64_CONTEXT context;
 		context.ContextFlags = CONTEXT_CONTROL;
-		Wow64GetThreadContext(handle_, &context);
+		Wow64GetThreadContext(hThread_, &context);
 		return context.Eip;
 	} else {
 		CONTEXT context;
 		context.ContextFlags = CONTEXT_CONTROL;
-		GetThreadContext(handle_, &context);
+		GetThreadContext(hThread_, &context);
 		return context.Rip;
 	}
 #endif
@@ -106,7 +115,7 @@ QString PlatformThread::runState() const {
  */
 void PlatformThread::get_state(State *state) {
 	if(auto p = static_cast<PlatformState *>(state->impl_.get())) {
-		p->getThreadState(handle_, is_wow64_);
+		p->getThreadState(hThread_, is_wow64_);
 	}
 }
 
@@ -116,7 +125,7 @@ void PlatformThread::get_state(State *state) {
  */
 void PlatformThread::set_state(const State &state) {
 	if(auto p = static_cast<const PlatformState *>(state.impl_.get())) {
-		p->setThreadState(handle_);
+		p->setThreadState(hThread_);
 	}
 }
 
@@ -128,22 +137,22 @@ Status PlatformThread::step() {
 #if defined(EDB_X86)
 	CONTEXT context;
 	context.ContextFlags = CONTEXT_CONTROL;
-	GetThreadContext(handle_, &context);
+	GetThreadContext(hThread_, &context);
 	context.EFlags |= (1 << 8); // set the trap flag
-	SetThreadContext(handle_, &context);
+	SetThreadContext(hThread_, &context);
 #elif defined(EDB_X86_64)
 	if(is_wow64_) {
 		WOW64_CONTEXT context;
 		context.ContextFlags = CONTEXT_CONTROL;
-		Wow64GetThreadContext(handle_, &context);
+		Wow64GetThreadContext(hThread_, &context);
 		context.EFlags |= (1 << 8); // set the trap flag
-		Wow64SetThreadContext(handle_, &context);
+		Wow64SetThreadContext(hThread_, &context);
 	} else {
 		CONTEXT context;
 		context.ContextFlags = CONTEXT_CONTROL;
-		GetThreadContext(handle_, &context);
+		GetThreadContext(hThread_, &context);
 		context.EFlags |= (1 << 8); // set the trap flag
-		SetThreadContext(handle_, &context);
+		SetThreadContext(hThread_, &context);
 	}
 #endif
 
@@ -160,22 +169,22 @@ Status PlatformThread::step(edb::EVENT_STATUS status) {
 #if defined(EDB_X86)
 	CONTEXT context;
 	context.ContextFlags = CONTEXT_CONTROL;
-	GetThreadContext(handle_, &context);
+	GetThreadContext(hThread_, &context);
 	context.EFlags |= (1 << 8); // set the trap flag
-	SetThreadContext(handle_, &context);
+	SetThreadContext(hThread_, &context);
 #elif defined(EDB_X86_64)
 	if(is_wow64_) {
 		WOW64_CONTEXT context;
 		context.ContextFlags = CONTEXT_CONTROL;
-		Wow64GetThreadContext(handle_, &context);
+		Wow64GetThreadContext(hThread_, &context);
 		context.EFlags |= (1 << 8); // set the trap flag
-		Wow64SetThreadContext(handle_, &context);
+		Wow64SetThreadContext(hThread_, &context);
 	} else {
 		CONTEXT context;
 		context.ContextFlags = CONTEXT_CONTROL;
-		GetThreadContext(handle_, &context);
+		GetThreadContext(hThread_, &context);
 		context.EFlags |= (1 << 8); // set the trap flag
-		SetThreadContext(handle_, &context);
+		SetThreadContext(hThread_, &context);
 	}
 #endif
 

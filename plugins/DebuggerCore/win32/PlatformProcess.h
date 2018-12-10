@@ -93,12 +93,7 @@ public:
 		return 0;
 	}
 
-	Status resume(edb::EVENT_STATUS status) override {
-		Q_UNUSED(status);
-		qDebug("TODO: implement PlatformProcess::resume");
-		return Status("Not implemented");
-	}
-
+	Status resume(edb::EVENT_STATUS status) override;
 	Status step(edb::EVENT_STATUS status) override;
 	bool isPaused() const override;
 	QMap<edb::address_t, Patch> patches() const override;
@@ -110,10 +105,9 @@ private:
 	edb::address_t start_address_ = 0;
 	edb::address_t image_base_    = 0;
 	DebuggerCore*  core_          = nullptr;
-	HANDLE         handle_        = nullptr;
-	edb::pid_t     pid_           = 0;
+	HANDLE         hProcess_      = nullptr;
 	QMap<edb::address_t, Patch> patches_;
-	bool debug_handle_            = false;
+	DEBUG_EVENT lastEvent_;
 };
 	
 }

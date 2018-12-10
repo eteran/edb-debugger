@@ -204,6 +204,10 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 				break;
 			}
 
+			if(auto p = static_cast<PlatformProcess *>(process_.get())) {
+				p->lastEvent_ = de;
+			}
+
 			if(propagate) {
 				// normal event
 				auto e = std::make_shared<PlatformEvent>();
@@ -255,7 +259,7 @@ Status DebuggerCore::detach() {
 //------------------------------------------------------------------------------
 void DebuggerCore::kill() {
 	if(auto p = static_cast<PlatformProcess *>(process_.get())) {
-		TerminateProcess(p->handle_, -1);
+		TerminateProcess(p->hProcess_, -1);
 		detach();
 	}
 }
@@ -374,7 +378,7 @@ QMap<edb::pid_t, std::shared_ptr<IProcess> > DebuggerCore::enumerate_processes()
 				// we do want the associated PlatformProcess to be able to trigger
 				// non-const operations in the future, at least hypothetically.
 				auto pi = std::make_shared<PlatformProcess>(const_cast<DebuggerCore*>(this), lppe.th32ProcessID);
-				if(pi->handle_ == nullptr) {
+				if(pi->hProcess_ == nullptr) {
 					continue;
 				}
 
