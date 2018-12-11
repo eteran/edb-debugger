@@ -180,6 +180,9 @@
    <property name="text">
     <string>&amp;Attach</string>
    </property>
+   <property name="shortcut">
+    <string>Shift+F3</string>
+   </property>
   </action>
   <action name="actionE_xit">
    <property name="icon">
