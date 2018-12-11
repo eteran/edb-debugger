@@ -33,6 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "PlatformThread.h"
 #include "State.h"
 #include "string_hash.h"
+#include "Posix.h"
 
 #include <QDebug>
 #include <QDir>
@@ -82,6 +83,28 @@ namespace DebuggerCorePlugin {
 namespace {
 
 const size_t PageSize = 0x1000;
+
+/**
+ * @brief disable_aslr
+ */
+void disable_aslr() {
+	const auto current = ::personality(UINT32_MAX);
+	// This shouldn't fail, but let's at least perror if it does anyway
+	if(current == -1) {
+		perror("Failed to get current personality");
+	} else if(::personality(current | ADDR_NO_RANDOMIZE) == -1) {
+		perror("Failed to disable ASLR");
+	}
+}
+
+/**
+ * @brief disable_lazy_binding
+ */
+void disable_lazy_binding() {
+	if(setenv("LD_BIND_NOW", "1", true) == -1) {
+		perror("Failed to disable lazy binding");
+	}
+}
 
 //------------------------------------------------------------------------------
 // Name: is_numeric
@@ -429,7 +452,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_thread_create_event(edb::tid_t
 
 		int thread_status = 0;
 		if(!waited_threads_.contains(new_tid)) {
-			if(native::waitpid(new_tid, &thread_status, __WALL) > 0) {
+			if(Posix::waitpid(new_tid, &thread_status, __WALL) > 0) {
 				waited_threads_.insert(new_tid);
 			}
 		}
@@ -588,7 +611,7 @@ Status DebuggerCore::stop_threads() {
 					}
 
 					int thread_status;
-					if(native::waitpid(thread->tid(), &thread_status, __WALL/* | WNOHANG*/) > 0) {
+					if(Posix::waitpid(thread->tid(), &thread_status, __WALL/* | WNOHANG*/) > 0) {
 						waited_threads_.insert(tid);
 						thread_ptr->status_ = thread_status;
 
@@ -623,10 +646,10 @@ Status DebuggerCore::stop_threads() {
 std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 
 	if(process_) {
-		if(!native::wait_for_sigchld(msecs)) {
+		if(!Posix::wait_for_sigchld(msecs)) {
 			for(auto &thread : process_->threads()) {
 				int status;
-				const edb::tid_t tid = native::waitpid(thread->tid(), &status, __WALL | WNOHANG);
+				const edb::tid_t tid = Posix::waitpid(thread->tid(), &status, __WALL | WNOHANG);
 				if(tid > 0) {
 					return handle_event(tid, status);
 				}
@@ -641,11 +664,12 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 // Desc: returns 0 if successful, errno if failed
 //------------------------------------------------------------------------------
 int DebuggerCore::attach_thread(edb::tid_t tid) {
+
 	if(ptrace(PTRACE_ATTACH, tid, 0, 0) == 0) {
 		// I *think* that the PTRACE_O_TRACECLONE is only valid on
 		// stopped threads
 		int status;
-        const auto ret = native::waitpid(tid, &status, __WALL);
+		const int ret = Posix::waitpid(tid, &status, __WALL);
 		if(ret > 0) {
 
 			auto newThread     = std::make_shared<PlatformThread>(this, process_, tid);
@@ -663,7 +687,7 @@ int DebuggerCore::attach_thread(edb::tid_t tid) {
             }
 
 			return 0;
-        } else if(ret==-1) {
+		} else if(ret == -1) {
 			return errno;
         } else {
             return -1; // unknown error
@@ -704,10 +728,11 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 			const edb::tid_t tid = s.toInt();
 			if(!threads_.contains(tid)) {
                 const auto errnum = attach_thread(tid);
-				if(errnum == 0)
+				if(errnum == 0) {
 					attached = true;
-				else
+				} else {
 					lastErr = errnum;
+				}
 			}
 		}
 	} while(attached);
@@ -765,7 +790,7 @@ void DebuggerCore::kill() {
 		::kill(process_->pid(), SIGKILL);
 
 		pid_t ret;
-		while((ret = native::waitpid(-1, nullptr, __WALL)) != process_->pid() && ret != -1);
+		while((ret = Posix::waitpid(-1, nullptr, __WALL)) != process_->pid() && ret != -1);
 
 		process_ = nullptr;
 		reset();
@@ -776,52 +801,50 @@ void DebuggerCore::detectCPUMode() {
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	const size_t offset = EDB_IS_64_BIT ?
-						offsetof(UserRegsStructX86_64, cs) :
-						offsetof(UserRegsStructX86,   xcs);
-	errno=0;
-	const edb::seg_reg_t cs=ptrace(PTRACE_PEEKUSER, active_thread_, offset, 0);
-	if(!errno) {
-		if(cs==USER_CS_32) {
-			if(pointer_size_==sizeof(quint64)) {
+	                          offsetof(UserRegsStructX86_64, cs) :
+	                          offsetof(UserRegsStructX86, xcs);
+	errno = 0;
+	const edb::seg_reg_t cs = ptrace(PTRACE_PEEKUSER, active_thread_, offset, 0);
+
+	if (!errno) {
+		if (cs == USER_CS_32) {
+			if (pointer_size_ == sizeof(quint64)) {
 				qDebug() << "Debuggee is now 32 bit";
-				cpu_mode_=CPUMode::x86_32;
+				cpu_mode_ = CPUMode::x86_32;
 				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_X86);
 			}
-			pointer_size_=sizeof(quint32);
+			pointer_size_ = sizeof(quint32);
 			return;
-		} else if(cs==USER_CS_64) {
-			if(pointer_size_==sizeof(quint32)) {
+		} else if (cs == USER_CS_64) {
+			if (pointer_size_ == sizeof(quint32)) {
 				qDebug() << "Debuggee is now 64 bit";
-				cpu_mode_=CPUMode::x86_64;
+				cpu_mode_ = CPUMode::x86_64;
 				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_AMD64);
 			}
-			pointer_size_=sizeof(quint64);
+			pointer_size_ = sizeof(quint64);
 			return;
 		}
 	}
 #elif defined(EDB_ARM32)
-	errno=0;
-	const auto cpsr=ptrace(PTRACE_PEEKUSER, active_thread_, sizeof(long)*16, 0L);
-	if(!errno) {
-		const bool thumb=cpsr&0x20;
-		if(thumb)
-		{
-			cpu_mode_=CPUMode::Thumb;
+	errno = 0;
+	const auto cpsr = ptrace(PTRACE_PEEKUSER, active_thread_, sizeof(long) * 16, 0L);
+	if (!errno) {
+		const bool thumb = cpsr & 0x20;
+		if (thumb) {
+			cpu_mode_ = CPUMode::Thumb;
 			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_THUMB);
-		}
-		else
-		{
-			cpu_mode_=CPUMode::ARM32;
+		} else {
+			cpu_mode_ = CPUMode::ARM32;
 			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_ARM);
 		}
 	}
 	pointer_size_ = sizeof(quint32);
 #elif defined(EDB_ARM64)
-	cpu_mode_=CPUMode::ARM64;
+	cpu_mode_ = CPUMode::ARM64;
 	CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM64);
 	pointer_size_ = sizeof(quint64);
 #else
-	#error "Unsupported Architecture"
+    #error "Unsupported Architecture"
 #endif
 }
 
@@ -859,18 +882,12 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 		}
 
 		if(edb::v1::config().disableASLR) {
-            const auto curPers = ::personality(UINT32_MAX);
-			// This shouldn't fail, but let's at least perror if it does anyway
-            if(curPers == -1) {
-				perror("Failed to get current personality");
-            } else if(::personality(curPers | ADDR_NO_RANDOMIZE) == -1) {
-				perror("Failed to disable ASLR");
-            }
+			disable_aslr();
 		}
 
-		if(edb::v1::config().disableLazyBinding && setenv("LD_BIND_NOW", "1", true) == -1) {
-			perror("Failed to disable lazy binding");
-        }
+		if(edb::v1::config().disableLazyBinding) {
+			disable_lazy_binding();
+		}
 
 		// do the actual exec
 		const Status status = execute_process(path, cwd, args);
@@ -894,7 +911,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 			reset();
 
 			int status;
-            const auto wpidRet = native::waitpid(pid, &status, __WALL);
+			const auto wpidRet = Posix::waitpid(pid, &status, __WALL);
 			const QString childError(sharedMem);
             ::munmap(sharedMem, sharedMemSize);
 
@@ -1036,7 +1053,7 @@ quint64 DebuggerCore::cpu_type() const {
 #elif defined EDB_ARM64
 	return edb::string_hash("AArch64");
 #else
-#	error "What to return?"
+    #error "Unsupported Architecture"
 #endif
 }
 
@@ -1054,7 +1071,7 @@ QString DebuggerCore::stack_pointer() const {
 #elif defined EDB_ARM32 || defined EDB_ARM64
 	return "sp";
 #else
-#	error "What to return?"
+    #error "Unsupported Architecture"
 #endif
 }
 
@@ -1072,7 +1089,7 @@ QString DebuggerCore::frame_pointer() const {
 #elif defined EDB_ARM32 || defined EDB_ARM64
 	return "fp";
 #else
-#	error "What to return?"
+    #error "Unsupported Architecture"
 #endif
 }
 
@@ -1090,7 +1107,7 @@ QString DebuggerCore::instruction_pointer() const {
 #elif defined EDB_ARM32 || defined EDB_ARM64
 	return "pc";
 #else
-#	error "What to return?"
+    #error "Unsupported Architecture"
 #endif
 }
 
@@ -1108,7 +1125,7 @@ QString DebuggerCore::flag_register() const {
 #elif defined EDB_ARM32 || defined EDB_ARM64
 	return "cpsr";
 #else
-#	error "What to return?"
+    #error "Unsupported Architecture"
 #endif
 }
 

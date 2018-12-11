@@ -762,7 +762,7 @@ QList<Module> PlatformProcess::loaded_modules() const {
 //------------------------------------------------------------------------------
 Status PlatformProcess::pause() {
 	// belive it or not, I belive that this is sufficient for all threads
-	// this is because in the debug event handler above, a SIGSTOP is sent
+	// this is because in the debug event handler, a SIGSTOP is sent
 	// to all threads when any event arrives, so no need to explicitly do
 	// it here. We just need any thread to stop. So we'll just target the
 	// pid_ which will send it to any one of the threads in the process.

@@ -26,17 +26,6 @@ class Status;
 
 namespace DebuggerCorePlugin {
 
-namespace native {
-
-int select(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, struct timeval *timeout);
-int select_ex(int nfds, fd_set *readfds, fd_set *writefds, fd_set *exceptfds, quint64 msecs);
-pid_t waitpid(pid_t pid, int *status, int options);
-ssize_t read(int fd, void *buf, size_t count);
-ssize_t write(int fd, const void *buf, size_t count);
-bool wait_for_sigchld(int msecs);
-
-}
-
 class DebuggerCoreUNIX : public DebuggerCoreBase {
 public:
 	DebuggerCoreUNIX();
@@ -46,9 +35,9 @@ protected:
 	Status execute_process(const QString &path, const QString &cwd, const QList<QByteArray> &args);
 
 public:
-    virtual QMap<qlonglong, QString> exceptions() const;
-    virtual QString                  exceptionName(qlonglong value);
-    virtual qlonglong                exceptionValue(const QString &name);
+	QMap<qlonglong, QString> exceptions() const override;
+	QString                  exceptionName(qlonglong value) override;
+	qlonglong                exceptionValue(const QString &name) override;
 };
 
 }

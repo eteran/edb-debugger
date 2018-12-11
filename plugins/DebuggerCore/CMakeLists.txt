@@ -25,7 +25,9 @@ if(UNIX)
 	set(DebuggerCore_SRCS
 		${DebuggerCore_SRCS}
 		unix/DebuggerCoreUNIX.cpp
-		unix/DebuggerCoreUNIX.h		
+		unix/DebuggerCoreUNIX.h
+		unix/Posix.cpp
+		unix/Posix.h
 	)			
 endif()
 
