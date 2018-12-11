@@ -34,6 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "State.h"
 #include "string_hash.h"
 #include "Posix.h"
+#include "Unix.h"
 
 #include <QDebug>
 #include <QDir>
@@ -188,12 +189,7 @@ DebuggerCore::DebuggerCore()
 #endif
 	 {
 
-#if 0
-#if defined(EDB_X86) || defined(EDB_X86_64)
-	qDebug() << "EDB is in" << (edbIsIn64BitSegment ? "64" : "32") << "bit segment";
-	qDebug() << "OS is" << (osIs64Bit ? "64" : "32") << "bit";
-#endif
-#endif
+	Posix::initialize();
 
 	proc_mem_write_broken_ = true;
 	proc_mem_read_broken_  = true;
@@ -890,7 +886,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 		}
 
 		// do the actual exec
-		const Status status = execute_process(path, cwd, args);
+		const Status status = Unix::execute_process(path, cwd, args);
 
 #if defined __GNUG__ && __GNUC__ >= 5 || !defined __GNUG__ || defined __clang__ && __clang_major__*100+__clang_minor__>=306
 		static_assert(std::is_trivially_copyable<QChar>::value, "Can't copy string of QChar to shared memory");
@@ -1143,6 +1139,32 @@ IProcess *DebuggerCore::process() const {
 //------------------------------------------------------------------------------
 void DebuggerCore::set_ignored_exceptions(const QList<qlonglong> &exceptions) {
 	ignored_exceptions_ = exceptions;
+}
+
+/**
+ * @brief DebuggerCore::exceptions
+ * @return
+ */
+QMap<qlonglong, QString> DebuggerCore::exceptions() const {
+	return Unix::exceptions();
+}
+
+/**
+ * @brief DebuggerCore::exceptionName
+ * @param value
+ * @return
+ */
+QString DebuggerCore::exceptionName(qlonglong value) {
+	return Unix::exceptionName(value);
+}
+
+/**
+ * @brief DebuggerCore::exceptionValue
+ * @param name
+ * @return
+ */
+qlonglong DebuggerCore::exceptionValue(const QString &name) {
+	return Unix::exceptionValue(name);
 }
 
 }

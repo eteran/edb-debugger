@@ -18,6 +18,8 @@
 #endif
 #endif
 
+namespace DebuggerCorePlugin {
+
 #if !defined(USE_SIGTIMEDWAIT)
 namespace {
 
@@ -233,4 +235,6 @@ void Posix::initialize() {
 	// TODO(eteran): the man pages mention blocking the signal we want to catch
 	//               but I'm not sure if it is necessary for this use case...
 #endif
+}
+
 }

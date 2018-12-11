@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DEBUGGERCORE_20090529_H_
 
 #include <QObject>
-#include "DebuggerCoreUNIX.h"
+#include "DebuggerCoreBase.h"
 #include <QHash>
 #include <QSet>
 #include <csignal>
@@ -33,7 +33,7 @@ namespace DebuggerCorePlugin {
 
 class PlatformThread;
 
-class DebuggerCore : public DebuggerCoreUNIX {
+class DebuggerCore : public DebuggerCoreBase {
 	Q_OBJECT
 	Q_PLUGIN_METADATA(IID "edb.IDebugger/1.0")
 	Q_INTERFACES(IDebugger)
@@ -58,6 +58,11 @@ public:
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
     MeansOfCapture last_means_of_capture() const override;
 	void set_ignored_exceptions(const QList<qlonglong> &exceptions) override;
+
+public:
+	QMap<qlonglong, QString> exceptions() const override;
+	QString exceptionName(qlonglong value) override;
+	qlonglong exceptionValue(const QString &name) override;
 
 public:
 	edb::pid_t parent_pid(edb::pid_t pid) const override;
