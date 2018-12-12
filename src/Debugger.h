@@ -104,6 +104,8 @@ public:
 	void update_data(const std::shared_ptr<DataViewInfo> &v);
 	void update_gui();
 	QLabel *statusLabel() const;
+	QList<QAction*> getCurrentRegisterContextMenuItems() const;
+	Register active_register() const;
 
 Q_SIGNALS:
 	void gui_updated();
@@ -141,8 +143,6 @@ public Q_SLOTS:
 	void on_action_Threads_triggered();
 	void on_cpuView_breakPointToggled(edb::address_t);
 	void on_cpuView_customContextMenuRequested(const QPoint &);
-	QList<QAction*> getCurrentRegisterContextMenuItems() const;
-	Register active_register() const;
 
 //Flag-toggling slots for right-click --> toggle flag
 public Q_SLOTS:
@@ -156,7 +156,6 @@ public Q_SLOTS:
 
 private:
 	void toggle_flag(int);
-
 	void run_to_this_line(EXCEPTION_RESUME pass_signal);
 
 private Q_SLOTS:
