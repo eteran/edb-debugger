@@ -36,12 +36,6 @@ class PlatformThread : public IThread {
 	friend class DebuggerCore;
 
 public:
-	enum SignalStatus {
-		Stopped,
-		Signaled
-	};
-
-public:
 	PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, edb::tid_t tid);
 	~PlatformThread() override                        = default;
 	PlatformThread(const PlatformThread &)            = delete;
@@ -83,8 +77,7 @@ private:
 	DebuggerCore *const       core_;
 	std::shared_ptr<IProcess> process_;
 	edb::tid_t                tid_;
-	int                       status_;
-	SignalStatus              signal_status_;
+	int                       status_        = 0;
 
 #if defined EDB_ARM32 || defined EDB_ARM64
 private:

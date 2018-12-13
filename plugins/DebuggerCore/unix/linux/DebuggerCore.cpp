@@ -442,7 +442,6 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_thread_create_event(edb::tid_t
 		auto new_tid = static_cast<edb::tid_t>(message);
 
 		auto newThread     = std::make_shared<PlatformThread>(this, process_, new_tid);
-		newThread->status_ = 0;
 
 		threads_.insert(new_tid, newThread);
 
@@ -662,8 +661,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 int DebuggerCore::attach_thread(edb::tid_t tid) {
 
 	if(ptrace(PTRACE_ATTACH, tid, 0, 0) == 0) {
-		// I *think* that the PTRACE_O_TRACECLONE is only valid on
-		// stopped threads
+
 		int status;
 		const int ret = Posix::waitpid(tid, &status, __WALL);
 		if(ret > 0) {
@@ -671,8 +669,7 @@ int DebuggerCore::attach_thread(edb::tid_t tid) {
 			auto newThread     = std::make_shared<PlatformThread>(this, process_, tid);
 			newThread->status_ = status;
 
-			threads_[tid] = newThread;
-
+			threads_.insert(tid, newThread);
 			waited_threads_.insert(tid);
 
             const long options = ptraceOptions();
