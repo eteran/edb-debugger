@@ -1,0 +1,5 @@
+
+#ifndef PLATFORM_COMMON_20181225_H_
+#define PLATFORM_COMMON_20181225_H_
+
+#endif

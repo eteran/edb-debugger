@@ -101,7 +101,9 @@ namespace {
 constexpr quint64 initial_bp_tag    = Q_UINT64_C(0x494e4954494e5433); // "INITINT3" in hex
 constexpr quint64 stepover_bp_tag   = Q_UINT64_C(0x535445504f564552); // "STEPOVER" in hex
 constexpr quint64 run_to_cursor_tag = Q_UINT64_C(0x474f544f48455245); // "GOTOHERE" in hex
+#ifdef Q_OS_LINUX
 constexpr quint64 ld_loader_tag     = Q_UINT64_C(0x4c49424556454e54); // "LIBEVENT" in hex
+#endif
 
 template <class Addr>
 void handle_library_event(IProcess *process, edb::address_t debug_pointer) {

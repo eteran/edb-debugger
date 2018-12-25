@@ -135,6 +135,8 @@ QString syscallErrName(T err) {
 	if(errnoNames[index]) {
 		return errnoNames[index];
 	}
+#else
+	Q_UNUSED(err);
 #endif
 	return "";
 }
@@ -998,6 +1000,8 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 
 		ret << ArchProcessor::tr("SYSCALL: %1%2(%3)").arg(isX32?"x32:":"",root.attribute("name"), arguments.join(","));
 	}
+#else
+	Q_UNUSED(regAX);
 #endif
 }
 
@@ -1531,6 +1535,8 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 					// to see these signals. So I guess it's OK to assume that tha syscall _will_ be restarted by the kernel.
 					if(interrupted && err!=EINTR)
 						ret << QString("Syscall will be restarted on next step/run");
+#else
+					Q_UNUSED(rax);
 #endif
 				}
 

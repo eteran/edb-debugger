@@ -19,69 +19,61 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DEBUGGERCORE_20090529_H_
 #define DEBUGGERCORE_20090529_H_
 
-#include "DebuggerCoreUNIX.h"
+#include "DebuggerCoreBase.h"
 #include <QHash>
 
-namespace DebuggerCore {
+namespace DebuggerCorePlugin {
 
-class DebuggerCore : public DebuggerCoreUNIX {
+class DebuggerCore : public DebuggerCoreBase {
 	Q_OBJECT
+	Q_PLUGIN_METADATA(IID "edb.IDebugger/1.0")
 	Q_INTERFACES(IDebugger)
 	Q_CLASSINFO("author", "Evan Teran")
 	Q_CLASSINFO("url", "http://www.codef00.com")
+	friend class PlatformProcess;
+	friend class PlatformThread;
 
 public:
 	DebuggerCore();
 	~DebuggerCore() override;
 
 public:
-	virtual size_t page_size() const;
-	virtual bool has_extension(quint64 ext) const;
-	virtual std::shared_ptr<const IDebugEvent> wait_debug_event(int msecs);
-	virtual bool attach(edb::pid_t pid);
-	virtual void detach();
-	virtual void kill();
-	virtual void pause();
-	virtual void resume(edb::EVENT_STATUS status);
-	virtual void step(edb::EVENT_STATUS status);
-	virtual void get_state(State *state);
-	virtual void set_state(const State &state);
-	virtual bool open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty);
+	std::size_t pointer_size() const override;
+	size_t page_size() const override;
+	bool has_extension(quint64 ext) const override;
+	std::shared_ptr<IDebugEvent> wait_debug_event(int msecs) override;
+	Status attach(edb::pid_t pid) override;
+	Status detach() override;
+	void kill() override;
+	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
+	MeansOfCapture last_means_of_capture() const override;
+	void set_ignored_exceptions(const QList<qlonglong> &exceptions) override;
 
 public:
-	// thread support stuff (optional)
-	virtual QList<edb::tid_t> thread_ids() const { return threads_.keys(); }
-	virtual edb::tid_t active_thread() const     { return active_thread_; }
-	virtual void set_active_thread(edb::tid_t);
+	QMap<qlonglong, QString> exceptions() const override;
+	QString exceptionName(qlonglong value) override;
+	qlonglong exceptionValue(const QString &name) override;
 
 public:
-	virtual QList<std::shared_ptr<IRegion>> memory_regions() const;
-	virtual edb::address_t process_code_address() const;
-	virtual edb::address_t process_data_address() const;
+	edb::pid_t parent_pid(edb::pid_t pid) const override;
 
 public:
-	virtual std::unique_ptr<IState> create_state() const;
+	std::unique_ptr<IState> create_state() const override;
 
 public:
-	// process properties
-	virtual QList<QByteArray> process_args(edb::pid_t pid) const;
-	virtual QString process_exe(edb::pid_t pid) const;
-	virtual QString process_cwd(edb::pid_t pid) const;
-	virtual edb::pid_t parent_pid(edb::pid_t pid) const;
-	virtual QDateTime process_start(edb::pid_t pid) const;
-	virtual quint64 cpu_type() const;
+	quint64 cpu_type() const override;
+
+private:
+	QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerate_processes() const override;
 
 public:
-	virtual QMap<edb::pid_t, ProcessInfo> enumerate_processes() const;
-	virtual QList<Module> loaded_modules() const;
+	QString stack_pointer() const override;
+	QString frame_pointer() const override;
+	QString instruction_pointer() const override;
+	QString flag_register() const override;
 
 public:
-	virtual QString stack_pointer() const;
-	virtual QString frame_pointer() const;
-	virtual QString instruction_pointer() const;
-
-public:
-	virtual QString format_pointer(edb::address_t address) const;
+	IProcess *process() const override;
 
 private:
 	virtual long read_data(edb::address_t address, bool *ok);
@@ -90,13 +82,11 @@ private:
 private:
 	struct thread_info {
 	public:
-		thread_info() : status(0) {
-		}
-
+		thread_info() = default;
 		thread_info(int s) : status(s) {
 		}
 
-		int status;
+		int status = 0;
 	};
 
 	typedef QHash<edb::tid_t, thread_info> threadmap_t;
