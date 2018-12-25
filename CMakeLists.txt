@@ -85,7 +85,7 @@ else()
 	message(SEND_ERROR "Unexpected bitness: \"sizeof(void*)=${CMAKE_SIZEOF_VOID_P}.\"")
 endif()
 
-if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "AMD64"))
+if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} MATCHES "[aA][mM][dD]64"))
 	set(CPU_TYPE "x86")
 	if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
 		add_definitions(-DEDB_X86)
@@ -107,6 +107,7 @@ endif()
 
 # FIXME: This is also useful on Windows, so it should be made usable there too.
 if(UNIX)
+	message("${CMAKE_SYSTEM_PROCESSOR}")
 	if(${CPU_TYPE} STREQUAL "x86")
 		pkg_check_modules(GDTOA gdtoa-desktop)
 		if(NOT GDTOA_FOUND)
