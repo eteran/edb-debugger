@@ -79,6 +79,27 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 		win32/PlatformThread.cpp
 		win32/PlatformThread.h
 	)
+elseif(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
+
+	include_directories(
+		"unix/freebsd"
+	)
+
+	set(DebuggerCore_SRCS
+		${DebuggerCore_SRCS}
+		unix/freebsd/DebuggerCore.cpp
+		unix/freebsd/DebuggerCore.h
+		unix/freebsd/PlatformCommon.cpp
+		unix/freebsd/PlatformCommon.h
+		unix/freebsd/PlatformEvent.cpp
+		unix/freebsd/PlatformEvent.h
+		unix/freebsd/PlatformProcess.cpp
+		unix/freebsd/PlatformProcess.h
+		unix/freebsd/PlatformRegion.cpp
+		unix/freebsd/PlatformRegion.h
+		unix/freebsd/PlatformThread.cpp
+		unix/freebsd/PlatformThread.h
+	)
 endif()
 
 if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} MATCHES "[aA][mM][dD]64"))

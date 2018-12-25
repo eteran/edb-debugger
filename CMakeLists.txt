@@ -107,7 +107,6 @@ endif()
 
 # FIXME: This is also useful on Windows, so it should be made usable there too.
 if(UNIX)
-	message("${CMAKE_SYSTEM_PROCESSOR}")
 	if(${CPU_TYPE} STREQUAL "x86")
 		pkg_check_modules(GDTOA gdtoa-desktop)
 		if(NOT GDTOA_FOUND)
