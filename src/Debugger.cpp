@@ -91,7 +91,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <sys/types.h>
 #include <sys/stat.h>
-#if defined(Q_OS_LINUX) || defined(Q_OS_OPENBSD)
+#if defined(Q_OS_LINUX) || defined(Q_OS_OPENBSD) || defined(Q_OS_FREEBSD)
 #include <unistd.h>
 #include <fcntl.h>
 #endif
@@ -105,6 +105,7 @@ constexpr quint64 ld_loader_tag     = Q_UINT64_C(0x4c49424556454e54); // "LIBEVE
 
 template <class Addr>
 void handle_library_event(IProcess *process, edb::address_t debug_pointer) {
+#ifdef Q_OS_LINUX
 	edb::linux_struct::r_debug<Addr> dynamic_info;
 	const bool ok = (process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info)) == sizeof(dynamic_info));
 	if(ok) {
@@ -130,17 +131,24 @@ void handle_library_event(IProcess *process, edb::address_t debug_pointer) {
 			break;
 		}
 	}
+#else
+	Q_UNUSED(process);
+	Q_UNUSED(debug_pointer);
+#endif
 }
 
 template <class Addr>
 edb::address_t find_linker_hook_address(IProcess *process, edb::address_t debug_pointer) {
-
+#ifdef Q_OS_LINUX
 	edb::linux_struct::r_debug<Addr> dynamic_info;
 	const bool ok = process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info));
 	if(ok) {
 		return edb::address_t::fromZeroExtended(dynamic_info.r_brk);
 	}
-
+#else
+	Q_UNUSED(process);
+	Q_UNUSED(debug_pointer);
+#endif
 	return edb::address_t(0);
 }
 
