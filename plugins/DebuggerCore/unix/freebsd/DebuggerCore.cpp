@@ -46,6 +46,8 @@ namespace DebuggerCorePlugin {
 
 namespace {
 
+constexpr uint64_t PageSize = 0x1000;
+
 void SET_OK(bool &ok, long value) {
 	ok = (value != -1) || (errno == 0);
 }
@@ -70,7 +72,7 @@ DebuggerCore::DebuggerCore() {
 #elif defined(_SC_PAGE_SIZE)
 	page_size_ = sysconf(_SC_PAGE_SIZE);
 #else
-	page_size_ = PAGE_SIZE;
+	page_size_ = PageSize;
 #endif
 }
 
@@ -79,6 +81,7 @@ DebuggerCore::DebuggerCore() {
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
+	Q_UNUSED(ext);
 	return false;
 }
 
@@ -108,7 +111,7 @@ std::shared_ptr<const IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
 		int status;
 		bool timeout;
 
-		const edb::tid_t tid = native::waitpid_timeout(pid(), &status, 0, msecs, &timeout);
+		const edb::tid_t tid = Posix::waitpid_timeout(pid(), &status, 0, msecs, &timeout);
 		if(!timeout) {
 			if(tid > 0) {
 
@@ -219,7 +222,7 @@ void DebuggerCore::kill() {
 	if(attached()) {
 		clear_breakpoints();
 		ptrace(PT_KILL, pid(), 0, 0);
-		native::waitpid(pid(), 0, WAIT_ANY);
+		Posix::waitpid(pid(), 0, WAIT_ANY);
 		pid_ = 0;
 		threads_.clear();
 	}
@@ -250,64 +253,6 @@ void DebuggerCore::resume(edb::EVENT_STATUS status) {
 			const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(threads_[tid].status) : 0;
 			ptrace(PT_CONTINUE, tid, reinterpret_cast<caddr_t>(1), code);
 		}
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: step
-// Desc:
-//------------------------------------------------------------------------------
-void DebuggerCore::step(edb::EVENT_STATUS status) {
-	// TODO: assert that we are paused
-
-	if(attached()) {
-		if(status != edb::DEBUG_STOP) {
-			const edb::tid_t tid = active_thread();
-			const int code = (status == edb::DEBUG_EXCEPTION_NOT_HANDLED) ? resume_code(threads_[tid].status) : 0;
-			ptrace(PT_STEP, tid, reinterpret_cast<caddr_t>(1), code);
-		}
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: get_state
-// Desc:
-//------------------------------------------------------------------------------
-void DebuggerCore::get_state(State *state) {
-
-	Q_ASSERT(state);
-
-	// TODO: assert that we are paused
-
-	auto state_impl = static_cast<PlatformState *>(state->impl_);
-
-	if(attached()) {
-	#if defined(EDB_X86)
-		if(ptrace(PT_GETREGS, active_thread(), reinterpret_cast<char*>(&state_impl->regs_), 0) != -1) {
-			state_impl->gs_base = 0;
-			state_impl->fs_base = 0;
-		}
-	#endif
-		// TODO implement this
-	} else {
-		state->clear();
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: set_state
-// Desc:
-//------------------------------------------------------------------------------
-void DebuggerCore::set_state(const State &state) {
-
-	// TODO: assert that we are paused
-
-	auto state_impl = static_cast<PlatformState *>(state.impl_);
-
-	if(attached()) {
-		ptrace(PT_SETREGS, active_thread(), reinterpret_cast<char*>(&state_impl->regs_), 0);
-		// TODO: FPU
-		// TODO: Debug Registers
 	}
 }
 
@@ -353,7 +298,7 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			threads_.clear();
 
 			int status;
-			if(native::waitpid(pid, &status, 0) == -1) {
+			if(Posix::waitpid(pid, &status, 0) == -1) {
 				return false;
 			}
 
@@ -423,108 +368,9 @@ QMap<edb::pid_t, ProcessInfo> DebuggerCore::enumerate_processes() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QString DebuggerCore::process_exe(edb::pid_t pid) const {
-	// TODO: implement this
-	return QString();
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QString DebuggerCore::process_cwd(edb::pid_t pid) const {
-	// TODO: implement this
-	return QString();
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
 edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 	// TODO: implement this
 	return -1;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QList<std::shared_ptr<IRegion>> DebuggerCore::memory_regions() const {
-	QList<std::shared_ptr<IRegion>> regions;
-
-	if(pid_ != 0) {
-		char buffer[PATH_MAX] = {};
-		struct ptrace_vm_entry vm_entry;
-		memset(&vm_entry, 0, sizeof(vm_entry));
-		vm_entry.pve_entry = 0;
-
-		while(ptrace(PT_VM_ENTRY, pid_, reinterpret_cast<char*>(&vm_entry), NULL) == 0) {
-			vm_entry.pve_path    = buffer;
-			vm_entry.pve_pathlen = sizeof(buffer);
-
-			const edb::address_t start               = vm_entry.pve_start;
-			const edb::address_t end                 = vm_entry.pve_end;
-			const edb::address_t base                = vm_entry.pve_start - vm_entry.pve_offset;
-			const QString name                       = vm_entry.pve_path;
-			const IRegion::permissions_t permissions = vm_entry.pve_prot;
-
-			regions.push_back(std::make_shared<PlatformRegion>(start, end, base, name, permissions));
-			memset(buffer, 0, sizeof(buffer));
-		}
-	}
-
-	return regions;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QList<QByteArray> DebuggerCore::process_args(edb::pid_t pid) const {
-	QList<QByteArray> ret;
-	if(pid != 0) {
-		// TODO: assert attached!
-	}
-	return ret;
-
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-edb::address_t DebuggerCore::process_code_address() const {
-	qDebug() << "TODO: implement DebuggerCore::process_code_address";
-	return 0;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-edb::address_t DebuggerCore::process_data_address() const {
-	qDebug() << "TODO: implement DebuggerCore::process_data_address";
-	return 0;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QList<Module> DebuggerCore::loaded_modules() const {
-    QList<Module> modules;
-	qDebug() << "TODO: implement DebuggerCore::loaded_modules";
-    return modules;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
-QDateTime DebuggerCore::process_start(edb::pid_t pid) const {
-	qDebug() << "TODO: implement DebuggerCore::process_start";
-	return QDateTime();
 }
 
 //------------------------------------------------------------------------------

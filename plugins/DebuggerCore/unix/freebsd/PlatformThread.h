@@ -34,12 +34,7 @@ class PlatformState;
 class PlatformThread : public IThread {
 	Q_DECLARE_TR_FUNCTIONS(PlatformThread)
 	friend class DebuggerCore;
-
-public:
-	PlatformThread(DebuggerCore *core, std::shared_ptr<IProcess> &process, edb::tid_t tid);
-	~PlatformThread() override                        = default;
-	PlatformThread(const PlatformThread &)            = delete;
-	PlatformThread& operator=(const PlatformThread &) = delete;
+	friend class PlatformProcess;
 
 public:
 	edb::tid_t tid() const override;
@@ -62,28 +57,10 @@ public:
 	bool isPaused() const override;
 
 private:
-	void fillSegmentBases(PlatformState* state);
-	bool fillStateFromPrStatus(PlatformState* state);
-	bool fillStateFromSimpleRegs(PlatformState* state);
-#ifdef EDB_ARM32
-	bool fillStateFromVFPRegs(PlatformState* state);
-#endif
-
-private:
-	unsigned long get_debug_register(std::size_t n);
-	long set_debug_register(std::size_t n, long value);
-
-private:
 	DebuggerCore *const       core_;
 	std::shared_ptr<IProcess> process_;
 	edb::tid_t                tid_;
-	int                       status_        = 0;
-
-#if defined EDB_ARM32 || defined EDB_ARM64
-private:
-	Status doStep(edb::tid_t tid, long status);
-	std::shared_ptr<IBreakpoint> singleStepBreakpoint;
-#endif
+	int                       status_ = 0;
 };
 
 }
