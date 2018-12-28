@@ -25,10 +25,12 @@ class QTreeView;
 
 class RegisterViewDelegate: public QStyledItemDelegate {
 	Q_OBJECT
-	Q_DISABLE_COPY(RegisterViewDelegate)
+
 public:
     RegisterViewDelegate(QTreeView *view, QWidget *parent);
-    ~RegisterViewDelegate() override = default;
+	RegisterViewDelegate(const RegisterViewDelegate &)            = delete;
+	RegisterViewDelegate& operator=(const RegisterViewDelegate &) = delete;
+	~RegisterViewDelegate() override                              = default;
 
 public:
     void paint(QPainter *painter, const QStyleOptionViewItem &option, const QModelIndex &index) const override;

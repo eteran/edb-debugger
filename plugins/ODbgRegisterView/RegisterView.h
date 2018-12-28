@@ -65,7 +65,7 @@ public:
 			NUM_GROUPS
 		} value;
 
-        RegisterGroupType(T v) : value(v) {
+		explicit RegisterGroupType(T v) : value(v) {
 		}
 
 		explicit RegisterGroupType(int v) : value(static_cast<T>(v)) {

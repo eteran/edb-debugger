@@ -64,10 +64,13 @@ Result<QString, QString> CommentServer::resolve_function_call(QHexView::address_
 
 	// ok, we now want to locate the instruction before this one
 	// so we need to look back a few bytes
-	uint8_t buffer[edb::Instruction::MAX_SIZE];
+
 
 	// TODO(eteran): portability warning, makes assumptions on the size of a call
 	if(IProcess *process = edb::v1::debugger_core->process()) {
+
+		uint8_t buffer[edb::Instruction::MAX_SIZE];
+
 		if(process->read_bytes(address - CALL_MAX_SIZE, buffer, sizeof(buffer))) {
 			for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
 				edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);

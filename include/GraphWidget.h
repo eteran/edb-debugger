@@ -32,15 +32,14 @@ class QString;
 
 class GraphWidget : public QGraphicsView {
 	Q_OBJECT
-	Q_DISABLE_COPY(GraphWidget)
-
-private:
 	friend class GraphNode;
 	friend class GraphEdge;
 
 public:
     GraphWidget(QWidget* parent = nullptr);
-    ~GraphWidget() override;
+	GraphWidget(const GraphWidget &)            = delete;
+	GraphWidget& operator=(const GraphWidget &) = delete;
+	~GraphWidget() override;
 
 public:
 	void clear();

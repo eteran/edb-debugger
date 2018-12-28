@@ -31,13 +31,14 @@ class GraphWidget;
 class GraphEdge;
 
 class GraphNode : public QGraphicsItem {
-	Q_DISABLE_COPY(GraphNode)
-
 	friend class GraphWidget;
 	friend class GraphEdge;
+
 public:
 	GraphNode(GraphWidget *graph, const QString &text, const QColor &color = Qt::white);
-    ~GraphNode() override;
+	GraphNode(const GraphNode &)            = delete;
+	GraphNode& operator=(const GraphNode &) = delete;
+	~GraphNode() override;
 
 public:
     enum { Type = UserType + 2 };

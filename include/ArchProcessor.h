@@ -33,10 +33,12 @@ class State;
 
 class EDB_EXPORT ArchProcessor : public QObject {
 	Q_OBJECT
-	Q_DISABLE_COPY(ArchProcessor)
+
 public:
 	ArchProcessor();
-    ~ArchProcessor() override = default;
+	ArchProcessor(const ArchProcessor &)            = delete;
+	ArchProcessor& operator=(const ArchProcessor &) = delete;
+	~ArchProcessor() override                       = default;
 
 public:
 	QStringList update_instruction_info(edb::address_t address);

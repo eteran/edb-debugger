@@ -29,11 +29,11 @@ class GraphNode;
 class GraphicsLineItem;
 
 class GraphEdge : public QGraphicsItemGroup {
-	Q_DISABLE_COPY(GraphEdge)
-
 public:
     GraphEdge(GraphNode *from, GraphNode *to, const QColor &color = Qt::black, QGraphicsItem *parent = nullptr);
-    ~GraphEdge() override;
+	GraphEdge(const GraphEdge &)            = delete;
+	GraphEdge& operator=(const GraphEdge &) = delete;
+	~GraphEdge() override;
 
 public:
     enum { Type = UserType + 3 };

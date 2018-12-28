@@ -54,11 +54,11 @@ class QLabel;
 
 class Debugger : public QMainWindow, public IDebugEventHandler {
 	Q_OBJECT
-	Q_DISABLE_COPY(Debugger)
-
 public:
     explicit Debugger(QWidget *parent = nullptr);
-    ~Debugger() override;
+	Debugger(const Debugger &)            = delete;
+	Debugger& operator=(const Debugger &) = delete;
+	~Debugger() override;
 
 private:
 

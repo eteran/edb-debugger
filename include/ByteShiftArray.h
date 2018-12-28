@@ -24,9 +24,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstddef>
 
 class EDB_EXPORT ByteShiftArray {
-	Q_DISABLE_COPY(ByteShiftArray)
 public:
 	explicit ByteShiftArray(int size);
+	ByteShiftArray(const ByteShiftArray &)            = delete;
+	ByteShiftArray& operator=(const ByteShiftArray &) = delete;
 
 public:
 	ByteShiftArray &shl();

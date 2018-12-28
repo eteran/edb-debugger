@@ -30,10 +30,9 @@ class DataViewInfo {
 public:
 	explicit DataViewInfo(const std::shared_ptr<IRegion> &r);
 	DataViewInfo();
+	DataViewInfo(const DataViewInfo &)            = delete;
+	DataViewInfo& operator=(const DataViewInfo &) = delete;
 	~DataViewInfo() = default;
-
-private:
-	Q_DISABLE_COPY(DataViewInfo)
 
 public:
 	std::shared_ptr<IRegion>      region;

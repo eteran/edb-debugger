@@ -103,10 +103,12 @@ const std::shared_ptr<Symbol> SymbolManager::find(const QString &name) const {
 	// slow path... look for any symbol which matches the name, but skipping the prefix
 	// we can make this faster later at the cost of yet another hash table if we
 	// feel the need
-	for(auto &&symbol : symbols_) {
-		if(symbol->name_no_prefix == name) {
-			return symbol;
-		}
+	auto it2 = std::find_if(symbols_.begin(), symbols_.end(), [&name](const std::shared_ptr<Symbol> &symbol) {
+		return symbol->name_no_prefix == name;
+	});
+
+	if(it2 != symbols_.end()) {
+		return *it2;
 	}
 
 	return nullptr;
