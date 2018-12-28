@@ -177,7 +177,7 @@ bool detect_proc_access(bool *read_broken, bool *write_broken) {
 //       process_vm_readv/process_vm_writev work correctly
 //------------------------------------------------------------------------------
 bool detect_iov_access(bool *read_broken, bool *write_broken) {
-
+#if defined(__NR_process_vm_readv) && defined(__NR_process_vm_writev)
 	switch (pid_t pid = fork()) {
 	case 0:
 		if (ptrace(PTRACE_TRACEME, 0, 0, 0) < 0) {
@@ -261,7 +261,11 @@ bool detect_iov_access(bool *read_broken, bool *write_broken) {
 		return true;
 	}
 	}
-
+#else
+	*read_broken  = true;
+	*write_broken = true;
+	return false;
+#endif
 }
 
 }
