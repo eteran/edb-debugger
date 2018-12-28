@@ -209,14 +209,6 @@ DebuggerCore::DebuggerCore()
 			delete dialog;
 		}
 	}
-#if 0
-	feature::detect_iov_access(&iov_read_broken_, &iov_write_broken_);
-	
-	if(iov_read_broken_ || iov_write_broken_) {
-		qDebug() << "Detect that process_vm_readv works  = " << !iov_read_broken_;
-		qDebug() << "Detect that process_vm_writev works = " << !iov_write_broken_;
-	}
-#endif
 }
 
 //------------------------------------------------------------------------------

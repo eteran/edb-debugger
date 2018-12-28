@@ -125,8 +125,6 @@ private:
 	MeansOfCapture	          lastMeansOfCapture     = MeansOfCapture::NeverCaptured;
 	bool                      proc_mem_write_broken_ = true;
 	bool                      proc_mem_read_broken_  = true;
-	bool                      iov_write_broken_      = true;
-	bool                      iov_read_broken_       = true;
 };
 
 }

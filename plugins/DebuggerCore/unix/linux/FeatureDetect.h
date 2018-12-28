@@ -23,7 +23,6 @@ namespace DebuggerCorePlugin {
 namespace feature {
 
 bool detect_proc_access(bool *read_broken, bool *write_broken);
-bool detect_iov_access(bool *read_broken, bool *write_broken);
 
 }
 }
