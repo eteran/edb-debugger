@@ -102,11 +102,6 @@ public:
 		static_assert(sizeof(SizedValue) * 8 == N, "Size is broken!");
 	}
 
-	template <class Float, typename dummy = void, typename check = typename std::enable_if<std::is_floating_point<Float>::value>::type>
-	explicit SizedValue(Float floatVal) {
-		this->value_[0] = floatVal;
-	}
-
 	template <class Integer, typename = typename std::enable_if<std::is_integral<Integer>::value>::type>
 	SizedValue(Integer integer) {
 		this->value_[0] = integer;
