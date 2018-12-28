@@ -191,9 +191,6 @@ DebuggerCore::DebuggerCore()
 
 	Posix::initialize();
 
-	proc_mem_write_broken_ = true;
-	proc_mem_read_broken_  = true;
-
 	feature::detect_proc_access(&proc_mem_read_broken_, &proc_mem_write_broken_);
 
 	if(proc_mem_read_broken_ || proc_mem_write_broken_) {
@@ -212,7 +209,14 @@ DebuggerCore::DebuggerCore()
 			delete dialog;
 		}
 	}
-
+#if 0
+	feature::detect_iov_access(&iov_read_broken_, &iov_write_broken_);
+	
+	if(iov_read_broken_ || iov_write_broken_) {
+		qDebug() << "Detect that process_vm_readv works  = " << !iov_read_broken_;
+		qDebug() << "Detect that process_vm_writev works = " << !iov_write_broken_;
+	}
+#endif
 }
 
 //------------------------------------------------------------------------------
