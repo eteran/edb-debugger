@@ -53,6 +53,9 @@ class Unexpected {
 	template<class U, class Y>
 	friend class Expected;
 
+	template<class U, class Y>
+	friend class Result;
+
 	template <class U>
 	friend Unexpected<typename std::decay<U>::type> make_unexpected(U &&);
 
@@ -100,6 +103,34 @@ public:
 
 private:
 	boost::variant<T, Unexpected<E>> value_;
+};
+
+template <class E>
+class Result<void, E> {
+public:
+	Result() {
+	}
+
+	Result(const Unexpected<E> &value) : value_(value) {
+	}
+
+	Result(Unexpected<E> &&value) : value_(std::move(value)) {
+	}
+
+	Result(const Result &)            = default;
+	Result& operator=(const Result &) = default;
+	Result(Result &&)                 = default;
+	Result& operator=(Result &&)      = default;
+
+public:
+	bool succeeded() const         { return value_.which() == 0; }
+	bool failed() const            { return value_.which() == 1; }
+	explicit operator bool() const { return succeeded(); }
+	bool operator!() const         { return failed(); }
+	E error() const                { Q_ASSERT(failed());    return boost::get<Unexpected<E>>(value_).error_; }
+
+private:
+	boost::variant<boost::blank, Unexpected<E>> value_;
 };
 
 template <class E>

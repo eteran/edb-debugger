@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "SessionError.h"
 #include "Types.h"
+#include "Status.h"
 
 #include <QString>
 #include <QVariant>
@@ -29,8 +30,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class SessionManager {
 	Q_DECLARE_TR_FUNCTIONS(SessionManager)
 
-public:
-	SessionManager() {}
+private:
+	SessionManager() = default;
 
 public:
 	SessionManager(const SessionManager &) = delete;
@@ -40,7 +41,7 @@ public:
 	static SessionManager &instance();
   
 public:
-	bool load_session(const QString &, SessionError&);
+	Result<void, SessionError> load_session(const QString &);
 	void save_session(const QString &);
 	void get_comments(QVariantList &);
 	void add_comment(Comment &);

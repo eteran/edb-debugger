@@ -2881,17 +2881,19 @@ void Debugger::set_initial_debugger_state() {
 
 	const QString filename = session_filename();
 	if(!filename.isEmpty()) {
-		SessionError session_error;
-		if(!SessionManager::instance().load_session(filename, session_error)) {
+
+		SessionManager &session_manager = SessionManager::instance();
+
+		if(Result<void, SessionError> session_error = session_manager.load_session(filename)) {
+			QVariantList comments_data;
+			session_manager.get_comments(comments_data);
+			ui.cpuView->restoreComments(comments_data);
+		} else {
 			QMessageBox::warning(
 				this,
 				tr("Error Loading Session"),
-			    session_error.errorMessage
+			    session_error.error().message
 			);
-		} else {
-			QVariantList comments_data;
-			SessionManager::instance().get_comments(comments_data);
-			ui.cpuView->restoreComments(comments_data);
 		}
 	}
 
