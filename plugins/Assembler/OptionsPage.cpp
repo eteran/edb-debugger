@@ -33,22 +33,18 @@ namespace AssemblerPlugin {
 OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsPage) {
 	ui->setupUi(this);
 
-
 	QSettings settings;
 	const QString name = settings.value("Assembler/helper", "yasm").toString();
 
-
 	ui->assemblerName->clear();
 
-	const QString targetArch=
 #if defined EDB_X86 || defined EDB_X86_64
-			"x86"
+	const QString targetArch = "x86";
 #elif defined EDB_ARM32
-			"arm"
+	const QString targetArch = "arm";
 #elif defined EDB_ARM64
-			"aarch64"
+	const QString targetArch = "aarch64";
 #endif
-			;
 
 	QFile file(":/debugger/Assembler/xml/assemblers.xml");
 	if(file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -58,15 +54,12 @@ OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsP
 
 		for(QDomElement assembler = root.firstChildElement("assembler"); !assembler.isNull(); assembler = assembler.nextSiblingElement("assembler")) {
 			const QString name = assembler.attribute("name");
-			const auto arch=assembler.attribute("arch");
-			if(arch==targetArch)
+			const auto arch = assembler.attribute("arch");
+			if(arch == targetArch) {
 				ui->assemblerName->addItem(name);
+			}
 		}
 	}
-
-
-
-
 
 	const int index = ui->assemblerName->findText(name, Qt::MatchFixedString);
 	if(index == -1 && ui->assemblerName->count() > 0) {
