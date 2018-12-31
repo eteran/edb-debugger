@@ -865,37 +865,38 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	if(edb::v1::config().show_register_badges) { // REGISTER BADGES
 
-		if(edb::v1::debugger_core->process()->isPaused()) {
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+		
+			if(process->isPaused()) {
 
-			// a reasonable guess for the width of a single register is 3 chars + overhead
-			// we do this to prevent "jumpiness"
-			l0 = (4 * font_width_ + font_width_/2);
+				// a reasonable guess for the width of a single register is 3 chars + overhead
+				// we do this to prevent "jumpiness"
+				l0 = (4 * font_width_ + font_width_/2);
 
-			State state;
-			edb::v1::debugger_core->process()->current_thread()->get_state(&state);
+				State state;
+				process->current_thread()->get_state(&state);
 
-			const int badge_x = 1;
+				const int badge_x = 1;
 
-			std::vector<QString> badge_labels(lines_to_render);
-			{
-				unsigned int reg_num = 0;
-				Register reg;
-				reg = state.gp_register(reg_num);
+				std::vector<QString> badge_labels(lines_to_render);
+				{
+					unsigned int reg_num = 0;
+					Register reg;
+					reg = state.gp_register(reg_num);
 
-				while (reg.valid()) {
-					// Does addr appear here?
-					edb::address_t addr = reg.valueAsAddress();
+					while (reg.valid()) {
+						// Does addr appear here?
+						edb::address_t addr = reg.valueAsAddress();
 
 
-					if (boost::optional<unsigned int> line = get_line_of_address(addr)) {
-						if (!badge_labels[*line].isEmpty()) {
-							badge_labels[*line].append(", ");
+						if (boost::optional<unsigned int> line = get_line_of_address(addr)) {
+							if (!badge_labels[*line].isEmpty()) {
+								badge_labels[*line].append(", ");
+							}
+							badge_labels[*line].append(reg.name());
 						}
-						badge_labels[*line].append(reg.name());
-					}
 
-					// what about [addr]?
-					if(IProcess *process = edb::v1::debugger_core->process()) {
+						// what about [addr]?
 						if (process->read_bytes(addr, &addr, edb::v1::pointer_size())) {
 							if (boost::optional<unsigned int> line = get_line_of_address(addr)) {
 								if (!badge_labels[*line].isEmpty()) {
@@ -904,37 +905,37 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 								badge_labels[*line].append("[" + reg.name() + "]");
 							}
 						}
-					}
 
-					reg = state.gp_register(++reg_num);
+						reg = state.gp_register(++reg_num);
+					}
 				}
-			}
 
-			painter.setPen(Qt::white);
-			for (int line = 0; line < lines_to_render; line++) {
-				if (!badge_labels[line].isEmpty()) {
-					QRect bounds(badge_x, line * line_height, badge_labels[line].length() * font_width_ + font_width_/2, line_height);
+				painter.setPen(Qt::white);
+				for (int line = 0; line < lines_to_render; line++) {
+					if (!badge_labels[line].isEmpty()) {
+						QRect bounds(badge_x, line * line_height, badge_labels[line].length() * font_width_ + font_width_/2, line_height);
 
-					// draw a rectangle + box around text
-					QPainterPath path;
-					path.addRect(bounds);
-					path.moveTo(bounds.x() + bounds.width(), bounds.y()); // top right
-					const int largest_x = bounds.x() + bounds.width() + bounds.height()/2;
-					if (largest_x > l0) {
-						l0 = largest_x;
+						// draw a rectangle + box around text
+						QPainterPath path;
+						path.addRect(bounds);
+						path.moveTo(bounds.x() + bounds.width(), bounds.y()); // top right
+						const int largest_x = bounds.x() + bounds.width() + bounds.height()/2;
+						if (largest_x > l0) {
+							l0 = largest_x;
+						}
+						path.lineTo(largest_x, bounds.y() + bounds.height()/2); // triangle point
+						path.lineTo(bounds.x() + bounds.width(), bounds.y() + bounds.height()); // bottom right
+						painter.fillPath(path, Qt::blue);
+
+						painter.drawText(
+							badge_x + font_width_/4,
+							line * line_height,
+							font_width_ * badge_labels[line].size(),
+							line_height,
+							Qt::AlignVCenter,
+							(edb::v1::config().uppercase_disassembly ? badge_labels[line].toUpper() : badge_labels[line])
+						);
 					}
-					path.lineTo(largest_x, bounds.y() + bounds.height()/2); // triangle point
-					path.lineTo(bounds.x() + bounds.width(), bounds.y() + bounds.height()); // bottom right
-					painter.fillPath(path, Qt::blue);
-
-					painter.drawText(
-						badge_x + font_width_/4,
-						line * line_height,
-						font_width_ * badge_labels[line].size(),
-						line_height,
-						Qt::AlignVCenter,
-						(edb::v1::config().uppercase_disassembly ? badge_labels[line].toUpper() : badge_labels[line])
-					);
 				}
 			}
 		}
