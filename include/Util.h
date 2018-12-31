@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QString>
 #include <algorithm>
 #include <array>
+#include <boost/optional.hpp>
 #include <cstddef>
 #include <cstdlib>
 #include <cstring>
@@ -31,30 +32,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <memory>
 #include <sstream>
 #include <type_traits>
-#include <boost/optional.hpp>
 
 enum class NumberDisplayMode {
-	Hex,
-	Signed,
-	Unsigned,
+	Hex, 
+	Signed, 
+	Unsigned, 
 	Float
 };
 
 namespace util {
 
 // Used to interconvert between abstract enum defined in an interface and actual enumerators in implementation
-template<typename AbstractEnum, typename ConcreteEnum>
+template <typename AbstractEnum, typename ConcreteEnum>
 class AbstractEnumData {
 	AbstractEnum data;
 public:
-	AbstractEnumData(AbstractEnum a) : data(a) {}
-	AbstractEnumData(ConcreteEnum c) : data(static_cast<AbstractEnum>(c)) {}
+	AbstractEnumData(AbstractEnum a) : data(a) {
+	}
+	
+	AbstractEnumData(ConcreteEnum c) : data(static_cast<AbstractEnum>(c)) {
+	}
+	
 	operator AbstractEnum() const { return data; }
 	operator ConcreteEnum() const { return static_cast<ConcreteEnum>(data); }
 };
 
-template<typename T>
-typename std::make_unsigned<T>::type to_unsigned(T x) { return x; }
+template <typename T>
+constexpr typename std::make_unsigned<T>::type to_unsigned(T x) {
+	return x;
+}
 
 //------------------------------------------------------------------------------
 // Name: percentage
@@ -84,62 +90,77 @@ int percentage(N1 bytes_done, N2 bytes_total) {
 	return percentage(0, 1, bytes_done, bytes_total);
 }
 
-template<typename T> typename std::enable_if<std::is_floating_point<T>::value, QString>::type toString(T value, int precision) {
+template <typename T>
+typename std::enable_if<std::is_floating_point<T>::value, QString>::type toString(T value, int precision) {
 	std::ostringstream ss;
 	ss << std::setprecision(precision) << value;
 	return QString::fromStdString(ss.str());
 }
 
-inline void markMemory(void* memory, std::size_t size)
-{
-	char* p=reinterpret_cast<char*>(memory);
+inline void markMemory(void *memory, std::size_t size) {
+
+	auto p = reinterpret_cast<char *>(memory);
 	// Fill memory with 0xbad1bad1 marker
-	for(std::size_t i=0;i<size;++i)
-		p[i]=i&1 ? 0xba : 0xd1;
+	for (std::size_t i = 0; i < size; ++i) {
+		p[i] = i & 1 ? 0xba : 0xd1;
+	}
 }
 
-template<typename T, typename... Tail>
-constexpr auto make_array(T head, Tail...tail) -> std::array<T,1+sizeof...(Tail)>
-{ return std::array<T,1+sizeof...(Tail)>{head,tail...}; }
+template <typename T, typename... Tail>
+constexpr auto make_array(T head, Tail... tail) -> std::array<T, 1 + sizeof...(Tail)> {
+	return std::array<T, 1 + sizeof...(Tail)>{ head, tail... };
+}
 
-template<typename Container, typename Element>
-bool contains(const Container& container, const Element& element)
-{ return std::find(std::begin(container),std::end(container),element)!=std::end(container); }
+template <typename Container, typename Element>
+bool contains(const Container &container, const Element &element) {
+	return std::find(std::begin(container), std::end(container), element) != std::end(container);
+}
 
-template<typename Stream>
-void print(Stream& str){ str << "\n"; }
-template<typename Stream, typename Arg0, typename...Args>
-void print(Stream& str, const Arg0& arg0, const Args&...args)
-{
+template <typename Container, typename Pred>
+bool contains_if(const Container &container, Pred pred) {
+	return std::find_if(std::begin(container), std::end(container), pred) != std::end(container);
+}
+
+template <typename Stream>
+void print(Stream &str) {
+	str << "\n";
+}
+
+template <typename Stream, typename Arg0, typename... Args>
+void print(Stream &str, const Arg0 &arg0, const Args &... args) {
 	str << arg0;
-	print(str,args...);
+	print(str, args...);
 }
-#define EDB_PRINT_AND_DIE(...) { util::print(std::cerr,__FILE__,":",__LINE__,": ",Q_FUNC_INFO,": Fatal error: ",__VA_ARGS__); std::abort(); }
+
+#define EDB_PRINT_AND_DIE(...) \
+do {                                                                                                    \
+	util::print(std::cerr, __FILE__, ":", __LINE__, ": ", Q_FUNC_INFO, ": Fatal error: ", __VA_ARGS__); \
+	std::abort();                                                                                       \
+} while(0)
 
 // Returns a string of `AsType`s ordered from highest in SIMD register to lowest
-template<typename AsType, typename T>
-typename std::enable_if<std::is_floating_point<AsType>::value, QString>::type packedFloatsToString(const T& value)
-{
-	auto p = reinterpret_cast<const char*>(&value);
-	const std::size_t elementCount = sizeof(value) / sizeof(AsType);
-    QString result;
+template <typename AsType, typename T>
+typename std::enable_if<std::is_floating_point<AsType>::value, QString>::type packedFloatsToString(const T &value) {
+	
+	auto p = reinterpret_cast<const char *>(&value);
+	constexpr std::size_t elementCount = sizeof(value) / sizeof(AsType);
+	QString result;
 
-	for(std::size_t i = elementCount - 1; i != std::size_t(-1); --i) {
-		edb::detail::SizedValue<sizeof(AsType)*8> v;
-        std::memcpy(&v,&p[i*sizeof(AsType)],sizeof(AsType));
+	for (std::size_t i = elementCount - 1; i != std::size_t(-1); --i) {
+		edb::detail::SizedValue<sizeof(AsType) * 8> v;
+		std::memcpy(&v, &p[i * sizeof(AsType)], sizeof(AsType));
 
-		static const int spacing=1;
-        static const int fieldWidth=maxPrintedLength<AsType>()+spacing;
+		static const int spacing    = 1;
+		static const int fieldWidth = maxPrintedLength<AsType>() + spacing;
 		result += formatFloat(v).rightJustified(fieldWidth);
-    }
-    return result;
+	}
+	
+	return result;
 }
 
-template<typename T>
-QString formatInt(T value, NumberDisplayMode mode)
-{
-	switch(mode)
-	{
+template <typename T>
+QString formatInt(T value, NumberDisplayMode mode) {
+	switch (mode) {
 	case NumberDisplayMode::Hex:
 		return value.toHexString();
 	case NumberDisplayMode::Signed:
@@ -147,56 +168,64 @@ QString formatInt(T value, NumberDisplayMode mode)
 	case NumberDisplayMode::Unsigned:
 		return value.unsignedToString();
 	default:
-		EDB_PRINT_AND_DIE("Unexpected integer display mode ",(long)mode);
+		EDB_PRINT_AND_DIE("Unexpected integer display mode ", (long)mode);
 	}
 }
 
-template<typename AsType, typename T>
-typename std::enable_if<std::is_integral<AsType>::value, QString>::type packedIntsToString(const T& value,NumberDisplayMode mode)
-{
-    auto p=reinterpret_cast<const char*>(&value);
-	const std::size_t elementCount=sizeof(value) / sizeof(AsType);
-    QString result;
-    for(std::size_t i=elementCount-1;i!=std::size_t(-1);--i)
-    {
-		edb::detail::SizedValue<sizeof(AsType)*8> v;
-        std::memcpy(&v,&p[i*sizeof(AsType)],sizeof(AsType));
+template <typename AsType, typename T>
+typename std::enable_if<std::is_integral<AsType>::value, QString>::type packedIntsToString(const T &value, NumberDisplayMode mode) {
 
-		static const int spacing=1;
-		static const int decimalLength=maxPrintedLength<AsType>();
-        const int fieldWidth=(mode==NumberDisplayMode::Hex ? sizeof(AsType)*2 : decimalLength)+spacing;
-		result += formatInt(v,mode).rightJustified(fieldWidth);
-    }
-    return result;
+	auto p = reinterpret_cast<const char *>(&value);
+	constexpr std::size_t elementCount = sizeof(value) / sizeof(AsType);
+	
+	QString result;
+	for (std::size_t i = elementCount - 1; i != std::size_t(-1); --i) {
+		edb::detail::SizedValue<sizeof(AsType) * 8> v;
+		std::memcpy(&v, &p[i * sizeof(AsType)], sizeof(AsType));
+
+		static const int spacing       = 1;
+		static const int decimalLength = maxPrintedLength<AsType>();
+		const int        fieldWidth = (mode == NumberDisplayMode::Hex ? sizeof(AsType) * 2 : decimalLength) + spacing;
+		result += formatInt(v, mode).rightJustified(fieldWidth);
+	}
+	
+	return result;
 }
 
-template<typename Float>
-boost::optional<Float> fullStringToFloat(const std::string &s)
-{
-	static_assert(std::is_same<Float, float>::value ||
-				  std::is_same<Float, double>::value ||
-				  std::is_same<Float, long double>::value,
-				  "Floating-point type not supported by this function");
+template <typename Float>
+boost::optional<Float> fullStringToFloat(const std::string &s) {
+
+	static_assert(
+		std::is_same<Float, float>::value  || 
+		std::is_same<Float, double>::value ||
+		std::is_same<Float, long double>::value,
+		"Floating-point type not supported by this function");
+		
 	// NOTE: Don't use std::istringstream: it doesn't support hexfloat.
 	//       Don't use std::sto{f,d,ld} either: they throw std::out_of_range on denormals.
 	//       Only std::strto{f,d,ld} are sane, for some definitions of sane...
-	const char*const str=s.c_str();
-	char* end;
+	const char *const str = s.c_str();
+	char *end;
 	Float value;
-	errno=0;
-	if(std::is_same<Float, float>::value)
-		value=std::strtof (str, &end);
-	else if(std::is_same<Float, double>::value)
-		value=std::strtod (str, &end);
-	else
-		value=std::strtold(str, &end);
-	if(errno)
-	{
-		if((errno==ERANGE && (value==0 || std::isinf(value))) || errno!=ERANGE)
+	errno = 0;
+	
+	if (std::is_same<Float, float>::value) {
+		value = std::strtof(str, &end);
+	} else if (std::is_same<Float, double>::value) {
+		value = std::strtod(str, &end);
+	} else {
+		value = std::strtold(str, &end);
+	}
+	
+	if (errno) {
+		if ((errno == ERANGE && (value == 0 || std::isinf(value))) || errno != ERANGE) {
 			return boost::none;
+		}
 	}
 
-	if(end==str+s.size()) return value;
+	if (end == str + s.size()) {
+		return value;
+	}
 
 	return boost::none;
 }
