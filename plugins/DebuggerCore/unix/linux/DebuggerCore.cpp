@@ -315,7 +315,7 @@ Status DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
 	// TODO(eteran): perhaps address this at a higher layer?
 	//               I would like to not have these events show up
 	//               in the first place if we aren't stopped on this TID :-(
-	if(waited_threads_.contains(tid)) {
+	if(util::contains(waited_threads_, tid)) {
 		Q_ASSERT(tid != 0);
 		if(ptrace(PTRACE_CONT, tid, 0, status) == -1) {
 			const char *const strError = strerror(errno);
@@ -336,7 +336,7 @@ Status DebuggerCore::ptrace_step(edb::tid_t tid, long status) {
 	// TODO(eteran): perhaps address this at a higher layer?
 	//               I would like to not have these events show up
 	//               in the first place if we aren't stopped on this TID :-(
-	if(waited_threads_.contains(tid)) {
+	if(util::contains(waited_threads_, tid)) {
 		Q_ASSERT(tid != 0);
 		if(ptrace(PTRACE_SINGLESTEP, tid, 0, status)==-1) {
 			const char *const strError = strerror(errno);
@@ -354,7 +354,7 @@ Status DebuggerCore::ptrace_step(edb::tid_t tid, long status) {
 // Desc:
 //------------------------------------------------------------------------------
 Status DebuggerCore::ptrace_set_options(edb::tid_t tid, long options) {
-	Q_ASSERT(waited_threads_.contains(tid));
+	Q_ASSERT(util::contains(waited_threads_, tid));
 	Q_ASSERT(tid != 0);
 	if(ptrace(PTRACE_SETOPTIONS, tid, 0, options)==-1) {
 		const char *const strError = strerror(errno);
@@ -369,7 +369,7 @@ Status DebuggerCore::ptrace_set_options(edb::tid_t tid, long options) {
 // Desc:
 //------------------------------------------------------------------------------
 Status DebuggerCore::ptrace_get_event_message(edb::tid_t tid, unsigned long *message) {
-	Q_ASSERT(waited_threads_.contains(tid));
+	Q_ASSERT(util::contains(waited_threads_, tid));
 	Q_ASSERT(tid != 0);
 	Q_ASSERT(message);
 
@@ -437,12 +437,12 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_thread_create_event(edb::tid_t
 
 		auto new_tid = static_cast<edb::tid_t>(message);
 
-		auto newThread     = std::make_shared<PlatformThread>(this, process_, new_tid);
+		auto newThread = std::make_shared<PlatformThread>(this, process_, new_tid);
 
 		threads_.insert(new_tid, newThread);
 
 		int thread_status = 0;
-		if(!waited_threads_.contains(new_tid)) {
+		if(!util::contains(waited_threads_, new_tid)) {
 			if(Posix::waitpid(new_tid, &thread_status, __WALL) > 0) {
 				waited_threads_.insert(new_tid);
 			}
@@ -520,7 +520,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 	}
 
 	// if necessary, just ignore this event
-	if(ignored_exceptions_.contains(e->code())) {
+	if(util::contains(ignored_exceptions_, e->code())) {
 		ptrace_continue(tid, resume_code(status));
 	}
 
@@ -592,7 +592,7 @@ Status DebuggerCore::stop_threads() {
 		for(auto &thread: process_->threads()) {
 			const edb::tid_t tid = thread->tid();
 
-			if(!waited_threads_.contains(tid)) {
+			if(!util::contains(waited_threads_, tid)) {
 
 				if(auto thread_ptr = std::static_pointer_cast<PlatformThread>(thread)) {
 
@@ -946,7 +946,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 			auto newThread     = std::make_shared<PlatformThread>(this, process_, pid);
 			newThread->status_ = status;
 
-			threads_[pid]   = newThread;
+			threads_.insert(pid, newThread);
 
             active_thread_  = pid;
 			detectCPUMode();

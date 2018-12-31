@@ -20,6 +20,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "DebuggerCore.h"
 #include "IProcess.h"
 #include "PlatformCommon.h"
+#include "Util.h"
+
 #include <QDebug>
 
 #ifndef _GNU_SOURCE
@@ -150,7 +152,7 @@ Status PlatformThread::resume(edb::EVENT_STATUS status) {
 // Desc: returns true if this thread is currently in the debugger's wait list
 //------------------------------------------------------------------------------
 bool PlatformThread::isPaused() const {
-	return core_->waited_threads_.contains(tid_);
+	return util::contains(core_->waited_threads_, tid_);
 }
 
 }

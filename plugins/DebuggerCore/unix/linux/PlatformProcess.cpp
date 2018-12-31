@@ -30,6 +30,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "MemoryRegions.h"
 #include "Module.h"
 #include "edb.h"
+#include "Util.h"
 #include "linker.h"
 #include "libELF/elf_binary.h"
 #include "libELF/elf_model.h"
@@ -180,7 +181,7 @@ QList<Module> get_loaded_modules(const IProcess* process) {
 
 			// we assume that modules will be listed by absolute path
 			if(region->name().startsWith("/")) {
-				if(!found_modules.contains(region->name())) {
+				if(!util::contains(found_modules, region->name())) {
 					Module module;
 					module.name         = region->name();
 					module.base_address = region->start();
@@ -801,7 +802,7 @@ Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 
 			// resume the other threads passing the signal they originally reported had
 			for(auto &other_thread : threads()) {
-				if(core_->waited_threads_.contains(other_thread->tid())) {
+				if(util::contains(core_->waited_threads_, other_thread->tid())) {
 					const auto resumeStatus = other_thread->resume();
 					if(!resumeStatus) {
 						errorMessage += tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.error());

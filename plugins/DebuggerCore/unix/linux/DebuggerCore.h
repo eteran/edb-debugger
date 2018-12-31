@@ -104,12 +104,12 @@ private:
     long ptraceOptions() const;
 
 private:
-	using threadmap_t = QHash<edb::tid_t, std::shared_ptr<PlatformThread>>;
+	using threads_type = QHash<edb::tid_t, std::shared_ptr<PlatformThread>>;
 
 private:
 	// TODO(eteran): a few of these logically belong in PlatformProcess...
 	QList<qlonglong>          ignored_exceptions_;
-	threadmap_t               threads_;
+	threads_type              threads_;
 	QSet<edb::tid_t>          waited_threads_;
 	edb::tid_t                active_thread_;
 	std::shared_ptr<IProcess> process_;
