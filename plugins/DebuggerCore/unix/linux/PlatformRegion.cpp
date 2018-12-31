@@ -306,6 +306,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 	// with macros, but for now, we just hard code it :-/
 	const edb::address_t syscallnum = edb::v1::debuggeeIs32Bit() ? 125 : 10; //__NR_mprotect;
 
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	// start of nowhere near portable code
 	const quint8 shellcode32[] = {
 		"\xcd\x80" // int $0x80
@@ -318,7 +319,6 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 	};
 
 	quint8 shellcode[3];
-
 
 	if(edb::v1::debuggeeIs32Bit()) {
 		memcpy(shellcode, shellcode32, sizeof(shellcode));
@@ -373,6 +373,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 			}
 		}
 	}
+#endif
 }
 
 void PlatformRegion::set_start(edb::address_t address) {
