@@ -23,6 +23,7 @@ set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/
 
 include("GNUInstallDirs")
 include("CheckIncludeFileCXX")
+include("DetectArchitecture")
 
 find_package(Boost 1.35 REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
@@ -36,7 +37,6 @@ set(TARGET_VERSION_MAJOR 1)
 set(TARGET_VERSION_MINOR 0)
 set(TARGET_VERSION_PATCH 0)
 set_property(GLOBAL PROPERTY VERSION ${TARGET_VERSION_MAJOR}.${TARGET_VERSION_MINOR}.${TARGET_VERSION_PATCH})
-
 
 if (UNIX)
 	find_package(PkgConfig REQUIRED)
@@ -85,8 +85,10 @@ else()
 	message(SEND_ERROR "Unexpected bitness: \"sizeof(void*)=${CMAKE_SIZEOF_VOID_P}.\"")
 endif()
 
-if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} MATCHES "[aA][mM][dD]64"))
-	set(CPU_TYPE "x86")
+DETECT_ARCHITECTURE(CPU_TYPE)
+
+if(${CPU_TYPE} STREQUAL "x86")
+
 	if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
 		add_definitions(-DEDB_X86)
 	elseif(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
@@ -95,8 +97,7 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 	include_directories("include/arch/x86-generic")
 endif()
 
-if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
-	set(CPU_TYPE "arm")
+if(${CPU_TYPE} STREQUAL "arm")
 	if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
 		add_definitions(-DEDB_ARM32)
 	elseif(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
@@ -143,11 +144,11 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang") OR (${CMAKE_CXX_COMPILER_ID} STR
 	
 	if(ENABLE_STL_DEBUG)
 		set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -D_GLIBCXX_DEBUG")
-		set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -D_GLIBCXX_DEBUG")	
+		set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -D_GLIBCXX_DEBUG")	
 	endif()
 	
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -pedantic -Wunused")
-	set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS} -W -Wall -pedantic -Wunused")
+	set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -W -Wall -pedantic -Wunused")
 endif()
 
 if(MSVC)

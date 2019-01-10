@@ -1,5 +1,7 @@
 cmake_minimum_required (VERSION 3.0)
 
+include("DetectArchitecture")
+
 add_definitions(-DQT_PLUGIN)
 
 add_subdirectory(DebuggerCore)
@@ -26,7 +28,9 @@ if(${BUILD_SIMPLE_REGISTER_VIEW})
         add_subdirectory(SimpleRegView)
 endif()
 
-if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} MATCHES "[aA][mM][dD]64"))
+DETECT_ARCHITECTURE(CPU_TYPE)
+
+if(${CPU_TYPE} STREQUAL "x86")
         add_subdirectory(HardwareBreakpoints)
 endif()
 

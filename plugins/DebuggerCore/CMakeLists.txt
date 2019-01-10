@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 include("GNUInstallDirs")
+include("DetectArchitecture")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -102,7 +103,7 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
 	)
 endif()
 
-if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64") OR (${CMAKE_SYSTEM_PROCESSOR} MATCHES "[aA][mM][dD]64"))
+if(${CPU_TYPE} STREQUAL "x86")
 	include_directories("arch/x86-generic")
 	
 	set(DebuggerCore_SRCS
@@ -124,7 +125,7 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 
 endif()
 
-if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
+if(${CPU_TYPE} STREQUAL "arm")
         include_directories("arch/arm-generic")
 
         set(DebuggerCore_SRCS

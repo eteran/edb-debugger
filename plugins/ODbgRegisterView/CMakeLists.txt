@@ -1,5 +1,6 @@
 cmake_minimum_required (VERSION 3.0)
 include("GNUInstallDirs")
+include("DetectArchitecture")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -34,7 +35,7 @@ set(PluginSources
 	ValueField.h
 )
 
-if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR} STREQUAL "x86_64"))
+if(${CPU_TYPE} STREQUAL "x86")
 	set(PluginSources
 		${PluginSources}
 		x86Groups.cpp
@@ -47,7 +48,7 @@ if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "i[3456]86") OR (${CMAKE_SYSTEM_PROCESSOR}
 	)
 endif()
 
-if((${CMAKE_SYSTEM_PROCESSOR} MATCHES "armv[0-9]+"))
+if(${CPU_TYPE} STREQUAL "arm")
 	set(PluginSources
 		${PluginSources}
 		armGroups.cpp
