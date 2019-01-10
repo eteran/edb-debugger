@@ -28,8 +28,8 @@ add_library(${PluginName} SHARED
 
 target_link_libraries(${PluginName} Qt5::Widgets Qt5::Concurrent edb)
 
-set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
 
 set_property(TARGET ${PluginName} PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET ${PluginName} PROPERTY CXX_STANDARD 14)
+set_property(TARGET ${PluginName} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
