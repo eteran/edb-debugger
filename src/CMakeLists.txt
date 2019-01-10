@@ -23,6 +23,8 @@ endif()
 add_definitions(-DGIT_BRANCH=${GIT_BRANCH})
 add_definitions(-DDEFAULT_PLUGIN_PATH=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb\")
 
+DETECT_ARCHITECTURE(CPU_TYPE)
+
 set(edb_SRCS
 	Address.cpp
 	BasicBlock.cpp
@@ -170,28 +172,11 @@ set(edb_SRCS
 	${PROJECT_SOURCE_DIR}/include/Address.h
 	${PROJECT_SOURCE_DIR}/include/Util.h
 	${PROJECT_SOURCE_DIR}/include/version.h
+	
+	arch/${CPU_TYPE}-generic/ArchProcessor.cpp
+	arch/${CPU_TYPE}-generic/RegisterViewModel.cpp
+	${PROJECT_SOURCE_DIR}/include/arch/${CPU_TYPE}-generic/ArchTypes.h
 )
-
-DETECT_ARCHITECTURE(CPU_TYPE)
-
-if(${CPU_TYPE} STREQUAL "x86")
-	set(edb_SRCS
-		${edb_SRCS}
-		arch/x86-generic/ArchProcessor.cpp
-		arch/x86-generic/RegisterViewModel.cpp
-		${PROJECT_SOURCE_DIR}/include/arch/x86-generic/ArchTypes.h
-
-	)
-endif()
-
-if(${CPU_TYPE} STREQUAL "arm")
-	set(edb_SRCS
-		${edb_SRCS}
-		arch/arm-generic/ArchProcessor.cpp
-		arch/arm-generic/RegisterViewModel.cpp
-		${PROJECT_SOURCE_DIR}/include/arch/arm-generic/ArchTypes.h
-	)
-endif()
 
 if(UNIX)
 	set(edb_SRCS
@@ -234,11 +219,16 @@ endif()
 
 add_executable(edb ${edb_SRCS})
 
-set_property(TARGET edb PROPERTY CXX_EXTENSIONS OFF)
-set_property(TARGET edb PROPERTY CXX_STANDARD 14)
-set_target_properties(edb PROPERTIES ENABLE_EXPORTS 1)
-
-target_link_libraries(edb ${CAPSTONE_LIBRARIES} Qt5::Widgets Qt5::Xml Qt5::XmlPatterns Qt5::Svg ${GRAPHVIZ_LIBRARIES} ${DOUBLE_CONVERSION_LIBRARIES} ${GDTOA_LIBRARIES})
+target_link_libraries(edb 
+	${CAPSTONE_LIBRARIES} 
+	Qt5::Widgets 
+	Qt5::Xml 
+	Qt5::XmlPatterns 
+	Qt5::Svg 
+	${GRAPHVIZ_LIBRARIES} 
+	${DOUBLE_CONVERSION_LIBRARIES} 
+	${GDTOA_LIBRARIES}
+)
 
 target_include_directories (edb PRIVATE
 	"capstone-edb"
@@ -247,6 +237,9 @@ target_include_directories (edb PRIVATE
 	"session"
 )
 
-set_target_properties(edb PROPERTIES ENABLE_EXPORTS TRUE)
-set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR})
 install (TARGETS edb DESTINATION ${CMAKE_INSTALL_BINDIR})
+
+set_property(TARGET edb PROPERTY CXX_EXTENSIONS OFF)
+set_property(TARGET edb PROPERTY CXX_STANDARD 14)
+set_property(TARGET edb PROPERTY ENABLE_EXPORTS TRUE)
+set_property(TARGET edb PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
