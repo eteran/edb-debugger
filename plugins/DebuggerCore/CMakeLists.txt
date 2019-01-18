@@ -9,8 +9,6 @@ set(CMAKE_AUTORCC ON)
 
 set(PluginName "DebuggerCore")
 
-include_directories(${CMAKE_CURRENT_SOURCE_DIR})
-
 find_package(Qt5 5.0.0 REQUIRED Widgets)
 
 set(DebuggerCore_SRCS
@@ -18,24 +16,12 @@ set(DebuggerCore_SRCS
 	DebuggerCoreBase.h
 )
 
-if(UNIX)
-	include_directories(
-		"unix"
-	)
-	
-	set(DebuggerCore_SRCS
-		${DebuggerCore_SRCS}
-		unix/Posix.cpp
-		unix/Posix.h
-		unix/Unix.cpp
-		unix/Unix.h
-	)			
-endif()
+if(TARGET_PLATFORM_LINUX)
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-
-	include_directories(
-		"unix/linux"
+	set(PLUGIN_INCLUDES
+		${PLUGIN_INCLUDES}
+		unix/linux
+		unix
 	)
 
 	set(DebuggerCore_SRCS
@@ -58,13 +44,18 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
 		unix/linux/PlatformThread.cpp
 		unix/linux/PlatformThread.h
 		unix/linux/PrStatus.h
+		unix/Posix.cpp
+		unix/Posix.h
+		unix/Unix.cpp
+		unix/Unix.h
 	)
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+elseif(TARGET_PLATFORM_WINDOWS)
 
-	include_directories(
-		"win32"
+	set(PLUGIN_INCLUDES
+		${PLUGIN_INCLUDES}
+		win32
 	)
-
+	
 	set(DebuggerCore_SRCS
 		${DebuggerCore_SRCS}
 		win32/DebuggerCore.cpp
@@ -80,10 +71,12 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 		win32/PlatformThread.cpp
 		win32/PlatformThread.h
 	)
-elseif(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
+elseif(TARGET_PLATFORM_FREEBSD)
 
-	include_directories(
-		"unix/freebsd"
+	set(PLUGIN_INCLUDES
+		${PLUGIN_INCLUDES}
+		unix/freebsd
+		unix
 	)
 
 	set(DebuggerCore_SRCS
@@ -103,8 +96,11 @@ elseif(${CMAKE_SYSTEM_NAME} STREQUAL "FreeBSD")
 	)
 endif()
 
-if(${CPU_TYPE} STREQUAL "x86")
-	include_directories("arch/x86-generic")
+if(TARGET_ARCH_X86_FAMILY)
+	set(PLUGIN_INCLUDES
+		${PLUGIN_INCLUDES}
+		arch/x86-generic
+	)
 	
 	set(DebuggerCore_SRCS
 		${DebuggerCore_SRCS}
@@ -112,8 +108,11 @@ if(${CPU_TYPE} STREQUAL "x86")
 		arch/x86-generic/Breakpoint.h
 	)
 
-    if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-        include_directories("unix/linux/arch/x86-generic")
+    if(TARGET_PLATFORM_LINUX)	
+		set(PLUGIN_INCLUDES
+			${PLUGIN_INCLUDES}
+			unix/linux/arch/x86-generic
+		)
 
         set(DebuggerCore_SRCS
             ${DebuggerCore_SRCS}
@@ -125,8 +124,12 @@ if(${CPU_TYPE} STREQUAL "x86")
 
 endif()
 
-if(${CPU_TYPE} STREQUAL "arm")
-        include_directories("arch/arm-generic")
+if(TARGET_ARCH_ARM_FAMILY)
+
+		set(PLUGIN_INCLUDES
+			${PLUGIN_INCLUDES}
+			unix/linux/arch/arm-generic
+		)
 
         set(DebuggerCore_SRCS
                 ${DebuggerCore_SRCS}
@@ -134,8 +137,12 @@ if(${CPU_TYPE} STREQUAL "arm")
                 arch/arm-generic/Breakpoint.h
         )
 
-        if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-            include_directories("unix/linux/arch/arm-generic")
+        if(TARGET_PLATFORM_LINUX)
+		
+			set(PLUGIN_INCLUDES
+				${PLUGIN_INCLUDES}
+				unix/linux/arch/arm-generic
+			)
 
             set(DebuggerCore_SRCS
                 ${DebuggerCore_SRCS}
@@ -148,6 +155,11 @@ if(${CPU_TYPE} STREQUAL "arm")
 endif()
 
 add_library(${PluginName} SHARED ${DebuggerCore_SRCS} )
+
+target_include_directories(${PluginName} PRIVATE
+	${CMAKE_CURRENT_SOURCE_DIR}
+	${PLUGIN_INCLUDES}
+)
 
 target_link_libraries(${PluginName} Qt5::Widgets PE ELF edb)
 

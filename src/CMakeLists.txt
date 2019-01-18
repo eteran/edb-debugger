@@ -1,6 +1,5 @@
 cmake_minimum_required (VERSION 3.0)
 include("GNUInstallDirs")
-include("DetectArchitecture")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -19,11 +18,6 @@ if(EXISTS "${CMAKE_SOURCE_DIR}/.git")
 else()
 	set(GIT_BRANCH "Unknown")
 endif()
-
-add_definitions(-DGIT_BRANCH=${GIT_BRANCH})
-add_definitions(-DDEFAULT_PLUGIN_PATH=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb\")
-
-DETECT_ARCHITECTURE(CPU_TYPE)
 
 set(edb_SRCS
 	Address.cpp
@@ -172,20 +166,25 @@ set(edb_SRCS
 	${PROJECT_SOURCE_DIR}/include/Address.h
 	${PROJECT_SOURCE_DIR}/include/Util.h
 	${PROJECT_SOURCE_DIR}/include/version.h
-	
-	arch/${CPU_TYPE}-generic/ArchProcessor.cpp
-	arch/${CPU_TYPE}-generic/RegisterViewModel.cpp
-	${PROJECT_SOURCE_DIR}/include/arch/${CPU_TYPE}-generic/ArchTypes.h
 )
 
-if(UNIX)
+if(TARGET_ARCH_X86_FAMILY)
 	set(edb_SRCS
 		${edb_SRCS}
-		${PROJECT_SOURCE_DIR}/include/os/unix/OSTypes.h
+		arch/x86-generic/ArchProcessor.cpp
+		arch/x86-generic/RegisterViewModel.cpp
+		${PROJECT_SOURCE_DIR}/include/arch/x86-generic/ArchTypes.h
+	)
+elseif(TARGET_ARCH_ARM_FAMILY)
+	set(edb_SRCS
+		${edb_SRCS}
+		arch/arm-generic/ArchProcessor.cpp
+		arch/arm-generic/RegisterViewModel.cpp
+		${PROJECT_SOURCE_DIR}/include/arch/arm-generic/ArchTypes.h
 	)
 endif()
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
+if(TARGET_PLATFORM_WINDOWS)
 	enable_language(ASM_MASM)
 	set(CMAKE_ASM_MASM_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /safeseh")
 
@@ -194,16 +193,15 @@ if(${CMAKE_SYSTEM_NAME} STREQUAL "Windows")
 		LongDoubleX86.asm
 		${PROJECT_SOURCE_DIR}/include/os/win32/OSTypes.h
 	)
-endif()
-
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+elseif(TARGET_PLATFORM_LINUX)
     set(edb_SRCS
         ${edb_SRCS}
+		${PROJECT_SOURCE_DIR}/include/os/unix/OSTypes.h
         ${PROJECT_SOURCE_DIR}/include/os/unix/linux/linker.h
     )
 endif()
 
-if(${GRAPHVIZ_FOUND})
+if(GRAPHVIZ_FOUND)
 	set(edb_SRCS
 		${edb_SRCS}
 		graph/GraphEdge.cpp
@@ -218,6 +216,11 @@ if(${GRAPHVIZ_FOUND})
 endif()
 
 add_executable(edb ${edb_SRCS})
+
+target_compile_definitions(edb PRIVATE
+	-DGIT_BRANCH=${GIT_BRANCH}
+	-DDEFAULT_PLUGIN_PATH=\"${CMAKE_INSTALL_PREFIX}/${CMAKE_INSTALL_LIBDIR}/edb\"
+)
 
 target_link_libraries(edb 
 	${CAPSTONE_LIBRARIES} 

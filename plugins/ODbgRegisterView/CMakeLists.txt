@@ -35,7 +35,7 @@ set(PluginSources
 	ValueField.h
 )
 
-if(${CPU_TYPE} STREQUAL "x86")
+if(TARGET_ARCH_X86_FAMILY)
 	set(PluginSources
 		${PluginSources}
 		x86Groups.cpp
@@ -46,9 +46,7 @@ if(${CPU_TYPE} STREQUAL "x86")
 		DialogEditFPU.cpp
 		DialogEditFPU.h
 	)
-endif()
-
-if(${CPU_TYPE} STREQUAL "arm")
+elseif(TARGET_ARCH_ARM_FAMILY)
 	set(PluginSources
 		${PluginSources}
 		armGroups.cpp

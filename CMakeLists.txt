@@ -1,12 +1,21 @@
 cmake_minimum_required (VERSION 3.0)
 project (edb CXX)
-if(${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU" AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 5.0)
-	message(FATAL_ERROR "Your g++ version is too old. At least 5.0 is required.")
-endif()
 
 if(NOT EXISTS "${PROJECT_SOURCE_DIR}/src/qhexview/")
-	message(SEND_ERROR "The git submodules are not available. Please run:\ngit submodule update --init --recursive"
-)
+	message(SEND_ERROR "The git submodules are not available. Please run:\ngit submodule update --init --recursive")
+endif()
+
+set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
+
+include("GNUInstallDirs")
+include("CheckIncludeFileCXX")
+include("DetectArchitecture")
+include("DetectCompiler")
+include("DetectOS")
+include("DetectArchitecture")
+
+if(TARGET_COMPILER_GCC AND ${CMAKE_CXX_COMPILER_VERSION} VERSION_LESS 5.0)
+	message(FATAL_ERROR "Your g++ version is too old. At least 5.0 is required.")
 endif()
 
 option(ENABLE_ASAN      "Enable address santiziers")
@@ -18,12 +27,6 @@ option(ENABLE_STL_DEBUG "Enable STL container debugging")
 if(NOT CMAKE_BUILD_TYPE)
 	set(CMAKE_BUILD_TYPE "RelWithDebInfo" CACHE STRING "Choose the type of build, options are: Debug Release RelWithDebInfo MinSizeRel." FORCE)
 endif()
-
-set(CMAKE_MODULE_PATH ${CMAKE_MODULE_PATH} "${PROJECT_SOURCE_DIR}/cmake/Modules/")
-
-include("GNUInstallDirs")
-include("CheckIncludeFileCXX")
-include("DetectArchitecture")
 
 find_package(Boost 1.35 REQUIRED)
 include_directories(${Boost_INCLUDE_DIR})
@@ -41,7 +44,7 @@ set_property(GLOBAL PROPERTY VERSION ${TARGET_VERSION_MAJOR}.${TARGET_VERSION_MI
 if (UNIX)
 	find_package(PkgConfig REQUIRED)
 	pkg_check_modules(GRAPHVIZ libgvc>=2.38.0)
-	if(${GRAPHVIZ_FOUND})
+	if(GRAPHVIZ_FOUND)
 		include_directories(${GRAPHVIZ_INCLUDE_DIRS})
 		link_directories(${GRAPHVIZ_LIBRARY_DIRS})
 		add_definitions(-DENABLE_GRAPH)
@@ -53,7 +56,7 @@ message(STATUS "Checking for module 'double-conversion'")
 check_include_file_cxx("double-conversion/double-conversion.h" HAVE_DOUBLE_CONVERSION)
 if(NOT HAVE_DOUBLE_CONVERSION)
    UNSET(HAVE_DOUBLE_CONVERSION CACHE)
-   message(WARNING      "libdouble-conversion header wasn't found. 32- and 64-bit floating-point values will be showed with max_digits10 digits of precision instead of shortest representation.")
+   message(WARNING "libdouble-conversion header wasn't found. 32- and 64-bit floating-point values will be showed with max_digits10 digits of precision instead of shortest representation.")
 else()
    find_library(DOUBLE_CONVERSION_LIBRARIES double-conversion)
    if(NOT DOUBLE_CONVERSION_LIBRARIES)
@@ -67,48 +70,38 @@ find_package(Qt5Core)
 
 include_directories("include")
 
-if(UNIX)
+if(TARGET_PLATFORM_LINUX)
 	include_directories("include/os/unix")
-elseif(WIN32)
+	include_directories("include/os/unix/linux")
+elseif(TARGET_PLATFORM_WINDOWS)
 	include_directories("include/os/win32")
 endif()
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
-	include_directories("include/os/unix/linux")
-endif()
-
-if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
+if(TARGET_ARCH_X86 OR TARGET_ARCH_ARM32)
 	add_definitions(-DEDB_IS_32_BIT=true -DEDB_IS_64_BIT=false)
-elseif(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
+elseif(TARGET_ARCH_X64 OR TARGET_ARCH_ARM64)
 	add_definitions(-DEDB_IS_32_BIT=false -DEDB_IS_64_BIT=true)
 else()
 	message(SEND_ERROR "Unexpected bitness: \"sizeof(void*)=${CMAKE_SIZEOF_VOID_P}.\"")
 endif()
 
-DETECT_ARCHITECTURE(CPU_TYPE)
-
-if(${CPU_TYPE} STREQUAL "x86")
-
-	if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
-		add_definitions(-DEDB_X86)
-	elseif(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-		add_definitions(-DEDB_X86_64)
-	endif()
+if(TARGET_ARCH_X86)
+	add_definitions(-DEDB_X86)
 	include_directories("include/arch/x86-generic")
-endif()
-
-if(${CPU_TYPE} STREQUAL "arm")
-	if(${CMAKE_SIZEOF_VOID_P} EQUAL 4)
-		add_definitions(-DEDB_ARM32)
-	elseif(${CMAKE_SIZEOF_VOID_P} EQUAL 8)
-		add_definitions(-DEDB_ARM64)
-	endif()
+elseif(TARGET_ARCH_X64)
+	add_definitions(-DEDB_X86_64)
+	include_directories("include/arch/x86-generic")
+elseif(TARGET_ARCH_ARM32)
+	add_definitions(-DEDB_ARM32)
+	include_directories("include/arch/arm-generic")
+elseif(TARGET_ARCH_ARM64)
+	add_definitions(-DEDB_ARM64)
 	include_directories("include/arch/arm-generic")
 endif()
 
 # FIXME: This is also useful on Windows, so it should be made usable there too.
 if(UNIX)
-	if(${CPU_TYPE} STREQUAL "x86")
+	if(TARGET_ARCH_X86_FAMILY)
 		pkg_check_modules(GDTOA gdtoa-desktop)
 		if(NOT GDTOA_FOUND)
 			message(WARNING "gdtoa-desktop package wasn't found. 80-bit floating-point values will be showed with max_digits10 digits of precision instead of shortest representation.")
@@ -121,7 +114,7 @@ if(UNIX)
 endif()
 
 
-if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang") OR (${CMAKE_CXX_COMPILER_ID} STREQUAL "GNU"))
+if (TARGET_COMPILER_CLANG OR TARGET_COMPILER_GCC)
 	if(ENABLE_ASAN)
 		set(CMAKE_CXX_FLAGS        "${CMAKE_CXX_FLAGS}        -fsanitize=address") # -fsanitize-address-use-after-scope
 		set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -fsanitize=address")
@@ -149,9 +142,7 @@ if ((${CMAKE_CXX_COMPILER_ID} STREQUAL "Clang") OR (${CMAKE_CXX_COMPILER_ID} STR
 	
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -pedantic -Wunused")
 	set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -W -Wall -pedantic -Wunused")
-endif()
-
-if(MSVC)
+elseif(TARGET_COMPILER_MSVC)
   add_definitions(-DUNICODE -D_UNICODE)
 endif()
 

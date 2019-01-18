@@ -1,7 +1,5 @@
 cmake_minimum_required (VERSION 3.0)
 
-include("DetectArchitecture")
-
 add_definitions(-DQT_PLUGIN)
 
 add_subdirectory(DebuggerCore)
@@ -25,20 +23,18 @@ add_subdirectory(InstructionInspector)
 
 # NOTE(eteran): this is deprecated, will be removed at some point in the future...
 if(${BUILD_SIMPLE_REGISTER_VIEW})
-        add_subdirectory(SimpleRegView)
+	add_subdirectory(SimpleRegView)
 endif()
 
-DETECT_ARCHITECTURE(CPU_TYPE)
-
-if(${CPU_TYPE} STREQUAL "x86")
-        add_subdirectory(HardwareBreakpoints)
+if(TARGET_ARCH_X86_FAMILY)
+	add_subdirectory(HardwareBreakpoints)
 endif()
 
-if(${CMAKE_SYSTEM_NAME} STREQUAL "Linux")
+if(TARGET_PLATFORM_LINUX)
     add_subdirectory(HeapAnalyzer)
 endif()
 
-if (NOT MSVC)
+if (NOT TARGET_COMPILER_MSVC)
 	# TODO(eteran): having a hard time getting these to compile under MSVC
 	add_subdirectory(ODbgRegisterView)
 endif()
