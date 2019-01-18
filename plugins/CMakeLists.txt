@@ -26,7 +26,7 @@ if(${BUILD_SIMPLE_REGISTER_VIEW})
 	add_subdirectory(SimpleRegView)
 endif()
 
-if(TARGET_ARCH_X86_FAMILY)
+if(TARGET_ARCH_FAMILY_X86)
 	add_subdirectory(HardwareBreakpoints)
 endif()
 

@@ -100,7 +100,7 @@ endif()
 
 # FIXME: This is also useful on Windows, so it should be made usable there too.
 if(UNIX)
-	if(TARGET_ARCH_X86_FAMILY)
+	if(TARGET_ARCH_FAMILY_X86)
 		pkg_check_modules(GDTOA gdtoa-desktop)
 		if(NOT GDTOA_FOUND)
 			message(WARNING "gdtoa-desktop package wasn't found. 80-bit floating-point values will be shown with max_digits10 digits of precision instead of shortest representation.")

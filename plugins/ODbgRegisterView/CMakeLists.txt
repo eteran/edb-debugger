@@ -1,6 +1,5 @@
 cmake_minimum_required (VERSION 3.0)
 include("GNUInstallDirs")
-include("DetectArchitecture")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -35,7 +34,7 @@ set(PluginSources
 	ValueField.h
 )
 
-if(TARGET_ARCH_X86_FAMILY)
+if(TARGET_ARCH_FAMILY_X86)
 	set(PluginSources
 		${PluginSources}
 		x86Groups.cpp
@@ -46,7 +45,7 @@ if(TARGET_ARCH_X86_FAMILY)
 		DialogEditFPU.cpp
 		DialogEditFPU.h
 	)
-elseif(TARGET_ARCH_ARM_FAMILY)
+elseif(TARGET_ARCH_FAMILY_ARM)
 	set(PluginSources
 		${PluginSources}
 		armGroups.cpp

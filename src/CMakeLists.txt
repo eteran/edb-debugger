@@ -168,14 +168,14 @@ set(edb_SRCS
 	${PROJECT_SOURCE_DIR}/include/version.h
 )
 
-if(TARGET_ARCH_X86_FAMILY)
+if(TARGET_ARCH_FAMILY_X86)
 	set(edb_SRCS
 		${edb_SRCS}
 		arch/x86-generic/ArchProcessor.cpp
 		arch/x86-generic/RegisterViewModel.cpp
 		${PROJECT_SOURCE_DIR}/include/arch/x86-generic/ArchTypes.h
 	)
-elseif(TARGET_ARCH_ARM_FAMILY)
+elseif(TARGET_ARCH_FAMILY_ARM)
 	set(edb_SRCS
 		${edb_SRCS}
 		arch/arm-generic/ArchProcessor.cpp

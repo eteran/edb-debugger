@@ -1,6 +1,5 @@
 cmake_minimum_required (VERSION 3.0)
 include("GNUInstallDirs")
-include("DetectArchitecture")
 
 set(CMAKE_INCLUDE_CURRENT_DIR ON)
 set(CMAKE_AUTOMOC ON)
@@ -96,7 +95,7 @@ elseif(TARGET_PLATFORM_FREEBSD)
 	)
 endif()
 
-if(TARGET_ARCH_X86_FAMILY)
+if(TARGET_ARCH_FAMILY_X86)
 	set(PLUGIN_INCLUDES
 		${PLUGIN_INCLUDES}
 		arch/x86-generic
@@ -124,7 +123,7 @@ if(TARGET_ARCH_X86_FAMILY)
 
 endif()
 
-if(TARGET_ARCH_ARM_FAMILY)
+if(TARGET_ARCH_FAMILY_ARM)
 
 		set(PLUGIN_INCLUDES
 			${PLUGIN_INCLUDES}
