@@ -104,7 +104,6 @@ public:
 	void update_data(const std::shared_ptr<DataViewInfo> &v);
 	void update_gui();
 	QLabel *statusLabel() const;
-	QList<QAction*> getCurrentRegisterContextMenuItems() const;
 	Register active_register() const;
 
 Q_SIGNALS:
@@ -183,12 +182,6 @@ private Q_SLOTS:
 	void mnuCPULabelAddress();
 
 private Q_SLOTS:
-	// the manually connected Register slots
-	void mnuRegisterFollowInDump()       { follow_register_in_dump(false); }
-	void mnuRegisterFollowInDumpNewTab() { follow_register_in_dump(true); }
-	void mnuRegisterFollowInStack();
-
-private Q_SLOTS:
 	// the manually connected Dump slots
 	void mnuDumpContextMenu(const QPoint &pos);
 	void mnuDumpCreateTab();
@@ -252,7 +245,6 @@ private:
 	void detach_from_process(DETACH_ACTION kill);
 	void do_jump_to_address(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scroll_to);
 	void finish_plugin_setup();
-	void follow_register_in_dump(bool tabbed);
 	void load_session(const QString &session_file);
 	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, ResumeFlags flags);
 	void save_session(const QString &session_file);

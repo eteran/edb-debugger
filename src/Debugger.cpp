@@ -380,7 +380,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	connect(ui.tabWidget, &TabWidget::customContextMenuRequested, this, &Debugger::tab_context_menu);
 
 	// CPU Shortcuts
-	gotoAddressAction_           = createAction(tr("&Goto Expression..."),                           QKeySequence(tr("Ctrl+G")),   &Debugger::goto_triggered);
+	gotoAddressAction_           = createAction(tr("&Goto Expressixon..."),                           QKeySequence(tr("Ctrl+G")),   &Debugger::goto_triggered);
 
 	editCommentAction_           = createAction(tr("Add &Comment..."),                               QKeySequence(tr(";")),        &Debugger::mnuCPUEditComment);
 	toggleBreakpointAction_      = createAction(tr("&Toggle Breakpoint"),                            QKeySequence(tr("F2")),       &Debugger::mnuCPUToggleBreakpoint);
@@ -415,10 +415,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	dumpFollowInStackAction_     = createAction(tr("Follow Address In &Stack"),                      QKeySequence(),               &Debugger::mnuDumpFollowInStack);
 	dumpSaveToFileAction_        = createAction(tr("&Save To File"),                                 QKeySequence(),               &Debugger::mnuDumpSaveToFile);
 
-	// Register View Shortcuts
-	registerFollowInDumpAction_    = createAction(tr("&Follow In Dump"),           QKeySequence(), &Debugger::mnuRegisterFollowInDump);
-	registerFollowInDumpTabAction_ = createAction(tr("&Follow In Dump (New Tab)"), QKeySequence(), &Debugger::mnuRegisterFollowInDumpNewTab);
-	registerFollowInStackAction_   = createAction(tr("&Follow In Stack"),          QKeySequence(), &Debugger::mnuRegisterFollowInStack);
+
 
 	// Stack View Shortcuts
 	stackFollowInCPUAction_   = createAction(tr("Follow Address In &CPU"),   QKeySequence(), &Debugger::mnuStackFollowInCPU);
@@ -873,20 +870,6 @@ Result<edb::address_t, QString> Debugger::get_goto_expression() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: get_follow_register
-// Desc:
-//------------------------------------------------------------------------------
-Result<edb::reg_t, QString> Debugger::get_follow_register() const {
-
-	const auto reg = active_register();
-	if(!reg || reg.bitSize() > 8 * sizeof(edb::address_t)) {
-		return make_unexpected(tr("No Value"));
-	}
-
-	return reg.valueAsAddress();
-}
-
 
 //------------------------------------------------------------------------------
 // Name: goto_triggered
@@ -1206,26 +1189,6 @@ Register Debugger::active_register() const {
 	return {};
 }
 
-//------------------------------------------------------------------------------
-// Name: on_registerList_customContextMenuRequested
-// Desc: context menu handler for register view
-//------------------------------------------------------------------------------
-QList<QAction*> Debugger::getCurrentRegisterContextMenuItems() const {
-	QList<QAction*> allActions;
-	const auto reg=active_register();
-	if(reg.type() & (Register::TYPE_GPR | Register::TYPE_IP)) {
-
-		QList<QAction*> actions;
-		actions << registerFollowInDumpAction_;
-		actions << registerFollowInDumpTabAction_;
-		actions << registerFollowInStackAction_;
-
-		allActions.append(actions);
-	}
-	allActions.append(get_plugin_context_menu_items(&IPlugin::register_context_menu));
-	return allActions;
-}
-
 // Flag-toggling functions.  Not sure if this is the best solution, but it works.
 
 //------------------------------------------------------------------------------
@@ -1368,20 +1331,6 @@ void Debugger::follow_memory(edb::address_t address, F follow_func) {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: follow_register_in_dump
-// Desc:
-//------------------------------------------------------------------------------
-void Debugger::follow_register_in_dump(bool tabbed) {
-
-	if(const Result<edb::address_t, QString> address = get_follow_register()) {
-		if(!edb::v1::dump_data(*address, tabbed)) {
-			QMessageBox::critical(this,
-				tr("No Memory Found"),
-				tr("There appears to be no memory at that location (<strong>%1</strong>)").arg(edb::v1::format_pointer(address.value())));
-		}
-	}
-}
 
 //------------------------------------------------------------------------------
 // Name: mnuStackGotoESP
@@ -1467,20 +1416,6 @@ void Debugger::mnuStackGotoAddress() {
 		});
 	}
 }
-
-//------------------------------------------------------------------------------
-// Name: mnuRegisterFollowInStack
-// Desc:
-//------------------------------------------------------------------------------
-void Debugger::mnuRegisterFollowInStack() {
-
-	if(const Result<edb::address_t, QString> address = get_follow_register()) {
-		follow_memory(*address, [](edb::address_t address) {
-			return edb::v1::dump_stack(address);
-		});
-	}
-}
-
 
 //------------------------------------------------------------------------------
 // Name: get_follow_address
