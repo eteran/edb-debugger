@@ -104,7 +104,6 @@ public:
 	void update_data(const std::shared_ptr<DataViewInfo> &v);
 	void update_gui();
 	QLabel *statusLabel() const;
-	QList<QAction*> getCurrentRegisterContextMenuItems() const;
 	Register active_register() const;
 
 Q_SIGNALS:
@@ -184,6 +183,7 @@ private Q_SLOTS:
 
 private Q_SLOTS:
 	// the manually connected Register slots
+	QList<QAction*> getCurrentRegisterContextMenuItems() const;
 	void mnuRegisterFollowInDump()       { follow_register_in_dump(false); }
 	void mnuRegisterFollowInDumpNewTab() { follow_register_in_dump(true); }
 	void mnuRegisterFollowInStack();
