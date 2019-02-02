@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "ValueField.h"
+#include "edb.h"
 #include "ODbgRV_Common.h"
 #include "ODbgRV_Util.h"
 #if defined EDB_X86 || defined EDB_X86_64
@@ -81,6 +82,10 @@ ValueField::ValueField(int fieldWidth,
 	if (index.parent().data().toString() == GPRCategoryName) {
 		// These should be above others, so prepending instead of appending
 		menuItems.push_front(newAction(tr("In&vert"), this, this, SLOT(invert())));
+
+		menuItems.push_front(newAction(tr("Follow Register in Dump"), this, this, SLOT(followRegisterInDump())));
+
+		menuItems.push_front(newAction(tr("Follow Register in Stack"), this, this, SLOT(followRegisterInStack())));
 
 		menuItems.push_front(setToOneAction = newAction(tr("Set to &1"), this, this, SLOT(setToOne())));
 
@@ -382,7 +387,15 @@ void changeGPR(const QModelIndex &index, RegisterViewModelBase::Model *const mod
 	std::memcpy(byteArr.data(), &value, byteArr.size());
 	model->setData(index, byteArr, Model::RawValueRole);
 }
-
+void getRegisterValue(const QModelIndex &index, std::uint64_t* value)
+{
+	using RegisterViewModelBase::Model;
+	auto byteArr = index.data(Model::RawValueRole).toByteArray();
+	if (byteArr.isEmpty())
+		return;
+	assert(byteArr.size() <= int(sizeof(*value)));
+	std::memcpy(value, byteArr.constData(), byteArr.size());
+}
 }
 
 void ValueField::decrement() {
@@ -395,6 +408,16 @@ void ValueField::increment() {
 
 void ValueField::invert() {
 	changeGPR(index, model(), [](std::uint64_t v) { return ~v; });
+}
+void ValueField::followRegisterInDump() {
+	std::uint64_t value(0);
+	getRegisterValue(index, &value);
+	edb::v1::dump_data(value,true);
+}
+void ValueField::followRegisterInStack() {
+	std::uint64_t value(0);
+	getRegisterValue(index, &value);
+	edb::v1::dump_stack(value);
 }
 
 void ValueField::setZero() {

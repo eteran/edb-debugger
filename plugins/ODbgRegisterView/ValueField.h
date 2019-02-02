@@ -87,6 +87,8 @@ public Q_SLOTS:
 	void         increment();
 	void         decrement();
 	void         invert();
+	void         followRegisterInDump();
+	void         followRegisterInStack();
 
 Q_SIGNALS:
 	void selected();
