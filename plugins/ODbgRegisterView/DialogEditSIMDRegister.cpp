@@ -192,6 +192,11 @@ void DialogEditSIMDRegister::updateIntegralEntries(const std::array<NumberEdit *
 }
 
 void DialogEditSIMDRegister::updateAllEntriesExcept(NumberEdit *notUpdated) {
+
+	if (!reg) {
+		return;
+	}
+
 	updateIntegralEntries<std::uint8_t>(bytes, notUpdated);
 	updateIntegralEntries<std::uint16_t>(words, notUpdated);
 	updateIntegralEntries<std::uint32_t>(dwords, notUpdated);
