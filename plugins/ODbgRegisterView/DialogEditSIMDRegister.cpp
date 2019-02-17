@@ -100,7 +100,10 @@ DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent) : QDialog(parent
 		const auto hexSignRadiosLayout = new QVBoxLayout();
 		radioHex                       = new QRadioButton(tr("Hexadecimal"), this);
 		connect(radioHex, &QRadioButton::toggled, this, &DialogEditSIMDRegister::onHexToggled);
-		radioHex->setChecked(true); // must be after connecting of toggled()
+		// setChecked must be called after connecting of toggled()
+		// in order to set validators for integer editors
+		radioHex->setChecked(true);
+
 		hexSignRadiosLayout->addWidget(radioHex);
 
 		radioSigned = new QRadioButton(tr("Signed"), this);
@@ -192,6 +195,11 @@ void DialogEditSIMDRegister::updateIntegralEntries(const std::array<NumberEdit *
 }
 
 void DialogEditSIMDRegister::updateAllEntriesExcept(NumberEdit *notUpdated) {
+
+	if (!reg) {
+		return;
+	}
+
 	updateIntegralEntries<std::uint8_t>(bytes, notUpdated);
 	updateIntegralEntries<std::uint16_t>(words, notUpdated);
 	updateIntegralEntries<std::uint32_t>(dwords, notUpdated);
