@@ -44,7 +44,23 @@ Result<void, SessionError> SessionManager::load_session(const QString &session_f
 
 	QFile file(session_file);
 	if(!file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-		return {};
+		// the checks for open() and exists() are racy, but
+		// this is fine as it affects only whether we show an
+		// error message or not
+		if (!file.exists()) {
+			// file doesn't exists means this is the first time we
+			// opened the debuggee and there is no session file for
+			// it yet
+
+			// return success as we don't want showing error message
+			// in this case
+			return {};
+		} else {
+			SessionError session_error;
+			session_error.err = SessionError::InvalidSessionFile;
+			session_error.message = tr("Failed to open session file. %1").arg(file.errorString());
+			return make_unexpected(session_error);
+		}
 	}
 
 	QByteArray json = file.readAll();
