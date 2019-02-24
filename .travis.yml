@@ -54,7 +54,7 @@ after_success:
     - wget -c "https://github.com/probonopd/linuxdeployqt/releases/download/6/linuxdeployqt-6-x86_64.AppImage"
     - chmod a+x linuxdeployqt-1-x86_64.AppImage
     - unset LD_LIBRARY_PATH
-    - ./linuxdeployqt-1-x86_64.AppImage ./build/edb -appimage -verbose=2
+    - ./linuxdeployqt-6-x86_64.AppImage ./build/edb -appimage -verbose=2
     - curl --upload-file $(ls build*.AppImage) https://transfer.sh/edb-qt$QT_BASE.git.$(git rev-parse --short HEAD)-x86_64.AppImage # Replace with your deployment mechanism
     
 branches:
