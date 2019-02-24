@@ -21,10 +21,6 @@ add_subdirectory(DebuggerErrorConsole)
 add_subdirectory(BinarySearcher)
 add_subdirectory(InstructionInspector)
 
-# NOTE(eteran): this is deprecated, will be removed at some point in the future...
-if(${BUILD_SIMPLE_REGISTER_VIEW})
-	add_subdirectory(SimpleRegView)
-endif()
 
 if(TARGET_ARCH_FAMILY_X86)
 	add_subdirectory(HardwareBreakpoints)
