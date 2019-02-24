@@ -1,7 +1,7 @@
 cmake_minimum_required (VERSION 3.0)
 project (edb CXX)
 
-if(NOT EXISTS "${PROJECT_SOURCE_DIR}/src/qhexview/")
+if(NOT EXISTS "${PROJECT_SOURCE_DIR}/src/qhexview/.git")
 	message(SEND_ERROR "The git submodules are not available. Please run:\ngit submodule update --init --recursive")
 endif()
 
