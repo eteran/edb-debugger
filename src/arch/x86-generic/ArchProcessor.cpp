@@ -1373,30 +1373,49 @@ void updateDebugRegs(RegisterViewModel& model, const State& state) {
 }
 
 void updateMMXRegs(RegisterViewModel& model, const State& state) {
-	for(std::size_t i=0;i<MAX_MMX_REGS_COUNT;++i) {
-		const auto reg=state.mmx_register(i);
-		if(!!reg) model.updateMMXReg(i,reg.value<MMWord>());
-		else model.invalidateMMXReg(i);
+	for(std::size_t i = 0; i < MAX_MMX_REGS_COUNT; ++i) {
+		const auto reg = state.arch_register(edb::string_hash("mmx"), i);
+
+		if(!!reg) {
+			model.updateMMXReg(i,reg.value<MMWord>());
+		} else {
+			model.invalidateMMXReg(i);
+		}
 	}
 }
 
 void updateSSEAVXRegs(RegisterViewModel& model, const State& state, bool hasSSE, bool hasAVX) {
-	if(!hasSSE) return;
-	const std::size_t max=edb::v1::debuggeeIs32Bit() ? AVX32_COUNT : AVX64_COUNT;
-	for(std::size_t i=0;i<max;++i) {
+
+	if(!hasSSE) {
+		return;
+	}
+
+	const std::size_t max = edb::v1::debuggeeIs32Bit() ? AVX32_COUNT : AVX64_COUNT;
+
+	for(std::size_t i = 0; i < max; ++i) {
 		if(hasAVX) {
-			const auto reg=state.ymm_register(i);
-			if(!reg) model.invalidateAVXReg(i);
-			else model.updateAVXReg(i,reg.value<YMMWord>());
+			const auto reg = state.arch_register(edb::string_hash("ymm"), i);
+			if(!reg) {
+				model.invalidateAVXReg(i);
+			} else {
+				model.updateAVXReg(i,reg.value<YMMWord>());
+			}
 		} else if(hasSSE) {
-			const auto reg=state.xmm_register(i);
-			if(!reg) model.invalidateSSEReg(i);
-			else model.updateSSEReg(i,reg.value<XMMWord>());
+			const auto reg = state.arch_register(edb::string_hash("xmm"), i);
+			if(!reg) {
+				model.invalidateSSEReg(i);
+			} else {
+				model.updateSSEReg(i,reg.value<XMMWord>());
+			}
 		}
 	}
-	const auto mxcsr=state["mxcsr"];
-	if(!mxcsr) model.invalidateMXCSR();
-	else model.updateMXCSR(mxcsr.value<edb::value32>());
+
+	const auto mxcsr = state["mxcsr"];
+	if(!mxcsr) {
+		model.invalidateMXCSR();
+	} else {
+		model.updateMXCSR(mxcsr.value<edb::value32>());
+	}
 }
 
 //------------------------------------------------------------------------------
