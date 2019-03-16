@@ -39,9 +39,9 @@ class EDB_EXPORT State {
 	friend class DebuggerCorePlugin::PlatformThread;
 
 public:
-	State &operator=(const State &other);
 	State();
 	State(const State &other);
+	State &operator=(const State &rhs);
 	~State();
 
 public:
@@ -59,6 +59,13 @@ public:
 	edb::reg_t debug_register(size_t n) const;
 	edb::reg_t flags() const;
 	Register gp_register(size_t n) const;
+	Register arch_register(uint64_t type, size_t n) const;
+	void adjust_stack(int bytes);
+	void clear();
+	bool empty() const;
+
+public:
+#if defined(EDB_X86) || defined(EDB_X86_64)
 	int fpu_stack_pointer() const;
 	edb::value80 fpu_register(size_t n) const;
 	bool fpu_register_is_empty(std::size_t n) const;
@@ -69,9 +76,7 @@ public:
 	Register mmx_register(std::size_t n) const;
 	Register xmm_register(std::size_t n) const;
 	Register ymm_register(std::size_t n) const;
-	void adjust_stack(int bytes);
-	void clear();
-	bool empty() const;
+#endif
 
 public:
 	void set_debug_register(size_t n, edb::reg_t value);

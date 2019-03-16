@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PlatformState.h"
 #include "FloatX.h"
+#include "string_hash.h"
 #include "Util.h"
 #include <QDebug>
 #include <QRegExp>
@@ -1394,6 +1395,21 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 
 	const QString regName = name.toLower();
 	set_register(make_Register<64>(regName, value, Register::TYPE_GPR));
+}
+
+//------------------------------------------------------------------------------
+// Name: arch_register
+// Desc:
+//------------------------------------------------------------------------------
+Register PlatformState::arch_register(uint64_t type, size_t n) const {
+	switch(type) {
+	case edb::string_hash("mmx"): return mmx_register(n);
+	case edb::string_hash("xmm"): return xmm_register(n);
+	case edb::string_hash("ymm"): return ymm_register(n);
+	default:
+		break;
+	}
+	return Register();
 }
 
 //------------------------------------------------------------------------------

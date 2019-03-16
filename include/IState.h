@@ -56,6 +56,14 @@ public:
 	// GP
 	virtual Register gp_register(size_t n) const = 0;
 
+public:
+	// This is a more generic means to request architecture
+	// specific registers. The type should be the result of
+	// edb::string_hash, for example:
+	// edb::string_hash("mmx"), string_hash("xmm"), and string_hash("ymm")
+	// This will allow this interface to be much more platform independent
+	virtual Register arch_register(uint64_t type, size_t n) const = 0;
+
 #if defined(EDB_X86) || defined(EDB_X86_64)
 public:
 	// FPU
@@ -70,11 +78,8 @@ public:
 public:
 	// MMX
 	virtual Register mmx_register(std::size_t n) const = 0;
-
-public:
 	// SSE
 	virtual Register xmm_register(std::size_t n) const = 0;
-public:
 	// AVX
 	virtual Register ymm_register(std::size_t n) const = 0;
 #endif
