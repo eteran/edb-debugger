@@ -146,7 +146,7 @@ edb::reg_t State::flags() const {
 	if(impl_) {
 		return impl_->flags();
 	}
-	return edb::address_t(0);
+	return edb::reg_t(0);
 }
 
 //------------------------------------------------------------------------------
@@ -251,7 +251,7 @@ edb::reg_t State::debug_register(size_t n) const {
 	if(impl_) {
 		return impl_->debug_register(n);
 	}
-	return edb::address_t(0);
+	return edb::reg_t(0);
 }
 
 //------------------------------------------------------------------------------
