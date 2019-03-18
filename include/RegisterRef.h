@@ -1,70 +1,44 @@
 
-// based on code from mozilla: https://github.com/mozilla/rr/blob/master/src/Registers.cc
+// inspired from code from mozilla: https://github.com/mozilla/rr/blob/master/src/Registers.cc
 
 #ifndef REGISTER_REF_H_
 #define REGISTER_REF_H_
 
 #include <cassert>
+#include <climits>
 #include <cstddef>
 #include <cstdint>
-#include <climits>
-
-namespace DebuggerCorePlugin {
+#include <cstring>
 
 class RegisterRef {
 public:
-	constexpr RegisterRef() = default;
-
-	RegisterRef(const char *name_, std::size_t offset_, std::size_t nbytes_) : name(name_), offset(offset_), nbytes(nbytes_) {
-		comparison_mask = mask_for_nbytes(nbytes_);
+	RegisterRef(const char *name, const void *ptr, std::size_t size) : name_(name), ptr_(ptr), size_(size) {
 	}
 
-	RegisterRef(const char *name_, std::size_t offset_, std::size_t nbytes_, std::uint64_t comparison_mask_) : name(name_), offset(offset_), nbytes(nbytes_), comparison_mask(comparison_mask_) {
-		// Ensure no bits are set outside of the register's bitwidth.
-		assert((comparison_mask_ & ~mask_for_nbytes(nbytes_)) == 0);
-	}
-	
-	RegisterRef(const RegisterRef &) = default;
-	
+	constexpr RegisterRef()                     = default;
+	RegisterRef(const RegisterRef &)            = default;	
 	RegisterRef &operator=(const RegisterRef &) = default;
 
-	// Returns a pointer to the register in |regs| represented by |offset|.
-	// |regs| is assumed to be a pointer to the user_struct_regs for the
-	// appropriate architecture.
-	void *pointer_into(void *regs) const {
-		return static_cast<char *>(regs) + offset;
-	}
-
-	const void *pointer_into(const void *regs) const {
-		return static_cast<const char *>(regs) + offset;
-	}
+public:
+	const void *data() const { return ptr_; }
 
 public:
-	static std::uint64_t mask_for_nbytes(std::size_t nbytes) {
-		assert(nbytes <= sizeof(comparison_mask));
-		return ((nbytes == sizeof(comparison_mask)) ? std::uint64_t(0) : (std::uint64_t(1) << nbytes * CHAR_BIT)) - 1;
-	}
+	bool operator==(const RegisterRef &rhs) const { return size_ == rhs.size_ && std::memcmp(ptr_, rhs.ptr_, size_) == 0; }
+	bool operator!=(const RegisterRef &rhs) const { return size_ != rhs.size_ || std::memcmp(ptr_, rhs.ptr_, size_) != 0; }
+	
+public:
+	bool valid() const { !!return ptr_; }
 
 public:
 	// The name of this register.
-	const char *name = nullptr;
+	const char *name_ = nullptr;
 
-	// The offsetof the register in state structure.
-	std::size_t offset = 0;
+	// The ptr to register in state structure.
+	const void *ptr_ = nullptr;
 
-	// The size of the register.  0 means we cannot read it.
-	std::size_t nbytes = 0;
-
-	// Mask to be applied to register values prior to comparing them.  Will
-	// typically be ((1 << nbytes) - 1), but some registers may have special
-	// comparison semantics.
-	//
-	// NOTE(eteran): there is a max of 64-bits on the mask, for larger registers
-	// we should set this to zero and let the consumer wory about which bits 
-	// are valid
-	std::uint64_t comparison_mask = 0;
+	// The size of the register. 0 means we cannot read it.
+	std::size_t size_ = 0;
 };
 
-}
 
 #endif
