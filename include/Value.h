@@ -944,14 +944,13 @@ public:
 	}
 
 	value_type<uint16_t> exponent() const {
-		value_type<uint16_t> e;
-		memcpy(&e.value_, &value_[8], 2);
+		value_type<uint16_t> e(value_, 8);
 		e &= 0x7fff;
 		return e;
 	}
 
 	value_type<uint64_t> mantissa() const {
-		value_type<uint64_t> m(value_, 8);
+		value_type<uint64_t> m(value_, 0);
 		return m;
 	}
 
