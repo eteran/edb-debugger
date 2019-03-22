@@ -215,6 +215,7 @@ public:
 	bool negative() const { return this->value_.back()>>(std::numeric_limits<InnerValueType>::digits-1); }
 };
 
+#if 0
 // Not using long double because for e.g. x86_64 it has 128 bits.
 struct EDB_EXPORT Value80 : public ValueBase<16,5> {
 	Value80() = default;
@@ -253,6 +254,7 @@ struct EDB_EXPORT Value80 : public ValueBase<16,5> {
 	SizedValue<16> exponent() const { return value_[4] & 0x7fff; }
 	SizedValue<64> mantissa() const { return SizedValue<64>(value_); }
 };
+#endif
 
 template <int N>
 struct LargeSizedValue : public ValueBase<LargeSizedValueElementWidth, N / LargeSizedValueElementWidth> {
@@ -910,6 +912,95 @@ auto operator^(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 	return r;
 }
 
+
+
+struct value_type80 {
+public:
+	// all defaulted to help ensure that this is a trivially-copyable type
+	value_type80()                                = default;
+	value_type80(const value_type80 &)            = default;
+	value_type80& operator=(const value_type80 &) = default;
+	value_type80(value_type80 &&)                 = default;
+	value_type80& operator=(value_type80 &&)      = default;
+	~value_type80()                               = default;
+
+public:
+	template <class Data>
+	explicit value_type80(const Data &data, size_t offset = 0) {
+		static_assert(sizeof(Data) >= sizeof(value_type80), "ValueBase can only be constructed from large enough variable");
+#if defined __GNUG__ && __GNUC__ >= 5 || !defined __GNUG__ || defined __clang__ && __clang_major__*100+__clang_minor__>=306
+		static_assert(std::is_trivially_copyable<Data>::value, "ValueBase can only be constructed from trivially copiable data");
+#endif
+
+		assert(sizeof(Data) - offset >= sizeof(value_type80)); // check bounds, this can't be done at compile time
+
+		auto dataStart = reinterpret_cast<const char*>(&data);
+		std::memcpy(&value_, dataStart + offset, sizeof(value_));
+	}
+
+public:
+	bool negative() const {
+		return value_[9] & 0x80;
+	}
+
+	value_type<uint16_t> exponent() const {
+		value_type<uint16_t> e;
+		memcpy(&e.value_, &value_[8], 2);
+		e &= 0x7fff;
+		return e;
+	}
+
+	value_type<uint64_t> mantissa() const {
+		value_type<uint64_t> m(value_, 8);
+		return m;
+	}
+
+	bool normalized() const {
+		return value_[7] & 0x80;
+	}
+
+public:
+	long double toFloatValue() const {
+#ifdef _MSC_VER
+		double d;
+		long_double_to_double(&value_, &d);
+		return d;
+#else
+		long double float80val;
+		std::memcpy(&float80val, &value_, sizeof(value_));
+		return float80val;
+#endif
+	}
+
+public:
+	QString toHexString() const {
+		char buf[32];
+		snprintf(buf, sizeof(buf), "%02x%02x%02x%02x%02x%02x%02x%02x%02x%02x",
+			value_[9],
+			value_[8],
+			value_[7],
+			value_[6],
+			value_[5],
+			value_[4],
+			value_[3],
+			value_[2],
+			value_[1],
+			value_[0]
+		);
+
+		return QString::fromLatin1(buf);
+	}
+
+public:
+	bool operator==(const value_type80 &rhs) const { return memcmp(value_, rhs.value_, 10) == 0; }
+	bool operator!=(const value_type80 &rhs) const { return memcmp(value_, rhs.value_, 10) != 0; }
+
+public:
+	uint8_t value_[10];
+};
+
+static_assert(sizeof(value_type80) * 8 == 80, "value_type80 size is broken!");
+
 }
 
 // GPR on x86
@@ -921,7 +1012,7 @@ using value32 = detail::value_type<uint32_t>;
 using value64  = detail::value_type<uint64_t>;
 
 // FPU
-using value80  = detail::Value80;
+using value80  = detail::value_type80;
 
 // SSE
 using value128 = detail::LargeSizedValue<128>;
