@@ -55,3 +55,15 @@ QString Register::toHexString() const {
 bool Register::operator!=(const Register &rhs) const {
 	return !(*this == rhs);
 }
+
+void Register::setScalarValue(std::uint64_t newValue) {
+	std::memcpy(&value_, &newValue, bitSize_ / 8);
+}
+
+edb::address_t Register::valueAsAddress() const {
+	// This function only makes sense for GPRs
+	assert(bitSize_ <= 8 * sizeof(edb::address_t));
+	edb::address_t result(0LL);
+	std::memcpy(&result, &value_, bitSize_ / 8);
+	return result;
+}
