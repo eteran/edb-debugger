@@ -47,14 +47,14 @@ long double readFloat(const QString &strInput, bool &ok) {
 	// We still do want the user to be able to enter common special values
 	long double value;
 
-	static std::array<std::uint8_t, 10> positiveInf{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0x7f};
-	static std::array<std::uint8_t, 10> negativeInf{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0xff};
-	static std::array<std::uint8_t, 10> positiveSNaN{0, 0, 0, 0, 0, 0, 0, 0x90, 0xff, 0x7f};
-	static std::array<std::uint8_t, 10> negativeSNaN{0, 0, 0, 0, 0, 0, 0, 0x90, 0xff, 0xff};
+	static const std::array<std::uint8_t, 16> positiveInf{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0x7f, 0, 0, 0, 0, 0, 0};
+	static const std::array<std::uint8_t, 16> negativeInf{0, 0, 0, 0, 0, 0, 0, 0x80, 0xff, 0xff, 0, 0, 0, 0, 0, 0};
+	static const std::array<std::uint8_t, 16> positiveSNaN{0, 0, 0, 0, 0, 0, 0, 0x90, 0xff, 0x7f, 0, 0, 0, 0, 0, 0};
+	static const std::array<std::uint8_t, 16> negativeSNaN{0, 0, 0, 0, 0, 0, 0, 0x90, 0xff, 0xff, 0, 0, 0, 0, 0, 0};
 
 	// Indefinite values are used for QNaN
-	static std::array<std::uint8_t, 10> positiveQNaN{0, 0, 0, 0, 0, 0, 0, 0xc0, 0xff, 0x7f};
-	static std::array<std::uint8_t, 10> negativeQNaN{0, 0, 0, 0, 0, 0, 0, 0xc0, 0xff, 0xff};
+	static const std::array<std::uint8_t, 16> positiveQNaN{0, 0, 0, 0, 0, 0, 0, 0xc0, 0xff, 0x7f, 0, 0, 0, 0, 0, 0};
+	static const std::array<std::uint8_t, 16> negativeQNaN{0, 0, 0, 0, 0, 0, 0, 0xc0, 0xff, 0xff, 0, 0, 0, 0, 0, 0};
 
 	if (str == "+snan" || str == "snan")
 		std::memcpy(&value, &positiveSNaN, sizeof(value));
