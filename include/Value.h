@@ -28,21 +28,21 @@ extern bool debuggeeIs32Bit();
 namespace detail {
 
 template <size_t N>
-class large_value_type {
+class value_type_large {
 public:
-	using T = uint64_t[N / 8];
+	using T = uint64_t[(N / 64)];
 public:
 	// all defaulted to help ensure that this is a trivially-copyable type
-	large_value_type()                                   = default;
-	large_value_type(const large_value_type &)            = default;
-	large_value_type& operator=(const large_value_type &) = default;
-	large_value_type(large_value_type &&)                 = default;
-	large_value_type& operator=(large_value_type &&)      = default;
-	~large_value_type()                                  = default;
+	value_type_large()                                    = default;
+	value_type_large(const value_type_large &)            = default;
+	value_type_large& operator=(const value_type_large &) = default;
+	value_type_large(value_type_large &&)                 = default;
+	value_type_large& operator=(value_type_large &&)      = default;
+	~value_type_large()                                   = default;
 
 public:
 	template <class Data, class = typename std::enable_if<!std::is_floating_point<Data>::value && !std::is_integral<Data>::value>::type>
-	explicit large_value_type(const Data &data, size_t offset = 0) {
+	explicit value_type_large(const Data &data, size_t offset = 0) {
 
 		static_assert(sizeof(Data) >= sizeof(T), "value_type can only be constructed from large enough variable");
 		static_assert(std::is_trivially_copyable<Data>::value, "value_type can only be constructed from trivially copiable data");
@@ -54,18 +54,16 @@ public:
 	}
 
 public:
-	bool operator==(const large_value_type &rhs) const { return memcmp(value_, rhs.value_, sizeof(T)) == 0; }
-	bool operator!=(const large_value_type &rhs) const { return memcmp(value_, rhs.value_, sizeof(T)) != 0; }
+	bool operator==(const value_type_large &rhs) const { return memcmp(value_, rhs.value_, sizeof(T)) == 0; }
+	bool operator!=(const value_type_large &rhs) const { return memcmp(value_, rhs.value_, sizeof(T)) != 0; }
 
 public:
 	QString toHexString() const {
-		char buf[1024];
+		char buf[sizeof(T) * 2 + 1];
 		char *p = buf;
-		auto ptr = reinterpret_cast<const char *>(value_);
-		auto end = ptr + sizeof(T);
 
-		for(auto it = end; it != (ptr - 1); --it) {
-			p += sprintf(p, "%02x", *it & 0xff);
+		for(auto it = std::rbegin(value_); it != std::rend(value_); ++it) {
+			p += sprintf(p, "%016llx", *it & 0xffffffffffffffffULL);
 		}
 
 		return QString::fromLatin1(buf);
@@ -73,8 +71,8 @@ public:
 
 public:
 	template <class U>
-	static large_value_type fromZeroExtended(const U &data) {
-		large_value_type created;
+	static value_type_large fromZeroExtended(const U &data) {
+		value_type_large created;
 		created.copyZeroExtended(data);
 		return created;
 	}
@@ -93,7 +91,7 @@ private:
 		std::memset(target + sizeof(data), 0, sizeof(value_) - sizeof(data));
 	}
 
-public:
+private:
 	T value_ = {};
 };
 
@@ -819,7 +817,7 @@ public:
 	bool operator==(const value_type80 &rhs) const { return memcmp(value_, rhs.value_, 10) == 0; }
 	bool operator!=(const value_type80 &rhs) const { return memcmp(value_, rhs.value_, 10) != 0; }
 
-public:
+private:
 	T value_ = {};
 };
 
@@ -839,32 +837,32 @@ using value64  = detail::value_type<uint64_t>;
 using value80  = detail::value_type80;
 
 // SSE
-using value128 = detail::large_value_type<128>;
+using value128 = detail::value_type_large<128>;
 
 // AVX
-using value256 = detail::large_value_type<256>;
+using value256 = detail::value_type_large<256>;
 
 // AVX512
-using value512 = detail::large_value_type<512>;
+using value512 = detail::value_type_large<512>;
 
 static_assert(std::is_standard_layout<value8>::value &&
-              std::is_standard_layout<value16>::value &&
-              std::is_standard_layout<value32>::value &&
-              std::is_standard_layout<value64>::value &&
-              std::is_standard_layout<value80>::value &&
-              std::is_standard_layout<value128>::value &&
-              std::is_standard_layout<value256>::value &&
-              std::is_standard_layout<value512>::value, "Fixed-sized values are intended to have standard layout");
+		std::is_standard_layout<value16>::value &&
+		std::is_standard_layout<value32>::value &&
+		std::is_standard_layout<value64>::value &&
+		std::is_standard_layout<value80>::value &&
+		std::is_standard_layout<value128>::value &&
+		std::is_standard_layout<value256>::value &&
+		std::is_standard_layout<value512>::value, "Fixed-sized values are intended to have standard layout");
 
 
 static_assert(std::is_trivially_copyable<value8>::value &&
-			  std::is_trivially_copyable<value16>::value &&
-			  std::is_trivially_copyable<value32>::value &&
-			  std::is_trivially_copyable<value64>::value &&
-			  std::is_trivially_copyable<value80>::value &&
-			  std::is_trivially_copyable<value128>::value &&
-			  std::is_trivially_copyable<value256>::value &&
-			  std::is_trivially_copyable<value512>::value, "Fixed-sized values are intended to be trivially copyable");
+		std::is_trivially_copyable<value16>::value &&
+		std::is_trivially_copyable<value32>::value &&
+		std::is_trivially_copyable<value64>::value &&
+		std::is_trivially_copyable<value80>::value &&
+		std::is_trivially_copyable<value128>::value &&
+		std::is_trivially_copyable<value256>::value &&
+		std::is_trivially_copyable<value512>::value, "Fixed-sized values are intended to be trivially copyable");
 
 
 }
