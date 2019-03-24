@@ -1075,6 +1075,7 @@ edb::address_t PlatformProcess::calculate_main() const {
 						// ba[0] is entry_point + i - 13. instruction is 7 bytes long.
 						address = rel + entry_point + i - 13 + 7;
 					}
+
 					if (address) {
 						// TODO: make sure that this address resides in an executable region
 						qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
@@ -1100,7 +1101,10 @@ edb::address_t PlatformProcess::calculate_main() const {
 					// beginning of a call preceeded by a push and followed by a hlt
 					if(ba[0] == 0x68 && ba[5] == 0xe8 && ba[10] == 0xf4) {
 						edb::address_t address(0);
-						std::memcpy(&address, ba.data() + 1, sizeof(uint32_t));
+
+						auto to = reinterpret_cast<char *>(&address);
+						std::memcpy(to, ba.data() + 1, sizeof(uint32_t));
+
 						// TODO: make sure that this address resides in an executable region
 						qDebug() << "No main symbol found, calculated it to be " << edb::v1::format_pointer(address) << " using heuristic";
 						return address;

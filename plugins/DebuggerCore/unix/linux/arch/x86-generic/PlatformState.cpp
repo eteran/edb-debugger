@@ -130,18 +130,19 @@ const std::array<const char *, MAX_SEG_REG_COUNT> PlatformState::X86::segRegName
 
 void PlatformState::fillFrom(const UserRegsStructX86 &regs) {
 
-	// Don't touch higher parts to avoid zeroing out bad value mark
-	std::memcpy(&x86.GPRegs[X86::EAX], &regs.eax, sizeof(regs.eax));
-	std::memcpy(&x86.GPRegs[X86::ECX], &regs.ecx, sizeof(regs.ecx));
-	std::memcpy(&x86.GPRegs[X86::EDX], &regs.edx, sizeof(regs.edx));
-	std::memcpy(&x86.GPRegs[X86::EBX], &regs.ebx, sizeof(regs.ebx));
-	std::memcpy(&x86.GPRegs[X86::ESP], &regs.esp, sizeof(regs.esp));
-	std::memcpy(&x86.GPRegs[X86::EBP], &regs.ebp, sizeof(regs.ebp));
-	std::memcpy(&x86.GPRegs[X86::ESI], &regs.esi, sizeof(regs.esi));
-	std::memcpy(&x86.GPRegs[X86::EDI], &regs.edi, sizeof(regs.edi));
-	std::memcpy(&x86.orig_ax, &regs.orig_eax, sizeof(regs.orig_eax));
-	std::memcpy(&x86.flags, &regs.eflags, sizeof(regs.eflags));
-	std::memcpy(&x86.IP, &regs.eip, sizeof(regs.eip));
+	// Don't touch higher parts to avoid zeroing out bad value mark, so use load
+	x86.GPRegs[X86::EAX].load(regs.eax);
+	x86.GPRegs[X86::ECX].load(regs.ecx);
+	x86.GPRegs[X86::EDX].load(regs.edx);
+	x86.GPRegs[X86::EBX].load(regs.ebx);
+	x86.GPRegs[X86::ESP].load(regs.esp);
+	x86.GPRegs[X86::EBP].load(regs.ebp);
+	x86.GPRegs[X86::ESI].load(regs.esi);
+	x86.GPRegs[X86::EDI].load(regs.edi);
+	x86.orig_ax.load(regs.orig_eax);
+	x86.flags.load(regs.eflags);
+	x86.IP.load(regs.eip);
+
 	x86.segRegs[X86::ES] = regs.xes;
 	x86.segRegs[X86::CS] = regs.xcs;
 	x86.segRegs[X86::SS] = regs.xss;
@@ -333,18 +334,20 @@ void PlatformState::fillFrom(const UserFPRegsStructX86_64 &regs) {
 
 void PlatformState::fillFrom(const PrStatus_X86 &regs) {
 
-	// Don't touch higher parts to avoid zeroing out bad value mark
-	std::memcpy(&x86.GPRegs[X86::EAX], &regs.eax, sizeof(regs.eax));
-	std::memcpy(&x86.GPRegs[X86::ECX], &regs.ecx, sizeof(regs.ecx));
-	std::memcpy(&x86.GPRegs[X86::EDX], &regs.edx, sizeof(regs.edx));
-	std::memcpy(&x86.GPRegs[X86::EBX], &regs.ebx, sizeof(regs.ebx));
-	std::memcpy(&x86.GPRegs[X86::ESP], &regs.esp, sizeof(regs.esp));
-	std::memcpy(&x86.GPRegs[X86::EBP], &regs.ebp, sizeof(regs.ebp));
-	std::memcpy(&x86.GPRegs[X86::ESI], &regs.esi, sizeof(regs.esi));
-	std::memcpy(&x86.GPRegs[X86::EDI], &regs.edi, sizeof(regs.edi));
-	std::memcpy(&x86.orig_ax, &regs.orig_eax, sizeof(regs.orig_eax));
-	std::memcpy(&x86.flags, &regs.eflags, sizeof(regs.eflags));
-	std::memcpy(&x86.IP, &regs.eip, sizeof(regs.eip));
+	// Don't touch higher parts to avoid zeroing out bad value mark, so use load
+	x86.GPRegs[X86::EAX].load(regs.eax);
+	x86.GPRegs[X86::ECX].load(regs.ecx);
+	x86.GPRegs[X86::EDX].load(regs.edx);
+	x86.GPRegs[X86::EBX].load(regs.ebx);
+	x86.GPRegs[X86::ESP].load(regs.esp);
+	x86.GPRegs[X86::EBP].load(regs.ebp);
+	x86.GPRegs[X86::ESI].load(regs.esi);
+	x86.GPRegs[X86::EDI].load(regs.edi);
+	x86.orig_ax.load(regs.orig_eax);
+	x86.flags.load(regs.eflags);
+	x86.IP.load(regs.eip);
+
+
 	x86.segRegs[X86::ES] = regs.es;
 	x86.segRegs[X86::CS] = regs.cs;
 	x86.segRegs[X86::SS] = regs.ss;
@@ -431,7 +434,7 @@ bool PlatformState::fillFrom(const X86XState &regs, size_t sizeFromKernel) {
 		x87.filled       = true;
 		x87.opCodeFilled = true;
 	} else {
-		std::memset(&x87, 0, sizeof(x87));
+		std::memset(reinterpret_cast<char *>(&x87), 0, sizeof(x87));
 		x87.controlWord  = regs.cwd; // this appears always present
 		x87.tagWord      = 0xffff;
 		x87.filled       = true;
@@ -478,6 +481,9 @@ bool PlatformState::fillFrom(const X86XState &regs, size_t sizeFromKernel) {
 		// Only fill the registers which are actually supported, leave invalidity marks intact for other parts
 		if (avx.xcr0 & X86XState::FEATURE_AVX) { // If AVX state management has been enabled by the OS
 			for (size_t n = 0; n < MAX_YMM_REG_COUNT; ++n) {
+
+				// TODO(eteran): a default initialized value should just have all zeros set
+				// no need to use fromZeroExtended, right?
 				avx.setYMM(n, edb::value256::fromZeroExtended(0));
 			}
 
@@ -486,6 +492,9 @@ bool PlatformState::fillFrom(const X86XState &regs, size_t sizeFromKernel) {
 			avx.ymmFilled      = true;
 		} else if (avx.xcr0 & X86XState::FEATURE_SSE) { // If SSE state management has been enabled by the OS
 			for (size_t n = 0; n < MAX_YMM_REG_COUNT; ++n) {
+
+				// TODO(eteran): a default initialized value should just have all zeros set
+				// no need to use fromZeroExtended, right?
 				avx.setYMM(n, edb::value256::fromZeroExtended(0));
 			}
 
@@ -733,7 +742,7 @@ edb::value512 PlatformState::AVX::zmm(size_t index) const {
 
 void PlatformState::AVX::setXMM(size_t index, edb::value128 value) {
 	// leave upper part unchanged.
-	std::memcpy(&zmmStorage[index], &value, sizeof(value));
+	zmmStorage[index].load(value);
 }
 
 void PlatformState::AVX::setYMM(size_t index, edb::value128 low, edb::value128 high) {
@@ -744,7 +753,7 @@ void PlatformState::AVX::setYMM(size_t index, edb::value128 low, edb::value128 h
 
 void PlatformState::AVX::setYMM(size_t index, edb::value256 value) {
 	// leave upper part unchanged.
-	std::memcpy(&zmmStorage[index], &value, sizeof(value));
+	zmmStorage[index].load(value);
 }
 
 void PlatformState::AVX::setZMM(size_t index, edb::value512 value) {
@@ -1114,12 +1123,13 @@ edb::value80 PlatformState::fpu_register(size_t n) const {
 	assert(fpuIndexValid(n));
 
 	if (!x87.filled) {
+
 		edb::value80        v;
 		const std::uint64_t mant = 0x0badbad1bad1bad1;
 		const std::uint16_t exp  = 0x0bad;
 
-		std::memcpy(&v, &mant, sizeof(mant));
-		std::memcpy(reinterpret_cast<char *>(&v) + sizeof(mant), &exp, sizeof(exp));
+		std::memcpy(reinterpret_cast<char *>(&v),                &mant, sizeof(mant));
+		std::memcpy(reinterpret_cast<char *>(&v) + sizeof(mant), &exp,  sizeof(exp));
 		return v;
 	}
 
@@ -1280,8 +1290,10 @@ void PlatformState::set_register(const Register &reg) {
 			char digitChar = digit.toLatin1();
 			size_t i = digitChar - '0';
 			assert(mmxIndexValid(i));
-			const auto value = reg.value<edb::value64>();
-			std::memcpy(&x87.R[i], &value, sizeof(value));
+
+			const auto value = reg.value<edb::value64>();			
+			std::memcpy(reinterpret_cast<char *>(&x87.R[i]), &value, sizeof(value));
+
 			const uint16_t RiUpper = 0xffff;
 			std::memcpy(reinterpret_cast<char *>(&x87.R[i]) + sizeof(value), &RiUpper, sizeof(RiUpper));
 			return;
@@ -1323,7 +1335,8 @@ void PlatformState::set_register(const Register &reg) {
 			bool indexReadOK = false;
 			size_t i = XMMx.cap(1).toInt(&indexReadOK);
 			assert(indexReadOK && xmmIndexValid(i));
-			std::memcpy(&avx.zmmStorage[i], &value, sizeof(value));
+
+			avx.zmmStorage[i].load(value);
 			return;
 
 		}
@@ -1336,7 +1349,8 @@ void PlatformState::set_register(const Register &reg) {
 			bool indexReadOK = false;
 			size_t i = YMMx.cap(1).toInt(&indexReadOK);
 			assert(indexReadOK && ymmIndexValid(i));
-			std::memcpy(&avx.zmmStorage[i], &value, sizeof(value));
+
+			avx.zmmStorage[i].load(value);
 			return;
 		}
 	}

@@ -848,8 +848,11 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
     lastMeansOfCapture = MeansOfCapture::Launch;
 
 	static constexpr std::size_t sharedMemSize = 4096;
-	const auto sharedMem = static_cast<QChar*>(::mmap(nullptr, sharedMemSize, PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANONYMOUS, -1, 0));
-	std::memset(sharedMem, 0, sharedMemSize);
+
+	void *const ptr = ::mmap(nullptr, sharedMemSize, PROT_READ|PROT_WRITE,MAP_SHARED|MAP_ANONYMOUS, -1, 0);
+	const auto sharedMem = static_cast<QChar*>(ptr);
+
+	std::memset(ptr, 0, sharedMemSize);
 
 	switch(pid_t pid = fork()) {
 	case 0:

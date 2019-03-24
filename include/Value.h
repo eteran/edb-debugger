@@ -27,6 +27,9 @@ extern bool debuggeeIs32Bit();
 
 namespace detail {
 
+template <class Integer>
+using IsInteger = typename std::enable_if<std::is_integral<Integer>::value>::type;
+
 template <size_t N>
 class value_type_large {
 public:
@@ -54,8 +57,15 @@ public:
 	}
 
 public:
-	bool operator==(const value_type_large &rhs) const { return memcmp(value_, rhs.value_, sizeof(T)) == 0; }
-	bool operator!=(const value_type_large &rhs) const { return memcmp(value_, rhs.value_, sizeof(T)) != 0; }
+	template <class U>
+	void load(const U &n) {
+		static_assert(sizeof(T) >= sizeof(U), "Value to load is too large.");
+		std::memcpy(&value_, &n, sizeof(U));
+	}
+
+public:
+	bool operator==(const value_type_large &rhs) const { return std::memcmp(value_, rhs.value_, sizeof(T)) == 0; }
+	bool operator!=(const value_type_large &rhs) const { return std::memcmp(value_, rhs.value_, sizeof(T)) != 0; }
 
 public:
 	QString toHexString() const {
@@ -94,9 +104,6 @@ private:
 private:
 	T value_ = {};
 };
-
-template <class Integer>
-using IsInteger = typename std::enable_if<std::is_integral<Integer>::value>::type;
 
 template <class T1, class T2>
 using PromoteType = typename std::conditional<
@@ -159,6 +166,13 @@ public:
 
 		auto dataStart = reinterpret_cast<const char *>(&data);
 		std::memcpy(&value_, dataStart + offset, sizeof(value_));
+	}
+
+public:
+	template <class U>
+	void load(const U &n) {
+		static_assert(sizeof(T) >= sizeof(U), "Value to load is too large.");
+		std::memcpy(&value_, &n, sizeof(U));
 	}
 
 public:
@@ -649,7 +663,7 @@ bool operator==(const value_type<T1> &lhs, const value_type<T2> &rhs) {
 
 template <class T1, class T2>
 bool operator!=(const value_type<T1> &lhs, const value_type<T2> &rhs) {
-	return lhs.value_ == rhs.value_;
+	return lhs.value_ != rhs.value_;
 }
 
 template <class T1, class T2>
@@ -814,8 +828,8 @@ public:
 	}
 
 public:
-	bool operator==(const value_type80 &rhs) const { return memcmp(value_, rhs.value_, 10) == 0; }
-	bool operator!=(const value_type80 &rhs) const { return memcmp(value_, rhs.value_, 10) != 0; }
+	bool operator==(const value_type80 &rhs) const { return std::memcmp(value_, rhs.value_, sizeof(T)) == 0; }
+	bool operator!=(const value_type80 &rhs) const { return std::memcmp(value_, rhs.value_, sizeof(T)) != 0; }
 
 private:
 	T value_ = {};
