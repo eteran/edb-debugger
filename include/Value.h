@@ -82,23 +82,18 @@ public:
 public:
 	template <class U>
 	static value_type_large fromZeroExtended(const U &data) {
-		value_type_large created;
-		created.copyZeroExtended(data);
-		return created;
-	}
 
-private:
-	template <class U>
-	void copyZeroExtended(const U& data) {
-		// TODO(eteran): this seems to be more complex than I think we need
-		// since this is an unsigned type, I suspect that just assigning would be enough so long as it would fit...
 		static_assert(sizeof(U) <= sizeof(T), "It doesn't make sense to expand a larger type into a smaller type");
 
-		auto dataStart = reinterpret_cast<const char*>(&data);
-		auto target    = reinterpret_cast<char*>(&value_);
+		value_type_large created;
 
-		std::memcpy(target, dataStart, sizeof(data));
-		std::memset(target + sizeof(data), 0, sizeof(value_) - sizeof(data));
+		auto dataStart = reinterpret_cast<const char*>(&data);
+		auto target    = reinterpret_cast<char*>(&created.value_);
+
+		std::memcpy(target, dataStart, sizeof(U));
+		std::memset(target + sizeof(U), 0, sizeof(T) - sizeof(U));
+
+		return created;
 	}
 
 private:
@@ -212,7 +207,15 @@ public:
 	template <class U>
 	static value_type fromZeroExtended(const U &data) {
 		value_type created;
-		created.copyZeroExtended(data);
+
+		static_assert(sizeof(U) <= sizeof(T), "It doesn't make sense to expand a larger type into a smaller type");
+
+		auto dataStart = reinterpret_cast<const char*>(&data);
+		auto target    = reinterpret_cast<char*>(&created.value_);
+
+		std::memcpy(target, dataStart, sizeof(U));
+		std::memset(target + sizeof(U), 0, sizeof(T) - sizeof(U));
+
 		return created;
 	}
 
@@ -440,20 +443,6 @@ public:
 		if (edb::v1::debuggeeIs32Bit()) {
 			value_ &= 0xffffffffull;
 		}
-	}
-
-private:
-	template <class U>
-	void copyZeroExtended(const U& data) {
-		// TODO(eteran): this seems to be more complex than I think we need
-		// since this is an unsigned type, I suspect that just assigning would be enough so long as it would fit...
-		static_assert(sizeof(U) <= sizeof(T), "It doesn't make sense to expand a larger type into a smaller type");
-
-		auto dataStart = reinterpret_cast<const char*>(&data);
-		auto target    = reinterpret_cast<char*>(&value_);
-
-		std::memcpy(target, dataStart, sizeof(data));
-		std::memset(target + sizeof(data), 0, sizeof(value_) - sizeof(data));
 	}
 
 public:
@@ -765,9 +754,7 @@ public:
 	template <class Data>
 	explicit value_type80(const Data &data, size_t offset = 0) {
 		static_assert(sizeof(Data) >= sizeof(value_type80), "ValueBase can only be constructed from large enough variable");
-#if defined __GNUG__ && __GNUC__ >= 5 || !defined __GNUG__ || defined __clang__ && __clang_major__*100+__clang_minor__>=306
 		static_assert(std::is_trivially_copyable<Data>::value, "ValueBase can only be constructed from trivially copiable data");
-#endif
 
 		assert(sizeof(Data) - offset >= sizeof(value_type80)); // check bounds, this can't be done at compile time
 
