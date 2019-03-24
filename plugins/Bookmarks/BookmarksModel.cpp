@@ -66,6 +66,7 @@ QVariant BookmarksModel::data(const QModelIndex &index, int role) const {
 			case Bookmark::Data:  return tr("Data");
 			case Bookmark::Stack: return tr("Stack");
 			}
+			break;
 		case 2:  return bookmark.comment;
 		default: return QVariant();
 		}
