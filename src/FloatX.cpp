@@ -64,12 +64,12 @@ struct SpecialValues<long double>
 				  std::numeric_limits<long double>::max_exponent==16384,
 				  "Expected to have x87 80-bit long double");
 
-	static constexpr std::array<std::uint8_t,10> positiveInf {{0,0,0,0,0,0,0,0x80,0xff,0x7f}};
-	static constexpr std::array<std::uint8_t,10> negativeInf {{0,0,0,0,0,0,0,0x80,0xff,0xff}};
-	static constexpr std::array<std::uint8_t,10> positiveSNaN{{0,0,0,0,0,0,0,0x90,0xff,0x7f}};
-	static constexpr std::array<std::uint8_t,10> negativeSNaN{{0,0,0,0,0,0,0,0x90,0xff,0xff}};
-	static constexpr std::array<std::uint8_t,10> positiveQNaN{{0,0,0,0,0,0,0,0xc0,0xff,0x7f}};
-	static constexpr std::array<std::uint8_t,10> negativeQNaN{{0,0,0,0,0,0,0,0xc0,0xff,0xff}};
+	static constexpr std::array<std::uint8_t,16> positiveInf {{0,0,0,0,0,0,0,0x80,0xff,0x7f, 0, 0, 0, 0, 0, 0}};
+	static constexpr std::array<std::uint8_t,16> negativeInf {{0,0,0,0,0,0,0,0x80,0xff,0xff, 0, 0, 0, 0, 0, 0}};
+	static constexpr std::array<std::uint8_t,16> positiveSNaN{{0,0,0,0,0,0,0,0x90,0xff,0x7f, 0, 0, 0, 0, 0, 0}};
+	static constexpr std::array<std::uint8_t,16> negativeSNaN{{0,0,0,0,0,0,0,0x90,0xff,0xff, 0, 0, 0, 0, 0, 0}};
+	static constexpr std::array<std::uint8_t,16> positiveQNaN{{0,0,0,0,0,0,0,0xc0,0xff,0x7f, 0, 0, 0, 0, 0, 0}};
+	static constexpr std::array<std::uint8_t,16> negativeQNaN{{0,0,0,0,0,0,0,0xc0,0xff,0xff, 0, 0, 0, 0, 0, 0}};
 };
 #endif
 #endif
@@ -90,12 +90,12 @@ constexpr std::array<std::uint8_t,8> SpecialValues<double>::negativeQNaN;
 
 #ifndef _MSC_VER
 #if defined(EDB_X86) || defined(EDB_X86_64)
-constexpr std::array<std::uint8_t,10> SpecialValues<long double>::positiveInf;
-constexpr std::array<std::uint8_t,10> SpecialValues<long double>::negativeInf;
-constexpr std::array<std::uint8_t,10> SpecialValues<long double>::positiveSNaN;
-constexpr std::array<std::uint8_t,10> SpecialValues<long double>::negativeSNaN;
-constexpr std::array<std::uint8_t,10> SpecialValues<long double>::positiveQNaN;
-constexpr std::array<std::uint8_t,10> SpecialValues<long double>::negativeQNaN;
+constexpr std::array<std::uint8_t,16> SpecialValues<long double>::positiveInf;
+constexpr std::array<std::uint8_t,16> SpecialValues<long double>::negativeInf;
+constexpr std::array<std::uint8_t,16> SpecialValues<long double>::positiveSNaN;
+constexpr std::array<std::uint8_t,16> SpecialValues<long double>::negativeSNaN;
+constexpr std::array<std::uint8_t,16> SpecialValues<long double>::positiveQNaN;
+constexpr std::array<std::uint8_t,16> SpecialValues<long double>::negativeQNaN;
 #endif
 #endif
 
@@ -391,14 +391,15 @@ QString formatFloat(Float value)
 		return value.negative()?"-0.0":"0.0";
 	case FloatValueClass::PseudoDenormal:
 		{
-		    assert(sizeof(value) == 10);
+			Q_ASSERT(sizeof(value) == 10);
 
-			// keeps compiler happy?
-			if(sizeof(value) == 10) {
-				// Convert to supported value as the CPU would. Otherwise glibc takes it wrong.
-				const uint16_t exponent=value.negative()?0x8001:0x0001;
-				std::memcpy(reinterpret_cast<char*>(&value) + 8, &exponent, sizeof(exponent));
-			}
+			// Convert to supported value as the CPU would. Otherwise glibc takes it wrong.
+			const uint16_t exponent = value.negative() ? 0x8001 : 0x0001;
+
+			// NOTE(eteran): hushes a warning from GCC >= 8.2
+			auto ptr = reinterpret_cast<char*>(&value) + 8;
+
+			std::memcpy(ptr, &exponent, sizeof(exponent));
 		}
 		// fall through
 	case FloatValueClass::Normal:
