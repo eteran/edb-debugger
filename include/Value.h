@@ -4,7 +4,6 @@
 
 #include "API.h"
 #include <array>
-#include <cassert>
 #include <cstdint>
 #include <cstring>
 #include <iomanip>
@@ -12,8 +11,6 @@
 
 #include <QString>
 #include <QVariant>
-
-class Register;
 
 #ifdef _MSC_VER
 extern "C" EDB_EXPORT void __fastcall long_double_to_double(const void* src, double* dest);
@@ -30,10 +27,17 @@ namespace detail {
 template <class Integer>
 using IsInteger = typename std::enable_if<std::is_integral<Integer>::value>::type;
 
+template <class T1, class T2>
+using PromoteType = typename std::conditional<
+	sizeof(T1) >= sizeof(T2),
+	typename std::make_unsigned<T1>::type,
+	typename std::make_unsigned<T2>::type
+>::type;
+
 template <size_t N>
 class value_type_large {
 public:
-	using T = uint64_t[(N / 64)];
+	using T = uint64_t[N / sizeof(uint64_t)];
 public:
 	// all defaulted to help ensure that this is a trivially-copyable type
 	value_type_large()                                    = default;
@@ -44,13 +48,13 @@ public:
 	~value_type_large()                                   = default;
 
 public:
-	template <class Data, class = typename std::enable_if<!std::is_floating_point<Data>::value && !std::is_integral<Data>::value>::type>
-	explicit value_type_large(const Data &data, size_t offset = 0) {
+	template <class U, class = typename std::enable_if<!std::is_arithmetic<U>::value>::type>
+	explicit value_type_large(const U &data, size_t offset = 0) {
 
-		static_assert(sizeof(Data) >= sizeof(T), "value_type can only be constructed from large enough variable");
-		static_assert(std::is_trivially_copyable<Data>::value, "value_type can only be constructed from trivially copiable data");
+		static_assert(sizeof(U) >= sizeof(T), "value_type can only be constructed from large enough variable");
+		static_assert(std::is_trivially_copyable<U>::value, "value_type can only be constructed from trivially copiable data");
 
-		Q_ASSERT(sizeof(Data) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
+		Q_ASSERT(sizeof(U) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
 
 		auto dataStart = reinterpret_cast<const char *>(&data);
 		std::memcpy(&value_, dataStart + offset, sizeof(value_));
@@ -100,13 +104,6 @@ private:
 	T value_ = {};
 };
 
-template <class T1, class T2>
-using PromoteType = typename std::conditional<
-	sizeof(T1) >= sizeof(T2),
-	typename std::make_unsigned<T1>::type,
-	typename std::make_unsigned<T2>::type
->::type;
-
 template <class T>
 class value_type {
 	template <class U>
@@ -151,13 +148,13 @@ public:
 	}
 
 public:
-	template <class Data, class = typename std::enable_if<!std::is_floating_point<Data>::value && !std::is_integral<Data>::value>::type>
-	explicit value_type(const Data &data, size_t offset = 0) {
+	template <class U, class = typename std::enable_if<!std::is_arithmetic<U>::value>::type>
+	explicit value_type(const U &data, size_t offset = 0) {
 
-		static_assert(sizeof(Data) >= sizeof(T), "value_type can only be constructed from large enough variable");
-		static_assert(std::is_trivially_copyable<Data>::value, "value_type can only be constructed from trivially copiable data");
+		static_assert(sizeof(U) >= sizeof(T), "value_type can only be constructed from large enough variable");
+		static_assert(std::is_trivially_copyable<U>::value, "value_type can only be constructed from trivially copiable data");
 
-		Q_ASSERT(sizeof(Data) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
+		Q_ASSERT(sizeof(U) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
 
 		auto dataStart = reinterpret_cast<const char *>(&data);
 		std::memcpy(&value_, dataStart + offset, sizeof(value_));
@@ -658,9 +655,9 @@ bool operator!=(const value_type<T1> &lhs, const value_type<T2> &rhs) {
 template <class T1, class T2>
 auto operator+(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
-	using T = value_type<PromoteType<T1, T2>>;
+	using U = value_type<PromoteType<T1, T2>>;
 
-	value_type<T> r(lhs);
+	value_type<U> r(lhs);
 	r += rhs;
 	return r;
 }
@@ -668,9 +665,9 @@ auto operator+(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 template <class T1, class T2>
 auto operator-(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
-	using T = value_type<PromoteType<T1, T2>>;
+	using U = value_type<PromoteType<T1, T2>>;
 
-	value_type<T> r(lhs);
+	value_type<U> r(lhs);
 	r -= rhs;
 	return r;
 }
@@ -678,9 +675,9 @@ auto operator-(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 template <class T1, class T2>
 auto operator*(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
-	using T = value_type<PromoteType<T1, T2>>;
+	using U = value_type<PromoteType<T1, T2>>;
 
-	value_type<T> r(lhs);
+	value_type<U> r(lhs);
 	r *= rhs;
 	return r;
 }
@@ -688,9 +685,9 @@ auto operator*(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 template <class T1, class T2>
 auto operator/(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
-	using T = value_type<PromoteType<T1, T2>>;
+	using U = value_type<PromoteType<T1, T2>>;
 
-	value_type<T> r(lhs);
+	value_type<U> r(lhs);
 	r /= rhs;
 	return r;
 }
@@ -698,9 +695,9 @@ auto operator/(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 template <class T1, class T2>
 auto operator%(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
-	using T = value_type<PromoteType<T1, T2>>;
+	using U = value_type<PromoteType<T1, T2>>;
 
-	value_type<T> r(lhs);
+	value_type<U> r(lhs);
 	r %= rhs;
 	return r;
 }
@@ -708,9 +705,9 @@ auto operator%(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 template <class T1, class T2>
 auto operator&(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
-	using T = value_type<PromoteType<T1, T2>>;
+	using U = value_type<PromoteType<T1, T2>>;
 
-	value_type<T> r(lhs);
+	value_type<U> r(lhs);
 	r &= rhs;
 	return r;
 }
@@ -718,9 +715,9 @@ auto operator&(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 template <class T1, class T2>
 auto operator|(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
-	using T = value_type<PromoteType<T1, T2>>;
+	using U = value_type<PromoteType<T1, T2>>;
 
-	value_type<T> r(lhs);
+	value_type<U> r(lhs);
 	r |= rhs;
 	return r;
 }
@@ -728,9 +725,9 @@ auto operator|(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_ty
 template <class T1, class T2>
 auto operator^(const value_type<T1> &lhs, const value_type<T2> &rhs) -> value_type<PromoteType<T1, T2>> {
 
-	using T = value_type<PromoteType<T1, T2>>;
+	using U = value_type<PromoteType<T1, T2>>;
 
-	value_type<T> r(lhs);
+	value_type<U> r(lhs);
 	r ^= rhs;
 	return r;
 }
@@ -751,12 +748,12 @@ public:
 	~value_type80()                               = default;
 
 public:
-	template <class Data>
-	explicit value_type80(const Data &data, size_t offset = 0) {
-		static_assert(sizeof(Data) >= sizeof(value_type80), "ValueBase can only be constructed from large enough variable");
-		static_assert(std::is_trivially_copyable<Data>::value, "ValueBase can only be constructed from trivially copiable data");
+	template <class U>
+	explicit value_type80(const U &data, size_t offset = 0) {
+		static_assert(sizeof(U) >= sizeof(value_type80), "ValueBase can only be constructed from large enough variable");
+		static_assert(std::is_trivially_copyable<U>::value, "ValueBase can only be constructed from trivially copiable data");
 
-		assert(sizeof(Data) - offset >= sizeof(value_type80)); // check bounds, this can't be done at compile time
+		Q_ASSERT(sizeof(U) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
 
 		auto dataStart = reinterpret_cast<const char*>(&data);
 		std::memcpy(&value_, dataStart + offset, sizeof(value_));
