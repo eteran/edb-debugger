@@ -77,6 +77,17 @@ void testAssignment() {
 	
 	v64 += 50;
 	TEST(v64 == 60);
+
+	++v64;
+	TEST(v64 == 61);
+
+	TEST(v64++ == 61);
+	TEST(v64 == 62);
+
+	--v64;
+	TEST(v64 == 61);
+
+
 }
 
 void testFromString() {
@@ -96,6 +107,29 @@ void testConstruction() {
 	edb::value16 v16;
 	edb::value32 v32;
 	edb::value64 v64;
+	edb::value128 v128;
+	edb::value256 v256;
+	edb::value512 v512;
+
+	(void)v8;
+	(void)v16;
+	(void)v32;
+	(void)v64;
+	(void)v128;
+	(void)v256;
+	(void)v512;
+}
+
+void testToString() {
+	edb::value64 v64;
+	v64 = edb::value64::fromHexString("0123456789abcdef");
+	TEST(v64 == 0x0123456789abcdef);
+
+	QString str = v64.toHexString();
+	TEST(str == "0123456789abcdef");
+
+	QString str2 = v64.toString();
+	TEST(str2 == "81985529216486895");
 }
 
 
@@ -104,4 +138,5 @@ int main() {
 	testAssignment();
 	testFromString();
 	testSignExtension();
+	testToString();
 }
