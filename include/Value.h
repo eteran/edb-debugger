@@ -170,10 +170,12 @@ public:
 public:
 	static value_type fromString(const QString &str, bool *ok = nullptr, int base = 10, bool isSigned = false) {
 
-		const qulonglong v = isSigned ? str.toLongLong(ok, base) : str.toULongLong(ok, base);
+        const qulonglong v = isSigned ?
+                    static_cast<qulonglong>(str.toLongLong(ok, base)) :
+                    str.toULongLong(ok, base);
 
 		if(ok && !*ok) {
-			return value_type(0);
+            return 0;
 		}
 
 		// Check that the result fits into the underlying type
@@ -186,7 +188,7 @@ public:
 			*ok = false;
 		}
 
-		return value_type(0);
+        return 0;
 	}
 
 	static value_type fromHexString(const QString &str, bool *ok = nullptr) {

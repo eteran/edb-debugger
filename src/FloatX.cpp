@@ -390,7 +390,7 @@ QString formatFloat(Float value)
 	case FloatValueClass::Zero:
 		return value.negative()?"-0.0":"0.0";
 	case FloatValueClass::PseudoDenormal:
-		{
+		if(sizeof(value) >= 10) {
 			Q_ASSERT(sizeof(value) == 10);
 
 			// Convert to supported value as the CPU would. Otherwise glibc takes it wrong.
