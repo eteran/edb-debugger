@@ -413,18 +413,18 @@ QString formatFloat(Float value)
 				using namespace double_conversion;
 				char buffer[64];
 				DoubleToStringConverter conv(DoubleToStringConverter::EMIT_POSITIVE_EXPONENT_SIGN, "inf", "nan", 'e', -4, isDouble ? 15 : 6, 0,0);
-				StringBuilder builder(buffer, sizeof buffer);
+				StringBuilder builder(buffer, sizeof(buffer));
 				bool result=false;
 				if(isDouble)
 				{
 					double d;
-					std::memcpy(&d, &value, sizeof d);
+					std::memcpy(&d, &value, sizeof(d));
 					result=conv.ToShortest(d, &builder);
 				}
 				else // isFloat
 				{
 					float f;
-					std::memcpy(&f, &value, sizeof f);
+					std::memcpy(&f, &value, sizeof(f));
 					result=conv.ToShortestSingle(f, &builder);
 				}
 				if(result && builder.Finalize())

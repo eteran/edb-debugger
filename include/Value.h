@@ -37,7 +37,7 @@ using PromoteType = typename std::conditional<
 template <size_t N>
 class value_type_large {
 public:
-	using T = uint64_t[N / sizeof(uint64_t)];
+	using T = uint64_t[N / 64];
 public:
 	// all defaulted to help ensure that this is a trivially-copyable type
 	value_type_large()                                    = default;
