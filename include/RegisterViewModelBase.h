@@ -355,9 +355,6 @@ public:
 	RegisterViewItem *child(int) override;
 	int childCount() const override;
 
-private:
-	void addField(std::unique_ptr<BitFieldItem<StoredType>> item);
-
 protected:
 	std::vector<BitFieldItem<StoredType>> fields;
 };
