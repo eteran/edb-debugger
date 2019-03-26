@@ -5,6 +5,7 @@
 #include "API.h"
 #include <array>
 #include <cstdint>
+#include <cinttypes>
 #include <cstring>
 #include <iomanip>
 #include <sstream>
@@ -77,10 +78,7 @@ public:
 		char *p = buf;
 
 		for(auto it = std::rbegin(value_); it != std::rend(value_); ++it) {
-			// NOTE(eteran): cast avoids sprintf warnings on some platforms
-			// because uint64_t may be an unsigned long int, or it may be an
-			// unsigned long long int.
-			p += sprintf(p, "%016llx", static_cast<unsigned long long>(*it));
+			p += sprintf(p, "%016" PRIx64, *it);
 		}
 
 		return QString::fromLatin1(buf);
