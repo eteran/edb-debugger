@@ -61,10 +61,13 @@ struct WidgetState1 {
 };
 
 constexpr int default_byte_width = 8;
+
+// TODO(eteran): make these themeable!
 const QColor filling_dis_color   = Qt::gray;
 const QColor default_dis_color   = Qt::blue;
 const QColor invalid_dis_color   = Qt::blue;
 const QColor data_dis_color      = Qt::blue;
+const QColor address_color       = Qt::red;
 
 struct show_separator_tag {};
 
@@ -971,8 +974,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	}
 
 	{ // SELECTION, BREAKPOINT, EIP & ADDRESS
-		const QPen address_pen(Qt::red);
-		painter.setPen(address_pen);
+		painter.setPen(address_color);
 
 		const auto icon_x = l0 + 1;
 		const auto addr_x = icon_x + icon_width_;
