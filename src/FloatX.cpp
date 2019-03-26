@@ -311,12 +311,12 @@ long double toFloatValue(edb::value80 value)
  */
 const char* fixup_g_Yfmt(char* buffer, int digits10)
 {
-	const int len=std::strlen(buffer);
+	const size_t len=std::strlen(buffer);
 	const char x0=buffer[0], x1=buffer[1];
 	if(x0=='.' || (x0=='-' && x1=='.'))
 	{
 		// ".235" or "-.235" forms are unreadable, so insert leading zero
-		const int posToInsert = x0=='.' ? 0 : 1;
+		const size_t posToInsert = x0=='.' ? 0 : 1;
 		// Give space for the zero: move the remaining line with terminating zero to the right
 		std::memmove(buffer+posToInsert+1, buffer+posToInsert, len+1-posToInsert);
 		buffer[posToInsert]='0';

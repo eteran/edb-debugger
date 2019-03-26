@@ -64,6 +64,9 @@ public:
 	void set_register(const Register &reg) override {
 		qDebug("TODO: implement PlatformState::set_register");
 	}
+
+	Register arch_register(uint64_t type, size_t n) const override;
+
 	Register mmx_register(size_t n) const override {
 		qDebug("TODO: implement PlatformState::mmx_register"); return Register();
 	}

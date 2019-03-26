@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "PlatformState.h"
 #include "edb.h"
+#include "string_hash.h"
 #include <limits>
 #include <cmath>
 
@@ -30,18 +31,18 @@ double read_float80(const uint8_t buffer[10]) {
 	//80 bit floating point value according to IEEE-754:
 	//1 bit sign, 15 bit exponent, 64 bit mantissa
 
-	const uint16_t SIGNBIT    = 1 << 15;
-	const uint16_t EXP_BIAS   = (1 << 14) - 1; // 2^(n-1) - 1 = 16383
-	const uint16_t SPECIALEXP = (1 << 15) - 1; // all bits set
-	const uint64_t HIGHBIT    = (uint64_t)1 << 63;
-	const uint64_t QUIETBIT   = (uint64_t)1 << 62;
+	constexpr uint16_t SIGNBIT    = (1 << 15);
+	constexpr uint16_t EXP_BIAS   = (1 << 14) - 1; // 2^(n-1) - 1 = 16383
+	constexpr uint16_t SPECIALEXP = (1 << 15) - 1; // all bits set
+	constexpr uint64_t HIGHBIT    = 1ull << 63;
+	constexpr uint64_t QUIETBIT   = 1ull << 62;
 
 	// Extract sign, exponent and mantissa
-	uint16_t exponent = *((uint16_t*)&buffer[8]);
-	uint64_t mantissa = *((uint64_t*)&buffer[0]);
+	auto exponent = *reinterpret_cast<const uint16_t *>(&buffer[8]);
+	const auto mantissa = *reinterpret_cast<const uint16_t *>(&buffer[0]);
 
-	double sign = (exponent & SIGNBIT) ? -1.0 : 1.0;
-	exponent   &= ~SIGNBIT;
+	const double sign = (exponent & SIGNBIT) ? -1.0 : 1.0;
+	exponent &= ~SIGNBIT;
 
 	// Check for undefined values
 	if((!exponent && (mantissa & HIGHBIT)) || (exponent && !(mantissa & HIGHBIT))) {
@@ -68,7 +69,7 @@ double read_float80(const uint8_t buffer[10]) {
 	}
 
 	//value = (-1)^s * (m / 2^63) * 2^(e - 16383)
-	double significand = ((double)mantissa / ((uint64_t)1 << 63));
+	double significand = (static_cast<double>(mantissa) / (1ull << 63));
 	return sign * ldexp(significand, exponent - EXP_BIAS);
 }
 }
@@ -707,6 +708,21 @@ void PlatformState::setThreadState(HANDLE hThread) const {
 		SetThreadContext(hThread, &context64_);
 	}
 #endif
+}
+
+//------------------------------------------------------------------------------
+// Name: arch_register
+// Desc:
+//------------------------------------------------------------------------------
+Register PlatformState::arch_register(uint64_t type, size_t n) const {
+	switch(type) {
+	case edb::string_hash("mmx"): return mmx_register(n);
+	case edb::string_hash("xmm"): return xmm_register(n);
+	case edb::string_hash("ymm"): return ymm_register(n);
+	default:
+		break;
+	}
+	return Register();
 }
 
 }

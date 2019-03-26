@@ -19,7 +19,7 @@ extern "C" EDB_EXPORT void __fastcall long_double_to_double(const void* src, dou
 namespace edb {
 
 namespace v1 {
-extern bool debuggeeIs32Bit();
+EDB_EXPORT bool debuggeeIs32Bit();
 }
 
 namespace detail {
@@ -752,7 +752,7 @@ public:
 public:
 	template <class U>
 	explicit value_type80(const U &data, size_t offset = 0) {
-		static_assert(sizeof(U) >= sizeof(value_type80), "ValueBase can only be constructed from large enough variable");
+        static_assert(sizeof(U) >= sizeof(T), "ValueBase can only be constructed from large enough variable");
 		static_assert(std::is_trivially_copyable<U>::value, "ValueBase can only be constructed from trivially copiable data");
 
 		Q_ASSERT(sizeof(U) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
