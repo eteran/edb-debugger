@@ -145,7 +145,7 @@ if (TARGET_COMPILER_CLANG OR TARGET_COMPILER_GCC)
 	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -pedantic -Wunused")
 	set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -W -Wall -pedantic -Wunused")
 elseif(TARGET_COMPILER_MSVC)
-  add_definitions(-DUNICODE -D_UNICODE)
+	add_definitions(-DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARNINGS)
 endif()
 
 add_subdirectory(src)
