@@ -138,25 +138,6 @@ do {                                                                            
 	std::abort();                                                                                       \
 } while(0)
 
-// Returns a string of `AsType`s ordered from highest in SIMD register to lowest
-template <typename AsType, typename T>
-typename std::enable_if<std::is_floating_point<AsType>::value, QString>::type packedFloatsToString(const T &value) {
-	
-	auto p = reinterpret_cast<const char *>(&value);
-	constexpr std::size_t elementCount = sizeof(value) / sizeof(AsType);
-	QString result;
-
-	for (std::size_t i = elementCount - 1; i != std::size_t(-1); --i) {
-		edb::detail::SizedValue<sizeof(AsType) * 8> v;
-		std::memcpy(&v, &p[i * sizeof(AsType)], sizeof(AsType));
-
-		static const int spacing    = 1;
-		static const int fieldWidth = maxPrintedLength<AsType>() + spacing;
-		result += formatFloat(v).rightJustified(fieldWidth);
-	}
-	
-	return result;
-}
 
 template <typename T>
 QString formatInt(T value, NumberDisplayMode mode) {
@@ -172,25 +153,6 @@ QString formatInt(T value, NumberDisplayMode mode) {
 	}
 }
 
-template <typename AsType, typename T>
-typename std::enable_if<std::is_integral<AsType>::value, QString>::type packedIntsToString(const T &value, NumberDisplayMode mode) {
-
-	auto p = reinterpret_cast<const char *>(&value);
-	constexpr std::size_t elementCount = sizeof(value) / sizeof(AsType);
-	
-	QString result;
-	for (std::size_t i = elementCount - 1; i != std::size_t(-1); --i) {
-		edb::detail::SizedValue<sizeof(AsType) * 8> v;
-		std::memcpy(&v, &p[i * sizeof(AsType)], sizeof(AsType));
-
-		static const int spacing       = 1;
-		static const int decimalLength = maxPrintedLength<AsType>();
-		const int        fieldWidth = (mode == NumberDisplayMode::Hex ? sizeof(AsType) * 2 : decimalLength) + spacing;
-		result += formatInt(v, mode).rightJustified(fieldWidth);
-	}
-	
-	return result;
-}
 
 template <typename Float>
 boost::optional<Float> fullStringToFloat(const std::string &s) {

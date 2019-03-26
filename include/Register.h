@@ -72,13 +72,7 @@ public:
 	T value() const             { return T(value_); }
 
 	// Return the value, zero-extended to address_t to be usable in address calculations
-	edb::address_t valueAsAddress() const {
-		// This function only makes sense for GPRs
-		assert(bitSize_ <= 8 * sizeof(edb::address_t));
-		edb::address_t result(0LL);
-		std::memcpy(&result, &value_, bitSize_ / 8);
-		return result;
-	}
+	edb::address_t valueAsAddress() const;
 
 	uint64_t valueAsInteger() const {
 		return valueAsAddress().toUint();
@@ -94,14 +88,17 @@ public:
 		return result;
 	}
 
-	void setScalarValue(std::uint64_t newValue) {
-		std::memcpy(&value_, &newValue, bitSize_ / 8);
-	}
+	void setScalarValue(std::uint64_t newValue);
 
 	template<typename T>
 	void setValueFrom(const T &source) {
 		assert(bitSize_ <= 8 * sizeof(source));
-		std::memcpy(&value_, &source, bitSize_ / 8);
+
+		// NOTE(eteran): used to avoid warnings from GCC >= 8.2
+		auto from = reinterpret_cast<const char *>(&source);
+		auto to   = reinterpret_cast<char *>(&value_);
+
+		std::memcpy(to, from, bitSize_ / 8);
 	}
 
 	QString toHexString() const;
@@ -131,7 +128,12 @@ Register make_Register(const QString &name, ValueType value, Type type)
 	constexpr std::size_t size = bitSize / 8;
 	static_assert(size <= sizeof(ValueType), "ValueType appears smaller than size specified");
 	util::markMemory(&reg.value_, sizeof(reg.value_));
-	std::memcpy(&reg.value_,&value,size);
+
+	// NOTE(eteran): used to avoid warnings from GCC >= 8.2
+	auto from = reinterpret_cast<const char *>(&value);
+	auto to   = reinterpret_cast<char *>(&reg.value_);
+
+	std::memcpy(to, from, size);
 
 	return reg;
 }
