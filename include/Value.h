@@ -51,10 +51,10 @@ public:
 	template <class U, class = typename std::enable_if<!std::is_arithmetic<U>::value>::type>
 	explicit value_type_large(const U &data, size_t offset = 0) {
 
-		static_assert(sizeof(U) >= sizeof(T), "value_type can only be constructed from large enough variable");
+		static_assert(sizeof(data) >= sizeof(T), "value_type can only be constructed from large enough variable");
 		static_assert(std::is_trivially_copyable<U>::value, "value_type can only be constructed from trivially copiable data");
 
-		Q_ASSERT(sizeof(U) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
+		Q_ASSERT(sizeof(data) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
 
 		auto dataStart = reinterpret_cast<const char *>(&data);
 		std::memcpy(&value_, dataStart + offset, sizeof(value_));
@@ -63,8 +63,8 @@ public:
 public:
 	template <class U>
 	void load(const U &n) {
-		static_assert(sizeof(T) >= sizeof(U), "Value to load is too large.");
-		std::memcpy(&value_, &n, sizeof(U));
+		static_assert(sizeof(T) >= sizeof(n), "Value to load is too large.");
+		std::memcpy(&value_, &n, sizeof(n));
 	}
 
 public:
@@ -77,7 +77,10 @@ public:
 		char *p = buf;
 
 		for(auto it = std::rbegin(value_); it != std::rend(value_); ++it) {
-			p += sprintf(p, "%016llx", *it & 0xffffffffffffffffULL);
+			// NOTE(eteran): cast avoids sprintf warnings on some platforms
+			// because uint64_t may be an unsigned long int, or it may be an
+			// unsigned long long int.
+			p += sprintf(p, "%016llx", static_cast<unsigned long long>(*it));
 		}
 
 		return QString::fromLatin1(buf);
@@ -87,15 +90,15 @@ public:
 	template <class U>
 	static value_type_large fromZeroExtended(const U &data) {
 
-		static_assert(sizeof(U) <= sizeof(T), "It doesn't make sense to expand a larger type into a smaller type");
+		static_assert(sizeof(data) <= sizeof(T), "It doesn't make sense to expand a larger type into a smaller type");
 
 		value_type_large created;
 
 		auto dataStart = reinterpret_cast<const char*>(&data);
 		auto target    = reinterpret_cast<char*>(&created.value_);
 
-		std::memcpy(target, dataStart, sizeof(U));
-		std::memset(target + sizeof(U), 0, sizeof(T) - sizeof(U));
+		std::memcpy(target, dataStart, sizeof(data));
+		std::memset(target + sizeof(data), 0, sizeof(T) - sizeof(data));
 
 		return created;
 	}
@@ -151,10 +154,10 @@ public:
 	template <class U, class = typename std::enable_if<!std::is_arithmetic<U>::value>::type>
 	explicit value_type(const U &data, size_t offset = 0) {
 
-		static_assert(sizeof(U) >= sizeof(T), "value_type can only be constructed from large enough variable");
+		static_assert(sizeof(data) >= sizeof(T), "value_type can only be constructed from large enough variable");
 		static_assert(std::is_trivially_copyable<U>::value, "value_type can only be constructed from trivially copiable data");
 
-		Q_ASSERT(sizeof(U) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
+		Q_ASSERT(sizeof(data) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
 
 		auto dataStart = reinterpret_cast<const char *>(&data);
 		std::memcpy(&value_, dataStart + offset, sizeof(value_));
@@ -163,8 +166,8 @@ public:
 public:
 	template <class U>
 	void load(const U &n) {
-		static_assert(sizeof(T) >= sizeof(U), "Value to load is too large.");
-		std::memcpy(&value_, &n, sizeof(U));
+		static_assert(sizeof(T) >= sizeof(n), "Value to load is too large.");
+		std::memcpy(&value_, &n, sizeof(n));
 	}
 
 public:
@@ -207,13 +210,13 @@ public:
 	static value_type fromZeroExtended(const U &data) {
 		value_type created;
 
-		static_assert(sizeof(U) <= sizeof(T), "It doesn't make sense to expand a larger type into a smaller type");
+		static_assert(sizeof(data) <= sizeof(T), "It doesn't make sense to expand a larger type into a smaller type");
 
 		auto dataStart = reinterpret_cast<const char*>(&data);
 		auto target    = reinterpret_cast<char*>(&created.value_);
 
-		std::memcpy(target, dataStart, sizeof(U));
-		std::memset(target + sizeof(U), 0, sizeof(T) - sizeof(U));
+		std::memcpy(target, dataStart, sizeof(data));
+		std::memset(target + sizeof(data), 0, sizeof(T) - sizeof(data));
 
 		return created;
 	}
@@ -752,10 +755,10 @@ public:
 public:
 	template <class U>
 	explicit value_type80(const U &data, size_t offset = 0) {
-        static_assert(sizeof(U) >= sizeof(T), "ValueBase can only be constructed from large enough variable");
+		static_assert(sizeof(data) >= sizeof(T), "ValueBase can only be constructed from large enough variable");
 		static_assert(std::is_trivially_copyable<U>::value, "ValueBase can only be constructed from trivially copiable data");
 
-		Q_ASSERT(sizeof(U) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
+		Q_ASSERT(sizeof(data) - offset >= sizeof(T)); // check bounds, this can't be done at compile time
 
 		auto dataStart = reinterpret_cast<const char*>(&data);
 		std::memcpy(&value_, dataStart + offset, sizeof(value_));
@@ -814,8 +817,8 @@ public:
 	}
 
 public:
-	bool operator==(const value_type80 &rhs) const { return std::memcmp(value_, rhs.value_, sizeof(T)) == 0; }
-	bool operator!=(const value_type80 &rhs) const { return std::memcmp(value_, rhs.value_, sizeof(T)) != 0; }
+	bool operator==(const value_type80 &rhs) const { return std::memcmp(value_, rhs.value_, 10) == 0; }
+	bool operator!=(const value_type80 &rhs) const { return std::memcmp(value_, rhs.value_, 10) != 0; }
 
 private:
 	T value_ = {};

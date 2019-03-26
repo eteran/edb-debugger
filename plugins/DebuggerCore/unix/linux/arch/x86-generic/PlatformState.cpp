@@ -481,9 +481,6 @@ bool PlatformState::fillFrom(const X86XState &regs, size_t sizeFromKernel) {
 		// Only fill the registers which are actually supported, leave invalidity marks intact for other parts
 		if (avx.xcr0 & X86XState::FEATURE_AVX) { // If AVX state management has been enabled by the OS
 			for (size_t n = 0; n < MAX_YMM_REG_COUNT; ++n) {
-
-				// TODO(eteran): a default initialized value should just have all zeros set
-				// no need to use fromZeroExtended, right?
 				avx.setYMM(n, edb::value256::fromZeroExtended(0));
 			}
 
@@ -492,9 +489,6 @@ bool PlatformState::fillFrom(const X86XState &regs, size_t sizeFromKernel) {
 			avx.ymmFilled      = true;
 		} else if (avx.xcr0 & X86XState::FEATURE_SSE) { // If SSE state management has been enabled by the OS
 			for (size_t n = 0; n < MAX_YMM_REG_COUNT; ++n) {
-
-				// TODO(eteran): a default initialized value should just have all zeros set
-				// no need to use fromZeroExtended, right?
 				avx.setYMM(n, edb::value256::fromZeroExtended(0));
 			}
 
