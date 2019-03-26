@@ -977,12 +977,14 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		const auto icon_x = l0 + 1;
 		const auto addr_x = icon_x + icon_width_;
 		const auto addr_width = l1 - addr_x;
-		for (int line = 0; line < lines_to_render; line++) {
+
+		auto paint_address_lambda = [&](int line) {
 			auto address = show_addresses_[line];
 
 			const bool has_breakpoint = (edb::v1::find_breakpoint(address) != nullptr);
 			const bool is_eip = address == current_address_;
 
+			// TODO(eteran):  if highlighted render the BP/Arrow in a more readable color!
 			QSvgRenderer* icon = nullptr;
 			if (is_eip) {
 				icon = has_breakpoint ? &current_bp_renderer_ : &current_renderer_;
@@ -997,13 +999,26 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			const QString address_buffer = formatAddress(address);
 			// draw the address
 			painter.drawText(
-				addr_x,
-				line * line_height,
-				addr_width,
-				line_height,
-				Qt::AlignVCenter,
-				address_buffer
+			    addr_x,
+			    line * line_height,
+			    addr_width,
+			    line_height,
+			    Qt::AlignVCenter,
+			    address_buffer
 			);
+		};
+
+		// paint all but the highlighted address
+		for (int line = 0; line < lines_to_render; line++) {
+			if (selected_line != line) {
+				paint_address_lambda(line);
+			}
+		}
+
+		// paint the highlighted address
+		if (selected_line < lines_to_render) {
+			painter.setPen(palette().color(group,QPalette::HighlightedText));
+			paint_address_lambda(selected_line);
 		}
 	}
 
