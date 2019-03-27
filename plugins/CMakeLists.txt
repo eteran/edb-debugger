@@ -30,10 +30,10 @@ if(TARGET_PLATFORM_LINUX)
     add_subdirectory(HeapAnalyzer)
 endif()
 
-if (NOT TARGET_COMPILER_MSVC)
+#if (NOT TARGET_COMPILER_MSVC)
 	# TODO(eteran): having a hard time getting these to compile under MSVC
 	add_subdirectory(ODbgRegisterView)
-endif()
+#endif()
 
 
 
