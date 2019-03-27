@@ -131,8 +131,8 @@ Float readFloat(const QString& strInput,bool& ok)
 	return value;
 }
 
-EDB_EXPORT template float readFloat<float>(const QString& strInput,bool& ok);
-EDB_EXPORT template double readFloat<double>(const QString& strInput,bool& ok);
+template EDB_EXPORT float readFloat<float>(const QString& strInput, bool& ok);
+template EDB_EXPORT double readFloat<double>(const QString& strInput, bool& ok);
 
 
 #ifndef _MSC_VER
