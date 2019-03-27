@@ -18,14 +18,6 @@ class Category;
 class SIMDCategory;
 class FPUCategory;
 
-// Sets register with name `name` to value `value`
-// Returns whether it succeeded
-// If succeeded, `resultingValue` is set to what the function got back after setting
-// `resultingValue` can differ from `value` if e.g. the kernel doesn't allow to flip some
-// bits of the register, like EFLAGS on x86.
-template <typename T>
-bool setDebuggeeRegister(const QString &name, const T &value, T &resultingValue);
-
 class EDB_EXPORT Model : public QAbstractItemModel {
 	Q_OBJECT
 

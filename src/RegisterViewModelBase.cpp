@@ -49,12 +49,16 @@ T1 *checked_cast(T2 object) {
 
 namespace RegisterViewModelBase {
 
+// Sets register with name `name` to value `value`
+// Returns whether it succeeded
+// If succeeded, `resultingValue` is set to what the function got back after setting
+// `resultingValue` can differ from `value` if e.g. the kernel doesn't allow to flip some
+// bits of the register, like EFLAGS on x86.
 template <typename T>
 bool setDebuggeeRegister(const QString &name, const T &value, T &resultingValue) {
 
 	if (auto core = edb::v1::debugger_core) {
-
-
+	
 		IProcess *process = core->process();
 		Q_ASSERT(process);
 
@@ -98,13 +102,6 @@ bool setDebuggeeRegister(const QString &name, const T &value, T &resultingValue)
 
 	return false;
 }
-
-template bool setDebuggeeRegister<edb::value16> (const QString &name, const edb::value16  &value, edb::value16  &resultingValue);
-template bool setDebuggeeRegister<edb::value32> (const QString &name, const edb::value32  &value, edb::value32  &resultingValue);
-template bool setDebuggeeRegister<edb::value64> (const QString &name, const edb::value64  &value, edb::value64  &resultingValue);
-template bool setDebuggeeRegister<edb::value80> (const QString &name, const edb::value80  &value, edb::value80  &resultingValue);
-template bool setDebuggeeRegister<edb::value128>(const QString &name, const edb::value128 &value, edb::value128 &resultingValue);
-template bool setDebuggeeRegister<edb::value256>(const QString &name, const edb::value256 &value, edb::value256 &resultingValue);
 
 RegisterViewItem *getItem(const QModelIndex &index) {
 	if (!index.isValid()) {
