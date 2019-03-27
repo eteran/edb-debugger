@@ -151,15 +151,15 @@ void DialogEditFPU::onHexEdited(const QString &input) {
 	auto       dest      = reinterpret_cast<unsigned char *>(&value_);
 
 	for (std::size_t i = 0; i < sizeof(value_); ++i) {
-		dest[i]        = source[sizeof(value_) - i - 1];
+		dest[i] = source[sizeof(value_) - i - 1];
 	}
 
 	updateFloatEntry();
 }
 
 void DialogEditFPU::onFloatEdited(const QString &str) {
-	bool       ok;
-	const auto value = readFloat(str, ok);
+	bool ok;
+	const long double value = readFloat(str, ok);
 
 	if (ok) {
 		value_ = edb::value80(value);
