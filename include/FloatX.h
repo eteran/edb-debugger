@@ -20,7 +20,7 @@ public:
 };
 
 template <class Float>
-QString EDB_EXPORT formatFloat(Float value);
+EDB_EXPORT QString formatFloat(Float value);
 
 // Only class, nothing about sign
 enum class FloatValueClass {
@@ -34,9 +34,9 @@ enum class FloatValueClass {
 	Unsupported
 };
 
-FloatValueClass EDB_EXPORT floatType(edb::value32 value);
-FloatValueClass EDB_EXPORT floatType(edb::value64 value);
-FloatValueClass EDB_EXPORT floatType(edb::value80 value);
+EDB_EXPORT FloatValueClass floatType(edb::value32 value);
+EDB_EXPORT FloatValueClass floatType(edb::value64 value);
+EDB_EXPORT FloatValueClass floatType(edb::value80 value);
 
 // This will work not only for floats, but also for integers
 template <class T>

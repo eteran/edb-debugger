@@ -131,8 +131,8 @@ Float readFloat(const QString& strInput,bool& ok)
 	return value;
 }
 
-template float readFloat<float>(const QString& strInput,bool& ok);
-template double readFloat<double>(const QString& strInput,bool& ok);
+EDB_EXPORT template float readFloat<float>(const QString& strInput,bool& ok);
+EDB_EXPORT template double readFloat<double>(const QString& strInput,bool& ok);
 
 
 #ifndef _MSC_VER
@@ -381,7 +381,7 @@ const char* fixup_g_Yfmt(char* buffer, int digits10)
 }
 
 template<typename Float>
-QString formatFloat(Float value)
+EDB_EXPORT QString formatFloat(Float value)
 {
 	const auto type=floatType(value);
 	QString specialStr="???? ";
@@ -404,9 +404,9 @@ QString formatFloat(Float value)
 		// fall through
 	case FloatValueClass::Normal:
 	case FloatValueClass::Denormal:
-		{
+	    {
 #ifdef HAVE_DOUBLE_CONVERSION
-			constexpr bool isDouble=std::is_same<Float, edb::value64>::value;
+		    constexpr bool isDouble=std::is_same<Float, edb::value64>::value;
 			constexpr bool isFloat=std::is_same<Float, edb::value32>::value;
 			if(isDouble || isFloat)
 			{
@@ -454,7 +454,7 @@ QString formatFloat(Float value)
 			if(result.size()==1 && result[0].isDigit())
 				return result+".0"; // avoid printing small whole numbers as integers
 			return result;
-		}
+	    }
 	case FloatValueClass::Infinity:
 		return QString(value.negative()?"-":"+")+"INF";
 	case FloatValueClass::QNaN:
@@ -468,7 +468,8 @@ QString formatFloat(Float value)
 		break;
 	}
 	// If we are here, then the value is special
-	auto hexStr=value.toHexString();
+	auto hexStr = value.toHexString();
+
 	const QChar groupSeparator(' ');
 	if(hexStr.size()>8)
 		hexStr.insert(hexStr.size()-8,groupSeparator);
@@ -476,6 +477,7 @@ QString formatFloat(Float value)
 		hexStr.insert(hexStr.size()-16-1,groupSeparator);
 	return specialStr+hexStr;
 }
-template QString formatFloat<edb::value32>(edb::value32);
-template QString formatFloat<edb::value64>(edb::value64);
-template QString formatFloat<edb::value80>(edb::value80);
+
+template EDB_EXPORT QString formatFloat<edb::value32>(edb::value32);
+template EDB_EXPORT QString formatFloat<edb::value64>(edb::value64);
+template EDB_EXPORT QString formatFloat<edb::value80>(edb::value80);
