@@ -288,7 +288,7 @@ RegisterGroup *createFPUData(RegisterViewModelBase::Model *model, QWidget *paren
 		column += tagWidth + 1;
 		const auto regValueIndex = nameIndex.sibling(nameIndex.row(), MODEL_VALUE_COLUMN);
 		const int  regValueWidth = regValueIndex.data(Model::FixedLengthRole).toInt();
-		assert(regValueWidth > 0);
+		Q_ASSERT(regValueWidth > 0);
 		const auto regCommentIndex = model->index(row, MODEL_COMMENT_COLUMN, catIndex);
 		new FPUValueField(regValueWidth, regValueIndex, tagValueIndex, group, new FieldWidget(0, regCommentIndex, group), row, column);
 	}
@@ -376,6 +376,7 @@ RegisterGroup *createFPUWords(RegisterViewModelBase::Model *model, QWidget *pare
 // This function would return false for e.g. Pentium III or Atom, but returns true since Pentium 4.
 // This can be made return false for such CPUs by setting bit 2 in IA32_MISC_ENABLE MSR.
 bool FOPIsIncompatible() {
+#ifdef __GNUG__
 	char fenv[28];
 	asm volatile("fldz\n"
 	             "fstp %%st(0)\n"
@@ -384,6 +385,10 @@ bool FOPIsIncompatible() {
 	std::uint16_t fop;
 	std::memcpy(&fop, fenv + 18, sizeof(fop));
 	return fop == 0;
+#else
+	// TODO(eteran): figure out a way to implement this for other compilers
+	return true;
+#endif
 }
 
 RegisterGroup *createFPULastOp(RegisterViewModelBase::Model *model, QWidget *parent) {
@@ -449,10 +454,10 @@ RegisterGroup *createFPULastOp(RegisterViewModelBase::Model *model, QWidget *par
 	FIPValueField->setToolTip(QObject::tr("Last FPU instruction offset"));
 	FDPValueField->setToolTip(QObject::tr("Last FPU memory operand offset"));
 
-	QPersistentModelIndex const FOPIndex         = findModelRegister(catIndex, "FOP", MODEL_VALUE_COLUMN);
-	QPersistentModelIndex const FSRIndex         = findModelRegister(catIndex, FSR_NAME, MODEL_VALUE_COLUMN);
-	QPersistentModelIndex const FCRIndex         = findModelRegister(catIndex, FCR_NAME, MODEL_VALUE_COLUMN);
-	bool                        fopRarelyUpdated = FOPIsIncompatible();
+	QPersistentModelIndex const FOPIndex = findModelRegister(catIndex, "FOP", MODEL_VALUE_COLUMN);
+	QPersistentModelIndex const FSRIndex = findModelRegister(catIndex, FSR_NAME, MODEL_VALUE_COLUMN);
+	QPersistentModelIndex const FCRIndex = findModelRegister(catIndex, FCR_NAME, MODEL_VALUE_COLUMN);
+	bool fopRarelyUpdated = FOPIsIncompatible();
 
 	const auto FOPFormatter = [FOPIndex, FSRIndex, FCRIndex, FIPIndex, fopRarelyUpdated](const QString &str) -> QString {
 		if (str.isEmpty() || str[0] == '?')
@@ -520,7 +525,7 @@ RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *pa
 	const auto nameWidth  = 3;
 	const auto valueWidth = getValueIndex(dr6Index).data(Model::FixedLengthRole).toInt();
 	assert(valueWidth > 0);
-	int        row           = 0;
+
 	const auto bitsSpacing   = 1;
 	const auto BTooltip      = QObject::tr("Breakpoint Condition Detected");
 	const auto LTooltip      = QObject::tr("Local Breakpoint Enable");
@@ -528,25 +533,31 @@ RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *pa
 	const auto typeTooltip   = QObject::tr("Breakpoint condition");
 	const auto lenTooltip    = QObject::tr("Data breakpoint length");
 	const auto lenDecodedStr = QObject::tr(" (bytes count from %1)");
+	int row = 0;
 
 	{
-		int        column      = nameWidth + 1 + valueWidth + 2;
+		int column = nameWidth + 1 + valueWidth + 2;
+
 		const auto BLabelField = new FieldWidget("B", group);
 		BLabelField->setToolTip(BTooltip + " (B0..B3)");
 		group->insert(row, column, BLabelField);
 		column += bitsSpacing + 1;
+
 		const auto LLabelField = new FieldWidget("L", group);
 		LLabelField->setToolTip(LTooltip + " (L0..L3)");
 		group->insert(row, column, LLabelField);
 		column += bitsSpacing + 1;
+
 		const auto GLabelField = new FieldWidget("G", group);
 		GLabelField->setToolTip(GTooltip + " (G0..G3)");
 		group->insert(row, column, GLabelField);
 		column += bitsSpacing + 1;
+
 		const auto typeLabelField = new FieldWidget("Type", group);
 		typeLabelField->setToolTip(typeTooltip + " (R/W0..R/W3)");
 		group->insert(row, column, typeLabelField);
 		column += bitsSpacing + 4;
+
 		const auto lenLabelField = new FieldWidget("Len", group);
 		lenLabelField->setToolTip(lenTooltip + lenDecodedStr.arg("LEN0..LEN3"));
 		group->insert(row, column, lenLabelField);
@@ -558,7 +569,8 @@ RegisterGroup *createDebugGroup(RegisterViewModelBase::Model *model, QWidget *pa
 	for (int drI = 0; drI < 4; ++drI, ++row) {
 		const auto name          = QString("DR%1").arg(drI);
 		const auto DRiValueIndex = VALID_INDEX(findModelRegister(catIndex, name, MODEL_VALUE_COLUMN));
-		int        column        = 0;
+		int column = 0;
+
 		group->insert(row, column, new FieldWidget(name, group));
 		column += nameWidth + 1;
 		group->insert(row, column, new ValueField(valueWidth, DRiValueIndex, group));
@@ -675,9 +687,12 @@ RegisterGroup *createMXCSR(RegisterViewModelBase::Model *model, QWidget *parent)
 		return nullptr;
 	const auto   group     = new RegisterGroup("MXCSR", parent);
 	const QString mxcsrName = "MXCSR";
-	int           column    = 0;
-	const int     mxcsrRow = 1, fzRow = mxcsrRow, dazRow = mxcsrRow, excRow = mxcsrRow;
-	const int     rndRow = fzRow + 1, maskRow = rndRow;
+
+	int column = 0;
+	const int mxcsrRow = 1, fzRow = mxcsrRow, dazRow = mxcsrRow, excRow = mxcsrRow;
+	const int rndRow = fzRow + 1;
+	const int maskRow = rndRow;
+
 	group->insert(mxcsrRow, column, new FieldWidget(mxcsrName, group));
 	column += mxcsrName.length() + 1;
 	const auto mxcsrIndex      = findModelRegister(catIndex, "MXCSR", MODEL_VALUE_COLUMN);
