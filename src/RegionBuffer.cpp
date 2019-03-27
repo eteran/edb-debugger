@@ -57,8 +57,8 @@ qint64 RegionBuffer::readData(char *data, qint64 maxSize) {
 			const edb::address_t start = region_->start() + pos();
 			const edb::address_t end   = region_->start() + region_->size();
 
-		if(start + maxSize > end) {
-					maxSize = end - start;
+			if(start + maxSize > end) {
+				maxSize = end - start;
 			}
 
 			if(maxSize == 0) {
