@@ -26,7 +26,7 @@ class FPUCategory;
 template <typename T>
 bool setDebuggeeRegister(const QString &name, const T &value, T &resultingValue);
 
-class Model : public QAbstractItemModel {
+class EDB_EXPORT Model : public QAbstractItemModel {
 	Q_OBJECT
 
 public:
