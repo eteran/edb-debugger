@@ -23,17 +23,17 @@ add_subdirectory(InstructionInspector)
 
 
 if(TARGET_ARCH_FAMILY_X86)
-	add_subdirectory(HardwareBreakpoints)
+    add_subdirectory(HardwareBreakpoints)
 endif()
 
 if(TARGET_PLATFORM_LINUX)
     add_subdirectory(HeapAnalyzer)
 endif()
 
-#if (NOT TARGET_COMPILER_MSVC)
-	# TODO(eteran): having a hard time getting these to compile under MSVC
-	add_subdirectory(ODbgRegisterView)
-#endif()
+if (NOT TARGET_COMPILER_MSVC)
+    # TODO(eteran): having a hard time getting these to compile under MSVC
+    add_subdirectory(ODbgRegisterView)
+endif()
 
 
 
