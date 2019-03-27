@@ -380,102 +380,114 @@ const char* fixup_g_Yfmt(char* buffer, int digits10)
 	return buffer;
 }
 
-template<typename Float>
-EDB_EXPORT QString formatFloat(Float value)
-{
-	const auto type=floatType(value);
-	QString specialStr="???? ";
-	switch(type)
-	{
+template <typename Float> 
+EDB_EXPORT QString formatFloat(Float value) {
+
+	const auto type = floatType(value);
+	QString specialStr = "???? ";
+	
+	switch (type) {
 	case FloatValueClass::Zero:
-		return value.negative()?"-0.0":"0.0";
+		return value.negative() ? "-0.0" : "0.0";
+		
 	case FloatValueClass::PseudoDenormal:
-		if(sizeof(value) >= 10) {
+		if (sizeof(value) >= 10) {
 			Q_ASSERT(sizeof(value) == 10);
 
 			// Convert to supported value as the CPU would. Otherwise glibc takes it wrong.
 			const uint16_t exponent = value.negative() ? 0x8001 : 0x0001;
 
 			// NOTE(eteran): hushes a warning from GCC >= 8.2
-			auto ptr = reinterpret_cast<char*>(&value) + 8;
+			auto ptr = reinterpret_cast<char *>(&value) + 8;
 
 			std::memcpy(ptr, &exponent, sizeof(exponent));
 		}
 		// fall through
 	case FloatValueClass::Normal:
-	case FloatValueClass::Denormal:
-	    {
+	case FloatValueClass::Denormal: {
 #ifdef HAVE_DOUBLE_CONVERSION
-		    constexpr bool isDouble=std::is_same<Float, edb::value64>::value;
-			constexpr bool isFloat=std::is_same<Float, edb::value32>::value;
-			if(isDouble || isFloat)
-			{
-				using namespace double_conversion;
-				char buffer[64];
-				DoubleToStringConverter conv(DoubleToStringConverter::EMIT_POSITIVE_EXPONENT_SIGN, "inf", "nan", 'e', -4, isDouble ? 15 : 6, 0,0);
-				StringBuilder builder(buffer, sizeof(buffer));
-				bool result=false;
-				if(isDouble)
-				{
-					double d;
-					std::memcpy(&d, &value, sizeof(d));
-					result=conv.ToShortest(d, &builder);
-				}
-				else // isFloat
-				{
-					float f;
-					std::memcpy(&f, &value, sizeof(f));
-					result=conv.ToShortestSingle(f, &builder);
-				}
-				if(result && builder.Finalize())
-				{
-					const QString result=buffer;
-					if(result.size()==1 && result[0].isDigit())
-						return result+".0"; // avoid printing small whole numbers as integers
-					return result;
-				}
+		constexpr bool isDouble = std::is_same<Float, edb::value64>::value;
+		constexpr bool isFloat  = std::is_same<Float, edb::value32>::value;
+		if (isDouble || isFloat) {
+			using namespace double_conversion;
+			
+			char buffer[64];
+			DoubleToStringConverter conv(DoubleToStringConverter::EMIT_POSITIVE_EXPONENT_SIGN, "inf", "nan", 'e', -4, isDouble ? 15 : 6, 0, 0);
+			
+			StringBuilder builder(buffer, sizeof(buffer));
+			bool ret = false;
+			
+			if (isDouble) {
+				double d;
+				std::memcpy(&d, &value, sizeof(d));
+				ret = conv.ToShortest(d, &builder);
+			} else {
+				// isFloat
+				float f;
+				std::memcpy(&f, &value, sizeof(f));
+				ret = conv.ToShortestSingle(f, &builder);
 			}
-#endif
-#ifdef HAVE_GDTOA
-			if(std::is_same<Float, edb::value80>::value)
-			{
-				char buffer[64]={};
-				gdtoa_g_xfmt(buffer, &value, -1, sizeof buffer);
-				fixup_g_Yfmt(buffer,std::numeric_limits<long double>::digits10);
-				const QString result=buffer;
-				if(result.size()==1 && result[0].isDigit())
-					return result+".0"; // avoid printing small whole numbers as integers
+			
+			if (ret && builder.Finalize()) {
+				const QString result = buffer;
+				if (result.size() == 1 && result[0].isDigit()) {
+					return result + ".0"; // avoid printing small whole numbers as integers
+				}
+				
 				return result;
 			}
+		}
 #endif
-			std::ostringstream ss;
-			ss << std::setprecision(std::numeric_limits<decltype(toFloatValue(value))>::max_digits10) << toFloatValue(value);
-			const auto result=QString::fromStdString(ss.str());
-			if(result.size()==1 && result[0].isDigit())
-				return result+".0"; // avoid printing small whole numbers as integers
+#ifdef HAVE_GDTOA
+		if (std::is_same<Float, edb::value80>::value) {
+			char buffer[64] = {};
+			gdtoa_g_xfmt(buffer, &value, -1, sizeof buffer);
+			fixup_g_Yfmt(buffer, std::numeric_limits<long double>::digits10);
+			
+			const QString result = buffer;
+			if (result.size() == 1 && result[0].isDigit()) {
+				return result + ".0"; // avoid printing small whole numbers as integers
+			}
+			
 			return result;
-	    }
+		}
+#endif
+		std::ostringstream ss;
+		ss << std::setprecision(std::numeric_limits<decltype(toFloatValue(value))>::max_digits10) << toFloatValue(value);
+		
+		const auto result = QString::fromStdString(ss.str());
+		if (result.size() == 1 && result[0].isDigit()) {
+			return result + ".0"; // avoid printing small whole numbers as integers
+		}
+		
+		return result;
+	}
 	case FloatValueClass::Infinity:
-		return QString(value.negative()?"-":"+")+"INF";
+		return QString(value.negative() ? "-" : "+") + "INF";
 	case FloatValueClass::QNaN:
-		specialStr=QString(value.negative()?"-":"+")+"QNAN ";
+		specialStr = QString(value.negative() ? "-" : "+") + "QNAN ";
 		break;
 	case FloatValueClass::SNaN:
-		specialStr=QString(value.negative()?"-":"+")+"SNAN ";
+		specialStr = QString(value.negative() ? "-" : "+") + "SNAN ";
 		break;
 	case FloatValueClass::Unsupported:
-		specialStr=QString(value.negative()?"-":"+")+"BAD ";
+		specialStr = QString(value.negative() ? "-" : "+") + "BAD ";
 		break;
 	}
+	
 	// If we are here, then the value is special
 	auto hexStr = value.toHexString();
 
 	const QChar groupSeparator(' ');
-	if(hexStr.size()>8)
-		hexStr.insert(hexStr.size()-8,groupSeparator);
-	if(hexStr.size()>16+1) // +1 to take into account already inserted first separator
-		hexStr.insert(hexStr.size()-16-1,groupSeparator);
-	return specialStr+hexStr;
+	if (hexStr.size() > 8) {
+		hexStr.insert(hexStr.size() - 8, groupSeparator);
+	}
+	
+	if (hexStr.size() > 16 + 1) { // +1 to take into account already inserted first separator
+		hexStr.insert(hexStr.size() - 16 - 1, groupSeparator);
+	}
+	
+	return specialStr + hexStr;
 }
 
 template EDB_EXPORT QString formatFloat<edb::value32>(edb::value32);
