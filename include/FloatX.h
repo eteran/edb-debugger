@@ -49,8 +49,8 @@ constexpr int maxPrintedLength() {
 	constexpr int expSignChars      = !isInteger;
 	constexpr int decimalPointChars = !isInteger;
 	constexpr int expSymbol         = !isInteger; // 'e' for floating-point value in scientific format
-	constexpr int expMaxWidth       = isInteger ? 0 : std::ceil(std::log10(Limits::max_exponent10));
-	constexpr int maxWidth  		= signChars + mantissaChars + decimalPointChars + expSymbol + expSignChars + expMaxWidth;
+	const int expMaxWidth           = isInteger ? 0 : std::ceil(std::log10(Limits::max_exponent10));
+	const int maxWidth  		    = signChars + mantissaChars + decimalPointChars + expSymbol + expSignChars + expMaxWidth;
 
 	return maxWidth;
 }
