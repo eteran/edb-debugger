@@ -101,7 +101,7 @@ Register PlatformState::value(const QString &reg) const {
 	}
 
 	if (vfp.filled && name == "fpscr") {
-		return make_Register<32>("fpscr", vfp.fpscr, Register::TYPE_FPU);
+		return make_register<32>("fpscr", vfp.fpscr, Register::TYPE_FPU);
 	}
 
 	const auto gprFoundIt = findGPR(name);
@@ -132,7 +132,7 @@ Register PlatformState::flags_register() const {
 #ifdef EDB_ARM32
 	if (!gpr.filled)
 		return Register();
-	return make_Register<32>("cpsr", gpr.cpsr, Register::TYPE_GPR);
+	return make_register<32>("cpsr", gpr.cpsr, Register::TYPE_GPR);
 #else
 	return Register(); // FIXME: stub
 #endif
@@ -280,7 +280,7 @@ void PlatformState::set_register(const Register &reg) {
 void PlatformState::set_register(const QString &name, edb::reg_t value) {
 #ifdef EDB_ARM32
 	const QString regName = name.toLower();
-	set_register(make_Register<32>(regName, value, Register::TYPE_GPR));
+	set_register(make_register<32>(regName, value, Register::TYPE_GPR));
 	// FIXME: this doesn't take into account any 64-bit registers - possibly FPU data?
 #endif
 }
@@ -293,7 +293,7 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
 Register PlatformState::gp_register(size_t n) const {
 #ifdef EDB_ARM32
 	assert(n < GPR::GPRegNames.size());
-	return make_Register<32>(gpr.GPRegNames[n].front(), gpr.GPRegs[n], Register::TYPE_GPR);
+	return make_register<32>(gpr.GPRegNames[n].front(), gpr.GPRegs[n], Register::TYPE_GPR);
 #else
 	return Register(); // FIXME: stub
 #endif

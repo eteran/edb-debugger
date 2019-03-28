@@ -29,9 +29,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class Register;
 
-template <std::size_t BitSize = 0, typename ValueType, typename Type>
-Register make_Register(const QString &name, ValueType value, Type type);
-
 class EDB_EXPORT Register {
 	Q_DECLARE_TR_FUNCTIONS(Register)
 
@@ -79,7 +76,7 @@ public:
 	}
 
 	int64_t valueAsSignedInteger() const {
-		auto result = valueAsInteger();
+		uint64_t result = valueAsInteger();
 		// If MSB is set, sign extend the result
 		if(result & (1ll << (bitSize_ - 1))) {
 			result = -1ll;
@@ -104,29 +101,28 @@ public:
 	QString toHexString() const;
 
 private:
-	QString     name_;
-	StoredType  value_;
-	Type        type_;
-	std::size_t bitSize_;
+	QString     name_    = tr("<unknown>");
+	StoredType  value_   = {};
+	std::size_t bitSize_ = 0;
+	Type        type_    = TYPE_INVALID;
 
-	template<std::size_t bitSize, typename ValueType, typename Type>
-	friend Register make_Register(const QString &name, ValueType value, Type type);
+private:
+	template <std::size_t BitSize, typename T>
+	friend Register make_register(const QString &name, T value, Register::Type type);
 };
 
-template<std::size_t BitSize, typename ValueType, typename Type>
-Register make_Register(const QString &name, ValueType value, Type type)
-{
-	static_assert(std::is_same<Type,Register::Type>::value, "type must be Register::Type");
-	constexpr std::size_t bitSize = (BitSize ? BitSize : BIT_LENGTH(value));
+template<std::size_t BitSize, typename T>
+Register make_register(const QString &name, T value, Register::Type type) {
+
 	static_assert(BitSize % 8 == 0, "Strange bit size");
 
 	Register reg;
 	reg.name_    = name;
 	reg.type_    = type;
-	reg.bitSize_ = bitSize;
+	reg.bitSize_ = BitSize;
 
-	constexpr std::size_t size = bitSize / 8;
-	static_assert(size <= sizeof(ValueType), "ValueType appears smaller than size specified");
+	constexpr std::size_t size = BitSize / 8;
+	static_assert(size <= sizeof(T), "ValueType appears smaller than size specified");
 	util::markMemory(&reg.value_, sizeof(reg.value_));
 
 	// NOTE(eteran): used to avoid warnings from GCC >= 8.2
@@ -136,6 +132,11 @@ Register make_Register(const QString &name, ValueType value, Type type)
 	std::memcpy(to, from, size);
 
 	return reg;
+}
+
+template <typename T>
+Register make_register(const QString &name, T value, Register::Type type) {
+	return make_register<8 * sizeof(T)>(name, value, type);
 }
 
 #endif

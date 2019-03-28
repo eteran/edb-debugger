@@ -149,14 +149,14 @@ public:
 	QModelIndex activeIndex() const;
 
 public:
-	virtual void setChosenSIMDSize(const QModelIndex &index, ElementSize newSize);
-	virtual void setChosenSIMDFormat(const QModelIndex &index, NumberDisplayMode newFormat);
-	virtual void setChosenFPUFormat(const QModelIndex &index, NumberDisplayMode newFormat);
+	void setChosenSIMDSize(const QModelIndex &index, ElementSize newSize);
+	void setChosenSIMDFormat(const QModelIndex &index, NumberDisplayMode newFormat);
+	void setChosenFPUFormat(const QModelIndex &index, NumberDisplayMode newFormat);
 
 	// Should be called after updating all the data
-	virtual void dataUpdateFinished();
+	void dataUpdateFinished();
 	// should be called when the debugger is about to resume, to save current register values to previous
-	virtual void saveValues();
+	void saveValues();
 
 protected:
 	// All categories are there to stay after they've been inserted
@@ -288,14 +288,9 @@ public:
 
 struct BitFieldDescription {
 	QString              name;
-	unsigned             offset;
-	unsigned             length;
-	std::vector<QString> explanations;
-
-	// Prevent compiler warnings about missing initializer: make default argument explicitly default
-	BitFieldDescription(QString name, unsigned offset, unsigned length, std::vector<QString> explanations = std::vector<QString>()) :
-	    name(name), offset(offset), length(length), explanations(explanations) {
-	}
+	unsigned             offset = 0;
+	unsigned             length = 0;
+	std::vector<QString> explanations = {};
 };
 
 class BitFieldProperties {
@@ -403,7 +398,8 @@ private:
 	std::vector<SIMDFormatItem<StoredType, SizingType>> formats;
 };
 
-template <class StoredType> class SIMDSizedElementsContainer : public RegisterViewItem {
+template <class StoredType>
+class SIMDSizedElementsContainer : public RegisterViewItem {
 	template <class SizeType, class... Args>
 	void addElement(Args &&... args);
 
@@ -411,8 +407,7 @@ protected:
 	std::vector<std::unique_ptr<RegisterViewItem>> elements;
 
 public:
-	SIMDSizedElementsContainer(const QString &name, std::size_t size,
-	                           const std::vector<NumberDisplayMode> &validFormats);
+	SIMDSizedElementsContainer(const QString &name, std::size_t size, const std::vector<NumberDisplayMode> &validFormats);
 	SIMDSizedElementsContainer(SIMDSizedElementsContainer &&other);
 	RegisterViewItem *child(int row) override;
 	int               childCount() const override;
@@ -421,8 +416,10 @@ public:
 	bool              changed() const override;
 };
 
-template <class StoredType> class SIMDRegister : public SimpleRegister<StoredType> {
-	template <class U, class V> friend class SIMDSizedElement;
+template <class StoredType>
+class SIMDRegister : public SimpleRegister<StoredType> {
+	template <class U, class V>
+	friend class SIMDSizedElement;
 
 protected:
 	std::deque<SIMDSizedElementsContainer<StoredType>> sizedElementContainers;
