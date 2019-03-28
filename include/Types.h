@@ -21,10 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "API.h"
 #include "Value.h"
-#include "Address.h"
 
-#include <sstream>
-#include <type_traits>
 #include <QString>
 
 namespace edb {
@@ -38,28 +35,6 @@ enum EVENT_STATUS {
 	DEBUG_NEXT_HANDLER
 };
 
-}
-
-template<class T> typename std::enable_if<std::is_same<T,edb::value8 >::value ||
-										  std::is_same<T,edb::value16>::value ||
-										  std::is_same<T,edb::value32>::value ||
-										  std::is_same<T,edb::value64>::value ||
-										  std::is_same<T,edb::reg_t>::value   ||
-										  std::is_same<T,edb::address_t>::value,
-std::istream&>::type operator>>(std::istream& os, T& val) {
-	os >> val.asUint();
-	return os;
-}
-
-template<class T> typename std::enable_if<std::is_same<T,edb::value8 >::value ||
-										  std::is_same<T,edb::value16>::value ||
-										  std::is_same<T,edb::value32>::value ||
-										  std::is_same<T,edb::value64>::value ||
-										  std::is_same<T,edb::reg_t>::value   ||
-										  std::is_same<T,edb::address_t>::value,
-std::ostream&>::type operator<<(std::ostream& os, T val) {
-	os << val.toUint();
-	return os;
 }
 
 /* Comment Type */

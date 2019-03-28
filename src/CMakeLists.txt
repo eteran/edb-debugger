@@ -20,7 +20,6 @@ else()
 endif()
 
 set(edb_SRCS
-	Address.cpp
 	BasicBlock.cpp
 	BinaryString.cpp
 	BinaryString.ui
@@ -163,7 +162,6 @@ set(edb_SRCS
 	${PROJECT_SOURCE_DIR}/include/ThreadsModel.h
 	${PROJECT_SOURCE_DIR}/include/Types.h
 	${PROJECT_SOURCE_DIR}/include/Value.h
-	${PROJECT_SOURCE_DIR}/include/Address.h
 	${PROJECT_SOURCE_DIR}/include/Util.h
 	${PROJECT_SOURCE_DIR}/include/version.h
 )

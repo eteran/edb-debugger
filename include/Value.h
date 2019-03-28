@@ -449,6 +449,19 @@ public:
 	T value_ = {};
 };
 
+// iostream operators
+template <class T>
+std::istream& operator>>(std::istream &os, value_type<T> &val) {
+	os >> val.asUint();
+	return os;
+}
+
+template <class T>
+std::ostream& operator<<(std::ostream &os, value_type<T> &val) {
+	os << val.toUint();
+	return os;
+}
+
 
 // operators for value_type, Integer
 template <class T, class Integer, class = IsInteger<Integer>>
@@ -826,6 +839,8 @@ static_assert(sizeof(value_type80) * 8 == 80, "value_type80 size is broken!");
 
 }
 
+
+
 // GPR on x86
 using value8  = detail::value_type<uint8_t>;
 using value16 = detail::value_type<uint16_t>;
@@ -833,6 +848,10 @@ using value32 = detail::value_type<uint32_t>;
 
 // MMX/GPR(x86_64)
 using value64  = detail::value_type<uint64_t>;
+
+// We support registers and addresses of 64-bits
+using address_t = value64;
+using reg_t     = value64;
 
 // FPU
 using value80  = detail::value_type80;
@@ -845,6 +864,7 @@ using value256 = detail::value_type_large<256>;
 
 // AVX512
 using value512 = detail::value_type_large<512>;
+
 
 static_assert(std::is_standard_layout<value8>::value &&
 		std::is_standard_layout<value16>::value &&
