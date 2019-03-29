@@ -820,7 +820,7 @@ QString PlatformState::flags_to_string(edb::reg_t flags) const {
 		((flags & 0x200) ? 'I' : 'i'),
 		((flags & 0x400) ? 'D' : 'd'),
 		((flags & 0x800) ? 'O' : 'o'));
-	return buf;
+	return QString::fromLatin1(buf);
 }
 
 //------------------------------------------------------------------------------
