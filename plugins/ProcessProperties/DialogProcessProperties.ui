@@ -420,18 +420,11 @@
         </layout>
        </item>
        <item>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <item>
-          <widget class="QLabel" name="label_4">
-           <property name="text">
-            <string>Filter</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="txtSearchEnvironment"/>
-         </item>
-        </layout>
+        <widget class="QLineEdit" name="txtSearchEnvironment">
+         <property name="placeholderText">
+          <string>Filter</string>
+         </property>
+        </widget>
        </item>
        <item>
         <widget class="QTableWidget" name="tableEnvironment">

@@ -22,16 +22,6 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0">
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Filter</string>
-     </property>
-    </widget>
-   </item>
-   <item row="1" column="1">
-    <widget class="QLineEdit" name="txtSearch"/>
-   </item>
    <item row="1" column="2" rowspan="2">
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
@@ -161,7 +151,8 @@
         <string>&amp;Close</string>
        </property>
        <property name="icon">
-        <iconset theme="dialog-close"/>
+        <iconset theme="dialog-close">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -174,7 +165,8 @@
         <string>&amp;Help</string>
        </property>
        <property name="icon">
-        <iconset theme="help-browser"/>
+        <iconset theme="help-browser">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -197,7 +189,8 @@
         <string>&amp;Find</string>
        </property>
        <property name="icon">
-        <iconset theme="edit-find"/>
+        <iconset theme="edit-find">
+         <normaloff>.</normaloff>.</iconset>
        </property>
        <property name="default">
         <bool>true</bool>
@@ -213,6 +206,13 @@
      </property>
      <property name="orientation">
       <enum>Qt::Horizontal</enum>
+     </property>
+    </widget>
+   </item>
+   <item row="1" column="0" colspan="2">
+    <widget class="QLineEdit" name="txtSearch">
+     <property name="placeholderText">
+      <string>Filter</string>
      </property>
     </widget>
    </item>

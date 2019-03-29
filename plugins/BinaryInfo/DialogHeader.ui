@@ -23,11 +23,8 @@
     </widget>
    </item>
    <item>
-    <widget class="QLineEdit" name="txtSearch"/>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_3">
-     <property name="text">
+    <widget class="QLineEdit" name="txtSearch">
+     <property name="placeholderText">
       <string>Filter</string>
      </property>
     </widget>
@@ -91,7 +88,8 @@
         <string>&amp;Close</string>
        </property>
        <property name="icon">
-        <iconset theme="dialog-close"/>
+        <iconset theme="dialog-close">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -104,7 +102,8 @@
         <string>&amp;Help</string>
        </property>
        <property name="icon">
-        <iconset theme="help-browser"/>
+        <iconset theme="help-browser">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
