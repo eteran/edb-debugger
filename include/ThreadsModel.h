@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class IThread;
 
-class EDB_EXPORT ThreadsModel : public QAbstractItemModel {
+class EDB_EXPORT ThreadsModel final : public QAbstractItemModel {
 	Q_OBJECT
 
 public:

@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-class GPREdit : public QLineEdit {
+class GPREdit final : public QLineEdit {
 	Q_OBJECT
 
 public:

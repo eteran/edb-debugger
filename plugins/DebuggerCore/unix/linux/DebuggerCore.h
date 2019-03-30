@@ -33,7 +33,7 @@ namespace DebuggerCorePlugin {
 
 class PlatformThread;
 
-class DebuggerCore : public DebuggerCoreBase {
+class DebuggerCore final : public DebuggerCoreBase {
 	Q_OBJECT
 	Q_PLUGIN_METADATA(IID "edb.IDebugger/1.0")
 	Q_INTERFACES(IDebugger)

@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
-class Breakpoint : public IBreakpoint {
+class Breakpoint final : public IBreakpoint {
 public:
 	enum class TypeId {
 		Automatic=static_cast<int>(IBreakpoint::TypeId::Automatic),

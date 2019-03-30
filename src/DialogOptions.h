@@ -25,7 +25,7 @@ namespace Ui { class DialogOptions; }
 
 class QToolBox;
 
-class DialogOptions : public QDialog {
+class DialogOptions final : public QDialog {
 	Q_OBJECT
 public:
     explicit DialogOptions(QWidget *parent = nullptr);

@@ -33,7 +33,7 @@ class QModelIndex;
 
 namespace Ui { class DialogAttach; }
 
-class DialogAttach : public QDialog {
+class DialogAttach final : public QDialog {
 	Q_OBJECT
 
 public:

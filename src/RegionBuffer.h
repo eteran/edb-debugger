@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class IRegion;
 
-class RegionBuffer : public QIODevice {
+class RegionBuffer final : public QIODevice {
 	Q_OBJECT
 public:
     explicit RegionBuffer(const std::shared_ptr<IRegion> &region);

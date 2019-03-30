@@ -30,7 +30,7 @@ class QLabel;
 class QMouseEvent;
 class QString;
 
-class GraphWidget : public QGraphicsView {
+class GraphWidget final : public QGraphicsView {
 	Q_OBJECT
 	friend class GraphNode;
 	friend class GraphEdge;

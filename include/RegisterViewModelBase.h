@@ -304,7 +304,7 @@ template <class UnderlyingType>
 class FlagsRegister;
 
 template <class UnderlyingType>
-class BitFieldItem : public RegisterViewItem, public BitFieldProperties {
+class BitFieldItem final : public RegisterViewItem, public BitFieldProperties {
 protected:
 	unsigned             offset_;
 	unsigned             length_;
@@ -331,7 +331,7 @@ public:
 };
 
 template <class StoredType>
-class FlagsRegister : public SimpleRegister<StoredType> {
+class FlagsRegister final : public SimpleRegister<StoredType> {
 	template <class UnderlyingType>
 	friend class BitFieldItem;
 
@@ -350,7 +350,7 @@ template <class StoredType>
 class SIMDRegister;
 
 template <class StoredType, class SizingType>
-class SIMDFormatItem : public RegisterViewItem {
+class SIMDFormatItem final : public RegisterViewItem {
 public:
 	SIMDFormatItem(NumberDisplayMode format);
 
@@ -374,7 +374,7 @@ private:
 class SIMDElement {}; // generic non-templated class to dynamic_cast to
 
 template <class StoredType, class SizingType>
-class SIMDSizedElement : public RegisterViewItem, public SIMDElement {
+class SIMDSizedElement final : public RegisterViewItem, public SIMDElement {
 	friend class SIMDFormatItem<StoredType, SizingType>;
 
 public:
@@ -399,7 +399,7 @@ private:
 };
 
 template <class StoredType>
-class SIMDSizedElementsContainer : public RegisterViewItem {
+class SIMDSizedElementsContainer final : public RegisterViewItem {
 	template <class SizeType, class... Args>
 	void addElement(Args &&... args);
 
@@ -417,7 +417,7 @@ public:
 };
 
 template <class StoredType>
-class SIMDRegister : public SimpleRegister<StoredType> {
+class SIMDRegister final : public SimpleRegister<StoredType> {
 	template <class U, class V>
 	friend class SIMDSizedElement;
 
@@ -436,7 +436,7 @@ public:
 class GenericFPURegister {}; // generic non-templated class to dynamic_cast to
 
 template <class FloatType>
-class FPURegister : public SimpleRegister<FloatType>, public GenericFPURegister {
+class FPURegister final : public SimpleRegister<FloatType>, public GenericFPURegister {
 	template <class U, class V> friend class SIMDFormatItem;
 
 public:
@@ -482,7 +482,7 @@ private:
 	bool                                               visible_ = true;
 };
 
-class SIMDCategory : public Category {
+class SIMDCategory final : public Category {
 public:
 	SIMDCategory(const QString &name, int row, const std::vector<NumberDisplayMode> &validFormats);
 	~SIMDCategory();
@@ -504,7 +504,7 @@ private:
 	std::vector<NumberDisplayMode> const validFormats_;
 };
 
-class FPUCategory : public Category {
+class FPUCategory final : public Category {
 public:
 	FPUCategory(const QString &name, int row);
 	~FPUCategory();
@@ -518,7 +518,7 @@ private:
 	NumberDisplayMode chosenFormat_;
 };
 
-class CategoriesHolder : public RegisterViewItem {
+class CategoriesHolder final : public RegisterViewItem {
 	friend class Model;
 
 public:

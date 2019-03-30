@@ -31,7 +31,7 @@ namespace DebuggerCorePlugin {
 class DebuggerCore;
 class PlatformState;
 
-class PlatformThread : public IThread {
+class PlatformThread final : public IThread {
 	Q_DECLARE_TR_FUNCTIONS(PlatformThread)
 	friend class DebuggerCore;
 

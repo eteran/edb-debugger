@@ -204,7 +204,7 @@ public:
 	// Name: handle_event
 	//--------------------------------------------------------------------------
 	//TODO: Need to handle stop/pause button
-	virtual edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) {
+	edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) override {
 
 		if(!event->is_trap()) {
 			return pass_back_to_debugger();

@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace Ui { class DialogAbout; }
 
-class DialogAbout : public QDialog {
+class DialogAbout final : public QDialog {
 	Q_OBJECT
 
 public:

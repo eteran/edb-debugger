@@ -222,7 +222,7 @@ static_assert(offsetof(X86XState, xmm_space) == 160, "XMM space should appear at
 static_assert(offsetof(X86XState, xcr0) == 464, "XCR0 should appear at offset 464");
 static_assert(offsetof(X86XState, ymmh_space) == 576, "YMM_H space should appear at offset 576");
 
-class PlatformState : public IState {
+class PlatformState final : public IState {
 	friend class DebuggerCore;
 	friend class PlatformThread;
 

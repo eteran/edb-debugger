@@ -23,21 +23,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Instruction.h"
 #include "edb.h"
 
-#include <QString>
-
-//------------------------------------------------------------------------------
-// Name: CommentServer
-// Desc:
-//------------------------------------------------------------------------------
-CommentServer::CommentServer(QObject *parent) : QObject(parent) {
-
-}
-
 //------------------------------------------------------------------------------
 // Name: set_comment
 // Desc:
 //------------------------------------------------------------------------------
-void CommentServer::set_comment(QHexView::address_t address, const QString &comment) {
+void CommentServer::set_comment(edb::address_t address, const QString &comment) {
 	custom_comments_[address] = comment;
 }
 
@@ -60,7 +50,7 @@ constexpr int CALL_MIN_SIZE = 2;
 // Name: resolve_function_call
 // Desc:
 //------------------------------------------------------------------------------
-Result<QString, QString> CommentServer::resolve_function_call(QHexView::address_t address) const {
+Result<QString, QString> CommentServer::resolve_function_call(edb::address_t address) const {
 
 	// ok, we now want to locate the instruction before this one
 	// so we need to look back a few bytes
@@ -94,7 +84,7 @@ Result<QString, QString> CommentServer::resolve_function_call(QHexView::address_
 // Name: resolve_string
 // Desc:
 //------------------------------------------------------------------------------
-Result<QString, QString> CommentServer::resolve_string(QHexView::address_t address) const {
+Result<QString, QString> CommentServer::resolve_string(edb::address_t address) const {
 
 	const int min_string_length = edb::v1::config().min_string_length;
 	const int max_string_length = 256;
@@ -115,7 +105,7 @@ Result<QString, QString> CommentServer::resolve_string(QHexView::address_t addre
 // Name: comment
 // Desc:
 //------------------------------------------------------------------------------
-QString CommentServer::comment(QHexView::address_t address, int size) const {
+QString CommentServer::comment(edb::address_t address, int size) const {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		// if the view is currently looking at words which are a pointer in size

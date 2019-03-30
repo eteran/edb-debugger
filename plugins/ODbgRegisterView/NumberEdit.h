@@ -19,7 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-class NumberEdit : public QLineEdit {
+class NumberEdit final : public QLineEdit {
 	Q_OBJECT
 public:
 	NumberEdit(int column, int colSpan, QWidget *parent = nullptr);

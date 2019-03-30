@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <exception>
 
 class breakpoint_creation_error : public std::exception {
-	const char *what() const noexcept {
+	const char *what() const noexcept override {
 		return "breakpoint_creation_error";
 	}
 };

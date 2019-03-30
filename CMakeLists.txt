@@ -142,8 +142,52 @@ if (TARGET_COMPILER_CLANG OR TARGET_COMPILER_GCC)
 		set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -D_GLIBCXX_DEBUG")	
 	endif()
 	
-	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -W -Wall -pedantic -Wunused")
-	set(CMAKE_C_FLAGS   "${CMAKE_C_FLAGS}   -W -Wall -pedantic -Wunused")
+    add_compile_options(
+		-W
+		-Wall
+		#-Wshadow
+		-Wnon-virtual-dtor
+		#-Wold-style-cast
+		-Wcast-align
+		-Wunused
+		-Woverloaded-virtual
+		-pedantic
+		#-Wconversion
+		#-Wsign-conversion
+		#-Wnull-dereference
+		-Wdouble-promotion
+		-Wformat=2
+		-Wno-unused-macros
+		-Wno-switch-enum
+		-Wno-unknown-pragmas
+    )
+
+    if(TARGET_COMPILER_CLANG)
+		add_compile_options(
+			#-Wshorten-64-to-32
+			-Wconditional-uninitialized
+			#-Wshadow-uncaptured-local
+			-Wmissing-prototypes
+			#-Wexit-time-destructors
+			#-Wglobal-constructors
+			-Wimplicit-fallthrough
+		)
+
+    elseif(TARGET_COMPILER_GCC)
+		add_compile_options(
+			#-Wuseless-cast
+			#-Wduplicated-cond
+			#-Wduplicated-branches
+			-Wlogical-op
+
+			#-Wsuggest-attribute=pure
+			#-Wsuggest-attribute=const
+			#-Wsuggest-attribute=noreturn
+			#-Wsuggest-final-types
+			#-Wsuggest-final-methods
+			-Wsuggest-override
+		)
+	endif()
 elseif(TARGET_COMPILER_MSVC)
 	add_definitions(-DUNICODE -D_UNICODE -D_CRT_SECURE_NO_WARNINGS)
 endif()

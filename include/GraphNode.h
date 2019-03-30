@@ -30,7 +30,7 @@ class QVariant;
 class GraphWidget;
 class GraphEdge;
 
-class GraphNode : public QGraphicsItem {
+class GraphNode final : public QGraphicsItem {
 	friend class GraphWidget;
 	friend class GraphEdge;
 

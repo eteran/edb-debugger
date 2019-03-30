@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace AnalyzerPlugin {
 
-class AnalyzerWidget : public QWidget {
+class AnalyzerWidget final : public QWidget {
 	Q_OBJECT
 public:
 	AnalyzerWidget(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());

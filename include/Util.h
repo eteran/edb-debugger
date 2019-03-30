@@ -70,13 +70,13 @@ template <class N1, class N2, class N3, class N4>
 int percentage(N1 regions_finished, N2 regions_total, N3 bytes_done, N4 bytes_total) {
 
 	// how much percent does each region account for?
-	const auto region_step = 1.0 / static_cast<double>(regions_total) * 100;
+	const auto region_step = 1.0f / static_cast<float>(regions_total) * 100.0f;
 
 	// how many regions are done?
-	const double regions_complete = region_step * regions_finished;
+	const float regions_complete = region_step * regions_finished;
 
 	// how much of the current region is done?
-	const double region_percent = region_step * static_cast<float>(bytes_done) / static_cast<float>(bytes_total);
+	const float region_percent = region_step * static_cast<float>(bytes_done) / static_cast<float>(bytes_total);
 
 	return static_cast<int>(regions_complete + region_percent);
 }

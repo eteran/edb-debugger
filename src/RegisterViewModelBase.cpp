@@ -925,7 +925,7 @@ QVariant SIMDFormatItem<StoredType, SizingType>::data(int column) const {
 
 template <class StoredType, class SizingType>
 QByteArray SIMDFormatItem<StoredType, SizingType>::rawValue() const {
-	return static_cast<RegisterViewItem *>(this->parent())->rawValue();
+	return this->parent()->rawValue();
 }
 
 template <>
@@ -939,7 +939,7 @@ int SIMDFormatItem<edb::value80, edb::value80>::valueMaxLength() const {
 	case NumberDisplayMode::Float:
 		return maxPrintedLength<long double>();
 	default:
-		EDB_PRINT_AND_DIE("Unexpected format: ", (long)format_);
+		EDB_PRINT_AND_DIE("Unexpected format: ", static_cast<long>(format_));
 	}
 }
 
@@ -1139,7 +1139,7 @@ QVariant SIMDSizedElementsContainer<StoredType>::data(int column) const {
 
 template <class StoredType>
 QByteArray SIMDSizedElementsContainer<StoredType>::rawValue() const {
-	return static_cast<RegisterViewItem *>(this->parent())->rawValue();
+	return this->parent()->rawValue();
 }
 
 template <class StoredType>

@@ -25,7 +25,7 @@ namespace DebuggerCorePlugin {
 
 namespace Ui { class DialogMemoryAccess; }
 
-class DialogMemoryAccess : public QDialog {
+class DialogMemoryAccess final : public QDialog {
 	Q_OBJECT
 
 public:

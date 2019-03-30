@@ -29,7 +29,7 @@ namespace DebuggerCorePlugin {
 
 class DebuggerCore;
 
-class PlatformProcess : public IProcess {
+class PlatformProcess final : public IProcess {
 	Q_DECLARE_TR_FUNCTIONS(PlatformProcess)
 	friend class PlatformThread;
 

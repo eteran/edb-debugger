@@ -143,7 +143,7 @@ public:
 };
 
 #if defined EDB_X86 || defined EDB_X86_64
-class FPUValueField : public ValueField {
+class FPUValueField final : public ValueField {
 	Q_OBJECT
 
 private:
@@ -187,7 +187,7 @@ private:
 	std::vector<QString> valueNames;
 };
 
-class MultiBitFieldWidget : public ValueField {
+class MultiBitFieldWidget final : public ValueField {
 	Q_OBJECT
 
 public:

@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
-class PlatformEvent : public IDebugEvent {
+class PlatformEvent final : public IDebugEvent {
 	Q_DECLARE_TR_FUNCTIONS(PlatformEvent)
 	friend class DebuggerCore;
 

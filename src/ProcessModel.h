@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class IProcess;
 
-class ProcessModel : public QAbstractItemModel {
+class ProcessModel final : public QAbstractItemModel {
 	Q_OBJECT
 
 public:

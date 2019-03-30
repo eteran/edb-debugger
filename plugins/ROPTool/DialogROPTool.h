@@ -62,7 +62,7 @@ public:
 	}
 
 protected:
-	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const {
+	bool filterAcceptsRow(int sourceRow, const QModelIndex &sourceParent) const override {
 		QModelIndex index = sourceModel()->index(sourceRow, 0, sourceParent);
 		if(index.data(Qt::UserRole + 1).toUInt() & mask_) {
 			return true;

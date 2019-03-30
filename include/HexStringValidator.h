@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class QString;
 class QObject;
 
-class HexStringValidator : public QValidator {
+class HexStringValidator final : public QValidator {
 	Q_OBJECT
 public:
 	HexStringValidator(QObject * parent);

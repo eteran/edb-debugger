@@ -30,7 +30,7 @@ public:
     explicit LineEdit(QWidget *parent = nullptr);
 
 protected:
-	void resizeEvent(QResizeEvent *);
+	void resizeEvent(QResizeEvent *) override;
 
 private Q_SLOTS:
 	void updateCloseButton(const QString &text);

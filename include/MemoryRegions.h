@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class IRegion;
 
-class EDB_EXPORT MemoryRegions : public QAbstractItemModel {
+class EDB_EXPORT MemoryRegions final : public QAbstractItemModel {
 	Q_OBJECT
 
 public:

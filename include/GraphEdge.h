@@ -28,7 +28,7 @@ class GraphWidget;
 class GraphNode;
 class GraphicsLineItem;
 
-class GraphEdge : public QGraphicsItemGroup {
+class GraphEdge final : public QGraphicsItemGroup {
 public:
     GraphEdge(GraphNode *from, GraphNode *to, const QColor &color = Qt::black, QGraphicsItem *parent = nullptr);
 	GraphEdge(const GraphEdge &)            = delete;

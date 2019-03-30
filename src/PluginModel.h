@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 #include <QString>
 
-class PluginModel : public QAbstractItemModel {
+class PluginModel final : public QAbstractItemModel {
 	Q_OBJECT
 
 public:

@@ -39,7 +39,7 @@ struct user_vfp
 	unsigned long fpscr;
 };
 
-class PlatformState : public IState {
+class PlatformState final : public IState {
 	friend class DebuggerCore;
 	friend class PlatformThread;
 

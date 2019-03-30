@@ -42,7 +42,7 @@ class QPainter;
 class QTextDocument;
 class SyntaxHighlighter;
 
-class QDisassemblyView : public QAbstractScrollArea {
+class QDisassemblyView final : public QAbstractScrollArea {
 	Q_OBJECT
 
 public:

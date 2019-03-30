@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
-class PlatformRegion : public IRegion {
+class PlatformRegion final : public IRegion {
 	Q_DECLARE_TR_FUNCTIONS(PlatformRegion)
 
 	template <size_t N>

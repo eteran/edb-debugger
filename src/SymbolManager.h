@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QString;
 
-class SymbolManager : public ISymbolManager {
+class SymbolManager final : public ISymbolManager {
 	Q_DECLARE_TR_FUNCTIONS(SymbolManager)
 
 public:

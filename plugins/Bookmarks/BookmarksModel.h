@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BookmarksPlugin {
 
-class BookmarksModel : public QAbstractItemModel {
+class BookmarksModel final : public QAbstractItemModel {
 	Q_OBJECT
 
 public:

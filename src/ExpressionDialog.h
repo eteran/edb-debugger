@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 class QString;
 
-class ExpressionDialog : public QDialog {
+class ExpressionDialog final : public QDialog {
 	Q_OBJECT
 
 public:
