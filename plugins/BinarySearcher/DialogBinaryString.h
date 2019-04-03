@@ -31,12 +31,11 @@ class DialogBinaryString : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogBinaryString(QWidget *parent = nullptr);
+	explicit DialogBinaryString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogBinaryString() override;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();
-	void on_listWidget_itemDoubleClicked(QListWidgetItem *);
 
 private:
 	void do_find();

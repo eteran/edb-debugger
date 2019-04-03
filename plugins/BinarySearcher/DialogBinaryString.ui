@@ -8,43 +8,21 @@
     <x>0</x>
     <y>0</y>
     <width>483</width>
-    <height>376</height>
+    <height>185</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Binary String</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
-    <widget class="BinaryString" name="binaryString">
-     <property name="sizePolicy">
-      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
-       <horstretch>0</horstretch>
-       <verstretch>0</verstretch>
-      </sizepolicy>
-     </property>
-    </widget>
-   </item>
    <item row="1" column="0" colspan="2">
-    <widget class="QListWidget" name="listWidget">
-     <property name="font">
-      <font>
-       <family>Monospace</family>
-      </font>
-     </property>
-     <property name="alternatingRowColors">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="2" column="0" colspan="2">
     <widget class="QCheckBox" name="chkSkipNoAccess">
      <property name="text">
       <string>Skip Regions With No Access Rights</string>
      </property>
     </widget>
    </item>
-   <item row="3" column="0" colspan="2">
+   <item row="2" column="0" colspan="2">
     <widget class="QCheckBox" name="chkCaseSensitive">
      <property name="enabled">
       <bool>false</bool>
@@ -57,36 +35,7 @@
      </property>
     </widget>
    </item>
-   <item row="4" column="0">
-    <widget class="QCheckBox" name="chkAlignment">
-     <property name="text">
-      <string>Show Results With This Address Alignment</string>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="1">
-    <widget class="QComboBox" name="cmbAlignment">
-     <property name="currentIndex">
-      <number>1</number>
-     </property>
-     <item>
-      <property name="text">
-       <string>2 Byte Alignment</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>4 Byte Alignment</string>
-      </property>
-     </item>
-     <item>
-      <property name="text">
-       <string>8 Byte Alignment</string>
-      </property>
-     </item>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="2">
+   <item row="4" column="0" colspan="2">
     <layout class="QHBoxLayout">
      <item>
       <widget class="QPushButton" name="btnClose">
@@ -94,7 +43,8 @@
         <string>&amp;Close</string>
        </property>
        <property name="icon">
-        <iconset theme="dialog-close"/>
+        <iconset theme="dialog-close">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -107,7 +57,8 @@
         <string>&amp;Help</string>
        </property>
        <property name="icon">
-        <iconset theme="help-browser"/>
+        <iconset theme="help-browser">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -130,7 +81,8 @@
         <string>&amp;Find</string>
        </property>
        <property name="icon">
-        <iconset theme="edit-find"/>
+        <iconset theme="edit-find">
+         <normaloff>.</normaloff>.</iconset>
        </property>
        <property name="default">
         <bool>true</bool>
@@ -139,8 +91,47 @@
      </item>
     </layout>
    </item>
-   <item row="6" column="0" colspan="2">
+   <item row="0" column="0" colspan="2">
+    <widget class="BinaryString" name="binaryString">
+     <property name="sizePolicy">
+      <sizepolicy hsizetype="MinimumExpanding" vsizetype="Minimum">
+       <horstretch>0</horstretch>
+       <verstretch>0</verstretch>
+      </sizepolicy>
+     </property>
+    </widget>
+   </item>
+   <item row="5" column="0" colspan="2">
     <widget class="QProgressBar" name="progressBar"/>
+   </item>
+   <item row="3" column="1">
+    <widget class="QComboBox" name="cmbAlignment">
+     <property name="currentIndex">
+      <number>1</number>
+     </property>
+     <item>
+      <property name="text">
+       <string>2 Byte Alignment</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>4 Byte Alignment</string>
+      </property>
+     </item>
+     <item>
+      <property name="text">
+       <string>8 Byte Alignment</string>
+      </property>
+     </item>
+    </widget>
+   </item>
+   <item row="3" column="0">
+    <widget class="QCheckBox" name="chkAlignment">
+     <property name="text">
+      <string>Show Results With This Address Alignment</string>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
@@ -153,7 +144,6 @@
   </customwidget>
  </customwidgets>
  <tabstops>
-  <tabstop>listWidget</tabstop>
   <tabstop>chkSkipNoAccess</tabstop>
   <tabstop>chkCaseSensitive</tabstop>
   <tabstop>chkAlignment</tabstop>
@@ -171,8 +161,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>70</x>
-     <y>339</y>
+     <x>77</x>
+     <y>337</y>
     </hint>
     <hint type="destinationlabel">
      <x>179</x>

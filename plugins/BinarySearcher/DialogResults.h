@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2019 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,35 +16,41 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOGASCIISTRING_20082201_H_
-#define DIALOGASCIISTRING_20082201_H_
+#ifndef DIALOG_RESULTS_20190403_H_
+#define DIALOG_RESULTS_20190403_H_
 
 #include <QDialog>
+#include "edb.h"
 
 class QListWidgetItem;
 
 namespace BinarySearcherPlugin {
 
-namespace Ui { class DialogASCIIString; }
+namespace Ui { class DialogResults; }
 
-class DialogASCIIString : public QDialog {
+class DialogResults : public QDialog {
 	Q_OBJECT
 
 public:
-	explicit DialogASCIIString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	~DialogASCIIString() override;
+	enum class RegionType {
+		Code,
+		Stack,
+		Data
+	};
 
-protected:
-	void showEvent(QShowEvent *event) override;
+public:
+	explicit DialogResults(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	~DialogResults() override;
+
+public:
+	void addResult(RegionType region, edb::address_t address);
+	int resultCount() const;
 
 public Q_SLOTS:
-	void on_btnFind_clicked();
+	void on_listWidget_itemDoubleClicked(QListWidgetItem *);
 
 private:
-	void do_find();
-
-private:
-	 Ui::DialogASCIIString *const ui;
+	 Ui::DialogResults *const ui;
 };
 
 }

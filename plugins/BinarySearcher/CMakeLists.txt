@@ -19,6 +19,9 @@ add_library(${PluginName} SHARED
 	DialogBinaryString.cpp
 	DialogBinaryString.h
 	DialogBinaryString.ui
+        DialogResults.cpp
+        DialogResults.h
+        DialogResults.ui
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets edb)

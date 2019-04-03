@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogASCIIString.h"
+#include "DialogResults.h"
 #include "edb.h"
 #include "IDebugger.h"
 #include "IProcess.h"
@@ -27,11 +28,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Util.h"
 #include <QMessageBox>
 #include <QVector>
+#include <QListWidget>
+#include <QtDebug>
+
 #include <cstring>
 
 #include "ui_DialogASCIIString.h"
-
-#include <QtDebug>
 
 namespace BinarySearcherPlugin {
 
@@ -39,10 +41,9 @@ namespace BinarySearcherPlugin {
 // Name: DialogASCIIString
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogASCIIString::DialogASCIIString(QWidget *parent) : QDialog(parent), ui(new Ui::DialogASCIIString) {
+DialogASCIIString::DialogASCIIString(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogASCIIString) {
 	ui->setupUi(this);
 	ui->progressBar->setValue(0);
-	ui->listWidget->clear();
 }
 
 //------------------------------------------------------------------------------
@@ -60,9 +61,9 @@ DialogASCIIString::~DialogASCIIString() {
 void DialogASCIIString::do_find() {
 
 	const QByteArray b = ui->txtASCII->text().toLatin1();
-	ui->listWidget->clear();
+	auto results = new DialogResults(this);
 
-	const int sz = b.size();
+	const size_t sz = b.size();
 	if(sz != 0) {
 
 		edb::v1::memory_regions().sync();
@@ -80,24 +81,25 @@ void DialogASCIIString::do_find() {
 					stack_ptr = region->start();
 
 					try {
-						QVector<quint8> chars(sz);
+						std::vector<quint8> chars(sz);
 
 						int i = 0;
 						while(stack_ptr < region->end()) {
+
 							// get the value from the stack
-							edb::address_t value(0);
-							if(process->read_bytes(stack_ptr, &value, edb::v1::pointer_size())) {
-								if(process->read_bytes(value, &chars[0], sz)) {
-									if(std::memcmp(&chars[0], b.constData(), sz) == 0) {
-										auto item = new QListWidgetItem(edb::v1::format_pointer(stack_ptr));
-										item->setData(Qt::UserRole, stack_ptr.toQVariant());
-										ui->listWidget->addItem(item);
+							edb::address_t stack_address;
+
+							if(process->read_bytes(stack_ptr, &stack_address, edb::v1::pointer_size())) {
+								if(process->read_bytes(stack_address, &chars[0], chars.size())) {
+									if(std::memcmp(&chars[0], b.constData(), chars.size()) == 0) {
+										results->addResult(DialogResults::RegionType::Stack, stack_ptr);
 									}
 								}
 							}
 							ui->progressBar->setValue(util::percentage(i++, count));
 							stack_ptr += edb::v1::pointer_size();
 						}
+
 					} catch(const std::bad_alloc &) {
 						QMessageBox::critical(
 						            nullptr,
@@ -108,12 +110,18 @@ void DialogASCIIString::do_find() {
 			}
 		}
 	}
+
+	if(results->resultCount() == 0) {
+		QMessageBox::information(nullptr, tr("No Results"), tr("No Results were found!"));
+	} else {
+		results->show();
+	}
+
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnFind_clicked
-// Desc: find button event handler
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogASCIIString::on_btnFind_clicked
+ */
 void DialogASCIIString::on_btnFind_clicked() {
 
 	ui->btnFind->setEnabled(false);
@@ -123,13 +131,13 @@ void DialogASCIIString::on_btnFind_clicked() {
 	ui->btnFind->setEnabled(true);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_listWidget_itemDoubleClicked
-// Desc: follows the found item in the data view
-//------------------------------------------------------------------------------
-void DialogASCIIString::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
-	const edb::address_t addr = item->data(Qt::UserRole).toULongLong();
-	edb::v1::dump_stack(addr, true);
+/**
+ * @brief DialogASCIIString::showEvent
+ * @param event
+ */
+void DialogASCIIString::showEvent(QShowEvent *event) {
+	Q_UNUSED(event)
+	ui->txtASCII->setFocus();
 }
 
 }
