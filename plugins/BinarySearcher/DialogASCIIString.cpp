@@ -63,7 +63,7 @@ void DialogASCIIString::do_find() {
 	const QByteArray b = ui->txtASCII->text().toLatin1();
 	auto results = new DialogResults(this);
 
-	const size_t sz = b.size();
+	const auto sz = static_cast<size_t>(b.size());
 	if(sz != 0) {
 
 		edb::v1::memory_regions().sync();
