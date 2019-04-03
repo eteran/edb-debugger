@@ -14,9 +14,12 @@ add_library(${PluginName} SHARED
 	BinaryInfo.cpp
 	BinaryInfo.h
 	demangle.h
-	DialogHeader.cpp
-	DialogHeader.h
-	DialogHeader.ui
+	DialogRegions.cpp
+	DialogRegions.h
+	DialogRegions.ui
+        DialogHeader.ui
+        DialogHeader.cpp
+        DialogHeader.h
 	ELF32.cpp
 	ELF64.cpp
 	ELFXX.cpp

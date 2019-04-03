@@ -1,40 +1,22 @@
-/*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <http://www.gnu.org/licenses/>.
-*/
 
 #include "DialogHeader.h"
+#include "ui_DialogHeader.h"
 #include "edb.h"
 #include "ELFXX.h"
-#include "MemoryRegions.h"
 #include "PE32.h"
-#include <QMessageBox>
-#include <QSortFilterProxyModel>
-
-#include "ui_DialogHeader.h"
+#include "QtHelper.h"
 
 namespace BinaryInfoPlugin {
 namespace {
+
+Q_DECLARE_NAMESPACE_TR(BinaryInfo)
 
 template <class Header>
 QTreeWidgetItem *create_elf_magic(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
-	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Magic"));
+	item->setText(0, tr("Magic"));
 	item->setText(1, QString("0x%1, %2, %3, %4")
 		.arg(header->e_ident[EI_MAG0], 0, 16)
 		.arg(static_cast<char>(header->e_ident[EI_MAG1]))
@@ -50,16 +32,16 @@ QTreeWidgetItem *create_elf_class(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
-	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Class"));
+	item->setText(0, tr("Class"));
 	switch(header->e_ident[EI_CLASS]) {
 	case ELFCLASS32:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "32-bit"));
+		item->setText(1, tr("32-bit"));
 		break;
 	case ELFCLASS64:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "64-bit"));
+		item->setText(1, tr("64-bit"));
 		break;
 	default:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Invalid"));
+		item->setText(1, tr("Invalid"));
 		break;
 	}
 	return item;
@@ -70,16 +52,16 @@ QTreeWidgetItem *create_elf_data(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
-	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Data"));
+	item->setText(0, tr("Data"));
 	switch(header->e_ident[EI_DATA]) {
 	case ELFDATA2LSB:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "2's complement, little endian"));
+		item->setText(1, tr("2's complement, little endian"));
 		break;
 	case ELFDATA2MSB:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "2's complement, big endian"));
+		item->setText(1, tr("2's complement, big endian"));
 		break;
 	default:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Invalid"));
+		item->setText(1, tr("Invalid"));
 		break;
 	}
 	return item;
@@ -90,13 +72,13 @@ QTreeWidgetItem *create_elf_version(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
-	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Version"));
+	item->setText(0, tr("Version"));
 	switch(header->e_ident[EI_VERSION]) {
 	case EV_CURRENT:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Current"));
+		item->setText(1, tr("Current"));
 		break;
 	default:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Invalid"));
+		item->setText(1, tr("Invalid"));
 		break;
 	}
 	return item;
@@ -107,54 +89,54 @@ QTreeWidgetItem *create_elf_abi(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
-	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "ABI"));
+	item->setText(0, tr("ABI"));
 	switch(header->e_ident[EI_OSABI]) {
 	case ELFOSABI_SYSV:
 	//case ELFOSABI_NONE: // alias
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "UNIX System V ABI"));
+		item->setText(1, tr("UNIX System V ABI"));
 		break;
 	case ELFOSABI_HPUX:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "HP-UX"));
+		item->setText(1, tr("HP-UX"));
 		break;
 	case ELFOSABI_NETBSD:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "NetBSD"));
+		item->setText(1, tr("NetBSD"));
 		break;
 	case ELFOSABI_GNU:
 	// case ELFOSABI_LINUX: // alias
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "GNU/Linux"));
+		item->setText(1, tr("GNU/Linux"));
 		break;
 	case ELFOSABI_SOLARIS:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Sun Solaris"));
+		item->setText(1, tr("Sun Solaris"));
 		break;
 	case ELFOSABI_AIX:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "IBM AIX"));
+		item->setText(1, tr("IBM AIX"));
 		break;
 	case ELFOSABI_IRIX:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "SGI Irix"));
+		item->setText(1, tr("SGI Irix"));
 		break;
 	case ELFOSABI_FREEBSD:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "FreeBSD"));
+		item->setText(1, tr("FreeBSD"));
 		break;
 	case ELFOSABI_TRU64:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Compaq TRU64 UNIX"));
+		item->setText(1, tr("Compaq TRU64 UNIX"));
 		break;
 	case ELFOSABI_MODESTO:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Novell Modesto"));
+		item->setText(1, tr("Novell Modesto"));
 		break;
 	case ELFOSABI_OPENBSD:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "OpenBSD"));
+		item->setText(1, tr("OpenBSD"));
 		break;
 	case ELFOSABI_ARM_AEABI:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "ARM EABI"));
+		item->setText(1, tr("ARM EABI"));
 		break;
 	case ELFOSABI_ARM:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "ARM"));
+		item->setText(1, tr("ARM"));
 		break;
 	case ELFOSABI_STANDALONE:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Standalone (embedded) application"));
+		item->setText(1, tr("Standalone (embedded) application"));
 		break;
 	default:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Invalid"));
+		item->setText(1, tr("Invalid"));
 		break;
 	}
 	return item;
@@ -165,7 +147,7 @@ QTreeWidgetItem *create_elf_abi_version(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
-	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "ABI Version"));
+	item->setText(0, tr("ABI Version"));
 	item->setText(1, QString("%1").arg(header->e_ident[EI_MAG0], 0, 10));
 
 	return item;
@@ -176,26 +158,26 @@ QTreeWidgetItem *create_elf_type(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
-	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Type"));
+	item->setText(0, tr("Type"));
 
 	switch(header->e_type) {
 	case ET_NONE:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "No file type"));
+		item->setText(1, tr("No file type"));
 		break;
 	case ET_REL:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Relocatable file"));
+		item->setText(1, tr("Relocatable file"));
 		break;
 	case ET_EXEC:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Executable file"));
+		item->setText(1, tr("Executable file"));
 		break;
 	case ET_DYN:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Shared object file"));
+		item->setText(1, tr("Shared object file"));
 		break;
 	case ET_CORE:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Core file"));
+		item->setText(1, tr("Core file"));
 		break;
 	default:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "<OS Specific>"));
+		item->setText(1, tr("<OS Specific>"));
 		break;
 	}
 	return item;
@@ -206,233 +188,233 @@ QTreeWidgetItem *create_elf_machine(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
-	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Machine"));
+	item->setText(0, tr("Machine"));
 
 	switch(header->e_machine) {
 	case EM_NONE:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "No machine"));
+		item->setText(1, tr("No machine"));
 		break;
 	case EM_M32:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "AT&T WE 32100"));
+		item->setText(1, tr("AT&T WE 32100"));
 		break;
 	case EM_SPARC:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "SUN SPARC"));
+		item->setText(1, tr("SUN SPARC"));
 		break;
 	case EM_386:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Intel 80386"));
+		item->setText(1, tr("Intel 80386"));
 		break;
 	case EM_68K:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Motorola m68k family"));
+		item->setText(1, tr("Motorola m68k family"));
 		break;
 	case EM_88K:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Motorola m88k family"));
+		item->setText(1, tr("Motorola m88k family"));
 		break;
 	case EM_860:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Intel 80860"));
+		item->setText(1, tr("Intel 80860"));
 		break;
 	case EM_MIPS:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "MIPS R3000 big-endian"));
+		item->setText(1, tr("MIPS R3000 big-endian"));
 		break;
 	case EM_S370:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "IBM System/370"));
+		item->setText(1, tr("IBM System/370"));
 		break;
 	case EM_MIPS_RS3_LE:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "MIPS R3000 little-endian"));
+		item->setText(1, tr("MIPS R3000 little-endian"));
 		break;
 	case EM_PARISC:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "HPPA"));
+		item->setText(1, tr("HPPA"));
 		break;
 	case EM_VPP500:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Fujitsu VPP500"));
+		item->setText(1, tr("Fujitsu VPP500"));
 		break;
 	case EM_SPARC32PLUS:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Sun's \"v8plus\""));
+		item->setText(1, tr("Sun's \"v8plus\""));
 		break;
 	case EM_960:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Intel 80960"));
+		item->setText(1, tr("Intel 80960"));
 		break;
 	case EM_PPC:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "PowerPC"));
+		item->setText(1, tr("PowerPC"));
 		break;
 	case EM_PPC64:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "PowerPC 64-bit"));
+		item->setText(1, tr("PowerPC 64-bit"));
 		break;
 	case EM_S390:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "IBM S390"));
+		item->setText(1, tr("IBM S390"));
 		break;
 	case EM_V800:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "NEC V800 series"));
+		item->setText(1, tr("NEC V800 series"));
 		break;
 	case EM_FR20:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Fujitsu FR20"));
+		item->setText(1, tr("Fujitsu FR20"));
 		break;
 	case EM_RH32:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "TRW RH-32"));
+		item->setText(1, tr("TRW RH-32"));
 		break;
 	case EM_RCE:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Motorola RCE"));
+		item->setText(1, tr("Motorola RCE"));
 		break;
 	case EM_ARM:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "ARM"));
+		item->setText(1, tr("ARM"));
 		break;
 	case EM_FAKE_ALPHA:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Digital Alpha"));
+		item->setText(1, tr("Digital Alpha"));
 		break;
 	case EM_SH:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Hitachi SH"));
+		item->setText(1, tr("Hitachi SH"));
 		break;
 	case EM_SPARCV9:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "SPARC v9 64-bit"));
+		item->setText(1, tr("SPARC v9 64-bit"));
 		break;
 	case EM_TRICORE:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Siemens Tricore"));
+		item->setText(1, tr("Siemens Tricore"));
 		break;
 	case EM_ARC:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Argonaut RISC Core"));
+		item->setText(1, tr("Argonaut RISC Core"));
 		break;
 	case EM_H8_300:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Hitachi H8/300"));
+		item->setText(1, tr("Hitachi H8/300"));
 		break;
 	case EM_H8_300H:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Hitachi H8/300H"));
+		item->setText(1, tr("Hitachi H8/300H"));
 		break;
 	case EM_H8S:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Hitachi H8S"));
+		item->setText(1, tr("Hitachi H8S"));
 		break;
 	case EM_H8_500:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Hitachi H8/500"));
+		item->setText(1, tr("Hitachi H8/500"));
 		break;
 	case EM_IA_64:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Intel Merced"));
+		item->setText(1, tr("Intel Merced"));
 		break;
 	case EM_MIPS_X:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Stanford MIPS-X"));
+		item->setText(1, tr("Stanford MIPS-X"));
 		break;
 	case EM_COLDFIRE:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Motorola Coldfire"));
+		item->setText(1, tr("Motorola Coldfire"));
 		break;
 	case EM_68HC12:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Motorola M68HC12"));
+		item->setText(1, tr("Motorola M68HC12"));
 		break;
 	case EM_MMA:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Fujitsu MMA Multimedia Accelerator"));
+		item->setText(1, tr("Fujitsu MMA Multimedia Accelerator"));
 		break;
 	case EM_PCP:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Siemens PCP"));
+		item->setText(1, tr("Siemens PCP"));
 		break;
 	case EM_NCPU:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Sony nCPU embeeded RISC"));
+		item->setText(1, tr("Sony nCPU embeeded RISC"));
 		break;
 	case EM_NDR1:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Denso NDR1 microprocessor"));
+		item->setText(1, tr("Denso NDR1 microprocessor"));
 		break;
 	case EM_STARCORE:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Motorola Start*Core processor"));
+		item->setText(1, tr("Motorola Start*Core processor"));
 		break;
 	case EM_ME16:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Toyota ME16 processor"));
+		item->setText(1, tr("Toyota ME16 processor"));
 		break;
 	case EM_ST100:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "STMicroelectronic ST100 processor"));
+		item->setText(1, tr("STMicroelectronic ST100 processor"));
 		break;
 	case EM_TINYJ:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Advanced Logic Corp. Tinyj emb.fam"));
+		item->setText(1, tr("Advanced Logic Corp. Tinyj emb.fam"));
 		break;
 	case EM_X86_64:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "AMD x86-64 architecture"));
+		item->setText(1, tr("AMD x86-64 architecture"));
 		break;
 	case EM_PDSP:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Sony DSP Processor"));
+		item->setText(1, tr("Sony DSP Processor"));
 		break;
 	case EM_FX66:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Siemens FX66 microcontroller"));
+		item->setText(1, tr("Siemens FX66 microcontroller"));
 		break;
 	case EM_ST9PLUS:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "STMicroelectronics ST9+ 8/16 mc"));
+		item->setText(1, tr("STMicroelectronics ST9+ 8/16 mc"));
 		break;
 	case EM_ST7:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "STmicroelectronics ST7 8 bit mc"));
+		item->setText(1, tr("STmicroelectronics ST7 8 bit mc"));
 		break;
 	case EM_68HC16:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Motorola MC68HC16 microcontroller"));
+		item->setText(1, tr("Motorola MC68HC16 microcontroller"));
 		break;
 	case EM_68HC11:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Motorola MC68HC11 microcontroller"));
+		item->setText(1, tr("Motorola MC68HC11 microcontroller"));
 		break;
 	case EM_68HC08:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Motorola MC68HC08 microcontroller"));
+		item->setText(1, tr("Motorola MC68HC08 microcontroller"));
 		break;
 	case EM_68HC05:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Motorola MC68HC05 microcontroller"));
+		item->setText(1, tr("Motorola MC68HC05 microcontroller"));
 		break;
 	case EM_SVX:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Silicon Graphics SVx"));
+		item->setText(1, tr("Silicon Graphics SVx"));
 		break;
 	case EM_ST19:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "STMicroelectronics ST19 8 bit mc"));
+		item->setText(1, tr("STMicroelectronics ST19 8 bit mc"));
 		break;
 	case EM_VAX:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Digital VAX"));
+		item->setText(1, tr("Digital VAX"));
 		break;
 	case EM_CRIS:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Axis Communications 32-bit embedded processor"));
+		item->setText(1, tr("Axis Communications 32-bit embedded processor"));
 		break;
 	case EM_JAVELIN:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Infineon Technologies 32-bit embedded processor"));
+		item->setText(1, tr("Infineon Technologies 32-bit embedded processor"));
 		break;
 	case EM_FIREPATH:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Element 14 64-bit DSP Processor"));
+		item->setText(1, tr("Element 14 64-bit DSP Processor"));
 		break;
 	case EM_ZSP:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "LSI Logic 16-bit DSP Processor"));
+		item->setText(1, tr("LSI Logic 16-bit DSP Processor"));
 		break;
 	case EM_MMIX:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Donald Knuth's educational 64-bit processor"));
+		item->setText(1, tr("Donald Knuth's educational 64-bit processor"));
 		break;
 	case EM_HUANY:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Harvard University machine-independent object files"));
+		item->setText(1, tr("Harvard University machine-independent object files"));
 		break;
 	case EM_PRISM:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "SiTera Prism"));
+		item->setText(1, tr("SiTera Prism"));
 		break;
 	case EM_AVR:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Atmel AVR 8-bit microcontroller"));
+		item->setText(1, tr("Atmel AVR 8-bit microcontroller"));
 		break;
 	case EM_FR30:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Fujitsu FR30"));
+		item->setText(1, tr("Fujitsu FR30"));
 		break;
 	case EM_D10V:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Mitsubishi D10V"));
+		item->setText(1, tr("Mitsubishi D10V"));
 		break;
 	case EM_D30V:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Mitsubishi D30V"));
+		item->setText(1, tr("Mitsubishi D30V"));
 		break;
 	case EM_V850:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "NEC v850"));
+		item->setText(1, tr("NEC v850"));
 		break;
 	case EM_M32R:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Mitsubishi M32R"));
+		item->setText(1, tr("Mitsubishi M32R"));
 		break;
 	case EM_MN10300:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Matsushita MN10300"));
+		item->setText(1, tr("Matsushita MN10300"));
 		break;
 	case EM_MN10200:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Matsushita MN10200"));
+		item->setText(1, tr("Matsushita MN10200"));
 		break;
 	case EM_PJ:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "picoJava"));
+		item->setText(1, tr("picoJava"));
 		break;
 	case EM_OPENRISC:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "OpenRISC 32-bit embedded processor"));
+		item->setText(1, tr("OpenRISC 32-bit embedded processor"));
 		break;
 	case EM_ARC_A5:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "ARC Cores Tangent-A5"));
+		item->setText(1, tr("ARC Cores Tangent-A5"));
 		break;
 	case EM_XTENSA:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Tensilica Xtensa Architecture"));
+		item->setText(1, tr("Tensilica Xtensa Architecture"));
 		break;
 	default:
-		item->setText(1, QT_TRANSLATE_NOOP("BinaryInfo", "Unknown"));
+		item->setText(1, tr("Unknown"));
 		break;
 	}
 	return item;
@@ -443,7 +425,7 @@ QTreeWidgetItem *create_elf_object_version(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
-	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Object File Version"));
+	item->setText(0, tr("Object File Version"));
 	item->setText(1, QString("%1").arg(header->e_version, 0, 10));
 
 	return item;
@@ -454,123 +436,75 @@ QTreeWidgetItem *create_elf_entry_point(const Header *header) {
 
 	auto item = new QTreeWidgetItem;
 
-	item->setText(0, QT_TRANSLATE_NOOP("BinaryInfo", "Entry Point"));
-	item->setText(1, QString("%1").arg(header->e_entry, 0, 16));
+	item->setText(0, tr("Entry Point"));
+	item->setText(1, QString("0x%1").arg(header->e_entry, 0, 16));
 
 	return item;
 }
 
 }
 
-
-/**
- * @brief DialogHeader::DialogHeader
- * @param parent
- */
-DialogHeader::DialogHeader(QWidget *parent) : QDialog(parent), ui(new Ui::DialogHeader) {
+DialogHeader::DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogHeader) {
 	ui->setupUi(this);
-	ui->tableView->verticalHeader()->hide();
-	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	filter_model_ = new QSortFilterProxyModel(this);
-	connect(ui->txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
-}
+	if(auto binary_info = edb::v1::get_binary_info(region)) {
 
-/**
- * @brief DialogHeader::~DialogHeader
- */
-DialogHeader::~DialogHeader() {
-	delete ui;
-}
+		if(auto elf32 = dynamic_cast<ELF32 *>(binary_info.get())) {
 
-/**
- * @brief DialogHeader::showEvent
- */
-void DialogHeader::showEvent(QShowEvent *) {
-	filter_model_->setFilterKeyColumn(3);
-	filter_model_->setSourceModel(&edb::v1::memory_regions());
-	ui->tableView->setModel(filter_model_);
-	ui->treeWidget->clear();
-}
+			auto header = reinterpret_cast<const elf32_header *>(elf32->header());
 
-/**
- * @brief DialogHeader::on_btnExplore_clicked
- */
-void DialogHeader::on_btnExplore_clicked() {
-	ui->treeWidget->clear();
+			auto root = new QTreeWidgetItem;
+			root->setText(0, tr("ELF32"));
 
-	const QItemSelectionModel *const selModel = ui->tableView->selectionModel();
-	const QModelIndexList sel = selModel->selectedRows();
+			root->addChild(create_elf_magic(header));
+			root->addChild(create_elf_class(header));
+			root->addChild(create_elf_data(header));
+			root->addChild(create_elf_version(header));
+			root->addChild(create_elf_abi(header));
+			root->addChild(create_elf_abi_version(header));
+			root->addChild(create_elf_type(header));
+			root->addChild(create_elf_machine(header));
+			root->addChild(create_elf_object_version(header));
+			root->addChild(create_elf_entry_point(header));
 
-	if(sel.size() == 0) {
-		QMessageBox::critical(
-			this,
-			tr("No Region Selected"),
-			tr("You must select a region which is to be scanned for executable headers."));
-	} else {
+			ui->treeWidget->insertTopLevelItem(0, root);
+		}
 
-		for(const QModelIndex &selected_item: sel) {
+		if(auto elf64 = dynamic_cast<ELF64 *>(binary_info.get())) {
 
-			const QModelIndex index = filter_model_->mapToSource(selected_item);
-			if(auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
+			auto header = reinterpret_cast<const elf64_header *>(elf64->header());
 
-				if(auto binary_info = edb::v1::get_binary_info(region)) {
+			auto root = new QTreeWidgetItem;
+			root->setText(0, tr("ELF64"));
 
-					if(auto elf32 = dynamic_cast<ELF32 *>(binary_info.get())) {
+			root->addChild(create_elf_magic(header));
+			root->addChild(create_elf_class(header));
+			root->addChild(create_elf_data(header));
+			root->addChild(create_elf_version(header));
+			root->addChild(create_elf_abi(header));
+			root->addChild(create_elf_abi_version(header));
+			root->addChild(create_elf_type(header));
+			root->addChild(create_elf_machine(header));
+			root->addChild(create_elf_object_version(header));
+			root->addChild(create_elf_entry_point(header));
 
-						auto header = reinterpret_cast<const elf32_header *>(elf32->header());
+			ui->treeWidget->insertTopLevelItem(0, root);
+		}
 
-						auto root = new QTreeWidgetItem;
-						root->setText(0, tr("ELF32"));
-
-						root->addChild(create_elf_magic(header));
-						root->addChild(create_elf_class(header));
-						root->addChild(create_elf_data(header));
-						root->addChild(create_elf_version(header));
-						root->addChild(create_elf_abi(header));
-						root->addChild(create_elf_abi_version(header));
-						root->addChild(create_elf_type(header));
-						root->addChild(create_elf_machine(header));
-						root->addChild(create_elf_object_version(header));
-						root->addChild(create_elf_entry_point(header));
-
-						ui->treeWidget->insertTopLevelItem(0, root);
-					}
-
-					if(auto elf64 = dynamic_cast<ELF64 *>(binary_info.get())) {
-
-						auto header = reinterpret_cast<const elf64_header *>(elf64->header());
-
-						auto root = new QTreeWidgetItem;
-						root->setText(0, tr("ELF64"));
-
-						root->addChild(create_elf_magic(header));
-						root->addChild(create_elf_class(header));
-						root->addChild(create_elf_data(header));
-						root->addChild(create_elf_version(header));
-						root->addChild(create_elf_abi(header));
-						root->addChild(create_elf_abi_version(header));
-						root->addChild(create_elf_type(header));
-						root->addChild(create_elf_machine(header));
-						root->addChild(create_elf_object_version(header));
-						root->addChild(create_elf_entry_point(header));
-
-						ui->treeWidget->insertTopLevelItem(0, root);
-					}
-
-					if(auto pe32 = dynamic_cast<PE32 *>(binary_info.get())) {
-						Q_UNUSED(pe32);
-					#if 0
-						auto header = reinterpret_cast<const pe32_header *>(pe32->header());
-					#endif
-						auto root = new QTreeWidgetItem;
-						root->setText(0, tr("PE32"));
-						ui->treeWidget->insertTopLevelItem(0, root);
-					}
-				}
-			}
+		if(auto pe32 = dynamic_cast<PE32 *>(binary_info.get())) {
+			Q_UNUSED(pe32)
+		#if 0
+			auto header = reinterpret_cast<const pe32_header *>(pe32->header());
+		#endif
+			auto root = new QTreeWidgetItem;
+			root->setText(0, tr("PE32"));
+			ui->treeWidget->insertTopLevelItem(0, root);
 		}
 	}
+}
+
+DialogHeader::~DialogHeader() {
+	delete ui;
 }
 
 }

@@ -17,7 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "BinaryInfo.h"
-#include "DialogHeader.h"
+#include "DialogRegions.h"
 #include "ELFXX.h"
 #include "IBinary.h"
 #include "ISymbolManager.h"
@@ -90,7 +90,7 @@ QMenu *BinaryInfo::menu(QWidget *parent) {
  * @brief BinaryInfo::exploreHeader
  */
 void BinaryInfo::exploreHeader() {
-	static auto dialog = new DialogHeader(edb::v1::debugger_ui);
+	static auto dialog = new DialogRegions(edb::v1::debugger_ui);
 	dialog->show();
 }
 
