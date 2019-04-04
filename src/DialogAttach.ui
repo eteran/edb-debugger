@@ -69,21 +69,17 @@
     </widget>
    </item>
    <item row="0" column="0" colspan="2">
-    <widget class="LineEdit" name="filter">
+    <widget class="QLineEdit" name="filter">
      <property name="placeholderText">
       <string>Filter</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
   </layout>
  </widget>
- <customwidgets>
-  <customwidget>
-   <class>LineEdit</class>
-   <extends>QLineEdit</extends>
-   <header location="global">LineEdit.h</header>
-  </customwidget>
- </customwidgets>
  <tabstops>
   <tabstop>filter</tabstop>
   <tabstop>filter_uid</tabstop>

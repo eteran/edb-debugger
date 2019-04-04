@@ -106,8 +106,6 @@ set(edb_SRCS
 	session/SessionError.h
 	session/SessionManager.cpp
 	session/SessionManager.h
-	widgets/LineEdit.cpp
-	widgets/LineEdit.h
 	widgets/NavigationHistory.cpp
 	widgets/NavigationHistory.h
 	widgets/QDisassemblyView.cpp
