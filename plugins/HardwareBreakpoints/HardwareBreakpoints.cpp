@@ -71,6 +71,8 @@ HardwareBreakpoints::HardwareBreakpoints(QObject *parent) : QObject(parent) {
 	addresses_[Register2] = dialog->ui->txtBP2;
 	addresses_[Register3] = dialog->ui->txtBP3;
 	addresses_[Register4] = dialog->ui->txtBP4;
+
+	edb::v1::add_debug_event_handler(this);
 }
 
 //------------------------------------------------------------------------------
@@ -158,10 +160,6 @@ void HardwareBreakpoints::setupBreakpoints() {
 				}
 			}
 
-			// we want to be enabled, if we aren't already hooked,
-			// hook it
-			edb::v1::add_debug_event_handler(this);
-
 			for(std::shared_ptr<IThread> &thread : process->threads()) {
 				State state;
 				thread->get_state(&state);
@@ -192,8 +190,6 @@ void HardwareBreakpoints::setupBreakpoints() {
 				thread->set_state(state);
 			}
 
-			// we want to be disabled and we have hooked, so unhook
-			edb::v1::remove_debug_event_handler(this);
 		}
 	}
 
@@ -360,9 +356,6 @@ QList<QAction *> HardwareBreakpoints::cpu_context_menu() {
 // Desc:
 //------------------------------------------------------------------------------
 void HardwareBreakpoints::setExecuteBP(int index, bool inUse) {
-	// we want to be enabled, if we aren't already hooked,
-	// hook it
-	edb::v1::add_debug_event_handler(this);
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
@@ -399,9 +392,6 @@ void HardwareBreakpoints::setExecuteBP(int index, bool inUse) {
 // Desc:
 //------------------------------------------------------------------------------
 void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t address, size_t size) {
-	// we want to be enabled, if we aren't already hooked,
-	// hook it
-	edb::v1::add_debug_event_handler(this);
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
@@ -454,9 +444,6 @@ void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t addre
 // Desc:
 //------------------------------------------------------------------------------
 void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t address, size_t size) {
-	// we want to be enabled, if we aren't already hooked,
-	// hook it
-	edb::v1::add_debug_event_handler(this);
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 

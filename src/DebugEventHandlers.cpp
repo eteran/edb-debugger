@@ -24,10 +24,11 @@ DebugEventHandlers::~DebugEventHandlers() {
 	if (current_handler_) {
 		EDB_PRINT_AND_DIE("can not destroy debug events container while executing events");
 	}
-
+#if 0
 	if (!handlers_.empty()) {
 		EDB_PRINT_AND_DIE("some debug event handlers weren't property removed");
 	}
+#endif
 }
 
 void DebugEventHandlers::add(IDebugEventHandler *handler) {
@@ -35,10 +36,9 @@ void DebugEventHandlers::add(IDebugEventHandler *handler) {
 		EDB_PRINT_AND_DIE("event handler can not be nullptr");
 	}
 
-	for (auto i = handlers_.begin(), end = handlers_.end(); i != end; ++i) {
-		if (*i == handler) {
-			EDB_PRINT_AND_DIE("the same event handler is added twice");
-		}
+	auto it = std::find(handlers_.begin(), handlers_.end(), handler);
+	if (it != handlers_.end()) {
+		EDB_PRINT_AND_DIE("the same event handler is added twice");
 	}
 
 	// DebugEventHandlers::add can be called inside DebugEventHandlers::execute.
@@ -52,14 +52,8 @@ void DebugEventHandlers::remove(IDebugEventHandler *handler) {
 		EDB_PRINT_AND_DIE("event handler can not be nullptr");
 	}
 
-	auto i = handlers_.begin();
-	for (auto end = handlers_.end(); i != end; ++i) {
-		if (*i == handler) {
-			break;
-		}
-	}
-
-	if (i == handlers_.end()) {
+	auto it = std::find(handlers_.begin(), handlers_.end(), handler);
+	if (it == handlers_.end()) {
 		EDB_PRINT_AND_DIE("removal of an event that is not present");
 	}
 
@@ -68,7 +62,7 @@ void DebugEventHandlers::remove(IDebugEventHandler *handler) {
 		EDB_PRINT_AND_DIE("removal of non-current event handler during execution");
 	}
 
-	handlers_.erase(i);
+	handlers_.erase(it);
 }
 
 edb::EVENT_STATUS DebugEventHandlers::execute(const std::shared_ptr<IDebugEvent> &event) {
@@ -82,9 +76,9 @@ edb::EVENT_STATUS DebugEventHandlers::execute(const std::shared_ptr<IDebugEvent>
 	try {
 		// loop through all of the handlers, stopping when one thinks that it handled
 		// the event
-		for (auto i = handlers_.begin(), end = handlers_.end(); i != end;) {
+		for (auto it = handlers_.begin(), end = handlers_.end(); it != end;) {
 			// increment before processing, so if it's deleted it's not a problem
-			current_handler_ = *i++;
+			current_handler_ = *it++;
 			status = current_handler_->handle_event(event);
 			if (status != edb::DEBUG_NEXT_HANDLER) {
 				break;
@@ -95,6 +89,7 @@ edb::EVENT_STATUS DebugEventHandlers::execute(const std::shared_ptr<IDebugEvent>
 		current_handler_ = nullptr;
 		throw;
 	}
+
 	current_handler_ = nullptr;
 
 	// if this assert fails, the bottom handler (which is owned by us) did something terribly wrong :-/
