@@ -149,14 +149,14 @@ public:
 	QModelIndex activeIndex() const;
 
 public:
-	void setChosenSIMDSize(const QModelIndex &index, ElementSize newSize);
-	void setChosenSIMDFormat(const QModelIndex &index, NumberDisplayMode newFormat);
-	void setChosenFPUFormat(const QModelIndex &index, NumberDisplayMode newFormat);
+	virtual void setChosenSIMDSize(const QModelIndex &index, ElementSize newSize);
+	virtual void setChosenSIMDFormat(const QModelIndex &index, NumberDisplayMode newFormat);
+	virtual void setChosenFPUFormat(const QModelIndex &index, NumberDisplayMode newFormat);
 
 	// Should be called after updating all the data
-	void dataUpdateFinished();
+	virtual void dataUpdateFinished();
 	// should be called when the debugger is about to resume, to save current register values to previous
-	void saveValues();
+	virtual void saveValues();
 
 protected:
 	// All categories are there to stay after they've been inserted
@@ -288,9 +288,14 @@ public:
 
 struct BitFieldDescription {
 	QString              name;
-	unsigned             offset = 0;
-	unsigned             length = 0;
-	std::vector<QString> explanations = {};
+	unsigned             offset;
+	unsigned             length;
+	std::vector<QString> explanations;
+
+	// Prevent compiler warnings about missing initializer: make default argument explicitly default
+	BitFieldDescription(QString name, unsigned offset, unsigned length, std::vector<QString> explanations = std::vector<QString>()) :
+	    name(name), offset(offset), length(length), explanations(explanations) {
+	}
 };
 
 class BitFieldProperties {
@@ -407,7 +412,8 @@ protected:
 	std::vector<std::unique_ptr<RegisterViewItem>> elements;
 
 public:
-	SIMDSizedElementsContainer(const QString &name, std::size_t size, const std::vector<NumberDisplayMode> &validFormats);
+	SIMDSizedElementsContainer(const QString &name, std::size_t size,
+	                           const std::vector<NumberDisplayMode> &validFormats);
 	SIMDSizedElementsContainer(SIMDSizedElementsContainer &&other);
 	RegisterViewItem *child(int row) override;
 	int               childCount() const override;

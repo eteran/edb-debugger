@@ -90,8 +90,8 @@ int percentage(N1 bytes_done, N2 bytes_total) {
 	return percentage(0, 1, bytes_done, bytes_total);
 }
 
-template <typename T, class = typename std::enable_if<std::is_floating_point<T>::value>::type>
-QString toString(T value, int precision) {
+template <typename T>
+typename std::enable_if<std::is_floating_point<T>::value, QString>::type toString(T value, int precision) {
 	std::ostringstream ss;
 	ss << std::setprecision(precision) << value;
 	return QString::fromStdString(ss.str());
@@ -149,7 +149,7 @@ QString formatInt(T value, NumberDisplayMode mode) {
 	case NumberDisplayMode::Unsigned:
 		return value.unsignedToString();
 	default:
-		EDB_PRINT_AND_DIE("Unexpected integer display mode ", static_cast<long>(mode));
+		EDB_PRINT_AND_DIE("Unexpected integer display mode ", (long)mode);
 	}
 }
 
@@ -193,5 +193,7 @@ boost::optional<Float> fullStringToFloat(const std::string &s) {
 }
 
 }
+
+#define BIT_LENGTH(expr) (8 * sizeof(expr))
 
 #endif

@@ -19,7 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef TYPES_20071127_H_
 #define TYPES_20071127_H_
 
+#include "API.h"
 #include "Value.h"
+
 #include <QString>
 
 namespace edb {

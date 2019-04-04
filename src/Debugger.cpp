@@ -1631,8 +1631,8 @@ void Debugger::on_actionApplication_Working_Directory_triggered() {
 //------------------------------------------------------------------------------
 void Debugger::mnuStackPush() {
 	Register value(edb::v1::debuggeeIs32Bit()?
-					   make_register("",edb::value32(0),Register::TYPE_GPR):
-					   make_register("",edb::value64(0),Register::TYPE_GPR));
+					   make_Register("",edb::value32(0),Register::TYPE_GPR):
+					   make_Register("",edb::value64(0),Register::TYPE_GPR));
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		if(std::shared_ptr<IThread> thread = process->current_thread()) {

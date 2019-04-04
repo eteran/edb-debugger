@@ -432,8 +432,8 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 					edb::reg_t value(0);
 					process->read_bytes(state.stack_pointer() + offset + arg_i_position, &value, edb::v1::pointer_size());
 					arg=edb::v1::debuggeeIs64Bit()?
-						make_register<64>("",value,Register::TYPE_GPR) :
-						make_register<32>("",value,Register::TYPE_GPR);
+						make_Register<64>("",value,Register::TYPE_GPR) :
+						make_Register<32>("",value,Register::TYPE_GPR);
 				} else {
 					arg = state[parameter_registers[i]];
 				}
@@ -972,7 +972,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 					}
 					std::uint32_t value;
 					std::memcpy(&value,buf,sizeof(value));
-					arguments << format_argument(argument_type, make_register<32>("[esp]", value, Register::TYPE_GPR));
+					arguments << format_argument(argument_type, make_Register<32>("[esp]", value, Register::TYPE_GPR));
 					continue;
 				}
 			}
@@ -994,7 +994,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 					continue;
 				}
 				const auto value=regHi.valueAsInteger() << 32 | regLo.valueAsInteger();
-				arguments << format_argument(argument_type, make_register<64>(argument_register, value, Register::TYPE_GPR));
+				arguments << format_argument(argument_type, make_Register<64>(argument_register, value, Register::TYPE_GPR));
 			}
 		}
 

@@ -837,7 +837,7 @@ template <size_t bitSize = 0, class Names, class Regs> Register findRegisterValu
 	auto regNameFoundIter = std::find(names.begin(), end, regName);
 
 	if (regNameFoundIter != end) {
-		return make_register<bitSize>(regName, regs[regNameFoundIter - names.begin()] >> shift, type);
+		return make_Register<bitSize>(regName, regs[regNameFoundIter - names.begin()] >> shift, type);
 	} else {
 		return Register();
 	}
@@ -859,9 +859,9 @@ Register PlatformState::value(const QString &reg) const {
 	// don't return valid Register with garbage value
 	if (x86.gpr32Filled) {
 		if (reg == x86.origRAXName && x86.gpr64Filled && is64Bit())
-			return make_register<64>(x86.origRAXName, x86.orig_ax, Register::TYPE_GPR);
+			return make_Register<64>(x86.origRAXName, x86.orig_ax, Register::TYPE_GPR);
 		if (reg == x86.origEAXName)
-			return make_register<32>(x86.origEAXName, x86.orig_ax, Register::TYPE_GPR);
+			return make_Register<32>(x86.origEAXName, x86.orig_ax, Register::TYPE_GPR);
 		if (x86.gpr64Filled && is64Bit() && !!(found = findRegisterValue(x86.GPReg64Names, x86.GPRegs, regName, Register::TYPE_GPR, gpr64_count())))
 			return found;
 		if (!!(found = findRegisterValue<32>(x86.GPReg32Names, x86.GPRegs, regName, Register::TYPE_GPR, gpr_count())))
@@ -890,25 +890,25 @@ Register PlatformState::value(const QString &reg) const {
 				const auto value = x86.segRegBases[index];
 
 				if (is64Bit()) {
-					return make_register(regName, value, Register::TYPE_SEG);
+					return make_Register(regName, value, Register::TYPE_SEG);
 				} else {
-					return make_register<32>(regName, value, Register::TYPE_SEG);
+					return make_Register<32>(regName, value, Register::TYPE_SEG);
 				}
 			}
 		}
 
 		if (is64Bit() && regName == x86.flags64Name)
-			return make_register(x86.flags64Name, x86.flags, Register::TYPE_COND);
+			return make_Register(x86.flags64Name, x86.flags, Register::TYPE_COND);
 		if (regName == x86.flags32Name)
-			return make_register<32>(x86.flags32Name, x86.flags, Register::TYPE_COND);
+			return make_Register<32>(x86.flags32Name, x86.flags, Register::TYPE_COND);
 		if (regName == x86.flags16Name)
-			return make_register<16>(x86.flags16Name, x86.flags, Register::TYPE_COND);
+			return make_Register<16>(x86.flags16Name, x86.flags, Register::TYPE_COND);
 		if (is64Bit() && regName == x86.IP64Name)
-			return make_register(x86.IP64Name, x86.IP, Register::TYPE_IP);
+			return make_Register(x86.IP64Name, x86.IP, Register::TYPE_IP);
 		if (regName == x86.IP32Name)
-			return make_register<32>(x86.IP32Name, x86.IP, Register::TYPE_IP);
+			return make_Register<32>(x86.IP32Name, x86.IP, Register::TYPE_IP);
 		if (regName == x86.IP16Name)
-			return make_register<16>(x86.IP16Name, x86.IP, Register::TYPE_IP);
+			return make_Register<16>(x86.IP16Name, x86.IP, Register::TYPE_IP);
 	}
 
 	if (x86.gpr32Filled) {
@@ -921,9 +921,9 @@ Register PlatformState::value(const QString &reg) const {
 			assert(dbgIndexValid(i));
 
 			if (is64Bit() && x86.gpr64Filled) {
-				return make_register(regName, x86.dbgRegs[i], Register::TYPE_COND);
+				return make_Register(regName, x86.dbgRegs[i], Register::TYPE_COND);
 			} else {
-				return make_register<32>(regName, x86.dbgRegs[i], Register::TYPE_COND);
+				return make_Register<32>(regName, x86.dbgRegs[i], Register::TYPE_COND);
 			}
 		}
 	}
@@ -936,7 +936,7 @@ Register PlatformState::value(const QString &reg) const {
 			char digitChar = digit.toLatin1();
 			size_t i = digitChar - '0';
 			assert(fpuIndexValid(i));
-			return make_register(regName, x87.R[i], Register::TYPE_FPU);
+			return make_Register(regName, x87.R[i], Register::TYPE_FPU);
 		}
 	}
 
@@ -948,7 +948,7 @@ Register PlatformState::value(const QString &reg) const {
 			char digitChar = digit.toLatin1();
 			size_t i = digitChar - '0';
 			assert(fpuIndexValid(i));
-			return make_register(regName, x87.st(i), Register::TYPE_FPU);
+			return make_Register(regName, x87.st(i), Register::TYPE_FPU);
 		}
 	}
 
@@ -956,31 +956,31 @@ Register PlatformState::value(const QString &reg) const {
 		if (regName == "fip" || regName == "fdp") {
 			const edb::address_t addr = regName == "fip" ? x87.instPtrOffset : x87.dataPtrOffset;
 			if (is64Bit()) {
-				return make_register<64>(regName, addr, Register::TYPE_FPU);
+				return make_Register<64>(regName, addr, Register::TYPE_FPU);
 			} else {
-				return make_register<32>(regName, addr, Register::TYPE_FPU);
+				return make_Register<32>(regName, addr, Register::TYPE_FPU);
 			}
 		}
 
 		if (regName == "fis" || regName == "fds") {
 			const edb::value16 val = regName == "fis" ? x87.instPtrSelector : x87.dataPtrSelector;
-			return make_register<16>(regName, val, Register::TYPE_FPU);
+			return make_Register<16>(regName, val, Register::TYPE_FPU);
 		}
 
 		if (regName == "fopcode" || regName == "fop") {
-			return make_register<16>(regName, x87.opCode, Register::TYPE_FPU);
+			return make_Register<16>(regName, x87.opCode, Register::TYPE_FPU);
 		}
 
 		if (regName == "ftr" || regName == "ftw") {
-			return make_register<16>(regName, x87.tagWord, Register::TYPE_FPU);
+			return make_Register<16>(regName, x87.tagWord, Register::TYPE_FPU);
 		}
 
 		if (regName == "fsr" || regName == "fsw") {
-			return make_register<16>(regName, x87.statusWord, Register::TYPE_FPU);
+			return make_Register<16>(regName, x87.statusWord, Register::TYPE_FPU);
 		}
 
 		if (regName == "fcr" || regName == "fcw") {
-			return make_register<16>(regName, x87.controlWord, Register::TYPE_FPU);
+			return make_Register<16>(regName, x87.controlWord, Register::TYPE_FPU);
 		}
 	}
 
@@ -992,7 +992,7 @@ Register PlatformState::value(const QString &reg) const {
 			char digitChar = digit.toLatin1();
 			size_t i = digitChar - '0';
 			assert(mmxIndexValid(i));
-			return make_register(regName, x87.R[i].mantissa(), Register::TYPE_SIMD);
+			return make_Register(regName, x87.R[i].mantissa(), Register::TYPE_SIMD);
 		}
 	}
 
@@ -1007,7 +1007,7 @@ Register PlatformState::value(const QString &reg) const {
 			}
 
 			if (xmmIndexValid(i)) { // May be invalid but legitimate for a disassembler: e.g. XMM13 but 32 bit mode
-				return make_register(regName, avx.xmm(i), Register::TYPE_SIMD);
+				return make_Register(regName, avx.xmm(i), Register::TYPE_SIMD);
 			}
 		}
 	}
@@ -1019,13 +1019,13 @@ Register PlatformState::value(const QString &reg) const {
 			size_t i  = YMMx.cap(1).toUShort(&ok);
 			assert(ok);
 			if (ymmIndexValid(i)) { // May be invalid but legitimate for a disassembler: e.g. YMM13 but 32 bit mode
-				return make_register(regName, avx.ymm(i), Register::TYPE_SIMD);
+				return make_Register(regName, avx.ymm(i), Register::TYPE_SIMD);
 			}
 		}
 	}
 
 	if (avx.xmmFilledIA32 && regName == avx.mxcsrName) {
-		return make_register(avx.mxcsrName, avx.mxcsr, Register::TYPE_COND);
+		return make_Register(avx.mxcsrName, avx.mxcsr, Register::TYPE_COND);
 	}
 
 	return Register();
@@ -1038,9 +1038,9 @@ Register PlatformState::value(const QString &reg) const {
 Register PlatformState::instruction_pointer_register() const {
 
 	if (x86.gpr64Filled && is64Bit()) {
-		return make_register(x86.IP64Name, x86.IP, Register::TYPE_GPR);
+		return make_Register(x86.IP64Name, x86.IP, Register::TYPE_GPR);
 	} else if (x86.gpr32Filled) {
-		return make_register<32>(x86.IP32Name, x86.IP, Register::TYPE_GPR);
+		return make_Register<32>(x86.IP32Name, x86.IP, Register::TYPE_GPR);
 	}
 
 	return Register();
@@ -1085,9 +1085,9 @@ edb::reg_t PlatformState::debug_register(size_t n) const {
 //------------------------------------------------------------------------------
 Register PlatformState::flags_register() const {
 	if (x86.gpr64Filled && is64Bit()) {
-		return make_register(x86.flags64Name, x86.flags, Register::TYPE_GPR);
+		return make_Register(x86.flags64Name, x86.flags, Register::TYPE_GPR);
 	} else if (x86.gpr32Filled) {
-		return make_register<32>(x86.flags32Name, x86.flags, Register::TYPE_GPR);
+		return make_Register<32>(x86.flags32Name, x86.flags, Register::TYPE_GPR);
 	}
 
 	return Register();
@@ -1226,9 +1226,9 @@ Register PlatformState::gp_register(size_t n) const {
 
 	if (gprIndexValid(n)) {
 		if (x86.gpr64Filled && is64Bit()) {
-			return make_register(x86.GPReg64Names[n], x86.GPRegs[n], Register::TYPE_GPR);
+			return make_Register(x86.GPReg64Names[n], x86.GPRegs[n], Register::TYPE_GPR);
 		} else if (x86.gpr32Filled && n < IA32_GPR_COUNT) {
-			return make_register<32>(x86.GPReg32Names[n], x86.GPRegs[n], Register::TYPE_GPR);
+			return make_Register<32>(x86.GPReg32Names[n], x86.GPRegs[n], Register::TYPE_GPR);
 		}
 	}
 
@@ -1402,7 +1402,7 @@ void PlatformState::set_register(const Register &reg) {
 void PlatformState::set_register(const QString &name, edb::reg_t value) {
 
 	const QString regName = name.toLower();
-	set_register(make_register<64>(regName, value, Register::TYPE_GPR));
+	set_register(make_Register<64>(regName, value, Register::TYPE_GPR));
 }
 
 //------------------------------------------------------------------------------
@@ -1430,7 +1430,7 @@ Register PlatformState::mmx_register(size_t n) const {
 	}
 
 	edb::value64 value(x87.R[n].mantissa());
-	return make_register(QString("mm%1").arg(n), value, Register::TYPE_SIMD);
+	return make_Register(QString("mm%1").arg(n), value, Register::TYPE_SIMD);
 }
 
 //------------------------------------------------------------------------------
@@ -1447,7 +1447,7 @@ Register PlatformState::xmm_register(size_t n) const {
 	}
 
 	edb::value128 value(avx.xmm(n));
-	return make_register(QString("xmm%1").arg(n), value, Register::TYPE_SIMD);
+	return make_Register(QString("xmm%1").arg(n), value, Register::TYPE_SIMD);
 }
 
 //------------------------------------------------------------------------------
@@ -1460,6 +1460,6 @@ Register PlatformState::ymm_register(size_t n) const {
 	}
 
 	edb::value256 value(avx.ymm(n));
-	return make_register(QString("ymm%1").arg(n), value, Register::TYPE_SIMD);
+	return make_Register(QString("ymm%1").arg(n), value, Register::TYPE_SIMD);
 }
 }
