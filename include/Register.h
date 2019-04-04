@@ -27,11 +27,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <cstring>
 #include <type_traits>
 
-class Register;
-
-template <std::size_t BitSize = 0, typename ValueType, typename Type>
-Register make_Register(const QString &name, ValueType value, Type type);
-
 class EDB_EXPORT Register {
 	Q_DECLARE_TR_FUNCTIONS(Register)
 
@@ -79,7 +74,7 @@ public:
 	}
 
 	int64_t valueAsSignedInteger() const {
-		auto result = valueAsInteger();
+		uint64_t result = valueAsInteger();
 		// If MSB is set, sign extend the result
 		if(result & (1ll << (bitSize_ - 1))) {
 			result = -1ll;
@@ -104,19 +99,21 @@ public:
 	QString toHexString() const;
 
 private:
-	QString     name_;
-	StoredType  value_;
-	Type        type_;
-	std::size_t bitSize_;
+	QString     name_    = tr("<unknown>");
+	StoredType  value_   = {};
+	Type        type_    = TYPE_INVALID;
+	std::size_t bitSize_ = 0;
 
-	template<std::size_t bitSize, typename ValueType, typename Type>
-	friend Register make_Register(const QString &name, ValueType value, Type type);
+
+	template <std::size_t bitSize, typename ValueType>
+	friend Register make_Register(const QString &name, ValueType value, Register::Type type);
 };
 
-template<std::size_t BitSize, typename ValueType, typename Type>
-Register make_Register(const QString &name, ValueType value, Type type)
-{
-	static_assert(std::is_same<Type,Register::Type>::value, "type must be Register::Type");
+#define BIT_LENGTH(expr) (8 * sizeof(expr))
+
+template <std::size_t BitSize, typename ValueType>
+Register make_Register(const QString &name, ValueType value, Register::Type type) {
+
 	constexpr std::size_t bitSize = (BitSize ? BitSize : BIT_LENGTH(value));
 	static_assert(BitSize % 8 == 0, "Strange bit size");
 
@@ -136,6 +133,13 @@ Register make_Register(const QString &name, ValueType value, Type type)
 	std::memcpy(to, from, size);
 
 	return reg;
+}
+
+#undef BIT_LENGTH
+
+template <typename ValueType>
+Register make_Register(const QString &name, ValueType value, Register::Type type) {
+	return make_Register<0>(name, value, type);
 }
 
 #endif

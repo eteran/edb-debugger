@@ -23,10 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: Register
 // Desc:
 //------------------------------------------------------------------------------
-Register::Register() :
-	name_("<unknown>"),
-	type_(TYPE_INVALID),
-	bitSize_(0) {
+Register::Register() {
 	util::markMemory(&value_,sizeof(value_));
 }
 
