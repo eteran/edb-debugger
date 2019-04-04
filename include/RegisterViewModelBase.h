@@ -149,14 +149,14 @@ public:
 	QModelIndex activeIndex() const;
 
 public:
-	virtual void setChosenSIMDSize(const QModelIndex &index, ElementSize newSize);
-	virtual void setChosenSIMDFormat(const QModelIndex &index, NumberDisplayMode newFormat);
-	virtual void setChosenFPUFormat(const QModelIndex &index, NumberDisplayMode newFormat);
+	void setChosenSIMDSize(const QModelIndex &index, ElementSize newSize);
+	void setChosenSIMDFormat(const QModelIndex &index, NumberDisplayMode newFormat);
+	void setChosenFPUFormat(const QModelIndex &index, NumberDisplayMode newFormat);
 
 	// Should be called after updating all the data
-	virtual void dataUpdateFinished();
+	void dataUpdateFinished();
 	// should be called when the debugger is about to resume, to save current register values to previous
-	virtual void saveValues();
+	void saveValues();
 
 protected:
 	// All categories are there to stay after they've been inserted
