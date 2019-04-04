@@ -149,7 +149,7 @@ QString formatInt(T value, NumberDisplayMode mode) {
 	case NumberDisplayMode::Unsigned:
 		return value.unsignedToString();
 	default:
-		EDB_PRINT_AND_DIE("Unexpected integer display mode ", (long)mode);
+		EDB_PRINT_AND_DIE("Unexpected integer display mode ", static_cast<long>(mode));
 	}
 }
 

@@ -330,7 +330,7 @@ const char *fixup_g_Yfmt(char *buffer, int digits10) {
 	// If we find a number with more than digits10 digits before point, we must fix it.
 	int digitCount = 0;
 	int pointPos   = -1;
-	for (int i = 0; i < len; ++i) {
+	for (int i = 0; i < static_cast<int>(len); ++i) {
 		const char c = buffer[i];
 		// If it's already in exponential format, it's fine, just return it
 		if (c == 'e') {

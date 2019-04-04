@@ -104,17 +104,14 @@ private:
 	Type        type_    = TYPE_INVALID;
 	std::size_t bitSize_ = 0;
 
-
-	template <std::size_t bitSize, typename ValueType>
-	friend Register make_Register(const QString &name, ValueType value, Register::Type type);
+	template <std::size_t bitSize, typename T>
+	friend Register make_Register(const QString &name, T value, Register::Type type);
 };
 
-#define BIT_LENGTH(expr) (8 * sizeof(expr))
+template <std::size_t BitSize, typename T>
+Register make_Register(const QString &name, T value, Register::Type type) {
 
-template <std::size_t BitSize, typename ValueType>
-Register make_Register(const QString &name, ValueType value, Register::Type type) {
-
-	constexpr std::size_t bitSize = (BitSize ? BitSize : BIT_LENGTH(value));
+	constexpr std::size_t bitSize = (BitSize ? BitSize : 8 * sizeof(T));
 	static_assert(BitSize % 8 == 0, "Strange bit size");
 
 	Register reg;
@@ -123,7 +120,7 @@ Register make_Register(const QString &name, ValueType value, Register::Type type
 	reg.bitSize_ = bitSize;
 
 	constexpr std::size_t size = bitSize / 8;
-	static_assert(size <= sizeof(ValueType), "ValueType appears smaller than size specified");
+	static_assert(size <= sizeof(T), "ValueType appears smaller than size specified");
 	util::markMemory(&reg.value_, sizeof(reg.value_));
 
 	// NOTE(eteran): used to avoid warnings from GCC >= 8.2
@@ -135,10 +132,8 @@ Register make_Register(const QString &name, ValueType value, Register::Type type
 	return reg;
 }
 
-#undef BIT_LENGTH
-
-template <typename ValueType>
-Register make_Register(const QString &name, ValueType value, Register::Type type) {
+template <typename T>
+Register make_Register(const QString &name, T value, Register::Type type) {
 	return make_Register<0>(name, value, type);
 }
 

@@ -831,13 +831,14 @@ QString PlatformState::flags_to_string() const {
 	return flags_to_string(flags());
 }
 
-template <size_t bitSize = 0, class Names, class Regs> Register findRegisterValue(const Names &names, const Regs &regs, const QString &regName, Register::Type type, size_t maxNames, int shift = 0) {
+template <size_t BitSize = 0, class Names, class Regs>
+Register findRegisterValue(const Names &names, const Regs &regs, const QString &regName, Register::Type type, size_t maxNames, int shift = 0) {
 
 	const auto end = names.begin() + maxNames;
 	auto regNameFoundIter = std::find(names.begin(), end, regName);
 
 	if (regNameFoundIter != end) {
-		return make_Register<bitSize>(regName, regs[regNameFoundIter - names.begin()] >> shift, type);
+		return make_Register<BitSize>(regName, regs[regNameFoundIter - names.begin()] >> shift, type);
 	} else {
 		return Register();
 	}
