@@ -81,7 +81,11 @@
     <widget class="QProgressBar" name="progressBar"/>
    </item>
    <item row="0" column="1">
-    <widget class="QLineEdit" name="txtASCII"/>
+    <widget class="QLineEdit" name="txtASCII">
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
+     </property>
+    </widget>
    </item>
    <item row="1" column="0" colspan="2">
     <widget class="QCheckBox" name="chkCaseSensitive">
