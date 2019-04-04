@@ -71,7 +71,6 @@ public:
 
 private:
 	bool find_containing_function(edb::address_t address, Function *function) const;
-	bool is_thunk(edb::address_t address) const;
 	bool will_return(edb::address_t address) const;
 	void bonus_entry_point(RegionData *data) const;
 	void bonus_main(RegionData *data) const;
@@ -82,8 +81,6 @@ private:
 	void do_analysis(const std::shared_ptr<IRegion> &region);
 	void ident_header(Analyzer::RegionData *data);
 	void invalidate_dynamic_analysis(const std::shared_ptr<IRegion> &region);
-	void set_function_types(FunctionMap *results);
-	void set_function_types_helper(Function &function) const;
 
 Q_SIGNALS:
 	void update_progress(int);

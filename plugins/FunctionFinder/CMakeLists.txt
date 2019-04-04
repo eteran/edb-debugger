@@ -14,8 +14,13 @@ add_library(${PluginName} SHARED
 	DialogFunctions.cpp
 	DialogFunctions.h
 	DialogFunctions.ui
-	FunctionFinder.cpp
+        DialogResults.cpp
+        DialogResults.h
+        DialogResults.ui
+        FunctionFinder.cpp
 	FunctionFinder.h
+        ResultsModel.h
+        ResultsModel.cpp
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets edb)

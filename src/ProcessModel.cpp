@@ -25,7 +25,7 @@ ProcessModel::ProcessModel(QObject *parent) : QAbstractItemModel(parent) {
 }
 
 QModelIndex ProcessModel::index(int row, int column, const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 
 	if(row >= rowCount(parent) || column >= columnCount(parent)) {
 		return QModelIndex();
@@ -39,7 +39,7 @@ QModelIndex ProcessModel::index(int row, int column, const QModelIndex &parent) 
 }
 
 QModelIndex ProcessModel::parent(const QModelIndex &index) const {
-	Q_UNUSED(index);
+	Q_UNUSED(index)
 	return QModelIndex();
 }
 
@@ -83,12 +83,12 @@ QVariant ProcessModel::headerData(int section, Qt::Orientation orientation, int 
 }
 
 int ProcessModel::columnCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 	return 3;
 }
 
 int ProcessModel::rowCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 	return items_.size();
 }
 
@@ -98,6 +98,7 @@ void ProcessModel::addProcess(const std::shared_ptr<IProcess> &process) {
 	const Item item = {
 		process->pid(), process->uid(), process->user(), process->name()
 	};
+
 	items_.push_back(item);
 	endInsertRows();
 }

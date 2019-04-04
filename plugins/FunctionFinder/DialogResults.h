@@ -1,6 +1,6 @@
 /*
-Copyright (C) 2006 - 2015 Evan Teran
-                          evan.teran@gmail.com
+Copyright (C) 2006 - 2019 Evan Teran
+						  evan.teran@gmail.com
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -16,37 +16,41 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef DIALOG_FUNCTIONS_20061101_H_
-#define DIALOG_FUNCTIONS_20061101_H_
+#ifndef DIALOG_RESULTS_20190403_H_
+#define DIALOG_RESULTS_20190403_H_
 
 #include "Types.h"
 #include <QDialog>
 
 class QSortFilterProxyModel;
+class IAnalyzer;
+class Function;
 
 namespace FunctionFinderPlugin {
 
-namespace Ui { class DialogFunctions; }
+class ResultsModel;
 
-class DialogFunctions : public QDialog {
+namespace Ui { class DialogResults; }
+
+class DialogResults : public QDialog {
 	Q_OBJECT
 
 public:
-	explicit DialogFunctions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~DialogFunctions() override;
+	explicit DialogResults(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	~DialogResults() override;
+
+public:
+	void addResult(const Function &function);
+	int resultCount() const;
 
 public Q_SLOTS:
-	void on_btnFind_clicked();
+	void on_tableView_doubleClicked(const QModelIndex &index);
+	void on_btnGraph_clicked();
 
 private:
-    void showEvent(QShowEvent *event) override;
-
-private:
-	void do_find();
-
-private:
-	Ui::DialogFunctions *const ui;
-	QSortFilterProxyModel *    filter_model_;
+	Ui::DialogResults *const ui;
+	QSortFilterProxyModel *filter_model_;
+	ResultsModel *resultsModel_;
 };
 
 }

@@ -52,16 +52,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <functional>
 #include <cstring>
 
-#ifdef QT_CONCURRENT_LIB
-#include <QtConcurrent>
-#endif
-
-
 namespace AnalyzerPlugin {
 
 namespace {
 
 constexpr int MIN_REFCOUNT = 2;
+
+//------------------------------------------------------------------------------
+// Name: is_thunk
+// Desc: basically returns true if the first instruction of the function is a
+//       jmp
+//------------------------------------------------------------------------------
+bool is_thunk(edb::address_t address) {
+
+	quint8 buf[edb::Instruction::MAX_SIZE];
+	if(const int buf_size = edb::v1::get_instruction_bytes(address, buf)) {
+		const edb::Instruction inst(buf, buf + buf_size, address);
+		return is_unconditional_jump(inst);
+	}
+
+	return false;
+}
+
+//------------------------------------------------------------------------------
+// Name: set_function_types
+// Desc:
+//------------------------------------------------------------------------------
+void set_function_types(IAnalyzer::FunctionMap *results) {
+
+	Q_ASSERT(results);
+
+	// give bonus if we have a symbol for the address
+	std::for_each(results->begin(), results->end(), [](Function &function) {
+		if(is_thunk(function.entry_address())) {
+			function.set_type(Function::FUNCTION_THUNK);
+		} else {
+			function.set_type(Function::FUNCTION_STANDARD);
+		}
+	});
+}
 
 //------------------------------------------------------------------------------
 // Name: module_entry_point
@@ -347,60 +376,11 @@ void Analyzer::bonus_marked_functions(RegionData *data) {
 }
 
 //------------------------------------------------------------------------------
-// Name: is_thunk
-// Desc: basically returns true if the first instruction of the function is a
-//       jmp
-//------------------------------------------------------------------------------
-bool Analyzer::is_thunk(edb::address_t address) const {
-
-	quint8 buf[edb::Instruction::MAX_SIZE];
-	if(const int buf_size = edb::v1::get_instruction_bytes(address, buf)) {
-		const edb::Instruction inst(buf, buf + buf_size, address);
-		return is_unconditional_jump(inst);
-	}
-
-	return false;
-}
-
-//------------------------------------------------------------------------------
-// Name: set_function_types_helper
-// Desc:
-//------------------------------------------------------------------------------
-void Analyzer::set_function_types_helper(Function &function) const {
-
-	if(is_thunk(function.entry_address())) {
-		function.set_type(Function::FUNCTION_THUNK);
-	} else {
-		function.set_type(Function::FUNCTION_STANDARD);
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: set_function_types
-// Desc:
-//------------------------------------------------------------------------------
-void Analyzer::set_function_types(FunctionMap *results) {
-
-	Q_ASSERT(results);
-
-	// give bonus if we have a symbol for the address
-#if defined(QT_CONCURRENT_LIB)
-	QtConcurrent::blockingMap(*results, [this](Function &function) {
-		set_function_types_helper(function);
-	});
-#else
-	std::for_each(results->begin(), results->end(), [this](Function &function) {
-		set_function_types_helper(function);
-	});
-#endif
-}
-
-//------------------------------------------------------------------------------
 // Name: ident_header
 // Desc:
 //------------------------------------------------------------------------------
 void Analyzer::ident_header(Analyzer::RegionData *data) {
-	Q_UNUSED(data);
+	Q_UNUSED(data)
 }
 
 //------------------------------------------------------------------------------
@@ -489,7 +469,6 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 								// eventually, we should figure out the parameters of the function
 								// to see if we can know what the target is
 							}
-
 
 						} else if(is_unconditional_jump(*inst)) {
 

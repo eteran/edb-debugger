@@ -147,7 +147,7 @@ void DialogAttach::update_list() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogAttach::showEvent(QShowEvent *event) {
-	Q_UNUSED(event);
+	Q_UNUSED(event)
 	update_list();
 	connect(&updateTimer, &QTimer::timeout, this, &DialogAttach::update_list);
 	updateTimer.start(1000);
@@ -158,7 +158,7 @@ void DialogAttach::showEvent(QShowEvent *event) {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogAttach::on_filter_uid_clicked(bool checked) {
-	Q_UNUSED(checked);
+	Q_UNUSED(checked)
 	update_list();
 }
 

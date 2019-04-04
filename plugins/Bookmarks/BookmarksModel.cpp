@@ -101,7 +101,7 @@ void BookmarksModel::clearBookmarks() {
 //------------------------------------------------------------------------------
 QModelIndex BookmarksModel::index(int row, int column, const QModelIndex &parent) const {
 
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 
 	if(row >= bookmarks_.size()) {
 		return QModelIndex();
@@ -123,7 +123,7 @@ QModelIndex BookmarksModel::index(int row, int column, const QModelIndex &parent
 // Desc:
 //------------------------------------------------------------------------------
 QModelIndex BookmarksModel::parent(const QModelIndex &index) const {
-	Q_UNUSED(index);
+	Q_UNUSED(index)
 	return QModelIndex();
 }
 
@@ -132,7 +132,7 @@ QModelIndex BookmarksModel::parent(const QModelIndex &index) const {
 // Desc:
 //------------------------------------------------------------------------------
 int BookmarksModel::rowCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 	return bookmarks_.size();
 }
 
@@ -141,7 +141,7 @@ int BookmarksModel::rowCount(const QModelIndex &parent) const {
 // Desc:
 //------------------------------------------------------------------------------
 int BookmarksModel::columnCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 	return 3;
 }
 

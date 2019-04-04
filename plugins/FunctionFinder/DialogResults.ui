@@ -1,31 +1,26 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <author>Evan Teran</author>
- <class>FunctionFinderPlugin::DialogFunctions</class>
- <widget class="QDialog" name="DialogFunctions">
+ <class>FunctionFinderPlugin::DialogResults</class>
+ <widget class="QDialog" name="DialogResults">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>640</width>
-    <height>413</height>
+    <width>765</width>
+    <height>482</height>
    </rect>
   </property>
   <property name="windowTitle">
-   <string>Function Finder</string>
+   <string>Functions Found</string>
   </property>
   <layout class="QVBoxLayout" name="verticalLayout">
    <item>
-    <widget class="QLabel" name="lblRegions">
-     <property name="text">
-      <string>Regions To Search:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="txtSearch">
+    <widget class="QLineEdit" name="textFilter">
      <property name="placeholderText">
       <string>Filter</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -35,6 +30,9 @@
       <font>
        <family>Monospace</family>
       </font>
+     </property>
+     <property name="contextMenuPolicy">
+      <enum>Qt::CustomContextMenu</enum>
      </property>
      <property name="editTriggers">
       <set>QAbstractItemView::NoEditTriggers</set>
@@ -62,32 +60,14 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
-      <widget class="QPushButton" name="btnClose">
+      <widget class="QPushButton" name="btnGraph">
        <property name="text">
-        <string>&amp;Close</string>
-       </property>
-       <property name="icon">
-        <iconset theme="dialog-close">
-         <normaloff>.</normaloff>.</iconset>
+        <string>Graph Selected Function</string>
        </property>
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnHelp">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>&amp;Help</string>
-       </property>
-       <property name="icon">
-        <iconset theme="help-browser">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer>
+      <spacer name="horizontalSpacer">
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
        </property>
@@ -100,55 +80,35 @@
       </spacer>
      </item>
      <item>
-      <widget class="QPushButton" name="btnFind">
+      <widget class="QPushButton" name="btnClose">
        <property name="text">
-        <string>&amp;Find</string>
+        <string>&amp;Close</string>
        </property>
        <property name="icon">
-        <iconset theme="edit-find">
+        <iconset theme="dialog-close">
          <normaloff>.</normaloff>.</iconset>
-       </property>
-       <property name="default">
-        <bool>true</bool>
        </property>
       </widget>
      </item>
     </layout>
    </item>
-   <item>
-    <widget class="QProgressBar" name="progressBar">
-     <property name="value">
-      <number>0</number>
-     </property>
-     <property name="orientation">
-      <enum>Qt::Horizontal</enum>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
- <tabstops>
-  <tabstop>tableView</tabstop>
-  <tabstop>btnClose</tabstop>
-  <tabstop>btnHelp</tabstop>
-  <tabstop>btnFind</tabstop>
-  <tabstop>txtSearch</tabstop>
- </tabstops>
  <resources/>
  <connections>
   <connection>
    <sender>btnClose</sender>
    <signal>clicked()</signal>
-   <receiver>DialogFunctions</receiver>
+   <receiver>DialogResults</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>73</x>
-     <y>481</y>
+     <x>696</x>
+     <y>464</y>
     </hint>
     <hint type="destinationlabel">
-     <x>265</x>
-     <y>468</y>
+     <x>527</x>
+     <y>451</y>
     </hint>
    </hints>
   </connection>
