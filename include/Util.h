@@ -90,13 +90,6 @@ int percentage(N1 bytes_done, N2 bytes_total) {
 	return percentage(0, 1, bytes_done, bytes_total);
 }
 
-template <typename T>
-typename std::enable_if<std::is_floating_point<T>::value, QString>::type toString(T value, int precision) {
-	std::ostringstream ss;
-	ss << std::setprecision(precision) << value;
-	return QString::fromStdString(ss.str());
-}
-
 inline void markMemory(void *memory, std::size_t size) {
 
 	auto p = reinterpret_cast<char *>(memory);
