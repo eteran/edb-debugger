@@ -352,39 +352,6 @@ QString State::fpu_register_tag_string(std::size_t n) const {
 	}
 	return QString();
 }
-
-//------------------------------------------------------------------------------
-// Name: mmx_register
-// Desc:
-//------------------------------------------------------------------------------
-Register State::mmx_register(std::size_t n) const {
-	if(impl_) {
-		return impl_->mmx_register(n);
-	}
-	return Register();
-}
-
-//------------------------------------------------------------------------------
-// Name: xmm_register
-// Desc:
-//------------------------------------------------------------------------------
-Register State::xmm_register(std::size_t n) const {
-	if(impl_) {
-		return impl_->xmm_register(n);
-	}
-	return Register();
-}
-
-//------------------------------------------------------------------------------
-// Name: xmm_register
-// Desc:
-//------------------------------------------------------------------------------
-Register State::ymm_register(std::size_t n) const {
-	if(impl_) {
-		return impl_->ymm_register(n);
-	}
-	return Register();
-}
 #endif
 
 //------------------------------------------------------------------------------

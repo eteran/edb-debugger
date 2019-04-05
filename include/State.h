@@ -73,10 +73,6 @@ public:
 	edb::value16 fpu_control_word() const;
 	edb::value16 fpu_status_word() const;
 	edb::value16 fpu_tag_word() const;
-private:
-	Register mmx_register(std::size_t n) const;
-	Register xmm_register(std::size_t n) const;
-	Register ymm_register(std::size_t n) const;
 #endif
 
 public:

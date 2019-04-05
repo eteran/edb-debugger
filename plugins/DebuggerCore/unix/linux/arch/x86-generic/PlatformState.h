@@ -260,10 +260,6 @@ public:
 	void set_register(const QString &name, edb::reg_t value) override;
 
 	Register arch_register(uint64_t type, size_t n) const override;
-
-	Register mmx_register(size_t n) const override;
-	Register xmm_register(size_t n) const override;
-	Register ymm_register(size_t n) const override;
 	Register gp_register(size_t n) const override;
 
 	bool is64Bit() const {
@@ -329,6 +325,11 @@ public:
 	const std::array<const char *, MAX_GPR_COUNT> &GPRegNames() const {
 		return is64Bit() ? x86.GPReg64Names : x86.GPReg32Names;
 	}
+
+private:
+	Register mmx_register(size_t n) const ;
+	Register xmm_register(size_t n) const ;
+	Register ymm_register(size_t n) const ;
 
 private:
 	// The whole AVX* state. XMM and YMM registers are lower parts of ZMM ones.

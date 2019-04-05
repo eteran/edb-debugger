@@ -74,14 +74,6 @@ public:
 	virtual edb::value16 fpu_control_word() const = 0;
 	virtual edb::value16 fpu_status_word() const = 0;
 	virtual edb::value16 fpu_tag_word() const = 0;
-
-public:
-	// MMX
-	virtual Register mmx_register(std::size_t n) const = 0;
-	// SSE
-	virtual Register xmm_register(std::size_t n) const = 0;
-	// AVX
-	virtual Register ymm_register(std::size_t n) const = 0;
 #endif
 };
 

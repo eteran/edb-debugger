@@ -32,7 +32,7 @@ PluginModel::PluginModel(QObject *parent) : QAbstractItemModel(parent) {
 // Desc:
 //------------------------------------------------------------------------------
 QModelIndex PluginModel::index(int row, int column, const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 
 	if(row >= rowCount(parent) || column >= columnCount(parent)) {
 		return QModelIndex();
@@ -50,7 +50,7 @@ QModelIndex PluginModel::index(int row, int column, const QModelIndex &parent) c
 // Desc:
 //------------------------------------------------------------------------------
 QModelIndex PluginModel::parent(const QModelIndex &index) const {
-	Q_UNUSED(index);
+	Q_UNUSED(index)
 	return QModelIndex();
 }
 
@@ -108,7 +108,7 @@ QVariant PluginModel::headerData(int section, Qt::Orientation orientation, int r
 // Desc:
 //------------------------------------------------------------------------------
 int PluginModel::columnCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 	return 4;
 }
 
@@ -117,7 +117,7 @@ int PluginModel::columnCount(const QModelIndex &parent) const {
 // Desc:
 //------------------------------------------------------------------------------
 int PluginModel::rowCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 	return items_.size();
 }
 
