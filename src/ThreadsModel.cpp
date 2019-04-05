@@ -26,7 +26,7 @@ ThreadsModel::ThreadsModel(QObject *parent) : QAbstractItemModel(parent) {
 }
 
 QModelIndex ThreadsModel::index(int row, int column, const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 
 	if(row >= rowCount(parent) || column >= columnCount(parent)) {
 		return QModelIndex();
@@ -40,7 +40,7 @@ QModelIndex ThreadsModel::index(int row, int column, const QModelIndex &parent) 
 }
 
 QModelIndex ThreadsModel::parent(const QModelIndex &index) const {
-	Q_UNUSED(index);
+	Q_UNUSED(index)
 	return QModelIndex();
 }
 
@@ -105,12 +105,12 @@ QVariant ThreadsModel::headerData(int section, Qt::Orientation orientation, int 
 }
 
 int ThreadsModel::columnCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 	return 5;
 }
 
 int ThreadsModel::rowCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 	return items_.size();
 }
 
