@@ -176,7 +176,7 @@ the symbol is local; if uppercase, the symbol is global (external).
 
 template <class M, class Size>
 void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &symbols) {
-	Q_UNUSED(size);
+	Q_UNUSED(size)
 
 	using elf_addr   = typename M::elf_addr;
 	using elf_header = typename M::elf_header;
@@ -318,7 +318,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 						related_section = &sections_begin[symbol_tab[i].st_shndx];
 					}
 
-					Q_UNUSED(related_section);
+					Q_UNUSED(related_section)
 
 					if(plt_addresses.find(symbol_tab[i].st_value) == plt_addresses.end()) {
 
@@ -356,7 +356,7 @@ void collect_symbols(const void *p, Size size, std::vector<typename M::symbol> &
 						related_section = &sections_begin[symbol_tab[i].st_shndx];
 					}
 
-					Q_UNUSED(related_section);
+					Q_UNUSED(related_section)
 
 					if(plt_addresses.find(symbol_tab[i].st_value) == plt_addresses.end()) {
 

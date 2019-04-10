@@ -58,11 +58,11 @@ void MemoryRegions::sync() {
 				// at the beginning of the file, and is executable, sounds
 				// like a module mapping!
 				if(!region->name().isEmpty()) {
-					if(region->base() == 0) {
+					//if(region->base() == 0) {
 						if(region->executable()) {
 							edb::v1::symbol_manager().load_symbol_file(region->name(), region->start());
 						}
-					}
+					//}
 				}
 			}
 		}
