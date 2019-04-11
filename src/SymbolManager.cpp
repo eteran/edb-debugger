@@ -245,9 +245,11 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 		}
 	} else if(symbol_generator_) {
 		edb::v1::set_status(tr("Auto-Generating Symbol File: %1").arg(f),0);
-		bool generatedOK=symbol_generator_->generateSymbolFile(library_filename, f);
+		bool generatedOK = symbol_generator_->generateSymbolFile(library_filename, f);
 		edb::v1::clear_status();
-		if(generatedOK) return false;
+		if(generatedOK) {
+			return false;
+		}
 	}
 
 	// TODO: should we return false and try again later?

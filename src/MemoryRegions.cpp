@@ -58,11 +58,19 @@ void MemoryRegions::sync() {
 				// at the beginning of the file, and is executable, sounds
 				// like a module mapping!
 				if(!region->name().isEmpty()) {
-					//if(region->base() == 0) {
-						if(region->executable()) {
-							edb::v1::symbol_manager().load_symbol_file(region->name(), region->start());
+					if(region->executable()) {
+
+
+						// NOTE(eteran): region start is not good enough, we need **module** start
+						edb::address_t base = region->start();
+						Q_FOREACH(const std::shared_ptr<IRegion> &r, regions) {
+							if(r->name() == region->name()) {
+								base = std::min(base, r->start());
+							}
 						}
-					//}
+
+						edb::v1::symbol_manager().load_symbol_file(region->name(), base);
+					}
 				}
 			}
 		}
@@ -116,7 +124,7 @@ QVariant MemoryRegions::data(const QModelIndex &index, int role) const {
 // Desc:
 //------------------------------------------------------------------------------
 QModelIndex MemoryRegions::index(int row, int column, const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 
 	if(row >= rowCount(parent) || column >= columnCount(parent)) {
 		return QModelIndex();
@@ -130,7 +138,7 @@ QModelIndex MemoryRegions::index(int row, int column, const QModelIndex &parent)
 // Desc:
 //------------------------------------------------------------------------------
 QModelIndex MemoryRegions::parent(const QModelIndex &index) const {
-	Q_UNUSED(index);
+	Q_UNUSED(index)
 	return QModelIndex();
 }
 
@@ -139,7 +147,7 @@ QModelIndex MemoryRegions::parent(const QModelIndex &index) const {
 // Desc:
 //------------------------------------------------------------------------------
 int MemoryRegions::rowCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 	return regions_.size();
 }
 
@@ -148,7 +156,7 @@ int MemoryRegions::rowCount(const QModelIndex &parent) const {
 // Desc:
 //------------------------------------------------------------------------------
 int MemoryRegions::columnCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 	return 4;
 }
 
