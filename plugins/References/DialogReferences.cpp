@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Util.h"
 #include "edb.h"
 
+#include <QPushButton>
 #include <QMessageBox>
 #include <QVector>
 
@@ -41,6 +42,13 @@ enum Role {
 DialogReferences::DialogReferences(QWidget *parent) : QDialog(parent), ui(new Ui::DialogReferences) {
 	ui->setupUi(this);
 	connect(this, &DialogReferences::updateProgress, ui->progressBar, &QProgressBar::setValue);
+	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	connect(btnFind_, &QPushButton::clicked, this, &DialogReferences::btnFind_clicked);
+
+	ui->buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
+
+	// NOTE(eteran): not help system yet!
+	ui->buttonBox->button(QDialogButtonBox::Help)->setEnabled(false);
 }
 
 //------------------------------------------------------------------------------
@@ -169,13 +177,13 @@ void DialogReferences::do_find() {
 // Name: on_btnFind_clicked
 // Desc: find button event handler
 //------------------------------------------------------------------------------
-void DialogReferences::on_btnFind_clicked() {
-	ui->btnFind->setEnabled(false);
+void DialogReferences::btnFind_clicked() {
+	btnFind_->setEnabled(false);
 	ui->progressBar->setValue(0);
 	ui->listWidget->clear();
 	do_find();
 	ui->progressBar->setValue(100);
-	ui->btnFind->setEnabled(true);
+	btnFind_->setEnabled(true);
 }
 
 //------------------------------------------------------------------------------

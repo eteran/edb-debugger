@@ -37,7 +37,6 @@ public:
     ~DialogReferences() override;
 
 public Q_SLOTS:
-	void on_btnFind_clicked();
 	void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
 
 Q_SIGNALS:
@@ -47,10 +46,12 @@ private:
     void showEvent(QShowEvent *event) override;
 
 private:
+	void btnFind_clicked();
 	void do_find();
 
 private:
-	 Ui::DialogReferences *const ui;
+	 Ui::DialogReferences *ui;
+	 QPushButton *btnFind_;
 };
 
 }
