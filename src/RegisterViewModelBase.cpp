@@ -427,7 +427,7 @@ bool Model::setData(const QModelIndex &index, const QVariant &data, int role) {
 		assert(index.isValid());
 
 		const auto name = index.sibling(index.row(), NAME_COLUMN).data().toString();
-		Q_UNUSED(name);
+		Q_UNUSED(name)
 
 		const auto regVal = data.value<Register>();
 		assert(name.toLower() == regVal.name().toLower());

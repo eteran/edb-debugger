@@ -218,7 +218,7 @@ void Posix::initialize() {
 
 	// create a pipe and make it non-blocking
 	int r = ::pipe(selfpipe);
-	Q_UNUSED(r);
+	Q_UNUSED(r)
 
 	::fcntl(selfpipe[0], F_SETFL, ::fcntl(selfpipe[0], F_GETFL) | O_NONBLOCK);
 	::fcntl(selfpipe[1], F_SETFL, ::fcntl(selfpipe[1], F_GETFL) | O_NONBLOCK);

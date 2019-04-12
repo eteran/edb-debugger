@@ -277,7 +277,7 @@ void DebuggerCore::kill() {
 //------------------------------------------------------------------------------
 Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 
-	Q_UNUSED(tty);
+	Q_UNUSED(tty)
 
 	Q_ASSERT(!path.isEmpty());
 

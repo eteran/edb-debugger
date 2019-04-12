@@ -212,7 +212,7 @@ ArchProcessor::ArchProcessor() {
 }
 
 QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
-	Q_UNUSED(address);
+	Q_UNUSED(address)
 	QStringList ret;
 	return ret;
 }
@@ -222,7 +222,7 @@ bool ArchProcessor::can_step_over(const edb::Instruction &inst) const {
 }
 
 bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
-	Q_UNUSED(inst);
+	Q_UNUSED(inst
 	return false;
 }
 
@@ -380,7 +380,7 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 }
 
 std::unique_ptr<QMenu> ArchProcessor::register_item_context_menu(const Register& reg) {
-	Q_UNUSED(reg);
+	Q_UNUSED(reg)
 	return std::make_unique<QMenu>(nullptr);
 }
 

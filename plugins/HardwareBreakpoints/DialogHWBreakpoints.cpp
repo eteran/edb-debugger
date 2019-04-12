@@ -86,7 +86,7 @@ void DialogHWBreakpoints::type4IndexChanged(int index) {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHWBreakpoints::showEvent(QShowEvent *event) {
-	Q_UNUSED(event);
+	Q_UNUSED(event)
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 

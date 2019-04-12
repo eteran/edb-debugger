@@ -135,7 +135,7 @@ QString syscallErrName(T err) {
 		return errnoNames[index];
 	}
 #else
-	Q_UNUSED(err);
+	Q_UNUSED(err)
 #endif
 	return "";
 }
@@ -701,7 +701,7 @@ QString formatPackedFloat(const char* data,std::size_t size) {
 //------------------------------------------------------------------------------
 void analyze_operands(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
-	Q_UNUSED(inst);
+	Q_UNUSED(inst)
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
@@ -937,9 +937,9 @@ void analyze_jump_targets(const edb::Instruction &inst, QStringList &ret) {
 // Desc:
 //------------------------------------------------------------------------------
 void analyze_syscall(const State &state, const edb::Instruction &inst, QStringList &ret, std::uint64_t regAX) {
-	Q_UNUSED(inst);
-	Q_UNUSED(ret);
-	Q_UNUSED(state);
+	Q_UNUSED(inst)
+	Q_UNUSED(ret)
+	Q_UNUSED(state)
 
 #ifdef Q_OS_LINUX
 	const bool isX32=regAX & __X32_SYSCALL_BIT;
@@ -1007,7 +1007,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 		ret << ArchProcessor::tr("SYSCALL: %1%2(%3)").arg(isX32?"x32:":"",root.attribute("name"), arguments.join(","));
 	}
 #else
-	Q_UNUSED(regAX);
+	Q_UNUSED(regAX)
 #endif
 }
 
@@ -1561,7 +1561,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 					if(interrupted && err!=EINTR)
 						ret << QString("Syscall will be restarted on next step/run");
 #else
-					Q_UNUSED(rax);
+					Q_UNUSED(rax)
 #endif
 				}
 

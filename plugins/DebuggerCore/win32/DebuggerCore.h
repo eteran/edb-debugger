@@ -102,7 +102,7 @@ public:
 	}
 
 	void set_ignored_exceptions(const QList<qlonglong> &exceptions) override {
-		Q_UNUSED(exceptions);
+		Q_UNUSED(exceptions)
 		qDebug("TODO: Implement DebuggerCore::set_ignored_exceptions");
 	}
 

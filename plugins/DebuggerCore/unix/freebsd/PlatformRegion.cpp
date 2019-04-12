@@ -57,9 +57,9 @@ size_t PlatformRegion::size() const {
 }
 
 void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
-	Q_UNUSED(read);
-	Q_UNUSED(write);
-	Q_UNUSED(execute);
+	Q_UNUSED(read)
+	Q_UNUSED(write)
+	Q_UNUSED(execute)
 }
 
 edb::address_t PlatformRegion::start() const {

@@ -217,7 +217,7 @@ DebuggerCore::DebuggerCore()
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
 	
-	Q_UNUSED(ext);
+	Q_UNUSED(ext)
 	
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	static constexpr auto mmxHash = edb::string_hash("MMX");
@@ -418,7 +418,7 @@ long DebuggerCore::ptraceOptions() const {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::handle_thread_exit(edb::tid_t tid, int status) {
-	Q_UNUSED(status);
+	Q_UNUSED(status)
 
 	threads_.remove(tid);
 	waited_threads_.remove(tid);
@@ -430,7 +430,7 @@ void DebuggerCore::handle_thread_exit(edb::tid_t tid, int status) {
 //------------------------------------------------------------------------------
 std::shared_ptr<IDebugEvent> DebuggerCore::handle_thread_create_event(edb::tid_t tid, int status) {
 
-	Q_UNUSED(status);
+	Q_UNUSED(status)
 
 	unsigned long message;
 	if(ptrace_get_event_message(tid, &message)) {
@@ -868,9 +868,9 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 			FILE *const std_in  = freopen(qPrintable(tty), "r+b", stdin);
 			FILE *const std_err = freopen(qPrintable(tty), "r+b", stderr);
 
-			Q_UNUSED(std_out);
-			Q_UNUSED(std_in);
-			Q_UNUSED(std_err);
+			Q_UNUSED(std_out)
+			Q_UNUSED(std_in)
+			Q_UNUSED(std_err)
 		}
 
 		if(edb::v1::config().disableASLR) {

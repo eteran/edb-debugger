@@ -1427,7 +1427,7 @@ Result<int, QString> QDisassemblyView::get_instruction_size(edb::address_t addre
 // Desc:
 //------------------------------------------------------------------------------
 edb::address_t QDisassemblyView::address_from_coord(int x, int y) const {
-	Q_UNUSED(x);
+	Q_UNUSED(x)
 
 	const int line = y / line_height();
 	edb::address_t address = verticalScrollBar()->value();
@@ -1513,7 +1513,7 @@ bool QDisassemblyView::event(QEvent *event) {
 //------------------------------------------------------------------------------
 void QDisassemblyView::mouseReleaseEvent(QMouseEvent *event) {
 
-	Q_UNUSED(event);
+	Q_UNUSED(event)
 
 	moving_line1_      = false;
 	moving_line2_      = false;

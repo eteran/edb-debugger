@@ -134,8 +134,8 @@ void handle_library_event(IProcess *process, edb::address_t debug_pointer) {
 		}
 	}
 #else
-	Q_UNUSED(process);
-	Q_UNUSED(debug_pointer);
+	Q_UNUSED(process)
+	Q_UNUSED(debug_pointer)
 #endif
 }
 
@@ -148,8 +148,8 @@ edb::address_t find_linker_hook_address(IProcess *process, edb::address_t debug_
 		return edb::address_t::fromZeroExtended(dynamic_info.r_brk);
 	}
 #else
-	Q_UNUSED(process);
-	Q_UNUSED(debug_pointer);
+	Q_UNUSED(process)
+	Q_UNUSED(debug_pointer)
 #endif
 	return edb::address_t(0);
 }
@@ -692,8 +692,8 @@ QString Debugger::create_tty() {
 // Desc: cleans up the data associated with a TTY when the terminal dies
 //------------------------------------------------------------------------------
 void Debugger::tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status) {
-	Q_UNUSED(exit_code);
-	Q_UNUSED(exit_status);
+	Q_UNUSED(exit_code)
+	Q_UNUSED(exit_status)
 
 	tty_file_.clear();
 }
@@ -1699,7 +1699,7 @@ void Debugger::on_cpuView_customContextMenuRequested(const QPoint &pos) {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
-		Q_UNUSED(process);
+		Q_UNUSED(process)
 
 		quint8 buffer[edb::Instruction::MAX_SIZE + 1];
 		if(edb::v1::get_instruction_bytes(address, buffer, &size)) {
@@ -1769,7 +1769,7 @@ void Debugger::mnuCPUFollow() {
 
 	const edb::address_t addressToFollow=util::to_unsigned(inst[0]->imm);
 	if(auto action = qobject_cast<QAction *>(sender())) {
-		Q_UNUSED(action);
+		Q_UNUSED(action)
 		follow_memory(addressToFollow, edb::v1::jump_to_address);
 	}
 }

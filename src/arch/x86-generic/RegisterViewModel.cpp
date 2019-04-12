@@ -418,7 +418,8 @@ void updateRegister(RegisterViewModelBase::Category* cat, int row, ValueType val
 		invalidate(cat,row,nameToCheck);
 		return;
 	}
-	Q_ASSERT(!nameToCheck || reg->name()==nameToCheck); Q_UNUSED(nameToCheck);
+	Q_ASSERT(!nameToCheck || reg->name()==nameToCheck);
+	Q_UNUSED(nameToCheck)
 	static_cast<RegType*>(reg)->update(value,comment);
 }
 
@@ -498,7 +499,8 @@ void invalidate(RegisterViewModelBase::Category* cat, int row, const char* nameT
 	if(!cat) return;
 	Q_ASSERT(row<cat->childCount());
 	const auto reg=cat->getRegister(row);
-	Q_ASSERT(!nameToCheck || reg->name()==nameToCheck); Q_UNUSED(nameToCheck);
+	Q_ASSERT(!nameToCheck || reg->name()==nameToCheck);
+	Q_UNUSED(nameToCheck)
 	reg->invalidate();
 }
 

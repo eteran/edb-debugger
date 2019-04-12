@@ -207,7 +207,7 @@ void DialogBacktrace::on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem
 //------------------------------------------------------------------------------
 void DialogBacktrace::on_tableWidgetCallStack_cellClicked(int row, int column)
 {
-	Q_UNUSED(row);
+	Q_UNUSED(row)
 
 	QPushButton *return_to = ui->pushButtonReturnTo;
 	if (is_ret(column)) {

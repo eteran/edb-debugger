@@ -44,7 +44,7 @@ OptionsPage::~OptionsPage() {
 // Desc:
 //------------------------------------------------------------------------------
 void OptionsPage::showEvent(QShowEvent *event) {
-	Q_UNUSED(event);
+	Q_UNUSED(event)
 
 	QSettings settings;
 	ui->instructionsBeforeIP->setValue(settings.value("DumpState/instructions_before_ip", 0).toInt());

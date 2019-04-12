@@ -78,7 +78,7 @@ QULongValidator::value_type QULongValidator::top() const {
 // Desc:
 //------------------------------------------------------------------------------
 QValidator::State QULongValidator::validate(QString &input, int &pos) const {
-	Q_UNUSED(pos);
+	Q_UNUSED(pos)
 
 	if(input.isEmpty()) {
 		return QValidator::Acceptable;

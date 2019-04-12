@@ -145,8 +145,8 @@ void unload_vmmap_entries(struct vm_map_entry *entry) {
 // Desc: Don't implement address comparison.
 //------------------------------------------------------------------------------
 int no_impl(void *p, void *q) {
-	Q_UNUSED(p);
-	Q_UNUSED(q);
+	Q_UNUSED(p)
+	Q_UNUSED(q)
 	Q_ASSERT(0); /* Should not be called. */
 	return 0;
 }
@@ -428,9 +428,9 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			FILE *const std_in  = freopen(qPrintable(tty), "r+b", stdin);
 			FILE *const std_err = freopen(qPrintable(tty), "r+b", stderr);
 
-			Q_UNUSED(std_out);
-			Q_UNUSED(std_in);
-			Q_UNUSED(std_err);
+			Q_UNUSED(std_out)
+			Q_UNUSED(std_in)
+			Q_UNUSED(std_err)
 		}
 
 		// do the actual exec

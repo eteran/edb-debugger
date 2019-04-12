@@ -81,7 +81,7 @@ DebuggerCore::DebuggerCore() {
 // Desc:
 //------------------------------------------------------------------------------
 bool DebuggerCore::has_extension(quint64 ext) const {
-	Q_UNUSED(ext);
+	Q_UNUSED(ext)
 	return false;
 }
 
@@ -277,9 +277,9 @@ bool DebuggerCore::open(const QString &path, const QString &cwd, const QList<QBy
 			FILE *const std_in  = freopen(qPrintable(tty), "r+b", stdin);
 			FILE *const std_err = freopen(qPrintable(tty), "r+b", stderr);
 
-			Q_UNUSED(std_out);
-			Q_UNUSED(std_in);
-			Q_UNUSED(std_err);
+			Q_UNUSED(std_out)
+			Q_UNUSED(std_in)
+			Q_UNUSED(std_err)
 		}
 
 		// do the actual exec

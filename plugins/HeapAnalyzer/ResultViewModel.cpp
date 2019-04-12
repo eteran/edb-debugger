@@ -105,7 +105,7 @@ void ResultViewModel::update() {
 //------------------------------------------------------------------------------
 QModelIndex ResultViewModel::index(int row, int column, const QModelIndex &parent) const {
 
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 
 	if(row >= results_.size()) {
 		return QModelIndex();
@@ -127,7 +127,7 @@ QModelIndex ResultViewModel::index(int row, int column, const QModelIndex &paren
 // Desc:
 //------------------------------------------------------------------------------
 QModelIndex ResultViewModel::parent(const QModelIndex &index) const {
-	Q_UNUSED(index);
+	Q_UNUSED(index)
 	return QModelIndex();
 }
 
@@ -136,7 +136,7 @@ QModelIndex ResultViewModel::parent(const QModelIndex &index) const {
 // Desc:
 //------------------------------------------------------------------------------
 int ResultViewModel::rowCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 	return results_.size();
 }
 
@@ -145,7 +145,7 @@ int ResultViewModel::rowCount(const QModelIndex &parent) const {
 // Desc:
 //------------------------------------------------------------------------------
 int ResultViewModel::columnCount(const QModelIndex &parent) const {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 	return 4;
 }
 

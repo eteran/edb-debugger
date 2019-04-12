@@ -86,9 +86,9 @@ public:
 	std::size_t read_pages(edb::address_t address, void *buf, size_t count) const override;
 
 	std::size_t patch_bytes(edb::address_t address, const void *buf, size_t len) override {
-		Q_UNUSED(address);
-		Q_UNUSED(buf);
-		Q_UNUSED(len);
+		Q_UNUSED(address)
+		Q_UNUSED(buf)
+		Q_UNUSED(len)
 		qDebug("TODO: implement PlatformProcess::patch_bytes");
 		return 0;
 	}

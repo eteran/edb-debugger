@@ -136,7 +136,7 @@ bool BackupInfo<N>::restore() {
 //------------------------------------------------------------------------------
 template <size_t N>
 edb::EVENT_STATUS BackupInfo<N>::handle_event(const std::shared_ptr<IDebugEvent> &event) {
-	Q_UNUSED(event);
+	Q_UNUSED(event)
 
 	lock_.testAndSetRelease(1, 0);
 
