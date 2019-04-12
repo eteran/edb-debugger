@@ -19,6 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QWidget>
 #include <QPixmap>
 
+#ifndef ANALYZER_WIDGET_H_20190412_
+#define ANALYZER_WIDGET_H_20190412_
+
 namespace AnalyzerPlugin {
 
 class AnalyzerWidget final : public QWidget {
@@ -39,3 +42,5 @@ private:
 };
 
 }
+
+#endif
