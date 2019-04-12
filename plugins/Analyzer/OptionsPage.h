@@ -35,8 +35,8 @@ public:
 public:
 	void showEvent(QShowEvent *event) override;
 
-public Q_SLOTS:
-	void on_checkBox_toggled(bool checked = false);
+public:
+	void checkBox_toggled(bool checked = false);
 
 private:
 	Ui::OptionsPage *const ui;

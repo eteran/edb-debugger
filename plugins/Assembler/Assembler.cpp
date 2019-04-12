@@ -65,7 +65,7 @@ QList<QAction *> Assembler::cpu_context_menu() {
 // Desc:
 //------------------------------------------------------------------------------
 QMenu *Assembler::menu(QWidget *parent) {
-	Q_UNUSED(parent);
+	Q_UNUSED(parent)
 	return nullptr;
 }
 

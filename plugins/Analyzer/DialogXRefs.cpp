@@ -5,20 +5,35 @@
 
 namespace AnalyzerPlugin {
 
+/**
+ * @brief DialogXRefs::DialogXRefs
+ * @param parent
+ */
 DialogXRefs::DialogXRefs(QWidget *parent) : QDialog(parent), ui(new Ui::DialogXRefs) {
 	ui->setupUi(this);
 }
 
+/**
+ * @brief DialogXRefs::~DialogXRefs
+ */
 DialogXRefs::~DialogXRefs() {
 	delete ui;
 }
 
+/**
+ * @brief DialogXRefs::on_listReferences_itemDoubleClicked
+ * @param item
+ */
 void DialogXRefs::on_listReferences_itemDoubleClicked(QListWidgetItem *item) {
 
 	edb::address_t site = item->data(Qt::UserRole).toULongLong();
 	edb::v1::jump_to_address(site);
 }
 
+/**
+ * @brief DialogXRefs::addReference
+ * @param ref
+ */
 void DialogXRefs::addReference(const std::pair<edb::address_t, edb::address_t> &ref) {
 
 	int offset;

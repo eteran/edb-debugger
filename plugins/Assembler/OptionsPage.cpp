@@ -39,11 +39,11 @@ OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsP
 	ui->assemblerName->clear();
 
 #if defined EDB_X86 || defined EDB_X86_64
-	const QString targetArch = "x86";
+	const QLatin1String targetArch("x86");
 #elif defined EDB_ARM32
-	const QString targetArch = "arm";
+	const QLatin1String targetArch("arm");
 #elif defined EDB_ARM64
-	const QString targetArch = "aarch64";
+	const QLatin1String targetArch("aarch64");
 #endif
 
 	QFile file(":/debugger/Assembler/xml/assemblers.xml");
@@ -54,7 +54,7 @@ OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsP
 
 		for(QDomElement assembler = root.firstChildElement("assembler"); !assembler.isNull(); assembler = assembler.nextSiblingElement("assembler")) {
 			const QString name = assembler.attribute("name");
-			const auto arch = assembler.attribute("arch");
+			const QString arch = assembler.attribute("arch");
 			if(arch == targetArch) {
 				ui->assemblerName->addItem(name);
 			}
@@ -82,7 +82,7 @@ OptionsPage::~OptionsPage() {
 // Desc:
 //------------------------------------------------------------------------------
 void OptionsPage::showEvent(QShowEvent *event) {
-	Q_UNUSED(event);
+	Q_UNUSED(event)
 }
 
 //------------------------------------------------------------------------------

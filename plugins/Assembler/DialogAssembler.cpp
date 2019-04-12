@@ -151,7 +151,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 		const QString asm_name = asm_root.attribute("name");
 		const QString asm_cmd  = asm_executable.attribute("command_line");
 		const QString asm_ext  = asm_executable.attribute("extension");
-		Q_UNUSED(asm_name);
+		Q_UNUSED(asm_name)
 		
 		QString asm_code = asm_template.text();
 
@@ -216,7 +216,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 
 				if(replacement_size != 0 && replacement_size <= instruction_size_) {
 					if(ui->fillWithNOPs->isChecked()) {
-						// TODO: get system independent nop-code
+						// TODO(eteran): get system independent nop-code
 						if(!edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x90)) {
 							return;
 						}
@@ -264,7 +264,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogAssembler::showEvent(QShowEvent *event) {
-	Q_UNUSED(event);
+	Q_UNUSED(event)
 
 	QSettings settings;
 	const QString assembler = settings.value("Assembler/helper", "yasm").toString();

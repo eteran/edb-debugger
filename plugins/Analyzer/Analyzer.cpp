@@ -108,6 +108,14 @@ edb::address_t module_entry_point(const std::shared_ptr<IRegion> &region) {
 
 }
 
+/**
+ * @brief Analyzer::Analyzer
+ * @param parent
+ */
+Analyzer::Analyzer(QObject *parent) : QObject(parent) {
+
+}
+
 //------------------------------------------------------------------------------
 // Name: options_page
 // Desc:

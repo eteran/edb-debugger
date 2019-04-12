@@ -42,7 +42,7 @@ public:
 	QList<QAction *> cpu_context_menu() override;
 	QWidget *options_page() override;
 
-public Q_SLOTS:
+private:
 	void show_dialog();
 
 private:
