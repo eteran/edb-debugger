@@ -205,6 +205,8 @@ if(GRAPHVIZ_FOUND)
 		graph/GraphicsScene.h
 		graph/GraphNode.cpp
 		graph/GraphWidget.cpp
+		graph/GraphvizHelper.cpp
+		graph/GraphvizHelper.h
 		${PROJECT_SOURCE_DIR}/include/GraphWidget.h
 		${PROJECT_SOURCE_DIR}/include/GraphEdge.h
 		${PROJECT_SOURCE_DIR}/include/GraphNode.h
