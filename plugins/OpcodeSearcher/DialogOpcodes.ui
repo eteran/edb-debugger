@@ -202,16 +202,16 @@
   <connection>
    <sender>btnClose</sender>
    <signal>clicked()</signal>
-   <receiver>DialogOpcodes</receiver>
+   <receiver>OpcodeSearcherPlugin::DialogOpcodes</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>422</y>
+     <x>24</x>
+     <y>404</y>
     </hint>
     <hint type="destinationlabel">
-     <x>265</x>
-     <y>468</y>
+     <x>300</x>
+     <y>404</y>
     </hint>
    </hints>
   </connection>

@@ -113,16 +113,16 @@
   <connection>
    <sender>btnClose</sender>
    <signal>clicked()</signal>
-   <receiver>DialogSymbolViewer</receiver>
+   <receiver>SymbolViewerPlugin::DialogSymbolViewer</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>61</x>
-     <y>458</y>
+     <x>58</x>
+     <y>496</y>
     </hint>
     <hint type="destinationlabel">
-     <x>265</x>
-     <y>468</y>
+     <x>318</x>
+     <y>497</y>
     </hint>
    </hints>
   </connection>

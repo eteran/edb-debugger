@@ -161,16 +161,16 @@
   <connection>
    <sender>btnClose</sender>
    <signal>clicked()</signal>
-   <receiver>DialogStrings</receiver>
+   <receiver>ProcessPropertiesPlugin::DialogStrings</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>425</y>
+     <x>47</x>
+     <y>450</y>
     </hint>
     <hint type="destinationlabel">
-     <x>265</x>
-     <y>468</y>
+     <x>320</x>
+     <y>444</y>
     </hint>
    </hints>
   </connection>

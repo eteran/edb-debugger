@@ -234,16 +234,16 @@
   <connection>
    <sender>btnClose</sender>
    <signal>clicked()</signal>
-   <receiver>DialogROPTool</receiver>
+   <receiver>ROPToolPlugin::DialogROPTool</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>422</y>
+     <x>51</x>
+     <y>392</y>
     </hint>
     <hint type="destinationlabel">
-     <x>265</x>
-     <y>468</y>
+     <x>340</x>
+     <y>398</y>
     </hint>
    </hints>
   </connection>

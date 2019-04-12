@@ -128,16 +128,16 @@
   <connection>
    <sender>btnClose</sender>
    <signal>clicked()</signal>
-   <receiver>DialogRegions</receiver>
+   <receiver>BinaryInfoPlugin::DialogRegions</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>66</x>
-     <y>422</y>
+     <x>43</x>
+     <y>426</y>
     </hint>
     <hint type="destinationlabel">
-     <x>265</x>
-     <y>468</y>
+     <x>238</x>
+     <y>404</y>
     </hint>
    </hints>
   </connection>

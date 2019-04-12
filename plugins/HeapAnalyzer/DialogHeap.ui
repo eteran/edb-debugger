@@ -57,7 +57,8 @@
         <string>&amp;Close</string>
        </property>
        <property name="icon">
-        <iconset theme="dialog-close"/>
+        <iconset theme="dialog-close">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -70,7 +71,8 @@
         <string>&amp;Help</string>
        </property>
        <property name="icon">
-        <iconset theme="help-browser"/>
+        <iconset theme="help-browser">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -92,6 +94,10 @@
        <property name="text">
         <string>&amp;Graph Selected Heap Blocks</string>
        </property>
+       <property name="icon">
+        <iconset theme="distribute-graph">
+         <normaloff>.</normaloff>.</iconset>
+       </property>
       </widget>
      </item>
      <item>
@@ -100,7 +106,8 @@
         <string>&amp;Find</string>
        </property>
        <property name="icon">
-        <iconset theme="edit-find"/>
+        <iconset theme="edit-find">
+         <normaloff>.</normaloff>.</iconset>
        </property>
        <property name="default">
         <bool>true</bool>
@@ -133,16 +140,16 @@
   <connection>
    <sender>btnClose</sender>
    <signal>clicked()</signal>
-   <receiver>DialogHeap</receiver>
+   <receiver>HeapAnalyzerPlugin::DialogHeap</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>70</x>
-     <y>452</y>
+     <x>52</x>
+     <y>428</y>
     </hint>
     <hint type="destinationlabel">
-     <x>265</x>
-     <y>468</y>
+     <x>257</x>
+     <y>429</y>
     </hint>
    </hints>
   </connection>

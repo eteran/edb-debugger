@@ -64,6 +64,9 @@
        <property name="text">
         <string>Graph Selected Function</string>
        </property>
+       <property name="icon">
+        <iconset theme="distribute-graph"/>
+       </property>
       </widget>
      </item>
      <item>
@@ -99,16 +102,16 @@
   <connection>
    <sender>btnClose</sender>
    <signal>clicked()</signal>
-   <receiver>DialogResults</receiver>
-   <slot>reject()</slot>
+   <receiver>FunctionFinderPlugin::DialogResults</receiver>
+   <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>696</x>
-     <y>464</y>
+     <x>700</x>
+     <y>462</y>
     </hint>
     <hint type="destinationlabel">
-     <x>527</x>
-     <y>451</y>
+     <x>586</x>
+     <y>448</y>
     </hint>
    </hints>
   </connection>

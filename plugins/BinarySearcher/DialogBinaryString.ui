@@ -157,16 +157,16 @@
   <connection>
    <sender>btnClose</sender>
    <signal>clicked()</signal>
-   <receiver>DialogBinaryString</receiver>
+   <receiver>BinarySearcherPlugin::DialogBinaryString</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>77</x>
-     <y>337</y>
+     <x>67</x>
+     <y>127</y>
     </hint>
     <hint type="destinationlabel">
-     <x>179</x>
-     <y>282</y>
+     <x>269</x>
+     <y>126</y>
     </hint>
    </hints>
   </connection>

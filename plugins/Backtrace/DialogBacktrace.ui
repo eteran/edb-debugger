@@ -60,7 +60,8 @@
         <string>&amp;Return To</string>
        </property>
        <property name="icon">
-        <iconset theme="edit-undo"/>
+        <iconset theme="edit-undo">
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -71,8 +72,7 @@
        </property>
        <property name="icon">
         <iconset theme="dialog-close">
-         <normaloff/>
-        </iconset>
+         <normaloff>.</normaloff>.</iconset>
        </property>
       </widget>
      </item>
@@ -81,5 +81,22 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>pushButtonClose</sender>
+   <signal>clicked()</signal>
+   <receiver>BacktracePlugin::DialogBacktrace</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>803</x>
+     <y>254</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>543</x>
+     <y>239</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

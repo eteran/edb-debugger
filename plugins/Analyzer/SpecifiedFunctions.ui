@@ -113,16 +113,16 @@
   <connection>
    <sender>close_button</sender>
    <signal>clicked()</signal>
-   <receiver>SpecifiedFunctions</receiver>
+   <receiver>AnalyzerPlugin::SpecifiedFunctions</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>61</x>
-     <y>458</y>
+     <x>63</x>
+     <y>266</y>
     </hint>
     <hint type="destinationlabel">
-     <x>265</x>
-     <y>468</y>
+     <x>264</x>
+     <y>253</y>
     </hint>
    </hints>
   </connection>

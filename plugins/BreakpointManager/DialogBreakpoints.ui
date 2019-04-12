@@ -21,7 +21,8 @@
       <string>&amp;Import Breakpoints</string>
      </property>
      <property name="icon">
-      <iconset theme="document-import"/>
+      <iconset theme="document-import">
+       <normaloff>.</normaloff>.</iconset>
      </property>
     </widget>
    </item>
@@ -51,7 +52,8 @@
       <string>&amp;Close</string>
      </property>
      <property name="icon">
-      <iconset theme="dialog-close"/>
+      <iconset theme="dialog-close">
+       <normaloff>.</normaloff>.</iconset>
      </property>
      <property name="default">
       <bool>true</bool>
@@ -64,7 +66,8 @@
       <string>&amp;Remove Breakpoint</string>
      </property>
      <property name="icon">
-      <iconset theme="list-remove"/>
+      <iconset theme="list-remove">
+       <normaloff>.</normaloff>.</iconset>
      </property>
     </widget>
    </item>
@@ -74,7 +77,8 @@
       <string>&amp;Add Breakpoint</string>
      </property>
      <property name="icon">
-      <iconset theme="list-add"/>
+      <iconset theme="list-add">
+       <normaloff>.</normaloff>.</iconset>
      </property>
     </widget>
    </item>
@@ -144,7 +148,8 @@
       <string>&amp;Export Breakpoints</string>
      </property>
      <property name="icon">
-      <iconset theme="document-export"/>
+      <iconset theme="document-export">
+       <normaloff>.</normaloff>.</iconset>
      </property>
     </widget>
    </item>
@@ -162,16 +167,16 @@
   <connection>
    <sender>okButton</sender>
    <signal>clicked()</signal>
-   <receiver>DialogBreakpoints</receiver>
+   <receiver>BreakpointManagerPlugin::DialogBreakpoints</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>793</x>
-     <y>254</y>
+     <x>702</x>
+     <y>242</y>
     </hint>
     <hint type="destinationlabel">
-     <x>516</x>
-     <y>174</y>
+     <x>660</x>
+     <y>212</y>
     </hint>
    </hints>
   </connection>

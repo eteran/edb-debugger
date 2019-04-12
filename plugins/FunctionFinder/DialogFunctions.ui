@@ -142,16 +142,16 @@
   <connection>
    <sender>btnClose</sender>
    <signal>clicked()</signal>
-   <receiver>DialogFunctions</receiver>
+   <receiver>FunctionFinderPlugin::DialogFunctions</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>73</x>
-     <y>481</y>
+     <x>31</x>
+     <y>354</y>
     </hint>
     <hint type="destinationlabel">
-     <x>265</x>
-     <y>468</y>
+     <x>307</x>
+     <y>362</y>
     </hint>
    </hints>
   </connection>

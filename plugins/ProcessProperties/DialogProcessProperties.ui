@@ -555,5 +555,22 @@
   </layout>
  </widget>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>ProcessPropertiesPlugin::DialogProcessProperties</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>650</x>
+     <y>574</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>439</x>
+     <y>557</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>
