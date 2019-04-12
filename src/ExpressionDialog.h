@@ -16,6 +16,9 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
+#ifndef EXPRESSION_DIALOG_H_
+#define EXPRESSION_DIALOG_H_
+
 #include "Types.h"
 
 #include <QDialog>
@@ -48,3 +51,5 @@ private:
 	QPalette         palette_error_;
 	edb::address_t   last_address_;
 };
+
+#endif
