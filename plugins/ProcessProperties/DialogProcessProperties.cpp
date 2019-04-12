@@ -49,6 +49,18 @@ namespace ProcessPropertiesPlugin {
 
 namespace {
 
+QString arguments_to_string(const QList<QByteArray> &args) {
+	QString ret;
+
+	for(const QByteArray &arg : args) {
+		ret.append(' ');
+		ret.append(QString::fromUtf8(arg));
+	}
+
+	ret.remove(0, 1);
+	return ret;
+}
+
 QString size_to_string(size_t n) {
 
 	static constexpr size_t KiB = 1024;
@@ -303,7 +315,7 @@ void DialogProcessProperties::updateGeneralPage() {
 			ui->editImage->setText(exe);
 
 			// TODO(eteran): handle arguments with spaces
-			ui->editCommand->setText(args.join(' '));
+			ui->editCommand->setText(arguments_to_string(args));
 			ui->editCurrentDirectory->setText(cwd);
 			ui->editStarted->setText(process->start_time().toString("yyyy-MM-dd hh:mm:ss.z"));
 			if(parent_pid) {
