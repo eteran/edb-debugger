@@ -2975,7 +2975,7 @@ void Debugger::on_action_Restart_triggered() {
 			common_open(s, args);
 		}
 	} else {
-		const auto file=recent_file_manager_->most_recent();
+		const auto file = recent_file_manager_->most_recent();
 		if(common_open(file.first, file.second))
 			arguments_dialog_->set_arguments(file.second);
 	}
@@ -3137,24 +3137,24 @@ void Debugger::attachComplete() {
 //------------------------------------------------------------------------------
 void Debugger::on_action_Open_triggered() {
 
-	static auto* dialog = new DialogOpenProgram(this,
-												tr("Choose a file"),
-												last_open_directory_);
+	static auto dialog = new DialogOpenProgram(this, tr("Choose a file"), last_open_directory_);
+
 	// Set a sensible default dir
-	if(recent_file_manager_->entry_count()>0)
-	{
-		const auto file=recent_file_manager_->most_recent();
-		const QDir dir=QFileInfo(file.first).dir();
-		if(dir.exists())
+	if(recent_file_manager_->entry_count() > 0) {
+		const RecentFileManager::RecentFile file = recent_file_manager_->most_recent();
+		const QDir dir = QFileInfo(file.first).dir();
+		if(dir.exists()) {
 			dialog->setDirectory(dir);
+		}
 	}
+
 	if(dialog->exec() == QDialog::Accepted) {
 
 		arguments_dialog_->set_arguments(dialog->arguments());
 		QStringList files = dialog->selectedFiles();
 		const QString filename = files.front();
 		working_directory_ = dialog->workingDirectory();
-		open_file(filename,dialog->arguments());
+		open_file(filename, dialog->arguments());
 	}
 }
 

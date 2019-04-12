@@ -58,6 +58,7 @@
     </property>
     <addaction name="action_Memory_Regions"/>
     <addaction name="action_Threads"/>
+    <addaction name="actionApplication_Arguments"/>
     <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menu_Plugins">
@@ -72,7 +73,6 @@
      <string>&amp;Options</string>
     </property>
     <addaction name="action_Configure_Debugger"/>
-    <addaction name="actionApplication_Arguments"/>
     <addaction name="actionApplication_Working_Directory"/>
    </widget>
    <widget class="QMenu" name="menu_File">

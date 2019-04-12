@@ -24,51 +24,73 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QLineEdit>
 #include <QPushButton>
 
-DialogOpenProgram::DialogOpenProgram(QWidget* parent,const QString& caption, const QString& directory,const QString& filter)
-	: QFileDialog(parent,caption,directory,filter),
-			  argsEdit(new QLineEdit(this)),
-			  workDir(new QLineEdit(QDir::currentPath(),this))
-{
+/**
+ * @brief DialogOpenProgram::DialogOpenProgram
+ * @param parent
+ * @param caption
+ * @param directory
+ * @param filter
+ */
+DialogOpenProgram::DialogOpenProgram(QWidget *parent, const QString &caption, const QString &directory, const QString &filter) :
+	QFileDialog(parent, caption, directory, filter),
+	argsEdit(new QLineEdit(this)),
+	workDir(new QLineEdit(QDir::currentPath(), this)) {
 
-	auto layout = qobject_cast<QGridLayout*>(this->layout());
+	setOptions(QFileDialog::DontUseNativeDialog);
+
+	auto layout = qobject_cast<QGridLayout *>(this->layout());
 
 	// We want to be sure that the layout is as we expect it
-	if(layout && layout->rowCount()==4 && layout->columnCount()==3)
-	{
+	if (layout && layout->rowCount() == 4 && layout->columnCount() == 3) {
 		setFileMode(QFileDialog::ExistingFile);
-		const int rowCount=layout->rowCount();
-		QPushButton* const browseDirButton(new QPushButton(tr("&Browse..."),this));
-		const auto argsLabel=new QLabel(tr("Program &arguments:"),this);
+
+		const int rowCount = layout->rowCount();
+		QPushButton *const browseDirButton(new QPushButton(tr("&Browse..."), this));
+
+		const auto argsLabel = new QLabel(tr("Program &arguments:"), this);
 		argsLabel->setBuddy(argsEdit);
-		layout->addWidget(argsLabel,rowCount,0);
-		layout->addWidget(argsEdit,rowCount,1);
-		const auto workDirLabel=new QLabel(tr("Working &directory:"),this);
+		layout->addWidget(argsLabel, rowCount, 0);
+		layout->addWidget(argsEdit, rowCount, 1);
+
+		const auto workDirLabel = new QLabel(tr("Working &directory:"), this);
 		workDirLabel->setBuddy(workDir);
-		layout->addWidget(workDirLabel,rowCount+1,0);
-		layout->addWidget(workDir,rowCount+1,1);
-		layout->addWidget(browseDirButton,rowCount+1,2);
+		layout->addWidget(workDirLabel, rowCount + 1, 0);
+		layout->addWidget(workDir, rowCount + 1, 1);
+		layout->addWidget(browseDirButton, rowCount + 1, 2);
 
 		connect(browseDirButton, &QPushButton::clicked, this, &DialogOpenProgram::browsePressed);
+	} else {
+		qWarning() << tr("Failed to setup program arguments and working directory entries for file open dialog, please report and be sure to tell your Qt version");
 	}
-	else qWarning() << tr("Failed to setup program arguments and working directory entries for file open dialog, please report and be sure to tell your Qt version");
 }
 
-void DialogOpenProgram::browsePressed()
-{
-	const QString dir=QFileDialog::getExistingDirectory(this,tr("Choose program working directory"),workDir->text());
-	if(dir.size()) workDir->setText(dir);
+/**
+ * @brief DialogOpenProgram::browsePressed
+ */
+void DialogOpenProgram::browsePressed() {
+	const QString dir = QFileDialog::getExistingDirectory(this, tr("Choose program working directory"), workDir->text());
+	if (!dir.isEmpty()) {
+		workDir->setText(dir);
+	}
 }
 
-QList<QByteArray> DialogOpenProgram::arguments() const
-{
-	const QStringList args=edb::v1::parse_command_line(argsEdit->text());
+/**
+ * @brief DialogOpenProgram::arguments
+ * @return
+ */
+QList<QByteArray> DialogOpenProgram::arguments() const {
+	const QStringList args = edb::v1::parse_command_line(argsEdit->text());
 	QList<QByteArray> ret;
-	for(const QString &arg : args)
+	for (const QString &arg : args) {
 		ret << arg.toLocal8Bit();
+	}
 	return ret;
 }
 
-QString DialogOpenProgram::workingDirectory() const
-{
+/**
+ * @brief DialogOpenProgram::workingDirectory
+ * @return
+ */
+QString DialogOpenProgram::workingDirectory() const {
 	return workDir->text();
 }

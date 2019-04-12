@@ -17,9 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogArguments.h"
-
 #include <QListWidgetItem>
-
 #include "ui_DialogArguments.h"
 
 //------------------------------------------------------------------------------
@@ -36,23 +34,6 @@ DialogArguments::DialogArguments(QWidget *parent) : QDialog(parent), ui(new Ui::
 //------------------------------------------------------------------------------
 DialogArguments::~DialogArguments() {
 	delete ui;
-}
-
-//------------------------------------------------------------------------------
-// Name: on_btnAdd_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogArguments::on_btnAdd_clicked() {
-	auto p = new QListWidgetItem(tr("New Argument"), ui->listWidget);
-	p->setFlags(p->flags() | Qt::ItemIsEditable);
-}
-
-//------------------------------------------------------------------------------
-// Name: on_btnDel_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogArguments::on_btnDel_clicked() {
-	qDeleteAll(ui->listWidget->selectedItems());
 }
 
 //------------------------------------------------------------------------------
@@ -80,28 +61,4 @@ void DialogArguments::set_arguments(const QList<QByteArray> &args) {
 	}
 
 	ui->listWidget->addItems(l);
-}
-
-//------------------------------------------------------------------------------
-// Name: on_btnUp_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogArguments::on_btnUp_clicked() {
-	const int x = ui->listWidget->currentRow();
-	if(x > 0) {
-		ui->listWidget->insertItem(x - 1, ui->listWidget->takeItem(x));
-		ui->listWidget->setCurrentRow(x - 1);
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: on_btnDown_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogArguments::on_btnDown_clicked() {
-	const int x = ui->listWidget->currentRow();
-	if(x < (ui->listWidget->count() - 1) && x != -1) {
-		ui->listWidget->insertItem(x + 1, ui->listWidget->takeItem(x));
-		ui->listWidget->setCurrentRow(x + 1);
-	}
 }

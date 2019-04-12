@@ -87,7 +87,7 @@ bool tcp_socket_prcoessor(QString *symlink, int sock, const QStringList &lst) {
 					const uint16_t remote_port = lst[4].toUInt(&ok, 16);
 					if(ok) {
 						const uint8_t state = lst[5].toUInt(&ok, 16);
-						Q_UNUSED(state);
+						Q_UNUSED(state)
 						if(ok) {
 							const int inode = lst[13].toUInt(&ok, 10);
 							if(ok) {
@@ -129,7 +129,7 @@ bool udp_socket_processor(QString *symlink, int sock, const QStringList &lst) {
 					const uint16_t remote_port = lst[4].toUInt(&ok, 16);
 					if(ok) {
 						const uint8_t state = lst[5].toUInt(&ok, 16);
-						Q_UNUSED(state);
+						Q_UNUSED(state)
 						if(ok) {
 							const int inode = lst[13].toUInt(&ok, 10);
 							if(ok) {
@@ -299,10 +299,11 @@ void DialogProcessProperties::updateGeneralPage() {
 	        const QString parent_exe     = parent ? parent->executable() : QString();
 
 	        const QList<QByteArray> args = process->arguments();
-			Q_UNUSED(args);
 
 			ui->editImage->setText(exe);
-			ui->editCommand->setText(QString());
+
+			// TODO(eteran): handle arguments with spaces
+			ui->editCommand->setText(args.join(' '));
 			ui->editCurrentDirectory->setText(cwd);
 			ui->editStarted->setText(process->start_time().toString("yyyy-MM-dd hh:mm:ss.z"));
 			if(parent_pid) {

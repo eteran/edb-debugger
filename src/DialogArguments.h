@@ -30,12 +30,6 @@ public:
     explicit DialogArguments(QWidget *parent = nullptr);
     ~DialogArguments() override;
 
-public Q_SLOTS:
-	void on_btnAdd_clicked();
-	void on_btnDel_clicked();
-	void on_btnUp_clicked();
-	void on_btnDown_clicked();
-
 public:
 	QList<QByteArray> arguments() const;
 	void set_arguments(const QList<QByteArray> &args);
