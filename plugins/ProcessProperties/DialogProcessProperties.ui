@@ -2,7 +2,7 @@
 <ui version="4.0">
  <author>Evan Teran</author>
  <class>ProcessPropertiesPlugin::DialogProcessProperties</class>
- <widget class="QDialog" name="DialogProcessProperties">
+ <widget class="QDialog" name="ProcessPropertiesPlugin::DialogProcessProperties">
   <property name="geometry">
    <rect>
     <x>0</x>
@@ -555,22 +555,5 @@
   </layout>
  </widget>
  <resources/>
- <connections>
-  <connection>
-   <sender>buttonBox</sender>
-   <signal>clicked(QAbstractButton*)</signal>
-   <receiver>DialogProcessProperties</receiver>
-   <slot>accept()</slot>
-   <hints>
-    <hint type="sourcelabel">
-     <x>690</x>
-     <y>573</y>
-    </hint>
-    <hint type="destinationlabel">
-     <x>748</x>
-     <y>412</y>
-    </hint>
-   </hints>
-  </connection>
- </connections>
+ <connections/>
 </ui>

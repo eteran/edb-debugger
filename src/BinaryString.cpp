@@ -86,7 +86,7 @@ BinaryString::~BinaryString() {
 //------------------------------------------------------------------------------
 void BinaryString::on_keepSize_stateChanged(int state) {
 
-	Q_UNUSED(state);
+	Q_UNUSED(state)
 
 	if(mode_ != Mode::MemoryEditing) return;
 
@@ -218,7 +218,7 @@ void BinaryString::setValue(const QByteArray &data) {
 
 	valueOriginalLength_ = data.size();
 	on_keepSize_stateChanged(ui->keepSize->checkState());
-	const QString temp = QString::fromLatin1(data.data(), data.size());
+	const auto temp = QString::fromLatin1(data.data(), data.size());
 
 	ui->txtAscii->setText(temp);
 	on_txtAscii_textEdited(temp);

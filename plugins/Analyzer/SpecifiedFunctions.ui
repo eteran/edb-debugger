@@ -2,7 +2,7 @@
 <ui version="4.0">
  <author>Evan Teran</author>
  <class>AnalyzerPlugin::SpecifiedFunctions</class>
- <widget class="QDialog" name="SpecifiedFunctions">
+ <widget class="QDialog" name="AnalyzerPlugin::SpecifiedFunctions">
   <property name="geometry">
    <rect>
     <x>0</x>

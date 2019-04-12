@@ -44,9 +44,9 @@ public Q_SLOTS:
 	void on_btnClear_clicked();
 	void on_tableView_doubleClicked(const QModelIndex &index);
 	void on_tableView_customContextMenuRequested(const QPoint &pos);
-	void shortcut(int index);
 
 public:
+	void shortcut(int index);
 	void add_address(edb::address_t address, const QString &type = QString(), const QString &comment = QString());
 	QList<BookmarksModel::Bookmark> entries() const;
 

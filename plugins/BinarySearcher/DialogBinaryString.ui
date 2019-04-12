@@ -2,7 +2,7 @@
 <ui version="4.0">
  <author>Evan Teran</author>
  <class>BinarySearcherPlugin::DialogBinaryString</class>
- <widget class="QDialog" name="DialogBinaryString">
+ <widget class="QDialog" name="BinarySearcherPlugin::DialogBinaryString">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -879,7 +879,7 @@ Result<edb::address_t, QString> Debugger::get_goto_expression() {
 //------------------------------------------------------------------------------
 Result<edb::reg_t, QString> Debugger::get_follow_register() const {
 
-	const auto reg = active_register();
+	const Register reg = active_register();
 	if(!reg || reg.bitSize() > 8 * sizeof(edb::address_t)) {
 		return make_unexpected(tr("No Value"));
 	}

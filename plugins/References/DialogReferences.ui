@@ -2,7 +2,7 @@
 <ui version="4.0">
  <author>Evan Teran</author>
  <class>ReferencesPlugin::DialogReferences</class>
- <widget class="QDialog" name="DialogReferences">
+ <widget class="QDialog" name="ReferencesPlugin::DialogReferences">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -2,7 +2,7 @@
 <ui version="4.0">
  <author>Evan Teran</author>
  <class>AnalyzerPlugin::DialogXRefs</class>
- <widget class="QDialog" name="DialogXRefs">
+ <widget class="QDialog" name="AnalyzerPlugin::DialogXRefs">
   <property name="geometry">
    <rect>
     <x>0</x>

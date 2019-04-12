@@ -2,7 +2,7 @@
 <ui version="4.0">
  <author>Evan Teran</author>
  <class>ProcessPropertiesPlugin::DialogStrings</class>
- <widget class="QDialog" name="DialogStrings">
+ <widget class="QDialog" name="ProcessPropertiesPlugin::DialogStrings">
   <property name="geometry">
    <rect>
     <x>0</x>

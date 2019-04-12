@@ -2,7 +2,7 @@
 <ui version="4.0">
  <author>Evan Teran</author>
  <class>HardwareBreakpointsPlugin::DialogHWBreakpoints</class>
- <widget class="QDialog" name="DialogHWBreakpoints">
+ <widget class="QDialog" name="HardwareBreakpointsPlugin::DialogHWBreakpoints">
   <property name="geometry">
    <rect>
     <x>0</x>

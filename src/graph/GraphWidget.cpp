@@ -350,7 +350,7 @@ void GraphWidget::contextMenuEvent(QContextMenuEvent* event) {
 	} else if(const auto node = qgraphicsitem_cast<QGraphicsLineItem *>(item)) {
 		auto parent = node->parentItem();
 		if(const auto edge = qgraphicsitem_cast<GraphEdge *>(parent)) {
-			Q_UNUSED(edge);
+			Q_UNUSED(edge)
 		}
 	} else {
 		Q_EMIT backgroundContextMenuEvent(event);
@@ -370,7 +370,7 @@ void GraphWidget::mouseDoubleClickEvent(QMouseEvent* event) {
 	} else if(const auto node = qgraphicsitem_cast<QGraphicsLineItem *>(item)) {
 		auto parent = node->parentItem();
 		if(const auto edge = qgraphicsitem_cast<GraphEdge *>(parent)) {
-			Q_UNUSED(edge);
+			Q_UNUSED(edge)
 		}
 	} else {
 	}

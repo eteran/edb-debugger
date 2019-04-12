@@ -23,7 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMainWindow>
 #include <QMenu>
 #include <QShortcut>
-#include <QSignalMapper>
 #include <QtDebug>
 
 namespace BookmarksPlugin {
@@ -79,17 +78,13 @@ QMenu *Bookmarks::menu(QWidget *parent) {
 			menu_ = new QMenu(tr("Bookmarks"), parent);
 			menu_->addAction(dock_widget->toggleViewAction());
 
-			signal_mapper_ = new QSignalMapper(this);
-
 			for(int i = 0; i < 10; ++i) {
 				// create an action and attach it to the signal mapper
 				auto action = new QShortcut(QKeySequence(tr("Ctrl+%1").arg(i)), main_window);
-				signal_mapper_->setMapping(action, (i == 0) ? 9 : (i - 1));
-				connect(action, SIGNAL(activated()), signal_mapper_, SLOT(map()));
+				connect(action, &QShortcut::activated, this, [this, index = (i == 0) ? 9 : (i - 1)]() {
+					bookmark_widget_->shortcut(index);
+				});
 			}
-
-			// connect the parametized signal to the slot..phew finally
-			connect(signal_mapper_, SIGNAL(mapped(int)), bookmark_widget_, SLOT(shortcut(int)));
 		}
 	}
 

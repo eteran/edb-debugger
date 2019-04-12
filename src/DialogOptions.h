@@ -49,7 +49,7 @@ private:
 
 private:
 	Ui::DialogOptions *const ui;
-	QToolBox *               toolbox_;
+	QToolBox *               toolbox_ = nullptr;
 };
 
 #endif

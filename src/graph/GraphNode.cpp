@@ -115,8 +115,8 @@ QRectF GraphNode::boundingRect() const {
 //------------------------------------------------------------------------------
 void GraphNode::paint(QPainter *painter, const QStyleOptionGraphicsItem *option, QWidget *widget) {
 
-	Q_UNUSED(option);
-	Q_UNUSED(widget);
+	Q_UNUSED(option)
+	Q_UNUSED(widget)
 
 	painter->save();
 
@@ -243,8 +243,6 @@ void GraphNode::drawLabel(const QString &text) {
 			line.setNumColumns(l.length());
 			line.setPosition(QPoint(0, y));
 			y += fm.lineSpacing();
-
-
 		}
 
 		textLayout.endLayout();
@@ -262,7 +260,7 @@ void GraphNode::drawLabel(const QString &text) {
 // Desc:
 //------------------------------------------------------------------------------
 void GraphNode::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
-	Q_UNUSED(e);
+	Q_UNUSED(e)
 }
 
 //------------------------------------------------------------------------------
@@ -270,5 +268,5 @@ void GraphNode::hoverEnterEvent(QGraphicsSceneHoverEvent *e) {
 // Desc:
 //------------------------------------------------------------------------------
 void GraphNode::hoverLeaveEvent(QGraphicsSceneHoverEvent *e) {
-	Q_UNUSED(e);
+	Q_UNUSED(e)
 }

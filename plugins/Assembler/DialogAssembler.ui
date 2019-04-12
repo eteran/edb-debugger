@@ -2,7 +2,7 @@
 <ui version="4.0">
  <author>Evan Teran</author>
  <class>AssemblerPlugin::DialogAssembler</class>
- <widget class="QDialog" name="DialogAssembler">
+ <widget class="QDialog" name="AssemblerPlugin::DialogAssembler">
   <property name="geometry">
    <rect>
     <x>0</x>

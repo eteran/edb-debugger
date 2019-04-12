@@ -1356,12 +1356,14 @@ void set_status(const QString &message, int timeoutMillisecs) {
 	// it updates to previous content. In some cases it even doesn't actually update.
 	// This happens at least on Qt 4.
 	// Manual call to repaint makes it show the correct text immediately.
+	// TODO(eteran): still true in Qt5.x?
 	ui()->ui.statusbar->repaint();
 }
 
 void clear_status() {
 	ui()->ui.statusbar->clearMessage();
 	// FIXME: same comment applies as in set_status()
+	// TODO(eteran): still true in Qt5.x?
 	ui()->ui.statusbar->repaint();
 }
 

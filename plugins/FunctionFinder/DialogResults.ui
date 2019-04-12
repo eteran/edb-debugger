@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>FunctionFinderPlugin::DialogResults</class>
- <widget class="QDialog" name="DialogResults">
+ <widget class="QDialog" name="FunctionFinderPlugin::DialogResults">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -87,7 +87,7 @@ Result<void, SessionError> SessionManager::load_session(const QString &session_f
 	QString ts  = session_data["timestamp"].toString();
 	int version = session_data["version"].toInt();
 
-	Q_UNUSED(ts);
+	Q_UNUSED(ts)
 
 	if(id != SessionFileIdString || version > SessionFileVersion) {
 		SessionError session_error;

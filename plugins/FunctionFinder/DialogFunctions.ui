@@ -2,7 +2,7 @@
 <ui version="4.0">
  <author>Evan Teran</author>
  <class>FunctionFinderPlugin::DialogFunctions</class>
- <widget class="QDialog" name="DialogFunctions">
+ <widget class="QDialog" name="FunctionFinderPlugin::DialogFunctions">
   <property name="geometry">
    <rect>
     <x>0</x>

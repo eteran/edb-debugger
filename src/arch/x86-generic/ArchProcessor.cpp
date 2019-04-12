@@ -35,7 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDomDocument>
 #include <QFile>
 #include <QMenu>
-#include <QSignalMapper>
 #include <QVector>
 #include <QXmlQuery>
 
@@ -52,18 +51,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ILP32
 {
-std:: int32_t  toInt (std::uint64_t x) { return x; }
-std::uint32_t toUInt (std::uint64_t x) { return x; }
-std:: int32_t  toLong(std::uint64_t x) { return x; }
-std::uint32_t toULong(std::uint64_t x) { return x; }
+constexpr std:: int32_t  toInt (std::uint64_t x) { return x; }
+constexpr std::uint32_t toUInt (std::uint64_t x) { return x; }
+constexpr std:: int32_t  toLong(std::uint64_t x) { return x; }
+constexpr std::uint32_t toULong(std::uint64_t x) { return x; }
 }
 
 namespace LP64
 {
-std:: int32_t  toInt (std::uint64_t x) { return x; }
-std::uint32_t toUInt (std::uint64_t x) { return x; }
-std:: int64_t  toLong(std::uint64_t x) { return x; }
-std::uint64_t toULong(std::uint64_t x) { return x; }
+constexpr std:: int32_t  toInt (std::uint64_t x) { return x; }
+constexpr std::uint32_t toUInt (std::uint64_t x) { return x; }
+constexpr std:: int64_t  toLong(std::uint64_t x) { return x; }
+constexpr std::uint64_t toULong(std::uint64_t x) { return x; }
 }
 
 namespace {
@@ -246,8 +245,8 @@ edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Op
 //------------------------------------------------------------------------------
 QString format_pointer(int pointer_level, edb::reg_t arg, QChar type) {
 
-	Q_UNUSED(type);
-	Q_UNUSED(pointer_level);
+	Q_UNUSED(type)
+	Q_UNUSED(pointer_level)
 
 	if(arg == 0) {
 		return "NULL";
@@ -376,35 +375,8 @@ QString format_argument(const QString &type, const Register& arg) {
 	return format_pointer(pointer_level, arg.valueAsAddress(), 'x');
 }
 
-//------------------------------------------------------------------------------
-// Name: resolve_function_parameters
-// Desc:
-//------------------------------------------------------------------------------
-void resolve_function_parameters(const State &state, const QString &symname, int offset, QStringList &ret) {
-
-	/*
-	 * The calling convention of the AMD64 application binary interface is
-	 * followed on Linux and other non-Microsoft operating systems.
-	 * The registers RDI, RSI, RDX, RCX, R8 and R9 are used for integer and
-	 * pointer arguments while XMM0, XMM1, XMM2, XMM3, XMM4, XMM5, XMM6 and
-	 * XMM7 are used for floating point arguments. As in the Microsoft x64
-	 * calling convention, additional arguments are pushed onto the stack and
-	 * the return value is stored in RAX.
-	 */
-	static const std::vector<const char *> parameter_registers_x64 = {
-        "rdi",
-        "rsi",
-        "rdx",
-        "rcx",
-        "r8",
-        "r9"
-	};
-
-	static const std::vector<const char *> parameter_registers_x86 = {
-	};
-
-	const std::vector<const char *> &parameter_registers = (debuggeeIs64Bit() ? parameter_registers_x64 : parameter_registers_x86);
-
+template <class T>
+void resolve_function_parameters_helper(T parameter_registers, const State &state, const QString &symname, int offset, QStringList &ret) {
 	static const QString prefix(QLatin1String("!"));
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
@@ -444,6 +416,40 @@ void resolve_function_parameters(const State &state, const QString &symname, int
 
 			ret << QString("%1(%2)").arg(func_name, arguments.join(", "));
 		}
+	}
+}
+
+//------------------------------------------------------------------------------
+// Name: resolve_function_parameters
+// Desc:
+//------------------------------------------------------------------------------
+void resolve_function_parameters(const State &state, const QString &symname, int offset, QStringList &ret) {
+
+	/*
+	 * The calling convention of the AMD64 application binary interface is
+	 * followed on Linux and other non-Microsoft operating systems.
+	 * The registers RDI, RSI, RDX, RCX, R8 and R9 are used for integer and
+	 * pointer arguments while XMM0, XMM1, XMM2, XMM3, XMM4, XMM5, XMM6 and
+	 * XMM7 are used for floating point arguments. As in the Microsoft x64
+	 * calling convention, additional arguments are pushed onto the stack and
+	 * the return value is stored in RAX.
+	 */
+	static const std::array<const char *, 6> parameter_registers_x64 = {
+        "rdi",
+        "rsi",
+        "rdx",
+        "rcx",
+        "r8",
+        "r9"
+	};
+
+	static const std::array<const char *, 0> parameter_registers_x86 = {
+	};
+
+	if(debuggeeIs64Bit()) {
+		resolve_function_parameters_helper(parameter_registers_x64, state, symname, offset, ret);
+	} else {
+		resolve_function_parameters_helper(parameter_registers_x86, state, symname, offset, ret);
 	}
 }
 
@@ -560,7 +566,7 @@ void analyze_jump(const State &state, const edb::Instruction &inst, QStringList 
 //------------------------------------------------------------------------------
 void analyze_return(const State &state, const edb::Instruction &inst, QStringList &ret) {
 
-	Q_UNUSED(inst);
+	Q_UNUSED(inst)
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		edb::address_t return_address(0);

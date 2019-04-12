@@ -2,7 +2,7 @@
 <ui version="4.0">
  <author>Evan Teran</author>
  <class>HeapAnalyzerPlugin::DialogHeap</class>
- <widget class="QDialog" name="DialogHeap">
+ <widget class="QDialog" name="HeapAnalyzerPlugin::DialogHeap">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -2,7 +2,7 @@
 <ui version="4.0">
  <author>Evan Teran</author>
  <class>BinaryInfoPlugin::DialogRegions</class>
- <widget class="QDialog" name="DialogRegions">
+ <widget class="QDialog" name="BinaryInfoPlugin::DialogRegions">
   <property name="geometry">
    <rect>
     <x>0</x>

@@ -43,7 +43,7 @@ public:
 private:
     void showEvent(QShowEvent *event) override;
 
-private Q_SLOTS:
+private:
 	void update_list();
 
 public Q_SLOTS:

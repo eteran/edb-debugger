@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
  <class>BacktracePlugin::DialogBacktrace</class>
- <widget class="QDialog" name="DialogBacktrace">
+ <widget class="QDialog" name="BacktracePlugin::DialogBacktrace">
   <property name="geometry">
    <rect>
     <x>0</x>

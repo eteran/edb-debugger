@@ -2,7 +2,7 @@
 <ui version="4.0">
  <author>Evan Teran</author>
  <class>OpcodeSearcherPlugin::DialogOpcodes</class>
- <widget class="QDialog" name="DialogOpcodes">
+ <widget class="QDialog" name="OpcodeSearcherPlugin::DialogOpcodes">
   <property name="geometry">
    <rect>
     <x>0</x>

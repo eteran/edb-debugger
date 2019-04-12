@@ -2,7 +2,7 @@
 <ui version="4.0">
  <author>Evan Teran</author>
  <class>SymbolViewerPlugin::DialogSymbolViewer</class>
- <widget class="QDialog" name="DialogSymbolViewer">
+ <widget class="QDialog" name="SymbolViewerPlugin::DialogSymbolViewer">
   <property name="geometry">
    <rect>
     <x>0</x>

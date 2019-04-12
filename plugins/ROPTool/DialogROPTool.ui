@@ -2,7 +2,7 @@
 <ui version="4.0">
  <author>Evan Teran</author>
  <class>ROPToolPlugin::DialogROPTool</class>
- <widget class="QDialog" name="DialogROPTool">
+ <widget class="QDialog" name="ROPToolPlugin::DialogROPTool">
   <property name="geometry">
    <rect>
     <x>0</x>

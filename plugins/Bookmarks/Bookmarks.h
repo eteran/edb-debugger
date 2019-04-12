@@ -24,8 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "BookmarksModel.h"
 #include <QVariantList>
 
-class QSignalMapper;
-
 namespace BookmarksPlugin {
 
 class BookmarkWidget;
@@ -53,7 +51,6 @@ public Q_SLOTS:
 
 private:
 	QMenu *          menu_            = nullptr;
-	QSignalMapper *  signal_mapper_   = nullptr;
 	BookmarkWidget * bookmark_widget_ = nullptr;
 };
 

@@ -307,7 +307,7 @@ QList<QAction *> Analyzer::cpu_context_menu() {
 	connect(action_goto_function_end,   &QAction::triggered, this, &Analyzer::goto_function_end);
 	connect(action_mark_function_start, &QAction::triggered, this, &Analyzer::mark_function_start);
 	connect(action_xrefs,               &QAction::triggered, this, &Analyzer::show_xrefs);
-	
+
 	ret << action_find << action_goto_function_start << action_goto_function_end << action_mark_function_start << action_xrefs;
 
 	return ret;
