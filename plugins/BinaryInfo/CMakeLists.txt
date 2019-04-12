@@ -17,9 +17,9 @@ add_library(${PluginName} SHARED
 	DialogRegions.cpp
 	DialogRegions.h
 	DialogRegions.ui
-        DialogHeader.ui
-        DialogHeader.cpp
-        DialogHeader.h
+	DialogHeader.ui
+	DialogHeader.cpp
+	DialogHeader.h
 	ELF32.cpp
 	ELF64.cpp
 	ELFXX.cpp
@@ -41,3 +41,7 @@ set_property(TARGET ${PluginName} PROPERTY CXX_EXTENSIONS OFF)
 set_property(TARGET ${PluginName} PROPERTY CXX_STANDARD 14)
 set_property(TARGET ${PluginName} PROPERTY LIBRARY_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 set_property(TARGET ${PluginName} PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
+
+if (ENABLE_JUMBO_BUILD)
+	enable_jumbo_build(${PluginName})
+endif()

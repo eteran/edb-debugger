@@ -169,6 +169,7 @@ if(TARGET_ARCH_FAMILY_X86)
 		${edb_SRCS}
 		arch/x86-generic/ArchProcessor.cpp
 		arch/x86-generic/RegisterViewModel.cpp
+		arch/x86-generic/RegisterViewModel.h
 		${PROJECT_SOURCE_DIR}/include/arch/x86-generic/ArchTypes.h
 	)
 elseif(TARGET_ARCH_FAMILY_ARM)
@@ -176,6 +177,7 @@ elseif(TARGET_ARCH_FAMILY_ARM)
 		${edb_SRCS}
 		arch/arm-generic/ArchProcessor.cpp
 		arch/arm-generic/RegisterViewModel.cpp
+		arch/arm-generic/RegisterViewModel.h
 		${PROJECT_SOURCE_DIR}/include/arch/arm-generic/ArchTypes.h
 	)
 endif()
@@ -246,3 +248,7 @@ set_property(TARGET edb PROPERTY ENABLE_EXPORTS TRUE)
 set_property(TARGET edb PROPERTY RUNTIME_OUTPUT_DIRECTORY ${PROJECT_BINARY_DIR})
 
 add_subdirectory("${CMAKE_CURRENT_LIST_DIR}/test")
+
+if (ENABLE_JUMBO_BUILD)
+	enable_jumbo_build(edb)
+endif()
