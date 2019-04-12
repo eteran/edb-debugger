@@ -21,8 +21,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IProcess.h"
 #include "PlatformCommon.h"
 #include "PlatformState.h"
-#include <QtDebug>
 #include "State.h"
+#include <QtDebug>
+
 
 #ifndef _GNU_SOURCE
 #define _GNU_SOURCE        /* or _BSD_SOURCE or _SVID_SOURCE */
@@ -30,9 +31,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <asm/ldt.h>
 #include <elf.h>
-#include <linux/uio.h>
 #include <sys/ptrace.h>
 #include <sys/user.h>
+#include <fcntl.h>
 
 
 // doesn't always seem to be defined in the headers

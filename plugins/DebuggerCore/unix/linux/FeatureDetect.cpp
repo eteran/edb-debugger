@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <sys/wait.h>
 #include <sys/ptrace.h>
 #include <sys/types.h>
-#include <sys/uio.h>
 #include <fcntl.h>
 #include <unistd.h>
 
