@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>423</width>
-    <height>108</height>
+    <height>134</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -89,16 +89,16 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>DialogAssembler</receiver>
+   <receiver>AssemblerPlugin::DialogAssembler</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>119</x>
-     <y>55</y>
+     <x>388</x>
+     <y>116</y>
     </hint>
     <hint type="destinationlabel">
-     <x>125</x>
-     <y>59</y>
+     <x>386</x>
+     <y>75</y>
     </hint>
    </hints>
   </connection>

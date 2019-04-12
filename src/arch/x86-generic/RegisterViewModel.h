@@ -22,8 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "RegisterViewModelBase.h"
 #include "Types.h"
 
-class RegisterViewModel : public RegisterViewModelBase::Model
-{
+class RegisterViewModel : public RegisterViewModelBase::Model {
 	Q_OBJECT
 
 private:
@@ -42,25 +41,27 @@ private:
 	RegisterViewModelBase::SIMDCategory* sseRegs64;
 	RegisterViewModelBase::SIMDCategory* avxRegs32;
 	RegisterViewModelBase::SIMDCategory* avxRegs64;
+
 public:
-	enum class CPUMode
-	{
+	enum class CPUMode {
 		UNKNOWN,
 		IA32,
 		AMD64
 	};
-	struct CPUFeatureBits // scoped enum, but allowing to implicitly covert to int
-	{
-		enum Value
-		{
-			MMX=1,
-			SSE=2,
-			AVX=4
+	
+	// scoped enum, but allowing to implicitly covert to int
+	struct CPUFeatureBits  {
+		enum Value {
+			MMX = 1,
+			SSE = 2,
+			AVX = 4
 		};
 	};
+	
 	RegisterViewModel(int CPUFeaturesPresent, QObject* parent=nullptr);
 	QVariant data(const QModelIndex &index, int role=Qt::DisplayRole) const override;
 	void setCPUMode(CPUMode mode);
+	
 	// NOTE: all these functions only change data, they don't emit dataChanged!
 	// Use dataUpdateFinished() to have dataChanged emitted.
 	void updateGPR(std::size_t i, edb::value32 val, const QString &comment=QString());
@@ -96,6 +97,7 @@ public:
 	void invalidateAVXReg(std::size_t i);
 	void updateMXCSR(edb::value32, const QString &comment=QString());
 	void invalidateMXCSR();
+	
 private:
 	void hide64BitModeCategories();
 	void hide32BitModeCategories();
@@ -103,11 +105,9 @@ private:
 	void show32BitModeCategories();
 	void hideGenericCategories();
 	void showGenericCategories();
-	std::tuple<RegisterViewModelBase::Category* /*sse*/,
-			   RegisterViewModelBase::Category* /*avx*/,
-			   unsigned/*maxRegs*/> getSSEparams() const;
+	std::tuple<RegisterViewModelBase::Category* /*sse*/, RegisterViewModelBase::Category* /*avx*/, unsigned/*maxRegs*/> getSSEparams() const;
 	RegisterViewModelBase::FPUCategory* getFPUcat() const;
-	CPUMode mode=static_cast<CPUMode>(-1);
+	CPUMode mode = static_cast<CPUMode>(-1); // TODO(eteran): why not CPUMode::UNKNOWN?
 };
 
 #endif

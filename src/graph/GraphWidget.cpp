@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "GraphEdge.h"
 #include "GraphNode.h"
 #include "GraphicsScene.h"
+#include "GraphvizHelper.h"
 
 #include <QAbstractAnimation>
 #include <QDebug>
@@ -43,51 +44,9 @@ constexpr int ScenePadding   = 30000;
 constexpr qreal ZoomFactor   = 1.2;
 constexpr qreal MinimumZoom  = 0.001;
 constexpr qreal MaximumZoom  = 8.000;
-constexpr int NodeWidth      = 100;
 }
 
 namespace {
-
-Agraph_t* _agopen(QString name, Agdesc_t kind) {
-    return agopen(name.toLocal8Bit().data(), kind, nullptr);
-}
-
-/// Add an alternative value parameter to the method for getting an object's attribute
-QString _agget(void *object, QString attr, QString alt = QString())
-{
-    QString str = agget(object, attr.toLocal8Bit().data());
-
-    if(str == QString())
-        return alt;
-    else
-        return str;
-}
-
-/// Directly use agsafeset which always works, contrarily to agset
-int _agset(void *object, QString attr, QString value) {
-	return agsafeset(
-		object,
-		attr.toLocal8Bit().data(),
-		value.toLocal8Bit().data(),
-		value.toLocal8Bit().data());
-}
-
-
-Agsym_t *_agnodeattr(Agraph_t * g, QString name, QString value) {
-	return agattr(
-		g,
-		AGNODE,
-		name.toLocal8Bit().data(),
-		value.toLocal8Bit().data());
-}
-
-Agsym_t *_agedgeattr(Agraph_t * g, QString name, QString value) {
-	return agattr(
-		g,
-		AGEDGE,
-		name.toLocal8Bit().data(),
-		value.toLocal8Bit().data());
-}
 
 qreal graphHeight(Agraph_t *graph) {
     return GD_bb(graph).UR.y;

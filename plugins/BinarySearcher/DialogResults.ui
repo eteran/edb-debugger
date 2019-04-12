@@ -43,7 +43,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>accepted()</signal>
-   <receiver>DialogResults</receiver>
+   <receiver>BinarySearcherPlugin::DialogResults</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
@@ -59,7 +59,7 @@
   <connection>
    <sender>buttonBox</sender>
    <signal>rejected()</signal>
-   <receiver>DialogResults</receiver>
+   <receiver>BinarySearcherPlugin::DialogResults</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">

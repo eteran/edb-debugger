@@ -30,6 +30,12 @@ class QVariant;
 class GraphWidget;
 class GraphEdge;
 
+constexpr int NodeZValue        = 1;
+constexpr int NodeWidth         = 100;
+constexpr int NodeHeight        = 50;
+constexpr int LabelFontSize     = 10;
+constexpr int BorderScaleFactor = 4;
+
 class GraphNode final : public QGraphicsItem {
 	friend class GraphWidget;
 	friend class GraphEdge;

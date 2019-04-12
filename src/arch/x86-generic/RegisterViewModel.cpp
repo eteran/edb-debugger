@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QList>
 #include <QDebug>
 
-void invalidate(RegisterViewModelBase::Category* cat, int row, const char* nameToCheck=nullptr);
+void invalidate(RegisterViewModelBase::Category* cat, int row, const char* nameToCheck = nullptr);
 
 namespace
 {
@@ -339,21 +339,22 @@ void addAVXRegs(RegisterViewModelBase::SIMDCategory* avxRegs, unsigned regCount)
 	avxRegs->addRegister(std::make_unique<MXCSR>("MXCSR",MXCSRDescription));
 }
 
-QVariant RegisterViewModel::data(const QModelIndex &index, int role) const
-{
-	if(role==FixedLengthRole)
-	{
+QVariant RegisterViewModel::data(const QModelIndex &index, int role) const {
+	if(role == FixedLengthRole) {
+	
 		using namespace RegisterViewModelBase;
-		const auto reg=static_cast<RegisterViewItem*>(index.internalPointer());
-		const auto name=reg->data(NAME_COLUMN).toString();
-		if(index.column()==NAME_COLUMN)
-		{
-			if(name=="R8"||name=="R9")
+
+		const auto reg = static_cast<RegisterViewItem*>(index.internalPointer());
+		const auto name = reg->data(NAME_COLUMN).toString();
+
+		if(index.column() == NAME_COLUMN) {
+			if(name == "R8" || name == "R9") {
 				return 3;
-			if(name.startsWith("XMM") || name.startsWith("YMM"))
-			{
-				if(mode==CPUMode::IA32) return 4;
-				if(mode==CPUMode::AMD64) return 5;
+			}
+			
+			if(name.startsWith("XMM") || name.startsWith("YMM")) {
+				if(mode == CPUMode::IA32)  return 4;
+				if(mode == CPUMode::AMD64) return 5;
 				return {};
 			}
 		}
@@ -392,17 +393,18 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject* parent)
 	addDebugRegs<32>(dbgRegs32);
 	addDebugRegs<64>(dbgRegs64);
 
-	if(cpuSuppFlags&CPUFeatureBits::MMX)
+	if(cpuSuppFlags&CPUFeatureBits::MMX) {
 		addMMXRegs(mmxRegs);
-	if(cpuSuppFlags&CPUFeatureBits::SSE)
-	{
-		addSSERegs(sseRegs32,SSE_REG_COUNT32);
-		addSSERegs(sseRegs64,SSE_REG_COUNT64);
 	}
-	if(cpuSuppFlags&CPUFeatureBits::AVX)
-	{
-		addAVXRegs(avxRegs32,AVX_REG_COUNT32);
-		addAVXRegs(avxRegs64,AVX_REG_COUNT64);
+		
+	if(cpuSuppFlags&CPUFeatureBits::SSE) {
+		addSSERegs(sseRegs32, SSE_REG_COUNT32);
+		addSSERegs(sseRegs64, SSE_REG_COUNT64);
+	}
+	
+	if(cpuSuppFlags&CPUFeatureBits::AVX) {
+		addAVXRegs(avxRegs32, AVX_REG_COUNT32);
+		addAVXRegs(avxRegs64, AVX_REG_COUNT64);
 	}
 
 	setCPUMode(CPUMode::UNKNOWN);

@@ -114,7 +114,7 @@
   <connection>
    <sender>btnClose</sender>
    <signal>clicked()</signal>
-   <receiver>DialogASCIIString</receiver>
+   <receiver>BinarySearcherPlugin::DialogASCIIString</receiver>
    <slot>close()</slot>
    <hints>
     <hint type="sourcelabel">

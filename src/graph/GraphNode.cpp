@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "GraphEdge.h"
 #include "GraphWidget.h"
+#include "GraphvizHelper.h"
 #include "SyntaxHighlighter.h"
 #include "edb.h"
 
@@ -33,29 +34,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace {
 
-constexpr int NodeZValue        = 1;
-constexpr int NodeWidth         = 100;
-constexpr int NodeHeight        = 50;
-constexpr int LabelFontSize     = 10;
-constexpr int BorderScaleFactor = 4;
 const QColor TextColor          = Qt::black;
 const QColor BorderColor        = Qt::blue;
 const QColor SelectColor        = Qt::lightGray;
 const QString NodeFont          = "Monospace";
-
-
-Agnode_t *_agnode(Agraph_t *g, QString name) {
-	return agnode(g, name.toLocal8Bit().data(),	true);
-}
-
-/// Directly use agsafeset which always works, contrarily to agset
-int _agset(void *object, QString attr, QString value) {
-	return agsafeset(
-		object,
-		attr.toLocal8Bit().data(),
-		value.toLocal8Bit().data(),
-		value.toLocal8Bit().data());
-}
 
 }
 
