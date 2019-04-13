@@ -167,7 +167,9 @@ void DialogAttach::on_filter_uid_clicked(bool checked) {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogAttach::on_processes_table_doubleClicked(const QModelIndex&) {
-	if(selected_pid()) accept();
+	if(selected_pid()) {
+		accept();
+	}
 }
 
 //------------------------------------------------------------------------------

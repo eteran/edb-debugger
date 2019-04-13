@@ -22,6 +22,7 @@ Agraph_t* _agopen(QString name, Agdesc_t kind) {
 QString _agget(void *object, QString attr, QString alt) {
 	QString str = agget(object, attr.toLocal8Bit().data());
 
+	// TODO(eteran): use isNull()?
 	if(str == QString())
 		return alt;
 	else

@@ -16,23 +16,20 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#ifndef ResultsModel_20070419_H_
-#define ResultsModel_20070419_H_
+#ifndef ROP_TOOL_RESULTS_MODEL_H_
+#define ROP_TOOL_RESULTS_MODEL_H_
 
 #include <QAbstractItemModel>
 #include <QVector>
 #include "Types.h"
 #include "Function.h"
 
-namespace FunctionFinderPlugin {
+namespace ROPToolPlugin {
 
 struct Result {
-	edb::address_t        start_address = 0;
-	edb::address_t        end_address   = 0;
-	size_t                size          = 0;
-	int                   score         = 0;
-	Function::Type        type          = Function::Type::FUNCTION_STANDARD;
-	QString               symbol;
+	edb::address_t address = 0;
+	QString        instruction;
+	uint32_t       role = 0x00;
 };
 
 class ResultsModel : public QAbstractItemModel {

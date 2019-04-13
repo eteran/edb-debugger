@@ -7,81 +7,46 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>691</width>
-    <height>449</height>
+    <width>670</width>
+    <height>401</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>ROP Gadget Search</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0" colspan="2">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
     <widget class="QLabel" name="label">
      <property name="text">
       <string>Regions To Search:</string>
      </property>
     </widget>
    </item>
-   <item row="1" column="2" rowspan="2">
-    <widget class="QGroupBox" name="groupBox">
-     <property name="title">
-      <string>Gadgets to Display</string>
-     </property>
-     <layout class="QVBoxLayout" name="verticalLayout">
-      <item>
-       <widget class="QCheckBox" name="chkShowALU">
-        <property name="text">
-         <string>ALU</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="chkShowStack">
-        <property name="text">
-         <string>Stack</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="chkShowLogic">
-        <property name="text">
-         <string>Logic</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="chkShowData">
-        <property name="text">
-         <string>Data</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-      <item>
-       <widget class="QCheckBox" name="chkShowOther">
-        <property name="text">
-         <string>Other</string>
-        </property>
-        <property name="checked">
-         <bool>true</bool>
-        </property>
-       </widget>
-      </item>
-     </layout>
-    </widget>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLineEdit" name="txtSearch">
+       <property name="placeholderText">
+        <string>Filter</string>
+       </property>
+       <property name="clearButtonEnabled">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QCheckBox" name="checkUnique">
+       <property name="text">
+        <string>Unique Gadgets Only</string>
+       </property>
+       <property name="checked">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
-   <item row="2" column="0" rowspan="2" colspan="2">
+   <item>
     <widget class="QTableView" name="tableView">
      <property name="font">
       <font>
@@ -108,39 +73,7 @@
      </attribute>
     </widget>
    </item>
-   <item row="3" column="2">
-    <widget class="QCheckBox" name="checkUnique">
-     <property name="text">
-      <string>Unique Gadgets Only</string>
-     </property>
-     <property name="checked">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="4" column="0">
-    <widget class="QLabel" name="label_2">
-     <property name="text">
-      <string>Results:</string>
-     </property>
-    </widget>
-   </item>
-   <item row="5" column="0" colspan="3">
-    <widget class="QListView" name="listView">
-     <property name="font">
-      <font>
-       <family>Monospace</family>
-      </font>
-     </property>
-     <property name="editTriggers">
-      <set>QAbstractItemView::NoEditTriggers</set>
-     </property>
-     <property name="alternatingRowColors">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item row="6" column="0" colspan="3">
+   <item>
     <layout class="QHBoxLayout">
      <property name="spacing">
       <number>6</number>
@@ -199,7 +132,7 @@
      </item>
     </layout>
    </item>
-   <item row="7" column="0" colspan="3">
+   <item>
     <widget class="QProgressBar" name="progressBar">
      <property name="value">
       <number>0</number>
@@ -209,22 +142,11 @@
      </property>
     </widget>
    </item>
-   <item row="1" column="0" colspan="2">
-    <widget class="QLineEdit" name="txtSearch">
-     <property name="placeholderText">
-      <string>Filter</string>
-     </property>
-     <property name="clearButtonEnabled">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>txtSearch</tabstop>
   <tabstop>tableView</tabstop>
-  <tabstop>listView</tabstop>
   <tabstop>btnClose</tabstop>
   <tabstop>btnHelp</tabstop>
   <tabstop>btnFind</tabstop>
