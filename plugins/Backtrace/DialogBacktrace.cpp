@@ -79,7 +79,7 @@ bool is_ret(const QTableWidgetItem *item) {
 //			do a "Step Out" (the behavior for the 1st row should be different
 //			than all others.
 //------------------------------------------------------------------------------
-DialogBacktrace::DialogBacktrace(QWidget *parent) : QDialog(parent), ui(new Ui::DialogBacktrace) {
+DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogBacktrace) {
 	ui->setupUi(this);
 	table_ = ui->tableWidgetCallStack;
 	table_->verticalHeader()->hide();

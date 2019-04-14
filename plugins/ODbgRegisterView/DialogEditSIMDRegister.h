@@ -69,7 +69,7 @@ private:
 
 
 public:
-    explicit DialogEditSIMDRegister(QWidget *parent = nullptr);
+    explicit DialogEditSIMDRegister(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	void set_value(const Register &value);
 	void set_current_element(RegisterViewModelBase::Model::ElementSize size, NumberDisplayMode format, int elementIndex);
 	Register value() const;

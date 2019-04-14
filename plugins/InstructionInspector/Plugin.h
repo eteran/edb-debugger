@@ -38,7 +38,7 @@ public:
 	struct InstructionReadFailure {};
 
 public:
-	explicit InstructionDialog(QWidget *parent = nullptr);
+	explicit InstructionDialog(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~InstructionDialog() override;
 
 private Q_SLOTS:

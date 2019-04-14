@@ -35,7 +35,7 @@ namespace ProcessPropertiesPlugin {
 // Name: DialogStrings
 // Desc:
 //------------------------------------------------------------------------------
-DialogStrings::DialogStrings(QWidget *parent) : QDialog(parent), ui(new Ui::DialogStrings) {
+DialogStrings::DialogStrings(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogStrings) {
 	ui->setupUi(this);
 	ui->tableView->verticalHeader()->hide();
 	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);

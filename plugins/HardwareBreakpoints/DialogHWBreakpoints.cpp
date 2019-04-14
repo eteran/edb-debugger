@@ -32,7 +32,7 @@ namespace HardwareBreakpointsPlugin {
 // Name: DialogHWBreakpoints
 // Desc:
 //------------------------------------------------------------------------------
-DialogHWBreakpoints::DialogHWBreakpoints(QWidget *parent) : QDialog(parent), ui(new Ui::DialogHWBreakpoints) {
+DialogHWBreakpoints::DialogHWBreakpoints(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogHWBreakpoints) {
 	ui->setupUi(this);
 
 	connect(ui->cmbType1, SIGNAL(currentIndexChanged(int)), this, SLOT(type1IndexChanged(int)));

@@ -46,7 +46,7 @@ class DialogROPTool : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogROPTool(QWidget *parent = nullptr);
+    explicit DialogROPTool(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~DialogROPTool() override;
 
 public Q_SLOTS:

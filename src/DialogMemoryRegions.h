@@ -33,7 +33,7 @@ namespace Ui { class DialogMemoryRegions; }
 class DialogMemoryRegions : public QDialog {
 	Q_OBJECT
 public:
-    explicit DialogMemoryRegions(QWidget *parent = nullptr);
+    explicit DialogMemoryRegions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~DialogMemoryRegions() override;
 
 private:

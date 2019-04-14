@@ -51,7 +51,7 @@ int width_to_index(int n) {
 // Name: DialogOptions
 // Desc:
 //------------------------------------------------------------------------------
-DialogOptions::DialogOptions(QWidget *parent) : QDialog(parent), ui(new Ui::DialogOptions)  {
+DialogOptions::DialogOptions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogOptions)  {
 	ui->setupUi(this);
 }
 

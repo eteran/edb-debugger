@@ -36,7 +36,7 @@ namespace SymbolViewerPlugin {
 // Name: DialogSymbolViewer
 // Desc:
 //------------------------------------------------------------------------------
-DialogSymbolViewer::DialogSymbolViewer(QWidget *parent) : QDialog(parent), ui(new Ui::DialogSymbolViewer) {
+DialogSymbolViewer::DialogSymbolViewer(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogSymbolViewer) {
 	ui->setupUi(this);
 
 	ui->listView->setContextMenuPolicy(Qt::CustomContextMenu);

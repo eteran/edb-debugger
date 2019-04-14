@@ -540,7 +540,7 @@ std::string printAccessMode(unsigned mode) {
 }
 #endif
 
-InstructionDialog::InstructionDialog(QWidget *parent) : QDialog(parent) {
+InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
 
 	setWindowTitle("Instruction Inspector");
 	address = edb::v1::cpu_selected_address();

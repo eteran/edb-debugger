@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DialogInputBinaryString
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogInputBinaryString::DialogInputBinaryString(QWidget *parent) : QDialog(parent), ui(new Ui::DialogInputBinaryString) {
+DialogInputBinaryString::DialogInputBinaryString(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogInputBinaryString) {
 	ui->setupUi(this);
 }
 

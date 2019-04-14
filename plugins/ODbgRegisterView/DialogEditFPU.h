@@ -31,7 +31,7 @@ class DialogEditFPU : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogEditFPU(QWidget *parent = nullptr);
+    explicit DialogEditFPU(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	Register value() const;
 	void set_value(const Register &reg);
 

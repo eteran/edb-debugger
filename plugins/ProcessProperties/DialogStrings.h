@@ -33,7 +33,7 @@ class DialogStrings : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogStrings(QWidget *parent = nullptr);
+    explicit DialogStrings(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~DialogStrings() override;
 
 public Q_SLOTS:

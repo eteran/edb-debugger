@@ -39,7 +39,7 @@ enum Role {
 // Name: DialogReferences
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogReferences::DialogReferences(QWidget *parent) : QDialog(parent), ui(new Ui::DialogReferences) {
+DialogReferences::DialogReferences(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogReferences) {
 	ui->setupUi(this);
 	connect(this, &DialogReferences::updateProgress, ui->progressBar, &QProgressBar::setValue);
 	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));

@@ -37,7 +37,7 @@ class DialogOpcodes : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogOpcodes(QWidget *parent = nullptr);
+    explicit DialogOpcodes(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~DialogOpcodes() override;
 
 public Q_SLOTS:

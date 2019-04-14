@@ -30,7 +30,7 @@ namespace DebuggerErrorConsolePlugin {
 class DebuggerErrorConsole : public QDialog {
 	Q_OBJECT
 public:
-    explicit DebuggerErrorConsole(QWidget* parent = nullptr);
+    explicit DebuggerErrorConsole(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 };
 
 class Plugin : public QObject, public IPlugin {

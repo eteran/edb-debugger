@@ -35,7 +35,7 @@ class DialogSymbolViewer : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogSymbolViewer(QWidget *parent = nullptr);
+    explicit DialogSymbolViewer(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~DialogSymbolViewer() override;
 
 public Q_SLOTS:

@@ -52,7 +52,7 @@ class DialogResults : public QDialog {
 	Q_OBJECT
 
 public:
-	DialogResults(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogResults(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
 public:
 	void addResult(const Result &result);

@@ -42,7 +42,7 @@ namespace BreakpointManagerPlugin {
 // Name: DialogBreakpoints
 // Desc:
 //------------------------------------------------------------------------------
-DialogBreakpoints::DialogBreakpoints(QWidget *parent) : QDialog(parent), ui(new Ui::DialogBreakpoints) {
+DialogBreakpoints::DialogBreakpoints(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogBreakpoints) {
 	ui->setupUi(this);
 	ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }

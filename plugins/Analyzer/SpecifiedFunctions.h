@@ -33,7 +33,7 @@ class SpecifiedFunctions : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit SpecifiedFunctions(QWidget *parent = nullptr);
+    explicit SpecifiedFunctions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~SpecifiedFunctions() override;
 
 public Q_SLOTS:

@@ -76,7 +76,7 @@ long double readFloat(const QString &strInput, bool &ok) {
 }
 }
 
-DialogEditFPU::DialogEditFPU(QWidget *parent) : QDialog(parent), floatEntry(new ODbgRegisterView::Float80Edit(this)), hexEntry(new QLineEdit(this)) {
+DialogEditFPU::DialogEditFPU(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), floatEntry(new ODbgRegisterView::Float80Edit(this)), hexEntry(new QLineEdit(this)) {
 
 	setWindowTitle(tr("Modify Register"));
 	setModal(true);

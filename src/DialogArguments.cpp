@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DialogArguments
 // Desc:
 //------------------------------------------------------------------------------
-DialogArguments::DialogArguments(QWidget *parent) : QDialog(parent), ui(new Ui::DialogArguments) {
+DialogArguments::DialogArguments(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogArguments) {
 	ui->setupUi(this);
 }
 

@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace DebuggerCorePlugin {
 
-DialogMemoryAccess::DialogMemoryAccess(QWidget *parent) : QDialog(parent), ui(new Ui::DialogMemoryAccess) {
+DialogMemoryAccess::DialogMemoryAccess(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogMemoryAccess) {
 	ui->setupUi(this);
 	adjustSize();
 	setFixedSize(width(), height());

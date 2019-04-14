@@ -37,7 +37,7 @@ class DialogAttach final : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogAttach(QWidget *parent = nullptr);
+    explicit DialogAttach(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~DialogAttach() override;
 
 private:

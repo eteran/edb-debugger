@@ -110,7 +110,7 @@ QMenu *Plugin::menu(QWidget* parent) {
 }
 
 
-DebuggerErrorConsole::DebuggerErrorConsole(QWidget* parent) : QDialog(parent) {
+DebuggerErrorConsole::DebuggerErrorConsole(QWidget* parent, Qt::WindowFlags f) : QDialog(parent, f) {
 }
 
 }

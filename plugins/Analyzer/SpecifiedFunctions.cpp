@@ -33,7 +33,7 @@ namespace AnalyzerPlugin {
 // Name: SpecifiedFunctions
 // Desc:
 //------------------------------------------------------------------------------
-SpecifiedFunctions::SpecifiedFunctions(QWidget *parent) : QDialog(parent), ui(new Ui::SpecifiedFunctions) {
+SpecifiedFunctions::SpecifiedFunctions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::SpecifiedFunctions) {
 	ui->setupUi(this);
 
 	model_        = new QStringListModel(this);

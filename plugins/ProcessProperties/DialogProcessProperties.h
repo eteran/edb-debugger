@@ -31,7 +31,7 @@ class DialogProcessProperties : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogProcessProperties(QWidget *parent = nullptr);
+    explicit DialogProcessProperties(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~DialogProcessProperties() override;
 
 public Q_SLOTS:

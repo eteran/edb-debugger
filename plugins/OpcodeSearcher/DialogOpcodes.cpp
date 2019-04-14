@@ -52,7 +52,7 @@ constexpr int STACK_REG = ARM64_REG_SP;
 // Name: DialogOpcodes
 // Desc:
 //------------------------------------------------------------------------------
-DialogOpcodes::DialogOpcodes(QWidget *parent) : QDialog(parent), ui(new Ui::DialogOpcodes) {
+DialogOpcodes::DialogOpcodes(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogOpcodes) {
 	ui->setupUi(this);
 	ui->tableView->verticalHeader()->hide();
 	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);

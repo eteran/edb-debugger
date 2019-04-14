@@ -16,7 +16,7 @@ class DialogXRefs : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogXRefs(QWidget *parent = nullptr);
+    explicit DialogXRefs(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogXRefs() override;
 
 public Q_SLOTS:

@@ -31,7 +31,7 @@ class DialogAssembler : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogAssembler(QWidget *parent = nullptr);
+    explicit DialogAssembler(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogAssembler() override;
 
 public Q_SLOTS:

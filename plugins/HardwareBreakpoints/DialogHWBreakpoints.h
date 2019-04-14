@@ -32,7 +32,7 @@ private:
 	friend class HardwareBreakpoints;
 
 public:
-    explicit DialogHWBreakpoints(QWidget *parent = nullptr);
+    explicit DialogHWBreakpoints(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~DialogHWBreakpoints() override;
 
 private:

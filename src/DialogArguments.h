@@ -27,7 +27,7 @@ class DialogArguments : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogArguments(QWidget *parent = nullptr);
+    explicit DialogArguments(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~DialogArguments() override;
 
 public:

@@ -29,7 +29,7 @@ class DialogBreakpoints : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogBreakpoints(QWidget *parent = nullptr);
+    explicit DialogBreakpoints(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogBreakpoints() override;
 
 public Q_SLOTS:

@@ -33,7 +33,7 @@ class DialogEditGPR : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogEditGPR(QWidget *parent = nullptr);
+    explicit DialogEditGPR(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
 public:
 	Register value() const;

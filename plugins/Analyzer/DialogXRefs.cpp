@@ -9,7 +9,7 @@ namespace AnalyzerPlugin {
  * @brief DialogXRefs::DialogXRefs
  * @param parent
  */
-DialogXRefs::DialogXRefs(QWidget *parent) : QDialog(parent), ui(new Ui::DialogXRefs) {
+DialogXRefs::DialogXRefs(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogXRefs) {
 	ui->setupUi(this);
 }
 

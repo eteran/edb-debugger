@@ -48,7 +48,7 @@ namespace AssemblerPlugin {
 // Name: DialogAssembler
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogAssembler::DialogAssembler(QWidget *parent) : QDialog(parent), ui(new Ui::DialogAssembler), address_(0), instruction_size_(0) {
+DialogAssembler::DialogAssembler(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogAssembler), address_(0), instruction_size_(0) {
 	ui->setupUi(this);
 	// Disable click focus: we don't want to unnecessarily defocus instruction entry without need
 	ui->fillWithNOPs->setFocusPolicy(Qt::TabFocus);

@@ -52,7 +52,7 @@ void DialogEditSIMDRegister::setupEntries(const QString &label, std::array<Numbe
 	}
 }
 
-DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent) : QDialog(parent),
+DialogEditSIMDRegister::DialogEditSIMDRegister(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f),
 		byteHexValidator(new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,2}"), this)),
 		wordHexValidator(new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,4}"), this)),
 		dwordHexValidator(new QRegExpValidator(QRegExp("[0-9a-fA-F]{0,8}"), this)),

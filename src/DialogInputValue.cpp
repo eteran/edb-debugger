@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DialogInputValue
 // Desc:
 //------------------------------------------------------------------------------
-DialogInputValue::DialogInputValue(QWidget *parent) : QDialog(parent), ui(new Ui::DialogInputValue), mask(-1ll), valueLength(sizeof(std::uint64_t)) {
+DialogInputValue::DialogInputValue(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogInputValue), mask(-1ll), valueLength(sizeof(std::uint64_t)) {
 	ui->setupUi(this);
 
 	// Apply some defaults

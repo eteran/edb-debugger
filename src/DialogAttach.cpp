@@ -62,7 +62,7 @@ bool isNumeric(const QString &s) {
 // Name: DialogAttach
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogAttach::DialogAttach(QWidget *parent) : QDialog(parent), ui(new Ui::DialogAttach) {
+DialogAttach::DialogAttach(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogAttach) {
 	ui->setupUi(this);
 
 	process_model_ = new ProcessModel(this);

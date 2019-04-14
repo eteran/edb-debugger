@@ -279,7 +279,7 @@ bool isEffectiveNop(const edb::Instruction &inst) {
 // Name: DialogROPTool
 // Desc:
 //------------------------------------------------------------------------------
-DialogROPTool::DialogROPTool(QWidget *parent) : QDialog(parent), ui(new Ui::DialogROPTool) {
+DialogROPTool::DialogROPTool(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogROPTool) {
 	ui->setupUi(this);
 	ui->tableView->verticalHeader()->hide();
 	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);

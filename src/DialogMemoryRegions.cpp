@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DialogMemoryRegions
 // Desc:
 //------------------------------------------------------------------------------
-DialogMemoryRegions::DialogMemoryRegions(QWidget *parent) : QDialog(parent), ui(new Ui::DialogMemoryRegions) {
+DialogMemoryRegions::DialogMemoryRegions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogMemoryRegions) {
 	ui->setupUi(this);
 
 	ui->regions_table->verticalHeader()->hide();

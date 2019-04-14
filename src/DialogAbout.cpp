@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: DialogAbout
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogAbout::DialogAbout(QWidget *parent) : QDialog(parent), ui(new Ui::DialogAbout) {
+DialogAbout::DialogAbout(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogAbout) {
 	ui->setupUi(this);
 	ui->labelVersion->setText(tr("Version: %1<br>\n"
 	                             "Compiled: %2<br>\n"

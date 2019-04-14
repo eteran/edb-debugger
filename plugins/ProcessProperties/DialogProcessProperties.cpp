@@ -273,7 +273,7 @@ QString process_socket_udp(QString *symlink) {
 // Name: DialogProcessProperties
 // Desc:
 //------------------------------------------------------------------------------
-DialogProcessProperties::DialogProcessProperties(QWidget *parent) : QDialog(parent), ui(new Ui::DialogProcessProperties) {
+DialogProcessProperties::DialogProcessProperties(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogProcessProperties) {
 	ui->setupUi(this);
 	ui->tableModules->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	ui->tableMemory->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);

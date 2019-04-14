@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-DialogEditGPR::DialogEditGPR(QWidget *parent) : QDialog(parent) {
+DialogEditGPR::DialogEditGPR(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
 
 	setWindowTitle(tr("Modify Register"));
 	setModal(true);

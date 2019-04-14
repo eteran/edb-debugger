@@ -33,7 +33,7 @@ class DialogReferences : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogReferences(QWidget *parent = nullptr);
+    explicit DialogReferences(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~DialogReferences() override;
 
 public Q_SLOTS:

@@ -28,7 +28,7 @@ class QToolBox;
 class DialogOptions final : public QDialog {
 	Q_OBJECT
 public:
-    explicit DialogOptions(QWidget *parent = nullptr);
+    explicit DialogOptions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~DialogOptions() override;
 
 public Q_SLOTS:

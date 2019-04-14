@@ -99,7 +99,7 @@ edb::address_t block_start(const Result &result) {
 // Name: DialogHeap
 // Desc:
 //------------------------------------------------------------------------------
-DialogHeap::DialogHeap(QWidget *parent) : QDialog(parent), ui(new Ui::DialogHeap) {
+DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogHeap) {
 	ui->setupUi(this);
 
 	model_ = new ResultViewModel(this);
