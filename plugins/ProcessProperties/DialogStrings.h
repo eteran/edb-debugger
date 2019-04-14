@@ -35,19 +35,17 @@ public:
     explicit DialogStrings(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogStrings() override = default;
 
-public Q_SLOTS:
-	void on_btnFind_clicked();
-	void on_listWidget_itemDoubleClicked(QListWidgetItem *);
-
 private:
     void showEvent(QShowEvent *event) override;
 
 private:
+	void btnFind_clicked();
 	void do_find();
 
 private:
 	 Ui::DialogStrings ui;
-	 QSortFilterProxyModel *  filter_model_;
+	 QSortFilterProxyModel *filter_model_;
+	 QPushButton *btnFind_;
 };
 
 }

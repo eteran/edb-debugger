@@ -20,12 +20,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Configuration.h"
 #include "IRegion.h"
 #include "MemoryRegions.h"
+#include "DialogResults.h"
 #include "Util.h"
 #include "edb.h"
 
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
+#include <QPushButton>
 
 namespace ProcessPropertiesPlugin {
 
@@ -40,18 +42,14 @@ DialogStrings::DialogStrings(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 
 	filter_model_ = new QSortFilterProxyModel(this);
 	connect(ui.txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
-}
 
-//------------------------------------------------------------------------------
-// Name: on_listWidget_itemDoubleClicked
-// Desc: follows the found item in the data view
-//------------------------------------------------------------------------------
-void DialogStrings::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
-	bool ok;
-	const edb::address_t addr = item->data(Qt::UserRole).toULongLong(&ok);
-	if(ok) {
-		edb::v1::dump_data(addr, false);
-	}
+	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	connect(btnFind_, &QPushButton::clicked, this, &DialogStrings::btnFind_clicked);
+
+	ui.buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
+
+	// NOTE(eteran): not help system yet!
+	ui.buttonBox->button(QDialogButtonBox::Help)->setEnabled(false);
 }
 
 //------------------------------------------------------------------------------
@@ -62,9 +60,7 @@ void DialogStrings::showEvent(QShowEvent *) {
 	filter_model_->setFilterKeyColumn(3);
 	filter_model_->setSourceModel(&edb::v1::memory_regions());
 	ui.tableView->setModel(filter_model_);
-
 	ui.progressBar->setValue(0);
-	ui.listWidget->clear();
 }
 
 //------------------------------------------------------------------------------
@@ -85,7 +81,10 @@ void DialogStrings::do_find() {
 			this,
 			tr("No Region Selected"),
 			tr("You must select a region which is to be scanned for strings."));
+		return;
 	}
+
+	auto resultsDialog = new DialogResults(this);
 
 	for(const QModelIndex &selected_item: sel) {
 
@@ -103,19 +102,12 @@ void DialogStrings::do_find() {
 				int string_length = 0;
 				bool ok = edb::v1::get_ascii_string_at_address(start_address, str, min_string_length, 256, string_length);
 				if(ok) {
-					auto item = new QListWidgetItem(tr("%1: [ASCII] %2").arg(edb::v1::format_pointer(start_address), str));
-					item->setData(Qt::UserRole, start_address.toQVariant());
-					ui.listWidget->addItem(item);
-				} else {
-
-					if(ui.search_unicode->isChecked()) {
-						string_length = 0;
-						ok = edb::v1::get_utf16_string_at_address(start_address, str, min_string_length, 256, string_length);
-						if(ok) {
-							auto item = new QListWidgetItem(tr("%1: [UTF16] %2").arg(edb::v1::format_pointer(start_address), str));
-							item->setData(Qt::UserRole, start_address.toQVariant());
-							ui.listWidget->addItem(item);
-						}
+					resultsDialog->addResult({start_address, str, Result::ASCII});
+				} else if(ui.search_unicode->isChecked()) {
+					string_length = 0;
+					ok = edb::v1::get_utf16_string_at_address(start_address, str, min_string_length, 256, string_length);
+					if(ok) {
+						resultsDialog->addResult({start_address, str, Result::UTF16});
 					}
 				}
 
@@ -129,19 +121,26 @@ void DialogStrings::do_find() {
 			}
 		}
 	}
+
+	if(resultsDialog->resultCount() == 0) {
+		QMessageBox::information(this, tr("No Strings Found"), tr("No strings were found in the selected region"));
+		delete resultsDialog;
+	} else {
+		resultsDialog->show();
+	}
+
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnFind_clicked
+// Name: btnFind_clicked
 // Desc:
 //------------------------------------------------------------------------------
-void DialogStrings::on_btnFind_clicked() {
-	ui.btnFind->setEnabled(false);
-	ui.listWidget->clear();
+void DialogStrings::btnFind_clicked() {
+	btnFind_->setEnabled(false);
 	ui.progressBar->setValue(0);
 	do_find();
 	ui.progressBar->setValue(100);
-	ui.btnFind->setEnabled(true);
+	btnFind_->setEnabled(true);
 }
 
 }

@@ -11,14 +11,19 @@ set(PluginName "ProcessProperties")
 find_package(Qt5 5.0.0 REQUIRED Widgets Network)
 
 add_library(${PluginName} SHARED
-	DialogProcessProperties.cpp
-	DialogProcessProperties.h
-	DialogProcessProperties.ui
-	DialogStrings.cpp
-	DialogStrings.h
-	DialogStrings.ui
-	ProcessProperties.cpp
-	ProcessProperties.h
+    DialogProcessProperties.cpp
+    DialogProcessProperties.h
+    DialogProcessProperties.ui
+    DialogStrings.cpp
+    DialogStrings.h
+    DialogStrings.ui
+    ProcessProperties.cpp
+    ProcessProperties.h
+    DialogResults.cpp
+    DialogResults.h
+    DialogResults.ui
+    ResultsModel.cpp
+    ResultsModel.h
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets Qt5::Network edb)
