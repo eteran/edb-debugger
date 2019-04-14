@@ -20,38 +20,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define SHIFT_BUFFER_20121017_H_
 
 #include <cstdint>
+#include <array>
 #include <algorithm>
 
 template <size_t N>
 class ShiftBuffer {
 public:
 	ShiftBuffer() {
-		std::fill(buffer_, buffer_ + N, 0);
+		std::fill(buffer_.begin(), buffer_.end(), 0);
 	}
 
-	~ShiftBuffer() = default;
-
-	ShiftBuffer(const ShiftBuffer &other) {
-		std::copy(other.buffer_, other.buffer_ + N, buffer_);
-	}
-
-	ShiftBuffer &operator=(const ShiftBuffer &rhs) {
-		ShiftBuffer(rhs).swap(*this);
-		return *this;
-	}
+	~ShiftBuffer()                                 = default;
+	ShiftBuffer(const ShiftBuffer &other)          = default;
+	ShiftBuffer &operator=(const ShiftBuffer &rhs) = default;
 
 public:
 	void shl() {
-		for(size_t i = 0; i < (N - 1); ++i) {
-			buffer_[i] = buffer_[i + 1];
-		}
+		std::rotate(buffer_.begin(), buffer_.begin() + 1, buffer_.end());
 		buffer_[N - 1] = 0;
 	}
 
 	void shr() {
-		for(size_t i = N - 1; i > 0; --i) {
-			buffer_[i] = buffer_[i - 1];
-		}
+		std::rotate(buffer_.rbegin(), buffer_.rbegin() + 1, buffer_.rend());
 		buffer_[0] = 0;
 	}
 
@@ -61,10 +51,14 @@ public:
 	}
 
 public:
-	const uint8_t *begin() const { return buffer_; }
-	const uint8_t *end() const   { return buffer_ + N; }
-	uint8_t *begin()             { return buffer_; }
-	uint8_t *end()               { return buffer_ + N; }
+	const uint8_t *begin() const { return buffer_.begin(); }
+	const uint8_t *end() const   { return buffer_.end(); }
+	uint8_t *begin()             { return buffer_.begin(); }
+	uint8_t *end()               { return buffer_.end(); }
+
+public:
+	const uint8_t *data() const   { return buffer_.data(); }
+	uint8_t *data()               { return buffer_.data(); }
 
 public:
 	uint8_t operator[](size_t n) const {
@@ -75,15 +69,8 @@ public:
 		return buffer_[n];
 	}
 
-public:
-	void swap(ShiftBuffer &other) {
-		for(size_t i = 0; i < N; ++i) {
-			std::swap(buffer_[i], other.buffer_[i]);
-		}
-	}
-
 private:
-	uint8_t buffer_[N];
+	std::array<uint8_t, N> buffer_;
 };
 
 #endif

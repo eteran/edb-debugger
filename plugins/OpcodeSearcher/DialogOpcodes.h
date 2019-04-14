@@ -20,15 +20,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIALOGOPCODES_20061101_H_
 
 #include "Types.h"
-#include "Instruction.h"
 #include "ui_DialogOpcodes.h"
-
 #include <QDialog>
-#include <QList>
-#include <vector>
 
 class QSortFilterProxyModel;
-class QListWidgetItem;
 
 namespace OpcodeSearcherPlugin {
 

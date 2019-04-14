@@ -26,7 +26,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ShiftBuffer.h"
 #include "Util.h"
 #include "edb.h"
+#include "Instruction.h"
 
+#include <QList>
 #include <QHeaderView>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
@@ -34,16 +36,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QPushButton>
 #include <QDebug>
 
+#include <vector>
+
 namespace OpcodeSearcherPlugin {
 namespace {
 
 using InstructionList = std::vector<edb::Instruction *>;
 
 // we currently only support opcodes sequences up to 8 bytes big
-union OpcodeData {
-	uint32_t dword;
-	uint64_t qword;
-	uint8_t  data[sizeof(uint64_t)];
+struct OpcodeData {
+	uint8_t data[sizeof(uint64_t)];
 };
 
 /**
