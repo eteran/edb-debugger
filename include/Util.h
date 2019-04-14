@@ -185,6 +185,30 @@ boost::optional<Float> fullStringToFloat(const std::string &s) {
 	return boost::none;
 }
 
+template <class T, size_t N, class U = T>
+constexpr void shl(std::array<T, N> &buffer, U value = T()) {
+	static_assert (std::is_convertible<T, U>::value, "U must be convertable to the type contained in the array!");
+	std::rotate(buffer.begin(), buffer.begin() + 1, buffer.end());
+	buffer[N - 1] = value;
+}
+
+template <class T, size_t N, class U = T>
+constexpr void shr(std::array<T, N> &buffer, U value = T()) {
+	static_assert (std::is_convertible<T, U>::value, "U must be convertable to the type contained in the array!");
+	std::rotate(buffer.rbegin(), buffer.rbegin() + 1, buffer.rend());
+	buffer[0] = value;
+}
+
+template <class T, size_t N>
+constexpr void rol(std::array<T, N> &buffer) {
+	std::rotate(buffer.begin(), buffer.begin() + 1, buffer.end());
+}
+
+template <class T, size_t N>
+constexpr void ror(std::array<T, N> &buffer) {
+	std::rotate(buffer.rbegin(), buffer.rbegin() + 1, buffer.rend());
+}
+
 }
 
 #endif

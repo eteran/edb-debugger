@@ -152,7 +152,6 @@ set(edb_SRCS
 	${PROJECT_SOURCE_DIR}/include/Register.h
 	${PROJECT_SOURCE_DIR}/include/RegisterRef.h
 	${PROJECT_SOURCE_DIR}/include/RegisterViewModelBase.h
-	${PROJECT_SOURCE_DIR}/include/ShiftBuffer.h
 	${PROJECT_SOURCE_DIR}/include/State.h
 	${PROJECT_SOURCE_DIR}/include/Status.h
 	${PROJECT_SOURCE_DIR}/include/string_hash.h

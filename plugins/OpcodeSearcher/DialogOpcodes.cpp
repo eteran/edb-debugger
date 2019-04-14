@@ -23,7 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IProcess.h"
 #include "IRegion.h"
 #include "MemoryRegions.h"
-#include "ShiftBuffer.h"
 #include "Util.h"
 #include "edb.h"
 #include "Instruction.h"
@@ -44,9 +43,7 @@ namespace {
 using InstructionList = std::vector<edb::Instruction *>;
 
 // we currently only support opcodes sequences up to 8 bytes big
-struct OpcodeData {
-	uint8_t data[sizeof(uint64_t)];
-};
+using OpcodeData = std::array<uint8_t, sizeof(uint64_t)>;
 
 /**
  * @brief add_result
@@ -79,8 +76,8 @@ void add_result(DialogResults *resultsDialog, const InstructionList &instruction
  */
 template <int Register>
 void test_deref_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
-	const quint8 *p = data.data;
-	const quint8 *last = p + sizeof(data);
+	const uint8_t *p = data.data();
+	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
 
@@ -116,8 +113,8 @@ void test_deref_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, 
 template <int Register, int StackRegister>
 void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const quint8 *p = data.data;
-	const quint8 *last = p + sizeof(data);
+	const uint8_t *p = data.data();
+	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
 
@@ -189,8 +186,8 @@ void test_reg_to_ip(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 template <int StackRegister>
 void test_esp_add_0(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const quint8 *p = data.data;
-	const quint8 *last = p + sizeof(data);
+	const uint8_t *p = data.data();
+	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
 
@@ -256,8 +253,8 @@ void test_esp_add_0(DialogResults *resultsDialog, const OpcodeData &data, edb::a
 template <int StackRegister>
 void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const quint8 *p = data.data;
-	const quint8 *last = p + sizeof(data);
+	const uint8_t *p = data.data();
+	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
 
@@ -342,8 +339,8 @@ void test_esp_add_regx1(DialogResults *resultsDialog, const OpcodeData &data, ed
 template <int StackRegister>
 void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const quint8 *p = data.data;
-	const quint8 *last = p + sizeof(data);
+	const uint8_t *p = data.data();
+	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
 
@@ -443,8 +440,8 @@ void test_esp_add_regx2(DialogResults *resultsDialog, const OpcodeData &data, ed
 template <int StackRegister>
 void test_esp_sub_regx1(DialogResults *resultsDialog, const OpcodeData &data, edb::address_t start_address) {
 
-	const quint8 *p = data.data;
-	const quint8 *last = p + sizeof(data);
+	const uint8_t *p = data.data();
+	const uint8_t *last = p + sizeof(data);
 
 	edb::Instruction inst(p, last, 0);
 
@@ -775,7 +772,7 @@ void DialogOpcodes::do_find() {
 				const edb::address_t end_address = region->end();
 				const edb::address_t orig_start  = region->start();
 
-				ShiftBuffer<sizeof(OpcodeData)> shift_buffer;
+				OpcodeData shift_buffer = {};
 
 				// this will read the rest of the region
 				size_t i = 0;
@@ -784,14 +781,12 @@ void DialogOpcodes::do_find() {
 					// create a reference to the bsa's data so we can pass it to the testXXXX functions
 					// but only do so if we have read enough bytes to fill our shift buffer
 					if(i >= shift_buffer.size()) {
-						auto opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
-						run_tests(resultsDialog, classtype, opcode, address - shift_buffer.size());
+						run_tests(resultsDialog, classtype, shift_buffer, address - shift_buffer.size());
 					}
 
-					quint8 byte;
+					uint8_t byte;
 					process->read_bytes(start_address, &byte, 1);
-					shift_buffer.shl();
-					shift_buffer[shift_buffer.size() - 1] = byte;
+					util::shl(shift_buffer, byte);
 
 					++start_address;
 
@@ -804,12 +799,10 @@ void DialogOpcodes::do_find() {
 				for(size_t i = 0; i < shift_buffer.size(); ++i) {
 
 					// create a reference to the bsa's data so we can pass it to the testXXXX functions
-					auto opcode = *reinterpret_cast<const OpcodeData *>(&shift_buffer[0]);
-					run_tests(resultsDialog, classtype, opcode, address - shift_buffer.size());
+					run_tests(resultsDialog, classtype, shift_buffer, address - shift_buffer.size());
 
 					// we just shift in 0's and hope it doesn't give false positives
-					shift_buffer.shl();
-					shift_buffer[shift_buffer.size() - 1] = 0x00;
+					util::shl(shift_buffer, 0x00);
 
 					ui.progressBar->setValue(util::percentage(address - orig_start, region->size()));
 					++address;
