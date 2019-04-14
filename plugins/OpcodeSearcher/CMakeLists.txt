@@ -14,8 +14,13 @@ add_library(${PluginName} SHARED
 	DialogOpcodes.cpp
 	DialogOpcodes.h
 	DialogOpcodes.ui
+	DialogResults.cpp
+	DialogResults.h
+	DialogResults.ui
 	OpcodeSearcher.cpp
 	OpcodeSearcher.h
+	ResultsModel.cpp
+	ResultsModel.h
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets edb)

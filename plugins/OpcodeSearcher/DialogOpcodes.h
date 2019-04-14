@@ -32,6 +32,15 @@ class QListWidgetItem;
 
 namespace OpcodeSearcherPlugin {
 
+class DialogResults;
+
+// we currently only support opcodes sequences up to 8 bytes big
+union OpcodeData {
+	uint32_t dword;
+	uint64_t qword;
+	uint8_t  data[sizeof(uint64_t)];
+};
+
 class DialogOpcodes : public QDialog {
 	Q_OBJECT
 
@@ -39,41 +48,18 @@ public:
     explicit DialogOpcodes(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogOpcodes() override = default;
 
-public Q_SLOTS:
-	void on_btnFind_clicked();
-	void on_listWidget_itemDoubleClicked(QListWidgetItem *);
-
 private:
-	using InstructionList = std::vector<edb::Instruction *>;
-
-private:
-	// we currently only support opcodes sequences up to 8 bytes big
-	union OpcodeData {
-		quint32 dword;
-		quint64 qword;
-		quint8  data[sizeof(quint64)];
-	};
-
-	void test_esp_add_0(const OpcodeData &data, edb::address_t start_address);
-	void test_esp_add_regx1(const OpcodeData &data, edb::address_t start_address);
-	void test_esp_add_regx2(const OpcodeData &data, edb::address_t start_address);
-	void test_esp_sub_regx1(const OpcodeData &data, edb::address_t start_address);
 	void do_find();
-	void add_result(const InstructionList &instructions, edb::address_t rva);
-	void run_tests(int classtype, const OpcodeData &opcode, edb::address_t address);
-
-	template <int REG>
-	void test_reg_to_ip(const OpcodeData &data, edb::address_t start_address);
-
-	template <int REG>
-	void test_deref_reg_to_ip(const OpcodeData &data, edb::address_t start_address);
+	void run_tests(DialogResults *resultsDialog, int classtype, const OpcodeData &opcode, edb::address_t address);
+	void btnFind_clicked();
 
 private:
     void showEvent(QShowEvent *event) override;
 
 private:
 	Ui::DialogOpcodes ui;
-	QSortFilterProxyModel *  filter_model_;
+	QSortFilterProxyModel *filter_model_;
+	QPushButton *btnFind_;
 };
 
 }
