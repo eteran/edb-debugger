@@ -42,7 +42,6 @@ private:
 	void showEvent(QShowEvent *event) override;
 
 private:
-	void btnRefresh_clicked();
 	void do_find();
 
 private:

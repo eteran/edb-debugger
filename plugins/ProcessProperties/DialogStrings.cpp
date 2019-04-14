@@ -44,7 +44,13 @@ DialogStrings::DialogStrings(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	connect(ui.txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
 
 	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
-	connect(btnFind_, &QPushButton::clicked, this, &DialogStrings::btnFind_clicked);
+	connect(btnFind_, &QPushButton::clicked, this, [this]() {
+		btnFind_->setEnabled(false);
+		ui.progressBar->setValue(0);
+		do_find();
+		ui.progressBar->setValue(100);
+		btnFind_->setEnabled(true);
+	});
 
 	ui.buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
 
@@ -129,18 +135,6 @@ void DialogStrings::do_find() {
 		resultsDialog->show();
 	}
 
-}
-
-//------------------------------------------------------------------------------
-// Name: btnFind_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogStrings::btnFind_clicked() {
-	btnFind_->setEnabled(false);
-	ui.progressBar->setValue(0);
-	do_find();
-	ui.progressBar->setValue(100);
-	btnFind_->setEnabled(true);
 }
 
 }

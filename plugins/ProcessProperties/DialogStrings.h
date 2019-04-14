@@ -39,7 +39,6 @@ private:
     void showEvent(QShowEvent *event) override;
 
 private:
-	void btnFind_clicked();
 	void do_find();
 
 private:

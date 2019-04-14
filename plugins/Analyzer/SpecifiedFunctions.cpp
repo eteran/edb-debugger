@@ -45,7 +45,11 @@ SpecifiedFunctions::SpecifiedFunctions(QWidget *parent, Qt::WindowFlags f) : QDi
 	connect(ui.filter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
 
 	btnRefresh_ = new QPushButton(QIcon::fromTheme("view-refresh"), tr("Refresh"));
-	connect(btnRefresh_, &QPushButton::clicked, this, &SpecifiedFunctions::btnRefresh_clicked);
+	connect(btnRefresh_, &QPushButton::clicked, this, [this]() {
+		btnRefresh_->setEnabled(false);
+		do_find();
+		btnRefresh_->setEnabled(true);
+	});
 
 	ui.buttonBox->addButton(btnRefresh_, QDialogButtonBox::ActionRole);
 
@@ -70,6 +74,7 @@ void SpecifiedFunctions::on_function_list_doubleClicked(const QModelIndex &index
 // Desc:
 //------------------------------------------------------------------------------
 void SpecifiedFunctions::do_find() {
+
 	IAnalyzer *const analyzer = edb::v1::analyzer();
 	QSet<edb::address_t> functions = analyzer->specified_functions();
 	QStringList results;
@@ -80,22 +85,13 @@ void SpecifiedFunctions::do_find() {
 }
 
 //------------------------------------------------------------------------------
-// Name: btnRefresh_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void SpecifiedFunctions::btnRefresh_clicked() {
-	btnRefresh_->setEnabled(false);
-	do_find();
-	btnRefresh_->setEnabled(true);
-}
-
-
-//------------------------------------------------------------------------------
 // Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void SpecifiedFunctions::showEvent(QShowEvent *) {
-	btnRefresh_clicked();
+	btnRefresh_->setEnabled(false);
+	do_find();
+	btnRefresh_->setEnabled(true);
 }
 
 }
