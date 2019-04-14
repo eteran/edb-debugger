@@ -34,13 +34,6 @@ namespace OpcodeSearcherPlugin {
 
 class DialogResults;
 
-// we currently only support opcodes sequences up to 8 bytes big
-union OpcodeData {
-	uint32_t dword;
-	uint64_t qword;
-	uint8_t  data[sizeof(uint64_t)];
-};
-
 class DialogOpcodes : public QDialog {
 	Q_OBJECT
 
@@ -50,7 +43,6 @@ public:
 
 private:
 	void do_find();
-	void run_tests(DialogResults *resultsDialog, int classtype, const OpcodeData &opcode, edb::address_t address);
 	void btnFind_clicked();
 
 private:
