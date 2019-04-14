@@ -58,12 +58,10 @@ public:
 	void addResult(const Result &result);
 
 private Q_SLOTS:
-	void on_chkShowALU_stateChanged(int state);
-	void on_chkShowStack_stateChanged(int state);
-	void on_chkShowLogic_stateChanged(int state);
-	void on_chkShowData_stateChanged(int state);
-	void on_chkShowOther_stateChanged(int state);
 	void on_tableView_doubleClicked(const QModelIndex &index);
+
+public:
+	int resultCount() const;
 
 private:
 	Ui::DialogResults      ui;

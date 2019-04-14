@@ -57,7 +57,7 @@ private:
 	
 private:
 	void do_find();
-	void add_gadget(DialogResults *results, const InstructionList &instructions);
+	void addGadget(DialogResults *results, const InstructionList &instructions);
 
 private:
     void showEvent(QShowEvent *event) override;

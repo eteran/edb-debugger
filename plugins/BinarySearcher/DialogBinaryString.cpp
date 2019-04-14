@@ -110,6 +110,7 @@ void DialogBinaryString::do_find() {
 
 		if(results->resultCount() == 0) {
 			QMessageBox::information(nullptr, tr("No Results"), tr("No Results were found!"));
+			delete results;
 		} else {
 			results->show();
 		}

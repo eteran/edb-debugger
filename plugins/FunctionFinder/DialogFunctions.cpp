@@ -106,6 +106,7 @@ void DialogFunctions::do_find() {
 
 		if(resultsDialog->resultCount() == 0) {
 			QMessageBox::information(this, tr("No Results"), tr("No Functions Found!"));
+			delete resultsDialog;
 		} else {
 			resultsDialog->show();
 		}

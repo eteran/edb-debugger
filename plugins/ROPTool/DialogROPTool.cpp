@@ -184,7 +184,7 @@ bool isSafe64NopRegOp(const edb::Operand &op) {
 	}
 }
 
-bool is_effective_nop(const edb::Instruction &inst) {
+bool isEffectiveNop(const edb::Instruction &inst) {
 
 	if(!inst) {
 		return false;
@@ -309,11 +309,12 @@ void DialogROPTool::showEvent(QShowEvent *) {
 
 
 
-//------------------------------------------------------------------------------
-// Name: add_gadget
-// Desc:
-//------------------------------------------------------------------------------
-void DialogROPTool::add_gadget(DialogResults *results, const InstructionList &instructions) {
+/**
+ * @brief DialogROPTool::addGadget
+ * @param results
+ * @param instructions
+ */
+void DialogROPTool::addGadget(DialogResults *results, const InstructionList &instructions) {
 
 	if(!instructions.empty()) {
 
@@ -384,7 +385,7 @@ void DialogROPTool::do_find() {
 							// eat up any NOPs in front...
 							Q_FOREVER {
 								auto inst = std::make_shared<edb::Instruction>(p, l, rva);
-								if(!is_effective_nop(*inst)) {
+								if(!isEffectiveNop(*inst)) {
 									break;
 								}
 
@@ -399,11 +400,11 @@ void DialogROPTool::do_find() {
 								instruction_list.push_back(inst1);
 
 								if(is_int(*inst1) && is_immediate(inst1->operand(0)) && (inst1->operand(0)->imm & 0xff) == 0x80) {
-									add_gadget(resultsDialog, instruction_list);
+									addGadget(resultsDialog, instruction_list);
 								} else if(is_sysenter(*inst1)) {
-									add_gadget(resultsDialog, instruction_list);
+									addGadget(resultsDialog, instruction_list);
 								} else if(is_syscall(*inst1)) {
-									add_gadget(resultsDialog, instruction_list);
+									addGadget(resultsDialog, instruction_list);
 								} else if(is_ret(*inst1)) {
 									ui->progressBar->setValue(util::percentage(start_address - orig_start, region->size()));
 									++start_address;
@@ -416,7 +417,7 @@ void DialogROPTool::do_find() {
 									// eat up any NOPs in between...
 									Q_FOREVER {
 										auto inst = std::make_shared<edb::Instruction>(p, l, rva);
-										if(!is_effective_nop(*inst)) {
+										if(!isEffectiveNop(*inst)) {
 											break;
 										}
 
@@ -429,7 +430,7 @@ void DialogROPTool::do_find() {
 
 									if(is_ret(*inst2)) {
 										instruction_list.push_back(inst2);
-										add_gadget(resultsDialog, instruction_list);
+										addGadget(resultsDialog, instruction_list);
 									} else if(inst2->valid() && inst2->operation() == X86_INS_POP) {
 										instruction_list.push_back(inst2);
 										p   += inst2->byte_size();
@@ -444,7 +445,7 @@ void DialogROPTool::do_find() {
 											if(inst2->operand_count() == 1 && is_register(inst2->operand(0))) {
 												if(inst3->operand_count() == 1 && is_register(inst3->operand(0))) {
 													if(inst2->operand(0)->reg == inst3->operand(0)->reg) {
-														add_gadget(resultsDialog, instruction_list);
+														addGadget(resultsDialog, instruction_list);
 													}
 												}
 											}
@@ -464,11 +465,13 @@ void DialogROPTool::do_find() {
 			}
 		}
 
-		resultsDialog->show();
+		if(resultsDialog->resultCount() == 0) {
+			QMessageBox::information(this, tr("No Results"), tr("No Rop Gadgets found in the selected region."));
+			delete resultsDialog;
+		} else {
+			resultsDialog->show();
+		}
 	}
-
-
-
 }
 
 //------------------------------------------------------------------------------

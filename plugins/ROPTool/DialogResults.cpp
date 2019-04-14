@@ -25,8 +25,26 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	ui.tableView->setModel(filter_model_);
 
 
-
 	connect(ui.textFilter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	connect(ui.chkShowALU, &QCheckBox::stateChanged, this, [this](int state) {
+		result_filter_->setMask(0x01, state);
+	});
+
+	connect(ui.chkShowStack, &QCheckBox::stateChanged, this, [this](int state) {
+		result_filter_->setMask(0x02, state);
+	});
+
+	connect(ui.chkShowLogic, &QCheckBox::stateChanged, this, [this](int state) {
+		result_filter_->setMask(0x04, state);
+	});
+
+	connect(ui.chkShowData, &QCheckBox::stateChanged, this, [this](int state) {
+		result_filter_->setMask(0x08, state);
+	});
+
+	connect(ui.chkShowOther, &QCheckBox::stateChanged, this, [this](int state) {
+		result_filter_->setMask(0x10, state);
+	});
 }
 
 /**
@@ -37,50 +55,11 @@ void DialogResults::addResult(const Result &result) {
 	model_->addResult(result);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_chkShowALU_stateChanged
-// Desc:
-//------------------------------------------------------------------------------
-void DialogResults::on_chkShowALU_stateChanged(int state) {
-	result_filter_->setMask(0x01, state);
-}
 
-//------------------------------------------------------------------------------
-// Name: on_chkShowStack_stateChanged
-// Desc:
-//------------------------------------------------------------------------------
-void DialogResults::on_chkShowStack_stateChanged(int state) {
-	result_filter_->setMask(0x02, state);
-}
-
-//------------------------------------------------------------------------------
-// Name: on_chkShowLogic_stateChanged
-// Desc:
-//------------------------------------------------------------------------------
-void DialogResults::on_chkShowLogic_stateChanged(int state) {
-	result_filter_->setMask(0x04, state);
-}
-
-//------------------------------------------------------------------------------
-// Name: on_chkShowData_stateChanged
-// Desc:
-//------------------------------------------------------------------------------
-void DialogResults::on_chkShowData_stateChanged(int state) {
-	result_filter_->setMask(0x08, state);
-}
-
-//------------------------------------------------------------------------------
-// Name: on_chkShowOther_stateChanged
-// Desc:
-//------------------------------------------------------------------------------
-void DialogResults::on_chkShowOther_stateChanged(int state) {
-	result_filter_->setMask(0x10, state);
-}
-
-//------------------------------------------------------------------------------
-// Name: on_tableView_doubleClicked
-// Desc: follows the found item in the table
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogResults::on_tableView_doubleClicked
+ * @param index
+ */
 void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 	if(index.isValid()) {
 		const QModelIndex realIndex = filter_model_->mapToSource(index);
@@ -92,6 +71,14 @@ void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 		}
 
 	}
+}
+
+/**
+ * @brief DialogResults::resultCount
+ * @return
+ */
+int DialogResults::resultCount() const {
+	return model_->rowCount();
 }
 
 }
