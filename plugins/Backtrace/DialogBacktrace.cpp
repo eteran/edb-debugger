@@ -26,8 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QTableWidget>
 
-#include "ui_DialogBacktrace.h"
-
 namespace BacktracePlugin {
 namespace {
 
@@ -79,16 +77,13 @@ bool is_ret(const QTableWidgetItem *item) {
 //			do a "Step Out" (the behavior for the 1st row should be different
 //			than all others.
 //------------------------------------------------------------------------------
-DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogBacktrace) {
-	ui->setupUi(this);
-	table_ = ui->tableWidgetCallStack;
+DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
+	table_ = ui.tableWidgetCallStack;
 	table_->verticalHeader()->hide();
 	table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
-DialogBacktrace::~DialogBacktrace() {
-	delete ui;
-}
 
 //------------------------------------------------------------------------------
 // Name: showEvent
@@ -169,9 +164,9 @@ void DialogBacktrace::populate_table() {
 	QTableWidgetItem *item = table_->item(FIRST_ROW, RETURN_COLUMN);
 	if (item) {
 		table_->setCurrentItem(item);
-		ui->pushButtonReturnTo->setEnabled(true);
+		ui.pushButtonReturnTo->setEnabled(true);
 	} else {
-		ui->pushButtonReturnTo->setDisabled(true);
+		ui.pushButtonReturnTo->setDisabled(true);
 	}
 }
 
@@ -209,7 +204,7 @@ void DialogBacktrace::on_tableWidgetCallStack_cellClicked(int row, int column)
 {
 	Q_UNUSED(row)
 
-	QPushButton *return_to = ui->pushButtonReturnTo;
+	QPushButton *return_to = ui.pushButtonReturnTo;
 	if (is_ret(column)) {
 		return_to->setEnabled(true);
 	} else {

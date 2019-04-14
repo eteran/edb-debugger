@@ -20,19 +20,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIALOG_PROCESS_PROPERTIES_20120817_H_
 
 #include "ThreadsModel.h"
+#include "ui_DialogProcessProperties.h"
 #include <QDialog>
 #include <QSortFilterProxyModel>
 
 namespace ProcessPropertiesPlugin {
-
-namespace Ui { class DialogProcessProperties; }
 
 class DialogProcessProperties : public QDialog {
 	Q_OBJECT
 
 public:
     explicit DialogProcessProperties(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~DialogProcessProperties() override;
+	~DialogProcessProperties() override = default;
 
 public Q_SLOTS:
 	void on_btnParent_clicked();
@@ -61,7 +60,7 @@ private:
     void showEvent(QShowEvent *event) override;
 
 private:
-	Ui::DialogProcessProperties *const ui;
+	Ui::DialogProcessProperties ui;
 	ThreadsModel          *threads_model_;
 	QSortFilterProxyModel *threads_filter_;
 };

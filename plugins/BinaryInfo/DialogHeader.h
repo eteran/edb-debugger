@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 #include "IRegion.h"
+#include "ui_DialogHeader.h"
 #include <QDialog>
 #include <memory>
 
@@ -30,17 +31,15 @@ class QModelIndex;
 
 namespace BinaryInfoPlugin {
 
-namespace Ui { class DialogHeader; }
-
 class DialogHeader : public QDialog {
 	Q_OBJECT
 
 public:
 	explicit DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	~DialogHeader() override;
+	~DialogHeader() override = default;
 
 private:
-	 Ui::DialogHeader *const ui;
+	 Ui::DialogHeader ui;
 };
 
 }

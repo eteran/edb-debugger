@@ -22,17 +22,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDialog>
 #include "Types.h"
 #include "IRegion.h"
+#include "ui_DialogAssembler.h"
 
 namespace AssemblerPlugin {
-
-namespace Ui { class DialogAssembler; }
 
 class DialogAssembler : public QDialog {
 	Q_OBJECT
 
 public:
     explicit DialogAssembler(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	~DialogAssembler() override;
+	~DialogAssembler() override = default;
 
 public Q_SLOTS:
 	void on_buttonBox_accepted();
@@ -44,9 +43,9 @@ public:
 	void showEvent(QShowEvent *event) override;
 
 private:
-	 Ui::DialogAssembler *const ui;
-	 edb::address_t             address_;
-	 size_t                     instruction_size_;
+	 Ui::DialogAssembler ui;
+	 edb::address_t address_ = 0;
+	 size_t         instruction_size_ = 0;
 };
 
 }

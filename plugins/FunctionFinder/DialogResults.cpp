@@ -33,8 +33,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 
-#include "ui_DialogResults.h"
-
 namespace FunctionFinderPlugin {
 
 /**
@@ -42,32 +40,25 @@ namespace FunctionFinderPlugin {
  * @param parent
  * @param f
  */
-DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogResults) {
-	ui->setupUi(this);
-	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
+	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 	resultsModel_ = new ResultsModel(this);
 
 	filter_model_ = new QSortFilterProxyModel(this);
 	filter_model_->setFilterKeyColumn(5);
 	filter_model_->setSourceModel(resultsModel_);
-	connect(ui->textFilter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	connect(ui.textFilter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
 
 
-	ui->tableView->setModel(filter_model_);
+	ui.tableView->setModel(filter_model_);
 
 #ifdef ENABLE_GRAPH
-	ui->btnGraph->setEnabled(true);
+	ui.btnGraph->setEnabled(true);
 #else
-	ui->btnGraph->setEnabled(false);
+	ui.btnGraph->setEnabled(false);
 #endif
-}
-
-/**
- * @brief DialogResults::~DialogResults
- */
-DialogResults::~DialogResults() {
-	delete ui;
 }
 
 /**
@@ -98,7 +89,7 @@ void DialogResults::on_btnGraph_clicked() {
 	qDebug("[FunctionFinder] Constructing Graph...");
 
 
-	const QItemSelectionModel *const selModel = ui->tableView->selectionModel();
+	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 	const QModelIndexList sel = selModel->selectedRows();
 
 	if(sel.size() == 1) {

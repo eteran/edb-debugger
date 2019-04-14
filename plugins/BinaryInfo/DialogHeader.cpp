@@ -1,6 +1,5 @@
 
 #include "DialogHeader.h"
-#include "ui_DialogHeader.h"
 #include "edb.h"
 #include "ELFXX.h"
 #include "PE32.h"
@@ -444,8 +443,8 @@ QTreeWidgetItem *create_elf_entry_point(const Header *header) {
 
 }
 
-DialogHeader::DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogHeader) {
-	ui->setupUi(this);
+DialogHeader::DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
 
 	if(auto binary_info = edb::v1::get_binary_info(region)) {
 
@@ -467,7 +466,7 @@ DialogHeader::DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *pare
 			root->addChild(create_elf_object_version(header));
 			root->addChild(create_elf_entry_point(header));
 
-			ui->treeWidget->insertTopLevelItem(0, root);
+			ui.treeWidget->insertTopLevelItem(0, root);
 		}
 
 		if(auto elf64 = dynamic_cast<ELF64 *>(binary_info.get())) {
@@ -488,7 +487,7 @@ DialogHeader::DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *pare
 			root->addChild(create_elf_object_version(header));
 			root->addChild(create_elf_entry_point(header));
 
-			ui->treeWidget->insertTopLevelItem(0, root);
+			ui.treeWidget->insertTopLevelItem(0, root);
 		}
 
 		if(auto pe32 = dynamic_cast<PE32 *>(binary_info.get())) {
@@ -498,13 +497,9 @@ DialogHeader::DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *pare
 		#endif
 			auto root = new QTreeWidgetItem;
 			root->setText(0, tr("PE32"));
-			ui->treeWidget->insertTopLevelItem(0, root);
+			ui.treeWidget->insertTopLevelItem(0, root);
 		}
 	}
-}
-
-DialogHeader::~DialogHeader() {
-	delete ui;
 }
 
 }

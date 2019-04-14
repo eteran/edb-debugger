@@ -24,8 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QTreeWidgetItem>
 #include <QSortFilterProxyModel>
 
-#include "ui_DialogRegions.h"
-
 namespace BinaryInfoPlugin {
 
 
@@ -34,21 +32,15 @@ namespace BinaryInfoPlugin {
  * @brief DialogRegions::DialogRegions
  * @param parent
  */
-DialogRegions::DialogRegions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogRegions) {
-	ui->setupUi(this);
-	ui->tableView->verticalHeader()->hide();
-	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+DialogRegions::DialogRegions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
+	ui.tableView->verticalHeader()->hide();
+	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 	filter_model_ = new QSortFilterProxyModel(this);
-	connect(ui->txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	connect(ui.txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
 }
 
-/**
- * @brief DialogRegions::~DialogRegions
- */
-DialogRegions::~DialogRegions() {
-	delete ui;
-}
 
 /**
  * @brief DialogRegions::showEvent
@@ -56,7 +48,7 @@ DialogRegions::~DialogRegions() {
 void DialogRegions::showEvent(QShowEvent *) {
 	filter_model_->setFilterKeyColumn(3);
 	filter_model_->setSourceModel(&edb::v1::memory_regions());
-	ui->tableView->setModel(filter_model_);
+	ui.tableView->setModel(filter_model_);
 }
 
 /**
@@ -64,7 +56,7 @@ void DialogRegions::showEvent(QShowEvent *) {
  */
 void DialogRegions::on_btnExplore_clicked() {
 
-	const QItemSelectionModel *const selModel = ui->tableView->selectionModel();
+	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 	const QModelIndexList sel = selModel->selectedRows();
 
 	if(sel.size() == 0) {

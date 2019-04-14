@@ -19,11 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOGHWBREAKPOINTS_20080228_H_
 #define DIALOGHWBREAKPOINTS_20080228_H_
 
+#include "ui_DialogHWBreakpoints.h"
 #include <QDialog>
 
 namespace HardwareBreakpointsPlugin {
-
-namespace Ui { class DialogHWBreakpoints; }
 
 class DialogHWBreakpoints : public QDialog {
 	Q_OBJECT
@@ -33,7 +32,7 @@ private:
 
 public:
     explicit DialogHWBreakpoints(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~DialogHWBreakpoints() override;
+	~DialogHWBreakpoints() override = default;
 
 private:
     void showEvent(QShowEvent *event) override;
@@ -45,7 +44,7 @@ private Q_SLOTS:
 	void type4IndexChanged(int index);
 
 private:
-	Ui::DialogHWBreakpoints *const ui;
+	Ui::DialogHWBreakpoints ui;
 };
 
 }

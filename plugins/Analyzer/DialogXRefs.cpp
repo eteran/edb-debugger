@@ -1,23 +1,14 @@
 
 #include "DialogXRefs.h"
 
-#include "ui_DialogXRefs.h"
-
 namespace AnalyzerPlugin {
 
 /**
  * @brief DialogXRefs::DialogXRefs
  * @param parent
  */
-DialogXRefs::DialogXRefs(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogXRefs) {
-	ui->setupUi(this);
-}
-
-/**
- * @brief DialogXRefs::~DialogXRefs
- */
-DialogXRefs::~DialogXRefs() {
-	delete ui;
+DialogXRefs::DialogXRefs(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
 }
 
 /**
@@ -39,9 +30,9 @@ void DialogXRefs::addReference(const std::pair<edb::address_t, edb::address_t> &
 	int offset;
 	QString sym = edb::v1::find_function_symbol(ref.first, ref.first.toPointerString(), &offset);
 
-	auto string = tr("%1. %2 -> %3").arg(ui->listReferences->count() + 1, 2, 10, QChar('0')).arg(sym).arg(ref.second.toPointerString());
+	auto string = tr("%1. %2 -> %3").arg(ui.listReferences->count() + 1, 2, 10, QChar('0')).arg(sym).arg(ref.second.toPointerString());
 
-	auto item = new QListWidgetItem(string, ui->listReferences);
+	auto item = new QListWidgetItem(string, ui.listReferences);
 	item->setData(Qt::UserRole, static_cast<qlonglong>(ref.first));
 }
 

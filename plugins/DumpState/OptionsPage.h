@@ -19,18 +19,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef OPTIONSPAGE_20090706_H_
 #define OPTIONSPAGE_20090706_H_
 
+#include "ui_OptionsPage.h"
 #include <QWidget>
 
 namespace DumpStatePlugin {
-
-namespace Ui { class OptionsPage; }
 
 class OptionsPage : public QWidget {
 	Q_OBJECT
 
 public:
     explicit OptionsPage(QWidget *parent = nullptr);
-    ~OptionsPage() override;
+	~OptionsPage() override = default;
 
 public:
     void showEvent(QShowEvent *event) override;
@@ -41,7 +40,7 @@ public Q_SLOTS:
 	void on_colorizeOutput_toggled(bool value);
 
 private:
-	Ui::OptionsPage *const ui;
+	Ui::OptionsPage ui;
 };
 
 }

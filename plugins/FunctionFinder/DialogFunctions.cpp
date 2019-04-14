@@ -28,8 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
 
-#include "ui_DialogFunctions.h"
-
 namespace FunctionFinderPlugin {
 
 
@@ -37,22 +35,13 @@ namespace FunctionFinderPlugin {
 // Name: DialogFunctions
 // Desc:
 //------------------------------------------------------------------------------
-DialogFunctions::DialogFunctions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogFunctions) {
-	ui->setupUi(this);
-	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+DialogFunctions::DialogFunctions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
+	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 	filter_model_ = new QSortFilterProxyModel(this);
-	connect(ui->txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	connect(ui.txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
 }
-
-//------------------------------------------------------------------------------
-// Name: ~DialogFunctions
-// Desc:
-//------------------------------------------------------------------------------
-DialogFunctions::~DialogFunctions() {
-	delete ui;
-}
-
 
 //------------------------------------------------------------------------------
 // Name: showEvent
@@ -61,9 +50,9 @@ DialogFunctions::~DialogFunctions() {
 void DialogFunctions::showEvent(QShowEvent *) {
 	filter_model_->setFilterKeyColumn(3);
 	filter_model_->setSourceModel(&edb::v1::memory_regions());
-	ui->tableView->setModel(filter_model_);
+	ui.tableView->setModel(filter_model_);
 
-	ui->progressBar->setValue(0);
+	ui.progressBar->setValue(0);
 }
 
 //------------------------------------------------------------------------------
@@ -73,7 +62,7 @@ void DialogFunctions::showEvent(QShowEvent *) {
 void DialogFunctions::do_find() {
 
 	if(IAnalyzer *const analyzer = edb::v1::analyzer()) {
-		const QItemSelectionModel *const selModel = ui->tableView->selectionModel();
+		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 		const QModelIndexList sel = selModel->selectedRows();
 
 		if(sel.size() == 0) {
@@ -83,7 +72,7 @@ void DialogFunctions::do_find() {
 
 		auto analyzer_object = dynamic_cast<QObject *>(analyzer);
 		if(analyzer_object) {
-			connect(analyzer_object, SIGNAL(update_progress(int)), ui->progressBar, SLOT(setValue(int)));
+			connect(analyzer_object, SIGNAL(update_progress(int)), ui.progressBar, SLOT(setValue(int)));
 		}
 
 		auto resultsDialog = new DialogResults(this);
@@ -112,7 +101,7 @@ void DialogFunctions::do_find() {
 		}
 
 		if(analyzer_object) {
-			disconnect(analyzer_object, SIGNAL(update_progress(int)), ui->progressBar, SLOT(setValue(int)));
+			disconnect(analyzer_object, SIGNAL(update_progress(int)), ui.progressBar, SLOT(setValue(int)));
 		}
 	}
 }
@@ -122,11 +111,11 @@ void DialogFunctions::do_find() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogFunctions::on_btnFind_clicked() {
-	ui->btnFind->setEnabled(false);
-	ui->progressBar->setValue(0);
+	ui.btnFind->setEnabled(false);
+	ui.progressBar->setValue(0);
 	do_find();
-	ui->progressBar->setValue(100);
-	ui->btnFind->setEnabled(true);
+	ui.progressBar->setValue(100);
+	ui.btnFind->setEnabled(true);
 }
 
 }

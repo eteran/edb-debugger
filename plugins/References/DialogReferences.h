@@ -19,22 +19,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOGREFERENCES_20061101_H_
 #define DIALOGREFERENCES_20061101_H_
 
-#include <QDialog>
+
 #include "Types.h"
 #include "IRegion.h"
+#include "ui_DialogReferences.h"
+#include <QDialog>
 
 class QListWidgetItem;
 
 namespace ReferencesPlugin {
-
-namespace Ui { class DialogReferences; }
 
 class DialogReferences : public QDialog {
 	Q_OBJECT
 
 public:
     explicit DialogReferences(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~DialogReferences() override;
+	~DialogReferences() override = default;
 
 public Q_SLOTS:
 	void on_listWidget_itemDoubleClicked(QListWidgetItem *item);
@@ -50,7 +50,7 @@ private:
 	void do_find();
 
 private:
-	 Ui::DialogReferences *ui;
+	 Ui::DialogReferences ui;
 	 QPushButton *btnFind_;
 };
 

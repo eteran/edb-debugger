@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 #include "Instruction.h"
+#include "ui_DialogOpcodes.h"
 
 #include <QDialog>
 #include <QList>
@@ -31,14 +32,12 @@ class QListWidgetItem;
 
 namespace OpcodeSearcherPlugin {
 
-namespace Ui { class DialogOpcodes; }
-
 class DialogOpcodes : public QDialog {
 	Q_OBJECT
 
 public:
     explicit DialogOpcodes(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~DialogOpcodes() override;
+	~DialogOpcodes() override = default;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();
@@ -73,7 +72,7 @@ private:
     void showEvent(QShowEvent *event) override;
 
 private:
-	Ui::DialogOpcodes *const ui;
+	Ui::DialogOpcodes ui;
 	QSortFilterProxyModel *  filter_model_;
 };
 

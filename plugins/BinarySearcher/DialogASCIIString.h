@@ -19,20 +19,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOGASCIISTRING_20082201_H_
 #define DIALOGASCIISTRING_20082201_H_
 
+#include "ui_DialogASCIIString.h"
 #include <QDialog>
 
 class QListWidgetItem;
 
 namespace BinarySearcherPlugin {
 
-namespace Ui { class DialogASCIIString; }
-
 class DialogASCIIString : public QDialog {
 	Q_OBJECT
 
 public:
 	explicit DialogASCIIString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	~DialogASCIIString() override;
+	~DialogASCIIString() override = default;
 
 protected:
 	void showEvent(QShowEvent *event) override;
@@ -44,7 +43,7 @@ private:
 	void do_find();
 
 private:
-	 Ui::DialogASCIIString *const ui;
+	 Ui::DialogASCIIString ui;
 };
 
 }

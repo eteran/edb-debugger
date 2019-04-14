@@ -21,12 +21,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 #include "edb.h"
+#include "ui_DialogResults.h"
 
 class QListWidgetItem;
 
 namespace BinarySearcherPlugin {
-
-namespace Ui { class DialogResults; }
 
 class DialogResults : public QDialog {
 	Q_OBJECT
@@ -40,7 +39,7 @@ public:
 
 public:
 	explicit DialogResults(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	~DialogResults() override;
+	~DialogResults() override = default;
 
 public:
 	void addResult(RegionType region, edb::address_t address);
@@ -50,7 +49,7 @@ public Q_SLOTS:
 	void on_listWidget_itemDoubleClicked(QListWidgetItem *);
 
 private:
-	 Ui::DialogResults *const ui;
+	 Ui::DialogResults ui;
 };
 
 }

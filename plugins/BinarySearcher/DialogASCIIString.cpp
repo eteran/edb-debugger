@@ -33,25 +33,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <cstring>
 
-#include "ui_DialogASCIIString.h"
-
 namespace BinarySearcherPlugin {
 
 //------------------------------------------------------------------------------
 // Name: DialogASCIIString
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogASCIIString::DialogASCIIString(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogASCIIString) {
-	ui->setupUi(this);
-	ui->progressBar->setValue(0);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogASCIIString
-// Desc:
-//------------------------------------------------------------------------------
-DialogASCIIString::~DialogASCIIString() {
-	delete ui;
+DialogASCIIString::DialogASCIIString(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
+	ui.progressBar->setValue(0);
 }
 
 //------------------------------------------------------------------------------
@@ -60,7 +50,7 @@ DialogASCIIString::~DialogASCIIString() {
 //------------------------------------------------------------------------------
 void DialogASCIIString::do_find() {
 
-	const QByteArray b = ui->txtASCII->text().toLatin1();
+	const QByteArray b = ui.txtASCII->text().toLatin1();
 	auto results = new DialogResults(this);
 
 	const auto sz = static_cast<size_t>(b.size());
@@ -96,7 +86,7 @@ void DialogASCIIString::do_find() {
 									}
 								}
 							}
-							ui->progressBar->setValue(util::percentage(i++, count));
+							ui.progressBar->setValue(util::percentage(i++, count));
 							stack_ptr += edb::v1::pointer_size();
 						}
 
@@ -125,11 +115,11 @@ void DialogASCIIString::do_find() {
  */
 void DialogASCIIString::on_btnFind_clicked() {
 
-	ui->btnFind->setEnabled(false);
-	ui->progressBar->setValue(0);
+	ui.btnFind->setEnabled(false);
+	ui.progressBar->setValue(0);
 	do_find();
-	ui->progressBar->setValue(100);
-	ui->btnFind->setEnabled(true);
+	ui.progressBar->setValue(100);
+	ui.btnFind->setEnabled(true);
 }
 
 /**
@@ -138,7 +128,7 @@ void DialogASCIIString::on_btnFind_clicked() {
  */
 void DialogASCIIString::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
-	ui->txtASCII->setFocus();
+	ui.txtASCII->setFocus();
 }
 
 }

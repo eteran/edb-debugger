@@ -50,7 +50,7 @@ public:
 private:
 	void setEntriesMaxLength(int n);
 
-	Ui::BinaryStringWidget *const ui;
+	::Ui::BinaryStringWidget *ui;
 
 	enum class Mode {
 		LengthLimited, // obeys setMaxLength()

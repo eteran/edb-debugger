@@ -40,27 +40,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <unistd.h>
 #endif
 
-#include "ui_DialogAssembler.h"
-
 namespace AssemblerPlugin {
 
 //------------------------------------------------------------------------------
 // Name: DialogAssembler
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogAssembler::DialogAssembler(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogAssembler), address_(0), instruction_size_(0) {
-	ui->setupUi(this);
+DialogAssembler::DialogAssembler(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), address_(0), instruction_size_(0) {
+	ui.setupUi(this);
 	// Disable click focus: we don't want to unnecessarily defocus instruction entry without need
-	ui->fillWithNOPs->setFocusPolicy(Qt::TabFocus);
-	ui->keepSize->setFocusPolicy(Qt::TabFocus);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogAssembler
-// Desc:
-//------------------------------------------------------------------------------
-DialogAssembler::~DialogAssembler() {
-	delete ui;
+	ui.fillWithNOPs->setFocusPolicy(Qt::TabFocus);
+	ui.keepSize->setFocusPolicy(Qt::TabFocus);
 }
 
 static QString toHtmlEscaped(const QString &str) { return str.toHtmlEscaped(); }
@@ -108,13 +98,13 @@ QString fixupSyntax(QString insn) {
 //------------------------------------------------------------------------------
 void DialogAssembler::set_address(edb::address_t address) {
 	address_ = address;
-	ui->address->setText(edb::v1::format_pointer(address_));
+	ui.address->setText(edb::v1::format_pointer(address_));
 
 	quint8 buffer[edb::Instruction::MAX_SIZE];
 	if(const int size = edb::v1::get_instruction_bytes(address, buffer)) {
 		edb::Instruction inst(buffer, buffer + size, address);
 		if(inst) {
-			ui->assembly->setEditText(fixupSyntax(edb::v1::formatter().to_string(inst).c_str()).simplified());
+			ui.assembly->setEditText(fixupSyntax(edb::v1::formatter().to_string(inst).c_str()).simplified());
 			instruction_size_ = inst.byte_size();
 		}
 	}
@@ -126,7 +116,7 @@ void DialogAssembler::set_address(edb::address_t address) {
 //------------------------------------------------------------------------------
 void DialogAssembler::on_buttonBox_accepted() {
 
-	const QString nasm_syntax = ui->assembly->currentText().trimmed();
+	const QString nasm_syntax = ui.assembly->currentText().trimmed();
 
 	const auto asm_root=getAssemblerDescription().documentElement();
 	if(!asm_root.isNull()) {
@@ -215,7 +205,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 				const size_t replacement_size = bytes.size();
 
 				if(replacement_size != 0 && replacement_size <= instruction_size_) {
-					if(ui->fillWithNOPs->isChecked()) {
+					if(ui.fillWithNOPs->isChecked()) {
 						// TODO(eteran): get system independent nop-code
 						if(!edb::v1::modify_bytes(address_, instruction_size_, bytes, 0x90)) {
 							return;
@@ -231,7 +221,7 @@ void DialogAssembler::on_buttonBox_accepted() {
                                                                     (stdError.isEmpty()?"":tr(", here's what it has to say:\n\n")+stdError));
 					return;
 				} else {
-					if(ui->keepSize->isChecked()) {
+					if(ui.keepSize->isChecked()) {
 						QMessageBox::warning(this, tr("Error In Code"), tr("New instruction is too big to fit."));
 						return;
 					} else {
@@ -245,8 +235,8 @@ void DialogAssembler::on_buttonBox_accepted() {
 				set_address(new_address);
 				edb::v1::set_cpu_selected_address(new_address);
 			}
-			ui->assembly->setFocus(Qt::OtherFocusReason);
-			ui->assembly->lineEdit()->selectAll();
+			ui.assembly->setFocus(Qt::OtherFocusReason);
+			ui.assembly->lineEdit()->selectAll();
 		}
 		else if(process.error()==QProcess::FailedToStart)
 		{
@@ -269,9 +259,9 @@ void DialogAssembler::showEvent(QShowEvent *event) {
 	QSettings settings;
 	const QString assembler = settings.value("Assembler/helper", "yasm").toString();
 
-	ui->label->setText(tr("Assembler: %1").arg(assembler));
+	ui.label->setText(tr("Assembler: %1").arg(assembler));
 
-	ui->assembly->setFocus(Qt::OtherFocusReason);
+	ui.assembly->setFocus(Qt::OtherFocusReason);
 }
 
 }

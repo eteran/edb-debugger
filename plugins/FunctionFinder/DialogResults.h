@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIALOG_RESULTS_20190403_H_
 
 #include "Types.h"
+#include "ui_DialogResults.h"
 #include <QDialog>
 
 class QSortFilterProxyModel;
@@ -30,14 +31,12 @@ namespace FunctionFinderPlugin {
 
 class ResultsModel;
 
-namespace Ui { class DialogResults; }
-
 class DialogResults : public QDialog {
 	Q_OBJECT
 
 public:
 	explicit DialogResults(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	~DialogResults() override;
+	~DialogResults() override = default;
 
 public:
 	void addResult(const Function &function);
@@ -48,7 +47,7 @@ public Q_SLOTS:
 	void on_btnGraph_clicked();
 
 private:
-	Ui::DialogResults *const ui;
+	Ui::DialogResults ui;
 	QSortFilterProxyModel *filter_model_;
 	ResultsModel *resultsModel_;
 };

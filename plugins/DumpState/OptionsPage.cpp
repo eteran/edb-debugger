@@ -19,24 +19,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "OptionsPage.h"
 #include <QSettings>
 
-#include "ui_OptionsPage.h"
-
 namespace DumpStatePlugin {
 
 //------------------------------------------------------------------------------
 // Name: OptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsPage) {
-	ui->setupUi(this);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~OptionsPage
-// Desc:
-//------------------------------------------------------------------------------
-OptionsPage::~OptionsPage() {
-	delete ui;
+OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent) {
+	ui.setupUi(this);
 }
 
 //------------------------------------------------------------------------------
@@ -47,9 +37,9 @@ void OptionsPage::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
 
 	QSettings settings;
-	ui->instructionsBeforeIP->setValue(settings.value("DumpState/instructions_before_ip", 0).toInt());
-	ui->instructionsAfterIP->setValue(settings.value("DumpState/instructions_after_ip", 5).toInt());
-	ui->colorizeOutput->setChecked(settings.value("DumpState/colorize", true).toBool());
+	ui.instructionsBeforeIP->setValue(settings.value("DumpState/instructions_before_ip", 0).toInt());
+	ui.instructionsAfterIP->setValue(settings.value("DumpState/instructions_after_ip", 5).toInt());
+	ui.colorizeOutput->setChecked(settings.value("DumpState/colorize", true).toBool());
 }
 
 //------------------------------------------------------------------------------

@@ -58,25 +58,25 @@ void HardwareBreakpoints::private_init() {
 	dialog_ = dialog;
 
 	// indexed access to members for simplicity later
-	enabled_[Register1] = dialog->ui->chkBP1;
-	enabled_[Register2] = dialog->ui->chkBP2;
-	enabled_[Register3] = dialog->ui->chkBP3;
-	enabled_[Register4] = dialog->ui->chkBP4;
+	enabled_[Register1] = dialog->ui.chkBP1;
+	enabled_[Register2] = dialog->ui.chkBP2;
+	enabled_[Register3] = dialog->ui.chkBP3;
+	enabled_[Register4] = dialog->ui.chkBP4;
 
-	types_[Register1] = dialog->ui->cmbType1;
-	types_[Register2] = dialog->ui->cmbType2;
-	types_[Register3] = dialog->ui->cmbType3;
-	types_[Register4] = dialog->ui->cmbType4;
+	types_[Register1] = dialog->ui.cmbType1;
+	types_[Register2] = dialog->ui.cmbType2;
+	types_[Register3] = dialog->ui.cmbType3;
+	types_[Register4] = dialog->ui.cmbType4;
 
-	sizes_[Register1] = dialog->ui->cmbSize1;
-	sizes_[Register2] = dialog->ui->cmbSize2;
-	sizes_[Register3] = dialog->ui->cmbSize3;
-	sizes_[Register4] = dialog->ui->cmbSize4;
+	sizes_[Register1] = dialog->ui.cmbSize1;
+	sizes_[Register2] = dialog->ui.cmbSize2;
+	sizes_[Register3] = dialog->ui.cmbSize3;
+	sizes_[Register4] = dialog->ui.cmbSize4;
 
-	addresses_[Register1] = dialog->ui->txtBP1;
-	addresses_[Register2] = dialog->ui->txtBP2;
-	addresses_[Register3] = dialog->ui->txtBP3;
-	addresses_[Register4] = dialog->ui->txtBP4;
+	addresses_[Register1] = dialog->ui.txtBP1;
+	addresses_[Register2] = dialog->ui.txtBP2;
+	addresses_[Register3] = dialog->ui.txtBP3;
+	addresses_[Register4] = dialog->ui.txtBP4;
 
 	edb::v1::add_debug_event_handler(this);
 }

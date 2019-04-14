@@ -25,30 +25,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QTableWidgetItem>
 
-#include "ui_Bookmarks.h"
-
 namespace BookmarksPlugin {
 
 //------------------------------------------------------------------------------
 // Name: BookmarkWidget
 // Desc:
 //------------------------------------------------------------------------------
-BookmarkWidget::BookmarkWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), ui(new Ui::Bookmarks) {
-	ui->setupUi(this);
+BookmarkWidget::BookmarkWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f)  {
+	ui.setupUi(this);
 
 	model_ = new BookmarksModel(this);
-	ui->tableView->setModel(model_);
+	ui.tableView->setModel(model_);
 
 	connect(edb::v1::debugger_ui, SIGNAL(detachEvent()), model_, SLOT(clearBookmarks()));
 }
 
-//------------------------------------------------------------------------------
-// Name: ~BookmarkWidget
-// Desc:
-//------------------------------------------------------------------------------
-BookmarkWidget::~BookmarkWidget() {
-	delete ui;
-}
 
 //------------------------------------------------------------------------------
 // Name: on_tableView_doubleClicked
@@ -78,7 +69,7 @@ void BookmarkWidget::on_tableView_doubleClicked(const QModelIndex &index) {
 				items << tr("Code") << tr("Data") << tr("Stack");
 
 				bool ok;
-				const QString new_type = QInputDialog::getItem(ui->tableView, tr("Comment"), tr("Set Type:"), items, items.indexOf(old_type), false, &ok);
+				const QString new_type = QInputDialog::getItem(ui.tableView, tr("Comment"), tr("Set Type:"), items, items.indexOf(old_type), false, &ok);
 				if(ok) {
 					model_->setType(index, new_type);
 				}
@@ -88,7 +79,7 @@ void BookmarkWidget::on_tableView_doubleClicked(const QModelIndex &index) {
 			{
 				QString old_comment = item->comment;
 				bool ok;
-				const QString new_comment = QInputDialog::getText(ui->tableView, tr("Comment"), tr("Set Comment:"), QLineEdit::Normal, old_comment, &ok);
+				const QString new_comment = QInputDialog::getText(ui.tableView, tr("Comment"), tr("Set Comment:"), QLineEdit::Normal, old_comment, &ok);
 				if(ok) {
 					model_->setComment(index, new_comment);
 				}
@@ -116,7 +107,7 @@ void BookmarkWidget::on_btnAdd_clicked() {
 //------------------------------------------------------------------------------
 void BookmarkWidget::on_btnDel_clicked() {
 
-	const QItemSelectionModel *const selModel = ui->tableView->selectionModel();
+	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 	const QModelIndexList selections = selModel->selectedRows();
 
 	if(selections.size() == 1) {
@@ -191,7 +182,7 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 	menu.addSeparator();
 	QAction *const actionComment = menu.addAction(tr("&Set Comment"));
 	QAction *const actionType    = menu.addAction(tr("Set &Type"));
-	QAction *const chosen = menu.exec(ui->tableView->mapToGlobal(pos));
+	QAction *const chosen = menu.exec(ui.tableView->mapToGlobal(pos));
 
 	if(chosen == actionAdd) {
 		on_btnAdd_clicked();
@@ -201,7 +192,7 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 		on_btnClear_clicked();
 	} else if(chosen == actionComment) {
 
-		const QItemSelectionModel *const selModel = ui->tableView->selectionModel();
+		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 		const QModelIndexList selections = selModel->selectedRows();
 
 		if(selections.size() == 1) {
@@ -210,14 +201,14 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 			if(auto item = static_cast<BookmarksModel::Bookmark *>(index.internalPointer())) {
 				QString old_comment = item->comment;
 				bool ok;
-				const QString new_comment = QInputDialog::getText(ui->tableView, tr("Comment"), tr("Set Comment:"), QLineEdit::Normal, old_comment, &ok);
+				const QString new_comment = QInputDialog::getText(ui.tableView, tr("Comment"), tr("Set Comment:"), QLineEdit::Normal, old_comment, &ok);
 				if(ok) {
 					model_->setComment(index, new_comment);
 				}
 			}
 		}
 	} else if(chosen == actionType) {
-		const QItemSelectionModel *const selModel = ui->tableView->selectionModel();
+		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 		const QModelIndexList selections = selModel->selectedRows();
 
 		if(selections.size() == 1) {
@@ -230,7 +221,7 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 				items << tr("Code") << tr("Data") << tr("Stack");
 
 				bool ok;
-				const QString new_type = QInputDialog::getItem(ui->tableView, tr("Comment"), tr("Set Type:"), items, items.indexOf(old_type), false, &ok);
+				const QString new_type = QInputDialog::getItem(ui.tableView, tr("Comment"), tr("Set Type:"), items, items.indexOf(old_type), false, &ok);
 				if(ok) {
 					model_->setType(index, new_type);
 				}

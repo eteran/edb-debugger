@@ -19,18 +19,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ASSEMBLER_OPTIONS_PAGE_20130611_H_
 #define ASSEMBLER_OPTIONS_PAGE_20130611_H_
 
+#include "ui_OptionsPage.h"
 #include <QWidget>
 
 namespace AssemblerPlugin {
-
-namespace Ui { class OptionsPage; }
 
 class OptionsPage : public QWidget {
 	Q_OBJECT
 
 public:
     explicit OptionsPage(QWidget *parent = nullptr);
-	~OptionsPage() override;
+	~OptionsPage() override = default;
 
 public:
 	void showEvent(QShowEvent *event) override;
@@ -39,7 +38,7 @@ public Q_SLOTS:
 	void on_assemblerName_currentIndexChanged(const QString &text);
 
 private:
-	Ui::OptionsPage *const ui;
+	Ui::OptionsPage ui;
 };
 
 }

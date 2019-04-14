@@ -22,21 +22,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFileDialog>
 #include <QDomDocument>
 
-#include "ui_OptionsPage.h"
-
 namespace AssemblerPlugin {
 
 //------------------------------------------------------------------------------
 // Name: OptionsPage
 // Desc:
 //------------------------------------------------------------------------------
-OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsPage) {
-	ui->setupUi(this);
+OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent)  {
+	ui.setupUi(this);
 
 	QSettings settings;
 	const QString name = settings.value("Assembler/helper", "yasm").toString();
 
-	ui->assemblerName->clear();
+	ui.assemblerName->clear();
 
 #if defined EDB_X86 || defined EDB_X86_64
 	const QLatin1String targetArch("x86");
@@ -56,25 +54,17 @@ OptionsPage::OptionsPage(QWidget *parent) : QWidget(parent), ui(new Ui::OptionsP
 			const QString name = assembler.attribute("name");
 			const QString arch = assembler.attribute("arch");
 			if(arch == targetArch) {
-				ui->assemblerName->addItem(name);
+				ui.assemblerName->addItem(name);
 			}
 		}
 	}
 
-	const int index = ui->assemblerName->findText(name, Qt::MatchFixedString);
-	if(index == -1 && ui->assemblerName->count() > 0) {
-		ui->assemblerName->setCurrentIndex(0);
+	const int index = ui.assemblerName->findText(name, Qt::MatchFixedString);
+	if(index == -1 && ui.assemblerName->count() > 0) {
+		ui.assemblerName->setCurrentIndex(0);
 	} else {
-		ui->assemblerName->setCurrentIndex(index);
+		ui.assemblerName->setCurrentIndex(index);
 	}
-}
-
-//------------------------------------------------------------------------------
-// Name: ~OptionsPage
-// Desc:
-//------------------------------------------------------------------------------
-OptionsPage::~OptionsPage() {
-	delete ui;
 }
 
 //------------------------------------------------------------------------------

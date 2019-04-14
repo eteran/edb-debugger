@@ -32,8 +32,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QListWidgetItem>
 #include <QDebug>
 
-#include "ui_DialogOpcodes.h"
-
 namespace OpcodeSearcherPlugin {
 
 namespace {
@@ -52,21 +50,13 @@ constexpr int STACK_REG = ARM64_REG_SP;
 // Name: DialogOpcodes
 // Desc:
 //------------------------------------------------------------------------------
-DialogOpcodes::DialogOpcodes(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogOpcodes) {
-	ui->setupUi(this);
-	ui->tableView->verticalHeader()->hide();
-	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+DialogOpcodes::DialogOpcodes(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f)  {
+	ui.setupUi(this);
+	ui.tableView->verticalHeader()->hide();
+	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 	filter_model_ = new QSortFilterProxyModel(this);
-	connect(ui->txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogOpcodes
-// Desc:
-//------------------------------------------------------------------------------
-DialogOpcodes::~DialogOpcodes() {
-	delete ui;
+	connect(ui.txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
 }
 
 //------------------------------------------------------------------------------
@@ -88,73 +78,73 @@ void DialogOpcodes::on_listWidget_itemDoubleClicked(QListWidgetItem *item) {
 void DialogOpcodes::showEvent(QShowEvent *) {
 	filter_model_->setFilterKeyColumn(3);
 	filter_model_->setSourceModel(&edb::v1::memory_regions());
-	ui->tableView->setModel(filter_model_);
-	ui->progressBar->setValue(0);
-	ui->listWidget->clear();
+	ui.tableView->setModel(filter_model_);
+	ui.progressBar->setValue(0);
+	ui.listWidget->clear();
 
 
-	ui->comboBox->clear();
+	ui.comboBox->clear();
 	
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	if(edb::v1::debuggeeIs64Bit()) {
-		ui->comboBox->addItem("RAX -> RIP", 1);
-		ui->comboBox->addItem("RBX -> RIP", 2);
-		ui->comboBox->addItem("RCX -> RIP", 3);
-		ui->comboBox->addItem("RDX -> RIP", 4);
-		ui->comboBox->addItem("RBP -> RIP", 5);
-		ui->comboBox->addItem("RSP -> RIP", 6);
-		ui->comboBox->addItem("RSI -> RIP", 7);
-		ui->comboBox->addItem("RDI -> RIP", 8);
-		ui->comboBox->addItem("R8 -> RIP", 9);
-		ui->comboBox->addItem("R9 -> RIP", 10);
-		ui->comboBox->addItem("R10 -> RIP", 11);
-		ui->comboBox->addItem("R11 -> RIP", 12);
-		ui->comboBox->addItem("R12 -> RIP", 13);
-		ui->comboBox->addItem("R13 -> RIP", 14);
-		ui->comboBox->addItem("R14 -> RIP", 15);
-		ui->comboBox->addItem("R15 -> RIP", 16);
-		ui->comboBox->addItem("ANY REGISTER -> RIP", 17);
-		ui->comboBox->addItem("[RSP] -> RIP", 18);
-		ui->comboBox->addItem("[RSP + 8] -> RIP", 19);
-		ui->comboBox->addItem("[RSP + 16] -> RIP", 20);
-		ui->comboBox->addItem("[RSP - 8] -> RIP", 21);
-		ui->comboBox->addItem("[RAX] -> RIP", 22);
-		ui->comboBox->addItem("[RBX] -> RIP", 23);
-		ui->comboBox->addItem("[RCX] -> RIP", 24);
-		ui->comboBox->addItem("[RDX] -> RIP", 25);
-		ui->comboBox->addItem("[RBP] -> RIP", 26);
-		ui->comboBox->addItem("[RSI] -> RIP", 28);
-		ui->comboBox->addItem("[RDI] -> RIP", 29);
-		ui->comboBox->addItem("[R8] -> RIP", 30);
-		ui->comboBox->addItem("[R9] -> RIP", 31);
-		ui->comboBox->addItem("[R10] -> RIP", 32);
-		ui->comboBox->addItem("[R11] -> RIP", 33);
-		ui->comboBox->addItem("[R12] -> RIP", 34);
-		ui->comboBox->addItem("[R13] -> RIP", 35);
-		ui->comboBox->addItem("[R14] -> RIP", 36);
-		ui->comboBox->addItem("[R15] -> RIP", 37);
+		ui.comboBox->addItem("RAX -> RIP", 1);
+		ui.comboBox->addItem("RBX -> RIP", 2);
+		ui.comboBox->addItem("RCX -> RIP", 3);
+		ui.comboBox->addItem("RDX -> RIP", 4);
+		ui.comboBox->addItem("RBP -> RIP", 5);
+		ui.comboBox->addItem("RSP -> RIP", 6);
+		ui.comboBox->addItem("RSI -> RIP", 7);
+		ui.comboBox->addItem("RDI -> RIP", 8);
+		ui.comboBox->addItem("R8 -> RIP", 9);
+		ui.comboBox->addItem("R9 -> RIP", 10);
+		ui.comboBox->addItem("R10 -> RIP", 11);
+		ui.comboBox->addItem("R11 -> RIP", 12);
+		ui.comboBox->addItem("R12 -> RIP", 13);
+		ui.comboBox->addItem("R13 -> RIP", 14);
+		ui.comboBox->addItem("R14 -> RIP", 15);
+		ui.comboBox->addItem("R15 -> RIP", 16);
+		ui.comboBox->addItem("ANY REGISTER -> RIP", 17);
+		ui.comboBox->addItem("[RSP] -> RIP", 18);
+		ui.comboBox->addItem("[RSP + 8] -> RIP", 19);
+		ui.comboBox->addItem("[RSP + 16] -> RIP", 20);
+		ui.comboBox->addItem("[RSP - 8] -> RIP", 21);
+		ui.comboBox->addItem("[RAX] -> RIP", 22);
+		ui.comboBox->addItem("[RBX] -> RIP", 23);
+		ui.comboBox->addItem("[RCX] -> RIP", 24);
+		ui.comboBox->addItem("[RDX] -> RIP", 25);
+		ui.comboBox->addItem("[RBP] -> RIP", 26);
+		ui.comboBox->addItem("[RSI] -> RIP", 28);
+		ui.comboBox->addItem("[RDI] -> RIP", 29);
+		ui.comboBox->addItem("[R8] -> RIP", 30);
+		ui.comboBox->addItem("[R9] -> RIP", 31);
+		ui.comboBox->addItem("[R10] -> RIP", 32);
+		ui.comboBox->addItem("[R11] -> RIP", 33);
+		ui.comboBox->addItem("[R12] -> RIP", 34);
+		ui.comboBox->addItem("[R13] -> RIP", 35);
+		ui.comboBox->addItem("[R14] -> RIP", 36);
+		ui.comboBox->addItem("[R15] -> RIP", 37);
 	} else {
-		ui->comboBox->addItem("EAX -> EIP", 1);
-		ui->comboBox->addItem("EBX -> EIP", 2);
-		ui->comboBox->addItem("ECX -> EIP", 3);
-		ui->comboBox->addItem("EDX -> EIP", 4);
-		ui->comboBox->addItem("EBP -> EIP", 5);
-		ui->comboBox->addItem("ESP -> EIP", 6);
-		ui->comboBox->addItem("ESI -> EIP", 7);
-		ui->comboBox->addItem("EDI -> EIP", 8);
-		ui->comboBox->addItem("ANY REGISTER -> EIP", 17);
-		ui->comboBox->addItem("[ESP] -> EIP", 18);
-		ui->comboBox->addItem("[ESP + 4] -> EIP", 19);
-		ui->comboBox->addItem("[ESP + 8] -> EIP", 20);
-		ui->comboBox->addItem("[ESP - 4] -> EIP", 21);
+		ui.comboBox->addItem("EAX -> EIP", 1);
+		ui.comboBox->addItem("EBX -> EIP", 2);
+		ui.comboBox->addItem("ECX -> EIP", 3);
+		ui.comboBox->addItem("EDX -> EIP", 4);
+		ui.comboBox->addItem("EBP -> EIP", 5);
+		ui.comboBox->addItem("ESP -> EIP", 6);
+		ui.comboBox->addItem("ESI -> EIP", 7);
+		ui.comboBox->addItem("EDI -> EIP", 8);
+		ui.comboBox->addItem("ANY REGISTER -> EIP", 17);
+		ui.comboBox->addItem("[ESP] -> EIP", 18);
+		ui.comboBox->addItem("[ESP + 4] -> EIP", 19);
+		ui.comboBox->addItem("[ESP + 8] -> EIP", 20);
+		ui.comboBox->addItem("[ESP - 4] -> EIP", 21);
 
-		ui->comboBox->addItem("[EAX] -> EIP", 22);
-		ui->comboBox->addItem("[EBX] -> EIP", 23);
-		ui->comboBox->addItem("[ECX] -> EIP", 24);
-		ui->comboBox->addItem("[EDX] -> EIP", 25);
-		ui->comboBox->addItem("[EBP] -> EIP", 26);
-		ui->comboBox->addItem("[ESI] -> EIP", 28);
-		ui->comboBox->addItem("[EDI] -> EIP", 29);
+		ui.comboBox->addItem("[EAX] -> EIP", 22);
+		ui.comboBox->addItem("[EBX] -> EIP", 23);
+		ui.comboBox->addItem("[ECX] -> EIP", 24);
+		ui.comboBox->addItem("[EDX] -> EIP", 25);
+		ui.comboBox->addItem("[EBP] -> EIP", 26);
+		ui.comboBox->addItem("[ESI] -> EIP", 28);
+		ui.comboBox->addItem("[EDI] -> EIP", 29);
 	}
 #elif defined(EDB_ARM32)
 	// TODO(eteran): implement
@@ -186,7 +176,7 @@ void DialogOpcodes::add_result(const InstructionList &instructions, edb::address
 		auto item = new QListWidgetItem(instruction_string);
 
 		item->setData(Qt::UserRole, rva.toQVariant());
-		ui->listWidget->addItem(item);
+		ui.listWidget->addItem(item);
 	}
 }
 
@@ -719,9 +709,9 @@ void DialogOpcodes::run_tests(int classtype, const OpcodeData &opcode, edb::addr
 //------------------------------------------------------------------------------
 void DialogOpcodes::do_find() {
 
-	const int classtype = ui->comboBox->itemData(ui->comboBox->currentIndex()).toInt();
+	const int classtype = ui.comboBox->itemData(ui.comboBox->currentIndex()).toInt();
 
-	const QItemSelectionModel *const selModel = ui->tableView->selectionModel();
+	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 	const QModelIndexList sel = selModel->selectedRows();
 
 	if(sel.size() == 0) {
@@ -763,7 +753,7 @@ void DialogOpcodes::do_find() {
 
 						++start_address;
 
-						ui->progressBar->setValue(util::percentage(address - orig_start, region->size()));
+						ui.progressBar->setValue(util::percentage(address - orig_start, region->size()));
 						++address;
 						++i;
 					}
@@ -779,7 +769,7 @@ void DialogOpcodes::do_find() {
 						shift_buffer.shl();
 						shift_buffer[shift_buffer.size() - 1] = 0x00;
 
-						ui->progressBar->setValue(util::percentage(address - orig_start, region->size()));
+						ui.progressBar->setValue(util::percentage(address - orig_start, region->size()));
 						++address;
 					}
 				}
@@ -793,12 +783,12 @@ void DialogOpcodes::do_find() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOpcodes::on_btnFind_clicked() {
-	ui->btnFind->setEnabled(false);
-	ui->listWidget->clear();
-	ui->progressBar->setValue(0);
+	ui.btnFind->setEnabled(false);
+	ui.listWidget->clear();
+	ui.progressBar->setValue(0);
 	do_find();
-	ui->progressBar->setValue(100);
-	ui->btnFind->setEnabled(true);
+	ui.progressBar->setValue(100);
+	ui.btnFind->setEnabled(true);
 }
 
 }

@@ -19,18 +19,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOGBREAKPOINTS_20061101_H_
 #define DIALOGBREAKPOINTS_20061101_H_
 
+#include "ui_DialogBreakpoints.h"
 #include <QDialog>
 
 namespace BreakpointManagerPlugin {
-
-namespace Ui { class DialogBreakpoints; }
 
 class DialogBreakpoints : public QDialog {
 	Q_OBJECT
 
 public:
     explicit DialogBreakpoints(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	~DialogBreakpoints() override;
+	~DialogBreakpoints() override = default;
 
 public Q_SLOTS:
 	void updateList();
@@ -46,7 +45,7 @@ private:
 	void hideEvent(QHideEvent *event) override;
 
 private:
-	 Ui::DialogBreakpoints *const ui;
+	 Ui::DialogBreakpoints ui;
 };
 
 }

@@ -1,6 +1,5 @@
 
 #include "DialogResults.h"
-#include "ui_DialogResults.h"
 #include "edb.h"
 
 namespace BinarySearcherPlugin {
@@ -10,15 +9,8 @@ namespace BinarySearcherPlugin {
  * @param parent
  * @param f
  */
-DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogResults) {
-	ui->setupUi(this);
-}
-
-/**
- * @brief DialogResults::~DialogResults
- */
-DialogResults::~DialogResults() {
-	delete ui;
+DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
 }
 
 /**
@@ -50,7 +42,7 @@ void DialogResults::addResult(RegionType region, edb::address_t address) {
 	auto item = new QListWidgetItem(edb::v1::format_pointer(address));
 	item->setData(Qt::UserRole, address.toQVariant());
 	item->setData(Qt::UserRole + 1, static_cast<int>(region));
-	ui->listWidget->addItem(item);
+	ui.listWidget->addItem(item);
 }
 
 /**
@@ -58,7 +50,7 @@ void DialogResults::addResult(RegionType region, edb::address_t address) {
  * @return
  */
 int DialogResults::resultCount() const {
-	return ui->listWidget->count();
+	return ui.listWidget->count();
 }
 
 

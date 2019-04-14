@@ -17,22 +17,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "DialogMemoryAccess.h"
-#include "ui_DialogMemoryAccess.h"
 
 namespace DebuggerCorePlugin {
 
-DialogMemoryAccess::DialogMemoryAccess(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogMemoryAccess) {
-	ui->setupUi(this);
+DialogMemoryAccess::DialogMemoryAccess(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f)  {
+	ui.setupUi(this);
 	adjustSize();
 	setFixedSize(width(), height());
 }
 
-DialogMemoryAccess::~DialogMemoryAccess() {
-	delete ui;
-}
-
 bool DialogMemoryAccess::warnNextTime() const {
-	return !ui->checkNeverShowAgain->isChecked();
+	return !ui.checkNeverShowAgain->isChecked();
 }
 
 }

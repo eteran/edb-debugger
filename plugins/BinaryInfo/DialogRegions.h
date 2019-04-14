@@ -20,6 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIALOG_REGIONS_20111128_H_
 
 #include "Types.h"
+#include "ui_DialogRegions.h"
 #include <QDialog>
 
 class QStringListModel;
@@ -28,14 +29,12 @@ class QModelIndex;
 
 namespace BinaryInfoPlugin {
 
-namespace Ui { class DialogRegions; }
-
 class DialogRegions : public QDialog {
 	Q_OBJECT
 
 public:
 	explicit DialogRegions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	~DialogRegions() override;
+	~DialogRegions() override = default;
 
 public Q_SLOTS:
 	void on_btnExplore_clicked();
@@ -44,7 +43,7 @@ private:
 	void showEvent(QShowEvent *event) override;
 
 private:
-	 Ui::DialogRegions *const ui;
+	 Ui::DialogRegions ui;
 	 QSortFilterProxyModel *filter_model_;
 };
 

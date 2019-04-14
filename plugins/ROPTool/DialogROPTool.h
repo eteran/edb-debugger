@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 #include "Instruction.h"
+#include "ui_DialogROPTool.h"
 
 #include <QDialog>
 #include <QSet>
@@ -40,14 +41,12 @@ namespace ROPToolPlugin {
 class ResultFilterProxy;
 class DialogResults;
 
-namespace Ui { class DialogROPTool; }
-
 class DialogROPTool : public QDialog {
 	Q_OBJECT
 
 public:
     explicit DialogROPTool(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~DialogROPTool() override;
+	~DialogROPTool() override = default;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();
@@ -63,7 +62,7 @@ private:
     void showEvent(QShowEvent *event) override;
 
 private:
-	Ui::DialogROPTool     *ui;
+	Ui::DialogROPTool     ui;
 	QSortFilterProxyModel *filter_model_;
 	QSet<QString>          unique_results_;
 };

@@ -46,7 +46,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <functional>
 
 #include <QtConcurrent>
-#include "ui_DialogHeap.h"
 
 namespace HeapAnalyzerPlugin {
 
@@ -99,28 +98,20 @@ edb::address_t block_start(const Result &result) {
 // Name: DialogHeap
 // Desc:
 //------------------------------------------------------------------------------
-DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogHeap) {
-	ui->setupUi(this);
+DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
 
 	model_ = new ResultViewModel(this);
-	ui->tableView->setModel(model_);
+	ui.tableView->setModel(model_);
 
-	ui->tableView->verticalHeader()->hide();
-	ui->tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	ui.tableView->verticalHeader()->hide();
+	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 #ifdef ENABLE_GRAPH
-	ui->btnGraph->setEnabled(true);
+	ui.btnGraph->setEnabled(true);
 #else
-	ui->btnGraph->setEnabled(false);
+	ui.btnGraph->setEnabled(false);
 #endif
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogHeap
-// Desc:
-//------------------------------------------------------------------------------
-DialogHeap::~DialogHeap() {
-	delete ui;
 }
 
 //------------------------------------------------------------------------------
@@ -129,7 +120,7 @@ DialogHeap::~DialogHeap() {
 //------------------------------------------------------------------------------
 void DialogHeap::showEvent(QShowEvent *) {
 	model_->clearResults();
-	ui->progressBar->setValue(0);
+	ui.progressBar->setValue(0);
 }
 
 //------------------------------------------------------------------------------
@@ -362,7 +353,7 @@ void DialogHeap::collect_blocks(edb::address_t start_address, edb::address_t end
 
 				currentChunkAddress = nextChunkAddress;
 
-				ui->progressBar->setValue(util::percentage(currentChunkAddress - start_address, how_many));
+				ui.progressBar->setValue(util::percentage(currentChunkAddress - start_address, how_many));
 			}
 
 			detect_pointers();
@@ -492,14 +483,14 @@ void DialogHeap::do_find() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHeap::on_btnFind_clicked() {
-	ui->btnFind->setEnabled(false);
-	ui->progressBar->setValue(0);
+	ui.btnFind->setEnabled(false);
+	ui.progressBar->setValue(0);
 	if(edb::v1::debuggeeIs32Bit())
 		do_find<edb::value32>();
 	else
 		do_find<edb::value64>();
-	ui->progressBar->setValue(100);
-	ui->btnFind->setEnabled(true);
+	ui.progressBar->setValue(100);
+	ui.btnFind->setEnabled(true);
 }
 
 //------------------------------------------------------------------------------
@@ -528,7 +519,7 @@ void DialogHeap::on_btnGraph_clicked() {
 		}
 
 		// seed our search with the selected blocks
-		const QItemSelectionModel *const selModel = ui->tableView->selectionModel();
+		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
 		const QModelIndexList sel = selModel->selectedRows();
 		if(sel.size() != 0) {
 			for(const QModelIndex &index: sel) {

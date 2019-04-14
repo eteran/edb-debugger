@@ -26,8 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QVector>
 
-#include "ui_DialogReferences.h"
-
 namespace ReferencesPlugin {
 
 enum Role {
@@ -39,24 +37,16 @@ enum Role {
 // Name: DialogReferences
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogReferences::DialogReferences(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogReferences) {
-	ui->setupUi(this);
-	connect(this, &DialogReferences::updateProgress, ui->progressBar, &QProgressBar::setValue);
+DialogReferences::DialogReferences(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
+	connect(this, &DialogReferences::updateProgress, ui.progressBar, &QProgressBar::setValue);
 	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
 	connect(btnFind_, &QPushButton::clicked, this, &DialogReferences::btnFind_clicked);
 
-	ui->buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
+	ui.buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
 
 	// NOTE(eteran): not help system yet!
-	ui->buttonBox->button(QDialogButtonBox::Help)->setEnabled(false);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogReferences
-// Desc:
-//------------------------------------------------------------------------------
-DialogReferences::~DialogReferences() {
-	delete ui;
+	ui.buttonBox->button(QDialogButtonBox::Help)->setEnabled(false);
 }
 
 //------------------------------------------------------------------------------
@@ -64,8 +54,8 @@ DialogReferences::~DialogReferences() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogReferences::showEvent(QShowEvent *) {
-	ui->listWidget->clear();
-	ui->progressBar->setValue(0);
+	ui.listWidget->clear();
+	ui.progressBar->setValue(0);
 }
 
 //------------------------------------------------------------------------------
@@ -77,7 +67,7 @@ void DialogReferences::do_find() {
 	edb::address_t address;
 	const size_t page_size = edb::v1::debugger_core->page_size();
 
-	const QString text = ui->txtAddress->text();
+	const QString text = ui.txtAddress->text();
 	if(!text.isEmpty()) {
 		ok = edb::v1::eval_expression(text, &address);
 	}
@@ -89,7 +79,7 @@ void DialogReferences::do_find() {
 		int i = 0;
 		for(const std::shared_ptr<IRegion> &region: regions) {
 			// a short circut for speading things up
-			if(region->accessible() || !ui->chkSkipNoAccess->isChecked()) {
+			if(region->accessible() || !ui.chkSkipNoAccess->isChecked()) {
 
 				const size_t page_count = region->size() / page_size;
 				const QVector<quint8> pages = edb::v1::read_pages(region->start(), page_count);
@@ -113,7 +103,7 @@ void DialogReferences::do_find() {
 							auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 							item->setData(TypeRole, 'D');
 							item->setData(AddressRole, addr.toQVariant());
-							ui->listWidget->addItem(item);
+							ui.listWidget->addItem(item);
 						}
 
 						edb::Instruction inst(p, pages_end, addr);
@@ -129,7 +119,7 @@ void DialogReferences::do_find() {
 										auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 										item->setData(TypeRole, 'C');
 										item->setData(AddressRole, addr.toQVariant());
-										ui->listWidget->addItem(item);
+										ui.listWidget->addItem(item);
 									}
 								}
 
@@ -142,7 +132,7 @@ void DialogReferences::do_find() {
 									auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 									item->setData(TypeRole, 'C');
 									item->setData(AddressRole, addr.toQVariant());
-									ui->listWidget->addItem(item);
+									ui.listWidget->addItem(item);
 								}
 								break;
 							default:
@@ -152,7 +142,7 @@ void DialogReferences::do_find() {
 											auto item = new QListWidgetItem(edb::v1::format_pointer(addr));
 											item->setData(TypeRole, 'C');
 											item->setData(AddressRole, addr.toQVariant());
-											ui->listWidget->addItem(item);
+											ui.listWidget->addItem(item);
 										}
 									}
 								}
@@ -179,10 +169,10 @@ void DialogReferences::do_find() {
 //------------------------------------------------------------------------------
 void DialogReferences::btnFind_clicked() {
 	btnFind_->setEnabled(false);
-	ui->progressBar->setValue(0);
-	ui->listWidget->clear();
+	ui.progressBar->setValue(0);
+	ui.listWidget->clear();
 	do_find();
-	ui->progressBar->setValue(100);
+	ui.progressBar->setValue(100);
 	btnFind_->setEnabled(true);
 }
 

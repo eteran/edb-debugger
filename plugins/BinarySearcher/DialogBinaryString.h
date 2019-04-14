@@ -19,20 +19,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOGBINARYSTRING_20061101_H_
 #define DIALOGBINARYSTRING_20061101_H_
 
+#include "ui_DialogBinaryString.h"
 #include <QDialog>
 
 class QListWidgetItem;
 
 namespace BinarySearcherPlugin {
 
-namespace Ui { class DialogBinaryString; }
-
 class DialogBinaryString : public QDialog {
 	Q_OBJECT
 
 public:
 	explicit DialogBinaryString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	~DialogBinaryString() override;
+	~DialogBinaryString() override = default;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();
@@ -41,7 +40,7 @@ private:
 	void do_find();
 
 private:
-	 Ui::DialogBinaryString *const ui;
+	 Ui::DialogBinaryString ui;
 };
 
 }

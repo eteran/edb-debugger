@@ -34,25 +34,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QStringList>
 
-#include "ui_DialogBreakpoints.h"
-
 namespace BreakpointManagerPlugin {
 
 //------------------------------------------------------------------------------
 // Name: DialogBreakpoints
 // Desc:
 //------------------------------------------------------------------------------
-DialogBreakpoints::DialogBreakpoints(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogBreakpoints) {
-	ui->setupUi(this);
-	ui->tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogBreakpoints
-// Desc:
-//------------------------------------------------------------------------------
-DialogBreakpoints::~DialogBreakpoints() {
-	delete ui;
+DialogBreakpoints::DialogBreakpoints(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
+	ui.tableWidget->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 }
 
 //------------------------------------------------------------------------------
@@ -75,8 +65,8 @@ void DialogBreakpoints::hideEvent(QHideEvent *) {
 void DialogBreakpoints::updateList() {
 
 
-	ui->tableWidget->setSortingEnabled(false);
-	ui->tableWidget->setRowCount(0);
+	ui.tableWidget->setSortingEnabled(false);
+	ui.tableWidget->setRowCount(0);
 
 	const IDebugger::BreakpointList breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
 
@@ -86,8 +76,8 @@ void DialogBreakpoints::updateList() {
 		if (bp->internal()) {
 			continue; }
 
-		const int row = ui->tableWidget->rowCount();
-		ui->tableWidget->insertRow(row);
+		const int row = ui.tableWidget->rowCount();
+		ui.tableWidget->insertRow(row);
 
 		const edb::address_t address = bp->address();
 		const QString condition      = bp->condition;
@@ -98,14 +88,14 @@ void DialogBreakpoints::updateList() {
 		auto item = new QTableWidgetItem(edb::v1::format_pointer(address));
 		item->setData(Qt::UserRole, address.toQVariant());
 
-		ui->tableWidget->setItem(row, 0, item);
-		ui->tableWidget->setItem(row, 1, new QTableWidgetItem(condition));
-		ui->tableWidget->setItem(row, 2, new QTableWidgetItem(bytes));
-		ui->tableWidget->setItem(row, 3, new QTableWidgetItem(onetime ? tr("One Time") : tr("Standard")));
-		ui->tableWidget->setItem(row, 4, new QTableWidgetItem(symname));
+		ui.tableWidget->setItem(row, 0, item);
+		ui.tableWidget->setItem(row, 1, new QTableWidgetItem(condition));
+		ui.tableWidget->setItem(row, 2, new QTableWidgetItem(bytes));
+		ui.tableWidget->setItem(row, 3, new QTableWidgetItem(onetime ? tr("One Time") : tr("Standard")));
+		ui.tableWidget->setItem(row, 4, new QTableWidgetItem(symname));
 	}
 
-	ui->tableWidget->setSortingEnabled(true);
+	ui.tableWidget->setSortingEnabled(true);
 }
 
 //------------------------------------------------------------------------------
@@ -136,7 +126,7 @@ void DialogBreakpoints::on_btnAdd_clicked() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogBreakpoints::on_btnCondition_clicked() {
-	QList<QTableWidgetItem *> sel = ui->tableWidget->selectedItems();
+	QList<QTableWidgetItem *> sel = ui.tableWidget->selectedItems();
 	if(!sel.empty()) {
 		QTableWidgetItem *const item = sel[0];
 		bool ok;
@@ -175,7 +165,7 @@ void DialogBreakpoints::on_btnAddFunction_clicked() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogBreakpoints::on_btnRemove_clicked() {
-	QList<QTableWidgetItem *> sel = ui->tableWidget->selectedItems();
+	QList<QTableWidgetItem *> sel = ui.tableWidget->selectedItems();
 	if(!sel.empty()) {
 		QTableWidgetItem *const item = sel[0];
 		const edb::address_t address = item->data(Qt::UserRole).toULongLong();
@@ -191,13 +181,13 @@ void DialogBreakpoints::on_btnRemove_clicked() {
 void DialogBreakpoints::on_tableWidget_cellDoubleClicked(int row, int col) {
 	switch(col) {
 	case 0: // address
-		if(QTableWidgetItem *const address_item = ui->tableWidget->item(row, 0)) {
+		if(QTableWidgetItem *const address_item = ui.tableWidget->item(row, 0)) {
 			const edb::address_t address = address_item->data(Qt::UserRole).toULongLong();
 			edb::v1::jump_to_address(address);
 		}
 		break;
 	case 1: // condition
-		if(QTableWidgetItem *const address_item = ui->tableWidget->item(row, 0)) {
+		if(QTableWidgetItem *const address_item = ui.tableWidget->item(row, 0)) {
 			bool ok;
 			const edb::address_t address = address_item->data(Qt::UserRole).toULongLong();
 			const QString condition      = edb::v1::get_breakpoint_condition(address);

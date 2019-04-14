@@ -20,20 +20,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIALOG_FUNCTIONS_20061101_H_
 
 #include "Types.h"
+#include "ui_DialogFunctions.h"
 #include <QDialog>
 
 class QSortFilterProxyModel;
 
 namespace FunctionFinderPlugin {
 
-namespace Ui { class DialogFunctions; }
-
 class DialogFunctions : public QDialog {
 	Q_OBJECT
 
 public:
 	explicit DialogFunctions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~DialogFunctions() override;
+	~DialogFunctions() override = default;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();
@@ -45,7 +44,7 @@ private:
 	void do_find();
 
 private:
-	Ui::DialogFunctions *const ui;
+	Ui::DialogFunctions ui;
 	QSortFilterProxyModel *    filter_model_;
 };
 

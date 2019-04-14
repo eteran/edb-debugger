@@ -28,28 +28,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QListWidget>
 #include <cstring>
 
-#include "ui_DialogBinaryString.h"
-
 namespace BinarySearcherPlugin {
 
 //------------------------------------------------------------------------------
 // Name: DialogBinaryString
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogBinaryString::DialogBinaryString(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogBinaryString) {
-	ui->setupUi(this);
-	ui->progressBar->setValue(0);
+DialogBinaryString::DialogBinaryString(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
+	ui.progressBar->setValue(0);
 
 	// NOTE(eteran): address issue #574
-	ui->binaryString->setShowKeepSize(false);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogBinaryString
-// Desc:
-//------------------------------------------------------------------------------
-DialogBinaryString::~DialogBinaryString() {
-	delete ui;
+	ui.binaryString->setShowKeepSize(false);
 }
 
 //------------------------------------------------------------------------------
@@ -58,7 +48,7 @@ DialogBinaryString::~DialogBinaryString() {
 //------------------------------------------------------------------------------
 void DialogBinaryString::do_find() {
 
-	const QByteArray b = ui->binaryString->value();
+	const QByteArray b = ui.binaryString->value();
 
 	auto results = new DialogResults(this);
 
@@ -73,8 +63,8 @@ void DialogBinaryString::do_find() {
 			const auto region_size = region->size();
 
 			// a short circut for speading things up
-			if(ui->chkSkipNoAccess->isChecked() && !region->accessible()) {
-				ui->progressBar->setValue(util::percentage(++i, regions.size()));
+			if(ui.chkSkipNoAccess->isChecked() && !region->accessible()) {
+				ui.progressBar->setValue(util::percentage(++i, regions.size()));
 				continue;
 			}
 
@@ -90,16 +80,16 @@ void DialogBinaryString::do_find() {
 					// compare values..
 					if(std::memcmp(p, b.constData(), sz) == 0) {
 						const edb::address_t addr = p - &pages[0] + region->start();
-						const edb::address_t align = 1 << (ui->cmbAlignment->currentIndex() + 1);
+						const edb::address_t align = 1 << (ui.cmbAlignment->currentIndex() + 1);
 
-						if(!ui->chkAlignment->isChecked() || (addr % align) == 0) {
+						if(!ui.chkAlignment->isChecked() || (addr % align) == 0) {
 							results->addResult(DialogResults::RegionType::Data, addr);
 						}
 					}
 
 					// update progress bar every 64KB
 					if ((quint64(p) & 0xFFFF) == 0) {
-						ui->progressBar->setValue(util::percentage(i, regions.size(), p - &pages[0], region_size));
+						ui.progressBar->setValue(util::percentage(i, regions.size(), p - &pages[0], region_size));
 					}
 
 					++p;
@@ -123,11 +113,11 @@ void DialogBinaryString::do_find() {
 //------------------------------------------------------------------------------
 void DialogBinaryString::on_btnFind_clicked() {
 
-	ui->btnFind->setEnabled(false);
-	ui->progressBar->setValue(0);
+	ui.btnFind->setEnabled(false);
+	ui.progressBar->setValue(0);
 	do_find();
-	ui->progressBar->setValue(100);
-	ui->btnFind->setEnabled(true);
+	ui.progressBar->setValue(100);
+	ui.btnFind->setEnabled(true);
 }
 
 }

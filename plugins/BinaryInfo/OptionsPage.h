@@ -18,19 +18,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef OPTIONS_PAGE_20151113_H
 #define OPTIONS_PAGE_20151113_H
 
+#include "ui_OptionsPage.h"
 #include <QWidget>
 #include <memory>
 
 namespace BinaryInfoPlugin {
-
-namespace Ui { class OptionsPage; }
 
 class OptionsPage : public QWidget {
 	Q_OBJECT
 
 public:
     explicit OptionsPage(QWidget* parent = nullptr);
-	~OptionsPage() override;
+	~OptionsPage() override = default;
 
 public:
 	void showEvent(QShowEvent* event) override;
@@ -41,7 +40,7 @@ public Q_SLOTS:
 	void on_btnDebugDir_clicked();
 
 private:
-	Ui::OptionsPage* const ui;
+	Ui::OptionsPage ui;
 };
 
 }

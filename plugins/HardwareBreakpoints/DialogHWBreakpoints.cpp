@@ -24,29 +24,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "libHardwareBreakpoints.h"
 #include "State.h"
 
-#include "ui_DialogHWBreakpoints.h"
-
 namespace HardwareBreakpointsPlugin {
 
 //------------------------------------------------------------------------------
 // Name: DialogHWBreakpoints
 // Desc:
 //------------------------------------------------------------------------------
-DialogHWBreakpoints::DialogHWBreakpoints(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogHWBreakpoints) {
-	ui->setupUi(this);
+DialogHWBreakpoints::DialogHWBreakpoints(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
 
-	connect(ui->cmbType1, SIGNAL(currentIndexChanged(int)), this, SLOT(type1IndexChanged(int)));
-	connect(ui->cmbType2, SIGNAL(currentIndexChanged(int)), this, SLOT(type2IndexChanged(int)));
-	connect(ui->cmbType3, SIGNAL(currentIndexChanged(int)), this, SLOT(type3IndexChanged(int)));
-	connect(ui->cmbType4, SIGNAL(currentIndexChanged(int)), this, SLOT(type4IndexChanged(int)));
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogHWBreakpoints
-// Desc:
-//------------------------------------------------------------------------------
-DialogHWBreakpoints::~DialogHWBreakpoints() {
-	delete ui;
+	connect(ui.cmbType1, SIGNAL(currentIndexChanged(int)), this, SLOT(type1IndexChanged(int)));
+	connect(ui.cmbType2, SIGNAL(currentIndexChanged(int)), this, SLOT(type2IndexChanged(int)));
+	connect(ui.cmbType3, SIGNAL(currentIndexChanged(int)), this, SLOT(type3IndexChanged(int)));
+	connect(ui.cmbType4, SIGNAL(currentIndexChanged(int)), this, SLOT(type4IndexChanged(int)));
 }
 
 //------------------------------------------------------------------------------
@@ -54,7 +44,7 @@ DialogHWBreakpoints::~DialogHWBreakpoints() {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHWBreakpoints::type1IndexChanged(int index) {
-	ui->cmbSize1->setEnabled(index != 0);
+	ui.cmbSize1->setEnabled(index != 0);
 }
 
 //------------------------------------------------------------------------------
@@ -62,7 +52,7 @@ void DialogHWBreakpoints::type1IndexChanged(int index) {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHWBreakpoints::type2IndexChanged(int index) {
-	ui->cmbSize2->setEnabled(index != 0);
+	ui.cmbSize2->setEnabled(index != 0);
 }
 
 //------------------------------------------------------------------------------
@@ -70,7 +60,7 @@ void DialogHWBreakpoints::type2IndexChanged(int index) {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHWBreakpoints::type3IndexChanged(int index) {
-	ui->cmbSize3->setEnabled(index != 0);
+	ui.cmbSize3->setEnabled(index != 0);
 }
 
 //------------------------------------------------------------------------------
@@ -78,7 +68,7 @@ void DialogHWBreakpoints::type3IndexChanged(int index) {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogHWBreakpoints::type4IndexChanged(int index) {
-	ui->cmbSize4->setEnabled(index != 0);
+	ui.cmbSize4->setEnabled(index != 0);
 }
 
 //------------------------------------------------------------------------------
@@ -98,33 +88,33 @@ void DialogHWBreakpoints::showEvent(QShowEvent *event) {
 		const BreakpointState bp_state3 = breakpointState(&state, Register3);
 		const BreakpointState bp_state4 = breakpointState(&state, Register4);
 
-		ui->chkBP1->setChecked(bp_state1.enabled);
-		ui->chkBP2->setChecked(bp_state2.enabled);
-		ui->chkBP3->setChecked(bp_state3.enabled);
-		ui->chkBP4->setChecked(bp_state4.enabled);
+		ui.chkBP1->setChecked(bp_state1.enabled);
+		ui.chkBP2->setChecked(bp_state2.enabled);
+		ui.chkBP3->setChecked(bp_state3.enabled);
+		ui.chkBP4->setChecked(bp_state4.enabled);
 
 		if(bp_state1.enabled) {
-			ui->txtBP1->setText(bp_state1.addr.toPointerString());
-			ui->cmbSize1->setCurrentIndex(bp_state1.size);
-			ui->cmbType1->setCurrentIndex(bp_state1.type);
+			ui.txtBP1->setText(bp_state1.addr.toPointerString());
+			ui.cmbSize1->setCurrentIndex(bp_state1.size);
+			ui.cmbType1->setCurrentIndex(bp_state1.type);
 		}
 
 		if(bp_state2.enabled) {
-			ui->txtBP2->setText(bp_state2.addr.toPointerString());
-			ui->cmbSize2->setCurrentIndex(bp_state2.size);
-			ui->cmbType2->setCurrentIndex(bp_state2.type);
+			ui.txtBP2->setText(bp_state2.addr.toPointerString());
+			ui.cmbSize2->setCurrentIndex(bp_state2.size);
+			ui.cmbType2->setCurrentIndex(bp_state2.type);
 		}
 
 		if(bp_state3.enabled) {
-			ui->txtBP3->setText(bp_state3.addr.toPointerString());
-			ui->cmbSize3->setCurrentIndex(bp_state3.size);
-			ui->cmbType3->setCurrentIndex(bp_state3.type);
+			ui.txtBP3->setText(bp_state3.addr.toPointerString());
+			ui.cmbSize3->setCurrentIndex(bp_state3.size);
+			ui.cmbType3->setCurrentIndex(bp_state3.type);
 		}
 
 		if(bp_state4.enabled) {
-			ui->txtBP4->setText(bp_state4.addr.toPointerString());
-			ui->cmbSize4->setCurrentIndex(bp_state4.size);
-			ui->cmbType4->setCurrentIndex(bp_state4.type);
+			ui.txtBP4->setText(bp_state4.addr.toPointerString());
+			ui.cmbSize4->setCurrentIndex(bp_state4.size);
+			ui.cmbType4->setCurrentIndex(bp_state4.type);
 		}
 	}
 }

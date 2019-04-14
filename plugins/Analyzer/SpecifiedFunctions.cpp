@@ -25,33 +25,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHeaderView>
 #include <QtDebug>
 
-#include "ui_SpecifiedFunctions.h"
-
 namespace AnalyzerPlugin {
 
 //------------------------------------------------------------------------------
 // Name: SpecifiedFunctions
 // Desc:
 //------------------------------------------------------------------------------
-SpecifiedFunctions::SpecifiedFunctions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::SpecifiedFunctions) {
-	ui->setupUi(this);
+SpecifiedFunctions::SpecifiedFunctions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
 
 	model_        = new QStringListModel(this);
 	filter_model_ = new QSortFilterProxyModel(this);
 
 	filter_model_->setFilterKeyColumn(0);
 	filter_model_->setSourceModel(model_);
-	ui->function_list->setModel(filter_model_);
+	ui.function_list->setModel(filter_model_);
 
-	connect(ui->filter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~SpecifiedFunctions
-// Desc:
-//------------------------------------------------------------------------------
-SpecifiedFunctions::~SpecifiedFunctions() {
-	delete ui;
+	connect(ui.filter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
 }
 
 //------------------------------------------------------------------------------
@@ -85,9 +75,9 @@ void SpecifiedFunctions::do_find() {
 // Desc:
 //------------------------------------------------------------------------------
 void SpecifiedFunctions::on_refresh_button_clicked() {
-	ui->refresh_button->setEnabled(false);
+	ui.refresh_button->setEnabled(false);
 	do_find();
-	ui->refresh_button->setEnabled(true);
+	ui.refresh_button->setEnabled(true);
 }
 
 

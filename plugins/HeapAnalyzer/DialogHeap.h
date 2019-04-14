@@ -21,21 +21,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "Types.h"
 #include "ResultViewModel.h"
-
+#include "ui_DialogHeap.h"
 #include <QDialog>
 
 class QSortFilterProxyModel;
 
 namespace HeapAnalyzerPlugin {
 
-namespace Ui { class DialogHeap; }
-
 class DialogHeap : public QDialog {
 	Q_OBJECT
 
 public:
     explicit DialogHeap(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~DialogHeap() override;
+	~DialogHeap() override = default;
 
 public Q_SLOTS:
 	void on_btnFind_clicked();
@@ -57,7 +55,7 @@ private:
 	edb::address_t find_heap_start_heuristic(edb::address_t end_address, size_t offset) const;
 
 private:
-	 Ui::DialogHeap *const ui;
+	 Ui::DialogHeap ui;
 	 ResultViewModel *     model_;
 };
 
