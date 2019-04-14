@@ -583,7 +583,7 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
             const auto oper = inst[0];
             if(is_immediate(oper)) {
 
-                const bool showSymbolicAddresses=edb::v1::config().show_symbolic_addresses;
+				const bool showSymbolicAddresses = edb::v1::config().show_symbolic_addresses;
 
                 static const QRegExp addrPattern(QLatin1String("#?0x[0-9a-fA-F]+"));
                 const edb::address_t target = oper->imm;
@@ -950,11 +950,33 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	const int l3 = line3() + l0;
 
 	{ // SYMBOL NAMES
-		painter.setPen(palette().color(group,QPalette::Text));
+		painter.setPen(palette().color(group, QPalette::Text));
 		const int x = l0 + auto_line1();
 		const int width = l1 - x;
 		if (width > 0) {
 			for (int line = 0; line < lines_to_render; line++) {
+
+				if (selected_line != line) {
+					auto address = show_addresses_[line];
+					const QString sym = edb::v1::symbol_manager().find_address_name(address);
+					if(!sym.isEmpty()) {
+						const QString symbol_buffer = painter.fontMetrics().elidedText(sym, Qt::ElideRight, width);
+
+						painter.drawText(
+							x,
+							line * line_height,
+							width,
+							line_height,
+							Qt::AlignVCenter,
+							symbol_buffer
+						);
+					}
+				}
+			}
+
+			if (selected_line < lines_to_render) {
+				int line = selected_line;
+				painter.setPen(palette().color(group, QPalette::HighlightedText));
 				auto address = show_addresses_[line];
 				const QString sym = edb::v1::symbol_manager().find_address_name(address);
 				if(!sym.isEmpty()) {
