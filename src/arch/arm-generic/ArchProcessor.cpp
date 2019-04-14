@@ -222,7 +222,7 @@ bool ArchProcessor::can_step_over(const edb::Instruction &inst) const {
 }
 
 bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
-	Q_UNUSED(inst
+        Q_UNUSED(inst)
 	return false;
 }
 

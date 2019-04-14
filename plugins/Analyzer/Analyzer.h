@@ -48,7 +48,7 @@ private:
 	struct RegionData;
 
 public:
-	Analyzer(QObject *parent = nullptr);
+	explicit Analyzer(QObject *parent = nullptr);
 
 public:
     QMenu *menu(QWidget *parent = nullptr) override;
