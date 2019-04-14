@@ -14,15 +14,8 @@
   <property name="windowTitle">
    <string>Process Properties</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout_7">
-   <item row="1" column="0">
-    <widget class="QDialogButtonBox" name="buttonBox">
-     <property name="standardButtons">
-      <set>QDialogButtonBox::Close</set>
-     </property>
-    </widget>
-   </item>
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
     <widget class="QTabWidget" name="tabWidget">
      <property name="currentIndex">
       <number>0</number>
@@ -390,21 +383,15 @@
       <attribute name="title">
        <string>Environment</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout">
+      <layout class="QVBoxLayout" name="verticalLayout_4">
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
          <item>
-          <spacer name="horizontalSpacer_3">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
+          <widget class="QLineEdit" name="txtSearchEnvironment">
+           <property name="placeholderText">
+            <string>Filter</string>
            </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>610</width>
-             <height>20</height>
-            </size>
-           </property>
-          </spacer>
+          </widget>
          </item>
          <item>
           <widget class="QPushButton" name="btnRefreshEnvironment">
@@ -418,13 +405,6 @@
           </widget>
          </item>
         </layout>
-       </item>
-       <item>
-        <widget class="QLineEdit" name="txtSearchEnvironment">
-         <property name="placeholderText">
-          <string>Filter</string>
-         </property>
-        </widget>
        </item>
        <item>
         <widget class="QTableWidget" name="tableEnvironment">
@@ -550,6 +530,13 @@
        </item>
       </layout>
      </widget>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
     </widget>
    </item>
   </layout>
