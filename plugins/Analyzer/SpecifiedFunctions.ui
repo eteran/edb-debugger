@@ -51,78 +51,45 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout">
-     <property name="spacing">
-      <number>6</number>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close|QDialogButtonBox::Help</set>
      </property>
-     <item>
-      <widget class="QPushButton" name="close_button">
-       <property name="text">
-        <string>&amp;Close</string>
-       </property>
-       <property name="icon">
-        <iconset theme="dialog-close">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="help_button">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>&amp;Help</string>
-       </property>
-       <property name="icon">
-        <iconset theme="help-browser">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>361</width>
-         <height>29</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="refresh_button">
-       <property name="text">
-        <string>&amp;Refresh</string>
-       </property>
-       <property name="icon">
-        <iconset theme="view-refresh">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    </widget>
    </item>
   </layout>
  </widget>
  <resources/>
  <connections>
   <connection>
-   <sender>close_button</sender>
-   <signal>clicked()</signal>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>AnalyzerPlugin::SpecifiedFunctions</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>417</x>
+     <y>265</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>429</x>
+     <y>242</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
    <receiver>AnalyzerPlugin::SpecifiedFunctions</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>63</x>
-     <y>266</y>
+     <x>264</x>
+     <y>259</y>
     </hint>
     <hint type="destinationlabel">
-     <x>264</x>
-     <y>253</y>
+     <x>256</x>
+     <y>240</y>
     </hint>
    </hints>
   </connection>

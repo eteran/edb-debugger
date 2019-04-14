@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>803</width>
-    <height>264</height>
+    <width>853</width>
+    <height>252</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -30,6 +30,9 @@
     <widget class="QPushButton" name="btnCondition">
      <property name="text">
       <string>Set Breakpoint &amp;Condition</string>
+     </property>
+     <property name="icon">
+      <iconset theme="code-context"/>
      </property>
     </widget>
    </item>

@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSortFilterProxyModel>
 #include <QHeaderView>
 #include <QtDebug>
+#include <QPushButton>
 
 namespace AnalyzerPlugin {
 
@@ -42,6 +43,14 @@ SpecifiedFunctions::SpecifiedFunctions(QWidget *parent, Qt::WindowFlags f) : QDi
 	ui.function_list->setModel(filter_model_);
 
 	connect(ui.filter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+
+	btnRefresh_ = new QPushButton(QIcon::fromTheme("view-refresh"), tr("Refresh"));
+	connect(btnRefresh_, &QPushButton::clicked, this, &SpecifiedFunctions::btnRefresh_clicked);
+
+	ui.buttonBox->addButton(btnRefresh_, QDialogButtonBox::ActionRole);
+
+	// NOTE(eteran): not help system yet!
+	ui.buttonBox->button(QDialogButtonBox::Help)->setEnabled(false);
 }
 
 //------------------------------------------------------------------------------
@@ -71,13 +80,13 @@ void SpecifiedFunctions::do_find() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_refresh_button_clicked
+// Name: btnRefresh_clicked
 // Desc:
 //------------------------------------------------------------------------------
-void SpecifiedFunctions::on_refresh_button_clicked() {
-	ui.refresh_button->setEnabled(false);
+void SpecifiedFunctions::btnRefresh_clicked() {
+	btnRefresh_->setEnabled(false);
 	do_find();
-	ui.refresh_button->setEnabled(true);
+	btnRefresh_->setEnabled(true);
 }
 
 
@@ -86,7 +95,7 @@ void SpecifiedFunctions::on_refresh_button_clicked() {
 // Desc:
 //------------------------------------------------------------------------------
 void SpecifiedFunctions::showEvent(QShowEvent *) {
-	on_refresh_button_clicked();
+	btnRefresh_clicked();
 }
 
 }

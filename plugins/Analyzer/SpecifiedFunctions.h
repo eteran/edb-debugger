@@ -37,18 +37,19 @@ public:
 
 public Q_SLOTS:
 	void on_function_list_doubleClicked(const QModelIndex &index);
-	void on_refresh_button_clicked();
 
 private:
 	void showEvent(QShowEvent *event) override;
 
 private:
+	void btnRefresh_clicked();
 	void do_find();
 
 private:
 	 Ui::SpecifiedFunctions ui;
-	 QStringListModel *         model_;
-	 QSortFilterProxyModel *    filter_model_;
+	 QStringListModel *model_;
+	 QSortFilterProxyModel *filter_model_;
+	 QPushButton *btnRefresh_;
 };
 
 }
