@@ -60,7 +60,8 @@ protected:
 	ValueField *bestNeighbor(const std::function<bool(const QPoint &neighborPos, const ValueField *curResult, const QPoint &selfPos)> &firstIsBetter) const;
 
 public:
-	ValueField(int fieldWidth, const QModelIndex &index, QWidget *parent = nullptr, const std::function<QString(const QString &)> &valueFormatter = [](const QString &s) { return s; });
+	ValueField(int fieldWidth, const QModelIndex &index, const std::function<QString(const QString &)> &valueFormatter, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	ValueField(int fieldWidth, const QModelIndex &index, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	ValueField *up() const;
 	ValueField *down() const;
 	ValueField *left() const;

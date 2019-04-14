@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-FixedFontSelector::FixedFontSelector(QWidget *parent) : QWidget(parent) {
+FixedFontSelector::FixedFontSelector(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f) {
 	ui.setupUi(this);
 
 	Q_FOREACH(int size, QFontDatabase::standardSizes()) {
@@ -33,14 +33,7 @@ FixedFontSelector::FixedFontSelector(QWidget *parent) : QWidget(parent) {
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-FixedFontSelector::~FixedFontSelector() {
-}
-
-//------------------------------------------------------------------------------
-// Name:
-//------------------------------------------------------------------------------
 QFont FixedFontSelector::currentFont() {
-
 	return ui.fontCombo->currentFont();
 }
 

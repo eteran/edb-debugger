@@ -125,7 +125,7 @@ private:
 class Canvas : public QWidget {
 	Q_OBJECT
 public:
-    explicit Canvas(QWidget *parent = nullptr);
+    explicit Canvas(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
 protected:
 	void mousePressEvent(QMouseEvent *event) override;
@@ -138,7 +138,7 @@ private:
 	std::function<QString()> valueFormatter;
 
 public:
-	VolatileNameField(int fieldWidth, const std::function<QString()> &valueFormatter, QWidget *parent = nullptr);
+	VolatileNameField(int fieldWidth, const std::function<QString()> &valueFormatter, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	QString text() const override;
 };
 
@@ -191,7 +191,7 @@ class MultiBitFieldWidget final : public ValueField {
 	Q_OBJECT
 
 public:
-	MultiBitFieldWidget(const QModelIndex &index, const BitFieldDescription &bfd, QWidget *parent = nullptr);
+	MultiBitFieldWidget(const QModelIndex &index, const BitFieldDescription &bfd, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
 public Q_SLOTS:
 	void setValue(int value);
@@ -259,7 +259,7 @@ private:
 	ODBRegView *regView() const;
 
 public:
-	RegisterGroup(const QString &name, QWidget *parent = nullptr);
+	RegisterGroup(const QString &name, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	QList<FieldWidget *> fields() const;
 	QList<ValueField *>  valueFields() const;
 	void setIndices(const QList<QModelIndex> &indices);

@@ -21,21 +21,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace ODbgRegisterView {
 
-FPUValueField::FPUValueField(int fieldWidth,
-							 const QModelIndex &regValueIndex,
-							 const QModelIndex &tagValueIndex,
-							 RegisterGroup *group,
-							 FieldWidget *commentWidget,
-							 int row,
-							 int column)
-    : ValueField(fieldWidth, regValueIndex, group,
+FPUValueField::FPUValueField(int fieldWidth, const QModelIndex &regValueIndex, const QModelIndex &tagValueIndex, RegisterGroup *group, FieldWidget *commentWidget, int row, int column)
+	: ValueField(fieldWidth, regValueIndex,
                  [this](const QString &str) {
 	                 if (str.length() != 20)
 		                 return str;
 	                 if (groupDigits)
 		                 return str.left(4) + " " + str.mid(4, 8) + " " + str.right(8);
 	                 return str;
-	             }),
+				 }, group),
       commentWidget(commentWidget), row(row), column(column), tagValueIndex(tagValueIndex)
 {
 	Q_ASSERT(group);

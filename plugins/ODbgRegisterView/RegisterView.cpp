@@ -117,12 +117,7 @@ BitFieldDescription::BitFieldDescription(int textWidth,
 {
 }
 
-VolatileNameField::VolatileNameField(int fieldWidth,
-                                     const std::function<QString()> &valueFormatter,
-									 QWidget *parent)
-	: FieldWidget(fieldWidth, "", parent),
-	  valueFormatter(valueFormatter)
-{
+VolatileNameField::VolatileNameField(int fieldWidth, const std::function<QString()> &valueFormatter, QWidget *parent, Qt::WindowFlags f) : FieldWidget(fieldWidth, "", parent, f), valueFormatter(valueFormatter) {
 }
 
 QString VolatileNameField::text() const {
@@ -130,10 +125,7 @@ QString VolatileNameField::text() const {
 }
 
 // -------------------------------- MultiBitFieldWidget impl ---------------------------
-MultiBitFieldWidget::MultiBitFieldWidget(const QModelIndex &index,
-                                         const BitFieldDescription &bfd,
-										 QWidget *parent)
-	: ValueField(bfd.textWidth, index, parent, BitFieldFormatter(bfd)), equal(bfd.valueEqualComparator)
+MultiBitFieldWidget::MultiBitFieldWidget(const QModelIndex &index, const BitFieldDescription &bfd, QWidget *parent, Qt::WindowFlags f) : ValueField(bfd.textWidth, index, BitFieldFormatter(bfd), parent, f), equal(bfd.valueEqualComparator)
 {
 	const auto mapper = new QSignalMapper(this);
 	connect(mapper, SIGNAL(mapped(int)), this, SLOT(setValue(int)));
@@ -189,11 +181,9 @@ void MultiBitFieldWidget::adjustToData() {
 }
 
 // -------------------------------- RegisterGroup impl ----------------------------
-RegisterGroup::RegisterGroup(const QString &name, QWidget *parent)
-	: QWidget(parent), name(name)
-{
-	setObjectName("RegisterGroup_" + name);
+RegisterGroup::RegisterGroup(const QString &name, QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), name(name) {
 
+	setObjectName("RegisterGroup_" + name);
 	{
 		menuItems.push_back(newActionSeparator(this));
 		menuItems.push_back(newAction(tr("Hide %1", "register group").arg(name), this, this, SLOT(hideAndReport())));
@@ -331,7 +321,7 @@ QList<ValueField *> RegisterGroup::valueFields() const {
 
 // ------------------------------- Canvas impl ----------------------------------------
 
-Canvas::Canvas(QWidget *parent) : QWidget(parent) {
+Canvas::Canvas(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f) {
 	setObjectName("RegViewCanvas");
 	const auto canvasLayout = new QVBoxLayout(this);
 	canvasLayout->setSpacing(letterSize(parent->font()).height() / 2);

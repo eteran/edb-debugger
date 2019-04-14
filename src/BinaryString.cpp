@@ -64,7 +64,7 @@ void BinaryString::setMaxLength(int n) {
 // Name: BinaryString
 // Desc: constructor
 //------------------------------------------------------------------------------
-BinaryString::BinaryString(QWidget *parent) : QWidget(parent), ui(new Ui::BinaryStringWidget) {
+BinaryString::BinaryString(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), ui(new Ui::BinaryStringWidget) {
 	ui->setupUi(this);
 	ui->txtHex->setValidator(new HexStringValidator(this));
 	ui->keepSize->setFocusPolicy(Qt::TabFocus);

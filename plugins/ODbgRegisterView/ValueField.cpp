@@ -37,13 +37,11 @@ namespace {
 QStyle *flatStyle = nullptr;
 }
 
-ValueField::ValueField(int fieldWidth,
-                       const QModelIndex &index,
-                       QWidget *parent,
-                       const std::function<QString(const QString &)> &valueFormatter)
-	: FieldWidget(fieldWidth, index, parent),
-	  valueFormatter(valueFormatter)
-{
+ValueField::ValueField(int fieldWidth, const QModelIndex &index, QWidget *parent, Qt::WindowFlags f) : ValueField(fieldWidth, index, [](const QString &s) { return s; }, parent, f){
+
+}
+
+ValueField::ValueField(int fieldWidth, const QModelIndex &index, const std::function<QString(const QString &)> &valueFormatter, QWidget *parent, Qt::WindowFlags f) : FieldWidget(fieldWidth, index, parent, f), valueFormatter(valueFormatter) {
 	setObjectName("ValueField");
 	setDisabled(false);
 	setMouseTracking(true);

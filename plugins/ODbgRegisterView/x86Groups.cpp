@@ -176,7 +176,7 @@ RegisterGroup *createEFL(RegisterViewModelBase::Model *model, QWidget *parent) {
 	const auto valueWidth = 8;
 	const auto valueIndex = nameIndex.sibling(nameIndex.row(), MODEL_VALUE_COLUMN);
 	column += nameWidth + 1;
-	group->insert(0, column, new ValueField(valueWidth, valueIndex, group, [](const QString &v) { return v.right(8); }));
+	group->insert(0, column, new ValueField(valueWidth, valueIndex, [](const QString &v) { return v.right(8); }, group));
 	const auto commentIndex = nameIndex.sibling(nameIndex.row(), MODEL_COMMENT_COLUMN);
 	column += valueWidth + 1;
 	group->insert(0, column, new FieldWidget(0, commentIndex, group));
@@ -516,7 +516,7 @@ RegisterGroup *createFPULastOp(RegisterViewModelBase::Model *model, QWidget *par
 		return edb::value8(0xd8 + rawFOP[1]).toHexString() + ' ' + edb::value8(rawFOP[0]).toHexString();
 	};
 
-	const auto FOPValueField = new ValueField(5, FOPIndex, group, FOPFormatter);
+	const auto FOPValueField = new ValueField(5, FOPIndex, FOPFormatter, group);
 	group->insert(lastOpcodeRow, lastOpcodeLabel.length() + 1, FOPValueField);
 
 	static const auto FOPTooltip = tr("Last FPU opcode");

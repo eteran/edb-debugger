@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace BinaryInfoPlugin {
 
-OptionsPage::OptionsPage(QWidget* parent) : QWidget(parent)  {
+OptionsPage::OptionsPage(QWidget* parent, Qt::WindowFlags f) : QWidget(parent, f)  {
 	ui.setupUi(this);
 }
 

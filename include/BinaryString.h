@@ -31,7 +31,7 @@ class EDB_EXPORT BinaryString : public QWidget {
 	Q_OBJECT
 
 public:
-    BinaryString(QWidget *parent = nullptr);
+    BinaryString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~BinaryString() override;
 
 private Q_SLOTS:
