@@ -24,11 +24,10 @@ DebugEventHandlers::~DebugEventHandlers() {
 	if (current_handler_) {
 		EDB_PRINT_AND_DIE("can not destroy debug events container while executing events");
 	}
-#if 0
+
 	if (!handlers_.empty()) {
 		EDB_PRINT_AND_DIE("some debug event handlers weren't property removed");
 	}
-#endif
 }
 
 void DebugEventHandlers::add(IDebugEventHandler *handler) {

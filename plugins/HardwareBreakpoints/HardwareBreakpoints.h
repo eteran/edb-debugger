@@ -42,6 +42,10 @@ class HardwareBreakpoints : public QObject, public IPlugin, public IDebugEventHa
 public:
 	HardwareBreakpoints(QObject *parent = nullptr);
 
+protected:
+	void private_init() override;
+	void private_fini() override;
+
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
 	edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) override;

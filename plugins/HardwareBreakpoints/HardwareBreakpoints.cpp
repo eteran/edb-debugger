@@ -42,11 +42,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace HardwareBreakpointsPlugin {
 
-//------------------------------------------------------------------------------
-// Name: HardwareBreakpoints
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief HardwareBreakpoints::HardwareBreakpoints
+ * @param parent
+ */
 HardwareBreakpoints::HardwareBreakpoints(QObject *parent) : QObject(parent) {
+}
+
+/**
+ * @brief HardwareBreakpoints::private_init
+ */
+void HardwareBreakpoints::private_init() {
 
 	auto dialog = new DialogHWBreakpoints(edb::v1::debugger_ui);
 	dialog_ = dialog;
@@ -75,10 +81,18 @@ HardwareBreakpoints::HardwareBreakpoints(QObject *parent) : QObject(parent) {
 	edb::v1::add_debug_event_handler(this);
 }
 
-//------------------------------------------------------------------------------
-// Name: menu
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief HardwareBreakpoints::private_fini
+ */
+void HardwareBreakpoints::private_fini() {
+	edb::v1::remove_debug_event_handler(this);
+}
+
+/**
+ * @brief HardwareBreakpoints::menu
+ * @param parent
+ * @return
+ */
 QMenu *HardwareBreakpoints::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
@@ -91,10 +105,9 @@ QMenu *HardwareBreakpoints::menu(QWidget *parent) {
 	return menu_;
 }
 
-//------------------------------------------------------------------------------
-// Name: setupBreakpoints
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief HardwareBreakpoints::setupBreakpoints
+ */
 void HardwareBreakpoints::setupBreakpoints() {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {

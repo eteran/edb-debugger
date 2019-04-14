@@ -499,6 +499,13 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 // Desc:
 //------------------------------------------------------------------------------
 Debugger::~Debugger() {
+
+	for(QObject *plugin: edb::v1::plugin_list()) {
+		if(auto p = qobject_cast<IPlugin *>(plugin)) {
+			p->fini();
+		}
+	}
+
 	// kill our xterm and wait for it to die
 	tty_proc_->kill();
 	tty_proc_->waitForFinished(3000);

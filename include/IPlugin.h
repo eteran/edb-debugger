@@ -35,6 +35,10 @@ public:
 		private_init();
 	}
 
+	void fini() {
+		private_fini();
+	}
+
 public:
     virtual QMenu *menu(QWidget *parent = nullptr) = 0;
 
@@ -73,6 +77,10 @@ public:
 protected:
 	// optional init, overload this to have edb run it after loading the plugin
 	virtual void private_init() {
+	}
+
+	// optional fini, overload this to have edb run it before unloading the plugin
+	virtual void private_fini() {
 	}
 };
 
