@@ -20,13 +20,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIALOGHEAP_20061101_H_
 
 #include "Types.h"
-#include "ResultViewModel.h"
 #include "ui_DialogHeap.h"
 #include <QDialog>
 
 class QSortFilterProxyModel;
 
 namespace HeapAnalyzerPlugin {
+
+class Result;
+class ResultViewModel;
 
 class DialogHeap : public QDialog {
 	Q_OBJECT
@@ -44,19 +46,22 @@ private:
     void showEvent(QShowEvent *event) override;
 
 private:
-	void get_library_names(QString *libcName, QString *ldName) const;
+	void detectPointers();
+	void processPotentialPointers(const QHash<edb::address_t, edb::address_t> &targets, const QModelIndex &index);
+	edb::address_t findHeapStartHeuristic(edb::address_t end_address, size_t offset) const;
+	QMap<edb::address_t, const Result *> createResultMap() const;
+
+private:
 	template<class Addr>
-	void collect_blocks(edb::address_t start_address, edb::address_t end_address);
-	void detect_pointers();
+	void collectBlocks(edb::address_t start_address, edb::address_t end_address);
+
 	template<class Addr>
 	void do_find();
-	void process_potential_pointer(const QHash<edb::address_t, edb::address_t> &targets, Result &result);
-
-	edb::address_t find_heap_start_heuristic(edb::address_t end_address, size_t offset) const;
 
 private:
 	 Ui::DialogHeap ui;
-	 ResultViewModel *     model_;
+	 ResultViewModel *model_;
+	 QSortFilterProxyModel *filter_model_;
 };
 
 }

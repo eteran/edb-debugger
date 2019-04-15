@@ -7,18 +7,79 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>707</width>
-    <height>486</height>
+    <width>792</width>
+    <height>454</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Heap Analyzer</string>
   </property>
-  <layout class="QVBoxLayout">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QLabel" name="label_2">
      <property name="text">
       <string>Results:</string>
+     </property>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <item>
+      <widget class="QLabel" name="labelFree">
+       <property name="text">
+        <string>Free Blocks: ?</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelBusy">
+       <property name="text">
+        <string>Busy Blocks: ?</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer name="horizontalSpacer_2">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QLabel" name="labelTotal">
+       <property name="text">
+        <string>Total: ?</string>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+   <item>
+    <widget class="QLineEdit" name="lineEdit">
+     <property name="placeholderText">
+      <string>Filter</string>
+     </property>
+     <property name="clearButtonEnabled">
+      <bool>true</bool>
      </property>
     </widget>
    </item>
@@ -40,9 +101,6 @@
      </property>
      <property name="selectionBehavior">
       <enum>QAbstractItemView::SelectRows</enum>
-     </property>
-     <property name="sortingEnabled">
-      <bool>true</bool>
      </property>
      <property name="wordWrap">
       <bool>false</bool>
@@ -106,7 +164,7 @@
      <item>
       <widget class="QPushButton" name="btnFind">
        <property name="text">
-        <string>&amp;Find</string>
+        <string>&amp;Analyze</string>
        </property>
        <property name="icon">
         <iconset theme="edit-find">
@@ -147,8 +205,8 @@
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>52</x>
-     <y>428</y>
+     <x>59</x>
+     <y>415</y>
     </hint>
     <hint type="destinationlabel">
      <x>257</x>
