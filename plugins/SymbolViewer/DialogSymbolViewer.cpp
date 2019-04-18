@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStringListModel>
 #include <QSortFilterProxyModel>
 #include <QMenu>
+#include <QPushButton>
 
 namespace SymbolViewerPlugin {
 
@@ -36,6 +37,18 @@ namespace SymbolViewerPlugin {
 //------------------------------------------------------------------------------
 DialogSymbolViewer::DialogSymbolViewer(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f)  {
 	ui.setupUi(this);
+
+	btnRefresh_ = new QPushButton(QIcon::fromTheme("view-refresh"), tr("Refresh"));
+	connect(btnRefresh_, &QPushButton::clicked, this, [this]() {
+		btnRefresh_->setEnabled(false);
+		do_find();
+		btnRefresh_->setEnabled(true);
+	});
+
+	ui.buttonBox->addButton(btnRefresh_, QDialogButtonBox::ActionRole);
+
+	// NOTE(eteran): not help system yet!
+	ui.buttonBox->button(QDialogButtonBox::Help)->setEnabled(false);
 
 	ui.listView->setContextMenuPolicy(Qt::CustomContextMenu);
 
@@ -88,11 +101,10 @@ void DialogSymbolViewer::on_listView_customContextMenuRequested(const QPoint &po
 			QAction *const action3 = menu.addAction(tr("&Follow In Dump (New Tab)"), this, SLOT(mnuFollowInDumpNewTab()));
 			QAction *const action4 = menu.addAction(tr("&Follow In Stack"),          this, SLOT(mnuFollowInStack()));
 
-            // TODO(eteran): add -> operator to Result, this is hidious...
-			action1->setData((*addr).toQVariant());
-			action2->setData((*addr).toQVariant());
-			action3->setData((*addr).toQVariant());
-			action4->setData((*addr).toQVariant());
+			action1->setData(addr->toQVariant());
+			action2->setData(addr->toQVariant());
+			action3->setData(addr->toQVariant());
+			action4->setData(addr->toQVariant());
 
 			menu.exec(ui.listView->mapToGlobal(pos));
 		}
@@ -159,21 +171,13 @@ void DialogSymbolViewer::do_find() {
 }
 
 //------------------------------------------------------------------------------
-// Name: on_btnRefresh_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogSymbolViewer::on_btnRefresh_clicked() {
-	ui.btnRefresh->setEnabled(false);
-	do_find();
-	ui.btnRefresh->setEnabled(true);
-}
-
-//------------------------------------------------------------------------------
 // Name: showEvent
 // Desc:
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::showEvent(QShowEvent *) {
-	on_btnRefresh_clicked();
+	btnRefresh_->setEnabled(false);
+	do_find();
+	btnRefresh_->setEnabled(true);
 }
 
 }

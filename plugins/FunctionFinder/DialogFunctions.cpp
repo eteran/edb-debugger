@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
+#include <QPushButton>
 
 namespace FunctionFinderPlugin {
 
@@ -41,6 +42,20 @@ DialogFunctions::DialogFunctions(QWidget *parent, Qt::WindowFlags f) : QDialog(p
 
 	filter_model_ = new QSortFilterProxyModel(this);
 	connect(ui.txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+
+	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	connect(btnFind_, &QPushButton::clicked, this, [this]() {
+		btnFind_->setEnabled(false);
+		ui.progressBar->setValue(0);
+		do_find();
+		ui.progressBar->setValue(100);
+		btnFind_->setEnabled(true);
+	});
+
+	ui.buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
+
+	// NOTE(eteran): not help system yet!
+	ui.buttonBox->button(QDialogButtonBox::Help)->setEnabled(false);
 }
 
 //------------------------------------------------------------------------------
@@ -106,16 +121,5 @@ void DialogFunctions::do_find() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnFind_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogFunctions::on_btnFind_clicked() {
-	ui.btnFind->setEnabled(false);
-	ui.progressBar->setValue(0);
-	do_find();
-	ui.progressBar->setValue(100);
-	ui.btnFind->setEnabled(true);
-}
 
 }

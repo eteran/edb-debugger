@@ -34,9 +34,6 @@ public:
 	explicit DialogFunctions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogFunctions() override = default;
 
-public Q_SLOTS:
-	void on_btnFind_clicked();
-
 private:
     void showEvent(QShowEvent *event) override;
 
@@ -45,7 +42,8 @@ private:
 
 private:
 	Ui::DialogFunctions ui;
-	QSortFilterProxyModel *    filter_model_;
+	QSortFilterProxyModel *filter_model_;
+	QPushButton *btnFind_;
 };
 
 }

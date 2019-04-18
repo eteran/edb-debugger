@@ -48,9 +48,6 @@ public:
     explicit DialogROPTool(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogROPTool() override = default;
 
-public Q_SLOTS:
-	void on_btnFind_clicked();
-
 private:
 	using InstructionList = std::vector<std::shared_ptr<edb::Instruction>>;
 	
@@ -65,6 +62,7 @@ private:
 	Ui::DialogROPTool     ui;
 	QSortFilterProxyModel *filter_model_;
 	QSet<QString>          unique_results_;
+	QPushButton *btnFind_;
 };
 
 }

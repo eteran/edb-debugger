@@ -93,13 +93,14 @@ public:
 	Result& operator=(Result &&)      = default;
 
 public:
-	T operator*() const            { return value(); }
+	const T* operator->() const    { Q_ASSERT(succeeded()); return &boost::get<T>(value_); }
+	const T& operator*() const     { return value(); }
 	bool succeeded() const         { return value_.which() == 0; }
 	bool failed() const            { return value_.which() == 1; }
 	explicit operator bool() const { return succeeded(); }
 	bool operator!() const         { return failed(); }
-	E error() const                { Q_ASSERT(failed());    return boost::get<Unexpected<E>>(value_).error_; }
-	T value() const                { Q_ASSERT(succeeded()); return boost::get<T>(value_); }
+	const E &error() const         { Q_ASSERT(failed());    return boost::get<Unexpected<E>>(value_).error_; }
+	const T &value() const         { Q_ASSERT(succeeded()); return boost::get<T>(value_); }
 
 private:
 	boost::variant<T, Unexpected<E>> value_;
@@ -127,7 +128,7 @@ public:
 	bool failed() const            { return value_.which() == 1; }
 	explicit operator bool() const { return succeeded(); }
 	bool operator!() const         { return failed(); }
-	E error() const                { Q_ASSERT(failed());    return boost::get<Unexpected<E>>(value_).error_; }
+	const E &error() const         { Q_ASSERT(failed());    return boost::get<Unexpected<E>>(value_).error_; }
 
 private:
 	boost::variant<boost::blank, Unexpected<E>> value_;

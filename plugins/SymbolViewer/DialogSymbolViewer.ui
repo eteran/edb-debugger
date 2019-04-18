@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>652</width>
-    <height>521</height>
+    <width>500</width>
+    <height>300</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -51,78 +51,45 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout">
-     <property name="spacing">
-      <number>6</number>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close|QDialogButtonBox::Help</set>
      </property>
-     <item>
-      <widget class="QPushButton" name="btnClose">
-       <property name="text">
-        <string>&amp;Close</string>
-       </property>
-       <property name="icon">
-        <iconset theme="dialog-close">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnHelp">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>&amp;Help</string>
-       </property>
-       <property name="icon">
-        <iconset theme="help-browser">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>361</width>
-         <height>29</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnRefresh">
-       <property name="text">
-        <string>&amp;Refresh</string>
-       </property>
-       <property name="icon">
-        <iconset theme="view-refresh">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    </widget>
    </item>
   </layout>
  </widget>
  <resources/>
  <connections>
   <connection>
-   <sender>btnClose</sender>
-   <signal>clicked()</signal>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>SymbolViewerPlugin::DialogSymbolViewer</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>195</x>
+     <y>296</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>524</x>
+     <y>256</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
    <receiver>SymbolViewerPlugin::DialogSymbolViewer</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>58</x>
-     <y>496</y>
+     <x>121</x>
+     <y>297</y>
     </hint>
     <hint type="destinationlabel">
-     <x>318</x>
-     <y>497</y>
+     <x>521</x>
+     <y>311</y>
     </hint>
    </hints>
   </connection>

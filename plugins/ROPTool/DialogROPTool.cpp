@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QModelIndex>
 #include <QSortFilterProxyModel>
 #include <QStandardItemModel>
+#include <QPushButton>
 
 namespace ROPToolPlugin {
 
@@ -284,6 +285,20 @@ DialogROPTool::DialogROPTool(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 
 	filter_model_ = new QSortFilterProxyModel(this);
 	connect(ui.txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+
+	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	connect(btnFind_, &QPushButton::clicked, this, [this]() {
+		btnFind_->setEnabled(false);
+		ui.progressBar->setValue(0);
+		do_find();
+		ui.progressBar->setValue(100);
+		btnFind_->setEnabled(true);
+	});
+
+	ui.buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
+
+	// NOTE(eteran): not help system yet!
+	ui.buttonBox->button(QDialogButtonBox::Help)->setEnabled(false);
 }
 
 //------------------------------------------------------------------------------
@@ -464,16 +479,5 @@ void DialogROPTool::do_find() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnFind_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogROPTool::on_btnFind_clicked() {
-	ui.btnFind->setEnabled(false);
-	ui.progressBar->setValue(0);
-	do_find();
-	ui.progressBar->setValue(100);
-	ui.btnFind->setEnabled(true);
-}
 
 }

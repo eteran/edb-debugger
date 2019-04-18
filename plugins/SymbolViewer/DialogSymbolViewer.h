@@ -40,7 +40,6 @@ public:
 public Q_SLOTS:
 	void on_listView_doubleClicked(const QModelIndex &index);
 	void on_listView_customContextMenuRequested(const QPoint &pos);
-	void on_btnRefresh_clicked();
 
 private Q_SLOTS:
 	void mnuFollowInDump();
@@ -56,8 +55,9 @@ private:
 
 private:
 	 Ui::DialogSymbolViewer ui;
-	 QStringListModel *            model_;
-	 QSortFilterProxyModel *       filter_model_;
+	 QStringListModel *model_;
+	 QSortFilterProxyModel *filter_model_;
+	 QPushButton *btnRefresh_;
 };
 
 }
