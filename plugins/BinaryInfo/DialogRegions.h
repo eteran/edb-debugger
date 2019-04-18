@@ -36,15 +36,13 @@ public:
 	explicit DialogRegions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogRegions() override = default;
 
-public Q_SLOTS:
-	void on_btnExplore_clicked();
-
 private:
 	void showEvent(QShowEvent *event) override;
 
 private:
 	 Ui::DialogRegions ui;
 	 QSortFilterProxyModel *filter_model_;
+	 QPushButton *btnExplore_;
 };
 
 }

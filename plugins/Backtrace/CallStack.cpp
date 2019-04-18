@@ -54,6 +54,7 @@ void CallStack::get_call_stack() {
 
 			// Check the alignment.  rbp and rsp should be aligned to the stack.
 			if (rbp % edb::v1::pointer_size() != 0 || rsp % edb::v1::pointer_size() != 0) {
+				qDebug("It appears that the application is not using frame pointers, call stack unavailable.");
 				return;
 			}
 

@@ -13,8 +13,8 @@
   <property name="windowTitle">
    <string>Call Stack</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
-   <item row="0" column="0">
+  <layout class="QVBoxLayout" name="verticalLayout">
+   <item>
     <widget class="QTableWidget" name="tableWidgetCallStack">
      <property name="font">
       <font>
@@ -39,65 +39,46 @@
      </column>
     </widget>
    </item>
-   <item row="1" column="0">
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <property name="sizeConstraint">
-      <enum>QLayout::SetMaximumSize</enum>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
      </property>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButtonReturnTo">
-       <property name="text">
-        <string>&amp;Return To</string>
-       </property>
-       <property name="icon">
-        <iconset theme="edit-undo">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="pushButtonClose">
-       <property name="text">
-        <string>&amp;Close</string>
-       </property>
-       <property name="icon">
-        <iconset theme="dialog-close">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    </widget>
    </item>
   </layout>
  </widget>
  <resources/>
  <connections>
   <connection>
-   <sender>pushButtonClose</sender>
-   <signal>clicked()</signal>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>BacktracePlugin::DialogBacktrace</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>538</x>
+     <y>272</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>538</x>
+     <y>256</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
    <receiver>BacktracePlugin::DialogBacktrace</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>803</x>
-     <y>254</y>
+     <x>576</x>
+     <y>286</y>
     </hint>
     <hint type="destinationlabel">
-     <x>543</x>
-     <y>239</y>
+     <x>471</x>
+     <y>255</y>
     </hint>
    </hints>
   </connection>

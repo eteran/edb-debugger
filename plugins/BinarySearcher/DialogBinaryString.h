@@ -33,14 +33,12 @@ public:
 	explicit DialogBinaryString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogBinaryString() override = default;
 
-public Q_SLOTS:
-	void on_btnFind_clicked();
-
 private:
 	void do_find();
 
 private:
 	 Ui::DialogBinaryString ui;
+	 QPushButton *btnFind_;
 };
 
 }

@@ -27,6 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QVector>
 #include <QListWidget>
 #include <cstring>
+#include <QPushButton>
 
 namespace BinarySearcherPlugin {
 
@@ -40,6 +41,17 @@ DialogBinaryString::DialogBinaryString(QWidget *parent, Qt::WindowFlags f) : QDi
 
 	// NOTE(eteran): address issue #574
 	ui.binaryString->setShowKeepSize(false);
+
+	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	connect(btnFind_, &QPushButton::clicked, this, [this]() {
+		btnFind_->setEnabled(false);
+		ui.progressBar->setValue(0);
+		do_find();
+		ui.progressBar->setValue(100);
+		btnFind_->setEnabled(true);
+	});
+
+	ui.buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
 }
 
 //------------------------------------------------------------------------------
@@ -107,17 +119,5 @@ void DialogBinaryString::do_find() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnFind_clicked
-// Desc: find button event handler
-//------------------------------------------------------------------------------
-void DialogBinaryString::on_btnFind_clicked() {
-
-	ui.btnFind->setEnabled(false);
-	ui.progressBar->setValue(0);
-	do_find();
-	ui.progressBar->setValue(100);
-	ui.btnFind->setEnabled(true);
-}
 
 }

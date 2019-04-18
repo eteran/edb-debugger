@@ -29,6 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMessageBox>
 #include <QVector>
 #include <QListWidget>
+#include <QPushButton>
 #include <QtDebug>
 
 #include <cstring>
@@ -42,6 +43,17 @@ namespace BinarySearcherPlugin {
 DialogASCIIString::DialogASCIIString(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
 	ui.setupUi(this);
 	ui.progressBar->setValue(0);
+
+	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	connect(btnFind_, &QPushButton::clicked, this, [this]() {
+		btnFind_->setEnabled(false);
+		ui.progressBar->setValue(0);
+		do_find();
+		ui.progressBar->setValue(100);
+		btnFind_->setEnabled(true);
+	});
+
+	ui.buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
 }
 
 //------------------------------------------------------------------------------
@@ -108,18 +120,6 @@ void DialogASCIIString::do_find() {
 		results->show();
 	}
 
-}
-
-/**
- * @brief DialogASCIIString::on_btnFind_clicked
- */
-void DialogASCIIString::on_btnFind_clicked() {
-
-	ui.btnFind->setEnabled(false);
-	ui.progressBar->setValue(0);
-	do_find();
-	ui.progressBar->setValue(100);
-	ui.btnFind->setEnabled(true);
 }
 
 /**

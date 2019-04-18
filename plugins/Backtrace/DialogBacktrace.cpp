@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "Symbol.h"
 
 #include <QTableWidget>
+#include <QPushButton>
 
 namespace BacktracePlugin {
 namespace {
@@ -82,6 +83,41 @@ DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f) : QDialog(p
 	table_ = ui.tableWidgetCallStack;
 	table_->verticalHeader()->hide();
 	table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+	btnReturnTo_ = new QPushButton(QIcon::fromTheme("edit-undo"), tr("Return To"));
+	connect(btnReturnTo_, &QPushButton::clicked, this, [this]() {
+
+		// Desc: Ensures that the selected item is a return address.  If so, sets a
+		//       breakpoint at that address and continues execution.
+
+		//Make sure our current item is in the RETURN_COLUMN
+		QTableWidgetItem *item = table_->currentItem();
+		if (!is_ret(item)) {
+			return;
+		}
+
+		edb::address_t address = address_from_table(item);
+
+		if(IProcess *process = edb::v1::debugger_core->process()) {
+
+			// Now that we got the address, we can run.  First check if bp @ that address
+			// already exists.
+			if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->find_breakpoint(address)) {
+				process->resume(edb::DEBUG_CONTINUE);
+				return;
+			}
+
+			// Using the non-debugger_core version ensures bp is set in a valid region
+			edb::v1::create_breakpoint(address);
+			if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->find_breakpoint(address)) {
+				bp->set_internal(true);
+				bp->set_one_time(true);
+				process->resume(edb::DEBUG_CONTINUE);
+			}
+		}
+	});
+
+	ui.buttonBox->addButton(btnReturnTo_, QDialogButtonBox::ActionRole);
 }
 
 
@@ -112,7 +148,8 @@ void DialogBacktrace::populate_table() {
 	//Remove rows of the table (clearing does not remove rows)
 	//Yes, we depend on i going negative.
 	for (int i = table_->rowCount() - 1; i >= 0; i--) {
-		table_->removeRow(i); }
+		table_->removeRow(i);
+	}
 
 	//Get the call stack and populate the table with entries.
 	CallStack call_stack;
@@ -144,7 +181,7 @@ void DialogBacktrace::populate_table() {
 
 			if(near_symbol) {
 				const QString function = near_symbol->name;
-				const uint64_t offset = address - near_symbol->address;;
+				const uint64_t offset = address - near_symbol->address;
 				item->setText(tr("0x%1 <%2+%3>").arg(QString::number(address, 16), function).arg(offset));
 			} else {
 				item->setText(tr("0x%1").arg(QString::number(address, 16)));
@@ -164,27 +201,19 @@ void DialogBacktrace::populate_table() {
 	QTableWidgetItem *item = table_->item(FIRST_ROW, RETURN_COLUMN);
 	if (item) {
 		table_->setCurrentItem(item);
-		ui.pushButtonReturnTo->setEnabled(true);
+		btnReturnTo_->setEnabled(true);
 	} else {
-		ui.pushButtonReturnTo->setDisabled(true);
+		btnReturnTo_->setEnabled(false);
 	}
 }
 
 //------------------------------------------------------------------------------
 // Name: hideEvent
 // Desc: Disconnects the signal/slot when the dialog goes away so that
-//			populate_table() is not called unnecessarily.
+//       populate_table() is not called unnecessarily.
 //------------------------------------------------------------------------------
 void DialogBacktrace::hideEvent(QHideEvent *) {
 	disconnect(edb::v1::debugger_ui, SIGNAL(gui_updated()), this, SLOT(populate_table()));
-}
-
-//------------------------------------------------------------------------------
-// Name: on_pushButtonClose_clicked()
-// Desc: Triggered when the dialog is closed which signals hideEvent & closeEvent.
-//------------------------------------------------------------------------------
-void DialogBacktrace::on_pushButtonClose_clicked() {
-	close();
 }
 
 //------------------------------------------------------------------------------
@@ -198,51 +227,14 @@ void DialogBacktrace::on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem
 //------------------------------------------------------------------------------
 // Name: on_tableWidgetCallStack_cellClicked
 // Desc: Enables the "Run To Return" button if the selected cell is in the
-//			column for return addresses.  Disables it, otherwise.
+//       column for return addresses.  Disables it, otherwise.
 //------------------------------------------------------------------------------
-void DialogBacktrace::on_tableWidgetCallStack_cellClicked(int row, int column)
-{
+void DialogBacktrace::on_tableWidgetCallStack_cellClicked(int row, int column) {
 	Q_UNUSED(row)
-
-	QPushButton *return_to = ui.pushButtonReturnTo;
 	if (is_ret(column)) {
-		return_to->setEnabled(true);
+		btnReturnTo_->setEnabled(true);
 	} else {
-		return_to->setDisabled(true);
-	}
-}
-
-//------------------------------------------------------------------------------
-// Name: on_pushButtonReturnTo_clicked()
-// Desc: Ensures that the selected item is a return address.  If so, sets a
-//			breakpoint at that address and continues execution.
-//------------------------------------------------------------------------------
-void DialogBacktrace::on_pushButtonReturnTo_clicked() {
-
-	//Make sure our current item is in the RETURN_COLUMN
-	QTableWidgetItem *item = table_->currentItem();
-	if (!is_ret(item)) {
-		return;
-	}
-
-	edb::address_t address = address_from_table(item);
-
-	if(IProcess *process = edb::v1::debugger_core->process()) {
-
-		// Now that we got the address, we can run.  First check if bp @ that address
-		// already exists.
-		if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->find_breakpoint(address)) {
-			process->resume(edb::DEBUG_CONTINUE);
-			return;
-		}
-
-		// Using the non-debugger_core version ensures bp is set in a valid region
-		edb::v1::create_breakpoint(address);
-		if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->find_breakpoint(address)) {
-			bp->set_internal(true);
-			bp->set_one_time(true);
-			process->resume(edb::DEBUG_CONTINUE);
-		}
+		btnReturnTo_->setEnabled(false);
 	}
 }
 

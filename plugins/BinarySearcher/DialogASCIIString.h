@@ -36,14 +36,12 @@ public:
 protected:
 	void showEvent(QShowEvent *event) override;
 
-public Q_SLOTS:
-	void on_btnFind_clicked();
-
 private:
 	void do_find();
 
 private:
 	 Ui::DialogASCIIString ui;
+	 QPushButton *btnFind_;
 };
 
 }

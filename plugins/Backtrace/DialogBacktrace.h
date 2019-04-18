@@ -41,14 +41,13 @@ public Q_SLOTS:
 	void populate_table();
 
 private Q_SLOTS:
-	void on_pushButtonClose_clicked();
 	void on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem *item);
 	void on_tableWidgetCallStack_cellClicked(int row, int column);
-	void on_pushButtonReturnTo_clicked();
 
 private:
 	Ui::DialogBacktrace ui;
 	QTableWidget        *table_;
+	QPushButton *btnReturnTo_;
 };
 
 }

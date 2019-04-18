@@ -7,8 +7,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>635</width>
-    <height>444</height>
+    <width>640</width>
+    <height>400</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -63,69 +63,49 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout">
-     <property name="spacing">
-      <number>6</number>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
      </property>
-     <item>
-      <widget class="QPushButton" name="btnClose">
-       <property name="text">
-        <string>&amp;Close</string>
-       </property>
-       <property name="icon">
-        <iconset theme="dialog-close">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnExplore">
-       <property name="text">
-        <string>Explore Header</string>
-       </property>
-       <property name="default">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    </widget>
    </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>txtSearch</tabstop>
   <tabstop>tableView</tabstop>
-  <tabstop>btnClose</tabstop>
-  <tabstop>btnExplore</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>btnClose</sender>
-   <signal>clicked()</signal>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>BinaryInfoPlugin::DialogRegions</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>592</x>
+     <y>382</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>593</x>
+     <y>399</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
    <receiver>BinaryInfoPlugin::DialogRegions</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>43</x>
-     <y>426</y>
+     <x>557</x>
+     <y>369</y>
     </hint>
     <hint type="destinationlabel">
-     <x>238</x>
-     <y>404</y>
+     <x>540</x>
+     <y>399</y>
     </hint>
    </hints>
   </connection>

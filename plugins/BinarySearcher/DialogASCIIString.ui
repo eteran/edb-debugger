@@ -14,57 +14,12 @@
    <string>Find ASCII String</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
-   <item row="2" column="0" colspan="2">
-    <layout class="QHBoxLayout">
-     <item>
-      <widget class="QPushButton" name="btnClose">
-       <property name="text">
-        <string>&amp;Close</string>
-       </property>
-       <property name="icon">
-        <iconset theme="dialog-close">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>99</width>
-         <height>31</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnFind">
-       <property name="text">
-        <string>&amp;Find</string>
-       </property>
-       <property name="icon">
-        <iconset theme="edit-find">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-       <property name="default">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
-   </item>
    <item row="0" column="0">
     <widget class="QLabel" name="label">
      <property name="text">
       <string>ASCII String</string>
      </property>
     </widget>
-   </item>
-   <item row="3" column="0" colspan="2">
-    <widget class="QProgressBar" name="progressBar"/>
    </item>
    <item row="0" column="1">
     <widget class="QLineEdit" name="txtASCII">
@@ -86,29 +41,53 @@
      </property>
     </widget>
    </item>
+   <item row="2" column="0" colspan="2">
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
+   </item>
+   <item row="3" column="0" colspan="2">
+    <widget class="QProgressBar" name="progressBar"/>
+   </item>
   </layout>
  </widget>
  <tabstops>
   <tabstop>txtASCII</tabstop>
   <tabstop>chkCaseSensitive</tabstop>
-  <tabstop>btnClose</tabstop>
-  <tabstop>btnFind</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>btnClose</sender>
-   <signal>clicked()</signal>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
    <receiver>BinarySearcherPlugin::DialogASCIIString</receiver>
-   <slot>close()</slot>
+   <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>58</x>
-     <y>103</y>
+     <x>174</x>
+     <y>83</y>
     </hint>
     <hint type="destinationlabel">
-     <x>197</x>
-     <y>228</y>
+     <x>285</x>
+     <y>56</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>BinarySearcherPlugin::DialogASCIIString</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>133</x>
+     <y>88</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>326</x>
+     <y>99</y>
     </hint>
    </hints>
   </connection>
