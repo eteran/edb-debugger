@@ -53,9 +53,6 @@ DialogFunctions::DialogFunctions(QWidget *parent, Qt::WindowFlags f) : QDialog(p
 	});
 
 	ui.buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
-
-	// NOTE(eteran): not help system yet!
-	ui.buttonBox->button(QDialogButtonBox::Help)->setEnabled(false);
 }
 
 //------------------------------------------------------------------------------

@@ -52,9 +52,6 @@ SpecifiedFunctions::SpecifiedFunctions(QWidget *parent, Qt::WindowFlags f) : QDi
 	});
 
 	ui.buttonBox->addButton(btnRefresh_, QDialogButtonBox::ActionRole);
-
-	// NOTE(eteran): not help system yet!
-	ui.buttonBox->button(QDialogButtonBox::Help)->setEnabled(false);
 }
 
 //------------------------------------------------------------------------------

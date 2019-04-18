@@ -47,9 +47,6 @@ DialogSymbolViewer::DialogSymbolViewer(QWidget *parent, Qt::WindowFlags f) : QDi
 
 	ui.buttonBox->addButton(btnRefresh_, QDialogButtonBox::ActionRole);
 
-	// NOTE(eteran): not help system yet!
-	ui.buttonBox->button(QDialogButtonBox::Help)->setEnabled(false);
-
 	ui.listView->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	model_        = new QStringListModel(this);

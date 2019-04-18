@@ -49,20 +49,6 @@
       </widget>
      </item>
      <item>
-      <widget class="QPushButton" name="btnHelp">
-       <property name="enabled">
-        <bool>false</bool>
-       </property>
-       <property name="text">
-        <string>&amp;Help</string>
-       </property>
-       <property name="icon">
-        <iconset theme="help-browser">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
       <spacer>
        <property name="orientation">
         <enum>Qt::Horizontal</enum>
@@ -149,7 +135,6 @@
   <tabstop>chkAlignment</tabstop>
   <tabstop>cmbAlignment</tabstop>
   <tabstop>btnClose</tabstop>
-  <tabstop>btnHelp</tabstop>
   <tabstop>btnFind</tabstop>
  </tabstops>
  <resources/>
