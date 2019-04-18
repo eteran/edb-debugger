@@ -111,57 +111,11 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout">
-     <item>
-      <widget class="QPushButton" name="btnClose">
-       <property name="text">
-        <string>&amp;Close</string>
-       </property>
-       <property name="icon">
-        <iconset theme="dialog-close">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer>
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnGraph">
-       <property name="text">
-        <string>&amp;Graph Selected Heap Blocks</string>
-       </property>
-       <property name="icon">
-        <iconset theme="distribute-graph">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnFind">
-       <property name="text">
-        <string>&amp;Analyze</string>
-       </property>
-       <property name="icon">
-        <iconset theme="edit-find">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-       <property name="default">
-        <bool>true</bool>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
    </item>
    <item>
     <widget class="QProgressBar" name="progressBar">
@@ -177,25 +131,38 @@
  </widget>
  <tabstops>
   <tabstop>tableView</tabstop>
-  <tabstop>btnClose</tabstop>
-  <tabstop>btnGraph</tabstop>
-  <tabstop>btnFind</tabstop>
  </tabstops>
  <resources/>
  <connections>
   <connection>
-   <sender>btnClose</sender>
-   <signal>clicked()</signal>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>HeapAnalyzerPlugin::DialogHeap</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>723</x>
+     <y>356</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>668</x>
+     <y>339</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
    <receiver>HeapAnalyzerPlugin::DialogHeap</receiver>
    <slot>reject()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>59</x>
-     <y>415</y>
+     <x>758</x>
+     <y>355</y>
     </hint>
     <hint type="destinationlabel">
-     <x>257</x>
-     <y>429</y>
+     <x>353</x>
+     <y>339</y>
     </hint>
    </hints>
   </connection>

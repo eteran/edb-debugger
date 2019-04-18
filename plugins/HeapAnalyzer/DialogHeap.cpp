@@ -42,23 +42,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QStack>
 #include <QString>
 #include <QVector>
+#include <QPushButton>
 #include <QtDebug>
 #include <algorithm>
 #include <functional>
 
-
 namespace HeapAnalyzerPlugin {
+namespace {
 
 constexpr int PREV_INUSE     = 0x1;
 constexpr int IS_MMAPPED     = 0x2;
 constexpr int NON_MAIN_ARENA = 0x4;
 
-constexpr int SIZE_BITS = (PREV_INUSE|IS_MMAPPED|NON_MAIN_ARENA);
-
-#define next_chunk(p, c) ((p) + ((c).chunk_size()))
-#define prev_chunk(p, c) ((p) - ((c).prev_size))
-
-namespace {
+constexpr int SIZE_BITS = (PREV_INUSE | IS_MMAPPED | NON_MAIN_ARENA);
 
 // NOTE: the details of this structure are 32/64-bit sensitive!
 template <class MallocChunkPtr>
@@ -75,18 +71,25 @@ struct malloc_chunk {
 	bool prev_inuse() const  { return size & PREV_INUSE; }
 };
 
-//------------------------------------------------------------------------------
-// Name: block_start
-// Desc:
-//------------------------------------------------------------------------------
+template <class Addr>
+edb::address_t next_chunk(edb::address_t p, const malloc_chunk<Addr> &c) {
+	return p + c.chunk_size();
+}
+
+/**
+ * @brief block_start
+ * @param pointer
+ * @return
+ */
 edb::address_t block_start(edb::address_t pointer) {
 	return pointer + edb::v1::pointer_size() * 2; // pointer_size() is malloc_chunk*
 }
 
-//------------------------------------------------------------------------------
-// Name: block_start
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief block_start
+ * @param result
+ * @return
+ */
 edb::address_t block_start(const Result &result) {
 	return block_start(result.address);
 }
@@ -140,10 +143,11 @@ void get_library_names(QString *libcName, QString *ldName) {
 
 }
 
-//------------------------------------------------------------------------------
-// Name: DialogHeap
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogHeap::DialogHeap
+ * @param parent
+ * @param f
+ */
 DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
 	ui.setupUi(this);
 
@@ -159,31 +163,112 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) 
 	ui.tableView->verticalHeader()->hide();
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
+	btnAnalyze_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Analyze"));
+	btnGraph_   = new QPushButton(QIcon::fromTheme("distribute-graph"), tr("&Graph Selected Blocks"));
+	connect(btnAnalyze_, &QPushButton::clicked, this, [this]() {
+		btnAnalyze_->setEnabled(false);
+		ui.progressBar->setValue(0);
+		ui.tableView->setUpdatesEnabled(false);
+
+		if(edb::v1::debuggeeIs32Bit()) {
+			do_find<edb::value32>();
+		} else {
+			do_find<edb::value64>();
+		}
+
+		ui.tableView->setUpdatesEnabled(true);
+		ui.progressBar->setValue(100);
+		btnAnalyze_->setEnabled(true);
+	});
+
+	connect(btnGraph_, &QPushButton::clicked, this, [this]() {
 #ifdef ENABLE_GRAPH
-	ui.btnGraph->setEnabled(true);
+	constexpr int MaxNodes = 5000;
+
+	auto graph = new GraphWidget(nullptr);
+	graph->setAttribute(Qt::WA_DeleteOnClose);
+
+	do {
+		QMap<edb::address_t, GraphNode *> nodes;
+		QStack<const Result *>            result_stack;
+		QSet<const Result *>              seen_results;
+
+		QMap<edb::address_t, const Result *>  result_map = createResultMap();
+
+		// seed our search with the selected blocks
+		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
+		const QModelIndexList sel = selModel->selectedRows();
+		if(sel.size() != 0) {
+			for(const QModelIndex &index: sel) {
+				const QModelIndex idx = filter_model_->mapToSource(index);
+				auto item = static_cast<Result *>(idx.internalPointer());
+				result_stack.push(item);
+				seen_results.insert(item);
+			}
+		}
+
+		while(!result_stack.isEmpty()) {
+			const Result *const result = result_stack.pop();
+			GraphNode *node = new GraphNode(graph, edb::v1::format_pointer(result->address), result->type == Result::Busy ? Qt::lightGray : Qt::red);
+
+			nodes.insert(result->address, node);
+
+			for(edb::address_t pointer: result->pointers) {
+				const Result *next_result = result_map[pointer];
+				if(!seen_results.contains(next_result)) {
+					seen_results.insert(next_result);
+					result_stack.push(next_result);
+				}
+			}
+		}
+		qDebug("[Heap Analyzer] Done Processing %d Nodes", nodes.size());
+
+		if(nodes.size() > MaxNodes) {
+			qDebug("[Heap Analyzer] Too Many Nodes! (%d)", nodes.size());
+			delete graph;
+			return;
+		}
+
+		Q_FOREACH(const Result *result, result_map) {
+			const edb::address_t addr = result->address;
+			if(nodes.contains(addr)) {
+				for(edb::address_t pointer: result->pointers) {
+					new GraphEdge(nodes[addr], nodes[pointer]);
+				}
+			}
+		}
+		qDebug("[Heap Analyzer] Done Processing Edges");
+	} while(0);
+
+
+	graph->layout();
+	graph->show();
+#endif
+	});
+
+	ui.buttonBox->addButton(btnGraph_, QDialogButtonBox::ActionRole);
+	ui.buttonBox->addButton(btnAnalyze_, QDialogButtonBox::ActionRole);
+
+#ifdef ENABLE_GRAPH
+	btnGraph_->setEnabled(true);
 #else
-	ui.btnGraph->setEnabled(false);
+	btnGraph_->setEnabled(false);
 #endif
 }
 
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogHeap::showEvent
+ */
 void DialogHeap::showEvent(QShowEvent *) {
 	model_->clearResults();
 	ui.progressBar->setValue(0);
 }
 
-//------------------------------------------------------------------------------
-// Name: on_resultTable_cellDoubleClicked
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogHeap::on_tableView_doubleClicked
+ * @param index
+ */
 void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
-
-	// NOTE: remember that if we use a sort filter, we need to map the indexes
-	// to get at the data we need
-
 	const QModelIndex idx = filter_model_->mapToSource(index);
 	if(auto item = static_cast<Result *>(idx.internalPointer())) {
 		edb::v1::dump_data_range(item->address, item->address + item->size, false);
@@ -388,10 +473,12 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: find_heap_start_heuristic
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief DialogHeap::findHeapStartHeuristic
+ * @param end_address
+ * @param offset
+ * @return
+ */
 edb::address_t DialogHeap::findHeapStartHeuristic(edb::address_t end_address, size_t offset) const {
 	const edb::address_t start_address = end_address - offset;
 
@@ -411,11 +498,10 @@ edb::address_t DialogHeap::findHeapStartHeuristic(edb::address_t end_address, si
 	return 0;
 }
 
-//------------------------------------------------------------------------------
-// Name: do_find
-// Desc:
-//------------------------------------------------------------------------------
-template<class Addr>
+/**
+ * @brief DialogHeap::do_find
+ */
+template <class Addr>
 void DialogHeap::do_find() {
 	// get both the libc and ld symbols of __curbrk
 	// this will be the 'before/after libc' addresses
@@ -499,26 +585,6 @@ void DialogHeap::do_find() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: on_btnFind_clicked
-// Desc:
-//------------------------------------------------------------------------------
-void DialogHeap::on_btnFind_clicked() {
-	ui.btnFind->setEnabled(false);
-	ui.progressBar->setValue(0);
-	ui.tableView->setUpdatesEnabled(false);
-
-	if(edb::v1::debuggeeIs32Bit()) {
-		do_find<edb::value32>();
-	} else {
-		do_find<edb::value64>();
-	}
-
-	ui.tableView->setUpdatesEnabled(true);
-	ui.progressBar->setValue(100);
-	ui.btnFind->setEnabled(true);
-}
-
 /**
  * @brief DialogHeap::createResultMap
  * @return
@@ -535,74 +601,6 @@ QMap<edb::address_t, const Result *> DialogHeap::createResultMap() const {
 	}
 
 	return result_map;
-}
-
-/**
- * @brief DialogHeap::on_btnGraph_clicked
- */
-void DialogHeap::on_btnGraph_clicked() {
-#ifdef ENABLE_GRAPH
-	constexpr int MaxNodes = 5000;
-
-	auto graph = new GraphWidget(nullptr);
-	graph->setAttribute(Qt::WA_DeleteOnClose);
-
-	do {
-		QMap<edb::address_t, GraphNode *> nodes;
-		QStack<const Result *>            result_stack;
-		QSet<const Result *>              seen_results;
-
-		QMap<edb::address_t, const Result *>  result_map = createResultMap();
-
-		// seed our search with the selected blocks
-		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
-		const QModelIndexList sel = selModel->selectedRows();
-		if(sel.size() != 0) {
-			for(const QModelIndex &index: sel) {
-				const QModelIndex idx = filter_model_->mapToSource(index);
-				auto item = static_cast<Result *>(idx.internalPointer());
-				result_stack.push(item);
-				seen_results.insert(item);
-			}
-		}
-
-		while(!result_stack.isEmpty()) {
-			const Result *const result = result_stack.pop();
-			GraphNode *node = new GraphNode(graph, edb::v1::format_pointer(result->address), result->type == Result::Busy ? Qt::lightGray : Qt::red);
-
-			nodes.insert(result->address, node);
-
-			for(edb::address_t pointer: result->pointers) {
-				const Result *next_result = result_map[pointer];
-				if(!seen_results.contains(next_result)) {
-					seen_results.insert(next_result);
-					result_stack.push(next_result);
-				}
-			}
-		}
-		qDebug("[Heap Analyzer] Done Processing %d Nodes", nodes.size());
-
-		if(nodes.size() > MaxNodes) {
-			qDebug("[Heap Analyzer] Too Many Nodes! (%d)", nodes.size());
-			delete graph;
-			return;
-		}
-
-		Q_FOREACH(const Result *result, result_map) {
-			const edb::address_t addr = result->address;
-			if(nodes.contains(addr)) {
-				for(edb::address_t pointer: result->pointers) {
-					new GraphEdge(nodes[addr], nodes[pointer]);
-				}
-			}
-		}
-		qDebug("[Heap Analyzer] Done Processing Edges");
-	} while(0);
-
-
-	graph->layout();
-	graph->show();
-#endif
 }
 
 }

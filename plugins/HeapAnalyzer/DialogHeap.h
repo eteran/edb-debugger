@@ -38,8 +38,6 @@ public:
 	~DialogHeap() override = default;
 
 public Q_SLOTS:
-	void on_btnFind_clicked();
-	void on_btnGraph_clicked();
 	void on_tableView_doubleClicked(const QModelIndex & index);
 
 private:
@@ -62,6 +60,8 @@ private:
 	 Ui::DialogHeap ui;
 	 ResultViewModel *model_;
 	 QSortFilterProxyModel *filter_model_;
+	 QPushButton *btnAnalyze_;
+	 QPushButton *btnGraph_;
 };
 
 }
