@@ -1430,7 +1430,7 @@ QVector<quint8> read_pages(address_t address, size_t page_count) {
 			} catch(const std::bad_alloc &) {
 				QMessageBox::critical(
 				            nullptr,
-				            tr("Memroy Allocation Error"),
+				            tr("Memory Allocation Error"),
 				            tr("Unable to satisfy memory allocation request for requested region"));
 			}
 		}
