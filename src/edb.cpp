@@ -1260,7 +1260,7 @@ Result<address_t, QString> string_to_address(const QString &s) {
 		return r;
 	}
 
-	return make_unexpected(QObject::tr("Error converting string to address"));
+	return make_unexpected(tr("Error converting string to address"));
 }
 
 //------------------------------------------------------------------------------
