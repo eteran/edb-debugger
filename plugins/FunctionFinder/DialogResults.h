@@ -44,12 +44,12 @@ public:
 
 public Q_SLOTS:
 	void on_tableView_doubleClicked(const QModelIndex &index);
-	void on_btnGraph_clicked();
 
 private:
 	Ui::DialogResults ui;
 	QSortFilterProxyModel *filter_model_;
 	ResultsModel *resultsModel_;
+	QPushButton *btnGraph_;
 };
 
 }

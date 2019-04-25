@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMenu>
 #include <QMessageBox>
 #include <QSortFilterProxyModel>
+#include <QPushButton>
 
 namespace FunctionFinderPlugin {
 
@@ -50,14 +51,108 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	filter_model_->setFilterKeyColumn(5);
 	filter_model_->setSourceModel(resultsModel_);
 	connect(ui.textFilter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
-
-
 	ui.tableView->setModel(filter_model_);
 
+	btnGraph_ = new QPushButton(QIcon::fromTheme("distribute-graph"), tr("Graph Selected Function"));
+#if defined(ENABLE_GRAPH)
+	connect(btnGraph_, &QPushButton::clicked, this, [this]() {
+
+		// this code is not very pretty...
+		// but it works!
+		qDebug("[FunctionFinder] Constructing Graph...");
+
+		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
+		const QModelIndexList sel = selModel->selectedRows();
+
+		if(sel.size() == 1) {
+			const QModelIndex index = filter_model_->mapToSource(sel[0]);
+
+			if(auto item = static_cast<Result *>(index.internalPointer())) {
+				const edb::address_t addr = item->start_address;
+
+				if(IAnalyzer *const analyzer = edb::v1::analyzer()) {
+					const IAnalyzer::FunctionMap &functions = analyzer->functions();
+
+					auto it = functions.find(addr);
+					if(it != functions.end()) {
+						Function f = *it;
+
+						auto graph = new GraphWidget(nullptr);
+						graph->setAttribute(Qt::WA_DeleteOnClose);
+
+						QMap<edb::address_t, GraphNode *> nodes;
+
+						// first create all of the nodes
+						for(const auto &pair : f) {
+							const BasicBlock &bb = pair.second;
+							auto node = new GraphNode(graph, bb.toString(), Qt::lightGray);
+							nodes.insert(bb.firstAddress(), node);
+						}
+
+						// then connect them!
+						for(const auto &pair : f) {
+							const BasicBlock &bb = pair.second;
+
+							if(!bb.empty()) {
+
+								auto term = bb.back();
+								auto &inst = *term;
+
+								if(is_unconditional_jump(inst)) {
+
+									Q_ASSERT(inst.operand_count() >= 1);
+									const auto op = inst[0];
+
+									// TODO: we need some heuristic for detecting when this is
+									//       a call/ret -> jmp optimization
+									if(is_immediate(op)) {
+										const edb::address_t ea = op->imm;
+
+										auto from = nodes.find(bb.firstAddress());
+										auto to = nodes.find(ea);
+										if(to != nodes.end() && from != nodes.end()) {
+											new GraphEdge(from.value(), to.value(), Qt::black);
+										}
+									}
+								} else if(is_conditional_jump(inst)) {
+
+									Q_ASSERT(inst.operand_count() == 1);
+									const auto op = inst[0];
+
+									if(is_immediate(op)) {
+
+										auto from = nodes.find(bb.firstAddress());
+
+										auto to_taken = nodes.find(op->imm);
+										if(to_taken != nodes.end() && from != nodes.end()) {
+											new GraphEdge(from.value(), to_taken.value(), Qt::green);
+										}
+
+										auto to_skipped = nodes.find(inst.rva() + inst.byte_size());
+										if(to_taken != nodes.end() && from != nodes.end()) {
+											new GraphEdge(from.value(), to_skipped.value(), Qt::red);
+										}
+									}
+								} else if(is_terminator(inst)) {
+								}
+							}
+						}
+
+						graph->layout();
+						graph->show();
+					}
+				}
+			}
+		}
+	});
+#endif
+
+	ui.buttonBox->addButton(btnGraph_, QDialogButtonBox::ActionRole);
+
 #ifdef ENABLE_GRAPH
-	ui.btnGraph->setEnabled(true);
+	btnGraph_->setEnabled(true);
 #else
-	ui.btnGraph->setEnabled(false);
+	btnGraph_->setEnabled(false);
 #endif
 }
 
@@ -73,106 +168,6 @@ void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 			edb::v1::jump_to_address(item->start_address);
 		}
 	}
-}
-
-
-/**
- * @brief DialogResults::on_btnGraph_clicked
- */
-void DialogResults::on_btnGraph_clicked() {
-
-	// this code is not very pretty...
-	// but it works!
-
-#if defined(ENABLE_GRAPH)
-
-	qDebug("[FunctionFinder] Constructing Graph...");
-
-
-	const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
-	const QModelIndexList sel = selModel->selectedRows();
-
-	if(sel.size() == 1) {
-		const QModelIndex index = filter_model_->mapToSource(sel[0]);
-
-		if(auto item = static_cast<Result *>(index.internalPointer())) {
-			const edb::address_t addr = item->start_address;
-
-			if(IAnalyzer *const analyzer = edb::v1::analyzer()) {
-				const IAnalyzer::FunctionMap &functions = analyzer->functions();
-
-				auto it = functions.find(addr);
-				if(it != functions.end()) {
-					Function f = *it;
-
-					auto graph = new GraphWidget(nullptr);
-					graph->setAttribute(Qt::WA_DeleteOnClose);
-
-					QMap<edb::address_t, GraphNode *> nodes;
-
-					// first create all of the nodes
-					for(const auto &pair : f) {
-						const BasicBlock &bb = pair.second;
-						auto node = new GraphNode(graph, bb.toString(), Qt::lightGray);
-						nodes.insert(bb.firstAddress(), node);
-					}
-
-					// then connect them!
-					for(const auto &pair : f) {
-						const BasicBlock &bb = pair.second;
-
-						if(!bb.empty()) {
-
-							auto term = bb.back();
-							auto &inst = *term;
-
-							if(is_unconditional_jump(inst)) {
-
-								Q_ASSERT(inst.operand_count() >= 1);
-								const auto op = inst[0];
-
-								// TODO: we need some heuristic for detecting when this is
-								//       a call/ret -> jmp optimization
-								if(is_immediate(op)) {
-									const edb::address_t ea = op->imm;
-
-									auto from = nodes.find(bb.firstAddress());
-									auto to = nodes.find(ea);
-									if(to != nodes.end() && from != nodes.end()) {
-										new GraphEdge(from.value(), to.value(), Qt::black);
-									}
-								}
-							} else if(is_conditional_jump(inst)) {
-
-								Q_ASSERT(inst.operand_count() == 1);
-								const auto op = inst[0];
-
-								if(is_immediate(op)) {
-
-									auto from = nodes.find(bb.firstAddress());
-
-									auto to_taken = nodes.find(op->imm);
-									if(to_taken != nodes.end() && from != nodes.end()) {
-										new GraphEdge(from.value(), to_taken.value(), Qt::green);
-									}
-
-									auto to_skipped = nodes.find(inst.rva() + inst.byte_size());
-									if(to_taken != nodes.end() && from != nodes.end()) {
-										new GraphEdge(from.value(), to_skipped.value(), Qt::red);
-									}
-								}
-							} else if(is_terminator(inst)) {
-							}
-						}
-					}
-
-					graph->layout();
-					graph->show();
-				}
-			}
-		}
-	}
-#endif
 }
 
 /**

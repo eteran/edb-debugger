@@ -61,61 +61,45 @@
     </widget>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout">
-     <item>
-      <widget class="QPushButton" name="btnGraph">
-       <property name="text">
-        <string>Graph Selected Function</string>
-       </property>
-       <property name="icon">
-        <iconset theme="distribute-graph">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-     <item>
-      <spacer name="horizontalSpacer">
-       <property name="orientation">
-        <enum>Qt::Horizontal</enum>
-       </property>
-       <property name="sizeHint" stdset="0">
-        <size>
-         <width>40</width>
-         <height>20</height>
-        </size>
-       </property>
-      </spacer>
-     </item>
-     <item>
-      <widget class="QPushButton" name="btnClose">
-       <property name="text">
-        <string>&amp;Close</string>
-       </property>
-       <property name="icon">
-        <iconset theme="dialog-close">
-         <normaloff>.</normaloff>.</iconset>
-       </property>
-      </widget>
-     </item>
-    </layout>
+    <widget class="QDialogButtonBox" name="buttonBox">
+     <property name="standardButtons">
+      <set>QDialogButtonBox::Close</set>
+     </property>
+    </widget>
    </item>
   </layout>
  </widget>
  <resources/>
  <connections>
   <connection>
-   <sender>btnClose</sender>
-   <signal>clicked()</signal>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
    <receiver>FunctionFinderPlugin::DialogResults</receiver>
    <slot>accept()</slot>
    <hints>
     <hint type="sourcelabel">
-     <x>700</x>
-     <y>462</y>
+     <x>791</x>
+     <y>422</y>
     </hint>
     <hint type="destinationlabel">
-     <x>586</x>
-     <y>448</y>
+     <x>788</x>
+     <y>406</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>FunctionFinderPlugin::DialogResults</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>810</x>
+     <y>423</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>826</x>
+     <y>407</y>
     </hint>
    </hints>
   </connection>
