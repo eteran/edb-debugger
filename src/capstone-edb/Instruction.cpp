@@ -151,13 +151,13 @@ bool init(Architecture arch) {
 	return true;
 }
 
-Instruction::Instruction(Instruction &&other) : insn_(other.insn_), byte0_(other.byte0_), rva_(other.rva_) {
+Instruction::Instruction(Instruction &&other) noexcept : insn_(other.insn_), byte0_(other.byte0_), rva_(other.rva_) {
 	other.insn_  = nullptr;
 	other.byte0_ = 0;
 	other.rva_   = 0;
 }
 
-Instruction &Instruction::operator=(Instruction &&rhs) {
+Instruction &Instruction::operator=(Instruction &&rhs) noexcept {
 	insn_      = rhs.insn_;
 	byte0_     = rhs.byte0_;
 	rva_       = rhs.rva_;
