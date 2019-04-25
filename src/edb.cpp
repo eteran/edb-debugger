@@ -466,18 +466,18 @@ void remove_breakpoint(address_t address) {
 //------------------------------------------------------------------------------
 bool eval_expression(const QString &expression, address_t *value) {
 
+	// TODO(eteran): use boost::optional
+
 	Q_ASSERT(value);
 
 	Expression<address_t> expr(expression, get_variable, get_value);
-	ExpressionError err;
 
-	bool ok;
-	const address_t address = expr.evaluate_expression(&ok, &err);
-	if(ok) {
-		*value = address;
+	const Result<edb::address_t, ExpressionError> address = expr.evaluate_expression();
+	if(address) {
+		*value = *address;
 		return true;
 	} else {
-		QMessageBox::critical(debugger_ui, tr("Error In Expression!"), err.what());
+		QMessageBox::critical(debugger_ui, tr("Error In Expression!"), address.error().what());
 		return false;
 	}
 }
@@ -487,6 +487,9 @@ bool eval_expression(const QString &expression, address_t *value) {
 // Desc:
 //------------------------------------------------------------------------------
 bool get_expression_from_user(const QString &title, const QString &prompt, address_t *value) {
+
+	// TODO(eteran): use boost::optional
+
     bool retval = false;
 	ExpressionDialog *inputDialog = new ExpressionDialog(title, prompt, edb::v1::debugger_ui);
 
@@ -504,6 +507,9 @@ bool get_expression_from_user(const QString &title, const QString &prompt, addre
 // Desc:
 //------------------------------------------------------------------------------
 bool get_value_from_user(Register &value) {
+
+	// TODO(eteran): use boost::optional
+
 	return get_value_from_user(value, tr("Input Value"));
 }
 
@@ -512,6 +518,9 @@ bool get_value_from_user(Register &value) {
 // Desc:
 //------------------------------------------------------------------------------
 bool get_value_from_user(Register &value, const QString &title) {
+
+	// TODO(eteran): use boost::optional
+
 	static auto dlg = new DialogInputValue(debugger_ui);
 	bool ret = false;
 
@@ -530,6 +539,9 @@ bool get_value_from_user(Register &value, const QString &title) {
 // Desc:
 //------------------------------------------------------------------------------
 bool get_binary_string_from_user(QByteArray &value, const QString &title, int max_length) {
+
+	// TODO(eteran): use boost::optional
+
 	static auto dlg = new DialogInputBinaryString(debugger_ui);
 
 	bool ret = false;

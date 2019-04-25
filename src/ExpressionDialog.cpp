@@ -81,14 +81,12 @@ void ExpressionDialog::on_text_changed(const QString& text) {
 	else
 	{
 		Expression<edb::address_t> expr(text, edb::v1::get_variable, edb::v1::get_value);
-		ExpressionError err;
 
-		bool ok;
-		last_address_ = expr.evaluate_expression(&ok, &err);
-		if(ok) {
+		Result<edb::address_t, ExpressionError> last_address = expr.evaluate_expression();
+		if(last_address) {
 			retval = true;
 		} else {
-			label_error_->setText(err.what());
+			label_error_->setText(last_address.error().what());
 			retval = false;
 		}
 	}

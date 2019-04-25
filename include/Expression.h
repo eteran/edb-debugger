@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QString>
 #include <functional>
+#include "Status.h"
 
 struct ExpressionError {
 public:
@@ -137,7 +138,7 @@ private:
 	};
 
 private:
-	T evaluate_expression() {
+	T eval_internal() {
 		T result;
 
 		get_token();
@@ -147,18 +148,11 @@ private:
 	}
 
 public:
-	T evaluate_expression(bool *ok, ExpressionError *error) noexcept {
-
-		Q_ASSERT(ok);
-		Q_ASSERT(error);
-
+	Result<T, ExpressionError> evaluate_expression() noexcept {
 		try {
-			*ok = true;
-			return evaluate_expression();
+			return eval_internal();
 		} catch(const ExpressionError &e) {
-			*ok = false;
-			*error = e;
-			return T();
+			return make_unexpected(e);
 		}
 	}
 private:

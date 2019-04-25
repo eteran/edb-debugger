@@ -109,14 +109,14 @@ void DialogBreakpoints::on_btnAdd_clicked() {
 
 	if(ok && !text.isEmpty()) {
 		Expression<edb::address_t> expr(text, edb::v1::get_variable, edb::v1::get_value);
-		ExpressionError err;
-		const edb::address_t address = expr.evaluate_expression(&ok, &err);
-		if(ok) {
-			edb::v1::create_breakpoint(address);
+
+		const Result<edb::address_t, ExpressionError> address = expr.evaluate_expression();
+		if(address) {
+			edb::v1::create_breakpoint(*address);
 			updateList();
 
 		} else {
-			QMessageBox::critical(this, tr("Error In Address Expression!"), err.what());
+			QMessageBox::critical(this, tr("Error In Address Expression!"), address.error().what());
 		}
 	}
 }
