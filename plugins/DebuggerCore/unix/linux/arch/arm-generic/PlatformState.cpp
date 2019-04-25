@@ -95,7 +95,7 @@ auto PlatformState::findGPR(QString const &name) const -> decltype(gpr.GPRegName
  * @return
  */
 Register PlatformState::value(const QString &reg) const {
-	const auto name = reg.toLower();
+	const QString name = reg.toLower();
 	if (name == "cpsr") {
 		return flags_register();
 	}
@@ -252,7 +252,7 @@ void PlatformState::set_register(const Register &reg) {
 		return;
 	}
 
-	const auto name = reg.name().toLower();
+	const QString name = reg.name().toLower();
 	if (name == "cpsr") {
 		set_flags(reg.value<edb::reg_t>());
 		return;

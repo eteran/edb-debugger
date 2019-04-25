@@ -99,7 +99,7 @@ void set_function_types(IAnalyzer::FunctionMap *results) {
 edb::address_t module_entry_point(const std::shared_ptr<IRegion> &region) {
 
 	edb::address_t entry = 0;
-	if(auto binary_info = edb::v1::get_binary_info(region)) {
+	if(std::unique_ptr<IBinary> binary_info = edb::v1::get_binary_info(region)) {
 		entry = binary_info->entry_point();
 	}
 
@@ -235,8 +235,8 @@ void Analyzer::show_xrefs() {
 	for(const RegionData &data : analysis_info_) {
 		for(const BasicBlock &bb : data.basic_blocks) {	
 			std::vector<std::pair<edb::address_t, edb::address_t>> refs = bb.refs();
-			for(auto it = refs.begin(); it != refs.end(); ++it) {
 			
+			for(auto it = refs.begin(); it != refs.end(); ++it) {
 				if(it->second == address) {					
 					dialog->addReference(*it);
 				}	

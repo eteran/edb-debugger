@@ -187,9 +187,9 @@ void DumpState::dump_registers(const State &state) {
 		cout << "  fs:" <<    format_segment(state["fs"]);
 		cout << "  gs:" <<    format_segment(state["gs"]);
 		cout << "    ";
-		const Register eflagsR=state["eflags"];
+		const Register eflagsR = state["eflags"];
 		if(eflagsR) {
-			const auto eflags=eflagsR.value<edb::value32>();
+			const auto eflags = eflagsR.value<edb::value32>();
 			cout << ((eflags & (1 << 11)) != 0 ? 'O' : 'o') << ' ';
 			cout << ((eflags & (1 << 10)) != 0 ? 'D' : 'd') << ' ';
 			cout << ((eflags & (1 <<  9)) != 0 ? 'I' : 'i') << ' ';
@@ -222,7 +222,7 @@ void DumpState::dump_registers(const State &state) {
 
 		const Register rflagsR = state["rflags"];
 		if(rflagsR) {
-			const auto rflags=rflagsR.value<edb::value32>();
+			const auto rflags = rflagsR.value<edb::value32>();
 			cout << ((rflags & (1 << 11)) != 0 ? 'O' : 'o') << ' ';
 			cout << ((rflags & (1 << 10)) != 0 ? 'D' : 'd') << ' ';
 			cout << ((rflags & (1 <<  9)) != 0 ? 'I' : 'i') << ' ';

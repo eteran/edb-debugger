@@ -72,7 +72,7 @@ void DialogBinaryString::do_find() {
 
 		int i = 0;
 		for(const std::shared_ptr<IRegion> &region: regions) {
-			const auto region_size = region->size();
+			const size_t region_size = region->size();
 
 			// a short circut for speading things up
 			if(ui.chkSkipNoAccess->isChecked() && !region->accessible()) {

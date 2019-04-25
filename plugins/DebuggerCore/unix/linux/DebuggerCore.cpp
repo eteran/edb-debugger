@@ -89,7 +89,7 @@ const size_t PageSize = 0x1000;
  * @brief disable_aslr
  */
 void disable_aslr() {
-	const auto current = ::personality(UINT32_MAX);
+	const int current = ::personality(UINT32_MAX);
 	// This shouldn't fail, but let's at least perror if it does anyway
 	if(current == -1) {
 		perror("Failed to get current personality");

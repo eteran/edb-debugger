@@ -182,8 +182,8 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 	State state;
 	get_state(&state);
 	if(state.empty()) return Status(QObject::tr("failed to get thread state."));
-	const auto pc=state.instruction_pointer();
-	const auto flags=state.flags();
+	const auto pc = state.instruction_pointer();
+	const auto flags = state.flags();
 	enum {
 		CPSR_Tbit     = 1<<5,
 
@@ -202,19 +202,19 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 	quint8 buffer[4];
 	if(const int size = edb::v1::get_instruction_bytes(pc, buffer))
 	{
-		if(const auto insn=edb::Instruction(buffer, buffer + size, pc))
+		if(const auto insn = edb::Instruction(buffer, buffer + size, pc))
 		{
 
-			const auto op=insn.operation();
+			const auto op = insn.operation();
 			edb::address_t addrAfterInsn=pc+insn.byte_size();
 
-			auto targetMode=core_->cpu_mode();
+			auto targetMode = core_->cpu_mode();
 			if(modifies_pc(insn) && edb::v1::arch_processor().is_executed(insn,state))
 			{
-				if(op==ARM_INS_BXJ)
+				if(op == ARM_INS_BXJ)
 					return Status(QObject::tr("EDB doesn't yet support single-stepping into Jazelle state."));
 
-				const auto opCount=insn.operand_count();
+				const auto opCount = insn.operand_count();
 				if(opCount==0)
 					return Status(QObject::tr("instruction %1 isn't supported yet.").arg(insn.mnemonic().c_str()));
 

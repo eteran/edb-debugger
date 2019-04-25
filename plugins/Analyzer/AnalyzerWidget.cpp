@@ -102,7 +102,7 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 		}
 
 		// highlight header of binary (probably not going to be too noticeable but just in case)
-		if(auto binary_info = edb::v1::get_binary_info(region)) {
+		if(std::unique_ptr<IBinary> binary_info = edb::v1::get_binary_info(region)) {
 			painter.fillRect(0, 0, static_cast<int>(binary_info->header_size() * byte_width), height(), QBrush(Qt::darkBlue));
 		}
 	}

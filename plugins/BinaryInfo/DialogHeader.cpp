@@ -446,7 +446,7 @@ QTreeWidgetItem *create_elf_entry_point(const Header *header) {
 DialogHeader::DialogHeader(const std::shared_ptr<IRegion> &region, QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
 	ui.setupUi(this);
 
-	if(auto binary_info = edb::v1::get_binary_info(region)) {
+	if(std::unique_ptr<IBinary> binary_info = edb::v1::get_binary_info(region)) {
 
 		if(auto elf32 = dynamic_cast<ELF32 *>(binary_info.get())) {
 

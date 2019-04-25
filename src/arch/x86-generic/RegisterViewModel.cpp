@@ -413,7 +413,7 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject* parent)
 template<typename RegType, typename ValueType>
 void updateRegister(RegisterViewModelBase::Category* cat, int row, ValueType value, const QString &comment, const char* nameToCheck = nullptr)
 {
-	const auto reg=cat->getRegister(row);
+	const auto reg = cat->getRegister(row);
 	if(!dynamic_cast<RegType*>(reg))
 	{
 		qWarning() << "Failed to update register " << reg->name() << ": failed to convert register passed to expected type " << typeid(RegType).name();
@@ -476,7 +476,7 @@ RegisterViewModelBase::FPUCategory* RegisterViewModel::getFPUcat() const
 
 void RegisterViewModel::updateFPUReg(std::size_t i, edb::value80 value, const QString &comment)
 {
-	const auto cat=getFPUcat();
+	const auto cat = getFPUcat();
 	Q_ASSERT(int(i)<cat->childCount());
 	updateRegister<FPUReg>(cat, static_cast<int>(i), value, comment);
 }

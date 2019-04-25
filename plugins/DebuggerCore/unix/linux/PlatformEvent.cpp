@@ -49,7 +49,7 @@ IDebugEvent::Message PlatformEvent::error_description() const {
 
 	std::size_t debuggeePtrSize = edb::v1::pointer_size();
 	bool fullAddressKnown=debuggeePtrSize<=sizeof(void*);
-	const auto addressString=fault_address.toPointerString(fullAddressKnown);
+	const QString addressString = fault_address.toPointerString(fullAddressKnown);
 
 	Message message;
 	switch(code()) {

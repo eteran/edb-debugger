@@ -79,13 +79,29 @@ QDomDocument getAssemblerDescription() {
 
 QString fixupSyntax(QString insn) {
 
-	const auto asmRoot=getAssemblerDescription().documentElement();
-	if(asmRoot.isNull()) return insn;
-	const auto opSizes=asmRoot.firstChildElement("operand_sizes");
-	if(opSizes.isNull()) return insn;
-	static const QString sizes[]={"byte","word","dword","qword","tbyte","xmmword","ymmword","zmmword"};
-	for(auto size : sizes) {
-		const auto replacement=opSizes.attribute(size);
+	const QDomElement asmRoot = getAssemblerDescription().documentElement();
+	if(asmRoot.isNull()) {
+		return insn;
+	}
+	
+	const QDomElement opSizes = asmRoot.firstChildElement("operand_sizes");
+	if(opSizes.isNull()) {
+		return insn;
+	}
+	
+	static const QString sizes[] = {
+		"byte",
+		"word",
+		"dword",
+		"qword",
+		"tbyte",
+		"xmmword",
+		"ymmword",
+		"zmmword"
+	};
+	
+	for(const QString &size : sizes) {
+		const QString replacement = opSizes.attribute(size);
 		if(!replacement.isEmpty())
 			insn.replace(QRegExp("\\b"+size+"\\b"),replacement);
 	}
@@ -119,7 +135,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 	if(IDebugger *core = edb::v1::debugger_core) {
 		const QString nasm_syntax = ui.assembly->currentText().trimmed();
 
-		const auto asm_root = getAssemblerDescription().documentElement();
+		const QDomElement asm_root = getAssemblerDescription().documentElement();
 		if(!asm_root.isNull()) {
 			QDomElement asm_executable = asm_root.firstChildElement("executable");
 			QDomElement asm_template   = asm_root.firstChildElement("template");
@@ -185,7 +201,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 			command_line.pop_front();
 
 			QStringList arguments = command_line;
-			for(auto &arg : arguments) {
+			for(QString &arg : arguments) {
 				arg.replace("%OUT%",  output_file.fileName());
 				arg.replace("%IN%",   source_file.fileName());
 				arg.replace(bitsTag, bitsStr);
@@ -218,7 +234,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 							}
 						}
 					} else if(replacement_size==0) {
-						const auto stdError = process.readAllStandardError();
+						const QString stdError = process.readAllStandardError();
 						QMessageBox::warning(this, tr("Error In Code"), tr("Got zero bytes from the assembler") +
 																		(stdError.isEmpty() ? "" : tr(", here's what it has to say:\n\n") + stdError));
 						return;
