@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "IPlugin.h"
 #include "edb.h"
 #include "version.h"
+#include "QtHelper.h"
 
 #include <QApplication>
 #include <QDir>
@@ -37,6 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <iostream>
 
 namespace {
+	Q_DECLARE_NAMESPACE_TR(edb)
 
 //------------------------------------------------------------------------------
 // Name: load_plugins
@@ -98,17 +100,16 @@ int start_debugger(edb::pid_t attach_pid, const QString &program, const QList<QB
 	if(!edb::v1::debugger_core) {
 		QMessageBox::warning(
 		    nullptr,
-			QT_TRANSLATE_NOOP("edb", "edb Failed To Load A Necessary Plugin"),
-			QT_TRANSLATE_NOOP("edb",
-				"Failed to successfully load the debugger core plugin. Please make sure it exists and that the plugin path is correctly configured.\n"
-				"This is normal if edb has not been previously run or the configuration file has been removed."));
+			tr("edb Failed To Load A Necessary Plugin"),
+			tr("Failed to successfully load the debugger core plugin. Please make sure it exists and that the plugin path is correctly configured.\n"
+			   "This is normal if edb has not been previously run or the configuration file has been removed."));
 
 		edb::v1::dialog_options()->exec();
 
 		QMessageBox::warning(
 		    nullptr,
-			QT_TRANSLATE_NOOP("edb", "edb"),
-			QT_TRANSLATE_NOOP("edb", "edb will now close. If you were successful in specifying the location of the debugger core plugin, please run edb again.")
+			tr("edb"),
+			tr("edb will now close. If you were successful in specifying the location of the debugger core plugin, please run edb again.")
 			);
 
 		// TODO: detect if they corrected the issue and try again
