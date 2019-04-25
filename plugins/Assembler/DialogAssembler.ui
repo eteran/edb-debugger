@@ -102,5 +102,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>AssemblerPlugin::DialogAssembler</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>278</x>
+     <y>112</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>268</x>
+     <y>80</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

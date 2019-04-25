@@ -58,5 +58,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>BinaryInfoPlugin::DialogHeader</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>102</x>
+     <y>366</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>49</x>
+     <y>346</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

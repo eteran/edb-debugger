@@ -54,5 +54,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>AnalyzerPlugin::DialogXRefs</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>139</x>
+     <y>287</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>105</x>
+     <y>265</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

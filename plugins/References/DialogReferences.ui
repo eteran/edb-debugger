@@ -97,5 +97,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>ReferencesPlugin::DialogReferences</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>136</x>
+     <y>331</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>232</x>
+     <y>307</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>

@@ -98,5 +98,21 @@
     </hint>
    </hints>
   </connection>
+  <connection>
+   <sender>button_box</sender>
+   <signal>accepted()</signal>
+   <receiver>DialogMemoryRegions</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>230</x>
+     <y>298</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>228</x>
+     <y>278</y>
+    </hint>
+   </hints>
+  </connection>
  </connections>
 </ui>
