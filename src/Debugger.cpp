@@ -871,10 +871,9 @@ void Debugger::finish_plugin_setup() {
 //------------------------------------------------------------------------------
 Result<edb::address_t, QString> Debugger::get_goto_expression() {
 
-	edb::address_t address;
-	bool ok = edb::v1::get_expression_from_user(tr("Goto Expression"), tr("Expression:"), &address);
-	if(ok) {
-		return address;
+	boost::optional<edb::address_t> address = edb::v2::get_expression_from_user(tr("Goto Expression"), tr("Expression:"));
+	if(address) {
+		return *address;
 	} else {
 		return make_unexpected(tr("No Address"));
 	}
@@ -2178,11 +2177,10 @@ void Debugger::mnuStackModify() {
 //------------------------------------------------------------------------------
 bool Debugger::breakpoint_condition_true(const QString &condition) {
 
-	edb::address_t condition_value;
-	if(!edb::v1::eval_expression(condition, &condition_value)) {
-		return true;
+	if(boost::optional<edb::address_t> condition_value = edb::v2::eval_expression(condition)) {
+		return *condition_value;
 	}
-	return condition_value;
+	return true;
 }
 
 //------------------------------------------------------------------------------
