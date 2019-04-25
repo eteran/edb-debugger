@@ -2053,8 +2053,9 @@ void Debugger::mnuCPUFillZero() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuCPUFillNop() {
-	// TODO: get system independent nop-code
-	cpu_fill(0x90);
+	if(IDebugger *core = edb::v1::debugger_core) {
+		cpu_fill(core->nopFillByte());
+	}
 }
 
 //------------------------------------------------------------------------------

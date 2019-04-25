@@ -1163,4 +1163,15 @@ qlonglong DebuggerCore::exceptionValue(const QString &name) {
 	return Unix::exceptionValue(name);
 }
 
+uint8_t DebuggerCore::nopFillByte() const {
+#if defined EDB_X86 || defined EDB_X86_64
+	return 0x90;
+#elif defined EDB_ARM32 || defined EDB_ARM64
+	// TODO(eteran): does this concept even make sense for a multi-byte instruction encoding?
+	return 0x00;
+#else
+	#error "Unsupported Architecture"
+#endif
+}
+
 }

@@ -67,6 +67,7 @@ public:
 	virtual QMap<qlonglong, QString> exceptions() const = 0;
 	virtual QString                  exceptionName(qlonglong value) = 0;
 	virtual qlonglong                exceptionValue(const QString &name) = 0;
+	virtual uint8_t                  nopFillByte() const = 0;
 
 public:
 	// important register names

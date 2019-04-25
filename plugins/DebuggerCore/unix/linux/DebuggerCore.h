@@ -58,6 +58,7 @@ public:
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
     MeansOfCapture last_means_of_capture() const override;
 	void set_ignored_exceptions(const QList<qlonglong> &exceptions) override;
+	uint8_t nopFillByte() const override;
 
 public:
 	QMap<qlonglong, QString> exceptions() const override;
