@@ -57,9 +57,6 @@ public:
 	virtual const quint8* original_bytes() const = 0;
 	virtual size_t size() const = 0;
 	virtual TypeId type() const = 0;
-	/** number of bytes to go back to restart original
-		instruction after hitting the breakpoint */
-	virtual size_t rewind_size() const = 0;
 
 public:
 	virtual bool enable() = 0;

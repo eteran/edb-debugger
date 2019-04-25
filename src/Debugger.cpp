@@ -997,8 +997,8 @@ void Debugger::closeEvent(QCloseEvent *event) {
 		SessionManager::instance().save_session(filename);
 	}
 
-	if(const auto& dc = edb::v1::debugger_core) {
-		dc->end_debug_session();
+	if(IDebugger *core = edb::v1::debugger_core) {
+		core->end_debug_session();
 	}
 
 	// ensure that the detach event fires so that everyone who cases will be notified

@@ -176,12 +176,6 @@ void Breakpoint::set_internal(bool value) {
 	internal_ = value;
 }
 
-size_t Breakpoint::rewind_size() const {
-	// TODO: make the logic more complete for multibyte breakpoints as well as for
-	// 		 those resulting in #GP, #UD etc. instead of the usual #BP.
-	return 1;
-}
-
 std::vector<size_t> Breakpoint::possible_rewind_sizes() {
 	return {1,0,2}; // e.g. int3/int1, cli/sti/hlt/etc., int 0x1/int 0x3
 }

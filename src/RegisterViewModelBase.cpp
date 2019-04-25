@@ -57,7 +57,7 @@ namespace RegisterViewModelBase {
 template <typename T>
 bool setDebuggeeRegister(const QString &name, const T &value, T &resultingValue) {
 
-	if (auto core = edb::v1::debugger_core) {
+	if (IDebugger *core = edb::v1::debugger_core) {
 	
 		IProcess *process = core->process();
 		Q_ASSERT(process);
@@ -382,7 +382,7 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 		return {};
 
 	case ValueAsRegisterRole:
-		if (auto core = edb::v1::debugger_core) {
+		if (IDebugger *core = edb::v1::debugger_core) {
 			const auto name = index.sibling(index.row(), NAME_COLUMN).data().toString();
 			if (name.isEmpty()) {
 				return {};

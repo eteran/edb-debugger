@@ -44,7 +44,7 @@ public:
 
 		TYPE_COUNT
 	};
-	using Type=util::AbstractEnumData<IBreakpoint::TypeId, TypeId>;
+	using Type = util::AbstractEnumData<IBreakpoint::TypeId, TypeId>;
 public:
     explicit Breakpoint(edb::address_t address);
     ~Breakpoint() override;
@@ -58,7 +58,6 @@ public:
 	size_t size() const            override { return original_bytes_.size(); }
 	const quint8* original_bytes() const override { return &original_bytes_[0]; }
 	IBreakpoint::TypeId type() const override { return type_; }
-	size_t rewind_size() const override;
 
 	static std::vector<BreakpointType> supported_types();
 	static std::vector<size_t> possible_rewind_sizes();

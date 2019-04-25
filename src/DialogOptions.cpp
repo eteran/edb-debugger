@@ -237,7 +237,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 		}	
 	}
 
-	if(const auto core = edb::v1::debugger_core) {
+	if(IDebugger *core = edb::v1::debugger_core) {
 		const auto& bps = core->supported_breakpoint_types();
 		const auto combo=ui->cmbDefaultBreakpointType;
 		combo->clear();
@@ -345,7 +345,7 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
         }
     }
 
-	if(auto core = edb::v1::debugger_core) {
+	if(IDebugger *core = edb::v1::debugger_core) {
 		core->set_ignored_exceptions(config.ignored_exceptions);
 	}
 
