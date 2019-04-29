@@ -45,7 +45,6 @@ public:
 	edb::tid_t tid() const override;
 	QString name() const override;
 	int priority() const override;
-	edb::address_t instruction_pointer() const override;
 	QString runState() const override;
 
 public:

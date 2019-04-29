@@ -33,7 +33,6 @@ public:
 	virtual edb::tid_t tid() const = 0;
 	virtual QString name() const = 0;
 	virtual int priority() const = 0;
-	virtual edb::address_t instruction_pointer() const = 0;
 	virtual QString runState() const = 0;
 
 public:

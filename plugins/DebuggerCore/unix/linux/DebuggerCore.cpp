@@ -553,8 +553,10 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 		const auto signo = WSTOPSIG(status);
 		if(signo == SIGILL || signo == SIGSEGV) {
 			// no need to peekuser for SIGILL, but have to for SIGSEGV
+			State state;
+			(*it)->get_state(&state);
 			const auto address = signo == SIGILL ? edb::address_t::fromZeroExtended(e->siginfo_.si_addr)
-											   : (*it)->instruction_pointer();
+											   : state.instruction_pointer();
 
 			if(edb::v1::find_triggered_breakpoint(address)) {
 				e->status_ = SIGTRAP << 8 | 0x7f;

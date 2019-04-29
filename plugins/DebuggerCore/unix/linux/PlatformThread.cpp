@@ -79,21 +79,6 @@ int PlatformThread::priority() const  {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t PlatformThread::instruction_pointer() const  {
-	// FIXME(ARM): doesn't work at least on ARM32
-	struct user_stat thread_stat;
-	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);
-	if(n >= 30) {
-		return thread_stat.kstkeip;
-	}
-
-	return 0;
-}
-
-//------------------------------------------------------------------------------
-// Name:
-// Desc:
-//------------------------------------------------------------------------------
 QString PlatformThread::runState() const  {
 	struct user_stat thread_stat;
 	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);

@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "ThreadsModel.h"
 #include "IThread.h"
+#include "State.h"
 #include "edb.h"
 
 #include <QtAlgorithms>
@@ -62,13 +63,15 @@ QVariant ThreadsModel::data(const QModelIndex &index, int role) const {
 				return item.thread->priority();
 			case 2:
 				{
+					State state;
+					item.thread->get_state(&state);
 					const QString default_region_name;
-					const QString symname = edb::v1::find_function_symbol(item.thread->instruction_pointer(), default_region_name);
+					const QString symname = edb::v1::find_function_symbol(state.instruction_pointer(), default_region_name);
 
 					if(!symname.isEmpty()) {
-						return QString("%1 <%2>").arg(edb::v1::format_pointer(item.thread->instruction_pointer()), symname);
+						return QString("%1 <%2>").arg(edb::v1::format_pointer(state.instruction_pointer()), symname);
 					} else {
-						return QString("%1").arg(edb::v1::format_pointer(item.thread->instruction_pointer()));
+						return QString("%1").arg(edb::v1::format_pointer(state.instruction_pointer()));
 					}
 				}
 			case 3:
