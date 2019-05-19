@@ -20,6 +20,7 @@ add_subdirectory(FunctionFinder)
 add_subdirectory(DebuggerErrorConsole)
 add_subdirectory(BinarySearcher)
 add_subdirectory(InstructionInspector)
+add_subdirectory(FasLoader)
 
 if(TARGET_ARCH_FAMILY_X86)
     add_subdirectory(HardwareBreakpoints)
