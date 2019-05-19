@@ -1,0 +1,76 @@
+# Compiled Object files
+*.slo
+*.lo
+*.o
+*.obj
+
+# MS compilers
+*.ilk
+*.pdb
+*.exp
+*.manifest
+*.filters
+x64/
+*.msvcxproj
+*.sln
+*.vcxproj
+
+# Precompiled Headers
+*.gch
+*.pch
+
+# Compiled Dynamic libraries
+*.so
+*.so.*
+*.dylib
+*.dll
+
+# Fortran module files
+*.mod
+
+# Compiled Static libraries
+*.lai
+*.la
+*.a
+*.lib
+
+# Executables
+*.exe
+*.out
+*.app
+
+# Template files
+*~
+*.log
+*.swp
+*.orig
+# temporary files to analyze changes in asm files 
+
+# Dump files
+*.stackdump
+
+# cmake
+CMakeFiles/
+CMakeCache.txt
+CTestTestfile.cmake
+Testing/
+Makefile
+cmake_install.cmake
+install_manifest.txt
+*_autogen/
+
+# tests
+*Test
+
+# ycm
+.ycm_extra_conf.py
+
+# vim
+Session.vim
+
+# eclipse
+.project
+
+# idea
+.idea/
+

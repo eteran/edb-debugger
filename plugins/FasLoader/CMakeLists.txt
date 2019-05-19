@@ -13,6 +13,9 @@ find_package(Qt5 5.0.0 REQUIRED Widgets Network)
 add_library(${PluginName} SHARED
   FasLoader.cpp
   FasLoader.hpp
+  OptionsPage.cpp
+  OptionsPage.hpp
+  OptionsPage.ui
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets Qt5::Network edb)
