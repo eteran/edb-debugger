@@ -1,6 +1,7 @@
 #pragma once
 
 #include "IPlugin.h"
+#include "FasCore.hpp"
 
 
 class QMenu;
@@ -24,19 +25,17 @@ public:
 
 public Q_SLOTS:
 	void show_menu();
-	// void requestFinished(QNetworkReply *reply);
 
 protected:
 	void private_init() override;
 
 private:
-	void do_check();
-	// void set_proxy(const QUrl &url);
+	void load();
 
 private:
 	QMenu                 *menu_          = nullptr;
-	// QNetworkAccessManager *network_       = nullptr;
   bool                   initial_check_ = true;
+  FasCore fasCore;
 };
 
 }

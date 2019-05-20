@@ -16,6 +16,8 @@ add_library(${PluginName} SHARED
   OptionsPage.cpp
   OptionsPage.hpp
   OptionsPage.ui
+  FasCore.cpp
+  FasCore.hpp
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets Qt5::Network edb)

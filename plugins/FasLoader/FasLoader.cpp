@@ -18,10 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "FasLoader.hpp"
 #include "OptionsPage.hpp"
+#include "IDebugger.h"
+#include "IProcess.h"
 #include "edb.h"
 
 #include <QMenu>
 #include <QSettings>
+#include <iostream>
 
 namespace FasLoaderPlugin {
 
@@ -36,7 +39,7 @@ FasLoader::private_init ()
 {
   QSettings settings;
 	if(settings.value("FasLoader/load_on_start.enabled", true).toBool()) {
-		do_check();
+		load();
 	}
 }
 
@@ -59,15 +62,23 @@ FasLoader::options_page() {
 }
 
 void 
-FasLoader::do_check () 
-{
-  
+FasLoader::show_menu() {
+	initial_check_ = false;
+	load();
 }
 
 void 
-FasLoader::show_menu() {
-	initial_check_ = false;
-	do_check();
+FasLoader::load () 
+{
+  if ( edb::v1::debugger_core ) {
+    auto process = edb::v1::debugger_core->process ();
+    if ( process ) {
+      // std::cout << process->executable ().toUtf8 ().constData () << std::endl;
+      auto fileName = process->executable ();
+      fileName.append ( ".fas" );
+      fasCore.load ( fileName.toUtf8 ().constData () );
+    }
+  }
 }
 
 }
