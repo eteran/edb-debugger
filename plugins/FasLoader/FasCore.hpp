@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Header.hpp"
+#include "Symbol.hpp"
 
 #include <string>
 #include <fstream>
