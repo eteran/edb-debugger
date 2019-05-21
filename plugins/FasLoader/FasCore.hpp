@@ -1,13 +1,17 @@
 #pragma once
 
+#include "Header.hpp"
+
 #include <string>
 
 class FasCore
 {
 public:
-  FasCore () = default;
+  FasCore ();
   virtual ~FasCore () = default;
   void load ( const std::string& fileName );
 
-protected:
+private:
+  const uint32_t signature;
+  Header header;
 };
