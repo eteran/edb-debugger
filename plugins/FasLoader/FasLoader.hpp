@@ -1,7 +1,7 @@
 #pragma once
 
 #include "IPlugin.h"
-#include "FasCore.hpp"
+#include "Fas/Core.hpp"
 
 
 class QMenu;
@@ -35,7 +35,7 @@ private:
 private:
 	QMenu                 *menu_          = nullptr;
   bool                   initial_check_ = true;
-  FasCore fasCore;
+  Fas::Core fasCore;
 };
 
 }

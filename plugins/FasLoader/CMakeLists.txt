@@ -16,10 +16,10 @@ add_library(${PluginName} SHARED
   OptionsPage.cpp
   OptionsPage.hpp
   OptionsPage.ui
-  FasCore.cpp
-  FasCore.hpp
-  Exception.cpp
-  Exception.hpp
+  Fas/Core.cpp
+  Fas/Core.hpp
+  Fas/Exception.cpp
+  Fas/Exception.hpp
 )
 
 target_link_libraries(${PluginName} Qt5::Widgets Qt5::Network edb)
