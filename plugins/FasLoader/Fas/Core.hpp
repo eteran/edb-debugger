@@ -2,6 +2,7 @@
 
 #include "Header.hpp"
 #include "Symbol.hpp"
+#include "PluginSymbol.hpp"
 
 #include <string>
 #include <fstream>
@@ -9,7 +10,8 @@
 
 namespace Fas 
 {
-  using Symbols = std::vector<Symbol>;
+  using FasSymbols = std::vector<Fas::Symbol>;
+  using PluginSymbols = std::vector<PluginSymbol>;
   
   class Core
   {
@@ -20,16 +22,25 @@ namespace Fas
     void load ();
     void open ();
     void loadHeader ();
-    void loadSymbols ();
-    Symbol loadSymbol ();
+    void loadFasSymbols ();
+    Symbol loadFasSymbol ();
     void deleteUndefinedSymbols ();
+    void deleteCannotBeForwardReferenced ();
+    void deleteAssemblyTimeVariable ();
+    void deleteSpecialMarkers ();
+    void deleteNegativeSymbols ();
+    void deleteAnonymousSymbols ();
+    void loadSymbols ();
+    void checkAbsoluteValue ( Fas::Symbol& fasSymbol );
+    PluginSymbol loadSymbolFromFasSymbol ( Fas::Symbol& fasSymbol );
 
   private:
     std::ifstream ifs;
     std::string fileName;
     const uint32_t signature;
     Header header;
-    Symbols symbols;
+    FasSymbols fasSymbols;
+    PluginSymbols symbols;
   };
 } /* namespace Fas */
 

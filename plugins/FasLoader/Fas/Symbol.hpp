@@ -17,11 +17,12 @@ namespace Fas
 #pragma pack(push, 1)
   struct Symbol
   {
-    uint64_t value;
+    uint64_t value : 63;
+    uint64_t valueSign : 1;
   
     uint16_t wasDefined : 1;
-    uint16_t assemblyTime : 1;
-    uint16_t cannotBeForward_referenced : 1;
+    uint16_t assemblyTimeVariable : 1;
+    uint16_t cannotBeForwardReferenced : 1;
     uint16_t wasUsed : 1;
     uint16_t predictionWasNeededSymbolWasUsed : 1;
     uint16_t predictedResultBeingUsed : 1;
@@ -39,10 +40,10 @@ namespace Fas
     uint16_t numberOfPassUsed;
   
     uint32_t section : 31;
-    uint32_t highestSection : 1;
+    uint32_t sectionSign : 1;
   
     uint32_t preprocessed : 31;
-    uint32_t highestPreprocessed : 1;
+    uint32_t preprocessedSign : 1;
   
     uint32_t offsetInPreprocessed;
   };

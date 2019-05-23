@@ -25,7 +25,13 @@ Core::load ()
   try {
     open ();
     loadHeader ();
-    loadSymbols ();
+    loadFasSymbols ();
+    deleteUndefinedSymbols ();
+    deleteAssemblyTimeVariable ();
+    deleteCannotBeForwardReferenced ();
+    deleteNegativeSymbols ();
+    deleteSpecialMarkers ();
+    deleteAnonymousSymbols ();
   }
   catch ( std::exception& e ) {
     std::cerr << e.what () << std::endl;  
@@ -58,20 +64,20 @@ Core::loadHeader ()
 }
 
 void 
-Core::loadSymbols () 
+Core::loadFasSymbols () 
 {
   ifs.seekg ( header.offsetOfSymbolsTable );
 
   auto size = header.lengthOfSymbolsTable;
-  auto count = size/sizeof ( Symbol );
-  symbols.resize ( count );
-  for ( auto symbol : symbols ) {
-    symbol = loadSymbol ();
+  auto count = size/sizeof ( Fas::Symbol );
+  fasSymbols.resize ( count );
+  for ( auto symbol : fasSymbols ) {
+    symbol = loadFasSymbol ();
   }
 }
 
-Symbol
-Core::loadSymbol () 
+Fas::Symbol
+Core::loadFasSymbol () 
 {
   Symbol symbol;
   ifs.read ( (char*)&symbol, sizeof ( Symbol ) );
@@ -85,13 +91,119 @@ Core::loadSymbol ()
 void 
 Core::deleteUndefinedSymbols () 
 {
-  auto it = std::begin ( symbols );
-  while ( it != std::end ( symbols ) ) {
+  auto it = std::begin ( fasSymbols );
+  while ( it != std::end ( fasSymbols ) ) {
     if ( !it->wasDefined ) {
-      it = symbols.erase ( it );
+      it = fasSymbols.erase ( it );
     }
     else {
       ++it;
     }
   }
+}
+
+void 
+Core::deleteAssemblyTimeVariable () 
+{
+  auto it = std::begin ( fasSymbols );
+  while ( it != std::end ( fasSymbols ) ) {
+    if ( it->assemblyTimeVariable ) {
+      it = fasSymbols.erase ( it );
+    }
+    else {
+      ++it;
+    }
+  }
+  
+}
+
+void 
+Core::deleteCannotBeForwardReferenced () 
+{
+  auto it = std::begin ( fasSymbols );
+  while ( it != std::end ( fasSymbols ) ) {
+    if ( it->cannotBeForwardReferenced ) {
+      it = fasSymbols.erase ( it );
+    }
+    else {
+      ++it;
+    }
+  }
+}
+
+void 
+Core::deleteSpecialMarkers () 
+{
+  auto it = std::begin ( fasSymbols );
+  while ( it != std::end ( fasSymbols ) ) {
+    if ( it->specialMarker ) {
+      it = fasSymbols.erase ( it );
+    }
+    else {
+      ++it;
+    }
+  }
+}
+
+void 
+Core::deleteNegativeSymbols () 
+{
+  auto it = std::begin ( fasSymbols );
+  while ( it != std::end ( fasSymbols ) ) {
+    if ( it->valueSign ) {
+      it = fasSymbols.erase ( it );
+    }
+    else {
+      ++it;
+    }
+  }
+}
+
+void 
+Core::deleteAnonymousSymbols () 
+{
+  auto it = std::begin ( fasSymbols );
+  while ( it != std::end ( fasSymbols ) ) {
+    bool isAnonymous = it->preprocessedSign ==0 && it->preprocessed == 0; 
+    if ( isAnonymous ) {
+      it = fasSymbols.erase ( it );
+    }
+    else {
+      ++it;
+    }
+  }
+}
+
+void 
+Core::loadSymbols () 
+{
+  for ( auto fasSymbol : fasSymbols ) {
+    checkAbsoluteValue ( fasSymbol );
+    auto symbol = loadSymbolFromFasSymbol ( fasSymbol );
+    symbols.push_back ( symbol );
+  }
+}
+
+void 
+Core::checkAbsoluteValue ( Fas::Symbol& fasSymbol ) 
+{
+  if ( fasSymbol.typeOfValue != ValueTypes::ABSOLUTE_VALUE ) {
+    throw Exception ( " Support only absolute value" );
+  }
+}
+
+PluginSymbol 
+Core::loadSymbolFromFasSymbol ( Fas::Symbol& fasSymbol ) 
+{
+  PluginSymbol symbol;
+
+  symbol.value = fasSymbol.value;
+  if ( fasSymbol.preprocessedSign ) {
+    // in the strings table
+  }
+  else {
+    // in the preprocessed pascal style
+  }
+
+  return std::move ( symbol );
 }
