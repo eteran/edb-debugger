@@ -202,6 +202,7 @@ Core::loadSymbolFromFasSymbol ( Fas::Symbol& fasSymbol )
   PluginSymbol symbol;
 
   symbol.value = fasSymbol.value;
+  symbol.size = fasSymbol.sizeOfData;
   if ( fasSymbol.preprocessedSign ) {
     // in the strings table
     symbol.name = cstr2string ( fasSymbol );

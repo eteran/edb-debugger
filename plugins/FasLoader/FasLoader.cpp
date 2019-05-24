@@ -72,21 +72,24 @@ FasLoader::show_menu() {
 void 
 FasLoader::load () 
 {
-  std::cout << "run FasLoader" << std::endl;
   if ( edb::v1::debugger_core ) {
     auto process = edb::v1::debugger_core->process ();
     if ( process ) {
       auto fileName = process->executable ();
-      fileName.append ( ".fas" );
-      std::cout << fileName.toUtf8 ().constData () << std::endl;
-      fasCore.load ( fileName.toUtf8 ().constData () );
+      auto fasName = fileName;
+      fasName.append ( ".fas" );
+      fasCore.load ( fasName.toUtf8 ().constData () );
       auto pluginSymbols = fasCore.getSymbols ();
-      // std::cout << pluginSymbols.size () << std::endl;
-      for ( auto symbol : pluginSymbols ) {
-        std::cout << "Label " << symbol.name << " at " << std::hex << std::showbase << symbol.value << std::endl;
-        edb::address_t address = symbol.value;
-        QString name = QString::fromStdString ( symbol.name );
-        edb::v1::symbol_manager ().set_label ( address, name );
+      for ( auto pluginSymbol : pluginSymbols ) {
+        std::shared_ptr<Symbol> symbol ( new Symbol () );
+        symbol->file = fileName;
+        symbol->address = pluginSymbol.value;
+        symbol->name = QString::fromStdString ( pluginSymbol.name );
+        symbol->size = pluginSymbol.size;
+        if ( pluginSymbol.size > 0 ) {
+          symbol->type = 'd';
+        }
+        edb::v1::symbol_manager ().add_symbol ( symbol );
       }
     }
   }
