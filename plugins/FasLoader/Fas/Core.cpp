@@ -213,6 +213,22 @@ std::string
 Core::cstr2string ( Fas::Symbol& fasSymbol ) 
 {
   std::string str;
+  auto offset = header.offsetOfSymbolsTable + fasSymbol.preprocessed;
+  const int MAX_LEN = 64;
+  char cstr[MAX_LEN];
+  auto count = 0;
+
+  ifs.seekg ( offset );
+  char* c = (char*)&cstr;
+  while ( true ) {
+    ifs.read ( c, 1 );
+    if ( count >= ( MAX_LEN - 1 ) ) break; 
+    if ( *c == 0 ) break;
+    ++c; ++count;
+  }
+
+  cstr[count] = '\0';
+  str = cstr;
 
   return std::move ( str );
 }
