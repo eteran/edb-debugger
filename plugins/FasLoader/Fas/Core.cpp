@@ -179,8 +179,7 @@ Core::loadSymbols ()
 {
   for ( auto fasSymbol : fasSymbols ) {
     checkAbsoluteValue ( fasSymbol );
-    auto symbol = loadSymbolFromFasSymbol ( fasSymbol );
-    symbols.push_back ( symbol );
+    loadSymbolFromFasSymbol ( fasSymbol );
   }
 }
 
@@ -192,7 +191,7 @@ Core::checkAbsoluteValue ( Fas::Symbol& fasSymbol )
   }
 }
 
-PluginSymbol 
+void
 Core::loadSymbolFromFasSymbol ( Fas::Symbol& fasSymbol ) 
 {
   PluginSymbol symbol;
@@ -200,10 +199,46 @@ Core::loadSymbolFromFasSymbol ( Fas::Symbol& fasSymbol )
   symbol.value = fasSymbol.value;
   if ( fasSymbol.preprocessedSign ) {
     // in the strings table
+    symbol.name = cstr2string ( fasSymbol );
   }
   else {
     // in the preprocessed pascal style
+    symbol.name = pascal2string ( fasSymbol );
   }
 
-  return std::move ( symbol );
+  symbols.push_back ( symbol );
 }
+
+std::string
+Core::cstr2string ( Fas::Symbol& fasSymbol ) 
+{
+  std::string str;
+
+  return std::move ( str );
+}
+
+std::string
+Core::pascal2string ( Fas::Symbol& fasSymbol ) 
+{
+  std::string str;
+  auto offset = header.offsetOfPreprocessedSource + fasSymbol.preprocessed;
+  uint8_t len;
+  char pascal[64];
+
+  ifs.seekg ( offset );
+  ifs.read ( (char*)&len, sizeof ( len ) );
+  if ( !ifs.good () ) {
+    throw Exception ( "Length of pascal string not loaded" );
+  }
+
+  ifs.read ( (char*)&pascal, len );
+  if ( !ifs.good () ) {
+    throw Exception ( "Pascal string not loaded" );
+  }
+  pascal[len] = '\0';
+
+  str = pascal;
+
+  return std::move ( str );
+}
+

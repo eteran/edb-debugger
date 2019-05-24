@@ -32,7 +32,9 @@ namespace Fas
     void deleteAnonymousSymbols ();
     void loadSymbols ();
     void checkAbsoluteValue ( Fas::Symbol& fasSymbol );
-    PluginSymbol loadSymbolFromFasSymbol ( Fas::Symbol& fasSymbol );
+    void loadSymbolFromFasSymbol ( Fas::Symbol& fasSymbol );
+    std::string pascal2string ( Fas::Symbol& fasSymbol );
+    std::string cstr2string ( Fas::Symbol& fasSymbol );
 
   private:
     std::ifstream ifs;
