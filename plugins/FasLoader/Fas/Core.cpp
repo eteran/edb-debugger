@@ -31,7 +31,9 @@ Core::load ()
     deleteCannotBeForwardReferenced ();
     deleteNegativeSymbols ();
     deleteSpecialMarkers ();
+    std::cout << fasSymbols.size () << std::endl;
     deleteAnonymousSymbols ();
+    loadSymbols ();
   }
   catch ( std::exception& e ) {
     std::cerr << e.what () << std::endl;  
@@ -70,9 +72,9 @@ Core::loadFasSymbols ()
 
   auto size = header.lengthOfSymbolsTable;
   auto count = size/sizeof ( Fas::Symbol );
-  fasSymbols.resize ( count );
-  for ( auto symbol : fasSymbols ) {
-    symbol = loadFasSymbol ();
+  for ( uint i = 0; i < count; ++i ) {
+    auto symbol = loadFasSymbol ();
+    fasSymbols.push_back ( symbol );
   }
 }
 
@@ -80,7 +82,7 @@ Fas::Symbol
 Core::loadFasSymbol () 
 {
   Symbol symbol;
-  ifs.read ( (char*)&symbol, sizeof ( Symbol ) );
+  ifs.read ( (char*)&symbol, sizeof ( Fas::Symbol ) );
   if ( !ifs.good () ) {
     throw Exception ( "*.fas symbol not loaded" );
   }
@@ -93,7 +95,8 @@ Core::deleteUndefinedSymbols ()
 {
   auto it = std::begin ( fasSymbols );
   while ( it != std::end ( fasSymbols ) ) {
-    if ( !it->wasDefined ) {
+    uint16_t wasDefined = it->flags & 1;
+    if ( !wasDefined ) {
       it = fasSymbols.erase ( it );
     }
     else {
@@ -107,14 +110,14 @@ Core::deleteAssemblyTimeVariable ()
 {
   auto it = std::begin ( fasSymbols );
   while ( it != std::end ( fasSymbols ) ) {
-    if ( it->assemblyTimeVariable ) {
+    uint16_t isAssemblyTimeVariable = it->flags & 0x2;
+    if ( isAssemblyTimeVariable ) {
       it = fasSymbols.erase ( it );
     }
     else {
       ++it;
     }
   }
-  
 }
 
 void 
@@ -122,7 +125,8 @@ Core::deleteCannotBeForwardReferenced ()
 {
   auto it = std::begin ( fasSymbols );
   while ( it != std::end ( fasSymbols ) ) {
-    if ( it->cannotBeForwardReferenced ) {
+    uint16_t cannotBeForwardReferenced = it->flags & 0x4;
+    if ( cannotBeForwardReferenced ) {
       it = fasSymbols.erase ( it );
     }
     else {
@@ -136,7 +140,8 @@ Core::deleteSpecialMarkers ()
 {
   auto it = std::begin ( fasSymbols );
   while ( it != std::end ( fasSymbols ) ) {
-    if ( it->specialMarker ) {
+    uint16_t isSpecialMarker = it->flags & 0x400;
+    if ( isSpecialMarker ) {
       it = fasSymbols.erase ( it );
     }
     else {
@@ -258,3 +263,8 @@ Core::pascal2string ( Fas::Symbol& fasSymbol )
   return std::move ( str );
 }
 
+const PluginSymbols& 
+Core::getSymbols () 
+{
+  return symbols;
+}

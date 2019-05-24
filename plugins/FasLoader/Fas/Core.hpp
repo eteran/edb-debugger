@@ -35,6 +35,7 @@ namespace Fas
     void loadSymbolFromFasSymbol ( Fas::Symbol& fasSymbol );
     std::string pascal2string ( Fas::Symbol& fasSymbol );
     std::string cstr2string ( Fas::Symbol& fasSymbol );
+    const PluginSymbols& getSymbols ();
 
   private:
     std::ifstream ifs;

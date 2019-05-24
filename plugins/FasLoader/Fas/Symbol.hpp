@@ -20,18 +20,7 @@ namespace Fas
     uint64_t value : 63;
     uint64_t valueSign : 1;
   
-    uint16_t wasDefined : 1;
-    uint16_t assemblyTimeVariable : 1;
-    uint16_t cannotBeForwardReferenced : 1;
-    uint16_t wasUsed : 1;
-    uint16_t predictionWasNeededSymbolWasUsed : 1;
-    uint16_t predictedResultBeingUsed : 1;
-    uint16_t predictionWasNeededSymbolWasDefined : 1;
-    uint16_t predictedResultBeingDefined : 1;
-    uint16_t optimizationAdjustment : 1;
-    uint16_t negativeEncodedAsTwosComplement : 1;
-    uint16_t specialMarker : 1;
-    uint16_t reserved : 5;
+    uint16_t flags;
   
     uint8_t sizeOfData;
     ValueTypes typeOfValue;
