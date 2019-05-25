@@ -39,10 +39,10 @@ FasLoader::FasLoader ( QObject* parent )
 void 
 FasLoader::private_init () 
 {
-  QSettings settings;
-	if(settings.value("FasLoader/load_on_start.enabled", true).toBool()) {
-		load();
-	}
+  // QSettings settings;
+	// if(settings.value("FasLoader/load_on_start.enabled", true).toBool()) {
+		// load();
+	// }
 }
 
 QMenu*
@@ -58,14 +58,14 @@ FasLoader::menu(QWidget* parent) {
 	return menu_;
 }
 
-QWidget*
-FasLoader::options_page() {
-	return new OptionsPage;
-}
+// QWidget*
+// FasLoader::options_page() {
+	// return new OptionsPage;
+// }
 
 void 
 FasLoader::show_menu() {
-	initial_check_ = false;
+	// initial_check_ = false;
 	load();
 }
 

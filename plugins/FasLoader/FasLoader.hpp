@@ -21,7 +21,7 @@ public:
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
-  QWidget *options_page() override;
+  // QWidget *options_page() override;
 
 public Q_SLOTS:
 	void show_menu();
@@ -34,7 +34,7 @@ private:
 
 private:
 	QMenu                 *menu_          = nullptr;
-  bool                   initial_check_ = true;
+  // bool                   initial_check_ = true;
   Fas::Core fasCore;
 };
 
