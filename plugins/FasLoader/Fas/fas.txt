@@ -1,0 +1,429 @@
+
+                                flat assembler
+                       Symbolic information file format
+
+
+   Table 1  Header
+  /-------------------------------------------------------------------------\
+  | Offset | Size    | Description                                          |
+  |========|=========|======================================================|
+  |   +0   |  dword  | Signature 1A736166h (little-endian).                 |
+  |--------|---------|------------------------------------------------------|
+  |   +4   |  byte   | Major version of flat assembler.                     |
+  |--------|---------|------------------------------------------------------|
+  |   +5   |  byte   | Minor version of flat assembler.                     |
+  |--------|---------|------------------------------------------------------|
+  |   +6   |  word   | Length of header.                                    |
+  |--------|---------|------------------------------------------------------|
+  |   +8   |  dword  | Offset of input file name in the strings table.      |
+  |--------|---------|------------------------------------------------------|
+  |  +12   |  dword  | Offset of output file name in the strings table.     |
+  |--------|---------|------------------------------------------------------|
+  |  +16   |  dword  | Offset of strings table.                             |
+  |--------|---------|------------------------------------------------------|
+  |  +20   |  dword  | Length of strings table.                             |
+  |--------|---------|------------------------------------------------------|
+  |  +24   |  dword  | Offset of symbols table.                             |
+  |--------|---------|------------------------------------------------------|
+  |  +28   |  dword  | Length of symbols table.                             |
+  |--------|---------|------------------------------------------------------|
+  |  +32   |  dword  | Offset of preprocessed source.                       |
+  |--------|---------|------------------------------------------------------|
+  |  +36   |  dword  | Length of preprocessed source.                       |
+  |--------|---------|------------------------------------------------------|
+  |  +40   |  dword  | Offset of assembly dump.                             |
+  |--------|---------|------------------------------------------------------|
+  |  +44   |  dword  | Length of assembly dump.                             |
+  |--------|---------|------------------------------------------------------|
+  |  +48   |  dword  | Offset of section names table.                       |
+  |--------|---------|------------------------------------------------------|
+  |  +52   |  dword  | Length of section names table.                       |
+  |--------|---------|------------------------------------------------------|
+  |  +56   |  dword  | Offset of symbol references dump.                    |
+  |--------|---------|------------------------------------------------------|
+  |  +60   |  dword  | Length of symbol references dump.                    |
+  \-------------------------------------------------------------------------/
+
+  Notes:
+
+    If header is shorter than 64 bytes, it comes from a version that does not
+    support dumping some of the structures. It should then be interpreted
+    that the data for missing structures could not be provided, not that the
+    size of that data is zero.
+
+    Offsets given in header generally mean positions in the file, however
+    input and output file names are specified by offsets in the strings table,
+    so you have to add their offset to the offset of strings table to obtain
+    the positions of those strings in the file.
+
+    The strings table contains just a sequence of ASCIIZ strings, which may
+    be referred to by other parts of the file. It contains the names of
+    main input file, the output file, and the names of the sections and
+    external symbols if there were any.
+
+    The symbols table is an array of 32-byte structures, each one in format
+    specified by table 2.
+
+    The preprocessed source is a sequence of preprocessed lines, each one
+    in format as defined in table 3.
+
+    The assembly dump contains an array of 28-byte structures, each one in
+    format specified by table 4, and at the end of this array an additional
+    double word containing the offset in output file at which the assembly
+    was ended.
+
+    It is possible that file does not contain assembly dump at all - this
+    happens when some error occured and only the preprocessed source was
+    dumped. If error occured during the preprocessing, only the source up to
+    the point of error is provided. In such case (and only then) the field
+    at offset 44 contains zero.
+
+    The section names table exists only when the output format was an object
+    file (ELF or COFF), and it is an array of 4-byte entries, each being an
+    offset of the name of the section in the strings table.
+    The index of section in this table is the same, as the index of section
+    in the generated object file.
+
+    The symbol references dump contains an array of 8-byte structures, each
+    one describes an event of some symbol being used. The first double word
+    of such structure contains an offset of symbol in the symbols table,
+    and the second double word is an offset of structure in assembly dump,
+    which specifies at what moment the symbol was referenced.
+
+
+   Table 2  Symbol structure
+  /-------------------------------------------------------------------------\
+  | Offset | Size  | Description                                            |
+  |========|=======|========================================================|
+  |   +0   | qword | Value of symbol.                                       |
+  |--------|-------|--------------------------------------------------------|
+  |   +8   | word  | Flags (table 2.1).                                     |
+  |--------|-------|--------------------------------------------------------|
+  |  +10   | byte  | Size of data labelled by this symbol (zero means plain |
+  |        |       | label without size attached).                          |
+  |--------|-------|--------------------------------------------------------|
+  |  +11   | byte  | Type of value (table 2.2). Any value other than zero   |
+  |        |       | means some kind of relocatable symbol.                 |
+  |--------|-------|--------------------------------------------------------|
+  |  +12   | dword | Extended SIB, the first two bytes are register codes   |
+  |        |       | and the second two bytes are corresponding scales.     |
+  |--------|-------|--------------------------------------------------------|
+  |  +16   | word  | Number of pass in which symbol was defined last time.  |
+  |--------|-------|--------------------------------------------------------|
+  |  +18   | word  | Number of pass in which symbol was used last time.     |
+  |--------|-------|--------------------------------------------------------|
+  |  +20   | dword | If the symbol is relocatable, this field contains      |
+  |        |       | information about section or external symbol, to which |
+  |        |       | it is relative - otherwise this field has no meaning.  |
+  |        |       | When the highest bit is cleared, the symbol is         |
+  |        |       | relative to a section, and the bits 0-30 contain       |
+  |        |       | the index (starting from 1) in the table of sections.  |
+  |        |       | When the highest bit is set, the symbol is relative to |
+  |        |       | an external symbol, and the bits 0-30 contain the      |
+  |        |       | the offset of the name of this symbol in the strings   |
+  |        |       | table.                                                 |
+  |--------|-------|--------------------------------------------------------|
+  |  +24   | dword | If the highest bit is cleared, the bits 0-30 contain   |
+  |        |       | the offset of symbol name in the preprocessed source.  |
+  |        |       | This name is a pascal-style string (byte length        |
+  |        |       | followed by string data).                              |
+  |        |       | Zero in this field means an anonymous symbol.          |
+  |        |       | If the highest bit is set, the bits 0-30 contain the   |
+  |        |       | offset of the symbol name in the strings table, and    |
+  |        |       | this name is a zero-ended string in this case (as are  |
+  |        |       | all the strings there).                                |
+  |--------|-------|--------------------------------------------------------|
+  |  +28   | dword | Offset in the preprocessed source of line that defined |
+  |        |       | this symbol (see table 3).                             |
+  \-------------------------------------------------------------------------/
+
+
+   Table 2.1  Symbol flags
+  /-----------------------------------------------------------------\
+  | Bit | Value | Description                                       |
+  |=====|=======|===================================================|
+  |  0  |     1 | Symbol was defined.                               |
+  |-----|-------|---------------------------------------------------|
+  |  1  |     2 | Symbol is an assembly-time variable.              |
+  |-----|-------|---------------------------------------------------|
+  |  2  |     4 | Symbol cannot be forward-referenced.              |
+  |-----|-------|---------------------------------------------------|
+  |  3  |     8 | Symbol was used.                                  |
+  |-----|-------|---------------------------------------------------|
+  |  4  |   10h | The prediction was needed when checking           |
+  |     |       | whether the symbol was used.                      |
+  |-----|-------|---------------------------------------------------|
+  |  5  |   20h | Result of last predicted check for being used.    |
+  |-----|-------|---------------------------------------------------|
+  |  6  |   40h | The prediction was needed when checking           |
+  |     |       | whether the symbol was defined.                   |
+  |-----|-------|---------------------------------------------------|
+  |  7  |   80h | Result of last predicted check for being defined. |
+  |-----|-------|---------------------------------------------------|
+  |  8  |  100h | The optimization adjustment is applied to         |
+  |     |       | the value of this symbol.                         |
+  |-----|-------|---------------------------------------------------|
+  |  9  |  200h | The value of symbol is negative number encoded    |
+  |     |       | as two's complement.                              |
+  |-----|-------|---------------------------------------------------|
+  | 10  |  400h | Symbol is a special marker and has no value.      |
+  \-----------------------------------------------------------------/
+
+  Notes:
+
+    Some of those flags are listed here just for completness, as they
+    have little use outside of the flat assembler. However the bit 0
+    is important, because the symbols table contains all the labels
+    that occured in source, even if some of them were in the
+    conditional blocks that did not get assembled.
+
+
+   Table 2.2  Symbol value types
+  /-------------------------------------------------------------------\
+  | Value | Description                                               |
+  |=======|===========================================================|
+  |   0   | Absolute value.                                           |
+  |-------|-----------------------------------------------------------|
+  |   1   | Relocatable segment address (only with MZ output).        |
+  |-------|-----------------------------------------------------------|
+  |   2   | Relocatable 32-bit address.                               |
+  |-------|-----------------------------------------------------------|
+  |   3   | Relocatable relative 32-bit address (value valid only for |
+  |       | symbol used in the same place where it was calculated,    |
+  |       | it should not occur in the symbol structure).             |
+  |-------|-----------------------------------------------------------|
+  |   4   | Relocatable 64-bit address.                               |
+  |-------|-----------------------------------------------------------|
+  |   5   | [ELF only] GOT-relative 32-bit address.                   |
+  |-------|-----------------------------------------------------------|
+  |   6   | [ELF only] 32-bit address of PLT entry.                   |
+  |-------|-----------------------------------------------------------|
+  |   7   | [ELF only] Relative 32-bit address of PLT entry (value    |
+  |       | valid only for symbol used in the same place where it     |
+  |       | was calculated, it should not occur in the symbol         |
+  |       | structure).                                               |
+  \-------------------------------------------------------------------/
+
+  Notes:
+
+    The types 3 and 7 should never be encountered in the symbols dump,
+    they are only used internally by the flat assembler.
+
+    If type value is a negative number, it is an opposite of a value
+    from this table and it means that the symbol of a given type has
+    been negated.
+
+
+   Table 2.3  Register codes for extended SIB
+  /------------------\
+  | Value | Register |
+  |=======|==========|
+  |  23h  | BX       |
+  |-------|----------|
+  |  25h  | BP       |
+  |-------|----------|
+  |  26h  | SI       |
+  |-------|----------|
+  |  27h  | DI       |
+  |-------|----------|
+  |  40h  | EAX      |
+  |-------|----------|
+  |  41h  | ECX      |
+  |-------|----------|
+  |  42h  | EDX      |
+  |-------|----------|
+  |  43h  | EBX      |
+  |-------|----------|
+  |  44h  | ESP      |
+  |-------|----------|
+  |  45h  | EBP      |
+  |-------|----------|
+  |  46h  | ESI      |
+  |-------|----------|
+  |  47h  | EDI      |
+  |-------|----------|
+  |  48h  | R8D      |
+  |-------|----------|
+  |  49h  | R9D      |
+  |-------|----------|
+  |  4Ah  | R10D     |
+  |-------|----------|
+  |  4Bh  | R11D     |
+  |-------|----------|
+  |  4Ch  | R12D     |
+  |-------|----------|
+  |  4Dh  | R13D     |
+  |-------|----------|
+  |  4Eh  | R14D     |
+  |-------|----------|
+  |  4Fh  | R15D     |
+  |-------|----------|
+  |  80h  | RAX      |
+  |-------|----------|
+  |  81h  | RCX      |
+  |-------|----------|
+  |  82h  | RDX      |
+  |-------|----------|
+  |  83h  | RBX      |
+  |-------|----------|
+  |  84h  | RSP      |
+  |-------|----------|
+  |  85h  | RBP      |
+  |-------|----------|
+  |  86h  | RSI      |
+  |-------|----------|
+  |  87h  | RDI      |
+  |-------|----------|
+  |  88h  | R8       |
+  |-------|----------|
+  |  89h  | R9       |
+  |-------|----------|
+  |  8Ah  | R10      |
+  |-------|----------|
+  |  8Bh  | R11      |
+  |-------|----------|
+  |  8Ch  | R12      |
+  |-------|----------|
+  |  8Dh  | R13      |
+  |-------|----------|
+  |  8Eh  | R14      |
+  |-------|----------|
+  |  8Fh  | R15      |
+  |-------|----------|
+  |  94h  | EIP      |
+  |-------|----------|
+  |  98h  | RIP      |
+  \------------------/
+
+
+   Table 3  Preprocessed line
+  /--------------------------------------------------------------------------\
+  | Offset | Size  | Value                                                   |
+  |========|=================================================================|
+  |   +0   | dword | When the line was loaded from source, this field        |
+  |        |       | contains either zero (if it is the line from the main   |
+  |        |       | input file), or an offset inside the preprocessed       |
+  |        |       | source to the name of file, from which this line was    |
+  |        |       | loaded (the name of file is zero-ended string).         |
+  |        |       | When the line was generated by macroinstruction, this   |
+  |        |       | field contains offset inside the preprocessed source to |
+  |        |       | the pascal-style string specifying the name of          |
+  |        |       | macroinstruction, which generated this line.            |
+  |--------|-------|---------------------------------------------------------|
+  |   +4   | dword | Bits 0-30 contain the number of this line.              |
+  |        |       | If the highest bit is zeroed, this line was loaded from |
+  |        |       | source.                                                 |
+  |        |       | If the highest bit is set, this line was generated by   |
+  |        |       | macroinstruction.                                       |
+  |--------|-------|---------------------------------------------------------|
+  |   +8   | dword | If the line was loaded from source, this field contains |
+  |        |       | the position of the line inside the source file, from   |
+  |        |       | which it was loaded.                                    |
+  |        |       | If line was generated by macroinstruction, this field   |
+  |        |       | contains the offset of preprocessed line, which invoked |
+  |        |       | the macroinstruction.                                   |
+  |        |       | If line was generated by instantaneous macro, this      |
+  |        |       | field is equal to the next one.                         |
+  |--------|-------|---------------------------------------------------------|
+  |  +12   | dword | If the line was generated by macroinstruction, this     |
+  |        |       | field contains offset of the preprocessed line inside   |
+  |        |       | the definition of macro, from which this one was        |
+  |        |       | generated.                                              |
+  |--------|-------|---------------------------------------------------------|
+  |  +16   | ?     | The tokenized contents of line.                         |
+  \--------------------------------------------------------------------------/
+
+  Notes:
+
+    To determine, whether this is the line loaded from source, or generated by
+    macroinstruction, you need to check the highest bit of the second double
+    word.
+
+    The contents of line is no longer a text, which it was in source file,
+    but a sequence of tokens, ended with a zero byte.
+    Any chain of characters that aren't special ones, separated from other
+    similar chains with spaces or some other special characters, is converted
+    into symbol token. The first byte of this element has the value of 1Ah,
+    the second byte is the count of characters, followed by this amount of
+    bytes, which build the symbol.
+    Some characters have a special meaning, and cannot occur inside the
+    symbol, they split the symbols and are converted into separate tokens.
+    For example, if source contains this line of text:
+
+      mov ax,4
+
+    preprocessor converts it into the chain of bytes, shown here with their
+    hexadecimal values (characters corresponding to some of those values are
+    placed below the hexadecimal codes):
+
+      1A 03 6D 6F 76 1A 02 61 78 2C 1A 01 34 00
+            m  o  v        a  x  ,        4
+
+    The third type of token that can be found in preprocessed line is the
+    quoted text. This element is created from chain of any bytes other than
+    line breaks that are placed between the single or double quotes in the
+    original text. First byte of such element is always 22h, it is followed
+    by double word which specifies the number of bytes that follow, and the
+    value of quoted text comes next. For example, this line from source:
+
+      mov eax,'ABCD'
+
+    is converted into (the notation used is the same as in previous sample):
+
+      1A 03 6D 6F 76 1A 03 65 61 78 2C 22 04 00 00 00 41 42 43 44 00
+            m  o  v        e  a  x  ,                 A  B  C  D
+
+    This data defines two symbols followed by symbol character, quoted text
+    and zero byte that marks end of line.
+    There is also a special case of symbol token with first byte having the
+    value 3Bh instead of 1Ah, such symbol means that all the line elements
+    that follow, including this one, have already been interpreted by
+    preprocessor and are ignored by assembler.
+
+
+   Table 4  Row of the assembly dump
+  /-------------------------------------------------------------------------\
+  | Offset | Size  | Description                                            |
+  |========|=======|========================================================|
+  |   +0   | dword | Offset in output file.                                 |
+  |--------|-------|--------------------------------------------------------|
+  |   +4   | dword | Offset of line in preprocessed source.                 |
+  |--------|-------|--------------------------------------------------------|
+  |   +8   | qword | Value of $ address.                                    |
+  |--------|-------|--------------------------------------------------------|
+  |  +16   | dword | Extended SIB for the $ address, the first two bytes    |
+  |        |       | are register codes and the second two bytes are        |
+  |        |       | corresponding scales.                                  |
+  |--------|-------|--------------------------------------------------------|
+  |  +20   | dword | If the $ address is relocatable, this field contains   |
+  |        |       | information about section or external symbol, to which |
+  |        |       | it is relative - otherwise this field is zero.         |
+  |        |       | When the highest bit is cleared, the address is        |
+  |        |       | relative to a section, and the bits 0-30 contain       |
+  |        |       | the index (starting from 1) in the table of sections.  |
+  |        |       | When the highest bit is set, the address is relative   |
+  |        |       | to an external symbol, and the bits 0-30 contain the   |
+  |        |       | the offset of the name of this symbol in the strings   |
+  |        |       | table.                                                 |
+  |--------|-------|--------------------------------------------------------|
+  |  +24   | byte  | Type of $ address value (as in table 2.2).             |
+  |--------|-------|--------------------------------------------------------|
+  |  +25   | byte  | Type of code - possible values are 16, 32, and 64.     |
+  |--------|-------|--------------------------------------------------------|
+  |  +26   | byte  | If the bit 0 is set, then at this point the assembly   |
+  |        |       | was taking place inside the virtual block, and the     |
+  |        |       | offset in output file has no meaning here.             |
+  |        |       | If the bit 1 is set, the line was assembled at the     |
+  |        |       | point, which was not included in the output file for   |
+  |        |       | some other reasons (like inside the reserved data at   |
+  |        |       | the end of section).                                   |
+  |--------|-------|--------------------------------------------------------|
+  |  +27   | byte  | The higher bits of value of $ address.                 |
+  \-------------------------------------------------------------------------/
+
+
+  Notes:
+
+    Each row of the assembly dump informs, that the given line of preprocessed
+    source was assembled at the specified address (defined by its type, value
+    and the extended SIB) and at the specified position in output file.
