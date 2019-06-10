@@ -17,26 +17,17 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
- 
 
-#include "Exception.hpp" 
+#include "Exception.hpp"
 
+namespace Fas {
 
-Exception::Exception(const std::string& message)
-  : mMessage(message)
-{
+Exception::Exception(const std::string &message)
+	: mMessage(message) {
 }
 
-Exception::~Exception() noexcept
-{}
-
-const char* Exception::what() const noexcept
-{
-  return mMessage.c_str();
+const char *Exception::what() const noexcept {
+	return mMessage.c_str();
 }
 
-void Exception::raise() const
-{
-  throw *this;
 }
-

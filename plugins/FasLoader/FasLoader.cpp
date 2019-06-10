@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
 #include "FasLoader.hpp"
-#include "OptionsPage.hpp"
 #include "IDebugger.h"
 #include "IProcess.h"
 #include "ISymbolManager.h"
@@ -26,31 +25,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QMenu>
 #include <QSettings>
-#include <iostream>
 
 namespace FasLoaderPlugin {
 
-FasLoader::FasLoader ( QObject* parent ) 
-  : QObject ( parent )
-{
-  
+FasLoader::FasLoader(QObject *parent)
+	: QObject(parent) {
 }
 
-void 
-FasLoader::private_init () 
-{
-  // QSettings settings;
-	// if(settings.value("FasLoader/load_on_start.enabled", true).toBool()) {
-		// load();
-	// }
-}
-
-QMenu*
-FasLoader::menu(QWidget* parent) {
+QMenu *FasLoader::menu(QWidget *parent) {
 
 	Q_ASSERT(parent);
 
-	if(!menu_) {
+	if (!menu_) {
 		menu_ = new QMenu(tr("FasLoader"), parent);
 		menu_->addAction(tr("&Load *.fas symbols"), this, SLOT(show_menu()));
 	}
@@ -58,41 +44,34 @@ FasLoader::menu(QWidget* parent) {
 	return menu_;
 }
 
-// QWidget*
-// FasLoader::options_page() {
-	// return new OptionsPage;
-// }
-
-void 
-FasLoader::show_menu() {
-	// initial_check_ = false;
+void FasLoader::show_menu() {
 	load();
 }
 
-void 
-FasLoader::load () 
-{
-  if ( edb::v1::debugger_core ) {
-    auto process = edb::v1::debugger_core->process ();
-    if ( process ) {
-      auto fileName = process->executable ();
-      auto fasName = fileName;
-      fasName.append ( ".fas" );
-      fasCore.load ( fasName.toUtf8 ().constData () );
-      auto pluginSymbols = fasCore.getSymbols ();
-      for ( auto pluginSymbol : pluginSymbols ) {
-        std::shared_ptr<Symbol> symbol ( new Symbol () );
-        symbol->file = fileName;
-        symbol->address = pluginSymbol.value;
-        symbol->name = QString::fromStdString ( pluginSymbol.name );
-        symbol->size = pluginSymbol.size;
-        if ( pluginSymbol.size > 0 ) {
-          symbol->type = 'd';
-        }
-        edb::v1::symbol_manager ().add_symbol ( symbol );
-      }
-    }
-  }
+void FasLoader::load() {
+	if (edb::v1::debugger_core) {
+		if (auto process = edb::v1::debugger_core->process()) {
+			auto fileName = process->executable();
+			auto fasName  = fileName;
+			fasName.append(".fas");
+			fasCore.load(fasName.toUtf8().constData());
+			auto pluginSymbols = fasCore.getSymbols();
+			for (auto pluginSymbol : pluginSymbols) {
+
+				auto symbol = std::make_shared<Symbol>();
+
+				symbol->file    = fileName;
+				symbol->address = pluginSymbol.value;
+				symbol->name    = QString::fromStdString(pluginSymbol.name);
+				symbol->size    = pluginSymbol.size;
+				if (pluginSymbol.size > 0) {
+					symbol->type = 'd';
+				}
+
+				edb::v1::symbol_manager().add_symbol(symbol);
+			}
+		}
+	}
 }
 
 }

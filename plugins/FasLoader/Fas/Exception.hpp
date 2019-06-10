@@ -17,28 +17,23 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
 **/
- 
 
 #pragma once
-
 
 #include <exception>
 #include <string>
 
+namespace Fas {
 
-class Exception : public std::exception
-{
-  public:
-    explicit Exception(const std::string& message);
-    virtual ~Exception() noexcept override;
+class Exception : public std::exception {
+public:
+	explicit Exception(const std::string &message);
+	~Exception() noexcept override = default;
 
-    virtual const char* what() const noexcept override;
+	const char *what() const noexcept override;
 
-    virtual void raise() const;
-
-
-  protected:
-    std::string mMessage;
+protected:
+	std::string mMessage;
 };
 
-
+}

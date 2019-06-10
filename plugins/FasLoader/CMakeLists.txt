@@ -13,16 +13,17 @@ find_package(Qt5 5.0.0 REQUIRED Widgets Network)
 add_library(${PluginName} SHARED
   FasLoader.cpp
   FasLoader.hpp
-  OptionsPage.cpp
-  OptionsPage.hpp
-  OptionsPage.ui
+
   Fas/Core.cpp
   Fas/Core.hpp
   Fas/Exception.cpp
   Fas/Exception.hpp
+  Fas/Header.hpp
+  Fas/PluginSymbol.hpp
+  Fas/Symbol.hpp
 )
 
-target_link_libraries(${PluginName} Qt5::Widgets Qt5::Network edb)
+target_link_libraries(${PluginName} Qt5::Widgets edb)
 
 install (TARGETS ${PluginName} DESTINATION ${CMAKE_INSTALL_LIBDIR}/edb)
 

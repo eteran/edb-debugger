@@ -1,8 +1,7 @@
 #pragma once
 
-#include "IPlugin.h"
 #include "Fas/Core.hpp"
-
+#include "IPlugin.h"
 
 class QMenu;
 
@@ -16,26 +15,21 @@ class FasLoader : public QObject, public IPlugin {
 	Q_CLASSINFO("url", "http://www.codef00.com")
 
 public:
-	explicit FasLoader (QObject *parent = nullptr);
-	~FasLoader () override = default;
+	explicit FasLoader(QObject *parent = nullptr);
+	~FasLoader() override = default;
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
-  // QWidget *options_page() override;
 
 public Q_SLOTS:
 	void show_menu();
-
-protected:
-	void private_init() override;
 
 private:
 	void load();
 
 private:
-	QMenu                 *menu_          = nullptr;
-  // bool                   initial_check_ = true;
-  Fas::Core fasCore;
+	QMenu *   menu_ = nullptr;
+	Fas::Core fasCore;
 };
 
 }

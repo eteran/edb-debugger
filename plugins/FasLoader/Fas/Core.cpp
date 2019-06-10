@@ -1,271 +1,235 @@
+
 #include "Core.hpp"
 #include "Exception.hpp"
+#include <QtDebug>
 
-#include <iostream>
+namespace {
 
-using namespace Fas;
+constexpr uint32_t Signature = 0x1A736166;
 
-Core::Core () 
-  : signature ( 0x1A736166 )
-{
-  
 }
 
+namespace Fas {
 
-void 
-Core::load ( const std::string& fileName ) 
-{
-  this->fileName = fileName;
-  load ();
+void Core::load(const std::string &fileName) {
+	fileName_ = fileName;
+	load();
 }
 
-void 
-Core::load () 
-{
-  try {
-    open ();
-    loadHeader ();
-    loadFasSymbols ();
-    deleteUndefinedSymbols ();
-    deleteAssemblyTimeVariable ();
-    deleteCannotBeForwardReferenced ();
-    deleteNegativeSymbols ();
-    deleteSpecialMarkers ();
-    std::cout << fasSymbols.size () << std::endl;
-    deleteAnonymousSymbols ();
-    loadSymbols ();
-  }
-  catch ( std::exception& e ) {
-    std::cerr << e.what () << std::endl;  
-  }
+void Core::load() {
+	try {
+		open();
+		loadHeader();
+		loadFasSymbols();
+		deleteUndefinedSymbols();
+		deleteAssemblyTimeVariable();
+		deleteCannotBeForwardReferenced();
+		deleteNegativeSymbols();
+		deleteSpecialMarkers();
+		qInfo() << fasSymbols_.size();
+		deleteAnonymousSymbols();
+		loadSymbols();
+	} catch (std::exception &e) {
+		qWarning() << e.what();
+	}
 }
 
-void 
-Core::open () 
-{
-  ifs.open ( fileName, std::ios::binary );
-  if ( !ifs.is_open () ) {
-    throw Exception ( "*.fas file not loaded." );
-  }
+void Core::open() {
+	ifs_.open(fileName_, std::ios::binary);
+	if (!ifs_.is_open()) {
+		throw Exception("*.fas file not loaded.");
+	}
 }
 
-void 
-Core::loadHeader () 
-{
-  ifs.seekg (0);
-  ifs.read ( (char*)&header, sizeof ( Header ) );
-  if ( !ifs.good () ) {
-    throw Exception ( "*.fas Header not loaded." );
-  }
-  if ( header.signature != signature ) {
-    throw Exception ( "*.fas signature fail" );
-  }
-  if ( header.lengthOfHeader != 64 ) {
-    throw Exception ( "*.fas header size not supported" );
-  }
+void Core::loadHeader() {
+	ifs_.seekg(0);
+	ifs_.read((char *)&header_, sizeof(Header));
+
+	if (!ifs_.good()) {
+		throw Exception("*.fas Header not loaded.");
+	}
+
+	if (header_.signature != Signature) {
+		throw Exception("*.fas signature fail");
+	}
+
+	if (header_.lengthOfHeader != 64) {
+		throw Exception("*.fas header size not supported");
+	}
 }
 
-void 
-Core::loadFasSymbols () 
-{
-  ifs.seekg ( header.offsetOfSymbolsTable );
+void Core::loadFasSymbols() {
+	ifs_.seekg(header_.offsetOfSymbolsTable);
 
-  auto size = header.lengthOfSymbolsTable;
-  auto count = size/sizeof ( Fas::Symbol );
-  for ( uint i = 0; i < count; ++i ) {
-    auto symbol = loadFasSymbol ();
-    fasSymbols.push_back ( symbol );
-  }
+	auto size  = header_.lengthOfSymbolsTable;
+	auto count = size / sizeof(Fas::Symbol);
+	for (uint i = 0; i < count; ++i) {
+		auto symbol = loadFasSymbol();
+		fasSymbols_.push_back(symbol);
+	}
 }
 
-Fas::Symbol
-Core::loadFasSymbol () 
-{
-  Symbol symbol;
-  ifs.read ( (char*)&symbol, sizeof ( Fas::Symbol ) );
-  if ( !ifs.good () ) {
-    throw Exception ( "*.fas symbol not loaded" );
-  }
+Fas::Symbol Core::loadFasSymbol() {
+	Fas::Symbol symbol;
+	ifs_.read((char *)&symbol, sizeof(Fas::Symbol));
 
-  return std::move ( symbol );
+	if (!ifs_.good()) {
+		throw Exception("*.fas symbol not loaded");
+	}
+
+	return symbol;
 }
 
-void 
-Core::deleteUndefinedSymbols () 
-{
-  auto it = std::begin ( fasSymbols );
-  while ( it != std::end ( fasSymbols ) ) {
-    uint16_t wasDefined = it->flags & 1;
-    if ( !wasDefined ) {
-      it = fasSymbols.erase ( it );
-    }
-    else {
-      ++it;
-    }
-  }
+void Core::deleteUndefinedSymbols() {
+	auto it = std::begin(fasSymbols_);
+	while (it != std::end(fasSymbols_)) {
+		uint16_t wasDefined = it->flags & 1;
+		if (!wasDefined) {
+			it = fasSymbols_.erase(it);
+		} else {
+			++it;
+		}
+	}
 }
 
-void 
-Core::deleteAssemblyTimeVariable () 
-{
-  auto it = std::begin ( fasSymbols );
-  while ( it != std::end ( fasSymbols ) ) {
-    uint16_t isAssemblyTimeVariable = it->flags & 0x2;
-    if ( isAssemblyTimeVariable ) {
-      it = fasSymbols.erase ( it );
-    }
-    else {
-      ++it;
-    }
-  }
+void Core::deleteAssemblyTimeVariable() {
+	auto it = std::begin(fasSymbols_);
+	while (it != std::end(fasSymbols_)) {
+		uint16_t isAssemblyTimeVariable = it->flags & 0x2;
+		if (isAssemblyTimeVariable) {
+			it = fasSymbols_.erase(it);
+		} else {
+			++it;
+		}
+	}
 }
 
-void 
-Core::deleteCannotBeForwardReferenced () 
-{
-  auto it = std::begin ( fasSymbols );
-  while ( it != std::end ( fasSymbols ) ) {
-    uint16_t cannotBeForwardReferenced = it->flags & 0x4;
-    if ( cannotBeForwardReferenced ) {
-      it = fasSymbols.erase ( it );
-    }
-    else {
-      ++it;
-    }
-  }
+void Core::deleteCannotBeForwardReferenced() {
+	auto it = std::begin(fasSymbols_);
+	while (it != std::end(fasSymbols_)) {
+		uint16_t cannotBeForwardReferenced = it->flags & 0x4;
+		if (cannotBeForwardReferenced) {
+			it = fasSymbols_.erase(it);
+		} else {
+			++it;
+		}
+	}
 }
 
-void 
-Core::deleteSpecialMarkers () 
-{
-  auto it = std::begin ( fasSymbols );
-  while ( it != std::end ( fasSymbols ) ) {
-    uint16_t isSpecialMarker = it->flags & 0x400;
-    if ( isSpecialMarker ) {
-      it = fasSymbols.erase ( it );
-    }
-    else {
-      ++it;
-    }
-  }
+void Core::deleteSpecialMarkers() {
+	auto it = std::begin(fasSymbols_);
+	while (it != std::end(fasSymbols_)) {
+		uint16_t isSpecialMarker = it->flags & 0x400;
+		if (isSpecialMarker) {
+			it = fasSymbols_.erase(it);
+		} else {
+			++it;
+		}
+	}
 }
 
-void 
-Core::deleteNegativeSymbols () 
-{
-  auto it = std::begin ( fasSymbols );
-  while ( it != std::end ( fasSymbols ) ) {
-    if ( it->valueSign ) {
-      it = fasSymbols.erase ( it );
-    }
-    else {
-      ++it;
-    }
-  }
+void Core::deleteNegativeSymbols() {
+	auto it = std::begin(fasSymbols_);
+	while (it != std::end(fasSymbols_)) {
+		if (it->valueSign) {
+			it = fasSymbols_.erase(it);
+		} else {
+			++it;
+		}
+	}
 }
 
-void 
-Core::deleteAnonymousSymbols () 
-{
-  auto it = std::begin ( fasSymbols );
-  while ( it != std::end ( fasSymbols ) ) {
-    bool isAnonymous = it->preprocessedSign ==0 && it->preprocessed == 0; 
-    if ( isAnonymous ) {
-      it = fasSymbols.erase ( it );
-    }
-    else {
-      ++it;
-    }
-  }
+void Core::deleteAnonymousSymbols() {
+	auto it = std::begin(fasSymbols_);
+	while (it != std::end(fasSymbols_)) {
+		bool isAnonymous = it->preprocessedSign == 0 && it->preprocessed == 0;
+		if (isAnonymous) {
+			it = fasSymbols_.erase(it);
+		} else {
+			++it;
+		}
+	}
 }
 
-void 
-Core::loadSymbols () 
-{
-  for ( auto fasSymbol : fasSymbols ) {
-    checkAbsoluteValue ( fasSymbol );
-    loadSymbolFromFasSymbol ( fasSymbol );
-  }
+void Core::loadSymbols() {
+	for (auto fasSymbol : fasSymbols_) {
+		checkAbsoluteValue(fasSymbol);
+		loadSymbolFromFasSymbol(fasSymbol);
+	}
 }
 
-void 
-Core::checkAbsoluteValue ( Fas::Symbol& fasSymbol ) 
-{
-  if ( fasSymbol.typeOfValue != ValueTypes::ABSOLUTE_VALUE ) {
-    throw Exception ( " Support only absolute value" );
-  }
+void Core::checkAbsoluteValue(const Fas::Symbol &fasSymbol) {
+	if (fasSymbol.typeOfValue != ValueTypes::ABSOLUTE_VALUE) {
+		throw Exception(" Support only absolute value");
+	}
 }
 
-void
-Core::loadSymbolFromFasSymbol ( Fas::Symbol& fasSymbol ) 
-{
-  PluginSymbol symbol;
+void Core::loadSymbolFromFasSymbol(const Fas::Symbol &fasSymbol) {
+	PluginSymbol symbol;
 
-  symbol.value = fasSymbol.value;
-  symbol.size = fasSymbol.sizeOfData;
-  if ( fasSymbol.preprocessedSign ) {
-    // in the strings table
-    symbol.name = cstr2string ( fasSymbol );
-  }
-  else {
-    // in the preprocessed pascal style
-    symbol.name = pascal2string ( fasSymbol );
-  }
+	symbol.value = fasSymbol.value;
+	symbol.size  = fasSymbol.sizeOfData;
 
-  symbols.push_back ( symbol );
+	if (fasSymbol.preprocessedSign) {
+		// in the strings table
+		symbol.name = cstr2string(fasSymbol);
+	} else {
+		// in the preprocessed pascal style
+		symbol.name = pascal2string(fasSymbol);
+	}
+
+	symbols_.push_back(symbol);
 }
 
-std::string
-Core::cstr2string ( Fas::Symbol& fasSymbol ) 
-{
-  std::string str;
-  auto offset = header.offsetOfSymbolsTable + fasSymbol.preprocessed;
-  const int MAX_LEN = 64;
-  char cstr[MAX_LEN];
-  auto count = 0;
+std::string Core::cstr2string(const Symbol &fasSymbol) {
+	std::string str;
+	auto        offset  = header_.offsetOfSymbolsTable + fasSymbol.preprocessed;
+	const int   MAX_LEN = 64;
+	char        cstr[MAX_LEN];
+	auto        count = 0;
 
-  ifs.seekg ( offset );
-  char* c = (char*)&cstr;
-  while ( true ) {
-    ifs.read ( c, 1 );
-    if ( count >= ( MAX_LEN - 1 ) ) break; 
-    if ( *c == 0 ) break;
-    ++c; ++count;
-  }
+	ifs_.seekg(offset);
+	char *c = (char *)&cstr;
+	while (true) {
+		ifs_.read(c, 1);
+		if (count >= (MAX_LEN - 1)) break;
+		if (*c == 0) break;
+		++c;
+		++count;
+	}
 
-  cstr[count] = '\0';
-  str = cstr;
+	cstr[count] = '\0';
+	str         = cstr;
 
-  return std::move ( str );
+	return str;
 }
 
-std::string
-Core::pascal2string ( Fas::Symbol& fasSymbol ) 
-{
-  std::string str;
-  auto offset = header.offsetOfPreprocessedSource + fasSymbol.preprocessed;
-  uint8_t len;
-  char pascal[64];
+std::string Core::pascal2string(const Fas::Symbol &fasSymbol) {
 
-  ifs.seekg ( offset );
-  ifs.read ( (char*)&len, sizeof ( len ) );
-  if ( !ifs.good () ) {
-    throw Exception ( "Length of pascal string not loaded" );
-  }
+	std::string str;
+	auto        offset = header_.offsetOfPreprocessedSource + fasSymbol.preprocessed;
+	uint8_t     len;
+	char        pascal[64];
 
-  ifs.read ( (char*)&pascal, len );
-  if ( !ifs.good () ) {
-    throw Exception ( "Pascal string not loaded" );
-  }
-  pascal[len] = '\0';
+	ifs_.seekg(offset);
+	ifs_.read((char *)&len, sizeof(len));
+	if (!ifs_.good()) {
+		throw Exception("Length of pascal string not loaded");
+	}
 
-  str = pascal;
+	ifs_.read((char *)&pascal, len);
+	if (!ifs_.good()) {
+		throw Exception("Pascal string not loaded");
+	}
+	pascal[len] = '\0';
 
-  return std::move ( str );
+	str = pascal;
+
+	return str;
 }
 
-const PluginSymbols& 
-Core::getSymbols () 
-{
-  return symbols;
+const PluginSymbols &Core::getSymbols() {
+	return symbols_;
+}
+
 }

@@ -1,12 +1,14 @@
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include <string>
 
-struct PluginSymbol
-{
-  uint64_t value;
-  std::string name;
-  uint8_t size;
+namespace Fas {
+
+struct PluginSymbol {
+	uint64_t    value;
+	std::string name;
+	uint8_t     size;
 };
 
+}
