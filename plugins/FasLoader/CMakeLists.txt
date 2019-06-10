@@ -8,7 +8,7 @@ set(CMAKE_AUTORCC ON)
 
 set(PluginName "FasLoader")
 
-find_package(Qt5 5.0.0 REQUIRED Widgets Network)
+find_package(Qt5 5.0.0 REQUIRED Widgets)
 
 add_library(${PluginName} SHARED
   FasLoader.cpp
