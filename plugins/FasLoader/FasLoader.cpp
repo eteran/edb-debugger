@@ -50,7 +50,10 @@ void FasLoader::load() {
 			auto fileName = process->executable();
 			auto fasName  = fileName;
 			fasName.append(".fas");
+
+			Fas::Core fasCore;
 			fasCore.load(fasName.toUtf8().constData());
+
 			auto pluginSymbols = fasCore.getSymbols();
 			for (auto pluginSymbol : pluginSymbols) {
 

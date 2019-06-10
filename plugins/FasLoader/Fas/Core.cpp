@@ -17,7 +17,6 @@ namespace Fas {
 void Core::load(const std::string &fileName) {
 	fileName_ = fileName;
 
-
 	try {
 		open();
 		loadHeader();
@@ -44,9 +43,8 @@ void Core::open() {
 
 void Core::loadHeader() {
 	ifs_.seekg(0);
-	ifs_.read((char *)&header_, sizeof(Header));
 
-	if (!ifs_.good()) {
+	if (!ifs_.read((char *)&header_, sizeof(Header))) {
 		throw Exception("*.fas Header not loaded.");
 	}
 
@@ -72,9 +70,8 @@ void Core::loadFasSymbols() {
 
 Fas::Symbol Core::loadFasSymbol() {
 	Fas::Symbol symbol;
-	ifs_.read((char *)&symbol, sizeof(Fas::Symbol));
 
-	if (!ifs_.good()) {
+	if (!ifs_.read((char *)&symbol, sizeof(Fas::Symbol))) {
 		throw Exception("*.fas symbol not loaded");
 	}
 
@@ -183,49 +180,47 @@ void Core::loadSymbolFromFasSymbol(const Fas::Symbol &fasSymbol) {
 }
 
 std::string Core::cstr2string(const Symbol &fasSymbol) {
-	std::string str;
-	auto        offset  = header_.offsetOfSymbolsTable + fasSymbol.preprocessed;
-	const int   MAX_LEN = 64;
-	char        cstr[MAX_LEN];
-	auto        count = 0;
+
+	constexpr int MaxLength = 64;
+
+	auto offset = header_.offsetOfSymbolsTable + fasSymbol.preprocessed;
+	char cstr[MaxLength];
+	auto count = 0;
 
 	ifs_.seekg(offset);
 	char *c = cstr;
 	while (true) {
 		ifs_.read(c, 1);
-		if (count >= (MAX_LEN - 1)) break;
+		if (count >= (MaxLength - 1)) break;
 		if (*c == 0) break;
 		++c;
 		++count;
 	}
 
 	cstr[count] = '\0';
-	str         = cstr;
 
+	std::string str = cstr;
 	return str;
 }
 
 std::string Core::pascal2string(const Fas::Symbol &fasSymbol) {
 
-	std::string str;
-	auto        offset = header_.offsetOfPreprocessedSource + fasSymbol.preprocessed;
-	uint8_t     len;
-	char        pascal[64];
+	auto    offset = header_.offsetOfPreprocessedSource + fasSymbol.preprocessed;
+	uint8_t len;
+	char    pascal[64];
 
 	ifs_.seekg(offset);
-	ifs_.read((char *)&len, sizeof(len));
-	if (!ifs_.good()) {
+
+	if (!ifs_.read((char *)&len, sizeof(len))) {
 		throw Exception("Length of pascal string not loaded");
 	}
 
-	ifs_.read(pascal, len);
-	if (!ifs_.good()) {
+	if (!ifs_.read(pascal, len)) {
 		throw Exception("Pascal string not loaded");
 	}
 	pascal[len] = '\0';
 
-	str = pascal;
-
+	std::string str = pascal;
 	return str;
 }
 

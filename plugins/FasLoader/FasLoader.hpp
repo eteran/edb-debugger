@@ -25,8 +25,7 @@ private Q_SLOTS:
 	void load();
 
 private:
-	QMenu *   menu_ = nullptr;
-	Fas::Core fasCore;
+	QMenu *menu_ = nullptr;
 };
 
 }
