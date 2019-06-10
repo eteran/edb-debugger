@@ -190,7 +190,7 @@ std::string Core::cstr2string(const Symbol &fasSymbol) {
 	auto        count = 0;
 
 	ifs_.seekg(offset);
-	char *c = (char *)&cstr;
+	char *c = cstr;
 	while (true) {
 		ifs_.read(c, 1);
 		if (count >= (MAX_LEN - 1)) break;
@@ -218,7 +218,7 @@ std::string Core::pascal2string(const Fas::Symbol &fasSymbol) {
 		throw Exception("Length of pascal string not loaded");
 	}
 
-	ifs_.read((char *)&pascal, len);
+	ifs_.read(pascal, len);
 	if (!ifs_.good()) {
 		throw Exception("Pascal string not loaded");
 	}
