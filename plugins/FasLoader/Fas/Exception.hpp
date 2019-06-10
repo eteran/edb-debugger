@@ -33,7 +33,7 @@ public:
 	const char *what() const noexcept override;
 
 protected:
-	std::string mMessage;
+	std::string message_;
 };
 
 }

@@ -23,11 +23,11 @@
 namespace Fas {
 
 Exception::Exception(const std::string &message)
-	: mMessage(message) {
+	: message_(message) {
 }
 
 const char *Exception::what() const noexcept {
-	return mMessage.c_str();
+	return message_.c_str();
 }
 
 }
