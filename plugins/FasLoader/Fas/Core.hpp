@@ -16,7 +16,6 @@ using PluginSymbols = std::vector<PluginSymbol>;
 class Core {
 public:
 	void                 load(const std::string &fileName_);
-	void                 load();
 	void                 open();
 	void                 loadHeader();
 	void                 loadFasSymbols();

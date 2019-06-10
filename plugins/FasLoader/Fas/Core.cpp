@@ -9,14 +9,15 @@ constexpr uint32_t Signature = 0x1A736166;
 
 }
 
+// TODO(eteran): this class is generally a good candiate for more RAII
+// and usage of the QFile class instead of std::ifstream
+
 namespace Fas {
 
 void Core::load(const std::string &fileName) {
 	fileName_ = fileName;
-	load();
-}
 
-void Core::load() {
+
 	try {
 		open();
 		loadHeader();
