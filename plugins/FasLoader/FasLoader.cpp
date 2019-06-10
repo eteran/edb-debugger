@@ -38,14 +38,10 @@ QMenu *FasLoader::menu(QWidget *parent) {
 
 	if (!menu_) {
 		menu_ = new QMenu(tr("FasLoader"), parent);
-		menu_->addAction(tr("&Load *.fas symbols"), this, SLOT(show_menu()));
+		menu_->addAction(tr("&Load *.fas symbols"), this, SLOT(load()));
 	}
 
 	return menu_;
-}
-
-void FasLoader::show_menu() {
-	load();
 }
 
 void FasLoader::load() {

@@ -21,10 +21,7 @@ public:
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
 
-public Q_SLOTS:
-	void show_menu();
-
-private:
+private Q_SLOTS:
 	void load();
 
 private:
