@@ -26,7 +26,7 @@ void Core::load(const std::string &fileName) {
 		deleteCannotBeForwardReferenced();
 		deleteNegativeSymbols();
 		deleteSpecialMarkers();
-		qInfo() << fasSymbols_.size();
+		qDebug() << fasSymbols_.size();
 		deleteAnonymousSymbols();
 		loadSymbols();
 	} catch (std::exception &e) {
