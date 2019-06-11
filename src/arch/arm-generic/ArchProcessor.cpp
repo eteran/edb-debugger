@@ -65,22 +65,22 @@ int capstoneRegToGPRIndex(int capstoneReg, bool& ok) {
 	return regIndex;
 }
 
-Result<edb::address_t> getOperandValueGPR(const edb::Instruction &insn, const edb::Operand &operand, const State &state) {
+Result<edb::address_t, QString> getOperandValueGPR(const edb::Instruction &insn, const edb::Operand &operand, const State &state) {
 
-	using ResultT=Result<edb::address_t>;
+	using ResultT=Result<edb::address_t, QString>;
 	bool ok;
 	const auto regIndex=capstoneRegToGPRIndex(operand->reg, ok);
-	if(!ok) return ResultT(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg), 0);
+	if(!ok) return make_unexpected(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg));
 	const auto reg=state.gp_register(regIndex);
 	if(!reg)
-		return ResultT(QObject::tr("failed to get register r%1.").arg(regIndex), 0);
+		return make_unexpected(QObject::tr("failed to get register r%1.").arg(regIndex));
 	auto value=reg.valueAsAddress();
 	return ResultT(value);
 }
 
-Result<edb::address_t> adjustR15Value(const edb::Instruction &insn, const int regIndex, edb::address_t value) {
+Result<edb::address_t, QString> adjustR15Value(const edb::Instruction &insn, const int regIndex, edb::address_t value) {
 
-	using ResultT=Result<edb::address_t>;
+	using ResultT=Result<edb::address_t, QString>;
 	if(regIndex==15)
 	{
 		// Even if current state's PC weren't on this instruction, the instruction still refers to
@@ -95,7 +95,7 @@ Result<edb::address_t> adjustR15Value(const edb::Instruction &insn, const int re
 			value=insn.rva()+4;
 			break;
 		default:
-			return ResultT(QObject::tr("calculating effective address in modes other than ARM and Thumb is not supported."), 0);
+			return make_unexpected(QObject::tr("calculating effective address in modes other than ARM and Thumb is not supported."));
 		}
 	}
 	return ResultT(value);
@@ -140,19 +140,19 @@ uint32_t shift(uint32_t x, arm_shifter type, uint32_t shiftAmount, bool carryFla
 // NOTE: this function shouldn't be used for operands other than those used as addresses.
 // E.g. for "STM Rn,{regs...}" this function shouldn't try to get the value of any of the {regs...}.
 // Also note that undefined instructions like "STM PC, {regs...}" aren't checked here.
-Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instruction &insn, const edb::Operand &operand, const State &state) const {
+Result<edb::address_t, QString> ArchProcessor::get_effective_address(const edb::Instruction &insn, const edb::Operand &operand, const State &state) const {
 
-	using ResultT=Result<edb::address_t>;
-	if(!operand || !insn) return ResultT(QObject::tr("operand is invalid"),0);
+	using ResultT=Result<edb::address_t, QString>;
+	if(!operand || !insn) return make_unexpected(QObject::tr("operand is invalid"));
 
 	const auto op=insn.operation();
 	if(is_register(operand))
 	{
 		bool ok;
 		const auto regIndex=capstoneRegToGPRIndex(operand->reg, ok);
-		if(!ok) return ResultT(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg), 0);
+		if(!ok) return make_unexpected(QObject::tr("bad operand register for instruction %1: %2.").arg(insn.mnemonic().c_str()).arg(operand->reg));
 		const auto reg=state.gp_register(regIndex);
-		if(!reg) return ResultT(QObject::tr("failed to get register r%1.").arg(regIndex), 0);
+		if(!reg) return make_unexpected(QObject::tr("failed to get register r%1.").arg(regIndex));
 		auto value=reg.valueAsAddress();
 		return adjustR15Value(insn, regIndex, value);
 	}
@@ -164,18 +164,18 @@ Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instructi
 		const auto baseIndex = capstoneRegToGPRIndex(operand->mem.base , ok);
 		// base must be valid
 		if(!ok || !(baseR = state.gp_register(baseIndex)))
-			return ResultT(QObject::tr("failed to get register r%1.").arg(baseIndex), 0);
+			return make_unexpected(QObject::tr("failed to get register r%1.").arg(baseIndex));
 
 		const auto indexIndex = capstoneRegToGPRIndex(operand->mem.index, ok);
 		if(ok) // index register may be irrelevant, only try to get it if its index is valid
 		{
 			if(!(indexR = state.gp_register(indexIndex)))
-				return ResultT(QObject::tr("failed to get register r%1.").arg(indexIndex), 0);
+				return make_unexpected(QObject::tr("failed to get register r%1.").arg(indexIndex));
 		}
 
 		cpsrR=state.flags_register();
 		if(!cpsrR && (operand->shift.type==ARM_SFT_RRX || operand->shift.type==ARM_SFT_RRX_REG))
-			return ResultT(QObject::tr("failed to get CPSR."), 0);
+			return make_unexpected(QObject::tr("failed to get CPSR."));
 		const bool C = cpsrR ? cpsrR.valueAsInteger()&0x20000000 : false;
 
 		edb::address_t addr=baseR.valueAsAddress();
@@ -189,7 +189,7 @@ Result<edb::address_t> ArchProcessor::get_effective_address(const edb::Instructi
 		else return adjustedRes;
 	}
 
-	return ResultT(QObject::tr("getting effective address for operand %1 of instruction %2 is not implemented").arg(operand.index()+1).arg(insn.mnemonic().c_str()), 0);
+	return make_unexpected(QObject::tr("getting effective address for operand %1 of instruction %2 is not implemented").arg(operand.index()+1).arg(insn.mnemonic().c_str()));
 }
 
 edb::address_t ArchProcessor::get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool& ok) const {
