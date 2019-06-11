@@ -127,7 +127,7 @@ if(TARGET_ARCH_FAMILY_ARM)
 
 		set(PLUGIN_INCLUDES
 			${PLUGIN_INCLUDES}
-			unix/linux/arch/arm-generic
+			arch/arm-generic
 		)
 
         set(DebuggerCore_SRCS
