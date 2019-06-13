@@ -292,8 +292,9 @@ void PlatformState::set_register(const QString &name, edb::reg_t value) {
  */
 Register PlatformState::gp_register(size_t n) const {
 #ifdef EDB_ARM32
-	assert(n < GPR::GPRegNames.size());
-	return make_Register<32>(gpr.GPRegNames[n].front(), gpr.GPRegs[n], Register::TYPE_GPR);
+	if(n < GPR::GPRegNames.size())
+		return make_Register<32>(gpr.GPRegNames[n].front(), gpr.GPRegs[n], Register::TYPE_GPR);
+	return Register();
 #else
 	return Register(); // FIXME: stub
 #endif
