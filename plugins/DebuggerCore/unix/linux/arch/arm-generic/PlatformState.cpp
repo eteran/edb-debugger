@@ -61,7 +61,7 @@ std::unique_ptr<IState> PlatformState::clone() const {
  * @return
  */
 QString PlatformState::flags_to_string() const {
-	return flags_to_string(gp_register(GPR::CPSR));
+	return flags_to_string(flags_register().valueAsInteger());
 }
 
 /**

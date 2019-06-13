@@ -229,7 +229,7 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 					if(!is_expression(srcOperand))
 						return Status(QObject::tr("unexpected type of second operand of LDR instruction."));
 					const auto effAddrR=edb::v1::arch_processor().get_effective_address(insn, srcOperand, state);
-					if(!effAddrR) return Status(effAddrR.errorMessage());
+					if(!effAddrR) return Status(effAddrR.error());
 
 					const auto effAddr=effAddrR.value();
 					if(process_->read_bytes(effAddr, &addrAfterInsn, addrSize)!=addrSize)
@@ -300,7 +300,7 @@ Status PlatformThread::doStep(const edb::tid_t tid, const long status) {
 							return Status(QObject::tr("unpredictable instruction"));
 						// This may happen only with BX or BLX: B and BL require an immediate operand
 						const auto result=edb::v1::arch_processor().get_effective_address(insn, operand, state);
-						if(!result) return Status(result.errorMessage());
+						if(!result) return Status(result.error());
 						addrAfterInsn=result.value();
 						if(addrAfterInsn&1)
 							targetMode=IDebugger::CPUMode::Thumb;
