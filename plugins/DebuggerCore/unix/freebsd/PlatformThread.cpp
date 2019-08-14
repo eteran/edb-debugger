@@ -22,7 +22,7 @@ namespace DebuggerCorePlugin {
 
 void PlatformThread::get_state(State *state) {
 	auto state_impl = static_cast<PlatformState *>(state->impl_);
-	ptrace(PT_GETREGS, tid_, reinterpret_cast<char*>(&state_impl->regs_, 0);
+    ptrace(PT_GETREGS, tid_, reinterpret_cast<char*>(&state_impl->regs_), 0);
 }
 
 void PlatformThread::set_state(const State &state) {

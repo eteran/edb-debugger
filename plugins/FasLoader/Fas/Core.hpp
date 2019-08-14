@@ -15,6 +15,9 @@ using PluginSymbols = std::vector<PluginSymbol>;
 
 class Core {
 public:
+	Core() = default;
+
+public:
 	void                 load(const std::string &fileName_);
 	const PluginSymbols &getSymbols();
 

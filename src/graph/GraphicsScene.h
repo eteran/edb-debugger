@@ -25,7 +25,7 @@ class GraphicsScene : public QGraphicsScene {
 	Q_OBJECT
 public:
     explicit GraphicsScene(QObject *parent = nullptr);
-    GraphicsScene(const QRectF &sceneRect, QObject *parent = nullptr);
+	explicit GraphicsScene(const QRectF &sceneRect, QObject *parent = nullptr);
     GraphicsScene(qreal x, qreal y, qreal width, qreal height, QObject *parent = nullptr);
 	~GraphicsScene() override = default;
 

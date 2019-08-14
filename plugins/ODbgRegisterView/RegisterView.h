@@ -86,7 +86,7 @@ private:
 	RegisterGroup *makeGroup(RegisterGroupType type);
 
 public:
-	ODBRegView(const QString &settings, QWidget *parent = nullptr);
+	explicit ODBRegView(const QString &settings, QWidget *parent = nullptr);
 	void setModel(RegisterViewModelBase::Model *model);
 	QList<ValueField *>  valueFields() const;
 	QList<FieldWidget *> fields() const;
@@ -259,7 +259,7 @@ private:
 	ODBRegView *regView() const;
 
 public:
-	RegisterGroup(const QString &name, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit RegisterGroup(const QString &name, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	QList<FieldWidget *> fields() const;
 	QList<ValueField *>  valueFields() const;
 	void setIndices(const QList<QModelIndex> &indices);

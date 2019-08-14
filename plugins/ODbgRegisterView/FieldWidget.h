@@ -41,7 +41,7 @@ protected:
 public:
 	FieldWidget(int fieldWidth, const QModelIndex &index, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	FieldWidget(int fieldWidth, const QString &fixedText, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-	FieldWidget(const QString &fixedText, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit FieldWidget(const QString &fixedText, QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 
 public:
 	virtual QString text() const;
