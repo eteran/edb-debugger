@@ -158,7 +158,7 @@ void Configuration::readSettings() {
 	settings.beginGroup("Exceptions");
 	enable_signals_message_box = settings.value("signals.show_message_box.enabled", true).toBool();
 	
-	auto temp_ignored_exceptions = settings.value("signals.ignore_list", QVariantList()).toList();
+	QVariantList temp_ignored_exceptions = settings.value("signals.ignore_list", QVariantList()).toList();
 
     ignored_exceptions.clear();
 	for(QVariant &exception : temp_ignored_exceptions) {

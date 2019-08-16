@@ -452,7 +452,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 							// note the destination and move on
 							// we special case some simple things.
 							// also this is an opportunity to find call tables.
-							const auto op = inst->operand(0);
+							const edb::Operand op = inst->operand(0);
 							if(is_immediate(op)) {
 								const edb::address_t ea = op->imm;
 
@@ -481,7 +481,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 						} else if(is_unconditional_jump(*inst)) {
 
 							Q_ASSERT(inst->operand_count() >= 1);
-							const auto op = inst->operand(0);
+							const edb::Operand op = inst->operand(0);
 
 							// TODO(eteran): we need some heuristic for detecting when this is
 							//               a call/ret -> jmp optimization
@@ -503,7 +503,7 @@ void Analyzer::collect_functions(Analyzer::RegionData *data) {
 						} else if(is_conditional_jump(*inst)) {
 
 							Q_ASSERT(inst->operand_count() == 1);
-							const auto op = inst->operand(0);
+							const edb::Operand op = inst->operand(0);
 
 							if(is_immediate(op)) {
 							
@@ -582,7 +582,7 @@ void Analyzer::collect_fuzzy_functions(RegionData *data) {
 					// note the destination and move on
 					// we special case some simple things.
 					// also this is an opportunity to find call tables.
-					const auto op = inst[0];
+					const edb::Operand op = inst[0];
 					if(is_immediate(op)) {
 						const edb::address_t ea = op->imm;
 
@@ -776,8 +776,8 @@ bool Analyzer::for_funcs_in_range(const edb::address_t start, const edb::address
 		auto it = funcs.lowerBound(start - 4096);
 
 		while (it != funcs.end()) {
-			auto f_start = it->entry_address();
-			auto f_end = it->end_address();
+			edb::address_t f_start = it->entry_address();
+			edb::address_t f_end = it->end_address();
 
 			// Only works if FunctionMap is a QMap
 			if (f_start > end) {

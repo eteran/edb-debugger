@@ -72,7 +72,7 @@ bool apriori_not_simd(const Instruction &insn, const Operand &operand) {
 
 bool KxRegisterPresent(const Instruction &insn) {
 
-	const auto operandCount = insn.operand_count();
+	const size_t operandCount = insn.operand_count();
 
 	for (std::size_t i = 0; i < operandCount; ++i) {
 		const auto op = insn[i];
@@ -89,8 +89,8 @@ std::size_t simdOperandNormalizedNumberInInstruction(const Instruction &insn, co
 	if(!canBeNonSIMD)
 		assert(!apriori_not_simd(insn, operand));
 
-	std::size_t number       = operand.index();
-	const auto  operandCount = insn.operand_count();
+	size_t number = operand.index();
+	const size_t operandCount = insn.operand_count();
 
 	// normalized number is according to Intel order
 	if (activeFormatter.options().syntax == Formatter::SyntaxATT) {
