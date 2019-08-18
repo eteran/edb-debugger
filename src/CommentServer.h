@@ -19,15 +19,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef COMMENTSERVER_20070427_H_
 #define COMMENTSERVER_20070427_H_
 
-#include "Types.h"
 #include "Status.h"
+#include "Types.h"
 
+#include <QCoreApplication>
 #include <QHash>
 #include <QString>
-#include <QCoreApplication>
 
-class CommentServer{
-	 Q_DECLARE_TR_FUNCTIONS(CommentServer)
+class CommentServer {
+	Q_DECLARE_TR_FUNCTIONS(CommentServer)
 public:
 	void set_comment(edb::address_t address, const QString &comment);
 	QString comment(edb::address_t address, int size) const;
@@ -42,4 +42,3 @@ private:
 };
 
 #endif
-

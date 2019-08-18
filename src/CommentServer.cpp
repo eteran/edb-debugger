@@ -87,7 +87,7 @@ Result<QString, QString> CommentServer::resolve_function_call(edb::address_t add
 Result<QString, QString> CommentServer::resolve_string(edb::address_t address) const {
 
 	const int min_string_length = edb::v1::config().min_string_length;
-	const int max_string_length = 256;
+	constexpr int max_string_length = 256;
 
 	int stringLen;
 	QString temp;
