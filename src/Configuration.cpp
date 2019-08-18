@@ -30,6 +30,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
+QDataStream &operator<<(QDataStream &s, const IBreakpoint::TypeId &id);
+QDataStream &operator>>(QDataStream &s, IBreakpoint::TypeId &id);
+
 //------------------------------------------------------------------------------
 // Name: Configuration
 // Desc: constructor
@@ -54,15 +57,14 @@ void Configuration::sendChangeNotification() {
 	Q_EMIT settingsUpdated();
 }
 
-QDataStream& operator<<(QDataStream& s, const IBreakpoint::TypeId &id)
-{
+QDataStream &operator<<(QDataStream &s, const IBreakpoint::TypeId &id) {
 	return s << static_cast<int>(id);
 }
 
-QDataStream& operator>>(QDataStream& s, IBreakpoint::TypeId& id) {
-	int value=0;
+QDataStream &operator>>(QDataStream &s, IBreakpoint::TypeId &id) {
+	int value = 0;
 	s >> value;
-	id=static_cast<IBreakpoint::TypeId>(value);
+	id = static_cast<IBreakpoint::TypeId>(value);
 	return s;
 }
 
