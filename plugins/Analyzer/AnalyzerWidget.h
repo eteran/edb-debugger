@@ -16,11 +16,13 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-#include <QWidget>
-#include <QPixmap>
-
 #ifndef ANALYZER_WIDGET_H_20190412_
 #define ANALYZER_WIDGET_H_20190412_
+
+#include <QWidget>
+#include <memory>
+
+class QPixmap;
 
 namespace AnalyzerPlugin {
 
@@ -36,9 +38,9 @@ protected:
 	void mouseMoveEvent(QMouseEvent *event) override;
 
 private:
-	bool mouse_pressed_;
-	QPixmap* cache_;
-	int cache_num_funcs_;
+	bool mouse_pressed_ = false;
+	std::unique_ptr<QPixmap> cache_;
+	int cache_num_funcs_ = 0;
 };
 
 }

@@ -32,13 +32,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QScrollBar>
 #include <QDir>
 #include <QElapsedTimer>
+#include <QPixmap>
 
 namespace AnalyzerPlugin {
 
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f), mouse_pressed_(false), cache_(nullptr) {
+AnalyzerWidget::AnalyzerWidget(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f)  {
 
 	QFontMetrics fm(font());
 
@@ -79,13 +80,11 @@ void AnalyzerWidget::paintEvent(QPaintEvent *event) {
 	const auto byte_width = static_cast<float>(width()) / region->size();
 
 	if (!cache_ || width() != cache_->width() || height() != cache_->height() || cache_num_funcs_ != functions.size()) {
-		if (cache_) {
-			delete cache_;
-		}
-		cache_ = new QPixmap(width(), height());
+
+		cache_ = std::make_unique<QPixmap>(width(), height());
 		cache_num_funcs_ = functions.size();
 
-		QPainter painter(cache_);
+		QPainter painter(cache_.get());
 		painter.fillRect(0, 0, width(), height(), QBrush(Qt::black));
 
 		for(auto it = functions.begin(); it != functions.end(); ++it) {
