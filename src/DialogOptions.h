@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 
-namespace Ui { class DialogOptions; }
+#include "ui_DialogOptions.h"
 
 class QToolBox;
 
@@ -29,7 +29,7 @@ class DialogOptions final : public QDialog {
 	Q_OBJECT
 public:
     explicit DialogOptions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~DialogOptions() override;
+	~DialogOptions() override = default;
 
 public Q_SLOTS:
 	void on_btnSymbolDir_clicked();
@@ -48,7 +48,7 @@ private:
 	QString directory_from_dialog();
 
 private:
-	Ui::DialogOptions *const ui;
+	Ui::DialogOptions ui;
 	QToolBox *               toolbox_ = nullptr;
 };
 

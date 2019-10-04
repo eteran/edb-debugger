@@ -20,18 +20,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define DIALOG_ABOUT_20150802_H_
 
 #include <QDialog>
-
-namespace Ui { class DialogAbout; }
+#include "ui_DialogAbout.h"
 
 class DialogAbout final : public QDialog {
 	Q_OBJECT
 
 public:
     explicit DialogAbout(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~DialogAbout() override;
+	~DialogAbout() override = default;
 
 private:
-	Ui::DialogAbout *const ui;
+	Ui::DialogAbout ui;
 };
 
 #endif

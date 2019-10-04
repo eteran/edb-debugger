@@ -22,23 +22,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #define STRINGIFY(x) #x
 #define TOSTRING(x) STRINGIFY(x)
 
-#include "ui_DialogAbout.h"
-
 //------------------------------------------------------------------------------
 // Name: DialogAbout
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogAbout::DialogAbout(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogAbout) {
-	ui->setupUi(this);
-	ui->labelVersion->setText(tr("Version: %1<br>\n"
+DialogAbout::DialogAbout(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
+	ui.labelVersion->setText(tr("Version: %1<br>\n"
 	                             "Compiled: %2<br>\n"
 	                             "Git Commit: <a href=\"https://github.com/eteran/edb-debugger/commit/%3\">%3</a>").arg(edb::version, __DATE__, TOSTRING(GIT_BRANCH)));
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogAbout
-// Desc:
-//------------------------------------------------------------------------------
-DialogAbout::~DialogAbout() {
-	delete ui;
 }

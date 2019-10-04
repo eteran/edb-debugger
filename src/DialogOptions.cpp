@@ -28,9 +28,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QFontDialog>
 #include <QToolBox>
 
-#include "ui_DialogOptions.h"
-
 namespace {
+
 //------------------------------------------------------------------------------
 // Name: width_to_index
 // Desc:
@@ -51,16 +50,8 @@ int width_to_index(int n) {
 // Name: DialogOptions
 // Desc:
 //------------------------------------------------------------------------------
-DialogOptions::DialogOptions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogOptions)  {
-	ui->setupUi(this);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogOptions
-// Desc:
-//------------------------------------------------------------------------------
-DialogOptions::~DialogOptions() {
-	delete ui;
+DialogOptions::DialogOptions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
 }
 
 //------------------------------------------------------------------------------
@@ -80,9 +71,9 @@ QString DialogOptions::font_from_dialog(const QString &default_font) {
 void DialogOptions::addOptionsPage(QWidget *page) {
 
 	if(!toolbox_) {
-		delete ui->tabWidget->findChild<QLabel *>("label_plugins");
-		QWidget *const tab        = ui->tabWidget->findChild<QLabel *>("tab_plugins");
-		QGridLayout *const layout = ui->tabWidget->findChild<QGridLayout *>("tab_plugins_layout");
+		delete ui.tabWidget->findChild<QLabel *>("label_plugins");
+		QWidget *const tab        = ui.tabWidget->findChild<QLabel *>("tab_plugins");
+		QGridLayout *const layout = ui.tabWidget->findChild<QGridLayout *>("tab_plugins_layout");
 		toolbox_ = new QToolBox(tab);
 		layout->addWidget(toolbox_, 0, 0, 1, 1);
 	}
@@ -111,7 +102,7 @@ void DialogOptions::on_btnTTY_clicked() {
 		this,
 		tr("Choose Your Terminal Program"));
 
-	ui->txtTTY->setText(filename);
+	ui.txtTTY->setText(filename);
 }
 
 //------------------------------------------------------------------------------
@@ -122,7 +113,7 @@ void DialogOptions::on_btnSymbolDir_clicked() {
 	const QString s = directory_from_dialog();
 
 	if(!s.isEmpty()) {
-		ui->txtSymbolDir->setText(s);
+		ui.txtSymbolDir->setText(s);
 	}
 }
 
@@ -134,7 +125,7 @@ void DialogOptions::on_btnSessionDir_clicked() {
 	const QString s = directory_from_dialog();
 
 	if(!s.isEmpty()) {
-		ui->txtSessionDir->setText(s);
+		ui.txtSessionDir->setText(s);
 	}
 }
 
@@ -146,7 +137,7 @@ void DialogOptions::on_btnPluginDir_clicked() {
 	const QString s = directory_from_dialog();
 
 	if(!s.isEmpty()) {
-		ui->txtPluginDir->setText(s);
+		ui.txtPluginDir->setText(s);
 	}
 }
 
@@ -160,72 +151,72 @@ void DialogOptions::showEvent(QShowEvent *event) {
 
 	const Configuration &config = edb::v1::config();
 
-    ui->chkHexOffsets->setChecked(config.function_offsets_in_hex);
+	ui.chkHexOffsets->setChecked(config.function_offsets_in_hex);
 
-	ui->rdoSytntaxATT->setChecked(config.syntax == Configuration::ATT);
-	ui->rdoSytntaxIntel->setChecked(config.syntax != Configuration::ATT);
+	ui.rdoSytntaxATT->setChecked(config.syntax == Configuration::ATT);
+	ui.rdoSytntaxIntel->setChecked(config.syntax != Configuration::ATT);
 
-	ui->rdoDetach->setChecked(config.close_behavior == Configuration::Detach);
-	ui->rdoKill->setChecked(config.close_behavior == Configuration::Kill);
-	ui->rdoReverseCapture->setChecked(config.close_behavior == Configuration::KillIfLaunchedDetachIfAttached);
+	ui.rdoDetach->setChecked(config.close_behavior == Configuration::Detach);
+	ui.rdoKill->setChecked(config.close_behavior == Configuration::Kill);
+	ui.rdoReverseCapture->setChecked(config.close_behavior == Configuration::KillIfLaunchedDetachIfAttached);
 
-	ui->rdoBPEntry->setChecked(config.initial_breakpoint == Configuration::EntryPoint);
-	ui->rdoBPMain->setChecked(config.initial_breakpoint != Configuration::EntryPoint);
+	ui.rdoBPEntry->setChecked(config.initial_breakpoint == Configuration::EntryPoint);
+	ui.rdoBPMain->setChecked(config.initial_breakpoint != Configuration::EntryPoint);
 
-	ui->chkTTY->setChecked(config.tty_enabled);
-	ui->txtTTY->setText(config.tty_command);
+	ui.chkTTY->setChecked(config.tty_enabled);
+	ui.txtTTY->setText(config.tty_command);
 
-	ui->chkDeleteStaleSymbols->setChecked(config.remove_stale_symbols);
-	ui->chkDisableASLR->setChecked(config.disableASLR);
-	ui->chkDisableLazyBinding->setChecked(config.disableLazyBinding);
+	ui.chkDeleteStaleSymbols->setChecked(config.remove_stale_symbols);
+	ui.chkDisableASLR->setChecked(config.disableASLR);
+	ui.chkDisableLazyBinding->setChecked(config.disableLazyBinding);
 	
-	ui->chkBreakOnLibraryLoad->setChecked(config.break_on_library_load);
+	ui.chkBreakOnLibraryLoad->setChecked(config.break_on_library_load);
 
-	ui->chkZerosAreFilling->setChecked(config.zeros_are_filling);
-	ui->chkRegisterBadges->setChecked(config.show_register_badges);
-	ui->chkUppercase->setChecked(config.uppercase_disassembly);
-	ui->chkSyntaxHighlighting->setChecked(config.syntax_highlighting_enabled);
+	ui.chkZerosAreFilling->setChecked(config.zeros_are_filling);
+	ui.chkRegisterBadges->setChecked(config.show_register_badges);
+	ui.chkUppercase->setChecked(config.uppercase_disassembly);
+	ui.chkSyntaxHighlighting->setChecked(config.syntax_highlighting_enabled);
 
-	ui->chkFindMain->setChecked(config.find_main);
-	ui->chkWarnDataBreakpoint->setChecked(config.warn_on_no_exec_bp);
+	ui.chkFindMain->setChecked(config.find_main);
+	ui.chkWarnDataBreakpoint->setChecked(config.warn_on_no_exec_bp);
 
-	ui->spnMinString->setValue(config.min_string_length);
+	ui.spnMinString->setValue(config.min_string_length);
 
-	ui->stackFont->setCurrentFont(config.stack_font);
-	ui->dataFont->setCurrentFont(config.data_font);
-	ui->registerFont->setCurrentFont(config.registers_font);
-	ui->disassemblyFont->setCurrentFont(config.disassembly_font);
+	ui.stackFont->setCurrentFont(config.stack_font);
+	ui.dataFont->setCurrentFont(config.data_font);
+	ui.registerFont->setCurrentFont(config.registers_font);
+	ui.disassemblyFont->setCurrentFont(config.disassembly_font);
 
-	ui->txtSymbolDir->setText(config.symbol_path);
-	ui->txtPluginDir->setText(config.plugin_path);
-	ui->txtSessionDir->setText(config.session_path);
+	ui.txtSymbolDir->setText(config.symbol_path);
+	ui.txtPluginDir->setText(config.plugin_path);
+	ui.txtSessionDir->setText(config.session_path);
 
-	ui->chkDataShowAddress->setChecked(config.data_show_address);
-	ui->chkDataShowHex->setChecked(config.data_show_hex);
-	ui->chkDataShowAscii->setChecked(config.data_show_ascii);
-	ui->chkDataShowComments->setChecked(config.data_show_comments);
-	ui->cmbDataWordWidth->setCurrentIndex(width_to_index(config.data_word_width));
-	ui->cmbDataRowWidth->setCurrentIndex(width_to_index(config.data_row_width));
+	ui.chkDataShowAddress->setChecked(config.data_show_address);
+	ui.chkDataShowHex->setChecked(config.data_show_hex);
+	ui.chkDataShowAscii->setChecked(config.data_show_ascii);
+	ui.chkDataShowComments->setChecked(config.data_show_comments);
+	ui.cmbDataWordWidth->setCurrentIndex(width_to_index(config.data_word_width));
+	ui.cmbDataRowWidth->setCurrentIndex(width_to_index(config.data_row_width));
 
-	ui->chkAddressColon->setChecked(config.show_address_separator);
+	ui.chkAddressColon->setChecked(config.show_address_separator);
 
-	ui->signalsMessageBoxEnable->setChecked(config.enable_signals_message_box);
+	ui.signalsMessageBoxEnable->setChecked(config.enable_signals_message_box);
 
-	ui->chkTabBetweenMnemonicAndOperands->setChecked(config.tab_between_mnemonic_and_operands);
-	ui->chkShowLocalModuleName->setChecked(config.show_local_module_name_in_jump_targets);
-	ui->chkShowSymbolicAddresses->setChecked(config.show_symbolic_addresses);
-	ui->chkSimplifyRIPRelativeTargets->setChecked(config.simplify_rip_relative_targets);
+	ui.chkTabBetweenMnemonicAndOperands->setChecked(config.tab_between_mnemonic_and_operands);
+	ui.chkShowLocalModuleName->setChecked(config.show_local_module_name_in_jump_targets);
+	ui.chkShowSymbolicAddresses->setChecked(config.show_symbolic_addresses);
+	ui.chkSimplifyRIPRelativeTargets->setChecked(config.simplify_rip_relative_targets);
 
-	ui->rdoPlaceDefault ->setChecked(config.startup_window_location == Configuration::SystemDefault);
-	ui->rdoPlaceCentered->setChecked(config.startup_window_location == Configuration::Centered);
-	ui->rdoPlaceRestore ->setChecked(config.startup_window_location == Configuration::Restore);
+	ui.rdoPlaceDefault ->setChecked(config.startup_window_location == Configuration::SystemDefault);
+	ui.rdoPlaceCentered->setChecked(config.startup_window_location == Configuration::Centered);
+	ui.rdoPlaceRestore ->setChecked(config.startup_window_location == Configuration::Restore);
 	
-	ui->listIgnoredExceptions->clear();
+	ui.listIgnoredExceptions->clear();
 	if(edb::v1::debugger_core) {
 		QMap<qlonglong, QString> known_exceptions = edb::v1::debugger_core->exceptions();
 		
 		for(auto it = known_exceptions.begin(); it != known_exceptions.end(); ++it) {
-			auto item = new QListWidgetItem(*it, ui->listIgnoredExceptions);
+			auto item = new QListWidgetItem(*it, ui.listIgnoredExceptions);
 			item->setFlags(item->flags() | Qt::ItemIsUserCheckable);
 
             if(config.ignored_exceptions.contains(it.key())) {
@@ -239,7 +230,7 @@ void DialogOptions::showEvent(QShowEvent *event) {
 
 	if(IDebugger *core = edb::v1::debugger_core) {
 		const auto& bps = core->supported_breakpoint_types();
-		const auto combo=ui->cmbDefaultBreakpointType;
+		const auto combo=ui.cmbDefaultBreakpointType;
 		combo->clear();
 		const auto chosen=config.default_breakpoint_type;
 		for(const auto& type : bps) {
@@ -258,67 +249,67 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 
 	Configuration &config = edb::v1::config();
 
-	if(ui->rdoSytntaxIntel->isChecked()) {
+	if(ui.rdoSytntaxIntel->isChecked()) {
 		config.syntax = Configuration::Intel;
-	} else if(ui->rdoSytntaxATT->isChecked()) {
+	} else if(ui.rdoSytntaxATT->isChecked()) {
 		config.syntax = Configuration::ATT;
 	}
 
-	config.tab_between_mnemonic_and_operands=ui->chkTabBetweenMnemonicAndOperands->isChecked();
-	config.show_local_module_name_in_jump_targets=ui->chkShowLocalModuleName->isChecked();
-	config.show_symbolic_addresses=ui->chkShowSymbolicAddresses->isChecked();
-	config.simplify_rip_relative_targets=ui->chkSimplifyRIPRelativeTargets->isChecked();
+	config.tab_between_mnemonic_and_operands=ui.chkTabBetweenMnemonicAndOperands->isChecked();
+	config.show_local_module_name_in_jump_targets=ui.chkShowLocalModuleName->isChecked();
+	config.show_symbolic_addresses=ui.chkShowSymbolicAddresses->isChecked();
+	config.simplify_rip_relative_targets=ui.chkSimplifyRIPRelativeTargets->isChecked();
 
-	if(ui->rdoDetach->isChecked()) {
+	if(ui.rdoDetach->isChecked()) {
 		config.close_behavior = Configuration::Detach;
-	} else if(ui->rdoKill->isChecked()) {
+	} else if(ui.rdoKill->isChecked()) {
 		config.close_behavior = Configuration::Kill;
-	} else if(ui->rdoReverseCapture->isChecked()) {
+	} else if(ui.rdoReverseCapture->isChecked()) {
 		config.close_behavior = Configuration::KillIfLaunchedDetachIfAttached;
 	}
 
-	config.stack_font            = ui->stackFont->currentFont().toString();
-	config.data_font             = ui->dataFont->currentFont().toString();
-	config.registers_font        = ui->registerFont->currentFont().toString();
-	config.disassembly_font      = ui->disassemblyFont->currentFont().toString();
-	config.tty_command           = ui->txtTTY->text();
-	config.tty_enabled           = ui->chkTTY->isChecked();
-	config.remove_stale_symbols  = ui->chkDeleteStaleSymbols->isChecked();
-	config.disableASLR			 = ui->chkDisableASLR->isChecked();
-	config.disableLazyBinding	 = ui->chkDisableLazyBinding->isChecked();
-	config.break_on_library_load = ui->chkBreakOnLibraryLoad->isChecked();
-	config.default_breakpoint_type = ui->cmbDefaultBreakpointType->itemData(ui->cmbDefaultBreakpointType->currentIndex()).value<IBreakpoint::TypeId>();
+	config.stack_font            = ui.stackFont->currentFont().toString();
+	config.data_font             = ui.dataFont->currentFont().toString();
+	config.registers_font        = ui.registerFont->currentFont().toString();
+	config.disassembly_font      = ui.disassemblyFont->currentFont().toString();
+	config.tty_command           = ui.txtTTY->text();
+	config.tty_enabled           = ui.chkTTY->isChecked();
+	config.remove_stale_symbols  = ui.chkDeleteStaleSymbols->isChecked();
+	config.disableASLR			 = ui.chkDisableASLR->isChecked();
+	config.disableLazyBinding	 = ui.chkDisableLazyBinding->isChecked();
+	config.break_on_library_load = ui.chkBreakOnLibraryLoad->isChecked();
+	config.default_breakpoint_type = ui.cmbDefaultBreakpointType->itemData(ui.cmbDefaultBreakpointType->currentIndex()).value<IBreakpoint::TypeId>();
 
-    config.function_offsets_in_hex = ui->chkHexOffsets->isChecked();
+	config.function_offsets_in_hex = ui.chkHexOffsets->isChecked();
 
-	config.zeros_are_filling     = ui->chkZerosAreFilling->isChecked();
-	config.show_register_badges = ui->chkRegisterBadges->isChecked();
-	config.uppercase_disassembly = ui->chkUppercase->isChecked();
-	config.syntax_highlighting_enabled = ui->chkSyntaxHighlighting->isChecked();
+	config.zeros_are_filling     = ui.chkZerosAreFilling->isChecked();
+	config.show_register_badges = ui.chkRegisterBadges->isChecked();
+	config.uppercase_disassembly = ui.chkUppercase->isChecked();
+	config.syntax_highlighting_enabled = ui.chkSyntaxHighlighting->isChecked();
 
-	config.symbol_path           = ui->txtSymbolDir->text();
-	config.plugin_path           = ui->txtPluginDir->text();
-	config.session_path          = ui->txtSessionDir->text();
+	config.symbol_path           = ui.txtSymbolDir->text();
+	config.plugin_path           = ui.txtPluginDir->text();
+	config.session_path          = ui.txtSessionDir->text();
 
-	if(ui->rdoBPMain->isChecked()) {
+	if(ui.rdoBPMain->isChecked()) {
 		config.initial_breakpoint = Configuration::MainSymbol;
-	} else if(ui->rdoBPEntry->isChecked()) {
+	} else if(ui.rdoBPEntry->isChecked()) {
 		config.initial_breakpoint = Configuration::EntryPoint;
 	}
 
-	config.warn_on_no_exec_bp     = ui->chkWarnDataBreakpoint->isChecked();
-	config.find_main              = ui->chkFindMain->isChecked();
+	config.warn_on_no_exec_bp     = ui.chkWarnDataBreakpoint->isChecked();
+	config.find_main              = ui.chkFindMain->isChecked();
 
-	config.show_address_separator = ui->chkAddressColon->isChecked();
+	config.show_address_separator = ui.chkAddressColon->isChecked();
 
-	config.min_string_length      = ui->spnMinString->value();
+	config.min_string_length      = ui.spnMinString->value();
 
-	config.data_show_address  = ui->chkDataShowAddress->isChecked();
-	config.data_show_hex      = ui->chkDataShowHex->isChecked();
-	config.data_show_ascii    = ui->chkDataShowAscii->isChecked();
-	config.data_show_comments = ui->chkDataShowComments->isChecked();
-	config.data_word_width    = 1 << ui->cmbDataWordWidth->currentIndex();
-	config.data_row_width     = 1 << ui->cmbDataRowWidth->currentIndex();
+	config.data_show_address  = ui.chkDataShowAddress->isChecked();
+	config.data_show_hex      = ui.chkDataShowHex->isChecked();
+	config.data_show_ascii    = ui.chkDataShowAscii->isChecked();
+	config.data_show_comments = ui.chkDataShowComments->isChecked();
+	config.data_word_width    = 1 << ui.cmbDataWordWidth->currentIndex();
+	config.data_row_width     = 1 << ui.cmbDataRowWidth->currentIndex();
 
 	CapstoneEDB::Formatter::FormatOptions options = edb::v1::formatter().options();
 	options.capitalization = config.uppercase_disassembly ? CapstoneEDB::Formatter::UpperCase : CapstoneEDB::Formatter::LowerCase;
@@ -327,19 +318,19 @@ void DialogOptions::closeEvent(QCloseEvent *event) {
 	options.simplifyRIPRelativeTargets=config.simplify_rip_relative_targets;
 	edb::v1::formatter().setOptions(options);
 
-	config.enable_signals_message_box = ui->signalsMessageBoxEnable->isChecked();
+	config.enable_signals_message_box = ui.signalsMessageBoxEnable->isChecked();
 
-	if(ui->rdoPlaceDefault ->isChecked()) {
+	if(ui.rdoPlaceDefault ->isChecked()) {
 		config.startup_window_location = Configuration::SystemDefault;
-	} else if(ui->rdoPlaceCentered->isChecked()) {
+	} else if(ui.rdoPlaceCentered->isChecked()) {
 		config.startup_window_location = Configuration::Centered;
-	} else if(ui->rdoPlaceRestore ->isChecked()) {
+	} else if(ui.rdoPlaceRestore ->isChecked()) {
 		config.startup_window_location = Configuration::Restore;
 	}
 
     config.ignored_exceptions.clear();
-    for(int i = 0; i < ui->listIgnoredExceptions->count(); ++i) {
-        auto item = ui->listIgnoredExceptions->item(i);
+	for(int i = 0; i < ui.listIgnoredExceptions->count(); ++i) {
+		auto item = ui.listIgnoredExceptions->item(i);
         if(item->checkState() == Qt::Checked) {
             config.ignored_exceptions.push_back(item->data(Qt::UserRole).toLongLong());
         }

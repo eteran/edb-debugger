@@ -21,22 +21,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 
-class BinaryString;
+#include "ui_DialogInputBinaryString.h"
 
-namespace Ui { class DialogInputBinaryString; }
+class BinaryString;
 
 class DialogInputBinaryString : public QDialog {
 	Q_OBJECT
 
 public:
     explicit DialogInputBinaryString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~DialogInputBinaryString() override;
+	~DialogInputBinaryString() override = default;
 
 public:
 	BinaryString *binary_string() const;
 
 private:
-	Ui::DialogInputBinaryString *const ui;
+	Ui::DialogInputBinaryString ui;
 };
 
 #endif

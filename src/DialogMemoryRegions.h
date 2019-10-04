@@ -23,18 +23,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <memory>
 
+#include "ui_DialogMemoryRegions.h"
+
 class IRegion;
 
 class QSortFilterProxyModel;
 class QModelIndex;
 
-namespace Ui { class DialogMemoryRegions; }
-
 class DialogMemoryRegions : public QDialog {
 	Q_OBJECT
 public:
     explicit DialogMemoryRegions(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~DialogMemoryRegions() override;
+	~DialogMemoryRegions() override = default;
 
 private:
     void showEvent(QShowEvent *event) override;
@@ -59,8 +59,8 @@ private:
 	void set_permissions(bool read, bool write, bool execute);
 
 private:
-	Ui::DialogMemoryRegions *const ui;
-	QSortFilterProxyModel *        filter_model_;
+	Ui::DialogMemoryRegions ui;
+	QSortFilterProxyModel * filter_model_;
 };
 
 #endif

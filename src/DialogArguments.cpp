@@ -18,22 +18,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogArguments.h"
 #include <QListWidgetItem>
-#include "ui_DialogArguments.h"
 
 //------------------------------------------------------------------------------
 // Name: DialogArguments
 // Desc:
 //------------------------------------------------------------------------------
-DialogArguments::DialogArguments(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogArguments) {
-	ui->setupUi(this);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogArguments
-// Desc:
-//------------------------------------------------------------------------------
-DialogArguments::~DialogArguments() {
-	delete ui;
+DialogArguments::DialogArguments(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
 }
 
 //------------------------------------------------------------------------------
@@ -42,8 +33,8 @@ DialogArguments::~DialogArguments() {
 //------------------------------------------------------------------------------
 QList<QByteArray> DialogArguments::arguments() const {
 	QList<QByteArray> ret;
-	for(int i = 0; i < ui->listWidget->count(); ++i) {
-		ret << ui->listWidget->item(i)->text().toUtf8();
+	for(int i = 0; i < ui.listWidget->count(); ++i) {
+		ret << ui.listWidget->item(i)->text().toUtf8();
 	}
 	return ret;
 }
@@ -53,12 +44,12 @@ QList<QByteArray> DialogArguments::arguments() const {
 // Desc:
 //------------------------------------------------------------------------------
 void DialogArguments::set_arguments(const QList<QByteArray> &args) {
-	ui->listWidget->clear();
+	ui.listWidget->clear();
 
 	QStringList l;
 	for(const QByteArray &ba: args) {
 		l << QString::fromUtf8(ba.constData());
 	}
 
-	ui->listWidget->addItems(l);
+	ui.listWidget->addItems(l);
 }

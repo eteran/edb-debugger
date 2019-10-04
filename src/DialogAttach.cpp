@@ -26,8 +26,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHeaderView>
 #include <QSortFilterProxyModel>
 
-#include "ui_DialogAttach.h"
-
 #ifdef Q_OS_WIN32
 namespace {
 
@@ -62,8 +60,8 @@ bool isNumeric(const QString &s) {
 // Name: DialogAttach
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogAttach::DialogAttach(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogAttach) {
-	ui->setupUi(this);
+DialogAttach::DialogAttach(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
 
 	process_model_ = new ProcessModel(this);
 
@@ -77,15 +75,7 @@ DialogAttach::DialogAttach(QWidget *parent, Qt::WindowFlags f) : QDialog(parent,
 	process_pid_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
 	process_pid_filter_->setFilterKeyColumn(0);
 
-	ui->processes_table->setModel(process_pid_filter_);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogAttach
-// Desc:
-//------------------------------------------------------------------------------
-DialogAttach::~DialogAttach() {
-	delete ui;
+	ui.processes_table->setModel(process_pid_filter_);
 }
 
 //------------------------------------------------------------------------------
@@ -122,7 +112,7 @@ void DialogAttach::update_list() {
 		QMap<edb::pid_t, std::shared_ptr<IProcess>> procs = edb::v1::debugger_core->enumerate_processes();
 
 		const edb::uid_t user_id = getuid();
-		const bool filterUID = ui->filter_uid->isChecked();
+		const bool filterUID = ui.filter_uid->isChecked();
 
 		for(const std::shared_ptr<IProcess> &process: procs) {
 			if(!filterUID || process->uid() == user_id) {
@@ -133,10 +123,10 @@ void DialogAttach::update_list() {
 
 	if(selectedPid) {
 		const auto pid=selectedPid.value();
-		const auto*const model=ui->processes_table->model();
+		const auto*const model=ui.processes_table->model();
 		for(int row = 0; row<model->rowCount(); ++row) {
 			if(static_cast<edb::pid_t>(model->index(row,0).data().toUInt()) == pid) {
-				ui->processes_table->selectRow(row);
+				ui.processes_table->selectRow(row);
 			}
 		}
 	}
@@ -178,7 +168,7 @@ void DialogAttach::on_processes_table_doubleClicked(const QModelIndex&) {
 //------------------------------------------------------------------------------
 Result<edb::pid_t, QString> DialogAttach::selected_pid() const {
 
-	const QItemSelectionModel *const selModel = ui->processes_table->selectionModel();
+	const QItemSelectionModel *const selModel = ui.processes_table->selectionModel();
 	const QModelIndexList sel = selModel->selectedRows();
 
 	if(sel.size() == 1) {

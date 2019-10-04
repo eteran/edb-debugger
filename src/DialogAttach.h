@@ -24,6 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QDialog>
 #include <QTimer>
 
+#include "ui_DialogAttach.h"
+
 template <class T, class E>
 class Result;
 
@@ -31,14 +33,12 @@ class ProcessModel;
 class QSortFilterProxyModel;
 class QModelIndex;
 
-namespace Ui { class DialogAttach; }
-
 class DialogAttach final : public QDialog {
 	Q_OBJECT
 
 public:
     explicit DialogAttach(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~DialogAttach() override;
+	~DialogAttach() override = default;
 
 private:
     void showEvent(QShowEvent *event) override;
@@ -55,7 +55,7 @@ public:
 	Result<edb::pid_t, QString> selected_pid() const;
 
 private:
-	Ui::DialogAttach *const ui;
+	Ui::DialogAttach ui;
 	ProcessModel          *process_model_;
 	QSortFilterProxyModel *process_name_filter_;
 	QSortFilterProxyModel *process_pid_filter_;

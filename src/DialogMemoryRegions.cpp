@@ -29,28 +29,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QSortFilterProxyModel>
 #include <QString>
 
-#include "ui_DialogMemoryRegions.h"
-
 //------------------------------------------------------------------------------
 // Name: DialogMemoryRegions
 // Desc:
 //------------------------------------------------------------------------------
-DialogMemoryRegions::DialogMemoryRegions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogMemoryRegions) {
-	ui->setupUi(this);
+DialogMemoryRegions::DialogMemoryRegions(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
 
-	ui->regions_table->verticalHeader()->hide();
-	ui->regions_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
+	ui.regions_table->verticalHeader()->hide();
+	ui.regions_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 	filter_model_ = new QSortFilterProxyModel(this);
 
-	connect(ui->filter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogMemoryRegions
-// Desc:
-//------------------------------------------------------------------------------
-DialogMemoryRegions::~DialogMemoryRegions() {
-	delete ui;
+	connect(ui.filter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
 }
 
 //------------------------------------------------------------------------------
@@ -61,7 +51,7 @@ void DialogMemoryRegions::showEvent(QShowEvent *) {
 
 	filter_model_->setFilterKeyColumn(3);
 	filter_model_->setSourceModel(&edb::v1::memory_regions());
-	ui->regions_table->setModel(filter_model_);
+	ui.regions_table->setModel(filter_model_);
 }
 
 //------------------------------------------------------------------------------
@@ -86,7 +76,7 @@ void DialogMemoryRegions::on_regions_table_customContextMenuRequested(const QPoi
 	menu.addAction(tr("View in &CPU"), this, SLOT(view_in_cpu()));
 	menu.addAction(tr("View in &Stack"), this, SLOT(view_in_stack()));
 	menu.addAction(tr("View in &Dump"), this, SLOT(view_in_dump()));
-	menu.exec(ui->regions_table->mapToGlobal(pos));
+	menu.exec(ui.regions_table->mapToGlobal(pos));
 }
 
 //------------------------------------------------------------------------------
@@ -94,7 +84,7 @@ void DialogMemoryRegions::on_regions_table_customContextMenuRequested(const QPoi
 // Desc:
 //------------------------------------------------------------------------------
 std::shared_ptr<IRegion> DialogMemoryRegions::selected_region() const {
-	const QItemSelectionModel *const selModel = ui->regions_table->selectionModel();
+	const QItemSelectionModel *const selModel = ui.regions_table->selectionModel();
 	const QModelIndexList sel = selModel->selectedRows();
 	std::shared_ptr<IRegion> ret;
 	if(sel.size() == 1) {

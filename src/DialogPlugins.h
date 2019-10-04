@@ -21,10 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 
+#include "ui_DialogPlugins.h"
+
 class QSortFilterProxyModel;
 class PluginModel;
-
-namespace Ui { class DialogPlugins; }
 
 class DialogPlugins : public QDialog {
 	Q_OBJECT
@@ -33,13 +33,13 @@ public:
     explicit DialogPlugins(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	DialogPlugins(const DialogPlugins &)            = delete;
 	DialogPlugins& operator=(const DialogPlugins &) = delete;
-    ~DialogPlugins() override;
+	~DialogPlugins() override = default;
 
 public:
     void showEvent(QShowEvent *) override;
 
 private:
-	Ui::DialogPlugins *const ui;
+	Ui::DialogPlugins ui;
 	PluginModel           *plugin_model_;
 	QSortFilterProxyModel *plugin_filter_;
 };

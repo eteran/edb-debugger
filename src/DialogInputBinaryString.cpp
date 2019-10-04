@@ -18,22 +18,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include "DialogInputBinaryString.h"
 
-#include "ui_DialogInputBinaryString.h"
-
 //------------------------------------------------------------------------------
 // Name: DialogInputBinaryString
 // Desc: constructor
 //------------------------------------------------------------------------------
-DialogInputBinaryString::DialogInputBinaryString(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogInputBinaryString) {
-	ui->setupUi(this);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogInputBinaryString
-// Desc:
-//------------------------------------------------------------------------------
-DialogInputBinaryString::~DialogInputBinaryString() {
-	delete ui;
+DialogInputBinaryString::DialogInputBinaryString(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
 }
 
 //------------------------------------------------------------------------------
@@ -41,5 +31,5 @@ DialogInputBinaryString::~DialogInputBinaryString() {
 // Desc: returns the binary string we wrap around
 //------------------------------------------------------------------------------
 BinaryString *DialogInputBinaryString::binary_string() const {
-	return ui->binaryString;
+	return ui.binaryString;
 }

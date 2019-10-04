@@ -26,14 +26,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QHeaderView>
 #include <QSortFilterProxyModel>
 
-#include "ui_DialogThreads.h"
-
 //------------------------------------------------------------------------------
 // Name: DialogThreads
 // Desc:
 //------------------------------------------------------------------------------
-DialogThreads::DialogThreads(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogThreads) {
-	ui->setupUi(this);
+DialogThreads::DialogThreads(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
 
 	threads_model_ = new ThreadsModel(this);
 	threads_filter_ = new QSortFilterProxyModel(this);
@@ -41,19 +39,11 @@ DialogThreads::DialogThreads(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	threads_filter_->setSourceModel(threads_model_);
 	threads_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-	ui->thread_table->setModel(threads_filter_);
+	ui.thread_table->setModel(threads_filter_);
 
 	connect(edb::v1::debugger_ui, SIGNAL(debugEvent()), this, SLOT(updateThreads()));
 	connect(edb::v1::debugger_ui, SIGNAL(detachEvent()), this, SLOT(updateThreads()));
 	connect(edb::v1::debugger_ui, SIGNAL(attachEvent()), this, SLOT(updateThreads()));
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogThreads
-// Desc:
-//------------------------------------------------------------------------------
-DialogThreads::~DialogThreads() {
-	delete ui;
 }
 
 //------------------------------------------------------------------------------
@@ -101,5 +91,5 @@ void DialogThreads::updateThreads() {
 		}
 	}
 
-	ui->thread_table->horizontalHeader()->resizeSections(QHeaderView::Stretch);
+	ui.thread_table->horizontalHeader()->resizeSections(QHeaderView::Stretch);
 }

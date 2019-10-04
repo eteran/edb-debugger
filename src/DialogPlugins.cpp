@@ -24,14 +24,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include <QMetaClassInfo>
 #include <QSortFilterProxyModel>
 
-#include "ui_DialogPlugins.h"
-
 //------------------------------------------------------------------------------
 // Name: DialogPlugins
 // Desc:
 //------------------------------------------------------------------------------
-DialogPlugins::DialogPlugins(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f), ui(new Ui::DialogPlugins) {
-	ui->setupUi(this);
+DialogPlugins::DialogPlugins(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+	ui.setupUi(this);
 
 	plugin_model_  = new PluginModel(this);
 	plugin_filter_ = new QSortFilterProxyModel(this);
@@ -39,15 +37,7 @@ DialogPlugins::DialogPlugins(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	plugin_filter_->setSourceModel(plugin_model_);
 	plugin_filter_->setFilterCaseSensitivity(Qt::CaseInsensitive);
 
-	ui->plugins_table->setModel(plugin_filter_);
-}
-
-//------------------------------------------------------------------------------
-// Name: ~DialogPlugins
-// Desc:
-//------------------------------------------------------------------------------
-DialogPlugins::~DialogPlugins() {
-	delete ui;
+	ui.plugins_table->setModel(plugin_filter_);
 }
 
 //------------------------------------------------------------------------------
@@ -85,5 +75,5 @@ void DialogPlugins::showEvent(QShowEvent *) {
 		plugin_model_->addPlugin(filename, plugin_name, author, url);
 	}
 
-	ui->plugins_table->resizeColumnsToContents();
+	ui.plugins_table->resizeColumnsToContents();
 }

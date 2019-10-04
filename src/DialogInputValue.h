@@ -23,17 +23,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 #include <QDialog>
 
+#include "ui_DialogInputValue.h"
+
 class Register;
-
-
-namespace Ui { class DialogInputValue; }
 
 class DialogInputValue : public QDialog {
 	Q_OBJECT
 
 public:
     explicit DialogInputValue(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
-    ~DialogInputValue() override;
+	~DialogInputValue() override = default;
 
 public Q_SLOTS:
 	void on_hexInput_textEdited(const QString &);
@@ -45,7 +44,7 @@ public:
 	void set_value(Register &reg);
 
 private:
-	Ui::DialogInputValue *const ui;
+	Ui::DialogInputValue ui;
 	edb::reg_t mask;
 	std::size_t valueLength;
 };
