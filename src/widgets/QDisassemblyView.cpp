@@ -792,13 +792,13 @@ int QDisassemblyView::updateDisassembly(int lines_to_render) {
 //------------------------------------------------------------------------------
 int QDisassemblyView::getSelectedLineNumber() const {
 
-	int selected_line = 65535; // can't accidentally hit this
 	for(size_t line = 0; line < instructions_.size(); ++line) {
 		if (instructions_[line].rva() == selectedAddress()) {
-			selected_line = static_cast<int>(line);
+			return static_cast<int>(line);
 		}
 	}
-	return selected_line;
+
+	return 65535; // can't accidentally hit this;
 }
 
 //------------------------------------------------------------------------------
