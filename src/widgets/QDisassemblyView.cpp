@@ -1270,7 +1270,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 	});
 
 	// find suitable arrow horizontal width
-	for (int i = 0; i < (int) jump_arrow_vec.size(); i++) {
+	for (size_t i = 0; i < jump_arrow_vec.size(); i++) {
 
 		JumpArrow& jump_arrow = jump_arrow_vec[i];
 		bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
@@ -1282,7 +1282,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			bool is_width_good = true;
 
 			// check if width clash with previous jump arrow
-			for (int k = 0; k < i; k++) {
+			for (size_t k = 0; k < i; k++) {
 
 				JumpArrow& jump_arrow_prev = jump_arrow_vec[k];
 				bool is_dst_upward_prev = jump_arrow_prev.target < instructions_[jump_arrow_prev.src_line].rva();
@@ -1339,7 +1339,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 	IProcess* process = edb::v1::debugger_core->process();
 	process->current_thread()->get_state(&state);
 
-	for (int i = 0; i < (int) jump_arrow_vec.size(); i++) {
+	for (size_t i = 0; i < jump_arrow_vec.size(); i++) {
 
 		JumpArrow& jump_arrow = jump_arrow_vec[i];
 		bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
