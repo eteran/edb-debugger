@@ -1326,9 +1326,9 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 					bool cond1 = jump2_max >= jump1_max && jump2_min >= jump1_max;
 					bool cond2 = jump2_min <= jump1_min && jump2_max <= jump1_min;
-					bool is_jump_overlap = !(cond1 || cond2);	
+					bool is_jump_block_overlap = !(cond1 || cond2);	
 
-					if (is_jump_overlap && 
+					if (is_jump_block_overlap && 
 						j == jump_arrow_prev.horizontal_width) {
 						is_width_good = false;
 						break;
@@ -1344,22 +1344,21 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 				break;
 			}
 
-			// if no suitable horizontal width found, then take the leftmost width
+			// if no suitable horizontal width found, then width = from l1 until leftmost corner
 			if (jump_arrow.horizontal_width == -1) {
 				jump_arrow.horizontal_width = l1 - font_width_;
 			}
 
 		}
 
+		// get current process state
+		State state;
+		IProcess* process = edb::v1::debugger_core->process();
+		process->current_thread()->get_state(&state);
+
 		for (int i = 0; i < jump_arrow_vec.size(); i++) {
 
 			JumpArrow& jump_arrow = jump_arrow_vec[i];
-
-			// get current process state
-			State state;
-			IProcess* process = edb::v1::debugger_core->process();
-			process->current_thread()->get_state(&state);
-
 			bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
 			
 			// edges value in arrow line
