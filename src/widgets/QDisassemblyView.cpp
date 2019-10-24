@@ -1271,6 +1271,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 						// if jmp target not in viewpoint, its value should be near INT_MAX
 						jump_arrow.distance = std::abs(jump_arrow.dst_line - jump_arrow.src_line);
+						jump_arrow.horizontal_width = -1;  // will be recalculate back below
 
 						jump_arrow_vec.push_back(jump_arrow);
 					}
@@ -1285,10 +1286,74 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			return a.distance < b.distance;
 		});
 
-		int width_upward_outviewport = 0;
-		int width_downward_outviewport = 0;
+		// find suitable arrow horizontal width
+		for (int i = 0; i < jump_arrow_vec.size(); i++) {
 
-		for (const auto& jump_arrow : jump_arrow_vec) {
+			JumpArrow& jump_arrow = jump_arrow_vec[i];
+			bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
+
+			int size_block = font_width_ * 2;
+
+			for (int j = size_block; j < l1; j += size_block) {
+
+				bool is_width_good = true;
+
+				// check if width clash with previous jump arrow
+				for (int k = 0; k < i; k++) {
+
+					JumpArrow& jump_arrow_prev = jump_arrow_vec[k];
+					bool is_dst_upward_prev = jump_arrow_prev.target < instructions_[jump_arrow_prev.src_line].rva();
+
+					int jump1_min = std::min(
+						jump_arrow.src_line, 
+						jump_arrow.dst_in_viewport ? jump_arrow.dst_line : (is_dst_upward ? 0 : viewport()->height())
+					);
+
+					int jump1_max = std::max(
+						jump_arrow.src_line, 
+						jump_arrow.dst_in_viewport ? jump_arrow.dst_line : (is_dst_upward ? 0 : viewport()->height())
+					);
+
+					int jump2_min = std::min(
+						jump_arrow_prev.src_line, 
+						jump_arrow_prev.dst_in_viewport ? jump_arrow_prev.dst_line : (is_dst_upward_prev ? 0 : viewport()->height())
+					);
+					
+					int jump2_max = std::max(
+						jump_arrow_prev.src_line,
+						jump_arrow_prev.dst_in_viewport ? jump_arrow_prev.dst_line : (is_dst_upward_prev ? 0 : viewport()->height())
+					);
+
+					bool cond1 = jump2_max >= jump1_max && jump2_min >= jump1_max;
+					bool cond2 = jump2_min <= jump1_min && jump2_max <= jump1_min;
+					bool is_jump_overlap = !(cond1 || cond2);	
+
+					if (is_jump_overlap && 
+						j == jump_arrow_prev.horizontal_width) {
+						is_width_good = false;
+						break;
+					}
+				}
+
+				// `j` horizontal width is not good, search next
+				if (is_width_good == false) {
+					continue;
+				}
+
+				jump_arrow.horizontal_width = j;
+				break;
+			}
+
+			// if no suitable horizontal width found, then take the leftmost width
+			if (jump_arrow.horizontal_width == -1) {
+				jump_arrow.horizontal_width = l1 - font_width_;
+			}
+
+		}
+
+		for (int i = 0; i < jump_arrow_vec.size(); i++) {
+
+			JumpArrow& jump_arrow = jump_arrow_vec[i];
 
 			// get current process state
 			State state;
@@ -1296,27 +1361,10 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 			process->current_thread()->get_state(&state);
 
 			bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
-			int arrow_horizontal_length;
-			
-			if (jump_arrow.dst_in_viewport) {
-
-				arrow_horizontal_length = jump_arrow.distance * (font_width_ / 3);
-
-			} else if (is_dst_upward) {
-
-				arrow_horizontal_length = width_upward_outviewport + font_width_ * 2;
-				width_upward_outviewport = arrow_horizontal_length;  // update new width
-
-			} else {
-
-				arrow_horizontal_length = width_downward_outviewport + font_width_ * 2;
-				width_downward_outviewport = arrow_horizontal_length; // update new width
-
-			}
 			
 			// edges value in arrow line
 			int end_x = l1 - 3;
-			int start_x = end_x - arrow_horizontal_length;
+			int start_x = end_x - jump_arrow.horizontal_width;
 			int src_y = jump_arrow.src_line * line_height + (font_height_ / 2);
 			int dst_y = jump_arrow.dst_line * line_height + (font_height_ / 2);
 
