@@ -1339,9 +1339,8 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 	IProcess* process = edb::v1::debugger_core->process();
 	process->current_thread()->get_state(&state);
 
-	for (size_t i = 0; i < jump_arrow_vec.size(); i++) {
-
-		JumpArrow& jump_arrow = jump_arrow_vec[i];
+	for (const JumpArrow& jump_arrow : jump_arrow_vec) {
+		
 		bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
 		
 		// edges value in arrow line
