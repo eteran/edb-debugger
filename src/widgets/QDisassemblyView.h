@@ -45,6 +45,18 @@ class SyntaxHighlighter;
 class QDisassemblyView final : public QAbstractScrollArea {
 	Q_OBJECT
 
+private:
+	struct DrawingContext {
+		int l1;
+		int l2;
+		int l3;
+		int l4;
+		int lines_to_render;
+		int selected_line;
+		int line_height;
+		QPalette::ColorGroup group;
+	};
+
 public:
     explicit QDisassemblyView(QWidget *parent = nullptr);
 	~QDisassemblyView() override = default;
@@ -102,7 +114,8 @@ private:
 	edb::address_t address_from_coord(int x, int y) const;
 	int address_length() const;
 	int auto_line2() const;
-	int draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l2, int l3, bool selected);	
+	int draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l3, int l4, bool selected);
+	int line0() const;
 	int line1() const;
 	int line2() const;
 	int line3() const;
@@ -118,6 +131,17 @@ private:
 	void setAddressOffset(edb::address_t address);
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);
+
+	void drawHeaderAndBackground(QPainter &painter, const DrawingContext *ctx, const std::unique_ptr<IBinary> &binary_info);
+	int drawRegiserBadges(QPainter &painter, const DrawingContext *ctx);
+	void drawSymbolNames(QPainter &painter, const DrawingContext *ctx);
+	void drawSidebarElements(QPainter &painter, const DrawingContext *ctx);
+	void drawInstructionBytes(QPainter &painter, const DrawingContext *ctx);
+	void drawFunctionMarkers(QPainter &painter, const DrawingContext *ctx);
+	void drawComments(QPainter &painter, const DrawingContext *ctx);
+	void drawJumpArrows(QPainter &painter, const DrawingContext *ctx);
+	void drawDisassembly(QPainter &painter, const DrawingContext *ctx);
+	void drawDividers(QPainter &painter, const DrawingContext *ctx);
 
 private:
 	edb::address_t address_offset_               { 0 };
