@@ -1287,7 +1287,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		});
 
 		// find suitable arrow horizontal width
-		for (int i = 0; i < jump_arrow_vec.size(); i++) {
+		for (int i = 0; i < (int) jump_arrow_vec.size(); i++) {
 
 			JumpArrow& jump_arrow = jump_arrow_vec[i];
 			bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
@@ -1356,7 +1356,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		IProcess* process = edb::v1::debugger_core->process();
 		process->current_thread()->get_state(&state);
 
-		for (int i = 0; i < jump_arrow_vec.size(); i++) {
+		for (int i = 0; i < (int) jump_arrow_vec.size(); i++) {
 
 			JumpArrow& jump_arrow = jump_arrow_vec[i];
 			bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
