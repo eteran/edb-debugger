@@ -1369,7 +1369,8 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 
 		// if direct jmp is selected, then draw arrow in red
 		if (is_unconditional_jump(instructions_[jump_arrow.src_line]) && 
-			(ctx->selected_line == jump_arrow.src_line || ctx->selected_line == jump_arrow.dst_line)) {
+			(ctx->selected_line == jump_arrow.src_line || 
+			(ctx->selected_line == jump_arrow.dst_line && show_addresses_[jump_arrow.src_line] != current_address_ )) {
 			arrow_color = Qt::red;
 		}
 
