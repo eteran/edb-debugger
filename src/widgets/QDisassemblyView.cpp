@@ -1228,8 +1228,6 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *ctx) {
 	std::vector<JumpArrow> jump_arrow_vec;
 
-	painter.setRenderHint(QPainter::Antialiasing, true);
-
 	for (int line = 0; line < ctx->lines_to_render; ++line) {
 
 		auto &&inst = instructions_[line];
@@ -1339,6 +1337,9 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 	IProcess* process = edb::v1::debugger_core->process();
 	process->current_thread()->get_state(&state);
 
+	painter.save();
+	painter.setRenderHint(QPainter::Antialiasing, true);
+
 	for (const JumpArrow& jump_arrow : jump_arrow_vec) {
 
 		bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
@@ -1383,6 +1384,11 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			arrow_color = Qt::red;
 		}
 
+		// Align both 1px and 2px lines to pixel grid. This requires different offset in even-width and odd-width case.
+		const auto arrow_pixel_offset = std::fmod(arrow_width,2.)==1 ? 0.5 : 0;
+		painter.save();
+		painter.translate(arrow_pixel_offset, arrow_pixel_offset);
+
 		painter.setPen(QPen(arrow_color, arrow_width, arrow_style));
 
 		if (jump_arrow.dst_in_viewport) {
@@ -1391,7 +1397,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 				QPoint(end_x, src_y),
 				QPoint(start_x, src_y),
 				QPoint(start_x, dst_y),
-				QPoint(end_x, dst_y)
+				QPoint(end_x - font_width_/3, dst_y)
 			};
 
 			painter.drawPolyline(points, 4);
@@ -1409,7 +1415,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			QPoint points[] = {
 				QPoint(end_x, src_y),
 				QPoint(start_x, src_y),
-				QPoint(start_x, 0)
+				QPoint(start_x, font_width_/3)
 			};
 
 			painter.drawPolyline(points, 3);
@@ -1427,22 +1433,24 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			QPoint points[] = {
 				QPoint(end_x, src_y),
 				QPoint(start_x, src_y),
-				QPoint(start_x, viewport()->height())
+				QPoint(start_x, viewport()->height() - font_width_/3)
 			};
 
 			painter.drawPolyline(points, 3);
 
 			// draw arrow tips
 			QPainterPath path;
-			path.moveTo(start_x, viewport()->height());
-			path.lineTo(start_x - (font_width_/2), viewport()->height() - (font_height_/3));
-			path.lineTo(start_x + (font_width_/2), viewport()->height() - (font_height_/3));
-			path.lineTo(start_x, viewport()->height());
+			path.moveTo(start_x, viewport()->height() - 1);
+			path.lineTo(start_x - (font_width_/2), viewport()->height() - (font_height_/3) - 1);
+			path.lineTo(start_x + (font_width_/2), viewport()->height() - (font_height_/3) - 1);
+			path.lineTo(start_x, viewport()->height() - 1);
 			painter.fillPath(path, QBrush(arrow_color));
 		}
+
+		painter.restore();
 	}
 
-	painter.setRenderHint(QPainter::Antialiasing, false);
+	painter.restore();
 }
 
 //------------------------------------------------------------------------------
