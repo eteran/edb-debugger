@@ -131,7 +131,7 @@ private:
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);
 
-	int drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected);
+	void drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected);
 	void drawHeaderAndBackground(QPainter &painter, const DrawingContext *ctx, const std::unique_ptr<IBinary> &binary_info);
 	int drawRegiserBadges(QPainter &painter, const DrawingContext *ctx);
 	void drawSymbolNames(QPainter &painter, const DrawingContext *ctx);

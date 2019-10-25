@@ -617,11 +617,10 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 // Name: drawInstruction
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected) {
+void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected) {
 
 	const bool is_filling = edb::v1::arch_processor().is_filling(inst);
-	int x                 = font_width_ + font_width_ + ctx->l3 + (font_width_ / 2);
-	const int ret         = inst.byte_size();
+	const int x = font_width_ + font_width_ + ctx->l3 + (font_width_ / 2);
 	const int inst_pixel_width = ctx->l4 - x;
 
 	const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled && !selected;
@@ -701,8 +700,6 @@ int QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction 
 			painter.drawText(rectangle, Qt::AlignVCenter, opcode);
 		}
 	}
-
-	return ret;
 }
 
 //------------------------------------------------------------------------------
@@ -712,7 +709,7 @@ int QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction 
 //------------------------------------------------------------------------------
 void QDisassemblyView::paint_line_bg(QPainter& painter, QBrush brush, int line, int num_lines) {
 	const auto lh = line_height();
-	painter.fillRect(0, lh*line, width(), lh*num_lines, brush);
+	painter.fillRect(0, lh * line, width(), lh*num_lines, brush);
 }
 
 //------------------------------------------------------------------------------
