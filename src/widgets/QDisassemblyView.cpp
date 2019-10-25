@@ -1228,6 +1228,8 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *ctx) {
 	std::vector<JumpArrow> jump_arrow_vec;
 
+	painter.setRenderHint(QPainter::Antialiasing, true);
+
 	for (int line = 0; line < ctx->lines_to_render; ++line) {
 
 		auto &&inst = instructions_[line];
@@ -1395,19 +1397,12 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			painter.drawPolyline(points, 4);
 
 			// draw arrow tips
-			painter.setPen(QPen(arrow_color, arrow_width, Qt::SolidLine));
-			painter.drawLine(
-				end_x - (font_width_/3), 
-				dst_y - (font_height_/4), 
-				end_x, 
-				dst_y
-			);
-			painter.drawLine(
-				end_x - (font_width_/3), 
-				dst_y + (font_height_/4), 
-				end_x, 
-				dst_y
-			);
+			QPainterPath path;
+			path.moveTo(end_x, dst_y);
+			path.lineTo(end_x - (font_width_/2), dst_y - (font_height_/3));
+			path.lineTo(end_x - (font_width_/2), dst_y + (font_height_/3));
+			path.lineTo(end_x, dst_y);
+			painter.fillPath(path, QBrush(arrow_color));
 
 		} else if (is_dst_upward) {  // if dst out of viewport, and arrow facing upward
 
@@ -1420,19 +1415,12 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			painter.drawPolyline(points, 3);
 
 			// draw arrow tips
-			painter.setPen(QPen(arrow_color, arrow_width, Qt::SolidLine));
-			painter.drawLine(
-				start_x - (font_width_/3), 
-				font_height_/4, 
-				start_x, 
-				0
-			);
-			painter.drawLine(
-				start_x + (font_width_/3), 
-				font_height_/4, 
-				start_x, 
-				0
-			);
+			QPainterPath path;
+			path.moveTo(start_x, 0);
+			path.lineTo(start_x - (font_width_/2), font_height_/3);
+			path.lineTo(start_x + (font_width_/2), font_height_/3);
+			path.lineTo(start_x, 0);
+			painter.fillPath(path, QBrush(arrow_color));
 
 		} else { // if dst out of viewport, and arrow facing downward
 
@@ -1445,21 +1433,16 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			painter.drawPolyline(points, 3);
 
 			// draw arrow tips
-			painter.setPen(QPen(arrow_color, arrow_width, Qt::SolidLine));
-			painter.drawLine(
-				start_x - (font_width_/3), 
-				viewport()->height() - (font_height_/4), 
-				start_x, 
-				viewport()->height()
-			);
-			painter.drawLine(
-				start_x + (font_width_/3), 
-				viewport()->height() - (font_height_/4), 
-				start_x, 
-				viewport()->height()
-			);
+			QPainterPath path;
+			path.moveTo(start_x, viewport()->height());
+			path.lineTo(start_x - (font_width_/2), viewport()->height() - (font_height_/3));
+			path.lineTo(start_x + (font_width_/2), viewport()->height() - (font_height_/3));
+			path.lineTo(start_x, viewport()->height());
+			painter.fillPath(path, QBrush(arrow_color));
 		}
 	}
+
+	painter.setRenderHint(QPainter::Antialiasing, false);
 }
 
 //------------------------------------------------------------------------------
