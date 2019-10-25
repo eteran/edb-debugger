@@ -1228,6 +1228,8 @@ void QDisassemblyView::drawComments(QPainter &painter, const DrawingContext *ctx
 void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *ctx) {
 	std::vector<JumpArrow> jump_arrow_vec;
 
+	painter.setRenderHint(QPainter::Antialiasing, true);
+
 	for (int line = 0; line < ctx->lines_to_render; ++line) {
 
 		auto &&inst = instructions_[line];
@@ -1241,19 +1243,33 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 					jump_arrow.src_line = line;
 					jump_arrow.target = target;
 					jump_arrow.dst_in_viewport = false;
+					jump_arrow.dst_in_middle_of_instruction = false;
 					jump_arrow.dst_line = INT_MAX;
 
 					// check if dst address is in viewport
 					for (int i = 0; i < ctx->lines_to_render; ++i) {
+						
 						if (instructions_[i].rva() == target) {
 							jump_arrow.dst_line = i;
 							jump_arrow.dst_in_viewport = true;
 							break;
 						}
+
+						if (i < ctx->lines_to_render-1) {
+							// if target is in middle of instruction
+							if (target > instructions_[i].rva() && target < instructions_[i+1].rva()) {
+								jump_arrow.dst_line = i+1;
+								jump_arrow.dst_in_middle_of_instruction = true;
+								jump_arrow.dst_in_viewport = true;
+								break;
+							}
+						}
+
 					}
 
 					// if jmp target not in viewpoint, its value should be near INT_MAX
 					jump_arrow.distance = std::abs(jump_arrow.dst_line - jump_arrow.src_line);
+					jump_arrow.horizontal_length = -1;  // will be recalculate back below
 
 					jump_arrow_vec.push_back(jump_arrow);
 				}
@@ -1262,64 +1278,107 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 	}
 
 	// sort all jmp data in ascending order
-	std::sort(jump_arrow_vec.begin(), jump_arrow_vec.end(),
+	std::sort(jump_arrow_vec.begin(), jump_arrow_vec.end(), 
 		[](const JumpArrow& a, const JumpArrow& b) -> bool
-	{
+	{ 
 		return a.distance < b.distance;
 	});
 
-	int width_upward_outviewport = 0;
-	int width_downward_outviewport = 0;
+	// find suitable arrow horizontal length
+	for (size_t jump_arrow_idx = 0; jump_arrow_idx < jump_arrow_vec.size(); jump_arrow_idx++) {
 
-	for (const auto& jump_arrow : jump_arrow_vec) {
+		JumpArrow& jump_arrow = jump_arrow_vec[jump_arrow_idx];
+		bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
 
-		// get current process state
-		State state;
-		IProcess* process = edb::v1::debugger_core->process();
-		process->current_thread()->get_state(&state);
+		int size_block = font_width_ * 2;
+
+		// first-fit search for horizontal length position to place new arrow
+		for (int current_selected_len = size_block; ; current_selected_len += size_block) {
+
+			bool is_length_good = true;
+
+			int jump_arrow_dst = jump_arrow.dst_in_viewport ? jump_arrow.dst_line : (is_dst_upward ? 0 : viewport()->height());
+			int jump_arrow_min = std::min(jump_arrow.src_line, jump_arrow_dst);
+			int jump_arrow_max = std::max(jump_arrow.src_line, jump_arrow_dst);
+
+			// check if current arrow clashes with previous arrow
+			for (size_t jump_arrow_prev_idx = 0; jump_arrow_prev_idx < jump_arrow_idx; jump_arrow_prev_idx++) {
+
+				const JumpArrow& jump_arrow_prev = jump_arrow_vec[jump_arrow_prev_idx];
+				bool is_dst_upward_prev = jump_arrow_prev.target < instructions_[jump_arrow_prev.src_line].rva();
+
+				int jump_arrow_prev_dst = jump_arrow_prev.dst_in_viewport ? jump_arrow_prev.dst_line : (is_dst_upward_prev ? 0 : viewport()->height());
+				int jump_arrow_prev_min = std::min(jump_arrow_prev.src_line, jump_arrow_prev_dst);
+				int jump_arrow_prev_max = std::max(jump_arrow_prev.src_line, jump_arrow_prev_dst);
+
+				bool prevArrowAboveCurrArrow = jump_arrow_prev_max > jump_arrow_max && jump_arrow_prev_min > jump_arrow_max;
+				bool prevArrowBelowCurrArrow = jump_arrow_prev_min < jump_arrow_min && jump_arrow_prev_max < jump_arrow_min;
+
+				// is both conditions false? (which means these two jump arrows overlap)
+				bool jumps_overlap = !(prevArrowAboveCurrArrow || prevArrowBelowCurrArrow);	
+
+				// if jump blocks overlap and this horizontal length has been taken before
+				if (jumps_overlap && current_selected_len == jump_arrow_prev.horizontal_length) {
+					is_length_good = false;
+					break;
+				}
+			}
+
+			// current_selected_len is not good, search next
+			if (!is_length_good) {
+				continue;
+			}
+
+			jump_arrow.horizontal_length = current_selected_len;
+			break;
+		}
+	}
+
+	// get current process state
+	State state;
+	IProcess* process = edb::v1::debugger_core->process();
+	process->current_thread()->get_state(&state);
+
+	for (const JumpArrow& jump_arrow : jump_arrow_vec) {
 
 		bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
-		int arrow_horizontal_length;
-
-		if (jump_arrow.dst_in_viewport) {
-			arrow_horizontal_length = jump_arrow.distance * (font_width_ / 3);
-		} else if (is_dst_upward) {
-			arrow_horizontal_length = width_upward_outviewport + font_width_ * 2;
-			width_upward_outviewport = arrow_horizontal_length;  // update new width
-		} else {
-			arrow_horizontal_length = width_downward_outviewport + font_width_ * 2;
-			width_downward_outviewport = arrow_horizontal_length; // update new width
-		}
-
+		
 		// edges value in arrow line
 		int end_x = ctx->l1 - 3;
-		int start_x = end_x - arrow_horizontal_length;
+		int start_x = end_x - jump_arrow.horizontal_length;
 		int src_y = jump_arrow.src_line * ctx->line_height + (font_height_ / 2);
-		int dst_y = jump_arrow.dst_line * ctx->line_height + (font_height_ / 2);
+		int dst_y;
+		
+		if (jump_arrow.dst_in_middle_of_instruction) {
+			dst_y = jump_arrow.dst_line * ctx->line_height;
+		} else {
+			dst_y = jump_arrow.dst_line * ctx->line_height + (font_height_ / 2);
+		}
 
 		auto arrow_color = Qt::black;
 		auto arrow_width = 1.0;
 		auto arrow_style = Qt::DashLine;
 
-		if (ctx->selected_line == jump_arrow.src_line ||
+		if (ctx->selected_line == jump_arrow.src_line || 
 			ctx->selected_line == jump_arrow.dst_line) {
 			arrow_width = 2.0;  // enlarge arrow width
 		}
-
+		
 		// if direct jmp, then draw in solid line
 		if (is_unconditional_jump(instructions_[jump_arrow.src_line])) {
 			arrow_style = Qt::SolidLine;
 		}
 
 		// if direct jmp is selected, then draw arrow in red
-		if (is_unconditional_jump(instructions_[jump_arrow.src_line]) &&
-			(ctx->selected_line == jump_arrow.src_line || ctx->selected_line == jump_arrow.dst_line)) {
+		if (is_unconditional_jump(instructions_[jump_arrow.src_line]) && 
+			(ctx->selected_line == jump_arrow.src_line || 
+			(ctx->selected_line == jump_arrow.dst_line && show_addresses_[jump_arrow.dst_line] != current_address_ ))) {
 			arrow_color = Qt::red;
 		}
 
 		// if current conditional jump is taken, then draw arrow in red
 		if(show_addresses_[jump_arrow.src_line] == current_address_ &&  // if eip
-			is_conditional_jump(instructions_[jump_arrow.src_line]) &&
+			is_conditional_jump(instructions_[jump_arrow.src_line]) && 
 			edb::v1::arch_processor().is_executed(instructions_[jump_arrow.src_line], state)) {
 			arrow_color = Qt::red;
 		}
@@ -1338,19 +1397,12 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			painter.drawPolyline(points, 4);
 
 			// draw arrow tips
-			painter.setPen(QPen(arrow_color, arrow_width, Qt::SolidLine));
-			painter.drawLine(
-				end_x - (font_width_/3),
-				dst_y - (font_height_/4),
-				end_x,
-				dst_y
-			);
-			painter.drawLine(
-				end_x - (font_width_/3),
-				dst_y + (font_height_/4),
-				end_x,
-				dst_y
-			);
+			QPainterPath path;
+			path.moveTo(end_x, dst_y);
+			path.lineTo(end_x - (font_width_/2), dst_y - (font_height_/3));
+			path.lineTo(end_x - (font_width_/2), dst_y + (font_height_/3));
+			path.lineTo(end_x, dst_y);
+			painter.fillPath(path, QBrush(arrow_color));
 
 		} else if (is_dst_upward) {  // if dst out of viewport, and arrow facing upward
 
@@ -1363,19 +1415,12 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			painter.drawPolyline(points, 3);
 
 			// draw arrow tips
-			painter.setPen(QPen(arrow_color, arrow_width, Qt::SolidLine));
-			painter.drawLine(
-				start_x - (font_width_/3),
-				font_height_/4,
-				start_x,
-				0
-			);
-			painter.drawLine(
-				start_x + (font_width_/3),
-				font_height_/4,
-				start_x,
-				0
-			);
+			QPainterPath path;
+			path.moveTo(start_x, 0);
+			path.lineTo(start_x - (font_width_/2), font_height_/3);
+			path.lineTo(start_x + (font_width_/2), font_height_/3);
+			path.lineTo(start_x, 0);
+			painter.fillPath(path, QBrush(arrow_color));
 
 		} else { // if dst out of viewport, and arrow facing downward
 
@@ -1388,21 +1433,16 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			painter.drawPolyline(points, 3);
 
 			// draw arrow tips
-			painter.setPen(QPen(arrow_color, arrow_width, Qt::SolidLine));
-			painter.drawLine(
-				start_x - (font_width_/3),
-				viewport()->height() - font_height_/4,
-				start_x,
-				viewport()->height()
-			);
-			painter.drawLine(
-				start_x + (font_width_/3),
-				viewport()->height() - font_height_/4,
-				start_x,
-				viewport()->height()
-			);
+			QPainterPath path;
+			path.moveTo(start_x, viewport()->height());
+			path.lineTo(start_x - (font_width_/2), viewport()->height() - (font_height_/3));
+			path.lineTo(start_x + (font_width_/2), viewport()->height() - (font_height_/3));
+			path.lineTo(start_x, viewport()->height());
+			painter.fillPath(path, QBrush(arrow_color));
 		}
 	}
+
+	painter.setRenderHint(QPainter::Antialiasing, false);
 }
 
 //------------------------------------------------------------------------------
@@ -1456,8 +1496,6 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	timer.start();
 
 	QPainter painter(viewport());
-	painter.setRenderHint(QPainter::Antialiasing);
-	painter.setRenderHint(QPainter::HighQualityAntialiasing);
 
 	const int line_height = this->line_height();
 	int lines_to_render = viewport()->height() / line_height;
