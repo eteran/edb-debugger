@@ -1254,7 +1254,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 
 					// if jmp target not in viewpoint, its value should be near INT_MAX
 					jump_arrow.distance = std::abs(jump_arrow.dst_line - jump_arrow.src_line);
-					jump_arrow.horizontal_width = -1;  // will be recalculate back below
+					jump_arrow.horizontal_length = -1;  // will be recalculate back below
 
 					jump_arrow_vec.push_back(jump_arrow);
 				}
@@ -1269,69 +1269,57 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		return a.distance < b.distance;
 	});
 
-	// find suitable arrow horizontal width
-	for (size_t i = 0; i < jump_arrow_vec.size(); i++) {
+	// find suitable arrow horizontal length
+	for (size_t jump_arrow_idx = 0; jump_arrow_idx < jump_arrow_vec.size(); jump_arrow_idx++) {
 
-		JumpArrow& jump_arrow = jump_arrow_vec[i];
+		JumpArrow& jump_arrow = jump_arrow_vec[jump_arrow_idx];
 		bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
 
 		int size_block = font_width_ * 2;
 
-		for (int j = size_block; j < ctx->l1; j += size_block) {
+		// first-fit search for horizontal length position to place new arrow
+		for (int current_selected_len = size_block; ; current_selected_len += size_block) {
 
-			bool is_width_good = true;
+			bool is_length_good = true;
 
-			// check if width clash with previous jump arrow
-			for (size_t k = 0; k < i; k++) {
+			int jump_arrow_dst = jump_arrow.dst_in_viewport ? jump_arrow.dst_line : (is_dst_upward ? 0 : viewport()->height());
+			int jump_arrow_min = std::min(jump_arrow.src_line, jump_arrow_dst);
+			int jump_arrow_max = std::max(jump_arrow.src_line, jump_arrow_dst);
 
-				JumpArrow& jump_arrow_prev = jump_arrow_vec[k];
+			// check if current arrow clashes with previous arrow
+			for (size_t jump_arrow_prev_idx = 0; jump_arrow_prev_idx < jump_arrow_idx; jump_arrow_prev_idx++) {
+
+				const JumpArrow& jump_arrow_prev = jump_arrow_vec[jump_arrow_prev_idx];
 				bool is_dst_upward_prev = jump_arrow_prev.target < instructions_[jump_arrow_prev.src_line].rva();
 
-				int jump1_min = std::min(
-					jump_arrow.src_line, 
-					jump_arrow.dst_in_viewport ? jump_arrow.dst_line : (is_dst_upward ? 0 : viewport()->height())
-				);
+				int jump_arrow_prev_dst = jump_arrow_prev.dst_in_viewport ? jump_arrow_prev.dst_line : (is_dst_upward_prev ? 0 : viewport()->height());
+				int jump_arrow_prev_min = std::min(jump_arrow_prev.src_line, jump_arrow_prev_dst);
+				int jump_arrow_prev_max = std::max(jump_arrow_prev.src_line, jump_arrow_prev_dst);
 
-				int jump1_max = std::max(
-					jump_arrow.src_line, 
-					jump_arrow.dst_in_viewport ? jump_arrow.dst_line : (is_dst_upward ? 0 : viewport()->height())
-				);
+				// is jump_arrow_prev is on top of jump_arrow
+				bool cond1 = jump_arrow_prev_max > jump_arrow_max && jump_arrow_prev_min > jump_arrow_max;
 
-				int jump2_min = std::min(
-					jump_arrow_prev.src_line, 
-					jump_arrow_prev.dst_in_viewport ? jump_arrow_prev.dst_line : (is_dst_upward_prev ? 0 : viewport()->height())
-				);
-				
-				int jump2_max = std::max(
-					jump_arrow_prev.src_line,
-					jump_arrow_prev.dst_in_viewport ? jump_arrow_prev.dst_line : (is_dst_upward_prev ? 0 : viewport()->height())
-				);
+				// is jump_arrow_prev is on bottom of jump_arrow
+				bool cond2 = jump_arrow_prev_min < jump_arrow_min && jump_arrow_prev_max < jump_arrow_min;
 
-				bool cond1 = jump2_max >= jump1_max && jump2_min >= jump1_max;
-				bool cond2 = jump2_min <= jump1_min && jump2_max <= jump1_min;
-				bool is_jump_block_overlap = !(cond1 || cond2);	
+				// is both conditions false? (which means these two jump arrows overlap)
+				bool jumps_overlap = !(cond1 || cond2);	
 
-				if (is_jump_block_overlap && 
-					j == jump_arrow_prev.horizontal_width) {
-					is_width_good = false;
+				// if jump blocks overlap and this horizontal length has been taken before
+				if (jumps_overlap && current_selected_len == jump_arrow_prev.horizontal_length) {
+					is_length_good = false;
 					break;
 				}
 			}
 
-			// `j` horizontal width is not good, search next
-			if (is_width_good == false) {
+			// current_selected_len is not good, search next
+			if (!is_length_good) {
 				continue;
 			}
 
-			jump_arrow.horizontal_width = j;
+			jump_arrow.horizontal_length = current_selected_len;
 			break;
 		}
-
-		// if no suitable horizontal width found, then width = from l1 until leftmost corner
-		if (jump_arrow.horizontal_width == -1) {
-			jump_arrow.horizontal_width = ctx->l1 - font_width_;
-		}
-
 	}
 
 	// get current process state
@@ -1340,12 +1328,12 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 	process->current_thread()->get_state(&state);
 
 	for (const JumpArrow& jump_arrow : jump_arrow_vec) {
-		
+
 		bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
 		
 		// edges value in arrow line
 		int end_x = ctx->l1 - 3;
-		int start_x = end_x - jump_arrow.horizontal_width;
+		int start_x = end_x - jump_arrow.horizontal_length;
 		int src_y = jump_arrow.src_line * ctx->line_height + (font_height_ / 2);
 		int dst_y = jump_arrow.dst_line * ctx->line_height + (font_height_ / 2);
 
@@ -1443,13 +1431,13 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			painter.setPen(QPen(arrow_color, arrow_width, Qt::SolidLine));
 			painter.drawLine(
 				start_x - (font_width_/3), 
-				viewport()->height() - font_height_/4, 
+				viewport()->height() - (font_height_/4), 
 				start_x, 
 				viewport()->height()
 			);
 			painter.drawLine(
 				start_x + (font_width_/3), 
-				viewport()->height() - font_height_/4, 
+				viewport()->height() - (font_height_/4), 
 				start_x, 
 				viewport()->height()
 			);
@@ -1508,8 +1496,6 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	timer.start();
 
 	QPainter painter(viewport());
-	painter.setRenderHint(QPainter::Antialiasing);
-	painter.setRenderHint(QPainter::HighQualityAntialiasing);
 
 	const int line_height = this->line_height();
 	int lines_to_render = viewport()->height() / line_height;

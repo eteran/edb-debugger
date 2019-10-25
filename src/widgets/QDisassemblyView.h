@@ -194,7 +194,8 @@ private:
 		// if dst_in_viewport is false, then the value here should be near INT_MAX
 		size_t distance;
 
-		int horizontal_width;
+		// length of arrow horizontal
+		int horizontal_length;
 	};
 };
 
