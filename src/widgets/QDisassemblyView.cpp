@@ -1253,9 +1253,9 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 							break;
 						}
 
-						if (i > 0 && i < ctx->lines_to_render-1) {
+						if (i < ctx->lines_to_render-1) {
 							// if target is in middle of instruction
-							if (target > instructions_[i-1].rva() && target < instructions_[i+1].rva()) {
+							if (target > instructions_[i].rva() && target < instructions_[i+1].rva()) {
 								jump_arrow.dst_line = i+1;
 								jump_arrow.dst_in_middle_of_instruction = true;
 								jump_arrow.dst_in_viewport = true;
