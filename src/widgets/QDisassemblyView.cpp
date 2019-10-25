@@ -1309,14 +1309,11 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 				int jump_arrow_prev_min = std::min(jump_arrow_prev.src_line, jump_arrow_prev_dst);
 				int jump_arrow_prev_max = std::max(jump_arrow_prev.src_line, jump_arrow_prev_dst);
 
-				// is jump_arrow_prev is on top of jump_arrow
-				bool cond1 = jump_arrow_prev_max > jump_arrow_max && jump_arrow_prev_min > jump_arrow_max;
-
-				// is jump_arrow_prev is on bottom of jump_arrow
-				bool cond2 = jump_arrow_prev_min < jump_arrow_min && jump_arrow_prev_max < jump_arrow_min;
+				bool prevArrowAboveCurrArrow = jump_arrow_prev_max > jump_arrow_max && jump_arrow_prev_min > jump_arrow_max;
+				bool prevArrowBelowCurrArrow = jump_arrow_prev_min < jump_arrow_min && jump_arrow_prev_max < jump_arrow_min;
 
 				// is both conditions false? (which means these two jump arrows overlap)
-				bool jumps_overlap = !(cond1 || cond2);	
+				bool jumps_overlap = !(prevArrowAboveCurrArrow || prevArrowBelowCurrArrow);	
 
 				// if jump blocks overlap and this horizontal length has been taken before
 				if (jumps_overlap && current_selected_len == jump_arrow_prev.horizontal_length) {
