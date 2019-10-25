@@ -614,15 +614,15 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 }
 
 //------------------------------------------------------------------------------
-// Name: draw_instruction
+// Name: drawInstruction
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l3, int l4, bool selected) {
+int QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected) {
 
 	const bool is_filling = edb::v1::arch_processor().is_filling(inst);
-	int x                 = font_width_ + font_width_ + l3 + (font_width_ / 2);
+	int x                 = font_width_ + font_width_ + ctx->l3 + (font_width_ / 2);
 	const int ret         = inst.byte_size();
-	const int inst_pixel_width = l4 - x;
+	const int inst_pixel_width = ctx->l4 - x;
 
 	const bool syntax_highlighting_enabled = edb::v1::config().syntax_highlighting_enabled && !selected;
 
@@ -639,7 +639,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 			x,
 			y,
 			opcode.length() * font_width_,
-			line_height,
+			ctx->line_height,
 			Qt::AlignVCenter,
 			opcode);
 	} else {
@@ -684,7 +684,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 
 				textLayout.endLayout();
 
-				map = new QPixmap(QSize(opcode.length() * font_width_, line_height) * devicePixelRatio());
+				map = new QPixmap(QSize(opcode.length() * font_width_, ctx->line_height) * devicePixelRatio());
 				map->setDevicePixelRatio(devicePixelRatio());
 				map->fill(Qt::transparent);
 				QPainter cache_painter(map);
@@ -697,7 +697,7 @@ int QDisassemblyView::draw_instruction(QPainter &painter, const edb::Instruction
 			}
 			painter.drawPixmap(x, y, *map);
 		} else {
-			QRectF rectangle(x, y, opcode.length() * font_width_, line_height);
+			QRectF rectangle(x, y, opcode.length() * font_width_, ctx->line_height);
 			painter.drawText(rectangle, Qt::AlignVCenter, opcode);
 		}
 	}
@@ -1464,10 +1464,10 @@ void QDisassemblyView::drawDisassembly(QPainter &painter, const DrawingContext *
 		// syntax highlighting
 		if (ctx->selected_line == line) {
 			painter.setPen(palette().color(ctx->group, QPalette::HighlightedText));
-			draw_instruction(painter, instructions_[line], line * ctx->line_height, ctx->line_height, ctx->l3, ctx->l4, true);
+			drawInstruction(painter, instructions_[line], ctx, line * ctx->line_height, true);
 		} else {
 			painter.setPen(palette().color(ctx->group, QPalette::Text));
-			draw_instruction(painter, instructions_[line], line * ctx->line_height, ctx->line_height, ctx->l3, ctx->l4, false);
+			drawInstruction(painter, instructions_[line], ctx, line * ctx->line_height, false);
 		}
 	}
 }

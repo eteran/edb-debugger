@@ -113,8 +113,7 @@ private:
 	boost::optional<unsigned int> get_line_of_address(edb::address_t addr) const;
 	edb::address_t address_from_coord(int x, int y) const;
 	int address_length() const;
-	int auto_line2() const;
-	int draw_instruction(QPainter &painter, const edb::Instruction &inst, int y, int line_height, int l3, int l4, bool selected);
+	int auto_line2() const;	
 	int line0() const;
 	int line1() const;
 	int line2() const;
@@ -132,6 +131,7 @@ private:
 	void updateScrollbars();
 	void updateSelectedAddress(QMouseEvent *event);
 
+	int drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected);
 	void drawHeaderAndBackground(QPainter &painter, const DrawingContext *ctx, const std::unique_ptr<IBinary> &binary_info);
 	int drawRegiserBadges(QPainter &painter, const DrawingContext *ctx);
 	void drawSymbolNames(QPainter &painter, const DrawingContext *ctx);
