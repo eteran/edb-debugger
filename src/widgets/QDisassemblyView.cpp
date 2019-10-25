@@ -1241,15 +1241,28 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 					jump_arrow.src_line = line;
 					jump_arrow.target = target;
 					jump_arrow.dst_in_viewport = false;
+					jump_arrow.dst_in_middle_of_instruction = false;
 					jump_arrow.dst_line = INT_MAX;
 
 					// check if dst address is in viewport
 					for (int i = 0; i < ctx->lines_to_render; ++i) {
+						
 						if (instructions_[i].rva() == target) {
 							jump_arrow.dst_line = i;
 							jump_arrow.dst_in_viewport = true;
 							break;
 						}
+
+						if (i > 0 && i < ctx->lines_to_render-1) {
+							// if target is in middle of instruction
+							if (target > instructions_[i-1].rva() && target < instructions_[i+1].rva()) {
+								jump_arrow.dst_line = i+1;
+								jump_arrow.dst_in_middle_of_instruction = true;
+								jump_arrow.dst_in_viewport = true;
+								break;
+							}
+						}
+
 					}
 
 					// if jmp target not in viewpoint, its value should be near INT_MAX
@@ -1335,7 +1348,13 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		int end_x = ctx->l1 - 3;
 		int start_x = end_x - jump_arrow.horizontal_length;
 		int src_y = jump_arrow.src_line * ctx->line_height + (font_height_ / 2);
-		int dst_y = jump_arrow.dst_line * ctx->line_height + (font_height_ / 2);
+		int dst_y;
+		
+		if (jump_arrow.dst_in_middle_of_instruction) {
+			dst_y = jump_arrow.dst_line * ctx->line_height;
+		} else {
+			dst_y = jump_arrow.dst_line * ctx->line_height + (font_height_ / 2);
+		}
 
 		auto arrow_color = Qt::black;
 		auto arrow_width = 1.0;

@@ -188,6 +188,9 @@ private:
 		// if target is visible in viewport
 		bool dst_in_viewport;
 
+		// only valid is dst_in_viewport is true
+		bool dst_in_middle_of_instruction;
+
 		// if dst_in_viewport is false, then this param is ignored
 		int dst_line;
 
