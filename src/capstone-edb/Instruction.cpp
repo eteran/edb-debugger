@@ -314,7 +314,8 @@ QString Formatter::adjustInstructionText(const Instruction &insn) const {
 		operands.replace(ripRel, "rel 0x" + QString::number(insn->detail->x86.disp + insn->address + insn->size, 16));
 	}
 
-	if (insn.operand_count() == 2 && ((insn[0]->type == X86_OP_REG && insn[1]->type == X86_OP_MEM) || (insn[1]->type == X86_OP_REG && insn[0]->type == X86_OP_MEM))) {
+	if (insn.operand_count() == 2 && insn->id != X86_INS_MOVZX && insn->id != X86_INS_MOVSX &&
+		((insn[0]->type == X86_OP_REG && insn[1]->type == X86_OP_MEM) || (insn[1]->type == X86_OP_REG && insn[0]->type == X86_OP_MEM))) {
 		operands.replace(QRegExp("(\\b.?(mm)?word|byte)\\b( ptr)? "), "");
 	}
 #endif
