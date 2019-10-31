@@ -53,14 +53,14 @@ public:
 	virtual IDebugEvent *clone() const = 0;
 
 public:
-	virtual Message error_description() const = 0;
+	virtual Message errorDescription() const = 0;
 	virtual REASON reason() const = 0;
-	virtual TRAP_REASON trap_reason() const = 0;
+	virtual TRAP_REASON trapReason() const = 0;
 	virtual bool exited() const = 0;
-	virtual bool is_error() const = 0;
-	virtual bool is_kill() const = 0;
-	virtual bool is_stop() const = 0;
-	virtual bool is_trap() const = 0;
+	virtual bool isError() const = 0;
+	virtual bool isKill() const = 0;
+	virtual bool isStop() const = 0;
+	virtual bool isTrap() const = 0;
 	virtual bool stopped() const = 0;
 	virtual bool terminated() const = 0;
 	virtual edb::pid_t process() const = 0;

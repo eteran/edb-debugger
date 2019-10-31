@@ -41,14 +41,14 @@ public:
 	IDebugEvent *clone() const override;
 
 public:
-	Message error_description() const override;
+	Message errorDescription() const override;
 	REASON reason() const override;
-	TRAP_REASON trap_reason() const override;
+	TRAP_REASON trapReason() const override;
 	bool exited() const override;
-	bool is_error() const override;
-	bool is_kill() const override;
-	bool is_stop() const override;
-	bool is_trap() const override;
+	bool isError() const override;
+	bool isKill() const override;
+	bool isStop() const override;
+	bool isTrap() const override;
 	bool stopped() const override;
 	bool terminated() const override;
 	edb::pid_t process() const override;

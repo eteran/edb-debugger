@@ -71,8 +71,8 @@ private:
 	bool      inLayout_  = false;
 	QLayout  *HUDLayout_ = nullptr;
 	QLabel   *HUDLabel_  = nullptr;
-	GVC_t    *context_;
-	Agraph_t *graph_;
+	GVC_t    *context_   = nullptr;
+	Agraph_t *graph_     = nullptr;
 };
 
 #endif

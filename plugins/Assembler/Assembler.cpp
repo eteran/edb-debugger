@@ -47,7 +47,7 @@ Assembler::~Assembler() {
 // Name: cpu_context_menu
 // Desc:
 //------------------------------------------------------------------------------
-QList<QAction *> Assembler::cpu_context_menu() {
+QList<QAction *> Assembler::cpuContextMenu() {
 
 	QList<QAction *> ret;
 
@@ -80,7 +80,7 @@ void Assembler::show_dialog() {
 	}
 
 	const edb::address_t address = edb::v1::cpu_selected_address();
-	if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().find_region(address)) {
+	if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().findRegion(address)) {
 		if(auto d = qobject_cast<DialogAssembler *>(dialog_)) {
 			d->set_address(address);
 		}
@@ -92,7 +92,7 @@ void Assembler::show_dialog() {
 // Name: options_page
 // Desc:
 //------------------------------------------------------------------------------
-QWidget *Assembler::options_page() {
+QWidget *Assembler::optionsPage() {
 	return new OptionsPage;
 }
 

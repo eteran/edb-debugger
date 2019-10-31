@@ -43,12 +43,13 @@ private Q_SLOTS:
 
 protected:
 	bool eventFilter(QObject*, QEvent*) override;
+
 private:	
 	Register reg;
 
-	edb::value80                         value_;
-	ODbgRegisterView::Float80Edit *const floatEntry;
-	QLineEdit *const                     hexEntry;
+	edb::value80                   value_;
+	ODbgRegisterView::Float80Edit *floatEntry;
+	QLineEdit                     *hexEntry;
 };
 
 }

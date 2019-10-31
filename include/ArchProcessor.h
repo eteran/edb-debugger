@@ -41,25 +41,25 @@ public:
 	~ArchProcessor() override                       = default;
 
 public:
-	QStringList update_instruction_info(edb::address_t address);
-	bool can_step_over(const edb::Instruction &inst) const;
-	bool is_filling(const edb::Instruction &inst) const;
+	QStringList updateInstructionInfo(edb::address_t address);
+	bool canStepOver(const edb::Instruction &inst) const;
+	bool isFilling(const edb::Instruction &inst) const;
 	//! Checks whether potentially conditional instruction's condition is satisfied
-	bool is_executed(const edb::Instruction &inst, const State &state) const;
-	Result<edb::address_t, QString> get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state) const;
-	edb::address_t get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool& ok) const;
+	bool isExecuted(const edb::Instruction &inst, const State &state) const;
+	Result<edb::address_t, QString> getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state) const;
+	edb::address_t getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool& ok) const;
 	void reset();
-	void about_to_resume();
-	void setup_register_view();
-	void update_register_view(const QString &default_region_name, const State &state);
-	std::unique_ptr<QMenu> register_item_context_menu(const Register& reg);
-	RegisterViewModelBase::Model& get_register_view_model() const;
+	void aboutToResume();
+	void setupRegisterView();
+	void updateRegisterView(const QString &default_region_name, const State &state);
+	std::unique_ptr<QMenu> registerItemContextMenu(const Register& reg);
+	RegisterViewModelBase::Model& registerViewModel() const;
 
 private:
-	bool just_attached_ = true;
-	bool has_mmx_;
-	bool has_xmm_;
-	bool has_ymm_;
+	bool justAttached_ = true;
+	bool hasMmx_;
+	bool hasXmm_;
+	bool hasYmm_;
 
 private Q_SLOTS:
 	void justAttached();

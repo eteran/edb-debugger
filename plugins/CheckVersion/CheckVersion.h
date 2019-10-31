@@ -41,14 +41,14 @@ public:
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
-	QWidget *options_page() override;
+	QWidget *optionsPage() override;
 
 public Q_SLOTS:
 	void show_menu();
 	void requestFinished(QNetworkReply *reply);
 
 protected:
-	void private_init() override;
+	void privateInit() override;
 
 private:
 	void do_check();

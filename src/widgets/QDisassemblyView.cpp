@@ -275,7 +275,7 @@ int QDisassemblyView::previous_instruction(IAnalyzer *analyzer, int current_addr
 		edb::address_t address = address_offset_ + current_address;
 
 		// find the containing function
-		if(Result<edb::address_t, QString> function_address = analyzer->find_containing_function(address)) {
+		if(Result<edb::address_t, QString> function_address = analyzer->findContainingFunction(address)) {
 
 			if(address != *function_address) {
 				edb::address_t function_start = *function_address;
@@ -568,8 +568,8 @@ void QDisassemblyView::scrollTo(edb::address_t address) {
 
 bool targetIsLocal(edb::address_t targetAddress,edb::address_t insnAddress) {
 
-	const auto insnRegion   = edb::v1::memory_regions().find_region(insnAddress);
-	const auto targetRegion = edb::v1::memory_regions().find_region(targetAddress);
+	const auto insnRegion   = edb::v1::memory_regions().findRegion(insnAddress);
+	const auto targetRegion = edb::v1::memory_regions().findRegion(targetAddress);
 	return !insnRegion->name().isEmpty() && targetRegion && insnRegion->name() == targetRegion->name();
 }
 
@@ -592,7 +592,7 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 
                 const bool showLocalModuleNames=edb::v1::config().show_local_module_name_in_jump_targets;
                 const bool prefixed=showLocalModuleNames || !targetIsLocal(target,inst.rva());
-                QString sym = edb::v1::symbol_manager().find_address_name(target, prefixed);
+                QString sym = edb::v1::symbol_manager().findAddressName(target, prefixed);
 
                 if(sym.isEmpty() && target == inst.byte_size() + inst.rva()) {
                     sym = showSymbolicAddresses ? tr("<next instruction>") : tr("next instruction");
@@ -619,7 +619,7 @@ QString QDisassemblyView::instructionString(const edb::Instruction &inst) const 
 //------------------------------------------------------------------------------
 void QDisassemblyView::drawInstruction(QPainter &painter, const edb::Instruction &inst, const DrawingContext *ctx, int y, bool selected) {
 
-	const bool is_filling = edb::v1::arch_processor().is_filling(inst);
+	const bool is_filling = edb::v1::arch_processor().isFilling(inst);
 	const int x = font_width_ + font_width_ + ctx->l3 + (font_width_ / 2);
 	const int inst_pixel_width = ctx->l4 - x;
 
@@ -807,7 +807,7 @@ void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingC
 	// paint the header gray
 	int line = 0;
 	if (binary_info) {
-		auto header_size = binary_info->header_size();
+		auto header_size = binary_info->headerSize();
 		edb::address_t header_end_address = region_->start() + header_size;
 		// Find the number of lines we need to paint with the header
 		while (line < ctx->lines_to_render && header_end_address > show_addresses_[line]) {
@@ -847,7 +847,7 @@ int QDisassemblyView::drawRegiserBadges(QPainter &painter, const DrawingContext 
 			l0 = (4 * font_width_ + font_width_/2);
 
 			State state;
-			process->current_thread()->get_state(&state);
+			process->currentThread()->getState(&state);
 
 			const int badge_x = 1;
 
@@ -855,7 +855,7 @@ int QDisassemblyView::drawRegiserBadges(QPainter &painter, const DrawingContext 
 			{
 				unsigned int reg_num = 0;
 				Register reg;
-				reg = state.gp_register(reg_num);
+				reg = state.gpRegister(reg_num);
 
 				while (reg.valid()) {
 					// Does addr appear here?
@@ -870,7 +870,7 @@ int QDisassemblyView::drawRegiserBadges(QPainter &painter, const DrawingContext 
 					}
 
 					// what about [addr]?
-					if (process->read_bytes(addr, &addr, edb::v1::pointer_size())) {
+					if (process->readBytes(addr, &addr, edb::v1::pointer_size())) {
 						if (boost::optional<unsigned int> line = get_line_of_address(addr)) {
 							if (!badge_labels[*line].isEmpty()) {
 								badge_labels[*line].append(", ");
@@ -879,7 +879,7 @@ int QDisassemblyView::drawRegiserBadges(QPainter &painter, const DrawingContext 
 						}
 					}
 
-					reg = state.gp_register(++reg_num);
+					reg = state.gpRegister(++reg_num);
 				}
 			}
 
@@ -929,7 +929,7 @@ void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *
 
 			if (ctx->selected_line != line) {
 				auto address = show_addresses_[line];
-				const QString sym = edb::v1::symbol_manager().find_address_name(address);
+				const QString sym = edb::v1::symbol_manager().findAddressName(address);
 				if(!sym.isEmpty()) {
 					const QString symbol_buffer = painter.fontMetrics().elidedText(sym, Qt::ElideRight, width);
 
@@ -949,7 +949,7 @@ void QDisassemblyView::drawSymbolNames(QPainter &painter, const DrawingContext *
 			int line = ctx->selected_line;
 			painter.setPen(palette().color(ctx->group, QPalette::HighlightedText));
 			auto address = show_addresses_[line];
-			const QString sym = edb::v1::symbol_manager().find_address_name(address);
+			const QString sym = edb::v1::symbol_manager().findAddressName(address);
 			if(!sym.isEmpty()) {
 				const QString symbol_buffer = painter.fontMetrics().elidedText(sym, Qt::ElideRight, width);
 
@@ -1089,7 +1089,7 @@ void QDisassemblyView::drawFunctionMarkers(QPainter &painter, const DrawingConte
 		int next_line = 0;
 
 		if(ctx->lines_to_render != 0 && !show_addresses_.isEmpty()) {
-			analyzer->for_funcs_in_range(show_addresses_[0], show_addresses_[ctx->lines_to_render-1], [&](const Function* func) {
+			analyzer->forFuncsInRange(show_addresses_[0], show_addresses_[ctx->lines_to_render-1], [&](const Function* func) {
 				auto entry_addr = func->entry_address();
 				auto end_addr   = func->end_address();
 				int start_line;
@@ -1332,7 +1332,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 	// get current process state
 	State state;
 	IProcess* process = edb::v1::debugger_core->process();
-	process->current_thread()->get_state(&state);
+	process->currentThread()->getState(&state);
 
 	painter.save();
 	painter.setRenderHint(QPainter::Antialiasing, true);
@@ -1377,7 +1377,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		// if current conditional jump is taken, then draw arrow in red
 		if(show_addresses_[jump_arrow.src_line] == current_address_ &&  // if eip
 			is_conditional_jump(instructions_[jump_arrow.src_line]) && 
-			edb::v1::arch_processor().is_executed(instructions_[jump_arrow.src_line], state)) {
+			edb::v1::arch_processor().isExecuted(instructions_[jump_arrow.src_line], state)) {
 			arrow_color = Qt::red;
 		}
 

@@ -57,7 +57,7 @@ public:
 	bool isPaused() const override;
 
 private:
-	DebuggerCore *const       core_;
+	DebuggerCore *            core_ = nullptr;
 	std::shared_ptr<IProcess> process_;
 	edb::tid_t                tid_;
 	int                       status_ = 0;

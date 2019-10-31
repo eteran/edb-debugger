@@ -28,7 +28,7 @@ namespace DebuggerCorePlugin {
 // Name: clear_breakpoints
 // Desc: removes all breakpoints
 //------------------------------------------------------------------------------
-void DebuggerCoreBase::clear_breakpoints() {
+void DebuggerCoreBase::clearBreakpoints() {
 	if(attached()) {
 		breakpoints_.clear();
 	}
@@ -39,11 +39,11 @@ void DebuggerCoreBase::clear_breakpoints() {
 // Desc: creates a new breakpoint
 //       (only if there isn't already one at the given address)
 //------------------------------------------------------------------------------
-std::shared_ptr<IBreakpoint> DebuggerCoreBase::add_breakpoint(edb::address_t address) {
+std::shared_ptr<IBreakpoint> DebuggerCoreBase::addBreakpoint(edb::address_t address) {
 
 	try {
 		if(attached()) {
-			if(!find_breakpoint(address)) {
+			if(!findBreakpoint(address)) {
 				auto bp = std::make_shared<Breakpoint>(address);
 				breakpoints_[address] = bp;
 				return bp;
@@ -61,7 +61,7 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::add_breakpoint(edb::address_t add
 // Name: find_breakpoint
 // Desc: returns the breakpoint at the given address or std::shared_ptr<IBreakpoint>()
 //------------------------------------------------------------------------------
-std::shared_ptr<IBreakpoint> DebuggerCoreBase::find_breakpoint(edb::address_t address) {
+std::shared_ptr<IBreakpoint> DebuggerCoreBase::findBreakpoint(edb::address_t address) {
 	if(attached()) {
 		auto it = breakpoints_.find(address);
 		if(it != breakpoints_.end()) {
@@ -78,11 +78,11 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::find_breakpoint(edb::address_t ad
 // 		 unlike find_breakpoint, this function looks for a breakpoint which ends
 // 		 up at this address after being triggered, instead of just starting there.
 //------------------------------------------------------------------------------
-std::shared_ptr<IBreakpoint> DebuggerCoreBase::find_triggered_breakpoint(edb::address_t address) {
+std::shared_ptr<IBreakpoint> DebuggerCoreBase::findTriggeredBreakpoint(edb::address_t address) {
 	if(attached()) {
 		for(const size_t size : Breakpoint::possible_rewind_sizes()) {
 			const edb::address_t bpAddr = address - size;
-			const std::shared_ptr<IBreakpoint> bp = find_breakpoint(bpAddr);
+			const std::shared_ptr<IBreakpoint> bp = findBreakpoint(bpAddr);
 
 			if(bp && bp->address() == bpAddr) {
 				return bp;
@@ -100,7 +100,7 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::find_triggered_breakpoint(edb::ad
 // Note: if another part of the code has a reference to the BP, it will not
 //       actually be removed until it releases the reference.
 //------------------------------------------------------------------------------
-void DebuggerCoreBase::remove_breakpoint(edb::address_t address) {
+void DebuggerCoreBase::removeBreakpoint(edb::address_t address) {
 
 	// TODO(eteran): assert paused
 	if(attached()) {
@@ -116,7 +116,7 @@ void DebuggerCoreBase::remove_breakpoint(edb::address_t address) {
 // Desc: Ends debug session, detaching from or killing debuggee according to
 //		 user preferences
 //------------------------------------------------------------------------------
-void DebuggerCoreBase::end_debug_session() {
+void DebuggerCoreBase::endDebugSession() {
 	if(attached()) {
         switch(edb::v1::config().close_behavior) {
 		case Configuration::Detach:
@@ -141,7 +141,7 @@ void DebuggerCoreBase::end_debug_session() {
 // Desc: returns a copy of the BP list, these count as references to the BPs
 //       preventing full removal until this list is destructed.
 //------------------------------------------------------------------------------
-DebuggerCoreBase::BreakpointList DebuggerCoreBase::backup_breakpoints() const {
+DebuggerCoreBase::BreakpointList DebuggerCoreBase::backupBreakpoints() const {
 	return breakpoints_;
 }
 
@@ -153,7 +153,7 @@ bool DebuggerCoreBase::attached() const {
 	return process() != nullptr;
 }
 
-auto DebuggerCoreBase::supported_breakpoint_types() const -> std::vector<IBreakpoint::BreakpointType> {
+auto DebuggerCoreBase::supportedBreakpointTypes() const -> std::vector<IBreakpoint::BreakpointType> {
 	return Breakpoint::supported_types();
 }
 

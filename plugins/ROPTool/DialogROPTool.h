@@ -52,7 +52,7 @@ private:
 	using InstructionList = std::vector<std::shared_ptr<edb::Instruction>>;
 	
 private:
-	void do_find();
+	void doFind();
 	void addGadget(DialogResults *results, const InstructionList &instructions);
 
 private:
@@ -60,7 +60,7 @@ private:
 
 private:
 	Ui::DialogROPTool     ui;
-	QSortFilterProxyModel *filter_model_;
+	QSortFilterProxyModel *filterModel_;
 	QSet<QString>          unique_results_;
 	QPushButton *btnFind_;
 };

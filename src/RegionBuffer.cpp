@@ -65,7 +65,7 @@ qint64 RegionBuffer::readData(char *data, qint64 maxSize) {
 				return 0;
 			}
 
-			if(process->read_bytes(start, data, maxSize)) {
+			if(process->readBytes(start, data, maxSize)) {
 				return maxSize;
 			} else {
 				return -1;

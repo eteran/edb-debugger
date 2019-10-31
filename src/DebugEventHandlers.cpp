@@ -78,7 +78,7 @@ edb::EVENT_STATUS DebugEventHandlers::execute(const std::shared_ptr<IDebugEvent>
 		for (auto it = handlers_.begin(), end = handlers_.end(); it != end;) {
 			// increment before processing, so if it's deleted it's not a problem
 			current_handler_ = *it++;
-			status = current_handler_->handle_event(event);
+			status = current_handler_->handleEvent(event);
 			if (status != edb::DEBUG_NEXT_HANDLER) {
 				break;
 			}

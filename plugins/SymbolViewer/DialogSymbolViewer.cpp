@@ -41,7 +41,7 @@ DialogSymbolViewer::DialogSymbolViewer(QWidget *parent, Qt::WindowFlags f) : QDi
 	btnRefresh_ = new QPushButton(QIcon::fromTheme("view-refresh"), tr("Refresh"));
 	connect(btnRefresh_, &QPushButton::clicked, this, [this]() {
 		btnRefresh_->setEnabled(false);
-		do_find();
+		doFind();
 		btnRefresh_->setEnabled(true);
 	});
 
@@ -50,14 +50,14 @@ DialogSymbolViewer::DialogSymbolViewer(QWidget *parent, Qt::WindowFlags f) : QDi
 	ui.listView->setContextMenuPolicy(Qt::CustomContextMenu);
 
 	model_        = new QStringListModel(this);
-	filter_model_ = new QSortFilterProxyModel(this);
+	filterModel_ = new QSortFilterProxyModel(this);
 
-	filter_model_->setFilterKeyColumn(0);
-	filter_model_->setSourceModel(model_);
-	ui.listView->setModel(filter_model_);
+	filterModel_->setFilterKeyColumn(0);
+	filterModel_->setSourceModel(model_);
+	ui.listView->setModel(filterModel_);
 	ui.listView->setUniformItemSizes(true);
 
-	connect(ui.txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 }
 
 //------------------------------------------------------------------------------
@@ -153,10 +153,10 @@ void DialogSymbolViewer::mnuFollowInCPU() {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find
+// Name: doFind
 // Desc:
 //------------------------------------------------------------------------------
-void DialogSymbolViewer::do_find() {
+void DialogSymbolViewer::doFind() {
 	QStringList results;
 
 	const QList<std::shared_ptr<Symbol>> symbols = edb::v1::symbol_manager().symbols();
@@ -173,7 +173,7 @@ void DialogSymbolViewer::do_find() {
 //------------------------------------------------------------------------------
 void DialogSymbolViewer::showEvent(QShowEvent *) {
 	btnRefresh_->setEnabled(false);
-	do_find();
+	doFind();
 	btnRefresh_->setEnabled(true);
 }
 

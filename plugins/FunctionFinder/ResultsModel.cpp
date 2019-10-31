@@ -67,7 +67,7 @@ QVariant ResultsModel::data(const QModelIndex &index, int role) const {
 		case 1:  return edb::v1::format_pointer(result.end_address);
 		case 2:  return static_cast<quint64>(result.size);
 		case 3:  return result.score;
-		case 4:  return result.type == Function::FUNCTION_THUNK ? tr("Thunk") : tr("Standard Function");
+		case 4:  return result.type == Function::Thunk ? tr("Thunk") : tr("Standard Function");
 		case 5:  return result.symbol;
 		default: return QVariant();
 		}

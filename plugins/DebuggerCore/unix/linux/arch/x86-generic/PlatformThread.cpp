@@ -161,7 +161,7 @@ bool PlatformThread::fillStateFromSimpleRegs(PlatformState* state) {
 // Name: get_state
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformThread::get_state(State *state) {
+void PlatformThread::getState(State *state) {
 	// TODO: assert that we are paused
 
 	core_->detectCPUMode();
@@ -227,7 +227,7 @@ void PlatformThread::get_state(State *state) {
 // Name: set_state
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformThread::set_state(const State &state) {
+void PlatformThread::setState(const State &state) {
 
 	// TODO: assert that we are paused
 

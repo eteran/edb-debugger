@@ -42,9 +42,9 @@ public:
 	virtual size_t size() const = 0;
 
 public:
-	virtual void set_permissions(bool read, bool write, bool execute) = 0;
-	virtual void set_start(edb::address_t address) = 0;
-	virtual void set_end(edb::address_t address) = 0;
+	virtual void setPermissions(bool read, bool write, bool execute) = 0;
+	virtual void setStart(edb::address_t address) = 0;
+	virtual void setEnd(edb::address_t address) = 0;
 
 public:
 	virtual edb::address_t start() const = 0;

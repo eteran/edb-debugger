@@ -31,7 +31,7 @@ struct Result {
 	edb::address_t        end_address   = 0;
 	size_t                size          = 0;
 	int                   score         = 0;
-	Function::Type        type          = Function::Type::FUNCTION_STANDARD;
+	Function::Type        type          = Function::Type::Standard;
 	QString               symbol;
 };
 

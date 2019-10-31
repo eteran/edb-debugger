@@ -27,8 +27,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 class EDB_EXPORT Function {
 public:
 	enum Type {
-		FUNCTION_STANDARD,
-		FUNCTION_THUNK
+		Standard,
+		Thunk
 	};
 
 public:
@@ -82,8 +82,8 @@ public:
 	void swap(Function &other);
 
 private:
-	int                                  reference_count_ = 0;
-	Type                                 type_ = FUNCTION_STANDARD;
+	int                                  referenceCount_ = 0;
+	Type                                 type_ = Standard;
 	std::map<edb::address_t, BasicBlock> blocks_;
 };
 

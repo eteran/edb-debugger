@@ -39,8 +39,8 @@ public:
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
-	QList<QAction *> cpu_context_menu() override;
-	QWidget *options_page() override;
+	QList<QAction *> cpuContextMenu() override;
+	QWidget *optionsPage() override;
 
 private:
 	void show_dialog();

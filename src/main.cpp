@@ -67,7 +67,7 @@ void load_plugins(const QString &directory) {
 						edb::v1::debugger_core = core_plugin;
 
 						// load in the settings that the core needs
-						edb::v1::debugger_core->set_ignored_exceptions(edb::v1::config().ignored_exceptions);
+						edb::v1::debugger_core->setIgnoredExceptions(edb::v1::config().ignored_exceptions);
 					}
 				} else if(qobject_cast<IPlugin *>(plugin)) {
 					if(edb::internal::register_plugin(full_path, plugin)) {
@@ -158,7 +158,7 @@ void usage() {
 
 	for(QObject *plugin: edb::v1::plugin_list()) {
 		if(auto p = qobject_cast<IPlugin *>(plugin)) {
-			const QString s = p->extra_arguments();
+			const QString s = p->extraArguments();
 			if(!s.isEmpty()) {
 				std::cerr << std::endl;
 				std::cerr << qPrintable(plugin->metaObject()->className()) << std::endl;
@@ -212,7 +212,7 @@ int main(int argc, char *argv[]) {
 	for(QObject *plugin: edb::v1::plugin_list()) {
 		if(auto p = qobject_cast<IPlugin *>(plugin)) {
 
-			const IPlugin::ArgumentStatus r = p->parse_arguments(args);
+			const IPlugin::ArgumentStatus r = p->parseArguments(args);
 			switch(r) {
 			case IPlugin::ARG_ERROR:
 				usage();

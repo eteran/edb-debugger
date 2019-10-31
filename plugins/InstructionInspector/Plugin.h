@@ -65,7 +65,7 @@ class Plugin : public QObject, public IPlugin {
 public:
 	explicit Plugin(QObject *parent = nullptr);
 	QMenu *menu(QWidget *parent = nullptr) override;
-	QList<QAction *> cpu_context_menu() override;
+	QList<QAction *> cpuContextMenu() override;
 
 private Q_SLOTS:
 	void showDialog() const;

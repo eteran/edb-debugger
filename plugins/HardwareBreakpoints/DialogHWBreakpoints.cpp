@@ -81,7 +81,7 @@ void DialogHWBreakpoints::showEvent(QShowEvent *event) {
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
 		State state;
-		process->current_thread()->get_state(&state);
+		process->currentThread()->getState(&state);
 
 		const BreakpointState bp_state1 = breakpointState(&state, Register1);
 		const BreakpointState bp_state2 = breakpointState(&state, Register2);

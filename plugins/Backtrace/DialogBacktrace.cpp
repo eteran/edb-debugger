@@ -102,16 +102,16 @@ DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f) : QDialog(p
 
 			// Now that we got the address, we can run.  First check if bp @ that address
 			// already exists.
-			if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->find_breakpoint(address)) {
+			if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->findBreakpoint(address)) {
 				process->resume(edb::DEBUG_CONTINUE);
 				return;
 			}
 
 			// Using the non-debugger_core version ensures bp is set in a valid region
 			edb::v1::create_breakpoint(address);
-			if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->find_breakpoint(address)) {
-				bp->set_internal(true);
-				bp->set_one_time(true);
+			if (std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->findBreakpoint(address)) {
+				bp->setInternal(true);
+				bp->setOneTime(true);
 				process->resume(edb::DEBUG_CONTINUE);
 			}
 		}
@@ -173,7 +173,7 @@ void DialogBacktrace::populate_table() {
 		for (int j = 0; j < stack_entry.size() && j < table_->columnCount(); j++) {
 
 			edb::address_t address = stack_entry.at(j);
-			std::shared_ptr<Symbol> near_symbol = edb::v1::symbol_manager().find_near_symbol(address);
+			std::shared_ptr<Symbol> near_symbol = edb::v1::symbol_manager().findNearSymbol(address);
 
 			//Turn the address into a string prefixed with "0x"
 			auto item = new QTableWidgetItem;

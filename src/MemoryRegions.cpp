@@ -69,7 +69,7 @@ void MemoryRegions::sync() {
 							}
 						}
 
-						edb::v1::symbol_manager().load_symbol_file(region->name(), base);
+						edb::v1::symbol_manager().loadSymbolFile(region->name(), base);
 					}
 				}
 			}
@@ -85,7 +85,7 @@ void MemoryRegions::sync() {
 // Name: find_region
 // Desc:
 //------------------------------------------------------------------------------
-std::shared_ptr<IRegion> MemoryRegions::find_region(edb::address_t address) const {
+std::shared_ptr<IRegion> MemoryRegions::findRegion(edb::address_t address) const {
 
 	auto it = std::find_if(regions_.begin(), regions_.end(), [address](const std::shared_ptr<IRegion> &region) {
 		return region->contains(address);

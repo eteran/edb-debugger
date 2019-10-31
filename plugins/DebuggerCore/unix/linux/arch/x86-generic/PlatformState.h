@@ -233,34 +233,34 @@ public:
 	std::unique_ptr<IState> clone() const override;
 
 public:
-	QString flags_to_string() const override;
-	QString flags_to_string(edb::reg_t flags) const override;
+	QString flagsToString() const override;
+	QString flagsToString(edb::reg_t flags) const override;
 	Register value(const QString &reg) const override;
-	Register instruction_pointer_register() const override;
-	Register flags_register() const override;
-	edb::address_t frame_pointer() const override;
-	edb::address_t instruction_pointer() const override;
-	edb::address_t stack_pointer() const override;
-	edb::reg_t debug_register(size_t n) const override;
+	Register instructionPointerRegister() const override;
+	Register flagsRegister() const override;
+	edb::address_t framePointer() const override;
+	edb::address_t instructionPointer() const override;
+	edb::address_t stackPointer() const override;
+	edb::reg_t debugRegister(size_t n) const override;
 	edb::reg_t flags() const override;
-	int fpu_stack_pointer() const override;
-	edb::value80 fpu_register(size_t n) const override;
-	bool fpu_register_is_empty(size_t n) const override;
-	QString fpu_register_tag_string(size_t n) const override;
-	edb::value16 fpu_control_word() const override;
-	edb::value16 fpu_status_word() const override;
-	edb::value16 fpu_tag_word() const override;
-	void adjust_stack(int bytes) override;
+	int fpuStackPointer() const override;
+	edb::value80 fpuRegister(size_t n) const override;
+	bool fpuRegisterIsEmpty(size_t n) const override;
+	QString fpuRegisterTagString(size_t n) const override;
+	edb::value16 fpuControlWord() const override;
+	edb::value16 fpuStatusWord() const override;
+	edb::value16 fpuTagWord() const override;
+	void adjustStack(int bytes) override;
 	void clear() override;
 	bool empty() const override;
-	void set_debug_register(size_t n, edb::reg_t value) override;
-	void set_flags(edb::reg_t flags) override;
-	void set_instruction_pointer(edb::address_t value) override;
-	void set_register(const Register &reg) override;
-	void set_register(const QString &name, edb::reg_t value) override;
+	void setDebugRegister(size_t n, edb::reg_t value) override;
+	void setFlags(edb::reg_t flags) override;
+	void setInstructionPointer(edb::address_t value) override;
+	void setRegister(const Register &reg) override;
+	void setRegister(const QString &name, edb::reg_t value) override;
 
-	Register arch_register(uint64_t type, size_t n) const override;
-	Register gp_register(size_t n) const override;
+	Register archRegister(uint64_t type, size_t n) const override;
+	Register gpRegister(size_t n) const override;
 
 	bool is64Bit() const {
 		return edb::v1::debuggeeIs64Bit();

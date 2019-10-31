@@ -37,7 +37,7 @@ public:
     QSize sizeHint(const QStyleOptionViewItem &opt, const QModelIndex &index) const override;
 
 private:
-    QTreeView *const view_;
+	QTreeView *view_;
 };
 
 #endif

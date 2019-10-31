@@ -43,15 +43,15 @@ public:
 	HardwareBreakpoints(QObject *parent = nullptr);
 
 protected:
-	void private_init() override;
-	void private_fini() override;
+	void privateInit() override;
+	void privateFini() override;
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
-	edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) override;
-	QList<QAction *> cpu_context_menu() override;
-	QList<QAction *> stack_context_menu() override;
-	QList<QAction *> data_context_menu() override;
+	edb::EVENT_STATUS handleEvent(const std::shared_ptr<IDebugEvent> &event) override;
+	QList<QAction *> cpuContextMenu() override;
+	QList<QAction *> stackContextMenu() override;
+	QList<QAction *> dataContextMenu() override;
 
 public Q_SLOTS:
 	void show_menu();

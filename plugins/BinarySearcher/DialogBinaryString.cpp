@@ -46,7 +46,7 @@ DialogBinaryString::DialogBinaryString(QWidget *parent, Qt::WindowFlags f) : QDi
 	connect(btnFind_, &QPushButton::clicked, this, [this]() {
 		btnFind_->setEnabled(false);
 		ui.progressBar->setValue(0);
-		do_find();
+		doFind();
 		ui.progressBar->setValue(100);
 		btnFind_->setEnabled(true);
 	});
@@ -55,10 +55,10 @@ DialogBinaryString::DialogBinaryString(QWidget *parent, Qt::WindowFlags f) : QDi
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find
+// Name: doFind
 // Desc:
 //------------------------------------------------------------------------------
-void DialogBinaryString::do_find() {
+void DialogBinaryString::doFind() {
 
 	const QByteArray b = ui.binaryString->value();
 
@@ -68,7 +68,7 @@ void DialogBinaryString::do_find() {
 	if(sz != 0) {
 		edb::v1::memory_regions().sync();
 		const QList<std::shared_ptr<IRegion>> regions = edb::v1::memory_regions().regions();
-		const size_t page_size = edb::v1::debugger_core->page_size();
+		const size_t page_size = edb::v1::debugger_core->pageSize();
 
 		int i = 0;
 		for(const std::shared_ptr<IRegion> &region: regions) {

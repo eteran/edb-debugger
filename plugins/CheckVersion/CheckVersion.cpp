@@ -44,7 +44,7 @@ CheckVersion::CheckVersion(QObject *parent) : QObject(parent) {
 // Name: private_init
 // Desc:
 //------------------------------------------------------------------------------
-void CheckVersion::private_init() {
+void CheckVersion::privateInit() {
 	QSettings settings;
 	if(settings.value("CheckVersion/check_on_start.enabled", true).toBool()) {
 		do_check();
@@ -55,7 +55,7 @@ void CheckVersion::private_init() {
 // Name: options_page
 // Desc:
 //------------------------------------------------------------------------------
-QWidget *CheckVersion::options_page() {
+QWidget *CheckVersion::optionsPage() {
 	return new OptionsPage;
 }
 

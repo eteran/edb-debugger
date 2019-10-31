@@ -44,7 +44,7 @@ BinaryInfo::BinaryInfo(QObject *parent) : QObject(parent) {
 /**
  * @brief BinaryInfo::private_init
  */
-void BinaryInfo::private_init() {
+void BinaryInfo::privateInit() {
 
 	edb::v1::register_binary_info([](const std::shared_ptr<IRegion> &region) {
 		return std::unique_ptr<IBinary>(new ELF32(region));
@@ -58,14 +58,14 @@ void BinaryInfo::private_init() {
 		return std::unique_ptr<IBinary>(new PE32(region));
 	});
 
-	edb::v1::symbol_manager().set_symbol_generator(this);
+	edb::v1::symbol_manager().setSymbolGenerator(this);
 }
 
 /**
  * @brief BinaryInfo::options_page
  * @return
  */
-QWidget* BinaryInfo::options_page() {
+QWidget* BinaryInfo::optionsPage() {
 	return new OptionsPage;
 }
 
@@ -98,7 +98,7 @@ void BinaryInfo::exploreHeader() {
  * @brief BinaryInfo::extra_arguments
  * @return
  */
-QString BinaryInfo::extra_arguments() const {
+QString BinaryInfo::extraArguments() const {
 	return " --symbols <filename>      : generate symbols for <filename> and exit";
 }
 
@@ -107,7 +107,7 @@ QString BinaryInfo::extra_arguments() const {
  * @param args
  * @return
  */
-IPlugin::ArgumentStatus BinaryInfo::parse_arguments(QStringList &args) {
+IPlugin::ArgumentStatus BinaryInfo::parseArguments(QStringList &args) {
 
 	if(args.size() == 3 && args[1] == "--symbols") {
 		generate_symbols(args[2]);

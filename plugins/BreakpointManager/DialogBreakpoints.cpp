@@ -68,7 +68,7 @@ void DialogBreakpoints::updateList() {
 	ui.tableWidget->setSortingEnabled(false);
 	ui.tableWidget->setRowCount(0);
 
-	const IDebugger::BreakpointList breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
+	const IDebugger::BreakpointList breakpoint_state = edb::v1::debugger_core->backupBreakpoints();
 
 	for(const std::shared_ptr<IBreakpoint> &bp: breakpoint_state) {
 
@@ -81,9 +81,9 @@ void DialogBreakpoints::updateList() {
 
 		const edb::address_t address = bp->address();
 		const QString condition      = bp->condition;
-		const bool onetime           = bp->one_time();
+		const bool onetime           = bp->oneTime();
 		const QString symname        = edb::v1::find_function_symbol(address, QString(), nullptr);
-		const QString bytes          = edb::v1::format_bytes(bp->original_bytes(), bp->size());
+		const QString bytes          = edb::v1::format_bytes(bp->originalBytes(), bp->size());
 
 		auto item = new QTableWidgetItem(edb::v1::format_pointer(address));
 		item->setData(Qt::UserRole, address.toQVariant());
@@ -252,20 +252,20 @@ void DialogBreakpoints::on_btnImport_clicked() {
 		//If there's an issue with the line or address isn't in any region,
 		//add to error list and skip.
 		edb::v1::memory_regions().sync();
-		std::shared_ptr<IRegion> p = edb::v1::memory_regions().find_region(address);
+		std::shared_ptr<IRegion> p = edb::v1::memory_regions().findRegion(address);
 		if (!p) {
 			errors.append(line);
 			continue;
 		}
 
 		//If the bp already exists, skip.  No error.
-		if (edb::v1::debugger_core->find_breakpoint(address)) {
+		if (edb::v1::debugger_core->findBreakpoint(address)) {
 			continue;
 		}
 
 		//If the line was converted to an address, try to create the breakpoint.
 		//Access debugger_core directly to avoid many possible error windows by edb::v1::create_breakpoint()
-		if (const std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->add_breakpoint(address)) {
+		if (const std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(address)) {
 			count++;
 		} else{
 			errors.append(line);
@@ -291,14 +291,14 @@ void DialogBreakpoints::on_btnImport_clicked() {
 void DialogBreakpoints::on_btnExport_clicked() {
 
 	//Get the current list of breakpoints
-	const IDebugger::BreakpointList breakpoint_state = edb::v1::debugger_core->backup_breakpoints();
+	const IDebugger::BreakpointList breakpoint_state = edb::v1::debugger_core->backupBreakpoints();
 
 	//Create a list for addresses to be exported at the end
 	QList<edb::address_t> export_list;
 
 	//Go through our breakpoints and add for export if not one-time and not internal.
 	for(const std::shared_ptr<IBreakpoint> &bp: breakpoint_state) {
-		if (!bp->one_time() && !bp->internal()) {
+		if (!bp->oneTime() && !bp->internal()) {
 			export_list.append(bp->address());
 		}
 	}

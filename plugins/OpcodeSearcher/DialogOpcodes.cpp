@@ -640,14 +640,14 @@ DialogOpcodes::DialogOpcodes(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	ui.tableView->verticalHeader()->hide();
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	filter_model_ = new QSortFilterProxyModel(this);
-	connect(ui.txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	filterModel_ = new QSortFilterProxyModel(this);
+	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
 	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
 	connect(btnFind_, &QPushButton::clicked, this, [this]() {
 		btnFind_->setEnabled(false);
 		ui.progressBar->setValue(0);
-		do_find();
+		doFind();
 		ui.progressBar->setValue(100);
 		btnFind_->setEnabled(true);
 	});
@@ -661,9 +661,9 @@ DialogOpcodes::DialogOpcodes(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 // Desc:
 //------------------------------------------------------------------------------
 void DialogOpcodes::showEvent(QShowEvent *) {
-	filter_model_->setFilterKeyColumn(3);
-	filter_model_->setSourceModel(&edb::v1::memory_regions());
-	ui.tableView->setModel(filter_model_);
+	filterModel_->setFilterKeyColumn(3);
+	filterModel_->setSourceModel(&edb::v1::memory_regions());
+	ui.tableView->setModel(filterModel_);
 	ui.progressBar->setValue(0);
 
 	ui.comboBox->clear();
@@ -737,10 +737,10 @@ void DialogOpcodes::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find
+// Name: doFind
 // Desc:
 //------------------------------------------------------------------------------
-void DialogOpcodes::do_find() {
+void DialogOpcodes::doFind() {
 
 	const int classtype = ui.comboBox->itemData(ui.comboBox->currentIndex()).toInt();
 
@@ -760,7 +760,7 @@ void DialogOpcodes::do_find() {
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		for(const QModelIndex &selected_item: sel) {
 
-			const QModelIndex index = filter_model_->mapToSource(selected_item);
+			const QModelIndex index = filterModel_->mapToSource(selected_item);
 
 			if(auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
 
@@ -782,7 +782,7 @@ void DialogOpcodes::do_find() {
 					}
 
 					uint8_t byte;
-					process->read_bytes(start_address, &byte, 1);
+					process->readBytes(start_address, &byte, 1);
 					util::shl(shift_buffer, byte);
 
 					++start_address;

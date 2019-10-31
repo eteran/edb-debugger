@@ -52,7 +52,7 @@ HardwareBreakpoints::HardwareBreakpoints(QObject *parent) : QObject(parent) {
 /**
  * @brief HardwareBreakpoints::private_init
  */
-void HardwareBreakpoints::private_init() {
+void HardwareBreakpoints::privateInit() {
 
 	auto dialog = new DialogHWBreakpoints(edb::v1::debugger_ui);
 	dialog_ = dialog;
@@ -84,7 +84,7 @@ void HardwareBreakpoints::private_init() {
 /**
  * @brief HardwareBreakpoints::private_fini
  */
-void HardwareBreakpoints::private_fini() {
+void HardwareBreakpoints::privateFini() {
 	edb::v1::remove_debug_event_handler(this);
 }
 
@@ -175,7 +175,7 @@ void HardwareBreakpoints::setupBreakpoints() {
 
 			for(std::shared_ptr<IThread> &thread : process->threads()) {
 				State state;
-				thread->get_state(&state);
+				thread->getState(&state);
 
 				for(int i = 0; i < RegisterCount; ++i) {
 					if(ok[i]) {
@@ -191,16 +191,16 @@ void HardwareBreakpoints::setupBreakpoints() {
 					}
 				}
 
-				thread->set_state(state);
+				thread->setState(state);
 			}
 
 		} else {
 
 			for(std::shared_ptr<IThread> &thread : process->threads()) {
 				State state;
-				thread->get_state(&state);
-				state.set_debug_register(7, 0);
-				thread->set_state(state);
+				thread->getState(&state);
+				state.setDebugRegister(7, 0);
+				thread->setState(state);
 			}
 
 		}
@@ -226,19 +226,19 @@ void HardwareBreakpoints::show_menu() {
 // Desc: this hooks the debug event handler so we can make the breakpoints
 //       able to be resumed
 //------------------------------------------------------------------------------
-edb::EVENT_STATUS HardwareBreakpoints::handle_event(const std::shared_ptr<IDebugEvent> &event) {
+edb::EVENT_STATUS HardwareBreakpoints::handleEvent(const std::shared_ptr<IDebugEvent> &event) {
 
-	if(event->stopped() && event->is_trap()) {
+	if(event->stopped() && event->isTrap()) {
 
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(std::shared_ptr<IThread> thread = process->current_thread()) {
+			if(std::shared_ptr<IThread> thread = process->currentThread()) {
 				// check DR6 to see if it was a HW BP event
 				// if so, set the resume flag
 				State state;
-				thread->get_state(&state);
-				if((state.debug_register(6) & 0x0f) != 0x00) {
-					state.set_flags(state.flags() | (1 << 16));
-					thread->set_state(state);
+				thread->getState(&state);
+				if((state.debugRegister(6) & 0x0f) != 0x00) {
+					state.setFlags(state.flags() | (1 << 16));
+					thread->setState(state);
 				}
 			}
 		}
@@ -252,7 +252,7 @@ edb::EVENT_STATUS HardwareBreakpoints::handle_event(const std::shared_ptr<IDebug
 // Name: stack_context_menu
 // Desc:
 //------------------------------------------------------------------------------
-QList<QAction *> HardwareBreakpoints::stack_context_menu() {
+QList<QAction *> HardwareBreakpoints::stackContextMenu() {
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
 
 	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(set_access1()));
@@ -287,7 +287,7 @@ QList<QAction *> HardwareBreakpoints::stack_context_menu() {
 // Name: data_context_menu
 // Desc:
 //------------------------------------------------------------------------------
-QList<QAction *> HardwareBreakpoints::data_context_menu() {
+QList<QAction *> HardwareBreakpoints::dataContextMenu() {
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
 
 	auto rw1 = menu->addAction(tr("Hardware, On Read/Write #1"), this, SLOT(set_access1()));
@@ -323,7 +323,7 @@ QList<QAction *> HardwareBreakpoints::data_context_menu() {
 // Name: cpu_context_menu
 // Desc:
 //------------------------------------------------------------------------------
-QList<QAction *> HardwareBreakpoints::cpu_context_menu() {
+QList<QAction *> HardwareBreakpoints::cpuContextMenu() {
 
 	auto menu = new QMenu(tr("Hardware Breakpoints"));
 	auto ex1 = menu->addAction(tr("Hardware, On Execute #1"), this, SLOT(set_exec1()));
@@ -391,9 +391,9 @@ void HardwareBreakpoints::setExecuteBP(int index, bool inUse) {
 
 		for(std::shared_ptr<IThread> &thread : process->threads()) {
 			State state;
-			thread->get_state(&state);
+			thread->getState(&state);
 			setBreakpointState(&state, index, { true, address, 0, 0 });
-			thread->set_state(state);
+			thread->setState(state);
 		}
 	}
 
@@ -425,7 +425,7 @@ void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t addre
 
 		for(std::shared_ptr<IThread> &thread : process->threads()) {
 			State state;
-			thread->get_state(&state);
+			thread->getState(&state);
 
 			switch(size) {
 			case 1:
@@ -445,7 +445,7 @@ void HardwareBreakpoints::setWriteBP(int index, bool inUse, edb::address_t addre
 				return;
 			}
 
-			thread->set_state(state);
+			thread->setState(state);
 		}
 	}
 
@@ -481,7 +481,7 @@ void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t a
 
 		for(std::shared_ptr<IThread> &thread : process->threads()) {
 			State state;
-			thread->get_state(&state);
+			thread->getState(&state);
 
 			switch(size) {
 			case 1:
@@ -501,7 +501,7 @@ void HardwareBreakpoints::setReadWriteBP(int index, bool inUse, edb::address_t a
 				return;
 			}
 
-			thread->set_state(state);
+			thread->setState(state);
 		}
 	}
 

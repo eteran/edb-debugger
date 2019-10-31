@@ -294,7 +294,7 @@ void DialogProcessProperties::updateGeneralPage() {
 	if(edb::v1::debugger_core) {
 	    if(IProcess *process = edb::v1::debugger_core->process()) {
 	        const QString exe            = process->executable();
-	        const QString cwd            = process->current_working_directory();
+	        const QString cwd            = process->currentWorkingDirectory();
 
 			std::shared_ptr<IProcess> parent = process->parent();
 	        const edb::pid_t parent_pid  = parent ? parent->pid() : 0;
@@ -307,7 +307,7 @@ void DialogProcessProperties::updateGeneralPage() {
 			// TODO(eteran): handle arguments with spaces
 			ui.editCommand->setText(arguments_to_string(args));
 			ui.editCurrentDirectory->setText(cwd);
-			ui.editStarted->setText(process->start_time().toString("yyyy-MM-dd hh:mm:ss.z"));
+			ui.editStarted->setText(process->startTime().toString("yyyy-MM-dd hh:mm:ss.z"));
 			if(parent_pid) {
 				ui.editParent->setText(QString("%1 (%2)").arg(parent_exe).arg(parent_pid));
 			} else {
@@ -333,7 +333,7 @@ void DialogProcessProperties::updateModulePage() {
 	ui.tableModules->setRowCount(0);
 	if(edb::v1::debugger_core) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			const QList<Module> modules = process->loaded_modules();
+			const QList<Module> modules = process->loadedModules();
 			ui.tableModules->setSortingEnabled(false);
 			for(const Module &m: modules) {
 				const int row = ui.tableModules->rowCount();
@@ -568,7 +568,7 @@ void DialogProcessProperties::updateThreads() {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
-		std::shared_ptr<IThread> current = process->current_thread();
+		std::shared_ptr<IThread> current = process->currentThread();
 
 		for(std::shared_ptr<IThread> &thread : process->threads()) {
 

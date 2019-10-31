@@ -34,7 +34,7 @@ public:
 	~DialogBinaryString() override = default;
 
 private:
-	void do_find();
+	void doFind();
 
 private:
 	 Ui::DialogBinaryString ui;

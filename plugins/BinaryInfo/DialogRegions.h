@@ -41,7 +41,7 @@ private:
 
 private:
 	 Ui::DialogRegions ui;
-	 QSortFilterProxyModel *filter_model_;
+	 QSortFilterProxyModel *filterModel_;
 	 QPushButton *btnExplore_;
 };
 

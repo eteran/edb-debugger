@@ -54,12 +54,12 @@ private:
 	void collectBlocks(edb::address_t start_address, edb::address_t end_address);
 
 	template<class Addr>
-	void do_find();
+	void doFind();
 
 private:
 	 Ui::DialogHeap ui;
 	 ResultViewModel *model_;
-	 QSortFilterProxyModel *filter_model_;
+	 QSortFilterProxyModel *filterModel_;
 	 QPushButton *btnAnalyze_;
 	 QPushButton *btnGraph_;
 };

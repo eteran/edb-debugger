@@ -115,7 +115,7 @@ void SessionManager::save_session(const QString &session_file) {
 		if(auto p = qobject_cast<IPlugin *>(plugin)) {
 			if(const QMetaObject *const meta = plugin->metaObject()) {
 				QString name    = meta->className();
-				QVariantMap data = p->save_state();
+				QVariantMap data = p->saveState();
 
 				if(!data.empty()) {
 					plugin_data[name] = data;
@@ -153,7 +153,7 @@ void SessionManager::load_plugin_data() {
 					QVariantMap data = it.value().toMap();
 
 					if(name == it.key()) {
-						p->restore_state(data);
+						p->restoreState(data);
 						break;
 					}
 				}

@@ -95,7 +95,7 @@ QMenu *Bookmarks::menu(QWidget *parent) {
 // Name: cpu_context_menu
 // Desc:
 //------------------------------------------------------------------------------
-QList<QAction *> Bookmarks::cpu_context_menu() {
+QList<QAction *> Bookmarks::cpuContextMenu() {
 
 	QList<QAction *> ret;
 
@@ -118,7 +118,7 @@ void Bookmarks::add_bookmark_menu() {
 // Name: save_state
 // Desc:
 //------------------------------------------------------------------------------
-QVariantMap Bookmarks::save_state() const {
+QVariantMap Bookmarks::saveState() const {
 	QVariantMap  state;
 	QVariantList bookmarks;
 	for(auto &bookmark : bookmark_widget_->entries()) {
@@ -139,7 +139,7 @@ QVariantMap Bookmarks::save_state() const {
 // Name: restore_state
 // Desc:
 //------------------------------------------------------------------------------
-void Bookmarks::restore_state(const QVariantMap &state) {
+void Bookmarks::restoreState(const QVariantMap &state) {
 
 	QVariantList bookmarks = state["bookmarks"].toList();
 	for(auto &entry : bookmarks) {

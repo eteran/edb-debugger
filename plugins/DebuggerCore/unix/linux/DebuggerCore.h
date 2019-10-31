@@ -42,22 +42,22 @@ class DebuggerCore final : public DebuggerCoreBase {
 	friend class PlatformProcess;
 	friend class PlatformThread;
 
-	CPUMode cpu_mode() const override { return cpu_mode_; }
+	CPUMode cpuMode() const override { return cpu_mode_; }
 public:
 	DebuggerCore();
 	~DebuggerCore() override;
 
 public:
-	std::size_t pointer_size() const override;
-	size_t page_size() const override;
-	bool has_extension(quint64 ext) const override;
-	std::shared_ptr<IDebugEvent> wait_debug_event(int msecs) override;
+	std::size_t pointerSize() const override;
+	size_t pageSize() const override;
+	bool hasExtension(quint64 ext) const override;
+	std::shared_ptr<IDebugEvent> waitDebugEvent(int msecs) override;
 	Status attach(edb::pid_t pid) override;
 	Status detach() override;
 	void kill() override;
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
     MeansOfCapture last_means_of_capture() const override;
-	void set_ignored_exceptions(const QList<qlonglong> &exceptions) override;
+	void setIgnoredExceptions(const QList<qlonglong> &exceptions) override;
 	uint8_t nopFillByte() const override;
 
 public:
@@ -66,22 +66,22 @@ public:
 	qlonglong exceptionValue(const QString &name) override;
 
 public:
-	edb::pid_t parent_pid(edb::pid_t pid) const override;
+	edb::pid_t parentPid(edb::pid_t pid) const override;
 
 public:
-	std::unique_ptr<IState> create_state() const override;
+	std::unique_ptr<IState> createState() const override;
 
 public:
-	quint64 cpu_type() const override;
+	quint64 cpuType() const override;
 
 private:
-	QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerate_processes() const override;
+	QMap<edb::pid_t, std::shared_ptr<IProcess>> enumerateProcesses() const override;
 
 public:
-	QString stack_pointer() const override;
-	QString frame_pointer() const override;
-	QString instruction_pointer() const override;
-	QString flag_register() const override;
+	QString stackPointer() const override;
+	QString framePointer() const override;
+	QString instructionPointer() const override;
+	QString flagRegister() const override;
 
 public:
 	IProcess *process() const override;

@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: State
 // Desc: constructor
 //------------------------------------------------------------------------------
-State::State() : impl_(edb::v1::debugger_core ? edb::v1::debugger_core->create_state() : nullptr) {
+State::State() : impl_(edb::v1::debugger_core ? edb::v1::debugger_core->createState() : nullptr) {
 }
 
 //------------------------------------------------------------------------------
@@ -87,9 +87,9 @@ bool State::empty() const {
 // Name: instruction_pointer_register
 // Desc:
 //------------------------------------------------------------------------------
-Register State::instruction_pointer_register() const {
+Register State::instructionPointerRegister() const {
 	if(impl_) {
-		return impl_->instruction_pointer_register();
+		return impl_->instructionPointerRegister();
 	}
 	return Register();
 }
@@ -98,9 +98,9 @@ Register State::instruction_pointer_register() const {
 // Name: instruction_pointer
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t State::instruction_pointer() const {
+edb::address_t State::instructionPointer() const {
 	if(impl_) {
-		return impl_->instruction_pointer();
+		return impl_->instructionPointer();
 	}
 	return edb::address_t(0);
 }
@@ -109,9 +109,9 @@ edb::address_t State::instruction_pointer() const {
 // Name: stack_pointer
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t State::stack_pointer() const {
+edb::address_t State::stackPointer() const {
 	if(impl_) {
-		return impl_->stack_pointer();
+		return impl_->stackPointer();
 	}
 	return edb::address_t(0);
 }
@@ -120,9 +120,9 @@ edb::address_t State::stack_pointer() const {
 // Name: frame_pointer
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t State::frame_pointer() const {
+edb::address_t State::framePointer() const {
 	if(impl_) {
-		return impl_->frame_pointer();
+		return impl_->framePointer();
 	}
 	return edb::address_t(0);
 }
@@ -131,9 +131,9 @@ edb::address_t State::frame_pointer() const {
 // Name: flags_register
 // Desc:
 //------------------------------------------------------------------------------
-Register State::flags_register() const {
+Register State::flagsRegister() const {
 	if(impl_) {
-		return impl_->flags_register();
+		return impl_->flagsRegister();
 	}
 	return Register();
 }
@@ -175,9 +175,9 @@ Register State::operator[](const QString &reg) const {
 // Name: set_register
 // Desc:
 //------------------------------------------------------------------------------
-void State::set_register(const Register& reg) {
+void State::setRegister(const Register& reg) {
 	if(impl_) {
-		impl_->set_register(reg);
+		impl_->setRegister(reg);
 	}
 }
 
@@ -185,9 +185,9 @@ void State::set_register(const Register& reg) {
 // Name: set_register
 // Desc:
 //------------------------------------------------------------------------------
-void State::set_register(const QString &name, edb::reg_t value) {
+void State::setRegister(const QString &name, edb::reg_t value) {
 	if(impl_) {
-		impl_->set_register(name, value);
+		impl_->setRegister(name, value);
 	}
 }
 
@@ -195,9 +195,9 @@ void State::set_register(const QString &name, edb::reg_t value) {
 // Name: adjust_stack
 // Desc:
 //------------------------------------------------------------------------------
-void State::adjust_stack(int bytes) {
+void State::adjustStack(int bytes) {
 	if(impl_) {
-		impl_->adjust_stack(bytes);
+		impl_->adjustStack(bytes);
 	}
 }
 
@@ -205,9 +205,9 @@ void State::adjust_stack(int bytes) {
 // Name: set_instruction_pointer
 // Desc:
 //------------------------------------------------------------------------------
-void State::set_instruction_pointer(edb::address_t value) {
+void State::setInstructionPointer(edb::address_t value) {
 	if(impl_) {
-		impl_->set_instruction_pointer(value);
+		impl_->setInstructionPointer(value);
 	}
 }
 
@@ -217,7 +217,7 @@ void State::set_instruction_pointer(edb::address_t value) {
 //------------------------------------------------------------------------------
 QString State::flags_to_string() const {
 	if(impl_) {
-		return impl_->flags_to_string();
+		return impl_->flagsToString();
 	}
 	return QString();
 }
@@ -228,7 +228,7 @@ QString State::flags_to_string() const {
 //------------------------------------------------------------------------------
 QString State::flags_to_string(edb::reg_t flags) const {
 	if(impl_) {
-		return impl_->flags_to_string(flags);
+		return impl_->flagsToString(flags);
 	}
 	return QString();
 }
@@ -237,9 +237,9 @@ QString State::flags_to_string(edb::reg_t flags) const {
 // Name: set_flags
 // Desc:
 //------------------------------------------------------------------------------
-void State::set_flags(edb::reg_t flags) {
+void State::setFlags(edb::reg_t flags) {
 	if(impl_) {
-		return impl_->set_flags(flags);
+		return impl_->setFlags(flags);
 	}
 }
 
@@ -247,9 +247,9 @@ void State::set_flags(edb::reg_t flags) {
 // Name: debug_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::reg_t State::debug_register(size_t n) const {
+edb::reg_t State::debugRegister(size_t n) const {
 	if(impl_) {
-		return impl_->debug_register(n);
+		return impl_->debugRegister(n);
 	}
 	return edb::reg_t(0);
 }
@@ -258,9 +258,9 @@ edb::reg_t State::debug_register(size_t n) const {
 // Name: set_debug_register
 // Desc:
 //------------------------------------------------------------------------------
-void State::set_debug_register(size_t n, edb::reg_t value) {
+void State::setDebugRegister(size_t n, edb::reg_t value) {
 	if(impl_) {
-		impl_->set_debug_register(n, value);
+		impl_->setDebugRegister(n, value);
 	}
 }
 
@@ -268,9 +268,9 @@ void State::set_debug_register(size_t n, edb::reg_t value) {
 // Name: arch_register
 // Desc:
 //------------------------------------------------------------------------------
-Register State::arch_register(uint64_t type, size_t n) const {
+Register State::archRegister(uint64_t type, size_t n) const {
 	if(impl_) {
-		return impl_->arch_register(type, n);
+		return impl_->archRegister(type, n);
 	}
 	return Register();
 }
@@ -280,9 +280,9 @@ Register State::arch_register(uint64_t type, size_t n) const {
 // Name: fpu_stack_pointer
 // Desc:
 //------------------------------------------------------------------------------
-int State::fpu_stack_pointer() const {
+int State::fpuStackPointer() const {
 	if(impl_) {
-		return impl_->fpu_stack_pointer();
+		return impl_->fpuStackPointer();
 	}
 	return 0;
 }
@@ -291,9 +291,9 @@ int State::fpu_stack_pointer() const {
 // Name: fpu_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::value80 State::fpu_register(size_t n) const {
+edb::value80 State::fpuRegister(size_t n) const {
 	if(impl_) {
-		return impl_->fpu_register(n);
+		return impl_->fpuRegister(n);
 	}
 	return edb::value80(std::array<std::uint8_t, 10>({ 0,0,0,0,0,0,0,0,0,0 }));
 }
@@ -302,9 +302,9 @@ edb::value80 State::fpu_register(size_t n) const {
 // Name: fpu_register_is_empty
 // Desc:
 //------------------------------------------------------------------------------
-bool State::fpu_register_is_empty(std::size_t n) const {
+bool State::fpuRegisterIsEmpty(std::size_t n) const {
 	if(impl_) {
-		return impl_->fpu_register_is_empty(n);
+		return impl_->fpuRegisterIsEmpty(n);
 	}
 	return true;
 }
@@ -313,9 +313,9 @@ bool State::fpu_register_is_empty(std::size_t n) const {
 // Name: fpu_status_word
 // Desc:
 //------------------------------------------------------------------------------
-edb::value16 State::fpu_status_word() const {
+edb::value16 State::fpuStatusWord() const {
 	if(impl_) {
-		return impl_->fpu_status_word();
+		return impl_->fpuStatusWord();
 	}
 	return edb::value16(0);
 }
@@ -324,9 +324,9 @@ edb::value16 State::fpu_status_word() const {
 // Name: fpu_control_word
 // Desc:
 //------------------------------------------------------------------------------
-edb::value16 State::fpu_control_word() const {
+edb::value16 State::fpuControlWord() const {
 	if(impl_) {
-		return impl_->fpu_control_word();
+		return impl_->fpuControlWord();
 	}
 	return edb::value16(0);
 }
@@ -335,9 +335,9 @@ edb::value16 State::fpu_control_word() const {
 // Name: fpu_tag_word
 // Desc:
 //------------------------------------------------------------------------------
-edb::value16 State::fpu_tag_word() const {
+edb::value16 State::fpuTagWord() const {
 	if(impl_) {
-		return impl_->fpu_tag_word();
+		return impl_->fpuTagWord();
 	}
 	return edb::value16(0);
 }
@@ -346,9 +346,9 @@ edb::value16 State::fpu_tag_word() const {
 // Name: fpu_register_tag_string
 // Desc:
 //------------------------------------------------------------------------------
-QString State::fpu_register_tag_string(std::size_t n) const {
+QString State::fpuRegisterTagString(std::size_t n) const {
 	if(impl_) {
-		return impl_->fpu_register_tag_string(n);
+		return impl_->fpuRegisterTagString(n);
 	}
 	return QString();
 }
@@ -358,9 +358,9 @@ QString State::fpu_register_tag_string(std::size_t n) const {
 // Name: gp_register
 // Desc:
 //------------------------------------------------------------------------------
-Register State::gp_register(size_t n) const {
+Register State::gpRegister(size_t n) const {
 	if(impl_) {
-		return impl_->gp_register(n);
+		return impl_->gpRegister(n);
 	}
 	return Register();
 }

@@ -40,14 +40,14 @@ DialogFunctions::DialogFunctions(QWidget *parent, Qt::WindowFlags f) : QDialog(p
 	ui.setupUi(this);
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	filter_model_ = new QSortFilterProxyModel(this);
-	connect(ui.txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	filterModel_ = new QSortFilterProxyModel(this);
+	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
 	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
 	connect(btnFind_, &QPushButton::clicked, this, [this]() {
 		btnFind_->setEnabled(false);
 		ui.progressBar->setValue(0);
-		do_find();
+		doFind();
 		ui.progressBar->setValue(100);
 		btnFind_->setEnabled(true);
 	});
@@ -60,18 +60,18 @@ DialogFunctions::DialogFunctions(QWidget *parent, Qt::WindowFlags f) : QDialog(p
 // Desc:
 //------------------------------------------------------------------------------
 void DialogFunctions::showEvent(QShowEvent *) {
-	filter_model_->setFilterKeyColumn(3);
-	filter_model_->setSourceModel(&edb::v1::memory_regions());
-	ui.tableView->setModel(filter_model_);
+	filterModel_->setFilterKeyColumn(3);
+	filterModel_->setSourceModel(&edb::v1::memory_regions());
+	ui.tableView->setModel(filterModel_);
 
 	ui.progressBar->setValue(0);
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find
+// Name: doFind
 // Desc:
 //------------------------------------------------------------------------------
-void DialogFunctions::do_find() {
+void DialogFunctions::doFind() {
 
 	if(IAnalyzer *const analyzer = edb::v1::analyzer()) {
 		const QItemSelectionModel *const selModel = ui.tableView->selectionModel();
@@ -91,7 +91,7 @@ void DialogFunctions::do_find() {
 
 		for(const QModelIndex &selected_item: sel) {
 
-			const QModelIndex index = filter_model_->mapToSource(selected_item);
+			const QModelIndex index = filterModel_->mapToSource(selected_item);
 
 			// do the search for this region!
 			if(auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {

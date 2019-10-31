@@ -106,7 +106,7 @@ void get_library_names(QString *libcName, QString *ldName) {
 
 	if(edb::v1::debugger_core) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			const QList<Module> libs = process->loaded_modules();
+			const QList<Module> libs = process->loadedModules();
 
 			for(const Module &module: libs) {
 				if(!ldName->isEmpty() && !libcName->isEmpty()) {
@@ -153,12 +153,12 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) 
 
 	model_ = new ResultViewModel(this);
 
-	filter_model_ = new QSortFilterProxyModel(this);
-	connect(ui.lineEdit, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	filterModel_ = new QSortFilterProxyModel(this);
+	connect(ui.lineEdit, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
-	filter_model_->setFilterKeyColumn(3);
-	filter_model_->setSourceModel(model_);
-	ui.tableView->setModel(filter_model_);
+	filterModel_->setFilterKeyColumn(3);
+	filterModel_->setSourceModel(model_);
+	ui.tableView->setModel(filterModel_);
 
 	ui.tableView->verticalHeader()->hide();
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
@@ -171,9 +171,9 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) 
 		ui.tableView->setUpdatesEnabled(false);
 
 		if(edb::v1::debuggeeIs32Bit()) {
-			do_find<edb::value32>();
+			doFind<edb::value32>();
 		} else {
-			do_find<edb::value64>();
+			doFind<edb::value64>();
 		}
 
 		ui.tableView->setUpdatesEnabled(true);
@@ -200,7 +200,7 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) 
 		const QModelIndexList sel = selModel->selectedRows();
 		if(sel.size() != 0) {
 			for(const QModelIndex &index: sel) {
-				const QModelIndex idx = filter_model_->mapToSource(index);
+				const QModelIndex idx = filterModel_->mapToSource(index);
 				auto item = static_cast<Result *>(idx.internalPointer());
 				result_stack.push(item);
 				seen_results.insert(item);
@@ -269,7 +269,7 @@ void DialogHeap::showEvent(QShowEvent *) {
  * @param index
  */
 void DialogHeap::on_tableView_doubleClicked(const QModelIndex &index) {
-	const QModelIndex idx = filter_model_->mapToSource(index);
+	const QModelIndex idx = filterModel_->mapToSource(index);
 	if(auto item = static_cast<Result *>(idx.internalPointer())) {
 		edb::v1::dump_data_range(item->address, item->address + item->size, false);
 	}
@@ -294,7 +294,7 @@ void DialogHeap::processPotentialPointers(const QHash<edb::address_t, edb::addre
 
 				while(block_ptr < block_end) {
 
-					if(process->read_bytes(block_ptr, &pointer, edb::v1::pointer_size())) {
+					if(process->readBytes(block_ptr, &pointer, edb::v1::pointer_size())) {
 						auto it = targets.find(pointer);
 						if(it != targets.end()) {
 							pointers.push_back(it.value());
@@ -368,7 +368,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 			const edb::address_t how_many = end_address - start_address;
 			while(currentChunkAddress != end_address) {
 				// read in the current chunk..
-				process->read_bytes(currentChunkAddress, &currentChunk, sizeof(currentChunk));
+				process->readBytes(currentChunkAddress, &currentChunk, sizeof(currentChunk));
 
 				// figure out the address of the next chunk
 				const edb::address_t nextChunkAddress = next_chunk(currentChunkAddress, currentChunk);
@@ -387,7 +387,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 					Result::DataType data_type = Result::Unknown;
 
 					// read in the next chunk
-					process->read_bytes(nextChunkAddress, &nextChunk, sizeof(nextChunk));
+					process->readBytes(nextChunkAddress, &nextChunk, sizeof(nextChunk));
 
 					// if this block is a container for an ascii string, display it...
 					// there is a lot of room for improvement here, but it's a start
@@ -417,7 +417,7 @@ void DialogHeap::collectBlocks(edb::address_t start_address, edb::address_t end_
 						using std::memcmp;
 
 						quint8 bytes[16];
-						process->read_bytes(block_start(currentChunkAddress), bytes, sizeof(bytes));
+						process->readBytes(block_start(currentChunkAddress), bytes, sizeof(bytes));
 
 						if(memcmp(bytes, "\x89\x50\x4e\x47", 4) == 0) {
 							data_type = Result::Png;
@@ -486,9 +486,9 @@ edb::address_t DialogHeap::findHeapStartHeuristic(edb::address_t end_address, si
 
 	edb::address_t test_addr(0);
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		process->read_bytes(heap_symbol, &test_addr, edb::v1::pointer_size());
+		process->readBytes(heap_symbol, &test_addr, edb::v1::pointer_size());
 
-		if(test_addr != edb::v1::debugger_core->page_size()) {
+		if(test_addr != edb::v1::debugger_core->pageSize()) {
 			return 0;
 		}
 
@@ -502,7 +502,7 @@ edb::address_t DialogHeap::findHeapStartHeuristic(edb::address_t end_address, si
  * @brief DialogHeap::do_find
  */
 template <class Addr>
-void DialogHeap::do_find() {
+void DialogHeap::doFind() {
 	// get both the libc and ld symbols of __curbrk
 	// this will be the 'before/after libc' addresses
 
@@ -541,8 +541,8 @@ void DialogHeap::do_find() {
 			qDebug() << "[Heap Analyzer] heap end symbol   : " << edb::v1::format_pointer(end_address);
 
 			// read the contents of those symbols
-			process->read_bytes(end_address, &end_address, edb::v1::pointer_size());
-			process->read_bytes(start_address, &start_address, edb::v1::pointer_size());
+			process->readBytes(end_address, &end_address, edb::v1::pointer_size());
+			process->readBytes(start_address, &start_address, edb::v1::pointer_size());
 		}
 
 		// just assume it's the bounds of the [heap] memory region for now

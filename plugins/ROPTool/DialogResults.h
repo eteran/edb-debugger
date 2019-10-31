@@ -66,7 +66,7 @@ public:
 private:
 	Ui::DialogResults      ui;
 	ResultsModel          *model_;
-	QSortFilterProxyModel *filter_model_;
+	QSortFilterProxyModel *filterModel_;
 	ResultFilterProxy     *result_filter_;
 };
 

@@ -45,7 +45,7 @@ public Q_SLOTS:
 	void show_menu();
 
 private:
-	QWidget *options_page() override;
+	QWidget *optionsPage() override;
 
 private:
 	void dump_code(const State &state);

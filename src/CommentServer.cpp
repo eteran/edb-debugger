@@ -61,7 +61,7 @@ Result<QString, QString> CommentServer::resolve_function_call(edb::address_t add
 
 		uint8_t buffer[edb::Instruction::MAX_SIZE];
 
-		if(process->read_bytes(address - CALL_MAX_SIZE, buffer, sizeof(buffer))) {
+		if(process->readBytes(address - CALL_MAX_SIZE, buffer, sizeof(buffer))) {
 			for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
 				edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
 				if(is_call(inst)) {
@@ -112,7 +112,7 @@ QString CommentServer::comment(edb::address_t address, int size) const {
 		// then see if it points to anything...
 		if(size == static_cast<int>(edb::v1::pointer_size())) {
 			edb::address_t value(0);
-			if(process->read_bytes(address, &value, edb::v1::pointer_size())) {
+			if(process->readBytes(address, &value, edb::v1::pointer_size())) {
 
 				auto it = custom_comments_.find(value);
 				if(it != custom_comments_.end()) {

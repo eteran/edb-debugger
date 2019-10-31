@@ -47,7 +47,7 @@ QMenu *BinarySearcher::menu(QWidget *parent) {
 // Name: stack_context_menu
 // Desc:
 //------------------------------------------------------------------------------
-QList<QAction *> BinarySearcher::stack_context_menu() {
+QList<QAction *> BinarySearcher::stackContextMenu() {
 
 	QList<QAction *> ret;
 

@@ -38,13 +38,13 @@ public:
 	const QList<std::shared_ptr<Symbol>> symbols() const override;
 	const std::shared_ptr<Symbol> find(const QString &name) const override;
 	const std::shared_ptr<Symbol> find(edb::address_t address) const override;
-	const std::shared_ptr<Symbol> find_near_symbol(edb::address_t address) const override;
-	void add_symbol(const std::shared_ptr<Symbol> &symbol) override;
+	const std::shared_ptr<Symbol> findNearSymbol(edb::address_t address) const override;
+	void addSymbol(const std::shared_ptr<Symbol> &symbol) override;
 	void clear() override;
-	void load_symbol_file(const QString &filename, edb::address_t base) override;
-	void set_symbol_generator(ISymbolGenerator *generator) override;
-	void set_label(edb::address_t address, const QString &label) override;
-	QString find_address_name(edb::address_t address,bool prefixed=true) override;
+	void loadSymbolFile(const QString &filename, edb::address_t base) override;
+	void setSymbolGenerator(ISymbolGenerator *generator) override;
+	void setLabel(edb::address_t address, const QString &label) override;
+	QString findAddressName(edb::address_t address,bool prefixed=true) override;
 	QHash<edb::address_t, QString> labels() const override;
 	QStringList files() const override;
 

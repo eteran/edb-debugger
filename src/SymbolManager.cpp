@@ -50,7 +50,7 @@ void SymbolManager::clear() {
 // Name: load_symbol_file
 // Desc:
 //------------------------------------------------------------------------------
-void SymbolManager::load_symbol_file(const QString &filename, edb::address_t base) {
+void SymbolManager::loadSymbolFile(const QString &filename, edb::address_t base) {
 
 	const QString symbol_directory = edb::v1::config().symbol_path;
 
@@ -127,7 +127,7 @@ const std::shared_ptr<Symbol> SymbolManager::find(edb::address_t address) const 
 // Name: find_near_symbol
 // Desc:
 //------------------------------------------------------------------------------
-const std::shared_ptr<Symbol> SymbolManager::find_near_symbol(edb::address_t address) const {
+const std::shared_ptr<Symbol> SymbolManager::findNearSymbol(edb::address_t address) const {
 
 	auto it = symbols_by_address_.lowerBound(address);
 	if(it != symbols_by_address_.end()) {
@@ -155,7 +155,7 @@ const std::shared_ptr<Symbol> SymbolManager::find_near_symbol(edb::address_t add
 // Name: add_symbol
 // Desc:
 //------------------------------------------------------------------------------
-void SymbolManager::add_symbol(const std::shared_ptr<Symbol> &symbol) {
+void SymbolManager::addSymbol(const std::shared_ptr<Symbol> &symbol) {
 	Q_ASSERT(symbol);
 	symbols_.push_back(symbol);
 	symbols_by_address_[symbol->address] = symbol;
@@ -237,7 +237,7 @@ bool SymbolManager::process_symbol_file(const QString &f, edb::address_t base, c
 						sym->address += base;
 					}
 
-					add_symbol(sym);
+					addSymbol(sym);
 				}
 				edb::v1::clear_status();
 				return true;
@@ -269,7 +269,7 @@ const QList<std::shared_ptr<Symbol>> SymbolManager::symbols() const {
 // Name: set_symbol_generator
 // Desc:
 //------------------------------------------------------------------------------
-void SymbolManager::set_symbol_generator(ISymbolGenerator *generator) {
+void SymbolManager::setSymbolGenerator(ISymbolGenerator *generator) {
 	symbol_generator_ = generator;
 }
 
@@ -279,7 +279,7 @@ void SymbolManager::set_symbol_generator(ISymbolGenerator *generator) {
 //       precidence over symbols (since this is the name that the user really
 //       wants to call this address). And only apply to code
 //------------------------------------------------------------------------------
-void SymbolManager::set_label(edb::address_t address, const QString &label) {
+void SymbolManager::setLabel(edb::address_t address, const QString &label) {
 	if(label.isEmpty()) {
 		labels_by_name_.remove(labels_[address]);
 		labels_.remove(address);
@@ -303,7 +303,7 @@ void SymbolManager::set_label(edb::address_t address, const QString &label) {
 // Name: find_address_name
 // Desc:
 //------------------------------------------------------------------------------
-QString SymbolManager::find_address_name(edb::address_t address,bool prefixed) {
+QString SymbolManager::findAddressName(edb::address_t address,bool prefixed) {
 	auto it = labels_.find(address);
 	if(it != labels_.end()) {
 		return it.value();

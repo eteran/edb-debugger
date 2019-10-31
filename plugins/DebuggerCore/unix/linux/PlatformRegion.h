@@ -46,9 +46,9 @@ public:
 	size_t size() const override;
 
 public:
-	void set_permissions(bool read, bool write, bool execute) override;
-	void set_start(edb::address_t address) override;
-	void set_end(edb::address_t address) override;
+	void setPermissions(bool read, bool write, bool execute) override;
+	void setStart(edb::address_t address) override;
+	void setEnd(edb::address_t address) override;
 
 public:
 	edb::address_t start() const override;
@@ -58,7 +58,7 @@ public:
 	permissions_t permissions() const override;
 
 private:
-	void set_permissions(bool read, bool write, bool execute, edb::address_t temp_address);
+	void setPermissions(bool read, bool write, bool execute, edb::address_t temp_address);
 
 private:
 	edb::address_t start_;

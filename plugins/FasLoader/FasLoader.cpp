@@ -67,7 +67,7 @@ void FasLoader::load() {
 					symbol->type = 'd';
 				}
 
-				edb::v1::symbol_manager().add_symbol(symbol);
+				edb::v1::symbol_manager().addSymbol(symbol);
 			}
 		}
 	}

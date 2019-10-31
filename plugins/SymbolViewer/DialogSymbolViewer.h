@@ -51,12 +51,12 @@ private:
     void showEvent(QShowEvent *event) override;
 
 private:
-	void do_find();
+	void doFind();
 
 private:
 	 Ui::DialogSymbolViewer ui;
 	 QStringListModel *model_;
-	 QSortFilterProxyModel *filter_model_;
+	 QSortFilterProxyModel *filterModel_;
 	 QPushButton *btnRefresh_;
 };
 

@@ -46,7 +46,7 @@ DialogReferences::DialogReferences(QWidget *parent, Qt::WindowFlags f) : QDialog
 		btnFind_->setEnabled(false);
 		ui.progressBar->setValue(0);
 		ui.listWidget->clear();
-		do_find();
+		doFind();
 		ui.progressBar->setValue(100);
 		btnFind_->setEnabled(true);
 	});
@@ -64,13 +64,13 @@ void DialogReferences::showEvent(QShowEvent *) {
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find
+// Name: doFind
 // Desc:
 //------------------------------------------------------------------------------
-void DialogReferences::do_find() {
+void DialogReferences::doFind() {
 	bool ok = false;
 	edb::address_t address;
-	const size_t page_size = edb::v1::debugger_core->page_size();
+	const size_t page_size = edb::v1::debugger_core->pageSize();
 
 	const QString text = ui.txtAddress->text();
 	if(!text.isEmpty()) {

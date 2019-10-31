@@ -29,7 +29,7 @@ namespace BinaryInfoPlugin {
 //------------------------------------------------------------------------------
 template<>
 bool ELF32::native() const {
-	return edb::v1::debugger_core->cpu_type() == edb::string_hash("x86");
+	return edb::v1::debugger_core->cpuType() == edb::string_hash("x86");
 }
 
 }

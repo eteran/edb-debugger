@@ -50,11 +50,11 @@ public:
 
 public:
 	virtual edb::address_t address() const = 0;
-	virtual quint64 hit_count() const = 0;
+	virtual quint64 hitCount() const = 0;
 	virtual bool enabled() const = 0;
-	virtual bool one_time() const = 0;
+	virtual bool oneTime() const = 0;
 	virtual bool internal() const = 0;
-	virtual const quint8* original_bytes() const = 0;
+	virtual const quint8* originalBytes() const = 0;
 	virtual size_t size() const = 0;
 	virtual TypeId type() const = 0;
 
@@ -62,9 +62,9 @@ public:
 	virtual bool enable() = 0;
 	virtual bool disable() = 0;
 	virtual void hit() = 0;
-	virtual void set_one_time(bool value) = 0;
-	virtual void set_internal(bool value) = 0;
-	virtual void set_type(TypeId type) = 0;
+	virtual void setOneTime(bool value) = 0;
+	virtual void setInternal(bool value) = 0;
+	virtual void setType(TypeId type) = 0;
 
 public:
 	QString condition;

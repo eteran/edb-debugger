@@ -115,7 +115,7 @@ Plugin::Plugin(QObject *parent) : QObject(parent), menuAction(new QAction("Inspe
 
 QMenu* Plugin::menu(QWidget*) { return nullptr; }
 
-QList<QAction*> Plugin::cpu_context_menu() {
+QList<QAction*> Plugin::cpuContextMenu() {
 	return { menuAction };
 }
 

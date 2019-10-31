@@ -40,14 +40,14 @@ DialogStrings::DialogStrings(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	ui.tableView->verticalHeader()->hide();
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	filter_model_ = new QSortFilterProxyModel(this);
-	connect(ui.txtSearch, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	filterModel_ = new QSortFilterProxyModel(this);
+	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
 	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
 	connect(btnFind_, &QPushButton::clicked, this, [this]() {
 		btnFind_->setEnabled(false);
 		ui.progressBar->setValue(0);
-		do_find();
+		doFind();
 		ui.progressBar->setValue(100);
 		btnFind_->setEnabled(true);
 	});
@@ -60,17 +60,17 @@ DialogStrings::DialogStrings(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 // Desc:
 //------------------------------------------------------------------------------
 void DialogStrings::showEvent(QShowEvent *) {
-	filter_model_->setFilterKeyColumn(3);
-	filter_model_->setSourceModel(&edb::v1::memory_regions());
-	ui.tableView->setModel(filter_model_);
+	filterModel_->setFilterKeyColumn(3);
+	filterModel_->setSourceModel(&edb::v1::memory_regions());
+	ui.tableView->setModel(filterModel_);
 	ui.progressBar->setValue(0);
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find
+// Name: doFind
 // Desc:
 //------------------------------------------------------------------------------
-void DialogStrings::do_find() {
+void DialogStrings::doFind() {
 
 	const int min_string_length = edb::v1::config().min_string_length;
 
@@ -91,7 +91,7 @@ void DialogStrings::do_find() {
 
 	for(const QModelIndex &selected_item: sel) {
 
-		const QModelIndex index = filter_model_->mapToSource(selected_item);
+		const QModelIndex index = filterModel_->mapToSource(selected_item);
 
 		if(auto region = *reinterpret_cast<const std::shared_ptr<IRegion> *>(index.internalPointer())) {
 

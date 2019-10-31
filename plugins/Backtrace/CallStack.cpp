@@ -44,13 +44,13 @@ void CallStack::get_call_stack() {
 	 */
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(std::shared_ptr<IThread> thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->currentThread()) {
 
 			// Get the frame & stack pointers.
 			State state;
-			thread->get_state(&state);
-			edb::address_t rbp = state.frame_pointer();
-			edb::address_t rsp = state.stack_pointer();
+			thread->getState(&state);
+			edb::address_t rbp = state.framePointer();
+			edb::address_t rsp = state.stackPointer();
 
 			// Check the alignment.  rbp and rsp should be aligned to the stack.
 			if (rbp % edb::v1::pointer_size() != 0 || rsp % edb::v1::pointer_size() != 0) {
@@ -62,8 +62,8 @@ void CallStack::get_call_stack() {
 			// If not, then it's being used as a GPR, and we don't have enough info.
 			// This assumes the stack pointer is always pointing somewhere in the stack.
 			edb::v1::memory_regions().sync();
-			std::shared_ptr<IRegion> region_rsp = edb::v1::memory_regions().find_region(rsp);
-			std::shared_ptr<IRegion> region_rbp = edb::v1::memory_regions().find_region(rbp);
+			std::shared_ptr<IRegion> region_rsp = edb::v1::memory_regions().findRegion(rsp);
+			std::shared_ptr<IRegion> region_rbp = edb::v1::memory_regions().findRegion(rbp);
 			if (!region_rsp || !region_rbp || (region_rbp != region_rsp)) {
 				return;
 			}
@@ -81,7 +81,7 @@ void CallStack::get_call_stack() {
 				ExpressionError err;
 				edb::address_t possible_ret = edb::v1::get_value(addr, &ok, &err);
 
-				if(process->read_bytes(possible_ret - CALL_MAX_SIZE, buffer, sizeof(buffer))) {	// 0xfffff... if not a ptr.
+				if(process->readBytes(possible_ret - CALL_MAX_SIZE, buffer, sizeof(buffer))) {	// 0xfffff... if not a ptr.
 					for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
 						edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
 

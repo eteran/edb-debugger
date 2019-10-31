@@ -228,7 +228,7 @@ private:
     void dropEvent(QDropEvent* event) override;
 
 public:
-    edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) override;
+    edb::EVENT_STATUS handleEvent(const std::shared_ptr<IDebugEvent> &event) override;
 
 private:
 	std::shared_ptr<IRegion> update_cpu_view(const State &state);

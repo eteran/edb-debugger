@@ -28,14 +28,14 @@ class OptionsPage : public QWidget {
 	Q_OBJECT
 
 public:
-    explicit OptionsPage(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit OptionsPage(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~OptionsPage() override = default;
 
 public:
 	void showEvent(QShowEvent *event) override;
 
-public:
-	void checkBox_toggled(bool checked = false);
+private:
+	void checkBoxToggled(bool checked = false);
 
 private:
 	Ui::OptionsPage ui;

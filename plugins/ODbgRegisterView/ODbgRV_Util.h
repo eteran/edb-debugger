@@ -59,7 +59,7 @@ T sqr(T v) {
 	return v * v;
 }
 
-inline QPoint fieldPos(const FieldWidget *const field) {
+inline QPoint fieldPos(const FieldWidget *field) {
 	// NOTE: mapToGlobal() is VERY slow, don't use it. Here we map to canvas, it's enough for all fields.
 	return field->mapTo(field->parentWidget()->parentWidget(), QPoint());
 }
@@ -95,7 +95,7 @@ inline QAction *newAction(const QString &text, QObject *parent, QSignalMapper *m
 }
 
 // TODO: switch from string-based search to enum-based one (add a new Role to model data)
-inline QModelIndex findModelCategory(const  RegisterViewModelBase::Model *const model, const QString &catToFind) {
+inline QModelIndex findModelCategory(const  RegisterViewModelBase::Model *model, const QString &catToFind) {
 	for (int row = 0; row < model->rowCount(); ++row) {
 		const auto cat = model->index(row, 0).data(MODEL_NAME_COLUMN);
 		if (cat.isValid() && cat.toString() == catToFind)

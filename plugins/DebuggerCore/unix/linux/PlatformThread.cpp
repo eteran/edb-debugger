@@ -79,7 +79,7 @@ int PlatformThread::priority() const  {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t PlatformThread::instruction_pointer() const  {
+edb::address_t PlatformThread::instructionPointer() const  {
 	// FIXME(ARM): doesn't work at least on ARM32
 	struct user_stat thread_stat;
 	int n = get_user_task_stat(process_->pid(), tid_, &thread_stat);

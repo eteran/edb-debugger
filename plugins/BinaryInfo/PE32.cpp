@@ -52,7 +52,7 @@ PE32::PE32(const std::shared_ptr<IRegion> &region) : region_(region) {
 		throw PEBinaryException(PEBinaryException::Reason::READ_FAILURE);
 	}
 
-	if (!process->read_bytes(region_->start(), &dos_, sizeof(dos_))) {
+	if (!process->readBytes(region_->start(), &dos_, sizeof(dos_))) {
 		throw PEBinaryException(PEBinaryException::Reason::READ_FAILURE);
 	}
 
@@ -60,7 +60,7 @@ PE32::PE32(const std::shared_ptr<IRegion> &region) : region_(region) {
 		throw PEBinaryException(PEBinaryException::Reason::INVALID_PE);
 	}
 
-	if (!process->read_bytes(region_->start() + dos_.e_lfanew, &pe_, sizeof(pe_))) {
+	if (!process->readBytes(region_->start() + dos_.e_lfanew, &pe_, sizeof(pe_))) {
 		throw PEBinaryException(PEBinaryException::Reason::READ_FAILURE);
 	}
 
@@ -73,7 +73,7 @@ PE32::PE32(const std::shared_ptr<IRegion> &region) : region_(region) {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t PE32::entry_point() {
+edb::address_t PE32::entryPoint() {
 	// TODO(eteran): relative to pe_.OptionalHeader.ImageBase;?
 	return pe_.OptionalHeader.AddressOfEntryPoint;
 }
@@ -90,7 +90,7 @@ bool PE32::native() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-size_t PE32::header_size() const {
+size_t PE32::headerSize() const {
 	return sizeof(pe_) + dos_.e_lfanew;
 }
 

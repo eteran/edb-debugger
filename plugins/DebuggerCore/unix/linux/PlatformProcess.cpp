@@ -140,8 +140,8 @@ QList<Module> get_loaded_modules(const IProcess* process) {
 
 	edb::linux_struct::r_debug<Addr> dynamic_info;
 	if(process) {
-		if(const edb::address_t debug_pointer = process->debug_pointer()) {
-			if(process->read_bytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
+		if(const edb::address_t debug_pointer = process->debugPointer()) {
+			if(process->readBytes(debug_pointer, &dynamic_info, sizeof(dynamic_info))) {
 				if(dynamic_info.r_map) {
 
 					auto link_address = edb::address_t::fromZeroExtended(dynamic_info.r_map);
@@ -149,9 +149,9 @@ QList<Module> get_loaded_modules(const IProcess* process) {
 					while(link_address) {
 
 						edb::linux_struct::link_map<Addr> map;
-						if(process->read_bytes(link_address, &map, sizeof(map))) {
+						if(process->readBytes(link_address, &map, sizeof(map))) {
 							char path[PATH_MAX];
-							if(!process->read_bytes(edb::address_t::fromZeroExtended(map.l_name), &path, sizeof(path))) {
+							if(!process->readBytes(edb::address_t::fromZeroExtended(map.l_name), &path, sizeof(path))) {
 								path[0] = '\0';
 							}
 
@@ -243,7 +243,7 @@ void seek_addr(QFile& file, edb::address_t address) {
 // Note: returns the number of bytes read <N>
 // Note: if the read is short, only the first <N> bytes are defined
 //------------------------------------------------------------------------------
-std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::size_t len) const {
+std::size_t PlatformProcess::readBytes(edb::address_t address, void* buf, std::size_t len) const {
 	quint64 read = 0;
 
 	Q_ASSERT(buf);
@@ -258,7 +258,7 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 
 			auto it = core_->breakpoints_.find(address);
 			if(it != core_->breakpoints_.end()) {
-				*ptr = (*it)->original_bytes()[0];
+				*ptr = (*it)->originalBytes()[0];
 				return 1;
 			}
 
@@ -305,7 +305,7 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 
 		// replace any breakpoints
 		Q_FOREACH(const std::shared_ptr<IBreakpoint> &bp, core_->breakpoints_) {
-			auto bpBytes = bp->original_bytes();
+			auto bpBytes = bp->originalBytes();
 			const edb::address_t bpAddr = bp->address();
 			// show the original bytes in the buffer..
 			for(size_t i=0; i < bp->size(); ++i) {
@@ -329,7 +329,7 @@ std::size_t PlatformProcess::read_bytes(edb::address_t address, void* buf, std::
 //       bytes, we will return the number of bytes written, but record <len>
 //       bytes of patch data.
 //------------------------------------------------------------------------------
-std::size_t PlatformProcess::patch_bytes(edb::address_t address, const void *buf, size_t len) {
+std::size_t PlatformProcess::patchBytes(edb::address_t address, const void *buf, size_t len) {
 	Q_ASSERT(buf);
 	Q_ASSERT(core_->process_.get() == this);
 
@@ -338,21 +338,21 @@ std::size_t PlatformProcess::patch_bytes(edb::address_t address, const void *buf
 	patch.orig_bytes.resize(len);
 	patch.new_bytes = QByteArray(static_cast<const char *>(buf), len);
 
-	size_t read_ret = read_bytes(address, patch.orig_bytes.data(), len);
+	size_t read_ret = readBytes(address, patch.orig_bytes.data(), len);
 	if(read_ret != len) {
 		return 0;
 	}
 
 	patches_.insert(address, patch);
 
-	return write_bytes(address, buf, len);
+	return writeBytes(address, buf, len);
 }
 
 //------------------------------------------------------------------------------
 // Name: write_bytes
 // Desc: writes <len> bytes from <buf> starting at <address>
 //------------------------------------------------------------------------------
-std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf, std::size_t len) {
+std::size_t PlatformProcess::writeBytes(edb::address_t address, const void *buf, std::size_t len) {
 	quint64 written = 0;
 
 	Q_ASSERT(buf);
@@ -386,17 +386,17 @@ std::size_t PlatformProcess::write_bytes(edb::address_t address, const void *buf
 // Note: buf's size must be >= count * core_->page_size()
 // Note: address should be page aligned.
 //------------------------------------------------------------------------------
-std::size_t PlatformProcess::read_pages(edb::address_t address, void *buf, std::size_t count) const {
+std::size_t PlatformProcess::readPages(edb::address_t address, void *buf, std::size_t count) const {
 	Q_ASSERT(buf);
 	Q_ASSERT(core_->process_.get() == this);
-	return read_bytes(address, buf, count * core_->page_size()) / core_->page_size();
+	return readBytes(address, buf, count * core_->pageSize()) / core_->pageSize();
 }
 
 //------------------------------------------------------------------------------
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QDateTime PlatformProcess::start_time() const {
+QDateTime PlatformProcess::startTime() const {
 	QFileInfo info(QString("/proc/%1/stat").arg(pid_));
 	return info.created();
 }
@@ -442,7 +442,7 @@ QList<QByteArray> PlatformProcess::arguments() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QString PlatformProcess::current_working_directory() const {
+QString PlatformProcess::currentWorkingDirectory() const {
 	return edb::v1::symlink_target(QString("/proc/%1/cwd").arg(pid_));
 }
 
@@ -481,7 +481,7 @@ std::shared_ptr<IProcess> PlatformProcess::parent() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t PlatformProcess::code_address() const {
+edb::address_t PlatformProcess::codeAddress() const {
 	struct user_stat user_stat;
 	int n = get_user_stat(pid_, &user_stat);
 	if(n >= 26) {
@@ -494,7 +494,7 @@ edb::address_t PlatformProcess::code_address() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-edb::address_t PlatformProcess::data_address() const {
+edb::address_t PlatformProcess::dataAddress() const {
 	struct user_stat user_stat;
 	int n = get_user_stat(pid_, &user_stat);
 	if(n >= 27) {
@@ -569,7 +569,7 @@ quint8 PlatformProcess::read_byte_via_ptrace(edb::address_t address, bool *ok) c
 	// are always 0x10*, so the masking works
 	// range of nBytesToNextPage is [1..n] where n=pagesize, and we have to adjust
 	// if nByteToNextPage < wordsize
-	const size_t nBytesToNextPage = core_->page_size() - (address & (core_->page_size() - 1));
+	const size_t nBytesToNextPage = core_->pageSize() - (address & (core_->pageSize() - 1));
 
 	// Avoid crossing page boundary, since next page may be unreadable
 	const size_t addressShift = nBytesToNextPage < EDB_WORDSIZE ? EDB_WORDSIZE - nBytesToNextPage : 0;
@@ -607,7 +607,7 @@ void PlatformProcess::write_byte_via_ptrace(edb::address_t address, quint8 value
 	// are always 0x10*, so the masking works
 	// range of nBytesToNextPage is [1..n] where n=pagesize, and we have to adjust
 	// if nBytesToNextPage < wordsize
-	const size_t nBytesToNextPage = core_->page_size() - (address & (core_->page_size() - 1));
+	const size_t nBytesToNextPage = core_->pageSize() - (address & (core_->pageSize() - 1));
 
 	// Avoid crossing page boundary, since next page may be inaccessible
 	const size_t addressShift = nBytesToNextPage < EDB_WORDSIZE ? EDB_WORDSIZE - nBytesToNextPage : 0;
@@ -687,7 +687,7 @@ QList<std::shared_ptr<IThread>> PlatformProcess::threads() const {
 // Name: current_thread
 // Desc:
 //------------------------------------------------------------------------------
-std::shared_ptr<IThread> PlatformProcess::current_thread() const {
+std::shared_ptr<IThread> PlatformProcess::currentThread() const {
 
 	Q_ASSERT(core_->process_.get() == this);
 
@@ -702,7 +702,7 @@ std::shared_ptr<IThread> PlatformProcess::current_thread() const {
 // Name: set_current_thread
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformProcess::set_current_thread(IThread& thread) {
+void PlatformProcess::setCurrentThread(IThread& thread) {
 	core_->active_thread_ = static_cast<PlatformThread*>(&thread)->tid();
 	edb::v1::update_ui();
 }
@@ -747,7 +747,7 @@ QString PlatformProcess::name() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QList<Module> PlatformProcess::loaded_modules() const {
+QList<Module> PlatformProcess::loadedModules() const {
 	if(edb::v1::debuggeeIs64Bit()) {
 		return get_loaded_modules<Elf64_Addr>(this);
 	} else if(edb::v1::debuggeeIs32Bit()) {
@@ -794,7 +794,7 @@ Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 
 	if(status != edb::DEBUG_STOP) {
 
-		if(std::shared_ptr<IThread> thread = current_thread()) {
+		if(std::shared_ptr<IThread> thread = currentThread()) {
 			const auto resumeStatus = thread->resume(status);
 			if(!resumeStatus) {
 				errorMessage += tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.error());
@@ -829,7 +829,7 @@ Status PlatformProcess::step(edb::EVENT_STATUS status) {
 	Q_ASSERT(core_->process_.get() == this);
 
 	if(status != edb::DEBUG_STOP) {
-		if(std::shared_ptr<IThread> thread = current_thread()) {
+		if(std::shared_ptr<IThread> thread = currentThread()) {
 			return thread->step(status);
 		}
 	}
@@ -862,7 +862,7 @@ QMap<edb::address_t, Patch> PlatformProcess::patches() const {
  * @brief PlatformProcess::entry_point
  * @return
  */
-edb::address_t PlatformProcess::entry_point() const  {
+edb::address_t PlatformProcess::entryPoint() const  {
 
 	QFile auxv(QString("/proc/%1/auxv").arg(pid_));
 	if(auxv.open(QIODevice::ReadOnly)) {
@@ -947,13 +947,13 @@ edb::address_t get_debug_pointer(const IProcess *process, edb::address_t phdr_me
 
 	elf_phdr phdr;
 	for(int i = 0; i < count; ++i) {
-		if(process->read_bytes(phdr_memaddr + i * sizeof(elf_phdr), &phdr, sizeof(elf_phdr))) {
+		if(process->readBytes(phdr_memaddr + i * sizeof(elf_phdr), &phdr, sizeof(elf_phdr))) {
 			if(phdr.p_type == PT_DYNAMIC) {
 				try {
 
 					auto buf = std::make_unique<uint8_t[]>(phdr.p_memsz);
 
-					if(process->read_bytes(phdr.p_vaddr + relocation, &buf[0], phdr.p_memsz)) {
+					if(process->readBytes(phdr.p_vaddr + relocation, &buf[0], phdr.p_memsz)) {
 						auto dynamic = reinterpret_cast<typename Model::elf_dyn *>(&buf[0]);
 						while(dynamic->d_tag != DT_NULL) {
 							if(dynamic->d_tag == DT_DEBUG) {
@@ -986,7 +986,7 @@ edb::address_t get_relocation(const IProcess *process, edb::address_t phdr_memad
 	using elf_phdr = typename Model::elf_phdr;
 
 	elf_phdr phdr;
-	if(process->read_bytes(phdr_memaddr + i * sizeof(elf_phdr), &phdr, sizeof(elf_phdr))) {
+	if(process->readBytes(phdr_memaddr + i * sizeof(elf_phdr), &phdr, sizeof(elf_phdr))) {
 		if (phdr.p_type == PT_PHDR) {
 			return phdr_memaddr - phdr.p_vaddr;
 		}
@@ -1002,7 +1002,7 @@ edb::address_t get_relocation(const IProcess *process, edb::address_t phdr_memad
  * @brief PlatformProcess::debug_pointer
  * @return
  */
-edb::address_t PlatformProcess::debug_pointer() const {
+edb::address_t PlatformProcess::debugPointer() const {
 
 	// NOTE(eteran): some of this code is from or inspired by code in
 	// gdb/gdbserver/linux-low.c
@@ -1048,15 +1048,15 @@ edb::address_t PlatformProcess::debug_pointer() const {
 	return edb::address_t{};
 }
 
-edb::address_t PlatformProcess::calculate_main() const {
+edb::address_t PlatformProcess::calculateMain() const {
 	if(edb::v1::debuggeeIs64Bit()) {
 		ByteShiftArray ba(14);
 
-		edb::address_t entry_point = this->entry_point();
+		edb::address_t entry_point = this->entryPoint();
 
 		for(int i = 0; i < 50; ++i) {
 			quint8 byte;
-			if(read_bytes(entry_point + i, &byte, sizeof(byte))) {
+			if(readBytes(entry_point + i, &byte, sizeof(byte))) {
 				ba << byte;
 
 				edb::address_t address = 0;
@@ -1090,11 +1090,11 @@ edb::address_t PlatformProcess::calculate_main() const {
 		ByteShiftArray ba(11);
 
 
-		edb::address_t entry_point = this->entry_point();
+		edb::address_t entry_point = this->entryPoint();
 
 		for(int i = 0; i < 50; ++i) {
 			quint8 byte;
-			if(read_bytes(entry_point + i, &byte, sizeof(byte))) {
+			if(readBytes(entry_point + i, &byte, sizeof(byte))) {
 				ba << byte;
 
 				if(ba.size() >= 11) {

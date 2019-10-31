@@ -48,7 +48,7 @@ DialogASCIIString::DialogASCIIString(QWidget *parent, Qt::WindowFlags f) : QDial
 	connect(btnFind_, &QPushButton::clicked, this, [this]() {
 		btnFind_->setEnabled(false);
 		ui.progressBar->setValue(0);
-		do_find();
+		doFind();
 		ui.progressBar->setValue(100);
 		btnFind_->setEnabled(true);
 	});
@@ -57,10 +57,10 @@ DialogASCIIString::DialogASCIIString(QWidget *parent, Qt::WindowFlags f) : QDial
 }
 
 //------------------------------------------------------------------------------
-// Name: do_find
+// Name: doFind
 // Desc: This will find *stack aligned pointers* to exact string matches
 //------------------------------------------------------------------------------
-void DialogASCIIString::do_find() {
+void DialogASCIIString::doFind() {
 
 	const QByteArray b = ui.txtASCII->text().toLatin1();
 	auto results = new DialogResults(this);
@@ -71,13 +71,13 @@ void DialogASCIIString::do_find() {
 		edb::v1::memory_regions().sync();
 
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(std::shared_ptr<IThread> thread = process->current_thread()) {
+			if(std::shared_ptr<IThread> thread = process->currentThread()) {
 
 				State state;
-				thread->get_state(&state);
-				edb::address_t stack_ptr = state.stack_pointer();
+				thread->getState(&state);
+				edb::address_t stack_ptr = state.stackPointer();
 
-				if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().find_region(stack_ptr)) {
+				if(std::shared_ptr<IRegion> region = edb::v1::memory_regions().findRegion(stack_ptr)) {
 
 					edb::address_t count = (region->end() - stack_ptr) / edb::v1::pointer_size();
 					stack_ptr = region->start();
@@ -91,8 +91,8 @@ void DialogASCIIString::do_find() {
 							// get the value from the stack
 							edb::address_t stack_address;
 
-							if(process->read_bytes(stack_ptr, &stack_address, edb::v1::pointer_size())) {
-								if(process->read_bytes(stack_address, &chars[0], chars.size())) {
+							if(process->readBytes(stack_ptr, &stack_address, edb::v1::pointer_size())) {
+								if(process->readBytes(stack_address, &chars[0], chars.size())) {
 									if(std::memcmp(&chars[0], b.constData(), chars.size()) == 0) {
 										results->addResult(DialogResults::RegionType::Stack, stack_ptr);
 									}

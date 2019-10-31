@@ -64,7 +64,7 @@ bool setDebuggeeRegister(const QString &name, const T &value, T &resultingValue)
 
 		State state;
 		// read
-		process->current_thread()->get_state(&state);
+		process->currentThread()->getState(&state);
 		auto reg = state[name];
 
 		if (!reg) {
@@ -84,11 +84,11 @@ bool setDebuggeeRegister(const QString &name, const T &value, T &resultingValue)
 		reg.setValueFrom(value);
 
 		// write
-		state.set_register(reg);
-		process->current_thread()->set_state(state);
+		state.setRegister(reg);
+		process->currentThread()->setState(state);
 
 		// check
-		process->current_thread()->get_state(&state);
+		process->currentThread()->getState(&state);
 		const auto resultReg = state[name];
 
 		if (!resultReg) {
@@ -392,7 +392,7 @@ QVariant Model::data(const QModelIndex &index, int role) const {
 
 			// read
 			if(IProcess *process = core->process()) {
-				process->current_thread()->get_state(&state);
+				process->currentThread()->getState(&state);
 			}
 			return QVariant::fromValue(state[name]);
 		}

@@ -15,17 +15,17 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
 	model_        = new ResultsModel(this);
-	filter_model_ = new QSortFilterProxyModel(this);
+	filterModel_ = new QSortFilterProxyModel(this);
 
 	result_filter_ = new ResultFilterProxy(this);
 	result_filter_->setSourceModel(model_);
 
-	filter_model_->setFilterKeyColumn(1);
-	filter_model_->setSourceModel(result_filter_);
-	ui.tableView->setModel(filter_model_);
+	filterModel_->setFilterKeyColumn(1);
+	filterModel_->setSourceModel(result_filter_);
+	ui.tableView->setModel(filterModel_);
 
 
-	connect(ui.textFilter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	connect(ui.textFilter, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 	connect(ui.chkShowALU, &QCheckBox::stateChanged, this, [this](int state) {
 		result_filter_->setMask(0x01, state);
 	});
@@ -62,7 +62,7 @@ void DialogResults::addResult(const Result &result) {
  */
 void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 	if(index.isValid()) {
-		const QModelIndex realIndex = filter_model_->mapToSource(index);
+		const QModelIndex realIndex = filterModel_->mapToSource(index);
 		if(realIndex.isValid()) {
 			const QModelIndex realIndex2 = result_filter_->mapToSource(realIndex);
 			if(auto item = static_cast<Result *>(realIndex2.internalPointer())) {

@@ -33,12 +33,12 @@ public:
 	virtual edb::tid_t tid() const = 0;
 	virtual QString name() const = 0;
 	virtual int priority() const = 0;
-	virtual edb::address_t instruction_pointer() const = 0;
+	virtual edb::address_t instructionPointer() const = 0;
 	virtual QString runState() const = 0;
 
 public:
-	virtual void get_state(State *state) = 0;
-	virtual void set_state(const State &state) = 0;
+	virtual void getState(State *state) = 0;
+	virtual void setState(const State &state) = 0;
 
 public:
 	virtual Status step() = 0;

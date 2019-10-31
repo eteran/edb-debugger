@@ -39,11 +39,11 @@ private:
     void showEvent(QShowEvent *event) override;
 
 private:
-	void do_find();
+	void doFind();
 
 private:
 	 Ui::DialogStrings ui;
-	 QSortFilterProxyModel *filter_model_;
+	 QSortFilterProxyModel *filterModel_;
 	 QPushButton *btnFind_;
 };
 

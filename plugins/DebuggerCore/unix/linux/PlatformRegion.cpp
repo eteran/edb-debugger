@@ -66,7 +66,7 @@ public:
 	bool restore();
 
 public:
-	edb::EVENT_STATUS handle_event(const std::shared_ptr<IDebugEvent> &event) override;
+	edb::EVENT_STATUS handleEvent(const std::shared_ptr<IDebugEvent> &event) override;
 
 public:
 	QAtomicInt             lock_ = 1;
@@ -103,10 +103,10 @@ template <size_t N>
 bool BackupInfo<N>::backup() {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(std::shared_ptr<IThread> thread = process->current_thread()) {
-			thread->get_state(&state_);
+		if(std::shared_ptr<IThread> thread = process->currentThread()) {
+			thread->getState(&state_);
 		}
-		return process->read_bytes(address_, buffer_, N);
+		return process->readBytes(address_, buffer_, N);
 	}
 
 	return false;
@@ -120,11 +120,11 @@ template <size_t N>
 bool BackupInfo<N>::restore() {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(std::shared_ptr<IThread> thread = process->current_thread()) {
-			thread->set_state(state_);
+		if(std::shared_ptr<IThread> thread = process->currentThread()) {
+			thread->setState(state_);
 		}
 
-		return process->write_bytes(address_, buffer_, N);
+		return process->writeBytes(address_, buffer_, N);
 	}
 
 	return false;
@@ -135,7 +135,7 @@ bool BackupInfo<N>::restore() {
 // Desc:
 //------------------------------------------------------------------------------
 template <size_t N>
-edb::EVENT_STATUS BackupInfo<N>::handle_event(const std::shared_ptr<IDebugEvent> &event) {
+edb::EVENT_STATUS BackupInfo<N>::handleEvent(const std::shared_ptr<IDebugEvent> &event) {
 	Q_UNUSED(event)
 
 	lock_.testAndSetRelease(1, 0);
@@ -210,7 +210,7 @@ size_t PlatformRegion::size() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
+void PlatformRegion::setPermissions(bool read, bool write, bool execute) {
 	edb::address_t temp_address        = 0;
 	int count                          = 0;
 	int ret                            = QMessageBox::Yes;
@@ -242,7 +242,7 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute) {
 
 	if(ret == QMessageBox::Yes) {
 		if(temp_address != 0) {
-			set_permissions(read, write, execute, temp_address);
+			setPermissions(read, write, execute, temp_address);
 		} else {
 			QMessageBox::critical(
 			    nullptr,
@@ -296,7 +296,7 @@ IRegion::permissions_t PlatformRegion::permissions() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::address_t temp_address) {
+void PlatformRegion::setPermissions(bool read, bool write, bool execute, edb::address_t temp_address) {
 	const permissions_t perms       = permissions_value(read, write, execute);
 	const edb::address_t len        = size();
 	const edb::address_t addr       = start();
@@ -329,31 +329,31 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 	// end nowhere near portable code
 	using BI = BackupInfo<sizeof(shellcode)>;
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(std::shared_ptr<IThread> thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->currentThread()) {
 			try {
 				BI backup_info(temp_address, perms, this);
 
 				if(backup_info.backup()) {
 					// write out our shellcode
-					if(process->write_bytes(temp_address, shellcode, sizeof(shellcode))) {
+					if(process->writeBytes(temp_address, shellcode, sizeof(shellcode))) {
 
 						State state;
-						thread->get_state(&state);
-						state.set_instruction_pointer(temp_address);
+						thread->getState(&state);
+						state.setInstructionPointer(temp_address);
 
 						if(edb::v1::debuggeeIs32Bit()) {
-							state.set_register("ecx", len);
-							state.set_register("ebx", addr);
-							state.set_register("edx", perms);
-							state.set_register("eax", syscallnum);
+							state.setRegister("ecx", len);
+							state.setRegister("ebx", addr);
+							state.setRegister("edx", perms);
+							state.setRegister("eax", syscallnum);
 						} else {
-							state.set_register("rsi", len);
-							state.set_register("rdi", addr);
-							state.set_register("rdx", perms);
-							state.set_register("rax", syscallnum);
+							state.setRegister("rsi", len);
+							state.setRegister("rdi", addr);
+							state.setRegister("rdx", perms);
+							state.setRegister("rax", syscallnum);
 						}
 
-						thread->set_state(state);
+						thread->setState(state);
 
 						// run the system call instruction and wait for the trap
 						thread->step(edb::DEBUG_CONTINUE);
@@ -376,11 +376,11 @@ void PlatformRegion::set_permissions(bool read, bool write, bool execute, edb::a
 #endif
 }
 
-void PlatformRegion::set_start(edb::address_t address) {
+void PlatformRegion::setStart(edb::address_t address) {
 	start_ = address;
 }
 
-void PlatformRegion::set_end(edb::address_t address) {
+void PlatformRegion::setEnd(edb::address_t address) {
 	end_ = address;
 }
 

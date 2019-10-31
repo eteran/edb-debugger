@@ -37,7 +37,7 @@ protected:
 	void showEvent(QShowEvent *event) override;
 
 private:
-	void do_find();
+	void doFind();
 
 private:
 	 Ui::DialogASCIIString ui;

@@ -65,9 +65,9 @@ protected:
 	QGraphicsLineItem *createLineSegment(const QLineF &line, const QPen &pen);
 
 protected:
-	GraphNode   *const from_;
-	GraphNode   *const to_;
-	GraphWidget *const graph_;
+	GraphNode   *from_;
+	GraphNode   *to_;
+	GraphWidget *graph_;
 	QColor      color_;
 	Agedge_t    *edge_;
 };

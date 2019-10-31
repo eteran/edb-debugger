@@ -40,11 +40,11 @@ public:
 
 public:
 	QMenu *menu(QWidget *parent = nullptr) override;
-	QList<QAction *> cpu_context_menu() override;
+	QList<QAction *> cpuContextMenu() override;
 
 public:
-	QVariantMap save_state() const override;
-	void restore_state(const QVariantMap &) override;
+	QVariantMap saveState() const override;
+	void restoreState(const QVariantMap &) override;
 
 public Q_SLOTS:
 	void add_bookmark_menu();

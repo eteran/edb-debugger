@@ -808,7 +808,7 @@ std::unique_ptr<IState> PlatformState::clone() const {
 // Name: flags_to_string
 // Desc: returns the flags in a string form appropriate for this platform
 //------------------------------------------------------------------------------
-QString PlatformState::flags_to_string(edb::reg_t flags) const {
+QString PlatformState::flagsToString(edb::reg_t flags) const {
 	char buf[32];
 	qsnprintf(buf, sizeof(buf), "%c %c %c %c %c %c %c %c %c",
 		((flags & 0x001) ? 'C' : 'c'),
@@ -827,8 +827,8 @@ QString PlatformState::flags_to_string(edb::reg_t flags) const {
 // Name: flags_to_string
 // Desc: returns the flags in a string form appropriate for this platform
 //------------------------------------------------------------------------------
-QString PlatformState::flags_to_string() const {
-	return flags_to_string(flags());
+QString PlatformState::flagsToString() const {
+	return flagsToString(flags());
 }
 
 template <size_t BitSize = 0, class Names, class Regs>
@@ -1036,7 +1036,7 @@ Register PlatformState::value(const QString &reg) const {
 // Name: instruction_pointer_register
 // Desc:
 //------------------------------------------------------------------------------
-Register PlatformState::instruction_pointer_register() const {
+Register PlatformState::instructionPointerRegister() const {
 
 	if (x86.gpr64Filled && is64Bit()) {
 		return make_Register(x86.IP64Name, x86.IP, Register::TYPE_GPR);
@@ -1051,31 +1051,31 @@ Register PlatformState::instruction_pointer_register() const {
 // Name: frame_pointer
 // Desc: returns what is conceptually the frame pointer for this platform
 //------------------------------------------------------------------------------
-edb::address_t PlatformState::frame_pointer() const {
-	return gp_register(X86::RBP).valueAsAddress();
+edb::address_t PlatformState::framePointer() const {
+	return gpRegister(X86::RBP).valueAsAddress();
 }
 
 //------------------------------------------------------------------------------
 // Name: instruction_pointer
 // Desc: returns the instruction pointer for this platform
 //------------------------------------------------------------------------------
-edb::address_t PlatformState::instruction_pointer() const {
-	return instruction_pointer_register().valueAsAddress();
+edb::address_t PlatformState::instructionPointer() const {
+	return instructionPointerRegister().valueAsAddress();
 }
 
 //------------------------------------------------------------------------------
 // Name: stack_pointer
 // Desc: returns the stack pointer for this platform
 //------------------------------------------------------------------------------
-edb::address_t PlatformState::stack_pointer() const {
-	return gp_register(X86::RSP).valueAsAddress();
+edb::address_t PlatformState::stackPointer() const {
+	return gpRegister(X86::RSP).valueAsAddress();
 }
 
 //------------------------------------------------------------------------------
 // Name: debug_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::reg_t PlatformState::debug_register(size_t n) const {
+edb::reg_t PlatformState::debugRegister(size_t n) const {
 	assert(dbgIndexValid(n));
 	return x86.dbgRegs[n];
 }
@@ -1084,7 +1084,7 @@ edb::reg_t PlatformState::debug_register(size_t n) const {
 // Name: flags_register
 // Desc:
 //------------------------------------------------------------------------------
-Register PlatformState::flags_register() const {
+Register PlatformState::flagsRegister() const {
 	if (x86.gpr64Filled && is64Bit()) {
 		return make_Register(x86.flags64Name, x86.flags, Register::TYPE_GPR);
 	} else if (x86.gpr32Filled) {
@@ -1099,14 +1099,14 @@ Register PlatformState::flags_register() const {
 // Desc:
 //------------------------------------------------------------------------------
 edb::reg_t PlatformState::flags() const {
-	return flags_register().valueAsInteger();
+	return flagsRegister().valueAsInteger();
 }
 
 //------------------------------------------------------------------------------
 // Name: fpu_stack_pointer
 // Desc:
 //------------------------------------------------------------------------------
-int PlatformState::fpu_stack_pointer() const {
+int PlatformState::fpuStackPointer() const {
 	return x87.stackPointer();
 }
 
@@ -1114,7 +1114,7 @@ int PlatformState::fpu_stack_pointer() const {
 // Name: fpu_register
 // Desc:
 //------------------------------------------------------------------------------
-edb::value80 PlatformState::fpu_register(size_t n) const {
+edb::value80 PlatformState::fpuRegister(size_t n) const {
 	assert(fpuIndexValid(n));
 
 	if (!x87.filled) {
@@ -1135,7 +1135,7 @@ edb::value80 PlatformState::fpu_register(size_t n) const {
 // Name: fpu_register_is_empty
 // Desc: Returns true if Rn register is empty when treated in terms of FPU stack
 //------------------------------------------------------------------------------
-bool PlatformState::fpu_register_is_empty(size_t n) const {
+bool PlatformState::fpuRegisterIsEmpty(size_t n) const {
 	return x87.tag(n) == X87::TAG_EMPTY;
 }
 
@@ -1143,7 +1143,7 @@ bool PlatformState::fpu_register_is_empty(size_t n) const {
 // Name: fpu_register_tag_string
 // Desc:
 //------------------------------------------------------------------------------
-QString PlatformState::fpu_register_tag_string(size_t n) const {
+QString PlatformState::fpuRegisterTagString(size_t n) const {
 	int tag = x87.tag(n);
 	static const std::unordered_map<int, QString> names{
 		{X87::TAG_VALID,   "Valid"},
@@ -1155,15 +1155,15 @@ QString PlatformState::fpu_register_tag_string(size_t n) const {
 	return names.at(tag);
 }
 
-edb::value16 PlatformState::fpu_control_word() const {
+edb::value16 PlatformState::fpuControlWord() const {
 	return x87.controlWord;
 }
 
-edb::value16 PlatformState::fpu_status_word() const {
+edb::value16 PlatformState::fpuStatusWord() const {
 	return x87.statusWord;
 }
 
-edb::value16 PlatformState::fpu_tag_word() const {
+edb::value16 PlatformState::fpuTagWord() const {
 	return x87.tagWord;
 }
 
@@ -1171,7 +1171,7 @@ edb::value16 PlatformState::fpu_tag_word() const {
 // Name: adjust_stack
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::adjust_stack(int bytes) {
+void PlatformState::adjustStack(int bytes) {
 	x86.GPRegs[X86::RSP] += bytes;
 }
 
@@ -1197,7 +1197,7 @@ bool PlatformState::empty() const {
 // Name: set_debug_register
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::set_debug_register(size_t n, edb::reg_t value) {
+void PlatformState::setDebugRegister(size_t n, edb::reg_t value) {
 	assert(dbgIndexValid(n));
 	x86.dbgRegs[n] = value;
 }
@@ -1206,7 +1206,7 @@ void PlatformState::set_debug_register(size_t n, edb::reg_t value) {
 // Name: set_flags
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::set_flags(edb::reg_t flags) {
+void PlatformState::setFlags(edb::reg_t flags) {
 	x86.flags = flags;
 }
 
@@ -1214,7 +1214,7 @@ void PlatformState::set_flags(edb::reg_t flags) {
 // Name: set_instruction_pointer
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::set_instruction_pointer(edb::address_t value) {
+void PlatformState::setInstructionPointer(edb::address_t value) {
 	x86.IP      = value;
 	x86.orig_ax = -1;
 }
@@ -1223,7 +1223,7 @@ void PlatformState::set_instruction_pointer(edb::address_t value) {
 // Name: gp_register
 // Desc:
 //------------------------------------------------------------------------------
-Register PlatformState::gp_register(size_t n) const {
+Register PlatformState::gpRegister(size_t n) const {
 
 	if (gprIndexValid(n)) {
 		if (x86.gpr64Filled && is64Bit()) {
@@ -1240,7 +1240,7 @@ Register PlatformState::gp_register(size_t n) const {
 // Name: set_register
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::set_register(const Register &reg) {
+void PlatformState::setRegister(const Register &reg) {
 	const QString regName = reg.name().toLower();
 
 	const auto gpr_end            = GPRegNames().begin() + gpr_count();
@@ -1400,17 +1400,17 @@ void PlatformState::set_register(const Register &reg) {
 // Name: set_register
 // Desc:
 //------------------------------------------------------------------------------
-void PlatformState::set_register(const QString &name, edb::reg_t value) {
+void PlatformState::setRegister(const QString &name, edb::reg_t value) {
 
 	const QString regName = name.toLower();
-	set_register(make_Register<64>(regName, value, Register::TYPE_GPR));
+	setRegister(make_Register<64>(regName, value, Register::TYPE_GPR));
 }
 
 //------------------------------------------------------------------------------
 // Name: arch_register
 // Desc:
 //------------------------------------------------------------------------------
-Register PlatformState::arch_register(uint64_t type, size_t n) const {
+Register PlatformState::archRegister(uint64_t type, size_t n) const {
 	switch(type) {
 	case edb::string_hash("mmx"): return mmx_register(n);
 	case edb::string_hash("xmm"): return xmm_register(n);

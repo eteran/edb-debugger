@@ -53,7 +53,7 @@ public:
 	void addRef(edb::address_t refsite, edb::address_t target);
 	
 public:
-	std::vector<std::pair<edb::address_t, edb::address_t>> refs() const;
+	std::vector<std::pair<edb::address_t, edb::address_t>> references() const;
 
 public:
 	reference operator[](size_type pos);
@@ -91,7 +91,7 @@ public:
 
 private:
 	std::vector<instruction_pointer>                       instructions_;
-	std::vector<std::pair<edb::address_t, edb::address_t>> refs_;
+	std::vector<std::pair<edb::address_t, edb::address_t>> references_;
 };
 
 #endif

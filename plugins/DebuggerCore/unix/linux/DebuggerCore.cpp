@@ -215,7 +215,7 @@ DebuggerCore::DebuggerCore()
 // Name: has_extension
 // Desc:
 //------------------------------------------------------------------------------
-bool DebuggerCore::has_extension(quint64 ext) const {
+bool DebuggerCore::hasExtension(quint64 ext) const {
 	
 	Q_UNUSED(ext)
 	
@@ -267,11 +267,11 @@ bool DebuggerCore::has_extension(quint64 ext) const {
 // Name: page_size
 // Desc: returns the size of a page on this system
 //------------------------------------------------------------------------------
-size_t DebuggerCore::page_size() const {
+size_t DebuggerCore::pageSize() const {
 	return PageSize;
 }
 
-std::size_t DebuggerCore::pointer_size() const {
+std::size_t DebuggerCore::pointerSize() const {
 	return pointer_size_;
 }
 
@@ -280,7 +280,7 @@ std::size_t DebuggerCore::pointer_size() const {
 // Desc: destructor
 //------------------------------------------------------------------------------
 DebuggerCore::~DebuggerCore() {
-	end_debug_session();
+	endDebugSession();
 }
 
 //------------------------------------------------------------------------------
@@ -462,7 +462,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_thread_create_event(edb::tid_t
 
 		// copy the hardware debug registers from the current thread to the new thread
 		if(process_) {
-			if(auto cur_thread = process_->current_thread()) {
+			if(auto cur_thread = process_->currentThread()) {
 				for(size_t i = 0; i < 8; ++i) {
 					auto new_thread = std::static_pointer_cast<PlatformThread>(newThread);
 					auto old_thread = std::static_pointer_cast<PlatformThread>(cur_thread);
@@ -554,7 +554,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 		if(signo == SIGILL || signo == SIGSEGV) {
 			// no need to peekuser for SIGILL, but have to for SIGSEGV
 			const auto address = signo == SIGILL ? edb::address_t::fromZeroExtended(e->siginfo_.si_addr)
-											   : (*it)->instruction_pointer();
+											   : (*it)->instructionPointer();
 
 			if(edb::v1::find_triggered_breakpoint(address)) {
 				e->status_ = SIGTRAP << 8 | 0x7f;
@@ -634,7 +634,7 @@ Status DebuggerCore::stop_threads() {
 // Desc: waits for a debug event, msecs is a timeout
 //       it will return nullptr if an error or timeout occurs
 //------------------------------------------------------------------------------
-std::shared_ptr<IDebugEvent> DebuggerCore::wait_debug_event(int msecs) {
+std::shared_ptr<IDebugEvent> DebuggerCore::waitDebugEvent(int msecs) {
 
 	if(process_) {
 		if(!Posix::wait_for_sigchld(msecs)) {
@@ -692,7 +692,7 @@ int DebuggerCore::attach_thread(edb::tid_t tid) {
 //------------------------------------------------------------------------------
 Status DebuggerCore::attach(edb::pid_t pid) {
 
-	end_debug_session();
+	endDebugSession();
 
 	lastMeansOfCapture = MeansOfCapture::Attach;
 
@@ -747,7 +747,7 @@ Status DebuggerCore::detach() {
 
 	if(process_) {
 		stop_threads();
-		clear_breakpoints();
+		clearBreakpoints();
 
 		for(auto &thread: process_->threads()) {
 			if(ptrace(PTRACE_DETACH, thread->tid(), 0, 0)==-1) {
@@ -774,7 +774,7 @@ Status DebuggerCore::detach() {
 //------------------------------------------------------------------------------
 void DebuggerCore::kill() {
 	if(attached()) {
-		clear_breakpoints();
+		clearBreakpoints();
 
 		::kill(process_->pid(), SIGKILL);
 
@@ -843,7 +843,7 @@ void DebuggerCore::detectCPUMode() {
 //------------------------------------------------------------------------------
 Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) {
 
-	end_debug_session();
+	endDebugSession();
 
     lastMeansOfCapture = MeansOfCapture::Launch;
 
@@ -926,7 +926,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 			// the very first event should be a STOP of type SIGTRAP
 			if(!WIFSTOPPED(status) || WSTOPSIG(status) != SIGTRAP) {
-				end_debug_session();
+				endDebugSession();
 				return Status(tr("First event after waitpid() should be a STOP of type SIGTRAP, but wasn't, instead status=0x%1")
 											.arg(status,0,16)+(childError.isEmpty() ? "" : tr(".\nError returned by child:\n%1.").arg(childError)));
 			}
@@ -938,7 +938,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
             // enable following clones (threads) and other options we are concerned with
 			const auto setoptStatus=ptrace_set_options(pid, options);
             if(!setoptStatus) {
-                end_debug_session();
+                endDebugSession();
 				return Status(tr("[DebuggerCore] failed to set ptrace options: %1").arg(setoptStatus.error()));
             }
 
@@ -983,7 +983,7 @@ void DebuggerCore::reset() {
 // Name: create_state
 // Desc:
 //------------------------------------------------------------------------------
-std::unique_ptr<IState> DebuggerCore::create_state() const {
+std::unique_ptr<IState> DebuggerCore::createState() const {
 	return std::make_unique<PlatformState>();
 }
 
@@ -991,7 +991,7 @@ std::unique_ptr<IState> DebuggerCore::create_state() const {
 // Name: enumerate_processes
 // Desc:
 //------------------------------------------------------------------------------
-QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerate_processes() const {
+QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerateProcesses() const {
 	QMap<edb::pid_t, std::shared_ptr<IProcess>> ret;
 
 	QDir proc_directory("/proc/");
@@ -1018,7 +1018,7 @@ QMap<edb::pid_t, std::shared_ptr<IProcess>> DebuggerCore::enumerate_processes() 
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
+edb::pid_t DebuggerCore::parentPid(edb::pid_t pid) const {
 
 	struct user_stat user_stat;
 	int n = get_user_stat(pid, &user_stat);
@@ -1033,7 +1033,7 @@ edb::pid_t DebuggerCore::parent_pid(edb::pid_t pid) const {
 // Name:
 // Desc: Returns EDB's native CPU type
 //------------------------------------------------------------------------------
-quint64 DebuggerCore::cpu_type() const {
+quint64 DebuggerCore::cpuType() const {
 #if defined EDB_X86 || defined EDB_X86_64
 	if(EDB_IS_32_BIT) {
 		return edb::string_hash("x86");
@@ -1053,7 +1053,7 @@ quint64 DebuggerCore::cpu_type() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QString DebuggerCore::stack_pointer() const {
+QString DebuggerCore::stackPointer() const {
 #if defined EDB_X86 || defined EDB_X86_64
 	if(edb::v1::debuggeeIs32Bit()) {
 		return "esp";
@@ -1071,7 +1071,7 @@ QString DebuggerCore::stack_pointer() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QString DebuggerCore::frame_pointer() const {
+QString DebuggerCore::framePointer() const {
 #if defined EDB_X86 || defined EDB_X86_64
 	if(edb::v1::debuggeeIs32Bit()) {
 		return "ebp";
@@ -1089,7 +1089,7 @@ QString DebuggerCore::frame_pointer() const {
 // Name:
 // Desc:
 //------------------------------------------------------------------------------
-QString DebuggerCore::instruction_pointer() const {
+QString DebuggerCore::instructionPointer() const {
 #if defined EDB_X86 || defined EDB_X86_64
 	if(edb::v1::debuggeeIs32Bit()) {
 		return "eip";
@@ -1107,7 +1107,7 @@ QString DebuggerCore::instruction_pointer() const {
 // Name: flag_register
 // Desc: Returns the name of the flag register as a QString.
 //------------------------------------------------------------------------------
-QString DebuggerCore::flag_register() const {
+QString DebuggerCore::flagRegister() const {
 #if defined EDB_X86 || defined EDB_X86_64
 	if(edb::v1::debuggeeIs32Bit()) {
 		return "eflags";
@@ -1133,7 +1133,7 @@ IProcess *DebuggerCore::process() const {
 // Name: set_ignored_exceptions
 // Desc:
 //------------------------------------------------------------------------------
-void DebuggerCore::set_ignored_exceptions(const QList<qlonglong> &exceptions) {
+void DebuggerCore::setIgnoredExceptions(const QList<qlonglong> &exceptions) {
 	ignored_exceptions_ = exceptions;
 }
 

@@ -84,7 +84,7 @@ namespace {
 		Q_ASSERT(value);
 		Q_ASSERT(offset);
 
-		if(const std::shared_ptr<Symbol> s = edb::v1::symbol_manager().find_near_symbol(address)) {
+		if(const std::shared_ptr<Symbol> s = edb::v1::symbol_manager().findNearSymbol(address)) {
 			*value = s->name;
 			*offset = address - s->address;
 			return true;
@@ -360,7 +360,7 @@ std::shared_ptr<IBreakpoint> create_breakpoint(address_t address) {
 	std::shared_ptr<IBreakpoint> bp;
 
 	memory_regions().sync();
-	if(std::shared_ptr<IRegion> region = memory_regions().find_region(address)) {
+	if(std::shared_ptr<IRegion> region = memory_regions().findRegion(address)) {
 		int ret = QMessageBox::Yes;
 
 		if(!region->executable() && config().warn_on_no_exec_bp) {
@@ -389,7 +389,7 @@ std::shared_ptr<IBreakpoint> create_breakpoint(address_t address) {
 
 
 		if(ret == QMessageBox::Yes) {
-			bp = debugger_core->add_breakpoint(address);
+			bp = debugger_core->addBreakpoint(address);
 			if(!bp) {
 				QMessageBox::critical(
 				            nullptr,
@@ -456,7 +456,7 @@ void toggle_breakpoint(address_t address) {
 // Desc: removes a breakpoint
 //------------------------------------------------------------------------------
 void remove_breakpoint(address_t address) {
-	debugger_core->remove_breakpoint(address);
+	debugger_core->removeBreakpoint(address);
 	repaint_cpu_view();
 }
 
@@ -623,7 +623,7 @@ bool get_ascii_string_at_address(address_t address, QString &s, int min_length, 
 			if(min_length <= max_length) {
 				while(max_length--) {
 					char ch;
-					if(!process->read_bytes(address++, &ch, sizeof(ch))) {
+					if(!process->readBytes(address++, &ch, sizeof(ch))) {
 						break;
 					}
 
@@ -671,7 +671,7 @@ bool get_utf16_string_at_address(address_t address, QString &s, int min_length, 
 				while(max_length--) {
 
 					quint16 val;
-					if(!process->read_bytes(address, &val, sizeof(val))) {
+					if(!process->readBytes(address, &val, sizeof(val))) {
 						break;
 					}
 
@@ -758,7 +758,7 @@ address_t get_variable(const QString &s, bool *ok, ExpressionError *err) {
 	if(IProcess *process = debugger_core->process()) {
 
 		State state;
-		process->current_thread()->get_state(&state);
+		process->currentThread()->getState(&state);
 		const Register reg = state.value(s);
 		*ok = reg.valid();
 		if(!*ok) {
@@ -806,7 +806,7 @@ address_t get_value(address_t address, bool *ok, ExpressionError *err) {
 	*ok = false;
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		*ok = process->read_bytes(address, &ret, pointer_size());
+		*ok = process->readBytes(address, &ret, pointer_size());
 
 		if(!*ok) {
 			*err = ExpressionError(ExpressionError::CANNOT_READ_MEMORY);
@@ -827,7 +827,7 @@ bool get_instruction_bytes(address_t address, quint8 *buf, int *size) {
 	Q_ASSERT(*size >= 0);
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		*size = process->read_bytes(address, buf, *size);
+		*size = process->readBytes(address, buf, *size);
 		if (*size) {
 			return true;
 		}
@@ -846,7 +846,7 @@ bool get_instruction_bytes(address_t address, quint8 *buf, size_t *size) {
 	Q_ASSERT(size);
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		*size = process->read_bytes(address, buf, *size);
+		*size = process->readBytes(address, buf, *size);
 		if (*size) {
 			return true;
 		}
@@ -894,11 +894,11 @@ address_t locate_main_function() {
 
 	if(debugger_core) {
 		if(IProcess *process = debugger_core->process()) {
-			const address_t main_func = process->calculate_main();
+			const address_t main_func = process->calculateMain();
 			if(main_func != 0) {
 				return main_func;
 			} else {
-				return process->entry_point();
+				return process->entryPoint();
 			}
 		}
 	}
@@ -959,9 +959,9 @@ std::shared_ptr<IRegion> primary_data_region() {
 
 	if(debugger_core) {
 		if(IProcess *process = debugger_core->process()) {
-			const address_t address = process->data_address();
+			const address_t address = process->dataAddress();
 			memory_regions().sync();
-			if(std::shared_ptr<IRegion> region = memory_regions().find_region(address)) {
+			if(std::shared_ptr<IRegion> region = memory_regions().findRegion(address)) {
 				return region;
 			}
 		}
@@ -982,9 +982,9 @@ std::shared_ptr<IRegion> primary_code_region() {
 #if defined(Q_OS_LINUX)
 	if(debugger_core) {
 		if(IProcess *process = debugger_core->process()) {
-			const address_t address = process->code_address();
+			const address_t address = process->codeAddress();
 			memory_regions().sync();
-			if(std::shared_ptr<IRegion> region = memory_regions().find_region(address)) {
+			if(std::shared_ptr<IRegion> region = memory_regions().findRegion(address)) {
 				return region;
 			}
 		}
@@ -1009,7 +1009,7 @@ std::shared_ptr<IRegion> primary_code_region() {
 //------------------------------------------------------------------------------
 void pop_value(State *state) {
 	Q_ASSERT(state);
-	state->adjust_stack(pointer_size());
+	state->adjustStack(pointer_size());
 }
 
 //------------------------------------------------------------------------------
@@ -1020,8 +1020,8 @@ void push_value(State *state, reg_t value) {
 	Q_ASSERT(state);
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		state->adjust_stack(- static_cast<int>(pointer_size()));
-		process->write_bytes(state->stack_pointer(), &value, pointer_size());
+		state->adjustStack(- static_cast<int>(pointer_size()));
+		process->writeBytes(state->stackPointer(), &value, pointer_size());
 	}
 }
 
@@ -1100,7 +1100,7 @@ bool modify_bytes(address_t address, size_t size, QByteArray &bytes, quint8 fill
 				bytes.push_back(fill);
 			}
 
-			process->write_bytes(address, bytes.data(), size);
+			process->writeBytes(address, bytes.data(), size);
 
 			// do a refresh, not full update
 			Debugger *const gui = ui();
@@ -1373,7 +1373,7 @@ void clear_status() {
 //------------------------------------------------------------------------------
 std::shared_ptr<IBreakpoint> find_breakpoint(address_t address) {
 	if(debugger_core) {
-		return debugger_core->find_breakpoint(address);
+		return debugger_core->findBreakpoint(address);
 	}
 	return nullptr;
 }
@@ -1384,7 +1384,7 @@ std::shared_ptr<IBreakpoint> find_breakpoint(address_t address) {
 //------------------------------------------------------------------------------
 std::shared_ptr<IBreakpoint> find_triggered_breakpoint(address_t address) {
 	if(debugger_core) {
-		return debugger_core->find_triggered_breakpoint(address);
+		return debugger_core->findTriggeredBreakpoint(address);
 	}
 	return nullptr;
 }
@@ -1396,7 +1396,7 @@ std::shared_ptr<IBreakpoint> find_triggered_breakpoint(address_t address) {
 size_t pointer_size() {
 
 	if(debugger_core) {
-		return debugger_core->pointer_size();
+		return debugger_core->pointerSize();
 	}
 
 	// default to sizeof the native pointer for sanity!
@@ -1420,10 +1420,10 @@ QVector<quint8> read_pages(address_t address, size_t page_count) {
 	if(debugger_core) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 			try {
-				const size_t page_size = debugger_core->page_size();
+				const size_t page_size = debugger_core->pageSize();
 				QVector<quint8> pages(page_count * page_size);
 
-				if(process->read_pages(address, pages.data(), page_count)) {
+				if(process->readPages(address, pages.data(), page_count)) {
 					return pages;
 				}
 

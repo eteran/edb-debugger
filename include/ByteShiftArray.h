@@ -48,7 +48,7 @@ public:
 
 private:
 	QVector<quint8> data_;
-	int             max_size_;
+	int             maxSize_;
 };
 
 #endif

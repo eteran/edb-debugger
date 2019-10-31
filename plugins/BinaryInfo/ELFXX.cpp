@@ -81,7 +81,7 @@ ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region) : region_(reg
 		throw ReadFailure();
 	}
 
-	if(!process->read_bytes(region_->start(), &header_, sizeof(elfxx_header))) {
+	if(!process->readBytes(region_->start(), &header_, sizeof(elfxx_header))) {
 		throw ReadFailure();
 	}
 
@@ -108,7 +108,7 @@ ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region) : region_(reg
 		// iterate all of the program headers
 		for (quint16 entry = 0; entry < header_.e_phnum; ++entry) {
 
-			if (!process->read_bytes(phdr_base + (phdr_size * entry), &phdr, sizeof(phdr_type))) {
+			if (!process->readBytes(phdr_base + (phdr_size * entry), &phdr, sizeof(phdr_type))) {
 				qDebug() << "Failed to read program header";
 				break;
 			}
@@ -142,7 +142,7 @@ ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region) : region_(reg
 // Desc: returns the number of bytes in this executable's header
 //------------------------------------------------------------------------------
 template <class elfxx_header>
-size_t ELFXX<elfxx_header>::header_size() const {
+size_t ELFXX<elfxx_header>::headerSize() const {
 	size_t size = header_.e_ehsize;
 	// Do the program headers immediately follow the ELF header?
 	if (size == header_.e_phoff) {
@@ -180,7 +180,7 @@ void ELFXX<elfxx_header>::validate_header() {
 // Desc: returns the entry point if any of the binary
 //------------------------------------------------------------------------------
 template <class elfxx_header>
-edb::address_t ELFXX<elfxx_header>::entry_point() {
+edb::address_t ELFXX<elfxx_header>::entryPoint() {
 	return header_.e_entry + base_address_;
 }
 

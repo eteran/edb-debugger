@@ -42,8 +42,8 @@ IDebugEvent::Message PlatformEvent::createUnexpectedSignalMessage(const QString 
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-IDebugEvent::Message PlatformEvent::error_description() const {
-	Q_ASSERT(is_error());
+IDebugEvent::Message PlatformEvent::errorDescription() const {
+	Q_ASSERT(isError());
 
 	auto fault_address = edb::address_t::fromZeroExtended(siginfo_.si_addr);
 
@@ -309,7 +309,7 @@ IDebugEvent::REASON PlatformEvent::reason() const {
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-IDebugEvent::TRAP_REASON PlatformEvent::trap_reason() const {
+IDebugEvent::TRAP_REASON PlatformEvent::trapReason() const {
 	switch(siginfo_.si_code) {
 	case TRAP_TRACE: return TRAP_STEPPING;
 	default:         return TRAP_BREAKPOINT;
@@ -326,7 +326,7 @@ bool PlatformEvent::exited() const {
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-bool PlatformEvent::is_error() const {
+bool PlatformEvent::isError() const {
 	if(stopped()) {
 		switch(code()) {
 		case SIGTRAP:
@@ -353,21 +353,21 @@ bool PlatformEvent::is_error() const {
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-bool PlatformEvent::is_kill() const {
+bool PlatformEvent::isKill() const {
 	return stopped() && code() == SIGKILL;
 }
 
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-bool PlatformEvent::is_stop() const {
+bool PlatformEvent::isStop() const {
 	return stopped() && code() == SIGSTOP;
 }
 
 //------------------------------------------------------------------------------
 // Name:
 //------------------------------------------------------------------------------
-bool PlatformEvent::is_trap() const {
+bool PlatformEvent::isTrap() const {
 	return stopped() && code() == SIGTRAP;
 }
 

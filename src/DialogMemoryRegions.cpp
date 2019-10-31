@@ -38,9 +38,9 @@ DialogMemoryRegions::DialogMemoryRegions(QWidget *parent, Qt::WindowFlags f) : Q
 
 	ui.regions_table->verticalHeader()->hide();
 	ui.regions_table->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
-	filter_model_ = new QSortFilterProxyModel(this);
+	filterModel_ = new QSortFilterProxyModel(this);
 
-	connect(ui.filter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
+	connect(ui.filter, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 }
 
 //------------------------------------------------------------------------------
@@ -49,9 +49,9 @@ DialogMemoryRegions::DialogMemoryRegions(QWidget *parent, Qt::WindowFlags f) : Q
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::showEvent(QShowEvent *) {
 
-	filter_model_->setFilterKeyColumn(3);
-	filter_model_->setSourceModel(&edb::v1::memory_regions());
-	ui.regions_table->setModel(filter_model_);
+	filterModel_->setFilterKeyColumn(3);
+	filterModel_->setSourceModel(&edb::v1::memory_regions());
+	ui.regions_table->setModel(filterModel_);
 }
 
 //------------------------------------------------------------------------------
@@ -88,7 +88,7 @@ std::shared_ptr<IRegion> DialogMemoryRegions::selected_region() const {
 	const QModelIndexList sel = selModel->selectedRows();
 	std::shared_ptr<IRegion> ret;
 	if(sel.size() == 1) {
-		const QModelIndex index = filter_model_->mapToSource(sel[0]);
+		const QModelIndex index = filterModel_->mapToSource(sel[0]);
 		ret = *reinterpret_cast<std::shared_ptr<IRegion> *>(index.internalPointer());
 	}
 
@@ -101,7 +101,7 @@ std::shared_ptr<IRegion> DialogMemoryRegions::selected_region() const {
 //------------------------------------------------------------------------------
 void DialogMemoryRegions::set_permissions(bool read, bool write, bool execute) {
 	if(std::shared_ptr<IRegion> region = selected_region()) {
-		region->set_permissions(read, write, execute);
+		region->setPermissions(read, write, execute);
 		edb::v1::memory_regions().sync();
 	}
 }

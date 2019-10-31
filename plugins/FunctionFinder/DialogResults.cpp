@@ -47,11 +47,11 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 
 	resultsModel_ = new ResultsModel(this);
 
-	filter_model_ = new QSortFilterProxyModel(this);
-	filter_model_->setFilterKeyColumn(5);
-	filter_model_->setSourceModel(resultsModel_);
-	connect(ui.textFilter, &QLineEdit::textChanged, filter_model_, &QSortFilterProxyModel::setFilterFixedString);
-	ui.tableView->setModel(filter_model_);
+	filterModel_ = new QSortFilterProxyModel(this);
+	filterModel_->setFilterKeyColumn(5);
+	filterModel_->setSourceModel(resultsModel_);
+	connect(ui.textFilter, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
+	ui.tableView->setModel(filterModel_);
 
 	btnGraph_ = new QPushButton(QIcon::fromTheme("distribute-graph"), tr("Graph Selected Function"));
 #if defined(ENABLE_GRAPH)
@@ -65,7 +65,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 		const QModelIndexList sel = selModel->selectedRows();
 
 		if(sel.size() == 1) {
-			const QModelIndex index = filter_model_->mapToSource(sel[0]);
+			const QModelIndex index = filterModel_->mapToSource(sel[0]);
 
 			if(auto item = static_cast<Result *>(index.internalPointer())) {
 				const edb::address_t addr = item->start_address;
@@ -163,7 +163,7 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 void DialogResults::on_tableView_doubleClicked(const QModelIndex &index) {
 
 	if(index.isValid()) {
-		const QModelIndex realIndex = filter_model_->mapToSource(index);
+		const QModelIndex realIndex = filterModel_->mapToSource(index);
 		if(auto item = static_cast<Result *>(realIndex.internalPointer())) {
 			edb::v1::jump_to_address(item->start_address);
 		}
@@ -191,7 +191,7 @@ void DialogResults::addResult(const Function &function) {
 	// type
 	result.type = function.type();
 
-	QString symbol_name = edb::v1::symbol_manager().find_address_name(function.entry_address());
+	QString symbol_name = edb::v1::symbol_manager().findAddressName(function.entry_address());
 	if(!symbol_name.isEmpty()) {
 		result.symbol = symbol_name;
 	}

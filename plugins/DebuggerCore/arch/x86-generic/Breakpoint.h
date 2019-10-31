@@ -51,12 +51,12 @@ public:
 
 public:
 	edb::address_t address() const override { return address_; }
-	quint64 hit_count() const      override { return hit_count_; }
+	quint64 hitCount() const      override { return hit_count_; }
 	bool enabled() const           override { return enabled_; }
-	bool one_time() const          override { return one_time_; }
+	bool oneTime() const          override { return one_time_; }
 	bool internal() const          override { return internal_; }
 	size_t size() const            override { return original_bytes_.size(); }
-	const quint8* original_bytes() const override { return &original_bytes_[0]; }
+	const quint8* originalBytes() const override { return &original_bytes_[0]; }
 	IBreakpoint::TypeId type() const override { return type_; }
 
 	static std::vector<BreakpointType> supported_types();
@@ -66,10 +66,10 @@ public:
     bool enable() override;
     bool disable() override;
     void hit() override;
-    void set_one_time(bool value) override;
-    void set_internal(bool value) override;
-    void set_type(IBreakpoint::TypeId type) override;
-	void set_type(TypeId type);
+    void setOneTime(bool value) override;
+    void setInternal(bool value) override;
+    void setType(IBreakpoint::TypeId type) override;
+	void setType(TypeId type);
 
 private:
 	std::vector<quint8>   original_bytes_;

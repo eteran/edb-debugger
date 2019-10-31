@@ -40,8 +40,8 @@ const auto dockObjectNameTemplate = QString(pluginName + "-%1");
 const auto VIEW                   = QLatin1String("views");
 }
 
-Plugin::Plugin(QObject *parent) : QObject(parent), menu_(nullptr) {
-	connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &Plugin::saveState);
+Plugin::Plugin(QObject *parent) : QObject(parent) {
+	connect(QCoreApplication::instance(), &QCoreApplication::aboutToQuit, this, &Plugin::saveSettings);
 }
 
 
@@ -60,7 +60,7 @@ void Plugin::setupDocks() {
 	}
 }
 
-void Plugin::saveState() const {
+void Plugin::saveSettings() const {
 	QSettings  settings;
 	const int  size     = registerViews_.size();
 	const auto arrayKey = pluginName + "/" + VIEW;
@@ -81,7 +81,7 @@ void Plugin::createRegisterView(const QString &settingsGroup) {
 	if (auto *const mainWindow = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
 		const auto regView = new ODBRegView(settingsGroup, mainWindow);
 		registerViews_.emplace_back(regView);
-		regView->setModel(&edb::v1::arch_processor().get_register_view_model());
+		regView->setModel(&edb::v1::arch_processor().registerViewModel());
 
 		const QString suffix            = registerViews_.size() > 1 ? dockNameSuffixTemplate.arg(registerViews_.size()) : "";
 		auto *const   regViewDockWidget = new QDockWidget(dockName + suffix, mainWindow);
@@ -218,7 +218,7 @@ QMenu *Plugin::menu(QWidget *parent) {
 	return menu_;
 }
 
-QList<QAction *> Plugin::cpu_context_menu() {
+QList<QAction *> Plugin::cpuContextMenu() {
 
 	QList<QAction *> ret;
 

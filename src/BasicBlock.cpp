@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 //------------------------------------------------------------------------------
 void BasicBlock::swap(BasicBlock &other) {
 	std::swap(instructions_, other.instructions_);
-	std::swap(refs_, other.refs_);
+	std::swap(references_, other.references_);
 }
 
 //------------------------------------------------------------------------------
@@ -200,12 +200,12 @@ QString BasicBlock::toString() const {
 // Name: addRef
 //------------------------------------------------------------------------------
 void BasicBlock::addRef(edb::address_t refsite, edb::address_t target) {
-	refs_.push_back(std::make_pair(refsite, target));
+	references_.push_back(std::make_pair(refsite, target));
 }
 
 //------------------------------------------------------------------------------
 // Name: refs
 //------------------------------------------------------------------------------
-std::vector<std::pair<edb::address_t, edb::address_t>> BasicBlock::refs() const {
-	return refs_;
+std::vector<std::pair<edb::address_t, edb::address_t>> BasicBlock::references() const {
+	return references_;
 }

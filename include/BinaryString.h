@@ -30,6 +30,12 @@ class QByteArray;
 class EDB_EXPORT BinaryString : public QWidget {
 	Q_OBJECT
 
+private:
+	enum class Mode {
+		LengthLimited, // obeys setMaxLength()
+		MemoryEditing  // obeys user's choice in keepSize checkbox
+	};
+
 public:
     BinaryString(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
     ~BinaryString() override;
@@ -50,13 +56,7 @@ public:
 private:
 	void setEntriesMaxLength(int n);
 
-	::Ui::BinaryStringWidget *ui;
-
-	enum class Mode {
-		LengthLimited, // obeys setMaxLength()
-		MemoryEditing  // obeys user's choice in keepSize checkbox
-	};
-
+	::Ui::BinaryStringWidget *ui = nullptr;
 	Mode mode_               = Mode::MemoryEditing;
 	int requestedMaxLength_  = 0;
 	int valueOriginalLength_ = 0;

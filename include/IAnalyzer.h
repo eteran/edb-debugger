@@ -49,12 +49,12 @@ public:
 	virtual AddressCategory category(edb::address_t address) const = 0;
 	virtual FunctionMap functions(const std::shared_ptr<IRegion> &region) const = 0;
 	virtual FunctionMap functions() const = 0;
-	virtual QSet<edb::address_t> specified_functions() const { return {}; }
-	virtual Result<edb::address_t, QString> find_containing_function(edb::address_t address) const = 0;
+	virtual QSet<edb::address_t> specifiedFunctions() const { return {}; }
+	virtual Result<edb::address_t, QString> findContainingFunction(edb::address_t address) const = 0;
 	virtual void analyze(const std::shared_ptr<IRegion> &region) = 0;
-	virtual void invalidate_analysis() = 0;
-	virtual void invalidate_analysis(const std::shared_ptr<IRegion> &region) = 0;
-	virtual bool for_funcs_in_range(const edb::address_t start, const edb::address_t end, std::function<bool(const Function*)> functor) const = 0;
+	virtual void invalidateAnalysis() = 0;
+	virtual void invalidateAnalysis(const std::shared_ptr<IRegion> &region) = 0;
+	virtual bool forFuncsInRange(edb::address_t start, edb::address_t end, std::function<bool(const Function*)> functor) const = 0;
 };
 
 #endif

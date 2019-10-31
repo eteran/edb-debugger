@@ -21,20 +21,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 namespace AnalyzerPlugin {
 
-//------------------------------------------------------------------------------
-// Name: OptionsPage
-// Desc:
-//------------------------------------------------------------------------------
-OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f) : QWidget(parent, f)  {
+/**
+ * @brief OptionsPage::OptionsPage
+ * @param parent
+ * @param f
+ */
+OptionsPage::OptionsPage(QWidget *parent, Qt::WindowFlags f)
+	: QWidget(parent, f) {
+
 	ui.setupUi(this);
-	connect(ui.checkBox, &QCheckBox::toggled, this, &OptionsPage::checkBox_toggled);
+	connect(ui.checkBox, &QCheckBox::toggled, this, &OptionsPage::checkBoxToggled);
 }
 
-
-//------------------------------------------------------------------------------
-// Name: showEvent
-// Desc:
-//------------------------------------------------------------------------------
+/**
+ * @brief OptionsPage::showEvent
+ * @param event
+ */
 void OptionsPage::showEvent(QShowEvent *event) {
 	Q_UNUSED(event)
 
@@ -42,11 +44,11 @@ void OptionsPage::showEvent(QShowEvent *event) {
 	ui.checkBox->setChecked(settings.value("Analyzer/fuzzy_logic_functions.enabled", true).toBool());
 }
 
-//------------------------------------------------------------------------------
-// Name: checkBox_toggled
-// Desc:
-//------------------------------------------------------------------------------
-void OptionsPage::checkBox_toggled(bool checked) {
+/**
+ * @brief OptionsPage::checkBoxToggled
+ * @param checked
+ */
+void OptionsPage::checkBoxToggled(bool checked) {
 	Q_UNUSED(checked)
 
 	QSettings settings;

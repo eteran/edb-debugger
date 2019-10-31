@@ -64,7 +64,7 @@ void DialogThreads::on_thread_table_doubleClicked(const QModelIndex &index) {
 	if(auto item = reinterpret_cast<ThreadsModel::Item *>(internal_index.internalPointer())) {
 		if(std::shared_ptr<IThread> thread = item->thread) {
 			if(IProcess *process = edb::v1::debugger_core->process()) {
-				process->set_current_thread(*thread);
+				process->setCurrentThread(*thread);
 				updateThreads();
 			}
 		}
@@ -79,7 +79,7 @@ void DialogThreads::updateThreads() {
 	threads_model_->clear();
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		std::shared_ptr<IThread> current = process->current_thread();
+		std::shared_ptr<IThread> current = process->currentThread();
 
 		for(std::shared_ptr<IThread> &thread : process->threads()) {
 

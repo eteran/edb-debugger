@@ -141,7 +141,7 @@ void DumpState::dump_code(const State &state) {
 	QSettings settings;
 	const int instructions_to_print = settings.value("DumpState/instructions_after_ip", 6).toInt();
 
-	const edb::address_t ip = state.instruction_pointer();
+	const edb::address_t ip = state.instructionPointer();
 	edb::address_t address = ip;
 
 	for(int i = 0; i < instructions_to_print + 1; ++i) {
@@ -259,7 +259,7 @@ void DumpState::dump_lines(edb::address_t address, int lines) {
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		for(int i = 0; i < lines; ++i) {
 			edb::value8 buf[16];
-			if(process->read_bytes(address, buf, sizeof(buf))) {
+			if(process->readBytes(address, buf, sizeof(buf))) {
 
                 std::cout << hex_string(address) << " : ";
 
@@ -293,7 +293,7 @@ void DumpState::dump_lines(edb::address_t address, int lines) {
 // Desc:
 //------------------------------------------------------------------------------
 void DumpState::dump_stack(const State &state) {
-	dump_lines(state.stack_pointer(), 4);
+	dump_lines(state.stackPointer(), 4);
 }
 
 //------------------------------------------------------------------------------
@@ -311,19 +311,19 @@ void DumpState::dump_data(edb::address_t address) {
 void DumpState::show_menu() {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(std::shared_ptr<IThread> thread = process->current_thread()) {
+		if(std::shared_ptr<IThread> thread = process->currentThread()) {
 			State state;
-			thread->get_state(&state);
+			thread->getState(&state);
 
 			std::cout << "------------------------------------------------------------------------------\n";
 			dump_registers(state);
-			std::cout << "[" << format_segment(state["ss"]) << ":" << format_address(state.stack_pointer()) << "]---------------------------------------------------------[stack]\n";
+			std::cout << "[" << format_segment(state["ss"]) << ":" << format_address(state.stackPointer()) << "]---------------------------------------------------------[stack]\n";
 			dump_stack(state);
 
 			const edb::address_t data_address = edb::v1::current_data_view_address();
 			std::cout << "[" << format_segment(state["ds"]) << ":" << format_address(data_address) << "]---------------------------------------------------------[ data]\n";
 			dump_data(data_address);
-			std::cout << "[" << format_segment(state["cs"]) << ":" << format_address(state.instruction_pointer()) << "]---------------------------------------------------------[ code]\n";
+			std::cout << "[" << format_segment(state["cs"]) << ":" << format_address(state.instructionPointer()) << "]---------------------------------------------------------[ code]\n";
 			dump_code(state);
 			std::cout << "------------------------------------------------------------------------------\n";
 		}
@@ -334,7 +334,7 @@ void DumpState::show_menu() {
 // Name: options_page
 // Desc:
 //------------------------------------------------------------------------------
-QWidget *DumpState::options_page() {
+QWidget *DumpState::optionsPage() {
 	return new OptionsPage;
 }
 

@@ -51,36 +51,36 @@ public:
 	QString flags_to_string() const;
 	QString flags_to_string(edb::reg_t flags) const;
 	Register value(const QString &reg) const;
-	Register instruction_pointer_register() const;
-	Register flags_register() const;
-	edb::address_t frame_pointer() const;
-	edb::address_t instruction_pointer() const;
-	edb::address_t stack_pointer() const;
-	edb::reg_t debug_register(size_t n) const;
+	Register instructionPointerRegister() const;
+	Register flagsRegister() const;
+	edb::address_t framePointer() const;
+	edb::address_t instructionPointer() const;
+	edb::address_t stackPointer() const;
+	edb::reg_t debugRegister(size_t n) const;
 	edb::reg_t flags() const;
-	Register gp_register(size_t n) const;
-	Register arch_register(uint64_t type, size_t n) const;
-	void adjust_stack(int bytes);
+	Register gpRegister(size_t n) const;
+	Register archRegister(uint64_t type, size_t n) const;
+	void adjustStack(int bytes);
 	void clear();
 	bool empty() const;
 
 public:
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	int fpu_stack_pointer() const;
-	edb::value80 fpu_register(size_t n) const;
-	bool fpu_register_is_empty(std::size_t n) const;
-	QString fpu_register_tag_string(std::size_t n) const;
-	edb::value16 fpu_control_word() const;
-	edb::value16 fpu_status_word() const;
-	edb::value16 fpu_tag_word() const;
+	int fpuStackPointer() const;
+	edb::value80 fpuRegister(size_t n) const;
+	bool fpuRegisterIsEmpty(std::size_t n) const;
+	QString fpuRegisterTagString(std::size_t n) const;
+	edb::value16 fpuControlWord() const;
+	edb::value16 fpuStatusWord() const;
+	edb::value16 fpuTagWord() const;
 #endif
 
 public:
-	void set_debug_register(size_t n, edb::reg_t value);
-	void set_flags(edb::reg_t flags);
-	void set_instruction_pointer(edb::address_t value);
-	void set_register(const QString &name, edb::reg_t value);
-	void set_register(const Register &reg);
+	void setDebugRegister(size_t n, edb::reg_t value);
+	void setFlags(edb::reg_t flags);
+	void setInstructionPointer(edb::address_t value);
+	void setRegister(const QString &name, edb::reg_t value);
+	void setRegister(const Register &reg);
 
 public:
 	Register operator[](const QString &reg) const;

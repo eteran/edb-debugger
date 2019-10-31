@@ -60,7 +60,7 @@ private:
 
 private:
 	Ui::DialogMemoryRegions ui;
-	QSortFilterProxyModel * filter_model_;
+	QSortFilterProxyModel * filterModel_;
 };
 
 #endif

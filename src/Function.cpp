@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 // Name: swap
 //------------------------------------------------------------------------------
 void Function::swap(Function &other) {
-	std::swap(reference_count_, other.reference_count_);
+	std::swap(referenceCount_, other.referenceCount_);
 	std::swap(type_, other.type_);
 	std::swap(blocks_, other.blocks_);
 }
@@ -59,7 +59,7 @@ edb::address_t Function::last_instruction() const {
 // Name: reference_count
 //------------------------------------------------------------------------------
 int Function::reference_count() const {
-	return reference_count_;
+	return referenceCount_;
 }
 
 //------------------------------------------------------------------------------
@@ -168,7 +168,7 @@ Function::size_type Function::size() const {
 // Name: add_reference
 //------------------------------------------------------------------------------
 void Function::add_reference() {
-	++reference_count_;
+	++referenceCount_;
 }
 
 //------------------------------------------------------------------------------

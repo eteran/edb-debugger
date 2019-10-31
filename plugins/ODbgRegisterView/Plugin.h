@@ -35,7 +35,7 @@ class Plugin : public QObject, public IPlugin {
 public:
 	explicit Plugin(QObject *parent = nullptr);
 	QMenu *menu(QWidget *parent = nullptr) override;
-	QList<QAction *> cpu_context_menu() override;
+	QList<QAction *> cpuContextMenu() override;
 
 private:
 	void setupDocks();
@@ -44,7 +44,7 @@ private:
 
 private Q_SLOTS:
 	void createRegisterView();
-	void saveState() const;
+	void saveSettings() const;
 	void expandRSUp(bool checked) const;
 	void expandRSDown(bool checked) const;
 	void expandLSUp(bool checked) const;
@@ -52,7 +52,7 @@ private Q_SLOTS:
 	void removeDock(QWidget *);
 
 private:
-	QMenu *                   menu_;
+	QMenu *                   menu_ = nullptr;
 	std::vector<ODBRegView *> registerViews_;
 	std::vector<QAction *>    menuDeleteRegViewActions_;
 };

@@ -32,8 +32,8 @@ public:
 
 public:
     bool native() const override;
-    edb::address_t entry_point() override;
-    size_t header_size() const override;
+    edb::address_t entryPoint() override;
+    size_t headerSize() const override;
     const void *header() const override;
 	std::vector<Header> headers() const override;
 

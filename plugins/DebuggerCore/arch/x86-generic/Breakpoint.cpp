@@ -68,7 +68,7 @@ auto Breakpoint::supported_types() -> std::vector<BreakpointType> {
 }
 
 
-void Breakpoint::set_type(TypeId type) {
+void Breakpoint::setType(TypeId type) {
 	disable();
 	type_ = type;
 	if(!enable()) {
@@ -76,14 +76,14 @@ void Breakpoint::set_type(TypeId type) {
 	}
 }
 
-void Breakpoint::set_type(IBreakpoint::TypeId type) {
+void Breakpoint::setType(IBreakpoint::TypeId type) {
 	disable();
 
 	if(Type{type} >= TypeId::TYPE_COUNT) {
 		throw breakpoint_creation_error();
 	}
 
-	set_type(type);
+	setType(type);
 }
 
 //------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ bool Breakpoint::enable() {
 	if(!enabled()) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 			std::vector<quint8> prev(2);
-			if(process->read_bytes(address(), &prev[0], prev.size())) {
+			if(process->readBytes(address(), &prev[0], prev.size())) {
 				original_bytes_ = prev;
 				const std::vector<quint8>* bpBytes = nullptr;
 
@@ -126,7 +126,7 @@ bool Breakpoint::enable() {
 				assert(original_bytes_.size() >= bpBytes->size());
 				original_bytes_.resize(bpBytes->size());
 
-				if(process->write_bytes(address(), bpBytes->data(), bpBytes->size())) {
+				if(process->writeBytes(address(), bpBytes->data(), bpBytes->size())) {
 					enabled_ = true;
 					return true;
 				}
@@ -143,7 +143,7 @@ bool Breakpoint::enable() {
 bool Breakpoint::disable() {
 	if(enabled()) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(process->write_bytes(address(), &original_bytes_[0], original_bytes_.size())) {
+			if(process->writeBytes(address(), &original_bytes_[0], original_bytes_.size())) {
 				enabled_ = false;
 				return true;
 			}
@@ -164,7 +164,7 @@ void Breakpoint::hit() {
 // Name: set_one_time
 // Desc:
 //------------------------------------------------------------------------------
-void Breakpoint::set_one_time(bool value) {
+void Breakpoint::setOneTime(bool value) {
 	one_time_ = value;
 }
 
@@ -172,7 +172,7 @@ void Breakpoint::set_one_time(bool value) {
 // Name: set_internal
 // Desc:
 //------------------------------------------------------------------------------
-void Breakpoint::set_internal(bool value) {
+void Breakpoint::setInternal(bool value) {
 	internal_ = value;
 }
 

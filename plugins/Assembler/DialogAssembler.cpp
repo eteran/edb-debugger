@@ -181,7 +181,7 @@ void DialogAssembler::on_buttonBox_accepted() {
 				return;
 			}
 
-			const QString bitsStr = std::to_string(core->pointer_size()*8).c_str();
+			const QString bitsStr = std::to_string(core->pointerSize()*8).c_str();
 			const QString addrStr = edb::v1::format_pointer(address_);
 
 			static const char *bitsTag = "%BITS%";

@@ -311,7 +311,7 @@ QString format_char(int pointer_level, edb::address_t arg, QChar type) {
 					return QString("<%1> \"%2\"").arg(edb::v1::format_pointer(arg), string_param);
 				} else {
 					char character;
-					process->read_bytes(arg, &character, sizeof(character));
+					process->readBytes(arg, &character, sizeof(character));
 					if(character == '\0') {
 						return QString("<%1> \"\"").arg(edb::v1::format_pointer(arg));
 					} else {
@@ -402,7 +402,7 @@ void resolve_function_parameters_helper(T parameter_registers, const State &stat
 				if(i+1 > func_param_regs_count()) {
 					size_t arg_i_position=(i - func_param_regs_count()) * edb::v1::pointer_size();
 					edb::reg_t value(0);
-					process->read_bytes(state.stack_pointer() + offset + arg_i_position, &value, edb::v1::pointer_size());
+					process->readBytes(state.stackPointer() + offset + arg_i_position, &value, edb::v1::pointer_size());
 					arg=edb::v1::debuggeeIs64Bit()?
 						make_Register<64>("",value,Register::TYPE_GPR) :
 						make_Register<32>("",value,Register::TYPE_GPR);
@@ -508,9 +508,9 @@ bool is_jcc_taken(const edb::reg_t efl, edb::Instruction::ConditionCode cond) {
 bool is_jcc_taken(const State &state, edb::Instruction::ConditionCode cond) {
 
 	if(cond==edb::Instruction::CC_UNCONDITIONAL) return true;
-	if(cond==edb::Instruction::CC_RCXZ) return state.gp_register(rCX).value<edb::value64>() == 0;
-	if(cond==edb::Instruction::CC_ECXZ) return state.gp_register(rCX).value<edb::value32>() == 0;
-	if(cond==edb::Instruction::CC_CXZ)  return state.gp_register(rCX).value<edb::value16>() == 0;
+	if(cond==edb::Instruction::CC_RCXZ) return state.gpRegister(rCX).value<edb::value64>() == 0;
+	if(cond==edb::Instruction::CC_ECXZ) return state.gpRegister(rCX).value<edb::value32>() == 0;
+	if(cond==edb::Instruction::CC_CXZ)  return state.gpRegister(rCX).value<edb::value16>() == 0;
 
 	return is_jcc_taken(state.flags(),cond);
 }
@@ -570,7 +570,7 @@ void analyze_return(const State &state, const edb::Instruction &inst, QStringLis
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		edb::address_t return_address(0);
-		process->read_bytes(state.stack_pointer(), &return_address, edb::v1::pointer_size());
+		process->readBytes(state.stackPointer(), &return_address, edb::v1::pointer_size());
 
 		const QString symname = edb::v1::find_function_symbol(return_address);
 		if(!symname.isEmpty()) {
@@ -592,7 +592,7 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 		if(const auto operand = inst[0]) {
 
 			bool ok;
-			const edb::address_t effective_address = edb::v1::arch_processor().get_effective_address(inst, operand, state,ok);
+			const edb::address_t effective_address = edb::v1::arch_processor().getEffectiveAddress(inst, operand, state,ok);
 			if(!ok) return;
 			const auto temp_operand = QString::fromStdString(edb::v1::formatter().to_string(operand));
 
@@ -637,7 +637,7 @@ void analyze_call(const State &state, const edb::Instruction &inst, QStringList 
 			} else if(is_expression(operand)) {
 				edb::address_t target(0);
 
-				if(process->read_bytes(effective_address, &target, edb::v1::pointer_size())) {
+				if(process->readBytes(effective_address, &target, edb::v1::pointer_size())) {
 					int offset;
 					const QString symname = edb::v1::find_function_symbol(target, QString(), &offset);
 					if(!symname.isEmpty()) {
@@ -773,11 +773,11 @@ void analyze_operands(const State &state, const edb::Instruction &inst, QStringL
 					ret << QString("%1 = %2").arg(temp_operand, valueString);
 				} else if(is_expression(operand)) {
 					bool ok;
-					const edb::address_t effective_address = edb::v1::arch_processor().get_effective_address(inst, operand, state,ok);
+					const edb::address_t effective_address = edb::v1::arch_processor().getEffectiveAddress(inst, operand, state,ok);
 					if(!ok) continue;
 					edb::value256 target;
 
-					if(process->read_bytes(effective_address, &target, sizeof(target))) {
+					if(process->readBytes(effective_address, &target, sizeof(target))) {
 
                         switch(operand->size) {
 						case 1:
@@ -972,7 +972,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 			if(argument_register=="ebp" && inst.operation()==X86_INS_SYSENTER) {
 				if(IProcess *process = edb::v1::debugger_core->process()) {
 					char buf[4];
-					if(process->read_bytes(state.stack_pointer(), buf, sizeof(buf))!=sizeof(buf)) {
+					if(process->readBytes(state.stackPointer(), buf, sizeof(buf))!=sizeof(buf)) {
 						arguments << QObject::tr("(failed to read [esp])");
 						continue;
 					}
@@ -1017,7 +1017,7 @@ void analyze_syscall(const State &state, const edb::Instruction &inst, QStringLi
 // Name: get_effective_address
 // Desc:
 //------------------------------------------------------------------------------
-Result<edb::address_t, QString> ArchProcessor::get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state) const {
+Result<edb::address_t, QString> ArchProcessor::getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state) const {
 	using ResultT = Result<edb::address_t, QString>;
 
 	edb::address_t ret = 0;
@@ -1109,10 +1109,10 @@ Result<edb::address_t, QString> ArchProcessor::get_effective_address(const edb::
 	return ResultT(ret);
 }
 
-edb::address_t ArchProcessor::get_effective_address(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool& ok) const {
+edb::address_t ArchProcessor::getEffectiveAddress(const edb::Instruction &inst, const edb::Operand &op, const State &state, bool& ok) const {
 
 	ok=false;
-	const auto result = get_effective_address(inst, op, state);
+	const auto result = getEffectiveAddress(inst, op, state);
 	if(!result) return 0;
 	ok=true;
 	return result.value();
@@ -1124,14 +1124,14 @@ edb::address_t ArchProcessor::get_effective_address(const edb::Instruction &inst
 //------------------------------------------------------------------------------
 ArchProcessor::ArchProcessor() {
 	if(edb::v1::debugger_core) {
-		has_mmx_ = edb::v1::debugger_core->has_extension(edb::string_hash("MMX"));
-		has_xmm_ = edb::v1::debugger_core->has_extension(edb::string_hash("XMM"));
-		has_ymm_ = edb::v1::debugger_core->has_extension(edb::string_hash("YMM"));
+		hasMmx_ = edb::v1::debugger_core->hasExtension(edb::string_hash("MMX"));
+		hasXmm_ = edb::v1::debugger_core->hasExtension(edb::string_hash("XMM"));
+		hasYmm_ = edb::v1::debugger_core->hasExtension(edb::string_hash("YMM"));
 		connect(edb::v1::debugger_ui, SIGNAL(attachEvent()), this, SLOT(justAttached()));
 	} else {
-		has_mmx_ = false;
-		has_xmm_ = false;
-		has_ymm_ = false;
+		hasMmx_ = false;
+		hasXmm_ = false;
+		hasYmm_ = false;
 	}
 
 }
@@ -1140,11 +1140,11 @@ ArchProcessor::ArchProcessor() {
 // Name: setup_register_view
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::setup_register_view() {
+void ArchProcessor::setupRegisterView() {
 
 	if(edb::v1::debugger_core) {
 
-		update_register_view(QString(), State());
+		updateRegisterView(QString(), State());
 	}
 }
 
@@ -1155,7 +1155,7 @@ void ArchProcessor::setup_register_view() {
 void ArchProcessor::reset() {
 
 	if(edb::v1::debugger_core) {
-		update_register_view(QString(), State());
+		updateRegisterView(QString(), State());
 	}
 }
 
@@ -1172,13 +1172,13 @@ QString gprComment(const Register& reg)
 }
 
 RegisterViewModel& getModel() {
-	return static_cast<RegisterViewModel&>(edb::v1::arch_processor().get_register_view_model());
+	return static_cast<RegisterViewModel&>(edb::v1::arch_processor().registerViewModel());
 }
 
 void updateGPRs(RegisterViewModel& model, const State& state, bool is64Bit) {
 	if(is64Bit) {
 		for(std::size_t i=0;i<GPR64_COUNT;++i) {
-			const auto reg = state.gp_register(i);
+			const auto reg = state.gpRegister(i);
 			if(!reg) {
 				continue;
 			}
@@ -1201,7 +1201,7 @@ void updateGPRs(RegisterViewModel& model, const State& state, bool is64Bit) {
 		}
 	} else {
 		for(std::size_t i=0;i<GPR32_COUNT;++i) {
-			const auto reg = state.gp_register(i);
+			const auto reg = state.gpRegister(i);
 			if(!reg) {
 				continue;
 			}
@@ -1239,8 +1239,8 @@ QString eflagsComment(edb::reg_t flags) {
 }
 
 void updateGeneralStatusRegs(RegisterViewModel& model, const State& state, bool is64Bit, const QString &default_region_name) {
-	const auto ip=state.instruction_pointer_register();
-	const auto flags=state.flags_register();
+	const auto ip=state.instructionPointerRegister();
+	const auto flags=state.flagsRegister();
 	Q_ASSERT(!!ip);
 	Q_ASSERT(!!flags);
 	const auto ipComment=rIPcomment(ip.valueAsAddress(),default_region_name);
@@ -1319,15 +1319,15 @@ void updateSegRegs(RegisterViewModel& model, const State& state) {
 void updateFPURegs(RegisterViewModel& model, const State& state) {
 	for(std::size_t i=0;i<MAX_FPU_REGS_COUNT;++i)
 	{
-		const auto reg=state.fpu_register(i);
+		const auto reg=state.fpuRegister(i);
 		const auto comment = floatType(reg)==FloatValueClass::PseudoDenormal ?
 								QObject::tr("pseudo-denormal") : "";
 		model.updateFPUReg(i,reg,comment);
 	}
-	model.updateFCR(state.fpu_control_word());
-	const auto fsr=state.fpu_status_word();
+	model.updateFCR(state.fpuControlWord());
+	const auto fsr=state.fpuStatusWord();
 	model.updateFSR(fsr,FSRComment(fsr));
-	model.updateFTR(state.fpu_tag_word());
+	model.updateFTR(state.fpuTagWord());
 	{
 		const Register FIS=state["FIS"];
 		if(FIS) model.updateFIS(FIS.value<edb::value16>());
@@ -1371,7 +1371,7 @@ void updateFPURegs(RegisterViewModel& model, const State& state) {
 
 void updateDebugRegs(RegisterViewModel& model, const State& state) {
 	for(std::size_t i=0;i<MAX_DEBUG_REGS_COUNT;++i) {
-		const edb::reg_t reg=state.debug_register(i);
+		const edb::reg_t reg=state.debugRegister(i);
 		if(edb::v1::debuggeeIs32Bit())
 			model.updateDR(i,edb::value32(reg));
 		else model.updateDR(i,reg);
@@ -1380,7 +1380,7 @@ void updateDebugRegs(RegisterViewModel& model, const State& state) {
 
 void updateMMXRegs(RegisterViewModel& model, const State& state) {
 	for(std::size_t i = 0; i < MAX_MMX_REGS_COUNT; ++i) {
-		const auto reg = state.arch_register(edb::string_hash("mmx"), i);
+		const auto reg = state.archRegister(edb::string_hash("mmx"), i);
 
 		if(!!reg) {
 			model.updateMMXReg(i,reg.value<MMWord>());
@@ -1400,14 +1400,14 @@ void updateSSEAVXRegs(RegisterViewModel& model, const State& state, bool hasSSE,
 
 	for(std::size_t i = 0; i < max; ++i) {
 		if(hasAVX) {
-			const auto reg = state.arch_register(edb::string_hash("ymm"), i);
+			const auto reg = state.archRegister(edb::string_hash("ymm"), i);
 			if(!reg) {
 				model.invalidateAVXReg(i);
 			} else {
 				model.updateAVXReg(i,reg.value<YMMWord>());
 			}
 		} else if(hasSSE) {
-			const auto reg = state.arch_register(edb::string_hash("xmm"), i);
+			const auto reg = state.archRegister(edb::string_hash("xmm"), i);
 			if(!reg) {
 				model.invalidateSSEReg(i);
 			} else {
@@ -1428,11 +1428,11 @@ void updateSSEAVXRegs(RegisterViewModel& model, const State& state, bool hasSSE,
 // Name: update_register_view
 // Desc:
 //------------------------------------------------------------------------------
-void ArchProcessor::update_register_view(const QString &default_region_name, const State &state) {
+void ArchProcessor::updateRegisterView(const QString &default_region_name, const State &state) {
 
 	auto& model = getModel();
 
-	const auto ip = state.instruction_pointer_register();
+	const auto ip = state.instructionPointerRegister();
 
 	if(!ip) {
 		model.setCPUMode(RegisterViewModel::CPUMode::UNKNOWN);
@@ -1448,50 +1448,50 @@ void ArchProcessor::update_register_view(const QString &default_region_name, con
 	updateFPURegs(model,state);
 	updateDebugRegs(model,state);
 	updateMMXRegs(model,state);
-	updateSSEAVXRegs(model,state,has_xmm_,has_ymm_);
+	updateSSEAVXRegs(model,state,hasXmm_,hasYmm_);
 
-	if(just_attached_) {
+	if(justAttached_) {
 		model.saveValues();
-		just_attached_=false;
+		justAttached_=false;
 	}
 	model.dataUpdateFinished();
 }
 
-void ArchProcessor::about_to_resume() {
+void ArchProcessor::aboutToResume() {
 	getModel().saveValues();
 }
 
 void ArchProcessor::justAttached() {
-	just_attached_=true;
+	justAttached_=true;
 }
 
 bool falseSyscallReturn(const State &state, std::int64_t origAX) {
 	// Prevent reporting of returns from execve() when the process has just launched
 	if(EDB_IS_32_BIT && origAX==11) {
-		return state.gp_register(rAX).valueAsInteger()==0 &&
-			   state.gp_register(rCX).valueAsInteger()==0 &&
-			   state.gp_register(rDX).valueAsInteger()==0 &&
-			   state.gp_register(rBX).valueAsInteger()==0 &&
-			   state.gp_register(rBP).valueAsInteger()==0 &&
-			   state.gp_register(rSI).valueAsInteger()==0 &&
-			   state.gp_register(rDI).valueAsInteger()==0;
+		return state.gpRegister(rAX).valueAsInteger()==0 &&
+			   state.gpRegister(rCX).valueAsInteger()==0 &&
+			   state.gpRegister(rDX).valueAsInteger()==0 &&
+			   state.gpRegister(rBX).valueAsInteger()==0 &&
+			   state.gpRegister(rBP).valueAsInteger()==0 &&
+			   state.gpRegister(rSI).valueAsInteger()==0 &&
+			   state.gpRegister(rDI).valueAsInteger()==0;
 	}
 	else if(EDB_IS_64_BIT && origAX==59) {
-		return state.gp_register(rAX).valueAsInteger()==0 &&
-			   state.gp_register(rCX).valueAsInteger()==0 &&
-			   state.gp_register(rDX).valueAsInteger()==0 &&
-			   state.gp_register(rBX).valueAsInteger()==0 &&
-			   state.gp_register(rBP).valueAsInteger()==0 &&
-			   state.gp_register(rSI).valueAsInteger()==0 &&
-			   state.gp_register(rDI).valueAsInteger()==0 &&
-			   state.gp_register(R8 ).valueAsInteger()==0 &&
-			   state.gp_register(R9 ).valueAsInteger()==0 &&
-			   state.gp_register(R10).valueAsInteger()==0 &&
-			   state.gp_register(R11).valueAsInteger()==0 &&
-			   state.gp_register(R12).valueAsInteger()==0 &&
-			   state.gp_register(R13).valueAsInteger()==0 &&
-			   state.gp_register(R14).valueAsInteger()==0 &&
-			   state.gp_register(R15).valueAsInteger()==0;
+		return state.gpRegister(rAX).valueAsInteger()==0 &&
+			   state.gpRegister(rCX).valueAsInteger()==0 &&
+			   state.gpRegister(rDX).valueAsInteger()==0 &&
+			   state.gpRegister(rBX).valueAsInteger()==0 &&
+			   state.gpRegister(rBP).valueAsInteger()==0 &&
+			   state.gpRegister(rSI).valueAsInteger()==0 &&
+			   state.gpRegister(rDI).valueAsInteger()==0 &&
+			   state.gpRegister(R8 ).valueAsInteger()==0 &&
+			   state.gpRegister(R9 ).valueAsInteger()==0 &&
+			   state.gpRegister(R10).valueAsInteger()==0 &&
+			   state.gpRegister(R11).valueAsInteger()==0 &&
+			   state.gpRegister(R12).valueAsInteger()==0 &&
+			   state.gpRegister(R13).valueAsInteger()==0 &&
+			   state.gpRegister(R14).valueAsInteger()==0 &&
+			   state.gpRegister(R15).valueAsInteger()==0;
 	}
 	return false;
 }
@@ -1500,7 +1500,7 @@ bool falseSyscallReturn(const State &state, std::int64_t origAX) {
 // Name: update_instruction_info
 // Desc:
 //------------------------------------------------------------------------------
-QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
+QStringList ArchProcessor::updateInstructionInfo(edb::address_t address) {
 
 	QStringList ret;
 
@@ -1509,12 +1509,12 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		quint8 buffer[edb::Instruction::MAX_SIZE];
 
-		if(process->read_bytes(address, buffer, sizeof(buffer))) {
+		if(process->readBytes(address, buffer, sizeof(buffer))) {
 			edb::Instruction inst(buffer, buffer + sizeof(buffer), address);
 			if(inst) {
 
 				State state;
-				process->current_thread()->get_state(&state);
+				process->currentThread()->getState(&state);
 
 				std::int64_t origAX;
 				if(debuggeeIs64Bit()) {
@@ -1523,7 +1523,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 					origAX = state["orig_eax"].valueAsSignedInteger();
 				}
 
-				const std::uint64_t rax = state.gp_register(rAX).valueAsSignedInteger();
+				const std::uint64_t rax = state.gpRegister(rAX).valueAsSignedInteger();
 
 				if(origAX != -1 && !falseSyscallReturn(state, origAX)) {
 
@@ -1584,7 +1584,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 				#ifdef Q_OS_LINUX
 				   if((inst[0]->imm & 0xff) == 0x80) {
 
-						analyze_syscall(state, inst, ret, state.gp_register(rAX).valueAsInteger());
+						analyze_syscall(state, inst, ret, state.gpRegister(rAX).valueAsInteger());
 					} else {
 
 						analyze_operands(state, inst, ret);
@@ -1592,7 +1592,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 				#endif
 				} else if (is_syscall(inst) || is_sysenter(inst)) {
 
-					analyze_syscall(state, inst, ret, state.gp_register(rAX).valueAsInteger());
+					analyze_syscall(state, inst, ret, state.gpRegister(rAX).valueAsInteger());
 
 				} else {
 
@@ -1616,7 +1616,7 @@ QStringList ArchProcessor::update_instruction_info(edb::address_t address) {
 // Name: can_step_over
 // Desc:
 //------------------------------------------------------------------------------
-bool ArchProcessor::can_step_over(const edb::Instruction &inst) const {
+bool ArchProcessor::canStepOver(const edb::Instruction &inst) const {
 	return inst && (is_call(inst) || is_repeat(inst));
 }
 
@@ -1624,7 +1624,7 @@ bool ArchProcessor::can_step_over(const edb::Instruction &inst) const {
 // Name: is_filling
 // Desc:
 //------------------------------------------------------------------------------
-bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
+bool ArchProcessor::isFilling(const edb::Instruction &inst) const {
 	bool ret = false;
 
 	// fetch the operands
@@ -1691,14 +1691,14 @@ bool ArchProcessor::is_filling(const edb::Instruction &inst) const {
 // Name: register_view_model
 // Desc:
 //------------------------------------------------------------------------------
-RegisterViewModelBase::Model& ArchProcessor::get_register_view_model() const {
-    static RegisterViewModel model(has_mmx_*RegisterViewModel::CPUFeatureBits::MMX |
-								   has_xmm_*RegisterViewModel::CPUFeatureBits::SSE |
-								   has_ymm_*RegisterViewModel::CPUFeatureBits::AVX);
+RegisterViewModelBase::Model& ArchProcessor::registerViewModel() const {
+    static RegisterViewModel model(hasMmx_*RegisterViewModel::CPUFeatureBits::MMX |
+								   hasXmm_*RegisterViewModel::CPUFeatureBits::SSE |
+								   hasYmm_*RegisterViewModel::CPUFeatureBits::AVX);
     return model;
 }
 
-bool ArchProcessor::is_executed(const edb::Instruction &inst, const State &state) const
+bool ArchProcessor::isExecuted(const edb::Instruction &inst, const State &state) const
 {
 	return is_jcc_taken(state, inst.condition_code());
 }
