@@ -81,9 +81,9 @@ public:
 	edb::pid_t parent_pid(edb::pid_t pid) const override;
 	quint64 cpu_type() const override ;
 
-	CPUMode cpu_mode() const  override{
+	CpuMode cpu_mode() const  override{
 		qDebug("TODO: Implement DebuggerCore::cpu_mode");
-		return CPUMode::Unknown;
+		return CpuMode::Unknown;
 	}
 
 public:

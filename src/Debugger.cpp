@@ -174,14 +174,14 @@ public:
 	//--------------------------------------------------------------------------
 	// Name: RunUntilRet
 	//--------------------------------------------------------------------------
-    RunUntilRet() : last_call_return_(0) {
+	RunUntilRet() {
 		edb::v1::add_debug_event_handler(this);
 	}
 
 	//--------------------------------------------------------------------------
 	// Name: ~RunUntilRet
 	//--------------------------------------------------------------------------
-	~RunUntilRet() {
+	~RunUntilRet() override {
 		edb::v1::remove_debug_event_handler(this);
 
 		for(const auto& bp : own_breakpoints_) {
@@ -271,7 +271,7 @@ public:
 			}
 
 			//If we are on our ret (or the instr after?), then ret.
-			if (address == ret_address_) {
+			if (address == returnAddress_) {
 				qDebug() << QString("On our terminator at 0x%1").arg(address, 0, 16);
 				if (is_instruction_ret(address)) {
 					qDebug() << "Found ret; passing back to debugger";
@@ -315,7 +315,7 @@ public:
 							bp->setInternal(true);
 							bp->setOneTime(true); //If the 0xcc get's rm'd on next event, then
 							                        //don't set it one time; we'll hande it manually
-							ret_address_ = address;
+							returnAddress_ = address;
 							return edb::DEBUG_CONTINUE;
 						}
 						else {
@@ -352,8 +352,8 @@ public:
 
 private:
 	std::vector<std::pair<edb::address_t,std::weak_ptr<IBreakpoint>>> own_breakpoints_;
-	edb::address_t      last_call_return_;
-	edb::address_t      ret_address_;
+	edb::address_t      lastCallReturn_ = 0;
+	edb::address_t      returnAddress_ = 0;
 };
 
 
@@ -364,12 +364,12 @@ private:
 // Desc:
 //------------------------------------------------------------------------------
 Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
-        tty_proc_(new QProcess(this)),
-        arguments_dialog_(new DialogArguments),
+		ttyProc_(new QProcess(this)),
+		argumentsDialog_(new DialogArguments),
         timer_(new QTimer(this)),
-        recent_file_manager_(new RecentFileManager(this)),
-        stack_view_info_(nullptr),
-        comment_server_(std::make_shared<CommentServer>())
+		recentFileManager_(new RecentFileManager(this)),
+        stackViewInfo_(nullptr),
+        commentServer_(std::make_shared<CommentServer>())
 {
 	setup_ui();
 
@@ -465,12 +465,12 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 	setAcceptDrops(true);
 
 	// setup the list model for instruction details list
-	list_model_ = new QStringListModel(this);
-	ui.listView->setModel(list_model_);
+	listModel_ = new QStringListModel(this);
+	ui.listView->setModel(listModel_);
 
 	// setup the recent file manager
-	ui.action_Recent_Files->setMenu(recent_file_manager_->create_menu());
-	connect(recent_file_manager_, &RecentFileManager::file_selected, this, &Debugger::open_file);
+	ui.action_Recent_Files->setMenu(recentFileManager_->create_menu());
+	connect(recentFileManager_, &RecentFileManager::file_selected, this, &Debugger::open_file);
 
 	// make us the default event handler
 	edb::v1::add_debug_event_handler(this);
@@ -482,7 +482,7 @@ Debugger::Debugger(QWidget *parent) : QMainWindow(parent),
 #endif
 
 	// default the working directory to ours
-	working_directory_ = QDir().absolutePath();
+	workingDirectory_ = QDir().absolutePath();
 
 	// let the plugins setup their menus
 	finish_plugin_setup();
@@ -507,8 +507,8 @@ Debugger::~Debugger() {
 	}
 
 	// kill our xterm and wait for it to die
-	tty_proc_->kill();
-	tty_proc_->waitForFinished(3000);
+	ttyProc_->kill();
+	ttyProc_->waitForFinished(3000);
 	edb::v1::remove_debug_event_handler(this);
 }
 
@@ -524,14 +524,10 @@ QAction *Debugger::createAction(const QString &text, const QKeySequence &keySequ
 // Name: update_menu_state
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::update_menu_state(GUI_STATE state) {
-
-	static const QString Paused     = tr("paused");
-	static const QString Running    = tr("running");
-	static const QString Terminated = tr("terminated");
+void Debugger::update_menu_state(GuiState state) {
 
 	switch(state) {
-	case PAUSED:
+	case Paused:
 		ui.actionRun_Until_Return->setEnabled(true);
 		ui.action_Restart->setEnabled(true);
 		ui.action_Run->setEnabled(true);
@@ -544,11 +540,11 @@ void Debugger::update_menu_state(GUI_STATE state) {
 		ui.action_Run_Pass_Signal_To_Application->setEnabled(true);
 		ui.action_Detach->setEnabled(true);
 		ui.action_Kill->setEnabled(true);
-		add_tab_->setEnabled(true);
-		status_->setText(Paused);
+		tabCreate_->setEnabled(true);
+		status_->setText(tr("paused"));
 		status_->repaint();
 		break;
-	case RUNNING:
+	case Running:
 		ui.actionRun_Until_Return->setEnabled(false);
 		ui.action_Restart->setEnabled(false);
 		ui.action_Run->setEnabled(false);
@@ -561,13 +557,13 @@ void Debugger::update_menu_state(GUI_STATE state) {
 		ui.action_Run_Pass_Signal_To_Application->setEnabled(false);
 		ui.action_Detach->setEnabled(true);
 		ui.action_Kill->setEnabled(true);
-		add_tab_->setEnabled(true);
-		status_->setText(Running);
+		tabCreate_->setEnabled(true);
+		status_->setText(tr("running"));
 		status_->repaint();
 		break;
-	case TERMINATED:
+	case Terminated:
 		ui.actionRun_Until_Return->setEnabled(false);
-		ui.action_Restart->setEnabled(recent_file_manager_->entry_count()>0);
+		ui.action_Restart->setEnabled(recentFileManager_->entry_count()>0);
 		ui.action_Run->setEnabled(false);
 		ui.action_Pause->setEnabled(false);
 		ui.action_Step_Into->setEnabled(false);
@@ -578,13 +574,13 @@ void Debugger::update_menu_state(GUI_STATE state) {
 		ui.action_Run_Pass_Signal_To_Application->setEnabled(false);
 		ui.action_Detach->setEnabled(false);
 		ui.action_Kill->setEnabled(false);
-		add_tab_->setEnabled(false);
-		status_->setText(Terminated);
+		tabCreate_->setEnabled(false);
+		status_->setText(tr("terminated"));
 		status_->repaint();
 		break;
 	}
 
-	gui_state_ = state;
+	guiState_ = state;
 }
 
 //------------------------------------------------------------------------------
@@ -593,11 +589,11 @@ void Debugger::update_menu_state(GUI_STATE state) {
 //------------------------------------------------------------------------------
 QString Debugger::create_tty() {
 
-	QString result_tty = tty_file_;
+	QString result_tty = ttyFile_;
 
 #if defined(Q_OS_LINUX) || defined(Q_OS_OPENBSD) || defined(Q_OS_FREEBSD)
 	// we attempt to reuse an open output window
-	if(edb::v1::config().tty_enabled && tty_proc_->state() != QProcess::Running) {
+	if(edb::v1::config().tty_enabled && ttyProc_->state() != QProcess::Running) {
 		const QString command = edb::v1::config().tty_command;
 
 		if(!command.isEmpty()) {
@@ -642,11 +638,11 @@ QString Debugger::create_tty() {
 			qDebug() << "Terminal Args: " << proc_args;
 
 			// make the tty process object and connect it's death signal to our cleanup
-			connect(tty_proc_, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(tty_proc_finished(int, QProcess::ExitStatus)));
+			connect(ttyProc_, SIGNAL(finished(int, QProcess::ExitStatus)), SLOT(tty_proc_finished(int, QProcess::ExitStatus)));
 
-			tty_proc_->start(tty_command, proc_args);
+			ttyProc_->start(tty_command, proc_args);
 
-			if(tty_proc_->waitForStarted(3000)) {
+			if(ttyProc_->waitForStarted(3000)) {
 
 
 				// try to read from the pipe, but with a 2 second timeout
@@ -702,7 +698,7 @@ void Debugger::tty_proc_finished(int exit_code, QProcess::ExitStatus exit_status
 	Q_UNUSED(exit_code)
 	Q_UNUSED(exit_status)
 
-	tty_file_.clear();
+	ttyFile_.clear();
 }
 
 //------------------------------------------------------------------------------
@@ -718,7 +714,7 @@ int Debugger::current_tab() const {
 // Desc:
 //------------------------------------------------------------------------------
 std::shared_ptr<DataViewInfo> Debugger::current_data_view_info() const {
-	return data_regions_[current_tab()];
+	return dataRegions_[current_tab()];
 }
 
 //------------------------------------------------------------------------------
@@ -739,10 +735,10 @@ void Debugger::delete_data_tab() {
 	// get a pointer to the info we need (before removing it from the list!)
 	// this seems redundant to current_data_view_info(), but we need the
 	// index too, so may as well waste one line to avoid duplicate work
-	std::shared_ptr<DataViewInfo> info = data_regions_[current];
+	std::shared_ptr<DataViewInfo> info = dataRegions_[current];
 
 	// remove it from the list
-	data_regions_.remove(current);
+	dataRegions_.remove(current);
 
 	// remove the tab associated with it
 	ui.tabWidget->removeTab(current);
@@ -756,7 +752,7 @@ void Debugger::create_data_tab() {
 	const int current = current_tab();
 
 	// duplicate the current region
-	auto new_data_view = std::make_shared<DataViewInfo>((current != -1) ? data_regions_[current]->region : nullptr);
+	auto new_data_view = std::make_shared<DataViewInfo>((current != -1) ? dataRegions_[current]->region : nullptr);
 
 	auto hexview = std::make_shared<QHexView>();
 
@@ -774,7 +770,7 @@ void Debugger::create_data_tab() {
 	}
 
     // NOTE(eteran): for issue #522, allow comments in data view when single word width
-	hexview->setCommentServer(comment_server_.get());
+	hexview->setCommentServer(commentServer_.get());
 
 	hexview->setData(new_data_view->stream.get());
 
@@ -801,7 +797,7 @@ void Debugger::create_data_tab() {
 	dump_font.fromString(config.data_font);
 	hexview->setFont(dump_font);
 
-	data_regions_.push_back(new_data_view);
+	dataRegions_.push_back(new_data_view);
 
 	// create the tab!
 	if(new_data_view->region) {
@@ -901,7 +897,7 @@ Result<edb::reg_t, QString> Debugger::get_follow_register() const {
 void Debugger::goto_triggered() {
 	QWidget *const widget = QApplication::focusWidget();
 	if(auto hexview = qobject_cast<QHexView*>(widget)) {
-		if(hexview == stack_view_.get()) {
+		if(hexview == stackView_.get()) {
 			mnuStackGotoAddress();
 		} else {
 			mnuDumpGotoAddress();
@@ -933,7 +929,7 @@ void Debugger::setup_ui() {
 	ui.menu_View->addAction(ui.stackDock    ->toggleViewAction());
 	ui.menu_View->addAction(ui.toolBar      ->toggleViewAction());
 
-	ui.action_Restart->setEnabled(recent_file_manager_->entry_count()>0);
+	ui.action_Restart->setEnabled(recentFileManager_->entry_count()>0);
 
 	// make sure our widgets use custom context menus
 	ui.cpuView     ->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -965,23 +961,23 @@ void Debugger::setup_ui() {
 //------------------------------------------------------------------------------
 void Debugger::setup_stack_view() {
 
-	stack_view_ = std::make_shared<QHexView>();
+	stackView_ = std::make_shared<QHexView>();
 
-	stack_view_->setUserConfigRowWidth(false);
-	stack_view_->setUserConfigWordWidth(false);
+	stackView_->setUserConfigRowWidth(false);
+	stackView_->setUserConfigWordWidth(false);
 
-	ui.stackDock->setWidget(stack_view_.get());
+	ui.stackDock->setWidget(stackView_.get());
 
 	// setup the context menu
-	stack_view_->setContextMenuPolicy(Qt::CustomContextMenu);
-	connect(stack_view_.get(), &QHexView::customContextMenuRequested, this, &Debugger::mnuStackContextMenu);
+	stackView_->setContextMenuPolicy(Qt::CustomContextMenu);
+	connect(stackView_.get(), &QHexView::customContextMenuRequested, this, &Debugger::mnuStackContextMenu);
 
 	// we placed a view in the designer, so just set it here
 	// this may get transitioned to heap allocated, we'll see
-	stack_view_info_.view = stack_view_;
+	stackViewInfo_.view = stackView_;
 
 	// setup the comment server for the stack viewer
-	stack_view_->setCommentServer(comment_server_.get());
+	stackView_->setCommentServer(commentServer_.get());
 }
 
 //------------------------------------------------------------------------------
@@ -1011,10 +1007,10 @@ void Debugger::closeEvent(QCloseEvent *event) {
 	settings.setValue("window.height", height());
 	settings.setValue("window.x", x());
 	settings.setValue("window.y", y());
-	settings.setValue("window.stack.show_address.enabled", stack_view_->showAddress());
-	settings.setValue("window.stack.show_hex.enabled", stack_view_->showHexDump());
-	settings.setValue("window.stack.show_ascii.enabled", stack_view_->showAsciiDump());
-	settings.setValue("window.stack.show_comments.enabled", stack_view_->showComments());
+	settings.setValue("window.stack.show_address.enabled", stackView_->showAddress());
+	settings.setValue("window.stack.show_hex.enabled", stackView_->showHexDump());
+	settings.setValue("window.stack.show_ascii.enabled", stackView_->showAsciiDump());
+	settings.setValue("window.stack.show_comments.enabled", stackView_->showComments());
 
 	QByteArray dissassemblyState = ui.cpuView->saveState();
 	settings.setValue("window.disassembly.state", dissassemblyState);
@@ -1066,16 +1062,16 @@ void Debugger::showEvent(QShowEvent *) {
 	}
 
 
-	stack_view_->setShowAddress(settings.value("window.stack.show_address.enabled", true).toBool());
-	stack_view_->setShowHexDump(settings.value("window.stack.show_hex.enabled", true).toBool());
-	stack_view_->setShowAsciiDump(settings.value("window.stack.show_ascii.enabled", true).toBool());
-	stack_view_->setShowComments(settings.value("window.stack.show_comments.enabled", true).toBool());
+	stackView_->setShowAddress(settings.value("window.stack.show_address.enabled", true).toBool());
+	stackView_->setShowHexDump(settings.value("window.stack.show_hex.enabled", true).toBool());
+	stackView_->setShowAsciiDump(settings.value("window.stack.show_ascii.enabled", true).toBool());
+	stackView_->setShowComments(settings.value("window.stack.show_comments.enabled", true).toBool());
 
 	int row_width  = 1;
 	int word_width = edb::v1::pointer_size();
 
-	stack_view_->setRowWidth(row_width);
-	stack_view_->setWordWidth(word_width);
+	stackView_->setRowWidth(row_width);
+	stackView_->setWordWidth(word_width);
 
 
 	QByteArray disassemblyState = settings.value("window.disassembly.state").toByteArray();
@@ -1141,7 +1137,7 @@ void Debugger::apply_default_fonts() {
 
 	// set some default fonts
 	if(font.fromString(config.stack_font)) {
-		stack_view_->setFont(font);
+		stackView_->setFont(font);
 	}
 
 	if(font.fromString(config.registers_font)) {
@@ -1155,7 +1151,7 @@ void Debugger::apply_default_fonts() {
 	}
 
 	if(font.fromString(config.data_font)) {
-		Q_FOREACH(const std::shared_ptr<DataViewInfo> &data_view, data_regions_) {
+		Q_FOREACH(const std::shared_ptr<DataViewInfo> &data_view, dataRegions_) {
 			data_view->view->setFont(font);
 		}
 	}
@@ -1167,23 +1163,23 @@ void Debugger::apply_default_fonts() {
 //------------------------------------------------------------------------------
 void Debugger::setup_tab_buttons() {
 	// add the corner widgets to the data view
-	add_tab_ = new QToolButton(ui.tabWidget);
-	del_tab_ = new QToolButton(ui.tabWidget);
+	tabCreate_ = new QToolButton(ui.tabWidget);
+	tabDelete_ = new QToolButton(ui.tabWidget);
 
-	add_tab_->setToolButtonStyle(Qt::ToolButtonIconOnly);
-	del_tab_->setToolButtonStyle(Qt::ToolButtonIconOnly);
-	add_tab_->setIcon(QIcon(":/debugger/images/edb16-addtab.png"));
-	del_tab_->setIcon(QIcon(":/debugger/images/edb16-deltab.png"));
-	add_tab_->setAutoRaise(true);
-	del_tab_->setAutoRaise(true);
-	add_tab_->setEnabled(false);
-	del_tab_->setEnabled(false);
+	tabCreate_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	tabDelete_->setToolButtonStyle(Qt::ToolButtonIconOnly);
+	tabCreate_->setIcon(QIcon(":/debugger/images/edb16-addtab.png"));
+	tabDelete_->setIcon(QIcon(":/debugger/images/edb16-deltab.png"));
+	tabCreate_->setAutoRaise(true);
+	tabDelete_->setAutoRaise(true);
+	tabCreate_->setEnabled(false);
+	tabDelete_->setEnabled(false);
 
-	ui.tabWidget->setCornerWidget(add_tab_, Qt::TopLeftCorner);
-	ui.tabWidget->setCornerWidget(del_tab_, Qt::TopRightCorner);
+	ui.tabWidget->setCornerWidget(tabCreate_, Qt::TopLeftCorner);
+	ui.tabWidget->setCornerWidget(tabDelete_, Qt::TopRightCorner);
 
-	connect(add_tab_, &QToolButton::clicked, this, &Debugger::mnuDumpCreateTab);
-	connect(del_tab_, &QToolButton::clicked, this, &Debugger::mnuDumpDeleteTab);
+	connect(tabCreate_, &QToolButton::clicked, this, &Debugger::mnuDumpCreateTab);
+	connect(tabDelete_, &QToolButton::clicked, this, &Debugger::mnuDumpDeleteTab);
 }
 
 //------------------------------------------------------------------------------
@@ -1296,8 +1292,8 @@ void Debugger::apply_default_show_separator() {
 	const bool show = edb::v1::config().show_address_separator;
 
 	ui.cpuView->setShowAddressSeparator(show);
-	stack_view_->setShowAddressSeparator(show);
-	Q_FOREACH(const std::shared_ptr<DataViewInfo> &data_view, data_regions_) {
+	stackView_->setShowAddressSeparator(show);
+	Q_FOREACH(const std::shared_ptr<DataViewInfo> &data_view, dataRegions_) {
 		data_view->view->setShowAddressSeparator(show);
 	}
 }
@@ -1588,7 +1584,7 @@ void Debugger::mnuDumpFollowInStack() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuStackFollowInDump() {
-	follow_in_dump(stack_view_);
+	follow_in_dump(stackView_);
 }
 
 //------------------------------------------------------------------------------
@@ -1596,7 +1592,7 @@ void Debugger::mnuStackFollowInDump() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuStackFollowInCPU() {
-	follow_in_cpu(stack_view_);
+	follow_in_cpu(stackView_);
 }
 
 //------------------------------------------------------------------------------
@@ -1604,7 +1600,7 @@ void Debugger::mnuStackFollowInCPU() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuStackFollowInStack() {
-	follow_in_stack(stack_view_);
+	follow_in_stack(stackView_);
 }
 
 //------------------------------------------------------------------------------
@@ -1612,7 +1608,7 @@ void Debugger::mnuStackFollowInStack() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::on_actionApplication_Arguments_triggered() {
-	arguments_dialog_->exec();
+	argumentsDialog_->exec();
 }
 
 //------------------------------------------------------------------------------
@@ -1627,7 +1623,7 @@ void Debugger::on_actionApplication_Working_Directory_triggered() {
 		QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
 
 	if(!new_dir.isEmpty()) {
-		working_directory_ = new_dir;
+		workingDirectory_ = new_dir;
 	}
 }
 
@@ -1811,7 +1807,7 @@ void Debugger::mnuCPUFollowInStack() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuStackToggleLock(bool locked) {
-	stack_view_locked_ = locked;
+	stackViewLocked_ = locked;
 }
 
 //------------------------------------------------------------------------------
@@ -1820,7 +1816,7 @@ void Debugger::mnuStackToggleLock(bool locked) {
 //------------------------------------------------------------------------------
 void Debugger::mnuStackContextMenu(const QPoint &pos) {
 
-	QMenu *const menu = stack_view_->createStandardContextMenu();
+	QMenu *const menu = stackView_->createStandardContextMenu();
 
 	menu->addSeparator();
 	menu->addAction(stackFollowInCPUAction_);
@@ -1840,13 +1836,13 @@ void Debugger::mnuStackContextMenu(const QPoint &pos) {
 	menu->addSeparator();
 	auto action = new QAction(tr("&Lock Stack"), this);
     action->setCheckable(true);
-    action->setChecked(stack_view_locked_);
+	action->setChecked(stackViewLocked_);
 	menu->addAction(action);
 	connect(action, &QAction::toggled, this, &Debugger::mnuStackToggleLock);
 
 	add_plugin_context_menu(menu, &IPlugin::stackContextMenu);
 
-	menu->exec(stack_view_->mapToGlobal(pos));
+	menu->exec(stackView_->mapToGlobal(pos));
 	delete menu;
 }
 
@@ -1888,7 +1884,7 @@ void Debugger::mnuDumpSaveToFile() {
 	const QString filename = QFileDialog::getSaveFileName(
 		this,
 		tr("Save File"),
-		last_open_directory_);
+		lastOpenDirectory_);
 
 	if(!filename.isEmpty()) {
 		QFile file(filename);
@@ -1968,7 +1964,7 @@ void Debugger::mnuCPURemoveComment() {
 // Name: run_to_this_line
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::run_to_this_line(EXCEPTION_RESUME pass_signal) {
+void Debugger::run_to_this_line(ExceptionResume pass_signal) {
 	const edb::address_t address = ui.cpuView->selectedAddress();
 	std::shared_ptr<IBreakpoint> bp = edb::v1::find_breakpoint(address);
 	if(!bp) {
@@ -2147,7 +2143,7 @@ void Debugger::mnuModifyBytes() {
 	QWidget *const focusedWidget = QApplication::focusWidget();
 	if(focusedWidget == ui.cpuView) {
 		mnuCPUModify();
-	} else if(focusedWidget == stack_view_.get()) {
+	} else if(focusedWidget == stackView_.get()) {
 		mnuStackModify();
 	} else {
 		// not CPU or Stack, assume one of the data views..
@@ -2168,7 +2164,7 @@ void Debugger::mnuDumpModify() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::mnuStackModify() {
-	modify_bytes(stack_view_);
+	modify_bytes(stackView_);
 }
 
 //------------------------------------------------------------------------------
@@ -2224,12 +2220,12 @@ edb::EVENT_STATUS Debugger::handle_trap(const std::shared_ptr<IDebugEvent> &even
 		// TODO(eteran): add an option to let the user stop of debug events
 		if(bp->internal() && bp->tag == ld_loader_tag) {
 
-			if(dynamic_info_bp_set_) {
-				if(debug_pointer_) {
+			if(dynamicInfoBreakpointSet_) {
+				if(debugtPointer_) {
 					if(edb::v1::debuggeeIs32Bit()) {
-						handle_library_event<uint32_t>(process, debug_pointer_);
+						handle_library_event<uint32_t>(process, debugtPointer_);
 					} else {
-						handle_library_event<uint64_t>(process, debug_pointer_);
+						handle_library_event<uint64_t>(process, debugtPointer_);
 					}
 				}
 			}
@@ -2392,15 +2388,15 @@ edb::EVENT_STATUS Debugger::handleEvent(const std::shared_ptr<IDebugEvent> &even
 		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
 	}
 
-	Q_ASSERT(!(reenable_breakpoint_step_ && reenable_breakpoint_run_));
+	Q_ASSERT(!(reenableBreakpointStep_ && reenableBreakpointRun_));
 
 	// re-enable any breakpoints we previously disabled
-	if(reenable_breakpoint_step_) {
-		reenable_breakpoint_step_->enable();
-		reenable_breakpoint_step_ = nullptr;
-	} else if(reenable_breakpoint_run_) {
-		reenable_breakpoint_run_->enable();
-		reenable_breakpoint_run_ = nullptr;
+	if(reenableBreakpointStep_) {
+		reenableBreakpointStep_->enable();
+		reenableBreakpointStep_ = nullptr;
+	} else if(reenableBreakpointRun_) {
+		reenableBreakpointRun_->enable();
+		reenableBreakpointRun_ = nullptr;
 		status = edb::DEBUG_CONTINUE;
 	}
 
@@ -2477,7 +2473,7 @@ void Debugger::do_jump_to_address(edb::address_t address, const std::shared_ptr<
 void Debugger::update_disassembly(edb::address_t address, const std::shared_ptr<IRegion> &r) {
 	ui.cpuView->setCurrentAddress(address);
 	do_jump_to_address(address, r, true);
-	list_model_->setStringList(edb::v1::arch_processor().updateInstructionInfo(address));
+	listModel_->setStringList(edb::v1::arch_processor().updateInstructionInfo(address));
 }
 
 //------------------------------------------------------------------------------
@@ -2485,9 +2481,9 @@ void Debugger::update_disassembly(edb::address_t address, const std::shared_ptr<
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::update_stack_view(const State &state) {
-	if(!edb::v1::dump_stack(state.stackPointer(), !stack_view_locked_)) {
-		stack_view_->clear();
-		stack_view_->scrollTo(0);
+	if(!edb::v1::dump_stack(state.stackPointer(), !stackViewLocked_)) {
+		stackView_->clear();
+		stackView_->scrollTo(0);
 	}
 }
 
@@ -2504,7 +2500,7 @@ std::shared_ptr<IRegion> Debugger::update_cpu_view(const State &state) {
 	} else {
 		ui.cpuView->clear();
 		ui.cpuView->scrollTo(0);
-		list_model_->setStringList(QStringList());
+		listModel_->setStringList(QStringList());
 		return nullptr;
 	}
 }
@@ -2516,7 +2512,7 @@ std::shared_ptr<IRegion> Debugger::update_cpu_view(const State &state) {
 void Debugger::update_data_views() {
 
 	// update all data views with the current region data
-	Q_FOREACH(const std::shared_ptr<DataViewInfo> &info, data_regions_) {
+	Q_FOREACH(const std::shared_ptr<DataViewInfo> &info, dataRegions_) {
 
 		// make sure the regions are still valid..
 		if(info->region && edb::v1::memory_regions().findRegion(info->region->start())) {
@@ -2534,9 +2530,9 @@ void Debugger::update_data_views() {
 void Debugger::refresh_gui() {
 
 	ui.cpuView->update();
-	stack_view_->update();
+	stackView_->update();
 
-	Q_FOREACH(const std::shared_ptr<DataViewInfo> &info, data_regions_) {
+	Q_FOREACH(const std::shared_ptr<DataViewInfo> &info, dataRegions_) {
 		info->view->update();
 	}
 
@@ -2549,7 +2545,7 @@ void Debugger::refresh_gui() {
 			}
 		}
 
-		list_model_->setStringList(edb::v1::arch_processor().updateInstructionInfo(state.instructionPointer()));
+		listModel_->setStringList(edb::v1::arch_processor().updateInstructionInfo(state.instructionPointer()));
 	}
 }
 
@@ -2590,7 +2586,7 @@ void Debugger::update_gui() {
 //------------------------------------------------------------------------------
 edb::EVENT_STATUS Debugger::resume_status(bool pass_exception) {
 
-	if(pass_exception && last_event_ && last_event_->stopped() && !last_event_->isTrap()) {
+	if(pass_exception && lastEvent_ && lastEvent_->stopped() && !lastEvent_->isTrap()) {
 		return edb::DEBUG_EXCEPTION_NOT_HANDLED;
 	} else {
 		return edb::DEBUG_CONTINUE;
@@ -2601,7 +2597,7 @@ edb::EVENT_STATUS Debugger::resume_status(bool pass_exception) {
 // Name: resume_execution
 // Desc: resumes execution, handles the situation of being on a breakpoint as well
 //------------------------------------------------------------------------------
-void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, ResumeFlags flags) {
+void Debugger::resume_execution(ExceptionResume pass_exception, DebugMode mode, ResumeFlags flags) {
 
 	edb::v1::clear_status();
 	Q_ASSERT(edb::v1::debugger_core);
@@ -2627,14 +2623,14 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 			edb::v1::arch_processor().aboutToResume();
 
 			if(mode == MODE_STEP) {
-				reenable_breakpoint_step_ = bp;
+				reenableBreakpointStep_ = bp;
 				const auto stepStatus = thread->step(status);
 				if(!stepStatus) {
 					QMessageBox::critical(this, tr("Error"), tr("Failed to step thread: %1").arg(stepStatus.error()));
 					return;
 				}
 			} else if(mode == MODE_RUN) {
-				reenable_breakpoint_run_ = bp;
+				reenableBreakpointRun_ = bp;
 				if(bp) {
 					const auto stepStatus = thread->step(status);
 					if(!stepStatus) {
@@ -2652,7 +2648,7 @@ void Debugger::resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode
 			}
 
 			// set the state to 'running'
-			update_menu_state(RUNNING);
+			update_menu_state(Running);
 		}
 	}
 }
@@ -2776,8 +2772,8 @@ void Debugger::cleanup_debugger() {
 
 	ui.tabWidget->setData(0, QString());
 
-	Q_ASSERT(!data_regions_.isEmpty());
-	data_regions_.first()->region = nullptr;
+	Q_ASSERT(!dataRegions_.isEmpty());
+	dataRegions_.first()->region = nullptr;
 
 	Q_EMIT detachEvent();
 
@@ -2803,8 +2799,8 @@ QString Debugger::session_filename() const {
 		return QString();
 	}
 
-	if(!program_executable_.isEmpty()) {
-		QFileInfo info(program_executable_);
+	if(!programExecutable_.isEmpty()) {
+		QFileInfo info(programExecutable_);
 
 		if(info.isRelative()) {
 			info.makeAbsolute();
@@ -2826,24 +2822,24 @@ QString Debugger::session_filename() const {
 // Name: detach_from_process
 // Desc:
 //------------------------------------------------------------------------------
-void Debugger::detach_from_process(DETACH_ACTION kill) {
+void Debugger::detach_from_process(DetachAction kill) {
 
 	const QString filename = session_filename();
 	if(!filename.isEmpty()) {
 		SessionManager::instance().save_session(filename);
 	}
 
-	program_executable_.clear();
+	programExecutable_.clear();
 
 	if(edb::v1::debugger_core) {
 		if(kill == KILL_ON_DETACH) edb::v1::debugger_core->kill();
 		else                       edb::v1::debugger_core->detach();
 	}
 
-	last_event_ = nullptr;
+	lastEvent_ = nullptr;
 
 	cleanup_debugger();
-	update_menu_state(TERMINATED);
+	update_menu_state(Terminated);
 }
 
 //------------------------------------------------------------------------------
@@ -2852,26 +2848,26 @@ void Debugger::detach_from_process(DETACH_ACTION kill) {
 //------------------------------------------------------------------------------
 void Debugger::set_initial_debugger_state() {
 
-	update_menu_state(PAUSED);
+	update_menu_state(Paused);
 	timer_->start(0);
 
 	edb::v1::symbol_manager().clear();
 	edb::v1::memory_regions().sync();
 
-	Q_ASSERT(data_regions_.size() > 0);
+	Q_ASSERT(dataRegions_.size() > 0);
 
-	data_regions_.first()->region = edb::v1::primary_data_region();
+	dataRegions_.first()->region = edb::v1::primary_data_region();
 
 	if(IAnalyzer *const analyzer = edb::v1::analyzer()) {
 		analyzer->invalidateAnalysis();
 	}
 
-	reenable_breakpoint_run_  = nullptr;
-	reenable_breakpoint_step_ = nullptr;
+	reenableBreakpointRun_  = nullptr;
+	reenableBreakpointStep_ = nullptr;
 
 #ifdef Q_OS_LINUX
-	debug_pointer_ = 0;
-	dynamic_info_bp_set_ = false;
+	debugtPointer_ = 0;
+	dynamicInfoBreakpointSet_ = false;
 #endif
 
 	IProcess *process = edb::v1::debugger_core->process();
@@ -2880,9 +2876,9 @@ void Debugger::set_initial_debugger_state() {
 
 	set_debugger_caption(executable);
 
-	program_executable_.clear();
+	programExecutable_.clear();
 	if(!executable.isEmpty()) {
-		program_executable_ = executable;
+		programExecutable_ = executable;
 	}
 
 	const QString filename = session_filename();
@@ -2904,10 +2900,10 @@ void Debugger::set_initial_debugger_state() {
 	}
 
 	// create our binary info object for the primary code module
-	binary_info_ = edb::v1::get_binary_info(edb::v1::primary_code_region());
+	binaryInfo_ = edb::v1::get_binary_info(edb::v1::primary_code_region());
 
-    comment_server_->clear();
-	comment_server_->set_comment(process->entryPoint(), "<entry point>");
+    commentServer_->clear();
+	commentServer_->set_comment(process->entryPoint(), "<entry point>");
 }
 
 //------------------------------------------------------------------------------
@@ -2915,7 +2911,7 @@ void Debugger::set_initial_debugger_state() {
 // Desc:
 //------------------------------------------------------------------------------
 void Debugger::test_native_binary() {
-	if(EDB_IS_32_BIT && binary_info_ && !binary_info_->native()) {
+	if(EDB_IS_32_BIT && binaryInfo_ && !binaryInfo_->native()) {
 		QMessageBox::warning(
 			this,
 			tr("Not A Native Binary"),
@@ -2968,7 +2964,7 @@ void Debugger::on_action_Restart_triggered() {
 	Q_ASSERT(edb::v1::debugger_core);
 	if(edb::v1::debugger_core->process()) {
 
-		working_directory_     = edb::v1::debugger_core->process()->currentWorkingDirectory();
+		workingDirectory_     = edb::v1::debugger_core->process()->currentWorkingDirectory();
 		QList<QByteArray> args = edb::v1::debugger_core->process()->arguments();
 		const QString s        = edb::v1::debugger_core->process()->executable();
 
@@ -2981,9 +2977,9 @@ void Debugger::on_action_Restart_triggered() {
 			common_open(s, args);
 		}
 	} else {
-		const auto file = recent_file_manager_->most_recent();
+		const auto file = recentFileManager_->most_recent();
 		if(common_open(file.first, file.second))
-			arguments_dialog_->set_arguments(file.second);
+			argumentsDialog_->setArguments(file.second);
 	}
 }
 
@@ -2995,19 +2991,19 @@ void Debugger::setup_data_views() {
 
 	// Setup data views according to debuggee bitness
 	if(edb::v1::debuggeeIs64Bit()) {
-		stack_view_->setAddressSize(QHexView::Address64);
-		Q_FOREACH(const std::shared_ptr<DataViewInfo> &data_view, data_regions_) {
+		stackView_->setAddressSize(QHexView::Address64);
+		Q_FOREACH(const std::shared_ptr<DataViewInfo> &data_view, dataRegions_) {
 			data_view->view->setAddressSize(QHexView::Address64);
 		}
 	} else {
-		stack_view_->setAddressSize(QHexView::Address32);
-		Q_FOREACH(const std::shared_ptr<DataViewInfo> &data_view, data_regions_) {
+		stackView_->setAddressSize(QHexView::Address32);
+		Q_FOREACH(const std::shared_ptr<DataViewInfo> &data_view, dataRegions_) {
 			data_view->view->setAddressSize(QHexView::Address32);
 		}
 	}
 
 	// Update stack word width
-	stack_view_->setWordWidth(edb::v1::pointer_size());
+	stackView_->setWordWidth(edb::v1::pointer_size());
 }
 
 //------------------------------------------------------------------------------
@@ -3020,9 +3016,9 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 	detach_from_process(KILL_ON_DETACH);
 
 	bool ret = false;
-	tty_file_ = create_tty();
+	ttyFile_ = create_tty();
 
-	if(const Status status = edb::v1::debugger_core->open(s, working_directory_, args, tty_file_)) {
+	if(const Status status = edb::v1::debugger_core->open(s, workingDirectory_, args, ttyFile_)) {
 		attachComplete();
 		set_initial_breakpoint(s);
 		ret = true;
@@ -3043,8 +3039,8 @@ bool Debugger::common_open(const QString &s, const QList<QByteArray> &args) {
 //------------------------------------------------------------------------------
 void Debugger::execute(const QString &program, const QList<QByteArray> &args) {
 	if(common_open(program, args)) {
-		recent_file_manager_->add_file(program,args);
-		arguments_dialog_->set_arguments(args);
+		recentFileManager_->add_file(program,args);
+		argumentsDialog_->setArguments(args);
 	}
 }
 
@@ -3054,7 +3050,7 @@ void Debugger::execute(const QString &program, const QList<QByteArray> &args) {
 //------------------------------------------------------------------------------
 void Debugger::open_file(const QString &s, const QList<QByteArray> &a) {
 	if(!s.isEmpty()) {
-		last_open_directory_ = QFileInfo(s).canonicalFilePath();
+		lastOpenDirectory_ = QFileInfo(s).canonicalFilePath();
 
 		execute(s, a);
 	}
@@ -3094,7 +3090,7 @@ void Debugger::attach(edb::pid_t pid) {
 
 	if(const auto status = edb::v1::debugger_core->attach(pid)) {
 
-		working_directory_ = edb::v1::debugger_core->process()->currentWorkingDirectory();
+		workingDirectory_ = edb::v1::debugger_core->process()->currentWorkingDirectory();
 
 		QList<QByteArray> args = edb::v1::debugger_core->process()->arguments();
 
@@ -3102,7 +3098,7 @@ void Debugger::attach(edb::pid_t pid) {
 			args.removeFirst();
 		}
 
-		arguments_dialog_->set_arguments(args);
+		argumentsDialog_->setArguments(args);
 		attachComplete();
 	} else {
 		QMessageBox::critical(this, tr("Attach"), tr("Failed to attach to process: %1").arg(status.error()));
@@ -3143,11 +3139,11 @@ void Debugger::attachComplete() {
 //------------------------------------------------------------------------------
 void Debugger::on_action_Open_triggered() {
 
-	static auto dialog = new DialogOpenProgram(this, tr("Choose a file"), last_open_directory_);
+	static auto dialog = new DialogOpenProgram(this, tr("Choose a file"), lastOpenDirectory_);
 
 	// Set a sensible default dir
-	if(recent_file_manager_->entry_count() > 0) {
-		const RecentFileManager::RecentFile file = recent_file_manager_->most_recent();
+	if(recentFileManager_->entry_count() > 0) {
+		const RecentFileManager::RecentFile file = recentFileManager_->most_recent();
 		const QDir dir = QFileInfo(file.first).dir();
 		if(dir.exists()) {
 			dialog->setDirectory(dir);
@@ -3156,10 +3152,10 @@ void Debugger::on_action_Open_triggered() {
 
 	if(dialog->exec() == QDialog::Accepted) {
 
-		arguments_dialog_->set_arguments(dialog->arguments());
+		argumentsDialog_->setArguments(dialog->arguments());
 		QStringList files = dialog->selectedFiles();
 		const QString filename = files.front();
-		working_directory_ = dialog->workingDirectory();
+		workingDirectory_ = dialog->workingDirectory();
 		open_file(filename, dialog->arguments());
 	}
 }
@@ -3208,7 +3204,7 @@ void Debugger::on_action_Threads_triggered() {
 //------------------------------------------------------------------------------
 void Debugger::mnuDumpCreateTab() {
 	create_data_tab();
-	del_tab_->setEnabled(ui.tabWidget->count() > 1);
+	tabDelete_->setEnabled(ui.tabWidget->count() > 1);
 }
 
 //------------------------------------------------------------------------------
@@ -3217,7 +3213,7 @@ void Debugger::mnuDumpCreateTab() {
 //------------------------------------------------------------------------------
 void Debugger::mnuDumpDeleteTab() {
 	delete_data_tab();
-	del_tab_->setEnabled(ui.tabWidget->count() > 1);
+	tabDelete_->setEnabled(ui.tabWidget->count() > 1);
 }
 
 //------------------------------------------------------------------------------
@@ -3340,21 +3336,21 @@ bool Debugger::dump_data(edb::address_t address, bool new_tab) {
 // Desc:
 //------------------------------------------------------------------------------
 bool Debugger::dump_stack(edb::address_t address, bool scroll_to) {
-	const std::shared_ptr<IRegion> last_region = stack_view_info_.region;
-	stack_view_info_.region = edb::v1::memory_regions().findRegion(address);
+	const std::shared_ptr<IRegion> last_region = stackViewInfo_.region;
+	stackViewInfo_.region = edb::v1::memory_regions().findRegion(address);
 
-	if(stack_view_info_.region) {
-		stack_view_info_.update();
+	if(stackViewInfo_.region) {
+		stackViewInfo_.update();
 
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 			if(std::shared_ptr<IThread> thread = process->currentThread()) {
 
 				State state;
 				thread->getState(&state);
-				stack_view_->setColdZoneEnd(state.stackPointer());
+				stackView_->setColdZoneEnd(state.stackPointer());
 
-				if(scroll_to || stack_view_info_.region->equals(last_region)) {
-					stack_view_->scrollTo(address - stack_view_info_.region->start());
+				if(scroll_to || stackViewInfo_.region->equals(last_region)) {
+					stackView_->scrollTo(address - stackViewInfo_.region->start());
 				}
 				return true;
 			}
@@ -3412,7 +3408,7 @@ void Debugger::next_debug_event() {
 
 	if(std::shared_ptr<IDebugEvent> e = edb::v1::debugger_core->waitDebugEvent(10)) {
 
-		last_event_ = e;
+		lastEvent_ = e;
 
 		// TODO(eteran): disable this in favor of only doing it on library load events
 		//               once we are confident. We should be able to just enclose it inside
@@ -3421,13 +3417,13 @@ void Debugger::next_debug_event() {
 		edb::v1::memory_regions().sync();
 
 #if defined(Q_OS_LINUX)
-		if(!dynamic_info_bp_set_) {
+		if(!dynamicInfoBreakpointSet_) {
 			if(IProcess *process = edb::v1::debugger_core->process()) {
-				if(debug_pointer_ == 0) {
-					if((debug_pointer_ = process->debugPointer()) != 0) {
+				if(debugtPointer_ == 0) {
+					if((debugtPointer_ = process->debugPointer()) != 0) {
 						edb::address_t r_brk = edb::v1::debuggeeIs32Bit() ?
-							find_linker_hook_address<uint32_t>(process, debug_pointer_) :
-							find_linker_hook_address<uint64_t>(process, debug_pointer_);
+							find_linker_hook_address<uint32_t>(process, debugtPointer_) :
+							find_linker_hook_address<uint64_t>(process, debugtPointer_);
 
 						if(r_brk) {
 							// TODO(eteran): this is equivalent to ld-2.23.so!_dl_debug_state
@@ -3435,7 +3431,7 @@ void Debugger::next_debug_event() {
 							if(std::shared_ptr<IBreakpoint> bp = edb::v1::debugger_core->addBreakpoint(r_brk)) {
 								bp->setInternal(true);
 								bp->tag = ld_loader_tag;
-								dynamic_info_bp_set_ = true;
+								dynamicInfoBreakpointSet_ = true;
 							}
 						}
 					}
@@ -3450,7 +3446,7 @@ void Debugger::next_debug_event() {
 		switch(status) {
 		case edb::DEBUG_STOP:
 			update_gui();
-			update_menu_state(edb::v1::debugger_core->process() ? PAUSED : TERMINATED);
+			update_menu_state(edb::v1::debugger_core->process() ? Paused : Terminated);
 			break;
 		case edb::DEBUG_CONTINUE:
 			resume_execution(IGNORE_EXCEPTION, MODE_RUN, ResumeFlag::Forced);

@@ -44,7 +44,7 @@ public:
 	virtual ~IDebugger() = default;
 
 public:
-	enum class CPUMode {
+	enum class CpuMode {
 		Unknown,
 #if defined EDB_X86 || defined EDB_X86_64
 		x86_16,
@@ -62,7 +62,7 @@ public:
 	virtual std::size_t              pageSize() const = 0;
 	virtual std::size_t              pointerSize() const = 0;
 	virtual quint64                  cpuType() const = 0;
-	virtual CPUMode                  cpuMode() const = 0;
+	virtual CpuMode                  cpuMode() const = 0;
 	virtual bool                     hasExtension(quint64 ext) const = 0;
 	virtual QMap<qlonglong, QString> exceptions() const = 0;
 	virtual QString                  exceptionName(qlonglong value) = 0;

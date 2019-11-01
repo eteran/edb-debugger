@@ -353,8 +353,8 @@ QVariant RegisterViewModel::data(const QModelIndex &index, int role) const {
 			}
 			
 			if(name.startsWith("XMM") || name.startsWith("YMM")) {
-				if(mode == CPUMode::IA32)  return 4;
-				if(mode == CPUMode::AMD64) return 5;
+				if(mode == CpuMode::IA32)  return 4;
+				if(mode == CpuMode::AMD64) return 5;
 				return {};
 			}
 		}
@@ -407,7 +407,7 @@ RegisterViewModel::RegisterViewModel(int cpuSuppFlags, QObject* parent)
 		addAVXRegs(avxRegs64, AVX_REG_COUNT64);
 	}
 
-	setCPUMode(CPUMode::UNKNOWN);
+	setCpuMode(CpuMode::UNKNOWN);
 }
 
 template<typename RegType, typename ValueType>
@@ -465,9 +465,9 @@ void RegisterViewModel::updateSegReg(std::size_t i, edb::value16 value, const QS
 RegisterViewModelBase::FPUCategory* RegisterViewModel::getFPUcat() const
 {
 	switch(mode) {
-	case CPUMode::IA32:
+	case CpuMode::IA32:
 		return fpuRegs32;
-	case CPUMode::AMD64:
+	case CpuMode::AMD64:
 		return fpuRegs64;
 	default:
 		return nullptr;
@@ -593,12 +593,12 @@ std::tuple<RegisterViewModelBase::Category* /*sse*/,
 	unsigned sseRegMax=0;
 	switch(mode)
 	{
-	case CPUMode::IA32:
+	case CpuMode::IA32:
 		sseRegMax=SSE_REG_COUNT32;
 		sseCat=sseRegs32;
 		avxCat=avxRegs32;
 		break;
-	case CPUMode::AMD64:
+	case CpuMode::AMD64:
 		sseRegMax=SSE_REG_COUNT64;
 		sseCat=sseRegs64;
 		avxCat=avxRegs64;
@@ -729,7 +729,7 @@ void RegisterViewModel::showGenericCategories()
 	if(mmxRegs->childCount()) mmxRegs->show();
 }
 
-void RegisterViewModel::setCPUMode(CPUMode newMode)
+void RegisterViewModel::setCpuMode(CpuMode newMode)
 {
 	if(mode==newMode) return;
 
@@ -737,15 +737,15 @@ void RegisterViewModel::setCPUMode(CPUMode newMode)
 	mode=newMode;
 	switch(newMode)
 	{
-	case CPUMode::UNKNOWN:
+	case CpuMode::UNKNOWN:
 		hideAll();
 		break;
-	case CPUMode::IA32:
+	case CpuMode::IA32:
 		hide64BitModeCategories();
 		show32BitModeCategories();
 		showGenericCategories();
 		break;
-	case CPUMode::AMD64:
+	case CpuMode::AMD64:
 		hide32BitModeCategories();
 		show64BitModeCategories();
 		showGenericCategories();

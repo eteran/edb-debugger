@@ -556,7 +556,7 @@ InstructionDialog::InstructionDialog(QWidget *parent, Qt::WindowFlags f) : QDial
 					//	and need to select the right one. Also need to choose from
 					//	* CS_MODE_LITTLE_ENDIAN and
 					//	* CS_MODE_BIG_ENDIAN
-					static_cast<cs_mode>((edb::v1::debugger_core->cpu_mode() == IDebugger::CPUMode::Thumb ? CS_MODE_THUMB : CS_MODE_ARM) | CS_MODE_LITTLE_ENDIAN)
+					static_cast<cs_mode>((edb::v1::debugger_core->cpu_mode() == IDebugger::CpuMode::Thumb ? CS_MODE_THUMB : CS_MODE_ARM) | CS_MODE_LITTLE_ENDIAN)
 #else
 #	error "What value should mode have?"
 #endif
@@ -844,7 +844,7 @@ std::string runOBJDUMP(const std::vector<std::uint8_t> &bytes, edb::address_t ad
 		"--insn-width=4",
 		"-m",
 		"arm",
-		edb::v1::debugger_core->cpu_mode() == IDebugger::CPUMode::Thumb ?
+		edb::v1::debugger_core->cpu_mode() == IDebugger::CpuMode::Thumb ?
 		"-Mforce-thumb" :
 		"-Mno-force-thumb",
 #else

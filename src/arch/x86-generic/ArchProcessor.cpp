@@ -1435,13 +1435,13 @@ void ArchProcessor::updateRegisterView(const QString &default_region_name, const
 	const auto ip = state.instructionPointerRegister();
 
 	if(!ip) {
-		model.setCPUMode(RegisterViewModel::CPUMode::UNKNOWN);
+		model.setCpuMode(RegisterViewModel::CpuMode::UNKNOWN);
 		return;
 	}
 	const bool is64Bit = (ip.bitSize() == 64);
 	Q_ASSERT(is64Bit || ip.bitSize() == 32);
 
-	model.setCPUMode(is64Bit ? RegisterViewModel::CPUMode::AMD64 : RegisterViewModel::CPUMode::IA32);
+	model.setCpuMode(is64Bit ? RegisterViewModel::CpuMode::AMD64 : RegisterViewModel::CpuMode::IA32);
 	updateGPRs(model,state,is64Bit);
 	updateGeneralStatusRegs(model,state,is64Bit,default_region_name);
 	updateSegRegs(model,state);

@@ -68,26 +68,26 @@ private:
 	};
 	Q_DECLARE_FLAGS(ResumeFlags, ResumeFlag)
 
-	enum DEBUG_MODE {
+	enum DebugMode {
 		MODE_STEP,
 		MODE_TRACE,
 		MODE_RUN
 	};
 
-	enum EXCEPTION_RESUME {
+	enum ExceptionResume {
 		IGNORE_EXCEPTION,
 		PASS_EXCEPTION
 	};
 
-	enum DETACH_ACTION {
+	enum DetachAction {
 		NO_KILL_ON_DETACH,
 		KILL_ON_DETACH
 	};
 
-	enum GUI_STATE {
-		PAUSED,
-		RUNNING,
-		TERMINATED
+	enum GuiState {
+		Paused,
+		Running,
+		Terminated
 	};
 
 public:
@@ -155,7 +155,7 @@ public Q_SLOTS:
 
 private:
 	void toggle_flag(int);
-	void run_to_this_line(EXCEPTION_RESUME pass_signal);
+	void run_to_this_line(ExceptionResume pass_signal);
 
 private Q_SLOTS:
 	// the manually connected general slots
@@ -249,12 +249,12 @@ private:
 	void cpu_fill(quint8 byte);
 	void create_data_tab();
 	void delete_data_tab();
-	void detach_from_process(DETACH_ACTION kill);
+	void detach_from_process(DetachAction kill);
 	void do_jump_to_address(edb::address_t address, const std::shared_ptr<IRegion> &r, bool scroll_to);
 	void finish_plugin_setup();
 	void follow_register_in_dump(bool tabbed);
 	void load_session(const QString &session_file);
-	void resume_execution(EXCEPTION_RESUME pass_exception, DEBUG_MODE mode, ResumeFlags flags);
+	void resume_execution(ExceptionResume pass_exception, DebugMode mode, ResumeFlags flags);
 	void save_session(const QString &session_file);
 	void set_debugger_caption(const QString &appname);
 	void set_initial_breakpoint(const QString &s);
@@ -266,7 +266,7 @@ private:
 	void setup_data_views();
 	void update_data_views();
 	void update_disassembly(edb::address_t address, const std::shared_ptr<IRegion> &r);
-	void update_menu_state(GUI_STATE state);
+	void update_menu_state(GuiState state);
 	void update_stack_view(const State &state);
 	void update_tab_caption(const std::shared_ptr<QHexView> &view, edb::address_t start, edb::address_t end);
 	QAction *createAction(const QString &text, const QKeySequence &keySequence, void(Debugger::*slotPtr)());
@@ -304,35 +304,35 @@ public:
 	Ui::Debugger ui;
 
 private:
-	GUI_STATE           gui_state_           = TERMINATED;
-	QProcess           *tty_proc_            = nullptr;
-	DialogArguments    *arguments_dialog_    = nullptr;
-	QLabel             *status_              = nullptr;
-	QStringListModel   *list_model_          = nullptr;
-	QTimer             *timer_               = nullptr;
-	QToolButton        *add_tab_             = nullptr;
-	QToolButton        *del_tab_             = nullptr;
-	RecentFileManager  *recent_file_manager_ = nullptr;
-	bool                stack_view_locked_   = false;
+	GuiState           guiState_           = Terminated;
+	QProcess           *ttyProc_           = nullptr;
+	DialogArguments    *argumentsDialog_   = nullptr;
+	QLabel             *status_            = nullptr;
+	QStringListModel   *listModel_         = nullptr;
+	QTimer             *timer_             = nullptr;
+	QToolButton        *tabCreate_         = nullptr;
+	QToolButton        *tabDelete_         = nullptr;
+	RecentFileManager  *recentFileManager_ = nullptr;
+	bool                stackViewLocked_   = false;
 
 #if defined(Q_OS_LINUX)
-	edb::address_t      debug_pointer_       { 0 };
-	bool                dynamic_info_bp_set_ = false;
+	edb::address_t      debugtPointer_  = 0;
+	bool                dynamicInfoBreakpointSet_ = false;
 #endif
 
 private:
-	DataViewInfo                                      stack_view_info_;
-	QString                                           last_open_directory_;
-	QString                                           program_executable_;
-	QString                                           tty_file_;
-	QString                                           working_directory_;
-	QVector<std::shared_ptr<DataViewInfo>>            data_regions_;
-	std::shared_ptr<IBreakpoint>                      reenable_breakpoint_run_;
-	std::shared_ptr<IBreakpoint>                      reenable_breakpoint_step_;
-	std::shared_ptr<CommentServer>                    comment_server_;
-	std::shared_ptr<QHexView>                         stack_view_;
-	std::shared_ptr<const IDebugEvent>                last_event_;
-	std::unique_ptr<IBinary>                          binary_info_;
+	DataViewInfo                                      stackViewInfo_;
+	QString                                           lastOpenDirectory_;
+	QString                                           programExecutable_;
+	QString                                           ttyFile_;
+	QString                                           workingDirectory_;
+	QVector<std::shared_ptr<DataViewInfo>>            dataRegions_;
+	std::shared_ptr<IBreakpoint>                      reenableBreakpointRun_;
+	std::shared_ptr<IBreakpoint>                      reenableBreakpointStep_;
+	std::shared_ptr<CommentServer>                    commentServer_;
+	std::shared_ptr<QHexView>                         stackView_;
+	std::shared_ptr<const IDebugEvent>                lastEvent_;
+	std::unique_ptr<IBinary>                          binaryInfo_;
 
 private:
 	QAction *gotoAddressAction_;

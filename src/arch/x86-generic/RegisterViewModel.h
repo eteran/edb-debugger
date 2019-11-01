@@ -43,7 +43,7 @@ private:
 	RegisterViewModelBase::SIMDCategory* avxRegs64;
 
 public:
-	enum class CPUMode {
+	enum class CpuMode {
 		UNKNOWN,
 		IA32,
 		AMD64
@@ -60,7 +60,7 @@ public:
 	
 	explicit RegisterViewModel(int CPUFeaturesPresent, QObject* parent=nullptr);
 	QVariant data(const QModelIndex &index, int role=Qt::DisplayRole) const override;
-	void setCPUMode(CPUMode mode);
+	void setCpuMode(CpuMode mode);
 	
 	// NOTE: all these functions only change data, they don't emit dataChanged!
 	// Use dataUpdateFinished() to have dataChanged emitted.
@@ -107,7 +107,7 @@ private:
 	void showGenericCategories();
 	std::tuple<RegisterViewModelBase::Category* /*sse*/, RegisterViewModelBase::Category* /*avx*/, unsigned/*maxRegs*/> getSSEparams() const;
 	RegisterViewModelBase::FPUCategory* getFPUcat() const;
-	CPUMode mode = static_cast<CPUMode>(-1); // TODO(eteran): why not CPUMode::UNKNOWN?
+	CpuMode mode = static_cast<CpuMode>(-1); // TODO(eteran): why not CpuMode::UNKNOWN?
 };
 
 #endif

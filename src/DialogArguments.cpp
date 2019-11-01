@@ -43,7 +43,7 @@ QList<QByteArray> DialogArguments::arguments() const {
 // Name: set_arguments
 // Desc:
 //------------------------------------------------------------------------------
-void DialogArguments::set_arguments(const QList<QByteArray> &args) {
+void DialogArguments::setArguments(const QList<QByteArray> &args) {
 	ui.listWidget->clear();
 
 	QStringList l;

@@ -33,7 +33,7 @@ private:
 	RegisterViewModelBase::Category* genStatusRegs;
 	RegisterViewModelBase::Category* vfpRegs;
 public:
-	enum class CPUMode
+	enum class CpuMode
 	{
 		UNKNOWN,
 		Defined,
@@ -41,7 +41,7 @@ public:
 public:
 	RegisterViewModel(int CPUFeaturesPresent, QObject* parent = nullptr);
 	QVariant data(const QModelIndex &index, int role=Qt::DisplayRole) const override;
-	void setCPUMode(CPUMode mode);
+	void setCpuMode(CpuMode mode);
 	// NOTE: all these functions only change data, they don't emit dataChanged!
 	// Use dataUpdateFinished() to have dataChanged emitted.
 	void updateGPR(std::size_t i, edb::value32 val, const QString &comment=QString());
@@ -49,7 +49,7 @@ public:
 	void updateFPSCR(edb::value32 val, const QString &comment=QString());
 private:
 	void showAll();
-	CPUMode mode=static_cast<CPUMode>(-1);
+	auto mode = static_cast<CpuMode>(-1);
 };
 
 #endif

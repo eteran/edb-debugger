@@ -164,7 +164,7 @@ bool PlatformThread::fillStateFromSimpleRegs(PlatformState* state) {
 void PlatformThread::getState(State *state) {
 	// TODO: assert that we are paused
 
-	core_->detectCPUMode();
+	core_->detectCpuMode();
 
 	if(auto state_impl = static_cast<PlatformState *>(state->impl_.get())) {
 

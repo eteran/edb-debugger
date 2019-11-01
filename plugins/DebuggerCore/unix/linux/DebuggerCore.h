@@ -42,7 +42,7 @@ class DebuggerCore final : public DebuggerCoreBase {
 	friend class PlatformProcess;
 	friend class PlatformThread;
 
-	CPUMode cpuMode() const override { return cpuMode_; }
+	CpuMode cpuMode() const override { return cpuMode_; }
 public:
 	DebuggerCore();
 	~DebuggerCore() override;
@@ -101,7 +101,7 @@ private:
 	std::shared_ptr<IDebugEvent> handle_thread_create_event(edb::tid_t tid, int status);
 	void handle_thread_exit(edb::tid_t tid, int status);
 	int attach_thread(edb::tid_t tid);
-    void detectCPUMode();
+	void detectCpuMode();
     long ptraceOptions() const;
 
 private:
@@ -122,7 +122,7 @@ private:
 	const edb::seg_reg_t      userCodeSegment64_;
 	const edb::seg_reg_t      userStackSegment_;
 #endif
-	CPUMode					  cpuMode_              = CPUMode::Unknown;
+	CpuMode					  cpuMode_              = CpuMode::Unknown;
 	MeansOfCapture	          lastMeansOfCapture_     = MeansOfCapture::NeverCaptured;
 	bool                      procMemWriteBroken_ = true;
 	bool                      procMemReadBroken_  = true;

@@ -729,7 +729,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 
 	if(!threads_.empty()) {
 		activeThread_  = pid;
-		detectCPUMode();
+		detectCpuMode();
 		return Status::Ok;
 	}
 
@@ -786,7 +786,7 @@ void DebuggerCore::kill() {
 	}
 }
 
-void DebuggerCore::detectCPUMode() {
+void DebuggerCore::detectCpuMode() {
 
 #if defined(EDB_X86) || defined(EDB_X86_64)
 	const size_t offset = EDB_IS_64_BIT ?
@@ -799,7 +799,7 @@ void DebuggerCore::detectCPUMode() {
 		if (cs == userCodeSegment32_) {
 			if (pointerSize_ == sizeof(quint64)) {
 				qDebug() << "Debuggee is now 32 bit";
-				cpuMode_ = CPUMode::x86_32;
+				cpuMode_ = CpuMode::x86_32;
 				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_X86);
 			}
 			pointerSize_ = sizeof(quint32);
@@ -807,7 +807,7 @@ void DebuggerCore::detectCPUMode() {
 		} else if (cs == userCodeSegment64_) {
 			if (pointerSize_ == sizeof(quint32)) {
 				qDebug() << "Debuggee is now 64 bit";
-				cpuMode_ = CPUMode::x86_64;
+				cpuMode_ = CpuMode::x86_64;
 				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_AMD64);
 			}
 			pointerSize_ = sizeof(quint64);
@@ -820,16 +820,16 @@ void DebuggerCore::detectCPUMode() {
 	if (!errno) {
 		const bool thumb = cpsr & 0x20;
 		if (thumb) {
-			cpu_mode_ = CPUMode::Thumb;
+			cpu_mode_ = CpuMode::Thumb;
 			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_THUMB);
 		} else {
-			cpu_mode_ = CPUMode::ARM32;
+			cpu_mode_ = CpuMode::ARM32;
 			CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM32_ARM);
 		}
 	}
 	pointer_size_ = sizeof(quint32);
 #elif defined(EDB_ARM64)
-	cpu_mode_ = CPUMode::ARM64;
+	cpu_mode_ = CpuMode::ARM64;
 	CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_ARM64);
 	pointer_size_ = sizeof(quint64);
 #else
@@ -952,7 +952,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 			threads_.insert(pid, newThread);
 
 			activeThread_  = pid;
-			detectCPUMode();
+			detectCpuMode();
 
 			return Status::Ok;
 		} while(0);

@@ -31,7 +31,7 @@ public:
 
 public:
 	QList<QByteArray> arguments() const;
-	void set_arguments(const QList<QByteArray> &args);
+	void setArguments(const QList<QByteArray> &args);
 
 private:
 	 Ui::DialogArguments ui;
