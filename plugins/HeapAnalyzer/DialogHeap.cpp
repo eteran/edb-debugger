@@ -163,10 +163,10 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) 
 	ui.tableView->verticalHeader()->hide();
 	ui.tableView->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	btnAnalyze_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Analyze"));
-	btnGraph_   = new QPushButton(QIcon::fromTheme("distribute-graph"), tr("&Graph Selected Blocks"));
-	connect(btnAnalyze_, &QPushButton::clicked, this, [this]() {
-		btnAnalyze_->setEnabled(false);
+	buttonAnalyze_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Analyze"));
+	buttonGraph_   = new QPushButton(QIcon::fromTheme("distribute-graph"), tr("&Graph Selected Blocks"));
+	connect(buttonAnalyze_, &QPushButton::clicked, this, [this]() {
+		buttonAnalyze_->setEnabled(false);
 		ui.progressBar->setValue(0);
 		ui.tableView->setUpdatesEnabled(false);
 
@@ -178,10 +178,10 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) 
 
 		ui.tableView->setUpdatesEnabled(true);
 		ui.progressBar->setValue(100);
-		btnAnalyze_->setEnabled(true);
+		buttonAnalyze_->setEnabled(true);
 	});
 
-	connect(btnGraph_, &QPushButton::clicked, this, [this]() {
+	connect(buttonGraph_, &QPushButton::clicked, this, [this]() {
 #ifdef ENABLE_GRAPH
 	constexpr int MaxNodes = 5000;
 
@@ -246,13 +246,13 @@ DialogHeap::DialogHeap(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) 
 #endif
 	});
 
-	ui.buttonBox->addButton(btnGraph_, QDialogButtonBox::ActionRole);
-	ui.buttonBox->addButton(btnAnalyze_, QDialogButtonBox::ActionRole);
+	ui.buttonBox->addButton(buttonGraph_, QDialogButtonBox::ActionRole);
+	ui.buttonBox->addButton(buttonAnalyze_, QDialogButtonBox::ActionRole);
 
 #ifdef ENABLE_GRAPH
-	btnGraph_->setEnabled(true);
+	buttonGraph_->setEnabled(true);
 #else
-	btnGraph_->setEnabled(false);
+	buttonGraph_->setEnabled(false);
 #endif
 }
 

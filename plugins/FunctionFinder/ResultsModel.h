@@ -19,20 +19,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef ResultsModel_20070419_H_
 #define ResultsModel_20070419_H_
 
+#include "Function.h"
+#include "Types.h"
 #include <QAbstractItemModel>
 #include <QVector>
-#include "Types.h"
-#include "Function.h"
 
 namespace FunctionFinderPlugin {
 
 struct Result {
-	edb::address_t        start_address = 0;
-	edb::address_t        end_address   = 0;
-	size_t                size          = 0;
-	int                   score         = 0;
-	Function::Type        type          = Function::Type::Standard;
-	QString               symbol;
+	edb::address_t start_address = 0;
+	edb::address_t end_address   = 0;
+	size_t         size          = 0;
+	int            score         = 0;
+	Function::Type type          = Function::Type::Standard;
+	QString        symbol;
 };
 
 class ResultsModel : public QAbstractItemModel {
@@ -41,13 +41,13 @@ public:
 	explicit ResultsModel(QObject *parent = nullptr);
 
 public:
-	QVariant data(const QModelIndex &index, int role) const override;
+	QVariant    data(const QModelIndex &index, int role) const override;
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
 	QModelIndex parent(const QModelIndex &index) const override;
-	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-	QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-	void sort (int column, Qt::SortOrder order = Qt::AscendingOrder) override;
+	int         rowCount(const QModelIndex &parent = QModelIndex()) const override;
+	int         columnCount(const QModelIndex &parent = QModelIndex()) const override;
+	QVariant    headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+	void        sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
 public:
 	void addResult(const Result &r);

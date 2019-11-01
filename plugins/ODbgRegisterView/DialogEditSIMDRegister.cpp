@@ -303,7 +303,7 @@ bool DialogEditSIMDRegister::eventFilter(QObject* obj, QEvent* event) {
 	return entryGridKeyUpDownEventFilter(this,obj,event);
 }
 
-void DialogEditSIMDRegister::set_value(const Register &newReg) {
+void DialogEditSIMDRegister::setValue(const Register &newReg) {
 	resetLayout();
 	assert(newReg.bitSize() <= 8 * sizeof(value_));
 	reg = newReg;
@@ -324,7 +324,7 @@ void DialogEditSIMDRegister::set_value(const Register &newReg) {
 		std::memcpy(&value_, &value, sizeof(value));
 		hideColumns(YMM_FIRST_COL);
 	} else
-		qCritical() << "DialogEditSIMDRegister::set_value(" << reg.name() << "): register type unsupported";
+		qCritical() << "DialogEditSIMDRegister::setValue(" << reg.name() << "): register type unsupported";
 	setWindowTitle(tr("Modify %1").arg(reg.name().toUpper()));
 	updateAllEntriesExcept(nullptr);
 }

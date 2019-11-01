@@ -41,7 +41,7 @@ public Q_SLOTS:
 
 public:
 	edb::reg_t value() const;
-	void set_value(Register &reg);
+	void setValue(Register &reg);
 
 private:
 	Ui::DialogInputValue ui;

@@ -191,7 +191,7 @@ DebuggerCore::DebuggerCore()
 
 	Posix::initialize();
 
-	feature::detect_proc_access(&procMemReadBroken_, &procMemWriteBroken_);
+	feature::detectProcAccess(&procMemReadBroken_, &procMemWriteBroken_);
 
 	if(procMemReadBroken_ || procMemWriteBroken_) {
 

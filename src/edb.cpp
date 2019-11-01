@@ -515,7 +515,7 @@ bool get_value_from_user(Register &value, const QString &title) {
 	bool ret = false;
 
 	dlg->setWindowTitle(title);
-	dlg->set_value(value);
+	dlg->setValue(value);
 	if(dlg->exec() == QDialog::Accepted) {
 		value.setScalarValue(dlg->value());
 		ret = true;

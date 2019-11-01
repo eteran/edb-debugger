@@ -80,11 +80,11 @@ void kill_child(int pid) {
 }
 
 //------------------------------------------------------------------------------
-// Name: detect_proc_access
+// Name: detectProcAccess
 // Desc: detects whether or not reads/writes through /proc/<pid>/mem work
 //       correctly
 //------------------------------------------------------------------------------
-bool detect_proc_access(bool *read_broken, bool *write_broken) {
+bool detectProcAccess(bool *read_broken, bool *write_broken) {
 
 	switch (pid_t pid = fork()) {
 	case 0:

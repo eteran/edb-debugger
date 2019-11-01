@@ -53,9 +53,9 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	connect(ui.textFilter, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 	ui.tableView->setModel(filterModel_);
 
-	btnGraph_ = new QPushButton(QIcon::fromTheme("distribute-graph"), tr("Graph Selected Function"));
+	buttonGraph_ = new QPushButton(QIcon::fromTheme("distribute-graph"), tr("Graph Selected Function"));
 #if defined(ENABLE_GRAPH)
-	connect(btnGraph_, &QPushButton::clicked, this, [this]() {
+	connect(buttonGraph_, &QPushButton::clicked, this, [this]() {
 
 		// this code is not very pretty...
 		// but it works!
@@ -147,12 +147,12 @@ DialogResults::DialogResults(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	});
 #endif
 
-	ui.buttonBox->addButton(btnGraph_, QDialogButtonBox::ActionRole);
+	ui.buttonBox->addButton(buttonGraph_, QDialogButtonBox::ActionRole);
 
 #ifdef ENABLE_GRAPH
-	btnGraph_->setEnabled(true);
+	buttonGraph_->setEnabled(true);
 #else
-	btnGraph_->setEnabled(false);
+	buttonGraph_->setEnabled(false);
 #endif
 }
 

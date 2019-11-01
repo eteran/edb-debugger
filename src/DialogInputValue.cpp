@@ -51,12 +51,12 @@ edb::reg_t DialogInputValue::value() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_value
+// Name: setValue
 // Desc:
 //------------------------------------------------------------------------------
-void DialogInputValue::set_value(Register &reg) {
+void DialogInputValue::setValue(Register &reg) {
 	if(reg.bitSize()>sizeof(edb::reg_t)*8) {
-		qWarning() << "Warning: DialogInputValue::set_value(tooLargeRegister): such large registers are not supported yet";
+		qWarning() << "Warning: DialogInputValue::setValue(tooLargeRegister): such large registers are not supported yet";
 		return;
 	}
 	ui.hexInput->setText(reg.toHexString());

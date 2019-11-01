@@ -109,14 +109,14 @@ public:
 	}
 };
 
-Plugin::Plugin(QObject *parent) : QObject(parent), menuAction(new QAction("Inspect instruction (Capstone info)", this)) {
-	connect(menuAction, SIGNAL(triggered(bool)), this, SLOT(showDialog()));
+Plugin::Plugin(QObject *parent) : QObject(parent), menuAction_(new QAction("Inspect instruction (Capstone info)", this)) {
+	connect(menuAction_, SIGNAL(triggered(bool)), this, SLOT(showDialog()));
 }
 
 QMenu* Plugin::menu(QWidget*) { return nullptr; }
 
 QList<QAction*> Plugin::cpuContextMenu() {
-	return { menuAction };
+	return { menuAction_ };
 }
 
 std::string printBytes(const void *ptr, std::size_t size, bool printZeros = true) {

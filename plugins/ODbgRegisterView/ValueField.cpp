@@ -166,14 +166,14 @@ void ValueField::editNormalReg(const QModelIndex &indexToEdit, const QModelIndex
 	if ((r.type() != Register::TYPE_SIMD) && r.bitSize() <= 64) {
 
 		const auto gprEdit = regView()->gprEditDialog();
-		gprEdit->set_value(r);
+		gprEdit->setValue(r);
 		if (gprEdit->exec() == QDialog::Accepted) {
 			r = gprEdit->value();
 			model()->setData(indexToEdit, QVariant::fromValue(r), Model::ValueAsRegisterRole);
 		}
 	} else if (r.type() == Register::TYPE_SIMD) {
 		const auto simdEdit = regView()->simdEditDialog();
-		simdEdit->set_value(r);
+		simdEdit->setValue(r);
 		const int size         = VALID_VARIANT(indexToEdit.parent().data(Model::ChosenSIMDSizeRole)).toInt();
 		const int format       = VALID_VARIANT(indexToEdit.parent().data(Model::ChosenSIMDFormatRole)).toInt();
 		const int elementIndex = clickedIndex.row();
@@ -186,7 +186,7 @@ void ValueField::editNormalReg(const QModelIndex &indexToEdit, const QModelIndex
 #if defined EDB_X86 || defined EDB_X86_64
 	else if (r.type() == Register::TYPE_FPU) {
 		const auto fpuEdit = regView()->fpuEditDialog();
-		fpuEdit->set_value(r);
+		fpuEdit->setValue(r);
 		if (fpuEdit->exec() == QDialog::Accepted) {
 			r = fpuEdit->value();
 			model()->setData(indexToEdit, QVariant::fromValue(r), Model::ValueAsRegisterRole);

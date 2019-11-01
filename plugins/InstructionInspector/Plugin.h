@@ -71,7 +71,7 @@ private Q_SLOTS:
 	void showDialog() const;
 
 private:
-	QAction *menuAction;
+	QAction *menuAction_ = nullptr;
 };
 
 }

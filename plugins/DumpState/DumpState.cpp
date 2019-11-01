@@ -136,7 +136,7 @@ QMenu *DumpState::menu(QWidget *parent) {
 // Name: dump_code
 // Desc:
 //------------------------------------------------------------------------------
-void DumpState::dump_code(const State &state) {
+void DumpState::dumpCode(const State &state) {
 
 	QSettings settings;
 	const int instructions_to_print = settings.value("DumpState/instructions_after_ip", 6).toInt();
@@ -164,7 +164,7 @@ void DumpState::dump_code(const State &state) {
 // Name: dump_registers
 // Desc:
 //------------------------------------------------------------------------------
-void DumpState::dump_registers(const State &state) {
+void DumpState::dumpRegisters(const State &state) {
 
 	using std::cout;
 	if(edb::v1::debuggeeIs32Bit()) { // TODO: check if state itself is 32 bit, not current debuggee. Generally it's not the same.
@@ -254,7 +254,7 @@ void DumpState::dump_registers(const State &state) {
 // Name: dump_lines
 // Desc:
 //------------------------------------------------------------------------------
-void DumpState::dump_lines(edb::address_t address, int lines) {
+void DumpState::dumpLines(edb::address_t address, int lines) {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		for(int i = 0; i < lines; ++i) {
@@ -292,16 +292,16 @@ void DumpState::dump_lines(edb::address_t address, int lines) {
 // Name: dump_stack
 // Desc:
 //------------------------------------------------------------------------------
-void DumpState::dump_stack(const State &state) {
-	dump_lines(state.stackPointer(), 4);
+void DumpState::dumpStack(const State &state) {
+	dumpLines(state.stackPointer(), 4);
 }
 
 //------------------------------------------------------------------------------
 // Name: dump_data
 // Desc:
 //------------------------------------------------------------------------------
-void DumpState::dump_data(edb::address_t address) {
-	dump_lines(address, 2);
+void DumpState::dumpData(edb::address_t address) {
+	dumpLines(address, 2);
 }
 
 //------------------------------------------------------------------------------
@@ -316,15 +316,15 @@ void DumpState::showMenu() {
 			thread->getState(&state);
 
 			std::cout << "------------------------------------------------------------------------------\n";
-			dump_registers(state);
+			dumpRegisters(state);
 			std::cout << "[" << format_segment(state["ss"]) << ":" << format_address(state.stackPointer()) << "]---------------------------------------------------------[stack]\n";
-			dump_stack(state);
+			dumpStack(state);
 
 			const edb::address_t data_address = edb::v1::current_data_view_address();
 			std::cout << "[" << format_segment(state["ds"]) << ":" << format_address(data_address) << "]---------------------------------------------------------[ data]\n";
-			dump_data(data_address);
+			dumpData(data_address);
 			std::cout << "[" << format_segment(state["cs"]) << ":" << format_address(state.instructionPointer()) << "]---------------------------------------------------------[ code]\n";
-			dump_code(state);
+			dumpCode(state);
 			std::cout << "------------------------------------------------------------------------------\n";
 		}
 	}
