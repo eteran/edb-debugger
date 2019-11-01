@@ -99,10 +99,10 @@ private:
 		int status;
 	};
 
-	typedef QHash<edb::tid_t, thread_info> threadmap_t;
+	using threadmap_t = QHash<edb::tid_t, thread_info>;
 
 	size_t page_size_;
-	threadmap_t    threads_;
+	threadmap_t threads_;
 };
 
 }
