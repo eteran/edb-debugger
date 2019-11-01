@@ -1376,29 +1376,37 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		auto arrow_width = 1.0;
 		auto arrow_style = Qt::DashLine;
 
-		if (ctx->selected_line == jump_arrow.src_line || 
-			ctx->selected_line == jump_arrow.dst_line) {
+		if (ctx->selected_line == jump_arrow.src_line || ctx->selected_line == jump_arrow.dst_line) {
 			arrow_width = 2.0;  // enlarge arrow width
 		}
+
+		bool conditional_jmp   = is_conditional_jump(instructions_[jump_arrow.src_line]);
+		bool unconditional_jmp = is_unconditional_jump(instructions_[jump_arrow.src_line]);
 		
 		// if direct jmp, then draw in solid line
-		if (is_unconditional_jump(instructions_[jump_arrow.src_line])) {
+		if (unconditional_jmp) {
 			arrow_style = Qt::SolidLine;
 		}
 
-		// if direct jmp is selected, then draw arrow in red
-		if (is_unconditional_jump(instructions_[jump_arrow.src_line]) && 
-			(ctx->selected_line == jump_arrow.src_line || 
-			(ctx->selected_line == jump_arrow.dst_line && 
-			(jump_arrow.dst_in_viewport && show_addresses_[jump_arrow.dst_line] != current_address_ )))) {
+		// if direct jmp (src) is selected, then draw arrow in red
+		if (unconditional_jmp && ctx->selected_line == jump_arrow.src_line) {
 			arrow_color = Qt::red;
 		}
 
+		// if direct jmp (dst) is selected, then draw arrow in red
+		if (unconditional_jmp && ctx->selected_line == jump_arrow.dst_line) {
+			if (show_addresses_[jump_arrow.dst_line] != current_address_) { // if eip
+				arrow_color = Qt::red;
+			}
+		}
+
 		// if current conditional jump is taken, then draw arrow in red
-		if(show_addresses_[jump_arrow.src_line] == current_address_ &&  // if eip
-			is_conditional_jump(instructions_[jump_arrow.src_line]) && 
-			edb::v1::arch_processor().is_executed(instructions_[jump_arrow.src_line], state)) {
-			arrow_color = Qt::red;
+		if(show_addresses_[jump_arrow.src_line] == current_address_) { // if eip
+			if (conditional_jmp) {
+				if (edb::v1::arch_processor().is_executed(instructions_[jump_arrow.src_line], state)) {
+					arrow_color = Qt::red;
+				}
+			}
 		}
 
 		// Align both 1px and 2px lines to pixel grid. This requires different offset in even-width and odd-width case.
