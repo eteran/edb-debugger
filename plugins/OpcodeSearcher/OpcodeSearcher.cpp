@@ -48,17 +48,17 @@ QMenu *OpcodeSearcher::menu(QWidget *parent) {
 
 	if(!menu_) {
 		menu_ = new QMenu(tr("OpcodeSearcher"), parent);
-		menu_->addAction(tr("&Opcode Search"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+O")));
+		menu_->addAction(tr("&Opcode Search"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+O")));
 	}
 
 	return menu_;
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu
+// Name: showMenu
 // Desc:
 //------------------------------------------------------------------------------
-void OpcodeSearcher::show_menu() {
+void OpcodeSearcher::showMenu() {
 
 	if(!dialog_) {
 		dialog_ = new DialogOpcodes(edb::v1::debugger_ui);

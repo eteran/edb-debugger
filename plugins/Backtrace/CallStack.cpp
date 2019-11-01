@@ -28,23 +28,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "edb.h"
 
 // TODO: This may be specific to x86... Maybe abstract this in the future.
+
+/**
+ * @brief CallStack::CallStack
+ */
 CallStack::CallStack() {
-	get_call_stack();
+	getCallStack();
 }
 
-//------------------------------------------------------------------------------
-// Name: get_call_stack
-// Desc: Gets the state of the call stack at the time the object is created.
-//------------------------------------------------------------------------------
-void CallStack::get_call_stack() {
+/**
+ * @brief CallStack::get_call_stack
+ *
+ * Gets the state of the call stack at the time the object is created.
+ */
+void CallStack::getCallStack() {
 	/*
 	 * Is rbp a pointer somewhere in the stack?
 	 * Is the value below rbp a ret addr?
 	 * Are we still scanning within the stack region?
 	 */
 
-	if(IProcess *process = edb::v1::debugger_core->process()) {
-		if(std::shared_ptr<IThread> thread = process->currentThread()) {
+	if (IProcess *process = edb::v1::debugger_core->process()) {
+		if (std::shared_ptr<IThread> thread = process->currentThread()) {
 
 			// Get the frame & stack pointers.
 			State state;
@@ -77,20 +82,20 @@ void CallStack::get_call_stack() {
 			for (edb::address_t addr = rbp; region_rbp->contains(addr); addr += edb::v1::pointer_size()) {
 
 				// Get the stack value so that we can see if it's a pointer
-				bool ok;
+				bool            ok;
 				ExpressionError err;
-				edb::address_t possible_ret = edb::v1::get_value(addr, &ok, &err);
+				edb::address_t  possible_ret = edb::v1::get_value(addr, &ok, &err);
 
-				if(process->readBytes(possible_ret - CALL_MAX_SIZE, buffer, sizeof(buffer))) {	// 0xfffff... if not a ptr.
-					for(int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
+				if (process->readBytes(possible_ret - CALL_MAX_SIZE, buffer, sizeof(buffer))) { // 0xfffff... if not a ptr.
+					for (int i = (CALL_MAX_SIZE - CALL_MIN_SIZE); i >= 0; --i) {
 						edb::Instruction inst(buffer + i, buffer + sizeof(buffer), 0);
 
 						// If it's a call, then make a frame
-						if(is_call(inst)) {
+						if (is_call(inst)) {
 							stack_frame frame;
 							frame.ret    = possible_ret;
 							frame.caller = possible_ret - CALL_MAX_SIZE + i;
-							stack_frames_.push_back(frame);
+							stackFrames_.push_back(frame);
 							break;
 						}
 					}
@@ -100,56 +105,63 @@ void CallStack::get_call_stack() {
 	}
 }
 
-//------------------------------------------------------------------------------
-// Name: []
-// Desc: Provides array-like access to the stack_frames_
-//------------------------------------------------------------------------------
+/**
+ * @brief CallStack::operator []
+ *
+ * Provides array-like access to the stack_frames_
+ *
+ * @param index
+ * @return
+ */
 CallStack::stack_frame *CallStack::operator[](size_t index) {
 	if (index > size()) {
 		return nullptr;
 	}
 
-	return &stack_frames_[index];
+	return &stackFrames_[index];
 }
 
-//------------------------------------------------------------------------------
-// Name: size
-// Desc: Returns the number of frames in the call stack.
-//------------------------------------------------------------------------------
+/**
+ * @brief CallStack::size
+ * @return the number of frames in the call stack.
+ */
 size_t CallStack::size() const {
-	return stack_frames_.size();
+	return stackFrames_.size();
 }
 
-//------------------------------------------------------------------------------
-// Name: top
-// Desc: Returns a pointer to the frame at the top of the call stack or null if
-//       there are no frames on the stack
-//------------------------------------------------------------------------------
+/**
+ * @brief CallStack::top
+ * @return a pointer to the frame at the top of the call stack or nullptr
+ * if there are no frames on the stack
+ */
 CallStack::stack_frame *CallStack::top() {
 	if (!size()) {
 		return nullptr;
 	}
 
-	return &stack_frames_.front();
+	return &stackFrames_.front();
 }
 
-//------------------------------------------------------------------------------
-// Name: bottom
-// Desc: Returns a pointer to the frame at the bottom of the call stack or null if
-//			there are no frames on the stack
-//------------------------------------------------------------------------------
+/**
+ * @brief CallStack::bottom
+ * @return a pointer to the frame at the bottom of the call stack or nullptr
+ * if there are no frames on the stack
+ */
 CallStack::stack_frame *CallStack::bottom() {
 	if (!size()) {
 		return nullptr;
 	}
 
-	return &stack_frames_.back();
+	return &stackFrames_.back();
 }
 
-//------------------------------------------------------------------------------
-// Name: push
-// Desc: Pushes a stack frame onto the top of the call stack.
-//------------------------------------------------------------------------------
+/**
+ * @brief CallStack::push
+ *
+ * Pushes a stack frame onto the top of the call stack.
+ *
+ * @param frame
+ */
 void CallStack::push(stack_frame frame) {
-	stack_frames_.push_front(frame);
+	stackFrames_.push_front(frame);
 }

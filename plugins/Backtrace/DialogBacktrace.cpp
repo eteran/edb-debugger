@@ -24,8 +24,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #include "ISymbolManager.h"
 #include "Symbol.h"
 
-#include <QTableWidget>
 #include <QPushButton>
+#include <QTableWidget>
 
 namespace BacktracePlugin {
 namespace {
@@ -78,15 +78,17 @@ bool is_ret(const QTableWidgetItem *item) {
 //			do a "Step Out" (the behavior for the 1st row should be different
 //			than all others.
 //------------------------------------------------------------------------------
-DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f) : QDialog(parent, f) {
+DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f)
+	: QDialog(parent, f) {
+
 	ui.setupUi(this);
+
 	table_ = ui.tableWidgetCallStack;
 	table_->verticalHeader()->hide();
 	table_->horizontalHeader()->setSectionResizeMode(QHeaderView::ResizeToContents);
 
-	btnReturnTo_ = new QPushButton(QIcon::fromTheme("edit-undo"), tr("Return To"));
-	connect(btnReturnTo_, &QPushButton::clicked, this, [this]() {
-
+	buttonReturnTo_ = new QPushButton(QIcon::fromTheme("edit-undo"), tr("Return To"));
+	connect(buttonReturnTo_, &QPushButton::clicked, this, [this]() {
 		// Desc: Ensures that the selected item is a return address.  If so, sets a
 		//       breakpoint at that address and continues execution.
 
@@ -98,7 +100,7 @@ DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f) : QDialog(p
 
 		edb::address_t address = address_from_table(item);
 
-		if(IProcess *process = edb::v1::debugger_core->process()) {
+		if (IProcess *process = edb::v1::debugger_core->process()) {
 
 			// Now that we got the address, we can run.  First check if bp @ that address
 			// already exists.
@@ -117,9 +119,8 @@ DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f) : QDialog(p
 		}
 	});
 
-	ui.buttonBox->addButton(btnReturnTo_, QDialogButtonBox::ActionRole);
+	ui.buttonBox->addButton(buttonReturnTo_, QDialogButtonBox::ActionRole);
 }
-
 
 //------------------------------------------------------------------------------
 // Name: showEvent
@@ -129,10 +130,10 @@ DialogBacktrace::DialogBacktrace(QWidget *parent, Qt::WindowFlags f) : QDialog(p
 void DialogBacktrace::showEvent(QShowEvent *) {
 
 	//Sync with the Debugger UI.
-	connect(edb::v1::debugger_ui, SIGNAL(gui_updated()), this, SLOT(populate_table()));
+	connect(edb::v1::debugger_ui, SIGNAL(gui_updated()), this, SLOT(populateTable()));
 
 	//Populate the tabel with our call stack info.
-	populate_table();
+	populateTable();
 
 	table_->horizontalHeader()->resizeSections(QHeaderView::Stretch);
 }
@@ -143,7 +144,7 @@ void DialogBacktrace::showEvent(QShowEvent *) {
 //------------------------------------------------------------------------------
 //TODO: The first row should break protocol and display the current RIP/PC.
 //		It should be treated specially on "Run To Return" and do a "Step Out"
-void DialogBacktrace::populate_table() {
+void DialogBacktrace::populateTable() {
 
 	//Remove rows of the table (clearing does not remove rows)
 	//Yes, we depend on i going negative.
@@ -152,7 +153,7 @@ void DialogBacktrace::populate_table() {
 	}
 
 	//Get the call stack and populate the table with entries.
-	CallStack call_stack;
+	CallStack    call_stack;
 	const size_t size = call_stack.size();
 	for (size_t i = 0; i < size; i++) {
 
@@ -164,24 +165,24 @@ void DialogBacktrace::populate_table() {
 
 		//Get the caller & ret addresses and put them in the table
 		QList<edb::address_t> stack_entry;
-		edb::address_t caller = frame->caller;
-		edb::address_t ret = frame->ret;
+		edb::address_t        caller = frame->caller;
+		edb::address_t        ret    = frame->ret;
 		stack_entry.append(caller);
 		stack_entry.append(ret);
 
 		//Put them in the table: create string from address and set item flags.
 		for (int j = 0; j < stack_entry.size() && j < table_->columnCount(); j++) {
 
-			edb::address_t address = stack_entry.at(j);
+			edb::address_t          address     = stack_entry.at(j);
 			std::shared_ptr<Symbol> near_symbol = edb::v1::symbol_manager().findNearSymbol(address);
 
 			//Turn the address into a string prefixed with "0x"
 			auto item = new QTableWidgetItem;
 			item->setData(Qt::UserRole, static_cast<qlonglong>(address));
 
-			if(near_symbol) {
-				const QString function = near_symbol->name;
-				const uint64_t offset = address - near_symbol->address;
+			if (near_symbol) {
+				const QString  function = near_symbol->name;
+				const uint64_t offset   = address - near_symbol->address;
 				item->setText(tr("0x%1 <%2+%3>").arg(QString::number(address, 16), function).arg(offset));
 			} else {
 				item->setText(tr("0x%1").arg(QString::number(address, 16)));
@@ -201,9 +202,9 @@ void DialogBacktrace::populate_table() {
 	QTableWidgetItem *item = table_->item(FIRST_ROW, RETURN_COLUMN);
 	if (item) {
 		table_->setCurrentItem(item);
-		btnReturnTo_->setEnabled(true);
+		buttonReturnTo_->setEnabled(true);
 	} else {
-		btnReturnTo_->setEnabled(false);
+		buttonReturnTo_->setEnabled(false);
 	}
 }
 
@@ -213,7 +214,7 @@ void DialogBacktrace::populate_table() {
 //       populate_table() is not called unnecessarily.
 //------------------------------------------------------------------------------
 void DialogBacktrace::hideEvent(QHideEvent *) {
-	disconnect(edb::v1::debugger_ui, SIGNAL(gui_updated()), this, SLOT(populate_table()));
+	disconnect(edb::v1::debugger_ui, SIGNAL(gui_updated()), this, SLOT(populateTable()));
 }
 
 //------------------------------------------------------------------------------
@@ -232,9 +233,9 @@ void DialogBacktrace::on_tableWidgetCallStack_itemDoubleClicked(QTableWidgetItem
 void DialogBacktrace::on_tableWidgetCallStack_cellClicked(int row, int column) {
 	Q_UNUSED(row)
 	if (is_ret(column)) {
-		btnReturnTo_->setEnabled(true);
+		buttonReturnTo_->setEnabled(true);
 	} else {
-		btnReturnTo_->setEnabled(false);
+		buttonReturnTo_->setEnabled(false);
 	}
 }
 

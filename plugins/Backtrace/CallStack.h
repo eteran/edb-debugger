@@ -35,17 +35,17 @@ public:
 	};
 
 private:
-	void get_call_stack();
+	void getCallStack();
 
 public:
-	stack_frame *operator [](size_t index);
-	size_t size() const;
+	stack_frame *operator[](size_t index);
+	size_t       size() const;
 	stack_frame *top();
 	stack_frame *bottom();
-	void push(stack_frame frame);
+	void         push(stack_frame frame);
 
 private:
-	std::deque<stack_frame> stack_frames_;
+	std::deque<stack_frame> stackFrames_;
 };
 
 #endif

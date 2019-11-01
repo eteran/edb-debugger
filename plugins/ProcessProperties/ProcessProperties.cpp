@@ -52,7 +52,7 @@ QMenu *ProcessProperties::menu(QWidget *parent) {
 
 	if(!menu_) {
 		menu_ = new QMenu(tr("Process Properties"), parent);
-		menu_->addAction(tr("&Process Properties"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+P")));
+		menu_->addAction(tr("&Process Properties"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+P")));
 		menu_->addAction(tr("Process &Strings"), dialog_, SLOT(on_btnStrings_clicked()), QKeySequence(tr("Ctrl+S")));
 	}
 
@@ -60,10 +60,10 @@ QMenu *ProcessProperties::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu
+// Name: showMenu
 // Desc:
 //------------------------------------------------------------------------------
-void ProcessProperties::show_menu() {
+void ProcessProperties::showMenu() {
 	dialog_->show();
 }
 

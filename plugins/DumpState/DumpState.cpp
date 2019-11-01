@@ -126,7 +126,7 @@ QMenu *DumpState::menu(QWidget *parent) {
 
 	if(!menu_) {
 		menu_ = new QMenu(tr("DumpState"), parent);
-		menu_->addAction (tr("&Dump Current State"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+D")));
+		menu_->addAction (tr("&Dump Current State"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+D")));
 	}
 
 	return menu_;
@@ -305,10 +305,10 @@ void DumpState::dump_data(edb::address_t address) {
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu
+// Name: showMenu
 // Desc:
 //------------------------------------------------------------------------------
-void DumpState::show_menu() {
+void DumpState::showMenu() {
 
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 		if(std::shared_ptr<IThread> thread = process->currentThread()) {

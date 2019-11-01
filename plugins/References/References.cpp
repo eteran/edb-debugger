@@ -48,17 +48,17 @@ QMenu *References::menu(QWidget *parent) {
 
 	if(!menu_) {
 		menu_ = new QMenu(tr("Reference Searcher"), parent);
-		menu_->addAction(tr("&Reference Search"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+R")));
+		menu_->addAction(tr("&Reference Search"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+R")));
 	}
 
 	return menu_;
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu
+// Name: showMenu
 // Desc:
 //------------------------------------------------------------------------------
-void References::show_menu() {
+void References::showMenu() {
 
 	if(!dialog_) {
 		dialog_ = new DialogReferences(edb::v1::debugger_ui);

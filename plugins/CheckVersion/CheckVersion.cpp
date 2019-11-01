@@ -69,7 +69,7 @@ QMenu *CheckVersion::menu(QWidget *parent) {
 
 	if(!menu_) {
 		menu_ = new QMenu(tr("CheckVersion"), parent);
-		menu_->addAction(tr("&Check For Latest Version"), this, SLOT(show_menu()));
+		menu_->addAction(tr("&Check For Latest Version"), this, SLOT(showMenu()));
 	}
 
 	return menu_;
@@ -131,10 +131,10 @@ void CheckVersion::set_proxy(const QUrl &url) {
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu
+// Name: showMenu
 // Desc:
 //------------------------------------------------------------------------------
-void CheckVersion::show_menu() {
+void CheckVersion::showMenu() {
 	initial_check_ = false;
 	do_check();
 }

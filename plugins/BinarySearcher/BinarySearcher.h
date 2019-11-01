@@ -42,7 +42,7 @@ public:
 	QList<QAction *> stackContextMenu() override;
 
 public Q_SLOTS:
-	void show_menu();
+	void showMenu();
 	void mnuStackFindASCII();
 
 private:

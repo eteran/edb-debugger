@@ -42,7 +42,7 @@ public:
 	QMenu *menu(QWidget *parent = nullptr) override;
 
 public Q_SLOTS:
-	void show_menu();
+	void showMenu();
 
 private:
 	QWidget *optionsPage() override;

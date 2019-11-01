@@ -44,7 +44,7 @@ public:
 	QWidget *optionsPage() override;
 
 public Q_SLOTS:
-	void show_menu();
+	void showMenu();
 	void requestFinished(QNetworkReply *reply);
 
 protected:

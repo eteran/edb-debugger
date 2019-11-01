@@ -48,17 +48,17 @@ QMenu *FunctionFinder::menu(QWidget *parent) {
 
 	if(!menu_) {
 		menu_ = new QMenu(tr("FunctionFinder"), parent);
-		menu_->addAction (tr("&Function Finder"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+Shift+F")));
+		menu_->addAction (tr("&Function Finder"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+Shift+F")));
 	}
 
 	return menu_;
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu
+// Name: showMenu
 // Desc:
 //------------------------------------------------------------------------------
-void FunctionFinder::show_menu() {
+void FunctionFinder::showMenu() {
 
 	if(!dialog_) {
 		dialog_ = new DialogFunctions(edb::v1::debugger_ui);

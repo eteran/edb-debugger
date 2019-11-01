@@ -48,17 +48,17 @@ QMenu *ROPTool::menu(QWidget *parent) {
 
 	if(!menu_) {
 		menu_ = new QMenu(tr("ROPTool"), parent);
-		menu_->addAction(tr("&ROP Tool"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+Alt+R")));
+		menu_->addAction(tr("&ROP Tool"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+Alt+R")));
 	}
 
 	return menu_;
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu
+// Name: showMenu
 // Desc:
 //------------------------------------------------------------------------------
-void ROPTool::show_menu() {
+void ROPTool::showMenu() {
 
 	if(!dialog_) {
 		dialog_ = new DialogROPTool(edb::v1::debugger_ui);

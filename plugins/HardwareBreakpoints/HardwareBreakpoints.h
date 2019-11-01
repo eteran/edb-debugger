@@ -54,7 +54,7 @@ public:
 	QList<QAction *> dataContextMenu() override;
 
 public Q_SLOTS:
-	void show_menu();
+	void showMenu();
 
 private:
 	void setupBreakpoints();

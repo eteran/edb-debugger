@@ -37,7 +37,7 @@ QMenu *BinarySearcher::menu(QWidget *parent) {
 
 	if(!menu_) {
 		menu_ = new QMenu(tr("BinarySearcher"), parent);
-		menu_->addAction(tr("&Binary String Search"), this, SLOT(show_menu()), QKeySequence(tr("Ctrl+F")));
+		menu_->addAction(tr("&Binary String Search"), this, SLOT(showMenu()), QKeySequence(tr("Ctrl+F")));
 	}
 
 	return menu_;
@@ -59,10 +59,10 @@ QList<QAction *> BinarySearcher::stackContextMenu() {
 }
 
 //------------------------------------------------------------------------------
-// Name: show_menu
+// Name: showMenu
 // Desc:
 //------------------------------------------------------------------------------
-void BinarySearcher::show_menu() {
+void BinarySearcher::showMenu() {
 	static auto dialog = new DialogBinaryString(edb::v1::debugger_ui);
 	dialog->show();
 }

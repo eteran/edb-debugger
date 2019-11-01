@@ -38,12 +38,12 @@ public:
 	~Assembler() override;
 
 public:
-	QMenu *menu(QWidget *parent = nullptr) override;
+	QMenu *          menu(QWidget *parent = nullptr) override;
 	QList<QAction *> cpuContextMenu() override;
-	QWidget *optionsPage() override;
+	QWidget *        optionsPage() override;
 
 private:
-	void show_dialog();
+	void showDialog();
 
 private:
 	QPointer<QDialog> dialog_ = nullptr;
