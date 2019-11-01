@@ -1568,7 +1568,8 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 		lines_to_render,
 		selected_line,
 		line_height,
-		group
+		group,
+		std::map<int, int> ()
 	};
 
 	drawHeaderAndBackground(painter, &context, binary_info);
