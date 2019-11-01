@@ -8,7 +8,7 @@
     <x>0</x>
     <y>0</y>
     <width>681</width>
-    <height>541</height>
+    <height>643</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -21,7 +21,7 @@
       <enum>QTabWidget::Rounded</enum>
      </property>
      <property name="currentIndex">
-      <number>0</number>
+      <number>4</number>
      </property>
      <widget class="QWidget" name="tab">
       <attribute name="title">
@@ -621,6 +621,16 @@
         <widget class="QCheckBox" name="chkRegisterBadges">
          <property name="text">
           <string>Show when registers are pointing to a visible address</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chkShowJumpArrow">
+         <property name="text">
+          <string>Show jump arrows</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
          </property>
         </widget>
        </item>

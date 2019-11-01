@@ -836,20 +836,14 @@ void QDisassemblyView::drawHeaderAndBackground(QPainter &painter, const DrawingC
 // Name: drawRegiserBadges
 // Desc:
 //------------------------------------------------------------------------------
-int QDisassemblyView::drawRegiserBadges(QPainter &painter, const DrawingContext *ctx) {
-	int l0 = 0;
+void QDisassemblyView::drawRegiserBadges(QPainter &painter, DrawingContext *ctx) {
+	
 	if(IProcess *process = edb::v1::debugger_core->process()) {
 
 		if(process->isPaused()) {
 
-			// a reasonable guess for the width of a single register is 3 chars + overhead
-			// we do this to prevent "jumpiness"
-			l0 = (4 * font_width_ + font_width_/2);
-
 			State state;
 			process->current_thread()->get_state(&state);
-
-			const int badge_x = 1;
 
 			std::vector<QString> badge_labels(ctx->lines_to_render);
 			{
@@ -884,24 +878,35 @@ int QDisassemblyView::drawRegiserBadges(QPainter &painter, const DrawingContext 
 			}
 
 			painter.setPen(Qt::white);
+
 			for (int line = 0; line < ctx->lines_to_render; line++) {
 				if (!badge_labels[line].isEmpty()) {
-					QRect bounds(badge_x, line * ctx->line_height, badge_labels[line].length() * font_width_ + font_width_/2, ctx->line_height);
+
+					int width  = badge_labels[line].length() * font_width_ + font_width_/2;
+					int height = ctx->line_height;
+					int triangle_point = line1() - 3;
+					int x = triangle_point - (height/2) - width;
+					int y = line * ctx->line_height;
+
+					// if badge is not in viewpoint, then don't draw
+					if (x < 0) { 
+						continue;
+					}
+
+					ctx->line_badge_width[line] = line1() - x;
+
+					QRect bounds(x, y, width, height);
 
 					// draw a rectangle + box around text
 					QPainterPath path;
 					path.addRect(bounds);
 					path.moveTo(bounds.x() + bounds.width(), bounds.y()); // top right
-					const int largest_x = bounds.x() + bounds.width() + bounds.height()/2;
-					if (largest_x > l0) {
-						l0 = largest_x;
-					}
-					path.lineTo(largest_x, bounds.y() + bounds.height()/2); // triangle point
+					path.lineTo(triangle_point, bounds.y() + bounds.height()/2); // triangle point
 					path.lineTo(bounds.x() + bounds.width(), bounds.y() + bounds.height()); // bottom right
 					painter.fillPath(path, Qt::blue);
 
 					painter.drawText(
-						badge_x + font_width_/4,
+						bounds.x() + font_width_/4,
 						line * ctx->line_height,
 						font_width_ * badge_labels[line].size(),
 						ctx->line_height,
@@ -913,7 +918,6 @@ int QDisassemblyView::drawRegiserBadges(QPainter &painter, const DrawingContext 
 		}
 	}
 
-	return l0;
 }
 
 //------------------------------------------------------------------------------
@@ -1265,7 +1269,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 					// if jmp target not in viewpoint, its value should be near INT_MAX
 					jump_arrow.distance = std::abs(jump_arrow.dst_line - jump_arrow.src_line);
 					jump_arrow.horizontal_length = -1;  // will be recalculate back below
-
+					
 					jump_arrow_vec.push_back(jump_arrow);
 				}
 			}
@@ -1279,6 +1283,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		return a.distance < b.distance;
 	});
 
+	
 	// find suitable arrow horizontal length
 	for (size_t jump_arrow_idx = 0; jump_arrow_idx < jump_arrow_vec.size(); jump_arrow_idx++) {
 
@@ -1286,9 +1291,21 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
 
 		int size_block = font_width_ * 2;
+		int start_at_block = size_block;
+		int badge_line = -1;
+
+		if (ctx->line_badge_width.find(jump_arrow.src_line) != ctx->line_badge_width.end()) {
+			badge_line = jump_arrow.src_line;
+		} else if (ctx->line_badge_width.find(jump_arrow.dst_line) != ctx->line_badge_width.end()) {
+			badge_line = jump_arrow.dst_line;
+		}
+
+		if (badge_line != -1) {
+			start_at_block = size_block + size_block * (ctx->line_badge_width.at(badge_line) / size_block);
+		}
 
 		// first-fit search for horizontal length position to place new arrow
-		for (int current_selected_len = size_block; ; current_selected_len += size_block) {
+		for (int current_selected_len = start_at_block; ; current_selected_len += size_block) {
 
 			bool is_length_good = true;
 
@@ -1341,9 +1358,11 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 
 		bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
 		
-		// edges value in arrow line
+		// horizontal line
 		int end_x = ctx->l1 - 3;
 		int start_x = end_x - jump_arrow.horizontal_length;
+
+		// vertical line
 		int src_y = jump_arrow.src_line * ctx->line_height + (font_height_ / 2);
 		int dst_y;
 		
@@ -1389,29 +1408,38 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 
 		painter.setPen(QPen(arrow_color, arrow_width, arrow_style));
 
+		int src_reg_badge_width = 0;
+		int dst_reg_badge_width = 0;
+
+		if (ctx->line_badge_width.find(jump_arrow.src_line) != ctx->line_badge_width.end()) {
+			src_reg_badge_width = ctx->line_badge_width.at(jump_arrow.src_line);
+		} else if (ctx->line_badge_width.find(jump_arrow.dst_line) != ctx->line_badge_width.end()) {
+			dst_reg_badge_width = ctx->line_badge_width.at(jump_arrow.dst_line);
+		}
+
 		if (jump_arrow.dst_in_viewport) {
 
 			QPoint points[] = {
-				QPoint(end_x, src_y),
+				QPoint(end_x - src_reg_badge_width, src_y),
 				QPoint(start_x, src_y),
 				QPoint(start_x, dst_y),
-				QPoint(end_x - font_width_/3, dst_y)
+				QPoint(end_x - dst_reg_badge_width - font_width_/3, dst_y)
 			};
 
 			painter.drawPolyline(points, 4);
 
 			// draw arrow tips
 			QPainterPath path;
-			path.moveTo(end_x, dst_y);
-			path.lineTo(end_x - (font_width_/2), dst_y - (font_height_/3));
-			path.lineTo(end_x - (font_width_/2), dst_y + (font_height_/3));
-			path.lineTo(end_x, dst_y);
+			path.moveTo(end_x - dst_reg_badge_width, dst_y);
+			path.lineTo(end_x - dst_reg_badge_width - (font_width_/2), dst_y - (font_height_/3));
+			path.lineTo(end_x - dst_reg_badge_width - (font_width_/2), dst_y + (font_height_/3));
+			path.lineTo(end_x - dst_reg_badge_width, dst_y);
 			painter.fillPath(path, QBrush(arrow_color));
 
 		} else if (is_dst_upward) {  // if dst out of viewport, and arrow facing upward
 
 			QPoint points[] = {
-				QPoint(end_x, src_y),
+				QPoint(end_x - src_reg_badge_width, src_y),
 				QPoint(start_x, src_y),
 				QPoint(start_x, font_width_/3)
 			};
@@ -1429,7 +1457,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		} else { // if dst out of viewport, and arrow facing downward
 
 			QPoint points[] = {
-				QPoint(end_x, src_y),
+				QPoint(end_x - src_reg_badge_width, src_y),
 				QPoint(start_x, src_y),
 				QPoint(start_x, viewport()->height() - font_width_/3)
 			};
@@ -1477,7 +1505,11 @@ void QDisassemblyView::drawDisassembly(QPainter &painter, const DrawingContext *
 void QDisassemblyView::drawDividers(QPainter &painter, const DrawingContext *ctx) {
 	const QPen divider_pen = palette().shadow().color();
 	painter.setPen(divider_pen);
-	painter.drawLine(ctx->l1, 0, ctx->l1, height());
+
+	if (edb::v1::config().show_jump_arrow || edb::v1::config().show_register_badges) {
+		painter.drawLine(ctx->l1, 0, ctx->l1, height());
+	}
+
 	painter.drawLine(ctx->l2, 0, ctx->l2, height());
 	painter.drawLine(ctx->l3, 0, ctx->l3, height());
 	painter.drawLine(ctx->l4, 0, ctx->l4, height());
@@ -1534,14 +1566,7 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 	drawHeaderAndBackground(painter, &context, binary_info);
 
 	if(edb::v1::config().show_register_badges) {
-		// line0_ represents extra space allocated between x=0 and x=line1
-		line0_ = drawRegiserBadges(painter, &context);
-
-		// make room for the badges!
-		context.l1 += line0();
-		context.l2 += line0();
-		context.l3 += line0();
-		context.l4 += line0();
+		drawRegiserBadges(painter, &context);
 	}
 
 	drawSymbolNames(painter, &context);
@@ -1554,7 +1579,11 @@ void QDisassemblyView::paintEvent(QPaintEvent *) {
 
 	drawFunctionMarkers(painter, &context);
 	drawComments(painter, &context);
-	drawJumpArrows(painter, &context);
+
+	if (edb::v1::config().show_jump_arrow) {
+		drawJumpArrows(painter, &context);
+	}
+
 	drawDisassembly(painter, &context);
 	drawDividers(painter, &context);
 
@@ -1647,11 +1676,19 @@ int QDisassemblyView::line0() const {
 // Desc:
 //------------------------------------------------------------------------------
 int QDisassemblyView::line1() const {
-	if(line1_ == 0) {
+
+	if(!edb::v1::config().show_jump_arrow) {
+
+		// allocate space for register badge
+		// 5 (maximum register name length i can find off) + overhead
+		return (edb::v1::config().show_register_badges) ? (6 * font_width_ + font_width_/2) : 0;
+
+	} else if(line1_ == 0) {
 		return 15 * font_width_;
 	} else {
 		return line1_;
 	}
+
 }
 
 //------------------------------------------------------------------------------
@@ -1889,7 +1926,7 @@ void QDisassemblyView::mousePressEvent(QMouseEvent *event) {
 	const int event_x = event->x() - line0();
 	if(region_) {
 		if(event->button() == Qt::LeftButton) {
-			if(near_line(event_x, line1())) {
+			if(near_line(event_x, line1()) && edb::v1::config().show_jump_arrow) {
 				moving_line1_ = true;
 			} else if(near_line(event_x, line2())) {
 				moving_line2_ = true;
@@ -1920,7 +1957,7 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 			if(line2_ == 0) {
 				line2_ = line2();
 			}
-			const int min_line1 = font_width_;
+			const int min_line1 = 0;
 			const int max_line1 = line2() - font_width_;
 			line1_ = std::min(std::max(min_line1, x_pos), max_line1);
 			update();
@@ -1946,7 +1983,11 @@ void QDisassemblyView::mouseMoveEvent(QMouseEvent *event) {
 			line4_ = std::min(std::max(min_line4, x_pos), max_line4);
 			update();
 		} else {
-			if(near_line(x_pos, line1()) || near_line(x_pos, line2()) || near_line(x_pos, line3()) || near_line(x_pos, line4())) {
+			if((near_line(x_pos, line1()) && edb::v1::config().show_jump_arrow) || 
+				near_line(x_pos, line2()) || 
+				near_line(x_pos, line3()) || 
+				near_line(x_pos, line4()))
+			{
 				setCursor(Qt::SplitHCursor);
 			} else {
 				setCursor(Qt::ArrowCursor);
