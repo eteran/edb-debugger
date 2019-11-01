@@ -50,7 +50,7 @@ public:
 	void insert(const BasicBlock &bb);
 	void add_reference();
 	Type type() const;
-	void set_type(Type t);
+	void setType(Type t);
 
 public:
 	const_reference back() const;

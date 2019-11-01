@@ -41,7 +41,7 @@ private:
 
 private:
 	 Ui::DialogASCIIString ui;
-	 QPushButton *btnFind_;
+	 QPushButton *buttonFind_;
 };
 
 }

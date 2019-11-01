@@ -80,7 +80,7 @@ std::shared_ptr<IBreakpoint> DebuggerCoreBase::findBreakpoint(edb::address_t add
 //------------------------------------------------------------------------------
 std::shared_ptr<IBreakpoint> DebuggerCoreBase::findTriggeredBreakpoint(edb::address_t address) {
 	if(attached()) {
-		for(const size_t size : Breakpoint::possible_rewind_sizes()) {
+		for(const size_t size : Breakpoint::possibleRewindSizes()) {
 			const edb::address_t bpAddr = address - size;
 			const std::shared_ptr<IBreakpoint> bp = findBreakpoint(bpAddr);
 
@@ -126,7 +126,7 @@ void DebuggerCoreBase::endDebugSession() {
 			kill();
 			break;
 		case Configuration::KillIfLaunchedDetachIfAttached:
-			if(last_means_of_capture() == MeansOfCapture::Launch) {
+			if(lastMeansOfCapture() == MeansOfCapture::Launch) {
 				kill();
 			} else {
 				detach();
@@ -154,7 +154,7 @@ bool DebuggerCoreBase::attached() const {
 }
 
 auto DebuggerCoreBase::supportedBreakpointTypes() const -> std::vector<IBreakpoint::BreakpointType> {
-	return Breakpoint::supported_types();
+	return Breakpoint::supportedTypes();
 }
 
 }

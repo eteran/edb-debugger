@@ -86,7 +86,7 @@ void PlatformThread::fillSegmentBases(PlatformState* state) {
 
 	for(size_t sregIndex = 0;sregIndex < state->seg_reg_count(); ++sregIndex) {
 		const edb::seg_reg_t sreg = state->x86.segRegs[sregIndex];
-		if(sreg == core_->USER_CS_32 || sreg == core_->USER_CS_64 || sreg == core_->USER_SS || (state->is64Bit() && sregIndex < PlatformState::X86::FS)) {
+		if(sreg == core_->userCodeSegment32_ || sreg == core_->userCodeSegment64_ || sreg == core_->userStackSegment_ || (state->is64Bit() && sregIndex < PlatformState::X86::FS)) {
 			state->x86.segRegBases[sregIndex] = 0;
 			state->x86.segRegBasesFilled[sregIndex] = true;
 		}

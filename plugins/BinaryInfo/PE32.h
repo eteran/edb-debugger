@@ -43,19 +43,19 @@ private:
 
 class PE32 : public IBinary {
 public:
-    explicit PE32(const std::shared_ptr<IRegion> &region);
-    ~PE32() override = default;
+	explicit PE32(const std::shared_ptr<IRegion> &region);
+	~PE32() override = default;
 
 public:
-    bool native() const override;
-    edb::address_t entryPoint() override;
-    size_t headerSize() const override;
-    const void *header() const override;
+	bool                native() const override;
+	edb::address_t      entryPoint() override;
+	size_t              headerSize() const override;
+	const void *        header() const override;
 	std::vector<Header> headers() const override;
 
 private:
-	std::shared_ptr<IRegion> region_;
-	libPE::IMAGE_DOS_HEADER dos_;
+	std::shared_ptr<IRegion>  region_;
+	libPE::IMAGE_DOS_HEADER   dos_;
 	libPE::IMAGE_NT_HEADERS32 pe_;
 };
 

@@ -47,7 +47,7 @@ CheckVersion::CheckVersion(QObject *parent) : QObject(parent) {
 void CheckVersion::privateInit() {
 	QSettings settings;
 	if(settings.value("CheckVersion/check_on_start.enabled", true).toBool()) {
-		do_check();
+		doCheck();
 	}
 }
 
@@ -79,7 +79,7 @@ QMenu *CheckVersion::menu(QWidget *parent) {
 // Name: do_check
 // Desc:
 //------------------------------------------------------------------------------
-void CheckVersion::do_check() {
+void CheckVersion::doCheck() {
 
 	if(!network_) {
 		network_ = new QNetworkAccessManager(this);
@@ -91,7 +91,7 @@ void CheckVersion::do_check() {
 	const QUrl update_url("http://codef00.com/projects/debugger-latest");
 	const QNetworkRequest request(update_url);
 
-	set_proxy(update_url);
+	setProxy(update_url);
 
 	network_->get(request);
 }
@@ -100,7 +100,7 @@ void CheckVersion::do_check() {
 // Name: set_proxy
 // Desc:
 //------------------------------------------------------------------------------
-void CheckVersion::set_proxy(const QUrl &url) {
+void CheckVersion::setProxy(const QUrl &url) {
 
 	QNetworkProxy proxy;
 
@@ -135,8 +135,8 @@ void CheckVersion::set_proxy(const QUrl &url) {
 // Desc:
 //------------------------------------------------------------------------------
 void CheckVersion::showMenu() {
-	initial_check_ = false;
-	do_check();
+	initialCheck_ = false;
+	doCheck();
 }
 
 //------------------------------------------------------------------------------
@@ -146,7 +146,7 @@ void CheckVersion::showMenu() {
 void CheckVersion::requestFinished(QNetworkReply *reply) {
 
     if(reply->error() != QNetworkReply::NoError) {
-		if(!initial_check_) {
+		if(!initialCheck_) {
 			QMessageBox::critical(
                 nullptr,
 				tr("An Error Occured"),
@@ -164,7 +164,7 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 				tr("New Version Available"),
 				tr("There is a newer version of edb available: <strong>%1</strong>").arg(s));
 		} else {
-			if(!initial_check_) {
+			if(!initialCheck_) {
 				QMessageBox::information(
                     nullptr,
 					tr("You are up to date"),
@@ -174,7 +174,7 @@ void CheckVersion::requestFinished(QNetworkReply *reply) {
 	}
 
     reply->deleteLater();
-	initial_check_ = false;
+	initialCheck_ = false;
 }
 
 }

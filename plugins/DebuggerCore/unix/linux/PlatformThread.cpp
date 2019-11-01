@@ -152,7 +152,7 @@ Status PlatformThread::resume(edb::EVENT_STATUS status) {
 // Desc: returns true if this thread is currently in the debugger's wait list
 //------------------------------------------------------------------------------
 bool PlatformThread::isPaused() const {
-	return util::contains(core_->waited_threads_, tid_);
+	return util::contains(core_->waitedThreads_, tid_);
 }
 
 }

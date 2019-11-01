@@ -31,8 +31,8 @@ namespace BacktracePlugin {
 namespace {
 
 // Default values in the table
-constexpr int FIRST_ROW     = 0;
-constexpr int RETURN_COLUMN = 1;
+constexpr int FirstRow     = 0;
+constexpr int ReturnColumn = 1;
 
 //------------------------------------------------------------------------------
 // Name: address_from_table
@@ -49,7 +49,7 @@ edb::address_t address_from_table(const QTableWidgetItem *item) {
 //       Returns false otherwise.
 //------------------------------------------------------------------------------
 bool is_ret(int column) {
-	return column == RETURN_COLUMN;
+	return column == ReturnColumn;
 }
 
 //------------------------------------------------------------------------------
@@ -199,7 +199,7 @@ void DialogBacktrace::populateTable() {
 
 	//1st ret is selected on every refresh so that we can just click "Return To"
 	//Turn Run To button off if no item.
-	QTableWidgetItem *item = table_->item(FIRST_ROW, RETURN_COLUMN);
+	QTableWidgetItem *item = table_->item(FirstRow, ReturnColumn);
 	if (item) {
 		table_->setCurrentItem(item);
 		buttonReturnTo_->setEnabled(true);

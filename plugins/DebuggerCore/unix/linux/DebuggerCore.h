@@ -42,7 +42,7 @@ class DebuggerCore final : public DebuggerCoreBase {
 	friend class PlatformProcess;
 	friend class PlatformThread;
 
-	CPUMode cpuMode() const override { return cpu_mode_; }
+	CPUMode cpuMode() const override { return cpuMode_; }
 public:
 	DebuggerCore();
 	~DebuggerCore() override;
@@ -56,7 +56,7 @@ public:
 	Status detach() override;
 	void kill() override;
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
-    MeansOfCapture last_means_of_capture() const override;
+    MeansOfCapture lastMeansOfCapture() const override;
 	void setIgnoredExceptions(const QList<qlonglong> &exceptions) override;
 	uint8_t nopFillByte() const override;
 
@@ -109,23 +109,23 @@ private:
 
 private:
 	// TODO(eteran): a few of these logically belong in PlatformProcess...
-	QList<qlonglong>          ignored_exceptions_;
+	QList<qlonglong>          ignoredExceptions_;
 	threads_type              threads_;
-	QSet<edb::tid_t>          waited_threads_;
-	edb::tid_t                active_thread_;
+	QSet<edb::tid_t>          waitedThreads_;
+	edb::tid_t                activeThread_;
 	std::shared_ptr<IProcess> process_;
-	std::size_t               pointer_size_ = sizeof(void*);
+	std::size_t               pointerSize_ = sizeof(void*);
 #if defined(EDB_X86) || defined(EDB_X86_64)
-	const bool                edbIsIn64BitSegment;
-	const bool                osIs64Bit;
-	const edb::seg_reg_t      USER_CS_32;
-	const edb::seg_reg_t      USER_CS_64;
-	const edb::seg_reg_t      USER_SS;
+	const bool                edbIsIn64BitSegment_;
+	const bool                osIs64Bit_;
+	const edb::seg_reg_t      userCodeSegment32_;
+	const edb::seg_reg_t      userCodeSegment64_;
+	const edb::seg_reg_t      userStackSegment_;
 #endif
-	CPUMode					  cpu_mode_              = CPUMode::Unknown;
-	MeansOfCapture	          lastMeansOfCapture     = MeansOfCapture::NeverCaptured;
-	bool                      proc_mem_write_broken_ = true;
-	bool                      proc_mem_read_broken_  = true;
+	CPUMode					  cpuMode_              = CPUMode::Unknown;
+	MeansOfCapture	          lastMeansOfCapture_     = MeansOfCapture::NeverCaptured;
+	bool                      procMemWriteBroken_ = true;
+	bool                      procMemReadBroken_  = true;
 };
 
 }

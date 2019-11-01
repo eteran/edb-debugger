@@ -44,7 +44,7 @@ public:
 
 private:
 	Ui::DialogAssembler ui;
-	edb::address_t      address_          = 0;
+	edb::address_t      address_         = 0;
 	size_t              instructionSize_ = 0;
 };
 

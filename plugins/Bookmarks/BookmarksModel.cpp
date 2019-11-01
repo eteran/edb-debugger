@@ -173,7 +173,7 @@ void BookmarksModel::setType(const QModelIndex &index, const QString &type) {
 
 	Bookmark &bookmark = bookmarks_[index.row()];
 
-	bookmark.type = BookmarkStringToType(type);
+	bookmark.type = bookmarkStringToType(type);
 
 	Q_EMIT dataChanged(index, index);
 }

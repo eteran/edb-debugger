@@ -55,8 +55,8 @@ public:
 
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
 
-	MeansOfCapture last_means_of_capture() const override {
-		qDebug("TODO: Implement DebuggerCore::last_means_of_capture");
+	MeansOfCapture lastMeansOfCapture() const override {
+		qDebug("TODO: Implement DebuggerCore::lastMeansOfCapture");
 		return MeansOfCapture::NeverCaptured;
 	}
 

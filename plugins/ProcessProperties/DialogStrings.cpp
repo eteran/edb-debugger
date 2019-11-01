@@ -43,16 +43,16 @@ DialogStrings::DialogStrings(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	filterModel_ = new QSortFilterProxyModel(this);
 	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
-	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
-	connect(btnFind_, &QPushButton::clicked, this, [this]() {
-		btnFind_->setEnabled(false);
+	buttonFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	connect(buttonFind_, &QPushButton::clicked, this, [this]() {
+		buttonFind_->setEnabled(false);
 		ui.progressBar->setValue(0);
 		doFind();
 		ui.progressBar->setValue(100);
-		btnFind_->setEnabled(true);
+		buttonFind_->setEnabled(true);
 	});
 
-	ui.buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
+	ui.buttonBox->addButton(buttonFind_, QDialogButtonBox::ActionRole);
 }
 
 //------------------------------------------------------------------------------

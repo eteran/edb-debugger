@@ -47,13 +47,13 @@ QMenu *Bookmarks::menu(QWidget *parent) {
 		// if we are dealing with a main window (and we are...)
 		// add the dock object
 		if(auto main_window = qobject_cast<QMainWindow *>(edb::v1::debugger_ui)) {
-			bookmark_widget_ = new BookmarkWidget;
+			bookmarkWidget_ = new BookmarkWidget;
 
 			// make the dock widget and _name_ it, it is important to name it so
 			// that it's state is saved in the GUI info
 			auto dock_widget = new QDockWidget(tr("Bookmarks"), main_window);
 			dock_widget->setObjectName(QString::fromUtf8("Bookmarks"));
-			dock_widget->setWidget(bookmark_widget_);
+			dock_widget->setWidget(bookmarkWidget_);
 
 			// add it to the dock
 			main_window->addDockWidget(Qt::RightDockWidgetArea, dock_widget);
@@ -82,7 +82,7 @@ QMenu *Bookmarks::menu(QWidget *parent) {
 				// create an action and attach it to the signal mapper
 				auto action = new QShortcut(QKeySequence(tr("Ctrl+%1").arg(i)), main_window);
 				connect(action, &QShortcut::activated, this, [this, index = (i == 0) ? 9 : (i - 1)]() {
-					bookmark_widget_->shortcut(index);
+					bookmarkWidget_->shortcut(index);
 				});
 			}
 		}
@@ -92,7 +92,7 @@ QMenu *Bookmarks::menu(QWidget *parent) {
 }
 
 //------------------------------------------------------------------------------
-// Name: cpu_context_menu
+// Name: cpuContextMenu
 // Desc:
 //------------------------------------------------------------------------------
 QList<QAction *> Bookmarks::cpuContextMenu() {
@@ -100,32 +100,32 @@ QList<QAction *> Bookmarks::cpuContextMenu() {
 	QList<QAction *> ret;
 
 	auto action_bookmark = new QAction(tr("Add &Bookmark"), this);
-	connect(action_bookmark, &QAction::triggered, this, &Bookmarks::add_bookmark_menu);
+	connect(action_bookmark, &QAction::triggered, this, &Bookmarks::addBookmarkMenu);
 	ret << action_bookmark;
 
 	return ret;
 }
 
 //------------------------------------------------------------------------------
-// Name: add_bookmark_menu
+// Name: addBookmarkMenu
 // Desc:
 //------------------------------------------------------------------------------
-void Bookmarks::add_bookmark_menu() {
-	bookmark_widget_->add_address(edb::v1::cpu_selected_address());
+void Bookmarks::addBookmarkMenu() {
+	bookmarkWidget_->addAddress(edb::v1::cpu_selected_address());
 }
 
 //------------------------------------------------------------------------------
-// Name: save_state
+// Name: saveState
 // Desc:
 //------------------------------------------------------------------------------
 QVariantMap Bookmarks::saveState() const {
 	QVariantMap  state;
 	QVariantList bookmarks;
-	for(auto &bookmark : bookmark_widget_->entries()) {
+	for(auto &bookmark : bookmarkWidget_->entries()) {
 	
 		QVariantMap entry;
 		entry["address"] = bookmark.address.toHexString();
-		entry["type"]    = BookmarksModel::BookmarkTypeToString(bookmark.type);
+		entry["type"]    = BookmarksModel::bookmarkTypeToString(bookmark.type);
 		entry["comment"] = bookmark.comment;
 	
 		bookmarks.push_back(entry);
@@ -136,7 +136,7 @@ QVariantMap Bookmarks::saveState() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: restore_state
+// Name: restoreState
 // Desc:
 //------------------------------------------------------------------------------
 void Bookmarks::restoreState(const QVariantMap &state) {
@@ -151,7 +151,7 @@ void Bookmarks::restoreState(const QVariantMap &state) {
 		
 		qDebug() << "Restoring bookmark with address: " << address.toHexString();
 		
-		bookmark_widget_->add_address(address, type, comment);
+		bookmarkWidget_->addAddress(address, type, comment);
 	}
 
 }

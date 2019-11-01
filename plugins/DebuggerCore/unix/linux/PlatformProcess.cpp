@@ -202,16 +202,16 @@ QList<Module> get_loaded_modules(const IProcess* process) {
 // Desc:
 //------------------------------------------------------------------------------
 PlatformProcess::PlatformProcess(DebuggerCore *core, edb::pid_t pid) : core_(core), pid_(pid) {
-	if (!core_->proc_mem_read_broken_) {
+	if (!core_->procMemReadBroken_) {
 		auto memory_file = std::make_shared<QFile>(QString("/proc/%1/mem").arg(pid_));
 
 		auto flags = QIODevice::ReadOnly | QIODevice::Unbuffered;
-		if (!core_->proc_mem_write_broken_) {
+		if (!core_->procMemWriteBroken_) {
 			flags |= QIODevice::WriteOnly;
 		}
 		if (memory_file->open(flags)) {
 			ro_mem_file_ = memory_file;
-			if (!core_->proc_mem_write_broken_) {
+			if (!core_->procMemWriteBroken_) {
 				rw_mem_file_ = memory_file;
 			}
 		}
@@ -691,7 +691,7 @@ std::shared_ptr<IThread> PlatformProcess::currentThread() const {
 
 	Q_ASSERT(core_->process_.get() == this);
 
-	auto it = core_->threads_.find(core_->active_thread_);
+	auto it = core_->threads_.find(core_->activeThread_);
 	if(it != core_->threads_.end()) {
 		return it.value();
 	}
@@ -703,7 +703,7 @@ std::shared_ptr<IThread> PlatformProcess::currentThread() const {
 // Desc:
 //------------------------------------------------------------------------------
 void PlatformProcess::setCurrentThread(IThread& thread) {
-	core_->active_thread_ = static_cast<PlatformThread*>(&thread)->tid();
+	core_->activeThread_ = static_cast<PlatformThread*>(&thread)->tid();
 	edb::v1::update_ui();
 }
 
@@ -802,7 +802,7 @@ Status PlatformProcess::resume(edb::EVENT_STATUS status) {
 
 			// resume the other threads passing the signal they originally reported had
 			for(auto &other_thread : threads()) {
-				if(util::contains(core_->waited_threads_, other_thread->tid())) {
+				if(util::contains(core_->waitedThreads_, other_thread->tid())) {
 					const auto resumeStatus = other_thread->resume();
 					if(!resumeStatus) {
 						errorMessage += tr("Failed to resume thread %1: %2\n").arg(thread->tid()).arg(resumeStatus.error());

@@ -19,10 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef OPCODES_RESULTS_MODEL_H_
 #define OPCODES_RESULTS_MODEL_H_
 
+#include "Function.h"
+#include "Types.h"
 #include <QAbstractItemModel>
 #include <QVector>
-#include "Types.h"
-#include "Function.h"
 
 namespace OpcodeSearcherPlugin {
 
@@ -37,13 +37,13 @@ public:
 	explicit ResultsModel(QObject *parent = nullptr);
 
 public:
-	QVariant data(const QModelIndex &index, int role) const override;
+	QVariant    data(const QModelIndex &index, int role) const override;
 	QModelIndex index(int row, int column, const QModelIndex &parent = QModelIndex()) const override;
 	QModelIndex parent(const QModelIndex &index) const override;
-	int rowCount(const QModelIndex &parent = QModelIndex()) const override;
-	int columnCount(const QModelIndex &parent = QModelIndex()) const override;
-	QVariant headerData ( int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-	void sort (int column, Qt::SortOrder order = Qt::AscendingOrder) override;
+	int         rowCount(const QModelIndex &parent = QModelIndex()) const override;
+	int         columnCount(const QModelIndex &parent = QModelIndex()) const override;
+	QVariant    headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+	void        sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
 public:
 	void addResult(const Result &r);

@@ -46,7 +46,7 @@ public:
 	Status detach() override;
 	void kill() override;
 	Status open(const QString &path, const QString &cwd, const QList<QByteArray> &args, const QString &tty) override;
-	MeansOfCapture last_means_of_capture() const override;
+	MeansOfCapture lastMeansOfCapture() const override;
 	void set_ignored_exceptions(const QList<qlonglong> &exceptions) override;
 
 public:

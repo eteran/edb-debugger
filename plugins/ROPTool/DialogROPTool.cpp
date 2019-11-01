@@ -286,16 +286,16 @@ DialogROPTool::DialogROPTool(QWidget *parent, Qt::WindowFlags f) : QDialog(paren
 	filterModel_ = new QSortFilterProxyModel(this);
 	connect(ui.txtSearch, &QLineEdit::textChanged, filterModel_, &QSortFilterProxyModel::setFilterFixedString);
 
-	btnFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
-	connect(btnFind_, &QPushButton::clicked, this, [this]() {
-		btnFind_->setEnabled(false);
+	buttonFind_ = new QPushButton(QIcon::fromTheme("edit-find"), tr("Find"));
+	connect(buttonFind_, &QPushButton::clicked, this, [this]() {
+		buttonFind_->setEnabled(false);
 		ui.progressBar->setValue(0);
 		doFind();
 		ui.progressBar->setValue(100);
-		btnFind_->setEnabled(true);
+		buttonFind_->setEnabled(true);
 	});
 
-	ui.buttonBox->addButton(btnFind_, QDialogButtonBox::ActionRole);
+	ui.buttonBox->addButton(buttonFind_, QDialogButtonBox::ActionRole);
 }
 
 //------------------------------------------------------------------------------
@@ -329,8 +329,8 @@ void DialogROPTool::addGadget(DialogResults *results, const InstructionList &ins
 			instruction_string.append(QString("; %1").arg(QString::fromStdString(edb::v1::formatter().to_string(*inst))));
 		}
 
-		if(!ui.checkUnique->isChecked() || !unique_results_.contains(instruction_string)) {
-			unique_results_.insert(instruction_string);
+		if(!ui.checkUnique->isChecked() || !uniqueResults_.contains(instruction_string)) {
+			uniqueResults_.insert(instruction_string);
 
 			// found a gadget
 			// TODO(eteran): make this look for 1st non-NOP
@@ -357,7 +357,7 @@ void DialogROPTool::doFind() {
 
 		auto resultsDialog = new DialogResults(this);
 
-		unique_results_.clear();
+		uniqueResults_.clear();
 
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 			for(const QModelIndex &selected_item: sel) {

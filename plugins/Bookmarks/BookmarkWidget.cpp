@@ -64,7 +64,7 @@ void BookmarkWidget::on_tableView_doubleClicked(const QModelIndex &index) {
 			break;
 		case 1: // type
 			{
-				QString old_type = BookmarksModel::BookmarkTypeToString(item->type);
+				QString old_type = BookmarksModel::bookmarkTypeToString(item->type);
 				QStringList items;
 				items << tr("Code") << tr("Data") << tr("Stack");
 
@@ -96,7 +96,7 @@ void BookmarkWidget::on_tableView_doubleClicked(const QModelIndex &index) {
 void BookmarkWidget::on_btnAdd_clicked() {
 
 	if(boost::optional<edb::address_t> address = edb::v2::get_expression_from_user(tr("Bookmark Address"), tr("Address:"))) {
-		add_address(*address);
+		addAddress(*address);
 	}
 }
 
@@ -127,7 +127,7 @@ void BookmarkWidget::on_btnClear_clicked() {
 // Name: add_address
 // Desc:
 //------------------------------------------------------------------------------
-void BookmarkWidget::add_address(edb::address_t address, const QString &type, const QString &comment) {
+void BookmarkWidget::addAddress(edb::address_t address, const QString &type, const QString &comment) {
 
 	QVector<BookmarksModel::Bookmark> &bookmarks = model_->bookmarks();
 	auto it = std::find_if(bookmarks.begin(), bookmarks.end(), [address](const BookmarksModel::Bookmark &bookmark) {
@@ -137,7 +137,7 @@ void BookmarkWidget::add_address(edb::address_t address, const QString &type, co
 
 	if(it == bookmarks.end()) {
 		BookmarksModel::Bookmark bookmark = {
-			address, BookmarksModel::BookmarkStringToType(type), comment
+			address, BookmarksModel::bookmarkStringToType(type), comment
 		};
 
 		model_->addBookmark(bookmark);
@@ -215,7 +215,7 @@ void BookmarkWidget::on_tableView_customContextMenuRequested(const QPoint &pos) 
 
 			if(auto item = static_cast<BookmarksModel::Bookmark *>(index.internalPointer())) {
 
-				QString old_type = BookmarksModel::BookmarkTypeToString(item->type);
+				QString old_type = BookmarksModel::bookmarkTypeToString(item->type);
 				QStringList items;
 				items << tr("Code") << tr("Data") << tr("Stack");
 

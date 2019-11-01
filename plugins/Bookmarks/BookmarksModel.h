@@ -41,7 +41,7 @@ public:
 		QString        comment;
 	};
 
-	static QString BookmarkTypeToString(Bookmark::Type type) {
+	static QString bookmarkTypeToString(Bookmark::Type type) {
 		switch(type) {
 		case Bookmark::Code:  return tr("Code");
 		case Bookmark::Data:  return tr("Data");
@@ -51,7 +51,7 @@ public:
 		return tr("Code");
 	}
 
-	static Bookmark::Type BookmarkStringToType(const QString &type) {
+	static Bookmark::Type bookmarkStringToType(const QString &type) {
 		if(type == tr("Code")) {
 			return Bookmark::Code;
 		} else if(type == tr("Data")) {

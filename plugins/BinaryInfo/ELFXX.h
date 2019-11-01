@@ -38,12 +38,12 @@ public:
 	std::vector<Header> headers() const override;
 
 private:
-	void validate_header();
+	void validateHeader();
 
 private:
 	std::shared_ptr<IRegion> region_;
 	elfxx_header             header_;
-	edb::address_t           base_address_ { 0 };
+	edb::address_t           baseAddress_ { 0 };
 	std::vector<Header>      headers_;
 };
 

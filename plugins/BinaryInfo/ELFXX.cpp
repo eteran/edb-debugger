@@ -85,7 +85,7 @@ ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region) : region_(reg
 		throw ReadFailure();
 	}
 
-	validate_header();
+	validateHeader();
 		
 	headers_.push_back({region_->start(), header_.e_ehsize});
 	headers_.push_back({region_->start() + header_.e_phoff, static_cast<size_t>(header_.e_phentsize * header_.e_phnum) });
@@ -94,7 +94,7 @@ ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region) : region_(reg
 
 	if (phdr_size < sizeof(phdr_type)) {
 		qDebug()<< QString::number(region_->start(), 16) << "program header size less than expected";
-		base_address_ = region_->start();
+		baseAddress_ = region_->start();
 		return;
 	}
 
@@ -131,9 +131,9 @@ ELFXX<elfxx_header>::ELFXX(const std::shared_ptr<IRegion> &region) : region_(reg
 
 	if (lowest == ULLONG_MAX) {
 		qDebug() << "binary base address not found. Assuming " << QString::number(region_->start(), 16);
-		base_address_ = region->start();
+		baseAddress_ = region->start();
 	} else {
-		base_address_ = lowest;
+		baseAddress_ = lowest;
 	}
 }
 
@@ -165,7 +165,7 @@ std::vector<IBinary::Header> ELFXX<elfxx_header>::headers() const {
 // Desc: ensures that the header that we read was valid
 //------------------------------------------------------------------------------
 template <class elfxx_header>
-void ELFXX<elfxx_header>::validate_header() {
+void ELFXX<elfxx_header>::validateHeader() {
 	if(std::memcmp(header_.e_ident, ELFMAG, SELFMAG) != 0) {
 		throw InvalidELF();
 	}
@@ -181,7 +181,7 @@ void ELFXX<elfxx_header>::validate_header() {
 //------------------------------------------------------------------------------
 template <class elfxx_header>
 edb::address_t ELFXX<elfxx_header>::entryPoint() {
-	return header_.e_entry + base_address_;
+	return header_.e_entry + baseAddress_;
 }
 
 //------------------------------------------------------------------------------

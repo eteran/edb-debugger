@@ -179,8 +179,8 @@ Function::Type Function::type() const {
 }
 
 //------------------------------------------------------------------------------
-// Name: set_type
+// Name: setType
 //------------------------------------------------------------------------------
-void Function::set_type(Type t) {
+void Function::setType(Type t) {
 	type_ = t;
 }

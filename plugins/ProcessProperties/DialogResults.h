@@ -2,10 +2,10 @@
 #ifndef ROPTOOL_DIALOG_RESULTS_H
 #define ROPTOOL_DIALOG_RESULTS_H
 
-#include <QDialog>
-#include <QSortFilterProxyModel>
 #include "ResultsModel.h"
 #include "ui_DialogResults.h"
+#include <QDialog>
+#include <QSortFilterProxyModel>
 
 class QSortFilterProxyModel;
 
@@ -30,13 +30,9 @@ public:
 
 private:
 	Ui::DialogResults      ui;
-	ResultsModel          *model_;
+	ResultsModel *         model_;
 	QSortFilterProxyModel *filterModel_;
 };
 
-
-
-
 #endif
-
 }

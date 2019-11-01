@@ -19,9 +19,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOG_RESULTS_20190403_H_
 #define DIALOG_RESULTS_20190403_H_
 
-#include <QDialog>
 #include "edb.h"
 #include "ui_DialogResults.h"
+#include <QDialog>
 
 class QListWidgetItem;
 
@@ -43,13 +43,13 @@ public:
 
 public:
 	void addResult(RegionType region, edb::address_t address);
-	int resultCount() const;
+	int  resultCount() const;
 
 public Q_SLOTS:
 	void on_listWidget_itemDoubleClicked(QListWidgetItem *);
 
 private:
-	 Ui::DialogResults ui;
+	Ui::DialogResults ui;
 };
 
 }

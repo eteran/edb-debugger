@@ -49,7 +49,7 @@ Breakpoint::Breakpoint(edb::address_t address) : address_(address), type_(edb::v
 	}
 }
 
-auto Breakpoint::supported_types() -> std::vector<BreakpointType> {
+auto Breakpoint::supportedTypes() -> std::vector<BreakpointType> {
 	std::vector<BreakpointType> types = {
 		BreakpointType{Type{TypeId::Automatic},QObject::tr("Automatic")},
 		BreakpointType{Type{TypeId::INT3     },QObject::tr("INT3")},
@@ -103,7 +103,7 @@ bool Breakpoint::enable() {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
 			std::vector<quint8> prev(2);
 			if(process->readBytes(address(), &prev[0], prev.size())) {
-				original_bytes_ = prev;
+				originalBytes_ = prev;
 				const std::vector<quint8>* bpBytes = nullptr;
 
 				switch(TypeId{type_}) {
@@ -123,8 +123,8 @@ bool Breakpoint::enable() {
 				}
 
 				assert(bpBytes);
-				assert(original_bytes_.size() >= bpBytes->size());
-				original_bytes_.resize(bpBytes->size());
+				assert(originalBytes_.size() >= bpBytes->size());
+				originalBytes_.resize(bpBytes->size());
 
 				if(process->writeBytes(address(), bpBytes->data(), bpBytes->size())) {
 					enabled_ = true;
@@ -143,7 +143,7 @@ bool Breakpoint::enable() {
 bool Breakpoint::disable() {
 	if(enabled()) {
 		if(IProcess *process = edb::v1::debugger_core->process()) {
-			if(process->writeBytes(address(), &original_bytes_[0], original_bytes_.size())) {
+			if(process->writeBytes(address(), &originalBytes_[0], originalBytes_.size())) {
 				enabled_ = false;
 				return true;
 			}
@@ -157,26 +157,26 @@ bool Breakpoint::disable() {
 // Desc:
 //------------------------------------------------------------------------------
 void Breakpoint::hit() {
-	++hit_count_;
+	++hitCount_;
 }
 
 //------------------------------------------------------------------------------
-// Name: set_one_time
+// Name: setOneTime
 // Desc:
 //------------------------------------------------------------------------------
 void Breakpoint::setOneTime(bool value) {
-	one_time_ = value;
+	oneTime_ = value;
 }
 
 //------------------------------------------------------------------------------
-// Name: set_internal
+// Name: setInternal
 // Desc:
 //------------------------------------------------------------------------------
 void Breakpoint::setInternal(bool value) {
 	internal_ = value;
 }
 
-std::vector<size_t> Breakpoint::possible_rewind_sizes() {
+std::vector<size_t> Breakpoint::possibleRewindSizes() {
 	return {1,0,2}; // e.g. int3/int1, cli/sti/hlt/etc., int 0x1/int 0x3
 }
 

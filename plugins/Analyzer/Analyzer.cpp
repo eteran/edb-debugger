@@ -106,9 +106,9 @@ void set_function_types(IAnalyzer::FunctionMap *results) {
 	// give bonus if we have a symbol for the address
 	std::for_each(results->begin(), results->end(), [](Function &function) {
 		if (is_thunk(function.entry_address())) {
-			function.set_type(Function::Thunk);
+			function.setType(Function::Thunk);
 		} else {
-			function.set_type(Function::Standard);
+			function.setType(Function::Standard);
 		}
 	});
 }

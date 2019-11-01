@@ -19,16 +19,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #ifndef DIALOG_ROPTOOL_20100817_H_
 #define DIALOG_ROPTOOL_20100817_H_
 
-#include "Types.h"
 #include "Instruction.h"
+#include "Types.h"
 #include "ui_DialogROPTool.h"
 
 #include <QDialog>
-#include <QSet>
 #include <QList>
+#include <QSet>
 #include <QSortFilterProxyModel>
-#include <vector>
 #include <memory>
+#include <vector>
 
 class QListWidgetItem;
 class QModelIndex;
@@ -45,24 +45,24 @@ class DialogROPTool : public QDialog {
 	Q_OBJECT
 
 public:
-    explicit DialogROPTool(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
+	explicit DialogROPTool(QWidget *parent = nullptr, Qt::WindowFlags f = Qt::WindowFlags());
 	~DialogROPTool() override = default;
 
 private:
 	using InstructionList = std::vector<std::shared_ptr<edb::Instruction>>;
-	
+
 private:
 	void doFind();
 	void addGadget(DialogResults *results, const InstructionList &instructions);
 
 private:
-    void showEvent(QShowEvent *event) override;
+	void showEvent(QShowEvent *event) override;
 
 private:
-	Ui::DialogROPTool     ui;
+	Ui::DialogROPTool      ui;
 	QSortFilterProxyModel *filterModel_;
-	QSet<QString>          unique_results_;
-	QPushButton *btnFind_;
+	QSet<QString>          uniqueResults_;
+	QPushButton *          buttonFind_;
 };
 
 }

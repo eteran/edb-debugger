@@ -40,24 +40,26 @@ public:
 	~CheckVersion() override = default;
 
 public:
-	QMenu *menu(QWidget *parent = nullptr) override;
+	QMenu *  menu(QWidget *parent = nullptr) override;
 	QWidget *optionsPage() override;
 
 public Q_SLOTS:
 	void showMenu();
+
+private:
 	void requestFinished(QNetworkReply *reply);
 
 protected:
 	void privateInit() override;
 
 private:
-	void do_check();
-	void set_proxy(const QUrl &url);
+	void doCheck();
+	void setProxy(const QUrl &url);
 
 private:
-	QMenu                 *menu_          = nullptr;
-	QNetworkAccessManager *network_       = nullptr;
-	bool                   initial_check_ = true;
+	QMenu *                menu_         = nullptr;
+	QNetworkAccessManager *network_      = nullptr;
+	bool                   initialCheck_ = true;
 };
 
 }

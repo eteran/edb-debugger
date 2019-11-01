@@ -181,22 +181,22 @@ bool os64Bit(bool edbIsIn64BitSegment) {
 DebuggerCore::DebuggerCore()
 #if defined(EDB_X86) || defined(EDB_X86_64)
     :
-    edbIsIn64BitSegment(in64BitSegment()),
-    osIs64Bit(os64Bit(edbIsIn64BitSegment)),
-    USER_CS_32(osIs64Bit ? 0x23 : 0x73),
-    USER_CS_64(osIs64Bit ? 0x33 : 0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
-    USER_SS(osIs64Bit    ? 0x2b : 0x7b)
+	edbIsIn64BitSegment_(in64BitSegment()),
+	osIs64Bit_(os64Bit(edbIsIn64BitSegment_)),
+	userCodeSegment32_(osIs64Bit_ ? 0x23 : 0x73),
+	userCodeSegment64_(osIs64Bit_ ? 0x33 : 0xfff8), // RPL 0 can't appear in user segment registers, so 0xfff8 is safe
+	userStackSegment_(osIs64Bit_    ? 0x2b : 0x7b)
 #endif
 	 {
 
 	Posix::initialize();
 
-	feature::detect_proc_access(&proc_mem_read_broken_, &proc_mem_write_broken_);
+	feature::detect_proc_access(&procMemReadBroken_, &procMemWriteBroken_);
 
-	if(proc_mem_read_broken_ || proc_mem_write_broken_) {
+	if(procMemReadBroken_ || procMemWriteBroken_) {
 
-		qDebug() << "Detect that read /proc/<pid>/mem works  = " << !proc_mem_read_broken_;
-		qDebug() << "Detect that write /proc/<pid>/mem works = " << !proc_mem_write_broken_;
+		qDebug() << "Detect that read /proc/<pid>/mem works  = " << !procMemReadBroken_;
+		qDebug() << "Detect that write /proc/<pid>/mem works = " << !procMemWriteBroken_;
 
 		QSettings settings;
 		const bool warn = settings.value("DebuggerCore/warn_on_broken_proc_mem.enabled", true).toBool();
@@ -272,7 +272,7 @@ size_t DebuggerCore::pageSize() const {
 }
 
 std::size_t DebuggerCore::pointerSize() const {
-	return pointer_size_;
+	return pointerSize_;
 }
 
 //------------------------------------------------------------------------------
@@ -315,14 +315,14 @@ Status DebuggerCore::ptrace_continue(edb::tid_t tid, long status) {
 	// TODO(eteran): perhaps address this at a higher layer?
 	//               I would like to not have these events show up
 	//               in the first place if we aren't stopped on this TID :-(
-	if(util::contains(waited_threads_, tid)) {
+	if(util::contains(waitedThreads_, tid)) {
 		Q_ASSERT(tid != 0);
 		if(ptrace(PTRACE_CONT, tid, 0, status) == -1) {
 			const char *const strError = strerror(errno);
 			qWarning() << "Unable to continue thread" << tid << ": PTRACE_CONT failed:" << strError;
 			return Status(strError);
 		}
-		waited_threads_.remove(tid);
+		waitedThreads_.remove(tid);
 		return Status::Ok;
 	}
 	return Status(tr("ptrace_continue(): waited_threads_ doesn't contain tid %1").arg(tid));
@@ -336,14 +336,14 @@ Status DebuggerCore::ptrace_step(edb::tid_t tid, long status) {
 	// TODO(eteran): perhaps address this at a higher layer?
 	//               I would like to not have these events show up
 	//               in the first place if we aren't stopped on this TID :-(
-	if(util::contains(waited_threads_, tid)) {
+	if(util::contains(waitedThreads_, tid)) {
 		Q_ASSERT(tid != 0);
 		if(ptrace(PTRACE_SINGLESTEP, tid, 0, status)==-1) {
 			const char *const strError = strerror(errno);
 			qWarning() << "Unable to step thread" << tid << ": PTRACE_SINGLESTEP failed:" << strError;
 			return Status(strError);
 		}
-		waited_threads_.remove(tid);
+		waitedThreads_.remove(tid);
 		return Status::Ok;
 	}
 	return Status(tr("ptrace_step(): waited_threads_ doesn't contain tid %1").arg(tid));
@@ -354,7 +354,7 @@ Status DebuggerCore::ptrace_step(edb::tid_t tid, long status) {
 // Desc:
 //------------------------------------------------------------------------------
 Status DebuggerCore::ptrace_set_options(edb::tid_t tid, long options) {
-	Q_ASSERT(util::contains(waited_threads_, tid));
+	Q_ASSERT(util::contains(waitedThreads_, tid));
 	Q_ASSERT(tid != 0);
 	if(ptrace(PTRACE_SETOPTIONS, tid, 0, options)==-1) {
 		const char *const strError = strerror(errno);
@@ -369,7 +369,7 @@ Status DebuggerCore::ptrace_set_options(edb::tid_t tid, long options) {
 // Desc:
 //------------------------------------------------------------------------------
 Status DebuggerCore::ptrace_get_event_message(edb::tid_t tid, unsigned long *message) {
-	Q_ASSERT(util::contains(waited_threads_, tid));
+	Q_ASSERT(util::contains(waitedThreads_, tid));
 	Q_ASSERT(tid != 0);
 	Q_ASSERT(message);
 
@@ -397,7 +397,7 @@ long DebuggerCore::ptraceOptions() const {
         options |= PTRACE_O_EXITKILL;
         break;
     case Configuration::KillIfLaunchedDetachIfAttached:
-        if(last_means_of_capture() == MeansOfCapture::Launch) {
+        if(lastMeansOfCapture() == MeansOfCapture::Launch) {
             options |= PTRACE_O_EXITKILL;
         }
         break;
@@ -421,7 +421,7 @@ void DebuggerCore::handle_thread_exit(edb::tid_t tid, int status) {
 	Q_UNUSED(status)
 
 	threads_.remove(tid);
-	waited_threads_.remove(tid);
+	waitedThreads_.remove(tid);
 }
 
 //------------------------------------------------------------------------------
@@ -442,9 +442,9 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_thread_create_event(edb::tid_t
 		threads_.insert(new_tid, newThread);
 
 		int thread_status = 0;
-		if(!util::contains(waited_threads_, new_tid)) {
+		if(!util::contains(waitedThreads_, new_tid)) {
 			if(Posix::waitpid(new_tid, &thread_status, __WALL) > 0) {
-				waited_threads_.insert(new_tid);
+				waitedThreads_.insert(new_tid);
 			}
 		}
 
@@ -485,7 +485,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_thread_create_event(edb::tid_t
 std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int status) {
 
 	// note that we have waited on this thread
-	waited_threads_.insert(tid);
+	waitedThreads_.insert(tid);
 
 	// was it a thread exit event?
 	if(WIFEXITED(status)) {
@@ -520,7 +520,7 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 	}
 
 	// if necessary, just ignore this event
-	if(util::contains(ignored_exceptions_, e->code())) {
+	if(util::contains(ignoredExceptions_, e->code())) {
 		ptrace_continue(tid, resume_code(status));
 	}
 
@@ -536,8 +536,8 @@ std::shared_ptr<IDebugEvent> DebuggerCore::handle_event(edb::tid_t tid, int stat
 	 *
 	 * To do this, we simply only alter the active_thread_ variable if this
 	 * event was the first we saw after a resume/run (phew!).*/
-	if(waited_threads_.size() == 1) {
-		active_thread_ = tid;
+	if(waitedThreads_.size() == 1) {
+		activeThread_ = tid;
 	}
 
 	auto it = threads_.find(tid);
@@ -592,7 +592,7 @@ Status DebuggerCore::stop_threads() {
 		for(auto &thread: process_->threads()) {
 			const edb::tid_t tid = thread->tid();
 
-			if(!util::contains(waited_threads_, tid)) {
+			if(!util::contains(waitedThreads_, tid)) {
 
 				if(auto thread_ptr = std::static_pointer_cast<PlatformThread>(thread)) {
 
@@ -603,7 +603,7 @@ Status DebuggerCore::stop_threads() {
 
 					int thread_status;
 					if(Posix::waitpid(thread->tid(), &thread_status, __WALL/* | WNOHANG*/) > 0) {
-						waited_threads_.insert(tid);
+						waitedThreads_.insert(tid);
 						thread_ptr->status_ = thread_status;
 
 						// A thread could have exited between previous waitpid and the latest one...
@@ -666,7 +666,7 @@ int DebuggerCore::attach_thread(edb::tid_t tid) {
 			newThread->status_ = status;
 
 			threads_.insert(tid, newThread);
-			waited_threads_.insert(tid);
+			waitedThreads_.insert(tid);
 
             const long options = ptraceOptions();
 
@@ -694,7 +694,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 
 	endDebugSession();
 
-	lastMeansOfCapture = MeansOfCapture::Attach;
+	lastMeansOfCapture_ = MeansOfCapture::Attach;
 
 	// create this, so the threads created can refer to it
 	process_ = std::make_shared<PlatformProcess>(this, pid);
@@ -728,7 +728,7 @@ Status DebuggerCore::attach(edb::pid_t pid) {
 
 
 	if(!threads_.empty()) {
-		active_thread_  = pid;
+		activeThread_  = pid;
 		detectCPUMode();
 		return Status::Ok;
 	}
@@ -793,24 +793,24 @@ void DebuggerCore::detectCPUMode() {
 	                          offsetof(UserRegsStructX86_64, cs) :
 	                          offsetof(UserRegsStructX86, xcs);
 	errno = 0;
-	const edb::seg_reg_t cs = ptrace(PTRACE_PEEKUSER, active_thread_, offset, 0);
+	const edb::seg_reg_t cs = ptrace(PTRACE_PEEKUSER, activeThread_, offset, 0);
 
 	if (!errno) {
-		if (cs == USER_CS_32) {
-			if (pointer_size_ == sizeof(quint64)) {
+		if (cs == userCodeSegment32_) {
+			if (pointerSize_ == sizeof(quint64)) {
 				qDebug() << "Debuggee is now 32 bit";
-				cpu_mode_ = CPUMode::x86_32;
+				cpuMode_ = CPUMode::x86_32;
 				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_X86);
 			}
-			pointer_size_ = sizeof(quint32);
+			pointerSize_ = sizeof(quint32);
 			return;
-		} else if (cs == USER_CS_64) {
-			if (pointer_size_ == sizeof(quint32)) {
+		} else if (cs == userCodeSegment64_) {
+			if (pointerSize_ == sizeof(quint32)) {
 				qDebug() << "Debuggee is now 64 bit";
-				cpu_mode_ = CPUMode::x86_64;
+				cpuMode_ = CPUMode::x86_64;
 				CapstoneEDB::init(CapstoneEDB::Architecture::ARCH_AMD64);
 			}
-			pointer_size_ = sizeof(quint64);
+			pointerSize_ = sizeof(quint64);
 			return;
 		}
 	}
@@ -845,7 +845,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 	endDebugSession();
 
-    lastMeansOfCapture = MeansOfCapture::Launch;
+	lastMeansOfCapture_ = MeansOfCapture::Launch;
 
 	static constexpr std::size_t sharedMemSize = 4096;
 
@@ -931,7 +931,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 											.arg(status,0,16)+(childError.isEmpty() ? "" : tr(".\nError returned by child:\n%1.").arg(childError)));
 			}
 
-            waited_threads_.insert(pid);
+			waitedThreads_.insert(pid);
 
             const long options = ptraceOptions();
 
@@ -951,7 +951,7 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 			threads_.insert(pid, newThread);
 
-            active_thread_  = pid;
+			activeThread_  = pid;
 			detectCPUMode();
 
 			return Status::Ok;
@@ -962,11 +962,11 @@ Status DebuggerCore::open(const QString &path, const QString &cwd, const QList<Q
 
 
 //------------------------------------------------------------------------------
-// Name: last_means_of_capture
+// Name: lastMeansOfCapture
 // Desc: Returns how the last process was captured to debug
 //------------------------------------------------------------------------------
-DebuggerCore::MeansOfCapture DebuggerCore::last_means_of_capture() const {
-	return lastMeansOfCapture;
+DebuggerCore::MeansOfCapture DebuggerCore::lastMeansOfCapture() const {
+	return lastMeansOfCapture_;
 }
 
 //------------------------------------------------------------------------------
@@ -975,8 +975,8 @@ DebuggerCore::MeansOfCapture DebuggerCore::last_means_of_capture() const {
 //------------------------------------------------------------------------------
 void DebuggerCore::reset() {
 	threads_.clear();
-	waited_threads_.clear();
-	active_thread_ = 0;
+	waitedThreads_.clear();
+	activeThread_ = 0;
 }
 
 //------------------------------------------------------------------------------
@@ -1134,7 +1134,7 @@ IProcess *DebuggerCore::process() const {
 // Desc:
 //------------------------------------------------------------------------------
 void DebuggerCore::setIgnoredExceptions(const QList<qlonglong> &exceptions) {
-	ignored_exceptions_ = exceptions;
+	ignoredExceptions_ = exceptions;
 }
 
 /**

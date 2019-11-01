@@ -44,7 +44,7 @@ private:
 private:
 	 Ui::DialogStrings ui;
 	 QSortFilterProxyModel *filterModel_;
-	 QPushButton *btnFind_;
+	 QPushButton *buttonFind_;
 };
 
 }

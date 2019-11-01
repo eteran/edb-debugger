@@ -44,44 +44,45 @@ public:
 
 		TYPE_COUNT
 	};
+	
 	using Type = util::AbstractEnumData<IBreakpoint::TypeId, TypeId>;
-public:
-    explicit Breakpoint(edb::address_t address);
-    ~Breakpoint() override;
 
 public:
-	edb::address_t address() const override { return address_; }
-	quint64 hitCount() const      override { return hit_count_; }
-	bool enabled() const           override { return enabled_; }
-	bool oneTime() const          override { return one_time_; }
-	bool internal() const          override { return internal_; }
-	size_t size() const            override { return original_bytes_.size(); }
-	const quint8* originalBytes() const override { return &original_bytes_[0]; }
+	explicit Breakpoint(edb::address_t address);
+	~Breakpoint() override;
+
+public:
+	edb::address_t      address() const override { return address_; }
+	quint64             hitCount() const override { return hitCount_; }
+	bool                enabled() const override { return enabled_; }
+	bool                oneTime() const override { return oneTime_; }
+	bool                internal() const override { return internal_; }
+	size_t              size() const override { return originalBytes_.size(); }
+	const quint8 *      originalBytes() const override { return &originalBytes_[0]; }
 	IBreakpoint::TypeId type() const override { return type_; }
 
-	static std::vector<BreakpointType> supported_types();
-	static std::vector<size_t> possible_rewind_sizes();
+	static std::vector<BreakpointType> supportedTypes();
+	static std::vector<size_t>         possibleRewindSizes();
 
 public:
-    bool enable() override;
-    bool disable() override;
-    void hit() override;
-    void setOneTime(bool value) override;
-    void setInternal(bool value) override;
-    void setType(IBreakpoint::TypeId type) override;
+	bool enable() override;
+	bool disable() override;
+	void hit() override;
+	void setOneTime(bool value) override;
+	void setInternal(bool value) override;
+	void setType(IBreakpoint::TypeId type) override;
 	void setType(TypeId type);
 
 private:
-	std::vector<quint8>   original_bytes_;
-	edb::address_t        address_;
-	quint64               hit_count_ = 0;
-	bool                  enabled_   = false;
-	bool                  one_time_  = false;
-	bool                  internal_  = false;
-	Type                  type_;
+	std::vector<quint8> originalBytes_;
+	edb::address_t      address_;
+	quint64             hitCount_ = 0;
+	bool                enabled_  = false;
+	bool                oneTime_  = false;
+	bool                internal_ = false;
+	Type                type_;
 };
 
 }
 
 #endif
-
