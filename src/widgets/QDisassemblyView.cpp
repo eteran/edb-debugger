@@ -1724,8 +1724,8 @@ int QDisassemblyView::line1() const {
 	if(!edb::v1::config().show_jump_arrow) {
 
 		// allocate space for register badge
-		// 5 (maximum register name length i can find off) + overhead
-		return (edb::v1::config().show_register_badges) ? (6 * font_width_ + font_width_/2) : 0;
+		// 4 (maximum register name for GPR) + overhead
+		return (edb::v1::config().show_register_badges) ? (5 * font_width_ + font_width_/2) : 0;
 
 	} else if(line1_ == 0) {
 		return 15 * font_width_;
