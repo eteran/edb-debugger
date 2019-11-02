@@ -1283,12 +1283,35 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		return a.distance < b.distance;
 	});
 
+	auto isLineOverlap = [&](int line1_head, int line1_tail, int line2_head, int line2_tail, bool edge_overlap = true) -> bool {
+
+		int jump1_arrow_min = std::min(line1_head, line1_tail);
+		int jump1_arrow_max = std::max(line1_head, line1_tail);
+		int jump2_arrow_min = std::min(line2_head, line2_tail);
+		int jump2_arrow_max = std::max(line2_head, line2_tail);
+
+		bool prevArrowAboveCurrArrow;
+		bool prevArrowBelowCurrArrow;
+
+		if (edge_overlap) {
+			prevArrowAboveCurrArrow = jump2_arrow_max > jump1_arrow_max && jump2_arrow_min >= jump1_arrow_max;
+			prevArrowBelowCurrArrow = jump2_arrow_min < jump1_arrow_min && jump2_arrow_max <= jump1_arrow_min;
+		} else {
+			prevArrowAboveCurrArrow = jump2_arrow_max > jump1_arrow_max && jump2_arrow_min > jump1_arrow_max;
+			prevArrowBelowCurrArrow = jump2_arrow_min < jump1_arrow_min && jump2_arrow_max < jump1_arrow_min;
+		}
+
+		// are both conditions false? (which means these two jump arrows overlap)
+		return !(prevArrowAboveCurrArrow || prevArrowBelowCurrArrow);
+	};
+
 	
 	// find suitable arrow horizontal length
 	for (size_t jump_arrow_idx = 0; jump_arrow_idx < jump_arrow_vec.size(); jump_arrow_idx++) {
 
 		JumpArrow& jump_arrow = jump_arrow_vec[jump_arrow_idx];
 		bool is_dst_upward = jump_arrow.target < instructions_[jump_arrow.src_line].rva();
+		int jump_arrow_dst = jump_arrow.dst_in_viewport ? jump_arrow.dst_line * ctx->line_height : (is_dst_upward ? 0 : viewport()->height());
 
 		int size_block = font_width_ * 2;
 		int start_at_block = size_block;
@@ -1300,39 +1323,51 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 			badge_line = jump_arrow.dst_line;
 		}
 
+		// check if current arrow overlaps with register badge
+		for (const auto& each_badge: ctx->line_badge_width) {
+
+			bool is_overlap_with_badge = isLineOverlap(
+				jump_arrow.src_line * ctx->line_height + 1, 
+				jump_arrow_dst - 1, 
+				each_badge.first * ctx->line_height, 
+				(each_badge.first+1) * ctx->line_height,
+				true
+			);
+
+			if (is_overlap_with_badge) {
+				badge_line = each_badge.first;
+				break;
+			};
+		}
+
 		if (badge_line != -1) {
 			start_at_block = size_block + size_block * (ctx->line_badge_width.at(badge_line) / size_block);
 		}
 
 		// first-fit search for horizontal length position to place new arrow
-		for (int current_selected_len = start_at_block; ; current_selected_len += size_block) {
+		for (int current_selected_len = start_at_block; current_selected_len < line1(); current_selected_len += size_block) {
 
 			bool is_length_good = true;
-
-			int jump_arrow_dst = jump_arrow.dst_in_viewport ? jump_arrow.dst_line : (is_dst_upward ? 0 : viewport()->height());
-			int jump_arrow_min = std::min(jump_arrow.src_line, jump_arrow_dst);
-			int jump_arrow_max = std::max(jump_arrow.src_line, jump_arrow_dst);
-
-			// check if current arrow clashes with previous arrow
-			for (size_t jump_arrow_prev_idx = 0; jump_arrow_prev_idx < jump_arrow_idx; jump_arrow_prev_idx++) {
+			
+			// check if current arrow overlaps with previous arrow
+			for (size_t jump_arrow_prev_idx = 0; jump_arrow_prev_idx < jump_arrow_idx && is_length_good; jump_arrow_prev_idx++) {
 
 				const JumpArrow& jump_arrow_prev = jump_arrow_vec[jump_arrow_prev_idx];
+				
 				bool is_dst_upward_prev = jump_arrow_prev.target < instructions_[jump_arrow_prev.src_line].rva();
+				int jump_arrow_prev_dst = jump_arrow_prev.dst_in_viewport ? jump_arrow_prev.dst_line * ctx->line_height : (is_dst_upward_prev ? 0 : viewport()->height());
 
-				int jump_arrow_prev_dst = jump_arrow_prev.dst_in_viewport ? jump_arrow_prev.dst_line : (is_dst_upward_prev ? 0 : viewport()->height());
-				int jump_arrow_prev_min = std::min(jump_arrow_prev.src_line, jump_arrow_prev_dst);
-				int jump_arrow_prev_max = std::max(jump_arrow_prev.src_line, jump_arrow_prev_dst);
-
-				bool prevArrowAboveCurrArrow = jump_arrow_prev_max > jump_arrow_max && jump_arrow_prev_min > jump_arrow_max;
-				bool prevArrowBelowCurrArrow = jump_arrow_prev_min < jump_arrow_min && jump_arrow_prev_max < jump_arrow_min;
-
-				// is both conditions false? (which means these two jump arrows overlap)
-				bool jumps_overlap = !(prevArrowAboveCurrArrow || prevArrowBelowCurrArrow);	
+				bool jumps_overlap = isLineOverlap(
+					jump_arrow.src_line * ctx->line_height, 
+					jump_arrow_dst, 
+					jump_arrow_prev.src_line * ctx->line_height, 
+					jump_arrow_prev_dst,
+					false
+				);
 
 				// if jump blocks overlap and this horizontal length has been taken before
 				if (jumps_overlap && current_selected_len == jump_arrow_prev.horizontal_length) {
 					is_length_good = false;
-					break;
 				}
 			}
 
