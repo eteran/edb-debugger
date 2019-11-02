@@ -1345,7 +1345,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		}
 
 		// first-fit search for horizontal length position to place new arrow
-		for (int current_selected_len = start_at_block; current_selected_len < line1(); current_selected_len += size_block) {
+		for (int current_selected_len = start_at_block; ; current_selected_len += size_block) {
 
 			bool is_length_good = true;
 			
