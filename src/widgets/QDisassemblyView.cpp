@@ -1283,7 +1283,7 @@ void QDisassemblyView::drawJumpArrows(QPainter &painter, const DrawingContext *c
 		return a.distance < b.distance;
 	});
 
-	auto isLineOverlap = [&](int line1_head, int line1_tail, int line2_head, int line2_tail, bool edge_overlap = true) -> bool {
+	auto isLineOverlap = [&](int line1_head, int line1_tail, int line2_head, int line2_tail, bool edge_overlap) -> bool {
 
 		int jump1_arrow_min = std::min(line1_head, line1_tail);
 		int jump1_arrow_max = std::max(line1_head, line1_tail);
@@ -1725,7 +1725,7 @@ int QDisassemblyView::line1() const {
 
 		// allocate space for register badge
 		// 4 (maximum register name for GPR) + overhead
-		return (edb::v1::config().show_register_badges) ? (5 * font_width_ + font_width_/2) : 0;
+		return edb::v1::config().show_register_badges ? (5 * font_width_ + font_width_/2) : 0;
 
 	} else if(line1_ == 0) {
 		return 15 * font_width_;
